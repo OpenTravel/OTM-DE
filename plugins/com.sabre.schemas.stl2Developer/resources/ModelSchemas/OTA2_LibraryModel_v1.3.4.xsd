@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xsd:schema 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_03" 
+	targetNamespace="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_03"
+	attributeFormDefault="unqualified" elementFormDefault="qualified">
+	
+	<!-- 
+	 - 12/15/2001 - removed shared facets from cores and business objects
+	 -
+	 - 12/5/2001 - change query facet have maxOccur and added a context attribute
+	 -
+	 - Dave Hollander, August 22, 2011
+	 - Removed unused types and structures
+	 - Added support for multiple documentation elements on all types.
+	 -
+	 - Simple and others where documentation was the extension root, changed to
+	 - complexContent and used new Documentation type.
+	 - Others, change to Documentation type and cardinality of 0..1
+	 -->	
+
+	<xsd:element name="Library" type="Library"/>
+	<xsd:complexType name="Library">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" name="VersionScheme" type="Name_Version" maxOccurs="1"/>
+			<xsd:element minOccurs="0" name="PatchLevel" type="Name_XML" maxOccurs="1"/>
+			<xsd:element minOccurs="1" name="Namespace" type="xsd:anyURI" maxOccurs="1"/>
+			<xsd:element minOccurs="0" name="Prefix" 	type="xsd:string" maxOccurs="1"/>
+			<xsd:element minOccurs="1" name="Name" 		type="Name_File" maxOccurs="1"/>
+			<xsd:element minOccurs="0" name="Includes" 	type="xsd:string" maxOccurs="100"/>
+			<xsd:element minOccurs="0" name="Import" 	type="NamespaceImport" maxOccurs="100"/>
+			<xsd:element minOccurs="0" name="LibraryID" type="xsd:string" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>A string used by complier to assign a unique identifier to each global type created.
+						Can be over ridden by complier command line parameter.
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="Comments" type="xsd:string" minOccurs="0"/>
+			
+			<xsd:group ref="terms" maxOccurs="unbounded"/>
+			<xsd:element ref="Service" minOccurs="0" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:group name="terms">
+		<xsd:choice>
+			<xsd:element maxOccurs="unbounded" ref="Simple" minOccurs="0"/>
+			<xsd:element maxOccurs="unbounded" ref="Enumeration_Closed" minOccurs="0"/>
+			<xsd:element maxOccurs="unbounded" ref="Enumeration_Open" minOccurs="0"/>
+			<xsd:element maxOccurs="unbounded" ref="ValueWithAttrs" minOccurs="0"/>
+			<xsd:element maxOccurs="unbounded" ref="CoreObject" minOccurs="0"/>
+			<xsd:element maxOccurs="unbounded" ref="BusinessObject" minOccurs="0"/>
+		</xsd:choice>
+	</xsd:group>
+
+<!-- Includes and Imports -->
+	<xsd:complexType name="NamespaceImport">
+		<xsd:annotation>
+			<xsd:documentation>
+				The files_Hint is a suggestion to the processor of where the files that
+				define the namespace may be located. It is a white space delimited
+				list
+				of files. Note, processors may resolve namespaces using an entity
+				resolution
+				technique that overrides or ignores the hint.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element ref="Documentation" minOccurs="0" />
+		</xsd:sequence>
+		<xsd:attribute name="prefix" type="xsd:string" />
+		<xsd:attribute name="namespace" type="xsd:anyURI" />
+		<xsd:attribute name="fileHints" type="xsd:string" />
+	</xsd:complexType>
+
+	<xsd:element name="Simple" type="Simple" />
+	<xsd:complexType name="Simple">
+		<xsd:sequence>
+			<xsd:element ref="Documentation" minOccurs="0" />
+			<xsd:element name="Equivalent" type="Equivalent" minOccurs="0" maxOccurs="100" />
+		</xsd:sequence>
+		<xsd:attribute name="name" type="Name_XML" />
+		<xsd:attribute name="ex" type="xsd:string" />
+		<xsd:attribute name="type" type="Name_Type" use="required" />
+		<xsd:attribute name="pattern" type="xsd:string" />
+		<xsd:attribute name="maxLength" type="xsd:nonNegativeInteger" />
+		<xsd:attribute name="minLength" type="xsd:nonNegativeInteger" />
+	</xsd:complexType>
+	
+	<xsd:element name="ValueWithAttrs" type="ValueWithAttributes"/>
+	<xsd:complexType name="ValueWithAttributes">
+			<xsd:annotation>
+				<xsd:documentation>With no type, the simple type just has attributes.</xsd:documentation>
+			</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element ref="Documentation" minOccurs="0"/>
+			<xsd:element name="Equivalent" type="Equivalent" minOccurs="0" maxOccurs="100" />
+			<xsd:element name="Attribute" type="Attribute" minOccurs="0" maxOccurs="100" />
+			<xsd:element name="Indicator" type="Indicator" minOccurs="0" maxOccurs="100" />
+		</xsd:sequence>
+		<xsd:attribute name="name" 		type="Name_XML"/>
+		<xsd:attribute name="type" 		type="Name_Type"/>
+		<xsd:attribute name="ex" type="xsd:string"/>
+	</xsd:complexType>
+	
+	<xsd:element name="Enumeration_Closed" type="Enumeration_Closed"/>
+	<xsd:complexType name="Enumeration_Closed">
+		<xsd:annotation>
+			<xsd:documentation>All enumerations will have short string type.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element ref="Documentation"  minOccurs="0"/>
+			<xsd:element name="Value" type="Enum_Value" maxOccurs="256" />
+		</xsd:sequence>
+		<xsd:attribute name="name" type="Name_XML" use="required" />
+	</xsd:complexType>
+	
+	<xsd:element name="Enumeration_Open" type="Enumeration_Open" />
+	<xsd:annotation>
+		<xsd:documentation>The same content model as closed enumeration. 
+			The element/type name is different to indicate different meaning and intent. Note, OTA2.0
+			compatible compilers will turn open enumeration into a complex type while 
+			closed enumeration is a simple type.
+		</xsd:documentation>
+	</xsd:annotation>
+	<xsd:complexType name="Enumeration_Open">
+		<xsd:complexContent>
+			<xsd:extension base="Enumeration_Closed" />
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:group name="Simples">
+		<xsd:choice>
+		<xsd:element name="Simple" type="Simple" minOccurs="0"/>
+		<xsd:element name="Enumeration" type="Enumeration_Closed" minOccurs="0"/>
+		</xsd:choice>
+	</xsd:group>	
+	
+	<!--Complex Types-->
+	<xsd:element name="Service" type="Service"/>
+	<xsd:complexType name="Service">
+		<xsd:sequence>
+			<xsd:element ref="Documentation" minOccurs="0"/>
+			<xsd:element name="Equivalent" type="Equivalent" minOccurs="0" maxOccurs="100" />
+			<xsd:element name="Operation" type="Operation" maxOccurs="1000"/>
+		</xsd:sequence>
+		<xsd:attribute name="name" 		type="Name_XML" use="required"/>
+	</xsd:complexType>
+		
+	<xsd:element name="Operation" type="Operation"/>
+	<xsd:complexType name="Operation">
+		<xsd:sequence>
+			<xsd:annotation>
+				<xsd:documentation>Message facets will typically only use the type 
+					attribute for types defined in the library namespace (element ref).
+					</xsd:documentation>
+			</xsd:annotation>
+			<xsd:element ref="Documentation" minOccurs="0"/>
+			<xsd:element name="Equivalent" type="Equivalent" minOccurs="0" maxOccurs="100" />			
+			<xsd:element name="Request" 	type="Facet" minOccurs="0"/>
+			<xsd:element name="Response"	type="Facet" minOccurs="0"/>
+			<xsd:element name="Notification" type="Facet" minOccurs="0"/>
+		</xsd:sequence>
+		<xsd:attribute name="Name" 		type="Name_XML" use="required"/>
+		<xsd:attribute name="extendable" type="Empty"/>
+		<xsd:attribute name="extends" type="Name_Type" />
+	</xsd:complexType>
+	
+	
+	<xsd:element name="BusinessObject" type="BusinessObject"/>
+	<xsd:complexType name="BusinessObject">
+		<xsd:sequence>
+			<xsd:element ref="Documentation" minOccurs="0"/>
+			<xsd:element name="Equivalent" type="Equivalent" minOccurs="0" maxOccurs="100" />
+			<xsd:element name="Aliases" type="Name_XML_List" minOccurs="0"/>
+			<xsd:element name="ID" type="Facet" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Summary" type="Facet" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Detail" type="Facet" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Query" type="Facet_Contextual" minOccurs="0" maxOccurs="100">
+				<xsd:annotation>
+					<xsd:documentation>Members are part of a choice group.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="Custom" type="Facet_Contextual" minOccurs="0" maxOccurs="100"/>
+		</xsd:sequence>
+		<xsd:attribute name="name" type="Name_XML" use="required"/>
+		<xsd:attribute name="extendable" type="Empty"/>
+		<xsd:attribute name="extends" type="Name_Type" />
+	</xsd:complexType>
+
+	<xsd:element name="CoreObject" type="CoreObject"/>
+	<xsd:complexType name="CoreObject">
+		<xsd:sequence>
+			<xsd:element ref="Documentation" minOccurs="0"/>
+			<xsd:element name="Equivalent" type="Equivalent" minOccurs="0" maxOccurs="100" />
+			<xsd:element name="Simple" type="SimpleFacet" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation>
+						Indicates the name of the simple type or closed enumeration that may be
+						used to represent the simple form of the core object.
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="Summary" type="Facet" minOccurs="0" />
+			<xsd:element name="Info" type="Facet" />
+			<xsd:element name="Roles" type="EnumList" minOccurs="0" />
+		</xsd:sequence>
+		<xsd:attribute name="name" 	type="Name_XML" use="required" />
+		<xsd:attribute name="extendable" type="Empty"/>
+		<xsd:attribute name="extends" type="Name_Type" />
+	</xsd:complexType>
+
+	<xsd:complexType name="Facet">
+		<xsd:sequence>
+			<xsd:element ref="Documentation" minOccurs="0"/>
+			<xsd:element name="Aliases" 	type="Name_XML_List" minOccurs="0"/>
+			<xsd:element name="Attribute" 	type="Attribute" 	minOccurs="0" maxOccurs="100"/>
+			<xsd:element name="Element" 	type="Property" 	minOccurs="0" maxOccurs="100" />
+			<xsd:element name="Indicator" 	type="Indicator" 	minOccurs="0" maxOccurs="100"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType name="Facet_Contextual">
+		<xsd:annotation>
+			<xsd:documentation>contextual facets describe an object facet whose context are specific to a context or
+				usage of the data, a company, application or process for example.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="Facet">
+				<xsd:attribute name="context" type="Name_XML" use="required"/>
+				<xsd:attribute name="extendable" type="Empty"/>
+				<xsd:attribute name="extends" type="Name_Type" />
+			</xsd:extension>			
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:complexType name="Property">
+		<xsd:annotation>
+			<xsd:documentation>repeat factor = maximum occurrence
+			</xsd:documentation>
+			<xsd:documentation>required-optional = minimum occurrence
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element ref="Documentation" minOccurs="0"/>
+			<xsd:element name="Equivalent" type="Equivalent" minOccurs="0" maxOccurs="100" />
+		</xsd:sequence>
+		<xsd:attribute name="name" type="Name_XML" />
+		<xsd:attribute name="type" type="Name_Type" />
+		<xsd:attribute name="mandatory" type="xsd:boolean" />
+		<xsd:attribute name="repeat" type="xsd:string" />
+		<xsd:attribute name="ex" type="xsd:string" />
+	</xsd:complexType>
+
+	<xsd:complexType name="Attribute">
+		<xsd:annotation>
+			<xsd:documentation>required-optional = minimum occurrence
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element ref="Documentation" minOccurs="0"/>
+			<xsd:element name="Equivalent" type="Equivalent" minOccurs="0" maxOccurs="100" />
+		</xsd:sequence>
+		<xsd:attribute name="name" type="Name_XML" />
+		<xsd:attribute name="type" type="Name_Type" />
+		<xsd:attribute name="mandatory" type="xsd:boolean" />
+		<xsd:attribute name="ex" type="xsd:string" />
+	</xsd:complexType>
+
+	<!-- Utility types - used in the construction of the model schema -->
+	<xsd:element name="Documentation" type="Documentation"/>
+	<xsd:complexType name="Documentation">
+		<xsd:sequence>
+			<xsd:element name="Description" type="Description" minOccurs="0" maxOccurs="10"/>
+			<xsd:element name="Developer"	type="Description" minOccurs="0" maxOccurs="10"/>
+			<xsd:element name="Deprecated"  type="Description" minOccurs="0" maxOccurs="10"/>
+			<xsd:element name="Reference" 	type="xsd:anyURI"  minOccurs="0"  maxOccurs="10"/>
+			<xsd:element name="MoreInfo" 	type="xsd:anyURI"  minOccurs="0"  maxOccurs="10"/>
+			<xsd:element name="OtherDoc"	type="AdditionalDoc" minOccurs="0" maxOccurs="10"/>
+		</xsd:sequence>
+	</xsd:complexType>
+
+
+	<xsd:complexType name="Description">
+		<xsd:simpleContent>
+			<xsd:extension base="String_Documentation">
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	
+	<xsd:complexType name="AdditionalDoc">
+		<xsd:simpleContent>
+			<xsd:extension base="Description">
+				<xsd:attribute name="use" type="xsd:string" use="required" />
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	
+	<xsd:simpleType name="String_Documentation">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="2048"></xsd:maxLength>
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+
+	<xsd:complexType name="Enum_Value">
+		<xsd:sequence>
+			<xsd:element ref="Documentation" minOccurs="0" />
+			<xsd:element name="Equivalent" type="Equivalent" minOccurs="0" maxOccurs="100"></xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="literal" type="String_Short" use="required" />
+	</xsd:complexType>
+
+	<xsd:complexType name="Equivalent">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="context" type="xsd:string" />
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	
+	
+	<xsd:simpleType name="Enum_xsdSimpleType">
+		<xsd:annotation>
+			<xsd:documentation>term: Facet</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:NMTOKEN">
+			<xsd:enumeration value="anyURI"/>
+			<xsd:enumeration value="boolean" />
+			<xsd:enumeration value="date" />
+			<xsd:enumeration value="dateTime" />
+			<xsd:enumeration value="decimal" />
+			<xsd:enumeration value="double"></xsd:enumeration>
+			<xsd:enumeration value="float"></xsd:enumeration>
+			<xsd:enumeration value="duration"></xsd:enumeration>
+			<xsd:enumeration value="ID"></xsd:enumeration>
+			<xsd:enumeration value="IDREF"></xsd:enumeration>
+			<xsd:enumeration value="IDREFS"></xsd:enumeration>
+			<xsd:enumeration value="long"></xsd:enumeration>
+			<xsd:enumeration value="int" />
+			<xsd:enumeration value="integer" />
+			<xsd:enumeration value="positiveInteger" />
+			<xsd:enumeration value="QName" />
+			<xsd:enumeration value="string" />
+			<xsd:enumeration value="time" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="Name_File">
+		<xsd:annotation>
+			<xsd:documentation>term: xmlName ( Name )</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="[A-Za-z][A-Za-z0-9/\.\-\|:_]*" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Name_Version">
+		<xsd:annotation>
+			<xsd:documentation>term: Name_Version ( Version )</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:NMTOKEN" />
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="Name_Type">
+		<xsd:annotation>
+			<xsd:documentation>term: xmlName used in a type attribute, inlcudes namespace prefix
+			and facet postfix  ( Name Constraint Aliases )
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="[A-Za-z0-9\.\-_:#]*" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="Name_XML">
+		<xsd:annotation>
+			<xsd:documentation>term: xmlName ( Name Constraint Aliases )
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="[A-Za-z0-9\.\-_]*" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="Name_XML_List">
+		<xsd:list itemType="Name_XML"/>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="EnumList">
+		<xsd:list itemType="xsd:string"/>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="Empty">
+		<xsd:annotation>
+			<xsd:documentation>To be used on indicator attributes whose presense is the True signal.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="0"></xsd:maxLength>
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="String_Short">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="40"></xsd:maxLength>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:complexType name="Indicator">
+		<xsd:annotation>
+			<xsd:documentation>An indicator is a boolean whose value is assumed
+				false UNLESS the attribute is present and set to true.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element ref="Documentation" minOccurs="0" />
+			<xsd:element name="Equivalent" type="Equivalent" minOccurs="0" maxOccurs="100" />
+		</xsd:sequence>
+		<xsd:attribute name="name" type="Name_XML" />
+	</xsd:complexType>
+
+	<xsd:complexType name="SimpleFacet">
+		<xsd:annotation>
+			<xsd:documentation>A simple facet describes a object facet that can
+				be used as an element or attribute. The name assigned to the
+				type
+				attribute must be the name of a simple type.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element ref="Documentation" minOccurs="0" />
+			<xsd:element name="Equivalent" type="Equivalent" minOccurs="0" maxOccurs="100" />
+		</xsd:sequence>
+		<xsd:attribute name="type" type="Name_Type" />
+		<xsd:attribute name="ex" type="xsd:string" />
+	</xsd:complexType>
+
+    <xsd:complexType name="Term">
+    	<xsd:simpleContent>
+    			<xsd:extension base="Name_XML">
+				</xsd:extension>
+    	</xsd:simpleContent>
+    </xsd:complexType>
+    
+	<xsd:complexType name="ServiceTerms">
+		<xsd:sequence>
+			<xsd:element name="Message" type="Term" minOccurs="1" maxOccurs="6"/>
+		</xsd:sequence>
+		<xsd:attribute name="namespace" type="xsd:anyURI"/>
+	</xsd:complexType>
+
+</xsd:schema>

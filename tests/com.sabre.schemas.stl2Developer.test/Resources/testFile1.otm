@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Library xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04 OTA2_LibraryModel_v1.4.6.xsd">
+    
+    <VersionScheme>OTA2</VersionScheme>
+    <Status>Draft</Status>
+    <Namespace>http://www.sabre.com/ns/OTA2/Demo/Profile/v01</Namespace>
+    <Prefix>t1</Prefix>
+    <Name>Test1</Name>
+    <Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
+    <Import namespace="http://opentravel.org/common/v02" prefix="ota2"/>
+    <Import fileHints="testFile5.otm"
+        namespace="http://www.sabre.com/ns/OTA2/Demo/Profile5/v1_0" prefix="t5"/>
+    <Context
+        applicationContext="http://www.sabre.com/ns/OTA2/Demo/Profile/v01" context="Profile"/>
+    <Context
+        applicationContext="http://www.sabre.com/ns/OTA2/Demo/Profile/Legacy" context="Legacy"/>
+    <Context applicationContext="TODO" context="TODO"/>
+    <Context applicationContext="http://services.sabre.com/STL/v02" context="http://services.sabre.com/STL/v02"/>
+    <Context applicationContext="http://services.sabre.com/STL/v01" context="http://services.sabre.com/STL/v01"/>
+    
+    <Simple name="String_PersonName" type="t5:String_Short">
+        <Example context="Profile">Sally Smythe</Example>
+    </Simple>
+    
+    <Simple name="Date_MMYY" pattern="(0[1-9]|1[0-2])[0-9][0-9]" type="xsd:string">
+        <Documentation>
+            <Description>Formatted date with 2 digit month and 2 digit year (MMYY).</Description>
+        </Documentation>
+        <Equivalent context="Profile">TEST</Equivalent>
+        <Example context="Profile">0711</Example>
+    </Simple>
+    
+    <ValueWithAttrs name="Amount" type="xsd:integer">
+        <Example context="Profile">2345.56</Example>
+        <Attribute name="currencyCode" type="ota2:Code_ISO_Currency">
+            <Documentation>
+                <Description>soo</Description>
+            </Documentation>
+            <Example context="Profile">USD</Example>
+        </Attribute>
+        <Attribute name="decimalPlaces" type="xsd:decimal">
+            <Example context="Profile">2</Example>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <Simple maxLength="128" name="String_Short" type="xsd:string"/>
+    
+    <Simple maxLength="512" name="String_Medium" type="xsd:string">
+        <Equivalent context="Profile"/>
+    </Simple>
+    
+    <Simple maxLength="4096" name="String_Long" type="xsd:string"/>
+    
+    <Simple name="PositiveValueUnder1M" type="xsd:positiveInteger"/>
+    
+    <Simple name="PaymentCard_Issuer" type="t5:String_Short">
+        <Example context="Profile">First Bank of Travel</Example>
+    </Simple>
+    
+    <Simple name="PaymentCard_MagneticStrip" pattern="[0-9\-]{1,65}" type="t5:String_Short">
+        <Documentation>
+            <Description>Payment card stripe.</Description>
+            <Implementer>MICR characters are printed in the form of either an E-13B or CMC-7 Font.</Implementer>
+            <MoreInfo>http://www4.infoprintsolutionscompany.com/help/index.jsp?topic=%2Fcom.ibm.printers.plngcfgguide%2Fav1i0mst105.htm</MoreInfo>
+        </Documentation>
+        <Example context="Profile">111-111-111-111</Example>
+    </Simple>
+    
+    <Simple name="Check_MICR" pattern="[0-9,: = ?]{1,38}" type="t5:String_Short">
+        <Documentation>
+            <Description>Check MICR magnetic stripe.</Description>
+            <Implementer>MICR characters are printed in the form of either an E-13B or CMC-7 Font.</Implementer>
+            <MoreInfo>http://www4.infoprintsolutionscompany.com/help/index.jsp?topic=%2Fcom.ibm.printers.plngcfgguide%2Fav1i0mst105.htm</MoreInfo>
+        </Documentation>
+        <Example context="Profile">00=344:333443445</Example>
+    </Simple>
+    
+    <Simple name="PaymentCard_Type" type="t5:String_Short">
+        <Example context="Profile">VVV</Example>
+    </Simple>
+    
+    <Simple name="Usage" type="t5:String_Short">
+        <Documentation>
+            <Description>How the data is used</Description>
+        </Documentation>
+        <Example context="Profile">usage</Example>
+    </Simple>
+    
+    <Simple name="warning" type="t5:String_Short">
+        <Example context="Profile">warning</Example>
+    </Simple>
+    
+    <ValueWithAttrs name="Tax" type="xsd:positiveInteger">
+        <Attribute name="amount" type="t5:PositiveValueUnder1M"/>
+        <Attribute name="taxCode" type="xsd:string"/>
+        <Attribute name="taxName" type="xsd:string"/>
+        <Attribute mandatory="true" name="ticketingCode" type="xsd:string">
+            <Documentation>
+                <Description>Required tax code used by ticketing</Description>
+            </Documentation>
+            <Equivalent context="Profile">xxx33</Equivalent>
+            <Example context="Profile">R33</Example>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <ValueWithAttrs name="Location" type="t5:String_Short">
+        <Documentation>
+            <Description>On location VWA</Description>
+        </Documentation>
+        <Example context="Profile">DEN</Example>
+        <Attribute name="codeContext" type="xsd:string">
+            <Documentation>
+                <Description>Whose code type</Description>
+            </Documentation>
+            <Example context="Profile">IATA</Example>
+        </Attribute>
+        <Indicator name="multiAirport" publishAsElement="false">
+            <Documentation>
+                <Description>are there more than one airports served?</Description>
+            </Documentation>
+        </Indicator>
+        <Indicator name="alternateLocation" publishAsElement="false">
+            <Documentation>
+                <Description>are others OK?</Description>
+            </Documentation>
+        </Indicator>
+    </ValueWithAttrs>
+    
+    <CoreObject name="PaymentCard" notExtendable="false">
+        <Aliases>Card CreditCard</Aliases>
+        <Simple type="t5:PaymentCard_Number"/>
+        <Summary>
+            <Attribute name="expire" type="t5:Date_MMYY">
+                <Example context="Profile">0714</Example>
+            </Attribute>
+            <Attribute name="holder" type="t5:String_PersonName">
+                <Example context="Profile">Joe E Smith</Example>
+            </Attribute>
+            <Element name="Number" repeat="0" type="PaymentCard_Simple"/>
+        </Summary>
+        <Detail>
+            <Attribute name="type" type="t5:PaymentCard_Type">
+                <Example context="Profile">Visa</Example>
+            </Attribute>
+            <Attribute name="effective" type="t5:Date_MMYY"/>
+            <Element name="Issuer" repeat="0" type="t5:PaymentCard_Issuer">
+                <Example context="Profile">First Bank of Travel</Example>
+            </Element>
+            <Element name="MagneticStrip" repeat="0" type="t5:PaymentCard_MagneticStrip"/>
+            <Element name="Employment" repeat="0" type=""/>
+            <Element name="PresentEmployment" repeat="0" type="PresentEmployment"/>
+            <Indicator name="signatureOnFile" publishAsElement="false"/>
+            <Indicator name="isValid" publishAsElement="false"/>
+        </Detail>
+        <Roles>
+            <Role value="Primary"/>
+            <Role value="Alternate"/>
+            <Role value="Secondary"/>
+            <Role value="Business"/>
+            <Role value="Personal"/>
+        </Roles>
+    </CoreObject>
+    
+    <CoreObject name="EmploymentZZZ" notExtendable="false">
+        <Aliases>PresentEmployment</Aliases>
+        <Simple type="t5:String_Medium"/>
+        <Summary>
+            <Attribute name="number" type="t5:String_Short">
+                <Example context="Profile">332258</Example>
+            </Attribute>
+            <Attribute name="title" type="t5:String_Short">
+                <Example context="Profile">Geek-N-Nerd</Example>
+            </Attribute>
+            <Attribute name="level" type="t5:String_Short">
+                <Example context="Profile">Director</Example>
+            </Attribute>
+            <Attribute name="status" type="t5:Status_Employment">
+                <Example context="Profile">Active</Example>
+            </Attribute>
+            <Element name="Company" repeat="0" type="t5:String_Short">
+                <Example context="Profile">Sabre, Inc.</Example>
+            </Element>
+            <Element name="Employment" repeat="0" type=""/>
+            <Element name="PresentEmployment" repeat="0" type="PresentEmployment"/>
+            <Element name="Employer" repeat="0" type=""/>
+        </Summary>
+        <Detail>
+            <Element name="PaymentCard" repeat="0" type="t5:PaymentCard"/>
+        </Detail>
+        <Roles>
+            <Role value="Current"/>
+            <Role value="Previous"/>
+        </Roles>
+    </CoreObject>
+    
+    <Simple name="Status_Employment" type="t5:String_Long">
+        <Example context="Profile">World Wide Air</Example>
+    </Simple>
+    
+    <Simple name="PaymentCard_Number" pattern="[0-9]{1,19}" type="xsd:string">
+        <Documentation>
+            <Description/>
+            <Reference>http://en.wikipedia.org/wiki/Credit_card_number</Reference>
+        </Documentation>
+        <Example context="Profile">11111111111111</Example>
+    </Simple>
+    
+    <Enumeration_Open name="HotelTypes">
+        <Value literal="motel"/>
+        <Value literal="hotel"/>
+    </Enumeration_Open>
+    
+    <ValueWithAttrs name="Payment" type="t5:String_Long">
+        <Documentation>
+            <Description>Amount of the payment.</Description>
+        </Documentation>
+        <Example context="Profile">23.56</Example>
+        <Attribute name="tax" type="t5:String_Long">
+            <Documentation>
+                <Description>Tax portion of the payment amount.</Description>
+            </Documentation>
+            <Example context="Profile">0.67</Example>
+        </Attribute>
+        <Attribute name="card" type="PaymentCard_Simple">
+            <Documentation>
+                <Description>Payment card used to make payment.</Description>
+            </Documentation>
+            <Example context="Profile">11136982222</Example>
+        </Attribute>
+        <Indicator name="idChecked" publishAsElement="false">
+            <Documentation>
+                <Description>True if identification was checked prior to accepting payment.</Description>
+            </Documentation>
+        </Indicator>
+    </ValueWithAttrs>
+    
+    <CoreObject name="Phone" notExtendable="false">
+        <Aliases>WorkPhone HomePhone MobilePhone</Aliases>
+        <Simple type="ota2:String_Phone">
+            <Example context="Profile">5551212</Example>
+        </Simple>
+        <Summary>
+            <Attribute name="Country" type="t5:String_Short">
+                <Example context="Profile">011</Example>
+            </Attribute>
+            <Element mandatory="true" name="Area" repeat="0" type="t5:String_Short">
+                <Example context="Profile">909</Example>
+            </Element>
+            <Element mandatory="true" name="City" repeat="0" type="t5:String_Short">
+                <Example context="Profile">555</Example>
+            </Element>
+            <Element mandatory="true" name="Exchange" repeat="0" type="t5:String_Short">
+                <Example context="Profile">1212</Example>
+            </Element>
+        </Summary>
+        <Detail>
+            <Element name="Usage" repeat="0" type="t5:Usage"/>
+            <Element name="ServiceLoc" repeat="0" type="t5:Location"/>
+            <Element mandatory="true" name="Remarks" repeat="5" type="ota2:String_Medium">
+                <Example context="Profile">Do not call after 5pm Pacific</Example>
+            </Element>
+            <Element name="CreditCard" repeat="0" type=""/>
+        </Detail>
+        <Roles>
+            <Role value="Home"/>
+            <Role value="Work"/>
+            <Role value="Mobile"/>
+        </Roles>
+    </CoreObject>
+    
+    <BusinessObject name="Profile" notExtendable="false">
+        <Aliases>TravelerProfile</Aliases>
+        <ID>
+            <Attribute mandatory="true" name="Authority" type="xsd:string">
+                <Equivalent context="Legacy"/>
+                <Example context="Profile">Auth1</Example>
+            </Attribute>
+            <Element mandatory="true" name="ProfileID" repeat="0" type="t5:String_Medium">
+                <Equivalent context="Legacy"/>
+            </Element>
+        </ID>
+        <Summary>
+            <Element name="Name" repeat="0" type="t5:String_PersonName"/>
+            <Element name="PaymentCard_Detail_List" repeat="0" type="PaymentCard_Detail_List"/>
+            <Element name="PresentEmployment" repeat="0" type="PresentEmployment"/>
+        </Summary>
+        <Detail>
+            <Element name="Remarks" repeat="0" type="t5:String_Medium"/>
+            <Element name="HomePhone" repeat="0" type=""/>
+            <Element name="MobilePhone" repeat="0" type=""/>
+            <Element name="WorkPhone" repeat="0" type=""/>
+            <Element name="Age" repeat="0" type="t5:Age">
+                <Documentation>
+                    <Description>Number of years person or object has existed.</Description>
+                </Documentation>
+            </Element>
+            <Indicator name="Share" publishAsElement="false"/>
+            <Indicator name="Sync" publishAsElement="false"/>
+            <Indicator name="Hold" publishAsElement="false"/>
+        </Detail>
+        <Query context="Profile" label="" notExtendable="true">
+            <Element name="PhoneNumber" repeat="0" type="t5:Phone_Simple_List"/>
+        </Query>
+        <Custom context="Legacy" label="" notExtendable="false">
+            <Element name="Remarks" repeat="0" type="ota2:String_Long">
+                <Example context="Profile">Remarks</Example>
+            </Element>
+            <Indicator name="Share" publishAsElement="false"/>
+        </Custom>
+    </BusinessObject>
+    
+    <ValueWithAttrs name="Age" type="xsd:integer">
+        <Documentation>
+            <Description>Number of years person or object has existed.</Description>
+        </Documentation>
+        <Equivalent context="Profile">Age</Equivalent>
+        <Example context="Profile">25</Example>
+        <Example context="Legacy">34</Example>
+        <Attribute name="birthDate" type="xsd:date">
+            <Equivalent context="Profile">birthDate</Equivalent>
+            <Example context="Profile">1987-05-22</Example>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <CoreObject name="Flight" notExtendable="true">
+        <Aliases>OutboundFlight ReturnFlight</Aliases>
+        <Simple type="t5:String_Long"/>
+        <Summary>
+            <Element mandatory="true" name="FlightNumber" repeat="0" type="t5:String_Long">
+                <Documentation>
+                    <Description>The flight number associated to the service.   Mapped to: SR05_42_FLTN</Description>
+                </Documentation>
+                <Equivalent context="Profile">FlightNumber</Equivalent>
+            </Element>
+            <Element mandatory="true" name="DepartureDate" repeat="0" type="xsd:date">
+                <Documentation>
+                    <Description>The departure date of the flight associated to the service.  Mapped to:
+                        SR05_42_CDTE</Description>
+                </Documentation>
+                <Equivalent context="Profile">DepartureDate</Equivalent>
+            </Element>
+            <Element mandatory="true" name="Carrier" repeat="0" type="t5:String_Long">
+                <Documentation>
+                    <Description>The carrier code of the flight associated to the service.  Mapped to: 
+                        SR05_42_CXRC</Description>
+                </Documentation>
+                <Equivalent context="Profile">CarrierCode</Equivalent>
+                <Example context="Profile">WWA</Example>
+            </Element>
+            <Element mandatory="true" name="ClassOfService" repeat="0" type="t5:String_Long">
+                <Documentation>
+                    <Description>The flight class of service associated to the ancillary service.  Mapped to:
+                        SR05_42_CLSV</Description>
+                </Documentation>
+                <Equivalent context="Profile">ClassOfService</Equivalent>
+                <Example context="Profile">F00</Example>
+            </Element>
+            <Element mandatory="true" name="DepartureCity" repeat="0" type="t5:String_Long">
+                <Documentation>
+                    <Description>The origin or depature city code of the flight associated to the service.   Mapped to:
+                        
+                        
+                        
+                        
+                        SR05_42_DCTY</Description>
+                </Documentation>
+                <Equivalent context="Profile">DepartureCity</Equivalent>
+                <Example context="Profile">LGA</Example>
+            </Element>
+            <Element mandatory="true" name="ArrivalCity" repeat="0" type="t5:String_Long">
+                <Documentation>
+                    <Description>The destination or arrival city of the flight associated to the service.   Mapped to:
+                        SR05_42_ACTY</Description>
+                </Documentation>
+                <Equivalent context="Profile">ArrivalCity</Equivalent>
+                <Example context="Profile">MIA</Example>
+            </Element>
+        </Summary>
+        <Detail>
+            <Indicator name="stopOver" publishAsElement="false">
+                <Documentation>
+                    <Description>A code that applies to whether the flight is a stop over or not (X, O).   Mapped to:
+                        SR05_42_STOV</Description>
+                </Documentation>
+                <Equivalent context="TODO">SR05_42_STOV</Equivalent>
+            </Indicator>
+        </Detail>
+    </CoreObject>
+    
+    <ValueWithAttrs name="POS_Location" type="t5:String_Long">
+        <Documentation>
+            <Description>A location for an airline or agency agent. Can be used to describe the actual, pseudo or home
+  location.</Description>
+        </Documentation>
+        <Equivalent context="Profile">Location.POS</Equivalent>
+        <Example context="Profile">POS Value</Example>
+        <Attribute name="country" type="t5:String_Long">
+            <Equivalent context="Profile">country</Equivalent>
+            <Example context="Profile">US</Example>
+        </Attribute>
+        <Attribute name="province" type="t5:String_Long">
+            <Equivalent context="Profile">province</Equivalent>
+            <Example context="Profile">CA</Example>
+        </Attribute>
+        <Attribute name="city" type="t5:String_Long">
+            <Example context="Profile">Den</Example>
+        </Attribute>
+        <Attribute name="number" type="t5:String_Long">
+            <Documentation>
+                <Description>agent station number or agency iata number</Description>
+            </Documentation>
+            <Equivalent context="Profile">number</Equivalent>
+            <Example context="Profile">3</Example>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <BusinessObject name="POS" notExtendable="true">
+        <Documentation>
+            <Description>Locations: Psuedo - Agency PCC or Agent AAA Actual ? where the transaction is initiated Home ? assigned to the agent account</Description>
+        </Documentation>
+        <Aliases/>
+        <ID>
+            <Attribute name="pcc" type="t5:String_Medium">
+                <Documentation>
+                    <Description>Psuedo is either Agency PCC or Agent AAA. Required for most sources, unless MultiHost code is provided.</Description>
+                </Documentation>
+                <Equivalent context="Profile">Pseudo</Equivalent>
+                <Example context="Profile">333</Example>
+            </Attribute>
+        </ID>
+        <Summary>
+            <Attribute name="company" type="t5:String_Medium">
+                <Documentation>
+                    <Description>The IATA assigned code for the Agency or Airine</Description>
+                </Documentation>
+                <Equivalent context="Profile">Company</Equivalent>
+                <Example context="Profile">WWA</Example>
+            </Attribute>
+        </Summary>
+        <Detail>
+            <Attribute name="duty" type="t5:String_Medium">
+                <Documentation>
+                    <Description>An authority code assigned to a requestor.</Description>
+                </Documentation>
+                <Equivalent context="Profile">DutyCode</Equivalent>
+                <Example context="Profile">ddd</Example>
+            </Attribute>
+            <Attribute name="lniata" type="t5:String_Medium">
+                <Documentation>
+                    <Description>LNIATA of the Console the agent signed into.</Description>
+                </Documentation>
+                <Equivalent context="Profile">Lniata</Equivalent>
+                <Example context="Profile">156354</Example>
+            </Attribute>
+            <Attribute name="sine" type="t5:String_Medium">
+                <Documentation>
+                    <Description>Identifies the agent or party within the requesting entity.</Description>
+                </Documentation>
+                <Equivalent context="Profile">Sine</Equivalent>
+                <Example context="Profile">555</Example>
+            </Attribute>
+            <Attribute name="multiHost" type="t5:String_Medium">
+                <Documentation>
+                    <Description>Airline partition for multi-host source locations.</Description>
+                </Documentation>
+                <Equivalent context="Profile">MultiHost</Equivalent>
+                <Example context="Profile">WWB</Example>
+            </Attribute>
+            <Element name="Actual" repeat="0" type="t5:String_Medium">
+                <Documentation>
+                    <Description>Actual is where the transaction is initiated.</Description>
+                </Documentation>
+                <Equivalent context="Profile">Actual</Equivalent>
+            </Element>
+            <Element name="Home" repeat="100000" type="t5:String_Medium">
+                <Documentation>
+                    <Description>Home is assigned to the agent account.</Description>
+                </Documentation>
+                <Equivalent context="Profile">Home</Equivalent>
+            </Element>
+        </Detail>
+    </BusinessObject>
+    
+    <Simple name="Time_TimeZoneOffset"
+        pattern="[+-][0-2][0-9]:[0-5][0-9]" type="xsd:string">
+        <Documentation>
+            <Description>Numeric offsets are calculated as "local time minus UTC".  So the equivalent time in UTC can be determined by subtracting the offset from the local time.  For example, 18:50:00-04:00 is the same time as  22:50:00Z.  (This example shows negative offsets handled by adding  the absolute value of the offset.)</Description>
+        </Documentation>
+        <Example context="Profile">-04:00</Example>
+    </Simple>
+    
+    <Simple name="Flight_Number" type="stl2:stl2_FlightNumber">
+        <Equivalent context="http://services.sabre.com/STL/v02">FlightNumber</Equivalent>
+    </Simple>
+    
+    <Simple name="Code_Airline" pattern="[A-Z0-9]{2}[A-Z]?" type="xsd:string">
+        <Equivalent context="http://services.sabre.com/STL/v01">AirlineCode</Equivalent>
+    </Simple>
+    
+    <Simple name="Code_City" pattern="[a-zA-Z]{3}" type="xsd:string">
+        <Equivalent context="http://services.sabre.com/STL/v01">CityCode</Equivalent>
+    </Simple>
+    
+    <Simple name="Cabin_3Chars" pattern="[A-Z0-9]{3}" type="xsd:string">
+        <Equivalent context="http://services.sabre.com/STL/v01">CabinType.3Chars</Equivalent>
+    </Simple>
+    
+    <Enumeration_Closed name="Cabin_OrFare">
+        <Value literal="Cabin"/>
+        <Value literal="Fare"/>
+    </Enumeration_Closed>
+    
+    <Enumeration_Closed name="Cabin_Type">
+        <Value literal="First">
+            <Documentation>
+                <Description>First class compartment.</Description>
+            </Documentation>
+        </Value>
+        <Value literal="Business">
+            <Documentation>
+                <Description>Business class compartment.</Description>
+            </Documentation>
+        </Value>
+        <Value literal="Economy">
+            <Documentation>
+                <Description>Economy (or sometimes referred to as Coach) class compartment.</Description>
+            </Documentation>
+        </Value>
+    </Enumeration_Closed>
+    
+    <Simple name="Cabin_3Chars" pattern="[A-Z0-9]{3}" type="xsd:string">
+        <Equivalent context="http://services.sabre.com/STL/v01">CabinType.3Chars</Equivalent>
+    </Simple>
+    
+    <Simple name="Cabin_3Chars" pattern="[A-Z0-9]{3}" type="xsd:string">
+        <Equivalent context="http://services.sabre.com/STL/v01">CabinType.3Chars</Equivalent>
+    </Simple>
+    
+    <Simple name="Cabin_3Chars" pattern="[A-Z0-9]{3}" type="xsd:string">
+        <Equivalent context="http://services.sabre.com/STL/v01">CabinType.3Chars</Equivalent>
+    </Simple>
+    
+    <Service name="ProfileService">
+        <Operation Name="Create" notExtendable="true">
+            <Request>
+                <Element name="Profile_Detail" repeat="0" type="t5:Profile_Detail"/>
+            </Request>
+            <Response>
+                <Element name="Profile_ID" repeat="0" type="t5:Profile_ID"/>
+            </Response>
+            <Notification>
+                <Element name="Profile_Summary" repeat="0" type="t5:Profile_Summary"/>
+            </Notification>
+        </Operation>
+        <Operation Name="Read" notExtendable="true">
+            <Request>
+                <Element name="Profile_ID" repeat="0" type="t5:Profile_ID"/>
+            </Request>
+            <Response>
+                <Element name="TravelerProfile" repeat="0" type="t5:TravelerProfile"/>
+            </Response>
+            <Notification>
+                <Element name="Profile" repeat="0" type="t5:Profile"/>
+            </Notification>
+        </Operation>
+        <Operation Name="Update" notExtendable="true">
+            <Request>
+                <Element name="Profile_Detail" repeat="0" type="t5:Profile_Detail"/>
+            </Request>
+            <Response>
+                <Element name="Profile_ID" repeat="0" type="t5:Profile_ID"/>
+            </Response>
+            <Notification>
+                <Element name="Profile_Summary" repeat="0" type="t5:Profile_Summary"/>
+            </Notification>
+        </Operation>
+        <Operation Name="Delete" notExtendable="true">
+            <Request>
+                <Element name="Profile" repeat="0" type="t5:Profile"/>
+            </Request>
+            <Response>
+                <Element name="Profile_ID" repeat="0" type="t5:Profile_ID"/>
+            </Response>
+            <Notification>
+                <Element name="Profile_Summary" repeat="0" type="t5:Profile_Summary"/>
+            </Notification>
+        </Operation>
+        <Operation Name="Query" notExtendable="true">
+            <Request>
+                <Element name="Profile" repeat="0" type="t5:Profile"/>
+            </Request>
+            <Response>
+                <Element name="Profile" repeat="100" type="t5:Profile"/>
+            </Response>
+            <Notification>
+                <Element name="Profile_ID" repeat="0" type="t5:Profile_ID"/>
+            </Notification>
+        </Operation>
+    </Service>
+    
+</Library>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.sabre.es</groupId>
+    <artifactId>parent</artifactId>
+    <version>3.1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <groupId>com.sabre.es</groupId>
+  <artifactId>plugins</artifactId>
+  <version>3.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>com.sabre.schemas.stl2Developer</module>
+    <module>com.sabre.schemas.stl2Developer.editor</module>
+
+    <!-- OSGi wrappers of OTA2 Compiler -->
+    <module>com.sabre.schemas.stl2Developer.schemacompiler</module>
+    <module>com.sabre.schemas.stl2Developer.log4j.configuration</module>
+    <module>com.sabre.schemas.stl2Developer.ota2</module>
+  </modules>
+
+</project>

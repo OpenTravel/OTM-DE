@@ -1,0 +1,1128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Library xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04 OTA2_LibraryModel_v1.4.6.xsd">
+    
+    <VersionScheme>OTA2</VersionScheme>
+    <Status>Draft</Status>
+    <Namespace>http://services.sabre.com/STL/PNR/v02</Namespace>
+    <Prefix>pnr-wip</Prefix>
+    <Name>PNR-Builder-wip</Name>
+    <Import namespace="http://opentravel.org/common/v02" prefix="ota2"/>
+    <Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
+    <Context applicationContext="Default" context="default"/>
+    <Context
+        applicationContext="http://webservices.sabre.com/pnrbuilder" context="pnrbuilder"/>
+    <Context applicationContext="http://services.sabre.com/STL/v01" context="http://services.sabre.com/STL/v01"/>
+    
+    <CoreObject name="AirSegment.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="index" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}Numeric1to9999</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">index</Equivalent>
+            </Attribute>
+            <Attribute name="id" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://services.sabre.com/STL/v01}UniqueIdentifier.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">id</Equivalent>
+            </Attribute>
+            <Attribute name="op" type="">
+                <Documentation>
+                    <Description>C = Create, U = Update, D = Delete</Description>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}OperationType.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">op</Equivalent>
+            </Attribute>
+            <Element name="StatusCode" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to4</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">StatusCode</Equivalent>
+            </Element>
+            <Element name="NumberOfSeats" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}Numeric1to99</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">NumberOfSeats</Equivalent>
+            </Element>
+            <Element name="AirlineDesignator" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}AirlineCode</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">AirlineDesignator</Equivalent>
+            </Element>
+            <Element name="ClassOfService" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to2</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">ClassOfService</Equivalent>
+            </Element>
+            <Element name="FlightNumber" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}FlightNumber</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">FlightNumber</Equivalent>
+            </Element>
+            <Element name="NumberOfStops" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}Numeric1to99</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">NumberOfStops</Equivalent>
+            </Element>
+            <Element name="SegmentTag" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to75</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">SegmentTag</Equivalent>
+            </Element>
+            <Element name="DepartureTime" repeat="1" type="xsd:dateTime">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}dateTime</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">DepartureTime</Equivalent>
+            </Element>
+            <Element name="FlightStatusDescription" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to55</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">FlightStatusDescription</Equivalent>
+            </Element>
+            <Element name="ETicketEligibilityIndicator" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to3</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">ETicketEligibilityIndicator</Equivalent>
+            </Element>
+            <Element name="ConnectionIndicator" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to2</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">ConnectionIndicator</Equivalent>
+            </Element>
+            <Element name="MarriedConnectionIndicator" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to2</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">MarriedConnectionIndicator</Equivalent>
+            </Element>
+            <Element name="ItinerarySpecialRequests.PNRB" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}ItinerarySpecialRequests.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">SegmentSpecialRequests</Equivalent>
+            </Element>
+            <Element name="PreReservedSeats.PNRB" repeat="1" type="PreReservedSeats.PNRB">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}PreReservedSeats.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">PreReservedSeats</Equivalent>
+            </Element>
+            <Element name="Loyalty.PNRB" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}Loyalty.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">FrequentFlyer</Equivalent>
+            </Element>
+            <Indicator name="SpecialMeal" publishAsElement="false"/>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="AirSegmentARNK.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="segmentNumber" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}Numeric1to99</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">segmentNumber</Equivalent>
+            </Attribute>
+            <Attribute name="id" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://services.sabre.com/STL/v01}UniqueIdentifier.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">id</Equivalent>
+            </Attribute>
+            <Attribute name="op" type="">
+                <Documentation>
+                    <Description>C = Create, U = Update, D = Delete</Description>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}OperationType.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">op</Equivalent>
+            </Attribute>
+            <Element name="SurfaceSegmentIndicator" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to4</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">SurfaceSegmentIndicator</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="AirSegmentBundledSell.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="segmentNumber" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}Numeric1to99</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">segmentNumber</Equivalent>
+            </Attribute>
+            <Attribute name="id" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://services.sabre.com/STL/v01}UniqueIdentifier.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">id</Equivalent>
+            </Attribute>
+            <Attribute name="type" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}AirSegmentType.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">type</Equivalent>
+            </Attribute>
+            <Attribute name="op" type="">
+                <Documentation>
+                    <Description>C = Create, U = Update, D = Delete</Description>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}OperationType.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">op</Equivalent>
+            </Attribute>
+            <Element mandatory="true" name="ClassOfService" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to128</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">ClassOfService</Equivalent>
+            </Element>
+            <Element mandatory="true" name="AirlineCode" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}AirlineCode</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">AirlineCode</Equivalent>
+            </Element>
+            <Element mandatory="true" name="DepartureDate" repeat="1" type="xsd:date">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}date</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">DepartureDate</Equivalent>
+            </Element>
+            <Element mandatory="true" name="DepartureCity" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}CityCode</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">DepartureCity</Equivalent>
+            </Element>
+            <Element mandatory="true" name="ArrivalCity" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}CityCode</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">ArrivalCity</Equivalent>
+            </Element>
+            <Element name="ConnectingCity" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}CityCode</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">ConnectingCity</Equivalent>
+            </Element>
+            <Element mandatory="true" name="DepartureTime" repeat="1" type="xsd:time">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}time</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">DepartureTime</Equivalent>
+            </Element>
+            <Element mandatory="true" name="FlightNumber" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}FlightNumber</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">FlightNumber</Equivalent>
+            </Element>
+            <Element mandatory="true" name="ArrivalDate" repeat="1" type="xsd:date">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}date</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">ArrivalDate</Equivalent>
+            </Element>
+            <Element mandatory="true" name="ArrivalTime" repeat="1" type="xsd:time">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}time</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">ArrivalTime</Equivalent>
+            </Element>
+            <Element name="NumberOfStops" repeat="1" type="xsd:int">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}int</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">NumberOfStops</Equivalent>
+            </Element>
+            <Element mandatory="true" name="StatusCode" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to128</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">StatusCode</Equivalent>
+            </Element>
+            <Element name="ItinerarySpecialRequests.PNRB" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}ItinerarySpecialRequests.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">SegmentSpecialRequests</Equivalent>
+            </Element>
+            <Element name="Loyalty.PNRB" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}Loyalty.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">FrequentFlyer</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="AirSegmentMultiLeg.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="segmentNumber" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}Numeric1to999</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">segmentNumber</Equivalent>
+            </Attribute>
+            <Attribute name="id" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://services.sabre.com/STL/v01}UniqueIdentifier.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">id</Equivalent>
+            </Attribute>
+            <Attribute name="op" type="">
+                <Documentation>
+                    <Description>C = Create, U = Update, D = Delete</Description>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}OperationType.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">op</Equivalent>
+            </Attribute>
+            <Element name="AirlineDesignator" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}AirlineCode</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">AirlineDesignator</Equivalent>
+            </Element>
+            <Element name="AircraftTypeCode" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to3</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">AircraftTypeCode</Equivalent>
+            </Element>
+            <Element name="DepartureDate" repeat="1" type="xsd:date">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}date</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">DepartureDate</Equivalent>
+            </Element>
+            <Element name="DepartureTime" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength4to5</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">DepartureTime</Equivalent>
+            </Element>
+            <Element name="ArrivalDate" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength5to9</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">ArrivalDate</Equivalent>
+            </Element>
+            <Element name="ArrivalTime" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength4to5</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">ArrivalTime</Equivalent>
+            </Element>
+            <Element name="MealCode1" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to3</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">MealCode1</Equivalent>
+            </Element>
+            <Element name="MealCode2" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to3</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">MealCode2</Equivalent>
+            </Element>
+            <Element name="MealCode3" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to3</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">MealCode3</Equivalent>
+            </Element>
+            <Element name="DayOfWeekIndicator" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}NumericStringLength1</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">DayOfWeekIndicator</Equivalent>
+            </Element>
+            <Element name="DayOfWeek" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}DayOfWeek</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">DayOfWeek</Equivalent>
+            </Element>
+            <Element name="ElapsedTime" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to5</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">ElapsedTime</Equivalent>
+            </Element>
+            <Element name="AirMilesFlown" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to5</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">AirMilesFlown</Equivalent>
+            </Element>
+            <Element name="OperatingAirlineDesignator" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}AirlineCode</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">OperatingAirlineDesignator</Equivalent>
+            </Element>
+            <Element name="AirlineName" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to45</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">AirlineName</Equivalent>
+            </Element>
+            <Element name="ItinerarySpecialRequests.PNRB" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}ItinerarySpecialRequests.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">SegmentSpecialRequests</Equivalent>
+            </Element>
+            <Element name="PreReservedSeats.PNRB" repeat="1" type="PreReservedSeats.PNRB">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}PreReservedSeats.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">PreReservedSeats</Equivalent>
+            </Element>
+            <Element name="Loyalty.PNRB" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}Loyalty.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">FrequentFlyer</Equivalent>
+            </Element>
+            <Indicator name="SmokingPrefOfferedIndicator" publishAsElement="false"/>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="AirSegmentOpen.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="segmentNumber" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}Numeric1to999</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">segmentNumber</Equivalent>
+            </Attribute>
+            <Attribute name="id" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://services.sabre.com/STL/v01}UniqueIdentifier.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">id</Equivalent>
+            </Attribute>
+            <Attribute name="op" type="">
+                <Documentation>
+                    <Description>C = Create, U = Update, D = Delete</Description>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}OperationType.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">op</Equivalent>
+            </Attribute>
+            <Element name="StatusCode" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to4</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">StatusCode</Equivalent>
+            </Element>
+            <Element name="UnitsBooked" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to5</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">UnitsBooked</Equivalent>
+            </Element>
+            <Element name="AirlineDesignator" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to3</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">AirlineDesignator</Equivalent>
+            </Element>
+            <Element name="ClassOfService" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to2</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">ClassOfService</Equivalent>
+            </Element>
+            <Element name="DepartureDate" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength5to9</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">DepartureDate</Equivalent>
+            </Element>
+            <Element name="DepartureTime" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength4to5</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">DepartureTime</Equivalent>
+            </Element>
+            <Element name="DayOfWeekIndicator" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}NumericStringLength1</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">DayOfWeekIndicator</Equivalent>
+            </Element>
+            <Element name="ItinerarySpecialRequests.PNRB" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}ItinerarySpecialRequests.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">SegmentSpecialRequests</Equivalent>
+            </Element>
+            <Element name="PreReservedSeats.PNRB" repeat="1" type="PreReservedSeats.PNRB">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}PreReservedSeats.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">PreReservedSeats</Equivalent>
+            </Element>
+            <Element name="Loyalty.PNRB" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}Loyalty.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">FrequentFlyer</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="AirSegmentSellFromBSGInventory.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="id" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://services.sabre.com/STL/v01}UniqueIdentifier.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">id</Equivalent>
+            </Attribute>
+            <Attribute name="segmentNumber" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}Numeric1to999</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">segmentNumber</Equivalent>
+            </Attribute>
+            <Attribute name="op" type="">
+                <Documentation>
+                    <Description>C = Create, U = Update, D = Delete</Description>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}OperationType.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">op</Equivalent>
+            </Attribute>
+            <Element mandatory="true" name="BSGPNRRecordLocator"
+                repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength6</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">BSGPNRRecordLocator</Equivalent>
+            </Element>
+            <Element mandatory="true" name="NumberInParty" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}Numeric1to99</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">NumberInParty</Equivalent>
+            </Element>
+            <Element name="ItinerarySpecialRequests.PNRB" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}ItinerarySpecialRequests.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">SegmentSpecialRequests</Equivalent>
+            </Element>
+            <Element name="Loyalty.PNRB" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}Loyalty.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">FrequentFlyer</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <ValueWithAttrs name="CompanyNameType" type="ota2:Empty">
+        <Documentation>
+            <Description/>
+            <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}StringLength0to128</Implementer>
+        </Documentation>
+        <Equivalent context="pnrbuilder">CompanyNameType</Equivalent>
+        <Attribute name="CompanyID_AttributesGroup" type="ota2:Empty">
+            <Documentation>
+                <Description/>
+                <Implementer>AttributeGroup: {http://webservices.sabre.com/pnrbuilder}CompanyID_AttributesGroup</Implementer>
+            </Documentation>
+        </Attribute>
+        <Attribute name="Division" type="ota2:String_Medium">
+            <Documentation>
+                <Description>The division name or ID with which the contact is associated.</Description>
+            </Documentation>
+            <Equivalent context="pnrbuilder">Division</Equivalent>
+        </Attribute>
+        <Attribute name="Department" type="ota2:String_Medium">
+            <Documentation>
+                <Description>The department name or ID with which the contact is associated.</Description>
+            </Documentation>
+            <Equivalent context="pnrbuilder">Department</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <CoreObject name="CorporateIDs.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element name="CorporateID.PNRB" repeat="99" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}CorporateID.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">CorporateID</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="DKNumbers.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element name="DKNumber" repeat="99" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseAlphaSpaceLength1to30</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">DKNumber</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="EmailAddresses.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element name="EmailAddress.PNRB" repeat="999" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}EmailAddress.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">EmailAddress</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="EmailLine.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="id" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://services.sabre.com/STL/v01}UniqueIdentifier.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">id</Equivalent>
+            </Attribute>
+            <Attribute name="index" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}Numeric1to999</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">index</Equivalent>
+            </Attribute>
+            <Element mandatory="true" name="Text" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to65</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">Text</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="EmailLines.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element mandatory="true" name="EmailLine.PNRB" repeat="3" type="EmailLine.PNRB">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}EmailLine.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">EmailLine</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="Errors.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element name="Errors.PNRB_Error" repeat="100000" type="Errors.PNRB_Error">
+                <Equivalent context="pnrbuilder">Error</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="Errors.PNRB_Error" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element name="Code" repeat="1" type="xsd:string">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">Code</Equivalent>
+            </Element>
+            <Element name="Message" repeat="1" type="xsd:string">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">Message</Equivalent>
+            </Element>
+            <Element name="Severity" repeat="1" type="xsd:string">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">Severity</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="PhoneNumbers.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element mandatory="true" name="PhoneNumber.PNRB"
+                repeat="99" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}PhoneNumber.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">PhoneNumber</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="PreReservedSeats.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element name="PreReservedSeat.PNRB" repeat="999" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}PreReservedSeat.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">PreReservedSeat</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="ReceivedFrom.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element name="Name" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to71</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">Name</Equivalent>
+            </Element>
+            <Element name="AgentName" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to20</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">AgentName</Equivalent>
+            </Element>
+            <Element name="TourWholesalerPCC" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength4</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">TourWholesalerPCC</Equivalent>
+            </Element>
+            <Element name="NewControllingPCC" repeat="1" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength4</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">NewControllingPCC</Equivalent>
+            </Element>
+            <Indicator name="fromPassenger" publishAsElement="false"/>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="RequestorID.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="messagePassword" type="">
+                <Documentation>
+                    <Description>This password
+										provides an additional level of security that the recipient can
+										use to validate the sending party's authority to use the
+										message.</Description>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}StringLength1to16</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">MessagePassword</Equivalent>
+            </Attribute>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="ReservationCompletionCriteria.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element mandatory="true" name="SendEmail" repeat="1" type="SendEmail.PNRB">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}SendEmail.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">SendEmail</Equivalent>
+            </Element>
+            <Element mandatory="true" name="Transaction" repeat="1" type="Transaction.PNRB">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}Transaction.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">Transaction</Equivalent>
+            </Element>
+            <Indicator name="returnReservation" publishAsElement="false"/>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="ReservationEmail.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="id" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://services.sabre.com/STL/v01}UniqueIdentifier.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">id</Equivalent>
+            </Attribute>
+            <Attribute name="op" type="">
+                <Documentation>
+                    <Description>C = Create, U = Update, D = Delete</Description>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}OperationType.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">op</Equivalent>
+            </Attribute>
+            <Element name="EmailLines.PNRB" repeat="1" type="EmailLines.PNRB">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}EmailLines.PNRB</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">EmailText</Equivalent>
+            </Element>
+            <Element name="Subject" repeat="1" type="">
+                <Documentation>
+                    <Description>can be up to 65 chars</Description>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength1to65</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">Subject</Equivalent>
+            </Element>
+            <Element name="PseudoEmailAddress" repeat="1" type="">
+                <Documentation>
+                    <Description>this field contains only the info to the left of
+						the @. This generates a pseudo email address for
+						use on the Sabre Virtually There website by
+						those travelers that do not want to provide
+						their real address.
+
+						max of 63 chars
+
+						You cannot use the _ char. If there is an _ char
+						to the left of the @ then you need to replace
+						that with two = (i.e., ==) The extra = counts as
+						a char towards the max # of chars
+
+						Use a / in place of a '</Description>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}StringLength1to63</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">PseudoEmailAddress</Equivalent>
+            </Element>
+            <Indicator name="highPriority" publishAsElement="false"/>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="Segments.PNRB" notExtendable="false">
+        <Documentation>
+            <Description>When non-air segments are defined they will be added to
+				this sequence.</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Indicator name="addARNKS" publishAsElement="false"/>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <ValueWithAttrs name="SendEmail.PNRB" type="ota2:Empty">
+        <Equivalent context="pnrbuilder">SendEmail.PNRB</Equivalent>
+        <Indicator name="sendEmailInd" publishAsElement="false">
+            <Documentation>
+                <Description/>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}boolean</Implementer>
+            </Documentation>
+            <Equivalent context="pnrbuilder">sendEmail</Equivalent>
+        </Indicator>
+        <Indicator name="sendETicketInd" publishAsElement="false">
+            <Documentation>
+                <Description/>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}boolean</Implementer>
+            </Documentation>
+            <Equivalent context="pnrbuilder">sendETicket</Equivalent>
+        </Indicator>
+        <Indicator name="sendItineraryInd" publishAsElement="false">
+            <Documentation>
+                <Description/>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}boolean</Implementer>
+            </Documentation>
+            <Equivalent context="pnrbuilder">sendItinerary</Equivalent>
+        </Indicator>
+        <Indicator name="sendEInvoiceInd" publishAsElement="false">
+            <Documentation>
+                <Description/>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}boolean</Implementer>
+            </Documentation>
+            <Equivalent context="pnrbuilder">sendEInvoice</Equivalent>
+        </Indicator>
+    </ValueWithAttrs>
+    
+    <ValueWithAttrs name="StatefulTransaction.PNRB" type="ota2:Empty">
+        <Equivalent context="pnrbuilder">StatefulTransaction.PNRB</Equivalent>
+        <Attribute name="save" type="">
+            <Documentation>
+                <Description/>
+                <Implementer>Assigned XSD Type: {http://services.sabre.com/STL/v01}Save.PNRB</Implementer>
+            </Documentation>
+            <Equivalent context="pnrbuilder">save</Equivalent>
+        </Attribute>
+        <Attribute name="onFail" type="">
+            <Documentation>
+                <Description/>
+                <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}OnFail.PNRB</Implementer>
+            </Documentation>
+            <Equivalent context="pnrbuilder">onFail</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <ValueWithAttrs name="StatelessTransaction.PNRB" type="ota2:Empty">
+        <Equivalent context="pnrbuilder">StatelessTransaction.PNRB</Equivalent>
+        <Attribute name="save" type="">
+            <Documentation>
+                <Description/>
+                <Implementer>Assigned XSD Type: {http://services.sabre.com/STL/v01}Save.PNRB</Implementer>
+            </Documentation>
+            <Equivalent context="pnrbuilder">save</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <ValueWithAttrs name="Transaction.PNRB" type="ota2:Empty">
+        <Equivalent context="pnrbuilder">Transaction.PNRB</Equivalent>
+    </ValueWithAttrs>
+    
+    <CoreObject name="TravelingCarrierCodes.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element mandatory="true" name="TravelingCarrierCode"
+                repeat="4" type="">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}UpperCaseStringLength2</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">TravelingCarrierCode</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="UniqueID_Type.PNRB" notExtendable="false">
+        <Documentation>
+            <Description>An identifier used to
+				uniquely reference an object in a system (e.g. an airline
+				reservation reference, customer profile reference, booking
+				confirmation number, or a reference to a previous availability
+				quote).</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="UniqueID_Group" type="ota2:Empty">
+                <Documentation>
+                    <Description/>
+                    <Implementer>AttributeGroup: {http://webservices.sabre.com/pnrbuilder}UniqueID_Group</Implementer>
+                </Documentation>
+            </Attribute>
+            <Element name="CompanyName" repeat="1" type="CompanyNameType">
+                <Documentation>
+                    <Description>Identifies
+						the company that is associated with the UniqueID.</Description>
+                    <Implementer>Assigned XSD Type: {http://webservices.sabre.com/pnrbuilder}CompanyNameType</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">CompanyName</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="Warnings.PNRB" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element name="Warnings.PNRB_Warning" repeat="100000" type="Warnings.PNRB_Warning">
+                <Equivalent context="pnrbuilder">Warning</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="Warnings.PNRB_Warning" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element name="Code" repeat="1" type="xsd:string">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">Code</Equivalent>
+            </Element>
+            <Element name="Message" repeat="1" type="xsd:string">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">Message</Equivalent>
+            </Element>
+            <Element name="Severity" repeat="1" type="xsd:string">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="pnrbuilder">Severity</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <Simple name="UpperCaseAlphaLength6" type="">
+        <Documentation>
+            <Description/>
+            <Implementer>Assigned XSD Type: {http://services.sabre.com/STL/v01}UpperCaseAlpha</Implementer>
+        </Documentation>
+        <Equivalent context="http://services.sabre.com/STL/v01">UpperCaseAlphaLength6</Equivalent>
+    </Simple>
+    
+</Library>

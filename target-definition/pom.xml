@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+  xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.sabre.es</groupId>
+    <artifactId>parent</artifactId>
+    <version>3.1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <groupId>com.sabre.es</groupId>
+  <artifactId>indigo</artifactId>
+  <name>Indigo based target definition</name>
+  <packaging>eclipse-target-definition</packaging>
+
+
+  <profiles>
+    <profile>
+      <id>mirror</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.eclipse.tycho.extras</groupId>
+            <artifactId>tycho-p2-extras-plugin</artifactId>
+            <version>${tycho-version}</version>
+            <executions>
+              <execution>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>mirror</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <source>
+                <repository>
+                  <url>http://download.eclipse.org/technology/swtbot/releases/latest/</url>
+                  <layout>p2</layout>
+                </repository>
+                <repository>
+                  <url>http://download.eclipse.org/releases/indigo</url>
+                  <layout>p2</layout>
+                </repository>
+                <repository>
+                  <url>http://download.eclipse.org/jetty/updates/jetty-bundles-8.x/8.1.9.v20130131</url>
+                  <layout>p2</layout>
+                </repository>
+                <repository>
+                  <url>http://download.eclipse.org/tools/orbit/downloads/drops/R20130118183705/repository/</url>
+                  <layout>p2</layout>
+                </repository>
+                <repository>
+                  <url>http://download.eclipse.org/tools/gef/updates/releases</url>
+                  <layout>p2</layout>
+                </repository>
+              </source>
+              <!-- List of IUs to mirror. If omitted, allIUs will be mirrored. -->
+              <!-- Omitted IU version element means latest version of the 
+                IU -->
+              <!-- <ius> <iu> <id>org.eclipse.rcp.feature.group</id> </iu> 
+                </ius> -->
+              <!-- The destination directory to mirror to. -->
+              <destination>${project.build.directory}/mirror-repository</destination>
+              <!-- Whether only strict dependencies should be followed. -->
+              <!-- "strict" means perfect version match -->
+              <followStrictOnly>false</followStrictOnly>
+              <!-- Whether or not to follow optional requirements. -->
+              <includeOptional>true</includeOptional>
+              <!-- Whether or not to follow non-greedy requirements. -->
+              <includeNonGreedy>true</includeNonGreedy>
+              <!-- Filter properties. E.g. filter only one platform -->
+              <!-- <filter> <osgi.os>linux</osgi.os> <osgi.ws>gtk</osgi.ws> 
+                <osgi.arch>x86_64</osgi.arch> </filter> -->
+              <!-- Whether to filter the resulting set of IUs to only -->
+              <!-- include the latest version of each IU -->
+              <latestVersionOnly>false</latestVersionOnly>
+              <!-- don't mirror artifacts, only metadata -->
+              <mirrorMetadataOnly>false</mirrorMetadataOnly>
+              <!-- whether to compress the content.xml/artifacts.xml -->
+              <compress>true</compress>
+              <!-- whether to append to the target repository content -->
+              <!-- whether to mirror pack200 artifacts also. Available since 
+                tycho-extras 0.17.0 -->
+              <includePacked>true</includePacked>
+              <!-- The destination directory to mirror to. -->
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>

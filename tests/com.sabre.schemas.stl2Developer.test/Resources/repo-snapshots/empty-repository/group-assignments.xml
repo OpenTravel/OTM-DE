@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GroupAssignments xmlns="http://www.OpenTravel.org/ns/OTA2/Security_v01_00">
+	<Group name="Administrators">
+		<Member>admin</Member>
+		<Member>testuser</Member>
+	</Group>
+	<Group name="SchemaAuthors">
+		<Member>testuser</Member>
+	</Group>
+</GroupAssignments>

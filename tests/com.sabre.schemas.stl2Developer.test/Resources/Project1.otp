@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<otp:Project xmlns="http://www.w3.org/2001/XMLSchema" xmlns:otp="http://www.OpenTravel.org/ns/OTA2/Project_v01_00">
+    <otp:projectId>http://services.sabre.com/STL/PNR/v</otp:projectId>
+    <otp:name>Resources</otp:name>
+    <otp:description>Project Resources created from directory C:\Workspace-Sabre2\stl2Developer-test\Resources\*.otm on Mon Sep 10 12:51:32 CDT 2012</otp:description>
+    <otp:UnmanagedProjectItem defaultItem="true">
+        <otp:FileLocation>PNR-Builder-wip.otm</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+    <otp:UnmanagedProjectItem>
+        <otp:FileLocation>PNR-Builder.otm</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+    <otp:UnmanagedProjectItem>
+        <otp:FileLocation>testFile1.otm</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+    <otp:UnmanagedProjectItem>
+        <otp:FileLocation>testFile2.otm</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+    <otp:UnmanagedProjectItem>
+        <otp:FileLocation>testFile3.otm</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+    <otp:UnmanagedProjectItem>
+        <otp:FileLocation>testFile4.otm</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+    <otp:UnmanagedProjectItem>
+        <otp:FileLocation>testFile5.otm</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+    <otp:UnmanagedProjectItem>
+        <otp:FileLocation>../../STL2_Models/ProfileDemo/ProfileDemo.otm</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+    <otp:UnmanagedProjectItem>
+        <otp:FileLocation>FromSTL_Workspace/STL-SimpleTypes_v0.01.xsd</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+    <otp:UnmanagedProjectItem>
+        <otp:FileLocation>FromSTL_Workspace/PNRBuilderTypes_v0.01.xsd</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+</otp:Project>

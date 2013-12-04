@@ -1,0 +1,2353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Library xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04 OTA2_LibraryModel_v1.4.5.xsd">
+    
+    <VersionScheme>OTA2</VersionScheme>
+    <Status>Draft</Status>
+    <Namespace>http://opentravel.org/local/Dave_Hollander/Empty/v0_0</Namespace>
+    <Prefix>e</Prefix>
+    <Name>EmptyOTM</Name>
+    <Import namespace="http://opentravel.org/common/v02" prefix="ota2"/>
+    <Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
+    <Import fileHints="CommonTypes.xsd"
+        namespace="http://chameleon.anonymous/ns" prefix="ca1"/>
+    <Import fileHints="DsseResponse.xsd"
+        namespace="http://www.sabre.com/ns/dss/v01" prefix="Undefined"/>
+    <Context applicationContext="Default" context="default"/>
+    <Context applicationContext="http://www.sabre.com/ns/dss/v01" context="http://www.sabre.com/ns/dss/v01"/>
+    
+    <ValueWithAttrs name="ACS" type="ota2:Empty">
+        <Documentation>
+            <Description>Response to a Activity Tracking Status request</Description>
+        </Documentation>
+        <Equivalent context="http://www.sabre.com/ns/dss/v01">ACSType</Equivalent>
+        <Attribute mandatory="true" name="aPN" type="xsd:string">
+            <Documentation>
+                <Description>Application</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">APN</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="aCY" type="xsd:string">
+            <Documentation>
+                <Description>Activity</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">ACY</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="iD1" type="xsd:string">
+            <Documentation>
+                <Description>ID</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">ID1</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="sTU" type="xsd:string">
+            <Documentation>
+                <Description>Status</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">STU</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="tCU" type="xsd:integer">
+            <Documentation>
+                <Description>Tracking count</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">TCU</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="cCU" type="xsd:integer">
+            <Documentation>
+                <Description>Completion count</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">CCU</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="cTI" type="xsd:string">
+            <Documentation>
+                <Description>Completion time</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">CTI</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <ValueWithAttrs name="ALG" type="ota2:Empty">
+        <Documentation>
+            <Description>Details about a single flight leg</Description>
+        </Documentation>
+        <Equivalent context="http://www.sabre.com/ns/dss/v01">ALGType</Equivalent>
+        <Attribute mandatory="true" name="oRG" type="AirportCodeType">
+            <Documentation>
+                <Description>Origin airport code</Description>
+                <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirportCodeType</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">ORG</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="dST" type="AirportCodeType">
+            <Documentation>
+                <Description>Destination airport code</Description>
+                <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirportCodeType</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">DST</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="oCX" type="AirlineCodeType">
+            <Documentation>
+                <Description>Operating carrier</Description>
+                <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirlineCodeType</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">OCX</Equivalent>
+        </Attribute>
+        <Attribute name="dD2" type="xsd:string">
+            <Documentation>
+                <Description>Arrival day adjust relative to segment boardpoint</Description>
+                <Implementer>Changed type from {http://www.w3.org/2001/XMLSchema}short.</Implementer>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">DD2</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="eQP" type="xsd:string">
+            <Documentation>
+                <Description>Equipment type for the leg</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">EQP</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="dPD" type="xsd:date">
+            <Documentation>
+                <Description>Departure date at intermediate point</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}date</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">DPD</Equivalent>
+        </Attribute>
+        <Attribute name="dDA" type="xsd:integer">
+            <Documentation>
+                <Description>Departure day adjustment related to segment boardpoint</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">DDA</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="aRD" type="xsd:date">
+            <Documentation>
+                <Description>Arrival date at intermediate point</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}date</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">ARD</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="dPT" type="xsd:string">
+            <Documentation>
+                <Description>Departure time at intermediate point</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">DPT</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="aRT" type="xsd:string">
+            <Documentation>
+                <Description>Arrival time at intermediate point</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">ART</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="d64" type="xsd:integer">
+            <Documentation>
+                <Description>Elapsed layover time</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">D64</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="d65" type="xsd:integer">
+            <Documentation>
+                <Description>Elapsed time for the leg</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">D65</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="mX2" type="xsd:string">
+            <Documentation>
+                <Description>Meal service for the leg</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">MX2</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="q0M" type="xsd:integer">
+            <Documentation>
+                <Description>Air miles for flight leg</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">Q0M</Equivalent>
+        </Attribute>
+        <Attribute name="sMK" type="xsd:boolean">
+            <Documentation>
+                <Description>Smoking Indicator</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}boolean</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">SMK</Equivalent>
+        </Attribute>
+        <Attribute name="sEA" type="xsd:boolean">
+            <Documentation>
+                <Description>DEI802 Seating Indicator</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}boolean</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">SEA</Equivalent>
+        </Attribute>
+        <Attribute name="sT1" type="xsd:string">
+            <Documentation>
+                <Description>DEI802 message text - first line</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">ST1</Equivalent>
+        </Attribute>
+        <Attribute name="sT2" type="xsd:string">
+            <Documentation>
+                <Description>DEI802 message text - second line</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">ST2</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <CoreObject name="AncillaryFee" notExtendable="false">
+        <Documentation>
+            <Description>Fee information</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="v97" type="Undefined:AncillaryFee_V97">
+                <Documentation>
+                    <Description>Blank = No application</Description>
+                    <Implementer>LocalAnonymousType: AncillaryFee_V97</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">V97</Equivalent>
+            </Attribute>
+            <Attribute name="vCU" type="xsd:string">
+                <Documentation>
+                    <Description>Fee currency</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">VCU</Equivalent>
+            </Attribute>
+            <Attribute name="v0F" type="xsd:string">
+                <Documentation>
+                    <Description>Fee amount</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">V0F</Equivalent>
+            </Attribute>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="AncillaryFeeData" notExtendable="false">
+        <Documentation>
+            <Description>Ancillary fee information</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element name="V98" repeat="1" type="SegmentAttributes">
+                <Documentation>
+                    <Description>Defines for which segment attributes to apply this fee</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}SegmentAttributes</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">V98</Equivalent>
+            </Element>
+            <Element name="AncillaryFee" repeat="1" type="AncillaryFee">
+                <Documentation>
+                    <Description>Fee amount information</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AncillaryFee</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">V96</Equivalent>
+            </Element>
+            <Element name="VME" repeat="100000" type="ErrorMessage">
+                <Documentation>
+                    <Description>Message aboout an error that happened during processing ancillaries</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}ErrorMessage</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">VME</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="AncillaryInformation" notExtendable="false">
+        <Documentation>
+            <Description>Information about ancillaries</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element name="AncillaryService.OD" repeat="100000" type="AncillaryService.OD">
+                <Documentation>
+                    <Description>A list of ancillaries for the current segment</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AncillaryService.OD</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">V93</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="AncillaryService.OD" notExtendable="false">
+        <Documentation>
+            <Description>Ancillary information</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute mandatory="true" name="v95" type="xsd:string">
+                <Documentation>
+                    <Description>Ancillary group</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">V95</Equivalent>
+            </Attribute>
+            <Attribute name="v9Z" type="xsd:string">
+                <Documentation>
+                    <Description>Ancillary commercial name</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">V9Z</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="v9X" type="xsd:string">
+                <Documentation>
+                    <Description>Origin</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">V9X</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="vDE" type="xsd:string">
+                <Documentation>
+                    <Description>Destination</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">VDE</Equivalent>
+            </Attribute>
+            <Element name="AncillaryFeeData" repeat="100000" type="AncillaryFeeData">
+                <Documentation>
+                    <Description>Fee informations for this ancillary</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AncillaryFeeData</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">V9Y</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="ASG" notExtendable="false">
+        <Documentation>
+            <Description>Details of a single segment</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="cID" type="xsd:integer">
+                <Documentation>
+                    <Description>If present, contains the branding internal campaign ID this segment belongs to</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">CID</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="dDA" type="xsd:string">
+                <Documentation>
+                    <Description>departure day adjustment</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DDA</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="bCC" type="xsd:string">
+                <Documentation>
+                    <Description>Currently unused</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">BCC</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oRG" type="AirportCodeType">
+                <Documentation>
+                    <Description>Origin airport</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirportCodeType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ORG</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="dST" type="AirportCodeType">
+                <Documentation>
+                    <Description>Destination airport</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirportCodeType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DST</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="mXC" type="AirlineCodeType">
+                <Documentation>
+                    <Description>Marketing carrier</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirlineCodeType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">MXC</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="fLT" type="xsd:string">
+                <Documentation>
+                    <Description>Marketing flight number</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">FLT</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="mFS" type="xsd:string">
+                <Documentation>
+                    <Description>Marketing flight suffix</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">MFS</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="eD1" type="xsd:date">
+                <Documentation>
+                    <Description>Effective date</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}date</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ED1</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="eD2" type="xsd:date">
+                <Documentation>
+                    <Description>Discontinue date</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}date</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ED2</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="eD3" type="xsd:string">
+                <Documentation>
+                    <Description>Frequency</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ED3</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="eD4" type="xsd:string">
+                <Documentation>
+                    <Description>Aggregated frequency</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ED4</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="sCH" type="xsd:long">
+                <Documentation>
+                    <Description>DB key of this schedule segment (schedule ID)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}long</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">SCH</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oDA" type="xsd:string">
+                <Documentation>
+                    <Description>Departure day adjust relative to LOF (line of flight) origin</Description>
+                    <Implementer>Changed type from {http://www.w3.org/2001/XMLSchema}short.</Implementer>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ODA</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oDD" type="xsd:string">
+                <Documentation>
+                    <Description>Local departure time HH::MM</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ODD</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oGA" type="xsd:string">
+                <Documentation>
+                    <Description>GMT adjustment for departure time</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">OGA</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oLN" type="xsd:string">
+                <Documentation>
+                    <Description>The leg number within LOF</Description>
+                    <Implementer>Changed type from {http://www.w3.org/2001/XMLSchema}unsignedShort.</Implementer>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">OLN</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oTC" type="xsd:string">
+                <Documentation>
+                    <Description>Departure terminal ID</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">OTC</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="dD2" type="xsd:string">
+                <Documentation>
+                    <Description>Arrival day adjust relative to boardpoint</Description>
+                    <Implementer>Changed type from {http://www.w3.org/2001/XMLSchema}short.</Implementer>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DD2</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="dSA" type="xsd:string">
+                <Documentation>
+                    <Description>Local arrive time</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DSA</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="dGA" type="xsd:string">
+                <Documentation>
+                    <Description>GMT adjustment for arrival time</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DGA</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="sTC" type="xsd:string">
+                <Documentation>
+                    <Description>Count of stops in LOF</Description>
+                    <Implementer>Changed type from {http://www.w3.org/2001/XMLSchema}unsignedShort.</Implementer>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">STC</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="dTC" type="xsd:string">
+                <Documentation>
+                    <Description>Arrival terminal ID</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DTC</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="iDA" type="xsd:string">
+                <Documentation>
+                    <Description>Index for date adjust - for PSS</Description>
+                    <Implementer>Changed type from {http://www.w3.org/2001/XMLSchema}short.</Implementer>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">IDA</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="cXC" type="xsd:string">
+                <Documentation>
+                    <Description>Class codes, optionally with class statuses if AVL call was requested</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">CXC</Equivalent>
+            </Attribute>
+            <Attribute name="aVC" type="xsd:string">
+                <Documentation>
+                    <Description>If AVL call was requested, this attribute will contain a list of AVS status codes (2 characters for each availability class)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">AVC</Equivalent>
+            </Attribute>
+            <Attribute name="aVT" type="xsd:string">
+                <Documentation>
+                    <Description>Availability Type - when used for Seamless Codeshare has value of 1</Description>
+                    <Implementer>Changed type from {http://www.w3.org/2001/XMLSchema}short.</Implementer>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">AVT</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="mX2" type="xsd:string">
+                <Documentation>
+                    <Description>Meal service</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">MX2</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oCX" type="AirlineCodeType">
+                <Documentation>
+                    <Description>Operating carrier</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirlineCodeType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">OCX</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oFN" type="xsd:string">
+                <Documentation>
+                    <Description>Operating flight number</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">OFN</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oPC" type="xsd:string">
+                <Documentation>
+                    <Description>Operating carrier pricing</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">OPC</Equivalent>
+            </Attribute>
+            <Attribute name="dCX" type="xsd:string">
+                <Documentation>
+                    <Description>Disclosure carrier</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DCX</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="mXX" type="xsd:string">
+                <Documentation>
+                    <Description>Other carriers and flight numbers marketing a base flight - space-delimited</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">MXX</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="aLX" type="xsd:string">
+                <Documentation>
+                    <Description>Alliances - eg. One World - OW</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ALX</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="tRS" type="xsd:string">
+                <Documentation>
+                    <Description>Flight tracking status (Dom. vs Intl)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">TRS</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="tRX" type="xsd:string">
+                <Documentation>
+                    <Description>Traffic restriction</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">TRX</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="tRA" type="xsd:string">
+                <Documentation>
+                    <Description>Traffic restriction application</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">TRA</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oNT" type="xsd:string">
+                <Documentation>
+                    <Description>On-time performance indicator</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ONT</Equivalent>
+            </Attribute>
+            <Attribute name="s07" type="xsd:string">
+                <Documentation>
+                    <Description>DOT disclosure message</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">S07</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="eQP" type="xsd:string">
+                <Documentation>
+                    <Description>Equipment code</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">EQP</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="eQ1" type="xsd:string">
+                <Documentation>
+                    <Description>Equipment for the first leg</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">EQ1</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="eQT" type="xsd:string">
+                <Documentation>
+                    <Description>Equipment type for the first leg (widebody etc.)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">EQT</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="dQ1" type="xsd:string">
+                <Documentation>
+                    <Description>Equipment for the last leg</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DQ1</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="dQT" type="xsd:string">
+                <Documentation>
+                    <Description>Equipment type for the last leg (widebody etc.)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DQT</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="lOF" type="xsd:string">
+                <Documentation>
+                    <Description>Line of flight (space-delimited)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">LOF</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oRC" type="xsd:string">
+                <Documentation>
+                    <Description>Origin country</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ORC</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="dSC" type="xsd:string">
+                <Documentation>
+                    <Description>Destination country</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DSC</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oRS" type="xsd:string">
+                <Documentation>
+                    <Description>Origin state</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ORS</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="dS2" type="xsd:string">
+                <Documentation>
+                    <Description>Destination state</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DS2</Equivalent>
+            </Attribute>
+            <Attribute name="fST" type="xsd:string">
+                <Documentation>
+                    <Description>Flight statused</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">FST</Equivalent>
+            </Attribute>
+            <Attribute name="mTH" type="xsd:integer">
+                <Documentation>
+                    <Description>Availability method used by Availability</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">MTH</Equivalent>
+            </Attribute>
+            <Attribute name="rCD" type="xsd:integer">
+                <Documentation>
+                    <Description>Return code from Availability</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">RCD</Equivalent>
+            </Attribute>
+            <Attribute name="pLI" type="xsd:string">
+                <Documentation>
+                    <Description>pollingIndicator - returned by Availability</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">PLI</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="tMS" type="xsd:string">
+                <Documentation>
+                    <Description>segment timestamp in format: YYYY-MM-DD HH:mm:ss</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">TMS</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="bRD" type="AirportCodeType">
+                <Documentation>
+                    <Description>Boarding city for origin airport</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirportCodeType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">BRD</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oFF" type="AirportCodeType">
+                <Documentation>
+                    <Description>Destination city for destination airport</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirportCodeType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">OFF</Equivalent>
+            </Attribute>
+            <Attribute name="pAC" type="xsd:string">
+                <Documentation>
+                    <Description>Passenger Checkin information (DEI299)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">PAC</Equivalent>
+            </Attribute>
+            <Attribute name="sAC" type="xsd:string">
+                <Documentation>
+                    <Description>Set Aside Classes (DEI905)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">SAC</Equivalent>
+            </Attribute>
+            <Element name="HSG" repeat="100000" type="HSG">
+                <Documentation>
+                    <Description>A list of hidden stops</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}HSGType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">HSG</Equivalent>
+            </Element>
+            <Element name="ALG" repeat="100000" type="ALG">
+                <Documentation>
+                    <Description>Detailed leg information</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}ALGType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ALG</Equivalent>
+            </Element>
+            <Element name="ODMsg" repeat="1" type="ODMsg">
+                <Documentation>
+                    <Description>Solution message for this city pair</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}ODMsgType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">SOM</Equivalent>
+            </Element>
+            <Element name="AncillaryInformation" repeat="1" type="AncillaryInformation">
+                <Documentation>
+                    <Description>Information about ancillaries (seats, bags, etc.) for this segment</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AncillaryInformation</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">VAI</Equivalent>
+            </Element>
+            <Indicator name="BBR" publishAsElement="false">
+                <Documentation>
+                    <Description>is the carrier a BBR carrier</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="NPR" publishAsElement="false">
+                <Documentation>
+                    <Description>is the carrier a non-participant carrier</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="ICD" publishAsElement="false">
+                <Documentation>
+                    <Description>is the carrier a call direct carrier</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="CTT" publishAsElement="false">
+                <Documentation>
+                    <Description>is the carrier a check tariff carrier</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="SSA" publishAsElement="false">
+                <Documentation>
+                    <Description>is the carrier an availability suppress carrier</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="DOT" publishAsElement="false">
+                <Documentation>
+                    <Description>DOT disclosure</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="LGS" publishAsElement="false">
+                <Documentation>
+                    <Description>Code Share exists</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="ETX" publishAsElement="false">
+                <Documentation>
+                    <Description>E-ticket indicator</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="SMK" publishAsElement="false">
+                <Documentation>
+                    <Description>Smoking allowed</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="CHT" publishAsElement="false">
+                <Documentation>
+                    <Description>Charter flight</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="FNL" publishAsElement="false">
+                <Documentation>
+                    <Description>Funnel flight</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="SGA" publishAsElement="false">
+                <Documentation>
+                    <Description>Subject to Government Approval (DEI201)</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="RAR" publishAsElement="false">
+                <Documentation>
+                    <Description>Request All Reservation (DEI507)</Description>
+                </Documentation>
+            </Indicator>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="ASL" notExtendable="false">
+        <Documentation>
+            <Description>Details of a single solution</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="tTT" type="xsd:integer">
+                <Documentation>
+                    <Description>Total travel time</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">TTT</Equivalent>
+            </Attribute>
+            <Attribute name="tLT" type="xsd:integer">
+                <Documentation>
+                    <Description>Total layover time</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">TLT</Equivalent>
+            </Attribute>
+            <Element mandatory="true" name="ASG" repeat="100000" type="ASG">
+                <Documentation>
+                    <Description>List of segments the solution consists of</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}ASGType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ASG</Equivalent>
+            </Element>
+            <Indicator name="SBD" publishAsElement="false">
+                <Documentation>
+                    <Description>If true, indicates this option is to be branded</Description>
+                </Documentation>
+            </Indicator>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="BRN" notExtendable="false">
+        <Documentation>
+            <Description>Brand data; text contents are the brand's text description</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute mandatory="true" name="cOD" type="xsd:string">
+                <Documentation>
+                    <Description>Brand code</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">COD</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="nAM" type="xsd:string">
+                <Documentation>
+                    <Description>Brand name</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">NAM</Equivalent>
+            </Attribute>
+            <Attribute name="bCX" type="PipeSeparatedClassList">
+                <Documentation>
+                    <Description>A '|' - delimited list of availability classes for this brand</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}PipeSeparatedClassList</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">BCX</Equivalent>
+            </Attribute>
+            <Element name="FBC" repeat="100000" type="FBC">
+                <Documentation>
+                    <Description>Fare basis codes associated with this brand</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}FBCType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">FBC</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <ValueWithAttrs name="CarrierCoverage" type="ota2:Empty">
+        <Equivalent context="http://www.sabre.com/ns/dss/v01">CarrierCoverageType</Equivalent>
+        <Attribute name="aPT" type="AirportCodeType">
+            <Documentation>
+                <Description>The airport the list of carriers is for</Description>
+                <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirportCodeType</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">APT</Equivalent>
+        </Attribute>
+        <Attribute name="rGN" type="Undefined:RegionType">
+            <Documentation>
+                <Description>The subarea the APT airport belongs to</Description>
+                <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}RegionType</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">RGN</Equivalent>
+        </Attribute>
+        <Attribute name="cXR" type="PipeSeparatedCarrierList">
+            <Documentation>
+                <Description>A | - separted list of carriers that fly from/to that airport</Description>
+                <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}PipeSeparatedCarrierList</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">CXR</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <CoreObject name="CMXResp" notExtendable="false">
+        <Documentation>
+            <Description>A wrapper for connection matrix response</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element name="SOL" repeat="100000" type="CnxMatrixSolution">
+                <Documentation>
+                    <Description>A list of possible combinations of delivering and receiving partial solutions</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}CnxMatrixSolutionType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">SOL</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <ValueWithAttrs name="CnxMatrixSolution" type="ota2:Empty">
+        <Documentation>
+            <Description>Solution data for conenction matrix request</Description>
+        </Documentation>
+        <Equivalent context="http://www.sabre.com/ns/dss/v01">CnxMatrixSolutionType</Equivalent>
+        <Attribute mandatory="true" name="dEL" type="xsd:integer">
+            <Documentation>
+                <Description>ID of delivering partial solution</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">DEL</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="rEC" type="xsd:integer">
+            <Documentation>
+                <Description>ID of receiving partial solution</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">REC</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <CoreObject name="CPG" notExtendable="false">
+        <Documentation>
+            <Description>Campaign data</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute mandatory="true" name="cID" type="xsd:integer">
+                <Documentation>
+                    <Description>Internal ID of campaign</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">CID</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="cOD" type="xsd:string">
+                <Documentation>
+                    <Description>Campaign code</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">COD</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="cXR" type="AirlineCodeType">
+                <Documentation>
+                    <Description>Carrier of this campaign</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirlineCodeType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">CXR</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oRG" type="AirportCodeType">
+                <Documentation>
+                    <Description>Origin of this campaign</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirportCodeType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ORG</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="dST" type="AirportCodeType">
+                <Documentation>
+                    <Description>Destination of this campaign</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirportCodeType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DST</Equivalent>
+            </Attribute>
+            <Element name="BRN" repeat="100000" type="BRN">
+                <Documentation>
+                    <Description>A list of brands for this campaign</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}BRNType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">BRN</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="CPL" notExtendable="false">
+        <Documentation>
+            <Description>Wraps the tags for the response for a connect paths request</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element name="CPT" repeat="100000" type="CPT">
+                <Documentation>
+                    <Description>A list of connect paths found on given market</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}CPTType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">CPT</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <ValueWithAttrs name="CPT" type="ota2:Empty">
+        <Documentation>
+            <Description>Contains data for a single connect path</Description>
+        </Documentation>
+        <Equivalent context="http://www.sabre.com/ns/dss/v01">CPTType</Equivalent>
+        <Attribute mandatory="true" name="pTH" type="xsd:string">
+            <Documentation>
+                <Description>A list of connect points this path consists of</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">PTH</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <CoreObject name="CSG" notExtendable="false">
+        <Documentation>
+            <Description>Details of a single segment</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute mandatory="true" name="sID" type="xsd:long">
+                <Documentation>
+                    <Description>Segment index</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}long</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">SID</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oRG" type="AirportCodeType">
+                <Documentation>
+                    <Description>Origin airport</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirportCodeType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ORG</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="dST" type="AirportCodeType">
+                <Documentation>
+                    <Description>Destination airport</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirportCodeType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DST</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="mXC" type="AirlineCodeType">
+                <Documentation>
+                    <Description>Marketing carrier</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirlineCodeType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">MXC</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="fLT" type="xsd:string">
+                <Documentation>
+                    <Description>Marketing flight number</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">FLT</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="eD1" type="xsd:date">
+                <Documentation>
+                    <Description>Effective date</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}date</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ED1</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="eD2" type="xsd:date">
+                <Documentation>
+                    <Description>Discontinue date</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}date</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ED2</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="eD3" type="xsd:string">
+                <Documentation>
+                    <Description>Frequency</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ED3</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="eD4" type="xsd:string">
+                <Documentation>
+                    <Description>Aggregated frequency</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ED4</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="sCH" type="xsd:long">
+                <Documentation>
+                    <Description>DB key of this schedule segment (schedule ID)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}long</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">SCH</Equivalent>
+            </Attribute>
+            <Attribute name="oDA" type="xsd:string">
+                <Documentation>
+                    <Description>Departure day adjust relative to LOF (line of flight) origin</Description>
+                    <Implementer>Changed type from {http://www.w3.org/2001/XMLSchema}short.</Implementer>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ODA</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oDD" type="xsd:string">
+                <Documentation>
+                    <Description>Local departure time HH::MM</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ODD</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oGA" type="xsd:string">
+                <Documentation>
+                    <Description>GMT adjustment for departure time</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">OGA</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oLN" type="xsd:string">
+                <Documentation>
+                    <Description>The leg number within LOF</Description>
+                    <Implementer>Changed type from {http://www.w3.org/2001/XMLSchema}unsignedShort.</Implementer>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">OLN</Equivalent>
+            </Attribute>
+            <Attribute name="oTC" type="xsd:string">
+                <Documentation>
+                    <Description>Departure terminal ID</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">OTC</Equivalent>
+            </Attribute>
+            <Attribute name="dD2" type="xsd:string">
+                <Documentation>
+                    <Description>Arrival day adjust relative to boardpoint</Description>
+                    <Implementer>Changed type from {http://www.w3.org/2001/XMLSchema}short.</Implementer>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DD2</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="dSA" type="xsd:string">
+                <Documentation>
+                    <Description>Local arrive time</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DSA</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="dGA" type="xsd:string">
+                <Documentation>
+                    <Description>GMT adjustment for arrival time</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DGA</Equivalent>
+            </Attribute>
+            <Attribute name="sTC" type="xsd:string">
+                <Documentation>
+                    <Description>Count of stops in LOF</Description>
+                    <Implementer>Changed type from {http://www.w3.org/2001/XMLSchema}unsignedShort.</Implementer>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">STC</Equivalent>
+            </Attribute>
+            <Attribute name="dTC" type="xsd:string">
+                <Documentation>
+                    <Description>Arrival terminal ID</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DTC</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="iDA" type="xsd:string">
+                <Documentation>
+                    <Description>Index for date adjust - for PSS</Description>
+                    <Implementer>Changed type from {http://www.w3.org/2001/XMLSchema}short.</Implementer>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">IDA</Equivalent>
+            </Attribute>
+            <Attribute name="cXC" type="xsd:string">
+                <Documentation>
+                    <Description>Class codes but only if AVL was not called</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">CXC</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="mX2" type="xsd:string">
+                <Documentation>
+                    <Description>Meal service</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">MX2</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oCX" type="AirlineCodeType">
+                <Documentation>
+                    <Description>Operating carrier</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirlineCodeType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">OCX</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oFN" type="xsd:string">
+                <Documentation>
+                    <Description>Operating flight number</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">OFN</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oPC" type="xsd:string">
+                <Documentation>
+                    <Description>Operating carrier pricing</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">OPC</Equivalent>
+            </Attribute>
+            <Attribute name="dCX" type="xsd:string">
+                <Documentation>
+                    <Description>Disclosure carrier</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DCX</Equivalent>
+            </Attribute>
+            <Attribute name="mXX" type="xsd:string">
+                <Documentation>
+                    <Description>Other carriers and flight numbers marketing a base flight - space-delimited</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">MXX</Equivalent>
+            </Attribute>
+            <Attribute name="aLX" type="xsd:string">
+                <Documentation>
+                    <Description>Alliances - eg. One World - OW</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ALX</Equivalent>
+            </Attribute>
+            <Attribute name="tRS" type="xsd:string">
+                <Documentation>
+                    <Description>Flight tracking status (Dom. vs Intl)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">TRS</Equivalent>
+            </Attribute>
+            <Attribute name="tRX" type="xsd:string">
+                <Documentation>
+                    <Description>Traffic restriction</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">TRX</Equivalent>
+            </Attribute>
+            <Attribute name="tRA" type="xsd:string">
+                <Documentation>
+                    <Description>Traffic restriction application</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">TRA</Equivalent>
+            </Attribute>
+            <Attribute name="oNT" type="xsd:string">
+                <Documentation>
+                    <Description>On-time performance indicator</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ONT</Equivalent>
+            </Attribute>
+            <Attribute name="s07" type="xsd:string">
+                <Documentation>
+                    <Description>DOT disclosure message</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">S07</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="eQP" type="xsd:string">
+                <Documentation>
+                    <Description>Equipment code</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">EQP</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="eQ1" type="xsd:string">
+                <Documentation>
+                    <Description>Equipment for the first leg</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">EQ1</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="eQT" type="xsd:string">
+                <Documentation>
+                    <Description>Equipment type for the first leg (widebody etc.)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">EQT</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="dQ1" type="xsd:string">
+                <Documentation>
+                    <Description>Equipment for the last leg</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DQ1</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="dQT" type="xsd:string">
+                <Documentation>
+                    <Description>Equipment type for the last leg (widebody etc.)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DQT</Equivalent>
+            </Attribute>
+            <Attribute name="lOF" type="xsd:string">
+                <Documentation>
+                    <Description>Line of flight (space-delimited)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">LOF</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oRC" type="xsd:string">
+                <Documentation>
+                    <Description>Origin country</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ORC</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="dSC" type="xsd:string">
+                <Documentation>
+                    <Description>Destination country</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DSC</Equivalent>
+            </Attribute>
+            <Attribute name="oRS" type="xsd:string">
+                <Documentation>
+                    <Description>Origin state</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ORS</Equivalent>
+            </Attribute>
+            <Attribute name="dS2" type="xsd:string">
+                <Documentation>
+                    <Description>Destination state</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DS2</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="tMS" type="xsd:string">
+                <Documentation>
+                    <Description>segment timestamp in format: YYYY-MM-DD HH:mm:ss</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">TMS</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="bRD" type="AirportCodeType">
+                <Documentation>
+                    <Description>Boarding city for origin airport</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirportCodeType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">BRD</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="oFF" type="AirportCodeType">
+                <Documentation>
+                    <Description>Destination city for destination airport</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirportCodeType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">OFF</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="pAC" type="xsd:string">
+                <Documentation>
+                    <Description>Passenger Checkin information (DEI299)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">PAC</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="sAC" type="xsd:string">
+                <Documentation>
+                    <Description>Set Aside Classes (DEI905)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">SAC</Equivalent>
+            </Attribute>
+            <Element name="HSG" repeat="100000" type="HSG">
+                <Documentation>
+                    <Description>A list of hidden stops</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}HSGType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">HSG</Equivalent>
+            </Element>
+            <Element name="ALG" repeat="100000" type="ALG">
+                <Documentation>
+                    <Description>Detailed leg information</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}ALGType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ALG</Equivalent>
+            </Element>
+            <Element name="ODMsg" repeat="1" type="ODMsg">
+                <Documentation>
+                    <Description>Solution message for this city pair</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}ODMsgType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">SOM</Equivalent>
+            </Element>
+            <Indicator name="BBR" publishAsElement="false">
+                <Documentation>
+                    <Description>is the carrier a BBR carrier</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="NPR" publishAsElement="false">
+                <Documentation>
+                    <Description>is the carrier a non-participant carrier</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="ICD" publishAsElement="false">
+                <Documentation>
+                    <Description>is the carrier a call direct carrier</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="CTT" publishAsElement="false">
+                <Documentation>
+                    <Description>is the carrier a check tariff carrier</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="SSA" publishAsElement="false">
+                <Documentation>
+                    <Description>is the carrier an availability suppress carrier</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="DOT" publishAsElement="false">
+                <Documentation>
+                    <Description>DOT disclosure</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="LGS" publishAsElement="false">
+                <Documentation>
+                    <Description>Code Share exists</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="ETX" publishAsElement="false">
+                <Documentation>
+                    <Description>E-ticket indicator</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="SMK" publishAsElement="false">
+                <Documentation>
+                    <Description>Smoking allowed</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="CHT" publishAsElement="false">
+                <Documentation>
+                    <Description>Charter flight</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="FNL" publishAsElement="false">
+                <Documentation>
+                    <Description>Funnel flight</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="SGA" publishAsElement="false">
+                <Documentation>
+                    <Description>Subject to Government Approval (DEI201)</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="RAR" publishAsElement="false">
+                <Documentation>
+                    <Description>Request All Reservation (DEI507)</Description>
+                </Documentation>
+            </Indicator>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="CSL" notExtendable="false">
+        <Documentation>
+            <Description>Details of a single solution</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="tTT" type="xsd:integer">
+                <Documentation>
+                    <Description>Total travel time</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">TTT</Equivalent>
+            </Attribute>
+            <Attribute name="tLT" type="xsd:integer">
+                <Documentation>
+                    <Description>Total layover time</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">TLT</Equivalent>
+            </Attribute>
+            <Element mandatory="true" name="SEG" repeat="100000" type="SEG">
+                <Documentation>
+                    <Description/>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}SEGType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">SEG</Equivalent>
+            </Element>
+            <Indicator name="SBD" publishAsElement="false">
+                <Documentation>
+                    <Description>If true, indicates this option is to be branded</Description>
+                </Documentation>
+            </Indicator>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <ValueWithAttrs name="DCK" type="ota2:Empty">
+        <Documentation>
+            <Description>Holds am information about a coookie - where to start if a consequent request will be made</Description>
+        </Documentation>
+        <Equivalent context="http://www.sabre.com/ns/dss/v01">DCKType</Equivalent>
+        <Attribute mandatory="true" name="cKI" type="xsd:string">
+            <Documentation>
+                <Description>The internal number of the last solution that has been outputted in this response</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">CKI</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <CoreObject name="DGR" notExtendable="false">
+        <Documentation>
+            <Description>Details of a single display group</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="oGA" type="xsd:string">
+                <Documentation>
+                    <Description>Origin GMT adjustement</Description>
+                    <Implementer>Changed type from {http://www.w3.org/2001/XMLSchema}short.</Implementer>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">OGA</Equivalent>
+            </Attribute>
+            <Attribute name="dGA" type="xsd:string">
+                <Documentation>
+                    <Description>Dest GMT adjustement</Description>
+                    <Implementer>Changed type from {http://www.w3.org/2001/XMLSchema}short.</Implementer>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DGA</Equivalent>
+            </Attribute>
+            <Element name="MSG" repeat="1" type="MSG">
+                <Documentation>
+                    <Description>Messages for this display group</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}MSGType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">MSG</Equivalent>
+            </Element>
+            <Indicator name="ORQ" publishAsElement="false">
+                <Documentation>
+                    <Description>Origin airport is the same airport as was requested</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="DRQ" publishAsElement="false">
+                <Documentation>
+                    <Description>Destination airport is the same airport as was requested</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="OMA" publishAsElement="false">
+                <Documentation>
+                    <Description>Origin airport is another airport in requested city or the city of requested airport</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="DMA" publishAsElement="false">
+                <Documentation>
+                    <Description>Destination airport is another airport in requested city or the city of requested airport</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="OAA" publishAsElement="false">
+                <Documentation>
+                    <Description>Origin airport is an alternate airport provide in the ODI request tag either in a list OAC or by mileage radius ORD</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="DAA" publishAsElement="false">
+                <Documentation>
+                    <Description>Destination airport is an alternate airport provide in the ODI request tag either in a list DAC or by mileage radius DRD</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="ODS" publishAsElement="false">
+                <Documentation>
+                    <Description>Origin is on GMT (always passed 0 here)</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="DDS" publishAsElement="false">
+                <Documentation>
+                    <Description>Destination is on GMT (always passed 0 here)</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="NMF" publishAsElement="false">
+                <Documentation>
+                    <Description>No more flights (always passed false here)</Description>
+                </Documentation>
+            </Indicator>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="DGR2" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element name="ASL" repeat="100000" type="ASL">
+                <Documentation>
+                    <Description>List of solutions that belongs to this group</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}ASLType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ASL</Equivalent>
+            </Element>
+            <Element name="CSL" repeat="100000" type="CSL">
+                <Documentation>
+                    <Description>A compact list of solutions that belongs to this group</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}CSLType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">CSL</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <ValueWithAttrs name="DsseError" type="ota2:Empty">
+        <Documentation>
+            <Description>DSSE Response error details</Description>
+        </Documentation>
+        <Equivalent context="http://www.sabre.com/ns/dss/v01">DsseErrorType</Equivalent>
+        <Attribute mandatory="true" name="cOD" type="xsd:integer">
+            <Documentation>
+                <Description>Error code</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">COD</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="mSG" type="xsd:string">
+            <Documentation>
+                <Description>Error message</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">MSG</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <CoreObject name="DsseResponse" notExtendable="false">
+        <Documentation>
+            <Description>DSSE Response consists 1-n Response Items. In case of completely invalid
+        request, the response may have no RespItems.</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="vER" type="xsd:string">
+                <Documentation>
+                    <Description>The version of the response</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">VER</Equivalent>
+            </Attribute>
+            <Attribute name="cOR" type="CorporateIDType">
+                <Documentation>
+                    <Description>Corporate ID (taken from the request)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}CorporateIDType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">COR</Equivalent>
+            </Attribute>
+            <Attribute name="tXN" type="ClientTransactionIDType">
+                <Documentation>
+                    <Description>Transaction ID (taken from the request)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}ClientTransactionIDType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">TXN</Equivalent>
+            </Attribute>
+            <Element mandatory="true" name="ERR" repeat="1" type="DsseError">
+                <Documentation>
+                    <Description>Contains processing error details</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}DsseErrorType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ERR</Equivalent>
+            </Element>
+            <Element mandatory="true" name="CPL" repeat="1" type="CPL">
+                <Documentation>
+                    <Description>A response for a connect paths request</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}CPLType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">CPL</Equivalent>
+            </Element>
+            <Element name="ODMsg" repeat="1" type="ODMsg">
+                <Documentation>
+                    <Description>Global message for this city pair</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}ODMsgType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ODM</Equivalent>
+            </Element>
+            <Element name="DIA" repeat="1" type="Undefined:DIAType">
+                <Documentation>
+                    <Description>Contains requested diagnostics generated
+        					during processing</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}DIAType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DIA</Equivalent>
+            </Element>
+            <Element mandatory="true" name="PTM" repeat="1" type="PTM">
+                <Documentation>
+                    <Description>Contains performance timings</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}PTMType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">PTM</Equivalent>
+            </Element>
+            <Element mandatory="true" name="CMXResp" repeat="1" type="CMXResp">
+                <Documentation>
+                    <Description>A response for a connection matrix request</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}CMXRespType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">CMX</Equivalent>
+            </Element>
+            <Element name="OCL" repeat="100000" type="CarrierCoverage">
+                <Documentation>
+                    <Description>Carrier coverage data for origin location(s) - outgoing flights</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}CarrierCoverageType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">OCL</Equivalent>
+            </Element>
+            <Element name="DCL" repeat="100000" type="CarrierCoverage">
+                <Documentation>
+                    <Description>Carrier coverage data for destination location(s) - incoming flights</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}CarrierCoverageType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DCL</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <ValueWithAttrs name="ErrorMessage" type="ota2:Empty">
+        <Documentation>
+            <Description>Ancillary information</Description>
+        </Documentation>
+        <Equivalent context="http://www.sabre.com/ns/dss/v01">ErrorMessage</Equivalent>
+        <Attribute name="v9W" type="Undefined:ErrorMessage_V9W">
+            <Documentation>
+                <Description>I = Info</Description>
+                <Implementer>LocalAnonymousType: ErrorMessage_V9W</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">V9W</Equivalent>
+        </Attribute>
+        <Attribute name="vFA" type="xsd:int">
+            <Documentation>
+                <Description>Fail code</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}int</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">VFA</Equivalent>
+        </Attribute>
+        <Attribute name="vAI" type="xsd:string">
+            <Documentation>
+                <Description>Airline code</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">VAI</Equivalent>
+        </Attribute>
+        <Attribute name="vTE" type="xsd:string">
+            <Documentation>
+                <Description>Text message</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">VTE</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <ValueWithAttrs name="FBC" type="ota2:Empty">
+        <Documentation>
+            <Description>Fare basis code and include indicator</Description>
+        </Documentation>
+        <Equivalent context="http://www.sabre.com/ns/dss/v01">FBCType</Equivalent>
+        <Attribute name="n21" type="xsd:string">
+            <Documentation>
+                <Description>Include indicator</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">N21</Equivalent>
+        </Attribute>
+        <Attribute name="sB6" type="xsd:string">
+            <Documentation>
+                <Description>Fare basis code</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">SB6</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <CoreObject name="FLL" notExtendable="false">
+        <Documentation>
+            <Description>Contains segments data for simple interface request</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element name="ASG" repeat="100000" type="ASG">
+                <Documentation>
+                    <Description>Segments data for requested flights</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}ASGType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">ASG</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <ValueWithAttrs name="FLS" type="ota2:Empty">
+        <Documentation>
+            <Description>Contains the MCT check data for a single segment</Description>
+        </Documentation>
+        <Equivalent context="http://www.sabre.com/ns/dss/v01">FLSType</Equivalent>
+        <Attribute mandatory="true" name="sEI" type="xsd:integer">
+            <Documentation>
+                <Description>Index of base segment in the request</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">SEI</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="cTV" type="xsd:integer">
+            <Documentation>
+                <Description>Value of minimum connect time between segments (SEI, SEI+1)</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">CTV</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="mCV" type="xsd:boolean">
+            <Documentation>
+                <Description>True - MCT check passed between segments (SEI, SEI+1), false otherwise</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}boolean</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">MCV</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <ValueWithAttrs name="FSD" type="ota2:Empty">
+        <Documentation>
+            <Description>Details of flight counts for a single carrier</Description>
+        </Documentation>
+        <Equivalent context="http://www.sabre.com/ns/dss/v01">FSDType</Equivalent>
+        <Attribute mandatory="true" name="cOD" type="AirlineCodeType">
+            <Documentation>
+                <Description>Carrier symbol</Description>
+                <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirlineCodeType</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">COD</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="iCD" type="xsd:boolean">
+            <Documentation>
+                <Description>If true, carrier is callDirect carrier</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}boolean</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">ICD</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="nST" type="xsd:integer">
+            <Documentation>
+                <Description>Non-stop flight count</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">NST</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="dIR" type="xsd:integer">
+            <Documentation>
+                <Description>Direct flight count</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">DIR</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="oNL" type="xsd:integer">
+            <Documentation>
+                <Description>Online flight count</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">ONL</Equivalent>
+        </Attribute>
+        <Attribute name="iSE" type="xsd:boolean">
+            <Documentation>
+                <Description>Interline service exists indicator</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}boolean</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">ISE</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <CoreObject name="HSG" notExtendable="false">
+        <Documentation>
+            <Description>Details about a single hidden stop</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute mandatory="true" name="a00" type="AirportCodeType">
+                <Documentation>
+                    <Description>Intermediate point airport code</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AirportCodeType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">A00</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="b40" type="xsd:string">
+                <Documentation>
+                    <Description>Equipment type for intermediate point</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">B40</Equivalent>
+            </Attribute>
+            <Attribute name="dDA" type="xsd:integer">
+                <Documentation>
+                    <Description>Departure day adjustment related to segment boardpoint</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DDA</Equivalent>
+            </Attribute>
+            <Attribute name="dD2" type="xsd:string">
+                <Documentation>
+                    <Description>Arrival day adjustment related to segment boardpoint</Description>
+                    <Implementer>Changed type from {http://www.w3.org/2001/XMLSchema}short.</Implementer>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DD2</Equivalent>
+            </Attribute>
+            <Attribute name="d03" type="xsd:date">
+                <Documentation>
+                    <Description>Departure date at intermediate point</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}date</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">D03</Equivalent>
+            </Attribute>
+            <Attribute name="d04" type="xsd:date">
+                <Documentation>
+                    <Description>Arrival date at intermediate point</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}date</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">D04</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="d31" type="xsd:string">
+                <Documentation>
+                    <Description>Departure time at intermediate point</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">D31</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="d32" type="xsd:string">
+                <Documentation>
+                    <Description>Arrival time at intermediate point</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">D32</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="d64" type="xsd:integer">
+                <Documentation>
+                    <Description>Elapsed layover time</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">D64</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="d65" type="xsd:integer">
+                <Documentation>
+                    <Description>Elapsed time flight leg</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">D65</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="d80" type="xsd:integer">
+                <Documentation>
+                    <Description>Intermediate point time zone</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">D80</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="q0M" type="xsd:integer">
+                <Documentation>
+                    <Description>Air miles for flight leg</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">Q0M</Equivalent>
+            </Attribute>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="MCT" notExtendable="false">
+        <Documentation>
+            <Description>Wrapper for MCT response tags</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element mandatory="true" name="SGP" repeat="100000" type="SGP">
+                <Documentation>
+                    <Description>A list of segment groups</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}SGPType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">SGP</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <ValueWithAttrs name="MER" type="ota2:Empty">
+        <Documentation>
+            <Description>Contains error information when a particular flight, sent by simple interface, couldn't be found</Description>
+        </Documentation>
+        <Equivalent context="http://www.sabre.com/ns/dss/v01">MERType</Equivalent>
+        <Attribute mandatory="true" name="cOD" type="xsd:integer">
+            <Documentation>
+                <Description>Error code, currently always set to 1</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">COD</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="mSG" type="xsd:string">
+            <Documentation>
+                <Description>error message</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">MSG</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="sEI" type="xsd:integer">
+            <Documentation>
+                <Description>segment index for the errorneous segment</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">SEI</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="cXR" type="xsd:string">
+            <Documentation>
+                <Description>carrier of the errorneous segment</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">CXR</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="fLN" type="xsd:integer">
+            <Documentation>
+                <Description>flight number of the errorneous segment</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">FLN</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <ValueWithAttrs name="MSG" type="ota2:Empty">
+        <Documentation>
+            <Description>Contains a single message for a display group</Description>
+        </Documentation>
+        <Equivalent context="http://www.sabre.com/ns/dss/v01">MSGType</Equivalent>
+        <Attribute mandatory="true" name="mSG" type="xsd:string">
+            <Documentation>
+                <Description>The message text to be displayed</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">MSG</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <CoreObject name="ODMsg" notExtendable="false">
+        <Documentation>
+            <Description>City pair message (origin-destination messsage) details</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute mandatory="true" name="tYP" type="Undefined:ODMsgType_TYP">
+                <Documentation>
+                    <Description>The type of message: FTM, FMB or FMF</Description>
+                    <Implementer>LocalAnonymousType: ODMsgType_TYP</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">TYP</Equivalent>
+            </Attribute>
+            <Attribute mandatory="true" name="mSG" type="xsd:string">
+                <Documentation>
+                    <Description>The message text</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">MSG</Equivalent>
+            </Attribute>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <ValueWithAttrs name="PTM" type="ota2:Empty">
+        <Documentation>
+            <Description>Performance timings</Description>
+        </Documentation>
+        <Equivalent context="http://www.sabre.com/ns/dss/v01">PTMType</Equivalent>
+        <Attribute mandatory="true" name="d83" type="xsd:double">
+            <Documentation>
+                <Description>Request Processing CPU Time</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}double</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">D83</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="d84" type="xsd:double">
+            <Documentation>
+                <Description>Request Processing Elapsed Time</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}double</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">D84</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="d85" type="xsd:double">
+            <Documentation>
+                <Description>XML Parsing CPU Time</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}double</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">D85</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="d86" type="xsd:double">
+            <Documentation>
+                <Description>XML Parsing Elapsed Time</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}double</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">D86</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="d87" type="xsd:double">
+            <Documentation>
+                <Description>Response Building CPU Time</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}double</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">D87</Equivalent>
+        </Attribute>
+        <Attribute mandatory="true" name="d88" type="xsd:double">
+            <Documentation>
+                <Description>Response Building Elapsed Time</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}double</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">D88</Equivalent>
+        </Attribute>
+        <Attribute name="nOD" type="xsd:string">
+            <Documentation>
+                <Description>Node name</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">NOD</Equivalent>
+        </Attribute>
+        <Attribute name="bSL" type="xsd:string">
+            <Documentation>
+                <Description>Server baseline</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">BSL</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <ValueWithAttrs name="SegmentAttributes" type="ota2:Empty">
+        <Documentation>
+            <Description>Attributes of a segment used in the application of a fee</Description>
+        </Documentation>
+        <Equivalent context="http://www.sabre.com/ns/dss/v01">SegmentAttributes</Equivalent>
+        <Attribute name="vFL" type="xsd:string">
+            <Documentation>
+                <Description>Flight number range</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">VFL</Equivalent>
+        </Attribute>
+        <Attribute name="vEQ" type="xsd:string">
+            <Documentation>
+                <Description>Equipment type</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">VEQ</Equivalent>
+        </Attribute>
+        <Attribute name="vCA" type="xsd:string">
+            <Documentation>
+                <Description>Cabin</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">VCA</Equivalent>
+        </Attribute>
+        <Attribute name="vCL" type="PipeSeparatedClassList">
+            <Documentation>
+                <Description>RBD/Booking Code/Classes of Service (separated by "|", e.g., F|C|Y)</Description>
+                <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}PipeSeparatedClassList</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">VCL</Equivalent>
+        </Attribute>
+        <Attribute name="vUP" type="xsd:string">
+            <Documentation>
+                <Description>Upgrade to class of service</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">VUP</Equivalent>
+        </Attribute>
+        <Attribute name="vST" type="xsd:string">
+            <Documentation>
+                <Description>Number of Seats available for the classes of service specified in the
+          ClassesOfService list</Description>
+                <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+            </Documentation>
+            <Equivalent context="http://www.sabre.com/ns/dss/v01">VST</Equivalent>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <CoreObject name="SEG" notExtendable="false">
+        <Documentation>
+            <Description>Schedule segment index + availability data</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute mandatory="true" name="sID" type="xsd:long">
+                <Documentation>
+                    <Description>Segment index</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}long</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">SID</Equivalent>
+            </Attribute>
+            <Attribute name="cID" type="xsd:integer">
+                <Documentation>
+                    <Description>If present, contains the branding internal campaign ID this segment belongs to</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">CID</Equivalent>
+            </Attribute>
+            <Attribute name="dDA" type="xsd:integer">
+                <Documentation>
+                    <Description>Departure day adjustment</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">DDA</Equivalent>
+            </Attribute>
+            <Attribute name="cXC" type="xsd:string">
+                <Documentation>
+                    <Description>Class codes with class statuses if AVL call was requested</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">CXC</Equivalent>
+            </Attribute>
+            <Attribute name="aVC" type="xsd:string">
+                <Documentation>
+                    <Description>If AVL call was requested, this attribute will contain a list of AVS status codes (2 characters for each availability class)</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">AVC</Equivalent>
+            </Attribute>
+            <Attribute name="aVT" type="xsd:string">
+                <Documentation>
+                    <Description>Availability Type - when used for Seamless Codeshare has value of 1</Description>
+                    <Implementer>Changed type from {http://www.w3.org/2001/XMLSchema}short.</Implementer>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">AVT</Equivalent>
+            </Attribute>
+            <Attribute name="fST" type="xsd:string">
+                <Documentation>
+                    <Description>Flight statused</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">FST</Equivalent>
+            </Attribute>
+            <Attribute name="mTH" type="xsd:integer">
+                <Documentation>
+                    <Description>Availability method used by ATAE</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">MTH</Equivalent>
+            </Attribute>
+            <Attribute name="rCD" type="xsd:integer">
+                <Documentation>
+                    <Description>Return code from ATAE</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">RCD</Equivalent>
+            </Attribute>
+            <Attribute name="pLI" type="xsd:integer">
+                <Documentation>
+                    <Description>PollingIndicator - returned by ATAE</Description>
+                    <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}integer</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">PLI</Equivalent>
+            </Attribute>
+            <Element name="AncillaryInformation" repeat="1" type="AncillaryInformation">
+                <Documentation>
+                    <Description>Information about ancillaries (seats, bags, etc.) for this segment</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}AncillaryInformation</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">VAI</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="SGP" notExtendable="false">
+        <Documentation>
+            <Description>Contains the MCT check data for segments in a segment group</Description>
+        </Documentation>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Element name="FLS" repeat="100000" type="FLS">
+                <Documentation>
+                    <Description>List of segments to perform MCT checks between</Description>
+                    <Implementer>Assigned XSD Type: {http://www.sabre.com/ns/dss/v01}FLSType</Implementer>
+                </Documentation>
+                <Equivalent context="http://www.sabre.com/ns/dss/v01">FLS</Equivalent>
+            </Element>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+</Library>

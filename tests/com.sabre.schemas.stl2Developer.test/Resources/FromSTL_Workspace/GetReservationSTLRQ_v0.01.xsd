@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema attributeFormDefault="unqualified"
+	elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://webservices.sabre.com/pnrbuilder"
+	xmlns:pnrb="http://webservices.sabre.com/pnrbuilder"
+	xmlns="http://webservices.sabre.com/pnrbuilder">
+
+
+    <xsd:element name="GetReservationRQ">
+      <xsd:complexType>
+        <xsd:sequence>
+          <xsd:element minOccurs="1" type="xsd:string" name="Locator"/>
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:element>
+
+</xsd:schema>

@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: schemacompiler-stl2
+Bundle-SymbolicName: com.sabre.schemas.stl2Developer.stl2
+Bundle-Version: 3.1.0.qualifier
+Bundle-Vendor: SABRE
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.sabre.schemas.stl2Developer.schemacompiler;bundle-version="3.1.0",
+ com.sabre.schemas.stl2Developer.ota2;bundle-version="3.1.0"
+Bundle-ClassPath: libs/schema-compiler-stl2-3.1-SNAPSHOT.jar,
+ org.springframework.context;bundle-version="3.0.6",
+ .
+Export-Package: com.sabre.schemacompiler.stl2
+SPI-Provider: *
+Import-Package: org.osgi.framework

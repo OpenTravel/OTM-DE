@@ -1,0 +1,1952 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2012 (x64) (http://www.altova.com) by Natakan Chinakarn (HP/SABRE) -->
+<!-- ========================================
+  File:             DsseResponse.xsd
+  Description:  DSSE Response XML Schema
+  Created:       2005-03-03
+  Author:         Prakash Kadamba,  Pawel Wyrzycki, Michal Grzemowski, Pawel Bulkowski, Bartlomiej Nagorski
+  Copyright Sabre 2004-2009
+  The copyright to the computer program(s) herein  is the property of Sabre.
+  The copyright to the computer program(s) herein is the property of Sabre. The program(s) may be used and/or copied only with
+   of Sabre or in accordance with the terms and conditions stipulated in the
+  agreement/contract under which the  program(s) have been supplied.
+========================================-->
+<xs:schema targetNamespace="http://www.sabre.com/ns/dss/v01" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.sabre.com/ns/dss/v01" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+	<xs:annotation>
+		<xs:documentation>dmh - 12/5/2011 - added namespace</xs:documentation>
+		<xs:documentation>DSSE Response XML Schema</xs:documentation>
+		<xs:documentation>Created: 2005-03-03</xs:documentation>
+		<xs:documentation>Author: Prakash Kadamba, Pawel Wyrzycki, Michal Grzemowski, Pawel Bulkowski,
+      Bartlomiej Nagorski, Marcin Olszewski</xs:documentation>
+		<xs:documentation>Copyright Sabre 2004-2009</xs:documentation>
+		<xs:documentation>The copyright to the computer program(s) herein is the property of Sabre. The
+      program(s) may be used and/or copied only with of Sabre or in accordance with the terms and
+      conditions stipulated in the agreement/contract under which the program(s) have been supplied.
+    </xs:documentation>
+	</xs:annotation>
+	<xs:annotation>
+		<xs:documentation>Changed 2009-10-01 Marcin Olszewski</xs:documentation>
+		<xs:documentation>Added elements related to ancillary information</xs:documentation>
+		<xs:documentation>Formatted and removed redundant XML schema definition attributes
+    </xs:documentation>
+	</xs:annotation>
+	<xs:include schemaLocation="CommonTypes.xsd"/>
+	<xs:element name="DSS" type="DsseResponseType">
+		<xs:annotation>
+			<xs:documentation>DSSE Response Element. This is a root element of this schema. It consists of
+        a number of response items.Each response item corresponds to the appropriate request item of
+        DSS Request. In case of completely invalid request, the response may have no items.
+      </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="DsseResponseType">
+		<xs:annotation>
+			<xs:documentation>DSSE Response consists 1-n Response Items. In case of completely invalid
+        request, the response may have no RespItems.</xs:documentation>
+		</xs:annotation>
+		<xs:choice>
+			<xs:sequence>
+				<xs:annotation>
+					<xs:documentation>This variant is being used if an error occurred during processing
+          </xs:documentation>
+				</xs:annotation>
+				<xs:element name="ERR" type="DsseErrorType">
+					<xs:annotation>
+						<xs:documentation>Contains processing error details</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+			<xs:sequence>
+				<xs:annotation>
+					<xs:documentation>This variant is used for building a response for a connect point request
+          </xs:documentation>
+				</xs:annotation>
+				<xs:element name="CPL" type="CPLType">
+					<xs:annotation>
+						<xs:documentation>A response for a connect paths request</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+			<xs:sequence>
+				<xs:annotation>
+					<xs:documentation>This variant is used for regular schedule search response, flight
+            details response, MCT check response, activity tracking status response or flight counts
+            response.</xs:documentation>
+				</xs:annotation>
+				<xs:choice>
+					<xs:sequence>
+						<xs:element name="CPG" type="CPGType" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>
+                        A list og campaigns returned by
+                        brading service
+                  </xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:choice>
+							<xs:sequence>
+								<xs:annotation>
+									<xs:documentation>
+                      Regular schedule search response with no display groups (ASL); branding header (if branding requested) - CPG.
+                    </xs:documentation>
+								</xs:annotation>
+								<xs:element name="ASL" type="ASLType" minOccurs="0" maxOccurs="unbounded">
+									<xs:annotation>
+										<xs:documentation>
+                        A list of solutions - response for standard request without grouping
+                      </xs:documentation>
+									</xs:annotation>
+								</xs:element>
+							</xs:sequence>
+							<xs:sequence>
+								<xs:element name="CSG" type="CSGType" minOccurs="0" maxOccurs="unbounded">
+									<xs:annotation>
+										<xs:documentation> A compact list of schedule segments </xs:documentation>
+									</xs:annotation>
+								</xs:element>
+								<xs:element name="CSL" type="CSLType" minOccurs="0" maxOccurs="unbounded">
+									<xs:annotation>
+										<xs:documentation>
+                        A compact list of solutions - response for standard request without grouping
+                      </xs:documentation>
+									</xs:annotation>
+								</xs:element>
+							</xs:sequence>
+						</xs:choice>
+						<xs:sequence>
+							<xs:annotation>
+								<xs:documentation>Solutions list - regular schedule search response with groups</xs:documentation>
+							</xs:annotation>
+							<xs:element name="DGR" type="DGRType" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>
+                      A list of display groups - response for standard request with grouping
+                    </xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="DCK" type="DCKType" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>
+                      Holds a cookie information - only present for EA DIV display groups
+                    </xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:sequence>
+					<xs:sequence>
+						<xs:annotation>
+							<xs:documentation>Flight counts response</xs:documentation>
+						</xs:annotation>
+						<xs:element name="FSD" type="FSDType" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>
+        							A response for flight count request
+        						</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+					<xs:sequence>
+						<xs:annotation>
+							<xs:documentation>
+                    Flight details response
+                  </xs:documentation>
+						</xs:annotation>
+						<xs:element name="FLL" type="FLLType">
+							<xs:annotation>
+								<xs:documentation>
+        							A response for a simple request
+        						</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+					<xs:sequence>
+						<xs:annotation>
+							<xs:documentation>MCT check response</xs:documentation>
+						</xs:annotation>
+						<xs:element name="MCT" type="MCTType">
+							<xs:annotation>
+								<xs:documentation>
+        							A response for a MCT request
+        						</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+					<xs:sequence>
+						<xs:annotation>
+							<xs:documentation>MCT check error response</xs:documentation>
+						</xs:annotation>
+						<xs:element name="MER" type="MERType">
+							<xs:annotation>
+								<xs:documentation>
+        							Contains an error detected during
+        							processing of either Simple Request,
+                                                                MCT Request or Connection Matrix Request
+        						</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+					<xs:sequence>
+						<xs:annotation>
+							<xs:documentation>Activity tracking status response</xs:documentation>
+						</xs:annotation>
+						<xs:element name="ACS" type="ACSType">
+							<xs:annotation>
+								<xs:documentation>
+        							A response for a Activity Status
+        							Tracking request
+        						</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element name="ODM" type="ODMsgType" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>
+        					Global message for this city pair
+        				</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="DIA" type="DIAType" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>
+        					Contains requested diagnostics generated
+        					during processing
+        				</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="PTM" type="PTMType">
+					<xs:annotation>
+						<xs:documentation>
+        					Contains performance timings
+        				</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+			<xs:sequence>
+				<xs:annotation>
+					<xs:documentation>This variant is being used for a response for connection matrix request</xs:documentation>
+				</xs:annotation>
+				<xs:element name="CMX" type="CMXRespType">
+					<xs:annotation>
+						<xs:documentation>
+        					A response for a connection matrix request
+        				</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+			<xs:sequence>
+				<xs:annotation>
+					<xs:documentation>This variant is being used if a request contained ODI CCV attribute with a value of true</xs:documentation>
+				</xs:annotation>
+				<xs:element name="OCL" type="CarrierCoverageType" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>Carrier coverage data for origin location(s) - outgoing flights</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="DCL" type="CarrierCoverageType" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>Carrier coverage data for destination location(s) - incoming flights</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:choice>
+		<xs:attribute name="VER" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The version of the response</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="COR" type="CorporateIDType">
+			<xs:annotation>
+				<xs:documentation>Corporate ID (taken from the request)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="TXN" type="ClientTransactionIDType">
+			<xs:annotation>
+				<xs:documentation>Transaction ID (taken from the request)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="DsseErrorType">
+		<xs:annotation>
+			<xs:documentation>DSSE Response error details</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="COD" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>Error code</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="MSG" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Error message</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="ASLType" mixed="true">
+		<xs:annotation>
+			<xs:documentation>Details of a single solution</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="ASG" type="ASGType" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>List of segments the solution consists of</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="SBD" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>If true, indicates this option is to be branded</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="TTT" type="xs:integer" use="optional">
+			<xs:annotation>
+				<xs:documentation>Total travel time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="TLT" type="xs:integer" use="optional">
+			<xs:annotation>
+				<xs:documentation>Total layover time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="ASGType">
+		<xs:annotation>
+			<xs:documentation>Details of a single segment</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="HSG" type="HSGType" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A list of hidden stops</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ALG" type="ALGType" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Detailed leg information</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SOM" type="ODMsgType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Solution message for this city pair
+          </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="VAI" type="AncillaryInformation" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Information about ancillaries (seats, bags, etc.) for this segment
+          </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="CID" type="xs:integer">
+			<xs:annotation>
+				<xs:documentation>If present, contains the branding internal campaign ID this segment belongs to</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DDA" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>departure day adjustment</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="BBR" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>is the carrier a BBR carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="NPR" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>is the carrier a non-participant carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ICD" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>is the carrier a call direct carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="CTT" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>is the carrier a check tariff carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="SSA" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>is the carrier an availability suppress carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="BCC" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Currently unused</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ORG" type="AirportCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Origin airport</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DST" type="AirportCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Destination airport</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="MXC" type="AirlineCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Marketing carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="FLT" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Marketing flight number</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="MFS" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Marketing flight suffix</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ED1" type="xs:date" use="required">
+			<xs:annotation>
+				<xs:documentation>Effective date </xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ED2" type="xs:date" use="required">
+			<xs:annotation>
+				<xs:documentation>Discontinue date</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ED3" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Frequency</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ED4" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Aggregated frequency</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="SCH" type="xs:long" use="required">
+			<xs:annotation>
+				<xs:documentation>DB key of this schedule segment (schedule ID)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ODA" type="xs:short" use="required">
+			<xs:annotation>
+				<xs:documentation>Departure day adjust relative to LOF (line of flight) origin</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ODD" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Local departure time HH::MM</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OGA" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>GMT adjustment for departure time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OLN" type="xs:unsignedShort" use="required">
+			<xs:annotation>
+				<xs:documentation>The leg number within LOF</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OTC" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Departure terminal ID</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DD2" type="xs:short" use="required">
+			<xs:annotation>
+				<xs:documentation>Arrival day adjust relative to boardpoint</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DSA" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Local arrive time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DGA" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>GMT adjustment for arrival time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="STC" type="xs:unsignedShort" use="required">
+			<xs:annotation>
+				<xs:documentation>Count of stops in LOF</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DTC" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Arrival terminal ID</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="IDA" type="xs:short" use="required">
+			<xs:annotation>
+				<xs:documentation>Index for date adjust - for PSS</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="CXC" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Class codes, optionally with class statuses if AVL call was requested</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="AVC" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>If AVL call was requested, this attribute will contain a list of AVS status codes (2 characters for each availability class)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="AVT" type="xs:short" default="0">
+			<xs:annotation>
+				<xs:documentation>Availability Type - when used for Seamless Codeshare has value of 1</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="MX2" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Meal service</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OCX" type="AirlineCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Operating carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OFN" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Operating flight number</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OPC" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Operating carrier pricing</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DCX" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Disclosure carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="MXX" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Other carriers and flight numbers marketing a base flight - space-delimited</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ALX" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Alliances - eg. One World - OW</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="TRS" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Flight tracking status (Dom. vs Intl)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="TRX" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Traffic restriction</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="TRA" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Traffic restriction application</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ONT" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>On-time performance indicator</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DOT" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>DOT disclosure</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="S07" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>DOT disclosure message</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="LGS" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>Code Share exists</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ETX" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>E-ticket indicator</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="SMK" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>Smoking allowed</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="CHT" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>Charter flight</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="FNL" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>Funnel flight</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="EQP" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Equipment code</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="EQ1" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Equipment for the first leg</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="EQT" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Equipment type for the first leg (widebody etc.)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DQ1" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Equipment for the last leg</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DQT" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Equipment type for the last leg (widebody etc.)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="LOF" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Line of flight (space-delimited)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ORC" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Origin country</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DSC" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Destination country</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ORS" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Origin state</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DS2" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Destination state</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="FST" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Flight statused</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="MTH" type="xs:integer">
+			<xs:annotation>
+				<xs:documentation>Availability method used by Availability</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="RCD" type="xs:integer">
+			<xs:annotation>
+				<xs:documentation>Return code from Availability</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="PLI" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>pollingIndicator - returned by Availability</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="TMS" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>segment timestamp in format: YYYY-MM-DD HH:mm:ss</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="BRD" type="AirportCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Boarding city for origin airport</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OFF" type="AirportCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Destination city for destination airport</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="SGA" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Subject to Government Approval (DEI201)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="RAR" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Request All Reservation (DEI507)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="PAC" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Passenger Checkin information (DEI299)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="SAC" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Set Aside Classes (DEI905)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="HSGType">
+		<xs:annotation>
+			<xs:documentation>Details about a single hidden stop</xs:documentation>
+		</xs:annotation>
+		<xs:sequence/>
+		<xs:attribute name="A00" type="AirportCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Intermediate point airport code</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="B40" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Equipment type for intermediate point</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DDA" type="xs:integer" use="optional" default="0">
+			<xs:annotation>
+				<xs:documentation>Departure day adjustment related to segment boardpoint</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DD2" type="xs:short" use="optional" default="0">
+			<xs:annotation>
+				<xs:documentation>Arrival day adjustment related to segment boardpoint</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="D03" type="xs:date" use="optional">
+			<xs:annotation>
+				<xs:documentation>Departure date at intermediate point</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="D04" type="xs:date" use="optional">
+			<xs:annotation>
+				<xs:documentation>Arrival date at intermediate point</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="D31" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Departure time at intermediate point</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="D32" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Arrival time at intermediate point</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="D64" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>Elapsed layover time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="D65" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>Elapsed time flight leg</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="D80" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>Intermediate point time zone</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Q0M" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>Air miles for flight leg</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="ALGType">
+		<xs:annotation>
+			<xs:documentation>Details about a single flight leg</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="ORG" type="AirportCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Origin airport code</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DST" type="AirportCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Destination airport code</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OCX" type="AirlineCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Operating carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DD2" type="xs:short" use="optional" default="0">
+			<xs:annotation>
+				<xs:documentation>Arrival day adjust relative to segment boardpoint</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="EQP" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Equipment type for the leg</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DPD" type="xs:date" use="required">
+			<xs:annotation>
+				<xs:documentation>Departure date at intermediate point</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DDA" type="xs:integer" use="optional" default="0">
+			<xs:annotation>
+				<xs:documentation>Departure day adjustment related to segment boardpoint</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ARD" type="xs:date" use="required">
+			<xs:annotation>
+				<xs:documentation>Arrival date at intermediate point</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DPT" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Departure time at intermediate point</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ART" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Arrival time at intermediate point</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="D64" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>Elapsed layover time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="D65" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>Elapsed time for the leg</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="MX2" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Meal service for the leg</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Q0M" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>Air miles for flight leg</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="SMK" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Smoking Indicator</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="SEA" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>DEI802 Seating Indicator</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ST1" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>DEI802 message text - first line</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ST2" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>DEI802 message text - second line</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="DGRType">
+		<xs:annotation>
+			<xs:documentation>Details of a single display group</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="MSG" type="MSGType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Messages for this display group</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:choice>
+				<xs:sequence>
+					<xs:element name="ASL" type="ASLType" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>List of solutions that belongs to this group</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+				<xs:sequence>
+					<xs:element name="CSL" type="CSLType" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>A compact list of solutions that belongs to this group</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute name="ORQ" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Origin airport is the same airport as was requested</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DRQ" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Destination airport is the same airport as was requested</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OMA" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Origin airport is another airport in requested city or the city of requested airport</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DMA" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Destination airport is another airport in requested city or the city of requested airport</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OAA" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Origin airport is an alternate airport provide in the ODI request tag either in a list OAC or by mileage radius ORD</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DAA" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Destination airport is an alternate airport provide in the ODI request tag either in a list DAC or by mileage radius DRD</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OGA" type="xs:short" default="0">
+			<xs:annotation>
+				<xs:documentation>Origin GMT adjustement</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ODS" type="xs:boolean" default="false">
+			<xs:annotation>
+				<xs:documentation>Origin is on GMT (always passed 0 here)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DGA" type="xs:short" default="0">
+			<xs:annotation>
+				<xs:documentation>Dest GMT adjustement</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DDS" type="xs:boolean" default="false">
+			<xs:annotation>
+				<xs:documentation>Destination is on GMT (always passed 0 here)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="NMF" type="xs:boolean" default="false">
+			<xs:annotation>
+				<xs:documentation>No more flights (always passed false here)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="CPGType">
+		<xs:annotation>
+			<xs:documentation>Campaign data</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="BRN" type="BRNType" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A list of brands for this campaign</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="CID" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>Internal ID of campaign</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="COD" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Campaign code</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="CXR" type="AirlineCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Carrier of this campaign</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ORG" type="AirportCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Origin of this campaign</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DST" type="AirportCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Destination of this campaign</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="BRNType" mixed="true">
+		<xs:annotation>
+			<xs:documentation>Brand data; text contents are the brand's text description</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="FBC" type="FBCType" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Fare basis codes associated with this brand</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="COD" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Brand code</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="NAM" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Brand name</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="BCX" type="PipeSeparatedClassList">
+			<xs:annotation>
+				<xs:documentation>A '|' - delimited list of availability classes for this brand</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="FBCType">
+		<xs:annotation>
+			<xs:documentation>Fare basis code and include indicator</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="N21" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Include indicator</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="SB6" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Fare basis code</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="PTMType">
+		<xs:annotation>
+			<xs:documentation>Performance timings</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="D83" type="xs:double" use="required">
+			<xs:annotation>
+				<xs:documentation>Request Processing CPU Time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="D84" type="xs:double" use="required">
+			<xs:annotation>
+				<xs:documentation>Request Processing Elapsed Time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="D85" type="xs:double" use="required">
+			<xs:annotation>
+				<xs:documentation>XML Parsing CPU Time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="D86" type="xs:double" use="required">
+			<xs:annotation>
+				<xs:documentation>XML Parsing Elapsed Time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="D87" type="xs:double" use="required">
+			<xs:annotation>
+				<xs:documentation>Response Building CPU Time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="D88" type="xs:double" use="required">
+			<xs:annotation>
+				<xs:documentation>Response Building Elapsed Time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="NOD" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Node name</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="BSL" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Server baseline</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="MSGType">
+		<xs:annotation>
+			<xs:documentation>Contains a single message for a display group</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="MSG" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The message text to be displayed</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="DCKType">
+		<xs:annotation>
+			<xs:documentation>Holds am information about a coookie - where to start if a consequent request will be made</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="CKI" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The internal number of the last solution that has been outputted in this response</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="FSDType">
+		<xs:annotation>
+			<xs:documentation>Details of flight counts for a single carrier</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="COD" type="AirlineCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Carrier symbol</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ICD" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>If true, carrier is callDirect carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="NST" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>Non-stop flight count</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DIR" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>Direct flight count</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ONL" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>Online flight count</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ISE" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Interline service exists indicator</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="DIAType">
+		<xs:annotation>
+			<xs:documentation>Diagnostics</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<xs:complexType name="FLLType" mixed="true">
+		<xs:annotation>
+			<xs:documentation>Contains segments data for simple interface request</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="ASG" type="ASGType" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Segments data for requested flights</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MCTType" mixed="true">
+		<xs:annotation>
+			<xs:documentation>Wrapper for MCT response tags</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="SGP" type="SGPType" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A list of segment groups</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SGPType">
+		<xs:annotation>
+			<xs:documentation>Contains the MCT check data for segments in a segment group</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="FLS" type="FLSType" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>List of segments to perform MCT checks between</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FLSType">
+		<xs:annotation>
+			<xs:documentation>Contains the MCT check data for a single segment</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="SEI" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>Index of base segment in the request</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="CTV" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>Value of minimum connect time between segments (SEI, SEI+1)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="MCV" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>True - MCT check passed between segments (SEI, SEI+1), false otherwise</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="ACSType">
+		<xs:annotation>
+			<xs:documentation>Response to a Activity Tracking Status request</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="APN" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Application</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ACY" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Activity</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ID1" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>ID</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="STU" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Status</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="TCU" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>Tracking count</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="CCU" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>Completion count</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="CTI" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Completion time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="CPTType">
+		<xs:annotation>
+			<xs:documentation>Contains data for a single connect path</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="PTH" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>A list of connect points this path consists of</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="CPLType" mixed="true">
+		<xs:annotation>
+			<xs:documentation>Wraps the tags for the response for a connect paths request</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="CPT" type="CPTType" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A list of connect paths found on given market</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CMXRespType" mixed="true">
+		<xs:annotation>
+			<xs:documentation>A wrapper for connection matrix response</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="SOL" type="CnxMatrixSolutionType" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A list of possible combinations of delivering and receiving partial solutions</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CnxMatrixSolutionType" mixed="true">
+		<xs:annotation>
+			<xs:documentation>Solution data for conenction matrix request</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="DEL" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>ID of delivering partial solution</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="REC" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>ID of receiving partial solution</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="MERType" mixed="true">
+		<xs:annotation>
+			<xs:documentation>Contains error information when a particular flight, sent by simple interface, couldn't be found</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="COD" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>Error code, currently always set to 1</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="MSG" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>error message</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="SEI" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>segment index for the errorneous segment</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="CXR" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>carrier of the errorneous segment</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="FLN" type="xs:integer" use="required">
+			<xs:annotation>
+				<xs:documentation>flight number of the errorneous segment</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="ODMsgType" mixed="true">
+		<xs:annotation>
+			<xs:documentation>City pair message (origin-destination messsage) details</xs:documentation>
+		</xs:annotation>
+		<xs:sequence></xs:sequence>
+		<xs:attribute name="TYP" use="required">
+			<xs:annotation>
+				<xs:documentation>The type of message: FTM, FMB or FMF</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="FMT"/>
+					<xs:enumeration value="FMF"/>
+					<xs:enumeration value="FMB"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="MSG" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The message text</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="CarrierCoverageType">
+		<xs:attribute name="APT" type="AirportCodeType">
+			<xs:annotation>
+				<xs:documentation>The airport the list of carriers is for</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="RGN" type="RegionType">
+			<xs:annotation>
+				<xs:documentation>The subarea the APT airport belongs to</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="CXR" type="PipeSeparatedCarrierList">
+			<xs:annotation>
+				<xs:documentation>A | - separted list of carriers that fly from/to that airport
+            </xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="AncillaryInformation">
+		<xs:annotation>
+			<xs:documentation>Information about ancillaries</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="V93" type="AncillaryService.OD" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A list of ancillaries for the current segment</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AncillaryService.OD">
+		<xs:annotation>
+			<xs:documentation>Ancillary information</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="V9Y" type="AncillaryFeeData" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Fee informations for this ancillary</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="V95" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Ancillary group</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="V9Z" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Ancillary commercial name</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="V9X" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Origin</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="VDE" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Destination</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="AncillaryFeeData">
+		<xs:annotation>
+			<xs:documentation>Ancillary fee information</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="V98" type="SegmentAttributes" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Defines for which segment attributes to apply this fee
+          </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="V96" type="AncillaryFee" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Fee amount information</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="VME" type="ErrorMessage" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Message aboout an error that happened during processing ancillaries
+          </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SegmentAttributes">
+		<xs:annotation>
+			<xs:documentation>Attributes of a segment used in the application of a fee</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="VFL" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Flight number range</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="VEQ" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Equipment type</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="VCA" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Cabin</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="VCL" type="PipeSeparatedClassList">
+			<xs:annotation>
+				<xs:documentation>RBD/Booking Code/Classes of Service (separated by "|", e.g., F|C|Y)
+        </xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="VUP" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Upgrade to class of service</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="VST" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Number of Seats available for the classes of service specified in the
+          ClassesOfService list</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="AncillaryFee">
+		<xs:annotation>
+			<xs:documentation>Fee information</xs:documentation>
+		</xs:annotation>
+		<xs:sequence></xs:sequence>
+		<xs:attribute name="V97">
+			<xs:annotation>
+				<xs:documentation>FeeAppl - specifies how the service fee is to be applied
+        </xs:documentation>
+				<xs:documentation>1 = Per one way</xs:documentation>
+				<xs:documentation>2 = Per round trip</xs:documentation>
+				<xs:documentation>3 = Per item</xs:documentation>
+				<xs:documentation>4 = Per travel</xs:documentation>
+				<xs:documentation>5 = Per ticket</xs:documentation>
+				<xs:documentation>Blank = No application</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="1"/>
+					<xs:enumeration value="2"/>
+					<xs:enumeration value="3"/>
+					<xs:enumeration value="4"/>
+					<xs:enumeration value="5"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="VCU" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Fee currency</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="V0F" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Fee amount</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="ErrorMessage">
+		<xs:annotation>
+			<xs:documentation>Ancillary information</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="V9W">
+			<xs:annotation>
+				<xs:documentation>MessageType</xs:documentation>
+				<xs:documentation>D = Display</xs:documentation>
+				<xs:documentation>W = Warning</xs:documentation>
+				<xs:documentation>N = Endorsement</xs:documentation>
+				<xs:documentation>R = Restriction</xs:documentation>
+				<xs:documentation>E = Error</xs:documentation>
+				<xs:documentation>I = Info</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="D"/>
+					<xs:enumeration value="W"/>
+					<xs:enumeration value="N"/>
+					<xs:enumeration value="R"/>
+					<xs:enumeration value="E"/>
+					<xs:enumeration value="I"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="VFA" type="xs:int">
+			<xs:annotation>
+				<xs:documentation>Fail code</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="VAI" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Airline code</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="VTE" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Text message</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="CSLType" mixed="true">
+		<xs:annotation>
+			<xs:documentation>Details of a single solution</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:annotation>
+				<xs:documentation>List of schedule segments</xs:documentation>
+			</xs:annotation>
+			<xs:element name="SEG" type="SEGType" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="SBD" type="xs:boolean" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>If true, indicates this option is to be branded</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="TTT" type="xs:integer" use="optional">
+			<xs:annotation>
+				<xs:documentation>Total travel time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="TLT" type="xs:integer" use="optional">
+			<xs:annotation>
+				<xs:documentation>Total layover time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="CSGType">
+		<xs:annotation>
+			<xs:documentation>Details of a single segment</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="HSG" type="HSGType" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A list of hidden stops</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ALG" type="ALGType" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Detailed leg information</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SOM" type="ODMsgType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Solution message for this city pair</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="SID" type="xs:long" use="required">
+			<xs:annotation>
+				<xs:documentation>Segment index</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="BBR" type="xs:boolean" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>is the carrier a BBR carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="NPR" type="xs:boolean" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>is the carrier a non-participant carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ICD" type="xs:boolean" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>is the carrier a call direct carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="CTT" type="xs:boolean" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>is the carrier a check tariff carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="SSA" type="xs:boolean" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>is the carrier an availability suppress carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ORG" type="AirportCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Origin airport</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DST" type="AirportCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Destination airport</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="MXC" type="AirlineCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Marketing carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="FLT" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Marketing flight number</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ED1" type="xs:date" use="required">
+			<xs:annotation>
+				<xs:documentation>Effective date </xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ED2" type="xs:date" use="required">
+			<xs:annotation>
+				<xs:documentation>Discontinue date</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ED3" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Frequency</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ED4" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Aggregated frequency</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="SCH" type="xs:long" use="required">
+			<xs:annotation>
+				<xs:documentation>DB key of this schedule segment (schedule ID)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ODA" type="xs:short" use="optional" default="0">
+			<xs:annotation>
+				<xs:documentation>Departure day adjust relative to LOF (line of flight) origin</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ODD" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Local departure time HH::MM</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OGA" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>GMT adjustment for departure time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OLN" type="xs:unsignedShort" use="required">
+			<xs:annotation>
+				<xs:documentation>The leg number within LOF</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OTC" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Departure terminal ID</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DD2" type="xs:short" use="optional" default="0">
+			<xs:annotation>
+				<xs:documentation>Arrival day adjust relative to boardpoint</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DSA" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Local arrive time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DGA" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>GMT adjustment for arrival time</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="STC" type="xs:unsignedShort" use="optional" default="0">
+			<xs:annotation>
+				<xs:documentation>Count of stops in LOF</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DTC" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Arrival terminal ID</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="IDA" type="xs:short" use="required">
+			<xs:annotation>
+				<xs:documentation>Index for date adjust - for PSS</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="CXC" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Class codes but only if AVL was not called</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="MX2" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Meal service</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OCX" type="AirlineCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Operating carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OFN" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Operating flight number</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OPC" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Operating carrier pricing</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DCX" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Disclosure carrier</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="MXX" type="xs:string" use="optional" default=";">
+			<xs:annotation>
+				<xs:documentation>Other carriers and flight numbers marketing a base flight - space-delimited</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ALX" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Alliances - eg. One World - OW</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="TRS" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Flight tracking status (Dom. vs Intl)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="TRX" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Traffic restriction</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="TRA" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Traffic restriction application</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ONT" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>On-time performance indicator</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DOT" type="xs:boolean" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>DOT disclosure</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="S07" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>DOT disclosure message</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="LGS" type="xs:boolean" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>Code Share exists</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ETX" type="xs:boolean" use="optional" default="true">
+			<xs:annotation>
+				<xs:documentation>E-ticket indicator</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="SMK" type="xs:boolean" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>Smoking allowed</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="CHT" type="xs:boolean" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>Charter flight</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="FNL" type="xs:boolean" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>Funnel flight</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="EQP" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Equipment code</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="EQ1" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Equipment for the first leg</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="EQT" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Equipment type for the first leg (widebody etc.)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DQ1" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Equipment for the last leg</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DQT" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Equipment type for the last leg (widebody etc.)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="LOF" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Line of flight (space-delimited)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ORC" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Origin country</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DSC" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Destination country</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="ORS" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Origin state</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DS2" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Destination state</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="TMS" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>segment timestamp in format: YYYY-MM-DD HH:mm:ss</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="BRD" type="AirportCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Boarding city for origin airport</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="OFF" type="AirportCodeType" use="required">
+			<xs:annotation>
+				<xs:documentation>Destination city for destination airport</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="SGA" type="xs:boolean" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>Subject to Government Approval (DEI201)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="RAR" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation>Request All Reservation (DEI507)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="PAC" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Passenger Checkin information (DEI299)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="SAC" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Set Aside Classes (DEI905)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="SEGType">
+		<xs:annotation>
+			<xs:documentation>Schedule segment index + availability data</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="VAI" type="AncillaryInformation" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Information about ancillaries (seats, bags, etc.) for this segment
+          </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="SID" type="xs:long" use="required">
+			<xs:annotation>
+				<xs:documentation>Segment index</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="CID" type="xs:integer" default="0">
+			<xs:annotation>
+				<xs:documentation>If present, contains the branding internal campaign ID this segment belongs to</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="DDA" type="xs:integer" use="optional" default="0">
+			<xs:annotation>
+				<xs:documentation>Departure day adjustment</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="CXC" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>Class codes with class statuses if AVL call was requested</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="AVC" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>If AVL call was requested, this attribute will contain a list of AVS status codes (2 characters for each availability class)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="AVT" type="xs:short" default="0">
+			<xs:annotation>
+				<xs:documentation>Availability Type - when used for Seamless Codeshare has value of 1</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="FST" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Flight statused</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="MTH" type="xs:integer" default="0">
+			<xs:annotation>
+				<xs:documentation>Availability method used by ATAE</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="RCD" type="xs:integer" default="0">
+			<xs:annotation>
+				<xs:documentation>Return code from ATAE</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="PLI" type="xs:integer" default="0">
+			<xs:annotation>
+				<xs:documentation>PollingIndicator - returned by ATAE</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="RegionType">
+		<xs:annotation>
+			<xs:documentation>2-digit region code</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="\d\d"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

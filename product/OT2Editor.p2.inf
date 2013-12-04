@@ -1,0 +1,5 @@
+instructions.configure=\
+org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/eclipsec.exe);\
+org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/notice.html);\
+org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/epl-v10.html);\
+org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/readme);\

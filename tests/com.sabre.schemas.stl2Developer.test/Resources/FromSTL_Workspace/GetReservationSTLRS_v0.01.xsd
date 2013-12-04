@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema attributeFormDefault="unqualified"
+	elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://webservices.sabre.com/pnrbuilder"
+	xmlns:pnrb="http://webservices.sabre.com/pnrbuilder"
+	xmlns="http://webservices.sabre.com/pnrbuilder">
+
+	<xsd:import namespace="http://services.sabre.com/STL/v01" schemaLocation="STL-SimpleTypes_v0.01.xsd"></xsd:import>
+ 	<xsd:include schemaLocation="PNRBuilderTypes_v0.01.xsd"></xsd:include> 
+
+    <xsd:element name="GetReservationRS">
+      <xsd:complexType>
+        <xsd:complexContent>
+          <xsd:extension base="GetReservationRSType"></xsd:extension>
+        </xsd:complexContent>
+      </xsd:complexType>
+    </xsd:element>
+
+
+	<xsd:complexType name="GetReservationRSType">
+  		<xsd:sequence>
+    <xsd:element name="Warnings" type="pnrb:Warnings.PNRB" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="Errors" type="pnrb:Errors.PNRB" minOccurs="0" maxOccurs="1" />
+           <xsd:element name="POS" type="pnrb:POS_Type.PNRB" minOccurs="0" maxOccurs="1">
+           		</xsd:element>
+			<xsd:element name="Reservation" type="pnrb:Reservation.PNRB"
+				minOccurs="0" maxOccurs="1">
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+</xsd:schema>

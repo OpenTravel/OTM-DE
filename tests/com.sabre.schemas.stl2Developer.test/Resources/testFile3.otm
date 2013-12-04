@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Library xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04 OTA2_LibraryModel_v1.4.5.xsd">
+    
+    <VersionScheme>OTA2</VersionScheme>
+    <Status>Draft</Status>
+    <Namespace>http://services.sabre.com/STL/Examples/v02</Namespace>
+    <Prefix>t3</Prefix>
+    <Name>Test3</Name>
+    <Import namespace="http://opentravel.org/common/v02" prefix="ota2"/>
+    <Context applicationContext="Default" context="default"/>
+    
+    <ValueWithAttrs name="AttributeGroupVWA" type="ota2:Empty">
+        <Attribute name="agentDuty" type="ota2:Code_AgentDuty">
+            <Documentation>
+                <Description>Typically a two to five character code (alpha, numeric, or combination) that specifies a travel agent duty code that is used for agency authentication.</Description>
+            </Documentation>
+        </Attribute>
+        <Attribute name="city" type="ota2:Code_IATA_City">
+            <Documentation>
+                <Description>A three character code for a city.</Description>
+            </Documentation>
+        </Attribute>
+        <Attribute name="ERSP" type="ota2:Code_IATA_ERSP">
+            <Documentation>
+                <Description>A unique IATA (in cooperation with ATA and ARC) code used as a means of identification when performing online bookings with airlines.</Description>
+            </Documentation>
+        </Attribute>
+        <Attribute name="state" type="ota2:Code_State">
+            <Documentation>
+                <Description>A 2 character abbreviation for a state.</Description>
+            </Documentation>
+        </Attribute>
+        <Attribute name="tour" type="ota2:Code_Tour">
+            <Documentation>
+                <Description>Up to a 32 character numeric or alphanumeric tour code.</Description>
+            </Documentation>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <ValueWithAttrs name="SimpleVWA" type="ota2:Name_Location">
+        <Documentation>
+            <Description>full name</Description>
+        </Documentation>
+        <Attribute name="fullname" type="ota2:Name_Proper">
+            <Documentation>
+                <Description>A name used to describe a person, place or thing, such as a hotel, airport or company.</Description>
+            </Documentation>
+        </Attribute>
+        <Attribute name="nickname" type="ota2:String_Medium">
+            <Documentation>
+                <Description>commonly used name</Description>
+            </Documentation>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <ValueWithAttrs name="VWA_as_valueType" type="SimpleVWA">
+        <Attribute name="family" type="ota2:String_Short">
+            <Documentation>
+                <Description>A string with a minimum length of 1 and a maximum length of 128.</Description>
+            </Documentation>
+        </Attribute>
+        <Attribute name="aka" type="ota2:String_Short">
+            <Documentation>
+                <Description>A string with a minimum length of 1 and a maximum length of 128.</Description>
+            </Documentation>
+        </Attribute>
+    </ValueWithAttrs>
+    
+</Library>
