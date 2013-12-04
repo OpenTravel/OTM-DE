@@ -70,7 +70,6 @@ public class VersionsTest extends RepositoryControllerTest {
                 .getState());
 
         // Create a valid example of each component type
-        //
         sbo = ml.addBusinessObjectToLibrary(secondLib, "sbo");
         bo = ml.addBusinessObjectToLibrary(testLibrary, "testBO");
         co = ml.addCoreObjectToLibrary(testLibrary, "testCO");
@@ -80,17 +79,14 @@ public class VersionsTest extends RepositoryControllerTest {
         ml.addOpenEnumToLibrary(testLibrary, "testOEnum");
         ml.addNestedTypes(testLibrary);
         ServiceNode svc = new ServiceNode(bo);
+        svc.setName(bo.getName() + "_Service");
         bo.setExtensible(true);
         ExtensionPointNode ep = new ExtensionPointNode(new TLExtensionPointFacet());
-        // TODO - throw error on setting assigned type on extension point facet.
-        // ep.setAssignedType(bo.getSummaryFacet());
         ep.setExtendsType(sbo.getSummaryFacet());
         testLibrary.addMember(ep);
         // Assert.assertTrue(testLibrary.isValid()); // you can't version an invalid library.
 
-        //
         // Create locked minor version
-        //
         newMinor = rc.createMinorVersion(chain.getHead());
 
         // The next two lines will break the check that tests TL and node counts. Un-comment to
@@ -104,7 +100,6 @@ public class VersionsTest extends RepositoryControllerTest {
         Assert.assertTrue(newMinor.isEditable());
         Assert.assertTrue(chain.isEditable());
         Assert.assertFalse(testLibrary.isEditable());
-        //
         Assert.assertEquals(2, chain.getLibraries().size());
         Assert.assertTrue(chain.getDescendants_NamedTypes().contains(bo));
         Assert.assertTrue(testLibrary.getDescendants_NamedTypes().contains(bo));
@@ -119,12 +114,14 @@ public class VersionsTest extends RepositoryControllerTest {
     @Test
     public void testFacets() {
         // test adding to existing locked version object
-        // int facetCount = bo.getChildren().size();
-        // bo.addFacet("custom1", "", TLFacetType.CUSTOM);
+        // TODO - prevent enabling in GUI AddCustomFacetAction.isEnabled() and AddQueryFacet
+        //
+        int facetCount = bo.getChildren().size();
+        bo.addFacet("custom1", "", TLFacetType.CUSTOM);
         // Adding to bo should fail...it should create a new bo and add it to that.
-        // FIXME
-        // Assert.assertEquals(facetCount, bo.getChildren().size());
-        // Assert.assertEquals(1, newMinor.getDescendants_NamedTypes().size());
+        // FIXME - test, code added but not tested.
+        Assert.assertEquals(facetCount, bo.getChildren().size());
+        Assert.assertEquals(1, newMinor.getDescendants_NamedTypes().size());
 
         // test adding to a new minor version component
         nbo = (BusinessObjectNode) bo.createMinorVersionComponent();
@@ -133,17 +130,14 @@ public class VersionsTest extends RepositoryControllerTest {
         Assert.assertEquals(1, newMinor.getDescendants_NamedTypes().size());
         Assert.assertTrue(chain.isValid());
         nbo.delete();
-        // FIXME - missing a complex type.
-        // After delete the chain complex aggregate needs to have older version added.
         checkCounts(chain);
     }
 
+    //
+    // Test handling of adding and deleting of new objects
+    //
     @Test
-    public void objectsInVersionedLibrary() throws LibrarySaveException, RepositoryException {
-
-        //
-        // Test handling of adding and deleting of new objects
-        //
+    public void testAddingAndDeleting() {
         nbo = ml.addBusinessObjectToLibrary(newMinor, "nbo");
 
         // The new bo should be in the minor library, not the base library.
@@ -165,10 +159,10 @@ public class VersionsTest extends RepositoryControllerTest {
         Assert.assertTrue(chain.isValid());
         // TODO - enable counts, wrong counts are due to add facet tests
         checkCounts(chain);
+    }
 
-        //
-        // Test adding properties
-        //
+    @Test
+    public void testAddingProperties() {
         Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
         // FIXME - the new property should not be on CO but on the new CO created in the versioned
         // library.
@@ -197,21 +191,24 @@ public class VersionsTest extends RepositoryControllerTest {
         Assert.assertEquals(0, nco.getSummaryFacet().getChildren().size());
         Assert.assertTrue(chain.isValid());
         nco.delete(); // keep counts accurate
-        // checkCounts(chain);
+        checkCounts(chain);
+    }
 
-        //
-        // Test Copying
-        //
+    @Test
+    public void testCopying() {
         // FIXME - causes npe in BusinessObjectNode fixAssignments() (293)
-        // nbo = (BusinessObjectNode) bo.clone("_copy");
-        // // copy should be in the new library
-        // Assert.assertTrue(chain.getDescendants_NamedTypes().contains(nbo));
-        // Assert.assertTrue(newMinor.getDescendants_NamedTypes().contains(nbo));
-        // Assert.assertFalse(testLibrary.getDescendants_NamedTypes().contains(nbo));
-        // Assert.assertTrue(chain.isValid());
-        // nbo.delete();
-        // checkCounts(chain);
+        nbo = (BusinessObjectNode) bo.clone("_copy");
+        // copy should be in the new library
+        Assert.assertTrue(chain.getDescendants_NamedTypes().contains(nbo));
+        Assert.assertTrue(newMinor.getDescendants_NamedTypes().contains(nbo));
+        Assert.assertFalse(testLibrary.getDescendants_NamedTypes().contains(nbo));
+        Assert.assertTrue(chain.isValid());
+        nbo.delete();
+        checkCounts(chain);
+    }
 
+    @Test
+    public void testMove() {
         //
         // Test Move
         //
@@ -242,10 +239,10 @@ public class VersionsTest extends RepositoryControllerTest {
 
         checkCounts(chain);
         Assert.assertTrue(chain.isValid());
+    }
 
-        //
-        // Test delete
-        //
+    @Test
+    public void testDelete() {
         // Try deleting content from the base library -- should fail
         bo.delete();
         Assert.assertTrue(testLibrary.getDescendants_NamedTypes().contains(bo));
@@ -295,16 +292,18 @@ public class VersionsTest extends RepositoryControllerTest {
         nbo.delete();
         // checkCounts(chain);
 
-        //
-        // Create major version
-        //
-        // make the minor final.
+    }
+
+    @Test
+    public void testMajor() {
+        // Create major version which makes the minor final.
         Assert.assertTrue(chain.isEditable());
         LibraryNode newMajor = rc.createMajorVersion(chain.getHead());
         Assert.assertFalse(chain.isEditable());
         LibraryChainNode newChain = newMajor.getChain();
-        // TODO - check counts after the problems above are fixed.
-        // checkCounts(newChain);
+        // The extension point will not be in the major. Add a complex to keep counts right.
+        ml.addBusinessObjectToLibrary(newMajor, "MajorBO");
+        checkCounts(newChain);
     }
 
     // Remember, getDescendents uses HashMap - only unique nodes.
