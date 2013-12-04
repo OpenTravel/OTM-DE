@@ -1,0 +1,76 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001 XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <!--
+   <parent>
+     <groupId>com.sabre.es</groupId>
+     <artifactId>com.sabre.schemas.stl2Developer.relang</artifactId>
+     <version>3.1.0-SNAPSHOT</version>
+     <relativePath>../com.sabre.schemas.stl2Developer.relang/</relativePath>
+   </parent>
+   -->
+
+   <groupId>com.sabre.es</groupId>
+   <artifactId>com.sabre.schemas.stl2Developer.p2Site</artifactId>
+   <packaging>pom</packaging>
+   <version>3.1.0-SNAPSHOT</version>
+
+   <build>
+     <plugins>
+       <plugin>
+         <groupId>org.reficio</groupId>
+         <artifactId>p2-maven-plugin</artifactId>
+         <version>1.0.1</version>
+         <executions>
+           <execution>
+             <id>default-cli</id>
+             <configuration>
+               <artifacts>
+                 <!-- groupId:artifactId:version -->
+                 <artifact><id>org.apache.aries.spifly:org.apache.aries.spifly.dynamic.bundle:1.0.0</id></artifact>
+                 <artifact><id>com.sabre.es:schema-compiler:3.1-SNAPSHOT</id></artifact>
+                 <artifact>
+                   <id>commons-logging:commons-logging:1.1.1</id>
+                   <instructions>
+                     <Import-Package>*;resolution:=optional</Import-Package>
+                     <Export-Package>*;version=1.1.1</Export-Package>
+                   </instructions>
+                 </artifact>
+                 <artifact>
+                   <id>aopalliance:aopalliance:1.0</id>
+                   <instructions>
+                     <Import-Package>*;resolution:=optional</Import-Package>
+                     <Export-Package>*;version=1.0</Export-Package>
+                   </instructions>
+                 </artifact>
+               </artifacts>
+             </configuration>
+           </execution>
+         </executions>
+       </plugin>
+
+       <plugin>
+         <groupId>org.mortbay.jetty</groupId>
+         <artifactId>jetty-maven-plugin</artifactId>
+         <version>8.1.5.v20120716</version>
+         <configuration>
+           <scanIntervalSeconds>10</scanIntervalSeconds>
+           <webAppSourceDirectory>${basedir}/target/repository/</webAppSourceDirectory>
+           <webApp>
+             <contextPath>/site</contextPath>
+           </webApp>
+         </configuration>
+       </plugin>
+     </plugins>
+   </build>
+
+   <pluginRepositories>
+     <pluginRepository>
+       <id>reficio</id>
+       <url>http://repo.reficio.org/maven/</url>
+     </pluginRepository>
+   </pluginRepositories>
+
+ </project>

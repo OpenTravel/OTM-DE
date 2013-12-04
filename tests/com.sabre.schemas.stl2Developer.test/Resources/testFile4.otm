@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Library xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04 OTA2_LibraryModel_v1.4.5.xsd">
+    
+    <VersionScheme>OTA2</VersionScheme>
+    <Status>Draft</Status>
+    <Namespace>http://services.sabre.com/STL/Test4/v02</Namespace>
+    <Prefix>t4</Prefix>
+    <Name>Test4</Name>
+    <Import namespace="http://opentravel.org/common/v02" prefix="ota2"/>
+    <Context applicationContext="Default" context="default"/>
+    
+    <CoreObject name="StandardCore" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:String_Long"/>
+        <Summary>
+            <Attribute name="flight_Number" type="ota2:Name_Location"/>
+            <Element name="Age" repeat="0" type="ota2:Name_Proper"/>
+            <Element name="AirlineSpecification" repeat="0" type="ota2:Date_YYYY"/>
+            <Element name="Flight_Misc" repeat="0" type="ota2:Date_Timestamp"/>
+            <Indicator name="testInd" publishAsElement="false"/>
+        </Summary>
+        <Detail>
+            <Attribute name="pRBD" type="ota2:Date_DateTime"/>
+            <Element name="RequestedDetailLevel" repeat="0" type="ota2:Date_Date"/>
+            <Element name="RestrictedPayload" repeat="0" type="ota2:Date_Birth"/>
+        </Detail>
+        <Roles>
+            <Role value="StdRole"/>
+            <Role value="DetailedRole"/>
+            <Role value="simpleRole"/>
+        </Roles>
+    </CoreObject>
+    
+    <CoreObject name="BasicCore" notExtendable="false">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="flightNum" type="ota2:String_Short"/>
+            <Element name="Age" repeat="0" type="ota2:Date_Birth"/>
+            <Element name="Flight_Misc" repeat="0" type="ota2:String_Medium"/>
+            <Element name="AirlineSpecification" repeat="0" type="ota2:String_Long"/>
+            <Indicator name="testInd" publishAsElement="false"/>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="CoreExtension" notExtendable="false">
+        <Extension extends="StandardCore"/>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Attribute name="aircraft_Type" type="ota2:String_Tiny"/>
+            <Element name="Aircraft_Configuration" repeat="0" type="ota2:String_Tiny"/>
+        </Summary>
+        <Detail>
+            <Element name="MealService_TypeList" repeat="0" type="ota2:Price"/>
+        </Detail>
+    </CoreObject>
+    
+    <BusinessObject name="StdCoreProperties" notExtendable="false">
+        <Aliases/>
+        <ID>
+            <Element name="StandardCore_Simple" repeat="0" type="StandardCore_Simple"/>
+        </ID>
+        <Summary>
+            <Element name="StandardCore" repeat="0" type="StandardCore"/>
+        </Summary>
+        <Detail/>
+    </BusinessObject>
+    
+    <BusinessObject name="SummaryCoreProperty" notExtendable="false">
+        <Aliases/>
+        <ID>
+            <Element name="StandardCore_Simple" repeat="0" type="StandardCore_Simple"/>
+        </ID>
+        <Summary>
+            <Element name="StandardCore_Summary" repeat="0" type="StandardCore_Summary">
+                <Documentation>
+                    <Description>This was assigned the summary facet.</Description>
+                </Documentation>
+            </Element>
+        </Summary>
+        <Detail/>
+    </BusinessObject>
+    
+    <BusinessObject name="DetailCoreProperty" notExtendable="false">
+        <Aliases/>
+        <ID>
+            <Element name="StandardCore_Simple" repeat="0" type="StandardCore_Simple"/>
+        </ID>
+        <Summary>
+            <Element name="StandardCore_Detail" repeat="0" type="StandardCore_Detail">
+                <Documentation>
+                    <Description>This was assigned the detail facet.</Description>
+                </Documentation>
+            </Element>
+        </Summary>
+        <Detail/>
+    </BusinessObject>
+    
+    <BusinessObject name="BaseCoreProperty" notExtendable="false">
+        <Aliases/>
+        <ID>
+            <Element name="StandardCore_Simple" repeat="0" type="StandardCore_Simple"/>
+        </ID>
+        <Summary>
+            <Element name="BasicCore" reference="true" repeat="0" type="BasicCore"/>
+        </Summary>
+        <Detail/>
+    </BusinessObject>
+    
+</Library>

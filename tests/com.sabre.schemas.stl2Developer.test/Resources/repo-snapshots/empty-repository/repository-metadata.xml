@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<otp:RepositoryInfo xmlns="http://www.w3.org/2001/XMLSchema" xmlns:otp="http://www.OpenTravel.org/ns/OTA2/RepositoryInfo_v01_00">
+    <otp:ID>test-repository</otp:ID>
+    <otp:DisplayName>OTA2.0 Test Repository</otp:DisplayName>
+    <otp:RootNamespace>http://www.OpenTravel.org</otp:RootNamespace>
+    <otp:RemoteRepositories>
+    </otp:RemoteRepositories>
+</otp:RepositoryInfo>

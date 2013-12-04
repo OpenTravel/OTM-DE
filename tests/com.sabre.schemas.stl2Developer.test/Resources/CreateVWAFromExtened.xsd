@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://com.sabre.schemas.stl2Developer.test"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified"
+  elementFormDefault="qualified" targetNamespace="http://com.sabre.schemas.stl2Developer.test">
+  <xsd:complexType name="Fee">
+    <xsd:simpleContent>
+      <xsd:extension base="Amount">
+        <xsd:attribute name="Currency" type="xsd:string" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="Amount">
+    <xsd:simpleContent>
+      <xsd:extension base="_amount">
+        <xsd:attribute default="USD" name="currencyCode"
+          type="xsd:string" />
+                <xsd:attribute name="currency" type="xsd:string" />
+            </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="_amount">
+    <xsd:restriction base="xsd:decimal">
+      <xsd:fractionDigits value="3" />
+      <xsd:maxInclusive value="100000000" />
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

@@ -1,0 +1,1416 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04" targetNamespace="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04"
+   elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+   <xsd:complexType name="AdditionalDoc">
+      <xsd:annotation>
+         <xsd:documentation>A 2.0 Model complexType that is an extension of
+            the Description complexType and has a
+            context-based usage indicator
+            attribute.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexContent>
+         <xsd:extension base="Description">
+            <xsd:attribute name="context" type="xsd:string" use="required">
+               <xsd:annotation>
+                  <xsd:documentation xml:lang="en">A usage
+                     indicator
+                     that describes a contextual use for its
+                     parent element.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:attribute>
+         </xsd:extension>
+      </xsd:complexContent>
+   </xsd:complexType>
+
+   <xsd:element name="Aliases" type="Name_XML_List">
+      <xsd:annotation>
+         <xsd:documentation>Aliases are a mechanism for providing alternate
+            names usable for valid element references for
+            an object or facet.
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+
+   <xsd:element name="Attribute" type="Attribute">
+      <xsd:annotation>
+         <xsd:documentation>A complexType that contains all the parameters
+            used to define an attribute in the 2.0 Model
+            Library. Note that
+            boolean indicators should NOT be defined as
+            an Attribute, instead,
+            define them in the
+            Indicator collection.
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+   <xsd:complexType name="Attribute">
+      <xsd:annotation>
+         <xsd:documentation>A complexType that contains all the parameters
+            used to define an attribute in the 2.0 Model
+            Library.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Documentation" minOccurs="0" />
+         <xsd:element ref="Equivalent" minOccurs="0" maxOccurs="100" />
+         <xsd:element ref="Example" minOccurs="0" maxOccurs="100" />
+      </xsd:sequence>
+      <xsd:attribute name="name" type="Name_XML" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The name of the attribute.</xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="type" type="Name_Type" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The atomic XML or 2.0 simpleType base type of the
+               attribute.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="mandatory" type="xsd:boolean" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>A boolean indicator of the cardinality of the
+               attribute. Note that unless specifically set
+               to true, the
+               indicator
+               is assumed to be false, e.g. the
+               attribute is optional.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+
+   <xsd:element name="BusinessObject" type="BusinessObject">
+      <xsd:annotation>
+         <xsd:documentation>2.0 Business Objects are containers for
+            application data (such as an itinerary or a traveler
+            profile.) A key
+            underlying structure of 2.0 Business Objects
+            are “facets” that
+            provide a unique identifier for
+            the object; categorize the object
+            content for both simple (light-weight) and complex implementations;
+            define a
+            specific
+            contextual use for the object; or provide a
+            mechanism for implementers to extend the object.
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+   <xsd:complexType name="BusinessObject">
+      <xsd:annotation>
+         <xsd:documentation>2.0 Business Objects are containers for
+            application data (such as an itinerary or a traveler
+            profile.) A key
+            underlying structure of 2.0 Business Objects
+            are “facets” that
+            provide a unique identifier for
+            the object; categorize the object
+            content for both simple (light-weight) and complex implementations;
+            define a
+            specific
+            contextual use for the object; or provide a
+            mechanism for implementers to extend the object.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Documentation" />
+         <xsd:element ref="Equivalent" minOccurs="0" maxOccurs="100" />
+         <xsd:element ref="Extension" minOccurs="0" maxOccurs="100" />
+         <xsd:element ref="Aliases" minOccurs="0" />
+         <xsd:element name="ID" type="Facet">
+            <xsd:annotation>
+               <xsd:documentation>The ID facet provides unique identifiers for
+                  the
+                  Business Object. Note that an ID facet
+                  must have a minimum of one
+                  attribute or an element defined.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Summary" type="Facet">
+            <xsd:annotation>
+               <xsd:documentation>The Summary facet is a collection of the most
+                  commonly utilized (required) information
+                  in the Business
+                  Object
+                  and provides a mechanism for creating
+                  light-weight web services.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Detail" type="Facet">
+            <xsd:annotation>
+               <xsd:documentation>The Detail facet is a collection of other
+                  (more
+                  detailed) information in the Business
+                  Object.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Query" type="Facet_Contextual" minOccurs="0" maxOccurs="100">
+            <xsd:annotation>
+               <xsd:documentation>The Query facet contains a set of properties
+                  that are used to retrieve one or more of
+                  its associated
+                  Business
+                  Objects.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Custom" type="Facet_Contextual" minOccurs="0" maxOccurs="100">
+            <xsd:annotation>
+               <xsd:documentation>The Custom facet provides proprietary
+                  implementer extensions of the Business Object.
+                  The Custom
+                  facet
+                  extends the Summary facet. It is typically
+                  contains:
+
+                  1) a subset of properties contained
+                  in the Detail facet
+                  (for example, the Detail facet contains 30 elements, but only two
+                  are required for
+                  the implementation
+                  and using the Custom facet
+                  provides a lighter-weight implementation)
+
+                  2) implementer
+                  proprietary elements and attributes not contained
+                  in either the Summary or Detail
+                  facets. These are
+                  typically specific
+                  to a company's usage of data, application or process.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="Name_XML" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The name of the business object.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="extendable" type="Empty">
+         <xsd:annotation>
+            <xsd:documentation>If present, this Business Object may contain
+               proprietary implementers extensions.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+
+   <xsd:complexType name="ContextDeclaration">
+      <xsd:annotation>
+         <xsd:documentation source="Description">A Context declaration
+            identifies
+            a string that represents a
+            application, system, database or schema
+            context that is related to this
+            2.0 Model by use of the @context
+            attribute.
+            It is a best practice to use a complete URI as the context identifier.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Documentation" minOccurs="0" />
+      </xsd:sequence>
+      <xsd:attribute name="context" type="xsd:string" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The acronym or shorthand value used throughout
+               the model to refer to this application
+               context.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="applicationContext" type="xsd:string" use="required">
+         <xsd:annotation>
+            <xsd:documentation>application, system, database or schema
+               context that is related to this 2.0
+               Modelapplication, system, database or schema
+               context that is related to this
+               2.0 Model. Best practice is
+               to
+               use an URI.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+
+   <xsd:element name="CoreObject" type="CoreObject">
+      <xsd:annotation>
+         <xsd:documentation>2.0 Core Objects are containers for application
+            data that define common representations of
+            real world objects that
+            are the same regardless of which travel
+            sector is using them, such
+            as an address,
+            phone number or payment card. Like 2.0 Business
+            Objects, Core Objects have an underlying structure with
+            “facets”
+            that categorize
+            the object content for both simple (light-weight)
+            and complex implementations; define
+            specific contextual uses (or
+            roles) for the object; or provide a mechanism for
+            implementers to
+            extend the
+            object. 2.0 Business Objects are comprised of one or more
+            Core Objects.
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+   <xsd:complexType name="CoreObject">
+      <xsd:annotation>
+         <xsd:documentation>2.0 Core Objects are containers for application
+            data that define common representations of
+            real world objects that
+            are the same regardless of which travel
+            sector is using them, such
+            as an address,
+            phone number or payment card. Like 2.0 Business
+            Objects, Core Objects have an underlying structure with
+            “facets”
+            that categorize
+            the object content for both simple (light-weight)
+            and complex implementations; define
+            specific contextual uses (or
+            roles) for the object; or provide a mechanism for
+            implementers to
+            extend the
+            object. Business Objects are typically comprised of one
+            or more Core Objects.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Documentation" />
+         <xsd:element ref="Equivalent" minOccurs="0" maxOccurs="100" />
+         <xsd:element ref="Extension" minOccurs="0" maxOccurs="100" />
+         <xsd:element ref="Aliases" minOccurs="0" />
+         <xsd:element name="Simple" type="SimpleFacet">
+            <xsd:annotation>
+               <xsd:documentation>Indicates the name of the 2.0 Simple Type or
+                  Closed Enumeration that represents the
+                  simplest form of the
+                  Core
+                  Object. For example, a Core Object may
+                  represent a phone number
+                  using a
+                  String_Phone as a base type with multiple associated
+                  associated attributes, such as "prefix" and
+                  "country code." The
+                  simple form of
+                  this Core Object could therefore be represented as
+                  just the string
+                  phone number.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Summary" type="Facet">
+            <xsd:annotation>
+               <xsd:documentation>The Summary facet is a collection of the most
+                  commonly utilized (required) information
+                  in the Core Object
+                  and
+                  provides a mechanism for creating
+                  light-weight web services and
+                  2.0 Business
+                  Objects.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Detail" type="Facet">
+            <xsd:annotation>
+               <xsd:documentation>The Detail facet is a collection of other
+                  (more
+                  detailed) information in the Core
+                  Object.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Roles" type="RoleList" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>One or a a collection of ways the Core Object
+                  may be used. When the Core Object is a
+                  collection, e.g. used
+                  as a
+                  list, the roles becomes an enumerated
+                  list added to the core object.
+                  For
+                  example, "Home" and "Work" phones.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="Name_XML" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The name of the Core Object.</xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="extendable" type="Empty">
+         <xsd:annotation>
+            <xsd:documentation>If present, this Core Object is extensible by
+               implementers and will have a "Custom"
+               (extension element) at the
+               bottom of object.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+
+   <xsd:complexType name="Description">
+      <xsd:annotation>
+         <xsd:documentation>A 2.0 Model complexType that is an extension of
+            the String_Documentation simpleType with a
+            maximum length constraint
+            of 2048.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:simpleContent>
+         <xsd:extension base="String_Documentation" />
+      </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:element name="Documentation" type="Documentation">
+      <xsd:annotation>
+         <xsd:documentation>A collection of descriptive and reference
+            information for implementers.
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+   <xsd:complexType name="Documentation">
+      <xsd:annotation>
+         <xsd:documentation>A collection of descriptive and reference
+            information for implementers.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="Description" type="Description">
+            <xsd:annotation>
+               <xsd:documentation xml:lang="en">The definitive (or
+                  closed) description of the object.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Developer" type="Description" minOccurs="0" maxOccurs="10">
+            <xsd:annotation>
+               <xsd:documentation xml:lang="en">Implementer-specific
+                  textual information, which may contain
+                  tips and warnings.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Deprecated" type="Description" minOccurs="0" maxOccurs="10">
+            <xsd:annotation>
+               <xsd:documentation xml:lang="en">A notification that
+                  the object has been marked for
+                  deprecation and the publication
+                  version or date for the final object
+                  deprecation.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Reference" type="xsd:anyURI" minOccurs="0" maxOccurs="10">
+            <xsd:annotation>
+               <xsd:documentation xml:lang="en">URL(s) to
+                  additional
+                  reference information. For example, a
+                  link to an OpenTravel best
+                  practice, an OpenTravel glossary
+                  definition and/or a third-party
+                  site and/or
+                  standard.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="MoreInfo" type="xsd:anyURI" minOccurs="0" maxOccurs="10">
+            <xsd:annotation>
+               <xsd:documentation xml:lang="en">URL(s) to
+                  additional
+                  documentation that includes links to
+                  publication schedules and
+                  instructions for submitting publication
+                  comments.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="OtherDoc" type="AdditionalDoc" minOccurs="0" maxOccurs="10">
+            <xsd:annotation>
+               <xsd:documentation xml:lang="en">Other documentation
+                  (not included in any of the other
+                  Documentation types in this
+                  element) with a context-based indicator.
+                  For example, a
+                  reference
+                  to an
+                  OpenTravel learning resource with a context of "OpenTravel
+                  Learning Resource."
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
+
+   <xsd:element name="Element" type="Property">
+      <xsd:annotation>
+         <xsd:documentation>A complexType that contains all the parameters
+            used to define an element in the 2.0 Model
+            Library.
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+
+   <xsd:simpleType name="Empty">
+      <xsd:annotation>
+         <xsd:documentation>Used in this schema as an indicator whose presense
+            is the True signal.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:restriction base="xsd:string">
+         <xsd:maxLength value="0" />
+      </xsd:restriction>
+   </xsd:simpleType>
+
+   <xsd:complexType name="Enum_Value">
+      <xsd:annotation>
+         <xsd:documentation>A single simple type definition with enumerated
+            values.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Documentation" minOccurs="0" />
+         <xsd:element ref="Equivalent" minOccurs="0" maxOccurs="100" />
+      </xsd:sequence>
+      <xsd:attribute name="literal" type="String_Short" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The name/value of an item in the enumerated list.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+
+   <xsd:simpleType name="Enum_xsdSimpleType">
+      <xsd:annotation>
+         <xsd:documentation>A W3C supported atomic base type for an enumerated
+            list.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:restriction base="xsd:NMTOKEN">
+         <xsd:enumeration value="anyURI" />
+         <xsd:enumeration value="boolean" />
+         <xsd:enumeration value="date" />
+         <xsd:enumeration value="dateTime" />
+         <xsd:enumeration value="decimal" />
+         <xsd:enumeration value="double" />
+         <xsd:enumeration value="float" />
+         <xsd:enumeration value="duration" />
+         <xsd:enumeration value="ID" />
+         <xsd:enumeration value="IDREF" />
+         <xsd:enumeration value="IDREFS" />
+         <xsd:enumeration value="long" />
+         <xsd:enumeration value="int" />
+         <xsd:enumeration value="integer" />
+         <xsd:enumeration value="positiveInteger" />
+         <xsd:enumeration value="QName" />
+         <xsd:enumeration value="string" />
+         <xsd:enumeration value="time" />
+      </xsd:restriction>
+   </xsd:simpleType>
+
+   <xsd:element name="Enumeration_Closed" type="Enumeration_Closed">
+      <xsd:annotation>
+         <xsd:documentation>A 2.0 Closed Enumeration has a String_Short
+            simpleType base and is used when:
+
+            1) The quantity
+            of items in the enumerated list are not expected to
+            exceed 256
+            2) The items in the enumerated list are static,
+            such as days of the
+            week and ISO currency codes
+            2) The items in the enumerated list are actionable in a
+            processing
+            environment, such as target processing system (production/ test)
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+   <xsd:complexType name="Enumeration_Closed">
+      <xsd:annotation>
+         <xsd:documentation>A 2.0 Closed Enumeration has a String_Short
+            simpleType base and is used when:
+
+            1) The quantity
+            of items in the enumerated list are not expected to
+            exceed 256
+            2) The items in the enumerated list are static,
+            such as days of the
+            week and ISO currency codes
+            2) The items in the enumerated list are actionable in a
+            processing
+            environment, such as target processing system (production/ test)
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Documentation" minOccurs="0" />
+         <xsd:element name="Value" type="Enum_Value" maxOccurs="256">
+            <xsd:annotation>
+               <xsd:documentation>A collection of enumerated list items.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="Name_XML" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The name of the Enumeration.</xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+   <xsd:element name="Enumeration_Open" type="Enumeration_Open">
+      <xsd:annotation>
+         <xsd:documentation>A 2.0 Open Enumeration has a String_Short
+            simpleType base and is used when:
+
+            1) The quantity of
+            items in the enumerated list are not expected to
+            exceed 255
+
+            2) The items in the enumerated list contain a base
+            of values that may
+            be extended by implementers to exchange unique/ proprietary values
+            with trading partners
+
+            Note that the
+            2.0 Open Enumeration has the same content model as a
+            Closed Enumeration. The element/type name
+            is different to indicate
+            different meaning and intent. Note, that OpenTravel
+            2.0 compatible
+            compilers will
+            turn Open Enumerations into a complexType and Closed
+            Enumerations into a simple type.
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+   <xsd:complexType name="Enumeration_Open">
+      <xsd:annotation>
+         <xsd:documentation>A 2.0 Open Enumeration has a String_Short
+            simpleType base and is used when:
+
+            1) The quantity of
+            items in the enumerated list are not expected to
+            exceed 256
+
+            2) The items in the enumerated list contain a base
+            of values that may
+            be extended by implementers to exchange unique/ proprietary values
+            with trading partners
+
+            Note that the
+            2.0 Open Enumeration has the same content model as a
+            Closed Enumeration. The element/type name
+            is different to indicate
+            different meaning and intent. Note, that OpenTravel
+            2.0 compatible
+            compilers will
+            turn Open Enumerations into a complexType and Closed
+            Enumerations into a simple type.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexContent>
+         <xsd:extension base="Enumeration_Closed" />
+      </xsd:complexContent>
+   </xsd:complexType>
+
+   <xsd:element name="Equivalent" type="Equivalent">
+      <xsd:annotation>
+         <xsd:documentation>A complexType that provides a mechanism to relate
+            a 2.0 element or attribute to an
+            implementer defined application
+            standard, schema and/ or database that
+            is identified by its
+            associated
+            @context.
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+   <xsd:complexType name="Equivalent">
+      <xsd:annotation>
+         <xsd:documentation>Although not formally a part of the OpenTravel 2.0
+            Object Model, this implementer benefit
+            provides a string-based
+            complexType that provides a mechanism to
+            relate a 2.0 element or
+            attribute to an
+            implementer defined application, standard, schema
+            and/ or database that is identified by its associated
+            @context.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:simpleContent>
+         <xsd:extension base="xsd:string">
+            <xsd:attribute name="context" use="optional">
+               <xsd:annotation>
+                  <xsd:documentation>A string value that describes a contextual
+                     use
+                     for its parent element.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:attribute>
+         </xsd:extension>
+      </xsd:simpleContent>
+   </xsd:complexType>
+
+   <xsd:element name="Example" type="Example">
+      <xsd:annotation>
+         <xsd:documentation>One or more implementation example(s) with an
+            associated context.
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+   <xsd:complexType name="Example">
+      <xsd:annotation>
+         <xsd:documentation>One or more implementation example(s) with an
+            associated context.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:simpleContent>
+         <xsd:extension base="xsd:string">
+            <xsd:attribute name="context" use="optional">
+               <xsd:annotation>
+                  <xsd:documentation>A string value that describes a contextual
+                     use
+                     for its parent element.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:attribute>
+         </xsd:extension>
+      </xsd:simpleContent>
+   </xsd:complexType>
+
+   <xsd:element name="Extension" type="Extension" />
+   <xsd:complexType name="Extension">
+      <xsd:annotation>
+         <xsd:documentation>A mechanism to represent if this object
+            extends the definition of another Core or Business
+            Object.
+            ns and object identifies the namespace of the extended
+            object.
+            (Phase 2 will define how extensions are
+            applied when creating xsd schemas.)
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Documentation" minOccurs="0" />
+      </xsd:sequence>
+      <xsd:attribute name="extends" type="Name_Type" use="required">
+         <xsd:annotation>
+            <xsd:documentation>Namespace prefix and object name
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+   <xsd:element name="ExtensionCustomFacet" type="Facet_Contextual">
+      <xsd:annotation>
+         <xsd:documentation>A mechanism to represent if this facet
+            extends the definition of a Business Object as an
+            custom facet.
+            (Phase 2 will define how extensions are applied when
+            creating xsd schemas.)
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+   <xsd:element name="ExtensionPointFacet" type="Facet_Contextual">
+      <xsd:annotation>
+         <xsd:documentation>A mechanism to represent if this facet
+            defines the content of a Core or Business Object
+            extension point.
+            (Phase 2 will define how extensions are applied
+            when creating xsd schemas.)
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+
+   <xsd:complexType name="Facet">
+      <xsd:annotation>
+         <xsd:documentation>A key underlying structure of 2.0 Business
+            Objects, a Facet provides a unique identifier for
+            the object;
+            categorizes the object content for both simple
+            (light-weight) and
+            complex implementations; defines
+            a specific contextual use for the
+            object; or provides a mechanism for implementers to extend the
+            object.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Documentation" minOccurs="0" />
+         <xsd:element ref="Aliases" minOccurs="0" maxOccurs="100">
+            <xsd:annotation>
+               <xsd:documentation> Aliases define element names that will be of the same
+                type as the containing object. Note: aliases are only used on extension
+               facets.
+            </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+         <xsd:element ref="Attribute" minOccurs="0" maxOccurs="100" />
+         <xsd:element name="Element" type="Property" minOccurs="0" maxOccurs="100">
+            <xsd:annotation>
+               <xsd:documentation>A complexType that contains all the parameters
+                  used to define an element in the 2.0 Model Library.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element ref="Indicator" minOccurs="0" maxOccurs="100" />
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="Facet_Contextual">
+      <xsd:annotation>
+         <xsd:documentation>A description of an object facet whose context is
+            specific to a usage of the data, a company,
+            application or process
+            for example. Custom facets extend the
+            object's summary facet.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexContent>
+         <xsd:extension base="Facet">
+            <xsd:attribute name="context" type="Name_XML" use="required">
+               <xsd:annotation>
+                  <xsd:documentation>A usage indicator that describes a
+                     contextual
+                     use for its parent element.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="extendable" type="Empty">
+               <xsd:annotation>
+                  <xsd:documentation>If present, this facet is extensible by
+                     implementers and will have anextension
+                     element at the
+                     bottom of objects.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="extends" type="Name_Type">
+               <xsd:annotation>
+                  <xsd:documentation>A mechanism to represent if this object
+                     extends
+                     the definition of another object
+                     (Phase 2.)
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:attribute>
+         </xsd:extension>
+      </xsd:complexContent>
+   </xsd:complexType>
+
+   <xsd:element name="Indicator" type="Indicator">
+      <xsd:annotation>
+         <xsd:documentation>All boolean indicator properties that are
+            associated with a 2.0 Component, e.g. @isChildInd.
+            Note that NO
+            indicators like this should be defined as an
+            Attribute. All
+            Indicators are assumed false unless
+            asserted true.
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+   <xsd:complexType name="Indicator">
+      <xsd:annotation>
+         <xsd:documentation>All boolean indicator properties that are
+            associated with a 2.0 Component, e.g. @isChildInd.
+            Note that NO
+            indicators like this should be defined as an
+            Attribute. All
+            Indicators are assumed false unless
+            asserted true.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Documentation" minOccurs="0" />
+         <xsd:element ref="Equivalent" minOccurs="0" maxOccurs="100" />
+      </xsd:sequence>
+      <xsd:attribute name="name" type="Name_XML" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The name of the boolean indicator.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+
+   <xsd:element name="Library" type="Library">
+      <xsd:annotation>
+         <xsd:documentation>One OpenTravel 2.0 XML Object Suite library
+            definition that contains a collection of 2.0 XML
+            structures.
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+   <xsd:complexType name="Library">
+      <xsd:annotation>
+         <xsd:documentation>One OpenTravel 2.0 XML Object Suite library
+            definition that contains a collection of 2.0 XML
+            structures.
+            TODO - add extension facets to the main choice
+            group...!!!
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="VersionScheme" type="Name_Version">
+            <xsd:annotation>
+               <xsd:documentation>The version details of the 2.0 XML Object
+                  Suite
+                  library.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="PatchLevel" type="Name_XML" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>??? What is this?</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Namespace" type="xsd:anyURI">
+            <xsd:annotation>
+               <xsd:documentation>A URI-based namespace for the 2.0 XML Object
+                  Suite library.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Prefix" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>The prefix name for an OpenTravel 2.0 XML
+                  Object
+                  Suite library, such as "OTA2_".
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Name" type="Name_File">
+            <xsd:annotation>
+               <xsd:documentation>The name of the 2.0 XML Object Suite library
+                  (excluding the prefix.)
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Includes" type="xsd:string" minOccurs="0" maxOccurs="100">
+            <xsd:annotation>
+               <xsd:documentation>A list of Includes associated with this 2.0
+                  XML
+                  Object Suite library.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Import" type="NamespaceImport" minOccurs="0" maxOccurs="100">
+            <xsd:annotation>
+               <xsd:documentation>Used to specify the addition of multiple
+                  schemas
+                  with different target namespace to the
+                  document.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Context" type="ContextDeclaration" minOccurs="0" maxOccurs="100">
+            <xsd:annotation>
+               <xsd:documentation>Context is an implementer defined string
+                  that provides a mechanism to relate a 2.0
+                  model to an implementer
+                  defined application, standard, schema and/
+                  or database that is identified
+                  by its
+                  associated @context.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="LibraryID" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>A string used by complier to assign a unique
+                  identifier to each global type created.
+                  Can be over ridden by complier command line parameter.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Comments" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>Comments related to the 2.0 XML Object library.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:group ref="terms" maxOccurs="unbounded">
+            <xsd:annotation>
+               <xsd:documentation>A collection of 2.0 XML structures (including
+                  Simple/Atomics, Value with Attributes and Business Objects)
+                  that are included in a 2.0 XML Object
+                  Suite library.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:group>
+         <xsd:element ref="Service" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>A sample (reference) web service XSD message
+                  that includes one or more service operations.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
+
+   <xsd:simpleType name="Name_File">
+      <xsd:annotation>
+         <xsd:documentation>(term) The name of the OpenTravel 2.0 Library
+            file.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:restriction base="xsd:string">
+         <xsd:pattern value="[A-Za-z][A-Za-z0-9/\.\-\|:_]*" />
+      </xsd:restriction>
+   </xsd:simpleType>
+
+   <xsd:simpleType name="Name_Type">
+      <xsd:annotation>
+         <xsd:documentation>An xmlName used in a type attribute, that includes
+            namespace prefix and facet postfix. See also Name Constraint Aliases.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:restriction base="xsd:string">
+         <xsd:pattern value="[A-Za-z0-9\.\-_:#]*" />
+      </xsd:restriction>
+   </xsd:simpleType>
+
+   <xsd:simpleType name="Name_Version">
+      <xsd:annotation>
+         <xsd:documentation>(term) The version of the OpenTravel 2.0 Library file.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:restriction base="xsd:NMTOKEN" />
+   </xsd:simpleType>
+
+   <xsd:simpleType name="Name_XML">
+      <xsd:annotation>
+         <xsd:documentation>A 2.0 Model simpleType with a string base and a constraining pattern.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:restriction base="xsd:string">
+         <xsd:pattern value="[A-Za-z0-9\.\-_]*" />
+      </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="Name_XML_List">
+      <xsd:annotation>
+         <xsd:documentation>A collection of simpleTypes with a string base and a constraining pattern.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:list itemType="Name_XML" />
+   </xsd:simpleType>
+   <xsd:complexType name="NamespaceImport">
+      <xsd:annotation>
+         <xsd:documentation source="Description">A 2.0 Model complexType
+            that identifies a namespace whose schema
+            components are referenced
+            by a 2.0 XML Object Suite Library.
+         </xsd:documentation>
+         <xsd:documentation source="Notes">The difference between
+            the include element and the import element is that the import
+            element allows references to schema
+            components from schema documents
+            with different target namespaces and the include element adds the
+            schema components from other schema documents that have the same target
+            namespace (or no specified target namespace) to the
+            containing schema. In short, the import element allows you to use
+            schema components from any schema; the include
+            element allows you to add all the components of an included schema
+            to the containing schema.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Documentation" minOccurs="0" />
+      </xsd:sequence>
+      <xsd:attribute name="prefix" type="xsd:string" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>TBC.</xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="namespace" type="xsd:anyURI" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The URI of the namespace to import.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="fileHints" type="xsd:string" use="optional">
+         <xsd:annotation>
+            <xsd:documentation xml:lang="en">A suggestion to the
+               processor of where the files that define the namespace may be located. It is a white space 
+               delimited list of files. Note that processors may resolve namespaces using an entity resolution
+               technique that overrides or ignores the hint.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+   <xsd:element name="Operation" type="Operation">
+      <xsd:annotation>
+         <xsd:documentation>A single operation for a service.
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+   <xsd:complexType name="Operation">
+      <xsd:annotation>
+         <xsd:documentation>The operation element defines a single operation for a service.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Documentation" minOccurs="0" />
+         <xsd:element ref="Equivalent" minOccurs="0" maxOccurs="100" />
+         <xsd:element name="Request" type="Facet" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>The request portion of the operation.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Response" type="Facet" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>The response portion of the operation.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Notification" type="Facet" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>An unsolicited notification operation which is
+                  pushed to trading partners.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+      <xsd:attribute name="Name" type="Name_XML" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The name of the operation.</xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="extendable" type="Empty">
+         <xsd:annotation>
+            <xsd:documentation>If present, the operation messages will end with an extension point element.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="extends" type="Name_Type">
+         <xsd:annotation>
+            <xsd:documentation>A mechanism to represent if object extends the definition of another object (Phase 2.)
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+   
+   <xsd:complexType name="Property">
+      <xsd:annotation>
+         <xsd:documentation>A definition of a 2.0 element.
+         </xsd:documentation>
+         <xsd:documentation>required-optional = minimum occurrence
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Documentation" minOccurs="0" />
+         <xsd:element ref="Equivalent" minOccurs="0" maxOccurs="100" />
+      </xsd:sequence>
+      <xsd:attribute name="name" type="Name_XML" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The name of the element.</xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="type" type="Name_Type" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The atomic XML or 2.0 simpleType base type of the element.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="mandatory" type="xsd:boolean" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>A boolean indicator of the cardinality of the element (e.g. minOcc data facet.) 
+               Note that unless specifically set to true, the minOcc is assumed to be
+               zero, e.g. the element is optional.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="repeat">
+         <xsd:annotation>
+            <xsd:documentation>Used to represent the maxOcc data facet for the element. 
+               Note that this is typed as a string for future 2.0 functionality to support a "*" for an
+               unlimited (e.g. unbounded) repetition.
+
+               Best practices state that this string value should contain a positive
+               number that is greater than or equal to 1.
+            </xsd:documentation>
+         </xsd:annotation>
+         <xsd:simpleType>
+            <xsd:restriction base="xsd:string">
+               <xsd:pattern value="" />
+            </xsd:restriction>
+         </xsd:simpleType>
+      </xsd:attribute>
+   </xsd:complexType>
+
+   <xsd:element name="Role" type="Role" />
+   <xsd:complexType name="Role">
+      <xsd:annotation>
+         <xsd:documentation>A singular role definition. See also: RoleList.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Documentation" minOccurs="0" />
+      </xsd:sequence>
+      <xsd:attribute name="value" type="xsd:string" use="required" />
+   </xsd:complexType>
+   <xsd:complexType name="RoleList">
+      <xsd:annotation>
+         <xsd:documentation>Roles describe multiple uses for a core object.
+            In the XSD schema, they become an enumerated
+            list of roles added to the core object list type. When used as
+            the type of an element, the core object list is
+            repeat count is set to the number of roles defined.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Role" minOccurs="0" maxOccurs="100" />
+      </xsd:sequence>
+   </xsd:complexType>
+
+
+
+   <xsd:element name="Service" type="Service">
+      <xsd:annotation>
+         <xsd:documentation>A collection of 2.0 Components that support
+            interoperable machine-to-machine interaction over
+            a network specified in Web Services Description Language (WSDL) format.
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+   <xsd:complexType name="Service">
+      <xsd:annotation>
+         <xsd:documentation>A collection of 2.0 Components that support
+            interoperable machine-to-machine interaction over
+            a network specified in Web Services Description Language (WSDL) format.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Documentation" minOccurs="0" />
+         <xsd:element ref="Equivalent" minOccurs="0" maxOccurs="100" />
+         <xsd:element ref="Operation" maxOccurs="1000" />
+      </xsd:sequence>
+      <xsd:attribute name="name" type="Name_XML" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The name of the service.</xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+   
+   <xsd:element name="Simple" type="Simple">
+      <xsd:annotation>
+         <xsd:documentation>The most granular 2.0 XML Component, a Simple
+            contains one or more facets (such as patterns
+            and minLen) that
+            constrain the content of elements and
+            attributes. Although Simples
+            typically have an atomic
+            XML base type (such as string, integer and
+            date), they may also be comprised of lists and/ or unions.
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+   <xsd:complexType name="Simple">
+      <xsd:annotation>
+         <xsd:documentation>The most granular 2.0 XML Component, a Simple
+            contains one or more facets (such as patterns
+            and minLen) that
+            constrain the content of elements and
+            attributes. Although Simples
+            typically have an atomic
+            XML base type (such as string, integer and
+            date), they may also be comprised of lists and/ or unions.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Documentation" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>A collection of descriptive and reference
+                  information for implementers.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element ref="Equivalent" minOccurs="0" maxOccurs="100" />
+         <xsd:element ref="Example" minOccurs="0" maxOccurs="100" />
+      </xsd:sequence>
+      <xsd:attribute name="name" type="Name_XML" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The name of the Simple Type.</xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="type" type="Name_Type" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The atomic XML type of the simple type.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="pattern" type="xsd:string" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>A regular expression constraint on the value
+               space of the datatype which constrains the
+               lexical space to
+               literals which match a specific pattern.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="maxLength" type="xsd:nonNegativeInteger">
+         <xsd:annotation>
+            <xsd:documentation>A constraining facet that provides a constraining
+               value space for values with at most a
+               specific number of units of
+               length. Note that units of length
+               varies depending on base type
+               definition.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="minLength" type="xsd:nonNegativeInteger">
+         <xsd:annotation>
+            <xsd:documentation>A constraining facet that specifies a minimum
+               number of units of length (where units of
+               length varies depending
+               on the type that is being derived from.)
+               The value of minLength
+               must be a
+               nonNegativeInteger.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+   <xsd:complexType name="SimpleFacet">
+      <xsd:annotation>
+         <xsd:documentation>Describes an object facet that can be used as an
+            element or attribute. The name assigned to
+            the type attribute must
+            be the name of a 2.0 Simple Type.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Documentation" minOccurs="0" />
+         <xsd:element ref="Equivalent" minOccurs="0" maxOccurs="100" />
+      </xsd:sequence>
+      <xsd:attribute name="type" type="Name_Type" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The 2.0 Simple Type or Closed Enumeration that is
+               the base type of the Simple form of the
+               Core Object.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+   <xsd:group name="Simples">
+      <xsd:annotation>
+         <xsd:documentation>A choice between a 2.0 Simple Type and a 2.0
+            Enumerated type.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:choice>
+         <xsd:element ref="Simple" minOccurs="0" />
+         <xsd:element name="Enumeration" type="Enumeration_Closed" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>An Open or Closed Enumeration. ????
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:choice>
+   </xsd:group>
+   
+   <xsd:simpleType name="String_Documentation">
+      <xsd:annotation>
+         <xsd:documentation>A 2.0 Model simpleType with a string base and
+            maximum length constraint of 2048.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:restriction base="xsd:string">
+         <xsd:maxLength value="2048" />
+      </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="String_Short">
+      <xsd:annotation>
+         <xsd:documentation>A string-based 2.0 Simple Type that has a maximum
+            length of 40.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:restriction base="xsd:string">
+         <xsd:maxLength value="40" />
+      </xsd:restriction>
+   </xsd:simpleType>
+   
+   <xsd:group name="terms">
+      <xsd:annotation>
+         <xsd:documentation>A collection of 2.0 XML structures (including
+            Simple/Atomics, Value with Attributes and Business Objects) that are
+            included in a 2.0 XML Object Suite library.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:choice>
+         <xsd:element ref="Simple" minOccurs="0" maxOccurs="unbounded" />
+         <xsd:element ref="Enumeration_Closed" minOccurs="0" maxOccurs="unbounded" />
+         <xsd:element ref="Enumeration_Open" minOccurs="0" maxOccurs="unbounded" />
+         <xsd:element ref="ValueWithAttrs" minOccurs="0" maxOccurs="unbounded" />
+         <xsd:element ref="CoreObject" minOccurs="0" maxOccurs="unbounded" />
+         <xsd:element ref="BusinessObject" minOccurs="0" maxOccurs="unbounded" />
+         <xsd:element ref="ExtensionCustomFacet" minOccurs="0" maxOccurs="unbounded" />
+         <xsd:element ref="ExtensionPointFacet" minOccurs="0" maxOccurs="unbounded" />
+      </xsd:choice>
+   </xsd:group>
+   
+   <xsd:complexType name="ValueWithAttributes">
+      <xsd:annotation>
+         <xsd:documentation>A 2.0 ValueWithAttributes is an extension of one
+            atomic or 2.0 Simple Type (that contains one
+            value) and has one or
+            more attributes and/ or boolean
+            indicators related to the value.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element ref="Documentation" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>A collection of descriptive and reference
+                  information for implementers.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element ref="Equivalent" minOccurs="0" maxOccurs="100" />
+         <xsd:element ref="Example" />
+         <xsd:element ref="Attribute" minOccurs="0" maxOccurs="100" />
+         <xsd:element name="Indicator" type="Indicator" minOccurs="0" maxOccurs="100">
+            <xsd:annotation>
+               <xsd:documentation>All boolean indicator properties that are
+                  associated with a 2.0 Component, e.g.
+                  @isChildInd. Note that NO indicators like this should be defined as an
+                  Attribute. AllIndicators are assumed false unless present and asserted true.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="Name_XML" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The name of the ValueWithAttrs.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="type" type="Name_Type" use="required">
+         <xsd:annotation>
+            <xsd:documentation>The atomic XML or 2.0 Simple Type base type.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+   <xsd:element name="ValueWithAttrs" type="ValueWithAttributes">
+      <xsd:annotation>
+         <xsd:documentation>A 2.0 ValueWithAttributes is an extension of one
+            atomic or 2.0 Simple Type (that contains one
+            value) and has one or
+            more attributes and/ or boolean
+            indicators related to the value.
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
+</xsd:schema>

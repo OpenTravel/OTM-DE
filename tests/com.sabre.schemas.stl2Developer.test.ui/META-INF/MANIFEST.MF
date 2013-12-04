@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ui
+Bundle-SymbolicName: com.sabre.schemas.stl2Developer.test.ui
+Bundle-Version: 3.1.0.qualifier
+Bundle-Vendor: SABRE
+Fragment-Host: com.sabre.schemas.stl2Developer;bundle-version="3.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.eclipse.swtbot.swt.finder;bundle-version="2.0.4",
+ org.junit;bundle-version="4.10.0",
+ org.eclipse.swtbot.junit4_x;bundle-version="2.0.4",
+ org.eclipse.swtbot.eclipse.finder;bundle-version="2.1.0",
+ com.sabre.schemas.stl2Developer.test.utils;bundle-version="3.0.0"
