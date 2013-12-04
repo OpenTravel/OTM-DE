@@ -223,9 +223,15 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
     }
 
     public FacetNode addFacet(String name, String context, TLFacetType type) {
-        TLFacet newTlFacet = getModelObject().addFacet(name, context, type);
-        FacetNode ff = (FacetNode) NodeFactory.newComponentMember(this, newTlFacet);
-        return ff;
+        if (getLibrary().isMajorVersion() || versionNode == null) {
+            TLFacet newTlFacet = getModelObject().addFacet(name, context, type);
+            FacetNode ff = (FacetNode) NodeFactory.newComponentMember(this, newTlFacet);
+            return ff;
+        }
+        // New facets can only be added in unmanaged or major versions.
+        // TODO - consider allowing them in minor and use createMinorVersionOfComponent()
+        LOGGER.debug("Tried to add facet to a minor or patch version.");
+        return null;
     }
 
     @Override
