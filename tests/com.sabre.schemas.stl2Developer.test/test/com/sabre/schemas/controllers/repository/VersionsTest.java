@@ -118,6 +118,7 @@ public class VersionsTest extends RepositoryControllerTest {
         //
         int facetCount = bo.getChildren().size();
         bo.addFacet("custom1", "", TLFacetType.CUSTOM);
+        //
         // Adding to bo should fail...it should create a new bo and add it to that.
         // FIXME - test, code added but not tested.
         Assert.assertEquals(facetCount, bo.getChildren().size());
