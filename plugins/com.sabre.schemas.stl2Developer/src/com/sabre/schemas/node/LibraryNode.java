@@ -773,7 +773,17 @@ public class LibraryNode extends Node {
         ContextController cc = OtmRegistry.getMainController().getContextController();
         cc.copyContext(source, destination);
 
+        // Remove from source
+        if (isInChain()) {
+            if (source instanceof ComplexComponentInterface)
+                getChain().getComplexAggregate().getChildren().remove(source);
+            else if (source instanceof SimpleComponentInterface)
+                getChain().getSimpleAggregate().getChildren().remove(source);
+            LOGGER.debug("Removed aggregate for " + source);
+        }
         source.unlinkNode();
+
+        // Move the TL object to destination tl library.
         source.getLibrary()
                 .getTLLibrary()
                 .moveNamedMember((LibraryMember) source.getTLModelObject(),
@@ -781,7 +791,7 @@ public class LibraryNode extends Node {
 
         // Add to destination library chain
         destination.linkMember(source);
-        if (isInChain()) {
+        if (destination.isInChain()) {
             destination.getChain().add((ComponentNode) source);
         }
 
@@ -796,6 +806,8 @@ public class LibraryNode extends Node {
      * Remove the node from its library. Remove from the library node and from the underlying tl
      * library. Navigation and family nodes are NOT deleted. Does NOT delete the node or its TL
      * Object contents. TL type assignments are assured to match the assignments in TypeNode.
+     * 
+     * NOTE - does not replace this node with an earlier version in a version chain.
      * 
      */
     protected void removeMember(final Node n) {

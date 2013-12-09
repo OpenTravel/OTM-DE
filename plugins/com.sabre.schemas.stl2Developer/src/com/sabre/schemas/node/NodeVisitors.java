@@ -116,6 +116,12 @@ public class NodeVisitors {
                 node.getVersionNode().deleted = true;
                 node.getVersionNode().head = null;
                 node.getVersionNode().getParent().getChildren().remove(node.getVersionNode());
+
+                // see TODO in Node.delete().
+                // TODO - what about the copy in the version aggregate?
+                // TODO - if this is in the head, should the replacement from older verion happen
+                // here?
+
             }
             // LOGGER.debug("DeleteVisitor: deleted  " + n);
         }

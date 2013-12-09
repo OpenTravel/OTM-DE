@@ -86,6 +86,11 @@ public class MoveObjectToLibraryAction extends OtmAbstractAction {
                     "You can not move object to a built-in or XSD library.");
             return;
         }
+        if (source.getChain() == destination.getChain()) {
+            DialogUserNotifier.openInformation("WARNING",
+                    "You can not move object within the same library version chain.");
+            return;
+        }
         if (source.isInTLLibrary() && source.isTopLevelObject()) {
             source.getLibrary().moveMember(source, destination);
             // done in the moveMember - destination.addContext(source);
