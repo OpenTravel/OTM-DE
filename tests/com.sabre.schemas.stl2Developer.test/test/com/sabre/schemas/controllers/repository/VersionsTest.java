@@ -113,19 +113,19 @@ public class VersionsTest extends RepositoryControllerTest {
     //
     @Test
     public void testFacets() {
-        // test adding to existing locked version object
-        // TODO - prevent enabling in GUI AddCustomFacetAction.isEnabled() and AddQueryFacet
+        // TODO - prevent enabling in GUI go.isEnabled() and AddQueryFacet
         //
         int facetCount = bo.getChildren().size();
+        boolean head = bo.isInHead(); // this works -- use it in addFacet()
         bo.addFacet("custom1", "", TLFacetType.CUSTOM);
         //
-        // Adding to bo should fail...it should create a new bo and add it to that.
-        // FIXME - test, code added but not tested.
+        // Adding to bo should fail...in the future it might create a new bo and add it to that.
         Assert.assertEquals(facetCount, bo.getChildren().size());
-        Assert.assertEquals(1, newMinor.getDescendants_NamedTypes().size());
+        Assert.assertEquals(0, newMinor.getDescendants_NamedTypes().size());
 
         // test adding to a new minor version component
         nbo = (BusinessObjectNode) bo.createMinorVersionComponent();
+        head = nbo.isInHead();
         nbo.addFacet("c2", "", TLFacetType.CUSTOM);
         Assert.assertEquals(4, nbo.getChildren().size());
         Assert.assertEquals(1, newMinor.getDescendants_NamedTypes().size());
