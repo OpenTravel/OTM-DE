@@ -572,9 +572,16 @@ public class MainController {
         final ComponentNode current = (ComponentNode) getSelectedNode_NavigatorView();
 
         if (current != null && current.isBusinessObject()) {
+            if (!current.getLibrary().isMajorVersion()) {
+                // New facets can only be added in major versions.
+                // TODO - consider allowing them in minor and use createMinorVersionOfComponent()
+                LOGGER.debug("Tried to add facet to a minor or patch version.");
+                return;
+            }
+
             // Custom facets can only have properties that are also in the detail while query can
             // have others.
-            // FIXME - custom can now have any property set!
+            // custom can now have any property set!
             final ComponentNode propertyOwner = facetType.equals(TLFacetType.CUSTOM) ? current
                     .getDetailFacet() : current;
 

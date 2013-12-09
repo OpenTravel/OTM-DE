@@ -201,7 +201,8 @@ public class ValidationResultsView extends OtmAbstractView {
             wd.setBusinessEvent(OtmActions.typeSelector());
             wd.setNode(null);
             wd.setNodeList(findMatching(finding, error));
-            if (!wd.getNodeList().isEmpty() && wd.getNodeList().get(0).isEditable())
+            if (wd.getNodeList() != null && !wd.getNodeList().isEmpty()
+                    && wd.getNodeList().get(0).isEditable())
                 otmActions.doEvent(wd);
             // re-validate to show changes
             validateNode((Node) currentNode);

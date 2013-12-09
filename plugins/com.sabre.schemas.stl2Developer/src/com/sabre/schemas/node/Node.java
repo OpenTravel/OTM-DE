@@ -174,7 +174,8 @@ public abstract class Node implements INode {
     public void delete() {
         // If a version-ed library, then also remove from aggregate
         // Library may be null! It is in some j-units.
-        if (getLibrary() != null && getLibrary().isInChain())
+        // TODO - should this logic be in delete visitor?
+        if (isDeleteable() && getLibrary() != null && getLibrary().isInChain())
             getLibrary().getChain().removeAggregate((ComponentNode) this);
 
         NodeVisitor visitor = new NodeVisitors().new deleteVisitor();
@@ -755,6 +756,10 @@ public abstract class Node implements INode {
         return kids;
     }
 
+    /**
+     * Traverse via hasChildren. For version chains, it uses the version node and does not touch
+     * aggregates.
+     */
     @Override
     public List<Node> getDescendants_NamedTypes() {
         // keep duplicates out of the list that version aggregates may introduce
@@ -1728,7 +1733,7 @@ public abstract class Node implements INode {
     }
 
     /**
-     * Get the editing status of the node based on chain and library.
+     * Get the editing status of the node based on chain head library or unmanaged library.
      */
     public NodeEditStatus getEditStatus() {
         NodeEditStatus status = NodeEditStatus.FULL;
@@ -1955,6 +1960,16 @@ public abstract class Node implements INode {
 
     public boolean isInTLLibrary() {
         return getLibrary() != null ? getLibrary().isTLLibrary() : false;
+    }
+
+    /**
+     * @return true only if this object is in the version head library. false if not or unmanaged.
+     */
+    public boolean isInHead() {
+        // False if unmanaged.
+        if (versionNode == null)
+            return false;
+        return getChain().getHead().getDescendants_NamedTypes().contains(getOwningComponent());
     }
 
     @Override
