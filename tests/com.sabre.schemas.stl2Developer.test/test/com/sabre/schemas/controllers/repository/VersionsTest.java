@@ -30,7 +30,7 @@ import com.sabre.schemas.testUtils.MockLibrary;
 import com.sabre.schemas.trees.repository.RepositoryNode;
 import com.sabre.schemas.utils.LibraryNodeBuilder;
 
-public class VersionsTest extends RepositoryControllerTest {
+public class VersionsTest extends RepositoryIntegrationTestBase {
     MockLibrary ml = new MockLibrary();
     private BusinessObjectNode sbo = null;
     private BusinessObjectNode bo = null;
@@ -51,8 +51,6 @@ public class VersionsTest extends RepositoryControllerTest {
         throw new IllegalStateException("Missing remote repository. Check your configuration.");
     }
 
-    // FIXME - test set up so that it does not repeat tests in repositoryControllerTest
-    //
     @Before
     public void runBeforeEachTest() throws LibrarySaveException, RepositoryException {
         ProjectNode uploadProject = createProject("ToUploadLibrary", getRepositoryForTest(), "test");
@@ -115,16 +113,15 @@ public class VersionsTest extends RepositoryControllerTest {
     @Test
     public void testFacets() {
         int facetCount = bo.getChildren().size();
-        boolean head = bo.isInHead(); // this works -- use it in addFacet()
+        bo.isInHead();
         bo.addFacet("custom1", "", TLFacetType.CUSTOM);
-        //
         // Adding to bo should fail...in the future it might create a new bo and add it to that.
         Assert.assertEquals(facetCount, bo.getChildren().size());
         Assert.assertEquals(0, newMinor.getDescendants_NamedTypes().size());
 
         // test adding to a new minor version component
         nbo = (BusinessObjectNode) bo.createMinorVersionComponent();
-        head = nbo.isInHead();
+        nbo.isInHead();
         nbo.addFacet("c2", "", TLFacetType.CUSTOM);
         Assert.assertEquals(4, nbo.getChildren().size());
         Assert.assertEquals(1, newMinor.getDescendants_NamedTypes().size());
