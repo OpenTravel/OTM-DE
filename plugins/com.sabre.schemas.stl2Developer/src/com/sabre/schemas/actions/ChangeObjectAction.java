@@ -10,6 +10,8 @@ import com.sabre.schemas.properties.StringProperties;
 import com.sabre.schemas.stl2developer.MainWindow;
 
 /**
+ * Attached to the Facet View button bar.
+ * 
  * @author Dave Hollander
  * 
  */

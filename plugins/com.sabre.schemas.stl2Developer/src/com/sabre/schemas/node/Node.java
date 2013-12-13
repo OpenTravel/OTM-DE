@@ -2378,9 +2378,14 @@ public abstract class Node implements INode {
                 FindingMessageFormat.MESSAGE_ONLY_FORMAT)) {
             LOGGER.debug("Finding: " + f);
         }
-        return TLModelCompileValidator.validateModelElement(this.getTLModelObject());
+        return findings;
     }
 
+    /**
+     * Generate validation results starting with this node.
+     * 
+     * @return true if no errors.
+     */
     public boolean isValid() {
         return validate().count(FindingType.ERROR) == 0 ? true : false;
     }
