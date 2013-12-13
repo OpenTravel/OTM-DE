@@ -9,6 +9,10 @@ import org.slf4j.LoggerFactory;
 
 import com.sabre.schemacompiler.repository.ProjectItem;
 import com.sabre.schemacompiler.repository.RepositoryItem;
+import com.sabre.schemacompiler.validate.FindingMessageFormat;
+import com.sabre.schemacompiler.validate.FindingType;
+import com.sabre.schemacompiler.validate.ValidationFindings;
+import com.sabre.schemacompiler.validate.compile.TLModelCompileValidator;
 import com.sabre.schemacompiler.version.VersionSchemeException;
 import com.sabre.schemas.controllers.ProjectController;
 import com.sabre.schemas.node.AggregateNode.AggregateType;
@@ -442,6 +446,20 @@ public class LibraryChainNode extends Node {
                 return (NavNode) nav;
         }
         return null;
+    }
+
+    @Override
+    public ValidationFindings validate() {
+        ValidationFindings findings = new ValidationFindings();
+
+        for (LibraryNode ln : getLibraries())
+            findings.addAll(TLModelCompileValidator.validateModelElement(ln.getTLaLib()));
+
+        for (String f : findings.getValidationMessages(FindingType.ERROR,
+                FindingMessageFormat.MESSAGE_ONLY_FORMAT)) {
+            LOGGER.debug("Finding: " + f);
+        }
+        return findings;
     }
 
 }

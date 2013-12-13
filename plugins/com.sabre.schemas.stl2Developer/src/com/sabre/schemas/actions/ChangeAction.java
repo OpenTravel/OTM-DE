@@ -9,6 +9,8 @@ import com.sabre.schemas.properties.StringProperties;
 import com.sabre.schemas.stl2developer.MainWindow;
 
 /**
+ * Attached to the navigator menus.
+ * 
  * @author Agnieszka Janowska
  * 
  */
