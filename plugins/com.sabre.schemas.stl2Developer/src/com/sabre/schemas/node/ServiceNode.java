@@ -59,6 +59,9 @@ public class ServiceNode extends ComponentNode {
         setDescription(n.getDescription());
         setName(n.getName(), false);
         addCRUDQ_Operations(n);
+        // If a chain, the wrap the service in a version and add to chain aggregate.
+        if (n.getLibrary().isInChain())
+            n.getLibrary().getChain().add(this);
     }
 
     /**
