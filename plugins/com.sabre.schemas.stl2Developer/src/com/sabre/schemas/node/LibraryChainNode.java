@@ -38,10 +38,18 @@ public class LibraryChainNode extends Node {
     protected VersionAggregateNode versions;
     protected RepositoryItem repoItem;
     protected List<LibraryNode> chain;
-    protected LibraryNode head;
 
     public LibraryNode getHead() {
-        return head;
+        return getLibrary();
+    }
+    
+    private void setHead(LibraryNode newHead) {
+        setLibrary(newHead);
+    }
+    
+    @Override
+    public void setLibrary(LibraryNode ln) {
+        super.setLibrary(ln);
     }
 
     protected ProjectItem projectItem; // The TL Project Item wrapped around this library
@@ -71,7 +79,7 @@ public class LibraryChainNode extends Node {
         pn.getChildren().add(this);
         setIdentity(ln.getProjectItem().getBaseNamespace());
 
-        setLibrary(head = ln);
+        setHead(ln);
         createAggregates();
         versions.add(ln);
 
@@ -108,7 +116,7 @@ public class LibraryChainNode extends Node {
         setParent(project);
         project.getChildren().add(this);
 
-        head = null;
+        setHead(null);
 
         chain = new ArrayList<LibraryNode>();
         createAggregates();
@@ -123,7 +131,7 @@ public class LibraryChainNode extends Node {
         for (ProjectItem item : piChain) {
             add(item);
         }
-        setLibrary(head);
+        setLibrary(getHead());
     }
 
     /**
@@ -150,8 +158,8 @@ public class LibraryChainNode extends Node {
             newLib.updateLibraryStatus();
             aggregateChildren(newLib);
         }
-        if (head == null || newLib.getTLaLib().isLaterVersion(head.getTLaLib()))
-            head = newLib;
+        if (getHead() == null || newLib.getTLaLib().isLaterVersion(getHead().getTLaLib()))
+            setHead(newLib);
 
         return newLib;
     }
@@ -285,8 +293,8 @@ public class LibraryChainNode extends Node {
     @Override
     public String getLabel() {
         String label = "Version Chain";
-        if (head != null) {
-            label = head.getLabel();
+        if (getHead() != null) {
+            label = getHead().getLabel();
         }
         return label;
     }
@@ -313,10 +321,10 @@ public class LibraryChainNode extends Node {
     @Override
     public String getName() {
         String label = "Version Chain";
-        if (head != null) {
-            NamespaceHandler handler = head.getNsHandler();
+        if (getHead() != null) {
+            NamespaceHandler handler = getHead().getNsHandler();
             if (handler != null)
-                label = head.getName() + "-" + handler.getNSVersion(head.getNamespace());
+                label = getHead().getName() + "-" + handler.getNSVersion(getHead().getNamespace());
         }
         return label;
     }
@@ -327,8 +335,8 @@ public class LibraryChainNode extends Node {
     @Override
     public String getIdentity() {
         String identity = "UNIDENTIFIED-CHAIN:someNS:9";
-        if (head != null) {
-            NamespaceHandler handler = head.getNsHandler();
+        if (getHead() != null) {
+            NamespaceHandler handler = getHead().getNsHandler();
             if (handler != null)
                 identity = makeIdentity();
         }
@@ -341,10 +349,10 @@ public class LibraryChainNode extends Node {
      * in ProjectNode.
      */
     public String makeChainIdentity() {
-        String name = head.getName();
-        NamespaceHandler handler = head.getNsHandler();
-        String baseNS = handler.removeVersion(head.getNamespace());
-        return makeIdentity(name, baseNS, handler.getNS_Major(head.getNamespace()));
+        String name = getHead().getName();
+        NamespaceHandler handler = getHead().getNsHandler();
+        String baseNS = handler.removeVersion(getHead().getNamespace());
+        return makeIdentity(name, baseNS, handler.getNS_Major(getHead().getNamespace()));
     }
 
     /**
@@ -352,10 +360,10 @@ public class LibraryChainNode extends Node {
      */
     // TODO - see if users of this method should be using chainIdentity()
     public String makeIdentity() {
-        String name = head.getName();
-        NamespaceHandler handler = head.getNsHandler();
-        return makeIdentity(name, handler.getNSBase(head.getNamespace()),
-                handler.getNS_Major(head.getNamespace()));
+        String name = getHead().getName();
+        NamespaceHandler handler = getHead().getNsHandler();
+        return makeIdentity(name, handler.getNSBase(getHead().getNamespace()),
+                handler.getNS_Major(getHead().getNamespace()));
     }
 
     public static String makeIdentity(String name, String baseNS, String majorNS) {
@@ -399,15 +407,15 @@ public class LibraryChainNode extends Node {
     }
 
     public boolean isPatch() {
-        return head.isPatchVersion();
+        return getHead().isPatchVersion();
     }
 
     public boolean isMinor() {
-        return head.isMinorVersion();
+        return getHead().isMinorVersion();
     }
 
     public boolean isMajor() {
-        return head.isMajorVersion();
+        return getHead().isMajorVersion();
     }
 
     public INode getServiceAggregate() {
@@ -441,7 +449,7 @@ public class LibraryChainNode extends Node {
      */
     public NavNode getLatestNavNode(ComponentNode node) {
         Node parent = node.getOwningNavNode();
-        for (Node nav : head.getChildren()) {
+        for (Node nav : getHead().getChildren()) {
             if (parent.getComponentType().equals(nav.getComponentType()))
                 return (NavNode) nav;
         }

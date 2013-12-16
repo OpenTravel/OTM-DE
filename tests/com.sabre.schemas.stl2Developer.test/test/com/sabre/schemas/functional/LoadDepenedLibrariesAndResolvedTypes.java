@@ -106,11 +106,13 @@ public class LoadDepenedLibrariesAndResolvedTypes extends RepositoryIntegrationT
             LibraryChainNode extChain) {
         // clean up project
         mc.getLibraryController().remove(Collections.singletonList(baseChain));
+        
+        //find repository item before delete.
+        RepositoryItemNode nodeToRetrive = findRepositoryItem(extChain, getRepositoryForTest());
         mc.getLibraryController().remove(Collections.singletonList(extChain));
         Assert.assertEquals(0, uploadProject.getChildren().size());
 
         // load only library with dependencies
-        RepositoryItemNode nodeToRetrive = findRepositoryItem(extChain, getRepositoryForTest());
         pc.add(uploadProject, nodeToRetrive.getItem());
         Assert.assertEquals(2, uploadProject.getChildren().size());
 
