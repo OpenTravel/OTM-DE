@@ -3,6 +3,9 @@
  */
 package com.sabre.schemas.controllers.repository;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -17,6 +20,7 @@ import com.sabre.schemacompiler.validate.ValidationFindings;
 import com.sabre.schemas.node.LibraryChainNode;
 import com.sabre.schemas.node.LibraryNode;
 import com.sabre.schemas.node.Node;
+import com.sabre.schemas.node.NodeEditStatus;
 import com.sabre.schemas.node.ProjectNode;
 import com.sabre.schemas.trees.repository.RepositoryNode.RepositoryItemNode;
 import com.sabre.schemas.utils.ComponentNodeBuilder;
@@ -115,6 +119,19 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
      * not directly in TLProject or projectNode.children Assure new version is in repository. Assure
      * versions can start with 0.0.0 and variations.
      */
+    
+    @Test
+    public void createChainNodeShouldSetHead() throws RepositoryException,
+    LibrarySaveException {
+        ProjectNode uploadProject = createProject("ToUploadLibrary", getRepositoryForTest(), "Test");
+        LibraryNode testLibary = LibraryNodeBuilder
+                .create("TestLibrary", getRepositoryForTest().getNamespace() + "/Test", "prefix",
+                        new Version(1, 0, 0)).makeFinal().build(uploadProject, pc);
+        LibraryChainNode chain = rc.manage(getRepositoryForTest(),
+                Collections.singletonList(testLibary)).get(0);
+        rc.createPatchVersion(chain.getHead());
+        assertSame(chain.getHead(), chain.getLibrary());
+    }
 
     @Test
     public void createMajorVersionWithSimpleCoreWithoutType() throws RepositoryException,
@@ -146,6 +163,21 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
         LibraryNode newMajor = rc.createMajorVersion(chain.getHead());
         ValidationFindings findings = newMajor.validate();
         Assert.assertEquals(0, findings.count());
+    }
+    
+    @Test
+    public void createPatchVersionWithSimpleCoreWithEmtpyType() throws RepositoryException,
+    LibrarySaveException {
+        ProjectNode uploadProject = createProject("ToUploadLibrary", getRepositoryForTest(), "Test");
+        LibraryNode testLibary = LibraryNodeBuilder
+                .create("TestLibrary", getRepositoryForTest().getNamespace() + "/Test", "prefix",
+                        new Version(1, 0, 0)).makeFinal().build(uploadProject, pc);
+        LibraryChainNode chain = rc.manage(getRepositoryForTest(),
+                Collections.singletonList(testLibary)).get(0);
+        LibraryNode newPatch= rc.createPatchVersion(chain.getHead());
+        assertEquals(NodeEditStatus.PATCH,  newPatch.getEditStatus());
+        assertEquals(NodeEditStatus.PATCH,  chain.getEditStatus());
+        assertEquals(NodeEditStatus.PATCH,  chain.getLibrary().getEditStatus());
     }
 
     /**
@@ -193,6 +225,8 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
                         .setSimpleType().get());
         Assert.assertEquals(1, library.getDescendants_NamedTypes().size());
 
+        String libraryName = library.getName();
+        String namespace = library.getNamespace();
         ProjectNode revertProject = mc.getRepositoryController().unlockAndRevert(library.getHead());
 
         // make sure new project has reverted library
@@ -206,8 +240,8 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
         pc.add(defaultProject, nodeToRetrive.getItem());
         Assert.assertEquals(1, defaultProject.getChildren().size());
         LibraryChainNode nodes = (LibraryChainNode) defaultProject.getChildren().get(0);
-        Assert.assertEquals(library.getName(), nodes.getName());
-        Assert.assertEquals(library.getHead().getNamespace(), nodes.getHead().getNamespace());
+        Assert.assertEquals(libraryName, nodes.getName());
+        Assert.assertEquals(namespace, nodes.getNamespace());
         Assert.assertEquals(0, nodes.getDescendants_NamedTypes().size());
     }
 
@@ -228,6 +262,8 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
         Assert.assertEquals(1, library.getDescendants_NamedTypes().size());
         Assert.assertEquals(1, descendants.size());
 
+        String libraryName = library.getName();
+        String libraryNamespace = library.getNamespace();
         ProjectNode revertProject = mc.getRepositoryController().unlockAndRevert(library.getHead());
 
         // make sure new project has reverted library
@@ -241,8 +277,8 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
         pc.add(defaultProject, nodeToRetrive.getItem());
         Assert.assertEquals(1, defaultProject.getChildren().size());
         LibraryChainNode nodes = (LibraryChainNode) defaultProject.getChildren().get(0);
-        Assert.assertEquals(library.getName(), nodes.getName());
-        Assert.assertEquals(library.getHead().getNamespace(), nodes.getHead().getNamespace());
+        Assert.assertEquals(libraryName, nodes.getName());
+        Assert.assertEquals(libraryNamespace, nodes.getNamespace());
         Assert.assertEquals(0, nodes.getDescendants_NamedTypes().size());
     }
 
@@ -286,15 +322,19 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
         mc.getRepositoryController().unlock(library.getHead());
 
         Assert.assertEquals(1, library.getDescendants_NamedTypes().size());
+        String libraryName = library.getHead().getName();
+        String libraryChainName = library.getName();
+        String namespace = library.getNamespace();
         library.close();
 
         // revert library from repository
-        RepositoryItemNode nodeToRetrive = findRepositoryItem(library, getRepositoryForTest());
+        RepositoryItemNode nodeToRetrive = findRepositoryItem(libraryName, namespace, getRepositoryForTest());
+        
         pc.add(defaultProject, nodeToRetrive.getItem());
         Assert.assertEquals(1, defaultProject.getChildren().size());
         LibraryChainNode nodes = (LibraryChainNode) defaultProject.getChildren().get(0);
-        Assert.assertEquals(library.getName(), nodes.getName());
-        Assert.assertEquals(library.getHead().getNamespace(), nodes.getHead().getNamespace());
+        Assert.assertEquals(libraryChainName, nodes.getName());
+        Assert.assertEquals(namespace, nodes.getHead().getNamespace());
         Assert.assertEquals(1, nodes.getDescendants_NamedTypes().size());
     }
 

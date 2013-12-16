@@ -112,13 +112,17 @@ public abstract class RepositoryIntegrationTestBase {
     }
 
     public RepositoryItemNode findRepositoryItem(LibraryChainNode chainNode, RepositoryNode parent) {
+        return findRepositoryItem(chainNode.getHead().getName(), chainNode.getHead().getNamespace(), parent);
+    }
+    
+    public RepositoryItemNode findRepositoryItem(String name, String namespace,
+            RepositoryNode parent) {
         for (RepositoryItemNode ri : getItems(parent)) {
             RepositoryItem item = ri.getItem();
-            if (item.getNamespace().equals(chainNode.getHead().getNamespace())
-                    && item.getLibraryName().equals(chainNode.getHead().getName())) {
+            if (item.getNamespace().equals(namespace) && item.getLibraryName().equals(name)) {
                 return ri;
             }
-        }
+    }
         return null;
     }
 
