@@ -42,14 +42,14 @@ public class LibraryChainNode extends Node {
     public LibraryNode getHead() {
         return getLibrary();
     }
-    
+
     private void setHead(LibraryNode newHead) {
         setLibrary(newHead);
     }
-    
+
     @Override
     public void setLibrary(LibraryNode ln) {
-        super.setLibrary(ln);
+        super.setLibrary(ln); // sets the library in all the children.
     }
 
     protected ProjectItem projectItem; // The TL Project Item wrapped around this library
@@ -184,17 +184,22 @@ public class LibraryChainNode extends Node {
     protected void add(ComponentNode node) {
         if (node == null)
             return;
+
+        // For services, just add to the service root.
+        if (node instanceof ServiceNode)
+            serviceRoot.add(node);
+
         // If not already wrapped in a version, add version wrapper
-        if (!(node.getParent() instanceof VersionNode))
+        else if (!(node.getParent() instanceof VersionNode))
             new VersionNode(node);
 
         // Add to chain object aggregates.
-        if ((node instanceof ComplexComponentInterface))
+        if (node instanceof ComplexComponentInterface)
             complexRoot.add(node);
-        else if ((node instanceof SimpleComponentInterface))
+        else if (node instanceof SimpleComponentInterface)
             simpleRoot.add(node);
-        else if ((node instanceof ServiceNode || (node instanceof OperationNode)))
-            serviceRoot.add(node);
+        // else if (node instanceof OperationNode)
+        // serviceRoot.add(node);
         else
             LOGGER.warn("add skipped: " + node);
     }
@@ -375,6 +380,11 @@ public class LibraryChainNode extends Node {
         return getChildren();
     }
 
+    /**
+     * Get the parent of the actual libraries in the chain.
+     * 
+     * @return - the version aggregate node
+     */
     public Node getVersions() {
         return versions;
     }
@@ -468,6 +478,10 @@ public class LibraryChainNode extends Node {
             LOGGER.debug("Finding: " + f);
         }
         return findings;
+    }
+
+    public boolean hasService() {
+        return serviceRoot == null;
     }
 
 }

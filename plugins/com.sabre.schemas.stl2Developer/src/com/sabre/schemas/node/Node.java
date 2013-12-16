@@ -1473,7 +1473,9 @@ public abstract class Node implements INode {
      */
     public void setLibrary(final LibraryNode ln) {
         library = ln;
-        setKidsLibrary();
+        // Library chains use the library node to point to the head library.
+        if (!(this instanceof LibraryChainNode))
+            setKidsLibrary();
     }
 
     /**

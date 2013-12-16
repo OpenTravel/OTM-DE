@@ -10,3 +10,5 @@
 
 # Maven
 target/
+
+*.log

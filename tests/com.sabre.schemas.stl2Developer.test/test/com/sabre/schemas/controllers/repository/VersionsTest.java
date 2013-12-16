@@ -13,6 +13,7 @@ import com.sabre.schemacompiler.model.TLFacetType;
 import com.sabre.schemacompiler.repository.RepositoryException;
 import com.sabre.schemacompiler.repository.RepositoryItemState;
 import com.sabre.schemacompiler.saver.LibrarySaveException;
+import com.sabre.schemas.node.AggregateNode;
 import com.sabre.schemas.node.BusinessObjectNode;
 import com.sabre.schemas.node.ComplexComponentInterface;
 import com.sabre.schemas.node.ComponentNode;
@@ -48,7 +49,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
     private LibraryChainNode chain = null;
     private LibraryNode newMinor = null;
     private LibraryNode newPatch = null;
-    int TotalDescendents, ActiveSimple, ActiveComplex, TotalLibraries;
+    int TotalDescendents, ActiveSimple, ActiveComplex, TotalLibraries, MinorComplex;
 
     @Override
     public RepositoryNode getRepositoryForTest() {
@@ -92,11 +93,13 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         ExtensionPointNode ep = new ExtensionPointNode(new TLExtensionPointFacet());
         ep.setExtendsType(sbo.getSummaryFacet());
         baseMajorLibrary.addMember(ep);
-        // Assert.assertTrue(testLibrary.isValid()); // you can't version an invalid library.
+        Assert.assertTrue(baseMajorLibrary.isValid()); // you can't version an invalid library.
+
         TotalDescendents = 11; // Number in whole chain
         TotalLibraries = 3;
         ActiveComplex = 8; // Number in the aggregates
         ActiveSimple = 2;
+        MinorComplex = 0;
 
         // Create locked patch version
         newPatch = rc.createPatchVersion(chain.getHead());
@@ -148,6 +151,39 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
     }
 
     //
+    // Test the library level testers.
+    //
+    @Test
+    public void testLibraryTesters() {
+        Assert.assertTrue(baseMajorLibrary.isInChain());
+        Assert.assertTrue(baseMajorLibrary.isManaged());
+        Assert.assertTrue(baseMajorLibrary.isReadyToVersion());
+        Assert.assertTrue(baseMajorLibrary.isMajorVersion());
+        Assert.assertFalse(baseMajorLibrary.isEditable());
+        Assert.assertFalse(baseMajorLibrary.isLocked());
+        Assert.assertFalse(baseMajorLibrary.isPatchVersion());
+        // Assert.assertFalse(baseMajorLibrary.isMinorVersion());
+
+        Assert.assertTrue(newMinor.isInChain());
+        Assert.assertTrue(newMinor.isManaged());
+        Assert.assertTrue(newMinor.isReadyToVersion());
+        Assert.assertFalse(newMinor.isMajorVersion());
+        Assert.assertTrue(newMinor.isEditable());
+        Assert.assertTrue(newMinor.isLocked());
+        Assert.assertFalse(newMinor.isPatchVersion());
+        Assert.assertTrue(newMinor.isMinorVersion());
+
+        Assert.assertTrue(newPatch.isInChain());
+        Assert.assertTrue(newPatch.isManaged());
+        Assert.assertTrue(newPatch.isReadyToVersion());
+        Assert.assertFalse(newPatch.isMajorVersion());
+        Assert.assertFalse(newPatch.isEditable());
+        Assert.assertFalse(newPatch.isLocked());
+        Assert.assertTrue(newPatch.isPatchVersion());
+        Assert.assertFalse(newPatch.isMinorVersion());
+    }
+
+    //
     // Test the children/parent relationships
     //
     @Test
@@ -175,6 +211,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         Assert.assertEquals(TotalLibraries, versionsAgg.getNavChildren().size());
         Assert.assertTrue(versionsAgg.getParent() == chain);
         Assert.assertTrue(versionsAgg.getChain() == chain);
+
         for (Node lib : versionsAgg.getChildren()) {
             Assert.assertTrue(lib.getParent() == versionsAgg);
             Assert.assertTrue(lib instanceof LibraryNode);
@@ -182,6 +219,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
                 Assert.assertTrue(lib.isEditable());
             else
                 Assert.assertFalse(lib.isEditable());
+            // Either nav or service nodes.
             checkChildrenClassType(lib, NavNode.class, ServiceNode.class);
 
             // Check the children of the Nav Nodes and Service Node
@@ -200,8 +238,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
                             Assert.assertTrue(cc.getParent() == vn);
                     }
                 } else {
+                    // FIXME - operations in the library should be wrapped.
                     checkChildrenClassType(nn, OperationNode.class, null);
-                    // TODO - Check the operations
                 }
             }
         }
@@ -251,13 +289,56 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 
         // test adding to a new minor version component
         nbo = (BusinessObjectNode) bo.createMinorVersionComponent();
+        MinorComplex += 1;
         nbo.isInHead();
-        nbo.addFacet("c2", "", TLFacetType.CUSTOM);
+        // We should get at least the default context.
+        List<String> contextIDs = newMinor.getContextIds();
+        Assert.assertFalse(contextIDs.isEmpty());
+        // Add a custom facet
+        nbo.addFacet("c2", contextIDs.get(0), TLFacetType.CUSTOM);
         Assert.assertEquals(4, nbo.getChildren().size());
-        Assert.assertEquals(2, newMinor.getDescendants_NamedTypes().size());
+        Assert.assertEquals(MinorComplex, newMinor.getDescendants_NamedTypes().size());
         Assert.assertTrue(chain.isValid());
         nbo.delete();
+        MinorComplex -= 1;
         checkCounts(chain);
+    }
+
+    @Test
+    public void checkNavChildren() {
+        // Chain should have 4
+        Assert.assertEquals(4, chain.getNavChildren().size());
+        checkChildrenClassType(chain, AggregateNode.class, null);
+
+        // VersionAggregate should have 3, one for each library
+        Assert.assertEquals(3, chain.getVersions().getNavChildren().size());
+        // Libraries should have 2 or 3, simple, complex and service
+        Assert.assertEquals(2, newPatch.getNavChildren().size());
+        Assert.assertEquals(2, newMinor.getNavChildren().size());
+        Assert.assertEquals(3, baseMajorLibrary.getNavChildren().size());
+
+        // Nav Nodes should ONLY have version
+        for (Node nn : newPatch.getNavChildren()) {
+            Assert.assertTrue(nn instanceof NavNode);
+            checkChildrenClassType(nn, VersionNode.class, null);
+            // Version nodes should have NO nav children.
+            for (Node vn : nn.getNavChildren())
+                Assert.assertEquals(0, vn.getNavChildren());
+        }
+
+        // Aggregates should have Active Simple, Active Complex and Service.
+        // This checks both children and then navChildren.
+        checkChildrenClassType(((Node) chain.getComplexAggregate()),
+                ComplexComponentInterface.class, null);
+        for (Node nc : ((Node) chain.getComplexAggregate()).getNavChildren()) {
+            Assert.assertTrue(nc instanceof ComplexComponentInterface);
+        }
+        checkChildrenClassType(((Node) chain.getSimpleAggregate()), SimpleComponentInterface.class,
+                null);
+        for (Node nc : ((Node) chain.getSimpleAggregate()).getNavChildren()) {
+            Assert.assertTrue(nc instanceof SimpleComponentInterface);
+        }
+
     }
 
     //
@@ -428,21 +509,24 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 
     // Remember, getDescendents uses HashMap - only unique nodes.
     private void checkCounts(LibraryChainNode chain) {
+
         // Make sure all the base objects are accessible.
         int namedTypeCnt = chain.getDescendants_NamedTypes().size();
         Assert.assertEquals(TotalDescendents, namedTypeCnt);
+
         // Make sure all the types are in the versions aggregate
         List<Node> nt = chain.getComplexAggregate().getDescendants_NamedTypes();
         namedTypeCnt = chain.getComplexAggregate().getDescendants_NamedTypes().size();
         Assert.assertEquals(ActiveComplex, namedTypeCnt);
+
         // FIXME - should be 8. The patch extension point should not be included because it is
         // wrapped up into the minor
         namedTypeCnt = chain.getSimpleAggregate().getDescendants_NamedTypes().size();
         Assert.assertEquals(ActiveSimple, namedTypeCnt);
-        namedTypeCnt = chain.getServiceAggregate().getDescendants_NamedTypes().size();
 
-        // FIXME - should have a service!
-        // Assert.assertEquals(1, namedTypeCnt);
+        // Check the service
+        namedTypeCnt = chain.getServiceAggregate().getDescendants_NamedTypes().size();
+        Assert.assertEquals(1, namedTypeCnt);
 
         // Check counts against the underlying TL library
         for (LibraryNode lib : chain.getLibraries()) {

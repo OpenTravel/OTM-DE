@@ -189,7 +189,13 @@ public class NewComponentWizardPage extends WizardPage {
             index++;
         }
         // If the library doesn't have a service, add it to the drop-down list.
-        if (!targetNode.getLibrary().hasService()) {
+        // FIXME - should not post list if any in the chain has service.
+        boolean hasService = false;
+        if (targetNode.getChain() != null)
+            hasService = targetNode.getChain().hasService();
+        else
+            hasService = targetNode.getLibrary().hasService();
+        if (!hasService) {
             combo.add(ComponentNodeType.SERVICE.getDescription());
             tooltip = Messages.getString("wizard.newObject.select.tooltip.Service");
         }
