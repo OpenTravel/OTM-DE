@@ -3,7 +3,10 @@
  */
 package com.sabre.schemas.actions;
 
+import com.sabre.schemas.node.BusinessObjectNode;
+import com.sabre.schemas.node.CoreObjectNode;
 import com.sabre.schemas.node.Node;
+import com.sabre.schemas.node.VWA_Node;
 import com.sabre.schemas.properties.ExternalizedStringProperties;
 import com.sabre.schemas.properties.StringProperties;
 import com.sabre.schemas.stl2developer.MainWindow;
@@ -47,12 +50,9 @@ public class ChangeAction extends OtmAbstractAction {
     @Override
     public boolean isEnabled() {
         Node n = getMainController().getCurrentNode_NavigatorView().getOwningComponent();
-        if (n.isBusinessObject())
-            return true;
-        if (n.isCoreObject())
-            return true;
-        if (n.isValueWithAttributes())
-            return true;
+        if (n instanceof BusinessObjectNode || n instanceof CoreObjectNode || n instanceof VWA_Node) {
+            return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
+        }
         return false;
     }
 

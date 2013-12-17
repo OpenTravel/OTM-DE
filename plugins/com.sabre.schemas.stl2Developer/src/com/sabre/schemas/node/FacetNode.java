@@ -461,6 +461,7 @@ public class FacetNode extends ComponentNode {
 
     @Override
     public boolean isAliasable() {
+        // TODO - this seems wrong. We no longer allow aliases on facets, only objects.
         final Object tlModelObj = getModelObject().getTLModelObj();
         if (getParent().isAliasable()) {
             // business object - all the facades are aliasable

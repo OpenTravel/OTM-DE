@@ -505,12 +505,12 @@ public class NavigatorMenus extends TreeViewer {
                 return libActions;
             }
 
-            private List<Action> createMoveActionsForLibraries(final Node context) {
+            private List<Action> createMoveActionsForLibraries(final Node menuContext) {
                 final List<Action> libActions = new ArrayList<Action>();
-                if (context.getLibrary() == null || !context.getLibrary().isMoveable())
+                if (menuContext.getLibrary() == null || !menuContext.getLibrary().isMoveable())
                     return libActions; // No moves for xsd/builtin library members
 
-                for (final LibraryNode ln : getListOfLibraries(context)) {
+                for (final LibraryNode ln : getListOfLibraries(menuContext)) {
                     final StringProperties sp = new DefaultStringProperties();
                     sp.set(PropertyType.TEXT, ln.getName());
                     libActions.add(new MoveObjectToLibraryAction(sp, ln));
@@ -527,11 +527,15 @@ public class NavigatorMenus extends TreeViewer {
                 return actions;
             }
 
-            private List<LibraryNode> getListOfLibraries(final Node context) {
+            private List<LibraryNode> getListOfLibraries(final Node node) {
                 final List<LibraryNode> libs = new ArrayList<LibraryNode>();
-                for (final Node ln : Node.getAllUserLibraries()) {
-                    if (ln.isTLLibrary() && !ln.equals(context.getLibrary()) && ln.isEditable()) {
-                        libs.add((LibraryNode) ln);
+                for (final LibraryNode ln : Node.getAllUserLibraries()) {
+                    if (ln.isInChain()) {
+                        // add if it is not in the node's chain and the head of the chain
+                        if (!ln.getChain().contains(node) && ln.isEditable())
+                            libs.add(ln);
+                    } else if (ln != node.getLibrary() && ln.isEditable()) {
+                        libs.add(ln);
                     }
                 }
                 return libs;

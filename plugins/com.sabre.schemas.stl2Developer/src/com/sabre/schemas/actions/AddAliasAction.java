@@ -44,30 +44,18 @@ public class AddAliasAction extends OtmAbstractAction {
         addAlias();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.Action#isEnabled()
-     */
     @Override
     public boolean isEnabled() {
-        Node cur = getMainController().getCurrentNode_NavigatorView().getOwningComponent();
-        if (cur.isBusinessObject() || cur.isCoreObject())
-            if (cur.getChain() == null)
-                return true;
-            else if (cur.getChain().getHead().isMajorVersion())
-                return true;
-            else if (cur.getChain().getHead().isMinorVersion())
-                return true;
+        Node n = getMainController().getCurrentNode_NavigatorView().getOwningComponent();
+        if (n.isAliasable())
+            return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
         return false;
-        // return (cur.isBusinessObject() || cur.isCoreObject()) ? true : false;
     }
 
-    // TODO - move this to a command
     public void addAlias() {
         Node current = mc.getCurrentNode_NavigatorView();
         current = current.getOwningComponent();
-        if (current != null && (current.isBusinessObject() || current.isCoreObject())) {
+        if (current != null && (current.isAliasable())) {
             final SimpleNameWizard wizard = new SimpleNameWizard(new ExternalizedStringProperties(
                     "wizard.aliasName"));
             final ComponentNode cn = (ComponentNode) current;

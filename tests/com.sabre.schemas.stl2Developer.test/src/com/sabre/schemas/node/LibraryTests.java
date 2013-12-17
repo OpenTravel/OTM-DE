@@ -198,7 +198,7 @@ public class LibraryTests {
         Assert.assertFalse(ln.isLocked());
         Assert.assertFalse(ln.isInProjectNS());
         Assert.assertTrue(ln.isMajorVersion());
-        Assert.assertTrue(ln.isMinorVersion());
+        Assert.assertTrue(ln.isMinorOrMajorVersion());
         Assert.assertFalse(ln.isPatchVersion());
 
         ln.setNamespace(ln.getProject().getNamespace() + "test/v1_2_3");
@@ -214,7 +214,7 @@ public class LibraryTests {
         ln.setNamespace(ln.getProject().getNamespace() + "test/v1_2");
         n = ln.getNSVersion();
         Assert.assertTrue(ln.getNSVersion().equals("1.2.0"));
-        Assert.assertTrue(ln.isMinorVersion());
+        Assert.assertTrue(ln.isMinorOrMajorVersion());
     }
 
     @Test

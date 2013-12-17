@@ -42,7 +42,6 @@ import com.sabre.schemas.controllers.ProjectController;
 import com.sabre.schemas.modelObject.ModelObjectFactory;
 import com.sabre.schemas.preferences.GeneralPreferencePage;
 import com.sabre.schemas.properties.Images;
-import com.sabre.schemas.properties.Messages;
 import com.sabre.schemas.stl2developer.OtmRegistry;
 import com.sabre.schemas.types.TypeResolver;
 
@@ -976,7 +975,7 @@ public class LibraryNode extends Node {
      * @return - true if members of the library can be moved
      */
     public boolean isMoveable() {
-        return isTLLibrary();
+        return isManaged() ? isEditable() : isTLLibrary();
     }
 
     /**
@@ -1316,7 +1315,7 @@ public class LibraryNode extends Node {
                 status = NodeEditStatus.MANAGED_READONLY;
             else if (isMajorVersion())
                 status = NodeEditStatus.FULL;
-            else if (isMinorVersion())
+            else if (isMinorOrMajorVersion())
                 status = NodeEditStatus.MINOR;
             else
                 status = NodeEditStatus.PATCH;
@@ -1324,11 +1323,11 @@ public class LibraryNode extends Node {
         return status;
     }
 
-    @Override
-    public String getEditStatusMsg() {
-        // LOGGER.debug(this + " library status = " + getEditStatus().msgID());
-        return Messages.getString(getEditStatus().msgID());
-    }
+    // @Override
+    // public String getEditStatusMsg() {
+    // // LOGGER.debug(this + " library status = " + getEditStatus().msgID());
+    // return Messages.getString(getEditStatus().msgID());
+    // }
 
     /**
      * @return true if this library is managed in a repository.
@@ -1369,12 +1368,22 @@ public class LibraryNode extends Node {
     /**
      * NOTE: Major versions will also return true as needed to create a minor from a major version.
      * 
-     * @return true if this library is a minor version
+     * @return true if this library is a major or minor version
      */
-    public boolean isMinorVersion() {
+    public boolean isMinorOrMajorVersion() {
         // return !nsHandler.getNS_Minor(getNamespace()).equals("0")
         // && nsHandler.getNS_Patch(getNamespace()).equals("0");
         return nsHandler.getNS_Patch(getNamespace()).equals("0");
+    }
+
+    /**
+     * Use library namespace to determine if it is a minor version.
+     * 
+     * @return true only if this library is a minor version
+     */
+    public boolean isMinorVersion() {
+        return !nsHandler.getNS_Minor(getNamespace()).equals("0")
+                && nsHandler.getNS_Patch(getNamespace()).equals("0");
     }
 
     /**

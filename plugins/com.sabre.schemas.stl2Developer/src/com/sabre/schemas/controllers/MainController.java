@@ -754,7 +754,7 @@ public class MainController {
     public void importSelectedToDragTarget(boolean isCopy) {
         if (modelNode != null) {
             final Node target = handlers.getDragTargetNode();
-            if (target != null) {
+            if (target != null && target.getLibrary() != null) {
                 final LibraryNode library = target.getLibrary();
                 LOGGER.debug("Importing selected nodes to drag target library: "
                         + library.getName());
