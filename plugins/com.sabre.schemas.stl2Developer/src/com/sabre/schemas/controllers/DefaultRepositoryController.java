@@ -549,7 +549,7 @@ public class DefaultRepositoryController implements RepositoryController {
                 if (!(n instanceof LibraryNode))
                     continue;
                 ln = (LibraryNode) n;
-                if (ln.isMinorVersion()
+                if (ln.isMinorOrMajorVersion()
                         && ln.getNsHandler().getNS_Minor(ln.getNamespace()).equals(minor)) {
                     library = ln;
                     break;

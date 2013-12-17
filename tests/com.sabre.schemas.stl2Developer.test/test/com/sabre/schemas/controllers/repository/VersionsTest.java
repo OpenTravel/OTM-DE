@@ -24,6 +24,7 @@ import com.sabre.schemas.node.LibraryChainNode;
 import com.sabre.schemas.node.LibraryNode;
 import com.sabre.schemas.node.NavNode;
 import com.sabre.schemas.node.Node;
+import com.sabre.schemas.node.NodeEditStatus;
 import com.sabre.schemas.node.NodeFinders;
 import com.sabre.schemas.node.OperationNode;
 import com.sabre.schemas.node.ProjectNode;
@@ -35,6 +36,8 @@ import com.sabre.schemas.node.VersionNode;
 import com.sabre.schemas.node.properties.ElementNode;
 import com.sabre.schemas.node.properties.PropertyNode;
 import com.sabre.schemas.testUtils.MockLibrary;
+import com.sabre.schemas.testers.GlobalSelectionTester;
+import com.sabre.schemas.testers.NodeTester;
 import com.sabre.schemas.trees.repository.RepositoryNode;
 import com.sabre.schemas.utils.LibraryNodeBuilder;
 
@@ -44,11 +47,11 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
     private BusinessObjectNode bo = null;
     private BusinessObjectNode nbo = null;
     private CoreObjectNode co = null;
-    private LibraryNode baseMajorLibrary = null;
+    private LibraryNode majorLibrary = null;
+    private LibraryNode minorLibrary = null;
+    private LibraryNode patchLibrary = null;
     private LibraryNode secondLib = null;
     private LibraryChainNode chain = null;
-    private LibraryNode newMinor = null;
-    private LibraryNode newPatch = null;
     int TotalDescendents, ActiveSimple, ActiveComplex, TotalLibraries, MinorComplex;
 
     @Override
@@ -63,37 +66,36 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 
     @Before
     public void runBeforeEachTest() throws LibrarySaveException, RepositoryException {
-        ProjectNode uploadProject = createProject("ToUploadLibrary", getRepositoryForTest(), "test");
-        baseMajorLibrary = LibraryNodeBuilder.create("TestLibrary",
+        ProjectNode uploadProject = createProject("ToUploadLibrary", getRepositoryForTest(), "Test");
+        majorLibrary = LibraryNodeBuilder.create("TestLibrary",
                 getRepositoryForTest().getNamespace() + "/Test/T2", "prefix", new Version(1, 0, 0))
                 .build(uploadProject, pc);
         secondLib = LibraryNodeBuilder.create("TestLibrary2",
                 getRepositoryForTest().getNamespace() + "/Test", "prefix2", new Version(1, 0, 0))
                 .build(uploadProject, pc);
-        chain = rc.manage(getRepositoryForTest(), Collections.singletonList(baseMajorLibrary)).get(
-                0);
+        chain = rc.manage(getRepositoryForTest(), Collections.singletonList(majorLibrary)).get(0);
         boolean locked = rc.lock(chain.getHead());
         Assert.assertTrue(locked);
-        Assert.assertTrue(baseMajorLibrary.isEditable());
+        Assert.assertTrue(majorLibrary.isEditable());
         Assert.assertEquals(RepositoryItemState.MANAGED_WIP, chain.getHead().getProjectItem()
                 .getState());
 
         // Create a valid example of each component type
         sbo = ml.addBusinessObjectToLibrary(secondLib, "sbo");
-        bo = ml.addBusinessObjectToLibrary(baseMajorLibrary, "testBO");
-        co = ml.addCoreObjectToLibrary(baseMajorLibrary, "testCO");
-        ml.addVWA_ToLibrary(baseMajorLibrary, "testVWA");
-        ml.addSimpleTypeToLibrary(baseMajorLibrary, "testSimple");
-        ml.addClosedEnumToLibrary(baseMajorLibrary, "testCEnum");
-        ml.addOpenEnumToLibrary(baseMajorLibrary, "testOEnum");
-        ml.addNestedTypes(baseMajorLibrary);
+        bo = ml.addBusinessObjectToLibrary(majorLibrary, "testBO");
+        co = ml.addCoreObjectToLibrary(majorLibrary, "testCO");
+        ml.addVWA_ToLibrary(majorLibrary, "testVWA");
+        ml.addSimpleTypeToLibrary(majorLibrary, "testSimple");
+        ml.addClosedEnumToLibrary(majorLibrary, "testCEnum");
+        ml.addOpenEnumToLibrary(majorLibrary, "testOEnum");
+        ml.addNestedTypes(majorLibrary);
         ServiceNode svc = new ServiceNode(bo);
         svc.setName(bo.getName() + "_Service");
         bo.setExtensible(true);
         ExtensionPointNode ep = new ExtensionPointNode(new TLExtensionPointFacet());
         ep.setExtendsType(sbo.getSummaryFacet());
-        baseMajorLibrary.addMember(ep);
-        Assert.assertTrue(baseMajorLibrary.isValid()); // you can't version an invalid library.
+        majorLibrary.addMember(ep);
+        Assert.assertTrue(majorLibrary.isValid()); // you can't version an invalid library.
 
         TotalDescendents = 11; // Number in whole chain
         TotalLibraries = 3;
@@ -102,7 +104,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         MinorComplex = 0;
 
         // Create locked patch version
-        newPatch = rc.createPatchVersion(chain.getHead());
+        patchLibrary = rc.createPatchVersion(chain.getHead());
 
         // FIXME
         // Adding the simple to the patch causes it to be duplicated then create error finding.
@@ -119,7 +121,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         // Assert.assertTrue(chain.isValid()); // you can't version an invalid library.
 
         // Create locked minor version. Will contain bo with property from ePatch.
-        newMinor = rc.createMinorVersion(chain.getHead());
+        minorLibrary = rc.createMinorVersion(chain.getHead());
 
         // FIXME - https://jira.sabre.com/browse/OTA-811
         //
@@ -139,13 +141,13 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 
     @Test
     public void checkMinorVersion() {
-        Assert.assertTrue(newMinor.isEditable());
+        Assert.assertTrue(minorLibrary.isEditable());
         Assert.assertTrue(chain.isEditable());
-        Assert.assertFalse(baseMajorLibrary.isEditable());
+        Assert.assertFalse(majorLibrary.isEditable());
         Assert.assertEquals(TotalLibraries, chain.getLibraries().size());
         Assert.assertTrue(chain.getDescendants_NamedTypes().contains(bo));
-        Assert.assertTrue(baseMajorLibrary.getDescendants_NamedTypes().contains(bo));
-        Assert.assertFalse(newMinor.getDescendants_NamedTypes().contains(bo));
+        Assert.assertTrue(majorLibrary.getDescendants_NamedTypes().contains(bo));
+        Assert.assertFalse(minorLibrary.getDescendants_NamedTypes().contains(bo));
         Assert.assertTrue(chain.isValid());
         checkCounts(chain);
     }
@@ -155,32 +157,120 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
     //
     @Test
     public void testLibraryTesters() {
-        Assert.assertTrue(baseMajorLibrary.isInChain());
-        Assert.assertTrue(baseMajorLibrary.isManaged());
-        Assert.assertTrue(baseMajorLibrary.isReadyToVersion());
-        Assert.assertTrue(baseMajorLibrary.isMajorVersion());
-        Assert.assertFalse(baseMajorLibrary.isEditable());
-        Assert.assertFalse(baseMajorLibrary.isLocked());
-        Assert.assertFalse(baseMajorLibrary.isPatchVersion());
-        // Assert.assertFalse(baseMajorLibrary.isMinorVersion());
+        CoreObjectNode nco = createCoreInMinor(); // extends co
 
-        Assert.assertTrue(newMinor.isInChain());
-        Assert.assertTrue(newMinor.isManaged());
-        Assert.assertTrue(newMinor.isReadyToVersion());
-        Assert.assertFalse(newMinor.isMajorVersion());
-        Assert.assertTrue(newMinor.isEditable());
-        Assert.assertTrue(newMinor.isLocked());
-        Assert.assertFalse(newMinor.isPatchVersion());
-        Assert.assertTrue(newMinor.isMinorVersion());
+        //
+        // Chain assertions
+        Assert.assertTrue(chain.isMinor());
+        Assert.assertFalse(chain.isMajor());
+        Assert.assertFalse(chain.isPatch());
 
-        Assert.assertTrue(newPatch.isInChain());
-        Assert.assertTrue(newPatch.isManaged());
-        Assert.assertTrue(newPatch.isReadyToVersion());
-        Assert.assertFalse(newPatch.isMajorVersion());
-        Assert.assertFalse(newPatch.isEditable());
-        Assert.assertFalse(newPatch.isLocked());
-        Assert.assertTrue(newPatch.isPatchVersion());
-        Assert.assertFalse(newPatch.isMinorVersion());
+        //
+        // Major Library
+        Assert.assertTrue(majorLibrary.isInChain());
+        Assert.assertTrue(majorLibrary.isManaged());
+        Assert.assertTrue(majorLibrary.isReadyToVersion());
+        Assert.assertTrue(majorLibrary.isMajorVersion());
+        Assert.assertTrue(majorLibrary.isMinorOrMajorVersion());
+        //
+        Assert.assertFalse(majorLibrary.isEditable());
+        Assert.assertFalse(majorLibrary.isLocked());
+        Assert.assertFalse(majorLibrary.isPatchVersion());
+        Assert.assertFalse(majorLibrary.isMinorVersion());
+        Assert.assertFalse(chain.isLaterVersion(majorLibrary, minorLibrary));
+        Assert.assertFalse(chain.isLaterVersion(majorLibrary, patchLibrary));
+
+        //
+        // Minor Library
+        Assert.assertTrue(minorLibrary.isInChain());
+        Assert.assertTrue(minorLibrary.isManaged());
+        Assert.assertTrue(minorLibrary.isReadyToVersion());
+        Assert.assertTrue(minorLibrary.isEditable());
+        Assert.assertTrue(minorLibrary.isLocked());
+        Assert.assertTrue(minorLibrary.isMinorOrMajorVersion());
+        Assert.assertTrue(minorLibrary.isMinorVersion());
+        Assert.assertTrue(chain.isLaterVersion(minorLibrary, majorLibrary));
+        Assert.assertTrue(chain.isLaterVersion(minorLibrary, patchLibrary));
+        //
+        Assert.assertFalse(minorLibrary.isMajorVersion());
+        Assert.assertFalse(minorLibrary.isPatchVersion());
+
+        //
+        // patch Library
+        Assert.assertTrue(patchLibrary.isInChain());
+        Assert.assertTrue(patchLibrary.isManaged());
+        Assert.assertTrue(patchLibrary.isReadyToVersion());
+        Assert.assertTrue(patchLibrary.isPatchVersion());
+        Assert.assertTrue(chain.isLaterVersion(patchLibrary, majorLibrary));
+        //
+        Assert.assertFalse(patchLibrary.isMajorVersion());
+        Assert.assertFalse(patchLibrary.isEditable());
+        Assert.assertFalse(patchLibrary.isLocked());
+        Assert.assertFalse(patchLibrary.isMinorVersion());
+        Assert.assertFalse(patchLibrary.isMinorOrMajorVersion());
+        Assert.assertFalse(chain.isLaterVersion(patchLibrary, minorLibrary));
+
+        // LibraryNode based status
+        Assert.assertEquals(NodeEditStatus.MANAGED_READONLY, majorLibrary.getEditStatus());
+        Assert.assertEquals(NodeEditStatus.MINOR, minorLibrary.getEditStatus());
+        Assert.assertEquals(NodeEditStatus.MANAGED_READONLY, patchLibrary.getEditStatus());
+
+        // Node based NodeEditStatus is based on chain head
+        Assert.assertEquals(NodeEditStatus.MINOR, nco.getEditStatus());
+        Assert.assertEquals(NodeEditStatus.MINOR, co.getEditStatus());
+        Assert.assertEquals(NodeEditStatus.MINOR, bo.getEditStatus());
+
+        //
+        // Node object based status
+        Assert.assertTrue(nco.isInHead());
+        Assert.assertFalse(co.isInHead());
+        Assert.assertFalse(bo.isInHead());
+
+        Assert.assertFalse(nco.isNewToChain());
+        Assert.assertFalse(co.isNewToChain());
+        Assert.assertFalse(bo.isNewToChain());
+
+        //
+        // Tests used to enable user actions.
+
+        // Editable - should all be true to drive the navView display.
+        Assert.assertTrue(nco.isEditable());
+        Assert.assertTrue(co.isEditable());
+        Assert.assertTrue(bo.isEditable());
+
+        // Delete-able - NodeTester.canDelete() -> Node.isDeletable()
+        Assert.assertTrue(nco.isDeleteable());
+        Assert.assertFalse(co.isDeleteable());
+        Assert.assertFalse(bo.isDeleteable());
+
+        // CanAdd - Control for AddNodeHandler. GlobalSelectionTester.canAdd()
+        GlobalSelectionTester gst = new GlobalSelectionTester();
+        Assert.assertTrue(gst.test(nco, GlobalSelectionTester.CANADD, null, null));
+        Assert.assertTrue(gst.test(co, GlobalSelectionTester.CANADD, null, null));
+        Assert.assertTrue(gst.test(bo, GlobalSelectionTester.CANADD, null, null));
+
+        // New Component - NodeTester
+        NodeTester tester = new NodeTester();
+        Assert.assertTrue(tester.test(nco, NodeTester.IS_IN_TLLIBRARY, null, null));
+        Assert.assertTrue(tester.test(nco, NodeTester.IS_OWNER_LIBRARY_EDITABLE, null, null));
+        Assert.assertTrue(tester.test(co, NodeTester.IS_IN_TLLIBRARY, null, null));
+        Assert.assertTrue(tester.test(co, NodeTester.IS_OWNER_LIBRARY_EDITABLE, null, null));
+        Assert.assertTrue(tester.test(bo, NodeTester.IS_IN_TLLIBRARY, null, null));
+        Assert.assertTrue(tester.test(bo, NodeTester.IS_OWNER_LIBRARY_EDITABLE, null, null));
+
+        // Move - NavigatorMenus.createMoveActionsForLibraries()
+        Assert.assertTrue(nco.getLibrary().isMoveable());
+        Assert.assertFalse(co.getLibrary().isMoveable());
+        Assert.assertFalse(bo.getLibrary().isMoveable());
+
+        // 3 states:
+        // in previous version
+        // in head w/ base type (extends older version)
+        // in head w/o base type (newToHead)
+        //
+        // if (co.isInHead() && co.getExtendsType() == null || !chain.contains(co.getExtendsType()))
+
+        // AddAliasAction, AssignTypeAction, ChangeAction all use chain.isMajor()
     }
 
     //
@@ -189,9 +279,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
     @Test
     public void testHeirarchy() {
         CoreObjectNode nco = createCoreInMinor();
-        TotalDescendents += 1;
         Assert.assertTrue(nco.getParent() instanceof VersionNode);
-        Assert.assertTrue(nco.getLibrary() == newMinor);
+        Assert.assertTrue(nco.getLibrary() == minorLibrary);
         // TODO - why? if they are always the same, why have version node pointer? Just to save a
         // cast? If so, create a method w/ cast and remove data
         Assert.assertTrue(nco.getParent() == nco.getVersionNode());
@@ -292,12 +381,12 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         MinorComplex += 1;
         nbo.isInHead();
         // We should get at least the default context.
-        List<String> contextIDs = newMinor.getContextIds();
+        List<String> contextIDs = minorLibrary.getContextIds();
         Assert.assertFalse(contextIDs.isEmpty());
         // Add a custom facet
         nbo.addFacet("c2", contextIDs.get(0), TLFacetType.CUSTOM);
         Assert.assertEquals(4, nbo.getChildren().size());
-        Assert.assertEquals(MinorComplex, newMinor.getDescendants_NamedTypes().size());
+        Assert.assertEquals(MinorComplex, minorLibrary.getDescendants_NamedTypes().size());
         Assert.assertTrue(chain.isValid());
         nbo.delete();
         MinorComplex -= 1;
@@ -313,12 +402,12 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         // VersionAggregate should have 3, one for each library
         Assert.assertEquals(3, chain.getVersions().getNavChildren().size());
         // Libraries should have 2 or 3, simple, complex and service
-        Assert.assertEquals(2, newPatch.getNavChildren().size());
-        Assert.assertEquals(2, newMinor.getNavChildren().size());
-        Assert.assertEquals(3, baseMajorLibrary.getNavChildren().size());
+        Assert.assertEquals(2, patchLibrary.getNavChildren().size());
+        Assert.assertEquals(2, minorLibrary.getNavChildren().size());
+        Assert.assertEquals(3, majorLibrary.getNavChildren().size());
 
         // Nav Nodes should ONLY have version
-        for (Node nn : newPatch.getNavChildren()) {
+        for (Node nn : patchLibrary.getNavChildren()) {
             Assert.assertTrue(nn instanceof NavNode);
             checkChildrenClassType(nn, VersionNode.class, null);
             // Version nodes should have NO nav children.
@@ -346,12 +435,12 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
     //
     @Test
     public void testAddingAndDeleting() {
-        nbo = ml.addBusinessObjectToLibrary(newMinor, "nbo");
+        nbo = ml.addBusinessObjectToLibrary(minorLibrary, "nbo");
 
         // The new bo should be in the minor library, not the base library.
         Assert.assertTrue(chain.getDescendants_NamedTypes().contains(nbo));
-        Assert.assertTrue(newMinor.getDescendants_NamedTypes().contains(nbo));
-        Assert.assertFalse(baseMajorLibrary.getDescendants_NamedTypes().contains(nbo));
+        Assert.assertTrue(minorLibrary.getDescendants_NamedTypes().contains(nbo));
+        Assert.assertFalse(majorLibrary.getDescendants_NamedTypes().contains(nbo));
 
         // Add some other object types
         EnumerationClosedNode nec = ml.addClosedEnumToLibrary(chain.getHead(), "ce2");
@@ -380,8 +469,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         Assert.assertNotNull(nco);
         Assert.assertEquals(1, nco.getSummaryFacet().getChildren().size());
         Assert.assertTrue(chain.getDescendants_NamedTypes().contains(nco));
-        Assert.assertTrue(newMinor.getDescendants_NamedTypes().contains(nco));
-        Assert.assertFalse(baseMajorLibrary.getDescendants_NamedTypes().contains(nco));
+        Assert.assertTrue(minorLibrary.getDescendants_NamedTypes().contains(nco));
+        Assert.assertFalse(majorLibrary.getDescendants_NamedTypes().contains(nco));
 
         PropertyNode newProp = new ElementNode(nco.getSummaryFacet(), "te2");
         newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
@@ -400,6 +489,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         PropertyNode newProp = new ElementNode(nco.getSummaryFacet(), "te2");
         newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
         Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
+        TotalDescendents += 1;
+        MinorComplex += 1;
         return nco;
     }
 
@@ -408,8 +499,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         nbo = (BusinessObjectNode) bo.clone("_copy");
         // copy should be in the new library
         Assert.assertTrue(chain.getDescendants_NamedTypes().contains(nbo));
-        Assert.assertTrue(newMinor.getDescendants_NamedTypes().contains(nbo));
-        Assert.assertFalse(baseMajorLibrary.getDescendants_NamedTypes().contains(nbo));
+        Assert.assertTrue(minorLibrary.getDescendants_NamedTypes().contains(nbo));
+        Assert.assertFalse(majorLibrary.getDescendants_NamedTypes().contains(nbo));
         Assert.assertTrue(chain.isValid());
         nbo.delete();
         checkCounts(chain);
@@ -419,29 +510,29 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
     public void testMove() {
         // This will work because moveMember is at the model level. It is used by the controller
         // which applies the business logic if it is valid to move.
-        baseMajorLibrary.moveMember(bo, newMinor);
+        majorLibrary.moveMember(bo, minorLibrary);
         Assert.assertTrue(chain.isValid());
         checkCounts(chain);
         Assert.assertTrue(chain.getDescendants_NamedTypes().contains(bo));
-        Assert.assertFalse(baseMajorLibrary.getDescendants_NamedTypes().contains(bo));
-        Assert.assertTrue(newMinor.getDescendants_NamedTypes().contains(bo));
-        newMinor.moveMember(bo, baseMajorLibrary); // put it back
+        Assert.assertFalse(majorLibrary.getDescendants_NamedTypes().contains(bo));
+        Assert.assertTrue(minorLibrary.getDescendants_NamedTypes().contains(bo));
+        minorLibrary.moveMember(bo, majorLibrary); // put it back
         Assert.assertTrue(chain.isValid());
         checkCounts(chain);
 
         // Test moving from another library
         nbo = ml.addBusinessObjectToLibrary(secondLib, "secondLibBO");
-        secondLib.moveMember(nbo, newMinor);
+        secondLib.moveMember(nbo, minorLibrary);
         Assert.assertTrue(chain.getDescendants_NamedTypes().contains(nbo));
         Assert.assertFalse(secondLib.getDescendants_NamedTypes().contains(nbo));
         nbo.delete();
 
         // Test moving to another library
-        nbo = ml.addBusinessObjectToLibrary(newMinor, "newBO");
-        newMinor.moveMember(nbo, secondLib);
+        nbo = ml.addBusinessObjectToLibrary(minorLibrary, "newBO");
+        minorLibrary.moveMember(nbo, secondLib);
         Assert.assertTrue(secondLib.getDescendants_NamedTypes().contains(nbo));
-        Assert.assertFalse(newMinor.getDescendants_NamedTypes().contains(nbo));
-        Assert.assertFalse(baseMajorLibrary.getDescendants_NamedTypes().contains(nbo));
+        Assert.assertFalse(minorLibrary.getDescendants_NamedTypes().contains(nbo));
+        Assert.assertFalse(majorLibrary.getDescendants_NamedTypes().contains(nbo));
         Assert.assertFalse(chain.getDescendants_NamedTypes().contains(nbo));
         checkCounts(chain);
 
@@ -451,7 +542,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
     @Test
     public void testDelete() {
         bo.delete(); // Should and does fail.
-        Assert.assertTrue(baseMajorLibrary.getDescendants_NamedTypes().contains(bo));
+        Assert.assertTrue(majorLibrary.getDescendants_NamedTypes().contains(bo));
         List<?> kids = chain.getComplexAggregate().getChildren();
         Assert.assertTrue(kids.contains(bo));
         checkCounts(chain);
@@ -465,7 +556,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         //
         // Test handling of new object with same name as existing object.
         nbo = ml.addBusinessObjectToLibrary(chain.getHead(), "testBO");
-        Assert.assertFalse(newMinor.isValid());
+        Assert.assertFalse(minorLibrary.isValid());
 
         kids = chain.getComplexAggregate().getChildren();
         Assert.assertTrue(kids.contains(nbo));
@@ -473,26 +564,26 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 
         // The new bo should be in the minor library, not the base library.
         Assert.assertTrue(chain.getDescendants_NamedTypes().contains(nbo));
-        Assert.assertTrue(newMinor.getDescendants_NamedTypes().contains(nbo));
-        Assert.assertFalse(baseMajorLibrary.getDescendants_NamedTypes().contains(nbo));
+        Assert.assertTrue(minorLibrary.getDescendants_NamedTypes().contains(nbo));
+        Assert.assertFalse(majorLibrary.getDescendants_NamedTypes().contains(nbo));
 
         // Deleting via GUI should make it valid and replace the old one back into the aggregate
         // model level delete should just do it.
         nbo.delete();
-        Assert.assertTrue(newMinor.isValid());
+        Assert.assertTrue(minorLibrary.isValid());
         Assert.assertTrue(chain.getDescendants_NamedTypes().contains(bo));
-        Assert.assertTrue(baseMajorLibrary.getDescendants_NamedTypes().contains(bo));
+        Assert.assertTrue(majorLibrary.getDescendants_NamedTypes().contains(bo));
         checkCounts(chain);
         // counts will be wrong.
 
         // Renaming it should make chain valid
-        nbo = ml.addBusinessObjectToLibrary(newMinor, "testBO");
+        nbo = ml.addBusinessObjectToLibrary(minorLibrary, "testBO");
         nbo.setName("testBO2");
-        Assert.assertTrue(newMinor.isValid());
+        Assert.assertTrue(minorLibrary.isValid());
         Assert.assertTrue(chain.getDescendants_NamedTypes().contains(bo));
-        Assert.assertTrue(baseMajorLibrary.getDescendants_NamedTypes().contains(bo));
+        Assert.assertTrue(majorLibrary.getDescendants_NamedTypes().contains(bo));
         Assert.assertTrue(chain.getDescendants_NamedTypes().contains(nbo));
-        Assert.assertTrue(newMinor.getDescendants_NamedTypes().contains(nbo));
+        Assert.assertTrue(minorLibrary.getDescendants_NamedTypes().contains(nbo));
     }
 
     @Test

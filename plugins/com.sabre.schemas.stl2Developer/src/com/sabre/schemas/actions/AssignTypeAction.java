@@ -63,8 +63,8 @@ public class AssignTypeAction extends OtmAbstractAction {
      */
     @Override
     public boolean isEnabled() {
-        return mc.getSelectedNode_NavigatorView().isEditable();
-        // return super.isEnabled();
+        Node n = getMainController().getCurrentNode_NavigatorView();
+        return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
     }
 
     // TODO - why is this static???

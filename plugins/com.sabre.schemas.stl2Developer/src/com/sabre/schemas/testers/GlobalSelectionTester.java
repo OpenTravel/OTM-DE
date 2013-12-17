@@ -75,7 +75,10 @@ public class GlobalSelectionTester extends PropertyTester {
         if (node.isRoleProperty() && !node.getEditStatus().equals(NodeEditStatus.FULL))
             return false;
         if (node.isProperty())
-            return canAdd(node.getOwningComponent());
+            if (node == node.getOwningComponent())
+                return false; // ERROR
+            else
+                return canAdd(node.getOwningComponent());
 
         return false;
     }

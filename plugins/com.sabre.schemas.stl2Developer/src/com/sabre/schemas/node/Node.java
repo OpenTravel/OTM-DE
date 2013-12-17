@@ -1042,19 +1042,7 @@ public abstract class Node implements INode {
      *         and Query Facets are delete-able.
      */
     public boolean isDeleteable() {
-        return isNewToLatestVersion() && isEditable();
-    }
-
-    /**
-     * @return True if this node is in the latest library of the chain. True if this node's library
-     *         is not in a chain.
-     * 
-     */
-    public boolean isNewToLatestVersion() {
-        if (getChain() == null)
-            return true;
-        else
-            return (getLibrary() == getChain().getHead());
+        return isInHead() && isEditable();
     }
 
     /**
@@ -1735,7 +1723,11 @@ public abstract class Node implements INode {
     }
 
     /**
-     * Get the editing status of the node based on chain head library or unmanaged library.
+     * Get the editing status of the node based on chain head library or unmanaged library. Use to
+     * check if an object can be acted upon by the user.
+     * 
+     * To find out the specific status of the actual library and not the chain, see
+     * {@link LibraryNode#getEditStatus()}
      */
     public NodeEditStatus getEditStatus() {
         NodeEditStatus status = NodeEditStatus.FULL;
@@ -1752,7 +1744,7 @@ public abstract class Node implements INode {
                 status = NodeEditStatus.MANAGED_READONLY;
             else if (getChain().getHead().isMajorVersion())
                 status = NodeEditStatus.FULL;
-            else if (getChain().getHead().isMinorVersion())
+            else if (getChain().getHead().isMinorOrMajorVersion())
                 status = NodeEditStatus.MINOR;
             else
                 status = NodeEditStatus.PATCH;
@@ -1972,6 +1964,21 @@ public abstract class Node implements INode {
         if (versionNode == null)
             return false;
         return getChain().getHead().getDescendants_NamedTypes().contains(getOwningComponent());
+    }
+
+    /**
+     * @return True if this node is not in a chain, OR it is in the latest library of the chain AND
+     *         not in a previous version.
+     * 
+     */
+    public boolean isNewToChain() {
+        if (getChain() == null)
+            return true;
+        if (getLibrary() != getChain().getHead())
+            return false;
+        // It is in head of chain. Is it new to the chain?
+
+        return false;
     }
 
     @Override

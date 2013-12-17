@@ -175,9 +175,15 @@ public class LibraryChainNode extends Node {
         return node1.getLibrary().getTLaLib().isLaterVersion(node2.getLibrary().getTLaLib());
     }
 
+    // public boolean isNewer(LibraryNode ref, LibraryNode test) {
+    // return ref == null || test.getTLaLib().isLaterVersion(ref.getTLaLib()) ? true : false;
+    // }
+
     /**
      * Add the passed node to the appropriate chain aggregate. Wrap the node in a version node in
      * the library's children list.
+     * 
+     * NOTE: may create invalid chain as there may be undetected name collisions
      * 
      * @param node
      */
@@ -221,6 +227,13 @@ public class LibraryChainNode extends Node {
 
         // Must remove first or add will ignore this later version.
         add(findPreviousVersion(node));
+    }
+
+    /**
+     * @return true if this chain contains this node
+     */
+    public boolean contains(Node node) {
+        return versions.getChildren().contains(node.getLibrary());
     }
 
     /**
@@ -408,10 +421,6 @@ public class LibraryChainNode extends Node {
         return true;
     }
 
-    public boolean isNewer(LibraryNode ref, LibraryNode test) {
-        return ref == null || test.getTLaLib().isLaterVersion(ref.getTLaLib()) ? true : false;
-    }
-
     public INode getSimpleAggregate() {
         return simpleRoot;
     }
@@ -421,9 +430,12 @@ public class LibraryChainNode extends Node {
     }
 
     public boolean isMinor() {
-        return getHead().isMinorVersion();
+        return getHead().isMinorOrMajorVersion();
     }
 
+    /**
+     * @return true if head library is a major version
+     */
     public boolean isMajor() {
         return getHead().isMajorVersion();
     }
@@ -481,7 +493,7 @@ public class LibraryChainNode extends Node {
     }
 
     public boolean hasService() {
-        return serviceRoot == null;
+        return serviceRoot != null;
     }
 
 }

@@ -273,7 +273,7 @@ public class AddNodeHandler extends OtmAbstractHandler {
             }
 
             // If a minor version, create a new object of same type and add base link to this.
-            if (selectedNode.getChain().getHead().isMinorVersion()) {
+            if (selectedNode.getChain().getHead().isMinorOrMajorVersion()) {
                 if (selectedNode.getLibrary() != selectedNode.getChain().getHead()) {
                     if (!DialogUserNotifier.openConfirm(
                             Messages.getString("action.component.version.title"),
@@ -301,7 +301,7 @@ public class AddNodeHandler extends OtmAbstractHandler {
             // New nodes are not connected to the parent.
             for (final PropertyNode n : newProperties) {
                 actOnNode.addProperty(n);
-                if (selectedNode.getLibrary().isMinorVersion())
+                if (selectedNode.getLibrary().isMinorOrMajorVersion())
                     n.setMandatory(false); // properties in minor extensions must be optional.
                 lastOne = n;
             }
