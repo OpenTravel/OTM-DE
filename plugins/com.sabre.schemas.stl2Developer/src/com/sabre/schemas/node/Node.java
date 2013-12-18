@@ -175,12 +175,14 @@ public abstract class Node implements INode {
         // If a version-ed library, then also remove from aggregate
         // Library may be null! It is in some j-units.
         // TODO - should this logic be in delete visitor?
-        if (isDeleteable() && getLibrary() != null && getLibrary().isInChain())
-            getLibrary().getChain().removeAggregate((ComponentNode) this);
+        if (isDeleteable()) {
+            if (getLibrary() != null && getLibrary().isInChain())
+                getLibrary().getChain().removeAggregate((ComponentNode) this);
 
-        NodeVisitor visitor = new NodeVisitors().new deleteVisitor();
-        // LOGGER.debug("Deleting " + this);
-        this.visitAllNodes(visitor);
+            NodeVisitor visitor = new NodeVisitors().new deleteVisitor();
+            // LOGGER.debug("Deleting " + this);
+            this.visitAllNodes(visitor);
+        }
     }
 
     @Override
@@ -1042,7 +1044,9 @@ public abstract class Node implements INode {
      *         and Query Facets are delete-able.
      */
     public boolean isDeleteable() {
-        return isInHead() && isEditable();
+        if (getLibrary() == null)
+            return false;
+        return getLibrary().isManaged() ? isInHead() && isEditable() : isEditable();
     }
 
     /**
@@ -1961,7 +1965,7 @@ public abstract class Node implements INode {
      */
     public boolean isInHead() {
         // False if unmanaged.
-        if (versionNode == null)
+        if (getOwningComponent().versionNode == null)
             return false;
         return getChain().getHead().getDescendants_NamedTypes().contains(getOwningComponent());
     }

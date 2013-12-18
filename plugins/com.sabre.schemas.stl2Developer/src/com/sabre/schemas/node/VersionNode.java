@@ -54,6 +54,12 @@ public class VersionNode extends ComponentNode {
         // return head.getImage();
     }
 
+    // TESTING ONLY
+    // @Override
+    // public List<Node> getChildren() {
+    // return super.getChildren();
+    // }
+
     /*
      * (non-Javadoc)
      * 

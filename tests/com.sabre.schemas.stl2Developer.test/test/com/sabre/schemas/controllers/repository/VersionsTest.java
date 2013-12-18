@@ -20,6 +20,7 @@ import com.sabre.schemas.node.ComponentNode;
 import com.sabre.schemas.node.CoreObjectNode;
 import com.sabre.schemas.node.EnumerationClosedNode;
 import com.sabre.schemas.node.ExtensionPointNode;
+import com.sabre.schemas.node.FacetNode;
 import com.sabre.schemas.node.LibraryChainNode;
 import com.sabre.schemas.node.LibraryNode;
 import com.sabre.schemas.node.NavNode;
@@ -53,6 +54,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
     private LibraryNode secondLib = null;
     private LibraryChainNode chain = null;
     int TotalDescendents, ActiveSimple, ActiveComplex, TotalLibraries, MinorComplex;
+    private Node xsdStringNode;
 
     @Override
     public RepositoryNode getRepositoryForTest() {
@@ -66,6 +68,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 
     @Before
     public void runBeforeEachTest() throws LibrarySaveException, RepositoryException {
+        xsdStringNode = NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE);
         ProjectNode uploadProject = createProject("ToUploadLibrary", getRepositoryForTest(), "Test");
         majorLibrary = LibraryNodeBuilder.create("TestLibrary",
                 getRepositoryForTest().getNamespace() + "/Test/T2", "prefix", new Version(1, 0, 0))
@@ -242,6 +245,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         Assert.assertTrue(nco.isDeleteable());
         Assert.assertFalse(co.isDeleteable());
         Assert.assertFalse(bo.isDeleteable());
+        Assert.assertTrue(sbo.isDeleteable());
 
         // CanAdd - Control for AddNodeHandler. GlobalSelectionTester.canAdd()
         GlobalSelectionTester gst = new GlobalSelectionTester();
@@ -458,12 +462,42 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
     @Test
     public void testAddingProperties() {
         Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
-        // Emulate behavior in AddNodeHandler. AddNodeHandler notifies the user then
-        // createMinorVersionComponent()
-        // Constructors can not do this because they are needed for initial rendering of the objects
-        // and can't do user dialogs/notifications.
 
         CoreObjectNode nco = createCoreInMinor();
+
+        // Emulate AddNodeHandler and newPropertiesWizard
+        PropertyNode newProp = new ElementNode(new FacetNode(), "xx2");
+        nco.getSummaryFacet().addProperty(newProp);
+        newProp.setAssignedType(xsdStringNode);
+        Assert.assertTrue(newProp.getLibrary() != null);
+        Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
+        Assert.assertEquals(2, nco.getSummaryFacet().getChildren().size());
+
+        Assert.assertTrue(newProp.isDeleteable());
+        newProp.delete();
+        Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
+        Assert.assertEquals(1, nco.getSummaryFacet().getChildren().size());
+        Assert.assertTrue(chain.isValid());
+        nco.delete();
+        TotalDescendents -= 1;
+        MinorComplex -= 1; // keep counts accurate
+        checkCounts(chain);
+    }
+
+    /**
+     * Create a new minor version of core: co. Add a property "te2".
+     * 
+     * Emulates behavior in AddNodeHandler. AddNodeHandler notifies the user then
+     * createMinorVersionComponent(). Constructors can not do this because they are needed for
+     * initial rendering of the objects and can't do user dialogs/notifications.
+     */
+    private CoreObjectNode createCoreInMinor() {
+        CoreObjectNode nco = (CoreObjectNode) co.createMinorVersionComponent();
+        PropertyNode newProp = new ElementNode(nco.getSummaryFacet(), "te2");
+        newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+        Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
+        TotalDescendents += 1;
+        MinorComplex += 1;
 
         // Make sure a new CO was created in the newMinor library.
         Assert.assertNotNull(nco);
@@ -472,25 +506,6 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         Assert.assertTrue(minorLibrary.getDescendants_NamedTypes().contains(nco));
         Assert.assertFalse(majorLibrary.getDescendants_NamedTypes().contains(nco));
 
-        PropertyNode newProp = new ElementNode(nco.getSummaryFacet(), "te2");
-        newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
-        Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
-        Assert.assertEquals(2, nco.getSummaryFacet().getChildren().size());
-        newProp.delete();
-        Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
-        Assert.assertEquals(1, nco.getSummaryFacet().getChildren().size());
-        Assert.assertTrue(chain.isValid());
-        nco.delete(); // keep counts accurate
-        checkCounts(chain);
-    }
-
-    private CoreObjectNode createCoreInMinor() {
-        CoreObjectNode nco = (CoreObjectNode) co.createMinorVersionComponent();
-        PropertyNode newProp = new ElementNode(nco.getSummaryFacet(), "te2");
-        newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
-        Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
-        TotalDescendents += 1;
-        MinorComplex += 1;
         return nco;
     }
 
@@ -594,8 +609,19 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         Assert.assertFalse(chain.isEditable());
         LibraryChainNode newChain = newMajor.getChain();
         // The extension point will not be in the major. Add a complex to keep counts right.
-        ml.addBusinessObjectToLibrary(newMajor, "MajorBO");
+        BusinessObjectNode majorBO = ml.addBusinessObjectToLibrary(newMajor, "MajorBO");
         checkCounts(newChain);
+
+        for (Node n : newMajor.getDescendants_NamedTypes()) {
+            if (n.getName().equals(bo.getName()))
+                bo = (BusinessObjectNode) n;
+            if (n.getName().equals(co.getName()))
+                co = (CoreObjectNode) n;
+        }
+        Assert.assertTrue(majorBO.isDeleteable());
+        Assert.assertTrue(bo.isDeleteable());
+        Assert.assertTrue(co.isDeleteable());
+
     }
 
     // Remember, getDescendents uses HashMap - only unique nodes.

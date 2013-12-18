@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.sabre.schemas.node.BusinessObjectNode;
 import com.sabre.schemas.node.ComponentNode;
 import com.sabre.schemas.node.CoreObjectNode;
+import com.sabre.schemas.node.FacetNode;
 import com.sabre.schemas.node.Node;
 import com.sabre.schemas.node.OperationNode;
 import com.sabre.schemas.node.PropertyNodeType;
@@ -272,7 +273,7 @@ public class AddNodeHandler extends OtmAbstractHandler {
                 }
             }
 
-            // If a minor version, create a new object of same type and add base link to this.
+            // If a major minor version, create a new object of same type and add base link to this.
             if (selectedNode.getChain().getHead().isMinorOrMajorVersion()) {
                 if (selectedNode.getLibrary() != selectedNode.getChain().getHead()) {
                     if (!DialogUserNotifier.openConfirm(
@@ -284,15 +285,30 @@ public class AddNodeHandler extends OtmAbstractHandler {
                         LOGGER.error("Did not create Minor Version Component for " + selectedNode);
                         return;
                     }
-                    selectedNode = actOnNode.getOwningComponent();
+                    // selectedNode = actOnNode.getOwningComponent();
                 }
             }
         }
 
-        NewPropertiesWizard newPropertiesWizard = new NewPropertiesWizard(
-                selectedNode.getLibrary(), scopeNode, enabledTypes);
-        newPropertiesWizard
-                .setValidator(new NewPropertyValidator(selectedNode, newPropertiesWizard));
+        // Match the actual selected facet by matching names
+        if (selectedNode instanceof FacetNode) {
+            for (Node n : actOnNode.getChildren()) {
+                if (n.getName().equals(selectedNode.getName()))
+                    actOnNode = (ComponentNode) n;
+            }
+        } else {
+            // use default facet to act upon
+            if (actOnNode instanceof BusinessObjectNode)
+                actOnNode = actOnNode.getSummaryFacet();
+            if (actOnNode instanceof CoreObjectNode)
+                actOnNode = actOnNode.getSummaryFacet();
+        }
+        if (!(actOnNode instanceof FacetNode))
+            throw new IllegalStateException("Must have a facet to add properties.");
+
+        NewPropertiesWizard newPropertiesWizard = new NewPropertiesWizard(actOnNode.getLibrary(),
+                scopeNode, enabledTypes);
+        newPropertiesWizard.setValidator(new NewPropertyValidator(actOnNode, newPropertiesWizard));
         newPropertiesWizard.run(OtmRegistry.getActiveShell());
 
         if (!newPropertiesWizard.wasCanceled()) {
@@ -301,7 +317,7 @@ public class AddNodeHandler extends OtmAbstractHandler {
             // New nodes are not connected to the parent.
             for (final PropertyNode n : newProperties) {
                 actOnNode.addProperty(n);
-                if (selectedNode.getLibrary().isMinorOrMajorVersion())
+                if (actOnNode.getLibrary().isMinorVersion())
                     n.setMandatory(false); // properties in minor extensions must be optional.
                 lastOne = n;
             }
