@@ -842,6 +842,11 @@ public class ComponentNode extends Node implements TypeProvider {
      *            where to add the property in the child list.
      */
     public void addProperty(final Node property, int index) {
+        if (!(this instanceof FacetNode)) {
+            LOGGER.error("ERROR - Tried to add property to a non-FacetNode " + this);
+            return;
+            // TODO - move this logic to FacetNode
+        }
         if (this.isSimpleFacet()) {
             if (property.isProperty())
                 getChildren().get(0).setAssignedType(property.getAssignedType());
