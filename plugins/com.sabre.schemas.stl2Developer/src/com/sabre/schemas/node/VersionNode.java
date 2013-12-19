@@ -15,15 +15,19 @@ import com.sabre.schemas.properties.Images;
  * 
  */
 public class VersionNode extends ComponentNode {
-    protected ComponentNode head;
+    protected ComponentNode head; // link to the latest/newest version of this object
+    protected ComponentNode prevVersion; // link to the preceding version. If null, it is new to the
+                                         // chain.
 
     /**
-     * Creates the version node and inserts into the library before the passed node.
+     * Creates the version node and inserts into the library before the passed node. This does NOT
+     * place this node into the Aggregates. Set previous version to null (new to chain).
      */
     public VersionNode(ComponentNode node) {
         super(node.getTLModelObject());
         getChildren().add(node);
         head = node;
+        prevVersion = null;
         node.setVersionNode(this);
 
         if (node.getLibrary() == null)
@@ -89,7 +93,25 @@ public class VersionNode extends ComponentNode {
         return false;
     }
 
-    public Node getHead() {
+    /**
+     * @return the newest version of the object (version head).
+     */
+    public Node getNewestVersion() {
         return head;
+    }
+
+    public void setNewestVersion(ComponentNode head) {
+        this.head = head;
+    }
+
+    /**
+     * @return the newest version of the object (version head).
+     */
+    public ComponentNode getPreviousVersion() {
+        return prevVersion;
+    }
+
+    public void setPreviousVersion(ComponentNode previous) {
+        this.prevVersion = previous;
     }
 }

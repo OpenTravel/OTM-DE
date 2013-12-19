@@ -2,12 +2,14 @@ package com.sabre.schemas.testers;
 
 import org.eclipse.core.expressions.PropertyTester;
 
+import com.sabre.schemas.node.ExtensionPointNode;
 import com.sabre.schemas.node.LibraryChainNode;
 import com.sabre.schemas.node.Node;
 import com.sabre.schemas.node.NodeEditStatus;
 import com.sabre.schemas.node.OperationNode;
 import com.sabre.schemas.node.ProjectNode;
 import com.sabre.schemas.node.ServiceNode;
+import com.sabre.schemas.node.VWA_Node;
 import com.sabre.schemas.node.properties.SimpleAttributeNode;
 
 public class GlobalSelectionTester extends PropertyTester {
@@ -36,6 +38,10 @@ public class GlobalSelectionTester extends PropertyTester {
             return false;
 
         // Can we add children?
+        // Disabled until we can test compiler and otm-b to assure support.
+        if (node instanceof ExtensionPointNode || node instanceof VWA_Node) {
+            return node.isNewToChain();
+        }
         if (node.isBusinessObject() || node.isCoreObject() || node.isExtensionPointFacet()) {
             return true; // always can have properties added.
         }

@@ -189,27 +189,30 @@ public class ValidationResultsView extends OtmAbstractView {
         if (n == null)
             return;
 
-        LOGGER.debug("validation identity: " + validationIdentity);
+        // LOGGER.debug("validation identity: " + validationIdentity);
 
         // If this is a unresolved entity reference, run the wizard
         // Pull of just the last portion of the message key - it is the error type ID
         int e = finding.getMessageKey().lastIndexOf(".");
         String error = finding.getMessageKey().substring(++e); // get past the period
-        LOGGER.debug(" error: " + error);
+        // LOGGER.debug(" error: " + error);
         if (error.equals(TLValidationBuilder.UNRESOLVED_NAMED_ENTITY_REFERENCE)) {
             OtmEventData wd = new OtmEventData();
             wd.setBusinessEvent(OtmActions.typeSelector());
             wd.setNode(null);
             wd.setNodeList(findMatching(finding, error));
-            if (wd.getNodeList() != null && !wd.getNodeList().isEmpty()
-                    && wd.getNodeList().get(0).isEditable())
+            Node target = null;
+            if (wd.getNodeList() != null && !wd.getNodeList().isEmpty())
+                target = wd.getNodeList().get(0);
+            if (target != null)
                 otmActions.doEvent(wd);
             // re-validate to show changes
             validateNode((Node) currentNode);
         }
 
         // Go to the change
-        LOGGER.debug("Finding node " + n + " found for validation identity " + validationIdentity);
+        // LOGGER.debug("Finding node " + n + " found for validation identity " +
+        // validationIdentity);
         mc.selectNavigatorNodeAndRefresh(n);
     }
 
