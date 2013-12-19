@@ -241,7 +241,7 @@ public class ExampleView extends OtmAbstractView {
                 try {
                     Object[] examples = generateExample(namedEntity);
                     if (child instanceof VersionNode) {
-                        child = ((VersionNode) child).getHead();
+                        child = ((VersionNode) child).getNewestVersion();
                     }
                     if (child.isService()) {
                         childModel = new ExampleModel(child);

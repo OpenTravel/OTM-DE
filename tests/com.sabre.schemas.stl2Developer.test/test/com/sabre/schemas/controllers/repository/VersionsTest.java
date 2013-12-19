@@ -34,7 +34,9 @@ import com.sabre.schemas.node.SimpleComponentInterface;
 import com.sabre.schemas.node.VWA_Node;
 import com.sabre.schemas.node.VersionAggregateNode;
 import com.sabre.schemas.node.VersionNode;
+import com.sabre.schemas.node.properties.AttributeNode;
 import com.sabre.schemas.node.properties.ElementNode;
+import com.sabre.schemas.node.properties.IndicatorNode;
 import com.sabre.schemas.node.properties.PropertyNode;
 import com.sabre.schemas.testUtils.MockLibrary;
 import com.sabre.schemas.testers.GlobalSelectionTester;
@@ -47,7 +49,10 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
     private BusinessObjectNode sbo = null;
     private BusinessObjectNode bo = null;
     private BusinessObjectNode nbo = null;
+    private VWA_Node vwa = null;
+    private ExtensionPointNode ep = null;
     private CoreObjectNode co = null;
+    private CoreObjectNode core2 = null;
     private LibraryNode majorLibrary = null;
     private LibraryNode minorLibrary = null;
     private LibraryNode patchLibrary = null;
@@ -87,14 +92,17 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         sbo = ml.addBusinessObjectToLibrary(secondLib, "sbo");
         bo = ml.addBusinessObjectToLibrary(majorLibrary, "testBO");
         co = ml.addCoreObjectToLibrary(majorLibrary, "testCO");
-        ml.addVWA_ToLibrary(majorLibrary, "testVWA");
+        bo.setExtensible(true);
+        vwa = ml.addVWA_ToLibrary(majorLibrary, "testVWA");
         ml.addSimpleTypeToLibrary(majorLibrary, "testSimple");
         ml.addClosedEnumToLibrary(majorLibrary, "testCEnum");
         ml.addOpenEnumToLibrary(majorLibrary, "testOEnum");
         ml.addNestedTypes(majorLibrary);
+        core2 = (CoreObjectNode) majorLibrary.findNodeByName("n2");
+
         ServiceNode svc = new ServiceNode(bo);
         svc.setName(bo.getName() + "_Service");
-        bo.setExtensible(true);
+
         ExtensionPointNode ep = new ExtensionPointNode(new TLExtensionPointFacet());
         ep.setExtendsType(sbo.getSummaryFacet());
         majorLibrary.addMember(ep);
@@ -109,37 +117,40 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         // Create locked patch version
         patchLibrary = rc.createPatchVersion(chain.getHead());
 
-        // FIXME
+        // FIXME -- OTA-811
         // Adding the simple to the patch causes it to be duplicated then create error finding.
-        // ml.addSimpleTypeToLibrary(newPatch, "simplePatch");
+        // ml.addSimpleTypeToLibrary(patchLibrary, "simpleInPatch");
         // TotalDescendents += 2; // Number in whole chain
         // ActiveSimple += 1;
 
-        // ExtensionPointNode ePatch = new ExtensionPointNode(new TLExtensionPointFacet());
-        // newPatch.addMember(ePatch);
-        // ePatch.setExtendsType(co.getSummaryFacet());
-        // ePatch.addProperty(new IndicatorNode(ePatch, "patchInd"));
-        // TotalDescendents += 2; // Number in whole chain
-        // ActiveComplex += 1; // Number in the aggregates
-        // Assert.assertTrue(chain.isValid()); // you can't version an invalid library.
+        ExtensionPointNode ePatch = new ExtensionPointNode(new TLExtensionPointFacet());
+        patchLibrary.addMember(ePatch);
+        ePatch.setExtendsType(core2.getSummaryFacet());
+        ePatch.addProperty(new IndicatorNode(ePatch, "patchInd"));
+        TotalDescendents += 2; // Number in whole chain
+        ActiveComplex += 1; // Number in the aggregates
+        Assert.assertTrue(chain.isValid()); // you can't version an invalid library.
 
         // Create locked minor version. Will contain bo with property from ePatch.
         minorLibrary = rc.createMinorVersion(chain.getHead());
+        MinorComplex++; // the new CO from patch EPF
 
-        // FIXME - https://jira.sabre.com/browse/OTA-811
-        //
-        // Adding a patch extension point then creating a minor will cause validation error.
-        // This should be done by the createMinorVersion code.
-        // CoreObjectNode nn = (CoreObjectNode) newMinor.getDescendants_NamedTypes().get(0);
-        // nn.setExtendsType(co);
+        // FIXME - OTA-811
+        // Find and add to the chain the CoreObject created by roll-up
+        // the roll up creates the core but does not add it to the chain correctly.
+        // should be done when object is created w/ minor library.
+        CoreObjectNode mCo = null;
+        for (Node n : minorLibrary.getDescendants_NamedTypes()) {
+            if (n.getName().equals(core2.getName())) {
+                mCo = (CoreObjectNode) n;
+                break;
+            }
+        }
+        VersionNode vn = new VersionNode(mCo);
+        ((AggregateNode) chain.getComplexAggregate()).add(mCo);
 
         checkCounts(chain);
         Assert.assertTrue(chain.isValid()); // you can't version an invalid library.
-
-        // The next two lines will break the check that tests TL and node counts. Un-comment to
-        // check if that is working.
-        // BusinessObjectNode fakeBO = new BusinessObjectNode(new TLBusinessObject());
-        // Assert.assertTrue(chain.getComplexAggregate().getChildren().add(fakeBO));
     }
 
     @Test
@@ -153,6 +164,25 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         Assert.assertFalse(minorLibrary.getDescendants_NamedTypes().contains(bo));
         Assert.assertTrue(chain.isValid());
         checkCounts(chain);
+
+        // verify the core object, co, created in the minor library contains properties from the
+        // extension point in the patch.
+        CoreObjectNode mCo = null;
+        for (Node n : minorLibrary.getDescendants_NamedTypes()) {
+            if (n.getName().equals(core2.getName())) {
+                mCo = (CoreObjectNode) n;
+                break;
+            }
+        }
+        // FIXME - should be done when object is created w/ minor library.
+        VersionNode vn = new VersionNode(mCo);
+        ((AggregateNode) chain.getComplexAggregate()).add(mCo);
+
+        Assert.assertNotNull(mCo);
+        Assert.assertEquals(1, mCo.getSummaryFacet().getChildren().size());
+
+        // FIXME - https://jira.sabre.com/browse/OTA-811
+        // Assert.assertNotNull(mCo.getExtendsType());
     }
 
     //
@@ -217,6 +247,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         Assert.assertEquals(NodeEditStatus.MANAGED_READONLY, majorLibrary.getEditStatus());
         Assert.assertEquals(NodeEditStatus.MINOR, minorLibrary.getEditStatus());
         Assert.assertEquals(NodeEditStatus.MANAGED_READONLY, patchLibrary.getEditStatus());
+        Assert.assertEquals(NodeEditStatus.FULL, secondLib.getEditStatus());
 
         // Node based NodeEditStatus is based on chain head
         Assert.assertEquals(NodeEditStatus.MINOR, nco.getEditStatus());
@@ -228,10 +259,12 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         Assert.assertTrue(nco.isInHead());
         Assert.assertFalse(co.isInHead());
         Assert.assertFalse(bo.isInHead());
+        Assert.assertFalse(vwa.isInHead());
 
         Assert.assertFalse(nco.isNewToChain());
         Assert.assertFalse(co.isNewToChain());
         Assert.assertFalse(bo.isNewToChain());
+        Assert.assertFalse(vwa.isNewToChain());
 
         //
         // Tests used to enable user actions.
@@ -252,6 +285,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         Assert.assertTrue(gst.test(nco, GlobalSelectionTester.CANADD, null, null));
         Assert.assertTrue(gst.test(co, GlobalSelectionTester.CANADD, null, null));
         Assert.assertTrue(gst.test(bo, GlobalSelectionTester.CANADD, null, null));
+        Assert.assertFalse(gst.test(vwa, GlobalSelectionTester.CANADD, null, null));
+        Assert.assertFalse(gst.test(ep, GlobalSelectionTester.CANADD, null, null));
 
         // New Component - NodeTester
         NodeTester tester = new NodeTester();
@@ -288,9 +323,12 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         // TODO - why? if they are always the same, why have version node pointer? Just to save a
         // cast? If so, create a method w/ cast and remove data
         Assert.assertTrue(nco.getParent() == nco.getVersionNode());
-        Assert.assertTrue(nco.getVersionNode().getHead() == nco);
-        // TODO - why? shouldn't the head point to NCO? Or nco head point to co?
-        Assert.assertTrue(co.getVersionNode().getHead() == co);
+
+        // check head and prev
+        Assert.assertTrue(nco.getVersionNode().getNewestVersion() == nco);
+        Assert.assertTrue(co.getVersionNode().getNewestVersion() == nco);
+        Assert.assertTrue(nco.getVersionNode().getPreviousVersion() == co);
+        Assert.assertTrue(co.getVersionNode().getPreviousVersion() == null);
 
         Node head = chain.getHead();
         Assert.assertTrue(head instanceof LibraryNode);
@@ -372,13 +410,9 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
     @Test
     public void testFacets() {
         int facetCount = bo.getChildren().size();
-        bo.isInHead();
         bo.addFacet("custom1", "", TLFacetType.CUSTOM);
         // Adding to bo should fail...in the future it might create a new bo and add it to that.
         Assert.assertEquals(facetCount, bo.getChildren().size());
-        // minor will have the bo w/ ePatch property
-        // FIXME - this test should be OK
-        // Assert.assertEquals(1, newMinor.getDescendants_NamedTypes().size());
 
         // test adding to a new minor version component
         nbo = (BusinessObjectNode) bo.createMinorVersionComponent();
@@ -416,7 +450,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
             checkChildrenClassType(nn, VersionNode.class, null);
             // Version nodes should have NO nav children.
             for (Node vn : nn.getNavChildren())
-                Assert.assertEquals(0, vn.getNavChildren());
+                Assert.assertEquals(0, vn.getNavChildren().size());
         }
 
         // Aggregates should have Active Simple, Active Complex and Service.
@@ -451,6 +485,10 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         VWA_Node nvwa = ml.addVWA_ToLibrary(chain.getHead(), "vwa2");
         Assert.assertTrue(chain.isValid());
 
+        Assert.assertTrue(nec.isNewToChain());
+        Assert.assertTrue(nvwa.isNewToChain());
+        Assert.assertTrue(nbo.isNewToChain()); // this object is in previous version.
+
         // Remove and delete them
         nbo.delete();
         nec.delete();
@@ -459,29 +497,53 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         checkCounts(chain);
     }
 
+    // TODO - test adding more minor chains and adding objects to all of them to verify the prev
+    // link.
+
     @Test
     public void testAddingProperties() {
         Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
 
         CoreObjectNode nco = createCoreInMinor();
+        testAddingPropertiesToFacet(nco.getSummaryFacet());
 
-        // Emulate AddNodeHandler and newPropertiesWizard
-        PropertyNode newProp = new ElementNode(new FacetNode(), "xx2");
-        nco.getSummaryFacet().addProperty(newProp);
-        newProp.setAssignedType(xsdStringNode);
-        Assert.assertTrue(newProp.getLibrary() != null);
+        BusinessObjectNode nbo = createBO_InMinor();
+        testAddingPropertiesToFacet(nbo.getDetailFacet());
+
+        // not supported. see jira OTA-789
+        // VWA_Node nVwa = createVWA_InMinor();
+        // testAddingPropertiesToFacet(nVwa.getAttributeFacet());
+
         Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
-        Assert.assertEquals(2, nco.getSummaryFacet().getChildren().size());
+        Assert.assertTrue(chain.isValid());
 
+        nco.delete();
+        nbo.delete();
+        TotalDescendents -= 2;
+        MinorComplex -= 0; // keep counts accurate
+        // Active complex should remain unchanged.
+        checkCounts(chain);
+    }
+
+    // Adds the removed properties from the facet.
+    // Emulate AddNodeHandler and newPropertiesWizard
+    private void testAddingPropertiesToFacet(ComponentNode propOwner) {
+        int cnt = propOwner.getChildren().size();
+        PropertyNode newProp = null;
+        if (!propOwner.isVWA_AttributeFacet()) {
+            newProp = new ElementNode(new FacetNode(), "np" + cnt++);
+            propOwner.addProperty(newProp);
+            newProp.setAssignedType(xsdStringNode);
+        }
+        PropertyNode newAttr = new AttributeNode(new FacetNode(), "np" + cnt++);
+        propOwner.addProperty(newAttr);
+        newAttr.setAssignedType(xsdStringNode);
+
+        Assert.assertTrue(newProp.getLibrary() != null);
+        Assert.assertEquals(cnt, propOwner.getChildren().size());
         Assert.assertTrue(newProp.isDeleteable());
         newProp.delete();
-        Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
-        Assert.assertEquals(1, nco.getSummaryFacet().getChildren().size());
-        Assert.assertTrue(chain.isValid());
-        nco.delete();
-        TotalDescendents -= 1;
-        MinorComplex -= 1; // keep counts accurate
-        checkCounts(chain);
+        Assert.assertEquals(--cnt, propOwner.getChildren().size());
     }
 
     /**
@@ -501,12 +563,56 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 
         // Make sure a new CO was created in the newMinor library.
         Assert.assertNotNull(nco);
+        Assert.assertFalse(nco.isNewToChain());
+        Assert.assertFalse(co.isNewToChain());
+        Assert.assertNotNull(nco.getVersionNode().getPreviousVersion());
+        Assert.assertEquals(nco.getVersionNode().getPreviousVersion(), co);
         Assert.assertEquals(1, nco.getSummaryFacet().getChildren().size());
         Assert.assertTrue(chain.getDescendants_NamedTypes().contains(nco));
         Assert.assertTrue(minorLibrary.getDescendants_NamedTypes().contains(nco));
         Assert.assertFalse(majorLibrary.getDescendants_NamedTypes().contains(nco));
 
         return nco;
+    }
+
+    private BusinessObjectNode createBO_InMinor() {
+        BusinessObjectNode nbo = (BusinessObjectNode) bo.createMinorVersionComponent();
+        PropertyNode newProp = new ElementNode(nbo.getSummaryFacet(), "te2");
+        newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+        Assert.assertEquals(1, bo.getSummaryFacet().getChildren().size());
+        TotalDescendents += 1;
+        MinorComplex += 1;
+
+        // Make sure a new CO was created in the newMinor library.
+        Assert.assertNotNull(nbo);
+        Assert.assertNotNull(nbo.getVersionNode().getPreviousVersion());
+        Assert.assertEquals(1, nbo.getSummaryFacet().getChildren().size());
+        Assert.assertTrue(chain.getDescendants_NamedTypes().contains(nbo));
+        Assert.assertTrue(minorLibrary.getDescendants_NamedTypes().contains(nbo));
+        Assert.assertFalse(majorLibrary.getDescendants_NamedTypes().contains(nbo));
+
+        return nbo;
+    }
+
+    private VWA_Node createVWA_InMinor() {
+        // Not currently supported. See Jira OTA-789
+        return null;
+        // VWA_Node nVwa = (VWA_Node) vwa.createMinorVersionComponent();
+        // Assert.assertNotNull(nVwa);
+        // PropertyNode newProp = new AttributeNode(nVwa.getAttributeFacet(), "te2");
+        // newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+        // Assert.assertEquals(1, bo.getSummaryFacet().getChildren().size());
+        // TotalDescendents += 1;
+        // MinorComplex += 1;
+        //
+        // // Make sure a new was created in the newMinor library.
+        // Assert.assertNotNull(nVwa);
+        // Assert.assertEquals(1, nVwa.getAttributeFacet().getChildren().size());
+        // Assert.assertTrue(chain.getDescendants_NamedTypes().contains(nVwa));
+        // Assert.assertTrue(minorLibrary.getDescendants_NamedTypes().contains(nVwa));
+        // Assert.assertFalse(majorLibrary.getDescendants_NamedTypes().contains(nVwa));
+        //
+        // return nVwa;
     }
 
     @Test
@@ -606,6 +712,9 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         // Create major version which makes the minor final.
         Assert.assertTrue(chain.isEditable());
         LibraryNode newMajor = rc.createMajorVersion(chain.getHead());
+        TotalDescendents = TotalDescendents - 2; // Rolled up EP and CO
+        ActiveComplex--; // Rolled up CO
+
         Assert.assertFalse(chain.isEditable());
         LibraryChainNode newChain = newMajor.getChain();
         // The extension point will not be in the major. Add a complex to keep counts right.

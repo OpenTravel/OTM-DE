@@ -1971,8 +1971,11 @@ public abstract class Node implements INode {
     }
 
     /**
+     * Is the object new to the chain. The object is represented by one or more nodes with the same
+     * name within the chain.
+     * 
      * @return True if this node is not in a chain, OR it is in the latest library of the chain AND
-     *         not in a previous version.
+     *         not in a previous version. Note that node may or may not be editable.
      * 
      */
     public boolean isNewToChain() {
@@ -1981,8 +1984,7 @@ public abstract class Node implements INode {
         if (getLibrary() != getChain().getHead())
             return false;
         // It is in head of chain. Is it new to the chain?
-
-        return false;
+        return getVersionNode().getPreviousVersion() == null ? true : false;
     }
 
     @Override

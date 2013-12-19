@@ -3,6 +3,7 @@
  */
 package com.sabre.schemas.actions;
 
+import com.sabre.schemas.node.BusinessObjectNode;
 import com.sabre.schemas.node.Node;
 import com.sabre.schemas.properties.ExternalizedStringProperties;
 import com.sabre.schemas.properties.StringProperties;
@@ -45,7 +46,7 @@ public class AddCustomFacetAction extends OtmAbstractAction {
     public boolean isEnabled() {
         // Unmanged or in the most current (head) library in version chain.
         Node n = mc.getCurrentNode_NavigatorView().getOwningComponent();
-        return n.getVersionNode() == null || n.isInHead();
+        return n instanceof BusinessObjectNode ? n.isEditable() && n.isNewToChain() : false;
     }
 
 }

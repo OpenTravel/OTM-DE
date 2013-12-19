@@ -192,7 +192,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
         if (node instanceof TypeNode)
             node = node.getParent();
         else if (node instanceof VersionNode)
-            node = (((VersionNode) node).getHead());
+            node = (((VersionNode) node).getNewestVersion());
 
         if (node != null) {
             setCurrentNode(node);

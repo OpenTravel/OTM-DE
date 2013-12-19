@@ -154,7 +154,7 @@ public class LibraryChainNode extends Node {
         if (newLib == null) {
             LOGGER.debug("Adding pi " + pi.getFilename() + " to chain " + getLabel());
             newLib = new LibraryNode(pi, this);
-            versions.add(newLib);
+            versions.add(newLib); // simply add this library to library list.
             newLib.updateLibraryStatus();
             aggregateChildren(newLib);
         }
@@ -225,7 +225,6 @@ public class LibraryChainNode extends Node {
         else if ((node instanceof ServiceNode || (node instanceof OperationNode)))
             serviceRoot.remove(node);
 
-        // Must remove first or add will ignore this later version.
         add(findPreviousVersion(node));
     }
 
@@ -242,17 +241,20 @@ public class LibraryChainNode extends Node {
      * @param node
      */
     private ComponentNode findPreviousVersion(ComponentNode node) {
+        return node.getVersionNode() != null ? node.getVersionNode().getPreviousVersion() : null;
+
+        // 12/19/13 dmh - replaced by linked list of prev nodes.
+        // ComponentNode n, vn = null;
         // assume node is in this chain.
-        ComponentNode n, vn = null;
-        for (Node ln : versions.getChildren()) {
-            n = (ComponentNode) ln.findNodeByName(node.getName());
-            if (vn == null && n != node)
-                vn = n;
-            else if (n != null && n != node)
-                if (isLaterVersion(n, vn))
-                    vn = n;
-        }
-        return vn;
+        // for (Node ln : versions.getChildren()) {
+        // n = (ComponentNode) ln.findNodeByName(node.getName());
+        // if (vn == null && n != node)
+        // vn = n;
+        // else if (n != null && n != node)
+        // if (isLaterVersion(n, vn))
+        // vn = n;
+        // }
+        // return vn;
     }
 
     /**

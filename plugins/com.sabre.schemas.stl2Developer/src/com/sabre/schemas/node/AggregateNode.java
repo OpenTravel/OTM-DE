@@ -69,6 +69,7 @@ public class AggregateNode extends NavNode {
         boolean toBeAdded = true;
         int doFamily = 0;
         String familyName = NodeNameUtils.makeFamilyName(node.getName());
+
         for (Node n : getChildren()) {
             if (n.getName().startsWith(familyName))
                 doFamily++;
@@ -77,6 +78,7 @@ public class AggregateNode extends NavNode {
                 // Is it "later-in-time" than the one found?
                 if (node.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib())) {
                     getChildren().remove(n);
+                    insertPreviousVersion(node, (ComponentNode) n);
                     toBeAdded = true;
                     doFamily--;
                 } else
@@ -92,6 +94,30 @@ public class AggregateNode extends NavNode {
             else
                 getChildren().add(node);
         return toBeAdded;
+    }
+
+    // Insert node in versions list.
+    // Update all the newest object links.
+    private void insertPreviousVersion(ComponentNode newest, ComponentNode toBePlaced) {
+        toBePlaced.getVersionNode().setNewestVersion(newest);
+        if (toBePlaced.getVersionNode().getPreviousVersion() == null) {
+            newest.getVersionNode().setPreviousVersion(toBePlaced);
+            return;
+        }
+
+        toBePlaced.getVersionNode().setNewestVersion(newest);
+        VersionNode toBePlacedVN = toBePlaced.getVersionNode();
+        ComponentNode n = toBePlacedVN.getPreviousVersion();
+        while (n != null) {
+            n.getVersionNode().setNewestVersion(newest);
+            if (toBePlaced.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib())) {
+                n.getVersionNode().setPreviousVersion(toBePlaced);
+                toBePlacedVN.setPreviousVersion(n.getVersionNode().getPreviousVersion());
+                n = toBePlaced;
+            }
+            n = n.getVersionNode().getPreviousVersion();
+        }
+
     }
 
     private void addToFamily(ComponentNode node) {
@@ -144,7 +170,7 @@ public class AggregateNode extends NavNode {
             ArrayList<Node> kids = new ArrayList<Node>();
             for (Node child : getChildren()) {
                 if (child instanceof VersionNode)
-                    kids.add(((VersionNode) child).getHead());
+                    kids.add(((VersionNode) child).getNewestVersion());
             }
             return kids;
         }
