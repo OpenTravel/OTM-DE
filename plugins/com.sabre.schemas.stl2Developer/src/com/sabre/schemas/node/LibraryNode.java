@@ -597,6 +597,8 @@ public class LibraryNode extends Node {
                 n.setLibrary(this);
             }
         }
+        TypeResolver tr = new TypeResolver();
+        tr.resolveTypes();
     }
 
     public boolean hasGeneratedChildren() {
