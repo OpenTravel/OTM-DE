@@ -135,10 +135,6 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         minorLibrary = rc.createMinorVersion(chain.getHead());
         MinorComplex++; // the new CO from patch EPF
 
-        // FIXME - OTA-811
-        // Find and add to the chain the CoreObject created by roll-up
-        // the roll up creates the core but does not add it to the chain correctly.
-        // should be done when object is created w/ minor library.
         CoreObjectNode mCo = null;
         for (Node n : minorLibrary.getDescendants_NamedTypes()) {
             if (n.getName().equals(core2.getName())) {
@@ -146,6 +142,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
                 break;
             }
         }
+        Assert.assertSame(core2, mCo.getExtendsType());
+        
         VersionNode vn = new VersionNode(mCo);
         ((AggregateNode) chain.getComplexAggregate()).add(mCo);
 
