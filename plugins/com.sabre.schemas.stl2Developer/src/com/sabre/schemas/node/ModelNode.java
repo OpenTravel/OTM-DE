@@ -70,7 +70,7 @@ public class ModelNode extends Node {
     protected List<Node> duplicateTypes = new ArrayList<Node>();
 
     protected static Node emptyNode = null; // will be set to a built-in type.
-    private static final QName OTA_EMPTY_QNAME = new QName("http://opentravel.org/common/v02",
+    private static final QName OTA_EMPTY_QNAME = new QName("http://www.opentravel.org/OTM/Common/v0",
             "Empty");
 
     protected ModelContentsData mc = new ModelContentsData();
