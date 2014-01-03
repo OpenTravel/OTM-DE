@@ -39,6 +39,7 @@ import com.sabre.schemas.node.properties.EnumLiteralNode;
 import com.sabre.schemas.node.properties.PropertyNode;
 import com.sabre.schemas.node.properties.RoleNode;
 import com.sabre.schemas.node.properties.SimpleAttributeNode;
+import com.sabre.schemas.properties.Messages;
 import com.sabre.schemas.stl2developer.MainWindow;
 import com.sabre.schemas.stl2developer.OtmRegistry;
 import com.sabre.schemas.widgets.OtmEventData;
@@ -537,11 +538,15 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
     }
 
     private void updateEquivalent(ComponentNode cn, String context) {
+        final String eqToolTip = Messages.getString("OtmW." + "317"); //$NON-NLS-1$
+        exampleField.setToolTipText(eqToolTip + " (" + context + ")"); // show context
         fields.postField(equivalentField, cn.getEquivalent(context), cn.isEditable());
     }
 
     private void updateExample(ComponentNode cn, String context) {
         boolean isExampleSupported = NodeUtils.checker(cn).isExampleSupported().get();
+        final String toolTip = Messages.getString("OtmW." + "315"); //$NON-NLS-1$
+        exampleField.setToolTipText(toolTip + " (" + context + ")"); // show context
         fields.postField(exampleField, cn.getExample(context), cn.isEditable()
                 && isExampleSupported);
     }

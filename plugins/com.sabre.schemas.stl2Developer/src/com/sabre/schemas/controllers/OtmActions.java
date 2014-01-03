@@ -4,6 +4,7 @@
 package com.sabre.schemas.controllers;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.TableItem;
@@ -497,8 +498,33 @@ public class OtmActions {
             n.getModelObject().removeExample(context);
         } else {
             n.getModelObject().setExample(text, context);
+            setAllExamples(n, text);
         }
         LOGGER.info("Set example for context: " + context);
+    }
+
+    // Context controller is broken; it returns the wrong context in setExample.
+    // As a patch, this sets the new text value into all undefined examples. Not good, but helps.
+    private void setAllExamples(Node n, String text) {
+        List<String> contexts = mc.getContextController().getAvailableContextIds(n.getLibrary());
+        if (!(n instanceof ComponentNode))
+            return;
+        ComponentNode cn = (ComponentNode) n;
+        for (String c : contexts) {
+            if (cn.getExample(c) == null || cn.getExample(c).isEmpty())
+                cn.getModelObject().setExample(text, c);
+        }
+    }
+
+    private void setAllEquivalence(Node n, String text) {
+        List<String> contexts = mc.getContextController().getAvailableContextIds(n.getLibrary());
+        if (!(n instanceof ComponentNode))
+            return;
+        ComponentNode cn = (ComponentNode) n;
+        for (String c : contexts) {
+            if (cn.getEquivalent(c) == null || cn.getEquivalent(c).isEmpty())
+                cn.getModelObject().setEquivalent(text, c);
+        }
     }
 
     public static int setEquivalence() {
@@ -515,6 +541,7 @@ public class OtmActions {
             n.getModelObject().removeEquivalent(context);
         } else {
             n.getModelObject().setEquivalent(text, context);
+            setAllEquivalence(n, text);
         }
         LOGGER.debug("Set equivalent for context: " + context);
     }
