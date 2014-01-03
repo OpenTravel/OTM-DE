@@ -452,6 +452,7 @@ public class OtmActions {
         return setName;
     }
 
+    // Property name field.
     private void setName(final OtmEventData wd) {
         final Node curNode = (Node) mc.getCurrentNode_PropertiesView();
         if (curNode != null) {
@@ -546,6 +547,7 @@ public class OtmActions {
         return setComponentName;
     }
 
+    // Facet view name field.
     private void setComponentName(final OtmEventData wd) {
         // FIXME: workaround to pass current widget to SetObjectNameAction. We should reuse the
         // properties name field.

@@ -129,7 +129,7 @@ public class NavigatorMenus extends TreeViewer {
         final MenuManager libraryMenu = new MenuManager("Library", "Library_ID");
         final MenuManager projectMenu = new MenuManager("Project", "Project_ID");
         final MenuManager manageInMenu = new MenuManager("Manage in...", "Project_ID");
-        final MenuManager modelMenu = new MenuManager("Model", "Model_ID");
+        // final MenuManager modelMenu = new MenuManager("Model", "Model_ID");
 
         final MenuManager copyMenu = new DisableIfEmptyMenu(
                 Messages.getString("action.menu.navigation.copy"), "Copy_ID",
@@ -255,12 +255,12 @@ public class NavigatorMenus extends TreeViewer {
                 // projectMenu.add(openDirectoryAction);
                 projectMenu.add(compileAction);
 
-                modelMenu.removeAll();
+                // modelMenu.removeAll();
                 // modelMenu.add(newModelAction);
                 // modelMenu.add(new Separator());
-                modelMenu.add(saveModelAction);
+                // modelMenu.add(saveModelAction);
                 // modelMenu.add(compileModelAction);
-                modelMenu.add(validateAction);
+                // modelMenu.add(validateAction);
                 // modelMenu.add(new Separator());
                 // modelMenu.add(closeModelAction);
 
@@ -379,7 +379,7 @@ public class NavigatorMenus extends TreeViewer {
                 if (NavigatorMenus.this.getSelection().isEmpty()) {
                     manager.add(libraryMenu);
                     manager.add(projectMenu);
-                    manager.add(modelMenu);
+                    // manager.add(modelMenu);
                 } else if (NavigatorMenus.this.getSelection() instanceof IStructuredSelection) {
                     final IStructuredSelection selection = (IStructuredSelection) NavigatorMenus.this
                             .getSelection();
@@ -427,7 +427,7 @@ public class NavigatorMenus extends TreeViewer {
                         // You can only import nodes representing XSD types.
                         manager.add(basicObjectMenu);
                         manager.add(libraryMenu);
-                        manager.add(modelMenu);
+                        // manager.add(modelMenu);
                     } else if (node instanceof TypeNode) {
                         manager.add(whereUsedMenu);
                     } else if (node instanceof ProjectNode || node instanceof LibraryNode
@@ -437,7 +437,7 @@ public class NavigatorMenus extends TreeViewer {
                         }
                         manager.add(libraryMenu);
                         manager.add(projectMenu);
-                        manager.add(modelMenu);
+                        // manager.add(modelMenu);
                     } else if (node instanceof FamilyNode) {
                         if (node.isInTLLibrary()) {
                             manager.add(basicWithCopyDeleteMoveMenu);
@@ -445,7 +445,7 @@ public class NavigatorMenus extends TreeViewer {
                             manager.add(basicObjectMenu);
                         }
                         manager.add(libraryMenu);
-                        manager.add(modelMenu);
+                        // manager.add(modelMenu);
                     } else if (node instanceof ComponentNode) {
                         if (node.isInModel()) {
                             if (!node.isEditable()) {
@@ -489,7 +489,7 @@ public class NavigatorMenus extends TreeViewer {
                         }
                         manager.add(libraryMenu);
                         manager.add(projectMenu);
-                        manager.add(modelMenu);
+                        // manager.add(modelMenu);
                     }
                 }
                 manager.updateAll(true);

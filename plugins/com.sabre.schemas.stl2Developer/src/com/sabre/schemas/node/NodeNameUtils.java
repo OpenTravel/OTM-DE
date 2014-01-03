@@ -105,7 +105,7 @@ public class NodeNameUtils {
      * 
      * @param fn
      * @param newName
-     *            use this name isntaed of name from FacetNode. Used for rename.
+     *            use this name instead of name from FacetNode. Used for rename.
      * @return
      */
     public static String stripFacetPrefix(FacetNode fn, String newName) {
