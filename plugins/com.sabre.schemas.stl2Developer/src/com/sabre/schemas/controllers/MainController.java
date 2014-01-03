@@ -252,6 +252,14 @@ public class MainController {
         return null;
     }
 
+    public INode getCurrentNode_FacetView() {
+        final OtmView view = OtmRegistry.getFacetView();
+        if (view != null) {
+            return view.getCurrentNode();
+        }
+        return null;
+    }
+
     /**
      * Returns the node currently be viewed in the properties view.
      * 

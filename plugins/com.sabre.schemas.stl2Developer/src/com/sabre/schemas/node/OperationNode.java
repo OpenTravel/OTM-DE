@@ -253,8 +253,16 @@ public class OperationNode extends FacetNode {
     }
 
     @Override
-    public void setName(String n) {
-        super.setName(n, false);
+    public void setName(String name) {
+        // super.setName(n, false);
+
+        // https://jira.sabre.com/browse/OTA-783
+        // Strip the object name and "Operation: " string if present.
+        if (name.startsWith(OPERATION_PREFIX))
+            name = name.substring(OPERATION_PREFIX.length());
+        if (getModelObject() != null) {
+            ((TLOperation) getTLModelObject()).setName(name);
+        }
     }
 
     @Override

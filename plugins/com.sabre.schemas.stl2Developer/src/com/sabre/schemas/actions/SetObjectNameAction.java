@@ -45,14 +45,17 @@ public class SetObjectNameAction extends OtmAbstractAction {
     @Override
     public void runWithEvent(Event event) {
         String newName = "";
-        if (event.widget instanceof Text)
+        if (event.widget instanceof Text) {
             newName = ((Text) event.widget).getText();
-        final Node n = (Node) getMainController().getCurrentNode_TypeView();
+        }
+        Node n = (Node) getMainController().getCurrentNode_FacetView();
         if (n != null) {
+            // https://jira.sabre.com/browse/OTA-772
+            if (n.isProperty())
+                n = n.getOwningComponent(); // set postNode() in FacetView
             n.setName(newName);
             getMainController().refresh();
         }
-        // Now - make sure all the details are right!!!
-        LOGGER.debug("Changed name to " + n.getName());
+        LOGGER.debug("Changed name to " + n);
     }
 }
