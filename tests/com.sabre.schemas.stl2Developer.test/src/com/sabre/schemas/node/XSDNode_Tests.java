@@ -46,7 +46,7 @@ public class XSDNode_Tests {
 			}
 			libCnt++;
 		}
-		Assert.assertEquals(2, libCnt); // the default built-in libraries
+		Assert.assertEquals(3, libCnt); // the default built-in libraries
 
 		lf.loadXfile2(mc); // should load 2 libraries.
 		Assert.assertEquals(2, pn.getLibraries().size());

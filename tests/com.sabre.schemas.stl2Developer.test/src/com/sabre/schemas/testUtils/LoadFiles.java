@@ -76,6 +76,7 @@ public class LoadFiles {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        libCnt += 1; //add deprecated OTA2_BuiltIns
         Assert.assertEquals(libCnt, Node.getAllLibraries().size());
 
         // THIS DOES NOT WORK - ln is null! loadFile5Clean(mc);
