@@ -58,6 +58,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
     private LibraryNode patchLibrary = null;
     private LibraryNode secondLib = null;
     private LibraryChainNode chain = null;
+    private CoreObjectNode mCo = null;
+
     int TotalDescendents, ActiveSimple, ActiveComplex, TotalLibraries, MinorComplex;
     private Node xsdStringNode;
 
@@ -117,25 +119,37 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         // Create locked patch version
         patchLibrary = rc.createPatchVersion(chain.getHead());
 
-        // FIXME -- OTA-811
         // Adding the simple to the patch causes it to be duplicated then create error finding.
-        // ml.addSimpleTypeToLibrary(patchLibrary, "simpleInPatch");
-        // TotalDescendents += 2; // Number in whole chain
-        // ActiveSimple += 1;
+        ml.addSimpleTypeToLibrary(patchLibrary, "simpleInPatch");
+        TotalDescendents += 1; // Number in whole chain
+        ActiveSimple += 1;
+        Assert.assertTrue(chain.isValid()); // you can't version an invalid library.
+        checkCounts(chain);
+        // Fixed -- OTA-811 -- Tests OK.
 
         ExtensionPointNode ePatch = new ExtensionPointNode(new TLExtensionPointFacet());
         patchLibrary.addMember(ePatch);
         ePatch.setExtendsType(core2.getSummaryFacet());
         ePatch.addProperty(new IndicatorNode(ePatch, "patchInd"));
-        TotalDescendents += 2; // Number in whole chain
+        TotalDescendents += 1; // Number in whole chain
         ActiveComplex += 1; // Number in the aggregates
         Assert.assertTrue(chain.isValid()); // you can't version an invalid library.
+        checkCounts(chain);
+        // Fixed -- OTA-811 -- Tests OK.
 
+        //
         // Create locked minor version. Will contain bo with property from ePatch.
         minorLibrary = rc.createMinorVersion(chain.getHead());
         MinorComplex++; // the new CO from patch EPF
+        TotalDescendents++;
+        // Make sure the patch library still has the extension point wrapped in a version node.
+        Assert.assertTrue(patchLibrary.getComplexRoot().getChildren().contains(ePatch.getParent()));
 
-        CoreObjectNode mCo = null;
+        // FIXME - OTA-811
+        // Find and add to the chain the CoreObject created by roll-up
+        // the roll up creates the core but does not add it to the chain correctly.
+        // should be done when object is created w/ minor library.
+        mCo = null;
         for (Node n : minorLibrary.getDescendants_NamedTypes()) {
             if (n.getName().equals(core2.getName())) {
                 mCo = (CoreObjectNode) n;
@@ -143,9 +157,12 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
             }
         }
         Assert.assertSame(core2, mCo.getExtendsType());
-        
-        VersionNode vn = new VersionNode(mCo);
-        ((AggregateNode) chain.getComplexAggregate()).add(mCo);
+        // Assert.assertTrue(mCo.getParent() instanceof VersionNode);
+        if (!(mCo.getParent() instanceof VersionNode)) {
+            // Patch until 811 fixed
+            VersionNode vn = new VersionNode(mCo);
+            ((AggregateNode) chain.getComplexAggregate()).add(mCo);
+        }
 
         checkCounts(chain);
         Assert.assertTrue(chain.isValid()); // you can't version an invalid library.
@@ -165,17 +182,6 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 
         // verify the core object, co, created in the minor library contains properties from the
         // extension point in the patch.
-        CoreObjectNode mCo = null;
-        for (Node n : minorLibrary.getDescendants_NamedTypes()) {
-            if (n.getName().equals(core2.getName())) {
-                mCo = (CoreObjectNode) n;
-                break;
-            }
-        }
-        // FIXME - should be done when object is created w/ minor library.
-        VersionNode vn = new VersionNode(mCo);
-        ((AggregateNode) chain.getComplexAggregate()).add(mCo);
-
         Assert.assertNotNull(mCo);
         Assert.assertEquals(1, mCo.getSummaryFacet().getChildren().size());
 
@@ -735,8 +741,10 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
     private void checkCounts(LibraryChainNode chain) {
 
         // Make sure all the base objects are accessible.
+        List<Node> namedTypes = chain.getDescendants_NamedTypes();
         int namedTypeCnt = chain.getDescendants_NamedTypes().size();
         Assert.assertEquals(TotalDescendents, namedTypeCnt);
+        Node x = namedTypes.get(0);
 
         // Make sure all the types are in the versions aggregate
         List<Node> nt = chain.getComplexAggregate().getDescendants_NamedTypes();
