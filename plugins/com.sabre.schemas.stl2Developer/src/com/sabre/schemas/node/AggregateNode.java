@@ -91,8 +91,9 @@ public class AggregateNode extends NavNode {
         if (toBeAdded)
             if (doFamily > 0)
                 addToFamily(node);
-            else
-                getChildren().add(node);
+            else {
+                linkChild(node, false);
+            }
         return toBeAdded;
     }
 

@@ -67,15 +67,6 @@ public class NewComponentHandler extends AbstractHandler {
             return;
         }
 
-        // Based on version chains, what library do we want to put it into?
-        // if the library is locked, new node will go into the head.
-        LibraryNode targetLibrary = selected.getLibrary();
-        if (!selected.getLibrary().isEditable()) {
-            if (selected.getChain() != null) {
-                targetLibrary = selected.getChain().getHead();
-            }
-        }
-
         final NewComponentWizard wizard = new NewComponentWizard(selected);
         EditNode editNode = null;
 
