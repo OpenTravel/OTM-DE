@@ -52,9 +52,8 @@ public class LibraryTreeContentProvider implements ITreeContentProvider {
             List<Node> navChildren = new ArrayList<Node>();
 
             // Include the types assigned to properties -- these may be filtered out
-            if (node instanceof PropertyNode)
-                navChildren.addAll(node.getNavChildren());
-            else if (node instanceof VersionAggregateNode) {
+            if (node instanceof PropertyNode || node instanceof VersionAggregateNode
+                    || node instanceof VersionNode) {
                 navChildren.addAll(node.getNavChildren());
             } else {
                 navChildren.addAll(node.getChildren());

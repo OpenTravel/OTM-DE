@@ -141,9 +141,11 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         // Create locked minor version. Will contain bo with property from ePatch.
         minorLibrary = rc.createMinorVersion(chain.getHead());
         MinorComplex++; // the new CO from patch EPF
-        TotalDescendents++;
-        // Make sure the patch library still has the extension point wrapped in a version node.
-        Assert.assertTrue(patchLibrary.getComplexRoot().getChildren().contains(ePatch.getParent()));
+        TotalDescendents++; //new Co
+        TotalDescendents++; //new Simple created by roll-up
+        // Make surame the patch library still has the extension point wrapped in a version node.
+        Assert.assertSame(((VersionNode)patchLibrary.getComplexRoot().getChildren().get(0)).getNewestVersion(), ePatch);
+        checkCounts(chain);
 
         // FIXME - OTA-811
         // Find and add to the chain the CoreObject created by roll-up
@@ -157,12 +159,6 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
             }
         }
         Assert.assertSame(core2, mCo.getExtendsType());
-        // Assert.assertTrue(mCo.getParent() instanceof VersionNode);
-        if (!(mCo.getParent() instanceof VersionNode)) {
-            // Patch until 811 fixed
-            VersionNode vn = new VersionNode(mCo);
-            ((AggregateNode) chain.getComplexAggregate()).add(mCo);
-        }
 
         checkCounts(chain);
         Assert.assertTrue(chain.isValid()); // you can't version an invalid library.
@@ -368,9 +364,10 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
                         Assert.assertTrue(vn.getParent() == nn);
                         Assert.assertEquals(1, vn.getChildren().size());
                         checkChildrenClassType(vn, ComponentNode.class, null);
-                        for (Node cc : vn.getChildren())
+                        for (Node cc : vn.getChildren()) {
                             // Check the actual component nodes.
                             Assert.assertTrue(cc.getParent() == vn);
+                        }
                     }
                 } else {
                     // FIXME - operations in the library should be wrapped.
@@ -428,7 +425,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         // Add a custom facet
         nbo.addFacet("c2", contextIDs.get(0), TLFacetType.CUSTOM);
         Assert.assertEquals(4, nbo.getChildren().size());
-        Assert.assertEquals(MinorComplex, minorLibrary.getDescendants_NamedTypes().size());
+        //minorComple + 1 (the inherited simple created by roll-up
+        Assert.assertEquals(MinorComplex + 1, minorLibrary.getDescendants_NamedTypes().size());
         Assert.assertTrue(chain.isValid());
         nbo.delete();
         MinorComplex -= 1;
@@ -449,7 +447,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         Assert.assertEquals(3, majorLibrary.getNavChildren().size());
 
         // Nav Nodes should ONLY have version
-        for (Node nn : patchLibrary.getNavChildren()) {
+         for (Node nn : patchLibrary.getNavChildren()) {
             Assert.assertTrue(nn instanceof NavNode);
             checkChildrenClassType(nn, VersionNode.class, null);
             // Version nodes should have NO nav children.
@@ -716,7 +714,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         // Create major version which makes the minor final.
         Assert.assertTrue(chain.isEditable());
         LibraryNode newMajor = rc.createMajorVersion(chain.getHead());
-        TotalDescendents = TotalDescendents - 2; // Rolled up EP and CO
+        TotalDescendents = TotalDescendents - 3; // Rolled up EP and CO and Simple 
         ActiveComplex--; // Rolled up CO
 
         Assert.assertFalse(chain.isEditable());

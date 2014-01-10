@@ -174,6 +174,11 @@ public class LibraryNode extends Node {
 
     public LibraryNode(ProjectItem pi, LibraryChainNode chain) {
         this(pi.getContent(), chain.getVersions());
+        for (Node members : getDescendentsNamedTypes()) {
+            if (members instanceof ComponentNode) {
+                chain.add((ComponentNode) members);
+            }
+        }
         projectItem = pi;
 
         // Save edit state: may be different with Project Item.
