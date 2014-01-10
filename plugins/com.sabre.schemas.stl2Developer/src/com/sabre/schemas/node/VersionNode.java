@@ -1,5 +1,8 @@
 package com.sabre.schemas.node;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.swt.graphics.Image;
 
 import com.sabre.schemas.properties.Images;
@@ -15,6 +18,8 @@ import com.sabre.schemas.properties.Images;
  * 
  */
 public class VersionNode extends ComponentNode {
+    
+
     protected ComponentNode head; // link to the latest/newest version of this object
     protected ComponentNode prevVersion; // link to the preceding version. If null, it is new to the
                                          // chain.
@@ -79,6 +84,16 @@ public class VersionNode extends ComponentNode {
     // been extended will show the base type.
     @Override
     public boolean hasNavChildrenWithProperties() {
+        return false;
+    }
+    
+    @Override
+    public List<Node> getNavChildren() {
+        return Collections.emptyList();
+    }
+    
+    @Override
+    public boolean hasNavChildren() {
         return false;
     }
 
