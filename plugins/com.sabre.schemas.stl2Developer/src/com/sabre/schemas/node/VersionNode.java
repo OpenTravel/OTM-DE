@@ -45,6 +45,7 @@ public class VersionNode extends ComponentNode {
         setParent(node.getParent());
         node.getParent().getChildren().remove(node);
         node.getParent().getChildren().add(this);
+        node.setParent(this);
     }
 
     /**

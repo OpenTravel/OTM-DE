@@ -156,7 +156,6 @@ public class LibraryChainNode extends Node {
             newLib = new LibraryNode(pi, this);
             versions.add(newLib); // simply add this library to library list.
             newLib.updateLibraryStatus();
-            aggregateChildren(newLib);
         }
         if (getHead() == null || newLib.getTLaLib().isLaterVersion(getHead().getTLaLib()))
             setHead(newLib);

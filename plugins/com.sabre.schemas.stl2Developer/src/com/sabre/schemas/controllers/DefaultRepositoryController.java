@@ -27,6 +27,7 @@ import com.sabre.schemacompiler.repository.RepositoryManager;
 import com.sabre.schemacompiler.repository.impl.RemoteRepositoryClient;
 import com.sabre.schemacompiler.saver.LibraryModelSaver;
 import com.sabre.schemacompiler.saver.LibrarySaveException;
+import com.sabre.schemacompiler.validate.FindingType;
 import com.sabre.schemacompiler.validate.ValidationException;
 import com.sabre.schemacompiler.version.MajorVersionHelper;
 import com.sabre.schemacompiler.version.MinorVersionHelper;

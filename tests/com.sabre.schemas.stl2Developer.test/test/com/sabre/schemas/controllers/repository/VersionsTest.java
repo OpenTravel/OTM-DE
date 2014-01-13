@@ -100,7 +100,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         ml.addClosedEnumToLibrary(majorLibrary, "testCEnum");
         ml.addOpenEnumToLibrary(majorLibrary, "testOEnum");
         ml.addNestedTypes(majorLibrary);
-        core2 = (CoreObjectNode) majorLibrary.findNodeByName("n2");
+        core2 = (CoreObjectNode) majorLibrary.findNodeByName("N2");
 
         ServiceNode svc = new ServiceNode(bo);
         svc.setName(bo.getName() + "_Service");
