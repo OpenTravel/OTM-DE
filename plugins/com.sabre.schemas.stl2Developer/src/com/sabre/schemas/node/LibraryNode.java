@@ -37,6 +37,7 @@ import com.sabre.schemacompiler.repository.RepositoryException;
 import com.sabre.schemacompiler.repository.RepositoryItemState;
 import com.sabre.schemacompiler.util.ContextUtils;
 import com.sabre.schemacompiler.util.URLUtils;
+import com.sabre.schemacompiler.validate.FindingType;
 import com.sabre.schemas.controllers.ContextController;
 import com.sabre.schemas.controllers.ProjectController;
 import com.sabre.schemas.modelObject.ModelObjectFactory;
@@ -1304,7 +1305,7 @@ public class LibraryNode extends Node {
      */
     public boolean isReadyToVersion() {
         LOGGER.debug("Ready to version? valid: " + isValid() + ", managed: " + isManaged());
-        return isManaged();
+        return isManaged() && isValid();
     }
 
     /** ***************************** Library Status ************************* **/

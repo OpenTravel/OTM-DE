@@ -132,28 +132,28 @@ public class MockLibrary {
     public Node addNestedTypes(LibraryNode ln) {
         BusinessObjectNode n1 = (BusinessObjectNode) NodeFactory
                 .newComponent(new TLBusinessObject());
-        n1.setName("n1");
+        n1.setName("N1");
         ln.addMember(n1);
 
         CoreObjectNode n2 = (CoreObjectNode) NodeFactory.newComponent(new TLCoreObject());
-        n2.setName("n2");
+        n2.setName("N2");
         ln.addMember(n2);
         n2.setSimpleType(NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
-        PropertyNode n2Prop = new ElementNode(n2.getSummaryFacet(), "TestElement2");
+        PropertyNode n2Prop = new ElementNode(n2.getSummaryFacet(), n1.getName());
         n2Prop.setAssignedType(n1);
 
         CoreObjectNode n3 = (CoreObjectNode) NodeFactory.newComponent(new TLCoreObject());
-        n3.setName("n3");
+        n3.setName("N3");
         ln.addMember(n3);
         n3.setSimpleType(NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
-        PropertyNode n3PropA = new ElementNode(n3.getSummaryFacet(), "TestElement3a");
+        PropertyNode n3PropA = new ElementNode(n3.getSummaryFacet(), n1.getName());
         n3PropA.setAssignedType(n1);
-        PropertyNode n3PropB = new ElementNode(n3.getSummaryFacet(), "TestElement3b");
+        PropertyNode n3PropB = new ElementNode(n3.getSummaryFacet(), n2.getName());
         n3PropB.setAssignedType(n2.getSummaryFacet());
 
         PropertyNode newProp = new ElementNode(n1.getIDFacet(), "TestID");
         newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
-        newProp = new ElementNode(n1.getSummaryFacet(), "TestSumA");
+        newProp = new ElementNode(n1.getSummaryFacet(), n2.getName());
         newProp.setAssignedType(n2);
         newProp = new ElementNode(n1.getSummaryFacet(), "TestSumB");
         newProp.setAssignedType(n3.getSimpleFacet());

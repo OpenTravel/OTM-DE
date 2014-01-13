@@ -92,7 +92,7 @@ public class AggregateNode extends NavNode {
             if (doFamily > 0)
                 addToFamily(node);
             else {
-                linkChild(node, false);
+                getChildren().add(node);
             }
         return toBeAdded;
     }
