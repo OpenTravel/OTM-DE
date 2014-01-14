@@ -5,17 +5,17 @@
 
    <!--
    <parent>
-     <groupId>com.sabre.es</groupId>
+     <groupId>com.sabre.es.otm</groupId>
      <artifactId>com.sabre.schemas.stl2Developer.relang</artifactId>
      <version>3.1.0-SNAPSHOT</version>
      <relativePath>../com.sabre.schemas.stl2Developer.relang/</relativePath>
    </parent>
    -->
 
-   <groupId>com.sabre.es</groupId>
+   <groupId>com.sabre.es.otm</groupId>
    <artifactId>com.sabre.schemas.stl2Developer.p2Site</artifactId>
    <packaging>pom</packaging>
-   <version>3.1.0-SNAPSHOT</version>
+   <version>3.1.0.rc4</version>
 
    <build>
      <plugins>
@@ -30,7 +30,7 @@
                <artifacts>
                  <!-- groupId:artifactId:version -->
                  <artifact><id>org.apache.aries.spifly:org.apache.aries.spifly.dynamic.bundle:1.0.0</id></artifact>
-                 <artifact><id>com.sabre.es:schema-compiler:3.1-SNAPSHOT</id></artifact>
+                 <artifact><id>com.sabre.es.otm:schema-compiler:3.1.rc4</id></artifact>
                  <artifact>
                    <id>commons-logging:commons-logging:1.1.1</id>
                    <instructions>

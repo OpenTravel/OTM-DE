@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Localization: plugin
 Bundle-Name: OTM-DE
 Bundle-SymbolicName: com.sabre.schemas.stl2Developer; singleton:=true
-Bundle-Version: 3.1.0.qualifier
+Bundle-Version: 3.1.0.rc4-DRAFT
 Bundle-Activator: com.sabre.schemas.stl2developer.Activator
 Bundle-Vendor: OpenTravel Alliance
 Eclipse-BundleShape: dir
