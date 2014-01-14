@@ -2,7 +2,7 @@
 <feature
       id="com.sabre.schemas.stl2Developer.feature.basic"
       label="OTM-DE Feature"
-      version="3.1.0.rc4-DRAFT"
+      version="3.1.0.qualifier"
       provider-name="OpenTravel Alliance"
       plugin="com.sabre.schemas.stl2Developer">
 

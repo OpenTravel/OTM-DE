@@ -30,7 +30,7 @@
                <artifacts>
                  <!-- groupId:artifactId:version -->
                  <artifact><id>org.apache.aries.spifly:org.apache.aries.spifly.dynamic.bundle:1.0.0</id></artifact>
-                 <artifact><id>com.sabre.es.otm:schema-compiler:3.1.rc4</id></artifact>
+                 <artifact><id>com.sabre.es.otm:schema-compiler:3.1-SNAPSHOT</id></artifact>
                  <artifact>
                    <id>commons-logging:commons-logging:1.1.1</id>
                    <instructions>
