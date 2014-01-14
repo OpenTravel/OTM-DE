@@ -494,7 +494,7 @@ public class LibraryChainNode extends Node {
     }
 
     public boolean hasService() {
-        return serviceRoot != null;
+        return !serviceRoot.getChildren().isEmpty();
     }
 
 }

@@ -1964,10 +1964,14 @@ public abstract class Node implements INode {
      * @return true only if this object is in the version head library. false if not or unmanaged.
      */
     public boolean isInHead() {
+        Node owner = getOwningComponent();
+        if ( owner instanceof OperationNode) {
+            owner = owner.getOwningComponent();
+        }
         // False if unmanaged.
-        if (getOwningComponent().versionNode == null)
+        if (owner == null || owner.versionNode == null)
             return false;
-        return getChain().getHead().getDescendants_NamedTypes().contains(getOwningComponent());
+        return getChain().getHead().getDescendants_NamedTypes().contains(owner);
     }
 
     /**

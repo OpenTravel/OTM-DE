@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -179,6 +180,10 @@ public class LibraryNode extends Node {
             if (members instanceof ComponentNode) {
                 chain.add((ComponentNode) members);
             }
+        }
+        ServiceNode serviceNode = getService();
+        if (serviceNode != null) {
+            chain.add(serviceNode);
         }
         projectItem = pi;
 
@@ -916,6 +921,14 @@ public class LibraryNode extends Node {
         } else
             result = !chain.getServiceAggregate().getChildren().isEmpty();
         return result;
+    }
+    
+    private ServiceNode getService() {
+        for (Node n : getChildren()) {
+            if (n instanceof ServiceNode)
+                return (ServiceNode) n;
+        }
+        return null;
     }
 
     /*
