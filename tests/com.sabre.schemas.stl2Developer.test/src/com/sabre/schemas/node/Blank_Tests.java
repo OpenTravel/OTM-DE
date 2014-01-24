@@ -41,16 +41,4 @@ public class Blank_Tests {
         ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
     }
 
-    @Test
-    public void cloneTest() throws Exception {
-        MainController mc = new MainController();
-
-        lf.loadXfile3(mc);
-        for (LibraryNode ln : Node.getAllLibraries()) {
-            ln.visitAllNodes(tn);
-            Assert.assertNotNull(ln);
-        }
-        NodeModelTestUtils.testNodeModel();
-    }
-
 }

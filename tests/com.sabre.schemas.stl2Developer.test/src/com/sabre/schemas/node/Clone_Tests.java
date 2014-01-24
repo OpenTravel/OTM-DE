@@ -44,11 +44,6 @@ public class Clone_Tests {
         LibraryNode target = lf.loadEmpty(mc);
         lf.loadTestGroupA(mc);
         lf.loadXfileDsse(mc); // use an xsd source
-        lf.loadXfile3(mc);
-
-        // lf.loadFilePNRB(mc);
-        // lf.loadXfile1(mc);
-        // lf.loadXfile2(mc);
 
         lf.cleanModel();
         Node.getModelNode().visitAllNodes(tt.new TestNode());

@@ -36,7 +36,6 @@ public class LoadFiles {
     String path5c = "Resources" + File.separator + "testFile5-Clean.otm";
     String pathEmpty = "Resources" + File.separator + "EmptyOTM.otm";
 
-    String xpath3 = "Resources" + File.separator + "ACS_BSO_v.0.0.3.xsd";
     String xpathDsse = "Resources" + File.separator + "DsseResponse.xsd";
 
     private MainController mc;
@@ -48,7 +47,7 @@ public class LoadFiles {
     public void loadFiles() throws Exception {
         this.mc = new MainController();
 
-        int libCnt = 0;
+        int libCnt = 3; //built-ins
         try {
             loadFile1(mc);
             libCnt++;
@@ -60,15 +59,11 @@ public class LoadFiles {
             libCnt++;
             loadFile5(mc);
             libCnt++;
-            loadXfile3(mc);
-            libCnt += 4; // lots of includes/imports
         } catch (Exception e) {
             e.printStackTrace();
         }
-        libCnt += 1; //add deprecated OTA2_BuiltIns
         Assert.assertEquals(libCnt, Node.getAllLibraries().size());
 
-        // THIS DOES NOT WORK - ln is null! loadFile5Clean(mc);
         loadTestGroupA(mc);
     }
 
@@ -221,11 +216,6 @@ public class LoadFiles {
      */
     public LibraryNode loadFile5Clean(MainController thisModel) {
         LibraryNode ln = loadFile(thisModel, path5c);
-        return ln;
-    }
-
-    public LibraryNode loadXfile3(MainController tm) {
-        LibraryNode ln = loadFile(tm, xpath3);
         return ln;
     }
 
