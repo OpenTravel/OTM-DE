@@ -781,10 +781,6 @@ public class XsdModelingUtils {
         return;
     }
 
-    /**
-     * test case for this block: STL_For_ACS_BSO_v.0.0.3.xsd / ResultRecord/ResultCG Note, there are
-     * 3 ResultCG in the result record.
-     */
     public static void makeProperty(TLProperty tlp, TLFacet facet, XsdNode xsdNode, GroupRef gr) {
         String propName = gr.getRef().getLocalPart();
         QName typeQName = gr.getRef();
