@@ -42,8 +42,6 @@ public class LoadFiles {
     String xpath3 = "Resources" + File.separator + "ACS_BSO_v.0.0.3.xsd";
     String xpathDsse = "Resources" + File.separator + "DsseResponse.xsd";
 
-    String context1 = "Resources" + File.separator + "TravelPolicy.otm";
-
     private MainController mc;
 
     public LoadFiles() {
