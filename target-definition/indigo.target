@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde version="3.6"?>
 
-<target name="indigo" sequenceNumber="41">
+<target name="indigo" sequenceNumber="44">
 <locations>
 <location includeAllPlatforms="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.draw2d.sdk.feature.group" version="0.0.0"/>
@@ -39,7 +39,7 @@
 <unit id="org.hamcrest.core.source" version="1.3.0.v201303031735"/>
 <unit id="org.hamcrest.library" version="1.3.0.v201305281000"/>
 <unit id="org.hamcrest.library.source" version="1.3.0.v201305281000"/>
-<repository location="http://download.eclipse.org/technology/swtbot/releases/latest/"/>
+<repository location="http://download.eclipse.org/technology/swtbot/releases/2.1.1/"/>
 </location>
 <!-- Because tycho support only p2 site, in order to resolve dependencies to
      libraries without public p2 repository, the local website is hosted using
