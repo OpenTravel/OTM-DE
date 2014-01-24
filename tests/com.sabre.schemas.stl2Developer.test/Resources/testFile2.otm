@@ -9,23 +9,23 @@
     <Prefix>t2</Prefix>
     <Name>Test2</Name>
     <Import namespace="http://opentravel.org/common/v02" prefix="ota2"/>
-    <Import namespace="http://services.sabre.com/STL/v02" prefix="stl2"/>
+    <Import namespace="http://services.example.org/SERVICE/v02" prefix="ser"/>
     <Context applicationContext="Default" context="default"/>
     
     <CoreObject name="StandardCore" notExtendable="false">
         <Aliases/>
         <Simple type="BasicCore"/>
         <Summary>
-            <Attribute name="flight_Number" type="stl2:Flight_Number"/>
-            <Element name="Age" repeat="0" type="stl2:Age"/>
-            <Element name="AirlineSpecification" repeat="0" type="stl2:AirlineSpecification"/>
-            <Element name="Flight_Misc" repeat="0" type="stl2:Flight_Misc"/>
+            <Attribute name="flight_Number" type="ser:Flight_Number"/>
+            <Element name="Age" repeat="0" type="ser:Age"/>
+            <Element name="AirlineSpecification" repeat="0" type="ser:AirlineSpecification"/>
+            <Element name="Flight_Misc" repeat="0" type="ser:Flight_Misc"/>
             <Indicator name="testInd" publishAsElement="false"/>
         </Summary>
         <Detail>
-            <Attribute name="pRBD" type="stl2:PRBD"/>
-            <Element name="RequestedDetailLevel" repeat="0" type="stl2:RequestedDetailLevel"/>
-            <Element name="RestrictedPayload" repeat="0" type="stl2:RestrictedPayload"/>
+            <Attribute name="pRBD" type="ser:PRBD"/>
+            <Element name="RequestedDetailLevel" repeat="0" type="ser:RequestedDetailLevel"/>
+            <Element name="RestrictedPayload" repeat="0" type="ser:RestrictedPayload"/>
         </Detail>
         <Roles>
             <Role value="StdRole"/>
@@ -38,10 +38,10 @@
         <Aliases/>
         <Simple type="ota2:Empty"/>
         <Summary>
-            <Attribute name="flightNum" type="stl2:Flight_Number"/>
-            <Element name="Age" repeat="0" type="stl2:Age"/>
-            <Element name="Flight_Misc" repeat="0" type="stl2:Flight_Misc"/>
-            <Element name="AirlineSpecification" repeat="0" type="stl2:AirlineSpecification"/>
+            <Attribute name="flightNum" type="ser:Flight_Number"/>
+            <Element name="Age" repeat="0" type="ser:Age"/>
+            <Element name="Flight_Misc" repeat="0" type="ser:Flight_Misc"/>
+            <Element name="AirlineSpecification" repeat="0" type="ser:AirlineSpecification"/>
             <Indicator name="testInd" publishAsElement="false"/>
         </Summary>
         <Detail/>
@@ -52,11 +52,11 @@
         <Aliases/>
         <Simple type="ota2:Empty"/>
         <Summary>
-            <Attribute name="aircraft_Type" type="stl2:Aircraft_Type"/>
-            <Element name="Aircraft_Configuration" repeat="0" type="stl2:Aircraft_Configuration"/>
+            <Attribute name="aircraft_Type" type="ser:Aircraft_Type"/>
+            <Element name="Aircraft_Configuration" repeat="0" type="ser:Aircraft_Configuration"/>
         </Summary>
         <Detail>
-            <Element name="MealService_TypeList" repeat="0" type="stl2:MealService_TypeList"/>
+            <Element name="MealService_TypeList" repeat="0" type="ser:MealService_TypeList"/>
         </Detail>
     </CoreObject>
     
