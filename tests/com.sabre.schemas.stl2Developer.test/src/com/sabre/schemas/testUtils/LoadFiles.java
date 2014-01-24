@@ -37,7 +37,6 @@ public class LoadFiles {
     String pathEmpty = "Resources" + File.separator + "EmptyOTM.otm";
     String filePNRB = "Resources" + File.separator + "PNR-Builder.otm";
 
-    String xpath1 = "Resources" + File.separator + "SabreTypeLibrary_v.1.1.13.xsd";
     String xpath2 = "Resources" + File.separator + "ACS_PassengerService_v0.0.1.xsd";
     String xpath3 = "Resources" + File.separator + "ACS_BSO_v.0.0.3.xsd";
     String xpathDsse = "Resources" + File.separator + "DsseResponse.xsd";
@@ -62,8 +61,6 @@ public class LoadFiles {
             loadFile4(mc);
             libCnt++;
             loadFile5(mc);
-            libCnt++;
-            loadXfile1(mc);
             libCnt++;
             loadXfile2(mc);
             libCnt += 2; // has 1 import (STL_For_ACS_BSO)
@@ -237,11 +234,6 @@ public class LoadFiles {
      */
     public LibraryNode loadFile5Clean(MainController thisModel) {
         LibraryNode ln = loadFile(thisModel, path5c);
-        return ln;
-    }
-
-    public LibraryNode loadXfile1(MainController tm) {
-        LibraryNode ln = loadFile(tm, xpath1);
         return ln;
     }
 

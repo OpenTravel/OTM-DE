@@ -128,7 +128,6 @@ public class Node_Tests {
         lf.loadFile3(mc);
         lf.loadFile4(mc);
         lf.loadFile2(mc);
-        lf.loadXfile1(mc);
         lf.loadXfile2(mc);
 
         mc.getModelNode().visitAllNodes(new TestNode()); // set visit count
