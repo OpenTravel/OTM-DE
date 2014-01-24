@@ -33,9 +33,6 @@ public class SimpleType_Tests {
         }
         Assert.assertEquals(8, libCnt);
 
-        // enable when importer all fixed up.
-        visitSimpleTypes(lf.loadXfile1(mc));
-
     }
 
     private void checkCounts(LibraryNode lib) {

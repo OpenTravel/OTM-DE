@@ -52,7 +52,6 @@ public class TestTypes {
         lf.loadFile3(mc);
         lf.loadFile4(mc);
         lf.loadFile2(mc);
-        lf.loadXfile1(mc);
 
         for (Node n : Node.getAllLibraries()) {
             visitAllNodes(n);
