@@ -43,16 +43,13 @@ public class Import_Tests {
     public void ImportTest() throws Exception {
         LoadFiles lf = new LoadFiles();
         Node_Tests nt = new Node_Tests();
-        List<Node> imported;
 
         LibraryNode sourceLib = lf.loadFile5Clean(mc);
-        LibraryNode destLib = lf.loadEmpty(mc);
-        LibraryNode xSourceLib = lf.loadXfileDsse(mc);
+        LibraryNode destLib = lf.loadFile1(mc);
 
         // Make sure they loaded OK.
         sourceLib.visitAllNodes(nt.new TestNode());
         destLib.visitAllNodes(nt.new TestNode());
-        xSourceLib.visitAllNodes(nt.new TestNode());
 
         // LOGGER.debug("\n");
         LOGGER.debug("Start Import ***************************");
@@ -64,50 +61,11 @@ public class Import_Tests {
         destLib = pc.add(project, destLib.getTLaLib());
         Assert.assertTrue(destLib.isEditable());
 
-        imported = destLib.importNodes(xSourceLib.getDescendants_NamedTypes(), true);
-        int afterImportTypes = destLib.getDescendants_NamedTypes().size();
-        Assert.assertEquals(destTypes + imported.size(), afterImportTypes);
-        Assert.assertFalse(imported.isEmpty());
-
         // Make sure the source is still OK
         sourceLib.visitAllNodes(nt.new TestNode());
 
         // Make sure the imported nodes are OK.
         destLib.visitAllNodes(nt.new TestNode());
-        checkContents(destLib);
-    }
-
-    private void checkContents(LibraryNode lib) {
-        String ns = lib.getNamespace();
-        LOGGER.debug("Testing library with namespace " + ns);
-        if (!lib.getName().equals("EmptyOTM")) {
-            LOGGER.debug("Wrong library, skipping " + lib);
-            return;
-        }
-
-        // Find some DSSE imported types.
-        Node ALG = NodeFinders.findTypeProviderByQName(new QName(ns, "ALG")); // vwa
-        Node ASG = NodeFinders.findTypeProviderByQName(new QName(ns, "ASG")); // a core
-        Node DIA = NodeFinders.findTypeProviderByQName(new QName(ns, "DIA")); // a simple
-        // ODMsgType_TYP is a duplicate in a family node. Make sure 1 came through.
-        Node ODMsgType_TYP = NodeFinders.findNodeByName("ODMsgType_TYP", ns); // an enum
-
-        Assert.assertNotNull(ALG);
-        Assert.assertNotNull(ASG);
-        Assert.assertNotNull(ODMsgType_TYP);
-
-        Assert.assertTrue(ALG instanceof VWA_Node);
-        Assert.assertTrue(ASG instanceof CoreObjectNode);
-        Assert.assertTrue(DIA instanceof SimpleTypeNode);
-        Assert.assertTrue(ODMsgType_TYP instanceof SimpleTypeNode);
-
-        Assert.assertTrue(ALG.getLibrary().getName().equals("EmptyOTM"));
-        Assert.assertTrue(ASG.getLibrary().getName().equals("EmptyOTM"));
-        Assert.assertTrue(DIA.getLibrary().getName().equals("EmptyOTM"));
-        Assert.assertTrue(ODMsgType_TYP.getLibrary().getName().equals("EmptyOTM"));
-
-        Assert.assertTrue(DIA.getTypeName().equals("string"));
-        Assert.assertEquals(19, ALG.getDescendants_TypeUsers().size());
     }
 
     @Test

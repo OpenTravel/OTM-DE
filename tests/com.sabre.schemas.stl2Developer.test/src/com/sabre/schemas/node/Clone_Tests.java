@@ -41,9 +41,8 @@ public class Clone_Tests {
         tt.visitAllNodes(source);
 
         // commented some libs out to keep the total time down
-        LibraryNode target = lf.loadEmpty(mc);
+        LibraryNode target = lf.loadFile1(mc);
         lf.loadTestGroupA(mc);
-        lf.loadXfileDsse(mc); // use an xsd source
 
         lf.cleanModel();
         Node.getModelNode().visitAllNodes(tt.new TestNode());

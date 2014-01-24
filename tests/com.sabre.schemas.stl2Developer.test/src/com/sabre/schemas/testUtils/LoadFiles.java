@@ -28,15 +28,12 @@ import com.sabre.schemas.node.ProjectNode;
  * 
  */
 public class LoadFiles {
-    String filePath1 = "Resources" + File.separator + "testFile1.otm";
-    String filePath2 = "Resources" + File.separator + "testFile2.otm";
-    String filePath3 = "Resources" + File.separator + "testFile3.otm";
-    String filePath4 = "Resources" + File.separator + "testFile4.otm";
-    String path5 = "Resources" + File.separator + "testFile5.otm";
-    String path5c = "Resources" + File.separator + "testFile5-Clean.otm";
-    String pathEmpty = "Resources" + File.separator + "EmptyOTM.otm";
-
-    String xpathDsse = "Resources" + File.separator + "DsseResponse.xsd";
+    private String filePath1 = "Resources" + File.separator + "testFile1.otm";
+    private String filePath2 = "Resources" + File.separator + "testFile2.otm";
+    private String filePath3 = "Resources" + File.separator + "testFile3.otm";
+    private String filePath4 = "Resources" + File.separator + "testFile4.otm";
+    private String path5 = "Resources" + File.separator + "testFile5.otm";
+    private String path5c = "Resources" + File.separator + "testFile5-Clean.otm";
 
     private MainController mc;
 
@@ -208,24 +205,8 @@ public class LoadFiles {
         return ln;
     }
 
-    /**
-     * BROKEN!
-     * 
-     * @param thisModel
-     * @return
-     */
     public LibraryNode loadFile5Clean(MainController thisModel) {
         LibraryNode ln = loadFile(thisModel, path5c);
-        return ln;
-    }
-
-    public LibraryNode loadXfileDsse(MainController tm) {
-        LibraryNode ln = loadFile(tm, xpathDsse);
-        return ln;
-    }
-
-    public LibraryNode loadEmpty(MainController tm) {
-        LibraryNode ln = loadFile(tm, pathEmpty);
         return ln;
     }
 }
