@@ -35,9 +35,7 @@ public class LoadFiles {
     String path5 = "Resources" + File.separator + "testFile5.otm";
     String path5c = "Resources" + File.separator + "testFile5-Clean.otm";
     String pathEmpty = "Resources" + File.separator + "EmptyOTM.otm";
-    String filePNRB = "Resources" + File.separator + "PNR-Builder.otm";
 
-    String xpath2 = "Resources" + File.separator + "ACS_PassengerService_v0.0.1.xsd";
     String xpath3 = "Resources" + File.separator + "ACS_BSO_v.0.0.3.xsd";
     String xpathDsse = "Resources" + File.separator + "DsseResponse.xsd";
 
@@ -62,12 +60,8 @@ public class LoadFiles {
             libCnt++;
             loadFile5(mc);
             libCnt++;
-            loadXfile2(mc);
-            libCnt += 2; // has 1 import (STL_For_ACS_BSO)
             loadXfile3(mc);
             libCnt += 4; // lots of includes/imports
-            loadFilePNRB(mc);
-            libCnt += 4; // 3 includes/imports (2 xsd, 1 otm)
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -214,13 +208,6 @@ public class LoadFiles {
         return ln;
     }
 
-    public LibraryNode loadFilePNRB(MainController thisModel) {
-        LibraryNode ln = loadFile(thisModel, filePNRB);
-        Assert.assertNotNull(ln);
-        Assert.assertTrue(ln.getChildren().size() > 1);
-        return ln;
-    }
-
     public LibraryNode loadFile5(MainController thisModel) {
         LibraryNode ln = loadFile(thisModel, path5);
         return ln;
@@ -234,11 +221,6 @@ public class LoadFiles {
      */
     public LibraryNode loadFile5Clean(MainController thisModel) {
         LibraryNode ln = loadFile(thisModel, path5c);
-        return ln;
-    }
-
-    public LibraryNode loadXfile2(MainController tm) {
-        LibraryNode ln = loadFile(tm, xpath2);
         return ln;
     }
 

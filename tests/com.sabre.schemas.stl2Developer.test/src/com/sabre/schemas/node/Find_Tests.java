@@ -53,18 +53,6 @@ public class Find_Tests {
         Assert.assertNotNull(NodeFinders.findTypeProviderByQName(qn));
         Assert.assertNotNull(NodeFinders.findNodeByName("BasicCore",
                 "http://services.sabre.com/STL/Test4/v02"));
-
-        // library not loaded yet...should return null.
-        Assert.assertNull(NodeFinders.findNodeByName("StandardCore_Simple",
-                "http://services.sabre.com/STL/PNR/v02"));
-        lf.loadFilePNRB(mc);
-        // a library member
-        Assert.assertNotNull(NodeFinders.findNodeByName("AirSegment.PNRB",
-                "http://services.sabre.com/STL/PNR/v02"));
-        // a property
-        Assert.assertNotNull(NodeFinders.findNodeByName("NumberOfSeats",
-                "http://services.sabre.com/STL/PNR/v02"));
-
     }
 
 }
