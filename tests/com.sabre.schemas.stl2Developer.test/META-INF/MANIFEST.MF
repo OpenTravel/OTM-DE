@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: stl2Developer.test
-Bundle-SymbolicName: com.sabre.schemas.stl2Developer.test
+Bundle-SymbolicName: org.opentravel.schemas.stl2Developer.test
 Bundle-Version: 3.1.0.qualifier
 Bundle-Vendor: SABRE
-Fragment-Host: com.sabre.schemas.stl2Developer
+Fragment-Host: org.opentravel.schemas.stl2Developer
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: lib/cglib-nodep-2.2.jar,
  lib/javassist-3.16.1-GA.jar,
@@ -14,13 +14,13 @@ Bundle-ClassPath: lib/cglib-nodep-2.2.jar,
  lib/guava-13.0.1.jar,
  .,
  Resources/
-Require-Bundle: com.sabre.schemas.stl2Developer.reposvc;bundle-version="2.2.0",
+Require-Bundle: org.opentravel.schemas.stl2Developer.reposvc;bundle-version="2.2.0",
  javax.servlet;bundle-version="3.0.0",
  org.eclipse.jetty.server;bundle-version="8.1.9",
  org.eclipse.jetty.servlet;bundle-version="8.1.9",
  org.eclipse.jetty.util;bundle-version="8.1.9",
  org.junit;bundle-version="4.10.0",
- com.sabre.schemas.stl2Developer.test.utils;bundle-version="3.0.0"
-Eclipse-RegisterBuddy: com.sabre.schemas.stl2Developer.reposvc,
- com.sabre.schemas.stl2Developer.schemacompiler
+ org.opentravel.schemas.stl2Developer.test.utils;bundle-version="3.0.0"
+Eclipse-RegisterBuddy: org.opentravel.schemas.stl2Developer.reposvc,
+ org.opentravel.schemas.stl2Developer.schemacompiler
 

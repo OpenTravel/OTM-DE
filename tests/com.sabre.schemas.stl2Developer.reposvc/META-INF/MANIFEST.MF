@@ -1,12 +1,12 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Reposvc
-Bundle-SymbolicName: com.sabre.schemas.stl2Developer.reposvc
+Bundle-SymbolicName: org.opentravel.schemas.stl2Developer.reposvc
 Bundle-Version: 3.1.0.qualifier
 Bundle-Vendor: SABRE
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-BuddyPolicy: registered
-Eclipse-RegisterBuddy: com.sabre.schemas.stl2Developer.schemacompiler
+Eclipse-RegisterBuddy: org.opentravel.schemas.stl2Developer.schemacompiler
 Bundle-ClassPath: .,
  ota2-repository-service/WEB-INF/classes/,
  ota2-repository-service/WEB-INF/lib/antlr-runtime-3.4.jar,
@@ -124,7 +124,7 @@ Export-Package: com.sabre.schemacompiler.config,
  com.sun.jersey.spi.uri.rules,
  com.sun.jna,
  org.opentravel.schemas.stl2Developer.reposvc
-Require-Bundle: com.sabre.schemas.stl2Developer.schemacompiler;bundle-version="3.0.0",
+Require-Bundle: org.opentravel.schemas.stl2Developer.schemacompiler;bundle-version="3.0.0",
  javax.servlet;bundle-version="3.0.0",
  org.eclipse.jetty.server;bundle-version="8.1.9",
  org.eclipse.jetty.servlet;bundle-version="8.1.9",

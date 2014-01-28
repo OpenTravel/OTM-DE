@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="com.sabre.schemas.stl2Developer.feature.basic"
+      id="org.opentravel.schemas.stl2Developer.feature.basic"
       label="OTM-DE Feature"
       version="3.1.0.qualifier"
       provider-name="OpenTravel Alliance"
-      plugin="com.sabre.schemas.stl2Developer">
+      plugin="org.opentravel.schemas.stl2Developer">
 
    <description>
       OTM-DE Product Capabilities

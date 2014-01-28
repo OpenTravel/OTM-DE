@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Editor
-Bundle-SymbolicName: com.sabre.schemas.stl2Developer.editor;singleton:=true
+Bundle-SymbolicName: org.opentravel.schemas.stl2Developer.editor;singleton:=true
 Bundle-Version: 3.1.0.qualifier
 Bundle-Vendor: SABRE
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.eclipse.gef;bundle-version="3.7.0",
  org.eclipse.ui;bundle-version="3.7.0",
  org.eclipse.core.runtime;bundle-version="3.7.0",
- com.sabre.schemas.stl2Developer;bundle-version="2.1.0"
+ org.opentravel.schemas.stl2Developer;bundle-version="2.1.0"
