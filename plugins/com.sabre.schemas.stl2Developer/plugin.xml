@@ -7,7 +7,7 @@
          point="org.eclipse.core.runtime.applications">
       <application>
          <run
-               class="com.sabre.schemas.stl2developer.Application">
+               class="org.opentravel.schemas.stl2developer.Application">
          </run>
       </application>
    </extension>
@@ -15,69 +15,69 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             name="OTM-DE"
-            class="com.sabre.schemas.stl2developer.Perspective"
+            class="org.opentravel.schemas.stl2developer.Perspective"
             id="com.sabre.schemas.stl2Developer.perspective">
       </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.views">
       <view
-            class="com.sabre.schemas.stl2developer.MainWindow"
+            class="org.opentravel.schemas.stl2developer.MainWindow"
             id="com.sabre.schemas.stl2Developer.MainWindow"
             name="Main View"
             restorable="true">
       </view>
       <view
-            class="com.sabre.schemas.views.NavigatorView"
+            class="org.opentravel.schemas.views.NavigatorView"
             icon="icons/hierarchy_co.gif"
             id="com.sabre.schemas.stl2Developer.NavigatorView"
             name="Navigator"
             restorable="true">
       </view>
       <view
-            class="com.sabre.schemas.views.example.ExampleView"
+            class="org.opentravel.schemas.views.example.ExampleView"
             icon="icons/hierarchy_co.gif"
             id="com.sabre.schemas.stl2Developer.ExampleView"
             name="Example View"
             restorable="true">
       </view>     
       <view
-            class="com.sabre.schemas.views.example.ExampleXmlView"
+            class="org.opentravel.schemas.views.example.ExampleXmlView"
             icon="icons/generic_xml_obj.gif"
             id="com.sabre.schemas.stl2Developer.ExampleXmlView"
             name="Example XML"
             restorable="true">
       </view>
       <view
-            class="com.sabre.schemas.views.ValidationResultsView"
+            class="org.opentravel.schemas.views.ValidationResultsView"
             icon="icons/errorwarning_tab.gif"
             id="com.sabre.schemas.stl2Developer.ValidationResultsView"
             name="Warnings and Errors"
             restorable="true">
       </view>
       <view
-            class="com.sabre.schemas.views.TypeView"
+            class="org.opentravel.schemas.views.TypeView"
             icon="icons/history_list.gif"
             id="com.sabre.schemas.stl2Developer.TypeView"
             name="Type View"
             restorable="true">
       </view>
       <view
-            class="com.sabre.schemas.views.propertyview.PropertyView"
+            class="org.opentravel.schemas.views.propertyview.PropertyView"
             icon="icons/properties_obj.gif"
             id="com.sabre.schemas.stl2Developer.PropertyView"
             name="Properties"
             restorable="true">
       </view>
       <view
-            class="com.sabre.schemas.views.ContextsView"
+            class="org.opentravel.schemas.views.ContextsView"
             icon="icons/contexts.gif"
             id="com.sabre.schemas.stl2Developer.ContextsView"
             name="Contexts"
             restorable="true">
       </view>
       <view
-            class="com.sabre.schemas.views.DocumentationView"
+            class="org.opentravel.schemas.views.DocumentationView"
             icon="icons/doc_open.gif"
             id="com.sabre.schemas.stl2Developer.DocumentationView"
             name="Documentation View"
@@ -85,7 +85,7 @@
       </view>
       <view
             allowMultiple="false"
-            class="com.sabre.schemas.views.RepositoryView"
+            class="org.opentravel.schemas.views.RepositoryView"
             icon="icons/repositories.gif"
             id="com.sabre.schemas.stl2Developer.RepositoryView"
             name="Repository View"
@@ -650,7 +650,7 @@
          point="org.eclipse.ui.commands">
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.AddDocumentationsHandler"
+            defaultHandler="org.opentravel.schemas.commands.AddDocumentationsHandler"
             description="Add documentation to multiple objects."
             id="com.sabre.schemas.commands.AddDocumentation"
             name="Add Documentation">
@@ -663,7 +663,7 @@
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.CollapseAllHandler"
+            defaultHandler="org.opentravel.schemas.commands.CollapseAllHandler"
             description="Collapse all the nodes in the view"
             id="com.sabre.schemas.commands.CollapseAll"
             name="Collapse All">
@@ -675,28 +675,28 @@
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.CopyValidationResultsHandler"
+            defaultHandler="org.opentravel.schemas.commands.CopyValidationResultsHandler"
             description="Copies the validation results to the system clipboard"
             id="com.sabre.schemas.commands.CopyValidationResults"
             name="Refresh Validation Results">
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.AddContextHandler"
+            defaultHandler="org.opentravel.schemas.commands.AddContextHandler"
             description="Create new context"
             id="com.sabre.schemas.commands.AddContext"
             name="Add Context">
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.EditContextHandler"
+            defaultHandler="org.opentravel.schemas.commands.EditContextHandler"
             description="Edit or merge contexts"
             id="com.sabre.schemas.commands.EditContext"
             name="Edit Context">
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.ExpandAllHandler"
+            defaultHandler="org.opentravel.schemas.commands.ExpandAllHandler"
             description="Expand all the nodes the view"
             id="com.sabre.schemas.commands.ExpandAll"
             name="Expand All">
@@ -708,7 +708,7 @@
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.LinkViewWithNavigatorHandler"
+            defaultHandler="org.opentravel.schemas.commands.LinkViewWithNavigatorHandler"
             id="com.sabre.schemas.commands.LinkWithNavigator"
             name="Link with Navigator">
          <state
@@ -728,7 +728,7 @@
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.LinkViewWithNavigatorHandler"
+            defaultHandler="org.opentravel.schemas.commands.LinkViewWithNavigatorHandler"
             id="com.sabre.schemas.commands.LinkDocumentationWithNavigator"
             name="Link with Navigator">
          <state
@@ -754,34 +754,34 @@
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.RefreshExamplesHandler"
+            defaultHandler="org.opentravel.schemas.commands.RefreshExamplesHandler"
             description="Regenerates example tree from current model"
             id="com.sabre.schemas.commands.RefreshExamples"
             name="Refresh Examples">
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.RefreshDocumentationViewHandler"
+            defaultHandler="org.opentravel.schemas.commands.RefreshDocumentationViewHandler"
             id="com.sabre.schemas.commands.RefreshDocumentationView"
             name="Refresh Documentation View">
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.RefreshViewHandler"
+            defaultHandler="org.opentravel.schemas.commands.RefreshViewHandler"
             description="Refresh the view"
             id="com.sabre.schemas.commands.RefreshView"
             name="Refresh View">
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.SortNodeHandler"
+            defaultHandler="org.opentravel.schemas.commands.SortNodeHandler"
             description="Sort Properties of a object."
             id="com.sabre.schemas.commands.Sort"
             name="Sort">
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.RepositoryHandler"
+            defaultHandler="org.opentravel.schemas.commands.RepositoryHandler"
             description="Repository"
             id="com.sabre.schemas.commands.repository"
             name="Repository">
@@ -800,7 +800,7 @@
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.ExactMatchFilteringHandler"
+            defaultHandler="org.opentravel.schemas.commands.ExactMatchFilteringHandler"
             description="Display the nodes that exactly match the filter (their names start with filter value); otherwise display all the nodes which names or assigned types match the filter value "
             id="com.sabre.schemas.commands.ExactMatchFiltering"
             name="Exact Match Filtering">
@@ -819,14 +819,14 @@
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.ClearFilterHandler"
+            defaultHandler="org.opentravel.schemas.commands.ClearFilterHandler"
             description="Clears the filter value"
             id="com.sabre.schemas.commands.ClearFilter"
             name="ClearFilter">
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.DisplayPropertiesHandler"
+            defaultHandler="org.opentravel.schemas.commands.DisplayPropertiesHandler"
             description="Show properties in Model Navigator tree"
             id="com.sabre.schemas.commands.DisplayProperties"
             name="Display Properties">
@@ -840,19 +840,19 @@
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.HorizontalDocumentationViewHandler"
+            defaultHandler="org.opentravel.schemas.commands.HorizontalDocumentationViewHandler"
             id="com.sabre.schemas.commands.HorizontalDocumentationView"
             name="Horizontal View">
       </command>
       <command
-            defaultHandler="com.sabre.schemas.commands.TestNodeModelHandler"
+            defaultHandler="org.opentravel.schemas.commands.TestNodeModelHandler"
             description="Internal Command used for debug purpose"
             id="com.sabre.schemas.commands.internal.validate"
             name="Validate Test Model">
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.DisplayInheritedPropertiesHandler"
+            defaultHandler="org.opentravel.schemas.commands.DisplayInheritedPropertiesHandler"
             description="Show inherited properties in model navigator tree and facet view."
             id="com.sabre.schemas.commands.DisplayInheritedProperties"
             name="Display Inherited Properties">
@@ -879,13 +879,13 @@
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.VerticalDocumentationViewHandler"
+            defaultHandler="org.opentravel.schemas.commands.VerticalDocumentationViewHandler"
             id="com.sabre.schemas.commands.VerticalDocumentationView"
             name="Vertical View">
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.OpenProjectHandler"
+            defaultHandler="org.opentravel.schemas.commands.OpenProjectHandler"
             description="Open existing project"
             id="com.sabre.schemas.commands.openProject"
             name="Open...">
@@ -899,7 +899,7 @@
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.commands.SaveLibrariesHandler"
+            defaultHandler="org.opentravel.schemas.commands.SaveLibrariesHandler"
             id="com.sabre.schemas.commands.SaveAllLibraries"
             name="Save All Libraries">
       </command>
@@ -920,7 +920,7 @@
       </command>
       <command
             categoryId="com.sabre.schemas.stl2Developer.command.category"
-            defaultHandler="com.sabre.schemas.trees.repository.RemoteSearchToogleHandler"
+            defaultHandler="org.opentravel.schemas.trees.repository.RemoteSearchToogleHandler"
             id="com.sabre.schemas.commands.repository.remoteSearch"
             name="Search namespaces and library names. Select to search the contents of the libraries.">
          <state
@@ -970,12 +970,12 @@
          <!-- use default General org.eclipse.ui.preferencePages.Workbench inorder to show preferances page
          from org.eclipse.ui.net plugin with proxy settings--> 
       <page
-            class="com.sabre.schemas.preferences.GeneralPreferencePage"
+            class="org.opentravel.schemas.preferences.GeneralPreferencePage"
             id="org.eclipse.ui.preferencePages.Workbench"
             name="General">
       </page>
       <page
-            class="com.sabre.schemas.stl2developer.CompilePreferencePage"
+            class="org.opentravel.schemas.stl2developer.CompilePreferencePage"
             id="stl2Developer.CompilePreferencePage"
             name="Compiler Preferences">
       </page>     
@@ -988,13 +988,13 @@
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="com.sabre.schemas.preferences.PreferenceInitializer">
+            class="org.opentravel.schemas.preferences.PreferenceInitializer">
       </initializer>
    </extension>
    <extension
          point="org.eclipse.ui.elementFactories">
       <factory
-            class="com.sabre.schemas.node.ModelContentsFactory"
+            class="org.opentravel.schemas.node.ModelContentsFactory"
             id="com.sabre.schemas.modelContentFactory">
       </factory>
    </extension>
@@ -1021,7 +1021,7 @@
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="com.sabre.schemas.commands.NavigationCommand:BACKWARD"
+            class="org.opentravel.schemas.commands.NavigationCommand:BACKWARD"
             commandId="stl2Developer.navigation.backward">
          <enabledWhen>
              <or>
@@ -1034,7 +1034,7 @@
          </enabledWhen>
       </handler>
        <handler
-            class="com.sabre.schemas.commands.NavigationCommand:FORWARD"
+            class="org.opentravel.schemas.commands.NavigationCommand:FORWARD"
             commandId="stl2Developer.navigation.forward">
          <enabledWhen>
              <or>
@@ -1047,11 +1047,11 @@
          </enabledWhen>
       </handler>
        <handler
-             class="com.sabre.schemas.commands.NewRepository"
+             class="org.opentravel.schemas.commands.NewRepository"
              commandId="com.sabre.schemas.commands.repository.new">
        </handler>
        <handler
-             class="com.sabre.schemas.commands.RepositoryChangeCredentials"
+             class="org.opentravel.schemas.commands.RepositoryChangeCredentials"
              commandId="com.sabre.schemas.commands.repository.update">
           <enabledWhen>
              <and>
@@ -1071,7 +1071,7 @@
           </enabledWhen>
        </handler>
        <handler
-             class="com.sabre.schemas.commands.GoToTypeHandler"
+             class="org.opentravel.schemas.commands.GoToTypeHandler"
              commandId="com.sabre.schemas.commands.goto.type">
           <enabledWhen>
              <and>
@@ -1086,7 +1086,7 @@
 	                            property="stl2Developer.node.hasType">
 	                      	</test>
 	                     	<instanceof
-                               value="com.sabre.schemas.types.TypeNode">
+                               value="org.opentravel.schemas.types.TypeNode">
                          	</instanceof>
                        	</or>
 	                   </iterate>
@@ -1110,7 +1110,7 @@
           </activeWhen>
        </handler>
        <handler
-             class="com.sabre.schemas.commands.AddNodeHandler"
+             class="org.opentravel.schemas.commands.AddNodeHandler"
              commandId="com.sabre.schemas.commands.Add">
           <enabledWhen>
              <with
@@ -1126,7 +1126,7 @@
           </enabledWhen>
        </handler>
        <handler
-             class="com.sabre.schemas.commands.AddNodeForNavigatorPopup"
+             class="org.opentravel.schemas.commands.AddNodeForNavigatorPopup"
              commandId="com.sabre.schemas.commands.Add">
            <enabledWhen>
              <with
@@ -1154,7 +1154,7 @@
           </activeWhen>          
        </handler>
        <handler
-             class="com.sabre.schemas.commands.DeleteDocumentationNodeHandler"
+             class="org.opentravel.schemas.commands.DeleteDocumentationNodeHandler"
              commandId="org.eclipse.ui.edit.delete">
           <activeWhen>
              <with
@@ -1166,7 +1166,7 @@
           </activeWhen>
        </handler>
        <handler
-             class="com.sabre.schemas.commands.DeleteNodesHandler"
+             class="org.opentravel.schemas.commands.DeleteNodesHandler"
              commandId="org.eclipse.ui.edit.delete">
           <enabledWhen>
 	          <and>
@@ -1178,12 +1178,12 @@
 	                   <and>
 	                      <not>
 	                         <instanceof
-	                               value="com.sabre.schemas.node.LibraryNode">
+	                               value="org.opentravel.schemas.node.LibraryNode">
 	                         </instanceof>
 	                      </not>
 	                      <not>
 	                         <instanceof
-	                               value="com.sabre.schemas.node.LibraryChainNode">
+	                               value="org.opentravel.schemas.node.LibraryChainNode">
 	                         </instanceof>
 	                      </not>
 	                      <test
@@ -1204,7 +1204,7 @@
              </with></activeWhen>
        </handler>
        <handler
-             class="com.sabre.schemas.commands.RemoveRepository"
+             class="org.opentravel.schemas.commands.RemoveRepository"
              commandId="org.eclipse.ui.edit.delete">
           <activeWhen>
              <with
@@ -1232,7 +1232,7 @@
           </enabledWhen>
        </handler>
        <handler
-             class="com.sabre.schemas.commands.NewComponentHandler"
+             class="org.opentravel.schemas.commands.NewComponentHandler"
              commandId="com.sabre.schemas.commands.newComponent">
           <enabledWhen>
              <with
@@ -1253,7 +1253,7 @@
           </enabledWhen>
        </handler>
        <handler
-             class="com.sabre.schemas.commands.CreateProjectFromRepo"
+             class="org.opentravel.schemas.commands.CreateProjectFromRepo"
              commandId="com.sabre.schemas.commands.create.project">
           <activeWhen>
              <with
@@ -1265,7 +1265,7 @@
           </activeWhen>
        </handler>
        <handler
-             class="com.sabre.schemas.commands.SaveLibraryHandler"
+             class="org.opentravel.schemas.commands.SaveLibraryHandler"
              commandId="com.sabre.schemas.commands.SaveLibrary">
           <enabledWhen>
 	          <and>
@@ -1286,32 +1286,32 @@
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
-            class="com.sabre.schemas.testers.IsNavaigationEnabled"
+            class="org.opentravel.schemas.testers.IsNavaigationEnabled"
             id="stl2Developer.navigation.tester"
             namespace="stl2Developer.navigation.tester"
             properties="forwardIsEmpty,backwardIsEmpty"
             type="java.lang.Object">
       </propertyTester>
       <propertyTester
-            class="com.sabre.schemas.testers.RepositoryTypeTester"
+            class="org.opentravel.schemas.testers.RepositoryTypeTester"
             id="stl2Developer.repository.type"
             namespace="stl2Developer.repository.type"
             properties="remote,local"
-            type="com.sabre.schemas.trees.repository.RepositoryNode$RepositoryNameNode">
+            type="org.opentravel.schemas.trees.repository.RepositoryNode$RepositoryNameNode">
       </propertyTester>
       <propertyTester
-            class="com.sabre.schemas.testers.GlobalSelectionTester"
+            class="org.opentravel.schemas.testers.GlobalSelectionTester"
             id="stl2Developer.selection"
             namespace="stl2Developer.selection"
             properties="canAdd"
-            type="com.sabre.schemas.node.Node">
+            type="org.opentravel.schemas.node.Node">
       </propertyTester>
       <propertyTester
-            class="com.sabre.schemas.testers.NodeTester"
+            class="org.opentravel.schemas.testers.NodeTester"
             id="stl2Developer.node"
             namespace="stl2Developer.node"
             properties="isDeleteable,hasType,isInTLLibrary,isEditable,isOwnerLibraryEditable"
-            type="com.sabre.schemas.node.Node">
+            type="org.opentravel.schemas.node.Node">
       </propertyTester>
    </extension>
    <extension
@@ -1407,13 +1407,13 @@
    <extension
          point="org.eclipse.ui.services">
       <serviceFactory
-            factoryClass="com.sabre.schemas.navigation.NavigationServiceFactory">
+            factoryClass="org.opentravel.schemas.navigation.NavigationServiceFactory">
          <service
-               serviceClass="com.sabre.schemas.navigation.INavigationService">
+               serviceClass="org.opentravel.schemas.navigation.INavigationService">
          </service>
       </serviceFactory>
       <sourceProvider
-            provider="com.sabre.schemas.navigation.GlobalSelectionProvider">
+            provider="org.opentravel.schemas.navigation.GlobalSelectionProvider">
          <variable
                name="com.sabre.schemas.selection.nodes"
                priorityLevel="workbench">
@@ -1443,7 +1443,7 @@
    <extension
          point="org.eclipse.ui.decorators">
       <decorator
-            class="com.sabre.schemas.views.decoration.LibraryDecorator"
+            class="org.opentravel.schemas.views.decoration.LibraryDecorator"
             id="com.sabre.schemas.stl2Developer.decorator.library"
             label="Library Decoration"
             lightweight="true"

@@ -11,4 +11,4 @@ Require-Bundle: com.sabre.schemas.stl2Developer;bundle-version="3.0.0",
  org.junit;bundle-version="4.10.0",
  org.eclipse.ui;bundle-version="3.7.0"
 Import-Package: org.osgi.framework
-Export-Package: com.sabre.schemas.utils
+Export-Package: org.opentravel.schemas.utils

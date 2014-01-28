@@ -4,7 +4,7 @@ Bundle-Localization: plugin
 Bundle-Name: OTM-DE
 Bundle-SymbolicName: com.sabre.schemas.stl2Developer; singleton:=true
 Bundle-Version: 3.1.0.qualifier
-Bundle-Activator: com.sabre.schemas.stl2developer.Activator
+Bundle-Activator: org.opentravel.schemas.stl2developer.Activator
 Bundle-Vendor: OpenTravel Alliance
 Eclipse-BundleShape: dir
 Eclipse-RegisterBuddy: org.apache.log4j,
@@ -24,18 +24,18 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.equinox.security;bundle-version="1.1.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Export-Package: com.sabre.schemas.controllers,
- com.sabre.schemas.modelObject,
- com.sabre.schemas.navigation,
- com.sabre.schemas.node,
- com.sabre.schemas.node.properties,
- com.sabre.schemas.properties,
- com.sabre.schemas.stl2developer,
- com.sabre.schemas.trees.library,
- com.sabre.schemas.trees.repository,
- com.sabre.schemas.types,
- com.sabre.schemas.utils,
- com.sabre.schemas.views
+Export-Package: org.opentravel.schemas.controllers,
+ org.opentravel.schemas.modelObject,
+ org.opentravel.schemas.navigation,
+ org.opentravel.schemas.node,
+ org.opentravel.schemas.node.properties,
+ org.opentravel.schemas.properties,
+ org.opentravel.schemas.stl2developer,
+ org.opentravel.schemas.trees.library,
+ org.opentravel.schemas.trees.repository,
+ org.opentravel.schemas.types,
+ org.opentravel.schemas.utils,
+ org.opentravel.schemas.views
 Import-Package: javax.activation,
  javax.xml.bind,
  javax.xml.bind.annotation,

@@ -23,7 +23,7 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="com.sabre.schemas.stl2Developer.editor.commands.OpenEditorHandler"
+            defaultHandler="org.opentravel.schemas.stl2Developer.editor.commands.OpenEditorHandler"
             id="com.sabre.schemas.stl2Developer.editor.openEditor"
             name="Open Editor">
       </command>
@@ -31,7 +31,7 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-            class="com.sabre.schemas.stl2Developer.editor.view.DependeciesView"
+            class="org.opentravel.schemas.stl2Developer.editor.view.DependeciesView"
             icon="icons/view_icon.png"
             id="com.sabre.schemas.stl2Developer.editor.DependenciesView"
             name="Graphical View"

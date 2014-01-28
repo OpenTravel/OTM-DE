@@ -1,0 +1,37 @@
+/*
+ * Copyright (c) 2011, Sabre Inc.
+ */
+package org.opentravel.schemas.actions;
+
+import org.opentravel.schemas.properties.StringProperties;
+import org.opentravel.schemas.stl2developer.MainWindow;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.views.OtmView;
+
+/**
+ * @author Agnieszka Janowska
+ * 
+ */
+public class DisplayPropertyTreeViewAction extends OtmAbstractAction {
+
+    /**
+	 *
+	 */
+    public DisplayPropertyTreeViewAction(final MainWindow mainWindow, final StringProperties props) {
+        super(mainWindow, props, AS_CHECK_BOX);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.action.Action#run()
+     */
+    @Override
+    public void run() {
+        final OtmView view = OtmRegistry.getNavigatorView();
+        if (view != null) {
+            view.setDeepPropertyView(isChecked());
+        }
+    }
+
+}

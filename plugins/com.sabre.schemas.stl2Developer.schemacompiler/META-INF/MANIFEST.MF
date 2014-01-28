@@ -65,7 +65,6 @@ Export-Package: com.sabre.schemacompiler.codegen,
  com.sabre.schemacompiler.version,
  com.sabre.schemacompiler.visitor,
  com.sabre.schemacompiler.xml,
- com.sabre.schemas.schemacompiler,
  com.sun.activation.registries,
  com.sun.activation.viewers,
  com.sun.istack,
@@ -119,6 +118,7 @@ Export-Package: com.sabre.schemacompiler.codegen,
  org.opentravel.ns.ota2.librarymodel_v01_04,
  org.opentravel.ns.ota2.project_v01_00,
  org.opentravel.ns.ota2.repositoryinfo_v01_00,
+ org.opentravel.schemas.schemacompiler,
  org.springframework.aop,
  org.springframework.aop.aspectj,
  org.springframework.aop.aspectj.annotation,
@@ -239,4 +239,4 @@ Export-Package: com.sabre.schemacompiler.codegen,
  org.xmlsoap.schemas.wsdl,
  org.xmlsoap.schemas.wsdl.soap
 Eclipse-RegisterBuddy: com.sabre.schemas.stl2Developer.ota2
-Bundle-Activator: com.sabre.schemas.schemacompiler.SchemaCompilerActivator
+Bundle-Activator: org.opentravel.schemas.schemacompiler.SchemaCompilerActivator
