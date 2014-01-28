@@ -14,7 +14,7 @@
                   style="push">
                <parameter
                      name="org.eclipse.ui.views.showView.viewId"
-                     value="com.sabre.schemas.stl2Developer.editor.DependenciesView">
+                     value="org.opentravel.schemas.stl2Developer.editor.DependenciesView">
                </parameter>
             </command>
          </menu>
@@ -24,7 +24,7 @@
          point="org.eclipse.ui.commands">
       <command
             defaultHandler="org.opentravel.schemas.stl2Developer.editor.commands.OpenEditorHandler"
-            id="com.sabre.schemas.stl2Developer.editor.openEditor"
+            id="org.opentravel.schemas.stl2Developer.editor.openEditor"
             name="Open Editor">
       </command>
    </extension>
@@ -33,7 +33,7 @@
       <view
             class="org.opentravel.schemas.stl2Developer.editor.view.DependeciesView"
             icon="icons/view_icon.png"
-            id="com.sabre.schemas.stl2Developer.editor.DependenciesView"
+            id="org.opentravel.schemas.stl2Developer.editor.DependenciesView"
             name="Graphical View"
             restorable="true">
       </view>
@@ -44,16 +44,16 @@
             targetID="*">
          <view
                closeable="true"
-               id="com.sabre.schemas.stl2Developer.editor.DependenciesView"
+               id="org.opentravel.schemas.stl2Developer.editor.DependenciesView"
                minimized="true"
                moveable="true"
                relationship="stack"
-               relative="com.sabre.schemas.stl2Developer.TypeView"
+               relative="org.opentravel.schemas.stl2Developer.TypeView"
                standalone="false"
                visible="true">
          </view>
          <viewShortcut
-               id="com.sabre.schemas.stl2Developer.editor.DependenciesView">
+               id="org.opentravel.schemas.stl2Developer.editor.DependenciesView">
          </viewShortcut>
       </perspectiveExtension>
    </extension>
