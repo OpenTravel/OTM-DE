@@ -74,7 +74,7 @@ public class AggregateNode extends NavNode {
             if (n.getName().startsWith(familyName))
                 doFamily++;
 
-            if (n.getName().equals(node.getName())) {
+            if (!n.isFamily() && n.getName().equals(node.getName())) {
                 // Is it "later-in-time" than the one found?
                 if (node.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib())) {
                     getChildren().remove(n);
