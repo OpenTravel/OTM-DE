@@ -16,7 +16,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.sabre.es.otm</groupId>
+			<groupId>org.opentravel.otm</groupId>
 			<artifactId>ota2-repository-service</artifactId>
 			<version>${compiler.version}</version>
 			<type>war</type>
