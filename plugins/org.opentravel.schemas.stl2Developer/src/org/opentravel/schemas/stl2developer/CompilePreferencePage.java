@@ -1,6 +1,4 @@
-/*
- * Copyright (c) 2011, Sabre Inc.
- */
+
 package org.opentravel.schemas.stl2developer;
 
 import org.eclipse.jface.preference.IPreferenceStore;

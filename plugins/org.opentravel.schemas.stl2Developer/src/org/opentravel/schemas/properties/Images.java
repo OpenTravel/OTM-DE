@@ -1,6 +1,4 @@
-/*
- * Copyright (c) 2011, Sabre Inc.
- */
+
 package org.opentravel.schemas.properties;
 
 import org.eclipse.jface.resource.ImageRegistry;

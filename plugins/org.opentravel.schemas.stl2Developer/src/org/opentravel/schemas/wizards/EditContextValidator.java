@@ -1,6 +1,4 @@
-/*
- * Copyright (c) 2011, Sabre Inc.
- */
+
 package org.opentravel.schemas.wizards;
 
 import org.opentravel.schemas.properties.Messages;

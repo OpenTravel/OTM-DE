@@ -1,6 +1,4 @@
-/*
- * Copyright (c) 2013, Sabre Inc.
- */
+
 package org.opentravel.schemas.views.propertyview;
 
 import org.eclipse.ui.views.properties.IPropertyDescriptor;

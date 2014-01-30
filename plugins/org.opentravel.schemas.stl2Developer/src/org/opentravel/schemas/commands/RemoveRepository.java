@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.commands;
 
 import org.eclipse.core.commands.AbstractHandler;

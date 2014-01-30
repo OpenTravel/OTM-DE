@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.modelObject;
 
 import java.io.File;

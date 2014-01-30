@@ -1,6 +1,4 @@
-/*
- * Copyright (c) 2011, Sabre Inc.
- */
+
 package org.opentravel.schemas.actions;
 
 import static org.opentravel.schemas.stl2developer.MainWindow.NO_VALID_SELECTION_MSG;

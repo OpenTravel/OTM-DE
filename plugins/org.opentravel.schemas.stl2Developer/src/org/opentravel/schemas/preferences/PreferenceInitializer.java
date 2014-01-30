@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;

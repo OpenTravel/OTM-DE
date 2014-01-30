@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.types;
 
 import java.util.List;

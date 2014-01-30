@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.node;
 
 import org.eclipse.swt.graphics.Image;

@@ -1,6 +1,4 @@
-/*
- * Copyright (c) 2013, Sabre Inc.
- */
+
 package org.opentravel.schemas.trees.repository;
 
 import org.opentravel.schemas.views.RepositoryView;

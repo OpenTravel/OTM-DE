@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.views.decoration;
 
 import org.eclipse.jface.viewers.BaseLabelProvider;

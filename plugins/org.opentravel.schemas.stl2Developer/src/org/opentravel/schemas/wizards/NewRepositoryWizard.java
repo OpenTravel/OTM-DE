@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.wizards;
 
 import java.net.MalformedURLException;

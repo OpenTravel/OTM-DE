@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.modelObject.events;
 
 import org.opentravel.schemacompiler.event.ModelEvent;

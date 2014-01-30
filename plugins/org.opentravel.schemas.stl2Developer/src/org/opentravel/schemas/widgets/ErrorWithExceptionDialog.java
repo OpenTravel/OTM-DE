@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.widgets;
 
 import java.io.IOException;

@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.views.propertyview;
 
 import java.util.HashSet;

@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.navigation;
 
 import java.util.HashMap;

@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.testers;
 
 import org.eclipse.core.expressions.PropertyTester;

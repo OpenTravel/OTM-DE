@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.node.properties;
 
 import org.opentravel.schemas.node.INode;

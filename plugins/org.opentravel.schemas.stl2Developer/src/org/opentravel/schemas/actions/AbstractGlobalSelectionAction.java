@@ -1,6 +1,4 @@
-/*
- * Copyright (c) 2013, Sabre Inc.
- */
+
 package org.opentravel.schemas.actions;
 
 import org.eclipse.core.expressions.EvaluationResult;

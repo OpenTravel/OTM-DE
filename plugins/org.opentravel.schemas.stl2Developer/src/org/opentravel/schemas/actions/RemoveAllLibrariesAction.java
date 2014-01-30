@@ -1,6 +1,4 @@
-/*
- * Copyright (c) 2011, Sabre Inc.
- */
+
 package org.opentravel.schemas.actions;
 
 import static org.opentravel.schemas.node.controllers.NodeUtils.isBuildInProject;

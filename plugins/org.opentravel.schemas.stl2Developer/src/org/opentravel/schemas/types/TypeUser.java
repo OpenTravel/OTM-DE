@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.types;
 
 import org.opentravel.schemas.modelObject.ModelObject;

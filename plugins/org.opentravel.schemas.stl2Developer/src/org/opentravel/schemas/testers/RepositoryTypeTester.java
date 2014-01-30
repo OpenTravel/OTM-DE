@@ -1,6 +1,4 @@
-/*
- * Copyright (c) 2012, Sabre Inc.
- */
+
 package org.opentravel.schemas.testers;
 
 import org.eclipse.core.expressions.PropertyTester;
