@@ -13,13 +13,13 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>com.sabre.schemas.stl2Developer</module>
-    <module>com.sabre.schemas.stl2Developer.editor</module>
+    <module>org.opentravel.schemas.stl2Developer</module>
+    <module>org.opentravel.schemas.stl2Developer.editor</module>
 
     <!-- OSGi wrappers of OTA2 Compiler -->
-    <module>com.sabre.schemas.stl2Developer.schemacompiler</module>
-    <module>com.sabre.schemas.stl2Developer.log4j.configuration</module>
-    <module>com.sabre.schemas.stl2Developer.ota2</module>
+    <module>org.opentravel.schemas.stl2Developer.schemacompiler</module>
+    <module>org.opentravel.schemas.stl2Developer.log4j.configuration</module>
+    <module>org.opentravel.schemas.stl2Developer.ota2</module>
   </modules>
 
 </project>
