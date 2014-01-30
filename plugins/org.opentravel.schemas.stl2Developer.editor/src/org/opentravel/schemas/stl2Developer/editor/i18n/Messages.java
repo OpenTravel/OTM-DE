@@ -1,6 +1,4 @@
-/*
- * Copyright (c) 2013, Sabre Inc.
- */
+
 package org.opentravel.schemas.stl2Developer.editor.i18n;
 
 import org.eclipse.osgi.util.NLS;

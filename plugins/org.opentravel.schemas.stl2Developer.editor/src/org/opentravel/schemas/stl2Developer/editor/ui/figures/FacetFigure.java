@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.stl2Developer.editor.ui.figures;
 
 import org.eclipse.draw2d.AbstractBorder;

@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.stl2Developer.editor.policies;
 
 import org.eclipse.gef.EditPart;

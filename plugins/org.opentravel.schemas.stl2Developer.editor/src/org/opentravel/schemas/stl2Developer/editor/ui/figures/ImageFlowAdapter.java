@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.stl2Developer.editor.ui.figures;
 
 import java.util.Iterator;

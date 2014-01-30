@@ -1,6 +1,4 @@
-/*
- * Copyright (c) 2013, Sabre Inc.
- */
+
 package org.opentravel.schemas.stl2Developer.editor.ui.figures;
 
 import org.eclipse.draw2d.Cursors;

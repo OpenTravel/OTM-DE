@@ -1,3 +1,4 @@
+
 package org.opentravel.schemas.stl2Developer.newObject;
 
 import static org.junit.Assert.assertEquals;

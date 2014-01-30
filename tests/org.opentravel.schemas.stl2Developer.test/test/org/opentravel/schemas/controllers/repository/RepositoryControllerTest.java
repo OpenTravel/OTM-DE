@@ -1,6 +1,4 @@
-/*
- * Copyright (c) 2012, Sabre Inc.
- */
+
 package org.opentravel.schemas.controllers.repository;
 
 import static org.junit.Assert.assertEquals;

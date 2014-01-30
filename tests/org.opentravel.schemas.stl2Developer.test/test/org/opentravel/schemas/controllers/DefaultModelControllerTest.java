@@ -1,7 +1,4 @@
-/*
 
- * Copyright (c) 2013, Sabre Inc.
- */
 package org.opentravel.schemas.controllers;
 
 import java.util.List;

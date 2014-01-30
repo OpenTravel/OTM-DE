@@ -1,8 +1,4 @@
-/*
- * Copyright (c) 2013, Sabre Corporation and affiliates.
- * All Rights Reserved.
- * Use is subject to license agreement.
- */
+
 package org.opentravel.schemas.controllers.repository;
 
 import java.io.File;

@@ -1,6 +1,4 @@
-/*
- * Copyright (c) 2013, Sabre Inc.
- */
+
 package org.opentravel.schemas.utils;
 
 import org.opentravel.schemas.node.BusinessObjectNode;
