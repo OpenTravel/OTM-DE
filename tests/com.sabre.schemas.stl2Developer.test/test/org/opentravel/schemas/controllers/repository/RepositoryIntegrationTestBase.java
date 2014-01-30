@@ -30,14 +30,14 @@ import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryItemNode;
 import org.opentravel.schemas.views.RepositoryView;
 
-import com.sabre.schemacompiler.index.FreeTextSearchService;
-import com.sabre.schemacompiler.repository.Project;
-import com.sabre.schemacompiler.repository.ProjectItem;
-import com.sabre.schemacompiler.repository.RemoteRepository;
-import com.sabre.schemacompiler.repository.RepositoryException;
-import com.sabre.schemacompiler.repository.RepositoryItem;
-import com.sabre.schemacompiler.repository.RepositoryManager;
-import com.sabre.schemacompiler.repository.impl.RemoteRepositoryClient;
+import org.opentravel.schemacompiler.index.FreeTextSearchService;
+import org.opentravel.schemacompiler.repository.Project;
+import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemacompiler.repository.RemoteRepository;
+import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryItem;
+import org.opentravel.schemacompiler.repository.RepositoryManager;
+import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 
 /**
  * Abstract base class that defines common methods used during live repository testing.

@@ -21,7 +21,7 @@ import org.opentravel.schemas.node.Node_Tests;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 
-import com.sabre.schemacompiler.util.URLUtils;
+import org.opentravel.schemacompiler.util.URLUtils;
 
 /**
  * @author Dave Hollander

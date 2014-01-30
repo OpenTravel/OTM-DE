@@ -14,10 +14,10 @@ import org.opentravel.schemas.utils.ComponentNodeBuilder;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.osgi.framework.Version;
 
-import com.sabre.schemacompiler.repository.RepositoryException;
-import com.sabre.schemacompiler.repository.RepositoryItem;
-import com.sabre.schemacompiler.repository.RepositoryItemState;
-import com.sabre.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryItem;
+import org.opentravel.schemacompiler.repository.RepositoryItemState;
+import org.opentravel.schemacompiler.saver.LibrarySaveException;
 
 public class RemoteRepositoryTest extends RepositoryControllerTest {
 

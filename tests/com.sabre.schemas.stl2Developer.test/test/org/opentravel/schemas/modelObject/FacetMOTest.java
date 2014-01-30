@@ -12,10 +12,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemas.modelObject.FacetMO;
 
-import com.sabre.schemacompiler.model.TLAttribute;
-import com.sabre.schemacompiler.model.TLFacet;
-import com.sabre.schemacompiler.model.TLIndicator;
-import com.sabre.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLIndicator;
+import org.opentravel.schemacompiler.model.TLProperty;
 
 public class FacetMOTest {
 

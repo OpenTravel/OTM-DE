@@ -25,8 +25,8 @@ import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.opentravel.schemas.utils.PropertyNodeBuilder;
 import org.osgi.framework.Version;
 
-import com.sabre.schemacompiler.model.TLContext;
-import com.sabre.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.saver.LibrarySaveException;
 
 /**
  * @author Pawel Jedruch

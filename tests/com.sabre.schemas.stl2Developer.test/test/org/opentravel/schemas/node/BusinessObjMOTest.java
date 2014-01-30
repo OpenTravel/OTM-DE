@@ -6,7 +6,7 @@ package org.opentravel.schemas.node;
 import org.junit.BeforeClass;
 import org.opentravel.schemas.node.ModelNode;
 
-import com.sabre.schemacompiler.model.TLModel;
+import org.opentravel.schemacompiler.model.TLModel;
 
 ;
 

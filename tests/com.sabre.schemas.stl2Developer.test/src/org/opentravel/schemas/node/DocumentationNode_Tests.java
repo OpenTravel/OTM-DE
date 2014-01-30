@@ -17,7 +17,7 @@ import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 
-import com.sabre.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLCoreObject;
 
 /**
  * These tests cover the Node and ModelObject class functions. NOTE: these functions are NOT used in

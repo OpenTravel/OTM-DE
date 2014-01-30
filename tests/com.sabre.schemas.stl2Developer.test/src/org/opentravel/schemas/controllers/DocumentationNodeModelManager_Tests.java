@@ -21,7 +21,7 @@ import org.opentravel.schemas.node.controllers.DescriptionDocItemNodeModelContro
 import org.opentravel.schemas.node.controllers.DocumentationNodeModelManager;
 import org.opentravel.schemas.testUtils.LoadFiles;
 
-import com.sabre.schemacompiler.model.TLDocumentationItem;
+import org.opentravel.schemacompiler.model.TLDocumentationItem;
 
 /**
  * @author Dave Hollander

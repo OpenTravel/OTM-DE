@@ -15,7 +15,7 @@ import org.opentravel.schemas.testUtils.LoadFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLProperty;
 
 /**
  * @author Dave Hollander

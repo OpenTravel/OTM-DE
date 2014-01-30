@@ -38,11 +38,11 @@ import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.osgi.framework.Version;
 
-import com.sabre.schemacompiler.model.TLExtensionPointFacet;
-import com.sabre.schemacompiler.model.TLFacetType;
-import com.sabre.schemacompiler.repository.RepositoryException;
-import com.sabre.schemacompiler.repository.RepositoryItemState;
-import com.sabre.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
+import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryItemState;
+import org.opentravel.schemacompiler.saver.LibrarySaveException;
 
 public class VersionsTest extends RepositoryIntegrationTestBase {
     MockLibrary ml = new MockLibrary();

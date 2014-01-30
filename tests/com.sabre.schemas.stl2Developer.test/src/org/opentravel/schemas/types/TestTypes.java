@@ -21,11 +21,11 @@ import org.opentravel.schemas.types.TypeResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.codegen.example.ExampleDocumentBuilder;
-import com.sabre.schemacompiler.codegen.example.ExampleGeneratorOptions;
-import com.sabre.schemacompiler.model.NamedEntity;
-import com.sabre.schemacompiler.validate.FindingType;
-import com.sabre.schemacompiler.validate.ValidationFindings;
+import org.opentravel.schemacompiler.codegen.example.ExampleDocumentBuilder;
+import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.validate.FindingType;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
 
 /**
  * @author Dave Hollander

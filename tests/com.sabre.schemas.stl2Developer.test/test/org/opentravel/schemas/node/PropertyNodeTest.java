@@ -16,10 +16,10 @@ import org.opentravel.schemas.utils.FacetNodeBuilder;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.sabre.schemacompiler.model.TLAlias;
-import com.sabre.schemacompiler.model.TLAttribute;
-import com.sabre.schemacompiler.model.TLIndicator;
-import com.sabre.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLAlias;
+import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLIndicator;
+import org.opentravel.schemacompiler.model.TLProperty;
 
 public class PropertyNodeTest {
 

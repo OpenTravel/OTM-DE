@@ -16,9 +16,9 @@ import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.opentravel.schemas.utils.PropertyNodeBuilder;
 import org.osgi.framework.Version;
 
-import com.sabre.schemacompiler.saver.LibraryModelSaver;
-import com.sabre.schemacompiler.saver.LibrarySaveException;
-import com.sabre.schemacompiler.util.URLUtils;
+import org.opentravel.schemacompiler.saver.LibraryModelSaver;
+import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.util.URLUtils;
 
 public class ProjectNodeTest extends BaseProjectTest {
 

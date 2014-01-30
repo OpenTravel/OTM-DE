@@ -5,9 +5,9 @@ package org.opentravel.schemas.modelObject;
 
 import org.junit.Test;
 
-import com.sabre.schemacompiler.codegen.util.PropertyCodegenUtils;
-import com.sabre.schemacompiler.model.TLAttribute;
-import com.sabre.schemacompiler.model.TLValueWithAttributes;
+import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
+import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 
 /**
  * @author Pawel Jedruch

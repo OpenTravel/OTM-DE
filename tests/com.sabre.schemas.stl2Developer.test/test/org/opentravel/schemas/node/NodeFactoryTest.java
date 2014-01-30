@@ -8,9 +8,9 @@ import org.junit.Test;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.properties.ElementNode;
 
-import com.sabre.schemacompiler.model.TLProperty;
-import com.sabre.schemacompiler.model.TLSimple;
-import com.sabre.schemacompiler.model.XSDSimpleType;
+import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLSimple;
+import org.opentravel.schemacompiler.model.XSDSimpleType;
 
 /**
  * @author Pawel Jedruch

@@ -17,8 +17,8 @@ import org.opentravel.schemas.node.Node_Tests.TestNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 
-import com.sabre.schemacompiler.model.TLClosedEnumeration;
-import com.sabre.schemacompiler.model.TLEnumValue;
+import org.opentravel.schemacompiler.model.TLClosedEnumeration;
+import org.opentravel.schemacompiler.model.TLEnumValue;
 
 /**
  * @author Dave Hollander

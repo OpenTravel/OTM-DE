@@ -32,8 +32,8 @@ import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 
-import com.sabre.schemacompiler.model.TLAttribute;
-import com.sabre.schemacompiler.model.TLValueWithAttributes;
+import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 
 /**
  * @author Dave Hollander

@@ -20,9 +20,9 @@ import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
 import org.opentravel.schemas.utils.PropertyNodeBuilder;
 
-import com.sabre.schemacompiler.codegen.util.XsdCodegenUtils;
-import com.sabre.schemacompiler.model.TLFacet;
-import com.sabre.schemacompiler.model.TLModel;
+import org.opentravel.schemacompiler.codegen.util.XsdCodegenUtils;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLModel;
 
 /**
  * @author Pawel Jedruch

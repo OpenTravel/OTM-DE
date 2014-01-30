@@ -25,17 +25,17 @@ import org.opentravel.schemas.stl2Developer.reposvc.RepositoryTestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLBusinessObject;
-import com.sabre.schemacompiler.model.TLClosedEnumeration;
-import com.sabre.schemacompiler.model.TLCoreObject;
-import com.sabre.schemacompiler.model.TLLibrary;
-import com.sabre.schemacompiler.model.TLLibraryStatus;
-import com.sabre.schemacompiler.model.TLOpenEnumeration;
-import com.sabre.schemacompiler.model.TLSimple;
-import com.sabre.schemacompiler.model.TLValueWithAttributes;
-import com.sabre.schemacompiler.saver.LibraryModelSaver;
-import com.sabre.schemacompiler.saver.LibrarySaveException;
-import com.sabre.schemacompiler.util.URLUtils;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLClosedEnumeration;
+import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLLibraryStatus;
+import org.opentravel.schemacompiler.model.TLOpenEnumeration;
+import org.opentravel.schemacompiler.model.TLSimple;
+import org.opentravel.schemacompiler.model.TLValueWithAttributes;
+import org.opentravel.schemacompiler.saver.LibraryModelSaver;
+import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.util.URLUtils;
 
 /**
  * Creates a mock library in the runtime-OT2Editor.product directory. Is added to the passed

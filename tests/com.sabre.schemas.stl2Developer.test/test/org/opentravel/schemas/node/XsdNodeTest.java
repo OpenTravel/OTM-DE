@@ -15,7 +15,7 @@ import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.utils.BaseProjectTest;
 
-import com.sabre.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemacompiler.repository.ProjectItem;
 
 /**
  * @author Pawel Jedruch

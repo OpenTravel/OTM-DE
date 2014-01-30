@@ -8,7 +8,7 @@ import org.opentravel.schemas.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.LibraryMember;
 
 /**
  * Creates a mock library in the runtime-OT2Editor.product directory. Is added to the passed

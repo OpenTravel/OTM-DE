@@ -24,14 +24,14 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.sabre.schemacompiler.model.TLAttribute;
-import com.sabre.schemacompiler.model.TLFacet;
-import com.sabre.schemacompiler.model.TLIndicator;
-import com.sabre.schemacompiler.model.TLModelElement;
-import com.sabre.schemacompiler.model.TLProperty;
-import com.sabre.schemacompiler.version.VersionScheme;
-import com.sabre.schemacompiler.version.VersionSchemeException;
-import com.sabre.schemacompiler.version.VersionSchemeFactory;
+import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLIndicator;
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.version.VersionScheme;
+import org.opentravel.schemacompiler.version.VersionSchemeException;
+import org.opentravel.schemacompiler.version.VersionSchemeFactory;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ ModelObjectFactory.class, VersionSchemeFactory.class })

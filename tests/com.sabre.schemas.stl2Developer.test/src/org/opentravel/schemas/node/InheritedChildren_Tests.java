@@ -23,7 +23,7 @@ import org.opentravel.schemas.testUtils.MockLibrary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLFacetType;
 
 /**
  * @author Dave Hollander

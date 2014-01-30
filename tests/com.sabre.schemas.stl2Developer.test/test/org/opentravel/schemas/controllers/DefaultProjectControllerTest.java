@@ -26,10 +26,10 @@ import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.opentravel.schemas.utils.PropertyNodeBuilder;
 import org.osgi.framework.Version;
 
-import com.sabre.schemacompiler.model.TLLibrary;
-import com.sabre.schemacompiler.model.TLNamespaceImport;
-import com.sabre.schemacompiler.saver.LibrarySaveException;
-import com.sabre.schemacompiler.util.URLUtils;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLNamespaceImport;
+import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.util.URLUtils;
 
 /**
  * @author Pawel Jedruch
