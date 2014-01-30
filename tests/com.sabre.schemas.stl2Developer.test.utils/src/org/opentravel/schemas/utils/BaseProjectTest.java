@@ -21,7 +21,7 @@ import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.stl2Developer.reposvc.RepositoryTestUtils;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 
-import com.sabre.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryException;
 
 /**
  * Abstract base class that defines common methods used during live repository testing.

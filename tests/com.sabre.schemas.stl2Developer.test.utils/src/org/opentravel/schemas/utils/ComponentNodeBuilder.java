@@ -20,13 +20,13 @@ import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 
-import com.sabre.schemacompiler.model.TLBusinessObject;
-import com.sabre.schemacompiler.model.TLCoreObject;
-import com.sabre.schemacompiler.model.TLFacet;
-import com.sabre.schemacompiler.model.TLFacetType;
-import com.sabre.schemacompiler.model.TLService;
-import com.sabre.schemacompiler.model.TLSimple;
-import com.sabre.schemacompiler.model.TLValueWithAttributes;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLService;
+import org.opentravel.schemacompiler.model.TLSimple;
+import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 
 /**
  * @author Pawel Jedruch

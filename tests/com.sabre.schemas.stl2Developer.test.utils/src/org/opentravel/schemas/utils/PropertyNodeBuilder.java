@@ -12,10 +12,10 @@ import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.properties.PropertyNode;
 
-import com.sabre.schemacompiler.ic.TypeNameIntegrityChecker;
-import com.sabre.schemacompiler.model.TLAttribute;
-import com.sabre.schemacompiler.model.TLDocumentation;
-import com.sabre.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.ic.TypeNameIntegrityChecker;
+import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLDocumentation;
+import org.opentravel.schemacompiler.model.TLProperty;
 
 /**
  * @author Pawel Jedruch

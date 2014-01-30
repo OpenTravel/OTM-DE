@@ -8,11 +8,11 @@ import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ProjectNode;
 import org.osgi.framework.Version;
 
-import com.sabre.schemacompiler.model.TLLibrary;
-import com.sabre.schemacompiler.model.TLLibraryStatus;
-import com.sabre.schemacompiler.saver.LibraryModelSaver;
-import com.sabre.schemacompiler.saver.LibrarySaveException;
-import com.sabre.schemacompiler.util.URLUtils;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLLibraryStatus;
+import org.opentravel.schemacompiler.saver.LibraryModelSaver;
+import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.util.URLUtils;
 
 public class LibraryNodeBuilder {
 

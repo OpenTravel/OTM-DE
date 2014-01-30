@@ -6,11 +6,11 @@ package org.opentravel.schemas.utils;
 import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.NodeFactory;
 
-import com.sabre.schemacompiler.model.TLAlias;
-import com.sabre.schemacompiler.model.TLAttribute;
-import com.sabre.schemacompiler.model.TLFacet;
-import com.sabre.schemacompiler.model.TLIndicator;
-import com.sabre.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLAlias;
+import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLIndicator;
+import org.opentravel.schemacompiler.model.TLProperty;
 
 public class FacetNodeBuilder {
     interface TLCreator {
