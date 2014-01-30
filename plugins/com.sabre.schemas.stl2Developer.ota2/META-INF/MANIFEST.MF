@@ -7,8 +7,8 @@ Bundle-Vendor: SABRE
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: libs/schema-compiler-ext-ota2-3.1-SNAPSHOT.jar,
  .
-Export-Package: com.sabre.schemacompiler.extension,
- com.sabre.schemacompiler.ota2
+Export-Package: org.opentravel.schemacompiler.extension,
+ org.opentravel.schemacompiler.ota2
 Bundle-ActivationPolicy: lazy
 SPI-Provider: *
 Eclipse-BuddyPolicy: registered

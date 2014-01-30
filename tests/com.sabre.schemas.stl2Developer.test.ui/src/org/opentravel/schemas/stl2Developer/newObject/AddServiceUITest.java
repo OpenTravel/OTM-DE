@@ -1,6 +1,3 @@
-/*
- * Copyright (c) 2013, Sabre Inc.
- */
 package org.opentravel.schemas.stl2Developer.newObject;
 
 import static org.junit.Assert.assertEquals;
@@ -30,9 +27,9 @@ import org.opentravel.schemas.utils.ComponentNodeBuilder;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.osgi.framework.Version;
 
-import com.sabre.schemacompiler.saver.LibraryModelSaver;
-import com.sabre.schemacompiler.saver.LibrarySaveException;
-import com.sabre.schemacompiler.util.URLUtils;
+import org.opentravel.schemacompiler.saver.LibraryModelSaver;
+import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.util.URLUtils;
 
 /**
  * @author Pawel Jedruch
