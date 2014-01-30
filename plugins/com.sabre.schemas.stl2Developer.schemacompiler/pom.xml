@@ -15,7 +15,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.sabre.es.otm</groupId>
+			<groupId>org.opentravel.otm</groupId>
 			<artifactId>schema-compiler</artifactId>
 			<version>${compiler.version}</version>
 		</dependency>

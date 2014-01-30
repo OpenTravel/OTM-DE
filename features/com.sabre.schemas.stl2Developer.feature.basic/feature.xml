@@ -206,27 +206,27 @@ OpenTravel Model License Agreement, (c) Copyright 2013 OpenTravel Alliance, Inc.
    </requires>
 
    <plugin
-         id="com.sabre.schemas.stl2Developer"
+         id="org.opentravel.schemas.stl2Developer"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="com.sabre.schemas.stl2Developer.schemacompiler"
+         id="org.opentravel.schemas.stl2Developer.schemacompiler"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.sabre.schemas.stl2Developer.editor"
+         id="org.opentravel.schemas.stl2Developer.editor"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.sabre.schemas.stl2Developer.ota2"
+         id="org.opentravel.schemas.stl2Developer.ota2"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -254,7 +254,7 @@ OpenTravel Model License Agreement, (c) Copyright 2013 OpenTravel Alliance, Inc.
          unpack="false"/>
 
    <plugin
-         id="com.sabre.schemas.stl2Developer.log4j.configuration"
+         id="org.opentravel.schemas.stl2Developer.log4j.configuration"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -40,7 +40,7 @@
         <configuration>
           <target>
             <artifact>
-              <groupId>com.sabre.es.otm</groupId>
+              <groupId>org.opentravel.otm</groupId>
               <artifactId>target-definition</artifactId>
               <version>${project.version}</version>
               <classifier>indigo</classifier>
