@@ -51,19 +51,19 @@ import org.opentravel.schemas.trees.library.LibraryTreeLabelProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.codegen.util.FacetCodegenUtils;
-import com.sabre.schemacompiler.codegen.util.PropertyCodegenUtils;
-import com.sabre.schemacompiler.model.LibraryMember;
-import com.sabre.schemacompiler.model.NamedEntity;
-import com.sabre.schemacompiler.model.TLAttribute;
-import com.sabre.schemacompiler.model.TLFacet;
-import com.sabre.schemacompiler.model.TLFacetOwner;
-import com.sabre.schemacompiler.model.TLIndicator;
-import com.sabre.schemacompiler.model.TLModelElement;
-import com.sabre.schemacompiler.model.TLProperty;
-import com.sabre.schemacompiler.model.TLPropertyOwner;
-import com.sabre.schemacompiler.model.TLPropertyType;
-import com.sabre.schemacompiler.util.InheritanceHierarchyBuilder;
+import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
+import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLFacetOwner;
+import org.opentravel.schemacompiler.model.TLIndicator;
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLPropertyOwner;
+import org.opentravel.schemacompiler.model.TLPropertyType;
+import org.opentravel.schemacompiler.util.InheritanceHierarchyBuilder;
 
 /**
  * Wizard page that allows the user to configure which properties whose types are part of a nested

@@ -5,10 +5,10 @@ package org.opentravel.schemas.modelObject;
 
 import java.util.List;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.TLLibrary;
-import com.sabre.schemacompiler.model.TLOperation;
-import com.sabre.schemacompiler.model.TLService;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLOperation;
+import org.opentravel.schemacompiler.model.TLService;
 
 public class ServiceMO extends ModelObject<TLService> {
 

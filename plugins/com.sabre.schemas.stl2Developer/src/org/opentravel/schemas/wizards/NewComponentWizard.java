@@ -22,7 +22,7 @@ import org.opentravel.schemas.trees.type.TypeTreeExtensionSelectionFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
 
 /*
  * Good references:

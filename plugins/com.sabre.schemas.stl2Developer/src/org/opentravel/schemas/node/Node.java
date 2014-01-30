@@ -36,23 +36,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-import com.sabre.schemacompiler.codegen.CodeGenerationException;
-import com.sabre.schemacompiler.codegen.example.ExampleDocumentBuilder;
-import com.sabre.schemacompiler.codegen.example.ExampleGeneratorOptions;
-import com.sabre.schemacompiler.model.LibraryMember;
-import com.sabre.schemacompiler.model.NamedEntity;
-import com.sabre.schemacompiler.model.TLAdditionalDocumentationItem;
-import com.sabre.schemacompiler.model.TLAttributeType;
-import com.sabre.schemacompiler.model.TLContext;
-import com.sabre.schemacompiler.model.TLDocumentation;
-import com.sabre.schemacompiler.model.TLDocumentationItem;
-import com.sabre.schemacompiler.model.TLModelElement;
-import com.sabre.schemacompiler.validate.FindingMessageFormat;
-import com.sabre.schemacompiler.validate.FindingType;
-import com.sabre.schemacompiler.validate.Validatable;
-import com.sabre.schemacompiler.validate.ValidationException;
-import com.sabre.schemacompiler.validate.ValidationFindings;
-import com.sabre.schemacompiler.validate.compile.TLModelCompileValidator;
+import org.opentravel.schemacompiler.codegen.CodeGenerationException;
+import org.opentravel.schemacompiler.codegen.example.ExampleDocumentBuilder;
+import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
+import org.opentravel.schemacompiler.model.TLAttributeType;
+import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLDocumentation;
+import org.opentravel.schemacompiler.model.TLDocumentationItem;
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.validate.FindingMessageFormat;
+import org.opentravel.schemacompiler.validate.FindingType;
+import org.opentravel.schemacompiler.validate.Validatable;
+import org.opentravel.schemacompiler.validate.ValidationException;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
+import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 
 /**
  * Main node structure for representing OTM objects.

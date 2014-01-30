@@ -20,8 +20,8 @@ import org.opentravel.schemas.node.RenamableFacet;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 
-import com.sabre.schemacompiler.model.TLExampleOwner;
-import com.sabre.schemacompiler.repository.impl.BuiltInProject;
+import org.opentravel.schemacompiler.model.TLExampleOwner;
+import org.opentravel.schemacompiler.repository.impl.BuiltInProject;
 
 /**
  * Purpose of this class is to having fluent interface to check against different model structure.

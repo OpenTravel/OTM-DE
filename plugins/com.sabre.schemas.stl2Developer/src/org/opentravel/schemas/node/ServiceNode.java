@@ -9,8 +9,8 @@ import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLLibrary;
-import com.sabre.schemacompiler.model.TLService;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLService;
 
 /**
  * @author Dave Hollander

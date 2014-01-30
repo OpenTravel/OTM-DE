@@ -1,6 +1,6 @@
 package org.opentravel.schemas.node;
 
-import com.sabre.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.LibraryMember;
 
 public enum ImpliedNodeType {
 

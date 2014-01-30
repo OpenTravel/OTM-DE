@@ -11,10 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.w3._2001.xmlschema.Annotation;
 import org.w3._2001.xmlschema.TopLevelComplexType;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.LibraryMember;
-import com.sabre.schemacompiler.model.TLDocumentation;
-import com.sabre.schemacompiler.model.XSDComplexType;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLDocumentation;
+import org.opentravel.schemacompiler.model.XSDComplexType;
 
 public class XSDComplexMO extends ModelObject<XSDComplexType> {
     private static final Logger LOGGER = LoggerFactory.getLogger(XSDComplexMO.class);

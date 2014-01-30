@@ -15,11 +15,11 @@ import org.opentravel.schemas.trees.repository.RepositoryNode.NamespaceNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryChainNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryNameNode;
 
-import com.sabre.schemacompiler.model.TLLibraryStatus;
-import com.sabre.schemacompiler.repository.ProjectItem;
-import com.sabre.schemacompiler.repository.RepositoryItem;
-import com.sabre.schemacompiler.repository.RepositoryItemState;
-import com.sabre.schemacompiler.repository.impl.RemoteRepositoryClient;
+import org.opentravel.schemacompiler.model.TLLibraryStatus;
+import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemacompiler.repository.RepositoryItem;
+import org.opentravel.schemacompiler.repository.RepositoryItemState;
+import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 
 public class LibraryDecorator extends BaseLabelProvider implements ILightweightLabelDecorator,
         IRefreshListener {

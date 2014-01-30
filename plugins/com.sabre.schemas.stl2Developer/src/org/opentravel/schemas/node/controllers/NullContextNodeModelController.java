@@ -5,7 +5,7 @@ package org.opentravel.schemas.node.controllers;
 
 import java.util.List;
 
-import com.sabre.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLContext;
 
 /**
  * @author Agnieszka Janowska

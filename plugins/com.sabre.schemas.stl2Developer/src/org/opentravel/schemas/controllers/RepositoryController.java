@@ -11,8 +11,8 @@ import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 
-import com.sabre.schemacompiler.repository.Repository;
-import com.sabre.schemacompiler.repository.RepositoryItem;
+import org.opentravel.schemacompiler.repository.Repository;
+import org.opentravel.schemacompiler.repository.RepositoryItem;
 
 /**
  * @author Dave Hollander

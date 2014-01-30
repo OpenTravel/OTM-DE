@@ -7,7 +7,7 @@ import org.eclipse.core.expressions.PropertyTester;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryNameNode;
 
-import com.sabre.schemacompiler.repository.RemoteRepository;
+import org.opentravel.schemacompiler.repository.RemoteRepository;
 
 public class RepositoryTypeTester extends PropertyTester {
 

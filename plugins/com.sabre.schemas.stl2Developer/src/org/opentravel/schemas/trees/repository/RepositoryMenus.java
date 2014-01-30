@@ -45,7 +45,7 @@ import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryChainNod
 import org.opentravel.schemas.trees.repository.RepositoryTreeContentProvider.RepositoryTreeLabelProvider;
 import org.opentravel.schemas.trees.repository.RepositoryTreeContentProvider.RepositoryTreeSorter;
 
-import com.sabre.schemacompiler.repository.RepositoryItem;
+import org.opentravel.schemacompiler.repository.RepositoryItem;
 
 /**
  * Extend the treeViewer with menus and refresh behavior. Define menu managers and sets of menus.

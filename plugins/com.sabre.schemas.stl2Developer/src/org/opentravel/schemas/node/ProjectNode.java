@@ -18,10 +18,10 @@ import org.opentravel.schemas.types.TypeResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.repository.Project;
-import com.sabre.schemacompiler.repository.ProjectItem;
-import com.sabre.schemacompiler.repository.RepositoryNamespaceUtils;
-import com.sabre.schemacompiler.repository.impl.BuiltInProject;
+import org.opentravel.schemacompiler.repository.Project;
+import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemacompiler.repository.RepositoryNamespaceUtils;
+import org.opentravel.schemacompiler.repository.impl.BuiltInProject;
 
 /**
  * @author Dave Hollander

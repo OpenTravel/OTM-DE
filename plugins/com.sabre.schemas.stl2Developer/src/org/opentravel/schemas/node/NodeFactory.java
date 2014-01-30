@@ -17,27 +17,27 @@ import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.LibraryMember;
-import com.sabre.schemacompiler.model.TLAlias;
-import com.sabre.schemacompiler.model.TLAttribute;
-import com.sabre.schemacompiler.model.TLAttributeType;
-import com.sabre.schemacompiler.model.TLBusinessObject;
-import com.sabre.schemacompiler.model.TLClosedEnumeration;
-import com.sabre.schemacompiler.model.TLCoreObject;
-import com.sabre.schemacompiler.model.TLEnumValue;
-import com.sabre.schemacompiler.model.TLExtensionPointFacet;
-import com.sabre.schemacompiler.model.TLFacet;
-import com.sabre.schemacompiler.model.TLIndicator;
-import com.sabre.schemacompiler.model.TLListFacet;
-import com.sabre.schemacompiler.model.TLModelElement;
-import com.sabre.schemacompiler.model.TLOpenEnumeration;
-import com.sabre.schemacompiler.model.TLOperation;
-import com.sabre.schemacompiler.model.TLProperty;
-import com.sabre.schemacompiler.model.TLRole;
-import com.sabre.schemacompiler.model.TLRoleEnumeration;
-import com.sabre.schemacompiler.model.TLSimple;
-import com.sabre.schemacompiler.model.TLSimpleFacet;
-import com.sabre.schemacompiler.model.TLValueWithAttributes;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLAlias;
+import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLAttributeType;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLClosedEnumeration;
+import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLEnumValue;
+import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLIndicator;
+import org.opentravel.schemacompiler.model.TLListFacet;
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLOpenEnumeration;
+import org.opentravel.schemacompiler.model.TLOperation;
+import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLRole;
+import org.opentravel.schemacompiler.model.TLRoleEnumeration;
+import org.opentravel.schemacompiler.model.TLSimple;
+import org.opentravel.schemacompiler.model.TLSimpleFacet;
+import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 
 /**
  * Create Component Nodes of various sub-types.

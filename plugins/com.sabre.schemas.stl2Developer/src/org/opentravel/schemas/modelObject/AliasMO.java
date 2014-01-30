@@ -5,12 +5,12 @@ package org.opentravel.schemas.modelObject;
 
 import java.util.List;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.TLAlias;
-import com.sabre.schemacompiler.model.TLAliasOwner;
-import com.sabre.schemacompiler.model.TLFacet;
-import com.sabre.schemacompiler.model.TLLibrary;
-import com.sabre.schemacompiler.model.TLListFacet;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.TLAlias;
+import org.opentravel.schemacompiler.model.TLAliasOwner;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLListFacet;
 
 /**
  * @author Dave Hollander

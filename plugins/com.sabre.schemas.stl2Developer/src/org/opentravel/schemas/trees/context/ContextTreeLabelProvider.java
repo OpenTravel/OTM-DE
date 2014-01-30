@@ -15,7 +15,7 @@ import org.opentravel.schemas.properties.Fonts;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.views.ContextsView;
 
-import com.sabre.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLContext;
 
 /**
  * 

@@ -18,12 +18,12 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.TLAdditionalDocumentationItem;
-import com.sabre.schemacompiler.model.TLContext;
-import com.sabre.schemacompiler.model.TLDocumentation;
-import com.sabre.schemacompiler.model.TLDocumentationItem;
-import com.sabre.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
+import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLDocumentation;
+import org.opentravel.schemacompiler.model.TLDocumentationItem;
+import org.opentravel.schemacompiler.model.TLLibrary;
 
 /**
  * Knows how to manage Documentation tree (based on {@link DocumentationNode} elements) for the

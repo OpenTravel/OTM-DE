@@ -11,10 +11,10 @@ import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLAbstractFacet;
-import com.sabre.schemacompiler.model.TLAlias;
-import com.sabre.schemacompiler.model.TLAliasOwner;
-import com.sabre.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLAbstractFacet;
+import org.opentravel.schemacompiler.model.TLAlias;
+import org.opentravel.schemacompiler.model.TLAliasOwner;
+import org.opentravel.schemacompiler.model.TLModelElement;
 
 /**
  * Aliases are displayed as properties but are assignable as type references. They provide an

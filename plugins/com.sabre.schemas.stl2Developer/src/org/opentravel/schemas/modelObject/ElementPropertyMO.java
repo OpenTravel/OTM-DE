@@ -3,12 +3,12 @@
  */
 package org.opentravel.schemas.modelObject;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.NamedEntity;
-import com.sabre.schemacompiler.model.TLExtensionPointFacet;
-import com.sabre.schemacompiler.model.TLFacet;
-import com.sabre.schemacompiler.model.TLProperty;
-import com.sabre.schemacompiler.model.TLPropertyType;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLPropertyType;
 
 public class ElementPropertyMO extends ModelObject<TLProperty> {
 

@@ -5,10 +5,10 @@ package org.opentravel.schemas.modelObject;
 
 import java.util.List;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.TLModelElement;
-import com.sabre.schemacompiler.model.TLRole;
-import com.sabre.schemacompiler.model.TLRoleEnumeration;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLRole;
+import org.opentravel.schemacompiler.model.TLRoleEnumeration;
 
 /**
  * A facet like class that contains a list of roles.

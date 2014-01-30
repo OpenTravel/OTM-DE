@@ -5,7 +5,7 @@ package org.opentravel.schemas.node;
 
 import org.opentravel.schemas.modelObject.ModelObject;
 
-import com.sabre.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.NamedEntity;
 
 /**
  * @author Dave Hollander

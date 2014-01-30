@@ -14,9 +14,9 @@ import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.LibraryMember;
-import com.sabre.schemacompiler.model.NamedEntity;
-import com.sabre.schemacompiler.model.TLValueWithAttributes;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 
 /**
  * Value With Attributes. This object has two facets, the value is a simple facet and attributes

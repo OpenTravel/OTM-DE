@@ -5,8 +5,8 @@ package org.opentravel.schemas.wizards;
 
 import org.opentravel.schemas.properties.Messages;
 
-import com.sabre.schemacompiler.model.TLContext;
-import com.sabre.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLLibrary;
 
 /**
  * @author Agnieszka Janowska

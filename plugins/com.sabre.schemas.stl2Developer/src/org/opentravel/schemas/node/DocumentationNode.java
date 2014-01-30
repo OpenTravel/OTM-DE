@@ -17,7 +17,7 @@ import org.opentravel.schemas.node.controllers.NullNodeImageProvider;
 import org.opentravel.schemas.node.controllers.NullNodeLabelProvider;
 import org.opentravel.schemas.node.controllers.NullNodeValueController;
 
-import com.sabre.schemacompiler.model.TLDocumentationItem;
+import org.opentravel.schemacompiler.model.TLDocumentationItem;
 
 /**
  * @author Agnieszka Janowska

@@ -14,10 +14,10 @@ import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.LibraryMember;
-import com.sabre.schemacompiler.model.TLComplexTypeBase;
-import com.sabre.schemacompiler.model.TLCoreObject;
-import com.sabre.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLComplexTypeBase;
+import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLFacetType;
 
 /**
  * Core Object. This object has many facets: simple, summary, detail, roles and two lists. It

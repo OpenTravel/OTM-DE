@@ -34,24 +34,24 @@ import org.opentravel.schemas.views.ValidationResultsView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.event.ModelEvent;
-import com.sabre.schemacompiler.event.ModelEventListener;
-import com.sabre.schemacompiler.event.ModelEventType;
-import com.sabre.schemacompiler.event.OwnershipEvent;
-import com.sabre.schemacompiler.event.ValueChangeEvent;
-import com.sabre.schemacompiler.ic.ModelIntegrityChecker;
-import com.sabre.schemacompiler.loader.LibraryLoaderException;
-import com.sabre.schemacompiler.model.TLAttribute;
-import com.sabre.schemacompiler.model.TLDocumentation;
-import com.sabre.schemacompiler.model.TLDocumentationOwner;
-import com.sabre.schemacompiler.model.TLModel;
-import com.sabre.schemacompiler.model.TLModelElement;
-import com.sabre.schemacompiler.model.TLProperty;
-import com.sabre.schemacompiler.repository.Project;
-import com.sabre.schemacompiler.task.CompileAllCompilerTask;
-import com.sabre.schemacompiler.util.SchemaCompilerException;
-import com.sabre.schemacompiler.validate.FindingType;
-import com.sabre.schemacompiler.validate.ValidationFindings;
+import org.opentravel.schemacompiler.event.ModelEvent;
+import org.opentravel.schemacompiler.event.ModelEventListener;
+import org.opentravel.schemacompiler.event.ModelEventType;
+import org.opentravel.schemacompiler.event.OwnershipEvent;
+import org.opentravel.schemacompiler.event.ValueChangeEvent;
+import org.opentravel.schemacompiler.ic.ModelIntegrityChecker;
+import org.opentravel.schemacompiler.loader.LibraryLoaderException;
+import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLDocumentation;
+import org.opentravel.schemacompiler.model.TLDocumentationOwner;
+import org.opentravel.schemacompiler.model.TLModel;
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.repository.Project;
+import org.opentravel.schemacompiler.task.CompileAllCompilerTask;
+import org.opentravel.schemacompiler.util.SchemaCompilerException;
+import org.opentravel.schemacompiler.validate.FindingType;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
 
 /**
  * @author Agnieszka Janowska

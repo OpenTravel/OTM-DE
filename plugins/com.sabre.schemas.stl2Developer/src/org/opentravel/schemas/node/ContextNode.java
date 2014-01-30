@@ -19,7 +19,7 @@ import org.opentravel.schemas.node.controllers.NullNodeValueController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLContext;
 
 /**
  * @author Agnieszka Janowska

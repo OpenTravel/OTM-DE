@@ -4,7 +4,7 @@ import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.Node;
 
-import com.sabre.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.NamedEntity;
 
 public interface TypeUser {
 

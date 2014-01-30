@@ -10,21 +10,21 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.LibraryElement;
-import com.sabre.schemacompiler.model.NamedEntity;
-import com.sabre.schemacompiler.model.TLAttributeType;
-import com.sabre.schemacompiler.model.TLCoreObject;
-import com.sabre.schemacompiler.model.TLDocumentation;
-import com.sabre.schemacompiler.model.TLDocumentationOwner;
-import com.sabre.schemacompiler.model.TLEquivalent;
-import com.sabre.schemacompiler.model.TLEquivalentOwner;
-import com.sabre.schemacompiler.model.TLExample;
-import com.sabre.schemacompiler.model.TLExampleOwner;
-import com.sabre.schemacompiler.model.TLModel;
-import com.sabre.schemacompiler.model.TLModelElement;
-import com.sabre.schemacompiler.model.TLSimpleFacet;
-import com.sabre.schemacompiler.model.TLValueWithAttributes;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.LibraryElement;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLAttributeType;
+import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLDocumentation;
+import org.opentravel.schemacompiler.model.TLDocumentationOwner;
+import org.opentravel.schemacompiler.model.TLEquivalent;
+import org.opentravel.schemacompiler.model.TLEquivalentOwner;
+import org.opentravel.schemacompiler.model.TLExample;
+import org.opentravel.schemacompiler.model.TLExampleOwner;
+import org.opentravel.schemacompiler.model.TLModel;
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLSimpleFacet;
+import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 
 /**
  * TL Model Attribute for use with Simple Facets.

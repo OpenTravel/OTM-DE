@@ -12,7 +12,7 @@ import org.opentravel.schemas.views.ContextsView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLContextReferrer;
+import org.opentravel.schemacompiler.model.TLContextReferrer;
 
 /**
  * @author Agnieszka Janowska

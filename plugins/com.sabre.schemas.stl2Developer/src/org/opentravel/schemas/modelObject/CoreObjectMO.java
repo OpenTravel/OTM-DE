@@ -9,12 +9,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.NamedEntity;
-import com.sabre.schemacompiler.model.TLAlias;
-import com.sabre.schemacompiler.model.TLCoreObject;
-import com.sabre.schemacompiler.model.TLExtension;
-import com.sabre.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLAlias;
+import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLExtension;
+import org.opentravel.schemacompiler.model.TLLibrary;
 
 public class CoreObjectMO extends ModelObject<TLCoreObject> {
     @SuppressWarnings("unused")

@@ -11,8 +11,8 @@ import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeUser;
 
-import com.sabre.schemacompiler.model.TLModelElement;
-import com.sabre.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLProperty;
 
 /**
  * A property node that represents an XML element. See

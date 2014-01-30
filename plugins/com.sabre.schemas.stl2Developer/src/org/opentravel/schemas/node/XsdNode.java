@@ -8,8 +8,8 @@ import org.opentravel.schemas.modelObject.XSDElementMO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.LibraryMember;
-import com.sabre.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.NamedEntity;
 
 /**
  * The XsdNode class extends componentNode with the addition of lazy evaluated modeled nodes

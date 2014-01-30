@@ -32,16 +32,16 @@ import org.opentravel.schemas.wizards.GlobalLocalCancelDialog.GlobalDialogResult
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.BuiltInLibrary;
-import com.sabre.schemacompiler.model.TLLibrary;
-import com.sabre.schemacompiler.model.TLLibraryStatus;
-import com.sabre.schemacompiler.model.XSDLibrary;
-import com.sabre.schemacompiler.repository.ProjectItem;
-import com.sabre.schemacompiler.saver.LibraryModelSaver;
-import com.sabre.schemacompiler.saver.LibrarySaveException;
-import com.sabre.schemacompiler.validate.ValidationFindings;
-import com.sabre.schemacompiler.validate.compile.TLModelCompileValidator;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.BuiltInLibrary;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLLibraryStatus;
+import org.opentravel.schemacompiler.model.XSDLibrary;
+import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemacompiler.saver.LibraryModelSaver;
+import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
+import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 
 /**
  * Implements interactions the user has with the Library View by acting upon the library nodes and

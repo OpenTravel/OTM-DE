@@ -30,8 +30,8 @@ import org.opentravel.schemas.wizards.TypeSelectionWizard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLAdditionalDocumentationItem;
-import com.sabre.schemacompiler.model.TLDocumentation;
+import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
+import org.opentravel.schemacompiler.model.TLDocumentation;
 
 /**
  * @author Dave Hollander

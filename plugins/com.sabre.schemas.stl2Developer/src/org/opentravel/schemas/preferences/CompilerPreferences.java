@@ -8,9 +8,9 @@ import java.net.URL;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.opentravel.schemas.stl2developer.Activator;
 
-import com.sabre.schemacompiler.ioc.CompilerExtensionRegistry;
-import com.sabre.schemacompiler.task.CommonCompilerTaskOptions;
-import com.sabre.schemacompiler.task.CompileAllTaskOptions;
+import org.opentravel.schemacompiler.ioc.CompilerExtensionRegistry;
+import org.opentravel.schemacompiler.task.CommonCompilerTaskOptions;
+import org.opentravel.schemacompiler.task.CompileAllTaskOptions;
 
 /**
  * <code>CompileAllTaskOptions</code> implementation that provides each conversion to and from

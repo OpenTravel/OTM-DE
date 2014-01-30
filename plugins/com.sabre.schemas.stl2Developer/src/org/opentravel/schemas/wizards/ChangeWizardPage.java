@@ -47,8 +47,8 @@ import org.opentravel.schemas.wizards.ChangeWizard.ExtentedTLFacetType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLFacetType;
-import com.sabre.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLModelElement;
 
 /**
  * @author Agnieszka Janowska

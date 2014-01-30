@@ -6,8 +6,8 @@ package org.opentravel.schemas.node.controllers;
 import java.util.Collections;
 import java.util.List;
 
-import com.sabre.schemacompiler.model.TLDocumentation;
-import com.sabre.schemacompiler.model.TLDocumentationItem;
+import org.opentravel.schemacompiler.model.TLDocumentation;
+import org.opentravel.schemacompiler.model.TLDocumentationItem;
 
 /**
  * 

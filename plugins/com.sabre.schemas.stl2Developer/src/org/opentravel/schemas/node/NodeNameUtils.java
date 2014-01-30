@@ -12,7 +12,7 @@ import org.opentravel.schemas.modelObject.XsdModelingUtils;
 import org.opentravel.schemas.node.NodeVisitors.FixNames;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 
-import com.sabre.schemacompiler.codegen.util.PropertyCodegenUtils;
+import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 
 /**
  * Static utilities for manipulating the names of various objects.

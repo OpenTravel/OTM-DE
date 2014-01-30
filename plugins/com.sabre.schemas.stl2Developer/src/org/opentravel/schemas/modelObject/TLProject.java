@@ -3,13 +3,13 @@ package org.opentravel.schemas.modelObject;
 import java.io.File;
 import java.util.List;
 
-import com.sabre.schemacompiler.model.TLModel;
-import com.sabre.schemacompiler.model.TLModelElement;
-import com.sabre.schemacompiler.repository.ProjectItem;
-import com.sabre.schemacompiler.repository.Repository;
-import com.sabre.schemacompiler.repository.RepositoryException;
-import com.sabre.schemacompiler.repository.RepositoryItem;
-import com.sabre.schemacompiler.repository.RepositoryManager;
+import org.opentravel.schemacompiler.model.TLModel;
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemacompiler.repository.Repository;
+import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryItem;
+import org.opentravel.schemacompiler.repository.RepositoryManager;
 
 /**
  * STUB - waiting for repo to create one.

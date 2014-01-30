@@ -9,7 +9,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryItemNode;
 
-import com.sabre.schemacompiler.repository.RepositoryItem;
+import org.opentravel.schemacompiler.repository.RepositoryItem;
 
 /**
  * @author Pawel Jedruch

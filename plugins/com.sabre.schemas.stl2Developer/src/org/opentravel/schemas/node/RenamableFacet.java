@@ -3,7 +3,7 @@
  */
 package org.opentravel.schemas.node;
 
-import com.sabre.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLFacet;
 
 /**
  * @author Pawel Jedruch

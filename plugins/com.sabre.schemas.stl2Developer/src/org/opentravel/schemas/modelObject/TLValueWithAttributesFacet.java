@@ -6,16 +6,16 @@ package org.opentravel.schemas.modelObject;
 import java.util.Comparator;
 import java.util.List;
 
-import com.sabre.schemacompiler.model.TLAbstractFacet;
-import com.sabre.schemacompiler.model.TLAttribute;
-import com.sabre.schemacompiler.model.TLAttributeOwner;
-import com.sabre.schemacompiler.model.TLEquivalent;
-import com.sabre.schemacompiler.model.TLEquivalentOwner;
-import com.sabre.schemacompiler.model.TLExample;
-import com.sabre.schemacompiler.model.TLExampleOwner;
-import com.sabre.schemacompiler.model.TLIndicator;
-import com.sabre.schemacompiler.model.TLIndicatorOwner;
-import com.sabre.schemacompiler.model.TLValueWithAttributes;
+import org.opentravel.schemacompiler.model.TLAbstractFacet;
+import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLAttributeOwner;
+import org.opentravel.schemacompiler.model.TLEquivalent;
+import org.opentravel.schemacompiler.model.TLEquivalentOwner;
+import org.opentravel.schemacompiler.model.TLExample;
+import org.opentravel.schemacompiler.model.TLExampleOwner;
+import org.opentravel.schemacompiler.model.TLIndicator;
+import org.opentravel.schemacompiler.model.TLIndicatorOwner;
+import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 
 /**
  * An substitute TLModelElement to allow constructors to work on the Value With Attributes attribute

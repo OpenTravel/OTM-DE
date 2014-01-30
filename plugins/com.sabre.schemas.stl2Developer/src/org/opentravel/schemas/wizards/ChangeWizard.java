@@ -13,7 +13,7 @@ import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.SubType;
 
-import com.sabre.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLFacetType;
 
 /**
  * @author Agnieszka Janowska

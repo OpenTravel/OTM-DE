@@ -1,6 +1,6 @@
 package org.opentravel.schemas.modelObject.events;
 
-import com.sabre.schemacompiler.event.ValueChangeEvent;
+import org.opentravel.schemacompiler.event.ValueChangeEvent;
 
 public abstract class ValueChangeEventListener<S, V> extends
         SourceEventListener<S, ValueChangeEvent<S, V>> {

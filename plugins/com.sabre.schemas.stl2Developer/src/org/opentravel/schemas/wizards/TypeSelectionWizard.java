@@ -23,7 +23,7 @@ import org.opentravel.schemas.trees.type.TypeTreeVWASimpleTypeOnlyFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
 
 /**
  * Wizard to allow user to select a type for the passed node objects.

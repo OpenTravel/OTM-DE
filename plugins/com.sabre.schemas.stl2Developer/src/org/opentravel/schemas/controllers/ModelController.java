@@ -13,7 +13,7 @@ import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 
-import com.sabre.schemacompiler.model.TLModel;
+import org.opentravel.schemacompiler.model.TLModel;
 
 /**
  * Centralizes all the model related actions. When created, creates and saves a model node and

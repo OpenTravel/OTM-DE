@@ -6,9 +6,9 @@ import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.LibraryMember;
-import com.sabre.schemacompiler.model.TLClosedEnumeration;
-import com.sabre.schemacompiler.model.TLEnumValue;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLClosedEnumeration;
+import org.opentravel.schemacompiler.model.TLEnumValue;
 
 public class EnumerationClosedNode extends SimpleTypeNode {
     private static final Logger LOGGER = LoggerFactory.getLogger(EnumerationClosedNode.class);

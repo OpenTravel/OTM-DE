@@ -10,8 +10,8 @@ import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.RoleFacetNode;
 import org.opentravel.schemas.properties.Images;
 
-import com.sabre.schemacompiler.model.TLModelElement;
-import com.sabre.schemacompiler.model.TLRole;
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLRole;
 
 /**
  * A property node that represents a role enumeration value in a core object. See

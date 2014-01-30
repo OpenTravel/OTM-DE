@@ -3,8 +3,8 @@
  */
 package org.opentravel.schemas.modelObject;
 
-import com.sabre.schemacompiler.model.TLModel;
-import com.sabre.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLModel;
+import org.opentravel.schemacompiler.model.TLProperty;
 
 /**
  * An empty TLModelElement to allow constructors to work on entities that do not exist in the TL

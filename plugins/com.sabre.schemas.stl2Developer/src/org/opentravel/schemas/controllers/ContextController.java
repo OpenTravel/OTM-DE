@@ -10,10 +10,10 @@ import org.opentravel.schemas.node.ContextNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.TLContext;
-import com.sabre.schemacompiler.model.TLContextReferrer;
-import com.sabre.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLContextReferrer;
+import org.opentravel.schemacompiler.model.TLLibrary;
 
 /**
  * Controller for the OTM Context identifiers. Context is defined in the model as an application

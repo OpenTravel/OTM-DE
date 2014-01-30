@@ -5,14 +5,14 @@ package org.opentravel.schemas.wizards;
 
 import org.opentravel.schemas.properties.Messages;
 
-import com.sabre.schemacompiler.model.TLAdditionalDocumentationItem;
-import com.sabre.schemacompiler.model.TLBusinessObject;
-import com.sabre.schemacompiler.model.TLContextReferrer;
-import com.sabre.schemacompiler.model.TLEquivalent;
-import com.sabre.schemacompiler.model.TLExample;
-import com.sabre.schemacompiler.model.TLFacet;
-import com.sabre.schemacompiler.model.TLFacetOwner;
-import com.sabre.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLContextReferrer;
+import org.opentravel.schemacompiler.model.TLEquivalent;
+import org.opentravel.schemacompiler.model.TLExample;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLFacetOwner;
+import org.opentravel.schemacompiler.model.TLFacetType;
 
 /**
  * @author Agnieszka Janowska

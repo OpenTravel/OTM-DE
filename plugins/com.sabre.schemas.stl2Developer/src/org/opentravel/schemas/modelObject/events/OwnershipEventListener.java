@@ -1,6 +1,6 @@
 package org.opentravel.schemas.modelObject.events;
 
-import com.sabre.schemacompiler.event.OwnershipEvent;
+import org.opentravel.schemacompiler.event.OwnershipEvent;
 
 public abstract class OwnershipEventListener<S, V> extends
         SourceEventListener<S, OwnershipEvent<S, V>> {

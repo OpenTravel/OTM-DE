@@ -13,8 +13,8 @@ import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.properties.Images;
 
-import com.sabre.schemacompiler.model.TLEnumValue;
-import com.sabre.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLEnumValue;
+import org.opentravel.schemacompiler.model.TLModelElement;
 
 /**
  * A property node that represents a enumeration literal. See

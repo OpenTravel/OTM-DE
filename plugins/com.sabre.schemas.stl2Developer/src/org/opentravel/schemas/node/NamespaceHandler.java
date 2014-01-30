@@ -17,9 +17,9 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.version.VersionScheme;
-import com.sabre.schemacompiler.version.VersionSchemeException;
-import com.sabre.schemacompiler.version.VersionSchemeFactory;
+import org.opentravel.schemacompiler.version.VersionScheme;
+import org.opentravel.schemacompiler.version.VersionSchemeException;
+import org.opentravel.schemacompiler.version.VersionSchemeFactory;
 
 /**
  * Class to manage namespace:prefix pairs for a project. A factory is provided to allow this static

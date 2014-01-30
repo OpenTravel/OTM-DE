@@ -8,10 +8,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.TLFacet;
-import com.sabre.schemacompiler.model.TLListFacet;
-import com.sabre.schemacompiler.model.TLSimpleFacet;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLListFacet;
+import org.opentravel.schemacompiler.model.TLSimpleFacet;
 
 public class ListFacetMO extends ModelObject<TLListFacet> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ListFacetMO.class);

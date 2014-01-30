@@ -21,13 +21,13 @@ import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.repository.RemoteRepository;
-import com.sabre.schemacompiler.repository.Repository;
-import com.sabre.schemacompiler.repository.RepositoryException;
-import com.sabre.schemacompiler.repository.RepositoryItem;
-import com.sabre.schemacompiler.repository.RepositoryManager;
-import com.sabre.schemacompiler.repository.RepositoryNamespaceUtils;
-import com.sabre.schemacompiler.repository.impl.RemoteRepositoryClient;
+import org.opentravel.schemacompiler.repository.RemoteRepository;
+import org.opentravel.schemacompiler.repository.Repository;
+import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryItem;
+import org.opentravel.schemacompiler.repository.RepositoryManager;
+import org.opentravel.schemacompiler.repository.RepositoryNamespaceUtils;
+import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 
 //TODO: move repository actions to RepositoryController
 public abstract class RepositoryNode extends Node implements Comparable<RepositoryNode> {

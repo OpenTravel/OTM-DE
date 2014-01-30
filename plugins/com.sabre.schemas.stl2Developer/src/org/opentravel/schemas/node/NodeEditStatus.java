@@ -3,7 +3,7 @@
  */
 package org.opentravel.schemas.node;
 
-import com.sabre.schemacompiler.repository.RepositoryItemState;
+import org.opentravel.schemacompiler.repository.RepositoryItemState;
 
 /**
  * Editing states are based on namespace, repository and versioning rules.

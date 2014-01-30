@@ -1,8 +1,8 @@
 package org.opentravel.schemas.modelObject.events;
 
-import com.sabre.schemacompiler.event.ModelEvent;
-import com.sabre.schemacompiler.event.ModelEventListener;
-import com.sabre.schemacompiler.event.ModelEventType;
+import org.opentravel.schemacompiler.event.ModelEvent;
+import org.opentravel.schemacompiler.event.ModelEventListener;
+import org.opentravel.schemacompiler.event.ModelEventType;
 
 public abstract class SourceEventListener<S, E extends ModelEvent<S>> implements
         ModelEventListener<E, S> {

@@ -26,26 +26,26 @@ import org.opentravel.schemas.types.TypeResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.BuiltInLibrary;
-import com.sabre.schemacompiler.model.LibraryElement;
-import com.sabre.schemacompiler.model.LibraryMember;
-import com.sabre.schemacompiler.model.TLContext;
-import com.sabre.schemacompiler.model.TLLibrary;
-import com.sabre.schemacompiler.model.TLLibraryStatus;
-import com.sabre.schemacompiler.model.TLService;
-import com.sabre.schemacompiler.model.XSDComplexType;
-import com.sabre.schemacompiler.model.XSDElement;
-import com.sabre.schemacompiler.model.XSDLibrary;
-import com.sabre.schemacompiler.model.XSDSimpleType;
-import com.sabre.schemacompiler.repository.Project;
-import com.sabre.schemacompiler.repository.ProjectItem;
-import com.sabre.schemacompiler.repository.RemoteRepository;
-import com.sabre.schemacompiler.repository.RepositoryException;
-import com.sabre.schemacompiler.repository.RepositoryItemState;
-import com.sabre.schemacompiler.util.ContextUtils;
-import com.sabre.schemacompiler.util.URLUtils;
-import com.sabre.schemacompiler.validate.FindingType;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.BuiltInLibrary;
+import org.opentravel.schemacompiler.model.LibraryElement;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLLibraryStatus;
+import org.opentravel.schemacompiler.model.TLService;
+import org.opentravel.schemacompiler.model.XSDComplexType;
+import org.opentravel.schemacompiler.model.XSDElement;
+import org.opentravel.schemacompiler.model.XSDLibrary;
+import org.opentravel.schemacompiler.model.XSDSimpleType;
+import org.opentravel.schemacompiler.repository.Project;
+import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemacompiler.repository.RemoteRepository;
+import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryItemState;
+import org.opentravel.schemacompiler.util.ContextUtils;
+import org.opentravel.schemacompiler.util.URLUtils;
+import org.opentravel.schemacompiler.validate.FindingType;
 
 /**
  * The LibraryNode class manages an internal navigation oriented node a library model class.

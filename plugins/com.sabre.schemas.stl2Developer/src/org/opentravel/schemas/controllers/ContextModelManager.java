@@ -16,9 +16,9 @@ import org.opentravel.schemas.node.controllers.ContextNodeModelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.TLContext;
-import com.sabre.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLLibrary;
 
 /**
  * Manager for the contexts used across the user interfaces.

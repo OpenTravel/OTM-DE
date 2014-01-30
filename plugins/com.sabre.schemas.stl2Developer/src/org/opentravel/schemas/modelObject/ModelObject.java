@@ -17,24 +17,24 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.LibraryMember;
-import com.sabre.schemacompiler.model.NamedEntity;
-import com.sabre.schemacompiler.model.TLAdditionalDocumentationItem;
-import com.sabre.schemacompiler.model.TLAlias;
-import com.sabre.schemacompiler.model.TLBusinessObject;
-import com.sabre.schemacompiler.model.TLContext;
-import com.sabre.schemacompiler.model.TLDocumentation;
-import com.sabre.schemacompiler.model.TLDocumentationItem;
-import com.sabre.schemacompiler.model.TLDocumentationOwner;
-import com.sabre.schemacompiler.model.TLEquivalent;
-import com.sabre.schemacompiler.model.TLEquivalentOwner;
-import com.sabre.schemacompiler.model.TLExample;
-import com.sabre.schemacompiler.model.TLExampleOwner;
-import com.sabre.schemacompiler.model.TLFacet;
-import com.sabre.schemacompiler.model.TLLibrary;
-import com.sabre.schemacompiler.model.TLListFacet;
-import com.sabre.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
+import org.opentravel.schemacompiler.model.TLAlias;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLDocumentation;
+import org.opentravel.schemacompiler.model.TLDocumentationItem;
+import org.opentravel.schemacompiler.model.TLDocumentationOwner;
+import org.opentravel.schemacompiler.model.TLEquivalent;
+import org.opentravel.schemacompiler.model.TLEquivalentOwner;
+import org.opentravel.schemacompiler.model.TLExample;
+import org.opentravel.schemacompiler.model.TLExampleOwner;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLListFacet;
+import org.opentravel.schemacompiler.model.TLModelElement;
 
 /**
  * The ModelObject abstract class provides a template for working with underlying model source

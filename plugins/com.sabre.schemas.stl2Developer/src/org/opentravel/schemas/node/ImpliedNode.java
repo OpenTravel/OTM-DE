@@ -3,8 +3,8 @@
  */
 package org.opentravel.schemas.node;
 
-import com.sabre.schemacompiler.model.LibraryMember;
-import com.sabre.schemacompiler.model.TLSimple;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLSimple;
 
 /**
  * Node to use for exposed objects that are not in the TL model.

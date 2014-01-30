@@ -3,7 +3,7 @@
  */
 package org.opentravel.schemas.modelObject;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
 
 /**
  * Class to use when there is no TL model object.

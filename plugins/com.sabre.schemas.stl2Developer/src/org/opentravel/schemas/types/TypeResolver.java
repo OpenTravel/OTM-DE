@@ -23,7 +23,7 @@ import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.XSDSimpleType;
+import org.opentravel.schemacompiler.model.XSDSimpleType;
 
 /**
  * Run across all nodes in the model and resolve types.

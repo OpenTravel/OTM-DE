@@ -6,11 +6,11 @@ package org.opentravel.schemas.modelObject;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeNameUtils;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.NamedEntity;
-import com.sabre.schemacompiler.model.TLAttribute;
-import com.sabre.schemacompiler.model.TLAttributeOwner;
-import com.sabre.schemacompiler.model.TLAttributeType;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLAttributeOwner;
+import org.opentravel.schemacompiler.model.TLAttributeType;
 
 public class AttributeMO extends ModelObject<TLAttribute> {
 

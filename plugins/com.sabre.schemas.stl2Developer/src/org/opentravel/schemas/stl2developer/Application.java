@@ -10,7 +10,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.opentravel.schemas.preferences.CompilerPreferences;
 
-import com.sabre.schemacompiler.ioc.CompilerExtensionRegistry;
+import org.opentravel.schemacompiler.ioc.CompilerExtensionRegistry;
 
 /**
  * This class controls all aspects of the application's execution

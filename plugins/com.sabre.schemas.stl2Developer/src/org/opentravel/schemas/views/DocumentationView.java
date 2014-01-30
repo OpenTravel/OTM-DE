@@ -63,7 +63,7 @@ import org.opentravel.schemas.widgets.WidgetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLDocumentationOwner;
+import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 
 public class DocumentationView extends OtmAbstractView implements ISelectionListener,
         ISelectionChangedListener, ITreeViewerListener, ModifyListener {

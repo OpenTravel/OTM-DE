@@ -6,9 +6,9 @@ package org.opentravel.schemas.modelObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.TLIndicator;
-import com.sabre.schemacompiler.model.TLIndicatorOwner;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.TLIndicator;
+import org.opentravel.schemacompiler.model.TLIndicatorOwner;
 
 public class IndicatorMO extends ModelObject<TLIndicator> {
     static final Logger LOGGER = LoggerFactory.getLogger(IndicatorMO.class);

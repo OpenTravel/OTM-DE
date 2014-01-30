@@ -7,7 +7,7 @@ import org.opentravel.schemas.node.EditNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.properties.Messages;
 
-import com.sabre.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLFacetType;
 
 /**
  * @author Agnieszka Janowska

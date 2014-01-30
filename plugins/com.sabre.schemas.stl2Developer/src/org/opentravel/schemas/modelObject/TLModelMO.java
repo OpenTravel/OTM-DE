@@ -5,8 +5,8 @@ package org.opentravel.schemas.modelObject;
 
 import java.util.List;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.TLModel;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.TLModel;
 
 public class TLModelMO extends ModelObject<TLModel> {
 

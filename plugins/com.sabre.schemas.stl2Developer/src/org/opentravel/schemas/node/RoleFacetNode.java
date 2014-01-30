@@ -5,7 +5,7 @@ package org.opentravel.schemas.node;
 
 import org.opentravel.schemas.node.properties.RoleNode;
 
-import com.sabre.schemacompiler.model.TLRoleEnumeration;
+import org.opentravel.schemacompiler.model.TLRoleEnumeration;
 
 /**
  * 

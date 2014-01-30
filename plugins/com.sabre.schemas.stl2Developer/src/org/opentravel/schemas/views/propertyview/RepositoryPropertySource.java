@@ -15,10 +15,10 @@ import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryChainNod
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryNameNode;
 import org.opentravel.schemas.views.propertyview.desc.ComboboxPropertyDescriptor;
 
-import com.sabre.schemacompiler.repository.Repository;
-import com.sabre.schemacompiler.repository.RepositoryItem;
-import com.sabre.schemacompiler.repository.RepositoryManager;
-import com.sabre.schemacompiler.repository.impl.RemoteRepositoryClient;
+import org.opentravel.schemacompiler.repository.Repository;
+import org.opentravel.schemacompiler.repository.RepositoryItem;
+import org.opentravel.schemacompiler.repository.RepositoryManager;
+import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 
 public class RepositoryPropertySource extends AbstractPropertySource<RepositoryNode> {
 

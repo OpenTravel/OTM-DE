@@ -6,9 +6,9 @@ import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.LibraryMember;
-import com.sabre.schemacompiler.model.TLExtensionPointFacet;
-import com.sabre.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
+import org.opentravel.schemacompiler.model.TLProperty;
 
 /**
  * Extension points are used to add properties to facets in business or core objects. They have a

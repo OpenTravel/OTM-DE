@@ -7,11 +7,11 @@ import java.util.List;
 
 import org.opentravel.schemas.utils.StringComparator;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.TLClosedEnumeration;
-import com.sabre.schemacompiler.model.TLEnumValue;
-import com.sabre.schemacompiler.model.TLLibrary;
-import com.sabre.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.TLClosedEnumeration;
+import org.opentravel.schemacompiler.model.TLEnumValue;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLModelElement;
 
 public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 

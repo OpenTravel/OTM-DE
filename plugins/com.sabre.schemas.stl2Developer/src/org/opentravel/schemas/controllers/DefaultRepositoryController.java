@@ -25,26 +25,26 @@ import org.opentravel.schemas.views.OtmView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLLibrary;
-import com.sabre.schemacompiler.model.TLLibraryStatus;
-import com.sabre.schemacompiler.repository.ProjectItem;
-import com.sabre.schemacompiler.repository.ProjectManager;
-import com.sabre.schemacompiler.repository.PublishWithLocalDependenciesException;
-import com.sabre.schemacompiler.repository.RemoteRepository;
-import com.sabre.schemacompiler.repository.Repository;
-import com.sabre.schemacompiler.repository.RepositoryException;
-import com.sabre.schemacompiler.repository.RepositoryItem;
-import com.sabre.schemacompiler.repository.RepositoryItemState;
-import com.sabre.schemacompiler.repository.RepositoryManager;
-import com.sabre.schemacompiler.repository.impl.RemoteRepositoryClient;
-import com.sabre.schemacompiler.saver.LibraryModelSaver;
-import com.sabre.schemacompiler.saver.LibrarySaveException;
-import com.sabre.schemacompiler.validate.FindingType;
-import com.sabre.schemacompiler.validate.ValidationException;
-import com.sabre.schemacompiler.version.MajorVersionHelper;
-import com.sabre.schemacompiler.version.MinorVersionHelper;
-import com.sabre.schemacompiler.version.PatchVersionHelper;
-import com.sabre.schemacompiler.version.VersionSchemeException;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLLibraryStatus;
+import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemacompiler.repository.ProjectManager;
+import org.opentravel.schemacompiler.repository.PublishWithLocalDependenciesException;
+import org.opentravel.schemacompiler.repository.RemoteRepository;
+import org.opentravel.schemacompiler.repository.Repository;
+import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryItem;
+import org.opentravel.schemacompiler.repository.RepositoryItemState;
+import org.opentravel.schemacompiler.repository.RepositoryManager;
+import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
+import org.opentravel.schemacompiler.saver.LibraryModelSaver;
+import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.validate.FindingType;
+import org.opentravel.schemacompiler.validate.ValidationException;
+import org.opentravel.schemacompiler.version.MajorVersionHelper;
+import org.opentravel.schemacompiler.version.MinorVersionHelper;
+import org.opentravel.schemacompiler.version.PatchVersionHelper;
+import org.opentravel.schemacompiler.version.VersionSchemeException;
 
 /**
  * Provide access to the repository manager content in response to requests from repository and

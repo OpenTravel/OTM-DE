@@ -6,8 +6,8 @@ package org.opentravel.schemas.node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLFacetType;
-import com.sabre.schemacompiler.model.TLSimpleFacet;
+import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLSimpleFacet;
 
 /**
  * Simple facets have only one attribute property. Used on ValueWithAtributes and Core Objects.

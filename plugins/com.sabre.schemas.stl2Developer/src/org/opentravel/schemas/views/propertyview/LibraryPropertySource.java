@@ -27,7 +27,7 @@ import org.opentravel.schemas.views.propertyview.desc.TextFormPropertyDescriptor
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLLibraryStatus;
+import org.opentravel.schemacompiler.model.TLLibraryStatus;
 
 public class LibraryPropertySource extends AbstractPropertySource<LibraryNode> {
 

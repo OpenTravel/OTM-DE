@@ -23,7 +23,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.opentravel.schemas.preferences.CompilerPreferences;
 import org.opentravel.schemas.widgets.WidgetFactory;
 
-import com.sabre.schemacompiler.ioc.CompilerExtensionRegistry;
+import org.opentravel.schemacompiler.ioc.CompilerExtensionRegistry;
 
 /**
  * Preference page that allows the user to select the compiler bindings and configure the

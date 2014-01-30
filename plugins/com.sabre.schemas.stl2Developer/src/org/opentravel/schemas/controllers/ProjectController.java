@@ -9,10 +9,10 @@ import java.util.List;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ProjectNode;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.repository.Project;
-import com.sabre.schemacompiler.repository.ProjectItem;
-import com.sabre.schemacompiler.repository.RepositoryItem;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.repository.Project;
+import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemacompiler.repository.RepositoryItem;
 
 /**
  * Interface for all the project related activity. Note that the global model is controlled by

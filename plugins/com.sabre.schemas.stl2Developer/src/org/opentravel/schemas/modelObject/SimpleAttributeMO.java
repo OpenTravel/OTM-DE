@@ -6,8 +6,8 @@ package org.opentravel.schemas.modelObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.NamedEntity;
 
 public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
     @SuppressWarnings("unused")

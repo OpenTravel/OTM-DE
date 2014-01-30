@@ -9,11 +9,11 @@ import java.util.List;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
 import org.opentravel.schemas.node.properties.ElementNode;
 
-import com.sabre.schemacompiler.model.TLFacet;
-import com.sabre.schemacompiler.model.TLFacetType;
-import com.sabre.schemacompiler.model.TLOperation;
-import com.sabre.schemacompiler.model.TLProperty;
-import com.sabre.schemacompiler.model.TLService;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLOperation;
+import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLService;
 
 /**
  * Service Operations.

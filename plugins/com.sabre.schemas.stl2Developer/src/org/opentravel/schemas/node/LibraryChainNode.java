@@ -11,13 +11,13 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.repository.ProjectItem;
-import com.sabre.schemacompiler.repository.RepositoryItem;
-import com.sabre.schemacompiler.validate.FindingMessageFormat;
-import com.sabre.schemacompiler.validate.FindingType;
-import com.sabre.schemacompiler.validate.ValidationFindings;
-import com.sabre.schemacompiler.validate.compile.TLModelCompileValidator;
-import com.sabre.schemacompiler.version.VersionSchemeException;
+import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemacompiler.repository.RepositoryItem;
+import org.opentravel.schemacompiler.validate.FindingMessageFormat;
+import org.opentravel.schemacompiler.validate.FindingType;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
+import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
+import org.opentravel.schemacompiler.version.VersionSchemeException;
 
 /**
  * Library chains are all libraries based on the same major release. Their content is aggregated in

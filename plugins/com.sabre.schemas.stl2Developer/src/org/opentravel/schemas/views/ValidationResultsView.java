@@ -40,19 +40,19 @@ import org.opentravel.schemas.widgets.OtmEventData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLDocumentation;
-import com.sabre.schemacompiler.model.TLDocumentationItem;
-import com.sabre.schemacompiler.model.TLEquivalent;
-import com.sabre.schemacompiler.model.TLExample;
-import com.sabre.schemacompiler.model.TLExtension;
-import com.sabre.schemacompiler.model.TLInclude;
-import com.sabre.schemacompiler.model.TLNamespaceImport;
-import com.sabre.schemacompiler.validate.FindingMessageFormat;
-import com.sabre.schemacompiler.validate.Validatable;
-import com.sabre.schemacompiler.validate.ValidationFinding;
-import com.sabre.schemacompiler.validate.ValidationFindings;
-import com.sabre.schemacompiler.validate.compile.TLModelCompileValidator;
-import com.sabre.schemacompiler.validate.impl.TLValidationBuilder;
+import org.opentravel.schemacompiler.model.TLDocumentation;
+import org.opentravel.schemacompiler.model.TLDocumentationItem;
+import org.opentravel.schemacompiler.model.TLEquivalent;
+import org.opentravel.schemacompiler.model.TLExample;
+import org.opentravel.schemacompiler.model.TLExtension;
+import org.opentravel.schemacompiler.model.TLInclude;
+import org.opentravel.schemacompiler.model.TLNamespaceImport;
+import org.opentravel.schemacompiler.validate.FindingMessageFormat;
+import org.opentravel.schemacompiler.validate.Validatable;
+import org.opentravel.schemacompiler.validate.ValidationFinding;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
+import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
+import org.opentravel.schemacompiler.validate.impl.TLValidationBuilder;
 
 /**
  * 

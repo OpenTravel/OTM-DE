@@ -55,10 +55,10 @@ import org.opentravel.schemas.wizards.NewPropertiesWizard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLFacetType;
-import com.sabre.schemacompiler.repository.RepositoryException;
-import com.sabre.schemacompiler.repository.RepositoryFileManager;
-import com.sabre.schemacompiler.repository.RepositoryManager;
+import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryFileManager;
+import org.opentravel.schemacompiler.repository.RepositoryManager;
 
 /**
  * Main Controller. Receives events from the view and workbench, drives user interactions then

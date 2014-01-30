@@ -9,8 +9,8 @@ import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
 
-import com.sabre.schemacompiler.model.TLLibraryStatus;
-import com.sabre.schemacompiler.repository.RepositoryItemState;
+import org.opentravel.schemacompiler.model.TLLibraryStatus;
+import org.opentravel.schemacompiler.repository.RepositoryItemState;
 
 /**
  * Finalize a version of a library.

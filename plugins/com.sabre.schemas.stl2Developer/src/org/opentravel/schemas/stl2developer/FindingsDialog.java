@@ -29,9 +29,9 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.opentravel.schemas.utils.RCPUtils;
 
-import com.sabre.schemacompiler.validate.FindingMessageFormat;
-import com.sabre.schemacompiler.validate.FindingType;
-import com.sabre.schemacompiler.validate.ValidationFinding;
+import org.opentravel.schemacompiler.validate.FindingMessageFormat;
+import org.opentravel.schemacompiler.validate.FindingType;
+import org.opentravel.schemacompiler.validate.ValidationFinding;
 
 /**
  * A dialog to display given findings list. Displayed problems will be sorted by {@link FindingType}

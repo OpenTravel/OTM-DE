@@ -21,10 +21,10 @@ import org.opentravel.schemas.wizards.MergeContextNodeWizard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.TLContext;
-import com.sabre.schemacompiler.model.TLContextReferrer;
-import com.sabre.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLContextReferrer;
+import org.opentravel.schemacompiler.model.TLLibrary;
 
 /**
  * Implements interactions the user has with the Context View by acting upon the Context nodes and

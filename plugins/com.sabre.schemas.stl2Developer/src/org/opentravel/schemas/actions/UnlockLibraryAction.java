@@ -14,7 +14,7 @@ import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 
-import com.sabre.schemacompiler.repository.RepositoryItemState;
+import org.opentravel.schemacompiler.repository.RepositoryItemState;
 
 /**
  * Unlock a library in it's repository.

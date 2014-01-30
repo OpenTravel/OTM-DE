@@ -45,21 +45,21 @@ import org.opentravel.schemas.wizards.NewProjectWizard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.loader.LibraryLoaderException;
-import com.sabre.schemacompiler.loader.LibraryModelLoader;
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.repository.Project;
-import com.sabre.schemacompiler.repository.ProjectItem;
-import com.sabre.schemacompiler.repository.ProjectManager;
-import com.sabre.schemacompiler.repository.RepositoryException;
-import com.sabre.schemacompiler.repository.RepositoryItem;
-import com.sabre.schemacompiler.repository.RepositoryManager;
-import com.sabre.schemacompiler.repository.RepositoryNamespaceUtils;
-import com.sabre.schemacompiler.repository.impl.BuiltInProject;
-import com.sabre.schemacompiler.repository.impl.RemoteRepositoryClient;
-import com.sabre.schemacompiler.saver.LibrarySaveException;
-import com.sabre.schemacompiler.validate.FindingMessageFormat;
-import com.sabre.schemacompiler.validate.ValidationFindings;
+import org.opentravel.schemacompiler.loader.LibraryLoaderException;
+import org.opentravel.schemacompiler.loader.LibraryModelLoader;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.repository.Project;
+import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemacompiler.repository.ProjectManager;
+import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryItem;
+import org.opentravel.schemacompiler.repository.RepositoryManager;
+import org.opentravel.schemacompiler.repository.RepositoryNamespaceUtils;
+import org.opentravel.schemacompiler.repository.impl.BuiltInProject;
+import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
+import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.validate.FindingMessageFormat;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
 
 /**
  * Default Project Controller.

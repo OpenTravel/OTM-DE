@@ -16,7 +16,7 @@ import org.opentravel.schemas.types.TypeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLFacet;
 
 public class LibrarySorter extends ViewerSorter {
     private static final Logger LOGGER = LoggerFactory.getLogger(LibrarySorter.class);

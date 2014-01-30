@@ -10,9 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3._2001.xmlschema.Element;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.LibraryMember;
-import com.sabre.schemacompiler.model.XSDElement;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.XSDElement;
 
 public class XSDElementMO extends ModelObject<XSDElement> {
     private static final Logger LOGGER = LoggerFactory.getLogger(XSDElementMO.class);

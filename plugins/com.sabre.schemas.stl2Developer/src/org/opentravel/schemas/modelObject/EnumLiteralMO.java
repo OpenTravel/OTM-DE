@@ -5,8 +5,8 @@ package org.opentravel.schemas.modelObject;
 
 import java.util.List;
 
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.TLEnumValue;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.TLEnumValue;
 
 public class EnumLiteralMO extends ModelObject<TLEnumValue> {
 

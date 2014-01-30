@@ -3,7 +3,7 @@
  */
 package org.opentravel.schemas.node.controllers;
 
-import com.sabre.schemacompiler.model.TLDocumentationItem;
+import org.opentravel.schemacompiler.model.TLDocumentationItem;
 
 /**
  * Marker interface for all the documentation items model controllers

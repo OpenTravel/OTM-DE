@@ -39,15 +39,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-import com.sabre.schemacompiler.codegen.CodeGenerationException;
-import com.sabre.schemacompiler.codegen.example.ExampleDocumentBuilder;
-import com.sabre.schemacompiler.codegen.example.ExampleGeneratorOptions;
-import com.sabre.schemacompiler.codegen.example.ExampleGeneratorOptions.DetailLevel;
-import com.sabre.schemacompiler.model.NamedEntity;
-import com.sabre.schemacompiler.model.TLFacet;
-import com.sabre.schemacompiler.validate.FindingMessageFormat;
-import com.sabre.schemacompiler.validate.ValidationException;
-import com.sabre.schemacompiler.validate.ValidationFindings;
+import org.opentravel.schemacompiler.codegen.CodeGenerationException;
+import org.opentravel.schemacompiler.codegen.example.ExampleDocumentBuilder;
+import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions;
+import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions.DetailLevel;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.validate.FindingMessageFormat;
+import org.opentravel.schemacompiler.validate.ValidationException;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
 
 /**
  * @author Agnieszka Janowska

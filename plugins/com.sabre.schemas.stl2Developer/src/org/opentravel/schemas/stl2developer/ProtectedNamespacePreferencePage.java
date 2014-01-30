@@ -23,10 +23,10 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.opentravel.schemas.widgets.WidgetFactory;
 
-import com.sabre.schemacompiler.security.LibrarySecurityHandler;
-import com.sabre.schemacompiler.security.ProtectedNamespaceCredentials;
-import com.sabre.schemacompiler.security.ProtectedNamespaceGroup;
-import com.sabre.schemacompiler.security.ProtectedNamespaceRegistry;
+import org.opentravel.schemacompiler.security.LibrarySecurityHandler;
+import org.opentravel.schemacompiler.security.ProtectedNamespaceCredentials;
+import org.opentravel.schemacompiler.security.ProtectedNamespaceGroup;
+import org.opentravel.schemacompiler.security.ProtectedNamespaceRegistry;
 
 /**
  * Preference page that allows the user to enter security credentials for one or more protected

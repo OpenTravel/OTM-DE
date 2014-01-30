@@ -15,7 +15,7 @@ import org.opentravel.schemas.node.properties.PropertyNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.NamedEntity;
 
 /**
  * 5/4/2012 - dmh - NO LONGER USED for Model Navigator. Still used in wizards -

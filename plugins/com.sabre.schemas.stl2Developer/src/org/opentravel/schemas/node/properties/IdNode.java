@@ -7,7 +7,7 @@ import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.types.TypeUser;
 
-import com.sabre.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLModelElement;
 
 /**
  * A property node that represents an XML ID. See

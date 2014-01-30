@@ -22,18 +22,18 @@ import org.opentravel.schemas.utils.StringComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.model.TLAbstractFacet;
-import com.sabre.schemacompiler.model.TLAlias;
-import com.sabre.schemacompiler.model.TLAttribute;
-import com.sabre.schemacompiler.model.TLContext;
-import com.sabre.schemacompiler.model.TLFacet;
-import com.sabre.schemacompiler.model.TLFacetType;
-import com.sabre.schemacompiler.model.TLLibrary;
-import com.sabre.schemacompiler.model.TLListFacet;
-import com.sabre.schemacompiler.model.TLOperation;
-import com.sabre.schemacompiler.model.TLProperty;
-import com.sabre.schemacompiler.model.TLRoleEnumeration;
-import com.sabre.schemacompiler.model.TLSimpleFacet;
+import org.opentravel.schemacompiler.model.TLAbstractFacet;
+import org.opentravel.schemacompiler.model.TLAlias;
+import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLListFacet;
+import org.opentravel.schemacompiler.model.TLOperation;
+import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLRoleEnumeration;
+import org.opentravel.schemacompiler.model.TLSimpleFacet;
 
 /**
  * Facets are containers for properties (elements and attributes) as well as simple facets for core

@@ -45,12 +45,12 @@ import org.opentravel.schemas.widgets.WidgetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sabre.schemacompiler.codegen.util.PropertyCodegenUtils;
-import com.sabre.schemacompiler.model.AbstractLibrary;
-import com.sabre.schemacompiler.model.BuiltInLibrary;
-import com.sabre.schemacompiler.model.TLFacet;
-import com.sabre.schemacompiler.model.TLLibrary;
-import com.sabre.schemacompiler.model.XSDLibrary;
+import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.BuiltInLibrary;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.XSDLibrary;
 
 /**
  * Wizard to allow user to select a type for the passed node objects.
