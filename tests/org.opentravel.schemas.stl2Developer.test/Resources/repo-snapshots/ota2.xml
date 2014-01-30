@@ -19,7 +19,7 @@
 		can use a Subversion repository to maintain a persistent record of all files and changes that are performed
 		by users of the repository web service.
 	-->
-	<bean id="repositoryManager" class="com.sabre.schemacompiler.repository.RepositoryManager" scope="singleton" lazy-init="true">
+	<bean id="repositoryManager" class="org.opentravel.schemacompiler.repository.RepositoryManager" scope="singleton" lazy-init="true">
 		<!--
 		 Uncomment for default repository file management.
 		-->
@@ -30,7 +30,7 @@
 		-->
 		<!--
 		<constructor-arg>
-			<bean class="com.sabre.schemacompiler.repository.SVNRepositoryFileManager">
+			<bean class="org.opentravel.schemacompiler.repository.SVNRepositoryFileManager">
 				<constructor-arg ref="repositoryLocation" />
 				<constructor-arg ref="svnConfigFolder" />
 			</bean>
@@ -44,7 +44,7 @@
 		Provides all authentication and authorization services required for secure operation of the OTA2.0
 		repository.
 	-->
-	<bean id="securityManager" class="com.sabre.schemacompiler.security.impl.DefaultRepositorySecurityManager" lazy-init="true">
+	<bean id="securityManager" class="org.opentravel.schemacompiler.security.impl.DefaultRepositorySecurityManager" lazy-init="true">
 		<constructor-arg ref="repositoryManager" />
 		<constructor-arg ref="authenticationProvider" />
 		<constructor-arg ref="authorizationProvider" />
@@ -59,7 +59,7 @@
 	-->
 	<!--
 	-->
-	<bean id="authenticationProvider" class="com.sabre.schemacompiler.security.impl.FileAuthenticationProvider" lazy-init="true">
+	<bean id="authenticationProvider" class="org.opentravel.schemacompiler.security.impl.FileAuthenticationProvider" lazy-init="true">
 		<constructor-arg ref="repositoryLocation" />
 	</bean>
 	
@@ -74,10 +74,10 @@
 		server itself.
 	-->
 	<!--
-	<bean id="authenticationProvider" class="com.sabre.schemacompiler.security.impl.JNDIAuthenticationProvider">
-		<property name="connectionUrl" value="ldap://localhost:389/dc=sabre,dc=com" />
+	<bean id="authenticationProvider" class="org.opentravel.schemacompiler.security.impl.JNDIAuthenticationProvider">
+		<property name="connectionUrl" value="ldap://localhost:389/dc=opentravel,dc=com" />
 		<property name="securityAuthentication" value="simple" />
-		<property name="userPattern" value="uid={0},ou=users,dc=sabre,dc=com" />
+		<property name="userPattern" value="uid={0},ou=users,dc=opentravel,dc=com" />
 	</bean>
 	-->
 	
@@ -91,10 +91,10 @@
 		directory and compared with the credentials provided by the remote user of the repository.
 	-->
 	<!--
-	<bean id="authenticationProvider" class="com.sabre.schemacompiler.security.impl.JNDIAuthenticationProvider">
-		<property name="connectionUrl" value="ldap://localhost:389/dc=sabre,dc=com" />
+	<bean id="authenticationProvider" class="org.opentravel.schemacompiler.security.impl.JNDIAuthenticationProvider">
+		<property name="connectionUrl" value="ldap://localhost:389/dc=opentravel,dc=com" />
 		<property name="securityAuthentication" value="simple" />
-		<property name="connectionPrincipal" value="cn=Manager,dc=sabre,dc=com" />
+		<property name="connectionPrincipal" value="cn=Manager,dc=opentravel,dc=com" />
 		<property name="connectionPassword" value="password" />
 		<property name="userPattern" value="uid={0},ou=users" />
 		<property name="digestAlgorithm" value="SHA-1" />
@@ -111,10 +111,10 @@
 		compared with the credentials provided by the remote user of the repository.
 	-->
 	<!--
-	<bean id="authenticationProvider" class="com.sabre.schemacompiler.security.impl.JNDIAuthenticationProvider">
-		<property name="connectionUrl" value="ldap://localhost:389/dc=sabre,dc=com" />
+	<bean id="authenticationProvider" class="org.opentravel.schemacompiler.security.impl.JNDIAuthenticationProvider">
+		<property name="connectionUrl" value="ldap://localhost:389/dc=opentravel,dc=com" />
 		<property name="securityAuthentication" value="simple" />
-		<property name="connectionPrincipal" value="cn=Manager,dc=sabre,dc=com" />
+		<property name="connectionPrincipal" value="cn=Manager,dc=opentravel,dc=com" />
 		<property name="connectionPassword" value="password" />
 		<property name="userSearchBase" value="ou=users" />
 		<property name="userSearchPatterns" value="(uid={0})" />
@@ -128,7 +128,7 @@
 		Provides information about which operations a particular user is authorized to perform on a namespace
 		in the OTA2.0 repository.
 	-->
-	<bean id="authorizationProvider" class="com.sabre.schemacompiler.security.impl.DefaultAuthorizationProvider" lazy-init="true">
+	<bean id="authorizationProvider" class="org.opentravel.schemacompiler.security.impl.DefaultAuthorizationProvider" lazy-init="true">
 		<constructor-arg ref="repositoryManager" />
 	</bean>
 	

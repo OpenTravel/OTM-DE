@@ -15,7 +15,7 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>com.sabre.schemas.stl2Developer.feature.basic</module>
+    <module>org.opentravel.schemas.stl2Developer.feature.basic</module>
   </modules>
 
 </project>

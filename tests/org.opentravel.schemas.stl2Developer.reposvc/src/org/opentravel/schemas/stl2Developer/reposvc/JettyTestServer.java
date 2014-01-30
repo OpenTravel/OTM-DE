@@ -1,8 +1,3 @@
-/*
- * Copyright (c) 2012, Sabre Corporation and affiliates.
- * All Rights Reserved.
- * Use is subject to license agreement.
- */
 package org.opentravel.schemas.stl2Developer.reposvc;
 
 import java.io.File;
@@ -84,7 +79,7 @@ public class JettyTestServer {
         Bundle repoSync = Platform.getBundle("org.opentravel.schemas.stl2Developer.reposvc");
         context.setContextPath("/ota2-repository-service");
         OSGiPackageConfig config = new OSGiPackageConfig(new String[] {
-                "com.sabre.schemacompiler.repository", "com.sabre.schemacompiler.providers" },
+                "org.opentravel.schemacompiler.repository", "org.opentravel.schemacompiler.providers" },
                 repoSync);
         context.addServlet(new ServletHolder(new RepositoryServlet(config)), "/service/*");
         jettyServer = new Server(port);

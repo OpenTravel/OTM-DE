@@ -1,6 +1,3 @@
-/*
- * Copyright (c) 2011, Sabre Inc.
- */
 package org.opentravel.schemas.stl2Developer.reposvc;
 
 import java.io.File;

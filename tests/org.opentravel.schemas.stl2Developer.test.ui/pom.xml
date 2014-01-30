@@ -69,10 +69,10 @@
           </includes>
           <useUIHarness>true</useUIHarness>
           <useUIThread>false</useUIThread>
-          <product>com.sabre.schemas.stl2Developer.product</product>
+          <product>org.opentravel.schemas.stl2Developer.product</product>
           <argLine>${ui.test.vmargs}</argLine>
           <appArgLine>-closeWithoutSave</appArgLine>
-          <application>com.sabre.schemas.stl2Developer.application</application>
+          <application>org.opentravel.schemas.stl2Developer.application</application>
           <bundleStartLevel>
             <bundle>
               <id>org.apache.aries.spifly.dynamic.bundle</id>
@@ -83,7 +83,7 @@
           <dependencies>
             <dependency>
               <type>eclipse-feature</type>
-              <artifactId>com.sabre.schemas.stl2Developer.feature.basic</artifactId>
+              <artifactId>org.opentravel.schemas.stl2Developer.feature.basic</artifactId>
             </dependency>
           </dependencies>
         </configuration>

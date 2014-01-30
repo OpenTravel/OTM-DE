@@ -30,7 +30,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(OtmRegistry.class)
-@PowerMockIgnore({ "com.sabre.schemacompiler.*" })
+@PowerMockIgnore({ "org.opentravel.schemacompiler.*" })
 public class NamespaceHandlerTest {
 
     public static final String BASE_NAMESPACE = "http://www.example.com/test";
