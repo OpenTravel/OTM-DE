@@ -437,69 +437,7 @@ public class DefaultProjectController implements ProjectController {
      */
     @Override
     public String getNamespace() {
-        // TODO Auto-generated method stub
         return null;
-    }
-
-    // public List<String> getRepositories() {
-    // ArrayList<String> repos = new ArrayList<String>();
-    // for (RemoteRepository repo : repositoryManager.listRemoteRepositories())
-    // repos.add(repo.getId());
-    // return repos;
-    // }
-
-    // July 1, 2013 - dmh - removed from all menus.
-    // TODO - remove
-    @Override
-    public void openDir() {
-        final String dd = FileDialogs.postDirDialog(Messages
-                .getString("fileDialog.directory.projectPath"));
-        if (dd == null)
-            return; // dialog was cancelled.
-
-        Path dir = new Path(dd);
-        File directory = new File(dir.toString());
-        String projectName = directory.getName();
-        LOGGER.debug("Opening project: " + dir.toString());
-
-        // Create a project
-        Date date = new Date(System.currentTimeMillis());
-        Project newTL_Project = null;
-        try {
-            newTL_Project = projectManager.newProject(new File(dir.toString() + File.separator
-                    + projectName + ".otp"), "http://www.sabre.com/OTM/Project/" + projectName,
-                    projectName,
-                    "Project " + projectName + " created from directory " + directory.getPath()
-                            + File.separator + "*.otm" + " on " + date.toString());
-        } catch (Exception e) {
-            LOGGER.error("Could not create project.");
-            DialogUserNotifier.openError("Project Error", "Could not create project");
-            return;
-        }
-        LOGGER.debug("Created TL Project: " + dir.toString());
-
-        // Get all the files and add them to the project.
-        List<File> paths = new ArrayList<File>();
-        for (String fd : directory.list(null)) {
-            if (fd.endsWith(".otm"))
-                paths.add(new File(directory.getPath() + File.separator + fd));
-        }
-        addLibrariesToTLProject(newTL_Project, paths);
-
-        // Set the project ID to the base namespace
-        String baseNS = "";
-        for (ProjectItem pi : newTL_Project.getProjectItems()) {
-            baseNS = pi.getBaseNamespace();
-            LOGGER.debug("Base namespace :" + baseNS);
-            if (!baseNS.isEmpty())
-                break;
-        }
-        newTL_Project.setProjectId(baseNS);
-
-        // Add the project to the GUI node model
-        ProjectNode pn = loadProject(newTL_Project);
-        save(pn);
-        mc.refresh();
     }
 
     @Override
@@ -759,7 +697,7 @@ public class DefaultProjectController implements ProjectController {
 
     /**
      * Save the currently open project state using the Eclipse utilities. Saved to:
-     * <workspace>/.metadata/.plugins/com.sabre...
+     * <workspace>/.metadata/.plugins/org.opentravel...
      */
     @Override
     public void saveState() {

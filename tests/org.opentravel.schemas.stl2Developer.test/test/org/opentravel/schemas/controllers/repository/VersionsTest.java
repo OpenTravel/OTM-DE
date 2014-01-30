@@ -182,7 +182,6 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         Assert.assertNotNull(mCo);
         Assert.assertEquals(1, mCo.getSummaryFacet().getChildren().size());
 
-        // FIXME - https://jira.sabre.com/browse/OTA-811
         // Assert.assertNotNull(mCo.getExtendsType());
     }
 

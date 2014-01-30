@@ -257,7 +257,6 @@ public class OperationNode extends FacetNode {
     public void setName(String name) {
         // super.setName(n, false);
 
-        // https://jira.sabre.com/browse/OTA-783
         // Strip the object name and "Operation: " string if present.
         if (name.startsWith(OPERATION_PREFIX))
             name = name.substring(OPERATION_PREFIX.length());

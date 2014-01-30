@@ -161,7 +161,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
         listButton.setEnabled(false);
         listButton.setSelection(false);
         repeatSpinner.setEnabled(false);
-        repeatSpinner.setSelection(1); // https://jira.sabre.com/browse/OTA-771
+        repeatSpinner.setSelection(1);
         minLenSpinner.setEnabled(false);
         minLenSpinner.setSelection(0);
         maxLenSpinner.setEnabled(false);

@@ -32,7 +32,7 @@ public class ImpliedNode extends SimpleTypeNode {
      */
     @Override
     public String getNamespace() {
-        return "http://www.sabre.com/ns/IMPLIED";
+        return "http://opentravel.org/ns/IMPLIED";
     }
 
     /*

@@ -95,14 +95,6 @@ public interface ProjectController {
     public void newProject(String defaultName, String selectedRoot, String selectedExt);
 
     /**
-     * Open a directory. Let the user select a directory. Create a project for that directory. Load
-     * all OTM files into the new project.
-     */
-    void openDir();
-
-    // public void publish(LibraryNode node);
-
-    /**
      * Save the project.
      */
     void save();

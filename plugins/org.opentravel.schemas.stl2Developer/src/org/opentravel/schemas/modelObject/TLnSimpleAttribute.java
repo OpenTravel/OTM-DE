@@ -230,7 +230,7 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLEquivalentOwner#getEquivalent(java.lang.String)
+     * @see org.opentravel.schemacompiler.model.TLEquivalentOwner#getEquivalent(java.lang.String)
      */
     @Override
     public TLEquivalent getEquivalent(final String context) {
@@ -244,8 +244,8 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLEquivalentOwner#addEquivalent(int,
-     * com.sabre.schemacompiler.model.TLEquivalent)
+     * @see org.opentravel.schemacompiler.model.TLEquivalentOwner#addEquivalent(int,
+     * org.opentravel.schemacompiler.model.TLEquivalent)
      */
     @Override
     public void addEquivalent(final int index, final TLEquivalent equivalent) {
@@ -259,7 +259,7 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
      * (non-Javadoc)
      * 
      * @see
-     * com.sabre.schemacompiler.model.TLEquivalentOwner#removeEquivalent(com.sabre.schemacompiler
+     * org.opentravel.schemacompiler.model.TLEquivalentOwner#removeEquivalent(org.opentravel.schemacompiler
      * .model.TLEquivalent)
      */
     @Override
@@ -273,7 +273,7 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLEquivalentOwner#moveUp(com.sabre.schemacompiler.model.
+     * @see org.opentravel.schemacompiler.model.TLEquivalentOwner#moveUp(org.opentravel.schemacompiler.model.
      * TLEquivalent)
      */
     @Override
@@ -285,7 +285,7 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
      * (non-Javadoc)
      * 
      * @see
-     * com.sabre.schemacompiler.model.TLEquivalentOwner#moveDown(com.sabre.schemacompiler.model.
+     * org.opentravel.schemacompiler.model.TLEquivalentOwner#moveDown(org.opentravel.schemacompiler.model.
      * TLEquivalent)
      */
     @Override
@@ -296,7 +296,7 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLEquivalentOwner#sortEquivalents(java.util.Comparator)
+     * @see org.opentravel.schemacompiler.model.TLEquivalentOwner#sortEquivalents(java.util.Comparator)
      */
     @Override
     public void sortEquivalents(final Comparator<TLEquivalent> comparator) {
@@ -309,7 +309,7 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLExampleOwner#getExamples()
+     * @see org.opentravel.schemacompiler.model.TLExampleOwner#getExamples()
      */
     @Override
     public List<TLExample> getExamples() {
@@ -323,7 +323,7 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLExampleOwner#getExample(java.lang.String)
+     * @see org.opentravel.schemacompiler.model.TLExampleOwner#getExample(java.lang.String)
      */
     @Override
     public TLExample getExample(final String contextId) {
@@ -338,7 +338,7 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
      * (non-Javadoc)
      * 
      * @see
-     * com.sabre.schemacompiler.model.TLExampleOwner#addExample(com.sabre.schemacompiler.model.TLExample
+     * org.opentravel.schemacompiler.model.TLExampleOwner#addExample(org.opentravel.schemacompiler.model.TLExample
      * )
      */
     @Override
@@ -352,8 +352,8 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLExampleOwner#addExample(int,
-     * com.sabre.schemacompiler.model.TLExample)
+     * @see org.opentravel.schemacompiler.model.TLExampleOwner#addExample(int,
+     * org.opentravel.schemacompiler.model.TLExample)
      */
     @Override
     public void addExample(final int index, final TLExample example) {
@@ -367,7 +367,7 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
      * (non-Javadoc)
      * 
      * @see
-     * com.sabre.schemacompiler.model.TLExampleOwner#removeExample(com.sabre.schemacompiler.model
+     * org.opentravel.schemacompiler.model.TLExampleOwner#removeExample(org.opentravel.schemacompiler.model
      * .TLExample)
      */
     @Override
@@ -382,7 +382,7 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
      * (non-Javadoc)
      * 
      * @see
-     * com.sabre.schemacompiler.model.TLExampleOwner#moveUp(com.sabre.schemacompiler.model.TLExample
+     * org.opentravel.schemacompiler.model.TLExampleOwner#moveUp(org.opentravel.schemacompiler.model.TLExample
      * )
      */
     @Override
@@ -394,7 +394,7 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
      * (non-Javadoc)
      * 
      * @see
-     * com.sabre.schemacompiler.model.TLExampleOwner#moveDown(com.sabre.schemacompiler.model.TLExample
+     * org.opentravel.schemacompiler.model.TLExampleOwner#moveDown(org.opentravel.schemacompiler.model.TLExample
      * )
      */
     @Override
@@ -405,7 +405,7 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLExampleOwner#sortExamples(java.util.Comparator)
+     * @see org.opentravel.schemacompiler.model.TLExampleOwner#sortExamples(java.util.Comparator)
      */
     @Override
     public void sortExamples(final Comparator<TLExample> comparator) {

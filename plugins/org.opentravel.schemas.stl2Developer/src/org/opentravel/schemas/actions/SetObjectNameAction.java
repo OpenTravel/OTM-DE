@@ -47,7 +47,6 @@ public class SetObjectNameAction extends OtmAbstractAction {
         }
         Node n = (Node) getMainController().getCurrentNode_FacetView();
         if (n != null) {
-            // https://jira.sabre.com/browse/OTA-772
             if (n.isProperty())
                 n = n.getOwningComponent(); // set postNode() in FacetView
             n.setName(newName);

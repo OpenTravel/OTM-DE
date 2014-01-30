@@ -63,7 +63,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLAttributeOwner#getAttribute(java.lang.String)
+     * @see org.opentravel.schemacompiler.model.TLAttributeOwner#getAttribute(java.lang.String)
      */
     @Override
     public TLAttribute getAttribute(final String attributeName) {
@@ -73,8 +73,8 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLAttributeOwner#addAttribute(int,
-     * com.sabre.schemacompiler.model.TLAttribute)
+     * @see org.opentravel.schemacompiler.model.TLAttributeOwner#addAttribute(int,
+     * org.opentravel.schemacompiler.model.TLAttribute)
      */
     @Override
     public void addAttribute(final int index, final TLAttribute attribute) {
@@ -86,7 +86,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
      * (non-Javadoc)
      * 
      * @see
-     * com.sabre.schemacompiler.model.TLAttributeOwner#removeAttribute(com.sabre.schemacompiler.
+     * org.opentravel.schemacompiler.model.TLAttributeOwner#removeAttribute(org.opentravel.schemacompiler.
      * model.TLAttribute)
      */
     @Override
@@ -99,7 +99,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
      * (non-Javadoc)
      * 
      * @see
-     * com.sabre.schemacompiler.model.TLAttributeOwner#moveUp(com.sabre.schemacompiler.model.TLAttribute
+     * org.opentravel.schemacompiler.model.TLAttributeOwner#moveUp(org.opentravel.schemacompiler.model.TLAttribute
      * )
      */
     @Override
@@ -110,7 +110,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLAttributeOwner#moveDown(com.sabre.schemacompiler.model.
+     * @see org.opentravel.schemacompiler.model.TLAttributeOwner#moveDown(org.opentravel.schemacompiler.model.
      * TLAttribute)
      */
     @Override
@@ -121,7 +121,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLAttributeOwner#sortAttributes(java.util.Comparator)
+     * @see org.opentravel.schemacompiler.model.TLAttributeOwner#sortAttributes(java.util.Comparator)
      */
     @Override
     public void sortAttributes(final Comparator<TLAttribute> comparator) {
@@ -131,7 +131,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLIndicatorOwner#getIndicator(java.lang.String)
+     * @see org.opentravel.schemacompiler.model.TLIndicatorOwner#getIndicator(java.lang.String)
      */
     @Override
     public TLIndicator getIndicator(final String indicatorName) {
@@ -141,8 +141,8 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLIndicatorOwner#addIndicator(int,
-     * com.sabre.schemacompiler.model.TLIndicator)
+     * @see org.opentravel.schemacompiler.model.TLIndicatorOwner#addIndicator(int,
+     * org.opentravel.schemacompiler.model.TLIndicator)
      */
     @Override
     public void addIndicator(final int index, final TLIndicator indicator) {
@@ -153,7 +153,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
      * (non-Javadoc)
      * 
      * @see
-     * com.sabre.schemacompiler.model.TLIndicatorOwner#removeIndicator(com.sabre.schemacompiler.
+     * org.opentravel.schemacompiler.model.TLIndicatorOwner#removeIndicator(org.opentravel.schemacompiler.
      * model.TLIndicator)
      */
     @Override
@@ -165,7 +165,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
      * (non-Javadoc)
      * 
      * @see
-     * com.sabre.schemacompiler.model.TLIndicatorOwner#moveUp(com.sabre.schemacompiler.model.TLIndicator
+     * org.opentravel.schemacompiler.model.TLIndicatorOwner#moveUp(org.opentravel.schemacompiler.model.TLIndicator
      * )
      */
     @Override
@@ -176,7 +176,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLIndicatorOwner#moveDown(com.sabre.schemacompiler.model.
+     * @see org.opentravel.schemacompiler.model.TLIndicatorOwner#moveDown(org.opentravel.schemacompiler.model.
      * TLIndicator)
      */
     @Override
@@ -187,7 +187,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLIndicatorOwner#sortIndicators(java.util.Comparator)
+     * @see org.opentravel.schemacompiler.model.TLIndicatorOwner#sortIndicators(java.util.Comparator)
      */
     @Override
     public void sortIndicators(final Comparator<TLIndicator> comparator) {
@@ -197,7 +197,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLExampleOwner#getExamples()
+     * @see org.opentravel.schemacompiler.model.TLExampleOwner#getExamples()
      */
     @Override
     public List<TLExample> getExamples() {
@@ -207,7 +207,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLExampleOwner#getExample(java.lang.String)
+     * @see org.opentravel.schemacompiler.model.TLExampleOwner#getExample(java.lang.String)
      */
     @Override
     public TLExample getExample(final String contextId) {
@@ -218,7 +218,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
      * (non-Javadoc)
      * 
      * @see
-     * com.sabre.schemacompiler.model.TLExampleOwner#addExample(com.sabre.schemacompiler.model.TLExample
+     * org.opentravel.schemacompiler.model.TLExampleOwner#addExample(org.opentravel.schemacompiler.model.TLExample
      * )
      */
     @Override
@@ -229,8 +229,8 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLExampleOwner#addExample(int,
-     * com.sabre.schemacompiler.model.TLExample)
+     * @see org.opentravel.schemacompiler.model.TLExampleOwner#addExample(int,
+     * org.opentravel.schemacompiler.model.TLExample)
      */
     @Override
     public void addExample(final int index, final TLExample example) {
@@ -241,7 +241,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
      * (non-Javadoc)
      * 
      * @see
-     * com.sabre.schemacompiler.model.TLExampleOwner#removeExample(com.sabre.schemacompiler.model
+     * org.opentravel.schemacompiler.model.TLExampleOwner#removeExample(org.opentravel.schemacompiler.model
      * .TLExample)
      */
     @Override
@@ -253,7 +253,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
      * (non-Javadoc)
      * 
      * @see
-     * com.sabre.schemacompiler.model.TLExampleOwner#moveUp(com.sabre.schemacompiler.model.TLExample
+     * org.opentravel.schemacompiler.model.TLExampleOwner#moveUp(org.opentravel.schemacompiler.model.TLExample
      * )
      */
     @Override
@@ -265,7 +265,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
      * (non-Javadoc)
      * 
      * @see
-     * com.sabre.schemacompiler.model.TLExampleOwner#moveDown(com.sabre.schemacompiler.model.TLExample
+     * org.opentravel.schemacompiler.model.TLExampleOwner#moveDown(org.opentravel.schemacompiler.model.TLExample
      * )
      */
     @Override
@@ -276,7 +276,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLExampleOwner#sortExamples(java.util.Comparator)
+     * @see org.opentravel.schemacompiler.model.TLExampleOwner#sortExamples(java.util.Comparator)
      */
     @Override
     public void sortExamples(final Comparator<TLExample> comparator) {
@@ -286,7 +286,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLEquivalentOwner#getEquivalents()
+     * @see org.opentravel.schemacompiler.model.TLEquivalentOwner#getEquivalents()
      */
     @Override
     public List<TLEquivalent> getEquivalents() {
@@ -296,7 +296,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLEquivalentOwner#getEquivalent(java.lang.String)
+     * @see org.opentravel.schemacompiler.model.TLEquivalentOwner#getEquivalent(java.lang.String)
      */
     @Override
     public TLEquivalent getEquivalent(final String context) {
@@ -307,7 +307,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
      * (non-Javadoc)
      * 
      * @see
-     * com.sabre.schemacompiler.model.TLEquivalentOwner#addEquivalent(com.sabre.schemacompiler.model
+     * org.opentravel.schemacompiler.model.TLEquivalentOwner#addEquivalent(org.opentravel.schemacompiler.model
      * .TLEquivalent)
      */
     @Override
@@ -318,8 +318,8 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLEquivalentOwner#addEquivalent(int,
-     * com.sabre.schemacompiler.model.TLEquivalent)
+     * @see org.opentravel.schemacompiler.model.TLEquivalentOwner#addEquivalent(int,
+     * org.opentravel.schemacompiler.model.TLEquivalent)
      */
     @Override
     public void addEquivalent(final int index, final TLEquivalent equivalent) {
@@ -330,7 +330,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
      * (non-Javadoc)
      * 
      * @see
-     * com.sabre.schemacompiler.model.TLEquivalentOwner#removeEquivalent(com.sabre.schemacompiler
+     * org.opentravel.schemacompiler.model.TLEquivalentOwner#removeEquivalent(org.opentravel.schemacompiler
      * .model.TLEquivalent)
      */
     @Override
@@ -341,7 +341,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLEquivalentOwner#moveUp(com.sabre.schemacompiler.model.
+     * @see org.opentravel.schemacompiler.model.TLEquivalentOwner#moveUp(org.opentravel.schemacompiler.model.
      * TLEquivalent)
      */
     @Override
@@ -353,7 +353,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
      * (non-Javadoc)
      * 
      * @see
-     * com.sabre.schemacompiler.model.TLEquivalentOwner#moveDown(com.sabre.schemacompiler.model.
+     * org.opentravel.schemacompiler.model.TLEquivalentOwner#moveDown(org.opentravel.schemacompiler.model.
      * TLEquivalent)
      */
     @Override
@@ -364,7 +364,7 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     /*
      * (non-Javadoc)
      * 
-     * @see com.sabre.schemacompiler.model.TLEquivalentOwner#sortEquivalents(java.util.Comparator)
+     * @see org.opentravel.schemacompiler.model.TLEquivalentOwner#sortEquivalents(java.util.Comparator)
      */
     @Override
     public void sortEquivalents(final Comparator<TLEquivalent> comparator) {

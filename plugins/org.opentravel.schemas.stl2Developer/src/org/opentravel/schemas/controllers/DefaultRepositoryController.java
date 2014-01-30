@@ -50,9 +50,6 @@ import org.opentravel.schemacompiler.version.VersionSchemeException;
  * Provide access to the repository manager content in response to requests from repository and
  * other views.
  * 
- * To remove all content from test repository: http://dart.dev.sabre.com:9191/ota2
- * -repository-service-2.2-SNAPSHOT/service/clean-repository
- * 
  * @author Dave Hollander
  * 
  */

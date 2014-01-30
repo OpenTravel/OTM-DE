@@ -132,7 +132,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     }
 
     /**
-     * @see com.sabre.schemacompiler.task.CompileAllTaskOptions#isCompileSchemas()
+     * @see org.opentravel.schemacompiler.task.CompileAllTaskOptions#isCompileSchemas()
      */
     @Override
     public boolean isCompileSchemas() {
@@ -150,7 +150,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     }
 
     /**
-     * @see com.sabre.schemacompiler.task.CompileAllTaskOptions#isCompileServices()
+     * @see org.opentravel.schemacompiler.task.CompileAllTaskOptions#isCompileServices()
      */
     @Override
     public boolean isCompileServices() {
@@ -168,7 +168,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     }
 
     /**
-     * @see com.sabre.schemacompiler.task.CommonCompilerTaskOptions#getCatalogLocation()
+     * @see org.opentravel.schemacompiler.task.CommonCompilerTaskOptions#getCatalogLocation()
      */
     @Override
     public String getCatalogLocation() {
@@ -176,7 +176,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     }
 
     /**
-     * @see com.sabre.schemacompiler.task.CommonCompilerTaskOptions#getOutputFolder()
+     * @see org.opentravel.schemacompiler.task.CommonCompilerTaskOptions#getOutputFolder()
      */
     @Override
     public String getOutputFolder() {
@@ -184,7 +184,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     }
 
     /**
-     * @see com.sabre.schemacompiler.task.ServiceCompilerTaskOptions#getServiceLibraryUrl()
+     * @see org.opentravel.schemacompiler.task.ServiceCompilerTaskOptions#getServiceLibraryUrl()
      */
     @Override
     public URL getServiceLibraryUrl() {
@@ -192,7 +192,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     }
 
     /**
-     * @see com.sabre.schemacompiler.task.ServiceCompilerTaskOptions#getServiceEndpointUrl()
+     * @see org.opentravel.schemacompiler.task.ServiceCompilerTaskOptions#getServiceEndpointUrl()
      */
     @Override
     public String getServiceEndpointUrl() {
@@ -210,7 +210,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     }
 
     /**
-     * @see com.sabre.schemacompiler.task.CommonCompilerTaskOptions#isGenerateExamples()
+     * @see org.opentravel.schemacompiler.task.CommonCompilerTaskOptions#isGenerateExamples()
      */
     @Override
     public boolean isGenerateExamples() {
@@ -228,7 +228,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     }
 
     /**
-     * @see com.sabre.schemacompiler.task.CommonCompilerTaskOptions#isGenerateMaxDetailsForExamples()
+     * @see org.opentravel.schemacompiler.task.CommonCompilerTaskOptions#isGenerateMaxDetailsForExamples()
      */
     @Override
     public boolean isGenerateMaxDetailsForExamples() {
@@ -247,7 +247,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     }
 
     /**
-     * @see com.sabre.schemacompiler.task.ExampleCompilerTaskOptions#getExampleContext()
+     * @see org.opentravel.schemacompiler.task.ExampleCompilerTaskOptions#getExampleContext()
      */
     @Override
     public String getExampleContext() {
@@ -255,7 +255,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     }
 
     /**
-     * @see com.sabre.schemacompiler.task.CommonCompilerTaskOptions#getExampleMaxRepeat()
+     * @see org.opentravel.schemacompiler.task.CommonCompilerTaskOptions#getExampleMaxRepeat()
      */
     @Override
     public Integer getExampleMaxRepeat() {
@@ -274,7 +274,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     }
 
     /**
-     * @see com.sabre.schemacompiler.task.CommonCompilerTaskOptions#getExampleMaxDepth()
+     * @see org.opentravel.schemacompiler.task.CommonCompilerTaskOptions#getExampleMaxDepth()
      */
     @Override
     public Integer getExampleMaxDepth() {
@@ -293,7 +293,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     }
 
     /**
-     * @see com.sabre.schemacompiler.task.CommonCompilerTaskOptions#applyTaskOptions(com.sabre.schemacompiler.task.CommonCompilerTaskOptions)
+     * @see org.opentravel.schemacompiler.task.CommonCompilerTaskOptions#applyTaskOptions(org.opentravel.schemacompiler.task.CommonCompilerTaskOptions)
      */
     @Override
     public void applyTaskOptions(final CommonCompilerTaskOptions taskOptions) {
