@@ -15,12 +15,12 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.log.Logger;
 import org.osgi.framework.Bundle;
 
-import com.sabre.schemacompiler.index.FreeTextSearchService;
-import com.sabre.schemacompiler.repository.RemoteRepository;
-import com.sabre.schemacompiler.repository.RepositoryException;
-import com.sabre.schemacompiler.repository.RepositoryManager;
-import com.sabre.schemacompiler.repository.RepositoryServlet;
-import com.sabre.schemacompiler.repository.impl.RemoteRepositoryClient;
+import org.opentravel.schemacompiler.index.FreeTextSearchService;
+import org.opentravel.schemacompiler.repository.RemoteRepository;
+import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryManager;
+import org.opentravel.schemacompiler.repository.RepositoryServlet;
+import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 
 /**
  * Encapsulates the configuration and run-time environment of an OTA2.0 repository that is launched
