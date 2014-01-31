@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.swtbot.eclipse.ui.launcher.JunitLaunchConfig">
 <setAttribute key="additional_plugins">
-<setEntry value="com.sabre.schemas.stl2Developer.test.utils:3.0.0.qualifier:default:true"/>
+<setEntry value="org.opentravel.schemas.stl2Developer.test.utils:3.0.0.qualifier:default:true"/>
 </setAttribute>
 <booleanAttribute key="append.args" value="true"/>
 <booleanAttribute key="askclear" value="false"/>
@@ -19,23 +19,23 @@
 <booleanAttribute key="includeOptional" value="true"/>
 <stringAttribute key="location" value="${workspace_loc}/../junit-workspace"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/com.sabre.schemas.stl2Developer.test.ui/src"/>
+<listEntry value="/org.opentravel.schemas.stl2Developer.test.ui/src"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="2"/>
 </listAttribute>
-<stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value="=com.sabre.schemas.stl2Developer.test.ui/src"/>
+<stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value="=org.opentravel.schemas.stl2Developer.test.ui/src"/>
 <booleanAttribute key="org.eclipse.jdt.junit.KEEPRUNNING_ATTR" value="false"/>
 <stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value=""/>
 <stringAttribute key="org.eclipse.jdt.junit.TEST_KIND" value="org.eclipse.jdt.junit.loader.junit4"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value=""/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -consoleLog -closeWithoutSave"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="com.sabre.schemas.stl2Developer.test.ui"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="org.opentravel.schemas.stl2Developer.test.ui"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
 <stringAttribute key="pde.version" value="3.3"/>
-<stringAttribute key="product" value="com.sabre.schemas.stl2Developer.OTA2Editor"/>
+<stringAttribute key="product" value="org.opentravel.schemas.stl2Developer.OTA2Editor"/>
 <setAttribute key="selected_features">
-<setEntry value="com.sabre.schemas.stl2Developer.feature:default"/>
+<setEntry value="org.opentravel.schemas.stl2Developer.feature:default"/>
 <setEntry value="org.eclipse.rcp:default"/>
 <setEntry value="org.eclipse.swtbot.eclipse:default"/>
 <setEntry value="org.eclipse.swtbot:default"/>
