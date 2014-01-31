@@ -6,7 +6,7 @@
   <artifactId>otm-de-parent-pom</artifactId>
   <version>3.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-
+  <inceptionYear>2014</inceptionYear>
 
   <properties>
     <tycho-version>0.17.0</tycho-version>
@@ -82,6 +82,45 @@
         <artifactId>tycho-maven-plugin</artifactId>
         <version>${tycho-version}</version>
         <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>2.6</version>
+        <configuration>
+          <header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
+          <aggregate>true</aggregate>
+          <properties>
+            <owner>OpenTravel Alliance</owner>
+            <year>${project.inceptionYear}</year>
+            <email>info@opentravel.org</email>
+          </properties>
+          <excludes>
+            <exclude>**/pom.xml</exclude>
+            <!-- exclude eclipse launchers-->
+            <exclude>**/*.launch</exclude>
+            <exclude>**/*.xml</exclude>
+            <exclude>**/*.sh</exclude>
+            <exclude>**/*.xsd</exclude>
+            <exclude>**/*.txt</exclude>
+            <exclude>**/*.properties</exclude>
+            <exclude>**/about.mappings</exclude>
+            <exclude>**/*.xpm</exclude>
+            <exclude>**/*.icns</exclude>
+            <exclude>**/*.product</exclude>
+            <exclude>**/*.ini</exclude>
+            <exclude>**/*.inf</exclude>
+            <exclude>src/test/resources/**</exclude>
+            <exclude>src/main/resources/**</exclude>
+          </excludes>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
