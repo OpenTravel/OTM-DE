@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:Window">
+         <menu
+               label="Show View">
+            <command
+                  commandId="org.eclipse.ui.views.showView"
+                  label="Graphical View"
+                  style="push">
+               <parameter
+                     name="org.eclipse.ui.views.showView.viewId"
+                     value="org.opentravel.schemas.stl2Developer.editor.DependenciesView">
+               </parameter>
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.opentravel.schemas.stl2Developer.editor.commands.OpenEditorHandler"
+            id="org.opentravel.schemas.stl2Developer.editor.openEditor"
+            name="Open Editor">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="org.opentravel.schemas.stl2Developer.editor.view.DependeciesView"
+            icon="icons/view_icon.png"
+            id="org.opentravel.schemas.stl2Developer.editor.DependenciesView"
+            name="Graphical View"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="*">
+         <view
+               closeable="true"
+               id="org.opentravel.schemas.stl2Developer.editor.DependenciesView"
+               minimized="true"
+               moveable="true"
+               relationship="stack"
+               relative="org.opentravel.schemas.stl2Developer.TypeView"
+               standalone="false"
+               visible="true">
+         </view>
+         <viewShortcut
+               id="org.opentravel.schemas.stl2Developer.editor.DependenciesView">
+         </viewShortcut>
+      </perspectiveExtension>
+   </extension>
+
+</plugin>

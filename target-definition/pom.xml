@@ -4,13 +4,12 @@
   xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.sabre.es.otm</groupId>
+    <groupId>org.opentravel.otm</groupId>
     <artifactId>otm-de-parent-pom</artifactId>
     <version>3.1.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <groupId>com.sabre.es.otm</groupId>
   <artifactId>target-definition</artifactId>
   <name>Indigo based target definition</name>
   <packaging>pom</packaging>

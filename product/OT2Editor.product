@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="OTM Development Environment" uid="OTM-DE" id="com.sabre.schemas.stl2Developer.product" application="com.sabre.schemas.stl2Developer.application" version="3.1.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="OTM Development Environment" uid="OTM-DE" id="org.opentravel.schemas.stl2Developer.product" application="org.opentravel.schemas.stl2Developer.application" version="3.1.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
@@ -13,7 +13,7 @@
    <windowImages i16="icons/alt_window_16.gif" i32="icons/alt_window_32.gif"/>
 
    <splash
-      location="com.sabre.schemas.stl2Developer" />
+      location="org.opentravel.schemas.stl2Developer" />
    <launcher name="OTM-DE">
       <linux icon="icons/application.xpm"/>
       <macosx icon="icons/application_32.icns"/>
@@ -210,7 +210,7 @@ OpenTravel Model License Agreement, (c) Copyright 2013 OpenTravel Alliance, Inc.
    </plugins>
 
    <features>
-      <feature id="com.sabre.schemas.stl2Developer.feature.basic" version="0.0.0"/>
+      <feature id="org.opentravel.schemas.stl2Developer.feature.basic" version="0.0.0"/>
    </features>
 
    <configurations>

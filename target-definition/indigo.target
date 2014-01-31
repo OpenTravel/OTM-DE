@@ -45,7 +45,7 @@
      libraries without public p2 repository, the local website is hosted using
      p2-maven-plugin.
      usage:
-     $ cd com.sabre.schemas.stl2Developer.p2Site/
+     $ cd org.opentravel.schemas.stl2Developer.p2Site/
      $ mvn p2:site
      $ mvn jetty:run-->
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">

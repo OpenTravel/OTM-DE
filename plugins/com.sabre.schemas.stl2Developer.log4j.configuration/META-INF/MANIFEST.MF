@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: log4j configuration
-Bundle-SymbolicName: com.sabre.schemas.stl2Developer.log4j.configuration
-Bundle-Version: 3.1.0.qualifier
-Bundle-Vendor: SABRE
-Fragment-Host: log4j;bundle-version="1.2.14"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
