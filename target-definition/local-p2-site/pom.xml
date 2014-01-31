@@ -21,7 +21,7 @@
                <artifacts>
                  <!-- groupId:artifactId:version -->
                  <artifact><id>org.apache.aries.spifly:org.apache.aries.spifly.dynamic.bundle:1.0.0</id></artifact>
-                 <artifact><id>org.opentravel.es.otm:schema-compiler:3.1-SNAPSHOT</id></artifact>
+                 <artifact><id>org.opentravel.otm:schema-compiler:3.1-SNAPSHOT</id></artifact>
                  <artifact>
                    <id>commons-logging:commons-logging:1.1.1</id>
                    <instructions>
