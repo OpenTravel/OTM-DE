@@ -21,6 +21,11 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
+import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryItemState;
+import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemas.node.AggregateNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComplexComponentInterface;
@@ -52,12 +57,6 @@ import org.opentravel.schemas.testers.NodeTester;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.osgi.framework.Version;
-
-import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
-import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemacompiler.repository.RepositoryException;
-import org.opentravel.schemacompiler.repository.RepositoryItemState;
-import org.opentravel.schemacompiler.saver.LibrarySaveException;
 
 public class VersionsTest extends RepositoryIntegrationTestBase {
     MockLibrary ml = new MockLibrary();
@@ -156,10 +155,11 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         // Create locked minor version. Will contain bo with property from ePatch.
         minorLibrary = rc.createMinorVersion(chain.getHead());
         MinorComplex++; // the new CO from patch EPF
-        TotalDescendents++; //new Co
-        TotalDescendents++; //new Simple created by roll-up
+        TotalDescendents++; // new Co
+        TotalDescendents++; // new Simple created by roll-up
         // Make surame the patch library still has the extension point wrapped in a version node.
-        Assert.assertSame(((VersionNode)patchLibrary.getComplexRoot().getChildren().get(0)).getNewestVersion(), ePatch);
+        Assert.assertSame(((VersionNode) patchLibrary.getComplexRoot().getChildren().get(0))
+                .getNewestVersion(), ePatch);
         checkCounts(chain);
 
         // FIXME - OTA-811
@@ -439,7 +439,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         // Add a custom facet
         nbo.addFacet("c2", contextIDs.get(0), TLFacetType.CUSTOM);
         Assert.assertEquals(4, nbo.getChildren().size());
-        //minorComple + 1 (the inherited simple created by roll-up
+        // minorComple + 1 (the inherited simple created by roll-up
         Assert.assertEquals(MinorComplex + 1, minorLibrary.getDescendants_NamedTypes().size());
         Assert.assertTrue(chain.isValid());
         nbo.delete();
@@ -461,7 +461,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         Assert.assertEquals(3, majorLibrary.getNavChildren().size());
 
         // Nav Nodes should ONLY have version
-         for (Node nn : patchLibrary.getNavChildren()) {
+        for (Node nn : patchLibrary.getNavChildren()) {
             Assert.assertTrue(nn instanceof NavNode);
             checkChildrenClassType(nn, VersionNode.class, null);
             // Version nodes should have NO nav children.
@@ -640,6 +640,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         Assert.assertFalse(majorLibrary.getDescendants_NamedTypes().contains(nbo));
         Assert.assertTrue(chain.isValid());
         nbo.delete();
+        ActiveComplex--;
         checkCounts(chain);
     }
 
@@ -728,7 +729,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         // Create major version which makes the minor final.
         Assert.assertTrue(chain.isEditable());
         LibraryNode newMajor = rc.createMajorVersion(chain.getHead());
-        TotalDescendents = TotalDescendents - 3; // Rolled up EP and CO and Simple 
+        TotalDescendents = TotalDescendents - 3; // Rolled up EP and CO and Simple
         ActiveComplex--; // Rolled up CO
 
         Assert.assertFalse(chain.isEditable());
