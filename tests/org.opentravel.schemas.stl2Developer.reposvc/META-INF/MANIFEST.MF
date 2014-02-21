@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Reposvc
 Bundle-SymbolicName: org.opentravel.schemas.stl2Developer.reposvc
-Bundle-Version: 3.1.0.qualifier
+Bundle-Version: 3.1.0.rc5-DRAFT
 Bundle-Vendor: OpenTravel Alliance
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-BuddyPolicy: registered
