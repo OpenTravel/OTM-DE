@@ -2,12 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bundle
 Bundle-SymbolicName: org.opentravel.schemas.stl2Developer.schemacompiler
-Bundle-Version: 3.1.0.rc5-DRAFT
+Bundle-Version: 3.1.0.qualifier
 Bundle-Vendor: OpenTravel Alliance
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-BuddyPolicy: registered
 Bundle-ClassPath: .,
- libs/schema-compiler-3.1.rc5.jar,
+ libs/schema-compiler-3.1-SNAPSHOT.jar,
  libs/spring-aop-3.0.6.RELEASE.jar,
  libs/spring-asm-3.0.6.RELEASE.jar,
  libs/spring-beans-3.0.6.RELEASE.jar,

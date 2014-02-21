@@ -29,6 +29,9 @@ mvn -Dtycho.mode=maven org.eclipse.tycho:tycho-versions-plugin:0.17.0:set-versio
 echo -e "${bold}Update compiler version in parent pom.xml${RESET}"
 sed -i "s/<compiler\.version>.*<\/compiler\.version>/<compiler\.version>${NEW_COMPILER_VERSION}<\/compiler\.version>/g" ${PARENT_POM}
 
+echo -e "${bold}Update p2-local-site version${RESET}"
+sed -i "s/<version>${CURRENT_VERSION}<\/version>/<version>${NEW_PLUGIN_VERSION}<\/version>/" ./target-definition/local-p2-site/pom.xml
+
 echo -e "${bold}Update ota2 dependencies to schema-compiler-ext-ota2${RESET}"
 sed -i "s/schema-compiler-ext-ota2-${CURRENT_COMPILER_VERSION}/schema-compiler-ext-ota2-${NEW_COMPILER_VERSION}/g" ./plugins/org.opentravel.schemas.stl2Developer.ota2/build.properties
 sed -i "s/schema-compiler-ext-ota2-${CURRENT_COMPILER_VERSION}/schema-compiler-ext-ota2-${NEW_COMPILER_VERSION}/g" ./plugins/org.opentravel.schemas.stl2Developer.ota2/META-INF/MANIFEST.MF
