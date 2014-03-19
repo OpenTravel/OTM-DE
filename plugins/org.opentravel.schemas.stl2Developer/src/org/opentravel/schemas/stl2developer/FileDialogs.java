@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.FileDialog;
  */
 public class FileDialogs {
 
-    private static final String[] EXTENSIONS = { "*.otm; *.xml; *.xsd" };
+    private static final String[] EXTENSIONS = { "*.otm;*.xml;*.xsd" };
     private static final String DialogText = "Select Library";
 
     /**
