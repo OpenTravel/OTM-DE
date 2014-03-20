@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.controllers;
 
+import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemas.node.ComplexComponentInterface;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.INode;
@@ -24,8 +25,6 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
-
-import org.opentravel.schemacompiler.model.TLModel;
 
 /**
  * Centralizes all the model related actions. When created, creates and saves a model node and
@@ -59,11 +58,6 @@ public interface ModelController {
      *            {@link ModelNode} to be closed
      */
     public void close();
-
-    /**
-     * Perform all cleaning operation before closing application.
-     */
-    public void performCleaning();
 
     /**
      * Compiles the libraries into output files (defined by the underlying schema compiler)

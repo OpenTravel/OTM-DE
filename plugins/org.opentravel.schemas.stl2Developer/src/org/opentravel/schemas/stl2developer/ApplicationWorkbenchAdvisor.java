@@ -28,6 +28,7 @@ import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ModelController;
+import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelContentsData;
 import org.opentravel.schemas.node.ModelNode;
@@ -149,7 +150,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
             } else {
                 answer = askUser(modelNode.getLibraries());
             }
-            return closeActions(answer, modelController, modelNode);
+            return closeActions(answer, modelController, mc.getProjectController(), modelNode);
         }
         return true;
     }
@@ -170,12 +171,13 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
         return false;
     }
 
-    private boolean closeActions(int answer, ModelController modelController, ModelNode modelNode) {
+    private boolean closeActions(int answer, ModelController modelController,
+            ProjectController projectController, ModelNode modelNode) {
         switch (answer) {
             case IDialogConstants.OK_ID:
                 modelController.saveModel(modelNode);
             case IDialogConstants.NO_ID:
-                modelController.performCleaning();
+                projectController.saveState();
                 return true;
             case IDialogConstants.CANCEL_ID:
             default:

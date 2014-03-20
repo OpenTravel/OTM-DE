@@ -22,6 +22,24 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.opentravel.schemacompiler.event.ModelEvent;
+import org.opentravel.schemacompiler.event.ModelEventListener;
+import org.opentravel.schemacompiler.event.ModelEventType;
+import org.opentravel.schemacompiler.event.OwnershipEvent;
+import org.opentravel.schemacompiler.event.ValueChangeEvent;
+import org.opentravel.schemacompiler.ic.ModelIntegrityChecker;
+import org.opentravel.schemacompiler.loader.LibraryLoaderException;
+import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLDocumentation;
+import org.opentravel.schemacompiler.model.TLDocumentationOwner;
+import org.opentravel.schemacompiler.model.TLModel;
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.repository.Project;
+import org.opentravel.schemacompiler.task.CompileAllCompilerTask;
+import org.opentravel.schemacompiler.util.SchemaCompilerException;
+import org.opentravel.schemacompiler.validate.FindingType;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.modelObject.events.OwnershipEventListener;
 import org.opentravel.schemas.modelObject.events.ValueChangeEventListener;
 import org.opentravel.schemas.node.ComplexComponentInterface;
@@ -45,25 +63,6 @@ import org.opentravel.schemas.views.OtmView;
 import org.opentravel.schemas.views.ValidationResultsView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.opentravel.schemacompiler.event.ModelEvent;
-import org.opentravel.schemacompiler.event.ModelEventListener;
-import org.opentravel.schemacompiler.event.ModelEventType;
-import org.opentravel.schemacompiler.event.OwnershipEvent;
-import org.opentravel.schemacompiler.event.ValueChangeEvent;
-import org.opentravel.schemacompiler.ic.ModelIntegrityChecker;
-import org.opentravel.schemacompiler.loader.LibraryLoaderException;
-import org.opentravel.schemacompiler.model.TLAttribute;
-import org.opentravel.schemacompiler.model.TLDocumentation;
-import org.opentravel.schemacompiler.model.TLDocumentationOwner;
-import org.opentravel.schemacompiler.model.TLModel;
-import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemacompiler.model.TLProperty;
-import org.opentravel.schemacompiler.repository.Project;
-import org.opentravel.schemacompiler.task.CompileAllCompilerTask;
-import org.opentravel.schemacompiler.util.SchemaCompilerException;
-import org.opentravel.schemacompiler.validate.FindingType;
-import org.opentravel.schemacompiler.validate.ValidationFindings;
 
 /**
  * @author Agnieszka Janowska
@@ -132,7 +131,9 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
     /*
      * (non-Javadoc)
      * 
-     * @see org.opentravel.schemas.otmActions.ModelController#saveModel(org.opentravel.schemas.node.ModelNode)
+     * @see
+     * org.opentravel.schemas.otmActions.ModelController#saveModel(org.opentravel.schemas.node.ModelNode
+     * )
      */
     @Override
     public void saveModel(final INode model) {
@@ -174,12 +175,6 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
         mc.setModelNode(modelRoot);
         mc.clearSelection();
         mc.refresh();
-    }
-
-    @Override
-    public void performCleaning() {
-        mc.getProjectController().closeAll();
-        mc.getProjectController().saveState();
     }
 
     @Override
@@ -227,7 +222,8 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
      * (non-Javadoc)
      * 
      * @see
-     * org.opentravel.schemas.otmActions.ModelController#compileModel(org.opentravel.schemas.node.ModelNode)
+     * org.opentravel.schemas.otmActions.ModelController#compileModel(org.opentravel.schemas.node
+     * .ModelNode)
      */
     @Override
     public void compileModel(ModelNode model) {
