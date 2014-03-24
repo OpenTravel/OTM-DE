@@ -28,6 +28,23 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.codegen.CodeGenerationException;
+import org.opentravel.schemacompiler.codegen.example.ExampleDocumentBuilder;
+import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
+import org.opentravel.schemacompiler.model.TLAttributeType;
+import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLDocumentation;
+import org.opentravel.schemacompiler.model.TLDocumentationItem;
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.validate.FindingMessageFormat;
+import org.opentravel.schemacompiler.validate.FindingType;
+import org.opentravel.schemacompiler.validate.Validatable;
+import org.opentravel.schemacompiler.validate.ValidationException;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
+import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.opentravel.schemas.modelObject.BusinessObjMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
@@ -47,24 +64,6 @@ import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
-import org.opentravel.schemacompiler.codegen.CodeGenerationException;
-import org.opentravel.schemacompiler.codegen.example.ExampleDocumentBuilder;
-import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions;
-import org.opentravel.schemacompiler.model.LibraryMember;
-import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
-import org.opentravel.schemacompiler.model.TLAttributeType;
-import org.opentravel.schemacompiler.model.TLContext;
-import org.opentravel.schemacompiler.model.TLDocumentation;
-import org.opentravel.schemacompiler.model.TLDocumentationItem;
-import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemacompiler.validate.FindingMessageFormat;
-import org.opentravel.schemacompiler.validate.FindingType;
-import org.opentravel.schemacompiler.validate.Validatable;
-import org.opentravel.schemacompiler.validate.ValidationException;
-import org.opentravel.schemacompiler.validate.ValidationFindings;
-import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 
 /**
  * Main node structure for representing OTM objects.
@@ -1977,8 +1976,12 @@ public abstract class Node implements INode {
      */
     public boolean isInHead() {
         Node owner = getOwningComponent();
-        if ( owner instanceof OperationNode) {
+        if (owner instanceof OperationNode) {
             owner = owner.getOwningComponent();
+        }
+        if (owner instanceof ServiceNode) {
+            // service do not have versionNode
+            return true;
         }
         // False if unmanaged.
         if (owner == null || owner.versionNode == null)

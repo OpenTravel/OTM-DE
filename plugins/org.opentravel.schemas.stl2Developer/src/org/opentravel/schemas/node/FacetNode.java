@@ -20,6 +20,18 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.TLAbstractFacet;
+import org.opentravel.schemacompiler.model.TLAlias;
+import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLListFacet;
+import org.opentravel.schemacompiler.model.TLOperation;
+import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLRoleEnumeration;
+import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemas.modelObject.BusinessObjMO;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
 import org.opentravel.schemas.modelObject.RoleEnumerationMO;
@@ -33,19 +45,6 @@ import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.utils.StringComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.opentravel.schemacompiler.model.TLAbstractFacet;
-import org.opentravel.schemacompiler.model.TLAlias;
-import org.opentravel.schemacompiler.model.TLAttribute;
-import org.opentravel.schemacompiler.model.TLContext;
-import org.opentravel.schemacompiler.model.TLFacet;
-import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemacompiler.model.TLLibrary;
-import org.opentravel.schemacompiler.model.TLListFacet;
-import org.opentravel.schemacompiler.model.TLOperation;
-import org.opentravel.schemacompiler.model.TLProperty;
-import org.opentravel.schemacompiler.model.TLRoleEnumeration;
-import org.opentravel.schemacompiler.model.TLSimpleFacet;
 
 /**
  * Facets are containers for properties (elements and attributes) as well as simple facets for core
@@ -495,6 +494,11 @@ public class FacetNode extends ComponentNode {
     public boolean isDeleteable() {
         if (!super.isDeleteable())
             return false;
+
+        // for OperationNode, which doesn't have facetType
+        if (this.getFacetType() == null) {
+            return true;
+        }
         return TLFacetType.QUERY.equals(this.getFacetType())
                 || TLFacetType.REQUEST.equals(this.getFacetType())
                 || TLFacetType.RESPONSE.equals(this.getFacetType())

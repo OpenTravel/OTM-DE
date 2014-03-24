@@ -21,14 +21,13 @@ package org.opentravel.schemas.node;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemas.modelObject.ModelObjectFactory;
-import org.opentravel.schemas.node.properties.ElementNode;
-
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLOperation;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLService;
+import org.opentravel.schemas.modelObject.ModelObjectFactory;
+import org.opentravel.schemas.node.properties.ElementNode;
 
 /**
  * Service Operations.
@@ -261,11 +260,6 @@ public class OperationNode extends FacetNode {
     @Override
     public String getLabel() {
         return OPERATION_PREFIX + getName();
-    }
-
-    @Override
-    public boolean isDeleteable() {
-        return true;
     }
 
     @Override

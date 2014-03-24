@@ -15,8 +15,13 @@
  */
 package org.opentravel.schemas.commands;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 
 public class SaveLibraryHandler extends OtmAbstractHandler {
@@ -25,11 +30,12 @@ public class SaveLibraryHandler extends OtmAbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent exEvent) throws ExecutionException {
+        Set<LibraryNode> libraries = new HashSet<LibraryNode>();
+        // filter duplicates
         for (Node cn : mc.getSelectedNodes_NavigatorView()) {
-            if (cn.getLibrary() != null) {
-                mc.getLibraryController().saveLibrary(cn.getLibrary(), false);
-            }
+            libraries.add(cn.getLibrary());
         }
+        mc.getLibraryController().saveLibraries(new ArrayList<LibraryNode>(libraries), false);
         return null;
     }
 
