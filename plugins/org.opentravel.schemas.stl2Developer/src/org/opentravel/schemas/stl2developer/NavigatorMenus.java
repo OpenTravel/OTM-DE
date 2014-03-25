@@ -67,6 +67,7 @@ import org.opentravel.schemas.actions.ValidateAction;
 import org.opentravel.schemas.actions.VersionMajorAction;
 import org.opentravel.schemas.actions.VersionMinorAction;
 import org.opentravel.schemas.actions.VersionPatchAction;
+import org.opentravel.schemas.actions.XSD2OTMAction;
 import org.opentravel.schemas.commands.AddNodeHandler;
 import org.opentravel.schemas.commands.DeleteNodesHandler;
 import org.opentravel.schemas.commands.NewComponentHandler;
@@ -220,6 +221,8 @@ public class NavigatorMenus extends TreeViewer {
         final IContributionItem validateAction = RCPUtils.createCommandContributionItem(site,
                 ValidateAction.ID, null, null, Activator.getImageDescriptor(Images.Validate));
 
+        final Action convertToOTM = new XSD2OTMAction();
+
         final MenuManager versionMenu = new MenuManager("Version...", "VersionMenuID");
 
         setContentProvider(new LibraryTreeContentProvider());
@@ -244,6 +247,7 @@ public class NavigatorMenus extends TreeViewer {
                 libraryMenu.add(newLibraryAction);
                 libraryMenu.add(openLibraryAction);
                 libraryMenu.add(validateAction);
+                libraryMenu.add(convertToOTM);
                 libraryMenu.add(new Separator());
                 libraryMenu.add(manageInMenu);
                 libraryMenu.add(versionMenu);
