@@ -18,14 +18,13 @@ package org.opentravel.schemas.controllers;
 import java.util.Collection;
 import java.util.List;
 
+import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
-
-import org.opentravel.schemacompiler.repository.ProjectItem;
-import org.opentravel.schemacompiler.repository.RepositoryItemState;
 
 /**
  * Central place for all the library related actions. Note that the global model actions are
@@ -159,5 +158,15 @@ public interface LibraryController {
      * @return status base on {@link LibraryNode#getStatus()} and {@link ProjectItem#getState()}.
      */
     String getLibraryStatus(LibraryNode libary);
+
+    /**
+     * Convert given library to OTM. This method will convert given library, and if needed all his
+     * dependencies.
+     * 
+     * @param xsdLibrary
+     *            - XSD schema, non-otm file.
+     * @return newly created otm library and all dependencies from given xsd schema.
+     */
+    List<LibraryNode> convertXSD2OTM(LibraryNode xsdLibrary);
 
 }

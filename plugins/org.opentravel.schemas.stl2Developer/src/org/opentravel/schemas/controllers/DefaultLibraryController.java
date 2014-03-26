@@ -20,11 +20,22 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.swt.widgets.FileDialog;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.BuiltInLibrary;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLLibraryStatus;
+import org.opentravel.schemacompiler.model.XSDLibrary;
+import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemacompiler.saver.LibraryModelSaver;
+import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
+import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
@@ -38,22 +49,11 @@ import org.opentravel.schemas.views.OtmView;
 import org.opentravel.schemas.views.ValidationResultsView;
 import org.opentravel.schemas.views.decoration.LibraryDecorator;
 import org.opentravel.schemas.wizards.GlobalLocalCancelDialog;
+import org.opentravel.schemas.wizards.GlobalLocalCancelDialog.GlobalDialogResult;
 import org.opentravel.schemas.wizards.NewLibraryValidator;
 import org.opentravel.schemas.wizards.NewLibraryWizard;
-import org.opentravel.schemas.wizards.GlobalLocalCancelDialog.GlobalDialogResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.opentravel.schemacompiler.model.AbstractLibrary;
-import org.opentravel.schemacompiler.model.BuiltInLibrary;
-import org.opentravel.schemacompiler.model.TLLibrary;
-import org.opentravel.schemacompiler.model.TLLibraryStatus;
-import org.opentravel.schemacompiler.model.XSDLibrary;
-import org.opentravel.schemacompiler.repository.ProjectItem;
-import org.opentravel.schemacompiler.saver.LibraryModelSaver;
-import org.opentravel.schemacompiler.saver.LibrarySaveException;
-import org.opentravel.schemacompiler.validate.ValidationFindings;
-import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 
 /**
  * Implements interactions the user has with the Library View by acting upon the library nodes and
@@ -454,5 +454,12 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
         }
         return LibraryDecorator.translateStatusState(library.getStatus(), pi.getState(),
                 pi.getLockedByUser(), library.isEditable());
+    }
+
+    @Override
+    public List<LibraryNode> convertXSD2OTM(LibraryNode xsdLibrary) {
+        if (!xsdLibrary.isXSDSchema())
+            throw new IllegalArgumentException("");
+        return Collections.emptyList();
     }
 }
