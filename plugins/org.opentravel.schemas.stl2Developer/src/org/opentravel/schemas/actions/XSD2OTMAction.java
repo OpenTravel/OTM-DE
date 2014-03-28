@@ -17,8 +17,6 @@ package org.opentravel.schemas.actions;
 
 import java.util.List;
 
-import org.eclipse.jface.window.Window;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 import org.opentravel.schemas.controllers.LibraryController;
@@ -26,7 +24,6 @@ import org.opentravel.schemas.navigation.GlobalSelectionProvider;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.wizards.XSD2OTMWizard;
 
 public class XSD2OTMAction extends AbstractGlobalSelectionAction {
 
@@ -62,12 +59,12 @@ public class XSD2OTMAction extends AbstractGlobalSelectionAction {
 
             @Override
             public void run() {
-                XSD2OTMWizard wizard = XSD2OTMWizard.createNewRepositoryWizard();
-                WizardDialog dialog = new WizardDialog(OtmRegistry.getActiveShell(), wizard);
-                int ret = dialog.open();
-                if (ret == Window.OK) {
-                    convertLibraryToOTM();
-                }
+                // XSD2OTMWizard wizard = XSD2OTMWizard.createNewRepositoryWizard();
+                // WizardDialog dialog = new WizardDialog(OtmRegistry.getActiveShell(), wizard);
+                // int ret = dialog.open();
+                // if (ret == Window.OK) {
+                convertLibraryToOTM();
+                // }
             }
         });
     }
@@ -80,11 +77,8 @@ public class XSD2OTMAction extends AbstractGlobalSelectionAction {
         LibraryController lc = OtmRegistry.getMainController().getLibraryController();
         try {
             lc.convertXSD2OTM(getSourceValue());
-            for (int i = 0; i < 500000; i++) {
-                System.out.println(i);
-            }
         } catch (Exception ex) {
-
+            // TODO: show error
         }
     }
 

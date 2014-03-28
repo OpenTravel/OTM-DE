@@ -16,6 +16,7 @@
 package org.opentravel.schemas.controllers;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +53,7 @@ import org.opentravel.schemas.wizards.GlobalLocalCancelDialog;
 import org.opentravel.schemas.wizards.GlobalLocalCancelDialog.GlobalDialogResult;
 import org.opentravel.schemas.wizards.NewLibraryValidator;
 import org.opentravel.schemas.wizards.NewLibraryWizard;
+import org.opentravel.schemas.wizards.NewLibraryWizardPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -460,6 +462,41 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
     public List<LibraryNode> convertXSD2OTM(LibraryNode xsdLibrary) {
         if (!xsdLibrary.isXSDSchema())
             throw new IllegalArgumentException("");
+        URL otmLibraryURL = createLibURL(xsdLibrary);
+        String otmLibraryName = "OTM" + xsdLibrary.getName();
+        LibraryNode newLib = createLibrary(otmLibraryName, xsdLibrary.getNamePrefix(),
+                otmLibraryURL, xsdLibrary.getNamespace(), xsdLibrary.getProject());
+
+        if (newLib != null) {
+            // make it temporary editable to import types
+            newLib.setEditable(true);
+            newLib.importNodes(xsdLibrary.getDescendentsNamedTypes(), false);
+            newLib.updateLibraryStatus();
+            return Collections.singletonList(newLib);
+        }
         return Collections.emptyList();
+    }
+
+    private URL createLibURL(LibraryNode xsdLibrary) {
+        URL xsd = xsdLibrary.getTLaLib().getLibraryUrl();
+        try {
+            return new URL(xsd.toString() + "." + NewLibraryWizardPage.DEFAULT_EXTENSION);
+        } catch (MalformedURLException e) {
+            // TODO: should not happen
+        }
+        return xsd;
+    }
+
+    private LibraryNode createLibrary(String name, String prefix, URL url, String namespace,
+            ProjectNode pn) {
+        final TLLibrary tlLib = new TLLibrary();
+        tlLib.setStatus(TLLibraryStatus.DRAFT);
+        tlLib.setPrefix(prefix);
+        tlLib.setName(name);
+        tlLib.setLibraryUrl(url);
+        tlLib.setNamespace(namespace);
+
+        final ProjectController pc = mc.getProjectController();
+        return pc.add(pn, tlLib);
     }
 }

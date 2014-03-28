@@ -42,7 +42,7 @@ import org.opentravel.schemas.widgets.WidgetFactory;
  */
 public class NewLibraryWizardPage extends WizardPage {
 
-    private static final String DEFAULT_EXTENSION = "otm";
+    public static final String DEFAULT_EXTENSION = "otm";
     private Text fileText;
     private Button fileButton;
     private Text nameText;
