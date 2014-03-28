@@ -464,15 +464,6 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
                 pi.getLockedByUser(), library.isEditable());
     }
 
-    private LibraryNode findLibrary(AbstractLibrary tlLib) {
-        for (LibraryNode userLib : Node.getAllLibraries()) {
-            if (userLib.getTLaLib() == tlLib) {
-                return userLib;
-            }
-        }
-        return null;
-    }
-
     @Override
     public List<LibraryNode> convertXSD2OTM(LibraryNode xsdLibrary, boolean withDependecies) {
         HashMap<Node, Node> sourceToNewMap = new HashMap<Node, Node>();
@@ -493,7 +484,6 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
             Set<LibraryNode> visited, Map<Node, Node> sourceToNewMap) {
         if (!xsdLibrary.isXSDSchema())
             throw new IllegalArgumentException("");
-        //
         if (visited.contains(xsdLibrary))
             return Collections.emptyList();
 
@@ -513,7 +503,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
         }
 
         URL otmLibraryURL = createLibURL(xsdLibrary);
-        String otmLibraryName = "OTM" + xsdLibrary.getName();
+        String otmLibraryName = "OTM_" + xsdLibrary.getName();
         LibraryNode newLib = createLibrary(otmLibraryName, xsdLibrary.getNamePrefix(),
                 otmLibraryURL, xsdLibrary.getNamespace(), xsdLibrary.getProject());
 
@@ -545,12 +535,21 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
         return dependecis;
     }
 
+    private LibraryNode findLibrary(AbstractLibrary tlLib) {
+        for (LibraryNode userLib : Node.getAllLibraries()) {
+            if (userLib.getTLaLib() == tlLib) {
+                return userLib;
+            }
+        }
+        return null;
+    }
+
     private URL createLibURL(LibraryNode xsdLibrary) {
         URL xsd = xsdLibrary.getTLaLib().getLibraryUrl();
         try {
             return new URL(xsd.toString() + "." + NewLibraryWizardPage.DEFAULT_EXTENSION);
         } catch (MalformedURLException e) {
-            // TODO: should not happen
+            // should not happen, only adding extension
         }
         return xsd;
     }
