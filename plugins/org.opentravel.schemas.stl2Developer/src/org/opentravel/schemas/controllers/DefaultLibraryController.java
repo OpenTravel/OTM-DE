@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -37,6 +38,8 @@ import org.opentravel.schemacompiler.saver.LibraryModelSaver;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
+import org.opentravel.schemacompiler.visitor.DependencyNavigator;
+import org.opentravel.schemacompiler.visitor.ModelElementVisitorAdapter;
 import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
@@ -458,10 +461,30 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
                 pi.getLockedByUser(), library.isEditable());
     }
 
+    private LibraryNode findLibrary(AbstractLibrary tlLib) {
+        for (LibraryNode userLib : Node.getAllLibraries()) {
+            if (userLib.getTLaLib() == tlLib) {
+                return userLib;
+            }
+        }
+        return null;
+    }
+
     @Override
-    public List<LibraryNode> convertXSD2OTM(LibraryNode xsdLibrary) {
+    public List<LibraryNode> convertXSD2OTM(LibraryNode xsdLibrary, boolean withDependecies) {
         if (!xsdLibrary.isXSDSchema())
             throw new IllegalArgumentException("");
+
+        if (withDependecies) {
+            List<XSDLibrary> xsdDeps = findDependecies(xsdLibrary.getTLaLib());
+            for (XSDLibrary xsdDep : xsdDeps) {
+                LibraryNode nodeLib = findLibrary(xsdDep);
+                if (nodeLib != null) {
+                    convertXSD2OTM(nodeLib, withDependecies);
+                }
+            }
+        }
+
         URL otmLibraryURL = createLibURL(xsdLibrary);
         String otmLibraryName = "OTM" + xsdLibrary.getName();
         LibraryNode newLib = createLibrary(otmLibraryName, xsdLibrary.getNamePrefix(),
@@ -475,6 +498,24 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
             return Collections.singletonList(newLib);
         }
         return Collections.emptyList();
+    }
+
+    private List<XSDLibrary> findDependecies(final AbstractLibrary xsdLibrary) {
+        final LinkedList<XSDLibrary> dependecis = new LinkedList<XSDLibrary>();
+        DependencyNavigator.navigate(xsdLibrary, new ModelElementVisitorAdapter() {
+
+            @Override
+            public boolean visitLegacySchemaLibrary(XSDLibrary library) {
+                if (library.getOwningModel().getBuiltInLibraries().contains(library)) {
+                    return false;
+                }
+                if (library != xsdLibrary && !dependecis.contains(library)) {
+                    dependecis.addLast(library);
+                }
+                return true;
+            }
+        });
+        return dependecis;
     }
 
     private URL createLibURL(LibraryNode xsdLibrary) {

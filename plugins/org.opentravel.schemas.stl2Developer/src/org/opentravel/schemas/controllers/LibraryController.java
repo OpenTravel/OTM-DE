@@ -165,8 +165,9 @@ public interface LibraryController {
      * 
      * @param xsdLibrary
      *            - XSD schema, non-otm file.
+     * @param withDependecies TODO
      * @return newly created otm library and all dependencies from given xsd schema.
      */
-    List<LibraryNode> convertXSD2OTM(LibraryNode xsdLibrary);
+    List<LibraryNode> convertXSD2OTM(LibraryNode xsdLibrary, boolean withDependecies);
 
 }

@@ -76,7 +76,7 @@ public class XSD2OTMAction extends AbstractGlobalSelectionAction {
     private void convertLibraryToOTM() {
         LibraryController lc = OtmRegistry.getMainController().getLibraryController();
         try {
-            lc.convertXSD2OTM(getSourceValue());
+            lc.convertXSD2OTM(getSourceValue(), true);
         } catch (Exception ex) {
             // TODO: show error
         }
