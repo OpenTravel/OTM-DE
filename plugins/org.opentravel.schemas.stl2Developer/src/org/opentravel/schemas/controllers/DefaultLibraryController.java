@@ -472,15 +472,26 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 
     @Override
     public List<LibraryNode> convertXSD2OTM(LibraryNode xsdLibrary, boolean withDependecies) {
+        return convertXSD2OTM(xsdLibrary, withDependecies, new HashSet<LibraryNode>());
+    }
+
+    public List<LibraryNode> convertXSD2OTM(LibraryNode xsdLibrary, boolean withDependecies,
+            Set<LibraryNode> visited) {
         if (!xsdLibrary.isXSDSchema())
             throw new IllegalArgumentException("");
+        //
+        if (visited.contains(xsdLibrary))
+            return Collections.emptyList();
+
+        // prevent cycling referance
+        visited.add(xsdLibrary);
 
         if (withDependecies) {
             List<XSDLibrary> xsdDeps = findDependecies(xsdLibrary.getTLaLib());
             for (XSDLibrary xsdDep : xsdDeps) {
                 LibraryNode nodeLib = findLibrary(xsdDep);
                 if (nodeLib != null) {
-                    convertXSD2OTM(nodeLib, withDependecies);
+                    convertXSD2OTM(nodeLib, withDependecies, visited);
                 }
             }
         }
