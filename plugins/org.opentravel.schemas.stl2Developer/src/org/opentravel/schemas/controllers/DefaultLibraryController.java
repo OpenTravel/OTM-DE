@@ -22,9 +22,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.swt.widgets.FileDialog;
@@ -472,11 +475,22 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 
     @Override
     public List<LibraryNode> convertXSD2OTM(LibraryNode xsdLibrary, boolean withDependecies) {
-        return convertXSD2OTM(xsdLibrary, withDependecies, new HashSet<LibraryNode>());
+        HashMap<Node, Node> sourceToNewMap = new HashMap<Node, Node>();
+        List<LibraryNode> newLibs = convertXSD2OTM(xsdLibrary, withDependecies,
+                new HashSet<LibraryNode>(), sourceToNewMap);
+
+        // Change type users to use the imported nodes.
+        for (final Entry<Node, Node> entry : sourceToNewMap.entrySet()) {
+            for (LibraryNode scope : newLibs) {
+                final Node sourceNode = entry.getKey();
+                sourceNode.replaceTypesWith(entry.getValue(), scope);
+            }
+        }
+        return newLibs;
     }
 
     public List<LibraryNode> convertXSD2OTM(LibraryNode xsdLibrary, boolean withDependecies,
-            Set<LibraryNode> visited) {
+            Set<LibraryNode> visited, Map<Node, Node> sourceToNewMap) {
         if (!xsdLibrary.isXSDSchema())
             throw new IllegalArgumentException("");
         //
@@ -486,12 +500,14 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
         // prevent cycling referance
         visited.add(xsdLibrary);
 
+        List<LibraryNode> converted = new ArrayList<LibraryNode>();
         if (withDependecies) {
             List<XSDLibrary> xsdDeps = findDependecies(xsdLibrary.getTLaLib());
             for (XSDLibrary xsdDep : xsdDeps) {
                 LibraryNode nodeLib = findLibrary(xsdDep);
                 if (nodeLib != null) {
-                    convertXSD2OTM(nodeLib, withDependecies, visited);
+                    converted.addAll(convertXSD2OTM(nodeLib, withDependecies, visited,
+                            sourceToNewMap));
                 }
             }
         }
@@ -504,11 +520,11 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
         if (newLib != null) {
             // make it temporary editable to import types
             newLib.setEditable(true);
-            newLib.importNodes(xsdLibrary.getDescendentsNamedTypes(), false);
+            sourceToNewMap.putAll(newLib.importNodes(xsdLibrary.getDescendentsNamedTypes()));
             newLib.updateLibraryStatus();
-            return Collections.singletonList(newLib);
+            converted.add(newLib);
         }
-        return Collections.emptyList();
+        return converted;
     }
 
     private List<XSDLibrary> findDependecies(final AbstractLibrary xsdLibrary) {
