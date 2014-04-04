@@ -27,6 +27,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeExpansionEvent;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -127,6 +128,7 @@ public class RepositoryView extends OtmAbstractView implements ISelectionListene
         // viewer.addFilter(textFilter);
         // viewer.addFilter(inheritedFilter);
         // viewer.addFilter(propFilter);
+        viewer.setComparator(new ViewerComparator());
 
         viewer.getTree().setLayoutData(treeGD);
 
