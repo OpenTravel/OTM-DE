@@ -80,35 +80,58 @@ public class AggregateNode extends NavNode {
         }
 
         // Add if not found or replacing the existing node is older?
-        boolean toBeAdded = true;
-        int doFamily = 0;
         String familyName = NodeNameUtils.makeFamilyName(node.getName());
-
         for (Node n : getChildren()) {
-            if (n.getName().startsWith(familyName))
-                doFamily++;
-
             if (!n.isFamily() && n.getName().equals(node.getName())) {
                 // Is it "later-in-time" than the one found?
                 if (node.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib())) {
                     getChildren().remove(n);
                     insertPreviousVersion(node, (ComponentNode) n);
-                    toBeAdded = true;
-                    doFamily--;
-                } else
-                    toBeAdded = false;
-                break;
+                    return true;
+                } else {
+                    return false;
+                }
             }
         }
-
-        // Handle families
-        if (toBeAdded)
-            if (doFamily > 0)
-                addToFamily(node);
-            else {
-                getChildren().add(node);
+        AggregateFamilyNode family = findFamilyNode(getChildren(), familyName);
+        List<Node> nodes = findPrefixedNodes(getChildren(), familyName + "_");
+        if (!nodes.isEmpty()) {
+            if (family == null) {
+                family = new AggregateFamilyNode(this, familyName);
             }
-        return toBeAdded;
+            List<Node> kids = new ArrayList<Node>(nodes);
+            for (Node n : kids) {
+                getChildren().remove(n);
+                family.getChildren().add(n);
+            }
+        }
+        if (family != null) {
+            family.getChildren().add(node);
+        } else {
+            getChildren().add(node);
+        }
+        return true;
+    }
+
+    private AggregateFamilyNode findFamilyNode(List<Node> children, String familyName) {
+        for (Node child : children) {
+            if (child instanceof AggregateFamilyNode) {
+                if (familyName.equals(child.getName())) {
+                    return (AggregateFamilyNode) child;
+                }
+            }
+        }
+        return null;
+    }
+
+    private List<Node> findPrefixedNodes(List<Node> children, String prefix) {
+        List<Node> ret = new ArrayList<Node>();
+        for (Node c : children) {
+            if (c.getName().startsWith(prefix)) {
+                ret.add(c);
+            }
+        }
+        return ret;
     }
 
     // Insert node in versions list.
@@ -133,19 +156,6 @@ public class AggregateNode extends NavNode {
             n = n.getVersionNode().getPreviousVersion();
         }
 
-    }
-
-    private void addToFamily(ComponentNode node) {
-        String familyName = NodeNameUtils.makeFamilyName(node.getName());
-        List<Node> kids = new ArrayList<Node>(getChildren());
-        for (Node n : kids) {
-            if ((n instanceof AggregateFamilyNode) && n.getFamily().equals(familyName))
-                // add to existing family
-                n.getChildren().add(node);
-            else if (n.getFamily().equals(familyName))
-                // create new family
-                new AggregateFamilyNode(this, node, n);
-        }
     }
 
     protected void remove(Node node) {

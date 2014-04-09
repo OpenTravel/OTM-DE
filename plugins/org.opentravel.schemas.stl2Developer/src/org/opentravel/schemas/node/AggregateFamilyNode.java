@@ -34,16 +34,12 @@ public class AggregateFamilyNode extends FamilyNode {
     /**
      * Create a family node for type aggregates. There are no back links in type aggregates.
      * 
-     * @param n
-     * @param peer
+     * @param parent
+     * @param name
      */
-    public AggregateFamilyNode(AggregateNode parent, Node n, Node peer) {
-        super(NodeNameUtils.makeFamilyName(n.getName()), parent);
-        setLibrary(n.getLibrary());
-
-        getChildren().add(n);
-        getChildren().add(peer);
-        parent.getChildren().remove(peer);
+    public AggregateFamilyNode(AggregateNode parent, String name) {
+        super(name, parent);
+        setLibrary(parent.getLibrary());
     }
 
     protected void remove(Node node) {
