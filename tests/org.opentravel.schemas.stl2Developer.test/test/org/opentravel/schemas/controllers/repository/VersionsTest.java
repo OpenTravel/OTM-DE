@@ -26,6 +26,7 @@ import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemas.node.AggregateFamilyNode;
 import org.opentravel.schemas.node.AggregateNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComplexComponentInterface;
@@ -299,7 +300,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         Assert.assertTrue(gst.test(nco, GlobalSelectionTester.CANADD, null, null));
         Assert.assertTrue(gst.test(co, GlobalSelectionTester.CANADD, null, null));
         Assert.assertTrue(gst.test(bo, GlobalSelectionTester.CANADD, null, null));
-        Assert.assertFalse(gst.test(vwa, GlobalSelectionTester.CANADD, null, null));
+        Assert.assertTrue(gst.test(vwa, GlobalSelectionTester.CANADD, null, null));
         Assert.assertFalse(gst.test(ep, GlobalSelectionTester.CANADD, null, null));
 
         // New Component - NodeTester
@@ -393,9 +394,13 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         // Check the aggregates
         Node complexAgg = (Node) chain.getComplexAggregate();
         Assert.assertTrue(complexAgg.getParent() == chain);
-        checkChildrenClassType(complexAgg, ComplexComponentInterface.class, null);
-        for (Node n : complexAgg.getChildren())
-            Assert.assertTrue(n.getParent() != complexAgg);
+        checkChildrenClassType(complexAgg, ComplexComponentInterface.class,
+                AggregateFamilyNode.class);
+        for (Node n : complexAgg.getChildren()) {
+            if (!(n instanceof AggregateFamilyNode)) {
+                Assert.assertTrue(n.getParent() != complexAgg);
+            }
+        }
 
         Node simpleAgg = (Node) chain.getSimpleAggregate();
         Assert.assertTrue(simpleAgg.getParent() == chain);
@@ -472,7 +477,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         // Aggregates should have Active Simple, Active Complex and Service.
         // This checks both children and then navChildren.
         checkChildrenClassType(((Node) chain.getComplexAggregate()),
-                ComplexComponentInterface.class, null);
+                ComplexComponentInterface.class, AggregateFamilyNode.class);
         for (Node nc : ((Node) chain.getComplexAggregate()).getNavChildren()) {
             Assert.assertTrue(nc instanceof ComplexComponentInterface);
         }
@@ -526,9 +531,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         BusinessObjectNode nbo = createBO_InMinor();
         testAddingPropertiesToFacet(nbo.getDetailFacet());
 
-        // not supported. see jira OTA-789
-        // VWA_Node nVwa = createVWA_InMinor();
-        // testAddingPropertiesToFacet(nVwa.getAttributeFacet());
+        VWA_Node nVwa = createVWA_InMinor();
+        testAddingPropertiesToFacet(nVwa.getAttributeFacet());
 
         Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
         Assert.assertTrue(chain.isValid());
@@ -550,16 +554,15 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
             newProp = new ElementNode(new FacetNode(), "np" + cnt++);
             propOwner.addProperty(newProp);
             newProp.setAssignedType(xsdStringNode);
+            Assert.assertTrue(newProp.getLibrary() != null);
+            Assert.assertTrue(newProp.isDeleteable());
+            newProp.delete();
+            Assert.assertEquals(--cnt, propOwner.getChildren().size());
         }
         PropertyNode newAttr = new AttributeNode(new FacetNode(), "np" + cnt++);
         propOwner.addProperty(newAttr);
         newAttr.setAssignedType(xsdStringNode);
-
-        Assert.assertTrue(newProp.getLibrary() != null);
         Assert.assertEquals(cnt, propOwner.getChildren().size());
-        Assert.assertTrue(newProp.isDeleteable());
-        newProp.delete();
-        Assert.assertEquals(--cnt, propOwner.getChildren().size());
     }
 
     /**
@@ -611,24 +614,22 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
     }
 
     private VWA_Node createVWA_InMinor() {
-        // Not currently supported. See Jira OTA-789
-        return null;
-        // VWA_Node nVwa = (VWA_Node) vwa.createMinorVersionComponent();
-        // Assert.assertNotNull(nVwa);
-        // PropertyNode newProp = new AttributeNode(nVwa.getAttributeFacet(), "te2");
-        // newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
-        // Assert.assertEquals(1, bo.getSummaryFacet().getChildren().size());
-        // TotalDescendents += 1;
-        // MinorComplex += 1;
-        //
-        // // Make sure a new was created in the newMinor library.
-        // Assert.assertNotNull(nVwa);
-        // Assert.assertEquals(1, nVwa.getAttributeFacet().getChildren().size());
-        // Assert.assertTrue(chain.getDescendants_NamedTypes().contains(nVwa));
-        // Assert.assertTrue(minorLibrary.getDescendants_NamedTypes().contains(nVwa));
-        // Assert.assertFalse(majorLibrary.getDescendants_NamedTypes().contains(nVwa));
-        //
-        // return nVwa;
+        VWA_Node nVwa = (VWA_Node) vwa.createMinorVersionComponent();
+        Assert.assertNotNull(nVwa);
+        PropertyNode newProp = new AttributeNode(nVwa.getAttributeFacet(), "te2");
+        newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+        Assert.assertEquals(1, bo.getSummaryFacet().getChildren().size());
+        TotalDescendents += 1;
+        MinorComplex += 1;
+
+        // Make sure a new was created in the newMinor library.
+        Assert.assertNotNull(nVwa);
+        Assert.assertEquals(1, nVwa.getAttributeFacet().getChildren().size());
+        Assert.assertTrue(chain.getDescendants_NamedTypes().contains(nVwa));
+        Assert.assertTrue(minorLibrary.getDescendants_NamedTypes().contains(nVwa));
+        Assert.assertFalse(majorLibrary.getDescendants_NamedTypes().contains(nVwa));
+
+        return nVwa;
     }
 
     @Test
@@ -640,7 +641,6 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
         Assert.assertFalse(majorLibrary.getDescendants_NamedTypes().contains(nbo));
         Assert.assertTrue(chain.isValid());
         nbo.delete();
-        ActiveComplex--;
         checkCounts(chain);
     }
 

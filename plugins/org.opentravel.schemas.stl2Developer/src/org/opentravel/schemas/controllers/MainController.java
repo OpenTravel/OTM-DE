@@ -34,6 +34,10 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
+import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryFileManager;
+import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.schemas.actions.ImportObjectToLibraryAction;
 import org.opentravel.schemas.commands.AddNodeHandler;
 import org.opentravel.schemas.node.BusinessObjectNode;
@@ -66,11 +70,6 @@ import org.opentravel.schemas.wizards.NewFacetWizard;
 import org.opentravel.schemas.wizards.NewPropertiesWizard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemacompiler.repository.RepositoryException;
-import org.opentravel.schemacompiler.repository.RepositoryFileManager;
-import org.opentravel.schemacompiler.repository.RepositoryManager;
 
 /**
  * Main Controller. Receives events from the view and workbench, drives user interactions then

@@ -23,7 +23,6 @@ import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.OperationNode;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 
 public class GlobalSelectionTester extends PropertyTester {
@@ -53,7 +52,7 @@ public class GlobalSelectionTester extends PropertyTester {
 
         // Can we add children?
         // Disabled until we can test compiler and otm-b to assure support.
-        if (node instanceof ExtensionPointNode || node instanceof VWA_Node) {
+        if (node instanceof ExtensionPointNode) {
             return node.isNewToChain();
         }
         if (node.isBusinessObject() || node.isCoreObject() || node.isExtensionPointFacet()) {

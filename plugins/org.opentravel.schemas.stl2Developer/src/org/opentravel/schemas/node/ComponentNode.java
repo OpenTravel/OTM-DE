@@ -22,12 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.opentravel.schemas.modelObject.ModelObject;
-import org.opentravel.schemas.node.properties.EnumLiteralNode;
-import org.opentravel.schemas.types.TypeProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
@@ -41,6 +35,11 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
+import org.opentravel.schemas.modelObject.ModelObject;
+import org.opentravel.schemas.node.properties.EnumLiteralNode;
+import org.opentravel.schemas.types.TypeProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The ComponentNode class handles nodes that represent model objects. It is overridden for most
@@ -659,9 +658,10 @@ public class ComponentNode extends Node implements TypeProvider {
             newNode = new CoreObjectNode(new TLCoreObject());
             // Version extensions of core objects must have the same simple type.
             ((CoreObjectNode) newNode).setSimpleType(((CoreObjectNode) owner).getSimpleType());
+        } else if (owner instanceof VWA_Node) {
+            newNode = new VWA_Node(new TLValueWithAttributes());
         } else {
             LOGGER.error("Can not create minor version of: " + owner);
-            // FIXME -- Support VWA - see OTA-789
             return null;
         }
         newNode.setExtendsType(owner);

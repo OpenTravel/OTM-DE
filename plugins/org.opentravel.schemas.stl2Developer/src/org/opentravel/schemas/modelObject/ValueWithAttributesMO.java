@@ -18,15 +18,14 @@ package org.opentravel.schemas.modelObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Value With Attribute Model Object.
@@ -93,6 +92,11 @@ public class ValueWithAttributesMO extends ModelObject<TLValueWithAttributes> {
     public void clearTLType() {
         // this.type = null;
         this.srcObj.setParentType(null);
+    }
+
+    @Override
+    public void setExtendsType(ModelObject<?> mo) {
+        getTLModelObj().setParentType((TLValueWithAttributes) mo.getTLModelObj());
     }
 
     @Override

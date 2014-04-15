@@ -87,7 +87,7 @@ public class AggregateNode extends NavNode {
                 if (node.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib())) {
                     getChildren().remove(n);
                     insertPreviousVersion(node, (ComponentNode) n);
-                    return true;
+                    break;
                 } else {
                     return false;
                 }

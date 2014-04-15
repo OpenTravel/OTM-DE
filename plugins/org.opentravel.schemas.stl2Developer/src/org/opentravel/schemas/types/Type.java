@@ -25,6 +25,8 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemas.modelObject.XsdModelingUtils;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.INode;
@@ -42,9 +44,6 @@ import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.opentravel.schemacompiler.model.AbstractLibrary;
-import org.opentravel.schemacompiler.model.NamedEntity;
 
 /**
  * Manages type assignment and usage.
@@ -509,7 +508,7 @@ public class Type {
      */
     public void setBaseType(INode target) {
         if (typeOwner.isCoreObject() || typeOwner.isBusinessObject()
-                || typeOwner.isExtensionPointFacet()) {
+                || typeOwner.isExtensionPointFacet() || typeOwner.isValueWithAttributes()) {
             if ((target == null) || (!target.isTypeProvider())) {
                 target = ModelNode.getUnassignedNode();
             }

@@ -24,14 +24,13 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
 import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.opentravel.schemacompiler.model.LibraryMember;
-import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 
 /**
  * Value With Attributes. This object has two facets, the value is a simple facet and attributes
@@ -226,6 +225,14 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
     @Override
     public boolean setSimpleType(Node type) {
         return getSimpleFacet().getSimpleAttribute().setAssignedType(type);
+    }
+
+    @Override
+    public void setExtendsType(final INode sourceNode) {
+        // update TLModel
+        super.setExtendsType(sourceNode);
+        // make changes to node model
+        setSimpleType((Node) sourceNode);
     }
 
     @Override

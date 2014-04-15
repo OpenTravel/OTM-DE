@@ -34,6 +34,7 @@ import org.opentravel.schemas.node.OperationNode;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.RoleFacetNode;
 import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
@@ -312,10 +313,13 @@ public class AddNodeHandler extends OtmAbstractHandler {
             }
         } else {
             // use default facet to act upon
-            if (actOnNode instanceof BusinessObjectNode)
+            if (actOnNode instanceof BusinessObjectNode) {
                 actOnNode = actOnNode.getSummaryFacet();
-            if (actOnNode instanceof CoreObjectNode)
+            } else if (actOnNode instanceof CoreObjectNode) {
                 actOnNode = actOnNode.getSummaryFacet();
+            } else if (actOnNode instanceof VWA_Node) {
+                actOnNode = actOnNode.getDefaultFacet();
+            }
         }
         if (!(actOnNode instanceof FacetNode))
             throw new IllegalStateException("Must have a facet to add properties.");
