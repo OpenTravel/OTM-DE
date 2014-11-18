@@ -23,6 +23,9 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.views.FacetView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Aggregate nodes are navigation nodes that collect types from all libraries in a version chain.
@@ -31,216 +34,223 @@ import org.opentravel.schemas.properties.Images;
  * 
  */
 public class AggregateNode extends NavNode {
-    private AggregateType type;
+	private static final Logger LOGGER = LoggerFactory.getLogger(FacetView.class);
 
-    public enum AggregateType {
-        SimpleTypes("Simple Objects"), ComplexTypes("Complex Objects"), Service("Service"), Versions(
-                "Versions");
-        private final String label;
+	private AggregateType type;
 
-        private AggregateType(String label) {
-            this.label = label;
-        }
+	public enum AggregateType {
+		SimpleTypes("Simple Objects"), ComplexTypes("Complex Objects"), Service("Service"), Versions("Versions");
+		private final String label;
 
-        private String label() {
-            return label;
-        }
-    }
+		private AggregateType(String label) {
+			this.label = label;
+		}
 
-    public AggregateNode(AggregateType type, Node parent) {
-        super(type.label(), parent);
-        this.type = type;
-        setLibrary(parent.getLibrary());
-    }
+		private String label() {
+			return label;
+		}
+	}
 
-    /**
-     * Adds node to the aggregate node's children list if appropriate.
-     * 
-     * @param node
-     * @return
-     */
-    public boolean add(ComponentNode node) {
-        // Type safety
-        switch (type) {
-            case ComplexTypes:
-                if (!(node instanceof ComplexComponentInterface))
-                    throw new IllegalStateException("Can't add to complex aggregate.");
-                break;
-            case SimpleTypes:
-                if (!(node instanceof SimpleComponentInterface))
-                    throw new IllegalStateException("Can't add to simple aggregate.");
-                break;
-            case Service:
-                if (!(node instanceof ServiceNode || (node instanceof OperationNode)))
-                    throw new IllegalStateException("Can't add to service aggregate.");
-                break;
-            default:
-                throw new IllegalStateException("Unknown object type: "
-                        + node.getClass().getSimpleName());
-        }
+	public AggregateNode(AggregateType type, Node parent) {
+		super(type.label(), parent);
+		this.type = type;
+		setLibrary(parent.getLibrary());
+	}
 
-        // Add if not found or replacing the existing node is older?
-        String familyName = NodeNameUtils.makeFamilyName(node.getName());
-        for (Node n : getChildren()) {
-            if (!n.isFamily() && n.getName().equals(node.getName())) {
-                // Is it "later-in-time" than the one found?
-                if (node.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib())) {
-                    getChildren().remove(n);
-                    insertPreviousVersion(node, (ComponentNode) n);
-                    break;
-                } else {
-                    return false;
-                }
-            }
-        }
-        AggregateFamilyNode family = findFamilyNode(getChildren(), familyName);
-        List<Node> nodes = findPrefixedNodes(getChildren(), familyName + "_");
-        if (!nodes.isEmpty()) {
-            if (family == null) {
-                family = new AggregateFamilyNode(this, familyName);
-            }
-            List<Node> kids = new ArrayList<Node>(nodes);
-            for (Node n : kids) {
-                getChildren().remove(n);
-                family.getChildren().add(n);
-            }
-        }
-        if (family != null) {
-            family.getChildren().add(node);
-        } else {
-            getChildren().add(node);
-        }
-        return true;
-    }
+	/**
+	 * Adds node to the aggregate node's children list if appropriate.
+	 * 
+	 * @param node
+	 * @return
+	 */
+	public boolean add(ComponentNode node) {
+		// Type safety
+		switch (type) {
+		case ComplexTypes:
+			if (!(node instanceof ComplexComponentInterface))
+				throw new IllegalStateException("Can't add to complex aggregate.");
+			break;
+		case SimpleTypes:
+			if (!(node instanceof SimpleComponentInterface))
+				throw new IllegalStateException("Can't add to simple aggregate.");
+			break;
+		case Service:
+			if (!(node instanceof ServiceNode || (node instanceof OperationNode)))
+				throw new IllegalStateException("Can't add to service aggregate.");
+			break;
+		default:
+			throw new IllegalStateException("Unknown object type: " + node.getClass().getSimpleName());
+		}
 
-    private AggregateFamilyNode findFamilyNode(List<Node> children, String familyName) {
-        for (Node child : children) {
-            if (child instanceof AggregateFamilyNode) {
-                if (familyName.equals(child.getName())) {
-                    return (AggregateFamilyNode) child;
-                }
-            }
-        }
-        return null;
-    }
+		// Add if not found or replacing the existing node is older?
+		String familyName = NodeNameUtils.makeFamilyName(node.getName());
+		for (Node n : getChildren()) {
+			if (!n.isFamily() && n.getName().equals(node.getName())) {
+				// Is it "later-in-time" than the one found?
+				if (node.getLibrary() != n.getLibrary()) {
+					// If they are in the same library the leave in aggregate so user can fix the problem.
+					// LOGGER.debug("AggregateNode: " + n + " Same name object found in the same library.");
+					if (node.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib())) {
+						getChildren().remove(n);
+						insertPreviousVersion(node, (ComponentNode) n);
+						break;
+					} else {
+						return false;
+					}
+				}
+			}
+		}
+		AggregateFamilyNode family = findFamilyNode(getChildren(), familyName);
+		List<Node> nodes = findPrefixedNodes(getChildren(), familyName + "_");
+		if (!nodes.isEmpty()) {
+			if (family == null) {
+				family = new AggregateFamilyNode(this, familyName);
+			}
+			List<Node> kids = new ArrayList<Node>(nodes);
+			for (Node n : kids) {
+				getChildren().remove(n);
+				family.getChildren().add(n);
+			}
+		}
+		if (family != null) {
+			family.getChildren().add(node);
+		} else {
+			getChildren().add(node);
+		}
+		return true;
+	}
 
-    private List<Node> findPrefixedNodes(List<Node> children, String prefix) {
-        List<Node> ret = new ArrayList<Node>();
-        for (Node c : children) {
-            if (c.getName().startsWith(prefix)) {
-                ret.add(c);
-            }
-        }
-        return ret;
-    }
+	private AggregateFamilyNode findFamilyNode(List<Node> children, String familyName) {
+		for (Node child : children) {
+			if (child instanceof AggregateFamilyNode) {
+				if (familyName.equals(child.getName())) {
+					return (AggregateFamilyNode) child;
+				}
+			}
+		}
+		return null;
+	}
 
-    // Insert node in versions list.
-    // Update all the newest object links.
-    private void insertPreviousVersion(ComponentNode newest, ComponentNode toBePlaced) {
-        toBePlaced.getVersionNode().setNewestVersion(newest);
-        if (toBePlaced.getVersionNode().getPreviousVersion() == null) {
-            newest.getVersionNode().setPreviousVersion(toBePlaced);
-            return;
-        }
+	private List<Node> findPrefixedNodes(List<Node> children, String prefix) {
+		List<Node> ret = new ArrayList<Node>();
+		for (Node c : children) {
+			if (c.getName().startsWith(prefix)) {
+				ret.add(c);
+			}
+		}
+		return ret;
+	}
 
-        toBePlaced.getVersionNode().setNewestVersion(newest);
-        VersionNode toBePlacedVN = toBePlaced.getVersionNode();
-        ComponentNode n = toBePlacedVN.getPreviousVersion();
-        while (n != null) {
-            n.getVersionNode().setNewestVersion(newest);
-            if (toBePlaced.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib())) {
-                n.getVersionNode().setPreviousVersion(toBePlaced);
-                toBePlacedVN.setPreviousVersion(n.getVersionNode().getPreviousVersion());
-                n = toBePlaced;
-            }
-            n = n.getVersionNode().getPreviousVersion();
-        }
+	/**
+	 * Insert node in versions list. Update all the newest object links.
+	 * 
+	 * @param newest
+	 * @param toBePlaced
+	 */
+	private void insertPreviousVersion(ComponentNode newest, ComponentNode toBePlaced) {
+		toBePlaced.getVersionNode().setNewestVersion(newest);
+		if (toBePlaced.getVersionNode().getPreviousVersion() == null) {
+			newest.getVersionNode().setPreviousVersion(toBePlaced);
+			return;
+		}
 
-    }
+		toBePlaced.getVersionNode().setNewestVersion(newest);
+		VersionNode toBePlacedVN = toBePlaced.getVersionNode();
+		ComponentNode n = toBePlacedVN.getPreviousVersion();
+		while (n != null) {
+			n.getVersionNode().setNewestVersion(newest);
+			if (toBePlaced.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib())) {
+				n.getVersionNode().setPreviousVersion(toBePlaced);
+				toBePlacedVN.setPreviousVersion(n.getVersionNode().getPreviousVersion());
+				n = toBePlaced;
+			}
+			n = n.getVersionNode().getPreviousVersion();
+		}
 
-    protected void remove(Node node) {
-        if (!getChildren().remove(node)) {
-            // if it was not found, it must be in a family node
-            ArrayList<Node> kids = new ArrayList<Node>(getChildren());
-            for (Node n : kids) {
-                if ((n instanceof AggregateFamilyNode) && (n.family.equals(node.family))) {
-                    ((AggregateFamilyNode) n).remove(node);
-                }
-            }
-        }
-    }
+	}
 
-    @Override
-    public Image getImage() {
-        return Images.getImageRegistry().get("aggregateFolder");
-    }
+	protected void remove(Node node) {
+		if (!getChildren().remove(node)) {
+			// if it was not found, it must be in a family node
+			ArrayList<Node> kids = new ArrayList<Node>(getChildren());
+			for (Node n : kids) {
+				if ((n instanceof AggregateFamilyNode) && (n.family.equals(node.family))) {
+					((AggregateFamilyNode) n).remove(node);
+				}
+			}
+		}
+	}
 
-    /*
-     * (non-Javadoc) // * @see org.opentravel.schemas.node.Node#getLibrary() //
-     */
-    @Override
-    public LibraryNode getLibrary() {
-        return parent.getLibrary();
-    }
+	@Override
+	public Image getImage() {
+		return Images.getImageRegistry().get("aggregateFolder");
+	}
 
-    /*
-     * For the non-version aggregates, skip over the version node These are used in the navigator
-     * menul.
-     */
-    @Override
-    public List<Node> getNavChildren() {
-        if (type.equals(AggregateType.Versions)) {
-            return super.getChildren();
-        } else {
-            ArrayList<Node> kids = new ArrayList<Node>();
-            for (Node child : getChildren()) {
-                if (child instanceof VersionNode)
-                    kids.add(((VersionNode) child).getNewestVersion());
-            }
-            return kids;
-        }
-    }
+	/*
+	 * (non-Javadoc) // * @see org.opentravel.schemas.node.Node#getLibrary() //
+	 */
+	@Override
+	public LibraryNode getLibrary() {
+		return parent.getLibrary();
+	}
 
-    /**
-     * To get all providers, we only want to get type providers from their original libraries. If we
-     * used the other aggregates, the earlier versions would not be found. If we include them types
-     * in the other aggregates would be duplicates.
-     */
-    @Override
-    public boolean hasChildren_TypeProviders() {
-        return type.equals(AggregateType.Versions) && getChildren().size() > 0 ? true : false;
-    }
+	/*
+	 * For the non-version aggregates, skip over the version node These are used in the navigator menul.
+	 */
+	@Override
+	public List<Node> getNavChildren() {
+		if (type.equals(AggregateType.Versions)) {
+			return super.getChildren();
+		} else {
+			ArrayList<Node> kids = new ArrayList<Node>();
+			for (Node child : getChildren()) {
+				if (child instanceof VersionNode)
+					kids.add(((VersionNode) child).getNewestVersion());
+			}
+			return kids;
+		}
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.node.Node#isEditable()
-     */
-    @Override
-    public boolean isEditable() {
-        if (getParent() != null)
-            return getParent().isEditable();
-        return false;
-    }
+	/**
+	 * To get all providers, we only want to get type providers from their original libraries. If we used the other
+	 * aggregates, the earlier versions would not be found. If we include them types in the other aggregates would be
+	 * duplicates.
+	 */
+	@Override
+	public boolean hasChildren_TypeProviders() {
+		return type.equals(AggregateType.Versions) && getChildren().size() > 0 ? true : false;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.node.Node#isInTLLibrary()
-     */
-    @Override
-    public boolean isInTLLibrary() {
-        return parent.isInTLLibrary();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.Node#isEditable()
+	 */
+	@Override
+	public boolean isEditable() {
+		if (getParent() != null)
+			return getParent().isEditable();
+		return false;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.node.NavNode#isLibraryContainer()
-     */
-    @Override
-    public boolean isLibraryContainer() {
-        return type == AggregateType.Versions ? true : false;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.Node#isInTLLibrary()
+	 */
+	@Override
+	public boolean isInTLLibrary() {
+		return parent.isInTLLibrary();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.NavNode#isLibraryContainer()
+	 */
+	@Override
+	public boolean isLibraryContainer() {
+		return type == AggregateType.Versions ? true : false;
+	}
 
 }

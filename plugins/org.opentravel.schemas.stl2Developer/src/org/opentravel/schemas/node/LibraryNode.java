@@ -402,8 +402,8 @@ public class LibraryNode extends Node {
 			return false;
 		}
 		if (!this.isEditable()) {
-			LOGGER.error("Tried to import read-only library: " + this.getName());
-			return false; // nothing to do.
+			LOGGER.error("Tried to import to a read-only library: " + this.getName());
+			return false;
 		}
 		return true;
 	}

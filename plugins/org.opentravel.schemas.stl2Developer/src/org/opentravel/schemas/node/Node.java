@@ -1047,6 +1047,9 @@ public abstract class Node implements INode {
 	public boolean isDeleteable() {
 		if (getLibrary() == null)
 			return false;
+		// Services always return false for inhead().
+		if (getOwningComponent().getParent().isOperation())
+			return isEditable();
 		return getLibrary().isManaged() ? isInHead() && isEditable() : isEditable();
 	}
 
@@ -1091,9 +1094,13 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * @return true if this is an XSD node for an XSD atomic type.
+	 * @return true if this is an XSD node for an XSD atomic type (impliedType == XSD_Atomic).
 	 */
 	public boolean isXSD_Atomic() {
+		if (getTypeClass().getTypeNode() instanceof ImpliedNode)
+			LOGGER.debug("is " + this + " Atomic? "
+					+ ((ImpliedNode) getTypeClass().getTypeNode()).getImpliedType().equals(ImpliedNodeType.XSD_Atomic));
+
 		return getTypeClass().getTypeNode() instanceof ImpliedNode ? ((ImpliedNode) getTypeClass().getTypeNode())
 				.getImpliedType().equals(ImpliedNodeType.XSD_Atomic) : false;
 	}
@@ -1783,7 +1790,8 @@ public abstract class Node implements INode {
 		} else {
 			Node baseNode = Node.getModelNode().findNode(getExtendsTypeName(), getExtendsTypeNS());
 			if (baseNode == null) {
-				LOGGER.warn("Could not find the base node: [" + getExtendsTypeNS() + ":" + getExtendsTypeName() + "]");
+				// LOGGER.warn("Could not find the base node: [" + getExtendsTypeNS() + ":" + getExtendsTypeName() +
+				// "]");
 				return false;
 			}
 			return baseNode.isInstanceOf(node);
@@ -1917,7 +1925,7 @@ public abstract class Node implements INode {
 		}
 		// Change if one does not exist using targetId. Otherwise, copy the value to new implementers
 		if (modelObject.getEquivalent(contextId) != null && !modelObject.getEquivalent(contextId).isEmpty()) {
-			if (modelObject.getEquivalent(targetId).isEmpty() || modelObject.getEquivalent(targetId) == null)
+			if (modelObject.getEquivalent(targetId) == null || modelObject.getEquivalent(targetId).isEmpty())
 				modelObject.changeEquivalentContext(contextId, targetId);
 			else {
 				addImplementer("Equivalent value: " + contextId + " = " + modelObject.getEquivalent(contextId));
@@ -1986,7 +1994,8 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * @return true only if this object is in the version head library. false if not or unmanaged.
+	 * @return true only if this object is in the version head library. false if not, false if owner is a service, or
+	 *         unmanaged.
 	 */
 	public boolean isInHead() {
 		Node owner = getOwningComponent();
