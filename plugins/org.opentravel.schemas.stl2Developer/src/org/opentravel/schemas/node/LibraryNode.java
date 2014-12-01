@@ -590,7 +590,8 @@ public class LibraryNode extends Node {
 				hasXsd = true;
 				xn = new XsdNode(mbr, this);
 				n = xn.getOtmModelChild();
-				n.setXsdType(true);
+				if (n==null) continue;
+				n.setXsdType(true); // TESTME - may be null
 				xn.setXsdType(true);
 			} else
 				n = NodeFactory.newComponent_UnTyped(mbr);
