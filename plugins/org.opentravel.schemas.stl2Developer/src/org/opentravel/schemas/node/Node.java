@@ -1047,6 +1047,9 @@ public abstract class Node implements INode {
 	public boolean isDeleteable() {
 		if (getLibrary() == null)
 			return false;
+		// If it doesn't have a parent then it is not linked and can be deleted.
+		if (getOwningComponent().getParent() == null)
+			return true;
 		// Services always return false for inhead().
 		if (getOwningComponent().getParent().isOperation())
 			return isEditable();
