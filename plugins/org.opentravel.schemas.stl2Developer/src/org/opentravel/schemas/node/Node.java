@@ -1553,6 +1553,10 @@ public abstract class Node implements INode {
 	 * 
 	 */
 	public void unlinkNode() {
+		if (parent == null) {
+			LOGGER.error("unlinkNode ERROR - null parent. EXIT");
+			return;
+		}
 		VersionNode vn = null;
 		if (parent instanceof VersionNode)
 			vn = (VersionNode) parent;
@@ -2491,6 +2495,7 @@ public abstract class Node implements INode {
 	}
 
 	/**
+	 * Set the node's identity for diagnostics purposes
 	 */
 	public void setIdentity(String identity) {
 		this.identity = identity;

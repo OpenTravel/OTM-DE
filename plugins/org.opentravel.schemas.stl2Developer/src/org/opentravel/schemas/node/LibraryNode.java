@@ -512,6 +512,7 @@ public class LibraryNode extends Node {
 		else if (n instanceof ServiceNode)
 			; // Nothing to do because services are already linked to library.
 		else if (n.isXsdElementAssignable())
+			// TODO - i don't think this is ever reached. ElementRoot is never accessed.
 			elementRoot.linkChild(n.getXsdNode());
 		else
 			LOGGER.error("linkMember is trying to add unknown object type: " + n);
@@ -590,7 +591,8 @@ public class LibraryNode extends Node {
 				hasXsd = true;
 				xn = new XsdNode(mbr, this);
 				n = xn.getOtmModelChild();
-				if (n==null) continue;
+				if (n == null)
+					continue;
 				n.setXsdType(true); // TESTME - may be null
 				xn.setXsdType(true);
 			} else
@@ -868,6 +870,9 @@ public class LibraryNode extends Node {
 		return simpleRoot;
 	}
 
+	/**
+	 * @return - Return the library's complex root node.
+	 */
 	public Node getComplexRoot() {
 		return complexRoot;
 	}
@@ -876,9 +881,9 @@ public class LibraryNode extends Node {
 		return serviceRoot;
 	}
 
-	public Node getElementRoot() {
-		return elementRoot;
-	}
+	// public Node getElementRoot() {
+	// return elementRoot;
+	// }
 
 	@Override
 	public String getComponentType() {

@@ -1,0 +1,47 @@
+
+* Aggregate nodes:   	navigation nodes that collect types from all libraries in a version chain.
+* Aggregate Family Node:  groups types with the same name prefix under type aggregates
+* Family Nodes:  	children share the same name prefix
+* Library Nodes:  	represent full libraries. 
+* Library Chain Node:  Library chains are all libraries based on the same major release. Their content is aggregated in this node.
+* Nav Nodes:  	complex, simple have no TL Model representation.
+* Project Node:	contains libraries in a project
+* Service Node:	extends complexNode to describe the service
+* Version aggregate node: collects libraries that are in a chain. 
+
+
+ProjectNode
+	LibraryNode (unmanaged in repo)
+		ComplexRoot
+			ComponentNode
+		SimpleRoot
+			ComponentNode
+		ServiceRoot
+			ServiceNode
+	LibraryChainNode (managed in repo)
+		library == Same library node from child list that is head of chain
+		AggregateNode(ComplexRoot)
+			ComponentNode
+		AggregateNode(SimpleRoot)
+			ComponentNode
+		AggregateNode(Service)
+			ServiceNode
+		VersionAggregateNode(versions)
+			LibraryNode
+				NavNode(simpleRoot)
+				NavNode(complexRoot)
+					FamilyNode
+					VersionNode
+						head = ComponentNode (latest of this name in chain)
+						children
+							ComponentNode (this version of the component)
+								parent = closest version node
+								library = closest library node
+			
+Note:
+1) When adding components to version managed library First add to library then add to chain:
+			getLibrary().getComplexRoot().linkChild(this);
+			if (getLibrary().isInChain())
+				getChain().add(this);
+
+			
