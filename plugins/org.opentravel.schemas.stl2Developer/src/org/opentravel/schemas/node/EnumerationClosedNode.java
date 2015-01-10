@@ -98,7 +98,7 @@ public class EnumerationClosedNode extends SimpleTypeNode {
 	@Override
 	public Node setExtensible(boolean extensible) {
 		if (extensible)
-			return new EnumerationOpenNode(this); // FIXME - does not relink
+			return new EnumerationOpenNode(this);
 		return this;
 	}
 

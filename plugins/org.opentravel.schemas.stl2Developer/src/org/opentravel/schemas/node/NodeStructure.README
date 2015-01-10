@@ -39,7 +39,7 @@ ProjectNode
 								library = closest library node
 			
 Note:
-1) When adding components to version managed library First add to library then add to chain:
+1) When adding components to version managed library use library.addMember(). Otherwise First add to library then add to chain:
 			getLibrary().getComplexRoot().linkChild(this);
 			if (getLibrary().isInChain())
 				getChain().add(this);

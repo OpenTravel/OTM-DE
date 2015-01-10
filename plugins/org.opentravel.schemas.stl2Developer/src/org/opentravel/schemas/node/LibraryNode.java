@@ -670,7 +670,8 @@ public class LibraryNode extends Node {
 
 	/**
 	 * Add node to this library. Links to library's complex/simple or element root. Adds underlying the TL object to
-	 * this library's TLModel library. Adds context to the TL Model library if needed. Does not change type assignments.
+	 * this library's TLModel library. Handles adding nodes to chains. Adds context to the TL Model library if needed.
+	 * Does not change type assignments.
 	 */
 	public void addMember(final Node n) {
 		addMember(n, true);

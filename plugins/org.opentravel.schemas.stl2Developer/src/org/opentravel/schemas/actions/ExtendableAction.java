@@ -18,6 +18,7 @@ package org.opentravel.schemas.actions;
 import org.eclipse.swt.widgets.Button;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.properties.StringProperties;
+import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 
@@ -27,33 +28,35 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
  */
 public class ExtendableAction extends OtmAbstractAction {
 
-    public ExtendableAction(final MainWindow mainWindow, final StringProperties props) {
-        super(mainWindow, props, AS_CHECK_BOX);
-    }
+	public ExtendableAction(final MainWindow mainWindow, final StringProperties props) {
+		super(mainWindow, props, AS_CHECK_BOX);
+	}
 
-    public ExtendableAction(final MainWindow mainWindow, final StringProperties props,
-            final Button check) {
-        super(mainWindow, props, AS_CHECK_BOX);
-    }
+	public ExtendableAction(final MainWindow mainWindow, final StringProperties props, final Button check) {
+		super(mainWindow, props, AS_CHECK_BOX);
+	}
 
-    @Override
-    public void run() {
-        Node node = mc.getSelectedNode_TypeView();
-        Node nn = node;
-        if (node != null) {
-            nn = node.setExtensible(isChecked());
-        }
-        mc.refresh(nn);
-        OtmRegistry.getNavigatorView().refresh(); // refresh entire tree because content changed
-    }
+	@Override
+	public void run() {
+		Node node = mc.getSelectedNode_TypeView();
+		Node nn = node;
+		if (node != null && node.isEditable()) {
+			nn = node.setExtensible(isChecked());
+			mc.refresh(nn);
+			OtmRegistry.getNavigatorView().refresh(); // refresh entire tree because content changed
+		} else {
+			setChecked(!node.isExtensible());
+			DialogUserNotifier.openWarning("Warning", "Object is not editable.");
+		}
+	}
 
-    @Override
-    public boolean isEnabled(Node currentNode) {
-        if (currentNode == null)
-            return false;
-        if (currentNode.isMessage())
-            return true;
-        return (currentNode.isExtensibleObject());
-    }
+	@Override
+	public boolean isEnabled(Node currentNode) {
+		if (currentNode == null)
+			return false;
+		if (currentNode.isMessage())
+			return true;
+		return (currentNode.isExtensibleObject());
+	}
 
 }
