@@ -15,11 +15,10 @@
  */
 package org.opentravel.schemas.wizards;
 
+import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.node.EditNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.properties.Messages;
-
-import org.opentravel.schemacompiler.model.TLFacetType;
 
 /**
  * @author Agnieszka Janowska
@@ -27,33 +26,33 @@ import org.opentravel.schemacompiler.model.TLFacetType;
  */
 public class NewFacetValidator implements FormValidator {
 
-    private final Node componentNode;
-    private final NewFacetWizard wizard;
-    private final TLFacetType facetType;
+	private final Node componentNode;
+	private final NewFacetWizard wizard;
+	private final TLFacetType facetType;
 
-    public NewFacetValidator(final Node componentNode, final TLFacetType facetType,
-            final NewFacetWizard wizard) {
-        this.componentNode = componentNode;
-        this.facetType = facetType;
-        this.wizard = wizard;
-    }
+	public NewFacetValidator(final Node componentNode, final TLFacetType facetType, final NewFacetWizard wizard) {
+		this.componentNode = componentNode;
+		this.facetType = facetType;
+		this.wizard = wizard;
+	}
 
-    @Override
-    public void validate() throws ValidationException {
-        final EditNode n = new EditNode(wizard.getName());
-        n.setLibrary(componentNode.getLibrary());
-        if (!componentNode.isFacetUnique(n)) {
-            throw new ValidationException(Messages.getString("error.newFacet"));
-        }
-        if (TLFacetType.CUSTOM.equals(facetType) && isEmpty(wizard.getName())) {
-            throw new ValidationException(Messages.getString("error.newFacet.custom.empty"));
-        }
-    }
+	@Override
+	public void validate() throws ValidationException {
+		final EditNode n = new EditNode(wizard.getName());
+		// TODO - why does validate have side effect?
+		n.setLibrary(componentNode.getLibrary());
+		if (!componentNode.isFacetUnique(n)) {
+			throw new ValidationException(Messages.getString("error.newFacet"));
+		}
+		if (TLFacetType.CUSTOM.equals(facetType) && isEmpty(wizard.getName())) {
+			throw new ValidationException(Messages.getString("error.newFacet.custom.empty"));
+		}
+	}
 
-    private boolean isEmpty(String name) {
-        if (name != null)
-            return name.isEmpty();
-        return true;
-    }
+	private boolean isEmpty(String name) {
+		if (name != null)
+			return name.isEmpty();
+		return true;
+	}
 
 }

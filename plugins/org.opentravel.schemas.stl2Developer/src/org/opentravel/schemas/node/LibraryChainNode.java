@@ -221,7 +221,7 @@ public class LibraryChainNode extends Node {
 
 	/**
 	 * Remove the node from the appropriate aggregate node. This does not delete the node, just remove it from aggregate
-	 * list and takes care of family if needed.
+	 * list and takes care of family if needed. Replaces with previous version if found.
 	 * 
 	 * @param n
 	 */

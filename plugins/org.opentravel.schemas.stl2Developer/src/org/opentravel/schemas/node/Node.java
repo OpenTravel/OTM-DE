@@ -192,7 +192,10 @@ public abstract class Node implements INode {
 			NodeVisitor visitor = new NodeVisitors().new deleteVisitor();
 			// LOGGER.debug("Deleting " + this);
 			this.visitAllNodes(visitor);
-		}
+		} else if (!(this instanceof VersionNode) && (!(this instanceof FacetNode))
+				&& !(this instanceof SimpleAttributeNode))
+			LOGGER.warn(this + " is not deleteable: " + isDeleteable());
+		// version nodes can not be deleted. SimpleAttrs ??? why ???.
 	}
 
 	@Override
@@ -243,21 +246,40 @@ public abstract class Node implements INode {
 	 * Swap the replacement for this node. This node is replaced via {@link #replaceWith()} and removed from parent.
 	 * Replacement is added to parent.
 	 * 
-	 * @return Returns false if the swap was not made or the replacement could not be assigned. If false, the swapped
-	 *         node may still be used as a type but may not be in a library.
+	 * Note: this node's library is null on return. It can not be deleted.
+	 * 
+	 * @param replacement
+	 *            - should be in library, named and with all properties.
+	 * 
+	 * @return ?? void ?? Returns false if the swap was not made or the replacement could not be assigned. If false, the
+	 *         swapped node may still be used as a type but may not be in a library.
 	 */
 	public void swap(Node replacement) {
 		if (replacement != null && getLibrary() != null && parent != null) {
 			Node thisParent = parent;
-			if (!thisParent.children.add(replacement))
-				return;
-			if (getTLModelObject() instanceof LibraryMember)
-				replacement.getModelObject().addToLibrary(((LibraryMember) this.getTLModelObject()).getOwningLibrary());
+			if (!thisParent.children.add(replacement)) {
+				LOGGER.warn("swap() - could not add replacement to parent child list.");
+				return; // error
+			}
+
+			// Make sure the replacement model object is in the same library as this node.
+			// TODO - this should be dead code. verify then remove.
+			if (getTLModelObject() instanceof LibraryMember) {
+				if (((LibraryMember) replacement.getTLModelObject()).getOwningLibrary() != ((LibraryMember) getTLModelObject())
+						.getOwningLibrary()) {
+					LOGGER.debug("swap(): replacement TL object was not in same library.");
+					replacement.getModelObject().addToLibrary(
+							((LibraryMember) this.getTLModelObject()).getOwningLibrary());
+				} else
+					LOGGER.debug("swap() - replacement's TL object was OK.");
+			} else
+				LOGGER.error("swap() - TL object is not a LibraryMember.");
 
 			replacement.setLibrary(this.getLibrary());
 			replaceWith(replacement);
 			replacement.parent = thisParent;
-		}
+		} else
+			LOGGER.warn("swap() - Invalid node to swap.");
 	}
 
 	/**
@@ -292,6 +314,8 @@ public abstract class Node implements INode {
 			replacement.removeFromLibrary();
 			ln.addMember(replacement);
 		}
+		// else
+		// LOGGER.debug("replaceWith() - replacement is assumed to already be member and was not added to library");
 
 		replaceTypesWith(replacement);
 	}
@@ -870,6 +894,8 @@ public abstract class Node implements INode {
 	}
 
 	public List<Node> getSiblings() {
+		if (parent == null)
+			return null;
 		final List<Node> siblings = new LinkedList<Node>(parent.getChildren());
 		siblings.remove(this);
 		return siblings;
@@ -1566,8 +1592,13 @@ public abstract class Node implements INode {
 		parent.updateFamily();
 		parent = null;
 		// recurse to remove version parent as well.
-		if (vn != null)
+		if (vn != null) {
+			// unlink from the chain aggregate node
+			if (this instanceof ComponentNode)
+				getChain().removeAggregate((ComponentNode) this);
+			// unlink the version node it self
 			vn.unlinkNode();
+		}
 	}
 
 	/**

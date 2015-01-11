@@ -39,6 +39,8 @@ public class NodeVisitors {
 	 * Close this node. Do not change the model. Does delete type assignments. Does not delete children nor change view
 	 * contents. Use delete visitor if changes are to be made to the TL model.
 	 * 
+	 * NOTE: not version safe
+	 * 
 	 * @author Dave Hollander
 	 * 
 	 */
