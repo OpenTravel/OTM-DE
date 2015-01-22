@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<NamespaceAuthorizations xmlns="http://www.OpenTravel.org/ns/OTA2/Security_v01_00">
+<NamespaceAuthorizations
+	xmlns="http://www.OpenTravel.org/ns/OTA2/Security_v01_00">
 	<Grant permission="ReadFinal">
 		<Principal>anonymous</Principal>
 	</Grant>

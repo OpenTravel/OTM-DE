@@ -4,12 +4,12 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.opentravel.otm</groupId>
-    <artifactId>otm-de-parent-pom</artifactId>
-    <version>3.1.0-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
-  </parent>
+	<parent>
+		<groupId>org.opentravel.otm</groupId>
+		<artifactId>otm-de-parent-pom</artifactId>
+		<version>3.1.0-SNAPSHOT</version>
+		<relativePath>../../pom.xml</relativePath>
+	</parent>
 
 	<artifactId>org.opentravel.schemas.stl2Developer.test</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
@@ -42,7 +42,8 @@
 					<includes>
 						<include>**/*.java</include>
 					</includes>
-					<argLine>${test-arglist} -Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true</argLine>
+					<argLine>${test-arglist}
+						-Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true</argLine>
 					<bundleStartLevel>
 						<bundle>
 							<id>org.apache.aries.spifly.dynamic.bundle</id>

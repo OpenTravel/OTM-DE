@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.opentravel.otm</groupId>
-    <artifactId>otm-de-parent-pom</artifactId>
-    <version>3.1.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.opentravel.otm</groupId>
+		<artifactId>otm-de-parent-pom</artifactId>
+		<version>3.1.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
 
-  <artifactId>tests</artifactId>
-  <packaging>pom</packaging>
+	<artifactId>tests</artifactId>
+	<packaging>pom</packaging>
 
 
-  <modules>
-    <module>org.opentravel.schemas.stl2Developer.test</module>
-    <module>org.opentravel.schemas.stl2Developer.test.utils</module>
-    <module>org.opentravel.schemas.stl2Developer.test.ui</module>
-    <module>org.opentravel.schemas.stl2Developer.reposvc</module>
-  </modules>
-  <!--TODO: add tests coverage reports-->
+	<modules>
+		<module>org.opentravel.schemas.stl2Developer.test</module>
+		<module>org.opentravel.schemas.stl2Developer.test.utils</module>
+		<module>org.opentravel.schemas.stl2Developer.test.ui</module>
+		<module>org.opentravel.schemas.stl2Developer.reposvc</module>
+	</modules>
+	<!--TODO: add tests coverage reports -->
 
 </project>
