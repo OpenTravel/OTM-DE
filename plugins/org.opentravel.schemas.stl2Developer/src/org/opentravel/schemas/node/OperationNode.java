@@ -56,6 +56,7 @@ public class OperationNode extends FacetNode {
 	public OperationNode(TLOperation tlObj) {
 		super(tlObj);
 		addMOChildren();
+		setIdentity("Operation:" + getName());
 	}
 
 	/*
@@ -162,6 +163,7 @@ public class OperationNode extends FacetNode {
 		}
 		((TLService) svc.modelObject.getTLModelObj()).addOperation((TLOperation) this.getTLModelObject());
 		this.setName(name, false);
+		setIdentity("Operation:" + getName());
 		setExtensible(true);
 		svc.linkChild(this, false);
 
@@ -194,6 +196,7 @@ public class OperationNode extends FacetNode {
 		tlo.setOwningService(((TLService) service.getTLModelObject()));
 		modelObject = ModelObjectFactory.newModelObject(tlo, this);
 		this.setName(name, false);
+		setIdentity("Operation:" + getName());
 		setExtensible(true);
 		service.linkChild(this, false);
 

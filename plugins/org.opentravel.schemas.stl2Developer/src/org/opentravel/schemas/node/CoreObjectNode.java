@@ -54,8 +54,8 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 	public CoreObjectNode(BusinessObjectNode bo) {
 		this(new TLCoreObject());
 
-		bo.getLibrary().addMember(this);
 		setName(bo.getName());
+		bo.getLibrary().addMember(this);
 		setDocumentation(bo.getDocumentation());
 
 		((FacetNode) getSummaryFacet()).copyFacet((FacetNode) bo.getIDFacet());
@@ -67,8 +67,8 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 	public CoreObjectNode(VWA_Node vwa) {
 		this(new TLCoreObject());
 
-		vwa.getLibrary().addMember(this);
 		setName(vwa.getName());
+		vwa.getLibrary().addMember(this);
 		setDocumentation(vwa.getDocumentation());
 
 		((FacetNode) getSummaryFacet()).copyFacet((FacetNode) vwa.getAttributeFacet());

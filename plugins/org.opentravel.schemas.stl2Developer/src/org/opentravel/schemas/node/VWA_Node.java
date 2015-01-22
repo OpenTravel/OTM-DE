@@ -55,8 +55,8 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 	public VWA_Node(BusinessObjectNode bo) {
 		this(new TLValueWithAttributes());
 
-		bo.getLibrary().addMember(this);
 		setName(bo.getName());
+		bo.getLibrary().addMember(this);
 		setDocumentation(bo.getDocumentation());
 
 		((FacetNode) getAttributeFacet()).copyFacet((FacetNode) bo.getIDFacet());
@@ -68,8 +68,8 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 	public VWA_Node(CoreObjectNode core) {
 		this(new TLValueWithAttributes());
 
-		core.getLibrary().addMember(this);
 		setName(core.getName());
+		core.getLibrary().addMember(this);
 		setDocumentation(core.getDocumentation());
 
 		((FacetNode) getAttributeFacet()).copyFacet((FacetNode) core.getSummaryFacet());

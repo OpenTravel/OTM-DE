@@ -84,15 +84,15 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 	}
 
 	/**
-	 * Create a new business object using the core as a template and in the same library as the core object.
+	 * Create a new business object using the core as a template and add to the same library as the core object.
 	 * 
 	 * @param core
 	 */
 	public BusinessObjectNode(CoreObjectNode core) {
 		this(new TLBusinessObject());
 
-		core.getLibrary().addMember(this); // version managed library safe add
 		setName(core.getName());
+		core.getLibrary().addMember(this); // version managed library safe add
 		setDocumentation(core.getDocumentation());
 
 		getSummaryFacet().copyFacet((FacetNode) core.getSummaryFacet());
@@ -102,9 +102,8 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 	public BusinessObjectNode(VWA_Node vwa) {
 		this(new TLBusinessObject());
 
-		// setLibrary(vwa.getLibrary());
-		vwa.getLibrary().addMember(this);
 		setName(vwa.getName());
+		vwa.getLibrary().addMember(this);
 		setDocumentation(vwa.getDocumentation());
 
 		getSummaryFacet().copyFacet((FacetNode) vwa.getAttributeFacet());

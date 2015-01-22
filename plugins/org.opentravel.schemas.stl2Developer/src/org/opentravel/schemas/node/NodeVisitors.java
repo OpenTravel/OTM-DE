@@ -87,12 +87,30 @@ public class NodeVisitors {
 		public void visit(INode n) {
 			// LOGGER.debug("DeleteVisitor: deleting " + n);
 			Node node = (Node) n;
+			String nodeName = n.getName();
 
-			if (!node.isDeleteable())
+			if ((node instanceof ServiceNode) && node.getLibrary().isInChain()) {
+				// this has a entry in the service aggregate but no version node!
+				// LOGGER.debug("Deleting Service aggregate node.");
+				node.getLibrary().getChain().removeAggregate((ComponentNode) node);
+			}
+
+			// NOTE - libraries are ALWAYS delete-able even when not edit-able
+			if (!node.isDeleteable()) {
+				LOGGER.debug("DeleteVisitor: not delete-able " + n);
 				return;
+			}
+			// if (!(this instanceof VersionNode) && (!(this instanceof FacetNode))
+			// && !(this instanceof SimpleAttributeNode))
+			// LOGGER.warn(this + " is not deleteable: " + isDeleteable());
+			// version nodes can not be deleted. SimpleAttrs ??? why ???.
+
+			if (!n.isEditable() && (n instanceof LibraryNode || n instanceof LibraryChainNode))
+				LOGGER.debug("Deleting a non-editable library. " + n);
+			// TODO - does this clean up properly?
 
 			// Type class - delete the where used and assignments to this type
-			if (node.isTypeProvider())
+			if (n.isTypeProvider())
 				node.getTypeClass().delete();
 
 			// Remove from where used list
@@ -104,18 +122,34 @@ public class NodeVisitors {
 
 			// Use override behavior because Library nodes must clear out
 			// project and context.
-			if (node instanceof LibraryNode) {
-				((LibraryNode) node).delete(false); // just the library, not its members
+			if (n instanceof LibraryNode) {
+				((LibraryNode) n).delete(false); // just the library, not its members
 			}
 
 			// Unlink from tree
 			node.deleted = true;
-			if (node.getParent() != null && node.getParent().getChildren() != null) {
+			if (n.getParent() != null && n.getParent().getChildren() != null) {
 				node.getParent().removeChild(node);
 				// node.getParent().getChildren().remove(node);
 				if (node.getParent().isFamily())
 					node.getParent().updateFamily();
+				else if (node.getParent() instanceof VersionNode && node.getParent().getParent() instanceof FamilyNode)
+					node.getParent().getParent().updateFamily();
 			}
+
+			// If this is in a chain, remove it from the chain's aggregate lists and remove its associated version node.
+			if (node.getVersionNode() != null) {
+				assert (n.getLibrary().getChain() != null);
+				// delete copy in the version aggregate
+				n.getLibrary().getChain().removeAggregate((ComponentNode) node);
+				node.getVersionNode().deleted = true;
+				node.getVersionNode().head = null;
+				if (node.getVersionNode().getParent() != null)
+					node.getVersionNode().getParent().getChildren().remove(node.getVersionNode());
+
+				// 1/20/15 should be fixed - FIXME - deleting a node in a chain and in a family
+			}
+
 			node.setParent(null);
 			node.setLibrary(null);
 
@@ -125,20 +159,7 @@ public class NodeVisitors {
 				node.modelObject = node.newModelObject(new TLEmpty());
 			}
 
-			// If this is in a chain, remove its associated version node.
-			if (node.getVersionNode() != null) {
-				node.getVersionNode().deleted = true;
-				node.getVersionNode().head = null;
-				if (node.getVersionNode().getParent() != null)
-					node.getVersionNode().getParent().getChildren().remove(node.getVersionNode());
-
-				// see TODO in Node.delete().
-				// TODO - what about the copy in the version aggregate?
-				// TODO - if this is in the head, should the replacement from older verion happen
-				// here?
-
-			}
-			// LOGGER.debug("DeleteVisitor: deleted  " + n);
+			// LOGGER.debug("DeleteVisitor: deleted  " + nodeName);
 		}
 	}
 

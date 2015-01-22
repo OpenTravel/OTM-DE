@@ -21,72 +21,215 @@ package org.opentravel.schemas.node;
 import java.util.ArrayList;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.INode;
-import org.opentravel.schemas.node.LibraryNode;
-import org.opentravel.schemas.node.ModelNode;
-import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.NodeModelTestUtils;
+import org.opentravel.schemas.node.Node.NodeVisitor;
+import org.opentravel.schemas.node.Node_Tests.PrintNode;
+import org.opentravel.schemas.node.Node_Tests.TestNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
+import org.opentravel.schemas.testUtils.MockLibrary;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Dave Hollander
  * 
  */
 public class Delete_Tests {
-    ModelNode model = null;
+	static final Logger LOGGER = LoggerFactory.getLogger(MockLibrary.class);
 
-    @Test
-    public void deleteTest() throws Exception {
-        MainController mc = new MainController();
-        LoadFiles lf = new LoadFiles();
-        model = mc.getModelNode();
-        Node_Tests tt = new Node_Tests();
+	MockLibrary ml = null;
+	LibraryNode ln = null;
+	MainController mc;
+	DefaultProjectController pc;
+	ProjectNode defaultProject;
+	ModelNode model = null;
+	LoadFiles lf = null;
 
-        lf.loadTestGroupA(mc);
-        int i = 0;
-        for (LibraryNode ln : model.getUserLibraries()) {
-            ln.setEditable(true);
-            if (i++ == 1)
-                deleteAllMembers(ln);
-            else
-                deleteEachMember(ln);
-        }
-        tt.visitAllNodes(model);
-    }
+	NodeVisitor dv = new NodeVisitors().new deleteVisitor();
+	PrintNode pv = new Node_Tests().new PrintNode();
+	TestNode tv = new Node_Tests().new TestNode(); // preferred tester
+	Node_Tests tt = new Node_Tests();
 
-    private void deleteEachMember(LibraryNode ln) {
-        int x;
-        for (Node n : ln.getDescendants()) {
-            if (!n.isNavigation()) {
-                if (n.isDeleted())
-                    continue;
-                INode user = null;
-                if (n.getModelObject() == null)
-                    x = 1;
-                // System.out.println("Deleting "+n);
-                // Make sure the users of this type are informed of deletion.
-                if (n.getTypeUsersCount() > 0) {
-                    user = n.getTypeUsers().get(0);
-                }
-                n.delete();
-                if (user != null && n.isDeleteable()) {
-                    Assert.assertNotSame(n, user.getType());
-                }
-            }
-        }
-        NodeModelTestUtils.testNode(ln);
-        Assert.assertEquals(2, ln.getDescendants().size());
-    }
+	@Before
+	public void beforeAllTests() {
+		mc = new MainController();
+		ml = new MockLibrary();
+		pc = (DefaultProjectController) mc.getProjectController();
+		defaultProject = pc.getDefaultProject();
+		lf = new LoadFiles();
+	}
 
-    private void deleteAllMembers(LibraryNode ln) {
-        ArrayList<Node> members = new ArrayList<Node>(ln.getDescendants_NamedTypes());
-        NodeModelTestUtils.testNode(ln);
-        Node.deleteNodeList(members);
-        NodeModelTestUtils.testNode(ln);
-        NodeModelTestUtils.testNodeModel();
-        Assert.assertEquals(2, ln.getDescendants().size());
-    }
+	@Test
+	public void deleteVisitor() throws Exception {
+
+		// Delete Visitor
+		int namedTypeCnt = setUpCase(1);
+		Assert.assertEquals(33, ln.getDescendants().size());
+		ln.getComplexRoot().visitAllNodes(dv); // should do nothing
+		ln.getSimpleRoot().visitAllNodes(dv); // should do nothing
+		ln.visitAllNodes(tv);
+		Assert.assertEquals(33, ln.getDescendants().size());
+		Assert.assertEquals(namedTypeCnt, ln.getDescendants_NamedTypes().size());
+
+		namedTypeCnt = setUpCase(2);
+		ln.visitAllNodes(dv);
+		ln.visitAllNodes(pv);
+		Assert.assertEquals(2, ln.getDescendants().size());
+
+		LOGGER.debug("***Setting Up Test Case 3");
+		namedTypeCnt = setUpCase(3);
+		LibraryChainNode lcn = ln.getChain();
+		ln.visitAllNodes(dv);
+		ln.visitAllNodes(pv);
+		Assert.assertEquals(0, ln.getDescendants_NamedTypes().size());
+		Assert.assertEquals(2, ln.getDescendants().size());
+		Assert.assertEquals(0, lcn.getDescendants_NamedTypes().size());
+		Assert.assertEquals(4, lcn.getDescendants().size());
+
+		LOGGER.debug("***Setting Up Test Case 4");
+		namedTypeCnt = setUpCase(4);
+		lcn = ln.getChain();
+		ln.visitAllNodes(dv);
+		ln.visitAllNodes(pv);
+		Assert.assertEquals(0, ln.getDescendants_NamedTypes().size());
+		Assert.assertEquals(2, ln.getDescendants().size());
+		Assert.assertEquals(0, lcn.getDescendants_NamedTypes().size());
+		Assert.assertEquals(4, lcn.getDescendants().size());
+
+	}
+
+	// TODO - create test that assures naming errors are caught
+	// 2nd library same name
+	// 2nd library different name but not valid because of duplicate types w/ same name
+
+	// TODO - create test case that assures all children of all types are deleted.
+	// match against list created by visitAllNodes used in delete();
+
+	private int setUpCase(int testCase) {
+		int count = 0;
+		switch (testCase) {
+
+		case 1:
+			// Case 1 - simple library, not editable, with constructed objects
+			ln = ml.createNewLibrary("http://test.com/ns" + testCase, "testCase" + testCase, defaultProject);
+			count = ml.addOneOfEach(ln, "case1");
+			ln.visitAllNodes(tv);
+			Assert.assertEquals(count, ln.getDescendants_NamedTypes().size());
+			Assert.assertFalse(ln.isManaged());
+			Assert.assertFalse(ln.isInHead());
+			Assert.assertFalse(ln.isEditable());
+			Assert.assertTrue(ln.isDeleteable()); // NOTE - lib is delete-able
+			break;
+
+		case 2:
+			// Case 2 - unmanaged library, editable, with constructed objects
+			ln = ml.createNewLibrary("http://test.com/ns" + testCase, "testCase" + testCase, defaultProject);
+			count = ml.addOneOfEach(ln, "case2");
+			ln.visitAllNodes(tv);
+			Assert.assertEquals(count, ln.getDescendants_NamedTypes().size());
+			ln.setEditable(true);
+			Assert.assertTrue(ln.isDeleteable());
+			Assert.assertTrue(ln.isEditable());
+			break;
+
+		case 3:
+			// Case 3 - managed library, editable, with constructed objects
+			ln = ml.createNewLibrary("http://test.com/ns" + testCase, "testCase" + testCase, defaultProject);
+			count = ml.addOneOfEach(ln, "case" + testCase);
+			ln.visitAllNodes(tv);
+			Assert.assertEquals(count, ln.getDescendants_NamedTypes().size());
+			new LibraryChainNode(ln);
+			ln.setEditable(true); // must be done after LCN created
+			Assert.assertTrue(ln.isEditable());
+			Assert.assertTrue(ln.getChain().isEditable());
+			Assert.assertTrue(ln.getChain().isMajor());
+			Assert.assertEquals(count, ln.getDescendants_NamedTypes().size());
+			Assert.assertEquals(count, ln.getChain().getDescendants_NamedTypes().size());
+			Assert.assertFalse(ln.isManaged());
+			Assert.assertFalse(ln.isInHead());
+			break;
+
+		case 4:
+			ln = ml.createNewLibrary("http://test.com/ns" + testCase, "testCase" + testCase, defaultProject);
+			count = ml.addOneOfEach(ln, "case" + testCase);
+			ln.visitAllNodes(tv);
+			Assert.assertEquals(count, ln.getDescendants_NamedTypes().size());
+			new LibraryChainNode(ln);
+			ln.setEditable(true); // must be done after LCN created
+
+			ml.addSimpleTypeToLibrary(ln, "case4S");
+			count++;
+			Node n = ln.findNodeByName("case4S");
+			Assert.assertNotNull(ln.getChain().findNodeByName("case4S"));
+			Assert.assertNotNull(ln.findNodeByName("case4S"));
+			Assert.assertTrue(n.getParent() instanceof VersionNode);
+			Assert.assertEquals(count, ln.getDescendants_NamedTypes().size());
+			Assert.assertEquals(count, ln.getChain().getDescendants_NamedTypes().size());
+			break;
+		case 10:
+			// TODO - managed library this is head with multiple libraries
+			// TODO - managed library that is not head
+		}
+		return count;
+	}
+
+	/**
+	 * Run the tests against test library files.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void deleteFiles() throws Exception {
+		model = mc.getModelNode();
+
+		lf.loadTestGroupA(mc);
+		int i = 0;
+		for (LibraryNode ln : model.getUserLibraries()) {
+			new LibraryChainNode(ln); // Test in a chain
+			ln.setEditable(true);
+			if (i++ == 1)
+				deleteNodeListTest(ln);
+			else
+				deleteEachMember(ln);
+		}
+		tt.visitAllNodes(model);
+	}
+
+	private void deleteEachMember(LibraryNode ln) {
+		int x;
+		for (Node n : ln.getDescendants()) {
+			if (!n.isNavigation()) {
+				if (n.isDeleted())
+					continue;
+				INode user = null;
+				if (n.getModelObject() == null)
+					x = 1;
+				// Make sure the users of this type are informed of deletion.
+				if (n.getTypeUsersCount() > 0) {
+					user = n.getTypeUsers().get(0);
+				}
+				n.delete();
+				if (user != null && n.isDeleteable()) {
+					Assert.assertNotSame(n, user.getType());
+				}
+			}
+		}
+		ln.visitAllNodes(tv);
+		MockLibrary.printDescendants(ln);
+		MockLibrary.printDescendants(ln.getChain());
+		Assert.assertEquals(7, ln.getChain().getDescendants().size());
+		Assert.assertEquals(2, ln.getDescendants().size());
+	}
+
+	private void deleteNodeListTest(LibraryNode ln) {
+		ArrayList<Node> members = new ArrayList<Node>(ln.getDescendants_NamedTypes());
+		ln.visitAllNodes(tv);
+		Node.deleteNodeList(members);
+		ln.visitAllNodes(tv);
+		Assert.assertEquals(2, ln.getDescendants().size());
+	}
 
 }

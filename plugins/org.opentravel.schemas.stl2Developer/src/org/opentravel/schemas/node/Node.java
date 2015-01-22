@@ -31,6 +31,7 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.CodeGenerationException;
 import org.opentravel.schemacompiler.codegen.example.ExampleDocumentBuilder;
 import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
@@ -184,18 +185,11 @@ public abstract class Node implements INode {
 	public void delete() {
 		// If a version-ed library, then also remove from aggregate
 		// Library may be null! It is in some j-units.
-		// TODO - should this logic be in delete visitor?
 		if (isDeleteable()) {
-			if (getLibrary() != null && getLibrary().isInChain())
-				getLibrary().getChain().removeAggregate((ComponentNode) this);
-
 			NodeVisitor visitor = new NodeVisitors().new deleteVisitor();
 			// LOGGER.debug("Deleting " + this);
 			this.visitAllNodes(visitor);
-		} else if (!(this instanceof VersionNode) && (!(this instanceof FacetNode))
-				&& !(this instanceof SimpleAttributeNode))
-			LOGGER.warn(this + " is not deleteable: " + isDeleteable());
-		// version nodes can not be deleted. SimpleAttrs ??? why ???.
+		}
 	}
 
 	@Override
@@ -255,31 +249,38 @@ public abstract class Node implements INode {
 	 *         swapped node may still be used as a type but may not be in a library.
 	 */
 	public void swap(Node replacement) {
-		if (replacement != null && getLibrary() != null && parent != null) {
-			Node thisParent = parent;
-			if (!thisParent.children.add(replacement)) {
-				LOGGER.warn("swap() - could not add replacement to parent child list.");
-				return; // error
-			}
+		assert (replacement != null) : "Null replacement node.";
+		assert (getLibrary() != null) : "Null library.";
+		assert (parent != null) : "Null parent";
+		assert (getTLModelObject() instanceof LibraryMember) : "TL Object is not library member.";
+		assert (replacement.getTLModelObject() instanceof LibraryMember) : "TL Object is not library member.";
 
-			// Make sure the replacement model object is in the same library as this node.
-			// TODO - this should be dead code. verify then remove.
-			if (getTLModelObject() instanceof LibraryMember) {
-				if (((LibraryMember) replacement.getTLModelObject()).getOwningLibrary() != ((LibraryMember) getTLModelObject())
-						.getOwningLibrary()) {
-					LOGGER.debug("swap(): replacement TL object was not in same library.");
-					replacement.getModelObject().addToLibrary(
-							((LibraryMember) this.getTLModelObject()).getOwningLibrary());
-				} else
-					LOGGER.debug("swap() - replacement's TL object was OK.");
-			} else
-				LOGGER.error("swap() - TL object is not a LibraryMember.");
+		final Node thisParent = parent;
 
-			replacement.setLibrary(this.getLibrary());
-			replaceWith(replacement);
-			replacement.parent = thisParent;
-		} else
-			LOGGER.warn("swap() - Invalid node to swap.");
+		// TESTME - replacement may already be in library
+		// Add replacement to the parent if not already there.
+		if (!thisParent.children.contains(replacement))
+			thisParent.children.add(replacement);
+		// Fail if in the list more than once.
+		assert (replacement.getParent().getChildren().indexOf(replacement) == replacement.getParent().getChildren()
+				.lastIndexOf(replacement));
+
+		// Make sure the replacement model object is in the same library as this node.
+		AbstractLibrary thisTlLibrary = ((LibraryMember) this.getTLModelObject()).getOwningLibrary();
+		AbstractLibrary replacementTlLibrary = ((LibraryMember) replacement.getTLModelObject()).getOwningLibrary();
+		if (thisTlLibrary != replacementTlLibrary) {
+			LOGGER.debug("swap(): replacement TL object was not in same library.");
+			replacement.getModelObject().addToLibrary(((LibraryMember) this.getTLModelObject()).getOwningLibrary());
+		}
+
+		replacement.setLibrary(this.getLibrary());
+		replaceWith(replacement);
+		// 1/20/15 NO - thisParent will be a family node
+		// replacement.parent = thisParent; // NO NO NO
+		// assert (thisParent.children.contains(replacement)) : "Replacement not in parent's list.";
+
+		assert (this.library == null) : "This library should be null.";
+		assert (this.parent == null) : "This parent should be null.";
 	}
 
 	/**
@@ -514,7 +515,7 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * @return a new list containing all children and their descendants. Includes navNodes.
+	 * @return a new list containing all children and their descendants. Includes aggregate, version and navNodes.
 	 */
 	public List<Node> getDescendants() {
 		final ArrayList<Node> ret = new ArrayList<Node>();
@@ -781,7 +782,7 @@ public abstract class Node implements INode {
 		final ArrayList<Node> kids = new ArrayList<Node>();
 		for (final Node n : getChildren()) {
 			if (n.isTypeProvider() || n.hasChildren_TypeProviders()) {
-				if (n instanceof VersionNode)
+				if (n instanceof VersionNode && ((VersionNode) n).getVersionedObject() != null)
 					kids.add(((VersionNode) n).getVersionedObject());
 				else
 					kids.add(n);
@@ -1068,7 +1069,7 @@ public abstract class Node implements INode {
 
 	/**
 	 * @return False for node that can not be deleted: not-editable, facets, simpleFacets. Custom and Query Facets are
-	 *         delete-able.
+	 *         delete-able. Libraries are <b>always</b> delete-able
 	 */
 	public boolean isDeleteable() {
 		if (getLibrary() == null)
@@ -1378,15 +1379,10 @@ public abstract class Node implements INode {
 
 	/**
 	 * Add the <i>child</i> node parameter to <i>this</i> node. Sets parentNode link of child. NOTE - must have a name
-	 * to support family processing.
+	 * to support family processing. Does family processing. Does <b>not</b> check for version or aggregates.
 	 * 
 	 * @param child
 	 *            - node to be added
-	 * @param doFamily
-	 *            - if present and true, the child is added to the a family node if the name matches family conditions.
-	 *            If child.family is not set it will make a family name. Checks all the children of this node to see if
-	 *            the child should be added to the family instead of directly to this node.
-	 * @return false if child could not be linked.
 	 */
 	public boolean linkChild(final Node child) {
 		return linkChild(child, true);
@@ -1398,15 +1394,21 @@ public abstract class Node implements INode {
 	 * 
 	 * @param child
 	 *            - node to be added
+	 * @param doFamily
+	 *            - if present and true, the child is added to the a family node if the name matches family conditions.
+	 *            If child.family is not set it will make a family name. Checks all the children of this node to see if
+	 *            the child should be added to the family instead of directly to this node.
+	 * @return false if child could not be linked.
 	 */
 	public boolean linkChild(final Node child, final boolean doFamily) {
 		if (child == null) {
 			return false;
 		}
 
-		linkChild(child, -1);
+		if (!linkChild(child, -1))
+			return false;
 		if (doFamily) {
-			family = NodeNameUtils.makeFamilyName(getName());
+			// family = NodeNameUtils.makeFamilyName(getName());
 			child.family = NodeNameUtils.makeFamilyName(child.getName());
 			if (child.family.isEmpty()) {
 				return true;
@@ -1429,6 +1431,9 @@ public abstract class Node implements INode {
 	 * @return
 	 */
 	protected boolean addChildToFamily(Node peer) {
+		assert (parent != null) : "Assert: parent is null"; //
+		assert (peer.getParent() != null) : "Null peer parent.";
+
 		if (peer instanceof FamilyNode) {
 			parent.removeChild(this); // take the child out of the parentNode's list.
 			peer.getChildren().add(this); // add it to the family node
@@ -1532,6 +1537,7 @@ public abstract class Node implements INode {
 			LOGGER.warn("Missing model object - Can not set name to :" + n);
 		}
 
+		String oldFamily = family;
 		family = NodeNameUtils.makeFamilyName(newName);
 
 		// A name change may also change the family.
@@ -1550,6 +1556,24 @@ public abstract class Node implements INode {
 				if (!family.equals(parent.getName())) {
 					unlinkNode();
 					gp.linkChild(this);
+				}
+			} else if ((parent instanceof VersionNode) && (parent.getParent() instanceof FamilyNode)) {
+				VersionNode vn = (VersionNode) parent;
+				Node family = parent.getParent();
+				if (!family.equals(family.getName())) {
+					// do the aggregate
+					this.family = oldFamily;
+					if (vn.head == this) {
+						// remove from aggregate family, add to aggregate
+						getLibrary().getChain().removeAggregate((ComponentNode) this);
+						getLibrary().getChain().add((ComponentNode) this);
+					}
+					// Move the version node
+					vn.unlinkNode();
+					family.getParent().linkChild(vn);
+
+					this.family = NodeNameUtils.makeFamilyName(newName);
+					vn.family = this.family;
 				}
 			}
 			// }
@@ -2579,7 +2603,8 @@ public abstract class Node implements INode {
 	@Override
 	public void visitAllTypeProviders(NodeVisitor visitor) {
 		for (Node c : getChildren_TypeProviders()) {
-			c.visitAllTypeProviders(visitor);
+			if (c != null)
+				c.visitAllTypeProviders(visitor);
 		}
 		if (isTypeProvider()) {
 			visitor.visit(this);

@@ -199,6 +199,8 @@ public class LibraryChainNode extends Node {
 	protected void add(ComponentNode node) {
 		if (node == null)
 			return;
+		if (node.getLibrary() == null)
+			throw new IllegalArgumentException("Tried to add node with null library. " + node);
 
 		// For services, just add to the service root.
 		if (node instanceof ServiceNode)
@@ -233,7 +235,11 @@ public class LibraryChainNode extends Node {
 			simpleRoot.remove(node);
 		else if ((node instanceof ServiceNode || (node instanceof OperationNode)))
 			serviceRoot.remove(node);
+		// else
+		// assert (false) : "Invalid node type to remove.";
 
+		// if (findPreviousVersion(node) != null)
+		// LOGGER.debug("Adding back the previous version of " + node);
 		add(findPreviousVersion(node));
 	}
 
@@ -245,25 +251,18 @@ public class LibraryChainNode extends Node {
 	}
 
 	/**
-	 * Find the "latest" previous version of the node.
+	 * Find the "latest" previous version of the node if not deleted.
 	 * 
 	 * @param node
 	 */
 	private ComponentNode findPreviousVersion(ComponentNode node) {
-		return node.getVersionNode() != null ? node.getVersionNode().getPreviousVersion() : null;
-
-		// 12/19/13 dmh - replaced by linked list of prev nodes.
-		// ComponentNode n, vn = null;
-		// assume node is in this chain.
-		// for (Node ln : versions.getChildren()) {
-		// n = (ComponentNode) ln.findNodeByName(node.getName());
-		// if (vn == null && n != node)
-		// vn = n;
-		// else if (n != null && n != node)
-		// if (isLaterVersion(n, vn))
-		// vn = n;
-		// }
-		// return vn;
+		if (node.getVersionNode() != null) {
+			if (node.getVersionNode().isDeleted())
+				return null;
+			else
+				return node.getVersionNode().getPreviousVersion();
+		}
+		return null;
 	}
 
 	/**

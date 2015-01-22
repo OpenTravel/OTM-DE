@@ -768,7 +768,8 @@ public class ComponentNode extends Node implements TypeProvider {
 
 	/**
 	 * Replace this node with a newly created business object. Anywhere this node is used as a type is changed to use
-	 * the new node. This node is removed from its library and the new business object is added.
+	 * the new node. This node is removed from its library and the new business object is added. Used by changeObject
+	 * wizard.
 	 * 
 	 * NOTE - this does not remove this node.
 	 * 

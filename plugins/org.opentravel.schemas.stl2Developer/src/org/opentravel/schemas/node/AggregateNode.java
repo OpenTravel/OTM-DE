@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 public class AggregateNode extends NavNode {
 	private static final Logger LOGGER = LoggerFactory.getLogger(FacetView.class);
 
-	private AggregateType type;
+	private AggregateType aggType;
 
 	public enum AggregateType {
 		SimpleTypes("Simple Objects"), ComplexTypes("Complex Objects"), Service("Service"), Versions("Versions");
@@ -53,70 +53,87 @@ public class AggregateNode extends NavNode {
 
 	public AggregateNode(AggregateType type, Node parent) {
 		super(type.label(), parent);
-		this.type = type;
+		this.aggType = type;
 		setLibrary(parent.getLibrary());
+
+		assert (parent instanceof LibraryChainNode) : "Invalid argument.";
 	}
 
 	/**
-	 * Adds node to the aggregate node's children list if appropriate.
+	 * Adds node to the aggregate node's children list if appropriate. This only does the aggregate structure, not
+	 * library or parent links.
 	 * 
-	 * @param node
+	 * @param nodeToAdd
 	 * @return
 	 */
-	public boolean add(ComponentNode node) {
+	public boolean add(ComponentNode nodeToAdd) {
 		// Type safety
-		switch (type) {
+		switch (aggType) {
 		case ComplexTypes:
-			if (!(node instanceof ComplexComponentInterface))
+			if (!(nodeToAdd instanceof ComplexComponentInterface))
 				throw new IllegalStateException("Can't add to complex aggregate.");
 			break;
 		case SimpleTypes:
-			if (!(node instanceof SimpleComponentInterface))
+			if (!(nodeToAdd instanceof SimpleComponentInterface))
 				throw new IllegalStateException("Can't add to simple aggregate.");
 			break;
 		case Service:
-			if (!(node instanceof ServiceNode || (node instanceof OperationNode)))
+			if (!(nodeToAdd instanceof ServiceNode || (nodeToAdd instanceof OperationNode)))
 				throw new IllegalStateException("Can't add to service aggregate.");
 			break;
 		default:
-			throw new IllegalStateException("Unknown object type: " + node.getClass().getSimpleName());
+			throw new IllegalStateException("Unknown object type: " + nodeToAdd.getClass().getSimpleName());
 		}
+		if (nodeToAdd.getLibrary() == null)
+			throw new IllegalArgumentException("Tried to add node with null library. " + nodeToAdd);
 
-		// Add if not found or replacing the existing node is older?
-		String familyName = NodeNameUtils.makeFamilyName(node.getName());
-		for (Node n : getChildren()) {
-			if (!n.isFamily() && n.getName().equals(node.getName())) {
-				// Is it "later-in-time" than the one found?
-				if (node.getLibrary() != n.getLibrary()) {
-					// If they are in the same library the leave in aggregate so user can fix the problem.
-					// LOGGER.debug("AggregateNode: " + n + " Same name object found in the same library.");
-					if (node.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib())) {
+		final String familyName = NodeNameUtils.makeFamilyName(nodeToAdd.getName());
+		// children families and components that have same family prefix
+		final List<Node> familyMatches = findFamilyNameMatches(getChildren(), familyName);
+		AggregateFamilyNode family = findFamilyNode(familyMatches, familyName);
+		final List<Node> duplicates = findExactMatches(getChildren(), nodeToAdd.getName());
+
+		if (familyMatches.isEmpty()) {
+			// simply add the node
+			getChildren().add(nodeToAdd);
+		} else {
+			if (duplicates.isEmpty()) {
+				// Add to a family
+				if (family == null) {
+					// Start a new family and add the match(s)
+					family = new AggregateFamilyNode(this, familyName);
+					List<Node> kids = new ArrayList<Node>(familyMatches);
+					for (Node n : kids) {
 						getChildren().remove(n);
-						insertPreviousVersion(node, (ComponentNode) n);
-						break;
+						family.getChildren().add(n);
+					}
+				}
+				family.getChildren().add(nodeToAdd);
+			} else {
+				// Try to replace the existing name matching node
+				for (Node n : duplicates) {
+					if (nodeToAdd.getLibrary() == n.getLibrary()) {
+						// Add to aggregate so user can fix the problem.
+						if (!getChildren().contains(nodeToAdd)) {
+							getChildren().add(nodeToAdd);
+							// LOGGER.debug("AggregateNode: " + n + " Same name object found in the same library.");
+						}
 					} else {
-						return false;
+						// Replace older object with same name with the node to be added
+						if (nodeToAdd.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib())) {
+							getChildren().remove(n);
+							insertPreviousVersion(nodeToAdd, (ComponentNode) n);
+						} else
+							// Happens on startup - i don't know why
+							// assert (false) : "Error - added to an older library.";
+							return false;
 					}
 				}
 			}
 		}
-		AggregateFamilyNode family = findFamilyNode(getChildren(), familyName);
-		List<Node> nodes = findPrefixedNodes(getChildren(), familyName + "_");
-		if (!nodes.isEmpty()) {
-			if (family == null) {
-				family = new AggregateFamilyNode(this, familyName);
-			}
-			List<Node> kids = new ArrayList<Node>(nodes);
-			for (Node n : kids) {
-				getChildren().remove(n);
-				family.getChildren().add(n);
-			}
-		}
-		if (family != null) {
-			family.getChildren().add(node);
-		} else {
-			getChildren().add(node);
-		}
+		// These assertions may fail on loading a library into a chain.
+		// assert (familyMatches.size() <= 1) : "unexpected familyMatch count";
+		// assert (duplicates.size() <= 1) : "unexpected duplicate count";
 		return true;
 	}
 
@@ -131,12 +148,29 @@ public class AggregateNode extends NavNode {
 		return null;
 	}
 
-	private List<Node> findPrefixedNodes(List<Node> children, String prefix) {
+	/**
+	 * Return a list of component and family nodes whose names begin with the <i>prefix</i> string.
+	 */
+	private List<Node> findFamilyNameMatches(List<Node> children, String prefix) {
 		List<Node> ret = new ArrayList<Node>();
 		for (Node c : children) {
 			if (c.getName().startsWith(prefix)) {
 				ret.add(c);
 			}
+		}
+		return ret;
+	}
+
+	/**
+	 * examine all children and children of families for exact name match
+	 */
+	private List<Node> findExactMatches(List<Node> children, String matchName) {
+		List<Node> ret = new ArrayList<Node>();
+		for (Node c : children) {
+			if (c instanceof FamilyNode)
+				ret.addAll(findExactMatches(c.getChildren(), matchName));
+			else if (c.getName().startsWith(matchName))
+				ret.add(c);
 		}
 		return ret;
 	}
@@ -171,11 +205,13 @@ public class AggregateNode extends NavNode {
 
 	protected void remove(Node node) {
 		if (!getChildren().remove(node)) {
-			// if it was not found, it must be in a family node
+			// if it was not found, it may be in a family node
 			ArrayList<Node> kids = new ArrayList<Node>(getChildren());
 			for (Node n : kids) {
 				if ((n instanceof AggregateFamilyNode) && (n.family.equals(node.family))) {
 					((AggregateFamilyNode) n).remove(node);
+					if (n.getChildren().isEmpty())
+						getChildren().remove(n);
 				}
 			}
 		}
@@ -199,7 +235,7 @@ public class AggregateNode extends NavNode {
 	 */
 	@Override
 	public List<Node> getNavChildren() {
-		if (type.equals(AggregateType.Versions)) {
+		if (aggType.equals(AggregateType.Versions)) {
 			return super.getChildren();
 		} else {
 			ArrayList<Node> kids = new ArrayList<Node>();
@@ -218,7 +254,7 @@ public class AggregateNode extends NavNode {
 	 */
 	@Override
 	public boolean hasChildren_TypeProviders() {
-		return type.equals(AggregateType.Versions) && getChildren().size() > 0 ? true : false;
+		return aggType.equals(AggregateType.Versions) && getChildren().size() > 0 ? true : false;
 	}
 
 	/*
@@ -250,7 +286,7 @@ public class AggregateNode extends NavNode {
 	 */
 	@Override
 	public boolean isLibraryContainer() {
-		return type == AggregateType.Versions ? true : false;
+		return aggType == AggregateType.Versions ? true : false;
 	}
 
 }

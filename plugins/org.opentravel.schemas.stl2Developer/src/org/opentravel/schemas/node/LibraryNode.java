@@ -498,31 +498,40 @@ public class LibraryNode extends Node {
 	}
 
 	/**
-	 * Link Node to the appropriate navigation node in this library. Does not impact the TL model. Does set library and
-	 * contexts.
+	 * Uses linkChild() to link Node to the appropriate navigation node in this library. Does family processing. Does
+	 * set library and contexts. Does <b>not</b> impact the TL model. Does <b>not</b> do aggregate processing.
+	 * 
+	 * @return
 	 */
-	protected void linkMember(Node n) {
+	protected boolean linkMember(Node n) {
 		if (n == null)
-			return;
+			throw new IllegalArgumentException("Null parameter.");
+		if (n.getName().isEmpty())
+			throw new IllegalArgumentException("Node must have a name.");
+		boolean linkOK = true;
+
 		// LOGGER.debug("Linking node: "+n.getName());
 		if (n instanceof ComplexComponentInterface)
-			complexRoot.linkChild(n);
+			linkOK = complexRoot.linkChild(n);
 		else if (n instanceof SimpleComponentInterface)
-			simpleRoot.linkChild(n);
+			linkOK = simpleRoot.linkChild(n);
 		else if (n instanceof ServiceNode)
 			; // Nothing to do because services are already linked to library.
 		else if (n.isXsdElementAssignable())
 			// TODO - i don't think this is ever reached. ElementRoot is never accessed.
-			elementRoot.linkChild(n.getXsdNode());
+			linkOK = elementRoot.linkChild(n.getXsdNode());
 		else
-			LOGGER.error("linkMember is trying to add unknown object type: " + n);
+			LOGGER.error("linkMember is trying to add unknown object type: " + n + ":" + n.getClass().getSimpleName());
 		// I don't know why but only service node creates stack overflow.
 		// Services can't be moved, so they will never have to change their lib.
-		if (!(n instanceof ServiceNode)) {
-			n.setLibrary(this);
-			n.setKidsLibrary();
+		if (linkOK) {
+			if (!(n instanceof ServiceNode)) {
+				n.setLibrary(this);
+				n.setKidsLibrary();
+			}
+			addContext(n);
 		}
-		addContext(n);
+		return linkOK;
 	}
 
 	/**
@@ -687,13 +696,32 @@ public class LibraryNode extends Node {
 			return;
 		}
 
-		getTLLibrary().addNamedMember((LibraryMember) n.getTLModelObject());
-		linkMember(n);
-
-		// If this library is in a chain, add the member to the chain's aggregates.
-		if (isInChain()) {
-			getChain().add((ComponentNode) n);
+		// This code is only needed because of defect in XSD importer.
+		if (n.getParent() != null && n.getParent().getChildren().contains(n)) {
+			LOGGER.warn(n + " is already a child of its parent.");
+			return;
+		} else if ((n instanceof SimpleComponentInterface) && getSimpleRoot().getChildren().contains(n)) {
+			LOGGER.warn(n + " is already a child of its parent.");
+			return;
+		} else if ((n instanceof ComplexComponentInterface) && getComplexRoot().getChildren().contains(n)) {
+			LOGGER.warn(n + " is already a child of its parent.");
+			return;
 		}
+
+		getTLLibrary().addNamedMember((LibraryMember) n.getTLModelObject());
+		if (linkMember(n)) {
+
+			// If this library is in a chain, add the member to the chain's aggregates.
+			if (isInChain()) {
+				getChain().add((ComponentNode) n);
+			}
+		}
+
+		// Fail if in the list more than once.
+		if (n.getParent().getChildren().indexOf(n) != n.getParent().getChildren().lastIndexOf(n))
+			LOGGER.warn(n + " is in list more than once.");
+		// assert (n.getParent().getChildren().indexOf(n) == n.getParent().getChildren().lastIndexOf(n));
+
 	}
 
 	public boolean isInChain() {
