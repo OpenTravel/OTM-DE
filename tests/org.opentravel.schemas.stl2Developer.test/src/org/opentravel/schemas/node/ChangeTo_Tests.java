@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.node;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -114,6 +116,63 @@ public class ChangeTo_Tests {
 		Assert.assertEquals(core.getSimpleType(), vwa.getSimpleType());
 		Assert.assertEquals(tlCore.getSummaryFacet().getAttributes().size(), core.getSummaryFacet().getChildren()
 				.size());
+	}
+
+	@Test
+	public void checkUsersCounts() {
+		// Create a core, vwa, simple and property to use
+		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		LibraryChainNode lcn = new LibraryChainNode(ln);
+		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "C");
+		PropertyNode p1 = new ElementNode(core.getSummaryFacet(), "P1");
+		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "B");
+		SimpleTypeNode s1 = ml.addSimpleTypeToLibrary(ln, "s1");
+		tn.visit(ln);
+		tn.visit(lcn);
+
+		// Make assignment and assure counts are correct.
+		List<?> list = null;
+		p1.setAssignedType(vwa);
+		Assert.assertTrue("not assigned", p1.getAssignedType() == vwa);
+		list = vwa.getTypeUsers();
+		Assert.assertEquals(1, vwa.getTypeUsers().size());
+
+		ComponentNode nc = vwa.changeToCoreObject();
+		Assert.assertTrue("not assigned", p1.getAssignedType() == nc);
+		list = nc.getTypeUsers();
+		Assert.assertTrue("not member", list.contains(p1));
+		Assert.assertEquals(1, nc.getTypeUsers().size());
+	}
+
+	@Test
+	public void asInMainController() {
+		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		LibraryChainNode lcn = new LibraryChainNode(ln);
+		VWA_Node nodeToReplace = ml.addVWA_ToLibrary(ln, "B");
+		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "C");
+		PropertyNode p1 = new ElementNode(core.getSummaryFacet(), "P1");
+		p1.setAssignedType(nodeToReplace);
+
+		// NodeToReplace is input param
+		Assert.assertEquals(1, nodeToReplace.getTypeUsers().size());
+		LOGGER.debug("Changing selected component: " + nodeToReplace.getName() + " with "
+				+ nodeToReplace.getTypeUsersCount() + " users.");
+
+		// WHAT THE HECK IS THIS? Why is there only one object?
+		ComponentNode editedNode = nodeToReplace;
+		// nodeToReplace.replaceWith(editedComponent);
+
+		// code used in ChangeWizardPage
+		editedNode = editedNode.changeObject(SubType.CORE_OBJECT);
+		Assert.assertEquals(0, nodeToReplace.getTypeUsers().size());
+		nodeToReplace.delete(); // deleted in main controller
+
+		LOGGER.debug("Changing Edited component: " + editedNode.getName() + " with " + editedNode.getTypeUsersCount()
+				+ " users.");
+		Assert.assertEquals(1, editedNode.getTypeUsers().size());
+		Assert.assertEquals(editedNode, p1.getTypeNode());
+		// 1/22/15 - the counts are wrong!
+
 	}
 
 	@Test

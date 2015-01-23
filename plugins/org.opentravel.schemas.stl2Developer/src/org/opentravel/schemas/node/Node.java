@@ -257,7 +257,6 @@ public abstract class Node implements INode {
 
 		final Node thisParent = parent;
 
-		// TESTME - replacement may already be in library
 		// Add replacement to the parent if not already there.
 		if (!thisParent.children.contains(replacement))
 			thisParent.children.add(replacement);
@@ -2085,6 +2084,9 @@ public abstract class Node implements INode {
 	public boolean isNewToChain() {
 		if (getChain() == null)
 			return true;
+		if (getVersionNode() == null)
+			return true;
+
 		if (getLibrary() != getChain().getHead())
 			return false;
 		// It is in head of chain. Is it new to the chain?

@@ -29,25 +29,28 @@ import org.opentravel.schemas.stl2developer.MainWindow;
  */
 public class ChangeObjectAction extends OtmAbstractAction {
 
-    public ChangeObjectAction(final MainWindow mainWindow, final StringProperties props) {
-        super(mainWindow, props);
-    }
+	public ChangeObjectAction(final MainWindow mainWindow, final StringProperties props) {
+		super(mainWindow, props);
+	}
 
-    @Override
-    public void run() {
-        getMainController().changeSelection();
-    }
+	@Override
+	public void run() {
+		getMainController().changeSelection();
+	}
 
-    @Override
-    public boolean isEnabled(Node currentNode) {
-        if (currentNode == null)
-            return false;
-        if (!(currentNode instanceof ComponentNode))
-            return false;
+	@Override
+	public boolean isEnabled(Node currentNode) {
+		if (currentNode == null)
+			return false;
+		if (!(currentNode instanceof ComponentNode))
+			return false;
 
-        if (currentNode.getChain() != null)
-            return currentNode.getChain().getEditStatus().equals(NodeEditStatus.FULL);
-        return currentNode.isEditable();
-    }
+		if (currentNode.isNewToChain())
+			return currentNode.isEditable();
+
+		if (currentNode.getChain() != null)
+			return currentNode.getChain().getEditStatus().equals(NodeEditStatus.FULL);
+		return currentNode.isEditable();
+	}
 
 }

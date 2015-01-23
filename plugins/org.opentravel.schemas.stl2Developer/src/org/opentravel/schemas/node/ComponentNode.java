@@ -723,6 +723,25 @@ public class ComponentNode extends Node implements TypeProvider {
 	}
 
 	/**
+	 * 
+	 * @param st
+	 *            - SubType to change to
+	 * @return - new object created by changing this object
+	 */
+	public ComponentNode changeObject(SubType st) {
+		switch (st) {
+		case BUSINESS_OBJECT:
+			return this.changeToBusinessObject();
+		case CORE_OBJECT:
+			return this.changeToCoreObject();
+		case VALUE_WITH_ATTRS:
+			return this.changeToVWA();
+		default:
+			throw new IllegalArgumentException("SubType: " + st.toString() + " is not supporeted.");
+		}
+	}
+
+	/**
 	 * Change Node to VWA_Node using properties of this node as templates. Create new node and assign type users.
 	 * Replace this node in the library. Removes type users from old node and its children. NOTES: 1) Does <b>not</b>
 	 * delete this node.

@@ -123,6 +123,7 @@ public class AggregateNode extends NavNode {
 						if (nodeToAdd.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib())) {
 							getChildren().remove(n);
 							insertPreviousVersion(nodeToAdd, (ComponentNode) n);
+							getChildren().add(nodeToAdd);
 						} else
 							// Happens on startup - i don't know why
 							// assert (false) : "Error - added to an older library.";

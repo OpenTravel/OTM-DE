@@ -72,852 +72,844 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Main Controller. Receives events from the view and workbench, drives user interactions then
- * executes commands to update/manipulate the models.
+ * Main Controller. Receives events from the view and workbench, drives user interactions then executes commands to
+ * update/manipulate the models.
  * 
- * - This class provides access to controller that do not rely upon the workbench. - It can be used
- * for junit tests. - Provides and manages registry of the various view specific controllers. -
- * Provides access to selected nodes.
+ * - This class provides access to controller that do not rely upon the workbench. - It can be used for junit tests. -
+ * Provides and manages registry of the various view specific controllers. - Provides access to selected nodes.
  * 
  * @author Dave Hollander
  */
 
 public class MainController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MainController.class);
-
-    public static final String WARNING_MSG = "Warning";
-    public static final String NO_VALID_SELECTION_MSG = "No valid selection";
-
-    private ModelNode modelNode;
-
-    private MainWindow mainWindow = null;
-
-    private OtmHandlers handlers;
-    private OtmActions actions;
-    private OtmWidgets widgets;
-    private final OtmSections sections;
-    private final OtmTextFields fields;
-
-    private final LibraryController libraryController;
-    private final ModelController modelController;
-    private final ContextController contextController;
-    private final NodeModelController nodeModelController;
-    private ProjectController projectController;
-    private RepositoryController repositoryController;
-
-    private final OtmView defaultView;
-
-    private IHandlerService handlerService;
-    private IWorkbenchPartSite site = null;
-    private final String CopyNameSuffix = "_Copy";
-
-    private ListenerList refreshList = new ListenerList();
-
-    public MainController() {
-        this(getDefaultRepositoryManager());
-    }
-
-    public static RepositoryManager getDefaultRepositoryManager() {
-        RepositoryManager defaultManager = null;
-        try {
-            defaultManager = RepositoryManager.getDefault();
-        } catch (RepositoryException ex) {
-            IStatus ss = new Status(IStatus.ERROR, Activator.PLUGIN_ID, ex.getMessage(), ex);
-            ErrorWithExceptionDialog.openError(PlatformUI.getWorkbench().getDisplay()
-                    .getActiveShell(), JFaceResources.getString("error"), MessageFormat.format(
-                    Messages.getString("dialog.localRepository.error.message"),
-                    RepositoryFileManager.getDefaultRepositoryLocation()), ss);
-            LOGGER.error("Invalid local repository", ex);
-            PlatformUI.getWorkbench().close();
-        }
-        return defaultManager;
-    }
-
-    public MainController(RepositoryManager repositoryManager) {
-        LOGGER.info("Initializing: " + this.getClass());
-
-        OtmRegistry.registerMainController(this);
-        mainWindow = OtmRegistry.getMainWindow(); // if headless it will be null
-        defaultView = new NavigatorView(); // Always have one view.
-
-        handlers = new OtmHandlers();
-        actions = new OtmActions(this);
-        widgets = new OtmWidgets(getActions(), getHandlers());
-        sections = new OtmSections(getActions(), getHandlers());
-        fields = new OtmTextFields(getActions(), getHandlers());
-
-        libraryController = new DefaultLibraryController(this);
-        modelController = new DefaultModelController(this, libraryController);
-        modelNode = modelController.getModel();
-        nodeModelController = new NodeModelController(this);
-        contextController = new DefaultContextController(this);
-        repositoryController = new DefaultRepositoryController(this, repositoryManager);
-        projectController = new DefaultProjectController(this, repositoryManager);
-
-        LOGGER.info("Done initializing " + this.getClass());
-    }
-
-    /** ************************ Model Controller Access ***************************** **/
-
-    public ContextController getContextController() {
-        return contextController;
-    }
-
-    public LibraryController getLibraryController() {
-        return libraryController;
-    }
-
-    /**
-     * @return the repositoryController
-     */
-    public RepositoryController getRepositoryController() {
-        return repositoryController;
-    }
-
-    /**
-     * @param repositoryController
-     *            the repositoryController to set
-     */
-    public void setRepositoryController(DefaultRepositoryController defaultRepositoryController) {
-        this.repositoryController = defaultRepositoryController;
-    }
-
-    public MainWindow getMainWindow() {
-        return mainWindow;
-    }
-
-    public ModelController getModelController() {
-        return modelController;
-    }
-
-    public NodeModelController getNodeModelController() {
-        return nodeModelController;
-    }
-
-    /**
-     * @return the projectController
-     */
-    public ProjectController getProjectController() {
-        return projectController;
-    }
-
-    /**
-     * @param projectController
-     *            the projectController to set
-     */
-    public void setProjectController(ProjectController projectController) {
-        this.projectController = projectController;
-    }
-
-    public OtmHandlers getHandlers() {
-        return handlers;
-    }
-
-    public void setHandlers(final OtmHandlers handlers) {
-        this.handlers = handlers;
-    }
-
-    public OtmActions getActions() {
-        return actions;
-    }
-
-    public void setActions(final OtmActions actions) {
-        this.actions = actions;
-    }
-
-    public OtmWidgets getWidgets() {
-        return widgets;
-    }
-
-    public void setWidgets(final OtmWidgets widgets) {
-        this.widgets = widgets;
-    }
-
-    public OtmSections getSections() {
-        return sections;
-    }
-
-    public OtmTextFields getFields() {
-        return fields;
-    }
-
-    /**
-     * @return the defaultView
-     */
-    public OtmView getDefaultView() {
-        return defaultView;
-    }
-
-    /** ************************ Current Item Access ***************************** **/
-
-    /**
-     * Return the current node displayed in the type view facet table.
-     * 
-     * @return
-     */
-    public INode getCurrentNode_TypeView() {
-        final OtmView view = OtmRegistry.getTypeView();
-        if (view != null) {
-            return view.getCurrentNode();
-        }
-        return null;
-    }
-
-    public INode getCurrentNode_FacetView() {
-        final OtmView view = OtmRegistry.getFacetView();
-        if (view != null) {
-            return view.getCurrentNode();
-        }
-        return null;
-    }
-
-    /**
-     * Returns the node currently be viewed in the properties view.
-     * 
-     * @return
-     */
-    public INode getCurrentNode_PropertiesView() {
-        final OtmView view = OtmRegistry.getPropertiesView();
-        if (view != null) {
-            return view.getCurrentNode();
-        }
-        return null;
-    }
-
-    /**
-     * @return the current navigator view (treeView) node or null if none selected.
-     */
-    public Node getCurrentNode_NavigatorView() {
-        final OtmView view = OtmRegistry.getNavigatorView();
-        if (view != null) {
-            return (Node) view.getCurrentNode();
-        }
-        return null;
-    }
-
-    /**
-     * Return the current node displayed in the type view facet table.
-     * 
-     * @return
-     */
-    public void setCurrentNode_TypeView(Node node) {
-        final OtmView view = OtmRegistry.getTypeView();
-        if (view != null) {
-            view.setCurrentNode(node);
-        }
-    }
-
-    /**
-     * Returns the node currently be viewed in the properties view.
-     * 
-     * @return
-     */
-    public void setCurrentNode_PropertiesView(Node node) {
-        final OtmView view = OtmRegistry.getPropertiesView();
-        if (view != null) {
-            view.setCurrentNode(node);
-        }
-    }
-
-    /**
-     * Set the current navigator view (treeView) node.
-     */
-    public void setCurrentNode_NavigatorView(Node node) {
-        final OtmView view = OtmRegistry.getNavigatorView();
-        if (view != null) {
-            view.setCurrentNode(node);
-        }
-    }
-
-    /**
-     * @return the catalogRoot
-     */
-    public ModelNode getModelNode() {
-        return modelNode;
-    }
-
-    /** ************************ Selected Item Access ***************************** **/
-
-    /**
-     * Gets the navigator selected libraries. All libraries of selected projects are also returned.
-     * 
-     * @return new list of selected navigator view nodes, possibly empty.
-     */
-    public List<LibraryNode> getSelectedLibraries() {
-        final List<LibraryNode> libraries = new ArrayList<LibraryNode>();
-        final List<Node> nodes = getSelectedNodes_NavigatorView();
-        for (final Node node : nodes) {
-            if (node != null) {
-                final LibraryNode library = node.getLibrary();
-                if (!libraries.contains(library)) {
-                    libraries.add(library);
-                } else if (node instanceof ProjectNode) {
-                    for (INode n : node.getChildren())
-                        if (n instanceof LibraryNode && !libraries.contains(n))
-                            libraries.add((LibraryNode) n);
-                        else if (node instanceof LibraryChainNode)
-                            libraries.addAll(((LibraryChainNode) node).getLibraries());
-                } else if (node instanceof LibraryChainNode)
-                    libraries.addAll(((LibraryChainNode) node).getLibraries());
-            }
-        }
-        return libraries;
-    }
-
-    /**
-     * Gets the navigator selected nodes and filters out non-user libraries.
-     * 
-     * @return new list of selected navigator view nodes, possibly empty.
-     */
-    public List<LibraryNode> getSelectedUserLibraries() {
-        final List<LibraryNode> libraries = new ArrayList<LibraryNode>();
-        for (final LibraryNode lib : getSelectedLibraries()) {
-            if (lib != null && lib.isTLLibrary()) {
-                libraries.add(lib);
-            }
-        }
-        return libraries;
-    }
-
-    /**
-     * Get the current facet node or first node selected from facet table in type View.
-     * 
-     * @return selected node or null.
-     */
-    public Node getSelectedNode_TypeView() {
-        Node n = null;
-        OtmView view = OtmRegistry.getTypeView();
-        if (view == null)
-            return null;
-
-        final List<Node> selectedNodes = getSelectedNodes_TypeView();
-        if (selectedNodes == null || selectedNodes.isEmpty()) {
-            n = (Node) view.getCurrentNode();
-        } else {
-            n = selectedNodes.get(0);
-        }
-        return n;
-    }
-
-    /**
-     * Get the first node selected from navigator view.
-     * 
-     * @return selected node or null.
-     */
-    public Node getSelectedNode_NavigatorView() {
-        final List<Node> selected = getSelectedNodes_NavigatorView();
-        if (selected.size() > 0) {
-            return selected.get(0);
-        }
-        return null;
-    }
-
-    /**
-     * Gets the navigator selected nodes and filters out non-component nodes.
-     * 
-     * @return new list of selected navigator view nodes, possibly empty.
-     */
-    public List<ComponentNode> getSelectedComponents_NavigatorView() {
-        final List<ComponentNode> componentNodes = new ArrayList<ComponentNode>();
-        final List<Node> sourceNodes = getSelectedNodes_NavigatorView();
-        for (final INode node : sourceNodes) {
-            if (node instanceof ComponentNode) {
-                componentNodes.add((ComponentNode) node);
-            }
-        }
-        return componentNodes;
-    }
-
-    /**
-     * The navigator selected nodes.
-     * 
-     * @return new list of selected navigator view nodes, possibly empty.
-     */
-    public List<Node> getSelectedNodes_NavigatorView() {
-        final OtmView view = OtmRegistry.getNavigatorView();
-        if (view != null) {
-            return view.getSelectedNodes();
-        }
-        return Collections.emptyList();
-    }
-
-    public List<Node> getSelectedNodes_TypeView() {
-        final OtmView view = OtmRegistry.getTypeView();
-        if (view != null) {
-            return view.getSelectedNodes();
-        }
-        return Collections.emptyList();
-    }
-
-    /**
-     * Refresh all views convenience method.
-     */
-    public void refresh() {
-        OtmRegistry.getNavigatorView().refreshAllViews();
-        fireRefreshNotyfication(null);
-    }
-
-    public void addRefreshListener(IRefreshListener listener) {
-        refreshList.add(listener);
-    }
-
-    public void removeRefreshListener(IRefreshListener listener) {
-        refreshList.remove(listener);
-    }
-
-    public interface IRefreshListener {
-        public void refresh(INode node);
-
-        public void refresh();
-    }
-
-    public void refresh(final INode node) {
-        Display.getDefault().syncExec(new Runnable() {
-
-            @Override
-            public void run() {
-                OtmRegistry.getNavigatorView().refreshAllViews(node);
-                fireRefreshNotyfication(node);
-            }
-        });
-    }
-
-    private void fireRefreshNotyfication(INode node) {
-        for (Object lis : refreshList.getListeners()) {
-            IRefreshListener ref = (IRefreshListener) lis;
-            if (node == null) {
-                ref.refresh();
-            } else {
-                ref.refresh(node);
-            }
-        }
-    }
-
-    /** *********************************** Command and Action methods ****************** **/
-
-    /**
-     * Run the
-     */
-    public void runAddProperties(Event event) {
-        String cmd = AddNodeHandler.COMMAND_ID;
-        runCommand(cmd, event);
-    }
-
-    /**
-     * Run the
-     */
-    public void runDeleteNode(Event event) {
-        String cmd = "org.opentravel.schemas.commands.DeleteNode";
-        runCommand(cmd, event);
-    }
-
-    /**
-     * Run the
-     */
-    public void runSaveLibraries(Event event) {
-        String cmd = "org.opentravel.schemas.commands.SaveLibraries";
-        runCommand(cmd, event);
-    }
-
-    /**
-     * Run a command handler.
-     * 
-     * @param cmd
-     *            = COMMAND_ID from handler
-     * @param node
-     *            to pass in command event.
-     */
-    public void runCommand(String cmd, Node node) {
-        Event event = new Event();
-        event.data = node;
-        runCommand(cmd, event);
-    }
-
-    public void runCommand(String cmd, Event event) {
-        if (mainWindow != null && mainWindow.hasDisplay()) {
-            if (site == null)
-                site = mainWindow.getSite();
-            // TODO - TEST - used to get site from navigator window
-            if (handlerService == null)
-                handlerService = (IHandlerService) site.getService(IHandlerService.class);
-            try {
-                // LOGGER.debug("Ready to execute command: "+cmd+" with event: "+event);
-                handlerService.executeCommand(cmd, event);
-            } catch (Exception ex) {
-                LOGGER.debug("Command error: " + ex.getLocalizedMessage());
-                // DialogUserNotifier.openWarning(WARNING_MSG, "Could not execute command.");
-            }
-        } else {
-            LOGGER.debug("TODO - add non-workbench command dispatch");
-        }
-    }
-
-    /**
-     * Post a message on the status line. Preferred method for status as it is safe to include in
-     * code that can be run in junit tests.
-     * 
-     * @param msg
-     */
-    public void postStatus(String msg) {
-        if (mainWindow != null)
-            mainWindow.postStatus(msg);
-        else
-            LOGGER.debug(msg);
-    }
-
-    /**
-     * Show that the system is busy.
-     */
-    public void showBusy(boolean state) {
-        if (mainWindow.hasDisplay())
-            mainWindow.showBusy(state);
-    }
-
-    /** ********************* LEGACY BUSINESS LOGIC *************************** **/
-
-    public void addQueryFacet() {
-        addFacet(TLFacetType.QUERY);
-    }
-
-    public void addCustomFacet() {
-        addFacet(TLFacetType.CUSTOM);
-    }
-
-    // TODO - make into command. Have the two actions use a parameter so that there can be just one.
-    private void addFacet(final TLFacetType facetType) {
-        if (!(getSelectedNode_NavigatorView() instanceof ComponentNode))
-            return;
-
-        final ComponentNode current = (ComponentNode) getSelectedNode_NavigatorView();
-
-        if (current != null && current.isBusinessObject()) {
-            if (!current.getLibrary().isMajorVersion()) {
-                // New facets can only be added in major versions.
-                // TODO - consider allowing them in minor and use createMinorVersionOfComponent()
-                LOGGER.debug("Tried to add facet to a minor or patch version.");
-                return;
-            }
-
-            // Custom facets can only have properties that are also in the detail while query can
-            // have others.
-            // custom can now have any property set!
-            final ComponentNode propertyOwner = facetType.equals(TLFacetType.CUSTOM) ? current
-                    .getDetailFacet() : current;
-
-            // Set up the wizard
-            // FIXME - not getting all the newly created contexts!
-            String defaultContext = contextController.getDefaultContextId(current.getLibrary());
-            String defaultName = "";
-            boolean canBeEmpty = TLFacetType.QUERY.equals(facetType);
-            if (TLFacetType.CUSTOM.equals(facetType)) {
-                defaultName = defaultContext;
-            }
-            final NewFacetWizard wizard = new NewFacetWizard(propertyOwner, defaultName);
-            wizard.setValidator(new NewFacetValidator(current, facetType, wizard));
-
-            wizard.run(OtmRegistry.getActiveShell());
-            if (!wizard.wasCanceled()) {
-                LOGGER.info("Creating new custom facet of type " + facetType + " and properties "
-                        + wizard.getSelectedProperties());
-                // Get the name from the wizard (enhance wizard)
-
-                BusinessObjectNode bo = (BusinessObjectNode) current;
-                if (TLFacetType.QUERY.equals(facetType)
-                        && (wizard.getName() == null || wizard.getName().isEmpty())) {
-                    defaultContext = null;
-                }
-                FacetNode newFacet = bo.addFacet(wizard.getName(), defaultContext, facetType);
-                for (final PropertyNode n : wizard.getSelectedProperties()) {
-                    NodeFactory.newComponentMember(newFacet, n.cloneTLObj());
-                }
-                refresh(bo);
-            }
-        } else {
-            DialogUserNotifier.openWarning("Add Custom Facet",
-                    "Custom Facets can only be added to Business Objects");
-            LOGGER.warn("New custom facet can be added only to Business Objects, tried to add to: "
-                    + current);
-        }
-    }
-
-    /**
-     * Runs change wizard on the selected component.
-     */
-    public void changeTreeSelection() {
-        final Node n = getCurrentNode_NavigatorView();
-        if (n != null) {
-            changeNode((ComponentNode) n.getOwningComponent());
-        }
-    }
-
-    /**
-     * Change the selected type view node. Used by change object action. 1) clones node 2) replaces
-     * everything that uses the selected node as a type to use the clone 3) runs wizard with the
-     * cloned node. Wizard is responsible for making any model changes directed by the user. 4a)
-     * original node replaced back into the model if the wizard is cancelled. 4b) original node
-     * deleted if wizard completes normally. 5) clone moved to new library if necessary (TODO --
-     * wizard should do this)
-     */
-    public void changeSelection() {
-        final Node selected = getSelectedNode_TypeView();
-        if (selected != null) {
-            final ComponentNode n = (ComponentNode) selected.getOwningComponent();
-            if (n != null) {
-                changeNode(n);
-            }
-        }
-    }
-
-    private void changeNode(final ComponentNode nodeToReplace) {
-
-        if (nodeToReplace == null || nodeToReplace.getLibrary() == null) {
-            LOGGER.error("Null in change node.");
-            return;
-        }
-        if (nodeToReplace.isService() || !nodeToReplace.isInTLLibrary()) {
-            LOGGER.warn("Invalid state. Cannot change " + nodeToReplace);
-            return;
-        }
-
-        LOGGER.debug("Changing selected component: " + nodeToReplace.getName() + " with "
-                + nodeToReplace.getTypeUsersCount() + " users.");
-
-        LibraryNode srcLib = nodeToReplace.getLibrary();
-        ComponentNode editedComponent = nodeToReplace;
-        nodeToReplace.replaceWith(editedComponent);
-
-        // Wizard must maintain the editedComponent active in the library.
-        final ChangeWizard wizard = new ChangeWizard(editedComponent);
-        wizard.run(OtmRegistry.getActiveShell());
-        if (wizard.wasCanceled()) {
-            selectNavigatorNodeAndRefresh(nodeToReplace);
-        } else {
-            editedComponent = wizard.getEditedComponent();
-            // If the library is different than the srcLib, the object needs to be moved.
-            // The library in the object is only an indicator of the library to move to.
-            // The edited node will be in the src Library.
-            if (!editedComponent.getLibrary().equals(srcLib)) {
-                LibraryNode destLib = editedComponent.getLibrary();
-                editedComponent.setLibrary(srcLib);
-                srcLib.moveMember(editedComponent, destLib);
-            }
-            if (editedComponent != nodeToReplace)
-                nodeToReplace.delete();
-            selectNavigatorNodeAndRefresh(editedComponent);
-            refresh(editedComponent);
-
-            // LOGGER.info("Component after change: " + editedComponent + " with "
-            // + editedComponent.getTypeUsersCount() + " users.");
-        }
-        // LOGGER.debug("library has " + ln.getChildren_NamedTypes().size() + " children.");
-
-        // Test Result
-        // NodeModelTestUtils.testNodeModel();
-        // Validate the library after doing change.
-        checkModelCounts(srcLib);
-        checkModelCounts(editedComponent.getLibrary());
-        // }
-    }
-
-    public static boolean checkModelCounts(final LibraryNode lib) {
-        int tlCount = 0, guiCount = 0;
-        guiCount = lib.getDescendants_NamedTypes().size();
-        tlCount = lib.getTLaLib().getNamedMembers().size();
-        if (guiCount != tlCount) {
-            LOGGER.error("GUI member count " + guiCount + " is out of sync with TL model "
-                    + tlCount + ".");
-            return false;
-        }
-        LOGGER.debug(lib + " has " + guiCount + " children.");
-        return true;
-    }
-
-    public void cloneSelectedFacetNodes() {
-        // get the action list from the facet table. If none selected, use
-        // facets current node.
-        final List<Node> facetCloneList = getSelectedNodes_TypeView();
-        final List<Node> treeCloneList = getSelectedNodes_NavigatorView();
-        final Node cn = getSelectedNode_TypeView();
-
-        if (facetCloneList.isEmpty()) {
-            if (treeCloneList.isEmpty()) {
-                facetCloneList.add(cn);
-            } else {
-                facetCloneList.addAll(treeCloneList);
-            }
-        }
-        cloneNodes(facetCloneList);
-    }
-
-    /**
-     * Implements the Copy action.
-     */
-    public void copySelectedNodes() {
-        cloneNodes(getSelectedNodes_NavigatorView());
-    }
-
-    private void cloneNodes(List<Node> nodes) {
-        LOGGER.debug("Cloning " + nodes.size() + " selected components. ");
-
-        Node lastCloned = null;
-        for (Node n : nodes) {
-            Node clone = n.clone(CopyNameSuffix);
-            if (clone != null)
-                lastCloned = clone;
-        }
-        if (lastCloned != null) {
-            selectNavigatorNodeAndRefresh(lastCloned);
-        }
-    }
-
-    public void importSelectedToDragTarget(boolean isCopy) {
-        if (modelNode != null) {
-            final Node target = handlers.getDragTargetNode();
-            if (target != null && target.getLibrary() != null) {
-                final LibraryNode library = target.getLibrary();
-                LOGGER.debug("Importing selected nodes to drag target library: "
-                        + library.getName());
-                ImportObjectToLibraryAction action = new ImportObjectToLibraryAction(mainWindow,
-                        library);
-                action.importSelectedToLibrary(library);
-            } else {
-                LOGGER.error("Cannot import - drag target is null");
-            }
-        } else {
-            LOGGER.error("Cannot import - source ( model ) is null");
-        }
-    }
-
-    public NewPropertiesWizard initializeNewPropertiesWizard(final INode component) {
-        NewPropertiesWizard newPropertiesWizard = null;
-        // code migrated to AddPropertytoComponent handler.
-        return newPropertiesWizard;
-    }
-
-    /**
+	private static final Logger LOGGER = LoggerFactory.getLogger(MainController.class);
+
+	public static final String WARNING_MSG = "Warning";
+	public static final String NO_VALID_SELECTION_MSG = "No valid selection";
+
+	private ModelNode modelNode;
+
+	private MainWindow mainWindow = null;
+
+	private OtmHandlers handlers;
+	private OtmActions actions;
+	private OtmWidgets widgets;
+	private final OtmSections sections;
+	private final OtmTextFields fields;
+
+	private final LibraryController libraryController;
+	private final ModelController modelController;
+	private final ContextController contextController;
+	private final NodeModelController nodeModelController;
+	private ProjectController projectController;
+	private RepositoryController repositoryController;
+
+	private final OtmView defaultView;
+
+	private IHandlerService handlerService;
+	private IWorkbenchPartSite site = null;
+	private final String CopyNameSuffix = "_Copy";
+
+	private ListenerList refreshList = new ListenerList();
+
+	public MainController() {
+		this(getDefaultRepositoryManager());
+	}
+
+	public static RepositoryManager getDefaultRepositoryManager() {
+		RepositoryManager defaultManager = null;
+		try {
+			defaultManager = RepositoryManager.getDefault();
+		} catch (RepositoryException ex) {
+			IStatus ss = new Status(IStatus.ERROR, Activator.PLUGIN_ID, ex.getMessage(), ex);
+			ErrorWithExceptionDialog.openError(PlatformUI.getWorkbench().getDisplay().getActiveShell(), JFaceResources
+					.getString("error"), MessageFormat.format(
+					Messages.getString("dialog.localRepository.error.message"),
+					RepositoryFileManager.getDefaultRepositoryLocation()), ss);
+			LOGGER.error("Invalid local repository", ex);
+			PlatformUI.getWorkbench().close();
+		}
+		return defaultManager;
+	}
+
+	public MainController(RepositoryManager repositoryManager) {
+		LOGGER.info("Initializing: " + this.getClass());
+
+		OtmRegistry.registerMainController(this);
+		mainWindow = OtmRegistry.getMainWindow(); // if headless it will be null
+		defaultView = new NavigatorView(); // Always have one view.
+
+		handlers = new OtmHandlers();
+		actions = new OtmActions(this);
+		widgets = new OtmWidgets(getActions(), getHandlers());
+		sections = new OtmSections(getActions(), getHandlers());
+		fields = new OtmTextFields(getActions(), getHandlers());
+
+		libraryController = new DefaultLibraryController(this);
+		modelController = new DefaultModelController(this, libraryController);
+		modelNode = modelController.getModel();
+		nodeModelController = new NodeModelController(this);
+		contextController = new DefaultContextController(this);
+		repositoryController = new DefaultRepositoryController(this, repositoryManager);
+		projectController = new DefaultProjectController(this, repositoryManager);
+
+		LOGGER.info("Done initializing " + this.getClass());
+	}
+
+	/** ************************ Model Controller Access ***************************** **/
+
+	public ContextController getContextController() {
+		return contextController;
+	}
+
+	public LibraryController getLibraryController() {
+		return libraryController;
+	}
+
+	/**
+	 * @return the repositoryController
+	 */
+	public RepositoryController getRepositoryController() {
+		return repositoryController;
+	}
+
+	/**
+	 * @param repositoryController
+	 *            the repositoryController to set
+	 */
+	public void setRepositoryController(DefaultRepositoryController defaultRepositoryController) {
+		this.repositoryController = defaultRepositoryController;
+	}
+
+	public MainWindow getMainWindow() {
+		return mainWindow;
+	}
+
+	public ModelController getModelController() {
+		return modelController;
+	}
+
+	public NodeModelController getNodeModelController() {
+		return nodeModelController;
+	}
+
+	/**
+	 * @return the projectController
+	 */
+	public ProjectController getProjectController() {
+		return projectController;
+	}
+
+	/**
+	 * @param projectController
+	 *            the projectController to set
+	 */
+	public void setProjectController(ProjectController projectController) {
+		this.projectController = projectController;
+	}
+
+	public OtmHandlers getHandlers() {
+		return handlers;
+	}
+
+	public void setHandlers(final OtmHandlers handlers) {
+		this.handlers = handlers;
+	}
+
+	public OtmActions getActions() {
+		return actions;
+	}
+
+	public void setActions(final OtmActions actions) {
+		this.actions = actions;
+	}
+
+	public OtmWidgets getWidgets() {
+		return widgets;
+	}
+
+	public void setWidgets(final OtmWidgets widgets) {
+		this.widgets = widgets;
+	}
+
+	public OtmSections getSections() {
+		return sections;
+	}
+
+	public OtmTextFields getFields() {
+		return fields;
+	}
+
+	/**
+	 * @return the defaultView
+	 */
+	public OtmView getDefaultView() {
+		return defaultView;
+	}
+
+	/** ************************ Current Item Access ***************************** **/
+
+	/**
+	 * Return the current node displayed in the type view facet table.
+	 * 
+	 * @return
+	 */
+	public INode getCurrentNode_TypeView() {
+		final OtmView view = OtmRegistry.getTypeView();
+		if (view != null) {
+			return view.getCurrentNode();
+		}
+		return null;
+	}
+
+	public INode getCurrentNode_FacetView() {
+		final OtmView view = OtmRegistry.getFacetView();
+		if (view != null) {
+			return view.getCurrentNode();
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the node currently be viewed in the properties view.
+	 * 
+	 * @return
+	 */
+	public INode getCurrentNode_PropertiesView() {
+		final OtmView view = OtmRegistry.getPropertiesView();
+		if (view != null) {
+			return view.getCurrentNode();
+		}
+		return null;
+	}
+
+	/**
+	 * @return the current navigator view (treeView) node or null if none selected.
+	 */
+	public Node getCurrentNode_NavigatorView() {
+		final OtmView view = OtmRegistry.getNavigatorView();
+		if (view != null) {
+			return (Node) view.getCurrentNode();
+		}
+		return null;
+	}
+
+	/**
+	 * Return the current node displayed in the type view facet table.
+	 * 
+	 * @return
+	 */
+	public void setCurrentNode_TypeView(Node node) {
+		final OtmView view = OtmRegistry.getTypeView();
+		if (view != null) {
+			view.setCurrentNode(node);
+		}
+	}
+
+	/**
+	 * Returns the node currently be viewed in the properties view.
+	 * 
+	 * @return
+	 */
+	public void setCurrentNode_PropertiesView(Node node) {
+		final OtmView view = OtmRegistry.getPropertiesView();
+		if (view != null) {
+			view.setCurrentNode(node);
+		}
+	}
+
+	/**
+	 * Set the current navigator view (treeView) node.
+	 */
+	public void setCurrentNode_NavigatorView(Node node) {
+		final OtmView view = OtmRegistry.getNavigatorView();
+		if (view != null) {
+			view.setCurrentNode(node);
+		}
+	}
+
+	/**
+	 * @return the catalogRoot
+	 */
+	public ModelNode getModelNode() {
+		return modelNode;
+	}
+
+	/** ************************ Selected Item Access ***************************** **/
+
+	/**
+	 * Gets the navigator selected libraries. All libraries of selected projects are also returned.
+	 * 
+	 * @return new list of selected navigator view nodes, possibly empty.
+	 */
+	public List<LibraryNode> getSelectedLibraries() {
+		final List<LibraryNode> libraries = new ArrayList<LibraryNode>();
+		final List<Node> nodes = getSelectedNodes_NavigatorView();
+		for (final Node node : nodes) {
+			if (node != null) {
+				final LibraryNode library = node.getLibrary();
+				if (!libraries.contains(library)) {
+					libraries.add(library);
+				} else if (node instanceof ProjectNode) {
+					for (INode n : node.getChildren())
+						if (n instanceof LibraryNode && !libraries.contains(n))
+							libraries.add((LibraryNode) n);
+						else if (node instanceof LibraryChainNode)
+							libraries.addAll(((LibraryChainNode) node).getLibraries());
+				} else if (node instanceof LibraryChainNode)
+					libraries.addAll(((LibraryChainNode) node).getLibraries());
+			}
+		}
+		return libraries;
+	}
+
+	/**
+	 * Gets the navigator selected nodes and filters out non-user libraries.
+	 * 
+	 * @return new list of selected navigator view nodes, possibly empty.
+	 */
+	public List<LibraryNode> getSelectedUserLibraries() {
+		final List<LibraryNode> libraries = new ArrayList<LibraryNode>();
+		for (final LibraryNode lib : getSelectedLibraries()) {
+			if (lib != null && lib.isTLLibrary()) {
+				libraries.add(lib);
+			}
+		}
+		return libraries;
+	}
+
+	/**
+	 * Get the current facet node or first node selected from facet table in type View.
+	 * 
+	 * @return selected node or null.
+	 */
+	public Node getSelectedNode_TypeView() {
+		Node n = null;
+		OtmView view = OtmRegistry.getTypeView();
+		if (view == null)
+			return null;
+
+		final List<Node> selectedNodes = getSelectedNodes_TypeView();
+		if (selectedNodes == null || selectedNodes.isEmpty()) {
+			n = (Node) view.getCurrentNode();
+		} else {
+			n = selectedNodes.get(0);
+		}
+		return n;
+	}
+
+	/**
+	 * Get the first node selected from navigator view.
+	 * 
+	 * @return selected node or null.
+	 */
+	public Node getSelectedNode_NavigatorView() {
+		final List<Node> selected = getSelectedNodes_NavigatorView();
+		if (selected.size() > 0) {
+			return selected.get(0);
+		}
+		return null;
+	}
+
+	/**
+	 * Gets the navigator selected nodes and filters out non-component nodes.
+	 * 
+	 * @return new list of selected navigator view nodes, possibly empty.
+	 */
+	public List<ComponentNode> getSelectedComponents_NavigatorView() {
+		final List<ComponentNode> componentNodes = new ArrayList<ComponentNode>();
+		final List<Node> sourceNodes = getSelectedNodes_NavigatorView();
+		for (final INode node : sourceNodes) {
+			if (node instanceof ComponentNode) {
+				componentNodes.add((ComponentNode) node);
+			}
+		}
+		return componentNodes;
+	}
+
+	/**
+	 * The navigator selected nodes.
+	 * 
+	 * @return new list of selected navigator view nodes, possibly empty.
+	 */
+	public List<Node> getSelectedNodes_NavigatorView() {
+		final OtmView view = OtmRegistry.getNavigatorView();
+		if (view != null) {
+			return view.getSelectedNodes();
+		}
+		return Collections.emptyList();
+	}
+
+	public List<Node> getSelectedNodes_TypeView() {
+		final OtmView view = OtmRegistry.getTypeView();
+		if (view != null) {
+			return view.getSelectedNodes();
+		}
+		return Collections.emptyList();
+	}
+
+	/**
+	 * Refresh all views convenience method.
+	 */
+	public void refresh() {
+		OtmRegistry.getNavigatorView().refreshAllViews();
+		fireRefreshNotyfication(null);
+	}
+
+	public void addRefreshListener(IRefreshListener listener) {
+		refreshList.add(listener);
+	}
+
+	public void removeRefreshListener(IRefreshListener listener) {
+		refreshList.remove(listener);
+	}
+
+	public interface IRefreshListener {
+		public void refresh(INode node);
+
+		public void refresh();
+	}
+
+	public void refresh(final INode node) {
+		Display.getDefault().syncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				OtmRegistry.getNavigatorView().refreshAllViews(node);
+				fireRefreshNotyfication(node);
+			}
+		});
+	}
+
+	private void fireRefreshNotyfication(INode node) {
+		for (Object lis : refreshList.getListeners()) {
+			IRefreshListener ref = (IRefreshListener) lis;
+			if (node == null) {
+				ref.refresh();
+			} else {
+				ref.refresh(node);
+			}
+		}
+	}
+
+	/** *********************************** Command and Action methods ****************** **/
+
+	/**
+	 * Run the
+	 */
+	public void runAddProperties(Event event) {
+		String cmd = AddNodeHandler.COMMAND_ID;
+		runCommand(cmd, event);
+	}
+
+	/**
+	 * Run the
+	 */
+	public void runDeleteNode(Event event) {
+		String cmd = "org.opentravel.schemas.commands.DeleteNode";
+		runCommand(cmd, event);
+	}
+
+	/**
+	 * Run the
+	 */
+	public void runSaveLibraries(Event event) {
+		String cmd = "org.opentravel.schemas.commands.SaveLibraries";
+		runCommand(cmd, event);
+	}
+
+	/**
+	 * Run a command handler.
+	 * 
+	 * @param cmd
+	 *            = COMMAND_ID from handler
+	 * @param node
+	 *            to pass in command event.
+	 */
+	public void runCommand(String cmd, Node node) {
+		Event event = new Event();
+		event.data = node;
+		runCommand(cmd, event);
+	}
+
+	public void runCommand(String cmd, Event event) {
+		if (mainWindow != null && mainWindow.hasDisplay()) {
+			if (site == null)
+				site = mainWindow.getSite();
+			// TODO - TEST - used to get site from navigator window
+			if (handlerService == null)
+				handlerService = (IHandlerService) site.getService(IHandlerService.class);
+			try {
+				// LOGGER.debug("Ready to execute command: "+cmd+" with event: "+event);
+				handlerService.executeCommand(cmd, event);
+			} catch (Exception ex) {
+				LOGGER.debug("Command error: " + ex.getLocalizedMessage());
+				// DialogUserNotifier.openWarning(WARNING_MSG, "Could not execute command.");
+			}
+		} else {
+			LOGGER.debug("TODO - add non-workbench command dispatch");
+		}
+	}
+
+	/**
+	 * Post a message on the status line. Preferred method for status as it is safe to include in code that can be run
+	 * in junit tests.
+	 * 
+	 * @param msg
+	 */
+	public void postStatus(String msg) {
+		if (mainWindow != null)
+			mainWindow.postStatus(msg);
+		else
+			LOGGER.debug(msg);
+	}
+
+	/**
+	 * Show that the system is busy.
+	 */
+	public void showBusy(boolean state) {
+		if (mainWindow.hasDisplay())
+			mainWindow.showBusy(state);
+	}
+
+	/** ********************* LEGACY BUSINESS LOGIC *************************** **/
+
+	public void addQueryFacet() {
+		addFacet(TLFacetType.QUERY);
+	}
+
+	public void addCustomFacet() {
+		addFacet(TLFacetType.CUSTOM);
+	}
+
+	// TODO - make into command. Have the two actions use a parameter so that there can be just one.
+	private void addFacet(final TLFacetType facetType) {
+		if (!(getSelectedNode_NavigatorView() instanceof ComponentNode))
+			return;
+
+		final ComponentNode current = (ComponentNode) getSelectedNode_NavigatorView();
+
+		if (current != null && current.isBusinessObject()) {
+			if (!current.getLibrary().isMajorVersion()) {
+				// New facets can only be added in major versions.
+				// TODO - consider allowing them in minor and use createMinorVersionOfComponent()
+				LOGGER.debug("Tried to add facet to a minor or patch version.");
+				return;
+			}
+
+			// Custom facets can only have properties that are also in the detail while query can
+			// have others.
+			// custom can now have any property set!
+			final ComponentNode propertyOwner = facetType.equals(TLFacetType.CUSTOM) ? current.getDetailFacet()
+					: current;
+
+			// Set up the wizard
+			// FIXME - not getting all the newly created contexts!
+			String defaultContext = contextController.getDefaultContextId(current.getLibrary());
+			String defaultName = "";
+			boolean canBeEmpty = TLFacetType.QUERY.equals(facetType);
+			if (TLFacetType.CUSTOM.equals(facetType)) {
+				defaultName = defaultContext;
+			}
+			final NewFacetWizard wizard = new NewFacetWizard(propertyOwner, defaultName);
+			wizard.setValidator(new NewFacetValidator(current, facetType, wizard));
+
+			wizard.run(OtmRegistry.getActiveShell());
+			if (!wizard.wasCanceled()) {
+				LOGGER.info("Creating new custom facet of type " + facetType + " and properties "
+						+ wizard.getSelectedProperties());
+				// Get the name from the wizard (enhance wizard)
+
+				BusinessObjectNode bo = (BusinessObjectNode) current;
+				if (TLFacetType.QUERY.equals(facetType) && (wizard.getName() == null || wizard.getName().isEmpty())) {
+					defaultContext = null;
+				}
+				FacetNode newFacet = bo.addFacet(wizard.getName(), defaultContext, facetType);
+				for (final PropertyNode n : wizard.getSelectedProperties()) {
+					NodeFactory.newComponentMember(newFacet, n.cloneTLObj());
+				}
+				refresh(bo);
+			}
+		} else {
+			DialogUserNotifier.openWarning("Add Custom Facet", "Custom Facets can only be added to Business Objects");
+			LOGGER.warn("New custom facet can be added only to Business Objects, tried to add to: " + current);
+		}
+	}
+
+	/**
+	 * Runs change wizard on the selected component.
+	 */
+	public void changeTreeSelection() {
+		final Node n = getCurrentNode_NavigatorView();
+		if (n != null) {
+			changeNode((ComponentNode) n.getOwningComponent());
+		}
+	}
+
+	/**
+	 * Change the selected type view node. Used by change object action. 1) clones node 2) replaces everything that uses
+	 * the selected node as a type to use the clone 3) runs wizard with the cloned node. Wizard is responsible for
+	 * making any model changes directed by the user. 4a) original node replaced back into the model if the wizard is
+	 * cancelled. 4b) original node deleted if wizard completes normally. 5) clone moved to new library if necessary
+	 * (TODO -- wizard should do this)
+	 */
+	public void changeSelection() {
+		final Node selected = getSelectedNode_TypeView();
+		if (selected != null) {
+			final ComponentNode n = (ComponentNode) selected.getOwningComponent();
+			if (n != null) {
+				changeNode(n);
+			}
+		}
+	}
+
+	private void changeNode(final ComponentNode nodeToReplace) {
+
+		if (nodeToReplace == null || nodeToReplace.getLibrary() == null) {
+			LOGGER.error("Null in change node.");
+			return;
+		}
+		if (nodeToReplace.isService() || !nodeToReplace.isInTLLibrary()) {
+			LOGGER.warn("Invalid state. Cannot change " + nodeToReplace);
+			return;
+		}
+
+		LOGGER.debug("Changing selected component: " + nodeToReplace.getName() + " with "
+				+ nodeToReplace.getTypeUsersCount() + " users.");
+
+		LibraryNode srcLib = nodeToReplace.getLibrary();
+		ComponentNode editedComponent = nodeToReplace;
+
+		LOGGER.debug("Changing Edited component: " + editedComponent.getName() + " with "
+				+ editedComponent.getTypeUsersCount() + " users.");
+
+		// Wizard must maintain the editedComponent active in the library.
+		final ChangeWizard wizard = new ChangeWizard(editedComponent);
+		wizard.run(OtmRegistry.getActiveShell());
+		if (wizard.wasCanceled()) {
+			selectNavigatorNodeAndRefresh(nodeToReplace);
+		} else {
+			editedComponent = wizard.getEditedComponent();
+			// If the library is different than the srcLib, the object needs to be moved.
+			// The library in the object is only an indicator of the library to move to.
+			// The edited node will be in the src Library.
+			if (!editedComponent.getLibrary().equals(srcLib)) {
+				LibraryNode destLib = editedComponent.getLibrary();
+				editedComponent.setLibrary(srcLib);
+				srcLib.moveMember(editedComponent, destLib);
+			}
+			if (editedComponent != nodeToReplace)
+				nodeToReplace.delete();
+			selectNavigatorNodeAndRefresh(editedComponent);
+			refresh(editedComponent);
+
+			// LOGGER.info("Component after change: " + editedComponent + " with "
+			// + editedComponent.getTypeUsersCount() + " users.");
+		}
+		// LOGGER.debug("library has " + ln.getChildren_NamedTypes().size() + " children.");
+
+		// Test Result
+		// NodeModelTestUtils.testNodeModel();
+		// Validate the library after doing change.
+		checkModelCounts(srcLib);
+		checkModelCounts(editedComponent.getLibrary());
+		// }
+	}
+
+	public static boolean checkModelCounts(final LibraryNode lib) {
+		int tlCount = 0, guiCount = 0;
+		guiCount = lib.getDescendants_NamedTypes().size();
+		tlCount = lib.getTLaLib().getNamedMembers().size();
+		if (guiCount != tlCount) {
+			LOGGER.error("GUI member count " + guiCount + " is out of sync with TL model " + tlCount + ".");
+			return false;
+		}
+		LOGGER.debug(lib + " has " + guiCount + " children.");
+		return true;
+	}
+
+	public void cloneSelectedFacetNodes() {
+		// get the action list from the facet table. If none selected, use
+		// facets current node.
+		final List<Node> facetCloneList = getSelectedNodes_TypeView();
+		final List<Node> treeCloneList = getSelectedNodes_NavigatorView();
+		final Node cn = getSelectedNode_TypeView();
+
+		if (facetCloneList.isEmpty()) {
+			if (treeCloneList.isEmpty()) {
+				facetCloneList.add(cn);
+			} else {
+				facetCloneList.addAll(treeCloneList);
+			}
+		}
+		cloneNodes(facetCloneList);
+	}
+
+	/**
+	 * Implements the Copy action.
+	 */
+	public void copySelectedNodes() {
+		cloneNodes(getSelectedNodes_NavigatorView());
+	}
+
+	private void cloneNodes(List<Node> nodes) {
+		LOGGER.debug("Cloning " + nodes.size() + " selected components. ");
+
+		Node lastCloned = null;
+		for (Node n : nodes) {
+			Node clone = n.clone(CopyNameSuffix);
+			if (clone != null)
+				lastCloned = clone;
+		}
+		if (lastCloned != null) {
+			selectNavigatorNodeAndRefresh(lastCloned);
+		}
+	}
+
+	public void importSelectedToDragTarget(boolean isCopy) {
+		if (modelNode != null) {
+			final Node target = handlers.getDragTargetNode();
+			if (target != null && target.getLibrary() != null) {
+				final LibraryNode library = target.getLibrary();
+				LOGGER.debug("Importing selected nodes to drag target library: " + library.getName());
+				ImportObjectToLibraryAction action = new ImportObjectToLibraryAction(mainWindow, library);
+				action.importSelectedToLibrary(library);
+			} else {
+				LOGGER.error("Cannot import - drag target is null");
+			}
+		} else {
+			LOGGER.error("Cannot import - source ( model ) is null");
+		}
+	}
+
+	public NewPropertiesWizard initializeNewPropertiesWizard(final INode component) {
+		NewPropertiesWizard newPropertiesWizard = null;
+		// code migrated to AddPropertytoComponent handler.
+		return newPropertiesWizard;
+	}
+
+	/**
 	 *
 	 */
-    // /TODO - move
-    public void setExtendable(final boolean extendable) {
-        // final Node facetNode = getSelectedNode_TypeView();
-        // if (facetNode != null) {
-        // LOGGER.debug("Changing extendable property of " + facetNode + " to " + extendable);
-        // facetNode.setExtendable(extendable);
-        // defaultView.refreshAllViews();
-        // }
-    }
+	// /TODO - move
+	public void setExtendable(final boolean extendable) {
+		// final Node facetNode = getSelectedNode_TypeView();
+		// if (facetNode != null) {
+		// LOGGER.debug("Changing extendable property of " + facetNode + " to " + extendable);
+		// facetNode.setExtendable(extendable);
+		// defaultView.refreshAllViews();
+		// }
+	}
 
-    public void clearSelection() {
-        final OtmView view = OtmRegistry.getNavigatorView();
-        if (view != null) {
-            view.clearSelection();
-        }
-    }
+	public void clearSelection() {
+		final OtmView view = OtmRegistry.getNavigatorView();
+		if (view != null) {
+			view.clearSelection();
+		}
+	}
 
-    public Node getPrevTreeNode() {
-        final OtmView view = OtmRegistry.getNavigatorView();
-        if (view != null) {
-            return (Node) view.getPreviousNode();
-        }
-        return null;
-    }
+	public Node getPrevTreeNode() {
+		final OtmView view = OtmRegistry.getNavigatorView();
+		if (view != null) {
+			return (Node) view.getPreviousNode();
+		}
+		return null;
+	}
 
-    /**
-     * @param modelNode
-     *            - the catalogRoot to set
-     */
-    public void setModelNode(final ModelNode modelNode) {
-        // this.curNode = modelNode;
-        LOGGER.debug("setting catalog root node.");
-        this.modelNode = modelNode;
-        final OtmView mnView = OtmRegistry.getNavigatorView();
-        if (mnView != null) {
-            mnView.setCurrentNode(modelNode);
-            mnView.setInput(modelNode);
-            if (!Node.getAllUserLibraries().isEmpty())
-                mnView.select(Node.getAllUserLibraries().get(0));
-        }
-        defaultView.refreshAllViews();
-        defaultView.setCurrentNode(modelNode);
-    }
+	/**
+	 * @param modelNode
+	 *            - the catalogRoot to set
+	 */
+	public void setModelNode(final ModelNode modelNode) {
+		// this.curNode = modelNode;
+		LOGGER.debug("setting catalog root node.");
+		this.modelNode = modelNode;
+		final OtmView mnView = OtmRegistry.getNavigatorView();
+		if (mnView != null) {
+			mnView.setCurrentNode(modelNode);
+			mnView.setInput(modelNode);
+			if (!Node.getAllUserLibraries().isEmpty())
+				mnView.select(Node.getAllUserLibraries().get(0));
+		}
+		defaultView.refreshAllViews();
+		defaultView.setCurrentNode(modelNode);
+	}
 
-    /**
+	/**
 	 *
 	 */
-    public void openLibraryInSystemEditor() {
-        final List<LibraryNode> libs = this.getSelectedLibraries();
-        final Desktop desktop = Desktop.getDesktop();
-        for (final LibraryNode lib : libs) {
-            final String path = lib.getPath();
-            final File file = new File(path);
-            try {
-                if (!file.exists()) {
-                    if (path.startsWith("http")) {
-                        desktop.browse(new URI(path));
-                    } else {
-                        DialogUserNotifier.openError(
-                                "Open file",
-                                "Could not find the file associated to the library "
-                                        + lib.getName() + " (" + path + ")");
-                    }
-                } else {
-                    desktop.open(file);
-                }
-            } catch (final IOException e) {
-                LOGGER.error("While opening library file in system editor " + e.getMessage(), e);
-                DialogUserNotifier.openError("Open file",
-                        "Could not open the file, an error occurred: " + e.getMessage());
-            } catch (final URISyntaxException e) {
-                LOGGER.error("While opening library file in system editor " + e.getMessage(), e);
-                DialogUserNotifier.openError("Open file",
-                        "Could not open the file, its URI is malformed: " + e.getMessage());
-            }
-        }
-    }
+	public void openLibraryInSystemEditor() {
+		final List<LibraryNode> libs = this.getSelectedLibraries();
+		final Desktop desktop = Desktop.getDesktop();
+		for (final LibraryNode lib : libs) {
+			final String path = lib.getPath();
+			final File file = new File(path);
+			try {
+				if (!file.exists()) {
+					if (path.startsWith("http")) {
+						desktop.browse(new URI(path));
+					} else {
+						DialogUserNotifier.openError("Open file", "Could not find the file associated to the library "
+								+ lib.getName() + " (" + path + ")");
+					}
+				} else {
+					desktop.open(file);
+				}
+			} catch (final IOException e) {
+				LOGGER.error("While opening library file in system editor " + e.getMessage(), e);
+				DialogUserNotifier.openError("Open file",
+						"Could not open the file, an error occurred: " + e.getMessage());
+			} catch (final URISyntaxException e) {
+				LOGGER.error("While opening library file in system editor " + e.getMessage(), e);
+				DialogUserNotifier.openError("Open file",
+						"Could not open the file, its URI is malformed: " + e.getMessage());
+			}
+		}
+	}
 
-    /**
-     * Change current selection in NavigatorView.
-     * 
-     * @param node
-     *            - node to select
-     */
-    public void selectNavigatorNodeAndRefresh(INode node) {
-        if (OtmRegistry.getNavigatorView() != null) {
-            OtmRegistry.getNavigatorView().setCurrentNode(node); // sets IView current node
-            OtmRegistry.getNavigatorView().select(node); // throws section event.
-        }
-        // OtmRegistry.getNavigatorView().refresh(); // updates tree contents
-        // in some cases NavigatorView is selecting parent of node but FacetView should select node.
-        if (OtmRegistry.getTypeView() != null)
-            OtmRegistry.getTypeView().setCurrentNode(node);
-    }
+	/**
+	 * Change current selection in NavigatorView.
+	 * 
+	 * @param node
+	 *            - node to select
+	 */
+	public void selectNavigatorNodeAndRefresh(INode node) {
+		if (OtmRegistry.getNavigatorView() != null) {
+			OtmRegistry.getNavigatorView().setCurrentNode(node); // sets IView current node
+			OtmRegistry.getNavigatorView().select(node); // throws section event.
+		}
+		// OtmRegistry.getNavigatorView().refresh(); // updates tree contents
+		// in some cases NavigatorView is selecting parent of node but FacetView should select node.
+		if (OtmRegistry.getTypeView() != null)
+			OtmRegistry.getTypeView().setCurrentNode(node);
+	}
 
-    /**
-     * @return First node selected in TypeView. If selection of TypeView is empty then return first
-     *         selected node from NavigatorView otherwise return null;
-     */
-    public Node getGloballySelectNode() {
-        Node node = getSelectedNode_TypeView();
-        if (node != null) {
-            return node;
-        }
-        node = getSelectedNode_NavigatorView();
-        return node;
-    }
+	/**
+	 * @return First node selected in TypeView. If selection of TypeView is empty then return first selected node from
+	 *         NavigatorView otherwise return null;
+	 */
+	public Node getGloballySelectNode() {
+		Node node = getSelectedNode_TypeView();
+		if (node != null) {
+			return node;
+		}
+		node = getSelectedNode_NavigatorView();
+		return node;
+	}
 
-    /**
-     * @return Selected nodes in TypeView. If selection of TypeView is empty then return selected
-     *         nodes from NavigatorView otherwise return empty list;
-     */
-    public List<Node> getGloballySelectNodes() {
-        List<Node> nodes = getSelectedNodes_TypeView();
-        if (nodes == null || nodes.isEmpty()) {
-            nodes = getSelectedNodes_NavigatorView();
-        }
-        if (nodes == null) {
-            nodes = Collections.emptyList();
-        }
-        return nodes;
-    }
+	/**
+	 * @return Selected nodes in TypeView. If selection of TypeView is empty then return selected nodes from
+	 *         NavigatorView otherwise return empty list;
+	 */
+	public List<Node> getGloballySelectNodes() {
+		List<Node> nodes = getSelectedNodes_TypeView();
+		if (nodes == null || nodes.isEmpty()) {
+			nodes = getSelectedNodes_NavigatorView();
+		}
+		if (nodes == null) {
+			nodes = Collections.emptyList();
+		}
+		return nodes;
+	}
 
 }

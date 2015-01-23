@@ -202,6 +202,8 @@ public class LibraryChainNode extends Node {
 		if (node.getLibrary() == null)
 			throw new IllegalArgumentException("Tried to add node with null library. " + node);
 
+		// LOGGER.debug("Adding " + node + " to library chain.");
+
 		// For services, just add to the service root.
 		if (node instanceof ServiceNode)
 			serviceRoot.add(node);
