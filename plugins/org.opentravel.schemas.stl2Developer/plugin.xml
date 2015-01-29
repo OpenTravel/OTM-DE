@@ -596,7 +596,8 @@
 			id="stl2Developer.defaultKeyConfiguration" name="OTM Developer Default Configuration"> 
 			</keyConfiguration -->
 	</extension>
-	<extension point="org.eclipse.ui.preferencePages">
+	<extension
+       point="org.eclipse.ui.preferencePages">
 		<!-- use default General org.eclipse.ui.preferencePages.Workbench inorder 
 			to show preferances page from org.eclipse.ui.net plugin with proxy settings -->
 		<page class="org.opentravel.schemas.preferences.GeneralPreferencePage"
@@ -608,6 +609,11 @@
 		<page name="Keys"
 			class="org.eclipse.ui.ExtensionFactory:newKeysPreferencePage" id="org.eclipse.ui.preferencePages.Keys">
 		</page>
+  <page
+        class="org.eclipse.ui.internal.net.ProxyPreferencePage"
+        id="org.eclipse.ui.net.NetPreferences"
+        name="Network Connections">
+  </page>
 	</extension>
 	<extension point="org.eclipse.core.runtime.preferences">
 		<initializer

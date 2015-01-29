@@ -42,8 +42,7 @@
 					<includes>
 						<include>**/*.java</include>
 					</includes>
-					<argLine>${test-arglist}
-						-Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true</argLine>
+					<argLine>${test-arglist} -Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true</argLine>
 					<bundleStartLevel>
 						<bundle>
 							<id>org.apache.aries.spifly.dynamic.bundle</id>
