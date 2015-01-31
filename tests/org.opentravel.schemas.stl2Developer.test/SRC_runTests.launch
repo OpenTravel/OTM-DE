@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.pde.ui.JunitLaunchConfig">
 <setAttribute key="additional_plugins">
-<setEntry value="org.opentravel.schemas.stl2Developer.reposvc:3.1.0.qualifier:default:true"/>
+<setEntry value="org.opentravel.schemas.stl2Developer.reposvc:3.2.0.qualifier:default:true"/>
 <setEntry value="javax.servlet:3.0.0.v201112011016:default:true"/>
 <setEntry value="org.eclipse.jetty.server:8.1.9.v20130131:default:true"/>
 <setEntry value="org.eclipse.jetty.servlet:8.1.9.v20130131:default:true"/>

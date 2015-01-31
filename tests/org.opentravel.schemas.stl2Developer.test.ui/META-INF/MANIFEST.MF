@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ui
 Bundle-SymbolicName: org.opentravel.schemas.stl2Developer.test.ui
-Bundle-Version: 3.1.0.qualifier
+Bundle-Version: 3.2.0.qualifier
 Bundle-Vendor: OpenTravel Alliance
 Fragment-Host: org.opentravel.schemas.stl2Developer;bundle-version="3.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

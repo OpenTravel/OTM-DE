@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature id="org.opentravel.schemas.stl2Developer.feature.basic"
-	label="OTM-DE Feature" version="3.1.0.qualifier" provider-name="OpenTravel Alliance"
+	label="OTM-DE Feature" version="3.2.0.qualifier" provider-name="OpenTravel Alliance"
 	plugin="org.opentravel.schemas.stl2Developer">
 
 	<description>
