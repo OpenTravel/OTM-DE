@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.opentravel.otm</groupId>
 		<artifactId>otm-de-parent-pom</artifactId>
-		<version>3.1.0-SNAPSHOT</version>
+		<version>3.1.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -52,7 +52,7 @@
 						<product>
 							<id>${product-id}</id>
 							<rootFolder>${product-id}-${project.version}</rootFolder>
-							<archiveFileName>${product-id}-${unqualifiedVersion}.${buildQualifier}</archiveFileName>
+							<archiveFileName>${product-id}-${unqualifiedVersion}</archiveFileName>
 						</product>
 					</products>
 				</configuration>

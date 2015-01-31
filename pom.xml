@@ -5,14 +5,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.opentravel.otm</groupId>
 	<artifactId>otm-de-parent-pom</artifactId>
-	<version>3.1.0-SNAPSHOT</version>
+	<version>3.1.0</version>
 	<packaging>pom</packaging>
 	<inceptionYear>2014</inceptionYear>
 
 	<properties>
 		<tycho-version>0.17.0</tycho-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<compiler.version>3.1-SNAPSHOT</compiler.version>
+		<compiler.version>3.1</compiler.version>
 	</properties>
 
 	<modules>
@@ -31,7 +31,6 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<deployableFeature>true</deployableFeature>
-					<format>'draft_'yyyyMMddHHmm</format>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -48,11 +47,13 @@
 						</artifact>
 					</target>
 					<environments>
+						<!--
 						<environment>
 							<os>win32</os>
 							<ws>win32</ws>
 							<arch>x86_64</arch>
 						</environment>
+						-->
 						<environment>
 							<os>linux</os>
 							<ws>gtk</ws>
@@ -63,9 +64,16 @@
 							<ws>win32</ws>
 							<arch>x86</arch>
 						</environment>
-						<!-- <environment> <os>macosx</os> <ws>cocoa</ws> <arch>x86_64</arch> 
-							</environment> <environment> <os>linux</os> <ws>gtk</ws> <arch>x86</arch> 
-							</environment> -->
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
 					</environments>
 				</configuration>
 			</plugin>

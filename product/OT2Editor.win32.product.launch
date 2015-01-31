@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.pde.ui.RuntimeWorkbench">
 <setAttribute key="additional_plugins">
-<setEntry value="org.opentravel.schemas.stl2Developer.editor:3.1.0.qualifier:default:false"/>
+<setEntry value="org.opentravel.schemas.stl2Developer.editor:3.1.0:default:false"/>
 </setAttribute>
 <booleanAttribute key="append.args" value="true"/>
 <stringAttribute key="application" value="org.opentravel.schemas.stl2Developer.application"/>
