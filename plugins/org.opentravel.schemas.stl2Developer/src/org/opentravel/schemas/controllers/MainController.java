@@ -678,30 +678,30 @@ public class MainController {
 				+ nodeToReplace.getTypeUsersCount() + " users.");
 
 		LibraryNode srcLib = nodeToReplace.getLibrary();
-		ComponentNode editedComponent = nodeToReplace;
+		ComponentNode editedNode = nodeToReplace;
 
-		LOGGER.debug("Changing Edited component: " + editedComponent.getName() + " with "
-				+ editedComponent.getTypeUsersCount() + " users.");
+		LOGGER.debug("Changing Edited component: " + editedNode.getName() + " with "
+				+ editedNode.getTypeUsersCount() + " users.");
 
 		// Wizard must maintain the editedComponent active in the library.
-		final ChangeWizard wizard = new ChangeWizard(editedComponent);
+		final ChangeWizard wizard = new ChangeWizard(editedNode);
 		wizard.run(OtmRegistry.getActiveShell());
 		if (wizard.wasCanceled()) {
 			selectNavigatorNodeAndRefresh(nodeToReplace);
 		} else {
-			editedComponent = wizard.getEditedComponent();
+			editedNode = wizard.getEditedComponent();
 			// If the library is different than the srcLib, the object needs to be moved.
 			// The library in the object is only an indicator of the library to move to.
 			// The edited node will be in the src Library.
-			if (!editedComponent.getLibrary().equals(srcLib)) {
-				LibraryNode destLib = editedComponent.getLibrary();
-				editedComponent.setLibrary(srcLib);
-				srcLib.moveMember(editedComponent, destLib);
+			if (!editedNode.getLibrary().equals(srcLib)) {
+				LibraryNode destLib = editedNode.getLibrary();
+				editedNode.setLibrary(srcLib);
+				srcLib.moveMember(editedNode, destLib);
 			}
-			if (editedComponent != nodeToReplace)
+			if (editedNode != nodeToReplace)
 				nodeToReplace.delete();
-			selectNavigatorNodeAndRefresh(editedComponent);
-			refresh(editedComponent);
+			selectNavigatorNodeAndRefresh(editedNode);
+			refresh(editedNode);
 
 			// LOGGER.info("Component after change: " + editedComponent + " with "
 			// + editedComponent.getTypeUsersCount() + " users.");
@@ -712,7 +712,7 @@ public class MainController {
 		// NodeModelTestUtils.testNodeModel();
 		// Validate the library after doing change.
 		checkModelCounts(srcLib);
-		checkModelCounts(editedComponent.getLibrary());
+		checkModelCounts(editedNode.getLibrary());
 		// }
 	}
 

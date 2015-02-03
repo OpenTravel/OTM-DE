@@ -62,6 +62,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * 
+ * Change Node Wizard page controller. All changes are made to the passed edited node. When the type of object is
+ * changed, the editNode becomes the newly created object and the old edit node is put into history.
+ * 
+ * History is used to maintain a stack of changes. Changes are pushed onto the stack, can are popped off the stack one
+ * at a time for revert or all together for cancel.
+ * <p>
+ * On OK button, the edit node is complete. On cancel, edit node is restored from history stack.
+ * 
  * @author Agnieszka Janowska
  * 
  */
@@ -571,6 +580,7 @@ public class ChangeWizardPage extends WizardPage {
 
 			OtmRegistry.getMainController().getModelController().changeToSimple(property);
 
+			// NOTE - at this point the TLValueWithAttributes still has the property as an attribute.
 			final HistoryItem item = new HistoryItem(OpType.OWNING_FACET_CHANGE_TO_SIMPLE, oldFacet, property, clone);
 			historyPush(item);
 		}

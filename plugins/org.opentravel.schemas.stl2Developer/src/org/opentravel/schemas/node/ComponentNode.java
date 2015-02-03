@@ -762,7 +762,8 @@ public class ComponentNode extends Node implements TypeProvider {
 			newCN = new VWA_Node((BusinessObjectNode) this);
 		else if (this instanceof CoreObjectNode)
 			newCN = new VWA_Node((CoreObjectNode) this);
-		swap(newCN);
+		if (newCN != null)
+			swap(newCN);
 		return newCN;
 	}
 
@@ -781,7 +782,8 @@ public class ComponentNode extends Node implements TypeProvider {
 		} else if (this instanceof VWA_Node) {
 			newCN = new CoreObjectNode((VWA_Node) this);
 		}
-		swap(newCN);
+		if (newCN != null)
+			swap(newCN);
 		return newCN;
 	}
 
@@ -811,7 +813,8 @@ public class ComponentNode extends Node implements TypeProvider {
 		else if (this instanceof VWA_Node)
 			newNode = new BusinessObjectNode(((VWA_Node) this));
 
-		swap(newNode);
+		if (newNode != null)
+			swap(newNode);
 		return newNode;
 
 	}
