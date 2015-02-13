@@ -110,22 +110,8 @@ public class PropertyNode extends ComponentNode {
 			else
 				return false;
 
-		// Check the rules for the various property types.
-		switch (getPropertyType()) {
-		case SIMPLE:
-			// Overridden
-		case ID_REFERENCE:
-		case ATTRIBUTE:
-		case ELEMENT:
-			return true;
-
-		case INDICATOR:
-		case INDICATOR_ELEMENT:
-			return (type == ModelNode.getIndicatorNode() || type == ModelNode.getUndefinedNode());
-
-		default:
-			return false;
-		}
+		return true;
+		// }
 	}
 
 	/**
@@ -528,11 +514,11 @@ public class PropertyNode extends ComponentNode {
 	 * @return the new property, or this property if change could not be made.
 	 */
 	public PropertyNode changePropertyRole(PropertyNodeType toType) {
-		if (getPropertyType().equals(toType))
-			return this;
-		// FIXME
 		PropertyNode newProperty = null;
-		if (getParent() == null)
+
+		if (getPropertyType().equals(toType))
+			newProperty = this;
+		else if (getParent() == null)
 			newProperty = alternateRoles.oldOrNew(toType);
 		else {
 			if (getParent().isValidParentOf(toType)) {
@@ -614,18 +600,30 @@ public class PropertyNode extends ComponentNode {
 		public IdNode oldIdN = null;
 
 		public AlternateRoles(PropertyNode pn) {
-			if (pn instanceof ElementNode)
+			// Have to use type assigned not class because it is used in chained constructors
+			// so the class type may be wrong.
+			switch (pn.getPropertyType()) {
+			case ELEMENT:
 				oldEleN = (ElementNode) pn;
-			else if (pn instanceof ElementReferenceNode)
-				oldEleRefN = (ElementReferenceNode) pn;
-			else if (pn instanceof AttributeNode)
+				break;
+			case ATTRIBUTE:
 				oldAttrN = (AttributeNode) pn;
-			else if (pn instanceof IndicatorNode)
-				oldIndN = (IndicatorNode) pn;
-			else if (pn instanceof IndicatorElementNode)
-				oldIndEleN = (IndicatorElementNode) pn;
-			else if (pn instanceof IdNode)
+				break;
+			case ID:
 				oldIdN = (IdNode) pn;
+				break;
+			case ID_REFERENCE:
+				oldEleRefN = (ElementReferenceNode) pn;
+				break;
+			case INDICATOR:
+				oldIndN = (IndicatorNode) pn;
+				break;
+			case INDICATOR_ELEMENT:
+				oldIndEleN = (IndicatorElementNode) pn;
+				break;
+			default:
+				break;
+			}
 			currentType = pn.getPropertyType();
 		}
 
