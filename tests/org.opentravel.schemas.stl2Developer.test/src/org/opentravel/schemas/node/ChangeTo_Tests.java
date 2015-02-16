@@ -165,7 +165,9 @@ public class ChangeTo_Tests {
 		// code used in ChangeWizardPage
 		editedNode = editedNode.changeObject(SubType.CORE_OBJECT);
 		Assert.assertEquals(0, nodeToReplace.getTypeUsers().size());
-		nodeToReplace.delete(); // deleted in main controller
+		// deleted in main controller
+		if (editedNode != nodeToReplace)
+			nodeToReplace.delete();
 
 		LOGGER.debug("Changing Edited component: " + editedNode.getName() + " with " + editedNode.getTypeUsersCount()
 				+ " users.");

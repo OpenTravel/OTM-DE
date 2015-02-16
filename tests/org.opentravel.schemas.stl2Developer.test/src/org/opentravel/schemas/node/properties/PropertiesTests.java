@@ -16,7 +16,7 @@
 /**
  * 
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.node.properties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,14 +33,20 @@ import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLRole;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.properties.AttributeNode;
-import org.opentravel.schemas.node.properties.ElementNode;
-import org.opentravel.schemas.node.properties.ElementReferenceNode;
-import org.opentravel.schemas.node.properties.EnumLiteralNode;
-import org.opentravel.schemas.node.properties.IndicatorElementNode;
-import org.opentravel.schemas.node.properties.IndicatorNode;
-import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.node.properties.RoleNode;
+import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.node.CoreObjectNode;
+import org.opentravel.schemas.node.EnumerationClosedNode;
+import org.opentravel.schemas.node.EnumerationOpenNode;
+import org.opentravel.schemas.node.FacetNode;
+import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.ModelNode;
+import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.NodeFinders;
+import org.opentravel.schemas.node.NodeNameUtils;
+import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.PropertyNodeType;
+import org.opentravel.schemas.node.RoleFacetNode;
+import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.testUtils.MockLibrary;
 
 /**
@@ -154,6 +160,19 @@ public class PropertiesTests {
 		// TODO - test equivalents ~!!!
 
 		Assert.assertEquals(4, summary.getChildren().size()); // addBO creates one
+	}
+
+	@Test
+	public void createIds() {
+		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "Vwa");
+		IdNode id = new IdNode(vwa, "SomeIgnoredName");
+		Node idType = NodeFinders.findNodeByName("ID", Node.XSD_NAMESPACE);
+
+		Assert.assertEquals("id", id.getName());
+		Assert.assertEquals(idType, id.getAssignedType());
+		Assert.assertEquals(id.getPropertyType(), PropertyNodeType.ID);
+		Assert.assertEquals(id.alternateRoles.currentType, PropertyNodeType.ID);
+		Assert.assertNotNull(id.alternateRoles.oldIdN);
 	}
 
 	@Test
