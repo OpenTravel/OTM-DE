@@ -17,20 +17,6 @@
 		<osgi.arch>x86</osgi.arch>
 	</properties>
 
-	<profiles>
-		<profile>
-			<id>linux-os</id>
-			<activation>
-				<os>
-					<name>linux</name>
-				</os>
-			</activation>
-			<properties>
-				<osgi.os>linux</osgi.os>
-			</properties>
-		</profile>
-	</profiles>
-	
 	<modules>
 		<module>org.opentravel.schemas.stl2Developer.test</module>
 		<module>org.opentravel.schemas.stl2Developer.test.utils</module>
