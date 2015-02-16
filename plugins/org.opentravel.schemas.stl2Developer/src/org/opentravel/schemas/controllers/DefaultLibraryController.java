@@ -48,7 +48,6 @@ import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.FileDialogs;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -285,7 +284,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 	public boolean saveLibraries(final List<LibraryNode> libraries, boolean quiet) {
 		final List<TLLibrary> toSave = getEditableUsersLibraraies(libraries);
 		if (toSave.isEmpty()) {
-			DialogUserNotifier.openInformation("Warning", Messages.getString("action.saveAll.noUserDefied"));
+			// DialogUserNotifier.openInformation("Warning", Messages.getString("action.saveAll.noUserDefied"));
 			LOGGER.debug("No user defined libraries to save");
 			return false;
 		}

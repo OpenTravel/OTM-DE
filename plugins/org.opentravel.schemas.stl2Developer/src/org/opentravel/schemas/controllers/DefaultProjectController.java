@@ -598,12 +598,14 @@ public class DefaultProjectController implements ProjectController {
 
 	@Override
 	public void save(List<ProjectNode> projects) {
+		// UNUSED
 		for (ProjectNode pn : projects)
 			save(pn);
 	}
 
 	@Override
 	public void saveAll() {
+		// UNUSED
 		ProjectManager pm = getDefaultProject().getProject().getProjectManager();
 		for (Project p : pm.getAllProjects())
 			try {
