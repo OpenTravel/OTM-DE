@@ -97,7 +97,7 @@ public class NodeVisitors {
 
 			// NOTE - libraries are ALWAYS delete-able even when not edit-able
 			if (!node.isDeleteable()) {
-				LOGGER.debug("DeleteVisitor: not delete-able " + n);
+				// LOGGER.debug("DeleteVisitor: not delete-able " + n);
 				return;
 			}
 			// if (!(this instanceof VersionNode) && (!(this instanceof FacetNode))
@@ -106,12 +106,12 @@ public class NodeVisitors {
 			// version nodes can not be deleted. SimpleAttrs ??? why ???.
 
 			if (!n.isEditable() && (n instanceof LibraryNode || n instanceof LibraryChainNode))
-				LOGGER.debug("Deleting a non-editable library. " + n);
-			// TODO - does this clean up properly?
+				// LOGGER.debug("Deleting a non-editable library. " + n);
+				// TODO - does this clean up properly?
 
-			// Type class - delete the where used and assignments to this type
-			if (n.isTypeProvider())
-				node.getTypeClass().delete();
+				// Type class - delete the where used and assignments to this type
+				if (n.isTypeProvider())
+					node.getTypeClass().delete();
 
 			// Remove from where used list
 			if (node.isTypeUser()) {
