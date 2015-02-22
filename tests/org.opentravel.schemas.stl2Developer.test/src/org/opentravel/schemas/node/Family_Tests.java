@@ -29,6 +29,7 @@ import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.types.TestTypes;
 
 /**
@@ -39,7 +40,7 @@ public class Family_Tests {
 	ModelNode model = null;
 	TestTypes tt = new TestTypes();
 
-	Node_Tests nt = new Node_Tests();
+	NodeTesters nt = new NodeTesters();
 	LoadFiles lf = new LoadFiles();
 	LibraryTests lt = new LibraryTests();
 	MockLibrary ml = null;

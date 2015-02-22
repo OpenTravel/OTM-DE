@@ -23,6 +23,7 @@ import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.testUtils.LoadFiles;
+import org.opentravel.schemas.testUtils.NodeTesters;
 
 /**
  * Make sure all nodes can trace up the tree to the model node.
@@ -32,7 +33,7 @@ import org.opentravel.schemas.testUtils.LoadFiles;
  */
 public class TestParent {
 	LoadFiles lf = new LoadFiles();
-	Node_Tests nt = new Node_Tests();
+	NodeTesters nt = new NodeTesters();
 	LibraryTests lt = new LibraryTests();
 
 

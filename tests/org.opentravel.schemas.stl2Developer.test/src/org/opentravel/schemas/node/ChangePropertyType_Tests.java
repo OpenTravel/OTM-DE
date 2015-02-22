@@ -27,9 +27,10 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeModelTestUtils;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.Node.NodeVisitor;
-import org.opentravel.schemas.node.Node_Tests.TestNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
+import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +42,7 @@ public class ChangePropertyType_Tests {
     private final static Logger LOGGER = LoggerFactory.getLogger(ChangePropertyType_Tests.class);
 
     ModelNode model = null;
-    TestNode nt = new Node_Tests().new TestNode();
+    TestNode nt = new NodeTesters().new TestNode();
     LoadFiles lf = new LoadFiles();
     LibraryTests lt = new LibraryTests();
 

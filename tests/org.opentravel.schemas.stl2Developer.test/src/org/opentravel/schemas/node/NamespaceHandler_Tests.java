@@ -28,6 +28,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
 
 /**
  * @author Dave Hollander
@@ -35,7 +36,7 @@ import org.opentravel.schemas.testUtils.MockLibrary;
  */
 public class NamespaceHandler_Tests {
     ModelNode model = null;
-    Node_Tests nt = new Node_Tests();
+    NodeTesters nt = new NodeTesters();
     LoadFiles lf = new LoadFiles();
     LibraryTests lt = new LibraryTests();
     MockLibrary mockLibrary = new MockLibrary();

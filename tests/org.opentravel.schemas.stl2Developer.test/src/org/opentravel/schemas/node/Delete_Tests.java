@@ -26,10 +26,11 @@ import org.junit.Test;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.Node.NodeVisitor;
-import org.opentravel.schemas.node.Node_Tests.PrintNode;
-import org.opentravel.schemas.node.Node_Tests.TestNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.testUtils.NodeTesters.PrintNode;
+import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,9 +50,9 @@ public class Delete_Tests {
 	LoadFiles lf = null;
 
 	NodeVisitor dv = new NodeVisitors().new deleteVisitor();
-	PrintNode pv = new Node_Tests().new PrintNode();
-	TestNode tv = new Node_Tests().new TestNode(); // preferred tester
-	Node_Tests tt = new Node_Tests();
+	PrintNode pv = new NodeTesters().new PrintNode();
+	TestNode tv = new NodeTesters().new TestNode(); // preferred tester
+	NodeTesters tt = new NodeTesters();
 
 	@Before
 	public void beforeAllTests() {

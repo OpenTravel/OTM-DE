@@ -28,10 +28,10 @@ import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
-import org.opentravel.schemas.node.Node_Tests;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.types.TypeResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -202,7 +202,7 @@ public class TestTypes {
      * TypeUser specific <b>assertions</b> are made. Generates Examples and runs compiler
      * validation. <b>Very cpu intensive!</b>
      * 
-     * {@link Node_Tests#visit(Node)} node based test.
+     * {@link NodeTesters#visit(Node)} node based test.
      * 
      * @param n
      */

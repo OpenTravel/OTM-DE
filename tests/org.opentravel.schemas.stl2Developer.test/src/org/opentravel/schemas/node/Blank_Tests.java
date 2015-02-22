@@ -22,9 +22,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.Node_Tests.TestNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 
 /**
  * @author Dave Hollander
@@ -32,7 +33,7 @@ import org.opentravel.schemas.testUtils.MockLibrary;
  */
 public class Blank_Tests {
 	ModelNode model = null;
-	TestNode tn = new Node_Tests().new TestNode();
+	TestNode tn = new NodeTesters().new TestNode();
 	LoadFiles lf = new LoadFiles();
 	LibraryTests lt = new LibraryTests();
 	MockLibrary ml = null;

@@ -27,6 +27,7 @@ import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
 
 /**
  * @author Dave Hollander
@@ -34,7 +35,7 @@ import org.opentravel.schemas.testUtils.MockLibrary;
  */
 public class GetDescendents_Tests {
 	ModelNode model = null;
-	Node_Tests nt = new Node_Tests();
+	NodeTesters nt = new NodeTesters();
 	LoadFiles lf = new LoadFiles();
 	LibraryTests lt = new LibraryTests();
 	MockLibrary mockLibrary = null;
@@ -145,4 +146,20 @@ public class GetDescendents_Tests {
 		List<Node> users = ln.getDescendants_TypeUsers();
 		Assert.assertEquals(130, users.size());
 	}
+
+	@Test
+	public void descendantTypeUsersTest() {
+		MockLibrary ml = new MockLibrary();
+		MainController mc = new MainController();
+		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
+		ProjectNode defaultProject = pc.getDefaultProject();
+		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		Node bo = ml.addNestedTypes(ln);
+
+		List<Node> types = bo.getDescendants_AssignedTypes(true);
+
+		Assert.assertNotNull(types);
+		Assert.assertEquals(2, types.size());
+	}
+
 }

@@ -41,11 +41,12 @@ import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.SimpleFacetNode;
 import org.opentravel.schemas.node.VWA_Node;
-import org.opentravel.schemas.node.Node_Tests.TestNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
@@ -61,7 +62,7 @@ public class VWA_Tests {
     MainController mc;
     DefaultProjectController pc;
     ProjectNode defaultProject;
-    TestNode tn = new Node_Tests().new TestNode();
+    TestNode tn = new NodeTesters().new TestNode();
 
     @Before
     public void beforeEachTest() {

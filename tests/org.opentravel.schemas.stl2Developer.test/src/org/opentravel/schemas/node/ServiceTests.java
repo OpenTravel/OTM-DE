@@ -32,10 +32,11 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.OperationNode;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.Node_Tests.TestNode;
 import org.opentravel.schemas.node.OperationNode.ResourceOperationTypes;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.types.TypeResolver;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
@@ -48,7 +49,7 @@ import org.opentravel.schemacompiler.model.TLService;
  */
 public class ServiceTests {
     ModelNode model = null;
-    TestNode tn = new Node_Tests().new TestNode();
+    TestNode tn = new NodeTesters().new TestNode();
     LoadFiles lf = new LoadFiles();
     LibraryTests lt = new LibraryTests();
 

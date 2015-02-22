@@ -35,7 +35,6 @@ import org.opentravel.schemas.node.OperationNode;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.RoleFacetNode;
 import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.Node_Tests.TestNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
@@ -45,6 +44,8 @@ import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,9 +58,9 @@ import org.slf4j.LoggerFactory;
 public class NewComponent_Tests {
     private final static Logger LOGGER = LoggerFactory.getLogger(NewComponent_Tests.class);
 
-    TestNode nt = new Node_Tests().new TestNode();
+    TestNode nt = new NodeTesters().new TestNode();
     ModelNode model = null;
-    TestNode tn = new Node_Tests().new TestNode();
+    TestNode tn = new NodeTesters().new TestNode();
     LoadFiles lf = new LoadFiles();
     LibraryTests lt = new LibraryTests();
     MockLibrary ml = null;

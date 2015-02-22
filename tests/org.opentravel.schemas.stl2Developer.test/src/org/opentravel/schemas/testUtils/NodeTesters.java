@@ -16,52 +16,55 @@
 /**
  * 
  */
-package org.opentravel.schemas.node;
-
-import java.util.List;
-
-import javax.xml.namespace.QName;
+package org.opentravel.schemas.testUtils;
 
 import org.junit.Assert;
-import org.junit.Test;
 import org.opentravel.schemacompiler.model.LibraryMember;
-import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.modelObject.EmptyMO;
 import org.opentravel.schemas.modelObject.SimpleFacetMO;
 import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
+import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.INode;
+import org.opentravel.schemas.node.ImpliedNode;
+import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.ModelNode;
+import org.opentravel.schemas.node.NavNode;
+import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
-import org.opentravel.schemas.testUtils.LoadFiles;
-import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.node.OperationNode;
+import org.opentravel.schemas.node.SimpleFacetNode;
+import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.types.TestTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Primary node testers for use in other junit tests.
+ * <p>
+ * Usage: n.visitAllNodes(new NodeTesters().new TestNode()); <br>
+ * <i>or</i><br>
+ * NodeTesters nt = new NodeTesters(); <br>
+ * node.visitAllNodes(nt.new TestNode()); <br>
+ * <i>or</i><br>
+ * NodeTest nt = new NodeTesters().new TestNode(); <br>
+ * tn.visitNode(node); <br>
+ * ln.visitAllNodes(nt); <br>
+ * <i>or</i><br>
+ * n.visitAllNodes(new NodeTesters().new ValidateTLObject());
+ * 
  * @author Dave Hollander
  * 
  */
-public class Node_Tests {
-	private static final Logger LOGGER = LoggerFactory.getLogger(Node_Tests.class);
+public class NodeTesters {
+	private static final Logger LOGGER = LoggerFactory.getLogger(NodeTesters.class);
 
-	private int nodeCount = 0;
-	private String string = "";
-
-	/**
-	 * Primary node test for use in other junit tests. Usage: n.visitAllNodes(new Node_Tests().new TestNode()); or
-	 * TestNode tn = new Node_Tests().new TestNode(); tn.visit(node); ln.visitAllNodes(tn);
-	 * 
-	 * @author Dave Hollander
-	 * 
-	 */
 	public class TestNode implements NodeVisitor {
 		@Override
 		public void visit(INode n) {
@@ -76,96 +79,6 @@ public class Node_Tests {
 		}
 	}
 
-	@Test
-	public void builtInTests() {
-		MainController mc = new MainController();
-		LoadFiles lf = new LoadFiles();
-		// for (LibraryNode lib : ModelNode.getAllLibraries())
-		// lib.visitAllTypeUsers(new PrintNode());
-
-		mc.getModelNode().visitAllNodes(new TestNode());
-	}
-
-	@Test
-	public void FacetAsType() {
-		// Facets as types throw the resolver off because they have type names not types.
-		MockLibrary ml = new MockLibrary();
-		MainController mc = new MainController();
-		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
-		ProjectNode defaultProject = pc.getDefaultProject();
-		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "tbo");
-		Node user = bo.getDescendants_TypeUsers().get(1);
-
-		NamedEntity userType = user.getTLTypeObject();
-		Assert.assertNotNull(user.getTLTypeObject());
-
-		user.setAssignedType(bo.getDetailFacet());
-		Assert.assertNotNull(user.getTLTypeObject());
-
-	}
-
-	@Test
-	public void facetAsTypeOnLoad() {
-		MainController mc = new MainController();
-		LoadFiles lf = new LoadFiles();
-		LibraryNode ln = lf.loadFile1(mc);
-		Node user = null;
-		for (Node n : ln.getDescendants_TypeUsers())
-			if (n.getName().equals("Profile_Detail")) {
-				user = n;
-				break;
-			}
-		Assert.assertNotNull(user);
-		TLModelElement userTL = user.getTLModelObject();
-		// Comment out body of workaround method PropertyNode.getTLTypeNameField() to see error.
-		NamedEntity userTLtype = user.getTLTypeObject(); // Should be not-null: See JIRA 510.
-		Assert.assertNotNull(user.getTLTypeObject()); // Should be not-null: See JIRA 510.
-		QName qName = user.getTLTypeQName();
-
-		// Type resolver needs a valid qName from this assigned type.
-		Assert.assertFalse(qName.getNamespaceURI().isEmpty());
-		Assert.assertFalse(qName.getLocalPart().isEmpty());
-
-		// This will only work if the resolver found the qName for the elements assigned facets.
-		ln.visitAllNodes(new TestNode());
-	}
-
-	@Test
-	public void nodeTests() throws Exception {
-		MainController mc = new MainController();
-		LoadFiles lf = new LoadFiles();
-		lf.loadFile1(mc);
-
-		lf.loadFile5(mc);
-		lf.loadFile3(mc);
-		lf.loadFile4(mc);
-		lf.loadFile2(mc);
-
-		mc.getModelNode().visitAllNodes(new TestNode()); // set visit count
-
-		for (INode n : mc.getModelNode().getChildren()) {
-			nodeCount++;
-			actOnNode(n);
-		}
-
-	}
-
-	@Test
-	public void descendantTypeUsersTest() {
-		MockLibrary ml = new MockLibrary();
-		MainController mc = new MainController();
-		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
-		ProjectNode defaultProject = pc.getDefaultProject();
-		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		Node bo = ml.addNestedTypes(ln);
-
-		List<Node> types = bo.getDescendants_AssignedTypes(true);
-
-		Assert.assertNotNull(types);
-		Assert.assertEquals(2, types.size());
-	}
-
 	/**
 	 * Test the type providers and assure where used and owner. Test type users and assure getType returns valid node.
 	 * 
@@ -174,22 +87,6 @@ public class Node_Tests {
 	 */
 	public void visitAllNodes(Node n) {
 		n.visitAllNodes(new TestNode());
-	}
-
-	private void actOnNode(INode n) {
-		n.setAssignedType((Node) n);
-		n.setName("TEST", true);
-		switch (nodeCount % 3) {
-		case 0:
-			n.removeFromLibrary();
-			n.close();
-			break;
-		case 1:
-			n.delete();
-			break;
-		case 2:
-			n.delete();
-		}
 	}
 
 	/**
@@ -221,7 +118,7 @@ public class Node_Tests {
 			Assert.assertTrue(n.getTypeClass().verifyAssignment());
 
 		try {
-			new validateTLObject().visit(n);
+			new ValidateTLObject().visit(n);
 		} catch (IllegalStateException e) {
 			LOGGER.debug("TLObject Error with " + n + ". " + e.getLocalizedMessage());
 			Assert.assertEquals("", e.getLocalizedMessage().toString());
@@ -245,8 +142,8 @@ public class Node_Tests {
 		// Version nodes
 		if (n instanceof VersionNode) {
 			VersionNode vn = (VersionNode) n;
-			Assert.assertTrue(n.parent instanceof NavNode); // could be family???
-			Assert.assertTrue(vn.head instanceof ComponentNode); // could be family???
+			Assert.assertTrue(n.getParent() instanceof NavNode); // could be family???
+			Assert.assertTrue(vn.getNewestVersion() instanceof ComponentNode); // could be family???
 			return;
 		}
 
@@ -256,25 +153,25 @@ public class Node_Tests {
 		else if (!(n.getModelObject() instanceof EmptyMO) && !(n instanceof LibraryNode)
 				&& !(n instanceof OperationNode) && !(n.getChildren().isEmpty())) {
 			if (n.getChildren().size() != n.getModelObject().getChildren().size()) {
-				List<?> kids = n.getChildren();
-				List<?> moKids = n.getModelObject().getChildren();
+				// List<?> kids = n.getChildren();
+				// List<?> moKids = n.getModelObject().getChildren();
 				LOGGER.debug("Children sizes are not equal.");
 			}
 			Assert.assertEquals(n.getChildren().size(), n.getModelObject().getChildren().size());
 		}
 
 		// Check names
-		String name = "";
-		if (n.getName().isEmpty()) {
-			name = n.getName();
-		}
-		String foo = name;
+		// String name = "";
+		// if (n.getName().isEmpty()) {
+		// name = n.getName();
+		// }
+		// String foo = name;
 		Assert.assertFalse(n.getName().isEmpty());
 		Assert.assertFalse(n.getIdentity().isEmpty()); // new 1/20/15
 		Assert.assertFalse(n.getLabel().isEmpty());
 		if (n instanceof ComponentNode) {
 			if (n.getNamePrefix().isEmpty())
-				string = n.getNamePrefix();
+				n.getNamePrefix();
 			Assert.assertFalse(n.getNamePrefix() == null);
 			Assert.assertFalse(n.getNamespace().isEmpty());
 			Assert.assertFalse(n.getNameWithPrefix().isEmpty());
@@ -309,7 +206,7 @@ public class Node_Tests {
 
 	}
 
-	public class validateTLObject implements NodeVisitor {
+	public class ValidateTLObject implements NodeVisitor {
 		@Override
 		public void visit(INode in) {
 			Node n = (Node) in;

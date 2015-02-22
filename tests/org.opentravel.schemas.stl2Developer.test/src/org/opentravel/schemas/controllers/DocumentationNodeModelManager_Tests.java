@@ -30,11 +30,11 @@ import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeModelTestUtils;
-import org.opentravel.schemas.node.Node_Tests;
 import org.opentravel.schemas.node.DocumentationNode.DocumentationNodeType;
 import org.opentravel.schemas.node.controllers.DescriptionDocItemNodeModelController;
 import org.opentravel.schemas.node.controllers.DocumentationNodeModelManager;
 import org.opentravel.schemas.testUtils.LoadFiles;
+import org.opentravel.schemas.testUtils.NodeTesters;
 
 import org.opentravel.schemacompiler.model.TLDocumentationItem;
 
@@ -44,7 +44,7 @@ import org.opentravel.schemacompiler.model.TLDocumentationItem;
  */
 public class DocumentationNodeModelManager_Tests {
 	ModelNode model = null;
-	Node_Tests nt = new Node_Tests();
+	NodeTesters nt = new NodeTesters();
 	DocumentationNodeModelManager dnmm = new DocumentationNodeModelManager();
 	TLDocumentationItem di = new TLDocumentationItem();
 	

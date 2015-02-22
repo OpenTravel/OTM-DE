@@ -28,9 +28,12 @@ import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.AggregateNode.AggregateType;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.types.TestTypes;
 
 /**
+ * Test the aggregate nodes which are navigation nodes used for library chains.
+ * 
  * @author Dave Hollander
  * 
  */
@@ -38,7 +41,7 @@ public class Aggregate_Tests {
 	ModelNode model = null;
 	TestTypes tt = new TestTypes();
 
-	Node_Tests nt = new Node_Tests();
+	NodeTesters nt = new NodeTesters();
 	LoadFiles lf = new LoadFiles();
 	LibraryTests lt = new LibraryTests();
 	MockLibrary ml = null;
@@ -184,22 +187,4 @@ public class Aggregate_Tests {
 		ln_inChain.linkMember(n);
 		return n;
 	}
-
-	// TODO - should test be run against library suite here or in other tests?
-	// @Test
-	// public void AggregateTests() throws Exception {
-	// MainController mc = new MainController();
-	// LoadFiles lf = new LoadFiles();
-	// model = mc.getModelNode();
-	//
-	// lf.loadTestGroupA(mc);
-	// for (LibraryNode ln : model.getUserLibraries()) {
-	// int beforeCnt = ln.getDescendants_NamedTypes().size();
-	// tt.visitAllNodes(ln);
-	// Assert.assertEquals(beforeCnt, ln.getDescendants_NamedTypes().size());
-	// // TODO
-	//
-	// }
-	// }
-
 }

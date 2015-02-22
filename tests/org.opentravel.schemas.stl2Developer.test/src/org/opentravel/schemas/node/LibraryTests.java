@@ -30,6 +30,7 @@ import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,7 @@ import org.slf4j.LoggerFactory;
 public class LibraryTests {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTests.class);
 
-	private Node_Tests testVisitor;
+	private NodeTesters testVisitor;
 	private MainController mc;
 	private LoadFiles lf;
 
@@ -52,7 +53,7 @@ public class LibraryTests {
 	public void beforeEachTest() {
 		mc = new MainController();
 		lf = new LoadFiles();
-		testVisitor = new Node_Tests();
+		testVisitor = new NodeTesters();
 	}
 
 	@Test

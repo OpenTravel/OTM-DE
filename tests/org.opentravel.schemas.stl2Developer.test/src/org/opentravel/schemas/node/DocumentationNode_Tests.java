@@ -31,6 +31,7 @@ import org.opentravel.schemas.node.NodeModelTestUtils;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
 
 import org.opentravel.schemacompiler.model.TLCoreObject;
 
@@ -45,7 +46,7 @@ import org.opentravel.schemacompiler.model.TLCoreObject;
  */
 public class DocumentationNode_Tests {
     ModelNode model = null;
-    Node_Tests nt = new Node_Tests();
+    NodeTesters nt = new NodeTesters();
 
     @Test
     public void coreDescriptionTest() {

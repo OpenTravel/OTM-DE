@@ -29,11 +29,12 @@ import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.Node_Tests.TestNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.types.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ public class ChangeTo_Tests {
 	private final static Logger LOGGER = LoggerFactory.getLogger(ChangeTo_Tests.class);
 
 	ModelNode model = null;
-	TestNode tn = new Node_Tests().new TestNode();
+	TestNode tn = new NodeTesters().new TestNode();
 	MockLibrary ml = null;
 	LibraryNode ln = null;
 	MainController mc;

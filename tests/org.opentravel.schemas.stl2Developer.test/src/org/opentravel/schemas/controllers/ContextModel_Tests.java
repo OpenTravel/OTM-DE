@@ -22,7 +22,7 @@ package org.opentravel.schemas.controllers;
 import org.junit.Test;
 import org.opentravel.schemas.controllers.ContextController;
 import org.opentravel.schemas.node.ModelNode;
-import org.opentravel.schemas.node.Node_Tests;
+import org.opentravel.schemas.testUtils.NodeTesters;
 
 /**
  * @author Dave Hollander
@@ -30,7 +30,7 @@ import org.opentravel.schemas.node.Node_Tests;
  */
 public class ContextModel_Tests {
 	ModelNode model = null;
-	Node_Tests nt = new Node_Tests();
+	NodeTesters nt = new NodeTesters();
 	ContextController controller;
 	
 	@Test

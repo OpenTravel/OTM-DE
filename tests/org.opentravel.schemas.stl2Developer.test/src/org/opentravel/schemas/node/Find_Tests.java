@@ -24,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.testUtils.LoadFiles;
+import org.opentravel.schemas.testUtils.NodeTesters;
 
 /**
  * @author Dave Hollander
@@ -31,7 +32,7 @@ import org.opentravel.schemas.testUtils.LoadFiles;
  */
 public class Find_Tests {
 	ModelNode model = null;
-	Node_Tests tt = new Node_Tests();
+	NodeTesters tt = new NodeTesters();
 
 	@Test
 	public void FinderTest() throws Exception {

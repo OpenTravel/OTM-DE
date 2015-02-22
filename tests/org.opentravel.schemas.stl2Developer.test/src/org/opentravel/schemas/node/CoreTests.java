@@ -25,10 +25,11 @@ import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.modelObject.SimpleAttributeMO;
 import org.opentravel.schemas.modelObject.SimpleFacetMO;
-import org.opentravel.schemas.node.Node_Tests.TestNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 
 /**
  * @author Dave Hollander
@@ -41,7 +42,7 @@ public class CoreTests {
 	MainController mc;
 	DefaultProjectController pc;
 	ProjectNode defaultProject;
-	TestNode tn = new Node_Tests().new TestNode();
+	TestNode tn = new NodeTesters().new TestNode();
 
 	@Before
 	public void beforeEachTest() {
