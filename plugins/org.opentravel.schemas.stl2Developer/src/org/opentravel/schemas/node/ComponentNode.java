@@ -1009,10 +1009,15 @@ public class ComponentNode extends Node implements TypeProvider {
 	 */
 	@Override
 	public int getTypeUsersCount() {
-		if (getTypeClass() == null) {
+		if (getTypeClass() == null)
 			return 0;
-		}
-		return getTypeClass().getTypeUsersCount();
+
+		// return total count for all facets. Overloaded in facet class.
+		int cnt = getTypeClass().getTypeUsersCount();
+		for (Node n : getChildren())
+			cnt += n.getTypeUsersCount();
+		return cnt;
+		// return getTypeClass() != null ? getTypeClass().getTypeUsersCount() : 0;
 	}
 
 	/*

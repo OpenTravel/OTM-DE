@@ -213,6 +213,16 @@ public class FacetNode extends ComponentNode {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see org.opentravel.schemas.types.TypeProvider#typeUsersCount()
+	 */
+	@Override
+	public int getTypeUsersCount() {
+		return getTypeClass() != null ? getTypeClass().getTypeUsersCount() : 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.opentravel.schemas.node.Node#isAssignedByReference()
 	 */
 	@Override
