@@ -103,7 +103,7 @@ public class LibraryNode extends Node {
 		this.setName("");
 		nsHandler = NamespaceHandler.getNamespaceHandler((ProjectNode) parent);
 		this.setNamespace(parent.getNamespace());
-		LOGGER.debug("Created empty library without underlying model");
+		// LOGGER.debug("Created empty library without underlying model");
 	}
 
 	/**
@@ -144,7 +144,7 @@ public class LibraryNode extends Node {
 				pi = getProject().getProject().getProjectManager()
 						.addUnmanagedProjectItem(alib, getProject().getProject());
 			} catch (RepositoryException e1) {
-				LOGGER.debug("Error adding " + alib.getName() + " to project.");
+				LOGGER.error("Error adding " + alib.getName() + " to project.");
 			}
 		}
 		setProjectItem(pi);
@@ -170,7 +170,7 @@ public class LibraryNode extends Node {
 		updateLibraryStatus();
 		setIdentity(getLabel());
 
-		LOGGER.debug("Library created: " + this.getName());
+		// LOGGER.debug("Library created: " + this.getName());
 	}
 
 	public LibraryNode(ProjectItem pi, ProjectNode projectNode) {
@@ -279,7 +279,7 @@ public class LibraryNode extends Node {
 
 		// Do the import. Nodes are typed, but not used.
 		sourceToNewMap = importNodes(sourceList);
-		LOGGER.debug("Imported " + sourceToNewMap.size() + " nodes. Ready to fix type assignments.");
+		// LOGGER.debug("Imported " + sourceToNewMap.size() + " nodes. Ready to fix type assignments.");
 
 		// Change type users to use the imported nodes.
 		for (final Entry<Node, Node> entry : sourceToNewMap.entrySet()) {
@@ -317,13 +317,13 @@ public class LibraryNode extends Node {
 				nameFixer.visit(newNode);
 				sourceToNewMap.put(source, newNode);
 			} else
-				LOGGER.debug("Import duplicate excluded from map: " + newNode);
+				LOGGER.warn("Import duplicate excluded from map: " + newNode);
 		}
 
 		TypeResolver tr = new TypeResolver();
 		tr.resolveTypes(this);
 
-		LOGGER.info("ImportNodes() imported " + sourceToNewMap.size() + " nodes. ");
+		// LOGGER.info("ImportNodes() imported " + sourceToNewMap.size() + " nodes. ");
 		return sourceToNewMap;
 	}
 
@@ -398,7 +398,7 @@ public class LibraryNode extends Node {
 			return false;
 		}
 		if ((source.getTLModelObject() == null) || !(source.getTLModelObject() instanceof LibraryMember)) {
-			LOGGER.debug("Exit - not a LibraryMember: " + source.getName());
+			LOGGER.error("Exit - not a LibraryMember: " + source.getName());
 			return false;
 		}
 		if (!this.isEditable()) {
@@ -549,7 +549,7 @@ public class LibraryNode extends Node {
 		// TODO - make sure it is a directory and writable
 		// Prompt user to confirm directory.
 		pn.getProject().getProjectManager().lock(getProjectItem(), dir);
-		LOGGER.debug("Locked library which created local file: " + path);
+		// LOGGER.debug("Locked library which created local file: " + path);
 		setEditable(isAbsLibEditable());
 	}
 
@@ -565,7 +565,7 @@ public class LibraryNode extends Node {
 
 		OtmRegistry.getMainController().getRepositoryController().unlockAndRevert(this);
 		// pn.getProject().getProjectManager().unlock(getProjectItem(), true);
-		LOGGER.debug("UnLocked library " + this);
+		// LOGGER.debug("UnLocked library " + this);
 		setEditable(isAbsLibEditable());
 	}
 
@@ -688,11 +688,11 @@ public class LibraryNode extends Node {
 
 	private void addMember(final Node n, final boolean doFamily) {
 		if (n == null || n.getTLModelObject() == null) {
-			LOGGER.debug("Tried to addMember() a null member: " + n);
+			LOGGER.warn("Tried to addMember() a null member: " + n);
 			return;
 		}
 		if (!(n.getTLModelObject() instanceof LibraryMember)) {
-			LOGGER.debug("Tried to addMember() a non-library member: " + n);
+			LOGGER.warn("Tried to addMember() a non-library member: " + n);
 			return;
 		}
 
@@ -764,7 +764,7 @@ public class LibraryNode extends Node {
 		}
 
 		// This is only used by the visitor if it is a library node.
-		LOGGER.debug("Closing library " + this);
+		// LOGGER.debug("Closing library " + this);
 
 		// Remove context
 		ContextController cc = OtmRegistry.getMainController().getContextController();
@@ -785,7 +785,7 @@ public class LibraryNode extends Node {
 	 */
 	public void commit() throws RepositoryException {
 		projectItem.getProjectManager().commit(this.projectItem);
-		LOGGER.debug("Committed " + this);
+		// LOGGER.debug("Committed " + this);
 	}
 
 	@Override
@@ -840,7 +840,7 @@ public class LibraryNode extends Node {
 				getChain().getComplexAggregate().getChildren().remove(source);
 			else if (source instanceof SimpleComponentInterface)
 				getChain().getSimpleAggregate().getChildren().remove(source);
-			LOGGER.debug("Removed aggregate for " + source);
+			// LOGGER.debug("Removed aggregate for " + source);
 		}
 		source.unlinkNode();
 
@@ -871,7 +871,7 @@ public class LibraryNode extends Node {
 	 */
 	protected void removeMember(final Node n) {
 		if (n == null || n.getTLModelObject() == null) {
-			LOGGER.debug("LibraryNode:removeMember() - error. model object or tl model object is null. " + n.getName()
+			LOGGER.warn("LibraryNode:removeMember() - error. model object or tl model object is null. " + n.getName()
 					+ " - " + n.getClass().getSimpleName());
 			return;
 		}
@@ -1100,7 +1100,7 @@ public class LibraryNode extends Node {
 	public void setVersion(final String version) {
 		if (absTLLibrary instanceof TLLibrary) {
 			((TLLibrary) absTLLibrary).setVersion(version);
-			LOGGER.debug("Set version of " + this + " to " + version);
+			// LOGGER.debug("Set version of " + this + " to " + version);
 		}
 		// TODO - implement the rest of the version logic!
 	}
@@ -1108,7 +1108,7 @@ public class LibraryNode extends Node {
 	public void markFinal() throws RepositoryException {
 		if (absTLLibrary instanceof TLLibrary) {
 			getProjectItem().getProjectManager().promote(projectItem);
-			LOGGER.debug("Set status of " + this + " to Final.");
+			// LOGGER.debug("Set status of " + this + " to Final.");
 		}
 	}
 
@@ -1292,7 +1292,7 @@ public class LibraryNode extends Node {
 
 		if (xn.getParent() != null) {
 			xn.unlinkNode();
-			LOGGER.debug("HUMM...why was this linked?");
+			// LOGGER.debug("HUMM...why was this linked?");
 		}
 		linkMember(cn);
 	}
@@ -1366,7 +1366,7 @@ public class LibraryNode extends Node {
 	 * Is the library ready to version?
 	 */
 	public boolean isReadyToVersion() {
-		LOGGER.debug("Ready to version? valid: " + isValid() + ", managed: " + isManaged());
+		// LOGGER.debug("Ready to version? valid: " + isValid() + ", managed: " + isManaged());
 		return isManaged() && isValid();
 	}
 

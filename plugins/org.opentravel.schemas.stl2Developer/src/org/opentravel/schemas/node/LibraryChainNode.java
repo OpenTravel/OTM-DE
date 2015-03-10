@@ -21,8 +21,6 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
-import org.opentravel.schemacompiler.validate.FindingMessageFormat;
-import org.opentravel.schemacompiler.validate.FindingType;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
@@ -98,7 +96,7 @@ public class LibraryChainNode extends Node {
 		aggregateChildren(ln);
 		ln.updateLibraryStatus();
 
-		LOGGER.debug("Created library chain " + this.getLabel());
+		// LOGGER.debug("Created library chain " + this.getLabel());
 	}
 
 	private void createAggregates() {
@@ -163,7 +161,7 @@ public class LibraryChainNode extends Node {
 		}
 
 		if (newLib == null) {
-			LOGGER.debug("Adding pi " + pi.getFilename() + " to chain " + getLabel());
+			// LOGGER.debug("Adding pi " + pi.getFilename() + " to chain " + getLabel());
 			newLib = new LibraryNode(pi, this);
 			versions.add(newLib); // simply add this library to library list.
 			newLib.updateLibraryStatus();
@@ -495,9 +493,10 @@ public class LibraryChainNode extends Node {
 		for (LibraryNode ln : getLibraries())
 			findings.addAll(TLModelCompileValidator.validateModelElement(ln.getTLaLib()));
 
-		for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT)) {
-			LOGGER.debug("Finding: " + f);
-		}
+		// for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
+		// {
+		// LOGGER.debug("Finding: " + f);
+		// }
 		return findings;
 	}
 

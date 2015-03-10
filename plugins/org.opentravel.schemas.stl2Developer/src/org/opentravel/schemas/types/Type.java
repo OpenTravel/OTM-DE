@@ -396,7 +396,7 @@ public class Type {
 				LOGGER.debug("Could not set TL Type " + e);
 			}
 			// LOGGER.debug("Type of " + source + " assigned " + target);
-			verifyAssignment(providerMap, typeQname);
+			// verifyAssignment(providerMap, typeQname);
 		} else {
 			// Assign both type class and TL model to the found target
 			source.getTypeClass().setAssignedType(target, false);
@@ -585,26 +585,26 @@ public class Type {
 
 		if (!ret)
 			if (Node.getModelNode().getDuplicateTypes().contains(typeNode)) {
-				LOGGER.debug("Warning, typeNode " + typeNode + " is a duplicate.");
+				LOGGER.warn("Warning, typeNode " + typeNode + " is a duplicate.");
 				ret = true;
 			} else if ((typeNode instanceof ImpliedNode)
 					&& ((ImpliedNode) typeNode).getImpliedType().equals(ImpliedNodeType.String)) {
-				LOGGER.debug("Note - owner: " + typeOwner + " has an implied string type.");
+				LOGGER.warn("Note - owner: " + typeOwner + " has an implied string type.");
 				ret = true;
 			} else if ((typeNode instanceof ImpliedNode)
 					&& ((ImpliedNode) typeNode).getImpliedType().equals(ImpliedNodeType.Union)) {
-				LOGGER.debug("Note - owner: " + typeOwner + " has an union type.");
+				LOGGER.warn("Note - owner: " + typeOwner + " has an union type.");
 				ret = true;
 			} else if (typeNode instanceof AliasNode) {
 				// aliases report different validation identities.
-				LOGGER.debug("Skipping test of alias: " + typeNode);
+				LOGGER.warn("Skipping test of alias: " + typeNode);
 				ret = true;
 			} else {
-				LOGGER.debug("INVALID Assignment to " + typeOwner.getTLModelObject().getValidationIdentity()
-						+ " with TL type " + typeOwner.getTLTypeObject().getValidationIdentity());
-				LOGGER.debug("    but type node has " + typeNode.getTLModelObject().getValidationIdentity());
+				// LOGGER.debug("INVALID Assignment to " + typeOwner.getTLModelObject().getValidationIdentity()
+				// + " with TL type " + typeOwner.getTLTypeObject().getValidationIdentity());
+				// LOGGER.debug("    but type node has " + typeNode.getTLModelObject().getValidationIdentity());
 				if (providerMap != null) {
-					LOGGER.debug("Map results for " + typeQname + " = " + providerMap.get(typeQname));
+					LOGGER.warn("Warning - Map results for " + typeQname + " = " + providerMap.get(typeQname));
 
 				}
 			}

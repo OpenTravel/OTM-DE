@@ -51,7 +51,6 @@ import org.opentravel.schemacompiler.repository.RepositoryNamespaceUtils;
 import org.opentravel.schemacompiler.repository.impl.BuiltInProject;
 import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
-import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.LibraryChainNode;
@@ -127,7 +126,7 @@ public class DefaultProjectController implements ProjectController {
 		if (defaultProject == null)
 			createDefaultProject();
 
-		LOGGER.debug("Project Controller Initialized");
+		// LOGGER.debug("Project Controller Initialized");
 	}
 
 	public DefaultProjectController(final MainController mc, RepositoryManager repositoryManager) {
@@ -175,7 +174,7 @@ public class DefaultProjectController implements ProjectController {
 	public List<ProjectItem> openLibrary(Project project, List<File> fileName, ValidationFindings findings)
 			throws LibraryLoaderException, RepositoryException {
 		List<ProjectItem> newItems = null;
-		LOGGER.debug("Adding to project: " + project.getName() + " library files: " + fileName);
+		// LOGGER.debug("Adding to project: " + project.getName() + " library files: " + fileName);
 		newItems = projectManager.addUnmanagedProjectItems(fileName, project, findings);
 		return newItems;
 	}
@@ -203,7 +202,7 @@ public class DefaultProjectController implements ProjectController {
 			LOGGER.error("Error when adding to project", e);
 			DialogUserNotifier.openError("Project Error", "Could not add to project.");
 		}
-		LOGGER.debug("Added libraries to " + project.getName());
+		// LOGGER.debug("Added libraries to " + project.getName());
 		return newItems;
 	}
 
@@ -236,7 +235,7 @@ public class DefaultProjectController implements ProjectController {
 				ln = new LibraryNode(pi, pn);
 				fixElementNames(ln);
 				mc.refresh(pn);
-				LOGGER.debug("Added library " + ln.getName() + " to " + pn);
+				// LOGGER.debug("Added library " + ln.getName() + " to " + pn);
 			}
 		} catch (RepositoryException e) {
 			LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
@@ -264,7 +263,7 @@ public class DefaultProjectController implements ProjectController {
 		if (pi != null)
 			ln = new LibraryNode(pi, ln.getChain());
 		mc.refresh(pn);
-		LOGGER.debug("Added library " + ln.getName() + " to " + pn);
+		// LOGGER.debug("Added library " + ln.getName() + " to " + pn);
 		return ln;
 	}
 
@@ -367,7 +366,7 @@ public class DefaultProjectController implements ProjectController {
 			LOGGER.warn("Repository item " + ri.getLibraryName() + " not added to project.");
 
 		// TODO - sync the repository view
-		LOGGER.debug("Added repository item " + ri.getLibraryName() + " to " + project);
+		// LOGGER.debug("Added repository item " + ri.getLibraryName() + " to " + project);
 		return pi;
 	}
 
@@ -449,7 +448,7 @@ public class DefaultProjectController implements ProjectController {
 	}
 
 	public Project openProject(String fileName, ValidationFindings findings) {
-		LOGGER.debug("Opening Project. Filename = " + fileName);
+		// LOGGER.debug("Opening Project. Filename = " + fileName);
 		File projectFile = new File(fileName);
 		Project project = null;
 		mc.showBusy(true);
@@ -484,7 +483,7 @@ public class DefaultProjectController implements ProjectController {
 	public ProjectNode open(String fileName) {
 		if (fileName == null || fileName.isEmpty())
 			LOGGER.error("Tried to open null or empty file.");
-		LOGGER.debug("Opening project from file: " + fileName);
+		// LOGGER.debug("Opening project from file: " + fileName);
 		mc.showBusy(true);
 		mc.postStatus("Opening Project from file: " + fileName);
 		// FIXME
@@ -560,7 +559,7 @@ public class DefaultProjectController implements ProjectController {
 			defaultProject = newDefaultProject;
 		}
 		mc.refresh();
-		LOGGER.debug("Closed project: " + pn);
+		// LOGGER.debug("Closed project: " + pn);
 	}
 
 	@Override
@@ -727,7 +726,7 @@ public class DefaultProjectController implements ProjectController {
 				openProjects.add(item);
 			}
 		}
-		LOGGER.debug("Made project list into project tokens.");
+		// LOGGER.debug("Made project list into project tokens.");
 
 		XMLMemento memento = XMLMemento.createWriteRoot(OTM_PROJECTS);
 		saveFavorites(memento);
@@ -745,12 +744,10 @@ public class DefaultProjectController implements ProjectController {
 				LOGGER.error("IO Error closing state file.");
 			}
 		}
-		try {
-			LOGGER.debug("Saved project state to file: " + getOTM_StateFile().getCanonicalPath());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-		}
+		// try {
+		// LOGGER.debug("Saved project state to file: " + getOTM_StateFile().getCanonicalPath());
+		// } catch (IOException e) {
+		// }
 	}
 
 	private File getOTM_StateFile() {
@@ -851,9 +848,9 @@ public class DefaultProjectController implements ProjectController {
 				ValidationFindings loadingFindings = getLoadingFindings(findings);
 				if (!loadingFindings.isEmpty()) {
 					showFindings(loadingFindings);
-					for (String finding : loadingFindings
-							.getAllValidationMessages(FindingMessageFormat.MESSAGE_ONLY_FORMAT))
-						LOGGER.debug("Finding: " + finding);
+					// for (String finding : loadingFindings
+					// .getAllValidationMessages(FindingMessageFormat.MESSAGE_ONLY_FORMAT))
+					// LOGGER.debug("Finding: " + finding);
 				}
 
 				projectNode = loadProject(project); // Create gui model for the project

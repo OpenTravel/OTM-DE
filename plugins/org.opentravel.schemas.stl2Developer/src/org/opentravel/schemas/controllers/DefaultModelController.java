@@ -112,7 +112,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 
 	@Override
 	public ModelNode createNewModel() {
-		LOGGER.debug("Creating new model");
+		// LOGGER.debug("Creating new model");
 		ModelNode model = null;
 		try {
 			model = new ModelNode(newTLModel());
@@ -135,7 +135,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 	 */
 	@Override
 	public void saveModel(final INode model) {
-		LOGGER.debug("Saving model " + model);
+		// LOGGER.debug("Saving model " + model);
 
 		assert model != null;
 
@@ -147,7 +147,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 	 */
 	@Override
 	public void close() {
-		LOGGER.debug("Closing model.");
+		// LOGGER.debug("Closing model.");
 		OtmView view = OtmRegistry.getNavigatorView();
 
 		assert modelRoot != null;
@@ -220,7 +220,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 	 */
 	@Override
 	public void compileModel(ModelNode model) {
-		LOGGER.debug("Compiling model " + model);
+		// LOGGER.debug("Compiling model " + model);
 		assert model != null;
 
 		final TLModel tlModel = (model.getTLModel());

@@ -133,7 +133,7 @@ public class MainController {
 	}
 
 	public MainController(RepositoryManager repositoryManager) {
-		LOGGER.info("Initializing: " + this.getClass());
+		// LOGGER.info("Initializing: " + this.getClass());
 
 		OtmRegistry.registerMainController(this);
 		mainWindow = OtmRegistry.getMainWindow(); // if headless it will be null
@@ -153,7 +153,7 @@ public class MainController {
 		repositoryController = new DefaultRepositoryController(this, repositoryManager);
 		projectController = new DefaultProjectController(this, repositoryManager);
 
-		LOGGER.info("Done initializing " + this.getClass());
+		// LOGGER.info("Done initializing " + this.getClass());
 	}
 
 	/** ************************ Model Controller Access ***************************** **/
@@ -543,11 +543,11 @@ public class MainController {
 				// LOGGER.debug("Ready to execute command: "+cmd+" with event: "+event);
 				handlerService.executeCommand(cmd, event);
 			} catch (Exception ex) {
-				LOGGER.debug("Command error: " + ex.getLocalizedMessage());
+				LOGGER.error("Command error: " + ex.getLocalizedMessage());
 				// DialogUserNotifier.openWarning(WARNING_MSG, "Could not execute command.");
 			}
 		} else {
-			LOGGER.debug("TODO - add non-workbench command dispatch");
+			// LOGGER.debug("TODO - add non-workbench command dispatch");
 		}
 	}
 
@@ -616,8 +616,8 @@ public class MainController {
 
 			wizard.run(OtmRegistry.getActiveShell());
 			if (!wizard.wasCanceled()) {
-				LOGGER.info("Creating new custom facet of type " + facetType + " and properties "
-						+ wizard.getSelectedProperties());
+				// LOGGER.info("Creating new custom facet of type " + facetType + " and properties "
+				// + wizard.getSelectedProperties());
 				// Get the name from the wizard (enhance wizard)
 
 				BusinessObjectNode bo = (BusinessObjectNode) current;
@@ -632,7 +632,7 @@ public class MainController {
 			}
 		} else {
 			DialogUserNotifier.openWarning("Add Custom Facet", "Custom Facets can only be added to Business Objects");
-			LOGGER.warn("New custom facet can be added only to Business Objects, tried to add to: " + current);
+			// LOGGER.warn("New custom facet can be added only to Business Objects, tried to add to: " + current);
 		}
 	}
 
@@ -674,14 +674,14 @@ public class MainController {
 			return;
 		}
 
-		LOGGER.debug("Changing selected component: " + nodeToReplace.getName() + " with "
-				+ nodeToReplace.getTypeUsersCount() + " users.");
+		// LOGGER.debug("Changing selected component: " + nodeToReplace.getName() + " with "
+		// + nodeToReplace.getTypeUsersCount() + " users.");
 
 		LibraryNode srcLib = nodeToReplace.getLibrary();
 		ComponentNode editedNode = nodeToReplace;
 
-		LOGGER.debug("Changing Edited component: " + editedNode.getName() + " with "
-				+ editedNode.getTypeUsersCount() + " users.");
+		// LOGGER.debug("Changing Edited component: " + editedNode.getName() + " with "
+		// + editedNode.getTypeUsersCount() + " users.");
 
 		// Wizard must maintain the editedComponent active in the library.
 		final ChangeWizard wizard = new ChangeWizard(editedNode);
@@ -724,7 +724,7 @@ public class MainController {
 			LOGGER.error("GUI member count " + guiCount + " is out of sync with TL model " + tlCount + ".");
 			return false;
 		}
-		LOGGER.debug(lib + " has " + guiCount + " children.");
+		// LOGGER.debug(lib + " has " + guiCount + " children.");
 		return true;
 	}
 
@@ -753,7 +753,7 @@ public class MainController {
 	}
 
 	private void cloneNodes(List<Node> nodes) {
-		LOGGER.debug("Cloning " + nodes.size() + " selected components. ");
+		// LOGGER.debug("Cloning " + nodes.size() + " selected components. ");
 
 		Node lastCloned = null;
 		for (Node n : nodes) {
@@ -771,7 +771,7 @@ public class MainController {
 			final Node target = handlers.getDragTargetNode();
 			if (target != null && target.getLibrary() != null) {
 				final LibraryNode library = target.getLibrary();
-				LOGGER.debug("Importing selected nodes to drag target library: " + library.getName());
+				// LOGGER.debug("Importing selected nodes to drag target library: " + library.getName());
 				ImportObjectToLibraryAction action = new ImportObjectToLibraryAction(mainWindow, library);
 				action.importSelectedToLibrary(library);
 			} else {
@@ -822,7 +822,7 @@ public class MainController {
 	 */
 	public void setModelNode(final ModelNode modelNode) {
 		// this.curNode = modelNode;
-		LOGGER.debug("setting catalog root node.");
+		// LOGGER.debug("setting catalog root node.");
 		this.modelNode = modelNode;
 		final OtmView mnView = OtmRegistry.getNavigatorView();
 		if (mnView != null) {
