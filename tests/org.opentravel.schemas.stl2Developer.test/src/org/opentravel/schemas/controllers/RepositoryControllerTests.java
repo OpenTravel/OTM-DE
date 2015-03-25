@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.controllers;
 
+import junit.framework.Assert;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemas.node.LibraryChainNode;
@@ -35,7 +37,7 @@ import org.opentravel.schemas.types.TestTypes;
  * @author Dave Hollander
  * 
  */
-public class Blank_Tests {
+public class RepositoryControllerTests {
 	ModelNode model = null;
 	TestTypes tt = new TestTypes();
 
@@ -70,4 +72,16 @@ public class Blank_Tests {
 		ln_inChain.visitAllNodes(tn);
 	}
 
+	@Test
+	public void createVersion() throws Exception {
+		// These creates should create NULL libraries because ln is not in a repository.
+		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
+		LibraryNode major = rc.createMajorVersion(ln);
+		Assert.assertNull(major);
+		LibraryNode minor = rc.createMinorVersion(ln);
+		Assert.assertNull(minor);
+		LibraryNode patch = rc.createPatchVersion(ln);
+		Assert.assertNull(patch);
+
+	}
 }

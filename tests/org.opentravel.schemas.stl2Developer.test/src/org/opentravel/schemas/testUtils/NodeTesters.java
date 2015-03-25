@@ -53,9 +53,9 @@ import org.slf4j.LoggerFactory;
  * NodeTesters nt = new NodeTesters(); <br>
  * node.visitAllNodes(nt.new TestNode()); <br>
  * <i>or</i><br>
- * NodeTest nt = new NodeTesters().new TestNode(); <br>
+ * TestNode tn = new NodeTesters().new TestNode(); <br>
  * tn.visitNode(node); <br>
- * ln.visitAllNodes(nt); <br>
+ * ln.visitAllNodes(tn); <br>
  * <i>or</i><br>
  * n.visitAllNodes(new NodeTesters().new ValidateTLObject());
  * 
@@ -102,6 +102,10 @@ public class NodeTesters {
 		Assert.assertNotNull(n);
 		if (n.isDeleted()) {
 			LOGGER.debug("Test node " + n + " is deleted. Skipping.");
+			return;
+		}
+		if (n instanceof ImpliedNode) {
+			LOGGER.debug("Test node " + n + " is ImpliedNode. Skipping.");
 			return;
 		}
 

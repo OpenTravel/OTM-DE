@@ -209,7 +209,7 @@ public class Delete_Tests {
 				if (n.getModelObject() == null)
 					x = 1;
 				// Make sure the users of this type are informed of deletion.
-				if (n.getTypeUsersCount() > 0) {
+				if (n.getTypeUsers().size() > 0) {
 					user = n.getTypeUsers().get(0);
 				}
 				n.delete();
