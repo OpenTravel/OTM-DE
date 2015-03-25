@@ -764,12 +764,11 @@ public abstract class Node implements INode {
 	 */
 
 	/**
-	 * Get a list of the children to be used for navigation purposes. Each node class and model object class determines
-	 * which children are navigation, if any.
-	 * 
-	 * @return
+	 * @return list of the children to be used for navigation purposes.
 	 */
-	public abstract List<Node> getNavChildren();
+	public List<Node> getNavChildren() {
+		return getChildren();
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -893,6 +892,9 @@ public abstract class Node implements INode {
 		return getOwningComponent() != this ? getOwningComponent().getRoleFacet() : null;
 	}
 
+	/**
+	 * @return a new list of children of the parent after this node is removed
+	 */
 	public List<Node> getSiblings() {
 		if (parent == null)
 			return null;
@@ -1464,6 +1466,10 @@ public abstract class Node implements INode {
 		return true;
 	}
 
+	/**
+	 * 
+	 * @return true if not in the correct family or family name matches any siblings
+	 */
 	public boolean shouldCreateFamily() {
 		final String family = NodeNameUtils.makeFamilyName(this.getName());
 		if (parent != null) {
@@ -1551,14 +1557,14 @@ public abstract class Node implements INode {
 				}
 				unlinkNode(); // remove from parentNode
 				par.linkChild(this); // will re-apply family logic
-			} else if (parent.isFamily()) {
+			} else if (parent instanceof FamilyNode) {
 				if (!family.equals(parent.getName())) {
 					unlinkNode();
 					gp.linkChild(this);
 				}
 			} else if ((parent instanceof VersionNode) && (parent.getParent() instanceof FamilyNode)) {
 				VersionNode vn = (VersionNode) parent;
-				Node family = parent.getParent();
+				Node family = parent.getParent(); // is also vn parent
 				if (!family.equals(family.getName())) {
 					// do the aggregate
 					this.family = oldFamily;
@@ -1568,9 +1574,13 @@ public abstract class Node implements INode {
 						getLibrary().getChain().add((ComponentNode) this);
 					}
 					// Move the version node
-					vn.unlinkNode();
-					family.getParent().linkChild(vn);
-
+					final Node newParent = family.getParent();
+					vn.unlinkNode(); // TEST ME
+					newParent.linkChild(vn);
+					// if (family.getParent() != null)
+					// family.getParent().linkChild(vn);
+					// else
+					// LOGGER.error("Error: family does not have parent: " + family);
 					this.family = NodeNameUtils.makeFamilyName(newName);
 					vn.family = this.family;
 				}
@@ -1713,7 +1723,7 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * @return the count of where this node is assigned as a type.
+	 * @return the count of where this node is assigned as a type. Includes count of where children are used.
 	 */
 	public int getTypeUsersCount() {
 		return 0;

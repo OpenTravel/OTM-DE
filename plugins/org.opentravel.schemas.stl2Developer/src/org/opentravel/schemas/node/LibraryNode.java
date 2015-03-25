@@ -681,12 +681,16 @@ public class LibraryNode extends Node {
 	 * Add node to this library. Links to library's complex/simple or element root. Adds underlying the TL object to
 	 * this library's TLModel library. Handles adding nodes to chains. Adds context to the TL Model library if needed.
 	 * Does not change type assignments.
+	 * <p>
+	 * Add to tlLibrary.addNamedMember() <br>
+	 * linkMember() <br>
+	 * getChain.add()
 	 */
 	public void addMember(final Node n) {
-		addMember(n, true);
-	}
-
-	private void addMember(final Node n, final boolean doFamily) {
+		// addMember(n, true);
+		// }
+		//
+		// private void addMember(final Node n, final boolean doFamily) {
 		if (n == null || n.getTLModelObject() == null) {
 			LOGGER.warn("Tried to addMember() a null member: " + n);
 			return;
@@ -719,7 +723,7 @@ public class LibraryNode extends Node {
 
 		// Fail if in the list more than once.
 		if (n.getParent().getChildren().indexOf(n) != n.getParent().getChildren().lastIndexOf(n))
-			LOGGER.warn(n + " is in list more than once.");
+			LOGGER.error(n + " is in list more than once.");
 		// assert (n.getParent().getChildren().indexOf(n) == n.getParent().getChildren().lastIndexOf(n));
 
 	}
@@ -849,6 +853,7 @@ public class LibraryNode extends Node {
 				.moveNamedMember((LibraryMember) source.getTLModelObject(), destination.getLibrary().getTLLibrary());
 
 		// Add to destination library chain
+		// TODO - should this use addMember() ?
 		destination.linkMember(source);
 		if (destination.isInChain()) {
 			destination.getChain().add((ComponentNode) source);
@@ -921,7 +926,7 @@ public class LibraryNode extends Node {
 
 	@Override
 	public List<Node> getNavChildren() {
-		return getChildren();
+		return parent instanceof VersionAggregateNode ? new ArrayList<Node>() : getChildren();
 	}
 
 	@Override
@@ -955,6 +960,8 @@ public class LibraryNode extends Node {
 
 	@Override
 	public boolean hasNavChildren() {
+		if (parent instanceof VersionAggregateNode)
+			return false;
 		return getChildren().size() <= 0 ? false : true;
 	}
 

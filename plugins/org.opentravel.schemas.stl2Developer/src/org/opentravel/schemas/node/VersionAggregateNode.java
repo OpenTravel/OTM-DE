@@ -18,9 +18,11 @@
  */
 package org.opentravel.schemas.node;
 
+import java.util.List;
+
 /**
- * The version aggregate node collects libraries that are in a chain. The library chain displays it
- * children which are Aggregate Node and a Version Aggregate Node.
+ * The version aggregate node collects libraries that are in a chain. The library chain displays it children which are
+ * Aggregate Node and a Version Aggregate Node.
  * 
  * Children this node are only allowed to be libraries.
  * 
@@ -29,18 +31,23 @@ package org.opentravel.schemas.node;
  */
 public class VersionAggregateNode extends AggregateNode {
 
-    public VersionAggregateNode(AggregateType type, Node parent) {
-        super(type, parent);
-    }
+	public VersionAggregateNode(AggregateType type, Node parent) {
+		super(type, parent);
+	}
 
-    public void add(LibraryNode ln) {
-        getChildren().add(ln);
-        ln.getParent().getChildren().remove(ln);
-        ln.setParent(this);
-    }
+	public void add(LibraryNode ln) {
+		getChildren().add(ln);
+		ln.getParent().getChildren().remove(ln);
+		ln.setParent(this);
+	}
 
-    public void add(Node n) {
-        throw (new IllegalStateException("Version aggregates can not contain "
-                + n.getClass().getSimpleName()));
-    }
+	public void add(Node n) {
+		throw (new IllegalStateException("Version aggregates can not contain " + n.getClass().getSimpleName()));
+	}
+
+	@Override
+	public List<Node> getNavChildren() {
+		return super.getChildren();
+	}
+
 }

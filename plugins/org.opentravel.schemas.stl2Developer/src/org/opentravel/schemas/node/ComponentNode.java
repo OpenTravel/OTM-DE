@@ -667,8 +667,18 @@ public class ComponentNode extends Node implements TypeProvider {
 			else
 				newNode = newNode.getSummaryFacet();
 		}
+		// checkAggregate((AggregateNode) owner.getChain().getComplexAggregate(), owner, newNode);
 		return newNode;
 	}
+
+	// private void checkAggregate(AggregateNode agg, Node owner, Node newNode) {
+	// if (agg.getChildren().contains(owner))
+	// LOGGER.error("Owner still in chain aggregate.");
+	// if (!agg.getChildren().contains(newNode))
+	// LOGGER.error("New node not child of the aggregate.");
+	// if (agg.getChildren().indexOf(newNode) != agg.getChildren().lastIndexOf(newNode))
+	// LOGGER.error("New Node in the list more than once.");
+	// }
 
 	/**
 	 * Create a new object in a patch version library. Creates an empty extension point facet. Adds the new node to the
@@ -937,7 +947,9 @@ public class ComponentNode extends Node implements TypeProvider {
 			else
 				newNode = (ComponentNode) createProperty(sourceNode);
 			if (this instanceof FacetNode && ((FacetNode) this).isSummary())
-				newNode.setMandatory(true); // make summary facet properties mandatory by default.
+				// In minor versions, all new properties must be optional.
+				if (!getLibrary().isMinorVersion())
+					newNode.setMandatory(true); // make summary facet properties mandatory by default.
 		} else {
 			setAssignedType(sourceNode);
 		}
@@ -956,6 +968,23 @@ public class ComponentNode extends Node implements TypeProvider {
 	 */
 	public void removeProperty(final Node property) {
 		// throw new IllegalStateException("Remove property in component node should never run.");
+	}
+
+	/**
+	 * Returns true if the 'otherNode's' library meets both of the following conditions:
+	 * <ul>
+	 * <li>The other library is assigned to the same version scheme and base namespace as this one.</li>
+	 * <li>The version of the other library is considered to be later than this library's version according to the
+	 * version scheme.</li>
+	 * </ul>
+	 * 
+	 * @see org.opentravel.schemacompiler.model.AbstractLibrary.isLaterVersion
+	 * @param n
+	 *            node whose library to compare to this nodes library
+	 * @return boolean
+	 */
+	public boolean isLaterVersion(Node n) {
+		return (this.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib()));
 	}
 
 	@Override

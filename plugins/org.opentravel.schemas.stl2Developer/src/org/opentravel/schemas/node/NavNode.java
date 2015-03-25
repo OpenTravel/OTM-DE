@@ -15,8 +15,6 @@
  */
 package org.opentravel.schemas.node;
 
-import java.util.List;
-
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
@@ -96,10 +94,10 @@ public class NavNode extends Node {
 		return "Navigation Node";
 	}
 
-	@Override
-	public List<Node> getNavChildren() {
-		return getChildren();
-	}
+	// @Override
+	// public List<Node> getNavChildren() {
+	// return getChildren();
+	// }
 
 	@Override
 	public boolean hasNavChildren() {

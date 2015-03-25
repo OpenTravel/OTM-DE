@@ -66,7 +66,69 @@ public class AggregateNode extends NavNode {
 	 * @param nodeToAdd
 	 * @return
 	 */
-	public boolean add(ComponentNode nodeToAdd) {
+	public void add(ComponentNode nodeToAdd) {
+		addPreTests(nodeToAdd); // Type safety
+
+		// TODO - TEST - is this logic correct if there is a family "s" and adding a "s" object?
+		final String familyName = NodeNameUtils.makeFamilyName(nodeToAdd.getName());
+
+		// children families and components that have same family prefix
+		final List<Node> familyMatches = findFamilyNameMatches(getChildren(), familyName);
+
+		// If the nodeToAdd name is already in the chain then we need to handle the version logic.
+		final List<Node> duplicates = findExactMatches(getChildren(), nodeToAdd.getName());
+
+		if (!duplicates.isEmpty())
+			addVersionedNode(nodeToAdd, duplicates);
+		else if (familyMatches.isEmpty())
+			getChildren().add(nodeToAdd); // simply add the node
+		else if (family == null) {
+			// if familyMatches contains a Aggregate family, just add to it otherwise create new one
+			AggregateFamilyNode afn = null;
+			for (Node n : familyMatches)
+				if (n instanceof AggregateFamilyNode)
+					afn = (AggregateFamilyNode) n;
+			if (afn == null)
+				new AggregateFamilyNode(this, familyName, nodeToAdd, familyMatches); // Start a new family
+			else
+				afn.add(nodeToAdd);
+		}
+		// These assertions may fail on loading a library into a chain.
+		// assert (familyMatches.size() <= 1) : "unexpected familyMatch count";
+		// assert (duplicates.size() <= 1) : "unexpected duplicate count";
+	}
+
+	// Try to replace the existing name matching node
+	private void addVersionedNode(ComponentNode nodeToAdd, List<Node> duplicates) {
+		// If the duplicate is in the same library then the user made a mistake.
+		// Leave the node in the aggregate so the user can fix the problem.
+		Node parent = this;
+		for (Node n : duplicates) {
+			parent = this;
+
+			// If the duplicate is in an aggregate family, put nodeToAdd in that family
+			for (Node a : getChildren())
+				if (a instanceof AggregateFamilyNode && a.getFamily().equals(nodeToAdd.getFamily()))
+					parent = a;
+
+			if (nodeToAdd.getLibrary() == n.getLibrary()) {
+				// add the duplicate and let user fix the error
+				if (!parent.getChildren().contains(nodeToAdd)) {
+					parent.getChildren().add(nodeToAdd);
+				}
+			} else {
+				if (nodeToAdd.isLaterVersion(n)) {
+					// Replace older object with same name with the node to be added
+					parent.getChildren().remove(n);
+					insertPreviousVersion(nodeToAdd, (ComponentNode) n);
+					if (!parent.getChildren().contains(nodeToAdd))
+						parent.getChildren().add(nodeToAdd);
+				}
+			}
+		}
+	}
+
+	private void addPreTests(ComponentNode nodeToAdd) {
 		// Type safety
 		switch (aggType) {
 		case ComplexTypes:
@@ -86,56 +148,6 @@ public class AggregateNode extends NavNode {
 		}
 		if (nodeToAdd.getLibrary() == null)
 			throw new IllegalArgumentException("Tried to add node with null library. " + nodeToAdd);
-
-		final String familyName = NodeNameUtils.makeFamilyName(nodeToAdd.getName());
-		// children families and components that have same family prefix
-		final List<Node> familyMatches = findFamilyNameMatches(getChildren(), familyName);
-		AggregateFamilyNode family = findFamilyNode(familyMatches, familyName);
-		final List<Node> duplicates = findExactMatches(getChildren(), nodeToAdd.getName());
-
-		if (familyMatches.isEmpty()) {
-			// simply add the node
-			getChildren().add(nodeToAdd);
-		} else {
-			if (duplicates.isEmpty()) {
-				// Add to a family
-				if (family == null) {
-					// Start a new family and add the match(s)
-					family = new AggregateFamilyNode(this, familyName);
-					List<Node> kids = new ArrayList<Node>(familyMatches);
-					for (Node n : kids) {
-						getChildren().remove(n);
-						family.getChildren().add(n);
-					}
-				}
-				family.getChildren().add(nodeToAdd);
-			} else {
-				// Try to replace the existing name matching node
-				for (Node n : duplicates) {
-					if (nodeToAdd.getLibrary() == n.getLibrary()) {
-						// Add to aggregate so user can fix the problem.
-						if (!getChildren().contains(nodeToAdd)) {
-							getChildren().add(nodeToAdd);
-							// LOGGER.debug("AggregateNode: " + n + " Same name object found in the same library.");
-						}
-					} else {
-						// Replace older object with same name with the node to be added
-						if (nodeToAdd.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib())) {
-							getChildren().remove(n);
-							insertPreviousVersion(nodeToAdd, (ComponentNode) n);
-							getChildren().add(nodeToAdd);
-						} else
-							// Happens on startup - i don't know why
-							// assert (false) : "Error - added to an older library.";
-							return false;
-					}
-				}
-			}
-		}
-		// These assertions may fail on loading a library into a chain.
-		// assert (familyMatches.size() <= 1) : "unexpected familyMatch count";
-		// assert (duplicates.size() <= 1) : "unexpected duplicate count";
-		return true;
 	}
 
 	private AggregateFamilyNode findFamilyNode(List<Node> children, String familyName) {
@@ -234,19 +246,25 @@ public class AggregateNode extends NavNode {
 	/*
 	 * For the non-version aggregates, skip over the version node These are used in the navigator menul.
 	 */
-	@Override
-	public List<Node> getNavChildren() {
-		if (aggType.equals(AggregateType.Versions)) {
-			return super.getChildren();
-		} else {
-			ArrayList<Node> kids = new ArrayList<Node>();
-			for (Node child : getChildren()) {
-				if (child instanceof VersionNode)
-					kids.add(((VersionNode) child).getNewestVersion());
-			}
-			return kids;
-		}
-	}
+	// 3/11/2015 - this should go away...just return children via super type
+	// @Override
+	// public List<Node> getNavChildren() {
+	// ArrayList<Node> kids = new ArrayList<Node>();
+	// for (Node child : getChildren()) {
+	// if (child instanceof AggregateFamilyNode) {
+	// kids.add(child);
+	// } else if (child.getParent() instanceof VersionNode)
+	// kids.add(((VersionNode) child.getParent()).getNewestVersion());
+	// else if (child.getParent().getParent() instanceof FamilyNode)
+	// LOGGER.error("Aggregate children contain a family node.");
+	// // // Only put families in once
+	// // if (!kids.contains(child.getParent().getParent()))
+	// // kids.add(child.getParent().getParent());
+	// else
+	// LOGGER.warn("Unknown child in aggregate node: " + child.getClass().getSimpleName());
+	// }
+	// return kids;
+	// }
 
 	/**
 	 * To get all providers, we only want to get type providers from their original libraries. If we used the other
