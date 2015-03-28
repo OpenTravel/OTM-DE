@@ -32,7 +32,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.PlatformUI;
@@ -101,9 +104,44 @@ public class DefaultProjectController implements ProjectController {
 	// override with ns of local repository
 	private final String dialogText = "Select a project file";
 
-	public DefaultProjectController(final MainController mc, ProjectManager projectManager) {
+	// public DefaultProjectController(final MainController mc, ProjectManager projectManager) {
+	// this.mc = mc;
+	// this.projectManager = projectManager;
+	//
+	// // Find the Built-in project
+	// for (Project p : projectManager.getAllProjects()) {
+	// if (p.getProjectId().equals(BuiltInProject.BUILTIN_PROJECT_ID)) {
+	// builtInProject = loadProject(p);
+	// }
+	// }
+	//
+	// // Open up any projects that were open last session.
+	// loadSavedState(null); // must be read on ui thread
+	//
+	// // FIXME - what should be the key for finding the default project?
+	// defaultNS = OtmRegistry.getMainController().getRepositoryController().getLocalRepository().getNamespace();
+	// for (ProjectNode pn : getAll()) {
+	// if (pn.getProject().getProjectId().equals(defaultNS)) {
+	// defaultProject = pn;
+	// break;
+	// }
+	// }
+	// if (defaultProject == null)
+	// createDefaultProject();
+	//
+	// // LOGGER.debug("Project Controller Initialized");
+	// }
+
+	// public DefaultProjectController(final MainController mc, RepositoryManager repositoryManager) {
+	// this(mc, new ProjectManager(mc.getModelController().getTLModel(), true, repositoryManager), null);
+	// }
+
+	/**
+	 * Create controller but do not open any projects.
+	 */
+	public DefaultProjectController(final MainController mc, RepositoryManager repositoryManager) {
 		this.mc = mc;
-		this.projectManager = projectManager;
+		this.projectManager = new ProjectManager(mc.getModelController().getTLModel(), true, repositoryManager);
 
 		// Find the Built-in project
 		for (Project p : projectManager.getAllProjects()) {
@@ -111,26 +149,6 @@ public class DefaultProjectController implements ProjectController {
 				builtInProject = loadProject(p);
 			}
 		}
-
-		// Open up any projects that were open last session.
-		loadSavedState();
-
-		// FIXME - what should be the key for finding the default project?
-		defaultNS = OtmRegistry.getMainController().getRepositoryController().getLocalRepository().getNamespace();
-		for (ProjectNode pn : getAll()) {
-			if (pn.getProject().getProjectId().equals(defaultNS)) {
-				defaultProject = pn;
-				break;
-			}
-		}
-		if (defaultProject == null)
-			createDefaultProject();
-
-		// LOGGER.debug("Project Controller Initialized");
-	}
-
-	public DefaultProjectController(final MainController mc, RepositoryManager repositoryManager) {
-		this(mc, new ProjectManager(mc.getModelController().getTLModel(), true, repositoryManager));
 	}
 
 	protected void createDefaultProject() {
@@ -407,8 +425,8 @@ public class DefaultProjectController implements ProjectController {
 	 */
 	@Override
 	public ProjectNode getDefaultProject() {
-		if (defaultProject == null)
-			createDefaultProject();
+		// if (defaultProject == null)
+		// createDefaultProject();
 		return defaultProject;
 	}
 
@@ -441,78 +459,115 @@ public class DefaultProjectController implements ProjectController {
 	@Override
 	public void open() {
 		String[] extensions = { "*." + PROJECT_EXT };
-		String fn = FileDialogs.postFileDialog(extensions, dialogText);
+		final String fn = FileDialogs.postFileDialog(extensions, dialogText);
 		if (fn == null)
 			return;
-		open(fn);
+
+		if (Display.getCurrent() == null)
+			open(fn);
+		else {
+			// run in a background job
+			mc.postStatus("Opening " + fn);
+			Job job = new Job("Opening Projects") {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					monitor.beginTask("Opening Project: " + fn, 1);
+					monitor.setCanceled(true); // disable button
+					open(fn);
+					monitor.worked(1);
+					mc.syncWithUi("Project Opened");
+					return Status.OK_STATUS;
+				}
+			};
+			job.setUser(true);
+			job.schedule();
+		}
 	}
+
+	// private void syncWithUi() {
+	// Display.getDefault().asyncExec(new Runnable() {
+	// public void run() {
+	// MessageDialog.openInformation(mainWindow.getSite().getShell(), "Done ", "Projects opened.");
+	// refresh();
+	// }
+	// });
+	// }
+	// }
 
 	public Project openProject(String fileName, ValidationFindings findings) {
 		// LOGGER.debug("Opening Project. Filename = " + fileName);
 		File projectFile = new File(fileName);
 		Project project = null;
-		mc.showBusy(true);
+		boolean isUI = Display.getCurrent() != null;
+		if (isUI)
+			mc.showBusy(true);
 		try {
 			project = projectManager.loadProject(projectFile, findings);
 		} catch (RepositoryException e) {
-			mc.showBusy(false);
-			DialogUserNotifier.openError("Project Error", MessageFormat.format(
-					Messages.getString("error.openProject.invalidRemoteProject"), e.getMessage(),
-					projectFile.toString()));
+			if (isUI)
+				mc.showBusy(false);
+			if (isUI)
+				DialogUserNotifier.openError(
+						"Project Error",
+						MessageFormat.format(Messages.getString("error.openProject.invalidRemoteProject"),
+								e.getMessage(), projectFile.toString()));
 		} catch (LibraryLoaderException e) {
 			// happens when default project is created.
-			mc.showBusy(false);
-			DialogUserNotifier.openError("Project Error", "Could not load project libraries.");
+			if (isUI) {
+				mc.showBusy(false);
+				DialogUserNotifier.openError("Project Error", "Could not load project libraries.");
+			}
 			project = null;
 		} catch (IllegalArgumentException e) {
-			mc.showBusy(false);
-			DialogUserNotifier.openError("Error opening project. ", e.getMessage());
+			if (isUI)
+				mc.showBusy(false);
+			if (isUI)
+				DialogUserNotifier.openError("Error opening project. ", e.getMessage());
 			project = null;
 		} catch (Throwable e) {
-			mc.showBusy(false);
-			String msg = e.getMessage();
-			if (msg == null || msg.isEmpty())
-				msg = e.getClass().getSimpleName();
-			DialogUserNotifier.openError("Error opening project. ", msg);
+			if (isUI) {
+				mc.showBusy(false);
+				String msg = e.getMessage();
+				if (msg == null || msg.isEmpty())
+					msg = e.getClass().getSimpleName();
+				DialogUserNotifier.openError("Error opening project. ", msg);
+			}
 			project = null;
 		}
-		mc.showBusy(false);
+		if (isUI)
+			mc.showBusy(false);
 		return project;
 	}
 
 	public ProjectNode open(String fileName) {
 		if (fileName == null || fileName.isEmpty())
 			LOGGER.error("Tried to open null or empty file.");
-		// LOGGER.debug("Opening project from file: " + fileName);
-		mc.showBusy(true);
-		mc.postStatus("Opening Project from file: " + fileName);
-		// FIXME
+		LOGGER.debug("Opening project from file: " + fileName);
+		// boolean isUI = Display.getCurrent() != null; // is this thread the UI thread?
+		// if (isUI) {
+		// mc.showBusy(true);
+		// mc.postStatus("Opening Project from file: " + fileName);
+		// }
+		// // FIXME - use job like loadSaveState()
+		// // user monitor.setCancel(true) to disable button
 
-		OpenProjectThread opt = new OpenProjectThread(fileName);
-		BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), opt);
-		ValidationFindings findings = opt.getFindings();
-		ProjectNode pn = opt.getProjectNode();
-
-		// Project project = openProject(fileName, findings);
-		// if (project != null) {
-		// ValidationFindings loadingFindings = getLoadingFindings(findings);
-		// if (!loadingFindings.isEmpty()) {
-		// showFindings(loadingFindings);
-		// for (String finding : loadingFindings
-		// .getAllValidationMessages(FindingMessageFormat.MESSAGE_ONLY_FORMAT))
-		// LOGGER.debug("Finding: " + finding);
+		ValidationFindings findings = null;
+		ProjectNode pn = null;
+		// if (isUI) {
+		// OpenProjectThread opt = new OpenProjectThread(fileName);
+		// BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), opt);
+		// findings = opt.getFindings();
+		// pn = opt.getProjectNode();
+		// } else {
+		Project project = openProject(fileName, findings);
+		pn = loadProject(project);
 		// }
 		//
-		// pn = loadProject(project); // Create gui model for the project
-		//
-		// final ValidationResultsView view = OtmRegistry.getValidationResultsView();
-		// if (view != null) {
-		// view.setFindings(findings, pn);
+		// if (isUI) {
+		// mc.selectNavigatorNodeAndRefresh(pn);
+		// mc.refresh();
+		// mc.showBusy(false);
 		// }
-		// }
-		mc.selectNavigatorNodeAndRefresh(pn);
-		mc.refresh();
-		mc.showBusy(false);
 		return pn;
 	}
 
@@ -532,15 +587,19 @@ public class DefaultProjectController implements ProjectController {
 	public ProjectNode loadProject(Project project) {
 		if (project == null)
 			return null;
-		mc.showBusy(true);
-		mc.postStatus("Loading Project: " + project.getName());
-		mc.refresh();
+		if (Display.getCurrent() != null) {
+			mc.showBusy(true);
+			mc.postStatus("Loading Project: " + project.getName());
+			mc.refresh();
+		}
 		ProjectNode pn = new ProjectNode(project);
 		for (LibraryNode ln : pn.getLibraries())
 			fixElementNames(ln);
-		mc.selectNavigatorNodeAndRefresh(pn);
-		mc.postStatus("Loaded Project: " + pn);
-		mc.showBusy(false);
+		if (Display.getCurrent() != null) {
+			mc.selectNavigatorNodeAndRefresh(pn);
+			mc.postStatus("Loaded Project: " + pn);
+			mc.showBusy(false);
+		}
 		return pn;
 	}
 
@@ -667,46 +726,101 @@ public class DefaultProjectController implements ProjectController {
 	 * TODO - refactor into its own class/file
 	 */
 
-	private boolean loadSavedState() {
-		if (!OtmRegistry.getMainWindow().hasDisplay())
-			return false;
+	// private boolean loadSavedState() {
+	// if (!OtmRegistry.getMainWindow().hasDisplay())
+	// return false;
+	//
+	// FileReader reader = null;
+	// try {
+	// reader = new FileReader(getOTM_StateFile());
+	// loadSavedState(XMLMemento.createReadRoot(reader));
+	// } catch (FileNotFoundException e) {
+	// // Ignored... no items exist yet.
+	// return false;
+	// } catch (Exception e) {
+	// // Log the exception and move on.
+	// LOGGER.error("LoadSavedState: " + getOTM_StateFile().toString() + " e= " + e);
+	// return false;
+	// } finally {
+	// try {
+	// if (reader != null)
+	// reader.close();
+	// } catch (IOException e) {
+	// LOGGER.error("LoadState: " + e);
+	// return false;
+	// }
+	// }
+	// return true;
+	// }
 
+	/**
+	 * Get the memento with project data in them. Must be done in UI thread.
+	 * 
+	 * @return
+	 */
+	public XMLMemento getMemento() {
+		if (Display.getCurrent() == null)
+			LOGGER.warn("Warning - getting memento from thread that is not UI thread.");
+		XMLMemento memento = null;
 		FileReader reader = null;
 		try {
 			reader = new FileReader(getOTM_StateFile());
-			loadSavedState(XMLMemento.createReadRoot(reader));
+			memento = XMLMemento.createReadRoot(reader);
 		} catch (FileNotFoundException e) {
 			// Ignored... no items exist yet.
-			return false;
+			return null;
 		} catch (Exception e) {
 			// Log the exception and move on.
-			LOGGER.error("LoadSavedState: " + getOTM_StateFile().toString() + " e= " + e);
-			return false;
+			LOGGER.error("getMemento error: " + getOTM_StateFile().toString() + " e= " + e);
+			return null;
 		} finally {
 			try {
 				if (reader != null)
 					reader.close();
 			} catch (IOException e) {
-				LOGGER.error("LoadState: " + e);
-				return false;
+				LOGGER.error("getMemento error: " + e);
+				return null;
 			}
 		}
-		return true;
-	}
-
-	public void loadSavedState(XMLMemento memento) {
-		if (memento == null)
-			LOGGER.error("Memento is null.");
+		// printout projects
 		IMemento[] children = memento.getChildren(OTM_PROJECT);
 		for (int i = 0; i < children.length; i++) {
-			open(children[i].getString(OTM_PPOJECT_LOCATION));
+			LOGGER.debug("Memento project: " + children[i].getString(OTM_PPOJECT_LOCATION));
 		}
+
+		return memento;
+	}
+
+	public void loadSavedState(XMLMemento memento, IProgressMonitor monitor) {
+		IMemento[] children = memento.getChildren(OTM_PROJECT);
+		monitor.beginTask("Opening Projects", memento.getChildren(OTM_PROJECT).length);
+		for (int i = 0; i < children.length; i++) {
+			monitor.subTask("Opening Project: " + children[i].getString(OTM_PPOJECT_LOCATION));
+			open(children[i].getString(OTM_PPOJECT_LOCATION));
+			monitor.worked(1);
+			if (monitor.isCanceled())
+				break;
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					mc.refresh(); // update the user interface asynchronously
+				}
+			});
+		}
+		defaultNS = OtmRegistry.getMainController().getRepositoryController().getLocalRepository().getNamespace();
+		for (ProjectNode pn : getAll()) {
+			if (pn.getProject().getProjectId().equals(defaultNS)) {
+				defaultProject = pn;
+				break;
+			}
+		}
+		if (defaultProject == null)
+			createDefaultProject();
 	}
 
 	Collection<IProjectToken> openProjects = new ArrayList<DefaultProjectController.IProjectToken>();
 	private static final String OTM_PROJECTS = "OTM_Projects";
 	// private static final String TAG_FAVORITES = "Favorites";
-	private static final String OTM_PROJECT = "Project";
+	public static final String OTM_PROJECT = "Project";
 	private static final String OTM_PROJECT_NAME = "Name";
 	private static final String OTM_PPOJECT_LOCATION = "Location";
 

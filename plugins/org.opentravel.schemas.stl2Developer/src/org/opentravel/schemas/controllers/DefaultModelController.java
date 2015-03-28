@@ -61,7 +61,6 @@ import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.FileDialogs;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.views.ContextsView;
-import org.opentravel.schemas.views.OtmView;
 import org.opentravel.schemas.views.ValidationResultsView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,35 +142,38 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 	}
 
 	/**
+	 * * 3/28/2015 dmh - NEVER USED.
+	 * 
 	 * Closes the current model then creates a new empty model.
 	 */
 	@Override
 	public void close() {
 		// LOGGER.debug("Closing model.");
-		OtmView view = OtmRegistry.getNavigatorView();
-
-		assert modelRoot != null;
-		assert modelRoot == mc.getModelNode();
-
-		mc.getProjectController().closeAll();
-		modelRoot.close();
-
-		// Now open up a new one to make it easier to use when opening a library
-		try {
-			modelRoot = new ModelNode(newTLModel());
-		} catch (LibraryLoaderException e) {
-			LOGGER.warn("Error creating new TL Model: " + e.getLocalizedMessage());
-		}
-		// Get a new Project controller to create default and built-in
-		mc.getProjectController().saveState(); // clear out eclipse saved state which is in
-												// constructor
-		mc.setProjectController(new DefaultProjectController(mc, MainController.getDefaultRepositoryManager()));
-		mc.getProjectController().getDefaultProject(); // triggers its creation.
-
-		view.setCurrentNode(modelRoot);
-		mc.setModelNode(modelRoot);
-		mc.clearSelection();
-		mc.refresh();
+		LOGGER.error("CLOSE MODEL is NOT IMPLEMENTED.");
+		// OtmView view = OtmRegistry.getNavigatorView();
+		//
+		// assert modelRoot != null;
+		// assert modelRoot == mc.getModelNode();
+		//
+		// mc.getProjectController().closeAll();
+		// modelRoot.close();
+		//
+		// // Now open up a new one to make it easier to use when opening a library
+		// try {
+		// modelRoot = new ModelNode(newTLModel());
+		// } catch (LibraryLoaderException e) {
+		// LOGGER.warn("Error creating new TL Model: " + e.getLocalizedMessage());
+		// }
+		// // Get a new Project controller to create default and built-in
+		// mc.getProjectController().saveState(); // clear out eclipse saved state which is in
+		// // constructor
+		// mc.setProjectController(new DefaultProjectController(mc, MainController.getDefaultRepositoryManager()));
+		// mc.getProjectController().getDefaultProject(); // triggers its creation.
+		//
+		// view.setCurrentNode(modelRoot);
+		// mc.setModelNode(modelRoot);
+		// mc.clearSelection();
+		// mc.refresh();
 	}
 
 	@Override
