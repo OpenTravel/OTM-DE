@@ -97,47 +97,15 @@ public class DefaultProjectController implements ProjectController {
 	private String defaultNS = "http://www.opentravel.org/OTM2/DefaultProject";
 	private String defaultPath;
 
-	public String getDefaultPath() {
-		return defaultPath;
-	}
+	// public String getDefaultPath() {
+	// return defaultPath;
+	// }
 
 	// override with ns of local repository
 	private final String dialogText = "Select a project file";
 
-	// public DefaultProjectController(final MainController mc, ProjectManager projectManager) {
-	// this.mc = mc;
-	// this.projectManager = projectManager;
-	//
-	// // Find the Built-in project
-	// for (Project p : projectManager.getAllProjects()) {
-	// if (p.getProjectId().equals(BuiltInProject.BUILTIN_PROJECT_ID)) {
-	// builtInProject = loadProject(p);
-	// }
-	// }
-	//
-	// // Open up any projects that were open last session.
-	// loadSavedState(null); // must be read on ui thread
-	//
-	// // FIXME - what should be the key for finding the default project?
-	// defaultNS = OtmRegistry.getMainController().getRepositoryController().getLocalRepository().getNamespace();
-	// for (ProjectNode pn : getAll()) {
-	// if (pn.getProject().getProjectId().equals(defaultNS)) {
-	// defaultProject = pn;
-	// break;
-	// }
-	// }
-	// if (defaultProject == null)
-	// createDefaultProject();
-	//
-	// // LOGGER.debug("Project Controller Initialized");
-	// }
-
-	// public DefaultProjectController(final MainController mc, RepositoryManager repositoryManager) {
-	// this(mc, new ProjectManager(mc.getModelController().getTLModel(), true, repositoryManager), null);
-	// }
-
 	/**
-	 * Create controller but do not open any projects.
+	 * Create controller and open projects in background thread.
 	 */
 	public DefaultProjectController(final MainController mc, RepositoryManager repositoryManager) {
 		this.mc = mc;
@@ -149,6 +117,31 @@ public class DefaultProjectController implements ProjectController {
 				builtInProject = loadProject(p);
 			}
 		}
+
+		// Start the non-ui thread Job to do initial load of projects in background
+		final XMLMemento memento = getMemento();
+		Job job = new Job("Opening Projects") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				loadSavedState(memento, monitor);
+				syncWithUi("Projects opened.");
+				return Status.OK_STATUS;
+			}
+
+		};
+		job.setUser(false);
+		job.schedule();
+		// LOGGER.info("Done initializing " + this.getClass());
+	}
+
+	public void syncWithUi(final String msg) {
+		Display.getDefault().asyncExec(new Runnable() {
+			public void run() {
+				// DialogUserNotifier.openInformation("Done ", msg);
+				mc.postStatus("Done");
+				mc.refresh();
+			}
+		});
 	}
 
 	protected void createDefaultProject() {
@@ -464,18 +457,18 @@ public class DefaultProjectController implements ProjectController {
 			return;
 
 		if (Display.getCurrent() == null)
-			open(fn);
+			open(fn, null); // not in UI Thread
 		else {
 			// run in a background job
 			mc.postStatus("Opening " + fn);
 			Job job = new Job("Opening Projects") {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
-					monitor.beginTask("Opening Project: " + fn, 1);
-					monitor.setCanceled(true); // disable button
-					open(fn);
+					monitor.beginTask("Opening Project: " + fn, 3);
 					monitor.worked(1);
-					mc.syncWithUi("Project Opened");
+					open(fn, monitor);
+					monitor.done();
+					syncWithUi("Project Opened");
 					return Status.OK_STATUS;
 				}
 			};
@@ -539,35 +532,17 @@ public class DefaultProjectController implements ProjectController {
 		return project;
 	}
 
-	public ProjectNode open(String fileName) {
+	public ProjectNode open(String fileName, IProgressMonitor monitor) {
 		if (fileName == null || fileName.isEmpty())
 			LOGGER.error("Tried to open null or empty file.");
 		LOGGER.debug("Opening project from file: " + fileName);
-		// boolean isUI = Display.getCurrent() != null; // is this thread the UI thread?
-		// if (isUI) {
-		// mc.showBusy(true);
-		// mc.postStatus("Opening Project from file: " + fileName);
-		// }
-		// // FIXME - use job like loadSaveState()
-		// // user monitor.setCancel(true) to disable button
 
 		ValidationFindings findings = null;
-		ProjectNode pn = null;
-		// if (isUI) {
-		// OpenProjectThread opt = new OpenProjectThread(fileName);
-		// BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), opt);
-		// findings = opt.getFindings();
-		// pn = opt.getProjectNode();
-		// } else {
 		Project project = openProject(fileName, findings);
-		pn = loadProject(project);
-		// }
-		//
-		// if (isUI) {
-		// mc.selectNavigatorNodeAndRefresh(pn);
-		// mc.refresh();
-		// mc.showBusy(false);
-		// }
+		if (monitor != null)
+			monitor.worked(1);
+		ProjectNode pn = loadProject(project);
+
 		return pn;
 	}
 
@@ -793,10 +768,10 @@ public class DefaultProjectController implements ProjectController {
 
 	public void loadSavedState(XMLMemento memento, IProgressMonitor monitor) {
 		IMemento[] children = memento.getChildren(OTM_PROJECT);
-		monitor.beginTask("Opening Projects", memento.getChildren(OTM_PROJECT).length);
+		monitor.beginTask("Opening Projects", memento.getChildren(OTM_PROJECT).length * 2);
 		for (int i = 0; i < children.length; i++) {
 			monitor.subTask("Opening Project: " + children[i].getString(OTM_PPOJECT_LOCATION));
-			open(children[i].getString(OTM_PPOJECT_LOCATION));
+			open(children[i].getString(OTM_PPOJECT_LOCATION), monitor);
 			monitor.worked(1);
 			if (monitor.isCanceled())
 				break;

@@ -335,9 +335,10 @@ public class LibraryChainNode extends Node {
 	@Override
 	public List<LibraryNode> getLibraries() {
 		ArrayList<LibraryNode> libs = new ArrayList<LibraryNode>();
-		for (Node n : versions.getChildren())
-			if (n instanceof LibraryNode)
-				libs.add((LibraryNode) n);
+		if (versions != null)
+			for (Node n : versions.getChildren())
+				if (n instanceof LibraryNode)
+					libs.add((LibraryNode) n);
 		return libs;
 	}
 

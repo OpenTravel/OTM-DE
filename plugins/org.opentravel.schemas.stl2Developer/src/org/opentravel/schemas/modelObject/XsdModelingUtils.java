@@ -202,7 +202,7 @@ public class XsdModelingUtils {
 	 * @return
 	 */
 	protected static LibraryMember buildCoreObjectCG(final ExplicitGroup cg, String name, XsdNode xsdNode) {
-		LOGGER.debug("buildCoreObjectCG() " + name + " for an xsd explicit group.");
+		// LOGGER.debug("buildCoreObjectCG() " + name + " for an xsd explicit group.");
 
 		// Initialize a TL core object to represent the complex type.
 		final TLCoreObject newTLCoreObject = new TLCoreObject();
@@ -303,8 +303,9 @@ public class XsdModelingUtils {
 			} else if (simpleType.getList() != null) {
 				// for a list just set a flag then get the type down below.
 				tls.setListTypeInd(true);
-			} else
-				LOGGER.debug("Simple type " + name + " is not a restriction. " + simpleType.getClass());
+			}
+			// else
+			// LOGGER.debug("Simple type " + name + " is not a restriction. " + simpleType.getClass());
 		}
 		// else
 		// LOGGER.debug("No Simple Type for "+xsdNode.getName());
@@ -348,10 +349,10 @@ public class XsdModelingUtils {
 	 */
 	protected static LibraryMember buildTLModel(LibraryMember tlObj, TopLevelComplexType xsdType, XsdNode xsdNode) {
 		if (!(xsdType instanceof TopLevelComplexType))
-			LOGGER.warn("Error - buildTLModel used for non-top level type.");
-		if (xsdNode == null || xsdNode.getNamespace().isEmpty()) {
-			LOGGER.error("Early Exit - buildTL model needs a valid xsdNode and namespace.");
-		}
+			// LOGGER.warn("Error - buildTLModel used for non-top level type.");
+			if (xsdNode == null || xsdNode.getNamespace().isEmpty()) {
+				LOGGER.error("Early Exit - buildTL model needs a valid xsdNode and namespace.");
+			}
 
 		if ((xsdType.getSimpleContent() != null)
 				|| ((xsdType.getComplexContent() == null) && (xsdType.getSequence() == null) && (xsdType.getChoice() == null))) {
@@ -364,7 +365,8 @@ public class XsdModelingUtils {
 			// Create core object from top level choice group.
 			tlObj = buildCoreObject(xsdType, xsdType.getName(), xsdNode);
 		} else {
-			LOGGER.info("builtTLModel() - Built BO from unhandled jaxb type: " + xsdType.getName() + " : " + xsdType);
+			// LOGGER.info("builtTLModel() - Built BO from unhandled jaxb type: " + xsdType.getName() + " : " +
+			// xsdType);
 			tlObj = new TLBusinessObject();
 			((TLBusinessObject) tlObj).setName(xsdType.getName());
 		}
@@ -438,13 +440,14 @@ public class XsdModelingUtils {
 	 */
 	protected static Node createLocalComplexType(ComplexType ct, String name, XsdNode xsdNode) {
 		if (ct instanceof TopLevelComplexType) {
-			LOGGER.warn("Using create complex type on a Top Level type - error. Name: " + name);
+			// LOGGER.warn("Using create complex type on a Top Level type - error. Name: " + name);
 		}
 		LibraryMember newLM = buildCoreObject(ct, name, xsdNode);
 		ComponentNode cn = NodeFactory.newComponent_UnTyped(newLM);
 		xsdNode.getLibrary().addLocalMember(xsdNode, cn);
 		cn.setLibrary(xsdNode.getLibrary()); // links to LibraryNode and
 												// TLLibrary
+		// //
 		// LOGGER.debug("createComplexType() - new node named: "+n.getName()+" added to complex root of lib: "+xsdNode.getLibrary().getName());
 		return cn;
 	}
@@ -456,7 +459,7 @@ public class XsdModelingUtils {
 		xsdNode.getLibrary().addLocalMember(xsdNode, cn);
 		// links to LibraryNode and TLLibrary
 		cn.setLibrary(xsdNode.getLibrary());
-		// LOGGER.debug("createLocalChoiceGroup() - new core object " + cn + " added to library "
+		// // LOGGER.debug("createLocalChoiceGroup() - new core object " + cn + " added to library "
 		// + xsdNode.getLibrary());
 		return cn;
 	}
@@ -484,7 +487,7 @@ public class XsdModelingUtils {
 		makeDoc(agr.getAnnotation(), tla);
 		saveAssignedXsdType(AttributeGroupPrefix, tla, agr.getRef());
 		tla.setType(ModelNode.getEmptyType());
-		LOGGER.debug("Made attribute group reference: " + tla.getName());
+		// LOGGER.debug("Made attribute group reference: " + tla.getName());
 	}
 
 	protected static void makeAttr(final Attribute attr, XsdNode xsdNode, TLAttributeOwner facet) {
@@ -527,8 +530,9 @@ public class XsdModelingUtils {
 					saveAssignedXsdType(LocalAnonymousTypePrefix, tla, typeNode.getName());
 				} else
 					saveAssignedXsdType(LocalAnonymousTypePrefix, tla, propName);
-			} else
-				LOGGER.debug("TODO - simple type that is not restriction on " + propName);
+			}
+			// else
+			// LOGGER.debug("TODO - simple type that is not restriction on " + propName);
 		}
 
 		// TODO - attr.getType could be null--there could be a locally defined
@@ -582,7 +586,7 @@ public class XsdModelingUtils {
 		type = NodeFinders.findNodeByQName(extension.getBase());
 		if (type == null) {
 
-			LOGGER.debug("Could not find extension base: " + extension.getBase());
+			// LOGGER.debug("Could not find extension base: " + extension.getBase());
 			// It may have not been loaded yet.
 			// FIXME - 1. assure the implementer document can be seen.
 			// FIXME - 2. add processing of Extension to type resolver.
@@ -591,7 +595,7 @@ public class XsdModelingUtils {
 			if (type.getModelObject().getTLModelObj() instanceof TLPropertyType)
 				tlEx.setExtendsEntity((TLPropertyType) type.getTLModelObject());
 			tlObj.setExtension(tlEx);
-			LOGGER.debug("Extended " + tlObj.getName() + " with extension base " + tlEx.getExtendsEntityName());
+			// LOGGER.debug("Extended " + tlObj.getName() + " with extension base " + tlEx.getExtendsEntityName());
 		}
 		return true;
 	}
@@ -677,7 +681,7 @@ public class XsdModelingUtils {
 		// If it is a group or group reference, process those
 		Object jaxbValue = ((JAXBElement<?>) p).getValue();
 		if (jaxbValue == null) {
-			LOGGER.debug("Null jaxB value; makeProperty skipping " + objName);
+			// LOGGER.debug("Null jaxB value; makeProperty skipping " + objName);
 			return;
 		}
 		if (jaxbValue instanceof ExplicitGroup) {
@@ -691,7 +695,7 @@ public class XsdModelingUtils {
 			makeProperty(tlp, facet, xsdNode, (GroupRef) jaxbValue);
 			return;
 		} else if (!(jaxbValue instanceof LocalElement)) {
-			LOGGER.warn("makeProperty() unhandled value for p = " + p);
+			// LOGGER.warn("makeProperty() unhandled value for p = " + p);
 			return;
 		}
 
@@ -735,8 +739,9 @@ public class XsdModelingUtils {
 				// ModelNode.getTempLibrary().addMember(typeNode);
 				xsdNode.getLibrary().addMember(typeNode);
 				// LOGGER.debug("Made a simple type "+typeNode.getNameWithPrefix());
-			} else
-				LOGGER.debug("TODO - simple type that is not restriction on " + objName + "." + propName);
+			}
+			// else
+			// LOGGER.debug("TODO - simple type that is not restriction on " + objName + "." + propName);
 		} else if (le.getComplexType() != null) {
 			// LOGGER.debug("Process locally defined complex type.");
 			if (le.getName() != null)
@@ -752,13 +757,13 @@ public class XsdModelingUtils {
 			if (le.getName() != null && (!le.getName().isEmpty()))
 				propName = le.getName();
 			typeQName = XSD_String; // no type specified so just use string
-			LOGGER.info("String used because no type defined for property on " + objName + "/" + propName);
+			// LOGGER.info("String used because no type defined for property on " + objName + "/" + propName);
 		}
 
 		// Make sure all the property data is saved
 		if (propName.isEmpty()) {
 			propName = UndefinedXSDTypeName;
-			LOGGER.debug("make property created a property without name.");
+			// LOGGER.debug("make property created a property without name.");
 		}
 		tlp.setName(propName); // must be done before setPropertyType
 		if (isChoiceGroup)
@@ -984,7 +989,7 @@ public class XsdModelingUtils {
 
 	// TODO - after use in XsdSimpleMO is fixed, eliminate.
 	public static String parseUnion(final XSDSimpleType type) {
-		LOGGER.debug("Parsing union from XSDSimpleType instead of simpleType.");
+		// LOGGER.debug("Parsing union from XSDSimpleType instead of simpleType.");
 		return parseUnion(type.getJaxbType(), type.getOwningLibrary().getPrefix());
 
 	}

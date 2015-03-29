@@ -25,18 +25,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.XMLMemento;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.repository.RepositoryException;
@@ -156,31 +152,6 @@ public class MainController {
 		contextController = new DefaultContextController(this);
 		repositoryController = new DefaultRepositoryController(this, repositoryManager);
 		projectController = new DefaultProjectController(this, repositoryManager);
-
-		// Start the Job to do initial load of projects in background
-		final XMLMemento memento = ((DefaultProjectController) projectController).getMemento();
-		Job job = new Job("Opening Projects") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				((DefaultProjectController) projectController).loadSavedState(memento, monitor);
-				syncWithUi("Projects opened.");
-				return Status.OK_STATUS;
-			}
-
-		};
-		job.setUser(true);
-		job.schedule();
-		// LOGGER.info("Done initializing " + this.getClass());
-	}
-
-	public void syncWithUi(final String msg) {
-		Display.getDefault().asyncExec(new Runnable() {
-			public void run() {
-				MessageDialog.openInformation(mainWindow.getSite().getShell(), "Done ", msg);
-				postStatus("Done");
-				refresh();
-			}
-		});
 	}
 
 	/** ************************ Model Controller Access ***************************** **/
