@@ -59,7 +59,7 @@
 							<!--<version>1.0.0</version> -->
 						</dependency>
 					</dependencies>
-					<showEclipseLog>true</showEclipseLog>
+					<!--showEclipseLog>true</showEclipseLog-->
 				</configuration>
 			</plugin>
 		</plugins>
