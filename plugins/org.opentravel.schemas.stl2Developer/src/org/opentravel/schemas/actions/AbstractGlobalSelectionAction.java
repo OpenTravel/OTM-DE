@@ -78,7 +78,12 @@ public abstract class AbstractGlobalSelectionAction extends Action implements
     @Override
     public void propertyChange(PropertyChangeEvent event) {
         if (ENABLED.equals(event.getProperty())) {
-            setEnabled((Boolean) event.getNewValue());
+        	Boolean enabledValue = (Boolean) event.getNewValue();
+        	
+        	if (enabledValue == null) {
+        		enabledValue = Boolean.FALSE;
+        	}
+            setEnabled( enabledValue );
         }
     }
 

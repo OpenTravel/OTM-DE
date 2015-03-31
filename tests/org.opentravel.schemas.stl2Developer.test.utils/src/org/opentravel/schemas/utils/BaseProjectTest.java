@@ -24,14 +24,13 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.stl2Developer.reposvc.RepositoryTestUtils;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
-
-import org.opentravel.schemacompiler.repository.RepositoryException;
 
 /**
  * Abstract base class that defines common methods used during live repository testing.

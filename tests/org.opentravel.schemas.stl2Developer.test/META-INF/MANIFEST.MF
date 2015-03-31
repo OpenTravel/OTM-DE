@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.opentravel.schemas.stl2Developer.test
 Bundle-Version: 3.2.0.qualifier
 Bundle-Vendor: OpenTravel Alliance
 Fragment-Host: org.opentravel.schemas.stl2Developer
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: lib/cglib-nodep-2.2.jar,
  lib/javassist-3.16.1-GA.jar,
  lib/mockito-all-1.9.0.jar,
@@ -16,6 +16,7 @@ Bundle-ClassPath: lib/cglib-nodep-2.2.jar,
  Resources/
 Require-Bundle: org.opentravel.schemas.stl2Developer.reposvc;bundle-version="2.2.0",
  javax.servlet;bundle-version="3.0.0",
+ javax.servlet.jsp;bundle-version="2.0.0",
  org.eclipse.jetty.server;bundle-version="8.1.9",
  org.eclipse.jetty.servlet;bundle-version="8.1.9",
  org.eclipse.jetty.util;bundle-version="8.1.9",
