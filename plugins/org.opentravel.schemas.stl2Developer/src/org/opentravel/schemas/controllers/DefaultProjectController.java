@@ -118,19 +118,26 @@ public class DefaultProjectController implements ProjectController {
 			}
 		}
 
-		// Start the non-ui thread Job to do initial load of projects in background
 		final XMLMemento memento = getMemento();
-		Job job = new Job("Opening Projects") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				loadSavedState(memento, monitor);
-				syncWithUi("Projects opened.");
-				return Status.OK_STATUS;
-			}
+		// If there is a display then run in the background.
+		// Otherwise run in forground as needed in junits.
+		//
+		if (Display.getCurrent() == null)
+			loadSavedState(memento, null);
+		else {
+			// Start the non-ui thread Job to do initial load of projects in background
+			Job job = new Job("Opening Projects") {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					loadSavedState(memento, monitor);
+					syncWithUi("Projects opened.");
+					return Status.OK_STATUS;
+				}
 
-		};
-		job.setUser(false);
-		job.schedule();
+			};
+			job.setUser(false);
+			job.schedule();
+		}
 		// LOGGER.info("Done initializing " + this.getClass());
 	}
 
