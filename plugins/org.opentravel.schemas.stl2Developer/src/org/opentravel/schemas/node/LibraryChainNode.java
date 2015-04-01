@@ -335,9 +335,10 @@ public class LibraryChainNode extends Node {
 	@Override
 	public List<LibraryNode> getLibraries() {
 		ArrayList<LibraryNode> libs = new ArrayList<LibraryNode>();
-		for (Node n : versions.getChildren())
-			if (n instanceof LibraryNode)
-				libs.add((LibraryNode) n);
+		if (versions != null)
+			for (Node n : versions.getChildren())
+				if (n instanceof LibraryNode)
+					libs.add((LibraryNode) n);
 		return libs;
 	}
 
@@ -397,10 +398,16 @@ public class LibraryChainNode extends Node {
 		return name + ":" + baseNS + ":" + majorNS;
 	}
 
-	@Override
-	public List<Node> getNavChildren() {
-		return getChildren();
-	}
+	// @Override
+	// public List<Node> getNavChildren() {
+	// // // 3/11/2015 dmh - do not return the version aggregate.
+	// // // this simplifies links from validation, user experience and showing families in the other aggregates.
+	// // ArrayList<Node> kids = new ArrayList<Node>();
+	// // kids.addAll(getChildren());
+	// // kids.remove(versions);
+	// // return kids;
+	// return getChildren();
+	// }
 
 	/**
 	 * Get the parent of the actual libraries in the chain.

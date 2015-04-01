@@ -207,10 +207,8 @@ public class Delete_Tests {
 				INode user = null;
 				
 				// Make sure the users of this type are informed of deletion.
-				if (n.getTypeUsersCount() > 0) {
-					if (n.getTypeUsers().size() > 0) {
-						user = n.getTypeUsers().get(0);
-					}
+				if (n.getTypeUsers().size() > 0) {
+					user = n.getTypeUsers().get(0);
 				}
 				n.delete();
 				if (user != null && n.isDeleteable()) {

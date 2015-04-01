@@ -253,10 +253,10 @@ public class ProjectNode extends Node implements INode {
 		return project.getProjectId() + "/" + project.getName();
 	}
 
-	@Override
-	public List<Node> getNavChildren() {
-		return super.getChildren();
-	}
+	// @Override
+	// public List<Node> getNavChildren() {
+	// return super.getChildren();
+	// }
 
 	@Override
 	public Node getParent() {

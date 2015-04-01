@@ -15,7 +15,6 @@
  */
 package org.opentravel.schemas.node;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
@@ -69,6 +68,7 @@ public class VersionNode extends ComponentNode {
 		if (getParent().getChildren().contains(node)) {
 			node = node;
 		}
+		assert (getParent() != null);
 		assert (!getParent().getChildren().contains(node)) : "Parent still contains node.";
 		assert (getChildren().contains(node)) : "Version node does not contain node.";
 		assert (node.getParent() == this) : "Node is not linked to version node.";
@@ -116,7 +116,9 @@ public class VersionNode extends ComponentNode {
 
 	@Override
 	public List<Node> getNavChildren() {
-		return Collections.emptyList();
+		// this simplifies links from validation, user experience and showing families in the other aggregates.
+		return getNewestVersion().getNavChildren();
+		// return Collections.emptyList();
 	}
 
 	@Override

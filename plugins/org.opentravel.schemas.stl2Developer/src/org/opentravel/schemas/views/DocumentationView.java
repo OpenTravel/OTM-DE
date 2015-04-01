@@ -142,6 +142,7 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 	private List<DocumentationNode> expansionState = new LinkedList<DocumentationNode>();
 
 	private SashForm mainSashForm;
+	private ButtonBarManager bbManager;
 
 	private boolean listening = true;
 
@@ -210,7 +211,7 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 		downDocItemAction = new DownDocItemAction(mainWindow, new ExternalizedStringProperties("action.downDocItem"));
 		clearDocItemAction = new ClearDocItemAction(mainWindow, new ExternalizedStringProperties("action.clearDocItem"));
 
-		ButtonBarManager bbManager = new ButtonBarManager(SWT.FLAT);
+		bbManager = new ButtonBarManager(SWT.FLAT);
 		bbManager.add(addDocItemAction);
 		bbManager.add(cloneDocItemAction);
 		bbManager.add(deleteDocItemAction);
@@ -381,7 +382,20 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 			DocumentationNode root = generateDocumentationTree(node);
 			updateView(root);
 			updateObjectFields(node);
+			setEditState(node);
 			refreshAllViews();
+		}
+	}
+
+	// 3/10/2015 dmh - attempt to prevent edit on non-editable nodes.
+	private void setEditState(INode node) {
+		bbManager.enable(node.isEditable());
+		if (node.isEditable()) {
+			// TODO
+			// 1. warn user when they can't edit text.
+			// doesn't work docText.addModifyListener(this);
+		} else {
+			// doesn't work docText.removeModifyListener(this);
 		}
 	}
 
@@ -562,7 +576,9 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 		Object data = docText.getData();
 		if (data instanceof DocumentationNode) {
 			DocumentationNode docItem = (DocumentationNode) data;
-			docItem.setValue(str);
+			// This runs often..on startup, and multiple times when object posted.
+			if (getCurrentNode().isEditable())
+				docItem.setValue(str);
 			viewer.refresh(docItem, true);
 			// TODO - if this was deprecation, refresh the navigator node to change its color.
 		}

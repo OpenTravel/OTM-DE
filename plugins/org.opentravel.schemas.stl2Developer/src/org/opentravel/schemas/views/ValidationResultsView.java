@@ -60,6 +60,7 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.widgets.OtmEventData;
 import org.slf4j.Logger;
@@ -199,6 +200,8 @@ public class ValidationResultsView extends OtmAbstractView {
 		Node n = NodeFinders.findNodeByValidationIentity(validationIdentity);
 		if (n == null)
 			return;
+		if (n instanceof VersionNode)
+			n = ((VersionNode) n).getNewestVersion();
 
 		// LOGGER.debug("validation identity: " + validationIdentity);
 

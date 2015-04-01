@@ -94,7 +94,16 @@ public class FamilyNode extends NavNode {
 
 	@Override
 	public List<Node> getNavChildren() {
-		return getChildren();
+		// 3/11/2015
+		// return getChildren();
+		ArrayList<Node> kids = new ArrayList<Node>();
+		for (Node child : getChildren()) {
+			if (child instanceof VersionNode)
+				kids.add(((VersionNode) child).getNewestVersion());
+			else
+				kids.add(child);
+		}
+		return kids;
 	}
 
 	@Override

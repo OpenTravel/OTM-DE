@@ -226,8 +226,10 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 	public String getLabel() {
 		if (getExtendsType() == null)
 			return super.getLabel();
+		else if (getExtendsType().getName().equals(getName()))
+			return super.getLabel() + " (Extends version:  " + getExtendsType().getLibrary().getVersion() + ")";
 		else
-			return super.getLabel() + " (E> " + getExtendsType().getNameWithPrefix() + ")";
+			return super.getLabel() + " (Extends: " + getExtendsType().getNameWithPrefix() + ")";
 	}
 
 	@Override
