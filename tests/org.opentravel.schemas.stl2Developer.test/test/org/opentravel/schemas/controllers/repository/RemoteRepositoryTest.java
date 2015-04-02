@@ -121,8 +121,7 @@ public class RemoteRepositoryTest extends RepositoryControllerTest {
 
             DefaultProjectController dc = (DefaultProjectController) pc;
             // RepositoryUtils.checkItemState( item, this ); will throw NPE
-            ProjectNode reopenedProject = dc.open(uploadProject.getProject().getProjectFile()
-                    .toString());
+            ProjectNode reopenedProject = dc.open(uploadProject.getProject().getProjectFile().toString(), null);
 
             Assert.assertNotNull("Project couldn't be created. "
                     + "Reason of this is that this project is already opened but"
