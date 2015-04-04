@@ -247,7 +247,7 @@ public class LoadFiles {
 
 		mc.getModelNode().visitAllNodes(new NodeTesters().new TestNode());
 
-		for (INode n : mc.getModelNode().getChildren()) {
+		for (INode n : new ArrayList<>( mc.getModelNode().getChildren() )) {
 			nodeCount++;
 			actOnNode(n);
 		}

@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>target-definition</artifactId>
-	<name>Indigo based target definition</name>
+	<name>Luna based target definition</name>
 	<packaging>pom</packaging>
 
 	<build>
@@ -32,9 +32,9 @@
 						<configuration>
 							<artifacts>
 								<artifact>
-									<file>indigo.target</file>
+									<file>luna.target</file>
 									<type>target</type>
-									<classifier>indigo</classifier>
+									<classifier>luna</classifier>
 								</artifact>
 							</artifacts>
 						</configuration>
@@ -65,15 +65,15 @@
 						<configuration>
 							<source>
 								<repository>
-									<url>http://download.eclipse.org/technology/swtbot/releases/latest/</url>
+									<url>http://download.eclipse.org/technology/swtbot/releases/2.1.1/</url>
 									<layout>p2</layout>
 								</repository>
 								<repository>
-									<url>http://download.eclipse.org/releases/indigo</url>
+									<url>http://download.eclipse.org/releases/luna</url>
 									<layout>p2</layout>
 								</repository>
 								<repository>
-									<url>http://download.eclipse.org/jetty/updates/jetty-bundles-8.x/8.1.9.v20130131</url>
+									<url>http://download.eclipse.org/jetty/updates/jetty-bundles-8.x/8.1.16.v20140903</url>
 									<layout>p2</layout>
 								</repository>
 								<repository>

@@ -114,7 +114,6 @@ public class RemoteRepositoryTest extends RepositoryControllerTest {
         Assert.assertTrue(locked);
         Assert.assertEquals(RepositoryItemState.MANAGED_WIP, chain.getHead().getProjectItem()
                 .getState());
-        String namespace = getRepositoryForTest().getNamespace();
         try {
             rc.removeRemoteRepository(getRepositoryForTest());
             pc.close(uploadProject);
