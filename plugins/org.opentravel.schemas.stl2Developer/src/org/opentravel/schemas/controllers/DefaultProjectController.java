@@ -122,9 +122,11 @@ public class DefaultProjectController implements ProjectController {
 		// If there is a display then run in the background.
 		// Otherwise run in forground as needed in junits.
 		//
-		if (Display.getCurrent() == null)
+		if (memento == null) {
 			loadSavedState(memento, null);
-		else {
+			syncWithUi("Projects opened.");
+			
+		} else {
 			// Start the non-ui thread Job to do initial load of projects in background
 			Job job = new Job("Opening Projects") {
 				@Override
@@ -774,19 +776,22 @@ public class DefaultProjectController implements ProjectController {
 	}
 
 	public void loadSavedState(XMLMemento memento, IProgressMonitor monitor) {
-		IMemento[] children = memento.getChildren(OTM_PROJECT);
-		monitor.beginTask("Opening Projects", memento.getChildren(OTM_PROJECT).length * 2);
-		for (int i = 0; i < children.length; i++) {
-			monitor.subTask("Opening Project: " + children[i].getString(OTM_PPOJECT_LOCATION));
-			open(children[i].getString(OTM_PPOJECT_LOCATION), monitor);
-			monitor.worked(1);
-			if (monitor.isCanceled())
-				break;
-			Display.getDefault().asyncExec(new Runnable() {
-				public void run() {
-					mc.refresh(); // update the user interface asynchronously
-				}
-			});
+		if (memento != null) {
+			IMemento[] children = memento.getChildren(OTM_PROJECT);
+			monitor.beginTask("Opening Projects", memento.getChildren(OTM_PROJECT).length * 2);
+			
+			for (int i = 0; i < children.length; i++) {
+				monitor.subTask("Opening Project: " + children[i].getString(OTM_PPOJECT_LOCATION));
+				open(children[i].getString(OTM_PPOJECT_LOCATION), monitor);
+				monitor.worked(1);
+				if (monitor.isCanceled())
+					break;
+				Display.getDefault().asyncExec(new Runnable() {
+					public void run() {
+						mc.refresh(); // update the user interface asynchronously
+					}
+				});
+			}
 		}
 		defaultNS = OtmRegistry.getMainController().getRepositoryController().getLocalRepository().getNamespace();
 		for (ProjectNode pn : getAll()) {
@@ -795,8 +800,9 @@ public class DefaultProjectController implements ProjectController {
 				break;
 			}
 		}
-		if (defaultProject == null)
+		if (defaultProject == null) {
 			createDefaultProject();
+		}
 	}
 
 	Collection<IProjectToken> openProjects = new ArrayList<DefaultProjectController.IProjectToken>();

@@ -200,14 +200,12 @@ public class Delete_Tests {
 	}
 
 	private void deleteEachMember(LibraryNode ln) {
-		int x;
 		for (Node n : ln.getDescendants()) {
 			if (!n.isNavigation()) {
 				if (n.isDeleted())
 					continue;
 				INode user = null;
-				if (n.getModelObject() == null)
-					x = 1;
+				
 				// Make sure the users of this type are informed of deletion.
 				if (n.getTypeUsers().size() > 0) {
 					user = n.getTypeUsers().get(0);

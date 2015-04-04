@@ -10,7 +10,8 @@
 	<inceptionYear>2014</inceptionYear>
 
 	<properties>
-		<tycho-version>0.17.0</tycho-version>
+		<java.version>1.8</java.version>
+		<tycho-version>0.20.0</tycho-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<compiler.version>3.2-SNAPSHOT</compiler.version>
 	</properties>
@@ -44,7 +45,7 @@
 							<groupId>org.opentravel.otm</groupId>
 							<artifactId>target-definition</artifactId>
 							<version>${project.version}</version>
-							<classifier>indigo</classifier>
+							<classifier>luna</classifier>
 						</artifact>
 					</target>
 					<environments>
