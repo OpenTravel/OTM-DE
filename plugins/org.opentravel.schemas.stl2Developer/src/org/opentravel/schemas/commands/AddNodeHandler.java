@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Event;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
@@ -37,6 +38,7 @@ import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
+import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -337,6 +339,10 @@ public class AddNodeHandler extends OtmAbstractHandler {
 	@Override
 	public String getID() {
 		return COMMAND_ID;
+	}
+
+	public static ImageDescriptor getIcon() {
+		return Images.getImageRegistry().getDescriptor(Images.AddNode);
 	}
 
 }

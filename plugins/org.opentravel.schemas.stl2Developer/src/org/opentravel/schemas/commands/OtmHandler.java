@@ -25,7 +25,8 @@ package org.opentravel.schemas.commands;
  */
 public interface OtmHandler {
 
-    // public Object execute(ExecutionEvent event);
-    // public void execute(OtmEventData event);
-    public String getID();
+	// public Object execute(ExecutionEvent event);
+	// public void execute(OtmEventData event);
+	public String getID();
+
 }

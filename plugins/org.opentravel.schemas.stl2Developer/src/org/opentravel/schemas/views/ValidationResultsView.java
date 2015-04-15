@@ -422,12 +422,15 @@ public class ValidationResultsView extends OtmAbstractView {
 
 	}
 
-	public void validateNode(final Node node) {
+	public void validateNode(Node node) {
 		// LOGGER.debug("Validating node " + node);
 		if (node == null)
 			return;
 
 		ValidationFindings findings = null;
+		if (node.getChain() != null)
+			node = node.getChain();
+
 		if (node instanceof ModelNode)
 			findings = TLModelCompileValidator.validateModel(Node.getModelNode().getTLModel());
 		else if (node instanceof LibraryChainNode) {

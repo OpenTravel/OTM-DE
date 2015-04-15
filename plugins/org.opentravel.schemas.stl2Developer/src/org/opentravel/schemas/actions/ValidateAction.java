@@ -32,52 +32,52 @@ import org.opentravel.schemas.views.ValidationResultsView;
  * @author Dave Hollander
  * 
  */
+@Deprecated
 public class ValidateAction extends AbstractGlobalSelectionAction {
 
-    public static final String ID = "action.validate";
+	public static final String ID = "action.validate";
 
-    public ValidateAction() {
-        super(ID, GlobalSelectionProvider.NAVIGATION_VIEW);
-        new ExternalizedStringProperties(getId()).initializeAction(this);
-        setImageDescriptor(Images.getImageRegistry().getDescriptor(Images.Validate));
-    }
+	public ValidateAction() {
+		super(ID, GlobalSelectionProvider.NAVIGATION_VIEW);
+		new ExternalizedStringProperties(getId()).initializeAction(this);
+		setImageDescriptor(Images.getImageRegistry().getDescriptor(Images.Validate));
+	}
 
-    @Override
-    public void run() {
-        MainController mc = OtmRegistry.getMainController();
+	@Override
+	public void run() {
+		MainController mc = OtmRegistry.getMainController();
 
-        ValidationResultsView view = OtmRegistry.getValidationResultsView();
-        if (view == null || !view.activate()) {
-            DialogUserNotifier.openWarning("Warning",
-                    "Please open the validation view before validating.");
-            return;
-        }
+		ValidationResultsView view = OtmRegistry.getValidationResultsView();
+		if (view == null || !view.activate()) {
+			DialogUserNotifier.openWarning("Warning", "Please open the validation view before validating.");
+			return;
+		}
 
-        Node node = getSourceValue().get(0);
-        // If in a version chain, validate all members of the chain.
-        if (node.getChain() != null) {
-            view.validateNode(node.getChain());
-        } else {
-            view.validateNode(node);
-        }
-        mc.refresh();
-    }
+		Node node = getSourceValue().get(0);
+		// If in a version chain, validate all members of the chain.
+		if (node.getChain() != null) {
+			view.validateNode(node.getChain());
+		} else {
+			view.validateNode(node);
+		}
+		mc.refresh();
+	}
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<Node> getSourceValue() {
-        return (List<Node>) super.getSourceValue();
-    }
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<Node> getSourceValue() {
+		return (List<Node>) super.getSourceValue();
+	}
 
-    @Override
-    public boolean isEnabled(Object object) {
-        List<Node> newSelection = getSourceValue();
-        if (newSelection.size() != 1) {
-            return false;
-        }
-        Node n = newSelection.get(0);
-        if (n instanceof ImpliedNode || n instanceof TypeNode)
-            return false;
-        return n != null ? !n.isBuiltIn() && !n.isXSDSchema() : false;
-    }
+	@Override
+	public boolean isEnabled(Object object) {
+		List<Node> newSelection = getSourceValue();
+		if (newSelection.size() != 1) {
+			return false;
+		}
+		Node n = newSelection.get(0);
+		if (n instanceof ImpliedNode || n instanceof TypeNode)
+			return false;
+		return n != null ? !n.isBuiltIn() && !n.isXSDSchema() : false;
+	}
 }

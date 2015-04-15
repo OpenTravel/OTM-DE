@@ -15,29 +15,28 @@
  */
 package org.opentravel.schemas.commands;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 
-public class SaveLibraryHandler extends OtmAbstractHandler {
+/**
+ * 
+ * @author Dave Hollander
+ * 
+ */
 
-	public static String COMMAND_ID = "org.opentravel.schemas.commands.SaveLibrary";
+public class CloseProjectHandler extends OtmAbstractHandler {
+
+	public static String COMMAND_ID = "org.opentravel.schemas.commands.CloseProject";
+	ProjectNode project = null;
 
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
-		Set<LibraryNode> libraries = new HashSet<LibraryNode>();
-		// filter duplicates
-		for (Node cn : mc.getSelectedNodes_NavigatorView()) {
-			libraries.add(cn.getLibrary());
-		}
-		mc.getLibraryController().saveLibraries(new ArrayList<LibraryNode>(libraries), false);
+		if (isEnabled())
+			OtmRegistry.getMainController().getProjectController().close(project);
 		return null;
 	}
 
@@ -46,14 +45,16 @@ public class SaveLibraryHandler extends OtmAbstractHandler {
 		return COMMAND_ID;
 	}
 
-	public static ImageDescriptor getIcon() {
-		return Images.getImageRegistry().getDescriptor(Images.Save);
-	}
-
 	@Override
 	public boolean isEnabled() {
-		Node n = mc.getSelectedNode_NavigatorView();
-		return n != null ? !n.isBuiltIn() : false;
+		Node node = mc.getSelectedNode_NavigatorView();
+		if ((node instanceof ProjectNode))
+			project = (ProjectNode) node;
+		else {
+			node = node.getLibrary();
+			if (node != null)
+				project = ((LibraryNode) node).getProject();
+		}
+		return project != null ? !project.isBuiltIn() : false;
 	}
-
 }

@@ -31,65 +31,67 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
  * @author Dave Hollander
  * 
  */
+@Deprecated
 public class RemoveLibrariesAction extends AbstractGlobalSelectionAction {
 
-    private List<Node> toClose = Collections.emptyList();
+	private List<Node> toClose = Collections.emptyList();
 
-    public RemoveLibrariesAction() {
-        this("action.library.close");
-    }
+	public RemoveLibrariesAction() {
+		this("action.library.close");
+	}
 
-    protected RemoveLibrariesAction(String id) {
-        super(id, PlatformUI.getWorkbench(), GlobalSelectionProvider.NAVIGATION_VIEW);
-        new ExternalizedStringProperties(getId()).initializeAction(this);
-    }
+	protected RemoveLibrariesAction(String id) {
+		super(id, PlatformUI.getWorkbench(), GlobalSelectionProvider.NAVIGATION_VIEW);
+		new ExternalizedStringProperties(getId()).initializeAction(this);
+	}
 
-    @Override
-    public void run() {
-        MainController mc = OtmRegistry.getMainController();
-        mc.getLibraryController().remove(toClose);
-        toClose = Collections.emptyList();
-        mc.refresh();
-    }
+	@Override
+	public void run() {
+		MainController mc = OtmRegistry.getMainController();
+		if (isEnabled(mc.getSelectedNodes_NavigatorView()))
+			mc.getLibraryController().remove(toClose);
+		toClose = Collections.emptyList();
+		mc.refresh();
+	}
 
-    @Override
-    protected boolean isEnabled(Object object) {
-        @SuppressWarnings("unchecked")
-        List<Node> newSelection = (List<Node>) object;
+	@Override
+	protected boolean isEnabled(Object object) {
+		@SuppressWarnings("unchecked")
+		List<Node> newSelection = (List<Node>) object;
 
-        if (selectionSupported(newSelection)) {
-            toClose = newSelection;
-            return true;
-        } else {
-            return false;
-        }
-    }
+		if (selectionSupported(newSelection)) {
+			toClose = newSelection;
+			return true;
+		} else {
+			return false;
+		}
+	}
 
-    protected boolean selectionSupported(List<? extends Node> newSelection) {
-        for (Node n : newSelection) {
-            if ((!isLibraryNotInChain(n) && !isLibraryChain(n)) || isBuildInLibrary(n)) {
-                return false;
-            }
-        }
-        return true;
-    }
+	protected boolean selectionSupported(List<? extends Node> newSelection) {
+		for (Node n : newSelection) {
+			if ((!isLibraryNotInChain(n) && !isLibraryChain(n)) || isBuildInLibrary(n)) {
+				return false;
+			}
+		}
+		return true;
+	}
 
-    private boolean isLibraryNotInChain(Node n) {
-        if (n instanceof LibraryNode) {
-            return !((LibraryNode) n).isInChain();
-        }
-        return false;
-    }
+	private boolean isLibraryNotInChain(Node n) {
+		if (n instanceof LibraryNode) {
+			return !((LibraryNode) n).isInChain();
+		}
+		return false;
+	}
 
-    private boolean isBuildInLibrary(Node n) {
-        if (n instanceof LibraryNode) {
-            return n.isBuiltIn();
-        }
-        return false;
-    }
+	private boolean isBuildInLibrary(Node n) {
+		if (n instanceof LibraryNode) {
+			return n.isBuiltIn();
+		}
+		return false;
+	}
 
-    private boolean isLibraryChain(Node n) {
-        return n instanceof LibraryChainNode;
-    }
+	private boolean isLibraryChain(Node n) {
+		return n instanceof LibraryChainNode;
+	}
 
 }

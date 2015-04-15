@@ -125,7 +125,7 @@ public class DefaultProjectController implements ProjectController {
 		if (memento == null) {
 			loadSavedState(memento, null);
 			syncWithUi("Projects opened.");
-			
+
 		} else {
 			// Start the non-ui thread Job to do initial load of projects in background
 			Job job = new Job("Opening Projects") {
@@ -589,7 +589,7 @@ public class DefaultProjectController implements ProjectController {
 
 	@Override
 	public void close(ProjectNode pn) {
-		if (pn.isBuiltIn()) {
+		if (pn == null || pn.isBuiltIn()) {
 			return;
 		}
 
@@ -779,7 +779,7 @@ public class DefaultProjectController implements ProjectController {
 		if (memento != null) {
 			IMemento[] children = memento.getChildren(OTM_PROJECT);
 			monitor.beginTask("Opening Projects", memento.getChildren(OTM_PROJECT).length * 2);
-			
+
 			for (int i = 0; i < children.length; i++) {
 				monitor.subTask("Opening Project: " + children[i].getString(OTM_PPOJECT_LOCATION));
 				open(children[i].getString(OTM_PPOJECT_LOCATION), monitor);

@@ -15,29 +15,39 @@
  */
 package org.opentravel.schemas.commands;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.stl2developer.DialogUserNotifier;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.types.TypeNode;
+import org.opentravel.schemas.views.ValidationResultsView;
 
-public class SaveLibraryHandler extends OtmAbstractHandler {
+/**
+ * 
+ * @author Dave Hollander
+ * 
+ */
 
-	public static String COMMAND_ID = "org.opentravel.schemas.commands.SaveLibrary";
+public class ValidateHandler extends OtmAbstractHandler {
+
+	public static String COMMAND_ID = "org.opentravel.schemas.commands.Validate";
+	Node node = null;
 
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
-		Set<LibraryNode> libraries = new HashSet<LibraryNode>();
-		// filter duplicates
-		for (Node cn : mc.getSelectedNodes_NavigatorView()) {
-			libraries.add(cn.getLibrary());
+		ValidationResultsView view = OtmRegistry.getValidationResultsView();
+		if (view == null || !view.activate()) {
+			DialogUserNotifier.openWarning("Warning", "Please open the validation view before validating.");
+			return null;
 		}
-		mc.getLibraryController().saveLibraries(new ArrayList<LibraryNode>(libraries), false);
+
+		if (isEnabled())
+			view.validateNode(node);
+
 		return null;
 	}
 
@@ -47,13 +57,16 @@ public class SaveLibraryHandler extends OtmAbstractHandler {
 	}
 
 	public static ImageDescriptor getIcon() {
-		return Images.getImageRegistry().getDescriptor(Images.Save);
+		return Images.getImageRegistry().getDescriptor(Images.Validate);
+		// return Activator.getImageDescriptor(Images.Validate);
 	}
 
 	@Override
 	public boolean isEnabled() {
-		Node n = mc.getSelectedNode_NavigatorView();
-		return n != null ? !n.isBuiltIn() : false;
+		node = mc.getSelectedNode_NavigatorView();
+		if (node instanceof ImpliedNode || node instanceof TypeNode)
+			return false;
+		return node != null ? !node.isBuiltIn() && !node.isXSDSchema() : false;
 	}
 
 }

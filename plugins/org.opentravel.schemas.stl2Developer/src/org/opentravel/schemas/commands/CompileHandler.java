@@ -15,39 +15,45 @@
  */
 package org.opentravel.schemas.commands;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.node.ProjectNode;
 
-public class SaveLibraryHandler extends OtmAbstractHandler {
+/**
+ * Replaces CompileAction
+ * 
+ * @author Dave Hollander
+ * 
+ */
 
-	public static String COMMAND_ID = "org.opentravel.schemas.commands.SaveLibrary";
+public class CompileHandler extends OtmAbstractHandler {
+
+	public static String COMMAND_ID = "org.opentravel.schemas.commands.Compile";
 
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
-		Set<LibraryNode> libraries = new HashSet<LibraryNode>();
-		// filter duplicates
-		for (Node cn : mc.getSelectedNodes_NavigatorView()) {
-			libraries.add(cn.getLibrary());
-		}
-		mc.getLibraryController().saveLibraries(new ArrayList<LibraryNode>(libraries), false);
+		ProjectNode project = null;
+		LibraryNode library = mc.getSelectedNode_NavigatorView().getLibrary();
+		if (library != null)
+			project = library.getProject();
+		if (project != null)
+			mc.getModelController().compileModel(project);
+
+		// Set<LibraryNode> libraries = new HashSet<LibraryNode>();
+		//
+		// // filter duplicates
+		// for (Node cn : mc.getSelectedNodes_NavigatorView()) {
+		// libraries.add(cn.getLibrary());
+		// }
+		// mc.getLibraryController().saveLibraries(new ArrayList<LibraryNode>(libraries), false);
 		return null;
 	}
 
 	@Override
 	public String getID() {
 		return COMMAND_ID;
-	}
-
-	public static ImageDescriptor getIcon() {
-		return Images.getImageRegistry().getDescriptor(Images.Save);
 	}
 
 	@Override

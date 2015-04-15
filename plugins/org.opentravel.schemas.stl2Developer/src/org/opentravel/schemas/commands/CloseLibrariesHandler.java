@@ -16,28 +16,31 @@
 package org.opentravel.schemas.commands;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.resource.ImageDescriptor;
+import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.properties.Images;
 
-public class SaveLibraryHandler extends OtmAbstractHandler {
+/**
+ * 
+ * @author Dave Hollander
+ * 
+ */
 
-	public static String COMMAND_ID = "org.opentravel.schemas.commands.SaveLibrary";
+public class CloseLibrariesHandler extends OtmAbstractHandler {
+
+	public static String COMMAND_ID = "org.opentravel.schemas.commands.CloseLibraries";
+
+	private List<Node> toClose = new ArrayList<Node>();
 
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
-		Set<LibraryNode> libraries = new HashSet<LibraryNode>();
-		// filter duplicates
-		for (Node cn : mc.getSelectedNodes_NavigatorView()) {
-			libraries.add(cn.getLibrary());
-		}
-		mc.getLibraryController().saveLibraries(new ArrayList<LibraryNode>(libraries), false);
+		if (isEnabled())
+			mc.getLibraryController().remove(toClose);
+
 		return null;
 	}
 
@@ -46,14 +49,23 @@ public class SaveLibraryHandler extends OtmAbstractHandler {
 		return COMMAND_ID;
 	}
 
-	public static ImageDescriptor getIcon() {
-		return Images.getImageRegistry().getDescriptor(Images.Save);
-	}
-
 	@Override
 	public boolean isEnabled() {
-		Node n = mc.getSelectedNode_NavigatorView();
-		return n != null ? !n.isBuiltIn() : false;
+		toClose.clear();
+		List<Node> nodes = mc.getSelectedNodes_NavigatorView();
+		for (Node n : nodes) {
+			LibraryNode l = n.getLibrary();
+			if (n.getLibrary() == null)
+				continue;
+			if (l.isInChain())
+				n = l.getChain();
+			if (n instanceof LibraryChainNode) {
+				l = ((LibraryChainNode) n).getHead();
+			}
+			if (toClose.contains(l))
+				continue;
+			toClose.add(l);
+		}
+		return !toClose.isEmpty();
 	}
-
 }

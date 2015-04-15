@@ -50,6 +50,11 @@ public class LibraryChainNode extends Node {
 	protected RepositoryItem repoItem;
 	protected List<LibraryNode> chain;
 
+	/**
+	 * Same as lcn.getLibrary().
+	 * 
+	 * @return library at the head of the chain.
+	 */
 	public LibraryNode getHead() {
 		return getLibrary();
 	}

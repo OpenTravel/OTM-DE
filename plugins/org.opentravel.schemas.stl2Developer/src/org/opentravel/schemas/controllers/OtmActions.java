@@ -636,7 +636,8 @@ public class OtmActions {
 			PostTypeChange.notyfications(tableNode, sourceNode);
 		else {
 			ownNode = getOwningNodeForDrop(newNode);
-			DialogUserNotifier.openInformation("Information", Messages.getString("action.component.version.minor"));
+			if (tableNode.getLibrary() != ownNode.getLibrary())
+				DialogUserNotifier.openInformation("Information", Messages.getString("action.component.version.minor"));
 		}
 
 		mc.refresh(ownNode);

@@ -179,7 +179,7 @@
 					icon="icons/new_Doc.gif" label="Add Documentation" style="push"
 					tooltip="Add documentation to multiple objects.">
 				</command>
-				<command commandId="action.validate" icon="icons/validate.gif"
+				<command commandId="org.opentravel.schemas.commands.Validate" icon="icons/validate.gif"
 					label="Validate" style="push" tooltip="Validate the selected library or objects.">
 				</command>
 			</toolbar>
@@ -553,10 +553,10 @@
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			defaultHandler="org.opentravel.schemas.commands.SaveLibrariesHandler"
-			id="org.opentravel.schemas.commands.SaveAllLibraries" name="Save All Libraries">
+			id="org.opentravel.schemas.commands.SaveAllLibraries" name="Save All In Project">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			id="org.opentravel.schemas.commands.SaveLibrary" name="Save Library">
+			id="org.opentravel.schemas.commands.SaveLibrary" name="Save">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			id="org.opentravel.schemas.commands.repository.new" name="New Repository...">
@@ -573,20 +573,20 @@
 			</state>
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			id="action.closeProject" name="Close Project">
+			id="org.opentravel.schemas.commands.CloseProject" name="Close">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			id="action.library.close" name="Library Close">
+			id="org.opentravel.schemas.commands.CloseLibraries" name="Close">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			id="action.library.removeAll" name="Library Close All">
+			id="action.library.removeAll" name="Close All Libraries ">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			description="Validate all the libraries in the model" id="action.validate"
+			description="Validate all the libraries in the model" id="org.opentravel.schemas.commands.Validate"
 			name="Validate">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			description="Compile all libraries in the model" id="action.compile"
+			description="Compile all libraries in the model" id="org.opentravel.schemas.commands.Compile"
 			name="Compile">
 		</command>
 		<category id="org.opentravel.schemas.stl2Developer.command.category"
@@ -839,6 +839,32 @@
 				</and>
 			</enabledWhen>
 		</handler>
+		<handler class="org.opentravel.schemas.commands.CompileHandler"
+			commandId="org.opentravel.schemas.commands.Compile">
+			<enabledWhen>
+				<and>
+					<with variable="org.opentravel.schemas.selection.nodes">
+						<iterate ifEmpty="false" operator="and">
+							<test property="stl2Developer.node.isOwnerLibraryEditable">
+							</test>
+						</iterate>
+					</with>
+				</and>
+			</enabledWhen>
+		</handler>
+		<handler class="org.opentravel.schemas.commands.CloseProjectHandler"
+			commandId="org.opentravel.schemas.commands.CloseProject">
+		</handler>
+		<handler class="org.opentravel.schemas.commands.ValidateHandler" 
+			commandId="org.opentravel.schemas.commands.Validate">
+		</handler>
+		<handler class="org.opentravel.schemas.commands.CloseLibrariesHandler" 
+			commandId="org.opentravel.schemas.commands.CloseLibraries">
+		</handler>
+		<handler class="org.opentravel.schemas.commands.MergeHandler" 
+			commandId="org.opentravel.schemas.commands.MergeNodes">
+		</handler>
+		
 	</extension>
 	<extension point="org.eclipse.core.expressions.propertyTesters">
 		<propertyTester class="org.opentravel.schemas.testers.IsNavaigationEnabled"
@@ -906,10 +932,10 @@
 			contextId="org.eclipse.ui.contexts.window" schemeId="stl2Developer.scheme"
 			sequence="M1+M2+M">
 		</key>
-		<key commandId="action.compile" contextId="org.eclipse.ui.contexts.window"
+		<key commandId="org.opentravel.schemas.commands.Compile" contextId="org.eclipse.ui.contexts.window"
 			schemeId="stl2Developer.scheme" sequence="M2+F9">
 		</key>
-		<key commandId="action.validate" contextId="org.eclipse.ui.contexts.window"
+		<key commandId="org.opentravel.schemas.commands.Validate" contextId="org.eclipse.ui.contexts.window"
 			schemeId="stl2Developer.scheme" sequence="M2+F10">
 		</key>
 	</extension>
