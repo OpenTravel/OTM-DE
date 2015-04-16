@@ -163,12 +163,12 @@ public class LibraryNode extends Node {
 		// Process all the children
 		generateModel(alib);
 
-		// Set up the contexts
-		addContexts();
-
 		// Save edit state: Test to see if this is an editable library.
 		updateLibraryStatus();
 		setIdentity(getLabel());
+
+		// Set up the contexts
+		addContexts();
 
 		// LOGGER.debug("Library created: " + this.getName());
 	}
@@ -440,6 +440,9 @@ public class LibraryNode extends Node {
 			throw new IllegalStateException("Context Controller not registered before use.");
 
 		TLLibrary lib = getTLLibrary();
+		if (isEditable() && lib.getContexts().size() > 1)
+			collapseContexts(lib);
+
 		if (lib.getContexts().isEmpty()) {
 			TLContext tlc = new TLContext();
 			lib.addContext(tlc);
@@ -450,6 +453,30 @@ public class LibraryNode extends Node {
 
 		if (isTLLibrary())
 			cc.addContexts(this);
+	}
+
+	private void collapseContexts(TLLibrary tllib) {
+		// Collapse all contexts down to one. Temporary fix that may be in place for years.
+		LOGGER.debug("Ready to merge contexts for library: " + this);
+		// Pick the context to keep
+		TLContext thisContext = null;
+		for (TLContext tlc : tllib.getContexts()) {
+			if (tlc.getApplicationContext().startsWith("__"))
+				continue;
+			thisContext = tlc;
+			break;
+		}
+		if (thisContext == null)
+			thisContext = tllib.getContexts().get(0);
+
+		// Now Merge the others.
+		List<TLContext> contexts = new ArrayList<TLContext>(tllib.getContexts());
+		for (TLContext tlc : contexts) {
+			if (thisContext != tlc) {
+				mergeContexts(tlc.getContextId(), thisContext.getContextId());
+				LOGGER.debug("merged " + tlc.getContextId() + " into " + thisContext.getContextId());
+			}
+		}
 	}
 
 	/**
