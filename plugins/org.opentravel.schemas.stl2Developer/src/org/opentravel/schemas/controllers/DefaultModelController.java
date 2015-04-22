@@ -178,6 +178,8 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 
 	@Override
 	public void compileModel(ProjectNode project) {
+		if (project == null)
+			return;
 
 		// Get a directory to compile into.
 		String directoryName = project.getProject().getProjectFile().getAbsolutePath();
@@ -391,6 +393,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 		@SuppressWarnings("unchecked")
 		@Override
 		public void processModelEvent(ModelEvent<Object> event) {
+			// LOGGER.debug("TL Event: " + event.getType() + " on " + event.getSource());
 			ModelEventType type = event.getType();
 			Object source = event.getSource();
 			if (event instanceof ValueChangeEvent) {

@@ -35,19 +35,19 @@ public class CompileHandler extends OtmAbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
 		ProjectNode project = null;
-		LibraryNode library = mc.getSelectedNode_NavigatorView().getLibrary();
-		if (library != null)
-			project = library.getProject();
-		if (project != null)
-			mc.getModelController().compileModel(project);
+		Node node = mc.getSelectedNode_NavigatorView();
+		if (node == null)
+			return null;
+		LibraryNode library = null;
+		if (node instanceof ProjectNode)
+			project = (ProjectNode) node;
+		else {
+			library = node.getLibrary();
+			if (library != null)
+				project = library.getProject();
+		}
+		mc.getModelController().compileModel(project);
 
-		// Set<LibraryNode> libraries = new HashSet<LibraryNode>();
-		//
-		// // filter duplicates
-		// for (Node cn : mc.getSelectedNodes_NavigatorView()) {
-		// libraries.add(cn.getLibrary());
-		// }
-		// mc.getLibraryController().saveLibraries(new ArrayList<LibraryNode>(libraries), false);
 		return null;
 	}
 
