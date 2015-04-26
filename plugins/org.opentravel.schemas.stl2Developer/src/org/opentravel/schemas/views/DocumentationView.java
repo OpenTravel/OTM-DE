@@ -389,14 +389,14 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 
 	// 3/10/2015 dmh - attempt to prevent edit on non-editable nodes.
 	private void setEditState(INode node) {
-		bbManager.enable(node.isEditable());
-		if (node.isEditable()) {
-			// TODO
-			// 1. warn user when they can't edit text.
-			// doesn't work docText.addModifyListener(this);
-		} else {
-			// doesn't work docText.removeModifyListener(this);
-		}
+		// TODO
+		// bbManager.enable(node.isEditable());
+		// if (node.isEditable()) {
+		// // 1. warn user when they can't edit text.
+		// // doesn't work docText.addModifyListener(this);
+		// } else {
+		// // doesn't work docText.removeModifyListener(this);
+		// }
 	}
 
 	public void postNode(TLDocumentationOwner owner, boolean force) {

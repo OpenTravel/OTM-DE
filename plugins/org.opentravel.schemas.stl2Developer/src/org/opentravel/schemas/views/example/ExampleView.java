@@ -405,17 +405,19 @@ public class ExampleView extends OtmAbstractView {
 	}
 
 	private void expandAndSelect(Node node) {
-		LinkedList<Node> parents = new LinkedList<Node>();
-		while (viewer.testFindItem(node) == null) {
-			node = node.getParent();
-			// the given node is invalid for ExampleView, do nothing
-			if (node == null) {
-				return;
+		if (node != null) {
+			LinkedList<Node> parents = new LinkedList<Node>();
+			while (viewer.testFindItem(node) == null) {
+				node = node.getParent();
+				// the given node is invalid for ExampleView, do nothing
+				if (node == null) {
+					return;
+				}
+				parents.addFirst(node);
 			}
-			parents.addFirst(node);
-		}
-		for (Node p : parents) {
-			viewer.expandToLevel(p, 1);
+			for (Node p : parents) {
+				viewer.expandToLevel(p, 1);
+			}
 		}
 	}
 

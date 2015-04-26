@@ -48,6 +48,9 @@ public class CloseProjectHandler extends OtmAbstractHandler {
 	@Override
 	public boolean isEnabled() {
 		Node node = mc.getSelectedNode_NavigatorView();
+		if (node == null)
+			return false;
+
 		if ((node instanceof ProjectNode))
 			project = (ProjectNode) node;
 		else {
