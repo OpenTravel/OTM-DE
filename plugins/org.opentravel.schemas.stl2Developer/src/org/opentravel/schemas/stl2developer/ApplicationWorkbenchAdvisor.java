@@ -40,8 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * TODO - document where the memento is stored in the file system. Add that to the log for debugging.
- * 
  * @author Dave Hollander
  * 
  */
@@ -65,9 +63,9 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 	public void initialize(final IWorkbenchConfigurer configurer) {
 		super.initialize(configurer);
 		configurer.setSaveAndRestore(true);
-		// activate proxy settings
-		Activator.getDefault().getProxyService();
-		LOGGER.debug("Loaded Proxy Settings");
+		// // activate proxy settings
+		// Activator.getDefault().getProxyService();
+		// LOGGER.debug("Loaded Proxy Settings");
 	}
 
 	// TODO - follow advise from: http://blog.eclipse-tips.com/2009/08/remember-state.html
@@ -81,10 +79,8 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		// store current product version is property. later used in about dialog (by mapping file)
 		Version productV = Platform.getProduct().getDefiningBundle().getVersion();
 		System.setProperty("otm.version", productV.toString());
-		// // activate proxy settings
-		// Activator.getDefault().getProxyService();
 		LOGGER.debug("post startup.");
-		((DefaultProjectController) OtmRegistry.getMainController().getProjectController()).loadProject_BuiltIn();
+		((DefaultProjectController) OtmRegistry.getMainController().getProjectController()).initProjects();
 	}
 
 	/*

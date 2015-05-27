@@ -97,10 +97,6 @@ public class DefaultProjectController implements ProjectController {
 	private String defaultNS = "http://www.opentravel.org/OTM2/DefaultProject";
 	private String defaultPath;
 
-	// public String getDefaultPath() {
-	// return defaultPath;
-	// }
-
 	// override with ns of local repository
 	private final String dialogText = "Select a project file";
 
@@ -110,32 +106,27 @@ public class DefaultProjectController implements ProjectController {
 	public DefaultProjectController(final MainController mc, RepositoryManager repositoryManager) {
 		this.mc = mc;
 		this.projectManager = new ProjectManager(mc.getModelController().getTLModel(), true, repositoryManager);
+	}
 
-		// Find the Built-in project
-		// for (Project p : projectManager.getAllProjects()) {
-		// if (p.getProjectId().equals(BuiltInProject.BUILTIN_PROJECT_ID)) {
-		// builtInProject = loadProject(p);
-		// }
-		// }
-
+	/**
+	 * Initialize projects - open built-in and any defined in the system memento. MUST be in UI thread to pick up the
+	 * memento.
+	 * 
+	 */
+	public void initProjects() {
 		final XMLMemento memento = getMemento();
-		// If there is a display then run in the background.
-		// Otherwise run in foreground as needed in junits.
-		//
-		if (memento == null) {
-			loadSavedState(memento, null);
-			syncWithUi("Projects opened.");
+		IMemento[] children = memento.getChildren(OTM_PROJECT);
 
-		} else {
-			// Start the non-ui thread Job to do initial load of projects in background
+		// Find and open the project for Built-in libraries
+		loadProject_BuiltIn();
+
+		// Start the non-ui thread Job to do initial load of projects in background
+		if (memento != null) {
 			Job job = new Job("Opening Projects") {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
-					loadSavedState(memento, monitor);
-					syncWithUi("Projects opened.");
-					return Status.OK_STATUS;
-				}
-
+					return loadProjects(memento, monitor);
+				};
 			};
 			job.setUser(false);
 			job.schedule();
@@ -378,9 +369,6 @@ public class DefaultProjectController implements ProjectController {
 			TypeResolver tr = new TypeResolver();
 			tr.resolveTypes(); // do the whole model to check if new libraries resolved broken
 								// links.
-			// for (LibraryChainNode chain : chains) {
-			// tr.resolveTypes(chain.getLibraries());
-			// }
 			mc.refresh(project);
 		} else
 			LOGGER.warn("Repository item " + ri.getLibraryName() + " not added to project.");
@@ -486,16 +474,6 @@ public class DefaultProjectController implements ProjectController {
 		}
 	}
 
-	// private void syncWithUi() {
-	// Display.getDefault().asyncExec(new Runnable() {
-	// public void run() {
-	// MessageDialog.openInformation(mainWindow.getSite().getShell(), "Done ", "Projects opened.");
-	// refresh();
-	// }
-	// });
-	// }
-	// }
-
 	public Project openProject(String fileName, ValidationFindings findings) {
 		// LOGGER.debug("Opening Project. Filename = " + fileName);
 		File projectFile = new File(fileName);
@@ -548,8 +526,14 @@ public class DefaultProjectController implements ProjectController {
 
 		ValidationFindings findings = null;
 		Project project = openProject(fileName, findings);
-		if (monitor != null)
+		if (monitor != null) {
 			monitor.worked(1);
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					mc.refresh(); // update the user interface asynchronously
+				}
+			});
+		}
 		ProjectNode pn = loadProject(project);
 
 		return pn;
@@ -597,20 +581,6 @@ public class DefaultProjectController implements ProjectController {
 				builtInProject = loadProject(p);
 			}
 		}
-		Job job = new Job("Opening Projects") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				monitor.beginTask("Opening Project: ", 3);
-				monitor.worked(1);
-				// open(fn, monitor);
-				monitor.done();
-				syncWithUi("Project Opened");
-				return Status.OK_STATUS;
-			}
-		};
-		job.setUser(true);
-		job.schedule();
-
 	}
 
 	@Override
@@ -731,39 +701,6 @@ public class DefaultProjectController implements ProjectController {
 	}
 
 	/**
-	 * ** Manage Saving/Retrieving State
-	 * 
-	 * TODO - refactor into its own class/file
-	 */
-
-	// private boolean loadSavedState() {
-	// if (!OtmRegistry.getMainWindow().hasDisplay())
-	// return false;
-	//
-	// FileReader reader = null;
-	// try {
-	// reader = new FileReader(getOTM_StateFile());
-	// loadSavedState(XMLMemento.createReadRoot(reader));
-	// } catch (FileNotFoundException e) {
-	// // Ignored... no items exist yet.
-	// return false;
-	// } catch (Exception e) {
-	// // Log the exception and move on.
-	// LOGGER.error("LoadSavedState: " + getOTM_StateFile().toString() + " e= " + e);
-	// return false;
-	// } finally {
-	// try {
-	// if (reader != null)
-	// reader.close();
-	// } catch (IOException e) {
-	// LOGGER.error("LoadState: " + e);
-	// return false;
-	// }
-	// }
-	// return true;
-	// }
-
-	/**
 	 * Get the memento with project data in them. Must be done in UI thread.
 	 * 
 	 * @return
@@ -795,30 +732,31 @@ public class DefaultProjectController implements ProjectController {
 		// printout projects
 		IMemento[] children = memento.getChildren(OTM_PROJECT);
 		for (int i = 0; i < children.length; i++) {
-			LOGGER.debug("Memento project: " + children[i].getString(OTM_PPOJECT_LOCATION));
+			LOGGER.debug("Memento project: " + children[i].getString(OTM_PROJECT_LOCATION));
 		}
 
 		return memento;
 	}
 
-	public void loadSavedState(XMLMemento memento, IProgressMonitor monitor) {
+	public IStatus loadProjects(XMLMemento memento, IProgressMonitor monitor) {
 		if (memento != null) {
 			IMemento[] children = memento.getChildren(OTM_PROJECT);
 			monitor.beginTask("Opening Projects", memento.getChildren(OTM_PROJECT).length * 2);
-
-			for (int i = 0; i < children.length; i++) {
-				monitor.subTask("Opening Project: " + children[i].getString(OTM_PPOJECT_LOCATION));
-				open(children[i].getString(OTM_PPOJECT_LOCATION), monitor);
-				monitor.worked(1);
+			for (IMemento mProject : children) {
+				monitor.subTask(mProject.getString(OTM_PROJECT_LOCATION));
+				open(mProject.getString(OTM_PROJECT_LOCATION), monitor);
 				if (monitor.isCanceled())
-					break;
-				Display.getDefault().asyncExec(new Runnable() {
-					public void run() {
-						mc.refresh(); // update the user interface asynchronously
-					}
-				});
+					return Status.CANCEL_STATUS;
 			}
+			return Status.OK_STATUS;
 		}
+		return Status.CANCEL_STATUS;
+	}
+
+	/**
+	 * If you don't have a default project, make one.
+	 */
+	public void testAndSetDefaultProject() {
 		defaultNS = OtmRegistry.getMainController().getRepositoryController().getLocalRepository().getNamespace();
 		for (ProjectNode pn : getAll()) {
 			if (pn.getProject().getProjectId().equals(defaultNS)) {
@@ -836,7 +774,7 @@ public class DefaultProjectController implements ProjectController {
 	// private static final String TAG_FAVORITES = "Favorites";
 	public static final String OTM_PROJECT = "Project";
 	private static final String OTM_PROJECT_NAME = "Name";
-	private static final String OTM_PPOJECT_LOCATION = "Location";
+	private static final String OTM_PROJECT_LOCATION = "Location";
 
 	/**
 	 * Save the currently open project state using the Eclipse utilities. Saved to:
@@ -888,7 +826,7 @@ public class DefaultProjectController implements ProjectController {
 			IProjectToken item = iter.next();
 			IMemento child = memento.createChild(OTM_PROJECT);
 			child.putString(OTM_PROJECT_NAME, item.getName());
-			child.putString(OTM_PPOJECT_LOCATION, item.getLocation());
+			child.putString(OTM_PROJECT_LOCATION, item.getLocation());
 		}
 	}
 
@@ -900,9 +838,6 @@ public class DefaultProjectController implements ProjectController {
 
 		String getLocation();
 
-		// boolean isFavoriteFor(Object obj);
-		// FavoriteItemType getType();
-		// String getInfo();
 		static IProjectToken[] NONE = new IProjectToken[] {};
 	}
 
@@ -990,61 +925,5 @@ public class DefaultProjectController implements ProjectController {
 			}
 		}
 	}
-
-	// dead code. Moved to repository Controller.
-	// public void versionLibrary(Node node) {
-	// TODO - handle cases where there is no library chain .. start versioning
-	// this lib
-	// LOGGER.debug("Versioning Library " + node);
-	// LibraryNode lib = null;
-	// LibraryNode newLib = null;
-	// ProjectNode project = null;
-
-	// if (node instanceof LibraryChainNode) {
-	// DEAD CODE - handler does a getLibrary();
-	// LibraryChainNode lc = (LibraryChainNode) node;
-	// lib = lc.getLibrary();
-	// newLib = lc.incrementMinorVersion();
-	// project = lib.getProject();
-	// lc.getVersions().linkLibrary(newLib);
-	// } else if (node instanceof LibraryNode) {
-	// lib = (LibraryNode) node;
-	// newLib = lib.createNewMinorVerison(lib.getProject());
-	// project = lib.getProject();
-	// lib.getParent().linkLibrary(newLib);
-	// // FIXME - update containing chain head.
-	// } else
-	// LOGGER.error("Can't version Library " + node);
-	//
-	// if (newLib != null) {
-	// // add(project, newLib);
-	// if (lib.getProjectItem().getRepository() != null) {
-	// try {
-	// lib.getProjectItem().getProjectManager()
-	// .publish(newLib.getProjectItem(), lib.getProjectItem().getRepository());
-	// } catch (RepositoryException e) {
-	// LOGGER.debug("Error publishing new version of library " + lib);
-	// }
-	// }
-	// // TODO - is the project file updated correctly???
-	// // NO. both the unmanaged and managed are added.
-	// // TEST - Trying the add here instead of in front of publish
-	// add(project, newLib);
-
-	// }
-	// FIXME - do not know what repo to sync.
-	// mc.getRepositoryController().sync(null);
-	// }
-
-	// public void finalizeLibrary(LibraryNode lib) {
-	// LOGGER.debug("Finalizing Library " + lib);
-	//
-	// try {
-	// lib.getProjectItem().getProjectManager().promote(lib.getProjectItem());
-	// } catch (RepositoryException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// }
 
 }
