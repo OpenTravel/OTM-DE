@@ -76,11 +76,12 @@ public class DefaultRepositoryController implements RepositoryController {
 	public DefaultRepositoryController(MainController mc, RepositoryManager localRepositoryManager) {
 		this.mc = mc;
 		this.repositoryManager = localRepositoryManager;
-		try {
-			localRepositoryManager.refreshRemoteRepositories();
-		} catch (RepositoryException e) {
-			LOGGER.debug("Could not get repository Manger. " + e.getLocalizedMessage());
-		}
+		// 5/27/2015 dmh - for performance reasons when the network connection is bad skip this refresh
+		// try {
+		// localRepositoryManager.refreshRemoteRepositories();
+		// } catch (RepositoryException e) {
+		// postRepoException(e);
+		// }
 	}
 
 	/**
@@ -185,12 +186,11 @@ public class DefaultRepositoryController implements RepositoryController {
 						publishedItems = publish(pm, e.getRequiredPublications(), repository);
 					}
 				} catch (PublishWithLocalDependenciesException e1) {
-					DialogUserNotifier.openError(Messages.getString("repository.error.title"),
-							Messages.getString("repository.error.manage"));
+					postRepoError("manage");
 				}
 			}
 		} catch (RepositoryException e) {
-			warnUser(e);
+			postRepoException(e);
 		}
 		return publishedItems;
 	}
@@ -199,13 +199,11 @@ public class DefaultRepositoryController implements RepositoryController {
 			throws RepositoryException, PublishWithLocalDependenciesException {
 		Collection<ProjectItem> managed = getManagedItems(repository, items);
 		if (!managed.isEmpty()) {
-			DialogUserNotifier.openError(Messages.getString("repository.warning"), Messages.getString(
-					"repository.warning.alreadyManaged", repository.getDisplayName(), toString(managed)));
+			postRepoError("alreadyManaged");
 		}
 		Collection<ProjectItem> invalid = getItemsWithInvalidNamespace(repository, items);
 		if (!invalid.isEmpty()) {
-			DialogUserNotifier.openError(Messages.getString("repository.error.title"),
-					Messages.getString("repository.warning.managedNS", repository.getDisplayName(), toString(invalid)));
+			postRepoError("managedNS");
 			return Collections.emptyList();
 		}
 
@@ -285,20 +283,13 @@ public class DefaultRepositoryController implements RepositoryController {
 	@Override
 	public boolean commit(LibraryNode ln) {
 		if (!ln.isManaged()) {
-			DialogUserNotifier.openWarning(Messages.getString("repository.warning"),
-					Messages.getString("repository.warning.alreadyManaged"));
+			postRepoWarning("alreadyManaged");
 			return false;
 		}
-
-		boolean result = true;
-		try {
-			ln.commit();
-		} catch (RepositoryException e) {
-			result = false;
-			warnUser(e);
-		}
+		CommitThread ct = new CommitThread(ln);
+		BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), ct);
 		refreshAll(ln);
-		return result;
+		return ct.getResult();
 	}
 
 	@Override
@@ -310,19 +301,9 @@ public class DefaultRepositoryController implements RepositoryController {
 
 	@Override
 	public boolean lock(LibraryNode ln) {
-		boolean result = true;
-
 		BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), new LockThread(ln));
-
-		// try {
-		// ln.lock();
-		// } catch (RepositoryException e) {
-		// result = false;
-		// warnUser(e);
-		// }
-		LOGGER.debug("Locked library " + ln.getLabel() + " " + result);
 		refreshAll(ln);
-		return result;
+		return true;
 	}
 
 	@Override
@@ -338,58 +319,20 @@ public class DefaultRepositoryController implements RepositoryController {
 
 	@Override
 	public boolean unlock(LibraryNode ln) {
-		boolean result = true;
 		UnlockThread ut = new UnlockThread(ln, mc);
 		BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), ut);
-		result = ut.getResult();
-
-		// try {
-		// final LibraryModelSaver lms = new LibraryModelSaver();
-		// lms.saveLibrary(ln.getTLLibrary());
-		// ProjectManager pm = ((DefaultProjectController) mc.getProjectController()).getDefaultProject().getProject()
-		// .getProjectManager();
-		// pm.unlock(ln.getProjectItem(), true);
-		// ln.updateLibraryStatus();
-		// } catch (RepositoryException e) {
-		// result = false;
-		// warnUser(e);
-		// } catch (LibrarySaveException e) {
-		// result = false;
-		// warnUser(e);
-		// }
 		refreshAll(ln);
 		LOGGER.debug("UnLocked library " + this);
-		return result;
+		return ut.getResult();
 	}
 
 	@Override
 	public ProjectNode unlockAndRevert(LibraryNode ln) {
-		ProjectNode loaded = null;
 		RevertThread rt = new RevertThread(ln, mc);
 		BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), rt);
-		loaded = rt.getLoaded();
-		// try {
-		// final LibraryModelSaver lms = new LibraryModelSaver();
-		// lms.saveLibrary(library.getTLLibrary());
-		// String projectFile = library.getProject().getProject().getProjectFile().toString();
-		// ProjectManager pm = ((DefaultProjectController) mc.getProjectController()).getDefaultProject().getProject()
-		// .getProjectManager();
-		// pm.unlock(library.getProjectItem(), false);
-		// boolean isDefault = library.getProject() == mc.getProjectController().getDefaultProject();
-		// mc.getProjectController().close(library.getProject());
-		// if (isDefault) {
-		// loaded = mc.getProjectController().getDefaultProject();
-		// } else {
-		// loaded = mc.getProjectController().openProject(projectFile);
-		// }
-		// } catch (RepositoryException e) {
-		// warnUser(e);
-		// } catch (LibrarySaveException e) {
-		// warnUser(e);
-		// }
 		refreshAll(ln);
-		LOGGER.debug("UnLocked library " + this);
-		return loaded;
+		LOGGER.debug("UnLocked and reverted library " + ln);
+		return rt.getLoaded();
 
 	}
 
@@ -409,7 +352,7 @@ public class DefaultRepositoryController implements RepositoryController {
 			ln.markFinal();
 		} catch (RepositoryException e) {
 			result = false;
-			warnUser(e);
+			postRepoException(e);
 		}
 		refreshAll(ln);
 		return result;
@@ -438,10 +381,6 @@ public class DefaultRepositoryController implements RepositoryController {
 		mc.refresh();
 	}
 
-	private void warnUser(Exception e) {
-		DialogUserNotifier.openError(Messages.getString("repository.error.title"), e.getLocalizedMessage());
-	}
-
 	@Override
 	public boolean isInManagedNS(String testNS, RepositoryNode repository) {
 		return isInManagedNS(testNS, repository.getRepository());
@@ -454,7 +393,7 @@ public class DefaultRepositoryController implements RepositoryController {
 					return true;
 			}
 		} catch (RepositoryException e) {
-			LOGGER.error("Could not get root ns list: " + e.getLocalizedMessage());
+			postRepoException(e);
 		}
 		return false;
 	}
@@ -466,7 +405,7 @@ public class DefaultRepositoryController implements RepositoryController {
 			try {
 				rootNSs.addAll(rn.getRepository().listRootNamespaces());
 			} catch (RepositoryException e) {
-				LOGGER.error("Error getting root ns: " + e.getLocalizedMessage());
+				postRepoException(e);
 			}
 		}
 		return rootNSs;
@@ -484,7 +423,7 @@ public class DefaultRepositoryController implements RepositoryController {
 	@Override
 	public boolean addRemoteRepository(String location, String userId, String password) {
 		if (!userId.isEmpty() && password.isEmpty()) {
-			LOGGER.debug("Password cannot be empty");
+			postRepoError("password");
 			return false;
 		} else if (userId.isEmpty()) {
 			userId = null;
@@ -496,7 +435,11 @@ public class DefaultRepositoryController implements RepositoryController {
 			getRoot().addRepository(repo);
 			refreshAll();
 		} catch (RepositoryException e) {
-			LOGGER.debug("Error adding new repository: " + e.getMessage());
+			// Post directly to get message and exception message
+			String msg = Messages.getString(REPO_MESSAGE_PREFIX + "invalidLocation");
+			msg += "\n\n" + e.getLocalizedMessage();
+			DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg);
+			LOGGER.debug("Repository Error: " + msg);
 			return false;
 		}
 		return true;
@@ -511,7 +454,7 @@ public class DefaultRepositoryController implements RepositoryController {
 	@Override
 	public boolean changeCredentials(String location, String userId, String password) {
 		if (!userId.isEmpty() && password.isEmpty()) {
-			LOGGER.debug("Password cannot be empty");
+			postRepoError("password");
 			return false;
 		} else if (userId.isEmpty()) {
 			userId = null;
@@ -522,7 +465,7 @@ public class DefaultRepositoryController implements RepositoryController {
 			RepositoryNode repoNode = find(repo);
 			updateNode(repoNode);
 		} catch (RepositoryException e) {
-			LOGGER.debug("Error changing credentials: " + e.getMessage() + ", for repository:" + location);
+			postRepoException(e);
 			return false;
 		}
 		return true;
@@ -581,11 +524,11 @@ public class DefaultRepositoryController implements RepositoryController {
 			else
 				newTLLib = minorVH.createNewMinorVersion(library.getTLLibrary());
 		} catch (VersionSchemeException e) {
-			warnUser(e);
+			postRepoException(e);
 		} catch (ValidationException e) {
-			warnUser(e);
+			postRepoException(e);
 		} catch (LibrarySaveException e) {
-			warnUser(e);
+			postRepoException(e);
 		}
 
 		if (newTLLib != null) {
@@ -612,11 +555,11 @@ public class DefaultRepositoryController implements RepositoryController {
 		try {
 			major = mvh.createNewMajorVersion(library.getTLLibrary());
 		} catch (VersionSchemeException e) {
-			warnUser(e);
+			postRepoException(e);
 		} catch (ValidationException e) {
-			warnUser(e);
+			postRepoException(e);
 		} catch (LibrarySaveException e) {
-			warnUser(e);
+			postRepoException(e);
 		}
 
 		LibraryChainNode lcn = null;
@@ -649,22 +592,16 @@ public class DefaultRepositoryController implements RepositoryController {
 	 */
 	private boolean versionPreparation(LibraryNode library) {
 		if (library.getProject() == null) {
-			DialogUserNotifier.openError(Messages.getString("repository.error.title"),
-					Messages.getString("repository.version.noProject"));
-			LOGGER.debug("Version Error." + library + " is not in a project.");
+			postRepoError("noProject");
 			return false;
 		}
 		RepositoryNode rn = find(library.getProjectItem().getRepository());
 		if (rn == null) {
-			DialogUserNotifier.openError(Messages.getString("repository.error.title"),
-					Messages.getString("repository.version.notManaged"));
-			LOGGER.debug("Version Error." + library + " is not manged in a repository.");
+			postRepoError("notManaged");
 			return false;
 		}
 		if (!library.isReadyToVersion()) {
-			DialogUserNotifier.openError(Messages.getString("repository.error.title"),
-					Messages.getString("repository.warning.notValid"));
-			LOGGER.debug("Version Error." + library + " is not valid.");
+			postRepoError("notValid");
 			return false;
 		}
 		if (library.getChain() == null) {
@@ -709,7 +646,7 @@ public class DefaultRepositoryController implements RepositoryController {
 			// TODO: what parameter pass to search false or true ?
 			return repositoryManager.search(string, false, true);
 		} catch (RepositoryException e) {
-			LOGGER.error("Error during searching  repositories for: " + string + ". Details: " + e.getMessage());
+			postRepoException(e);
 		}
 		return Collections.emptyList();
 	}
@@ -721,9 +658,35 @@ public class DefaultRepositoryController implements RepositoryController {
 			getRoot().removeReposutory(node.getRepository());
 			refreshAll();
 		} catch (RepositoryException e) {
-			LOGGER.error("Error when removing  repository: " + node.getIdentity() + ". Details: " + e.getMessage());
+			postRepoException(e);
 		}
 	}
+
+	public static String REPO_ERROR_TITLE = "repository.error.title";
+	public static String REPO_WARNING_TITLE = "repository.warning";
+	public static String REPO_MESSAGE_PREFIX = "repository.warning.";
+
+	public static void postRepoException(Exception e) {
+		DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), e.getLocalizedMessage());
+		LOGGER.debug("Repository Exception: " + e.getLocalizedMessage());
+	}
+
+	public static void postRepoWarning(String message) {
+		final String msg = Messages.getString(REPO_MESSAGE_PREFIX + message);
+		if (msg.equals('!' + message + '!'))
+			LOGGER.error("Bad warning message: " + message);
+		DialogUserNotifier.openWarning(Messages.getString(REPO_WARNING_TITLE), msg);
+		LOGGER.debug("Repository Warning: " + msg);
+	}
+
+	public static void postRepoError(String message) {
+		final String msg = Messages.getString(REPO_MESSAGE_PREFIX + message);
+		if (msg.equals('!' + message + '!'))
+			LOGGER.error("Bad error message: " + message);
+		DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg);
+		LOGGER.debug("Repository Error: " + msg);
+	}
+
 }
 
 /**
@@ -750,7 +713,8 @@ class LockThread extends Thread {
 			ln.lock();
 		} catch (RepositoryException e) {
 			// result = false;
-			DialogUserNotifier.openError(Messages.getString("repository.error.title"), e.getLocalizedMessage());
+			DefaultRepositoryController.postRepoException(e);
+			// DialogUserNotifier.openError(Messages.getString("repository.error.title"), e.getLocalizedMessage());
 		}
 	}
 }
@@ -780,10 +744,34 @@ class UnlockThread extends Thread {
 			result = true;
 		} catch (RepositoryException e) {
 			result = false;
-			DialogUserNotifier.openError(Messages.getString("repository.error.title"), e.getLocalizedMessage());
+			DefaultRepositoryController.postRepoException(e);
+			// DialogUserNotifier.openError(Messages.getString("repository.error.title"), e.getLocalizedMessage());
 		} catch (LibrarySaveException e) {
 			result = false;
-			DialogUserNotifier.openError(Messages.getString("repository.error.title"), e.getLocalizedMessage());
+			DefaultRepositoryController.postRepoException(e);
+			// DialogUserNotifier.openError(Messages.getString("repository.error.title"), e.getLocalizedMessage());
+		}
+	}
+}
+
+class CommitThread extends Thread {
+	private LibraryNode ln;
+	private boolean result = true;
+
+	public CommitThread(LibraryNode ln) {
+		this.ln = ln;
+	}
+
+	public boolean getResult() {
+		return result;
+	}
+
+	public void run() {
+		try {
+			ln.commit();
+		} catch (RepositoryException e) {
+			result = false;
+			DefaultRepositoryController.postRepoException(e);
 		}
 	}
 }
@@ -818,10 +806,12 @@ class RevertThread extends Thread {
 				loaded = mc.getProjectController().openProject(projectFile);
 			}
 		} catch (RepositoryException e) {
-			DialogUserNotifier.openError(Messages.getString("repository.error.title"), e.getLocalizedMessage());
+			DefaultRepositoryController.postRepoException(e);
+			// DialogUserNotifier.openError(Messages.getString("repository.error.title"), e.getLocalizedMessage());
 
 		} catch (LibrarySaveException e) {
-			DialogUserNotifier.openError(Messages.getString("repository.error.title"), e.getLocalizedMessage());
+			DefaultRepositoryController.postRepoException(e);
+			// DialogUserNotifier.openError(Messages.getString("repository.error.title"), e.getLocalizedMessage());
 		}
 	}
 }

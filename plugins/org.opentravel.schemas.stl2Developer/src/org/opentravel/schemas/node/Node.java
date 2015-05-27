@@ -39,6 +39,7 @@ import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationItem;
+import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.FindingType;
@@ -623,7 +624,9 @@ public abstract class Node implements INode {
 	 */
 	@Override
 	public String getName() {
-		return modelObject == null || modelObject.getName() == null ? "" : modelObject.getName();
+		if (modelObject == null) return "";
+		if (modelObject.getTLModelObj() instanceof TLFacet && ((TLFacet)modelObject.getTLModelObj()).getOwningEntity() == null) return "";
+		return modelObject.getName() == null ? "" : modelObject.getName();
 	}
 
 	/**

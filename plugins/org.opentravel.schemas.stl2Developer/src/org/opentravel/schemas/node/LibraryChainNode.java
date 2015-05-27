@@ -222,8 +222,8 @@ public class LibraryChainNode extends Node {
 			simpleRoot.add(node);
 		// else if (node instanceof OperationNode)
 		// serviceRoot.add(node);
-		else
-			LOGGER.warn("add skipped: " + node);
+		// else
+		// LOGGER.warn("add skipped: " + node);
 	}
 
 	/**

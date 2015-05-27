@@ -112,15 +112,15 @@ public class DefaultProjectController implements ProjectController {
 		this.projectManager = new ProjectManager(mc.getModelController().getTLModel(), true, repositoryManager);
 
 		// Find the Built-in project
-		for (Project p : projectManager.getAllProjects()) {
-			if (p.getProjectId().equals(BuiltInProject.BUILTIN_PROJECT_ID)) {
-				builtInProject = loadProject(p);
-			}
-		}
+		// for (Project p : projectManager.getAllProjects()) {
+		// if (p.getProjectId().equals(BuiltInProject.BUILTIN_PROJECT_ID)) {
+		// builtInProject = loadProject(p);
+		// }
+		// }
 
 		final XMLMemento memento = getMemento();
 		// If there is a display then run in the background.
-		// Otherwise run in forground as needed in junits.
+		// Otherwise run in foreground as needed in junits.
 		//
 		if (memento == null) {
 			loadSavedState(memento, null);
@@ -576,6 +576,7 @@ public class DefaultProjectController implements ProjectController {
 			mc.postStatus("Loading Project: " + project.getName());
 			mc.refresh();
 		}
+		LOGGER.debug("Creating Project Node.");
 		ProjectNode pn = new ProjectNode(project);
 		for (LibraryNode ln : pn.getLibraries())
 			fixElementNames(ln);
@@ -585,6 +586,31 @@ public class DefaultProjectController implements ProjectController {
 			mc.showBusy(false);
 		}
 		return pn;
+	}
+
+	/**
+	 * Load the built-in project. Reads tl project from project manager.
+	 */
+	public void loadProject_BuiltIn() {
+		for (Project p : projectManager.getAllProjects()) {
+			if (p.getProjectId().equals(BuiltInProject.BUILTIN_PROJECT_ID)) {
+				builtInProject = loadProject(p);
+			}
+		}
+		Job job = new Job("Opening Projects") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				monitor.beginTask("Opening Project: ", 3);
+				monitor.worked(1);
+				// open(fn, monitor);
+				monitor.done();
+				syncWithUi("Project Opened");
+				return Status.OK_STATUS;
+			}
+		};
+		job.setUser(true);
+		job.schedule();
+
 	}
 
 	@Override
