@@ -21,8 +21,11 @@ import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 import org.opentravel.schemas.properties.Messages;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationWorkbenchWindowAdvisor.class);
 
 	public ApplicationWorkbenchWindowAdvisor(final IWorkbenchWindowConfigurer configurer) {
 		super(configurer);
@@ -43,4 +46,8 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		configurer.setShowProgressIndicator(true);
 	}
 
+	@Override
+	public void postWindowOpen() {
+		LOGGER.debug("post window startup.");
+	}
 }

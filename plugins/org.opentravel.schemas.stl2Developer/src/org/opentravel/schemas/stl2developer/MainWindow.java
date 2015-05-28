@@ -90,7 +90,7 @@ public class MainWindow extends ViewPart implements ISelectionListener {
 
 		mainDisplay = display;
 		colorProvider = new ColorProvider(display);
-		// LOGGER.info("Done initializing part control of " + this.getClass());
+		LOGGER.info("Done initializing part control of " + this.getClass());
 	}
 
 	public boolean hasDisplay() {

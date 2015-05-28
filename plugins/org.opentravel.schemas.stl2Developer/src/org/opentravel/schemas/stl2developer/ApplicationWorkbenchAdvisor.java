@@ -80,6 +80,8 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		Version productV = Platform.getProduct().getDefiningBundle().getVersion();
 		System.setProperty("otm.version", productV.toString());
 		LOGGER.debug("post startup.");
+
+		// Load the projects open from last session with a progress monitor
 		((DefaultProjectController) OtmRegistry.getMainController().getProjectController()).initProjects();
 	}
 

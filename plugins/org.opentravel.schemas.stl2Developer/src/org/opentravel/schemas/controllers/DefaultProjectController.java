@@ -92,7 +92,7 @@ public class DefaultProjectController implements ProjectController {
 	private final MainController mc;
 	private final ProjectManager projectManager;
 	protected ProjectNode defaultProject = null;
-	protected ProjectNode builtInProject;
+	protected ProjectNode builtInProject = null;
 
 	private String defaultNS = "http://www.opentravel.org/OTM2/DefaultProject";
 	private String defaultPath;
@@ -106,32 +106,6 @@ public class DefaultProjectController implements ProjectController {
 	public DefaultProjectController(final MainController mc, RepositoryManager repositoryManager) {
 		this.mc = mc;
 		this.projectManager = new ProjectManager(mc.getModelController().getTLModel(), true, repositoryManager);
-	}
-
-	/**
-	 * Initialize projects - open built-in and any defined in the system memento. MUST be in UI thread to pick up the
-	 * memento.
-	 * 
-	 */
-	public void initProjects() {
-		final XMLMemento memento = getMemento();
-		IMemento[] children = memento.getChildren(OTM_PROJECT);
-
-		// Find and open the project for Built-in libraries
-		loadProject_BuiltIn();
-
-		// Start the non-ui thread Job to do initial load of projects in background
-		if (memento != null) {
-			Job job = new Job("Opening Projects") {
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					return loadProjects(memento, monitor);
-				};
-			};
-			job.setUser(false);
-			job.schedule();
-		}
-		// LOGGER.info("Done initializing " + this.getClass());
 	}
 
 	public void syncWithUi(final String msg) {
@@ -446,6 +420,61 @@ public class DefaultProjectController implements ProjectController {
 		return null;
 	}
 
+	/**
+	 * Initialize projects - open built-in and any defined in the system memento. MUST be in UI thread to pick up the
+	 * memento.
+	 * 
+	 * Designed to be run from the Application Workbench Advisor.
+	 * 
+	 */
+	public void initProjects() {
+		final XMLMemento memento = getMemento();
+
+		// Only run once.
+		if (builtInProject != null)
+			return;
+
+		// Find and open the project for Built-in libraries
+		loadProject_BuiltIn();
+
+		// Get the ui thread to create the progress monitor and run the open projects in background.
+		if (memento != null) {
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					// Start the non-ui thread Job to do initial load of projects in background
+					Job job = new Job("Opening Saved Projects") {
+						@Override
+						protected IStatus run(IProgressMonitor monitor) {
+							monitor.beginTask("Opening Project", memento.getChildren().length + 1);
+							monitor.worked(1);
+							IStatus status = loadProjects(memento, monitor);
+							monitor.done();
+							syncWithUi("Project Opened");
+							return status;
+						};
+					};
+					job.setUser(true);
+					job.schedule();
+				}
+			});
+
+			// Job job = new Job("Opening Saved Projects") {
+			// @Override
+			// protected IStatus run(IProgressMonitor monitor) {
+			// monitor.beginTask("Opening Project", memento.getChildren().length + 1);
+			// monitor.worked(1);
+			// IStatus status = loadProjects(memento, monitor);
+			// monitor.done();
+			// syncWithUi("Project Opened");
+			// return status;
+			// };
+			// };
+			// job.setUser(true);
+			// job.schedule();
+		}
+		// LOGGER.info("Done initializing " + this.getClass());
+	}
+
 	@Override
 	public void open() {
 		String[] extensions = { "*." + PROJECT_EXT };
@@ -576,6 +605,7 @@ public class DefaultProjectController implements ProjectController {
 	 * Load the built-in project. Reads tl project from project manager.
 	 */
 	public void loadProject_BuiltIn() {
+		builtInProject = new ProjectNode(); // leave empty project to note we have tried to load
 		for (Project p : projectManager.getAllProjects()) {
 			if (p.getProjectId().equals(BuiltInProject.BUILTIN_PROJECT_ID)) {
 				builtInProject = loadProject(p);
@@ -745,8 +775,11 @@ public class DefaultProjectController implements ProjectController {
 			for (IMemento mProject : children) {
 				monitor.subTask(mProject.getString(OTM_PROJECT_LOCATION));
 				open(mProject.getString(OTM_PROJECT_LOCATION), monitor);
-				if (monitor.isCanceled())
+				monitor.worked(1);
+				if (monitor.isCanceled()) {
+					monitor.done();
 					return Status.CANCEL_STATUS;
+				}
 			}
 			return Status.OK_STATUS;
 		}

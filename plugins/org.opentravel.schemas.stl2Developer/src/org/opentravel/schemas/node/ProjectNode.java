@@ -47,6 +47,13 @@ public class ProjectNode extends Node implements INode {
 	private final Project project; // underlying TL model object
 
 	/**
+	 * Can be used as a marker for a null project.
+	 */
+	public ProjectNode() {
+		this.project = null;
+	}
+
+	/**
 	 * Create a project node from the TL project model. Read all libraries in the project and create library nodes and
 	 * their children. Link into the model node.
 	 * 
