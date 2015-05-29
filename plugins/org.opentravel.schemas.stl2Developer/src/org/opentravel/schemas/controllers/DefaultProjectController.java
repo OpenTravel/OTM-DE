@@ -109,13 +109,14 @@ public class DefaultProjectController implements ProjectController {
 	}
 
 	public void syncWithUi(final String msg) {
-		Display.getDefault().asyncExec(new Runnable() {
-			public void run() {
-				// DialogUserNotifier.openInformation("Done ", msg);
-				mc.postStatus("Done");
-				mc.refresh();
-			}
-		});
+		DialogUserNotifier.syncWithUi(msg);
+		// Display.getDefault().asyncExec(new Runnable() {
+		// public void run() {
+		// // DialogUserNotifier.openInformation("Done ", msg);
+		// mc.postStatus(msg);
+		// mc.refresh();
+		// }
+		// });
 	}
 
 	protected void createDefaultProject() {
@@ -448,6 +449,7 @@ public class DefaultProjectController implements ProjectController {
 							monitor.beginTask("Opening Project", memento.getChildren().length + 1);
 							monitor.worked(1);
 							IStatus status = loadProjects(memento, monitor);
+							testAndSetDefaultProject();
 							monitor.done();
 							syncWithUi("Project Opened");
 							return status;

@@ -17,6 +17,7 @@ package org.opentravel.schemas.stl2developer;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,4 +80,19 @@ public class DialogUserNotifier {
 						IDialogConstants.NO_LABEL, IDialogConstants.CANCEL_LABEL }, 0);
 		return dg.open();
 	}
+
+	/**
+	 * Post the status message and refresh the UI display. Intended for use when background tasks complete.
+	 * 
+	 * @param msg
+	 */
+	public static void syncWithUi(final String msg) {
+		Display.getDefault().asyncExec(new Runnable() {
+			public void run() {
+				OtmRegistry.getMainController().postStatus(msg);
+				OtmRegistry.getMainController().refresh();
+			}
+		});
+	}
+
 }

@@ -711,10 +711,10 @@ class LockThread extends Thread {
 	public void run() {
 		try {
 			ln.lock();
+			DialogUserNotifier.syncWithUi("Locked " + ln);
 		} catch (RepositoryException e) {
 			// result = false;
 			DefaultRepositoryController.postRepoException(e);
-			// DialogUserNotifier.openError(Messages.getString("repository.error.title"), e.getLocalizedMessage());
 		}
 	}
 }
@@ -807,11 +807,9 @@ class RevertThread extends Thread {
 			}
 		} catch (RepositoryException e) {
 			DefaultRepositoryController.postRepoException(e);
-			// DialogUserNotifier.openError(Messages.getString("repository.error.title"), e.getLocalizedMessage());
 
 		} catch (LibrarySaveException e) {
 			DefaultRepositoryController.postRepoException(e);
-			// DialogUserNotifier.openError(Messages.getString("repository.error.title"), e.getLocalizedMessage());
 		}
 	}
 }
