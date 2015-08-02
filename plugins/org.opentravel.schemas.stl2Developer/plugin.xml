@@ -874,7 +874,7 @@
 		<propertyTester class="org.opentravel.schemas.testers.RepositoryTypeTester"
 			id="stl2Developer.repository.type" namespace="stl2Developer.repository.type"
 			properties="remote,local"
-			type="org.opentravel.schemas.trees.repository.RepositoryNode$RepositoryNameNode">
+			type="org.opentravel.schemas.trees.repository.RepositoryNode$RepositoryInstanceNode">
 		</propertyTester>
 		<propertyTester class="org.opentravel.schemas.testers.GlobalSelectionTester"
 			id="stl2Developer.selection" namespace="stl2Developer.selection"

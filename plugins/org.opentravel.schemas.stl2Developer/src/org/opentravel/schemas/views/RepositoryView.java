@@ -26,8 +26,8 @@ import org.eclipse.jface.viewers.ITreeViewerListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeExpansionEvent;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -39,6 +39,9 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.trees.repository.RepositoryMenus;
+import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryChainNode;
+import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryRootNsNode;
+import org.opentravel.schemas.trees.repository.RepositoryTreeContentProvider.RepositoryTreeComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,7 +131,9 @@ public class RepositoryView extends OtmAbstractView implements ISelectionListene
 		// viewer.addFilter(textFilter);
 		// viewer.addFilter(inheritedFilter);
 		// viewer.addFilter(propFilter);
-		viewer.setComparator(new ViewerComparator());
+
+		// 8/1/2015 viewer.setComparator(new ViewerComparator());
+		viewer.setComparator(new RepositoryTreeComparator());
 
 		viewer.getTree().setLayoutData(treeGD);
 
@@ -258,6 +263,14 @@ public class RepositoryView extends OtmAbstractView implements ISelectionListene
 
 	@Override
 	public void selectionChanged(final IWorkbenchPart part, final ISelection selection) {
+		// 8/1/2015 dmh - Expand paths and chains to show libraries on selection
+		if (selection instanceof TreeSelection)
+			if (((TreeSelection) selection).getFirstElement() instanceof RepositoryChainNode
+					|| ((TreeSelection) selection).getFirstElement() instanceof RepositoryRootNsNode)
+				if (viewer.getExpandedState(((TreeSelection) selection).getFirstElement()))
+					viewer.collapseToLevel(((TreeSelection) selection).getFirstElement(), 1);
+				else
+					viewer.expandToLevel(((TreeSelection) selection).getFirstElement(), 1);
 	}
 
 	@Override

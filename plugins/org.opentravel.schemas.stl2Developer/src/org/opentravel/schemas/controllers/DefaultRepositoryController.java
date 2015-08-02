@@ -55,7 +55,7 @@ import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
-import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryRoot;
+import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryTreeRoot;
 import org.opentravel.schemas.views.OtmView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +70,7 @@ public class DefaultRepositoryController implements RepositoryController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRepositoryController.class);
 
 	RepositoryManager repositoryManager;
-	RepositoryRoot repositoryRoot = null;
+	RepositoryTreeRoot repositoryRoot = null;
 	MainController mc;
 
 	public DefaultRepositoryController(MainController mc, RepositoryManager localRepositoryManager) {
@@ -98,9 +98,9 @@ public class DefaultRepositoryController implements RepositoryController {
 	 * @return the root of the repository tree. Repository root will be created if needed.
 	 */
 	@Override
-	public RepositoryRoot getRoot() {
+	public RepositoryTreeRoot getRoot() {
 		if (repositoryRoot == null) {
-			repositoryRoot = new RepositoryRoot(repositoryManager);
+			repositoryRoot = new RepositoryTreeRoot(repositoryManager);
 		}
 		return repositoryRoot;
 	}
@@ -655,7 +655,7 @@ public class DefaultRepositoryController implements RepositoryController {
 	public void removeRemoteRepository(RepositoryNode node) {
 		try {
 			repositoryManager.removeRemoteRepository((RemoteRepository) node.getRepository());
-			getRoot().removeReposutory(node.getRepository());
+			getRoot().removeRepository(node.getRepository());
 			refreshAll();
 		} catch (RepositoryException e) {
 			postRepoException(e);

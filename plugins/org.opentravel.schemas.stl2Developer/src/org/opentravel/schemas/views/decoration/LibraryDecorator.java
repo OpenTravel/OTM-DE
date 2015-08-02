@@ -31,9 +31,10 @@ import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.NamespaceHandler;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.trees.repository.RepositoryNode.NamespaceNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryChainNode;
-import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryNameNode;
+import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryInstanceNode;
+import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryItemNode;
+import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryRootNsNode;
 
 public class LibraryDecorator extends BaseLabelProvider implements ILightweightLabelDecorator, IRefreshListener {
 
@@ -56,18 +57,20 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 		} else if (element instanceof LibraryChainNode) {
 			LibraryNode head = ((LibraryChainNode) element).getHead();
 			decoration.addSuffix(getLibraryDecoration(head));
-		} else if (element instanceof RepositoryNameNode) {
-			decoration.addSuffix(getRepositoryNameDecoration((RepositoryNameNode) element));
-
+		} else if (element instanceof RepositoryInstanceNode) {
+			decoration.addSuffix(getRepositoryNameDecoration((RepositoryInstanceNode) element));
 		} else if (element instanceof RepositoryChainNode) {
 			RepositoryChainNode node = (RepositoryChainNode) element;
+			decoration.addSuffix(getNamespaceDecoration(node));
+		} else if (element instanceof RepositoryItemNode) {
+			RepositoryItemNode node = (RepositoryItemNode) element;
 			decoration.addSuffix(getRepositoryItemDecoration(node.getItem()));
-		} else if (element instanceof NamespaceNode) {
-			decoration.addSuffix(getNamespaceDecoration((NamespaceNode) element));
+		} else if (element instanceof RepositoryRootNsNode) {
+			decoration.addSuffix(getNamespaceDecoration((RepositoryRootNsNode) element));
 		}
 	}
 
-	private String getRepositoryNameDecoration(RepositoryNameNode element) {
+	private String getRepositoryNameDecoration(RepositoryInstanceNode element) {
 		if (element.getRepository() instanceof RemoteRepositoryClient) {
 			RemoteRepositoryClient rc = (RemoteRepositoryClient) element.getRepository();
 			String userID = rc.getUserId();
@@ -79,7 +82,15 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 		return "";
 	}
 
-	private String getNamespaceDecoration(NamespaceNode node) {
+	private String getNamespaceDecoration(RepositoryChainNode node) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(" ");
+		sb.append(node.getChildren().size());
+		sb.append(surround(node.getPermission()));
+		return sb.toString();
+	}
+
+	private String getNamespaceDecoration(RepositoryRootNsNode node) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(" ");
 		sb.append(getChildCount(node));
@@ -134,7 +145,7 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 
 	}
 
-	private String getChildCount(NamespaceNode node) {
+	private String getChildCount(RepositoryRootNsNode node) {
 		int count = node.getChildren().size();
 		return "(" + count + ")";
 	}

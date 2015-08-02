@@ -440,6 +440,7 @@ public class MainController {
 		fireRefreshNotyfication(null);
 	}
 
+	// used for libraryDecoration and elsewhere
 	public void addRefreshListener(IRefreshListener listener) {
 		refreshList.add(listener);
 	}
