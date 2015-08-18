@@ -217,6 +217,10 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 		navigatorMenus.expandToLevel(6);
 	}
 
+	public void expand(Node node) {
+		navigatorMenus.expandToLevel(node, 6);
+	}
+
 	@Override
 	public Node getCurrentNode() {
 		return curNode;
@@ -454,7 +458,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	public boolean isReachable(Node node) {
 		// force recreate if never expanded before
 		navigatorMenus.expandToLevel(node, 0);
-		return navigatorMenus.testFindItem(node) != null;
+		return navigatorMenus.testFindItem(node) != null; // NOTE - this uses a testing hook!
 	}
 
 	/**

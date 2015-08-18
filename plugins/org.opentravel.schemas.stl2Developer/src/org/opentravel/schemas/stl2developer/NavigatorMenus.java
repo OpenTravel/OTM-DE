@@ -558,7 +558,7 @@ public class NavigatorMenus extends TreeViewer {
 		this.refresh();
 		if (expand) {
 			// this.expandToLevel(n, 3);
-			this.expandToLevel(n, 0);
+			this.expandToLevel(n, 6);
 		}
 		this.selectNode(n);
 	}
