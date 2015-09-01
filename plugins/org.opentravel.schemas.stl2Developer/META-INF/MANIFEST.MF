@@ -48,5 +48,6 @@ Import-Package: javax.activation,
  javax.xml.stream,
  javax.xml.stream.events,
  javax.xml.stream.util,
- org.eclipse.core.net.proxy
+ org.eclipse.core.net.proxy,
+ org.opentravel.schemas.properties
 
