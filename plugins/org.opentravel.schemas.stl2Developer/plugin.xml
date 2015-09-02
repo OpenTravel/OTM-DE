@@ -144,6 +144,9 @@
 					icon="IMG_ETOOL_SAVEALL_EDIT" label="Save" style="push"
 					tooltip="Save All Libraries">
 				</command>
+				<command commandId="org.opentravel.schemas.commands.RefreshView:MASTER" icon="icons/refresh.gif"
+					label="Refresh" style="push" tooltip="Refresh all projects and libraries.">
+				</command>				
 				<command commandId="org.opentravel.schemas.stl2Developer.ResetPerspective"
 					icon="icons/default_persp.gif" label="Reset Views" style="push"
 					tooltip="Reset Views">
@@ -449,19 +452,24 @@
 			description="Merge selected object into a new object." id="org.opentravel.schemas.commands.MergeNodes"
 			name="Merge">
 		</command>
-		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+		<!-- command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			defaultHandler="org.opentravel.schemas.commands.RefreshExamplesHandler"
 			description="Regenerates example tree from current model" id="org.opentravel.schemas.commands.RefreshExamples"
 			name="Refresh Examples">
-		</command>
-		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+		</command -->
+		<!-- command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			defaultHandler="org.opentravel.schemas.commands.RefreshDocumentationViewHandler"
 			id="org.opentravel.schemas.commands.RefreshDocumentationView" name="Refresh Documentation View">
-		</command>
+		</command -->
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			defaultHandler="org.opentravel.schemas.commands.RefreshViewHandler"
 			description="Refresh the view" id="org.opentravel.schemas.commands.RefreshView"
 			name="Refresh View">
+		</command>
+		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+			defaultHandler="org.opentravel.schemas.commands.RefreshViewHandler"
+			description="Refresh all projects and libraries." id="org.opentravel.schemas.commands.RefreshView:MASTER"
+			name="Refresh">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			defaultHandler="org.opentravel.schemas.commands.SortNodeHandler"

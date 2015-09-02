@@ -67,6 +67,7 @@ public class MainWindow extends ViewPart implements ISelectionListener {
 	public MainWindow() {
 		LOGGER.info("Main Window constructor ran. " + this.getClass());
 		try {
+			// IWorkbench x = PlatformUI.getWorkbench();
 			mainDisplay = PlatformUI.getWorkbench().getDisplay();
 			initializeMainWindow(mainDisplay);
 		} catch (IllegalStateException e) {

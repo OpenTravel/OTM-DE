@@ -18,143 +18,142 @@ package org.opentravel.schemas.controllers;
 import java.io.File;
 import java.util.List;
 
-import org.opentravel.schemas.node.LibraryNode;
-import org.opentravel.schemas.node.ProjectNode;
-
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.repository.Project;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
+import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.ProjectNode;
 
 /**
- * Interface for all the project related activity. Note that the global model is controlled by
- * {@link ModelController}
+ * Interface for all the project related activity. Note that the global model is controlled by {@link ModelController}
  * 
  * @author Dave Hollander
  * 
  */
 public interface ProjectController {
 
-    public List<ProjectItem> addLibrariesToTLProject(Project project, List<File> libraryFiles);
+	public List<ProjectItem> addLibrariesToTLProject(Project project, List<File> libraryFiles);
 
-    /**
-     * Add a library from a repository to the project.
-     * 
-     * @param project
-     * @param ri
-     */
-    public ProjectItem add(ProjectNode projectNode, RepositoryItem repositoryItem);
+	/**
+	 * Add a library from a repository to the project.
+	 * 
+	 * @param project
+	 * @param ri
+	 */
+	public ProjectItem add(ProjectNode projectNode, RepositoryItem repositoryItem);
 
-    /**
-     * Add a TL Library to the project and create a LibraryNode to represent it.
-     * 
-     * @param pn
-     * @param tlLib
-     */
-    public LibraryNode add(ProjectNode pn, AbstractLibrary tlLib);
+	/**
+	 * Add a TL Library to the project and create a LibraryNode to represent it.
+	 * 
+	 * @param pn
+	 * @param tlLib
+	 */
+	public LibraryNode add(ProjectNode pn, AbstractLibrary tlLib);
 
-    /**
-     * Saves, closes and removes a project from the model
-     * 
-     * @param project
-     *            {@link ProjectNode} to be closed
-     */
-    void close(ProjectNode project);
+	/**
+	 * Saves, closes and removes a project from the model
+	 * 
+	 * @param project
+	 *            {@link ProjectNode} to be closed
+	 */
+	void close(ProjectNode project);
 
-    /**
-     * Saves, closes and removes all projects from the model
-     * 
-     */
-    void closeAll();
+	/**
+	 * Saves, closes and removes all projects from the model
+	 * 
+	 */
+	void closeAll();
 
-    /**
-     * Creates new project complete with TL model
-     */
-    ProjectNode create(File file, String ID, String name, String description);
+	/**
+	 * Creates new project complete with TL model
+	 */
+	ProjectNode create(File file, String ID, String name, String description);
 
-    /**
-     * @return new list of open projects. Returns empty list if there are no projects.
-     */
-    List<ProjectNode> getAll();
+	/**
+	 * @return new list of open projects. Returns empty list if there are no projects.
+	 */
+	List<ProjectNode> getAll();
 
-    /**
-     * @return the builtInProject
-     */
-    public ProjectNode getBuiltInProject();
+	/**
+	 * @return the builtInProject
+	 */
+	public ProjectNode getBuiltInProject();
 
-    ProjectNode getDefaultProject();
+	ProjectNode getDefaultProject();
 
-    /**
-     * @return namespace of the project
-     */
-    String getNamespace();
+	/**
+	 * @return namespace of the project
+	 */
+	String getNamespace();
 
-    /**
-     * Opens already existing project(s) using a selection dialog and adds it to the model. Opens
-     * all the libraries in the project.
-     */
-    void open();
+	/**
+	 * Opens already existing project(s) using a selection dialog and adds it to the model. Opens all the libraries in
+	 * the project.
+	 */
+	void open();
 
-    /**
-     * Create a new project with TL model using the Wizard to have user enter projectFile, ID which
-     * defines the governed namespace, name and description.
-     */
-    public ProjectNode newProject();
+	/**
+	 * Create a new project with TL model using the Wizard to have user enter projectFile, ID which defines the governed
+	 * namespace, name and description.
+	 */
+	public ProjectNode newProject();
 
-    /**
-     * @param defaultName
-     * @param selectedRoot
-     * @param selectedExt
-     */
-    public void newProject(String defaultName, String selectedRoot, String selectedExt);
+	/**
+	 * @param defaultName
+	 * @param selectedRoot
+	 * @param selectedExt
+	 */
+	public void newProject(String defaultName, String selectedRoot, String selectedExt);
 
-    /**
-     * Save the project.
-     */
-    void save();
+	public void refreshMaster();
 
-    /**
-     * Saves the given projects to the physical files / repository
-     * 
-     * @param projects
-     *            is list of {@link ProjectNode}s to be saved
-     */
-    void save(List<ProjectNode> projects);
+	/**
+	 * Save the project.
+	 */
+	void save();
 
-    /**
-     * Saves the given project to the physical file / repository
-     * 
-     * @param project
-     *            {@link ProjectNode} to be saved
-     */
-    void save(ProjectNode project);
+	/**
+	 * Saves the given projects to the physical files / repository
+	 * 
+	 * @param projects
+	 *            is list of {@link ProjectNode}s to be saved
+	 */
+	void save(List<ProjectNode> projects);
 
-    /**
-     * Saves all projects
-     * 
-     */
-    void saveAll();
+	/**
+	 * Saves the given project to the physical file / repository
+	 * 
+	 * @param project
+	 *            {@link ProjectNode} to be saved
+	 */
+	void save(ProjectNode project);
 
-    public void saveState();
+	/**
+	 * Saves all projects
+	 * 
+	 */
+	void saveAll();
 
-    /**
-     * Projects govern a specific namespace. This method returns namespaces that are eligible to be
-     * governed.
-     */
-    public List<String> getSuggestedNamespaces();
+	public void saveState();
 
-    /**
-     * Governed namespaces are namespaces that are protected via the repositories. Open governed
-     * namespaces are assigned to open projects.
-     * 
-     * @return list of governed namespaces in currently open projects.
-     */
-    public List<String> getOpenGovernedNamespaces();
+	/**
+	 * Projects govern a specific namespace. This method returns namespaces that are eligible to be governed.
+	 */
+	public List<String> getSuggestedNamespaces();
 
-    public String getDefaultUnmanagedNS();
+	/**
+	 * Governed namespaces are namespaces that are protected via the repositories. Open governed namespaces are assigned
+	 * to open projects.
+	 * 
+	 * @return list of governed namespaces in currently open projects.
+	 */
+	public List<String> getOpenGovernedNamespaces();
 
-    LibraryNode add(LibraryNode ln, AbstractLibrary tlLib);
+	public String getDefaultUnmanagedNS();
 
-    public ProjectNode openProject(String projectFile);
+	LibraryNode add(LibraryNode ln, AbstractLibrary tlLib);
+
+	public ProjectNode openProject(String projectFile);
 
 }

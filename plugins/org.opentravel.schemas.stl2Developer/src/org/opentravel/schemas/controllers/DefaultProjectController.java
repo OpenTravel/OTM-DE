@@ -58,6 +58,7 @@ import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.ProjectNode;
@@ -459,22 +460,20 @@ public class DefaultProjectController implements ProjectController {
 					job.schedule();
 				}
 			});
-
-			// Job job = new Job("Opening Saved Projects") {
-			// @Override
-			// protected IStatus run(IProgressMonitor monitor) {
-			// monitor.beginTask("Opening Project", memento.getChildren().length + 1);
-			// monitor.worked(1);
-			// IStatus status = loadProjects(memento, monitor);
-			// monitor.done();
-			// syncWithUi("Project Opened");
-			// return status;
-			// };
-			// };
-			// job.setUser(true);
-			// job.schedule();
 		}
 		// LOGGER.info("Done initializing " + this.getClass());
+	}
+
+	public void open(ArrayList<String> projectFiles, IProgressMonitor monitor) {
+		for (String fileName : projectFiles) {
+			ValidationFindings findings = null;
+			Project project = openProject(fileName, findings);
+			if (monitor != null) {
+				monitor.worked(1);
+				monitor.subTask(fileName);
+			}
+			loadProject(project);
+		}
 	}
 
 	@Override
@@ -640,6 +639,58 @@ public class DefaultProjectController implements ProjectController {
 		}
 		// to re-initializes the contents of the model
 		projectManager.closeAll();
+	}
+
+	@Override
+	public void refreshMaster() {
+		ArrayList<String> projectFiles = new ArrayList<>();
+
+		// Close all project nodes
+		for (ProjectNode p : ModelNode.getAllProjects()) {
+			if (p == getBuiltInProject() || p == getDefaultProject())
+				continue;
+			if (p.getProject().getProjectFile() != null)
+				projectFiles.add(p.getProject().getProjectFile().getAbsolutePath());
+			close(p);
+		}
+		mc.refresh();
+
+		/**
+		 * Open a list of project files with a progress monitor
+		 */
+		if (Display.getCurrent() == null) {
+			// not in UI Thread
+			for (String fn : projectFiles)
+				open(fn, null);
+			return;
+		}
+
+		final int jobcount = projectFiles.size() + 2;
+		final ArrayList<String> projects = new ArrayList<String>(projectFiles);
+		mc.postStatus("Opening Projects");
+		// run in a background job
+		Job job = new Job("Refreshing Projects") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				monitor.beginTask("Refreshing Projects ", jobcount);
+				monitor.worked(1);
+				try {
+					monitor.subTask("Refresh all managed libraries from repository.");
+					projectManager.refreshManagedProjectItems();
+				} catch (LibraryLoaderException | RepositoryException e) {
+					monitor.done();
+					syncWithUi("Error refreshing from repository.");
+					return Status.CANCEL_STATUS;
+				}
+				monitor.worked(1);
+				open(projects, monitor);
+				monitor.done();
+				syncWithUi("Projects Refreshed");
+				return Status.OK_STATUS;
+			}
+		};
+		job.setUser(true);
+		job.schedule();
 	}
 
 	@Override

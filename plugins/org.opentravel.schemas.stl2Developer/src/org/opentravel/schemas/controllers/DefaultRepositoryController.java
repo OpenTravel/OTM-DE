@@ -301,11 +301,16 @@ public class DefaultRepositoryController implements RepositoryController {
 
 	@Override
 	public boolean lock(LibraryNode ln) {
-		BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), new LockThread(ln));
+		LockThread lt = new LockThread(ln);
+		BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), lt);
+		if (lt.getException() != null) {
+			LOGGER.debug("TODO - handle exception: " + lt.getException().getLocalizedMessage());
+		}
 		refreshAll(ln);
 		return true;
 	}
 
+	// Used by the action.
 	@Override
 	public void unlock(boolean commitWIP) {
 		for (LibraryNode ln : mc.getSelectedLibraries()) {
@@ -317,6 +322,8 @@ public class DefaultRepositoryController implements RepositoryController {
 		}
 	}
 
+	// TODO - should be private - only used internally and in testing
+	// return value only used in versionPreperation
 	@Override
 	public boolean unlock(LibraryNode ln) {
 		UnlockThread ut = new UnlockThread(ln, mc);
@@ -703,6 +710,7 @@ public class DefaultRepositoryController implements RepositoryController {
 // mc.showBusy() does not work consistently.
 class LockThread extends Thread {
 	private LibraryNode ln;
+	private Exception exception = null;
 
 	public LockThread(LibraryNode ln) {
 		this.ln = ln;
@@ -713,9 +721,13 @@ class LockThread extends Thread {
 			ln.lock();
 			DialogUserNotifier.syncWithUi("Locked " + ln);
 		} catch (RepositoryException e) {
-			// result = false;
+			exception = e;
 			DefaultRepositoryController.postRepoException(e);
 		}
+	}
+
+	public Exception getException() {
+		return exception;
 	}
 }
 
@@ -777,6 +789,8 @@ class CommitThread extends Thread {
 }
 
 class RevertThread extends Thread {
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRepositoryController.class);
+
 	private LibraryNode ln;
 	private MainController mc;
 	private ProjectNode loaded = null;
@@ -805,6 +819,7 @@ class RevertThread extends Thread {
 			} else {
 				loaded = mc.getProjectController().openProject(projectFile);
 			}
+			LOGGER.debug("RevertThread completed. Loaded = " + loaded);
 		} catch (RepositoryException e) {
 			DefaultRepositoryController.postRepoException(e);
 

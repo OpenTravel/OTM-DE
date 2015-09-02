@@ -24,27 +24,28 @@ import org.opentravel.schemas.views.DocumentationView;
  * 
  * @author Agnieszka Janowska
  * 
+ *         9/1/2015 dmh - dead code
  */
 public class RefreshDocumentationViewHandler extends OtmAbstractHandler {
-    public static String COMMAND_ID = "org.opentravel.schemas.commands.refreshDocumentation";
+	public static String COMMAND_ID = "org.opentravel.schemas.commands.refreshDocumentation";
 
-    @Override
-    public Object execute(final ExecutionEvent event) throws ExecutionException {
-        final DocumentationView view = OtmRegistry.getDocumentationView();
-        if (view != null) {
-            view.forceCurrentNode();
-        }
-        return null;
-    }
+	@Override
+	public Object execute(final ExecutionEvent event) throws ExecutionException {
+		final DocumentationView view = OtmRegistry.getDocumentationView();
+		if (view != null) {
+			view.forceCurrentNode();
+		}
+		return null;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.commands.OtmHandler#getID()
-     */
-    @Override
-    public String getID() {
-        return COMMAND_ID;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.commands.OtmHandler#getID()
+	 */
+	@Override
+	public String getID() {
+		return COMMAND_ID;
+	}
 
 }

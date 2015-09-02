@@ -435,6 +435,13 @@ public class MainController {
 	/**
 	 * Refresh all views convenience method.
 	 */
+	/**
+	 * Re-read all libraries from repository, create new node structure.
+	 */
+	public void refreshMaster() {
+		projectController.refreshMaster();
+	}
+
 	public void refresh() {
 		OtmRegistry.getNavigatorView().refreshAllViews();
 		fireRefreshNotyfication(null);

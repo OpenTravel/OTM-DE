@@ -624,8 +624,11 @@ public abstract class Node implements INode {
 	 */
 	@Override
 	public String getName() {
-		if (modelObject == null) return "";
-		if (modelObject.getTLModelObj() instanceof TLFacet && ((TLFacet)modelObject.getTLModelObj()).getOwningEntity() == null) return "";
+		if (modelObject == null)
+			return "";
+		if (modelObject.getTLModelObj() instanceof TLFacet
+				&& ((TLFacet) modelObject.getTLModelObj()).getOwningEntity() == null)
+			return "";
 		return modelObject.getName() == null ? "" : modelObject.getName();
 	}
 
@@ -2181,9 +2184,9 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Static method to return all libraries in the model.
+	 * Static method to return all projects in the model.
 	 * 
-	 * @return new list of library nodes for all libraries in the model
+	 * @return new list of projects nodes for all projects in the model
 	 */
 	public static List<ProjectNode> getAllProjects() {
 		return getModelNode().getProjects();
