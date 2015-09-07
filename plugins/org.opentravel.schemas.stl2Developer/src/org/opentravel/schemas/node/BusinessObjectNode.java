@@ -223,6 +223,11 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 	}
 
 	@Override
+	public ComponentNode getDefaultFacet() {
+		return getSummaryFacet();
+	}
+
+	@Override
 	public String getLabel() {
 		if (getExtendsType() == null)
 			return super.getLabel();
@@ -347,6 +352,11 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 			ghostFacets.add(ghostFacet);
 		}
 		return ghostFacets;
+	}
+
+	@Override
+	public INode.CommandType getAddCommand() {
+		return INode.CommandType.PROPERTY;
 	}
 
 	@Override

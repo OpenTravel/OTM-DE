@@ -48,6 +48,9 @@ import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryRootNsNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryInstanceNode;
 import org.opentravel.schemas.widgets.WidgetFactory;
+import org.opentravel.schemas.wizards.validators.FormValidator;
+import org.opentravel.schemas.wizards.validators.NewProjectValidator;
+import org.opentravel.schemas.wizards.validators.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

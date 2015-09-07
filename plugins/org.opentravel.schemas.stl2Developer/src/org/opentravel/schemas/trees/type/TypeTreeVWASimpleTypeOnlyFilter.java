@@ -17,30 +17,37 @@ package org.opentravel.schemas.trees.type;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.types.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TypeTreeVWASimpleTypeOnlyFilter extends TypeSelectionFilter {
+	private static final Logger LOGGER = LoggerFactory.getLogger(Type.class);
 
-    /**
-     * @see org.opentravel.schemas.typeTree.TypeSelectionFilter#isValidSelection(org.opentravel.schemas.node.Node)
-     */
-    @Override
-    public boolean isValidSelection(Node n) {
-        return (n != null) && n.isAssignable() && n.isVWASimpleAssignable();
-    }
+	/**
+	 * @see org.opentravel.schemas.typeTree.TypeSelectionFilter#isValidSelection(org.opentravel.schemas.node.Node)
+	 */
+	@Override
+	public boolean isValidSelection(Node n) {
+		if (n.isAssignable() && !n.isVWASimpleAssignable())
+			LOGGER.debug("Error in tree filter.");
+		return (n != null) && n.isAssignable() && n.isVWASimpleAssignable();
+		// when isAssignable but not isVWASimpleAssignable?
+	}
 
-    /**
-     * Establish the filter to select only nodes that match the node.library.
-     */
-    public TypeTreeVWASimpleTypeOnlyFilter() {
-    }
+	/**
+	 * Establish the filter to select only nodes that match the node.library.
+	 */
+	public TypeTreeVWASimpleTypeOnlyFilter() {
+	}
 
-    @Override
-    public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
-        if (element == null || !(element instanceof Node)) {
-            return false;
-        }
-        final Node n = (Node) element;
-        return (n.isNavigation()) ? true : n.isVWASimpleAssignable();
-    }
+	@Override
+	public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
+		if (element == null || !(element instanceof Node)) {
+			return false;
+		}
+		final Node n = (Node) element;
+		return (n.isNavigation()) ? true : n.isVWASimpleAssignable();
+	}
 
 }

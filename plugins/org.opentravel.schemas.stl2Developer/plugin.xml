@@ -719,7 +719,7 @@
 				</or>
 			</activeWhen>
 		</handler>
-		<handler class="org.opentravel.schemas.commands.AddNodeHandler"
+		<handler class="org.opentravel.schemas.commands.AddNodeHandler2"
 			commandId="org.opentravel.schemas.commands.Add">
 			<enabledWhen>
 				<with variable="org.opentravel.schemas.selection.nodes">

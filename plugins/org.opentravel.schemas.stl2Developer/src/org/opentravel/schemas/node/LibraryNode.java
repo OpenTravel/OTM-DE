@@ -566,6 +566,7 @@ public class LibraryNode extends Node {
 	 * 
 	 * @throws RepositoryException
 	 */
+	// TODO - why is lock managed here while unlock is managed in project manager?
 	public void lock() throws RepositoryException {
 		ProjectNode pn = getProject();
 		if (pn == null)
@@ -585,6 +586,7 @@ public class LibraryNode extends Node {
 	 * 
 	 * @return empty string if successful or an error message from repository.
 	 */
+	// Not Used
 	public void unlock() throws RepositoryException {
 		ProjectNode pn = getProject();
 		if (pn == null)
@@ -665,8 +667,9 @@ public class LibraryNode extends Node {
 				n.setLibrary(this);
 			}
 		}
-		TypeResolver tr = new TypeResolver();
-		tr.resolveTypes();
+		// TypeResolver tr = new TypeResolver();
+		// tr.resolveTypes();
+		new TypeResolver().resolveTypes();
 	}
 
 	public boolean hasGeneratedChildren() {
@@ -864,6 +867,7 @@ public class LibraryNode extends Node {
 		// *before* the node is moved or else context will never be found.
 		ContextController cc = OtmRegistry.getMainController().getContextController();
 		cc.copyContext(source, destination);
+		// FIXME - this results in lots of contexts in target library. Better to reassign context to moved items.
 
 		// Remove from source
 		if (isInChain()) {
@@ -999,6 +1003,7 @@ public class LibraryNode extends Node {
 		boolean result = false;
 		LibraryChainNode chain = getChain();
 		if (chain == null) {
+			// TODO - why not just check the service node?
 			for (Node n : getChildren())
 				if (n instanceof ServiceNode)
 					result = true;
@@ -1240,6 +1245,7 @@ public class LibraryNode extends Node {
 	 * 
 	 * @return list of all named simple types in this library.
 	 */
+	// FIXME - ONLY used in tests. move or remove
 	public List<SimpleTypeNode> getNamedSimpleTypes() {
 		return (getNamedSimpleTypes(simpleRoot));
 	}
@@ -1337,6 +1343,7 @@ public class LibraryNode extends Node {
 	 * 
 	 * @return
 	 */
+	// FIXME - this method also is in Node
 	public List<Node> getDescendentsNamedTypeProviders() {
 		ArrayList<Node> namedTypeProviders = new ArrayList<Node>();
 		for (Node n : getChildren())
@@ -1359,6 +1366,7 @@ public class LibraryNode extends Node {
 	 * 
 	 * @return
 	 */
+	// FIXME - this method also is in Node
 	public List<Node> getDescendentsNamedTypes() {
 		ArrayList<Node> namedTypeProviders = new ArrayList<Node>();
 		for (Node n : getChildren())
@@ -1455,10 +1463,11 @@ public class LibraryNode extends Node {
 	 * @return true if this library's namespace is within the project's namespace.
 	 */
 	public boolean isInProjectNS() {
-		String projectNS = "ZZZZZXXXXCCCCVVVVV"; // never found!
-		if (getProject() != null)
-			projectNS = getProject().getNamespace();
-		return getNamespace().startsWith(projectNS);
+		// String projectNS = "ZZZZZXXXXCCCCVVVVV"; // never found!
+		// if (getProject() != null)
+		// projectNS = getProject().getNamespace();
+		// return getNamespace().startsWith(projectNS);
+		return getProject() != null ? getNamespace().startsWith(getProject().getNamespace()) : false;
 	}
 
 	/**

@@ -45,10 +45,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.INode;
-import org.opentravel.schemas.node.LibraryNode;
-import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
@@ -67,24 +64,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Agnieszka Janowska
+ * Page to add new properties directly to an existing facet. Adds to existing facet to allow all type assignment logic
+ * to have correct context.
+ * 
+ * @author Agnieszka Janowska and Dave Hollander
  * 
  */
-@Deprecated
-public class NewPropertiesWizardPage extends WizardPage {
-	private static final Logger LOGGER = LoggerFactory.getLogger(NewPropertiesWizardPage.class);
+public class NewPropertiesWizardPage2 extends WizardPage {
+	private static final Logger LOGGER = LoggerFactory.getLogger(NewPropertiesWizardPage2.class);
 
 	private class TextModifyListener implements ModifyListener {
 		@Override
 		public void modifyText(final ModifyEvent e) {
 			setNodeName(nameText.getText());
-			validate();
 		}
 	}
 
-	private List<PropertyNode> newProperties;
-	private final List<PropertyNodeType> propertyTypesOrder;
+	private List<PropertyNode> newProperties; // list of properties created by this page
+	private final List<PropertyNodeType> enabledPropertyTypes;
 
+	private final Node scopeNode;
+	private final ComponentNode owningFacet;
 	private PropertyNode selectedNode;
 
 	private final AtomicInteger counter = new AtomicInteger(1);
@@ -102,29 +102,21 @@ public class NewPropertiesWizardPage extends WizardPage {
 	private Action downAction;
 	private Action deleteAction;
 	private Button typeButton;
-	private final Node scopeNode;
-	private final ComponentNode editedFacet;
+
 	private final FormValidator validator;
 	private ViewerFilter propertyFilter;
-	private final LibraryNode library;
 	private final TextModifyListener textModifyListener = new TextModifyListener();
 
 	/**
-	 * @param pageName
-	 * @param title
-	 * @param titleImage
-	 * @param scope
-	 *            is a node that is the root of the tree of choices presented in the wizard
 	 */
-	protected NewPropertiesWizardPage(final String pageName, final String title, final FormValidator validator,
-			final List<PropertyNodeType> enabledTypes, final LibraryNode library, final Node scope) {
+	protected NewPropertiesWizardPage2(final String pageName, final String title, final FormValidator validator,
+			final List<PropertyNodeType> enabledTypes, final ComponentNode actOnNode, final Node scope) {
 		super(pageName, title, null);
 		this.validator = validator;
-		propertyTypesOrder = new ArrayList<PropertyNodeType>(enabledTypes);
+		this.enabledPropertyTypes = new ArrayList<PropertyNodeType>(enabledTypes);
+		this.owningFacet = actOnNode;
 		this.scopeNode = scope;
-		editedFacet = new FacetNode();
-		this.library = library;
-		this.setNewProperties(new LinkedList<PropertyNode>());
+		this.newProperties = new LinkedList<PropertyNode>();
 	}
 
 	@Override
@@ -174,12 +166,10 @@ public class NewPropertiesWizardPage extends WizardPage {
 				if (selection instanceof StructuredSelection) {
 					final StructuredSelection s = (StructuredSelection) selection;
 					final Object o = s.getFirstElement();
-					if (o instanceof PropertyNode) {
+					if (o instanceof PropertyNode)
 						displayNewProperty(newProperty((PropertyNode) o));
-					} else if (o instanceof Node) {
-						final Node node = (Node) o;
-						newPropertyFromType(node);
-					}
+					else if (o instanceof Node)
+						displayNewProperty(newProperty((Node) o));
 				}
 
 			}
@@ -192,7 +182,7 @@ public class NewPropertiesWizardPage extends WizardPage {
 		propertyTree.setContentProvider(new LibraryTreeWithPropertiesContentProvider(false));
 		propertyTree.setLabelProvider(new LibraryTreeLabelProvider());
 		propertyTree.setSorter(new LibrarySorter());
-		propertyTree.setInput(editedFacet);
+		propertyTree.setInput(owningFacet);
 		propertyTree.getControl().setLayoutData(listGD);
 		propertyTree.addSelectionChangedListener(new ISelectionChangedListener() {
 
@@ -234,9 +224,11 @@ public class NewPropertiesWizardPage extends WizardPage {
 		copyAction = new Action("Copy") {
 			@Override
 			public void run() {
+				nameText.removeModifyListener(textModifyListener);
 				for (final PropertyNode o : getSelectedValidPropertiesFromLibraryTree()) {
 					displayNewProperty(newProperty(o));
 				}
+				nameText.addModifyListener(textModifyListener);
 			}
 		};
 		copyAction.setToolTipText("Copy selected properties from left tree to the list of new properties");
@@ -302,7 +294,7 @@ public class NewPropertiesWizardPage extends WizardPage {
 		final Label propertyLabel = new Label(rightPanel, SWT.NONE);
 		propertyLabel.setText("Property:");
 		propertyCombo = WidgetFactory.createCombo(rightPanel, SWT.DROP_DOWN | SWT.V_SCROLL | SWT.READ_ONLY);
-		for (final PropertyNodeType propertyType : propertyTypesOrder) {
+		for (final PropertyNodeType propertyType : enabledPropertyTypes) {
 			propertyCombo.add(propertyType.getName());
 		}
 		propertyCombo.addModifyListener(new ModifyListener() {
@@ -336,7 +328,7 @@ public class NewPropertiesWizardPage extends WizardPage {
 
 			@Override
 			public void widgetSelected(final SelectionEvent e) {
-				chooseTLType();
+				chooseAssignedType();
 			}
 
 			@Override
@@ -376,80 +368,69 @@ public class NewPropertiesWizardPage extends WizardPage {
 		}
 	}
 
+	/**
+	 * @return newly created property cloned from passed property.
+	 */
 	private PropertyNode newProperty(final PropertyNode o) {
-		if (!propertyTypesOrder.contains(o.getPropertyType())) {
+		if (!enabledPropertyTypes.contains(o.getPropertyType())) {
 			setMessage(o.getPropertyType().getName() + "s are not allowed for this object", WARNING);
 			return null;
 		}
-		final PropertyNode copy = (PropertyNode) NodeFactory.newComponentMember(editedFacet, o.cloneTLObj());
+		final PropertyNode copy = (PropertyNode) NodeFactory.newComponentMember(owningFacet, o.cloneTLObj());
 		copy.setAssignedType(o.getType());
 		getNewProperties().add(copy);
 		return copy;
 	}
 
-	private PropertyNode newProperty() {
-		// parent is required by PropertyNode.changePropertyTo()
-		final PropertyNode newNode = createPropertyNode(editedFacet);
-		editedFacet.addProperty(newNode);
-		getNewProperties().add(newNode);
-		return newNode;
-	}
-
-	private PropertyNode createPropertyNode(ComponentNode parent) {
-		final String name = "property" + counter.getAndIncrement();
-		// TODO - if element is not enabled, use AttributeNode
-		PropertyNode n = null;
-		if (propertyTypesOrder.contains(PropertyNodeType.ELEMENT))
-			n = new ElementNode(parent, name);
-		else
-			n = new AttributeNode(parent, name);
-		n.setName(name);
-		n.setLibrary(library);
-		n.setDescription("");
-		n.setAssignedType(ModelNode.getUnassignedNode(), false);
-		return n;
-	}
-
-	// @SuppressWarnings("unused")
-	// private PropertyNode createPropertyNode() {
-	// final String name = "property" + counter.getAndIncrement();
-	// final PropertyNode n = new PropertyNode(propertyTypesOrder.get(0));
-	// n.setName(name);
-	// n.setLibrary(library);
-	// n.setDescription("");
-	// n.setAssignedType(ModelNode.getUnassignedNode());
-	// return n;
-	// }
-
-	private void newPropertyFromType(final Node node) {
-		if (node.isAssignable()) {
-			final PropertyNode newProperty = newProperty();
+	/**
+	 * @return newly created property with name and type taken from passed node.
+	 */
+	private PropertyNode newProperty(final Node node) {
+		final PropertyNode newProperty = newProperty();
+		newProperty.setName(NodeNameUtils.adjustCaseOfName(newProperty.getPropertyType(), node.getName()));
+		if (node.isAssignable())
 			newProperty.setAssignedType(node);
-			String adjusted = NodeNameUtils.adjustCaseOfName(newProperty.getPropertyType(), node.getName());
-			newProperty.setName(adjusted);
-			displayNewProperty(newProperty);
-		}
+		else
+			setMessage(node + " is not assigable as type. No type assigned.", WARNING);
+		return newProperty;
+	}
+
+	/**
+	 * @return newly created blank property.
+	 */
+	private PropertyNode newProperty() {
+		final String name = "property" + counter.getAndIncrement();
+		PropertyNode newProperty = null;
+		if (enabledPropertyTypes.contains(PropertyNodeType.ELEMENT))
+			newProperty = new ElementNode(owningFacet, name);
+		else
+			newProperty = new AttributeNode(owningFacet, name);
+		newProperty.setDescription("");
+		getNewProperties().add(newProperty);
+		return newProperty;
 	}
 
 	private void deleteProperty(final PropertyNode selected) {
 		final int index = getNewProperties().indexOf(selected);
+		if (index < 0)
+			return; // Do not delete unless new
 		getNewProperties().remove(selected);
-		editedFacet.removeProperty(selected);
+		owningFacet.removeProperty(selected);
 		propertyTree.refresh();
 		if (getNewProperties().size() > 0) {
 			selectInList(getNewProperties().get(index > 0 ? index - 1 : 0));
 		}
 	}
 
-	private void chooseTLType() {
+	private void chooseAssignedType() {
 		final PropertyNode node = getSelectedNode();
-		final TypeSelectionWizard wizard = new TypeSelectionWizard(node);
 		if (node.getOwningComponent() == null) {
 			LOGGER.error("chhoseTLType error - node " + node + " owner is null.");
+			setMessage("Error. " + node + " does not have an owner.", ERROR);
 			return;
-			// FIXME - type assignment will not work correctly if anscestry is bad (can't find getOwningComponent())
 		}
 
+		final TypeSelectionWizard wizard = new TypeSelectionWizard(node);
 		wizard.run(getShell(), true); // let the user select type then assign it
 		// Use the type name as the property name if the user has not already set one.
 		if (wizard.getSelection() != null
@@ -461,7 +442,7 @@ public class NewPropertiesWizardPage extends WizardPage {
 	}
 
 	private void chooseType() {
-		if (propertyTypesOrder.size() == 1) {
+		if (enabledPropertyTypes.size() == 1) {
 			propertyCombo.select(0);
 		}
 	}
@@ -469,9 +450,12 @@ public class NewPropertiesWizardPage extends WizardPage {
 	private void setPropertyType(final PropertyNodeType type) {
 		final PropertyNode node = getSelectedNode();
 		if (node != null) {
-			newProperties.remove(node);
 			setSelectedNode(node.changePropertyRole(type));
-			newProperties.add(getSelectedNode());
+			// don't change pre-existing properties
+			if (newProperties.contains(node)) {
+				newProperties.remove(node);
+				newProperties.add(getSelectedNode());
+			}
 			nameText.removeModifyListener(textModifyListener);
 			nameText.setText(getSelectedNode().getName());
 			nameText.addModifyListener(textModifyListener);
@@ -481,14 +465,26 @@ public class NewPropertiesWizardPage extends WizardPage {
 
 	private void setNodeName(final String text) {
 		final Node node = getSelectedNode();
-		if (node != null) {
+		if (node != null && isNameOK(text)) {
 			node.setName(text);
-			// LOGGER.debug("Set name on: " + node.getName());
 			NodeNameUtils.fixName(node);
-			// LOGGER.debug("Set name on: " + node.getName());
-			// TODO - figure out how to show the user the changed name
 			propertyTree.update(node, null);
 		}
+	}
+
+	private boolean isNameOK(String name) {
+		String message = null; // clears message
+		boolean complete = true;
+		// FIXME - runs too often. first time gives right answer but second time the property is already set.
+		// for (Node child : owningFacet.getChildren())
+		// if (child.getName().equals(name)) {
+		// complete = false;
+		// message = (name + ": " + Messages.getString("error.newProperty"));
+		// }
+		setPageComplete(complete);
+		setMessage(message, ERROR);
+		getWizard().getContainer().updateButtons();
+		return complete;
 	}
 
 	private void setNodeDescription(final String text) {
@@ -513,7 +509,7 @@ public class NewPropertiesWizardPage extends WizardPage {
 			typeText.setText(modelObject == null || modelObject.getTLType() == null ? "" : modelObject.getTLType()
 					.getLocalName());
 			descriptionText.setText(selectedNode.getDescription());
-			final int index = propertyTypesOrder.indexOf(selectedNode.getPropertyType());
+			final int index = enabledPropertyTypes.indexOf(selectedNode.getPropertyType());
 			if (index >= 0) {
 				if (index != propertyCombo.getSelectionIndex()) {
 					propertyCombo.select(index);
@@ -537,19 +533,24 @@ public class NewPropertiesWizardPage extends WizardPage {
 	private void updateWidgetsState() {
 		final INode selected = getSelectedNode();
 		boolean enabled = false;
+		typeButton.setEnabled(enabled);
 		if (selected != null) {
 			enabled = true;
+			typeButton.setEnabled(selected.isTypeUser() && newProperties.contains(selected));
 		}
 		newAction.setEnabled(true);
-		deleteAction.setEnabled(enabled);
+		updateCopyState();
+
+		// Only allow change or deletion of new properties.
+		if (!newProperties.contains(selected))
+			enabled = false;
 		upAction.setEnabled(enabled);
 		downAction.setEnabled(enabled);
 		nameText.setEnabled(enabled);
 		typeText.setEnabled(enabled);
+		deleteAction.setEnabled(enabled);
 		propertyCombo.setEnabled(enabled);
 		descriptionText.setEnabled(enabled);
-		updateCopyState();
-		updateTypeButtonState();
 	}
 
 	private void updateCopyState() {
@@ -561,31 +562,21 @@ public class NewPropertiesWizardPage extends WizardPage {
 		}
 	}
 
-	private void updateTypeButtonState() {
-		final PropertyNode node = getSelectedNode();
-		boolean enabled = false;
-		if (node != null) {
-			final PropertyNodeType propertyType = node.getPropertyType();
-			if (propertyType == PropertyNodeType.ELEMENT || propertyType == PropertyNodeType.ATTRIBUTE) {
-				enabled = true;
-			}
-		}
-		typeButton.setEnabled(enabled);
-	}
-
-	private void validate() {
+	private boolean validate() {
+		boolean valid = true;
 		boolean complete = true;
 		String message = null;
 		try {
-			validator.validate();
+			validator.validate(selectedNode);
 		} catch (final ValidationException e) {
 			message = e.getMessage();
 			complete = false;
-			// LOGGER.debug("Validation output " + e.getMessage());
+			valid = false;
 		}
 		setPageComplete(complete);
 		setMessage(message, ERROR);
 		getWizard().getContainer().updateButtons();
+		return valid;
 	}
 
 	/**
@@ -612,7 +603,7 @@ public class NewPropertiesWizardPage extends WizardPage {
 			for (final Object o : strSel.toList()) {
 				if (o instanceof PropertyNode) {
 					final PropertyNode p = (PropertyNode) o;
-					if (propertyTypesOrder.contains(p.getPropertyType())) {
+					if (enabledPropertyTypes.contains(p.getPropertyType())) {
 						ret.add(p);
 					}
 				}
@@ -626,14 +617,6 @@ public class NewPropertiesWizardPage extends WizardPage {
 	 */
 	public List<PropertyNode> getNewProperties() {
 		return newProperties;
-	}
-
-	/**
-	 * @param newProperties
-	 *            the newProperties to set
-	 */
-	public void setNewProperties(final List<PropertyNode> newProperties) {
-		this.newProperties = newProperties;
 	}
 
 	public void setPropertyFilter(final ViewerFilter filter) {

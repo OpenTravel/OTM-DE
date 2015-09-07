@@ -58,6 +58,7 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.widgets.LibraryTablePoster;
 import org.opentravel.schemas.widgets.WidgetFactory;
 import org.opentravel.schemas.wizards.ChangeWizard.ExtentedTLFacetType;
+import org.opentravel.schemas.wizards.validators.FormValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

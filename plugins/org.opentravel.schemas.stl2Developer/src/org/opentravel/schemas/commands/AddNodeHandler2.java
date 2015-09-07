@@ -18,31 +18,25 @@
  */
 package org.opentravel.schemas.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Event;
-import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
-import org.opentravel.schemas.node.FacetNode;
+import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.OperationNode;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.RoleFacetNode;
 import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
-import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.wizards.NewPropertiesWizard;
+import org.opentravel.schemas.wizards.NewPropertiesWizard2;
 import org.opentravel.schemas.wizards.SimpleNameWizard;
 import org.opentravel.schemas.wizards.validators.NewNodeNameValidator;
 import org.opentravel.schemas.wizards.validators.NewPropertyValidator;
@@ -50,8 +44,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Handler for the add a node to the model command.
+ * Command Handler for the add a node to the model command.
  * Handler for adding when a component node is selected.
+ * 
+ * Version 2 uses the NewPropertiesWizard2 that acts upon the currently selected object.
  * 
  * Handles action: org.opentravel.schemas.commands.AddProperties
 
@@ -62,47 +58,29 @@ import org.slf4j.LoggerFactory;
  * TODO - Move responsibility for deciding on what to do to the nodes.
  * 
  */
-@Deprecated
-public class AddNodeHandler extends OtmAbstractHandler {
-	private static final Logger LOGGER = LoggerFactory.getLogger(AddNodeHandler.class);
-	public static String COMMAND_ID = "org.opentravel.schemas.commands.Add";
+public class AddNodeHandler2 extends OtmAbstractHandler {
+	private static final Logger LOGGER = LoggerFactory.getLogger(AddNodeHandler2.class);
+	public static String COMMAND_ID = "org.opentravel.schemas.commands.Add2";
 
 	private Node selectedNode; // The user selected node.
 	private ComponentNode actOnNode; // The node to perform the action on.
-	private Node scopeNode; // The node to seed the selection tree with.
 
-	// Enumeration of the types of nodes this handler can add.
-	private enum CommandType {
-		PROPERTY, ROLE, LIBRARY, ATTRIBUTE, ENUMERATION, QUERY, CUSTOM, OPERATION, NONE, COMPONENT
-	}
-
-	private final List<PropertyNodeType> enabledTypes = new ArrayList<PropertyNodeType>();
-	private Event event;
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.IHandler#execute(org.eclipse.core.commands.ExecutionEvent)
-	 */
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
 		mc = OtmRegistry.getMainController();
-
-		selectedNode = getSelectedNode(exEvent);
-
-		PropertyNodeType actionType = getActionType(exEvent);
-		CommandType type = decideWhatToAdd(selectedNode, actionType);
-		runCommand(type);
+		selectedNode = mc.getGloballySelectNode();
+		actOnNode = (ComponentNode) selectedNode;
+		runCommand(getActionType(exEvent));
 		mc.postStatus("Add Property Handler added the property.");
 		return null;
 	}
 
 	// for enabled status, see GlobalSelectionTester.canAdd()
-
 	private PropertyNodeType getActionType(ExecutionEvent exEvent) {
 		PropertyNodeType actionType = PropertyNodeType.UNKNOWN;
+		Event event;
 		if (exEvent.getTrigger() instanceof Event) {
-			this.event = (Event) exEvent.getTrigger();
+			event = (Event) exEvent.getTrigger();
 			if (event.data instanceof PropertyNodeType) {
 				actionType = (PropertyNodeType) event.data;
 			}
@@ -110,11 +88,11 @@ public class AddNodeHandler extends OtmAbstractHandler {
 		return actionType;
 	}
 
-	protected Node getSelectedNode(ExecutionEvent exEvent) {
-		return mc.getGloballySelectNode();
-	}
+	private void runCommand(PropertyNodeType actionType) {
+		INode.CommandType type = selectedNode.getAddCommand();
+		if (selectedNode instanceof CoreObjectNode && actionType == PropertyNodeType.ROLE)
+			type = INode.CommandType.ROLE;
 
-	private void runCommand(CommandType type) {
 		switch (type) {
 		case ROLE:
 			addRoleToNode();
@@ -130,77 +108,9 @@ public class AddNodeHandler extends OtmAbstractHandler {
 			break;
 		case NONE:
 		default:
-			LOGGER.debug("Not Supported: Add " + type + " node to " + selectedNode);
+			LOGGER.debug("Not Supported: Adding to " + selectedNode);
 			DialogUserNotifier.openWarning("Not Supported", "Add properties not supported for this object type.");
 		}
-	}
-
-	// TODO - refactor by designing a command data object and allowing the nodes to load it.
-	private CommandType decideWhatToAdd(Node selectedNode, PropertyNodeType actionType) {
-		CommandType type = CommandType.PROPERTY;
-		if (selectedNode == null) {
-			return CommandType.LIBRARY;
-		}
-		if (!(selectedNode instanceof ComponentNode)) {
-			return CommandType.COMPONENT;
-		}
-
-		// Set the defaults - may be overridden in logic below.
-		actOnNode = (ComponentNode) selectedNode;
-		scopeNode = mc.getModelNode();
-
-		// Role could be one of three signals
-		if (selectedNode.isRoleFacet())
-			type = CommandType.ROLE;
-		else if (selectedNode.isRoleProperty()) {
-			type = CommandType.ROLE;
-			actOnNode = (ComponentNode) selectedNode.getParent();
-		} else if (selectedNode.getOwningComponent().isCoreObject() && actionType == PropertyNodeType.ROLE) {
-			type = CommandType.ROLE;
-			actOnNode = ((CoreObjectNode) selectedNode.getOwningComponent()).getRoleFacet();
-			//
-		} else if (selectedNode.isBusinessObject()) {
-			type = CommandType.PROPERTY;
-			actOnNode = ((BusinessObjectNode) selectedNode).getSummaryFacet();
-		} else if (selectedNode.isCoreObject()) {
-			type = CommandType.PROPERTY;
-			actOnNode = ((CoreObjectNode) selectedNode).getSummaryFacet();
-		} else if (selectedNode.isValueWithAttributes()) {
-			actOnNode = ((ComponentNode) selectedNode).getDefaultFacet();
-		} else if (selectedNode.isFacet()) {
-			type = CommandType.PROPERTY;
-			//
-		} else if (selectedNode.isExtensionPointFacet()) {
-			type = CommandType.PROPERTY;
-			//
-		} else if (selectedNode.isSimpleFacet()) {
-			actOnNode = ((ComponentNode) selectedNode.getParent()).getDefaultFacet();
-		} else if (selectedNode.isQueryFacet()) {
-			type = CommandType.QUERY;
-			scopeNode = selectedNode.getOwningComponent();
-		} else if (selectedNode.isCustomFacet()) {
-			type = CommandType.CUSTOM;
-			scopeNode = ((BusinessObjectNode) selectedNode.getOwningComponent()).getDetailFacet();
-			//
-		} else if (selectedNode.isEnumeration())
-			type = CommandType.ENUMERATION;
-		else if (selectedNode.isEnumerationLiteral()) {
-			actOnNode = (ComponentNode) selectedNode.getParent();
-			type = CommandType.ENUMERATION;
-		} else if (selectedNode.isProperty()) {
-			actOnNode = (ComponentNode) selectedNode.getParent();
-		} else if (selectedNode.isService()) {
-			type = CommandType.OPERATION;
-		} else {
-			type = CommandType.NONE;
-		}
-
-		enabledTypes.clear();
-		if (selectedNode.isSimpleFacet() || selectedNode.getOwningComponent().isValueWithAttributes())
-			enabledTypes.addAll(PropertyNodeType.getVWA_PropertyTypes());
-		else
-			enabledTypes.addAll(PropertyNodeType.getAllTypedPropertyTypes());
-		return type;
 	}
 
 	/**
@@ -239,6 +149,9 @@ public class AddNodeHandler extends OtmAbstractHandler {
 	}
 
 	private void addEnumValue() {
+		if (selectedNode instanceof EnumLiteralNode)
+			actOnNode = (ComponentNode) selectedNode.getParent();
+
 		if (actOnNode != null && actOnNode.isEnumeration()) {
 			final SimpleNameWizard wizard = new SimpleNameWizard(new ExternalizedStringProperties("wizard.enumValue"),
 					10);
@@ -248,8 +161,6 @@ public class AddNodeHandler extends OtmAbstractHandler {
 			if (!wizard.wasCanceled()) {
 				for (String entry : wizard.getNames()) {
 					final Node newValue = new EnumLiteralNode(actOnNode, entry);
-					// final Node newValue = new PropertyNode(actOnNode, entry,
-					// PropertyNodeType.ENUM_LITERAL);
 					newValue.setLibrary(actOnNode.getLibrary());
 				}
 				mc.refresh(actOnNode);
@@ -260,7 +171,6 @@ public class AddNodeHandler extends OtmAbstractHandler {
 	}
 
 	private void addProperty() {
-		// ComponentNode newNode = null;
 		if (selectedNode.getChain() != null) {
 			// If a patch, create an extension point facet to add to.
 			if (selectedNode.getChain().getHead().isPatchVersion()) {
@@ -271,7 +181,6 @@ public class AddNodeHandler extends OtmAbstractHandler {
 								Messages.getString("action.component.version.patch")))
 							return;
 						actOnNode = ((ComponentNode) selectedNode).createPatchVersionComponent();
-						// actOnNode = newNode;
 					}
 				}
 			}
@@ -287,56 +196,20 @@ public class AddNodeHandler extends OtmAbstractHandler {
 						LOGGER.error("Did not create Minor Version Component for " + selectedNode);
 						return;
 					}
-					// selectedNode = actOnNode.getOwningComponent();
 				}
 			}
 		}
 
-		// Match the actual selected facet by matching names
-		if (selectedNode instanceof FacetNode) {
-			for (Node n : actOnNode.getChildren()) {
-				if (n.getName().equals(selectedNode.getName()))
-					actOnNode = (ComponentNode) n;
-			}
-		} else {
-			// use default facet to act upon
-			if (actOnNode instanceof BusinessObjectNode) {
-				actOnNode = actOnNode.getSummaryFacet();
-			} else if (actOnNode instanceof CoreObjectNode) {
-				actOnNode = actOnNode.getSummaryFacet();
-			} else if (actOnNode instanceof VWA_Node) {
-				actOnNode = actOnNode.getDefaultFacet();
-			}
+		try {
+			NewPropertiesWizard2 w2 = new NewPropertiesWizard2(selectedNode);
+			w2.setValidator(new NewPropertyValidator(actOnNode, null));
+			w2.run(OtmRegistry.getActiveShell());
+		} catch (IllegalArgumentException e) {
+			LOGGER.error("ERROR: " + e);
 		}
-		if (!(actOnNode instanceof FacetNode))
-			throw new IllegalStateException("Must have a facet to add properties.");
-
-		NewPropertiesWizard newPropertiesWizard = new NewPropertiesWizard(actOnNode.getLibrary(), scopeNode,
-				enabledTypes);
-		newPropertiesWizard.setValidator(new NewPropertyValidator(actOnNode, newPropertiesWizard));
-		newPropertiesWizard.run(OtmRegistry.getActiveShell());
-
-		if (!newPropertiesWizard.wasCanceled()) {
-			List<PropertyNode> newProperties = newPropertiesWizard.getNewProperties();
-			Node lastOne = null;
-			// New nodes are not connected to the parent.
-			for (final PropertyNode n : newProperties) {
-				actOnNode.addProperty(n);
-				if (actOnNode.getLibrary().isMinorVersion())
-					n.setMandatory(false); // properties in minor extensions must be optional.
-				lastOne = n;
-			}
-			if (lastOne != null) {
-				mc.selectNavigatorNodeAndRefresh(lastOne);
-			}
-		}
+		mc.refresh(actOnNode.getOwningComponent());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.commands.OtmHandler#getID()
-	 */
 	@Override
 	public String getID() {
 		return COMMAND_ID;

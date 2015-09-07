@@ -158,6 +158,11 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 	}
 
 	@Override
+	public ComponentNode getDefaultFacet() {
+		return getSummaryFacet();
+	}
+
+	@Override
 	public ComponentNode getDetailFacet() {
 		for (INode f : getChildren())
 			if (((FacetNode) f).getFacetType().equals(TLFacetType.DETAIL))
@@ -196,6 +201,11 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.CoreObject);
+	}
+
+	@Override
+	public INode.CommandType getAddCommand() {
+		return INode.CommandType.PROPERTY;
 	}
 
 	@Override

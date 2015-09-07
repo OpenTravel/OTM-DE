@@ -2201,6 +2201,11 @@ public abstract class Node implements INode {
 		return getModelNode().getUserLibraries();
 	}
 
+	@Override
+	public INode.CommandType getAddCommand() {
+		return INode.CommandType.NONE;
+	}
+
 	/**
 	 * Return the single node that represents this object. Null if none. For VWA and Core, the simple property node is
 	 * returned.
@@ -2506,9 +2511,10 @@ public abstract class Node implements INode {
 	 */
 	public ValidationFindings validate() {
 		ValidationFindings findings = TLModelCompileValidator.validateModelElement(this.getTLModelObject());
-		for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT)) {
-			LOGGER.debug("Finding: " + f);
-		}
+		// for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
+		// {
+		// LOGGER.debug("Finding: " + f);
+		// }
 		return findings;
 	}
 
@@ -2531,8 +2537,8 @@ public abstract class Node implements INode {
 			domDoc = exampleBuilder.buildDomTree();
 		} catch (ValidationException e) {
 			LOGGER.debug("Validation Exception on " + this + " : " + e);
-			for (String finding : e.getFindings().getAllValidationMessages(FindingMessageFormat.IDENTIFIED_FORMAT))
-				LOGGER.debug("Finding: " + finding);
+			// for (String finding : e.getFindings().getAllValidationMessages(FindingMessageFormat.IDENTIFIED_FORMAT))
+			// LOGGER.debug("Finding: " + finding);
 		} catch (CodeGenerationException e) {
 			LOGGER.debug("CodeGen Exception on " + this + " : " + e);
 		}
@@ -2664,6 +2670,10 @@ public abstract class Node implements INode {
 
 	public boolean isValidParentOf(PropertyNodeType type) {
 		return false;
+	}
+
+	public ComponentNode getDefaultFacet() {
+		return this instanceof ComplexComponentInterface ? ((ComplexComponentInterface) this).getDefaultFacet() : null;
 	}
 
 }

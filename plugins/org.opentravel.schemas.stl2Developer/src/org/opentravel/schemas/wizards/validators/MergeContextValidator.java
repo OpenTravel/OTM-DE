@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.wizards;
+package org.opentravel.schemas.wizards.validators;
 
 import org.opentravel.schemas.node.ContextNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.wizards.MergeContextNodeWizard;
 
 /**
  * @author Dave Hollander
@@ -45,5 +46,11 @@ public class MergeContextValidator implements FormValidator {
 		// List<String> usedContexts = new ArrayList<String>(node.getContextIds());
 		// if (usedContexts.contains(mergeIntoContext.getContextId()))
 		// throw new ValidationException("Validation results: Conflict!");
+	}
+
+	@Override
+	public void validate(Node selectedNode) throws ValidationException {
+		// TODO Auto-generated method stub
+
 	}
 }

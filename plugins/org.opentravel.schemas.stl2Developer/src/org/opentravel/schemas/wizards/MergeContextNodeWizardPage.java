@@ -27,6 +27,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.opentravel.schemas.node.ContextNode;
 import org.opentravel.schemas.widgets.WidgetFactory;
+import org.opentravel.schemas.wizards.validators.FormValidator;
+import org.opentravel.schemas.wizards.validators.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

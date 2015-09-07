@@ -78,6 +78,11 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 	}
 
 	@Override
+	public ComponentNode getDefaultFacet() {
+		return null;
+	}
+
+	@Override
 	public ImpliedNode getDefaultType() {
 		return ModelNode.getDefaultStringNode();
 	}
@@ -135,6 +140,11 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 	public boolean setSimpleType(Node type) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public INode.CommandType getAddCommand() {
+		return INode.CommandType.ENUMERATION;
 	}
 
 	@Override

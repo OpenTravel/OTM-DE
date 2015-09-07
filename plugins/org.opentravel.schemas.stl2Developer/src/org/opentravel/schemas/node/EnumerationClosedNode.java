@@ -71,6 +71,11 @@ public class EnumerationClosedNode extends SimpleTypeNode {
 	}
 
 	@Override
+	public INode.CommandType getAddCommand() {
+		return INode.CommandType.ENUMERATION;
+	}
+
+	@Override
 	public ImpliedNode getDefaultType() {
 		return ModelNode.getDefaultStringNode();
 	}

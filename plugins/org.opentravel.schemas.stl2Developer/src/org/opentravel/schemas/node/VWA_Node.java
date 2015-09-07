@@ -193,8 +193,13 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 	}
 
 	@Override
-	public ComponentNode getDefaultFacet() {
-		return getAttributeFacet();
+	public FacetNode getDefaultFacet() {
+		return (FacetNode) getAttributeFacet();
+	}
+
+	@Override
+	public INode.CommandType getAddCommand() {
+		return INode.CommandType.PROPERTY;
 	}
 
 	@Override

@@ -24,8 +24,8 @@ import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.wizards.NewNodeNameValidator;
 import org.opentravel.schemas.wizards.SimpleNameWizard;
+import org.opentravel.schemas.wizards.validators.NewNodeNameValidator;
 
 /**
  * @author Agnieszka Janowska

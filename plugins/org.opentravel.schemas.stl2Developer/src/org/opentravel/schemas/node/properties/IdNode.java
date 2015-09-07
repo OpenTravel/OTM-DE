@@ -54,6 +54,11 @@ public class IdNode extends AttributeNode implements TypeUser {
 		return (type == idType);
 	}
 
+	@Override
+	public boolean isTypeUser() {
+		return false;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

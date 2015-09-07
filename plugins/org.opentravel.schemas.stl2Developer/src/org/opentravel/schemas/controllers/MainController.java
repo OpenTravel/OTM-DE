@@ -65,9 +65,9 @@ import org.opentravel.schemas.widgets.OtmSections;
 import org.opentravel.schemas.widgets.OtmTextFields;
 import org.opentravel.schemas.widgets.OtmWidgets;
 import org.opentravel.schemas.wizards.ChangeWizard;
-import org.opentravel.schemas.wizards.NewFacetValidator;
 import org.opentravel.schemas.wizards.NewFacetWizard;
 import org.opentravel.schemas.wizards.NewPropertiesWizard;
+import org.opentravel.schemas.wizards.validators.NewFacetValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author Agnieszka Janowska
  * 
  */
+@Deprecated
 public class NewPropertiesWizard extends ValidatingWizard implements Cancelable {
 	private final static Logger LOGGER = LoggerFactory.getLogger(NewPropertiesWizard.class);
 

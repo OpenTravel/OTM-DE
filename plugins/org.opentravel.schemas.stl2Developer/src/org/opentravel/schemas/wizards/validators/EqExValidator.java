@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.wizards;
+package org.opentravel.schemas.wizards.validators;
 
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.Messages;
+import org.opentravel.schemas.wizards.NewPropertiesWizard;
 
 /**
  * @author Agnieszka Janowska
@@ -63,6 +64,12 @@ public class EqExValidator implements FormValidator {
 		if (!parentNode.isUnique(n)) {
 			throw new ValidationException(Messages.getString("error.newProperty"));
 		}
+	}
+
+	@Override
+	public void validate(Node selectedNode) throws ValidationException {
+		// TODO Auto-generated method stub
+
 	}
 
 }

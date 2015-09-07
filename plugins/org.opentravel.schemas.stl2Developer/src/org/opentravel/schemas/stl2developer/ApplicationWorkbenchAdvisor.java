@@ -188,7 +188,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
 	private boolean existUserLibrary(List<LibraryNode> libraries) {
 		for (LibraryNode l : libraries) {
-			if (!l.isBuiltIn()) {
+			if (!l.isBuiltIn() && (l.isEditable())) {
 				return true;
 			}
 		}

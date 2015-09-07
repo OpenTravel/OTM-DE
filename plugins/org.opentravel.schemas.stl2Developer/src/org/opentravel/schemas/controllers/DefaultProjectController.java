@@ -72,8 +72,8 @@ import org.opentravel.schemas.stl2developer.FindingsDialog;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.views.ValidationResultsView;
-import org.opentravel.schemas.wizards.NewProjectValidator;
 import org.opentravel.schemas.wizards.NewProjectWizard;
+import org.opentravel.schemas.wizards.validators.NewProjectValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,13 +111,6 @@ public class DefaultProjectController implements ProjectController {
 
 	public void syncWithUi(final String msg) {
 		DialogUserNotifier.syncWithUi(msg);
-		// Display.getDefault().asyncExec(new Runnable() {
-		// public void run() {
-		// // DialogUserNotifier.openInformation("Done ", msg);
-		// mc.postStatus(msg);
-		// mc.refresh();
-		// }
-		// });
 	}
 
 	protected void createDefaultProject() {
@@ -916,7 +909,8 @@ public class DefaultProjectController implements ProjectController {
 		}
 	}
 
-	// TODO - eliminate this extra class - just load into the project
+	// TODO - consider eliminate this extra class - just load into the project. it was used to make saving to memento
+	// generic.
 	public interface IProjectToken extends IAdaptable {
 		String getName();
 

@@ -56,7 +56,7 @@ import org.opentravel.schemas.views.ValidationResultsView;
 import org.opentravel.schemas.views.decoration.LibraryDecorator;
 import org.opentravel.schemas.wizards.GlobalLocalCancelDialog;
 import org.opentravel.schemas.wizards.GlobalLocalCancelDialog.GlobalDialogResult;
-import org.opentravel.schemas.wizards.NewLibraryValidator;
+import org.opentravel.schemas.wizards.validators.NewLibraryValidator;
 import org.opentravel.schemas.wizards.NewLibraryWizard;
 import org.opentravel.schemas.wizards.NewLibraryWizardPage;
 import org.slf4j.Logger;

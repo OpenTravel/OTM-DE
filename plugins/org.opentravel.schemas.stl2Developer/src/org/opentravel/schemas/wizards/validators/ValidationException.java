@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.wizards;
-
+package org.opentravel.schemas.wizards.validators;
 
 /**
  * @author Agnieszka Janowska
  * 
  */
-public interface FormValidator {
+public class ValidationException extends Exception {
 
-    void validate() throws ValidationException;
+    private static final long serialVersionUID = -5659737667141702154L;
+
+    public ValidationException(final String message) {
+        super(message);
+    }
 }

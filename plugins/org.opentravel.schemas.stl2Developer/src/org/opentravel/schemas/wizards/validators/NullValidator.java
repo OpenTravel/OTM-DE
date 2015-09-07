@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.wizards;
+package org.opentravel.schemas.wizards.validators;
+
+import org.opentravel.schemas.node.Node;
 
 /**
  * @author Agnieszka Janowska
@@ -21,8 +23,12 @@ package org.opentravel.schemas.wizards;
  */
 public class NullValidator implements FormValidator {
 
-    @Override
-    public void validate() throws ValidationException {
-    }
+	@Override
+	public void validate() throws ValidationException {
+	}
+
+	@Override
+	public void validate(Node selectedNode) throws ValidationException {
+	}
 
 }

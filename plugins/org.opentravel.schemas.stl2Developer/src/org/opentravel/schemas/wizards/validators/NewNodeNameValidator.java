@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.wizards;
+package org.opentravel.schemas.wizards.validators;
 
 import org.opentravel.schemas.node.EditNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.wizards.SimpleNameWizard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,11 @@ public class NewNodeNameValidator implements FormValidator {
 		componentNode = roleFacet;
 		this.wizard = wizard;
 		this.error = error;
+	}
+
+	@Override
+	public void validate(Node n) throws ValidationException {
+		return;
 	}
 
 	/*

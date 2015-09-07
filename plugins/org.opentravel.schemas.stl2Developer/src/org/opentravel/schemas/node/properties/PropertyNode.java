@@ -377,6 +377,11 @@ public class PropertyNode extends ComponentNode {
 		return getTypeClass().getTypeNode();
 	}
 
+	@Override
+	public INode.CommandType getAddCommand() {
+		return INode.CommandType.PROPERTY;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

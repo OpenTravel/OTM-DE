@@ -195,6 +195,11 @@ public class FacetNode extends ComponentNode {
 	}
 
 	@Override
+	public INode.CommandType getAddCommand() {
+		return INode.CommandType.PROPERTY;
+	}
+
+	@Override
 	public String getComponentType() {
 		return modelObject.getComponentType();
 		// return modelObject.getName();
@@ -429,20 +434,6 @@ public class FacetNode extends ComponentNode {
 			allowed = PropertyNodeType.getAllTypedPropertyTypes();
 
 		return allowed.contains(type);
-
-		// return type.equals(PropertyNodeType.ATTRIBUTE)
-		// || type.equals(PropertyNodeType.INDICATOR);
-
-		// switch (type) {
-		// case ATTRIBUTE:
-		// case ELEMENT:
-		// case INDICATOR:
-		// case INDICATOR_ELEMENT:
-		// case ID_REFERENCE:
-		// case ID:
-		// return true;
-		// }
-		// return false;
 	}
 
 	@Override
