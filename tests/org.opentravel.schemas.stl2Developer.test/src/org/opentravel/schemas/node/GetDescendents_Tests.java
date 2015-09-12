@@ -94,9 +94,9 @@ public class GetDescendents_Tests {
 
 	@Test
 	public void mockDescendentsInManagedLibrary() {
-		ln = mockLibrary.createNewLibrary("http://sabre.com/test", "test", defaultProject);
-		ln.setEditable(true);
+		ln = mockLibrary.createNewLibrary("http://example.com/test", "test", defaultProject);
 		new LibraryChainNode(ln);
+		ln.setEditable(true);
 		CoreObjectNode co = mockLibrary.addCoreObjectToLibrary(ln, "");
 		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "");
 		EnumerationOpenNode oe = mockLibrary.addOpenEnumToLibrary(ln, "");

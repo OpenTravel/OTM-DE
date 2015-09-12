@@ -62,6 +62,7 @@ public class Aggregate_Tests {
 		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
 		ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
 		lcn = new LibraryChainNode(ln_inChain);
+		ln_inChain.setEditable(true);
 
 	}
 

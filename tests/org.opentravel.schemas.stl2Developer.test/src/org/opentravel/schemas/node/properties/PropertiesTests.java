@@ -38,6 +38,7 @@ import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.FacetNode;
+import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
@@ -71,7 +72,62 @@ public class PropertiesTests {
 		mockLibrary = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
-		ln = mockLibrary.createNewLibrary("http://sabre.com/test", "test", defaultProject);
+		ln = mockLibrary.createNewLibrary("http://example.com/test", "test", defaultProject);
+	}
+
+	@Test
+	public void equivalents() {
+		LibraryChainNode lcn = mockLibrary.createNewManagedLibrary("EQ_Test", pc.getDefaultProject());
+		ln = lcn.getHead();
+		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "EQBO");
+		PropertyNode p = (PropertyNode) bo.getSummaryFacet().getChildren().get(0);
+		Assert.assertNotNull(p);
+		EquivalentHander eqh = p.getEquivalentHandler();
+		Assert.assertNotNull(eqh);
+		Assert.assertNotNull(p.getLibrary().getTLLibrary());
+		testValueWithContextHandler(eqh);
+	}
+
+	@Test
+	public void examples() {
+		LibraryChainNode lcn = mockLibrary.createNewManagedLibrary("EQ_Test", pc.getDefaultProject());
+		ln = lcn.getHead();
+		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "EQBO");
+		PropertyNode p = (PropertyNode) bo.getSummaryFacet().getChildren().get(0);
+		Assert.assertNotNull(p);
+		ExampleHandler exh = p.getExampleHandler();
+		Assert.assertNotNull(exh);
+		Assert.assertNotNull(p.getLibrary().getTLLibrary());
+		testValueWithContextHandler(exh);
+	}
+
+	private void testValueWithContextHandler(IValueWithContextHandler handler) {
+		Assert.assertTrue(handler.set("EV1", "C1")); // Uses default context
+		Assert.assertEquals(1, handler.getCount());
+
+		// Add context to library - do must use context controller because it is needed in the valid context tests.
+		mc.getContextController().newContext(ln, "C1", "CA1");
+		mc.getContextController().newContext(ln, "C2", "CA2");
+
+		// Create 2 equivalents
+		Assert.assertTrue(handler.set("V1", "C1"));
+		Assert.assertTrue(handler.set("V2", "C2")); // removes other contexts
+		Assert.assertEquals(1, handler.getCount());
+
+		Assert.assertEquals("", handler.get("C1"));
+		Assert.assertEquals("V2", handler.get("C2"));
+		Assert.assertTrue(handler.areValid());
+
+		Assert.assertFalse(handler.change("C1", "C2")); // fail because c1 does not exist
+		Assert.assertTrue(handler.change("C2", "EC2")); // changes to default context since EC2 does not exist.
+
+		Assert.assertTrue(handler.set("V2", "C2")); // removes other contexts
+		handler.fix("C2"); // collapse to 1 context
+		Assert.assertEquals(1, handler.getCount());
+
+		Assert.assertTrue(handler.change("C2", "C1"));
+		Assert.assertTrue(handler.set(null, "C1")); // remove one context
+		Assert.assertEquals(0, handler.getCount());
 	}
 
 	@Test

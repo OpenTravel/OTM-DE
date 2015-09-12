@@ -68,11 +68,11 @@ public class Delete_Tests {
 
 		// Delete Visitor
 		int namedTypeCnt = setUpCase(1);
-		Assert.assertEquals(33, ln.getDescendants().size());
+		int descendants = ln.getDescendants().size();
 		ln.getComplexRoot().visitAllNodes(dv); // should do nothing
 		ln.getSimpleRoot().visitAllNodes(dv); // should do nothing
-		ln.visitAllNodes(tv);
-		Assert.assertEquals(33, ln.getDescendants().size());
+		ln.visitAllNodes(tv); // test visitor, should not change library
+		Assert.assertEquals(descendants, ln.getDescendants().size());
 		Assert.assertEquals(namedTypeCnt, ln.getDescendants_NamedTypes().size());
 
 		namedTypeCnt = setUpCase(2);
@@ -116,6 +116,7 @@ public class Delete_Tests {
 		case 1:
 			// Case 1 - simple library, not editable, with constructed objects
 			ln = ml.createNewLibrary("http://test.com/ns" + testCase, "testCase" + testCase, defaultProject);
+			ln.setEditable(false);
 			count = ml.addOneOfEach(ln, "case1");
 			ln.visitAllNodes(tv);
 			Assert.assertEquals(count, ln.getDescendants_NamedTypes().size());
@@ -128,10 +129,10 @@ public class Delete_Tests {
 		case 2:
 			// Case 2 - unmanaged library, editable, with constructed objects
 			ln = ml.createNewLibrary("http://test.com/ns" + testCase, "testCase" + testCase, defaultProject);
+			ln.setEditable(true);
 			count = ml.addOneOfEach(ln, "case2");
 			ln.visitAllNodes(tv);
 			Assert.assertEquals(count, ln.getDescendants_NamedTypes().size());
-			ln.setEditable(true);
 			Assert.assertTrue(ln.isDeleteable());
 			Assert.assertTrue(ln.isEditable());
 			break;
@@ -205,7 +206,7 @@ public class Delete_Tests {
 				if (n.isDeleted())
 					continue;
 				INode user = null;
-				
+
 				// Make sure the users of this type are informed of deletion.
 				if (n.getTypeUsers().size() > 0) {
 					user = n.getTypeUsers().get(0);

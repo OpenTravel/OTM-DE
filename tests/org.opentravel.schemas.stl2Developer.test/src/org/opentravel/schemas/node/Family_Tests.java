@@ -62,6 +62,7 @@ public class Family_Tests {
 		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
 		LibraryNode ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
 		LibraryChainNode lcn = new LibraryChainNode(ln_inChain);
+		ln_inChain.setEditable(true);
 
 		Node n1 = makeSimple("s_1");
 		Node n2 = makeSimple("s_2");
@@ -168,12 +169,15 @@ public class Family_Tests {
 		mockFamilyTest(ln);
 		ln = ml.createNewLibrary("http://www.test.com/test2", "test2", defaultProject);
 		new LibraryChainNode(ln);
+		ln.setEditable(true);
 		mockFamilyTest(ln);
 	}
 
 	public void mockFamilyTest(LibraryNode ln) {
 		// ln = ml.createNewLibrary("http://www.sabre.com/test", "test", defaultProject);
 		Node simpleNav = null;
+		if (!ln.isEditable())
+			return;
 
 		// Find the simple type node.
 		for (Node n : ln.getChildren()) {

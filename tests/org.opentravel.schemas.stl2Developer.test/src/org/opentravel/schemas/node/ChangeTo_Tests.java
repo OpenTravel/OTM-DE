@@ -50,22 +50,29 @@ public class ChangeTo_Tests {
 	TestNode tn = new NodeTesters().new TestNode();
 	MockLibrary ml = null;
 	LibraryNode ln = null;
+	LibraryChainNode lcn = null;
 	MainController mc;
 	DefaultProjectController pc;
 	ProjectNode defaultProject;
 
 	@Before
 	public void beforeEachTest() {
-		mc = new MainController();
+		// mc = OtmRegistry.getMainController(); // creates one if needed
+		mc = new MainController(); // New one for each test
 		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
+		lcn = ml.createNewManagedLibrary("test", defaultProject);
+		Assert.assertNotNull(lcn);
+		ln = lcn.getHead();
+		Assert.assertNotNull(ln);
+		Assert.assertTrue(ln.isEditable());
 	}
 
 	@Test
 	public void changeToVWA() {
-		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		LibraryChainNode lcn = new LibraryChainNode(ln);
+		// ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		// LibraryChainNode lcn = new LibraryChainNode(ln);
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "A");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "B");
 		VWA_Node vwa = null;
@@ -93,8 +100,8 @@ public class ChangeTo_Tests {
 
 	@Test
 	public void changeToCore() {
-		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		LibraryChainNode lcn = new LibraryChainNode(ln);
+		// ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		// LibraryChainNode lcn = new LibraryChainNode(ln);
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "A");
 		CoreObjectNode core = null;
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "B");
@@ -122,8 +129,8 @@ public class ChangeTo_Tests {
 	@Test
 	public void checkUsersCounts() {
 		// Create a core, vwa, simple and property to use
-		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		LibraryChainNode lcn = new LibraryChainNode(ln);
+		// ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		// LibraryChainNode lcn = new LibraryChainNode(ln);
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "C");
 		PropertyNode p1 = new ElementNode(core.getSummaryFacet(), "P1");
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "B");
@@ -147,8 +154,9 @@ public class ChangeTo_Tests {
 
 	@Test
 	public void asInMainController() {
-		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		LibraryChainNode lcn = new LibraryChainNode(ln);
+		// ln = ml.createNewManagedLibrary("test", defaultProject).getHead();
+		// Assert.assertTrue(ln.isEditable());
+
 		VWA_Node nodeToReplace = ml.addVWA_ToLibrary(ln, "B");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "C");
 		PropertyNode p1 = new ElementNode(core.getSummaryFacet(), "P1");
@@ -180,11 +188,15 @@ public class ChangeTo_Tests {
 
 	@Test
 	public void changeToBO() {
-		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		LibraryChainNode lcn = new LibraryChainNode(ln);
-		BusinessObjectNode bo = null;
+		// ln = ml.createNewManagedLibrary("test", defaultProject).getHead();
+		// Assert.assertTrue(ln.isEditable());
+
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "A");
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "B");
+		Assert.assertNotNull(core);
+		Assert.assertNotNull(vwa);
+
+		BusinessObjectNode bo = null;
 		TLBusinessObject tlBO = null;
 
 		bo = new BusinessObjectNode(core);

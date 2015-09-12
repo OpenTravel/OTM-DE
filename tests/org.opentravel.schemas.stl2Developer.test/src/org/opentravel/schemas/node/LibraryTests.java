@@ -250,6 +250,7 @@ public class LibraryTests {
 		LibraryNode ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
 		LibraryNode ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
 		LibraryChainNode lcn = new LibraryChainNode(ln_inChain);
+		ln_inChain.setEditable(true);
 
 		// makeSimple() does
 		// SimpleTypeNode sn = new SimpleTypeNode(new TLSimple());
