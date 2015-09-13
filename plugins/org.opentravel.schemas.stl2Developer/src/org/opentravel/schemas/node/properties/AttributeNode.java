@@ -101,6 +101,16 @@ public class AttributeNode extends PropertyNode implements TypeUser {
 	}
 
 	@Override
+	public EquivalentHander getEquivalentHandler() {
+		return equivalentHandler == null ? new EquivalentHander(this) : equivalentHandler;
+	}
+
+	@Override
+	public ExampleHandler getExampleHandler() {
+		return exampleHandler == null ? new ExampleHandler(this) : exampleHandler;
+	}
+
+	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.XSDAttribute);
 	}

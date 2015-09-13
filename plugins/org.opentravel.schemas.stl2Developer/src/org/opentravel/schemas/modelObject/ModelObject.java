@@ -38,10 +38,7 @@ import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLListFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.controllers.ContextController;
 import org.opentravel.schemas.node.INode;
-import org.opentravel.schemas.node.LibraryNode;
-import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.slf4j.Logger;
@@ -182,32 +179,32 @@ public abstract class ModelObject<TL> {
 		}
 	}
 
-	public String getEquivalent(final String context) {
-		String equivalent = null;
+	// public String getEquivalent(final String context) {
+	// String equivalent = null;
+	//
+	// if (srcObj instanceof TLEquivalentOwner) {
+	// final TLEquivalent tlEquivalent = ((TLEquivalentOwner) srcObj).getEquivalent(context);
+	// if (tlEquivalent != null) {
+	// equivalent = tlEquivalent.getDescription();
+	// }
+	// }
+	// return equivalent;
+	// }
 
-		if (srcObj instanceof TLEquivalentOwner) {
-			final TLEquivalent tlEquivalent = ((TLEquivalentOwner) srcObj).getEquivalent(context);
-			if (tlEquivalent != null) {
-				equivalent = tlEquivalent.getDescription();
-			}
-		}
-		return equivalent;
-	}
-
-	/**
-	 * Change equivalent context
-	 * 
-	 * @param srcContext
-	 * @param targetContext
-	 */
-	public void changeEquivalentContext(final String srcContext, final String targetContext) {
-		if (!(srcObj instanceof TLEquivalentOwner))
-			return;
-		final TLEquivalent tle = ((TLEquivalentOwner) srcObj).getEquivalent(srcContext);
-		if (tle == null)
-			return;
-		tle.setContext(targetContext);
-	}
+	// /**
+	// * Change equivalent context
+	// *
+	// * @param srcContext
+	// * @param targetContext
+	// */
+	// public void changeEquivalentContext(final String srcContext, final String targetContext) {
+	// if (!(srcObj instanceof TLEquivalentOwner))
+	// return;
+	// final TLEquivalent tle = ((TLEquivalentOwner) srcObj).getEquivalent(srcContext);
+	// if (tle == null)
+	// return;
+	// tle.setContext(targetContext);
+	// }
 
 	/**
 	 * Change Example context
@@ -215,112 +212,112 @@ public abstract class ModelObject<TL> {
 	 * @param srcContext
 	 * @param targetContext
 	 */
-	public void changeExampleContext(final String srcContext, final String targetContext) {
-		if (!(srcObj instanceof TLExampleOwner))
-			return;
-		final TLExample tle = ((TLExampleOwner) srcObj).getExample(srcContext);
-		if (tle == null)
-			return;
-		tle.setContext(targetContext);
-	}
+	// public void changeExampleContext(final String srcContext, final String targetContext) {
+	// if (!(srcObj instanceof TLExampleOwner))
+	// return;
+	// final TLExample tle = ((TLExampleOwner) srcObj).getExample(srcContext);
+	// if (tle == null)
+	// return;
+	// tle.setContext(targetContext);
+	// }
 
-	public String getExample(final String context) {
-		String example = null;
-		if (srcObj instanceof TLExampleOwner) {
-			final TLExample tlExample = ((TLExampleOwner) srcObj).getExample(context);
-			if (tlExample != null) {
-				example = tlExample.getValue();
-			}
-		}
+	// public String getExample(final String context) {
+	// String example = null;
+	// if (srcObj instanceof TLExampleOwner) {
+	// final TLExample tlExample = ((TLExampleOwner) srcObj).getExample(context);
+	// if (tlExample != null) {
+	// example = tlExample.getValue();
+	// }
+	// }
+	//
+	// return example;
+	// }
 
-		return example;
-	}
+	// /**
+	// * Search for multiple equivalents with the same ID. If found, create a new context and assign it to one of them.
+	// *
+	// * @param obj
+	// * @return true if equivalents were changed/fixed.
+	// */
+	// public boolean fixEquivalents(TLEquivalentOwner obj) {
+	// if (obj.getEquivalents().size() <= 1)
+	// return false;
+	//
+	// boolean fixed = false;
+	// ContextController cc = OtmRegistry.getMainController().getContextController();
+	// LibraryNode ln = ((Node) this.node).getLibrary();
+	// List<String> availIDs = new ArrayList<String>(cc.getAvailableContextIds(ln));
+	// List<String> usedIDs = new ArrayList<String>();
+	// List<TLEquivalent> fixList = new ArrayList<TLEquivalent>();
+	//
+	// // find duplicates as well as available contexts.
+	// for (TLEquivalent equivalent : obj.getEquivalents()) {
+	// if (usedIDs.contains(equivalent.getContext()))
+	// fixList.add(equivalent);
+	// else {
+	// if (!availIDs.remove(equivalent.getContext()))
+	// LOGGER.debug("TROUBLE in CONTEXT City. Context used that is not in context map.");
+	// usedIDs.add(equivalent.getContext());
+	// }
+	// }
+	//
+	// // fix any duplicates
+	// int i = 1;
+	// for (TLEquivalent toBeFixed : fixList) {
+	// if (availIDs.isEmpty()) {
+	// cc.newContext(ln, "id" + i, "http://www.examples.com/app" + i++);
+	// } else {
+	// toBeFixed.setContext(availIDs.get(0));
+	// availIDs.remove(0);
+	// fixed = true;
+	// }
+	// LOGGER.debug("Fixed context on equivalent - set to " + toBeFixed.getContext());
+	// }
+	// return fixed;
+	// }
 
-	/**
-	 * Search for multiple equivalents with the same ID. If found, create a new context and assign it to one of them.
-	 * 
-	 * @param obj
-	 * @return true if equivalents were changed/fixed.
-	 */
-	public boolean fixEquivalents(TLEquivalentOwner obj) {
-		if (obj.getEquivalents().size() <= 1)
-			return false;
-
-		boolean fixed = false;
-		ContextController cc = OtmRegistry.getMainController().getContextController();
-		LibraryNode ln = ((Node) this.node).getLibrary();
-		List<String> availIDs = new ArrayList<String>(cc.getAvailableContextIds(ln));
-		List<String> usedIDs = new ArrayList<String>();
-		List<TLEquivalent> fixList = new ArrayList<TLEquivalent>();
-
-		// find duplicates as well as available contexts.
-		for (TLEquivalent equivalent : obj.getEquivalents()) {
-			if (usedIDs.contains(equivalent.getContext()))
-				fixList.add(equivalent);
-			else {
-				if (!availIDs.remove(equivalent.getContext()))
-					LOGGER.debug("TROUBLE in CONTEXT City. Context used that is not in context map.");
-				usedIDs.add(equivalent.getContext());
-			}
-		}
-
-		// fix any duplicates
-		int i = 1;
-		for (TLEquivalent toBeFixed : fixList) {
-			if (availIDs.isEmpty()) {
-				cc.newContext(ln, "id" + i, "http://www.examples.com/app" + i++);
-			} else {
-				toBeFixed.setContext(availIDs.get(0));
-				availIDs.remove(0);
-				fixed = true;
-			}
-			LOGGER.debug("Fixed context on equivalent - set to " + toBeFixed.getContext());
-		}
-		return fixed;
-	}
-
-	/**
-	 * Search for multiple examples with the same ID. If found, create a new context and assign it to one of them.
-	 * 
-	 * @param obj
-	 * @return true if the examples were changed/fixed.
-	 */
-	public boolean fixExamples(TLExampleOwner obj) {
-		if (obj.getExamples().size() <= 1)
-			return false;
-		boolean fixed = false;
-
-		ContextController cc = OtmRegistry.getMainController().getContextController();
-		LibraryNode ln = ((Node) this.node).getLibrary();
-		List<String> availIDs = new ArrayList<String>(cc.getAvailableContextIds(ln));
-		List<String> usedIDs = new ArrayList<String>();
-		List<TLExample> fixList = new ArrayList<TLExample>();
-
-		// find duplicates as well as available contexts.
-		for (TLExample example : obj.getExamples()) {
-			if (usedIDs.contains(example.getContext()))
-				fixList.add(example);
-			else {
-				// First time used -- remove from available and add to used.
-				availIDs.remove(example.getContext());
-				usedIDs.add(example.getContext());
-			}
-		}
-
-		// fix any duplicates
-		int i = 1;
-		for (TLExample toBeFixed : fixList) {
-			if (availIDs.isEmpty()) {
-				cc.newContext(ln, "id" + i, "http://www.examples.com/app" + i++);
-			} else {
-				toBeFixed.setContext(availIDs.get(0));
-				availIDs.remove(0);
-				fixed = true;
-			}
-			LOGGER.debug("Fixed " + getName() + ", example context set to " + toBeFixed.getContext());
-		}
-		return fixed;
-	}
+	// /**
+	// * Search for multiple examples with the same ID. If found, create a new context and assign it to one of them.
+	// *
+	// * @param obj
+	// * @return true if the examples were changed/fixed.
+	// */
+	// public boolean fixExamples(TLExampleOwner obj) {
+	// if (obj.getExamples().size() <= 1)
+	// return false;
+	// boolean fixed = false;
+	//
+	// ContextController cc = OtmRegistry.getMainController().getContextController();
+	// LibraryNode ln = ((Node) this.node).getLibrary();
+	// List<String> availIDs = new ArrayList<String>(cc.getAvailableContextIds(ln));
+	// List<String> usedIDs = new ArrayList<String>();
+	// List<TLExample> fixList = new ArrayList<TLExample>();
+	//
+	// // find duplicates as well as available contexts.
+	// for (TLExample example : obj.getExamples()) {
+	// if (usedIDs.contains(example.getContext()))
+	// fixList.add(example);
+	// else {
+	// // First time used -- remove from available and add to used.
+	// availIDs.remove(example.getContext());
+	// usedIDs.add(example.getContext());
+	// }
+	// }
+	//
+	// // fix any duplicates
+	// int i = 1;
+	// for (TLExample toBeFixed : fixList) {
+	// if (availIDs.isEmpty()) {
+	// cc.newContext(ln, "id" + i, "http://www.examples.com/app" + i++);
+	// } else {
+	// toBeFixed.setContext(availIDs.get(0));
+	// availIDs.remove(0);
+	// fixed = true;
+	// }
+	// LOGGER.debug("Fixed " + getName() + ", example context set to " + toBeFixed.getContext());
+	// }
+	// return fixed;
+	// }
 
 	protected abstract AbstractLibrary getLibrary(TL obj);
 
@@ -438,55 +435,55 @@ public abstract class ModelObject<TL> {
 		return false;
 	}
 
-	public boolean setEquivalent(final String equ, final String context) {
-		if (srcObj instanceof TLEquivalentOwner) {
-			final TLEquivalentOwner equivalentOwner = (TLEquivalentOwner) srcObj;
-			TLEquivalent tlEquivalent = equivalentOwner.getEquivalent(context);
+	// public boolean setEquivalent(final String equ, final String context) {
+	// if (srcObj instanceof TLEquivalentOwner) {
+	// final TLEquivalentOwner equivalentOwner = (TLEquivalentOwner) srcObj;
+	// TLEquivalent tlEquivalent = equivalentOwner.getEquivalent(context);
+	//
+	// if (tlEquivalent == null) {
+	// tlEquivalent = new TLEquivalent();
+	// tlEquivalent.setContext(context);
+	// equivalentOwner.addEquivalent(tlEquivalent);
+	// }
+	//
+	// tlEquivalent.setDescription(equ);
+	// return true;
+	// }
+	// return false;
+	// }
+	//
+	// public void removeEquivalent(final String context) {
+	// if (srcObj instanceof TLEquivalentOwner) {
+	// final TLEquivalentOwner equivalentOwner = (TLEquivalentOwner) srcObj;
+	// final TLEquivalent tlEquivalent = equivalentOwner.getEquivalent(context);
+	// ((TLEquivalentOwner) srcObj).removeEquivalent(tlEquivalent);
+	// }
+	// }
 
-			if (tlEquivalent == null) {
-				tlEquivalent = new TLEquivalent();
-				tlEquivalent.setContext(context);
-				equivalentOwner.addEquivalent(tlEquivalent);
-			}
-
-			tlEquivalent.setDescription(equ);
-			return true;
-		}
-		return false;
-	}
-
-	public void removeEquivalent(final String context) {
-		if (srcObj instanceof TLEquivalentOwner) {
-			final TLEquivalentOwner equivalentOwner = (TLEquivalentOwner) srcObj;
-			final TLEquivalent tlEquivalent = equivalentOwner.getEquivalent(context);
-			((TLEquivalentOwner) srcObj).removeEquivalent(tlEquivalent);
-		}
-	}
-
-	public boolean setExample(final String example, final String context) {
-		if (srcObj instanceof TLExampleOwner) {
-			final TLExampleOwner exampleOwner = (TLExampleOwner) srcObj;
-			TLExample tlExample = exampleOwner.getExample(context);
-
-			if (tlExample == null) {
-				tlExample = new TLExample();
-				tlExample.setContext(context);
-				exampleOwner.addExample(tlExample);
-			}
-
-			tlExample.setValue(example);
-			return true;
-		}
-		return false;
-	}
-
-	public void removeExample(final String context) {
-		if (srcObj instanceof TLExampleOwner) {
-			final TLExampleOwner exampleOwner = (TLExampleOwner) srcObj;
-			final TLExample tlExample = exampleOwner.getExample(context);
-			exampleOwner.removeExample(tlExample);
-		}
-	}
+	// public boolean setExample(final String example, final String context) {
+	// if (srcObj instanceof TLExampleOwner) {
+	// final TLExampleOwner exampleOwner = (TLExampleOwner) srcObj;
+	// TLExample tlExample = exampleOwner.getExample(context);
+	//
+	// if (tlExample == null) {
+	// tlExample = new TLExample();
+	// tlExample.setContext(context);
+	// exampleOwner.addExample(tlExample);
+	// }
+	//
+	// tlExample.setValue(example);
+	// return true;
+	// }
+	// return false;
+	// }
+	//
+	// public void removeExample(final String context) {
+	// if (srcObj instanceof TLExampleOwner) {
+	// final TLExampleOwner exampleOwner = (TLExampleOwner) srcObj;
+	// final TLExample tlExample = exampleOwner.getExample(context);
+	// exampleOwner.removeExample(tlExample);
+	// }
+	// }
 
 	public boolean setMandatory(final boolean selection) {
 		return false;

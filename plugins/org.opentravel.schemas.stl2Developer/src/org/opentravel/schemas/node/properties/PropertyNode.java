@@ -64,6 +64,8 @@ public class PropertyNode extends ComponentNode {
 
 	protected PropertyNodeType propertyType;
 	protected AlternateRoles alternateRoles;
+	protected EquivalentHander equivalentHandler = null;
+	protected ExampleHandler exampleHandler = null;
 
 	/**
 	 * Create a property node to represent the passed TL Model object.
@@ -236,6 +238,30 @@ public class PropertyNode extends ComponentNode {
 		if (modelObject.getTLType() == null)
 			return true;
 		return false;
+	}
+
+	/**
+	 * @return equivalent handler if property has equivalents, null otherwise
+	 */
+	public EquivalentHander getEquivalentHandler() {
+		return equivalentHandler;
+	}
+
+	@Override
+	public String getEquivalent(String context) {
+		return equivalentHandler != null ? getEquivalentHandler().get(context) : "";
+	}
+
+	/**
+	 * @return equivalent handler if property has equivalents, null otherwise
+	 */
+	public ExampleHandler getExampleHandler() {
+		return exampleHandler;
+	}
+
+	@Override
+	public String getExample(String context) {
+		return exampleHandler != null ? getExampleHandler().get(context) : "";
 	}
 
 	/**

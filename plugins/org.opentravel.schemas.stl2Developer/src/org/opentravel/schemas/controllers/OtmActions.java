@@ -16,7 +16,6 @@
 package org.opentravel.schemas.controllers;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.TableItem;
@@ -501,38 +500,30 @@ public class OtmActions {
 		final String context = mc.getContextController().getSelectedId(ContextViewType.TYPE_VIEW, n.getLibrary());
 		// final String context = n.getCurContext();
 		final String text = wd.getText();
-		if (text == null || text.isEmpty()) {
-			n.getModelObject().removeExample(context);
-		} else {
-			n.getModelObject().setExample(text, context);
-			setAllExamples(n, text);
-		}
+		if (n instanceof PropertyNode && ((PropertyNode) n).getExampleHandler() != null)
+			((PropertyNode) n).getExampleHandler().set(text, context);
+
+		// if (text == null || text.isEmpty()) {
+		// n.getModelObject().removeExample(context);
+		// } else {
+		// n.getModelObject().setExample(text, context);
+		// setAllExamples(n, text);
+		// }
 		LOGGER.info("Set example for context: " + context);
 	}
 
 	// Context controller is broken; it returns the wrong context in setExample.
 	// As a patch, this sets the new text value into all undefined examples. Not good, but helps.
-	private void setAllExamples(Node n, String text) {
-		List<String> contexts = mc.getContextController().getAvailableContextIds(n.getLibrary());
-		if (!(n instanceof ComponentNode))
-			return;
-		ComponentNode cn = (ComponentNode) n;
-		for (String c : contexts) {
-			if (cn.getExample(c) == null || cn.getExample(c).isEmpty())
-				cn.getModelObject().setExample(text, c);
-		}
-	}
-
-	private void setAllEquivalence(Node n, String text) {
-		List<String> contexts = mc.getContextController().getAvailableContextIds(n.getLibrary());
-		if (!(n instanceof ComponentNode))
-			return;
-		ComponentNode cn = (ComponentNode) n;
-		for (String c : contexts) {
-			if (cn.getEquivalent(c) == null || cn.getEquivalent(c).isEmpty())
-				cn.getModelObject().setEquivalent(text, c);
-		}
-	}
+	// private void setAllExamples(Node n, String text) {
+	// List<String> contexts = mc.getContextController().getAvailableContextIds(n.getLibrary());
+	// if (!(n instanceof ComponentNode))
+	// return;
+	// ComponentNode cn = (ComponentNode) n;
+	// for (String c : contexts) {
+	// if (cn.getExample(c) == null || cn.getExample(c).isEmpty())
+	// cn.getModelObject().setExample(text, c);
+	// }
+	// }
 
 	public static int setEquivalence() {
 		return setEquivalence;
@@ -543,14 +534,28 @@ public class OtmActions {
 		final String context = mc.getContextController().getSelectedId(ContextViewType.TYPE_VIEW, n.getLibrary());
 		// final String context = n.getCurContext();
 		final String text = wd.getText();
-		if (text == null || text.isEmpty()) {
-			n.getModelObject().removeEquivalent(context);
-		} else {
-			n.getModelObject().setEquivalent(text, context);
-			setAllEquivalence(n, text);
+		// if (text == null || text.isEmpty()) {
+		// n.getModelObject().removeEquivalent(context);
+		// } else {
+		// n.getModelObject().setEquivalent(text, context);
+		// setAllEquivalence(n, text);
+		// }
+		if (n instanceof PropertyNode && ((PropertyNode) n).getEquivalentHandler() != null) {
+			((PropertyNode) n).getEquivalentHandler().set(text, context);
 		}
 		LOGGER.debug("Set equivalent for context: " + context);
 	}
+
+	// private void setAllEquivalence(Node n, String text) {
+	// List<String> contexts = mc.getContextController().getAvailableContextIds(n.getLibrary());
+	// if (!(n instanceof ComponentNode))
+	// return;
+	// ComponentNode cn = (ComponentNode) n;
+	// for (String c : contexts) {
+	// if (cn.getEquivalent(c) == null || cn.getEquivalent(c).isEmpty())
+	// cn.getModelObject().setEquivalent(text, c);
+	// }
+	// }
 
 	public static int setPattern() {
 		return setPattern;

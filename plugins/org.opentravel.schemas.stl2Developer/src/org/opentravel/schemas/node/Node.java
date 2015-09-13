@@ -420,7 +420,7 @@ public abstract class Node implements INode {
 		// this);
 		if (name == null || name.isEmpty())
 			return null;
-		if (ns.isEmpty())
+		if (ns == null || ns.isEmpty())
 			ns = Chameleon_NS;
 		// Get past the model node.
 		Node x;
@@ -2000,25 +2000,30 @@ public abstract class Node implements INode {
 			LOGGER.error("Model Object is null.");
 			return;
 		}
-		// Change if one does not exist using targetId. Otherwise, copy the value to new implementers
-		if (modelObject.getEquivalent(contextId) != null && !modelObject.getEquivalent(contextId).isEmpty()) {
-			if (modelObject.getEquivalent(targetId) == null || modelObject.getEquivalent(targetId).isEmpty())
-				modelObject.changeEquivalentContext(contextId, targetId);
-			else {
-				addImplementer("Equivalent value: " + contextId + " = " + modelObject.getEquivalent(contextId));
-				LOGGER.debug("Created Implementers doc for value: " + modelObject.getEquivalent(contextId));
-			}
-		}
-		if (modelObject.getExample(contextId) != null && !modelObject.getExample(contextId).isEmpty()) {
-			if (modelObject.getExample(targetId) == null || modelObject.getExample(targetId).isEmpty())
-				modelObject.changeExampleContext(contextId, targetId);
-			else {
-				addImplementer("Example value: " + contextId + " = " + modelObject.getExample(contextId));
-				LOGGER.debug("Created Implementers doc for value: " + modelObject.getExample(contextId));
-			}
-		}
+		if (this instanceof PropertyNode && ((PropertyNode) this).getEquivalentHandler() != null)
+			((PropertyNode) this).getEquivalentHandler().fix(targetId);
+		if (this instanceof PropertyNode && ((PropertyNode) this).getExampleHandler() != null)
+			((PropertyNode) this).getExampleHandler().fix(targetId);
 
-		if (isBusinessObject())
+		// // Change if one does not exist using targetId. Otherwise, copy the value to new implementers
+		// if (modelObject.getEquivalent(contextId) != null && !modelObject.getEquivalent(contextId).isEmpty()) {
+		// if (modelObject.getEquivalent(targetId) == null || modelObject.getEquivalent(targetId).isEmpty())
+		// modelObject.changeEquivalentContext(contextId, targetId);
+		// else {
+		// addImplementer("Equivalent value: " + contextId + " = " + modelObject.getEquivalent(contextId));
+		// LOGGER.debug("Created Implementers doc for value: " + modelObject.getEquivalent(contextId));
+		// }
+		// }
+		// if (modelObject.getExample(contextId) != null && !modelObject.getExample(contextId).isEmpty()) {
+		// if (modelObject.getExample(targetId) == null || modelObject.getExample(targetId).isEmpty())
+		// modelObject.changeExampleContext(contextId, targetId);
+		// else {
+		// addImplementer("Example value: " + contextId + " = " + modelObject.getExample(contextId));
+		// LOGGER.debug("Created Implementers doc for value: " + modelObject.getExample(contextId));
+		// }
+		// }
+
+		if (this instanceof BusinessObjectNode)
 			((BusinessObjMO) modelObject).changeBusinessObjectContext(contextId, targetId);
 
 		List<TLAdditionalDocumentationItem> odList;
@@ -2364,7 +2369,7 @@ public abstract class Node implements INode {
 	 * 
 	 * @param parent
 	 * @param nameSuffix
-	 * @return
+	 * @return null if error
 	 */
 	public Node clone(Node parent, String nameSuffix) {
 		LibraryNode lib = this.getLibrary();

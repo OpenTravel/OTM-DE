@@ -71,11 +71,6 @@ public class ElementNode extends PropertyNode implements TypeUser {
 		return (type instanceof TypeProvider);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.PropertyNode#createProperty(org.opentravel.schemas.node.Node)
-	 */
 	@Override
 	public INode createProperty(Node type) {
 		int index = indexOfNode();
@@ -104,11 +99,16 @@ public class ElementNode extends PropertyNode implements TypeUser {
 		return Images.getImageRegistry().get(Images.XSDElement);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getLabel()
-	 */
+	@Override
+	public EquivalentHander getEquivalentHandler() {
+		return equivalentHandler == null ? new EquivalentHander(this) : equivalentHandler;
+	}
+
+	@Override
+	public ExampleHandler getExampleHandler() {
+		return exampleHandler == null ? new ExampleHandler(this) : exampleHandler;
+	}
+
 	@Override
 	public String getLabel() {
 		String label = modelObject.getLabel();
@@ -117,31 +117,16 @@ public class ElementNode extends PropertyNode implements TypeUser {
 		return label;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.PropertyNode#isElementProperty()
-	 */
 	@Override
 	public boolean isElement() {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isTypeUser()
-	 */
 	@Override
 	public boolean isTypeUser() {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.PropertyNode#setName(java.lang.String)
-	 */
 	@Override
 	public void setName(String name) {
 		modelObject.setName(name); // try the passed name

@@ -18,6 +18,7 @@
  */
 package org.opentravel.schemas.controllers;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -82,6 +83,10 @@ public class DefaultRepositoryController implements RepositoryController {
 		// } catch (RepositoryException e) {
 		// postRepoException(e);
 		// }
+	}
+
+	public File getRepositoryFileLocation() {
+		return repositoryManager.getRepositoryLocation();
 	}
 
 	/**

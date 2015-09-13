@@ -107,6 +107,8 @@ public class DefaultProjectController implements ProjectController {
 	public DefaultProjectController(final MainController mc, RepositoryManager repositoryManager) {
 		this.mc = mc;
 		this.projectManager = new ProjectManager(mc.getModelController().getTLModel(), true, repositoryManager);
+		getBuiltInProject(); // make sure these exist
+		getDefaultProject(); // make sure these exist
 	}
 
 	public void syncWithUi(final String msg) {
@@ -114,7 +116,10 @@ public class DefaultProjectController implements ProjectController {
 	}
 
 	protected void createDefaultProject() {
+		// FIXME - TESTME - this should be using the local repository ns.
+		defaultNS = mc.getRepositoryController().getLocalRepository().getNamespace();
 		defaultPath = DefaultPreferences.getDefaultProjectPath();
+
 		defaultProject = create(new File(defaultPath), defaultNS, "Default Project",
 				"Used for libraries not loaded into a project.");
 
@@ -376,6 +381,8 @@ public class DefaultProjectController implements ProjectController {
 	 */
 	@Override
 	public ProjectNode getBuiltInProject() {
+		if (builtInProject == null)
+			loadProject_BuiltIn();
 		return builtInProject;
 	}
 
@@ -384,8 +391,9 @@ public class DefaultProjectController implements ProjectController {
 	 */
 	@Override
 	public ProjectNode getDefaultProject() {
-		// if (defaultProject == null)
-		// createDefaultProject();
+		// 9/9/2015 - dmh - the if statement was commented out but will not have default project until started twice.
+		if (defaultProject == null)
+			createDefaultProject();
 		return defaultProject;
 	}
 
@@ -425,12 +433,9 @@ public class DefaultProjectController implements ProjectController {
 	public void initProjects() {
 		final XMLMemento memento = getMemento();
 
-		// Only run once.
-		if (builtInProject != null)
-			return;
-
 		// Find and open the project for Built-in libraries
-		loadProject_BuiltIn();
+		if (builtInProject == null)
+			loadProject_BuiltIn();
 
 		// Get the ui thread to create the progress monitor and run the open projects in background.
 		if (memento != null) {
@@ -808,7 +813,7 @@ public class DefaultProjectController implements ProjectController {
 		// printout projects
 		IMemento[] children = memento.getChildren(OTM_PROJECT);
 		for (int i = 0; i < children.length; i++) {
-			LOGGER.debug("Memento project: " + children[i].getString(OTM_PROJECT_LOCATION));
+			LOGGER.debug("GetMemento found project: " + children[i].getString(OTM_PROJECT_LOCATION));
 		}
 
 		return memento;
@@ -895,8 +900,22 @@ public class DefaultProjectController implements ProjectController {
 		// }
 	}
 
+	public static String MementoFileName = "OTM_DE_Startup.xml";
+
 	private File getOTM_StateFile() {
-		return Activator.getDefault().getStateLocation().append("OTM_Developer.xml").toFile();
+		File ota2File = null;
+		File file = ((DefaultRepositoryController) OtmRegistry.getMainController().getRepositoryController())
+				.getRepositoryFileLocation();
+		if (file != null) {
+			String ota2FileName = file.getParentFile().getAbsolutePath() + File.separator + MementoFileName;
+			ota2File = new File(ota2FileName);
+			LOGGER.debug("Repo Path = " + ota2File.getAbsolutePath());
+		} else {
+			ota2File = Activator.getDefault().getStateLocation().append(MementoFileName).toFile();
+		}
+		return ota2File;
+		// 9/11/2015 - FIXME - TESTME - use this path instead of plug-in location
+		// return Activator.getDefault().getStateLocation().append("OTM_Developer.xml").toFile();
 	}
 
 	private void saveFavorites(XMLMemento memento) {

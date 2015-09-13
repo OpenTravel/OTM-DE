@@ -98,8 +98,9 @@ public class FacetNode extends ComponentNode {
 			if (p instanceof PropertyNode) {
 				PropertyNode property = (PropertyNode) p;
 				newProperty = (PropertyNode) property.clone(null, null);
-				this.linkChild(newProperty, false); // must have parent for test and change
-													// to work
+				if (newProperty == null)
+					return; // ERROR
+				this.linkChild(newProperty, false); // must have parent for test and change to work
 				if (!this.isValidParentOf(newProperty.getPropertyType()))
 					newProperty = newProperty.changePropertyRole(PropertyNodeType.ATTRIBUTE);
 				modelObject.addChild(newProperty.getTLModelObject());

@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  * Present a view of the repositories. Uses Repository Manager as its primary model. Uses Repository Controller as the
- * controller.
+ * controller. Tree Content from RepositoryTreeContentProvider which works with RepositoryNodes
  * 
  * @author Dave Hollander
  * 

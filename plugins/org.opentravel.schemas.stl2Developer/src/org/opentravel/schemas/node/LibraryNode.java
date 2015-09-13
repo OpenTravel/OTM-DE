@@ -717,6 +717,12 @@ public class LibraryNode extends Node {
 	 * getChain.add()
 	 */
 	public void addMember(final Node n) {
+		// FIXME - assigning types honors isEditable() shouldn't addMember()?
+		if (!isEditable()) {
+			LOGGER.warn("Tried to addMember() " + n + " to non-editable library " + this);
+			// assert (isEditable());
+			return;
+		}
 		// addMember(n, true);
 		// }
 		//

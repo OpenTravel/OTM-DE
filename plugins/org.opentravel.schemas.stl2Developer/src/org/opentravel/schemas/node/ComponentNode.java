@@ -355,12 +355,14 @@ public class ComponentNode extends Node implements TypeProvider {
 		return modelObject.isMandatory();
 	}
 
+	// Override in propeprtyNode
 	public String getEquivalent(final String context) {
-		return modelObject.getEquivalent(context);
+		return "";
 	}
 
+	// Override in propeprtyNode
 	public String getExample(final String context) {
-		return modelObject.getExample(context);
+		return "";
 	}
 
 	public TLFacetType getFacetType() {
