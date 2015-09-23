@@ -82,7 +82,8 @@ public class PropertiesTests {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "EQBO");
 		PropertyNode p = (PropertyNode) bo.getSummaryFacet().getChildren().get(0);
 		Assert.assertNotNull(p);
-		EquivalentHander eqh = p.getEquivalentHandler();
+		p.setEquivalent("V1"); // creates handler
+		IValueWithContextHandler eqh = p.getEquivalentHandler();
 		Assert.assertNotNull(eqh);
 		Assert.assertNotNull(p.getLibrary().getTLLibrary());
 		testValueWithContextHandler(eqh);
@@ -95,39 +96,52 @@ public class PropertiesTests {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "EQBO");
 		PropertyNode p = (PropertyNode) bo.getSummaryFacet().getChildren().get(0);
 		Assert.assertNotNull(p);
-		ExampleHandler exh = p.getExampleHandler();
+		p.setExample("V1"); // creates handler
+		IValueWithContextHandler exh = p.getExampleHandler();
 		Assert.assertNotNull(exh);
 		Assert.assertNotNull(p.getLibrary().getTLLibrary());
 		testValueWithContextHandler(exh);
 	}
 
 	private void testValueWithContextHandler(IValueWithContextHandler handler) {
-		Assert.assertTrue(handler.set("EV1", "C1")); // Uses default context
+		handler.set("V1", null); // Uses default context
 		Assert.assertEquals(1, handler.getCount());
+		String defaultAppContext = handler.getApplicationContext();
+		String defaultContextId = handler.getContextID();
+		Assert.assertFalse(defaultAppContext.isEmpty());
+		Assert.assertFalse(defaultContextId.isEmpty());
 
-		// Add context to library - do must use context controller because it is needed in the valid context tests.
+		// Add context to library and context manager -
+		// must use context controller because it is needed in the valid context tests.
 		mc.getContextController().newContext(ln, "C1", "CA1");
 		mc.getContextController().newContext(ln, "C2", "CA2");
 
-		// Create 2 equivalents
-		Assert.assertTrue(handler.set("V1", "C1"));
-		Assert.assertTrue(handler.set("V2", "C2")); // removes other contexts
+		// Create 2 values
+		handler.set("V2", "C1"); // removes other values
+		handler.set("V3", "C2"); // removes other values
 		Assert.assertEquals(1, handler.getCount());
 
 		Assert.assertEquals("", handler.get("C1"));
-		Assert.assertEquals("V2", handler.get("C2"));
-		Assert.assertTrue(handler.areValid());
+		Assert.assertEquals("V3", handler.get("C2"));
 
-		Assert.assertFalse(handler.change("C1", "C2")); // fail because c1 does not exist
-		Assert.assertTrue(handler.change("C2", "EC2")); // changes to default context since EC2 does not exist.
-
-		Assert.assertTrue(handler.set("V2", "C2")); // removes other contexts
-		handler.fix("C2"); // collapse to 1 context
+		handler.set("V4", "C2"); // removes other values
+		handler.fix("C2"); // should do nothing
 		Assert.assertEquals(1, handler.getCount());
+		Assert.assertEquals("V4", handler.get("C2"));
+		Assert.assertTrue(handler.getApplicationContext().equals("CA2"));
 
-		Assert.assertTrue(handler.change("C2", "C1"));
-		Assert.assertTrue(handler.set(null, "C1")); // remove one context
+		// Test fix to move value V4 to default context.
+		handler.fix(null);
+		Assert.assertEquals(1, handler.getCount());
+		Assert.assertEquals("V4", handler.get(null));
+		Assert.assertTrue(handler.getApplicationContext().equals(defaultAppContext));
+
+		handler.set(null, "C1"); // remove value
 		Assert.assertEquals(0, handler.getCount());
+
+		// Test setting and getting with no context.
+		handler.set("V5", null); // removes other values
+		Assert.assertTrue(handler.get(null).equals("V5"));
 	}
 
 	@Test

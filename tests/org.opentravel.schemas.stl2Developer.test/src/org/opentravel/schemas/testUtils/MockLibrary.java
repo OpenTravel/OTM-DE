@@ -94,7 +94,7 @@ public class MockLibrary {
 		} catch (LibrarySaveException e) {
 			LOGGER.debug("Error Saving: ", e);
 		}
-		addBusinessObjectToLibrary(ln, "InitialBO");
+		addBusinessObjectToLibrary(ln, name + "InitialBO");
 
 		ValidationFindings findings = ln.validate();
 		boolean valid = findings.count(FindingType.ERROR) == 0 ? true : false;

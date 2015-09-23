@@ -639,6 +639,12 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		checkCounts(chain);
 	}
 
+	/**
+	 * From MoveObjectToLibraryAction if (source.isInTLLibrary() && source.isTopLevelObject())
+	 * source.getLibrary().moveMember(source, destination);
+	 * 
+	 * From MainController.ChangeNode() srcLib.moveMember(editedNode, destLib);
+	 */
 	@Test
 	public void testMove() {
 		// This will work because moveMember is at the model level. It is used by the controller
