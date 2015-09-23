@@ -14,34 +14,46 @@ public interface IValueWithContextHandler {
 	public int getCount();
 
 	/**
-	 * Get value for a context. Empty string if no value is defined for the context.
+	 * Get value for a context.
+	 * 
+	 * @param context
+	 *            The context used to select which value. Default context used if context is null.
+	 * @return value for the effective context. Empty string if no value is defined for the context.
 	 */
 	public String get(String context);
 
-	/**
-	 * Set value for a specific context. If the value does not exist one will be created. If value is null or empty the
-	 * value will be removed.
-	 * 
-	 * @return true if set, false if not set because context was not found in library.
-	 */
-	public boolean set(String value, String context);
+	public String getContextID();
+
+	public String getApplicationContext();
 
 	/**
-	 * Change the context string for the value specified by context.
+	 * Set value for a specific context.
 	 * 
-	 * @return Return false and do nothing if no value is found with source context, the target context is already
-	 *         assigned, or the target context is not defined.
+	 * @param value
+	 *            Value to be set. Value will overwrite existing value if one exists for that context. If value is null
+	 *            or empty the value for the context will be removed.
+	 * @param context
+	 *            If context is null or not defined for the owners library then the default context will be used.
 	 */
-	public boolean change(String sourceContext, String targetContext);
+	public void set(String value, String context);
+
+	// /**
+	// * Change the context string for the value specified by context.
+	// *
+	// * @return Return false and do nothing if no value is found with source context, the target context is already
+	// * assigned, or the target context is not defined.
+	// */
+	// public boolean change(String sourceContext, String targetContext);
 
 	/**
-	 * Fix all contexts. The value with the source context will remain if it exists. All other values will be converted
-	 * into documentation.
+	 * Fix all contexts. TLLibraries may have multiple values (loaded from old libraries). This method will collapse
+	 * them down to the value associated with the passed context. The value with the source context will remain if it
+	 * exists. All other values will be converted into documentation.
 	 */
 	public void fix(String sourceContext);
 
-	/**
-	 * Test all values and insure all contexts are declared.
-	 */
-	public boolean areValid();
+	// /**
+	// * Test all values and insure all contexts are declared.
+	// */
+	// public boolean areValid();
 }

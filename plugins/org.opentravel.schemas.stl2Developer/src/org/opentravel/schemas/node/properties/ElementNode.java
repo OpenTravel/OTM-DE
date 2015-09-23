@@ -25,6 +25,7 @@ import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.PropertyNodeType;
+import org.opentravel.schemas.node.properties.EqExOneValueHandler.ValueWithContextType;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
@@ -100,13 +101,19 @@ public class ElementNode extends PropertyNode implements TypeUser {
 	}
 
 	@Override
-	public EquivalentHander getEquivalentHandler() {
-		return equivalentHandler == null ? new EquivalentHander(this) : equivalentHandler;
+	public IValueWithContextHandler setEquivalent(String example) {
+		if (equivalentHandler == null)
+			equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
+		equivalentHandler.set(example, null);
+		return equivalentHandler;
 	}
 
 	@Override
-	public ExampleHandler getExampleHandler() {
-		return exampleHandler == null ? new ExampleHandler(this) : exampleHandler;
+	public IValueWithContextHandler setExample(String example) {
+		if (exampleHandler == null)
+			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
+		exampleHandler.set(example, null);
+		return exampleHandler;
 	}
 
 	@Override

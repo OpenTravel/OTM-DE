@@ -64,8 +64,8 @@ public class PropertyNode extends ComponentNode {
 
 	protected PropertyNodeType propertyType;
 	protected AlternateRoles alternateRoles;
-	protected EquivalentHander equivalentHandler = null;
-	protected ExampleHandler exampleHandler = null;
+	protected IValueWithContextHandler equivalentHandler = null;
+	protected IValueWithContextHandler exampleHandler = null;
 
 	/**
 	 * Create a property node to represent the passed TL Model object.
@@ -243,25 +243,33 @@ public class PropertyNode extends ComponentNode {
 	/**
 	 * @return equivalent handler if property has equivalents, null otherwise
 	 */
-	public EquivalentHander getEquivalentHandler() {
+	public IValueWithContextHandler getEquivalentHandler() {
 		return equivalentHandler;
 	}
 
 	@Override
 	public String getEquivalent(String context) {
-		return equivalentHandler != null ? getEquivalentHandler().get(context) : "";
+		return equivalentHandler != null ? equivalentHandler.get(context) : "";
+	}
+
+	public IValueWithContextHandler setEquivalent(String equivalent) {
+		return null;
 	}
 
 	/**
 	 * @return equivalent handler if property has equivalents, null otherwise
 	 */
-	public ExampleHandler getExampleHandler() {
+	public IValueWithContextHandler getExampleHandler() {
 		return exampleHandler;
 	}
 
 	@Override
 	public String getExample(String context) {
-		return exampleHandler != null ? getExampleHandler().get(context) : "";
+		return exampleHandler != null ? exampleHandler.get(context) : "";
+	}
+
+	public IValueWithContextHandler setExample(String example) {
+		return null;
 	}
 
 	/**
