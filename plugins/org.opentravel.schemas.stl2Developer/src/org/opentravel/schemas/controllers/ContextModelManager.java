@@ -139,6 +139,10 @@ public class ContextModelManager {
 		Map<String, Context> cMap;
 		Context ret = null;
 		cMap = contextMap.get(ln);
+		if (cMap == null) {
+			LOGGER.error("No map entry for library " + ln);
+			return null;
+		}
 		// if (cMap.containsValue(tlc.getApplicationContext())) {
 		// TODO - this test does not work. Value is a manager whose ctx.getApplicationContext must be tested.
 		// LOGGER.error("Error - map already contains app context.");
@@ -398,7 +402,7 @@ public class ContextModelManager {
 
 		// Change all users of selected to target and remove selected from TL Model
 		LibraryNode sLib = selected.getLibraryNode();
-		sLib.mergeContext(selected.getContextId(), target.getContextId());
+		sLib.mergeContext(target.getContextId());
 
 		// Remove selected from map.
 		contextMap.get(sLib).remove(selected.getContextId());

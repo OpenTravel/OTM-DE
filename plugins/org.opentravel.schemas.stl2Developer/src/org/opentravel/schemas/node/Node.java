@@ -47,7 +47,6 @@ import org.opentravel.schemacompiler.validate.Validatable;
 import org.opentravel.schemacompiler.validate.ValidationException;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
-import org.opentravel.schemas.modelObject.BusinessObjMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
 import org.opentravel.schemas.modelObject.TLEmpty;
@@ -214,10 +213,11 @@ public abstract class Node implements INode {
 		// Note - used in model creation to unlink nodes to add them to a family nav node.
 		// LOGGER.debug("Removing child " + n + " from parent child list " + this);
 		if (!getChildren().contains(n)) {
-			// Warn in the family delete cycle is wrong -- tries to delete family node after it is
-			// deleted.
+			// Warn in the family delete cycle is wrong -- tries to delete family node after it is deleted.
 			LOGGER.warn("Attempting to delete a child " + n.getName() + " that is not in children list of parent "
 					+ this.getName());
+			LOGGER.error("THIS IS BECAUSE IT is in a Family node under this node!");
+			// FIXME - will cause family nodes to not be deleted. See this in LibraryTests.moveMemberTests
 			return;
 		}
 		children.remove(n);
@@ -1986,70 +1986,76 @@ public abstract class Node implements INode {
 	// return null;
 	// }
 
+	// /**
+	// * Merge contexts of all children/descendents to the target id and context.
+	// *
+	// * Note: this is a newer version of merge that the one with just targetId.
+	// * @param Id
+	// * @param AppContext
+	// */
+	// public void mergeContext(String Id, String AppContext) {
+	//
+	// }
 	/**
 	 * Change all context users to use targetId. Iterates on all children. If the context would be duplicated, it is
 	 * added as an implementors documentation item.
 	 * 
-	 * @param contextId
-	 *            - remove all uses of this contextId
 	 * @param targetId
 	 *            - replace with this contextId
 	 */
-	public void mergeContext(String contextId, String targetId) {
-		if (modelObject == null) {
-			LOGGER.error("Model Object is null.");
-			return;
-		}
+	public void mergeContext(String targetId) {
+		// if (modelObject == null) {
+		// LOGGER.error("Model Object is null.");
+		// return;
+		// }
 		if (this instanceof PropertyNode && ((PropertyNode) this).getEquivalentHandler() != null)
 			((PropertyNode) this).getEquivalentHandler().fix(targetId);
 		if (this instanceof PropertyNode && ((PropertyNode) this).getExampleHandler() != null)
 			((PropertyNode) this).getExampleHandler().fix(targetId);
 
-		// // Change if one does not exist using targetId. Otherwise, copy the value to new implementers
-		// if (modelObject.getEquivalent(contextId) != null && !modelObject.getEquivalent(contextId).isEmpty()) {
-		// if (modelObject.getEquivalent(targetId) == null || modelObject.getEquivalent(targetId).isEmpty())
-		// modelObject.changeEquivalentContext(contextId, targetId);
-		// else {
-		// addImplementer("Equivalent value: " + contextId + " = " + modelObject.getEquivalent(contextId));
-		// LOGGER.debug("Created Implementers doc for value: " + modelObject.getEquivalent(contextId));
-		// }
-		// }
-		// if (modelObject.getExample(contextId) != null && !modelObject.getExample(contextId).isEmpty()) {
-		// if (modelObject.getExample(targetId) == null || modelObject.getExample(targetId).isEmpty())
-		// modelObject.changeExampleContext(contextId, targetId);
-		// else {
-		// addImplementer("Example value: " + contextId + " = " + modelObject.getExample(contextId));
-		// LOGGER.debug("Created Implementers doc for value: " + modelObject.getExample(contextId));
-		// }
-		// }
+		if (this instanceof RenamableFacet)
+			((RenamableFacet) this).setContext(targetId);
 
-		if (this instanceof BusinessObjectNode)
-			((BusinessObjMO) modelObject).changeBusinessObjectContext(contextId, targetId);
-
-		List<TLAdditionalDocumentationItem> odList;
-		boolean hasTargetOd = false;
-		if (getDocumentation() != null) {
-			if ((odList = getDocumentation().getOtherDocs()) != null) {
-				// If there already is one in target context then make into implementors doc instead
-				for (TLAdditionalDocumentationItem od : odList) {
-					if (od.getContext().equals(targetId)) {
-						hasTargetOd = true;
-						break;
-					}
-				}
-				for (TLAdditionalDocumentationItem od : odList) {
-					if (od.getContext().equals(contextId)) {
-						if (!hasTargetOd)
-							od.setContext(targetId);
-						else
-							addImplementer("Other doc: " + contextId + " = " + od.getText());
-					}
-				}
+		if (getDocumentation() != null && getDocumentation().getOtherDocs() != null) {
+			// Avoid concurrent modification
+			List<TLAdditionalDocumentationItem> odList = new ArrayList<TLAdditionalDocumentationItem>(
+					getDocumentation().getOtherDocs());
+			// If the target exists, then use it. All others get converted to implementation documentation.
+			TLAdditionalDocumentationItem targetOD = getDocumentation().getOtherDoc(targetId);
+			for (TLAdditionalDocumentationItem od : odList) {
+				if (targetOD == null)
+					od.setContext(targetId);
+				else
+					addImplementer("Other doc: " + od.getContext() + " = " + od.getText());
 			}
 		}
+
+		// Commented out on 9/20/2015 by dmh
+		// List<TLAdditionalDocumentationItem> odList;
+		// boolean hasTargetOd = false;
+		// if (getDocumentation() != null) {
+		// if ((odList = getDocumentation().getOtherDocs()) != null) {
+		// // If there already is one in target context then make into implementors doc instead
+		// for (TLAdditionalDocumentationItem od : odList) {
+		// if (od.getContext().equals(targetId)) {
+		// hasTargetOd = true;
+		// break;
+		// }
+		// }
+		// for (TLAdditionalDocumentationItem od : odList) {
+		// if (od.getContext().equals(contextId)) {
+		// if (!hasTargetOd)
+		// od.setContext(targetId);
+		// else
+		// addImplementer("Other doc: " + contextId + " = " + od.getText());
+		// }
+		// }
+		// }
+		// }
+
 		// Iterate through all children
 		for (Node n : getChildren())
-			n.mergeContext(contextId, targetId);
+			n.mergeContext(targetId);
 	}
 
 	public boolean moveProperty(final int i) {
@@ -2224,6 +2230,8 @@ public abstract class Node implements INode {
 	/**
 	 * @return - list of unique Context IDs used by any child of this node. Empty list if none.
 	 */
+	// FIX or Remove - does not work for business objects and perhaps many others
+	@Deprecated
 	public List<String> getContextIds() {
 		final Map<String, String> ctxMap = new LinkedHashMap<String, String>();
 		ArrayList<String> ret = new ArrayList<String>();

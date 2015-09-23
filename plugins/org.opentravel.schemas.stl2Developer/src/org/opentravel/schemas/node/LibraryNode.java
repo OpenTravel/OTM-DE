@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.BuiltInLibrary;
 import org.opentravel.schemacompiler.model.LibraryElement;
@@ -47,8 +48,10 @@ import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.util.ContextUtils;
 import org.opentravel.schemacompiler.util.URLUtils;
 import org.opentravel.schemas.controllers.ContextController;
+import org.opentravel.schemas.controllers.ContextModelManager;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
+import org.opentravel.schemas.node.listeners.LibraryNodeListener;
 import org.opentravel.schemas.preferences.GeneralPreferencePage;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -169,8 +172,18 @@ public class LibraryNode extends Node {
 
 		// Set up the contexts
 		addContexts();
-
 		// LOGGER.debug("Library created: " + this.getName());
+	}
+
+	private void addListeners() {
+		getTLModelObject().addListener(new LibraryNodeListener(this));
+	}
+
+	private void removeListeners() {
+		Collection<ModelElementListener> listeners = new ArrayList<ModelElementListener>(getTLModelObject()
+				.getListeners());
+		for (ModelElementListener listener : listeners)
+			getTLModelObject().removeListener(listener);
 	}
 
 	public LibraryNode(ProjectItem pi, ProjectNode projectNode) {
@@ -441,7 +454,7 @@ public class LibraryNode extends Node {
 
 		TLLibrary lib = getTLLibrary();
 		if (isEditable() && lib.getContexts().size() > 1)
-			collapseContexts(lib);
+			collapseContexts();
 
 		if (lib.getContexts().isEmpty()) {
 			TLContext tlc = new TLContext();
@@ -455,28 +468,68 @@ public class LibraryNode extends Node {
 			cc.addContexts(this);
 	}
 
-	private void collapseContexts(TLLibrary tllib) {
-		// Collapse all contexts down to one. Temporary fix that may be in place for years.
-		LOGGER.debug("Ready to merge contexts for library: " + this);
-		// Pick the context to keep
-		TLContext thisContext = null;
-		for (TLContext tlc : tllib.getContexts()) {
-			if (tlc.getApplicationContext().startsWith("__"))
-				continue;
-			thisContext = tlc;
-			break;
+	/**
+	 * Collapse all contexts in this library (context model and tlLibrary) down to the default context. All contents of
+	 * the library may be changed to merge contexts to the default.
+	 */
+	// Collapse all contexts down to one. Temporary fix that may be in place for years.
+	protected void collapseContexts() {
+		// LOGGER.debug("Ready to merge contexts for library: " + this);
+		if (!(getTLaLib() instanceof TLLibrary)) {
+			LOGGER.error("Error. Not a valid library for collapseContexts.");
+			return;
 		}
-		if (thisContext == null)
-			thisContext = tllib.getContexts().get(0);
 
-		// Now Merge the others.
-		List<TLContext> contexts = new ArrayList<TLContext>(tllib.getContexts());
-		for (TLContext tlc : contexts) {
-			if (thisContext != tlc) {
-				mergeContexts(tlc.getContextId(), thisContext.getContextId());
-				LOGGER.debug("merged " + tlc.getContextId() + " into " + thisContext.getContextId());
+		ContextController cc = OtmRegistry.getMainController().getContextController();
+		ContextModelManager cm = cc.getContextModelManager();
+
+		// If there are no context then we are done.
+		if (getTLLibrary().getContexts().isEmpty())
+			return;
+
+		// tlc is the context to keep.
+		TLContext tlc = getTLLibrary().getContext(getDefaultContextId());
+		if (tlc == null)
+			tlc = getTLLibrary().getContexts().get(0); // there must be at least one
+
+		// If there is only one TLContext then make sure context manager matches.
+		if (getTLLibrary().getContexts().size() == 1) {
+			// // TODO - Fix context manager's contents
+			// List<String> cmIds = cc.getAvailableContextIds(this);
+			// if (cmIds.size() > 1 || !cmIds.contains(tlc.getContextId())) {
+			// // cc.clearContexts(this);
+			// cm.addNode(this, tlc);
+			// }
+			// assert (cc.getAvailableContextIds(this).size() == 1);
+			// assert (cc.getAvailableContextIds(this).size() == getTLLibrary().getContexts().size());
+			// assert (cc.getAvailableContextIds(this).get(0).equals(tlc.getContextId()));
+			return; // all done. if any child used a different context the TLLibrary would have more than 1.
+		}
+
+		// More than one context is being used. Merge context of children the collapse down the unused contexts.
+		//
+		// Merge contexts in all children of this library.
+		for (Node n : getDescendants_NamedTypes()) {
+			n.mergeContext(tlc.getContextId());
+		}
+
+		// Now remove the unused contexts
+		List<TLContext> contexts = new ArrayList<TLContext>(getTLLibrary().getContexts());
+		for (TLContext tc : contexts) {
+			if (tc != tlc) {
+				getTLLibrary().removeContext(getTLLibrary().getContext(tc.getContextId()));
+				// LOGGER.debug("removed " + tc.getContextId() + " from tlLibrary " + this);
 			}
 		}
+		// TODO - Make the context manager agree with the tllibrary
+		// cc.clearContexts(this);
+		// cc.newContext(this, tlc.getContextId(), tlc.getApplicationContext());
+		// FAILS - cm.addNode(this, tlc);
+		// assert (cc.getAvailableContextIds(this).size() == 1);
+		// assert (cc.getAvailableContextIds(this).size() == getTLLibrary().getContexts().size());
+		// assert (cc.getAvailableContextIds(this).get(0).equals(tlc.getContextId()));
+
+		// LOGGER.debug("merged contexts into context " + tlc.getContextId());
 	}
 
 	/**
@@ -530,7 +583,7 @@ public class LibraryNode extends Node {
 	 * 
 	 * @return
 	 */
-	protected boolean linkMember(Node n) {
+	public boolean linkMember(Node n) {
 		if (n == null)
 			throw new IllegalArgumentException("Null parameter.");
 		if (n.getName().isEmpty())
@@ -857,46 +910,54 @@ public class LibraryNode extends Node {
 	 * @param source
 	 * @param destination
 	 */
-	public void moveMember(final Node source, LibraryNode destination) {
+	public boolean moveMember(final Node source, LibraryNode destination) throws IllegalArgumentException {
 		if (source == null || source.getModelObject() == null || source.getTLModelObject() == null)
 			throw new IllegalArgumentException("Null in move source model.");
+		if (!(source instanceof ComponentNode))
+			throw new IllegalArgumentException(source + " is not a component.");
 		if (destination == null)
 			throw new IllegalArgumentException("Move destination library is null.");
 		if (!(destination.getTLaLib() instanceof TLLibrary))
 			throw new IllegalArgumentException("Move destination library is not a TLLibrary.");
 
+		// FIXME - this does not do services at all.
 		// You can't move a service it one already exists in target library.
-		if (source.isService() && destination.hasService())
-			return;
+		// if (source.isService() && destination.hasService())
+		if (source.isService())
+			return false;
 
-		// Make sure the context used are in the new library. Must be done
-		// *before* the node is moved or else context will never be found.
-		ContextController cc = OtmRegistry.getMainController().getContextController();
-		cc.copyContext(source, destination);
-		// FIXME - this results in lots of contexts in target library. Better to reassign context to moved items.
-
+		// Moved to LibraryNodeListener
 		// Remove from source
-		if (isInChain()) {
-			if (source instanceof ComplexComponentInterface)
-				getChain().getComplexAggregate().getChildren().remove(source);
-			else if (source instanceof SimpleComponentInterface)
-				getChain().getSimpleAggregate().getChildren().remove(source);
-			// LOGGER.debug("Removed aggregate for " + source);
-		}
-		source.unlinkNode();
+		// if (isInChain()) {
+		// getChain().removeAggregate((ComponentNode) source);
+		// }
+		// source.unlinkNode();
+		addListeners();
+		destination.addListeners();
 
 		// Move the TL object to destination tl library.
-		source.getLibrary().getTLLibrary()
-				.moveNamedMember((LibraryMember) source.getTLModelObject(), destination.getLibrary().getTLLibrary());
+		try {
+			source.getLibrary()
+					.getTLLibrary()
+					.moveNamedMember((LibraryMember) source.getTLModelObject(), destination.getLibrary().getTLLibrary());
+		} catch (Exception e) {
+			// Failed to move. Change destination to be this library and relink.
+			destination = this;
+			LOGGER.debug("moveNamedMember failed. Adding back to " + this + " library.");
+		}
+		removeListeners();
+		destination.removeListeners();
+
+		destination.collapseContexts(); // reduce down to one context
+		assert (destination.getTLLibrary().getContexts().size() == 1);
 
 		// Add to destination library chain
 		// TODO - should this use addMember() ?
-		destination.linkMember(source);
-		if (destination.isInChain()) {
-			destination.getChain().add((ComponentNode) source);
-		}
-
-		// destination.addMember(source);
+		// destination.linkMember(source);
+		// if (destination.isInChain()) {
+		// destination.getChain().add((ComponentNode) source);
+		// }
+		return true;
 	}
 
 	/**
@@ -1274,12 +1335,21 @@ public class LibraryNode extends Node {
 	/**
 	 * @return - list of context id strings, empty list of not TLLibrary or no contexts assigned.
 	 */
+	// FIXME - only used in tests
 	@Override
 	public List<String> getContextIds() {
 		ArrayList<String> contexts = new ArrayList<String>();
 		for (TLContext c : getTLLibrary().getContexts())
 			contexts.add(c.getContextId());
 		return contexts;
+	}
+
+	/**
+	 * Get the default context. As of 9/2015 there is only one context. This method allows for the obsolescence of the
+	 * context controller.
+	 */
+	public String getDefaultContextId() {
+		return OtmRegistry.getMainController().getContextController().getDefaultContextId(this);
 	}
 
 	/**
@@ -1387,20 +1457,6 @@ public class LibraryNode extends Node {
 		for (Node gc : n.getChildren())
 			list.addAll(gnt(gc));
 		return list;
-	}
-
-	/**
-	 * Replace all users of contextId with targetId. The remove the contextId context from the tl library.
-	 */
-	public void mergeContexts(String contextId, String targetId) {
-		for (Node n : getDescendants_NamedTypes()) {
-			n.mergeContext(contextId, targetId);
-		}
-
-		if (isTLLibrary()) {
-			TLLibrary tll = (TLLibrary) getTLaLib();
-			tll.removeContext(tll.getContext(contextId));
-		}
 	}
 
 	/**

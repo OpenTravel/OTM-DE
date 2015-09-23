@@ -38,6 +38,7 @@ import org.opentravel.schemas.modelObject.BusinessObjMO.Events;
 import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.controllers.NodeUtils;
+import org.opentravel.schemas.node.listeners.BusinessObjectNodeListener;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
@@ -54,6 +55,20 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 	public BusinessObjectNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
+		getTLModelObject().addListener(new BusinessObjectNodeListener(this));
+		// getTLModelObject().addListener(new ModelElementListener() {
+		//
+		// @Override
+		// public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
+		// // TODO Auto-generated method stub
+		// }
+		//
+		// @Override
+		// public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
+		// // TODO Auto-generated method stub
+		// LOGGER.debug("Ownership change event: " + event.getAffectedItem());
+		// }
+		// });
 		getModelObject().addPropertyChangeListener(new PropertyChangeListener() {
 
 			@Override
@@ -247,7 +262,19 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 		return Images.getImageRegistry().get(Images.BusinessObject);
 	}
 
+	/**
+	 * 
+	 * @param name
+	 * @param context
+	 *            - ignored
+	 * @param type
+	 * @return
+	 */
 	public FacetNode addFacet(String name, String context, TLFacetType type) {
+
+		// 9/19/2015 dmh - OVERRIDE context to assure context is default context.
+		context = getLibrary().getDefaultContextId();
+
 		if (isInHead() || versionNode == null) {
 			TLFacet newTlFacet = getModelObject().addFacet(name, context, type);
 			FacetNode ff = (FacetNode) NodeFactory.newComponentMember(this, newTlFacet);

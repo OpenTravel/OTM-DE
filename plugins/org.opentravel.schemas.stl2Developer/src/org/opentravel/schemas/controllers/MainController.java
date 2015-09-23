@@ -597,7 +597,8 @@ public class MainController {
 
 			// Set up the wizard
 			// FIXME - not getting all the newly created contexts!
-			String defaultContext = contextController.getDefaultContextId(current.getLibrary());
+			// String defaultContext = contextController.getDefaultContextId(current.getLibrary());
+			String defaultContext = current.getLibrary().getDefaultContextId();
 			String defaultName = "";
 			boolean canBeEmpty = TLFacetType.QUERY.equals(facetType);
 			if (TLFacetType.CUSTOM.equals(facetType)) {

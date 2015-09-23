@@ -18,29 +18,44 @@ package org.opentravel.schemas.node;
 import org.opentravel.schemacompiler.model.TLFacet;
 
 /**
+ * Used for Custom and Query Facets.
+ * 
  * @author Pawel Jedruch
  * 
  */
 public class RenamableFacet extends FacetNode {
 
-    public RenamableFacet(TLFacet tlObj) {
-        super(tlObj);
-    }
+	public RenamableFacet(TLFacet tlObj) {
+		super(tlObj);
+	}
 
-    @Override
-    public void setName(String n) {
-        String name = n;
-        // Strip the object name and "query" string if present.
-        name = NodeNameUtils.stripFacetPrefix(this, name);
-        if (getModelObject() != null) {
-            // compiler doesn't allow empty context -
-            // ((TLFacet) getTLModelObject()).setContext("");
-            ((TLFacet) getTLModelObject()).setLabel(name);
-            // rename their type users as well.
-            for (Node user : getTypeUsers()) {
-                user.setName(getName());
-            }
-        }
-    }
+	public String getContext() {
+		return ((TLFacet) getTLModelObject()).getContext();
+	}
+
+	/**
+	 * Set the context for this renamable facet. If context is null, then set to the default context for the library.
+	 */
+	public void setContext(String context) {
+		if (context == null)
+			context = getLibrary().getDefaultContextId();
+		((TLFacet) getTLModelObject()).setContext(context);
+	}
+
+	@Override
+	public void setName(String n) {
+		String name = n;
+		// Strip the object name and "query" string if present.
+		name = NodeNameUtils.stripFacetPrefix(this, name);
+		if (getModelObject() != null) {
+			// compiler doesn't allow empty context -
+			// ((TLFacet) getTLModelObject()).setContext("");
+			((TLFacet) getTLModelObject()).setLabel(name);
+			// rename their type users as well.
+			for (Node user : getTypeUsers()) {
+				user.setName(getName());
+			}
+		}
+	}
 
 }

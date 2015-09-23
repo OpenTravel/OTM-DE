@@ -36,6 +36,7 @@ import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.modelObject.ModelObject;
+import org.opentravel.schemas.node.listeners.NamedTypeListener;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.slf4j.Logger;
@@ -78,6 +79,7 @@ public class ComponentNode extends Node implements TypeProvider {
 	public ComponentNode() {
 		super();
 		family = "";
+		addListners();
 	}
 
 	/**
@@ -95,6 +97,7 @@ public class ComponentNode extends Node implements TypeProvider {
 			throw new IllegalStateException("Unexpected model object in cn construction.");
 			// addMOChildren();
 		}
+		addListners();
 	}
 
 	/**
@@ -107,6 +110,13 @@ public class ComponentNode extends Node implements TypeProvider {
 		super(obj);
 		if (obj instanceof TLFacet)
 			addMOChildren();
+		addListners();
+	}
+
+	private void addListners() {
+		// if (isTypeProvider())
+		// LOGGER.debug(this + " is type provider.");
+		getTLModelObject().addListener(new NamedTypeListener(this));
 	}
 
 	/*

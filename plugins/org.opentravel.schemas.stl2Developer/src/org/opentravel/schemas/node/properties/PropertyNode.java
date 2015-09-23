@@ -43,6 +43,7 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.listeners.PropertyNodeListener;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
@@ -85,6 +86,7 @@ public class PropertyNode extends ComponentNode {
 		// This clears out the assigned type!
 		if (getDefaultType() != null)
 			getTypeClass().setAssignedType(this.getDefaultType(), false);
+		addListners();
 	}
 
 	/**
@@ -98,6 +100,11 @@ public class PropertyNode extends ComponentNode {
 	protected PropertyNode(final TLModelElement tlObj, final Node parent, final String name, final PropertyNodeType type) {
 		this(tlObj, parent, type);
 		setName(name);
+		addListners();
+	}
+
+	private void addListners() {
+		getTLModelObject().addListener(new PropertyNodeListener(this));
 	}
 
 	@Override

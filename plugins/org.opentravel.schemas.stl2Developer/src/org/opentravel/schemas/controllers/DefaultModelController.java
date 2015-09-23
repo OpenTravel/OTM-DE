@@ -60,7 +60,6 @@ import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.FileDialogs;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.views.ContextsView;
 import org.opentravel.schemas.views.ValidationResultsView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -272,13 +271,13 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 			throws SchemaCompilerException {
 		final CompilerPreferences compilePreferences = new CompilerPreferences(
 				CompilerPreferences.loadPreferenceStore());
-		final ContextsView contextsView = OtmRegistry.getContextsView();
 		final CompileAllCompilerTask codegenTask = new CompileAllCompilerTask();
 		ValidationFindings findings = new ValidationFindings();
 
-		if (contextsView != null) {
-			codegenTask.setExampleContext(contextsView.getContextController().getDefaultContextId());
-		}
+		// final ContextsView contextsView = OtmRegistry.getContextsView();
+		// if (contextsView != null) {
+		// codegenTask.setExampleContext(contextsView.getContextController().getDefaultContextId());
+		// }
 		codegenTask.applyTaskOptions(compilePreferences);
 		codegenTask.setOutputFolder(targetFolder.getAbsolutePath());
 		findings = codegenTask.compileOutput(tlModel);
@@ -291,10 +290,10 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 				CompilerPreferences.loadPreferenceStore());
 		final CompileAllCompilerTask codegenTask = new CompileAllCompilerTask();
 
-		final ContextsView contextsView = OtmRegistry.getContextsView();
-		if (contextsView != null) {
-			codegenTask.setExampleContext(contextsView.getContextController().getDefaultContextId());
-		}
+		// final ContextsView contextsView = OtmRegistry.getContextsView();
+		// if (contextsView != null) {
+		// codegenTask.setExampleContext(contextsView.getContextController().getDefaultContextId());
+		// }
 		codegenTask.applyTaskOptions(compilePreferences);
 		codegenTask.setOutputFolder(targetFolder.getAbsolutePath());
 		ValidationFindings findings = new ValidationFindings();

@@ -17,10 +17,9 @@ package org.opentravel.schemas.controllers;
 
 import java.util.ArrayList;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.TableItem;
-import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
-import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemas.actions.AssignTypeAction;
 import org.opentravel.schemas.actions.SetObjectNameAction;
 import org.opentravel.schemas.controllers.DefaultContextController.ContextViewType;
@@ -36,7 +35,6 @@ import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.PostTypeChange;
-import org.opentravel.schemas.views.ContextsView;
 import org.opentravel.schemas.widgets.OtmEventData;
 import org.opentravel.schemas.widgets.OtmHandlers;
 import org.opentravel.schemas.wizards.TypeSelectionWizard;
@@ -281,29 +279,32 @@ public class OtmActions {
 	}
 
 	private void otherDocContextSelector() {
-		final INode n = getPropertySelection();
-		final String context = getDefaultContextId();
-		final ContextsView view = OtmRegistry.getContextsView();
-		if (n != null) {
-			final TLDocumentation doc = n.getModelObject().getDocumentation();
-			if (doc != null) {
-				final TLAdditionalDocumentationItem otherDoc = doc.getOtherDoc(context);
-				view.getContextController().changeContext(otherDoc);
-			}
-		}
+		LOGGER.error("OtmActions tried to execute otherDocContextSelector");
+		Assert.isTrue(1 == 1); // We should NEVER get here
+
+		// final INode n = getPropertySelection();
+		// final String context = getDefaultContextId();
+		// final ContextsView view = OtmRegistry.getContextsView();
+		// if (n != null) {
+		// final TLDocumentation doc = n.getModelObject().getDocumentation();
+		// if (doc != null) {
+		// final TLAdditionalDocumentationItem otherDoc = doc.getOtherDoc(context);
+		// view.getContextController().changeContext(otherDoc);
+		// }
+		// }
 	}
 
-	private String getDefaultContextId() {
-		// final ContextsView view = OtmRegistry.getContextsView();
-		// if (view != null) {
-		// return view.getSelectedContextId();
-		// }
-		final ContextsView view = OtmRegistry.getContextsView();
-		if (view != null) {
-			return view.getContextController().getDefaultContextId();
-		}
-		return null;
-	}
+	// private String getDefaultContextId() {
+	// // final ContextsView view = OtmRegistry.getContextsView();
+	// // if (view != null) {
+	// // return view.getSelectedContextId();
+	// // }
+	// final ContextsView view = OtmRegistry.getContextsView();
+	// if (view != null) {
+	// return view.getContextController().getDefaultContextId();
+	// }
+	// return null;
+	// }
 
 	/**
 	 * Run type selection wizard on simple type or property.
@@ -497,11 +498,11 @@ public class OtmActions {
 
 	private void setExample(final OtmEventData wd) {
 		final Node n = (Node) mc.getCurrentNode_PropertiesView();
-		final String context = mc.getContextController().getSelectedId(ContextViewType.TYPE_VIEW, n.getLibrary());
+		// final String context = mc.getContextController().getSelectedId(ContextViewType.TYPE_VIEW, n.getLibrary());
 		// final String context = n.getCurContext();
 		final String text = wd.getText();
 		if (n instanceof PropertyNode && ((PropertyNode) n).getExampleHandler() != null)
-			((PropertyNode) n).getExampleHandler().set(text, context);
+			((PropertyNode) n).getExampleHandler().set(text, n.getLibrary().getDefaultContextId());
 
 		// if (text == null || text.isEmpty()) {
 		// n.getModelObject().removeExample(context);
@@ -509,7 +510,7 @@ public class OtmActions {
 		// n.getModelObject().setExample(text, context);
 		// setAllExamples(n, text);
 		// }
-		LOGGER.info("Set example for context: " + context);
+		// LOGGER.info("Set example for context: " + context);
 	}
 
 	// Context controller is broken; it returns the wrong context in setExample.
@@ -531,7 +532,7 @@ public class OtmActions {
 
 	private void setEquivalence(final OtmEventData wd) {
 		final Node n = (Node) mc.getCurrentNode_PropertiesView();
-		final String context = mc.getContextController().getSelectedId(ContextViewType.TYPE_VIEW, n.getLibrary());
+		// final String context = mc.getContextController().getSelectedId(ContextViewType.TYPE_VIEW, n.getLibrary());
 		// final String context = n.getCurContext();
 		final String text = wd.getText();
 		// if (text == null || text.isEmpty()) {
@@ -541,9 +542,9 @@ public class OtmActions {
 		// setAllEquivalence(n, text);
 		// }
 		if (n instanceof PropertyNode && ((PropertyNode) n).getEquivalentHandler() != null) {
-			((PropertyNode) n).getEquivalentHandler().set(text, context);
+			((PropertyNode) n).getEquivalentHandler().set(text, n.getLibrary().getDefaultContextId());
 		}
-		LOGGER.debug("Set equivalent for context: " + context);
+		// LOGGER.debug("Set equivalent for context: " + context);
 	}
 
 	// private void setAllEquivalence(Node n, String text) {

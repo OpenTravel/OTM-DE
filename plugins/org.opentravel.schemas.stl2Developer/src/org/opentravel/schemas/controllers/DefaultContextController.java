@@ -79,6 +79,7 @@ public class DefaultContextController extends OtmControllerBase implements Conte
 		manager.addLibraryContexts(ln);
 	}
 
+	@Deprecated
 	@Override
 	public List<String> getAvailableContextIds() {
 		Node node = getCurrentNodeFromMainWindow();
@@ -156,7 +157,7 @@ public class DefaultContextController extends OtmControllerBase implements Conte
 	}
 
 	/**
-	 * Used in fixExamples and fixEquivalents
+	 * Add new context to context manager and TLLibrary
 	 */
 	@Override
 	public void newContext(LibraryNode library, String id, String value) {

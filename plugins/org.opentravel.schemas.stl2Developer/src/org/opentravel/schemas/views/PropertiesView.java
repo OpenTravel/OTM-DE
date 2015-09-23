@@ -415,7 +415,8 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 		ComponentNode cn = null;
 		if (n instanceof ComponentNode) {
 			cn = (ComponentNode) n;
-			String curContext = mc.getContextController().getDefaultContextId();
+			// String curContext = mc.getContextController().getDefaultContextId();
+			String curContext = n.getLibrary().getDefaultContextId();
 			updateEquivalent(cn, curContext);
 			updateExample(cn, curContext);
 		} else {

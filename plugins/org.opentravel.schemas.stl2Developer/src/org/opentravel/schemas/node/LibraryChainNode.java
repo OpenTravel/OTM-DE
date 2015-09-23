@@ -199,7 +199,7 @@ public class LibraryChainNode extends Node {
 	 * 
 	 * @param node
 	 */
-	protected void add(ComponentNode node) {
+	public void add(ComponentNode node) {
 		if (node == null)
 			return;
 		if (node.getLibrary() == null)

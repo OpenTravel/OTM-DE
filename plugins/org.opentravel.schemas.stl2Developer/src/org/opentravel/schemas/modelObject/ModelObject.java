@@ -40,7 +40,6 @@ import org.opentravel.schemacompiler.model.TLListFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.XsdNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -655,27 +654,27 @@ public abstract class ModelObject<TL> {
 		tld.addDeprecation(deprecation);
 	}
 
-	/**
-	 * Set the deprecation to the passed string
-	 * 
-	 * @param i
-	 *            - index of the deprecation to set
-	 * @param string
-	 */
-	public void setDeprecatedDoc(final String string, final int i) {
-		TLDocumentation tld = getDocumentation();
-		if (tld == null) {
-			tld = createDocumentation();
-		}
-		TLDocumentationItem deprecation = null;
-		if (tld.getDeprecations().isEmpty()) {
-			deprecation = new TLDocumentationItem();
-			tld.addDeprecation(deprecation);
-		} else {
-			deprecation = tld.getDeprecations().get(i);
-		}
-		deprecation.setText(string);
-	}
+	// /**
+	// * Set the deprecation to the passed string
+	// *
+	// * @param i
+	// * - index of the deprecation to set
+	// * @param string
+	// */
+	// public void setDeprecatedDoc(final String string, final int i) {
+	// TLDocumentation tld = getDocumentation();
+	// if (tld == null) {
+	// tld = createDocumentation();
+	// }
+	// TLDocumentationItem deprecation = null;
+	// if (tld.getDeprecations().isEmpty()) {
+	// deprecation = new TLDocumentationItem();
+	// tld.addDeprecation(deprecation);
+	// } else {
+	// deprecation = tld.getDeprecations().get(i);
+	// }
+	// deprecation.setText(string);
+	// }
 
 	public void addDescription(String string) {
 		TLDocumentation tld = getDocumentation();
@@ -771,38 +770,38 @@ public abstract class ModelObject<TL> {
 		infoDoc.setText(string);
 	}
 
-	public void addOther(String string) {
-		TLDocumentation tld = getDocumentation();
-		if (tld == null) {
-			tld = createDocumentation();
-		}
-		TLAdditionalDocumentationItem other = new TLAdditionalDocumentationItem();
-		other.setContext(OtmRegistry.getMainController().getContextController().getDefaultContextId());
-		other.setText(string);
-		tld.addOtherDoc(other);
-	}
+	// public void addOther(String string) {
+	// TLDocumentation tld = getDocumentation();
+	// if (tld == null) {
+	// tld = createDocumentation();
+	// }
+	// TLAdditionalDocumentationItem other = new TLAdditionalDocumentationItem();
+	// other.setContext(OtmRegistry.getMainController().getContextController().getDefaultContextId());
+	// other.setText(string);
+	// tld.addOtherDoc(other);
+	// }
 
-	public void setOtherDoc(final String string, final String context) {
-		TLDocumentation tld = getDocumentation();
-		if (tld == null) {
-			tld = createDocumentation();
-		}
-		TLAdditionalDocumentationItem otherDoc = tld.getOtherDoc(context);
-		if (otherDoc == null) {
-			otherDoc = new TLAdditionalDocumentationItem();
-			otherDoc.setContext(context);
-			tld.addOtherDoc(otherDoc);
-		}
-		otherDoc.setText(string);
-	}
-
-	public void removeOtherDoc(final String context) {
-		final TLDocumentation tld = getDocumentation();
-		if (tld != null) {
-			final TLAdditionalDocumentationItem otherDoc = tld.getOtherDoc(context);
-			tld.removeOtherDoc(otherDoc);
-		}
-	}
+	// public void setOtherDoc(final String string, final String context) {
+	// TLDocumentation tld = getDocumentation();
+	// if (tld == null) {
+	// tld = createDocumentation();
+	// }
+	// TLAdditionalDocumentationItem otherDoc = tld.getOtherDoc(context);
+	// if (otherDoc == null) {
+	// otherDoc = new TLAdditionalDocumentationItem();
+	// otherDoc.setContext(context);
+	// tld.addOtherDoc(otherDoc);
+	// }
+	// otherDoc.setText(string);
+	// }
+	//
+	// public void removeOtherDoc(final String context) {
+	// final TLDocumentation tld = getDocumentation();
+	// if (tld != null) {
+	// final TLAdditionalDocumentationItem otherDoc = tld.getOtherDoc(context);
+	// tld.removeOtherDoc(otherDoc);
+	// }
+	// }
 
 	public void addAlias(final TLAlias tla) {
 	}
