@@ -79,7 +79,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		// store current product version is property. later used in about dialog (by mapping file)
 		Version productV = Platform.getProduct().getDefiningBundle().getVersion();
 		System.setProperty("otm.version", productV.toString());
-		LOGGER.debug("post startup.");
+		// LOGGER.debug("post startup.");
 
 		// Load the projects open from last session with a progress monitor
 		((DefaultProjectController) OtmRegistry.getMainController().getProjectController()).initProjects();
@@ -94,7 +94,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 	public void postShutdown() {
 		// TODO Auto-generated method stub
 		super.postShutdown();
-		LOGGER.debug("post shutdown.");
+		// LOGGER.debug("post shutdown.");
 	}
 
 	/*
@@ -108,7 +108,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		IStatus status = super.saveState(memento);
 		ModelContentsData mcd = new ModelContentsData();
 		mcd.saveState(memento);
-		LOGGER.debug("save state. " + memento);
+		// LOGGER.debug("save state. " + memento);
 
 		return status;
 
@@ -123,7 +123,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 	public IStatus restoreState(IMemento memento) {
 		// TODO Auto-generated method stub
 		IStatus status = super.restoreState(memento);
-		LOGGER.debug("restore state. " + memento);
+		// LOGGER.debug("restore state. " + memento);
 		return status;
 	}
 

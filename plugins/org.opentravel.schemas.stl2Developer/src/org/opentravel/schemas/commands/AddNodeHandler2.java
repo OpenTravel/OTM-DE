@@ -201,7 +201,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 		}
 
 		try {
-			NewPropertiesWizard2 w2 = new NewPropertiesWizard2(selectedNode);
+			NewPropertiesWizard2 w2 = new NewPropertiesWizard2(actOnNode);
 			w2.setValidator(new NewPropertyValidator(actOnNode, null));
 			w2.run(OtmRegistry.getActiveShell());
 		} catch (IllegalArgumentException e) {

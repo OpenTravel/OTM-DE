@@ -75,9 +75,9 @@ public class TypeResolver {
 
 		typeProviders = providerMap.size();
 		// LOGGER.debug("Resolver map created with " + typeProviders + " providers available.");
-		if (typeProviders != visitCount)
-			LOGGER.warn("Not all visited nodes (" + visitCount + ") were added to the type map (" + typeProviders
-					+ "). ");
+		// if (typeProviders != visitCount)
+		// LOGGER.warn("Not all visited nodes (" + visitCount + ") were added to the type map (" + typeProviders
+		// + "). ");
 		// if (duplicates > 0) {
 		// LOGGER.debug("Duplicates: " + Node.getModelNode().getDuplicateTypes());
 		// }
@@ -134,8 +134,8 @@ public class TypeResolver {
 			lib.setEditable(wasEditable);
 		}
 
-		LOGGER.debug("Visitor Resolver visited: " + typeUsers + "  Resolved: " + resolvedTypes + "  UnResolved: "
-				+ unResolvedTypes + "  Unassigned: " + ModelNode.getUnassignedNode().getTypeUsersCount());
+		// LOGGER.debug("Visitor Resolver visited: " + typeUsers + "  Resolved: " + resolvedTypes + "  UnResolved: "
+		// + unResolvedTypes + "  Unassigned: " + ModelNode.getUnassignedNode().getTypeUsersCount());
 	}
 
 	private class resolveTypes implements NodeVisitor {

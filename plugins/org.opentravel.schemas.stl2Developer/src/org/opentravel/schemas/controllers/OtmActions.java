@@ -462,13 +462,31 @@ public class OtmActions {
 		return setName;
 	}
 
-	// Property name field.
+	// Property view name field.
 	private void setName(final OtmEventData wd) {
-		final Node curNode = (Node) mc.getCurrentNode_PropertiesView();
-		if (curNode != null) {
-			curNode.setName(wd.getText());
-			mc.refresh();
-		}
+		Event e = new Event();
+		e.widget = wd.getWidget();
+		e.data = mc.getCurrentNode_PropertiesView();
+		new SetObjectNameAction(mc.getMainWindow()).runWithEvent(e);
+		// final Node curNode = (Node) mc.getCurrentNode_PropertiesView();
+		// if (curNode != null) {
+		// curNode.setName(wd.getText());
+		// mc.refresh();
+		// }
+	}
+
+	public static int setComponentName() {
+		return setComponentName;
+	}
+
+	// Facet view name field.
+	private void setComponentName(final OtmEventData wd) {
+		// FIXME: workaround to pass current widget to SetObjectNameAction. We should reuse the
+		// properties name field.
+		Event e = new Event();
+		e.widget = wd.getWidget();
+		e.data = mc.getCurrentNode_FacetView().getOwningComponent();
+		new SetObjectNameAction(mc.getMainWindow()).runWithEvent(e);
 	}
 
 	public static int setNameSpace() {
@@ -580,19 +598,6 @@ public class OtmActions {
 
 	private void setPattern(final OtmEventData wd) {
 		mc.getCurrentNode_PropertiesView().getModelObject().setPattern(wd.getText());
-	}
-
-	public static int setComponentName() {
-		return setComponentName;
-	}
-
-	// Facet view name field.
-	private void setComponentName(final OtmEventData wd) {
-		// FIXME: workaround to pass current widget to SetObjectNameAction. We should reuse the
-		// properties name field.
-		Event e = new Event();
-		e.widget = wd.getWidget();
-		new SetObjectNameAction(mc.getMainWindow()).runWithEvent(e);
 	}
 
 	public static int importToTree() {

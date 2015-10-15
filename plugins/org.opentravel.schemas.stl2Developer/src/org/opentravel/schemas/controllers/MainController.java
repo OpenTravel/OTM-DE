@@ -114,7 +114,7 @@ public class MainController {
 
 	public MainController() {
 		this(getDefaultRepositoryManager());
-		LOGGER.debug("MainController constructor complete.");
+		// LOGGER.debug("MainController constructor complete.");
 	}
 
 	public static RepositoryManager getDefaultRepositoryManager() {
@@ -134,7 +134,7 @@ public class MainController {
 	}
 
 	public MainController(final RepositoryManager repositoryManager) {
-		LOGGER.info("Initializing: " + this.getClass());
+		// LOGGER.info("Initializing: " + this.getClass());
 
 		OtmRegistry.registerMainController(this);
 		mainWindow = OtmRegistry.getMainWindow(); // if headless it will be null
@@ -146,19 +146,19 @@ public class MainController {
 		sections = new OtmSections(getActions(), getHandlers());
 		fields = new OtmTextFields(getActions(), getHandlers());
 
-		LOGGER.info("Initializing Library controller.");
+		// LOGGER.info("Initializing Library controller.");
 		libraryController = new DefaultLibraryController(this);
-		LOGGER.info("Initializing Model controller.");
+		// LOGGER.info("Initializing Model controller.");
 		modelController = new DefaultModelController(this, libraryController);
-		LOGGER.info("Initializing Model Node.");
+		// LOGGER.info("Initializing Model Node.");
 		modelNode = modelController.getModel();
-		LOGGER.info("Initializing nodeModel controller.");
+		// LOGGER.info("Initializing nodeModel controller.");
 		nodeModelController = new NodeModelController(this);
-		LOGGER.info("Initializing Context controller.");
+		// LOGGER.info("Initializing Context controller.");
 		contextController = new DefaultContextController(this);
-		LOGGER.info("Initializing Repository controller.");
+		// LOGGER.info("Initializing Repository controller.");
 		repositoryController = new DefaultRepositoryController(this, repositoryManager);
-		LOGGER.info("Initializing Project controller.");
+		// LOGGER.info("Initializing Project controller.");
 		projectController = new DefaultProjectController(this, repositoryManager);
 		LOGGER.info("Initialization complete. ");
 	}
@@ -585,7 +585,7 @@ public class MainController {
 			if (!current.getLibrary().isMajorVersion()) {
 				// New facets can only be added in major versions.
 				// TODO - consider allowing them in minor and use createMinorVersionOfComponent()
-				LOGGER.debug("Tried to add facet to a minor or patch version.");
+				// LOGGER.debug("Tried to add facet to a minor or patch version.");
 				return;
 			}
 

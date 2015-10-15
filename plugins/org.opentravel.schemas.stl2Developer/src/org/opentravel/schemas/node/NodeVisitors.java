@@ -17,6 +17,7 @@ package org.opentravel.schemas.node;
 
 import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.node.Node.NodeVisitor;
+import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.IndicatorElementNode;
@@ -108,7 +109,6 @@ public class NodeVisitors {
 			if (!n.isEditable() && (n instanceof LibraryNode || n instanceof LibraryChainNode))
 				// LOGGER.debug("Deleting a non-editable library. " + n);
 				// TODO - does this clean up properly?
-
 				// Type class - delete the where used and assignments to this type
 				if (n.isTypeProvider())
 					node.getTypeClass().delete();
@@ -155,6 +155,7 @@ public class NodeVisitors {
 
 			// Remove the TL entity from the TL Model.
 			if (node.modelObject != null) {
+				ListenerFactory.clearListners(node); // remove any listeners
 				node.modelObject.delete();
 				node.modelObject = node.newModelObject(new TLEmpty());
 			}

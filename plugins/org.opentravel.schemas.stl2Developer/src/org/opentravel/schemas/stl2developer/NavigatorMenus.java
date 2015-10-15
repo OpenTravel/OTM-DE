@@ -72,7 +72,6 @@ import org.opentravel.schemas.commands.SaveLibrariesHandler;
 import org.opentravel.schemas.commands.SaveLibraryHandler;
 import org.opentravel.schemas.commands.ValidateHandler;
 import org.opentravel.schemas.controllers.RepositoryController;
-import org.opentravel.schemas.navigation.DoubleClickSelection;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
@@ -581,7 +580,7 @@ public class NavigatorMenus extends TreeViewer {
 
 	public void doubleClickNotification() {
 		ISelection selection = getSelection();
-		updateSelection(new DoubleClickSelection((StructuredSelection) selection));
+		// updateSelection(new DoubleClickSelection((StructuredSelection) selection));
 	}
 
 	@Override

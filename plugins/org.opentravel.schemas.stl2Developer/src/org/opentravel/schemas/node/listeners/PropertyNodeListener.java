@@ -18,15 +18,13 @@ package org.opentravel.schemas.node.listeners;
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemas.node.Node;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Dave
  *
  */
 public class PropertyNodeListener extends BaseNodeListener implements INodeListener {
-	private static final Logger LOGGER = LoggerFactory.getLogger(PropertyNodeListener.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(PropertyNodeListener.class);
 
 	/**
 	 * 
@@ -37,12 +35,21 @@ public class PropertyNodeListener extends BaseNodeListener implements INodeListe
 
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
-		super.processValueChangeEvent(event);
+		// super.processValueChangeEvent(event); // logger.debug statements
+
+		switch (event.getType()) {
+		case DOCUMENTATION_MODIFIED:
+			break;
+		case TYPE_ASSIGNMENT_MODIFIED:
+			thisNode.getTypeClass().set(getNewValue(event), getOldValue(event));
+			break;
+		default:
+			break;
+		}
 	}
 
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
-		// super.processOwnershipEvent(event);
 	}
 
 }

@@ -107,7 +107,8 @@ public class Family_Tests {
 		Assert.assertEquals(3, lcn.getDescendants_NamedTypes().size());
 		Assert.assertEquals(2, lcn.getSimpleAggregate().getDescendants_NamedTypes().size());
 		Assert.assertTrue(lcn.getSimpleAggregate().getChildren().get(0) instanceof FamilyNode);
-		// Make family from string and parent (AggregateFamilyNode usage)
+
+		// TODO - Make family from string and parent (AggregateFamilyNode usage)
 	}
 
 	private Node makeSimple(String name) {

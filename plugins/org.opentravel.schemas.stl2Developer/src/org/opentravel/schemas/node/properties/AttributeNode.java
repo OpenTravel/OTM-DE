@@ -80,11 +80,6 @@ public class AttributeNode extends PropertyNode implements TypeUser {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.PropertyNode#createProperty(org.opentravel.schemas.node.Node)
-	 */
 	@Override
 	public INode createProperty(Node type) {
 		if (!(getTLModelObject() instanceof TLAttribute))
@@ -122,11 +117,6 @@ public class AttributeNode extends PropertyNode implements TypeUser {
 		return Images.getImageRegistry().get(Images.XSDAttribute);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getLabel()
-	 */
 	@Override
 	public String getLabel() {
 		String label = modelObject.getLabel();
@@ -141,32 +131,17 @@ public class AttributeNode extends PropertyNode implements TypeUser {
 		return thisProp.getAttributeOwner().getAttributes().indexOf(thisProp);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isSimpleTypeUser()
-	 */
 	@Override
 	public boolean isOnlySimpleTypeUser() {
 		// allow VWAs to be assigned to VWA Attributes.
 		return parent != null && parent.isVWA_AttributeFacet() ? false : true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isTypeUser()
-	 */
 	@Override
 	public boolean isTypeUser() {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.PropertyNode#setName(java.lang.String)
-	 */
 	@Override
 	public void setName(String name) {
 		modelObject.setName(NodeNameUtils.fixAttributeName(name));

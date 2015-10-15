@@ -179,11 +179,11 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 		INode sn = selectionPage.getSelectedNode();
 		if (setNodeList != null) {
 			for (INode cn : selectionPage.getCurNodeList()) {
-				LOGGER.debug("Assigning " + sn.getName() + " to list node " + cn.getName());
+				// LOGGER.debug("Assigning " + sn.getName() + " to list node " + cn.getName());
 				cn.setAssignedType((Node) sn);
 			}
 		} else if (curNode != null) {
-			LOGGER.debug("Assigning " + selectionPage.getSelectedNode() + " to node " + curNode.getName());
+			// LOGGER.debug("Assigning " + selectionPage.getSelectedNode() + " to node " + curNode.getName());
 			curNode.setAssignedType(selectionPage.getSelectedNode());
 		} else
 			return false;

@@ -61,9 +61,14 @@ public class LibraryTablePosterWithButtons extends LibraryTablePoster {
 				&& n.isEditable()
 				&& (n instanceof AttributeNode || n instanceof ElementNode || n instanceof SimpleAttributeNode || n instanceof ElementReferenceNode)) {
 			Button button = buttonSet.addButton(n, item, 2); // Put typeSelection buttons on the row.
-			if (NodeUtils.checker(n).isPatch().existInPreviousVersions().get()) {
+
+			// Version Control
+			if (NodeUtils.checker(n).isInMinorOrPatch().existInPreviousVersions().get()) {
 				button.setEnabled(false);
 			}
+			// if (NodeUtils.checker(n).isPatch().existInPreviousVersions().get()) {
+			// button.setEnabled(false);
+			// }
 		}
 		return item;
 	}

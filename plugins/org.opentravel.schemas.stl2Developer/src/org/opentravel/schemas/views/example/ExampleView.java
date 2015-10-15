@@ -392,9 +392,10 @@ public class ExampleView extends OtmAbstractView {
 		if (node instanceof Node) {
 			Node n = (Node) node;
 			n = getOwningComponent(n);
+			if (n == null)
+				return;
 			if (viewer.testFindItem(n) == null) {
-				// Because tree is generate in lazy manner, then we need to expand
-				// library
+				// Because tree is generate in lazy manner, then we need to expand library
 				// to force element children creations.
 				expandAndSelect(n);
 				viewer.setSelection(new StructuredSelection(n), true);

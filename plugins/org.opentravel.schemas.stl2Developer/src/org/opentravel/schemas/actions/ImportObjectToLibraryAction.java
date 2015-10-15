@@ -151,31 +151,6 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 			importedNodesMap = destination.importNodes(eligibleForImporting).values();
 			break;
 		}
-		// TODO - duplicates in the same versioned library will not be in the aggregate list and therefore not editable.
-		// This code only detects the problem after it happens. See AggregateNode.add() for the fix.
-		// List<Node> providers, chainProviders = null;
-		// if (destination.getChain() != null)
-		// chainProviders = destination.getChain().getComplexAggregate().getChildren_TypeProviders();
-		// for (Node n : importedNodesMap) {
-		// LOGGER.debug("ImportObject: checking " + n);
-		// n.validate(); // run the tl validator
-		// for (Node child : n.getDescendants_TypeUsers()) {
-		// Node type = child.getAssignedType();
-		// if (type != null && !type.isXSD_Atomic()) {
-		// providers = type.getLibrary().getDescendentsNamedTypeProviders();
-		// if (chainProviders != null && (type.isCoreObject() || type.isValueWithAttributes()))
-		// LOGGER.debug("ImportObject Error found. " + type + " is not in chain aggregates."
-		// + chainProviders.contains(type));
-		// // int i = 0;
-		// // for (Node p : providers) {
-		// // if (++i > 0 && p.hashCode() == type.hashCode())
-		// // LOGGER.debug("Found " + type + " " + p.hashCode());
-		// // }
-		// if (!(providers.contains(type)))
-		// LOGGER.debug(n + "/" + child + "/" + type + " is not assigned to correct library.");
-		// }
-		// }
-		// }
 
 		selectImportedNodesInNavigation(importedNodesMap);
 		mc.postStatus("Imported " + eligibleForImporting.size() + " types to " + destination);

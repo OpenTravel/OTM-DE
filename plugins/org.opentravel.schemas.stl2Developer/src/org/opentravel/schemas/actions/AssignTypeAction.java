@@ -82,7 +82,6 @@ public class AssignTypeAction extends OtmAbstractAction {
 		return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
 	}
 
-	// TODO - why is this static???
 	public static boolean execute(List<Node> toChange, Node newType) {
 		if (newType == null || !newType.isTypeProvider()) {
 			LOGGER.warn("No type to assign. Early Exit.");
@@ -95,13 +94,13 @@ public class AssignTypeAction extends OtmAbstractAction {
 		Node last = null;
 		boolean ret = true;
 		for (Node cn : toChange) {
-			// TODO - this can be very slow when doing 150+ nodes.
-			// because the setAssigned refreshes the display
-			if (!cn.setAssignedType(newType, false)) {
+			// TEST - this can be very slow when doing 150+ nodes because the setAssigned refreshes the display
+			if (!cn.setAssignedType(newType)) {
 				ret = false;
 				DialogUserNotifier.openWarning("Warning", "Invalid type assignment");
-				LOGGER.debug("Invalid type assigment: " + newType + " to " + cn);
+				// LOGGER.debug("Invalid type assigment: " + newType + " to " + cn);
 			} else {
+				// this is all notyfications() does: NodeNameUtils.fixName(cn);
 				PostTypeChange.notyfications(cn, newType);
 			}
 			if (last != null && cn.getParent() != last.getParent()) {
@@ -111,7 +110,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 		}
 		OtmRegistry.getMainController().refresh();
 
-		LOGGER.debug("Assigned " + newType.getName() + " to " + toChange.size() + " nodes.");
+		// LOGGER.debug("Assigned " + newType.getName() + " to " + toChange.size() + " nodes.");
 		return ret;
 	}
 

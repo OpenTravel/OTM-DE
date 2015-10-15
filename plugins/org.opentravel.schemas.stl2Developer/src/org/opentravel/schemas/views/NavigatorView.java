@@ -193,20 +193,26 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	public void doubleClick(DoubleClickEvent dcEvent) {
 		// if double click on where used go to type
 		Node node = null;
+		Node n = null;
 		if (dcEvent.getSelection() instanceof IStructuredSelection) {
 			IStructuredSelection ss = (IStructuredSelection) dcEvent.getSelection();
 			if (ss.getFirstElement() instanceof Node)
 				node = (Node) ss.getFirstElement();
 		}
 		if (node instanceof TypeNode)
-			node = node.getParent();
+			n = node.getParent();
 		else if (node instanceof VersionNode)
-			node = (((VersionNode) node).getNewestVersion());
+			n = (((VersionNode) node).getNewestVersion());
+		else
+			n = node;
 
-		if (node != null) {
-			setCurrentNode(node);
-			select(node);
+		if (n != null) {
+			setCurrentNode(n);
+			select(n);
 			navigatorMenus.doubleClickNotification();
+			mc.selectNavigatorNodeAndRefresh(n);
+		} else {
+			remove(node);
 		}
 	}
 
@@ -368,6 +374,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	public void setCurrentNode(final INode n) {
 		prevNode = curNode;
 		curNode = (Node) n;
+		// LOGGER.debug("Navigator view cur node set to: " + curNode + " and prev = " + prevNode);
 	}
 
 	/**

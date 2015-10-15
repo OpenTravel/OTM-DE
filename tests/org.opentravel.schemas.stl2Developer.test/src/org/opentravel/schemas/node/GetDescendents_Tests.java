@@ -56,7 +56,7 @@ public class GetDescendents_Tests {
 
 	@Test
 	public void visitAllTypeUsers() {
-		ln = mockLibrary.createNewLibrary("http://sabre.com/test", "test", defaultProject);
+		ln = mockLibrary.createNewLibrary("http://example.com/test", "test", defaultProject);
 		CoreObjectNode co = mockLibrary.addCoreObjectToLibrary(ln, "");
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "");
 		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "");
@@ -65,6 +65,7 @@ public class GetDescendents_Tests {
 		Assert.assertNotNull(co.getSimpleFacet().getSimpleAttribute().getTLTypeQName());
 		co.visitAllTypeUsers(nt.new TestNode());
 		Assert.assertEquals(2, co.getDescendants_TypeUsers().size());
+
 		Assert.assertNotNull(vwa.getSimpleFacet().getSimpleAttribute().getTLTypeObject());
 		Assert.assertNotNull(vwa.getSimpleFacet().getSimpleAttribute().getTLTypeQName());
 		vwa.visitAllTypeUsers(nt.new TestNode());

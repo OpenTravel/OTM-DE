@@ -104,6 +104,11 @@ public class ElementPropertyMO extends ModelObject<TLProperty> {
 		return srcObj.getType();
 	}
 
+	@Override
+	public String getTypeName() {
+		return ((TLProperty) srcObj).getTypeName();
+	}
+
 	/**
 	 * Get the index (0..sizeof()) of this property in the facet list. Use Node.indexTLProperty().
 	 */

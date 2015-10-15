@@ -363,15 +363,15 @@ public class ProjectNode extends Node implements INode {
 	public void removeFromLibrary() {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#setAssignedType(org.opentravel.schemas.node.INode )
-	 */
-	@Override
-	public boolean setAssignedType(Node typeNode) {
-		return false;
-	}
+	// /*
+	// * (non-Javadoc)
+	// *
+	// * @see org.opentravel.schemas.node.INode#setAssignedType(org.opentravel.schemas.node.INode )
+	// */
+	// @Override
+	// public boolean setAssignedType(Node typeNode) {
+	// return false;
+	// }
 
 	/*
 	 * (non-Javadoc)

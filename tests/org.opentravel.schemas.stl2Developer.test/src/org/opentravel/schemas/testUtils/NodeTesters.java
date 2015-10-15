@@ -118,8 +118,11 @@ public class NodeTesters {
 				Assert.assertEquals("", e.getLocalizedMessage());
 				return;
 			}
-		} else
+		} else {
+			if (n.getTypeClass().verifyAssignment() == false)
+				LOGGER.debug("Verification error.");
 			Assert.assertTrue(n.getTypeClass().verifyAssignment());
+		}
 
 		try {
 			new ValidateTLObject().visit(n);

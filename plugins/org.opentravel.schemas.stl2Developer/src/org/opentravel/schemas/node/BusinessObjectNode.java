@@ -38,7 +38,7 @@ import org.opentravel.schemas.modelObject.BusinessObjMO.Events;
 import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.controllers.NodeUtils;
-import org.opentravel.schemas.node.listeners.BusinessObjectNodeListener;
+import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
@@ -55,20 +55,8 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 	public BusinessObjectNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
-		getTLModelObject().addListener(new BusinessObjectNodeListener(this));
-		// getTLModelObject().addListener(new ModelElementListener() {
-		//
-		// @Override
-		// public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
-		// // TODO Auto-generated method stub
-		// }
-		//
-		// @Override
-		// public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
-		// // TODO Auto-generated method stub
-		// LOGGER.debug("Ownership change event: " + event.getAffectedItem());
-		// }
-		// });
+		ListenerFactory.setListner(this);
+
 		getModelObject().addPropertyChangeListener(new PropertyChangeListener() {
 
 			@Override
@@ -105,6 +93,8 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 	 */
 	public BusinessObjectNode(CoreObjectNode core) {
 		this(new TLBusinessObject());
+
+		addAliases(core.getAliases());
 
 		setName(core.getName());
 		core.getLibrary().addMember(this); // version managed library safe add
@@ -262,6 +252,12 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 		return Images.getImageRegistry().get(Images.BusinessObject);
 	}
 
+	public void addAliases(List<AliasNode> aliases) {
+		for (AliasNode a : aliases) {
+			new AliasNode(this, a.getName());
+		}
+	}
+
 	/**
 	 * 
 	 * @param name
@@ -384,6 +380,14 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 	@Override
 	public INode.CommandType getAddCommand() {
 		return INode.CommandType.PROPERTY;
+	}
+
+	public List<AliasNode> getAliases() {
+		List<AliasNode> aliases = new ArrayList<AliasNode>();
+		for (Node c : getChildren())
+			if (c instanceof AliasNode)
+				aliases.add((AliasNode) c);
+		return aliases;
 	}
 
 	@Override

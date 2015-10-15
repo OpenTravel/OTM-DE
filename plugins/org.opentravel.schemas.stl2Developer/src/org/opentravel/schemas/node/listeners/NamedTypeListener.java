@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.node.listeners;
 
+import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemas.node.Node;
 
 /**
@@ -28,5 +29,10 @@ public class NamedTypeListener extends BaseNodeListener implements INodeListener
 
 	public NamedTypeListener(Node node) {
 		super(node);
+	}
+
+	@Override
+	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
+		// super.processValueChangeEvent(event);
 	}
 }

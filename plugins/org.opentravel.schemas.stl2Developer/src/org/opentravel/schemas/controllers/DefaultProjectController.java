@@ -550,7 +550,7 @@ public class DefaultProjectController implements ProjectController {
 	public ProjectNode open(String fileName, IProgressMonitor monitor) {
 		if (fileName == null || fileName.isEmpty())
 			LOGGER.error("Tried to open null or empty file.");
-		LOGGER.debug("Opening project from file: " + fileName);
+		// LOGGER.debug("Opening project from file: " + fileName);
 
 		ValidationFindings findings = null;
 		Project project = openProject(fileName, findings);
@@ -588,7 +588,7 @@ public class DefaultProjectController implements ProjectController {
 			mc.postStatus("Loading Project: " + project.getName());
 			mc.refresh();
 		}
-		LOGGER.debug("Creating Project Node.");
+		// LOGGER.debug("Creating Project Node.");
 		ProjectNode pn = new ProjectNode(project);
 		for (LibraryNode ln : pn.getLibraries())
 			fixElementNames(ln);
@@ -811,10 +811,10 @@ public class DefaultProjectController implements ProjectController {
 			}
 		}
 		// printout projects
-		IMemento[] children = memento.getChildren(OTM_PROJECT);
-		for (int i = 0; i < children.length; i++) {
-			LOGGER.debug("GetMemento found project: " + children[i].getString(OTM_PROJECT_LOCATION));
-		}
+		// IMemento[] children = memento.getChildren(OTM_PROJECT);
+		// for (int i = 0; i < children.length; i++) {
+		// LOGGER.debug("GetMemento found project: " + children[i].getString(OTM_PROJECT_LOCATION));
+		// }
 
 		return memento;
 	}
@@ -909,7 +909,7 @@ public class DefaultProjectController implements ProjectController {
 		if (file != null) {
 			String ota2FileName = file.getParentFile().getAbsolutePath() + File.separator + MementoFileName;
 			ota2File = new File(ota2FileName);
-			LOGGER.debug("Repo Path = " + ota2File.getAbsolutePath());
+			// LOGGER.debug("Repo Path = " + ota2File.getAbsolutePath());
 		} else {
 			ota2File = Activator.getDefault().getStateLocation().append(MementoFileName).toFile();
 		}

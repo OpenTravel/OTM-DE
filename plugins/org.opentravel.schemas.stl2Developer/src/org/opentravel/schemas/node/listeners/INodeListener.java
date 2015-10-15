@@ -38,7 +38,7 @@ public interface INodeListener extends ModelElementListener {
 	/**
 	 * @return the affected node from the listener on the event's affected tl model element
 	 */
-	public Node getAffectedNode(ValueChangeEvent<?, ?> event);
+	public Node getNewValue(ValueChangeEvent<?, ?> event);
 
 	public Node getAffectedNode(OwnershipEvent<?, ?> event);
 

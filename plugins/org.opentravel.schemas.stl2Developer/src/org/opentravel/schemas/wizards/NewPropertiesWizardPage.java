@@ -406,7 +406,7 @@ public class NewPropertiesWizardPage extends WizardPage {
 		n.setName(name);
 		n.setLibrary(library);
 		n.setDescription("");
-		n.setAssignedType(ModelNode.getUnassignedNode(), false);
+		n.setAssignedType(ModelNode.getUnassignedNode());
 		return n;
 	}
 

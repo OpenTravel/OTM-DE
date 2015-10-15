@@ -47,6 +47,9 @@ public class SimpleAttributeNode extends PropertyNode implements TypeUser {
 			TLModelElement tlOwner = ((Node) parent.getParent()).getTLModelObject();
 			if ((tlOwner instanceof TLFacetOwner) || (tlObj instanceof TLnSimpleAttribute))
 				((TLnSimpleAttribute) tlObj).setParentObject(tlOwner);
+
+			// Since the type assigned to this is the same as the parent facet, share the type class
+			type = ((Node) parent).getTypeClass();
 		}
 	}
 
@@ -55,26 +58,13 @@ public class SimpleAttributeNode extends PropertyNode implements TypeUser {
 		return type instanceof ComponentNode ? ((ComponentNode) type).isAssignableToSimple() : false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.PropertyNode#createProperty(org.opentravel.schemas.node.Node)
-	 */
 	@Override
 	public INode createProperty(Node type) {
 		// Need for DND but can't actually create a property, just set the type.
 		setAssignedType(type);
 		return this;
-		// LOGGER.error("Tried to create a new simple property.");
-		// throw new IllegalAccessError("Tried to create new simple property.");
-		// return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isSimpleTypeUser()
-	 */
 	@Override
 	public boolean isOnlySimpleTypeUser() {
 		return true;
@@ -85,21 +75,11 @@ public class SimpleAttributeNode extends PropertyNode implements TypeUser {
 		return Images.getImageRegistry().get(Images.XSDAttribute);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getLabel()
-	 */
 	@Override
 	public String getLabel() {
 		return modelObject.getLabel() == null ? "" : modelObject.getLabel();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.PropertyNode#setName(java.lang.String)
-	 */
 	@Override
 	public void setName(String name) {
 		LOGGER.debug("Tried to set the name of a simple property.");

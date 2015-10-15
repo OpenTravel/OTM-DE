@@ -276,6 +276,9 @@ public class MockLibrary {
 		return newNode;
 	}
 
+	/**
+	 * Create a simple type node and assign type to xsd:int
+	 */
 	public SimpleTypeNode addSimpleTypeToLibrary(LibraryNode ln, String name) {
 		if (name.isEmpty())
 			name = "SimpleType";

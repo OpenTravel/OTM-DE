@@ -43,7 +43,7 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.VWA_Node;
-import org.opentravel.schemas.node.listeners.PropertyNodeListener;
+import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
@@ -85,8 +85,8 @@ public class PropertyNode extends ComponentNode {
 		}
 		// This clears out the assigned type!
 		if (getDefaultType() != null)
-			getTypeClass().setAssignedType(this.getDefaultType(), false);
-		addListners();
+			getTypeClass().setAssignedType(this.getDefaultType());
+		ListenerFactory.setListner(this);
 	}
 
 	/**
@@ -100,11 +100,6 @@ public class PropertyNode extends ComponentNode {
 	protected PropertyNode(final TLModelElement tlObj, final Node parent, final String name, final PropertyNodeType type) {
 		this(tlObj, parent, type);
 		setName(name);
-		addListners();
-	}
-
-	private void addListners() {
-		getTLModelObject().addListener(new PropertyNodeListener(this));
 	}
 
 	@Override
@@ -148,11 +143,6 @@ public class PropertyNode extends ComponentNode {
 		return propertyType.getName();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#getType()
-	 */
 	@Override
 	public Node getType() {
 		return getAssignedType();
@@ -181,6 +171,9 @@ public class PropertyNode extends ComponentNode {
 			// If the implied node is a union, add that to its assigned name
 			if (in.getImpliedType().equals(ImpliedNodeType.Union))
 				name += ": " + XsdModelingUtils.getAssignedXsdUnion(this);
+			else if (in.getImpliedType().equals(ImpliedNodeType.UnassignedType))
+				// add to the name a clue from the TL model of what should be assigned
+				name += ": " + this.getModelObject().getTypeName();
 		}
 		return name == null ? "" : name;
 	}
@@ -194,7 +187,7 @@ public class PropertyNode extends ComponentNode {
 			return typeName;
 		if (getNamePrefix().equals(getAssignedPrefix()))
 			return typeName;
-		return getType().getNamePrefix() + ":" + typeName;
+		return getType().getNamePrefix() + " : " + typeName;
 	}
 
 	public ArrayList<Node> getNavChildren() {
@@ -211,11 +204,6 @@ public class PropertyNode extends ComponentNode {
 		return kids;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#getOwningComponent()
-	 */
 	@Override
 	public Node getOwningComponent() {
 		if (getParent() == null || getParent().getParent() == null)
@@ -232,11 +220,6 @@ public class PropertyNode extends ComponentNode {
 		return getParent().getParent().isTypeProvider() ? getParent().getParent() : this;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isMissingAssignedType()
-	 */
 	@Override
 	public boolean isMissingAssignedType() {
 		// LOGGER.debug("check property node "+getName()+" for missing type. "+modelObject);
@@ -288,11 +271,6 @@ public class PropertyNode extends ComponentNode {
 		// return Images.getImageRegistry().get("file");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getLabel()
-	 */
 	@Override
 	public String getLabel() {
 		return modelObject.getLabel() == null ? "" : modelObject.getLabel();
@@ -400,16 +378,10 @@ public class PropertyNode extends ComponentNode {
 				&& modelObject != null && modelObject.getTLType() != null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeUser#getAssignedType()
-	 */
 	@Override
 	public Node getAssignedType() {
 		if (isInheritedProperty()) {
-			// Inherited nodes are not assigned a type class. If they were
-			// the where-used count would be wrong.
+			// Inherited nodes are not assigned a type class. If they were the where-used count would be wrong.
 			if (getInheritsFrom() != null) {
 				return getInheritsFrom().getAssignedType();
 			}
@@ -433,15 +405,9 @@ public class PropertyNode extends ComponentNode {
 		return getTypeClass().getTypeNode() != null ? getTypeClass().getTypeNode().getModelObject() : null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeProvider#getAssignedTLObject()
-	 */
-	@Override
-	public NamedEntity getAssignedTLObject() {
-		return getTypeClass().getTypeNode().getTLTypeObject();
-	}
+	// public NamedEntity getAssignedTLObject() {
+	// return getTypeClass().getTypeNode().getTLTypeObject();
+	// }
 
 	/**
 	 * @return true if this property is an attribute of a Value With Attributes object.
@@ -452,11 +418,7 @@ public class PropertyNode extends ComponentNode {
 
 	@Override
 	public boolean setAssignedType(Node replacement) {
-		return setAssignedType(replacement, false);
-	}
-
-	@Override
-	public boolean setAssignedType(Node replacement, boolean refresh) {
+		// return setAssignedType(replacement, false);
 		if (replacement == null) {
 			getTypeClass().setAssignedType(null);
 			return false;
@@ -467,15 +429,28 @@ public class PropertyNode extends ComponentNode {
 			replacement = replacement.getOwningComponent();
 
 		// Valid assignment tests will be done in type node.
-		return getTypeClass().setAssignedType(replacement, refresh);
+		return getTypeClass().setAssignedType(replacement);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeUser#removeAssignedType()
-	 */
+	// @Deprecated
+	// @Override
+	// public boolean setAssignedType(Node replacement, boolean refresh) {
+	// return setAssignedType(replacement);
+	// if (replacement == null) {
+	// getTypeClass().setAssignedType(null);
+	// return false;
+	// }
+	// // GUI assist: Since attributes can be renamed, there is no need to use the alias. Aliases
+	// // are not TLAttributeType members so the GUI assist must convert before assignment.
+	// if (this instanceof AttributeNode && replacement instanceof AliasNode)
+	// replacement = replacement.getOwningComponent();
+	//
+	// // Valid assignment tests will be done in type node.
+	// return getTypeClass().setAssignedType(replacement);
+	// }
+
 	@Override
+	@Deprecated
 	public void removeAssignedType() {
 		getTypeClass().removeAssignedType();
 	}

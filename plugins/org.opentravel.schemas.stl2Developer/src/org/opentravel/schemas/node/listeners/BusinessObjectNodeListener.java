@@ -38,7 +38,6 @@ public class BusinessObjectNodeListener extends NamedTypeListener implements INo
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
 		super.processValueChangeEvent(event);
-		assert (true); // this event should never happen.
 	}
 
 	@Override

@@ -211,6 +211,8 @@ public class TypeView extends OtmAbstractView implements ISelectionListener {
 			facetView.setCurrentNode(node); // Force??
 			propertiesView.setCurrentNode(node);
 		}
+		// LOGGER.debug("Type view cur node set to: " + currentNode + " and prev = " + facetView.getPreviousNode());
+
 		// TODO - is current node used? if so, propertyView may need to set it.
 	}
 

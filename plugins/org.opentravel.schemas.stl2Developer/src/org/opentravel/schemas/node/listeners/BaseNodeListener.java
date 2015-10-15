@@ -43,27 +43,39 @@ public class BaseNodeListener implements INodeListener {
 
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
-		Node affectedNode = getAffectedNode(event);
-		// LOGGER.debug("Ownership event: " + event.getType() + " this = " + thisNode + " affected = " + affectedNode);
+		// Node newValue = getNewValue(event);
+		// Node oldValue = getOldValue(event);
+		// if (thisNode instanceof VersionNode)
+		// LOGGER.debug("Value Change to version node " + thisNode + " ignored.");
+		// else
+		// switch (event.getType()) {
+		// case DOCUMENTATION_MODIFIED:
+		// break;
+		// case TYPE_ASSIGNMENT_MODIFIED:
+		// break;
+		// default:
+		// LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode + ", old = " + oldValue
+		// + ", new = " + newValue);
+		// }
 	}
 
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
 		// Node affectedNode = getAffectedNode(event);
 		// LOGGER.debug("Ownership event: " + event.getType() + " this = " + thisNode + " affected = " + affectedNode);
-
-		switch (event.getType()) {
-		case MEMBER_ADDED:
-			// LOGGER.debug("Ownership change event: added" + affectedNode + " to " + thisNode);
-			break;
-		case MEMBER_REMOVED:
-			// LOGGER.debug("Ownership change event: removed " + affectedNode + " from " + thisNode);
-			break;
-		default:
-			// LOGGER.debug("Unhandled Ownership event: " + event.getType() + " this = " + thisNode + " affected = "
-			// + affectedNode);
-			break;
-		}
+		//
+		// switch (event.getType()) {
+		// case MEMBER_ADDED:
+		// // LOGGER.debug("Ownership change event: added" + affectedNode + " to " + thisNode);
+		// break;
+		// case MEMBER_REMOVED:
+		// // LOGGER.debug("Ownership change event: removed " + affectedNode + " from " + thisNode);
+		// break;
+		// default:
+		// // LOGGER.debug("Unhandled Ownership event: " + event.getType() + " this = " + thisNode + " affected = "
+		// // + affectedNode);
+		// break;
+		// }
 	}
 
 	@Override
@@ -71,10 +83,27 @@ public class BaseNodeListener implements INodeListener {
 		return thisNode;
 	}
 
-	@Override
-	public Node getAffectedNode(ValueChangeEvent<?, ?> event) {
+	public Node getNewValue(ValueChangeEvent<?, ?> event) {
 		Node affectedNode = null;
-		// FIXME - how to get the type associated with the value? event.getOldValue();
+		if (event.getNewValue() instanceof TLModelElement) {
+			Collection<ModelElementListener> listeners = ((TLModelElement) event.getNewValue()).getListeners();
+			for (ModelElementListener listener : listeners) {
+				if (listener instanceof INodeListener)
+					affectedNode = ((INodeListener) listener).getNode();
+			}
+		}
+		return affectedNode;
+	}
+
+	public Node getOldValue(ValueChangeEvent<?, ?> event) {
+		Node affectedNode = null;
+		if (event.getOldValue() instanceof TLModelElement) {
+			Collection<ModelElementListener> listeners = ((TLModelElement) event.getOldValue()).getListeners();
+			for (ModelElementListener listener : listeners) {
+				if (listener instanceof INodeListener)
+					affectedNode = ((INodeListener) listener).getNode();
+			}
+		}
 		return affectedNode;
 	}
 
@@ -86,8 +115,6 @@ public class BaseNodeListener implements INodeListener {
 			if (listener instanceof INodeListener)
 				affectedNode = ((INodeListener) listener).getNode();
 		}
-		if (affectedNode == null)
-			LOGGER.debug("Could not determine affected node.");
 		return affectedNode;
 	}
 

@@ -27,7 +27,6 @@ import java.util.Map.Entry;
 
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.BuiltInLibrary;
 import org.opentravel.schemacompiler.model.LibraryElement;
@@ -51,7 +50,7 @@ import org.opentravel.schemas.controllers.ContextController;
 import org.opentravel.schemas.controllers.ContextModelManager;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
-import org.opentravel.schemas.node.listeners.LibraryNodeListener;
+import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.preferences.GeneralPreferencePage;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -176,14 +175,11 @@ public class LibraryNode extends Node {
 	}
 
 	private void addListeners() {
-		getTLModelObject().addListener(new LibraryNodeListener(this));
+		ListenerFactory.setListner(this);
 	}
 
 	private void removeListeners() {
-		Collection<ModelElementListener> listeners = new ArrayList<ModelElementListener>(getTLModelObject()
-				.getListeners());
-		for (ModelElementListener listener : listeners)
-			getTLModelObject().removeListener(listener);
+		ListenerFactory.clearListners(this);
 	}
 
 	public LibraryNode(ProjectItem pi, ProjectNode projectNode) {
@@ -332,6 +328,8 @@ public class LibraryNode extends Node {
 			} else
 				LOGGER.warn("Import duplicate excluded from map: " + newNode);
 		}
+
+		collapseContexts();
 
 		TypeResolver tr = new TypeResolver();
 		tr.resolveTypes(this);
@@ -776,10 +774,6 @@ public class LibraryNode extends Node {
 			// assert (isEditable());
 			return;
 		}
-		// addMember(n, true);
-		// }
-		//
-		// private void addMember(final Node n, final boolean doFamily) {
 		if (n == null || n.getTLModelObject() == null) {
 			LOGGER.warn("Tried to addMember() a null member: " + n);
 			return;
@@ -800,6 +794,10 @@ public class LibraryNode extends Node {
 			LOGGER.warn(n + " is already a child of its parent.");
 			return;
 		}
+
+		// If it is in a different library, remove it from that one.
+		if (n.getLibrary() != null && n.getLibrary() != this)
+			n.removeFromLibrary();
 
 		getTLLibrary().addNamedMember((LibraryMember) n.getTLModelObject());
 		if (linkMember(n)) {

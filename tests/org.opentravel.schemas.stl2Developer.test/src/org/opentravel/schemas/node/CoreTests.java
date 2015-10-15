@@ -101,8 +101,8 @@ public class CoreTests {
 		Assert.assertTrue(sfn.getSimpleAttribute().getType() == core.getSimpleType());
 
 		Node aType = NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
-		Assert.assertFalse(core.setAssignedType(aType));
-		Assert.assertFalse(sfn.setAssignedType(aType));
+		Assert.assertTrue(core.setAssignedType(aType));
+		Assert.assertTrue(sfn.setAssignedType(aType));
 		// works - Assert.assertTrue(sfn.getSimpleAttribute().setAssignedType(aType));
 		Assert.assertTrue(core.setSimpleType(aType));
 		Assert.assertTrue(core.getSimpleType() == aType);
@@ -128,7 +128,9 @@ public class CoreTests {
 		Assert.assertTrue(sp.getModelObject() instanceof SimpleAttributeMO);
 		Assert.assertTrue(sp.getType() != null);
 		Assert.assertFalse(sp.getType().getName().isEmpty());
-		Assert.assertTrue(sp.getTypeClass().getTypeOwner() == sp);
+		// the simple facet and attribute share the type class ... either could be owner
+		Assert.assertTrue(sp.getTypeClass().getTypeOwner() == sp
+				|| sp.getTypeClass().getTypeOwner() == core.getSimpleFacet());
 		Assert.assertTrue(sp.getLibrary() == core.getLibrary());
 
 		Assert.assertNotNull(core.getSimpleFacet());

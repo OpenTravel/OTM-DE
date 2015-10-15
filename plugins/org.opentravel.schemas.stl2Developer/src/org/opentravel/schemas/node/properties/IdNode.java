@@ -65,10 +65,10 @@ public class IdNode extends AttributeNode implements TypeUser {
 	 * @see org.opentravel.schemas.node.properties.PropertyNode#setAssignedType(org.opentravel.schemas.node.Node,
 	 * boolean)
 	 */
-	@Override
-	public boolean setAssignedType(Node replacement, boolean refresh) {
-		return super.setAssignedType(idType, refresh);
-	}
+	// @Override
+	// public boolean setAssignedType(Node replacement, boolean refresh) {
+	// return super.setAssignedType(idType);
+	// }
 
 	/*
 	 * (non-Javadoc)

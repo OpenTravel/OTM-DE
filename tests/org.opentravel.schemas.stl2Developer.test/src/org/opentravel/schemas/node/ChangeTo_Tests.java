@@ -134,7 +134,7 @@ public class ChangeTo_Tests {
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "C");
 		PropertyNode p1 = new ElementNode(core.getSummaryFacet(), "P1");
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "B");
-		SimpleTypeNode s1 = ml.addSimpleTypeToLibrary(ln, "s1");
+		// SimpleTypeNode s1 = ml.addSimpleTypeToLibrary(ln, "s1");
 		tn.visit(ln);
 		tn.visit(lcn);
 
@@ -245,6 +245,8 @@ public class ChangeTo_Tests {
 		// Get all type level children and change them.
 		for (INode n : ln.getDescendants_NamedTypes()) {
 			equCount = countEquivelents((Node) n);
+			// if (n.getName().equals("EmploymentZZZ"))
+			// LOGGER.debug("Doing EmploymentZZZ");
 
 			if (n instanceof ComponentNode) {
 				ComponentNode cn = (ComponentNode) n;

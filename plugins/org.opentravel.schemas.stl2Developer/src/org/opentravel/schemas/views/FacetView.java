@@ -129,7 +129,7 @@ public class FacetView extends OtmAbstractView {
 			try {
 				RCPUtils.executeCommand(cmdId, null, getSite());
 			} catch (ExecutionException e) {
-				LOGGER.debug("Failed to execute cmd: " + cmdId + ", error :" + e.getMessage());
+				// LOGGER.debug("Failed to execute cmd: " + cmdId + ", error :" + e.getMessage());
 			}
 		}
 	}
@@ -196,6 +196,11 @@ public class FacetView extends OtmAbstractView {
 	@Override
 	public Node getCurrentNode() {
 		return currentNode;
+	}
+
+	@Override
+	public INode getPreviousNode() {
+		return prevNode;
 	}
 
 	/**
@@ -411,8 +416,8 @@ public class FacetView extends OtmAbstractView {
 				clearTable();
 				return;
 			}
-			if (target.isProperty())
-				node = node.getOwningComponent();
+			// if (target.isProperty())
+			// node = node.getOwningComponent();
 
 			setButtonState(target);
 

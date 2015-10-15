@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.controllers.NodeImageProvider;
 import org.opentravel.schemas.node.controllers.NodeLabelProvider;
@@ -95,12 +96,20 @@ public class TypeNode extends Node {
 	 */
 	@Override
 	public Node getParent() {
-		return owner;
+		Node p = owner;
+		// Make sure the nodes are real and live.
+		if (owner.getLibrary() == null)
+			p = owner.getParent();
+		if (p == null || p.getLibrary() == null || p.isDeleted())
+			// owner is not part of a library, make sure it is not in the unassigned list
+			ModelNode.getUnassignedNode().getTypeUsers().remove(owner);
+		return p;
 	}
 
 	@Override
 	public String getLabel() {
-		return labelProvider.getLabel() + " (" + getParent().getComponentUsersCount() + ")";
+		return getParent() == null ? labelProvider.getLabel() : labelProvider.getLabel() + " ("
+				+ getParent().getComponentUsersCount() + ")";
 		// return labelProvider.getLabel();
 	}
 

@@ -78,20 +78,6 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 	}
 
 	// @Override
-	// public boolean canAssign(Node type) {
-	// // TODO - make sure all simple type providers implement the simple interface
-	// if (type instanceof SimpleComponentInterface)
-	// return true;
-	// if (type.isSimpleType())
-	// return true;
-	// if (type instanceof VWA_Node)
-	// return true;
-	// if (type instanceof EnumerationOpenNode)
-	// return true;
-	// return false;
-	// }
-
-	// @Override
 	// public Node getAssignedType() {
 	// return getSimpleType();
 	// }
@@ -103,67 +89,29 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 		return typeQname;
 	}
 
+	/**
+	 * Return the parent type.
+	 */
 	@Override
 	public NamedEntity getTLTypeObject() {
 		return ((TLValueWithAttributes) getTLModelObject()).getParentType();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeProvider#getTypeNode()
-	 */
-	// @Override
-	// public Node getTypeNode() {
-	// if (getSimpleFacet() != null && getSimpleFacet().getSimpleAttribute() != null)
-	// return getSimpleFacet().getSimpleAttribute().getTypeClass().getTypeNode();
-	// else
-	// return null;
-	// }
-	//
-	// @Override
-	// public Type getTypeClass() {
-	// if (getSimpleFacet() != null && getSimpleFacet().getSimpleAttribute() != null)
-	// return getSimpleFacet().getSimpleAttribute().getTypeClass();
-	// else
-	// return null;
-	// }
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isNamedType()
-	 */
 	@Override
 	public boolean isNamedType() {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isTypeProvider()
-	 */
 	@Override
 	public boolean isTypeProvider() {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isValueWithAttributes()
-	 */
 	@Override
 	public boolean isValueWithAttributes() {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#getChildren_TypeUsers()
-	 */
 	@Override
 	public List<Node> getChildren_TypeUsers() {
 		ArrayList<Node> users = new ArrayList<Node>();
@@ -178,11 +126,6 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 		return Images.getImageRegistry().get(Images.ValueWithAttr);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.ComponentNode#getSimpleFacet()
-	 */
 	@Override
 	public SimpleFacetNode getSimpleFacet() {
 		for (INode f : getChildren()) {
@@ -212,14 +155,16 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.ComplexComponentInterface#getSimpleType()
-	 */
 	@Override
 	public ComponentNode getSimpleType() {
-		return (ComponentNode) getSimpleFacet().getSimpleAttribute().getAssignedType();
+		// return (ComponentNode) getSimpleFacet().getSimpleAttribute().getAssignedType();
+		return (ComponentNode) getAssignedType();
+	}
+
+	// 10/5/2015 - was commented out
+	@Override
+	public Node getAssignedType() {
+		return getSimpleFacet().getAssignedType();
 	}
 
 	@Override
@@ -229,7 +174,15 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 
 	@Override
 	public boolean setSimpleType(Node type) {
-		return getSimpleFacet().getSimpleAttribute().setAssignedType(type);
+		// return getSimpleFacet().getSimpleAttribute().setAssignedType(type);
+		return setAssignedType(type);
+	}
+
+	// Must use simple attribute because facet is not type user.
+	// 10/5/2015 - was not defined here, used supertype
+	@Override
+	public boolean setAssignedType(Node replacement) {
+		return getSimpleFacet().getSimpleAttribute().getTypeClass().setAssignedType(replacement);
 	}
 
 	@Override

@@ -299,21 +299,35 @@ public class OtmHandlers {
 		public void dragStart(final DragSourceEvent event) {
 			// the selection event is processed before this event which will change
 			// the facet table to the node being dragged.
+			// LOGGER.debug("drag start --------------------------------");
+			// 10/7/2015 - clean up and added curNode null check. DnD problems went away.
 
 			event.doit = false;
 			if (mc.getCurrentNode_NavigatorView() != null) {
-				final Node curNode = mc.getCurrentNode_NavigatorView();
-				if ((curNode.isAssignable() || curNode.isFamily() || curNode instanceof LibraryNode)) {
-					dragSourceNode = curNode;
-					event.doit = true;
+				Node curNode = mc.getCurrentNode_NavigatorView();
+				// 10/13/2015 dmh - i don't know what the compare is for. added null check
+				if (curNode == dragSourceNode && mc.getPrevTreeNode() != null) {
+					curNode = mc.getPrevTreeNode();
+					// LOGGER.debug("drag start used prev node: " + curNode);
 				}
+				if (curNode != null) {
+					if (curNode.isFamily() || curNode instanceof LibraryNode) {
+						LOGGER.debug("Why drag families or libraries?");
+					}
+					if (curNode.isAssignable()) {
+						dragSourceNode = curNode;
+						event.doit = true;
+						// LOGGER.debug("drag start set dragSourceNode: " + curNode);
+					}
+				} else
+					LOGGER.debug("drag start - cur node is null");
 
 				// Push the previous node onto the facet table.
-
 				final OtmView view = OtmRegistry.getTypeView();
-				if (view != null)
+				if (view != null) {
+					// LOGGER.debug("drag start restored type view to: " + view.getPreviousNode());
 					view.restorePreviousNode();
-
+				}
 			}
 		}
 

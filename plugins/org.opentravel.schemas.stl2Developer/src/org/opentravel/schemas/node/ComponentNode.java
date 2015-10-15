@@ -36,7 +36,7 @@ import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.modelObject.ModelObject;
-import org.opentravel.schemas.node.listeners.NamedTypeListener;
+import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.slf4j.Logger;
@@ -79,7 +79,7 @@ public class ComponentNode extends Node implements TypeProvider {
 	public ComponentNode() {
 		super();
 		family = "";
-		addListners();
+		setListner();
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class ComponentNode extends Node implements TypeProvider {
 			throw new IllegalStateException("Unexpected model object in cn construction.");
 			// addMOChildren();
 		}
-		addListners();
+		setListner();
 	}
 
 	/**
@@ -110,13 +110,11 @@ public class ComponentNode extends Node implements TypeProvider {
 		super(obj);
 		if (obj instanceof TLFacet)
 			addMOChildren();
-		addListners();
+		setListner();
 	}
 
-	private void addListners() {
-		// if (isTypeProvider())
-		// LOGGER.debug(this + " is type provider.");
-		getTLModelObject().addListener(new NamedTypeListener(this));
+	private void setListner() {
+		ListenerFactory.setListner(this);
 	}
 
 	/*
@@ -349,9 +347,13 @@ public class ComponentNode extends Node implements TypeProvider {
 		if (cn != null) {
 			cn.setName(getName());
 			cn.setDescription(getDescription());
+			cn.setIdentity(getName());
 
-			if (getLibrary() != null)
+			if (getLibrary().isEditable())
 				getLibrary().addMember(cn);
+			else
+				// Put the new node at the head of the chain.
+				getLibrary().getChain().getHead().addMember(cn);
 		}
 
 		return cn;
@@ -638,7 +640,7 @@ public class ComponentNode extends Node implements TypeProvider {
 			if (list.size() > 1) {
 				for (Node property : list) {
 					String aliasName = property.getName() + "_" + type.getName();
-					property.setAssignedType(new AliasNode(type, aliasName), false);
+					property.setAssignedType(new AliasNode(type, aliasName));
 					property.setName(aliasName);
 				}
 			}

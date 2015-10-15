@@ -54,6 +54,8 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 	public CoreObjectNode(BusinessObjectNode bo) {
 		this(new TLCoreObject());
 
+		addAliases(bo.getAliases());
+
 		setName(bo.getName());
 		bo.getLibrary().addMember(this);
 		setDocumentation(bo.getDocumentation());
@@ -75,6 +77,12 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 		setSimpleType(vwa.getSimpleType());
 	}
 
+	public void addAliases(List<AliasNode> aliases) {
+		for (AliasNode a : aliases) {
+			new AliasNode(this, a.getName());
+		}
+	}
+
 	@Override
 	public boolean isExtensible() {
 		return getTLModelObject() != null ? !((TLComplexTypeBase) getTLModelObject()).isNotExtendable() : false;
@@ -83,6 +91,11 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 	@Override
 	public boolean isExtensibleObject() {
 		return true;
+	}
+
+	@Override
+	public boolean setAssignedType(Node replacement) {
+		return getSimpleFacet().getSimpleAttribute().getTypeClass().setAssignedType(replacement);
 	}
 
 	@Override
@@ -206,6 +219,14 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 	@Override
 	public INode.CommandType getAddCommand() {
 		return INode.CommandType.PROPERTY;
+	}
+
+	public List<AliasNode> getAliases() {
+		List<AliasNode> aliases = new ArrayList<AliasNode>();
+		for (Node c : getChildren())
+			if (c instanceof AliasNode)
+				aliases.add((AliasNode) c);
+		return aliases;
 	}
 
 	@Override

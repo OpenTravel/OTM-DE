@@ -105,7 +105,7 @@ public abstract class Node implements INode {
 	protected XsdNode xsdNode = null; // Link to node containing imported XSD representation
 	protected boolean xsdType = false; // True if this node represents an object that was created by
 										// the XSD utilities but has not be imported.
-	private Type type = null; // Type information associated with properties
+	protected Type type = null; // Type information associated with properties
 	private String identity = ""; // just for debugging
 
 	static final String EMPTY_TYPE = "Empty";
@@ -223,11 +223,6 @@ public abstract class Node implements INode {
 		children.remove(n);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#removeFromLibrary()
-	 */
 	@Override
 	public void removeFromLibrary() {
 		getLibrary().removeMember(this);
@@ -297,28 +292,29 @@ public abstract class Node implements INode {
 			LOGGER.debug("Tried to replace " + this.getNameWithPrefix() + " with null replacement.");
 			return;
 		}
-		// LOGGER.debug("Replacing " + this.getNameWithPrefix() + " \twith "
-		// + replacement.getNameWithPrefix());
 
 		// Hold onto library node because it will be cleared by removeMember.
-		LibraryNode ln = this.getLibrary();
 		if (getLibrary() == null) {
 			LOGGER.error("The node being replaced is not in a library. " + this);
 			return;
 		}
 
-		getLibrary().removeMember(this);
+		// 9/28/2015 dmh - moved to end to preserve linkages. Listeners will remove the whereUsed links.
 
-		if (replacement.getLibrary() == null)
-			ln.addMember(replacement);
-		if (replacement.getLibrary() != ln) {
-			replacement.removeFromLibrary();
-			ln.addMember(replacement);
-		}
+		// 9/28/2015 dmh - moved removeFromLibrary logic to LibraryNode.
+		// if (replacement.getLibrary() == null)
+		getLibrary().addMember(replacement);
+		// if (replacement.getLibrary() != ln) {
+		// replacement.removeFromLibrary();
+		// ln.addMember(replacement);
+		// }
 		// else
 		// LOGGER.debug("replaceWith() - replacement is assumed to already be member and was not added to library");
 
 		replaceTypesWith(replacement);
+
+		// 9/28/2015 dmh - moved to end to preserve linkages. Listeners will remove the whereUsed links.
+		getLibrary().removeMember(this);
 	}
 
 	/**
@@ -762,6 +758,8 @@ public abstract class Node implements INode {
 	 * @return - the type class representing the type assignments or else null
 	 */
 	public Type getTypeClass() {
+		if (type == null)
+			type = new Type(this);
 		return type;
 	}
 
@@ -1667,21 +1665,11 @@ public abstract class Node implements INode {
 		return changedNodes;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#setAssignedType(org.opentravel.schemas.node.INode )
-	 */
-	@Override
-	public boolean setAssignedType(Node typeNode, boolean refresh) {
-		return (this instanceof TypeUser) ? setAssignedType(typeNode, refresh) : false;
-	}
+	// @Deprecated
+	// public boolean setAssignedType(Node typeNode, boolean refresh) {
+	// return (this instanceof TypeUser) ? setAssignedType(typeNode) : false;
+	// }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#setAssignedType(org.opentravel.schemas.node.INode )
-	 */
 	@Override
 	public boolean setAssignedType(Node typeNode) {
 		return false;
@@ -1758,7 +1746,11 @@ public abstract class Node implements INode {
 	 */
 	@Override
 	public List<Node> getTypeUsers() {
-		return getTypeClass() == null ? new ArrayList<Node>() : getTypeClass().getTypeUsers();
+		return getTypeClass().getTypeUsers();
+	}
+
+	public ArrayList<Node> typeUsers() {
+		return isTypeProvider() ? getTypeClass().getTypeUsers() : null;
 	}
 
 	/**
@@ -2274,10 +2266,6 @@ public abstract class Node implements INode {
 		return list;
 	}
 
-	public ArrayList<Node> typeUsers() {
-		return isTypeProvider() ? getTypeClass().getTypeUsers() : null;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -2287,21 +2275,12 @@ public abstract class Node implements INode {
 		return isTypeUser() ? getTypeClass().getTypeOwner().getModelObject() : null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeUser#getAssignedTLObject()
-	 */
-	// @Deprecated
+	@Deprecated
 	public NamedEntity getAssignedTLObject() {
 		return getTLTypeObject();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeUser#removeAssignedType()
-	 */
+	@Deprecated
 	public void removeAssignedType() {
 		if (isTypeUser())
 			getTypeClass().removeAssignedType();
