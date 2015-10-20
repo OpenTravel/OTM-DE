@@ -519,8 +519,10 @@ public class OtmActions {
 		// final String context = mc.getContextController().getSelectedId(ContextViewType.TYPE_VIEW, n.getLibrary());
 		// final String context = n.getCurContext();
 		final String text = wd.getText();
-		if (n instanceof PropertyNode && ((PropertyNode) n).getExampleHandler() != null)
-			((PropertyNode) n).getExampleHandler().set(text, n.getLibrary().getDefaultContextId());
+		if (n instanceof PropertyNode)
+			((PropertyNode) n).setExample(text);
+		// if (n instanceof PropertyNode && ((PropertyNode) n).getExampleHandler() != null)
+		// ((PropertyNode) n).getExampleHandler().set(text, n.getLibrary().getDefaultContextId());
 
 		// if (text == null || text.isEmpty()) {
 		// n.getModelObject().removeExample(context);
@@ -553,15 +555,18 @@ public class OtmActions {
 		// final String context = mc.getContextController().getSelectedId(ContextViewType.TYPE_VIEW, n.getLibrary());
 		// final String context = n.getCurContext();
 		final String text = wd.getText();
+		if (n instanceof PropertyNode)
+			((PropertyNode) n).setEquivalent(text);
+
 		// if (text == null || text.isEmpty()) {
 		// n.getModelObject().removeEquivalent(context);
 		// } else {
 		// n.getModelObject().setEquivalent(text, context);
 		// setAllEquivalence(n, text);
 		// }
-		if (n instanceof PropertyNode && ((PropertyNode) n).getEquivalentHandler() != null) {
-			((PropertyNode) n).getEquivalentHandler().set(text, n.getLibrary().getDefaultContextId());
-		}
+		// if (n instanceof PropertyNode && ((PropertyNode) n).getEquivalentHandler() != null) {
+		// ((PropertyNode) n).getEquivalentHandler().set(text, n.getLibrary().getDefaultContextId());
+		// }
 		// LOGGER.debug("Set equivalent for context: " + context);
 	}
 
