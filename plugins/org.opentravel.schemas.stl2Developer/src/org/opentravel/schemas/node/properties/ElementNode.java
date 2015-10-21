@@ -101,11 +101,25 @@ public class ElementNode extends PropertyNode implements TypeUser {
 	}
 
 	@Override
-	public IValueWithContextHandler setEquivalent(String example) {
+	public String getEquivalent(String context) {
 		if (equivalentHandler == null)
 			equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
-		equivalentHandler.set(example, null);
+		return equivalentHandler != null ? equivalentHandler.get(context) : "";
+	}
+
+	@Override
+	public IValueWithContextHandler setEquivalent(String equivalent) {
+		if (equivalentHandler == null)
+			equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
+		equivalentHandler.set(equivalent, null);
 		return equivalentHandler;
+	}
+
+	@Override
+	public String getExample(String context) {
+		if (exampleHandler == null)
+			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
+		return exampleHandler != null ? exampleHandler.get(context) : "";
 	}
 
 	@Override

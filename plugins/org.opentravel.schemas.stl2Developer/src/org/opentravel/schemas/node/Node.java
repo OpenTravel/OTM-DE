@@ -79,6 +79,7 @@ public abstract class Node implements INode {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Node.class);
 
 	public static final String UNDEFINED_PROPERTY_TXT = "Undefined";
+
 	/**
 	 * Within the node classes, public adders and setters are responsible for keeping the nodes and underlying library
 	 * model in sync.

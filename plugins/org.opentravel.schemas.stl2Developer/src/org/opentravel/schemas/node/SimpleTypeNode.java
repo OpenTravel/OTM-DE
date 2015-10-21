@@ -27,6 +27,9 @@ import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.modelObject.XsdModelingUtils;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
+import org.opentravel.schemas.node.properties.EqExOneValueHandler;
+import org.opentravel.schemas.node.properties.EqExOneValueHandler.ValueWithContextType;
+import org.opentravel.schemas.node.properties.IValueWithContextHandler;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
@@ -41,6 +44,10 @@ import org.slf4j.LoggerFactory;
  */
 public class SimpleTypeNode extends ComponentNode implements SimpleComponentInterface, TypeUser {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleTypeNode.class);
+
+	// Handlers for equivalents and examples
+	protected IValueWithContextHandler equivalentHandler = null;
+	protected IValueWithContextHandler exampleHandler = null;
 
 	public SimpleTypeNode(LibraryMember mbr) {
 		super(mbr);
@@ -270,6 +277,48 @@ public class SimpleTypeNode extends ComponentNode implements SimpleComponentInte
 	@Override
 	public boolean isSimpleTypeProvider() {
 		return true;
+	}
+
+	/**
+	 * @return equivalent handler if property has equivalents, null otherwise
+	 */
+	public IValueWithContextHandler getEquivalentHandler() {
+		return equivalentHandler;
+	}
+
+	@Override
+	public String getEquivalent(String context) {
+		if (equivalentHandler == null)
+			equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
+		return equivalentHandler != null ? equivalentHandler.get(context) : "";
+	}
+
+	public IValueWithContextHandler setEquivalent(String equivalent) {
+		if (equivalentHandler == null)
+			equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
+		equivalentHandler.set(equivalent, null);
+		return equivalentHandler;
+	}
+
+	/**
+	 * @return equivalent handler if property has equivalents, null otherwise
+	 */
+	public IValueWithContextHandler getExampleHandler() {
+		return exampleHandler;
+	}
+
+	@Override
+	public String getExample(String context) {
+		if (exampleHandler == null)
+			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
+		return exampleHandler != null ? exampleHandler.get(context) : "";
+	}
+
+	public IValueWithContextHandler setExample(String example) {
+		if (exampleHandler == null)
+			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
+		exampleHandler.set(example, null);
+		return exampleHandler;
 	}
 
 }

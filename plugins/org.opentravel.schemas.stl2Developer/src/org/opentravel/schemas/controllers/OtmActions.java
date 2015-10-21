@@ -30,6 +30,7 @@ import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.PropertyNodeType;
+import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -72,7 +73,7 @@ public class OtmActions {
 	private static final int setOrNewPropertyType = 37;
 	private static final int setNameSpace = 38;
 
-	// these are used anymore. (7/17/12)
+	// these are not used anymore. (7/17/12)
 	// private static final int setDeprecatedDoc = 40;
 	// private static final int setReferenceDoc = 41;
 	// private static final int setDeveloperDoc = 42;
@@ -281,30 +282,7 @@ public class OtmActions {
 	private void otherDocContextSelector() {
 		LOGGER.error("OtmActions tried to execute otherDocContextSelector");
 		Assert.isTrue(1 == 1); // We should NEVER get here
-
-		// final INode n = getPropertySelection();
-		// final String context = getDefaultContextId();
-		// final ContextsView view = OtmRegistry.getContextsView();
-		// if (n != null) {
-		// final TLDocumentation doc = n.getModelObject().getDocumentation();
-		// if (doc != null) {
-		// final TLAdditionalDocumentationItem otherDoc = doc.getOtherDoc(context);
-		// view.getContextController().changeContext(otherDoc);
-		// }
-		// }
 	}
-
-	// private String getDefaultContextId() {
-	// // final ContextsView view = OtmRegistry.getContextsView();
-	// // if (view != null) {
-	// // return view.getSelectedContextId();
-	// // }
-	// final ContextsView view = OtmRegistry.getContextsView();
-	// if (view != null) {
-	// return view.getContextController().getDefaultContextId();
-	// }
-	// return null;
-	// }
 
 	/**
 	 * Run type selection wizard on simple type or property.
@@ -516,35 +494,12 @@ public class OtmActions {
 
 	private void setExample(final OtmEventData wd) {
 		final Node n = (Node) mc.getCurrentNode_PropertiesView();
-		// final String context = mc.getContextController().getSelectedId(ContextViewType.TYPE_VIEW, n.getLibrary());
-		// final String context = n.getCurContext();
 		final String text = wd.getText();
 		if (n instanceof PropertyNode)
 			((PropertyNode) n).setExample(text);
-		// if (n instanceof PropertyNode && ((PropertyNode) n).getExampleHandler() != null)
-		// ((PropertyNode) n).getExampleHandler().set(text, n.getLibrary().getDefaultContextId());
-
-		// if (text == null || text.isEmpty()) {
-		// n.getModelObject().removeExample(context);
-		// } else {
-		// n.getModelObject().setExample(text, context);
-		// setAllExamples(n, text);
-		// }
-		// LOGGER.info("Set example for context: " + context);
+		else if (n instanceof SimpleTypeNode)
+			((SimpleTypeNode) n).setExample(text);
 	}
-
-	// Context controller is broken; it returns the wrong context in setExample.
-	// As a patch, this sets the new text value into all undefined examples. Not good, but helps.
-	// private void setAllExamples(Node n, String text) {
-	// List<String> contexts = mc.getContextController().getAvailableContextIds(n.getLibrary());
-	// if (!(n instanceof ComponentNode))
-	// return;
-	// ComponentNode cn = (ComponentNode) n;
-	// for (String c : contexts) {
-	// if (cn.getExample(c) == null || cn.getExample(c).isEmpty())
-	// cn.getModelObject().setExample(text, c);
-	// }
-	// }
 
 	public static int setEquivalence() {
 		return setEquivalence;
@@ -552,34 +507,12 @@ public class OtmActions {
 
 	private void setEquivalence(final OtmEventData wd) {
 		final Node n = (Node) mc.getCurrentNode_PropertiesView();
-		// final String context = mc.getContextController().getSelectedId(ContextViewType.TYPE_VIEW, n.getLibrary());
-		// final String context = n.getCurContext();
 		final String text = wd.getText();
 		if (n instanceof PropertyNode)
 			((PropertyNode) n).setEquivalent(text);
-
-		// if (text == null || text.isEmpty()) {
-		// n.getModelObject().removeEquivalent(context);
-		// } else {
-		// n.getModelObject().setEquivalent(text, context);
-		// setAllEquivalence(n, text);
-		// }
-		// if (n instanceof PropertyNode && ((PropertyNode) n).getEquivalentHandler() != null) {
-		// ((PropertyNode) n).getEquivalentHandler().set(text, n.getLibrary().getDefaultContextId());
-		// }
-		// LOGGER.debug("Set equivalent for context: " + context);
+		else if (n instanceof SimpleTypeNode)
+			((SimpleTypeNode) n).setEquivalent(text);
 	}
-
-	// private void setAllEquivalence(Node n, String text) {
-	// List<String> contexts = mc.getContextController().getAvailableContextIds(n.getLibrary());
-	// if (!(n instanceof ComponentNode))
-	// return;
-	// ComponentNode cn = (ComponentNode) n;
-	// for (String c : contexts) {
-	// if (cn.getEquivalent(c) == null || cn.getEquivalent(c).isEmpty())
-	// cn.getModelObject().setEquivalent(text, c);
-	// }
-	// }
 
 	public static int setPattern() {
 		return setPattern;

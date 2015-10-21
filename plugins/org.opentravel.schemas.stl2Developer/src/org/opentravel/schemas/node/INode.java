@@ -79,7 +79,7 @@ public interface INode {
 
 	/**
 	 * Gets the descendants that are named types. Does not return navigation nodes. Does not return named properties
-	 * (aliases, facets)
+	 * (aliases, facets).
 	 * 
 	 * @return all descendants that are named types.
 	 */

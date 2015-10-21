@@ -33,6 +33,8 @@ import org.opentravel.schemacompiler.model.TLExampleOwner;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.controllers.ContextController;
+import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +59,9 @@ public class EqExOneValueHandler implements IValueWithContextHandler, ModelEleme
 
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
+		// Do NOT set the value. There is no value stored in this handler, it is read from the tl model.
+		// if (event.getNewValue() instanceof String)
+		// set(((String) event.getNewValue()), null); // save value using default context
 		LOGGER.debug("change event: " + event.getNewValue());
 	}
 
@@ -64,7 +69,7 @@ public class EqExOneValueHandler implements IValueWithContextHandler, ModelEleme
 		EXAMPLE, EQUIVALENT;
 	}
 
-	private PropertyNode owner = null;
+	private Node owner = null;
 	private TLModelElement tlOwner = null;
 	private ValueWithContextType type = null;
 
@@ -72,6 +77,16 @@ public class EqExOneValueHandler implements IValueWithContextHandler, ModelEleme
 	 * 
 	 */
 	public EqExOneValueHandler(PropertyNode owner, ValueWithContextType type) {
+		assert (owner != null);
+		assert (owner.getTLModelObject() != null);
+		assert (owner.getTLModelObject() instanceof TLExampleOwner);
+
+		this.owner = owner;
+		this.type = type;
+		tlOwner = owner.getTLModelObject();
+	}
+
+	public EqExOneValueHandler(SimpleTypeNode owner, ValueWithContextType type) {
 		assert (owner != null);
 		assert (owner.getTLModelObject() != null);
 		assert (owner.getTLModelObject() instanceof TLExampleOwner);
