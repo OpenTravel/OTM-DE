@@ -18,6 +18,9 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import javax.xml.namespace.QName;
 
 import org.junit.Assert;
@@ -188,6 +191,52 @@ public class BusinessObjectTests {
 	}
 
 	@Test
+	public void nameChange() {
+		// On name change, all users of the BO and its aliases and facets also need to change.
+		MockLibrary ml = new MockLibrary();
+		MainController mc = new MainController();
+		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
+		ProjectNode defaultProject = pc.getDefaultProject();
+		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+
+		final String boName = "initialBOName";
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, boName);
+		bo.addAlias("boAlias");
+		AliasNode alias1 = bo.getAliases().get(0);
+		assertNotNull(alias1);
+		AliasNode aliasSummary = null;
+		for (Node n : bo.getSummaryFacet().getChildren())
+			if (n instanceof AliasNode)
+				aliasSummary = (AliasNode) n;
+		assertNotNull(aliasSummary);
+
+		// create a core that uses all the type provider nodes of the bo
+		CoreObjectNode co = ml.addCoreObjectToLibrary(ln, "user");
+		PropertyNode p1 = new ElementNode(co.getSummaryFacet(), "p1");
+		p1.setAssignedType(bo);
+		assertTrue(p1.getName().equals(boName));
+		PropertyNode p2 = new ElementNode(co.getSummaryFacet(), "p2");
+		p2.setAssignedType(alias1);
+		PropertyNode p3 = new ElementNode(co.getSummaryFacet(), "p3");
+		p3.setAssignedType(bo.getSummaryFacet());
+		PropertyNode p4 = new ElementNode(co.getSummaryFacet(), "p4");
+		p4.setAssignedType(aliasSummary);
+
+		// Change the BO name and assure the properties names changed
+		String ChangedName = "changedName";
+		bo.setName(ChangedName);
+		assertTrue(p1.getName().equals(ChangedName));
+		assertTrue(p2.getName().equals(alias1.getName()));
+		assertTrue(p3.getName().startsWith(ChangedName));
+
+		// Alias on BOs must also be applied to the elements where used.
+		final String aliasName2 = "aliasName2";
+		alias1.setName(aliasName2);
+		assertTrue(p2.getName().equals(aliasName2));
+		assertTrue(p4.getName().startsWith(aliasName2));
+	}
+
+	@Test
 	public void FacetAsType() {
 		// Facets as types throw the resolver off because they have type names not types.
 		MockLibrary ml = new MockLibrary();
@@ -201,7 +250,7 @@ public class BusinessObjectTests {
 		// NamedEntity userType = user.getTLTypeObject();
 		Assert.assertNotNull(user.getTLTypeObject());
 
-		user.setAssignedType(bo.getDetailFacet());
+		user.setAssignedType((Node) bo.getDetailFacet());
 		Assert.assertNotNull(user.getTLTypeObject());
 	}
 

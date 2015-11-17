@@ -15,43 +15,46 @@
  */
 package org.opentravel.schemas.node;
 
+import java.util.List;
+
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Extension points are used to add properties to facets in business or core objects. They have a facet structure
+ * Extension points are used to add properties to facets in business or core objects. They have a facet structure but
+ * are not facets because they are also Named Objects.
  * 
  * @author Dave Hollander
  * 
  */
-public class ExtensionPointNode extends ComponentNode implements ComplexComponentInterface {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionPointNode.class);
+public class ExtensionPointNode extends ComponentNode implements ComplexComponentInterface, ExtensionOwner,
+		PropertyOwnerInterface {
+	// private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionPointNode.class);
 
 	public ExtensionPointNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
+	}
 
-		// Tests
-		// if (!(mbr instanceof TLExtensionPointFacet)) {
-		// LOGGER.error("Tried to make an extension point node from wrong class "
-		// + mbr.getClass().getName());
-		// throw new IllegalArgumentException(
-		// "Tried to make an extension point node from wrong class "
-		// + mbr.getClass().getName());
-		// }
-		// if (((TLExtensionPointFacet) mbr).getExtension() == null) {
-		// LOGGER.debug("NULL Extension. " + mbr.getLocalName());
-		// } else if (((TLExtensionPointFacet) mbr).getExtension().getExtendsEntityName() == null) {
-		// LOGGER.debug("NULL extends entity name." + mbr.getLocalName());
-		// } else if (((TLExtensionPointFacet) mbr).getExtension().getExtendsEntityName().isEmpty())
-		// LOGGER.debug("Empty extends entity name." + mbr.getLocalName());
+	@Override
+	public void addProperty(PropertyNode property) {
+		super.addProperty(property);
+	}
+
+	@Override
+	public void addProperties(List<Node> properties, boolean clone) {
+		// LOGGER.debug("addProperties not implemented for this class: " + this.getClass());
+	}
+
+	@Override
+	public boolean canExtend() {
+		return true;
 	}
 
 	@Override
@@ -69,7 +72,7 @@ public class ExtensionPointNode extends ComponentNode implements ComplexComponen
 	}
 
 	@Override
-	public ComponentNode getAttributeFacet() {
+	public PropertyOwnerInterface getAttributeFacet() {
 		return null;
 	}
 
@@ -77,7 +80,7 @@ public class ExtensionPointNode extends ComponentNode implements ComplexComponen
 	 * @return null or the default facet for the complex object
 	 */
 	@Override
-	public ComponentNode getDefaultFacet() {
+	public PropertyOwnerInterface getDefaultFacet() {
 		return this;
 	}
 
@@ -114,6 +117,18 @@ public class ExtensionPointNode extends ComponentNode implements ComplexComponen
 	@Override
 	public boolean setSimpleType(Node type) {
 		return false;
+	}
+
+	@Override
+	public Node getExtendsType() {
+		return getTypeClass().getTypeNode();
+	}
+
+	@Override
+	public void setExtendsType(final INode sourceNode) {
+		assert (sourceNode.getLibrary() != getLibrary());
+		getTypeClass().setAssignedBaseType(sourceNode);
+		setIdentity("EP-->" + sourceNode);
 	}
 
 	@Override

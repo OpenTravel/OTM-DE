@@ -40,8 +40,6 @@ import org.opentravel.schemacompiler.model.TLListFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.XsdNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The ModelObject abstract class provides a template for working with underlying model source objects. Model Object
@@ -69,8 +67,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public abstract class ModelObject<TL> {
-
-	private final static Logger LOGGER = LoggerFactory.getLogger(ModelObject.class);
+	// private final static Logger LOGGER = LoggerFactory.getLogger(ModelObject.class);
 
 	protected TL srcObj;
 	protected INode node;
@@ -346,15 +343,8 @@ public abstract class ModelObject<TL> {
 	public void setTLType(NamedEntity attributeType) {
 	}
 
-	// public void setTLType(final TLAttributeType tlObj) {
-	// // this.type = tlObj;
-	// }
-	//
-	// public void setTLType(final TLPropertyType tlObj) {
-	// // this.type = tlObj;
-	// }
-
 	public void setExtendsType(final ModelObject<?> mo) {
+		// LOGGER.debug("Set extends type not implemented for: " + this.getClass().getSimpleName());
 	}
 
 	/**
@@ -510,12 +500,12 @@ public abstract class ModelObject<TL> {
 	}
 
 	public boolean moveUp() {
-		LOGGER.debug("ModelObject:moveUp() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
+		// LOGGER.debug("ModelObject:moveUp() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
 		return false;
 	}
 
 	public boolean moveDown() {
-		LOGGER.debug("ModelObject:moveDpwn() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
+		// LOGGER.debug("ModelObject:moveDpwn() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
 		return false;
 	}
 
@@ -636,7 +626,7 @@ public abstract class ModelObject<TL> {
 	}
 
 	public void sort() {
-		LOGGER.debug("ModelObject:sort() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
+		// LOGGER.debug("ModelObject:sort() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
 	}
 
 	/**

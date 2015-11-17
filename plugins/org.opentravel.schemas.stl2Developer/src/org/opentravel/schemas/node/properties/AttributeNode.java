@@ -39,18 +39,18 @@ import org.opentravel.schemas.types.TypeUser;
  */
 public class AttributeNode extends PropertyNode implements TypeUser {
 
-	public AttributeNode(Node parent, String name) {
-		super(new TLAttribute(), parent, name, PropertyNodeType.ATTRIBUTE);
+	public AttributeNode(PropertyOwnerInterface parent, String name) {
+		super(new TLAttribute(), (Node) parent, name, PropertyNodeType.ATTRIBUTE);
 		setAssignedType(ModelNode.getUnassignedNode());
 	}
 
-	public AttributeNode(Node parent, String name, PropertyNodeType type) {
-		super(new TLAttribute(), parent, name, type);
+	public AttributeNode(PropertyOwnerInterface parent, String name, PropertyNodeType type) {
+		super(new TLAttribute(), (Node) parent, name, type);
 		setAssignedType(ModelNode.getUnassignedNode());
 	}
 
-	public AttributeNode(TLModelElement tlObj, INode parent) {
-		super(tlObj, parent, PropertyNodeType.ATTRIBUTE);
+	public AttributeNode(TLModelElement tlObj, PropertyOwnerInterface parent) {
+		super(tlObj, (INode) parent, PropertyNodeType.ATTRIBUTE);
 
 		if (!(tlObj instanceof TLAttribute))
 			throw new IllegalArgumentException("Invalid object for an attribute.");
@@ -59,8 +59,8 @@ public class AttributeNode extends PropertyNode implements TypeUser {
 	/*
 	 * used for sub-types
 	 */
-	public AttributeNode(TLModelElement tlObj, INode parent, PropertyNodeType type) {
-		super(tlObj, parent, type);
+	public AttributeNode(TLModelElement tlObj, PropertyOwnerInterface parent, PropertyNodeType type) {
+		super(tlObj, (INode) parent, type);
 	}
 
 	@Override

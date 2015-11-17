@@ -13,24 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.commands;
+package org.opentravel.schemas.node;
 
-import org.eclipse.core.commands.ExecutionEvent;
-import org.opentravel.schemas.node.Node;
+import java.util.List;
 
-/**
- * @author Pawel Jedruch
- * 
- */
-public class AddNodeForNavigatorPopup extends AddNodeHandler2 {
+public interface Enumeration {
+	/**
+	 * Add the passed literal to the open or closed enumeration.
+	 */
+	public void addLiteral(String literal);
 
-	public AddNodeForNavigatorPopup() {
-		setBaseEnabled(true);
-	}
-
-	@Override
-	protected Node getSelectedNode(ExecutionEvent exEvent) {
-		return mc.getSelectedNode_NavigatorView();
-	}
-
+	/**
+	 * Get a list of the enumeration values
+	 */
+	public List<String> getLiterals();
 }

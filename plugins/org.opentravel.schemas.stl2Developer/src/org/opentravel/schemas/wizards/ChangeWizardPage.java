@@ -130,6 +130,7 @@ public class ChangeWizardPage extends WizardPage {
 		this.editedNode = editedNode;
 		this.allowedObjectTypes = allowedObjectTypes;
 		this.allowedFacetTypes = allowedFacetTypes;
+		// TODO - make sure EditedNode is not null
 	}
 
 	@Override
@@ -498,20 +499,20 @@ public class ChangeWizardPage extends WizardPage {
 			ComponentNode facet = null;
 			switch (st) {
 			case ID:
-				facet = editedNode.getIDFacet();
+				facet = (ComponentNode) editedNode.getIDFacet();
 				break;
 			case SUMMARY:
-				facet = editedNode.getSummaryFacet();
+				facet = (ComponentNode) editedNode.getSummaryFacet();
 				break;
 			case DETAIL:
-				facet = editedNode.getDetailFacet();
+				facet = (ComponentNode) editedNode.getDetailFacet();
 				break;
 			case SIMPLE:
 				facet = editedNode.getSimpleFacet();
 				break;
 			case VWA_ATTRIBUTES:
 				if (editedNode instanceof ComplexComponentInterface) {
-					facet = ((ComplexComponentInterface) editedNode).getAttributeFacet();
+					facet = (ComponentNode) ((ComplexComponentInterface) editedNode).getAttributeFacet();
 				}
 				break;
 			default:

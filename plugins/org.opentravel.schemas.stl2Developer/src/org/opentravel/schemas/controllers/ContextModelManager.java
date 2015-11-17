@@ -118,8 +118,8 @@ public class ContextModelManager {
 			setDefaultContext(ln);
 			// LOGGER.debug("Added contexts from library " + ln.getName() + ". Map size = "
 			// + contextMap.size() + " Library map entries: " + contextMap.get(ln).size());
-		} else {
-			LOGGER.debug("Context Map already contained library: " + ln);
+			// } else {
+			// LOGGER.debug("Context Map already contained library: " + ln);
 		}
 		searchForCNode(null);
 	}

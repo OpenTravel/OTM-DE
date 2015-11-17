@@ -61,7 +61,7 @@ import org.opentravel.schemas.actions.UnlockLibraryAction;
 import org.opentravel.schemas.actions.VersionMajorAction;
 import org.opentravel.schemas.actions.VersionMinorAction;
 import org.opentravel.schemas.actions.VersionPatchAction;
-import org.opentravel.schemas.commands.AddNodeHandler;
+import org.opentravel.schemas.commands.AddNodeHandler2;
 import org.opentravel.schemas.commands.CloseLibrariesHandler;
 import org.opentravel.schemas.commands.CloseProjectHandler;
 import org.opentravel.schemas.commands.CompileHandler;
@@ -75,6 +75,7 @@ import org.opentravel.schemas.controllers.RepositoryController;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
+import org.opentravel.schemas.node.Enumeration;
 import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.FamilyNode;
 import org.opentravel.schemas.node.LibraryChainNode;
@@ -82,8 +83,10 @@ import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
+import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.properties.DefaultStringProperties;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
@@ -198,8 +201,11 @@ public class NavigatorMenus extends TreeViewer {
 		final IContributionItem newComplexAction = RCPUtils.createCommandContributionItem(site,
 				NewComponentHandler.COMMAND_ID, Messages.getString("action.newComplex.text"), null, null);
 		final IContributionItem addPropertiesAction = RCPUtils.createCommandContributionItem(site,
-				AddNodeHandler.COMMAND_ID, Messages.getString("action.addProperty.text"), null,
-				AddNodeHandler.getIcon());
+				AddNodeHandler2.COMMAND_ID, Messages.getString("action.addProperty.text"), null,
+				AddNodeHandler2.getIcon());
+		// final IContributionItem addPropertiesAction = RCPUtils.createCommandContributionItem(site,
+		// AddNodeHandler.COMMAND_ID, Messages.getString("action.addProperty.text"), null,
+		// AddNodeHandler.getIcon());
 
 		final Action addQueryFacetAction = new AddQueryFacetAction(mainWindow);
 		final Action addRoleAction = new AddRoleAction(mainWindow);
@@ -431,7 +437,7 @@ public class NavigatorMenus extends TreeViewer {
 						if (node.isInModel()) {
 							if (!node.isEditable()) {
 								manager.add(basicObjectMenu);
-							} else if (node.isService()) {
+							} else if (node instanceof ServiceNode) {
 								manager.add(serviceObjectMenu);
 							} else if (node.isOperation()) {
 								manager.add(operationObjectMenu);
@@ -441,7 +447,7 @@ public class NavigatorMenus extends TreeViewer {
 								manager.add(componentMenu);
 							} else if (node instanceof VWA_Node) {
 								manager.add(componentMenu);
-							} else if (node.isEnumeration()) {
+							} else if (node instanceof Enumeration) {
 								manager.add(componentMenu);
 							} else if (node.isAlias()) {
 								manager.add(componentMenu);
@@ -454,7 +460,7 @@ public class NavigatorMenus extends TreeViewer {
 							} else if (node.isSimpleType()) {
 								manager.add(simpleObjectMenu);
 							} else if (node instanceof SimpleAttributeNode) {
-							} else if (node.isRoleProperty()) {
+							} else if (node instanceof RoleNode) {
 								manager.add(roleObjectMenu);
 							} else if (node instanceof EnumLiteralNode) {
 								manager.add(enumObjectMenu);

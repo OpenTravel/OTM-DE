@@ -426,7 +426,7 @@ public class DefaultContextController extends OtmControllerBase implements Conte
 	 */
 	@Override
 	public void copyContext(Node node, LibraryNode ln) {
-		for (TLContext tlc : node.getContexts()) {
+		for (TLContext tlc : node.getUsedContexts()) {
 			manager.copyContext(tlc, ln);
 		}
 	}

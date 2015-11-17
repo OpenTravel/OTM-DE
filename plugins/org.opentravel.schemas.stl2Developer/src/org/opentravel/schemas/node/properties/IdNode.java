@@ -32,7 +32,7 @@ import org.opentravel.schemas.types.TypeUser;
 public class IdNode extends AttributeNode implements TypeUser {
 	Node idType = null;
 
-	public IdNode(Node parent, String name) {
+	public IdNode(PropertyOwnerInterface parent, String name) {
 		super(parent, name, PropertyNodeType.ID);
 		setName("id");
 		idType = NodeFinders.findNodeByName("ID", XSD_NAMESPACE);
@@ -41,7 +41,7 @@ public class IdNode extends AttributeNode implements TypeUser {
 		propertyType = PropertyNodeType.ID;
 	}
 
-	public IdNode(TLModelElement tlObj, INode parent) {
+	public IdNode(TLModelElement tlObj, PropertyOwnerInterface parent) {
 		super(tlObj, parent, PropertyNodeType.ID);
 		idType = NodeFinders.findNodeByName("ID", XSD_NAMESPACE);
 		setAssignedType(idType);

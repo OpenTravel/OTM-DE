@@ -13,24 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.commands;
-
-import org.eclipse.core.commands.ExecutionEvent;
-import org.opentravel.schemas.node.Node;
-
 /**
- * @author Pawel Jedruch
  * 
  */
-public class AddNodeForNavigatorPopup extends AddNodeHandler2 {
+package org.opentravel.schemas.node;
 
-	public AddNodeForNavigatorPopup() {
-		setBaseEnabled(true);
-	}
+/**
+ * Nodes implementing this interface represent objects that can be created as minor versions by extending the previous
+ * version.
+ * 
+ * @author Dave Hollander
+ * 
+ */
+public interface VersionedObjectInterface {
 
-	@Override
-	protected Node getSelectedNode(ExecutionEvent exEvent) {
-		return mc.getSelectedNode_NavigatorView();
-	}
+	/**
+	 * Create a new object in a minor version library. Creates an empty copy of this node's owner. Adds the new node to
+	 * the owner's chain head library. Sets the new object base type to this node.
+	 * 
+	 * @return the new node summary facet or its detail if this node was the detail facet node.
+	 */
+	public ComponentNode createMinorVersionComponent();
 
 }

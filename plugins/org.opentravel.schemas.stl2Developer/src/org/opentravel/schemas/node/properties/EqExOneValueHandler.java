@@ -89,7 +89,8 @@ public class EqExOneValueHandler implements IValueWithContextHandler, ModelEleme
 	public EqExOneValueHandler(SimpleTypeNode owner, ValueWithContextType type) {
 		assert (owner != null);
 		assert (owner.getTLModelObject() != null);
-		assert (owner.getTLModelObject() instanceof TLExampleOwner);
+		// Not all equivalent owners are example owners such as Enumerations
+		// assert (owner.getTLModelObject() instanceof TLExampleOwner);
 
 		this.owner = owner;
 		this.type = type;
@@ -127,6 +128,8 @@ public class EqExOneValueHandler implements IValueWithContextHandler, ModelEleme
 
 	@Override
 	public void set(String value, String context) {
+		if (!owner.isEditable() || owner.getLibrary() == null)
+			return;
 		if (context == null && !confirmContextExists(context))
 			context = owner.getLibrary().getDefaultContextId();
 

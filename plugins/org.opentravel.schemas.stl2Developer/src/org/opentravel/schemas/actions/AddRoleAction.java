@@ -16,6 +16,9 @@
 package org.opentravel.schemas.actions;
 
 import org.eclipse.swt.widgets.Event;
+import org.opentravel.schemas.commands.AddNodeHandler2;
+import org.opentravel.schemas.node.CoreObjectNode;
+import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
@@ -28,36 +31,45 @@ import org.opentravel.schemas.stl2developer.MainWindow;
  * 
  */
 public class AddRoleAction extends OtmAbstractAction {
-    private static StringProperties propDefault = new ExternalizedStringProperties("action.addRole");
+	private static StringProperties propDefault = new ExternalizedStringProperties("action.addRole");
 
-    public AddRoleAction(final MainWindow mainWindow) {
-        super(mainWindow, propDefault);
-    }
+	public AddRoleAction(final MainWindow mainWindow) {
+		super(mainWindow, propDefault);
+	}
 
-    public AddRoleAction(final MainWindow mainWindow, final StringProperties props) {
-        super(mainWindow, props);
-    }
+	public AddRoleAction(final MainWindow mainWindow, final StringProperties props) {
+		super(mainWindow, props);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.Action#runWithEvent(org.eclipse.swt.widgets.Event)
-     */
-    @Override
-    public void runWithEvent(Event event) {
-        event.data = PropertyNodeType.ROLE;
-        getMainController().runAddProperties(event);
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.action.Action#runWithEvent(org.eclipse.swt.widgets.Event)
+	 */
+	@Override
+	public void runWithEvent(Event event) {
+		event.data = PropertyNodeType.ROLE;
+		// mc.runAddProperties(event);
+		// IHandlerService handlerSvc = (IHandlerService)
+		// mc.getMainWindow().getSite().getService(IHandlerService.class);
+		// try {
+		new AddNodeHandler2().execute(event);
+		// handlerSvc.executeCommand(AddNodeHandler2.COMMAND_ID, event);
+		// } catch (ExecutionException | NotDefinedException | NotEnabledException | NotHandledException e) {
+		// DialogUserNotifier.openWarning("Add Role Error", "Could not run command: " + e.getLocalizedMessage());
+		// }
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.Action#isEnabled()
-     */
-    @Override
-    public boolean isEnabled() {
-        return (getMainController().getCurrentNode_NavigatorView().getOwningComponent()
-                .isCoreObject()) ? true : false;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.action.Action#isEnabled()
+	 */
+	@Override
+	public boolean isEnabled() {
+		Node n = mc.getCurrentNode_NavigatorView().getOwningComponent();
+		return n instanceof CoreObjectNode ? n.isEnabled_AddProperties() : false;
+		// return n instanceof CoreObjectNode ? n.isNewToChain() : false;
+	}
 
 }

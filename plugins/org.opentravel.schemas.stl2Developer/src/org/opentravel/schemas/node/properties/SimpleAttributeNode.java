@@ -26,8 +26,6 @@ import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeUser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A property node that represents a simple property of a core or value with attributes object. See
@@ -38,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 
 public class SimpleAttributeNode extends PropertyNode implements TypeUser {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleAttributeNode.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(SimpleAttributeNode.class);
 
 	public SimpleAttributeNode(TLModelElement tlObj, INode parent) {
 		super(tlObj, parent, PropertyNodeType.SIMPLE);
@@ -82,7 +80,7 @@ public class SimpleAttributeNode extends PropertyNode implements TypeUser {
 
 	@Override
 	public void setName(String name) {
-		LOGGER.debug("Tried to set the name of a simple property.");
+		// LOGGER.debug("Tried to set the name of a simple property.");
 	}
 
 }

@@ -20,6 +20,7 @@ import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
+import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.IndicatorElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.slf4j.Logger;
@@ -126,6 +127,9 @@ public class NodeVisitors {
 				((LibraryNode) n).delete(false); // just the library, not its members
 			}
 
+			if (node instanceof CoreObjectNode && node.getName().equals("PaymentCard"))
+				LOGGER.debug("Core: " + node);
+
 			// Unlink from tree
 			node.deleted = true;
 			if (n.getParent() != null && n.getParent().getChildren() != null) {
@@ -181,25 +185,24 @@ public class NodeVisitors {
 				n.setName(NodeNameUtils.fixAttributeName(n.getName()));
 			else if (n instanceof IndicatorNode)
 				n.setName(NodeNameUtils.fixIndicatorName(n.getName()));
+			else if (n instanceof Enumeration)
+				n.setName(NodeNameUtils.fixEnumerationName(n.getName()));
 			else if (n.isSimpleType())
 				n.setName(NodeNameUtils.fixSimpleTypeName(n.getName()));
-			else if (n.isEnumeration())
-				n.setName(NodeNameUtils.fixEnumerationName(n.getName()));
-			else if (n.isValueWithAttributes())
+			else if (n instanceof VWA_Node)
 				n.setName(NodeNameUtils.fixVWAName(n.getName()));
-			else if (n.isCoreObject())
+			else if (n instanceof CoreObjectNode)
 				n.setName(NodeNameUtils.fixCoreObjectName(n.getName()));
-			else if (n.isBusinessObject())
+			else if (n instanceof BusinessObjectNode)
 				n.setName(NodeNameUtils.fixBusinessObjectName(n.getName()));
-			else if (n.isAlias())
+			else if (n instanceof AliasNode)
 				n.setName(NodeNameUtils.adjustCaseOfName(PropertyNodeType.ALIAS, n.getName()));
 			else if (n instanceof IndicatorElementNode)
 				n.setName(NodeNameUtils.fixIndicatorElementName(n.getName()));
-			else if (n.isID_Reference()) {
+			else if (n instanceof ElementReferenceNode) {
 				n.setName(NodeNameUtils.fixIdReferenceName(n));
 			}
 		}
-
 	}
 
 }

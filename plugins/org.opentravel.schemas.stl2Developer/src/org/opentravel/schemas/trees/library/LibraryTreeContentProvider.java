@@ -54,7 +54,6 @@ public class LibraryTreeContentProvider implements ITreeContentProvider {
 	public Object[] getChildren(final Object element) {
 		if (element instanceof Node) {
 			Node node = (Node) element;
-			// if (node.isDeleted()) return null;
 
 			List<Node> navChildren = new ArrayList<Node>();
 			navChildren.addAll(node.getNavChildren());
@@ -62,40 +61,8 @@ public class LibraryTreeContentProvider implements ITreeContentProvider {
 				navChildren.add(node.getTypeClass().getTypeTreeNode());
 			navChildren.addAll(node.getInheritedChildren());
 			return navChildren != null ? navChildren.toArray() : null;
-
-			// Include the types assigned to properties -- these may be filtered out
-
-			// breaks: node instanceof AggregateNode ||
-			// TODO - This should be based on overrides not if tests.
-			// if ( node instanceof PropertyNode || node instanceof VersionAggregateNode
-			// || node instanceof VersionNode) {
-			// navChildren.addAll(node.getNavChildren());
-			// } else {
-			// navChildren.addAll(node.getChildren());
-			//
-			// // Additional view tree node providers supplying node that are
-			// // not part of the node model tree
-			// if (node.isNamedType())
-			// navChildren.add(node.getTypeClass().getTypeTreeNode());
-			// navChildren.addAll(node.getInheritedChildren());
-			//
-			// // 3/11/2015 dmh - moved logic to overriden method in ModelNode class.
-			// // if (node instanceof ModelNode) {
-			// // if (!navChildren.contains(ModelNode.getUnassignedNode())) {
-			// // navChildren.add(ModelNode.getUnassignedNode());
-			// // // Enhancement - enable duplicate display. Needs controls to keep it up to
-			// // // date with changes throughout the model before enabling.
-			// // //
-			// // // navChildren.add(ModelNode.getDuplicateTypesNode());
-			// // }
-			// // }
-			// }
-			// return navChildren != null ? navChildren.toArray() : null;
-			// } else if (element instanceof TypeNode) {
-			// ((TypeNode) element).getChildren();
 		} else
 			throw new IllegalArgumentException("getChildren was not passed a node. Element is " + element);
-		// return null;
 	}
 
 	@Override

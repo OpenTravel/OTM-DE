@@ -56,8 +56,9 @@ public class LibraryTablePosterWithButtons extends LibraryTablePoster {
 	@Override
 	protected TableItem postTableRow(final Node n) {
 		final TableItem item = super.postTableRow(n);
-
-		if (!n.isInheritedProperty()
+		// Version Control
+		if (!NodeUtils.checker(n).isInMinorOrPatch().existInPreviousVersions().get()
+				&& !n.isInheritedProperty()
 				&& n.isEditable()
 				&& (n instanceof AttributeNode || n instanceof ElementNode || n instanceof SimpleAttributeNode || n instanceof ElementReferenceNode)) {
 			Button button = buttonSet.addButton(n, item, 2); // Put typeSelection buttons on the row.

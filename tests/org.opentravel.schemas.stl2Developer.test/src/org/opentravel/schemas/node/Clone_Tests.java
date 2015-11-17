@@ -86,7 +86,7 @@ public class Clone_Tests {
 		for (Node n : ln.getDescendants_NamedTypes()) {
 			// Assert.assertNotNull(n.cloneNew(null)); // no library, so it will fail node tests
 			equCount = countEquivelents(n);
-			if (n.isService())
+			if (n instanceof ServiceNode)
 				continue;
 			if (ln == target)
 				clone = n.clone("_COPY");

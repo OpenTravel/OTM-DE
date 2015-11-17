@@ -44,7 +44,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.opentravel.schemas.modelObject.ModelObject;
-import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.LibraryNode;
@@ -56,6 +55,7 @@ import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.trees.library.LibrarySorter;
 import org.opentravel.schemas.trees.library.LibraryTreeLabelProvider;
 import org.opentravel.schemas.trees.library.LibraryTreeWithPropertiesContentProvider;
@@ -103,7 +103,7 @@ public class NewPropertiesWizardPage extends WizardPage {
 	private Action deleteAction;
 	private Button typeButton;
 	private final Node scopeNode;
-	private final ComponentNode editedFacet;
+	private final PropertyOwnerInterface editedFacet;
 	private final FormValidator validator;
 	private ViewerFilter propertyFilter;
 	private final LibraryNode library;
@@ -381,7 +381,7 @@ public class NewPropertiesWizardPage extends WizardPage {
 			setMessage(o.getPropertyType().getName() + "s are not allowed for this object", WARNING);
 			return null;
 		}
-		final PropertyNode copy = (PropertyNode) NodeFactory.newComponentMember(editedFacet, o.cloneTLObj());
+		final PropertyNode copy = (PropertyNode) NodeFactory.newComponentMember((INode) editedFacet, o.cloneTLObj());
 		copy.setAssignedType(o.getType());
 		getNewProperties().add(copy);
 		return copy;
@@ -395,7 +395,7 @@ public class NewPropertiesWizardPage extends WizardPage {
 		return newNode;
 	}
 
-	private PropertyNode createPropertyNode(ComponentNode parent) {
+	private PropertyNode createPropertyNode(PropertyOwnerInterface parent) {
 		final String name = "property" + counter.getAndIncrement();
 		// TODO - if element is not enabled, use AttributeNode
 		PropertyNode n = null;

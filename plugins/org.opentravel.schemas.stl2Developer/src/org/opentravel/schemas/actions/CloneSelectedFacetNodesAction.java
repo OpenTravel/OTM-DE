@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.actions;
 
+import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
@@ -27,29 +28,33 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class CloneSelectedFacetNodesAction extends OtmAbstractAction implements IWithNodeAction {
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(CloneSelectedFacetNodesAction.class);
-    private static StringProperties propDefault = new ExternalizedStringProperties("action.copy");
+	private static final Logger LOGGER = LoggerFactory.getLogger(CloneSelectedFacetNodesAction.class);
+	private static StringProperties propDefault = new ExternalizedStringProperties("action.copy");
 
-    public CloneSelectedFacetNodesAction() {
-        super(propDefault);
-    }
+	public CloneSelectedFacetNodesAction() {
+		super(propDefault);
+	}
 
-    public CloneSelectedFacetNodesAction(final MainWindow mainWindow, final StringProperties props) {
-        super(mainWindow, props);
-    }
+	public CloneSelectedFacetNodesAction(final MainWindow mainWindow, final StringProperties props) {
+		super(mainWindow, props);
+	}
 
-    @Override
-    public void run() {
-        getMainController().cloneSelectedFacetNodes();
-    }
+	@Override
+	public void run() {
+		getMainController().cloneSelectedFacetNodes();
+	}
 
-    @Override
-    public boolean isEnabled(Node node) {
-        if (node == null)
-            return false;
-        // TODO: only example. replace with some logic.
-        return node.isSimpleFacet();
-    }
+	@Override
+	public boolean isEnabled(Node node) {
+		Node currentNode = mc.getSelectedNode_NavigatorView();
+		if (!(currentNode instanceof ComponentNode))
+			return false;
+		if (currentNode.isEditable() && !currentNode.getLibrary().isPatchVersion()) {
+			LOGGER.debug(" copy Is enabled ");
+			return false;
+		} else
+			return true;
+		// return currentNode instanceof ComponentNode ? currentNode.isEditable() : false;
+	}
 
 }

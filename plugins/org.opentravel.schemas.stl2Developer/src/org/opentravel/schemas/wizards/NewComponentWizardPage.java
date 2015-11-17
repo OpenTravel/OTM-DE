@@ -43,6 +43,7 @@ import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
+import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeEditStatus;
@@ -50,11 +51,9 @@ import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.widgets.WidgetFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class NewComponentWizardPage extends WizardPage {
-	private final static Logger LOGGER = LoggerFactory.getLogger(NewComponentWizardPage.class);
+	// private final static Logger LOGGER = LoggerFactory.getLogger(NewComponentWizardPage.class);
 
 	private Composite container;
 	private Node targetNode;
@@ -71,8 +70,10 @@ public class NewComponentWizardPage extends WizardPage {
 			ComponentNodeType.VWA, ComponentNodeType.OPEN_ENUM };
 	private static ComponentNodeType[] simpleComponentList = { ComponentNodeType.SIMPLE, ComponentNodeType.CLOSED_ENUM };
 
-	private static ComponentNodeType[] PatchComponentList = { ComponentNodeType.SIMPLE, ComponentNodeType.CLOSED_ENUM,
-			ComponentNodeType.EXTENSION_POINT };
+	private static ComponentNodeType[] PatchComponentList = { ComponentNodeType.EXTENSION_POINT };
+	// private static ComponentNodeType[] PatchComponentList = { ComponentNodeType.SIMPLE,
+	// ComponentNodeType.CLOSED_ENUM,
+	// ComponentNodeType.EXTENSION_POINT };
 
 	private static ComponentNodeType[] componentList = { ComponentNodeType.BUSINESS, ComponentNodeType.CORE,
 			ComponentNodeType.VWA, ComponentNodeType.OPEN_ENUM, ComponentNodeType.CLOSED_ENUM,
@@ -182,7 +183,9 @@ public class NewComponentWizardPage extends WizardPage {
 		ComponentNodeType targetType = contextGuess(targetNode);
 		ComponentNodeType[] list = componentList;
 		String tooltip = Messages.getString("wizard.newObject.select.tooltip.noService");
-		if (targetNode.getLibrary().getEditStatus().equals(NodeEditStatus.PATCH)) {
+		// if (targetNode.getLibrary().getEditStatus().equals(NodeEditStatus.PATCH)) {
+		LibraryNode lib = targetNode.getChain() == null ? targetNode.getLibrary() : targetNode.getChain().getHead();
+		if (lib.getEditStatus().equals(NodeEditStatus.PATCH)) {
 			list = PatchComponentList;
 			tooltip = Messages.getString("wizard.newObject.select.tooltip.Patch");
 			targetType = ComponentNodeType.EXTENSION_POINT;
@@ -201,7 +204,7 @@ public class NewComponentWizardPage extends WizardPage {
 			hasService = targetNode.getChain().hasService();
 		else
 			hasService = targetNode.getLibrary().hasService();
-		if (!hasService) {
+		if (!hasService && !targetNode.getEditStatus().equals(NodeEditStatus.PATCH)) {
 			combo.add(ComponentNodeType.SERVICE.getDescription());
 			tooltip = Messages.getString("wizard.newObject.select.tooltip.Service");
 		}

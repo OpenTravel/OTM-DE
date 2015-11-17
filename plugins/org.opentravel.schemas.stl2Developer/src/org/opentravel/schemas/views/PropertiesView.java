@@ -44,6 +44,7 @@ import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.controllers.NodeUtils;
+import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.RoleNode;
@@ -356,16 +357,24 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 	}
 
 	/**
-	 * Update the mandatory button checked/unchecked setting.
-	 * 
-	 * @param setting
-	 *            - if true, set to checked
-	 * @param enabled
-	 *            - if true, enable the button
+	 * Update the mandatory button checked/unchecked setting and enabled.
 	 */
-	private void postMandatoryButton(final boolean setting, final boolean enabled) {
-		mandatoryButton.setSelection(setting);
+	private void postMandatoryButton(final ComponentNode cn) {
+		boolean enabled = cn.isEditable_newToChain();
+		// Force optional if the property is in a minor and the owning component is a versioned object
+		if (cn.getOwningComponent().isVersioned() && cn.getLibrary().isMinorVersion()) {
+			enabled = false;
+			cn.setMandatory(false);
+		}
+		mandatoryButton.setSelection(cn.isMandatory());
 		mandatoryButton.setEnabled(enabled);
+		if (enabled)
+			if (cn.isMandatory())
+				mandatoryButton.setToolTipText("Uncheck to make this property optional.");
+			else
+				mandatoryButton.setToolTipText("Check to make this property required.");
+		else
+			mandatoryButton.setToolTipText("Required/optional can not be changed.");
 	}
 
 	/**
@@ -402,7 +411,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 			fields.postField(nameField, n.getName(), n.isEditable());
 		}
 
-		if (n.isID_Reference())
+		if (n instanceof ElementReferenceNode)
 			nameField.setEnabled(false);
 		if (n.isFacet() && !n.isOperation() && !n.isCustomFacet() && !n.isQueryFacet())
 			nameField.setEnabled(false);
@@ -461,21 +470,22 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 				}
 			}
 			if (!cn.isIndicator())
-				postMandatoryButton(cn.isMandatory(), cn.isEditable());
+				postMandatoryButton(cn);
 			// in this case fixNames should set type
 			if (cn.isAssignedComplexType())
 				nameField.setEnabled(false);
 		}
 
-		if (NodeUtils.checker(cn).isPatch().existInPreviousVersions().get()) {
+		// if (NodeUtils.checker(cn).isPatch().existInPreviousVersions().get()) {
+		if (!cn.isEditable_newToChain())
 			disableEditingForPreviousVersions();
-		}
 
 		form.update();
 		OtmHandlers.enableHandlers();
 	}
 
 	private void disableEditingForPreviousVersions() {
+		nameField.setEnabled(false);
 		typeSelector.setEnabled(false);
 		roleCombo.setEnabled(false);
 		repeatSpinner.setEnabled(false);
@@ -497,9 +507,11 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 	}
 
 	private void updateType(final ComponentNode cn) {
-		fields.postField(typeField, cn.getTypeName(), cn.isEditable() && cn.isTypeUser());
+		fields.postField(typeField, cn.getTypeName(), cn.isEditable_newToChain() && cn.isTypeUser());
 		fields.postField(typePrefix, cn.getAssignedPrefix(), false);
-		typeSelector.setEnabled(cn.isEditable() && cn.isTypeUser());
+		// See logic in LibraryTablePosterWithButtons
+		typeSelector.setEnabled(cn.isEditable() && cn.isTypeUser()
+				&& !NodeUtils.checker(cn).isInMinorOrPatch().existInPreviousVersions().get());
 	}
 
 	/**
@@ -508,12 +520,12 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 	 * @param cn
 	 */
 	private void updateConstraints(final ComponentNode cn) {
-		updateConstraints(cn, cn.isEditable());
+		if (cn == null)
+			return; // may be null when inherited property.
+		updateConstraints(cn, cn.isEditable_newToChain());
 	}
 
 	private void updateConstraints(final ComponentNode cn, boolean editable) {
-		if (cn == null)
-			return; // may be null when inherited property.
 		if (cn.isSimpleType())
 			listButton.setEnabled(true);
 		if (cn.getModelObject().isSimpleList()) {

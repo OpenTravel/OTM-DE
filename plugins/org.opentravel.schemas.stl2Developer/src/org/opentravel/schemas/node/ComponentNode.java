@@ -35,12 +35,15 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
+import org.opentravel.schemacompiler.validate.ValidationException;
+import org.opentravel.schemacompiler.version.MinorVersionHelper;
+import org.opentravel.schemacompiler.version.VersionSchemeException;
+import org.opentravel.schemacompiler.version.Versioned;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
-import org.opentravel.schemas.node.properties.EnumLiteralNode;
+import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.types.TypeProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The ComponentNode class handles nodes that represent model objects. It is overridden for most types and properties.
@@ -51,8 +54,7 @@ import org.slf4j.LoggerFactory;
 
 // TODO - this should not implement type provider -- sub-classes should.
 public class ComponentNode extends Node implements TypeProvider {
-
-	private final static Logger LOGGER = LoggerFactory.getLogger(ComponentNode.class);
+	// private final static Logger LOGGER = LoggerFactory.getLogger(ComponentNode.class);
 
 	/**
 	 * Inherited nodes are not assigned a type class. If they were the where-used count would be wrong.
@@ -151,12 +153,12 @@ public class ComponentNode extends Node implements TypeProvider {
 		// Build list of direct children of the model object
 		for (final Object obj : modelObject.getChildren()) {
 			final ComponentNode nn = NodeFactory.newComponentMember(this, obj);
-			if (nn != null) {
+			if (nn != null)
 				nn.addMOChildren();
-			} else {
-				LOGGER.debug("addMOChildren() - skipping not supported source object type. "
-						+ obj.getClass().getSimpleName());
-			}
+			// else {
+			// LOGGER.debug("addMOChildren() - skipping not supported source object type. "
+			// + obj.getClass().getSimpleName());
+			// }
 		}
 	}
 
@@ -303,7 +305,7 @@ public class ComponentNode extends Node implements TypeProvider {
 	 */
 	public Node newComponent(final ComponentNodeType type) {
 		if (getLibrary() == null) {
-			LOGGER.error("Missing Library - can't create new component of type " + type + ".");
+			// LOGGER.error("Missing Library - can't create new component of type " + type + ".");
 			return null;
 		}
 		// LOGGER.debug("Creating new " + type + " \tcomponent " + getName() + " in " + library);
@@ -335,15 +337,14 @@ public class ComponentNode extends Node implements TypeProvider {
 			break;
 		case OPEN_ENUM:
 			cn = NodeFactory.newComponent(new TLOpenEnumeration());
-			new EnumLiteralNode(cn, "NewValue");
 			break;
 		case CLOSED_ENUM:
 			cn = NodeFactory.newComponent(new TLClosedEnumeration());
-			new EnumLiteralNode(cn, "NewValue");
 			break;
 		default:
-			LOGGER.debug(type + " not supported by newComponent().");
+			// LOGGER.debug(type + " not supported by newComponent().");
 		}
+
 		if (cn != null) {
 			cn.setName(getName());
 			cn.setDescription(getDescription());
@@ -474,61 +475,61 @@ public class ComponentNode extends Node implements TypeProvider {
 	}
 
 	public void setMandatory(final boolean selection) {
-		if (modelObject != null) {
+		if (isEditable_newToChain() && modelObject != null) {
 			modelObject.setMandatory(selection);
 		}
 	}
 
 	public void setPattern(final String pattern) {
-		if (modelObject != null) {
+		if (isEditable_newToChain() && modelObject != null) {
 			modelObject.setPattern(pattern);
 		}
 	}
 
 	public void setMinLength(final int length) {
-		if (modelObject != null) {
+		if (isEditable_newToChain() && modelObject != null) {
 			modelObject.setMinLength(length);
 		}
 	}
 
 	public void setMaxLength(final int length) {
-		if (modelObject != null) {
+		if (isEditable_newToChain() && modelObject != null) {
 			modelObject.setMaxLength(length);
 		}
 	}
 
 	public void setFractionDigits(final int length) {
-		if (modelObject != null) {
+		if (isEditable_newToChain() && modelObject != null) {
 			modelObject.setFractionDigits(length);
 		}
 	}
 
 	public void setTotalDigits(final int length) {
-		if (modelObject != null) {
+		if (isEditable_newToChain() && modelObject != null) {
 			modelObject.setTotalDigits(length);
 		}
 	}
 
 	public void setMinInclusive(final String value) {
-		if (modelObject != null) {
+		if (isEditable_newToChain() && modelObject != null) {
 			modelObject.setMinInclusive(value);
 		}
 	}
 
 	public void setMaxInclusive(final String value) {
-		if (modelObject != null) {
+		if (isEditable_newToChain() && modelObject != null) {
 			modelObject.setMaxInclusive(value);
 		}
 	}
 
 	public void setMinExclusive(final String value) {
-		if (modelObject != null) {
+		if (isEditable_newToChain() && modelObject != null) {
 			modelObject.setMinExclusive(value);
 		}
 	}
 
 	public void setMaxExclusive(final String value) {
-		if (modelObject != null) {
+		if (isEditable_newToChain() && modelObject != null) {
 			modelObject.setMaxExclusive(value);
 		}
 	}
@@ -569,13 +570,13 @@ public class ComponentNode extends Node implements TypeProvider {
 		return "";
 	}
 
-	public ComponentNode getDefaultFacet() {
-		if (isEnumeration() || isExtensionPointFacet()) {
-			return this;
+	public PropertyOwnerInterface getDefaultFacet() {
+		if (this instanceof Enumeration || isExtensionPointFacet()) {
+			return (PropertyOwnerInterface) this;
 		}
 		for (final INode n : getChildren()) {
 			if (((Node) n).isDefaultFacet()) {
-				return (ComponentNode) n;
+				return (PropertyOwnerInterface) n;
 			}
 		}
 		return null;
@@ -597,15 +598,15 @@ public class ComponentNode extends Node implements TypeProvider {
 	/**
 	 * @return - Node for ID facet if it exists, null otherwise.
 	 */
-	public ComponentNode getIDFacet() {
-		return getFacetOfType(TLFacetType.ID);
+	public PropertyOwnerInterface getIDFacet() {
+		return (PropertyOwnerInterface) getFacetOfType(TLFacetType.ID);
 	}
 
 	/**
 	 * @return - Node for ID facet if it exists, null otherwise.
 	 */
-	public ComponentNode getSummaryFacet() {
-		return getFacetOfType(TLFacetType.SUMMARY);
+	public PropertyOwnerInterface getSummaryFacet() {
+		return (PropertyOwnerInterface) getFacetOfType(TLFacetType.SUMMARY);
 	}
 
 	public ComponentNode getSimpleFacet() {
@@ -647,52 +648,39 @@ public class ComponentNode extends Node implements TypeProvider {
 		}
 	}
 
-	/**
-	 * Create a new object in a minor version library. Creates an empty copy of this node's owner. Adds the new node to
-	 * the owner's chain head library.
-	 * 
-	 * @return the new node summary facet or its detail if this node was the detail facet node.
-	 */
-	public ComponentNode createMinorVersionComponent() {
+	protected LibraryMember createMinorTLVersion(VersionedObjectInterface node) {
+		MinorVersionHelper helper = new MinorVersionHelper();
+		Versioned v = null;
+		try {
+			v = helper.createNewMinorVersion((Versioned) getTLModelObject(), getChain().getHead().getTLLibrary());
+		} catch (VersionSchemeException | ValidationException e) {
+			// LOGGER.debug("Exception creating minor TL version: " + e.getLocalizedMessage());
+			return null;
+		}
+		return (LibraryMember) v;
+	}
+
+	protected ComponentNode createMinorVersionComponent(ComponentNode newNode) {
 		Node owner = this.getOwningComponent();
-		ComponentNode newNode = null;
+		// exit if it is already in the head of the chain.
 		if (owner.getLibrary() == owner.getChain().getHead())
 			return null;
 
-		if (owner.isBusinessObject()) {
-			newNode = new BusinessObjectNode(new TLBusinessObject());
-		} else if (owner instanceof CoreObjectNode) {
-			newNode = new CoreObjectNode(new TLCoreObject());
-			// Version extensions of core objects must have the same simple type.
-			((CoreObjectNode) newNode).setSimpleType(((CoreObjectNode) owner).getSimpleType());
-		} else if (owner instanceof VWA_Node) {
-			newNode = new VWA_Node(new TLValueWithAttributes());
-		} else {
-			LOGGER.error("Can not create minor version of: " + owner);
-			return null;
-		}
-		newNode.setExtendsType(owner);
-		newNode.setName(owner.getName());
+		newNode.getTypeClass().setBaseType(owner);
+		if (newNode.getName() == null || newNode.getName().isEmpty())
+			newNode.setName(owner.getName()); // Some of the version handlers do not set name
 		owner.getChain().getHead().addMember(newNode);
 
-		if (this.getFacetType() != null) {
-			if (this.getFacetType().equals(TLFacetType.DETAIL))
-				newNode = newNode.getDetailFacet();
-			else
-				newNode = newNode.getSummaryFacet();
-		}
-		// checkAggregate((AggregateNode) owner.getChain().getComplexAggregate(), owner, newNode);
+		// if (this.getFacetType() != null) {
+		// assert (this instanceof ComponentNode); // always true
+		// // LOGGER.debug("Why is this happening in createMinorVersion?");
+		// if (this.getFacetType().equals(TLFacetType.DETAIL))
+		// newNode = (ComponentNode) newNode.getDetailFacet();
+		// else
+		// newNode = (ComponentNode) newNode.getSummaryFacet();
+		// }
 		return newNode;
 	}
-
-	// private void checkAggregate(AggregateNode agg, Node owner, Node newNode) {
-	// if (agg.getChildren().contains(owner))
-	// LOGGER.error("Owner still in chain aggregate.");
-	// if (!agg.getChildren().contains(newNode))
-	// LOGGER.error("New node not child of the aggregate.");
-	// if (agg.getChildren().indexOf(newNode) != agg.getChildren().lastIndexOf(newNode))
-	// LOGGER.error("New Node in the list more than once.");
-	// }
 
 	/**
 	 * Create a new object in a patch version library. Creates an empty extension point facet. Adds the new node to the
@@ -712,11 +700,11 @@ public class ComponentNode extends Node implements TypeProvider {
 		else if (isProperty())
 			newNode.setExtendsType(getParent());
 		else if (isCoreObject())
-			newNode.setExtendsType(getSummaryFacet());
+			newNode.setExtendsType((INode) getSummaryFacet());
 		else if (isBusinessObject())
-			newNode.setExtendsType(getSummaryFacet());
-		else
-			LOGGER.error("Can't add a property to this: " + this);
+			newNode.setExtendsType((INode) getSummaryFacet());
+		// else
+		// LOGGER.error("Can't add a property to this: " + this);
 		// If there already is an EP, then return that.
 		LibraryChainNode chain = getChain();
 		Node existing = ((Node) chain.getComplexAggregate()).findNodeByName(newNode.getName());
@@ -731,8 +719,8 @@ public class ComponentNode extends Node implements TypeProvider {
 	/**
 	 * @return - Node for ID facet if it exists, null otherwise.
 	 */
-	public ComponentNode getDetailFacet() {
-		return getFacetOfType(TLFacetType.DETAIL);
+	public PropertyOwnerInterface getDetailFacet() {
+		return (PropertyOwnerInterface) getFacetOfType(TLFacetType.DETAIL);
 	}
 
 	/**
@@ -893,13 +881,12 @@ public class ComponentNode extends Node implements TypeProvider {
 	 *            where to add the property in the child list.
 	 */
 	public void addProperty(final Node property, int index) {
-		if (!(this instanceof FacetNode) && !(this.isEnumeration())) {
-			LOGGER.error("ERROR - Exit - Tried to add property to a non-FacetNode or enumeration " + this);
+		if (!(this instanceof FacetNode) && !(this instanceof Enumeration) && !(this instanceof ExtensionPointNode)) {
+			// LOGGER.error("ERROR - Exit - Tried to add property to a non-FacetNode or enumeration " + this);
 			return;
-			// TODO - move this logic to FacetNode
 		}
 		if (this.isSimpleFacet()) {
-			if (property.isProperty())
+			if (property instanceof PropertyNode)
 				getChildren().get(0).setAssignedType(property.getAssignedType());
 			else
 				getChildren().get(0).setAssignedType(property);
@@ -930,12 +917,11 @@ public class ComponentNode extends Node implements TypeProvider {
 	 *            - if true, the properties are cloned before adding.
 	 */
 	public void addProperties(List<Node> properties, boolean clone) {
-		LOGGER.debug("addProperties not implemented for this class: " + this.getClass());
+		// LOGGER.debug("addProperties not implemented for this class: " + this.getClass());
 	}
 
 	/**
-	 * Add a new property from a Drag-and-Drop action. If version rules require, a new component (extension point facet)
-	 * is created.
+	 * Add a new property from a Drag-and-Drop action. If version rules require, a new component is created.
 	 * 
 	 * @param isCopy
 	 *            - force a copy even if this node does not have assigned type
@@ -953,8 +939,9 @@ public class ComponentNode extends Node implements TypeProvider {
 			if (getChain() != null) {
 				if (getChain().isPatch())
 					newNode = createPatchVersionComponent();
-				else if (getChain().isMinor())
-					newNode = createMinorVersionComponent();
+				else if (getChain().isMinor() && this instanceof VersionedObjectInterface)
+					newNode = ((VersionedObjectInterface) this).createMinorVersionComponent();
+				// newNode = createMinorVersionComponent();
 			}
 			if (newNode != null)
 				newNode = (ComponentNode) newNode.createProperty(sourceNode);
@@ -974,12 +961,6 @@ public class ComponentNode extends Node implements TypeProvider {
 		return null;
 	}
 
-	/**
-	 * Remove the properties in the list from this node and underlying tl model object. Use to move the property to a
-	 * different facet.
-	 * 
-	 * @param property
-	 */
 	public void removeProperty(final Node property) {
 		// throw new IllegalStateException("Remove property in component node should never run.");
 	}

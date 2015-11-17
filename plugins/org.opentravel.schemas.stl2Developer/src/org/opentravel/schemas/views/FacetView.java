@@ -44,19 +44,19 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.opentravel.schemas.actions.ChangeObjectAction;
 import org.opentravel.schemas.actions.ClearExtendsAction;
-import org.opentravel.schemas.actions.CloneSelectedFacetNodesAction;
 import org.opentravel.schemas.actions.DownFacetAction;
 import org.opentravel.schemas.actions.ExtendableAction;
 import org.opentravel.schemas.actions.ExtendsAction;
 import org.opentravel.schemas.actions.IWithNodeAction;
 import org.opentravel.schemas.actions.UpFacetAction;
-import org.opentravel.schemas.commands.AddNodeHandler;
+import org.opentravel.schemas.commands.AddNodeHandler2;
 import org.opentravel.schemas.commands.DeleteNodesHandler;
 import org.opentravel.schemas.commands.GoToTypeHandler;
 import org.opentravel.schemas.commands.NewComponentHandler;
 import org.opentravel.schemas.controllers.OtmActions;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.Enumeration;
 import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.FacetNode;
@@ -79,8 +79,6 @@ import org.opentravel.schemas.widgets.OtmSections;
 import org.opentravel.schemas.widgets.OtmTextFields;
 import org.opentravel.schemas.widgets.OtmWidgets;
 import org.opentravel.schemas.widgets.WidgetFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Create and maintain the facet table panel. Posts content into the table. Maintains a current and previous node
@@ -90,7 +88,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FacetView extends OtmAbstractView {
 	public static String VIEW_ID = "org.opentravel.schemas.stl2Developer.FacetView";
-	private static final Logger LOGGER = LoggerFactory.getLogger(FacetView.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(FacetView.class);
 
 	private FormToolkit toolkit;
 	private ScrolledForm form;
@@ -117,7 +115,7 @@ public class FacetView extends OtmAbstractView {
 	private Label extendableLabel;
 	private ExtendsAction extendsAction;
 	private ClearExtendsAction clearExtendsAction;
-	private CloneSelectedFacetNodesAction cloneSelectedFacetNodesAction;
+	// private CloneSelectedFacetNodesAction cloneSelectedFacetNodesAction;
 	private ButtonBarManager buttonBarManager;
 	private LibraryTablePoster tablePoster;
 	private final List<IWithNodeAction> nodeActions = new ArrayList<IWithNodeAction>();
@@ -250,8 +248,8 @@ public class FacetView extends OtmAbstractView {
 		buttonBarManager = new ButtonBarManager(SWT.FLAT);
 
 		// Set up button bar
-		cloneSelectedFacetNodesAction = new CloneSelectedFacetNodesAction();
-		addAsNodeWithAction(cloneSelectedFacetNodesAction);
+		// cloneSelectedFacetNodesAction = new CloneSelectedFacetNodesAction();
+		// addAsNodeWithAction(cloneSelectedFacetNodesAction);
 		upFacetAction = new UpFacetAction(mainWindow, ExternalizedStringProperties.create("OtmW.66", "OtmW.67"));
 		addAsNodeWithAction(upFacetAction);
 		downFacetAction = new DownFacetAction(mainWindow, ExternalizedStringProperties.create("OtmW.68", "OtmW.69"));
@@ -260,7 +258,7 @@ public class FacetView extends OtmAbstractView {
 				"OtmW.85"));
 		addAsNodeWithAction(changeObjectAction);
 
-		IContributionItem addAction = RCPUtils.createCommandContributionItem(getSite(), AddNodeHandler.COMMAND_ID,
+		IContributionItem addAction = RCPUtils.createCommandContributionItem(getSite(), AddNodeHandler2.COMMAND_ID,
 				Messages.getString("action.addProperty.text"), null, null);
 		IContributionItem newComplexAction = RCPUtils.createCommandContributionItem(getSite(),
 				NewComponentHandler.COMMAND_ID, Messages.getString("OtmW.60"), null, null);
@@ -268,7 +266,7 @@ public class FacetView extends OtmAbstractView {
 				DeleteNodesHandler.COMMAND_ID, null, null, null);
 		buttonBarManager.add(newComplexAction);
 		buttonBarManager.add(addAction);
-		buttonBarManager.add(cloneSelectedFacetNodesAction);
+		// buttonBarManager.add(cloneSelectedFacetNodesAction);
 		buttonBarManager.add(deleteFromCommand);
 		buttonBarManager.add(upFacetAction);
 		buttonBarManager.add(downFacetAction);
@@ -368,10 +366,10 @@ public class FacetView extends OtmAbstractView {
 
 		final TableItem[] ti = table.getSelection();
 
-		if ((ti != null) && (ti.length > 0)) {
+		if ((ti != null) && (ti.length > 0))
 			setButtonState((Node) ti[0].getData());
-		} else
-			LOGGER.debug("setFocus could not set button state.");
+		// else
+		// LOGGER.debug("setFocus could not set button state.");
 	}
 
 	private void clearTable() {
@@ -428,7 +426,7 @@ public class FacetView extends OtmAbstractView {
 				boolean edit = node.isEditable() && !NodeUtils.checker(node).isInheritedFacet().get();
 				mc.getFields().postField(nameField, node.getLabel(), edit);
 			} else {
-				mc.getFields().postField(nameField, node.getName(), node.isEditable());
+				mc.getFields().postField(nameField, node.getName(), node.isEditable_newToChain());
 			}
 			if (node.isFacet() && !node.isOperation() && !node.isCustomFacet() && !node.isQueryFacet())
 				nameField.setEnabled(false);
@@ -476,7 +474,7 @@ public class FacetView extends OtmAbstractView {
 		extendableAction.setEnabled(curNode.isEditable());
 
 		if (curNode.isEditable() && curNode.isInTLLibrary()) {
-			if (curNode.isEnumeration()) {
+			if (curNode instanceof Enumeration) {
 				extendableAction.setChecked(curNode instanceof EnumerationOpenNode);
 				extendableLabel.setText(Messages.getString("OtmW.74.Open"));
 				extendableLabel.setToolTipText(Messages.getString("OtmW.75.Open"));
@@ -486,9 +484,11 @@ public class FacetView extends OtmAbstractView {
 				extendableLabel.setToolTipText(Messages.getString("OtmW.75"));
 			}
 
-			if (curNode.canExtend()) {
-				extendsAction.setEnabled(true);
-				clearExtendsAction.setEnabled(curNode.getExtendsTypeName().length() > 0);
+			// Don't allow users to break version relationships
+			if (curNode.canExtend() && !curNode.isVersioned()) {
+				extendsAction.setEnabled(curNode.isEditable_newToChain());
+				clearExtendsAction.setEnabled(curNode.isEditable_newToChain()
+						&& curNode.getExtendsTypeName().length() > 0);
 			}
 		}
 	}

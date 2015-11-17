@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.node;
 
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
+
 /**
  * Nodes implementing this interface represent named types that have structure that contains other nodes. In the GUI,
  * they are presented in Complex Type folders. When compiled, they will create complex types.
@@ -47,16 +49,16 @@ public interface ComplexComponentInterface {
 	 */
 	public SimpleFacetNode getSimpleFacet();
 
-	public ComponentNode getAttributeFacet(); // VWA only
+	public PropertyOwnerInterface getAttributeFacet(); // VWA only
 
-	public ComponentNode getSummaryFacet();
+	public PropertyOwnerInterface getSummaryFacet();
 
-	public ComponentNode getDetailFacet();
+	public PropertyOwnerInterface getDetailFacet();
 
 	/**
 	 * @return null or the default facet for the complex object
 	 */
-	public ComponentNode getDefaultFacet();
+	public PropertyOwnerInterface getDefaultFacet();
 
 	/**
 	 * Create aliases for complex types used by two or more properties.

@@ -744,7 +744,7 @@ public class LibraryNode extends Node {
 				getTLLibrary().addContext(ctx);
 			}
 		} else {
-			List<TLContext> ctxList = n.getContexts();
+			List<TLContext> ctxList = n.getUsedContexts();
 			if (ctxList == null)
 				return;
 			for (TLContext ctx : ctxList) {
@@ -921,7 +921,7 @@ public class LibraryNode extends Node {
 		// FIXME - this does not do services at all.
 		// You can't move a service it one already exists in target library.
 		// if (source.isService() && destination.hasService())
-		if (source.isService())
+		if (source instanceof ServiceNode)
 			return false;
 
 		// Moved to LibraryNodeListener
@@ -1347,7 +1347,11 @@ public class LibraryNode extends Node {
 	 * context controller.
 	 */
 	public String getDefaultContextId() {
-		return OtmRegistry.getMainController().getContextController().getDefaultContextId(this);
+		String id = OtmRegistry.getMainController().getContextController().getDefaultContextId(this);
+		if (id.isEmpty() && absTLLibrary instanceof TLLibrary)
+			if (getTLLibrary().getContexts().get(0) instanceof TLContext)
+				id = getTLLibrary().getContexts().get(0).getContextId();
+		return id;
 	}
 
 	/**

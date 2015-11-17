@@ -132,7 +132,7 @@ public class DefaultModelControllerTest {
 	public void changeFromSimpleNotSimpleAttributeShouldReturnFalse() {
 		PropertyNode p = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).build();
 		CoreObjectNode co = ComponentNodeBuilder.createCoreObject("Core").addToSummaryFacet(p).get();
-		ComponentNode newProperty = dc.moveSimpleToFacet(p, co.getSummaryFacet());
+		ComponentNode newProperty = dc.moveSimpleToFacet(p, (ComponentNode) co.getSummaryFacet());
 		Assert.assertNull(newProperty);
 	}
 
@@ -144,8 +144,8 @@ public class DefaultModelControllerTest {
 
 		// make sure that summary is empty
 		Assert.assertEquals(0, co.getSummaryFacet().getChildren().size());
-		ComponentNode newProperty = dc
-				.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(), co.getSummaryFacet());
+		ComponentNode newProperty = dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(),
+				(ComponentNode) co.getSummaryFacet());
 
 		Assert.assertNotNull(newProperty);
 		Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
@@ -159,7 +159,7 @@ public class DefaultModelControllerTest {
 		CoreObjectNode co = ComponentNodeBuilder.createCoreObject("Core").get();
 		co.getSimpleFacet().getSimpleAttribute().setAssignedType(vwaType);
 
-		dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(), co.getSummaryFacet());
+		dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(), (ComponentNode) co.getSummaryFacet());
 
 		Assert.assertSame(ModelNode.getEmptyNode(), co.getSimpleFacet().getSimpleAttribute().getType());
 
@@ -172,8 +172,8 @@ public class DefaultModelControllerTest {
 
 		co.getSimpleFacet().getSimpleAttribute().setAssignedType(vwaType);
 
-		ComponentNode newProperty = dc
-				.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(), co.getSummaryFacet());
+		ComponentNode newProperty = dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(),
+				(ComponentNode) co.getSummaryFacet());
 
 		Assert.assertTrue(newProperty instanceof AttributeNode);
 	}
@@ -184,8 +184,8 @@ public class DefaultModelControllerTest {
 		CoreObjectNode co = ComponentNodeBuilder.createCoreObject("Core").get();
 		co.getSimpleFacet().getSimpleAttribute().setAssignedType(vwaType);
 
-		ComponentNode newProperty = dc
-				.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(), co.getSummaryFacet());
+		ComponentNode newProperty = dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(),
+				(ComponentNode) co.getSummaryFacet());
 
 		Assert.assertTrue(newProperty instanceof ElementNode);
 	}
@@ -197,8 +197,8 @@ public class DefaultModelControllerTest {
 		CoreObjectNode co = ComponentNodeBuilder.createCoreObject(typeName).get();
 		co.getSimpleFacet().getSimpleAttribute().setAssignedType(vwaType);
 
-		ComponentNode newProperty = dc
-				.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(), co.getSummaryFacet());
+		ComponentNode newProperty = dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(),
+				(ComponentNode) co.getSummaryFacet());
 
 		Assert.assertEquals(typeName, newProperty.getName());
 	}
@@ -211,8 +211,8 @@ public class DefaultModelControllerTest {
 		co.getSimpleFacet().getSimpleAttribute().setAssignedType(vwaType);
 
 		String name = co.getSimpleFacet().getSimpleAttribute().getName();
-		ComponentNode newProperty = dc
-				.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(), co.getSummaryFacet());
+		ComponentNode newProperty = dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(),
+				(ComponentNode) co.getSummaryFacet());
 
 		Assert.assertEquals(NodeNameUtils.fixAttributeName(name), newProperty.getName());
 	}
@@ -227,8 +227,8 @@ public class DefaultModelControllerTest {
 		san.getModelObject().setDocumentation(doc);
 		san.setAssignedType(vwaType);
 
-		ComponentNode newProperty = dc
-				.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(), co.getSummaryFacet());
+		ComponentNode newProperty = dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(),
+				(ComponentNode) co.getSummaryFacet());
 		Assert.assertNotSame(doc, newProperty.getDocumentation());
 		assertDocumentationEquals(doc, newProperty.getDocumentation());
 

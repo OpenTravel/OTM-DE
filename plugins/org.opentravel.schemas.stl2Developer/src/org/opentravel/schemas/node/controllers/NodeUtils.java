@@ -31,10 +31,10 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.RenamableFacet;
+import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.springframework.util.Assert;
 
 /**
  * Purpose of this class is to having fluent interface to check against different model structure.
@@ -102,7 +102,7 @@ public class NodeUtils {
 			case NOTIFICATION:
 				return false; // TODO: how to check this ?
 			case SERVICE:
-				return node.isService();
+				return node instanceof ServiceNode;
 			case SIMPLE:
 				return node.isSimpleType();
 			case VWA:
@@ -272,7 +272,8 @@ public class NodeUtils {
 
 				@Override
 				public boolean match() {
-					Assert.notNull(node.getLibrary());
+					if (node.getLibrary() == null)
+						return false;
 
 					if (node.getLibrary().isInChain()) {
 						// Simple attributes will exist on all versions of the object

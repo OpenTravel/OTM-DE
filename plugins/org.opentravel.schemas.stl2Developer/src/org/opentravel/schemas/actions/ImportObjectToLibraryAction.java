@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -105,7 +106,7 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 		// check to see if a service is being imported and is legal to do so
 		if (destination.hasService()) {
 			for (Node n : eligibleForImporting)
-				if (n.isService()) {
+				if (n instanceof ServiceNode) {
 					eligibleForImporting.remove(n);
 					break;
 				}

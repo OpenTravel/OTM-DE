@@ -15,6 +15,9 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,7 +28,10 @@ import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemas.controllers.DefaultProjectController;
+import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.utils.FacetNodeBuilder;
 
 import com.google.common.base.Function;
@@ -33,8 +39,15 @@ import com.google.common.collect.Lists;
 
 public class PropertyNodeTest {
 
+	private LibraryNode ln = null;
+
 	@Before
 	public void beforeEachTest() {
+		MainController mc = new MainController();
+		MockLibrary mockLibrary = new MockLibrary();
+		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
+		ProjectNode defaultProject = pc.getDefaultProject();
+		ln = mockLibrary.createNewLibrary("http://example.com/test", "test", defaultProject);
 	}
 
 	@Test
@@ -55,7 +68,7 @@ public class PropertyNodeTest {
 
 	@Test
 	public void shouldMoveUpWithMixedTypes() {
-		FacetNode facetNode = FacetNodeBuilder.create().addElements("A1").addAttributes("E1", "E2").addElements("A2")
+		FacetNode facetNode = FacetNodeBuilder.create(ln).addElements("A1").addAttributes("E1", "E2").addElements("A2")
 				.build();
 		findChild(facetNode, "A2").moveProperty(PropertyNode.UP);
 		assertOrderOfNodeAndMO(facetNode);
@@ -64,38 +77,50 @@ public class PropertyNodeTest {
 
 	@Test
 	public void shouldMoveDownWithMixedTypes() {
-		FacetNode facetNode = FacetNodeBuilder.create().addElements("E1").addAttributes("A1", "A2").addElements("E2")
+		FacetNode facetNode = FacetNodeBuilder.create(ln).addElements("E1").addAttributes("A1", "A2").addElements("E2")
 				.build();
 		findChild(facetNode, "E1").moveProperty(PropertyNode.DOWN);
+		assertTrue(facetNode.isEditable_newToChain());
 		assertOrderOfNodeAndMO(facetNode);
 		assertFacetOrder(facetNode.getChildren(), "A1", "A2", "E2", "E1");
 	}
 
+	// TODO - why are only indicators renamed? Should attributes be also?
 	@Test
 	public void shouldDoNothingWithOneType() {
-		FacetNode facetNode = FacetNodeBuilder.create().addAttributes("A1").addIndicators("I1").addElements("E1")
+		final String i1Name = NodeNameUtils.fixIndicatorName("I1");
+
+		FacetNode facetNode = FacetNodeBuilder.create(ln).addAttributes("A1").addIndicators("I1").addElements("E1")
 				.build();
-		findChild(facetNode, "I1").moveProperty(PropertyNode.DOWN);
+		findChild(facetNode, i1Name).moveProperty(PropertyNode.DOWN);
 		assertOrderOfNodeAndMO(facetNode);
-		assertFacetOrder(facetNode.getChildren(), "A1", "I1", "E1");
+		assertFacetOrder(facetNode.getChildren(), "A1", i1Name, "E1");
 	}
 
 	@Test
 	public void shouldDoNothingWithElementOnBottom() {
-		FacetNode facetNode = FacetNodeBuilder.create().addAttributes("A1").addIndicators("I0", "I1").addElements("E1")
-				.build();
-		findChild(facetNode, "I1").moveProperty(PropertyNode.DOWN);
+		final String i0Name = NodeNameUtils.fixIndicatorName("I0");
+		final String i1Name = NodeNameUtils.fixIndicatorName("I1");
+
+		FacetNode facetNode = FacetNodeBuilder.create(ln).addAttributes("A1").addIndicators("I0", "I1")
+				.addElements("E1").build();
+		findChild(facetNode, i1Name).moveProperty(PropertyNode.DOWN);
 		assertOrderOfNodeAndMO(facetNode);
-		assertFacetOrder(facetNode.getChildren(), "A1", "I0", "I1", "E1");
+		assertFacetOrder(facetNode.getChildren(), "A1", i0Name, i1Name, "E1");
 	}
 
 	@Test
 	public void shouldDoNothingWithElementOnTop() {
-		FacetNode facetNode = FacetNodeBuilder.create().addAttributes("A1").addIndicators("I0", "I1").addElements("E1")
-				.build();
-		findChild(facetNode, "I0").moveProperty(PropertyNode.UP);
+		final String i0Name = NodeNameUtils.fixIndicatorName("I0");
+		final String i1Name = NodeNameUtils.fixIndicatorName("I1");
+		final String a1Name = NodeNameUtils.fixIndicatorName("A1");
+
+		FacetNode facetNode = FacetNodeBuilder.create(ln).addAttributes("A1").addIndicators("I0", "I1")
+				.addElements("E1").build();
+		assertNotNull(facetNode);
+		findChild(facetNode, i0Name).moveProperty(PropertyNode.UP);
 		assertOrderOfNodeAndMO(facetNode);
-		assertFacetOrder(facetNode.getChildren(), "A1", "I0", "I1", "E1");
+		assertFacetOrder(facetNode.getChildren(), "A1", i0Name, i1Name, "E1");
 	}
 
 	private void assertOrderOfNodeAndMO(FacetNode facetNode) {

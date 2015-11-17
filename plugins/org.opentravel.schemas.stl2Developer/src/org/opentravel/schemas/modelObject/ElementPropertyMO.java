@@ -23,6 +23,7 @@ import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLPropertyType;
 
 public class ElementPropertyMO extends ModelObject<TLProperty> {
+	// private static final Logger LOGGER = LoggerFactory.getLogger(ElementPropertyMO.class);
 
 	public ElementPropertyMO(final TLProperty obj) {
 		super(obj);
@@ -135,6 +136,7 @@ public class ElementPropertyMO extends ModelObject<TLProperty> {
 	@Override
 	public boolean setName(final String name) {
 		getTLModelObj().setName(name);
+		// LOGGER.debug("Set name to " + name);
 		return true;
 	}
 

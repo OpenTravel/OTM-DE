@@ -28,6 +28,7 @@ import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.trees.type.TypeTreeExtensionSelectionFilter;
 import org.opentravel.schemas.trees.type.TypeTreeIdReferenceTypeOnlyFilter;
@@ -103,7 +104,7 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 						simple = true;
 					else if (n instanceof ServiceNode)
 						service = true;
-					else if (n.isID_Reference())
+					else if (n instanceof ElementReferenceNode)
 						idReference = true;
 				}
 			}

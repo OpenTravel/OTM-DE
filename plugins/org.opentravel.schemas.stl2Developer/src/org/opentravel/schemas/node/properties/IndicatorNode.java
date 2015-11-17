@@ -37,8 +37,9 @@ import org.opentravel.schemas.properties.Images;
 
 public class IndicatorNode extends PropertyNode {
 
-	public IndicatorNode(Node parent, String name) {
-		super(new TLIndicator(), parent, name, PropertyNodeType.INDICATOR);
+	public IndicatorNode(PropertyOwnerInterface parent, String name) {
+		super(new TLIndicator(), (Node) parent, name, PropertyNodeType.INDICATOR);
+		setIdentity(name);
 	}
 
 	/**
@@ -47,8 +48,8 @@ public class IndicatorNode extends PropertyNode {
 	 * @param parent
 	 *            either a facet or extension point facet
 	 */
-	public IndicatorNode(TLModelElement tlObj, INode parent) {
-		super(tlObj, parent, PropertyNodeType.INDICATOR);
+	public IndicatorNode(TLModelElement tlObj, PropertyOwnerInterface parent) {
+		super(tlObj, (INode) parent, PropertyNodeType.INDICATOR);
 
 		if (!(tlObj instanceof TLIndicator))
 			throw new IllegalArgumentException("Invalid object for an indicator.");

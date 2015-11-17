@@ -67,7 +67,7 @@ public class SetObjectNameAction extends OtmAbstractAction {
 			n.setName(newName);
 			NodeNameUtils.fixName(n);
 			getMainController().refresh();
-			LOGGER.debug("Changed name to " + n);
+			// LOGGER.debug("Changed name to " + n);
 		}
 	}
 }

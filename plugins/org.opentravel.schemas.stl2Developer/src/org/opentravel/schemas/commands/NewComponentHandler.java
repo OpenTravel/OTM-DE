@@ -27,8 +27,6 @@ import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.wizards.NewComponentWizard;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 /**
@@ -38,25 +36,14 @@ import org.springframework.util.Assert;
 public class NewComponentHandler extends AbstractHandler {
 
 	public static final String COMMAND_ID = "org.opentravel.schemas.commands.newComponent";
-	private static final Logger LOGGER = LoggerFactory.getLogger(NewComponentHandler.class);
+
+	// private static final Logger LOGGER = LoggerFactory.getLogger(NewComponentHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		newToLibrary();
 		return null;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.AbstractHandler#isEnabled()
-	 */
-	// See NodeTester
-	// @Override
-	// public boolean isEnabled() {
-	// Node n = OtmRegistry.getMainController().getCurrentNode_NavigatorView();
-	// return n.isEditable();
-	// }
 
 	/**
 	 * Runs new component wizard and creates new node with TL type. Used by New Complex Type Action handler.

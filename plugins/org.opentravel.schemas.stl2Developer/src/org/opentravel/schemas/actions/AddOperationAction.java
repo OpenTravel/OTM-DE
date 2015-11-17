@@ -16,8 +16,8 @@
 package org.opentravel.schemas.actions;
 
 import org.eclipse.swt.widgets.Event;
+import org.opentravel.schemas.commands.AddNodeHandler2;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
@@ -48,20 +48,24 @@ public class AddOperationAction extends OtmAbstractAction {
 	 */
 	@Override
 	public void runWithEvent(Event event) {
-		mc.runAddProperties(event);
+		new AddNodeHandler2().execute(event);
+
+		// mc.runAddProperties(event);
 	}
 
 	@Override
 	public boolean isEnabled() {
-		Node node = getMainController().getCurrentNode_NavigatorView();
+		Node n = getMainController().getCurrentNode_NavigatorView();
+		return n instanceof ServiceNode ? n.isEnabled_AddProperties() : false;
+
 		// see also
 		// GlobalSelectionTester gst = new GlobalSelectionTester();
 		// gst.test(node, GlobalSelectionTester.CANADD, null, null);
 
-		if (node instanceof ServiceNode
-				&& (node.getEditStatus().equals(NodeEditStatus.MINOR) || node.getEditStatus().equals(
-						NodeEditStatus.FULL)))
-			return true;
-		return false;
+		// if (node instanceof ServiceNode
+		// && (node.getEditStatus().equals(NodeEditStatus.MINOR) || node.getEditStatus().equals(
+		// NodeEditStatus.FULL)))
+		// return true;
+		// return false;
 	}
 }

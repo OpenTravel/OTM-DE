@@ -627,7 +627,9 @@ public class OtmActions {
 	}
 
 	public void toggleMandatory(final OtmEventData wd) {
-		mc.getCurrentNode_PropertiesView().getModelObject().setMandatory(wd.isSelected());
+		if (mc.getCurrentNode_PropertiesView() instanceof PropertyNode)
+			((PropertyNode) mc.getCurrentNode_PropertiesView()).setMandatory(wd.isSelected());
+		// mc.getCurrentNode_PropertiesView().getModelObject().setMandatory(wd.isSelected());
 	}
 
 	public static int toggleList() {

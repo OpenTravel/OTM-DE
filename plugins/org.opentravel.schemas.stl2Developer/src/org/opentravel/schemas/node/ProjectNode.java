@@ -396,6 +396,11 @@ public class ProjectNode extends Node implements INode {
 		return project.getProjectFile() != null ? project.getProjectFile().toString() : "";
 	}
 
+	@Override
+	public boolean isEnabled_AddProperties() {
+		return false;
+	}
+
 	/**
 	 * Get the chain that the project item should belong to. Null if no chains with same base namespace are open.
 	 * 

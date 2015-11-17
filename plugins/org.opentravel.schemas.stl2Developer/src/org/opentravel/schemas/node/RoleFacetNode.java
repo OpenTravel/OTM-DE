@@ -38,8 +38,10 @@ public class RoleFacetNode extends FacetNode {
 	 * @param name
 	 *            - role names
 	 */
-	public void addRole(String name) {
-		new RoleNode(this, name);
+	public RoleNode addRole(String name) {
+		if (isEditable_inMinor())
+			return new RoleNode(this, name);
+		return null;
 	}
 
 	/**

@@ -40,22 +40,27 @@ import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.controllers.NodeUtils;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Dave Hollander
  * 
  */
-public class BusinessObjectNode extends ComponentNode implements ComplexComponentInterface {
+public class BusinessObjectNode extends ComponentNode implements ComplexComponentInterface, ExtensionOwner,
+		VersionedObjectInterface {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
 
 	public BusinessObjectNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
 		ListenerFactory.setListner(this);
+
+		if (getModelObject() == null) {
+			// LOGGER.debug("Missing model object on business object: " + this);
+			return;
+		}
 
 		getModelObject().addPropertyChangeListener(new PropertyChangeListener() {
 
@@ -67,7 +72,7 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 					TLFacet ff = (TLFacet) evt.getNewValue();
 					FacetNode node = findFacet(ff.getLabel(), ff.getContext());
 					if (node == null) {
-						LOGGER.warn("Couldnt find inhertied facet. Will recreate.");
+						// LOGGER.warn("Couldnt find inhertied facet. Will recreate.");
 						createNewFacet(BusinessObjectNode.this, evt.getNewValue());
 					} else if (node.getModelObject() instanceof FacetMO) {
 						((FacetMO) node.getModelObject()).attachInheritanceListener();
@@ -126,8 +131,9 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 
 	@Override
 	public Node setExtensible(boolean extensible) {
-		if (getTLModelObject() instanceof TLComplexTypeBase)
-			((TLComplexTypeBase) getTLModelObject()).setNotExtendable(!extensible);
+		if (isEditable_newToChain())
+			if (getTLModelObject() instanceof TLComplexTypeBase)
+				((TLComplexTypeBase) getTLModelObject()).setNotExtendable(!extensible);
 		return this;
 	}
 
@@ -220,15 +226,15 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 
 	// FacetMO
 	@Override
-	public ComponentNode getDetailFacet() {
+	public PropertyOwnerInterface getDetailFacet() {
 		for (INode f : getChildren())
 			if (((FacetNode) f).getFacetType().equals(TLFacetType.DETAIL))
-				return (ComponentNode) f;
+				return (PropertyOwnerInterface) f;
 		return null;
 	}
 
 	@Override
-	public ComponentNode getDefaultFacet() {
+	public PropertyOwnerInterface getDefaultFacet() {
 		return getSummaryFacet();
 	}
 
@@ -236,7 +242,8 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 	public String getLabel() {
 		if (getExtendsType() == null)
 			return super.getLabel();
-		else if (getExtendsType().getName().equals(getName()))
+		else if (isVersioned())
+			// else if (getExtendsType().getName().equals(getName()))
 			return super.getLabel() + " (Extends version:  " + getExtendsType().getLibrary().getVersion() + ")";
 		else
 			return super.getLabel() + " (Extends: " + getExtendsType().getNameWithPrefix() + ")";
@@ -252,34 +259,47 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 		return Images.getImageRegistry().get(Images.BusinessObject);
 	}
 
+	public void addAlias(String name) {
+		if (this.isEditable_newToChain())
+			new AliasNode(this, name);
+	}
+
 	public void addAliases(List<AliasNode> aliases) {
 		for (AliasNode a : aliases) {
-			new AliasNode(this, a.getName());
+			addAlias(a.getName());
 		}
 	}
 
 	/**
 	 * 
+	 * New facets can only be added in unmanaged or head versions.
+	 * 
 	 * @param name
-	 * @param context
-	 *            - ignored
 	 * @param type
 	 * @return
 	 */
-	public FacetNode addFacet(String name, String context, TLFacetType type) {
+	// TODO - consider allowing them in minor and use createMinorVersionOfComponent()
+	public FacetNode addFacet(String name, TLFacetType type) {
+		if (!isEditable_newToChain())
+			throw new IllegalArgumentException("Can not add facet to " + this);
+		if (getLibrary().getDefaultContextId() == null || getLibrary().getDefaultContextId().isEmpty())
+			throw new IllegalStateException("No context value to create facet with.");
 
 		// 9/19/2015 dmh - OVERRIDE context to assure context is default context.
-		context = getLibrary().getDefaultContextId();
+		FacetNode ff = null;
+		TLFacet newTlFacet = getModelObject().addFacet(name, getLibrary().getDefaultContextId(), type);
+		ff = (FacetNode) NodeFactory.newComponentMember(this, newTlFacet);
+		return ff;
+	}
 
-		if (isInHead() || versionNode == null) {
-			TLFacet newTlFacet = getModelObject().addFacet(name, context, type);
-			FacetNode ff = (FacetNode) NodeFactory.newComponentMember(this, newTlFacet);
-			return ff;
-		}
-		// New facets can only be added in unmanaged or head versions.
-		// TODO - consider allowing them in minor and use createMinorVersionOfComponent()
-		LOGGER.debug("Tried to add facet to a minor or patch version.");
-		return null;
+	@Override
+	public boolean canExtend() {
+		return true;
+	}
+
+	@Override
+	public ComponentNode createMinorVersionComponent() {
+		return super.createMinorVersionComponent(new BusinessObjectNode(createMinorTLVersion(this)));
 	}
 
 	@Override
@@ -391,7 +411,7 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 	}
 
 	@Override
-	public ComponentNode getAttributeFacet() {
+	public PropertyOwnerInterface getAttributeFacet() {
 		return null;
 	}
 
@@ -451,7 +471,7 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 			FacetNode facet = (FacetNode) f;
 			if (!NodeUtils.checker(facet).isInheritedFacet().get()) {
 				TLFacet tlFacet = (TLFacet) facet.getTLModelObject();
-				FacetNode newFacet = addFacet(tlFacet.getLabel(), tlFacet.getContext(), tlFacet.getFacetType());
+				FacetNode newFacet = addFacet(tlFacet.getLabel(), tlFacet.getFacetType());
 				newFacet.addProperties(facet.getChildren(), true);
 			}
 		}

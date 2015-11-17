@@ -69,6 +69,12 @@ public class AggregateNode extends NavNode {
 	public void add(ComponentNode nodeToAdd) {
 		addPreTests(nodeToAdd); // Type safety
 
+		// If this is a service then just add to the service root as services are not versioned objects
+		if (nodeToAdd instanceof ServiceNode) {
+			getChildren().add(nodeToAdd);
+			return;
+		}
+
 		// TODO - TEST - is this logic correct if there is a family "s" and adding a "s" object?
 		final String familyName = NodeNameUtils.makeFamilyName(nodeToAdd.getName());
 
@@ -93,9 +99,6 @@ public class AggregateNode extends NavNode {
 			else
 				afn.add(nodeToAdd);
 		}
-		// These assertions may fail on loading a library into a chain.
-		// assert (familyMatches.size() <= 1) : "unexpected familyMatch count";
-		// assert (duplicates.size() <= 1) : "unexpected duplicate count";
 	}
 
 	// Try to replace the existing name matching node
@@ -182,7 +185,9 @@ public class AggregateNode extends NavNode {
 		for (Node c : children) {
 			if (c instanceof FamilyNode)
 				ret.addAll(findExactMatches(c.getChildren(), matchName));
-			else if (c.getName().startsWith(matchName))
+			// 11/10/2015 dmh found this when fixing bug with extension points
+			// else if (c.getName().startsWith(matchName))
+			else if (c.getName().equals(matchName))
 				ret.add(c);
 		}
 		return ret;

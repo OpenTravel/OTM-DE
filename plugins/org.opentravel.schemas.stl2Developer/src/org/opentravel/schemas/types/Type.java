@@ -30,6 +30,7 @@ import org.opentravel.schemacompiler.model.ModelElement;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLAttributeType;
+import org.opentravel.schemacompiler.model.TLExtensionOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLPropertyType;
@@ -39,6 +40,7 @@ import org.opentravel.schemacompiler.validate.TypeAssignmentTester;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
 import org.opentravel.schemas.modelObject.XsdModelingUtils;
 import org.opentravel.schemas.node.AliasNode;
+import org.opentravel.schemas.node.ExtensionOwner;
 import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ImpliedNodeType;
@@ -49,6 +51,7 @@ import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.NodeVisitors;
 import org.opentravel.schemas.node.NodeVisitors.FixNames;
+import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.properties.IndicatorElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.slf4j.Logger;
@@ -256,7 +259,7 @@ public class Type {
 		ArrayList<Node> users = new ArrayList<Node>(getBaseUsers());
 		for (Node n : users) {
 			if (n.isEditable() && (scope == null || n.getLibrary().equals(scope))) {
-				n.getTypeClass().setBaseType(replacement);
+				n.getTypeClass().setAssignedBaseType(replacement);
 				baseUsers.remove(n);
 			}
 		}
@@ -511,6 +514,9 @@ public class Type {
 		if (!(typeNode == target))
 			set(target, typeNode);
 
+		// FIXME - what about names for the type user elements?
+		//
+		NodeNameUtils.fixName(typeOwner);
 		// Update the where used display node
 		// if (refresh && OtmRegistry.getNavigatorView() != null)
 		// OtmRegistry.getNavigatorView().refresh(treeNode);
@@ -586,32 +592,47 @@ public class Type {
 	/**
 	 * Set the base type of the type owner. Links the type owner to target's type user list.
 	 * 
-	 * @param target
+	 * @param sourceNode
 	 *            is the node to be assigned as base type.
 	 */
-	public void setBaseType(INode target) {
-		if (typeOwner.isCoreObject() || typeOwner.isBusinessObject() || typeOwner.isExtensionPointFacet()
-				|| typeOwner.isValueWithAttributes()) {
-			if ((target == null) || (!target.isTypeProvider())) {
-				target = ModelNode.getUnassignedNode();
-			}
-			// Unlink if base type is already set.
-			if ((typeNode != null) && (typeNode.typeUsers() != null)) {
-				typeNode.typeUsers().remove(typeOwner);
-			}
-			// Assign target to the type node and TL model, and add typeOwner to
-			// user list.
-			if (target != null) {
-				target.getTypeUsers().add(typeOwner);
-				((Node) target).getTypeClass().baseUsers.add(typeOwner);
-				typeNode = (Node) target;
-				if (!(target instanceof ImpliedNode))
-					typeOwner.getModelObject().setExtendsType(target.getModelObject());
-				else
-					typeOwner.getModelObject().setExtendsType(null);
-			}
+	public void setAssignedBaseType(INode sourceNode) {
+		if (!(typeOwner instanceof ExtensionOwner))
+			sourceNode = ModelNode.getUnassignedNode();
+		if ((sourceNode == null) || (!sourceNode.isTypeProvider()))
+			sourceNode = ModelNode.getUnassignedNode();
 
-			// LOGGER.debug("Set base type of " + typeOwner + " to " + target);
+		setBaseType((Node) sourceNode);
+
+		// Set the TL model if TLExtension owner or else set to null (clear)
+		// Note: VWAs are not members of TLExtensionOnwer and must have the parent type set instead.
+		if (!(sourceNode instanceof ImpliedNode))
+			if (typeOwner.getTLModelObject() instanceof TLExtensionOwner)
+				typeOwner.getModelObject().setExtendsType(sourceNode.getModelObject());
+			else if (typeOwner instanceof VWA_Node)
+				((VWA_Node) typeOwner).setAssignedType((Node) sourceNode);
+			else
+				typeOwner.getModelObject().setExtendsType(null);
+
+		// LOGGER.debug("Set base type of " + typeOwner + " to " + sourceNode);
+	}
+
+	/**
+	 * Set the type node and add this owner to that base user list. Remove typeOwner from typeNode-base users.
+	 * Restricted use - Does NOT set the type the TLModel type {@link setAssignedBaseType}
+	 */
+	public void setBaseType(Node sourceNode) {
+		if (typeOwner instanceof ExtensionOwner) {
+
+			// Unlink if base type is already set.
+			if ((typeNode != null) && (typeNode.getTypeClass().baseUsers != null))
+				typeNode.getTypeClass().baseUsers.remove(typeOwner);
+
+			// Add this owner to the sources base users list
+			if (!sourceNode.getTypeClass().baseUsers.contains(typeOwner))
+				sourceNode.getTypeClass().baseUsers.add(typeOwner);
+			// TESTME - this used to also add to the typeUsers array
+
+			typeNode = sourceNode;
 		}
 	}
 

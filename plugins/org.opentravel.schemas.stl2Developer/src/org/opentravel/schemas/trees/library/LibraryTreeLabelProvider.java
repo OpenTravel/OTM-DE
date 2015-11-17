@@ -32,12 +32,10 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.controllers.NodeUtils;
 import org.opentravel.schemas.properties.Fonts;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LibraryTreeLabelProvider extends LabelProvider implements IFontProvider, IColorProvider,
 		IStyledLabelProvider {
-	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTreeLabelProvider.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTreeLabelProvider.class);
 
 	@Override
 	public String getText(final Object element) {
@@ -80,9 +78,11 @@ public class LibraryTreeLabelProvider extends LabelProvider implements IFontProv
 			final Node n = (Node) element;
 			if (!n.isEditable())
 				font = Fonts.getFontRegistry().get(Fonts.readOnlyItem);
-			else if (n.isInheritedProperty() || NodeUtils.checker(n).isInheritedFacet().get()) {
+			else if (n.isInheritedProperty() || NodeUtils.checker(n).isInheritedFacet().get())
 				font = Fonts.getFontRegistry().get(Fonts.inheritedItem);
-			}
+			// is this inherited from an earlier version?
+			else if (n.getChain() != null && n.getLibrary() != n.getChain().getHead())
+				font = Fonts.getFontRegistry().get(Fonts.inheritedItem);
 		}
 		return font;
 	}
@@ -96,13 +96,15 @@ public class LibraryTreeLabelProvider extends LabelProvider implements IFontProv
 
 		if (element instanceof Node) {
 			final Node n = (Node) element;
-			if (n.isDeprecated()) {
+			if (n.isDeprecated())
 				color = OtmRegistry.getMainWindow().getColorProvider().getColor(SWT.COLOR_DARK_MAGENTA);
-			} else if (n.isInheritedProperty() || NodeUtils.checker(n).isInheritedFacet().get()) {
+			else if (n.isInheritedProperty() || NodeUtils.checker(n).isInheritedFacet().get())
 				color = OtmRegistry.getMainWindow().getColorProvider().getColor(SWT.COLOR_DARK_BLUE);
-			} else if (!n.isEditable())
+			else if (!n.isEditable())
 				color = OtmRegistry.getMainWindow().getColorProvider().getColor(SWT.COLOR_DARK_GRAY);
 			// editable is also indicated by font style, so set other colors first.
+			else if (n.getChain() != null && n.getLibrary() != n.getChain().getHead())
+				color = OtmRegistry.getMainWindow().getColorProvider().getColor(SWT.COLOR_DARK_BLUE);
 		}
 		return color;
 	}

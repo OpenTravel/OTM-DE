@@ -174,6 +174,8 @@ public class LibraryTests {
 			Assert.assertEquals(n.getType(), n.getAssignedType());
 		}
 
+		if (n.getName().isEmpty())
+			LOGGER.debug("no name");
 		Assert.assertFalse(n.getName().isEmpty());
 		for (Node nn : n.getChildren()) {
 			visitNode(nn);
@@ -316,7 +318,7 @@ public class LibraryTests {
 
 		// add a facet with context
 		if (object instanceof BusinessObjectNode)
-			((BusinessObjectNode) object).addFacet("TestFacet1", "FC1", TLFacetType.CUSTOM);
+			((BusinessObjectNode) object).addFacet("TestFacet1", TLFacetType.CUSTOM);
 
 		// add an other doc with context - creates a second context
 		TLAdditionalDocumentationItem otherDoc = new TLAdditionalDocumentationItem();

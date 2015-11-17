@@ -15,25 +15,25 @@
  */
 package org.opentravel.schemas.node;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLEnumValue;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class EnumerationOpenNode extends ComponentNode implements ComplexComponentInterface {
-	private static final Logger LOGGER = LoggerFactory.getLogger(EnumerationOpenNode.class);
+public class EnumerationOpenNode extends ComponentNode implements ComplexComponentInterface, Enumeration,
+		ExtensionOwner, VersionedObjectInterface {
+	// private static final Logger LOGGER = LoggerFactory.getLogger(EnumerationOpenNode.class);
 
 	public EnumerationOpenNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
-
-		// Set base type.
-		if (mbr instanceof TLOpenEnumeration)
-			getTypeClass().setTypeNode(ModelNode.getDefaultStringNode());
+		getTypeClass().setTypeNode(ModelNode.getDefaultStringNode()); // Set base type.
 	}
 
 	/**
@@ -70,15 +70,27 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 	}
 
 	@Override
-	public void addProperty(Node enumLiteral) {
-		if (enumLiteral instanceof EnumLiteralNode) {
-			((TLOpenEnumeration) getTLModelObject()).addValue((TLEnumValue) enumLiteral.getTLModelObject());
-			this.linkChild(enumLiteral, false);
-		}
+	public void addLiteral(String literal) {
+		if (isEditable_inMinor())
+			new EnumLiteralNode(this, literal);
 	}
 
 	@Override
-	public ComponentNode getDefaultFacet() {
+	public void addProperty(Node enumLiteral) {
+		if (isEditable_newToChain())
+			if (enumLiteral instanceof EnumLiteralNode) {
+				((TLOpenEnumeration) getTLModelObject()).addValue((TLEnumValue) enumLiteral.getTLModelObject());
+				this.linkChild(enumLiteral, false);
+			}
+	}
+
+	@Override
+	public ComponentNode createMinorVersionComponent() {
+		return super.createMinorVersionComponent(new EnumerationOpenNode(createMinorTLVersion(this)));
+	}
+
+	@Override
+	public PropertyOwnerInterface getDefaultFacet() {
 		return null;
 	}
 
@@ -88,15 +100,30 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 	}
 
 	@Override
+	public String getLabel() {
+		if (isVersioned())
+			return super.getLabel() + " (Extends version:  " + getExtendsType().getLibrary().getVersion() + ")";
+		return super.getLabel();
+	}
+
+	@Override
+	public List<String> getLiterals() {
+		ArrayList<String> literals = new ArrayList<String>();
+		for (TLEnumValue v : ((TLOpenEnumeration) getTLModelObject()).getValues())
+			literals.add(v.getLiteral());
+		return literals;
+	}
+
+	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.Enumeration);
 	}
 
-	@Override
-	public boolean isEnumeration() {
-		return true;
-	}
-
+	// @Override
+	// public boolean isEnumeration() {
+	// return true;
+	// }
+	//
 	@Override
 	public boolean isNamedType() {
 		return true;
@@ -109,8 +136,9 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 
 	@Override
 	public Node setExtensible(boolean extensible) {
-		if (!extensible)
-			return new EnumerationClosedNode(this);
+		if (isEditable_newToChain())
+			if (!extensible)
+				return new EnumerationClosedNode(this);
 		return this;
 	}
 
@@ -132,13 +160,21 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 
 	@Override
 	public ComponentNode getSimpleType() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
+	public Node getExtendsType() {
+		return getTypeClass().getTypeNode();
+	}
+
+	@Override
+	public void setExtendsType(final INode sourceNode) {
+		getTypeClass().setAssignedBaseType(sourceNode);
+	}
+
+	@Override
 	public boolean setSimpleType(Node type) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -148,7 +184,7 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 	}
 
 	@Override
-	public ComponentNode getAttributeFacet() {
+	public PropertyOwnerInterface getAttributeFacet() {
 		return null;
 	}
 

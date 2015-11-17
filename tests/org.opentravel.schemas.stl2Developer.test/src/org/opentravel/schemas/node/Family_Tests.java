@@ -145,19 +145,19 @@ public class Family_Tests {
 		Assert.assertTrue(n1.getParent().getParent() instanceof FamilyNode);
 
 		ln = ml.createNewLibrary("http://www.test.com/test", "test", defaultProject);
-		ml.addSimpleTypeToLibrary(ln, "c1_1");
-		ml.addSimpleTypeToLibrary(ln, "c1_2");
-		Node c1 = ln.findNodeByName("c1_1");
-		Assert.assertNotNull(ln.findNodeByName("c1_1"));
+		ml.addSimpleTypeToLibrary(ln, "C1_1");
+		ml.addSimpleTypeToLibrary(ln, "C1_2");
+		Node c1 = ln.findNodeByName("C1_1");
+		Assert.assertNotNull(ln.findNodeByName("C1_1"));
 		Assert.assertTrue(c1.getParent() instanceof FamilyNode);
 		Assert.assertTrue(c1.getParent().getParent() instanceof NavNode);
 		FamilyNode fn = (FamilyNode) c1.getParent();
 		Assert.assertEquals(2, fn.getChildren().size());
 
 		new LibraryChainNode(ln);
-		c1 = ln.findNodeByName("c1_1");
+		c1 = ln.findNodeByName("C1_1");
 		// List<Node> kids = ln.getDescendants_NamedTypes();
-		Assert.assertNotNull(ln.findNodeByName("c1_1"));
+		Assert.assertNotNull(ln.findNodeByName("C1_1"));
 		Assert.assertTrue(c1.getParent() instanceof VersionNode);
 		Assert.assertTrue(c1.getParent().getParent() instanceof FamilyNode);
 		fn = (FamilyNode) c1.getParent().getParent();

@@ -123,7 +123,7 @@ public class SimpleTypeNode extends ComponentNode implements SimpleComponentInte
 	 */
 	@Override
 	public boolean isTypeUser() {
-		return isEnumeration() ? false : true;
+		return this instanceof Enumeration ? false : true;
 	}
 
 	/*

@@ -48,10 +48,9 @@ import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.IdNode;
 import org.opentravel.schemas.node.properties.IndicatorElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Create Component Nodes of various sub-types.
@@ -60,7 +59,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class NodeFactory {
-	private static final Logger LOGGER = LoggerFactory.getLogger(NodeFactory.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(NodeFactory.class);
 
 	/*******************************************************************************************
 	 * New ComponentNode methods that also create new objects in underlying model
@@ -121,7 +120,7 @@ public class NodeFactory {
 			cn = new ExtensionPointNode(mbr);
 		else {
 			cn = new ComponentNode(mbr);
-			LOGGER.debug("Using default factory type for " + mbr.getClass().getSimpleName());
+			// LOGGER.debug("Using default factory type for " + mbr.getClass().getSimpleName());
 		}
 
 		return cn;
@@ -142,28 +141,27 @@ public class NodeFactory {
 		// Properties
 		if (tlObj instanceof TLProperty) {
 			if (((TLProperty) tlObj).isReference())
-				nn = new ElementReferenceNode((TLModelElement) tlObj, parent);
+				nn = new ElementReferenceNode((TLModelElement) tlObj, (PropertyOwnerInterface) parent);
 			else
 				nn = new ElementNode((TLModelElement) tlObj, parent);
 		} else if (tlObj instanceof TLIndicator) {
 			if (((TLIndicator) tlObj).isPublishAsElement())
-				nn = new IndicatorElementNode((TLModelElement) tlObj, parent);
+				nn = new IndicatorElementNode((TLModelElement) tlObj, (PropertyOwnerInterface) parent);
 			else
-				nn = new IndicatorNode((TLModelElement) tlObj, parent);
+				nn = new IndicatorNode((TLModelElement) tlObj, (PropertyOwnerInterface) parent);
 		} else if (tlObj instanceof TLAttribute) {
 			TLAttributeType type = ((TLAttribute) tlObj).getType();
 			if (type != null && type.getNamespace() != null && type.getNamespace().equals(Node.XSD_NAMESPACE)
 					&& type.getLocalName().equals("ID"))
-				nn = new IdNode((TLModelElement) tlObj, parent);
+				nn = new IdNode((TLModelElement) tlObj, (PropertyOwnerInterface) parent);
 			else
-				nn = new AttributeNode((TLModelElement) tlObj, parent);
+				nn = new AttributeNode((TLModelElement) tlObj, (PropertyOwnerInterface) parent);
 		} else if (tlObj instanceof TLRole) {
 			nn = new RoleNode((TLRole) tlObj, (RoleFacetNode) parent);
 		} else if (tlObj instanceof TLEnumValue) {
 			nn = new EnumLiteralNode((TLModelElement) tlObj, parent);
 		} else if (tlObj instanceof TLnSimpleAttribute) {
 			nn = new SimpleAttributeNode((TLModelElement) tlObj, parent);
-			// Aliases
 		} else if (tlObj instanceof TLAlias) {
 			nn = new AliasNode((Node) parent, (TLAlias) tlObj);
 			// Facets
@@ -191,6 +189,44 @@ public class NodeFactory {
 		}
 
 		return nn;
+	}
+
+	/**
+	 * Create a new component of the same class and add it to a library.
+	 * 
+	 * @param n
+	 *            class of object to create - must be named type
+	 * @param ln
+	 *            library to add member or NULL
+	 * @param nameRoot
+	 *            string to put before the class name as the object name or NULL for unnamed.
+	 * @return newly created library member
+	 */
+	public static Node newComponentMember(Node n, LibraryNode ln, String nameRoot) {
+		Node newNode = null;
+		if (n instanceof BusinessObjectNode)
+			newNode = new BusinessObjectNode(new TLBusinessObject());
+		if (n instanceof CoreObjectNode)
+			newNode = new CoreObjectNode(new TLCoreObject());
+		if (n instanceof VWA_Node)
+			newNode = new VWA_Node(new TLValueWithAttributes());
+		if (n instanceof EnumerationOpenNode)
+			newNode = new EnumerationOpenNode(new TLOpenEnumeration());
+		// Must test for closed enum before simple type because it extends simple
+		if (n instanceof EnumerationClosedNode)
+			newNode = new EnumerationClosedNode(new TLClosedEnumeration());
+		else if (n instanceof SimpleTypeNode)
+			newNode = new SimpleTypeNode(new TLSimple());
+		if (n instanceof ExtensionPointNode)
+			newNode = new ExtensionPointNode(new TLExtensionPointFacet());
+
+		if (nameRoot != null)
+			newNode.setName(nameRoot + n.getClass().getSimpleName());
+
+		if (newNode != null && ln != null)
+			ln.addMember(newNode);
+
+		return newNode;
 	}
 
 	private static ComponentNode createFacet(TLFacet facet) {

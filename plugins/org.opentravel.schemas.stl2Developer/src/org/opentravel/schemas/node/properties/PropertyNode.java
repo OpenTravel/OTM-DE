@@ -46,8 +46,6 @@ import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Property nodes control element (property), attribute and indicator property model objects Simple Attributes and
@@ -60,8 +58,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class PropertyNode extends ComponentNode {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(PropertyNode.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(PropertyNode.class);
 
 	protected PropertyNodeType propertyType;
 	protected AlternateRoles alternateRoles;
@@ -100,6 +97,10 @@ public class PropertyNode extends ComponentNode {
 	protected PropertyNode(final TLModelElement tlObj, final Node parent, final String name, final PropertyNodeType type) {
 		this(tlObj, parent, type);
 		setName(name);
+
+		// Properties added to minor versions must be optional
+		if (getLibrary() != null && getLibrary().isMinorVersion() && !inherited)
+			setMandatory(false);
 	}
 
 	@Override
@@ -122,7 +123,8 @@ public class PropertyNode extends ComponentNode {
 	 * @return
 	 */
 	public QName getDefaultXmlElementName() {
-		return PropertyCodegenUtils.getDefaultXmlElementName(getTLTypeObject(), isID_Reference());
+		boolean idRef = this instanceof ElementReferenceNode;
+		return PropertyCodegenUtils.getDefaultXmlElementName(getTLTypeObject(), idRef);
 	}
 
 	/**
@@ -158,7 +160,7 @@ public class PropertyNode extends ComponentNode {
 			if (inherited)
 				return getModelObject().getAssignedName();
 
-			LOGGER.warn("Trying to fix missing type assignment for " + getName());
+			// LOGGER.warn("Trying to fix missing type assignment for " + getName());
 			getTypeClass().setAssignedTypeForThisNode(this);
 		}
 
@@ -215,8 +217,8 @@ public class PropertyNode extends ComponentNode {
 		// EnumLiterals are overridden.
 
 		// Otherwise Properties are always owned by a facet.
-		if (!getParent().getParent().isTypeProvider())
-			LOGGER.debug("Property " + getName() + "'s grandparent is not a type provider.");
+		// if (!getParent().getParent().isTypeProvider())
+		// LOGGER.debug("Property " + getName() + "'s grandparent is not a type provider.");
 		return getParent().getParent().isTypeProvider() ? getParent().getParent() : this;
 	}
 
@@ -315,13 +317,15 @@ public class PropertyNode extends ComponentNode {
 
 	@Override
 	public boolean moveProperty(final int direction) {
+		if (!isEditable_newToChain())
+			return false;
 		// we don't have to sort children since their are always sorted
-		if (direction == UP) {
+		if (direction == UP)
 			return modelObject.moveUp(); // move the actual TL Property.
-		} else if (direction == DOWN) {
+		else if (direction == DOWN)
 			return modelObject.moveDown(); // move the actual TL Property.
-		} else {
-			LOGGER.warn("Do not understand direction: " + direction);
+		else {
+			// LOGGER.warn("Do not understand direction: " + direction);
 			return false;
 		}
 	}
@@ -361,6 +365,11 @@ public class PropertyNode extends ComponentNode {
 		setName(name, false); // Override family behavior
 	}
 
+	public void setMandatory(final boolean selection) {
+		if (isEditable_newToChain())
+			getModelObject().setMandatory(selection);
+	}
+
 	@Override
 	public boolean isDeleteable() {
 		if (modelObject == null)
@@ -374,8 +383,8 @@ public class PropertyNode extends ComponentNode {
 
 	@Override
 	public boolean hasNavChildrenWithProperties() {
-		return isProperty() && !(this instanceof IndicatorNode) && !isEnumerationLiteral() && !isRoleProperty()
-				&& modelObject != null && modelObject.getTLType() != null;
+		return isProperty() && !(this instanceof IndicatorNode) && !(this instanceof EnumLiteralNode)
+				&& !(this instanceof RoleNode) && modelObject != null && modelObject.getTLType() != null;
 	}
 
 	@Override
@@ -657,32 +666,35 @@ public class PropertyNode extends ComponentNode {
 		 * @return property or null if not supported for the property type or this was already that type.
 		 */
 		public PropertyNode oldOrNew(PropertyNodeType type) {
+			assert getParent() instanceof PropertyOwnerInterface;
+			PropertyOwnerInterface parent = (PropertyOwnerInterface) getParent();
+
 			if (currentType.equals(type))
 				return null;
 			PropertyNode pn = null;
 			switch (type) {
 			case ELEMENT:
-				pn = oldEleN != null ? oldEleN : new ElementNode(getParent(), getName());
+				pn = oldEleN != null ? oldEleN : new ElementNode(parent, getName());
 				oldEleN = (ElementNode) pn;
 				break;
 			case ID_REFERENCE:
-				pn = oldEleRefN != null ? oldEleRefN : new ElementReferenceNode(getParent(), getName());
+				pn = oldEleRefN != null ? oldEleRefN : new ElementReferenceNode(parent, getName());
 				oldEleRefN = (ElementReferenceNode) pn;
 				break;
 			case ATTRIBUTE:
-				pn = oldAttrN != null ? oldAttrN : new AttributeNode(getParent(), getName());
+				pn = oldAttrN != null ? oldAttrN : new AttributeNode(parent, getName());
 				oldAttrN = (AttributeNode) pn;
 				break;
 			case INDICATOR:
-				pn = oldIndN != null ? oldIndN : new IndicatorNode(getParent(), getName());
+				pn = oldIndN != null ? oldIndN : new IndicatorNode(parent, getName());
 				oldIndN = (IndicatorNode) pn;
 				break;
 			case INDICATOR_ELEMENT:
-				pn = oldIndEleN != null ? oldIndEleN : new IndicatorElementNode(getParent(), getName());
+				pn = oldIndEleN != null ? oldIndEleN : new IndicatorElementNode(parent, getName());
 				oldIndEleN = (IndicatorElementNode) pn;
 				break;
 			case ID:
-				pn = oldIdN != null ? oldIdN : new IdNode(getParent(), getName());
+				pn = oldIdN != null ? oldIdN : new IdNode(parent, getName());
 				oldIdN = (IdNode) pn;
 				break;
 			default:

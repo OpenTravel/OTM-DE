@@ -24,6 +24,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Event;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
+import org.opentravel.schemas.node.Enumeration;
 import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.OperationNode;
@@ -40,30 +41,31 @@ import org.opentravel.schemas.wizards.NewPropertiesWizard2;
 import org.opentravel.schemas.wizards.SimpleNameWizard;
 import org.opentravel.schemas.wizards.validators.NewNodeNameValidator;
 import org.opentravel.schemas.wizards.validators.NewPropertyValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Command Handler for the add a node to the model command.
- * Handler for adding when a component node is selected.
+ * Command Handler for the add a node to the model command. Handler for adding when a component node is selected.
  * 
  * Version 2 uses the NewPropertiesWizard2 that acts upon the currently selected object.
  * 
  * Handles action: org.opentravel.schemas.commands.AddProperties
-
+ * 
  * @author Dave Hollander
  *
  */
-/**
- * TODO - Move responsibility for deciding on what to do to the nodes.
- * 
- */
 public class AddNodeHandler2 extends OtmAbstractHandler {
-	private static final Logger LOGGER = LoggerFactory.getLogger(AddNodeHandler2.class);
-	public static String COMMAND_ID = "org.opentravel.schemas.commands.Add2";
+	// private static final Logger LOGGER = LoggerFactory.getLogger(AddNodeHandler2.class);
+	public static String COMMAND_ID = "org.opentravel.schemas.commands.Add";
 
 	private Node selectedNode; // The user selected node.
 	private ComponentNode actOnNode; // The node to perform the action on.
+
+	public void execute(Event event) {
+		mc = OtmRegistry.getMainController();
+		selectedNode = mc.getGloballySelectNode();
+		actOnNode = (ComponentNode) selectedNode;
+		runCommand(getActionType(event));
+		mc.postStatus("Add Property Handler added the property.");
+	}
 
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
@@ -81,17 +83,25 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 		Event event;
 		if (exEvent.getTrigger() instanceof Event) {
 			event = (Event) exEvent.getTrigger();
-			if (event.data instanceof PropertyNodeType) {
-				actionType = (PropertyNodeType) event.data;
-			}
+			actionType = getActionType(event);
+
 		}
 		return actionType;
+	}
+
+	private PropertyNodeType getActionType(Event event) {
+		if (event.data instanceof PropertyNodeType) {
+			return (PropertyNodeType) event.data;
+		}
+		return null;
 	}
 
 	private void runCommand(PropertyNodeType actionType) {
 		INode.CommandType type = selectedNode.getAddCommand();
 		if (selectedNode instanceof CoreObjectNode && actionType == PropertyNodeType.ROLE)
 			type = INode.CommandType.ROLE;
+		else if (selectedNode instanceof ServiceNode)
+			type = INode.CommandType.OPERATION;
 
 		switch (type) {
 		case ROLE:
@@ -108,7 +118,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 			break;
 		case NONE:
 		default:
-			LOGGER.debug("Not Supported: Adding to " + selectedNode);
+			// LOGGER.debug("Not Supported: Adding to " + selectedNode);
 			DialogUserNotifier.openWarning("Not Supported", "Add properties not supported for this object type.");
 		}
 	}
@@ -120,9 +130,19 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 	 *            - core object or one of its facets or properties.
 	 */
 	public void addRoleToNode() {
+		if (actOnNode == null)
+			return; // should this post status or dialog?
 		RoleFacetNode roleFacet = actOnNode.getRoleFacet();
 		if (roleFacet == null)
 			return;
+
+		// If GUI allows adding roles, but the node is not in the head library
+		if (actOnNode.isEnabled_AddProperties() && !actOnNode.isInHead()) {
+			actOnNode = createVersionExtension(actOnNode);
+			if (actOnNode == null)
+				return; // should this post status or dialog?
+			roleFacet = actOnNode.getRoleFacet();
+		}
 
 		final SimpleNameWizard wizard = new SimpleNameWizard(new ExternalizedStringProperties("action.addRole"), 10);
 		wizard.setValidator(new NewNodeNameValidator(roleFacet, wizard, "Role with same name already exists."));
@@ -134,7 +154,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 	}
 
 	public void addOperation() {
-		if (!actOnNode.isService()) {
+		if (!(actOnNode instanceof ServiceNode)) {
 			DialogUserNotifier.openWarning("Warning", "You can add operations only to services. ");
 			return;
 		}
@@ -152,7 +172,15 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 		if (selectedNode instanceof EnumLiteralNode)
 			actOnNode = (ComponentNode) selectedNode.getParent();
 
-		if (actOnNode != null && actOnNode.isEnumeration()) {
+		// Create a minor version if needed.
+		if (selectedNode.getChain() != null) {
+			if (actOnNode.isEnabled_AddProperties() && !actOnNode.isInHead())
+				actOnNode = createVersionExtension(selectedNode);
+			if (actOnNode == null)
+				return;
+		}
+
+		if (actOnNode != null && actOnNode instanceof Enumeration) {
 			final SimpleNameWizard wizard = new SimpleNameWizard(new ExternalizedStringProperties("wizard.enumValue"),
 					10);
 			// TODO - fix and use validator - wizard.setValidator(new
@@ -160,8 +188,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 			wizard.run(OtmRegistry.getActiveShell());
 			if (!wizard.wasCanceled()) {
 				for (String entry : wizard.getNames()) {
-					final Node newValue = new EnumLiteralNode(actOnNode, entry);
-					newValue.setLibrary(actOnNode.getLibrary());
+					((Enumeration) actOnNode).addLiteral(entry);
 				}
 				mc.refresh(actOnNode);
 			}
@@ -172,40 +199,19 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 
 	private void addProperty() {
 		if (selectedNode.getChain() != null) {
-			// If a patch, create an extension point facet to add to.
-			if (selectedNode.getChain().getHead().isPatchVersion()) {
-				// Will always be in a different library or else it is a ExtensionPoint facet.
-				if (!selectedNode.isExtensionPointFacet()) {
-					if (selectedNode.getLibrary() != selectedNode.getChain().getHead()) {
-						if (!DialogUserNotifier.openConfirm(Messages.getString("action.component.version.title"),
-								Messages.getString("action.component.version.patch")))
-							return;
-						actOnNode = ((ComponentNode) selectedNode).createPatchVersionComponent();
-					}
-				}
-			}
+			if (actOnNode.isEnabled_AddProperties() && !actOnNode.isInHead())
+				actOnNode = createVersionExtension(selectedNode);
+			if (actOnNode == null)
+				return;
 
-			// If a major minor version, create a new object of same type and add base link to this.
-			if (selectedNode.getChain().getHead().isMinorOrMajorVersion()) {
-				if (selectedNode.getLibrary() != selectedNode.getChain().getHead()) {
-					if (!DialogUserNotifier.openConfirm(Messages.getString("action.component.version.title"),
-							Messages.getString("action.component.version.minor")))
-						return;
-					actOnNode = ((ComponentNode) selectedNode).createMinorVersionComponent();
-					if (actOnNode == null) {
-						LOGGER.error("Did not create Minor Version Component for " + selectedNode);
-						return;
-					}
-				}
+			try {
+				NewPropertiesWizard2 w2 = new NewPropertiesWizard2(actOnNode);
+				w2.setValidator(new NewPropertyValidator(actOnNode, null));
+				w2.run(OtmRegistry.getActiveShell());
+			} catch (IllegalArgumentException e) {
+				DialogUserNotifier.openError("Add properties error.", e.getLocalizedMessage());
+				// LOGGER.error("ERROR: " + e);
 			}
-		}
-
-		try {
-			NewPropertiesWizard2 w2 = new NewPropertiesWizard2(actOnNode);
-			w2.setValidator(new NewPropertyValidator(actOnNode, null));
-			w2.run(OtmRegistry.getActiveShell());
-		} catch (IllegalArgumentException e) {
-			LOGGER.error("ERROR: " + e);
 		}
 		mc.refresh(actOnNode.getOwningComponent());
 	}
@@ -215,8 +221,53 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 		return COMMAND_ID;
 	}
 
+	protected Node getSelectedNode(ExecutionEvent exEvent) {
+		return mc.getGloballySelectNode();
+	}
+
 	public static ImageDescriptor getIcon() {
 		return Images.getImageRegistry().getDescriptor(Images.AddNode);
 	}
 
+	// /**
+	// * Create a component in the head library that versions (extends) the selected node. Prompts the user to confirm
+	// * before creating node.
+	// *
+	// * @return newly created node or null if user cancelled or error.
+	// */
+	// private ComponentNode versionNode(Node selectedNode) {
+	// ComponentNode actOnNode = null; // The node to perform the action on.
+	//
+	// if (selectedNode.getChain().getHead().isPatchVersion()) {
+	// // Will always be in a different library or else it is a ExtensionPoint facet.
+	// if (!selectedNode.isExtensionPointFacet()) {
+	// if (postConfirm("action.component.version.patch"))
+	// actOnNode = ((ComponentNode) selectedNode).createPatchVersionComponent();
+	// }
+	//
+	// }
+	//
+	// // If a major minor version, create a new object of same type and add base link to this.
+	// else if (selectedNode.getChain().getHead().isMinorOrMajorVersion()) {
+	// if (selectedNode instanceof VersionedObjectInterface) {
+	// if (postConfirm("action.component.version.minor"))
+	// actOnNode = ((VersionedObjectInterface) selectedNode).createMinorVersionComponent();
+	// } else if (selectedNode.isEditable_inService())
+	// // services are unversioned so just return the selected node
+	// actOnNode = (ComponentNode) selectedNode;
+	// }
+	//
+	// // if (actOnNode == null)
+	// // LOGGER.error("Did not create Version for " + selectedNode);
+	//
+	// return actOnNode;
+	// }
+	//
+	// private boolean postConfirm(String message) {
+	// if (selectedNode.getLibrary() != selectedNode.getChain().getHead())
+	// return (DialogUserNotifier.openConfirm(Messages.getString("action.component.version.title"),
+	// Messages.getString(message)));
+	// else
+	// return false;
+	// }
 }

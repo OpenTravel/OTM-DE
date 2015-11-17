@@ -44,7 +44,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.opentravel.schemas.modelObject.ModelObject;
-import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
@@ -53,6 +52,7 @@ import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.trees.library.LibrarySorter;
 import org.opentravel.schemas.trees.library.LibraryTreeLabelProvider;
 import org.opentravel.schemas.trees.library.LibraryTreeWithPropertiesContentProvider;
@@ -84,7 +84,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 	private final List<PropertyNodeType> enabledPropertyTypes;
 
 	private final Node scopeNode;
-	private final ComponentNode owningFacet;
+	private final PropertyOwnerInterface owningFacet;
 	private PropertyNode selectedNode;
 
 	private final AtomicInteger counter = new AtomicInteger(1);
@@ -110,7 +110,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 	/**
 	 */
 	protected NewPropertiesWizardPage2(final String pageName, final String title, final FormValidator validator,
-			final List<PropertyNodeType> enabledTypes, final ComponentNode actOnNode, final Node scope) {
+			final List<PropertyNodeType> enabledTypes, final PropertyOwnerInterface actOnNode, final Node scope) {
 		super(pageName, title, null);
 		this.validator = validator;
 		this.enabledPropertyTypes = new ArrayList<PropertyNodeType>(enabledTypes);
@@ -376,7 +376,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 			setMessage(o.getPropertyType().getName() + "s are not allowed for this object", WARNING);
 			return null;
 		}
-		final PropertyNode copy = (PropertyNode) NodeFactory.newComponentMember(owningFacet, o.cloneTLObj());
+		final PropertyNode copy = (PropertyNode) NodeFactory.newComponentMember((INode) owningFacet, o.cloneTLObj());
 		copy.setAssignedType(o.getType());
 		getNewProperties().add(copy);
 		return copy;

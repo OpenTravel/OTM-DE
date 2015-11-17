@@ -32,8 +32,6 @@ import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * TODO - move up/down business logic out. -- finish clean up of current and previous nodes
@@ -43,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TypeView extends OtmAbstractView implements ISelectionListener {
 	public static String VIEW_ID = "org.opentravel.schemas.stl2Developer.TypeView";
-	private static final Logger LOGGER = LoggerFactory.getLogger(TypeView.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(TypeView.class);
 
 	private FacetView facetView;
 	private PropertiesView propertiesView;

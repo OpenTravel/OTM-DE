@@ -46,8 +46,8 @@ public class ElementNode extends PropertyNode implements TypeUser {
 	 *            - if null, the caller must link the node and add to TL Model parent
 	 * @param name
 	 */
-	public ElementNode(Node parent, String name) {
-		super(new TLProperty(), parent, name, PropertyNodeType.ELEMENT);
+	public ElementNode(PropertyOwnerInterface parent, String name) {
+		super(new TLProperty(), (Node) parent, name, PropertyNodeType.ELEMENT);
 		setAssignedType(ModelNode.getUnassignedNode());
 	}
 
@@ -74,7 +74,7 @@ public class ElementNode extends PropertyNode implements TypeUser {
 
 	@Override
 	public INode createProperty(Node type) {
-		int index = indexOfNode();
+		// int index = indexOfNode();
 		int tlIndex = indexOfTLProperty();
 		TLProperty tlObj = (TLProperty) cloneTLObj();
 		((TLProperty) getTLModelObject()).getPropertyOwner().addElement(tlIndex, tlObj);

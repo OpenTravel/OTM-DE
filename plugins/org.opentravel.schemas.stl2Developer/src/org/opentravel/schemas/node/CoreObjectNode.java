@@ -29,6 +29,7 @@ import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.modelObject.CoreObjectMO;
 import org.opentravel.schemas.modelObject.ListFacetMO;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,8 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class CoreObjectNode extends ComponentNode implements ComplexComponentInterface {
+public class CoreObjectNode extends ComponentNode implements ComplexComponentInterface, ExtensionOwner,
+		VersionedObjectInterface {
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = LoggerFactory.getLogger(CoreObjectNode.class);
 
@@ -77,10 +79,25 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 		setSimpleType(vwa.getSimpleType());
 	}
 
+	public void addAlias(String name) {
+		if (this.isEditable_newToChain())
+			new AliasNode(this, name);
+	}
+
 	public void addAliases(List<AliasNode> aliases) {
 		for (AliasNode a : aliases) {
-			new AliasNode(this, a.getName());
+			addAlias(a.getName());
 		}
+	}
+
+	@Override
+	public boolean canExtend() {
+		return true;
+	}
+
+	@Override
+	public ComponentNode createMinorVersionComponent() {
+		return super.createMinorVersionComponent(new CoreObjectNode(createMinorTLVersion(this)));
 	}
 
 	@Override
@@ -100,8 +117,9 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 
 	@Override
 	public Node setExtensible(boolean extensible) {
-		if (getTLModelObject() instanceof TLComplexTypeBase)
-			((TLComplexTypeBase) getTLModelObject()).setNotExtendable(!extensible);
+		if (isEditable_newToChain())
+			if (getTLModelObject() instanceof TLComplexTypeBase)
+				((TLComplexTypeBase) getTLModelObject()).setNotExtendable(!extensible);
 		return this;
 	}
 
@@ -133,7 +151,8 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 	public String getLabel() {
 		if (getExtendsType() == null)
 			return super.getLabel();
-		else if (getExtendsType().getName().equals(getName()))
+		// else if (getExtendsType().getName().equals(getName()))
+		else if (isVersioned())
 			return super.getLabel() + " (Extends version: " + getExtendsType().getLibrary().getVersion() + ")";
 		else
 			return super.getLabel() + " (Extends: " + getExtendsType().getNameWithPrefix() + ")";
@@ -163,23 +182,23 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 	}
 
 	@Override
-	public ComponentNode getSummaryFacet() {
+	public PropertyOwnerInterface getSummaryFacet() {
 		for (INode f : getChildren())
 			if (((FacetNode) f).getFacetType().equals(TLFacetType.SUMMARY))
-				return (ComponentNode) f;
+				return (PropertyOwnerInterface) f;
 		return null;
 	}
 
 	@Override
-	public ComponentNode getDefaultFacet() {
+	public PropertyOwnerInterface getDefaultFacet() {
 		return getSummaryFacet();
 	}
 
 	@Override
-	public ComponentNode getDetailFacet() {
+	public PropertyOwnerInterface getDetailFacet() {
 		for (INode f : getChildren())
 			if (((FacetNode) f).getFacetType().equals(TLFacetType.DETAIL))
-				return (ComponentNode) f;
+				return (PropertyOwnerInterface) f;
 		return null;
 	}
 
@@ -230,7 +249,7 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 	}
 
 	@Override
-	public ComponentNode getAttributeFacet() {
+	public PropertyOwnerInterface getAttributeFacet() {
 		return null;
 	}
 

@@ -18,6 +18,11 @@
  */
 package org.opentravel.schemas.node.properties;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +39,7 @@ import org.opentravel.schemacompiler.model.TLRole;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
@@ -177,14 +183,16 @@ public class PropertiesTests {
 	@Test
 	public void createElementRefs() {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
-		FacetNode summary = bo.getSummaryFacet();
+		BusinessObjectNode A = mockLibrary.addBusinessObjectToLibrary(ln, "A");
+		PropertyOwnerInterface summary = bo.getSummaryFacet();
 		Assert.assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
 		PropertyNode pn = null;
 
-		pn = new ElementReferenceNode(summary, "A");
+		pn = new ElementReferenceNode(summary, "ThisIsIgnored");
 		Assert.assertNotNull(pn);
 		Assert.assertNotNull(pn.getLibrary());
+		pn.setAssignedType(A);
 		Assert.assertEquals("ARef", pn.getName());
 
 		pn = new ElementReferenceNode(new TLProperty(), summary);
@@ -235,7 +243,7 @@ public class PropertiesTests {
 	@Test
 	public void createIds() {
 		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "Vwa");
-		IdNode id = new IdNode(vwa, "SomeIgnoredName");
+		IdNode id = new IdNode(vwa.getAttributeFacet(), "SomeIgnoredName");
 		Node idType = NodeFinders.findNodeByName("ID", Node.XSD_NAMESPACE);
 
 		Assert.assertEquals("id", id.getName());
@@ -311,6 +319,7 @@ public class PropertiesTests {
 
 	@Test
 	public void createEnumLiterals() {
+		assertTrue(ln.isEditable_newToChain());
 		EnumerationOpenNode open = new EnumerationOpenNode(new TLOpenEnumeration());
 		EnumerationClosedNode closed = new EnumerationClosedNode(new TLClosedEnumeration());
 		open.setName("O");
@@ -320,6 +329,7 @@ public class PropertiesTests {
 		EnumLiteralNode lit, litA;
 		Node aType = NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
 
+		// TODO - use open.addLiteral() instead
 		litA = new EnumLiteralNode(open, "A");
 		Assert.assertNotNull("litA");
 		lit = new EnumLiteralNode(new TLEnumValue(), open);
@@ -359,7 +369,7 @@ public class PropertiesTests {
 	public void changeRoles() {
 		ln.setEditable(true);
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "ct");
-		FacetNode summary = bo.getSummaryFacet();
+		PropertyOwnerInterface summary = bo.getSummaryFacet();
 		Node aType = NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
 		PropertyNode pn, epn, apn, ipn, rpn, iepn = null;
 		String eText = "Element";
@@ -399,6 +409,33 @@ public class PropertiesTests {
 			if (n instanceof PropertyNode)
 				changeToAll((PropertyNode) n);
 		}
+	}
+
+	@Test
+	public void addPropertyFromDND_Tests() {
+		// This seems to be dependent on the type of "this" node. create property should only be implemented for facets.
+		ln.setEditable(true);
+		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "ct");
+		PropertyOwnerInterface summary = bo.getSummaryFacet();
+		Node aType = NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		ComponentNode cn = (ComponentNode) summary;
+
+		Node result = cn.addPropertyFromDND(aType, false); // should create property added to summary facet
+		assertNotNull(result);
+		assertTrue(bo.getSummaryFacet().getChildren().contains(result));
+
+		result = cn.addPropertyFromDND(aType, true); // should create new property with type of aType
+		assertNotNull(result);
+		assertEquals(aType, result.getType());
+		assertTrue(bo.getSummaryFacet().getChildren().contains(result));
+
+		result = ((ComponentNode) result).addPropertyFromDND(aType, false);
+		assertNotNull(result); // should create new node and assign type
+		assertTrue(bo.getSummaryFacet().getChildren().contains(result));
+
+		((PropertyNode) result).setAssignedType(null);
+		result = ((ComponentNode) result).addPropertyFromDND(aType, false);
+		assertNull(result); // should assign type but not create new node
 	}
 
 	private void changeToAll(PropertyNode pn) {

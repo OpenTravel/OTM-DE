@@ -45,6 +45,10 @@ public class BaseNodeListener implements INodeListener {
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
 		// Node newValue = getNewValue(event);
 		// Node oldValue = getOldValue(event);
+		// LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode + ", old = " + oldValue
+		// + ", new = " + newValue);
+		// for NAME_MODIFIED the values are simple strings
+		//
 		// if (thisNode instanceof VersionNode)
 		// LOGGER.debug("Value Change to version node " + thisNode + " ignored.");
 		// else
@@ -61,8 +65,8 @@ public class BaseNodeListener implements INodeListener {
 
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
-		// Node affectedNode = getAffectedNode(event);
-		// LOGGER.debug("Ownership event: " + event.getType() + " this = " + thisNode + " affected = " + affectedNode);
+		Node affectedNode = getAffectedNode(event);
+		LOGGER.debug("Ownership event: " + event.getType() + " this = " + thisNode + " affected = " + affectedNode);
 		//
 		// switch (event.getType()) {
 		// case MEMBER_ADDED:

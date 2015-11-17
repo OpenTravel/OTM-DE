@@ -15,84 +15,110 @@
  */
 package org.opentravel.schemas.utils;
 
-import org.opentravel.schemas.node.FacetNode;
-import org.opentravel.schemas.node.NodeFactory;
-
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAttribute;
-import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.node.FacetNode;
+import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.NodeFactory;
 
 public class FacetNodeBuilder {
-    interface TLCreator {
-        Object create(String name);
-    }
+	interface TLCreator {
+		Object create(String name);
+	}
 
-    private FacetNode facet = new FacetNode(new TLFacet());
+	// facets must have a parent and library to pass action prechecks
+	// private FacetNode facet = new FacetNode(new TLFacet());
+	private BusinessObjectNode bo = null;
+	private FacetNode facet = null;
+	private static LibraryNode ln;
 
-    public static FacetNodeBuilder create() {
-        return new FacetNodeBuilder();
-    }
+	public static FacetNodeBuilder create() {
+		return new FacetNodeBuilder();
+	}
 
-    private FacetNodeBuilder addObjects(TLCreator tlCreator, String... names) {
-        for (String n : names) {
-            Object obj = tlCreator.create(n);
-            NodeFactory.newComponentMember(facet, obj);
-        }
-        return this;
-    }
+	public static FacetNodeBuilder create(LibraryNode library) {
+		ln = library;
+		return new FacetNodeBuilder();
+	}
 
-    public FacetNodeBuilder addElements(String... names) {
-        return addObjects(new TLCreator() {
+	private FacetNodeBuilder addObjects(TLCreator tlCreator, String... names) {
+		buildFacet();
+		for (String n : names) {
+			Object obj = tlCreator.create(n);
+			NodeFactory.newComponentMember(facet, obj);
+		}
+		return this;
+	}
 
-            @Override
-            public Object create(String name) {
-                TLProperty prop = new TLProperty();
-                prop.setName(name);
-                return prop;
-            }
-        }, names);
-    }
+	public FacetNodeBuilder addElements(String... names) {
+		buildFacet();
+		return addObjects(new TLCreator() {
 
-    public FacetNodeBuilder addAttributes(String... names) {
-        return addObjects(new TLCreator() {
+			@Override
+			public Object create(String name) {
+				TLProperty prop = new TLProperty();
+				prop.setName(name);
+				return prop;
+			}
+		}, names);
+	}
 
-            @Override
-            public Object create(String name) {
-                TLAttribute prop = new TLAttribute();
-                prop.setName(name);
-                return prop;
-            }
-        }, names);
-    }
+	public FacetNodeBuilder addAttributes(String... names) {
+		buildFacet();
+		return addObjects(new TLCreator() {
 
-    public FacetNodeBuilder addIndicators(String... names) {
-        return addObjects(new TLCreator() {
+			@Override
+			public Object create(String name) {
+				TLAttribute prop = new TLAttribute();
+				prop.setName(name);
+				return prop;
+			}
+		}, names);
+	}
 
-            @Override
-            public Object create(String name) {
-                TLIndicator prop = new TLIndicator();
-                prop.setName(name);
-                return prop;
-            }
-        }, names);
-    }
+	public FacetNodeBuilder addIndicators(String... names) {
+		buildFacet();
+		return addObjects(new TLCreator() {
 
-    public FacetNodeBuilder addAliases(String... names) {
-        return addObjects(new TLCreator() {
+			@Override
+			public Object create(String name) {
+				TLIndicator prop = new TLIndicator();
+				prop.setName(name);
+				return prop;
+			}
+		}, names);
+	}
 
-            @Override
-            public Object create(String name) {
-                TLAlias prop = new TLAlias();
-                prop.setName(name);
-                return prop;
-            }
-        }, names);
-    }
+	public FacetNodeBuilder addAliases(String... names) {
+		buildFacet();
+		return addObjects(new TLCreator() {
 
-    public FacetNode build() {
-        return facet;
-    }
+			@Override
+			public Object create(String name) {
+				TLAlias prop = new TLAlias();
+				prop.setName(name);
+				return prop;
+			}
+		}, names);
+	}
+
+	public FacetNode build() {
+		buildFacet();
+		return facet;
+	}
+
+	private void buildFacet() {
+		if (facet == null) {
+			bo = new BusinessObjectNode(new TLBusinessObject());
+			bo.setName("buildFacetParent");
+			ln.addMember(bo);
+			facet = bo.getSummaryFacet();
+		}
+
+	}
 
 }

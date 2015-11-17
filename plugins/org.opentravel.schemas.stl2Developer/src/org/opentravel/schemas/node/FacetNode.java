@@ -41,11 +41,10 @@ import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.utils.StringComparator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Facets are containers for properties (elements and attributes) as well as simple facets for core and VWA objects.
@@ -55,8 +54,8 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class FacetNode extends ComponentNode {
-	private static final Logger LOGGER = LoggerFactory.getLogger(FacetNode.class);
+public class FacetNode extends ComponentNode implements PropertyOwnerInterface {
+	// private static final Logger LOGGER = LoggerFactory.getLogger(FacetNode.class);
 
 	public FacetNode() {
 	}
@@ -108,11 +107,11 @@ public class FacetNode extends ComponentNode {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.ComponentNode#addProperties(java.util.List)
-	 */
+	@Override
+	public void addProperty(PropertyNode property) {
+		super.addProperty(property);
+	}
+
 	@Override
 	public void addProperties(List<Node> properties, boolean clone) {
 		boolean attrsOnly = false;
@@ -181,6 +180,8 @@ public class FacetNode extends ComponentNode {
 	}
 
 	public void setContext(final String context) {
+		if (!isEditable_newToChain())
+			return;
 		final Object ne = modelObject.getTLModelObj();
 		if (ne instanceof TLFacet) {
 			((TLFacet) ne).setContext(context);
@@ -234,7 +235,7 @@ public class FacetNode extends ComponentNode {
 	@Override
 	public boolean isAssignedByReference() {
 		if (getOwningComponent() == null) {
-			LOGGER.equals("No owning component for this facet: " + this);
+			// LOGGER.equals("No owning component for this facet: " + this);
 			return false;
 		}
 		if (isSimpleListFacet())
@@ -319,12 +320,14 @@ public class FacetNode extends ComponentNode {
 
 	@Override
 	public boolean isCustomFacet() {
-		return ((TLAbstractFacet) getTLModelObject()).getFacetType() == TLFacetType.CUSTOM;
+		return getTLModelObject() instanceof TLAbstractFacet ? ((TLAbstractFacet) getTLModelObject()).getFacetType() == TLFacetType.CUSTOM
+				: false;
 	}
 
 	@Override
 	public boolean isQueryFacet() {
-		return ((TLAbstractFacet) getTLModelObject()).getFacetType() == TLFacetType.QUERY;
+		return getTLModelObject() instanceof TLAbstractFacet ? ((TLAbstractFacet) getTLModelObject()).getFacetType() == TLFacetType.QUERY
+				: false;
 	}
 
 	@Override

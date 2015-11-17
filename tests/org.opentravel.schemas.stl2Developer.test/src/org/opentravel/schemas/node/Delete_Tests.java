@@ -162,11 +162,13 @@ public class Delete_Tests {
 			new LibraryChainNode(ln);
 			ln.setEditable(true); // must be done after LCN created
 
-			ml.addSimpleTypeToLibrary(ln, "case4S");
+			final String fixedName = NodeNameUtils.fixSimpleTypeName("case4S");
+			ml.addSimpleTypeToLibrary(ln, "case4S"); // creates family
 			count++;
-			Node n = ln.findNodeByName("case4S");
-			Assert.assertNotNull(ln.getChain().findNodeByName("case4S"));
-			Assert.assertNotNull(ln.findNodeByName("case4S"));
+			Node n = ln.findNodeByName(fixedName);
+			Assert.assertNotNull(n);
+			Assert.assertNotNull(ln.getChain().findNodeByName(fixedName));
+			Assert.assertNotNull(ln.findNodeByName(fixedName));
 			Assert.assertTrue(n.getParent() instanceof VersionNode);
 			Assert.assertEquals(count, ln.getDescendants_NamedTypes().size());
 			Assert.assertEquals(count, ln.getChain().getDescendants_NamedTypes().size());
@@ -202,6 +204,9 @@ public class Delete_Tests {
 
 	private void deleteEachMember(LibraryNode ln) {
 		for (Node n : ln.getDescendants()) {
+			if (n instanceof CoreObjectNode)
+				LOGGER.debug("Core: " + n);
+
 			if (!n.isNavigation()) {
 				if (n.isDeleted())
 					continue;

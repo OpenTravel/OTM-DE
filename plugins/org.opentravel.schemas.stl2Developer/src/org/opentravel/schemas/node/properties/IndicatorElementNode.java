@@ -37,13 +37,13 @@ import org.opentravel.schemas.properties.Images;
 
 public class IndicatorElementNode extends PropertyNode {
 
-	public IndicatorElementNode(Node parent, String name) {
-		super(new TLIndicator(), parent, name, PropertyNodeType.INDICATOR_ELEMENT);
+	public IndicatorElementNode(PropertyOwnerInterface parent, String name) {
+		super(new TLIndicator(), (Node) parent, name, PropertyNodeType.INDICATOR_ELEMENT);
 		((TLIndicator) getTLModelObject()).setPublishAsElement(true);
 	}
 
-	public IndicatorElementNode(TLModelElement tlObj, INode parent) {
-		super(tlObj, parent, PropertyNodeType.INDICATOR_ELEMENT);
+	public IndicatorElementNode(TLModelElement tlObj, PropertyOwnerInterface parent) {
+		super(tlObj, (INode) parent, PropertyNodeType.INDICATOR_ELEMENT);
 		((TLIndicator) tlObj).setPublishAsElement(true);
 
 		if (!(tlObj instanceof TLIndicator))

@@ -17,7 +17,6 @@ package org.opentravel.schemas.actions;
 
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.MainWindow;
 
@@ -40,17 +39,17 @@ public class ChangeObjectAction extends OtmAbstractAction {
 
 	@Override
 	public boolean isEnabled(Node currentNode) {
-		if (currentNode == null)
+		if ((currentNode == null) || !(currentNode instanceof ComponentNode))
 			return false;
-		if (!(currentNode instanceof ComponentNode))
+		if (currentNode.isEditable_inService())
 			return false;
 
-		if (currentNode.isNewToChain())
-			return currentNode.isEditable();
+		// if (currentNode.getOwningComponent().isEditable_newToChain())
+		return currentNode.getOwningComponent() != null ? currentNode.getOwningComponent().isEditable_newToChain()
+				: false;
 
-		if (currentNode.getChain() != null)
-			return currentNode.getChain().getEditStatus().equals(NodeEditStatus.FULL);
-		return currentNode.isEditable();
+		// if (currentNode.getChain() != null)
+		// return currentNode.getChain().getEditStatus().equals(NodeEditStatus.FULL);
+		// return currentNode.isEditable();
 	}
-
 }

@@ -48,6 +48,7 @@ import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.preferences.CompilerPreferences;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -249,7 +250,7 @@ public class ExampleView extends OtmAbstractView {
 					if (child instanceof VersionNode) {
 						child = ((VersionNode) child).getNewestVersion();
 					}
-					if (child.isService()) {
+					if (child instanceof ServiceNode) {
 						childModel = new ExampleModel(child);
 						childModel.addChildren(generateExamplesForNode(child.getChildren(), findingsAggregator));
 					} else if (child.isOperation()) {

@@ -70,7 +70,7 @@ public class MergeHandler extends OtmAbstractHandler {
 		List<Node> newSelection = mc.getSelectedNodes_NavigatorView();
 		if (newSelection.size() > 1 && newSelection.get(0).isMergeSupported() && isSameObjects(newSelection)) {
 			toMerge = newSelection;
-			return true;
+			return newSelection.get(0).isEditable_newToChain();
 		}
 		return false;
 	}

@@ -24,6 +24,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeNameUtils;
 
 public class AttributeMO extends ModelObject<TLAttribute> {
+	// private static final Logger LOGGER = LoggerFactory.getLogger(AttributeMO.class);
 
 	public AttributeMO(final TLAttribute obj) {
 		super(obj);
@@ -146,6 +147,7 @@ public class AttributeMO extends ModelObject<TLAttribute> {
 	@Override
 	public boolean setName(final String name) {
 		getTLModelObj().setName(name);
+		// LOGGER.debug("Set attr name to: " + name);
 		return true;
 	}
 

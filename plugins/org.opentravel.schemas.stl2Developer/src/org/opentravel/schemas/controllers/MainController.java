@@ -34,24 +34,19 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
-import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryFileManager;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.schemas.actions.ImportObjectToLibraryAction;
-import org.opentravel.schemas.commands.AddNodeHandler;
-import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeModelController;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.Activator;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -65,9 +60,7 @@ import org.opentravel.schemas.widgets.OtmSections;
 import org.opentravel.schemas.widgets.OtmTextFields;
 import org.opentravel.schemas.widgets.OtmWidgets;
 import org.opentravel.schemas.wizards.ChangeWizard;
-import org.opentravel.schemas.wizards.NewFacetWizard;
 import org.opentravel.schemas.wizards.NewPropertiesWizard;
-import org.opentravel.schemas.wizards.validators.NewFacetValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -489,14 +482,6 @@ public class MainController {
 	/**
 	 * Run the
 	 */
-	public void runAddProperties(Event event) {
-		String cmd = AddNodeHandler.COMMAND_ID;
-		runCommand(cmd, event);
-	}
-
-	/**
-	 * Run the
-	 */
 	public void runDeleteNode(Event event) {
 		String cmd = "org.opentravel.schemas.commands.DeleteNode";
 		runCommand(cmd, event);
@@ -566,68 +551,70 @@ public class MainController {
 
 	/** ********************* LEGACY BUSINESS LOGIC *************************** **/
 
-	public void addQueryFacet() {
-		addFacet(TLFacetType.QUERY);
-	}
-
-	public void addCustomFacet() {
-		addFacet(TLFacetType.CUSTOM);
-	}
-
+	// public void addQueryFacet() {
+	// addFacet(TLFacetType.QUERY);
+	// }
+	//
+	// public void addCustomFacet() {
+	// addFacet(TLFacetType.CUSTOM);
+	// }
+	//
 	// TODO - make into command. Have the two actions use a parameter so that there can be just one.
-	private void addFacet(final TLFacetType facetType) {
-		if (!(getSelectedNode_NavigatorView() instanceof ComponentNode))
-			return;
-
-		final ComponentNode current = (ComponentNode) getSelectedNode_NavigatorView();
-
-		if (current != null && current.isBusinessObject()) {
-			if (!current.getLibrary().isMajorVersion()) {
-				// New facets can only be added in major versions.
-				// TODO - consider allowing them in minor and use createMinorVersionOfComponent()
-				// LOGGER.debug("Tried to add facet to a minor or patch version.");
-				return;
-			}
-
-			// Custom facets can only have properties that are also in the detail while query can
-			// have others.
-			// custom can now have any property set!
-			final ComponentNode propertyOwner = facetType.equals(TLFacetType.CUSTOM) ? current.getDetailFacet()
-					: current;
-
-			// Set up the wizard
-			// FIXME - not getting all the newly created contexts!
-			// String defaultContext = contextController.getDefaultContextId(current.getLibrary());
-			String defaultContext = current.getLibrary().getDefaultContextId();
-			String defaultName = "";
-			boolean canBeEmpty = TLFacetType.QUERY.equals(facetType);
-			if (TLFacetType.CUSTOM.equals(facetType)) {
-				defaultName = defaultContext;
-			}
-			final NewFacetWizard wizard = new NewFacetWizard(propertyOwner, defaultName);
-			wizard.setValidator(new NewFacetValidator(current, facetType, wizard));
-
-			wizard.run(OtmRegistry.getActiveShell());
-			if (!wizard.wasCanceled()) {
-				// LOGGER.info("Creating new custom facet of type " + facetType + " and properties "
-				// + wizard.getSelectedProperties());
-				// Get the name from the wizard (enhance wizard)
-
-				BusinessObjectNode bo = (BusinessObjectNode) current;
-				if (TLFacetType.QUERY.equals(facetType) && (wizard.getName() == null || wizard.getName().isEmpty())) {
-					defaultContext = null;
-				}
-				FacetNode newFacet = bo.addFacet(wizard.getName(), defaultContext, facetType);
-				for (final PropertyNode n : wizard.getSelectedProperties()) {
-					NodeFactory.newComponentMember(newFacet, n.cloneTLObj());
-				}
-				refresh(bo);
-			}
-		} else {
-			DialogUserNotifier.openWarning("Add Custom Facet", "Custom Facets can only be added to Business Objects");
-			// LOGGER.warn("New custom facet can be added only to Business Objects, tried to add to: " + current);
-		}
-	}
+	// private void addFacet(final TLFacetType facetType) {
+	// // pre-test done in actions
+	// // if (!(getSelectedNode_NavigatorView() instanceof BusinessObjectNode))
+	// // return;
+	//
+	// final ComponentNode current = (ComponentNode) getSelectedNode_NavigatorView();
+	// if (current != null && current instanceof BusinessObjectNode) {
+	//
+	// // if (current != null && current.isBusinessObject()) {
+	// // if (!current.getLibrary().isMajorVersion()) {
+	// // // New facets can only be added in major versions.
+	// // // TODO - consider allowing them in minor and use createMinorVersionOfComponent()
+	// // // LOGGER.debug("Tried to add facet to a minor or patch version.");
+	// // return;
+	// // }
+	//
+	// // Custom facets can only have properties that are also in the detail while query can
+	// // have others.
+	// // custom can now have any property set!
+	// final ComponentNode propertyOwner = facetType.equals(TLFacetType.CUSTOM) ? current.getDetailFacet()
+	// : current;
+	//
+	// // Set up the wizard
+	// // FIXME - not getting all the newly created contexts!
+	// // String defaultContext = contextController.getDefaultContextId(current.getLibrary());
+	// String defaultContext = current.getLibrary().getDefaultContextId();
+	// String defaultName = "";
+	// boolean canBeEmpty = TLFacetType.QUERY.equals(facetType);
+	// if (TLFacetType.CUSTOM.equals(facetType)) {
+	// defaultName = defaultContext;
+	// }
+	// final NewFacetWizard wizard = new NewFacetWizard(propertyOwner, defaultName);
+	// wizard.setValidator(new NewFacetValidator(current, facetType, wizard));
+	//
+	// wizard.run(OtmRegistry.getActiveShell());
+	// if (!wizard.wasCanceled()) {
+	// // LOGGER.info("Creating new custom facet of type " + facetType + " and properties "
+	// // + wizard.getSelectedProperties());
+	// // Get the name from the wizard (enhance wizard)
+	//
+	// BusinessObjectNode bo = (BusinessObjectNode) current;
+	// if (TLFacetType.QUERY.equals(facetType) && (wizard.getName() == null || wizard.getName().isEmpty())) {
+	// defaultContext = null;
+	// }
+	// FacetNode newFacet = bo.addFacet(wizard.getName(), facetType);
+	// for (final PropertyNode n : wizard.getSelectedProperties()) {
+	// NodeFactory.newComponentMember(newFacet, n.cloneTLObj());
+	// }
+	// refresh(bo);
+	// }
+	// } else {
+	// DialogUserNotifier.openWarning("Add Custom Facet", "Custom Facets can only be added to Business Objects");
+	// // LOGGER.warn("New custom facet can be added only to Business Objects, tried to add to: " + current);
+	// }
+	// }
 
 	/**
 	 * Runs change wizard on the selected component.
@@ -662,7 +649,7 @@ public class MainController {
 			LOGGER.error("Null in change node.");
 			return;
 		}
-		if (nodeToReplace.isService() || !nodeToReplace.isInTLLibrary()) {
+		if (nodeToReplace instanceof ServiceNode || !nodeToReplace.isInTLLibrary()) {
 			LOGGER.warn("Invalid state. Cannot change " + nodeToReplace);
 			return;
 		}
@@ -738,12 +725,12 @@ public class MainController {
 		cloneNodes(facetCloneList);
 	}
 
-	/**
-	 * Implements the Copy action.
-	 */
-	public void copySelectedNodes() {
-		cloneNodes(getSelectedNodes_NavigatorView());
-	}
+	// /**
+	// * Implements the Copy action.
+	// */
+	// public void copySelectedNodes() {
+	// cloneNodes(getSelectedNodes_NavigatorView());
+	// }
 
 	private void cloneNodes(List<Node> nodes) {
 		// LOGGER.debug("Cloning " + nodes.size() + " selected components. ");

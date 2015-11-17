@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
@@ -39,6 +40,8 @@ import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
+import org.opentravel.schemas.node.ExtensionPointNode;
+import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
@@ -49,7 +52,6 @@ import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
-import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -187,11 +189,12 @@ public class MockLibrary {
 	}
 
 	/**
-	 * Add one of each object type to the library.
+	 * Add one of each object type to the library. Does <b>not</b> create extension points.
 	 * 
 	 * @param ln
 	 */
 	public int addOneOfEach(LibraryNode ln, String nameRoot) {
+		LOGGER.debug("Adding one of each object type to " + ln + " with name root of " + nameRoot);
 		int initialCount = ln.getDescendants_NamedTypes().size();
 		addBusinessObjectToLibrary(ln, nameRoot + "BO");
 		addClosedEnumToLibrary(ln, nameRoot + "CE");
@@ -219,6 +222,7 @@ public class MockLibrary {
 		BusinessObjectNode newNode = (BusinessObjectNode) NodeFactory.newComponent(new TLBusinessObject());
 		newNode.setName(name);
 		ln.addMember(newNode);
+		newNode.setExtensible(true);
 
 		PropertyNode newProp = new ElementNode(newNode.getIDFacet(), "TestID");
 		newProp.setAssignedType(string);
@@ -253,7 +257,7 @@ public class MockLibrary {
 		PropertyNode n3PropA = new ElementNode(n3.getSummaryFacet(), n1.getName());
 		n3PropA.setAssignedType(n1);
 		PropertyNode n3PropB = new ElementNode(n3.getSummaryFacet(), n2.getName());
-		n3PropB.setAssignedType(n2.getSummaryFacet());
+		n3PropB.setAssignedType((Node) n2.getSummaryFacet());
 
 		PropertyNode newProp = new ElementNode(n1.getIDFacet(), "TestID");
 		newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
@@ -306,8 +310,8 @@ public class MockLibrary {
 			name = "TestOpen";
 		EnumerationOpenNode newNode = (EnumerationOpenNode) NodeFactory.newComponent(new TLOpenEnumeration());
 		newNode.setName(name);
-		PropertyNode newProp = new EnumLiteralNode(newNode, "Lit-O1");
 		ln.addMember(newNode);
+		newNode.addLiteral("Lit-01");
 		return newNode;
 	}
 
@@ -316,8 +320,37 @@ public class MockLibrary {
 			name = "TestClosed";
 		EnumerationClosedNode newNode = (EnumerationClosedNode) NodeFactory.newComponent(new TLClosedEnumeration());
 		newNode.setName(name);
-		PropertyNode newProp = new EnumLiteralNode(newNode, "Lit-C1");
 		ln.addMember(newNode);
+		newNode.addLiteral("Lit-C1");
 		return newNode;
+	}
+
+	/**
+	 * @param ln
+	 *            - library to add extension point to
+	 * @param eln
+	 *            - library containing business object to extend. must be different.
+	 * @return
+	 */
+	public ExtensionPointNode addEP(LibraryNode ln, LibraryNode eln) {
+		FacetNode facet = null;
+		for (Node d : eln.getDescendants_NamedTypes())
+			if (d instanceof BusinessObjectNode)
+				facet = ((BusinessObjectNode) d).getSummaryFacet();
+		return addExtensionPoint(ln, facet);
+	}
+
+	/**
+	 * 
+	 * @param ln
+	 * @param facet
+	 *            - facet in different library to extend.
+	 * @return
+	 */
+	public ExtensionPointNode addExtensionPoint(LibraryNode ln, FacetNode facet) {
+		ExtensionPointNode ep = new ExtensionPointNode(new TLExtensionPointFacet());
+		ln.addMember(ep);
+		ep.setExtendsType(facet);
+		return ep;
 	}
 }

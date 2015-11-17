@@ -28,9 +28,8 @@ import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Value With Attributes. This object has two facets, the value is a simple facet and attributes facet. This makes it a
@@ -41,9 +40,9 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class VWA_Node extends ComponentNode implements ComplexComponentInterface {
-	@SuppressWarnings("unused")
-	private static final Logger LOGGER = LoggerFactory.getLogger(VWA_Node.class);
+public class VWA_Node extends ComponentNode implements ComplexComponentInterface, ExtensionOwner,
+		VersionedObjectInterface {
+	// private static final Logger LOGGER = LoggerFactory.getLogger(VWA_Node.class);
 
 	public VWA_Node(LibraryMember mbr) {
 		super(mbr);
@@ -81,6 +80,16 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 	// public Node getAssignedType() {
 	// return getSimpleType();
 	// }
+
+	@Override
+	public ComponentNode createMinorVersionComponent() {
+		return super.createMinorVersionComponent(new VWA_Node(createMinorTLVersion(this)));
+	}
+
+	@Override
+	public Node getExtendsType() {
+		return getTypeClass().getTypeNode();
+	}
 
 	@Override
 	public QName getTLTypeQName() {
@@ -122,6 +131,16 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 	}
 
 	@Override
+	public String getLabel() {
+		if (getExtendsType() == null)
+			return super.getLabel();
+		else if (isVersioned())
+			return super.getLabel() + " (Extends version:  " + getExtendsType().getLibrary().getVersion() + ")";
+		else
+			return super.getLabel() + " (Extends: " + getExtendsType().getNameWithPrefix() + ")";
+	}
+
+	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.ValueWithAttr);
 	}
@@ -146,10 +165,10 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 	}
 
 	@Override
-	public ComponentNode getAttributeFacet() {
+	public PropertyOwnerInterface getAttributeFacet() {
 		for (INode f : getChildren()) {
 			if (f.getModelObject() instanceof ValueWithAttributesAttributeFacetMO)
-				return (ComponentNode) f;
+				return (PropertyOwnerInterface) f;
 		}
 		return null;
 

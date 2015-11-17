@@ -24,7 +24,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComplexComponentInterface;
-import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.Node;
@@ -32,6 +31,7 @@ import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.SimpleFacetNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ public class NewPropertiesWizard2 extends ValidatingWizard implements Cancelable
 	private boolean canceled;
 	private final List<PropertyNodeType> enabledTypes = new ArrayList<PropertyNodeType>();
 	private ViewerFilter propertyFilter;
-	private ComponentNode actOnNode; // note - extension facets are not sub-types of facet
+	private PropertyOwnerInterface actOnNode; // note - extension facets are not sub-types of facet
 	private Node scopeNode;
 
 	final static String pageName = "Add property";
@@ -81,16 +81,16 @@ public class NewPropertiesWizard2 extends ValidatingWizard implements Cancelable
 	}
 
 	private void getActOnNode(Node selectedNode) {
-		if (selectedNode instanceof FacetNode) {
+		if (selectedNode instanceof PropertyOwnerInterface) {
 			if (selectedNode instanceof SimpleFacetNode)
-				actOnNode = selectedNode.getOwningComponent().getDefaultFacet();
+				actOnNode = (PropertyOwnerInterface) selectedNode.getOwningComponent().getDefaultFacet();
 			else
-				actOnNode = (ComponentNode) selectedNode;
+				actOnNode = (PropertyOwnerInterface) selectedNode;
 		} else {
 			if (selectedNode instanceof ComplexComponentInterface)
-				actOnNode = ((ComplexComponentInterface) selectedNode).getDefaultFacet();
+				actOnNode = (PropertyOwnerInterface) ((ComplexComponentInterface) selectedNode).getDefaultFacet();
 			else if (selectedNode instanceof PropertyNode)
-				actOnNode = (ComponentNode) selectedNode.getParent();
+				actOnNode = (PropertyOwnerInterface) selectedNode.getParent();
 		}
 	}
 
@@ -99,13 +99,15 @@ public class NewPropertiesWizard2 extends ValidatingWizard implements Cancelable
 		if (selectedNode.isQueryFacet())
 			scopeNode = selectedNode.getOwningComponent();
 		else if (selectedNode.isCustomFacet())
-			scopeNode = ((BusinessObjectNode) selectedNode.getOwningComponent()).getDetailFacet();
+			scopeNode = (Node) ((BusinessObjectNode) selectedNode.getOwningComponent()).getDetailFacet();
 
 	}
 
-	private void getEnabledPropertyTypes(Node node) {
+	private void getEnabledPropertyTypes(PropertyOwnerInterface actOnNode2) {
 		enabledTypes.clear();
-		if (node.getOwningComponent() instanceof VWA_Node)
+		if (actOnNode2 == null)
+			return;
+		if (actOnNode2.getOwningComponent() instanceof VWA_Node)
 			enabledTypes.addAll(PropertyNodeType.getVWA_PropertyTypes());
 		else
 			enabledTypes.addAll(PropertyNodeType.getAllTypedPropertyTypes());

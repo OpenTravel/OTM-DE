@@ -28,8 +28,6 @@ import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.AggregateNode.AggregateType;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Library chains are all libraries based on the same major release. Their content is aggregated in this node.
@@ -38,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class LibraryChainNode extends Node {
-	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryChainNode.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryChainNode.class);
 
 	protected static final String LIBRARY_CHAIN = "Library Collection";
 
@@ -86,7 +84,7 @@ public class LibraryChainNode extends Node {
 
 		ProjectNode pn = ln.getProject();
 		if (pn == null) {
-			LOGGER.error("Library Chains must be made from libraries in a project.");
+			// LOGGER.error("Library Chains must be made from libraries in a project.");
 			return;
 		}
 		setParent(pn);
@@ -122,7 +120,7 @@ public class LibraryChainNode extends Node {
 	public LibraryChainNode(ProjectItem pi, ProjectNode project) {
 		super();
 		if (pi == null || pi.getContent() == null) {
-			LOGGER.debug("Null project item content!");
+			// LOGGER.debug("Null project item content!");
 			return;
 		}
 		setIdentity(pi.getBaseNamespace());
@@ -240,8 +238,6 @@ public class LibraryChainNode extends Node {
 			simpleRoot.remove(node);
 		else if ((node instanceof ServiceNode || (node instanceof OperationNode)))
 			serviceRoot.remove(node);
-		// else
-		// assert (false) : "Invalid node type to remove.";
 
 		// if (findPreviousVersion(node) != null)
 		// LOGGER.debug("Adding back the previous version of " + node);
@@ -284,11 +280,11 @@ public class LibraryChainNode extends Node {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#close()
-	 */
+	@Override
+	public boolean isEnabled_AddProperties() {
+		return false;
+	}
+
 	@Override
 	public void close() {
 		ProjectNode project = (ProjectNode) getParent();

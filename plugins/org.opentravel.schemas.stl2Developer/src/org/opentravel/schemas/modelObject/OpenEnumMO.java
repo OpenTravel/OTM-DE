@@ -19,8 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLEnumValue;
+import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
@@ -104,6 +106,25 @@ public class OpenEnumMO extends ModelObject<TLOpenEnumeration> {
 	@Override
 	public boolean isComplexAssignable() {
 		return true;
+	}
+
+	/**
+	 * @see org.opentravel.schemas.modelObject.ModelObject#setExtendsType(org.opentravel.schemas.modelObject.ModelObject)
+	 */
+	@Override
+	public void setExtendsType(ModelObject<?> mo) {
+		if (mo == null) {
+			getTLModelObj().setExtension(null);
+
+		} else {
+			TLExtension tlExtension = getTLModelObj().getExtension();
+
+			if (tlExtension == null) {
+				tlExtension = new TLExtension();
+				getTLModelObj().setExtension(tlExtension);
+			}
+			tlExtension.setExtendsEntity((NamedEntity) mo.getTLModelObj());
+		}
 	}
 
 	// @Override

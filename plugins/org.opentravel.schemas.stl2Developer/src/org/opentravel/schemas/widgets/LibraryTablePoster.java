@@ -24,12 +24,14 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.opentravel.schemas.modelObject.XSDComplexMO;
+import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.controllers.NodeUtils;
 import org.opentravel.schemas.node.properties.AttributeNode;
@@ -42,19 +44,15 @@ import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.ColorProvider;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.trees.library.LibrarySorter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * @author Agnieszka Janowska
  * 
  */
 // TODO: replace this with JfaceTable (content provider, sorter, and label
 // provider)
 public class LibraryTablePoster {
 	@SuppressWarnings("unused")
-	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTablePoster.class);
-
+	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTablePoster.class);
 	private final Table table;
 	private final ColorProvider colorProvider;
 
@@ -99,7 +97,7 @@ public class LibraryTablePoster {
 
 		List<Node> sortedChildren = new ArrayList<Node>(curNode.getChildren());
 		sortedChildren = sort(sortedChildren);
-		if (curNode.isService()) {
+		if (curNode instanceof ServiceNode) {
 			for (final Node kid : sortedChildren) {
 				postTableRows(kid, kid.getLabel());
 			}
@@ -123,7 +121,7 @@ public class LibraryTablePoster {
 
 			if (curNode instanceof EnumerationClosedNode) {
 				postTableRows(curNode, "Closed: " + curNode.getName());
-			} else if (curNode.isAlias()) {
+			} else if (curNode instanceof AliasNode) {
 				postTableRows(curNode, "");
 			} else if (curNode instanceof EnumerationOpenNode) {
 				postTableRows(curNode, "Open: " + curNode.getName());
@@ -154,7 +152,9 @@ public class LibraryTablePoster {
 	}
 
 	private boolean showInherited(Node n) {
-		if (NodeUtils.checker(n).isNewToChain().get())
+		if (n == null || n.getOwningComponent() == null || OtmRegistry.getNavigatorView() == null)
+			return true;
+		if (NodeUtils.checker(n).isNewToChain().get() || n.getOwningComponent().isVersioned())
 			return true;
 		return OtmRegistry.getNavigatorView().isShowInheritedProperties();
 	}

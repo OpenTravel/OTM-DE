@@ -20,15 +20,13 @@ import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLService;
 import org.opentravel.schemas.node.OperationNode.ResourceOperationTypes;
 import org.opentravel.schemas.properties.Images;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Dave Hollander
  * 
  */
 public class ServiceNode extends ComponentNode {
-	private final static Logger LOGGER = LoggerFactory.getLogger(ServiceNode.class);
+	// private final static Logger LOGGER = LoggerFactory.getLogger(ServiceNode.class);
 
 	public ServiceNode(final TLService tlSvc, LibraryNode ln) {
 		super(tlSvc);
@@ -103,12 +101,8 @@ public class ServiceNode extends ComponentNode {
 
 	@Override
 	public String getLabel() {
-		return "Service: " + getName();
-	}
-
-	@Override
-	public boolean isService() {
-		return true;
+		return getName() + " (Version:  " + getLibrary().getVersion() + ")";
+		// return "Service: " + getName();
 	}
 
 	@Override
