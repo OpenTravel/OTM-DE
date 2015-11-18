@@ -49,8 +49,10 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 	public CoreObjectNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
-		if (((CoreObjectMO) modelObject).getSimpleValueType() == null)
-			setSimpleType((Node) ModelNode.getEmptyNode());
+		// If the mbr was not null but simple type is, set the simple type
+		if (modelObject instanceof CoreObjectMO)
+			if (((CoreObjectMO) modelObject).getSimpleValueType() == null)
+				setSimpleType((Node) ModelNode.getEmptyNode());
 	}
 
 	public CoreObjectNode(BusinessObjectNode bo) {

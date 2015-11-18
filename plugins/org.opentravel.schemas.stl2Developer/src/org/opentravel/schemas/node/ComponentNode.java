@@ -39,11 +39,14 @@ import org.opentravel.schemacompiler.validate.ValidationException;
 import org.opentravel.schemacompiler.version.MinorVersionHelper;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
 import org.opentravel.schemacompiler.version.Versioned;
+import org.opentravel.schemas.modelObject.EmptyMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.types.TypeProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The ComponentNode class handles nodes that represent model objects. It is overridden for most types and properties.
@@ -54,7 +57,7 @@ import org.opentravel.schemas.types.TypeProvider;
 
 // TODO - this should not implement type provider -- sub-classes should.
 public class ComponentNode extends Node implements TypeProvider {
-	// private final static Logger LOGGER = LoggerFactory.getLogger(ComponentNode.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(ComponentNode.class);
 
 	/**
 	 * Inherited nodes are not assigned a type class. If they were the where-used count would be wrong.
@@ -661,6 +664,10 @@ public class ComponentNode extends Node implements TypeProvider {
 	}
 
 	protected ComponentNode createMinorVersionComponent(ComponentNode newNode) {
+		if (newNode.getModelObject() instanceof EmptyMO) {
+			// LOGGER.debug("Empty minor version created");
+			return null;
+		}
 		Node owner = this.getOwningComponent();
 		// exit if it is already in the head of the chain.
 		if (owner.getLibrary() == owner.getChain().getHead())

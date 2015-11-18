@@ -208,6 +208,10 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 				assertNotNull(nc.getLibrary());
 				assertNotNull(nc.getExtendsType());
 				assertEquals(n, nc.getExtendsType());
+				// Verify there is only one of these in the library
+				for (Node t : nc.getParent().getChildren())
+					if (t.getName().equals(nc.getName()))
+						LOGGER.debug("Found " + t);
 			}
 		}
 	}

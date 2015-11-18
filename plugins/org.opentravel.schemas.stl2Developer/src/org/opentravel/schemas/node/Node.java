@@ -1306,7 +1306,7 @@ public abstract class Node implements INode {
 			return true;
 
 		// Services always return false for inhead(). Make sure it is in the head library.
-		if (isInService())
+		if (isInService() && getChain() != null)
 			return getLibrary().getChain().getHead() == getLibrary() && isEditable();
 
 		return getLibrary().isManaged() ? isInHead() && isEditable() : isEditable();

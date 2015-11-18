@@ -122,8 +122,11 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 			// TESTME - if the service is not in the head then create a new service in the head
 		}
 
-		// if (actOnNode == null)
-		// LOGGER.error("Did not create Version for " + selectedNode);
+		if (actOnNode == null)
+			// LOGGER.error("Did not create Version for " + selectedNode);
+			DialogUserNotifier.openWarning("Error", "Could not create minor version of " + selectedNode
+					+ ". Try validating the library and correcting any problems reported.");
+		// (Messages.getString("action.component.version.title"), Messages.getString(message)));
 
 		return actOnNode;
 	}

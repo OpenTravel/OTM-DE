@@ -799,13 +799,21 @@ public class LibraryNode extends Node {
 		if (n.getLibrary() != null && n.getLibrary() != this)
 			n.removeFromLibrary();
 
-		getTLLibrary().addNamedMember((LibraryMember) n.getTLModelObject());
-		if (linkMember(n)) {
+		// If it is not in a TLLibrary or in the wrong TLLibrary set the TLLibrary.
+		AbstractLibrary owningLib = null;
+		if (n.getTLModelObject() instanceof LibraryMember)
+			owningLib = ((LibraryMember) n.getTLModelObject()).getOwningLibrary();
+		if (owningLib != getTLLibrary()) {
+			owningLib.removeNamedMember((LibraryMember) n.getTLModelObject());
+			getTLLibrary().addNamedMember((LibraryMember) n.getTLModelObject());
+		}
+		if (owningLib == null)
+			getTLLibrary().addNamedMember((LibraryMember) n.getTLModelObject());
 
+		if (linkMember(n)) {
 			// If this library is in a chain, add the member to the chain's aggregates.
-			if (isInChain()) {
+			if (isInChain())
 				getChain().add((ComponentNode) n);
-			}
 		}
 
 		// Fail if in the list more than once.
