@@ -768,10 +768,8 @@ public class LibraryNode extends Node {
 	 * getChain.add()
 	 */
 	public void addMember(final Node n) {
-		// FIXME - assigning types honors isEditable() shouldn't addMember()?
 		if (!isEditable()) {
 			LOGGER.warn("Tried to addMember() " + n + " to non-editable library " + this);
-			// assert (isEditable());
 			return;
 		}
 		if (n == null || n.getTLModelObject() == null) {
@@ -803,12 +801,12 @@ public class LibraryNode extends Node {
 		AbstractLibrary owningLib = null;
 		if (n.getTLModelObject() instanceof LibraryMember)
 			owningLib = ((LibraryMember) n.getTLModelObject()).getOwningLibrary();
-		if (owningLib != getTLLibrary()) {
+		if (owningLib == null)
+			getTLLibrary().addNamedMember((LibraryMember) n.getTLModelObject());
+		else if (owningLib != getTLLibrary()) {
 			owningLib.removeNamedMember((LibraryMember) n.getTLModelObject());
 			getTLLibrary().addNamedMember((LibraryMember) n.getTLModelObject());
 		}
-		if (owningLib == null)
-			getTLLibrary().addNamedMember((LibraryMember) n.getTLModelObject());
 
 		if (linkMember(n)) {
 			// If this library is in a chain, add the member to the chain's aggregates.
@@ -1018,10 +1016,6 @@ public class LibraryNode extends Node {
 	public Node getServiceRoot() {
 		return serviceRoot;
 	}
-
-	// public Node getElementRoot() {
-	// return elementRoot;
-	// }
 
 	@Override
 	public String getComponentType() {

@@ -223,9 +223,9 @@ public class Type {
 	public void replaceTypeProvider(Node replacement, LibraryNode scopeLibrary) {
 
 		// Nothing to do.
-		if (getTypeUsers().isEmpty())
+		if (getTypeUsers().isEmpty() && getBaseUsers().isEmpty())
 			return;
-		// LOGGER.debug("Replacing " + typeOwner + " used " + getTypeUsers().size() + " times.");
+		LOGGER.debug("Replacing " + typeOwner + " used " + getTypeUsers().size() + " times.");
 
 		if (replacement == null || !replacement.isTypeProvider())
 			return;

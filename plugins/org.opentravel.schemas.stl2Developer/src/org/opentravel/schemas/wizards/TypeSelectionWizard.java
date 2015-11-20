@@ -34,6 +34,7 @@ import org.opentravel.schemas.trees.type.TypeTreeExtensionSelectionFilter;
 import org.opentravel.schemas.trees.type.TypeTreeIdReferenceTypeOnlyFilter;
 import org.opentravel.schemas.trees.type.TypeTreeSimpleTypeOnlyFilter;
 import org.opentravel.schemas.trees.type.TypeTreeVWASimpleTypeOnlyFilter;
+import org.opentravel.schemas.trees.type.TypeTreeVersionSelectionFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,12 +94,15 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 		boolean simple = false;
 		boolean vwa = false;
 		boolean idReference = false;
+		boolean versions = false;
 
 		if (curNodeList != null) {
 			for (Node n : curNodeList) {
 				if (n != null && n.isEditable()) {
 					setNodeList.add(0, n); // why in front of list?
-					if (n.getOwningComponent() instanceof VWA_Node)
+					if (n.getLaterVersions() != null)
+						versions = true;
+					else if (n.getOwningComponent() instanceof VWA_Node)
 						vwa = true;
 					else if (n.isOnlySimpleTypeUser())
 						simple = true;
@@ -125,7 +129,9 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 		selectionPage = new TypeSelectionPage(pageName, title, description, null, setNodeList);
 
 		// Set the filters based on type of passed node.
-		if (simple)
+		if (versions)
+			selectionPage.setTypeSelectionFilter(new TypeTreeVersionSelectionFilter(curNodeList.get(0)));
+		else if (simple)
 			selectionPage.setTypeSelectionFilter(new TypeTreeSimpleTypeOnlyFilter());
 		else if (vwa)
 			selectionPage.setTypeSelectionFilter(new TypeTreeVWASimpleTypeOnlyFilter());

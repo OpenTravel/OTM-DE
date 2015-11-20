@@ -153,7 +153,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		//
 		// Create locked minor version. Will contain bo with property from ePatch.
 		minorLibrary = rc.createMinorVersion(chain.getHead());
-		AggregateComplex--; // new Core in minor will be head of both patch extension point and original core
+		// AggregateComplex--; // new Core in minor will be head of both patch extension point and original core
 		MinorComplex++; // the new CO from patch EPF
 		TotalDescendents++; // new Co
 		// Make sure the patch library still has the extension point wrapped in a version node.
@@ -439,16 +439,16 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		Assert.assertEquals(NodeEditStatus.MINOR, boInMinor.getEditStatus());
 		assertTrue(minorLibrary.getDescendants_NamedTypes().contains(boInMinor));
 
-		// Add a new property
-		ElementNode newProperty = new ElementNode(boInMinor.getSummaryFacet(), "testProp");
-		assertTrue(newProperty != null);
-		assertTrue(!newProperty.isEditable_newToChain());
-		addAndRemoveDoc(newProperty);
-
 		// change a pre-existing old property
 		PropertyNode oldProperty = (PropertyNode) bo.getSummaryFacet().getChildren().get(0);
 		assertTrue(oldProperty != null);
 		addAndRemoveDoc(oldProperty);
+
+		// Add a new property
+		ElementNode newProperty = new ElementNode(boInMinor.getSummaryFacet(), "testProp");
+		assertTrue(newProperty != null);
+		assertTrue(newProperty.isEditable_newToChain());
+		addAndRemoveDoc(newProperty);
 
 		// Add a new business object to the minor
 		String newBoName = "TestMinorBO";

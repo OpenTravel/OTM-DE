@@ -18,17 +18,15 @@ package org.opentravel.schemas.widgets;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
-import org.opentravel.schemacompiler.version.MinorVersionHelper;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.OtmActions;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.controllers.NodeUtils;
-import org.opentravel.schemas.node.properties.AttributeNode;
-import org.opentravel.schemas.node.properties.ElementNode;
-import org.opentravel.schemas.node.properties.ElementReferenceNode;
-import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.types.TypeUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link LibraryTablePoster} decorated with 'Go To' buttons on types
@@ -37,6 +35,7 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
  * 
  */
 public class LibraryTablePosterWithButtons extends LibraryTablePoster {
+	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTablePosterWithButtons.class);
 
 	private final TableEditorButtonSet buttonSet;
 
@@ -57,26 +56,30 @@ public class LibraryTablePosterWithButtons extends LibraryTablePoster {
 	@Override
 	protected TableItem postTableRow(final Node n) {
 		final TableItem item = super.postTableRow(n);
-		// Version Control
-		// If the type has a newer version then allow that to be selected
-		// see TL version handler and listeners in there
-		//
+
+		// Version Control - If the type has a newer version then allow that to be selected
 		Button button = null;
-		MinorVersionHelper helper = new MinorVersionHelper();
+
+		// List<Versioned> versions = null;
+		// MinorVersionHelper helper = new MinorVersionHelper();
+		// TLModelElement tlObj = n.getAssignedType().getTLModelObject();
+		// Node assignedType = n.getAssignedType();
+		// if (tlObj instanceof Versioned && !(assignedType instanceof ImpliedNode)) {
 		// try {
-		// helper.getLaterMinorVersions((Versioned)n.getAssignedType().getTLModelObject());
+		// versions = helper.getLaterMinorVersions((Versioned) n.getAssignedType().getTLModelObject());
 		// } catch (VersionSchemeException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
+		// LOGGER.debug("Error: " + e.getLocalizedMessage());
+		// }
 		// }
 
-		if (NodeUtils.checker(n.getAssignedType()).isInMinorOrPatch().existInPreviousVersions().get())
-			button = buttonSet.addButton(n, item, 2); // Put typeSelection buttons on the row.
-		else if (!NodeUtils.checker(n).isInMinorOrPatch().existInPreviousVersions().get()
-				&& !n.isInheritedProperty()
-				|| NodeUtils.checker(n.getAssignedType()).isInMinorOrPatch().existInPreviousVersions().get()
-				&& n.isEditable()
-				&& (n instanceof AttributeNode || n instanceof ElementNode || n instanceof SimpleAttributeNode || n instanceof ElementReferenceNode)) {
+		// if (NodeUtils.checker(n.getAssignedType()).isInMinorOrPatch().existInPreviousVersions().get())
+		// button = buttonSet.addButton(n, item, 2); // Put typeSelection buttons on the row.
+		// else
+		if (!NodeUtils.checker(n).isInMinorOrPatch().existInPreviousVersions().get()
+				&& (!n.isInheritedProperty() || n.getLaterVersions() != null) && n.isEditable()
+				&& n instanceof TypeUser) {
+			// && (n instanceof AttributeNode || n instanceof ElementNode || n instanceof SimpleAttributeNode || n
+			// instanceof ElementReferenceNode)) {
 			button = buttonSet.addButton(n, item, 2); // Put typeSelection buttons on the row.
 
 			// Version Control

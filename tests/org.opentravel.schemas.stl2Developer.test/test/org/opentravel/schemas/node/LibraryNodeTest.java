@@ -171,6 +171,7 @@ public class LibraryNodeTest extends BaseProjectTest {
 				new Version(1, 0, 0)).build(defaultProject, pc);
 		CoreObjectNode coBase = ComponentNodeBuilder.createCoreObject("COBase").get(moveFrom);
 		CoreObjectNode coExt = ComponentNodeBuilder.createCoreObject("COExt").extend(coBase).get(moveFrom);
+		assertTrue(coExt.isInstanceOf(coBase));
 
 		LibraryNode moveTo = LibraryNodeBuilder.create("MoveTo", defaultProject.getNamespace() + "/Test/TO", "to",
 				new Version(1, 0, 0)).build(defaultProject, pc);

@@ -31,6 +31,7 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.CodeGenerationException;
 import org.opentravel.schemacompiler.codegen.example.ExampleDocumentBuilder;
 import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions;
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
@@ -47,12 +48,16 @@ import org.opentravel.schemacompiler.validate.Validatable;
 import org.opentravel.schemacompiler.validate.ValidationException;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
+import org.opentravel.schemacompiler.version.MinorVersionHelper;
+import org.opentravel.schemacompiler.version.VersionSchemeException;
+import org.opentravel.schemacompiler.version.Versioned;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
 import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.modelObject.XSDComplexMO;
 import org.opentravel.schemas.modelObject.XSDElementMO;
 import org.opentravel.schemas.modelObject.XSDSimpleMO;
+import org.opentravel.schemas.node.listeners.INodeListener;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
@@ -888,6 +893,32 @@ public abstract class Node implements INode {
 	 */
 	public boolean hasNavChildrenWithProperties() {
 		return hasNavChildren();
+	}
+
+	/**
+	 * @return list of later versions in a minor chain or null
+	 */
+	public List<Node> getLaterVersions() {
+		List<Versioned> versions = null;
+		List<Node> vNodes = new ArrayList<Node>();
+
+		if (getAssignedType().getTLModelObject() instanceof Versioned && !(getAssignedType() instanceof ImpliedNode)) {
+			try {
+				versions = new MinorVersionHelper().getLaterMinorVersions((Versioned) getAssignedType()
+						.getTLModelObject());
+				for (Versioned v : versions) {
+					for (ModelElementListener l : ((TLModelElement) v).getListeners())
+						if (l instanceof INodeListener)
+							vNodes.add(((INodeListener) l).getNode()); // could be duplicates if multiple listeners
+				}
+			} catch (VersionSchemeException e) {
+				LOGGER.debug("Error: " + e.getLocalizedMessage());
+				return null;
+			}
+		} else
+			return null;
+		return vNodes.isEmpty() ? null : vNodes;
+
 	}
 
 	/**
@@ -2416,6 +2447,16 @@ public abstract class Node implements INode {
 	@Override
 	public INode.CommandType getAddCommand() {
 		return INode.CommandType.NONE;
+	}
+
+	public List<Node> getAncestors() {
+		List<Node> ancestors = new ArrayList<Node>();
+		Node n = this;
+		do {
+			ancestors.add(n);
+			n = n.getParent();
+		} while (!(n instanceof ModelNode));
+		return ancestors;
 	}
 
 	/**
