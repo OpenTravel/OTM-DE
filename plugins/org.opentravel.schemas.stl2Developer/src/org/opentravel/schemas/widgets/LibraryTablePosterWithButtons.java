@@ -18,6 +18,7 @@ package org.opentravel.schemas.widgets;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
+import org.opentravel.schemacompiler.version.MinorVersionHelper;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.OtmActions;
 import org.opentravel.schemas.node.Node;
@@ -57,11 +58,26 @@ public class LibraryTablePosterWithButtons extends LibraryTablePoster {
 	protected TableItem postTableRow(final Node n) {
 		final TableItem item = super.postTableRow(n);
 		// Version Control
-		if (!NodeUtils.checker(n).isInMinorOrPatch().existInPreviousVersions().get()
+		// If the type has a newer version then allow that to be selected
+		// see TL version handler and listeners in there
+		//
+		Button button = null;
+		MinorVersionHelper helper = new MinorVersionHelper();
+		// try {
+		// helper.getLaterMinorVersions((Versioned)n.getAssignedType().getTLModelObject());
+		// } catch (VersionSchemeException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+
+		if (NodeUtils.checker(n.getAssignedType()).isInMinorOrPatch().existInPreviousVersions().get())
+			button = buttonSet.addButton(n, item, 2); // Put typeSelection buttons on the row.
+		else if (!NodeUtils.checker(n).isInMinorOrPatch().existInPreviousVersions().get()
 				&& !n.isInheritedProperty()
+				|| NodeUtils.checker(n.getAssignedType()).isInMinorOrPatch().existInPreviousVersions().get()
 				&& n.isEditable()
 				&& (n instanceof AttributeNode || n instanceof ElementNode || n instanceof SimpleAttributeNode || n instanceof ElementReferenceNode)) {
-			Button button = buttonSet.addButton(n, item, 2); // Put typeSelection buttons on the row.
+			button = buttonSet.addButton(n, item, 2); // Put typeSelection buttons on the row.
 
 			// Version Control
 			if (NodeUtils.checker(n).isInMinorOrPatch().existInPreviousVersions().get()) {
