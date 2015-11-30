@@ -403,7 +403,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 
 		OtmHandlers.suspendHandlers();
 		clearProperties(); // Clear the fields, and the propertyNode pointer
-
+		//
 		if (n instanceof FacetNode) {
 			boolean edit = n.isEditable() && !NodeUtils.checker(n).isInheritedFacet().get();
 			fields.postField(nameField, n.getLabel(), edit);

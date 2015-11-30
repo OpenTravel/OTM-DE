@@ -1114,7 +1114,7 @@ public abstract class Node implements INode {
 		if (getLibrary() == null || isDeleted() || !isEditable())
 			return false; // not editable
 
-		// Do not allow editing nav nodes unless they are family nodes.
+		// Do not allow editing navigation nodes unless they are family nodes.
 		if (this instanceof NavNode && !(this instanceof FamilyNode))
 			return false;
 
@@ -1139,9 +1139,6 @@ public abstract class Node implements INode {
 
 		if (this instanceof PropertyNode)
 			return !isInheritedProperty(); // properties in the head are editable
-
-		// if (isEditable_inService())
-		// return true; // services are not versioned and can be edited in major or minor
 
 		// It is in head of chain. Return true if there are no previous versions
 		return getOwningComponent().getVersionNode().getPreviousVersion() == null;
