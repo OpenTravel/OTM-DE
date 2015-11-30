@@ -408,7 +408,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 			boolean edit = n.isEditable() && !NodeUtils.checker(n).isInheritedFacet().get();
 			fields.postField(nameField, n.getLabel(), edit);
 		} else {
-			fields.postField(nameField, n.getName(), n.isEditable());
+			fields.postField(nameField, n.getName(), n.isEditable_newToChain());
 		}
 
 		if (n instanceof ElementReferenceNode)
