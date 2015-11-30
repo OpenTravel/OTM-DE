@@ -472,7 +472,6 @@
 			name="Refresh">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			defaultHandler="org.opentravel.schemas.commands.SortNodeHandler"
 			description="Sort Properties of a object." id="org.opentravel.schemas.commands.Sort"
 			name="Sort">
 		</command>
@@ -719,6 +718,17 @@
 				</or>
 			</activeWhen>
 		</handler>
+		<handler class="org.opentravel.schemas.commands.SortNodeHandler"
+			commandId="org.opentravel.schemas.commands.Sort">
+			<enabledWhen>
+				<with variable="org.opentravel.schemas.selection.nodes">
+					<iterate ifEmpty="false" operator="or">
+						<test property="stl2Developer.selection.newToChain">
+						</test>
+					</iterate>
+				</with>
+			</enabledWhen>
+		</handler>
 		<handler class="org.opentravel.schemas.commands.AddNodeHandler2"
 			commandId="org.opentravel.schemas.commands.Add">
 			<enabledWhen>
@@ -886,7 +896,7 @@
 		</propertyTester>
 		<propertyTester class="org.opentravel.schemas.testers.GlobalSelectionTester"
 			id="stl2Developer.selection" namespace="stl2Developer.selection"
-			properties="canAdd" type="org.opentravel.schemas.node.Node">
+			properties="canAdd, newToChain" type="org.opentravel.schemas.node.Node">
 		</propertyTester>
 		<propertyTester class="org.opentravel.schemas.testers.NodeTester"
 			id="stl2Developer.node" namespace="stl2Developer.node"
