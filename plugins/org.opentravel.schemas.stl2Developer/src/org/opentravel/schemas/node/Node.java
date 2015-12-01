@@ -1115,8 +1115,8 @@ public abstract class Node implements INode {
 			return false; // not editable
 
 		// Do not allow editing navigation nodes unless they are family nodes.
-		if (this instanceof NavNode && !(this instanceof FamilyNode))
-			return false;
+		// if (this instanceof NavNode && !(this instanceof FamilyNode))
+		// return false;
 
 		if (getChain() == null)
 			return true; // editable and not in a chain

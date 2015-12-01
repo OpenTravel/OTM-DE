@@ -79,11 +79,6 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 
 	public static String COMMAND_ID = "org.opentravel.schemas.commands";
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.commands.OtmHandler#getID()
-	 */
 	@Override
 	public String getID() {
 		return COMMAND_ID;
@@ -97,11 +92,12 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 	 */
 	public ComponentNode createVersionExtension(Node selectedNode) {
 		ComponentNode actOnNode = null; // The node to perform the action on.
+		boolean result = false;
 
 		if (selectedNode.getChain().getHead().isPatchVersion()) {
 			// Will always be in a different library or else it is a ExtensionPoint facet.
 			if (!selectedNode.isExtensionPointFacet()) {
-				if (postConfirm("action.component.version.patch", selectedNode))
+				if (result = postConfirm("action.component.version.patch", selectedNode))
 					actOnNode = ((ComponentNode) selectedNode).createPatchVersionComponent();
 			}
 
@@ -110,7 +106,7 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 		// If a major minor version, create a new object of same type and add base link to this.
 		else if (selectedNode.getChain().getHead().isMinorOrMajorVersion()) {
 			if (selectedNode instanceof VersionedObjectInterface) {
-				if (postConfirm("action.component.version.minor", selectedNode))
+				if (result = postConfirm("action.component.version.minor", selectedNode))
 					actOnNode = ((VersionedObjectInterface) selectedNode).createMinorVersionComponent();
 			} else if (selectedNode.isEditable_inService())
 				// services are unversioned so just return the selected node
@@ -122,11 +118,10 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 			// TESTME - if the service is not in the head then create a new service in the head
 		}
 
-		if (actOnNode == null)
+		if (actOnNode == null && result == true)
 			// LOGGER.error("Did not create Version for " + selectedNode);
 			DialogUserNotifier.openWarning("Error", "Could not create minor version of " + selectedNode
 					+ ". Try validating the library and correcting any problems reported.");
-		// (Messages.getString("action.component.version.title"), Messages.getString(message)));
 
 		return actOnNode;
 	}

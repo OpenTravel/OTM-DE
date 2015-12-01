@@ -49,6 +49,9 @@ public class DialogUserNotifier {
 		MessageDialog.openError(OtmRegistry.getActiveShell(), title, message);
 	}
 
+	/**
+	 * @return true if the user presses the OK button, false otherwise
+	 */
 	public static boolean openConfirm(final String title, final String message) {
 		if (!OtmRegistry.getMainWindow().hasDisplay()) {
 			LOGGER.warn("Confirm Dialog: " + message);

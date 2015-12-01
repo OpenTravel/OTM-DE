@@ -201,17 +201,17 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 		if (selectedNode.getChain() != null) {
 			if (actOnNode.isEnabled_AddProperties() && !actOnNode.isInHead())
 				actOnNode = createVersionExtension(selectedNode);
-			if (actOnNode == null)
-				return;
+		}
+		if (actOnNode == null)
+			return;
 
-			try {
-				NewPropertiesWizard2 w2 = new NewPropertiesWizard2(actOnNode);
-				w2.setValidator(new NewPropertyValidator(actOnNode, null));
-				w2.run(OtmRegistry.getActiveShell());
-			} catch (IllegalArgumentException e) {
-				DialogUserNotifier.openError("Add properties error.", e.getLocalizedMessage());
-				// LOGGER.error("ERROR: " + e);
-			}
+		try {
+			NewPropertiesWizard2 w2 = new NewPropertiesWizard2(actOnNode);
+			w2.setValidator(new NewPropertyValidator(actOnNode, null));
+			w2.run(OtmRegistry.getActiveShell());
+		} catch (IllegalArgumentException e) {
+			DialogUserNotifier.openError("Add properties error.", e.getLocalizedMessage());
+			// LOGGER.error("ERROR: " + e);
 		}
 		mc.refresh(actOnNode.getOwningComponent());
 	}
@@ -229,45 +229,4 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 		return Images.getImageRegistry().getDescriptor(Images.AddNode);
 	}
 
-	// /**
-	// * Create a component in the head library that versions (extends) the selected node. Prompts the user to confirm
-	// * before creating node.
-	// *
-	// * @return newly created node or null if user cancelled or error.
-	// */
-	// private ComponentNode versionNode(Node selectedNode) {
-	// ComponentNode actOnNode = null; // The node to perform the action on.
-	//
-	// if (selectedNode.getChain().getHead().isPatchVersion()) {
-	// // Will always be in a different library or else it is a ExtensionPoint facet.
-	// if (!selectedNode.isExtensionPointFacet()) {
-	// if (postConfirm("action.component.version.patch"))
-	// actOnNode = ((ComponentNode) selectedNode).createPatchVersionComponent();
-	// }
-	//
-	// }
-	//
-	// // If a major minor version, create a new object of same type and add base link to this.
-	// else if (selectedNode.getChain().getHead().isMinorOrMajorVersion()) {
-	// if (selectedNode instanceof VersionedObjectInterface) {
-	// if (postConfirm("action.component.version.minor"))
-	// actOnNode = ((VersionedObjectInterface) selectedNode).createMinorVersionComponent();
-	// } else if (selectedNode.isEditable_inService())
-	// // services are unversioned so just return the selected node
-	// actOnNode = (ComponentNode) selectedNode;
-	// }
-	//
-	// // if (actOnNode == null)
-	// // LOGGER.error("Did not create Version for " + selectedNode);
-	//
-	// return actOnNode;
-	// }
-	//
-	// private boolean postConfirm(String message) {
-	// if (selectedNode.getLibrary() != selectedNode.getChain().getHead())
-	// return (DialogUserNotifier.openConfirm(Messages.getString("action.component.version.title"),
-	// Messages.getString(message)));
-	// else
-	// return false;
-	// }
 }
