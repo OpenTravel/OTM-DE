@@ -60,7 +60,9 @@ import org.opentravel.schemas.node.Enumeration;
 import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.FacetNode;
+import org.opentravel.schemas.node.FamilyNode;
 import org.opentravel.schemas.node.INode;
+import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.controllers.NodeUtils;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -425,9 +427,11 @@ public class FacetView extends OtmAbstractView {
 			if (node instanceof FacetNode) {
 				boolean edit = node.isEditable() && !NodeUtils.checker(node).isInheritedFacet().get();
 				mc.getFields().postField(nameField, node.getLabel(), edit);
-			} else {
+			} else if (!(node instanceof NavNode) || node instanceof FamilyNode)
 				mc.getFields().postField(nameField, node.getName(), node.isEditable_newToChain());
-			}
+			else
+				mc.getFields().postField(nameField, node.getLabel(), false);
+
 			if (node.isFacet() && !node.isOperation() && !node.isCustomFacet() && !node.isQueryFacet())
 				nameField.setEnabled(false);
 			if (node instanceof ExtensionPointNode)

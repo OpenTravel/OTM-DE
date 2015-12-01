@@ -38,7 +38,9 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.opentravel.schemas.controllers.OtmActions;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.FacetNode;
+import org.opentravel.schemas.node.FamilyNode;
 import org.opentravel.schemas.node.INode;
+import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.SimpleTypeNode;
@@ -407,9 +409,10 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 		if (n instanceof FacetNode) {
 			boolean edit = n.isEditable() && !NodeUtils.checker(n).isInheritedFacet().get();
 			fields.postField(nameField, n.getLabel(), edit);
-		} else {
-			fields.postField(nameField, n.getName(), n.isEditable_newToChain());
-		}
+		} else if (!(n instanceof NavNode) || n instanceof FamilyNode)
+			mc.getFields().postField(nameField, n.getName(), n.isEditable_newToChain());
+		else
+			mc.getFields().postField(nameField, n.getLabel(), false);
 
 		if (n instanceof ElementReferenceNode)
 			nameField.setEnabled(false);
