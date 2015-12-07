@@ -186,7 +186,8 @@ public class NodeNameUtils {
 	 * Make sure an enumeration conforms to the rules.
 	 */
 	public static String fixEnumerationName(String name) {
-		return (name.startsWith(ENUM_PREFIX)) ? name : ENUM_PREFIX + name;
+		return name;
+		// 12/7/2015 - return (name.startsWith(ENUM_PREFIX)) ? name : ENUM_PREFIX + name;
 	}
 
 	/**
