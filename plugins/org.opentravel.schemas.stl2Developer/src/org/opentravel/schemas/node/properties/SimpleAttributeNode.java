@@ -63,6 +63,17 @@ public class SimpleAttributeNode extends PropertyNode implements TypeUser {
 		return this;
 	}
 
+	/**
+	 * Simple Attribute Properties are new to a chain if their parent is new. Override the behavior in the property
+	 * class.
+	 */
+	@Override
+	public boolean isNewToChain() {
+		if (getChain() == null || super.isNewToChain())
+			return true; // the parent is new so must be its properties
+		return false;
+	}
+
 	@Override
 	public boolean isOnlySimpleTypeUser() {
 		return true;

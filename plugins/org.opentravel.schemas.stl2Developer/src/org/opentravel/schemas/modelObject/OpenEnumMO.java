@@ -78,8 +78,34 @@ public class OpenEnumMO extends ModelObject<TLOpenEnumeration> {
 		TLAttribute other = new TLAttribute();
 		other.setName("Other_" + openEnum.getName());
 		inheritedKids.add(other);
+		inheritedKids.addAll(getInheritedValues());
+		// The Codegen utils also insert non-inherited values
+		// inheritedKids.addAll(EnumCodegenUtils.getInheritedValues(getTLModelObj()));
 		return inheritedKids;
-		// FIXME - this works, but does not create children seen in the display.
+	}
+
+	/**
+	 * @return list of values found in previous versions of this open enum
+	 */
+	private List<TLEnumValue> getInheritedValues() {
+		List<TLEnumValue> valueList = new ArrayList<TLEnumValue>();
+		TLOpenEnumeration tlOE = getTLModelObj();
+		TLOpenEnumeration oe = getExtension(getTLModelObj());
+		while (oe != null) {
+			valueList.addAll(oe.getValues());
+			if (oe.getExtension() != null)
+				oe = getExtension(oe);
+			else
+				oe = null;
+		}
+		return valueList;
+	}
+
+	/**
+	 * @return the TLOpenEnumeration that extends the passed enum if any
+	 */
+	public TLOpenEnumeration getExtension(TLOpenEnumeration oe) {
+		return oe.getExtension() != null ? oe = (TLOpenEnumeration) oe.getExtension().getExtendsEntity() : null;
 	}
 
 	@Override

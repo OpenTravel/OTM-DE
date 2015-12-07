@@ -42,6 +42,8 @@ public class ElementPropertyMO extends ModelObject<TLProperty> {
 	@Override
 	public void addToTLParent(final ModelObject<?> parentMO, int index) {
 		if (parentMO.getTLModelObj() instanceof TLFacet) {
+			index = index > ((TLFacet) parentMO.getTLModelObj()).getElements().size() ? ((TLFacet) parentMO
+					.getTLModelObj()).getElements().size() : index;
 			((TLFacet) parentMO.getTLModelObj()).addElement(index, getTLModelObj());
 		} else if (parentMO.getTLModelObj() instanceof TLExtensionPointFacet) {
 			((TLExtensionPointFacet) parentMO.getTLModelObj()).addElement(index, getTLModelObj());

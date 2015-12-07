@@ -306,6 +306,27 @@ public class PropertyNode extends ComponentNode {
 		return getAssignedType() != null ? getAssignedType().isAssignedByReference() : false;
 	}
 
+	// A property should NOT be new to chain just because it can have type reassigned.
+	// /**
+	// * Properties are new to a chain if their parent is new <b>unless</b> there is a property with the same name in a
+	// * previous version of the parent.
+	// */
+	// @Override
+	// public boolean isNewToChain() {
+	// if (getChain() == null || super.isNewToChain())
+	// return true; // the parent is new so must its properties
+	//
+	// // if (!isInHead2())
+	// // return false; // new properties have to be in the head of the chain.
+	// //
+	// Node prevOwner = getOwningComponent().getExtendsType();
+	// if (prevOwner == null)
+	// return true; // no previous version so must be new (should never happen else it would be newToChain())
+	//
+	// Node prevProp = prevOwner.findPropertyByName(getName());
+	// return prevProp == null ? true : false;
+	// }
+
 	/**
 	 * Move the property up/down in its current facet.
 	 * 

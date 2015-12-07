@@ -474,8 +474,8 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Find the first node in the descendants of this node with the given name. The order searched is not guaranteed.
-	 * Will not find family nodes.
+	 * Find the first node in the named type descendants of this node with the given name. The order searched is not
+	 * guaranteed. Will not find family nodes.
 	 * 
 	 * @param name
 	 * @return node found or null
@@ -483,6 +483,21 @@ public abstract class Node implements INode {
 	public Node findNodeByName(String name) {
 		for (Node n : getDescendants_NamedTypes()) {
 			if (n.getName().equals(name) && !(n instanceof FamilyNode))
+				return n;
+		}
+		return null;
+	}
+
+	/**
+	 * Find the first property node descendant of this node with the given name. The order searched is not guaranteed.
+	 * Will not find family nodes.
+	 * 
+	 * @param name
+	 * @return node found or null
+	 */
+	public Node findPropertyByName(String name) {
+		for (Node n : getDescendants()) {
+			if (n instanceof PropertyNode && n.getName().equals(name))
 				return n;
 		}
 		return null;
@@ -896,11 +911,13 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * @return list of later versions in a minor chain or null
+	 * @return list of later versions in a minor chain or null for the type assigned to this node.
 	 */
 	public List<Node> getLaterVersions() {
 		List<Versioned> versions = null;
 		List<Node> vNodes = new ArrayList<Node>();
+		if (getAssignedType() == null)
+			return null;
 
 		if (getAssignedType().getTLModelObject() instanceof Versioned && !(getAssignedType() instanceof ImpliedNode)) {
 			try {
@@ -1199,13 +1216,37 @@ public abstract class Node implements INode {
 
 	/**
 	 * 
-	 * @return true <b>only</b> if in chain and new to the chain
+	 * @return true <b>only</b> if owning components is in chain and new to the chain
 	 */
 	public boolean isNewToChain() {
 		assert getOwningComponent() != null;
-		if (getOwningComponent().getVersionNode() == null)
-			return false; // not in chain
-		return getOwningComponent().getVersionNode().getPreviousVersion() == null;
+		return !getOwningComponent().isVersioned();
+
+		// if (getOwningComponent().getVersionNode() == null)
+		// return false; // not in chain
+		// return getOwningComponent().getVersionNode().getPreviousVersion() == null;
+	}
+
+	/**
+	 * @return true if this property (or simple attribute) is enabled for setting assigned type
+	 */
+	public boolean isEnabled_AssignType() {
+		boolean enabled = false;
+		if (parent instanceof Enumeration)
+			return enabled; // attributes on enumeration are not editable
+		if (isEditable() && this instanceof TypeUser)
+			// if (isEditable() && this instanceof TypeUser && !isInheritedProperty())
+			if (getChain() == null || getChain().isMajor())
+				enabled = true; // Unmanaged or major - allow editing.
+			else if (getChain().isPatch())
+				enabled = false; // no changes in a patch
+			else if (this instanceof SimpleAttributeNode)
+				enabled = isNewToChain(); // only allow editing if owner is new to the minor
+			else if (isInHead2() && !isInheritedProperty())
+				enabled = true; // Allow unless this property also exists in prev version
+			else if (getLaterVersions() != null)
+				enabled = true; // If the assigned type has a newer version then allow them to select that.
+		return enabled;
 	}
 
 	/**
@@ -1252,7 +1293,7 @@ public abstract class Node implements INode {
 		if (this instanceof SimpleAttributeNode)
 			return false;
 		if (this instanceof PropertyNode)
-			return getOwningComponent().isEnabled_AddProperties();
+			return this != getOwningComponent() ? getOwningComponent().isEnabled_AddProperties() : false;
 
 		return false;
 	}
@@ -2339,6 +2380,15 @@ public abstract class Node implements INode {
 
 	public boolean isInTLLibrary() {
 		return getLibrary() != null ? getLibrary().isTLLibrary() : false;
+	}
+
+	/**
+	 * @return true if unmanaged (no chain) or head of the chain.
+	 */
+	public boolean isInHead2() {
+		if (getChain() == null)
+			return true;
+		return getLibrary() == getChain().getHead();
 	}
 
 	/**

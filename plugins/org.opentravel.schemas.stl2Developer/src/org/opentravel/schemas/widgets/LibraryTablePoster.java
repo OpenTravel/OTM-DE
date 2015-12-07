@@ -204,7 +204,7 @@ public class LibraryTablePoster {
 				} else if (cn instanceof FacetNode) {
 					postTableRows(cn, cn.getLabel());
 				} else if (!cn.isFacet() && !cn.isAlias()) {
-					postTableRow(cn); // what falls through to here?
+					postTableRow(cn); // what falls through to here? enum-literal
 				}
 			}
 
@@ -242,8 +242,9 @@ public class LibraryTablePoster {
 			item.setImage(0, n.getImage());
 
 			if (n.isInheritedProperty() || NodeUtils.checker(n).isInheritedFacet().get()) {
+				// if (!n.isEnabled_AssignType()) {
 				decorateInheritedItem(item);
-			} else if (!n.isEditable()) {
+			} else if (!n.isEditable() || !n.isInHead2()) {
 				decorateReadonlyItem(item);
 
 			}

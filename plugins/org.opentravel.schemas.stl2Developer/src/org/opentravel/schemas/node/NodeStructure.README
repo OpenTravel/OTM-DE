@@ -44,4 +44,10 @@ Note:
 			if (getLibrary().isInChain())
 				getChain().add(this);
 
-			
+Inheritance:
+Properties are inherited from the base type. For Core and Business objects this is the
+		ComponentNode.getInheritedChildren() 
+		   -> initInheritedChildren()
+		      -> modelObject.getInheritedChildren() {facet, open enum, valueWithAttributesFacet}
+		         -> PropertyCodegenUtils.getInheritedFacetAttributes(getTLModelObj()
+		         -: open enum MO has its own getInheritedValues because EnumCodegenUtils returned all values not just inherited.

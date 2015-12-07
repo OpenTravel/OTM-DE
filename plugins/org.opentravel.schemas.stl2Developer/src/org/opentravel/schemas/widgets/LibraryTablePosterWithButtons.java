@@ -21,10 +21,8 @@ import org.eclipse.swt.widgets.TableItem;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.OtmActions;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.controllers.NodeUtils;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,21 +73,42 @@ public class LibraryTablePosterWithButtons extends LibraryTablePoster {
 		// if (NodeUtils.checker(n.getAssignedType()).isInMinorOrPatch().existInPreviousVersions().get())
 		// button = buttonSet.addButton(n, item, 2); // Put typeSelection buttons on the row.
 		// else
-		if (!NodeUtils.checker(n).isInMinorOrPatch().existInPreviousVersions().get()
-				&& (!n.isInheritedProperty() || n.getLaterVersions() != null) && n.isEditable()
-				&& n instanceof TypeUser) {
-			// && (n instanceof AttributeNode || n instanceof ElementNode || n instanceof SimpleAttributeNode || n
-			// instanceof ElementReferenceNode)) {
+		// boolean enabled = false;
+		// if (n.isEditable() && n instanceof TypeUser && !n.isInheritedProperty())
+		// if (n.getChain() == null || n.getChain().isMajor())
+		// enabled = true; // Unmanaged or major - allow editing.
+		// else if (n.getChain().isPatch())
+		// enabled = false; // no changes in a patch
+		// else if (n instanceof SimpleAttributeNode)
+		// enabled = n.isNewToChain(); // only allow editing if owner is new to the minor
+		// else if (n.isInHead2())
+		// enabled = true;
+		// else if (n.getLaterVersions() != null)
+		// enabled = true; // If the assigned type has a newer version then allow them to select that.
+
+		if (n.isEnabled_AssignType())
 			button = buttonSet.addButton(n, item, 2); // Put typeSelection buttons on the row.
 
-			// Version Control
-			if (NodeUtils.checker(n).isInMinorOrPatch().existInPreviousVersions().get()) {
-				button.setEnabled(false);
-			}
-			// if (NodeUtils.checker(n).isPatch().existInPreviousVersions().get()) {
-			// button.setEnabled(false);
-			// }
-		}
+		// if (n.isEditable() && n instanceof TypeUser && !n.isInheritedProperty())
+		// if ((n.getChain() == null || n.getChain().isMajor())
+		// || !NodeUtils.checker(n).isInMinorOrPatch().existInPreviousVersions().get())
+		// //button = buttonSet.addButton(n, item, 2); // Put typeSelection buttons on the row.
+		//
+		// if (!NodeUtils.checker(n).isInMinorOrPatch().existInPreviousVersions().get()
+		// && (!n.isInheritedProperty() || n.getLaterVersions() != null) && n.isEditable()
+		// && n instanceof TypeUser) {
+		// && (n instanceof AttributeNode || n instanceof ElementNode || n instanceof SimpleAttributeNode || n
+		// instanceof ElementReferenceNode)) {
+		// button = buttonSet.addButton(n, item, 2); // Put typeSelection buttons on the row.
+		// LOGGER.debug("Would have put a button in for " + n);
+		// Version Control
+		// if (NodeUtils.checker(n).isInMinorOrPatch().existInPreviousVersions().get()) {
+		// button.setEnabled(false);
+		// }
+		// if (NodeUtils.checker(n).isPatch().existInPreviousVersions().get()) {
+		// button.setEnabled(false);
+		// }
+		// }
 		return item;
 	}
 

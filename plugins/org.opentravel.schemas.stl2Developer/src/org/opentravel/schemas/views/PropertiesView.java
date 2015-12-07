@@ -510,11 +510,13 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 	}
 
 	private void updateType(final ComponentNode cn) {
-		fields.postField(typeField, cn.getTypeName(), cn.isEditable_newToChain() && cn.isTypeUser());
+		fields.postField(typeField, cn.getTypeName(), cn.isEnabled_AssignType());
+		// fields.postField(typeField, cn.getTypeName(), cn.isEditable_newToChain() && cn.isTypeUser());
 		fields.postField(typePrefix, cn.getAssignedPrefix(), false);
 		// See logic in LibraryTablePosterWithButtons
-		typeSelector.setEnabled(cn.isEditable() && cn.isTypeUser()
-				&& !NodeUtils.checker(cn).isInMinorOrPatch().existInPreviousVersions().get());
+		typeSelector.setEnabled(cn.isEnabled_AssignType());
+		// typeSelector.setEnabled(cn.isEditable() && cn.isTypeUser()
+		// && !NodeUtils.checker(cn).isInMinorOrPatch().existInPreviousVersions().get());
 	}
 
 	/**
@@ -529,6 +531,8 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 	}
 
 	private void updateConstraints(final ComponentNode cn, boolean editable) {
+		if (cn == null)
+			return;
 		if (cn.isSimpleType())
 			listButton.setEnabled(true);
 		if (cn.getModelObject().isSimpleList()) {

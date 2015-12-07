@@ -88,7 +88,7 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 
 	@Override
 	public Node getExtendsType() {
-		return getTypeClass().getTypeNode();
+		return getSimpleFacet().getTypeClass().getTypeNode();
 	}
 
 	@Override
@@ -132,12 +132,10 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 
 	@Override
 	public String getLabel() {
-		if (getExtendsType() == null)
-			return super.getLabel();
-		else if (isVersioned())
+		if (isVersioned())
 			return super.getLabel() + " (Extends version:  " + getExtendsType().getLibrary().getVersion() + ")";
 		else
-			return super.getLabel() + " (Extends: " + getExtendsType().getNameWithPrefix() + ")";
+			return super.getLabel();
 	}
 
 	@Override

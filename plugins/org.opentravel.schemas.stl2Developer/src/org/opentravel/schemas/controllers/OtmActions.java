@@ -17,11 +17,14 @@ package org.opentravel.schemas.controllers;
 
 import java.util.ArrayList;
 
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.TableItem;
 import org.opentravel.schemas.actions.AssignTypeAction;
 import org.opentravel.schemas.actions.SetObjectNameAction;
+import org.opentravel.schemas.commands.OtmAbstractHandler;
 import org.opentravel.schemas.controllers.DefaultContextController.ContextViewType;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.FacetNode;
@@ -302,6 +305,31 @@ public class OtmActions {
 			list.addAll(wd.getNodeList());
 		if (list.size() <= 0)
 			list.add(getFacetSelection());
+
+		// If the node is not in the head library, then create one.
+		OtmAbstractHandler handler = new OtmAbstractHandler() {
+			@Override
+			public Object execute(ExecutionEvent event) throws ExecutionException {
+				return null;
+			}
+		};
+		Node node = list.get(0);
+		// String name = node.getName();
+		Node owner = node.getOwningComponent();
+		// FacetNode fn = (FacetNode) node.getParent();
+		if (node.getChain() != null && !node.isInHead2()) {
+			Node newOwner = handler.createVersionExtension(owner);
+			if (newOwner == null)
+				return;
+			// Now, add cloned property to contain the updated type assignment
+			FacetNode owningFacet = (FacetNode) newOwner.findNodeByName(node.getParent().getName());
+			if (owningFacet == null)
+				return;
+			PropertyNode clone = (PropertyNode) node.clone(owningFacet, "");
+
+			list.clear();
+			list.add(clone);
+		}
 
 		if (list.size() > 0) {
 			final TypeSelectionWizard wizard = new TypeSelectionWizard(list);

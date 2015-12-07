@@ -18,6 +18,9 @@ package org.opentravel.schemas.actions;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
+import org.opentravel.schemas.commands.OtmAbstractHandler;
 import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
@@ -114,6 +117,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 		return ret;
 	}
 
+	// ** THIS IS NOT USED FOR TYPE SELECTION BUTTONS IN THE FACET TABLE
 	private void typeSelector() {
 		List<Node> users = new ArrayList<Node>();
 
@@ -125,6 +129,19 @@ public class AssignTypeAction extends OtmAbstractAction {
 				else
 					users.add(s);
 			}
+
+		// If the node is not in the head library, then create one.
+		OtmAbstractHandler handler = new OtmAbstractHandler() {
+			@Override
+			public Object execute(ExecutionEvent event) throws ExecutionException {
+				return null;
+			}
+		};
+		Node n = users.get(0);
+		if (n.getChain() != null && !n.isInHead2())
+			n = handler.createVersionExtension(n);
+		if (n == null)
+			return;
 
 		// runSetTypeWizard(OtmRegistry.getActiveShell(), users );
 		final TypeSelectionWizard wizard = new TypeSelectionWizard(new ArrayList<Node>(users));

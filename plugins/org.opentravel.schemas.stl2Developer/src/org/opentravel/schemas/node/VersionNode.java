@@ -153,7 +153,7 @@ public class VersionNode extends ComponentNode {
 	}
 
 	/**
-	 * @return the newest version of the object (version head).
+	 * @return the previous version of the object (if any).
 	 */
 	public ComponentNode getPreviousVersion() {
 		return prevVersion;
