@@ -126,11 +126,6 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 		return Images.getImageRegistry().get(Images.Enumeration);
 	}
 
-	// @Override
-	// public boolean isEnumeration() {
-	// return true;
-	// }
-	//
 	@Override
 	public boolean isNamedType() {
 		return true;

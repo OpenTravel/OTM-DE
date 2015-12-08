@@ -192,12 +192,6 @@ public class ComponentNode extends Node implements TypeProvider {
 	@Override
 	public boolean hasNavChildrenWithProperties() {
 		return !getChildren().isEmpty();
-		// for (final INode n : getChildren()) {
-		// // if (n.isNavChildWithProperties()) {
-		// return true;
-		// // }
-		// }
-		// return false;
 	}
 
 	/**
@@ -678,14 +672,6 @@ public class ComponentNode extends Node implements TypeProvider {
 			newNode.setName(owner.getName()); // Some of the version handlers do not set name
 		owner.getChain().getHead().addMember(newNode);
 
-		// if (this.getFacetType() != null) {
-		// assert (this instanceof ComponentNode); // always true
-		// // LOGGER.debug("Why is this happening in createMinorVersion?");
-		// if (this.getFacetType().equals(TLFacetType.DETAIL))
-		// newNode = (ComponentNode) newNode.getDetailFacet();
-		// else
-		// newNode = (ComponentNode) newNode.getSummaryFacet();
-		// }
 		return newNode;
 	}
 

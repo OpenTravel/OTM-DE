@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.TableItem;
 import org.opentravel.schemas.actions.AssignTypeAction;
+import org.opentravel.schemas.actions.SetDescriptionEqExAction;
 import org.opentravel.schemas.actions.SetObjectNameAction;
 import org.opentravel.schemas.commands.OtmAbstractHandler;
 import org.opentravel.schemas.controllers.DefaultContextController.ContextViewType;
@@ -33,7 +34,6 @@ import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.PropertyNodeType;
-import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -474,11 +474,6 @@ public class OtmActions {
 		e.widget = wd.getWidget();
 		e.data = mc.getCurrentNode_PropertiesView();
 		new SetObjectNameAction(mc.getMainWindow()).runWithEvent(e);
-		// final Node curNode = (Node) mc.getCurrentNode_PropertiesView();
-		// if (curNode != null) {
-		// curNode.setName(wd.getText());
-		// mc.refresh();
-		// }
 	}
 
 	public static int setComponentName() {
@@ -512,8 +507,13 @@ public class OtmActions {
 
 	private void setDescription(final OtmEventData wd) {
 		Node n = (Node) mc.getCurrentNode_PropertiesView();
-		n.setDescription(wd.getText());
-		mc.getDefaultView().refreshAllViews();
+		Event e = new Event();
+		SetDescriptionEqExAction action = new SetDescriptionEqExAction(mc.getMainWindow());
+		e.data = action.new SetDescriptionEvent(n, wd.getText(), SetDescriptionEqExAction.DescriptionType.DESCRIPTION);
+		action.runWithEvent(e);
+
+		// n.setDescription(wd.getText());
+		// mc.getDefaultView().refreshAllViews();
 	}
 
 	public static int setExample() {
@@ -523,10 +523,15 @@ public class OtmActions {
 	private void setExample(final OtmEventData wd) {
 		final Node n = (Node) mc.getCurrentNode_PropertiesView();
 		final String text = wd.getText();
-		if (n instanceof PropertyNode)
-			((PropertyNode) n).setExample(text);
-		else if (n instanceof SimpleTypeNode)
-			((SimpleTypeNode) n).setExample(text);
+		Event e = new Event();
+		SetDescriptionEqExAction action = new SetDescriptionEqExAction(mc.getMainWindow());
+		e.data = action.new SetDescriptionEvent(n, wd.getText(), SetDescriptionEqExAction.DescriptionType.EXAMPLE);
+		action.runWithEvent(e);
+
+		// if (n instanceof PropertyNode)
+		// ((PropertyNode) n).setExample(text);
+		// else if (n instanceof SimpleTypeNode)
+		// ((SimpleTypeNode) n).setExample(text);
 	}
 
 	public static int setEquivalence() {
@@ -536,10 +541,15 @@ public class OtmActions {
 	private void setEquivalence(final OtmEventData wd) {
 		final Node n = (Node) mc.getCurrentNode_PropertiesView();
 		final String text = wd.getText();
-		if (n instanceof PropertyNode)
-			((PropertyNode) n).setEquivalent(text);
-		else if (n instanceof SimpleTypeNode)
-			((SimpleTypeNode) n).setEquivalent(text);
+		Event e = new Event();
+		SetDescriptionEqExAction action = new SetDescriptionEqExAction(mc.getMainWindow());
+		e.data = action.new SetDescriptionEvent(n, wd.getText(), SetDescriptionEqExAction.DescriptionType.EQUIVALENT);
+		action.runWithEvent(e);
+
+		// if (n instanceof PropertyNode)
+		// ((PropertyNode) n).setEquivalent(text);
+		// else if (n instanceof SimpleTypeNode)
+		// ((SimpleTypeNode) n).setEquivalent(text);
 	}
 
 	public static int setPattern() {

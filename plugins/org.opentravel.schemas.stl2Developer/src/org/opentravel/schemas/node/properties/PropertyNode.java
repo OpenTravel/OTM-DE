@@ -217,8 +217,6 @@ public class PropertyNode extends ComponentNode {
 		// EnumLiterals are overridden.
 
 		// Otherwise Properties are always owned by a facet.
-		// if (!getParent().getParent().isTypeProvider())
-		// LOGGER.debug("Property " + getName() + "'s grandparent is not a type provider.");
 		return getParent().getParent().isTypeProvider() ? getParent().getParent() : this;
 	}
 
@@ -305,27 +303,6 @@ public class PropertyNode extends ComponentNode {
 		// Need to test because inherited properties do not have assigned types.
 		return getAssignedType() != null ? getAssignedType().isAssignedByReference() : false;
 	}
-
-	// A property should NOT be new to chain just because it can have type reassigned.
-	// /**
-	// * Properties are new to a chain if their parent is new <b>unless</b> there is a property with the same name in a
-	// * previous version of the parent.
-	// */
-	// @Override
-	// public boolean isNewToChain() {
-	// if (getChain() == null || super.isNewToChain())
-	// return true; // the parent is new so must its properties
-	//
-	// // if (!isInHead2())
-	// // return false; // new properties have to be in the head of the chain.
-	// //
-	// Node prevOwner = getOwningComponent().getExtendsType();
-	// if (prevOwner == null)
-	// return true; // no previous version so must be new (should never happen else it would be newToChain())
-	//
-	// Node prevProp = prevOwner.findPropertyByName(getName());
-	// return prevProp == null ? true : false;
-	// }
 
 	/**
 	 * Move the property up/down in its current facet.
@@ -435,10 +412,6 @@ public class PropertyNode extends ComponentNode {
 		return getTypeClass().getTypeNode() != null ? getTypeClass().getTypeNode().getModelObject() : null;
 	}
 
-	// public NamedEntity getAssignedTLObject() {
-	// return getTypeClass().getTypeNode().getTLTypeObject();
-	// }
-
 	/**
 	 * @return true if this property is an attribute of a Value With Attributes object.
 	 */
@@ -461,23 +434,6 @@ public class PropertyNode extends ComponentNode {
 		// Valid assignment tests will be done in type node.
 		return getTypeClass().setAssignedType(replacement);
 	}
-
-	// @Deprecated
-	// @Override
-	// public boolean setAssignedType(Node replacement, boolean refresh) {
-	// return setAssignedType(replacement);
-	// if (replacement == null) {
-	// getTypeClass().setAssignedType(null);
-	// return false;
-	// }
-	// // GUI assist: Since attributes can be renamed, there is no need to use the alias. Aliases
-	// // are not TLAttributeType members so the GUI assist must convert before assignment.
-	// if (this instanceof AttributeNode && replacement instanceof AliasNode)
-	// replacement = replacement.getOwningComponent();
-	//
-	// // Valid assignment tests will be done in type node.
-	// return getTypeClass().setAssignedType(replacement);
-	// }
 
 	@Override
 	@Deprecated
