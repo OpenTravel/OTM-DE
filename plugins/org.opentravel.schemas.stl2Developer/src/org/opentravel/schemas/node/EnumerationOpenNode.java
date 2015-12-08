@@ -16,12 +16,16 @@
 package org.opentravel.schemas.node;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLEnumValue;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
+import org.opentravel.schemas.modelObject.OpenEnumMO;
+import org.opentravel.schemas.node.listeners.NamedTypeListener;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
@@ -33,7 +37,10 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 	public EnumerationOpenNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
-		getTypeClass().setTypeNode(ModelNode.getDefaultStringNode()); // Set base type.
+		if (getExtensionNode() == null)
+			getTypeClass().setTypeNode(ModelNode.getDefaultStringNode()); // Set base type.
+		else
+			getTypeClass().setTypeNode(getExtensionNode());
 	}
 
 	/**
@@ -165,7 +172,22 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 
 	@Override
 	public Node getExtendsType() {
-		return getTypeClass().getTypeNode();
+		// base type might not have been loaded when constructor was called. check the tl model not the type node.
+		return getExtensionNode();
+	}
+
+	public EnumerationOpenNode getExtensionNode() {
+		Collection<ModelElementListener> listeners = null;
+		Node node = null;
+		OpenEnumMO mo = (OpenEnumMO) getModelObject();
+		if (mo.getExtension(mo.getTLModelObj()) != null)
+			listeners = mo.getExtension(mo.getTLModelObj()).getListeners();
+		if (listeners == null || listeners.isEmpty())
+			return null;
+		for (ModelElementListener listener : listeners)
+			if (listener instanceof NamedTypeListener)
+				node = ((NamedTypeListener) listener).getNode();
+		return (EnumerationOpenNode) (node instanceof EnumerationOpenNode ? node : null);
 	}
 
 	@Override
