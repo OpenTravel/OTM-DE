@@ -512,7 +512,7 @@ public class FacetView extends OtmAbstractView {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.opentravel.schemas.views.OtmAbstractView#restorePreviousNode()
+	 * @see org.opentravel.schemas.views.OtmAbstractView#res3053torePreviousNode()
 	 */
 	@Override
 	public void restorePreviousNode() {

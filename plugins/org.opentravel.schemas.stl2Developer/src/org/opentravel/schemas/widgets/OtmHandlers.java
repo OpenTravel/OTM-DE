@@ -326,7 +326,10 @@ public class OtmHandlers {
 				final OtmView view = OtmRegistry.getTypeView();
 				if (view != null) {
 					// LOGGER.debug("drag start restored type view to: " + view.getPreviousNode());
-					view.restorePreviousNode();
+					// If the doc view is linked then it will have change selection, otherwise
+					// restore the previous node.
+					if (view.getCurrentNode() == dragSourceNode)
+						view.restorePreviousNode();
 				}
 			}
 		}
