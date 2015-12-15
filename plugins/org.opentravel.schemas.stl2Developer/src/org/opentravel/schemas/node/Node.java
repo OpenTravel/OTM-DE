@@ -1158,7 +1158,8 @@ public abstract class Node implements INode {
 			return !isInheritedProperty(); // properties in the head are editable
 
 		// It is in head of chain. Return true if there are no previous versions
-		return getOwningComponent().getVersionNode().getPreviousVersion() == null;
+		return !getOwningComponent().isVersioned();
+		// return getOwningComponent().getVersionNode().getPreviousVersion() == null;
 	}
 
 	/**

@@ -511,9 +511,7 @@ public class OtmActions {
 		SetDescriptionEqExAction action = new SetDescriptionEqExAction(mc.getMainWindow());
 		e.data = action.new SetDescriptionEvent(n, wd.getText(), SetDescriptionEqExAction.DescriptionType.DESCRIPTION);
 		action.runWithEvent(e);
-
-		// n.setDescription(wd.getText());
-		// mc.getDefaultView().refreshAllViews();
+		mc.getDefaultView().refreshAllViews();
 	}
 
 	public static int setExample() {
