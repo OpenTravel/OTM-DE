@@ -1369,11 +1369,16 @@ public abstract class Node implements INode {
 		if (getLibrary() == null)
 			return false;
 
-		// You can't delete anything from a patch except an extension point
+		// You can't delete anything from a patch except an extension point OR a newly added object
 		if (getLibrary().getChain() != null)
-			if (getLibrary().getChain().getHead().isPatchVersion()
-					&& !(getOwningComponent() instanceof ExtensionPointNode))
-				return false;
+			if (getOwningComponent().isInHead() && getLibrary().getChain().getHead().isPatchVersion()) {
+				if (!getOwningComponent().isVersioned())
+					return true; // new to the patch
+				else if ((getOwningComponent() instanceof ExtensionPointNode))
+					return true;
+				else
+					return false; // nothing else can be deleted
+			}
 
 		// If it doesn't have a parent then it is not linked and can be deleted.
 		if (getOwningComponent().getParent() == null)
