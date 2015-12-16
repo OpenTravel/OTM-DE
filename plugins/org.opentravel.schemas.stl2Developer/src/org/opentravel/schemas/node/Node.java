@@ -40,6 +40,9 @@ import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationItem;
+import org.opentravel.schemacompiler.model.TLDocumentationOwner;
+import org.opentravel.schemacompiler.model.TLEquivalentOwner;
+import org.opentravel.schemacompiler.model.TLExampleOwner;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
@@ -2212,6 +2215,22 @@ public abstract class Node implements INode {
 		if (modelObject != null) {
 			modelObject.setDescriptionDoc(string);
 		}
+	}
+
+	/**
+	 * @return Can the description field be edited?
+	 */
+	public boolean isEditable_description() {
+		return getTLModelObject() instanceof TLDocumentationOwner ? isInHead2() && !isInheritedProperty()
+				&& isEditable() : false;
+	}
+
+	public boolean isEditable_example() {
+		return getTLModelObject() instanceof TLExampleOwner ? !isInheritedProperty() && isEditable() : false;
+	}
+
+	public boolean isEditable_equivalent() {
+		return getTLModelObject() instanceof TLEquivalentOwner ? !isInheritedProperty() && isEditable() : false;
 	}
 
 	public List<TLDocumentationItem> getDevelopers() {

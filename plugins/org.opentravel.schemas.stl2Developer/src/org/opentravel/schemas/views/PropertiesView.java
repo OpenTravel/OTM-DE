@@ -421,7 +421,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 		if (n.isAlias() && n.getParent().isFacet())
 			nameField.setEnabled(false);
 		fields.postField(componentField, n.getComponentType(), false);
-		fields.postField(descField, n.getDescription(), n.isEditable());
+		fields.postField(descField, n.getDescription(), n.isEditable_description());
 		fields.postField(nameSpaceField, n.getNamespace(), false);
 
 		ComponentNode cn = null;
@@ -554,14 +554,14 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 	private void updateEquivalent(ComponentNode cn, String context) {
 		final String eqToolTip = Messages.getString("OtmW." + "317"); //$NON-NLS-1$
 		exampleField.setToolTipText(eqToolTip + " (" + context + ")"); // show context
-		fields.postField(equivalentField, cn.getEquivalent(context), cn.isEditable());
+		fields.postField(equivalentField, cn.getEquivalent(context), cn.isEditable_equivalent());
 	}
 
 	private void updateExample(ComponentNode cn, String context) {
-		boolean isExampleSupported = NodeUtils.checker(cn).isExampleSupported().get();
+		// boolean isExampleSupported = NodeUtils.checker(cn).isExampleSupported().get();
 		final String toolTip = Messages.getString("OtmW." + "315"); //$NON-NLS-1$
 		exampleField.setToolTipText(toolTip + " (" + context + ")"); // show context
-		fields.postField(exampleField, cn.getExample(context), cn.isEditable() && isExampleSupported);
+		fields.postField(exampleField, cn.getExample(context), cn.isEditable_example());
 	}
 
 	/**
