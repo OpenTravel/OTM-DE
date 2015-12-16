@@ -562,8 +562,8 @@ public class NavigatorMenus extends TreeViewer {
 	public void refreshNode(final Node n, final boolean expand) {
 		this.refresh();
 		if (expand) {
-			// this.expandToLevel(n, 3);
-			this.expandToLevel(n, 6);
+			this.expandToLevel(n, 3);
+			// this.expandToLevel(n, 6);
 		}
 		this.selectNode(n);
 	}
