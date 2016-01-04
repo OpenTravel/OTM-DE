@@ -17,8 +17,10 @@ package org.opentravel.schemas.node;
 
 import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.node.Node.NodeVisitor;
+import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
+import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.IndicatorElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.slf4j.Logger;
@@ -97,7 +99,7 @@ public class NodeVisitors {
 
 			// NOTE - libraries are ALWAYS delete-able even when not edit-able
 			if (!node.isDeleteable()) {
-				LOGGER.debug("DeleteVisitor: not delete-able " + n);
+				// LOGGER.debug("DeleteVisitor: not delete-able " + n);
 				return;
 			}
 			// if (!(this instanceof VersionNode) && (!(this instanceof FacetNode))
@@ -106,12 +108,11 @@ public class NodeVisitors {
 			// version nodes can not be deleted. SimpleAttrs ??? why ???.
 
 			if (!n.isEditable() && (n instanceof LibraryNode || n instanceof LibraryChainNode))
-				LOGGER.debug("Deleting a non-editable library. " + n);
-			// TODO - does this clean up properly?
-
-			// Type class - delete the where used and assignments to this type
-			if (n.isTypeProvider())
-				node.getTypeClass().delete();
+				// LOGGER.debug("Deleting a non-editable library. " + n);
+				// TODO - does this clean up properly?
+				// Type class - delete the where used and assignments to this type
+				if (n.isTypeProvider())
+					node.getTypeClass().delete();
 
 			// Remove from where used list
 			if (node.isTypeUser()) {
@@ -125,6 +126,9 @@ public class NodeVisitors {
 			if (n instanceof LibraryNode) {
 				((LibraryNode) n).delete(false); // just the library, not its members
 			}
+
+			if (node instanceof CoreObjectNode && node.getName().equals("PaymentCard"))
+				LOGGER.debug("Core: " + node);
 
 			// Unlink from tree
 			node.deleted = true;
@@ -155,6 +159,7 @@ public class NodeVisitors {
 
 			// Remove the TL entity from the TL Model.
 			if (node.modelObject != null) {
+				ListenerFactory.clearListners(node); // remove any listeners
 				node.modelObject.delete();
 				node.modelObject = node.newModelObject(new TLEmpty());
 			}
@@ -180,25 +185,24 @@ public class NodeVisitors {
 				n.setName(NodeNameUtils.fixAttributeName(n.getName()));
 			else if (n instanceof IndicatorNode)
 				n.setName(NodeNameUtils.fixIndicatorName(n.getName()));
+			else if (n instanceof Enumeration)
+				n.setName(NodeNameUtils.fixEnumerationName(n.getName()));
 			else if (n.isSimpleType())
 				n.setName(NodeNameUtils.fixSimpleTypeName(n.getName()));
-			else if (n.isEnumeration())
-				n.setName(NodeNameUtils.fixEnumerationName(n.getName()));
-			else if (n.isValueWithAttributes())
+			else if (n instanceof VWA_Node)
 				n.setName(NodeNameUtils.fixVWAName(n.getName()));
-			else if (n.isCoreObject())
+			else if (n instanceof CoreObjectNode)
 				n.setName(NodeNameUtils.fixCoreObjectName(n.getName()));
-			else if (n.isBusinessObject())
+			else if (n instanceof BusinessObjectNode)
 				n.setName(NodeNameUtils.fixBusinessObjectName(n.getName()));
-			else if (n.isAlias())
+			else if (n instanceof AliasNode)
 				n.setName(NodeNameUtils.adjustCaseOfName(PropertyNodeType.ALIAS, n.getName()));
 			else if (n instanceof IndicatorElementNode)
 				n.setName(NodeNameUtils.fixIndicatorElementName(n.getName()));
-			else if (n.isID_Reference()) {
+			else if (n instanceof ElementReferenceNode) {
 				n.setName(NodeNameUtils.fixIdReferenceName(n));
 			}
 		}
-
 	}
 
 }

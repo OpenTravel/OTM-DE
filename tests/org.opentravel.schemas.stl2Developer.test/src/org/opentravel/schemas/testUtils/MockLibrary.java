@@ -19,11 +19,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
@@ -32,10 +32,16 @@ import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemacompiler.saver.LibraryModelSaver;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.util.URLUtils;
+import org.opentravel.schemacompiler.validate.FindingMessageFormat;
+import org.opentravel.schemacompiler.validate.FindingType;
+import org.opentravel.schemacompiler.validate.ValidationFinding;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
+import org.opentravel.schemas.node.ExtensionPointNode;
+import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
@@ -46,9 +52,7 @@ import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
-import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.stl2Developer.reposvc.RepositoryTestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +65,9 @@ import org.slf4j.LoggerFactory;
 public class MockLibrary {
 	static final Logger LOGGER = LoggerFactory.getLogger(MockLibrary.class);
 
+	/**
+	 * Create an unmanaged library.
+	 */
 	public LibraryNode createNewLibrary(String ns, String name, ProjectNode parent) {
 		TLLibrary tllib = new TLLibrary();
 		tllib.setName(name);
@@ -80,6 +87,7 @@ public class MockLibrary {
 		URL testURL = URLUtils.toURL(new File(testPath));
 		tllib.setLibraryUrl(testURL);
 		LibraryNode ln = new LibraryNode(tllib, parent);
+		ln.setEditable(true); // override ns policy
 
 		// Has to be saved to be used in a project. Is not editable yet, so
 		// can't use lib controller
@@ -88,8 +96,15 @@ public class MockLibrary {
 		} catch (LibrarySaveException e) {
 			LOGGER.debug("Error Saving: ", e);
 		}
-		addBusinessObjectToLibrary(ln, "InitialBO");
-		Assert.assertTrue(ln.isValid());
+		addBusinessObjectToLibrary(ln, name + "InitialBO");
+
+		ValidationFindings findings = ln.validate();
+		boolean valid = findings.count(FindingType.ERROR) == 0 ? true : false;
+		if (!valid)
+			printFindings(findings);
+
+		Assert.assertEquals(1, ln.getDescendants_NamedTypes().size());
+		Assert.assertTrue(valid);
 		return ln;
 	}
 
@@ -99,6 +114,19 @@ public class MockLibrary {
 	public LibraryChainNode createNewManagedLibrary(String ns, String name, ProjectNode parent) {
 		LibraryNode ln = createNewLibrary(ns, name, parent);
 		LibraryChainNode lcn = new LibraryChainNode(ln);
+		return lcn;
+	}
+
+	/**
+	 * Create new library as a managed library in a chain. While not managed in repository, Library will be in the
+	 * namespace of the project so it will be forced editable.
+	 */
+	public LibraryChainNode createNewManagedLibrary(String name, ProjectNode parent) {
+		LibraryNode ln = createNewLibrary(parent.getNamespace(), name, parent);
+		Assert.assertTrue(ln.isInProjectNS());
+		LibraryChainNode lcn = new LibraryChainNode(ln);
+		// not needed -- ln.setEditable(true); // override ns policy for chains
+		Assert.assertTrue(ln.isEditable());
 		return lcn;
 	}
 
@@ -120,6 +148,12 @@ public class MockLibrary {
 		LOGGER.debug(names);
 	}
 
+	public static void printFindings(ValidationFindings findings) {
+		for (ValidationFinding finding : findings.getAllFindingsAsList()) {
+			LOGGER.debug("FINDING: " + finding.getFormattedMessage(FindingMessageFormat.IDENTIFIED_FORMAT));
+		}
+	}
+
 	public static String createTempFile(String name, String suffix) throws IOException {
 		final File tempDir = File.createTempFile("temp-otm-" + name, Long.toString(System.nanoTime()));
 
@@ -135,7 +169,7 @@ public class MockLibrary {
 			@Override
 			public void run() {
 				if (tempDir.exists()) {
-					RepositoryTestUtils.deleteContents(tempDir);
+					deleteContents(tempDir);
 				}
 			}
 		});
@@ -145,38 +179,57 @@ public class MockLibrary {
 		return f.getPath();
 	}
 
+	public static void deleteContents(File fileOrFolder) {
+		if (fileOrFolder.isDirectory()) {
+			for (File folderMember : fileOrFolder.listFiles()) {
+				deleteContents(folderMember);
+			}
+		}
+		fileOrFolder.delete();
+	}
+
 	/**
-	 * Add one of each object type to the library.
+	 * Add one of each object type to the library. Does <b>not</b> create extension points.
 	 * 
 	 * @param ln
 	 */
 	public int addOneOfEach(LibraryNode ln, String nameRoot) {
+		LOGGER.debug("Adding one of each object type to " + ln + " with name root of " + nameRoot);
+		int initialCount = ln.getDescendants_NamedTypes().size();
 		addBusinessObjectToLibrary(ln, nameRoot + "BO");
 		addClosedEnumToLibrary(ln, nameRoot + "CE");
 		addCoreObjectToLibrary(ln, nameRoot + "CO");
 		addOpenEnumToLibrary(ln, nameRoot + "OE");
 		addSimpleTypeToLibrary(ln, nameRoot + "S");
 		addVWA_ToLibrary(ln, nameRoot + "VWA");
-		// assumes library was newly created w/ 1 object
-		Assert.assertEquals(7, ln.getDescendants_NamedTypes().size());
-		return 7;
+
+		int finalCount = ln.getDescendants_NamedTypes().size();
+		if (ln.isEditable())
+			Assert.assertEquals(6 + initialCount, finalCount);
+		else
+			Assert.assertEquals(initialCount, finalCount);
+		return finalCount;
 	}
 
+	/**
+	 * @return new business object or null if library is not editable
+	 */
 	public BusinessObjectNode addBusinessObjectToLibrary(LibraryNode ln, String name) {
 		if (name.isEmpty())
 			name = "TestBO";
+		Node string = NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE);
+
 		BusinessObjectNode newNode = (BusinessObjectNode) NodeFactory.newComponent(new TLBusinessObject());
 		newNode.setName(name);
 		ln.addMember(newNode);
+		newNode.setExtensible(true);
 
 		PropertyNode newProp = new ElementNode(newNode.getIDFacet(), "TestID");
-		newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
-		// newNode.getIDFacet().getChildren().add(newProp);
+		newProp.setAssignedType(string);
 
 		newProp = new ElementNode(newNode.getSummaryFacet(), "TestSum");
-		newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
-		// newNode.getSummaryFacet().getChildren().add(newProp);
-		return newNode;
+		newProp.setAssignedType(string);
+		return ln.isEditable() ? newNode : null;
 	}
 
 	/**
@@ -204,7 +257,7 @@ public class MockLibrary {
 		PropertyNode n3PropA = new ElementNode(n3.getSummaryFacet(), n1.getName());
 		n3PropA.setAssignedType(n1);
 		PropertyNode n3PropB = new ElementNode(n3.getSummaryFacet(), n2.getName());
-		n3PropB.setAssignedType(n2.getSummaryFacet());
+		n3PropB.setAssignedType((Node) n2.getSummaryFacet());
 
 		PropertyNode newProp = new ElementNode(n1.getIDFacet(), "TestID");
 		newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
@@ -227,6 +280,9 @@ public class MockLibrary {
 		return newNode;
 	}
 
+	/**
+	 * Create a simple type node and assign type to xsd:int
+	 */
 	public SimpleTypeNode addSimpleTypeToLibrary(LibraryNode ln, String name) {
 		if (name.isEmpty())
 			name = "SimpleType";
@@ -254,8 +310,8 @@ public class MockLibrary {
 			name = "TestOpen";
 		EnumerationOpenNode newNode = (EnumerationOpenNode) NodeFactory.newComponent(new TLOpenEnumeration());
 		newNode.setName(name);
-		PropertyNode newProp = new EnumLiteralNode(newNode, "Lit-O1");
 		ln.addMember(newNode);
+		newNode.addLiteral("Lit-01");
 		return newNode;
 	}
 
@@ -264,8 +320,37 @@ public class MockLibrary {
 			name = "TestClosed";
 		EnumerationClosedNode newNode = (EnumerationClosedNode) NodeFactory.newComponent(new TLClosedEnumeration());
 		newNode.setName(name);
-		PropertyNode newProp = new EnumLiteralNode(newNode, "Lit-C1");
 		ln.addMember(newNode);
+		newNode.addLiteral("Lit-C1");
 		return newNode;
+	}
+
+	/**
+	 * @param ln
+	 *            - library to add extension point to
+	 * @param eln
+	 *            - library containing business object to extend. must be different.
+	 * @return
+	 */
+	public ExtensionPointNode addEP(LibraryNode ln, LibraryNode eln) {
+		FacetNode facet = null;
+		for (Node d : eln.getDescendants_NamedTypes())
+			if (d instanceof BusinessObjectNode)
+				facet = ((BusinessObjectNode) d).getSummaryFacet();
+		return addExtensionPoint(ln, facet);
+	}
+
+	/**
+	 * 
+	 * @param ln
+	 * @param facet
+	 *            - facet in different library to extend.
+	 * @return
+	 */
+	public ExtensionPointNode addExtensionPoint(LibraryNode ln, FacetNode facet) {
+		ExtensionPointNode ep = new ExtensionPointNode(new TLExtensionPointFacet());
+		ln.addMember(ep);
+		ep.setExtendsType(facet);
+		return ep;
 	}
 }

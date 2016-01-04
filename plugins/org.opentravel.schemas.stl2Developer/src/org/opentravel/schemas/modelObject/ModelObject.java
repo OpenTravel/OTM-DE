@@ -38,14 +38,8 @@ import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLListFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.controllers.ContextController;
 import org.opentravel.schemas.node.INode;
-import org.opentravel.schemas.node.LibraryNode;
-import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.XsdNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The ModelObject abstract class provides a template for working with underlying model source objects. Model Object
@@ -73,8 +67,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public abstract class ModelObject<TL> {
-
-	private final static Logger LOGGER = LoggerFactory.getLogger(ModelObject.class);
+	// private final static Logger LOGGER = LoggerFactory.getLogger(ModelObject.class);
 
 	protected TL srcObj;
 	protected INode node;
@@ -104,16 +97,6 @@ public abstract class ModelObject<TL> {
 	public AbstractLibrary getOwningLibrary() {
 		return srcObj instanceof LibraryMember ? ((LibraryMember) srcObj).getOwningLibrary() : null;
 	}
-
-	// /**
-	// * AssignedType = name. Note - node.getAssignedTypeName() will add prefix if in different NS
-	// * from object.
-	// *
-	// * @return - assignedTypeName
-	// */
-	// public String getAssignedTypeName() {
-	// return getTLType() == null ? "" : getTLType().getLocalName();
-	// }
 
 	public String getAssignedName() {
 		return getTLType() == null || getTLType().getLocalName() == null ? "" : getTLType().getLocalName();
@@ -180,146 +163,6 @@ public abstract class ModelObject<TL> {
 			TLDocumentationOwner docOwner = (TLDocumentationOwner) srcObj;
 			docOwner.setDocumentation(documentation);
 		}
-	}
-
-	public String getEquivalent(final String context) {
-		String equivalent = null;
-
-		if (srcObj instanceof TLEquivalentOwner) {
-			final TLEquivalent tlEquivalent = ((TLEquivalentOwner) srcObj).getEquivalent(context);
-			if (tlEquivalent != null) {
-				equivalent = tlEquivalent.getDescription();
-			}
-		}
-		return equivalent;
-	}
-
-	/**
-	 * Change equivalent context
-	 * 
-	 * @param srcContext
-	 * @param targetContext
-	 */
-	public void changeEquivalentContext(final String srcContext, final String targetContext) {
-		if (!(srcObj instanceof TLEquivalentOwner))
-			return;
-		final TLEquivalent tle = ((TLEquivalentOwner) srcObj).getEquivalent(srcContext);
-		if (tle == null)
-			return;
-		tle.setContext(targetContext);
-	}
-
-	/**
-	 * Change Example context
-	 * 
-	 * @param srcContext
-	 * @param targetContext
-	 */
-	public void changeExampleContext(final String srcContext, final String targetContext) {
-		if (!(srcObj instanceof TLExampleOwner))
-			return;
-		final TLExample tle = ((TLExampleOwner) srcObj).getExample(srcContext);
-		if (tle == null)
-			return;
-		tle.setContext(targetContext);
-	}
-
-	public String getExample(final String context) {
-		String example = null;
-		if (srcObj instanceof TLExampleOwner) {
-			final TLExample tlExample = ((TLExampleOwner) srcObj).getExample(context);
-			if (tlExample != null) {
-				example = tlExample.getValue();
-			}
-		}
-
-		return example;
-	}
-
-	/**
-	 * Search for multiple equivalents with the same ID. If found, create a new context and assign it to one of them.
-	 * 
-	 * @param obj
-	 * @return true if equivalents were changed/fixed.
-	 */
-	public boolean fixEquivalents(TLEquivalentOwner obj) {
-		if (obj.getEquivalents().size() <= 1)
-			return false;
-
-		boolean fixed = false;
-		ContextController cc = OtmRegistry.getMainController().getContextController();
-		LibraryNode ln = ((Node) this.node).getLibrary();
-		List<String> availIDs = new ArrayList<String>(cc.getAvailableContextIds(ln));
-		List<String> usedIDs = new ArrayList<String>();
-		List<TLEquivalent> fixList = new ArrayList<TLEquivalent>();
-
-		// find duplicates as well as available contexts.
-		for (TLEquivalent equivalent : obj.getEquivalents()) {
-			if (usedIDs.contains(equivalent.getContext()))
-				fixList.add(equivalent);
-			else {
-				if (!availIDs.remove(equivalent.getContext()))
-					LOGGER.debug("TROUBLE in CONTEXT City. Context used that is not in context map.");
-				usedIDs.add(equivalent.getContext());
-			}
-		}
-
-		// fix any duplicates
-		int i = 1;
-		for (TLEquivalent toBeFixed : fixList) {
-			if (availIDs.isEmpty()) {
-				cc.newContext(ln, "id" + i, "http://www.examples.com/app" + i++);
-			} else {
-				toBeFixed.setContext(availIDs.get(0));
-				availIDs.remove(0);
-				fixed = true;
-			}
-			LOGGER.debug("Fixed context on equivalent - set to " + toBeFixed.getContext());
-		}
-		return fixed;
-	}
-
-	/**
-	 * Search for multiple examples with the same ID. If found, create a new context and assign it to one of them.
-	 * 
-	 * @param obj
-	 * @return true if the examples were changed/fixed.
-	 */
-	public boolean fixExamples(TLExampleOwner obj) {
-		if (obj.getExamples().size() <= 1)
-			return false;
-		boolean fixed = false;
-
-		ContextController cc = OtmRegistry.getMainController().getContextController();
-		LibraryNode ln = ((Node) this.node).getLibrary();
-		List<String> availIDs = new ArrayList<String>(cc.getAvailableContextIds(ln));
-		List<String> usedIDs = new ArrayList<String>();
-		List<TLExample> fixList = new ArrayList<TLExample>();
-
-		// find duplicates as well as available contexts.
-		for (TLExample example : obj.getExamples()) {
-			if (usedIDs.contains(example.getContext()))
-				fixList.add(example);
-			else {
-				// First time used -- remove from available and add to used.
-				availIDs.remove(example.getContext());
-				usedIDs.add(example.getContext());
-			}
-		}
-
-		// fix any duplicates
-		int i = 1;
-		for (TLExample toBeFixed : fixList) {
-			if (availIDs.isEmpty()) {
-				cc.newContext(ln, "id" + i, "http://www.examples.com/app" + i++);
-			} else {
-				toBeFixed.setContext(availIDs.get(0));
-				availIDs.remove(0);
-				fixed = true;
-			}
-			LOGGER.debug("Fixed " + getName() + ", example context set to " + toBeFixed.getContext());
-		}
-		return fixed;
 	}
 
 	protected abstract AbstractLibrary getLibrary(TL obj);
@@ -438,56 +281,6 @@ public abstract class ModelObject<TL> {
 		return false;
 	}
 
-	public boolean setEquivalent(final String equ, final String context) {
-		if (srcObj instanceof TLEquivalentOwner) {
-			final TLEquivalentOwner equivalentOwner = (TLEquivalentOwner) srcObj;
-			TLEquivalent tlEquivalent = equivalentOwner.getEquivalent(context);
-
-			if (tlEquivalent == null) {
-				tlEquivalent = new TLEquivalent();
-				tlEquivalent.setContext(context);
-				equivalentOwner.addEquivalent(tlEquivalent);
-			}
-
-			tlEquivalent.setDescription(equ);
-			return true;
-		}
-		return false;
-	}
-
-	public void removeEquivalent(final String context) {
-		if (srcObj instanceof TLEquivalentOwner) {
-			final TLEquivalentOwner equivalentOwner = (TLEquivalentOwner) srcObj;
-			final TLEquivalent tlEquivalent = equivalentOwner.getEquivalent(context);
-			((TLEquivalentOwner) srcObj).removeEquivalent(tlEquivalent);
-		}
-	}
-
-	public boolean setExample(final String example, final String context) {
-		if (srcObj instanceof TLExampleOwner) {
-			final TLExampleOwner exampleOwner = (TLExampleOwner) srcObj;
-			TLExample tlExample = exampleOwner.getExample(context);
-
-			if (tlExample == null) {
-				tlExample = new TLExample();
-				tlExample.setContext(context);
-				exampleOwner.addExample(tlExample);
-			}
-
-			tlExample.setValue(example);
-			return true;
-		}
-		return false;
-	}
-
-	public void removeExample(final String context) {
-		if (srcObj instanceof TLExampleOwner) {
-			final TLExampleOwner exampleOwner = (TLExampleOwner) srcObj;
-			final TLExample tlExample = exampleOwner.getExample(context);
-			exampleOwner.removeExample(tlExample);
-		}
-	}
-
 	public boolean setMandatory(final boolean selection) {
 		return false;
 	}
@@ -550,42 +343,14 @@ public abstract class ModelObject<TL> {
 	public void setTLType(NamedEntity attributeType) {
 	}
 
-	// public void setTLType(final TLAttributeType tlObj) {
-	// // this.type = tlObj;
-	// }
-	//
-	// public void setTLType(final TLPropertyType tlObj) {
-	// // this.type = tlObj;
-	// }
-
 	public void setExtendsType(final ModelObject<?> mo) {
+		// LOGGER.debug("Set extends type not implemented for: " + this.getClass().getSimpleName());
 	}
-
-	// public boolean isRole() {
-	// return false;
-	// }
-
-	// public boolean isRoleFacet() {
-	// return false;
-	// }
-	//
-	// public boolean isRoleProperty() {
-	// return false;
-	// }
 
 	/**
 	 * Remove the TL object from the TL model. Does <b>not</b> delete the modelObject.
 	 */
 	public abstract void delete();
-
-	// @Deprecated
-	// public void setExtension(final boolean state) {
-	// }
-
-	// @Deprecated
-	// public boolean isExtendable() {
-	// return false;
-	// }
 
 	public boolean isDocumentationOwner() {
 		return srcObj instanceof TLDocumentationOwner && !(srcObj instanceof TLListFacet);
@@ -616,38 +381,6 @@ public abstract class ModelObject<TL> {
 	 * 
 	 */
 
-	// public String getDeprecatedDoc(final int i) {
-	// final TLDocumentation tld = getDocumentation();
-	// return (tld == null || tld.getDeprecations() == null || tld.getDeprecations().size() <= i) ?
-	// "" : tld
-	// .getDeprecations().get(i).getText();
-	// }
-	// public String getReferenceDoc(final int i) {
-	// final TLDocumentation tld = getDocumentation();
-	// return (tld == null || tld.getReferences() == null || tld.getReferences().size() <= i) ? "" :
-	// tld
-	// .getReferences().get(i).getText();
-	// }
-	//
-	// public String getMoreInfo(final int i) {
-	// final TLDocumentation tld = getDocumentation();
-	// return (tld == null || tld.getMoreInfos() == null || tld.getMoreInfos().size() <= i) ? "" :
-	// tld.getMoreInfos()
-	// .get(i).getText();
-	// }
-	//
-	// public String getOtherDoc(final String context) {
-	// final TLDocumentation tld = getDocumentation();
-	// String text = "";
-	// if (tld != null) {
-	// final TLAdditionalDocumentationItem otherDoc = tld.getOtherDoc(context);
-	// if (otherDoc != null) {
-	// text = otherDoc.getText();
-	// }
-	// }
-	// return text;
-	// }
-
 	public void addDeprecation(String string) {
 		TLDocumentation tld = getDocumentation();
 		if (tld == null) {
@@ -656,28 +389,6 @@ public abstract class ModelObject<TL> {
 		TLDocumentationItem deprecation = new TLDocumentationItem();
 		deprecation.setText(string);
 		tld.addDeprecation(deprecation);
-	}
-
-	/**
-	 * Set the deprecation to the passed string
-	 * 
-	 * @param i
-	 *            - index of the deprecation to set
-	 * @param string
-	 */
-	public void setDeprecatedDoc(final String string, final int i) {
-		TLDocumentation tld = getDocumentation();
-		if (tld == null) {
-			tld = createDocumentation();
-		}
-		TLDocumentationItem deprecation = null;
-		if (tld.getDeprecations().isEmpty()) {
-			deprecation = new TLDocumentationItem();
-			tld.addDeprecation(deprecation);
-		} else {
-			deprecation = tld.getDeprecations().get(i);
-		}
-		deprecation.setText(string);
 	}
 
 	public void addDescription(String string) {
@@ -774,39 +485,6 @@ public abstract class ModelObject<TL> {
 		infoDoc.setText(string);
 	}
 
-	public void addOther(String string) {
-		TLDocumentation tld = getDocumentation();
-		if (tld == null) {
-			tld = createDocumentation();
-		}
-		TLAdditionalDocumentationItem other = new TLAdditionalDocumentationItem();
-		other.setContext(OtmRegistry.getMainController().getContextController().getDefaultContextId());
-		other.setText(string);
-		tld.addOtherDoc(other);
-	}
-
-	public void setOtherDoc(final String string, final String context) {
-		TLDocumentation tld = getDocumentation();
-		if (tld == null) {
-			tld = createDocumentation();
-		}
-		TLAdditionalDocumentationItem otherDoc = tld.getOtherDoc(context);
-		if (otherDoc == null) {
-			otherDoc = new TLAdditionalDocumentationItem();
-			otherDoc.setContext(context);
-			tld.addOtherDoc(otherDoc);
-		}
-		otherDoc.setText(string);
-	}
-
-	public void removeOtherDoc(final String context) {
-		final TLDocumentation tld = getDocumentation();
-		if (tld != null) {
-			final TLAdditionalDocumentationItem otherDoc = tld.getOtherDoc(context);
-			tld.removeOtherDoc(otherDoc);
-		}
-	}
-
 	public void addAlias(final TLAlias tla) {
 	}
 
@@ -821,17 +499,13 @@ public abstract class ModelObject<TL> {
 		}
 	}
 
-	// public boolean isSimpleType() {
-	// return false;
-	// }
-
 	public boolean moveUp() {
-		LOGGER.debug("ModelObject:moveUp() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
+		// LOGGER.debug("ModelObject:moveUp() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
 		return false;
 	}
 
 	public boolean moveDown() {
-		LOGGER.debug("ModelObject:moveDpwn() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
+		// LOGGER.debug("ModelObject:moveDpwn() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
 		return false;
 	}
 
@@ -861,6 +535,14 @@ public abstract class ModelObject<TL> {
 	public NamedEntity getTLType() {
 		// return type;
 		return null;
+	}
+
+	/**
+	 * Get the type name from the TL model object. NOTE: this should only be used for GUI hints and NOT type
+	 * assignments.
+	 */
+	public String getTypeName() {
+		return "";
 	}
 
 	public NamedEntity getTLBase() {
@@ -944,7 +626,7 @@ public abstract class ModelObject<TL> {
 	}
 
 	public void sort() {
-		LOGGER.debug("ModelObject:sort() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
+		// LOGGER.debug("ModelObject:sort() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
 	}
 
 	/**

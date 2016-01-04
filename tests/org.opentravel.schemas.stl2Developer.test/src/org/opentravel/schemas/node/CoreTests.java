@@ -25,10 +25,11 @@ import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.modelObject.SimpleAttributeMO;
 import org.opentravel.schemas.modelObject.SimpleFacetMO;
-import org.opentravel.schemas.node.Node_Tests.TestNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 
 /**
  * @author Dave Hollander
@@ -41,7 +42,7 @@ public class CoreTests {
 	MainController mc;
 	DefaultProjectController pc;
 	ProjectNode defaultProject;
-	TestNode tn = new Node_Tests().new TestNode();
+	TestNode tn = new NodeTesters().new TestNode();
 
 	@Before
 	public void beforeEachTest() {
@@ -100,8 +101,8 @@ public class CoreTests {
 		Assert.assertTrue(sfn.getSimpleAttribute().getType() == core.getSimpleType());
 
 		Node aType = NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
-		Assert.assertFalse(core.setAssignedType(aType));
-		Assert.assertFalse(sfn.setAssignedType(aType));
+		Assert.assertTrue(core.setAssignedType(aType));
+		Assert.assertTrue(sfn.setAssignedType(aType));
 		// works - Assert.assertTrue(sfn.getSimpleAttribute().setAssignedType(aType));
 		Assert.assertTrue(core.setSimpleType(aType));
 		Assert.assertTrue(core.getSimpleType() == aType);
@@ -127,7 +128,9 @@ public class CoreTests {
 		Assert.assertTrue(sp.getModelObject() instanceof SimpleAttributeMO);
 		Assert.assertTrue(sp.getType() != null);
 		Assert.assertFalse(sp.getType().getName().isEmpty());
-		Assert.assertTrue(sp.getTypeClass().getTypeOwner() == sp);
+		// the simple facet and attribute share the type class ... either could be owner
+		Assert.assertTrue(sp.getTypeClass().getTypeOwner() == sp
+				|| sp.getTypeClass().getTypeOwner() == core.getSimpleFacet());
 		Assert.assertTrue(sp.getLibrary() == core.getLibrary());
 
 		Assert.assertNotNull(core.getSimpleFacet());

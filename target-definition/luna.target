@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?><target name="luna" sequenceNumber="61">
+<locations>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.sdk.feature.group" version="4.4.2.v20150204-1700"/>
+<unit id="org.eclipse.emf.ecore.feature.group" version="2.10.2.v20150123-0348"/>
+<unit id="org.eclipse.emf.common.feature.group" version="2.10.1.v20150123-0348"/>
+<unit id="org.eclipse.equinox.executable.feature.group" version="3.6.102.v20150204-1316"/>
+<unit id="org.eclipse.rcp.sdk.id" version="4.4.2.M20150204-1700"/>
+<repository location="http://download.eclipse.org/releases/luna/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.draw2d.sdk.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.gef.sdk.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.zest.sdk.feature.group" version="0.0.0"/>
+<repository location="http://download.eclipse.org/tools/gef/updates/releases"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="javax.ws.rs" version="1.1.1.v20101004-1200"/>
+<unit id="javax.servlet" version="3.0.0.v201112011016"/>
+<unit id="org.junit" version="4.10.0.v4_10_0_v20120426-0900"/>
+<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20130118183705/repository/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.swtbot.forms.feature.group" version="2.1.1.201307101628"/>
+<unit id="org.eclipse.swtbot.eclipse.feature.group" version="2.1.1.201307101628"/>
+<unit id="org.eclipse.swtbot.eclipse.gef.feature.group" version="2.1.1.201307101628"/>
+<unit id="org.eclipse.swtbot.feature.group" version="2.1.1.201307101628"/>
+<unit id="org.eclipse.swtbot.ide.feature.group" version="2.1.1.201307101628"/>
+<unit id="org.eclipse.swtbot.generator.feature.feature.group" version="2.1.1.201307101628"/>
+<unit id="org.apache.log4j" version="1.2.15.v201012070815"/>
+<unit id="org.apache.log4j.source" version="1.2.15.v201012070815"/>
+<unit id="org.hamcrest.core" version="1.3.0.v201303031735"/>
+<unit id="org.hamcrest.core.source" version="1.3.0.v201303031735"/>
+<unit id="org.hamcrest.library" version="1.3.0.v201305281000"/>
+<unit id="org.hamcrest.library.source" version="1.3.0.v201305281000"/>
+<repository location="http://download.eclipse.org/technology/swtbot/releases/2.1.1/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.jetty.bundles.f.feature.group" version="8.1.16.201409082153"/>
+<unit id="org.eclipse.jetty.bundles.f.source.feature.group" version="8.1.16.201409082153"/>
+<repository location="http://download.eclipse.org/jetty/updates/jetty-bundles-8.x/8.1.16.v20140903"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.objectweb.asm.all.debug" version="5.0.3"/>
+<unit id="org.apache.httpcomponents.httpmime" version="4.4.0"/>
+<unit id="org.springframework.spring-aop" version="4.1.5.RELEASE"/>
+<unit id="org.apache.httpcomponents.httpcore" version="4.4.0"/>
+<unit id="slf4j.api" version="1.7.10"/>
+<unit id="com.sun.xml.bind.jaxb-impl" version="2.2.11"/>
+<unit id="org.springframework.spring-beans" version="4.1.5.RELEASE"/>
+<unit id="org.springframework.spring-context" version="4.1.5.RELEASE"/>
+<unit id="org.apache.commons.logging" version="1.2.0"/>
+<unit id="org.springframework.spring-core" version="4.1.5.RELEASE"/>
+<unit id="org.apache.aries.spifly.org.apache.aries.spifly.weaver-internal" version="1.0.1"/>
+<unit id="org.apache.httpcomponents.httpclient" version="4.4.0"/>
+<unit id="commons-logging" version="1.1.1"/>
+<unit id="org.springframework.spring-expression" version="4.1.5.RELEASE"/>
+<unit id="slf4j.log4j12" version="1.7.10"/>
+<unit id="org.apache.aries.spifly.dynamic.bundle" version="1.0.2"/>
+<unit id="com.sun.xml.bind.jaxb-core" version="2.2.11"/>
+<unit id="org.apache.aries.spifly.org.apache.aries.spifly.core-internal" version="1.0.2"/>
+<unit id="aopalliance" version="1.0.0"/>
+<unit id="org.apache.aries.util" version="1.0.0"/>
+<unit id="org.apache.commons.codec" version="1.9.0"/>
+<unit id="log4j" version="1.2.17"/>
+<repository location="http://localhost:8080/site/"/>
+</location>
+</locations>
+</target>

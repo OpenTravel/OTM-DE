@@ -45,9 +45,12 @@ import org.opentravel.schemas.preferences.GeneralPreferencePage;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
-import org.opentravel.schemas.trees.repository.RepositoryNode.NamespaceNode;
-import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryNameNode;
+import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryRootNsNode;
+import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryInstanceNode;
 import org.opentravel.schemas.widgets.WidgetFactory;
+import org.opentravel.schemas.wizards.validators.FormValidator;
+import org.opentravel.schemas.wizards.validators.NewProjectValidator;
+import org.opentravel.schemas.wizards.validators.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +94,7 @@ public class NewProjectWizardPage extends WizardPage {
         Map<String, Collection<String>> ret = new LinkedHashMap<String, Collection<String>>();
         for (Node n : selectedNodes) {
             if (n instanceof RepositoryNode) {
-                RepositoryNameNode r = getRepositoryParent((RepositoryNode) n);
+                RepositoryInstanceNode r = getRepositoryParent((RepositoryNode) n);
                 Map<String, Collection<String>> map = getNamespacesAndExt(r);
                 ret.putAll(map);
             }
@@ -99,34 +102,34 @@ public class NewProjectWizardPage extends WizardPage {
         return ret;
     }
 
-    private Map<String, Collection<String>> getNamespacesAndExt(RepositoryNameNode r) {
+    private Map<String, Collection<String>> getNamespacesAndExt(RepositoryInstanceNode r) {
         Map<String, Collection<String>> ret = new LinkedHashMap<String, Collection<String>>();
         for (Node child : r.getChildren()) {
-            NamespaceNode nn = (NamespaceNode) child;
+            RepositoryRootNsNode nn = (RepositoryRootNsNode) child;
             List<String> extensions = getExtensions(nn);
             ret.put(nn.getRootBasename(), extensions);
         }
         return ret;
     }
 
-    private List<String> getExtensions(NamespaceNode nn) {
+    private List<String> getExtensions(RepositoryRootNsNode nn) {
         List<String> ret = new ArrayList<String>();
         ret.add("");
         if (!nn.wasVisited())
             return ret;
         for (Node child : nn.getChildren()) {
-            if (child instanceof NamespaceNode) {
+            if (child instanceof RepositoryRootNsNode) {
                 ret.add(child.getName());
             }
         }
         return ret;
     }
 
-    private RepositoryNameNode getRepositoryParent(RepositoryNode node) {
+    private RepositoryInstanceNode getRepositoryParent(RepositoryNode node) {
         Node parent = node;
         while (parent != null) {
-            if (parent instanceof RepositoryNameNode) {
-                return (RepositoryNameNode) parent;
+            if (parent instanceof RepositoryInstanceNode) {
+                return (RepositoryInstanceNode) parent;
             }
             parent = parent.getParent();
         }

@@ -18,6 +18,9 @@
  */
 package org.opentravel.schemas.node;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +42,30 @@ public class AggregateFamilyNode extends FamilyNode {
 	public AggregateFamilyNode(AggregateNode parent, String name) {
 		super(name, parent);
 		setLibrary(parent.getLibrary());
+	}
+
+	/**
+	 * Create an aggregate family node and move the members from the parent to this.
+	 * 
+	 * @param parent
+	 * @param name
+	 * @param members
+	 */
+	public AggregateFamilyNode(AggregateNode parent, String name, ComponentNode nodeToAdd, List<Node> members) {
+		this(parent, name);
+		List<Node> kids = new ArrayList<Node>(members);
+		for (Node n : kids) {
+			parent.getChildren().remove(n);
+			this.getChildren().add(n);
+		}
+		this.getChildren().add(nodeToAdd); // add to family
+	}
+
+	/**
+	 * Simply add to child list. Nothing else.
+	 */
+	public void add(Node n) {
+		getChildren().add(n);
 	}
 
 	protected void remove(Node node) {

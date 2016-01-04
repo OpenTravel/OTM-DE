@@ -17,7 +17,7 @@ package org.opentravel.schemas.testers;
 
 import org.eclipse.core.expressions.PropertyTester;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
-import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryNameNode;
+import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryInstanceNode;
 
 import org.opentravel.schemacompiler.repository.RemoteRepository;
 
@@ -31,7 +31,7 @@ public class RepositoryTypeTester extends PropertyTester {
         if (!(receiver instanceof RepositoryNode)) {
             return false;
         }
-        RepositoryNameNode node = (RepositoryNameNode) receiver;
+        RepositoryInstanceNode node = (RepositoryInstanceNode) receiver;
         if (TYPE_REMOTE.equals(property)) {
             return isRemoteRepository(node);
         } else if (TYPE_LOCAL.equals(property)) {

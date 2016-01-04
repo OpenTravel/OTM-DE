@@ -26,10 +26,11 @@ import org.junit.Test;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.Node.NodeVisitor;
-import org.opentravel.schemas.node.Node_Tests.PrintNode;
-import org.opentravel.schemas.node.Node_Tests.TestNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.testUtils.NodeTesters.PrintNode;
+import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,9 +50,9 @@ public class Delete_Tests {
 	LoadFiles lf = null;
 
 	NodeVisitor dv = new NodeVisitors().new deleteVisitor();
-	PrintNode pv = new Node_Tests().new PrintNode();
-	TestNode tv = new Node_Tests().new TestNode(); // preferred tester
-	Node_Tests tt = new Node_Tests();
+	PrintNode pv = new NodeTesters().new PrintNode();
+	TestNode tv = new NodeTesters().new TestNode(); // preferred tester
+	NodeTesters tt = new NodeTesters();
 
 	@Before
 	public void beforeAllTests() {
@@ -67,11 +68,11 @@ public class Delete_Tests {
 
 		// Delete Visitor
 		int namedTypeCnt = setUpCase(1);
-		Assert.assertEquals(33, ln.getDescendants().size());
+		int descendants = ln.getDescendants().size();
 		ln.getComplexRoot().visitAllNodes(dv); // should do nothing
 		ln.getSimpleRoot().visitAllNodes(dv); // should do nothing
-		ln.visitAllNodes(tv);
-		Assert.assertEquals(33, ln.getDescendants().size());
+		ln.visitAllNodes(tv); // test visitor, should not change library
+		Assert.assertEquals(descendants, ln.getDescendants().size());
 		Assert.assertEquals(namedTypeCnt, ln.getDescendants_NamedTypes().size());
 
 		namedTypeCnt = setUpCase(2);
@@ -115,6 +116,7 @@ public class Delete_Tests {
 		case 1:
 			// Case 1 - simple library, not editable, with constructed objects
 			ln = ml.createNewLibrary("http://test.com/ns" + testCase, "testCase" + testCase, defaultProject);
+			ln.setEditable(false);
 			count = ml.addOneOfEach(ln, "case1");
 			ln.visitAllNodes(tv);
 			Assert.assertEquals(count, ln.getDescendants_NamedTypes().size());
@@ -127,10 +129,10 @@ public class Delete_Tests {
 		case 2:
 			// Case 2 - unmanaged library, editable, with constructed objects
 			ln = ml.createNewLibrary("http://test.com/ns" + testCase, "testCase" + testCase, defaultProject);
+			ln.setEditable(true);
 			count = ml.addOneOfEach(ln, "case2");
 			ln.visitAllNodes(tv);
 			Assert.assertEquals(count, ln.getDescendants_NamedTypes().size());
-			ln.setEditable(true);
 			Assert.assertTrue(ln.isDeleteable());
 			Assert.assertTrue(ln.isEditable());
 			break;
@@ -160,11 +162,13 @@ public class Delete_Tests {
 			new LibraryChainNode(ln);
 			ln.setEditable(true); // must be done after LCN created
 
-			ml.addSimpleTypeToLibrary(ln, "case4S");
+			final String fixedName = NodeNameUtils.fixSimpleTypeName("case4S");
+			ml.addSimpleTypeToLibrary(ln, "case4S"); // creates family
 			count++;
-			Node n = ln.findNodeByName("case4S");
-			Assert.assertNotNull(ln.getChain().findNodeByName("case4S"));
-			Assert.assertNotNull(ln.findNodeByName("case4S"));
+			Node n = ln.findNodeByName(fixedName);
+			Assert.assertNotNull(n);
+			Assert.assertNotNull(ln.getChain().findNodeByName(fixedName));
+			Assert.assertNotNull(ln.findNodeByName(fixedName));
 			Assert.assertTrue(n.getParent() instanceof VersionNode);
 			Assert.assertEquals(count, ln.getDescendants_NamedTypes().size());
 			Assert.assertEquals(count, ln.getChain().getDescendants_NamedTypes().size());
@@ -199,16 +203,17 @@ public class Delete_Tests {
 	}
 
 	private void deleteEachMember(LibraryNode ln) {
-		int x;
 		for (Node n : ln.getDescendants()) {
+			if (n instanceof CoreObjectNode)
+				LOGGER.debug("Core: " + n);
+
 			if (!n.isNavigation()) {
 				if (n.isDeleted())
 					continue;
 				INode user = null;
-				if (n.getModelObject() == null)
-					x = 1;
+
 				// Make sure the users of this type are informed of deletion.
-				if (n.getTypeUsersCount() > 0) {
+				if (n.getTypeUsers().size() > 0) {
 					user = n.getTypeUsers().get(0);
 				}
 				n.delete();

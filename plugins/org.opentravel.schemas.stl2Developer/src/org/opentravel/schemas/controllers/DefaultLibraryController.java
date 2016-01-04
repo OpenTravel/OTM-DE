@@ -48,7 +48,6 @@ import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.FileDialogs;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -57,7 +56,7 @@ import org.opentravel.schemas.views.ValidationResultsView;
 import org.opentravel.schemas.views.decoration.LibraryDecorator;
 import org.opentravel.schemas.wizards.GlobalLocalCancelDialog;
 import org.opentravel.schemas.wizards.GlobalLocalCancelDialog.GlobalDialogResult;
-import org.opentravel.schemas.wizards.NewLibraryValidator;
+import org.opentravel.schemas.wizards.validators.NewLibraryValidator;
 import org.opentravel.schemas.wizards.NewLibraryWizard;
 import org.opentravel.schemas.wizards.NewLibraryWizardPage;
 import org.slf4j.Logger;
@@ -285,7 +284,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 	public boolean saveLibraries(final List<LibraryNode> libraries, boolean quiet) {
 		final List<TLLibrary> toSave = getEditableUsersLibraraies(libraries);
 		if (toSave.isEmpty()) {
-			DialogUserNotifier.openInformation("Warning", Messages.getString("action.saveAll.noUserDefied"));
+			// DialogUserNotifier.openInformation("Warning", Messages.getString("action.saveAll.noUserDefied"));
 			LOGGER.debug("No user defined libraries to save");
 			return false;
 		}
@@ -442,7 +441,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 	@Override
 	public String getLibraryStatus(LibraryNode library) {
 		// TODO: use i18n for text
-		if (library.getTLaLib() == null)
+		if (library == null || library.getTLaLib() == null)
 			return "NULL Status";
 
 		if (library.getTLaLib() instanceof XSDLibrary)

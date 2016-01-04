@@ -32,9 +32,9 @@ import org.opentravel.schemas.node.LibraryTests;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeModelController;
-import org.opentravel.schemas.node.Node_Tests;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
+import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.views.OtmView;
 import org.opentravel.schemas.views.TypeView;
 
@@ -44,7 +44,7 @@ import org.opentravel.schemas.views.TypeView;
  */
 public class MainController_Tests {
 	ModelNode model = null;
-	Node_Tests nt = new Node_Tests();
+	NodeTesters nt = new NodeTesters();
 	LoadFiles lf = new LoadFiles();
 	LibraryTests lt = new LibraryTests();
 

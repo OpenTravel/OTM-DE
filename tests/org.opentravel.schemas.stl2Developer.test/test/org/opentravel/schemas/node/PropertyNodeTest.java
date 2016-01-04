@@ -15,137 +15,160 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.opentravel.schemas.node.FacetNode;
-import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.utils.FacetNodeBuilder;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemas.controllers.DefaultProjectController;
+import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.utils.FacetNodeBuilder;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 
 public class PropertyNodeTest {
 
-    @Before
-    public void beforeEachTest() {
-    }
+	private LibraryNode ln = null;
 
-    @Test
-    public void shouldMoveUp() {
-        FacetNode facetNode = FacetNodeBuilder.create().addElements("E1", "E2", "E3").build();
-        findChild(facetNode, "E2").moveProperty(PropertyNode.UP);
-        assertOrderOfNodeAndMO(facetNode);
-        assertFacetOrder(facetNode.getChildren(), "E2", "E1", "E3");
-    }
+	@Before
+	public void beforeEachTest() {
+		MainController mc = new MainController();
+		MockLibrary mockLibrary = new MockLibrary();
+		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
+		ProjectNode defaultProject = pc.getDefaultProject();
+		ln = mockLibrary.createNewLibrary("http://example.com/test", "test", defaultProject);
+	}
 
-    @Test
-    public void shouldMoveDown() {
-        FacetNode facetNode = FacetNodeBuilder.create().addElements("E1", "E2", "E3").build();
-        findChild(facetNode, "E2").moveProperty(PropertyNode.DOWN);
-        assertOrderOfNodeAndMO(facetNode);
-        assertFacetOrder(facetNode.getChildren(), "E1", "E3", "E2");
-    }
+	@Test
+	public void shouldMoveUp() {
+		FacetNode facetNode = FacetNodeBuilder.create().addElements("E1", "E2", "E3").build();
+		findChild(facetNode, "E2").moveProperty(PropertyNode.UP);
+		assertOrderOfNodeAndMO(facetNode);
+		assertFacetOrder(facetNode.getChildren(), "E2", "E1", "E3");
+	}
 
-    @Test
-    public void shouldMoveUpWithMixedTypes() {
-        FacetNode facetNode = FacetNodeBuilder.create().addElements("A1").addAttributes("E1", "E2")
-                .addElements("A2").build();
-        findChild(facetNode, "A2").moveProperty(PropertyNode.UP);
-        assertOrderOfNodeAndMO(facetNode);
-        assertFacetOrder(facetNode.getChildren(), "E1", "E2", "A2", "A1");
-    }
+	@Test
+	public void shouldMoveDown() {
+		FacetNode facetNode = FacetNodeBuilder.create().addElements("E1", "E2", "E3").build();
+		findChild(facetNode, "E2").moveProperty(PropertyNode.DOWN);
+		assertOrderOfNodeAndMO(facetNode);
+		assertFacetOrder(facetNode.getChildren(), "E1", "E3", "E2");
+	}
 
-    @Test
-    public void shouldMoveDownWithMixedTypes() {
-        FacetNode facetNode = FacetNodeBuilder.create().addElements("E1").addAttributes("A1", "A2")
-                .addElements("E2").build();
-        findChild(facetNode, "E1").moveProperty(PropertyNode.DOWN);
-        assertOrderOfNodeAndMO(facetNode);
-        assertFacetOrder(facetNode.getChildren(), "A1", "A2", "E2", "E1");
-    }
+	@Test
+	public void shouldMoveUpWithMixedTypes() {
+		FacetNode facetNode = FacetNodeBuilder.create(ln).addElements("A1").addAttributes("E1", "E2").addElements("A2")
+				.build();
+		findChild(facetNode, "A2").moveProperty(PropertyNode.UP);
+		assertOrderOfNodeAndMO(facetNode);
+		assertFacetOrder(facetNode.getChildren(), "E1", "E2", "A2", "A1");
+	}
 
-    @Test
-    public void shouldDoNothingWithOneType() {
-        FacetNode facetNode = FacetNodeBuilder.create().addAttributes("A1").addIndicators("I1")
-                .addElements("E1").build();
-        findChild(facetNode, "I1").moveProperty(PropertyNode.DOWN);
-        assertOrderOfNodeAndMO(facetNode);
-        assertFacetOrder(facetNode.getChildren(), "A1", "I1", "E1");
-    }
+	@Test
+	public void shouldMoveDownWithMixedTypes() {
+		FacetNode facetNode = FacetNodeBuilder.create(ln).addElements("E1").addAttributes("A1", "A2").addElements("E2")
+				.build();
+		findChild(facetNode, "E1").moveProperty(PropertyNode.DOWN);
+		assertTrue(facetNode.isEditable_newToChain());
+		assertOrderOfNodeAndMO(facetNode);
+		assertFacetOrder(facetNode.getChildren(), "A1", "A2", "E2", "E1");
+	}
 
-    @Test
-    public void shouldDoNothingWithElementOnBottom() {
-        FacetNode facetNode = FacetNodeBuilder.create().addAttributes("A1")
-                .addIndicators("I0", "I1").addElements("E1").build();
-        findChild(facetNode, "I1").moveProperty(PropertyNode.DOWN);
-        assertOrderOfNodeAndMO(facetNode);
-        assertFacetOrder(facetNode.getChildren(), "A1", "I0", "I1", "E1");
-    }
+	// TODO - why are only indicators renamed? Should attributes be also?
+	@Test
+	public void shouldDoNothingWithOneType() {
+		final String i1Name = NodeNameUtils.fixIndicatorName("I1");
 
-    @Test
-    public void shouldDoNothingWithElementOnTop() {
-        FacetNode facetNode = FacetNodeBuilder.create().addAttributes("A1")
-                .addIndicators("I0", "I1").addElements("E1").build();
-        findChild(facetNode, "I0").moveProperty(PropertyNode.UP);
-        assertOrderOfNodeAndMO(facetNode);
-        assertFacetOrder(facetNode.getChildren(), "A1", "I0", "I1", "E1");
-    }
+		FacetNode facetNode = FacetNodeBuilder.create(ln).addAttributes("A1").addIndicators("I1").addElements("E1")
+				.build();
+		findChild(facetNode, i1Name).moveProperty(PropertyNode.DOWN);
+		assertOrderOfNodeAndMO(facetNode);
+		assertFacetOrder(facetNode.getChildren(), "A1", i1Name, "E1");
+	}
 
-    private void assertOrderOfNodeAndMO(FacetNode facetNode) {
-        List<String> names = toNames(facetNode.getChildren());
-        List<String> tlNames = tlToNames(facetNode.getModelObject().getChildren());
-        Assert.assertEquals(tlNames, names);
-    }
+	@Test
+	public void shouldDoNothingWithElementOnBottom() {
+		final String i0Name = NodeNameUtils.fixIndicatorName("I0");
+		final String i1Name = NodeNameUtils.fixIndicatorName("I1");
 
-    private List<String> tlToNames(List<?> list) {
-        return Lists.transform(list, new Function<Object, String>() {
+		FacetNode facetNode = FacetNodeBuilder.create(ln).addAttributes("A1").addIndicators("I0", "I1")
+				.addElements("E1").build();
+		findChild(facetNode, i1Name).moveProperty(PropertyNode.DOWN);
+		assertOrderOfNodeAndMO(facetNode);
+		assertFacetOrder(facetNode.getChildren(), "A1", i0Name, i1Name, "E1");
+	}
 
-            @Override
-            public String apply(Object obj) {
-                if (obj instanceof TLProperty) {
-                    return ((TLProperty) obj).getName();
-                } else if (obj instanceof TLAttribute) {
-                    return ((TLAttribute) obj).getName();
-                } else if (obj instanceof TLIndicator) {
-                    return ((TLIndicator) obj).getName();
-                } else if (obj instanceof TLAlias) {
-                    return ((TLAlias) obj).getName();
-                }
-                throw new IllegalStateException("Do not support this Tl object: " + obj);
-            }
-        });
+	@Test
+	public void shouldDoNothingWithElementOnTop() {
+		final String i0Name = NodeNameUtils.fixIndicatorName("I0");
+		final String i1Name = NodeNameUtils.fixIndicatorName("I1");
+		final String a1Name = NodeNameUtils.fixIndicatorName("A1");
 
-    }
+		FacetNode facetNode = FacetNodeBuilder.create(ln).addAttributes("A1").addIndicators("I0", "I1")
+				.addElements("E1").build();
+		assertNotNull(facetNode);
+		findChild(facetNode, i0Name).moveProperty(PropertyNode.UP);
+		assertOrderOfNodeAndMO(facetNode);
+		assertFacetOrder(facetNode.getChildren(), "A1", i0Name, i1Name, "E1");
+	}
 
-    private List<String> toNames(List<Node> children) {
-        return Lists.transform(children, new Function<Node, String>() {
+	private void assertOrderOfNodeAndMO(FacetNode facetNode) {
+		List<String> names = toNames(facetNode.getChildren());
+		List<String> tlNames = tlToNames(facetNode.getModelObject().getChildren());
+		Assert.assertEquals(tlNames, names);
+	}
 
-            @Override
-            public String apply(Node node) {
-                return node.getName();
-            }
-        });
-    }
+	private List<String> tlToNames(List<?> list) {
+		return Lists.transform(list, new Function<Object, String>() {
 
-    private void assertFacetOrder(List<Node> children, String... string) {
-        Assert.assertEquals(Arrays.asList(string), toNames(children));
-    }
+			@Override
+			public String apply(Object obj) {
+				if (obj instanceof TLProperty) {
+					return ((TLProperty) obj).getName();
+				} else if (obj instanceof TLAttribute) {
+					return ((TLAttribute) obj).getName();
+				} else if (obj instanceof TLIndicator) {
+					return ((TLIndicator) obj).getName();
+				} else if (obj instanceof TLAlias) {
+					return ((TLAlias) obj).getName();
+				}
+				throw new IllegalStateException("Do not support this Tl object: " + obj);
+			}
+		});
 
-    private Node findChild(Node parent, String name) {
-        for (Node n : parent.getChildren()) {
-            if (name.equals(n.getName()))
-                return n;
-        }
-        return null;
-    }
+	}
+
+	private List<String> toNames(List<Node> children) {
+		return Lists.transform(children, new Function<Node, String>() {
+
+			@Override
+			public String apply(Node node) {
+				return node.getName();
+			}
+		});
+	}
+
+	private void assertFacetOrder(List<Node> children, String... string) {
+		Assert.assertEquals(Arrays.asList(string), toNames(children));
+	}
+
+	private Node findChild(Node parent, String name) {
+		for (Node n : parent.getChildren()) {
+			if (name.equals(n.getName()))
+				return n;
+		}
+		return null;
+	}
 
 }

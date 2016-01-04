@@ -18,15 +18,17 @@ package org.opentravel.schemas.stl2Developer.reposvc;
 import java.io.File;
 import java.io.IOException;
 
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.log.Logger;
-import org.osgi.framework.Bundle;
-
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.opentravel.schemacompiler.index.FreeTextSearchService;
+import org.opentravel.schemacompiler.providers.JAXBContextResolver;
+import org.opentravel.schemacompiler.providers.RepositoryServiceExceptionMapper;
 import org.opentravel.schemacompiler.repository.RemoteRepository;
+import org.opentravel.schemacompiler.repository.RepositoryContentResource;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.schemacompiler.repository.RepositoryServlet;
@@ -91,12 +93,9 @@ public class JettyTestServer {
             throw new IllegalStateException("The Jetty server is already running.");
         }
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        Bundle repoSync = Platform.getBundle("org.opentravel.schemas.stl2Developer.reposvc");
+        
         context.setContextPath("/ota2-repository-service");
-        OSGiPackageConfig config = new OSGiPackageConfig(new String[] {
-                "org.opentravel.schemacompiler.repository", "org.opentravel.schemacompiler.providers" },
-                repoSync);
-        context.addServlet(new ServletHolder(new RepositoryServlet(config)), "/service/*");
+        context.addServlet(new ServletHolder(new RepositoryServlet(new RepositoryApplication())), "/service/*");
         jettyServer = new Server(port);
         jettyServer.setHandler(context);
         initializeRuntimeRepository();
@@ -181,7 +180,20 @@ public class JettyTestServer {
             RepositoryTestUtils.copyContents(repositorySnapshotLocation, repositoryRuntimeLocation);
         }
     }
-
+    
+    public class RepositoryApplication extends ResourceConfig {
+    	
+    	public RepositoryApplication() throws ClassNotFoundException {
+    		registerClasses( RepositoryContentResource.class, JAXBContextResolver.class,
+    				RepositoryServiceExceptionMapper.RepositoryExceptionMapper.class,
+    				RepositoryServiceExceptionMapper.RepositorySecurityExceptionMapper.class,
+    				RepositoryServiceExceptionMapper.JAXBExceptionMapper.class,
+    				RepositoryServiceExceptionMapper.IOExceptionMapper.class,
+    				MultiPartFeature.class
+    			);
+    	}
+    }
+    
     public class NoLogging implements Logger {
         @Override
         public String getName() {
@@ -229,7 +241,7 @@ public class JettyTestServer {
         public void debug(Throwable thrown) {
         }
 
-        @Override
+		@Override
         public void debug(String msg, Throwable thrown) {
         }
 

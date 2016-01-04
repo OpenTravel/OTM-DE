@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="OTM Development Environment" uid="OTM-DE" id="org.opentravel.schemas.stl2Developer.product" application="org.opentravel.schemas.stl2Developer.application" version="3.1.0" useFeatures="true" includeLaunchers="true">
+<product name="OTM Development Environment" uid="OTM-DE" id="org.opentravel.schemas.stl2Developer.product" application="org.opentravel.schemas.stl2Developer.application" version="3.2.0" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
 
    <launcherArgs>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
-      </vmArgsMac>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
    <windowImages i16="icons/alt_window_16.gif" i32="icons/alt_window_32.gif"/>
@@ -211,7 +210,7 @@ OpenTravel Model License Agreement, (c) Copyright 2013 OpenTravel Alliance, Inc.
    </plugins>
 
    <features>
-      <feature id="org.opentravel.schemas.stl2Developer.feature.basic"/>
+      <feature id="org.opentravel.schemas.stl2Developer.feature.basic" version="0.0.0"/>
    </features>
 
    <configurations>

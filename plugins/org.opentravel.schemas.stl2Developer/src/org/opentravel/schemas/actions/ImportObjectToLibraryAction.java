@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -105,7 +106,7 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 		// check to see if a service is being imported and is legal to do so
 		if (destination.hasService()) {
 			for (Node n : eligibleForImporting)
-				if (n.isService()) {
+				if (n instanceof ServiceNode) {
 					eligibleForImporting.remove(n);
 					break;
 				}
@@ -151,31 +152,6 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 			importedNodesMap = destination.importNodes(eligibleForImporting).values();
 			break;
 		}
-		// TODO - duplicates in the same versioned library will not be in the aggregate list and therefore not editable.
-		// This code only detects the problem after it happens. See AggregateNode.add() for the fix.
-		// List<Node> providers, chainProviders = null;
-		// if (destination.getChain() != null)
-		// chainProviders = destination.getChain().getComplexAggregate().getChildren_TypeProviders();
-		// for (Node n : importedNodesMap) {
-		// LOGGER.debug("ImportObject: checking " + n);
-		// n.validate(); // run the tl validator
-		// for (Node child : n.getDescendants_TypeUsers()) {
-		// Node type = child.getAssignedType();
-		// if (type != null && !type.isXSD_Atomic()) {
-		// providers = type.getLibrary().getDescendentsNamedTypeProviders();
-		// if (chainProviders != null && (type.isCoreObject() || type.isValueWithAttributes()))
-		// LOGGER.debug("ImportObject Error found. " + type + " is not in chain aggregates."
-		// + chainProviders.contains(type));
-		// // int i = 0;
-		// // for (Node p : providers) {
-		// // if (++i > 0 && p.hashCode() == type.hashCode())
-		// // LOGGER.debug("Found " + type + " " + p.hashCode());
-		// // }
-		// if (!(providers.contains(type)))
-		// LOGGER.debug(n + "/" + child + "/" + type + " is not assigned to correct library.");
-		// }
-		// }
-		// }
 
 		selectImportedNodesInNavigation(importedNodesMap);
 		mc.postStatus("Imported " + eligibleForImporting.size() + " types to " + destination);

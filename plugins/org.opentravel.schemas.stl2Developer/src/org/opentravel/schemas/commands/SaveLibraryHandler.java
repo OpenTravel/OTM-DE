@@ -21,33 +21,39 @@ import java.util.Set;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.properties.Images;
 
 public class SaveLibraryHandler extends OtmAbstractHandler {
 
-    public static String COMMAND_ID = "org.opentravel.schemas.commands.SaveLibrary";
+	public static String COMMAND_ID = "org.opentravel.schemas.commands.SaveLibrary";
 
-    @Override
-    public Object execute(ExecutionEvent exEvent) throws ExecutionException {
-        Set<LibraryNode> libraries = new HashSet<LibraryNode>();
-        // filter duplicates
-        for (Node cn : mc.getSelectedNodes_NavigatorView()) {
-            libraries.add(cn.getLibrary());
-        }
-        mc.getLibraryController().saveLibraries(new ArrayList<LibraryNode>(libraries), false);
-        return null;
-    }
+	@Override
+	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
+		Set<LibraryNode> libraries = new HashSet<LibraryNode>();
+		// filter duplicates
+		for (Node cn : mc.getSelectedNodes_NavigatorView()) {
+			libraries.add(cn.getLibrary());
+		}
+		mc.getLibraryController().saveLibraries(new ArrayList<LibraryNode>(libraries), false);
+		return null;
+	}
 
-    @Override
-    public String getID() {
-        return COMMAND_ID;
-    }
+	@Override
+	public String getID() {
+		return COMMAND_ID;
+	}
 
-    @Override
-    public boolean isEnabled() {
-        Node n = mc.getSelectedNode_NavigatorView();
-        return n != null ? !n.isBuiltIn() : false;
-    }
+	public static ImageDescriptor getIcon() {
+		return Images.getImageRegistry().getDescriptor(Images.Save);
+	}
+
+	@Override
+	public boolean isEnabled() {
+		Node n = mc.getSelectedNode_NavigatorView();
+		return n != null ? !n.isBuiltIn() : false;
+	}
 
 }

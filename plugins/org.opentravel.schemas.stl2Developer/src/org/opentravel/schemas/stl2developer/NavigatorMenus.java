@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuListener2;
 import org.eclipse.jface.action.IMenuManager;
@@ -39,7 +38,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPartSite;
-import org.eclipse.ui.PlatformUI;
 import org.opentravel.schemas.actions.AddAliasAction;
 import org.opentravel.schemas.actions.AddCRUDQOperationsAction;
 import org.opentravel.schemas.actions.AddCustomFacetAction;
@@ -51,7 +49,6 @@ import org.opentravel.schemas.actions.AssignTypeAction;
 import org.opentravel.schemas.actions.ChangeAction;
 import org.opentravel.schemas.actions.CloneSelectedTreeNodesAction;
 import org.opentravel.schemas.actions.CommitLibraryAction;
-import org.opentravel.schemas.actions.CompileAction;
 import org.opentravel.schemas.actions.FinalizeLibraryAction;
 import org.opentravel.schemas.actions.ImportObjectToLibraryAction;
 import org.opentravel.schemas.actions.LockLibraryAction;
@@ -60,24 +57,25 @@ import org.opentravel.schemas.actions.MoveObjectToLibraryAction;
 import org.opentravel.schemas.actions.NewLibraryAction;
 import org.opentravel.schemas.actions.NewProjectAction;
 import org.opentravel.schemas.actions.OpenLibraryAction;
-import org.opentravel.schemas.actions.SaveModelAction;
-import org.opentravel.schemas.actions.SaveSelectedLibraryAsAction;
 import org.opentravel.schemas.actions.UnlockLibraryAction;
-import org.opentravel.schemas.actions.ValidateAction;
 import org.opentravel.schemas.actions.VersionMajorAction;
 import org.opentravel.schemas.actions.VersionMinorAction;
 import org.opentravel.schemas.actions.VersionPatchAction;
-import org.opentravel.schemas.commands.AddNodeHandler;
+import org.opentravel.schemas.commands.AddNodeHandler2;
+import org.opentravel.schemas.commands.CloseLibrariesHandler;
+import org.opentravel.schemas.commands.CloseProjectHandler;
+import org.opentravel.schemas.commands.CompileHandler;
 import org.opentravel.schemas.commands.DeleteNodesHandler;
 import org.opentravel.schemas.commands.NewComponentHandler;
 import org.opentravel.schemas.commands.OpenProjectHandler;
 import org.opentravel.schemas.commands.SaveLibrariesHandler;
 import org.opentravel.schemas.commands.SaveLibraryHandler;
+import org.opentravel.schemas.commands.ValidateHandler;
 import org.opentravel.schemas.controllers.RepositoryController;
-import org.opentravel.schemas.navigation.DoubleClickSelection;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
+import org.opentravel.schemas.node.Enumeration;
 import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.FamilyNode;
 import org.opentravel.schemas.node.LibraryChainNode;
@@ -85,12 +83,13 @@ import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
+import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.properties.DefaultStringProperties;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
-import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.properties.PropertyType;
 import org.opentravel.schemas.properties.StringProperties;
@@ -153,36 +152,36 @@ public class NavigatorMenus extends TreeViewer {
 		final Action lockLibraryAction = new LockLibraryAction();
 		final Action unlockLibraryAction = new UnlockLibraryAction();
 
-		final IContributionItem openProjectAction = RCPUtils.createCommandContributionItem(site,
-				OpenProjectHandler.COMMAND_ID, null, null, null);
 		// final IContributionItem openDirectoryAction =
 		// RCPUtils.createCommandContributionItem(site,
 		// OpenDirectoryHandler.COMMAND_ID, null, null, null);
-		final IContributionItem closeProjectAction = new ActionContributionItem(
-				ApplicationActionBarAdvisor.getCloseProject());
+
+		// Project Menu Items
+		final IContributionItem closeProjectAction = RCPUtils.createCommandContributionItem(site,
+				CloseProjectHandler.COMMAND_ID, null, null, null);
+		final IContributionItem openProjectAction = RCPUtils.createCommandContributionItem(site,
+				OpenProjectHandler.COMMAND_ID, null, null, null);
 		final Action newProjectAction = new NewProjectAction();
+		final IContributionItem compileAction = RCPUtils.createCommandContributionItem(site, CompileHandler.COMMAND_ID,
+				null, null, null);
 
-		// final Action saveAllLibrariesAction = new SaveAllLibrariesAction();
-		// final Action saveSelectedLibrariesAction = new SaveSelectedLibrariesAction();
-		final IContributionItem saveAllLibrariesAction = RCPUtils.createCommandContributionItem(PlatformUI
-				.getWorkbench(), SaveLibrariesHandler.COMMAND_ID, null, null,
-				Images.getImageRegistry().getDescriptor(Images.SaveAll));
-		final IContributionItem saveSelectedLibrariesAction = RCPUtils.createCommandContributionItem(PlatformUI
-				.getWorkbench(), SaveLibraryHandler.COMMAND_ID, null, null,
-				Images.getImageRegistry().getDescriptor(Images.Save));
+		final IContributionItem saveAllLibrariesAction = RCPUtils.createCommandContributionItem(site,
+				SaveLibrariesHandler.COMMAND_ID, null, null, SaveLibrariesHandler.getIcon());
+		final IContributionItem saveSelectedLibrariesAction = RCPUtils.createCommandContributionItem(site,
+				SaveLibraryHandler.COMMAND_ID, null, null, SaveLibraryHandler.getIcon());
+		final IContributionItem closeLibraries = RCPUtils.createCommandContributionItem(site,
+				CloseLibrariesHandler.COMMAND_ID, null, null, null);
 
-		final Action saveSelectedLibraryAsAction = new SaveSelectedLibraryAsAction(mainWindow,
-				new ExternalizedStringProperties("action.saveSelectedAs"));
+		// final Action saveSelectedLibraryAsAction = new SaveSelectedLibraryAsAction(mainWindow,
+		// new ExternalizedStringProperties("action.saveSelectedAs"));
 
-		final IContributionItem removeLibrariesAction = new ActionContributionItem(
-				ApplicationActionBarAdvisor.getCloseLibrary());
-		final IContributionItem removeAllLibrariesAction = new ActionContributionItem(
-				ApplicationActionBarAdvisor.getCloseAllLibraryInProjectes());
+		// final IContributionItem removeLibrariesAction = new ActionContributionItem(
+		// ApplicationActionBarAdvisor.getCloseLibrary());
+		// final IContributionItem removeAllLibrariesAction = new ActionContributionItem(
+		// ApplicationActionBarAdvisor.getCloseAllLibraryInProjectes());
 
-		final Action saveModelAction = new SaveModelAction(mainWindow, new ExternalizedStringProperties(
-				"action.saveModel"));
-		final IContributionItem compileAction = RCPUtils.createCommandContributionItem(site, CompileAction.ID, null,
-				null, null);
+		// final Action saveModelAction = new SaveModelAction(mainWindow, new ExternalizedStringProperties(
+		// "action.saveModel"));
 
 		final Action cloneObjectAction = new CloneSelectedTreeNodesAction(mainWindow, new ExternalizedStringProperties(
 				"action.cloneObject"));
@@ -202,8 +201,11 @@ public class NavigatorMenus extends TreeViewer {
 		final IContributionItem newComplexAction = RCPUtils.createCommandContributionItem(site,
 				NewComponentHandler.COMMAND_ID, Messages.getString("action.newComplex.text"), null, null);
 		final IContributionItem addPropertiesAction = RCPUtils.createCommandContributionItem(site,
-				AddNodeHandler.COMMAND_ID, Messages.getString("action.addProperty.text"), null,
-				Activator.getImageDescriptor("icons/add_att.gif"));
+				AddNodeHandler2.COMMAND_ID, Messages.getString("action.addProperty.text"), null,
+				AddNodeHandler2.getIcon());
+		// final IContributionItem addPropertiesAction = RCPUtils.createCommandContributionItem(site,
+		// AddNodeHandler.COMMAND_ID, Messages.getString("action.addProperty.text"), null,
+		// AddNodeHandler.getIcon());
 
 		final Action addQueryFacetAction = new AddQueryFacetAction(mainWindow);
 		final Action addRoleAction = new AddRoleAction(mainWindow);
@@ -211,10 +213,8 @@ public class NavigatorMenus extends TreeViewer {
 		final IContributionItem deleteObjectAction = RCPUtils.createCommandContributionItem(site,
 				DeleteNodesHandler.COMMAND_ID, null, null, null);
 		final Action replaceAction = new AssignTypeAction(mainWindow);
-		final IContributionItem validateAction = RCPUtils.createCommandContributionItem(site, ValidateAction.ID, null,
-				null, Activator.getImageDescriptor(Images.Validate));
-
-		// final Action convertToOTM = new XSD2OTMAction();
+		final IContributionItem validateAction = RCPUtils.createCommandContributionItem(site,
+				ValidateHandler.COMMAND_ID, null, null, ValidateHandler.getIcon());
 
 		final MenuManager versionMenu = new MenuManager("Version...", "VersionMenuID");
 
@@ -233,14 +233,12 @@ public class NavigatorMenus extends TreeViewer {
 
 			private void createMenu() {
 				libraryChainMenu.removeAll();
-				libraryChainMenu.add(removeLibrariesAction);
-				libraryChainMenu.add(removeAllLibrariesAction);
+				libraryChainMenu.add(closeLibraries);
 
 				libraryMenu.removeAll();
 				libraryMenu.add(newLibraryAction);
 				libraryMenu.add(openLibraryAction);
 				libraryMenu.add(validateAction);
-				// libraryMenu.add(convertToOTM);
 				libraryMenu.add(new Separator());
 				libraryMenu.add(manageInMenu);
 				libraryMenu.add(versionMenu);
@@ -251,26 +249,14 @@ public class NavigatorMenus extends TreeViewer {
 				libraryMenu.add(new Separator());
 				libraryMenu.add(saveSelectedLibrariesAction);
 				libraryMenu.add(saveAllLibrariesAction);
-				libraryMenu.add(saveSelectedLibraryAsAction);
 				libraryMenu.add(new Separator());
-				libraryMenu.add(removeLibrariesAction);
-				libraryMenu.add(removeAllLibrariesAction);
+				libraryMenu.add(closeLibraries);
 
 				projectMenu.removeAll();
 				projectMenu.add(closeProjectAction);
 				projectMenu.add(newProjectAction);
 				projectMenu.add(openProjectAction);
-				// projectMenu.add(openDirectoryAction);
 				projectMenu.add(compileAction);
-
-				// modelMenu.removeAll();
-				// modelMenu.add(newModelAction);
-				// modelMenu.add(new Separator());
-				// modelMenu.add(saveModelAction);
-				// modelMenu.add(compileModelAction);
-				// modelMenu.add(validateAction);
-				// modelMenu.add(new Separator());
-				// modelMenu.add(closeModelAction);
 
 				whereUsedMenu.removeAll();
 				whereUsedMenu.add(replaceAction);
@@ -303,7 +289,6 @@ public class NavigatorMenus extends TreeViewer {
 				facetMenu.add(addRoleAction);
 				facetMenu.add(addEnumValueAction);
 				facetMenu.add(new Separator());
-				// facetMenu.add(setContextAction);
 				facetMenu.add(changeObjectAction);
 				facetMenu.add(deleteObjectAction);
 				facetMenu.add(addCustomFacetAction);
@@ -387,7 +372,6 @@ public class NavigatorMenus extends TreeViewer {
 				if (NavigatorMenus.this.getSelection().isEmpty()) {
 					manager.add(libraryMenu);
 					manager.add(projectMenu);
-					// manager.add(modelMenu);
 				} else if (NavigatorMenus.this.getSelection() instanceof IStructuredSelection) {
 					final IStructuredSelection selection = (IStructuredSelection) NavigatorMenus.this.getSelection();
 					final Object selected = selection.getFirstElement();
@@ -402,7 +386,7 @@ public class NavigatorMenus extends TreeViewer {
 					manageInMenu.removeAll();
 					manager.updateAll(true);
 					manageInMenu.setVisible(true);
-					versionMenu.updateAll(true);
+					versionMenu.removeAll();
 					if (node.getLibrary() != null && node.getLibrary().isManaged())
 						versionMenu.setVisible(true);
 
@@ -433,7 +417,6 @@ public class NavigatorMenus extends TreeViewer {
 						// You can only import nodes representing XSD types.
 						manager.add(basicObjectMenu);
 						manager.add(libraryMenu);
-						// manager.add(modelMenu);
 					} else if (node instanceof TypeNode) {
 						manager.add(whereUsedMenu);
 					} else if (node instanceof ProjectNode || node instanceof LibraryNode
@@ -443,7 +426,6 @@ public class NavigatorMenus extends TreeViewer {
 						}
 						manager.add(libraryMenu);
 						manager.add(projectMenu);
-						// manager.add(modelMenu);
 					} else if (node instanceof FamilyNode) {
 						if (node.isInTLLibrary()) {
 							manager.add(basicWithCopyDeleteMoveMenu);
@@ -451,24 +433,21 @@ public class NavigatorMenus extends TreeViewer {
 							manager.add(basicObjectMenu);
 						}
 						manager.add(libraryMenu);
-						// manager.add(modelMenu);
 					} else if (node instanceof ComponentNode) {
 						if (node.isInModel()) {
 							if (!node.isEditable()) {
 								manager.add(basicObjectMenu);
-							} else if (node.isService()) {
+							} else if (node instanceof ServiceNode) {
 								manager.add(serviceObjectMenu);
 							} else if (node.isOperation()) {
 								manager.add(operationObjectMenu);
-							}
-
-							else if (node instanceof BusinessObjectNode) {
+							} else if (node instanceof BusinessObjectNode) {
 								manager.add(componentMenu);
 							} else if (node instanceof CoreObjectNode) {
 								manager.add(componentMenu);
 							} else if (node instanceof VWA_Node) {
 								manager.add(componentMenu);
-							} else if (node.isEnumeration()) {
+							} else if (node instanceof Enumeration) {
 								manager.add(componentMenu);
 							} else if (node.isAlias()) {
 								manager.add(componentMenu);
@@ -481,7 +460,7 @@ public class NavigatorMenus extends TreeViewer {
 							} else if (node.isSimpleType()) {
 								manager.add(simpleObjectMenu);
 							} else if (node instanceof SimpleAttributeNode) {
-							} else if (node.isRoleProperty()) {
+							} else if (node instanceof RoleNode) {
 								manager.add(roleObjectMenu);
 							} else if (node instanceof EnumLiteralNode) {
 								manager.add(enumObjectMenu);
@@ -495,7 +474,6 @@ public class NavigatorMenus extends TreeViewer {
 						}
 						manager.add(libraryMenu);
 						manager.add(projectMenu);
-						// manager.add(modelMenu);
 					}
 				}
 				manager.updateAll(true);
@@ -584,8 +562,8 @@ public class NavigatorMenus extends TreeViewer {
 	public void refreshNode(final Node n, final boolean expand) {
 		this.refresh();
 		if (expand) {
-			// this.expandToLevel(n, 3);
-			this.expandToLevel(n, 0);
+			this.expandToLevel(n, 3);
+			// this.expandToLevel(n, 6);
 		}
 		this.selectNode(n);
 	}
@@ -608,7 +586,7 @@ public class NavigatorMenus extends TreeViewer {
 
 	public void doubleClickNotification() {
 		ISelection selection = getSelection();
-		updateSelection(new DoubleClickSelection((StructuredSelection) selection));
+		// updateSelection(new DoubleClickSelection((StructuredSelection) selection));
 	}
 
 	@Override

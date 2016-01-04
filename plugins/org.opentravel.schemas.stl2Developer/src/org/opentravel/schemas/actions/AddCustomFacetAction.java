@@ -15,50 +15,95 @@
  */
 package org.opentravel.schemas.actions;
 
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
+import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemas.commands.OtmAbstractHandler;
 import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.NodeFactory;
+import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
+import org.opentravel.schemas.stl2developer.DialogUserNotifier;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.wizards.NewFacetWizard;
+import org.opentravel.schemas.wizards.validators.NewFacetValidator;
 
 /**
- * @author Agnieszka Janowska
+ * @author Dave Hollander
  * 
  */
 public class AddCustomFacetAction extends OtmAbstractAction {
-    private static StringProperties propsDefault = new ExternalizedStringProperties(
-            "action.addCustom");
+	private static StringProperties propsDefault = new ExternalizedStringProperties("action.addCustom");
 
-    /**
+	OtmAbstractHandler handler = new OtmAbstractHandler() {
+		@Override
+		public Object execute(ExecutionEvent event) throws ExecutionException {
+			return null;
+		}
+	};
+
+	/**
 	 *
 	 */
-    public AddCustomFacetAction() {
-        super(propsDefault);
-    }
+	public AddCustomFacetAction() {
+		super(propsDefault);
+	}
 
-    public AddCustomFacetAction(final StringProperties props) {
-        super(props);
-    }
+	public AddCustomFacetAction(final StringProperties props) {
+		super(props);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.Action#run()
-     */
-    @Override
-    public void run() {
-        mc.addCustomFacet();
-    }
+	@Override
+	public void run() {
+		addCustomFacet();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.Action#isEnabled()
-     */
-    @Override
-    public boolean isEnabled() {
-        // Unmanged or in the most current (head) library in version chain.
-        Node n = mc.getCurrentNode_NavigatorView().getOwningComponent();
-        return n instanceof BusinessObjectNode ? n.isEditable() && n.isNewToChain() : false;
-    }
+	@Override
+	public boolean isEnabled() {
+		// Unmanaged or in the most current (head) library in version chain.
+		Node n = mc.getCurrentNode_NavigatorView().getOwningComponent();
+		return n instanceof BusinessObjectNode ? n.isEditable_newToChain() : false;
+		// use if we allow custom facets to be added as minor version change
+		// return n instanceof BusinessObjectNode ? n.isEnabled_AddProperties() : false;
+
+	}
+
+	private void addCustomFacet() {
+		final TLFacetType facetType = TLFacetType.CUSTOM;
+		ComponentNode current = (ComponentNode) mc.getSelectedNode_NavigatorView().getOwningComponent();
+		if (current == null || !(current instanceof BusinessObjectNode) || !current.isEditable_newToChain()) {
+			DialogUserNotifier.openWarning("Add Custom Facet",
+					"Custom Facets can only be added to non-versioned Business Objects");
+			return;
+		}
+
+		// use if we allow custom facets to be added as minor version change
+		// // Use the version utils in handler to create a minor or patch version if needed
+		// if (current.isEnabled_AddProperties() && !current.isInHead())
+		// current = handler.createVersionExtension(current);
+		// if (current == null)
+		// return;
+
+		final BusinessObjectNode bo = (BusinessObjectNode) current;
+		final ComponentNode propertyOwner = (ComponentNode) current.getDetailFacet();
+
+		// Set up and run the wizard
+		String defaultContext = current.getLibrary().getDefaultContextId();
+		String defaultName = defaultContext;
+		final NewFacetWizard wizard = new NewFacetWizard(propertyOwner, defaultName);
+		wizard.setValidator(new NewFacetValidator(current, facetType, wizard));
+		wizard.run(OtmRegistry.getActiveShell());
+		if (!wizard.wasCanceled()) {
+			FacetNode newFacet = bo.addFacet(wizard.getName(), facetType);
+			for (final PropertyNode n : wizard.getSelectedProperties()) {
+				NodeFactory.newComponentMember(newFacet, n.cloneTLObj());
+			}
+		}
+		mc.refresh(bo);
+	}
 
 }

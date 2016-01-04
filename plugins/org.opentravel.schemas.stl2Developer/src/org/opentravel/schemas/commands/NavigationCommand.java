@@ -26,26 +26,27 @@ import org.opentravel.schemas.navigation.INavigationService;
 
 public class NavigationCommand extends AbstractHandler implements IExecutableExtension {
 
-    private static final String MODE_FORWARD = "FORWARD";
-    private static final String MODE_BACKWARD = "BACKWARD";
-    private String mode = "";
+	private static final String MODE_FORWARD = "FORWARD";
+	private static final String MODE_BACKWARD = "BACKWARD";
+	private String mode = "";
 
-    @Override
-    public Object execute(ExecutionEvent event) throws ExecutionException {
-        if (MODE_BACKWARD.equalsIgnoreCase(mode))
-            getNavigationController().goBackward();
-        else if (MODE_FORWARD.equalsIgnoreCase(mode))
-            getNavigationController().goForward();
-        return null;
-    }
+	@Override
+	public Object execute(ExecutionEvent event) throws ExecutionException {
+		if (MODE_BACKWARD.equalsIgnoreCase(mode))
+			getNavigationController().goBackward();
+		else if (MODE_FORWARD.equalsIgnoreCase(mode))
+			getNavigationController().goForward();
+		return null;
+	}
 
-    private INavigationService getNavigationController() {
-        return (INavigationService) PlatformUI.getWorkbench().getService(INavigationService.class);
-    }
+	private INavigationService getNavigationController() {
+		return (INavigationService) PlatformUI.getWorkbench().getService(INavigationService.class);
+	}
 
-    @Override
-    public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
-            throws CoreException {
-        mode = (String) data;
-    }
+	// Would not execute breakpoint except on startup
+	@Override
+	public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
+			throws CoreException {
+		mode = (String) data;
+	}
 }

@@ -24,6 +24,7 @@ import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
+import org.opentravel.schemas.testUtils.NodeTesters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ public class Clone_Tests {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Clone_Tests.class);
 
 	ModelNode model = null;
-	Node_Tests tt = new Node_Tests();
+	NodeTesters tt = new NodeTesters();
 
 	@Test
 	public void cloneTest() throws Exception {
@@ -85,7 +86,7 @@ public class Clone_Tests {
 		for (Node n : ln.getDescendants_NamedTypes()) {
 			// Assert.assertNotNull(n.cloneNew(null)); // no library, so it will fail node tests
 			equCount = countEquivelents(n);
-			if (n.isService())
+			if (n instanceof ServiceNode)
 				continue;
 			if (ln == target)
 				clone = n.clone("_COPY");

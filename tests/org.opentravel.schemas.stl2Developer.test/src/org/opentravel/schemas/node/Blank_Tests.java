@@ -18,13 +18,15 @@
  */
 package org.opentravel.schemas.node;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.Node_Tests.TestNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 
 /**
  * @author Dave Hollander
@@ -32,7 +34,7 @@ import org.opentravel.schemas.testUtils.MockLibrary;
  */
 public class Blank_Tests {
 	ModelNode model = null;
-	TestNode tn = new Node_Tests().new TestNode();
+	TestNode tn = new NodeTesters().new TestNode();
 	LoadFiles lf = new LoadFiles();
 	LibraryTests lt = new LibraryTests();
 	MockLibrary ml = null;
@@ -43,7 +45,7 @@ public class Blank_Tests {
 
 	@Before
 	public void beforeAllTests() {
-		mc = new MainController();
+		mc = new MainController(); // New one for each test
 		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
@@ -51,8 +53,15 @@ public class Blank_Tests {
 
 	@Test
 	public void mockTest() {
-		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		LibraryChainNode lcn = new LibraryChainNode(ln);
+		Assert.assertNotNull(mc);
+		Assert.assertNotNull(ml);
+		Assert.assertNotNull(pc);
+		Assert.assertNotNull(defaultProject);
+		ml.createNewManagedLibrary("test", defaultProject);
+		// 9/12/2015 - this fails when run in ALLTESTS but is OK when run alone.
+		// ml.createNewManagedLibrary("http://example.blankTest", "test", defaultProject);
+		// ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		// LibraryChainNode lcn = new LibraryChainNode(ln);
 	}
 
 }

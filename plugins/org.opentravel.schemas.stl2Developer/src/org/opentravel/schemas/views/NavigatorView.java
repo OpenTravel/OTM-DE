@@ -38,6 +38,7 @@ import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
+import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.NavigatorMenus;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -56,415 +57,423 @@ import org.slf4j.LoggerFactory;
  *         TODO - clean up current/previous node
  * 
  */
-public class NavigatorView extends OtmAbstractView implements ISelectionChangedListener,
-        IDoubleClickListener {
+public class NavigatorView extends OtmAbstractView implements ISelectionChangedListener, IDoubleClickListener {
 
-    public static String VIEW_ID = "org.opentravel.schemas.stl2Developer.NavigatorView";
+	public static String VIEW_ID = "org.opentravel.schemas.stl2Developer.NavigatorView";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NavigatorView.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(NavigatorView.class);
 
-    private NavigatorMenus navigatorMenus = null;
-    private Text filterText;
-    private LibraryTreeNameFilter textFilter;
-    private LibraryPropertyOnlyFilter propFilter;
-    private LibraryTreeInheritedFilter inheritedFilter;
+	private NavigatorMenus navigatorMenus = null;
+	private Text filterText;
+	private LibraryTreeNameFilter textFilter;
+	private LibraryPropertyOnlyFilter propFilter;
+	private LibraryTreeInheritedFilter inheritedFilter;
 
-    private Node curNode;
-    private Node prevNode;
-    private final List<Node> selectedNodes = new LinkedList<Node>();
+	private Node curNode;
+	private Node prevNode;
+	private final List<Node> selectedNodes = new LinkedList<Node>();
 
-    private boolean propertiesDisplayed = false;
-    private boolean inheritedPropertiesDisplayed = false;
+	private boolean propertiesDisplayed = false;
+	private boolean inheritedPropertiesDisplayed = false;
 
-    public NavigatorView() {
-        // LOGGER.info("Constructor for " + this.getClass());
-        OtmRegistry.registerNavigatorView(this);
-    }
+	public NavigatorView() {
+		// LOGGER.info("Constructor for " + this.getClass());
+		OtmRegistry.registerNavigatorView(this);
+	}
 
-    @Override
-    public boolean activate() {
-        // TODO Auto-generated method stub
-        return false;
-    }
+	@Override
+	public boolean activate() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
-    @Override
-    public void clearFilter() {
-        if (!getMainWindow().hasDisplay())
-            return; // headless operation
-        filterText.setText("");
-        textFilter.setText("");
-    }
+	@Override
+	public void clearFilter() {
+		if (!getMainWindow().hasDisplay())
+			return; // headless operation
+		filterText.setText("");
+		textFilter.setText("");
+	}
 
-    @Override
-    public void clearSelection() {
-        if (!getMainWindow().hasDisplay())
-            return; // headless operation
-        selectedNodes.clear();
-        navigatorMenus.setSelection(null);
-    }
+	@Override
+	public void clearSelection() {
+		if (!getMainWindow().hasDisplay())
+			return; // headless operation
+		selectedNodes.clear();
+		navigatorMenus.setSelection(null);
+	}
 
-    @Override
-    public void collapse() {
-        if (!getMainWindow().hasDisplay())
-            return; // headless operation
-        navigatorMenus.collapseAll();
-    }
+	@Override
+	public void collapse() {
+		if (!getMainWindow().hasDisplay())
+			return; // headless operation
+		navigatorMenus.collapseAll();
+	}
 
-    @Override
-    public void createPartControl(final Composite parent) {
-        LOGGER.info("Initializing part control of " + this.getClass());
-        if (parent == null)
-            throw new IllegalArgumentException("Can not create part without a parent composite.");
+	@Override
+	public void createPartControl(final Composite parent) {
+		LOGGER.info("Initializing part control of " + this.getClass());
+		if (parent == null)
+			throw new IllegalArgumentException("Can not create part without a parent composite.");
 
-        final MainWindow mainWindow = getMainWindow();
+		final MainWindow mainWindow = getMainWindow();
 
-        final GridLayout layout = new GridLayout(1, true);
-        parent.setLayout(layout);
+		final GridLayout layout = new GridLayout(1, true);
+		parent.setLayout(layout);
 
-        final GridData textGD = new GridData();
-        textGD.horizontalAlignment = SWT.FILL;
-        textGD.grabExcessHorizontalSpace = true;
+		final GridData textGD = new GridData();
+		textGD.horizontalAlignment = SWT.FILL;
+		textGD.grabExcessHorizontalSpace = true;
 
-        filterText = WidgetFactory.createText(parent, SWT.BORDER);
-        filterText.setLayoutData(textGD);
-        filterText.addModifyListener(new ModifyListener() {
+		filterText = WidgetFactory.createText(parent, SWT.BORDER);
+		filterText.setLayoutData(textGD);
+		filterText.addModifyListener(new ModifyListener() {
 
-            @Override
-            public void modifyText(ModifyEvent e) {
-                textFilter.setText(filterText.getText());
-                refreshAllViews();
-            }
-        });
+			@Override
+			public void modifyText(ModifyEvent e) {
+				textFilter.setText(filterText.getText());
+				refreshAllViews();
+			}
+		});
 
-        final GridData treeGD = new GridData();
-        treeGD.horizontalAlignment = SWT.FILL;
-        treeGD.grabExcessHorizontalSpace = true;
-        treeGD.verticalAlignment = SWT.FILL;
-        treeGD.grabExcessVerticalSpace = true;
+		final GridData treeGD = new GridData();
+		treeGD.horizontalAlignment = SWT.FILL;
+		treeGD.grabExcessHorizontalSpace = true;
+		treeGD.verticalAlignment = SWT.FILL;
+		treeGD.grabExcessVerticalSpace = true;
 
-        navigatorMenus = new NavigatorMenus(parent, getSite());
+		navigatorMenus = new NavigatorMenus(parent, getSite());
 
-        // Set up Filters
-        textFilter = new LibraryTreeNameFilter();
-        inheritedFilter = new LibraryTreeInheritedFilter();
-        propFilter = new LibraryPropertyOnlyFilter();
-        // start out with filters on
-        navigatorMenus.addFilter(textFilter);
-        navigatorMenus.addFilter(inheritedFilter);
-        navigatorMenus.addFilter(propFilter);
+		// Set up Filters
+		textFilter = new LibraryTreeNameFilter();
+		inheritedFilter = new LibraryTreeInheritedFilter();
+		propFilter = new LibraryPropertyOnlyFilter();
+		// start out with filters on
+		navigatorMenus.addFilter(textFilter);
+		navigatorMenus.addFilter(inheritedFilter);
+		navigatorMenus.addFilter(propFilter);
 
-        navigatorMenus.getTree().setLayoutData(treeGD);
+		navigatorMenus.getTree().setLayoutData(treeGD);
 
-        getSite().setSelectionProvider(navigatorMenus);
-        // was -- getSite().setSelectionProvider(getTreeView());
+		getSite().setSelectionProvider(navigatorMenus);
+		// was -- getSite().setSelectionProvider(getTreeView());
 
-        // Set up Drag-n-Drop.
-        // TODO: DragSource created should be disposed with the MainWindow!
-        mc.getHandlers().enableDragSource(navigatorMenus.getControl(), mainWindow);
-        // Enable drop onto the tree
-        mc.getHandlers().enableDropTarget(navigatorMenus.getControl(), mc.getActions(),
-                OtmActions.importToTree(), mc.getWidgets());
+		// Set up Drag-n-Drop.
+		// TODO: DragSource created should be disposed with the MainWindow!
+		mc.getHandlers().enableDragSource(navigatorMenus.getControl(), mainWindow);
+		// Enable drop onto the tree
+		mc.getHandlers().enableDropTarget(navigatorMenus.getControl(), mc.getActions(), OtmActions.importToTree(),
+				mc.getWidgets());
 
-        // posts dialog to get file, opens it and creates a catalog
-        final ModelNode node = mc.getModelController().getModel();
-        if (node != null) {
-            mc.setModelNode(node);
-        }
+		// posts dialog to get file, opens it and creates a catalog
+		final ModelNode node = mc.getModelController().getModel();
+		if (node != null) {
+			mc.setModelNode(node);
+		}
 
-        attachSelectionListener();
+		attachSelectionListener();
 
-        navigatorMenus.addDoubleClickListener(this);
+		navigatorMenus.addDoubleClickListener(this);
 
-        LOGGER.info("Done initializing part control of " + this.getClass());
-    }
+		// LOGGER.info("Done initializing part control of " + this.getClass());
+	}
 
-    private void attachSelectionListener() {
-        navigatorMenus.addSelectionChangedListener(this);
-        navigatorMenus.addSelectionChangedListener(new ISelectionChangedListener() {
+	private void attachSelectionListener() {
+		navigatorMenus.addSelectionChangedListener(this);
+		navigatorMenus.addSelectionChangedListener(new ISelectionChangedListener() {
 
-            @Override
-            public void selectionChanged(SelectionChangedEvent event) {
-                if (OtmRegistry.getExampleView() != null)
-                    OtmRegistry.getExampleView().setCurrentNode(
-                            extractFirstNode(event.getSelection()));
-            }
-        });
-    }
+			@Override
+			public void selectionChanged(SelectionChangedEvent event) {
+				if (OtmRegistry.getExampleView() != null)
+					OtmRegistry.getExampleView().setCurrentNode(extractFirstNode(event.getSelection()));
+			}
+		});
+	}
 
-    @Override
-    public void doubleClick(DoubleClickEvent dcEvent) {
-        // if double click on where used go to type
-        Node node = null;
-        if (dcEvent.getSelection() instanceof IStructuredSelection) {
-            IStructuredSelection ss = (IStructuredSelection) dcEvent.getSelection();
-            if (ss.getFirstElement() instanceof Node)
-                node = (Node) ss.getFirstElement();
-        }
-        if (node instanceof TypeNode)
-            node = node.getParent();
-        else if (node instanceof VersionNode)
-            node = (((VersionNode) node).getNewestVersion());
+	@Override
+	public void doubleClick(DoubleClickEvent dcEvent) {
+		// if double click on where used go to type
+		Node node = null;
+		Node n = null;
+		if (dcEvent.getSelection() instanceof IStructuredSelection) {
+			IStructuredSelection ss = (IStructuredSelection) dcEvent.getSelection();
+			if (ss.getFirstElement() instanceof Node)
+				node = (Node) ss.getFirstElement();
+		}
+		if (node instanceof TypeNode)
+			n = node.getParent();
+		else if (node instanceof VersionNode)
+			n = (((VersionNode) node).getNewestVersion());
+		else
+			n = node;
 
-        if (node != null) {
-            setCurrentNode(node);
-            select(node);
-            navigatorMenus.doubleClickNotification();
-        }
-    }
+		if (n != null) {
+			setCurrentNode(n);
+			select(n);
+			navigatorMenus.doubleClickNotification();
+			mc.selectNavigatorNodeAndRefresh(n);
+		} else {
+			remove(node);
+		}
+	}
 
-    @Override
-    public void expand() {
-        if (!getMainWindow().hasDisplay())
-            return;
-        navigatorMenus.expandToLevel(6);
-    }
+	@Override
+	public void expand() {
+		if (!getMainWindow().hasDisplay())
+			return;
+		navigatorMenus.expandToLevel(6);
+	}
 
-    @Override
-    public Node getCurrentNode() {
-        return curNode;
-    }
+	public void expand(Node node) {
+		navigatorMenus.expandToLevel(node, 6);
+	}
 
-    @Override
-    public INode getPreviousNode() {
-        return prevNode;
-    }
+	@Override
+	public Node getCurrentNode() {
+		return curNode;
+	}
 
-    /**
-     * @return a new list of the currently selected nodes, possibly empty.
-     */
-    @Override
-    public List<Node> getSelectedNodes() {
-        if (!getMainWindow().hasDisplay() && curNode != null) {
-            // provide random content for testing
-            return new ArrayList<Node>(curNode.getDescendants_NamedTypes());
-        }
-        return new ArrayList<Node>(selectedNodes);
-    }
+	@Override
+	public INode getPreviousNode() {
+		return prevNode;
+	}
 
-    @Override
-    public boolean isShowInheritedProperties() {
-        return inheritedPropertiesDisplayed;
-    }
+	/**
+	 * @return a new list of the currently selected nodes, possibly empty.
+	 */
+	@Override
+	public List<Node> getSelectedNodes() {
+		if (!getMainWindow().hasDisplay() && curNode != null) {
+			// provide random content for testing
+			return new ArrayList<Node>(curNode.getDescendants_NamedTypes());
+		}
+		return new ArrayList<Node>(selectedNodes);
+	}
 
-    /** ********************** Refresh ************************* **/
+	@Override
+	public boolean isShowInheritedProperties() {
+		return inheritedPropertiesDisplayed;
+	}
 
-    @Override
-    public void refresh() {
-        if (navigatorMenus != null) {
-            navigatorMenus.preservingSelection(new Runnable() {
+	/** ********************** Refresh ************************* **/
 
-                @Override
-                public void run() {
-                    navigatorMenus.refresh();
-                }
-            });
-        }
-    }
+	@Override
+	public void refresh() {
+		if (navigatorMenus != null) {
+			navigatorMenus.preservingSelection(new Runnable() {
 
-    /**
-     * Updates the given node's presentation when one or more of its properties changes. Only the
-     * given element is updated. This handles structural changes (e.g. addition or removal of
-     * elements), and updating any other related elements (e.g. child elements).
-     * 
-     * @param n
-     */
-    @Override
-    public void refresh(INode n) {
-        if (navigatorMenus == null)
-            return; // happens when headless and during initial load
-        if (n == null)
-            return;
-        navigatorMenus.refresh(n.getType()); // update the where used count
-        navigatorMenus.refresh(n); // update structure
-    }
+				@Override
+				public void run() {
+					navigatorMenus.refresh();
+				}
+			});
+		}
+	}
 
-    /**
-     * Refresh tree display to the current object.
-     */
-    public void refreshNode(Node n, final boolean expand) {
-        if (n == null)
-            return; // happens when click is on facet separator bar
-        if (navigatorMenus == null)
-            return; // happens when headless and during initial load
-        if (shouldParentBeDisplayed(n)) {
-            n = n.getParent();
-        }
-        navigatorMenus.refresh(n.getType()); // update the where used count
-        navigatorMenus.refreshNode(n, expand);
-    }
+	/**
+	 * Updates the given node's presentation when one or more of its properties changes. Only the given element is
+	 * updated. This handles structural changes (e.g. addition or removal of elements), and updating any other related
+	 * elements (e.g. child elements).
+	 * 
+	 * @param n
+	 */
+	@Override
+	public void refresh(INode n) {
+		if (navigatorMenus == null)
+			return; // happens when headless and during initial load
+		if (n == null)
+			return;
+		navigatorMenus.refresh(n.getType()); // update the where used count
+		navigatorMenus.refresh(n); // update structure
+	}
 
-    /**
-     * Select the navigator view node. Generates a selection event.
-     * 
-     * @param n
-     */
-    @Override
-    public void select(INode n) {
-        if (navigatorMenus == null)
-            return; // happens when headless and during initial load
-        if (n == null || n.isDeleted())
-            return;
+	/**
+	 * Refresh tree display to the current object.
+	 */
+	public void refreshNode(Node n, final boolean expand) {
+		if (n == null)
+			return; // happens when click is on facet separator bar
+		if (navigatorMenus == null)
+			return; // happens when headless and during initial load
+		if (shouldParentBeDisplayed(n)) {
+			n = n.getParent();
+		}
+		navigatorMenus.refresh(n.getType()); // update the where used count
+		navigatorMenus.refreshNode(n, expand);
+	}
 
-        // // Show the node under the aggregate in the chain instead of in library.
-        // if (n.getParentAggregate() != null)
-        // n = n.getParentAggregate();
-        navigatorMenus.refreshNode((Node) n, true);
-    }
+	/**
+	 * Select the navigator view node. Generates a selection event.
+	 * 
+	 * @param n
+	 */
+	@Override
+	public void select(INode n) {
+		if (navigatorMenus == null)
+			return; // happens when headless and during initial load
+		if (n == null || n.isDeleted())
+			return;
 
-    /**
-     * Select the navigator view node. Generates a selection event.
-     * 
-     * @param n
-     */
-    public void select(List<Node> nodes) {
-        if (navigatorMenus == null)
-            return; // happens when headless and during initial load
+		// // Show the node under the aggregate in the chain instead of in library.
+		// if (n.getParentAggregate() != null)
+		// n = n.getParentAggregate();
+		navigatorMenus.refreshNode((Node) n, true);
+	}
 
-        setSelection(new StructuredSelection(nodes));
-    }
+	/**
+	 * Select the navigator view node. Generates a selection event.
+	 * 
+	 * @param n
+	 */
+	public void select(List<Node> nodes) {
+		if (navigatorMenus == null)
+			return; // happens when headless and during initial load
 
-    private void setSelection(IStructuredSelection selection) {
-        navigatorMenus.setSelection(selection, true);
-        applySelection(selection);
-    }
+		setSelection(new StructuredSelection(nodes));
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.viewers.ISelectionChangedListener#selectionChanged(org.eclipse.jface.viewers
-     * .SelectionChangedEvent)
-     */
-    @Override
-    public void selectionChanged(final SelectionChangedEvent event) {
-        final IStructuredSelection iss = (IStructuredSelection) event.getSelection();
-        applySelection(iss);
-    }
+	private void setSelection(IStructuredSelection selection) {
+		navigatorMenus.setSelection(selection, true);
+		applySelection(selection);
+	}
 
-    private void applySelection(final IStructuredSelection iss) {
-        // LOGGER.debug("nav view - apply selection event - run navigation to "+(Node)
-        // iss.getFirstElement());
-        if (iss.getFirstElement() == null)
-            return;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.viewers.ISelectionChangedListener#selectionChanged(org.eclipse.jface.viewers
+	 * .SelectionChangedEvent)
+	 */
+	@Override
+	public void selectionChanged(final SelectionChangedEvent event) {
+		final IStructuredSelection iss = (IStructuredSelection) event.getSelection();
+		applySelection(iss);
+	}
 
-        if (iss.getFirstElement() instanceof Node)
-            curNode = (Node) iss.getFirstElement();
+	private void applySelection(final IStructuredSelection iss) {
+		// LOGGER.debug("nav view - apply selection event - run navigation to "+(Node)
+		// iss.getFirstElement());
+		if (iss.getFirstElement() == null)
+			return;
 
-        selectedNodes.clear();
-        for (final Object o : iss.toList()) {
-            if (o instanceof FamilyNode) {
-                final FamilyNode family = (FamilyNode) o;
-                selectedNodes.addAll(family.getChildren());
-            } else if (o instanceof Node) {
-                selectedNodes.add((Node) o);
-                if (((Node) o).getLibrary() != null)
-                    mc.postStatus(((Node) o).getEditStatusMsg());
-            }
-        }
-    }
+		if (iss.getFirstElement() instanceof Node)
+			curNode = (Node) iss.getFirstElement();
 
-    @Override
-    public void setCurrentNode(final INode n) {
-        prevNode = curNode;
-        curNode = (Node) n;
-    }
+		selectedNodes.clear();
+		for (final Object o : iss.toList()) {
+			if (o instanceof FamilyNode) {
+				final FamilyNode family = (FamilyNode) o;
+				selectedNodes.addAll(family.getChildren());
+			} else if (o instanceof Node) {
+				selectedNodes.add((Node) o);
+				if (((Node) o).getLibrary() != null)
+					mc.postStatus(((Node) o).getEditStatusMsg());
+			}
+		}
+	}
 
-    /**
-     * Set the property type filter.
-     * 
-     * @param on
-     */
-    @Override
-    public void setDeepPropertyView(final boolean on) {
-        if (navigatorMenus == null)
-            return; // happens during initial load
-        this.propertiesDisplayed = on;
-        if (propertiesDisplayed)
-            navigatorMenus.removeFilter(propFilter);
-        else
-            navigatorMenus.addFilter(propFilter);
-        navigatorMenus.refresh(OtmRegistry.getTypeView().getCurrentNode());
-        OtmRegistry.getTypeView().refreshAllViews();
-        // LOGGER.debug("SetDeepProperty  - properties? "+propertiesDisplayed+ " inherited? " +
-        // inheritedPropertiesDisplayed);
-    }
+	@Override
+	public void setCurrentNode(final INode n) {
+		prevNode = curNode;
+		curNode = (Node) n;
+		// LOGGER.debug("Navigator view cur node set to: " + curNode + " and prev = " + prevNode);
+	}
 
-    @Override
-    public void setExactMatchFiltering(boolean exactMatchFiltering) {
-        if (navigatorMenus == null)
-            return; // happens during initial load
-        textFilter.setExactFiltering(exactMatchFiltering);
-        refreshAllViews();
-    }
+	/**
+	 * Set the property type filter.
+	 * 
+	 * @param on
+	 */
+	@Override
+	public void setDeepPropertyView(final boolean on) {
+		if (navigatorMenus == null)
+			return; // happens during initial load
+		this.propertiesDisplayed = on;
+		if (propertiesDisplayed)
+			navigatorMenus.removeFilter(propFilter);
+		else
+			navigatorMenus.addFilter(propFilter);
+		navigatorMenus.refresh(OtmRegistry.getTypeView().getCurrentNode());
+		OtmRegistry.getTypeView().refreshAllViews();
+		// LOGGER.debug("SetDeepProperty  - properties? "+propertiesDisplayed+ " inherited? " +
+		// inheritedPropertiesDisplayed);
+	}
 
-    @Override
-    public void setFocus() {
-        navigatorMenus.getTree().setFocus();
-    }
+	@Override
+	public void setExactMatchFiltering(boolean exactMatchFiltering) {
+		if (navigatorMenus == null)
+			return; // happens during initial load
+		textFilter.setExactFiltering(exactMatchFiltering);
+		refreshAllViews();
+	}
 
-    /**
-     * Set the inherited properties filter.
-     * 
-     * @param on
-     */
-    @Override
-    public void setInheritedPropertiesDisplayed(final boolean on) {
-        if (navigatorMenus == null)
-            return; // happens during initial load
-        this.inheritedPropertiesDisplayed = on;
-        if (inheritedPropertiesDisplayed)
-            navigatorMenus.removeFilter(inheritedFilter);
-        else
-            navigatorMenus.addFilter(inheritedFilter);
-        // LOGGER.debug("SetInheritedProp - properties? "+propertiesDisplayed+ " inherited? " +
-        // inheritedPropertiesDisplayed);
-    }
+	@Override
+	public void setFocus() {
+		navigatorMenus.getTree().setFocus();
+	}
 
-    @Override
-    public void setInput(final INode n) {
-        if (!getMainWindow().hasDisplay()) {
-            curNode = (Node) n;
-            return;
-        }
-        navigatorMenus.setInput(n);
-    }
+	/**
+	 * Set the inherited properties filter.
+	 * 
+	 * @param on
+	 */
+	@Override
+	public void setInheritedPropertiesDisplayed(final boolean on) {
+		if (navigatorMenus == null)
+			return; // happens during initial load
+		this.inheritedPropertiesDisplayed = on;
+		if (inheritedPropertiesDisplayed)
+			navigatorMenus.removeFilter(inheritedFilter);
+		else
+			navigatorMenus.addFilter(inheritedFilter);
+		// LOGGER.debug("SetInheritedProp - properties? "+propertiesDisplayed+ " inherited? " +
+		// inheritedPropertiesDisplayed);
+	}
 
-    @Override
-    public void remove(INode node) {
-        navigatorMenus.remove(node);
-    }
+	@Override
+	public void setInput(final INode n) {
+		if (!getMainWindow().hasDisplay()) {
+			curNode = (Node) n;
+			return;
+		}
+		navigatorMenus.setInput(n);
+	}
 
-    /**
-     * @param n
-     * @return
-     */
-    public boolean shouldParentBeDisplayed(Node n) {
-        return n != null && (n.isProperty() && !n.isRoleProperty()) && !propertiesDisplayed;
-    }
+	@Override
+	public void remove(INode node) {
+		navigatorMenus.remove(node);
+	}
 
-    @Override
-    public String getViewID() {
-        return VIEW_ID;
-    }
+	/**
+	 * @param n
+	 * @return
+	 */
+	public boolean shouldParentBeDisplayed(Node n) {
+		return n != null && (n.isProperty() && !(n instanceof RoleNode)) && !propertiesDisplayed;
+	}
 
-    /**
-     * Check if given node exist in current model under {@link NavigatorView}. As a side effect this
-     * method will expand whole tree from node to root.
-     * 
-     * @param node
-     * @return true if node can be selected
-     */
-    public boolean isReachable(Node node) {
-        // force recreate if never expanded before
-        navigatorMenus.expandToLevel(node, 0);
-        return navigatorMenus.testFindItem(node) != null;
-    }
+	@Override
+	public String getViewID() {
+		return VIEW_ID;
+	}
 
-    /**
-     * @return true for non-empty filter text.
-     */
-    public boolean isFilterActive() {
-        return !filterText.getText().isEmpty();
-    }
+	/**
+	 * Check if given node exist in current model under {@link NavigatorView}. As a side effect this method will expand
+	 * whole tree from node to root.
+	 * 
+	 * @param node
+	 * @return true if node can be selected
+	 */
+	public boolean isReachable(Node node) {
+		// force recreate if never expanded before
+		navigatorMenus.expandToLevel(node, 0);
+		return navigatorMenus.testFindItem(node) != null; // NOTE - this uses a testing hook!
+	}
+
+	/**
+	 * @return true for non-empty filter text.
+	 */
+	public boolean isFilterActive() {
+		return !filterText.getText().isEmpty();
+	}
 
 }

@@ -18,121 +18,167 @@ package org.opentravel.schemas.modelObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemas.utils.StringComparator;
-
 import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLEnumValue;
+import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
+import org.opentravel.schemas.utils.StringComparator;
 
 public class OpenEnumMO extends ModelObject<TLOpenEnumeration> {
 
-    public OpenEnumMO(final TLOpenEnumeration obj) {
-        super(obj);
-    }
+	public OpenEnumMO(final TLOpenEnumeration obj) {
+		super(obj);
+	}
 
-    @Override
-    public boolean addChild(TLModelElement value) {
-        if (value instanceof TLEnumValue)
-            addLiteral((TLEnumValue) value);
-        else
-            return false;
-        return true;
-    }
+	@Override
+	public boolean addChild(TLModelElement value) {
+		if (value instanceof TLEnumValue)
+			addLiteral((TLEnumValue) value);
+		else
+			return false;
+		return true;
+	}
 
-    public void addLiteral(final TLEnumValue value) {
-        getTLModelObj().addValue(value);
-    }
+	public void addLiteral(final TLEnumValue value) {
+		getTLModelObj().addValue(value);
+	}
 
-    public void addLiteral(final TLEnumValue value, int index) {
-        getTLModelObj().addValue(index, value);
-    }
+	public void addLiteral(final TLEnumValue value, int index) {
+		getTLModelObj().addValue(index, value);
+	}
 
-    @Override
-    public void delete() {
-        // owning library may be deleted during a delete process.
-        if (srcObj.getOwningLibrary() != null)
-            srcObj.getOwningLibrary().removeNamedMember(srcObj);
-    }
+	@Override
+	public void delete() {
+		// owning library may be deleted during a delete process.
+		if (srcObj.getOwningLibrary() != null)
+			srcObj.getOwningLibrary().removeNamedMember(srcObj);
+	}
 
-    @Override
-    public List<TLEnumValue> getChildren() {
-        return getTLModelObj().getValues();
-    }
+	@Override
+	public List<TLEnumValue> getChildren() {
+		return getTLModelObj().getValues();
+	}
 
-    @Override
-    public String getComponentType() {
-        return "Open Enumeration";
-    }
+	@Override
+	public String getComponentType() {
+		return "Open Enumeration";
+	}
 
-    /**
-     * @see org.opentravel.schemas.modelObject.ModelObject#getInheritedChildren()
-     */
-    @Override
-    public List<?> getInheritedChildren() {
-        final List<TLModelElement> inheritedKids = new ArrayList<TLModelElement>();
-        final TLOpenEnumeration openEnum = getTLModelObj();
-        TLAttribute other = new TLAttribute();
-        other.setName("Other_" + openEnum.getName());
-        inheritedKids.add(other);
-        return inheritedKids;
-        // FIXME - this works, but does not create children seen in the display.
-    }
+	/**
+	 * @see org.opentravel.schemas.modelObject.ModelObject#getInheritedChildren()
+	 */
+	@Override
+	public List<?> getInheritedChildren() {
+		final List<TLModelElement> inheritedKids = new ArrayList<TLModelElement>();
+		final TLOpenEnumeration openEnum = getTLModelObj();
+		TLAttribute other = new TLAttribute();
+		other.setName("Other_" + openEnum.getName());
+		inheritedKids.add(other);
+		inheritedKids.addAll(getInheritedValues());
+		// The Codegen utils also insert non-inherited values
+		// inheritedKids.addAll(EnumCodegenUtils.getInheritedValues(getTLModelObj()));
+		return inheritedKids;
+	}
 
-    @Override
-    public String getName() {
-        return getTLModelObj().getName();
-    }
+	/**
+	 * @return list of values found in previous versions of this open enum
+	 */
+	private List<TLEnumValue> getInheritedValues() {
+		List<TLEnumValue> valueList = new ArrayList<TLEnumValue>();
+		TLOpenEnumeration tlOE = getTLModelObj();
+		TLOpenEnumeration oe = getExtension(getTLModelObj());
+		while (oe != null) {
+			valueList.addAll(oe.getValues());
+			if (oe.getExtension() != null)
+				oe = getExtension(oe);
+			else
+				oe = null;
+		}
+		return valueList;
+	}
 
-    @Override
-    public String getNamespace() {
-        return getTLModelObj().getNamespace();
-    }
+	/**
+	 * @return the TLOpenEnumeration that extends the passed enum if any
+	 */
+	public TLOpenEnumeration getExtension(TLOpenEnumeration oe) {
+		return oe.getExtension() != null ? oe = (TLOpenEnumeration) oe.getExtension().getExtendsEntity() : null;
+	}
 
-    @Override
-    public String getNamePrefix() {
-        final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
-        return lib == null ? "" : lib.getPrefix();
-    }
+	@Override
+	public String getName() {
+		return getTLModelObj().getName();
+	}
 
-    @Override
-    protected AbstractLibrary getLibrary(final TLOpenEnumeration obj) {
-        return obj.getOwningLibrary();
-    }
+	@Override
+	public String getNamespace() {
+		return getTLModelObj().getNamespace();
+	}
 
-    @Override
-    public boolean isComplexAssignable() {
-        return true;
-    }
+	@Override
+	public String getNamePrefix() {
+		final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
+		return lib == null ? "" : lib.getPrefix();
+	}
 
-    @Override
-    public boolean setExample(final String ex, final String context) {
-        return false;
-    }
+	@Override
+	protected AbstractLibrary getLibrary(final TLOpenEnumeration obj) {
+		return obj.getOwningLibrary();
+	}
 
-    @Override
-    public boolean setName(final String name) {
-        getTLModelObj().setName(name);
-        return true;
-    }
+	@Override
+	public boolean isComplexAssignable() {
+		return true;
+	}
 
-    @Override
-    public boolean isSimpleAssignable() {
-        return true;
-    }
+	/**
+	 * @see org.opentravel.schemas.modelObject.ModelObject#setExtendsType(org.opentravel.schemas.modelObject.ModelObject)
+	 */
+	@Override
+	public void setExtendsType(ModelObject<?> mo) {
+		if (mo == null) {
+			getTLModelObj().setExtension(null);
 
-    @Override
-    public void sort() {
-        TLOpenEnumeration eOpen = getTLModelObj();
-        eOpen.sortValues(new StringComparator<TLEnumValue>() {
+		} else {
+			TLExtension tlExtension = getTLModelObj().getExtension();
 
-            @Override
-            protected String getString(TLEnumValue object) {
-                return object.getLiteral();
-            }
-        });
-    }
+			if (tlExtension == null) {
+				tlExtension = new TLExtension();
+				getTLModelObj().setExtension(tlExtension);
+			}
+			tlExtension.setExtendsEntity((NamedEntity) mo.getTLModelObj());
+		}
+	}
+
+	// @Override
+	// public boolean setExample(final String ex, final String context) {
+	// return false;
+	// }
+
+	@Override
+	public boolean setName(final String name) {
+		getTLModelObj().setName(name);
+		return true;
+	}
+
+	@Override
+	public boolean isSimpleAssignable() {
+		return true;
+	}
+
+	@Override
+	public void sort() {
+		TLOpenEnumeration eOpen = getTLModelObj();
+		eOpen.sortValues(new StringComparator<TLEnumValue>() {
+
+			@Override
+			protected String getString(TLEnumValue object) {
+				return object.getLiteral();
+			}
+		});
+	}
 
 }

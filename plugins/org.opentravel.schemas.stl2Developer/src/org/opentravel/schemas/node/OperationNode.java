@@ -28,8 +28,6 @@ import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLService;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
 import org.opentravel.schemas.node.properties.ElementNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Service Operations.
@@ -37,8 +35,8 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class OperationNode extends FacetNode {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OperationNode.class);
+public class OperationNode extends FacetNode implements VersionedObjectInterface {
+	// private static final Logger LOGGER = LoggerFactory.getLogger(OperationNode.class);
 	public static final String OPERATION_PREFIX = "Operation: ";
 
 	/**
@@ -57,6 +55,16 @@ public class OperationNode extends FacetNode {
 		super(tlObj);
 		addMOChildren();
 		setIdentity("Operation:" + getName());
+	}
+
+	@Override
+	public ComponentNode createMinorVersionComponent() {
+		return super.createMinorVersionComponent(new OperationNode(new TLOperation()));
+	}
+
+	@Override
+	public boolean canExtend() {
+		return true;
 	}
 
 	/*
@@ -131,7 +139,8 @@ public class OperationNode extends FacetNode {
 
 	@Override
 	public Node setExtensible(boolean extensible) {
-		((TLOperation) getTLModelObject()).setNotExtendable(!extensible);
+		if (isEditable_newToChain())
+			((TLOperation) getTLModelObject()).setNotExtendable(!extensible);
 		return this;
 	}
 
@@ -155,12 +164,21 @@ public class OperationNode extends FacetNode {
 	public OperationNode(ServiceNode svc, String name) {
 		super(new TLOperation()); // creates model object
 
-		// This won't work -- svc node is always in head()
-		// This code creates an operation on the TLService...but that operation is not saved.
-		if (svc.getLibrary().isManaged() && !svc.isInHead()) {
-			LOGGER.debug("Managed service is not in version head library!");
-			return;
+		LibraryNode head = null;
+		String svcName = svc.getName();
+		if (svc.getLibrary() != null && svc.getLibrary().getChain() != null)
+			head = svc.getLibrary().getChain().getHead();
+
+		// If there is no service in the head library then create one.
+		if (head != null && svc.getLibrary().isManaged()) {
+			// LOGGER.debug("Managed service is not in version head library! " + svc.isInHead());
+			if (head.getServiceRoot() == null) {
+				svc = new ServiceNode(head);
+				svc.setName(svcName); // return;
+			} else
+				svc = (ServiceNode) head.getServiceRoot();
 		}
+
 		((TLService) svc.modelObject.getTLModelObj()).addOperation((TLOperation) this.getTLModelObject());
 		this.setName(name, false);
 		setIdentity("Operation:" + getName());
@@ -212,13 +230,13 @@ public class OperationNode extends FacetNode {
 				else if (tlf.getFacetType().equals(TLFacetType.RESPONSE))
 					np.setAssignedType(businessObject);
 				else if (tlf.getFacetType().equals(TLFacetType.NOTIFICATION))
-					np.setAssignedType(businessObject.getIDFacet());
+					np.setAssignedType((Node) businessObject.getIDFacet());
 				break;
 			case DELETE:
 				if (tlf.getFacetType().equals(TLFacetType.REQUEST))
 					np.setAssignedType(businessObject);
 				else if (tlf.getFacetType().equals(TLFacetType.RESPONSE))
-					np.setAssignedType(businessObject.getIDFacet());
+					np.setAssignedType((Node) businessObject.getIDFacet());
 				else if (tlf.getFacetType().equals(TLFacetType.NOTIFICATION))
 					np.setAssignedType(businessObject);
 				break;
@@ -234,11 +252,11 @@ public class OperationNode extends FacetNode {
 				} else if (tlf.getFacetType().equals(TLFacetType.RESPONSE))
 					np.setAssignedType(businessObject);
 				else if (tlf.getFacetType().equals(TLFacetType.NOTIFICATION))
-					np.setAssignedType(businessObject.getIDFacet());
+					np.setAssignedType((Node) businessObject.getIDFacet());
 				break;
 			case READ:
 				if (tlf.getFacetType().equals(TLFacetType.REQUEST))
-					np.setAssignedType(businessObject.getIDFacet());
+					np.setAssignedType((Node) businessObject.getIDFacet());
 				else if (tlf.getFacetType().equals(TLFacetType.RESPONSE))
 					np.setAssignedType(businessObject);
 				else if (tlf.getFacetType().equals(TLFacetType.NOTIFICATION))
@@ -248,7 +266,7 @@ public class OperationNode extends FacetNode {
 				if (tlf.getFacetType().equals(TLFacetType.REQUEST))
 					np.setAssignedType(businessObject);
 				else if (tlf.getFacetType().equals(TLFacetType.RESPONSE))
-					np.setAssignedType(businessObject.getIDFacet());
+					np.setAssignedType((Node) businessObject.getIDFacet());
 				else if (tlf.getFacetType().equals(TLFacetType.NOTIFICATION))
 					np.setAssignedType(businessObject);
 				break;
@@ -256,14 +274,6 @@ public class OperationNode extends FacetNode {
 			np.visitAllNodes(new NodeVisitors().new FixNames());
 		}
 	}
-
-	// @Override
-	// public boolean isOperation() {
-	// if (!(getTLModelObject() instanceof TLOperation))
-	// throw new IllegalStateException("Operation " + this
-	// + " does not have TLOperation model object.");
-	// return true;
-	// }
 
 	@Override
 	public String getLabel() {

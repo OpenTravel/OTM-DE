@@ -20,33 +20,29 @@ import java.util.List;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.RoleNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.opentravel.schemacompiler.model.NamedEntity;
-
 /**
- * 5/4/2012 - dmh - NO LONGER USED for Model Navigator. Still used in wizards -
- * but doesn't have to be.
+ * 5/4/2012 - dmh - NO LONGER USED for Model Navigator. Still used in wizards - but doesn't have to be.
  * 
  * TODO - use standard tree provider for EqExWizard and NewPropertiesWizard.
  * 
  * @author Agnieszka Janowska
  * 
  */
-public class LibraryTreeWithPropertiesContentProvider implements
-		ITreeContentProvider {
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(LibraryTreeContentProvider.class);
+public class LibraryTreeWithPropertiesContentProvider implements ITreeContentProvider {
+	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTreeContentProvider.class);
 
 	private boolean includeInheritedChildren = false;
 
-	public LibraryTreeWithPropertiesContentProvider(
-			boolean includeInheritedChildren) {
+	public LibraryTreeWithPropertiesContentProvider(boolean includeInheritedChildren) {
 		this.includeInheritedChildren = includeInheritedChildren;
 	}
 
@@ -65,12 +61,10 @@ public class LibraryTreeWithPropertiesContentProvider implements
 		if (element instanceof Node) {
 			final Node node = (Node) element;
 
-			if (node.isProperty() && (!node.isRoleProperty())) {
+			if (node.isProperty() && !(node instanceof RoleNode)) {
 				final PropertyNode prop = (PropertyNode) node;
 				final NamedEntity elem = prop.getModelObject().getTLType();
-				final Node typeNode = NodeFinders
-						.findNodeByValidationIentity(elem
-								.getValidationIdentity());
+				final Node typeNode = NodeFinders.findNodeByValidationIentity(elem.getValidationIdentity());
 				LOGGER.debug("findNode returned " + typeNode.getName());
 
 				// 5/3/2012 - dmh used this instead of newly built nodes...needs
@@ -84,8 +78,7 @@ public class LibraryTreeWithPropertiesContentProvider implements
 			}
 
 			// If not a property.
-			final List<Node> nodeChildren = new ArrayList<Node>(
-					node.getChildren());
+			final List<Node> nodeChildren = new ArrayList<Node>(node.getChildren());
 
 			if (includeInheritedChildren) {
 				nodeChildren.addAll(node.getInheritedChildren());
@@ -121,8 +114,7 @@ public class LibraryTreeWithPropertiesContentProvider implements
 	}
 
 	@Override
-	public void inputChanged(final Viewer viewer, final Object old_input,
-			final Object new_input) {
+	public void inputChanged(final Viewer viewer, final Object old_input, final Object new_input) {
 	}
 
 }

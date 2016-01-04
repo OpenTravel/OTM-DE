@@ -32,96 +32,94 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.controllers.NodeUtils;
 import org.opentravel.schemas.properties.Fonts;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class LibraryTreeLabelProvider extends LabelProvider implements IFontProvider,
-        IColorProvider, IStyledLabelProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTreeLabelProvider.class);
+public class LibraryTreeLabelProvider extends LabelProvider implements IFontProvider, IColorProvider,
+		IStyledLabelProvider {
+	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTreeLabelProvider.class);
 
-    @Override
-    public String getText(final Object element) {
-        String label = "Unknown object type.";
-        if (element instanceof INode) {
-            final Node n = (Node) element;
-            label = n.getLabel();
+	@Override
+	public String getText(final Object element) {
+		String label = "Unknown object type.";
+		if (element instanceof INode) {
+			final Node n = (Node) element;
+			label = n.getLabel();
 
-            // TODO - migrate this into node model.
-            if (n.isLocal())
-                label = n.getName() + " [local] ";
+			// TODO - migrate this into node model.
+			if (n.isLocal())
+				label = n.getName() + " [local] ";
 
-            // Add the extended label
-            // TODO - use IDecorator to add counts. IFontDecorator,ILabelDecorator
-            if (n instanceof ImpliedNode
-                    && ((ImpliedNode) n).getImpliedType().equals(ImpliedNodeType.Duplicate))
-                label = label + " (" + n.getChildren().size() + ")";
-            else if (n.isComponent() && ((ComponentNode) n).isTypeProvider()) {
-                ComponentNode cn = (ComponentNode) n;
-                label = label + " (" + cn.getTypeUsersCount() + ")";
-            }
-        }
-        return label;
-    }
+			// Add the extended label
+			// TODO - use IDecorator to add counts. IFontDecorator,ILabelDecorator
+			if (n instanceof ImpliedNode && ((ImpliedNode) n).getImpliedType().equals(ImpliedNodeType.Duplicate))
+				label = label + " (" + n.getChildren().size() + ")";
+			else if (n.isComponent() && ((ComponentNode) n).isTypeProvider()) {
+				ComponentNode cn = (ComponentNode) n;
+				label = label + " (" + cn.getTypeUsersCount() + ")";
+			}
+		}
+		return label;
+	}
 
-    @Override
-    public Image getImage(final Object element) {
-        Image image;
-        image = ((Node) element).getImage();
-        return image;
-    }
+	@Override
+	public Image getImage(final Object element) {
+		Image image;
+		image = ((Node) element).getImage();
+		return image;
+	}
 
-    /**
-     * @see org.eclipse.jface.viewers.IFontProvider#getFont(java.lang.Object)
-     */
-    @Override
-    public Font getFont(Object element) {
-        Font font = null;
+	/**
+	 * @see org.eclipse.jface.viewers.IFontProvider#getFont(java.lang.Object)
+	 */
+	@Override
+	public Font getFont(Object element) {
+		Font font = null;
 
-        if (element instanceof Node) {
-            final Node n = (Node) element;
-            if (!n.isEditable())
-                font = Fonts.getFontRegistry().get(Fonts.readOnlyItem);
-            else if (n.isInheritedProperty() || NodeUtils.checker(n).isInheritedFacet().get()) {
-                font = Fonts.getFontRegistry().get(Fonts.inheritedItem);
-            }
-        }
-        return font;
-    }
+		if (element instanceof Node) {
+			final Node n = (Node) element;
+			if (!n.isEditable())
+				font = Fonts.getFontRegistry().get(Fonts.readOnlyItem);
+			else if (n.isInheritedProperty() || NodeUtils.checker(n).isInheritedFacet().get())
+				font = Fonts.getFontRegistry().get(Fonts.inheritedItem);
+			// is this inherited from an earlier version?
+			else if (n.getChain() != null && n.getLibrary() != n.getChain().getHead())
+				font = Fonts.getFontRegistry().get(Fonts.inheritedItem);
+		}
+		return font;
+	}
 
-    /**
-     * @see org.eclipse.jface.viewers.IColorProvider#getForeground(java.lang.Object)
-     */
-    @Override
-    public Color getForeground(Object element) {
-        Color color = null;
+	/**
+	 * @see org.eclipse.jface.viewers.IColorProvider#getForeground(java.lang.Object)
+	 */
+	@Override
+	public Color getForeground(Object element) {
+		Color color = null;
 
-        if (element instanceof Node) {
-            final Node n = (Node) element;
-            if (!n.isEditable())
-                color = OtmRegistry.getMainWindow().getColorProvider()
-                        .getColor(SWT.COLOR_DARK_GRAY);
-            else if (n.isInheritedProperty() || NodeUtils.checker(n).isInheritedFacet().get()) {
-                color = OtmRegistry.getMainWindow().getColorProvider()
-                        .getColor(SWT.COLOR_DARK_BLUE);
-            } else if (n.isDeprecated()) {
-                color = OtmRegistry.getMainWindow().getColorProvider()
-                        .getColor(SWT.COLOR_DARK_MAGENTA);
-            }
-        }
-        return color;
-    }
+		if (element instanceof Node) {
+			final Node n = (Node) element;
+			if (n.isDeprecated())
+				color = OtmRegistry.getMainWindow().getColorProvider().getColor(SWT.COLOR_DARK_MAGENTA);
+			else if (n.isInheritedProperty() || NodeUtils.checker(n).isInheritedFacet().get())
+				color = OtmRegistry.getMainWindow().getColorProvider().getColor(SWT.COLOR_DARK_BLUE);
+			else if (!n.isEditable())
+				color = OtmRegistry.getMainWindow().getColorProvider().getColor(SWT.COLOR_DARK_GRAY);
+			// editable is also indicated by font style, so set other colors first.
+			else if (n.getChain() != null && n.getLibrary() != n.getChain().getHead())
+				color = OtmRegistry.getMainWindow().getColorProvider().getColor(SWT.COLOR_DARK_BLUE);
+		}
+		return color;
+	}
 
-    /**
-     * @see org.eclipse.jface.viewers.IColorProvider#getBackground(java.lang.Object)
-     */
-    @Override
-    public Color getBackground(Object element) {
-        return null;
-    }
+	/**
+	 * @see org.eclipse.jface.viewers.IColorProvider#getBackground(java.lang.Object)
+	 */
+	@Override
+	public Color getBackground(Object element) {
+		return null;
+	}
 
-    @Override
-    public StyledString getStyledText(Object element) {
-        return new StyledString(getText(element));
-    }
+	@Override
+	public StyledString getStyledText(Object element) {
+		return new StyledString(getText(element));
+	}
 
 }

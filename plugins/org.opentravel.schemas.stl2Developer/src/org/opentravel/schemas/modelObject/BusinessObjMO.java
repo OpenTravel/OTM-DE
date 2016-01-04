@@ -29,8 +29,6 @@ import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
-import org.opentravel.schemacompiler.model.TLDocumentation;
-import org.opentravel.schemacompiler.model.TLDocumentationItem;
 import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
@@ -413,25 +411,5 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 	public boolean setName(final String name) {
 		getTLModelObj().setName(name);
 		return true;
-	}
-
-	@Override
-	public void setDeprecatedDoc(final String string, final int i) {
-		final TLDocumentation tld = getTLModelObj().getDocumentation();
-		final TLDocumentationItem deprecation = new TLDocumentationItem();
-		deprecation.setText(string);
-		tld.addDeprecation(i, deprecation);
-		getTLModelObj().setDocumentation(tld);
-	}
-
-	/**
-	 * Change the context of business object custom and query facets.
-	 */
-	public void changeBusinessObjectContext(String contextId, String targetId) {
-		TLFacet tlf = null;
-		if ((tlf = srcObj.getCustomFacet(contextId)) != null)
-			tlf.setContext(targetId);
-		if ((tlf = srcObj.getQueryFacet(contextId)) != null)
-			tlf.setContext(targetId);
 	}
 }

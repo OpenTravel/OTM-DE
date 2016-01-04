@@ -29,11 +29,12 @@ import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.Node_Tests.TestNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.types.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,25 +47,32 @@ public class ChangeTo_Tests {
 	private final static Logger LOGGER = LoggerFactory.getLogger(ChangeTo_Tests.class);
 
 	ModelNode model = null;
-	TestNode tn = new Node_Tests().new TestNode();
+	TestNode tn = new NodeTesters().new TestNode();
 	MockLibrary ml = null;
 	LibraryNode ln = null;
+	LibraryChainNode lcn = null;
 	MainController mc;
 	DefaultProjectController pc;
 	ProjectNode defaultProject;
 
 	@Before
 	public void beforeEachTest() {
-		mc = new MainController();
+		// mc = OtmRegistry.getMainController(); // creates one if needed
+		mc = new MainController(); // New one for each test
 		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
+		lcn = ml.createNewManagedLibrary("test", defaultProject);
+		Assert.assertNotNull(lcn);
+		ln = lcn.getHead();
+		Assert.assertNotNull(ln);
+		Assert.assertTrue(ln.isEditable());
 	}
 
 	@Test
 	public void changeToVWA() {
-		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		LibraryChainNode lcn = new LibraryChainNode(ln);
+		// ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		// LibraryChainNode lcn = new LibraryChainNode(ln);
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "A");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "B");
 		VWA_Node vwa = null;
@@ -92,8 +100,8 @@ public class ChangeTo_Tests {
 
 	@Test
 	public void changeToCore() {
-		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		LibraryChainNode lcn = new LibraryChainNode(ln);
+		// ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		// LibraryChainNode lcn = new LibraryChainNode(ln);
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "A");
 		CoreObjectNode core = null;
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "B");
@@ -121,12 +129,12 @@ public class ChangeTo_Tests {
 	@Test
 	public void checkUsersCounts() {
 		// Create a core, vwa, simple and property to use
-		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		LibraryChainNode lcn = new LibraryChainNode(ln);
+		// ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		// LibraryChainNode lcn = new LibraryChainNode(ln);
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "C");
 		PropertyNode p1 = new ElementNode(core.getSummaryFacet(), "P1");
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "B");
-		SimpleTypeNode s1 = ml.addSimpleTypeToLibrary(ln, "s1");
+		// SimpleTypeNode s1 = ml.addSimpleTypeToLibrary(ln, "s1");
 		tn.visit(ln);
 		tn.visit(lcn);
 
@@ -146,8 +154,9 @@ public class ChangeTo_Tests {
 
 	@Test
 	public void asInMainController() {
-		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		LibraryChainNode lcn = new LibraryChainNode(ln);
+		// ln = ml.createNewManagedLibrary("test", defaultProject).getHead();
+		// Assert.assertTrue(ln.isEditable());
+
 		VWA_Node nodeToReplace = ml.addVWA_ToLibrary(ln, "B");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "C");
 		PropertyNode p1 = new ElementNode(core.getSummaryFacet(), "P1");
@@ -165,7 +174,9 @@ public class ChangeTo_Tests {
 		// code used in ChangeWizardPage
 		editedNode = editedNode.changeObject(SubType.CORE_OBJECT);
 		Assert.assertEquals(0, nodeToReplace.getTypeUsers().size());
-		nodeToReplace.delete(); // deleted in main controller
+		// deleted in main controller
+		if (editedNode != nodeToReplace)
+			nodeToReplace.delete();
 
 		LOGGER.debug("Changing Edited component: " + editedNode.getName() + " with " + editedNode.getTypeUsersCount()
 				+ " users.");
@@ -177,11 +188,15 @@ public class ChangeTo_Tests {
 
 	@Test
 	public void changeToBO() {
-		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		LibraryChainNode lcn = new LibraryChainNode(ln);
-		BusinessObjectNode bo = null;
+		// ln = ml.createNewManagedLibrary("test", defaultProject).getHead();
+		// Assert.assertTrue(ln.isEditable());
+
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "A");
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "B");
+		Assert.assertNotNull(core);
+		Assert.assertNotNull(vwa);
+
+		BusinessObjectNode bo = null;
 		TLBusinessObject tlBO = null;
 
 		bo = new BusinessObjectNode(core);
@@ -230,6 +245,8 @@ public class ChangeTo_Tests {
 		// Get all type level children and change them.
 		for (INode n : ln.getDescendants_NamedTypes()) {
 			equCount = countEquivelents((Node) n);
+			// if (n.getName().equals("EmploymentZZZ"))
+			// LOGGER.debug("Doing EmploymentZZZ");
 
 			if (n instanceof ComponentNode) {
 				ComponentNode cn = (ComponentNode) n;

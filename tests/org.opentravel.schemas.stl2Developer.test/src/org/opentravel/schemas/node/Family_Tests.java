@@ -29,6 +29,7 @@ import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.types.TestTypes;
 
 /**
@@ -39,7 +40,7 @@ public class Family_Tests {
 	ModelNode model = null;
 	TestTypes tt = new TestTypes();
 
-	Node_Tests nt = new Node_Tests();
+	NodeTesters nt = new NodeTesters();
 	LoadFiles lf = new LoadFiles();
 	LibraryTests lt = new LibraryTests();
 	MockLibrary ml = null;
@@ -61,6 +62,7 @@ public class Family_Tests {
 		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
 		LibraryNode ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
 		LibraryChainNode lcn = new LibraryChainNode(ln_inChain);
+		ln_inChain.setEditable(true);
 
 		Node n1 = makeSimple("s_1");
 		Node n2 = makeSimple("s_2");
@@ -105,7 +107,8 @@ public class Family_Tests {
 		Assert.assertEquals(3, lcn.getDescendants_NamedTypes().size());
 		Assert.assertEquals(2, lcn.getSimpleAggregate().getDescendants_NamedTypes().size());
 		Assert.assertTrue(lcn.getSimpleAggregate().getChildren().get(0) instanceof FamilyNode);
-		// Make family from string and parent (AggregateFamilyNode usage)
+
+		// TODO - Make family from string and parent (AggregateFamilyNode usage)
 	}
 
 	private Node makeSimple(String name) {
@@ -142,19 +145,19 @@ public class Family_Tests {
 		Assert.assertTrue(n1.getParent().getParent() instanceof FamilyNode);
 
 		ln = ml.createNewLibrary("http://www.test.com/test", "test", defaultProject);
-		ml.addSimpleTypeToLibrary(ln, "c1_1");
-		ml.addSimpleTypeToLibrary(ln, "c1_2");
-		Node c1 = ln.findNodeByName("c1_1");
-		Assert.assertNotNull(ln.findNodeByName("c1_1"));
+		ml.addSimpleTypeToLibrary(ln, "C1_1");
+		ml.addSimpleTypeToLibrary(ln, "C1_2");
+		Node c1 = ln.findNodeByName("C1_1");
+		Assert.assertNotNull(ln.findNodeByName("C1_1"));
 		Assert.assertTrue(c1.getParent() instanceof FamilyNode);
 		Assert.assertTrue(c1.getParent().getParent() instanceof NavNode);
 		FamilyNode fn = (FamilyNode) c1.getParent();
 		Assert.assertEquals(2, fn.getChildren().size());
 
 		new LibraryChainNode(ln);
-		c1 = ln.findNodeByName("c1_1");
+		c1 = ln.findNodeByName("C1_1");
 		// List<Node> kids = ln.getDescendants_NamedTypes();
-		Assert.assertNotNull(ln.findNodeByName("c1_1"));
+		Assert.assertNotNull(ln.findNodeByName("C1_1"));
 		Assert.assertTrue(c1.getParent() instanceof VersionNode);
 		Assert.assertTrue(c1.getParent().getParent() instanceof FamilyNode);
 		fn = (FamilyNode) c1.getParent().getParent();
@@ -167,12 +170,15 @@ public class Family_Tests {
 		mockFamilyTest(ln);
 		ln = ml.createNewLibrary("http://www.test.com/test2", "test2", defaultProject);
 		new LibraryChainNode(ln);
+		ln.setEditable(true);
 		mockFamilyTest(ln);
 	}
 
 	public void mockFamilyTest(LibraryNode ln) {
 		// ln = ml.createNewLibrary("http://www.sabre.com/test", "test", defaultProject);
 		Node simpleNav = null;
+		if (!ln.isEditable())
+			return;
 
 		// Find the simple type node.
 		for (Node n : ln.getChildren()) {

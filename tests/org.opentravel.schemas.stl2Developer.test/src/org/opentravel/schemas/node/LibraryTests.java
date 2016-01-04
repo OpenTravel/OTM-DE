@@ -19,17 +19,23 @@
 package org.opentravel.schemas.node;
 
 import java.io.File;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
+import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemas.controllers.DefaultLibraryController;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,15 +50,21 @@ import org.slf4j.LoggerFactory;
 public class LibraryTests {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTests.class);
 
-	private Node_Tests testVisitor;
+	private NodeTesters testVisitor;
 	private MainController mc;
 	private LoadFiles lf;
+	private MockLibrary ml;
+	private DefaultProjectController pc;
+	private ProjectNode defaultProject;
 
 	@Before
 	public void beforeEachTest() {
 		mc = new MainController();
 		lf = new LoadFiles();
-		testVisitor = new Node_Tests();
+		ml = new MockLibrary();
+		testVisitor = new NodeTesters();
+		pc = (DefaultProjectController) mc.getProjectController();
+		defaultProject = pc.getDefaultProject();
 	}
 
 	@Test
@@ -65,7 +77,6 @@ public class LibraryTests {
 
 	@Test
 	public void checkLibraries() throws Exception {
-
 		LibraryNode l1 = lf.loadFile1(mc);
 		visitLibrary(l1);
 
@@ -163,6 +174,8 @@ public class LibraryTests {
 			Assert.assertEquals(n.getType(), n.getAssignedType());
 		}
 
+		if (n.getName().isEmpty())
+			LOGGER.debug("no name");
 		Assert.assertFalse(n.getName().isEmpty());
 		for (Node nn : n.getChildren()) {
 			visitNode(nn);
@@ -240,15 +253,144 @@ public class LibraryTests {
 	}
 
 	@Test
-	public void addMember() {
-		mc = new MainController();
-		MockLibrary ml = new MockLibrary();
-		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
-		ProjectNode defaultProject = pc.getDefaultProject();
+	public void collapseTests() {
+		// LibraryChainNode fromChain = ml.createNewManagedLibrary("FromChain", defaultProject);
+		// LibraryNode fromLib = fromChain.getHead();
+		LibraryNode fromLib = ml.createNewLibrary("http://test.com/ns1", "FromLib", defaultProject);
+		LibraryNode toLib = ml.createNewLibrary("http://test.com/ns2", "ToLib", defaultProject);
+		Assert.assertTrue(fromLib.isEditable());
 
+		// Check initial library contexts
+		List<TLContext> fromLibContexts = fromLib.getTLLibrary().getContexts();
+		Assert.assertEquals(1, fromLibContexts.size());
+		List<TLContext> toLibContexts = toLib.getTLLibrary().getContexts();
+		Assert.assertEquals(1, toLibContexts.size());
+
+		// Add then check context users
+		Node object = addContextUsers(fromLib);
+		Assert.assertEquals(2, fromLibContexts.size()); // default and other doc
+		PropertyNode pn = (PropertyNode) object.getDescendants_TypeUsers().get(0);
+		Assert.assertNotNull(pn);
+		String appContext1 = pn.getExampleHandler().getApplicationContext();
+		Assert.assertTrue(appContext1.startsWith("http://test.com/ns1"));
+
+		// Add another Context
+		TLContext tlc = new TLContext();
+		tlc.setApplicationContext("AppContext1");
+		tlc.setContextId("Cid1");
+		fromLib.getTLLibrary().addContext(tlc);
+		Assert.assertEquals(3, fromLibContexts.size());
+
+		fromLib.collapseContexts();
+		Assert.assertEquals(1, fromLibContexts.size());
+		String appContext2 = pn.getExampleHandler().getApplicationContext();
+		Assert.assertFalse(appContext2.isEmpty());
+		Assert.assertTrue(appContext2.startsWith("http://test.com/ns1"));
+
+		// moveNamedMember will create contexts if the object has a context not already in destination library
+		try {
+			object.getLibrary().getTLLibrary()
+					.moveNamedMember((LibraryMember) object.getTLModelObject(), toLib.getLibrary().getTLLibrary());
+		} catch (Exception e) {
+			LOGGER.debug("moveNamedMember failed. " + e.getLocalizedMessage());
+		}
+		String appContext3 = pn.getExampleHandler().getApplicationContext();
+		Assert.assertTrue(appContext3.startsWith("http://test.com/ns1")); // app context copied on moveNamedMember
+		Assert.assertEquals(2, toLibContexts.size());
+
+		//
+		toLib.collapseContexts();
+		Assert.assertEquals(1, fromLibContexts.size());
+		Assert.assertEquals(1, toLibContexts.size());
+	}
+
+	private Node addContextUsers(LibraryNode lib) {
+		Node object = lib.getDescendants_NamedTypes().get(0);
+		Node tu = object.getChildren_TypeUsers().get(0);
+		Assert.assertNotNull(tu);
+		Assert.assertTrue(tu instanceof PropertyNode);
+		PropertyNode pn = (PropertyNode) tu;
+		pn.setExample("Ex1"); // use default context
+		Assert.assertTrue(pn.getExample(null).equals("Ex1"));
+
+		// add an equivalent
+		pn.setEquivalent("Eq1");
+
+		// add a facet with context
+		if (object instanceof BusinessObjectNode)
+			((BusinessObjectNode) object).addFacet("TestFacet1", TLFacetType.CUSTOM);
+
+		// add an other doc with context - creates a second context
+		TLAdditionalDocumentationItem otherDoc = new TLAdditionalDocumentationItem();
+		otherDoc.setContext("OD1");
+		otherDoc.setText("description in OD1 context");
+		pn.getDocumentation().addOtherDoc(otherDoc);
+		return object;
+	}
+
+	@SuppressWarnings("unused")
+	@Test
+	public void moveMemberTests() throws Exception {
+		LibraryChainNode fromChain = ml.createNewManagedLibrary("FromChain", defaultProject);
+		LibraryChainNode toChain = ml.createNewManagedLibrary("ToChain", defaultProject);
+		LibraryNode fromLib = ml.createNewLibrary("http://test.com/ns1", "FromLib", defaultProject);
+		LibraryNode toLib = ml.createNewLibrary("http://test.com/ns2", "ToLib", defaultProject);
+		Assert.assertTrue(fromLib.isEditable());
+		Assert.assertTrue(toLib.isEditable());
+		List<TLContext> toLibContexts = toLib.getTLLibrary().getContexts();
+		List<TLContext> fromLibContexts = fromLib.getTLLibrary().getContexts();
+
+		// Assure context is used by a property (ex, eq, facet and other doc)
+		Node object = addContextUsers(fromLib);
+		Assert.assertEquals(2, fromLibContexts.size());
+
+		// do the move and check to assure only one context in to-library
+		object.getLibrary().moveMember(object, toLib);
+		Assert.assertEquals(2, fromLibContexts.size());
+		Assert.assertEquals(1, toLibContexts.size());
+		Assert.assertEquals(2, toLib.getDescendants_NamedTypes().size());
+
+		// Load up the old test libraries and move lots and lots of stuff then test to-library
+		ModelNode model = mc.getModelNode();
+		lf.loadTestGroupA(mc);
+
+		int count = toLib.getDescendants_NamedTypes().size();
+		for (LibraryNode ln : model.getUserLibraries()) {
+			if (ln != toLib && ln != fromLib) {
+				LibraryChainNode lcn = new LibraryChainNode(ln);
+				int libCount = ln.getDescendants_NamedTypes().size();
+				for (Node n : ln.getDescendants_NamedTypes()) {
+					if (n instanceof ServiceNode)
+						continue;
+
+					if (n.getLibrary().moveMember(n, toLib))
+						count++;
+
+					// Make sure the node is removed.
+					Assert.assertEquals(--libCount, ln.getDescendants_NamedTypes().size());
+
+					// Track toLib count growth - use to breakpoint when debugging
+					// int toCount = toLib.getDescendants_NamedTypes().size();
+					// if (count != toCount) {
+					// LOGGER.debug("Problem with " + n);
+					// count = toCount;
+					// }
+				}
+			}
+		}
+		Assert.assertEquals(1, toLibContexts.size());
+		Assert.assertEquals(count, toLib.getDescendants_NamedTypes().size());
+
+		// FIXME Assert.assertFalse(fromChain.getContextIds().isEmpty());
+		// FIXME Assert.assertFalse(toChain.getContextIds().isEmpty());
+	}
+
+	@Test
+	public void addMember() {
 		LibraryNode ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
 		LibraryNode ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
 		LibraryChainNode lcn = new LibraryChainNode(ln_inChain);
+		ln_inChain.setEditable(true);
 
 		// makeSimple() does
 		// SimpleTypeNode sn = new SimpleTypeNode(new TLSimple());
@@ -277,11 +419,6 @@ public class LibraryTests {
 
 	@Test
 	public void linkMember() {
-		mc = new MainController();
-		MockLibrary ml = new MockLibrary();
-		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
-		ProjectNode defaultProject = pc.getDefaultProject();
-
 		LibraryNode ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
 		LibraryNode ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
 		LibraryChainNode lcn = new LibraryChainNode(ln_inChain);

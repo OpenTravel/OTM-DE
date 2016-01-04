@@ -29,37 +29,38 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
  * @author Dave Hollander
  * 
  */
+@Deprecated
 public class CompileAction extends AbstractGlobalSelectionAction {
 
-    public static final String ID = "action.compile";
+	public static final String ID = "action.compile";
 
-    public CompileAction() {
-        super(ID, GlobalSelectionProvider.NAVIGATION_VIEW);
-        new ExternalizedStringProperties(getId()).initializeAction(this);
-    }
+	public CompileAction() {
+		super(ID, GlobalSelectionProvider.NAVIGATION_VIEW);
+		new ExternalizedStringProperties(getId()).initializeAction(this);
+	}
 
-    @Override
-    public void run() {
-        MainController mc = OtmRegistry.getMainController();
-        Node cur = getSourceValue().get(0);
-        if (cur == null || cur instanceof ModelNode)
-            mc.getModelController().compileModel(mc.getModelNode());
-        else {
-            if (!(cur instanceof ProjectNode))
-                cur = cur.getLibrary().getProject();
-            mc.getModelController().compileModel((ProjectNode) cur);
-        }
-    }
+	@Override
+	public void run() {
+		MainController mc = OtmRegistry.getMainController();
+		Node cur = getSourceValue().get(0);
+		if (cur == null || cur instanceof ModelNode)
+			mc.getModelController().compileModel(mc.getModelNode());
+		else {
+			if (!(cur instanceof ProjectNode))
+				cur = cur.getLibrary().getProject();
+			mc.getModelController().compileModel((ProjectNode) cur);
+		}
+	}
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<Node> getSourceValue() {
-        return (List<Node>) super.getSourceValue();
-    }
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Node> getSourceValue() {
+		return (List<Node>) super.getSourceValue();
+	}
 
-    @Override
-    protected boolean isEnabled(Object object) {
-        return getSourceValue().size() == 1;
-    }
+	@Override
+	protected boolean isEnabled(Object object) {
+		return getSourceValue().size() == 1;
+	}
 
 }

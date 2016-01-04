@@ -31,6 +31,7 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.CodeGenerationException;
 import org.opentravel.schemacompiler.codegen.example.ExampleDocumentBuilder;
 import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions;
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
@@ -39,6 +40,10 @@ import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationItem;
+import org.opentravel.schemacompiler.model.TLDocumentationOwner;
+import org.opentravel.schemacompiler.model.TLEquivalentOwner;
+import org.opentravel.schemacompiler.model.TLExampleOwner;
+import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.FindingType;
@@ -46,16 +51,18 @@ import org.opentravel.schemacompiler.validate.Validatable;
 import org.opentravel.schemacompiler.validate.ValidationException;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
-import org.opentravel.schemas.modelObject.BusinessObjMO;
+import org.opentravel.schemacompiler.version.MinorVersionHelper;
+import org.opentravel.schemacompiler.version.VersionSchemeException;
+import org.opentravel.schemacompiler.version.Versioned;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
 import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.modelObject.XSDComplexMO;
 import org.opentravel.schemas.modelObject.XSDElementMO;
 import org.opentravel.schemas.modelObject.XSDSimpleMO;
-import org.opentravel.schemas.node.properties.EnumLiteralNode;
+import org.opentravel.schemas.node.listeners.INodeListener;
 import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.node.properties.RoleNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
@@ -79,6 +86,7 @@ public abstract class Node implements INode {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Node.class);
 
 	public static final String UNDEFINED_PROPERTY_TXT = "Undefined";
+
 	/**
 	 * Within the node classes, public adders and setters are responsible for keeping the nodes and underlying library
 	 * model in sync.
@@ -105,7 +113,7 @@ public abstract class Node implements INode {
 	protected XsdNode xsdNode = null; // Link to node containing imported XSD representation
 	protected boolean xsdType = false; // True if this node represents an object that was created by
 										// the XSD utilities but has not be imported.
-	private Type type = null; // Type information associated with properties
+	protected Type type = null; // Type information associated with properties
 	private String identity = ""; // just for debugging
 
 	static final String EMPTY_TYPE = "Empty";
@@ -185,11 +193,15 @@ public abstract class Node implements INode {
 	public void delete() {
 		// If a version-ed library, then also remove from aggregate
 		// Library may be null! It is in some j-units.
+		if (this instanceof CoreObjectNode && getName().equals("PaymentCard"))
+			LOGGER.debug("Core: " + this);
+
 		if (isDeleteable()) {
 			NodeVisitor visitor = new NodeVisitors().new deleteVisitor();
 			// LOGGER.debug("Deleting " + this);
 			this.visitAllNodes(visitor);
-		}
+		} else
+			LOGGER.debug("Not Deleteable: " + this);
 	}
 
 	@Override
@@ -213,20 +225,16 @@ public abstract class Node implements INode {
 		// Note - used in model creation to unlink nodes to add them to a family nav node.
 		// LOGGER.debug("Removing child " + n + " from parent child list " + this);
 		if (!getChildren().contains(n)) {
-			// Warn in the family delete cycle is wrong -- tries to delete family node after it is
-			// deleted.
+			// Warn in the family delete cycle is wrong -- tries to delete family node after it is deleted.
 			LOGGER.warn("Attempting to delete a child " + n.getName() + " that is not in children list of parent "
 					+ this.getName());
+			LOGGER.error("THIS IS BECAUSE IT is in a Family node under this node!");
+			// FIXME - will cause family nodes to not be deleted. See this in LibraryTests.moveMemberTests
 			return;
 		}
 		children.remove(n);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#removeFromLibrary()
-	 */
 	@Override
 	public void removeFromLibrary() {
 		getLibrary().removeMember(this);
@@ -296,28 +304,29 @@ public abstract class Node implements INode {
 			LOGGER.debug("Tried to replace " + this.getNameWithPrefix() + " with null replacement.");
 			return;
 		}
-		// LOGGER.debug("Replacing " + this.getNameWithPrefix() + " \twith "
-		// + replacement.getNameWithPrefix());
 
 		// Hold onto library node because it will be cleared by removeMember.
-		LibraryNode ln = this.getLibrary();
 		if (getLibrary() == null) {
 			LOGGER.error("The node being replaced is not in a library. " + this);
 			return;
 		}
 
-		getLibrary().removeMember(this);
+		// 9/28/2015 dmh - moved to end to preserve linkages. Listeners will remove the whereUsed links.
 
-		if (replacement.getLibrary() == null)
-			ln.addMember(replacement);
-		if (replacement.getLibrary() != ln) {
-			replacement.removeFromLibrary();
-			ln.addMember(replacement);
-		}
+		// 9/28/2015 dmh - moved removeFromLibrary logic to LibraryNode.
+		// if (replacement.getLibrary() == null)
+		getLibrary().addMember(replacement);
+		// if (replacement.getLibrary() != ln) {
+		// replacement.removeFromLibrary();
+		// ln.addMember(replacement);
+		// }
 		// else
 		// LOGGER.debug("replaceWith() - replacement is assumed to already be member and was not added to library");
 
 		replaceTypesWith(replacement);
+
+		// 9/28/2015 dmh - moved to end to preserve linkages. Listeners will remove the whereUsed links.
+		getLibrary().removeMember(this);
 	}
 
 	/**
@@ -326,7 +335,8 @@ public abstract class Node implements INode {
 	protected void fixAssignments() {
 		ArrayList<Node> users = new ArrayList<Node>(getTypeClass().getTypeUsers());
 		for (Node user : getTypeClass().getBaseUsers()) {
-			user.getModelObject().setExtendsType(this.getModelObject());
+			getTypeClass().setAssignedBaseType(this);
+			// user.getModelObject().setExtendsType(this.getModelObject());
 			// typeUsers list includes base type users so remove them before doing assignments.
 			users.remove(user);
 		}
@@ -419,7 +429,7 @@ public abstract class Node implements INode {
 		// this);
 		if (name == null || name.isEmpty())
 			return null;
-		if (ns.isEmpty())
+		if (ns == null || ns.isEmpty())
 			ns = Chameleon_NS;
 		// Get past the model node.
 		Node x;
@@ -467,8 +477,8 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Find the first node in the descendants of this node with the given name. The order searched is not guaranteed.
-	 * Will not find family nodes.
+	 * Find the first node in the named type descendants of this node with the given name. The order searched is not
+	 * guaranteed. Will not find family nodes.
 	 * 
 	 * @param name
 	 * @return node found or null
@@ -476,6 +486,21 @@ public abstract class Node implements INode {
 	public Node findNodeByName(String name) {
 		for (Node n : getDescendants_NamedTypes()) {
 			if (n.getName().equals(name) && !(n instanceof FamilyNode))
+				return n;
+		}
+		return null;
+	}
+
+	/**
+	 * Find the first property node descendant of this node with the given name. The order searched is not guaranteed.
+	 * Will not find family nodes.
+	 * 
+	 * @param name
+	 * @return node found or null
+	 */
+	public Node findPropertyByName(String name) {
+		for (Node n : getDescendants()) {
+			if (n instanceof PropertyNode && n.getName().equals(name))
 				return n;
 		}
 		return null;
@@ -623,7 +648,12 @@ public abstract class Node implements INode {
 	 */
 	@Override
 	public String getName() {
-		return modelObject == null || modelObject.getName() == null ? "" : modelObject.getName();
+		if (modelObject == null)
+			return "";
+		if (modelObject.getTLModelObj() instanceof TLFacet
+				&& ((TLFacet) modelObject.getTLModelObj()).getOwningEntity() == null)
+			return "";
+		return modelObject.getName() == null ? "" : modelObject.getName();
 	}
 
 	/**
@@ -743,7 +773,7 @@ public abstract class Node implements INode {
 				return lcn.getSimpleAggregate();
 			else if (this instanceof ComplexComponentInterface)
 				return lcn.getComplexAggregate();
-			else if (isService() || isOperation())
+			else if (this instanceof ServiceNode || isOperation())
 				return lcn.getServiceAggregate();
 		}
 		return null;
@@ -756,6 +786,8 @@ public abstract class Node implements INode {
 	 * @return - the type class representing the type assignments or else null
 	 */
 	public Type getTypeClass() {
+		if (type == null)
+			type = new Type(this);
 		return type;
 	}
 
@@ -764,12 +796,11 @@ public abstract class Node implements INode {
 	 */
 
 	/**
-	 * Get a list of the children to be used for navigation purposes. Each node class and model object class determines
-	 * which children are navigation, if any.
-	 * 
-	 * @return
+	 * @return list of the children to be used for navigation purposes.
 	 */
-	public abstract List<Node> getNavChildren();
+	public List<Node> getNavChildren() {
+		return getChildren();
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -791,7 +822,8 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Traverse via hasChildren. For version chains, it uses the version node and does not touch aggregates.
+	 * return new list. Traverse via hasChildren. For version chains, it uses the version node and does not touch
+	 * aggregates.
 	 */
 	@Override
 	public List<Node> getDescendants_NamedTypes() {
@@ -799,7 +831,7 @@ public abstract class Node implements INode {
 		HashSet<Node> namedKids = new HashSet<Node>();
 		for (Node c : getChildren()) {
 			// TL model considers services as named library member
-			if (c.isService())
+			if (c instanceof ServiceNode)
 				namedKids.add(c);
 			else if (c.isTypeProvider()) {
 				namedKids.add(c);
@@ -882,6 +914,34 @@ public abstract class Node implements INode {
 	}
 
 	/**
+	 * @return list of later versions in a minor chain or null for the type assigned to this node.
+	 */
+	public List<Node> getLaterVersions() {
+		List<Versioned> versions = null;
+		List<Node> vNodes = new ArrayList<Node>();
+		if (getAssignedType() == null)
+			return null;
+
+		if (getAssignedType().getTLModelObject() instanceof Versioned && !(getAssignedType() instanceof ImpliedNode)) {
+			try {
+				versions = new MinorVersionHelper().getLaterMinorVersions((Versioned) getAssignedType()
+						.getTLModelObject());
+				for (Versioned v : versions) {
+					for (ModelElementListener l : ((TLModelElement) v).getListeners())
+						if (l instanceof INodeListener)
+							vNodes.add(((INodeListener) l).getNode()); // could be duplicates if multiple listeners
+				}
+			} catch (VersionSchemeException e) {
+				LOGGER.debug("Error: " + e.getLocalizedMessage());
+				return null;
+			}
+		} else
+			return null;
+		return vNodes.isEmpty() ? null : vNodes;
+
+	}
+
+	/**
 	 * @return - the repeat count for an element property
 	 */
 	public int getRepeat() {
@@ -893,6 +953,9 @@ public abstract class Node implements INode {
 		return getOwningComponent() != this ? getOwningComponent().getRoleFacet() : null;
 	}
 
+	/**
+	 * @return a new list of children of the parent after this node is removed
+	 */
 	public List<Node> getSiblings() {
 		if (parent == null)
 			return null;
@@ -966,9 +1029,6 @@ public abstract class Node implements INode {
 		return false;
 	}
 
-	/**
-	 * @return true if this property will become an XSD element.
-	 */
 	public boolean isElement() {
 		return false;
 	}
@@ -984,12 +1044,8 @@ public abstract class Node implements INode {
 		return false;
 	}
 
-	public boolean isID_Reference() {
-		return false;
-	}
-
 	/**
-	 * Implied nodes and nodes without libraries are always editable.
+	 * Implied nodes and nodes without libraries are always editable. Nodes in chains return if chain is editable.
 	 * 
 	 * @return true if the node's library is editable and is not inherited.
 	 * @see Node#isInheritedProperty()
@@ -1009,6 +1065,250 @@ public abstract class Node implements INode {
 			result = getLibrary().isEditable();
 		// LOGGER.debug("Is " + this + " editable? " + result);
 		return result;
+	}
+
+	/**
+	 * Could this object be edited if a minor version was created? Use in GUI enabling actions that are allowed for
+	 * minor versions. Objects that pass this test may have to have a minor version created before the model is modified
+	 * {see isEditable_inMinor()}
+	 * 
+	 * @return
+	 */
+	public boolean isEditable_ifMinorCreated() {
+		if (getLibrary() == null || isDeleted() || !isEditable())
+			return false; // not editable
+
+		if (getChain() == null)
+			return true; // editable and not in a chain
+
+		if (getOwningComponent().getVersionNode() == null)
+			return true; // editable, and not in a chain (duplicate logic?)
+
+		if (getChain().getHead() == null)
+			return false; // error
+		if (getChain().getHead() == getLibrary())
+			return false; // is already in head library so we can't make a minor version of the object.
+
+		// is head library editable and a minor version?
+		return getChain().getHead().isEditable() && getChain().getHead().equals(NodeEditStatus.MINOR);
+	}
+
+	/**
+	 * Is the owning object in a Minor version library and ready for model changes. Used in the model to assure editing
+	 * is allowed. The test does NOT consider if the action is allowed. Is the owning object editable and either new to
+	 * the chain OR in an editable minor version. Used for model change tests for object characteristics that are
+	 * allowed to be changed in a minor version of an object that is extends an older version.
+	 * 
+	 * Use for characteristics that may be changed in a minor version of an object
+	 */
+	public boolean isEditable_inMinor() {
+		if (getLibrary() == null || isDeleted() || !isEditable())
+			return false; // not editable
+
+		if (getChain() == null)
+			return true; // editable and not in a chain
+
+		if (getOwningComponent().getVersionNode() == null)
+			return true; // editable, and not in a chain (duplicate logic?)
+
+		if (getLibrary() != getChain().getHead())
+			return false; // is not in the head library of the chain.
+
+		// It is in head of chain. Return true if there are no previous versions
+		if (getOwningComponent().getVersionNode().getPreviousVersion() == null)
+			return true;
+
+		// It is in editable head library and is a minor with previous versions.
+		return getEditStatus().equals(NodeEditStatus.MINOR);
+	}
+
+	/**
+	 * Is the owning object editable and new to the chain. The object is represented by one or more nodes with the same
+	 * name within the chain. Properties in an object in a head library are new and therefore editable.
+	 * 
+	 * @return True if this node is editable AND is not in a chain, OR it is in the latest library of the chain AND not
+	 *         in a previous version.
+	 * 
+	 */
+	public boolean isEditable_newToChain() {
+		if (getLibrary() == null || isDeleted() || !isEditable())
+			return false; // not editable
+
+		// Do not allow editing navigation nodes unless they are family nodes.
+		// if (this instanceof NavNode && !(this instanceof FamilyNode))
+		// return false;
+
+		if (getChain() == null)
+			return true; // editable and not in a chain
+
+		if (getChain().getHead().isPatchVersion())
+			if (getOwningComponent() instanceof ExtensionPointNode)
+				return !isInheritedProperty();
+			else
+				return false; // no editing in a patch version
+
+		// Service components are only editable if they are in the head library. inHead() does not work.
+		if (isInService())
+			return getLibrary().getChain().getHead() == getLibrary();
+
+		if (getOwningComponent().getVersionNode() == null)
+			return true; // will be true for service descendants, editable, and not in a chain (duplicate logic?)
+
+		if (getLibrary() != getChain().getHead())
+			return false; // is not in the head library of the chain.
+
+		if (this instanceof PropertyNode)
+			return !isInheritedProperty(); // properties in the head are editable
+
+		// It is in head of chain. Return true if there are no previous versions
+		return !getOwningComponent().isVersioned();
+		// return getOwningComponent().getVersionNode().getPreviousVersion() == null;
+	}
+
+	/**
+	 * Is this owner editable based on not being in a chain, in the editable head library, or could be used to create a
+	 * minor version.
+	 * 
+	 * @return true if it is editable or could be edited.
+	 */
+	public boolean isEditable_isNewOrAsMinor() {
+		if (getLibrary() == null || isDeleted() || !isEditable() || getOwningComponent() == null)
+			return false; // not editable
+
+		// Service nodes are not in a chain
+		if (!(this instanceof ServiceNode) && !(this instanceof OperationNode) && !isMessage()) {
+			if (getChain() == null || getOwningComponent().getVersionNode() == null)
+				return true; // editable because it is not in a chain
+
+			if (getChain().getHead() == null || !getChain().getHead().isEditable())
+				return false; // not editable head library
+		}
+
+		if (getLibrary() == getChain().getHead())
+			return true; // editable by being in the head library
+
+		if (getChain().getHead().isMinorVersion() && (getOwningComponent() instanceof VersionedObjectInterface))
+			return true; // could have a component created that is editable
+
+		return false;
+
+	}
+
+	/**
+	 * @return true if this node editable, not a patch and either a service, operation, message or message property.
+	 */
+	// TODO - reconile with isInService()
+	public boolean isEditable_inService() {
+		if (!isEditable())
+			return false;
+		if (getLibrary() == null)
+			return false;
+		if (getLibrary().getChain() != null)
+			if (getLibrary().getChain().getHead().isPatchVersion())
+				return false;
+		if (this instanceof ServiceNode)
+			return true;
+		if (this instanceof OperationNode)
+			return true;
+		if (isMessage())
+			return true;
+		if (getParent() != null)
+			if (this instanceof PropertyNode && getParent().isMessage())
+				return true;
+		return false;
+	}
+
+	/**
+	 * 
+	 * @return true <b>only</b> if owning components is in chain and new to the chain
+	 */
+	public boolean isNewToChain() {
+		assert getOwningComponent() != null;
+		return !getOwningComponent().isVersioned();
+
+		// if (getOwningComponent().getVersionNode() == null)
+		// return false; // not in chain
+		// return getOwningComponent().getVersionNode().getPreviousVersion() == null;
+	}
+
+	/**
+	 * @return true if this property (or simple attribute) is enabled for setting assigned type
+	 */
+	public boolean isEnabled_AssignType() {
+		boolean enabled = false;
+		if (parent instanceof Enumeration)
+			return enabled; // attributes on enumeration are not editable
+		if (isEditable() && this instanceof TypeUser)
+			// if (isEditable() && this instanceof TypeUser && !isInheritedProperty())
+			if (getChain() == null || getChain().isMajor())
+				enabled = true; // Unmanaged or major - allow editing.
+			else if (getChain().isPatch())
+				enabled = false; // no changes in a patch
+			else if (this instanceof SimpleAttributeNode)
+				enabled = isNewToChain(); // only allow editing if owner is new to the minor
+			else if (isInHead2() && !isInheritedProperty())
+				enabled = true; // Allow unless this property also exists in prev version
+			else if (getLaterVersions() != null)
+				enabled = true; // If the assigned type has a newer version then allow them to select that.
+		return enabled;
+	}
+
+	/**
+	 * Tests if a node can be added to based edit-ability and version status. Used in global selection tester.
+	 * <b>Note,</b> a minor version might have to be created before properties can be added. (use isNewToChain() to
+	 * test).
+	 * 
+	 * • Values with Attributes (VWA) • Core Object • Business Object • Operation
+	 * 
+	 * @return true if the node can have properties added.
+	 */
+	// Override to DISABLE adding properties
+	public boolean isEnabled_AddProperties() {
+		if (library == null || parent == null || !isEditable() || isDeleted())
+			return false;
+
+		// service, operation, message or message property
+		// Adding to service will automatically create correct service operation to add to.
+		if (this instanceof ServiceNode)
+			return !getLibrary().getChain().getHead().getEditStatus().equals(NodeEditStatus.PATCH);
+		else if (isEditable_inService() && getLibrary().getChain().getHead() == getLibrary())
+			// Only add properties to service in the head library.
+			return !getLibrary().getChain().getHead().getEditStatus().equals(NodeEditStatus.PATCH);
+
+		// Operations, business, core, vwa, open enums and extension points - allow major, minor, or unmanaged and
+		if (this instanceof VersionedObjectInterface)
+			// if (getEditStatus().equals(NodeEditStatus.FULL) || getEditStatus().equals(NodeEditStatus.MINOR))
+			// return true;
+			return isEditable_isNewOrAsMinor();
+
+		if (this instanceof Enumeration)
+			return isEditable_isNewOrAsMinor();
+
+		if (this instanceof ExtensionPointNode)
+			return isEditable_newToChain();
+
+		// Facets - same as parent unless a simple or list
+		if (this instanceof SimpleFacetNode || this.isListFacet())
+			return false;
+		if (this instanceof FacetNode)
+			return getOwningComponent().isEnabled_AddProperties();
+
+		// Properties - same as parent
+		if (this instanceof SimpleAttributeNode)
+			return false;
+		if (this instanceof PropertyNode)
+			return this != getOwningComponent() ? getOwningComponent().isEnabled_AddProperties() : false;
+
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return modelObject != null ? getName() : "EmptyMO";
+	}
+
+	public XsdNode getXsdNode() {
+		return xsdNode;
 	}
 
 	public boolean isSimpleFacet() {
@@ -1046,12 +1346,10 @@ public abstract class Node implements INode {
 
 	/**
 	 * 
-	 * @return true if this object can extend another object.
+	 * @return true if this object can extend another object. Does not consider the state of the object or containing
+	 *         library.
 	 */
 	public boolean canExtend() {
-		if ((this instanceof CoreObjectNode) || (this instanceof BusinessObjectNode)
-				|| (this instanceof ExtensionPointNode) || (this instanceof OperationNode))
-			return true;
 		return false;
 	}
 
@@ -1073,13 +1371,38 @@ public abstract class Node implements INode {
 	public boolean isDeleteable() {
 		if (getLibrary() == null)
 			return false;
+
+		// You can't delete anything from a patch except an extension point OR a newly added object
+		if (getLibrary().getChain() != null)
+			if (getOwningComponent().isInHead() && getLibrary().getChain().getHead().isPatchVersion()) {
+				if (!getOwningComponent().isVersioned())
+					return true; // new to the patch
+				else if ((getOwningComponent() instanceof ExtensionPointNode))
+					return true;
+				else
+					return false; // nothing else can be deleted
+			}
+
 		// If it doesn't have a parent then it is not linked and can be deleted.
 		if (getOwningComponent().getParent() == null)
 			return true;
-		// Services always return false for inhead().
-		if (getOwningComponent().getParent().isOperation())
-			return isEditable();
+
+		// Services always return false for inhead(). Make sure it is in the head library.
+		if (isInService() && getChain() != null)
+			return getLibrary().getChain().getHead() == getLibrary() && isEditable();
+
 		return getLibrary().isManaged() ? isInHead() && isEditable() : isEditable();
+	}
+
+	public boolean isInService() {
+		if (this instanceof ServiceNode)
+			return true;
+		if (this instanceof OperationNode)
+			return true;
+		if (this instanceof FacetNode)
+			return getParent() instanceof OperationNode;
+		else
+			return getOwningComponent().getParent() instanceof OperationNode;
 	}
 
 	/**
@@ -1102,7 +1425,7 @@ public abstract class Node implements INode {
 	}
 
 	protected boolean isNavChild() {
-		return isBusinessObject() || isCoreObject() || isValueWithAttributes() || isService()
+		return isBusinessObject() || isCoreObject() || isValueWithAttributes() || this instanceof ServiceNode
 				|| (isFacet() && isAssignable()) || isAlias() || isOperation() || isSimpleType();
 	}
 
@@ -1198,20 +1521,8 @@ public abstract class Node implements INode {
 	/**
 	 * @return - true if the node object is either open or closed enumeration ??? is enumeration always a facetNode?
 	 */
-	public boolean isEnumeration() {
-		return false;
-	}
-
 	public boolean isRoleFacet() {
 		return false;
-	}
-
-	public boolean isRoleProperty() {
-		return this instanceof RoleNode;
-	}
-
-	public boolean isEnumerationLiteral() {
-		return this instanceof EnumLiteralNode;
 	}
 
 	public boolean isOperation() {
@@ -1260,9 +1571,9 @@ public abstract class Node implements INode {
 		return false;
 	}
 
-	public boolean isService() {
-		return false;
-	}
+	// public boolean isService() {
+	// return false;
+	// }
 
 	/**
 	 * @return true if <b>only</b> simple types can be assigned to this type user.
@@ -1291,6 +1602,13 @@ public abstract class Node implements INode {
 
 	public boolean isValueWithAttributes() {
 		return this instanceof VWA_Node;
+	}
+
+	/**
+	 * @return true if this object is a later version of another object. True if has same name as the object it extends.
+	 */
+	public boolean isVersioned() {
+		return getExtendsType() != null ? getExtendsType().getName().equals(getName()) : false;
 	}
 
 	/**
@@ -1464,6 +1782,10 @@ public abstract class Node implements INode {
 		return true;
 	}
 
+	/**
+	 * 
+	 * @return true if not in the correct family or family name matches any siblings
+	 */
 	public boolean shouldCreateFamily() {
 		final String family = NodeNameUtils.makeFamilyName(this.getName());
 		if (parent != null) {
@@ -1551,14 +1873,14 @@ public abstract class Node implements INode {
 				}
 				unlinkNode(); // remove from parentNode
 				par.linkChild(this); // will re-apply family logic
-			} else if (parent.isFamily()) {
+			} else if (parent instanceof FamilyNode) {
 				if (!family.equals(parent.getName())) {
 					unlinkNode();
 					gp.linkChild(this);
 				}
 			} else if ((parent instanceof VersionNode) && (parent.getParent() instanceof FamilyNode)) {
 				VersionNode vn = (VersionNode) parent;
-				Node family = parent.getParent();
+				Node family = parent.getParent(); // is also vn parent
 				if (!family.equals(family.getName())) {
 					// do the aggregate
 					this.family = oldFamily;
@@ -1568,9 +1890,13 @@ public abstract class Node implements INode {
 						getLibrary().getChain().add((ComponentNode) this);
 					}
 					// Move the version node
-					vn.unlinkNode();
-					family.getParent().linkChild(vn);
-
+					final Node newParent = family.getParent();
+					vn.unlinkNode(); // TEST ME
+					newParent.linkChild(vn);
+					// if (family.getParent() != null)
+					// family.getParent().linkChild(vn);
+					// else
+					// LOGGER.error("Error: family does not have parent: " + family);
 					this.family = NodeNameUtils.makeFamilyName(newName);
 					vn.family = this.family;
 				}
@@ -1651,21 +1977,11 @@ public abstract class Node implements INode {
 		return changedNodes;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#setAssignedType(org.opentravel.schemas.node.INode )
-	 */
-	@Override
-	public boolean setAssignedType(Node typeNode, boolean refresh) {
-		return (this instanceof TypeUser) ? setAssignedType(typeNode, refresh) : false;
-	}
+	// @Deprecated
+	// public boolean setAssignedType(Node typeNode, boolean refresh) {
+	// return (this instanceof TypeUser) ? setAssignedType(typeNode) : false;
+	// }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#setAssignedType(org.opentravel.schemas.node.INode )
-	 */
 	@Override
 	public boolean setAssignedType(Node typeNode) {
 		return false;
@@ -1713,7 +2029,7 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * @return the count of where this node is assigned as a type.
+	 * @return the count of where this node is assigned as a type. Includes count of where children are used.
 	 */
 	public int getTypeUsersCount() {
 		return 0;
@@ -1742,7 +2058,11 @@ public abstract class Node implements INode {
 	 */
 	@Override
 	public List<Node> getTypeUsers() {
-		return getTypeClass() == null ? new ArrayList<Node>() : getTypeClass().getTypeUsers();
+		return getTypeClass().getTypeUsers();
+	}
+
+	public ArrayList<Node> typeUsers() {
+		return isTypeProvider() ? getTypeClass().getTypeUsers() : null;
 	}
 
 	/**
@@ -1752,11 +2072,12 @@ public abstract class Node implements INode {
 	 * @param sourceNode
 	 */
 	public void setExtendsType(final INode sourceNode) {
-		getTypeClass().setBaseType(sourceNode);
+		getTypeClass().setAssignedBaseType(sourceNode);
 	}
 
 	public void setRepeat(final int i) {
-		getModelObject().setRepeat(i);
+		if (isEditable_newToChain())
+			getModelObject().setRepeat(i);
 		return;
 	}
 
@@ -1896,6 +2217,22 @@ public abstract class Node implements INode {
 		}
 	}
 
+	/**
+	 * @return Can the description field be edited?
+	 */
+	public boolean isEditable_description() {
+		return getTLModelObject() instanceof TLDocumentationOwner ? isInHead2() && !isInheritedProperty()
+				&& isEditable() : false;
+	}
+
+	public boolean isEditable_example() {
+		return getTLModelObject() instanceof TLExampleOwner ? !isInheritedProperty() && isEditable() : false;
+	}
+
+	public boolean isEditable_equivalent() {
+		return getTLModelObject() instanceof TLEquivalentOwner ? !isInheritedProperty() && isEditable() : false;
+	}
+
 	public List<TLDocumentationItem> getDevelopers() {
 		return modelObject != null ? modelObject.getDeveloperDoc() : null;
 	}
@@ -1931,38 +2268,43 @@ public abstract class Node implements INode {
 	}
 
 	public void addDeprecated(String text) {
-		modelObject.addDeprecation(text);
+		if (isEditable())
+			modelObject.addDeprecation(text);
 	}
 
 	public void addDescription(String text) {
-		modelObject.addDescription(text);
+		if (isEditable())
+			modelObject.addDescription(text);
 	}
 
 	public void addReference(String text) {
-		modelObject.addReference(text);
+		if (isEditable())
+			modelObject.addReference(text);
 	}
 
 	public void addImplementer(String text) {
-		modelObject.addImplementer(text);
+		if (isEditable())
+			modelObject.addImplementer(text);
 	}
 
 	public void addMoreInfo(String text) {
-		modelObject.addMoreInfo(text);
+		if (isEditable())
+			modelObject.addMoreInfo(text);
 	}
 
 	public void setDevelopers(String doc, int index) {
-		if (modelObject != null)
+		if (modelObject != null && isEditable())
 			modelObject.setDeveloperDoc(doc, index);
 	}
 
 	public void setMoreInfo(String info, int index) {
-		if (modelObject != null)
+		if (modelObject != null && isEditable())
 			modelObject.setMoreInfo(info, index);
 	}
 
 	//
 	public void setReferenceLink(String link, int index) {
-		if (modelObject != null)
+		if (modelObject != null && isEditable())
 			modelObject.setReferenceDoc(link, index);
 	}
 
@@ -1970,65 +2312,76 @@ public abstract class Node implements INode {
 	// return null;
 	// }
 
+	// /**
+	// * Merge contexts of all children/descendents to the target id and context.
+	// *
+	// * Note: this is a newer version of merge that the one with just targetId.
+	// * @param Id
+	// * @param AppContext
+	// */
+	// public void mergeContext(String Id, String AppContext) {
+	//
+	// }
 	/**
 	 * Change all context users to use targetId. Iterates on all children. If the context would be duplicated, it is
 	 * added as an implementors documentation item.
 	 * 
-	 * @param contextId
-	 *            - remove all uses of this contextId
 	 * @param targetId
 	 *            - replace with this contextId
 	 */
-	public void mergeContext(String contextId, String targetId) {
-		if (modelObject == null) {
-			LOGGER.error("Model Object is null.");
-			return;
-		}
-		// Change if one does not exist using targetId. Otherwise, copy the value to new implementers
-		if (modelObject.getEquivalent(contextId) != null && !modelObject.getEquivalent(contextId).isEmpty()) {
-			if (modelObject.getEquivalent(targetId) == null || modelObject.getEquivalent(targetId).isEmpty())
-				modelObject.changeEquivalentContext(contextId, targetId);
-			else {
-				addImplementer("Equivalent value: " + contextId + " = " + modelObject.getEquivalent(contextId));
-				LOGGER.debug("Created Implementers doc for value: " + modelObject.getEquivalent(contextId));
-			}
-		}
-		if (modelObject.getExample(contextId) != null && !modelObject.getExample(contextId).isEmpty()) {
-			if (modelObject.getExample(targetId) == null || modelObject.getExample(targetId).isEmpty())
-				modelObject.changeExampleContext(contextId, targetId);
-			else {
-				addImplementer("Example value: " + contextId + " = " + modelObject.getExample(contextId));
-				LOGGER.debug("Created Implementers doc for value: " + modelObject.getExample(contextId));
+	public void mergeContext(String targetId) {
+		// if (modelObject == null) {
+		// LOGGER.error("Model Object is null.");
+		// return;
+		// }
+		if (this instanceof PropertyNode && ((PropertyNode) this).getEquivalentHandler() != null)
+			((PropertyNode) this).getEquivalentHandler().fix(targetId);
+		if (this instanceof PropertyNode && ((PropertyNode) this).getExampleHandler() != null)
+			((PropertyNode) this).getExampleHandler().fix(targetId);
+
+		if (this instanceof RenamableFacet)
+			((RenamableFacet) this).setContext(targetId);
+
+		if (getDocumentation() != null && getDocumentation().getOtherDocs() != null) {
+			// Avoid concurrent modification
+			List<TLAdditionalDocumentationItem> odList = new ArrayList<TLAdditionalDocumentationItem>(
+					getDocumentation().getOtherDocs());
+			// If the target exists, then use it. All others get converted to implementation documentation.
+			TLAdditionalDocumentationItem targetOD = getDocumentation().getOtherDoc(targetId);
+			for (TLAdditionalDocumentationItem od : odList) {
+				if (targetOD == null)
+					od.setContext(targetId);
+				else
+					addImplementer("Other doc: " + od.getContext() + " = " + od.getText());
 			}
 		}
 
-		if (isBusinessObject())
-			((BusinessObjMO) modelObject).changeBusinessObjectContext(contextId, targetId);
+		// Commented out on 9/20/2015 by dmh
+		// List<TLAdditionalDocumentationItem> odList;
+		// boolean hasTargetOd = false;
+		// if (getDocumentation() != null) {
+		// if ((odList = getDocumentation().getOtherDocs()) != null) {
+		// // If there already is one in target context then make into implementors doc instead
+		// for (TLAdditionalDocumentationItem od : odList) {
+		// if (od.getContext().equals(targetId)) {
+		// hasTargetOd = true;
+		// break;
+		// }
+		// }
+		// for (TLAdditionalDocumentationItem od : odList) {
+		// if (od.getContext().equals(contextId)) {
+		// if (!hasTargetOd)
+		// od.setContext(targetId);
+		// else
+		// addImplementer("Other doc: " + contextId + " = " + od.getText());
+		// }
+		// }
+		// }
+		// }
 
-		List<TLAdditionalDocumentationItem> odList;
-		boolean hasTargetOd = false;
-		if (getDocumentation() != null) {
-			if ((odList = getDocumentation().getOtherDocs()) != null) {
-				// If there already is one in target context then make into implementors doc instead
-				for (TLAdditionalDocumentationItem od : odList) {
-					if (od.getContext().equals(targetId)) {
-						hasTargetOd = true;
-						break;
-					}
-				}
-				for (TLAdditionalDocumentationItem od : odList) {
-					if (od.getContext().equals(contextId)) {
-						if (!hasTargetOd)
-							od.setContext(targetId);
-						else
-							addImplementer("Other doc: " + contextId + " = " + od.getText());
-					}
-				}
-			}
-		}
 		// Iterate through all children
 		for (Node n : getChildren())
-			n.mergeContext(contextId, targetId);
+			n.mergeContext(targetId);
 	}
 
 	public boolean moveProperty(final int i) {
@@ -2055,9 +2408,20 @@ public abstract class Node implements INode {
 	}
 
 	/**
+	 * @return true if unmanaged (no chain) or head of the chain.
+	 */
+	public boolean isInHead2() {
+		if (getChain() == null)
+			return true;
+		return getLibrary() == getChain().getHead();
+	}
+
+	/**
 	 * @return true only if this object is in the version head library. false if not, false if owner is a service, or
 	 *         unmanaged.
 	 */
+	// TODO Compare results of this from the commonly used:
+	// if (selectedNode.getLibrary() != selectedNode.getChain().getHead())
 	public boolean isInHead() {
 		Node owner = getOwningComponent();
 		if (owner instanceof OperationNode) {
@@ -2071,35 +2435,6 @@ public abstract class Node implements INode {
 		if (owner == null || owner.versionNode == null)
 			return false;
 		return getChain().getHead().getDescendants_NamedTypes().contains(owner);
-	}
-
-	/**
-	 * Is the object new to the chain. The object is represented by one or more nodes with the same name within the
-	 * chain.
-	 * 
-	 * @return True if this node is not in a chain, OR it is in the latest library of the chain AND not in a previous
-	 *         version. Note that node may or may not be editable.
-	 * 
-	 */
-	public boolean isNewToChain() {
-		if (getChain() == null)
-			return true;
-		if (getVersionNode() == null)
-			return true;
-
-		if (getLibrary() != getChain().getHead())
-			return false;
-		// It is in head of chain. Is it new to the chain?
-		return getVersionNode().getPreviousVersion() == null ? true : false;
-	}
-
-	@Override
-	public String toString() {
-		return modelObject != null ? getName() : "EmptyMO";
-	}
-
-	public XsdNode getXsdNode() {
-		return xsdNode;
 	}
 
 	/**
@@ -2168,9 +2503,9 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Static method to return all libraries in the model.
+	 * Static method to return all projects in the model.
 	 * 
-	 * @return new list of library nodes for all libraries in the model
+	 * @return new list of projects nodes for all projects in the model
 	 */
 	public static List<ProjectNode> getAllProjects() {
 		return getModelNode().getProjects();
@@ -2183,6 +2518,21 @@ public abstract class Node implements INode {
 	 */
 	public static List<LibraryNode> getAllUserLibraries() {
 		return getModelNode().getUserLibraries();
+	}
+
+	@Override
+	public INode.CommandType getAddCommand() {
+		return INode.CommandType.NONE;
+	}
+
+	public List<Node> getAncestors() {
+		List<Node> ancestors = new ArrayList<Node>();
+		Node n = this;
+		do {
+			ancestors.add(n);
+			n = n.getParent();
+		} while (!(n instanceof ModelNode));
+		return ancestors;
 	}
 
 	/**
@@ -2198,6 +2548,8 @@ public abstract class Node implements INode {
 	/**
 	 * @return - list of unique Context IDs used by any child of this node. Empty list if none.
 	 */
+	// FIX or Remove - does not work for business objects and perhaps many others
+	@Deprecated
 	public List<String> getContextIds() {
 		final Map<String, String> ctxMap = new LinkedHashMap<String, String>();
 		ArrayList<String> ret = new ArrayList<String>();
@@ -2214,7 +2566,7 @@ public abstract class Node implements INode {
 	/**
 	 * @return - list of unique TLContexts used by any child of this node. Empty list if none.
 	 */
-	public List<TLContext> getContexts() {
+	public List<TLContext> getUsedContexts() {
 		final Map<String, TLContext> ctxMap = new LinkedHashMap<String, TLContext>();
 		ArrayList<TLContext> ret = new ArrayList<TLContext>();
 		List<TLContext> list = getCtxList();
@@ -2240,10 +2592,6 @@ public abstract class Node implements INode {
 		return list;
 	}
 
-	public ArrayList<Node> typeUsers() {
-		return isTypeProvider() ? getTypeClass().getTypeUsers() : null;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -2253,21 +2601,12 @@ public abstract class Node implements INode {
 		return isTypeUser() ? getTypeClass().getTypeOwner().getModelObject() : null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeUser#getAssignedTLObject()
-	 */
-	// @Deprecated
+	@Deprecated
 	public NamedEntity getAssignedTLObject() {
 		return getTLTypeObject();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeUser#removeAssignedType()
-	 */
+	@Deprecated
 	public void removeAssignedType() {
 		if (isTypeUser())
 			getTypeClass().removeAssignedType();
@@ -2343,7 +2682,7 @@ public abstract class Node implements INode {
 	 * 
 	 * @param parent
 	 * @param nameSuffix
-	 * @return
+	 * @return null if error
 	 */
 	public Node clone(Node parent, String nameSuffix) {
 		LibraryNode lib = this.getLibrary();
@@ -2490,9 +2829,10 @@ public abstract class Node implements INode {
 	 */
 	public ValidationFindings validate() {
 		ValidationFindings findings = TLModelCompileValidator.validateModelElement(this.getTLModelObject());
-		for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT)) {
-			LOGGER.debug("Finding: " + f);
-		}
+		// for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
+		// {
+		// LOGGER.debug("Finding: " + f);
+		// }
 		return findings;
 	}
 
@@ -2515,8 +2855,8 @@ public abstract class Node implements INode {
 			domDoc = exampleBuilder.buildDomTree();
 		} catch (ValidationException e) {
 			LOGGER.debug("Validation Exception on " + this + " : " + e);
-			for (String finding : e.getFindings().getAllValidationMessages(FindingMessageFormat.IDENTIFIED_FORMAT))
-				LOGGER.debug("Finding: " + finding);
+			// for (String finding : e.getFindings().getAllValidationMessages(FindingMessageFormat.IDENTIFIED_FORMAT))
+			// LOGGER.debug("Finding: " + finding);
 		} catch (CodeGenerationException e) {
 			LOGGER.debug("CodeGen Exception on " + this + " : " + e);
 		}
@@ -2648,6 +2988,10 @@ public abstract class Node implements INode {
 
 	public boolean isValidParentOf(PropertyNodeType type) {
 		return false;
+	}
+
+	public PropertyOwnerInterface getDefaultFacet() {
+		return this instanceof ComplexComponentInterface ? ((ComplexComponentInterface) this).getDefaultFacet() : null;
 	}
 
 }

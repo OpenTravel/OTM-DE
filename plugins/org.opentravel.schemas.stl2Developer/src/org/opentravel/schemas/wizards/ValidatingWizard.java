@@ -16,6 +16,8 @@
 package org.opentravel.schemas.wizards;
 
 import org.eclipse.jface.wizard.Wizard;
+import org.opentravel.schemas.wizards.validators.FormValidator;
+import org.opentravel.schemas.wizards.validators.NullValidator;
 
 /**
  * @author Agnieszka Janowska / Dave Hollander

@@ -32,6 +32,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.DocTypes;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.widgets.WidgetFactory;
+import org.opentravel.schemas.wizards.validators.FormValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

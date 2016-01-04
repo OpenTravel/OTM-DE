@@ -144,6 +144,9 @@
 					icon="IMG_ETOOL_SAVEALL_EDIT" label="Save" style="push"
 					tooltip="Save All Libraries">
 				</command>
+				<command commandId="org.opentravel.schemas.commands.RefreshView:MASTER" icon="icons/refresh.gif"
+					label="Refresh" style="push" tooltip="Refresh all projects and libraries.">
+				</command>				
 				<command commandId="org.opentravel.schemas.stl2Developer.ResetPerspective"
 					icon="icons/default_persp.gif" label="Reset Views" style="push"
 					tooltip="Reset Views">
@@ -179,7 +182,7 @@
 					icon="icons/new_Doc.gif" label="Add Documentation" style="push"
 					tooltip="Add documentation to multiple objects.">
 				</command>
-				<command commandId="action.validate" icon="icons/validate.gif"
+				<command commandId="org.opentravel.schemas.commands.Validate" icon="icons/validate.gif"
 					label="Validate" style="push" tooltip="Validate the selected library or objects.">
 				</command>
 			</toolbar>
@@ -449,22 +452,26 @@
 			description="Merge selected object into a new object." id="org.opentravel.schemas.commands.MergeNodes"
 			name="Merge">
 		</command>
-		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+		<!-- command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			defaultHandler="org.opentravel.schemas.commands.RefreshExamplesHandler"
 			description="Regenerates example tree from current model" id="org.opentravel.schemas.commands.RefreshExamples"
 			name="Refresh Examples">
-		</command>
-		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+		</command -->
+		<!-- command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			defaultHandler="org.opentravel.schemas.commands.RefreshDocumentationViewHandler"
 			id="org.opentravel.schemas.commands.RefreshDocumentationView" name="Refresh Documentation View">
-		</command>
+		</command -->
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			defaultHandler="org.opentravel.schemas.commands.RefreshViewHandler"
 			description="Refresh the view" id="org.opentravel.schemas.commands.RefreshView"
 			name="Refresh View">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			defaultHandler="org.opentravel.schemas.commands.SortNodeHandler"
+			defaultHandler="org.opentravel.schemas.commands.RefreshViewHandler"
+			description="Refresh all projects and libraries." id="org.opentravel.schemas.commands.RefreshView:MASTER"
+			name="Refresh">
+		</command>
+		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			description="Sort Properties of a object." id="org.opentravel.schemas.commands.Sort"
 			name="Sort">
 		</command>
@@ -553,10 +560,10 @@
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			defaultHandler="org.opentravel.schemas.commands.SaveLibrariesHandler"
-			id="org.opentravel.schemas.commands.SaveAllLibraries" name="Save All Libraries">
+			id="org.opentravel.schemas.commands.SaveAllLibraries" name="Save All In Project">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			id="org.opentravel.schemas.commands.SaveLibrary" name="Save Library">
+			id="org.opentravel.schemas.commands.SaveLibrary" name="Save">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			id="org.opentravel.schemas.commands.repository.new" name="New Repository...">
@@ -573,20 +580,20 @@
 			</state>
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			id="action.closeProject" name="Close Project">
+			id="org.opentravel.schemas.commands.CloseProject" name="Close">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			id="action.library.close" name="Library Close">
+			id="org.opentravel.schemas.commands.CloseLibraries" name="Close">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			id="action.library.removeAll" name="Library Close All">
+			id="action.library.removeAll" name="Close All Libraries ">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			description="Validate all the libraries in the model" id="action.validate"
+			description="Validate all the libraries in the model" id="org.opentravel.schemas.commands.Validate"
 			name="Validate">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			description="Compile all libraries in the model" id="action.compile"
+			description="Compile all libraries in the model" id="org.opentravel.schemas.commands.Compile"
 			name="Compile">
 		</command>
 		<category id="org.opentravel.schemas.stl2Developer.command.category"
@@ -711,7 +718,18 @@
 				</or>
 			</activeWhen>
 		</handler>
-		<handler class="org.opentravel.schemas.commands.AddNodeHandler"
+		<handler class="org.opentravel.schemas.commands.SortNodeHandler"
+			commandId="org.opentravel.schemas.commands.Sort">
+			<enabledWhen>
+				<with variable="org.opentravel.schemas.selection.nodes">
+					<iterate ifEmpty="false" operator="or">
+						<test property="stl2Developer.selection.newToChain">
+						</test>
+					</iterate>
+				</with>
+			</enabledWhen>
+		</handler>
+		<handler class="org.opentravel.schemas.commands.AddNodeHandler2"
 			commandId="org.opentravel.schemas.commands.Add">
 			<enabledWhen>
 				<with variable="org.opentravel.schemas.selection.nodes">
@@ -839,6 +857,32 @@
 				</and>
 			</enabledWhen>
 		</handler>
+		<handler class="org.opentravel.schemas.commands.CompileHandler"
+			commandId="org.opentravel.schemas.commands.Compile">
+			<!-- enabledWhen>
+				<and>
+					<with variable="org.opentravel.schemas.selection.nodes">
+						<iterate ifEmpty="false" operator="and">
+							<test property="stl2Developer.node.isOwnerLibraryEditable">
+							</test>
+						</iterate>
+					</with>
+				</and>
+			</enabledWhen -->
+		</handler>
+		<handler class="org.opentravel.schemas.commands.CloseProjectHandler"
+			commandId="org.opentravel.schemas.commands.CloseProject">
+		</handler>
+		<handler class="org.opentravel.schemas.commands.ValidateHandler" 
+			commandId="org.opentravel.schemas.commands.Validate">
+		</handler>
+		<handler class="org.opentravel.schemas.commands.CloseLibrariesHandler" 
+			commandId="org.opentravel.schemas.commands.CloseLibraries">
+		</handler>
+		<handler class="org.opentravel.schemas.commands.MergeHandler" 
+			commandId="org.opentravel.schemas.commands.MergeNodes">
+		</handler>
+		
 	</extension>
 	<extension point="org.eclipse.core.expressions.propertyTesters">
 		<propertyTester class="org.opentravel.schemas.testers.IsNavaigationEnabled"
@@ -848,11 +892,11 @@
 		<propertyTester class="org.opentravel.schemas.testers.RepositoryTypeTester"
 			id="stl2Developer.repository.type" namespace="stl2Developer.repository.type"
 			properties="remote,local"
-			type="org.opentravel.schemas.trees.repository.RepositoryNode$RepositoryNameNode">
+			type="org.opentravel.schemas.trees.repository.RepositoryNode$RepositoryInstanceNode">
 		</propertyTester>
 		<propertyTester class="org.opentravel.schemas.testers.GlobalSelectionTester"
 			id="stl2Developer.selection" namespace="stl2Developer.selection"
-			properties="canAdd" type="org.opentravel.schemas.node.Node">
+			properties="canAdd, newToChain" type="org.opentravel.schemas.node.Node">
 		</propertyTester>
 		<propertyTester class="org.opentravel.schemas.testers.NodeTester"
 			id="stl2Developer.node" namespace="stl2Developer.node"
@@ -906,10 +950,10 @@
 			contextId="org.eclipse.ui.contexts.window" schemeId="stl2Developer.scheme"
 			sequence="M1+M2+M">
 		</key>
-		<key commandId="action.compile" contextId="org.eclipse.ui.contexts.window"
+		<key commandId="org.opentravel.schemas.commands.Compile" contextId="org.eclipse.ui.contexts.window"
 			schemeId="stl2Developer.scheme" sequence="M2+F9">
 		</key>
-		<key commandId="action.validate" contextId="org.eclipse.ui.contexts.window"
+		<key commandId="org.opentravel.schemas.commands.Validate" contextId="org.eclipse.ui.contexts.window"
 			schemeId="stl2Developer.scheme" sequence="M2+F10">
 		</key>
 	</extension>

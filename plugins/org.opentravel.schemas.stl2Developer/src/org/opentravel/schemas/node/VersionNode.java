@@ -15,10 +15,10 @@
  */
 package org.opentravel.schemas.node;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.properties.Images;
 
 /**
@@ -69,6 +69,11 @@ public class VersionNode extends ComponentNode {
 		if (getParent().getChildren().contains(node)) {
 			node = node;
 		}
+
+		// Replace listener on the head node's tl Model Element
+		ListenerFactory.setListner(head);
+
+		assert (getParent() != null);
 		assert (!getParent().getChildren().contains(node)) : "Parent still contains node.";
 		assert (getChildren().contains(node)) : "Version node does not contain node.";
 		assert (node.getParent() == this) : "Node is not linked to version node.";
@@ -116,7 +121,9 @@ public class VersionNode extends ComponentNode {
 
 	@Override
 	public List<Node> getNavChildren() {
-		return Collections.emptyList();
+		// this simplifies links from validation, user experience and showing families in the other aggregates.
+		return getNewestVersion().getNavChildren();
+		// return Collections.emptyList();
 	}
 
 	@Override
@@ -146,7 +153,7 @@ public class VersionNode extends ComponentNode {
 	}
 
 	/**
-	 * @return the newest version of the object (version head).
+	 * @return the previous version of the object (if any).
 	 */
 	public ComponentNode getPreviousVersion() {
 		return prevVersion;

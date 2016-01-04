@@ -18,12 +18,11 @@ package org.opentravel.schemas.modelObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.opentravel.schemacompiler.model.AbstractLibrary;
-import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemacompiler.model.TLSimpleFacet;
 
 /**
  * Simple facets are facets that have one implied child.
@@ -35,91 +34,97 @@ import org.opentravel.schemacompiler.model.TLSimpleFacet;
  */
 public class SimpleFacetMO extends ModelObject<TLSimpleFacet> {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(SimpleFacetMO.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(SimpleFacetMO.class);
 
-    private TLnSimpleAttribute simpleProperty; // the associated property
+	private TLnSimpleAttribute simpleProperty; // the associated property
 
-    public SimpleFacetMO(TLSimpleFacet obj) {
-        super(obj);
-        simpleProperty = new TLnSimpleAttribute(obj);
-    }
+	public SimpleFacetMO(TLSimpleFacet obj) {
+		super(obj);
+		simpleProperty = new TLnSimpleAttribute(obj);
+	}
 
-    @Override
-    public void delete() {
-    }
+	@Override
+	public void delete() {
+	}
 
-    public TLModelElement getSimpleAttribute() {
-        return simpleProperty;
-    }
+	// public TLModelElement getSimpleAttribute() {
+	// return simpleProperty;
+	// }
 
-    @Override
-    public List<?> getChildren() {
-        final List<Object> kids = new ArrayList<Object>();
-        kids.add(simpleProperty);
-        return kids;
+	@Override
+	public List<?> getChildren() {
+		final List<Object> kids = new ArrayList<Object>();
+		kids.add(simpleProperty);
+		return kids;
 
-    }
+	}
 
-    @Override
-    public String getName() {
-        // LOGGER.debug(getTLModelObj().getSimpleTypeName()+"|"+ getTLModelObj().getLocalName());
-        return getTLModelObj().getLocalName() == null ? "" : getTLModelObj().getLocalName();
-    }
+	// 10/5/2015 - dmh - added override to return simple type
+	@Override
+	public NamedEntity getTLType() {
+		return srcObj.getSimpleType();
+	}
 
-    @Override
-    public String getNamePrefix() {
-        return "";
-    }
+	@Override
+	public String getName() {
+		// LOGGER.debug(getTLModelObj().getSimpleTypeName()+"|"+ getTLModelObj().getLocalName());
+		return getTLModelObj().getLocalName() == null ? "" : getTLModelObj().getLocalName();
+	}
 
-    @Override
-    public String getNamespace() {
-        return getTLModelObj().getNamespace();
-    }
+	@Override
+	public String getNamePrefix() {
+		return "";
+	}
 
-    @Override
-    public String getComponentType() {
-        return FacetMO.getDisplayName(getTLModelObj().getFacetType());
-    }
+	@Override
+	public String getNamespace() {
+		return getTLModelObj().getNamespace();
+	}
 
-    @Override
-    protected AbstractLibrary getLibrary(final TLSimpleFacet obj) {
-        return null;
-    }
+	@Override
+	public String getComponentType() {
+		return FacetMO.getDisplayName(getTLModelObj().getFacetType());
+	}
 
-    @Override
-    public boolean isComplexAssignable() {
-        return true;
-    }
+	@Override
+	protected AbstractLibrary getLibrary(final TLSimpleFacet obj) {
+		return null;
+	}
 
-    @Override
-    public boolean isSimpleAssignable() {
-        return true;
-    }
+	@Override
+	public boolean isComplexAssignable() {
+		return true;
+	}
 
-    // @Override
-    // public boolean isFacet() {
-    // return true;
-    // }
+	@Override
+	public boolean isSimpleAssignable() {
+		return true;
+	}
 
-    // @Override
-    // public boolean isSimpleFacet() {
-    // return true;
-    // }
+	// @Override
+	// public boolean isFacet() {
+	// return true;
+	// }
 
-    @Override
-    public boolean setName(final String name) {
-        return false;
-    }
+	// @Override
+	// public boolean isSimpleFacet() {
+	// return true;
+	// }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.modelObject.ModelObject#clearTLType()
-     */
-    @Override
-    public void clearTLType() {
-        // this.type = null;
-        this.srcObj.setSimpleType(null);
-    }
+	@Override
+	public boolean setName(final String name) {
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.modelObject.ModelObject#clearTLType()
+	 */
+	@Override
+	public void clearTLType() {
+		// this.type = null;
+		this.srcObj.setSimpleType(null);
+	}
 
 }

@@ -39,188 +39,180 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
-import org.opentravel.schemas.utils.RCPUtils;
-
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.FindingType;
 import org.opentravel.schemacompiler.validate.ValidationFinding;
+import org.opentravel.schemas.utils.RCPUtils;
 
 /**
- * A dialog to display given findings list. Displayed problems will be sorted by {@link FindingType}
- * . This dialog provide Cop
+ * A dialog to display given findings list. Displayed problems will be sorted by {@link FindingType} . This dialog
+ * provide Cop
  * 
  * @author Pawel Jedruch
  * 
  */
 public class FindingsDialog extends IconAndMessageDialog {
 
-    private static final int COLUMN_MIN_WIDTH = 30;
-    private static final int COPY_TO_CLIPBOARD_ID = IDialogConstants.CLIENT_ID;
-    private static final String COPY_TO_CLIPBOARD_LABEL = "Copy to clipboard";
-    private List<ValidationFinding> findings;
-    private String title = "";
+	private static final int COLUMN_MIN_WIDTH = 30;
+	private static final int COPY_TO_CLIPBOARD_ID = IDialogConstants.CLIENT_ID;
+	private static final String COPY_TO_CLIPBOARD_LABEL = "Copy to clipboard";
+	private List<ValidationFinding> findings;
+	private String title = "";
 
-    public FindingsDialog(Shell parentShell, String title, String message,
-            List<ValidationFinding> findings) {
-        super(parentShell);
-        this.title = title;
-        this.findings = new ArrayList<ValidationFinding>(findings);
-        Collections.sort(this.findings, new CompareByType());
-        this.message = message;
-        setShellStyle(SWT.CLOSE | SWT.TITLE | SWT.BORDER | SWT.APPLICATION_MODAL | SWT.RESIZE);
-    }
+	public FindingsDialog(Shell parentShell, String title, String message, List<ValidationFinding> findings) {
+		super(parentShell);
+		this.title = title;
+		this.findings = new ArrayList<ValidationFinding>(findings);
+		Collections.sort(this.findings, new CompareByType());
+		this.message = message;
+		setShellStyle(SWT.CLOSE | SWT.TITLE | SWT.BORDER | SWT.APPLICATION_MODAL | SWT.RESIZE);
+	}
 
-    /**
-     * Opens an findings dialog to display the given problems.
-     * 
-     * @param parentShell
-     *            the parent shell of the dialog, or <code>null</code> if none
-     * @param title
-     *            the title to use for this dialog
-     * @param message
-     *            the message to show in this dialog
-     * @param findings
-     *            the findings to show to the user
-     * 
-     * @return {@link IDialogConstants#OK_ID}
-     */
-    public static int open(Shell parentShell, String title, String message,
-            List<ValidationFinding> findings) {
-        FindingsDialog dialog = new FindingsDialog(parentShell, title, message, findings);
-        return dialog.open();
-    }
+	/**
+	 * Opens an findings dialog to display the given problems.
+	 * 
+	 * @param parentShell
+	 *            the parent shell of the dialog, or <code>null</code> if none
+	 * @param title
+	 *            the title to use for this dialog
+	 * @param message
+	 *            the message to show in this dialog
+	 * @param findings
+	 *            the findings to show to the user
+	 * 
+	 * @return {@link IDialogConstants#OK_ID}
+	 */
+	public static int open(Shell parentShell, String title, String message, List<ValidationFinding> findings) {
+		FindingsDialog dialog = new FindingsDialog(parentShell, title, message, findings);
+		return dialog.open();
+	}
 
-    @Override
-    protected Control createDialogArea(Composite parent) {
-        Composite comp = (Composite) super.createDialogArea(parent);
-        ((GridLayout) comp.getLayout()).numColumns = 2;
-        createMessageArea(comp);
-        createFindigsTable(comp);
-        return comp;
-    }
+	@Override
+	protected Control createDialogArea(Composite parent) {
+		Composite comp = (Composite) super.createDialogArea(parent);
+		((GridLayout) comp.getLayout()).numColumns = 2;
+		createMessageArea(comp);
+		createFindigsTable(comp);
+		return comp;
+	}
 
-    /**
-     * @param comp
-     */
-    private void createFindigsTable(Composite comp) {
-        Composite parent = new Composite(comp, SWT.None);
-        GridDataFactory.fillDefaults().span(2, 1).grab(false, true).applyTo(parent);
-        parent.setLayout(new TableColumnLayout());
-        TableViewer viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL
-                | SWT.FULL_SELECTION | SWT.BORDER);
-        viewer.setContentProvider(ArrayContentProvider.getInstance());
-        createColumns(viewer);
+	/**
+	 * @param comp
+	 */
+	private void createFindigsTable(Composite comp) {
+		Composite parent = new Composite(comp, SWT.None);
+		GridDataFactory.fillDefaults().span(2, 1).grab(false, true).applyTo(parent);
+		parent.setLayout(new TableColumnLayout());
+		TableViewer viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION
+				| SWT.BORDER);
+		viewer.setContentProvider(ArrayContentProvider.getInstance());
+		createColumns(viewer);
 
-        final Table table = viewer.getTable();
-        table.setHeaderVisible(true);
-        table.setLinesVisible(true);
-        viewer.setInput(findings);
-        // for (int i = 0; i < table.getColumnCount(); i++) {
-        // table.getColumn(i).pack();
-        // }
-    }
+		final Table table = viewer.getTable();
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
+		viewer.setInput(findings);
+		// for (int i = 0; i < table.getColumnCount(); i++) {
+		// table.getColumn(i).pack();
+		// }
+	}
 
-    /**
-     * @param viewer
-     */
-    private void createColumns(TableViewer viewer) {
-        createColumn(viewer, "Level", 10, new ColumnLabelProvider() {
+	/**
+	 * @param viewer
+	 */
+	private void createColumns(TableViewer viewer) {
+		createColumn(viewer, "Level", 10, new ColumnLabelProvider() {
 
-            @Override
-            public String getText(Object element) {
-                return ((ValidationFinding) element).getType().getDisplayName();
-            }
+			@Override
+			public String getText(Object element) {
+				return ((ValidationFinding) element).getType().getDisplayName();
+			}
 
-            @Override
-            public Image getImage(Object element) {
-                switch (((ValidationFinding) element).getType()) {
-                    case WARNING:
-                        return PlatformUI.getWorkbench().getSharedImages()
-                                .getImage(ISharedImages.IMG_DEC_FIELD_WARNING);
-                    case ERROR:
-                        return PlatformUI.getWorkbench().getSharedImages()
-                                .getImage(ISharedImages.IMG_DEC_FIELD_ERROR);
-                }
-                return null;
-            }
+			@Override
+			public Image getImage(Object element) {
+				switch (((ValidationFinding) element).getType()) {
+				case WARNING:
+					return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_DEC_FIELD_WARNING);
+				case ERROR:
+					return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_DEC_FIELD_ERROR);
+				}
+				return null;
+			}
 
-        });
-        createColumn(viewer, "Component", 30, new ColumnLabelProvider() {
+		});
+		createColumn(viewer, "Component", 30, new ColumnLabelProvider() {
 
-            @Override
-            public String getText(Object element) {
-                return ((ValidationFinding) element).getSource().getValidationIdentity();
-            }
+			@Override
+			public String getText(Object element) {
+				return ((ValidationFinding) element).getSource().getValidationIdentity();
+			}
 
-        });
-        createColumn(viewer, "Description", 50, new ColumnLabelProvider() {
+		});
+		createColumn(viewer, "Description", 50, new ColumnLabelProvider() {
 
-            @Override
-            public String getText(Object element) {
+			@Override
+			public String getText(Object element) {
 
-                return ((ValidationFinding) element)
-                        .getFormattedMessage(FindingMessageFormat.MESSAGE_ONLY_FORMAT);
-            }
+				return ((ValidationFinding) element).getFormattedMessage(FindingMessageFormat.MESSAGE_ONLY_FORMAT);
+			}
 
-            @Override
-            public void update(ViewerCell cell) {
-                super.update(cell);
-            }
+			@Override
+			public void update(ViewerCell cell) {
+				super.update(cell);
+			}
 
-        });
-    }
+		});
+	}
 
-    private void createColumn(TableViewer viewer, String title, int weight,
-            ColumnLabelProvider columnLabelProvider) {
-        TableViewerColumn column = new TableViewerColumn(viewer, SWT.NONE);
-        column.getColumn().setText(title);
-        column.setLabelProvider(columnLabelProvider);
-        column.getColumn().setData("org.eclipse.jface.LAYOUT_DATA",
-                new ColumnWeightData(weight, COLUMN_MIN_WIDTH));
-    }
+	private void createColumn(TableViewer viewer, String title, int weight, ColumnLabelProvider columnLabelProvider) {
+		TableViewerColumn column = new TableViewerColumn(viewer, SWT.NONE);
+		column.getColumn().setText(title);
+		column.setLabelProvider(columnLabelProvider);
+		column.getColumn().setData("org.eclipse.jface.LAYOUT_DATA", new ColumnWeightData(weight, COLUMN_MIN_WIDTH));
+	}
 
-    @Override
-    protected void configureShell(Shell newShell) {
-        super.configureShell(newShell);
-        newShell.setText(title);
-    }
+	@Override
+	protected void configureShell(Shell newShell) {
+		super.configureShell(newShell);
+		newShell.setText(title);
+	}
 
-    @Override
-    protected void createButtonsForButtonBar(Composite parent) {
-        createButton(parent, COPY_TO_CLIPBOARD_ID, COPY_TO_CLIPBOARD_LABEL, true);
-        createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, false);
-    }
+	@Override
+	protected void createButtonsForButtonBar(Composite parent) {
+		createButton(parent, COPY_TO_CLIPBOARD_ID, COPY_TO_CLIPBOARD_LABEL, false);
+		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
+	}
 
-    @Override
-    protected Image getImage() {
-        return getErrorImage();
-    }
+	@Override
+	protected Image getImage() {
+		return getErrorImage();
+	}
 
-    @Override
-    protected void buttonPressed(int buttonId) {
-        if (IDialogConstants.OK_ID == buttonId) {
-            okPressed();
-        } else if (COPY_TO_CLIPBOARD_ID == buttonId) {
-            copyToClipboard(findings);
-        }
-    }
+	@Override
+	protected void buttonPressed(int buttonId) {
+		if (IDialogConstants.OK_ID == buttonId) {
+			okPressed();
+		} else if (COPY_TO_CLIPBOARD_ID == buttonId) {
+			copyToClipboard(findings);
+		}
+	}
 
-    private void copyToClipboard(List<ValidationFinding> findings) {
-        StringBuilder sb = new StringBuilder();
-        String eol = System.getProperty("line.separator");
-        for (ValidationFinding f : findings) {
-            sb.append(f.getFormattedMessage(FindingMessageFormat.DEFAULT));
-            sb.append(eol);
-        }
-        RCPUtils.copyToClipboard(sb.toString());
-    }
+	private void copyToClipboard(List<ValidationFinding> findings) {
+		StringBuilder sb = new StringBuilder();
+		String eol = System.getProperty("line.separator");
+		for (ValidationFinding f : findings) {
+			sb.append(f.getFormattedMessage(FindingMessageFormat.DEFAULT));
+			sb.append(eol);
+		}
+		RCPUtils.copyToClipboard(sb.toString());
+	}
 
-    class CompareByType implements Comparator<ValidationFinding> {
+	class CompareByType implements Comparator<ValidationFinding> {
 
-        @Override
-        public int compare(ValidationFinding o1, ValidationFinding o2) {
-            return o1.getType().compareTo(o2.getType());
-        }
+		@Override
+		public int compare(ValidationFinding o1, ValidationFinding o2) {
+			return o1.getType().compareTo(o2.getType());
+		}
 
-    }
+	}
 }

@@ -26,6 +26,7 @@ import org.eclipse.ui.application.IWorkbenchConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
+import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ModelController;
 import org.opentravel.schemas.controllers.ProjectController;
@@ -39,188 +40,186 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * TODO - document where the memento is stored in the file system. Add that to the log for
- * debugging.
- * 
  * @author Dave Hollander
  * 
  */
 public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
-    private static final String PERSPECTIVE_ID = "org.opentravel.schemas.stl2Developer.perspective";
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationWorkbenchAdvisor.class);
-    private static final String EXIT_WITHOUT_SAVE_FLAG = "-closeWithoutSave";
+	private static final String PERSPECTIVE_ID = "org.opentravel.schemas.stl2Developer.perspective";
+	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationWorkbenchAdvisor.class);
+	private static final String EXIT_WITHOUT_SAVE_FLAG = "-closeWithoutSave";
 
-    @Override
-    public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(
-            final IWorkbenchWindowConfigurer configurer) {
-        return new ApplicationWorkbenchWindowAdvisor(configurer);
-    }
+	@Override
+	public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(final IWorkbenchWindowConfigurer configurer) {
+		return new ApplicationWorkbenchWindowAdvisor(configurer);
+	}
 
-    @Override
-    public String getInitialWindowPerspectiveId() {
-        return PERSPECTIVE_ID;
-    }
+	@Override
+	public String getInitialWindowPerspectiveId() {
+		return PERSPECTIVE_ID;
+	}
 
-    @Override
-    public void initialize(final IWorkbenchConfigurer configurer) {
-        super.initialize(configurer);
-        configurer.setSaveAndRestore(true);
-    }
+	@Override
+	public void initialize(final IWorkbenchConfigurer configurer) {
+		super.initialize(configurer);
+		configurer.setSaveAndRestore(true);
+		// // activate proxy settings
+		// Activator.getDefault().getProxyService();
+		// LOGGER.debug("Loaded Proxy Settings");
+	}
 
-    // TODO - follow advise from: http://blog.eclipse-tips.com/2009/08/remember-state.html
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.application.WorkbenchAdvisor#postStartup()
-     */
-    @Override
-    public void postStartup() {
-        // store current product version is property. later used in about dialog (by mapping file)
-        Version productV = Platform.getProduct().getDefiningBundle().getVersion();
-        System.setProperty("otm.version", productV.toString());
-        // activate proxy settings
-        Activator.getDefault().getProxyService();
-        LOGGER.debug("post startup.");
-    }
+	// TODO - follow advise from: http://blog.eclipse-tips.com/2009/08/remember-state.html
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.ui.application.WorkbenchAdvisor#postStartup()
+	 */
+	@Override
+	public void postStartup() {
+		// store current product version is property. later used in about dialog (by mapping file)
+		Version productV = Platform.getProduct().getDefiningBundle().getVersion();
+		System.setProperty("otm.version", productV.toString());
+		// LOGGER.debug("post startup.");
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.application.WorkbenchAdvisor#postShutdown()
-     */
-    @Override
-    public void postShutdown() {
-        // TODO Auto-generated method stub
-        super.postShutdown();
-        LOGGER.debug("post shutdown.");
-    }
+		// Load the projects open from last session with a progress monitor
+		((DefaultProjectController) OtmRegistry.getMainController().getProjectController()).initProjects();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.application.WorkbenchAdvisor#saveState(org.eclipse.ui.IMemento)
-     */
-    @Override
-    public IStatus saveState(IMemento memento) {
-        // TODO Auto-generated method stub
-        IStatus status = super.saveState(memento);
-        ModelContentsData mcd = new ModelContentsData();
-        mcd.saveState(memento);
-        LOGGER.debug("save state. " + memento);
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.ui.application.WorkbenchAdvisor#postShutdown()
+	 */
+	@Override
+	public void postShutdown() {
+		// TODO Auto-generated method stub
+		super.postShutdown();
+		// LOGGER.debug("post shutdown.");
+	}
 
-        return status;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.ui.application.WorkbenchAdvisor#saveState(org.eclipse.ui.IMemento)
+	 */
+	@Override
+	public IStatus saveState(IMemento memento) {
+		// TODO Auto-generated method stub
+		IStatus status = super.saveState(memento);
+		ModelContentsData mcd = new ModelContentsData();
+		mcd.saveState(memento);
+		// LOGGER.debug("save state. " + memento);
 
-    }
+		return status;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.application.WorkbenchAdvisor#restoreState(org.eclipse.ui.IMemento)
-     */
-    @Override
-    public IStatus restoreState(IMemento memento) {
-        // TODO Auto-generated method stub
-        IStatus status = super.restoreState(memento);
-        LOGGER.debug("restore state. " + memento);
-        return status;
-    }
+	}
 
-    @Override
-    public boolean preShutdown() {
-        if (getWorkbenchConfigurer() != null && !getWorkbenchConfigurer().emergencyClosing()) {
-            try {
-                return confirmExit(OtmRegistry.getMainController());
-            } catch (Exception ex) {
-                // log exception and close appliaction
-                LOGGER.error("Error while closing application: " + ex.getMessage());
-            }
-        }
-        return true;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.ui.application.WorkbenchAdvisor#restoreState(org.eclipse.ui.IMemento)
+	 */
+	@Override
+	public IStatus restoreState(IMemento memento) {
+		// TODO Auto-generated method stub
+		IStatus status = super.restoreState(memento);
+		// LOGGER.debug("restore state. " + memento);
+		return status;
+	}
 
-    public boolean confirmExit(MainController mc) {
-        final ModelController modelController = mc.getModelController();
-        final ModelNode modelNode = mc.getModelNode();
+	@Override
+	public boolean preShutdown() {
+		if (getWorkbenchConfigurer() != null && !getWorkbenchConfigurer().emergencyClosing()) {
+			try {
+				return confirmExit(OtmRegistry.getMainController());
+			} catch (Exception ex) {
+				// log exception and close appliaction
+				LOGGER.error("Error while closing application: " + ex.getMessage());
+			}
+		}
+		return true;
+	}
 
-        if (modelNode != null) {
-            int answer = IDialogConstants.CANCEL_ID;
-            if (saveOnExitWithoutConfiramation()) {
-                answer = IDialogConstants.NO_ID;
-            } else {
-                answer = askUser(modelNode.getLibraries());
-            }
-            return closeActions(answer, modelController, mc.getProjectController(), modelNode);
-        }
-        return true;
-    }
+	public boolean confirmExit(MainController mc) {
+		final ModelController modelController = mc.getModelController();
+		final ModelNode modelNode = mc.getModelNode();
 
-    private int askUser(List<LibraryNode> libraries) {
-        if (existUserLibrary(libraries)) {
-            return getSaveAndExitConfirmation();
-        } else {
-            return getUserConfirmation();
-        }
-    }
+		if (modelNode != null) {
+			int answer = IDialogConstants.CANCEL_ID;
+			if (saveOnExitWithoutConfiramation()) {
+				answer = IDialogConstants.NO_ID;
+			} else {
+				answer = askUser(modelNode.getLibraries());
+			}
+			return closeActions(answer, modelController, mc.getProjectController(), modelNode);
+		}
+		return true;
+	}
 
-    private boolean saveOnExitWithoutConfiramation() {
-        for (String arg : Platform.getCommandLineArgs()) {
-            if (EXIT_WITHOUT_SAVE_FLAG.equals(arg))
-                return true;
-        }
-        return false;
-    }
+	private int askUser(List<LibraryNode> libraries) {
+		if (existUserLibrary(libraries)) {
+			return getSaveAndExitConfirmation();
+		} else {
+			return getUserConfirmation();
+		}
+	}
 
-    private boolean closeActions(int answer, ModelController modelController,
-            ProjectController projectController, ModelNode modelNode) {
-        switch (answer) {
-            case IDialogConstants.OK_ID:
-                modelController.saveModel(modelNode);
-            case IDialogConstants.NO_ID:
-                projectController.saveState();
-                return true;
-            case IDialogConstants.CANCEL_ID:
-            default:
-                return false;
-        }
-    }
+	private boolean saveOnExitWithoutConfiramation() {
+		for (String arg : Platform.getCommandLineArgs()) {
+			if (EXIT_WITHOUT_SAVE_FLAG.equals(arg))
+				return true;
+		}
+		return false;
+	}
 
-    private boolean existUserLibrary(List<LibraryNode> libraries) {
-        for (LibraryNode l : libraries) {
-            if (!l.isBuiltIn()) {
-                return true;
-            }
-        }
-        return false;
-    }
+	private boolean closeActions(int answer, ModelController modelController, ProjectController projectController,
+			ModelNode modelNode) {
+		switch (answer) {
+		case IDialogConstants.OK_ID:
+			modelController.saveModel(modelNode);
+		case IDialogConstants.NO_ID:
+			projectController.saveState();
+			return true;
+		case IDialogConstants.CANCEL_ID:
+		default:
+			return false;
+		}
+	}
 
-    private int getSaveAndExitConfirmation() {
-        int answer = DialogUserNotifier.openQuestionWithCancel(
-                Messages.getString("dialog.exit.title"),
-                Messages.getString("dialog.exit.save.question"));
-        switch (answer) {
-            case 0:
-                return IDialogConstants.OK_ID;
-            case 1:
-                return IDialogConstants.NO_ID;
-            case 2:
-            default:
-                return IDialogConstants.CANCEL_ID;
-        }
+	private boolean existUserLibrary(List<LibraryNode> libraries) {
+		for (LibraryNode l : libraries) {
+			if (!l.isBuiltIn() && (l.isEditable())) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-    }
+	private int getSaveAndExitConfirmation() {
+		int answer = DialogUserNotifier.openQuestionWithCancel(Messages.getString("dialog.exit.title"),
+				Messages.getString("dialog.exit.save.question"));
+		switch (answer) {
+		case 0:
+			return IDialogConstants.OK_ID;
+		case 1:
+			return IDialogConstants.NO_ID;
+		case 2:
+		default:
+			return IDialogConstants.CANCEL_ID;
+		}
 
-    private int getUserConfirmation() {
-        MessageDialog dialog = new MessageDialog(OtmRegistry.getActiveShell(),
-                Messages.getString("dialog.exit.title"), null,
-                Messages.getString("dialog.exit.question"), MessageDialog.CONFIRM, new String[] {
-                        IDialogConstants.YES_LABEL, IDialogConstants.CANCEL_LABEL }, 1);
-        return dialog.open();
-    }
+	}
 
-    @Override
-    public String getMainPreferencePageId() {
-        return GeneralPreferencePage.ID;
-    }
+	private int getUserConfirmation() {
+		MessageDialog dialog = new MessageDialog(OtmRegistry.getActiveShell(), Messages.getString("dialog.exit.title"),
+				null, Messages.getString("dialog.exit.question"), MessageDialog.CONFIRM, new String[] {
+						IDialogConstants.YES_LABEL, IDialogConstants.CANCEL_LABEL }, 1);
+		return dialog.open();
+	}
+
+	@Override
+	public String getMainPreferencePageId() {
+		return GeneralPreferencePage.ID;
+	}
 
 }

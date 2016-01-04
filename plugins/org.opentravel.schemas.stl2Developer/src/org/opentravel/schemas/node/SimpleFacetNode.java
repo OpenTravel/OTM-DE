@@ -29,11 +29,20 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
+
+// TODO
+// The simple facet and simple attribute are handled differently between core and VWA.
+// Find a base type and/or Interface that can rationalize them.
+//
+
 public class SimpleFacetNode extends FacetNode {
 	private static final Logger LOGGER = LoggerFactory.getLogger(FacetNode.class);
 
 	public SimpleFacetNode(TLSimpleFacet obj) {
 		super(obj);
+
+		// ListenerFactory will provide listener for property type changes because only the TLSimpleFacet will throw
+		// event.
 		// SimpleFacetMO will inject a TLnSimpleAttribute to construction stream
 		// If owned by a VWA, the TLnSimpleAttribute owner will be set by the vwa node.
 	}
@@ -42,8 +51,20 @@ public class SimpleFacetNode extends FacetNode {
 		return getChildren().get(0);
 	}
 
-	public void setSimpleAttribute(Node typeNode) {
-		getChildren().get(0).setAssignedType(typeNode);
+	// Override to assure that a value will be delivered even though not considered a type user.
+	@Override
+	public Node getAssignedType() {
+		// LOGGER.debug("Get assigned type simple facet of " + getParent());
+		return getTypeClass().getTypeNode();
+	}
+
+	// public void setSimpleAttribute(Node typeNode) {
+	// getChildren().get(0).setAssignedType(typeNode);
+	// }
+
+	@Override
+	public boolean setAssignedType(Node replacement) {
+		return getSimpleAttribute().getTypeClass().setAssignedType(replacement);
 	}
 
 	/**
@@ -89,11 +110,6 @@ public class SimpleFacetNode extends FacetNode {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isSimpleTypeUser()
-	 */
 	@Override
 	public boolean isOnlySimpleTypeUser() {
 		// 6/21/2013 - this was true in Node.java. I dont think it should be.
@@ -111,11 +127,6 @@ public class SimpleFacetNode extends FacetNode {
 		getTypeClass().setAssignedType((Node) ModelNode.getEmptyNode()); // set to empty.
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.FacetNode#isAssignedByReference()
-	 */
 	@Override
 	public boolean isAssignedByReference() {
 		// must override since super-type facet will return true.

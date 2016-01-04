@@ -15,7 +15,9 @@
  */
 package org.opentravel.schemas.actions;
 
-import org.opentravel.schemas.node.ComponentNode;
+import java.util.List;
+
+import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.MainWindow;
@@ -28,34 +30,59 @@ import org.opentravel.schemas.stl2developer.MainWindow;
  */
 public class CloneSelectedTreeNodesAction extends OtmAbstractAction {
 
-    /**
+	/**
 	 *
 	 */
-    public CloneSelectedTreeNodesAction(final MainWindow mainWindow, final StringProperties props) {
-        super(mainWindow, props);
-    }
+	public CloneSelectedTreeNodesAction(final MainWindow mainWindow, final StringProperties props) {
+		super(mainWindow, props);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.Action#run()
-     */
-    @Override
-    public void run() {
-        getMainController().copySelectedNodes();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.action.Action#run()
+	 */
+	@Override
+	public void run() {
+		copySelectedNodes(mc.getSelectedNodes_NavigatorView());
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.opentravel.schemas.actions.IWithNodeAction.AbstractWithNodeAction#isEnabled(org.opentravel.schemas
-     * .node.Node)
-     */
-    @Override
-    public boolean isEnabled() {
-        Node currentNode = mc.getSelectedNode_NavigatorView();
-        return currentNode instanceof ComponentNode;
-    }
+	@Override
+	public boolean isEnabled() {
+		// Enabled if this is unmanaged or the head is editable and not patch
+		LibraryNode ln = mc.getSelectedNode_NavigatorView().getLibrary();
+		if (!ln.isManaged())
+			return ln.isEditable();
+		return (ln.getChain().getHead().isEditable() && !ln.getChain().getHead().isPatchVersion());
+	}
+
+	/**
+	 * Implements the Copy action.
+	 */
+	private final String CopyNameSuffix = "_Copy";
+
+	public void copySelectedNodes(List<Node> nodes) {
+		Node lastCloned = null;
+		if (nodes == null || nodes.isEmpty())
+			return;
+
+		// Determine where to put the new nodes.
+		LibraryNode targetLibrary = null;
+		if (!nodes.get(0).getLibrary().isEditable())
+			targetLibrary = nodes.get(0).getChain().getHead();
+
+		Node clone = null;
+		for (Node n : nodes) {
+			clone = n.clone(targetLibrary, CopyNameSuffix);
+			if (clone != null) {
+				if (targetLibrary != null)
+					targetLibrary.addMember(clone);
+				lastCloned = clone;
+			}
+		}
+		if (lastCloned != null) {
+			mc.selectNavigatorNodeAndRefresh(lastCloned);
+		}
+	}
 
 }

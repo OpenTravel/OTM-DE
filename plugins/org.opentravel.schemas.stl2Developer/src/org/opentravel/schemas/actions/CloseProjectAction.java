@@ -32,42 +32,42 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
  * @author Dave Hollander
  * 
  */
+@Deprecated
 public class CloseProjectAction extends AbstractGlobalSelectionAction {
 
-    private ProjectNode toClose;
+	private ProjectNode toClose;
 
-    public CloseProjectAction() {
-        super("action.closeProject", PlatformUI.getWorkbench(),
-                GlobalSelectionProvider.NAVIGATION_VIEW);
-        new ExternalizedStringProperties(getId()).initializeAction(this);
-    }
+	public CloseProjectAction() {
+		super("action.closeProject", PlatformUI.getWorkbench(), GlobalSelectionProvider.NAVIGATION_VIEW);
+		new ExternalizedStringProperties(getId()).initializeAction(this);
+	}
 
-    @Override
-    public void run() {
-        if (toClose != null) {
-            OtmRegistry.getMainController().getProjectController().close(toClose);
-            toClose = null;
-        }
-    }
+	@Override
+	public void run() {
+		if (toClose != null) {
+			OtmRegistry.getMainController().getProjectController().close(toClose);
+			toClose = null;
+		}
+	}
 
-    @Override
-    protected boolean isEnabled(Object object) {
-        @SuppressWarnings("unchecked")
-        List<Node> newSelection = (List<Node>) object;
-        if (newSelection.size() != 1) {
-            return false;
-        }
+	@Override
+	protected boolean isEnabled(Object object) {
+		@SuppressWarnings("unchecked")
+		List<Node> newSelection = (List<Node>) object;
+		if (newSelection.size() != 1) {
+			return false;
+		}
 
-        // save ref to make sure run will execute on the same instance
-        toClose = getProjectToClose(newSelection.get(0));
-        return toClose != null;
-    }
+		// save ref to make sure run will execute on the same instance
+		toClose = getProjectToClose(newSelection.get(0));
+		return toClose != null;
+	}
 
-    private ProjectNode getProjectToClose(Node n) {
-        if (isProject(n) && !(isBuildInProject((ProjectNode) n) || isDefaultProject(n))) {
-            return ((ProjectNode) n);
-        }
-        return null;
-    }
+	private ProjectNode getProjectToClose(Node n) {
+		if (isProject(n) && !(isBuildInProject((ProjectNode) n) || isDefaultProject(n))) {
+			return ((ProjectNode) n);
+		}
+		return null;
+	}
 
 }

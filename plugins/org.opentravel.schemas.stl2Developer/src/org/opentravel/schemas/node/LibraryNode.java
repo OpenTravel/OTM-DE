@@ -47,8 +47,10 @@ import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.util.ContextUtils;
 import org.opentravel.schemacompiler.util.URLUtils;
 import org.opentravel.schemas.controllers.ContextController;
+import org.opentravel.schemas.controllers.ContextModelManager;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
+import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.preferences.GeneralPreferencePage;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -103,7 +105,7 @@ public class LibraryNode extends Node {
 		this.setName("");
 		nsHandler = NamespaceHandler.getNamespaceHandler((ProjectNode) parent);
 		this.setNamespace(parent.getNamespace());
-		LOGGER.debug("Created empty library without underlying model");
+		// LOGGER.debug("Created empty library without underlying model");
 	}
 
 	/**
@@ -144,7 +146,7 @@ public class LibraryNode extends Node {
 				pi = getProject().getProject().getProjectManager()
 						.addUnmanagedProjectItem(alib, getProject().getProject());
 			} catch (RepositoryException e1) {
-				LOGGER.debug("Error adding " + alib.getName() + " to project.");
+				LOGGER.error("Error adding " + alib.getName() + " to project.");
 			}
 		}
 		setProjectItem(pi);
@@ -163,14 +165,21 @@ public class LibraryNode extends Node {
 		// Process all the children
 		generateModel(alib);
 
-		// Set up the contexts
-		addContexts();
-
 		// Save edit state: Test to see if this is an editable library.
 		updateLibraryStatus();
 		setIdentity(getLabel());
 
-		LOGGER.debug("Library created: " + this.getName());
+		// Set up the contexts
+		addContexts();
+		// LOGGER.debug("Library created: " + this.getName());
+	}
+
+	private void addListeners() {
+		ListenerFactory.setListner(this);
+	}
+
+	private void removeListeners() {
+		ListenerFactory.clearListners(this);
 	}
 
 	public LibraryNode(ProjectItem pi, ProjectNode projectNode) {
@@ -279,7 +288,7 @@ public class LibraryNode extends Node {
 
 		// Do the import. Nodes are typed, but not used.
 		sourceToNewMap = importNodes(sourceList);
-		LOGGER.debug("Imported " + sourceToNewMap.size() + " nodes. Ready to fix type assignments.");
+		// LOGGER.debug("Imported " + sourceToNewMap.size() + " nodes. Ready to fix type assignments.");
 
 		// Change type users to use the imported nodes.
 		for (final Entry<Node, Node> entry : sourceToNewMap.entrySet()) {
@@ -317,13 +326,15 @@ public class LibraryNode extends Node {
 				nameFixer.visit(newNode);
 				sourceToNewMap.put(source, newNode);
 			} else
-				LOGGER.debug("Import duplicate excluded from map: " + newNode);
+				LOGGER.warn("Import duplicate excluded from map: " + newNode);
 		}
+
+		collapseContexts();
 
 		TypeResolver tr = new TypeResolver();
 		tr.resolveTypes(this);
 
-		LOGGER.info("ImportNodes() imported " + sourceToNewMap.size() + " nodes. ");
+		// LOGGER.info("ImportNodes() imported " + sourceToNewMap.size() + " nodes. ");
 		return sourceToNewMap;
 	}
 
@@ -398,7 +409,7 @@ public class LibraryNode extends Node {
 			return false;
 		}
 		if ((source.getTLModelObject() == null) || !(source.getTLModelObject() instanceof LibraryMember)) {
-			LOGGER.debug("Exit - not a LibraryMember: " + source.getName());
+			LOGGER.error("Exit - not a LibraryMember: " + source.getName());
 			return false;
 		}
 		if (!this.isEditable()) {
@@ -440,6 +451,9 @@ public class LibraryNode extends Node {
 			throw new IllegalStateException("Context Controller not registered before use.");
 
 		TLLibrary lib = getTLLibrary();
+		if (isEditable() && lib.getContexts().size() > 1)
+			collapseContexts();
+
 		if (lib.getContexts().isEmpty()) {
 			TLContext tlc = new TLContext();
 			lib.addContext(tlc);
@@ -450,6 +464,70 @@ public class LibraryNode extends Node {
 
 		if (isTLLibrary())
 			cc.addContexts(this);
+	}
+
+	/**
+	 * Collapse all contexts in this library (context model and tlLibrary) down to the default context. All contents of
+	 * the library may be changed to merge contexts to the default.
+	 */
+	// Collapse all contexts down to one. Temporary fix that may be in place for years.
+	protected void collapseContexts() {
+		// LOGGER.debug("Ready to merge contexts for library: " + this);
+		if (!(getTLaLib() instanceof TLLibrary)) {
+			LOGGER.error("Error. Not a valid library for collapseContexts.");
+			return;
+		}
+
+		ContextController cc = OtmRegistry.getMainController().getContextController();
+		ContextModelManager cm = cc.getContextModelManager();
+
+		// If there are no context then we are done.
+		if (getTLLibrary().getContexts().isEmpty())
+			return;
+
+		// tlc is the context to keep.
+		TLContext tlc = getTLLibrary().getContext(getDefaultContextId());
+		if (tlc == null)
+			tlc = getTLLibrary().getContexts().get(0); // there must be at least one
+
+		// If there is only one TLContext then make sure context manager matches.
+		if (getTLLibrary().getContexts().size() == 1) {
+			// // TODO - Fix context manager's contents
+			// List<String> cmIds = cc.getAvailableContextIds(this);
+			// if (cmIds.size() > 1 || !cmIds.contains(tlc.getContextId())) {
+			// // cc.clearContexts(this);
+			// cm.addNode(this, tlc);
+			// }
+			// assert (cc.getAvailableContextIds(this).size() == 1);
+			// assert (cc.getAvailableContextIds(this).size() == getTLLibrary().getContexts().size());
+			// assert (cc.getAvailableContextIds(this).get(0).equals(tlc.getContextId()));
+			return; // all done. if any child used a different context the TLLibrary would have more than 1.
+		}
+
+		// More than one context is being used. Merge context of children the collapse down the unused contexts.
+		//
+		// Merge contexts in all children of this library.
+		for (Node n : getDescendants_NamedTypes()) {
+			n.mergeContext(tlc.getContextId());
+		}
+
+		// Now remove the unused contexts
+		List<TLContext> contexts = new ArrayList<TLContext>(getTLLibrary().getContexts());
+		for (TLContext tc : contexts) {
+			if (tc != tlc) {
+				getTLLibrary().removeContext(getTLLibrary().getContext(tc.getContextId()));
+				// LOGGER.debug("removed " + tc.getContextId() + " from tlLibrary " + this);
+			}
+		}
+		// TODO - Make the context manager agree with the tllibrary
+		// cc.clearContexts(this);
+		// cc.newContext(this, tlc.getContextId(), tlc.getApplicationContext());
+		// FAILS - cm.addNode(this, tlc);
+		// assert (cc.getAvailableContextIds(this).size() == 1);
+		// assert (cc.getAvailableContextIds(this).size() == getTLLibrary().getContexts().size());
+		// assert (cc.getAvailableContextIds(this).get(0).equals(tlc.getContextId()));
+
+		// LOGGER.debug("merged contexts into context " + tlc.getContextId());
 	}
 
 	/**
@@ -503,7 +581,7 @@ public class LibraryNode extends Node {
 	 * 
 	 * @return
 	 */
-	protected boolean linkMember(Node n) {
+	public boolean linkMember(Node n) {
 		if (n == null)
 			throw new IllegalArgumentException("Null parameter.");
 		if (n.getName().isEmpty())
@@ -539,6 +617,7 @@ public class LibraryNode extends Node {
 	 * 
 	 * @throws RepositoryException
 	 */
+	// TODO - why is lock managed here while unlock is managed in project manager?
 	public void lock() throws RepositoryException {
 		ProjectNode pn = getProject();
 		if (pn == null)
@@ -549,7 +628,7 @@ public class LibraryNode extends Node {
 		// TODO - make sure it is a directory and writable
 		// Prompt user to confirm directory.
 		pn.getProject().getProjectManager().lock(getProjectItem(), dir);
-		LOGGER.debug("Locked library which created local file: " + path);
+		// LOGGER.debug("Locked library which created local file: " + path);
 		setEditable(isAbsLibEditable());
 	}
 
@@ -558,6 +637,7 @@ public class LibraryNode extends Node {
 	 * 
 	 * @return empty string if successful or an error message from repository.
 	 */
+	// Not Used
 	public void unlock() throws RepositoryException {
 		ProjectNode pn = getProject();
 		if (pn == null)
@@ -565,7 +645,7 @@ public class LibraryNode extends Node {
 
 		OtmRegistry.getMainController().getRepositoryController().unlockAndRevert(this);
 		// pn.getProject().getProjectManager().unlock(getProjectItem(), true);
-		LOGGER.debug("UnLocked library " + this);
+		// LOGGER.debug("UnLocked library " + this);
 		setEditable(isAbsLibEditable());
 	}
 
@@ -638,8 +718,9 @@ public class LibraryNode extends Node {
 				n.setLibrary(this);
 			}
 		}
-		TypeResolver tr = new TypeResolver();
-		tr.resolveTypes();
+		// TypeResolver tr = new TypeResolver();
+		// tr.resolveTypes();
+		new TypeResolver().resolveTypes();
 	}
 
 	public boolean hasGeneratedChildren() {
@@ -663,7 +744,7 @@ public class LibraryNode extends Node {
 				getTLLibrary().addContext(ctx);
 			}
 		} else {
-			List<TLContext> ctxList = n.getContexts();
+			List<TLContext> ctxList = n.getUsedContexts();
 			if (ctxList == null)
 				return;
 			for (TLContext ctx : ctxList) {
@@ -681,18 +762,22 @@ public class LibraryNode extends Node {
 	 * Add node to this library. Links to library's complex/simple or element root. Adds underlying the TL object to
 	 * this library's TLModel library. Handles adding nodes to chains. Adds context to the TL Model library if needed.
 	 * Does not change type assignments.
+	 * <p>
+	 * Add to tlLibrary.addNamedMember() <br>
+	 * linkMember() <br>
+	 * getChain.add()
 	 */
 	public void addMember(final Node n) {
-		addMember(n, true);
-	}
-
-	private void addMember(final Node n, final boolean doFamily) {
+		if (!isEditable()) {
+			LOGGER.warn("Tried to addMember() " + n + " to non-editable library " + this);
+			return;
+		}
 		if (n == null || n.getTLModelObject() == null) {
-			LOGGER.debug("Tried to addMember() a null member: " + n);
+			LOGGER.warn("Tried to addMember() a null member: " + n);
 			return;
 		}
 		if (!(n.getTLModelObject() instanceof LibraryMember)) {
-			LOGGER.debug("Tried to addMember() a non-library member: " + n);
+			LOGGER.warn("Tried to addMember() a non-library member: " + n);
 			return;
 		}
 
@@ -708,18 +793,30 @@ public class LibraryNode extends Node {
 			return;
 		}
 
-		getTLLibrary().addNamedMember((LibraryMember) n.getTLModelObject());
-		if (linkMember(n)) {
+		// If it is in a different library, remove it from that one.
+		if (n.getLibrary() != null && n.getLibrary() != this)
+			n.removeFromLibrary();
 
+		// If it is not in a TLLibrary or in the wrong TLLibrary set the TLLibrary.
+		AbstractLibrary owningLib = null;
+		if (n.getTLModelObject() instanceof LibraryMember)
+			owningLib = ((LibraryMember) n.getTLModelObject()).getOwningLibrary();
+		if (owningLib == null)
+			getTLLibrary().addNamedMember((LibraryMember) n.getTLModelObject());
+		else if (owningLib != getTLLibrary()) {
+			owningLib.removeNamedMember((LibraryMember) n.getTLModelObject());
+			getTLLibrary().addNamedMember((LibraryMember) n.getTLModelObject());
+		}
+
+		if (linkMember(n)) {
 			// If this library is in a chain, add the member to the chain's aggregates.
-			if (isInChain()) {
+			if (isInChain())
 				getChain().add((ComponentNode) n);
-			}
 		}
 
 		// Fail if in the list more than once.
 		if (n.getParent().getChildren().indexOf(n) != n.getParent().getChildren().lastIndexOf(n))
-			LOGGER.warn(n + " is in list more than once.");
+			LOGGER.error(n + " is in list more than once.");
 		// assert (n.getParent().getChildren().indexOf(n) == n.getParent().getChildren().lastIndexOf(n));
 
 	}
@@ -764,7 +861,7 @@ public class LibraryNode extends Node {
 		}
 
 		// This is only used by the visitor if it is a library node.
-		LOGGER.debug("Closing library " + this);
+		// LOGGER.debug("Closing library " + this);
 
 		// Remove context
 		ContextController cc = OtmRegistry.getMainController().getContextController();
@@ -785,7 +882,7 @@ public class LibraryNode extends Node {
 	 */
 	public void commit() throws RepositoryException {
 		projectItem.getProjectManager().commit(this.projectItem);
-		LOGGER.debug("Committed " + this);
+		// LOGGER.debug("Committed " + this);
 	}
 
 	@Override
@@ -817,44 +914,54 @@ public class LibraryNode extends Node {
 	 * @param source
 	 * @param destination
 	 */
-	public void moveMember(final Node source, LibraryNode destination) {
+	public boolean moveMember(final Node source, LibraryNode destination) throws IllegalArgumentException {
 		if (source == null || source.getModelObject() == null || source.getTLModelObject() == null)
 			throw new IllegalArgumentException("Null in move source model.");
+		if (!(source instanceof ComponentNode))
+			throw new IllegalArgumentException(source + " is not a component.");
 		if (destination == null)
 			throw new IllegalArgumentException("Move destination library is null.");
 		if (!(destination.getTLaLib() instanceof TLLibrary))
 			throw new IllegalArgumentException("Move destination library is not a TLLibrary.");
 
+		// FIXME - this does not do services at all.
 		// You can't move a service it one already exists in target library.
-		if (source.isService() && destination.hasService())
-			return;
+		// if (source.isService() && destination.hasService())
+		if (source instanceof ServiceNode)
+			return false;
 
-		// Make sure the context used are in the new library. Must be done
-		// *before* the node is moved or else context will never be found.
-		ContextController cc = OtmRegistry.getMainController().getContextController();
-		cc.copyContext(source, destination);
-
+		// Moved to LibraryNodeListener
 		// Remove from source
-		if (isInChain()) {
-			if (source instanceof ComplexComponentInterface)
-				getChain().getComplexAggregate().getChildren().remove(source);
-			else if (source instanceof SimpleComponentInterface)
-				getChain().getSimpleAggregate().getChildren().remove(source);
-			LOGGER.debug("Removed aggregate for " + source);
-		}
-		source.unlinkNode();
+		// if (isInChain()) {
+		// getChain().removeAggregate((ComponentNode) source);
+		// }
+		// source.unlinkNode();
+		addListeners();
+		destination.addListeners();
 
 		// Move the TL object to destination tl library.
-		source.getLibrary().getTLLibrary()
-				.moveNamedMember((LibraryMember) source.getTLModelObject(), destination.getLibrary().getTLLibrary());
+		try {
+			source.getLibrary()
+					.getTLLibrary()
+					.moveNamedMember((LibraryMember) source.getTLModelObject(), destination.getLibrary().getTLLibrary());
+		} catch (Exception e) {
+			// Failed to move. Change destination to be this library and relink.
+			destination = this;
+			LOGGER.debug("moveNamedMember failed. Adding back to " + this + " library.");
+		}
+		removeListeners();
+		destination.removeListeners();
+
+		destination.collapseContexts(); // reduce down to one context
+		assert (destination.getTLLibrary().getContexts().size() == 1);
 
 		// Add to destination library chain
-		destination.linkMember(source);
-		if (destination.isInChain()) {
-			destination.getChain().add((ComponentNode) source);
-		}
-
-		// destination.addMember(source);
+		// TODO - should this use addMember() ?
+		// destination.linkMember(source);
+		// if (destination.isInChain()) {
+		// destination.getChain().add((ComponentNode) source);
+		// }
+		return true;
 	}
 
 	/**
@@ -871,7 +978,7 @@ public class LibraryNode extends Node {
 	 */
 	protected void removeMember(final Node n) {
 		if (n == null || n.getTLModelObject() == null) {
-			LOGGER.debug("LibraryNode:removeMember() - error. model object or tl model object is null. " + n.getName()
+			LOGGER.warn("LibraryNode:removeMember() - error. model object or tl model object is null. " + n.getName()
 					+ " - " + n.getClass().getSimpleName());
 			return;
 		}
@@ -910,10 +1017,6 @@ public class LibraryNode extends Node {
 		return serviceRoot;
 	}
 
-	// public Node getElementRoot() {
-	// return elementRoot;
-	// }
-
 	@Override
 	public String getComponentType() {
 		return DEFAULT_LIBRARY_TYPE;
@@ -921,7 +1024,7 @@ public class LibraryNode extends Node {
 
 	@Override
 	public List<Node> getNavChildren() {
-		return getChildren();
+		return parent instanceof VersionAggregateNode ? new ArrayList<Node>() : getChildren();
 	}
 
 	@Override
@@ -955,6 +1058,8 @@ public class LibraryNode extends Node {
 
 	@Override
 	public boolean hasNavChildren() {
+		if (parent instanceof VersionAggregateNode)
+			return false;
 		return getChildren().size() <= 0 ? false : true;
 	}
 
@@ -965,6 +1070,7 @@ public class LibraryNode extends Node {
 		boolean result = false;
 		LibraryChainNode chain = getChain();
 		if (chain == null) {
+			// TODO - why not just check the service node?
 			for (Node n : getChildren())
 				if (n instanceof ServiceNode)
 					result = true;
@@ -1100,7 +1206,7 @@ public class LibraryNode extends Node {
 	public void setVersion(final String version) {
 		if (absTLLibrary instanceof TLLibrary) {
 			((TLLibrary) absTLLibrary).setVersion(version);
-			LOGGER.debug("Set version of " + this + " to " + version);
+			// LOGGER.debug("Set version of " + this + " to " + version);
 		}
 		// TODO - implement the rest of the version logic!
 	}
@@ -1108,7 +1214,7 @@ public class LibraryNode extends Node {
 	public void markFinal() throws RepositoryException {
 		if (absTLLibrary instanceof TLLibrary) {
 			getProjectItem().getProjectManager().promote(projectItem);
-			LOGGER.debug("Set status of " + this + " to Final.");
+			// LOGGER.debug("Set status of " + this + " to Final.");
 		}
 	}
 
@@ -1206,6 +1312,7 @@ public class LibraryNode extends Node {
 	 * 
 	 * @return list of all named simple types in this library.
 	 */
+	// FIXME - ONLY used in tests. move or remove
 	public List<SimpleTypeNode> getNamedSimpleTypes() {
 		return (getNamedSimpleTypes(simpleRoot));
 	}
@@ -1228,12 +1335,25 @@ public class LibraryNode extends Node {
 	/**
 	 * @return - list of context id strings, empty list of not TLLibrary or no contexts assigned.
 	 */
+	// FIXME - only used in tests
 	@Override
 	public List<String> getContextIds() {
 		ArrayList<String> contexts = new ArrayList<String>();
 		for (TLContext c : getTLLibrary().getContexts())
 			contexts.add(c.getContextId());
 		return contexts;
+	}
+
+	/**
+	 * Get the default context. As of 9/2015 there is only one context. This method allows for the obsolescence of the
+	 * context controller.
+	 */
+	public String getDefaultContextId() {
+		String id = OtmRegistry.getMainController().getContextController().getDefaultContextId(this);
+		if (id.isEmpty() && absTLLibrary instanceof TLLibrary)
+			if (getTLLibrary().getContexts().get(0) instanceof TLContext)
+				id = getTLLibrary().getContexts().get(0).getContextId();
+		return id;
 	}
 
 	/**
@@ -1292,7 +1412,7 @@ public class LibraryNode extends Node {
 
 		if (xn.getParent() != null) {
 			xn.unlinkNode();
-			LOGGER.debug("HUMM...why was this linked?");
+			// LOGGER.debug("HUMM...why was this linked?");
 		}
 		linkMember(cn);
 	}
@@ -1303,6 +1423,7 @@ public class LibraryNode extends Node {
 	 * 
 	 * @return
 	 */
+	// FIXME - this method also is in Node
 	public List<Node> getDescendentsNamedTypeProviders() {
 		ArrayList<Node> namedTypeProviders = new ArrayList<Node>();
 		for (Node n : getChildren())
@@ -1325,6 +1446,7 @@ public class LibraryNode extends Node {
 	 * 
 	 * @return
 	 */
+	// FIXME - this method also is in Node
 	public List<Node> getDescendentsNamedTypes() {
 		ArrayList<Node> namedTypeProviders = new ArrayList<Node>();
 		for (Node n : getChildren())
@@ -1342,20 +1464,6 @@ public class LibraryNode extends Node {
 	}
 
 	/**
-	 * Replace all users of contextId with targetId. The remove the contextId context from the tl library.
-	 */
-	public void mergeContexts(String contextId, String targetId) {
-		for (Node n : getDescendants_NamedTypes()) {
-			n.mergeContext(contextId, targetId);
-		}
-
-		if (isTLLibrary()) {
-			TLLibrary tll = (TLLibrary) getTLaLib();
-			tll.removeContext(tll.getContext(contextId));
-		}
-	}
-
-	/**
 	 * Creates a new library from the library with version incremented. Returns the new library.
 	 * 
 	 * @param project
@@ -1366,7 +1474,7 @@ public class LibraryNode extends Node {
 	 * Is the library ready to version?
 	 */
 	public boolean isReadyToVersion() {
-		LOGGER.debug("Ready to version? valid: " + isValid() + ", managed: " + isManaged());
+		// LOGGER.debug("Ready to version? valid: " + isValid() + ", managed: " + isManaged());
 		return isManaged() && isValid();
 	}
 
@@ -1421,10 +1529,11 @@ public class LibraryNode extends Node {
 	 * @return true if this library's namespace is within the project's namespace.
 	 */
 	public boolean isInProjectNS() {
-		String projectNS = "ZZZZZXXXXCCCCVVVVV"; // never found!
-		if (getProject() != null)
-			projectNS = getProject().getNamespace();
-		return getNamespace().startsWith(projectNS);
+		// String projectNS = "ZZZZZXXXXCCCCVVVVV"; // never found!
+		// if (getProject() != null)
+		// projectNS = getProject().getNamespace();
+		// return getNamespace().startsWith(projectNS);
+		return getProject() != null ? getNamespace().startsWith(getProject().getNamespace()) : false;
 	}
 
 	/**

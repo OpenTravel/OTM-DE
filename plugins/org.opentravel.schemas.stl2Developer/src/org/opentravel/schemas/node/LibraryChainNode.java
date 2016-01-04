@@ -21,8 +21,6 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
-import org.opentravel.schemacompiler.validate.FindingMessageFormat;
-import org.opentravel.schemacompiler.validate.FindingType;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
@@ -30,8 +28,6 @@ import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.AggregateNode.AggregateType;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Library chains are all libraries based on the same major release. Their content is aggregated in this node.
@@ -40,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class LibraryChainNode extends Node {
-	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryChainNode.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryChainNode.class);
 
 	protected static final String LIBRARY_CHAIN = "Library Collection";
 
@@ -52,6 +48,11 @@ public class LibraryChainNode extends Node {
 	protected RepositoryItem repoItem;
 	protected List<LibraryNode> chain;
 
+	/**
+	 * Same as lcn.getLibrary().
+	 * 
+	 * @return library at the head of the chain.
+	 */
 	public LibraryNode getHead() {
 		return getLibrary();
 	}
@@ -83,7 +84,7 @@ public class LibraryChainNode extends Node {
 
 		ProjectNode pn = ln.getProject();
 		if (pn == null) {
-			LOGGER.error("Library Chains must be made from libraries in a project.");
+			// LOGGER.error("Library Chains must be made from libraries in a project.");
 			return;
 		}
 		setParent(pn);
@@ -98,7 +99,7 @@ public class LibraryChainNode extends Node {
 		aggregateChildren(ln);
 		ln.updateLibraryStatus();
 
-		LOGGER.debug("Created library chain " + this.getLabel());
+		// LOGGER.debug("Created library chain " + this.getLabel());
 	}
 
 	private void createAggregates() {
@@ -119,7 +120,7 @@ public class LibraryChainNode extends Node {
 	public LibraryChainNode(ProjectItem pi, ProjectNode project) {
 		super();
 		if (pi == null || pi.getContent() == null) {
-			LOGGER.debug("Null project item content!");
+			// LOGGER.debug("Null project item content!");
 			return;
 		}
 		setIdentity(pi.getBaseNamespace());
@@ -163,7 +164,7 @@ public class LibraryChainNode extends Node {
 		}
 
 		if (newLib == null) {
-			LOGGER.debug("Adding pi " + pi.getFilename() + " to chain " + getLabel());
+			// LOGGER.debug("Adding pi " + pi.getFilename() + " to chain " + getLabel());
 			newLib = new LibraryNode(pi, this);
 			versions.add(newLib); // simply add this library to library list.
 			newLib.updateLibraryStatus();
@@ -196,7 +197,7 @@ public class LibraryChainNode extends Node {
 	 * 
 	 * @param node
 	 */
-	protected void add(ComponentNode node) {
+	public void add(ComponentNode node) {
 		if (node == null)
 			return;
 		if (node.getLibrary() == null)
@@ -219,8 +220,8 @@ public class LibraryChainNode extends Node {
 			simpleRoot.add(node);
 		// else if (node instanceof OperationNode)
 		// serviceRoot.add(node);
-		else
-			LOGGER.warn("add skipped: " + node);
+		// else
+		// LOGGER.warn("add skipped: " + node);
 	}
 
 	/**
@@ -237,8 +238,6 @@ public class LibraryChainNode extends Node {
 			simpleRoot.remove(node);
 		else if ((node instanceof ServiceNode || (node instanceof OperationNode)))
 			serviceRoot.remove(node);
-		// else
-		// assert (false) : "Invalid node type to remove.";
 
 		// if (findPreviousVersion(node) != null)
 		// LOGGER.debug("Adding back the previous version of " + node);
@@ -281,11 +280,11 @@ public class LibraryChainNode extends Node {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#close()
-	 */
+	@Override
+	public boolean isEnabled_AddProperties() {
+		return false;
+	}
+
 	@Override
 	public void close() {
 		ProjectNode project = (ProjectNode) getParent();
@@ -337,9 +336,10 @@ public class LibraryChainNode extends Node {
 	@Override
 	public List<LibraryNode> getLibraries() {
 		ArrayList<LibraryNode> libs = new ArrayList<LibraryNode>();
-		for (Node n : versions.getChildren())
-			if (n instanceof LibraryNode)
-				libs.add((LibraryNode) n);
+		if (versions != null)
+			for (Node n : versions.getChildren())
+				if (n instanceof LibraryNode)
+					libs.add((LibraryNode) n);
 		return libs;
 	}
 
@@ -399,10 +399,16 @@ public class LibraryChainNode extends Node {
 		return name + ":" + baseNS + ":" + majorNS;
 	}
 
-	@Override
-	public List<Node> getNavChildren() {
-		return getChildren();
-	}
+	// @Override
+	// public List<Node> getNavChildren() {
+	// // // 3/11/2015 dmh - do not return the version aggregate.
+	// // // this simplifies links from validation, user experience and showing families in the other aggregates.
+	// // ArrayList<Node> kids = new ArrayList<Node>();
+	// // kids.addAll(getChildren());
+	// // kids.remove(versions);
+	// // return kids;
+	// return getChildren();
+	// }
 
 	/**
 	 * Get the parent of the actual libraries in the chain.
@@ -495,9 +501,10 @@ public class LibraryChainNode extends Node {
 		for (LibraryNode ln : getLibraries())
 			findings.addAll(TLModelCompileValidator.validateModelElement(ln.getTLaLib()));
 
-		for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT)) {
-			LOGGER.debug("Finding: " + f);
-		}
+		// for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
+		// {
+		// LOGGER.debug("Finding: " + f);
+		// }
 		return findings;
 	}
 

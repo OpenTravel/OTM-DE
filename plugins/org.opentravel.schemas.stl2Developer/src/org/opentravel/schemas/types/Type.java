@@ -26,9 +26,21 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.ModelElement;
 import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLAttributeType;
+import org.opentravel.schemacompiler.model.TLExtensionOwner;
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLPropertyType;
+import org.opentravel.schemacompiler.model.TLSimple;
+import org.opentravel.schemacompiler.model.TLSimpleFacet;
+import org.opentravel.schemacompiler.validate.TypeAssignmentTester;
+import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
 import org.opentravel.schemas.modelObject.XsdModelingUtils;
 import org.opentravel.schemas.node.AliasNode;
+import org.opentravel.schemas.node.ExtensionOwner;
 import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ImpliedNodeType;
@@ -39,9 +51,9 @@ import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.NodeVisitors;
 import org.opentravel.schemas.node.NodeVisitors.FixNames;
+import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.properties.IndicatorElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +74,11 @@ public class Type {
 
 	// nodes that use this node as a type definition. Includes base type users.
 	protected ArrayList<Node> typeUsers = new ArrayList<Node>();
+	// TODO
+	// protected List<Node> typeUsers2 = Collections.synchronizedList(new ArrayList<Node>());
+	// synchronized(list) {
+	// for (Object o : list) {}
+	// }
 
 	// nodes that use this node as a base type for extension. Included in typeUsers.
 	protected ArrayList<Node> baseUsers = new ArrayList<Node>();
@@ -99,8 +116,8 @@ public class Type {
 	 */
 	public ArrayList<Node> getTypeUsers() {
 		if (typeUsers == null) {
-			typeUsers = setTypeUsers();
-			LOGGER.debug("Set type users durning a getUsers for " + getTypeOwner());
+			// typeUsers = setTypeUsers();
+			// LOGGER.debug("Set type users durning a getUsers for " + getTypeOwner());
 			throw new IllegalStateException("Set type users durning a getUsers for " + getTypeOwner());
 		}
 		return typeUsers;
@@ -109,8 +126,8 @@ public class Type {
 	public int getTypeUsersCount() {
 		synchronized (this) {
 			if (typeUsers == null) {
-				typeUsers = setTypeUsers();
-				LOGGER.debug("Set type users durning a getUsers for " + getTypeOwner());
+				// typeUsers = setTypeUsers();
+				// LOGGER.debug("Set type users durning a getUsers for " + getTypeOwner());
 				throw new IllegalStateException("Set type users durning a getUsers for " + getTypeOwner());
 			}
 		}
@@ -126,13 +143,13 @@ public class Type {
 	 *         as a type or base type.
 	 */
 	public List<Node> getComponentUsers() {
-		if (typeUsers == null) {
-			typeUsers = setTypeUsers();
-			// LOGGER.debug("Set type users durning a getUsers for " + getTypeOwner());
-		}
+		// if (typeUsers == null) {
+		// typeUsers = setTypeUsers();
+		// // LOGGER.debug("Set type users durning a getUsers for " + getTypeOwner());
+		// }
 		List<Node> users = new ArrayList<Node>(getTypeUsers());
 		for (Node n : typeOwner.getOwningComponent().getChildren()) {
-			if (n.isTypeProvider())
+			if (n.isTypeProvider() && !n.isDeleted())
 				users.addAll(n.getTypeClass().getTypeUsers());
 		}
 		return users;
@@ -150,45 +167,45 @@ public class Type {
 	 * @param includeExtensionBase
 	 * @return
 	 */
-	protected List<Node> getWhereUsed(final Node scope, boolean editableOnly, boolean includeExtensionBase) {
-		Node target = this.getTypeOwner();
-		final List<Node> assigned = new ArrayList<Node>();
-		// LOGGER.debug("where used: source = "+target.getName() +
-		// " scope = "+scope.getName());
-
-		if (target != null) {
-			final Object sourceTLType = target.getTLModelObject();
-			if (sourceTLType != null && scope.isInTLLibrary()) {
-				if (sourceTLType.equals(scope.getModelObject().getTLType())) {
-					if ((editableOnly && scope.isEditable()) || !editableOnly)
-						assigned.add(scope);
-				}
-				if (includeExtensionBase && target.getTLModelObject() instanceof NamedEntity) {
-					if (scope.getModelObject().isExtendedBy((NamedEntity) target.getTLModelObject())) {
-						if (editableOnly && scope.isEditable())
-							assigned.add(scope);
-						else if (!editableOnly)
-							assigned.add(scope);
-					}
-				}
-			}
-			if (scope == Node.getModelNode() || scope.isInTLLibrary())
-				for (final Node n : scope.getChildren()) {
-					assigned.addAll(getWhereUsed(n, editableOnly, includeExtensionBase));
-				}
-		}
-		// if (assigned.size() > 0)
-		// LOGGER.debug("  returning: "+assigned.size()+" nodes where "+target.getName()+" was used as type.");
-		return assigned;
-	}
+	// protected List<Node> getWhereUsed(final Node scope, boolean editableOnly, boolean includeExtensionBase) {
+	// Node target = this.getTypeOwner();
+	// final List<Node> assigned = new ArrayList<Node>();
+	// // LOGGER.debug("where used: source = "+target.getName() +
+	// // " scope = "+scope.getName());
+	//
+	// if (target != null) {
+	// final Object sourceTLType = target.getTLModelObject();
+	// if (sourceTLType != null && scope.isInTLLibrary()) {
+	// if (sourceTLType.equals(scope.getModelObject().getTLType())) {
+	// if ((editableOnly && scope.isEditable()) || !editableOnly)
+	// assigned.add(scope);
+	// }
+	// if (includeExtensionBase && target.getTLModelObject() instanceof NamedEntity) {
+	// if (scope.getModelObject().isExtendedBy((NamedEntity) target.getTLModelObject())) {
+	// if (editableOnly && scope.isEditable())
+	// assigned.add(scope);
+	// else if (!editableOnly)
+	// assigned.add(scope);
+	// }
+	// }
+	// }
+	// if (scope == Node.getModelNode() || scope.isInTLLibrary())
+	// for (final Node n : scope.getChildren()) {
+	// assigned.addAll(getWhereUsed(n, editableOnly, includeExtensionBase));
+	// }
+	// }
+	// // if (assigned.size() > 0)
+	// // LOGGER.debug("  returning: "+assigned.size()+" nodes where "+target.getName()+" was used as type.");
+	// return assigned;
+	// }
 
 	/**
 	 * Replace this provider with unassignedNode for all users of this provider as a type. Also replaces type usage of
 	 * descendants of this typeOwner node. Also does the TL properties.
 	 */
-	public void replaceTypeProvider() {
-		replaceTypeProvider(ModelNode.getUnassignedNode(), null);
-	}
+	// public void replaceTypeProvider() {
+	// replaceTypeProvider(ModelNode.getUnassignedNode(), null);
+	// }
 
 	/**
 	 * Replace this provider with replacement for all users of this provider as a type. Also replaces type usage of
@@ -206,9 +223,9 @@ public class Type {
 	public void replaceTypeProvider(Node replacement, LibraryNode scopeLibrary) {
 
 		// Nothing to do.
-		if (getTypeUsers().isEmpty())
+		if (getTypeUsers().isEmpty() && getBaseUsers().isEmpty())
 			return;
-		// LOGGER.debug("Replacing " + typeOwner + " used " + getTypeUsers().size() + " times.");
+		LOGGER.debug("Replacing " + typeOwner + " used " + getTypeUsers().size() + " times.");
 
 		if (replacement == null || !replacement.isTypeProvider())
 			return;
@@ -242,7 +259,7 @@ public class Type {
 		ArrayList<Node> users = new ArrayList<Node>(getBaseUsers());
 		for (Node n : users) {
 			if (n.isEditable() && (scope == null || n.getLibrary().equals(scope))) {
-				n.getTypeClass().setBaseType(replacement);
+				n.getTypeClass().setAssignedBaseType(replacement);
 				baseUsers.remove(n);
 			}
 		}
@@ -250,12 +267,12 @@ public class Type {
 		users = new ArrayList<Node>(getTypeUsers());
 		for (Node n : users) {
 			if (n.isEditable() && (scope == null || n.getLibrary().equals(scope))) {
-				if (n.getTypeClass().setAssignedType(replacement, false)) {
+				if (n.getTypeClass().setAssignedType(replacement)) {
 					nameFixer.visit(n);
 					getTypeUsers().remove(n);
 				} else {
 					// setAssignedType if replacement failed, try unassigned.
-					if (n.getTypeClass().setAssignedType(ModelNode.getUnassignedNode(), false)) {
+					if (n.getTypeClass().setAssignedType(ModelNode.getUnassignedNode())) {
 						getTypeUsers().remove(n);
 						// LOGGER.debug("Set type to " + ModelNode.getUnassignedNode() + " for " +
 						// n);
@@ -267,24 +284,15 @@ public class Type {
 		}
 	}
 
-	/**
-	 * Set the type node and add this owner to that user list. Remove typeOwner from typeNode-typeUsers. Restricted use
-	 * - Does NOT set the type the TLModel type {@link setAssignedType}
-	 */
-	public boolean setTypeNode(Node target) {
-		if (target != null) {
-			if (target.typeUsers() == null) {
-				LOGGER.error("Null users on target.");
-			}
-			if (!target.typeUsers().contains(this))
-				target.typeUsers().add(this.typeOwner);
-		}
-		// 6/25/2013 - dmh
-		if (typeNode != null && typeNode.typeUsers() != null)
-			typeNode.typeUsers().remove(typeOwner); // break existing link
-		typeNode = target;
-		return true;
-	}
+	// /**
+	// * Simple setter. No side effect, tests or validation.
+	// *
+	// * @param type
+	// * is the node to set as this nodes assigned type.
+	// */
+	// public void setType(Node type) {
+	// typeNode = type;
+	// }
 
 	/**
 	 * Set assigned type. Sets type or base type as appropriate for the node. Extends setAssignedType() by using the
@@ -297,9 +305,9 @@ public class Type {
 	 * 
 	 * @return true if successfully assigned.
 	 */
-	public boolean setAssignedTypeForThisNode() {
-		return setAssignedTypeForThisNode(this.getTypeOwner(), null);
-	}
+	// public boolean setAssignedTypeForThisNode() {
+	// return setAssignedTypeForThisNode(this.getTypeOwner(), null);
+	// }
 
 	/**
 	 * @param source
@@ -310,6 +318,8 @@ public class Type {
 	}
 
 	/**
+	 * Used in type resolver to assign type to the owner based on a source QName
+	 * 
 	 * @param source
 	 *            - the target <b>and</b> the node to use to find the type.
 	 */
@@ -322,10 +332,11 @@ public class Type {
 			LOGGER.warn("Tried to assign type to a node that is not a type user. " + source);
 			return false;
 		}
-		if (source instanceof ImpliedNode) {
-			LOGGER.warn("Tried to assign type to an implied node: " + source);
-			return false;
-		}
+		// NOT needed. ImpliedNodes are not type users.
+		// if (source instanceof ImpliedNode) {
+		// LOGGER.warn("Tried to assign type to an implied node: " + source);
+		// return false;
+		// }
 
 		// Get what we know about the assigned type.
 		// TargetNode if the node has a default type or else QName
@@ -396,130 +407,236 @@ public class Type {
 				LOGGER.debug("Could not set TL Type " + e);
 			}
 			// LOGGER.debug("Type of " + source + " assigned " + target);
-			verifyAssignment(providerMap, typeQname);
+			// verifyAssignment(providerMap, typeQname);
 		} else {
 			// Assign both type class and TL model to the found target
-			source.getTypeClass().setAssignedType(target, false);
+			source.getTypeClass().setAssignedType(target);
 			// LOGGER.debug("Type and model of " + source + " assigned " + target);
 		}
 		return ret;
 	}
 
-	/**
-	 * Set the assigned type to the unassigned node without refresh.
-	 * 
-	 * @return
-	 */
-	public boolean setAssignedType() {
-		return setAssignedType(ModelNode.getUnassignedNode(), false);
+	public boolean isValidAssignment(Node target) {
+		return isValidAssignment(typeOwner.getTLModelObject(), target.getTLModelObject());
 	}
+
+	private boolean isValidAssignment(ModelElement tlOwner, ModelElement tlTarget) {
+		boolean result = true;
+		TypeAssignmentTester tester = new TypeAssignmentTester(ModelNode.getModelNode().getTLModel());
+
+		if (tlOwner.getOwningModel() != null) {
+			if (tlOwner instanceof TLAttribute && tlTarget instanceof NamedEntity)
+				result = tester.isValidAssignment((TLAttribute) tlOwner, (NamedEntity) tlTarget);
+			if (tlOwner instanceof TLProperty && tlTarget instanceof NamedEntity)
+				result = tester.isValidAssignment((TLProperty) tlOwner, (NamedEntity) tlTarget);
+			if (result == false)
+				LOGGER.debug("Not Valid assignment of " + tlTarget.getValidationIdentity() + " to "
+						+ tlOwner.getValidationIdentity());
+		}
+		return result;
+	}
+
+	// /**
+	// * Set the assigned type to the unassigned node without refresh.
+	// *
+	// * @return
+	// */
+	// public boolean setAssignedType() {
+	// return setAssignedType(ModelNode.getUnassignedNode(), false);
+	// }
 
 	/**
 	 * Set Assigned Type. Sets the Assigned type node and add this owner to that user list. This method assures there is
 	 * a target and that the owner is editable. Sets the type class properties as well as the TLModel type If the target
 	 * represents a complex type (BO, Core, facet, alias) then the owner's name is changed.
 	 * 
+	 * Callers may wish to validate assignment first; note that this MAY be a heavy process
+	 * 
+	 * boolean result = isValidAssignment(target);
+	 * 
 	 * @return true if assignment could be made, false otherwise
 	 */
+	// control refresh elsewhere
 	public boolean setAssignedType(Node target) {
-		return setAssignedType(target, false);
-	}
-
-	public boolean setAssignedType(Node target, boolean refresh) {
-		// LOGGER.debug("setAssignedType begin, owner = "+typeOwner+" \t target = "+target);
+		// return setAssignedType(target, false);
+		// }
+		//
+		// @Deprecated
+		// public boolean setAssignedType(Node target, boolean refresh) {
+		// LOGGER.debug("");
+		// LOGGER.debug("setAssignedType: owner = " + typeOwner + " target = " + target);
+		if (!typeOwner.isEditable())
+			return false;
 
 		if (typeOwner instanceof IndicatorNode)
 			target = ModelNode.getIndicatorNode();
-		if (typeOwner instanceof IndicatorElementNode)
+		else if (typeOwner instanceof IndicatorElementNode)
 			target = ModelNode.getIndicatorNode();
 
 		if (target == null)
 			target = ModelNode.getUnassignedNode();
 
-		if (!typeOwner.canAssign(target)) {
-			// LOGGER.warn("Cannot assign " + target.getClass().getSimpleName() + ":" + target
-			// + " to " + typeOwner.getClass().getSimpleName() + ":" + typeOwner);
-			// Make no changes if we don't know what to assign.
-			return false;
-		}
+		// Set the tl type and let the listeners handle the rest
+		TLModelElement tlOwner = typeOwner.getTLModelObject();
+		TLModelElement tlTarget = target.getTLModelObject();
 
-		Node oldTypeNode = typeNode;
-		NamedEntity oldTLType = typeOwner.getTLTypeObject();
-		if (typeNode != null)
-			removeAssignedType(); // Remove from current type node user list.
-
-		setTypeNode(target);
-		if (target instanceof ImpliedNode) {
-			typeOwner.getModelObject().clearTLType();
-		} else {
-			if (target.isXsdType() && target.getXsdNode() != null) {
-				// If the target is an xsd type use the xsd type from xsd node.
-				try {
-					typeOwner.getModelObject().setTLType(target.getXsdNode().getModelObject());
-				} catch (IllegalArgumentException e) {
-					// Type could not be assigned. Clear type node.
-					setTypeNode(oldTypeNode);
-					typeOwner.getModelObject().setTLType(oldTLType);
-					return false;
-				}
-			} else if (typeOwner.isEditable()) {
-				// on initial import, xsd nodes are editable allowing them
-				// to have their OTM model object typed.
-				try {
-					typeOwner.getModelObject().setTLType(target.getModelObject());
-				} catch (IllegalArgumentException e) {
-					// Type could not be assigned. Clear type node.
-					setTypeNode(oldTypeNode);
-					typeOwner.getModelObject().setTLType(oldTLType);
-					return false;
-				}
-			} else {
-				// LOGGER.debug("Can't set type on " + typeOwner + " because it is not editable.");
-				setTypeNode(oldTypeNode);
-				typeOwner.getModelObject().setTLType(oldTLType);
+		if (tlOwner instanceof TLSimple)
+			if (tlTarget instanceof TLAttributeType) {
+				((TLSimple) tlOwner).setParentType((TLAttributeType) tlTarget);
+			} else
+				return false; // do nothing
+		else if (tlOwner instanceof TLProperty)
+			if (tlTarget instanceof TLPropertyType)
+				((TLProperty) tlOwner).setType((TLPropertyType) tlTarget);
+			else
+				return false; // do nothing
+		else if (tlOwner instanceof TLAttribute)
+			if (tlTarget instanceof TLAttributeType)
+				((TLAttribute) tlOwner).setType((TLAttributeType) tlTarget);
+			else
 				return false;
-			}
-		}
-		// Update the where used display node
-		if (refresh && OtmRegistry.getNavigatorView() != null)
-			OtmRegistry.getNavigatorView().refresh(treeNode);
+		else if (tlOwner instanceof TLSimpleFacet)
+			if (tlTarget instanceof NamedEntity) {
+				((TLSimpleFacet) tlOwner).setSimpleType((NamedEntity) tlTarget);
+				// Listener will set the simple attribute node
+			} else
+				return false;
+		else if (tlOwner instanceof TLnSimpleAttribute)
+			if (tlTarget instanceof NamedEntity)
+				((TLnSimpleAttribute) tlOwner).setType((NamedEntity) tlTarget);
+			else
+				return false;
 
-		// verifyAssignment(); // DEBUG ONLY
+		// Safety check. Will set if:
+		// 1. no listeners
+		// 2. No even thrown if the tl object original and target types are the same.
+		// 3. if it is an implied type (role, enum, etc)
+		if (!(typeNode == target))
+			set(target, typeNode);
+
+		// FIXME - what about names for the type user elements?
+		//
+		NodeNameUtils.fixName(typeOwner);
+		// Update the where used display node
+		// if (refresh && OtmRegistry.getNavigatorView() != null)
+		// OtmRegistry.getNavigatorView().refresh(treeNode);
+
 		return true;
 	}
+
+	// 9/27/2015 dmh - replaced with version above that uses the type assignment change listener
+	// @Deprecated
+	// public boolean setAssignedTypeOLD(Node target, boolean refresh) {
+	// // LOGGER.debug("setAssignedType begin, owner = "+typeOwner+" \t target = "+target);
+	//
+	// if (typeOwner instanceof IndicatorNode)
+	// target = ModelNode.getIndicatorNode();
+	// if (typeOwner instanceof IndicatorElementNode)
+	// target = ModelNode.getIndicatorNode();
+	//
+	// if (target == null)
+	// target = ModelNode.getUnassignedNode();
+	//
+	// if (!typeOwner.canAssign(target)) {
+	// // LOGGER.warn("Cannot assign " + target.getClass().getSimpleName() + ":" + target
+	// // + " to " + typeOwner.getClass().getSimpleName() + ":" + typeOwner);
+	// // Make no changes if we don't know what to assign.
+	// return false;
+	// }
+	//
+	// Node oldTypeNode = typeNode;
+	// NamedEntity oldTLType = typeOwner.getTLTypeObject();
+	// if (typeNode != null)
+	// removeAssignedType(); // Remove from current type node user list.
+	//
+	// setTypeNode(target);
+	// if (target instanceof ImpliedNode) {
+	// typeOwner.getModelObject().clearTLType();
+	// } else {
+	// if (target.isXsdType() && target.getXsdNode() != null) {
+	// // If the target is an xsd type use the xsd type from xsd node.
+	// try {
+	// typeOwner.getModelObject().setTLType(target.getXsdNode().getModelObject());
+	// } catch (IllegalArgumentException e) {
+	// // Type could not be assigned. Clear type node.
+	// setTypeNode(oldTypeNode);
+	// typeOwner.getModelObject().setTLType(oldTLType);
+	// return false;
+	// }
+	// } else if (typeOwner.isEditable()) {
+	// // on initial import, xsd nodes are editable allowing them
+	// // to have their OTM model object typed.
+	// try {
+	// typeOwner.getModelObject().setTLType(target.getModelObject());
+	// } catch (IllegalArgumentException e) {
+	// // Type could not be assigned. Clear type node.
+	// setTypeNode(oldTypeNode);
+	// typeOwner.getModelObject().setTLType(oldTLType);
+	// return false;
+	// }
+	// } else {
+	// // LOGGER.debug("Can't set type on " + typeOwner + " because it is not editable.");
+	// setTypeNode(oldTypeNode);
+	// typeOwner.getModelObject().setTLType(oldTLType);
+	// return false;
+	// }
+	// }
+	// // Update the where used display node
+	// if (refresh && OtmRegistry.getNavigatorView() != null)
+	// OtmRegistry.getNavigatorView().refresh(treeNode);
+	//
+	// // verifyAssignment(); // DEBUG ONLY
+	// return true;
+	// }
 
 	/**
 	 * Set the base type of the type owner. Links the type owner to target's type user list.
 	 * 
-	 * @param target
+	 * @param sourceNode
 	 *            is the node to be assigned as base type.
 	 */
-	public void setBaseType(INode target) {
-		if (typeOwner.isCoreObject() || typeOwner.isBusinessObject() || typeOwner.isExtensionPointFacet()
-				|| typeOwner.isValueWithAttributes()) {
-			if ((target == null) || (!target.isTypeProvider())) {
-				target = ModelNode.getUnassignedNode();
-			}
-			// Unlink if base type is already set.
-			if ((typeNode != null) && (typeNode.typeUsers() != null)) {
-				typeNode.typeUsers().remove(typeOwner);
-			}
-			// Assign target to the type node and TL model, and add typeOwner to
-			// user list.
-			if (target != null) {
-				target.getTypeUsers().add(typeOwner);
-				((Node) target).getTypeClass().baseUsers.add(typeOwner);
-				typeNode = (Node) target;
-				if (!(target instanceof ImpliedNode))
-					typeOwner.getModelObject().setExtendsType(target.getModelObject());
-				else
-					typeOwner.getModelObject().setExtendsType(null);
-			}
+	public void setAssignedBaseType(INode sourceNode) {
+		if (!(typeOwner instanceof ExtensionOwner))
+			sourceNode = ModelNode.getUnassignedNode();
+		if ((sourceNode == null) || (!sourceNode.isTypeProvider()))
+			sourceNode = ModelNode.getUnassignedNode();
 
-			// LOGGER.debug("Set base type of " + typeOwner + " to " + target);
+		setBaseType((Node) sourceNode);
+
+		// Set the TL model if TLExtension owner or else set to null (clear)
+		// Note: VWAs are not members of TLExtensionOnwer and must have the parent type set instead.
+		if (!(sourceNode instanceof ImpliedNode))
+			if (typeOwner.getTLModelObject() instanceof TLExtensionOwner)
+				typeOwner.getModelObject().setExtendsType(sourceNode.getModelObject());
+			else if (typeOwner instanceof VWA_Node)
+				((VWA_Node) typeOwner).setAssignedType((Node) sourceNode);
+			else
+				typeOwner.getModelObject().setExtendsType(null);
+
+		// LOGGER.debug("Set base type of " + typeOwner + " to " + sourceNode);
+	}
+
+	/**
+	 * Set the type node and add this owner to that base user list. Remove typeOwner from typeNode-base users.
+	 * Restricted use - Does NOT set the type the TLModel type {@link setAssignedBaseType}
+	 */
+	public void setBaseType(Node sourceNode) {
+		if (typeOwner instanceof ExtensionOwner) {
+
+			// Unlink if base type is already set.
+			if ((typeNode != null) && (typeNode.getTypeClass().baseUsers != null))
+				typeNode.getTypeClass().baseUsers.remove(typeOwner);
+
+			// Add this owner to the sources base users list
+			if (!sourceNode.getTypeClass().baseUsers.contains(typeOwner))
+				sourceNode.getTypeClass().baseUsers.add(typeOwner);
+			// TESTME - this used to also add to the typeUsers array
+
+			typeNode = sourceNode;
 		}
 	}
 
+	@Deprecated
 	private boolean isTLTypeAssigned() {
 		NamedEntity ownerTLType = typeOwner.getTLTypeObject();
 		// Name and library namespace are used to find the matching node. Must not be null.
@@ -538,6 +655,7 @@ public class Type {
 		return ret;
 	}
 
+	@Deprecated
 	private boolean isTypeNodeAssigned() {
 		Node type = typeOwner.getTypeClass().getTypeNode();
 		if (type == null)
@@ -552,24 +670,36 @@ public class Type {
 	 * 
 	 * @return true if the TypeOwner TL_TypeObject matches the typeNode's TL_ModelObject
 	 */
+	@Deprecated
 	public boolean verifyAssignment() {
 		return verifyAssignment(null, null);
 	}
 
+	@Deprecated
 	public boolean verifyAssignment(Map<QName, Node> providerMap, QName typeQname) {
 		// LOGGER.debug("Verify assignments for type owner: " + typeOwner);
-		if (!typeOwner.isTypeUser()) {
-			return true;
-		}
 		if (typeOwner == null) {
 			LOGGER.debug("NULL type owner: " + typeOwner);
 			return false;
 		}
-		if (typeNode == null || typeNode.getTLModelObject() == null) {
-			LOGGER.debug("Invalid type node: " + typeNode);
+		if (!typeOwner.isTypeUser()) {
+			return true;
+		}
+		if (typeOwner.getTLModelObject() == null) {
+			LOGGER.debug("NULL model object on type owner: " + typeOwner);
 			return false;
 		}
-
+		if (typeNode == null) {
+			if (typeOwner.getModelObject().getTLType() != null) {
+				LOGGER.debug("Invalid type node: " + typeNode + " on " + typeOwner);
+				return false;
+			}
+			return true; // tests can not be made.
+		}
+		if (typeNode.getTLModelObject() == null) {
+			LOGGER.debug("Missing model object on " + typeOwner);
+			return false;
+		}
 		// If the TL type is not assigned, then the type node must not be either.
 		if (!isTLTypeAssigned()) {
 			if (isTypeNodeAssigned()) {
@@ -585,26 +715,26 @@ public class Type {
 
 		if (!ret)
 			if (Node.getModelNode().getDuplicateTypes().contains(typeNode)) {
-				LOGGER.debug("Warning, typeNode " + typeNode + " is a duplicate.");
+				LOGGER.warn("Warning, typeNode " + typeNode + " is a duplicate.");
 				ret = true;
 			} else if ((typeNode instanceof ImpliedNode)
 					&& ((ImpliedNode) typeNode).getImpliedType().equals(ImpliedNodeType.String)) {
-				LOGGER.debug("Note - owner: " + typeOwner + " has an implied string type.");
+				LOGGER.warn("Note - owner: " + typeOwner + " has an implied string type.");
 				ret = true;
 			} else if ((typeNode instanceof ImpliedNode)
 					&& ((ImpliedNode) typeNode).getImpliedType().equals(ImpliedNodeType.Union)) {
-				LOGGER.debug("Note - owner: " + typeOwner + " has an union type.");
+				LOGGER.warn("Note - owner: " + typeOwner + " has an union type.");
 				ret = true;
 			} else if (typeNode instanceof AliasNode) {
 				// aliases report different validation identities.
-				LOGGER.debug("Skipping test of alias: " + typeNode);
+				LOGGER.warn("Skipping test of alias: " + typeNode);
 				ret = true;
 			} else {
-				LOGGER.debug("INVALID Assignment to " + typeOwner.getTLModelObject().getValidationIdentity()
-						+ " with TL type " + typeOwner.getTLTypeObject().getValidationIdentity());
-				LOGGER.debug("    but type node has " + typeNode.getTLModelObject().getValidationIdentity());
+				// LOGGER.debug("INVALID Assignment to " + typeOwner.getTLModelObject().getValidationIdentity()
+				// + " with TL type " + typeOwner.getTLTypeObject().getValidationIdentity());
+				// LOGGER.debug("    but type node has " + typeNode.getTLModelObject().getValidationIdentity());
 				if (providerMap != null) {
-					LOGGER.debug("Map results for " + typeQname + " = " + providerMap.get(typeQname));
+					LOGGER.warn("Warning - Map results for " + typeQname + " = " + providerMap.get(typeQname));
 
 				}
 			}
@@ -618,12 +748,12 @@ public class Type {
 	 * 
 	 * @return typeUsers arrayList of where the the type owner is used as a type (not base baseType)
 	 */
-	public ArrayList<Node> setTypeUsers() {
-		typeUsers = new ArrayList<Node>();
-		typeUsers.addAll(getWhereUsed(Node.getModelNode(), true, false));
-		// LOGGER.debug(typeUsers.size()+"\tnew typeUsers found for \t"+typeOwner.getName()+".");
-		return typeUsers;
-	}
+	// public ArrayList<Node> setTypeUsers() {
+	// typeUsers = new ArrayList<Node>();
+	// typeUsers.addAll(getWhereUsed(Node.getModelNode(), true, false));
+	// // LOGGER.debug(typeUsers.size()+"\tnew typeUsers found for \t"+typeOwner.getName()+".");
+	// return typeUsers;
+	// }
 
 	/**
 	 * Remove the assigned type. Removes this node from typeNode's list of typeUsers. Sets typeNode = null.
@@ -631,6 +761,7 @@ public class Type {
 	 * Does Change the TL Model. Does Not Change the Model Object. TEST Sets the TL model object type and adds this node
 	 * TEST the assigned type's users list.
 	 */
+	@Deprecated
 	public void removeAssignedType() {
 		clearWhereUsed();
 		// Set underlying model to unassigned.
@@ -644,11 +775,8 @@ public class Type {
 	 * This owner is removed from assigned type's where-used list, but leaves typeNode and tlType assigned.
 	 */
 	public void clearWhereUsed() {
-		if ((typeNode == null) || (typeNode.typeUsers() == null)) {
-			LOGGER.debug("Error, tried to remove assigned type but owner was null.");
-		} else {
+		if (!(typeNode == null) && (typeNode.typeUsers() == null))
 			typeNode.typeUsers().remove(typeOwner);
-		}
 	}
 
 	/**
@@ -715,6 +843,55 @@ public class Type {
 			n.getModelObject().clearTLType();
 		}
 		typeUsers.clear();
+		// TODO - remove listeners and prevent listeners from assigning null
 	}
 
+	/**
+	 * Set the type node and add this owner to that user list. Remove typeOwner from typeNode-typeUsers. Restricted use
+	 * - Does NOT set the type the TLModel type {@link setAssignedType}
+	 */
+	public boolean setTypeNode(Node target) {
+		if (target != null) {
+			if (!target.typeUsers().contains(this))
+				target.typeUsers().add(this.typeOwner);
+		}
+
+		if (typeNode != null)
+			typeNode.getTypeUsers().remove(typeOwner); // break existing link
+
+		typeNode = target;
+		return true;
+	}
+
+	/**
+	 * Set this type owner to a new value.
+	 * 
+	 * @param newValue
+	 *            is node to use as this onwer's type
+	 * @param oldValue
+	 *            node that was this owner's type
+	 */
+	public void set(Node newValue, Node oldValue) {
+
+		// This test should test namespace:name not node equality
+		// if (typeNode != oldValue)
+		// LOGGER.warn("Old value is not correct. oldValue = " + oldValue + " while typeNode = " + typeNode);
+
+		// Use unassigned instead of null. Provides location to find all unassigned types.
+		if (newValue == null)
+			newValue = ModelNode.getUnassignedNode();
+
+		// remove owner from old value's user list
+		if (oldValue != null)
+			oldValue.getTypeUsers().remove(typeOwner);
+
+		// Add owner to new value's type user list
+		if (!newValue.getTypeUsers().contains(typeOwner))
+			newValue.getTypeUsers().add(typeOwner);
+
+		// Set typeNode to new value
+		typeNode = newValue;
+
+		// LOGGER.debug("type.set() " + newValue + " replaced " + oldValue + " on " + typeOwner);
+	}
 }

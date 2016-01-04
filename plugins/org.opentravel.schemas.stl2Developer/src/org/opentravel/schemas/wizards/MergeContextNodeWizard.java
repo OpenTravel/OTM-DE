@@ -19,6 +19,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.opentravel.schemas.node.ContextNode;
+import org.opentravel.schemas.wizards.validators.MergeContextValidator;
 
 /**
  * @author Agnieszka Janowska

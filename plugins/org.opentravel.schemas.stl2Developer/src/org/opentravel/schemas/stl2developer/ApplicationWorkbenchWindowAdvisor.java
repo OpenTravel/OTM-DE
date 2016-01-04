@@ -21,25 +21,33 @@ import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 import org.opentravel.schemas.properties.Messages;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationWorkbenchWindowAdvisor.class);
 
-    public ApplicationWorkbenchWindowAdvisor(final IWorkbenchWindowConfigurer configurer) {
-        super(configurer);
-    }
+	public ApplicationWorkbenchWindowAdvisor(final IWorkbenchWindowConfigurer configurer) {
+		super(configurer);
+	}
 
-    @Override
-    public ActionBarAdvisor createActionBarAdvisor(final IActionBarConfigurer configurer) {
-        return new ApplicationActionBarAdvisor(configurer);
-    }
+	@Override
+	public ActionBarAdvisor createActionBarAdvisor(final IActionBarConfigurer configurer) {
+		return new ApplicationActionBarAdvisor(configurer);
+	}
 
-    @Override
-    public void preWindowOpen() {
-        final IWorkbenchWindowConfigurer configurer = getWindowConfigurer();
-        configurer.setInitialSize(new Point(1080, 600));
-        configurer.setShowCoolBar(true);
-        configurer.setShowStatusLine(true);
-        configurer.setTitle(Messages.getString("application.title"));
-    }
+	@Override
+	public void preWindowOpen() {
+		final IWorkbenchWindowConfigurer configurer = getWindowConfigurer();
+		configurer.setInitialSize(new Point(1080, 600));
+		configurer.setShowCoolBar(true);
+		configurer.setShowStatusLine(true);
+		configurer.setTitle(Messages.getString("application.title"));
+		configurer.setShowProgressIndicator(true);
+	}
 
+	@Override
+	public void postWindowOpen() {
+		// LOGGER.debug("post window startup.");
+	}
 }

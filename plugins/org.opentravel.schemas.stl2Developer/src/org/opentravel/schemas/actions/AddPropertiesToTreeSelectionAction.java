@@ -25,31 +25,30 @@ import org.opentravel.schemas.stl2developer.MainWindow;
  * 
  */
 public class AddPropertiesToTreeSelectionAction extends OtmAbstractAction {
-    private static StringProperties propDefault = new ExternalizedStringProperties(
-            "action.addProperty");
+	private static StringProperties propDefault = new ExternalizedStringProperties("action.addProperty");
 
-    /**
-     * use AddProperty to Component Action.
-     */
-    @Deprecated
-    public AddPropertiesToTreeSelectionAction(final MainWindow mainWindow) {
-        super(mainWindow, propDefault);
-    }
+	/**
+	 * use AddProperty to Component Action.
+	 */
+	@Deprecated
+	public AddPropertiesToTreeSelectionAction(final MainWindow mainWindow) {
+		super(mainWindow, propDefault);
+	}
 
-    @Deprecated
-    public AddPropertiesToTreeSelectionAction(final MainWindow mainWindow,
-            final StringProperties props) {
-        super(mainWindow, props);
-    }
+	@Deprecated
+	public AddPropertiesToTreeSelectionAction(final MainWindow mainWindow, final StringProperties props) {
+		super(mainWindow, props);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.Action#runWithEvent(org.eclipse.swt.widgets.Event)
-     */
-    @Override
-    public void runWithEvent(Event event) {
-        mc.runAddProperties(event);
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.action.Action#runWithEvent(org.eclipse.swt.widgets.Event)
+	 */
+	@Override
+	public void runWithEvent(Event event) {
+		assert (mc != null); // always fail 11/7/2015 - this class is no longer used
+		// mc.runAddProperties(event);
+	}
 
 }

@@ -15,25 +15,32 @@
  */
 package org.opentravel.schemas.node;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLEnumValue;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
+import org.opentravel.schemas.modelObject.OpenEnumMO;
+import org.opentravel.schemas.node.listeners.NamedTypeListener;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class EnumerationOpenNode extends ComponentNode implements ComplexComponentInterface {
-	private static final Logger LOGGER = LoggerFactory.getLogger(EnumerationOpenNode.class);
+public class EnumerationOpenNode extends ComponentNode implements ComplexComponentInterface, Enumeration,
+		ExtensionOwner, VersionedObjectInterface {
+	// private static final Logger LOGGER = LoggerFactory.getLogger(EnumerationOpenNode.class);
 
 	public EnumerationOpenNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
-
-		// Set base type.
-		if (mbr instanceof TLOpenEnumeration)
-			getTypeClass().setTypeNode(ModelNode.getDefaultStringNode());
+		if (getExtensionNode() == null)
+			getTypeClass().setTypeNode(ModelNode.getDefaultStringNode()); // Set base type.
+		else
+			getTypeClass().setTypeNode(getExtensionNode());
 	}
 
 	/**
@@ -70,11 +77,28 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 	}
 
 	@Override
+	public void addLiteral(String literal) {
+		if (isEditable_inMinor())
+			new EnumLiteralNode(this, literal);
+	}
+
+	@Override
 	public void addProperty(Node enumLiteral) {
-		if (enumLiteral instanceof EnumLiteralNode) {
-			((TLOpenEnumeration) getTLModelObject()).addValue((TLEnumValue) enumLiteral.getTLModelObject());
-			this.linkChild(enumLiteral, false);
-		}
+		if (isEditable_newToChain())
+			if (enumLiteral instanceof EnumLiteralNode) {
+				((TLOpenEnumeration) getTLModelObject()).addValue((TLEnumValue) enumLiteral.getTLModelObject());
+				this.linkChild(enumLiteral, false);
+			}
+	}
+
+	@Override
+	public ComponentNode createMinorVersionComponent() {
+		return super.createMinorVersionComponent(new EnumerationOpenNode(createMinorTLVersion(this)));
+	}
+
+	@Override
+	public PropertyOwnerInterface getDefaultFacet() {
+		return null;
 	}
 
 	@Override
@@ -83,13 +107,23 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 	}
 
 	@Override
-	public Image getImage() {
-		return Images.getImageRegistry().get(Images.Enumeration);
+	public String getLabel() {
+		if (isVersioned())
+			return super.getLabel() + " (Extends version:  " + getExtendsType().getLibrary().getVersion() + ")";
+		return super.getLabel();
 	}
 
 	@Override
-	public boolean isEnumeration() {
-		return true;
+	public List<String> getLiterals() {
+		ArrayList<String> literals = new ArrayList<String>();
+		for (TLEnumValue v : ((TLOpenEnumeration) getTLModelObject()).getValues())
+			literals.add(v.getLiteral());
+		return literals;
+	}
+
+	@Override
+	public Image getImage() {
+		return Images.getImageRegistry().get(Images.Enumeration);
 	}
 
 	@Override
@@ -104,8 +138,9 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 
 	@Override
 	public Node setExtensible(boolean extensible) {
-		if (!extensible)
-			return new EnumerationClosedNode(this);
+		if (isEditable_newToChain())
+			if (!extensible)
+				return new EnumerationClosedNode(this);
 		return this;
 	}
 
@@ -127,18 +162,46 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 
 	@Override
 	public ComponentNode getSimpleType() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
+	public Node getExtendsType() {
+		// base type might not have been loaded when constructor was called. check the tl model not the type node.
+		return getExtensionNode();
+	}
+
+	public EnumerationOpenNode getExtensionNode() {
+		Collection<ModelElementListener> listeners = null;
+		Node node = null;
+		OpenEnumMO mo = (OpenEnumMO) getModelObject();
+		if (mo.getExtension(mo.getTLModelObj()) != null)
+			listeners = mo.getExtension(mo.getTLModelObj()).getListeners();
+		if (listeners == null || listeners.isEmpty())
+			return null;
+		for (ModelElementListener listener : listeners)
+			if (listener instanceof NamedTypeListener)
+				node = ((NamedTypeListener) listener).getNode();
+		return (EnumerationOpenNode) (node instanceof EnumerationOpenNode ? node : null);
+	}
+
+	@Override
+	public void setExtendsType(final INode sourceNode) {
+		getTypeClass().setAssignedBaseType(sourceNode);
+	}
+
+	@Override
 	public boolean setSimpleType(Node type) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public ComponentNode getAttributeFacet() {
+	public INode.CommandType getAddCommand() {
+		return INode.CommandType.ENUMERATION;
+	}
+
+	@Override
+	public PropertyOwnerInterface getAttributeFacet() {
 		return null;
 	}
 

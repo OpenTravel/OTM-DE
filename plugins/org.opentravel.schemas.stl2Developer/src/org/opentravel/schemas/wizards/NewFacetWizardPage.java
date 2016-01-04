@@ -38,6 +38,8 @@ import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.stl2developer.ColorProvider;
 import org.opentravel.schemas.widgets.LibraryTablePoster;
 import org.opentravel.schemas.widgets.WidgetFactory;
+import org.opentravel.schemas.wizards.validators.FormValidator;
+import org.opentravel.schemas.wizards.validators.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

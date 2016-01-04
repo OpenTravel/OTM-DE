@@ -24,120 +24,107 @@ import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Value With Attribute Model Object.
  * 
- * Provide an interface to the TLValueWithAttributes model object. TLValueWithAttributes does not
- * use facets to contain simple type and attributes, so this model class must adapt.
+ * Provide an interface to the TLValueWithAttributes model object. TLValueWithAttributes does not use facets to contain
+ * simple type and attributes, so this model class must adapt.
  * 
  * @author Dave Hollander
  * 
  */
 public class ValueWithAttributesMO extends ModelObject<TLValueWithAttributes> {
+	// private final static Logger LOGGER = LoggerFactory.getLogger(ValueWithAttributesMO.class);
 
-    @SuppressWarnings("unused")
-    private final static Logger LOGGER = LoggerFactory.getLogger(ValueWithAttributesMO.class);
+	private final TLSimpleFacet valueFacet;
+	private final TLValueWithAttributesFacet attributeFacet;
 
-    private final TLSimpleFacet valueFacet;
-    private final TLValueWithAttributesFacet attributeFacet;
+	public ValueWithAttributesMO(final TLValueWithAttributes obj) {
+		super(obj);
+		valueFacet = new TLSimpleFacet();
+		valueFacet.setSimpleType(obj.getParentType());
+		valueFacet.setFacetType(TLFacetType.SIMPLE);
 
-    public ValueWithAttributesMO(final TLValueWithAttributes obj) {
-        super(obj);
-        valueFacet = new TLSimpleFacet();
-        valueFacet.setSimpleType(obj.getParentType());
-        valueFacet.setFacetType(TLFacetType.SIMPLE);
+		attributeFacet = new TLValueWithAttributesFacet(obj);
+		if (obj.getParentType() != null) {
+			setTLType(obj.getParentType());
+		}
+	}
 
-        attributeFacet = new TLValueWithAttributesFacet(obj);
-        if (obj.getParentType() != null) {
-            setTLType(obj.getParentType());
-        }
-    }
+	@Override
+	public void delete() {
+		if (getTLModelObj() == null || getTLModelObj().getOwningLibrary() == null) {
+			return;
+		}
+		getTLModelObj().getOwningLibrary().removeNamedMember(getTLModelObj());
+	}
 
-    @Override
-    public void delete() {
-        if (getTLModelObj() == null || getTLModelObj().getOwningLibrary() == null) {
-            return;
-        }
-        getTLModelObj().getOwningLibrary().removeNamedMember(getTLModelObj());
-    }
+	@Override
+	public List<Object> getChildren() {
+		// return the two facets: value type and attributes.
+		final List<Object> kids = new ArrayList<Object>();
+		kids.add(valueFacet);
+		kids.add(attributeFacet);
+		return kids;
+	}
 
-    @Override
-    public List<Object> getChildren() {
-        // return the two facets: value type and attributes.
-        final List<Object> kids = new ArrayList<Object>();
-        kids.add(valueFacet);
-        kids.add(attributeFacet);
-        return kids;
-    }
+	@Override
+	public String getComponentType() {
+		return "Value With Attributes";
+	}
 
-    @Override
-    public String getComponentType() {
-        return "Value With Attributes";
-    }
+	@Override
+	public void clearTLType() {
+		// this.type = null;
+		this.srcObj.setParentType(null);
+	}
 
-    // @Override
-    // public boolean isValueWithAttrs() {
-    // return true;
-    // }
+	@Override
+	public void setExtendsType(ModelObject<?> mo) {
+		if (mo != null || !(mo.getTLModelObj() instanceof TLValueWithAttributes))
+			getTLModelObj().setParentType((TLValueWithAttributes) mo.getTLModelObj());
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.modelObject.ModelObject#clearTLType()
-     */
-    @Override
-    public void clearTLType() {
-        // this.type = null;
-        this.srcObj.setParentType(null);
-    }
+	@Override
+	public String getName() {
+		return getTLModelObj().getName();
+	}
 
-    @Override
-    public void setExtendsType(ModelObject<?> mo) {
-        getTLModelObj().setParentType((TLValueWithAttributes) mo.getTLModelObj());
-    }
+	@Override
+	public String getNamespace() {
+		return getTLModelObj().getNamespace();
+	}
 
-    @Override
-    public String getName() {
-        return getTLModelObj().getName();
-    }
+	@Override
+	public String getNamePrefix() {
+		final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
+		return lib == null ? "" : lib.getPrefix();
+	}
 
-    @Override
-    public String getNamespace() {
-        return getTLModelObj().getNamespace();
-    }
+	@Override
+	protected AbstractLibrary getLibrary(final TLValueWithAttributes obj) {
+		return obj.getOwningLibrary();
+	}
 
-    @Override
-    public String getNamePrefix() {
-        final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
-        return lib == null ? "" : lib.getPrefix();
-    }
+	public NamedEntity getSimpleValueType() {
+		return srcObj.getParentType();
+	}
 
-    @Override
-    protected AbstractLibrary getLibrary(final TLValueWithAttributes obj) {
-        return obj.getOwningLibrary();
-    }
+	@Override
+	public boolean isComplexAssignable() {
+		return true;
+	}
 
-    public NamedEntity getSimpleValueType() {
-        return srcObj.getParentType();
-    }
+	@Override
+	public boolean isSimpleAssignable() {
+		return true;
+	}
 
-    @Override
-    public boolean isComplexAssignable() {
-        return true;
-    }
-
-    @Override
-    public boolean isSimpleAssignable() {
-        return true;
-    }
-
-    @Override
-    public boolean setName(final String name) {
-        getTLModelObj().setName(name);
-        return true;
-    }
+	@Override
+	public boolean setName(final String name) {
+		getTLModelObj().setName(name);
+		return true;
+	}
 
 }

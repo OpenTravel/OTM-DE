@@ -15,25 +15,26 @@
  */
 package org.opentravel.schemas.node;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.properties.Images;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class EnumerationClosedNode extends SimpleTypeNode {
-	private static final Logger LOGGER = LoggerFactory.getLogger(EnumerationClosedNode.class);
+// FIXME - should not extend simple type node, simple and enum should extend from abstract simple or simple interface
+public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration {
+	// public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration, ExtensionOwner,
+	// VersionedObjectInterface {
+	// private static final Logger LOGGER = LoggerFactory.getLogger(EnumerationClosedNode.class);
 
 	public EnumerationClosedNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
-
-		// Set base type.
-		if (mbr instanceof TLClosedEnumeration)
-			getTypeClass().setTypeNode(ModelNode.getDefaultStringNode());
+		getTypeClass().setTypeNode(ModelNode.getDefaultStringNode()); // Set base type.
 	}
 
 	public EnumerationClosedNode(EnumerationOpenNode openEnum) {
@@ -63,16 +64,63 @@ public class EnumerationClosedNode extends SimpleTypeNode {
 	}
 
 	@Override
+	public void addLiteral(String literal) {
+		if (isEditable_inMinor())
+			new EnumLiteralNode(this, literal);
+	}
+
+	@Override
 	public void addProperty(Node enumLiteral) {
-		if (enumLiteral instanceof EnumLiteralNode) {
-			((TLClosedEnumeration) getTLModelObject()).addValue((TLEnumValue) enumLiteral.getTLModelObject());
-			this.linkChild(enumLiteral, false);
-		}
+		if (isEditable_newToChain())
+			if (enumLiteral instanceof EnumLiteralNode) {
+				((TLClosedEnumeration) getTLModelObject()).addValue((TLEnumValue) enumLiteral.getTLModelObject());
+				this.linkChild(enumLiteral, false);
+			}
+	}
+
+	// @Override
+	// public ComponentNode createMinorVersionComponent() {
+	// return super.createMinorVersionComponent(new EnumerationClosedNode(
+	// (TLClosedEnumeration) createMinorTLVersion(this)));
+	// }
+
+	@Override
+	public INode.CommandType getAddCommand() {
+		return INode.CommandType.ENUMERATION;
 	}
 
 	@Override
 	public ImpliedNode getDefaultType() {
 		return ModelNode.getDefaultStringNode();
+	}
+
+	@Override
+	public String getLabel() {
+		if (isVersioned())
+			return super.getLabel() + " (Extends version:  " + getExtendsType().getLibrary().getVersion() + ")";
+		return super.getLabel();
+	}
+
+	@Override
+	public List<String> getLiterals() {
+		ArrayList<String> literals = new ArrayList<String>();
+		for (TLEnumValue v : ((TLClosedEnumeration) getTLModelObject()).getValues())
+			literals.add(v.getLiteral());
+		return literals;
+	}
+
+	// Enumerations do not have equivalents
+	@Override
+	public String getEquivalent(String context) {
+		equivalentHandler = null;
+		return "";
+	}
+
+	// Enumerations do not have examples
+	@Override
+	public String getExample(String context) {
+		exampleHandler = null;
+		return "";
 	}
 
 	@Override
@@ -90,16 +138,27 @@ public class EnumerationClosedNode extends SimpleTypeNode {
 		return true;
 	}
 
-	@Override
-	public boolean isEnumeration() {
-		return true;
-	}
+	// @Override
+	// public boolean isEnumeration() {
+	// return true;
+	// }
 
 	@Override
 	public Node setExtensible(boolean extensible) {
-		if (extensible)
-			return new EnumerationOpenNode(this);
+		if (isEditable_newToChain())
+			if (extensible)
+				return new EnumerationOpenNode(this);
 		return this;
+	}
+
+	@Override
+	public Node getExtendsType() {
+		return getTypeClass().getTypeNode();
+	}
+
+	@Override
+	public void setExtendsType(final INode sourceNode) {
+		getTypeClass().setAssignedBaseType(sourceNode);
 	}
 
 	@Override

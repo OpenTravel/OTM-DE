@@ -32,9 +32,10 @@ import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.Node_Tests.TestNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,7 @@ public class InheritedChildren_Tests {
     private final static Logger LOGGER = LoggerFactory.getLogger(ComponentNode.class);
 
     ModelNode model = null;
-    TestNode tn = new Node_Tests().new TestNode();
+    TestNode tn = new NodeTesters().new TestNode();
     LoadFiles lf = new LoadFiles();
     LibraryTests lt = new LibraryTests();
     MockLibrary ml = null;

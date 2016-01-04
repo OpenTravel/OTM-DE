@@ -58,10 +58,20 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.widgets.LibraryTablePoster;
 import org.opentravel.schemas.widgets.WidgetFactory;
 import org.opentravel.schemas.wizards.ChangeWizard.ExtentedTLFacetType;
+import org.opentravel.schemas.wizards.validators.FormValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * 
+ * Change Node Wizard page controller. All changes are made to the passed edited node. When the type of object is
+ * changed, the editNode becomes the newly created object and the old edit node is put into history.
+ * 
+ * History is used to maintain a stack of changes. Changes are pushed onto the stack, can are popped off the stack one
+ * at a time for revert or all together for cancel.
+ * <p>
+ * On OK button, the edit node is complete. On cancel, edit node is restored from history stack.
+ * 
  * @author Agnieszka Janowska
  * 
  */
@@ -120,6 +130,7 @@ public class ChangeWizardPage extends WizardPage {
 		this.editedNode = editedNode;
 		this.allowedObjectTypes = allowedObjectTypes;
 		this.allowedFacetTypes = allowedFacetTypes;
+		// TODO - make sure EditedNode is not null
 	}
 
 	@Override
@@ -488,20 +499,20 @@ public class ChangeWizardPage extends WizardPage {
 			ComponentNode facet = null;
 			switch (st) {
 			case ID:
-				facet = editedNode.getIDFacet();
+				facet = (ComponentNode) editedNode.getIDFacet();
 				break;
 			case SUMMARY:
-				facet = editedNode.getSummaryFacet();
+				facet = (ComponentNode) editedNode.getSummaryFacet();
 				break;
 			case DETAIL:
-				facet = editedNode.getDetailFacet();
+				facet = (ComponentNode) editedNode.getDetailFacet();
 				break;
 			case SIMPLE:
 				facet = editedNode.getSimpleFacet();
 				break;
 			case VWA_ATTRIBUTES:
 				if (editedNode instanceof ComplexComponentInterface) {
-					facet = ((ComplexComponentInterface) editedNode).getAttributeFacet();
+					facet = (ComponentNode) ((ComplexComponentInterface) editedNode).getAttributeFacet();
 				}
 				break;
 			default:
@@ -571,6 +582,7 @@ public class ChangeWizardPage extends WizardPage {
 
 			OtmRegistry.getMainController().getModelController().changeToSimple(property);
 
+			// NOTE - at this point the TLValueWithAttributes still has the property as an attribute.
 			final HistoryItem item = new HistoryItem(OpType.OWNING_FACET_CHANGE_TO_SIMPLE, oldFacet, property, clone);
 			historyPush(item);
 		}

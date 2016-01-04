@@ -21,17 +21,20 @@ package org.opentravel.schemas.node;
 import javax.xml.namespace.QName;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.modelObject.XsdModelingUtils;
+import org.opentravel.schemas.node.listeners.ListenerFactory;
+import org.opentravel.schemas.node.properties.EqExOneValueHandler;
+import org.opentravel.schemas.node.properties.EqExOneValueHandler.ValueWithContextType;
+import org.opentravel.schemas.node.properties.IValueWithContextHandler;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.opentravel.schemacompiler.model.LibraryMember;
-import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLSimple;
 
 /**
  * Handles Both simple types and closed enumerations.
@@ -40,237 +43,282 @@ import org.opentravel.schemacompiler.model.TLSimple;
  * 
  */
 public class SimpleTypeNode extends ComponentNode implements SimpleComponentInterface, TypeUser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleTypeNode.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleTypeNode.class);
 
-    public SimpleTypeNode(LibraryMember mbr) {
-        super(mbr);
-    }
+	// Handlers for equivalents and examples
+	protected IValueWithContextHandler equivalentHandler = null;
+	protected IValueWithContextHandler exampleHandler = null;
 
-    @Override
-    public boolean canAssign(Node type) {
-        if (type == null || !(type instanceof TypeProvider))
-            return false;
-        TypeProvider provider = (TypeProvider) type;
-        return provider.isAssignableToSimple();
-    }
+	public SimpleTypeNode(LibraryMember mbr) {
+		super(mbr);
+		assert (getTLModelObject() != null);
 
-    @Override
-    public String getTypeName() {
-        if (getTypeClass().getTypeNode() == null) {
-            LOGGER.warn("Trying to fix missing type assignment for " + getName());
-            getTypeClass().setAssignedTypeForThisNode(this);
-        }
+		ListenerFactory.setListner(this);
+	}
 
-        String name = getTypeClass().getTypeNode().getName();
+	@Override
+	public boolean canAssign(Node type) {
+		if (type == null || !(type instanceof TypeProvider))
+			return false;
+		TypeProvider provider = (TypeProvider) type;
+		return provider.isAssignableToSimple();
+	}
 
-        // For implied nodes, use the name they provide.
-        if (getTypeClass().getTypeNode() instanceof ImpliedNode) {
-            ImpliedNode in = (ImpliedNode) getTypeClass().getTypeNode();
-            name = in.getImpliedType().getImpliedNodeType();
-            // If the implied node is a union, add that to its assigned name
-            if (in.getImpliedType().equals(ImpliedNodeType.Union))
-                name += ": " + XsdModelingUtils.getAssignedXsdUnion(this);
-        }
-        return name == null ? "" : name;
-    }
+	@Override
+	public String getTypeName() {
+		if (getTypeClass().getTypeNode() == null) {
+			LOGGER.warn("Trying to fix missing type assignment for " + getName());
+			getTypeClass().setAssignedTypeForThisNode(this);
+		}
 
-    @Override
-    public String getTypeNameWithPrefix() {
-        String typeName = getTypeName() == null ? "" : getTypeName();
-        if (getAssignedType() == null)
-            return "";
-        if (getAssignedType() instanceof ImpliedNode)
-            return typeName;
-        if (getNamePrefix().equals(getAssignedPrefix()))
-            return typeName;
-        return getType().getNamePrefix() + ":" + typeName;
-    }
+		String name = getTypeClass().getTypeNode().getName();
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.node.ComponentNode#hasNavChildren()
-     */
-    @Override
-    public boolean hasNavChildren() {
-        return true; // True because where used is a nav child.
-    }
+		// For implied nodes, use the name they provide.
+		if (getTypeClass().getTypeNode() instanceof ImpliedNode) {
+			ImpliedNode in = (ImpliedNode) getTypeClass().getTypeNode();
+			name = in.getImpliedType().getImpliedNodeType();
+			// If the implied node is a union, add that to its assigned name
+			if (in.getImpliedType().equals(ImpliedNodeType.Union))
+				name += ": " + XsdModelingUtils.getAssignedXsdUnion(this);
+		}
+		return name == null ? "" : name;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.node.ComponentNode#hasNavChildrenWithProperties()
-     */
-    @Override
-    public boolean hasNavChildrenWithProperties() {
-        return true; // True because where used is a nav child.
-    }
+	@Override
+	public String getTypeNameWithPrefix() {
+		String typeName = getTypeName() == null ? "" : getTypeName();
+		if (getAssignedType() == null)
+			return "";
+		if (getAssignedType() instanceof ImpliedNode)
+			return typeName;
+		if (getNamePrefix().equals(getAssignedPrefix()))
+			return typeName;
+		return getType().getNamePrefix() + ":" + typeName;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.node.Node#isTypeUser()
-     */
-    @Override
-    public boolean isTypeUser() {
-        return isEnumeration() ? false : true;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.ComponentNode#hasNavChildren()
+	 */
+	@Override
+	public boolean hasNavChildren() {
+		return true; // True because where used is a nav child.
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.types.TypeProvider#getTypeNode()
-     */
-    @Override
-    public Node getTypeNode() {
-        return getTypeClass().getTypeNode();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.ComponentNode#hasNavChildrenWithProperties()
+	 */
+	@Override
+	public boolean hasNavChildrenWithProperties() {
+		return true; // True because where used is a nav child.
+	}
 
-    @Override
-    public boolean isAssignableToSimple() {
-        return true;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.Node#isTypeUser()
+	 */
+	@Override
+	public boolean isTypeUser() {
+		return this instanceof Enumeration ? false : true;
+	}
 
-    @Override
-    public boolean isAssignableToVWA() {
-        return true;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.types.TypeProvider#getTypeNode()
+	 */
+	@Override
+	public Node getTypeNode() {
+		return getTypeClass().getTypeNode();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.node.Node#isNamedType()
-     */
-    @Override
-    public boolean isNamedType() {
-        return true;
-    }
+	@Override
+	public boolean isAssignableToSimple() {
+		return true;
+	}
 
-    @Override
-    public Node getBaseType() {
-        if (getTypeClass().getTypeNode() == null) {
-            if (getTLModelObject() instanceof TLSimple)
-                getTypeClass().setTypeNode(ModelNode.getUnassignedNode());
-        }
-        return getTypeClass().getTypeNode();
-    }
+	@Override
+	public boolean isAssignableToVWA() {
+		return true;
+	}
 
-    @Override
-    public Image getImage() {
-        return Images.getImageRegistry().get(Images.XSDSimpleType);
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.Node#isNamedType()
+	 */
+	@Override
+	public boolean isNamedType() {
+		return true;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.node.Node#getTLBaseType()
-     */
-    @Override
-    public NamedEntity getTLBaseType() {
-        NamedEntity x = null;
-        if (getTLModelObject() instanceof TLSimple) {
-            x = ((TLSimple) getTLModelObject()).getParentType();
-        } else
-            x = (NamedEntity) getTypeClass().getTypeNode().getTLModelObject(); // created
-                                                                               // by
-                                                                               // constructor;
-        return x;
-    }
+	@Override
+	public Node getBaseType() {
+		if (getTypeClass().getTypeNode() == null) {
+			if (getTLModelObject() instanceof TLSimple)
+				getTypeClass().setTypeNode(ModelNode.getUnassignedNode());
+		}
+		return getTypeClass().getTypeNode();
+	}
 
-    @Override
-    public NamedEntity getTLOjbect() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	@Override
+	public Image getImage() {
+		return Images.getImageRegistry().get(Images.XSDSimpleType);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.node.ComponentNode#isSimpleType()
-     */
-    @Override
-    public boolean isSimpleType() {
-        return true;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.Node#getTLBaseType()
+	 */
+	@Override
+	public NamedEntity getTLBaseType() {
+		NamedEntity x = null;
+		if (getTLModelObject() instanceof TLSimple) {
+			x = ((TLSimple) getTLModelObject()).getParentType();
+		} else
+			x = (NamedEntity) getTypeClass().getTypeNode().getTLModelObject(); // created
+																				// by
+																				// constructor;
+		return x;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.node.Node#isSimpleTypeUser()
-     */
-    @Override
-    public boolean isOnlySimpleTypeUser() {
-        return true;
-    }
+	@Override
+	public NamedEntity getTLOjbect() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.node.Node#isTypeProvider()
-     */
-    @Override
-    public boolean isTypeProvider() {
-        return true;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.ComponentNode#isSimpleType()
+	 */
+	@Override
+	public boolean isSimpleType() {
+		return true;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.types.TypeUser#getAssignedModelObject()
-     */
-    @Override
-    public ModelObject<?> getAssignedModelObject() {
-        return getTypeClass().getTypeNode().getModelObject();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.Node#isSimpleTypeUser()
+	 */
+	@Override
+	public boolean isOnlySimpleTypeUser() {
+		return true;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.types.TypeUser#getAssignedTLObject()
-     */
-    @Override
-    public NamedEntity getAssignedTLObject() {
-        return getTypeClass().getTypeNode().getTLTypeObject();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.Node#isTypeProvider()
+	 */
+	@Override
+	public boolean isTypeProvider() {
+		return true;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.node.Node#setAssignedType(org.opentravel.schemas.node.Node)
-     * 
-     * @see org.opentravel.schemas.types.TypeUser#setAssignedType()
-     */
-    @Override
-    public boolean setAssignedType(Node typeNode) {
-        return getTypeClass().setAssignedType(typeNode);
-    }
+	@Override
+	public ModelObject<?> getAssignedModelObject() {
+		return getTypeClass().getTypeNode().getModelObject();
+	}
 
-    @Override
-    public boolean setAssignedType(Node typeNode, boolean refresh) {
-        return getTypeClass().setAssignedType(typeNode, refresh);
-    }
+	// /*
+	// * (non-Javadoc)
+	// *
+	// * @see org.opentravel.schemas.types.TypeUser#getAssignedTLObject()
+	// */
+	@Override
+	public NamedEntity getAssignedTLObject() {
+		return getTypeClass().getTypeNode().getTLTypeObject();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.node.Node#getAssignedType()
-     */
-    @Override
-    public Node getAssignedType() {
-        return getTypeClass().getTypeNode();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.Node#setAssignedType(org.opentravel.schemas.node.Node)
+	 * 
+	 * @see org.opentravel.schemas.types.TypeUser#setAssignedType()
+	 */
+	@Override
+	public boolean setAssignedType(Node typeNode) {
+		return getTypeClass().setAssignedType(typeNode);
+	}
 
-    @Override
-    public QName getTLTypeQName() {
-        if (getTLTypeObject() != null) {
-            return new QName(getTLTypeObject().getNamespace(), getTLTypeObject().getLocalName());
-        } else
-            return XsdModelingUtils.getAssignedXsdType(this);
-    }
+	// @Override
+	// @Deprecated
+	// public boolean setAssignedType(Node typeNode, boolean refresh) {
+	// return setAssignedType(typeNode);
+	// }
 
-    @Override
-    public boolean isSimpleTypeProvider() {
-        return true;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.Node#getAssignedType()
+	 */
+	@Override
+	public Node getAssignedType() {
+		return getTypeClass().getTypeNode();
+	}
+
+	@Override
+	public QName getTLTypeQName() {
+		if (getTLTypeObject() != null) {
+			return new QName(getTLTypeObject().getNamespace(), getTLTypeObject().getLocalName());
+		} else
+			return XsdModelingUtils.getAssignedXsdType(this);
+	}
+
+	@Override
+	public boolean isSimpleTypeProvider() {
+		return true;
+	}
+
+	/**
+	 * @return equivalent handler if property has equivalents, null otherwise
+	 */
+	public IValueWithContextHandler getEquivalentHandler() {
+		return equivalentHandler;
+	}
+
+	@Override
+	public String getEquivalent(String context) {
+		if (equivalentHandler == null)
+			equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
+		return equivalentHandler != null ? equivalentHandler.get(context) : "";
+	}
+
+	public IValueWithContextHandler setEquivalent(String equivalent) {
+		if (equivalentHandler == null)
+			equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
+		equivalentHandler.set(equivalent, null);
+		return equivalentHandler;
+	}
+
+	/**
+	 * @return equivalent handler if property has equivalents, null otherwise
+	 */
+	public IValueWithContextHandler getExampleHandler() {
+		return exampleHandler;
+	}
+
+	@Override
+	public String getExample(String context) {
+		if (exampleHandler == null)
+			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
+		return exampleHandler != null ? exampleHandler.get(context) : "";
+	}
+
+	public IValueWithContextHandler setExample(String example) {
+		if (exampleHandler == null)
+			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
+		exampleHandler.set(example, null);
+		return exampleHandler;
+	}
 
 }

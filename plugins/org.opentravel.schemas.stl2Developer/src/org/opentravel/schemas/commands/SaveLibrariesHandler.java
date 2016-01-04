@@ -20,6 +20,8 @@ package org.opentravel.schemas.commands;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.opentravel.schemas.properties.Images;
 
 /**
  * Handler for the save libraries command.
@@ -28,17 +30,21 @@ import org.eclipse.core.commands.ExecutionException;
  * 
  */
 public class SaveLibrariesHandler extends OtmAbstractHandler {
-    public static String COMMAND_ID = "org.opentravel.schemas.commands.SaveAllLibraries";
+	public static String COMMAND_ID = "org.opentravel.schemas.commands.SaveAllLibraries";
 
-    @Override
-    public Object execute(ExecutionEvent exEvent) throws ExecutionException {
-        mc.getLibraryController().saveAllLibraries(false);
-        return null;
-    }
+	@Override
+	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
+		mc.getLibraryController().saveAllLibraries(false);
+		return null;
+	}
 
-    @Override
-    public String getID() {
-        return COMMAND_ID;
-    }
+	@Override
+	public String getID() {
+		return COMMAND_ID;
+	}
+
+	public static ImageDescriptor getIcon() {
+		return Images.getImageRegistry().getDescriptor(Images.SaveAll);
+	}
 
 }

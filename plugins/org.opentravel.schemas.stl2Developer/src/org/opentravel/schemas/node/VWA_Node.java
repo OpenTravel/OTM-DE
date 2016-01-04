@@ -28,9 +28,8 @@ import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Value With Attributes. This object has two facets, the value is a simple facet and attributes facet. This makes it a
@@ -41,9 +40,9 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class VWA_Node extends ComponentNode implements ComplexComponentInterface {
-	@SuppressWarnings("unused")
-	private static final Logger LOGGER = LoggerFactory.getLogger(VWA_Node.class);
+public class VWA_Node extends ComponentNode implements ComplexComponentInterface, ExtensionOwner,
+		VersionedObjectInterface {
+	// private static final Logger LOGGER = LoggerFactory.getLogger(VWA_Node.class);
 
 	public VWA_Node(LibraryMember mbr) {
 		super(mbr);
@@ -78,23 +77,19 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 	}
 
 	// @Override
-	// public boolean canAssign(Node type) {
-	// // TODO - make sure all simple type providers implement the simple interface
-	// if (type instanceof SimpleComponentInterface)
-	// return true;
-	// if (type.isSimpleType())
-	// return true;
-	// if (type instanceof VWA_Node)
-	// return true;
-	// if (type instanceof EnumerationOpenNode)
-	// return true;
-	// return false;
-	// }
-
-	// @Override
 	// public Node getAssignedType() {
 	// return getSimpleType();
 	// }
+
+	@Override
+	public ComponentNode createMinorVersionComponent() {
+		return super.createMinorVersionComponent(new VWA_Node(createMinorTLVersion(this)));
+	}
+
+	@Override
+	public Node getExtendsType() {
+		return getSimpleFacet().getTypeClass().getTypeNode();
+	}
 
 	@Override
 	public QName getTLTypeQName() {
@@ -103,67 +98,29 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 		return typeQname;
 	}
 
+	/**
+	 * Return the parent type.
+	 */
 	@Override
 	public NamedEntity getTLTypeObject() {
 		return ((TLValueWithAttributes) getTLModelObject()).getParentType();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeProvider#getTypeNode()
-	 */
-	// @Override
-	// public Node getTypeNode() {
-	// if (getSimpleFacet() != null && getSimpleFacet().getSimpleAttribute() != null)
-	// return getSimpleFacet().getSimpleAttribute().getTypeClass().getTypeNode();
-	// else
-	// return null;
-	// }
-	//
-	// @Override
-	// public Type getTypeClass() {
-	// if (getSimpleFacet() != null && getSimpleFacet().getSimpleAttribute() != null)
-	// return getSimpleFacet().getSimpleAttribute().getTypeClass();
-	// else
-	// return null;
-	// }
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isNamedType()
-	 */
 	@Override
 	public boolean isNamedType() {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isTypeProvider()
-	 */
 	@Override
 	public boolean isTypeProvider() {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isValueWithAttributes()
-	 */
 	@Override
 	public boolean isValueWithAttributes() {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#getChildren_TypeUsers()
-	 */
 	@Override
 	public List<Node> getChildren_TypeUsers() {
 		ArrayList<Node> users = new ArrayList<Node>();
@@ -174,15 +131,18 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 	}
 
 	@Override
+	public String getLabel() {
+		if (isVersioned())
+			return super.getLabel() + " (Extends version:  " + getExtendsType().getLibrary().getVersion() + ")";
+		else
+			return super.getLabel();
+	}
+
+	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.ValueWithAttr);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.ComponentNode#getSimpleFacet()
-	 */
 	@Override
 	public SimpleFacetNode getSimpleFacet() {
 		for (INode f : getChildren()) {
@@ -193,28 +153,35 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 	}
 
 	@Override
-	public ComponentNode getDefaultFacet() {
-		return getAttributeFacet();
+	public FacetNode getDefaultFacet() {
+		return (FacetNode) getAttributeFacet();
 	}
 
 	@Override
-	public ComponentNode getAttributeFacet() {
+	public INode.CommandType getAddCommand() {
+		return INode.CommandType.PROPERTY;
+	}
+
+	@Override
+	public PropertyOwnerInterface getAttributeFacet() {
 		for (INode f : getChildren()) {
 			if (f.getModelObject() instanceof ValueWithAttributesAttributeFacetMO)
-				return (ComponentNode) f;
+				return (PropertyOwnerInterface) f;
 		}
 		return null;
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.ComplexComponentInterface#getSimpleType()
-	 */
 	@Override
 	public ComponentNode getSimpleType() {
-		return (ComponentNode) getSimpleFacet().getSimpleAttribute().getAssignedType();
+		// return (ComponentNode) getSimpleFacet().getSimpleAttribute().getAssignedType();
+		return (ComponentNode) getAssignedType();
+	}
+
+	// 10/5/2015 - was commented out
+	@Override
+	public Node getAssignedType() {
+		return getSimpleFacet().getAssignedType();
 	}
 
 	@Override
@@ -224,7 +191,15 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 
 	@Override
 	public boolean setSimpleType(Node type) {
-		return getSimpleFacet().getSimpleAttribute().setAssignedType(type);
+		// return getSimpleFacet().getSimpleAttribute().setAssignedType(type);
+		return setAssignedType(type);
+	}
+
+	// Must use simple attribute because facet is not type user.
+	// 10/5/2015 - was not defined here, used supertype
+	@Override
+	public boolean setAssignedType(Node replacement) {
+		return getSimpleFacet().getSimpleAttribute().getTypeClass().setAssignedType(replacement);
 	}
 
 	@Override

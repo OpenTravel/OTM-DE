@@ -15,6 +15,8 @@
  */
 package org.opentravel.schemas.wizards;
 
+import org.opentravel.schemas.wizards.validators.FormValidator;
+
 /**
  * @author Agnieszka Janowska
  * 
