@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: schemacompiler-ota2
 Bundle-SymbolicName: org.opentravel.schemas.stl2Developer.ota2
-Bundle-Version: 3.2.0.qualifier
+Bundle-Version: 3.2.0
 Bundle-Vendor: OpenTravel Alliance
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ClassPath: libs/schema-compiler-ext-ota2-3.2-SNAPSHOT.jar,
+Bundle-ClassPath: libs/schema-compiler-ext-ota2-3.2.jar,
  .
 Export-Package: org.opentravel.schemacompiler.extension,
  org.opentravel.schemacompiler.ota2

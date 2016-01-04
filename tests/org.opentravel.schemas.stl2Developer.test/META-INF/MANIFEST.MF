@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: stl2Developer.test
 Bundle-SymbolicName: org.opentravel.schemas.stl2Developer.test
-Bundle-Version: 3.2.0.qualifier
+Bundle-Version: 3.2.0
 Bundle-Vendor: OpenTravel Alliance
 Fragment-Host: org.opentravel.schemas.stl2Developer
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

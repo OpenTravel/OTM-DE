@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.opentravel.otm</groupId>
 	<artifactId>otm-de-parent-pom</artifactId>
-	<version>3.2.0-SNAPSHOT</version>
+	<version>3.2.0</version>
 	<packaging>pom</packaging>
 	<inceptionYear>2014</inceptionYear>
 
@@ -13,7 +13,7 @@
 		<java.version>1.8</java.version>
 		<tycho-version>0.20.0</tycho-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<compiler.version>3.2-SNAPSHOT</compiler.version>
+		<compiler.version>3.2</compiler.version>
 	</properties>
 
 	<modules>
@@ -32,7 +32,6 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<deployableFeature>true</deployableFeature>
-					<format>'draft_'yyyyMMddHHmm</format>
 				</configuration>
 			</plugin>
 			<plugin>

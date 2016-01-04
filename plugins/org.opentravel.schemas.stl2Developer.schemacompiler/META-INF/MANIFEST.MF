@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bundle
 Bundle-SymbolicName: org.opentravel.schemas.stl2Developer.schemacompiler
-Bundle-Version: 3.2.0.qualifier
+Bundle-Version: 3.2.0
 Bundle-Vendor: OpenTravel Alliance
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-BuddyPolicy: registered
@@ -15,9 +15,9 @@ Bundle-ClassPath: .,
  libs/jaxb-core-2.2.11.jar,
  libs/jaxb-impl-2.2.11.jar,
  libs/org.apache.log4j-1.2.15.v201012070815.jar,
- libs/org.opentravel.schemas.stl2Developer.ota2-3.2.0-SNAPSHOT.jar,
- libs/schema-compiler-3.2-SNAPSHOT.jar,
- libs/schema-compiler-ext-ota2-3.2-SNAPSHOT.jar,
+ libs/org.opentravel.schemas.stl2Developer.ota2-3.2.0.jar,
+ libs/schema-compiler-3.2.jar,
+ libs/schema-compiler-ext-ota2-3.2.jar,
  libs/slf4j.api-1.7.10.jar,
  libs/slf4j.log4j12-1.7.10.jar,
  libs/spring-aop-4.1.5.RELEASE.jar,

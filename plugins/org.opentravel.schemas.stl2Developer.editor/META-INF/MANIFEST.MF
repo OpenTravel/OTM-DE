@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Editor
 Bundle-SymbolicName: org.opentravel.schemas.stl2Developer.editor;singleton:=true
-Bundle-Version: 3.2.0.qualifier
+Bundle-Version: 3.2.0
 Bundle-Vendor: OpenTravel Alliance
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.eclipse.gef;bundle-version="3.9.100",
