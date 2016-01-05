@@ -47,6 +47,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
 
     private String compilerExtensionId = CompilerExtensionRegistry.getActiveExtension();
     private boolean compileSchemas = true;
+    private boolean compileJsonSchemas = true;
     private boolean compileServices = true;
     private String serviceEndpointUrl = null;
     private boolean generateExamples = true;
@@ -153,7 +154,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
         return compileSchemas;
     }
 
-    /**
+	/**
      * Assigns the option flag indicating that XML schema files should be generated.
      * 
      * @param compileSchemas
@@ -161,6 +162,24 @@ public class CompilerPreferences implements CompileAllTaskOptions {
      */
     public void setCompileSchemas(final boolean compileSchemas) {
         this.compileSchemas = compileSchemas;
+    }
+
+    /**
+	 * @see org.opentravel.schemacompiler.task.CompileAllTaskOptions#isCompileJsonSchemas()
+	 */
+	@Override
+	public boolean isCompileJsonSchemas() {
+		return compileJsonSchemas;
+	}
+
+	/**
+     * Assigns the option flag indicating that JSON schema files should be generated.
+     * 
+     * @param compileJsonSchemas
+     *            the task option value to assign
+     */
+    public void setCompileJsonSchemas(final boolean compileJsonSchemas) {
+        this.compileJsonSchemas = compileJsonSchemas;
     }
 
     /**

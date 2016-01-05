@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="OTM Development Environment" uid="OTM-DE" id="org.opentravel.schemas.stl2Developer.product" application="org.opentravel.schemas.stl2Developer.application" version="3.2.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="OTM Development Environment" uid="OTM-DE" id="org.opentravel.schemas.stl2Developer.product" application="org.opentravel.schemas.stl2Developer.application" version="4.0.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>

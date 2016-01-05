@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.modelObject;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import org.opentravel.schemacompiler.model.TLExample;
 import org.opentravel.schemacompiler.model.TLExampleOwner;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLIndicatorOwner;
+import org.opentravel.schemacompiler.model.TLMemberField;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 
 /**
@@ -49,7 +51,32 @@ public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAtt
     public void delete() {
     }
 
-    @Override
+	/**
+	 * @see org.opentravel.schemacompiler.model.TLMemberFieldOwner#getMemberFields()
+	 */
+	@Override
+	public List<TLMemberField<?>> getMemberFields() {
+		List<TLMemberField<?>> memberFields = new ArrayList<>();
+		
+		memberFields.addAll( getAttributes() );
+		memberFields.addAll( getIndicators() );
+		return memberFields;
+	}
+
+    /**
+	 * @see org.opentravel.schemacompiler.model.TLMemberFieldOwner#getMemberField(java.lang.String)
+	 */
+	@Override
+	public TLMemberField<?> getMemberField(String fieldName) {
+		TLMemberField<?> memberField = getAttribute( fieldName );
+		
+		if (memberField == null) {
+			memberField = getIndicator( fieldName );
+		}
+		return memberField;
+	}
+
+	@Override
     public void addAttribute(final TLAttribute attribute) {
         tlVWA.addAttribute(attribute);
     }

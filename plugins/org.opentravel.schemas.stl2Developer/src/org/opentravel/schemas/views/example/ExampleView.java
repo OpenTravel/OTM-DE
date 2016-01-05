@@ -35,6 +35,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.opentravel.schemacompiler.codegen.CodeGenerationException;
+import org.opentravel.schemacompiler.codegen.example.ExampleBuilder;
 import org.opentravel.schemacompiler.codegen.example.ExampleDocumentBuilder;
 import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions;
 import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions.DetailLevel;
@@ -295,10 +296,9 @@ public class ExampleView extends OtmAbstractView {
 	 * @throws ValidationException
 	 */
 	private Object[] generateExample(NamedEntity namedEntity) throws ValidationException, CodeGenerationException {
-		ExampleDocumentBuilder exampleBuilder = new ExampleDocumentBuilder();
-		ExampleGeneratorOptions examOptions = setupExampleGeneratorOptions();
-		exampleBuilder.setModelElement(namedEntity).setOptions(examOptions);
-		Document dom = exampleBuilder.buildDomTree();
+		ExampleBuilder<Document> exampleBuilder = new ExampleDocumentBuilder(
+				setupExampleGeneratorOptions()).setModelElement(namedEntity);
+		Document dom = exampleBuilder.buildTree();
 		String xml = exampleBuilder.buildString();
 		return new Object[] { dom, xml };
 	}

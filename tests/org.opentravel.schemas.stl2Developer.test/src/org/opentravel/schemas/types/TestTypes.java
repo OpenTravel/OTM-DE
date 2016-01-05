@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.codegen.example.ExampleBuilder;
 import org.opentravel.schemacompiler.codegen.example.ExampleDocumentBuilder;
 import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions;
 import org.opentravel.schemacompiler.model.NamedEntity;
@@ -59,6 +60,7 @@ import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 /**
  * @author Dave Hollander
@@ -294,9 +296,8 @@ public class TestTypes {
 
 	public void GenExampleAndValidate(Node cn) {
 		ValidationFindings findings = null;
-		final ExampleDocumentBuilder exampleBuilder = new ExampleDocumentBuilder();
-		ExampleGeneratorOptions options = new ExampleGeneratorOptions();
-		exampleBuilder.setOptions(options);
+		final ExampleBuilder<Document> exampleBuilder =
+				new ExampleDocumentBuilder(new ExampleGeneratorOptions());
 		String xml = "";
 		int errorCount = 0;
 
@@ -325,9 +326,8 @@ public class TestTypes {
 	 */
 	public void visitTypeNode(Node n) {
 		ValidationFindings findings = null;
-		final ExampleDocumentBuilder exampleBuilder = new ExampleDocumentBuilder();
-		ExampleGeneratorOptions options = new ExampleGeneratorOptions();
-		exampleBuilder.setOptions(options);
+		final ExampleBuilder<Document> exampleBuilder =
+				new ExampleDocumentBuilder(new ExampleGeneratorOptions());
 		String xml = "";
 		int errorCount = 0;
 		if (n == null)

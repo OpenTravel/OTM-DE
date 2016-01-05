@@ -30,6 +30,7 @@ import javax.xml.namespace.QName;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.CodeGenerationException;
+import org.opentravel.schemacompiler.codegen.example.ExampleBuilder;
 import org.opentravel.schemacompiler.codegen.example.ExampleDocumentBuilder;
 import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions;
 import org.opentravel.schemacompiler.event.ModelElementListener;
@@ -2890,13 +2891,11 @@ public abstract class Node implements INode {
 	}
 
 	public Document compileExampleDOM() {
-		final ExampleDocumentBuilder exampleBuilder = new ExampleDocumentBuilder();
-		ExampleGeneratorOptions options = new ExampleGeneratorOptions();
-		exampleBuilder.setOptions(options);
-		exampleBuilder.setModelElement((NamedEntity) this.getTLModelObject());
+		final ExampleBuilder<Document> exampleBuilder = new ExampleDocumentBuilder(
+				new ExampleGeneratorOptions()).setModelElement((NamedEntity) this.getTLModelObject());
 		Document domDoc = null;
 		try {
-			domDoc = exampleBuilder.buildDomTree();
+			domDoc = exampleBuilder.buildTree();
 		} catch (ValidationException e) {
 			LOGGER.debug("Validation Exception on " + this + " : " + e);
 			// for (String finding : e.getFindings().getAllValidationMessages(FindingMessageFormat.IDENTIFIED_FORMAT))
@@ -2908,11 +2907,9 @@ public abstract class Node implements INode {
 	}
 
 	public String compileExampleXML(boolean quiet) {
-		final ExampleDocumentBuilder exampleBuilder = new ExampleDocumentBuilder();
-		ExampleGeneratorOptions options = new ExampleGeneratorOptions();
-		exampleBuilder.setOptions(options);
+		final ExampleBuilder<Document> exampleBuilder = new ExampleDocumentBuilder(
+				new ExampleGeneratorOptions()).setModelElement((NamedEntity) this.getTLModelObject());
 		String xml = "ERROR";
-		exampleBuilder.setModelElement((NamedEntity) this.getTLModelObject());
 		try {
 			xml = exampleBuilder.buildString();
 		} catch (ValidationException e) {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="luna" sequenceNumber="61">
+<?pde version="3.8"?><target name="luna" sequenceNumber="62">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.sdk.feature.group" version="4.4.2.v20150204-1700"/>
@@ -43,11 +43,10 @@
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.objectweb.asm.all.debug" version="5.0.3"/>
+<unit id="com.fasterxml.jackson.core.jackson-annotations" version="2.5.0"/>
 <unit id="org.apache.httpcomponents.httpmime" version="4.4.0"/>
 <unit id="org.springframework.spring-aop" version="4.1.5.RELEASE"/>
 <unit id="org.apache.httpcomponents.httpcore" version="4.4.0"/>
-<unit id="slf4j.api" version="1.7.10"/>
-<unit id="com.sun.xml.bind.jaxb-impl" version="2.2.11"/>
 <unit id="org.springframework.spring-beans" version="4.1.5.RELEASE"/>
 <unit id="org.springframework.spring-context" version="4.1.5.RELEASE"/>
 <unit id="org.apache.commons.logging" version="1.2.0"/>
@@ -56,14 +55,23 @@
 <unit id="org.apache.httpcomponents.httpclient" version="4.4.0"/>
 <unit id="commons-logging" version="1.1.1"/>
 <unit id="org.springframework.spring-expression" version="4.1.5.RELEASE"/>
+<unit id="com.fasterxml.jackson.core.jackson-databind" version="2.5.1"/>
+<unit id="org.apache.commons.validator" version="1.4.1"/>
+<unit id="org.apache.aries.spifly.org.apache.aries.spifly.core-internal" version="1.0.2"/>
+<unit id="org.apache.aries.util" version="1.0.0"/>
+<unit id="log4j" version="1.2.17"/>
+<unit id="slf4j.api" version="1.7.10"/>
+<unit id="org.apache.commons.collections" version="3.2.1"/>
+<unit id="com.fasterxml.jackson.core.jackson-core" version="2.5.1"/>
+<unit id="com.sun.xml.bind.jaxb-impl" version="2.2.11"/>
+<unit id="com.google.gson" version="2.5.0"/>
+<unit id="org.apache.commons.beanutils" version="1.8.3"/>
 <unit id="slf4j.log4j12" version="1.7.10"/>
 <unit id="org.apache.aries.spifly.dynamic.bundle" version="1.0.2"/>
 <unit id="com.sun.xml.bind.jaxb-core" version="2.2.11"/>
-<unit id="org.apache.aries.spifly.org.apache.aries.spifly.core-internal" version="1.0.2"/>
 <unit id="aopalliance" version="1.0.0"/>
-<unit id="org.apache.aries.util" version="1.0.0"/>
+<unit id="org.apache.commons.digester" version="1.8.1"/>
 <unit id="org.apache.commons.codec" version="1.9.0"/>
-<unit id="log4j" version="1.2.17"/>
 <repository location="http://localhost:8080/site/"/>
 </location>
 </locations>
