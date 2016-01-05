@@ -21,7 +21,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.INode;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.TypeNode;

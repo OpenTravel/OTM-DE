@@ -17,8 +17,8 @@ package org.opentravel.schemas.views;
 
 import java.util.List;
 
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.INode;
 
 /**
  * Base Interface for all controllers.

@@ -22,6 +22,7 @@ import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.EditNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -78,7 +79,7 @@ public class NewComponentHandler extends AbstractHandler {
 		if (editNode != null) {
 			ComponentNodeType type = ComponentNodeType.fromString(editNode.getUseType());
 
-			Node newOne = editNode.newComponent(type);
+			Node newOne = new NodeFactory().newComponent(editNode, type);
 			newOne.setName(NodeNameUtils.fixComplexTypeName(newOne.getName()));
 			Assert.notNull(newOne.getLibrary());
 

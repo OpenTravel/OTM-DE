@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.INode;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.stl2developer.ColorProvider;
 import org.opentravel.schemas.widgets.LibraryTablePoster;

@@ -16,11 +16,11 @@
 package org.opentravel.schemas.node.properties;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.PropertyNodeType;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.types.TypeUser;
 
 /**

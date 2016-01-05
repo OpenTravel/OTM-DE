@@ -27,6 +27,7 @@ import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

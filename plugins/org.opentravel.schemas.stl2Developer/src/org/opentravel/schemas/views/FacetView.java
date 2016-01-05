@@ -56,15 +56,14 @@ import org.opentravel.schemas.commands.NewComponentHandler;
 import org.opentravel.schemas.controllers.OtmActions;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.Enumeration;
 import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.FamilyNode;
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.controllers.NodeUtils;
+import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.Images;
@@ -425,15 +424,17 @@ public class FacetView extends OtmAbstractView {
 			// LOGGER.debug("Family " + node.getName());
 
 			if (node instanceof FacetNode) {
-				boolean edit = node.isEditable() && !NodeUtils.checker(node).isInheritedFacet().get();
+				boolean edit = node.isEditable() && !node.isInheritedProperty();
+				// boolean edit = node.isEditable() && !NodeUtils.checker(node).isInheritedFacet().get();
 				mc.getFields().postField(nameField, node.getLabel(), edit);
+				nameField.setEnabled(((FacetNode) node).isRenameable());
 			} else if (!(node instanceof NavNode) || node instanceof FamilyNode)
 				mc.getFields().postField(nameField, node.getName(), node.isEditable_newToChain());
 			else
 				mc.getFields().postField(nameField, node.getLabel(), false);
 
-			if (node.isFacet() && !node.isOperation() && !node.isCustomFacet() && !node.isQueryFacet())
-				nameField.setEnabled(false);
+			// if (node.isFacet() && !node.isOperation() && !node.isCustomFacet() && !node.isQueryFacet())
+			// nameField.setEnabled(false);
 			if (node instanceof ExtensionPointNode)
 				nameField.setEnabled(false);
 

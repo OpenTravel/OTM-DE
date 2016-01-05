@@ -37,18 +37,11 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
-import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ComponentNodeType;
-import org.opentravel.schemas.node.CoreObjectNode;
-import org.opentravel.schemas.node.EnumerationClosedNode;
-import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.LibraryNode;
-import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeEditStatus;
-import org.opentravel.schemas.node.SimpleTypeNode;
-import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.widgets.WidgetFactory;
 
@@ -66,8 +59,8 @@ public class NewComponentWizardPage extends WizardPage {
 	private static ComponentNodeType[] serviceComponentList = { ComponentNodeType.EXTENSION_POINT };
 	private static ComponentNodeType[] noServiceComponentList = { ComponentNodeType.EXTENSION_POINT,
 			ComponentNodeType.SERVICE };
-	private static ComponentNodeType[] complexComponentList = { ComponentNodeType.BUSINESS, ComponentNodeType.CORE,
-			ComponentNodeType.VWA, ComponentNodeType.OPEN_ENUM };
+	private static ComponentNodeType[] complexComponentList = { ComponentNodeType.BUSINESS, ComponentNodeType.CHOICE,
+			ComponentNodeType.CORE, ComponentNodeType.VWA, ComponentNodeType.OPEN_ENUM };
 	private static ComponentNodeType[] simpleComponentList = { ComponentNodeType.SIMPLE, ComponentNodeType.CLOSED_ENUM };
 
 	private static ComponentNodeType[] PatchComponentList = { ComponentNodeType.EXTENSION_POINT };
@@ -75,8 +68,8 @@ public class NewComponentWizardPage extends WizardPage {
 	// ComponentNodeType.CLOSED_ENUM,
 	// ComponentNodeType.EXTENSION_POINT };
 
-	private static ComponentNodeType[] componentList = { ComponentNodeType.BUSINESS, ComponentNodeType.CORE,
-			ComponentNodeType.VWA, ComponentNodeType.OPEN_ENUM, ComponentNodeType.CLOSED_ENUM,
+	private static ComponentNodeType[] componentList = { ComponentNodeType.BUSINESS, ComponentNodeType.CHOICE,
+			ComponentNodeType.CORE, ComponentNodeType.VWA, ComponentNodeType.OPEN_ENUM, ComponentNodeType.CLOSED_ENUM,
 			ComponentNodeType.SIMPLE, ComponentNodeType.EXTENSION_POINT };
 
 	private int nCols;
@@ -221,24 +214,8 @@ public class NewComponentWizardPage extends WizardPage {
 	 * Use target node to make a guess at the desired object type.
 	 */
 	private ComponentNodeType contextGuess(Node target) {
-		if (target instanceof NavNode) {
-			if (((NavNode) target).isSimpleRoot())
-				return ComponentNodeType.SIMPLE;
-			else
-				return ComponentNodeType.CORE;
-		} else if (target.getOwningComponent() instanceof BusinessObjectNode)
-			return ComponentNodeType.BUSINESS;
-		else if (target.getOwningComponent() instanceof CoreObjectNode)
-			return ComponentNodeType.CORE;
-		else if (target.getOwningComponent() instanceof VWA_Node)
-			return ComponentNodeType.VWA;
-		else if (target.getOwningComponent() instanceof EnumerationClosedNode)
-			return ComponentNodeType.CLOSED_ENUM;
-		else if (target.getOwningComponent() instanceof EnumerationOpenNode)
-			return ComponentNodeType.OPEN_ENUM;
-		else if (target.getOwningComponent() instanceof SimpleTypeNode)
-			return ComponentNodeType.SIMPLE;
-		return ComponentNodeType.CORE;
+		ComponentNodeType type = target.getComponentNodeType();
+		return type != null ? type : ComponentNodeType.CORE;
 	}
 
 	// TODO - replace combo with array of radio buttons

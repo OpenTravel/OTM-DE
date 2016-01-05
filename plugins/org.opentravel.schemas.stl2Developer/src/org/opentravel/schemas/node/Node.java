@@ -16,6 +16,7 @@
 package org.opentravel.schemas.node;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -60,10 +61,19 @@ import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.modelObject.XSDComplexMO;
 import org.opentravel.schemas.modelObject.XSDElementMO;
 import org.opentravel.schemas.modelObject.XSDSimpleMO;
+import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
+import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
+import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.INodeListener;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
+import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.types.Type;
@@ -725,6 +735,17 @@ public abstract class Node implements INode {
 		return true;
 	}
 
+	/**
+	 * @param listeners
+	 * @return the node associated with the first BaseNodeListener.
+	 */
+	public Node getNodeFromListeners(Collection<ModelElementListener> listeners) {
+		for (ModelElementListener listener : listeners)
+			if (listener instanceof BaseNodeListener)
+				return ((BaseNodeListener) listener).getNode();
+		return null;
+	}
+
 	public String getNodeID() {
 		return nodeID;
 	}
@@ -1183,6 +1204,8 @@ public abstract class Node implements INode {
 			if (getChain().getHead() == null || !getChain().getHead().isEditable())
 				return false; // not editable head library
 		}
+		if (getChain() == null)
+			return true;
 
 		if (getLibrary() == getChain().getHead())
 			return true; // editable by being in the head library
@@ -1270,8 +1293,12 @@ public abstract class Node implements INode {
 		// service, operation, message or message property
 		// Adding to service will automatically create correct service operation to add to.
 		if (this instanceof ServiceNode)
-			return !getLibrary().getChain().getHead().getEditStatus().equals(NodeEditStatus.PATCH);
-		else if (isEditable_inService() && getLibrary().getChain().getHead() == getLibrary())
+			if (!getLibrary().isInChain())
+				return true;
+			else
+				return !getLibrary().getChain().getHead().getEditStatus().equals(NodeEditStatus.PATCH);
+		else if (isEditable_inService() && getLibrary().getChain() != null
+				&& getLibrary().getChain().getHead() == getLibrary())
 			// Only add properties to service in the head library.
 			return !getLibrary().getChain().getHead().getEditStatus().equals(NodeEditStatus.PATCH);
 
@@ -1384,7 +1411,7 @@ public abstract class Node implements INode {
 			}
 
 		// If it doesn't have a parent then it is not linked and can be deleted.
-		if (getOwningComponent().getParent() == null)
+		if (getOwningComponent() == null || getOwningComponent().getParent() == null)
 			return true;
 
 		// Services always return false for inhead(). Make sure it is in the head library.
@@ -1424,9 +1451,18 @@ public abstract class Node implements INode {
 		return false;
 	}
 
+	/**
+	 * @return true if this node should be displayed in navigator view tree with no filters
+	 */
+	// TODO - delegate this out
 	protected boolean isNavChild() {
-		return isBusinessObject() || isCoreObject() || isValueWithAttributes() || this instanceof ServiceNode
-				|| (isFacet() && isAssignable()) || isAlias() || isOperation() || isSimpleType();
+		return this instanceof LibraryMemberInterface || this instanceof ServiceNode
+				|| (this instanceof FacetNode && isAssignable()) || this instanceof AliasNode
+				|| this instanceof ResourceNode || this instanceof OperationNode;
+
+		// return isBusinessObject() || isCoreObject() || isValueWithAttributes()
+		// || this instanceof ServiceNode
+		// || (isFacet() && isAssignable()) || isAlias() || isOperation() || isSimpleType();
 	}
 
 	@Override
@@ -1557,6 +1593,10 @@ public abstract class Node implements INode {
 	 */
 	public boolean isSimpleAssignable() {
 		return modelObject.isSimpleAssignable();
+	}
+
+	public boolean isChoiceFacet() {
+		return false;
 	}
 
 	public boolean isCustomFacet() {
@@ -2051,11 +2091,6 @@ public abstract class Node implements INode {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getTypeUsers()
-	 */
 	@Override
 	public List<Node> getTypeUsers() {
 		return getTypeClass().getTypeUsers();
@@ -2079,6 +2114,15 @@ public abstract class Node implements INode {
 		if (isEditable_newToChain())
 			getModelObject().setRepeat(i);
 		return;
+	}
+
+	/**
+	 * Get Component Node Type
+	 * 
+	 * @return the enumerated value associated with this node or null
+	 */
+	public ComponentNodeType getComponentNodeType() {
+		return null;
 	}
 
 	@Override
@@ -2967,10 +3011,13 @@ public abstract class Node implements INode {
 		for (Node c : getChildren()) {
 			c.visitAllBaseTypeUsers(visitor);
 		}
-		// TODO - make interface for baseTypeusers
-		if (isCoreObject() || isBusinessObject() || isExtensionPointFacet()) {
+		if (this instanceof ExtensionOwner)
 			visitor.visit(this);
-		}
+
+		// // TODO - make interface for baseTypeusers
+		// if (isCoreObject() || isBusinessObject() || isExtensionPointFacet()) {
+		// visitor.visit(this);
+		// }
 	}
 
 	public void visitList(List<Node> list, NodeVisitor visitor) {

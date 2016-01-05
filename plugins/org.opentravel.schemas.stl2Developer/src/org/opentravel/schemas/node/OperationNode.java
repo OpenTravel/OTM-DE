@@ -27,6 +27,7 @@ import org.opentravel.schemacompiler.model.TLOperation;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLService;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
+import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.properties.ElementNode;
 
 /**
@@ -290,6 +291,11 @@ public class OperationNode extends FacetNode implements VersionedObjectInterface
 		if (getModelObject() != null) {
 			((TLOperation) getTLModelObject()).setName(name);
 		}
+	}
+
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.OPERATION;
 	}
 
 	@Override

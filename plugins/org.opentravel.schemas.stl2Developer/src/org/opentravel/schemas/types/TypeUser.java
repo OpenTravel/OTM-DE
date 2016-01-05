@@ -16,9 +16,8 @@
 package org.opentravel.schemas.types;
 
 import org.opentravel.schemas.modelObject.ModelObject;
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.Node;
-
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemacompiler.model.NamedEntity;
 
 public interface TypeUser {

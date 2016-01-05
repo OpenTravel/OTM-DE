@@ -24,20 +24,17 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLAbstractFacet;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAttribute;
-import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLListFacet;
 import org.opentravel.schemacompiler.model.TLOperation;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLRoleEnumeration;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
-import org.opentravel.schemas.modelObject.BusinessObjMO;
-import org.opentravel.schemas.modelObject.ModelObjectFactory;
 import org.opentravel.schemas.modelObject.RoleEnumerationMO;
 import org.opentravel.schemas.modelObject.TLValueWithAttributesFacet;
 import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -131,42 +128,46 @@ public class FacetNode extends ComponentNode implements PropertyOwnerInterface {
 		}
 	}
 
-	/**
-	 * Create a custom facet. Custom facets are the only facets named by the user.
-	 * 
-	 * @param facetType
-	 *            currently either QUERY or CUSTOM
-	 */
-	public FacetNode(final ComponentNode parent, final String name, final String context, final TLFacetType facetType) {
-		if (parent.isBusinessObject()) {
-			final TLFacet tlf = new TLFacet();
-			tlf.setContext(context);
-			updateModel(tlf, parent, facetType);
-			modelObject = ModelObjectFactory.newModelObject(tlf, parent);
-			if (name == null || name.isEmpty())
-				modelObject.setName(context);
-			else
-				modelObject.setName(name);
-
-			// description = modelObject.getDescriptionDoc();
-			parent.linkChild(this, false);
-			this.addMOChildren();
-		}
-	}
-
-	private void updateModel(final TLFacet tlf, final ComponentNode parent, final TLFacetType facetType) {
-		switch (facetType) {
-		case QUERY:
-			((BusinessObjMO) parent.getModelObject()).addQueryFacet(tlf);
-			break;
-		case CUSTOM:
-			((BusinessObjMO) parent.getModelObject()).addCustomFacet(tlf);
-			break;
-		default:
-			throw new IllegalArgumentException("Only the following types are supported for new FacetNode: "
-					+ TLFacetType.QUERY + ", " + TLFacetType.CUSTOM);
-		}
-	}
+	// /**
+	// * Create a custom facet. Custom facets are the only facets named by the user.
+	// *
+	// * @param facetType
+	// * currently either QUERY or CUSTOM
+	// */
+	// public FacetNode(final ComponentNode parent, final String name, final String context, final TLFacetType
+	// facetType) {
+	// if (parent instanceof BusinessObjectNode || parent instanceof ChoiceObjectNode) {
+	//
+	// final TLFacet tlf = new TLFacet();
+	// tlf.setContext(context);
+	// updateModel(tlf, parent, facetType);
+	// modelObject = ModelObjectFactory.newModelObject(tlf, parent);
+	// if (name == null || name.isEmpty())
+	// modelObject.setName(context);
+	// else
+	// modelObject.setName(name);
+	//
+	// // description = modelObject.getDescriptionDoc();
+	// parent.linkChild(this, false);
+	// this.addMOChildren();
+	// }
+	// }
+	//
+	// // private void updateModel(final TLFacet tlf, final ComponentNode parent, final TLFacetType facetType) {
+	// switch (facetType) {
+	// case QUERY:
+	// ((BusinessObjMO) parent.getModelObject()).addQueryFacet(tlf);
+	// break;
+	// case CUSTOM:
+	// ((BusinessObjMO) parent.getModelObject()).addCustomFacet(tlf);
+	// break;
+	// case CHOICE:
+	// ((ChoiceObjMO) parent.getModelObject()).addFacet(tlf);
+	// default:
+	// throw new IllegalArgumentException("Only the following types are supported for new FacetNode: "
+	// + TLFacetType.QUERY + ", " + TLFacetType.CUSTOM);
+	// }
+	// }
 
 	/**
 	 * Remove the properties in the list from this node and underlying tl model object. Use to move the property to a
@@ -204,34 +205,18 @@ public class FacetNode extends ComponentNode implements PropertyOwnerInterface {
 	@Override
 	public String getComponentType() {
 		return modelObject.getComponentType();
-		// return modelObject.getName();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#getOwningComponent()
-	 */
 	@Override
 	public Node getOwningComponent() {
 		return isExtensionPointFacet() ? this : getParent();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeProvider#typeUsersCount()
-	 */
 	@Override
 	public int getTypeUsersCount() {
 		return getTypeClass() != null ? getTypeClass().getTypeUsersCount() : 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isAssignedByReference()
-	 */
 	@Override
 	public boolean isAssignedByReference() {
 		if (getOwningComponent() == null) {
@@ -270,11 +255,6 @@ public class FacetNode extends ComponentNode implements PropertyOwnerInterface {
 		return ret;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#hasChildren_TypeProviders()
-	 */
 	@Override
 	public boolean hasChildren_TypeProviders() {
 		return isXsdType() ? false : true;
@@ -316,6 +296,12 @@ public class FacetNode extends ComponentNode implements PropertyOwnerInterface {
 		if (!(getTLModelObject() instanceof TLListFacet))
 			return false;
 		return getName().endsWith(NodeNameUtils.DETAIL_LIST_SUFFIX);
+	}
+
+	@Override
+	public boolean isChoiceFacet() {
+		return getTLModelObject() instanceof TLAbstractFacet ? ((TLAbstractFacet) getTLModelObject()).getFacetType() == TLFacetType.CHOICE
+				: false;
 	}
 
 	@Override
@@ -416,6 +402,13 @@ public class FacetNode extends ComponentNode implements PropertyOwnerInterface {
 		return (isComplexAssignable() || isSimpleAssignable()) ? true : false;
 	}
 
+	/**
+	 * @return true if this facet is renameable.
+	 */
+	public boolean isRenameable() {
+		return this instanceof OperationNode || this instanceof RenamableFacet;
+	}
+
 	@Override
 	public boolean isRoleFacet() {
 		return modelObject instanceof RoleEnumerationMO;
@@ -466,22 +459,22 @@ public class FacetNode extends ComponentNode implements PropertyOwnerInterface {
 		return pn;
 	}
 
-	public boolean hasTheSameContext(final String contextId, final TLFacetType facetType) {
-		if (getModelObject() == null || contextId == null || facetType == null) {
-			return false;
-		}
-		final Object tlObject = getModelObject().getTLModelObj();
-		final TLLibrary tlLib = (TLLibrary) getLibrary().getTLaLib();
-		if (tlObject instanceof TLFacet) {
-			final TLFacet facet = (TLFacet) tlObject;
-			final TLFacetType thisType = facet.getFacetType();
-			final TLContext thisContext = tlLib.getContext(this.getContext());
-			if (thisContext != null && contextId.equals(thisContext.getContextId()) && thisType.equals(facetType)) {
-				return true;
-			}
-		}
-		return false;
-	}
+	// public boolean hasTheSameContext(final String contextId, final TLFacetType facetType) {
+	// if (getModelObject() == null || contextId == null || facetType == null) {
+	// return false;
+	// }
+	// final Object tlObject = getModelObject().getTLModelObj();
+	// final TLLibrary tlLib = (TLLibrary) getLibrary().getTLaLib();
+	// if (tlObject instanceof TLFacet) {
+	// final TLFacet facet = (TLFacet) tlObject;
+	// final TLFacetType thisType = facet.getFacetType();
+	// final TLContext thisContext = tlLib.getContext(this.getContext());
+	// if (thisContext != null && contextId.equals(thisContext.getContextId()) && thisType.equals(facetType)) {
+	// return true;
+	// }
+	// }
+	// return false;
+	// }
 
 	@Override
 	public boolean isAliasable() {
@@ -518,11 +511,6 @@ public class FacetNode extends ComponentNode implements PropertyOwnerInterface {
 				|| TLFacetType.CUSTOM.equals(this.getFacetType());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#setName(java.lang.String, boolean)
-	 */
 	@Override
 	public void setName(String n) {
 		if (isOperation()) {
@@ -530,11 +518,6 @@ public class FacetNode extends ComponentNode implements PropertyOwnerInterface {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#setName(java.lang.String, boolean)
-	 */
 	@Override
 	public void setName(String n, boolean doFamily) {
 		super.setName(n, false); // Facets don't have families

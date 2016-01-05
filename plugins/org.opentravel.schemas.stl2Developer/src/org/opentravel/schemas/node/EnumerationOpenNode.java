@@ -25,13 +25,19 @@ import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLEnumValue;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemas.modelObject.OpenEnumMO;
+import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.listeners.NamedTypeListener;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
 
 public class EnumerationOpenNode extends ComponentNode implements ComplexComponentInterface, Enumeration,
-		ExtensionOwner, VersionedObjectInterface {
+		ExtensionOwner, VersionedObjectInterface, LibraryMemberInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(EnumerationOpenNode.class);
 
 	public EnumerationOpenNode(LibraryMember mbr) {
@@ -94,6 +100,11 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 	@Override
 	public ComponentNode createMinorVersionComponent() {
 		return super.createMinorVersionComponent(new EnumerationOpenNode(createMinorTLVersion(this)));
+	}
+
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.OPEN_ENUM;
 	}
 
 	@Override

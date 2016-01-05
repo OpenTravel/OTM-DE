@@ -17,7 +17,7 @@ package org.opentravel.schemas.trees.type;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.opentravel.schemas.node.INode;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

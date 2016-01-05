@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.views.FacetView;
 import org.slf4j.Logger;

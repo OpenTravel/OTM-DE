@@ -17,8 +17,8 @@ package org.opentravel.schemas.types;
 
 import java.util.List;
 
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.INode;
 
 /**
  * Implementations of this interface are type definitions or other assignable nodes that represent

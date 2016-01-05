@@ -23,6 +23,7 @@ import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLEnumValue;
@@ -34,6 +35,7 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemacompiler.model.TLOperation;
 import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemacompiler.model.TLRole;
 import org.opentravel.schemacompiler.model.TLRoleEnumeration;
 import org.opentravel.schemacompiler.model.TLSimple;
@@ -41,6 +43,8 @@ import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.modelObject.TLValueWithAttributesFacet;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
+import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
@@ -51,6 +55,7 @@ import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
+import org.opentravel.schemas.node.resources.ResourceNode;
 
 /**
  * Create Component Nodes of various sub-types.
@@ -110,6 +115,8 @@ public class NodeFactory {
 			cn = new BusinessObjectNode(mbr);
 		else if (mbr instanceof TLCoreObject)
 			cn = new CoreObjectNode(mbr);
+		else if (mbr instanceof TLChoiceObject)
+			cn = new ChoiceObjectNode(mbr);
 		else if (mbr instanceof TLSimple)
 			cn = new SimpleTypeNode(mbr);
 		else if (mbr instanceof TLOpenEnumeration)
@@ -118,12 +125,76 @@ public class NodeFactory {
 			cn = new EnumerationClosedNode(mbr);
 		else if (mbr instanceof TLExtensionPointFacet)
 			cn = new ExtensionPointNode(mbr);
+		else if (mbr instanceof TLResource)
+			cn = new ResourceNode(mbr);
 		else {
 			cn = new ComponentNode(mbr);
 			// LOGGER.debug("Using default factory type for " + mbr.getClass().getSimpleName());
 		}
 
 		return cn;
+	}
+
+	/*******************************************************************************************
+	 * Create a new top level named type using the passed node as template to determine node type
+	 */
+
+	public static Node newComponent(LibraryMemberInterface template) {
+		Node newNode = null;
+		if (template instanceof ResourceNode)
+			newNode = new ResourceNode(new TLResource());
+		else if (template instanceof BusinessObjectNode)
+			newNode = new BusinessObjectNode(new TLBusinessObject());
+		else if (template instanceof CoreObjectNode)
+			newNode = new CoreObjectNode(new TLCoreObject());
+		else if (template instanceof ChoiceObjectNode)
+			newNode = new ChoiceObjectNode(new TLChoiceObject());
+		else if (template instanceof VWA_Node)
+			newNode = new VWA_Node(new TLValueWithAttributes());
+		else if (template instanceof EnumerationOpenNode)
+			newNode = new EnumerationOpenNode(new TLOpenEnumeration());
+		// Must test for closed enum before simple type because it extends simple
+		else if (template instanceof EnumerationClosedNode)
+			newNode = new EnumerationClosedNode(new TLClosedEnumeration());
+		else if (template instanceof SimpleTypeNode)
+			newNode = new SimpleTypeNode(new TLSimple());
+		else if (template instanceof ExtensionPointNode)
+			newNode = new ExtensionPointNode(new TLExtensionPointFacet());
+		return newNode;
+	}
+
+	public static Node newComponent(ComponentNodeType type) {
+		LibraryMember tlObj = null;
+
+		switch (type) {
+		case BUSINESS:
+			tlObj = new TLBusinessObject();
+			break;
+		case CHOICE:
+			tlObj = new TLChoiceObject();
+			break;
+		case CORE:
+			tlObj = new TLCoreObject();
+			break;
+		case VWA:
+			tlObj = new TLValueWithAttributes();
+			break;
+		case EXTENSION_POINT:
+			tlObj = new TLOpenEnumeration();
+			break;
+		case OPEN_ENUM:
+			tlObj = new TLOpenEnumeration();
+			break;
+		case CLOSED_ENUM:
+			tlObj = new TLClosedEnumeration();
+			break;
+		case SIMPLE:
+			tlObj = new TLSimple();
+			break;
+		default:
+			// LOGGER.debug("Unknown type in new component: "+type);
+		}
+		return newComponent(tlObj);
 	}
 
 	/**
@@ -137,8 +208,6 @@ public class NodeFactory {
 	 */
 	public static ComponentNode newComponentMember(INode parent, Object tlObj) {
 		ComponentNode nn = null;
-		// LOGGER.debug("adding "+ tlObj.getClass().getCanonicalName());
-		// Properties
 		if (tlObj instanceof TLProperty) {
 			if (((TLProperty) tlObj).isReference())
 				nn = new ElementReferenceNode((TLModelElement) tlObj, (PropertyOwnerInterface) parent);
@@ -194,7 +263,7 @@ public class NodeFactory {
 	/**
 	 * Create a new component of the same class and add it to a library.
 	 * 
-	 * @param n
+	 * @param template
 	 *            class of object to create - must be named type
 	 * @param ln
 	 *            library to add member or NULL
@@ -202,30 +271,19 @@ public class NodeFactory {
 	 *            string to put before the class name as the object name or NULL for unnamed.
 	 * @return newly created library member
 	 */
-	public static Node newComponentMember(Node n, LibraryNode ln, String nameRoot) {
+	@Deprecated
+	public static Node newComponentMember(Node template, LibraryNode ln, String nameRoot) {
 		Node newNode = null;
-		if (n instanceof BusinessObjectNode)
-			newNode = new BusinessObjectNode(new TLBusinessObject());
-		if (n instanceof CoreObjectNode)
-			newNode = new CoreObjectNode(new TLCoreObject());
-		if (n instanceof VWA_Node)
-			newNode = new VWA_Node(new TLValueWithAttributes());
-		if (n instanceof EnumerationOpenNode)
-			newNode = new EnumerationOpenNode(new TLOpenEnumeration());
-		// Must test for closed enum before simple type because it extends simple
-		if (n instanceof EnumerationClosedNode)
-			newNode = new EnumerationClosedNode(new TLClosedEnumeration());
-		else if (n instanceof SimpleTypeNode)
-			newNode = new SimpleTypeNode(new TLSimple());
-		if (n instanceof ExtensionPointNode)
-			newNode = new ExtensionPointNode(new TLExtensionPointFacet());
+		if (template instanceof LibraryMemberInterface)
+			newNode = newComponent((LibraryMemberInterface) template);
 
-		if (nameRoot != null)
-			newNode.setName(nameRoot + n.getClass().getSimpleName());
-
-		if (newNode != null && ln != null)
+		if (newNode != null && ln != null) {
+			if (nameRoot != null)
+				newNode.setName(nameRoot + template.getClass().getSimpleName());
+			else
+				newNode.setName(template.getClass().getSimpleName());
 			ln.addMember(newNode);
-
+		}
 		return newNode;
 	}
 
@@ -233,9 +291,58 @@ public class NodeFactory {
 		switch (facet.getFacetType()) {
 		case CUSTOM:
 		case QUERY:
+		case CHOICE:
 			return new RenamableFacet(facet);
+		case SHARED:
 		default:
 			return new FacetNode(facet);
 		}
 	}
+
+	/**
+	 * Create a new component node and model object and link it to <i>this</i>library's Complex or Simple Root node.
+	 * Used for creating model objects from nodes constructed by GUI otmHandlers and wizards.
+	 * 
+	 * @see {@link NewComponent_Tests.java}
+	 * @param n
+	 *            template node for name, description and parent
+	 * @param type
+	 *            objectType strings as defined in ComponentNodeType
+	 * @return node created
+	 * 
+	 */
+	public Node newComponent(Node n, final ComponentNodeType type) {
+		if (n == null || n.getLibrary() == null)
+			return null;
+		Node cn = null;
+		switch (type) {
+		case SERVICE:
+			return new ServiceNode(n);
+		case ALIAS:
+			return new AliasNode(n, n.getName());
+		default:
+			cn = newComponent(type);
+			// cn = newComponentMember(n, n.getLibrary(), n.getName());
+			cn.setExtensible(true);
+
+			if (cn != null) {
+				cn.setName(n.getName());
+				cn.setDescription(n.getDescription());
+				cn.setIdentity(n.getName());
+
+				if (n.getLibrary().isEditable())
+					n.getLibrary().addMember(cn);
+				else
+					// Put the new node at the head of the chain.
+					n.getLibrary().getChain().getHead().addMember(cn);
+
+				if (cn instanceof ChoiceObjectNode) {
+					((ChoiceObjectNode) cn).addFacet("A");
+					((ChoiceObjectNode) cn).addFacet("B");
+				}
+			}
+		}
+		return cn;
+	}
+
 }

@@ -19,6 +19,8 @@ import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.modelObject.XSDElementMO;
+import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

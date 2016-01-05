@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.actions;
 
+import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.properties.StringProperties;
@@ -40,6 +41,8 @@ public class ChangeObjectAction extends OtmAbstractAction {
 	@Override
 	public boolean isEnabled(Node currentNode) {
 		if ((currentNode == null) || !(currentNode instanceof ComponentNode))
+			return false;
+		if (currentNode instanceof ChoiceObjectNode)
 			return false;
 		if (currentNode.isEditable_inService())
 			return false;

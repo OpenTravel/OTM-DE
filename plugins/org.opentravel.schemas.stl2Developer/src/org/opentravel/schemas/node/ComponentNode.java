@@ -23,30 +23,27 @@ import java.util.List;
 import java.util.Map;
 
 import org.opentravel.schemacompiler.model.LibraryMember;
-import org.opentravel.schemacompiler.model.TLBusinessObject;
-import org.opentravel.schemacompiler.model.TLClosedEnumeration;
-import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemacompiler.model.TLOpenEnumeration;
-import org.opentravel.schemacompiler.model.TLSimple;
-import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemacompiler.validate.ValidationException;
 import org.opentravel.schemacompiler.version.MinorVersionHelper;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
 import org.opentravel.schemacompiler.version.Versioned;
 import org.opentravel.schemas.modelObject.EmptyMO;
 import org.opentravel.schemas.modelObject.ModelObject;
+import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.types.TypeProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 /**
  * The ComponentNode class handles nodes that represent model objects. It is overridden for most types and properties.
@@ -57,7 +54,7 @@ import org.slf4j.LoggerFactory;
 
 // TODO - this should not implement type provider -- sub-classes should.
 public class ComponentNode extends Node implements TypeProvider {
-	private final static Logger LOGGER = LoggerFactory.getLogger(ComponentNode.class);
+	// private final static Logger LOGGER = LoggerFactory.getLogger(ComponentNode.class);
 
 	/**
 	 * Inherited nodes are not assigned a type class. If they were the where-used count would be wrong.
@@ -290,72 +287,73 @@ public class ComponentNode extends Node implements TypeProvider {
 		return true;
 	}
 
-	/**
-	 * Create a new component node and model object and link it to <i>this</i>library's Complex or Simple Root node.
-	 * Used for creating model objects from nodes constructed by GUI otmHandlers and wizards.
-	 * 
-	 * @see {@link NewComponent_Tests.java}
-	 * @param component
-	 *            objectType strings as defined in ComponentNode
-	 * @return node created
-	 * 
-	 */
-	public Node newComponent(final ComponentNodeType type) {
-		if (getLibrary() == null) {
-			// LOGGER.error("Missing Library - can't create new component of type " + type + ".");
-			return null;
-		}
-		// LOGGER.debug("Creating new " + type + " \tcomponent " + getName() + " in " + library);
-
-		ComponentNode cn = null;
-
-		switch (type) {
-		case SERVICE:
-			cn = new ServiceNode(this);
-			break;
-		case ALIAS:
-			return new AliasNode(this, this.getName());
-		case BUSINESS:
-			cn = NodeFactory.newComponent(new TLBusinessObject());
-			cn.setExtensible(true);
-			break;
-		case CORE:
-			cn = NodeFactory.newComponent(new TLCoreObject());
-			cn.setExtensible(true);
-			break;
-		case VWA:
-			cn = NodeFactory.newComponent(new TLValueWithAttributes());
-			break;
-		case EXTENSION_POINT:
-			cn = NodeFactory.newComponent(new TLExtensionPointFacet());
-			break;
-		case SIMPLE:
-			cn = NodeFactory.newComponent(new TLSimple());
-			break;
-		case OPEN_ENUM:
-			cn = NodeFactory.newComponent(new TLOpenEnumeration());
-			break;
-		case CLOSED_ENUM:
-			cn = NodeFactory.newComponent(new TLClosedEnumeration());
-			break;
-		default:
-			// LOGGER.debug(type + " not supported by newComponent().");
-		}
-
-		if (cn != null) {
-			cn.setName(getName());
-			cn.setDescription(getDescription());
-			cn.setIdentity(getName());
-
-			if (getLibrary().isEditable())
-				getLibrary().addMember(cn);
-			else
-				// Put the new node at the head of the chain.
-				getLibrary().getChain().getHead().addMember(cn);
-		}
-
-		return cn;
-	}
+	// /**
+	// * Create a new component node and model object and link it to <i>this</i>library's Complex or Simple Root node.
+	// * Used for creating model objects from nodes constructed by GUI otmHandlers and wizards.
+	// *
+	// * @see {@link NewComponent_Tests.java}
+	// * @param component
+	// * objectType strings as defined in ComponentNode
+	// * @return node created
+	// *
+	// */
+	// @Deprecated
+	// public Node newComponent(final ComponentNodeType type) {
+	// if (getLibrary() == null) {
+	// // LOGGER.error("Missing Library - can't create new component of type " + type + ".");
+	// return null;
+	// }
+	// // LOGGER.debug("Creating new " + type + " \tcomponent " + getName() + " in " + library);
+	//
+	// ComponentNode cn = null;
+	//
+	// switch (type) {
+	// case SERVICE:
+	// cn = new ServiceNode(this);
+	// break;
+	// case ALIAS:
+	// return new AliasNode(this, this.getName());
+	// case BUSINESS:
+	// cn = NodeFactory.newComponent(new TLBusinessObject());
+	// cn.setExtensible(true);
+	// break;
+	// case CORE:
+	// cn = NodeFactory.newComponent(new TLCoreObject());
+	// cn.setExtensible(true);
+	// break;
+	// case VWA:
+	// cn = NodeFactory.newComponent(new TLValueWithAttributes());
+	// break;
+	// case EXTENSION_POINT:
+	// cn = NodeFactory.newComponent(new TLExtensionPointFacet());
+	// break;
+	// case SIMPLE:
+	// cn = NodeFactory.newComponent(new TLSimple());
+	// break;
+	// case OPEN_ENUM:
+	// cn = NodeFactory.newComponent(new TLOpenEnumeration());
+	// break;
+	// case CLOSED_ENUM:
+	// cn = NodeFactory.newComponent(new TLClosedEnumeration());
+	// break;
+	// default:
+	// // LOGGER.debug(type + " not supported by newComponent().");
+	// }
+	//
+	// if (cn != null) {
+	// cn.setName(getName());
+	// cn.setDescription(getDescription());
+	// cn.setIdentity(getName());
+	//
+	// if (getLibrary().isEditable())
+	// getLibrary().addMember(cn);
+	// else
+	// // Put the new node at the head of the chain.
+	// getLibrary().getChain().getHead().addMember(cn);
+	// }
+	//
+	// return cn;
+	// }
 
 	/*
 	 * ComponentNode Utilities

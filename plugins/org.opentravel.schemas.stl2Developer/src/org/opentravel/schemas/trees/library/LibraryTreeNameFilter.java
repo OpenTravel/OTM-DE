@@ -17,8 +17,8 @@ package org.opentravel.schemas.trees.library;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 
 /**

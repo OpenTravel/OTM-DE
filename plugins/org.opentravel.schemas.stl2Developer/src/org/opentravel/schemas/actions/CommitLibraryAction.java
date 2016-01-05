@@ -15,12 +15,11 @@
  */
 package org.opentravel.schemas.actions;
 
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
-
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 
 /**

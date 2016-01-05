@@ -18,13 +18,13 @@ package org.opentravel.schemas.node.properties;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.PropertyNodeType;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
 
 /**

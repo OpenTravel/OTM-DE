@@ -44,7 +44,18 @@ public class Images {
 	public static final String ValueWithAttr = "ValueWithAttr";
 	public static final String BusinessObject = "BusinessObject";
 	public static final String CoreObject = "CoreObjectMO";
+	public static final String ChoiceObject = "ChoiceObject";
 	public static final String Facet = "Facet";
+
+	public static final String Folder = "folder";
+	public static final String Resources = "Resources";
+	public static final String Resource = "Resource";
+	public static final String ParamGroup = "Parameters";
+	public static final String ResourceAction = "ResourceAction";
+	public static final String ActionFacet = "ActionFacet";
+	public static final String ActionRequest = "ActionRequest";
+	public static final String ActionResponse = "ActionResponse";
+	public static final String ResourceParameter = "ResourceParameters";
 
 	public static final String Service = "Service";
 	public static final String Operation = "Operation";
@@ -103,6 +114,7 @@ public class Images {
 		image_registry.put(CoreObject, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/CoreObject.gif"));
 		image_registry.put(BusinessObject,
 				AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/BusinessObject.png"));
+		image_registry.put(ChoiceObject, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/Choice.gif"));
 		image_registry.put(Facet, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/Facet.gif"));
 		image_registry.put(RoleValue, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/RoleValue.jpg"));
 
@@ -154,6 +166,17 @@ public class Images {
 		image_registry.put(LinkedWithNavigator,
 				AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/linked.gif"));
 		image_registry.put(MergeNodes, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/merge.gif"));
+
+		image_registry.put(Resource, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/resource.gif"));
+		image_registry.put(Resources, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/resources.gif"));
+		image_registry.put(ParamGroup, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/Parameters.gif"));
+		image_registry.put(ResourceAction,
+				AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/ResourceAction.gif"));
+		image_registry.put(ActionFacet, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/ActionFacet.gif"));
+		image_registry.put(ActionRequest, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/request.gif"));
+		image_registry.put(ActionResponse, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/response.gif"));
+		image_registry.put(ResourceParameter,
+				AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/resource.gif"));
 	}
 
 }

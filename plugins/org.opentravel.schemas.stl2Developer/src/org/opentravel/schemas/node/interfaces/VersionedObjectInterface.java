@@ -16,32 +16,25 @@
 /**
  * 
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.node.interfaces;
 
-import org.opentravel.schemas.modelObject.ModelObject;
-
-import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemas.node.ComponentNode;
 
 /**
+ * Nodes implementing this interface represent objects that can be created as minor versions by extending the previous
+ * version.
+ * 
  * @author Dave Hollander
  * 
  */
-public interface SimpleComponentInterface {
+public interface VersionedObjectInterface {
 
-    public boolean isSimpleTypeProvider();
+	/**
+	 * Create a new object in a minor version library. Creates an empty copy of this node's owner. Adds the new node to
+	 * the owner's chain head library. Sets the new object base type to this node.
+	 * 
+	 * @return the new node summary facet or its detail if this node was the detail facet node.
+	 */
+	public ComponentNode createMinorVersionComponent();
 
-    /**
-     * @return the node representing the base type.
-     */
-    public INode getBaseType();
-
-    /**
-     * @return the model object underlying this node.
-     */
-    public ModelObject<?> getModelObject(); // The Model Object
-
-    /**
-     * @return the TL Object underlying this node's model object
-     */
-    public NamedEntity getTLOjbect();
 }

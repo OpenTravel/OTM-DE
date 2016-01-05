@@ -240,8 +240,13 @@ public class FacetMO extends ModelObject<TLFacet> {
 			return "Simple-Facet";
 		case SUMMARY:
 			return "Summary-Facet";
+		case SHARED:
+			return "Shared";
+		case CHOICE:
+			return "Choice";
 		}
-		// should never happend. Make sure that switch cover all cases.
+		LOGGER.debug("Warning: missing facet display name for facet of type: " + facetType);
+		// should never happen. Make sure that switch cover all cases.
 		return "";
 	}
 
@@ -261,6 +266,10 @@ public class FacetMO extends ModelObject<TLFacet> {
 			}
 			if (label.startsWith("_"))
 				label = label.substring(1);
+		} else if (srcObj.getFacetType().equals(TLFacetType.CHOICE)) {
+			label = label + ": " + srcObj.getLabel();
+			// } else if (srcObj.getFacetType().equals(TLFacetType.SHARED)) {
+			// label = srcObj.getLabel() + label;
 		} else if (srcObj.getOwningEntity() instanceof TLOperation)
 			getDisplayName(srcObj.getFacetType());
 		return label;

@@ -28,6 +28,11 @@ import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
+import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
 
@@ -41,7 +46,7 @@ import org.opentravel.schemas.properties.Images;
  * 
  */
 public class VWA_Node extends ComponentNode implements ComplexComponentInterface, ExtensionOwner,
-		VersionedObjectInterface {
+		VersionedObjectInterface, LibraryMemberInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(VWA_Node.class);
 
 	public VWA_Node(LibraryMember mbr) {
@@ -150,6 +155,11 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 				return (SimpleFacetNode) f;
 		}
 		return null;
+	}
+
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.VWA;
 	}
 
 	@Override

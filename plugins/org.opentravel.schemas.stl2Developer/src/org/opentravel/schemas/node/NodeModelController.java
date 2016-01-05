@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.slf4j.Logger;

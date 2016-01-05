@@ -39,13 +39,12 @@ import org.opentravel.schemas.controllers.OtmActions;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.FamilyNode;
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.XsdNode;
-import org.opentravel.schemas.node.controllers.NodeUtils;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -407,8 +406,10 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 		clearProperties(); // Clear the fields, and the propertyNode pointer
 		//
 		if (n instanceof FacetNode) {
-			boolean edit = n.isEditable() && !NodeUtils.checker(n).isInheritedFacet().get();
+			boolean edit = n.isEditable() && !n.isInheritedProperty();
+			// boolean edit = n.isEditable() && !NodeUtils.checker(n).isInheritedFacet().get();
 			fields.postField(nameField, n.getLabel(), edit);
+			nameField.setEnabled(((FacetNode) n).isRenameable());
 		} else if (!(n instanceof NavNode) || n instanceof FamilyNode)
 			mc.getFields().postField(nameField, n.getName(), n.isEditable_newToChain());
 		else
@@ -416,8 +417,8 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 
 		if (n instanceof ElementReferenceNode)
 			nameField.setEnabled(false);
-		if (n.isFacet() && !n.isOperation() && !n.isCustomFacet() && !n.isQueryFacet())
-			nameField.setEnabled(false);
+		// if (n.isFacet() && !n.isOperation() && !n.isCustomFacet() && !n.isQueryFacet())
+		// nameField.setEnabled(false);
 		if (n.isAlias() && n.getParent().isFacet())
 			nameField.setEnabled(false);
 		fields.postField(componentField, n.getComponentType(), false);

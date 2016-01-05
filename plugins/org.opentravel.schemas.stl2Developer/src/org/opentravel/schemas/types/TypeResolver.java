@@ -28,14 +28,15 @@ import javax.xml.namespace.QName;
 import org.opentravel.schemacompiler.model.XSDSimpleType;
 import org.opentravel.schemas.modelObject.XsdModelingUtils;
 import org.opentravel.schemas.node.AliasNode;
-import org.opentravel.schemas.node.ComplexComponentInterface;
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.XsdNode;
+import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.resources.ResourceNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,6 +144,14 @@ public class TypeResolver {
 		public void visit(INode in) {
 			Node n = (Node) in;
 			typeUsers++;
+
+			if (n instanceof ResourceNode) {
+				// Don't use the map, use resource node's method that uses listeners
+				Node target = ((ResourceNode) n).getSubject();
+				n.getTypeClass().set(target, null);
+				LOGGER.debug("ResolveTypes visitor assigned " + target + " to " + n + " resource.");
+				return;
+			}
 
 			if (n.getTypeClass().getTypeNode() != null && !(n.getTypeClass().getTypeNode() instanceof ImpliedNode))
 				return;

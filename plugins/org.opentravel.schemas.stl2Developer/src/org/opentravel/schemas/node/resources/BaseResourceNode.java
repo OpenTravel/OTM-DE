@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.node.resources;
 
-import java.util.List;
+import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 
-public interface Enumeration {
-	/**
-	 * Add the passed literal to the open or closed enumeration.
-	 */
-	public void addLiteral(String literal);
+public abstract class BaseResourceNode extends Node implements ResourceMemberInterface {
 
-	/**
-	 * Get a list of the enumeration values
-	 */
-	public List<String> getLiterals();
+	public BaseResourceNode() {
+	}
+
 }

@@ -26,6 +26,9 @@ import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.modelObject.XsdModelingUtils;
+import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.EqExOneValueHandler;
 import org.opentravel.schemas.node.properties.EqExOneValueHandler.ValueWithContextType;
@@ -42,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class SimpleTypeNode extends ComponentNode implements SimpleComponentInterface, TypeUser {
+public class SimpleTypeNode extends ComponentNode implements SimpleComponentInterface, TypeUser, LibraryMemberInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleTypeNode.class);
 
 	// Handlers for equivalents and examples
@@ -284,6 +287,11 @@ public class SimpleTypeNode extends ComponentNode implements SimpleComponentInte
 	 */
 	public IValueWithContextHandler getEquivalentHandler() {
 		return equivalentHandler;
+	}
+
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.SIMPLE;
 	}
 
 	@Override

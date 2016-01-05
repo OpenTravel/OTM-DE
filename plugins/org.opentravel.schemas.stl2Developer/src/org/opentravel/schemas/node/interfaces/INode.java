@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.node.interfaces;
 
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.modelObject.ModelObject;
+import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
+import org.opentravel.schemas.node.ProjectNode;
 
 /**
  * Interface to nodes in the model.

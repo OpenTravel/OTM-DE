@@ -17,8 +17,8 @@ package org.opentravel.schemas.trees.type;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.INode;
 
 /**
  * 4/26/2012 - dmh - this is no longer used (I think) - see LibraryTreeLabelProvider

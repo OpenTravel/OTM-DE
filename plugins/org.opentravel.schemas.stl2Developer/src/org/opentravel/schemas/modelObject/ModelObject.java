@@ -35,11 +35,12 @@ import org.opentravel.schemacompiler.model.TLEquivalentOwner;
 import org.opentravel.schemacompiler.model.TLExample;
 import org.opentravel.schemacompiler.model.TLExampleOwner;
 import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLListFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.XsdNode;
+import org.opentravel.schemas.node.interfaces.INode;
 
 /**
  * The ModelObject abstract class provides a template for working with underlying model source objects. Model Object
@@ -636,6 +637,15 @@ public abstract class ModelObject<TL> {
 	 */
 	public boolean addChild(TLModelElement child) {
 		return false;
+	}
+
+	/**
+	 * Create new TLFacet and add to facet owner. Overridden in objects that support adding facets.
+	 * 
+	 * @return the newly added TLFacet or null
+	 */
+	public TLFacet addFacet(TLFacetType type) {
+		return null;
 	}
 
 }

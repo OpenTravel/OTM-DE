@@ -16,7 +16,7 @@
 package org.opentravel.schemas.trees.library;
 
 import org.eclipse.jface.viewers.ViewerSorter;
-import org.opentravel.schemas.node.INode;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 
 public class LibraryTableSorter extends ViewerSorter {

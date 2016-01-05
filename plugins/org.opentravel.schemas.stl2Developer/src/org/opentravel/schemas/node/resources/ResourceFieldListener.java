@@ -13,26 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * 
- */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.node.resources;
 
-/**
- * Nodes implementing this interface represent objects that can be created as minor versions by extending the previous
- * version.
- * 
- * @author Dave Hollander
- * 
- */
-public interface VersionedObjectInterface {
+public interface ResourceFieldListener {
 
 	/**
-	 * Create a new object in a minor version library. Creates an empty copy of this node's owner. Adds the new node to
-	 * the owner's chain head library. Sets the new object base type to this node.
+	 * Set the field value associated with this listener.
 	 * 
-	 * @return the new node summary facet or its detail if this node was the detail facet node.
+	 * @param value
+	 * @return true if business logic caused change in other field values
 	 */
-	public ComponentNode createMinorVersionComponent();
-
+	public boolean set(String value);
 }

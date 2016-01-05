@@ -31,6 +31,7 @@ import org.opentravel.schemacompiler.repository.RepositoryNamespaceUtils;
 import org.opentravel.schemacompiler.repository.impl.BuiltInProject;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.modelObject.ModelObject;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.TypeResolver;

@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.node.interfaces;
+
+import org.opentravel.schemas.node.Node;
 
 /**
  * Implementors can be extended with a base type.

@@ -47,10 +47,13 @@ import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.util.ContextUtils;
 import org.opentravel.schemacompiler.util.URLUtils;
 import org.opentravel.schemas.controllers.ContextController;
-import org.opentravel.schemas.controllers.ContextModelManager;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
+import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
+import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.preferences.GeneralPreferencePage;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -76,12 +79,14 @@ public class LibraryNode extends Node {
 
 	public static final String COMPLEX_OBJECTS = "Complex Objects";
 	public static final String SIMPLE_OBJECTS = "Simple Objects";
+	public static final String RESOURCES = "Resources";
 	public static final String ELEMENTS = "Elements";
 
 	protected NavNode complexRoot;
 	protected NavNode simpleRoot;
 	protected NavNode elementRoot;
 	protected ServiceNode serviceRoot;
+	protected NavNode resourceRoot;
 
 	protected AbstractLibrary absTLLibrary; // Underlying TL library model object
 	protected TLLibrary genTLLib = null; // TL library for generated components.
@@ -158,6 +163,7 @@ public class LibraryNode extends Node {
 
 		complexRoot = new NavNode(COMPLEX_OBJECTS, this);
 		simpleRoot = new NavNode(SIMPLE_OBJECTS, this);
+		resourceRoot = new NavNode(RESOURCES, this);
 
 		// Let the tools edit the library during construction.
 		setEditable(true);
@@ -478,9 +484,6 @@ public class LibraryNode extends Node {
 			return;
 		}
 
-		ContextController cc = OtmRegistry.getMainController().getContextController();
-		ContextModelManager cm = cc.getContextModelManager();
-
 		// If there are no context then we are done.
 		if (getTLLibrary().getContexts().isEmpty())
 			return;
@@ -492,12 +495,6 @@ public class LibraryNode extends Node {
 
 		// If there is only one TLContext then make sure context manager matches.
 		if (getTLLibrary().getContexts().size() == 1) {
-			// // TODO - Fix context manager's contents
-			// List<String> cmIds = cc.getAvailableContextIds(this);
-			// if (cmIds.size() > 1 || !cmIds.contains(tlc.getContextId())) {
-			// // cc.clearContexts(this);
-			// cm.addNode(this, tlc);
-			// }
 			// assert (cc.getAvailableContextIds(this).size() == 1);
 			// assert (cc.getAvailableContextIds(this).size() == getTLLibrary().getContexts().size());
 			// assert (cc.getAvailableContextIds(this).get(0).equals(tlc.getContextId()));
@@ -593,6 +590,9 @@ public class LibraryNode extends Node {
 			linkOK = complexRoot.linkChild(n);
 		else if (n instanceof SimpleComponentInterface)
 			linkOK = simpleRoot.linkChild(n);
+		else if (n instanceof ResourceNode)
+			// FIXME - where do resources go?
+			linkOK = resourceRoot.linkChild(n);
 		else if (n instanceof ServiceNode)
 			; // Nothing to do because services are already linked to library.
 		else if (n.isXsdElementAssignable())
@@ -623,7 +623,7 @@ public class LibraryNode extends Node {
 		if (pn == null)
 			throw new RepositoryException("Library was not part of a project");
 
-		String path = pn.getProject().getProjectFile().getAbsolutePath();
+		// String path = pn.getProject().getProjectFile().getAbsolutePath();
 		File dir = pn.getProject().getProjectFile().getParentFile();
 		// TODO - make sure it is a directory and writable
 		// Prompt user to confirm directory.
@@ -710,16 +710,14 @@ public class LibraryNode extends Node {
 
 	private void generateLibrary(final TLLibrary tlLib) {
 		for (final LibraryMember mbr : tlLib.getNamedMembers()) {
-			if (mbr instanceof TLService) {
-				final ServiceNode sn = new ServiceNode((TLService) mbr, this);
-			} else {
+			if (mbr instanceof TLService)
+				new ServiceNode((TLService) mbr, this);
+			else {
 				ComponentNode n = NodeFactory.newComponent_UnTyped(mbr);
 				linkMember(n);
 				n.setLibrary(this);
 			}
 		}
-		// TypeResolver tr = new TypeResolver();
-		// tr.resolveTypes();
 		new TypeResolver().resolveTypes();
 	}
 
@@ -1015,6 +1013,10 @@ public class LibraryNode extends Node {
 
 	public Node getServiceRoot() {
 		return serviceRoot;
+	}
+
+	public Node getResourceRoot() {
+		return resourceRoot;
 	}
 
 	@Override
@@ -1447,6 +1449,7 @@ public class LibraryNode extends Node {
 	 * @return
 	 */
 	// FIXME - this method also is in Node
+	@Deprecated
 	public List<Node> getDescendentsNamedTypes() {
 		ArrayList<Node> namedTypeProviders = new ArrayList<Node>();
 		for (Node n : getChildren())
@@ -1580,6 +1583,13 @@ public class LibraryNode extends Node {
 	 */
 	protected void setServiceRoot(ServiceNode serviceNode) {
 		serviceRoot = serviceNode;
+	}
+
+	/**
+	 * 
+	 */
+	protected void setResourceRoot(NavNode resourceNode) {
+		this.resourceRoot = resourceNode;
 	}
 
 	public void setAsDefault() {

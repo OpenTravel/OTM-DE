@@ -23,6 +23,7 @@ import org.opentravel.schemacompiler.model.TLAbstractFacet;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAliasOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,6 +165,11 @@ public class AliasNode extends ComponentNode {
 	@Override
 	public String getComponentType() {
 		return "Alias: " + getName();
+	}
+
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.ALIAS;
 	}
 
 	@Override

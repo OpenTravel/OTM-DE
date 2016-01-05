@@ -34,10 +34,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.opentravel.schemas.controllers.OtmActions;
 import org.opentravel.schemas.node.FamilyNode;
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.NavigatorMenus;
@@ -144,6 +144,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 
 		navigatorMenus = new NavigatorMenus(parent, getSite());
 
+		// Content provider set in NavigatorMenus
 		// Set up Filters
 		textFilter = new LibraryTreeNameFilter();
 		inheritedFilter = new LibraryTreeInheritedFilter();

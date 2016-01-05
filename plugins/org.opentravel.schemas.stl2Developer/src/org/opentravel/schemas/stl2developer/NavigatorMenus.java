@@ -40,6 +40,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.opentravel.schemas.actions.AddAliasAction;
 import org.opentravel.schemas.actions.AddCRUDQOperationsAction;
+import org.opentravel.schemas.actions.AddChoiceFacetAction;
 import org.opentravel.schemas.actions.AddCustomFacetAction;
 import org.opentravel.schemas.actions.AddEnumValueAction;
 import org.opentravel.schemas.actions.AddOperationAction;
@@ -73,9 +74,9 @@ import org.opentravel.schemas.commands.SaveLibraryHandler;
 import org.opentravel.schemas.commands.ValidateHandler;
 import org.opentravel.schemas.controllers.RepositoryController;
 import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
-import org.opentravel.schemas.node.Enumeration;
 import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.FamilyNode;
 import org.opentravel.schemas.node.LibraryChainNode;
@@ -85,6 +86,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
@@ -152,10 +154,6 @@ public class NavigatorMenus extends TreeViewer {
 		final Action lockLibraryAction = new LockLibraryAction();
 		final Action unlockLibraryAction = new UnlockLibraryAction();
 
-		// final IContributionItem openDirectoryAction =
-		// RCPUtils.createCommandContributionItem(site,
-		// OpenDirectoryHandler.COMMAND_ID, null, null, null);
-
 		// Project Menu Items
 		final IContributionItem closeProjectAction = RCPUtils.createCommandContributionItem(site,
 				CloseProjectHandler.COMMAND_ID, null, null, null);
@@ -172,21 +170,9 @@ public class NavigatorMenus extends TreeViewer {
 		final IContributionItem closeLibraries = RCPUtils.createCommandContributionItem(site,
 				CloseLibrariesHandler.COMMAND_ID, null, null, null);
 
-		// final Action saveSelectedLibraryAsAction = new SaveSelectedLibraryAsAction(mainWindow,
-		// new ExternalizedStringProperties("action.saveSelectedAs"));
-
-		// final IContributionItem removeLibrariesAction = new ActionContributionItem(
-		// ApplicationActionBarAdvisor.getCloseLibrary());
-		// final IContributionItem removeAllLibrariesAction = new ActionContributionItem(
-		// ApplicationActionBarAdvisor.getCloseAllLibraryInProjectes());
-
-		// final Action saveModelAction = new SaveModelAction(mainWindow, new ExternalizedStringProperties(
-		// "action.saveModel"));
-
 		final Action cloneObjectAction = new CloneSelectedTreeNodesAction(mainWindow, new ExternalizedStringProperties(
 				"action.cloneObject"));
 
-		// final Action setContextAction = new ChangeFacetContextAction(mainWindow);
 		final Action changeObjectAction = new ChangeAction(mainWindow);
 
 		final Action addCrudqOperationsAction = new AddCRUDQOperationsAction(mainWindow,
@@ -195,6 +181,7 @@ public class NavigatorMenus extends TreeViewer {
 		// This is the go-to approach - let the actions have default properties
 		final Action addAliasAction = new AddAliasAction(mainWindow);
 		final Action addCustomFacetAction = new AddCustomFacetAction();
+		final Action addChoiceFacetAction = new AddChoiceFacetAction();
 		final Action addEnumValueAction = new AddEnumValueAction(mainWindow);
 		final Action addOperationAction = new AddOperationAction();
 
@@ -203,9 +190,6 @@ public class NavigatorMenus extends TreeViewer {
 		final IContributionItem addPropertiesAction = RCPUtils.createCommandContributionItem(site,
 				AddNodeHandler2.COMMAND_ID, Messages.getString("action.addProperty.text"), null,
 				AddNodeHandler2.getIcon());
-		// final IContributionItem addPropertiesAction = RCPUtils.createCommandContributionItem(site,
-		// AddNodeHandler.COMMAND_ID, Messages.getString("action.addProperty.text"), null,
-		// AddNodeHandler.getIcon());
 
 		final Action addQueryFacetAction = new AddQueryFacetAction(mainWindow);
 		final Action addRoleAction = new AddRoleAction(mainWindow);
@@ -272,6 +256,7 @@ public class NavigatorMenus extends TreeViewer {
 				componentMenu.add(new Separator());
 				componentMenu.add(addCustomFacetAction);
 				componentMenu.add(addQueryFacetAction);
+				componentMenu.add(addChoiceFacetAction);
 				componentMenu.add(addRoleAction);
 				componentMenu.add(addEnumValueAction);
 				componentMenu.add(new Separator());
@@ -293,6 +278,7 @@ public class NavigatorMenus extends TreeViewer {
 				facetMenu.add(deleteObjectAction);
 				facetMenu.add(addCustomFacetAction);
 				facetMenu.add(addQueryFacetAction);
+				componentMenu.add(addChoiceFacetAction);
 				facetMenu.add(new Separator());
 				facetMenu.add(newComplexAction);
 
@@ -441,7 +427,10 @@ public class NavigatorMenus extends TreeViewer {
 								manager.add(serviceObjectMenu);
 							} else if (node.isOperation()) {
 								manager.add(operationObjectMenu);
+								//
 							} else if (node instanceof BusinessObjectNode) {
+								manager.add(componentMenu);
+							} else if (node instanceof ChoiceObjectNode) {
 								manager.add(componentMenu);
 							} else if (node instanceof CoreObjectNode) {
 								manager.add(componentMenu);
@@ -451,6 +440,7 @@ public class NavigatorMenus extends TreeViewer {
 								manager.add(componentMenu);
 							} else if (node.isAlias()) {
 								manager.add(componentMenu);
+								//
 							} else if (node.isFacet()) {
 								manager.add(facetMenu);
 							} else if (node.isFacetAlias()) {

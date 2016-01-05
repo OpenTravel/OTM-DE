@@ -19,6 +19,7 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLService;
 import org.opentravel.schemas.node.OperationNode.ResourceOperationTypes;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
 
 /**
@@ -92,6 +93,11 @@ public class ServiceNode extends ComponentNode {
 	@Override
 	public INode.CommandType getAddCommand() {
 		return INode.CommandType.OPERATION;
+	}
+
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.SERVICE;
 	}
 
 	@Override

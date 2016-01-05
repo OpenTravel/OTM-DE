@@ -20,12 +20,11 @@ package org.opentravel.schemas.controllers;
 
 import java.util.List;
 
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
-
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 

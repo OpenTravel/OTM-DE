@@ -56,6 +56,10 @@ public class NavNode extends Node {
 		return this == getLibrary().getComplexRoot() ? true : false;
 	}
 
+	public boolean isResourceRoot() {
+		return this == getLibrary().getResourceRoot() ? true : false;
+	}
+
 	@Override
 	public void linkLibrary(LibraryNode lib) {
 		if (lib != null && !getChildren().contains(lib))
@@ -64,7 +68,9 @@ public class NavNode extends Node {
 
 	@Override
 	public Image getImage() {
-		return Images.getImageRegistry().get("folder");
+		if (isResourceRoot())
+			return Images.getImageRegistry().get(Images.Resources);
+		return Images.getImageRegistry().get(Images.Folder);
 	}
 
 	@Override
@@ -92,6 +98,17 @@ public class NavNode extends Node {
 	@Override
 	public String getComponentType() {
 		return "Navigation Node";
+	}
+
+	/**
+	 * For navigation nodes, return the default component type for the type of navigation node.
+	 */
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		if (isSimpleRoot())
+			return ComponentNodeType.SIMPLE;
+		else
+			return ComponentNodeType.CORE;
 	}
 
 	// @Override

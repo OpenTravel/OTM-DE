@@ -25,7 +25,7 @@ import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.OperationNode;
 import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.VersionedObjectInterface;
+import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.MainWindow;

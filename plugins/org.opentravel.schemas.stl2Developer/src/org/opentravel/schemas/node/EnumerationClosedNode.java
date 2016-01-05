@@ -22,11 +22,14 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
+import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.properties.Images;
 
 // FIXME - should not extend simple type node, simple and enum should extend from abstract simple or simple interface
-public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration {
+public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration, LibraryMemberInterface {
 	// public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration, ExtensionOwner,
 	// VersionedObjectInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(EnumerationClosedNode.class);
@@ -87,6 +90,11 @@ public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration
 	@Override
 	public INode.CommandType getAddCommand() {
 		return INode.CommandType.ENUMERATION;
+	}
+
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.CLOSED_ENUM;
 	}
 
 	@Override

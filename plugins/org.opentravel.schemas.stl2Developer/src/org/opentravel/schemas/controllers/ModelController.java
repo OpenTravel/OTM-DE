@@ -16,13 +16,13 @@
 package org.opentravel.schemas.controllers;
 
 import org.opentravel.schemacompiler.model.TLModel;
-import org.opentravel.schemas.node.ComplexComponentInterface;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 

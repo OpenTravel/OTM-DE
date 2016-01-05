@@ -20,11 +20,11 @@ import java.util.List;
 
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.interfaces.INode;
 
 /**
  * Central place for all the library related actions. Note that the global model actions are

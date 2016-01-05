@@ -20,8 +20,8 @@ package org.opentravel.schemas.node.properties;
 
 import java.util.List;
 
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.INode;
 
 /**
  * Implementers can be the parent of a property.

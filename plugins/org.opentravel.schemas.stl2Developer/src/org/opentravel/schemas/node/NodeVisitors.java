@@ -17,6 +17,8 @@ package org.opentravel.schemas.node;
 
 import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.node.Node.NodeVisitor;
+import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;

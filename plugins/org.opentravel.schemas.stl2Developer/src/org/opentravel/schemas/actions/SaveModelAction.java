@@ -15,7 +15,7 @@
  */
 package org.opentravel.schemas.actions;
 
-import org.opentravel.schemas.node.INode;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.MainWindow;
 

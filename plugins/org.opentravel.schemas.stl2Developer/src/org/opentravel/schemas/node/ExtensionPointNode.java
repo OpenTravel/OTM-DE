@@ -21,6 +21,10 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
 import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
@@ -34,7 +38,7 @@ import org.opentravel.schemas.properties.Images;
  * 
  */
 public class ExtensionPointNode extends ComponentNode implements ComplexComponentInterface, ExtensionOwner,
-		PropertyOwnerInterface {
+		PropertyOwnerInterface, LibraryMemberInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionPointNode.class);
 
 	public ExtensionPointNode(LibraryMember mbr) {
@@ -74,6 +78,11 @@ public class ExtensionPointNode extends ComponentNode implements ComplexComponen
 	@Override
 	public PropertyOwnerInterface getAttributeFacet() {
 		return null;
+	}
+
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.EXTENSION_POINT;
 	}
 
 	/**

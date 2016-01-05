@@ -19,6 +19,7 @@
 package org.opentravel.schemas.node;
 
 import org.opentravel.schemacompiler.model.TLRoleEnumeration;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.RoleNode;
 
 /**

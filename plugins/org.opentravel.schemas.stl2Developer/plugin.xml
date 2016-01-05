@@ -53,6 +53,10 @@
 			icon="icons/repositories.gif" id="org.opentravel.schemas.stl2Developer.RepositoryView"
 			name="Repository View" restorable="true">
 		</view>
+		<view allowMultiple="false" class="org.opentravel.schemas.views.RestResourceView"
+			icon="icons/resources.gif" id="org.opentravel.schemas.stl2Developer.ResourceView"
+			name="REST View" restorable="true">
+		</view>
 	</extension>
 	<extension point="org.eclipse.ui.perspectiveExtensions">
 		<perspectiveExtension targetID="*">
@@ -122,14 +126,21 @@
 			</view>
 			<viewShortcut id="org.opentravel.schemas.stl2Developer.ContextsView">
 			</viewShortcut>
+			<view closeable="true"
+				id="org.opentravel.schemas.stl2Developer.ResourceView"
+				minimized="false" moveable="true" relationship="stack"
+				relative="org.opentravel.schemas.stl2Developer.TypeView" standalone="false"
+				visible="true">
+			</view>
+			<viewShortcut id="org.opentravel.schemas.stl2Developer.ResourceView">
+			</viewShortcut>
 			<view closeable="false"
 				id="org.opentravel.schemas.stl2Developer.DocumentationView"
 				minimized="false" moveable="true" relationship="stack"
 				relative="org.opentravel.schemas.stl2Developer.TypeView" standalone="false"
 				visible="true">
 			</view>
-			<viewShortcut
-				id="org.opentravel.schemas.stl2Developer.DocumentationView">
+			<viewShortcut id="org.opentravel.schemas.stl2Developer.DocumentationView">
 			</viewShortcut>
 		</perspectiveExtension>
 	</extension>
@@ -393,6 +404,9 @@
 			id="org.opentravel.schemas.commands.Add" name="Add">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+			id="org.opentravel.schemas.commands.repository.update" name="Change Credentials...">
+		</command>
+		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			defaultHandler="org.opentravel.schemas.commands.CollapseAllHandler"
 			description="Collapse all the nodes in the view" id="org.opentravel.schemas.commands.CollapseAll"
 			name="Collapse All">
@@ -411,6 +425,17 @@
 			name="Add Context">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+			defaultHandler="org.opentravel.schemas.commands.ExactMatchFilteringHandler"
+			description="Display the nodes that exactly match the filter (their names start with filter value); otherwise display all the nodes which names or assigned types match the filter value "
+			id="org.opentravel.schemas.commands.ExactMatchFiltering" name="Exact Match Filtering">
+			<state id=" org.eclipse.ui.commands.toggleState">
+				<class class="org.eclipse.ui.handlers.RegistryToggleState">
+					<parameter name="persisted" value="false">
+					</parameter>
+				</class>
+			</state>
+		</command>
+		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			defaultHandler="org.opentravel.schemas.commands.EditContextHandler"
 			description="Edit or merge contexts" id="org.opentravel.schemas.commands.EditContext"
 			name="Edit Context">
@@ -422,6 +447,11 @@
 			<commandParameter id="stl2Developer.ViewSelection.Expand"
 				name="name" optional="true">
 			</commandParameter>
+		</command>
+		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+			defaultHandler="org.opentravel.schemas.commands.HorizontalDocumentationViewHandler"
+			id="org.opentravel.schemas.commands.HorizontalDocumentationView"
+			name="Horizontal View">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			defaultHandler="org.opentravel.schemas.commands.LinkViewWithNavigatorHandler"
@@ -462,6 +492,10 @@
 			id="org.opentravel.schemas.commands.RefreshDocumentationView" name="Refresh Documentation View">
 		</command -->
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+			description="New top level object in the library" id="org.opentravel.schemas.commands.newComponent"
+			name="New Object...">
+		</command>
+		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			defaultHandler="org.opentravel.schemas.commands.RefreshViewHandler"
 			description="Refresh the view" id="org.opentravel.schemas.commands.RefreshView"
 			name="Refresh View">
@@ -485,24 +519,6 @@
 			id="org.opentravel.schemas.commands.goto.type" name="Go to">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			description="New top level object in the library" id="org.opentravel.schemas.commands.newComponent"
-			name="New Object...">
-		</command>
-		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			defaultHandler="org.opentravel.schemas.commands.ExactMatchFilteringHandler"
-			description="Display the nodes that exactly match the filter (their names start with filter value); otherwise display all the nodes which names or assigned types match the filter value "
-			id="org.opentravel.schemas.commands.ExactMatchFiltering" name="Exact Match Filtering">
-			<state id=" org.eclipse.ui.commands.toggleState">
-				<class class="org.eclipse.ui.handlers.RegistryToggleState">
-					<parameter name="persisted" value="false">
-					</parameter>
-				</class>
-			</state>
-		</command>
-		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			id="org.opentravel.schemas.commands.repository.update" name="Change Credentials...">
-		</command>
-		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			defaultHandler="org.opentravel.schemas.commands.ClearFilterHandler"
 			description="Clears the filter value" id="org.opentravel.schemas.commands.ClearFilter"
 			name="ClearFilter">
@@ -517,11 +533,6 @@
 					</parameter>
 				</class>
 			</state>
-		</command>
-		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			defaultHandler="org.opentravel.schemas.commands.HorizontalDocumentationViewHandler"
-			id="org.opentravel.schemas.commands.HorizontalDocumentationView"
-			name="Horizontal View">
 		</command>
 		<command defaultHandler="org.opentravel.schemas.commands.TestNodeModelHandler"
 			description="Internal Command used for debug purpose" id="org.opentravel.schemas.commands.internal.validate"

@@ -187,6 +187,23 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 		return tf;
 	}
 
+	@Override
+	public TLFacet addFacet(TLFacetType type) {
+		final TLFacet tlf = new TLFacet();
+		switch (type) {
+		case QUERY:
+			srcObj.addQueryFacet(tlf);
+			break;
+		case CUSTOM:
+			srcObj.addCustomFacet(tlf);
+			break;
+		default:
+			throw new IllegalArgumentException("Only the following types are supported for new facets: "
+					+ TLFacetType.QUERY + ", " + TLFacetType.CUSTOM);
+		}
+		return tlf;
+	}
+
 	public void addCustomFacet(final TLFacet tlf) {
 		srcObj.addCustomFacet(tlf);
 		LOGGER.info("Added custom facet " + tlf.getLocalName() + " to BusinessObject " + this.getName());

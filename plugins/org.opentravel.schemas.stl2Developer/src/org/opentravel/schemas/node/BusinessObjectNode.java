@@ -38,6 +38,11 @@ import org.opentravel.schemas.modelObject.BusinessObjMO.Events;
 import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.controllers.NodeUtils;
+import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
@@ -48,7 +53,7 @@ import org.opentravel.schemas.properties.Images;
  * 
  */
 public class BusinessObjectNode extends ComponentNode implements ComplexComponentInterface, ExtensionOwner,
-		VersionedObjectInterface {
+		VersionedObjectInterface, LibraryMemberInterface {
 
 	// private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
 
@@ -193,6 +198,11 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 		for (INode facet : getQueryFacets())
 			users.addAll(facet.getChildren());
 		return users;
+	}
+
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.BUSINESS;
 	}
 
 	/*

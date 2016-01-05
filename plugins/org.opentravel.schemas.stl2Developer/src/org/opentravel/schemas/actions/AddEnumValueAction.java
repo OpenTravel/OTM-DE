@@ -17,8 +17,8 @@ package org.opentravel.schemas.actions;
 
 import org.eclipse.swt.widgets.Event;
 import org.opentravel.schemas.commands.AddNodeHandler2;
-import org.opentravel.schemas.node.Enumeration;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.MainWindow;

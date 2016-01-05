@@ -28,6 +28,11 @@ import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.modelObject.CoreObjectMO;
 import org.opentravel.schemas.modelObject.ListFacetMO;
+import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
@@ -42,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class CoreObjectNode extends ComponentNode implements ComplexComponentInterface, ExtensionOwner,
-		VersionedObjectInterface {
+		VersionedObjectInterface, LibraryMemberInterface {
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = LoggerFactory.getLogger(CoreObjectNode.class);
 
@@ -147,6 +152,11 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 		users.addAll(getSummaryFacet().getChildren());
 		users.addAll(getDetailFacet().getChildren());
 		return users;
+	}
+
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.CORE;
 	}
 
 	@Override

@@ -26,6 +26,9 @@ import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.AggregateNode.AggregateType;
+import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 

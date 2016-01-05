@@ -30,6 +30,7 @@ Export-Package: org.opentravel.schemas.controllers,
  org.opentravel.schemas.modelObject,
  org.opentravel.schemas.navigation,
  org.opentravel.schemas.node,
+ org.opentravel.schemas.node.interfaces,
  org.opentravel.schemas.node.properties,
  org.opentravel.schemas.properties,
  org.opentravel.schemas.stl2developer,
@@ -49,5 +50,6 @@ Import-Package: javax.activation,
  javax.xml.stream.events,
  javax.xml.stream.util,
  org.eclipse.core.net.proxy,
- org.opentravel.schemas.properties
+ org.opentravel.schemas.properties,
+ org.slf4j
 

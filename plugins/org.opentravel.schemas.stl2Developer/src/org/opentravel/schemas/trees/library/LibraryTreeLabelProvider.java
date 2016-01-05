@@ -25,11 +25,11 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ImpliedNodeType;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.controllers.NodeUtils;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Fonts;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 

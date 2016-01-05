@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.node;
 
+import org.opentravel.schemas.node.interfaces.INode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

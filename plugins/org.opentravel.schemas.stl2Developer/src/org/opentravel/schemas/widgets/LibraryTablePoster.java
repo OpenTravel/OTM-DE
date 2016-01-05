@@ -28,12 +28,14 @@ import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
+import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.controllers.NodeUtils;
+import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
@@ -113,7 +115,7 @@ public class LibraryTablePoster {
 			if (curNode.isTopLevelObject()) {
 				// Put the aliases at the top of the table.
 				for (final Node kid : sortedChildren) {
-					if (kid.isAlias()) {
+					if (kid instanceof AliasNode) {
 						postTableRow(kid);
 					}
 				}
@@ -125,12 +127,14 @@ public class LibraryTablePoster {
 				postTableRows(curNode, "");
 			} else if (curNode instanceof EnumerationOpenNode) {
 				postTableRows(curNode, "Open: " + curNode.getName());
-			} else if (curNode.isExtensionPointFacet()) {
+			} else if (curNode instanceof ExtensionPointNode) {
 				postTableRows(curNode, "Extension Point: " + curNode.getName());
 			} else if (curNode.isFacet()) {
 				postTableRows(curNode, curNode.getLabel());
-			} else if (curNode.isCoreObject() || curNode.isBusinessObject() || curNode.isValueWithAttributes()
-					|| curNode.isOperation()) {
+				// } else if (curNode instanceof CoreObjectNode || curNode instanceof BusinessObjectNode
+				// || curNode instanceof VWA_Node || curNode instanceof OperationNode
+				// || curNode instanceof ChoiceObjectNode) {
+			} else if (curNode instanceof ComplexComponentInterface) {
 				for (final Node child : sortedChildren) {
 					if (!child.isAlias()) {
 						postTableRows(child, child.getLabel());

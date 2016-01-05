@@ -20,6 +20,7 @@ package org.opentravel.schemas.node;
 
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
