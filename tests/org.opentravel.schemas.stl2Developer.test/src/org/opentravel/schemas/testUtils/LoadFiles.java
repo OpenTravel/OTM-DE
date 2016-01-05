@@ -28,13 +28,13 @@ import org.junit.Test;
 import org.opentravel.schemacompiler.util.URLUtils;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ImpliedNodeType;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.ProjectNode;
 
 /**
@@ -48,6 +48,7 @@ public class LoadFiles {
 	private String filePath4 = "Resources" + File.separator + "testFile4.otm";
 	private String path5 = "Resources" + File.separator + "testFile5.otm";
 	private String path5c = "Resources" + File.separator + "testFile5-Clean.otm";
+	private String path6 = "Resources" + File.separator + "testFile6.otm";
 
 	private MainController mc;
 	private int nodeCount = 0;
@@ -229,6 +230,11 @@ public class LoadFiles {
 		return ln;
 	}
 
+	public LibraryNode loadFile6(MainController thisModel) {
+		LibraryNode ln = loadFile(thisModel, path6);
+		return ln;
+	}
+
 	/**
 	 * Load the test files 1 though 5 and visit all nodes. Then either remove or delete each node.
 	 * 
@@ -247,7 +253,7 @@ public class LoadFiles {
 
 		mc.getModelNode().visitAllNodes(new NodeTesters().new TestNode());
 
-		for (INode n : new ArrayList<>( mc.getModelNode().getChildren() )) {
+		for (INode n : new ArrayList<>(mc.getModelNode().getChildren())) {
 			nodeCount++;
 			actOnNode(n);
 		}

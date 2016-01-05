@@ -22,12 +22,12 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.INode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.LibraryTests;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeModelTestUtils;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.NodeTesters;

@@ -21,6 +21,7 @@ import java.net.URL;
 
 import org.junit.Assert;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
@@ -37,6 +38,7 @@ import org.opentravel.schemacompiler.validate.FindingType;
 import org.opentravel.schemacompiler.validate.ValidationFinding;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
@@ -52,7 +54,9 @@ import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
+import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -230,6 +234,35 @@ public class MockLibrary {
 		newProp = new ElementNode(newNode.getSummaryFacet(), "TestSum");
 		newProp.setAssignedType(string);
 		return ln.isEditable() ? newNode : null;
+	}
+
+	public ChoiceObjectNode addChoice(LibraryNode ln, String name) {
+		if (name.isEmpty())
+			name = "ChoiceTest";
+		Node string = NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE);
+
+		ChoiceObjectNode choice = new ChoiceObjectNode(new TLChoiceObject());
+		choice.setName(name);
+		if (ln != null)
+			ln.addMember(choice);
+		choice.addAlias("CAlias");
+
+		// Add properties to shared facet
+		PropertyOwnerInterface shared = choice.getSharedFacet();
+		new ElementNode(shared, "shared1");
+
+		// Add two choice facets
+		FacetNode f1 = choice.addFacet("c1");
+		new ElementNode(f1, "c1p1");
+		new AttributeNode(f1, "c1p2");
+		new IndicatorNode(f1, "c1p3");
+
+		FacetNode f2 = choice.addFacet("c2");
+		new ElementNode(f2, "c2p1");
+		new AttributeNode(f2, "c2p2");
+		new IndicatorNode(f2, "c2p3");
+
+		return choice;
 	}
 
 	/**
