@@ -15,14 +15,17 @@
  */
 package org.opentravel.schemas.node.interfaces;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.resources.ResourceField;
 
 /**
- * Implementors are objects that are used in resource definitions.
+ * All resource controllers must implement this interface.
  * 
  * @author Dave
  *
@@ -30,11 +33,9 @@ import org.opentravel.schemas.node.resources.ResourceField;
 public interface ResourceMemberInterface {
 
 	/**
-	 * Delete this node and all of its underlying children. Does not delete nodes that are not delete-able such as
-	 * navigation nodes. All children of navigation nodes are deleted. Removes all nodes from their parent's child list.
-	 * Removes all nodes from type and base-type user lists. Removes TL Entity from TLModel.
-	 * 
-	 * @return false if this node was not deleted.
+	 * Delete this node and all of its underlying children. Does not delete nodes that are not delete-able. Removes from
+	 * their parent's child list. Removes all nodes from type and base-type user lists. Removes INodeListeners and TL
+	 * Entity.
 	 */
 	public void delete();
 
@@ -44,6 +45,15 @@ public interface ResourceMemberInterface {
 	 * @return
 	 */
 	public List<Node> getChildren();
+
+	public String getComponentType();
+
+	public String getDescription();
+
+	/**
+	 * @return an array of key/value pairs where the keys are defined in messages.properties
+	 */
+	public List<ResourceField> getFields();
 
 	/**
 	 * @return the image used to represent this node in the GUI.
@@ -58,23 +68,22 @@ public interface ResourceMemberInterface {
 
 	public INode getParent();
 
+	public TLModelElement getTLModelObject();
+
+	public String getTooltip();
+
+	public ValidationFindings getValidationFindings();
+
+	public Collection<String> getValidationMessages();
+
 	public boolean hasChildren();
-
-	/**
-	 * @return an array of key/value pairs where the keys are defined in messages.properties
-	 */
-	public List<ResourceField> getFields();
-
-	public String getComponentType();
-
-	public String getDescription();
-
-	public void setName(String name);
-
-	public void setDescription(String description);
 
 	public boolean isNameEditable();
 
-	public String getTooltip();
+	public boolean isValid();
+
+	public void setDescription(String description);
+
+	public void setName(String name);
 
 }

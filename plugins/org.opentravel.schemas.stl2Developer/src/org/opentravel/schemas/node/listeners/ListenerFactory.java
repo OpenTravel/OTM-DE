@@ -25,8 +25,8 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.SimpleFacetNode;
 import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
-import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.resources.ActionRequest;
 
 /**
  * Trivial factory class created to consolidate all the listener assignments for maintenance.
@@ -49,8 +49,9 @@ public class ListenerFactory {
 		if (node.getTLModelObject() == null)
 			return;
 
-		if (node instanceof EnumLiteralNode || node instanceof IndicatorNode)
+		if (node instanceof EnumLiteralNode)
 			return; // do not assign listener
+		// if (node instanceof IndicatorNode)
 
 		if (node instanceof PropertyNode)
 			node.getTLModelObject().addListener(new PropertyNodeListener(node));
@@ -62,6 +63,8 @@ public class ListenerFactory {
 			node.getTLModelObject().addListener(new LibraryNodeListener(node));
 		else if (node instanceof BusinessObjectNode)
 			node.getTLModelObject().addListener(new BusinessObjectNodeListener(node));
+		else if (node instanceof ActionRequest)
+			node.getTLModelObject().addListener(new ActionRequestListener(node));
 		else
 			node.getTLModelObject().addListener(new NamedTypeListener(node));
 	}

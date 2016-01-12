@@ -15,6 +15,13 @@
  */
 package org.opentravel.schemas.node.resources;
 
+/**
+ * Interaction between the GUI and resource controllers is through this simple interface. All editable fields must
+ * implement this interface.
+ * 
+ * @author Dave
+ *
+ */
 public interface ResourceFieldListener {
 
 	/**

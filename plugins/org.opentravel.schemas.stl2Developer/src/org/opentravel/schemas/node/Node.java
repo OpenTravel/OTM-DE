@@ -737,13 +737,16 @@ public abstract class Node implements INode {
 	}
 
 	/**
+	 * If the listener has a null node, don't use it for finding node.
+	 * 
 	 * @param listeners
 	 * @return the node associated with the first BaseNodeListener.
 	 */
-	public Node getNodeFromListeners(Collection<ModelElementListener> listeners) {
+	public Node getNode(Collection<ModelElementListener> listeners) {
 		for (ModelElementListener listener : listeners)
 			if (listener instanceof BaseNodeListener)
-				return ((BaseNodeListener) listener).getNode();
+				if (((BaseNodeListener) listener).getNode() != null)
+					return ((BaseNodeListener) listener).getNode();
 		return null;
 	}
 
@@ -2891,8 +2894,8 @@ public abstract class Node implements INode {
 	}
 
 	public Document compileExampleDOM() {
-		final ExampleBuilder<Document> exampleBuilder = new ExampleDocumentBuilder(
-				new ExampleGeneratorOptions()).setModelElement((NamedEntity) this.getTLModelObject());
+		final ExampleBuilder<Document> exampleBuilder = new ExampleDocumentBuilder(new ExampleGeneratorOptions())
+				.setModelElement((NamedEntity) this.getTLModelObject());
 		Document domDoc = null;
 		try {
 			domDoc = exampleBuilder.buildTree();
@@ -2907,8 +2910,8 @@ public abstract class Node implements INode {
 	}
 
 	public String compileExampleXML(boolean quiet) {
-		final ExampleBuilder<Document> exampleBuilder = new ExampleDocumentBuilder(
-				new ExampleGeneratorOptions()).setModelElement((NamedEntity) this.getTLModelObject());
+		final ExampleBuilder<Document> exampleBuilder = new ExampleDocumentBuilder(new ExampleGeneratorOptions())
+				.setModelElement((NamedEntity) this.getTLModelObject());
 		String xml = "ERROR";
 		try {
 			xml = exampleBuilder.buildString();

@@ -35,7 +35,9 @@ public class BaseNodeListener implements INodeListener {
 	Node thisNode;
 
 	/**
-	 * 
+	 * @param node
+	 *            - node associated with this listener. If NULL, this listener will be skipped in
+	 *            Node.getNode(listeners).
 	 */
 	public BaseNodeListener(Node node) {
 		thisNode = node;
@@ -47,39 +49,12 @@ public class BaseNodeListener implements INodeListener {
 		// Node oldValue = getOldValue(event);
 		// LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode + ", old = " + oldValue
 		// + ", new = " + newValue);
-		// for NAME_MODIFIED the values are simple strings
-		//
-		// if (thisNode instanceof VersionNode)
-		// LOGGER.debug("Value Change to version node " + thisNode + " ignored.");
-		// else
-		// switch (event.getType()) {
-		// case DOCUMENTATION_MODIFIED:
-		// break;
-		// case TYPE_ASSIGNMENT_MODIFIED:
-		// break;
-		// default:
-		// LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode + ", old = " + oldValue
-		// + ", new = " + newValue);
-		// }
 	}
 
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
-		Node affectedNode = getAffectedNode(event);
-		LOGGER.debug("Ownership event: " + event.getType() + " this = " + thisNode + " affected = " + affectedNode);
-		//
-		// switch (event.getType()) {
-		// case MEMBER_ADDED:
-		// // LOGGER.debug("Ownership change event: added" + affectedNode + " to " + thisNode);
-		// break;
-		// case MEMBER_REMOVED:
-		// // LOGGER.debug("Ownership change event: removed " + affectedNode + " from " + thisNode);
-		// break;
-		// default:
-		// // LOGGER.debug("Unhandled Ownership event: " + event.getType() + " this = " + thisNode + " affected = "
-		// // + affectedNode);
-		// break;
-		// }
+		// Node affectedNode = getAffectedNode(event);
+		// LOGGER.debug("Ownership event: " + event.getType() + " this = " + thisNode + " affected = " + affectedNode);
 	}
 
 	@Override

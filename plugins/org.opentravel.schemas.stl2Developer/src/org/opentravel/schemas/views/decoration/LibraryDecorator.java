@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.views.decoration;
 
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.BaseLabelProvider;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
@@ -29,6 +30,9 @@ import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.NamespaceHandler;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
+import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryChainNode;
@@ -50,6 +54,10 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 		return false;
 	}
 
+	public static ImageDescriptor errorDesc() {
+		return Images.getImageRegistry().getDescriptor(Images.ErrorDecoration);
+	}
+
 	@Override
 	public void decorate(Object element, IDecoration decoration) {
 		if (element instanceof LibraryNode) {
@@ -67,7 +75,12 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 			decoration.addSuffix(getRepositoryItemDecoration(node.getItem()));
 		} else if (element instanceof RepositoryRootNsNode) {
 			decoration.addSuffix(getNamespaceDecoration((RepositoryRootNsNode) element));
-		}
+		} else if (element instanceof ResourceNode) {
+			if (!((ResourceMemberInterface) element).isValid())
+				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
+		} else if (element instanceof ResourceMemberInterface)
+			if (!((ResourceMemberInterface) element).isValid())
+				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
 	}
 
 	private String getRepositoryNameDecoration(RepositoryInstanceNode element) {

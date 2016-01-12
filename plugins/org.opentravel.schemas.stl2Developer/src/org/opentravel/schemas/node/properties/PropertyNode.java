@@ -253,6 +253,9 @@ public class PropertyNode extends ComponentNode {
 		return exampleHandler;
 	}
 
+	/**
+	 * If context is null, get default example
+	 */
 	@Override
 	public String getExample(String context) {
 		return exampleHandler != null ? exampleHandler.get(context) : "";

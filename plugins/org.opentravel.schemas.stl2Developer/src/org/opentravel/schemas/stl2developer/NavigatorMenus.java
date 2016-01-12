@@ -73,11 +73,13 @@ import org.opentravel.schemas.commands.SaveLibrariesHandler;
 import org.opentravel.schemas.commands.SaveLibraryHandler;
 import org.opentravel.schemas.commands.ValidateHandler;
 import org.opentravel.schemas.controllers.RepositoryController;
+import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.ExtensionPointNode;
+import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.FamilyNode;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
@@ -438,10 +440,10 @@ public class NavigatorMenus extends TreeViewer {
 								manager.add(componentMenu);
 							} else if (node instanceof Enumeration) {
 								manager.add(componentMenu);
-							} else if (node.isAlias()) {
+							} else if (node instanceof AliasNode) {
 								manager.add(componentMenu);
 								//
-							} else if (node.isFacet()) {
+							} else if (node instanceof FacetNode) {
 								manager.add(facetMenu);
 							} else if (node.isFacetAlias()) {
 								manager.add(facetMenu);

@@ -165,5 +165,9 @@ public class ResourceObjectTests {
 		assert resource.getParent() != null;
 		assert resource.getName() != null;
 		assert resource.getLabel() != null;
+		assert resource.getTLModelObject() != null;
+		assert resource.getTLModelObject().getListeners() != null;
+		assert !resource.getTLModelObject().getListeners().isEmpty();
+		resource.getFields(); // don't crash
 	}
 }

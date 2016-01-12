@@ -87,8 +87,9 @@ public class Images {
 		image_registry = new ImageRegistry();
 		final String pluginID = "org.opentravel.schemas.stl2Developer";
 
-		image_registry.put(ErrorDecoration,
-				AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/error_st_obj.gif"));
+		image_registry.put(ErrorDecoration, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/error.gif"));
+		// image_registry.put(ErrorDecoration,
+		// AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/error_st_obj.gif"));
 		image_registry.put("AddComponent", AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/add_att.gif"));
 
 		image_registry.put("library", AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/Library.png"));

@@ -79,13 +79,6 @@ public class AddChoiceFacetAction extends OtmAbstractAction {
 			return;
 		}
 
-		// use if we allow custom facets to be added as minor version change
-		// // Use the version utils in handler to create a minor or patch version if needed
-		// if (current.isEnabled_AddProperties() && !current.isInHead())
-		// current = handler.createVersionExtension(current);
-		// if (current == null)
-		// return;
-
 		final ChoiceObjectNode co = (ChoiceObjectNode) current;
 
 		SimpleNameWizard wizard = new SimpleNameWizard("wizard.newOperation");

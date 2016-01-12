@@ -17,18 +17,26 @@ package org.opentravel.schemas.node.resources;
 
 import java.util.List;
 
+/**
+ * Carries resource related information between the controllers and the GUI view. Defines generic resource fields types
+ * for display and editing. Multiple constructors streamline controller code. Little or no data checking performed.
+ * 
+ * @author Dave
+ *
+ */
 public class ResourceField {
+	public enum ResourceFieldType {
+		String, Int, Enum, List, EnumList, NodeList, CheckButton
+	}
+
+	public static final String NONE = "NONE";
 	String msgKey;
 	String value;
 	Object data;
+
 	ResourceFieldType type = ResourceFieldType.String; // default
-	ResourceFieldListener listener = null;
 
-	public static final String NONE = "NONE";
-
-	public enum ResourceFieldType {
-		String, Int, Enum, List, EnumList, NodeList, CheckButton
-	};
+	ResourceFieldListener listener = null;;
 
 	public ResourceField() {
 	}
@@ -42,54 +50,59 @@ public class ResourceField {
 		parent.add(this);
 	}
 
+	public ResourceField(List<ResourceField> parent, String value, String key, ResourceFieldType type,
+			ResourceFieldListener listener, Object data) {
+		this(parent, value, key, type, listener);
+		this.data = data;
+	}
+
 	public ResourceField(String value, String key) {
 		this.value = value;
 		this.msgKey = key;
-	}
-
-	public String getValue() {
-		return value;
-	}
-
-	public String getKey() {
-		return msgKey;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
-
-	public void setKey(String key) {
-		msgKey = key;
-	}
-
-	public void setType(String data) {
-		type = ResourceFieldType.valueOf(data);
-		ResourceFieldType[] x = ResourceFieldType.values();
 	}
 
 	public Object getData() {
 		return data;
 	}
 
-	public void setData(Object data) {
-		this.data = data;
-	}
-
-	public ResourceFieldType getType() {
-		return type;
-	}
-
-	public void setListener(ResourceFieldListener listener) {
-		this.listener = listener;
+	public String getKey() {
+		return msgKey;
 	}
 
 	public ResourceFieldListener getListener() {
 		return listener;
 	}
 
+	public ResourceFieldType getType() {
+		return type;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setData(Object data) {
+		this.data = data;
+	}
+
+	public void setKey(String key) {
+		msgKey = key;
+	}
+
+	public void setListener(ResourceFieldListener listener) {
+		this.listener = listener;
+	}
+
 	public void setType(ResourceFieldType type) {
 		this.type = type;
+	}
+
+	public void setType(String data) {
+		type = ResourceFieldType.valueOf(data);
+	}
+
+	public void setValue(String value) {
+		this.value = value;
 	}
 
 }

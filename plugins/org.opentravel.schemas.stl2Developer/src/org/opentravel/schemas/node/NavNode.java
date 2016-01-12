@@ -57,7 +57,7 @@ public class NavNode extends Node {
 	}
 
 	public boolean isResourceRoot() {
-		return this == getLibrary().getResourceRoot() ? true : false;
+		return getLibrary() != null ? this == getLibrary().getResourceRoot() : false;
 	}
 
 	@Override

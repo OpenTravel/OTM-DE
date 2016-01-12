@@ -492,6 +492,35 @@
 			id="org.opentravel.schemas.commands.RefreshDocumentationView" name="Refresh Documentation View">
 		</command -->
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+			description="New resource" id="org.opentravel.schemas.commands.newResource"
+			name="New Resource">
+		</command>
+		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+		    defaultHandler="org.opentravel.schemas.commands.ResourceCommandHandler"
+			description="New action" id="org.opentravel.schemas.commands.newResource.ACTION"
+			name="New Resource">
+		</command>
+		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+			id="org.opentravel.schemas.commands.newResource.DELETE"
+		    defaultHandler="org.opentravel.schemas.commands.ResourceCommandHandler"
+			name="New Resource">
+		</command>
+		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+			id="org.opentravel.schemas.commands.newResource.ACTIONRESPONSE"
+		    defaultHandler="org.opentravel.schemas.commands.ResourceCommandHandler"
+			name="New Resource">
+		</command>
+		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+			id="org.opentravel.schemas.commands.newResource.ACTIONFACET"
+		    defaultHandler="org.opentravel.schemas.commands.ResourceCommandHandler"
+			name="New Resource">
+		</command>
+		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+			description="New resource" id="org.opentravel.schemas.commands.newResource.PARAMGROUP"
+		    defaultHandler="org.opentravel.schemas.commands.ResourceCommandHandler"
+			name="New parameter group">
+		</command>
+		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			description="New top level object in the library" id="org.opentravel.schemas.commands.newComponent"
 			name="New Object...">
 		</command>
@@ -833,6 +862,27 @@
 		</handler>
 		<handler class="org.opentravel.schemas.commands.NewComponentHandler"
 			commandId="org.opentravel.schemas.commands.newComponent">
+			<enabledWhen>
+				<with variable="org.opentravel.schemas.selection.nodes">
+					<iterate ifEmpty="false" operator="and">
+						<and>
+							<test property="stl2Developer.node.isInTLLibrary">
+							</test>
+							<test property="stl2Developer.node.isOwnerLibraryEditable">
+							</test>
+						</and>
+					</iterate>
+				</with>
+			</enabledWhen>
+		</handler>
+		<handler class="org.opentravel.schemas.commands.ResourceCommandHandler"
+			commandId="org.opentravel.schemas.commands.newResource">
+			<activeWhen>
+				<with variable="activePartId">
+					<equals value="org.opentravel.schemas.stl2Developer.ResourceView">
+					</equals>
+				</with>
+			</activeWhen>
 			<enabledWhen>
 				<with variable="org.opentravel.schemas.selection.nodes">
 					<iterate ifEmpty="false" operator="and">

@@ -21,11 +21,7 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLActionFacet;
-import org.opentravel.schemacompiler.model.TLDocumentation;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLReferenceType;
-import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
@@ -33,9 +29,15 @@ import org.opentravel.schemas.views.RestResourceView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ActionFacet extends BaseResourceNode {
+/**
+ * Action Facet Controller. Provides getters, setters and listeners for editable fields.
+ * 
+ * @author Dave
+ *
+ */
+public class ActionFacet extends ResourceBase<TLActionFacet> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RestResourceView.class);
-	private String MSGKEY = "rest.ActionFacet";
+	protected String MSGKEY = "rest.ActionFacet";
 
 	class ReferenceNameListner implements ResourceFieldListener {
 		@Override
@@ -61,62 +63,27 @@ public class ActionFacet extends BaseResourceNode {
 		}
 	}
 
-	private TLActionFacet tlObj = null;
+	/***************************************************************************
+	 * 
+	 */
+	public ActionFacet(TLActionFacet tlActionFacet) {
+		super(tlActionFacet);
+		parent = this.getNode(((LibraryMember) tlObj.getOwningEntity()).getListeners());
+		assert parent instanceof ResourceNode;
+		getParent().addChild(this);
+	}
 
-	public ActionFacet(TLActionFacet tlAction) {
-		super();
-		this.tlObj = tlAction;
-		ListenerFactory.setListner(this);
-		parent = this.getNodeFromListeners(((LibraryMember) tlObj.getOwningEntity()).getListeners());
+	public ActionFacet(ResourceNode parent) {
+		super(new TLActionFacet());
+		getParent().getTLModelObject().addActionFacet(tlObj);
 	}
 
 	@Override
-	public String getTooltip() {
-		return Messages.getString(MSGKEY + ".tooltip");
-	}
-
-	@Override
-	public TLModelElement getTLModelObject() {
-		return tlObj;
+	public ResourceNode getParent() {
+		return (ResourceNode) parent;
 	}
 
 	public void addChildren() {
-	}
-
-	@Override
-	public Image getImage() {
-		return Images.getImageRegistry().get(Images.ActionFacet);
-
-	}
-
-	@Override
-	public String getLabel() {
-		return getName();
-	}
-
-	@Override
-	public String getName() {
-		return tlObj.getName() != null ? tlObj.getName() : "";
-	}
-
-	@Override
-	public boolean isNameEditable() {
-		return true;
-	}
-
-	@Override
-	public Node getOwningComponent() {
-		return parent;
-	}
-
-	@Override
-	public boolean hasNavChildren() {
-		return !getChildren().isEmpty();
-	}
-
-	@Override
-	public String getDescription() {
-		return tlObj.getDocumentation() != null ? tlObj.getDocumentation().getDescription() : "";
 	}
 
 	@Override
@@ -129,35 +96,57 @@ public class ActionFacet extends BaseResourceNode {
 		List<ResourceField> fields = new ArrayList<ResourceField>();
 
 		// Facet Reference = This can only be set to a facet in the resource subject business object
-		ResourceField field = new ResourceField(fields, tlObj.getReferenceFacetName(),
-				"rest.ActionFacet.fields.referenceFacetName", ResourceFieldType.Enum, new ReferenceNameListner());
-		field.setData(((ResourceNode) getOwningComponent()).getSubjectFacets());
+		new ResourceField(fields, tlObj.getReferenceFacetName(), "rest.ActionFacet.fields.referenceFacetName",
+				ResourceFieldType.Enum, new ReferenceNameListner(), getOwningComponent().getSubjectFacets());
 
-		field = new ResourceField();
-		fields.add(field);
-		field.setValue(Integer.toString(tlObj.getReferenceRepeat()));
-		field.setKey("rest.ActionFacet.fields.referenceRepeat");
-		field.type = ResourceFieldType.Int;
-		field.listener = new ReferenceRepeatListener();
+		// Repeat Count - an int
+		new ResourceField(fields, Integer.toString(tlObj.getReferenceRepeat()),
+				"rest.ActionFacet.fields.referenceRepeat", ResourceFieldType.Int, new ReferenceRepeatListener());
 
-		field = new ResourceField();
-		fields.add(field);
-		field.setValue(tlObj.getReferenceType().toString());
-		field.setKey("rest.ActionFacet.fields.referenceType");
-		field.type = ResourceField.ResourceFieldType.Enum;
-		int i = 0;
-		String[] values = new String[TLReferenceType.values().length];
-		for (TLReferenceType l : TLReferenceType.values())
-			values[i++] = l.toString();
-		field.setData(values);
-		field.setListener(new ReferenceTypeListener());
+		// Reference Type - enum list
+		new ResourceField(fields, getReferenceType(), "rest.ActionFacet.fields.referenceType",
+				ResourceField.ResourceFieldType.Enum, new ReferenceTypeListener(), getReferenceTypeStrings());
 
 		return fields;
 	}
 
+	@Override
+	public Image getImage() {
+		return Images.getImageRegistry().get(Images.ActionFacet);
+
+	}
+
+	@Override
+	public String getName() {
+		return tlObj.getName() != null ? tlObj.getName() : "";
+	}
+
+	public String getReferenceType() {
+		return tlObj.getReferenceType() != null ? tlObj.getReferenceType().toString() : "";
+	}
+
+	@Override
+	public String getTooltip() {
+		return Messages.getString(MSGKEY + ".tooltip");
+	}
+
+	@Override
+	public boolean isNameEditable() {
+		return true;
+	}
+
+	@Override
+	public void setName(final String name) {
+		tlObj.setName(name);
+	}
+
+	/**
+	 * @param name
+	 *            of the business object facet
+	 */
 	public void setReferenceFacetName(String name) {
 		tlObj.setReferenceFacetName(name);
-		LOGGER.debug("Set Reference name to " + name);
+		LOGGER.debug("Set Reference facet name to " + name + " : " + tlObj.getReferenceFacetName());
 	}
 
 	public void setReferenceRepeat(Integer i) {
@@ -166,24 +155,8 @@ public class ActionFacet extends BaseResourceNode {
 	}
 
 	public void setReferenceType(String value) {
-		TLReferenceType eVal = TLReferenceType.valueOf(value);
-		tlObj.setReferenceType(eVal);
-		LOGGER.debug("Set Reference Type to " + eVal);
-	}
-
-	@Override
-	public void setDescription(final String description) {
-		TLDocumentation doc = tlObj.getDocumentation();
-		if (doc == null) {
-			doc = new TLDocumentation();
-			tlObj.setDocumentation(doc);
-		}
-		doc.setDescription(description);
-	}
-
-	@Override
-	public void setName(final String name) {
-		tlObj.setName(name);
+		tlObj.setReferenceType(TLReferenceType.valueOf(value));
+		LOGGER.debug("Set Reference Type to " + value + " : " + tlObj.getReferenceType());
 	}
 
 }

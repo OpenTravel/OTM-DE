@@ -40,6 +40,8 @@ public class IndicatorNode extends PropertyNode {
 	public IndicatorNode(PropertyOwnerInterface parent, String name) {
 		super(new TLIndicator(), (Node) parent, name, PropertyNodeType.INDICATOR);
 		setIdentity(name);
+
+		assert (!getTLModelObject().getListeners().isEmpty());
 	}
 
 	/**
@@ -53,6 +55,7 @@ public class IndicatorNode extends PropertyNode {
 
 		if (!(tlObj instanceof TLIndicator))
 			throw new IllegalArgumentException("Invalid object for an indicator.");
+		assert (!getTLModelObject().getListeners().isEmpty());
 	}
 
 	@Override

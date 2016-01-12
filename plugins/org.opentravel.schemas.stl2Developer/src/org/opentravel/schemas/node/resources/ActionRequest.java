@@ -19,53 +19,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.event.OwnershipEvent;
-import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLActionRequest;
-import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLHttpMethod;
 import org.opentravel.schemacompiler.model.TLMimeType;
-import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemacompiler.model.TLParamGroup;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
-import org.opentravel.schemas.node.listeners.BaseNodeListener;
-import org.opentravel.schemas.node.listeners.INodeListener;
+import org.opentravel.schemas.node.listeners.ActionRequestListener;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ActionRequest extends Node implements ResourceMemberInterface {
+/**
+ * Implements ActionRequest controller. Includes getters, setters and listeners for editable fields.
+ * 
+ * @author Dave
+ *
+ */
+public class ActionRequest extends ResourceBase<TLActionRequest> implements ResourceMemberInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ActionRequest.class);
 	private String MSGKEY = "rest.ActionRequest";
-
-	private TLActionRequest tlObj = null;
-	private Node payload = null;
-
-	class PayloadTypeListener implements ResourceFieldListener {
-		@Override
-		public boolean set(String value) {
-			setPayloadType(value);
-			return false;
-		}
-	}
 
 	class HttpMethodListener implements ResourceFieldListener {
 		@Override
 		public boolean set(String value) {
 			setHttpMethod(value);
-			return false;
-		}
-	}
-
-	class PathTemplateListener implements ResourceFieldListener {
-		@Override
-		public boolean set(String value) {
-			setPathTemplate(value);
 			return false;
 		}
 	}
@@ -85,111 +66,56 @@ public class ActionRequest extends Node implements ResourceMemberInterface {
 		}
 	}
 
+	class PathTemplateListener implements ResourceFieldListener {
+		@Override
+		public boolean set(String value) {
+			setPathTemplate(value);
+			return false;
+		}
+	}
+
+	class PayloadTypeListener implements ResourceFieldListener {
+		@Override
+		public boolean set(String value) {
+			setPayloadType(value);
+			return false;
+		}
+	}
+
+	/*******************************************************************************
+	 * 
+	 */
+	public ActionRequest(TLActionRequest tlActionRequest) {
+		super(tlActionRequest);
+		parent = this.getNode(((TLAction) tlObj.getOwner()).getListeners());
+		getParent().addChild(this);
+
+		// set listeners onto Param Groups to change path template
+		if (tlObj.getParamGroup() != null)
+			tlObj.getParamGroup().addListener(new ActionRequestListener(null));
+	}
+
+	// No GUI constructor - one is always built. It may be deleted.
+
 	/**
-	 * Listen for changes to the action request. If the change is to the parameters, the path has to change.
+	 * Set the path to have all the parameters from the parameter group that are PATH, null or empty.
 	 * 
+	 * @param tlParamGroup
 	 */
-	class ActionRequestListener extends BaseNodeListener implements INodeListener {
-
-		public ActionRequestListener(Node node) {
-			super(node);
-		}
-
-		@Override
-		public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
-			super.processOwnershipEvent(event);
-			LOGGER.debug("Ownership event: " + event);
-		}
-
-		@Override
-		public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
-			super.processValueChangeEvent(event);
-			LOGGER.debug("Value change event: " + event);
-			switch (event.getType()) {
-			case PARAM_GROUP_ADDED:
-			case PARAM_GROUP_MODIFIED:
-				if (event.getNewValue() instanceof TLParamGroup)
-					createPathTemplate((TLParamGroup) event.getNewValue());
-				break;
-			case PARAM_GROUP_REMOVED:
-				tlObj.setPathTemplate("");
-				break;
-			case PARAMETER_ADDED:
-			case PARAMETER_REMOVED:
-			case PARENT_PARAM_GROUP_MODIFIED:
-				LOGGER.debug("TODO - individual parameter changed.");
-			default:
-				LOGGER.debug("TODO - unhandled event.");
-				break;
-			}
-		}
-
-	}
-
-	/***************************************************************
-	 * 
-	 * @param tlAction
-	 */
-	public ActionRequest(TLActionRequest tlAction) {
-		this.tlObj = tlAction;
-		// ListenerFactory.setListner(this);
-		tlObj.addListener(new ActionRequestListener(this));
-		parent = this.getNodeFromListeners(((TLAction) tlObj.getOwner()).getListeners());
-	}
-
-	public Node getPayload() {
-		if (tlObj.getPayloadType() != null)
-			payload = this.getNodeFromListeners(tlObj.getPayloadType().getListeners());
-		return payload;
-	}
-
-	public void addChildren() {
+	public void createPathTemplate() {
+		String path = ""; // Start with empty path
+		ParamGroup pg = (ParamGroup) getNode(tlObj.getParamGroup().getListeners());
+		if (pg != null)
+			for (String pt : pg.getPathTemplates())
+				path += pt;
+		tlObj.setPathTemplate(path);
+		LOGGER.debug("Created path template: " + tlObj.getPathTemplate());
 	}
 
 	@Override
-	public TLModelElement getTLModelObject() {
-		return tlObj;
-	}
-
-	@Override
-	public String getTooltip() {
-		return Messages.getString(MSGKEY + ".tooltip");
-	}
-
-	@Override
-	public Image getImage() {
-		return Images.getImageRegistry().get(Images.ActionRequest);
-
-	}
-
-	@Override
-	public String getLabel() {
-		return getName();
-	}
-
-	@Override
-	public String getName() {
-		return tlObj.getLocalName() != null ? tlObj.getLocalName() : "";
-	}
-
-	@Override
-	public boolean isNameEditable() {
-		return false;
-	}
-
-	@Override
-	public Node getOwningComponent() {
-		return parent.getParent();
-	}
-
-	@Override
-	public boolean hasNavChildren() {
-		return !getChildren().isEmpty();
-	}
-
-	@Override
-	public String getDescription() {
-		return tlObj.getDocumentation() != null ? tlObj.getDocumentation().getDescription() : "";
+	public void delete() {
+		clearListeners();
+		tlObj.getOwner().setRequest(null);
 	}
 
 	@Override
@@ -201,65 +127,123 @@ public class ActionRequest extends Node implements ResourceMemberInterface {
 	public List<ResourceField> getFields() {
 		List<ResourceField> fields = new ArrayList<ResourceField>();
 
-		// Pass list of Action Facet names to select from
-		ResourceField field = new ResourceField();
-		fields.add(field);
-		if (tlObj.getPayloadType() != null)
-			field.setValue(tlObj.getPayloadType().getName());
-		field.setKey("rest.ActionRequest.fields.payload");
-		field.setType(ResourceFieldType.Enum);
-		field.setListener(new PayloadTypeListener());
-		field.setData(((ResourceNode) getOwningComponent()).getActionFacetsNames());
+		// Payload - Pass list of Action Facet names to select from
+		new ResourceField(fields, getPayloadName(), MSGKEY + ".fields.payload", ResourceFieldType.Enum,
+				new PayloadTypeListener(), getOwningComponent().getActionFacetsNames());
 
 		// Mime Types = multi-select List of possible types
-		field = new ResourceField();
-		fields.add(field);
-		field.setValue(tlObj.getMimeTypes().toString());
-		field.setKey("rest.ActionRequest.fields.mimeTypes");
-		// pass data to set up a field of buttons for mime types
-		field.type = ResourceField.ResourceFieldType.EnumList;
-		int i = 0;
-		String[] values = new String[TLMimeType.values().length];
-		for (TLMimeType l : TLMimeType.values())
-			values[i++] = l.toString();
-		field.setData(values);
-		field.setListener(new MimeTypeListener());
+		new ResourceField(fields, tlObj.getMimeTypes().toString(), MSGKEY + ".fields.mimeTypes",
+				ResourceFieldType.EnumList, new MimeTypeListener(), getMimeTypeStrings());
 
-		field = new ResourceField();
-		fields.add(field);
-		field.setValue(tlObj.getParamGroupName());
-		field.setKey("rest.ActionRequest.fields.paramGroup");
-		// create a list of the parameter groups to be selected from
-		List<ParamGroup> paramGroups = ((ResourceNode) getOwningComponent()).getParameterGroups();
-		String[] groupNames = new String[paramGroups.size()];
-		i = 0;
-		for (Node n : paramGroups)
-			groupNames[i++] = n.getName();
-		field.setData(groupNames);
-		field.setType(ResourceFieldType.Enum);
-		field.setListener(new ParamGroupListener());
+		// Parameter Groups - List of group names
+		new ResourceField(fields, tlObj.getParamGroupName(), MSGKEY + ".fields.paramGroup", ResourceFieldType.Enum,
+				new ParamGroupListener(), getOwningComponent().getParamGroupNames());
 
-		field = new ResourceField();
-		fields.add(field);
-		field.setValue(tlObj.getPathTemplate());
-		field.setKey("rest.ActionRequest.fields.path");
-		field.setListener(new PathTemplateListener());
+		// Path Template - simple String
+		new ResourceField(fields, tlObj.getPathTemplate(), MSGKEY + ".fields.path",
+				ResourceField.ResourceFieldType.String, new PathTemplateListener());
 
-		field = new ResourceField();
-		fields.add(field);
-		field.setValue(tlObj.getHttpMethod().toString());
-		field.setKey("rest.ActionRequest.fields.httpMethod");
-		field.type = ResourceField.ResourceFieldType.Enum;
-		i = 0;
-		values = new String[TLHttpMethod.values().length];
-		for (TLHttpMethod l : TLHttpMethod.values())
-			values[i++] = l.toString();
-		field.setData(values);
-		field.setListener(new HttpMethodListener());
+		// HTTP Method
+		new ResourceField(fields, getHttpMethod(), MSGKEY + ".fields.httpMethod", ResourceFieldType.Enum,
+				new HttpMethodListener(), getHttpMethodStrings());
 
 		return fields;
 	}
 
+	public String getHttpMethod() {
+		return tlObj.getHttpMethod() != null ? tlObj.getHttpMethod().toString() : "";
+	}
+
+	@Override
+	public Image getImage() {
+		return Images.getImageRegistry().get(Images.ActionRequest);
+	}
+
+	@Override
+	public String getName() {
+		return tlObj.getLocalName() != null ? tlObj.getLocalName() : "";
+	}
+
+	public ParamGroup getParamGroup() {
+		return (ParamGroup) getNode(tlObj.getParamGroup().getListeners());
+	}
+
+	@Override
+	public ActionNode getParent() {
+		return (ActionNode) parent;
+	}
+
+	public Node getPayload() {
+		return tlObj.getPayloadType() != null ? getNode(tlObj.getPayloadType().getListeners()) : null;
+	}
+
+	public String getPayloadName() {
+		return tlObj.getPayloadType() != null ? tlObj.getPayloadType().getName() : "";
+	}
+
+	@Override
+	public String getTooltip() {
+		return Messages.getString(MSGKEY + ".tooltip");
+	}
+
+	@Override
+	public boolean isNameEditable() {
+		return false;
+	}
+
+	public void setHttpMethod(String method) {
+		tlObj.setHttpMethod(TLHttpMethod.valueOf(method));
+		LOGGER.debug("Set HTTP method to " + method);
+	}
+
+	/**
+	 * Implements a toggle action. If the mime type is defined, it is removed. If it not defined it is added.
+	 * 
+	 * @param value
+	 */
+	public void setMimeType(String value) {
+		TLMimeType type = TLMimeType.valueOf(value);
+		// FIXME
+		// if (tlObj.getMimeTypes().contains(type))
+		// tlObj.removeMimeType(type);
+		// else
+		// tlObj.addMimeType(type);
+		LOGGER.debug("FIXME - Set Mime types to: " + tlObj.getMimeTypes());
+	}
+
+	@Override
+	public void setName(final String name) {
+	}
+
+	public boolean setParamGroup(String groupName) {
+		if (groupName.equals(ResourceField.NONE)) {
+			tlObj.setParamGroup(null);
+			LOGGER.debug("Set parameter group to null. " + groupName);
+		} else if (tlObj.getParamGroupName() != null && tlObj.getParamGroupName().equals(groupName)) {
+			LOGGER.debug("No change because names are the same. " + groupName);
+		} else
+			// find the param group with this name then set it
+			for (ParamGroup node : getOwningComponent().getParameterGroups())
+				if (node.getName().equals(groupName))
+					tlObj.setParamGroup(node.tlObj);
+
+		createPathTemplate(); // update the template
+		getParent().updateExample();
+		LOGGER.debug("Set parameter group to " + groupName + " : " + tlObj.getParamGroupName());
+		return true;
+	}
+
+	public void setPathTemplate(String path) {
+		tlObj.setPathTemplate(path);
+		LOGGER.debug("Set Path template to " + path + ": " + tlObj.getPathTemplate());
+	}
+
+	/**
+	 * Set the payload to the named object. If "NONE", set to null. Ignore if it is already set to the named type.
+	 * 
+	 * @param payloadName
+	 * @return true if there was a change
+	 */
 	public boolean setPayloadType(String payloadName) {
 		if (tlObj.getPayloadTypeName().equals(payloadName)) {
 			LOGGER.debug("No change because names are the same. " + payloadName);
@@ -272,7 +256,7 @@ public class ActionRequest extends Node implements ResourceMemberInterface {
 			return true;
 		}
 
-		for (ActionFacet f : ((ResourceNode) getOwningComponent()).getActionFacets())
+		for (ActionFacet f : getOwningComponent().getActionFacets())
 			if (f.getName().equals(payloadName)) {
 				tlObj.setPayloadType((TLActionFacet) f.getTLModelObject());
 				LOGGER.debug("Set payload to " + payloadName);
@@ -280,77 +264,6 @@ public class ActionRequest extends Node implements ResourceMemberInterface {
 			}
 		LOGGER.debug("No Action - Set payload name not found. " + payloadName);
 		return false;
-	}
-
-	public void setPathTemplate(String path) {
-		tlObj.setPathTemplate(path);
-		LOGGER.debug("Set Path template to: " + tlObj.getPathTemplate());
-	}
-
-	/**
-	 * Set the path to have all the parameters from the parameter group that are PATH, null or empty.
-	 * 
-	 * @param tlParamGroup
-	 */
-	public void createPathTemplate(TLParamGroup tlParamGroup) {
-		ParamGroup pg = (ParamGroup) this.getNodeFromListeners(tlParamGroup.getListeners());
-		String path = "/TODO-Base/";
-		for (String pt : pg.getPathTemplates())
-			path += pt;
-		tlObj.setPathTemplate(path);
-		LOGGER.debug("Created path template: " + tlObj.getPathTemplate());
-	}
-
-	public void setHttpMethod(String method) {
-		tlObj.setHttpMethod(TLHttpMethod.valueOf(method));
-		LOGGER.debug("Set HTTP method to " + method);
-	}
-
-	public boolean setParamGroup(String groupName) {
-		if (tlObj.getParamGroupName() != null && tlObj.getParamGroupName().equals(groupName)) {
-			LOGGER.debug("No change because names are the same. " + groupName);
-			return false;
-		}
-
-		// find the param group with this name then set it
-		for (Node node : ((ResourceNode) getOwningComponent()).getParameterGroups())
-			if (node instanceof ParamGroup && node.getName().equals(groupName))
-				tlObj.setParamGroup((TLParamGroup) node.getTLModelObject());
-
-		// Listener will notify path it needs to change
-		LOGGER.debug("Set parameter group to " + groupName);
-		return true;
-	}
-
-	/**
-	 * Implements a toggle action. If the mime type is defined, it is removed. If it not defined it is added.
-	 * 
-	 * @param value
-	 */
-	public void setMimeType(String value) {
-		TLMimeType type = TLMimeType.valueOf(value);
-		// FIXME when issue https://github.com/OpenTravel/OTM-DE-Compiler/issues/32 resolved
-		// MimeType x = MimeType.valueOf(value);
-		// if (tlObj.getMimeTypes().contains(type))
-		// tlObj.removeMimeType(x);
-		// else
-		tlObj.addMimeType(type);
-		LOGGER.debug("Set Mime types to: " + tlObj.getMimeTypes());
-	}
-
-	@Override
-	public void setDescription(final String description) {
-		TLDocumentation doc = tlObj.getDocumentation();
-		if (doc == null) {
-			doc = new TLDocumentation();
-			tlObj.setDocumentation(doc);
-		}
-		doc.setDescription(description);
-	}
-
-	@Override
-	public void setName(final String name) {
-		// TODO - what to do about objects with fixed names?
 	}
 
 }

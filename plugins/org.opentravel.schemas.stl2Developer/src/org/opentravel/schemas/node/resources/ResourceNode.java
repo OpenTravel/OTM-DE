@@ -20,6 +20,7 @@ package org.opentravel.schemas.node.resources;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,9 +29,14 @@ import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLParamGroup;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemacompiler.model.TLResourceParentRef;
+import org.opentravel.schemacompiler.validate.FindingMessageFormat;
+import org.opentravel.schemacompiler.validate.FindingType;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
+import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.modelObject.ResourceMO;
 import org.opentravel.schemas.node.BusinessObjectNode;
@@ -78,7 +84,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		@Override
 		public boolean set(String path) {
 			setBasePath(path);
-			return false;
+			return true; // changes examples
 		}
 	}
 
@@ -117,7 +123,27 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		assert (getModelObject() != null);
 		tlObj = (TLResource) getTLModelObject();
 		addMOChildren();
+	}
 
+	/**
+	 * Create a resource in the library of the libraryMember.
+	 */
+	public ResourceNode(Node libraryMember) {
+		super(new TLResource());
+		if (libraryMember.getName().isEmpty())
+			tlObj.setName("NewResource"); // must be named to add to library
+		else
+			tlObj.setName(libraryMember.getName() + "Resource");
+		libraryMember.getLibrary().addMember(this);
+	}
+
+	public void addChild(ResourceMemberInterface child) {
+		if (!getChildren().contains(child))
+			getChildren().add((Node) child);
+	}
+
+	public String getMsgKey() {
+		return MSGKEY;
 	}
 
 	@Override
@@ -128,6 +154,14 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	@Override
 	public ComponentNode createMinorVersionComponent() {
 		return super.createMinorVersionComponent(new ResourceNode(createMinorTLVersion(this)));
+	}
+
+	public List<ActionNode> getActions() {
+		ArrayList<ActionNode> actions = new ArrayList<ActionNode>();
+		for (Node child : getChildren())
+			if (child instanceof ActionNode)
+				actions.add((ActionNode) child);
+		return actions;
 	}
 
 	public List<ActionFacet> getActionFacets() {
@@ -251,6 +285,19 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	/**
+	 * @return list of the parameter groups by name and NONE
+	 */
+	public String[] getParamGroupNames() {
+		List<ParamGroup> paramGroups = getParameterGroups();
+		String[] groupNames = new String[paramGroups.size() + 1];
+		int i = 0;
+		groupNames[i] = ResourceField.NONE;
+		for (Node n : paramGroups)
+			groupNames[i++] = n.getName();
+		return groupNames;
+	}
+
+	/**
 	 * @return a string array of parent resource references by name
 	 */
 	public String[] getParentRefNames() {
@@ -285,7 +332,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	public Node getSubject() {
 		if (tlObj.getBusinessObjectRef() != null)
-			subject = this.getNodeFromListeners(tlObj.getBusinessObjectRef().getListeners());
+			subject = this.getNode(tlObj.getBusinessObjectRef().getListeners());
 		return subject;
 	}
 
@@ -307,7 +354,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	public String[] getSubjectFacets() {
 		if (getSubject() == null)
-			return null;
+			return new String[0];
 		String[] fs = new String[subject.getChildren().size()];
 		int i = 0;
 		for (Node facet : subject.getChildren())
@@ -320,6 +367,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	public String getTooltip() {
 		return Messages.getString(MSGKEY + ".tooltip");
 	}
+
+	@Override
+	public TLResource getTLModelObject() {
+		return tlObj;
+	};
 
 	@Override
 	public boolean hasNavChildren() {
@@ -353,8 +405,10 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	public void setBasePath(String path) {
+		// if (!path.endsWith("/"))
+		// path = path + "/";
 		tlObj.setBasePath(path);
-		LOGGER.debug("Set base path to: " + tlObj.getBasePath());
+		LOGGER.debug("Set base path to " + path + ": " + tlObj.getBasePath());
 	}
 
 	@Override
@@ -413,16 +467,35 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	protected void addMOChildren() {
 		TLResource tlObj = (TLResource) getTLModelObject();
 		for (TLParamGroup tlp : tlObj.getParamGroups())
-			getChildren().add(new ParamGroup(tlp));
+			new ParamGroup(tlp);
 
 		for (TLAction action : tlObj.getActions())
-			getChildren().add(new ActionNode(action));
+			new ActionNode(action);
 
 		for (TLActionFacet af : tlObj.getActionFacets())
-			getChildren().add(new ActionFacet(af));
+			new ActionFacet(af);
 	}
 
-	// TODO - implemenent validation
-	// ValidationFindings findings = ((Node) node).validate();
+	public boolean isValid() {
+		ValidationFindings findings = TLModelCompileValidator.validateModelElement(tlObj);
+		// ValidationFindings findings = ((Node) node).validate();
+		return findings.isEmpty();
+	}
+
+	@Override
+	public Collection<String> getValidationMessages() {
+		ValidationFindings findings = TLModelCompileValidator.validateModelElement((TLModelElement) tlObj);
+		ArrayList<String> msgs = new ArrayList<String>();
+		for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
+			msgs.add(f);
+		for (String f : findings.getValidationMessages(FindingType.WARNING, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
+			msgs.add(f);
+		return msgs;
+	}
+
+	@Override
+	public ValidationFindings getValidationFindings() {
+		return TLModelCompileValidator.validateModelElement((TLModelElement) tlObj);
+	}
 
 }

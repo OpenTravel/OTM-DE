@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -42,34 +41,40 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
-import org.opentravel.schemas.actions.AddContextAction;
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.validate.FindingMessageFormat;
+import org.opentravel.schemacompiler.validate.FindingType;
+import org.opentravel.schemacompiler.validate.ValidationFinding;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.node.ContextNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
+import org.opentravel.schemas.node.resources.ActionNode;
 import org.opentravel.schemas.node.resources.ResourceField;
-import org.opentravel.schemas.properties.ExternalizedStringProperties;
+import org.opentravel.schemas.node.resources.ResourceMenus;
+import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.node.resources.ActionExample;
 import org.opentravel.schemas.properties.Messages;
-import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.trees.REST.RestTreeContentProvider;
-import org.opentravel.schemas.trees.REST.RestTreeLabelProvider;
-import org.opentravel.schemas.widgets.ButtonBarManager;
 import org.opentravel.schemas.widgets.WidgetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
  * Manage the view onto REST resource descriptions
  * 
  * @author Dave Hollander
@@ -90,18 +95,19 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 	private Label rType;
 	private Text rDescription;
 
-	private List<ContextNode> expansionState = new LinkedList<ContextNode>();
+	private List<ResourceMemberInterface> expansionState = new LinkedList<ResourceMemberInterface>();
 
 	private INode currentNode;
 	private INode previousNode;
 
-	private Action addAction;
 	private SashForm mainSashForm;
-	private ButtonBarManager bbManager;
+	// private ButtonBarManager bbManager;
 	private Composite compRight;
 
 	private List<PostedField> postedFields = new ArrayList<PostedField>();
 	private Group objectPropertyGroup;
+	private Group examplesGroup;
+	private Group validationGroup;
 
 	private class PostedField {
 		public Text text;
@@ -138,14 +144,11 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 	public void createPartControl(final Composite parent) {
 		LOGGER.info("Initializing part control of " + this.getClass());
 
-		// getSite().getPage().addSelectionListener("org.opentravel.schemas.stl2Developer.ModelNavigatorView", this);
-		// getSite().setSelectionProvider(this);
 		getSite().getPage().addSelectionListener(NavigatorView.VIEW_ID, this);
 		select(mc.getCurrentNode_NavigatorView());
 
 		// Define actions for the button bar
-		final MainWindow mainWindow = OtmRegistry.getMainWindow();
-		addAction = new AddContextAction(mainWindow, new ExternalizedStringProperties("action.addContext"));
+		// final MainWindow mainWindow = OtmRegistry.getMainWindow();
 
 		// Using Documentation View as a guide
 		//
@@ -181,19 +184,13 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		Composite compLeft = formLeft.getBody();
 		compLeft.setLayout(layoutLeft);
 
-		// bbManager = new ButtonBarManager(SWT.FLAT);
-		// bbManager.add(addAction);
-		// Composite bb = bbManager.createControl(toolkit, compLeft);
-		// bb.setLayoutData(bbGD);
-
-		viewer = new TreeViewer(compLeft, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		initializeTreeViewer();
-
-		// viewer = initializeTreeViewer(compLeft);
+		// Set up the Menus as parent of tree view (see repository view for example)
+		// contains the tree viewer
+		ResourceMenus resourceMenus = new ResourceMenus(compLeft, getSite());
+		viewer = resourceMenus.getViewer();
+		viewer.addSelectionChangedListener(this);
+		viewer.addTreeListener(this);
 		viewer.getTree().setLayoutData(viewerGD);
-		// viewer.addSelectionChangedListener(this);
-		// viewer.addTreeListener(this);
-		// getSite().setSelectionProvider(viewer);
 
 		ScrolledForm formRight = toolkit.createScrolledForm(mainSashForm);
 
@@ -219,10 +216,35 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		compRight = formRight.getBody();
 		compRight.setLayout(layoutRight);
 
-		ButtonBarManager bbManager = new ButtonBarManager(SWT.FLAT);
-		bbManager.add(addAction);
-		Composite navBB = bbManager.createControl(toolkit, compRight);
-		navBB.setLayoutData(navBbGD);
+		// ButtonBarManager bbManager = new ButtonBarManager(SWT.FLAT);
+		// bbManager.add(addAction);
+		// Composite navBB = bbManager.createControl(toolkit, compRight);
+		// navBB.setLayoutData(navBbGD);
+
+		// Try using commands on a button
+		// final AddResourceHandler addCmd = new AddResourceHandler();
+		// final OtmAbstractView view = this;
+		// final IContributionItem addPropertiesAction = RCPUtils.createCommandContributionItem(site,
+		// AddNodeHandler2.COMMAND_ID, Messages.getString("action.addProperty.text"), null,
+		// AddNodeHandler2.getIcon());
+
+		// Button newButton = new Button(compRight, SWT.NONE);
+		// newButton.setText("NEW");
+		// newButton.setImage(addCmd.getImage());
+		// Button addButton = new Button(compRight, SWT.NONE);
+		// addButton.setText("???");
+		// // addButton.setImage(addCmd.getImage());
+		// newButton.addSelectionListener(new SelectionListener() {
+		//
+		// @Override
+		// public void widgetSelected(SelectionEvent e) {
+		// addCmd.execute(e);
+		// }
+		//
+		// @Override
+		// public void widgetDefaultSelected(SelectionEvent e) {
+		// }
+		// });
 
 		// Add fixed text fields
 		//
@@ -230,25 +252,23 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		Color bgColor = compRight.getBackground();
 		objectIcon = toolkit.createLabel(compRight, "", SWT.NONE);
 		objectIcon.setBackground(bgColor);
-		// GridData oGD = new GridData();
-		// oGD.verticalSpan = 3;
-		// objectIcon.setLayoutData(oGD);
-		// rType = toolkit.createLabel(compRight, "", SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
-		rType = toolkit.createLabel(compRight, "", SWT.NONE);
-		// rType = toolkit.createLabel(compRight, "", SWT.MULTI | SWT.BORDER | SWT.WRAP);
+		rType = new Label(compRight, SWT.WRAP);
+		rType.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		rType.setBackground(bgColor);
-		// GridData rGD = new GridData(GridData.FILL_BOTH);
-		// GridData rGD = new GridData();
-		// rType.setLayoutData(new GridData());
-		// rGD.grabExcessHorizontalSpace = true;
-		// rGD.horizontalAlignment = SWT.FILL;
-		// rGD.verticalSpan = 3;
-		// rType.setLayoutData(rGD);
 
-		rName = createField("rest.ResourceNode.fields.name", compRight, null);
+		rName = createField("rest.label.name", compRight, null);
 		rName.addModifyListener(new NameListener());
 		rDescription = createField("rest.label.description", compRight, null);
 		rDescription.addModifyListener(new DescriptionListener());
+
+		// An example for future use
+		// Now using the name hight, layout 3 rows of rType
+		// gridData.verticalSpan = 3;
+
+		rType.pack(true);
+		compRight.layout(true, true);
+		String initTxt = "Resource View will display resoures in the selected library.";
+		rType.setText(initTxt);
 
 		// Fields use the objectPropertyGroup as the composite
 		//
@@ -257,9 +277,33 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		GridLayout opGL = new GridLayout();
 		opGL.numColumns = 2;
 		objectPropertyGroup.setLayout(opGL);
-		GridData opGD = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+		GridData opGD = new GridData(SWT.FILL, SWT.TOP, true, false);
+		// GridData opGD = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
 		opGD.horizontalSpan = 2;
 		objectPropertyGroup.setLayoutData(opGD);
+
+		// Fields use the objectPropertyGroup as the composite
+		//
+		examplesGroup = new Group(compRight, SWT.NULL);
+		examplesGroup.setText("Example URLs");
+		GridLayout exGL = new GridLayout();
+		exGL.numColumns = 2;
+		examplesGroup.setLayout(exGL);
+		GridData exGD = new GridData(SWT.FILL, SWT.TOP, true, false);
+		exGD.horizontalSpan = 2;
+		examplesGroup.setLayoutData(exGD);
+
+		// Validation group
+		//
+		validationGroup = new Group(compRight, SWT.NULL);
+		validationGroup.setText("Example URLs");
+		GridLayout vGL = new GridLayout();
+		vGL.numColumns = 3;
+		validationGroup.setLayout(vGL);
+		GridData vGD = new GridData(SWT.FILL, SWT.TOP, true, false);
+		vGD.horizontalSpan = 2;
+		validationGroup.setLayoutData(vGD);
+		validationGroup.setText("Errors and Warnings");
 
 		mainSashForm.setWeights(new int[] { 2, 3 });
 
@@ -288,94 +332,11 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		return field;
 	}
 
-	private TreeViewer initializeTreeViewer() {
-		// final TreeViewer viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		viewer.addSelectionChangedListener(this);
-		viewer.addTreeListener(this);
-
-		viewer.setContentProvider(new RestTreeContentProvider());
-		viewer.setLabelProvider(new RestTreeLabelProvider());
-
-		// viewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE, new Transfer[] { TextTransfer.getInstance() },
-		// new DragSourceListener() {
-		//
-		// @Override
-		// public void dragStart(DragSourceEvent event) {
-		// IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
-		//
-		// Object firstElement = selection.getFirstElement();
-		// if (firstElement instanceof ContextNode) {
-		// if (((ContextNode) firstElement).isContextItem()) {
-		// event.doit = true;
-		// return;
-		// }
-		// }
-		// event.doit = false;
-		// }
-		//
-		// @Override
-		// public void dragSetData(DragSourceEvent event) {
-		// IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
-		//
-		// Object firstElement = selection.getFirstElement();
-		// if (firstElement instanceof ContextNode) {
-		// event.data = ((ContextNode) firstElement).getContextId();
-		// }
-		// }
-		//
-		// @Override
-		// public void dragFinished(DragSourceEvent event) {
-		//
-		// }
-		//
-		// });
-		// viewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE, new Transfer[] { TextTransfer.getInstance() },
-		// new ViewerDropAdapter(viewer) {
-		//
-		// @Override
-		// public boolean performDrop(Object data) {
-		// if (data != null) {
-		// // getContextController().copyContext();
-		// return true;
-		// }
-		// return false;
-		// }
-		//
-		// @Override
-		// public void drop(DropTargetEvent event) {
-		// Object target = determineTarget(event);
-		// if (target instanceof ContextNode) {
-		// setSelectedTypeRoot(((ContextNode) target).getOwningLibraryRoot());
-		// } else {
-		// setSelectedTypeRoot(null);
-		// }
-		// super.drop(event);
-		// }
-		//
-		// @Override
-		// public boolean validateDrop(Object target, int operation, TransferData transferType) {
-		// if (target instanceof ContextNode) {
-		// return true;
-		// }
-		// return false;
-		// }
-		//
-		// });
-
-		return viewer;
-	}
-
 	@Override
 	public void setFocus() {
 		LOGGER.debug("setFocus.");
 		refreshAllViews();
 	}
-
-	// public void setFocus(ContextNode node) {
-	// LOGGER.debug("setFocus.");
-	// select(node);
-	// rName.setFocus();
-	// }
 
 	public void select(ContextNode node) {
 		viewer.setSelection(new StructuredSelection(node), true);
@@ -385,10 +346,6 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 	public void refreshAllViews() {
 		viewer.refresh(true);
 		updateFields(getSelectedResourceNode());
-		// on starting type view can be null
-		// if (OtmRegistry.getTypeView() != null) {
-		// OtmRegistry.getTypeView().refresh();
-		// }
 	}
 
 	/**
@@ -404,12 +361,6 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		refreshAllViews();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.ISelectionListener#selectionChanged(org.eclipse.ui.IWorkbenchPart,
-	 * org.eclipse.jface.viewers.ISelection)
-	 */
 	@Override
 	public void selectionChanged(final IWorkbenchPart part, final ISelection selection) {
 		LOGGER.debug("selection changed. \t" + selection.getClass());
@@ -420,7 +371,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 			return;
 
 		// switch libraries if user navigated to a new library
-		if (part instanceof NavigatorView)
+		if (part instanceof NavigatorView && currentNode != null)
 			if (((Node) object).getLibrary() == currentNode.getLibrary())
 				return; // no update needed
 
@@ -446,37 +397,27 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		currentNode = node;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.viewers.ITreeViewerListener#treeCollapsed(org.eclipse.jface.viewers. TreeExpansionEvent)
-	 */
 	@Override
 	public void treeCollapsed(TreeExpansionEvent event) {
 		Object collapsed = event.getElement();
-		if (collapsed instanceof ContextNode) {
-			ContextNode doc = (ContextNode) collapsed;
-			removeRecursivelyFromExpansionState(doc);
+		if (collapsed instanceof ResourceMemberInterface) {
+			ResourceMemberInterface doc = (ResourceMemberInterface) collapsed;
+			removeRecursivelyFromExpansionState((Node) doc);
 		}
 	}
 
-	private void removeRecursivelyFromExpansionState(ContextNode doc) {
-		for (ContextNode child : doc.getChildren()) {
+	private void removeRecursivelyFromExpansionState(Node item) {
+		for (Node child : item.getChildren()) {
 			removeRecursivelyFromExpansionState(child);
 		}
-		expansionState.remove(doc);
+		expansionState.remove(item);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.viewers.ITreeViewerListener#treeExpanded(org.eclipse.jface.viewers. TreeExpansionEvent)
-	 */
 	@Override
 	public void treeExpanded(TreeExpansionEvent event) {
 		Object expanded = event.getElement();
-		if (expanded instanceof ContextNode) {
-			expansionState.add((ContextNode) expanded);
+		if (expanded instanceof ResourceMemberInterface) {
+			expansionState.add((ResourceMemberInterface) expanded);
 		}
 	}
 
@@ -484,12 +425,6 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		viewer.expandAll();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.viewers.ISelectionChangedListener#selectionChanged(org.eclipse.jface.viewers
-	 * .SelectionChangedEvent)
-	 */
 	@Override
 	public void selectionChanged(SelectionChangedEvent event) {
 		LOGGER.debug("selection changed. \t" + event.getClass());
@@ -499,29 +434,13 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 
 		ignoreListener = true;
 		setCurrentNode((Node) object);
-		if (object instanceof ResourceMemberInterface) {
-			// updateActions((Node) object);
+		if (object instanceof ResourceMemberInterface)
 			updateFields((ResourceMemberInterface) object);
-		} else {
-			// updateActions(null);
+		else
 			updateFields(null);
-		}
 		ignoreListener = false;
 	}
 
-	private void updateActions(Node node) {
-		boolean enabled = false;
-		if (node != null) {
-			enabled = node.isEditable();
-		}
-		// addContextAction.setEnabled(enabled);
-		// cloneContextAction.setEnabled(enabled);
-		// mergeContextAction.setEnabled(enabled);
-		// setContextAsDefaultAction.setEnabled(enabled);
-	}
-
-	// Field types: string, int, Enum, list of Int
-	// Nodes: Payload (ActionFacet or Core), ResourceNodes, business objects
 	private void post(Text widget, String text) {
 		if (text != null)
 			widget.setText(text); // SWT errors if text is null
@@ -545,14 +464,40 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 
 	private void post(Combo combo, String[] strings, String value) {
 		int i = 0;
+		if (value == null || value.isEmpty())
+			value = ResourceField.NONE;
 		for (String s : strings) {
-			if (s == null || s.equals(""))
+			if (s == null || s.isEmpty())
 				s = ResourceField.NONE;
 			combo.add(s);
 			if (s.equals(value))
 				combo.select(i);
 			i++;
 		}
+	}
+
+	// private void post(Group grp, String string) {
+	// // labels will not display & ("\u0026\u0026")
+	// Text field = toolkit.createText(grp, string, SWT.READ_ONLY);
+	// // field.setToolTipText(Messages.getString(msgKey + ".tooltip"));
+	// GridData gd = new GridData();
+	// gd.grabExcessHorizontalSpace = true;
+	// gd.horizontalAlignment = SWT.FILL;
+	// field.setLayoutData(gd);
+	// }
+
+	private void post(Group grp, ActionExample example) {
+		Color bgColor = grp.getBackground();
+		Label label = toolkit.createLabel(grp, example.getLabel(), SWT.TRAIL);
+		label.setBackground(bgColor);
+
+		// labels will not display & ("\u0026\u0026")
+		Text field = toolkit.createText(grp, example.getURL(), SWT.READ_ONLY);
+		// field.setToolTipText(Messages.getString(msgKey + ".tooltip"));
+		GridData gd = new GridData();
+		gd.grabExcessHorizontalSpace = true;
+		gd.horizontalAlignment = SWT.FILL;
+		field.setLayoutData(gd);
 	}
 
 	private void updateFields(ResourceMemberInterface node) {
@@ -568,6 +513,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		post(rType, node.getComponentType() + " - " + node.getTooltip());
 		rName.setToolTipText(node.getTooltip());
 		rDescription.setData(node);
+		rType.pack(true);
 
 		// Enable editing if appropriate
 		boolean enabled = ((Node) node).isEditable();
@@ -582,7 +528,24 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		// Now post the fields associated with this object
 		objectPropertyGroup.setText(node.getComponentType() + " Properties");
 
-		// List<ResourceField> fields = node.getFields();
+		// Clear then Post the examples
+		//
+		for (Control kid : examplesGroup.getChildren())
+			kid.dispose();
+		for (ActionNode action : ((ResourceNode) node.getOwningComponent()).getActions()) {
+			post(examplesGroup, action.getExample());
+		}
+
+		// Clear then post validation
+		//
+		validationGroup.setText("Errors and Warnings: " + node.getName());
+		for (Control kid : validationGroup.getChildren())
+			kid.dispose();
+		Table t = getFindingsTable(validationGroup);
+		post(t, node.getValidationFindings(), (Node) node);
+
+		// Post the fields
+		//
 		for (ResourceField field : node.getFields()) {
 			PostedField pf = new PostedField();
 			postedFields.add(pf);
@@ -659,6 +622,10 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		objectPropertyGroup.redraw();
 		objectPropertyGroup.layout(true);
 		objectPropertyGroup.update();
+		examplesGroup.layout(true);
+		examplesGroup.update();
+		validationGroup.layout(true);
+		validationGroup.update();
 		compRight.layout(true);
 		compRight.update();
 	}
@@ -675,6 +642,9 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		return null;
 	}
 
+	/**
+	 * NOT IMPLEMENTED
+	 */
 	@Override
 	public List<Node> getSelectedNodes() {
 		// TODO Auto-generated method stub
@@ -700,6 +670,58 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		postResources();
 	}
 
+	private Table getFindingsTable(Composite parent) {
+		// 3 column table for object, level/type and message
+		Table findingsTable = new Table(parent, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL
+				| SWT.H_SCROLL);
+		findingsTable.setLinesVisible(false);
+		findingsTable.setHeaderVisible(true);
+		final GridData td = new GridData(SWT.FILL, SWT.FILL, true, false);
+		findingsTable.setLayoutData(td);
+		return findingsTable;
+	}
+
+	private void post(Table table, ValidationFindings findings, Node node) {
+		// Consider setting up a table viewer instead.
+		if (findings.count() < 1)
+			return;
+		TableColumn type = new TableColumn(table, SWT.LEFT);
+		TableColumn name = new TableColumn(table, SWT.LEFT);
+		TableColumn msg = new TableColumn(table, SWT.LEFT);
+		type.setText("Type");
+		type.setWidth(50);
+		name.setText("Component");
+		name.setWidth(100);
+		msg.setText("Description");
+		msg.setWidth(300);
+
+		for (ValidationFinding f : findings.getFindingsAsList(FindingType.ERROR))
+			post(table, f, node);
+		for (ValidationFinding f : findings.getFindingsAsList(FindingType.WARNING))
+			post(table, f, node);
+
+		LOGGER.debug("Posted " + findings.count(FindingType.ERROR) + " : " + findings.count(FindingType.WARNING)
+				+ "  from " + findings.count());
+
+	}
+
+	private void post(Table table, ValidationFinding f, Node node) {
+		String src;
+		TLModelElement tlObj = ((TLModelElement) f.getSource());
+		if (tlObj.getListeners().isEmpty())
+			src = f.getSource().getValidationIdentity();
+		else {
+			Node n = ((Node) node).getNode(((TLModelElement) f.getSource()).getListeners());
+			src = n != null ? n.getName() : "";
+		}
+		TableItem item = new TableItem(table, SWT.NONE);
+		String[] itemText = new String[3];
+		itemText[0] = f.getType().getDisplayName();
+		itemText[1] = src;
+		itemText[2] = f.getFormattedMessage(FindingMessageFormat.MESSAGE_ONLY_FORMAT);
+		item.setText(itemText);
+	}
+
 	// /////////////////////////////////////////////////////////////////
 	//
 	// Listener Classes
@@ -716,8 +738,12 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 			if (!(text.getData() instanceof ResourceField))
 				return;
 			ResourceField field = (ResourceField) text.getData();
+			// use listener to set value and refresh if listener returns true
 			if (field.getListener() != null)
 				field.getListener().set(text.getText());
+			// if (field.getListener().set(text.getText()))
+			// refresh(); // display changes to other fields and tree
+			// TODO - don't refresh until you figure out how to regain focus
 		}
 	}
 
@@ -839,4 +865,5 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		public void widgetDefaultSelected(SelectionEvent e) {
 		}
 	}
+
 }

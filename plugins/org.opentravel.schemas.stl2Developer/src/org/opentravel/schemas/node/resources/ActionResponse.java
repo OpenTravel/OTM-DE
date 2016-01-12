@@ -24,36 +24,30 @@ import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLActionResponse;
 import org.opentravel.schemacompiler.model.TLCoreObject;
-import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLMimeType;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
-import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ActionResponse extends BaseResourceNode implements ResourceMemberInterface {
+/**
+ * Action Response controller. Provides getters, setters and listeners for editable fields.
+ * 
+ * @author Dave
+ *
+ */
+public class ActionResponse extends ResourceBase<TLActionResponse> implements ResourceMemberInterface {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ActionResponse.class);
 	private String MSGKEY = "rest.ActionResponse";
 
 	public class PayloadListener implements ResourceFieldListener {
 		@Override
 		public boolean set(String name) {
 			setPayload(name);
-			return false;
-		}
-	}
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(ActionResponse.class);
-
-	class MimeTypeListener implements ResourceFieldListener {
-		@Override
-		public boolean set(String value) {
-			toggleMimeType(value);
 			return false;
 		}
 	}
@@ -67,85 +61,42 @@ public class ActionResponse extends BaseResourceNode implements ResourceMemberIn
 		}
 	}
 
-	private TLActionResponse tlObj = null;
-	private Node payload;
-
-	public ActionResponse(TLActionResponse tlAction) {
-		this.tlObj = tlAction;
-		ListenerFactory.setListner(this);
-		parent = this.getNodeFromListeners(((TLAction) tlObj.getOwner()).getListeners());
+	class MimeTypeListener implements ResourceFieldListener {
+		@Override
+		public boolean set(String value) {
+			toggleMimeType(value);
+			return false;
+		}
 	}
 
-	public Node getPayload() {
-		// action facet or core object
-		NamedEntity pl = tlObj.getPayloadType();
-		if (pl instanceof TLActionFacet)
-			payload = this.getNodeFromListeners(((TLActionFacet) pl).getListeners());
-		else if (pl instanceof TLCoreObject)
-			payload = this.getNodeFromListeners(((TLCoreObject) pl).getListeners());
-		else if (pl != null)
-			throw new IllegalArgumentException("Invalid Response Payload type: " + pl.getClass().getSimpleName());
-		return payload;
+	/*********************************************************************
+	 * 
+	 */
+	public ActionResponse(ActionNode parent) {
+		super(new TLActionResponse()); // don't use this() - no owner yet
+		this.parent = parent;
+		((TLAction) parent.getTLModelObject()).addResponse(tlObj);
+		getParent().addChild(this);
 	}
 
-	protected List<Node> getPossiblePayloads() {
-		List<ActionFacet> afs = ((ResourceNode) getOwningComponent()).getActionFacets();
-		List<Node> nodes = new ArrayList<Node>();
-		for (Node n : getLibrary().getDescendants_NamedTypes())
-			if (n instanceof CoreObjectNode)
-				nodes.add(n);
-		for (ActionFacet af : afs)
-			nodes.add(af);
-		return nodes;
+	public ActionResponse(TLActionResponse tlActionResponse) {
+		super(tlActionResponse);
+		parent = this.getNode(((TLAction) tlObj.getOwner()).getListeners());
+		assert parent instanceof ActionNode;
+		((ActionNode) parent).addResponse(this);
 	}
 
 	public void addChildren() {
 	}
 
+	/**
+	 * Remove this from the parent, remove from TL Owner, and free any resources.
+	 */
 	@Override
-	public String getTooltip() {
-		return Messages.getString(MSGKEY + ".tooltip");
-	}
-
-	@Override
-	public TLModelElement getTLModelObject() {
-		return tlObj;
-	}
-
-	@Override
-	public Image getImage() {
-		return Images.getImageRegistry().get(Images.ActionResponse);
-
-	}
-
-	@Override
-	public String getLabel() {
-		return getName();
-	}
-
-	@Override
-	public String getName() {
-		return tlObj.getLocalName() != null ? tlObj.getLocalName() : "";
-	}
-
-	@Override
-	public boolean isNameEditable() {
-		return false;
-	}
-
-	@Override
-	public Node getOwningComponent() {
-		return parent.getParent();
-	}
-
-	@Override
-	public boolean hasNavChildren() {
-		return !getChildren().isEmpty();
-	}
-
-	@Override
-	public String getDescription() {
-		return tlObj.getDocumentation() != null ? tlObj.getDocumentation().getDescription() : "";
+	public void delete() {
+		clearListeners();
+		tlObj.getOwner().removeResponse(tlObj);
+		parent.getChildren().remove(this);
 	}
 
 	@Override
@@ -167,40 +118,57 @@ public class ActionResponse extends BaseResourceNode implements ResourceMemberIn
 		List<ResourceField> fields = new ArrayList<ResourceField>();
 
 		// Mime Types = multi-select List of possible types
-		ResourceField field = new ResourceField(fields, tlObj.getMimeTypes().toString(),
-				"rest.ActionResponse.fields.mimeTypes", ResourceFieldType.EnumList, new MimeTypeListener());
-		int i = 0;
-		String[] values = new String[TLMimeType.values().length];
-		for (TLMimeType l : TLMimeType.values())
-			values[i++] = l.toString();
-		field.setData(values);
+		new ResourceField(fields, tlObj.getMimeTypes().toString(), "rest.ActionResponse.fields.mimeTypes",
+				ResourceFieldType.EnumList, new MimeTypeListener(), getMimeTypeStrings());
 
 		// Payload type = either an action facet or a core object
-		// Get local name returns object name hyphen facet name
-		field = new ResourceField(fields, getFacetName(), "rest.ActionResponse.fields.payload", ResourceFieldType.Enum,
-				new PayloadListener());
-		List<Node> nodes = getPossiblePayloads();
-		String[] data = new String[nodes.size()];
-		i = 0;
-		for (Node n : nodes)
-			data[i++] = n.getLabel();
-		field.setData(data);
+		new ResourceField(fields, getFacetName(), "rest.ActionResponse.fields.payload", ResourceFieldType.Enum,
+				new PayloadListener(), getPossiblePayloadNames());
 
 		// Status codes = string
-		field = new ResourceField(fields, tlObj.getStatusCodes().toString(), "rest.ActionResponse.fields.statusCodes",
+		new ResourceField(fields, tlObj.getStatusCodes().toString(), "rest.ActionResponse.fields.statusCodes",
 				ResourceFieldType.String, new StatusCodeListener());
 
 		return fields;
 	}
 
 	@Override
-	public void setDescription(final String description) {
-		TLDocumentation doc = tlObj.getDocumentation();
-		if (doc == null) {
-			doc = new TLDocumentation();
-			tlObj.setDocumentation(doc);
-		}
-		doc.setDescription(description);
+	public Image getImage() {
+		return Images.getImageRegistry().get(Images.ActionResponse);
+
+	}
+
+	@Override
+	public String getName() {
+		return tlObj.getLocalName() != null ? tlObj.getLocalName() : "";
+	}
+
+	@Override
+	public ActionNode getParent() {
+		return (ActionNode) parent;
+	}
+
+	public Node getPayload() {
+		Node payload = null;
+		// action facet or core object
+		NamedEntity pl = tlObj.getPayloadType();
+		if (pl instanceof TLActionFacet)
+			payload = this.getNode(((TLActionFacet) pl).getListeners());
+		else if (pl instanceof TLCoreObject)
+			payload = this.getNode(((TLCoreObject) pl).getListeners());
+		else if (pl != null)
+			throw new IllegalArgumentException("Invalid Response Payload type: " + pl.getClass().getSimpleName());
+		return payload;
+	}
+
+	@Override
+	public String getTooltip() {
+		return Messages.getString(MSGKEY + ".tooltip");
+	}
+
+	@Override
+	public boolean isNameEditable() {
+		return false;
 	}
 
 	@Override
@@ -230,6 +198,26 @@ public class ActionResponse extends BaseResourceNode implements ResourceMemberIn
 		// else
 		tlObj.addMimeType(type);
 		LOGGER.debug("Set Mime types to: " + tlObj.getMimeTypes());
+	}
+
+	protected String[] getPossiblePayloadNames() {
+		List<Node> nodes = getPossiblePayloads();
+		String[] data = new String[nodes.size()];
+		int i = 0;
+		for (Node n : nodes)
+			data[i++] = n.getLabel();
+		return data;
+	}
+
+	protected List<Node> getPossiblePayloads() {
+		List<ActionFacet> afs = getOwningComponent().getActionFacets();
+		List<Node> nodes = new ArrayList<Node>();
+		for (Node n : getOwningComponent().getLibrary().getDescendants_NamedTypes())
+			if (n instanceof CoreObjectNode)
+				nodes.add(n);
+		for (ActionFacet af : afs)
+			nodes.add(af);
+		return nodes;
 	}
 
 }
