@@ -21,6 +21,7 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLActionFacet;
+import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLReferenceType;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
 import org.opentravel.schemas.properties.Images;
@@ -70,6 +71,8 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 		super(tlActionFacet);
 		parent = this.getNode(((LibraryMember) tlObj.getOwningEntity()).getListeners());
 		assert parent instanceof ResourceNode;
+		if (tlObj.getFacetType() != TLFacetType.ACTION)
+			LOGGER.debug("Wrong Facet Type: " + tlObj.getFacetType());
 		getParent().addChild(this);
 	}
 

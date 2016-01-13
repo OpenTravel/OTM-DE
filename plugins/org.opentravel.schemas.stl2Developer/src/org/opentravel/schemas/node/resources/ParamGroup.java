@@ -238,6 +238,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 				LOGGER.debug("Set reference facet to: " + tlObj.getFacetRefName());
 				return true; // denote change
 			}
+		LOGGER.debug("Could not find reference facet named: " + name);
 		return false;
 	}
 }

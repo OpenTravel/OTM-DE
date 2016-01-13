@@ -29,7 +29,9 @@ import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
+import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Messages;
+import org.opentravel.schemas.trees.type.BusinessObjectOnlyTypeSelectionFilter;
 import org.opentravel.schemas.trees.type.TypeTreeExtensionSelectionFilter;
 import org.opentravel.schemas.trees.type.TypeTreeIdReferenceTypeOnlyFilter;
 import org.opentravel.schemas.trees.type.TypeTreeSimpleTypeOnlyFilter;
@@ -95,6 +97,7 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 		boolean vwa = false;
 		boolean idReference = false;
 		boolean versions = false;
+		boolean resource = false;
 
 		if (curNodeList != null) {
 			for (Node n : curNodeList) {
@@ -108,6 +111,8 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 						simple = true;
 					else if (n instanceof ServiceNode)
 						service = true;
+					else if (n instanceof ResourceNode)
+						resource = true;
 					else if (n instanceof ElementReferenceNode)
 						idReference = true;
 				}
@@ -138,6 +143,8 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 		else if (service)
 			selectionPage.setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(new BusinessObjMO(
 					new TLBusinessObject())));
+		else if (resource)
+			selectionPage.setTypeSelectionFilter(new BusinessObjectOnlyTypeSelectionFilter());
 		else if (idReference)
 			selectionPage.setTypeSelectionFilter(new TypeTreeIdReferenceTypeOnlyFilter());
 

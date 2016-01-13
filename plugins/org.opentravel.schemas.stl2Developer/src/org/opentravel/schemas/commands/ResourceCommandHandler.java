@@ -25,17 +25,20 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Event;
+import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.resources.ActionFacet;
 import org.opentravel.schemas.node.resources.ActionNode;
 import org.opentravel.schemas.node.resources.ActionResponse;
 import org.opentravel.schemas.node.resources.ParamGroup;
+import org.opentravel.schemas.node.resources.ResourceBuilder;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.views.OtmView;
+import org.opentravel.schemas.wizards.TypeSelectionWizard;
 
 /**
  * Command Handler for resource related commands.
@@ -115,7 +118,11 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 			view.refresh();
 			break;
 		case RESOURCE:
-			view.refresh(new ResourceNode(selectedNode));
+			ResourceNode newR = new ResourceNode(selectedNode); // create named empty resource
+			BusinessObjectNode bo = getBusinessObject(newR);
+			new ResourceBuilder().build(newR, bo);
+			view.refresh(newR);
+			// view.refresh(new ResourceNode(selectedNode));
 			break;
 		case ACTION:
 			view.refresh(new ActionNode(rn));
@@ -133,6 +140,16 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 		default:
 			DialogUserNotifier.openWarning("Not Supported", "Not supported for this object type.");
 		}
+	}
+
+	private BusinessObjectNode getBusinessObject(ResourceNode rn) {
+		// post a business object only Type Selection then pass the selected node.
+		Node subject = null;
+		final TypeSelectionWizard wizard = new TypeSelectionWizard(rn);
+		if (wizard.run(OtmRegistry.getActiveShell())) {
+			subject = wizard.getSelection();
+		}
+		return (BusinessObjectNode) (subject instanceof BusinessObjectNode ? subject : null);
 	}
 
 	@Override

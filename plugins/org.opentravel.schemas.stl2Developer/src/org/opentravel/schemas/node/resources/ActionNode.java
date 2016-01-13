@@ -150,6 +150,13 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 		return tlObj.getActionId() != null ? tlObj.getActionId() : "";
 	}
 
+	public ActionRequest getRequest() {
+		for (Node n : getChildren())
+			if (n instanceof ActionRequest)
+				return (ActionRequest) n;
+		return null;
+	}
+
 	@Override
 	public String getTooltip() {
 		return Messages.getString(MSGKEY + ".tooltip");

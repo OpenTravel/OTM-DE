@@ -20,8 +20,12 @@ import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLActionRequest;
 import org.opentravel.schemacompiler.model.TLActionResponse;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLHttpMethod;
+import org.opentravel.schemacompiler.model.TLMimeType;
 import org.opentravel.schemacompiler.model.TLParamGroup;
 import org.opentravel.schemacompiler.model.TLParameter;
+import org.opentravel.schemacompiler.model.TLReferenceType;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.BusinessObjectNode;
 
@@ -41,6 +45,49 @@ public class ResourceBuilder {
 	public ResourceBuilder() {
 	}
 
+	public void build(ResourceNode rn, BusinessObjectNode bo) {
+		TLResource rnTL = rn.getTLModelObject();
+		rnTL.setBusinessObjectRef((TLBusinessObject) bo.getTLModelObject());
+		rn.setName(bo.getName() + "Resource");
+		rn.setBasePath("/" + bo.getName() + "s");
+		rnTL.setAbstract(false);
+		rnTL.setFirstClass(true);
+
+		// ID Parameters - ID, Query(s)
+		TLParamGroup params = new TLParamGroup();
+		rnTL.addParamGroup(params);
+		params.setName("ID_Parameters");
+		params.setIdGroup(true);
+		ParamGroup pg = new ParamGroup(params);
+		pg.setReferenceFacet("ID"); // will force params to be created
+		// Query Parameters
+
+		// Action Facet
+		TLActionFacet facet = new TLActionFacet();
+		rnTL.addActionFacet(facet);
+		facet.setName("Summary");
+		facet.setFacetType(TLFacetType.ACTION);
+		ActionFacet af = new ActionFacet(facet);
+		af.setReferenceFacetName("Summary");
+		af.setReferenceType(TLReferenceType.REQUIRED.toString());
+
+		// Action
+		TLAction action = new TLAction();
+		rnTL.addAction(action);
+		action.setActionId("Get");
+		TLActionRequest request = new TLActionRequest();
+		action.setRequest(request);
+		// request.setParamGroup(params);
+		TLActionResponse response = new TLActionResponse();
+		action.addResponse(response);
+		response.setPayloadType(facet);
+		// FIXME - response.setMimeTypes(TLMimeType.APPLICATION_JSON);
+		ActionNode an = new ActionNode(action);
+		an.getRequest().setMimeType(TLMimeType.APPLICATION_JSON.toString());
+		an.getRequest().setHttpMethod(TLHttpMethod.GET.toString());
+		an.getRequest().setParamGroup(params.getName()); // do here to set path template
+	}
+
 	public TLResource buildTL() {
 		return buildTL(NAME);
 	}
@@ -51,24 +98,24 @@ public class ResourceBuilder {
 
 		TLParamGroup params = new TLParamGroup();
 		resource.addParamGroup(params);
-		params.setName(name);
+		params.setName("ID Parameters");
 		TLParameter parameter = new TLParameter();
 		params.addParameter(parameter);
 		parameter.setFieldRefName(name);
 
 		TLAction action = new TLAction();
 		resource.addAction(action);
-		action.setActionId(name);
+		action.setActionId("Get");
 		TLActionResponse response = new TLActionResponse();
 		action.addResponse(response);
-		response.setPayloadTypeName(name);
+		response.setPayloadTypeName("resource");
 		TLActionRequest request = new TLActionRequest();
 		action.setRequest(request);
-		request.setPayloadTypeName(name);
+		request.setPayloadTypeName("resource");
 
 		TLActionFacet facet = new TLActionFacet();
 		resource.addActionFacet(facet);
-		facet.setName(name);
+		facet.setName("Summary");
 		return resource;
 	}
 

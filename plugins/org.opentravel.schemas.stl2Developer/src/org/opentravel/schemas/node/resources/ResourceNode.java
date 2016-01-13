@@ -127,6 +127,18 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	/**
+	 * 
+	 * @param mbr
+	 *            - tlResource to control
+	 * @param libraryMember
+	 *            - in the library where this resource will be added
+	 */
+	public ResourceNode(TLResource mbr, Node libraryMember) {
+		this(mbr);
+		libraryMember.getLibrary().addMember(this);
+	}
+
+	/**
 	 * Create a resource in the library of the libraryMember.
 	 */
 	public ResourceNode(Node libraryMember) {
