@@ -26,12 +26,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.opentravel.schemacompiler.model.TLAction;
-import org.opentravel.schemacompiler.model.TLActionFacet;
-import org.opentravel.schemacompiler.model.TLActionRequest;
-import org.opentravel.schemacompiler.model.TLActionResponse;
-import org.opentravel.schemacompiler.model.TLParamGroup;
-import org.opentravel.schemacompiler.model.TLParameter;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
@@ -41,6 +35,7 @@ import org.opentravel.schemas.node.resources.ActionNode;
 import org.opentravel.schemas.node.resources.ActionRequest;
 import org.opentravel.schemas.node.resources.ActionResponse;
 import org.opentravel.schemas.node.resources.ParamGroup;
+import org.opentravel.schemas.node.resources.ResourceBuilder;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.node.resources.ResourceParameter;
 import org.opentravel.schemas.testUtils.LoadFiles;
@@ -92,31 +87,31 @@ public class ResourceObjectTests {
 	}
 
 	private TLResource buildTLResource() {
-		final String NAME = "testName";
-		TLResource resource = new TLResource();
-		resource.setName(NAME);
-
-		TLParamGroup params = new TLParamGroup();
-		resource.addParamGroup(params);
-		params.setName(NAME);
-		TLParameter parameter = new TLParameter();
-		params.addParameter(parameter);
-		parameter.setFieldRefName(NAME);
-
-		TLAction action = new TLAction();
-		resource.addAction(action);
-		action.setActionId(NAME);
-		TLActionResponse response = new TLActionResponse();
-		action.addResponse(response);
-		response.setPayloadTypeName(NAME);
-		TLActionRequest request = new TLActionRequest();
-		action.setRequest(request);
-		request.setPayloadTypeName(NAME);
-
-		TLActionFacet facet = new TLActionFacet();
-		resource.addActionFacet(facet);
-		facet.setName(NAME);
-		return resource;
+		// final String NAME = "testName";
+		// TLResource resource = new TLResource();
+		// resource.setName(NAME);
+		//
+		// TLParamGroup params = new TLParamGroup();
+		// resource.addParamGroup(params);
+		// params.setName(NAME);
+		// TLParameter parameter = new TLParameter();
+		// params.addParameter(parameter);
+		// parameter.setFieldRefName(NAME);
+		//
+		// TLAction action = new TLAction();
+		// resource.addAction(action);
+		// action.setActionId(NAME);
+		// TLActionResponse response = new TLActionResponse();
+		// action.addResponse(response);
+		// response.setPayloadTypeName(NAME);
+		// TLActionRequest request = new TLActionRequest();
+		// action.setRequest(request);
+		// request.setPayloadTypeName(NAME);
+		//
+		// TLActionFacet facet = new TLActionFacet();
+		// resource.addActionFacet(facet);
+		// facet.setName(NAME);
+		return new ResourceBuilder().buildTL();
 	}
 
 	@Test

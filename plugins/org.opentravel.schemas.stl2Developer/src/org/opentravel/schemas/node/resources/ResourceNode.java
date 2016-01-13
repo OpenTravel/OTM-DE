@@ -121,7 +121,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		ListenerFactory.setListner(this);
 
 		assert (getModelObject() != null);
-		tlObj = (TLResource) getTLModelObject();
+		tlObj = getTLModelObject();
+		assert tlObj != null;
 		addMOChildren();
 	}
 
@@ -130,11 +131,21 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	 */
 	public ResourceNode(Node libraryMember) {
 		super(new TLResource());
+		tlObj = getTLModelObject();
 		if (libraryMember.getName().isEmpty())
 			tlObj.setName("NewResource"); // must be named to add to library
 		else
 			tlObj.setName(libraryMember.getName() + "Resource");
 		libraryMember.getLibrary().addMember(this);
+	}
+
+	/**
+	 * Create a resource in the library of the libraryMember.
+	 */
+	public ResourceNode(BusinessObjectNode businessObject) {
+		super(new ResourceBuilder().buildTL(businessObject));
+		tlObj = getTLModelObject();
+		businessObject.getLibrary().addMember(this);
 	}
 
 	public void addChild(ResourceMemberInterface child) {
@@ -331,7 +342,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	public Node getSubject() {
-		if (tlObj.getBusinessObjectRef() != null)
+		if (tlObj != null && tlObj.getBusinessObjectRef() != null)
 			subject = this.getNode(tlObj.getBusinessObjectRef().getListeners());
 		return subject;
 	}
@@ -370,6 +381,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	public TLResource getTLModelObject() {
+		if (tlObj == null)
+			tlObj = (TLResource) modelObject.getTLModelObj();
 		return tlObj;
 	};
 
@@ -465,21 +478,18 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	protected void addMOChildren() {
-		TLResource tlObj = (TLResource) getTLModelObject();
-		for (TLParamGroup tlp : tlObj.getParamGroups())
-			new ParamGroup(tlp);
-
-		for (TLAction action : tlObj.getActions())
-			new ActionNode(action);
-
-		for (TLActionFacet af : tlObj.getActionFacets())
-			new ActionFacet(af);
+		if (tlObj != null) {
+			for (TLParamGroup tlp : tlObj.getParamGroups())
+				new ParamGroup(tlp);
+			for (TLAction action : tlObj.getActions())
+				new ActionNode(action);
+			for (TLActionFacet af : tlObj.getActionFacets())
+				new ActionFacet(af);
+		}
 	}
 
 	public boolean isValid() {
-		ValidationFindings findings = TLModelCompileValidator.validateModelElement(tlObj);
-		// ValidationFindings findings = ((Node) node).validate();
-		return findings.isEmpty();
+		return TLModelCompileValidator.validateModelElement(tlObj).isEmpty();
 	}
 
 	@Override
