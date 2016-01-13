@@ -33,15 +33,15 @@ import org.opentravel.schemacompiler.task.CompileAllTaskOptions;
 public class CompilerPreferences implements CompileAllTaskOptions {
 
     private static final String PREFERENCE_PREFIX = "stl2Developer.compilerOptions.";
-    private static final String PREF_COMPILER_EXTENSION_ID = PREFERENCE_PREFIX
-            + "compilerExtensionId";
+    private static final String PREF_COMPILER_EXTENSION_ID = PREFERENCE_PREFIX + "compilerExtensionId";
     private static final String PREF_COMPILE_SCHEMAS = PREFERENCE_PREFIX + "compileSchemas";
     private static final String PREF_COMPILE_SERVICES = PREFERENCE_PREFIX + "compileServices";
-    private static final String PREF_SERVICE_ENDPOINT_URL = PREFERENCE_PREFIX
-            + "serviceEndpointUrl";
+    private static final String PREF_COMPILE_JSON = PREFERENCE_PREFIX + "compileJson";
+    private static final String PREF_COMPILE_SWAGGER = PREFERENCE_PREFIX + "compileSwagger";
+    private static final String PREF_SERVICE_ENDPOINT_URL = PREFERENCE_PREFIX + "serviceEndpointUrl";
+    private static final String PREF_RESOURCE_BASE_URL = PREFERENCE_PREFIX + "resourceBaseUrl";
     private static final String PREF_GENERATE_EXAMPLES = PREFERENCE_PREFIX + "generateExamples";
-    private static final String PREF_EXAMPLE_MAX_DETAILS = PREFERENCE_PREFIX
-            + "generateMaxDetailsForExamples";
+    private static final String PREF_EXAMPLE_MAX_DETAILS = PREFERENCE_PREFIX + "generateMaxDetailsForExamples";
     private static final String PREF_EXAMPLE_MAX_REPEAT = PREFERENCE_PREFIX + "exampleMaxRepeat";
     private static final String PREF_EXAMPLE_MAX_DEPTH = PREFERENCE_PREFIX + "exampleMaxDepth";
 
@@ -49,7 +49,9 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     private boolean compileSchemas = true;
     private boolean compileJsonSchemas = true;
     private boolean compileServices = true;
+    private boolean compileSwagger = true;
     private String serviceEndpointUrl = null;
+    private String resourceBaseUrl = null;
     private boolean generateExamples = true;
     private boolean generateMaxDetailsForExamples = true;
     private int exampleMaxRepeat = 3;
@@ -101,7 +103,10 @@ public class CompilerPreferences implements CompileAllTaskOptions {
         compilerExtensionId = preferenceStore.getString(PREF_COMPILER_EXTENSION_ID);
         compileSchemas = preferenceStore.getBoolean(PREF_COMPILE_SCHEMAS);
         compileServices = preferenceStore.getBoolean(PREF_COMPILE_SERVICES);
+        compileJsonSchemas = preferenceStore.getBoolean(PREF_COMPILE_JSON);
+        compileSwagger = preferenceStore.getBoolean(PREF_COMPILE_SWAGGER);
         serviceEndpointUrl = preferenceStore.getString(PREF_SERVICE_ENDPOINT_URL);
+        resourceBaseUrl = preferenceStore.getString(PREF_RESOURCE_BASE_URL);
         generateExamples = preferenceStore.getBoolean(PREF_GENERATE_EXAMPLES);
         generateMaxDetailsForExamples = preferenceStore.getBoolean(PREF_EXAMPLE_MAX_DETAILS);
         exampleMaxRepeat = preferenceStore.getInt(PREF_EXAMPLE_MAX_REPEAT);
@@ -115,12 +120,13 @@ public class CompilerPreferences implements CompileAllTaskOptions {
      *            the Eclipse RCP preference store that contains the compiler task settings
      */
     public void saveTaskOptions(final IPreferenceStore preferenceStore) {
-        preferenceStore.setValue(PREF_COMPILER_EXTENSION_ID, (compilerExtensionId == null) ? ""
-                : compilerExtensionId);
+        preferenceStore.setValue(PREF_COMPILER_EXTENSION_ID, (compilerExtensionId == null) ? "" : compilerExtensionId);
         preferenceStore.setValue(PREF_COMPILE_SCHEMAS, compileSchemas);
         preferenceStore.setValue(PREF_COMPILE_SERVICES, compileServices);
-        preferenceStore.setValue(PREF_SERVICE_ENDPOINT_URL, (serviceEndpointUrl == null) ? ""
-                : serviceEndpointUrl);
+        preferenceStore.setValue(PREF_COMPILE_JSON, compileJsonSchemas);
+        preferenceStore.setValue(PREF_COMPILE_SWAGGER, compileSwagger);
+        preferenceStore.setValue(PREF_SERVICE_ENDPOINT_URL, (serviceEndpointUrl == null) ? "" : serviceEndpointUrl);
+        preferenceStore.setValue(PREF_RESOURCE_BASE_URL, (resourceBaseUrl == null) ? "" : resourceBaseUrl);
         preferenceStore.setValue(PREF_GENERATE_EXAMPLES, generateExamples);
         preferenceStore.setValue(PREF_EXAMPLE_MAX_DETAILS, generateMaxDetailsForExamples);
         preferenceStore.setValue(PREF_EXAMPLE_MAX_REPEAT, exampleMaxRepeat);
@@ -165,24 +171,6 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     }
 
     /**
-	 * @see org.opentravel.schemacompiler.task.CompileAllTaskOptions#isCompileJsonSchemas()
-	 */
-	@Override
-	public boolean isCompileJsonSchemas() {
-		return compileJsonSchemas;
-	}
-
-	/**
-     * Assigns the option flag indicating that JSON schema files should be generated.
-     * 
-     * @param compileJsonSchemas
-     *            the task option value to assign
-     */
-    public void setCompileJsonSchemas(final boolean compileJsonSchemas) {
-        this.compileJsonSchemas = compileJsonSchemas;
-    }
-
-    /**
      * @see org.opentravel.schemacompiler.task.CompileAllTaskOptions#isCompileServices()
      */
     @Override
@@ -201,6 +189,42 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     }
 
     /**
+	 * @see org.opentravel.schemacompiler.task.CompileAllTaskOptions#isCompileJsonSchemas()
+	 */
+	@Override
+	public boolean isCompileJsonSchemas() {
+		return compileJsonSchemas;
+	}
+
+	/**
+     * Assigns the option flag indicating that JSON schema files should be generated.
+     * 
+     * @param compileJsonSchemas
+     *            the task option value to assign
+     */
+    public void setCompileJsonSchemas(final boolean compileJsonSchemas) {
+        this.compileJsonSchemas = compileJsonSchemas;
+    }
+
+	/**
+	 * @see org.opentravel.schemacompiler.task.CompileAllTaskOptions#isCompileSwagger()
+	 */
+	@Override
+	public boolean isCompileSwagger() {
+		return compileSwagger;
+	}
+
+	/**
+     * Assigns the option flag indicating that Swagger files should be generated.
+     * 
+     * @param compileSwagger
+     *            the task option value to assign
+     */
+    public void setCompileSwagger(final boolean compileSwagger) {
+        this.compileSwagger = compileSwagger;
+    }
+
+	/**
      * @see org.opentravel.schemacompiler.task.CommonCompilerTaskOptions#getCatalogLocation()
      */
     @Override
@@ -240,6 +264,24 @@ public class CompilerPreferences implements CompileAllTaskOptions {
      */
     public void setServiceEndpointUrl(final String serviceEndpointUrl) {
         this.serviceEndpointUrl = serviceEndpointUrl;
+    }
+
+    /**
+	 * @see org.opentravel.schemacompiler.task.ResourceCompilerTaskOptions#getResourceBaseUrl()
+	 */
+	@Override
+	public String getResourceBaseUrl() {
+		return resourceBaseUrl;
+	}
+
+    /**
+     * Assigns the base URL for all resource endpoints generated in REST API specifications.
+     * 
+     * @param resourceBaseUrl
+     *            the resource endpoint URL to assign
+     */
+    public void setResourceBaseUrl(final String resourceBaseUrl) {
+        this.resourceBaseUrl = resourceBaseUrl;
     }
 
     /**

@@ -50,7 +50,10 @@ public class CompilePreferencePage extends PreferencePage implements IWorkbenchP
     private Combo extensionCombo;
     private Button compileSchemasCheckbox;
     private Button compileServicesCheckbox;
+    private Button compileJsonCheckbox;
+    private Button compileSwaggerCheckbox;
     private Text serviceEndpointUrlText;
+    private Text resourceBaseUrlText;
     private Button generateExamplesCheckbox;
     private Button examplesMaxDetailsCheckbox;
     private Spinner exampleMaxRepeatSpinner;
@@ -88,7 +91,7 @@ public class CompilePreferencePage extends PreferencePage implements IWorkbenchP
         }
         extensionCombo.select(extensionSelection);
 
-        new Label(composite, SWT.LEFT).setText("Compile Schemas:");
+        new Label(composite, SWT.LEFT).setText("Compile XML Schemas:");
         compileSchemasCheckbox = new Button(composite, SWT.CHECK);
         compileSchemasCheckbox.setSelection(compilerPreferences.isCompileSchemas());
 
@@ -96,12 +99,28 @@ public class CompilePreferencePage extends PreferencePage implements IWorkbenchP
         compileServicesCheckbox = new Button(composite, SWT.CHECK);
         compileServicesCheckbox.setSelection(compilerPreferences.isCompileServices());
 
+        new Label(composite, SWT.LEFT).setText("Compile JSON Schemas:");
+        compileJsonCheckbox = new Button(composite, SWT.CHECK);
+        compileJsonCheckbox.setSelection(compilerPreferences.isCompileJsonSchemas());
+
+        new Label(composite, SWT.LEFT).setText("Compile Swagger:");
+        compileSwaggerCheckbox = new Button(composite, SWT.CHECK);
+        compileSwaggerCheckbox.setSelection(compilerPreferences.isCompileSwagger());
+
         final String serviceEndpoint = compilerPreferences.getServiceEndpointUrl();
         new Label(composite, SWT.LEFT).setText("Service Endpoint:");
         serviceEndpointUrlText = WidgetFactory.createText(composite, SWT.BORDER);
         serviceEndpointUrlText.setLayoutData(gData = new GridData(GridData.HORIZONTAL_ALIGN_FILL
                 | GridData.GRAB_HORIZONTAL));
         serviceEndpointUrlText.setText((serviceEndpoint == null) ? "" : serviceEndpoint);
+        gData.widthHint = 200;
+
+        final String resourceBaseUrl = compilerPreferences.getResourceBaseUrl();
+        new Label(composite, SWT.LEFT).setText("Base Resource URL:");
+        resourceBaseUrlText = WidgetFactory.createText(composite, SWT.BORDER);
+        resourceBaseUrlText.setLayoutData(gData = new GridData(GridData.HORIZONTAL_ALIGN_FILL
+                | GridData.GRAB_HORIZONTAL));
+        resourceBaseUrlText.setText((resourceBaseUrl == null) ? "" : resourceBaseUrl);
         gData.widthHint = 200;
 
         new Label(composite, SWT.LEFT).setLayoutData(gData = new GridData(
@@ -159,14 +178,15 @@ public class CompilePreferencePage extends PreferencePage implements IWorkbenchP
     @Override
     public boolean performOk() {
         // Update the preferences using the settings from the page controls
-        compilerPreferences.setCompilerExtensionId(extensionCombo.getItem(extensionCombo
-                .getSelectionIndex()));
+        compilerPreferences.setCompilerExtensionId(extensionCombo.getItem(extensionCombo.getSelectionIndex()));
         compilerPreferences.setCompileSchemas(compileSchemasCheckbox.getSelection());
         compilerPreferences.setCompileServices(compileServicesCheckbox.getSelection());
+        compilerPreferences.setCompileJsonSchemas(compileJsonCheckbox.getSelection());
+        compilerPreferences.setCompileSwagger(compileSwaggerCheckbox.getSelection());
         compilerPreferences.setServiceEndpointUrl(serviceEndpointUrlText.getText());
+        compilerPreferences.setResourceBaseUrl(resourceBaseUrlText.getText());
         compilerPreferences.setGenerateExamples(generateExamplesCheckbox.getSelection());
-        compilerPreferences.setGenerateMaxDetailsForExamples(examplesMaxDetailsCheckbox
-                .getSelection());
+        compilerPreferences.setGenerateMaxDetailsForExamples(examplesMaxDetailsCheckbox.getSelection());
         compilerPreferences.setExampleMaxRepeat(exampleMaxRepeatSpinner.getSelection());
         compilerPreferences.setExampleMaxDepth(exampleMaxDepthSpinner.getSelection());
 
