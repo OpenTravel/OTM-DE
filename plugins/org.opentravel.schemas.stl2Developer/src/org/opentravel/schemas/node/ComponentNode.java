@@ -598,7 +598,7 @@ public class ComponentNode extends Node implements TypeProvider {
 	}
 
 	/**
-	 * @return - Node for ID facet if it exists, null otherwise.
+	 * @return - Node for SUMMARY facet if it exists, null otherwise.
 	 */
 	public PropertyOwnerInterface getSummaryFacet() {
 		return (PropertyOwnerInterface) getFacetOfType(TLFacetType.SUMMARY);

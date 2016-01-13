@@ -353,10 +353,10 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return peer;
 	}
 
-	public Node getSubject() {
+	public BusinessObjectNode getSubject() {
 		if (tlObj != null && tlObj.getBusinessObjectRef() != null)
 			subject = this.getNode(tlObj.getBusinessObjectRef().getListeners());
-		return subject;
+		return (BusinessObjectNode) subject;
 	}
 
 	/**

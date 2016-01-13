@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.node.resources;
 
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLActionRequest;
@@ -28,6 +29,7 @@ import org.opentravel.schemacompiler.model.TLParameter;
 import org.opentravel.schemacompiler.model.TLReferenceType;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.node.ComponentNode;
 
 /**
  * Creates resources and the associated components.
@@ -54,13 +56,12 @@ public class ResourceBuilder {
 		rnTL.setFirstClass(true);
 
 		// ID Parameters - ID, Query(s)
-		TLParamGroup params = new TLParamGroup();
-		rnTL.addParamGroup(params);
-		params.setName("ID_Parameters");
-		params.setIdGroup(true);
-		ParamGroup pg = new ParamGroup(params);
-		pg.setReferenceFacet("ID"); // will force params to be created
+		ParamGroup pg = buildParamGroup(rn, (ComponentNode) bo.getIDFacet(), true);
 		// Query Parameters
+		for (ComponentNode fn : bo.getQueryFacets()) {
+			ParamGroup qpg = buildParamGroup(rn, fn, false);
+			buildAction(rn, qpg, TLHttpMethod.GET);
+		}
 
 		// Action Facet
 		TLActionFacet facet = new TLActionFacet();
@@ -72,20 +73,53 @@ public class ResourceBuilder {
 		af.setReferenceType(TLReferenceType.REQUIRED.toString());
 
 		// Action
+		ActionNode an = buildAction(rn, pg, TLHttpMethod.GET);
+		buildAction(rn, pg, TLHttpMethod.POST);
+		// buildAction(rn, pg, af, TLHttpMethod.GET);
+	}
+
+	private ActionNode buildAction(ResourceNode rn, ParamGroup pg, TLHttpMethod method) {
 		TLAction action = new TLAction();
-		rnTL.addAction(action);
-		action.setActionId("Get");
+		rn.getTLModelObject().addAction(action);
 		TLActionRequest request = new TLActionRequest();
 		action.setRequest(request);
-		// request.setParamGroup(params);
 		TLActionResponse response = new TLActionResponse();
 		action.addResponse(response);
-		response.setPayloadType(facet);
+
+		switch (method) {
+		case GET:
+			action.setActionId("Get");
+			response.setPayloadType((NamedEntity) rn.getSubject().getSummaryFacet());
+			break;
+		case POST:
+			action.setActionId("Create");
+			response.setPayloadType((NamedEntity) rn.getSubject().getIDFacet());
+			break;
+		case DELETE:
+			action.setActionId("Delete");
+			break;
+		case PUT:
+			action.setActionId("Update");
+			break;
+		default:
+			break;
+		}
+		ActionNode an = new ActionNode(action); // creates request and response node controllers
 		// FIXME - response.setMimeTypes(TLMimeType.APPLICATION_JSON);
-		ActionNode an = new ActionNode(action);
 		an.getRequest().setMimeType(TLMimeType.APPLICATION_JSON.toString());
-		an.getRequest().setHttpMethod(TLHttpMethod.GET.toString());
-		an.getRequest().setParamGroup(params.getName()); // do here to set path template
+		an.getRequest().setHttpMethod(method.toString());
+		an.getRequest().setParamGroup(pg.getName()); // do here to set path template
+		return an;
+	}
+
+	private ParamGroup buildParamGroup(ResourceNode rn, ComponentNode fn, boolean idGroup) {
+		TLParamGroup params = new TLParamGroup();
+		rn.getTLModelObject().addParamGroup(params);
+		params.setName(fn.getLabel());
+		params.setIdGroup(idGroup);
+		ParamGroup pg = new ParamGroup(params);
+		pg.setReferenceFacet(fn.getLabel()); // will force params to be created
+		return pg;
 	}
 
 	public TLResource buildTL() {
