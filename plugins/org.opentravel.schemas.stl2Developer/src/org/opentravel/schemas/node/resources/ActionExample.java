@@ -41,27 +41,33 @@ public class ActionExample {
 	private String template;
 	private String payload = "";
 	private String label;
-	private TLAction action;
+	private TLAction tlAction;
+	private String queryTemplate;
+	private ActionNode action;
 
-	public ActionExample(TLAction action) {
+	public ActionExample(ActionNode action) {
 		this.action = action;
+		this.tlAction = action.getTLModelObject();
 		setValues();
 
-		// DON'T set listeners here ...
-		// there is no control over order and the examples might get updated before the data changes
+		// DON'T set listeners here ... listener call backs are in any order so the examples might update before the
+		// data. Set listeners on controllers that instantiate this class.
 	}
 
 	protected void setValues() {
-		label = action.getActionId();
-		if (action.getRequest() != null) {
-			method = action.getRequest().getHttpMethod();
-			template = action.getRequest().getPathTemplate();
-			payload = action.getRequest().getPayloadTypeName();
+		label = tlAction.getActionId();
+		queryTemplate = action.getQueryTemplate();
+		if (tlAction.getRequest() != null) {
+			method = tlAction.getRequest().getHttpMethod();
+			template = tlAction.getRequest().getPathTemplate();
+			payload = tlAction.getRequest().getPayloadTypeName();
 			if (payload == null)
 				payload = "";
 		}
-		if (action.getOwner() != null) {
-			basePath = action.getOwner().getBasePath();
+		if (tlAction.getOwner() != null) {
+			basePath = tlAction.getOwner().getBasePath();
+			if (basePath != null && basePath.endsWith("/"))
+				basePath = basePath.substring(0, basePath.length() - 1);
 		}
 	}
 
@@ -76,7 +82,7 @@ public class ActionExample {
 	public String getURL() {
 		if (method == null)
 			return "";
-		return method + " " + system + basePath + template + "  " + getPayloadExample();
+		return method + " " + system + basePath + template + queryTemplate + " " + getPayloadExample();
 	}
 
 	@Override

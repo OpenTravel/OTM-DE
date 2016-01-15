@@ -26,7 +26,9 @@ public class Images {
 	public static final String library = "library";
 	public static final String libraryChain = "libraryChain";
 	public static final String aggregateFolder = "aggregateFolder";
+	public static final String Error = "Error";
 	public static final String ErrorDecoration = "ErrorDecoration";
+	public static final String WarningDecoration = "WarningDecoration";
 
 	public static final String Alias = "Alias";
 	public static final String Indicator = "Indicator";
@@ -88,8 +90,9 @@ public class Images {
 		final String pluginID = "org.opentravel.schemas.stl2Developer";
 
 		image_registry.put(ErrorDecoration, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/error.gif"));
-		// image_registry.put(ErrorDecoration,
-		// AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/error_st_obj.gif"));
+		image_registry.put(WarningDecoration,
+				AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/warning_co.gif"));
+		image_registry.put(Error, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/error_st_obj.gif"));
 		image_registry.put("AddComponent", AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/add_att.gif"));
 
 		image_registry.put("library", AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/Library.png"));

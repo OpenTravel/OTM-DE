@@ -18,13 +18,10 @@
  */
 package org.opentravel.schemas.commands;
 
-import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Event;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
@@ -58,29 +55,29 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 	private Node selectedNode; // The user selected node.
 	private OtmView view;
 
-	public void execute(Event event) {
-		if (mc == null)
-			mc = OtmRegistry.getMainController();
-		selectedNode = mc.getGloballySelectNode();
-		if (!(selectedNode instanceof ResourceMemberInterface))
-			return;
-		// mc.postStatus("Resource Handler.");
-	}
-
-	public void execute(SelectionEvent event) {
-		view = OtmRegistry.getResourceView();
-		selectedNode = (Node) view.getCurrentNode();
-		runCommand(ResourceCommandHandler.CommandType.RESOURCE);
-		// mc.postStatus("Resource Handler.");
-	}
+	// public void execute(Event event) {
+	// if (mc == null)
+	// mc = OtmRegistry.getMainController();
+	// selectedNode = mc.getGloballySelectNode();
+	// if (!(selectedNode instanceof ResourceMemberInterface))
+	// return;
+	// // mc.postStatus("Resource Handler.");
+	// }
+	//
+	// public void execute(SelectionEvent event) {
+	// view = OtmRegistry.getResourceView();
+	// selectedNode = (Node) view.getCurrentNode();
+	// runCommand(ResourceCommandHandler.CommandType.RESOURCE);
+	// // mc.postStatus("Resource Handler.");
+	// }
 
 	// Entry point from command execution
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
 		view = OtmRegistry.getResourceView();
-		selectedNode = (Node) view.getCurrentNode();
-		Command cmd = exEvent.getCommand();
-		runCommand(getCmdType(cmd.getId()));
+		if (!getSelected())
+			return null; // Nothing to act on
+		runCommand(getCmdType(exEvent.getCommand().getId()));
 		// mc.postStatus("Resource Handler.");
 		return null;
 	}
@@ -103,11 +100,18 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 		return cmdType;
 	}
 
+	private boolean getSelected() {
+		selectedNode = (Node) view.getCurrentNode();
+		if (selectedNode == null)
+			selectedNode = mc.getCurrentNode_NavigatorView();
+		return selectedNode != null;
+	}
+
 	private void runCommand(CommandType type) {
 		ResourceNode rn = null;
 		if (selectedNode.getOwningComponent() instanceof ResourceMemberInterface)
 			rn = (ResourceNode) selectedNode.getOwningComponent();
-		if (rn == null) {
+		if (selectedNode == null) {
 			return;
 		}
 
@@ -118,23 +122,38 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 			view.refresh();
 			break;
 		case RESOURCE:
-			ResourceNode newR = new ResourceNode(selectedNode); // create named empty resource
-			BusinessObjectNode bo = getBusinessObject(newR);
-			new ResourceBuilder().build(newR, bo);
-			view.refresh(newR);
+			if (selectedNode != null) {
+				ResourceNode newR = new ResourceNode(selectedNode); // create named empty resource
+				BusinessObjectNode bo = getBusinessObject(newR);
+				new ResourceBuilder().build(newR, bo);
+				view.refresh(newR);
+			} else
+				postWarning();
 			// view.refresh(new ResourceNode(selectedNode));
 			break;
 		case ACTION:
-			view.refresh(new ActionNode(rn));
+			if (rn != null)
+				view.refresh(new ActionNode(rn));
+			else
+				postWarning();
 			break;
 		case ACTIONFACET:
-			view.refresh(new ActionFacet(rn));
+			if (rn != null)
+				view.refresh(new ActionFacet(rn));
+			else
+				postWarning();
 			break;
 		case PARAMGROUP:
-			view.refresh(new ParamGroup(rn));
+			if (rn != null)
+				view.refresh(new ParamGroup(rn));
+			else
+				postWarning();
 			break;
 		case ACTIONRESPONSE:
-			view.refresh(new ActionResponse((ActionNode) selectedNode));
+			if (selectedNode instanceof ActionNode)
+				view.refresh(new ActionResponse((ActionNode) selectedNode));
+			else
+				postWarning();
 			break;
 		case NONE:
 		default:
@@ -142,6 +161,16 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 		}
 	}
 
+	private void postWarning() {
+		DialogUserNotifier.openWarning("Missing Subject", "Can not find the parent for the new item.");
+	}
+
+	/**
+	 * Run type selection wizard to get a business object.
+	 * 
+	 * @param rn
+	 * @return business object or null.
+	 */
 	private BusinessObjectNode getBusinessObject(ResourceNode rn) {
 		// post a business object only Type Selection then pass the selected node.
 		Node subject = null;

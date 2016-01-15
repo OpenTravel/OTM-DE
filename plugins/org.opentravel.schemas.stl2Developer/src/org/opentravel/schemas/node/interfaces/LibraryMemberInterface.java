@@ -33,4 +33,6 @@ public interface LibraryMemberInterface extends INode {
 
 	public String getNameWithPrefix();
 
+	public boolean isValid();
+
 }

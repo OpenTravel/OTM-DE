@@ -170,7 +170,6 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	 */
 	public List<String> getPathTemplates() {
 		ArrayList<String> contributions = new ArrayList<String>();
-		int i = 0;
 		boolean firstParam = true;
 		for (Node param : getChildren()) {
 			if (((ResourceParameter) param).getLocation().equals(TLParamLocation.PATH.toString()))
@@ -179,7 +178,24 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 				else
 					contributions.add("/{" + param.getName() + "}");
 		}
-		firstParam = true;
+		// firstParam = true;
+		// for (Node param : getChildren()) {
+		// if (((ResourceParameter) param).getLocation().equals(TLParamLocation.QUERY.toString()))
+		// if (firstParam) {
+		// contributions.add("?" + getQueryParam(param));
+		// firstParam = false;
+		// } else
+		// contributions.add("&" + getQueryParam(param));
+		// }
+		return contributions;
+	}
+
+	/**
+	 * @return list of strings for the components of the query
+	 */
+	public List<String> getQueryTemplates() {
+		ArrayList<String> contributions = new ArrayList<String>();
+		boolean firstParam = true;
 		for (Node param : getChildren()) {
 			if (((ResourceParameter) param).getLocation().equals(TLParamLocation.QUERY.toString()))
 				if (firstParam) {
@@ -189,6 +205,13 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 					contributions.add("&" + getQueryParam(param));
 		}
 		return contributions;
+	}
+
+	public String getQueryTemplate() {
+		String query = "";
+		for (String s : getQueryTemplates())
+			query += s;
+		return query;
 	}
 
 	private String getQueryParam(Node param) {

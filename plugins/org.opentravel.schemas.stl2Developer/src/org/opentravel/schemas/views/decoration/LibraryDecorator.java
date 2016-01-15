@@ -30,6 +30,7 @@ import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.NamespaceHandler;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Images;
@@ -58,6 +59,10 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 		return Images.getImageRegistry().getDescriptor(Images.ErrorDecoration);
 	}
 
+	public static ImageDescriptor warningDesc() {
+		return Images.getImageRegistry().getDescriptor(Images.WarningDecoration);
+	}
+
 	@Override
 	public void decorate(Object element, IDecoration decoration) {
 		if (element instanceof LibraryNode) {
@@ -78,8 +83,16 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 		} else if (element instanceof ResourceNode) {
 			if (!((ResourceMemberInterface) element).isValid())
 				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
-		} else if (element instanceof ResourceMemberInterface)
+		} else if (element instanceof ResourceMemberInterface) {
 			if (!((ResourceMemberInterface) element).isValid())
+				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
+			else if (!((ResourceMemberInterface) element).isValid_NoWarnings())
+				decoration.addOverlay(warningDesc(), IDecoration.BOTTOM_LEFT);
+			// } else if (element instanceof PropertyNode) {
+			// if (((PropertyNode) element).getAssignedType() == ModelNode.getUnassignedNode())
+			// decoration.addOverlay(warningDesc(), IDecoration.BOTTOM_LEFT);
+		} else if (element instanceof LibraryMemberInterface)
+			if (!((LibraryMemberInterface) element).isValid())
 				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
 	}
 

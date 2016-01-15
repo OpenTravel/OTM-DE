@@ -54,7 +54,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	class MimeTypeListener implements ResourceFieldListener {
 		@Override
 		public boolean set(String value) {
-			setMimeType(value);
+			toggleMimeType(value);
 			return false;
 		}
 	}
@@ -103,11 +103,11 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	 * @param tlParamGroup
 	 */
 	public void createPathTemplate() {
-		String path = ""; // Start with empty path
+		String path = ""; // Start with slash
 		ParamGroup pg = (ParamGroup) getNode(tlObj.getParamGroup().getListeners());
 		if (pg != null)
 			for (String pt : pg.getPathTemplates())
-				path += pt;
+				path += "/" + pt;
 		tlObj.setPathTemplate(path);
 		LOGGER.debug("Created path template: " + tlObj.getPathTemplate());
 	}
@@ -165,7 +165,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	}
 
 	public ParamGroup getParamGroup() {
-		return (ParamGroup) getNode(tlObj.getParamGroup().getListeners());
+		return tlObj.getParamGroup() != null ? (ParamGroup) getNode(tlObj.getParamGroup().getListeners()) : null;
 	}
 
 	@Override
@@ -201,14 +201,13 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	 * 
 	 * @param value
 	 */
-	public void setMimeType(String value) {
+	public void toggleMimeType(String value) {
 		TLMimeType type = TLMimeType.valueOf(value);
-		// FIXME
-		// if (tlObj.getMimeTypes().contains(type))
-		// tlObj.removeMimeType(type);
-		// else
-		// tlObj.addMimeType(type);
-		LOGGER.debug("FIXME - Set Mime types to: " + tlObj.getMimeTypes());
+		if (tlObj.getMimeTypes().contains(type))
+			tlObj.removeMimeType(type);
+		else
+			tlObj.addMimeType(type);
+		LOGGER.debug("Set Mime types to: " + tlObj.getMimeTypes());
 	}
 
 	@Override
@@ -245,6 +244,10 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	 * @return true if there was a change
 	 */
 	public boolean setPayloadType(String payloadName) {
+		if (tlObj.getPayloadTypeName() == null) {
+			LOGGER.debug("Null payload type name");
+			return false;
+		}
 		if (tlObj.getPayloadTypeName().equals(payloadName)) {
 			LOGGER.debug("No change because names are the same. " + payloadName);
 			return false;

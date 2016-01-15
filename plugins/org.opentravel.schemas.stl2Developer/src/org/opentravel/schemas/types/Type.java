@@ -54,6 +54,7 @@ import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.IndicatorElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
+import org.opentravel.schemas.node.resources.ResourceNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -472,6 +473,9 @@ public class Type {
 			target = ModelNode.getIndicatorNode();
 		else if (typeOwner instanceof IndicatorElementNode)
 			target = ModelNode.getIndicatorNode();
+		else if (typeOwner instanceof ResourceNode)
+			if (((ResourceNode) typeOwner).getSubject() == null)
+				target = ModelNode.getUndefinedNode(); // It is OK for subject to not be assigned.
 
 		if (target == null)
 			target = ModelNode.getUnassignedNode();

@@ -26,24 +26,24 @@ import org.opentravel.schemas.properties.Images;
  */
 public class ErrorExampleModel extends ExampleModel {
 
-    /**
-     * @param child
-     */
-    public ErrorExampleModel(Node child) {
-        super(child);
-        this.setLabelProvider(new LabelProvider() {
+	/**
+	 * @param child
+	 */
+	public ErrorExampleModel(Node child) {
+		super(child);
+		this.setLabelProvider(new LabelProvider() {
 
-            @Override
-            public Image getImage(Object element) {
-                return Images.getImageRegistry().get(Images.ErrorDecoration);
-            }
+			@Override
+			public Image getImage(Object element) {
+				return Images.getImageRegistry().get(Images.Error);
+			}
 
-            @Override
-            public String getText(Object element) {
-                return getNode().getName();
-            }
+			@Override
+			public String getText(Object element) {
+				return getNode().getName();
+			}
 
-        });
-    }
+		});
+	}
 
 }

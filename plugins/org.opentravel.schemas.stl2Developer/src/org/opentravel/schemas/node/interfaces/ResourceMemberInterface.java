@@ -80,10 +80,18 @@ public interface ResourceMemberInterface {
 
 	public boolean isNameEditable();
 
+	/**
+	 * @return true if there are no validation errors on this item.
+	 */
 	public boolean isValid();
 
 	public void setDescription(String description);
 
 	public void setName(String name);
+
+	/**
+	 * @return true if there are no validation warnings on this item.
+	 */
+	boolean isValid_NoWarnings();
 
 }

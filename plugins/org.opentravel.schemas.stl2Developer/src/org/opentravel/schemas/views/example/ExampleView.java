@@ -39,6 +39,7 @@ import org.opentravel.schemacompiler.codegen.example.ExampleBuilder;
 import org.opentravel.schemacompiler.codegen.example.ExampleDocumentBuilder;
 import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions;
 import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions.DetailLevel;
+import org.opentravel.schemacompiler.codegen.example.ExampleJsonBuilder;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.validate.ValidationException;
@@ -296,10 +297,17 @@ public class ExampleView extends OtmAbstractView {
 	 * @throws ValidationException
 	 */
 	private Object[] generateExample(NamedEntity namedEntity) throws ValidationException, CodeGenerationException {
-		ExampleBuilder<Document> exampleBuilder = new ExampleDocumentBuilder(
-				setupExampleGeneratorOptions()).setModelElement(namedEntity);
+		ExampleBuilder<Document> exampleBuilder = new ExampleDocumentBuilder(setupExampleGeneratorOptions())
+				.setModelElement(namedEntity);
 		Document dom = exampleBuilder.buildTree();
 		String xml = exampleBuilder.buildString();
+
+		// Testing JSON - works
+		ExampleJsonBuilder exampleJsonBuilder = new ExampleJsonBuilder(setupExampleGeneratorOptions());
+		exampleJsonBuilder.setModelElement(namedEntity);
+		String json = exampleJsonBuilder.buildString();
+		LOGGER.debug("JSON = " + json);
+
 		return new Object[] { dom, xml };
 	}
 

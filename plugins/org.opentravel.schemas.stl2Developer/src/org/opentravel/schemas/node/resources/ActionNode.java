@@ -127,7 +127,7 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 
 	public ActionExample getExample() {
 		if (example == null)
-			example = new ActionExample(tlObj);
+			example = new ActionExample(this);
 		return example;
 	}
 
@@ -158,6 +158,11 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	}
 
 	@Override
+	public TLAction getTLModelObject() {
+		return tlObj;
+	}
+
+	@Override
 	public String getTooltip() {
 		return Messages.getString(MSGKEY + ".tooltip");
 	}
@@ -179,6 +184,14 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 
 	public void updateExample() {
 		getExample().setValues();
+	}
+
+	public String getQueryTemplate() {
+		if (getRequest() == null)
+			return "";
+		if (getRequest().getParamGroup() == null)
+			return "";
+		return getRequest().getParamGroup().getQueryTemplate();
 	}
 
 }

@@ -2876,7 +2876,9 @@ public abstract class Node implements INode {
 	 * Use the compiler to validate a node.
 	 */
 	public ValidationFindings validate() {
-		ValidationFindings findings = TLModelCompileValidator.validateModelElement(this.getTLModelObject());
+		// Only do deep dependencies validation on libraries.
+		ValidationFindings findings = TLModelCompileValidator.validateModelElement(this.getTLModelObject(),
+				this instanceof LibraryNode);
 		// for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
 		// {
 		// LOGGER.debug("Finding: " + f);

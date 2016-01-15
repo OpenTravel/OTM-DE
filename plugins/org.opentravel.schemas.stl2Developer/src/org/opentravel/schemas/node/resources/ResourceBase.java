@@ -129,7 +129,7 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 
 	@Override
 	public Collection<String> getValidationMessages() {
-		ValidationFindings findings = TLModelCompileValidator.validateModelElement((TLModelElement) tlObj);
+		ValidationFindings findings = TLModelCompileValidator.validateModelElement((TLModelElement) tlObj, false);
 		ArrayList<String> msgs = new ArrayList<String>();
 		for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
 			msgs.add(f);
@@ -145,8 +145,14 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 
 	@Override
 	public boolean isValid() {
-		ValidationFindings findings = TLModelCompileValidator.validateModelElement((TLModelElement) tlObj);
-		return findings.isEmpty();
+		// Set false when checking ONLY this object and its children
+		return TLModelCompileValidator.validateModelElement((TLModelElement) tlObj, false).count(FindingType.ERROR) == 0;
+		// return TLModelCompileValidator.validateModelElement((TLModelElement) tlObj).count(FindingType.ERROR) == 0;
+	}
+
+	@Override
+	public boolean isValid_NoWarnings() {
+		return TLModelCompileValidator.validateModelElement((TLModelElement) tlObj, false).count(FindingType.WARNING) == 0;
 	}
 
 	@Override

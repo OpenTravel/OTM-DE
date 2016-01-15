@@ -25,6 +25,7 @@ import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLActionResponse;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLMimeType;
+import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
@@ -56,7 +57,7 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 		@Override
 		public boolean set(String value) {
 			// tlObj.setStatusCodes(value);
-			LOGGER.debug("Set status codes to: " + tlObj.getStatusCodes());
+			LOGGER.debug("TODO - Set status codes to: " + tlObj.getStatusCodes());
 			return false;
 		}
 	}
@@ -117,13 +118,14 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 	public List<ResourceField> getFields() {
 		List<ResourceField> fields = new ArrayList<ResourceField>();
 
-		// Mime Types = multi-select List of possible types
-		new ResourceField(fields, tlObj.getMimeTypes().toString(), "rest.ActionResponse.fields.mimeTypes",
-				ResourceFieldType.EnumList, new MimeTypeListener(), getMimeTypeStrings());
-
 		// Payload type = either an action facet or a core object
 		new ResourceField(fields, getFacetName(), "rest.ActionResponse.fields.payload", ResourceFieldType.Enum,
 				new PayloadListener(), getPossiblePayloadNames());
+		// Consider using a wizard instead of combo
+
+		// Mime Types = multi-select List of possible types
+		new ResourceField(fields, tlObj.getMimeTypes().toString(), "rest.ActionResponse.fields.mimeTypes",
+				ResourceFieldType.EnumList, new MimeTypeListener(), getMimeTypeStrings());
 
 		// Status codes = string
 		new ResourceField(fields, tlObj.getStatusCodes().toString(), "rest.ActionResponse.fields.statusCodes",
@@ -191,12 +193,10 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 	 */
 	public void toggleMimeType(String value) {
 		TLMimeType type = TLMimeType.valueOf(value);
-		// FIXME when issue https://github.com/OpenTravel/OTM-DE-Compiler/issues/32 resolved
-		// MimeType x = MimeType.valueOf(value);
-		// if (tlObj.getMimeTypes().contains(type))
-		// tlObj.removeMimeType(x);
-		// else
-		tlObj.addMimeType(type);
+		if (tlObj.getMimeTypes().contains(type))
+			tlObj.removeMimeType(type);
+		else
+			tlObj.addMimeType(type);
 		LOGGER.debug("Set Mime types to: " + tlObj.getMimeTypes());
 	}
 
@@ -213,7 +213,7 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 		List<ActionFacet> afs = getOwningComponent().getActionFacets();
 		List<Node> nodes = new ArrayList<Node>();
 		for (Node n : getOwningComponent().getLibrary().getDescendants_NamedTypes())
-			if (n instanceof CoreObjectNode)
+			if (n instanceof CoreObjectNode || n instanceof ChoiceObjectNode)
 				nodes.add(n);
 		for (ActionFacet af : afs)
 			nodes.add(af);

@@ -269,7 +269,7 @@ public class LibraryTablePoster {
 
 			// flag duplicates
 			if (!cn.isUnique() && !cn.isInheritedProperty()) {
-				item.setImage(Images.getImageRegistry().get(Images.ErrorDecoration));
+				item.setImage(Images.getImageRegistry().get(Images.Error));
 			}
 		}
 		return item;

@@ -30,6 +30,7 @@ import org.opentravel.schemacompiler.model.TLReferenceType;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.Node;
 
 /**
  * Creates resources and the associated components.
@@ -89,11 +90,11 @@ public class ResourceBuilder {
 		switch (method) {
 		case GET:
 			action.setActionId("Get");
-			response.setPayloadType((NamedEntity) rn.getSubject().getSummaryFacet());
+			response.setPayloadType((NamedEntity) rn.getSubject().getSummaryFacet().getTLModelObject());
 			break;
 		case POST:
 			action.setActionId("Create");
-			response.setPayloadType((NamedEntity) rn.getSubject().getIDFacet());
+			response.setPayloadType((NamedEntity) ((Node) rn.getSubject().getIDFacet()).getTLModelObject());
 			break;
 		case DELETE:
 			action.setActionId("Delete");
@@ -106,7 +107,7 @@ public class ResourceBuilder {
 		}
 		ActionNode an = new ActionNode(action); // creates request and response node controllers
 		// FIXME - response.setMimeTypes(TLMimeType.APPLICATION_JSON);
-		an.getRequest().setMimeType(TLMimeType.APPLICATION_JSON.toString());
+		an.getRequest().toggleMimeType(TLMimeType.APPLICATION_JSON.toString());
 		an.getRequest().setHttpMethod(method.toString());
 		an.getRequest().setParamGroup(pg.getName()); // do here to set path template
 		return an;

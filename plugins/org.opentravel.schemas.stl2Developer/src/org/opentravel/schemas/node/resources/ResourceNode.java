@@ -29,6 +29,7 @@ import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLParamGroup;
 import org.opentravel.schemacompiler.model.TLResource;
@@ -73,7 +74,6 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	public class AbstractListener implements ResourceFieldListener {
 		@Override
 		public boolean set(String value) {
-			Boolean x = Boolean.valueOf(value);
 			tlObj.setAbstract(Boolean.valueOf(value));
 			LOGGER.debug("Set abstract to: " + tlObj.isAbstract());
 			return false;
@@ -113,6 +113,14 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		}
 	}
 
+	public class ExtensionListener implements ResourceFieldListener {
+		@Override
+		public boolean set(String name) {
+			// setSubject(name);
+			return false;
+		}
+	}
+
 	/**************************************************************
 	 * 
 	 */
@@ -123,20 +131,29 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		assert (getModelObject() != null);
 		tlObj = getTLModelObject();
 		assert tlObj != null;
+		if (getSubject() == null)
+			// assert getType() == ModelNode.getUndefinedNode();
+			LOGGER.debug("No subject assigned: " + getType());
 		addMOChildren();
 	}
 
-	/**
-	 * 
-	 * @param mbr
-	 *            - tlResource to control
-	 * @param libraryMember
-	 *            - in the library where this resource will be added
-	 */
-	public ResourceNode(TLResource mbr, Node libraryMember) {
-		this(mbr);
-		libraryMember.getLibrary().addMember(this);
+	@Override
+	public boolean setAssignedType(Node type) {
+		LOGGER.debug("Tried to set assigned type: " + getType());
+		return false;
 	}
+
+	// /**
+	// *
+	// * @param mbr
+	// * - tlResource to control
+	// * @param libraryMember
+	// * - in the library where this resource will be added
+	// */
+	// public ResourceNode(TLResource mbr, Node libraryMember) {
+	// this(mbr);
+	// libraryMember.getLibrary().addMember(this);
+	// }
 
 	/**
 	 * Create a resource in the library of the libraryMember.
@@ -144,11 +161,12 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	public ResourceNode(Node libraryMember) {
 		super(new TLResource());
 		tlObj = getTLModelObject();
-		if (libraryMember.getName().isEmpty())
+		if (libraryMember == null || libraryMember.getName().isEmpty())
 			tlObj.setName("NewResource"); // must be named to add to library
 		else
 			tlObj.setName(libraryMember.getName() + "Resource");
-		libraryMember.getLibrary().addMember(this);
+		if (libraryMember != null)
+			libraryMember.getLibrary().addMember(this);
 	}
 
 	/**
@@ -243,26 +261,28 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	public List<ResourceField> getFields() {
 		List<ResourceField> fields = new ArrayList<ResourceField>();
 
+		// Extensions
+		new ResourceField(fields, tlObj.getExtension().getExtendsEntityName(), MSGKEY + ".fields.extension",
+				ResourceFieldType.Enum, new ExtensionListener(), getPeerNames());
+
 		// Business Object = Get a list of business objects to use as enum values
-		ResourceField field = new ResourceField(fields, tlObj.getBusinessObjectRefName(), MSGKEY
-				+ ".fields.businessObject", ResourceFieldType.Enum, new SubjectListener());
-		field.setData(getSubjectCandidates());
+		new ResourceField(fields, tlObj.getBusinessObjectRefName(), MSGKEY + ".fields.businessObject",
+				ResourceFieldType.Enum, new SubjectListener(), getSubjectCandidates());
 
 		// Base Path
-		field = new ResourceField(fields, tlObj.getBasePath(), MSGKEY + ".fields.basePath", ResourceFieldType.String,
+		new ResourceField(fields, tlObj.getBasePath(), MSGKEY + ".fields.basePath", ResourceFieldType.String,
 				new BasePathListener());
 
 		// Parent Ref = Use an enum list to present all the possible parents and all peers
-		field = new ResourceField(fields, Arrays.toString(getParentRefNames()), MSGKEY + ".fields.parentRef",
-				ResourceFieldType.EnumList, new ParentRefListener());
-		field.setData(getPeerNames());
+		new ResourceField(fields, Arrays.toString(getParentRefNames()), MSGKEY + ".fields.parentRef",
+				ResourceFieldType.EnumList, new ParentRefListener(), getPeerNames());
 
 		// Abstract - yes/no button
-		field = new ResourceField(fields, Boolean.toString(tlObj.isAbstract()), MSGKEY + ".fields.abstract",
+		new ResourceField(fields, Boolean.toString(tlObj.isAbstract()), MSGKEY + ".fields.abstract",
 				ResourceFieldType.CheckButton, new AbstractListener());
 
 		// First Class - yes/no button
-		field = new ResourceField(fields, Boolean.toString(tlObj.isFirstClass()), MSGKEY + ".fields.firstClass",
+		new ResourceField(fields, Boolean.toString(tlObj.isFirstClass()), MSGKEY + ".fields.firstClass",
 				ResourceFieldType.CheckButton, new FirstClassListener());
 
 		return fields;
@@ -450,6 +470,14 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		}
 	}
 
+	public boolean setExtension(String name) {
+		TLExtension ext = new TLExtension();
+		ext.setExtendsEntity(getPeerByName(name).getTLModelObject());
+		tlObj.setExtension(ext);
+		LOGGER.debug("Set extension to " + name + ": " + tlObj.getExtension().getExtendsEntityName());
+		return false;
+	}
+
 	public void setSubject(String name) {
 		if (name.equals(ResourceField.NONE)) {
 			tlObj.setBusinessObjectRef(null);
@@ -468,10 +496,17 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	 * @param name
 	 */
 	public void toggleParent(String name) {
+		if (name.equals("NONE")) {
+			for (TLResourceParentRef ref : tlObj.getParentRefs())
+				tlObj.removeParentRef(ref);
+			return;
+		}
 		TLResourceParentRef toRemove = null;
 		for (TLResourceParentRef ref : tlObj.getParentRefs()) {
-			if (ref.getParentResourceName() != null && ref.getParentResourceName().equals(name)) {
-				toRemove = ref;
+			if (ref.getParentResourceName() != null) {
+				String rn = ref.getParentResourceName();
+				if (ref.getParentResourceName().equals(name))
+					toRemove = ref;
 			}
 		}
 		if (toRemove != null) {
@@ -500,10 +535,6 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		}
 	}
 
-	public boolean isValid() {
-		return TLModelCompileValidator.validateModelElement(tlObj).isEmpty();
-	}
-
 	@Override
 	public Collection<String> getValidationMessages() {
 		ValidationFindings findings = TLModelCompileValidator.validateModelElement((TLModelElement) tlObj);
@@ -520,4 +551,13 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return TLModelCompileValidator.validateModelElement((TLModelElement) tlObj);
 	}
 
+	@Override
+	public boolean isValid() {
+		return TLModelCompileValidator.validateModelElement(tlObj).count(FindingType.ERROR) == 0;
+	}
+
+	@Override
+	public boolean isValid_NoWarnings() {
+		return TLModelCompileValidator.validateModelElement((TLModelElement) tlObj).count(FindingType.WARNING) == 0;
+	}
 }
