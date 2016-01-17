@@ -29,6 +29,10 @@
 			icon="icons/generic_xml_obj.gif" id="org.opentravel.schemas.stl2Developer.ExampleXmlView"
 			name="Example XML" restorable="true">
 		</view>
+		<view class="org.opentravel.schemas.views.example.ExampleJsonView"
+			icon="icons/json-logo.gif" id="org.opentravel.schemas.stl2Developer.ExampleJsonView"
+			name="Example JSON" restorable="true">
+		</view>
 		<view class="org.opentravel.schemas.views.ValidationResultsView"
 			icon="icons/errorwarning_tab.gif" id="org.opentravel.schemas.stl2Developer.ValidationResultsView"
 			name="Warnings and Errors" restorable="true">
@@ -93,10 +97,18 @@
 			</view>
 			<viewShortcut id="org.opentravel.schemas.stl2Developer.ExampleView">
 			</viewShortcut>
+			<view closeable="false" 
+				id="org.opentravel.schemas.stl2Developer.ExampleJsonView" minimized="false"
+       			moveable="true" ratio="0.75f"   relationship="bottom"
+        	 	relative="org.opentravel.schemas.stl2Developer.ExampleView"
+				standalone="false" visible="true">
+			</view>
+			<viewShortcut id="org.opentravel.schemas.stl2Developer.ExampleJsonView">
+			</viewShortcut>
 			<view closeable="false"
 				id="org.opentravel.schemas.stl2Developer.ExampleXmlView" minimized="false"
-				moveable="true" ratio="0.75f" relationship="bottom"
-				relative="org.opentravel.schemas.stl2Developer.ExampleView"
+				moveable="true" ratio="0.75f" relationship="stack"
+				relative="org.opentravel.schemas.stl2Developer.ExampleJsonView"
 				standalone="false" visible="true">
 			</view>
 			<viewShortcut id="org.opentravel.schemas.stl2Developer.ExampleXmlView">
@@ -118,11 +130,11 @@
 			</view>
 			<viewShortcut id="org.opentravel.schemas.stl2Developer.PropertyView">
 			</viewShortcut>
-			<view closeable="false"
+			<view closeable="true"
 				id="org.opentravel.schemas.stl2Developer.ContextsView" minimized="false"
 				moveable="true" relationship="stack"
 				relative="org.opentravel.schemas.stl2Developer.ExampleView"
-				standalone="false" visible="true">
+				standalone="false" visible="false">
 			</view>
 			<viewShortcut id="org.opentravel.schemas.stl2Developer.ContextsView">
 			</viewShortcut>
@@ -145,6 +157,19 @@
 		</perspectiveExtension>
 	</extension>
 	<extension point="org.eclipse.ui.menus">
+			<menuContribution allPopups="false" locationURI="menu:Window">
+			<menu
+         id="org.eclipse.ui.views.showViews"
+         label="Show View">
+				<command commandId="org.eclipse.ui.views.showView" label="Context View"
+					style="push">
+					<parameter name="org.eclipse.ui.views.showView.viewId"
+						value="org.opentravel.schemas.stl2Developer.ContextsView">
+					</parameter>
+				</command>
+			</menu>
+		</menuContribution>
+	
 		<menuContribution allPopups="false"
 			locationURI="toolbar:org.eclipse.ui.main.toolbar">
 			<toolbar id="org.opentravel.schemas.stl2Developer.toolbar1">

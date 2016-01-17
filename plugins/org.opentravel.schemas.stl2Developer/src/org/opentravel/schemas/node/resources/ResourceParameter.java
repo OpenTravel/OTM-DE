@@ -49,6 +49,13 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 		}
 	}
 
+	@Override
+	public void delete() {
+		clearListeners();
+		tlObj.getOwner().removeParameter(tlObj);
+		parent.getChildren().remove(this);
+	}
+
 	public class LocationListener implements ResourceFieldListener {
 		@Override
 		public boolean set(String name) {
@@ -122,6 +129,11 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 				tlObj.setLocation(TLParamLocation.QUERY);
 		else
 			tlObj.setLocation(TLParamLocation.HEADER);
+	}
+
+	@Override
+	public boolean isDeleteable() {
+		return true;
 	}
 
 	@Override

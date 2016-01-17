@@ -20,6 +20,7 @@ import org.eclipse.jface.viewers.ViewerComparator;
 import org.opentravel.schemas.node.resources.ActionFacet;
 import org.opentravel.schemas.node.resources.ActionNode;
 import org.opentravel.schemas.node.resources.ActionRequest;
+import org.opentravel.schemas.node.resources.ActionResponse;
 import org.opentravel.schemas.node.resources.ParamGroup;
 
 /**
@@ -38,6 +39,10 @@ public class RestTreeComparator extends ViewerComparator {
 			return 20;
 		else if (element instanceof ActionNode)
 			return 30;
+		else if (element instanceof ActionRequest)
+			return 40;
+		else if (element instanceof ActionResponse)
+			return 50;
 		return super.category(element);
 	}
 

@@ -15,7 +15,9 @@
  */
 package org.opentravel.schemas.node.resources;
 
-import org.opentravel.schemacompiler.model.NamedEntity;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLActionRequest;
@@ -26,11 +28,9 @@ import org.opentravel.schemacompiler.model.TLHttpMethod;
 import org.opentravel.schemacompiler.model.TLMimeType;
 import org.opentravel.schemacompiler.model.TLParamGroup;
 import org.opentravel.schemacompiler.model.TLParameter;
-import org.opentravel.schemacompiler.model.TLReferenceType;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.Node;
 
 /**
  * Creates resources and the associated components.
@@ -49,6 +49,8 @@ public class ResourceBuilder {
 	}
 
 	public void build(ResourceNode rn, BusinessObjectNode bo) {
+		if (bo == null || rn == null)
+			return;
 		TLResource rnTL = rn.getTLModelObject();
 		rnTL.setBusinessObjectRef((TLBusinessObject) bo.getTLModelObject());
 		rn.setName(bo.getName() + "Resource");
@@ -56,71 +58,54 @@ public class ResourceBuilder {
 		rnTL.setAbstract(false);
 		rnTL.setFirstClass(true);
 
-		// ID Parameters - ID, Query(s)
-		ParamGroup pg = buildParamGroup(rn, (ComponentNode) bo.getIDFacet(), true);
-		// Query Parameters
+		// Action Facet
+		ActionFacet subAF = new ActionFacet(rn, null); // substitution group
+		ActionFacet idAF = new ActionFacet(rn, TLFacetType.ID);
+		ActionFacet summaryAF = new ActionFacet(rn, TLFacetType.SUMMARY);
+
+		// Parameters - ID, Query(s)
+		ParamGroup idPG = new ParamGroup(rn, (ComponentNode) bo.getIDFacet(), true);
 		for (ComponentNode fn : bo.getQueryFacets()) {
-			ParamGroup qpg = buildParamGroup(rn, fn, false);
-			buildAction(rn, qpg, TLHttpMethod.GET);
+			ParamGroup qpg = new ParamGroup(rn, fn, false);
+			ActionNode action = buildAction(rn, idAF, qpg, TLHttpMethod.GET); // Query
+			action.setName(fn.getLabel());
 		}
 
-		// Action Facet
-		TLActionFacet facet = new TLActionFacet();
-		rnTL.addActionFacet(facet);
-		facet.setName("Summary");
-		facet.setFacetType(TLFacetType.ACTION);
-		ActionFacet af = new ActionFacet(facet);
-		af.setReferenceFacetName("Summary");
-		af.setReferenceType(TLReferenceType.REQUIRED.toString());
-
 		// Action
-		ActionNode an = buildAction(rn, pg, TLHttpMethod.GET);
-		buildAction(rn, pg, TLHttpMethod.POST);
-		// buildAction(rn, pg, af, TLHttpMethod.GET);
+		buildAction(rn, idAF, idPG, TLHttpMethod.GET); // Read
+		buildAction(rn, subAF, idPG, TLHttpMethod.POST); // Create
+		buildAction(rn, subAF, idPG, TLHttpMethod.PUT); // Update
+		buildAction(rn, null, idPG, TLHttpMethod.DELETE); // Delete
 	}
 
-	private ActionNode buildAction(ResourceNode rn, ParamGroup pg, TLHttpMethod method) {
-		TLAction action = new TLAction();
-		rn.getTLModelObject().addAction(action);
-		TLActionRequest request = new TLActionRequest();
-		action.setRequest(request);
-		TLActionResponse response = new TLActionResponse();
-		action.addResponse(response);
+	private ActionNode buildAction(ResourceNode rn, ActionFacet af, ParamGroup pg, TLHttpMethod method) {
+		List<TLMimeType> mimeTypes = new ArrayList<TLMimeType>();
+		mimeTypes.add(TLMimeType.APPLICATION_JSON);
+		mimeTypes.add(TLMimeType.APPLICATION_XML);
+		ActionNode an = new ActionNode(rn);
+		ActionRequest rq = an.getRequest();
+		ActionResponse rs = new ActionResponse(an);
 
 		switch (method) {
 		case GET:
-			action.setActionId("Get");
-			response.setPayloadType((NamedEntity) rn.getSubject().getSummaryFacet().getTLModelObject());
+			an.setRQRS("Get", af, null, mimeTypes, RestStatusCodes.OK, rq.getTLModelObject(), rs.getTLModelObject());
 			break;
 		case POST:
-			action.setActionId("Create");
-			response.setPayloadType((NamedEntity) ((Node) rn.getSubject().getIDFacet()).getTLModelObject());
+			an.setRQRS("Create", af, null, mimeTypes, RestStatusCodes.CREATED, rq.getTLModelObject(),
+					rs.getTLModelObject());
 			break;
 		case DELETE:
-			action.setActionId("Delete");
+			an.setRQRS("Delete", af, null, mimeTypes, RestStatusCodes.OK, rq.getTLModelObject(), rs.getTLModelObject());
 			break;
 		case PUT:
-			action.setActionId("Update");
+			an.setRQRS("Update", af, null, mimeTypes, RestStatusCodes.OK, rq.getTLModelObject(), rs.getTLModelObject());
 			break;
 		default:
 			break;
 		}
-		ActionNode an = new ActionNode(action); // creates request and response node controllers
-		// FIXME - response.setMimeTypes(TLMimeType.APPLICATION_JSON);
-		an.getRequest().toggleMimeType(TLMimeType.APPLICATION_JSON.toString());
-		an.getRequest().setHttpMethod(method.toString());
-		an.getRequest().setParamGroup(pg.getName()); // do here to set path template
+		rq.setHttpMethod(method.toString());
+		rq.setParamGroup(pg.getName()); // do here to set path template
 		return an;
-	}
-
-	private ParamGroup buildParamGroup(ResourceNode rn, ComponentNode fn, boolean idGroup) {
-		TLParamGroup params = new TLParamGroup();
-		rn.getTLModelObject().addParamGroup(params);
-		params.setName(fn.getLabel());
-		params.setIdGroup(idGroup);
-		ParamGroup pg = new ParamGroup(params);
-		pg.setReferenceFacet(fn.getLabel()); // will force params to be created
-		return pg;
 	}
 
 	public TLResource buildTL() {

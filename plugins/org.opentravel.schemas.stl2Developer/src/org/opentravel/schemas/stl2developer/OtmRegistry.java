@@ -32,6 +32,7 @@ import org.opentravel.schemas.views.RepositoryView;
 import org.opentravel.schemas.views.RestResourceView;
 import org.opentravel.schemas.views.TypeView;
 import org.opentravel.schemas.views.ValidationResultsView;
+import org.opentravel.schemas.views.example.ExampleJsonView;
 import org.opentravel.schemas.views.example.ExampleView;
 import org.opentravel.schemas.views.example.ExampleXmlView;
 import org.slf4j.Logger;
@@ -51,6 +52,7 @@ public class OtmRegistry {
 
 	private static MainWindow mainWindow;
 	private static ExampleView exampleView;
+	private static ExampleJsonView exampleJsonView;
 	private static ExampleXmlView exampleXmlView;
 	private static ValidationResultsView validationResultsView;
 	private static NavigatorView navigatorView;
@@ -60,7 +62,6 @@ public class OtmRegistry {
 	private static ContextsView contextsView;
 	private static DocumentationView documentationView;
 	private static RepositoryView repositoryView;
-
 	private static RestResourceView resourceView;
 
 	/**
@@ -70,6 +71,10 @@ public class OtmRegistry {
 		List<OtmView> views = new ArrayList<OtmView>();
 		if (exampleView != null)
 			views.add(exampleView);
+		if (exampleJsonView != null)
+			views.add(exampleJsonView);
+		if (resourceView != null)
+			views.add(resourceView);
 		if (exampleXmlView != null)
 			views.add(exampleXmlView);
 		if (validationResultsView != null)
@@ -86,6 +91,21 @@ public class OtmRegistry {
 	}
 
 	/**
+	 * @return the exampleJsonView
+	 */
+	public static ExampleJsonView getExampleJsonView() {
+		return exampleJsonView;
+	}
+
+	/**
+	 * @param exampleJsonView
+	 *            the exampleJsonView to set
+	 */
+	public static void registerExampleJsonView(final ExampleJsonView exampleJsonView) {
+		OtmRegistry.exampleJsonView = exampleJsonView;
+	}
+
+	/**
 	 * @return the exampleXmlView
 	 */
 	public static ExampleXmlView getExampleXmlView() {
@@ -99,7 +119,6 @@ public class OtmRegistry {
 	public static void registerExampleXmlView(final ExampleXmlView exampleXmlView) {
 		OtmRegistry.exampleXmlView = exampleXmlView;
 		// LOGGER.info("Registered ExampleXmlView");
-
 	}
 
 	/**

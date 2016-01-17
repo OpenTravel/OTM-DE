@@ -95,7 +95,14 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 			tlObj.getParamGroup().addListener(new ActionRequestListener(null));
 	}
 
-	// No GUI constructor - one is always built. It may be deleted.
+	public ActionRequest(ActionNode parent) {
+		super(new TLActionRequest()); // don't use this() - no owner yet
+		if (parent.getRequest() != null)
+			parent.getRequest().delete();
+		this.parent = parent;
+		((TLAction) parent.getTLModelObject()).setRequest(tlObj);
+		getParent().addChild(this);
+	}
 
 	/**
 	 * Set the path to have all the parameters from the parameter group that are PATH, null or empty.
@@ -104,11 +111,15 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	 */
 	public void createPathTemplate() {
 		String path = ""; // Start with slash
+		if (tlObj.getParamGroup() == null)
+			return;
 		ParamGroup pg = (ParamGroup) getNode(tlObj.getParamGroup().getListeners());
 		if (pg != null)
 			for (String pt : pg.getPathTemplates())
 				path += "/" + pt;
-		tlObj.setPathTemplate(path);
+		if (path.isEmpty())
+			path = "/"; // must at least have a slash
+		setPathTemplate(path);
 		LOGGER.debug("Created path template: " + tlObj.getPathTemplate());
 	}
 
@@ -184,6 +195,11 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	@Override
 	public String getTooltip() {
 		return Messages.getString(MSGKEY + ".tooltip");
+	}
+
+	@Override
+	public TLActionRequest getTLModelObject() {
+		return tlObj;
 	}
 
 	@Override

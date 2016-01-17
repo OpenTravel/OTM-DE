@@ -28,6 +28,7 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLParamGroup;
 import org.opentravel.schemacompiler.model.TLParamLocation;
 import org.opentravel.schemacompiler.model.TLParameter;
+import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
@@ -49,8 +50,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	public class IdGroupListener implements ResourceFieldListener {
 		@Override
 		public boolean set(String value) {
-			tlObj.setIdGroup(Boolean.valueOf(value));
-			LOGGER.debug("Set id group to: " + tlObj.isIdGroup());
+			setIdGroup(Boolean.valueOf(value));
 			return false;
 		}
 	}
@@ -82,7 +82,21 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 
 	public ParamGroup(ResourceNode parent) {
 		super(new TLParamGroup());
+		this.parent = parent;
+		parent.addChild(this);
 		getParent().getTLModelObject().addParamGroup(tlObj);
+	}
+
+	public ParamGroup(ResourceNode rn, ComponentNode fn, boolean idGroup) {
+		this(rn);
+		setName(fn.getLabel());
+		setIdGroup(idGroup);
+		setReferenceFacet(fn.getLabel());
+	}
+
+	public void setIdGroup(boolean idGroup) {
+		tlObj.setIdGroup(idGroup);
+		LOGGER.debug("Set id group to: " + tlObj.isIdGroup());
 	}
 
 	@Override
@@ -145,6 +159,9 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		return fields;
 	}
 
+	/**
+	 * Set the name of this parameter group
+	 */
 	@Override
 	public void setName(final String name) {
 		tlObj.setName(name);
@@ -251,6 +268,9 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	}
 
 	/**
+	 * Sets the reference facet to the facet corresponding to the named resource subject facet. Updates the parameters
+	 * to create parameters for each candidate field.
+	 * 
 	 * @return true if there is a change to children
 	 */
 	public boolean setReferenceFacet(String name) {

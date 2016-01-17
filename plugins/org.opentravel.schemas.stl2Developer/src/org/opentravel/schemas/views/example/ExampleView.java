@@ -268,6 +268,7 @@ public class ExampleView extends OtmAbstractView {
 						if (((Document) examples[0]).getDocumentElement() != null) {
 							childModel = new DOMExampleModel(child, ((Document) examples[0]).getDocumentElement());
 							childModel.setXmlString((String) examples[1]);
+							childModel.setJsonString((String) examples[2]);
 						}
 					}
 				} catch (ValidationException e) {
@@ -302,13 +303,11 @@ public class ExampleView extends OtmAbstractView {
 		Document dom = exampleBuilder.buildTree();
 		String xml = exampleBuilder.buildString();
 
-		// Testing JSON - works
 		ExampleJsonBuilder exampleJsonBuilder = new ExampleJsonBuilder(setupExampleGeneratorOptions());
 		exampleJsonBuilder.setModelElement(namedEntity);
 		String json = exampleJsonBuilder.buildString();
-		LOGGER.debug("JSON = " + json);
 
-		return new Object[] { dom, xml };
+		return new Object[] { dom, xml, json };
 	}
 
 	private ExampleGeneratorOptions setupExampleGeneratorOptions() {

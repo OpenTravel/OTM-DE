@@ -122,7 +122,7 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 			view.refresh();
 			break;
 		case RESOURCE:
-			if (selectedNode != null) {
+			if (selectedNode != null && selectedNode.getLibrary() != null) {
 				ResourceNode newR = new ResourceNode(selectedNode); // create named empty resource
 				BusinessObjectNode bo = getBusinessObject(newR);
 				new ResourceBuilder().build(newR, bo);

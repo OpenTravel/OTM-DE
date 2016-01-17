@@ -20,9 +20,11 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionRequest;
 import org.opentravel.schemacompiler.model.TLActionResponse;
+import org.opentravel.schemacompiler.model.TLMimeType;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
@@ -86,6 +88,18 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 
 		// Register the examples to listen for changes to the resource path
 		tlObj.getOwner().addListener(getExample().new ActionExampleListener());
+	}
+
+	public void setRQRS(String label, ActionFacet af, List<TLMimeType> rqMimeTypes, List<TLMimeType> rsMimeTypes,
+			RestStatusCodes code, TLActionRequest request, TLActionResponse response) {
+		List<Integer> statusCodes = new ArrayList<Integer>(); // http://www.restapitutorial.com/httpstatuscodes.html
+		statusCodes.add(code.value());
+		setName(label);
+		request.setMimeTypes(rqMimeTypes);
+		response.setMimeTypes(rsMimeTypes);
+		response.setStatusCodes(statusCodes);
+		if (af != null)
+			response.setPayloadType((NamedEntity) af.getTLModelObject());
 	}
 
 	public void addChild(ResourceMemberInterface child) {

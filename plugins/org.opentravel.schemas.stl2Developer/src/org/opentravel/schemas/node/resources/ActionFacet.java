@@ -21,8 +21,11 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLActionFacet;
+import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLReferenceType;
+import org.opentravel.schemas.node.FacetNode;
+import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
@@ -78,7 +81,33 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 
 	public ActionFacet(ResourceNode parent) {
 		super(new TLActionFacet());
+		this.parent = parent;
+		parent.addChild(this);
 		getParent().getTLModelObject().addActionFacet(tlObj);
+		tlObj.setFacetType(TLFacetType.ACTION);
+	}
+
+	/**
+	 * Create an action facet for subject business object or one of its facets.
+	 * 
+	 * @param parent
+	 * @param FacetType
+	 *            - type of facet or NULL to get the full substitution group
+	 * @return
+	 */
+	public ActionFacet(ResourceNode parent, TLFacetType type) {
+		this(parent);
+		if (type == null) {
+			setName("SubstitutionGroup");
+			setReferenceFacetName(null);
+		} else
+			for (Node fn : parent.getSubject().getChildren())
+				if (fn instanceof FacetNode)
+					if (((TLFacet) fn.getTLModelObject()).getFacetType().equals(type)) {
+						setReferenceFacetName(fn.getLabel());
+						setName(fn.getLabel());
+					}
+		setReferenceType(TLReferenceType.REQUIRED.toString());
 	}
 
 	@Override

@@ -116,7 +116,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	public class ExtensionListener implements ResourceFieldListener {
 		@Override
 		public boolean set(String name) {
-			// setSubject(name);
+			setExtension(name);
 			return false;
 		}
 	}
@@ -143,20 +143,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return false;
 	}
 
-	// /**
-	// *
-	// * @param mbr
-	// * - tlResource to control
-	// * @param libraryMember
-	// * - in the library where this resource will be added
-	// */
-	// public ResourceNode(TLResource mbr, Node libraryMember) {
-	// this(mbr);
-	// libraryMember.getLibrary().addMember(this);
-	// }
-
 	/**
-	 * Create a resource in the library of the libraryMember.
+	 * Create a resource in the library of the libraryMember. Name the resource using the library member name.
 	 */
 	public ResourceNode(Node libraryMember) {
 		super(new TLResource());
@@ -165,7 +153,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 			tlObj.setName("NewResource"); // must be named to add to library
 		else
 			tlObj.setName(libraryMember.getName() + "Resource");
-		if (libraryMember != null)
+		if (libraryMember != null && libraryMember.getLibrary() != null)
 			libraryMember.getLibrary().addMember(this);
 	}
 
@@ -257,13 +245,17 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return getTypeClass().getTypeNode();
 	}
 
+	public String getExtendsEntityName() {
+		return tlObj.getExtension() != null ? tlObj.getExtension().getExtendsEntityName() : "";
+	}
+
 	@Override
 	public List<ResourceField> getFields() {
 		List<ResourceField> fields = new ArrayList<ResourceField>();
 
 		// Extensions
-		new ResourceField(fields, tlObj.getExtension().getExtendsEntityName(), MSGKEY + ".fields.extension",
-				ResourceFieldType.Enum, new ExtensionListener(), getPeerNames());
+		new ResourceField(fields, getExtendsEntityName(), MSGKEY + ".fields.extension", ResourceFieldType.Enum,
+				new ExtensionListener(), getPeerNames());
 
 		// Business Object = Get a list of business objects to use as enum values
 		new ResourceField(fields, tlObj.getBusinessObjectRefName(), MSGKEY + ".fields.businessObject",
@@ -320,11 +312,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	public List<ParamGroup> getParameterGroups() {
-		ArrayList<ParamGroup> facets = new ArrayList<ParamGroup>();
+		ArrayList<ParamGroup> pgroups = new ArrayList<ParamGroup>();
 		for (Node child : getChildren())
 			if (child instanceof ParamGroup)
-				facets.add((ParamGroup) child);
-		return facets;
+				pgroups.add((ParamGroup) child);
+		return pgroups;
 	}
 
 	/**

@@ -40,6 +40,7 @@ public class ExampleModel {
 	private List<ExampleModel> children = new ArrayList<ExampleModel>();
 	private ExampleModel parent;
 	private String xmlString;
+	private String jsonString;
 
 	public ExampleModel(Node lib) {
 		this.node = lib;
@@ -110,8 +111,16 @@ public class ExampleModel {
 		return labelProvider;
 	}
 
+	public void setJsonString(String string) {
+		this.jsonString = string;
+	}
+
 	public void setXmlString(String string) {
 		this.xmlString = string;
+	}
+
+	public String getJsonString() {
+		return jsonString;
 	}
 
 	public String getXmlString() {

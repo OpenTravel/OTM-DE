@@ -56,8 +56,7 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 	public class StatusCodeListener implements ResourceFieldListener {
 		@Override
 		public boolean set(String value) {
-			// tlObj.setStatusCodes(value);
-			LOGGER.debug("TODO - Set status codes to: " + tlObj.getStatusCodes());
+			setStatusCode(value);
 			return false;
 		}
 	}
@@ -71,7 +70,7 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 	}
 
 	/*********************************************************************
-	 * 
+	 * Create an TLActionResponse model object and add this to the parent
 	 */
 	public ActionResponse(ActionNode parent) {
 		super(new TLActionResponse()); // don't use this() - no owner yet
@@ -128,8 +127,8 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 				ResourceFieldType.EnumList, new MimeTypeListener(), getMimeTypeStrings());
 
 		// Status codes = string
-		new ResourceField(fields, tlObj.getStatusCodes().toString(), "rest.ActionResponse.fields.statusCodes",
-				ResourceFieldType.String, new StatusCodeListener());
+		new ResourceField(fields, getStatusCodes(), "rest.ActionResponse.fields.statusCodes",
+				ResourceFieldType.EnumList, new StatusCodeListener(), RestStatusCodes.getCodes());
 
 		return fields;
 	}
@@ -142,7 +141,15 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 
 	@Override
 	public String getName() {
-		return tlObj.getLocalName() != null ? tlObj.getLocalName() : "";
+		return getStatusCodes() + " Response";
+		// return tlObj.getLocalName() != null ? tlObj.getLocalName() : "";
+	}
+
+	public String getStatusCodes() {
+		String codes = "";
+		for (Integer i : tlObj.getStatusCodes())
+			codes += RestStatusCodes.getLabel(i) + " ";
+		return codes;
 	}
 
 	@Override
@@ -161,6 +168,11 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 		else if (pl != null)
 			throw new IllegalArgumentException("Invalid Response Payload type: " + pl.getClass().getSimpleName());
 		return payload;
+	}
+
+	@Override
+	public TLActionResponse getTLModelObject() {
+		return tlObj;
 	}
 
 	@Override
@@ -198,6 +210,17 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 		else
 			tlObj.addMimeType(type);
 		LOGGER.debug("Set Mime types to: " + tlObj.getMimeTypes());
+	}
+
+	private void setStatusCode(String value) {
+		Integer selection = RestStatusCodes.valueOf(value).value();
+		List<Integer> codes = new ArrayList<Integer>(tlObj.getStatusCodes());
+		if (codes.contains(selection))
+			codes.remove(selection);
+		else
+			codes.add(selection);
+		tlObj.setStatusCodes(codes);
+		LOGGER.debug("Set Status Codes to " + value + " : " + tlObj.getStatusCodes());
 	}
 
 	protected String[] getPossiblePayloadNames() {

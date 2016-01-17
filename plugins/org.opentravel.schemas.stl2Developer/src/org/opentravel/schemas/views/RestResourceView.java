@@ -63,11 +63,11 @@ import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
+import org.opentravel.schemas.node.resources.ActionExample;
 import org.opentravel.schemas.node.resources.ActionNode;
 import org.opentravel.schemas.node.resources.ResourceField;
 import org.opentravel.schemas.node.resources.ResourceMenus;
 import org.opentravel.schemas.node.resources.ResourceNode;
-import org.opentravel.schemas.node.resources.ActionExample;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.widgets.WidgetFactory;
@@ -147,9 +147,6 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		getSite().getPage().addSelectionListener(NavigatorView.VIEW_ID, this);
 		select(mc.getCurrentNode_NavigatorView());
 
-		// Define actions for the button bar
-		// final MainWindow mainWindow = OtmRegistry.getMainWindow();
-
 		// Using Documentation View as a guide
 		//
 		mainSashForm = new SashForm(parent, SWT.HORIZONTAL);
@@ -184,8 +181,8 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		Composite compLeft = formLeft.getBody();
 		compLeft.setLayout(layoutLeft);
 
-		// Set up the Menus as parent of tree view (see repository view for example)
-		// contains the tree viewer
+		// Set up the Menus as parent of tree view contains the tree viewer
+		//
 		ResourceMenus resourceMenus = new ResourceMenus(compLeft, getSite());
 		viewer = resourceMenus.getViewer();
 		viewer.addSelectionChangedListener(this);
@@ -220,31 +217,6 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		// bbManager.add(addAction);
 		// Composite navBB = bbManager.createControl(toolkit, compRight);
 		// navBB.setLayoutData(navBbGD);
-
-		// Try using commands on a button
-		// final AddResourceHandler addCmd = new AddResourceHandler();
-		// final OtmAbstractView view = this;
-		// final IContributionItem addPropertiesAction = RCPUtils.createCommandContributionItem(site,
-		// AddNodeHandler2.COMMAND_ID, Messages.getString("action.addProperty.text"), null,
-		// AddNodeHandler2.getIcon());
-
-		// Button newButton = new Button(compRight, SWT.NONE);
-		// newButton.setText("NEW");
-		// newButton.setImage(addCmd.getImage());
-		// Button addButton = new Button(compRight, SWT.NONE);
-		// addButton.setText("???");
-		// // addButton.setImage(addCmd.getImage());
-		// newButton.addSelectionListener(new SelectionListener() {
-		//
-		// @Override
-		// public void widgetSelected(SelectionEvent e) {
-		// addCmd.execute(e);
-		// }
-		//
-		// @Override
-		// public void widgetDefaultSelected(SelectionEvent e) {
-		// }
-		// });
 
 		// Add fixed text fields
 		//

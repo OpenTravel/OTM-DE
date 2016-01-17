@@ -33,14 +33,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Agnieszka Janowska
+ * @author Dave Hollander
  * 
  */
-public class ExampleXmlView extends OtmAbstractView implements ISelectionListener {
+public class ExampleJsonView extends OtmAbstractView implements ISelectionListener {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExampleJsonView.class);
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ExampleXmlView.class);
-
-	private Text xmlBox;
+	private Text jsonBox;
 
 	/*
 	 * (non-Javadoc)
@@ -50,8 +49,8 @@ public class ExampleXmlView extends OtmAbstractView implements ISelectionListene
 	@Override
 	public void createPartControl(final Composite parent) {
 		// LOGGER.info("Initializing part control of " + this.getClass());
-		OtmRegistry.registerExampleXmlView(this);
-		xmlBox = initializeXmlBox(parent);
+		OtmRegistry.registerExampleJsonView(this);
+		jsonBox = initializeJsonBox(parent);
 		getSite().getPage().addSelectionListener("org.opentravel.schemas.stl2Developer.ExampleView", this);
 		LOGGER.info("Done initializing part control of " + this.getClass());
 	}
@@ -60,7 +59,7 @@ public class ExampleXmlView extends OtmAbstractView implements ISelectionListene
 	 * @param mainSashForm
 	 * @return
 	 */
-	private Text initializeXmlBox(final Composite parent) {
+	private Text initializeJsonBox(final Composite parent) {
 		final Text text = WidgetFactory.createText(parent, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
 		text.setEditable(false);
 		return text;
@@ -75,49 +74,40 @@ public class ExampleXmlView extends OtmAbstractView implements ISelectionListene
 		if (selection instanceof IStructuredSelection) {
 			final Object o = ((IStructuredSelection) selection).getFirstElement();
 			if (o instanceof ExampleModel) {
-				String s = ((ExampleModel) o).getXmlString();
+				String s = ((ExampleModel) o).getJsonString();
 				if (s == null) {
 					s = "";
 				}
-				xmlBox.setText(s);
+				jsonBox.setText(s);
 			}
 		}
 	}
 
 	@Override
 	public INode getCurrentNode() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<Node> getSelectedNodes() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getViewID() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void refresh() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void refresh(INode node) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setCurrentNode(INode node) {
-		// TODO Auto-generated method stub
-
 	}
 
 }
