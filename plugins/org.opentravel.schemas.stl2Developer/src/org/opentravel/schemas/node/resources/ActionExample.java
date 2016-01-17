@@ -76,6 +76,7 @@ public class ActionExample {
 	}
 
 	public String getLabel() {
+		label = tlAction.getActionId();
 		return label;
 	}
 

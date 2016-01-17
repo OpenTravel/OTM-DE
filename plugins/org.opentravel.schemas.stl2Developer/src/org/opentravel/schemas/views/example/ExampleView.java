@@ -22,6 +22,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -54,7 +58,6 @@ import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.preferences.CompilerPreferences;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
-import org.opentravel.schemas.stl2developer.FindingsDialog;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.views.OtmAbstractView;
 import org.slf4j.Logger;
@@ -62,7 +65,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 /**
- * @author Agnieszka Janowska
+ * @author Agnieszka Janowska, Dave Hollander
  * 
  */
 public class ExampleView extends OtmAbstractView {
@@ -179,7 +182,7 @@ public class ExampleView extends OtmAbstractView {
 		final ModelNode modelNode = mc.getModelNode();
 		clearExamples();
 		if (modelNode != null)
-			generateExamples(modelNode.getUserLibraries());
+			generateInBackground(modelNode.getUserLibraries());
 	}
 
 	public void clearExamples() {
@@ -189,44 +192,82 @@ public class ExampleView extends OtmAbstractView {
 		}
 	}
 
-	public void generateExamples(final List<LibraryNode> libraries) {
-		List<ExampleModel> examples = new ArrayList<ExampleModel>(libraries.size());
-		Map<LibraryChainNode, ExampleModel> chainRoot = new HashMap<LibraryChainNode, ExampleModel>();
-		for (final LibraryNode lib : libraries) {
-			ExampleModel libModel = null;
-			if (lib.isInChain()) {
-				ExampleModel root = chainRoot.get(lib.getChain());
-				if (root == null) {
-					root = new ExampleModel(lib.getChain());
-					chainRoot.put(lib.getChain(), root);
-					examples.add(root);
+	List<ExampleModel> examples = new ArrayList<ExampleModel>();
+
+	public void generateInBackground(final List<LibraryNode> libraries) {
+		examples.clear();
+		if (Display.getCurrent() == null)
+			generateExamples(libraries); // not in UI Thread
+		else {
+			// run in a background job
+			mc.postStatus("Generating Examples.");
+			Job job = new Job("Generating examples") {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					monitor.beginTask("Generating Examples ", libraries.size());
+					// Make the generate work on individual libraries and use the worked to track progress
+					for (LibraryNode lib : libraries) {
+						monitor.subTask(lib.getName());
+						generateExamplesForLibrary(lib);
+						monitor.worked(1);
+					}
+					monitor.done();
+					syncWithUI("Done.");
+					return Status.OK_STATUS;
 				}
-				libModel = new ExampleModel(lib);
-				root.addChildren(Collections.singletonList(libModel));
-			} else {
-				libModel = new ExampleModel(lib);
-				examples.add(libModel);
-			}
-			ValidationFindings findings = new ValidationFindings();
-			List<ExampleModel> children = generateExamplesForLibrary(lib, findings);
-			if (!findings.isEmpty()) {
-				showFindingsDialog(lib.getName(), findings);
-			}
-			libModel.addChildren(children);
+			};
+			job.setUser(true);
+			job.schedule();
 		}
+		// set up viewer now for refresh when job is done
 		if (viewer != null) {
 			viewer.setInput(examples);
 			viewer.refresh(true);
 		}
 	}
 
-	private void showFindingsDialog(String libName, ValidationFindings findings) {
-		FindingsDialog.open(Display.getDefault().getActiveShell(), "Validation erros",
-				"Could not generate all the examples properly for library " + libName
-						+ " - there are validation errors. Correct the errors and try again.",
-				findings.getAllFindingsAsList());
-
+	private void syncWithUI(String msg) {
+		DialogUserNotifier.syncWithUi(msg);
 	}
+
+	Map<LibraryChainNode, ExampleModel> chainRoot = new HashMap<LibraryChainNode, ExampleModel>();
+
+	public void generateExamples(final List<LibraryNode> libraries) {
+		for (final LibraryNode lib : libraries) {
+			generateExamplesForLibrary(lib);
+		}
+	}
+
+	public void generateExamplesForLibrary(LibraryNode lib) {
+		ExampleModel libModel = null;
+		if (lib.isInChain()) {
+			ExampleModel root = chainRoot.get(lib.getChain());
+			if (root == null) {
+				root = new ExampleModel(lib.getChain());
+				chainRoot.put(lib.getChain(), root);
+				examples.add(root);
+			}
+			libModel = new ExampleModel(lib);
+			root.addChildren(Collections.singletonList(libModel));
+		} else {
+			libModel = new ExampleModel(lib);
+			examples.add(libModel);
+		}
+		ValidationFindings findings = new ValidationFindings();
+		List<ExampleModel> children = generateExamplesForLibrary(lib, findings);
+
+		// if (!findings.isEmpty()) {
+		// showFindingsDialog(lib.getName(), findings);
+		// }
+		libModel.addChildren(children);
+	}
+
+	// private void showFindingsDialog(String libName, ValidationFindings findings) {
+	// FindingsDialog.open(Display.getDefault().getActiveShell(), "Validation erros",
+	// "Could not generate all the examples properly for library " + libName
+	// + " - there are validation errors. Correct the errors and try again.",
+	// findings.getAllFindingsAsList());
+	// }
 
 	/**
 	 * @param lib
