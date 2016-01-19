@@ -32,9 +32,9 @@ public enum RestStatusCodes {
 
 	public static String getLabel(Integer value) {
 		for (RestStatusCodes label : RestStatusCodes.values())
-			if (label.value == value)
+			if (label.value.equals(value))
 				return label.toString();
-		return "";
+		return value.toString();
 	}
 
 	public static String[] getCodes() {

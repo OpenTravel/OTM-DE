@@ -67,8 +67,12 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 	public void decorate(Object element, IDecoration decoration) {
 		if (element instanceof LibraryNode) {
 			decoration.addSuffix(getLibraryDecoration((LibraryNode) element));
+			if (!((LibraryNode) element).isValid())
+				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
 		} else if (element instanceof LibraryChainNode) {
 			LibraryNode head = ((LibraryChainNode) element).getHead();
+			if (!((LibraryChainNode) element).isValid())
+				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
 			decoration.addSuffix(getLibraryDecoration(head));
 		} else if (element instanceof RepositoryInstanceNode) {
 			decoration.addSuffix(getRepositoryNameDecoration((RepositoryInstanceNode) element));

@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLAction;
-import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLActionRequest;
 import org.opentravel.schemacompiler.model.TLHttpMethod;
 import org.opentravel.schemacompiler.model.TLMimeType;
@@ -114,13 +113,13 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 		if (tlObj.getParamGroup() == null)
 			return;
 		ParamGroup pg = (ParamGroup) getNode(tlObj.getParamGroup().getListeners());
-		if (pg != null)
-			for (String pt : pg.getPathTemplates())
-				path += "/" + pt;
-		if (path.isEmpty())
-			path = "/"; // must at least have a slash
-		setPathTemplate(path);
-		LOGGER.debug("Created path template: " + tlObj.getPathTemplate());
+		// if (pg != null)
+		// for (String pt : pg.getPathTemplates())
+		// path += "/" + pt;
+		// if (path.isEmpty())
+		// path = "/"; // must at least have a slash
+		setPathTemplate(pg.getPathTemplate());
+		LOGGER.debug("Created and set path template: " + tlObj.getPathTemplate());
 	}
 
 	@Override
@@ -140,7 +139,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 
 		// Payload - Pass list of Action Facet names to select from
 		new ResourceField(fields, getPayloadName(), MSGKEY + ".fields.payload", ResourceFieldType.Enum,
-				new PayloadTypeListener(), getOwningComponent().getActionFacetsNames());
+				new PayloadTypeListener(), getOwningComponent().getActionFacetNames());
 
 		// Mime Types = multi-select List of possible types
 		new ResourceField(fields, tlObj.getMimeTypes().toString(), MSGKEY + ".fields.mimeTypes",
@@ -148,7 +147,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 
 		// Parameter Groups - List of group names
 		new ResourceField(fields, tlObj.getParamGroupName(), MSGKEY + ".fields.paramGroup", ResourceFieldType.Enum,
-				new ParamGroupListener(), getOwningComponent().getParamGroupNames());
+				new ParamGroupListener(), getOwningComponent().getParameterGroupNames());
 
 		// Path Template - simple String
 		new ResourceField(fields, tlObj.getPathTemplate(), MSGKEY + ".fields.path",
@@ -172,7 +171,8 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 
 	@Override
 	public String getName() {
-		return tlObj.getLocalName() != null ? tlObj.getLocalName() : "";
+		return getParent().getName() + "_Request";
+		// return tlObj.getLocalName() != null ? tlObj.getLocalName() : "";
 	}
 
 	public ParamGroup getParamGroup() {
@@ -260,11 +260,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	 * @return true if there was a change
 	 */
 	public boolean setPayloadType(String payloadName) {
-		if (tlObj.getPayloadTypeName() == null) {
-			LOGGER.debug("Null payload type name");
-			return false;
-		}
-		if (tlObj.getPayloadTypeName().equals(payloadName)) {
+		if (tlObj.getPayloadTypeName() != null && tlObj.getPayloadTypeName().equals(payloadName)) {
 			LOGGER.debug("No change because names are the same. " + payloadName);
 			return false;
 		}
@@ -277,8 +273,8 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 
 		for (ActionFacet f : getOwningComponent().getActionFacets())
 			if (f.getName().equals(payloadName)) {
-				tlObj.setPayloadType((TLActionFacet) f.getTLModelObject());
-				LOGGER.debug("Set payload to " + payloadName);
+				tlObj.setPayloadType(f.getTLModelObject());
+				LOGGER.debug("Set payload to " + payloadName + " : " + tlObj.getPayloadTypeName());
 				return true;
 			}
 		LOGGER.debug("No Action - Set payload name not found. " + payloadName);

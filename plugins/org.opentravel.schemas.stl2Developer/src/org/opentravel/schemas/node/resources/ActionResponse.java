@@ -25,8 +25,6 @@ import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLActionResponse;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLMimeType;
-import org.opentravel.schemas.node.ChoiceObjectNode;
-import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
@@ -105,12 +103,14 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 	}
 
 	public String getFacetName() {
-		String facetname = "";
-		if (tlObj.getPayloadType() instanceof TLCoreObject)
-			facetname = ((TLCoreObject) tlObj.getPayloadType()).getName();
-		else if (tlObj.getPayloadType() instanceof TLActionFacet)
-			facetname = ((TLActionFacet) tlObj.getPayloadType()).getName();
-		return facetname;
+		return tlObj.getPayloadType() != null ? tlObj.getPayloadType().getName() : "";
+		// String facetname = "";
+		// if (tlObj.getPayloadType() instanceof TLCoreObject)
+		// facetname = ((TLCoreObject) tlObj.getPayloadType()).getName();
+		// else
+		// if (tlObj.getPayloadType() instanceof TLActionFacet)
+		// facetname = ((TLActionFacet) tlObj.getPayloadType()).getName();
+		// return facetname;
 	}
 
 	@Override
@@ -141,7 +141,7 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 
 	@Override
 	public String getName() {
-		return getStatusCodes() + " Response";
+		return !getStatusCodes().isEmpty() ? getStatusCodes() + " Response" : "MISSING Status Code";
 		// return tlObj.getLocalName() != null ? tlObj.getLocalName() : "";
 	}
 
@@ -187,15 +187,19 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 
 	@Override
 	public void setName(final String name) {
-		// TODO - can't change name
+		// can't change name
 	}
 
 	public void setPayload(String name) {
-		for (Node n : getPossiblePayloads())
-			if (n.getName().equals(name)) {
-				tlObj.setPayloadType((NamedEntity) n.getTLModelObject());
-				LOGGER.debug("Set payload to: " + tlObj.getPayloadTypeName());
-			}
+		if (name.equals(ResourceField.NONE)) {
+			tlObj.setPayloadType(null);
+			LOGGER.debug("Set payload to null: " + tlObj.getPayloadTypeName());
+		} else
+			for (Node n : getPossiblePayloads())
+				if (n.getName().equals(name)) {
+					tlObj.setPayloadType((TLActionFacet) n.getTLModelObject());
+					LOGGER.debug("Set payload to: " + tlObj.getPayloadTypeName());
+				}
 	}
 
 	/**
@@ -225,20 +229,21 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 
 	protected String[] getPossiblePayloadNames() {
 		List<Node> nodes = getPossiblePayloads();
-		String[] data = new String[nodes.size()];
+		String[] data = new String[nodes.size() + 1];
 		int i = 0;
+		data[i++] = ResourceField.NONE;
 		for (Node n : nodes)
 			data[i++] = n.getLabel();
 		return data;
 	}
 
 	protected List<Node> getPossiblePayloads() {
-		List<ActionFacet> afs = getOwningComponent().getActionFacets();
+		// List<ActionFacet> afs = getOwningComponent().getActionFacets();
 		List<Node> nodes = new ArrayList<Node>();
-		for (Node n : getOwningComponent().getLibrary().getDescendants_NamedTypes())
-			if (n instanceof CoreObjectNode || n instanceof ChoiceObjectNode)
-				nodes.add(n);
-		for (ActionFacet af : afs)
+		// for (Node n : getOwningComponent().getLibrary().getDescendants_NamedTypes())
+		// if (n instanceof CoreObjectNode || n instanceof ChoiceObjectNode)
+		// nodes.add(n);
+		for (ActionFacet af : getOwningComponent().getActionFacets())
 			nodes.add(af);
 		return nodes;
 	}

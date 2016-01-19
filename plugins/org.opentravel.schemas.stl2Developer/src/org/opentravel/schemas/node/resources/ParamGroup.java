@@ -105,6 +105,11 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	}
 
 	@Override
+	public TLParamGroup getTLModelObject() {
+		return tlObj;
+	}
+
+	@Override
 	public String getTooltip() {
 		return Messages.getString(MSGKEY + ".tooltip");
 	}
@@ -150,7 +155,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 
 		// Facet Name - list of facets from subject
 		new ResourceField(fields, getFacetLabel(), "rest.ParamGroup.fields.referenceFacetName", ResourceFieldType.Enum,
-				new ReferenceFacetListener(), getOwningComponent().getSubjectFacets());
+				new ReferenceFacetListener(), getOwningComponent().getSubjectFacets(false));
 
 		// idGroup - boolean
 		new ResourceField(fields, Boolean.toString(tlObj.isIdGroup()), "rest.ParamGroup.fields.idGroup",
@@ -195,16 +200,20 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 				else
 					contributions.add("/{" + param.getName() + "}");
 		}
-		// firstParam = true;
-		// for (Node param : getChildren()) {
-		// if (((ResourceParameter) param).getLocation().equals(TLParamLocation.QUERY.toString()))
-		// if (firstParam) {
-		// contributions.add("?" + getQueryParam(param));
-		// firstParam = false;
-		// } else
-		// contributions.add("&" + getQueryParam(param));
-		// }
 		return contributions;
+	}
+
+	/**
+	 * @return single string with all the path parameters in it.
+	 */
+	public String getPathTemplate() {
+		String path = "";
+		for (String pt : getPathTemplates())
+			path += "/" + pt;
+		if (path.isEmpty())
+			path = "/"; // must at least have a slash
+		LOGGER.debug("Created path template: " + path);
+		return path;
 	}
 
 	/**

@@ -36,7 +36,8 @@ public class ResourceField {
 
 	ResourceFieldType type = ResourceFieldType.String; // default
 
-	ResourceFieldListener listener = null;;
+	ResourceFieldListener listener = null;
+	public static final String SUBGRP = "Substitution Group";;
 
 	public ResourceField() {
 	}

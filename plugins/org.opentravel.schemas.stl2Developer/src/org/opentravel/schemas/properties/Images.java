@@ -58,6 +58,7 @@ public class Images {
 	public static final String ActionRequest = "ActionRequest";
 	public static final String ActionResponse = "ActionResponse";
 	public static final String ResourceParameter = "ResourceParameters";
+	public static final String ResourceParentRef = "ResourceParentRef";
 
 	public static final String Service = "Service";
 	public static final String Operation = "Operation";
@@ -181,6 +182,8 @@ public class Images {
 		image_registry.put(ActionResponse, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/response.gif"));
 		image_registry.put(ResourceParameter,
 				AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/resource.gif"));
+		image_registry.put(ResourceParentRef,
+				AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/parent_ref.png"));
 	}
 
 }

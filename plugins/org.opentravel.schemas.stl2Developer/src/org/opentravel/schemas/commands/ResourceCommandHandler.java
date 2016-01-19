@@ -29,6 +29,7 @@ import org.opentravel.schemas.node.resources.ActionFacet;
 import org.opentravel.schemas.node.resources.ActionNode;
 import org.opentravel.schemas.node.resources.ActionResponse;
 import org.opentravel.schemas.node.resources.ParamGroup;
+import org.opentravel.schemas.node.resources.ParentRef;
 import org.opentravel.schemas.node.resources.ResourceBuilder;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Images;
@@ -49,7 +50,7 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 
 	// Enumeration of the types of command actions nodes can handle.
 	public static enum CommandType {
-		DELETE, ACTION, ACTIONFACET, PARAMGROUP, RESOURCE, NONE, ACTIONRESPONSE, ACTIONREQUEST
+		DELETE, PARENTREF, ACTION, ACTIONFACET, PARAMGROUP, RESOURCE, NONE, ACTIONRESPONSE, ACTIONREQUEST
 	}
 
 	private Node selectedNode; // The user selected node.
@@ -95,6 +96,8 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 			// cmdType = CommandType.ACTIONREQUEST;
 			else if (cmdId.endsWith(CommandType.ACTIONRESPONSE.toString()))
 				cmdType = CommandType.ACTIONRESPONSE;
+			else if (cmdId.endsWith(CommandType.PARENTREF.toString()))
+				cmdType = CommandType.PARENTREF;
 			else if (cmdId.endsWith(CommandType.DELETE.toString()))
 				cmdType = CommandType.DELETE;
 		return cmdType;
@@ -117,16 +120,21 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 
 		switch (type) {
 		case DELETE:
-			if (selectedNode.isDeleteable())
-				selectedNode.delete();
+			for (Node n : view.getSelectedNodes())
+				if (n.isDeleteable())
+					n.delete();
 			view.refresh();
 			break;
 		case RESOURCE:
 			if (selectedNode != null && selectedNode.getLibrary() != null) {
 				ResourceNode newR = new ResourceNode(selectedNode); // create named empty resource
 				BusinessObjectNode bo = getBusinessObject(newR);
-				new ResourceBuilder().build(newR, bo);
-				view.refresh(newR);
+				if (bo == null) {
+					newR.delete();
+				} else {
+					new ResourceBuilder().build(newR, bo);
+					view.refresh(newR);
+				}
 			} else
 				postWarning();
 			// view.refresh(new ResourceNode(selectedNode));
@@ -152,6 +160,12 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 		case ACTIONRESPONSE:
 			if (selectedNode instanceof ActionNode)
 				view.refresh(new ActionResponse((ActionNode) selectedNode));
+			else
+				postWarning();
+			break;
+		case PARENTREF:
+			if (selectedNode instanceof ResourceNode)
+				view.refresh(new ParentRef((ResourceNode) selectedNode));
 			else
 				postWarning();
 			break;

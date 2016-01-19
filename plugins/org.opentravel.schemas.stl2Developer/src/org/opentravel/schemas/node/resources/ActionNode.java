@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
-import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionRequest;
 import org.opentravel.schemacompiler.model.TLActionResponse;
@@ -99,7 +98,7 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 		response.setMimeTypes(rsMimeTypes);
 		response.setStatusCodes(statusCodes);
 		if (af != null)
-			response.setPayloadType((NamedEntity) af.getTLModelObject());
+			response.setPayloadType(af.getTLModelObject());
 	}
 
 	public void addChild(ResourceMemberInterface child) {

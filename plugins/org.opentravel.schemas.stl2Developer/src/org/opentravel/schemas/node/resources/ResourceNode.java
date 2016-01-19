@@ -19,7 +19,6 @@
 package org.opentravel.schemas.node.resources;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -204,7 +203,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	/**
 	 * @return An array of action facet names and NONE
 	 */
-	public String[] getActionFacetsNames() {
+	public String[] getActionFacetNames() {
 		List<ActionFacet> facets = getActionFacets();
 		String[] facetNames = new String[facets.size() + 1];
 		int i = 0;
@@ -265,10 +264,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		new ResourceField(fields, tlObj.getBasePath(), MSGKEY + ".fields.basePath", ResourceFieldType.String,
 				new BasePathListener());
 
-		// Parent Ref = Use an enum list to present all the possible parents and all peers
-		new ResourceField(fields, Arrays.toString(getParentRefNames()), MSGKEY + ".fields.parentRef",
-				ResourceFieldType.EnumList, new ParentRefListener(), getPeerNames());
-
+		// Parent ref has children to represent them
+		// // Parent Ref = Use an enum list to present all the possible parents and all peers
+		// new ResourceField(fields, Arrays.toString(getParentRefNames()), MSGKEY + ".fields.parentRef",
+		// ResourceFieldType.EnumList, new ParentRefListener(), getPeerNames());
+		//
 		// Abstract - yes/no button
 		new ResourceField(fields, Boolean.toString(tlObj.isAbstract()), MSGKEY + ".fields.abstract",
 				ResourceFieldType.CheckButton, new AbstractListener());
@@ -322,7 +322,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	/**
 	 * @return list of the parameter groups by name and NONE
 	 */
-	public String[] getParamGroupNames() {
+	public String[] getParameterGroupNames() {
 		List<ParamGroup> paramGroups = getParameterGroups();
 		String[] groupNames = new String[paramGroups.size() + 1];
 		int i = 0;
@@ -387,11 +387,21 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return names;
 	}
 
-	public String[] getSubjectFacets() {
+	public String[] getSubjectFacets(boolean includeSubGrp) {
 		if (getSubject() == null)
 			return new String[0];
-		String[] fs = new String[subject.getChildren().size()];
+		List<FacetNode> facets = new ArrayList<FacetNode>();
+		for (Node facet : subject.getChildren())
+			if (facet instanceof FacetNode)
+				facets.add((FacetNode) facet);
+		int size = facets.size();
+		if (includeSubGrp)
+			size += 1;
+
+		String[] fs = new String[size];
 		int i = 0;
+		if (includeSubGrp)
+			fs[i++] = ResourceField.SUBGRP;
 		for (Node facet : subject.getChildren())
 			if (facet instanceof FacetNode)
 				fs[i++] = facet.getLabel();
@@ -463,16 +473,23 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	public boolean setExtension(String name) {
-		TLExtension ext = new TLExtension();
-		ext.setExtendsEntity(getPeerByName(name).getTLModelObject());
-		tlObj.setExtension(ext);
-		LOGGER.debug("Set extension to " + name + ": " + tlObj.getExtension().getExtendsEntityName());
+		ResourceNode peer = getPeerByName(name);
+		if (peer != null) {
+			TLExtension ext = new TLExtension();
+			tlObj.setExtension(ext);
+			ext.setExtendsEntity(peer.getTLModelObject());
+			LOGGER.debug("Set extension to " + name + ": " + tlObj.getExtension().getExtendsEntityName());
+		} else {
+			tlObj.setExtension(null);
+			LOGGER.debug("Set extension to null:" + tlObj.getExtension());
+		}
 		return false;
 	}
 
 	public void setSubject(String name) {
 		if (name.equals(ResourceField.NONE)) {
 			tlObj.setBusinessObjectRef(null);
+			tlObj.setBusinessObjectRefName("");
 			LOGGER.debug("Set subject to null.");
 		}
 		for (Node n : getLibrary().getDescendants_NamedTypes())
@@ -489,7 +506,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	 */
 	public void toggleParent(String name) {
 		if (name.equals("NONE")) {
-			for (TLResourceParentRef ref : tlObj.getParentRefs())
+			List<TLResourceParentRef> parents = new ArrayList<TLResourceParentRef>(tlObj.getParentRefs());
+			for (TLResourceParentRef ref : parents)
 				tlObj.removeParentRef(ref);
 			return;
 		}
@@ -508,8 +526,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 			TLResourceParentRef ref = new TLResourceParentRef();
 			Node owner = getPeerByName(name);
 			if (owner != null) {
-				ref.setParentResource((TLResource) owner.getTLModelObject());
 				tlObj.addParentRef(ref);
+				ref.setParentResource((TLResource) owner.getTLModelObject());
 				LOGGER.debug("Added parent " + name + ": " + ref.getParentResourceName());
 			}
 		}
@@ -518,6 +536,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	@Override
 	protected void addMOChildren() {
 		if (tlObj != null) {
+			for (TLResourceParentRef parent : tlObj.getParentRefs())
+				new ParentRef(parent);
 			for (TLParamGroup tlp : tlObj.getParamGroups())
 				new ParamGroup(tlp);
 			for (TLAction action : tlObj.getActions())

@@ -167,6 +167,24 @@
 						value="org.opentravel.schemas.stl2Developer.ContextsView">
 					</parameter>
 				</command>
+				<command commandId="org.eclipse.ui.views.showView" label="JSON Example View"
+					style="push">
+					<parameter name="org.eclipse.ui.views.showView.viewId"
+						value="org.opentravel.schemas.stl2Developer.ExampleJsonView">
+					</parameter>
+				</command>
+				<command commandId="org.eclipse.ui.views.showView" label="REST Resource View"
+					style="push">
+					<parameter name="org.eclipse.ui.views.showView.viewId"
+						value="org.opentravel.schemas.stl2Developer.ResourceView">
+					</parameter>
+				</command>
+				<command commandId="org.eclipse.ui.views.showView" label="XML Example View"
+					style="push">
+					<parameter name="org.eclipse.ui.views.showView.viewId"
+						value="org.opentravel.schemas.stl2Developer.ExampleXmlView">
+					</parameter>
+				</command>
 			</menu>
 		</menuContribution>
 	
@@ -174,10 +192,10 @@
 			locationURI="toolbar:org.eclipse.ui.main.toolbar">
 			<toolbar id="org.opentravel.schemas.stl2Developer.toolbar1">
 				<command commandId="org.opentravel.schemas.commands.SaveLibrary"
-					icon="IMG_ETOOL_SAVE_EDIT" label="Save" style="push" tooltip="Save Library">
+					icon="icons/save.gif" label="Save" style="push" tooltip="Save Library">
 				</command>
 				<command commandId="org.opentravel.schemas.commands.SaveAllLibraries"
-					icon="IMG_ETOOL_SAVEALL_EDIT" label="Save" style="push"
+					icon="icons/saveAll.gif" label="Save" style="push"
 					tooltip="Save All Libraries">
 				</command>
 				<command commandId="org.opentravel.schemas.commands.RefreshView:MASTER" icon="icons/refresh.gif"
@@ -197,10 +215,10 @@
 					icon="icons/add_att.gif" label="Add" mnemonic="Ctrl+A" style="push"
 					tooltip="Add object or property">
 				</command>
-				<command commandId="stl2Developer.navigation.backward" icon="IMG_TOOL_BACK"
+				<command commandId="stl2Developer.navigation.backward" icon="icons/nav_backward.gif"
 					label="Backward" style="push">
 				</command>
-				<command commandId="stl2Developer.navigation.forward" icon="IMG_TOOL_FORWARD"
+				<command commandId="stl2Developer.navigation.forward" icon="icons/nav_forward.gif"
 					label="Forward" style="push">
 				</command>
 				<command commandId="org.eclipse.ui.edit.delete" icon="icons/delete_edit.gif"
@@ -524,6 +542,11 @@
 		    defaultHandler="org.opentravel.schemas.commands.ResourceCommandHandler"
 			description="New action" id="org.opentravel.schemas.commands.newResource.ACTION"
 			name="New Resource">
+		</command>
+		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+			id="org.opentravel.schemas.commands.newResource.PARENTREF"
+		    defaultHandler="org.opentravel.schemas.commands.ResourceCommandHandler"
+			name="New Parent Reference">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			id="org.opentravel.schemas.commands.newResource.DELETE"

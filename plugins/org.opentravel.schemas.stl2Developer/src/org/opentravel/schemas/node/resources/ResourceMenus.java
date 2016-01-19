@@ -71,6 +71,7 @@ public class ResourceMenus {
 	private IContributionItem newParamGroupAction;
 	private IContributionItem newActionResponse;
 	private IContributionItem deleteAction;
+	private IContributionItem newParentRef;
 
 	class SupportTreeFilterProvider extends DecoratingStyledCellLabelProvider implements ILabelProvider {
 
@@ -111,6 +112,7 @@ public class ResourceMenus {
 
 				addToProjectMenu.removeAll();
 
+				manager.add(newParentRef);
 				manager.add(newAction);
 				manager.add(newActionNodeAction);
 				manager.add(newActionFacetAction);
@@ -193,14 +195,17 @@ public class ResourceMenus {
 
 	public void InitActions(IWorkbenchPartSite site) {
 		// command id MUST be defined in plugin.xml
+		newParentRef = RCPUtils.createCommandContributionItem(site, ResourceCommandHandler.COMMAND_ID + "."
+				+ ResourceCommandHandler.CommandType.PARENTREF, Messages.getString("rest.action.newParentRef.text"),
+				null, ResourceCommandHandler.getIcon());
 		newAction = RCPUtils.createCommandContributionItem(site, ResourceCommandHandler.COMMAND_ID,
 				Messages.getString("rest.action.new.text"), null, ResourceCommandHandler.getIcon());
 		newActionNodeAction = RCPUtils.createCommandContributionItem(site, ResourceCommandHandler.COMMAND_ID + "."
-				+ ResourceCommandHandler.CommandType.ACTION, Messages.getString("rest.action.new.actionNode.text"), null,
-				ResourceCommandHandler.getIcon());
-		newActionFacetAction = RCPUtils.createCommandContributionItem(site, ResourceCommandHandler.COMMAND_ID + "."
-				+ ResourceCommandHandler.CommandType.ACTIONFACET, Messages.getString("rest.action.new.actionFacet.text"),
+				+ ResourceCommandHandler.CommandType.ACTION, Messages.getString("rest.action.new.actionNode.text"),
 				null, ResourceCommandHandler.getIcon());
+		newActionFacetAction = RCPUtils.createCommandContributionItem(site, ResourceCommandHandler.COMMAND_ID + "."
+				+ ResourceCommandHandler.CommandType.ACTIONFACET,
+				Messages.getString("rest.action.new.actionFacet.text"), null, ResourceCommandHandler.getIcon());
 		newParamGroupAction = RCPUtils.createCommandContributionItem(site, ResourceCommandHandler.COMMAND_ID + "."
 				+ ResourceCommandHandler.CommandType.PARAMGROUP, Messages.getString("rest.action.new.paramGroup.text"),
 				null, ResourceCommandHandler.getIcon());

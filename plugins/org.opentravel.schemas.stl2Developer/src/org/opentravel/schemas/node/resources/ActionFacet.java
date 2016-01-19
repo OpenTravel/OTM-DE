@@ -43,7 +43,7 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RestResourceView.class);
 	protected String MSGKEY = "rest.ActionFacet";
 
-	class ReferenceNameListner implements ResourceFieldListener {
+	class ReferenceNameListener implements ResourceFieldListener {
 		@Override
 		public boolean set(String value) {
 			setReferenceFacetName(value);
@@ -72,10 +72,8 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	 */
 	public ActionFacet(TLActionFacet tlActionFacet) {
 		super(tlActionFacet);
-		parent = this.getNode(((LibraryMember) tlObj.getOwningEntity()).getListeners());
+		parent = this.getNode(((LibraryMember) tlObj.getOwningResource()).getListeners());
 		assert parent instanceof ResourceNode;
-		if (tlObj.getFacetType() != TLFacetType.ACTION)
-			LOGGER.debug("Wrong Facet Type: " + tlObj.getFacetType());
 		getParent().addChild(this);
 	}
 
@@ -84,7 +82,6 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 		this.parent = parent;
 		parent.addChild(this);
 		getParent().getTLModelObject().addActionFacet(tlObj);
-		tlObj.setFacetType(TLFacetType.ACTION);
 	}
 
 	/**
@@ -99,7 +96,7 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 		this(parent);
 		if (type == null) {
 			setName("SubstitutionGroup");
-			setReferenceFacetName(null);
+			setReferenceFacetName(ResourceField.SUBGRP);
 		} else
 			for (Node fn : parent.getSubject().getChildren())
 				if (fn instanceof FacetNode)
@@ -123,13 +120,17 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 		return "Action Facet";
 	}
 
+	public String getReferenceFacetName() {
+		return tlObj.getReferenceFacetName() != null ? tlObj.getReferenceFacetName() : ResourceField.SUBGRP;
+	}
+
 	@Override
 	public List<ResourceField> getFields() {
 		List<ResourceField> fields = new ArrayList<ResourceField>();
 
 		// Facet Reference = This can only be set to a facet in the resource subject business object
-		new ResourceField(fields, tlObj.getReferenceFacetName(), "rest.ActionFacet.fields.referenceFacetName",
-				ResourceFieldType.Enum, new ReferenceNameListner(), getOwningComponent().getSubjectFacets());
+		new ResourceField(fields, getReferenceFacetName(), "rest.ActionFacet.fields.referenceFacetName",
+				ResourceFieldType.Enum, new ReferenceNameListener(), getOwningComponent().getSubjectFacets(true));
 
 		// Repeat Count - an int
 		new ResourceField(fields, Integer.toString(tlObj.getReferenceRepeat()),
@@ -158,6 +159,11 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	}
 
 	@Override
+	public TLActionFacet getTLModelObject() {
+		return tlObj;
+	}
+
+	@Override
 	public String getTooltip() {
 		return Messages.getString(MSGKEY + ".tooltip");
 	}
@@ -177,7 +183,10 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	 *            of the business object facet
 	 */
 	public void setReferenceFacetName(String name) {
-		tlObj.setReferenceFacetName(name);
+		if (name.equals(ResourceField.SUBGRP))
+			tlObj.setReferenceFacetName(null);
+		else
+			tlObj.setReferenceFacetName(name);
 		LOGGER.debug("Set Reference facet name to " + name + " : " + tlObj.getReferenceFacetName());
 	}
 
