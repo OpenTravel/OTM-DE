@@ -126,6 +126,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	public void delete() {
 		clearListeners();
 		tlObj.getOwner().setRequest(null);
+		parent.getChildren().remove(this);
 	}
 
 	@Override

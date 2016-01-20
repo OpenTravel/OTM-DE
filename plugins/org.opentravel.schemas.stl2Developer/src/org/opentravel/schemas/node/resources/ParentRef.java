@@ -1,0 +1,214 @@
+/**
+ * Copyright (C) 2014 OpenTravel Alliance (info@opentravel.org)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.opentravel.schemas.node.resources;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLResourceParentRef;
+import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
+import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.properties.Messages;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Resource Parent Reference controller. Provides getters, setters and listeners for parameter group fields.
+ * 
+ * @author Dave
+ *
+ */
+public class ParentRef extends ResourceBase<TLResourceParentRef> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ParentRef.class);
+	private String MSGKEY = "rest.ResourceParentRef";
+
+	public class ParamGroupListener implements ResourceFieldListener {
+		@Override
+		public boolean set(String name) {
+			return setParamGroup(name);
+		}
+	}
+
+	class ParentRefListener implements ResourceFieldListener {
+		@Override
+		public boolean set(String value) {
+			setParent(value);
+			return false;
+		}
+	}
+
+	class PathTemplateListener implements ResourceFieldListener {
+		@Override
+		public boolean set(String value) {
+			setPathTemplate(value);
+			return false;
+		}
+	}
+
+	/********************************************************************************
+	 * 
+	 */
+	public ParentRef(ResourceNode parent) {
+		super(new TLResourceParentRef());
+		this.parent = parent;
+		parent.addChild(this);
+		getParent().getTLModelObject().addParentRef(tlObj);
+		tlObj.setParentResource(getParent().getTLModelObject());
+	}
+
+	public ParentRef(TLResourceParentRef tlParentRef) {
+		super(tlParentRef);
+		parent = this.getNode(((LibraryMember) tlObj.getOwner()).getListeners());
+		assert parent instanceof ResourceNode;
+		getParent().addChild(this);
+		LOGGER.debug("Created Parent Ref: " + tlParentRef.getParentResourceName());
+		// addChildren();
+	}
+
+	@Override
+	public void addChildren() {
+	}
+
+	@Override
+	public void delete() {
+		clearListeners();
+		tlObj.getOwner().removeParentRef(tlObj);
+		parent.getChildren().remove(this);
+	}
+
+	@Override
+	public String getComponentType() {
+		return "Parameter Group";
+	}
+
+	@Override
+	public List<ResourceField> getFields() {
+		List<ResourceField> fields = new ArrayList<ResourceField>();
+
+		// Parent
+		new ResourceField(fields, getParentResourceName(), MSGKEY + ".parent", ResourceFieldType.Enum,
+				new ParentRefListener(), getParentCandidateNames());
+
+		// Parameter Group
+		new ResourceField(fields, getParameterGroupName(), MSGKEY + ".parentParamGroup", ResourceFieldType.Enum,
+				new ParamGroupListener(), getParentResource().getParameterGroupNames());
+
+		// Path Template - simple String
+		new ResourceField(fields, tlObj.getPathTemplate(), MSGKEY + ".pathTemplate",
+				ResourceField.ResourceFieldType.String, new PathTemplateListener());
+
+		return fields;
+	}
+
+	@Override
+	public Image getImage() {
+		return Images.getImageRegistry().get(Images.ResourceParentRef);
+	}
+
+	@Override
+	public String getName() {
+		return tlObj.getParentResourceName() + "Ref";
+		// return tlObj.getName() != null ? tlObj.getName() : "";
+	}
+
+	public String getParameterGroupName() {
+		return tlObj.getParentParamGroupName();
+	}
+
+	@Override
+	public ResourceNode getParent() {
+		return (ResourceNode) parent;
+	}
+
+	public String[] getParentCandidateNames() {
+		List<ResourceNode> list = getParentCandidates();
+		String[] candidates = new String[list.size()];
+		int i = 0;
+		for (ResourceNode rn : list) {
+			candidates[i++] = rn.getName();
+		}
+		return candidates;
+	}
+
+	public List<ResourceNode> getParentCandidates() {
+		List<ResourceNode> candidates = new ArrayList<ResourceNode>();
+		for (Node rn : getOwningComponent().getSiblings())
+			candidates.add((ResourceNode) rn);
+		return candidates;
+	}
+
+	public ResourceNode getParentResource() {
+		return tlObj.getParentResource() != null ? (ResourceNode) getNode(tlObj.getParentResource().getListeners())
+				: null;
+	}
+
+	public String getParentResourceName() {
+		return getParentResource() != null ? getParentResource().getName() : "";
+	}
+
+	@Override
+	public String getTooltip() {
+		return Messages.getString(MSGKEY + ".tooltip");
+	}
+
+	@Override
+	public boolean isNameEditable() {
+		return true;
+	}
+
+	/**
+	 * Set the name of this parameter group
+	 */
+	@Override
+	public void setName(final String name) {
+		// tlObj.setName(name);
+	}
+
+	public boolean setParamGroup(String name) {
+		ParamGroup pg = null;
+		for (ParamGroup group : getParentResource().getParameterGroups())
+			if (group.getName().equals(name))
+				pg = group;
+		// set the group and update the path template
+		if (pg != null) {
+			tlObj.setParentParamGroup(pg.getTLModelObject());
+			tlObj.setPathTemplate(pg.getPathTemplate());
+		} else {
+			tlObj.setParentParamGroup(null);
+			tlObj.setPathTemplate("/");
+		}
+		return true;
+	}
+
+	public void setParent(String name) {
+		ResourceNode parentResource = null;
+		for (ResourceNode p : getParentCandidates())
+			if (p.getName().equals(name))
+				parentResource = p;
+		if (parentResource != null)
+			tlObj.setParentResource(parentResource.getTLModelObject());
+		LOGGER.debug("Set Parent resource to " + name + ": " + tlObj.getParentResourceName());
+	}
+
+	public void setPathTemplate(String path) {
+		tlObj.setPathTemplate(path);
+		LOGGER.debug("Set Path template to " + path + ": " + tlObj.getPathTemplate());
+	}
+
+}

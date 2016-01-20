@@ -89,59 +89,38 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		ITreeViewerListener {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RestResourceView.class);
+
 	public static String VIEW_ID = "org.opentravel.schemas.stl2Developer.ResourceView";
 
 	private FormToolkit toolkit;
 	private TreeViewer viewer;
-	private boolean ignoreListener = false; // used by listeners during selection changes
 
+	private boolean ignoreListener = false; // used by listeners during selection changes
 	private Label objectIcon;
+
 	private Text rName;
 	private Label rType;
 	private Text rDescription;
-
 	private List<ResourceMemberInterface> expansionState = new LinkedList<ResourceMemberInterface>();
-
 	private INode currentNode;
 	private INode previousNode;
 
 	private SashForm mainSashForm;
+
 	// private ButtonBarManager bbManager;
 	private Composite compRight;
 
 	private List<PostedField> postedFields = new ArrayList<PostedField>();
+
 	private Group objectPropertyGroup;
+
 	private Group examplesGroup;
+
 	private Group validationGroup;
+
 	private IBaseLabelProvider decorator;
+
 	private Display display;
-
-	private class PostedField {
-		public Text text;
-		public Label label;
-		public Button button;
-		public Combo combo;
-		public Label icon;
-		public Spinner spinner;
-		public Group buttons;
-
-		public void dispose() {
-			if (text != null)
-				text.dispose();
-			if (label != null)
-				label.dispose();
-			if (button != null)
-				button.dispose();
-			if (combo != null)
-				combo.dispose();
-			if (icon != null)
-				icon.dispose();
-			if (spinner != null)
-				spinner.dispose();
-			if (buttons != null)
-				buttons.dispose();
-		}
-	}
 
 	public RestResourceView() {
 		OtmRegistry.registerResourceView(this);
@@ -304,39 +283,47 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		ignoreListener = false; // enable listeners
 	}
 
-	private Text createField(String msgKey, Composite comp, PostedField pf) {
-		Color bgColor = comp.getBackground();
-		Label label = toolkit.createLabel(comp, Messages.getString(msgKey + ".text"), SWT.TRAIL);
-		label.setBackground(bgColor);
+	@Override
+	public INode getCurrentNode() {
+		return currentNode;
+	}
 
-		Text field = toolkit.createText(comp, "", SWT.BORDER);
-		field.setToolTipText(Messages.getString(msgKey + ".tooltip"));
-		GridData gd = new GridData();
-		gd.grabExcessHorizontalSpace = true;
-		gd.horizontalAlignment = SWT.FILL;
-		field.setLayoutData(gd);
+	@Override
+	public INode getPreviousNode() {
+		return previousNode;
+	}
 
-		if (pf != null) {
-			pf.label = label;
-			pf.text = field;
+	/**
+	 */
+	@Override
+	public List<Node> getSelectedNodes() {
+		if (viewer == null)
+			return null; // In case the view is not activated.
+		List<Node> selected = new ArrayList<Node>();
+		StructuredSelection selection = (StructuredSelection) viewer.getSelection();
+		for (Object e : selection.toList()) {
+			if (e != null && e instanceof ResourceMemberInterface)
+				selected.add((Node) e);
 		}
-		return field;
+		LOGGER.debug("getSelectedNodes is returning " + selected.size() + " nodes.");
+		return selected;
+	}
+
+	// Only works if the selection is on the rest resource tree
+	public ResourceMemberInterface getSelectedResourceNode() {
+		if (viewer == null)
+			return null; // In case the view is not activated.
+		StructuredSelection selection = (StructuredSelection) viewer.getSelection();
+		Object object = selection.getFirstElement();
+		if (object != null && object instanceof ResourceMemberInterface)
+			return (ResourceMemberInterface) object;
+		LOGGER.debug("getSelectedResourceNode is returning null.");
+		return null;
 	}
 
 	@Override
-	public void setFocus() {
-		LOGGER.debug("setFocus.");
-		refreshAllViews();
-	}
-
-	public void select(ContextNode node) {
-		viewer.setSelection(new StructuredSelection(node), true);
-	}
-
-	@Override
-	public void refreshAllViews() {
-		viewer.refresh(true);
-		updateFields(getSelectedResourceNode());
+	public String getViewID() {
+		return VIEW_ID;
 	}
 
 	/**
@@ -350,6 +337,37 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 			viewer.setInput(rootLibrary.getResourceRoot());
 		restoreExpansionState();
 		refreshAllViews();
+	}
+
+	@Override
+	public void refresh() {
+		// FIXME - when widget is disposed - unregister listener
+		if (viewer != null) {
+			viewer.refresh(true);
+			updateFields(getSelectedResourceNode());
+			// Inform decoration of change
+			if (getCurrentNode() != null)
+				PlatformUI.getWorkbench().getDecoratorManager().update(getCurrentNode().getOwningComponent().getName());
+			// LabelProviderChangedEvent event = new LabelProviderChangedEvent(decorator, getCurrentNode());
+			// fireLabelEvent(event);
+		}
+	}
+
+	@Override
+	public void refresh(INode node) {
+		viewer.expandToLevel(node, 3);
+		viewer.refresh(true);
+		postResources();
+	}
+
+	@Override
+	public void refreshAllViews() {
+		viewer.refresh(true);
+		updateFields(getSelectedResourceNode());
+	}
+
+	public void select(ContextNode node) {
+		viewer.setSelection(new StructuredSelection(node), true);
 	}
 
 	@Override
@@ -373,54 +391,6 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 	}
 
 	@Override
-	public INode getCurrentNode() {
-		return currentNode;
-	}
-
-	@Override
-	public INode getPreviousNode() {
-		return previousNode;
-	}
-
-	@Override
-	public void setCurrentNode(final INode node) {
-		previousNode = currentNode;
-		currentNode = node;
-	}
-
-	@Override
-	public void treeCollapsed(TreeExpansionEvent event) {
-		Object collapsed = event.getElement();
-		if (collapsed instanceof ResourceMemberInterface) {
-			ResourceMemberInterface doc = (ResourceMemberInterface) collapsed;
-			removeRecursivelyFromExpansionState((Node) doc);
-		}
-	}
-
-	private void removeRecursivelyFromExpansionState(Node item) {
-		for (Node child : item.getChildren()) {
-			removeRecursivelyFromExpansionState(child);
-		}
-		expansionState.remove(item);
-	}
-
-	@Override
-	public void treeExpanded(TreeExpansionEvent event) {
-		Object expanded = event.getElement();
-		if (expanded instanceof ResourceMemberInterface) {
-			expansionState.add((ResourceMemberInterface) expanded);
-		}
-	}
-
-	private void restoreExpansionState() {
-		viewer.collapseAll();
-		for (ResourceMemberInterface node : expansionState)
-			viewer.expandToLevel(node, 1);
-		// viewer.expandAll();
-		LOGGER.debug("Restored expansion state.");
-	}
-
-	@Override
 	public void selectionChanged(SelectionChangedEvent event) {
 		LOGGER.debug("selection changed. \t" + event.getClass());
 		final Object object = ((IStructuredSelection) viewer.getSelection()).getFirstElement();
@@ -436,25 +406,79 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		ignoreListener = false;
 	}
 
-	private void post(Text widget, String text) {
-		if (text != null)
-			widget.setText(text); // SWT errors if text is null
+	// private void post(Group grp, String string) {
+	// // labels will not display & ("\u0026\u0026")
+	// Text field = toolkit.createText(grp, string, SWT.READ_ONLY);
+	// // field.setToolTipText(Messages.getString(msgKey + ".tooltip"));
+	// GridData gd = new GridData();
+	// gd.grabExcessHorizontalSpace = true;
+	// gd.horizontalAlignment = SWT.FILL;
+	// field.setLayoutData(gd);
+	// }
+
+	@Override
+	public void setCurrentNode(final INode node) {
+		previousNode = currentNode;
+		currentNode = node;
 	}
 
-	private void post(Label widget, String text) {
-		if (text != null)
-			widget.setText(text); // SWT errors if text is null
+	@Override
+	public void setFocus() {
+		LOGGER.debug("setFocus.");
+		refreshAllViews();
+	}
+
+	@Override
+	public void treeCollapsed(TreeExpansionEvent event) {
+		Object collapsed = event.getElement();
+		if (collapsed instanceof ResourceMemberInterface) {
+			ResourceMemberInterface doc = (ResourceMemberInterface) collapsed;
+			removeRecursivelyFromExpansionState((Node) doc);
+		}
+	}
+
+	@Override
+	public void treeExpanded(TreeExpansionEvent event) {
+		Object expanded = event.getElement();
+		if (expanded instanceof ResourceMemberInterface) {
+			expansionState.add((ResourceMemberInterface) expanded);
+		}
+	}
+
+	private Text createField(String msgKey, Composite comp, PostedField pf) {
+		Color bgColor = comp.getBackground();
+		Label label = toolkit.createLabel(comp, Messages.getString(msgKey + ".text"), SWT.TRAIL);
+		label.setBackground(bgColor);
+
+		Text field = toolkit.createText(comp, "", SWT.BORDER);
+		field.setToolTipText(Messages.getString(msgKey + ".tooltip"));
+		GridData gd = new GridData();
+		gd.grabExcessHorizontalSpace = true;
+		gd.horizontalAlignment = SWT.FILL;
+		field.setLayoutData(gd);
+
+		if (pf != null) {
+			pf.label = label;
+			pf.text = field;
+		}
+		return field;
+	}
+
+	private Table getFindingsTable(Composite parent) {
+		// 3 column table for object, level/type and message
+		Table findingsTable = new Table(parent, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL
+				| SWT.H_SCROLL);
+		findingsTable.setLinesVisible(false);
+		findingsTable.setHeaderVisible(true);
+		final GridData td = new GridData(SWT.FILL, SWT.FILL, true, false);
+		findingsTable.setLayoutData(td);
+		return findingsTable;
 	}
 
 	private void post(Button widget, String text, Object data) {
 		if (text != null)
 			widget.setText(text);
 		widget.setData(data);
-	}
-
-	private void post(Label widget, Image icon) {
-		if (icon != null)
-			widget.setImage(icon); // SWT errors if text is null
 	}
 
 	private void post(Combo combo, String[] strings, String value) {
@@ -471,16 +495,6 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		}
 	}
 
-	// private void post(Group grp, String string) {
-	// // labels will not display & ("\u0026\u0026")
-	// Text field = toolkit.createText(grp, string, SWT.READ_ONLY);
-	// // field.setToolTipText(Messages.getString(msgKey + ".tooltip"));
-	// GridData gd = new GridData();
-	// gd.grabExcessHorizontalSpace = true;
-	// gd.horizontalAlignment = SWT.FILL;
-	// field.setLayoutData(gd);
-	// }
-
 	private void post(Group grp, ActionExample example) {
 		Color bgColor = grp.getBackground();
 		Label label = toolkit.createLabel(grp, example.getLabel(), SWT.TRAIL);
@@ -488,11 +502,81 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 
 		// labels will not display & ("\u0026\u0026")
 		Text field = toolkit.createText(grp, example.getURL(), SWT.READ_ONLY);
-		// field.setToolTipText(Messages.getString(msgKey + ".tooltip"));
 		GridData gd = new GridData();
 		gd.grabExcessHorizontalSpace = true;
 		gd.horizontalAlignment = SWT.FILL;
 		field.setLayoutData(gd);
+	}
+
+	private void post(Label widget, Image icon) {
+		if (icon != null)
+			widget.setImage(icon); // SWT errors if text is null
+	}
+
+	private void post(Label widget, String text) {
+		if (text != null)
+			widget.setText(text); // SWT errors if text is null
+	}
+
+	private void post(Table table, ValidationFinding f, Node node) {
+		String src;
+		TLModelElement tlObj = ((TLModelElement) f.getSource());
+		if (tlObj.getListeners().isEmpty())
+			src = f.getSource().getValidationIdentity();
+		else {
+			Node n = ((Node) node).getNode(((TLModelElement) f.getSource()).getListeners());
+			src = n != null ? n.getName() : "";
+		}
+		TableItem item = new TableItem(table, SWT.NONE);
+		String[] itemText = new String[3];
+		itemText[0] = f.getType().getDisplayName();
+		itemText[1] = src;
+		itemText[2] = f.getFormattedMessage(FindingMessageFormat.MESSAGE_ONLY_FORMAT);
+		item.setText(itemText);
+	}
+
+	private void post(Table table, ValidationFindings findings, Node node) {
+		// Consider setting up a table viewer instead.
+		if (findings.count() < 1)
+			return;
+		TableColumn type = new TableColumn(table, SWT.LEFT);
+		TableColumn name = new TableColumn(table, SWT.LEFT);
+		TableColumn msg = new TableColumn(table, SWT.LEFT);
+		type.setText("Type");
+		type.setWidth(50);
+		name.setText("Component");
+		name.setWidth(100);
+		msg.setText("Description");
+		msg.setWidth(300);
+
+		for (ValidationFinding f : findings.getFindingsAsList(FindingType.ERROR))
+			post(table, f, node);
+		for (ValidationFinding f : findings.getFindingsAsList(FindingType.WARNING))
+			post(table, f, node);
+
+		LOGGER.debug("Posted " + findings.count(FindingType.ERROR) + " : " + findings.count(FindingType.WARNING)
+				+ "  from " + findings.count());
+
+	}
+
+	private void post(Text widget, String text) {
+		if (text != null)
+			widget.setText(text); // SWT errors if text is null
+	}
+
+	private void removeRecursivelyFromExpansionState(Node item) {
+		for (Node child : item.getChildren()) {
+			removeRecursivelyFromExpansionState(child);
+		}
+		expansionState.remove(item);
+	}
+
+	private void restoreExpansionState() {
+		viewer.collapseAll();
+		for (ResourceMemberInterface node : expansionState)
+			viewer.expandToLevel(node, 1);
+		// viewer.expandAll();
+		LOGGER.debug("Restored expansion state.");
 	}
 
 	private void updateFields(ResourceMemberInterface node) {
@@ -625,121 +709,35 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		compRight.update();
 	}
 
-	// Only works if the selection is on the rest resource tree
-	public ResourceMemberInterface getSelectedResourceNode() {
-		if (viewer == null)
-			return null; // In case the view is not activated.
-		StructuredSelection selection = (StructuredSelection) viewer.getSelection();
-		Object object = selection.getFirstElement();
-		if (object != null && object instanceof ResourceMemberInterface)
-			return (ResourceMemberInterface) object;
-		LOGGER.debug("getSelectedResourceNode is returning null.");
-		return null;
-	}
-
+	// /////////////////////////////////////////////////////////////////
 	/**
+	 * Each widget is saved in the posted field list such that it can be disposed of properly.
 	 */
-	@Override
-	public List<Node> getSelectedNodes() {
-		if (viewer == null)
-			return null; // In case the view is not activated.
-		List<Node> selected = new ArrayList<Node>();
-		StructuredSelection selection = (StructuredSelection) viewer.getSelection();
-		for (Object e : selection.toList()) {
-			if (e != null && e instanceof ResourceMemberInterface)
-				selected.add((Node) e);
+	private class PostedField {
+		public Text text;
+		public Label label;
+		public Button button;
+		public Combo combo;
+		public Label icon;
+		public Spinner spinner;
+		public Group buttons;
+
+		public void dispose() {
+			if (text != null)
+				text.dispose();
+			if (label != null)
+				label.dispose();
+			if (button != null)
+				button.dispose();
+			if (combo != null)
+				combo.dispose();
+			if (icon != null)
+				icon.dispose();
+			if (spinner != null)
+				spinner.dispose();
+			if (buttons != null)
+				buttons.dispose();
 		}
-		LOGGER.debug("getSelectedNodes is returning " + selected.size() + " nodes.");
-		return selected;
-	}
-
-	@Override
-	public String getViewID() {
-		return VIEW_ID;
-	}
-
-	@Override
-	public void refresh() {
-		// FIXME - when widget is disposed - unregister listener
-		if (viewer != null) {
-			viewer.refresh(true);
-			updateFields(getSelectedResourceNode());
-			// Inform decoration of change
-			if (getCurrentNode() != null)
-				PlatformUI.getWorkbench().getDecoratorManager().update(getCurrentNode().getOwningComponent().getName());
-			// LabelProviderChangedEvent event = new LabelProviderChangedEvent(decorator, getCurrentNode());
-			// fireLabelEvent(event);
-		}
-	}
-
-	// private void fireLabelEvent(final LabelProviderChangedEvent event) {
-	// // Decorate using current UI thread
-	// Display.getDefault().asyncExec(new Runnable() {
-	// public void run() {
-	// // Fire a LabelProviderChangedEvent to notify eclipse views
-	// // that label provider has been changed for the resources
-	// fireLabelProviderChanged(event);
-	// }
-	// });
-	// }
-
-	@Override
-	public void refresh(INode node) {
-		viewer.expandToLevel(node, 3);
-		viewer.refresh(true);
-		postResources();
-	}
-
-	private Table getFindingsTable(Composite parent) {
-		// 3 column table for object, level/type and message
-		Table findingsTable = new Table(parent, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL
-				| SWT.H_SCROLL);
-		findingsTable.setLinesVisible(false);
-		findingsTable.setHeaderVisible(true);
-		final GridData td = new GridData(SWT.FILL, SWT.FILL, true, false);
-		findingsTable.setLayoutData(td);
-		return findingsTable;
-	}
-
-	private void post(Table table, ValidationFindings findings, Node node) {
-		// Consider setting up a table viewer instead.
-		if (findings.count() < 1)
-			return;
-		TableColumn type = new TableColumn(table, SWT.LEFT);
-		TableColumn name = new TableColumn(table, SWT.LEFT);
-		TableColumn msg = new TableColumn(table, SWT.LEFT);
-		type.setText("Type");
-		type.setWidth(50);
-		name.setText("Component");
-		name.setWidth(100);
-		msg.setText("Description");
-		msg.setWidth(300);
-
-		for (ValidationFinding f : findings.getFindingsAsList(FindingType.ERROR))
-			post(table, f, node);
-		for (ValidationFinding f : findings.getFindingsAsList(FindingType.WARNING))
-			post(table, f, node);
-
-		LOGGER.debug("Posted " + findings.count(FindingType.ERROR) + " : " + findings.count(FindingType.WARNING)
-				+ "  from " + findings.count());
-
-	}
-
-	private void post(Table table, ValidationFinding f, Node node) {
-		String src;
-		TLModelElement tlObj = ((TLModelElement) f.getSource());
-		if (tlObj.getListeners().isEmpty())
-			src = f.getSource().getValidationIdentity();
-		else {
-			Node n = ((Node) node).getNode(((TLModelElement) f.getSource()).getListeners());
-			src = n != null ? n.getName() : "";
-		}
-		TableItem item = new TableItem(table, SWT.NONE);
-		String[] itemText = new String[3];
-		itemText[0] = f.getType().getDisplayName();
-		itemText[1] = src;
-		itemText[2] = f.getFormattedMessage(FindingMessageFormat.MESSAGE_ONLY_FORMAT);
-		item.setText(itemText);
 	}
 
 	// /////////////////////////////////////////////////////////////////
@@ -749,6 +747,30 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 	// Except for name and description, the listeners use the ResourceField data associated with the widget to access
 	// the appropriate listener for the specific data field.
 	//
+	public class DescriptionListener implements ModifyListener {
+		@Override
+		public void modifyText(ModifyEvent e) {
+			if (!(e.getSource() instanceof Text) || ignoreListener)
+				return;
+			Text text = (Text) e.getSource();
+			if (text.getData() instanceof ResourceMemberInterface && text.getText() != null)
+				((ResourceMemberInterface) text.getData()).setDescription(text.getText());
+		}
+	}
+
+	public class NameListener implements ModifyListener {
+		@Override
+		public void modifyText(ModifyEvent e) {
+			if (!(e.getSource() instanceof Text) || ignoreListener)
+				return;
+			Text text = (Text) e.getSource();
+			if (text.getData() instanceof ResourceMemberInterface && text.getText() != null) {
+				((ResourceMemberInterface) text.getData()).setName(text.getText());
+				// viewer.refresh(text.getData());
+			}
+		}
+	}
+
 	public class TextListener implements ModifyListener {
 		@Override
 		public void modifyText(ModifyEvent e) {
@@ -767,54 +789,60 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		}
 	}
 
-	public class NameListener implements ModifyListener {
-		@Override
-		public void modifyText(ModifyEvent e) {
-			if (!(e.getSource() instanceof Text) || ignoreListener)
-				return;
-			Text text = (Text) e.getSource();
-			if (text.getData() instanceof ResourceMemberInterface && text.getText() != null) {
-				((ResourceMemberInterface) text.getData()).setName(text.getText());
-				// viewer.refresh(text.getData());
-			}
-		}
-	}
+	class ButtonListener implements SelectionListener {
 
-	public class DescriptionListener implements ModifyListener {
 		@Override
-		public void modifyText(ModifyEvent e) {
-			if (!(e.getSource() instanceof Text) || ignoreListener)
-				return;
-			Text text = (Text) e.getSource();
-			if (text.getData() instanceof ResourceMemberInterface && text.getText() != null)
-				((ResourceMemberInterface) text.getData()).setDescription(text.getText());
+		public void widgetDefaultSelected(SelectionEvent e) {
 		}
-	}
-
-	class SpinnerListener implements SelectionListener {
 
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			if (!(e.getSource() instanceof Spinner) || ignoreListener)
+			// Field data is in the parent group
+			if (!(e.getSource() instanceof Button) || ignoreListener)
 				return;
-			Spinner spinner = (Spinner) e.getSource();
-			if (!(spinner.getData() instanceof ResourceField))
+
+			Button button = (Button) e.getSource();
+			// Composite parent = button.getParent();
+			if (!(button.getData() instanceof ResourceField))
 				return;
-			ResourceField field = (ResourceField) spinner.getData();
-			if (field.getListener() == null)
-				return;
-			field.getListener().set(Integer.toString(spinner.getSelection()));
+			ResourceField field = (ResourceField) button.getData();
+			String value = button.getText();
+			LOGGER.debug("Button  " + value + " selected? " + button.getSelection());
+			if (field.getListener() != null)
+				field.getListener().set(value);
 			refresh();
 		}
+	}
 
+	class CheckButtonListener implements SelectionListener {
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			// Field data is in the parent group
+			if (!(e.getSource() instanceof Button) || ignoreListener)
+				return;
+
+			Button button = (Button) e.getSource();
+			if (!(button.getData() instanceof ResourceField))
+				return;
+			ResourceField field = (ResourceField) button.getData();
+			LOGGER.debug("Button selected? " + button.getSelection());
+			if (field.getListener() != null)
+				field.getListener().set(Boolean.toString(button.getSelection()));
+			refresh();
+		}
+	}
+
+	class ComboListener implements SelectionListener {
 		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
 			LOGGER.debug("Event: " + e);
 		}
 
-	}
-
-	class ComboListener implements SelectionListener {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			LOGGER.debug("Combo Listener - event: " + e);
@@ -834,59 +862,28 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 			field.getListener().set(value);
 			refresh(); // display changes to other fields and tree
 		}
+	}
+
+	class SpinnerListener implements SelectionListener {
 
 		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
 			LOGGER.debug("Event: " + e);
 		}
-	}
-
-	class ButtonListener implements SelectionListener {
 
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			// Field data is in the parent group
-			if (!(e.getSource() instanceof Button) || ignoreListener)
+			if (!(e.getSource() instanceof Spinner) || ignoreListener)
 				return;
-
-			Button button = (Button) e.getSource();
-			// Composite parent = button.getParent();
-			if (!(button.getData() instanceof ResourceField))
+			Spinner spinner = (Spinner) e.getSource();
+			if (!(spinner.getData() instanceof ResourceField))
 				return;
-			ResourceField field = (ResourceField) button.getData();
-			String value = button.getText();
-			LOGGER.debug("Button  " + value + " selected? " + button.getSelection());
-			if (field.getListener() != null)
-				field.getListener().set(value);
+			ResourceField field = (ResourceField) spinner.getData();
+			if (field.getListener() == null)
+				return;
+			field.getListener().set(Integer.toString(spinner.getSelection()));
 			refresh();
 		}
 
-		@Override
-		public void widgetDefaultSelected(SelectionEvent e) {
-		}
 	}
-
-	class CheckButtonListener implements SelectionListener {
-
-		@Override
-		public void widgetSelected(SelectionEvent e) {
-			// Field data is in the parent group
-			if (!(e.getSource() instanceof Button) || ignoreListener)
-				return;
-
-			Button button = (Button) e.getSource();
-			if (!(button.getData() instanceof ResourceField))
-				return;
-			ResourceField field = (ResourceField) button.getData();
-			LOGGER.debug("Button selected? " + button.getSelection());
-			if (field.getListener() != null)
-				field.getListener().set(Boolean.toString(button.getSelection()));
-			refresh();
-		}
-
-		@Override
-		public void widgetDefaultSelected(SelectionEvent e) {
-		}
-	}
-
 }

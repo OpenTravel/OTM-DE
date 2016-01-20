@@ -85,13 +85,13 @@ public interface ResourceMemberInterface {
 	 */
 	public boolean isValid();
 
-	public void setDescription(String description);
-
-	public void setName(String name);
-
 	/**
 	 * @return true if there are no validation warnings on this item.
 	 */
-	boolean isValid_NoWarnings();
+	public boolean isValid_NoWarnings();
+
+	public void setDescription(String description);
+
+	public void setName(String name);
 
 }

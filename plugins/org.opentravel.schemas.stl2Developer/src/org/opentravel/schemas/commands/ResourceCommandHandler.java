@@ -57,8 +57,6 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 	private OtmView view;
 
 	// public void execute(Event event) {
-	// if (mc == null)
-	// mc = OtmRegistry.getMainController();
 	// selectedNode = mc.getGloballySelectNode();
 	// if (!(selectedNode instanceof ResourceMemberInterface))
 	// return;
@@ -120,10 +118,11 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 
 		switch (type) {
 		case DELETE:
+			Node parent = selectedNode.getOwningComponent();
 			for (Node n : view.getSelectedNodes())
 				if (n.isDeleteable())
 					n.delete();
-			view.refresh();
+			view.refresh(parent);
 			break;
 		case RESOURCE:
 			if (selectedNode != null && selectedNode.getLibrary() != null) {
@@ -137,7 +136,6 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 				}
 			} else
 				postWarning();
-			// view.refresh(new ResourceNode(selectedNode));
 			break;
 		case ACTION:
 			if (rn != null)
@@ -206,7 +204,6 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.AddNode);
-
 	}
 
 }
