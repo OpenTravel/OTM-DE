@@ -311,19 +311,22 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return Collections.emptyList();
 	}
 
-	public List<ParamGroup> getParameterGroups() {
+	public List<ParamGroup> getParameterGroups(boolean idGroupsOnly) {
 		ArrayList<ParamGroup> pgroups = new ArrayList<ParamGroup>();
 		for (Node child : getChildren())
 			if (child instanceof ParamGroup)
-				pgroups.add((ParamGroup) child);
+				if (!idGroupsOnly || ((ParamGroup) child).isIdGroup())
+					pgroups.add((ParamGroup) child);
 		return pgroups;
 	}
 
 	/**
+	 * @param idGroupsOnly
+	 *            if true only parameter groups with ID Group set will be included as needed for parent references
 	 * @return list of the parameter groups by name and NONE
 	 */
-	public String[] getParameterGroupNames() {
-		List<ParamGroup> paramGroups = getParameterGroups();
+	public String[] getParameterGroupNames(boolean idGroupsOnly) {
+		List<ParamGroup> paramGroups = getParameterGroups(idGroupsOnly);
 		String[] groupNames = new String[paramGroups.size() + 1];
 		int i = 0;
 		groupNames[i] = ResourceField.NONE;

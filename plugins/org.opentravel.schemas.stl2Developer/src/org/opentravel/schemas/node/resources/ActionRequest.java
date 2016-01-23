@@ -148,7 +148,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 
 		// Parameter Groups - List of group names
 		new ResourceField(fields, tlObj.getParamGroupName(), MSGKEY + ".fields.paramGroup", ResourceFieldType.Enum,
-				new ParamGroupListener(), getOwningComponent().getParameterGroupNames());
+				new ParamGroupListener(), getOwningComponent().getParameterGroupNames(false));
 
 		// Path Template - simple String
 		new ResourceField(fields, tlObj.getPathTemplate(), MSGKEY + ".fields.path",
@@ -239,7 +239,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 			LOGGER.debug("No change because names are the same. " + groupName);
 		} else
 			// find the param group with this name then set it
-			for (ParamGroup node : getOwningComponent().getParameterGroups())
+			for (ParamGroup node : getOwningComponent().getParameterGroups(false))
 				if (node.getName().equals(groupName))
 					tlObj.setParamGroup(node.tlObj);
 
@@ -268,6 +268,8 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 
 		if (payloadName.equals(ResourceField.NONE)) {
 			tlObj.setPayloadType(null);
+			tlObj.setMimeTypes(null); // validation warning when mime types are set.
+			getParent().updateExample();
 			LOGGER.debug("Reset payload. " + payloadName);
 			return true;
 		}

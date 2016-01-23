@@ -60,8 +60,9 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	 * @param parent
 	 */
 	public ActionNode(ResourceNode parent) {
-		super(new TLAction()); // can't use this because tlAction has no listener
+		super(new TLAction()); // can't use "this()" because tlAction has no listener
 		((TLResource) parent.getTLModelObject()).addAction(tlObj);
+		tlObj.setActionId(""); // prevent NPE in validation
 		this.parent = parent;
 		parent.addChild(this);
 
@@ -141,6 +142,8 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	public ActionExample getExample() {
 		if (example == null)
 			example = new ActionExample(this);
+		else
+			example.setValues();
 		return example;
 	}
 

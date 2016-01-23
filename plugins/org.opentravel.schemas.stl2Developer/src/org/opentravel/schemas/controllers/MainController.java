@@ -276,6 +276,13 @@ public class MainController {
 	}
 
 	/**
+	 * @return the current resource view (treeView) node or null if none selected.
+	 */
+	public Node getCurrentNode_ResourceView() {
+		return (Node) (OtmRegistry.getResourceView() != null ? OtmRegistry.getResourceView().getCurrentNode() : null);
+	}
+
+	/**
 	 * Set the current node displayed in the type view facet table.
 	 */
 	public void setCurrentNode_TypeView(Node node) {

@@ -111,19 +111,33 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 	private Composite compRight;
 
 	private List<PostedField> postedFields = new ArrayList<PostedField>();
-
 	private Group objectPropertyGroup;
-
 	private Group examplesGroup;
-
 	private Group validationGroup;
-
 	private IBaseLabelProvider decorator;
-
 	private Display display;
 
 	public RestResourceView() {
 		OtmRegistry.registerResourceView(this);
+	}
+
+	@Override
+	public void clearSelection() {
+		if (!getMainWindow().hasDisplay())
+			return; // headless operation
+		if (postedFields != null)
+			for (PostedField field : postedFields)
+				field.dispose();
+		if (!examplesGroup.isDisposed())
+			for (Control kid : examplesGroup.getChildren())
+				kid.dispose();
+		if (!validationGroup.isDisposed())
+			for (Control kid : validationGroup.getChildren())
+				kid.dispose();
+		currentNode = null;
+		if (viewer != null)
+			viewer.setSelection(null);
+		// LOGGER.debug("Cleared Selection.");
 	}
 
 	@Override
@@ -228,8 +242,10 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 
 		rName = createField("rest.label.name", compRight, null);
 		rName.addModifyListener(new NameListener());
+		rName.addSelectionListener(new TextSelectionListener());
 		rDescription = createField("rest.label.description", compRight, null);
 		rDescription.addModifyListener(new DescriptionListener());
+		rDescription.addSelectionListener(new TextSelectionListener());
 
 		// An example for future use
 		// Now using the name hight, layout 3 rows of rType
@@ -277,7 +293,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 
 		mainSashForm.setWeights(new int[] { 1, 3 });
 
-		setCurrentNode(mc.getCurrentNode_NavigatorView());
+		// done in postResources - setCurrentNode(mc.getCurrentNode_NavigatorView());
 		ignoreListener = true; // turn off any listeners
 		postResources();
 		ignoreListener = false; // enable listeners
@@ -305,7 +321,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 			if (e != null && e instanceof ResourceMemberInterface)
 				selected.add((Node) e);
 		}
-		LOGGER.debug("getSelectedNodes is returning " + selected.size() + " nodes.");
+		// LOGGER.debug("getSelectedNodes is returning " + selected.size() + " nodes.");
 		return selected;
 	}
 
@@ -317,7 +333,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		Object object = selection.getFirstElement();
 		if (object != null && object instanceof ResourceMemberInterface)
 			return (ResourceMemberInterface) object;
-		LOGGER.debug("getSelectedResourceNode is returning null.");
+		// LOGGER.debug("getSelectedResourceNode is returning null.");
 		return null;
 	}
 
@@ -332,11 +348,40 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 	 * @param forceRefresh
 	 */
 	public void postResources() {
+		if (viewer == null)
+			return;
 		LibraryNode rootLibrary = mc.getCurrentNode_NavigatorView().getLibrary();
-		if (rootLibrary != null && !rootLibrary.getResourceRoot().getChildren().isEmpty())
-			viewer.setInput(rootLibrary.getResourceRoot());
-		restoreExpansionState();
-		refreshAllViews();
+		// if (rootLibrary != null && !rootLibrary.getResourceRoot().getChildren().isEmpty())
+		if (rootLibrary != null)
+			if (currentNode == null || currentNode.getLibrary() != rootLibrary) {
+				// clear old display then display this library
+				clearSelection();
+				currentNode = rootLibrary;
+				viewer.setInput(rootLibrary.getResourceRoot());
+				restoreExpansionState();
+				// refreshAllViews();
+				refreshFields();
+			}
+	}
+
+	protected void refreshFields() {
+		if (!objectPropertyGroup.isDisposed()) {
+			objectPropertyGroup.redraw();
+			objectPropertyGroup.layout(true);
+			objectPropertyGroup.update();
+		}
+		if (!examplesGroup.isDisposed()) {
+			examplesGroup.layout(true);
+			examplesGroup.update();
+		}
+		if (!validationGroup.isDisposed()) {
+			validationGroup.layout(true);
+			validationGroup.update();
+		}
+		if (!compRight.isDisposed()) {
+			compRight.layout(true);
+			compRight.update();
+		}
 	}
 
 	@Override
@@ -346,7 +391,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 			viewer.refresh(true);
 			updateFields(getSelectedResourceNode());
 			// Inform decoration of change
-			if (getCurrentNode() != null)
+			if (getCurrentNode() != null && getCurrentNode().getOwningComponent() != null)
 				PlatformUI.getWorkbench().getDecoratorManager().update(getCurrentNode().getOwningComponent().getName());
 			// LabelProviderChangedEvent event = new LabelProviderChangedEvent(decorator, getCurrentNode());
 			// fireLabelEvent(event);
@@ -372,7 +417,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 
 	@Override
 	public void selectionChanged(final IWorkbenchPart part, final ISelection selection) {
-		LOGGER.debug("selection changed. \t" + selection.getClass());
+		// LOGGER.debug("selection changed: curNode = " + currentNode + ". \t" + selection.getClass());
 		final IStructuredSelection iss = (IStructuredSelection) selection;
 		// the data should be the first element selected and it should be a Node
 		final Object object = iss.getFirstElement();
@@ -385,14 +430,13 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				return; // no update needed
 
 		ignoreListener = true;
-		setCurrentNode((Node) object);
 		postResources();
 		ignoreListener = false;
 	}
 
 	@Override
 	public void selectionChanged(SelectionChangedEvent event) {
-		LOGGER.debug("selection changed. \t" + event.getClass());
+		// LOGGER.debug("selection changed. \t" + event.getClass());
 		final Object object = ((IStructuredSelection) viewer.getSelection()).getFirstElement();
 		if (!(object instanceof Node))
 			return;
@@ -424,7 +468,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 
 	@Override
 	public void setFocus() {
-		LOGGER.debug("setFocus.");
+		// LOGGER.debug("setFocus.");
 		refreshAllViews();
 	}
 
@@ -576,7 +620,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		for (ResourceMemberInterface node : expansionState)
 			viewer.expandToLevel(node, 1);
 		// viewer.expandAll();
-		LOGGER.debug("Restored expansion state.");
+		// LOGGER.debug("Restored expansion state.");
 	}
 
 	private void updateFields(ResourceMemberInterface node) {
@@ -694,19 +738,21 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				post(createField(field.getKey(), objectPropertyGroup, pf), field.getValue());
 				pf.text.setData(field);
 				pf.text.addModifyListener(new TextListener());
+				pf.text.addSelectionListener(new TextSelectionListener());
 				break;
 			}
 		}
 		viewer.refresh();
-		objectPropertyGroup.redraw();
-		objectPropertyGroup.layout(true);
-		objectPropertyGroup.update();
-		examplesGroup.layout(true);
-		examplesGroup.update();
-		validationGroup.layout(true);
-		validationGroup.update();
-		compRight.layout(true);
-		compRight.update();
+		refreshFields();
+		// objectPropertyGroup.redraw();
+		// objectPropertyGroup.layout(true);
+		// objectPropertyGroup.update();
+		// examplesGroup.layout(true);
+		// examplesGroup.update();
+		// validationGroup.layout(true);
+		// validationGroup.update();
+		// compRight.layout(true);
+		// compRight.update();
 	}
 
 	// /////////////////////////////////////////////////////////////////
@@ -755,6 +801,18 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 			Text text = (Text) e.getSource();
 			if (text.getData() instanceof ResourceMemberInterface && text.getText() != null)
 				((ResourceMemberInterface) text.getData()).setDescription(text.getText());
+		}
+	}
+
+	public class TextSelectionListener implements SelectionListener {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			refresh();
+		}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+			refresh();
 		}
 	}
 
@@ -807,7 +865,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				return;
 			ResourceField field = (ResourceField) button.getData();
 			String value = button.getText();
-			LOGGER.debug("Button  " + value + " selected? " + button.getSelection());
+			// LOGGER.debug("Button  " + value + " selected? " + button.getSelection());
 			if (field.getListener() != null)
 				field.getListener().set(value);
 			refresh();
@@ -830,7 +888,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 			if (!(button.getData() instanceof ResourceField))
 				return;
 			ResourceField field = (ResourceField) button.getData();
-			LOGGER.debug("Button selected? " + button.getSelection());
+			// LOGGER.debug("Button selected? " + button.getSelection());
 			if (field.getListener() != null)
 				field.getListener().set(Boolean.toString(button.getSelection()));
 			refresh();
@@ -840,12 +898,12 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 	class ComboListener implements SelectionListener {
 		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
-			LOGGER.debug("Event: " + e);
+			// LOGGER.debug("Event: " + e);
 		}
 
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			LOGGER.debug("Combo Listener - event: " + e);
+			// LOGGER.debug("Combo Listener - event: " + e);
 			if (!(e.getSource() instanceof Combo) || ignoreListener)
 				return;
 
@@ -868,7 +926,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 
 		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
-			LOGGER.debug("Event: " + e);
+			// LOGGER.debug("Event: " + e);
 		}
 
 		@Override

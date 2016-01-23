@@ -71,6 +71,7 @@ public class Images {
 	public static final String SaveAll = "SaveAll";
 	public static final String Lock = "Lock";
 	public static final String AddNode = "AddNode";
+	public static final String Delete = "delete";
 	public static final String AddComponent = "AddComponent";
 	public static final String Validate = "Validate";
 	public static final String Filter = "Filter";
@@ -146,7 +147,7 @@ public class Images {
 				"org.opentravel.schemas.stl2Developer", "icons/doc_open.gif"));
 		image_registry.put("context", AbstractUIPlugin.imageDescriptorFromPlugin(
 				"org.opentravel.schemas.stl2Developer", "icons/contexts.gif"));
-		image_registry.put("delete", AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/delete_edit.gif"));
+		image_registry.put(Delete, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/delete_edit.gif"));
 		image_registry.put("WhereUsed", AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/WhereUsed.png"));
 
 		image_registry.put("Project", AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/project.gif"));

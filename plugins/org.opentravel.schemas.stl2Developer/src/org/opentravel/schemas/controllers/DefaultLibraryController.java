@@ -56,9 +56,9 @@ import org.opentravel.schemas.views.ValidationResultsView;
 import org.opentravel.schemas.views.decoration.LibraryDecorator;
 import org.opentravel.schemas.wizards.GlobalLocalCancelDialog;
 import org.opentravel.schemas.wizards.GlobalLocalCancelDialog.GlobalDialogResult;
-import org.opentravel.schemas.wizards.validators.NewLibraryValidator;
 import org.opentravel.schemas.wizards.NewLibraryWizard;
 import org.opentravel.schemas.wizards.NewLibraryWizardPage;
+import org.opentravel.schemas.wizards.validators.NewLibraryValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -346,9 +346,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 				LOGGER.error("ILLEGAL State - library " + ln + " parent is null.");
 			} else {
 				projectsToSave.add(ln.getProject());
-				ln.close(); // Don't use delete because recurses and deletes children from the
-							// library.
-
+				ln.close(); // Don't use delete because recurses and deletes children from the library.
 			}
 		}
 		for (ProjectNode project : projectsToSave) {

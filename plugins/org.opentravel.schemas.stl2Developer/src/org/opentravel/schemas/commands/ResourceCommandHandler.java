@@ -22,6 +22,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Event;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
@@ -37,6 +38,8 @@ import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.views.OtmView;
 import org.opentravel.schemas.wizards.TypeSelectionWizard;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Command Handler for resource related commands.
@@ -45,7 +48,7 @@ import org.opentravel.schemas.wizards.TypeSelectionWizard;
  *
  */
 public class ResourceCommandHandler extends OtmAbstractHandler {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(AddNodeHandler2.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceCommandHandler.class);
 	public static String COMMAND_ID = "org.opentravel.schemas.commands.newResource";
 
 	// Enumeration of the types of command actions nodes can handle.
@@ -56,13 +59,21 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 	private Node selectedNode; // The user selected node.
 	private OtmView view;
 
-	// public void execute(Event event) {
-	// selectedNode = mc.getGloballySelectNode();
-	// if (!(selectedNode instanceof ResourceMemberInterface))
-	// return;
-	// // mc.postStatus("Resource Handler.");
-	// }
-	//
+	protected Node getSelectedNode(ExecutionEvent exEvent) {
+		return mc.getGloballySelectNode();
+	}
+
+	// Used by Actions
+	public void execute(Event event) {
+		if (event.data instanceof CommandType) {
+			getSelected();
+			runCommand((CommandType) event.data);
+		}
+		return;
+		// mc.postStatus("Resource Handler.");
+	}
+
+	// Used by buttons
 	// public void execute(SelectionEvent event) {
 	// view = OtmRegistry.getResourceView();
 	// selectedNode = (Node) view.getCurrentNode();
@@ -73,6 +84,9 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 	// Entry point from command execution
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
+		String filePathParam = exEvent.getParameter("org.opentravel.schemas.stl2Developer.newAction");
+		LOGGER.debug(filePathParam);
+
 		view = OtmRegistry.getResourceView();
 		if (!getSelected())
 			return null; // Nothing to act on
@@ -204,6 +218,13 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.AddNode);
+	}
+
+	public static ImageDescriptor getIcon(CommandType type) {
+		if (type.equals(CommandType.DELETE))
+			return Images.getImageRegistry().getDescriptor(Images.Delete);
+		else
+			return Images.getImageRegistry().getDescriptor(Images.AddNode);
 	}
 
 }

@@ -193,6 +193,7 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 	public void setPayload(String name) {
 		if (name.equals(ResourceField.NONE)) {
 			tlObj.setPayloadType(null);
+			tlObj.setMimeTypes(null); // validation warning when mime types are set.
 			LOGGER.debug("Set payload to null: " + tlObj.getPayloadTypeName());
 		} else
 			for (Node n : getPossiblePayloads())

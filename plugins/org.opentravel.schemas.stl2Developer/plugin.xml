@@ -376,6 +376,7 @@
 				</parameter>
 			</command>
 		</menuContribution>
+		
 		<menuContribution allPopups="false"
 			locationURI="popup:org.opentravel.schemas.stl2Developer.RepositoryView?after=additions">
 			<command commandId="org.opentravel.schemas.commands.repository.new"
@@ -391,6 +392,26 @@
 				label="New Project..." style="push">
 			</command>
 		</menuContribution>
+		
+		<!-- REST Resource View Menus -->
+		<menuContribution allPopups="false"
+			locationURI="popup:org.opentravel.schemas.stl2Developer.ResourceView">
+			<command commandId="org.opentravel.schemas.commands.newResource"
+        		 icon="icons/add_att.gif" label="New Resource" style="push"/>
+			<command commandId="org.opentravel.schemas.commands.newResource.ACTION"
+    	     	icon="icons/add_att.gif" label="New Action" style="push">
+			</command>
+			<command commandId="org.opentravel.schemas.commands.newResource.ACTIONFACET"
+        		 icon="icons/add_att.gif" label="New Action Facet" style="push">
+			</command>
+			<command commandId="org.opentravel.schemas.commands.newResource.PARAMGROUP"
+        		 icon="icons/add_att.gif" label="New Parameter Group" style="push"/>
+			<command commandId="org.opentravel.schemas.commands.newResource.PARENTREF"
+        		 icon="icons/add_att.gif" label="New Parent Reference" style="push"/>
+			<command commandId="org.opentravel.schemas.commands.newResource.DELETE"
+        		 icon="icons/delete_edit.gif" label="Delete" style="push"/>
+		</menuContribution>
+		
 		<menuContribution allPopups="false"
 			locationURI="menu:Edit?after=editStart">
 			<command commandId="org.opentravel.schemas.commands.Add"
@@ -534,40 +555,42 @@
 			defaultHandler="org.opentravel.schemas.commands.RefreshDocumentationViewHandler"
 			id="org.opentravel.schemas.commands.RefreshDocumentationView" name="Refresh Documentation View">
 		</command -->
+		
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			description="New resource" id="org.opentravel.schemas.commands.newResource"
 			name="New Resource">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-		    defaultHandler="org.opentravel.schemas.commands.ResourceCommandHandler"
-			description="New action" id="org.opentravel.schemas.commands.newResource.ACTION"
-			name="New Resource">
+			description="Create a new resource action." id="org.opentravel.schemas.commands.newResource.ACTION"
+			name="New Action">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			id="org.opentravel.schemas.commands.newResource.PARENTREF"
-		    defaultHandler="org.opentravel.schemas.commands.ResourceCommandHandler"
 			name="New Parent Reference">
 		</command>
-		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			id="org.opentravel.schemas.commands.newResource.DELETE"
-		    defaultHandler="org.opentravel.schemas.commands.ResourceCommandHandler"
-			name="New Resource">
+		<command
+        categoryId="org.opentravel.schemas.stl2Developer.command.category"
+        description="Delete Resource"
+        id="org.opentravel.schemas.commands.newResource.DELETE"
+        name="Delete Resource">
+		</command>
+		<command
+        categoryId="org.opentravel.schemas.stl2Developer.command.category"
+        description="Create new action response."
+        id="org.opentravel.schemas.commands.newResource.ACTIONRESPONSE"
+        name="New Response">
+		</command>
+		<command
+        categoryId="org.opentravel.schemas.stl2Developer.command.category"
+        description="Create a new action facet."
+        id="org.opentravel.schemas.commands.newResource.ACTIONFACET"
+        name="New Action Facet">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			id="org.opentravel.schemas.commands.newResource.ACTIONRESPONSE"
-		    defaultHandler="org.opentravel.schemas.commands.ResourceCommandHandler"
-			name="New Resource">
-		</command>
-		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			id="org.opentravel.schemas.commands.newResource.ACTIONFACET"
-		    defaultHandler="org.opentravel.schemas.commands.ResourceCommandHandler"
-			name="New Resource">
-		</command>
-		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			description="New resource" id="org.opentravel.schemas.commands.newResource.PARAMGROUP"
-		    defaultHandler="org.opentravel.schemas.commands.ResourceCommandHandler"
+			description="Create a new parameter group." id="org.opentravel.schemas.commands.newResource.PARAMGROUP"
 			name="New parameter group">
 		</command>
+		
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			description="New top level object in the library" id="org.opentravel.schemas.commands.newComponent"
 			name="New Object...">
@@ -923,27 +946,64 @@
 				</with>
 			</enabledWhen>
 		</handler>
+		<!-- Resource Commands -->
 		<handler class="org.opentravel.schemas.commands.ResourceCommandHandler"
 			commandId="org.opentravel.schemas.commands.newResource">
-			<activeWhen>
-				<with variable="activePartId">
-					<equals value="org.opentravel.schemas.stl2Developer.ResourceView">
-					</equals>
-				</with>
-			</activeWhen>
 			<enabledWhen>
-				<with variable="org.opentravel.schemas.selection.nodes">
-					<iterate ifEmpty="false" operator="and">
-						<and>
-							<test property="stl2Developer.node.isInTLLibrary">
-							</test>
-							<test property="stl2Developer.node.isOwnerLibraryEditable">
-							</test>
-						</and>
-					</iterate>
-				</with>
+			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
 			</enabledWhen>
 		</handler>
+		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
+			commandId="org.opentravel.schemas.commands.newResource">
+			<enabledWhen>
+			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
+			</enabledWhen>
+			<activeWhen>
+				<with variable="activeMenu">
+					<iterate ifEmpty="false" operator="or">
+						<equals value="org.opentravel.schemas.stl2Developer.ResourceView">
+						</equals>
+					</iterate>
+				</with>
+			</activeWhen>
+		</handler>
+		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
+			commandId="org.opentravel.schemas.commands.newResource.DELETE">
+			<enabledWhen>
+			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
+			</enabledWhen>
+		</handler>
+		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
+			commandId="org.opentravel.schemas.commands.newResource.ACTION">
+			<enabledWhen>
+			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
+			</enabledWhen>
+		</handler>
+		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
+			commandId="org.opentravel.schemas.commands.newResource.ACTIONFACET">
+			<enabledWhen>
+			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
+			</enabledWhen>
+		</handler>
+		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
+			commandId="org.opentravel.schemas.commands.newResource.ACTIONRESPONSE">
+			<enabledWhen>
+			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
+			</enabledWhen>
+		</handler>
+		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
+			commandId="org.opentravel.schemas.commands.newResource.PARAMGROUP">
+			<enabledWhen>
+			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
+			</enabledWhen>
+		</handler>
+		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
+			commandId="org.opentravel.schemas.commands.newResource.PARENTREF">
+			<enabledWhen>
+			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
+			</enabledWhen>
+		</handler>
+		
 		<handler class="org.opentravel.schemas.commands.CreateProjectFromRepo"
 			commandId="org.opentravel.schemas.commands.create.project">
 			<activeWhen>
@@ -993,6 +1053,28 @@
 		</handler>
 		
 	</extension>
+	   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition id="org.opentravel.schemas.definitions.libraryEditable">
+				<with variable="org.opentravel.schemas.selection.nodes">
+					<iterate ifEmpty="true" operator="and">
+						<!-- and -->
+							<!-- test property="stl2Developer.node.isInTLLibrary">
+							</test -->
+							<test property="stl2Developer.node.isOwnerLibraryEditable">
+							</test>
+						<!--/and -->
+					</iterate>
+				</with>
+            </definition>
+            <definition id="org.opentravel.schemas.definitions.view.resource">
+            	<with variable="activePartId">
+					<equals value="org.opentravel.schemas.stl2Developer.ResourceView">
+					</equals>
+				</with>
+            </definition>
+   </extension>
+ 
 	<extension point="org.eclipse.core.expressions.propertyTesters">
 		<propertyTester class="org.opentravel.schemas.testers.IsNavaigationEnabled"
 			id="stl2Developer.navigation.tester" namespace="stl2Developer.navigation.tester"

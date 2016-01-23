@@ -107,7 +107,7 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 
 		// Parameter Group
 		new ResourceField(fields, getParameterGroupName(), MSGKEY + ".parentParamGroup", ResourceFieldType.Enum,
-				new ParamGroupListener(), getParentResource().getParameterGroupNames());
+				new ParamGroupListener(), getParentResource().getParameterGroupNames(true));
 
 		// Path Template - simple String
 		new ResourceField(fields, tlObj.getPathTemplate(), MSGKEY + ".pathTemplate",
@@ -182,7 +182,7 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 
 	public boolean setParamGroup(String name) {
 		ParamGroup pg = null;
-		for (ParamGroup group : getParentResource().getParameterGroups())
+		for (ParamGroup group : getParentResource().getParameterGroups(true))
 			if (group.getName().equals(name))
 				pg = group;
 		// set the group and update the path template

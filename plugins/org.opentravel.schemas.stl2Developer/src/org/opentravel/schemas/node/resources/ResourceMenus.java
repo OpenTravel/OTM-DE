@@ -15,10 +15,6 @@
  */
 package org.opentravel.schemas.node.resources;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -37,17 +33,9 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PlatformUI;
-import org.opentravel.schemas.actions.AddToProjectAction;
 import org.opentravel.schemas.commands.ResourceCommandHandler;
-import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.properties.DefaultStringProperties;
-import org.opentravel.schemas.properties.Messages;
-import org.opentravel.schemas.properties.PropertyType;
-import org.opentravel.schemas.properties.StringProperties;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.trees.REST.RestTreeComparator;
 import org.opentravel.schemas.trees.REST.RestTreeContentProvider;
 import org.opentravel.schemas.trees.REST.RestTreeStyledLabelProvider;
@@ -65,13 +53,7 @@ public class ResourceMenus {
 	private MenuManager menuManager;
 	private TreeViewer viewer;
 
-	IContributionItem newAction;
-	private IContributionItem newActionNodeAction;
-	private IContributionItem newActionFacetAction;
-	private IContributionItem newParamGroupAction;
 	private IContributionItem newActionResponse;
-	private IContributionItem deleteAction;
-	private IContributionItem newParentRef;
 
 	class SupportTreeFilterProvider extends DecoratingStyledCellLabelProvider implements ILabelProvider {
 
@@ -87,76 +69,38 @@ public class ResourceMenus {
 
 	}
 
+	public ResourceMenus(Composite parent, IWorkbenchPartSite site) {
+		this(parent);
+		newActionResponse = RCPUtils.createCommandContributionItem(site, ResourceCommandHandler.COMMAND_ID + "."
+				+ ResourceCommandHandler.CommandType.ACTIONRESPONSE, "New Action Response", null,
+				ResourceCommandHandler.getIcon());
+		site.registerContextMenu(menuManager, viewer);
+	}
+
 	public ResourceMenus(final Composite parent) {
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		viewer.setContentProvider(new RestTreeContentProvider());
-		// viewer.setLabelProvider(new RestTreeLabelProvider());
 		viewer.setComparator(new RestTreeComparator());
 
 		IWorkbench workbench = PlatformUI.getWorkbench();
 
 		// decoration
-		//
 		DecoratingStyledCellLabelProvider decorator = new SupportTreeFilterProvider(new RestTreeStyledLabelProvider(),
 				workbench.getDecoratorManager(), null);
 		viewer.setLabelProvider(decorator);
 
 		menuManager = new MenuManager();
 		final Menu menu = menuManager.createContextMenu(viewer.getControl());
-		final MenuManager addToProjectMenu = new MenuManager("Add to Project", "Repository_AddToProject_Menu_ID");
 
 		menuManager.addMenuListener(new IMenuListener() {
-
 			@Override
 			public void menuAboutToShow(final IMenuManager manager) {
-
-				addToProjectMenu.removeAll();
-
-				manager.add(newParentRef);
-				manager.add(newAction);
-				manager.add(newActionNodeAction);
-				manager.add(newActionFacetAction);
-				manager.add(newParamGroupAction);
-				if (getSelectedNode() instanceof ActionNode) {
+				if (newActionResponse != null && getSelectedNode() instanceof ActionNode) {
+					manager.removeAll();
 					manager.add(new Separator());
 					manager.add(newActionResponse);
 				}
-
-				manager.add(new Separator());
-				manager.add(deleteAction);
-
-				//
-				// final Node node = (Node) selected;
-				//
-				// if (node instanceof RepositoryItemNode) {
-				// final List<Action> importActions = createAddActionsForItems(node);
-				// for (final Action libAction : importActions) {
-				// addToProjectMenu.add(libAction);
-				// }
-				// manager.add(addToProjectMenu);
-				// // Need to link repository items to project items before these will work
-				// // manager.add(new Separator());
-				// // manager.add(commitLibraryAction);
-				// // manager.add(lockLibraryAction);
-				// // manager.add(revertLibraryAction);
-				// // manager.add(unlockLibraryAction);
-				//
-				// }
 				manager.updateAll(true);
-				// }
-			}
-
-			private List<Action> createAddActionsForItems(final Node context) {
-				final List<Action> itemActions = new ArrayList<Action>();
-				ProjectController pc = OtmRegistry.getMainController().getProjectController();
-				for (ProjectNode pn : pc.getAll()) {
-					if (pn.isBuiltIn())
-						continue;
-					final StringProperties sp = new DefaultStringProperties();
-					sp.set(PropertyType.TEXT, pn.getName());
-					itemActions.add(new AddToProjectAction(sp, pn));
-				}
-				return itemActions;
 			}
 		});
 		menuManager.setRemoveAllWhenShown(true);
@@ -174,12 +118,6 @@ public class ResourceMenus {
 		return n;
 	}
 
-	public ResourceMenus(Composite parent, IWorkbenchPartSite site) {
-		this(parent);
-		InitActions(site);
-		site.registerContextMenu(menuManager, viewer);
-	}
-
 	public void selectNode(INode n) {
 		if (n == null) {
 			viewer.setSelection(null);
@@ -193,26 +131,4 @@ public class ResourceMenus {
 		return viewer;
 	}
 
-	public void InitActions(IWorkbenchPartSite site) {
-		// command id MUST be defined in plugin.xml
-		newParentRef = RCPUtils.createCommandContributionItem(site, ResourceCommandHandler.COMMAND_ID + "."
-				+ ResourceCommandHandler.CommandType.PARENTREF, Messages.getString("rest.action.newParentRef.text"),
-				null, ResourceCommandHandler.getIcon());
-		newAction = RCPUtils.createCommandContributionItem(site, ResourceCommandHandler.COMMAND_ID,
-				Messages.getString("rest.action.new.text"), null, ResourceCommandHandler.getIcon());
-		newActionNodeAction = RCPUtils.createCommandContributionItem(site, ResourceCommandHandler.COMMAND_ID + "."
-				+ ResourceCommandHandler.CommandType.ACTION, Messages.getString("rest.action.new.actionNode.text"),
-				null, ResourceCommandHandler.getIcon());
-		newActionFacetAction = RCPUtils.createCommandContributionItem(site, ResourceCommandHandler.COMMAND_ID + "."
-				+ ResourceCommandHandler.CommandType.ACTIONFACET,
-				Messages.getString("rest.action.new.actionFacet.text"), null, ResourceCommandHandler.getIcon());
-		newParamGroupAction = RCPUtils.createCommandContributionItem(site, ResourceCommandHandler.COMMAND_ID + "."
-				+ ResourceCommandHandler.CommandType.PARAMGROUP, Messages.getString("rest.action.new.paramGroup.text"),
-				null, ResourceCommandHandler.getIcon());
-		newActionResponse = RCPUtils.createCommandContributionItem(site, ResourceCommandHandler.COMMAND_ID + "."
-				+ ResourceCommandHandler.CommandType.ACTIONRESPONSE,
-				Messages.getString("rest.action.new.actionResponse.text"), null, ResourceCommandHandler.getIcon());
-		deleteAction = RCPUtils.createCommandContributionItem(site, ResourceCommandHandler.COMMAND_ID + "."
-				+ ResourceCommandHandler.CommandType.DELETE, Messages.getString("rest.action.delete.text"), null, null);
-	}
 }
