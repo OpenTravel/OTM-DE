@@ -51,8 +51,8 @@
 					<products>
 						<product>
 							<id>${product-id}</id>
-							<rootFolder>${product-id}-${project.version}</rootFolder>
-							<archiveFileName>${product-id}-${unqualifiedVersion}.${buildQualifier}</archiveFileName>
+							<rootFolder>${product-id}-${project.version}-${buildQualifier}</rootFolder>
+							<archiveFileName>${product-id}-${unqualifiedVersion}-${buildQualifier}</archiveFileName>
 						</product>
 					</products>
 				</configuration>
