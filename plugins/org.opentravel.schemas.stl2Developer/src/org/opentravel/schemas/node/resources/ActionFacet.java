@@ -20,10 +20,13 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLReferenceType;
+import org.opentravel.schemas.node.ChoiceObjectNode;
+import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
@@ -43,10 +46,18 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RestResourceView.class);
 	protected String MSGKEY = "rest.ActionFacet";
 
+	class BasePayloadListener implements ResourceFieldListener {
+		@Override
+		public boolean set(String name) {
+			setBasePayload(name);
+			return false;
+		}
+	}
+
 	class ReferenceNameListener implements ResourceFieldListener {
 		@Override
-		public boolean set(String value) {
-			setReferenceFacetName(value);
+		public boolean set(String name) {
+			setReferenceFacetName(name);
 			return false;
 		}
 	}
@@ -75,12 +86,14 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 		parent = this.getNode(((LibraryMember) tlObj.getOwningResource()).getListeners());
 		assert parent instanceof ResourceNode;
 		getParent().addChild(this);
+		this.setLibrary(parent.getLibrary());
 	}
 
 	public ActionFacet(ResourceNode parent) {
 		super(new TLActionFacet());
 		this.parent = parent;
 		parent.addChild(this);
+		this.setLibrary(parent.getLibrary());
 		getParent().getTLModelObject().addActionFacet(tlObj);
 	}
 
@@ -115,6 +128,32 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	public void addChildren() {
 	}
 
+	/**
+	 * @return a list of core and choice objects
+	 */
+	public List<Node> getBasePayloads() {
+		List<Node> candidates = new ArrayList<Node>();
+		for (Node n : getLibrary().getDescendants_NamedTypes())
+			if (n instanceof CoreObjectNode)
+				candidates.add(n);
+			else if (n instanceof ChoiceObjectNode)
+				candidates.add(n);
+		return candidates;
+	}
+
+	/**
+	 * @return a list of core and choice objects by name including "NONE"
+	 */
+	public String[] getBasePayloadCandidates() {
+		List<Node> candidates = getBasePayloads();
+		String[] names = new String[candidates.size() + 1];
+		int i = 0;
+		names[i++] = ResourceField.NONE;
+		for (Node n : candidates)
+			names[i++] = n.getName();
+		return names;
+	}
+
 	@Override
 	public String getComponentType() {
 		return "Action Facet";
@@ -128,16 +167,20 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	public List<ResourceField> getFields() {
 		List<ResourceField> fields = new ArrayList<ResourceField>();
 
+		// Base Payload
+		new ResourceField(fields, tlObj.getBasePayloadName(), MSGKEY + ".fields.basePayload", ResourceFieldType.Enum,
+				new BasePayloadListener(), getBasePayloadCandidates());
+
 		// Facet Reference = This can only be set to a facet in the resource subject business object
-		new ResourceField(fields, getReferenceFacetName(), "rest.ActionFacet.fields.referenceFacetName",
+		new ResourceField(fields, getReferenceFacetName(), MSGKEY + ".fields.referenceFacetName",
 				ResourceFieldType.Enum, new ReferenceNameListener(), getOwningComponent().getSubjectFacets(true));
 
 		// Repeat Count - an int
-		new ResourceField(fields, Integer.toString(tlObj.getReferenceRepeat()),
-				"rest.ActionFacet.fields.referenceRepeat", ResourceFieldType.Int, new ReferenceRepeatListener());
+		new ResourceField(fields, Integer.toString(tlObj.getReferenceRepeat()), MSGKEY + ".fields.referenceRepeat",
+				ResourceFieldType.Int, new ReferenceRepeatListener());
 
 		// Reference Type - enum list
-		new ResourceField(fields, getReferenceType(), "rest.ActionFacet.fields.referenceType",
+		new ResourceField(fields, getReferenceType(), MSGKEY + ".fields.referenceType",
 				ResourceField.ResourceFieldType.Enum, new ReferenceTypeListener(), getReferenceTypeStrings());
 
 		return fields;
@@ -200,4 +243,12 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 		LOGGER.debug("Set Reference Type to " + value + " : " + tlObj.getReferenceType());
 	}
 
+	public boolean setBasePayload(String actionObject) {
+		NamedEntity basePayload = null;
+		for (Node n : getBasePayloads())
+			if (n.getName().equals(actionObject) && n.getTLModelObject() instanceof NamedEntity)
+				basePayload = (NamedEntity) n.getTLModelObject();
+		tlObj.setBasePayload(basePayload);
+		return true;
+	}
 }
