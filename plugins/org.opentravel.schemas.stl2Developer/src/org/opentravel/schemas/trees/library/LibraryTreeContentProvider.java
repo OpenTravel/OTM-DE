@@ -32,6 +32,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.resources.ResourceNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +55,6 @@ public class LibraryTreeContentProvider implements ITreeContentProvider {
 	public Object[] getChildren(final Object element) {
 		if (element instanceof Node) {
 			Node node = (Node) element;
-
 			List<Node> navChildren = new ArrayList<Node>();
 			navChildren.addAll(node.getNavChildren());
 			if (node.isNamedType())
@@ -69,10 +69,11 @@ public class LibraryTreeContentProvider implements ITreeContentProvider {
 	public boolean hasChildren(final Object element) {
 		if (element instanceof Node) {
 			Node node = (Node) element;
-			boolean ret = false;
 			// Do not display under version nodes unless user selects the node or it has been
 			// extended. This allows focus refreshes to work correctly.
 			if ((Node) element instanceof VersionNode)
+				return false;
+			if ((Node) element instanceof ResourceNode)
 				return false;
 			return node.hasNavChildrenWithProperties() ? true : node.hasInheritedChildren();
 		}

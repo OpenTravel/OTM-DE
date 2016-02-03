@@ -32,6 +32,8 @@ import org.opentravel.schemas.node.resources.ResourceField;
  */
 public interface ResourceMemberInterface {
 
+	public void addChild(ResourceMemberInterface child);
+
 	/**
 	 * Delete this node and all of its underlying children. Does not delete nodes that are not delete-able. Removes from
 	 * their parent's child list. Removes all nodes from type and base-type user lists. Removes INodeListeners and TL
@@ -70,6 +72,8 @@ public interface ResourceMemberInterface {
 
 	public TLModelElement getTLModelObject();
 
+	public TLModelElement getTLOwner();
+
 	public String getTooltip();
 
 	public ValidationFindings getValidationFindings();
@@ -89,6 +93,14 @@ public interface ResourceMemberInterface {
 	 * @return true if there are no validation warnings on this item.
 	 */
 	public boolean isValid_NoWarnings();
+
+	/**
+	 * Remove/clear/set to null the property associated with the dependent.
+	 * 
+	 * @param dependent
+	 *            is which dependency to remove
+	 */
+	public void removeDependency(ResourceMemberInterface dependent);
 
 	public void setDescription(String description);
 

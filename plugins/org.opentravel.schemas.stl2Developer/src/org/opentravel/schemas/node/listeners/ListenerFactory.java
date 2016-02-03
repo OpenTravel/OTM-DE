@@ -21,6 +21,7 @@ import java.util.Collection;
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.SimpleFacetNode;
 import org.opentravel.schemas.node.SimpleTypeNode;
@@ -45,7 +46,7 @@ public class ListenerFactory {
 	 * @param node
 	 */
 	public static void setListner(Node node) {
-		clearListners(node);
+		// clearListners(node);
 		if (node.getTLModelObject() == null)
 			return;
 
@@ -64,7 +65,9 @@ public class ListenerFactory {
 		else if (node instanceof BusinessObjectNode)
 			node.getTLModelObject().addListener(new BusinessObjectNodeListener(node));
 		else if (node instanceof ActionRequest)
-			node.getTLModelObject().addListener(new ActionRequestListener(node));
+			node.getTLModelObject().addListener(new ResourceDependencyListener(node));
+		else if (node instanceof ModelNode)
+			((ModelNode) node).addListeners();
 		else
 			node.getTLModelObject().addListener(new NamedTypeListener(node));
 	}

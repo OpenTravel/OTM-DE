@@ -19,14 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLActionResponse;
-import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLMimeType;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
+import org.opentravel.schemas.node.listeners.ResourceDependencyListener;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
@@ -46,7 +45,7 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 	public class PayloadListener implements ResourceFieldListener {
 		@Override
 		public boolean set(String name) {
-			setPayload(name);
+			setPayloadType(name);
 			return false;
 		}
 	}
@@ -75,13 +74,16 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 		this.parent = parent;
 		((TLAction) parent.getTLModelObject()).addResponse(tlObj);
 		getParent().addChild(this);
+
+		if (tlObj.getPayloadType() != null)
+			tlObj.getPayloadType().addListener(new ResourceDependencyListener(this));
 	}
 
 	public ActionResponse(TLActionResponse tlActionResponse) {
 		super(tlActionResponse);
-		parent = this.getNode(((TLAction) tlObj.getOwner()).getListeners());
-		assert parent instanceof ActionNode;
-		((ActionNode) parent).addResponse(this);
+
+		if (tlObj.getPayloadType() != null)
+			tlObj.getPayloadType().addListener(new ResourceDependencyListener(this));
 	}
 
 	public void addChildren() {
@@ -92,9 +94,8 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 	 */
 	@Override
 	public void delete() {
-		clearListeners();
 		tlObj.getOwner().removeResponse(tlObj);
-		parent.getChildren().remove(this);
+		super.delete();
 	}
 
 	@Override
@@ -102,25 +103,19 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 		return "Action Response";
 	}
 
-	public String getFacetName() {
+	public String getPayloadName() {
+		if (tlObj.getPayloadType() == null)
+			tlObj.setPayloadTypeName(null); // tl model doesn't always do this
 		return tlObj.getPayloadType() != null ? tlObj.getPayloadType().getName() : "";
-		// String facetname = "";
-		// if (tlObj.getPayloadType() instanceof TLCoreObject)
-		// facetname = ((TLCoreObject) tlObj.getPayloadType()).getName();
-		// else
-		// if (tlObj.getPayloadType() instanceof TLActionFacet)
-		// facetname = ((TLActionFacet) tlObj.getPayloadType()).getName();
-		// return facetname;
 	}
 
 	@Override
 	public List<ResourceField> getFields() {
 		List<ResourceField> fields = new ArrayList<ResourceField>();
 
-		// Payload type = either an action facet or a core object
-		new ResourceField(fields, getFacetName(), "rest.ActionResponse.fields.payload", ResourceFieldType.Enum,
+		// Payload type = an action facet
+		new ResourceField(fields, getPayloadName(), "rest.ActionResponse.fields.payload", ResourceFieldType.Enum,
 				new PayloadListener(), getPossiblePayloadNames());
-		// Consider using a wizard instead of combo
 
 		// Mime Types = multi-select List of possible types
 		new ResourceField(fields, tlObj.getMimeTypes().toString(), "rest.ActionResponse.fields.mimeTypes",
@@ -142,7 +137,6 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 	@Override
 	public String getName() {
 		return !getStatusCodes().isEmpty() ? getStatusCodes() + " Response" : "MISSING Status Code";
-		// return tlObj.getLocalName() != null ? tlObj.getLocalName() : "";
 	}
 
 	public String getStatusCodes() {
@@ -158,21 +152,17 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 	}
 
 	public Node getPayload() {
-		Node payload = null;
-		// action facet or core object
-		NamedEntity pl = tlObj.getPayloadType();
-		if (pl instanceof TLActionFacet)
-			payload = this.getNode(((TLActionFacet) pl).getListeners());
-		else if (pl instanceof TLCoreObject)
-			payload = this.getNode(((TLCoreObject) pl).getListeners());
-		else if (pl != null)
-			throw new IllegalArgumentException("Invalid Response Payload type: " + pl.getClass().getSimpleName());
-		return payload;
+		return getNode(((TLActionFacet) tlObj.getPayloadType()).getListeners());
 	}
 
 	@Override
 	public TLActionResponse getTLModelObject() {
 		return tlObj;
+	}
+
+	@Override
+	public TLAction getTLOwner() {
+		return tlObj.getOwner();
 	}
 
 	@Override
@@ -186,21 +176,42 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 	}
 
 	@Override
+	public void removeDependency(ResourceMemberInterface dependent) {
+		if (dependent instanceof ActionFacet)
+			setPayload(null);
+	}
+
+	@Override
 	public void setName(final String name) {
 		// can't change name
 	}
 
-	public void setPayload(String name) {
-		if (name.equals(ResourceField.NONE)) {
+	/**
+	 * Set the payload to the named object. If "NONE", set to null. Ignore if it is already set to the named type.
+	 * 
+	 * @param payloadName
+	 * @return true if there was a change
+	 */
+	public boolean setPayloadType(String payloadName) {
+		if (tlObj.getPayloadTypeName() != null && tlObj.getPayloadTypeName().equals(payloadName)) {
+			LOGGER.debug("No change because names are the same. " + payloadName);
+			return false;
+		}
+		setPayload(getOwningComponent().getActionFacet(payloadName));
+		return true;
+	}
+
+	public void setPayload(ActionFacet af) {
+		if (af == null) {
 			tlObj.setPayloadType(null);
+			tlObj.setPayloadTypeName(null);
 			tlObj.setMimeTypes(null); // validation warning when mime types are set.
-			LOGGER.debug("Set payload to null: " + tlObj.getPayloadTypeName());
-		} else
-			for (Node n : getPossiblePayloads())
-				if (n.getName().equals(name)) {
-					tlObj.setPayloadType((TLActionFacet) n.getTLModelObject());
-					LOGGER.debug("Set payload to: " + tlObj.getPayloadTypeName());
-				}
+			LOGGER.debug("Reset payload.");
+		} else {
+			tlObj.setPayloadType(af.getTLModelObject());
+			af.tlObj.addListener(new ResourceDependencyListener(this));
+			LOGGER.debug("Set payload to " + af.getName() + " : " + tlObj.getPayloadTypeName());
+		}
 	}
 
 	/**
@@ -239,11 +250,7 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 	}
 
 	protected List<Node> getPossiblePayloads() {
-		// List<ActionFacet> afs = getOwningComponent().getActionFacets();
 		List<Node> nodes = new ArrayList<Node>();
-		// for (Node n : getOwningComponent().getLibrary().getDescendants_NamedTypes())
-		// if (n instanceof CoreObjectNode || n instanceof ChoiceObjectNode)
-		// nodes.add(n);
 		for (ActionFacet af : getOwningComponent().getActionFacets())
 			nodes.add(af);
 		return nodes;

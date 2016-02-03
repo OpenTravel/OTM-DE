@@ -45,15 +45,15 @@ public class BaseNodeListener implements INodeListener {
 
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
-		// Node newValue = getNewValue(event);
-		// Node oldValue = getOldValue(event);
+		Node newValue = getNewValue(event);
+		Node oldValue = getOldValue(event);
 		// LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode + ", old = " + oldValue
 		// + ", new = " + newValue);
 	}
 
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
-		// Node affectedNode = getAffectedNode(event);
+		Node affectedNode = getAffectedNode(event);
 		// LOGGER.debug("Ownership event: " + event.getType() + " this = " + thisNode + " affected = " + affectedNode);
 	}
 
@@ -97,4 +97,8 @@ public class BaseNodeListener implements INodeListener {
 		return affectedNode;
 	}
 
+	@Override
+	public String toString() {
+		return thisNode.getName() + " listener";
+	}
 }

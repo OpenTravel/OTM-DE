@@ -43,6 +43,8 @@ public class LibraryTreeLabelProvider extends LabelProvider implements IFontProv
 		if (element instanceof INode) {
 			final Node n = (Node) element;
 			label = n.getLabel();
+			if (n.isDeleted())
+				label += " (Deleted)"; // make debugging easier
 
 			// TODO - migrate this into node model.
 			if (n.isLocal())

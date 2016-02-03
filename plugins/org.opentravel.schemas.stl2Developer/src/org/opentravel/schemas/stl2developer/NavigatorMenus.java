@@ -69,6 +69,7 @@ import org.opentravel.schemas.commands.CompileHandler;
 import org.opentravel.schemas.commands.DeleteNodesHandler;
 import org.opentravel.schemas.commands.NewComponentHandler;
 import org.opentravel.schemas.commands.OpenProjectHandler;
+import org.opentravel.schemas.commands.ResourceCommandHandler;
 import org.opentravel.schemas.commands.SaveLibrariesHandler;
 import org.opentravel.schemas.commands.SaveLibraryHandler;
 import org.opentravel.schemas.commands.ValidateHandler;
@@ -202,8 +203,14 @@ public class NavigatorMenus extends TreeViewer {
 		final IContributionItem validateAction = RCPUtils.createCommandContributionItem(site,
 				ValidateHandler.COMMAND_ID, null, null, ValidateHandler.getIcon());
 
+		// Expose Business Object as Resource Service action
+		final IContributionItem newResourceAction = RCPUtils.createCommandContributionItem(site,
+				ResourceCommandHandler.COMMAND_ID, "New Resource", null, ResourceCommandHandler.getIcon());
+
 		final MenuManager versionMenu = new MenuManager("Version...", "VersionMenuID");
 
+		// Set up the content and lable providers
+		//
 		setContentProvider(new LibraryTreeContentProvider());
 		IWorkbench workbench = site.getWorkbenchWindow().getWorkbench();
 		DecoratingStyledCellLabelProvider decorator = new DecoratingStyledCellLabelProvider(
@@ -249,6 +256,7 @@ public class NavigatorMenus extends TreeViewer {
 
 				navigationMenu.removeAll();
 				navigationMenu.add(newComplexAction);
+				navigationMenu.add(newResourceAction);
 
 				componentMenu.removeAll();
 				componentMenu.add(addAliasAction);
@@ -270,6 +278,7 @@ public class NavigatorMenus extends TreeViewer {
 				componentMenu.add(validateAction);
 				componentMenu.add(new Separator());
 				componentMenu.add(newComplexAction);
+				componentMenu.add(newResourceAction);
 
 				facetMenu.removeAll();
 				facetMenu.add(addPropertiesAction);
@@ -280,7 +289,7 @@ public class NavigatorMenus extends TreeViewer {
 				facetMenu.add(deleteObjectAction);
 				facetMenu.add(addCustomFacetAction);
 				facetMenu.add(addQueryFacetAction);
-				componentMenu.add(addChoiceFacetAction);
+				facetMenu.add(addChoiceFacetAction);
 				facetMenu.add(new Separator());
 				facetMenu.add(newComplexAction);
 

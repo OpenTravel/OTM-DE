@@ -31,7 +31,7 @@ import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Messages;
-import org.opentravel.schemas.trees.type.BusinessObjectOnlyTypeSelectionFilter;
+import org.opentravel.schemas.trees.type.BusinessObjectOnlyTypeFilter;
 import org.opentravel.schemas.trees.type.TypeTreeExtensionSelectionFilter;
 import org.opentravel.schemas.trees.type.TypeTreeIdReferenceTypeOnlyFilter;
 import org.opentravel.schemas.trees.type.TypeTreeSimpleTypeOnlyFilter;
@@ -131,6 +131,11 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 			title = Messages.getString("wizard.typeSelection.title.service");
 			description = Messages.getString("wizard.typeSelection.description.service");
 		}
+		if (resource) {
+			pageName = Messages.getString("wizard.typeSelection.pageName.resource");
+			title = Messages.getString("wizard.typeSelection.title.resource");
+			description = Messages.getString("wizard.typeSelection.description.resource");
+		}
 		selectionPage = new TypeSelectionPage(pageName, title, description, null, setNodeList);
 
 		// Set the filters based on type of passed node.
@@ -144,7 +149,7 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 			selectionPage.setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(new BusinessObjMO(
 					new TLBusinessObject())));
 		else if (resource)
-			selectionPage.setTypeSelectionFilter(new BusinessObjectOnlyTypeSelectionFilter());
+			selectionPage.setTypeSelectionFilter(new BusinessObjectOnlyTypeFilter(curNodeList.get(0).getNamespace()));
 		else if (idReference)
 			selectionPage.setTypeSelectionFilter(new TypeTreeIdReferenceTypeOnlyFilter());
 

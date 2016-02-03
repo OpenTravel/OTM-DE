@@ -17,7 +17,7 @@ package org.opentravel.schemas.node.listeners;
 
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
-import org.opentravel.schemacompiler.model.TLParamGroup;
+import org.opentravel.schemacompiler.model.TLActionRequest;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.resources.ActionRequest;
 import org.slf4j.Logger;
@@ -30,25 +30,34 @@ import org.slf4j.LoggerFactory;
  * @author Dave
  *
  */
-public class ActionRequestListener extends BaseNodeListener implements INodeListener {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ActionRequestListener.class);
+public class ResourceDependencyListener extends BaseNodeListener implements INodeListener {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceDependencyListener.class);
 
-	public ActionRequestListener(Node node) {
+	public ResourceDependencyListener(Node node) {
 		super(node);
 	}
 
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
 		super.processOwnershipEvent(event);
-		LOGGER.debug("Ownership event: " + event);
+		// LOGGER.debug("Ownership event: " + event);
 	}
 
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
 		super.processValueChangeEvent(event);
-		LOGGER.debug("Value change event: " + event.getType());
-		if (event.getSource() instanceof TLParamGroup && thisNode instanceof ActionRequest) {
-			((ActionRequest) thisNode).createPathTemplate();
+		// LOGGER.debug("Value change event: " + event.getType());
+
+		if (event.getSource() instanceof TLActionRequest) {
+			switch (event.getType()) {
+			case PARAM_GROUP_ADDED:
+			case PARAM_GROUP_MODIFIED:
+			case PARAM_GROUP_REMOVED:
+			case PAYLOAD_TYPE_MODIFIED:
+				((ActionRequest) thisNode).createPathTemplate();
+				break;
+			default:
+			}
 		}
 	}
 }

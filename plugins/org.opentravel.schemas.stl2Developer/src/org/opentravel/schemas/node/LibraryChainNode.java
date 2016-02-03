@@ -29,6 +29,7 @@ import org.opentravel.schemas.node.AggregateNode.AggregateType;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
+import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 
@@ -47,7 +48,9 @@ public class LibraryChainNode extends Node {
 	protected AggregateNode complexRoot;
 	protected AggregateNode simpleRoot;
 	protected AggregateNode serviceRoot;
+	protected AggregateNode resourceRoot;
 	protected VersionAggregateNode versions;
+
 	protected RepositoryItem repoItem;
 	protected List<LibraryNode> chain;
 
@@ -110,6 +113,7 @@ public class LibraryChainNode extends Node {
 		complexRoot = new AggregateNode(AggregateType.ComplexTypes, this);
 		simpleRoot = new AggregateNode(AggregateType.SimpleTypes, this);
 		serviceRoot = new AggregateNode(AggregateType.Service, this);
+		resourceRoot = new AggregateNode(AggregateType.RESOURCES, this);
 	}
 
 	/**
@@ -208,11 +212,12 @@ public class LibraryChainNode extends Node {
 
 		// LOGGER.debug("Adding " + node + " to library chain.");
 
-		// For services, just add to the service root.
+		// For services and resource, just add to the appropriate root.
 		if (node instanceof ServiceNode)
 			serviceRoot.add(node);
-
-		// If not already wrapped in a version, add version wrapper
+		else if (node instanceof ResourceNode)
+			resourceRoot.add(node);
+		// Otherwise add version wrapper if not already wrapped
 		else if (!(node.getParent() instanceof VersionNode))
 			new VersionNode(node);
 
@@ -221,8 +226,6 @@ public class LibraryChainNode extends Node {
 			complexRoot.add(node);
 		else if (node instanceof SimpleComponentInterface)
 			simpleRoot.add(node);
-		// else if (node instanceof OperationNode)
-		// serviceRoot.add(node);
 		// else
 		// LOGGER.warn("add skipped: " + node);
 	}
@@ -235,14 +238,15 @@ public class LibraryChainNode extends Node {
 	 */
 	public void removeAggregate(ComponentNode node) {
 		// Remove this version.
-		if ((node instanceof ComplexComponentInterface))
+		if (node instanceof ComplexComponentInterface)
 			complexRoot.remove(node);
-		else if ((node instanceof SimpleComponentInterface))
+		else if (node instanceof SimpleComponentInterface)
 			simpleRoot.remove(node);
-		else if ((node instanceof ServiceNode || (node instanceof OperationNode)))
+		else if (node instanceof ResourceNode)
+			resourceRoot.remove(node);
+		else if (node instanceof ServiceNode || node instanceof OperationNode)
 			serviceRoot.remove(node);
 
-		// if (findPreviousVersion(node) != null)
 		// LOGGER.debug("Adding back the previous version of " + node);
 		add(findPreviousVersion(node));
 	}
@@ -260,12 +264,8 @@ public class LibraryChainNode extends Node {
 	 * @param node
 	 */
 	private ComponentNode findPreviousVersion(ComponentNode node) {
-		if (node.getVersionNode() != null) {
-			if (node.getVersionNode().isDeleted())
-				return null;
-			else
-				return node.getVersionNode().getPreviousVersion();
-		}
+		if (node.getVersionNode() != null && !node.getVersionNode().isDeleted())
+			return node.getVersionNode().getPreviousVersion();
 		return null;
 	}
 
@@ -460,6 +460,10 @@ public class LibraryChainNode extends Node {
 		return getHead().isMajorVersion();
 	}
 
+	public INode getResrouceAggregate() {
+		return resourceRoot;
+	}
+
 	public INode getServiceAggregate() {
 		return serviceRoot;
 	}
@@ -515,4 +519,7 @@ public class LibraryChainNode extends Node {
 		return !serviceRoot.getChildren().isEmpty();
 	}
 
+	public boolean hasResources() {
+		return !resourceRoot.getChildren().isEmpty();
+	}
 }

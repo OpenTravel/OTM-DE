@@ -30,14 +30,14 @@ public class ResourceField {
 	}
 
 	public static final String NONE = "NONE";
+	public static final String SUBGRP = "Substitution Group";;
+
 	String msgKey;
 	String value;
 	Object data;
 
 	ResourceFieldType type = ResourceFieldType.String; // default
-
 	ResourceFieldListener listener = null;
-	public static final String SUBGRP = "Substitution Group";;
 
 	public ResourceField() {
 	}

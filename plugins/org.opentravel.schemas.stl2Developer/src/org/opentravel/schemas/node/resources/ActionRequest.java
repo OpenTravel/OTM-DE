@@ -25,7 +25,7 @@ import org.opentravel.schemacompiler.model.TLHttpMethod;
 import org.opentravel.schemacompiler.model.TLMimeType;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
-import org.opentravel.schemas.node.listeners.ActionRequestListener;
+import org.opentravel.schemas.node.listeners.ResourceDependencyListener;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
@@ -86,12 +86,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	 */
 	public ActionRequest(TLActionRequest tlActionRequest) {
 		super(tlActionRequest);
-		parent = this.getNode(((TLAction) tlObj.getOwner()).getListeners());
-		getParent().addChild(this);
-
-		// set listeners onto Param Groups to change path template
-		if (tlObj.getParamGroup() != null)
-			tlObj.getParamGroup().addListener(new ActionRequestListener(null));
+		addListeners();
 	}
 
 	public ActionRequest(ActionNode parent) {
@@ -101,6 +96,20 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 		this.parent = parent;
 		((TLAction) parent.getTLModelObject()).setRequest(tlObj);
 		getParent().addChild(this);
+
+		this.setLibrary(parent.getLibrary());
+		assert getLibrary() != null;
+		addListeners();
+	}
+
+	private void addListeners() {
+		// set listeners onto Param Groups to change path template
+		if (tlObj.getParamGroup() != null) {
+			tlObj.getParamGroup().addListener(new ResourceDependencyListener(this));
+			((ParamGroup) getNode(tlObj.getParamGroup().getListeners())).addPathListeners(this);
+		}
+		if (tlObj.getPayloadType() != null)
+			tlObj.getPayloadType().addListener(new ResourceDependencyListener(this));
 	}
 
 	/**
@@ -109,24 +118,17 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	 * @param tlParamGroup
 	 */
 	public void createPathTemplate() {
-		String path = ""; // Start with slash
-		if (tlObj.getParamGroup() == null)
-			return;
-		ParamGroup pg = (ParamGroup) getNode(tlObj.getParamGroup().getListeners());
-		// if (pg != null)
-		// for (String pt : pg.getPathTemplates())
-		// path += "/" + pt;
-		// if (path.isEmpty())
-		// path = "/"; // must at least have a slash
-		setPathTemplate(pg.getPathTemplate());
+		String path = "";
+		if (tlObj.getParamGroup() != null)
+			path = ((ParamGroup) getNode(tlObj.getParamGroup().getListeners())).getPathTemplate();
+		setPathTemplate(path);
 		LOGGER.debug("Created and set path template: " + tlObj.getPathTemplate());
 	}
 
 	@Override
 	public void delete() {
-		clearListeners();
 		tlObj.getOwner().setRequest(null);
-		parent.getChildren().remove(this);
+		super.delete();
 	}
 
 	@Override
@@ -173,7 +175,6 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	@Override
 	public String getName() {
 		return getParent().getName() + "_Request";
-		// return tlObj.getLocalName() != null ? tlObj.getLocalName() : "";
 	}
 
 	public ParamGroup getParamGroup() {
@@ -190,6 +191,8 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	}
 
 	public String getPayloadName() {
+		if (tlObj.getPayloadType() == null)
+			tlObj.setPayloadTypeName(null); // tl model doesn't always do this
 		return tlObj.getPayloadType() != null ? tlObj.getPayloadType().getName() : "";
 	}
 
@@ -204,8 +207,23 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	}
 
 	@Override
+	public TLAction getTLOwner() {
+		return tlObj.getOwner();
+	}
+
+	@Override
 	public boolean isNameEditable() {
 		return false;
+	}
+
+	@Override
+	public void removeDependency(ResourceMemberInterface dependent) {
+		if (dependent instanceof ParamGroup)
+			setParameterGroup(null);
+		else if (dependent instanceof ActionFacet)
+			setPayload(null);
+		else if (dependent instanceof ResourceParameter)
+			createPathTemplate();
 	}
 
 	public void setHttpMethod(String method) {
@@ -241,15 +259,26 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 			// find the param group with this name then set it
 			for (ParamGroup node : getOwningComponent().getParameterGroups(false))
 				if (node.getName().equals(groupName))
-					tlObj.setParamGroup(node.tlObj);
-
-		createPathTemplate(); // update the template
-		getParent().updateExample();
+					setParameterGroup(node);
+		createPathTemplate();
 		LOGGER.debug("Set parameter group to " + groupName + " : " + tlObj.getParamGroupName());
 		return true;
 	}
 
+	protected boolean setParameterGroup(ParamGroup group) {
+		if (group != null) {
+			tlObj.setParamGroup(group.tlObj);
+			if (group.tlObj != null)
+				group.tlObj.addListener(new ResourceDependencyListener(this));
+		} else
+			tlObj.setParamGroup(null);
+		LOGGER.debug("Set param group to " + group);
+		return false;
+	}
+
 	public void setPathTemplate(String path) {
+		if (path == null || path.isEmpty())
+			path = "/";
 		tlObj.setPathTemplate(path);
 		LOGGER.debug("Set Path template to " + path + ": " + tlObj.getPathTemplate());
 	}
@@ -265,23 +294,21 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 			LOGGER.debug("No change because names are the same. " + payloadName);
 			return false;
 		}
+		setPayload(getOwningComponent().getActionFacet(payloadName));
+		return true;
+	}
 
-		if (payloadName.equals(ResourceField.NONE)) {
+	public void setPayload(ActionFacet af) {
+		if (af == null) {
 			tlObj.setPayloadType(null);
+			tlObj.setPayloadTypeName(null);
 			tlObj.setMimeTypes(null); // validation warning when mime types are set.
-			getParent().updateExample();
-			LOGGER.debug("Reset payload. " + payloadName);
-			return true;
+			LOGGER.debug("Reset payload.");
+		} else {
+			tlObj.setPayloadType(af.getTLModelObject());
+			af.tlObj.addListener(new ResourceDependencyListener(this));
+			LOGGER.debug("Set payload to " + af.getName() + " : " + tlObj.getPayloadTypeName());
 		}
-
-		for (ActionFacet f : getOwningComponent().getActionFacets())
-			if (f.getName().equals(payloadName)) {
-				tlObj.setPayloadType(f.getTLModelObject());
-				LOGGER.debug("Set payload to " + payloadName + " : " + tlObj.getPayloadTypeName());
-				return true;
-			}
-		LOGGER.debug("No Action - Set payload name not found. " + payloadName);
-		return false;
 	}
 
 }

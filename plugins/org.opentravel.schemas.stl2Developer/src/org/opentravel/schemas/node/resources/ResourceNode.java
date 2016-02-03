@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionFacet;
@@ -43,13 +44,13 @@ import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.FacetNode;
+import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
-import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
 import org.opentravel.schemas.properties.Images;
@@ -129,17 +130,26 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 		assert (getModelObject() != null);
 		tlObj = getTLModelObject();
-		assert tlObj != null;
+
+		addMOChildren(); // NOTE - this will fail because of no library
+
 		if (getSubject() == null)
-			// assert getType() == ModelNode.getUndefinedNode();
-			LOGGER.debug("No subject assigned: " + getType());
-		addMOChildren();
+			LOGGER.debug("No subject assigned: " + this);
+		LOGGER.debug("NOT IMPLEMENTED - resource node constructor.");
+		assert true;
 	}
 
-	@Override
-	public boolean setAssignedType(Node type) {
-		LOGGER.debug("Tried to set assigned type: " + getType());
-		return false;
+	public ResourceNode(TLResource mbr, LibraryNode lib) {
+		super(mbr);
+		ListenerFactory.setListner(this);
+
+		assert (getModelObject() != null);
+		tlObj = getTLModelObject();
+		lib.addMember(this);
+		addMOChildren();
+
+		if (getSubject() == null)
+			LOGGER.debug("No subject assigned: " + this);
 	}
 
 	/**
@@ -152,8 +162,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 			tlObj.setName("NewResource"); // must be named to add to library
 		else
 			tlObj.setName(libraryMember.getName() + "Resource");
-		if (libraryMember != null && libraryMember.getLibrary() != null)
-			libraryMember.getLibrary().addMember(this);
+
+		libraryMember.getLibrary().addMember(this);
 	}
 
 	/**
@@ -162,12 +172,27 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	public ResourceNode(BusinessObjectNode businessObject) {
 		super(new ResourceBuilder().buildTL(businessObject));
 		tlObj = getTLModelObject();
+
 		businessObject.getLibrary().addMember(this);
 	}
 
 	public void addChild(ResourceMemberInterface child) {
 		if (!getChildren().contains(child))
 			getChildren().add((Node) child);
+	}
+
+	/**
+	 * Do Nothing.
+	 */
+	@Override
+	public void removeDependency(ResourceMemberInterface dependent) {
+		LOGGER.debug("No dependency on " + dependent);
+	}
+
+	@Override
+	public boolean setAssignedType(Node type) {
+		LOGGER.debug("Tried to set assigned type: " + getType());
+		return false;
 	}
 
 	public String getMsgKey() {
@@ -181,7 +206,29 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	public ComponentNode createMinorVersionComponent() {
-		return super.createMinorVersionComponent(new ResourceNode(createMinorTLVersion(this)));
+		// return super.createMinorVersionComponent(new ResourceNode(createMinorTLVersion(this)));
+		LOGGER.debug("NOT IMPLEMENTED - createMinorVersionCompnoent for resource node.");
+		return null;
+	}
+
+	@Override
+	public void delete() {
+		LOGGER.debug("Deleting rest resource: " + this);
+		List<Node> kids = new ArrayList<Node>(getChildren());
+		for (Node kid : kids) {
+			kid.delete();
+		}
+		if (getParent().getChildren() != null)
+			getParent().getChildren().remove(this);
+
+		if (getChain() != null)
+			getChain().removeAggregate(this);
+		parent = null;
+		setLibrary(null);
+		deleted = true;
+		LOGGER.debug("Deleting rest resource: " + this);
+		tlObj.getOwningLibrary().removeNamedMember(tlObj);
+		LOGGER.debug("Deleted rest resource: " + this);
 	}
 
 	public List<ActionNode> getActions() {
@@ -198,6 +245,17 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 			if (child instanceof ActionFacet)
 				facets.add((ActionFacet) child);
 		return facets;
+	}
+
+	/**
+	 * @return the named action facet or null
+	 */
+	public ActionFacet getActionFacet(String name) {
+		if (!name.equals(ResourceField.NONE))
+			for (ActionFacet f : getActionFacets())
+				if (f.getName().equals(name))
+					return f;
+		return null;
 	}
 
 	/**
@@ -307,6 +365,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	@Override
+	public AbstractLibrary getTLOwner() {
+		return tlObj.getOwningLibrary();
+	}
+
+	@Override
 	public List<Node> getNavChildren() {
 		return Collections.emptyList();
 	}
@@ -351,12 +414,16 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	 * @return an array of other resources including NONE
 	 */
 	public String[] getPeerNames() {
-		String[] peers = new String[getParent().getChildren().size()];
+		int size = 1;
+		if (getParent() != null)
+			size = getParent().getChildren().size();
+		String[] peers = new String[size];
 		int i = 0;
 		peers[i++] = ResourceField.NONE;
-		for (Node n : getParent().getChildren())
-			if (n != this)
-				peers[i++] = n.getName();
+		if (getParent() != null)
+			for (Node n : getParent().getChildren())
+				if (n != this)
+					peers[i++] = n.getName();
 		return peers;
 	}
 
@@ -378,6 +445,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	 * @return a list of business objects by name including "NONE"
 	 */
 	public String[] getSubjectCandidates() {
+		if (getLibrary() == null)
+			return new String[0];
 		List<Node> subjects = new ArrayList<Node>();
 		for (Node n : getLibrary().getDescendants_NamedTypes())
 			if (n instanceof BusinessObjectNode)
@@ -434,6 +503,17 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return true;
 	}
 
+	/**
+	 * Resources are not versioned. Override default node behavior that manages versioning.
+	 */
+	// FIXME - edit-ability should be based on library state and business object
+	@Override
+	public boolean isDeleteable() {
+		if (getLibrary() == null || !getLibrary().isEditable() || parent == null || deleted)
+			return false;
+		return true;
+	}
+
 	@Override
 	public boolean isMergeSupported() {
 		return false;
@@ -468,11 +548,13 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	public void setName(String n, boolean doFamily) {
-		super.setName(n, doFamily);
-		for (Node user : getTypeUsers()) {
-			if (user instanceof PropertyNode)
-				user.setName(n);
-		}
+		// super.setName(n, doFamily);
+		tlObj.setName(n);
+		// There are no type users -- resources are not type assignable
+		// for (Node user : getTypeUsers()) {
+		// if (user instanceof PropertyNode)
+		// user.setName(n);
+		// }
 	}
 
 	public boolean setExtension(String name) {

@@ -28,6 +28,7 @@ import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.listeners.ResourceModelEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,6 +98,8 @@ public class ModelNode extends Node {
 		name = "Model_Root_" + counter.incrementAndGet();
 		root = this;
 		tlModel = model;
+
+		addListeners();
 
 		// // TODO - like ProjectNode - see if the MO adds value
 		// modelObject = ModelObjectFactory.newModelObject(tlModel, this);
@@ -173,6 +176,10 @@ public class ModelNode extends Node {
 
 	public TLModel getTLModel() {
 		return tlModel;
+	}
+
+	public void addListeners() {
+		tlModel.addListener(new ResourceModelEventListener());
 	}
 
 	/*

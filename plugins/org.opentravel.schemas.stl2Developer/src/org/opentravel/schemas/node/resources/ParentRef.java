@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemacompiler.model.TLResourceParentRef;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
@@ -68,17 +68,13 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 		super(new TLResourceParentRef());
 		this.parent = parent;
 		parent.addChild(this);
+		setLibrary(parent.getLibrary());
 		getParent().getTLModelObject().addParentRef(tlObj);
 		tlObj.setParentResource(getParent().getTLModelObject());
 	}
 
 	public ParentRef(TLResourceParentRef tlParentRef) {
 		super(tlParentRef);
-		parent = this.getNode(((LibraryMember) tlObj.getOwner()).getListeners());
-		assert parent instanceof ResourceNode;
-		getParent().addChild(this);
-		LOGGER.debug("Created Parent Ref: " + tlParentRef.getParentResourceName());
-		// addChildren();
 	}
 
 	@Override
@@ -87,9 +83,8 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 
 	@Override
 	public void delete() {
-		clearListeners();
 		tlObj.getOwner().removeParentRef(tlObj);
-		parent.getChildren().remove(this);
+		super.delete();
 	}
 
 	@Override
@@ -160,6 +155,16 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 
 	public String getParentResourceName() {
 		return getParentResource() != null ? getParentResource().getName() : "";
+	}
+
+	@Override
+	public TLResourceParentRef getTLModelObject() {
+		return tlObj;
+	}
+
+	@Override
+	public TLResource getTLOwner() {
+		return tlObj.getOwner();
 	}
 
 	@Override

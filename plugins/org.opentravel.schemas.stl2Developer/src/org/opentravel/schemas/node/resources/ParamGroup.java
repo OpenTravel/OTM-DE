@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.util.ResourceCodegenUtils;
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLExample;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLMemberField;
@@ -28,8 +27,10 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLParamGroup;
 import org.opentravel.schemacompiler.model.TLParamLocation;
 import org.opentravel.schemacompiler.model.TLParameter;
+import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.listeners.ResourceDependencyListener;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
 import org.opentravel.schemas.properties.Images;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ParamGroup extends ResourceBase<TLParamGroup> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ParamGroup.class);
+	private static final String DEFAULT_NAME = "NewParameterGroup";
 	private String MSGKEY = "rest.ParamGroup";
 
 	public class IdGroupListener implements ResourceFieldListener {
@@ -74,16 +76,15 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	 */
 	public ParamGroup(TLParamGroup tlParamgroup) {
 		super(tlParamgroup);
-		parent = this.getNode(((LibraryMember) tlObj.getOwner()).getListeners());
-		assert parent instanceof ResourceNode;
-		getParent().addChild(this);
-		// addChildren();
+		setName(null); // set to default if null or empty
+
+		// TODO - test dependency listener to Reference Facet
+		// tlObj.getFacetRef().addListener(new ResourceDependencyListener(this));
 	}
 
 	public ParamGroup(ResourceNode parent) {
-		super(new TLParamGroup());
-		this.parent = parent;
-		parent.addChild(this);
+		super(new TLParamGroup(), parent);
+		setName(null);
 		getParent().getTLModelObject().addParamGroup(tlObj);
 	}
 
@@ -92,6 +93,27 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		setName(fn.getLabel());
 		setIdGroup(idGroup);
 		setReferenceFacet(fn.getLabel());
+	}
+
+	/**
+	 * Add a dependency listener for all parameters that contribute to the path
+	 * 
+	 * @param pathUser
+	 */
+	public void addPathListeners(Node pathUser) {
+		for (Node param : getChildren())
+			if (((ResourceParameter) param).isPathParam())
+				((ResourceParameter) param).tlObj.addListener(new ResourceDependencyListener(pathUser));
+	}
+
+	@Override
+	public void delete() {
+		// super.delete();
+		ArrayList<Node> params = new ArrayList<>(getChildren());
+		for (Node param : params)
+			param.delete();
+		tlObj.getOwner().removeParamGroup(tlObj);
+		super.delete();
 	}
 
 	public void setIdGroup(boolean idGroup) {
@@ -110,6 +132,11 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	}
 
 	@Override
+	public TLResource getTLOwner() {
+		return tlObj.getOwner();
+	}
+
+	@Override
 	public String getTooltip() {
 		return Messages.getString(MSGKEY + ".tooltip");
 	}
@@ -117,7 +144,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	@Override
 	public void addChildren() {
 		for (TLParameter tlParam : tlObj.getParameters())
-			getChildren().add(new ResourceParameter(tlParam));
+			new ResourceParameter(tlParam);
 	}
 
 	@Override
@@ -166,10 +193,19 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 
 	/**
 	 * Set the name of this parameter group
+	 * 
+	 * @param name
+	 *            string of the name to be set or null to set to default value if empty
 	 */
 	@Override
 	public void setName(final String name) {
-		tlObj.setName(name);
+		if (name != null)
+			tlObj.setName(name);
+		else if (tlObj.getName() == null || tlObj.getName().isEmpty())
+			if (tlObj.getFacetRefName() == null || tlObj.getFacetRefName().isEmpty())
+				setName(DEFAULT_NAME);
+			else
+				setName(tlObj.getFacetRefName());
 	}
 
 	public List<Node> getPossibleFields() {
@@ -184,7 +220,6 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 				LOGGER.debug("Error: null node from field: " + field.getName());
 		}
 		return fields;
-		// return getFacetRef().getChildren_TypeUsers();
 	}
 
 	/**
@@ -194,7 +229,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		ArrayList<String> contributions = new ArrayList<String>();
 		boolean firstParam = true;
 		for (Node param : getChildren()) {
-			if (((ResourceParameter) param).getLocation().equals(TLParamLocation.PATH.toString()))
+			if (((ResourceParameter) param).isPathParam())
 				if (firstParam)
 					contributions.add("{" + param.getName() + "}");
 				else
@@ -287,6 +322,8 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 			if (n.getLabel().equals(name)) {
 				tlObj.setFacetRef((TLFacet) n.getTLModelObject());
 				upDateParameters();
+				if (tlObj.getName().isEmpty())
+					tlObj.setName(name);
 				LOGGER.debug("Set reference facet to: " + tlObj.getFacetRefName());
 				return true; // denote change
 			}

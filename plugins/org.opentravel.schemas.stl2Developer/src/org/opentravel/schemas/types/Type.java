@@ -99,7 +99,7 @@ public class Type {
 	}
 
 	/**
-	 * @return the typeTreeNode - used in views
+	 * @return the typeTreeNode - used in viewers to represent the where-used content
 	 */
 	public Node getTypeTreeNode() {
 		return treeNode;
@@ -814,7 +814,7 @@ public class Type {
 		// 6/25/2013 - dmh - have unassigned nodes useful for tracking dependencies
 		setTypeNode(null);
 		clearTypeUsers();
-		// LOGGER.debug("Cleared type class for owner: " + typeOwner);
+		LOGGER.debug("Cleared type class for owner: " + typeOwner);
 	}
 
 	/**
@@ -826,7 +826,7 @@ public class Type {
 			typeNode.typeUsers().remove(typeOwner);
 		setTypeNode(null);
 		deleteTypeUsers();
-		// LOGGER.debug("Cleared type class for owner: " + typeOwner);
+		LOGGER.debug("Cleared type class for owner: " + typeOwner);
 	}
 
 	/**

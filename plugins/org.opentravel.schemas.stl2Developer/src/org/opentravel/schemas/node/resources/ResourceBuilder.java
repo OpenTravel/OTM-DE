@@ -88,18 +88,17 @@ public class ResourceBuilder {
 
 		switch (method) {
 		case GET:
-			an.setRQRS("Get", af, null, mimeTypes, RestStatusCodes.OK, rq.getTLModelObject(), rs.getTLModelObject());
+			an.setRQRS("Get", af, null, mimeTypes, RestStatusCodes.OK, rq, rs);
 			break;
 		case POST:
-			an.setRQRS("Create", af, mimeTypes, mimeTypes, RestStatusCodes.CREATED, rq.getTLModelObject(),
-					rs.getTLModelObject());
-			an.getRequest().setPayloadType(af.getName());
+			an.setRQRS("Create", af, mimeTypes, mimeTypes, RestStatusCodes.CREATED, rq, rs);
+			an.getRequest().setPayload(af);
 			break;
 		case DELETE:
-			an.setRQRS("Delete", af, null, null, RestStatusCodes.OK, rq.getTLModelObject(), rs.getTLModelObject());
+			an.setRQRS("Delete", af, null, null, RestStatusCodes.OK, rq, rs);
 			break;
 		case PUT:
-			an.setRQRS("Update", af, null, mimeTypes, RestStatusCodes.OK, rq.getTLModelObject(), rs.getTLModelObject());
+			an.setRQRS("Update", af, null, mimeTypes, RestStatusCodes.OK, rq, rs);
 			break;
 		default:
 			break;

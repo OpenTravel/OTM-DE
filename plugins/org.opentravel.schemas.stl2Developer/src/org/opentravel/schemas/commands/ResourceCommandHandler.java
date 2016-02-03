@@ -132,11 +132,15 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 
 		switch (type) {
 		case DELETE:
-			Node parent = selectedNode.getOwningComponent();
+			Node owner = selectedNode.getOwningComponent();
 			for (Node n : view.getSelectedNodes())
 				if (n.isDeleteable())
 					n.delete();
-			view.refresh(parent);
+				else
+					postWarning(type, n);
+			view.refresh(owner);
+			if (owner instanceof ResourceNode)
+				OtmRegistry.getNavigatorView().refresh(); // refresh entire navigator view tree because content changed
 			break;
 		case RESOURCE:
 			if (selectedNode != null && selectedNode.getLibrary() != null) {
@@ -147,39 +151,40 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 				} else {
 					new ResourceBuilder().build(newR, bo);
 					view.refresh(newR);
+					mc.refresh(); // update the navigator view
 				}
 			} else
-				postWarning();
+				postWarning(type);
 			break;
 		case ACTION:
 			if (rn != null)
 				view.refresh(new ActionNode(rn));
 			else
-				postWarning();
+				postWarning(type);
 			break;
 		case ACTIONFACET:
 			if (rn != null)
 				view.refresh(new ActionFacet(rn));
 			else
-				postWarning();
+				postWarning(type);
 			break;
 		case PARAMGROUP:
 			if (rn != null)
 				view.refresh(new ParamGroup(rn));
 			else
-				postWarning();
+				postWarning(type);
 			break;
 		case ACTIONRESPONSE:
 			if (selectedNode instanceof ActionNode)
 				view.refresh(new ActionResponse((ActionNode) selectedNode));
 			else
-				postWarning();
+				postWarning(type);
 			break;
 		case PARENTREF:
 			if (selectedNode instanceof ResourceNode)
 				view.refresh(new ParentRef((ResourceNode) selectedNode));
 			else
-				postWarning();
+				postWarning(type);
 			break;
 		case NONE:
 		default:
@@ -187,8 +192,20 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 		}
 	}
 
-	private void postWarning() {
-		DialogUserNotifier.openWarning("Missing Subject", "Can not find the parent for the new item.");
+	private void postWarning(CommandType type, Node n) {
+		if (n.getLibrary() == null)
+			LOGGER.debug(n + " has no library.");
+		postWarning(type);
+	}
+
+	private void postWarning(CommandType type) {
+		switch (type) {
+		case DELETE:
+			DialogUserNotifier.openWarning("Can Not Delete", "The state of this library does not allow deletion.");
+			break;
+		default:
+			DialogUserNotifier.openWarning("Missing Subject", "Can not find the parent for the new item.");
+		}
 	}
 
 	/**

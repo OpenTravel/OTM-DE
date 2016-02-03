@@ -49,13 +49,6 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 		}
 	}
 
-	@Override
-	public void delete() {
-		clearListeners();
-		tlObj.getOwner().removeParameter(tlObj);
-		parent.getChildren().remove(this);
-	}
-
 	public class LocationListener implements ResourceFieldListener {
 		@Override
 		public boolean set(String name) {
@@ -71,8 +64,9 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 	 */
 	public ResourceParameter(ParamGroup parent, Node field) {
 		super(new TLParameter());
-		((TLParamGroup) parent.getTLModelObject()).addParameter(tlObj);
+		parent.getTLModelObject().addParameter(tlObj);
 		this.parent = parent;
+		setLibrary(parent.getLibrary());
 		if (field.getTLModelObject() instanceof TLMemberField<?>)
 			tlObj.setFieldRef((TLMemberField<?>) field.getTLModelObject());
 		guessLocation(parent.isIdGroup());
@@ -80,7 +74,13 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 
 	public ResourceParameter(TLParameter tlParameter) {
 		super(tlParameter);
-		parent = this.getNode(((TLParamGroup) tlObj.getOwner()).getListeners());
+	}
+
+	@Override
+	public void delete() {
+		parent.getChildren().remove(this); // must be done first to force the correct path template
+		tlObj.getOwner().removeParameter(tlObj);
+		super.delete();
 	}
 
 	@Override
@@ -112,6 +112,16 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 	}
 
 	@Override
+	public TLParameter getTLModelObject() {
+		return tlObj;
+	}
+
+	@Override
+	public TLParamGroup getTLOwner() {
+		return tlObj.getOwner();
+	}
+
+	@Override
 	public String getTooltip() {
 		return Messages.getString(MSGKEY + ".tooltip");
 	}
@@ -129,6 +139,10 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 				tlObj.setLocation(TLParamLocation.QUERY);
 		else
 			tlObj.setLocation(TLParamLocation.HEADER);
+	}
+
+	public boolean isPathParam() {
+		return getLocation().equals(TLParamLocation.PATH.toString());
 	}
 
 	@Override

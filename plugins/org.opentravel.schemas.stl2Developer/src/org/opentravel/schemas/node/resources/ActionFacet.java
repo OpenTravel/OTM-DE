@@ -87,13 +87,19 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 		assert parent instanceof ResourceNode;
 		getParent().addChild(this);
 		this.setLibrary(parent.getLibrary());
+
+		// TODO - add dependency to Business object facet
+		// if (tlObj.getBasePayload() instanceof TLModelElement)
+		// ((TLModelElement) tlObj.getBasePayload()).addListener(new ResourceDependencyListener(this));
+		if (tlObj.getReferenceType() != null) {
+			LOGGER.debug("TODO: add dependency to " + tlObj.getReferenceFacetName());
+		}
 	}
 
 	public ActionFacet(ResourceNode parent) {
-		super(new TLActionFacet());
-		this.parent = parent;
-		parent.addChild(this);
-		this.setLibrary(parent.getLibrary());
+		super(new TLActionFacet(), parent);
+		setName("NewActionFacet");
+		setReferenceFacetName(ResourceField.SUBGRP);
 		getParent().getTLModelObject().addActionFacet(tlObj);
 	}
 
@@ -118,6 +124,12 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 						setName(fn.getLabel());
 					}
 		setReferenceType(TLReferenceType.REQUIRED.toString());
+	}
+
+	@Override
+	public void delete() {
+		tlObj.getOwningResource().removeActionFacet(tlObj);
+		super.delete();
 	}
 
 	@Override
@@ -204,6 +216,11 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	@Override
 	public TLActionFacet getTLModelObject() {
 		return tlObj;
+	}
+
+	@Override
+	public LibraryMember getTLOwner() {
+		return tlObj.getOwningResource();
 	}
 
 	@Override

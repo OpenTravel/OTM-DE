@@ -24,7 +24,6 @@ import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionRequest;
 import org.opentravel.schemacompiler.model.TLActionResponse;
 import org.opentravel.schemacompiler.model.TLMimeType;
-import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
@@ -61,8 +60,9 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	 */
 	public ActionNode(ResourceNode parent) {
 		super(new TLAction()); // can't use "this()" because tlAction has no listener
-		((TLResource) parent.getTLModelObject()).addAction(tlObj);
+		parent.getTLModelObject().addAction(tlObj);
 		tlObj.setActionId(""); // prevent NPE in validation
+		setLibrary(parent.getLibrary());
 		this.parent = parent;
 		parent.addChild(this);
 
@@ -70,9 +70,6 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 		TLActionRequest tlr = new TLActionRequest();
 		tlObj.setRequest(tlr); // must have owner for parent to be set correctly
 		new ActionRequest(tlr);
-
-		// Register the examples to listen for changes to the resource path
-		tlObj.getOwner().addListener(getExample().new ActionExampleListener());
 	}
 
 	/**
@@ -81,25 +78,18 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	 */
 	public ActionNode(TLAction tlAction) {
 		super(tlAction);
-		parent = this.getNode(((LibraryMember) tlObj.getOwner()).getListeners());
-		assert parent instanceof ResourceNode;
-		((ResourceNode) parent).addChild(this);
-		// done in base - addChildren();
-
-		// Register the examples to listen for changes to the resource path
-		tlObj.getOwner().addListener(getExample().new ActionExampleListener());
 	}
 
 	public void setRQRS(String label, ActionFacet af, List<TLMimeType> rqMimeTypes, List<TLMimeType> rsMimeTypes,
-			RestStatusCodes code, TLActionRequest request, TLActionResponse response) {
+			RestStatusCodes code, ActionRequest request, ActionResponse response) {
 		List<Integer> statusCodes = new ArrayList<Integer>(); // http://www.restapitutorial.com/httpstatuscodes.html
 		statusCodes.add(code.value());
 		setName(label);
-		request.setMimeTypes(rqMimeTypes);
-		response.setMimeTypes(rsMimeTypes);
-		response.setStatusCodes(statusCodes);
+		request.tlObj.setMimeTypes(rqMimeTypes);
+		response.tlObj.setMimeTypes(rsMimeTypes);
+		response.tlObj.setStatusCodes(statusCodes);
 		if (af != null)
-			response.setPayloadType(af.getTLModelObject());
+			response.setPayload(af);
 	}
 
 	public void addChild(ResourceMemberInterface child) {
@@ -109,12 +99,8 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 
 	@Override
 	public void addChildren() {
-		if (tlObj.getRequest() != null) {
+		if (tlObj.getRequest() != null)
 			new ActionRequest(tlObj.getRequest());
-			// register example listener here since Action owns the example.
-			tlObj.getRequest().addListener(getExample().new ActionExampleListener());
-		}
-		tlObj.getOwner();
 		for (TLActionResponse res : tlObj.getResponses())
 			new ActionResponse(res);
 	}
@@ -126,12 +112,11 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 
 	@Override
 	public void delete() {
-		clearListeners();
 		List<Node> kids = new ArrayList<Node>(getChildren()); // avoid co-modification of list
 		for (Node child : kids)
 			child.delete();
 		tlObj.getOwner().removeAction(tlObj);
-		parent.getChildren().remove(this);
+		super.delete();
 	}
 
 	@Override
@@ -142,8 +127,6 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	public ActionExample getExample() {
 		if (example == null)
 			example = new ActionExample(this);
-		else
-			example.setValues();
 		return example;
 	}
 
@@ -179,6 +162,11 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	}
 
 	@Override
+	public LibraryMember getTLOwner() {
+		return tlObj.getOwner();
+	}
+
+	@Override
 	public String getTooltip() {
 		return Messages.getString(MSGKEY + ".tooltip");
 	}
@@ -196,10 +184,6 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	@Override
 	public void setName(final String name) {
 		tlObj.setActionId(name);
-	}
-
-	public void updateExample() {
-		getExample().setValues();
 	}
 
 	public String getQueryTemplate() {

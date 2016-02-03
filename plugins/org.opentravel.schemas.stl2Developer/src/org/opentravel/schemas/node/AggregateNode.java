@@ -24,6 +24,7 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
+import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.views.FacetView;
 import org.slf4j.Logger;
@@ -41,7 +42,8 @@ public class AggregateNode extends NavNode {
 	private AggregateType aggType;
 
 	public enum AggregateType {
-		SimpleTypes("Simple Objects"), ComplexTypes("Complex Objects"), Service("Service"), Versions("Versions");
+		RESOURCES("Resources"), SimpleTypes("Simple Objects"), ComplexTypes("Complex Objects"), Service("Service"), Versions(
+				"Versions");
 		private final String label;
 
 		private AggregateType(String label) {
@@ -73,6 +75,9 @@ public class AggregateNode extends NavNode {
 
 		// If this is a service then just add to the service root as services are not versioned objects
 		if (nodeToAdd instanceof ServiceNode) {
+			getChildren().add(nodeToAdd);
+			return;
+		} else if (nodeToAdd instanceof ResourceNode) {
 			getChildren().add(nodeToAdd);
 			return;
 		}
@@ -147,6 +152,10 @@ public class AggregateNode extends NavNode {
 		case Service:
 			if (!(nodeToAdd instanceof ServiceNode || (nodeToAdd instanceof OperationNode)))
 				throw new IllegalStateException("Can't add to service aggregate.");
+			break;
+		case RESOURCES:
+			if (!(nodeToAdd instanceof ResourceNode))
+				throw new IllegalStateException("Can't add to resource aggregate.");
 			break;
 		default:
 			throw new IllegalStateException("Unknown object type: " + nodeToAdd.getClass().getSimpleName());
@@ -247,7 +256,7 @@ public class AggregateNode extends NavNode {
 	 */
 	@Override
 	public LibraryNode getLibrary() {
-		return parent.getLibrary();
+		return parent != null ? parent.getLibrary() : null;
 	}
 
 	/*
@@ -302,7 +311,7 @@ public class AggregateNode extends NavNode {
 	 */
 	@Override
 	public boolean isInTLLibrary() {
-		return parent.isInTLLibrary();
+		return parent != null ? parent.isInTLLibrary() : false;
 	}
 
 	/*

@@ -25,6 +25,7 @@ import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.IndicatorElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
+import org.opentravel.schemas.node.resources.ResourceNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,9 +92,13 @@ public class NodeVisitors {
 		public void visit(INode n) {
 			// LOGGER.debug("DeleteVisitor: deleting " + n);
 			Node node = (Node) n;
-			String nodeName = n.getName();
+			// String nodeName = n.getName();
 
 			if ((node instanceof ServiceNode) && node.getLibrary().isInChain()) {
+				// this has a entry in the service aggregate but no version node!
+				// LOGGER.debug("Deleting Service aggregate node.");
+				node.getLibrary().getChain().removeAggregate((ComponentNode) node);
+			} else if ((node instanceof ResourceNode) && node.getLibrary().isInChain()) {
 				// this has a entry in the service aggregate but no version node!
 				// LOGGER.debug("Deleting Service aggregate node.");
 				node.getLibrary().getChain().removeAggregate((ComponentNode) node);
@@ -123,14 +128,10 @@ public class NodeVisitors {
 					node.getTypeClass().getTypeNode().getTypeUsers().remove(node);
 			}
 
-			// Use override behavior because Library nodes must clear out
-			// project and context.
+			// Use override behavior because Library nodes must clear out project and context.
 			if (n instanceof LibraryNode) {
 				((LibraryNode) n).delete(false); // just the library, not its members
 			}
-
-			if (node instanceof CoreObjectNode && node.getName().equals("PaymentCard"))
-				LOGGER.debug("Core: " + node);
 
 			// Unlink from tree
 			node.deleted = true;

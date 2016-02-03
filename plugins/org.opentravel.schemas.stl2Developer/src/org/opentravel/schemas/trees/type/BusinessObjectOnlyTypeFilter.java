@@ -17,6 +17,8 @@ package org.opentravel.schemas.trees.type;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.node.LibraryChainNode;
+import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 
 /**
@@ -25,7 +27,9 @@ import org.opentravel.schemas.node.Node;
  * @author Dave
  *
  */
-public class BusinessObjectOnlyTypeSelectionFilter extends TypeSelectionFilter {
+public class BusinessObjectOnlyTypeFilter extends TypeSelectionFilter {
+
+	private String targetNamespace = null;
 
 	@Override
 	public boolean isValidSelection(Node n) {
@@ -34,8 +38,12 @@ public class BusinessObjectOnlyTypeSelectionFilter extends TypeSelectionFilter {
 
 	/**
 	 * Filter to select only business object nodes.
+	 * 
+	 * @param namespace
+	 *            null for any namespace or string namespace that must be matched
 	 */
-	public BusinessObjectOnlyTypeSelectionFilter() {
+	public BusinessObjectOnlyTypeFilter(String namespace) {
+		targetNamespace = namespace;
 	}
 
 	@Override
@@ -44,6 +52,12 @@ public class BusinessObjectOnlyTypeSelectionFilter extends TypeSelectionFilter {
 			return false;
 
 		final Node n = (Node) element;
-		return (n.isNavigation()) ? true : n instanceof BusinessObjectNode;
+		if (n instanceof LibraryNode || n instanceof LibraryChainNode)
+			return targetNamespace == null || n.getNamespace().equals(targetNamespace);
+		if (n.isNavigation())
+			return true;
+		if (targetNamespace != null && !n.getNamespace().equals(targetNamespace))
+			return false;
+		return n instanceof BusinessObjectNode;
 	}
 }

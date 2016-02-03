@@ -36,7 +36,7 @@ public class RestTreeStyledLabelProvider extends LabelProvider implements IStyle
 		if (element instanceof ResourceMemberInterface) {
 			return ((ResourceMemberInterface) element).getName();
 		}
-		return "Unknown object type";
+		return "Unknown object type: " + element.getClass().getSimpleName();
 	}
 
 	@Override

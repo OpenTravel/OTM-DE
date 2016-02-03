@@ -34,6 +34,7 @@ import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
+import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemacompiler.model.TLService;
 import org.opentravel.schemacompiler.model.XSDComplexType;
 import org.opentravel.schemacompiler.model.XSDElement;
@@ -122,7 +123,7 @@ public class LibraryNode extends Node {
 	 * 
 	 * @param alib
 	 * @param parent
-	 *            - if null, library is <b>not</b> added to model
+	 *            - if null, library is added to default project
 	 */
 	public LibraryNode(final AbstractLibrary alib, final Node parent) {
 		super(alib.getName());
@@ -208,6 +209,11 @@ public class LibraryNode extends Node {
 		if (serviceNode != null) {
 			chain.add(serviceNode);
 		}
+		// Do NOT add resource here. It is done in addMember().
+		// TODO - fix service to match resource (or vice versa)
+		// for (ResourceNode r : getResources())
+		// chain.add(r);
+
 		projectItem = pi;
 
 		// Save edit state: may be different with Project Item.
@@ -235,7 +241,7 @@ public class LibraryNode extends Node {
 			} else if (!isInProjectNS())
 				this.editable = false;
 		}
-		getEditableState();
+		getEditableState(); // dead and duplicate code?
 	}
 
 	@Override
@@ -590,10 +596,10 @@ public class LibraryNode extends Node {
 			linkOK = complexRoot.linkChild(n);
 		else if (n instanceof SimpleComponentInterface)
 			linkOK = simpleRoot.linkChild(n);
-		else if (n instanceof ResourceNode)
-			// FIXME - where do resources go?
-			linkOK = resourceRoot.linkChild(n);
-		else if (n instanceof ServiceNode)
+		else if (n instanceof ResourceNode) {
+			linkOK = getResourceRoot().getChildren().add(n);
+			n.setParent(getResourceRoot());
+		} else if (n instanceof ServiceNode)
 			; // Nothing to do because services are already linked to library.
 		else if (n.isXsdElementAssignable())
 			// TODO - i don't think this is ever reached. ElementRoot is never accessed.
@@ -712,6 +718,8 @@ public class LibraryNode extends Node {
 		for (final LibraryMember mbr : tlLib.getNamedMembers()) {
 			if (mbr instanceof TLService)
 				new ServiceNode((TLService) mbr, this);
+			else if (mbr instanceof TLResource)
+				new ResourceNode((TLResource) mbr, this);
 			else {
 				ComponentNode n = NodeFactory.newComponent_UnTyped(mbr);
 				linkMember(n);
@@ -795,17 +803,16 @@ public class LibraryNode extends Node {
 		if (n.getLibrary() != null && n.getLibrary() != this)
 			n.removeFromLibrary();
 
-		// If it is not in a TLLibrary or in the wrong TLLibrary set the TLLibrary.
-		AbstractLibrary owningLib = null;
-		if (n.getTLModelObject() instanceof LibraryMember)
-			owningLib = ((LibraryMember) n.getTLModelObject()).getOwningLibrary();
-		if (owningLib == null)
-			getTLLibrary().addNamedMember((LibraryMember) n.getTLModelObject());
-		else if (owningLib != getTLLibrary()) {
-			owningLib.removeNamedMember((LibraryMember) n.getTLModelObject());
-			getTLLibrary().addNamedMember((LibraryMember) n.getTLModelObject());
+		// TL Library - Make sure the node's tl object is in the right tl library.
+		LibraryMember tln = (LibraryMember) n.getTLModelObject(); // cast checked above
+		if (tln.getOwningLibrary() == null)
+			getTLLibrary().addNamedMember(tln);
+		else if (tln.getOwningLibrary() != getTLLibrary()) {
+			tln.getOwningLibrary().removeNamedMember(tln);
+			getTLLibrary().addNamedMember(tln);
 		}
 
+		// Add to this library child array
 		if (linkMember(n)) {
 			// If this library is in a chain, add the member to the chain's aggregates.
 			if (isInChain())
@@ -1087,6 +1094,15 @@ public class LibraryNode extends Node {
 				return (ServiceNode) n;
 		}
 		return null;
+	}
+
+	private List<ResourceNode> getResources() {
+		List<ResourceNode> resources = new ArrayList<ResourceNode>();
+		for (Node n : getResourceRoot().getChildren()) {
+			if (n instanceof ResourceNode)
+				resources.add((ResourceNode) n);
+		}
+		return resources;
 	}
 
 	/*

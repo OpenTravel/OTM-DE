@@ -37,7 +37,7 @@ public class PropertyNodeListener extends BaseNodeListener implements INodeListe
 
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
-		// super.processValueChangeEvent(event); // logger.debug statements
+		super.processValueChangeEvent(event); // logger.debug statements
 
 		switch (event.getType()) {
 		case NAME_MODIFIED:

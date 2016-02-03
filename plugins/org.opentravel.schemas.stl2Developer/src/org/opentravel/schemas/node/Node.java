@@ -204,9 +204,6 @@ public abstract class Node implements INode {
 	public void delete() {
 		// If a version-ed library, then also remove from aggregate
 		// Library may be null! It is in some j-units.
-		if (this instanceof CoreObjectNode && getName().equals("PaymentCard"))
-			LOGGER.debug("Core: " + this);
-
 		if (isDeleteable()) {
 			NodeVisitor visitor = new NodeVisitors().new deleteVisitor();
 			// LOGGER.debug("Deleting " + this);
