@@ -69,24 +69,23 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 	/*********************************************************************
 	 * Create an TLActionResponse model object and add this to the parent
 	 */
-	public ActionResponse(ActionNode parent) {
-		super(new TLActionResponse()); // don't use this() - no owner yet
-		this.parent = parent;
-		((TLAction) parent.getTLModelObject()).addResponse(tlObj);
-		getParent().addChild(this);
-
-		if (tlObj.getPayloadType() != null)
-			tlObj.getPayloadType().addListener(new ResourceDependencyListener(this));
-	}
-
 	public ActionResponse(TLActionResponse tlActionResponse) {
 		super(tlActionResponse);
+	}
 
-		if (tlObj.getPayloadType() != null)
-			tlObj.getPayloadType().addListener(new ResourceDependencyListener(this));
+	public ActionResponse(ActionNode parent) {
+		super(new TLActionResponse(), parent);
+
+		((TLAction) parent.getTLModelObject()).addResponse(tlObj);
 	}
 
 	public void addChildren() {
+	}
+
+	@Override
+	public void addListeners() {
+		if (tlObj.getPayloadType() != null)
+			tlObj.getPayloadType().addListener(new ResourceDependencyListener(this));
 	}
 
 	/**
@@ -94,7 +93,8 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 	 */
 	@Override
 	public void delete() {
-		tlObj.getOwner().removeResponse(tlObj);
+		if (tlObj.getOwner() != null)
+			tlObj.getOwner().removeResponse(tlObj);
 		super.delete();
 	}
 

@@ -237,11 +237,13 @@ public class AggregateNode extends NavNode {
 			// if it was not found, it may be in a family node
 			ArrayList<Node> kids = new ArrayList<Node>(getChildren());
 			for (Node n : kids) {
-				if ((n instanceof AggregateFamilyNode) && (n.family.equals(node.family))) {
+				if (n instanceof AggregateFamilyNode)
 					((AggregateFamilyNode) n).remove(node);
-					if (n.getChildren().isEmpty())
-						getChildren().remove(n);
-				}
+				// if ((n instanceof AggregateFamilyNode) && (n.family.equals(node.family))) {
+				// ((AggregateFamilyNode) n).remove(node);
+				// if (n.getChildren().isEmpty())
+				// getChildren().remove(n);
+				// }
 			}
 		}
 	}

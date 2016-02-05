@@ -116,6 +116,10 @@ public class ServiceNode extends ComponentNode {
 		return false;
 	}
 
+	public boolean isEmpty() {
+		return getChildren() != null ? getChildren().isEmpty() : true;
+	}
+
 	@Override
 	public boolean isTypeProvider() {
 		return false;

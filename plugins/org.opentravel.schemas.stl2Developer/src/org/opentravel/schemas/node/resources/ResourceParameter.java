@@ -62,24 +62,31 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 	 * 
 	 * Create new resource parameter based on the field to be referenced
 	 */
+	public ResourceParameter(TLParameter tlParameter) {
+		super(tlParameter);
+	}
+
 	public ResourceParameter(ParamGroup parent, Node field) {
-		super(new TLParameter());
+		super(new TLParameter(), parent);
+
 		parent.getTLModelObject().addParameter(tlObj);
-		this.parent = parent;
-		setLibrary(parent.getLibrary());
+
 		if (field.getTLModelObject() instanceof TLMemberField<?>)
 			tlObj.setFieldRef((TLMemberField<?>) field.getTLModelObject());
+
 		guessLocation(parent.isIdGroup());
 	}
 
-	public ResourceParameter(TLParameter tlParameter) {
-		super(tlParameter);
+	@Override
+	public void addListeners() {
+		// TODO - set listener on parameter field
 	}
 
 	@Override
 	public void delete() {
 		parent.getChildren().remove(this); // must be done first to force the correct path template
-		tlObj.getOwner().removeParameter(tlObj);
+		if (tlObj.getOwner() != null)
+			tlObj.getOwner().removeParameter(tlObj);
 		super.delete();
 	}
 

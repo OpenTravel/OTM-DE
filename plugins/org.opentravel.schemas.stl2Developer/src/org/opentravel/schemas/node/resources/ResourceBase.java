@@ -46,6 +46,7 @@ import org.opentravel.schemas.node.listeners.ListenerFactory;
  */
 public abstract class ResourceBase<TL> extends Node implements ResourceMemberInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(ResourceBase.class);
+	protected TL tlObj;
 
 	public ResourceBase(TL obj) {
 		this.tlObj = obj;
@@ -64,6 +65,7 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 			setLibrary(parent.getLibrary());
 			((ResourceMemberInterface) getParent()).addChild(this);
 			addChildren(); // can't add children unless parent known.
+			addListeners();
 		}
 	}
 
@@ -81,12 +83,16 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 		setLibrary(((Node) parent).getLibrary());
 		parent.addChild(this);
 		addChildren();
+		addListeners();
 	}
 
 	@Override
 	public void addChild(ResourceMemberInterface child) {
 		if (!getChildren().contains(child))
 			getChildren().add((Node) child);
+	}
+
+	public void addListeners() {
 	}
 
 	/**
@@ -134,8 +140,6 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 			values[i++] = l.toString();
 		return values;
 	}
-
-	protected TL tlObj;
 
 	public void addChildren() {
 	}

@@ -72,7 +72,7 @@ public class ResourceObjectTests {
 	public void constructorTests() {
 		LibraryNode ln = mockLibrary.createNewLibrary("http://example.com/resource", "RT", pc.getDefaultProject());
 		TLResource resource = buildTLResource();
-		ResourceNode rn = new ResourceNode(resource);
+		ResourceNode rn = new ResourceNode(resource, ln);
 		ln.addMember(rn);
 		checkResource(rn);
 		checkResource(new ParamGroup(resource.getParamGroups().get(0)));

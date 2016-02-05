@@ -86,23 +86,18 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	 */
 	public ActionRequest(TLActionRequest tlActionRequest) {
 		super(tlActionRequest);
-		addListeners();
 	}
 
 	public ActionRequest(ActionNode parent) {
-		super(new TLActionRequest()); // don't use this() - no owner yet
+		super(new TLActionRequest(), parent);
+
 		if (parent.getRequest() != null)
 			parent.getRequest().delete();
-		this.parent = parent;
 		((TLAction) parent.getTLModelObject()).setRequest(tlObj);
-		getParent().addChild(this);
-
-		this.setLibrary(parent.getLibrary());
-		assert getLibrary() != null;
-		addListeners();
 	}
 
-	private void addListeners() {
+	@Override
+	public void addListeners() {
 		// set listeners onto Param Groups to change path template
 		if (tlObj.getParamGroup() != null) {
 			tlObj.getParamGroup().addListener(new ResourceDependencyListener(this));
@@ -127,7 +122,8 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 
 	@Override
 	public void delete() {
-		tlObj.getOwner().setRequest(null);
+		if (tlObj.getOwner() != null)
+			tlObj.getOwner().setRequest(null);
 		super.delete();
 	}
 

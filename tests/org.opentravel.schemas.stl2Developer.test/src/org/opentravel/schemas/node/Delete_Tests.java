@@ -19,6 +19,7 @@
 package org.opentravel.schemas.node;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -79,28 +80,23 @@ public class Delete_Tests {
 		namedTypeCnt = setUpCase(2);
 		ln.visitAllNodes(dv);
 		ln.visitAllNodes(pv);
-		Assert.assertEquals(2, ln.getDescendants().size());
+		assert ln.isEmpty();
 
 		LOGGER.debug("***Setting Up Test Case 3");
 		namedTypeCnt = setUpCase(3);
 		LibraryChainNode lcn = ln.getChain();
 		ln.visitAllNodes(dv);
 		ln.visitAllNodes(pv);
-		Assert.assertEquals(0, ln.getDescendants_NamedTypes().size());
-		Assert.assertEquals(2, ln.getDescendants().size());
-		Assert.assertEquals(0, lcn.getDescendants_NamedTypes().size());
-		Assert.assertEquals(4, lcn.getDescendants().size());
+		assert ln.isEmpty();
+		assert lcn.isEmpty();
 
 		LOGGER.debug("***Setting Up Test Case 4");
 		namedTypeCnt = setUpCase(4);
 		lcn = ln.getChain();
 		ln.visitAllNodes(dv);
 		ln.visitAllNodes(pv);
-		Assert.assertEquals(0, ln.getDescendants_NamedTypes().size());
-		Assert.assertEquals(2, ln.getDescendants().size());
-		Assert.assertEquals(0, lcn.getDescendants_NamedTypes().size());
-		Assert.assertEquals(4, lcn.getDescendants().size());
-
+		assert ln.isEmpty();
+		assert lcn.isEmpty();
 	}
 
 	// TODO - create test that assures naming errors are caught
@@ -181,6 +177,85 @@ public class Delete_Tests {
 		return count;
 	}
 
+	@Test
+	public void deleteResource() throws Exception {
+		// FIXME
+	}
+
+	@Test
+	public void deleteFamily() throws Exception {
+		// TODO - if in chain, make sure both library and aggregate family is done
+		ln = getEmptyLibrary(false);
+
+		// Create a family
+		Node n1 = ml.addBusinessObjectToLibrary(ln, "AAA_BO");
+		assert ln.getComplexRoot().getChildren().contains(n1);
+		Node n2 = ml.addCoreObjectToLibrary(ln, "AAA_Core");
+		assert !ln.getComplexRoot().getChildren().contains(n1);
+		Node n3 = ml.addVWA_ToLibrary(ln, "AAA_VWA");
+		FamilyNode family = null;
+		for (Node n : ln.getComplexRoot().getChildren())
+			if (n instanceof FamilyNode)
+				family = (FamilyNode) n;
+		assert family != null;
+		assert family.getChildren().size() == 3;
+		// delete them and make sure family deleted when only one left
+		n3.delete();
+		assert family.getChildren().size() == 2;
+		n2.delete();
+		assert family.isDeleted();
+		assert ln.getComplexRoot().getChildren().contains(n1);
+		n1.delete();
+		assert ln.isEmpty();
+		ln.delete();
+
+		//
+		// Now repeat in managed library
+		//
+		ln = getEmptyLibrary(true);
+		// Create a family. because they are managed, the components will be wrapped in version nodes
+		Node nc1 = ml.addBusinessObjectToLibrary(ln, "AAA_BO");
+		assert ln.getComplexRoot().getChildren().contains(nc1.getParent());
+		assert ln.getChain().getComplexAggregate().getChildren().contains(nc1); // nc1 version node
+		Node nc2 = ml.addCoreObjectToLibrary(ln, "AAA_Core");
+		assert !ln.getComplexRoot().getChildren().contains(nc1.getParent());
+		Node nc3 = ml.addVWA_ToLibrary(ln, "AAA_VWA");
+		FamilyNode family2 = null;
+		for (Node n : ln.getComplexRoot().getChildren())
+			if (n instanceof FamilyNode)
+				family2 = (FamilyNode) n;
+		assert family2 != null;
+		assert family2.getChildren().size() == 3;
+		AggregateFamilyNode afn = null;
+		for (Node n : ln.getChain().getComplexAggregate().getChildren())
+			if (n instanceof AggregateFamilyNode)
+				afn = (AggregateFamilyNode) n;
+		assert afn != null;
+		// delete them and make sure family deleted when only one left
+		nc3.delete();
+		assert afn.getChildren().size() == 2;
+		nc2.delete();
+		assert family.isDeleted();
+		assert afn.isDeleted();
+		assert ln.getComplexRoot().getChildren().contains(nc1.getVersionNode());// nc1 version node
+		assert ln.getChain().getComplexAggregate().getChildren().contains(nc1);
+		nc1.delete();
+		assert ln.isEmpty();
+		assert ln.getChain().isEmpty();
+	}
+
+	private LibraryNode getEmptyLibrary(boolean managed) {
+		LibraryNode ln = ml.createNewLibrary("http://test.com/ns/df1", "testCase-deleteFamily", defaultProject);
+		if (managed)
+			new LibraryChainNode(ln);
+		ln.setEditable(true); // must be done after LCN created
+		List<Node> list = new ArrayList<Node>(ln.getDescendants_NamedTypes());
+		for (Node n : list)
+			n.delete();
+		assert ln.isEmpty();
+		return ln;
+	}
+
 	/**
 	 * Run the tests against test library files.
 	 * 
@@ -206,7 +281,8 @@ public class Delete_Tests {
 	private void deleteEachMember(LibraryNode ln) {
 		for (Node n : ln.getDescendants()) {
 			if (n instanceof CoreObjectNode)
-				LOGGER.debug("Core: " + n);
+				if (n.getName().startsWith("PaymentC"))
+					LOGGER.debug("Core: " + n);
 
 			if (!n.isNavigation()) {
 				if (n.isDeleted())
@@ -226,8 +302,8 @@ public class Delete_Tests {
 		ln.visitAllNodes(tv);
 		MockLibrary.printDescendants(ln);
 		MockLibrary.printDescendants(ln.getChain());
-		Assert.assertEquals(7, ln.getChain().getDescendants().size());
-		Assert.assertEquals(2, ln.getDescendants().size());
+		assert ln.isEmpty();
+		assert ln.getChain().isEmpty();
 	}
 
 	private void deleteNodeListTest(LibraryNode ln) {
@@ -235,7 +311,7 @@ public class Delete_Tests {
 		ln.visitAllNodes(tv);
 		Node.deleteNodeList(members);
 		ln.visitAllNodes(tv);
-		Assert.assertEquals(2, ln.getDescendants().size());
+		assert ln.isEmpty();
 	}
 
 }

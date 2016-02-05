@@ -156,4 +156,10 @@ public class NavNode extends Node {
 		return deleted;
 	}
 
+	/**
+	 * @return true if children array is null or empty
+	 */
+	public boolean isEmpty() {
+		return getChildren() != null ? getChildren().isEmpty() : true;
+	}
 }

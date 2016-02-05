@@ -98,30 +98,28 @@ public class NodeVisitors {
 				// this has a entry in the service aggregate but no version node!
 				// LOGGER.debug("Deleting Service aggregate node.");
 				node.getLibrary().getChain().removeAggregate((ComponentNode) node);
-			} else if ((node instanceof ResourceNode) && node.getLibrary().isInChain()) {
-				// this has a entry in the service aggregate but no version node!
-				// LOGGER.debug("Deleting Service aggregate node.");
-				node.getLibrary().getChain().removeAggregate((ComponentNode) node);
+			} else if (node instanceof ResourceNode) {
+				node.delete(); // resource will do children, type users and chain
+				return;
 			}
-
 			// NOTE - libraries are ALWAYS delete-able even when not edit-able
 			if (!node.isDeleteable()) {
 				// LOGGER.debug("DeleteVisitor: not delete-able " + n);
 				return;
 			}
-			// if (!(this instanceof VersionNode) && (!(this instanceof FacetNode))
-			// && !(this instanceof SimpleAttributeNode))
-			// LOGGER.warn(this + " is not deleteable: " + isDeleteable());
-			// version nodes can not be deleted. SimpleAttrs ??? why ???.
 
+			// DEAD-CODE???
 			if (!n.isEditable() && (n instanceof LibraryNode || n instanceof LibraryChainNode))
 				// LOGGER.debug("Deleting a non-editable library. " + n);
 				// TODO - does this clean up properly?
 				// Type class - delete the where used and assignments to this type
-				if (n.isTypeProvider())
-					node.getTypeClass().delete();
+				if (n.isTypeProvider()) {
+					node.getTypeClass().delete(); // FIXME - unreachable, libraries are not type providers
+					assert true; // added 2/5/16 to verify unreachable
+				}
 
 			// Remove from where used list
+			// 2/5/16 - FIXME - should rely on listener, if not logic should be delegated to type class
 			if (node.isTypeUser()) {
 				if (node.getTypeClass() != null && node.getTypeClass().getTypeNode() != null
 						&& node.getTypeClass().getTypeNode().getTypeUsers() != null)
@@ -135,27 +133,10 @@ public class NodeVisitors {
 
 			// Unlink from tree
 			node.deleted = true;
-			if (n.getParent() != null && n.getParent().getChildren() != null) {
-				node.getParent().removeChild(node);
-				// node.getParent().getChildren().remove(node);
-				if (node.getParent().isFamily())
-					node.getParent().updateFamily();
-				else if (node.getParent() instanceof VersionNode && node.getParent().getParent() instanceof FamilyNode)
-					node.getParent().getParent().updateFamily();
-			}
-
-			// If this is in a chain, remove it from the chain's aggregate lists and remove its associated version node.
-			if (node.getVersionNode() != null) {
-				assert (n.getLibrary().getChain() != null);
-				// delete copy in the version aggregate
-				n.getLibrary().getChain().removeAggregate((ComponentNode) node);
-				node.getVersionNode().deleted = true;
-				node.getVersionNode().head = null;
-				if (node.getVersionNode().getParent() != null)
-					node.getVersionNode().getParent().getChildren().remove(node.getVersionNode());
-
-				// 1/20/15 should be fixed - FIXME - deleting a node in a chain and in a family
-			}
+			if (node.getParent() != null)
+				node.getParent().remove(node);
+			else
+				LOGGER.warn("Tried to delete " + node + " with no parent.");
 
 			node.setParent(null);
 			node.setLibrary(null);

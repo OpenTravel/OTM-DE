@@ -226,8 +226,13 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		parent = null;
 		setLibrary(null);
 		deleted = true;
+
+		// FIXME - TEST - handle type node
+		getTypeClass().clearWhereUsed();
+
 		LOGGER.debug("Deleting rest resource: " + this);
-		tlObj.getOwningLibrary().removeNamedMember(tlObj);
+		if (tlObj.getOwningLibrary() != null)
+			tlObj.getOwningLibrary().removeNamedMember(tlObj);
 		LOGGER.debug("Deleted rest resource: " + this);
 	}
 

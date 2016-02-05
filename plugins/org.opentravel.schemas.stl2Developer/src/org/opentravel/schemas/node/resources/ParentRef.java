@@ -64,17 +64,15 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 	/********************************************************************************
 	 * 
 	 */
-	public ParentRef(ResourceNode parent) {
-		super(new TLResourceParentRef());
-		this.parent = parent;
-		parent.addChild(this);
-		setLibrary(parent.getLibrary());
-		getParent().getTLModelObject().addParentRef(tlObj);
-		tlObj.setParentResource(getParent().getTLModelObject());
-	}
-
 	public ParentRef(TLResourceParentRef tlParentRef) {
 		super(tlParentRef);
+	}
+
+	public ParentRef(ResourceNode parent) {
+		super(new TLResourceParentRef(), parent);
+
+		getParent().getTLModelObject().addParentRef(tlObj);
+		tlObj.setParentResource(getParent().getTLModelObject());
 	}
 
 	@Override
@@ -83,7 +81,8 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 
 	@Override
 	public void delete() {
-		tlObj.getOwner().removeParentRef(tlObj);
+		if (tlObj.getOwner() != null)
+			tlObj.getOwner().removeParentRef(tlObj);
 		super.delete();
 	}
 

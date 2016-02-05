@@ -47,7 +47,7 @@ public class FamilyNode extends NavNode {
 		// done in super() - setLibrary(n.getLibrary());
 
 		// link n and peer to this family node.
-		// If managed library, move thier version nodes instead.
+		// If managed library, move their version nodes instead.
 		Node move1 = n;
 		Node move2 = peer;
 		if (n.getVersionNode() != null)
@@ -59,19 +59,8 @@ public class FamilyNode extends NavNode {
 		move2.setParent(this);
 		getChildren().add(move1);
 		getChildren().add(move2);
-		getParent().removeChild(move1);
-		getParent().removeChild(move2);
-
-		// n.setParent(this);
-		// peer.setParent(this);
-		//
-		// final Node parent = getParent();
-		// // FIXME - if n.getVersion != null move version node
-		// getChildren().add(n);
-		// parent.removeChild(n);
-		//
-		// getChildren().add(peer);
-		// parent.removeChild(peer);
+		getParent().remove(move1);
+		getParent().remove(move2);
 
 		// LOGGER.debug("Family "+getName()+" created for "+n.getName());
 	}
@@ -94,8 +83,6 @@ public class FamilyNode extends NavNode {
 
 	@Override
 	public List<Node> getNavChildren() {
-		// 3/11/2015
-		// return getChildren();
 		ArrayList<Node> kids = new ArrayList<Node>();
 		for (Node child : getChildren()) {
 			if (child instanceof VersionNode)
@@ -192,4 +179,37 @@ public class FamilyNode extends NavNode {
 		this.setParent(null);
 	}
 
+	/**
+	 * Remove passed child from this family node. If the family is left with one member, then that member is moved to
+	 * the parent and this family is deleted.
+	 */
+	@Override
+	protected void remove(final Node n) {
+		if (getChildren().contains(n)) {
+			getChildren().remove(n);
+			if (getChildren().size() == 1) {
+				// No longer a family. Link last child the delete this
+				final Node lastChild = getChildren().get(0);
+				parent.getChildren().add(lastChild);
+				lastChild.setParent(parent);
+				delete();
+			}
+		} else
+			LOGGER.warn(n + " can not be removed because it is not a child of " + this);
+	}
+
+	/**
+	 * Delete this family node. Remove all children if any and remove this family from parent.
+	 */
+	public void delete() {
+		if (!getChildren().isEmpty())
+			getChildren().clear();
+		if (parent != null)
+			if (parent.getChildren() != null)
+				if (parent.getChildren().contains(this))
+					parent.getChildren().remove(this);
+		parent = null;
+		deleted = true;
+		setLibrary(null);
+	}
 }

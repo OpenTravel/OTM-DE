@@ -68,9 +68,15 @@ public class AggregateFamilyNode extends FamilyNode {
 		getChildren().add(n);
 	}
 
+	/**
+	 * Attempt to remove passed node from this family. If successful, update the family and delete it if there is only
+	 * one member.
+	 * 
+	 * @param node
+	 */
 	protected void remove(Node node) {
-		getChildren().remove(node);
-		updateFamily();
+		if (getChildren().remove(node))
+			updateFamily();
 	}
 
 	@Override
@@ -82,6 +88,9 @@ public class AggregateFamilyNode extends FamilyNode {
 			parent.getChildren().add(child);
 			if (!parent.getChildren().remove(this))
 				LOGGER.info("Error removing " + this.getName() + " from " + parent.getName());
+			deleted = true;
+			getChildren().clear();
 		}
+
 	}
 }

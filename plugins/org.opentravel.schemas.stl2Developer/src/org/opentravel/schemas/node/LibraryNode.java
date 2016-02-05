@@ -285,6 +285,15 @@ public class LibraryNode extends Node {
 		return getNamespace().contains(getParent().getNamespace());
 	}
 
+	public boolean isEmpty() {
+		if (complexRoot.isEmpty())
+			if (simpleRoot.isEmpty())
+				if (resourceRoot.isEmpty())
+					if (serviceRoot == null || serviceRoot.isEmpty())
+						return true;
+		return false;
+	}
+
 	/**
 	 * Import a list of nodes to this library. Imports nodes then replaces type assignments.
 	 * 

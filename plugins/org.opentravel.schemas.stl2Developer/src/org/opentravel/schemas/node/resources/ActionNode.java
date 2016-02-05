@@ -54,30 +54,27 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	}
 
 	/******************************************************************
-	 * Create Action node including TL object and the request. Designed for resource command actions.
-	 * 
-	 * @param parent
-	 */
-	public ActionNode(ResourceNode parent) {
-		super(new TLAction()); // can't use "this()" because tlAction has no listener
-		parent.getTLModelObject().addAction(tlObj);
-		tlObj.setActionId(""); // prevent NPE in validation
-		setLibrary(parent.getLibrary());
-		this.parent = parent;
-		parent.addChild(this);
-
-		// Create a request resource
-		TLActionRequest tlr = new TLActionRequest();
-		tlObj.setRequest(tlr); // must have owner for parent to be set correctly
-		new ActionRequest(tlr);
-	}
-
-	/**
 	 * 
 	 * Set object, children, parent, add to parent's child list, listener(s)
 	 */
 	public ActionNode(TLAction tlAction) {
 		super(tlAction);
+	}
+
+	/**
+	 * Create Action node including TL object and the request. Designed for resource command actions.
+	 * 
+	 * @param parent
+	 */
+	public ActionNode(ResourceNode parent) {
+		super(new TLAction(), parent);
+		tlObj.setActionId(""); // prevent NPE in validation
+		parent.getTLModelObject().addAction(tlObj);
+
+		// Create a request resource
+		TLActionRequest tlr = new TLActionRequest();
+		tlObj.setRequest(tlr); // must have owner for parent to be set correctly
+		new ActionRequest(tlr);
 	}
 
 	public void setRQRS(String label, ActionFacet af, List<TLMimeType> rqMimeTypes, List<TLMimeType> rsMimeTypes,
@@ -115,7 +112,8 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 		List<Node> kids = new ArrayList<Node>(getChildren()); // avoid co-modification of list
 		for (Node child : kids)
 			child.delete();
-		tlObj.getOwner().removeAction(tlObj);
+		if (tlObj.getOwner() != null)
+			tlObj.getOwner().removeAction(tlObj);
 		super.delete();
 	}
 

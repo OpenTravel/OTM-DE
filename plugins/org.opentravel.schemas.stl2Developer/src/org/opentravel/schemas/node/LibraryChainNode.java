@@ -288,6 +288,15 @@ public class LibraryChainNode extends Node {
 		return false;
 	}
 
+	public boolean isEmpty() {
+		if (complexRoot.isEmpty())
+			if (simpleRoot.isEmpty())
+				if (serviceRoot.isEmpty())
+					if (resourceRoot.isEmpty())
+						return true;
+		return false;
+	}
+
 	@Override
 	public void close() {
 		ProjectNode project = (ProjectNode) getParent();

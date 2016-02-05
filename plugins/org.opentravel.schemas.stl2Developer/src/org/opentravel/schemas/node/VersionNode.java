@@ -162,4 +162,29 @@ public class VersionNode extends ComponentNode {
 	public void setPreviousVersion(ComponentNode previous) {
 		this.prevVersion = previous;
 	}
+
+	/**
+	 * Remove passed child from this family node. If the family is left with one member, then that member is moved to
+	 * the parent and this family is deleted.
+	 */
+	@Override
+	protected void remove(final Node node) {
+		assert node != null;
+		assert getChildren() != null;
+		assert getChain() != null;
+		assert (node.getLibrary().getChain() == getChain());
+
+		// Remove from this version node
+		if (getChildren().contains(node))
+			getChildren().remove(node);
+		head = getPreviousVersion(); // will be null if there is no previous version
+
+		// Remove from the library
+		if (head == null)
+			if (getParent() != null)
+				getParent().remove(this);
+
+		// delete copy in the version aggregate
+		getChain().removeAggregate((ComponentNode) node);
+	}
 }

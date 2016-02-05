@@ -78,8 +78,6 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		super(tlParamgroup);
 		setName(null); // set to default if null or empty
 
-		// TODO - test dependency listener to Reference Facet
-		// tlObj.getFacetRef().addListener(new ResourceDependencyListener(this));
 	}
 
 	public ParamGroup(ResourceNode parent) {
@@ -93,6 +91,12 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		setName(fn.getLabel());
 		setIdGroup(idGroup);
 		setReferenceFacet(fn.getLabel());
+	}
+
+	@Override
+	public void addListeners() {
+		// TODO - test dependency listener to Reference Facet
+		// tlObj.getFacetRef().addListener(new ResourceDependencyListener(this));
 	}
 
 	/**
@@ -112,7 +116,8 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		ArrayList<Node> params = new ArrayList<>(getChildren());
 		for (Node param : params)
 			param.delete();
-		tlObj.getOwner().removeParamGroup(tlObj);
+		if (tlObj.getOwner() != null)
+			tlObj.getOwner().removeParamGroup(tlObj);
 		super.delete();
 	}
 
@@ -293,16 +298,19 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	}
 
 	public void clearParameters() {
-		List<TLParameter> parameters = new ArrayList<TLParameter>(tlObj.getParameters());
-		for (TLParameter p : parameters)
-			tlObj.removeParameter(p);
-		getChildren().clear();
+		List<Node> params = new ArrayList<Node>(getChildren());
+		for (Node p : params)
+			p.delete();
+		// List<TLParameter> parameters = new ArrayList<TLParameter>(tlObj.getParameters());
+		// for (TLParameter p : parameters)
+		// tlObj.removeParameter(p);
+		// getChildren().clear();
 	}
 
 	public void upDateParameters() {
 		clearParameters();
 		for (Node n : getPossibleFields()) {
-			getChildren().add(new ResourceParameter(this, n));
+			new ResourceParameter(this, n);
 			LOGGER.debug("Added parameter for " + n.getName());
 		}
 	}

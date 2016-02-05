@@ -226,21 +226,18 @@ public abstract class Node implements INode {
 	 * 
 	 * @param n
 	 */
-	protected void removeChild(final Node n) {
-		if (n == null) {
+	// Note - used in model creation to unlink nodes to add them to a family nav node.
+	protected void remove(final Node n) {
+		if (n == null)
 			return;
-		}
-		// Note - used in model creation to unlink nodes to add them to a family nav node.
-		// LOGGER.debug("Removing child " + n + " from parent child list " + this);
-		if (!getChildren().contains(n)) {
-			// Warn in the family delete cycle is wrong -- tries to delete family node after it is deleted.
-			LOGGER.warn("Attempting to delete a child " + n.getName() + " that is not in children list of parent "
-					+ this.getName());
+
+		if (getChildren().contains(n))
+			children.remove(n);
+		else {
+			LOGGER.warn("Attempting to delete a child " + n + " that is not in children list of parent " + this);
 			LOGGER.error("THIS IS BECAUSE IT is in a Family node under this node!");
 			// FIXME - will cause family nodes to not be deleted. See this in LibraryTests.moveMemberTests
-			return;
 		}
-		children.remove(n);
 	}
 
 	@Override
@@ -1793,7 +1790,7 @@ public abstract class Node implements INode {
 		assert (peer.getParent() != null) : "Null peer parent.";
 
 		if (peer instanceof FamilyNode) {
-			parent.removeChild(this); // take the child out of the parentNode's list.
+			parent.remove(this); // take the child out of the parentNode's list.
 			peer.getChildren().add(this); // add it to the family node
 			parent = peer;
 		} else {
