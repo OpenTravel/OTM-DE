@@ -16,6 +16,7 @@
 package org.opentravel.schemas.node.properties;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.node.BusinessObjectNode;
@@ -139,8 +140,15 @@ public class ElementReferenceNode extends PropertyNode implements TypeUser {
 	public void setName(String name) {
 		if (getType() == null || (getType() instanceof ImpliedNode))
 			modelObject.setName(NodeNameUtils.fixElementRefName(name));
-		else
-			modelObject.setName(NodeNameUtils.fixElementRefName(getType().getName()));
+		else {
+			String ln = PropertyCodegenUtils.getDefaultSchemaElementName(getTLTypeObject(), true).getLocalPart();
+			modelObject.setName(ln);
+		}
+		// 2/8/2016 - dmh - use codegen utils to get the facet names correct.
+		// if (getType() == null || (getType() instanceof ImpliedNode))
+		// modelObject.setName(NodeNameUtils.fixElementRefName(name));
+		// else
+		// modelObject.setName(NodeNameUtils.fixElementRefName(getType().getName()));
 	}
 
 }

@@ -544,7 +544,8 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * @return a new list containing all children and their descendants. Includes aggregate, version and navNodes.
+	 * @return a new list containing all children nodes and their descendants. No filtering; includes aggregate, version
+	 *         and navNodes.
 	 */
 	public List<Node> getDescendants() {
 		final ArrayList<Node> ret = new ArrayList<Node>();

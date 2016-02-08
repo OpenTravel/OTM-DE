@@ -184,7 +184,9 @@ public class NodeVisitors {
 			else if (n instanceof IndicatorElementNode)
 				n.setName(NodeNameUtils.fixIndicatorElementName(n.getName()));
 			else if (n instanceof ElementReferenceNode) {
-				n.setName(NodeNameUtils.fixIdReferenceName(n));
+				// 2/8/2016 - dmh - let setName() correct the name
+				n.setName(n.getName());
+				// n.setName(NodeNameUtils.fixIdReferenceName(n));
 			}
 		}
 	}

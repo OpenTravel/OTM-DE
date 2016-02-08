@@ -16,13 +16,19 @@
 package org.opentravel.schemas.node;
 
 import static org.junit.Assert.assertEquals;
+
+import javax.xml.namespace.QName;
+
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
+import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 import org.opentravel.schemacompiler.codegen.util.XsdCodegenUtils;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -64,6 +70,26 @@ public class NodeNameUtilsTest {
 		String actual = NodeNameUtils.fixElementName(pn);
 		String expected = "LowerCase";
 		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void elementRef() {
+		// Create a BO to reference
+		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
+		bo.setName("BO");
+		bo.getIDFacet().addProperty(PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).build());
+
+		// Make sure the assigned name uses the full name used by the compiler.
+		PropertyNode pn = PropertyNodeBuilder.create(PropertyNodeType.ID_REFERENCE).build();
+		pn.setAssignedType(bo);
+		QName name = PropertyCodegenUtils.getDefaultSchemaElementName((NamedEntity) bo.getTLModelObject(), true);
+		assert name.getLocalPart().equals(pn.getName());
+
+		// Facets get named by the compiler to use their long name. Make sure GUI matches.
+		pn.setAssignedType((Node) bo.getIDFacet());
+		name = PropertyCodegenUtils.getDefaultSchemaElementName(
+				(NamedEntity) ((Node) bo.getIDFacet()).getTLModelObject(), true);
+		assert name.getLocalPart().equals(pn.getName());
 	}
 
 	@Test
@@ -255,9 +281,10 @@ public class NodeNameUtilsTest {
 	 */
 	@Test
 	public void enumerationShouldStartWithPrefix() {
-		String actual = "LowerCase";
-		String expected = NodeNameUtils.ENUM_PREFIX + actual;
-		assertEquals(expected, NodeNameUtils.fixEnumerationName(actual));
+		// changed behavior 12/2015
+		// String actual = "LowerCase";
+		// String expected = NodeNameUtils.ENUM_PREFIX + actual;
+		// assertEquals(expected, NodeNameUtils.fixEnumerationName(actual));
 	}
 
 	/**

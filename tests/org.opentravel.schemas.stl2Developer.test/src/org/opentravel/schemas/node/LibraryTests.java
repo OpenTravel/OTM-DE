@@ -68,6 +68,8 @@ public class LibraryTests {
 		defaultProject = pc.getDefaultProject();
 	}
 
+	// TODO - verify isEmpty() behavior
+
 	@Test
 	public void checkBuiltIns() {
 		for (INode n : Node.getAllLibraries()) {

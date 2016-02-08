@@ -417,10 +417,10 @@ public class Type {
 		return ret;
 	}
 
-	public boolean isValidAssignment(Node target) {
-		return isValidAssignment(typeOwner.getTLModelObject(), target.getTLModelObject());
-	}
-
+	// public boolean isValidAssignment(Node target) {
+	// return isValidAssignment(typeOwner.getTLModelObject(), target.getTLModelObject());
+	// }
+	//
 	private boolean isValidAssignment(ModelElement tlOwner, ModelElement tlTarget) {
 		boolean result = true;
 		TypeAssignmentTester tester = new TypeAssignmentTester(ModelNode.getModelNode().getTLModel());

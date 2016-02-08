@@ -86,7 +86,7 @@ public class GetDescendents_Tests {
 		vwa.setSimpleType(oe);
 
 		List<Node> all = ln.getDescendants();
-		Assert.assertEquals(26, all.size());
+		Assert.assertEquals(27, all.size());
 		List<Node> named = ln.getDescendants_NamedTypes();
 		Assert.assertEquals(5, named.size());
 		List<Node> users = ln.getDescendants_TypeUsers();
@@ -111,7 +111,7 @@ public class GetDescendents_Tests {
 		Assert.assertEquals(6, users.size());
 		MockLibrary.printDescendants(ln);
 		List<Node> all = ln.getDescendants();
-		Assert.assertEquals(31, all.size()); // 26 + 5 version nodes
+		Assert.assertEquals(32, all.size()); // 26 + 5 version nodes
 	}
 
 	@Test
@@ -124,7 +124,7 @@ public class GetDescendents_Tests {
 		Assert.assertNotNull(ln);
 
 		List<Node> all = ln.getDescendants();
-		Assert.assertEquals(23, all.size());
+		Assert.assertEquals(24, all.size());
 		List<Node> named = ln.getDescendants_NamedTypes();
 		Assert.assertEquals(20, named.size());
 		List<Node> users = ln.getDescendants_TypeUsers();
@@ -133,19 +133,20 @@ public class GetDescendents_Tests {
 
 	@Test
 	public void OTA_Descendents() throws Exception {
-
-		for (LibraryNode n : Node.getAllLibraries()) {
-			if (n.getName().equals(OTA))
-				ln = n;
-		}
-		Assert.assertNotNull(ln);
-
-		List<Node> all = ln.getDescendants();
-		Assert.assertEquals(495, all.size());
-		List<Node> named = ln.getDescendants_NamedTypes();
-		Assert.assertEquals(85, named.size());
-		List<Node> users = ln.getDescendants_TypeUsers();
-		Assert.assertEquals(130, users.size());
+		// Built in library removed from version 4.0
+		//
+		// for (LibraryNode n : Node.getAllLibraries()) {
+		// if (n.getName().equals(OTA))
+		// ln = n;
+		// }
+		// Assert.assertNotNull(ln);
+		//
+		// List<Node> all = ln.getDescendants();
+		// Assert.assertEquals(495, all.size());
+		// List<Node> named = ln.getDescendants_NamedTypes();
+		// Assert.assertEquals(85, named.size());
+		// List<Node> users = ln.getDescendants_TypeUsers();
+		// Assert.assertEquals(130, users.size());
 	}
 
 	@Test

@@ -25,12 +25,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
-import org.opentravel.schemas.node.ImpliedNode;
-import org.opentravel.schemas.node.LibraryNode;
-import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.SimpleTypeNode;
-import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.slf4j.Logger;
@@ -41,12 +35,10 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class XSDNode_Tests {
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(XSDNode_Tests.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(XSDNode_Tests.class);
 
 	// Lets make sure they are all unique
-	private Map<String, Node> providerMap = new HashMap<String, Node>(
-			Node.getNodeCount());
+	private Map<String, Node> providerMap = new HashMap<String, Node>(Node.getNodeCount());
 	int dups = 0;
 	int counter = 0;
 
@@ -67,7 +59,7 @@ public class XSDNode_Tests {
 			}
 			libCnt++;
 		}
-		Assert.assertEquals(3, libCnt); // the default built-in libraries
+		Assert.assertEquals(2, libCnt); // the default built-in libraries
 
 		for (LibraryNode ln : Node.getAllLibraries()) {
 			providerMap.clear();

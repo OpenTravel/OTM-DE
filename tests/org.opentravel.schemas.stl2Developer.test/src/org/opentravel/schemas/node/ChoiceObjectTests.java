@@ -68,29 +68,6 @@ public class ChoiceObjectTests {
 		checkChoice(cn);
 	}
 
-	// @Test
-	// public void changeToCore() {
-	// MockLibrary ml = new MockLibrary();
-	// MainController mc = new MainController();
-	// DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
-	// ProjectNode defaultProject = pc.getDefaultProject();
-	//
-	// LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-	// new LibraryChainNode(ln); // Test in a chain
-	// BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "bo");
-	// CoreObjectNode tco = null, core = ml.addCoreObjectToLibrary(ln, "co");
-	// VWA_Node vwa = ml.addVWA_ToLibrary(ln, "vwa");
-	// int typeCount = ln.getDescendants_NamedTypes().size();
-	//
-	// tco = (CoreObjectNode) core.changeToCoreObject();
-	// checkCore(tco);
-	// tco = (CoreObjectNode) vwa.changeToCoreObject();
-	// checkCore(tco);
-	//
-	// tn.visit(ln);
-	// Assert.assertEquals(typeCount, ln.getDescendants_NamedTypes().size());
-	// }
-
 	@Test
 	public void fileReadTest() throws Exception {
 		LibraryNode testLib = new LoadFiles().loadFile6(mc);
@@ -102,24 +79,11 @@ public class ChoiceObjectTests {
 		}
 	}
 
-	@Test
-	public void mockCoreTest() {
-		ln = mockLibrary.createNewLibrary("http://sabre.com/test", "test", defaultProject);
-		new LibraryChainNode(ln); // Test in a chain
-		// CoreObjectNode core = mockLibrary.addCoreObjectToLibrary(ln, "CoreTest");
-		// Assert.assertEquals("CoreTest", core.getName());
-		// Assert.assertTrue(core.getSimpleFacet() instanceof SimpleFacetNode);
-		// SimpleFacetNode sfn = core.getSimpleFacet();
-		// Assert.assertTrue(core.getSimpleType() != null);
-		// Assert.assertTrue(sfn.getSimpleAttribute().getType() == core.getSimpleType());
-		//
-		// Node aType = NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
-		// Assert.assertTrue(core.setAssignedType(aType));
-		// Assert.assertTrue(sfn.setAssignedType(aType));
-		// // works - Assert.assertTrue(sfn.getSimpleAttribute().setAssignedType(aType));
-		// Assert.assertTrue(core.setSimpleType(aType));
-		// Assert.assertTrue(core.getSimpleType() == aType);
-	}
+	// @Test
+	// public void mockCoreTest() {
+	// ln = mockLibrary.createNewLibrary("http://sabre.com/test", "test", defaultProject);
+	// new LibraryChainNode(ln); // Test in a chain
+	// }
 
 	private void checkChoice(ChoiceObjectNode choice) {
 		Assert.assertTrue(choice instanceof ChoiceObjectNode);
