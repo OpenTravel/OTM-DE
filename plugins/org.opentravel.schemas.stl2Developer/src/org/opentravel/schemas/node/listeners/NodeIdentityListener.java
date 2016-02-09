@@ -19,16 +19,21 @@ import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemas.node.Node;
 
 /**
- * This listener uses the base listener capability to return its node. No other behavior.
+ * Listeners that back link from the TL Objects to nodes. Listeners that extend this listener <b>must</b> only be
+ * assigned to the node containing the tlObject.
  * 
  * @author Dave
  *
  */
-public class NamedTypeListener extends NodeIdentityListener implements INodeListener {
+public class NodeIdentityListener extends BaseNodeListener implements INodeListener {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(NamedTypeListener.class);
 
-	public NamedTypeListener(Node node) {
+	public NodeIdentityListener(Node node) {
 		super(node);
+
+		// Assertion made in factor where assignment is made.
+		// if (!(node instanceof ImpliedNode))
+		// assert node.getTLModelObject().getListeners().contains(this);
 	}
 
 	@Override

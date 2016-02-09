@@ -15,6 +15,8 @@
  */
 package org.opentravel.schemas.node.properties;
 
+import javax.xml.namespace.QName;
+
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 import org.opentravel.schemacompiler.model.TLModelElement;
@@ -86,7 +88,7 @@ public class ElementReferenceNode extends PropertyNode implements TypeUser {
 		int index = indexOfNode();
 		TLProperty tlObj = (TLProperty) cloneTLObj();
 		tlObj.setReference(true);
-		((TLProperty) getTLModelObject()).getPropertyOwner().addElement(index, tlObj);
+		((TLProperty) getTLModelObject()).getOwner().addElement(index, tlObj);
 		ElementReferenceNode n = new ElementReferenceNode(tlObj, null);
 		n.setName(type.getName());
 		getParent().linkChild(n, indexOfNode());
@@ -138,11 +140,11 @@ public class ElementReferenceNode extends PropertyNode implements TypeUser {
 	 */
 	@Override
 	public void setName(String name) {
-		if (getType() == null || (getType() instanceof ImpliedNode))
+		QName ln = PropertyCodegenUtils.getDefaultSchemaElementName(getTLTypeObject(), true);
+		if (ln == null || getType() == null || (getType() instanceof ImpliedNode))
 			modelObject.setName(NodeNameUtils.fixElementRefName(name));
 		else {
-			String ln = PropertyCodegenUtils.getDefaultSchemaElementName(getTLTypeObject(), true).getLocalPart();
-			modelObject.setName(ln);
+			modelObject.setName(ln.getLocalPart());
 		}
 		// 2/8/2016 - dmh - use codegen utils to get the facet names correct.
 		// if (getType() == null || (getType() instanceof ImpliedNode))

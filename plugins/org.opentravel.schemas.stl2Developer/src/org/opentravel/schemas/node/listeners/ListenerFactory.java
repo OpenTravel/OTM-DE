@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
@@ -41,35 +42,51 @@ public class ListenerFactory {
 	}
 
 	/**
-	 * Set listener. Make sure it is the ONLY one.
+	 * Set NodeIdentity listener.
 	 * 
 	 * @param node
+	 *            - node to identify
 	 */
 	public static void setListner(Node node) {
 		// clearListners(node);
 		if (node.getTLModelObject() == null)
 			return;
-
 		if (node instanceof EnumLiteralNode)
 			return; // do not assign listener
+		if (node instanceof ImpliedNode)
+			return;
+		if (node instanceof ModelNode) {
+			((ModelNode) node).addListeners();
+			return;
+		}
+
 		// if (node instanceof IndicatorNode)
 
+		// TODO - The simple facet for a VWA is a GUI construct that does not exist in the compiler's
+		// TLValueWithAttributes class
+
+		BaseNodeListener listener = null;
 		if (node instanceof PropertyNode)
-			node.getTLModelObject().addListener(new PropertyNodeListener(node));
+			listener = new PropertyNodeListener(node);
 		else if (node instanceof SimpleFacetNode)
-			node.getTLModelObject().addListener(new SimpleFacetNodeListener(node));
+			listener = new SimpleFacetNodeListener(node);
 		else if (node instanceof SimpleTypeNode)
-			node.getTLModelObject().addListener(new PropertyNodeListener(node));
+			listener = new NamedTypeListener(node); // was PropertyNodeListener
 		else if (node instanceof LibraryNode)
-			node.getTLModelObject().addListener(new LibraryNodeListener(node));
+			listener = new LibraryNodeListener(node);
 		else if (node instanceof BusinessObjectNode)
-			node.getTLModelObject().addListener(new BusinessObjectNodeListener(node));
+			listener = new BusinessObjectNodeListener(node);
 		else if (node instanceof ActionRequest)
-			node.getTLModelObject().addListener(new ResourceDependencyListener(node));
-		else if (node instanceof ModelNode)
-			((ModelNode) node).addListeners();
+			listener = new ResourceDependencyListener(node);
 		else
-			node.getTLModelObject().addListener(new NamedTypeListener(node));
+			listener = new NamedTypeListener(node);
+
+		if (listener != null)
+			node.getTLModelObject().addListener(listener);
+
+		// If it is an identity listener, make sure it is associated with the node
+		if (listener instanceof NodeIdentityListener)
+			assert node.getTLModelObject().getListeners().contains(listener);
 	}
 
 	/**

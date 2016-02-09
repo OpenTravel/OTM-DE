@@ -375,7 +375,7 @@ public class PropertiesTests {
 		String eText = "Element";
 		String aText = "attribute";
 		String iText = "xInd";
-		String rText = "CtRef";
+		String rText = "ctRef";
 		String ieText = "XInd";
 
 		epn = new ElementNode(summary, eText);

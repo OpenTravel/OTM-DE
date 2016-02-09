@@ -69,8 +69,8 @@ import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
-import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.INodeListener;
+import org.opentravel.schemas.node.listeners.NodeIdentityListener;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
@@ -735,13 +735,22 @@ public abstract class Node implements INode {
 	 * If the listener has a null node, don't use it for finding node.
 	 * 
 	 * @param listeners
-	 * @return the node associated with the first BaseNodeListener.
+	 *            collection from the TL Object
+	 * @return the node associated with the first NodeIdentityListener.
 	 */
 	public Node getNode(Collection<ModelElementListener> listeners) {
 		for (ModelElementListener listener : listeners)
-			if (listener instanceof BaseNodeListener)
-				if (((BaseNodeListener) listener).getNode() != null)
-					return ((BaseNodeListener) listener).getNode();
+			if (listener instanceof NodeIdentityListener)
+				if (((NodeIdentityListener) listener).getNode() != null)
+					return ((NodeIdentityListener) listener).getNode();
+		return null;
+	}
+
+	static public Node GetNode(Collection<ModelElementListener> listeners) {
+		for (ModelElementListener listener : listeners)
+			if (listener instanceof NodeIdentityListener)
+				if (((NodeIdentityListener) listener).getNode() != null)
+					return ((NodeIdentityListener) listener).getNode();
 		return null;
 	}
 

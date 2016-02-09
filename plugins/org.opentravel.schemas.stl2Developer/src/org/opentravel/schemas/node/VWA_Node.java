@@ -26,6 +26,8 @@ import javax.xml.namespace.QName;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLAttributeType;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
@@ -93,7 +95,10 @@ public class VWA_Node extends ComponentNode implements ComplexComponentInterface
 
 	@Override
 	public Node getExtendsType() {
-		return getSimpleFacet().getTypeClass().getTypeNode();
+		TLAttributeType tlParent = ((TLValueWithAttributes) getTLModelObject()).getParentType();
+		Node parent = GetNode(((TLModelElement) tlParent).getListeners());
+		return parent;
+		// return getSimpleFacet().getTypeClass().getTypeNode();
 	}
 
 	@Override

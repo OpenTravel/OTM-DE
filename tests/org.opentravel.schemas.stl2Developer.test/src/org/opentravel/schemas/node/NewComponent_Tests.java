@@ -27,6 +27,13 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLChoiceObject;
+import org.opentravel.schemacompiler.model.TLClosedEnumeration;
+import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLOpenEnumeration;
+import org.opentravel.schemacompiler.model.TLSimple;
+import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
@@ -217,6 +224,75 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 						LOGGER.debug("Found " + t);
 			}
 		}
+	}
+
+	@Test
+	public void checkListeners() {
+		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		// 2/2016 - not assigned in constructors - assert ln.getNode(ln.getTLModelObject().getListeners()) == ln;
+
+		// check listeners in built-ins
+		Node string = NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE);
+		assert string.getTLModelObject().getListeners().size() == 1;
+		assert string.getNode(string.getTLModelObject().getListeners()) == string;
+
+		// Check to assure one and only one listener is created with each node
+		BusinessObjectNode bo = (BusinessObjectNode) NodeFactory.newComponent(new TLBusinessObject());
+		assert bo.getTLModelObject().getListeners().size() == 1;
+		bo.setName("BO");
+		ln.addMember(bo);
+		assert bo.getTLModelObject().getListeners().size() == 1;
+		assert bo.getNode(bo.getTLModelObject().getListeners()) == bo;
+		assert bo.getNode(((Node) bo.getIDFacet()).getTLModelObject().getListeners()) == bo.getIDFacet();
+
+		CoreObjectNode core = (CoreObjectNode) NodeFactory.newComponent(new TLCoreObject());
+		assert core.getTLModelObject().getListeners().size() == 1;
+		core.setName("CO");
+		ln.addMember(core);
+		assert core.getTLModelObject().getListeners().size() == 1;
+		assert core.getNode(core.getTLModelObject().getListeners()) == core;
+		assert core.getNode(((Node) core.getSummaryFacet()).getTLModelObject().getListeners()) == core
+				.getSummaryFacet();
+
+		VWA_Node vwa = (VWA_Node) NodeFactory.newComponent(new TLValueWithAttributes());
+		assert vwa.getTLModelObject().getListeners().size() == 1;
+		vwa.setName("VWA");
+		ln.addMember(vwa);
+		assert vwa.getTLModelObject().getListeners().size() == 1;
+		assert vwa.getNode(vwa.getTLModelObject().getListeners()) == vwa;
+
+		ChoiceObjectNode choice = (ChoiceObjectNode) NodeFactory.newComponent(new TLChoiceObject());
+		assert choice.getTLModelObject().getListeners().size() == 1;
+		choice.setName("Choice");
+		ln.addMember(choice);
+		assert choice.getTLModelObject().getListeners().size() == 1;
+		assert choice.getNode(choice.getTLModelObject().getListeners()) == choice;
+
+		SimpleTypeNode simple = (SimpleTypeNode) NodeFactory.newComponent(new TLSimple());
+		assert simple.getTLModelObject().getListeners().size() == 1;
+		simple.setName("Simple");
+		ln.addMember(simple);
+		assert simple.getTLModelObject().getListeners().size() == 1;
+		assert simple.getNode(simple.getTLModelObject().getListeners()) == simple;
+
+		EnumerationClosedNode ec = (EnumerationClosedNode) NodeFactory.newComponent(new TLClosedEnumeration());
+		assert ec.getTLModelObject().getListeners().size() == 1;
+		ec.setName("ec");
+		ln.addMember(ec);
+		assert ec.getTLModelObject().getListeners().size() == 1;
+		assert ec.getNode(ec.getTLModelObject().getListeners()) == ec;
+
+		EnumerationOpenNode eo = (EnumerationOpenNode) NodeFactory.newComponent(new TLOpenEnumeration());
+		assert eo.getTLModelObject().getListeners().size() == 1;
+		eo.setName("eo");
+		ln.addMember(eo);
+		assert eo.getTLModelObject().getListeners().size() == 1;
+		assert eo.getNode(eo.getTLModelObject().getListeners()) == eo;
+
+		// TODO - other property types
+		PropertyNode p1 = new ElementNode(bo.getIDFacet(), "i1");
+		assert p1.getTLModelObject().getListeners().size() == 1;
+		assert p1.getNode(p1.getTLModelObject().getListeners()) == p1;
 	}
 
 	@Test

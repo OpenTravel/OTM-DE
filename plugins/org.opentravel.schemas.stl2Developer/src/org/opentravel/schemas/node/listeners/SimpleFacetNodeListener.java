@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave
  *
  */
-public class SimpleFacetNodeListener extends BaseNodeListener implements INodeListener {
+public class SimpleFacetNodeListener extends NodeIdentityListener implements INodeListener {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleFacetNodeListener.class);
 
 	/**

@@ -43,7 +43,6 @@ import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
-import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
@@ -60,7 +59,7 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 	public BusinessObjectNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
-		ListenerFactory.setListner(this);
+		// done in super() - ListenerFactory.setListner(this);
 
 		if (getModelObject() == null) {
 			// LOGGER.debug("Missing model object on business object: " + this);

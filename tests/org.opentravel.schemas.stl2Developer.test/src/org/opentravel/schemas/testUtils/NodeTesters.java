@@ -37,10 +37,10 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
-import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.OperationNode;
 import org.opentravel.schemas.node.SimpleFacetNode;
 import org.opentravel.schemas.node.VersionNode;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.types.TestTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -264,10 +264,10 @@ public class NodeTesters {
 				if (((TLFacet) tlObj).getOwningEntity() == null)
 					msg += "Missing facet owner on ";
 			} else if (tlObj instanceof TLAttribute) {
-				if (((TLAttribute) tlObj).getAttributeOwner() == null)
+				if (((TLAttribute) tlObj).getOwner() == null)
 					msg += "Missing attribute owner on ";
 			} else if (tlObj instanceof TLProperty) {
-				if (((TLProperty) tlObj).getPropertyOwner() == null)
+				if (((TLProperty) tlObj).getOwner() == null)
 					msg += "Missing property owner on ";
 				if (((TLProperty) tlObj).getOwningLibrary() == null)
 					msg += "Missing property library on ";

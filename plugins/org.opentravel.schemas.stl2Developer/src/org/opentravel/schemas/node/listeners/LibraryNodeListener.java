@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  *
  */
-public class LibraryNodeListener extends BaseNodeListener implements INodeListener {
+public class LibraryNodeListener extends NodeIdentityListener implements INodeListener {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryNodeListener.class);
 
 	public LibraryNodeListener(Node node) {

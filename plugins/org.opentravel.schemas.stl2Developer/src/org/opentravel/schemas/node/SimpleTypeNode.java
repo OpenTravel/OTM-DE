@@ -29,7 +29,6 @@ import org.opentravel.schemas.modelObject.XsdModelingUtils;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
-import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.EqExOneValueHandler;
 import org.opentravel.schemas.node.properties.EqExOneValueHandler.ValueWithContextType;
 import org.opentravel.schemas.node.properties.IValueWithContextHandler;
@@ -56,7 +55,7 @@ public class SimpleTypeNode extends ComponentNode implements SimpleComponentInte
 		super(mbr);
 		assert (getTLModelObject() != null);
 
-		ListenerFactory.setListner(this);
+		// done in super() - ListenerFactory.setListner(this);
 	}
 
 	@Override

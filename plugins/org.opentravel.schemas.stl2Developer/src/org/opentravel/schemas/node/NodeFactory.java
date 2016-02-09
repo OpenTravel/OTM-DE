@@ -56,6 +56,7 @@ import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.types.TypeUser;
 
 /**
  * Create Component Nodes of various sub-types.
@@ -79,10 +80,12 @@ public class NodeFactory {
 	 */
 	public static ComponentNode newComponent(LibraryMember mbr) {
 		ComponentNode newNode = newComponent_UnTyped(mbr);
-		if (newNode.isTypeUser())
-			newNode.getTypeClass().setAssignedTypeForThisNode(newNode);
-		for (Node n : newNode.getDescendants_TypeUsers()) {
-			n.getTypeClass().setAssignedTypeForThisNode(n);
+		if (newNode != null) {
+			if (newNode instanceof TypeUser)
+				newNode.getTypeClass().setAssignedTypeForThisNode(newNode);
+			for (Node n : newNode.getDescendants_TypeUsers()) {
+				n.getTypeClass().setAssignedTypeForThisNode(n);
+			}
 		}
 		return newNode;
 	}
@@ -103,6 +106,8 @@ public class NodeFactory {
 
 	/*******************************************************************************************
 	 * New ComponentNode methods that also create new objects in underlying model
+	 * 
+	 * @return newly created node or null
 	 */
 	public static ComponentNode newComponent_UnTyped(final LibraryMember mbr) {
 		ComponentNode cn = null;
@@ -322,10 +327,8 @@ public class NodeFactory {
 			return new AliasNode(n, n.getName());
 		default:
 			cn = newComponent(type);
-			// cn = newComponentMember(n, n.getLibrary(), n.getName());
-			cn.setExtensible(true);
-
 			if (cn != null) {
+				cn.setExtensible(true);
 				cn.setName(n.getName());
 				cn.setDescription(n.getDescription());
 				cn.setIdentity(n.getName());

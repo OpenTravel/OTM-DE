@@ -43,7 +43,6 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 
@@ -83,7 +82,7 @@ public class PropertyNode extends ComponentNode {
 		// This clears out the assigned type!
 		if (getDefaultType() != null)
 			getTypeClass().setAssignedType(this.getDefaultType());
-		ListenerFactory.setListner(this);
+		// done in super() - ListenerFactory.setListner(this);
 	}
 
 	/**
