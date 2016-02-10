@@ -16,22 +16,22 @@
 package org.opentravel.schemas.node;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
+import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
-import org.opentravel.schemas.modelObject.OpenEnumMO;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
-import org.opentravel.schemas.node.listeners.NamedTypeListener;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
@@ -43,10 +43,10 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 	public EnumerationOpenNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
-		if (getExtensionNode() == null)
-			getTypeClass().setTypeNode(ModelNode.getDefaultStringNode()); // Set base type.
-		else
-			getTypeClass().setTypeNode(getExtensionNode());
+		// if (((TLAbstractEnumeration)mbr).getExtension() == null)
+		// getTypeClass().setTypeNode(ModelNode.getDefaultStringNode()); // Set base type.
+		// else
+		// getTypeClass().setTypeNode(getExtensionNode());
 	}
 
 	/**
@@ -58,6 +58,10 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 		this(new TLOpenEnumeration());
 
 		if (closedEnum.getLibrary() != null) {
+			if (closedEnum.getExtendsType() != null)
+				((TLAbstractEnumeration) getTLModelObject()).setExtension(((TLClosedEnumeration) closedEnum
+						.getTLModelObject()).getExtension());
+
 			// Do this first since clone needs to know library information.
 			setLibrary(closedEnum.getLibrary());
 			getLibrary().getTLaLib().addNamedMember((LibraryMember) this.getTLModelObject());
@@ -178,23 +182,32 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 
 	@Override
 	public Node getExtendsType() {
-		// base type might not have been loaded when constructor was called. check the tl model not the type node.
-		return getExtensionNode();
+		// Lazy evaluation: get it from TL object after all nodes generated with listeners.
+		Node nType = ModelNode.getDefaultStringNode(); // Set base type.
+		if (((TLAbstractEnumeration) getTLModelObject()).getExtension() != null) {
+			NamedEntity eType = ((TLAbstractEnumeration) getTLModelObject()).getExtension().getExtendsEntity();
+			nType = GetNode(((TLModelElement) eType).getListeners());
+		}
+		if (getTypeClass().getTypeNode() != nType)
+			getTypeClass().setTypeNode(nType);
+		return getTypeClass().getTypeNode();
+		// // base type might not have been loaded when constructor was called. check the tl model not the type node.
+		// return getExtensionNode();
 	}
 
-	public EnumerationOpenNode getExtensionNode() {
-		Collection<ModelElementListener> listeners = null;
-		Node node = null;
-		OpenEnumMO mo = (OpenEnumMO) getModelObject();
-		if (mo.getExtension(mo.getTLModelObj()) != null)
-			listeners = mo.getExtension(mo.getTLModelObj()).getListeners();
-		if (listeners == null || listeners.isEmpty())
-			return null;
-		for (ModelElementListener listener : listeners)
-			if (listener instanceof NamedTypeListener)
-				node = ((NamedTypeListener) listener).getNode();
-		return (EnumerationOpenNode) (node instanceof EnumerationOpenNode ? node : null);
-	}
+	// public EnumerationOpenNode getExtensionNode() {
+	// Collection<ModelElementListener> listeners = null;
+	// Node node = null;
+	// OpenEnumMO mo = (OpenEnumMO) getModelObject();
+	// if (mo.getExtension(mo.getTLModelObj()) != null)
+	// listeners = mo.getExtension(mo.getTLModelObj()).getListeners();
+	// if (listeners == null || listeners.isEmpty())
+	// return null;
+	// for (ModelElementListener listener : listeners)
+	// if (listener instanceof NamedTypeListener)
+	// node = ((NamedTypeListener) listener).getNode();
+	// return (EnumerationOpenNode) (node instanceof EnumerationOpenNode ? node : null);
+	// }
 
 	@Override
 	public void setExtendsType(final INode sourceNode) {

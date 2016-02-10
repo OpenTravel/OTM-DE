@@ -28,8 +28,10 @@ import javax.xml.namespace.QName;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.ModelElement;
 import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLAttributeType;
+import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLExtensionOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
@@ -510,7 +512,11 @@ public class Type {
 				((TLnSimpleAttribute) tlOwner).setType((NamedEntity) tlTarget);
 			else
 				return false;
-
+		else if (tlOwner instanceof TLAbstractEnumeration) {
+			TLExtension extension = new TLExtension();
+			extension.setExtendsEntity((NamedEntity) tlTarget);
+			((TLAbstractEnumeration) tlOwner).setExtension(extension);
+		}
 		// Safety check. Will set if:
 		// 1. no listeners
 		// 2. No even thrown if the tl object original and target types are the same.

@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLEnumValue;
 import org.opentravel.schemacompiler.model.TLExtension;
@@ -90,7 +91,7 @@ public class OpenEnumMO extends ModelObject<TLOpenEnumeration> {
 	private List<TLEnumValue> getInheritedValues() {
 		List<TLEnumValue> valueList = new ArrayList<TLEnumValue>();
 		TLOpenEnumeration tlOE = getTLModelObj();
-		TLOpenEnumeration oe = getExtension(getTLModelObj());
+		TLAbstractEnumeration oe = getExtension(getTLModelObj());
 		while (oe != null) {
 			valueList.addAll(oe.getValues());
 			if (oe.getExtension() != null)
@@ -104,8 +105,8 @@ public class OpenEnumMO extends ModelObject<TLOpenEnumeration> {
 	/**
 	 * @return the TLOpenEnumeration that extends the passed enum if any
 	 */
-	public TLOpenEnumeration getExtension(TLOpenEnumeration oe) {
-		return oe.getExtension() != null ? oe = (TLOpenEnumeration) oe.getExtension().getExtendsEntity() : null;
+	public TLAbstractEnumeration getExtension(TLAbstractEnumeration oe) {
+		return oe.getExtension() != null ? oe = (TLAbstractEnumeration) oe.getExtension().getExtendsEntity() : null;
 	}
 
 	@Override

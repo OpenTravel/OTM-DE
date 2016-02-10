@@ -20,8 +20,12 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -37,12 +41,14 @@ public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration
 	public EnumerationClosedNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
-		getTypeClass().setTypeNode(ModelNode.getDefaultStringNode()); // Set base type.
 	}
 
 	public EnumerationClosedNode(EnumerationOpenNode openEnum) {
 		this(new TLClosedEnumeration());
 		if (openEnum.getLibrary() != null) {
+			if (openEnum.getExtendsType() != null)
+				((TLAbstractEnumeration) getTLModelObject()).setExtension(((TLOpenEnumeration) openEnum
+						.getTLModelObject()).getExtension());
 			setLibrary(openEnum.getLibrary());
 			getLibrary().getTLaLib().addNamedMember((LibraryMember) this.getTLModelObject());
 
@@ -146,11 +152,6 @@ public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration
 		return true;
 	}
 
-	// @Override
-	// public boolean isEnumeration() {
-	// return true;
-	// }
-
 	@Override
 	public Node setExtensible(boolean extensible) {
 		if (isEditable_newToChain())
@@ -161,6 +162,14 @@ public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration
 
 	@Override
 	public Node getExtendsType() {
+		// Lazy evaluation: get it from TL object after all nodes generated with listeners.
+		Node nType = ModelNode.getDefaultStringNode(); // Set base type.
+		if (((TLAbstractEnumeration) getTLModelObject()).getExtension() != null) {
+			NamedEntity eType = ((TLAbstractEnumeration) getTLModelObject()).getExtension().getExtendsEntity();
+			nType = GetNode(((TLModelElement) eType).getListeners());
+		}
+		if (getTypeClass().getTypeNode() != nType)
+			getTypeClass().setTypeNode(nType);
 		return getTypeClass().getTypeNode();
 	}
 
