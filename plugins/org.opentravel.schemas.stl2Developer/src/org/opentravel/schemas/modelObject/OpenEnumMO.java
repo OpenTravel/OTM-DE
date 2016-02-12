@@ -120,6 +120,11 @@ public class OpenEnumMO extends ModelObject<TLOpenEnumeration> {
 	}
 
 	@Override
+	public TLOpenEnumeration getTLModelObj() {
+		return srcObj;
+	}
+
+	@Override
 	public String getNamePrefix() {
 		final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
 		return lib == null ? "" : lib.getPrefix();

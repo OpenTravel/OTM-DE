@@ -81,6 +81,11 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 	}
 
 	@Override
+	public TLClosedEnumeration getTLModelObj() {
+		return srcObj;
+	}
+
+	@Override
 	public String getNamePrefix() {
 		final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
 		return lib == null ? "" : lib.getPrefix();

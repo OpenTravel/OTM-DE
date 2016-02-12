@@ -97,6 +97,11 @@ public class XSDElementMO extends ModelObject<XSDElement> {
 	}
 
 	@Override
+	public XSDElement getTLModelObj() {
+		return srcObj;
+	}
+
+	@Override
 	public boolean setName(final String name) {
 		return false;
 	}

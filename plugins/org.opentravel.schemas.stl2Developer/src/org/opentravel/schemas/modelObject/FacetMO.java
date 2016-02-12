@@ -306,6 +306,11 @@ public class FacetMO extends ModelObject<TLFacet> {
 	}
 
 	@Override
+	public TLFacet getTLModelObj() {
+		return srcObj;
+	}
+
+	@Override
 	public boolean isComplexAssignable() {
 		return true;
 	}

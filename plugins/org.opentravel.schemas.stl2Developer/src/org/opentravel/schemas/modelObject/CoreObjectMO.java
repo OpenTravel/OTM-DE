@@ -87,14 +87,14 @@ public class CoreObjectMO extends ModelObject<TLCoreObject> {
 		return srcObj.getSimpleFacet().getSimpleType();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.modelObject.ModelObject#getTLBase()
-	 */
 	@Override
 	public NamedEntity getTLBase() {
 		return srcObj.getExtension() != null ? srcObj.getExtension().getExtendsEntity() : null;
+	}
+
+	@Override
+	public TLCoreObject getTLModelObj() {
+		return srcObj;
 	}
 
 	@Override

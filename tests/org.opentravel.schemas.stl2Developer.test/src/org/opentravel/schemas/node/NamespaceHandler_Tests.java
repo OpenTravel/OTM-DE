@@ -21,11 +21,6 @@ package org.opentravel.schemas.node;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.LibraryNode;
-import org.opentravel.schemas.node.ModelNode;
-import org.opentravel.schemas.node.NamespaceHandler;
-import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -35,102 +30,108 @@ import org.opentravel.schemas.testUtils.NodeTesters;
  * 
  */
 public class NamespaceHandler_Tests {
-    ModelNode model = null;
-    NodeTesters nt = new NodeTesters();
-    LoadFiles lf = new LoadFiles();
-    LibraryTests lt = new LibraryTests();
-    MockLibrary mockLibrary = new MockLibrary();
+	ModelNode model = null;
+	NodeTesters nt = new NodeTesters();
+	LoadFiles lf = new LoadFiles();
+	LibraryTests lt = new LibraryTests();
+	MockLibrary mockLibrary = new MockLibrary();
 
-    @Test
-    public void mockLibTest() {
-        LibraryNode ln = mockLibrary.createNewLibrary("http://foo.bar", "test", null);
-        ln.setNSPrefix("aaa");
-        Assert.assertFalse(ln.getNamespace().isEmpty());
-        Assert.assertFalse(ln.getNamePrefix().isEmpty());
+	@Test
+	public void mockLibTest() {
+		String ns = "http://foo.bar";
+		final String ns2 = "http://foo.bar/too";
+		final String pre = "aaa";
 
-        // Test setting to a namespace not in the handler registry.
-        ln.setNamespace("http://foo.bar/too");
-        Assert.assertFalse(ln.getNamespace().isEmpty());
-        Assert.assertFalse(ln.getNamePrefix().isEmpty());
-    }
+		LibraryNode ln = mockLibrary.createNewLibrary(ns, "test", null);
+		ln.setNSPrefix(pre);
+		Assert.assertFalse(ln.getNamespace().isEmpty());
+		Assert.assertFalse(ln.getNamePrefix().isEmpty());
+		assert ln.getNamePrefix().equals(pre);
+		assert ln.getNamespace().startsWith(ns); // version will be added
 
-    @Test
-    public void nsHandlerTest() throws Exception {
-        MainController mc = new MainController();
-        final String testNS = "http://www.sabre.com/ns/TEST";
+		// Test setting to a namespace not in the handler registry.
+		ln.setNamespace(ns2);
+		Assert.assertFalse(ln.getNamespace().isEmpty());
+		Assert.assertFalse(ln.getNamePrefix().isEmpty());
+		assert ln.getNamePrefix().equals(pre);
+		assert ln.getNamespace().startsWith(ns2);
+	}
 
-        final String testExtension = "Test";
-        final String testVersionError = "0.1"; // period is error
-        final String testVerison = "0.1.0"; // as will be used
-        final String versionID = "v0_1"; // as used in ns
-        final String expectedFullNS = mc.getRepositoryController().getLocalRepository()
-                .getNamespace()
-                + "/Test/" + versionID;
+	@Test
+	public void nsHandlerTest() throws Exception {
+		MainController mc = new MainController();
+		final String testNS = "http://www.sabre.com/ns/TEST";
 
-        lf.loadTestGroupA(mc);
-        for (LibraryNode ln : Node.getAllLibraries()) {
-            ln.visitAllNodes(nt.new TestNode());
+		final String testExtension = "Test";
+		final String testVersionError = "0.1"; // period is error
+		final String testVerison = "0.1.0"; // as will be used
+		final String versionID = "v0_1"; // as used in ns
+		final String expectedFullNS = mc.getRepositoryController().getLocalRepository().getNamespace() + "/Test/"
+				+ versionID;
 
-            // Make sure the handlers are assigned correctly.
-            Assert.assertNotNull(NamespaceHandler.getNamespaceHandler(ln));
-            NamespaceHandler handler = NamespaceHandler.getNamespaceHandler(ln);
-            Assert.assertNotNull(ln.getNsHandler());
-            Assert.assertTrue(handler == ln.getNsHandler());
-        }
+		lf.loadTestGroupA(mc);
+		for (LibraryNode ln : Node.getAllLibraries()) {
+			ln.visitAllNodes(nt.new TestNode());
 
-        for (LibraryNode ln : Node.getAllUserLibraries()) {
-            NamespaceHandler handler = NamespaceHandler.getNamespaceHandler(ln);
-            String namespace = ln.getNamespace();
-            String prefix = ln.getNamePrefix();
-            int nsCount = handler.getNamespaces().size();
+			// Make sure the handlers are assigned correctly.
+			Assert.assertNotNull(NamespaceHandler.getNamespaceHandler(ln));
+			NamespaceHandler handler = NamespaceHandler.getNamespaceHandler(ln);
+			Assert.assertNotNull(ln.getNsHandler());
+			Assert.assertTrue(handler == ln.getNsHandler());
+		}
 
-            Assert.assertFalse(namespace.isEmpty());
-            Assert.assertFalse(prefix.isEmpty());
-            Assert.assertTrue(prefix.equals(handler.getPrefix(namespace)));
+		for (LibraryNode ln : Node.getAllUserLibraries()) {
+			NamespaceHandler handler = NamespaceHandler.getNamespaceHandler(ln);
+			String namespace = ln.getNamespace();
+			String prefix = ln.getNamePrefix();
+			int nsCount = handler.getNamespaces().size();
 
-            // Just make sure these do not cause error
-            handler.getNSBase();
-            handler.getNSExtension(namespace);
-            handler.getNSVersion(namespace);
-            handler.createValidNamespace(namespace, testVersionError);
-            handler.createValidNamespace(namespace, testExtension, testVersionError);
+			Assert.assertFalse(namespace.isEmpty());
+			Assert.assertFalse(prefix.isEmpty());
+			Assert.assertTrue(prefix.equals(handler.getPrefix(namespace)));
 
-            // rename
-            handler.renameInProject(namespace, testNS);
-            handler.rename(namespace, testNS);
+			// Just make sure these do not cause error
+			handler.getNSBase();
+			handler.getNSExtension(namespace);
+			handler.getNSVersion(namespace);
+			handler.createValidNamespace(namespace, testVersionError);
+			handler.createValidNamespace(namespace, testExtension, testVersionError);
 
-            // Set
-            handler.setNamespacePrefix(testNS, "TST");
-            handler.setLibraryNamespace(ln, namespace);
+			// rename
+			handler.renameInProject(namespace, testNS);
+			handler.rename(namespace, testNS);
 
-            // Originals plus the test one. On second loop, they are equal.
-            int size = handler.getNamespaces().size();
-            Assert.assertTrue(size >= nsCount);
-        }
+			// Set
+			handler.setNamespacePrefix(testNS, "TST");
+			handler.setLibraryNamespace(ln, namespace);
 
-        for (ProjectNode pn : Node.getAllProjects()) {
-            NamespaceHandler handler = NamespaceHandler.getNamespaceHandler(pn);
-            Assert.assertNotNull(handler);
-            Assert.assertTrue(handler.getNamespaces().size() > 0);
-        }
+			// Originals plus the test one. On second loop, they are equal.
+			int size = handler.getNamespaces().size();
+			Assert.assertTrue(size >= nsCount);
+		}
 
-        // Test the namespace string functions
-        NamespaceHandler handler = NamespaceHandler.getNamespaceHandler(mc.getProjectController()
-                .getDefaultProject());
-        Assert.assertNotNull(handler);
+		for (ProjectNode pn : Node.getAllProjects()) {
+			NamespaceHandler handler = NamespaceHandler.getNamespaceHandler(pn);
+			Assert.assertNotNull(handler);
+			Assert.assertTrue(handler.getNamespaces().size() > 0);
+		}
 
-        String nsb = handler.getNSBase();
-        String ns = handler.createValidNamespace(nsb, testVersionError);
-        ns = handler.createValidNamespace(nsb, testExtension, testVersionError);
-        Assert.assertTrue(ns.equals(expectedFullNS));
+		// Test the namespace string functions
+		NamespaceHandler handler = NamespaceHandler.getNamespaceHandler(mc.getProjectController().getDefaultProject());
+		Assert.assertNotNull(handler);
 
-        Assert.assertTrue(nsb.equals(handler.getNSBase()));
-        Assert.assertTrue(testExtension.equals(handler.getNSExtension(ns)));
-        String version = handler.getNSVersion(ns);
-        Assert.assertTrue(testVerison.equals(handler.getNSVersion(ns)));
+		String nsb = handler.getNSBase();
+		String ns = handler.createValidNamespace(nsb, testVersionError);
+		ns = handler.createValidNamespace(nsb, testExtension, testVersionError);
+		Assert.assertTrue(ns.equals(expectedFullNS));
 
-        Assert.assertTrue(handler.isValidNamespace(ns).isEmpty());
-        Assert.assertFalse(handler.isValidNamespace("foo:urn:junk").isEmpty());
-        Assert.assertFalse(handler.isValidNamespace("http://tempuri.org/ns").isEmpty());
-    }
+		Assert.assertTrue(nsb.equals(handler.getNSBase()));
+		Assert.assertTrue(testExtension.equals(handler.getNSExtension(ns)));
+		String version = handler.getNSVersion(ns);
+		Assert.assertTrue(testVerison.equals(handler.getNSVersion(ns)));
+
+		Assert.assertTrue(handler.isValidNamespace(ns).isEmpty());
+		Assert.assertFalse(handler.isValidNamespace("foo:urn:junk").isEmpty());
+		Assert.assertFalse(handler.isValidNamespace("http://tempuri.org/ns").isEmpty());
+	}
 }

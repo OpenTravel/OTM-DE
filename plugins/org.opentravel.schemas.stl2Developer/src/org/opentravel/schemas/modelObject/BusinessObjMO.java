@@ -261,14 +261,14 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 		return lib == null ? "" : lib.getPrefix();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.modelObject.ModelObject#getTLBase()
-	 */
 	@Override
 	public NamedEntity getTLBase() {
 		return srcObj.getExtension() != null ? srcObj.getExtension().getExtendsEntity() : null;
+	}
+
+	@Override
+	public TLBusinessObject getTLModelObj() {
+		return srcObj;
 	}
 
 	@Override

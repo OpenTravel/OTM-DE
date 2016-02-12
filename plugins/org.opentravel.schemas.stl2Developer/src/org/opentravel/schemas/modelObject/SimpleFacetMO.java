@@ -82,6 +82,11 @@ public class SimpleFacetMO extends ModelObject<TLSimpleFacet> {
 	}
 
 	@Override
+	public TLSimpleFacet getTLModelObj() {
+		return srcObj;
+	}
+
+	@Override
 	public String getComponentType() {
 		return FacetMO.getDisplayName(getTLModelObj().getFacetType());
 	}
@@ -101,26 +106,11 @@ public class SimpleFacetMO extends ModelObject<TLSimpleFacet> {
 		return true;
 	}
 
-	// @Override
-	// public boolean isFacet() {
-	// return true;
-	// }
-
-	// @Override
-	// public boolean isSimpleFacet() {
-	// return true;
-	// }
-
 	@Override
 	public boolean setName(final String name) {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.modelObject.ModelObject#clearTLType()
-	 */
 	@Override
 	public void clearTLType() {
 		// this.type = null;

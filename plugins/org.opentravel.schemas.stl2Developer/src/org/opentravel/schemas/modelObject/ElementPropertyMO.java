@@ -97,11 +97,11 @@ public class ElementPropertyMO extends ModelObject<TLProperty> {
 		return "Element";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.modelObject.ModelObject#getTLType()
-	 */
+	@Override
+	public TLProperty getTLModelObj() {
+		return srcObj;
+	}
+
 	@Override
 	public NamedEntity getTLType() {
 		return srcObj.getType();
@@ -158,7 +158,7 @@ public class ElementPropertyMO extends ModelObject<TLProperty> {
 
 	@Override
 	public boolean moveDown() {
-		if (indexOf() + 1 < getTLModelObj().getPropertyOwner().getElements().size()) {
+		if (indexOf() + 1 < getTLModelObj().getOwner().getElements().size()) {
 			getTLModelObj().moveDown();
 			return true;
 		}

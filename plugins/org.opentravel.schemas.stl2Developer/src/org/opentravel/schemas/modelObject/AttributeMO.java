@@ -78,11 +78,11 @@ public class AttributeMO extends ModelObject<TLAttribute> {
 		return "";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.modelObject.ModelObject#getTLType()
-	 */
+	@Override
+	public TLAttribute getTLModelObj() {
+		return srcObj;
+	}
+
 	@Override
 	public NamedEntity getTLType() {
 		return srcObj.getType();

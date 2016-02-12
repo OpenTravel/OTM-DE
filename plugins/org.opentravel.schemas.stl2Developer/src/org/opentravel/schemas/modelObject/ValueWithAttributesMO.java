@@ -127,4 +127,9 @@ public class ValueWithAttributesMO extends ModelObject<TLValueWithAttributes> {
 		return true;
 	}
 
+	@Override
+	public TLValueWithAttributes getTLModelObj() {
+		return srcObj;
+	}
+
 }

@@ -1047,7 +1047,8 @@ public class LibraryNode extends Node {
 
 	@Override
 	public String getNamespace() {
-		return emptyIfNull(getTLaLib().getNamespace());
+		// return emptyIfNull(getTLaLib().getNamespace());
+		return modelObject.getNamespace(); // some libraries have empty mo
 	}
 
 	public String getNSBase() {

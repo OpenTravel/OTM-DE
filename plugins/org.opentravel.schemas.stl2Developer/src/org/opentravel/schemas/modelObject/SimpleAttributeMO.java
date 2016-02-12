@@ -50,6 +50,11 @@ public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
 	}
 
 	@Override
+	public TLnSimpleAttribute getTLModelObj() {
+		return srcObj;
+	}
+
+	@Override
 	public String getComponentType() {
 		return "Simple Attribute";
 	}

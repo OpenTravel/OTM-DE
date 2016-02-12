@@ -2896,6 +2896,8 @@ public abstract class Node implements INode {
 	 * @return true if no errors.
 	 */
 	public boolean isValid() {
+		if (isBuiltIn())
+			return true; // skip built in libraries and their content
 		return validate().count(FindingType.ERROR) == 0 ? true : false;
 	}
 

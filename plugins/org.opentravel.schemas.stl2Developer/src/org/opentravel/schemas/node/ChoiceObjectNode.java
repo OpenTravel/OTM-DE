@@ -26,10 +26,13 @@ import java.util.Set;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
 import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
+import org.opentravel.schemacompiler.model.TLExtensionOwner;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.modelObject.ChoiceObjMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
@@ -170,9 +173,17 @@ public class ChoiceObjectNode extends ComponentNode implements ComplexComponentI
 
 	@Override
 	public Node getExtendsType() {
-		if (getModelObject().getBaseClass() != null)
-			assert getTypeClass().getTypeNode() != null;
-		return getTypeClass().getTypeNode();
+		Node baseClass = null;
+		if (getTLModelObject() instanceof TLExtensionOwner
+				&& ((TLExtensionOwner) getTLModelObject()).getExtension() != null) {
+			NamedEntity tlBase = ((TLExtensionOwner) getTLModelObject()).getExtension().getExtendsEntity();
+			if (tlBase instanceof TLModelElement)
+				baseClass = GetNode(((TLModelElement) tlBase).getListeners());
+			// for (ModelElementListener listener : ((TLModelElement) tlBase).getListeners())
+			// if (listener instanceof BaseNodeListener)
+			// baseClass = ((BaseNodeListener) listener).getNode();
+		}
+		return baseClass;
 	}
 
 	@Override

@@ -77,6 +77,11 @@ public class ExtensionPointFacetMO extends ModelObject<TLExtensionPointFacet> {
 	}
 
 	@Override
+	public TLExtensionPointFacet getTLModelObj() {
+		return srcObj;
+	}
+
+	@Override
 	public boolean isComplexAssignable() {
 		return false;
 	}

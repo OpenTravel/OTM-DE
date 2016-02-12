@@ -61,12 +61,17 @@ public class XSDSimpleMO extends ModelObject<XSDSimpleType> {
 	}
 
 	@Override
+	public XSDSimpleType getTLModelObj() {
+		return srcObj;
+	}
+
+	@Override
 	public String getAssignedName() {
 
 		// NamedEntity tltype = super.getTLType(); // here we need to get srcObj
 		// instead of getTLType
 
-		final NamedEntity tltype = super.getTLModelObj();
+		final NamedEntity tltype = getTLModelObj();
 
 		if (tltype instanceof XSDSimpleType) {
 			final XSDSimpleType type = (XSDSimpleType) tltype;

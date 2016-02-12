@@ -82,6 +82,11 @@ public class TLModelMO extends ModelObject<TLModel> {
 	public void setMoreInfo(final String string, final int index) {
 	}
 
+	@Override
+	public TLModel getTLModelObj() {
+		return srcObj;
+	}
+
 	// @Override
 	// public void setOtherDoc(final String string, final String context) {
 	// }

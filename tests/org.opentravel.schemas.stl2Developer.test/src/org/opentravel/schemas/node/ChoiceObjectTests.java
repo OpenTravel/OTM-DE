@@ -132,6 +132,9 @@ public class ChoiceObjectTests {
 						}
 						assert !inheritedList.isEmpty();
 						assert inheritedList.size() == 3;
+						// check parent and owner of inherited...assure they are not n and n.getOwner()
+						//
+						// make sure we inherit ChoiceB
 					}
 			}
 			assertNotNull(baseClass);

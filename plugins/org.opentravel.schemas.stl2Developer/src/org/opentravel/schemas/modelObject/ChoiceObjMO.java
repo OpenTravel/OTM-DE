@@ -18,19 +18,15 @@ package org.opentravel.schemas.modelObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLExtension;
-import org.opentravel.schemacompiler.model.TLExtensionOwner;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.listeners.BaseNodeListener;
 
 public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(ChoiceObjMO.class);
@@ -129,6 +125,11 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 	}
 
 	@Override
+	public TLChoiceObject getTLModelObj() {
+		return srcObj;
+	}
+
+	@Override
 	public boolean isComplexAssignable() {
 		return true;
 	}
@@ -179,19 +180,19 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 		return obj.getOwningLibrary();
 	}
 
-	/**
-	 * @return the base class node using the tl model element extension and listeners
-	 */
-	public Object getBaseClass() {
-		Node baseClass = null;
-		if (srcObj instanceof TLExtensionOwner && srcObj.getExtension() != null) {
-			NamedEntity tlBase = srcObj.getExtension().getExtendsEntity();
-			if (tlBase instanceof TLModelElement)
-				for (ModelElementListener listener : ((TLModelElement) tlBase).getListeners())
-					if (listener instanceof BaseNodeListener)
-						baseClass = ((BaseNodeListener) listener).getNode();
-		}
-		return baseClass;
-	}
+	// /**
+	// * @return the base class node using the tl model element extension and listeners
+	// */
+	// public Object getBaseClass() {
+	// Node baseClass = null;
+	// if (srcObj instanceof TLExtensionOwner && srcObj.getExtension() != null) {
+	// NamedEntity tlBase = srcObj.getExtension().getExtendsEntity();
+	// if (tlBase instanceof TLModelElement)
+	// for (ModelElementListener listener : ((TLModelElement) tlBase).getListeners())
+	// if (listener instanceof BaseNodeListener)
+	// baseClass = ((BaseNodeListener) listener).getNode();
+	// }
+	// return baseClass;
+	// }
 
 }

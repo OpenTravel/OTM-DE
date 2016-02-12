@@ -16,6 +16,7 @@
 package org.opentravel.schemas.modelObject;
 
 import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemas.node.LibraryNode;
 
 /**
  * Class to use when there is no TL model object.
@@ -24,53 +25,59 @@ import org.opentravel.schemacompiler.model.AbstractLibrary;
  * 
  */
 public class EmptyMO extends ModelObject<TLEmpty> {
-    // Object tlEmpty = null;
+	// Object tlEmpty = null;
 
-    public EmptyMO(final TLEmpty obj) {
-        super(obj);
-    }
+	public EmptyMO(final TLEmpty obj) {
+		super(obj);
+	}
 
-    // @Override
-    // public boolean isEmpty() {
-    // return true;
-    // }
+	// @Override
+	// public boolean isEmpty() {
+	// return true;
+	// }
 
-    @Override
-    public String getComponentType() {
-        return "Empty Model";
-    }
+	@Override
+	public String getComponentType() {
+		return "Empty Model";
+	}
 
-    @Override
-    public String getName() {
-        return "empty";
-    }
+	@Override
+	public String getName() {
+		return "empty";
+	}
 
-    @Override
-    public String getNamePrefix() {
-        return "";
-    }
+	@Override
+	public String getNamePrefix() {
+		return "";
+	}
 
-    @Override
-    public String getNamespace() {
-        return "";
-    }
+	@Override
+	public String getNamespace() {
+		// EmptyMO is used for built in libraries. Get the ns from the library.
+		return node instanceof LibraryNode ? ((LibraryNode) node).getTLaLib().getNamespace() : "";
+	}
 
-    @Override
-    public boolean setName(final String name) {
-        return false;
-    }
+	@Override
+	public TLEmpty getTLModelObj() {
+		return srcObj;
+	}
 
-    @Override
-    public void delete() {
-        if (srcObj == null)
-            return;
-        srcObj.delete();
-        srcObj = null;
-    }
+	@Override
+	public boolean setName(final String name) {
+		return false;
+	}
 
-    @Override
-    protected AbstractLibrary getLibrary(final TLEmpty obj) {
-        return null;
-    }
+	@Override
+	public void delete() {
+		if (srcObj == null)
+			return;
+		srcObj.delete();
+		srcObj = null;
+	}
+
+	@Override
+	protected AbstractLibrary getLibrary(final TLEmpty obj) {
+		return null;
+	}
 
 }

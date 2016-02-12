@@ -218,7 +218,7 @@ public abstract class ModelObject<TL> {
 
 	public abstract String getNamePrefix();
 
-	public abstract String getNamespace();
+	public abstract String getNamespace(); // TL*.getNamespace() is only implemented for some TL* classes/interfaces
 
 	public String getPattern() {
 		return "";
@@ -251,9 +251,10 @@ public abstract class ModelObject<TL> {
 		return false;
 	}
 
-	public TL getTLModelObj() {
-		return srcObj;
-	}
+	// public TL getTLModelObj() {
+	// return srcObj;
+	// }
+	public abstract TL getTLModelObj();
 
 	public boolean isComplexAssignable() {
 		return false;
@@ -646,6 +647,10 @@ public abstract class ModelObject<TL> {
 	 */
 	public TLFacet addFacet(TLFacetType type) {
 		return null;
+	}
+
+	protected static String emptyIfNull(final String string) {
+		return string == null ? "" : string;
 	}
 
 }

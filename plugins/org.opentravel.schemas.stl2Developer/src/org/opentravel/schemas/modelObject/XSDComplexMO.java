@@ -115,6 +115,11 @@ public class XSDComplexMO extends ModelObject<XSDComplexType> {
 	}
 
 	@Override
+	public XSDComplexType getTLModelObj() {
+		return srcObj;
+	}
+
+	@Override
 	public boolean isComplexAssignable() {
 		return true;
 	}
@@ -123,10 +128,6 @@ public class XSDComplexMO extends ModelObject<XSDComplexType> {
 	public boolean setName(final String name) {
 		return false;
 	}
-
-	// @Override
-	// public void setDeprecatedDoc(final String string, final int i) {
-	// }
 
 	@Override
 	public void setDeveloperDoc(final String string, final int index) {
@@ -139,9 +140,5 @@ public class XSDComplexMO extends ModelObject<XSDComplexType> {
 	@Override
 	public void setMoreInfo(final String string, final int index) {
 	}
-
-	// @Override
-	// public void setOtherDoc(final String string, final String context) {
-	// }
 
 }
