@@ -111,11 +111,11 @@ public class ValueWithAttributesMO extends ModelObject<TLValueWithAttributes> {
 		return srcObj.getParentType();
 	}
 
-	@Override
-	public boolean isComplexAssignable() {
-		return true;
-	}
-
+	// @Override
+	// public boolean isComplexAssignable() {
+	// return true;
+	// }
+	//
 	@Override
 	public boolean isSimpleAssignable() {
 		return true;

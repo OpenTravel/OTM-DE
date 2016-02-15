@@ -81,10 +81,10 @@ public class ExtensionPointFacetMO extends ModelObject<TLExtensionPointFacet> {
 		return srcObj;
 	}
 
-	@Override
-	public boolean isComplexAssignable() {
-		return false;
-	}
+	// @Override
+	// public boolean isComplexAssignable() {
+	// return false;
+	// }
 
 	/**
 	 * Model will force a core used as page1 to use the page1 facet.

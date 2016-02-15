@@ -97,10 +97,10 @@ public class CoreObjectMO extends ModelObject<TLCoreObject> {
 		return srcObj;
 	}
 
-	@Override
-	public boolean isComplexAssignable() {
-		return true;
-	}
+	// @Override
+	// public boolean isComplexAssignable() {
+	// return true;
+	// }
 
 	/**
 	 * Model will force a core used as simple to use the simple facet.

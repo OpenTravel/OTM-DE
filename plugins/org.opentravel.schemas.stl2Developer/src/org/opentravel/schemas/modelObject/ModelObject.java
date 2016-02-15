@@ -168,38 +168,6 @@ public abstract class ModelObject<TL> {
 
 	protected abstract AbstractLibrary getLibrary(TL obj);
 
-	public int getMaxLength() {
-		return -1;
-	}
-
-	public int getMinLength() {
-		return -1;
-	}
-
-	public int getFractionDigits() {
-		return -1;
-	}
-
-	public int getTotalDigits() {
-		return -1;
-	}
-
-	public String getMinInclusive() {
-		return null;
-	}
-
-	public String getMaxInclusive() {
-		return null;
-	}
-
-	public String getMinExclusive() {
-		return null;
-	}
-
-	public String getMaxExclusive() {
-		return null;
-	}
-
 	/**
 	 * Label is the node's name plus any optional additional generated text that clarifies the role/purpose/type of the
 	 * node to the user. Labels can not be set. Label to be used in tree views. Sub types must override to provide
@@ -220,10 +188,10 @@ public abstract class ModelObject<TL> {
 
 	public abstract String getNamespace(); // TL*.getNamespace() is only implemented for some TL* classes/interfaces
 
-	public String getPattern() {
-		return "";
-	}
-
+	// public String getPattern() {
+	// return "";
+	// }
+	//
 	public int getRepeat() {
 		return -1;
 	}
@@ -251,30 +219,15 @@ public abstract class ModelObject<TL> {
 		return false;
 	}
 
-	// public TL getTLModelObj() {
-	// return srcObj;
-	// }
 	public abstract TL getTLModelObj();
-
-	public boolean isComplexAssignable() {
-		return false;
-	}
-
-	public boolean isComplexFacet() {
-		return false;
-	}
-
-	public boolean isIndicatorElement() {
-		return false;
-	}
-
-	public boolean isIndicatorProperty() {
-		return false;
-	}
 
 	public boolean isMandatory() {
 		return false;
 	}
+
+	// public boolean isComplexAssignable() {
+	// return false;
+	// }
 
 	// 6/30 - seems broken. did not find AttributeMO
 	// USED ALOT
@@ -287,43 +240,7 @@ public abstract class ModelObject<TL> {
 		return false;
 	}
 
-	public boolean setMaxLength(final int length) {
-		return false;
-	}
-
-	public boolean setMinLength(final int length) {
-		return false;
-	}
-
-	public boolean setFractionDigits(final int digits) {
-		return false;
-	}
-
-	public boolean setTotalDigits(final int digits) {
-		return false;
-	}
-
-	public boolean setMinInclusive(final String value) {
-		return false;
-	}
-
-	public boolean setMaxInclusive(final String value) {
-		return false;
-	}
-
-	public boolean setMinExclusive(final String value) {
-		return false;
-	}
-
-	public boolean setMaxExclusive(final String value) {
-		return false;
-	}
-
 	public abstract boolean setName(String name);
-
-	public boolean setPattern(final String pattern) {
-		return false;
-	}
 
 	public boolean setRepeat(final int count) {
 		return false;

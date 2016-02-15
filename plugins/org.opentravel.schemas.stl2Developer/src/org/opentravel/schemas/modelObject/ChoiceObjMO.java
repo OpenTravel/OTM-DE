@@ -129,10 +129,10 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 		return srcObj;
 	}
 
-	@Override
-	public boolean isComplexAssignable() {
-		return true;
-	}
+	// @Override
+	// public boolean isComplexAssignable() {
+	// return true;
+	// }
 
 	@Override
 	public boolean isExtendedBy(NamedEntity extension) {

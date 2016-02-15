@@ -135,10 +135,10 @@ public class OpenEnumMO extends ModelObject<TLOpenEnumeration> {
 		return obj.getOwningLibrary();
 	}
 
-	@Override
-	public boolean isComplexAssignable() {
-		return true;
-	}
+	// @Override
+	// public boolean isComplexAssignable() {
+	// return true;
+	// }
 
 	/**
 	 * @see org.opentravel.schemas.modelObject.ModelObject#setExtendsType(org.opentravel.schemas.modelObject.ModelObject)

@@ -330,6 +330,7 @@ public class Type {
 		QName typeQname = null;
 		LibraryNode typeLibrary = null;
 		AbstractLibrary srcLib = null;
+		Node lt = source.getAssignedTypeByListeners(); // save for checking later
 
 		if (!source.isTypeUser()) {
 			LOGGER.warn("Tried to assign type to a node that is not a type user. " + source);
@@ -413,10 +414,26 @@ public class Type {
 			// verifyAssignment(providerMap, typeQname);
 		} else {
 			// Assign both type class and TL model to the found target
+			verifyAgainstListener(lt, source, target);
 			source.getTypeClass().setAssignedType(target);
 			// LOGGER.debug("Type and model of " + source + " assigned " + target);
 		}
+
 		return ret;
+	}
+
+	private void verifyAgainstListener(Node lt, Node source, Node target) {
+		// verify against listener
+		if (target != lt) {
+			Node lt2 = source.getAssignedTypeByListeners();
+			if (lt.getName().equals(target.getName()) && lt.getNamespace().equals(target.getNamespace()))
+				LOGGER.warn(lt + " has a duplicate type.");
+			else if (source.getLibrary().isBuiltIn())
+				LOGGER.warn("Built in library member " + source + " type does not match.");
+			else
+				// throw new IllegalStateException(target + " type assignment does not match listener " + lt + ".");
+				LOGGER.error(source + " type assignment error.");
+		}
 	}
 
 	// public boolean isValidAssignment(Node target) {
@@ -820,7 +837,7 @@ public class Type {
 		// 6/25/2013 - dmh - have unassigned nodes useful for tracking dependencies
 		setTypeNode(null);
 		clearTypeUsers();
-		LOGGER.debug("Cleared type class for owner: " + typeOwner);
+		// LOGGER.debug("Cleared type class for owner: " + typeOwner);
 	}
 
 	/**
@@ -832,7 +849,7 @@ public class Type {
 			typeNode.typeUsers().remove(typeOwner);
 		setTypeNode(null);
 		deleteTypeUsers();
-		LOGGER.debug("Cleared type class for owner: " + typeOwner);
+		// LOGGER.debug("Cleared type class for owner: " + typeOwner);
 	}
 
 	/**

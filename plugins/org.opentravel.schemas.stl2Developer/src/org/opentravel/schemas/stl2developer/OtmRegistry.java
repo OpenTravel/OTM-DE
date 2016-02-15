@@ -293,7 +293,7 @@ public class OtmRegistry {
 
 	public static void registerMainController(MainController mainController) {
 		if (OtmRegistry.mainController != null)
-			LOGGER.debug("Registering ANOTHER main controller.");
+			LOGGER.debug("Registering ANOTHER main controller.see Import_Tests.beforeEachTest() for proper usage.");
 		OtmRegistry.mainController = mainController;
 	}
 

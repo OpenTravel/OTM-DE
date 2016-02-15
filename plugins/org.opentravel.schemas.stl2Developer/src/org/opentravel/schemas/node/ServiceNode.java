@@ -31,8 +31,15 @@ public class ServiceNode extends ComponentNode {
 
 	public ServiceNode(final TLService tlSvc, LibraryNode ln) {
 		super(tlSvc);
-		addMOChildren();
 
+		// If the service has not had nodes created (ie. first time being loaded) then create children
+		if (GetNode(tlSvc) == null)
+			addMOChildren();
+
+		link(tlSvc, ln);
+	}
+
+	public void link(final TLService tlSvc, LibraryNode ln) {
 		if (ln == null)
 			throw new IllegalArgumentException("Null library for the service.");
 

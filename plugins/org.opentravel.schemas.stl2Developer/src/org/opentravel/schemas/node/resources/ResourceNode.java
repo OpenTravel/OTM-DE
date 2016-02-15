@@ -141,7 +141,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	public ResourceNode(TLResource mbr, LibraryNode lib) {
 		super(mbr);
-		ListenerFactory.setListner(this);
+		if (GetNode(mbr) == null)
+			ListenerFactory.setListner(this);
 
 		assert (getModelObject() != null);
 		tlObj = getTLModelObject();

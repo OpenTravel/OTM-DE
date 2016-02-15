@@ -83,10 +83,10 @@ public class AliasMO extends ModelObject<TLAlias> {
 		return srcObj;
 	}
 
-	@Override
-	public boolean isComplexAssignable() {
-		return true;
-	}
+	// @Override
+	// public boolean isComplexAssignable() {
+	// return true;
+	// }
 
 	@Override
 	public boolean setName(final String name) {

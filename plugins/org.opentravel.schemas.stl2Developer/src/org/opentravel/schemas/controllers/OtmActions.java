@@ -571,7 +571,7 @@ public class OtmActions {
 	}
 
 	private void setPattern(final OtmEventData wd) {
-		mc.getCurrentNode_PropertiesView().getModelObject().setPattern(wd.getText());
+		((ComponentNode) mc.getCurrentNode_PropertiesView()).setPattern(wd.getText());
 	}
 
 	public static int importToTree() {

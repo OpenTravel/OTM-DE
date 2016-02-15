@@ -310,16 +310,11 @@ public class FacetMO extends ModelObject<TLFacet> {
 		return srcObj;
 	}
 
-	@Override
-	public boolean isComplexAssignable() {
-		return true;
-	}
-
-	@Override
-	public boolean isComplexFacet() {
-		return true;
-	}
-
+	// @Override
+	// public boolean isComplexAssignable() {
+	// return true;
+	// }
+	//
 	@Override
 	public boolean setName(final String name) {
 		// Only custom and query facets can be named.

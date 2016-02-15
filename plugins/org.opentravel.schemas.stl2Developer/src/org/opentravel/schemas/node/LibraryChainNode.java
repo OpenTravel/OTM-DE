@@ -161,14 +161,14 @@ public class LibraryChainNode extends Node {
 	 */
 	public LibraryNode add(ProjectItem pi) {
 		// If the chain already has this PI, skip it.
-		LibraryNode newLib = null;
-		for (Node n : versions.getChildren()) {
-			if ((n instanceof LibraryNode))
-				if (pi.equals(((LibraryNode) n).getProjectItem())) {
-					newLib = (LibraryNode) n;
-					break;
-				}
-		}
+		LibraryNode newLib = versions.get(pi);
+		// for (Node n : versions.getChildren()) {
+		// if ((n instanceof LibraryNode))
+		// if (pi.equals(((LibraryNode) n).getProjectItem())) {
+		// newLib = (LibraryNode) n;
+		// break;
+		// } // todo - delegate to versionAggegateNode.contains(pi)
+		// }
 
 		if (newLib == null) {
 			// LOGGER.debug("Adding pi " + pi.getFilename() + " to chain " + getLabel());

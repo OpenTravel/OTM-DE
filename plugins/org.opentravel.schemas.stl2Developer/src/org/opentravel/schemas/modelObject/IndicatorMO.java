@@ -108,15 +108,15 @@ public class IndicatorMO extends ModelObject<TLIndicator> {
 		return thisProp.getOwner().getIndicators().indexOf(thisProp);
 	}
 
-	@Override
-	public boolean isIndicatorProperty() {
-		return !srcObj.isPublishAsElement();
-	}
-
-	@Override
-	public boolean isIndicatorElement() {
-		return srcObj.isPublishAsElement();
-	}
+	// @Override
+	// public boolean isIndicatorProperty() {
+	// return !srcObj.isPublishAsElement();
+	// }
+	//
+	// @Override
+	// public boolean isIndicatorElement() {
+	// return srcObj.isPublishAsElement();
+	// }
 
 	@Override
 	public boolean isMandatory() {

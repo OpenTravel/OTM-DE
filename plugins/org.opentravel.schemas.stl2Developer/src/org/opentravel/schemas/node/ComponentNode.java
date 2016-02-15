@@ -34,6 +34,7 @@ import org.opentravel.schemacompiler.version.MinorVersionHelper;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
 import org.opentravel.schemacompiler.version.Versioned;
 import org.opentravel.schemas.modelObject.EmptyMO;
+import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -71,6 +72,7 @@ public class ComponentNode extends Node implements TypeProvider {
 	 */
 	protected boolean inherited = false;
 	private boolean childrenInitialized = false;
+	public ConstraintHandler constraintHandler = null;
 
 	/**
 	 * ComponentNode constructor.
@@ -95,7 +97,7 @@ public class ComponentNode extends Node implements TypeProvider {
 		super(tlModelObject);
 		// sub-types must render their children into nodes. See addMOChildren();
 		// LOGGER.debug("New component node for "+tlModelObject.getLocalName());
-		if (modelObject.isComplexFacet()) {
+		if (modelObject instanceof FacetMO) {
 			throw new IllegalStateException("Unexpected model object in cn construction.");
 			// addMOChildren();
 		}
@@ -119,21 +121,11 @@ public class ComponentNode extends Node implements TypeProvider {
 		ListenerFactory.setListner(this);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeProvider#getTypeNode()
-	 */
 	@Override
 	public Node getTypeNode() {
 		return getTypeClass().getTypeNode();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isNamedType()
-	 */
 	@Override
 	public boolean isNamedType() {
 		return false;
@@ -155,10 +147,6 @@ public class ComponentNode extends Node implements TypeProvider {
 			final ComponentNode nn = NodeFactory.newComponentMember(this, obj);
 			if (nn != null)
 				nn.addMOChildren();
-			// else {
-			// LOGGER.debug("addMOChildren() - skipping not supported source object type. "
-			// + obj.getClass().getSimpleName());
-			// }
 		}
 	}
 
@@ -287,74 +275,6 @@ public class ComponentNode extends Node implements TypeProvider {
 		return true;
 	}
 
-	// /**
-	// * Create a new component node and model object and link it to <i>this</i>library's Complex or Simple Root node.
-	// * Used for creating model objects from nodes constructed by GUI otmHandlers and wizards.
-	// *
-	// * @see {@link NewComponent_Tests.java}
-	// * @param component
-	// * objectType strings as defined in ComponentNode
-	// * @return node created
-	// *
-	// */
-	// @Deprecated
-	// public Node newComponent(final ComponentNodeType type) {
-	// if (getLibrary() == null) {
-	// // LOGGER.error("Missing Library - can't create new component of type " + type + ".");
-	// return null;
-	// }
-	// // LOGGER.debug("Creating new " + type + " \tcomponent " + getName() + " in " + library);
-	//
-	// ComponentNode cn = null;
-	//
-	// switch (type) {
-	// case SERVICE:
-	// cn = new ServiceNode(this);
-	// break;
-	// case ALIAS:
-	// return new AliasNode(this, this.getName());
-	// case BUSINESS:
-	// cn = NodeFactory.newComponent(new TLBusinessObject());
-	// cn.setExtensible(true);
-	// break;
-	// case CORE:
-	// cn = NodeFactory.newComponent(new TLCoreObject());
-	// cn.setExtensible(true);
-	// break;
-	// case VWA:
-	// cn = NodeFactory.newComponent(new TLValueWithAttributes());
-	// break;
-	// case EXTENSION_POINT:
-	// cn = NodeFactory.newComponent(new TLExtensionPointFacet());
-	// break;
-	// case SIMPLE:
-	// cn = NodeFactory.newComponent(new TLSimple());
-	// break;
-	// case OPEN_ENUM:
-	// cn = NodeFactory.newComponent(new TLOpenEnumeration());
-	// break;
-	// case CLOSED_ENUM:
-	// cn = NodeFactory.newComponent(new TLClosedEnumeration());
-	// break;
-	// default:
-	// // LOGGER.debug(type + " not supported by newComponent().");
-	// }
-	//
-	// if (cn != null) {
-	// cn.setName(getName());
-	// cn.setDescription(getDescription());
-	// cn.setIdentity(getName());
-	//
-	// if (getLibrary().isEditable())
-	// getLibrary().addMember(cn);
-	// else
-	// // Put the new node at the head of the chain.
-	// getLibrary().getChain().getHead().addMember(cn);
-	// }
-	//
-	// return cn;
-	// }
-
 	/*
 	 * ComponentNode Utilities
 	 */
@@ -377,40 +297,45 @@ public class ComponentNode extends Node implements TypeProvider {
 		return null;
 	}
 
-	public int getMaxLen() {
-		return modelObject.getMaxLength();
-	}
-
-	public int getMinLen() {
-		return modelObject.getMinLength();
+	// TOOD - let the view code actually use the handler
+	public ConstraintHandler getConstraintHandler() {
+		return constraintHandler;
 	}
 
 	public String getPattern() {
-		return modelObject.getPattern();
+		return constraintHandler == null ? "" : constraintHandler.getPattern();
+	}
+
+	public int getMaxLen() {
+		return constraintHandler == null ? -1 : constraintHandler.getMaxLen();
+	}
+
+	public int getMinLen() {
+		return constraintHandler == null ? -1 : constraintHandler.getMinLen();
 	}
 
 	public int getFractionDigits() {
-		return modelObject.getFractionDigits();
+		return constraintHandler == null ? -1 : constraintHandler.getFractionDigits();
 	}
 
 	public int getTotalDigits() {
-		return modelObject.getTotalDigits();
+		return constraintHandler == null ? -1 : constraintHandler.getTotalDigits();
 	}
 
 	public String getMinInclusive() {
-		return modelObject.getMinInclusive();
+		return constraintHandler == null ? null : constraintHandler.getMinInclusive();
 	}
 
 	public String getMaxInclusive() {
-		return modelObject.getMaxInclusive();
+		return constraintHandler == null ? null : constraintHandler.getMaxInclusive();
 	}
 
 	public String getMinExclusive() {
-		return modelObject.getMinExclusive();
+		return constraintHandler == null ? null : constraintHandler.getMinExclusive();
 	}
 
 	public String getMaxExclusive() {
-		return modelObject.getMaxExclusive();
+		return constraintHandler == null ? null : constraintHandler.getMaxExclusive();
 	}
 
 	@Override
@@ -476,57 +401,48 @@ public class ComponentNode extends Node implements TypeProvider {
 	}
 
 	public void setPattern(final String pattern) {
-		if (isEditable_newToChain() && modelObject != null) {
-			modelObject.setPattern(pattern);
-		}
+		if (constraintHandler != null)
+			constraintHandler.setPattern(pattern);
 	}
 
 	public void setMinLength(final int length) {
-		if (isEditable_newToChain() && modelObject != null) {
-			modelObject.setMinLength(length);
-		}
+		if (constraintHandler != null)
+			constraintHandler.setMinLength(length);
 	}
 
 	public void setMaxLength(final int length) {
-		if (isEditable_newToChain() && modelObject != null) {
-			modelObject.setMaxLength(length);
-		}
+		if (constraintHandler != null)
+			constraintHandler.setMaxLength(length);
 	}
 
 	public void setFractionDigits(final int length) {
-		if (isEditable_newToChain() && modelObject != null) {
-			modelObject.setFractionDigits(length);
-		}
+		if (constraintHandler != null)
+			constraintHandler.setFractionDigits(length);
 	}
 
 	public void setTotalDigits(final int length) {
-		if (isEditable_newToChain() && modelObject != null) {
-			modelObject.setTotalDigits(length);
-		}
+		if (constraintHandler != null)
+			constraintHandler.setTotalDigits(length);
 	}
 
 	public void setMinInclusive(final String value) {
-		if (isEditable_newToChain() && modelObject != null) {
-			modelObject.setMinInclusive(value);
-		}
+		if (constraintHandler != null)
+			constraintHandler.setMinInclusive(value);
 	}
 
 	public void setMaxInclusive(final String value) {
-		if (isEditable_newToChain() && modelObject != null) {
-			modelObject.setMaxInclusive(value);
-		}
+		if (constraintHandler != null)
+			constraintHandler.setMaxInclusive(value);
 	}
 
 	public void setMinExclusive(final String value) {
-		if (isEditable_newToChain() && modelObject != null) {
-			modelObject.setMinExclusive(value);
-		}
+		if (constraintHandler != null)
+			constraintHandler.setMinExclusive(value);
 	}
 
 	public void setMaxExclusive(final String value) {
-		if (isEditable_newToChain() && modelObject != null) {
-			modelObject.setMaxExclusive(value);
-		}
+		if (constraintHandler != null)
+			constraintHandler.setMaxExclusive(value);
 	}
 
 	/**
@@ -827,31 +743,16 @@ public class ComponentNode extends Node implements TypeProvider {
 		return isBusinessObject() || isCoreObject();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeProvider#isAssignableToSimple()
-	 */
 	@Override
 	public boolean isAssignableToSimple() {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeProvider#isAssignableToVWA()
-	 */
 	@Override
 	public boolean isAssignableToVWA() {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeProvider#isAssignableToElementRef()
-	 */
 	@Override
 	public boolean isAssignableToElementRef() {
 		return false;

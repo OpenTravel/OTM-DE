@@ -62,16 +62,20 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 	}
 
 	/**
+	 * 
+	 * @return the otmModel node that represents this xsd node
+	 */
+	public ComponentNode getOtmModelChild() {
+		return otmModel == null ? createTLModelChild() : otmModel;
+	}
+
+	/**
 	 * Return the TL model Rendered child of this xsd node. If one does not exist, it tries to create one. The new node
 	 * is a member of the generated library and <b>not</b> part of the TLModel. They can not be or else there will be
 	 * name collisions.
 	 * 
 	 * @return
 	 */
-	public ComponentNode getOtmModelChild() {
-		return otmModel == null ? createTLModelChild() : otmModel;
-	}
-
 	private ComponentNode createTLModelChild() {
 		// LOGGER.debug("Creating TLModel Child for node " +
 		// this.getNameWithPrefix()+" in namespace "+ this.getNamespace());

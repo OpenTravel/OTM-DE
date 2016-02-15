@@ -68,11 +68,11 @@ public class RoleEnumerationMO extends ModelObject<TLRoleEnumeration> {
 	// return false;
 	// }
 
-	@Override
-	public boolean isComplexAssignable() {
-		return true;
-	}
-
+	// @Override
+	// public boolean isComplexAssignable() {
+	// return true;
+	// }
+	//
 	@Override
 	public String getComponentType() {
 		return getTLModelObj().getLocalName();

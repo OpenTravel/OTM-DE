@@ -94,6 +94,10 @@ public class TypeResolver {
 				// LOGGER.debug("Duplicate found: " + qn);
 			}
 			visitCount++;
+			// Verify listeners are in place
+			if (!(n instanceof ImpliedNode) && n != Node.GetNode(((Node) n).getTLModelObject()))
+				throw new IllegalStateException(n + " identity listener is wrong.");
+			// LOGGER.debug("Listener did NOT identify correct node.");
 		}
 	}
 
@@ -149,7 +153,7 @@ public class TypeResolver {
 				// Don't use the map, use resource node's method that uses listeners
 				Node target = ((ResourceNode) n).getSubject();
 				n.getTypeClass().set(target, null);
-				LOGGER.debug("ResolveTypes visitor assigned " + target + " to " + n + " resource.");
+				// LOGGER.debug("ResolveTypes visitor assigned " + target + " to " + n + " resource.");
 				return;
 			}
 
@@ -183,8 +187,8 @@ public class TypeResolver {
 		QName typeQname = null;
 		typeQname = new QName(n.getExtendsTypeNS(), n.getExtendsTypeName());
 		INode in = providerMap.get(typeQname);
-		if ((typeQname != null && !typeQname.getLocalPart().isEmpty()) && in == null)
-			LOGGER.error("ERROR - missing node for qname: " + typeQname);
+		// if ((typeQname != null && !typeQname.getLocalPart().isEmpty()) && in == null)
+		// LOGGER.error("ERROR - missing node for qname: " + typeQname);
 		return providerMap.get(typeQname);
 	}
 

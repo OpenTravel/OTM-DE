@@ -26,9 +26,12 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.SimpleFacetNode;
 import org.opentravel.schemas.node.SimpleTypeNode;
+import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.resources.ActionRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Trivial factory class created to consolidate all the listener assignments for maintenance.
@@ -37,6 +40,7 @@ import org.opentravel.schemas.node.resources.ActionRequest;
  *
  */
 public class ListenerFactory {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ListenerFactory.class);
 
 	public ListenerFactory() {
 	}
@@ -59,6 +63,8 @@ public class ListenerFactory {
 			((ModelNode) node).addListeners();
 			return;
 		}
+		if (node instanceof VersionNode)
+			return; // tl object already points to head.
 
 		// if (node instanceof IndicatorNode)
 
@@ -80,6 +86,12 @@ public class ListenerFactory {
 			listener = new ResourceDependencyListener(node);
 		else
 			listener = new NamedTypeListener(node);
+
+		// debugging - trap if there is already a listener
+		Node lNode = Node.GetNode(node.getTLModelObject());
+		if (lNode != null) {
+			LOGGER.debug(node + " already has listeners.");
+		}
 
 		if (listener != null)
 			node.getTLModelObject().addListener(listener);

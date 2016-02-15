@@ -18,7 +18,6 @@ package org.opentravel.schemas.node;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.properties.Images;
 
 /**
@@ -41,7 +40,7 @@ public class VersionNode extends ComponentNode {
 	 * the Aggregates. Set previous version to null (new to chain).
 	 */
 	public VersionNode(ComponentNode node) {
-		super(node.getTLModelObject());
+		super(node.getTLModelObject()); // creates 2nd listener
 		if (node.getParent() == null)
 			throw new IllegalStateException("Version node - " + node + " parent is null.");
 		if (node.getLibrary() == null)
@@ -71,7 +70,8 @@ public class VersionNode extends ComponentNode {
 		}
 
 		// Replace listener on the head node's tl Model Element
-		ListenerFactory.setListner(head);
+		// ListenerFactory.setListner(head); // creates 3rd listener
+		assert GetNode(getTLModelObject()) == head; // make sure listener is correct.
 
 		assert (getParent() != null);
 		assert (!getParent().getChildren().contains(node)) : "Parent still contains node.";

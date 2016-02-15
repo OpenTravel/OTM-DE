@@ -96,11 +96,11 @@ public class SimpleFacetMO extends ModelObject<TLSimpleFacet> {
 		return null;
 	}
 
-	@Override
-	public boolean isComplexAssignable() {
-		return true;
-	}
-
+	// @Override
+	// public boolean isComplexAssignable() {
+	// return true;
+	// }
+	//
 	@Override
 	public boolean isSimpleAssignable() {
 		return true;

@@ -45,7 +45,7 @@ public class ResourceModelEventListener implements
 			source = getSourceNode(event.getSource());
 		if (event.getAffectedItem() instanceof TLModelElement)
 			affected = getSourceNode(event.getAffectedItem());
-		LOGGER.debug("Event type: " + event.getType() + "  Source = " + source + ", Affected = " + affected);
+		// LOGGER.debug("Event type: " + event.getType() + "  Source = " + source + ", Affected = " + affected);
 		if (affected == null || source == null)
 			return;
 

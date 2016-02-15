@@ -119,11 +119,11 @@ public class XSDComplexMO extends ModelObject<XSDComplexType> {
 		return srcObj;
 	}
 
-	@Override
-	public boolean isComplexAssignable() {
-		return true;
-	}
-
+	// @Override
+	// public boolean isComplexAssignable() {
+	// return true;
+	// }
+	//
 	@Override
 	public boolean setName(final String name) {
 		return false;

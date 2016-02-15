@@ -746,6 +746,10 @@ public abstract class Node implements INode {
 		return null;
 	}
 
+	static public Node GetNode(TLModelElement tlObj) {
+		return GetNode(tlObj.getListeners());
+	}
+
 	static public Node GetNode(Collection<ModelElementListener> listeners) {
 		for (ModelElementListener listener : listeners)
 			if (listener instanceof NodeIdentityListener)
@@ -2045,6 +2049,26 @@ public abstract class Node implements INode {
 	public Node getAssignedType() {
 		LOGGER.debug("Get assigned type for " + this.getClass().getSimpleName() + ":" + this);
 		return (this instanceof TypeUser) ? getAssignedType() : null;
+	}
+
+	/**
+	 * Get the type assigned using the TL Model object and listeners.
+	 * 
+	 * @return node assigned as the type or null if none.
+	 */
+	public Node getAssignedTypeByListeners() {
+		Node type = null;
+		if (this instanceof TypeUser) {
+			NamedEntity tlObj = getTLTypeObject(); // todo - if null, implied.missing
+			if (tlObj instanceof TLModelElement)
+				type = getNode(((TLModelElement) tlObj).getListeners());
+			// xsd types will have xsd nodes which have links to the simple node to use
+			if (type instanceof XsdNode)
+				type = ((XsdNode) type).getOtmModelChild();
+			if (type == null)
+				type = ModelNode.getUnassignedNode();
+		}
+		return type;
 	}
 
 	/**

@@ -31,6 +31,7 @@ import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLModel;
+import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
 import org.opentravel.schemas.utils.PropertyNodeBuilder;
@@ -47,6 +48,8 @@ public class NodeNameUtilsTest {
 	@BeforeClass
 	public static void beforeTests() {
 		new ModelNode(new TLModel());
+		new MainController(); // isolate from previous test (I think)
+		// When run in all tests i got 4 type assignment errors where listener did not match target
 	}
 
 	@Rule

@@ -18,7 +18,6 @@ package org.opentravel.schemas.modelObject;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.XSDSimpleType;
 import org.opentravel.schemas.node.XsdNode;
 import org.slf4j.Logger;
@@ -130,10 +129,10 @@ public class XSDSimpleMO extends ModelObject<XSDSimpleType> {
 		return getTLModelObj().getNamespace();
 	}
 
-	@Override
-	public String getPattern() {
-		return ((tlObj != null) && (tlObj instanceof TLSimple)) ? ((TLSimple) tlObj).getPattern() : "";
-	}
+	// @Override
+	// public String getPattern() {
+	// return ((tlObj != null) && (tlObj instanceof TLSimple)) ? ((TLSimple) tlObj).getPattern() : "";
+	// }
 
 	@Override
 	public boolean isSimpleAssignable() {

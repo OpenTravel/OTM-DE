@@ -21,7 +21,9 @@ package org.opentravel.schemas.node;
 import java.io.File;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.properties.ElementNode;
@@ -46,9 +48,18 @@ public class Import_Tests {
 	LibraryTests lt = new LibraryTests();
 	MockLibrary ml = null;
 	LibraryNode ln = null;
-	MainController mc = new MainController();
-	ProjectController pc = mc.getProjectController();
-	ProjectNode defaultProject = pc.getDefaultProject();
+	MainController mc;
+	ProjectController pc;
+	ProjectNode defaultProject;
+
+	@Before
+	public void beforeEachTest() {
+		// mc = OtmRegistry.getMainController(); // don't do this - it messes up the project controller
+		// if (mc == null)
+		mc = new MainController();
+		pc = (DefaultProjectController) mc.getProjectController();
+		defaultProject = pc.getDefaultProject();
+	}
 
 	@Test
 	public void ImportTest() throws Exception {
@@ -82,7 +93,7 @@ public class Import_Tests {
 	public void ImportInManagedTest() throws Exception {
 		NodeTesters nt = new NodeTesters();
 
-		LibraryNode sourceLib = lf.loadFile5Clean(mc);
+		LibraryNode sourceLib = lf.loadFile5Clean(mc); // load into default project
 		LibraryNode destLib = lf.loadFile1(mc);
 		LibraryChainNode lcn = new LibraryChainNode(destLib);
 		lcn.add(sourceLib.getProjectItem());

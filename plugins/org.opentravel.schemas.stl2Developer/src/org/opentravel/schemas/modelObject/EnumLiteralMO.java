@@ -66,11 +66,11 @@ public class EnumLiteralMO extends ModelObject<TLEnumValue> {
 		return srcObj;
 	}
 
-	@Override
-	public boolean isComplexAssignable() {
-		return false;
-	}
-
+	// @Override
+	// public boolean isComplexAssignable() {
+	// return false;
+	// }
+	//
 	@Override
 	public boolean setName(final String name) {
 		getTLModelObj().setLiteral(name);

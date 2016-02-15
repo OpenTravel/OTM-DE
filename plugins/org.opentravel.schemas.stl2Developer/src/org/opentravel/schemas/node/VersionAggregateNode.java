@@ -20,6 +20,8 @@ package org.opentravel.schemas.node;
 
 import java.util.List;
 
+import org.opentravel.schemacompiler.repository.ProjectItem;
+
 /**
  * The version aggregate node collects libraries that are in a chain. The library chain displays it children which are
  * Aggregate Node and a Version Aggregate Node.
@@ -43,6 +45,16 @@ public class VersionAggregateNode extends AggregateNode {
 
 	public void add(Node n) {
 		throw (new IllegalStateException("Version aggregates can not contain " + n.getClass().getSimpleName()));
+	}
+
+	/**
+	 * @return the library matching this project item or null
+	 */
+	public LibraryNode get(ProjectItem pi) {
+		for (Node n : getChildren())
+			if (pi.equals(((LibraryNode) n).getProjectItem()))
+				return (LibraryNode) n;
+		return null;
 	}
 
 	@Override

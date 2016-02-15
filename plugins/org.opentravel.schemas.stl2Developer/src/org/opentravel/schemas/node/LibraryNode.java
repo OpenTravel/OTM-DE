@@ -127,8 +127,10 @@ public class LibraryNode extends Node {
 	 */
 	public LibraryNode(final AbstractLibrary alib, final Node parent) {
 		super(alib.getName());
-
-		// LOGGER.debug("Begin creating new library: "+alib.getName());
+		if (parent instanceof VersionAggregateNode)
+			LOGGER.debug("Begin creating new library: " + alib.getName() + " in " + parent.getParent());
+		else
+			LOGGER.debug("Begin creating new library: " + alib.getName() + " in " + parent);
 
 		setLibrary(this);
 		absTLLibrary = alib;
@@ -144,7 +146,7 @@ public class LibraryNode extends Node {
 		for (ProjectItem item : getProject().getProject().getProjectItems()) {
 			if (item.getContent() == alib) {
 				pi = item;
-				break;
+				break; // todo - delegate to project.get(alib)
 			}
 		}
 		if (pi == null) {
@@ -178,7 +180,7 @@ public class LibraryNode extends Node {
 
 		// Set up the contexts
 		addContexts();
-		// LOGGER.debug("Library created: " + this.getName());
+		LOGGER.debug("Library created: " + this.getName());
 	}
 
 	private void addListeners() {
@@ -691,15 +693,18 @@ public class LibraryNode extends Node {
 		if (genTLLib == null)
 			makeGeneratedComponentLibrary(biLib);
 		for (final LibraryMember mbr : biLib.getNamedMembers()) {
+			n = GetNode(mbr);
 			if ((mbr instanceof XSDSimpleType) || (mbr instanceof XSDComplexType) || (mbr instanceof XSDElement)) {
 				hasXsd = true;
-				xn = new XsdNode(mbr, this);
-				n = xn.getOtmModelChild();
+				if (n == null) {
+					xn = new XsdNode(mbr, this);
+					n = xn.getOtmModelChild();
+					xn.setXsdType(true);
+				}
 				if (n == null)
 					continue;
 				n.setXsdType(true); // TESTME - may be null
-				xn.setXsdType(true);
-			} else
+			} else if (n == null)
 				n = NodeFactory.newComponent_UnTyped(mbr);
 			linkMember(n);
 			n.setLibrary(this);
@@ -713,29 +718,42 @@ public class LibraryNode extends Node {
 		if (genTLLib == null)
 			makeGeneratedComponentLibrary(xLib);
 		for (final LibraryMember mbr : xLib.getNamedMembers()) {
-			final XsdNode n = new XsdNode(mbr, this);
-			if (n.getOtmModelChild() != null) {
-				linkMember(n.getOtmModelChild());
-				n.setLibrary(this);
-				n.getOtmModelChild().setXsdType(true);
+			Node n = GetNode(mbr); // use node if member is already modeled.
+			if (n == null) {
+				final XsdNode xn = new XsdNode(mbr, this);
+				n = xn.getOtmModelChild();
+				xn.setXsdType(true);
 				n.setXsdType(true);
 			}
+			linkMember(n);
+			n.setLibrary(this);
 		}
 	}
 
 	private void generateLibrary(final TLLibrary tlLib) {
 		for (final LibraryMember mbr : tlLib.getNamedMembers()) {
-			if (mbr instanceof TLService)
-				new ServiceNode((TLService) mbr, this);
-			else if (mbr instanceof TLResource)
-				new ResourceNode((TLResource) mbr, this);
+			ComponentNode n = (ComponentNode) GetNode(mbr);
+			if (mbr instanceof TLService) {
+				if (n instanceof ServiceNode)
+					((ServiceNode) n).link((TLService) mbr, this);
+				else
+					new ServiceNode((TLService) mbr, this);
+			} else if (mbr instanceof TLResource)
+				if (n instanceof ResourceNode) {
+					n.getLibrary().remove(n);
+					this.linkMember(n);
+				} else
+					new ResourceNode((TLResource) mbr, this);
 			else {
-				ComponentNode n = NodeFactory.newComponent_UnTyped(mbr);
+				// If the parent is a version aggregate (inChain) and the tlLib already has nodes associated, use those
+				// node. Otherwise create new ones.
+				if (n == null)
+					n = NodeFactory.newComponent_UnTyped(mbr);
 				linkMember(n);
-				n.setLibrary(this);
+				// done in linkMember() - n.setLibrary(this);
 			}
 		}
-		new TypeResolver().resolveTypes();
+		new TypeResolver().resolveTypes(); // TODO - this is run too often
 	}
 
 	public boolean hasGeneratedChildren() {

@@ -276,10 +276,10 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 		return obj.getOwningLibrary();
 	}
 
-	@Override
-	public boolean isComplexAssignable() {
-		return true;
-	}
+	// @Override
+	// public boolean isComplexAssignable() {
+	// return true;
+	// }
 
 	/**
 	 * @see org.opentravel.schemas.modelObject.ModelObject#getExtendsType()

@@ -23,6 +23,7 @@ import javax.xml.namespace.QName;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.modelObject.XsdModelingUtils;
@@ -39,7 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Handles Both simple types and closed enumerations.
+ * Handles simple types and is extended by closed enumerations.
  * 
  * @author Dave Hollander
  * 
@@ -52,9 +53,16 @@ public class SimpleTypeNode extends ComponentNode implements SimpleComponentInte
 	protected IValueWithContextHandler exampleHandler = null;
 
 	public SimpleTypeNode(LibraryMember mbr) {
-		super(mbr);
-		assert (getTLModelObject() != null);
 
+		super(mbr);
+
+		assert (getTLModelObject() != null);
+		if (this instanceof EnumerationClosedNode)
+			assert getTLModelObject() instanceof TLClosedEnumeration;
+		else if (this instanceof SimpleTypeNode) {
+			assert getTLModelObject() instanceof TLSimple;
+			constraintHandler = new ConstraintHandler((TLSimple) getTLModelObject(), this);
+		}
 		// done in super() - ListenerFactory.setListner(this);
 	}
 
