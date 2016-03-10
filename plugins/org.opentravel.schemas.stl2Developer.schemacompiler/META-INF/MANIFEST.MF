@@ -29,9 +29,9 @@ Bundle-ClassPath: .,
  libs/commons-digester-1.8.1.jar,
  libs/commons-validator-1.4.1.jar,
  libs/gson-2.5.jar,
- libs/jackson-annotations-2.5.0.jar,
- libs/jackson-core-2.5.1.jar,
- libs/jackson-databind-2.5.1.jar
+ libs/jackson-annotations-2.4.0.jar,
+ libs/jackson-core-2.4.5.jar,
+ libs/jackson-databind-2.4.5.jar
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.10.0",
  org.opentravel.schemas.stl2Developer.ota2;bundle-version="3.2.0",
  slf4j.api;bundle-version="1.7.10",
