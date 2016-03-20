@@ -19,6 +19,7 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.node.BusinessObjectNode;
@@ -31,7 +32,7 @@ import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
-import org.opentravel.schemas.types.TypeUser;
+import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * A property node that represents an XML element. See {@link NodeFactory#newComponentMember(INode, Object)}
@@ -39,7 +40,7 @@ import org.opentravel.schemas.types.TypeUser;
  * @author Dave Hollander
  * 
  */
-public class ElementReferenceNode extends PropertyNode implements TypeUser {
+public class ElementReferenceNode extends PropertyNode {
 
 	/**
 	 * Add an element reference property to a facet or extension point.
@@ -52,7 +53,7 @@ public class ElementReferenceNode extends PropertyNode implements TypeUser {
 	public ElementReferenceNode(PropertyOwnerInterface parent, String name) {
 		super(new TLProperty(), (Node) parent, name, PropertyNodeType.ID_REFERENCE);
 		((TLProperty) getTLModelObject()).setReference(true);
-		setAssignedType(ModelNode.getUnassignedNode());
+		setAssignedType((TypeProvider) ModelNode.getUnassignedNode());
 	}
 
 	/**
@@ -93,7 +94,8 @@ public class ElementReferenceNode extends PropertyNode implements TypeUser {
 		n.setName(type.getName());
 		getParent().linkChild(n, indexOfNode());
 		n.setDescription(type.getDescription());
-		n.setAssignedType(type);
+		if (type instanceof TypeProvider)
+			n.setAssignedType((TypeProvider) type);
 		return n;
 	}
 
@@ -102,11 +104,6 @@ public class ElementReferenceNode extends PropertyNode implements TypeUser {
 		return Images.getImageRegistry().get(Images.ID_Reference);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getLabel()
-	 */
 	@Override
 	public String getLabel() {
 		return modelObject.getLabel();
@@ -123,24 +120,9 @@ public class ElementReferenceNode extends PropertyNode implements TypeUser {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isTypeUser()
-	 */
-	@Override
-	public boolean isTypeUser() {
-		return true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.PropertyNode#setName(java.lang.String)
-	 */
 	@Override
 	public void setName(String name) {
-		QName ln = PropertyCodegenUtils.getDefaultSchemaElementName(getTLTypeObject(), true);
+		QName ln = PropertyCodegenUtils.getDefaultSchemaElementName((NamedEntity) getAssignedTLObject(), true);
 		if (ln == null || getType() == null || (getType() instanceof ImpliedNode))
 			modelObject.setName(NodeNameUtils.fixElementRefName(name));
 		else {

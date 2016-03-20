@@ -53,6 +53,7 @@ import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.widgets.OtmEventData;
 import org.opentravel.schemas.widgets.OtmHandlers;
 import org.opentravel.schemas.widgets.OtmSections;
@@ -444,7 +445,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 		// LOGGER.debug("Posting component node properties.");
 
 		if (n.getParent() == null || n.getModelObject() == null || n.getTLModelObject() == null) {
-			LOGGER.debug("Error with object: " + n);
+			LOGGER.warn("Error with object: " + n.getNameWithPrefix());
 		} else if (n.getParent().isValueWithAttributes() && n.isFacet()) {
 			// for VWA - Facets should not have name and description editable
 			fields.postField(nameField, n.getName(), false);
@@ -511,6 +512,12 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 	}
 
 	private void updateType(final ComponentNode cn) {
+		// If not type user or type user has a required type then do nothing.
+		if (!(cn instanceof TypeUser))
+			return;
+		if (((TypeUser) cn).getRequiredType() != null)
+			return;
+
 		fields.postField(typeField, cn.getTypeName(), cn.isEnabled_AssignType());
 		// fields.postField(typeField, cn.getTypeName(), cn.isEditable_newToChain() && cn.isTypeUser());
 		fields.postField(typePrefix, cn.getAssignedPrefix(), false);

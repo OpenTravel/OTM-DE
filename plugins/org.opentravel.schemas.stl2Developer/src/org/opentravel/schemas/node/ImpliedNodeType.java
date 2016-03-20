@@ -20,8 +20,8 @@ import org.opentravel.schemacompiler.model.LibraryMember;
 public enum ImpliedNodeType {
 
 	Empty("Undefined", ImpliedNode.Undefined), XSD_Atomic("XSD_Atomic", ImpliedNode.XSD_Atomic), UnassignedType(
-			"Missing", ImpliedNode.missing), Duplicate("Duplicate", ImpliedNode.duplicate), Indicator("Indicator",
-			ImpliedNode.indicator), Union("Union", ImpliedNode.union), String("DefaultString",
+			Node.UNDEFINED_PROPERTY_TXT, ImpliedNode.missing), Duplicate("Duplicate", ImpliedNode.duplicate), Indicator(
+			"Indicator", ImpliedNode.indicator), Union("Union", ImpliedNode.union), String("DefaultString",
 			ImpliedNode.defaultString);
 
 	private String impliedNodeType;

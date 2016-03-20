@@ -55,6 +55,8 @@ import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.stl2developer.ColorProvider;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.widgets.LibraryTablePoster;
 import org.opentravel.schemas.widgets.WidgetFactory;
 import org.opentravel.schemas.wizards.ChangeWizard.ExtentedTLFacetType;
@@ -272,7 +274,7 @@ public class ChangeWizardPage extends WizardPage {
 	 * Set the type of object. The editNode becomes the newly created object and the current node is put into history.
 	 */
 	private void setObjectType(final SubType st) {
-		LOGGER.debug("setObjectType(" + st + ") " + editedNode.getName() + " has " + editedNode.getTypeUsersCount()
+		LOGGER.debug("setObjectType(" + st + ") " + editedNode.getName() + " has " + editedNode.getWhereUsedCount()
 				+ " users.");
 
 		final HistoryItem item = new HistoryItem(OpType.OBJECT_TYPE_CHANGE, editedNode, null);
@@ -281,7 +283,7 @@ public class ChangeWizardPage extends WizardPage {
 			editedNode = editedNode.changeObject(st);
 			tablePoster.postTable(editedNode);
 			updateFacetTypeButtons();
-			LOGGER.debug("After change " + editedNode.getName() + " has " + editedNode.getTypeUsersCount() + " users.");
+			LOGGER.debug("After change " + editedNode.getName() + " has " + editedNode.getWhereUsedCount() + " users.");
 		} catch (Exception ex) {
 			undoLastOp();
 			LOGGER.warn("Error on chaning type to: " + st.toString());
@@ -576,7 +578,7 @@ public class ChangeWizardPage extends WizardPage {
 			}
 			// Copy the simple property for history / revert. Set its type.
 			Node clone = simpleProp.clone(null, null);
-			clone.setAssignedType(simpleProp.getType());
+			((TypeUser) clone).setAssignedType((TypeProvider) simpleProp.getType());
 			// clone has no parent as needed for setAssignedType, so use the type class.
 			// clone.getTypeClass().setTypeNode(simpleProp.getType());
 

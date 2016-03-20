@@ -15,12 +15,18 @@
  */
 package org.opentravel.schemas.node;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.modelObject.XSDElementMO;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
+import org.opentravel.schemas.node.listeners.NamedTypeListener;
+import org.opentravel.schemas.node.listeners.NodeIdentityListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +40,7 @@ import org.slf4j.LoggerFactory;
 public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(XsdNode.class);
-	protected ComponentNode otmModel = null; // a pointer to a node/model object
-												// and tlObj
+	protected ComponentNode otmModel = null; // a pointer to a node/model object and tlObj
 												// representing the xsd type
 
 	/**
@@ -50,6 +55,16 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 		this.setLibrary(lib);
 		// Build all of the tl models now so they and their local types get rendered in the tree
 		this.createTLModelChild();
+
+		// fix listener to point to otmModel instead the this
+		Collection<ModelElementListener> toRemove = new ArrayList<ModelElementListener>();
+		for (ModelElementListener l : getTLModelObject().getListeners())
+			if (l instanceof NodeIdentityListener)
+				toRemove.add(l);
+		for (ModelElementListener l : toRemove)
+			getTLModelObject().removeListener(l);
+		NamedTypeListener listener = new NamedTypeListener(getOtmModel());
+		getTLModelObject().addListener(listener);
 	}
 
 	/**
@@ -65,7 +80,7 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 	 * 
 	 * @return the otmModel node that represents this xsd node
 	 */
-	public ComponentNode getOtmModelChild() {
+	public ComponentNode getOtmModel() {
 		return otmModel == null ? createTLModelChild() : otmModel;
 	}
 
@@ -107,8 +122,8 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 
 	@Override
 	public boolean isImportable() {
-		if ((isInXSDSchema() || isInBuiltIn()) && getOtmModelChild() != null
-				&& !(getOtmModelChild().getModelObject().getTLModelObj() instanceof TLEmpty)) {
+		if ((isInXSDSchema() || isInBuiltIn()) && getOtmModel() != null
+				&& !(getOtmModel().getModelObject().getTLModelObj() instanceof TLEmpty)) {
 			return true;
 		}
 		return false;
@@ -127,7 +142,7 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 	@Override
 	public boolean isMissingAssignedType() {
 		// LOGGER.debug("check xsdNode "+getName()+" for missing type");
-		return getOtmModelChild().isMissingAssignedType();
+		return getOtmModel().isMissingAssignedType();
 	}
 
 	/*
@@ -137,9 +152,9 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 	 */
 	@Override
 	public boolean hasNavChildrenWithProperties() {
-		if (getOtmModelChild() == null)
+		if (getOtmModel() == null)
 			return false;
-		for (final INode n : getOtmModelChild().getChildren()) {
+		for (final INode n : getOtmModel().getChildren()) {
 			// if (n.isNavChildWithProperties()) {
 			return true;
 			// }
@@ -201,14 +216,11 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 		return otmModel instanceof SimpleComponentInterface;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.SimpleComponentInterface#getBaseType()
-	 */
 	@Override
 	public INode getBaseType() {
-		return otmModel.isBaseTypeUser() ? otmModel.getType() : null;
+		throw new IllegalAccessError("xsd node getBaseType() is not implemented.");
+		// return null; // never called
+		// return otmModel.isBaseTypeUser() ? otmModel.getType() : null;
 	}
 
 	/*

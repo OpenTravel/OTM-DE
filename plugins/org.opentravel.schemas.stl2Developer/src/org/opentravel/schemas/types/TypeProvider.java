@@ -15,14 +15,19 @@
  */
 package org.opentravel.schemas.types;
 
+import java.util.Collection;
 import java.util.List;
 
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
 
 /**
- * Implementations of this interface are type definitions or other assignable nodes that represent
- * type definitions such as Aliases.
+ * Implementations of this interface are type definitions or other assignable nodes that represent type definitions such
+ * as Aliases.
+ * 
+ * Methods include managing where used and access to values that can be assigned to the user from the provider.
  * 
  * Note - the only way to add a user is via the TypeUser interface. (user.setAssignedType())
  * 
@@ -31,50 +36,97 @@ import org.opentravel.schemas.node.interfaces.INode;
  */
 public interface TypeProvider {
 
-    /**
-     * @return a list of nodes that use this as a type definition or base type
-     */
-    public List<Node> getWhereUsed();
+	/**
+	 * @param user
+	 *            to add to the where used list
+	 */
+	public void addWhereUsed(TypeUser user);
 
-    /**
-     * @return the component node used to represent users of this type.
-     */
-    public INode getTypeNode();
+	public String getDescription();
 
-    /**
-     * @return a list of nodes that use this as a type definition or base type
-     */
-    public List<Node> getTypeUsers();
+	// TODO - this should be collection of TypeUsers
 
-    /**
-     * @return (where used count) the number of type users which are nodes that use this as a type
-     *         definition or base type
-     */
-    public int getTypeUsersCount();
+	public LibraryNode getLibrary();
 
-    /**
-     * @return true if this object can be used as an assigned type or base type
-     */
-    public boolean isTypeProvider();
+	public String getName();
 
-    /**
-     * @return true if this node can be assigned to an attribute or simple property
-     */
-    public boolean isAssignableToSimple();
+	public TLModelElement getTLModelObject();
 
-    /**
-     * @return true if this node can be assigned to an attribute, simple property or VWA attribute
-     */
-    public boolean isAssignableToVWA();
+	/**
+	 * @return the component node used to represent users of this type.
+	 */
+	public INode getTypeNode();
 
-    /**
-     * @return true if this node can be assigned to an element reference
-     */
-    public boolean isAssignableToElementRef();
+	/**
+	 * @return a list of nodes that use this as a type definition or base type
+	 */
+	public List<Node> getTypeUsers();
 
-    /**
-     * @return the node which owns this type class
-     */
-    public INode getTypeOwner();
+	public WhereAssignedHandler getWhereAssignedHandler();
+
+	/**
+	 * @return a unmodifiable collection of nodes that use this as a type definition or base type
+	 */
+	public Collection<Node> getWhereUsed();
+
+	/**
+	 * @return a unmodifiable collection of nodes that use this or any of its descendants as a type definition or base
+	 *         type
+	 */
+	public Collection<Node> getWhereUsedAndDescendants();
+
+	/**
+	 * @return count of users of this type provider and its descendants
+	 */
+	public int getWhereUsedAndDescendantsCount();
+
+	/**
+	 * @return (where used count) the number of type users which are nodes that use this as a type definition or base
+	 *         type
+	 */
+	public int getWhereUsedCount();
+
+	/**
+	 * @return a node suitable for use in navigator to represent the where used collection
+	 */
+	public TypeNode getWhereUsedNode();
+
+	/**
+	 * @return true if this node can be assigned to an element reference
+	 */
+	public boolean isAssignableToElementRef();
+
+	/**
+	 * @return true if this node can be assigned to an attribute or simple property
+	 */
+	public boolean isAssignableToSimple();
+
+	/**
+	 * @return true if this node can be assigned to an attribute, simple property or VWA attribute
+	 */
+	public boolean isAssignableToVWA();
+
+	public boolean isAssignedByReference();
+
+	/**
+	 * @return true if this object can be used as an assigned type or base type
+	 */
+	public boolean isTypeProvider();
+
+	/**
+	 * Remove the listener for the type user
+	 * 
+	 * @param user
+	 */
+	public void removeListener(TypeUser user);
+
+	public void setListener(TypeUser typeUser);
+
+	/**
+	 * Remove the type user from the where assigned list and its listener
+	 * 
+	 * @param user
+	 */
+	void removeTypeUser(TypeUser user);
 
 }

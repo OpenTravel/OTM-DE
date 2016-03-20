@@ -35,6 +35,7 @@ import org.opentravel.schemacompiler.codegen.example.ExampleDocumentBuilder;
 import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions;
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.LibraryElement;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
@@ -77,9 +78,9 @@ import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
-import org.opentravel.schemas.types.Type;
-import org.opentravel.schemas.types.TypeNode;
+import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
+import org.opentravel.schemas.types.WhereExtendedHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -96,7 +97,8 @@ public abstract class Node implements INode {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Node.class);
 
-	public static final String UNDEFINED_PROPERTY_TXT = "Undefined";
+	// See ImpliedNodeType
+	public static final String UNDEFINED_PROPERTY_TXT = "Missing";
 
 	/**
 	 * Within the node classes, public adders and setters are responsible for keeping the nodes and underlying library
@@ -107,6 +109,9 @@ public abstract class Node implements INode {
 	protected static ModelNode root; // The root of the library catalog.
 	protected static int nodeCount = 1; // used to assign nodeID
 	protected String nodeID; // unique ID assigned to each node automatically
+
+	// Facets and library members can be extended by an extension owner.
+	protected WhereExtendedHandler whereExtendedHandler = null;
 
 	// Ancestry
 	private LibraryNode library; // link to the library node to which this node belongs
@@ -124,7 +129,7 @@ public abstract class Node implements INode {
 	protected XsdNode xsdNode = null; // Link to node containing imported XSD representation
 	protected boolean xsdType = false; // True if this node represents an object that was created by
 										// the XSD utilities but has not be imported.
-	protected Type type = null; // Type information associated with properties
+	// protected Type type = null; // Type information associated with properties
 	private String identity = ""; // just for debugging
 
 	static final String EMPTY_TYPE = "Empty";
@@ -138,8 +143,8 @@ public abstract class Node implements INode {
 		nodeID = Integer.toString(nodeCount++);
 		setLibrary(null);
 		modelObject = newModelObject(new TLEmpty());
-		if (!(this instanceof TypeNode))
-			type = new Type(this);
+		// if (!(this instanceof TypeNode))
+		// type = new Type(this);
 		versionNode = null;
 	}
 
@@ -258,8 +263,6 @@ public abstract class Node implements INode {
 	 * @param replacement
 	 *            - should be in library, named and with all properties.
 	 * 
-	 * @return ?? void ?? Returns false if the swap was not made or the replacement could not be assigned. If false, the
-	 *         swapped node may still be used as a type but may not be in a library.
 	 */
 	public void swap(Node replacement) {
 		assert (replacement != null) : "Null replacement node.";
@@ -270,27 +273,30 @@ public abstract class Node implements INode {
 
 		final Node thisParent = parent;
 
+		// FIXME - if the names are not the same, may need family processing
+		// parent.linkChild(replacement, getName() != replacement.getName()); // skip family processing if the same name
+
 		// Add replacement to the parent if not already there.
-		if (!thisParent.children.contains(replacement))
-			thisParent.children.add(replacement);
+		parent.linkChild(replacement, false); // ignored if already linked, skip family processing
+
 		// Fail if in the list more than once.
 		assert (replacement.getParent().getChildren().indexOf(replacement) == replacement.getParent().getChildren()
 				.lastIndexOf(replacement));
 
-		// Make sure the replacement model object is in the same library as this node.
+		// Force the replacement model object to be in the same library as this node.
 		AbstractLibrary thisTlLibrary = ((LibraryMember) this.getTLModelObject()).getOwningLibrary();
 		AbstractLibrary replacementTlLibrary = ((LibraryMember) replacement.getTLModelObject()).getOwningLibrary();
 		if (thisTlLibrary != replacementTlLibrary) {
-			LOGGER.debug("swap(): replacement TL object was not in same library.");
+			// LOGGER.debug("swap(): replacement TL object was not in same library.");
 			replacement.getModelObject().addToLibrary(((LibraryMember) this.getTLModelObject()).getOwningLibrary());
 		}
 
 		replacement.setLibrary(this.getLibrary());
-		replaceWith(replacement);
-		// 1/20/15 NO - thisParent will be a family node
-		// replacement.parent = thisParent; // NO NO NO
-		// assert (thisParent.children.contains(replacement)) : "Replacement not in parent's list.";
+		replaceWith(replacement); // Removes this from library
 
+		// Post-checks
+		if (!(thisParent instanceof FamilyNode)) // family may be removed if this and replacement were only members
+			assert (replacement.getParent() == thisParent) : "Replacement parent not assigned.";
 		assert (this.library == null) : "This library should be null.";
 		assert (this.parent == null) : "This parent should be null.";
 	}
@@ -320,7 +326,8 @@ public abstract class Node implements INode {
 
 		// 9/28/2015 dmh - moved removeFromLibrary logic to LibraryNode.
 		// if (replacement.getLibrary() == null)
-		getLibrary().addMember(replacement);
+		getLibrary().addMember(replacement); // does nothing in swap because replacement lib is already set to
+												// this.getLibrary()
 		// if (replacement.getLibrary() != ln) {
 		// replacement.removeFromLibrary();
 		// ln.addMember(replacement);
@@ -328,34 +335,37 @@ public abstract class Node implements INode {
 		// else
 		// LOGGER.debug("replaceWith() - replacement is assumed to already be member and was not added to library");
 
-		replaceTypesWith(replacement);
+		replaceTypesWith(replacement, null);
+		// if (this instanceof TypeProvider && replacement instanceof TypeProvider)
+		// if (((TypeProvider) this).getWhereAssignedHandler() != null)
+		// ((TypeProvider) this).getWhereAssignedHandler().replaceAll((TypeProvider) replacement);
 
 		// 9/28/2015 dmh - moved to end to preserve linkages. Listeners will remove the whereUsed links.
 		getLibrary().removeMember(this);
 	}
 
-	/**
-	 * Use TypeNode to set the TL type and extension bases for this node and all children.
-	 */
-	protected void fixAssignments() {
-		ArrayList<Node> users = new ArrayList<Node>(getTypeClass().getTypeUsers());
-		for (Node user : getTypeClass().getBaseUsers()) {
-			getTypeClass().setAssignedBaseType(this);
-			// user.getModelObject().setExtendsType(this.getModelObject());
-			// typeUsers list includes base type users so remove them before doing assignments.
-			users.remove(user);
-		}
-		for (Node user : users)
-			user.getModelObject().setTLType(this.getModelObject());
+	// /**
+	// * Use TypeNode to set the TL type and extension bases for this node and all children.
+	// */
+	// protected void fixAssignments() {
+	// ArrayList<Node> users = new ArrayList<Node>(getTypeClass().getTypeUsers());
+	// for (Node user : getTypeClass().getBaseUsers()) {
+	// getTypeClass().setAssignedBaseType(this);
+	// // user.getModelObject().setExtendsType(this.getModelObject());
+	// // typeUsers list includes base type users so remove them before doing assignments.
+	// users.remove(user);
+	// }
+	// for (Node user : users)
+	// user.getModelObject().setTLType(this.getModelObject());
+	//
+	// for (Node child : getChildren_TypeProviders())
+	// child.fixAssignments();
+	// }
 
-		for (Node child : getChildren_TypeProviders())
-			child.fixAssignments();
-	}
-
 	/**
-	 * Replace all type assignments to this node with assignments to passed node. For every assignable descendant of
-	 * sourceNode, find where the corresponding sourceNode children are used and change them as well. See
-	 * {@link #replaceWith(Node)}.
+	 * Replace all type assignments (base and assigned type) to this node with assignments to passed node. For every
+	 * assignable descendant of sourceNode, find where the corresponding sourceNode children are used and change them as
+	 * well. See {@link #replaceWith(Node)}.
 	 * 
 	 * @param this - replace assignments to this node (sourceNode)
 	 * @param replacement
@@ -363,9 +373,6 @@ public abstract class Node implements INode {
 	 * @param scope
 	 *            (optional) - scope of the search (typically library or Node.getModelNode)
 	 */
-	public void replaceTypesWith(Node replacement) {
-		replaceTypesWith(replacement, null);
-	}
 
 	public void replaceTypesWith(Node replacement, INode scope) {
 		if (replacement == null)
@@ -373,8 +380,25 @@ public abstract class Node implements INode {
 
 		LibraryNode libScope = null;
 		if (scope != null)
-			libScope = ((Node) scope).getLibrary();
-		getTypeClass().replaceTypeProvider(replacement, libScope);
+			libScope = scope.getLibrary();
+		// throw new IllegalStateException("Not Implemented Yet -  type replacement.");
+
+		if (this instanceof TypeProvider && replacement instanceof TypeProvider)
+			((TypeProvider) this).getWhereAssignedHandler().replaceAll((TypeProvider) replacement, libScope);
+		// getTypeClass().replaceTypeProvider(replacement, libScope);
+
+		// If this has been extended, replace where extended
+		getWhereExtendedHandler().replace(replacement, libScope);
+
+		// Do Base type (extensions).
+		// Note: since only the top level object is extended there is no need to traverse where extended lists.
+		// if (this instanceof ExtensionOwner)
+		// if (scope == null || getLibrary() == libScope)
+		// if (((ExtensionOwner) this).getExtensionBase() != null)
+		// if (((ExtensionOwner) this).getExtensionHandler() != null) {
+		// LOGGER.debug("replaced extension base with " + replacement);
+		// ((ExtensionOwner) this).getExtensionHandler().set(replacement);
+		// }
 	}
 
 	/**
@@ -452,7 +476,10 @@ public abstract class Node implements INode {
 
 		for (final Node n : getChildren()) {
 			if (n.getName().equals(name) && !n.isNavigation()) {
+				if (n instanceof XsdNode)
+					return ((XsdNode) n).getOtmModel();
 				return n;
+
 			} else if ((c = n.findNode(name, ns)) != null) {
 				return c;
 			}
@@ -557,16 +584,34 @@ public abstract class Node implements INode {
 	}
 
 	/**
+	 * Gets the descendants that are type providers (can be assigned as a type). Does not return navigation nodes.
+	 * 
+	 * @return new list of all descendants that can be assigned as a type.
+	 */
+	public List<Node> getDescendants_TypeProviders() {
+		final ArrayList<Node> ret = new ArrayList<Node>();
+		for (final Node n : getChildren()) {
+			if (n.isTypeProvider())
+				ret.add(n);
+
+			// Some type users may also have children
+			if (n.hasChildren())
+				ret.addAll(n.getDescendants_TypeProviders());
+		}
+		return ret;
+	}
+
+	/**
 	 * Gets the descendants that are type users (can be assigned a type). Does not return navigation nodes.
 	 * {@link #getChildren_TypeUsers() Use getChildren_TypeUsers() for only immediate children.}
 	 * 
 	 * @return new list of all descendants that can be assigned a type.
 	 */
-	public List<Node> getDescendants_TypeUsers() {
-		final ArrayList<Node> ret = new ArrayList<Node>();
+	public List<TypeUser> getDescendants_TypeUsers() {
+		final ArrayList<TypeUser> ret = new ArrayList<TypeUser>();
 		for (final Node n : getChildren()) {
-			if (n.isTypeUser())
-				ret.add(n);
+			if (n instanceof TypeUser)
+				ret.add((TypeUser) n);
 
 			// Some type users may also have children
 			if (n.hasChildren())
@@ -626,7 +671,9 @@ public abstract class Node implements INode {
 	/**
 	 * @return - the TL model object assigned as the type to this node's object or else null.
 	 * @see getType()
+	 * @see getAssignedTLObject()
 	 */
+	@Deprecated
 	public NamedEntity getTLTypeObject() {
 		return (modelObject != null ? modelObject.getTLType() : null);
 	}
@@ -660,13 +707,6 @@ public abstract class Node implements INode {
 				&& ((TLFacet) modelObject.getTLModelObj()).getOwningEntity() == null)
 			return "";
 		return modelObject.getName() == null ? "" : modelObject.getName();
-	}
-
-	/**
-	 * @return the type node from the type object.
-	 */
-	public Node getTypeNode() {
-		return getTypeClass().getTypeNode();
 	}
 
 	/*
@@ -747,14 +787,13 @@ public abstract class Node implements INode {
 	}
 
 	static public Node GetNode(TLModelElement tlObj) {
-		return GetNode(tlObj.getListeners());
+		return tlObj != null ? GetNode(tlObj.getListeners()) : null;
 	}
 
 	static public Node GetNode(Collection<ModelElementListener> listeners) {
 		for (ModelElementListener listener : listeners)
 			if (listener instanceof NodeIdentityListener)
-				if (((NodeIdentityListener) listener).getNode() != null)
-					return ((NodeIdentityListener) listener).getNode();
+				return ((NodeIdentityListener) listener).getNode();
 		return null;
 	}
 
@@ -818,11 +857,12 @@ public abstract class Node implements INode {
 	 * 
 	 * @return - the type class representing the type assignments or else null
 	 */
-	public Type getTypeClass() {
-		if (type == null)
-			type = new Type(this);
-		return type;
-	}
+	// @Deprecated
+	// public Type getTypeClass() {
+	// if (type == null)
+	// type = new Type(this);
+	// return type;
+	// }
 
 	/*****************************************************************************
 	 * Children
@@ -903,9 +943,9 @@ public abstract class Node implements INode {
 	// the public method uses this then removes the original object from the list.
 	private HashSet<Node> getDescendants_AssignedTypes(boolean currentLibraryOnly, HashSet<Node> foundTypes) {
 		Node assignedType = null;
-		for (Node n : getDescendants_TypeUsers()) {
+		for (TypeUser n : getDescendants_TypeUsers()) {
 			if (n.getAssignedType() != null) {
-				assignedType = n.getAssignedType().getOwningComponent();
+				assignedType = ((Node) n.getAssignedType()).getOwningComponent();
 				if (!currentLibraryOnly || (assignedType.getLibrary() == getLibrary()))
 					if (foundTypes.add(assignedType)) {
 						foundTypes.addAll(assignedType.getDescendants_AssignedTypes(currentLibraryOnly, foundTypes));
@@ -952,13 +992,13 @@ public abstract class Node implements INode {
 	public List<Node> getLaterVersions() {
 		List<Versioned> versions = null;
 		List<Node> vNodes = new ArrayList<Node>();
-		if (getAssignedType() == null)
+		Node assignedType = (Node) ((TypeUser) this).getAssignedType();
+		if (assignedType == null)
 			return null;
 
-		if (getAssignedType().getTLModelObject() instanceof Versioned && !(getAssignedType() instanceof ImpliedNode)) {
+		if (assignedType.getTLModelObject() instanceof Versioned && !(assignedType instanceof ImpliedNode)) {
 			try {
-				versions = new MinorVersionHelper().getLaterMinorVersions((Versioned) getAssignedType()
-						.getTLModelObject());
+				versions = new MinorVersionHelper().getLaterMinorVersions((Versioned) assignedType.getTLModelObject());
 				for (Versioned v : versions) {
 					for (ModelElementListener l : ((TLModelElement) v).getListeners())
 						if (l instanceof INodeListener)
@@ -1045,11 +1085,11 @@ public abstract class Node implements INode {
 		return this instanceof PropertyNode;
 	}
 
-	@Override
-	public boolean isTypeUser() {
-		return this instanceof TypeUser;
-	}
-
+	// @Override
+	// public boolean isTypeUser() {
+	// return this instanceof TypeUser;
+	// }
+	//
 	public boolean isFacetAlias() {
 		return false;
 	}
@@ -1157,7 +1197,7 @@ public abstract class Node implements INode {
 
 	/**
 	 * Is the owning object editable and new to the chain. The object is represented by one or more nodes with the same
-	 * name within the chain. Properties in an object in a head library are new and therefore editable.
+	 * name within the chain. Non-inherited properties in an object in a head library are new and therefore editable.
 	 * 
 	 * @return True if this node is editable AND is not in a chain, OR it is in the latest library of the chain AND not
 	 *         in a previous version.
@@ -1383,14 +1423,14 @@ public abstract class Node implements INode {
 		return this;
 	}
 
-	/**
-	 * 
-	 * @return true if this object can extend another object. Does not consider the state of the object or containing
-	 *         library.
-	 */
-	public boolean canExtend() {
-		return false;
-	}
+	// /**
+	// *
+	// * @return true if this object can extend another object. Does not consider the state of the object or containing
+	// * library.
+	// */
+	// public boolean canExtend() {
+	// return false;
+	// }
 
 	/**
 	 * Extensible objects have the ability to create extension points when compiled into schemas. These include core and
@@ -1482,9 +1522,9 @@ public abstract class Node implements INode {
 		return false;
 	}
 
-	public boolean isBaseTypeUser() {
-		return false;
-	}
+	// public boolean isBaseTypeUser() {
+	// return false;
+	// }
 
 	/**
 	 * @return true if in an XSD type and element assignable.
@@ -1493,17 +1533,17 @@ public abstract class Node implements INode {
 		return xsdType ? xsdNode.isElementAssignable() : false;
 	}
 
-	/**
-	 * @return true if this is an XSD node for an XSD atomic type (impliedType == XSD_Atomic).
-	 */
-	public boolean isXSD_Atomic() {
-		if (getTypeClass().getTypeNode() instanceof ImpliedNode)
-			LOGGER.debug("is " + this + " Atomic? "
-					+ ((ImpliedNode) getTypeClass().getTypeNode()).getImpliedType().equals(ImpliedNodeType.XSD_Atomic));
-
-		return getTypeClass().getTypeNode() instanceof ImpliedNode ? ((ImpliedNode) getTypeClass().getTypeNode())
-				.getImpliedType().equals(ImpliedNodeType.XSD_Atomic) : false;
-	}
+	// /**
+	// * @return true if this is an XSD node for an XSD atomic type (impliedType == XSD_Atomic).
+	// */
+	// public boolean isXSD_Atomic() {
+	// if (getTypeClass().getTypeNode() instanceof ImpliedNode)
+	// LOGGER.debug("is " + this + " Atomic? "
+	// + ((ImpliedNode) getTypeClass().getTypeNode()).getImpliedType().equals(ImpliedNodeType.XSD_Atomic));
+	//
+	// return getTypeClass().getTypeNode() instanceof ImpliedNode ? ((ImpliedNode) getTypeClass().getTypeNode())
+	// .getImpliedType().equals(ImpliedNodeType.XSD_Atomic) : false;
+	// }
 
 	/**
 	 * @return - true if is in TL, built-in or xsd library
@@ -1607,9 +1647,9 @@ public abstract class Node implements INode {
 		return modelObject.isSimpleAssignable();
 	}
 
-	public boolean isChoiceFacet() {
-		return false;
-	}
+	// public boolean isChoiceFacet() {
+	// return false;
+	// }
 
 	public boolean isCustomFacet() {
 		return false;
@@ -1660,7 +1700,8 @@ public abstract class Node implements INode {
 	 * @return true if this object is a later version of another object. True if has same name as the object it extends.
 	 */
 	public boolean isVersioned() {
-		return getExtendsType() != null ? getExtendsType().getName().equals(getName()) : false;
+		return (this instanceof ExtensionOwner) ? getExtendsTypeName().equals(getName()) : false;
+		// return getExtendsType() != null ? getExtendsType().getName().equals(getName()) : false;
 	}
 
 	/**
@@ -1964,10 +2005,7 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Set the parentNode for this node. Set to null if it is the root node.
-	 * 
-	 * @param the
-	 *            parentNode node
+	 * Simple parent setter. Set to null if it is the root node.
 	 */
 	public void setParent(final Node n) {
 		parent = n;
@@ -2022,7 +2060,8 @@ public abstract class Node implements INode {
 			if ((t.getParent() == replacement) || (t.getParent().getParent() == replacement)) {
 				// TODO - TEST - This seems all wrong.
 				LOGGER.debug("TODO - TEST - setTLTypeOfTargetChildren() - This seems all wrong. t = " + t.getName());
-				t.setAssignedType(replacement);
+				if (t instanceof TypeUser && replacement instanceof TypeProvider)
+					((TypeUser) t).setAssignedType((TypeProvider) replacement);
 				changedNodes.add(t);
 			}
 		}
@@ -2033,23 +2072,33 @@ public abstract class Node implements INode {
 	// public boolean setAssignedType(Node typeNode, boolean refresh) {
 	// return (this instanceof TypeUser) ? setAssignedType(typeNode) : false;
 	// }
+	// /**
+	// * @param typeNode
+	// * - use setAssignedType(TypeProvider provider) instead
+	// */
+	// @Deprecated
+	// public boolean setAssignedType(Node typeNode) {
+	// if (typeNode instanceof TypeProvider)
+	// return setAssignedType((TypeProvider) typeNode);
+	// return false;
+	// }
 
-	@Override
-	public boolean setAssignedType(Node typeNode) {
-		return false;
-		// return (this instanceof TypeUser) ? setAssignedType(typeNode) : false;
-	}
+	// @Override
+	// public boolean setAssignedType(TypeProvider provider) {
+	// return false;
+	// // return (this instanceof TypeUser) ? setAssignedType(typeNode) : false;
+	// }
 
-	/**
-	 * Return the node used as the assigned type. NOTE: does not return node assigned as base types for core and
-	 * business objects.
-	 * 
-	 * @return
-	 */
-	public Node getAssignedType() {
-		LOGGER.debug("Get assigned type for " + this.getClass().getSimpleName() + ":" + this);
-		return (this instanceof TypeUser) ? getAssignedType() : null;
-	}
+	// /**
+	// * Return the node used as the assigned type. NOTE: does not return node assigned as base types for core and
+	// * business objects.
+	// *
+	// * @return
+	// */
+	// public Node getAssignedType() {
+	// // LOGGER.debug("Get assigned type for " + this.getClass().getSimpleName() + ":" + this);
+	// return (this instanceof TypeUser) ? getAssignedTypeByListeners() : null;
+	// }
 
 	/**
 	 * Get the type assigned using the TL Model object and listeners.
@@ -2059,35 +2108,45 @@ public abstract class Node implements INode {
 	public Node getAssignedTypeByListeners() {
 		Node type = null;
 		if (this instanceof TypeUser) {
-			NamedEntity tlObj = getTLTypeObject(); // todo - if null, implied.missing
+			NamedEntity tlObj = ((TypeUser) this).getAssignedTLNamedEntity();
 			if (tlObj instanceof TLModelElement)
 				type = getNode(((TLModelElement) tlObj).getListeners());
 			// xsd types will have xsd nodes which have links to the simple node to use
 			if (type instanceof XsdNode)
-				type = ((XsdNode) type).getOtmModelChild();
+				type = ((XsdNode) type).getOtmModel();
 			if (type == null)
 				type = ModelNode.getUnassignedNode();
 		}
 		return type;
 	}
 
-	/**
-	 * Return the base type - the node displayed in select Extends field.
-	 * 
-	 * @return
-	 */
-	public Node getExtendsType() {
-		return null;
-	}
+	// /**
+	// * Return the base type - the node displayed in select Extends field.
+	// *
+	// * @return
+	// */
+	// public Node getExtendsType() {
+	// return null;
+	// }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getType()
+	/**
+	 * returns getAssignedType() as a node
 	 */
 	@Override
 	public Node getType() {
-		return (this instanceof TypeUser) ? getAssignedType() : null;
+		return (Node) ((this instanceof TypeUser) ? ((TypeUser) this).getAssignedType() : null);
+	}
+
+	/**
+	 * @return the type node from the type object.
+	 */
+	public Node getTypeNode() {
+		if (this instanceof TypeUser)
+			return (Node) ((TypeUser) this).getAssignedType();
+		else
+			return null;
+
+		// return (Node) getTypeClass().getTypeNode();
 	}
 
 	@Override
@@ -2103,7 +2162,7 @@ public abstract class Node implements INode {
 	/**
 	 * @return the count of where this node is assigned as a type. Includes count of where children are used.
 	 */
-	public int getTypeUsersCount() {
+	public int getWhereUsedCount() {
 		return 0;
 	}
 
@@ -2117,29 +2176,37 @@ public abstract class Node implements INode {
 	public boolean isUnAssigned() {
 		if (!(this instanceof TypeUser))
 			return false;
-		if (getAssignedType() instanceof ImpliedNode)
-			if (((ImpliedNode) getAssignedType()).getImpliedType() == ImpliedNodeType.UnassignedType)
+		if (getType() instanceof ImpliedNode)
+			if (((ImpliedNode) getType()).getImpliedType() == ImpliedNodeType.UnassignedType)
 				return true;
 		return false;
 	}
 
+	/**
+	 * Deprecated - If this is a TypeProvider then use getWhereUsed(). Note - this is not a live list, it is a copy of a
+	 * unmodifiable list.
+	 */
+	@Deprecated
 	@Override
 	public List<Node> getTypeUsers() {
-		return getTypeClass().getTypeUsers();
-	}
-
-	public ArrayList<Node> typeUsers() {
-		return isTypeProvider() ? getTypeClass().getTypeUsers() : null;
+		List<Node> users = new ArrayList<Node>();
+		if (this instanceof TypeProvider)
+			users.addAll(((TypeProvider) this).getWhereUsed());
+		return users;
 	}
 
 	/**
 	 * Set the extension base to the passed source node. If null, remove assignment. Extension base is maintained in the
 	 * TypeClass.typeNode.
 	 * 
+	 * Deprecated - Use ExtensionOwner.setExtension()
+	 * 
 	 * @param sourceNode
 	 */
+	@Deprecated
 	public void setExtendsType(final INode sourceNode) {
-		getTypeClass().setAssignedBaseType(sourceNode);
+		if (this instanceof ExtensionOwner)
+			((ExtensionOwner) this).setExtension((Node) sourceNode);
 	}
 
 	public void setRepeat(final int i) {
@@ -2219,6 +2286,18 @@ public abstract class Node implements INode {
 		return Messages.getString(getEditStatus().msgID());
 	}
 
+	/**
+	 * @return where extended handler. Will create one if null.
+	 */
+	public WhereExtendedHandler getWhereExtendedHandler() {
+		if (whereExtendedHandler == null)
+			whereExtendedHandler = new WhereExtendedHandler(this);
+		return whereExtendedHandler;
+	}
+
+	/**
+	 * @return name of the extension entity or empty string
+	 */
 	public String getExtendsTypeName() {
 		return modelObject.getExtendsType();
 	}
@@ -2228,25 +2307,30 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * @param node
-	 * @return true if this is extended by the passed node
+	 * @return true if this is extended by the passed base node
 	 */
-	public boolean isExtendedBy(Node node) {
-		if (node.getTLModelObject() instanceof NamedEntity) {
-			return modelObject.isExtendedBy((NamedEntity) node.getTLModelObject());
-		}
+	public boolean isExtendedBy(Node base) {
+		if (this instanceof ExtensionOwner)
+			return modelObject.isExtendedBy((NamedEntity) base.getTLModelObject());
 		return false;
 	}
 
 	/**
+	 * Is <i>this</i> node an instance of the passed node? Does this tl object have an tlExtension with an extended
+	 * entity of node's tl object?
+	 * 
 	 * @param node
 	 * @return true if this is extended by the passed node
 	 */
 	public boolean isInstanceOf(Node node) {
 		if (isExtendedBy(node)) {
+			if (!node.getWhereExtendedHandler().getWhereExtended().contains(this))
+				LOGGER.warn("Base node " + node.getNameWithPrefix() + " does not have extension "
+						+ this.getNameWithPrefix() + " in its where extended list. ");
 			return true;
 		} else {
-			Node baseNode = Node.getModelNode().findNode(getExtendsTypeName(), getExtendsTypeNS());
+			Node baseNode = Node.GetNode((TLModelElement) modelObject.getTLBase());
+			// Node baseNode = Node.getModelNode().findNode(getExtendsTypeName(), getExtendsTypeNS());
 			if (baseNode == null) {
 				// LOGGER.warn("Could not find the base node: [" + getExtendsTypeNS() + ":" + getExtendsTypeName() +
 				// "]");
@@ -2513,12 +2597,16 @@ public abstract class Node implements INode {
 		return getChain().getHead().getDescendants_NamedTypes().contains(owner);
 	}
 
-	/**
-	 * @return - a list of the descendants that have the this type assigned to them.
-	 */
-	public List<Node> getWhereUsed() {
-		return getTypeClass().getTypeUsers();
-	}
+	// /**
+	// * @return - a list of the descendants that have the this type assigned to them.
+	// */
+	// public List<Node> getWhereUsed_OLD() {
+	// if (this instanceof TypeProvider)
+	// return ((TypeProvider) this).getTypeUsers();
+	// else
+	// return new ArrayList<Node>();
+	// // return getTypeClass().getTypeUsers();
+	// }
 
 	/** ******************** Library access methods ******************/
 
@@ -2668,25 +2756,28 @@ public abstract class Node implements INode {
 		return list;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeUser#getAssignedModelObject()
-	 */
+	// FIXME - remove this
+	@Deprecated
 	public ModelObject<?> getAssignedModelObject() {
-		return isTypeUser() ? getTypeClass().getTypeOwner().getModelObject() : null;
+		return this instanceof TypeUser ? ((TypeUser) this).getAssignedModelObject() : null;
+		// getTypeClass().getTypeOwner().getModelObject() : null;
 	}
 
-	@Deprecated
-	public NamedEntity getAssignedTLObject() {
-		return getTLTypeObject();
-	}
+	// /**
+	// * @return the type assigned tl named entity reported by modelObject<?>.getTLType() which may be null
+	// */
+	// @Deprecated
+	// public NamedEntity getAssignedTLObject() {
+	// return (modelObject != null ? modelObject.getTLType() : null);
+	// // return getAssignedTLObject();
+	// }
 
-	@Deprecated
-	public void removeAssignedType() {
-		if (isTypeUser())
-			getTypeClass().removeAssignedType();
-	}
+	//
+	// @Deprecated
+	// public void removeAssignedType() {
+	// // if (isTypeUser())
+	// // getTypeClass().removeAssignedType();
+	// }
 
 	/**
 	 * Can Assign - can the type be assigned to node?
@@ -2757,6 +2848,7 @@ public abstract class Node implements INode {
 	 * namedMember() then the clone is added to this.library. Otherwise, parent is used to contain the new node.
 	 * 
 	 * @param parent
+	 *            - will try to use "this" parent if null
 	 * @param nameSuffix
 	 * @return null if error
 	 */
@@ -2774,7 +2866,7 @@ public abstract class Node implements INode {
 		Node newNode = null;
 
 		// Use the compiler to create a new TL src object.
-		TLModelElement newLM = cloneTLObj();
+		TLModelElement newLM = (TLModelElement) cloneTLObj();
 		if (newLM == null)
 			return null;
 
@@ -2783,9 +2875,12 @@ public abstract class Node implements INode {
 			newNode = NodeFactory.newComponentMember(null, newLM);
 			if (nameSuffix != null)
 				newNode.setName(newNode.getName() + nameSuffix);
-			if (parent != null && parent instanceof ComponentNode) {
+			if (parent instanceof ComponentNode) {
 				((ComponentNode) parent).addProperty(newNode, ((PropertyNode) this).indexOfTLProperty());
 			}
+			// set assigned type using the type on the cloned tl object
+			((TypeUser) newNode).setAssignedType(((TypeUser) newNode).getAssignedTLObject());
+
 		} else if (newLM instanceof LibraryMember) {
 			newNode = NodeFactory.newComponent_UnTyped((LibraryMember) newLM);
 			if (nameSuffix != null)
@@ -2798,24 +2893,25 @@ public abstract class Node implements INode {
 		}
 
 		// Now, use the source to set typeClass contents on node and descendants
-		// if (!(isEnumeration() || isEnumerationLiteral()))
-		this.cloneTypeAssignments(newNode);
+		// this.cloneTypeAssignments(newNode);
 
 		return newNode;
 	}
 
 	/**
+	 * Clone object including type. Resulting object has no owner or listeners.
+	 * 
 	 * @return the cloned copy of a TL Model object.
 	 */
-	public TLModelElement cloneTLObj() {
+	public LibraryElement cloneTLObj() {
 		if (getLibrary() == null) {
 			LOGGER.error("Can not clone without having a library.");
 			return null;
 		}
 
-		TLModelElement newLM = null;
+		LibraryElement newLM = null;
 		try {
-			newLM = (TLModelElement) getTLModelObject().cloneElement(getLibrary().getTLaLib());
+			newLM = getTLModelObject().cloneElement(getLibrary().getTLaLib());
 		} catch (IllegalArgumentException e) {
 			LOGGER.warn("Can not clone " + this + ". Exception: " + e.getLocalizedMessage());
 			return null;
@@ -2824,44 +2920,45 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Set all the type users in newNode to match this nodes assignments. Only does typeClass assignments, not TL model
-	 * assignments.
+	 * Set all the type users in newNode to match this nodes assignments. assignments.
 	 * 
 	 * @param newNode
 	 */
+	// TEST Claim: Only does typeClass assignments, not TL model
 	protected void cloneTypeAssignments(Node newNode) {
 		// LOGGER.debug(this + " type is " + this.getType());
-		if (this instanceof PropertyNode) {
-			newNode.setAssignedType(this.getType());
-			return;
-		}
-		if (this.isSimpleType()) {
-			if (newNode.getTLTypeObject() != this.getTLTypeObject()) {
-				// LOGGER.debug("Fixing type mismatch!." + newNode);
-				newNode.getModelObject().setTLType(this.getAssignedModelObject());
-			}
-			newNode.getTypeClass().setTypeNode(getAssignedType());
-			return;
-		}
-
-		List<Node> srcUsers = this.getDescendants_TypeUsers();
-		for (Node n : newNode.getDescendants_TypeUsers()) {
-			for (Node u : srcUsers) {
-				if ((n instanceof SimpleAttributeNode && u instanceof SimpleAttributeNode)
-						|| u.getName().equals(n.getName())) {
-					if (n.getTLTypeObject() != u.getTLTypeObject()) {
-						// LOGGER.debug("Fixing type mismatch!." + n);
-						n.getModelObject().setTLType(u.getAssignedModelObject());
-					}
-					if (u.getTLTypeObject() == null)
-						n.getTypeClass().setTypeNode(ModelNode.getUnassignedNode());
-					else
-						n.getTypeClass().setTypeNode(u.getAssignedType());
-					srcUsers.remove(u);
-					break;
-				}
-			}
-		}
+		throw new IllegalStateException("CLONE TYPE ASSIGMENT is not implemented!");
+		// if (this instanceof PropertyNode) {
+		// newNode.setAssignedType((TypeProvider) this.getType());
+		// return;
+		// }
+		// if (this.isSimpleType()) {
+		// if (newNode.getAssignedTLObject() != this.getAssignedTLObject()) {
+		// // LOGGER.debug("Fixing type mismatch!." + newNode);
+		// newNode.getModelObject().setTLType(this.getAssignedModelObject());
+		// }
+		// newNode.getTypeClass().setTypeNode(getAssignedType());
+		// return;
+		// }
+		//
+		// List<TypeUser> srcUsers = this.getDescendants_TypeUsers();
+		// for (TypeUser n : newNode.getDescendants_TypeUsers()) {
+		// for (TypeUser u : srcUsers) {
+		// if ((n instanceof SimpleAttributeNode && u instanceof SimpleAttributeNode)
+		// || u.getName().equals(n.getName())) {
+		// if (n.getAssignedTLObject() != u.getAssignedTLObject()) {
+		// // LOGGER.debug("Fixing type mismatch!." + n);
+		// n.getModelObject().setTLType(u.getAssignedModelObject());
+		// }
+		// if (u.getAssignedTLObject() == null)
+		// n.getTypeClass().setTypeNode(ModelNode.getUnassignedNode());
+		// else
+		// n.getTypeClass().setTypeNode(u.getAssignedType());
+		// srcUsers.remove(u);
+		// break;
+		// }
+		// }
+		// }
 	}
 
 	public void sort() {
@@ -2974,12 +3071,12 @@ public abstract class Node implements INode {
 		this.identity = identity;
 	}
 
-	/**
-	 * @return null if a type can be assigned, otherwise an implied node.
-	 */
-	public Node getDefaultType() {
-		return null;
-	}
+	// /**
+	// * @return null if a type can be assigned, otherwise an implied node.
+	// */
+	// public TypeProvider getDefaultType() {
+	// return null;
+	// }
 
 	/**
 	 * Property and simple type nodes have types with qNames.
@@ -3034,7 +3131,7 @@ public abstract class Node implements INode {
 		for (Node c : getChildren()) {
 			c.visitAllTypeUsers(visitor);
 		}
-		if (isTypeUser()) {
+		if (this instanceof TypeUser) {
 			visitor.visit(this);
 		}
 	}

@@ -117,9 +117,9 @@ public class ChoiceObjectTests {
 		}
 
 		// Does this extend another choice? If so, examine inherited children
-		boolean hasBaseClass = choice.getExtendsType() != null;
+		boolean hasBaseClass = choice.getExtensionBase() != null;
 		if (hasBaseClass) {
-			Node baseClass = choice.getExtendsType();
+			Node baseClass = choice.getExtensionBase();
 			// Test File 6 has an extended choice - make sure it inherits correctly.
 			if (choice.getName().equals("ExtendedChoice")) {
 				for (Node n : choice.getChildren())
@@ -130,6 +130,7 @@ public class ChoiceObjectTests {
 						if (inheritedList.isEmpty()) {
 							List<Node> x = n.getInheritedChildren();
 						}
+
 						assert !inheritedList.isEmpty();
 						assert inheritedList.size() == 3;
 						// check parent and owner of inherited...assure they are not n and n.getOwner()

@@ -42,6 +42,7 @@ import org.opentravel.schemas.node.SimpleFacetNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.types.TestTypes;
+import org.opentravel.schemas.types.TypeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,9 +120,9 @@ public class NodeTesters {
 				return;
 			}
 		} else {
-			if (n.getTypeClass().verifyAssignment() == false)
-				LOGGER.debug("Verification error.");
-			Assert.assertTrue(n.getTypeClass().verifyAssignment());
+			// if (n.getTypeClass().verifyAssignment() == false)
+			// LOGGER.debug("Verification error.");
+			// Assert.assertTrue(n.getTypeClass().verifyAssignment());
 		}
 
 		try {
@@ -137,7 +138,7 @@ public class NodeTesters {
 		Assert.assertNotNull(n.getParent());
 
 		if (!n.isLibraryContainer())
-			Assert.assertNotNull(n.getLibrary());
+			Assert.assertNotNull("Missing library on " + n, n.getLibrary());
 		Assert.assertNotNull(n.getLibraries());
 		Assert.assertNotNull(n.getUserLibraries());
 
@@ -192,22 +193,15 @@ public class NodeTesters {
 			Assert.assertTrue(n instanceof SimpleFacetNode);
 
 		// Check type information
-		Assert.assertNotNull(n.getTypeUsers());
-
-		if (n.isTypeProvider()) {
-			ComponentNode cn = (ComponentNode) n;
-			Assert.assertNotNull(cn.getWhereUsed());
-			Assert.assertNotNull(cn.getTypeOwner());
-			Assert.assertFalse(cn.getTypeOwner().getName().isEmpty());
-			Assert.assertFalse(cn.getTypeOwner().getNamespace().isEmpty());
-		}
+		if (n instanceof TypeProvider)
+			assert ((TypeProvider) n).getWhereUsed() != null;
 
 		// is tests - make sure they do not throw exception
 		n.isEditable();
 		n.isLibraryContainer();
 		n.isVWA_AttributeFacet();
 		n.isTypeProvider();
-		n.isTypeUser();
+		// if (n instanceof TypeUser;
 		n.isAssignedByReference();
 		n.isLibraryContainer();
 

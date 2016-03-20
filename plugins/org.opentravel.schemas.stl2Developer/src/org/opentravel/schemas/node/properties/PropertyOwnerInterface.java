@@ -40,6 +40,13 @@ public interface PropertyOwnerInterface {
 	 */
 	public void addProperties(List<Node> properties, boolean clone);
 
+	/**
+	 * Drag-n-drop behavior. Assign type if unassigned or clone property and assign type
+	 * 
+	 * @param type
+	 *            - type to assign
+	 * @return
+	 */
 	public INode createProperty(final Node type);
 
 	/**

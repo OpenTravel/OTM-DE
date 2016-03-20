@@ -23,17 +23,27 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemas.controllers.DefaultProjectController;
+import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.types.TypeUser;
+import org.opentravel.schemas.utils.LibraryNodeBuilder;
+import org.osgi.framework.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Dave Hollander
  * 
  */
 public class GetDescendents_Tests {
+	static final Logger LOGGER = LoggerFactory.getLogger(MockLibrary.class);
+
 	ModelNode model = null;
 	NodeTesters nt = new NodeTesters();
 	LoadFiles lf = new LoadFiles();
@@ -89,8 +99,8 @@ public class GetDescendents_Tests {
 		Assert.assertEquals(27, all.size());
 		List<Node> named = ln.getDescendants_NamedTypes();
 		Assert.assertEquals(5, named.size());
-		List<Node> users = ln.getDescendants_TypeUsers();
-		Assert.assertEquals(6, users.size());
+		List<TypeUser> users = ln.getDescendants_TypeUsers();
+		Assert.assertEquals(9, users.size());
 	}
 
 	@Test
@@ -107,8 +117,8 @@ public class GetDescendents_Tests {
 
 		List<Node> named = ln.getDescendants_NamedTypes();
 		Assert.assertEquals(5, named.size());
-		List<Node> users = ln.getDescendants_TypeUsers();
-		Assert.assertEquals(6, users.size());
+		List<TypeUser> users = ln.getDescendants_TypeUsers();
+		Assert.assertEquals(9, users.size());
 		MockLibrary.printDescendants(ln);
 		List<Node> all = ln.getDescendants();
 		Assert.assertEquals(32, all.size()); // 26 + 5 version nodes
@@ -122,12 +132,12 @@ public class GetDescendents_Tests {
 				ln = n;
 		}
 		Assert.assertNotNull(ln);
-
+		// 20 xsd simple types, 0 complex, 0 resources
 		List<Node> all = ln.getDescendants();
-		Assert.assertEquals(24, all.size());
+		Assert.assertEquals(24, all.size()); // 4 nav nodes and 20 simple type nodes
 		List<Node> named = ln.getDescendants_NamedTypes();
 		Assert.assertEquals(20, named.size());
-		List<Node> users = ln.getDescendants_TypeUsers();
+		List<TypeUser> users = ln.getDescendants_TypeUsers();
 		Assert.assertEquals(20, users.size());
 	}
 
@@ -162,6 +172,36 @@ public class GetDescendents_Tests {
 
 		Assert.assertNotNull(types);
 		Assert.assertEquals(2, types.size());
+	}
+
+	@Test
+	public void getDescendents_Tests() throws LibrarySaveException {
+		// Needed to isolate results from other tests
+		mc = new MainController();
+		DefaultRepositoryController lrc = (DefaultRepositoryController) mc.getRepositoryController();
+		ProjectController lpc = mc.getProjectController();
+
+		LibraryNode moveFrom = LibraryNodeBuilder.create("MoveFrom", defaultProject.getNamespace() + "/Test/One", "o1",
+				new Version(1, 0, 0)).build(defaultProject, pc);
+
+		List<Node> list1 = moveFrom.getDescendants_NamedTypes();
+		List<Node> list2 = moveFrom.getDescendentsNamedTypes();
+		assert list1.size() == list2.size();
+
+		LoadFiles lf = new LoadFiles();
+		moveFrom = lf.loadFile5Clean(mc);
+		list1 = moveFrom.getDescendants_NamedTypes();
+		list2 = moveFrom.getDescendentsNamedTypes();
+		for (Node n : list1)
+			if (!list2.contains(n))
+				LOGGER.debug("list2 is missing: " + n);
+		for (Node n : list2)
+			if (!list1.contains(n))
+				LOGGER.debug("list 1 is missing: " + n);
+
+		// FIXME - these should be equal once the inclusion of services is resolved
+		Assert.assertNotEquals(list1.size(), list2.size());
+
 	}
 
 }

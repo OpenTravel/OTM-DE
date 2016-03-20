@@ -26,13 +26,10 @@ import java.util.Set;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
 import org.opentravel.schemacompiler.model.LibraryMember;
-import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
-import org.opentravel.schemacompiler.model.TLExtensionOwner;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.modelObject.ChoiceObjMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
@@ -43,19 +40,23 @@ import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.types.ExtensionHandler;
+import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * @author Dave Hollander
  * 
  */
-public class ChoiceObjectNode extends ComponentNode implements ComplexComponentInterface, ExtensionOwner,
-		VersionedObjectInterface, LibraryMemberInterface {
+public class ChoiceObjectNode extends TypeProviderBase implements ComplexComponentInterface, ExtensionOwner,
+		VersionedObjectInterface, LibraryMemberInterface, TypeProvider {
 
 	// private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
+	private ExtensionHandler extensionHandler = null;
 
 	public ChoiceObjectNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
+		extensionHandler = new ExtensionHandler(this);
 
 		assert (getSharedFacet() != null);
 		assert (getModelObject() != null);
@@ -162,28 +163,13 @@ public class ChoiceObjectNode extends ComponentNode implements ComplexComponentI
 
 	@Override
 	public String getLabel() {
-		if (getExtendsType() == null)
+		if (getExtensionBase() == null)
 			return super.getLabel();
 		else if (isVersioned())
 			// else if (getExtendsType().getName().equals(getName()))
-			return super.getLabel() + " (Extends version:  " + getExtendsType().getLibrary().getVersion() + ")";
+			return super.getLabel() + " (Extends version:  " + getExtensionBase().getLibrary().getVersion() + ")";
 		else
-			return super.getLabel() + " (Extends: " + getExtendsType().getNameWithPrefix() + ")";
-	}
-
-	@Override
-	public Node getExtendsType() {
-		Node baseClass = null;
-		if (getTLModelObject() instanceof TLExtensionOwner
-				&& ((TLExtensionOwner) getTLModelObject()).getExtension() != null) {
-			NamedEntity tlBase = ((TLExtensionOwner) getTLModelObject()).getExtension().getExtendsEntity();
-			if (tlBase instanceof TLModelElement)
-				baseClass = GetNode(((TLModelElement) tlBase).getListeners());
-			// for (ModelElementListener listener : ((TLModelElement) tlBase).getListeners())
-			// if (listener instanceof BaseNodeListener)
-			// baseClass = ((BaseNodeListener) listener).getNode();
-		}
-		return baseClass;
+			return super.getLabel() + " (Extends: " + getExtensionBase().getNameWithPrefix() + ")";
 	}
 
 	@Override
@@ -214,10 +200,10 @@ public class ChoiceObjectNode extends ComponentNode implements ComplexComponentI
 		return (FacetNode) NodeFactory.newComponentMember(this, tf);
 	}
 
-	@Override
-	public boolean canExtend() {
-		return true;
-	}
+	// @Override
+	// public boolean canExtend() {
+	// return true;
+	// }
 
 	@Override
 	public ComponentNode createMinorVersionComponent() {
@@ -419,18 +405,54 @@ public class ChoiceObjectNode extends ComponentNode implements ComplexComponentI
 		return ComponentNodeType.CHOICE;
 	}
 
-	/* ****************************************************
-	 * Only needed for type hierarchy
-	 */
 	@Override
-	public ComponentNode getSimpleType() {
-		return null;
+	public boolean isAssignableToSimple() {
+		return false;
 	}
 
 	@Override
-	public boolean setSimpleType(Node type) {
+	public boolean isAssignableToVWA() {
 		return false;
 	}
+
+	@Override
+	public boolean isAssignableToElementRef() {
+		return false;
+	}
+
+	// /////////////////////////////////////////////////////////////////
+	//
+	// Extension Owner implementations
+	//
+	@Override
+	public Node getExtensionBase() {
+		return extensionHandler != null ? extensionHandler.get() : null;
+	}
+
+	@Override
+	public void setExtension(final Node base) {
+		if (extensionHandler == null)
+			extensionHandler = new ExtensionHandler(this);
+		extensionHandler.set(base);
+	}
+
+	@Override
+	public ExtensionHandler getExtensionHandler() {
+		return extensionHandler;
+	}
+
+	/* ****************************************************
+	 * Only needed for type hierarchy
+	 */
+	// @Override
+	// public ComponentNode getSimpleType() {
+	// return null;
+	// }
+	//
+	// @Override
+	// public boolean setSimpleType(Node type) {
+	// return false;
+	// }
 
 	@Override
 	public SimpleFacetNode getSimpleFacet() {

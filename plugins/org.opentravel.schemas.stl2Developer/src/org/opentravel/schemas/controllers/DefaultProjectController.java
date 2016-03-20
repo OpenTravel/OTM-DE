@@ -71,6 +71,7 @@ import org.opentravel.schemas.stl2developer.FileDialogs;
 import org.opentravel.schemas.stl2developer.FindingsDialog;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.TypeResolver;
+import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.views.ValidationResultsView;
 import org.opentravel.schemas.wizards.NewProjectWizard;
 import org.opentravel.schemas.wizards.validators.NewProjectValidator;
@@ -140,17 +141,17 @@ public class DefaultProjectController implements ProjectController {
 		if (!ln.isEditable())
 			return;
 
-		for (Node n : ln.getDescendants_TypeUsers()) {
+		for (TypeUser n : ln.getDescendants_TypeUsers()) {
 			if (n instanceof ElementNode)
-				if (!(n.getName().equals(NodeNameUtils.fixElementName(n))))
+				if (!(((Node) n).getName().equals(NodeNameUtils.fixElementName((Node) n))))
 					fixNeeded++;
 		}
 		if (fixNeeded > 0) {
 			if (DialogUserNotifier.openConfirm("Name Rules", fixNeeded
 					+ " errors in element naming were detected. Should these be fixed automatically?"))
-				for (Node n : ln.getDescendants_TypeUsers()) {
+				for (TypeUser n : ln.getDescendants_TypeUsers()) {
 					if (n instanceof ElementNode)
-						if (!(n.getName().equals(NodeNameUtils.fixElementName(n))))
+						if (!(((Node) n).getName().equals(NodeNameUtils.fixElementName((Node) n))))
 							((ElementNode) n).setName("");
 				}
 		}

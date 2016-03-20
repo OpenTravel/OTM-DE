@@ -34,8 +34,8 @@ public class ElementPropertyMO extends ModelObject<TLProperty> {
 
 	@Override
 	public void delete() {
-		if (getTLModelObj().getPropertyOwner() != null) {
-			(getTLModelObj().getPropertyOwner()).removeProperty(getTLModelObj());
+		if (getTLModelObj().getOwner() != null) {
+			(getTLModelObj().getOwner()).removeProperty(getTLModelObj());
 		}
 	}
 

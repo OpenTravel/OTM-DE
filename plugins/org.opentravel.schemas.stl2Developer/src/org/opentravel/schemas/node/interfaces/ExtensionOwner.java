@@ -15,13 +15,20 @@
  */
 package org.opentravel.schemas.node.interfaces;
 
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.modelObject.ModelObject;
+import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.types.ExtensionHandler;
 
 /**
- * Implementors can be extended with a base type.
+ * Implementors can extend a base type. Extensions change the structure of the object. Extensions may be assigned by the
+ * owner as a base type (tlExtension, parent) or by version logic for minor versions.
  * 
- * if (typeOwner.isCoreObject() || typeOwner.isBusinessObject() || typeOwner.isExtensionPointFacet()
- * typeOwner.isValueWithAttributes()) {
+ * As of 2/2016 the mapping to TL model is: ExtensionPoints, Business, Core, Choice, Open and Closed Enum objects and
+ * operations and resources use TLExtensions. VWA uses TL.parent.
+ * 
+ * The base type may be any of these owners <b>or</b> a facet (as used by ExtensionPoint).
  * 
  * @author Dave
  *
@@ -29,16 +36,47 @@ import org.opentravel.schemas.node.Node;
 public interface ExtensionOwner {
 
 	/**
-	 * @return the base type - the node displayed in select Extends field.
+	 * @return the base type - the node displayed in select Extends field. Null if no base type.
 	 */
-	public Node getExtendsType();
+	public Node getExtensionBase();
 
 	/**
-	 * Set the extension base to the passed source node. If null, remove assignment. Extension base is maintained in the
-	 * TypeClass.typeNode.
+	 * Get the handler for this extension owner if any.
 	 * 
-	 * @param type
-	 *            to assign as base type that is extended
+	 * @return the handler if this owner extends a base, otherwise null.
 	 */
-	public void setExtendsType(INode type);
+	public ExtensionHandler getExtensionHandler();
+
+	public boolean isInstanceOf(Node base);
+
+	/**
+	 * Set the base type for this node to the passed base object such that <i>this extends base</i>.
+	 * 
+	 * A WhereExtended listener will be added to the base before being set. The listener will add this node to the
+	 * base's where extended list.
+	 * 
+	 * If null, remove assignment.
+	 * 
+	 * Note: extension point facets extend facets not themselves.
+	 * 
+	 * @param base
+	 */
+	public void setExtension(Node base);
+
+	// Node level impls - return "" if not overridden.
+	public String getExtendsTypeName();
+
+	public String getExtendsTypeNS();
+
+	public String getNameWithPrefix();
+
+	public LibraryNode getLibrary();
+
+	/**
+	 * @return the ModelObject to use for assignment and tests
+	 */
+	public ModelObject<?> getModelObject();
+
+	public TLModelElement getTLModelObject();
+
 }

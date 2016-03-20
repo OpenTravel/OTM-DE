@@ -35,7 +35,11 @@ import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
+import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.types.ExtensionHandler;
+import org.opentravel.schemas.types.SimpleAttributeOwner;
+import org.opentravel.schemas.types.TypeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,18 +50,21 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class CoreObjectNode extends ComponentNode implements ComplexComponentInterface, ExtensionOwner,
-		VersionedObjectInterface, LibraryMemberInterface {
+public class CoreObjectNode extends TypeProviderBase implements ComplexComponentInterface, ExtensionOwner,
+		VersionedObjectInterface, LibraryMemberInterface, TypeProvider, SimpleAttributeOwner {
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = LoggerFactory.getLogger(CoreObjectNode.class);
+	private ExtensionHandler extensionHandler = null;
 
 	public CoreObjectNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
+		extensionHandler = new ExtensionHandler(this);
+
 		// If the mbr was not null but simple type is, set the simple type
 		if (modelObject instanceof CoreObjectMO)
 			if (((CoreObjectMO) modelObject).getSimpleValueType() == null)
-				setSimpleType((Node) ModelNode.getEmptyNode());
+				setSimpleType((TypeProvider) ModelNode.getEmptyNode());
 	}
 
 	public CoreObjectNode(BusinessObjectNode bo) {
@@ -72,7 +79,7 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 		((FacetNode) getSummaryFacet()).copyFacet((FacetNode) bo.getIDFacet());
 		((FacetNode) getSummaryFacet()).copyFacet(bo.getSummaryFacet());
 		((FacetNode) getDetailFacet()).copyFacet((FacetNode) bo.getDetailFacet());
-		setSimpleType((Node) ModelNode.getEmptyNode());
+		setSimpleType((TypeProvider) ModelNode.getEmptyNode());
 	}
 
 	public CoreObjectNode(VWA_Node vwa) {
@@ -88,7 +95,7 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 
 	public void addAlias(String name) {
 		if (this.isEditable_newToChain())
-			new AliasNode(this, name);
+			new AliasNode(this, NodeNameUtils.fixCoreObjectName(name));
 	}
 
 	public void addAliases(List<AliasNode> aliases) {
@@ -97,10 +104,10 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 		}
 	}
 
-	@Override
-	public boolean canExtend() {
-		return true;
-	}
+	// @Override
+	// public boolean canExtend() {
+	// return true;
+	// }
 
 	@Override
 	public ComponentNode createMinorVersionComponent() {
@@ -117,10 +124,10 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 		return true;
 	}
 
-	@Override
-	public boolean setAssignedType(Node replacement) {
-		return getSimpleFacet().getSimpleAttribute().getTypeClass().setAssignedType(replacement);
-	}
+	// @Override
+	// public boolean setAssignedType(TypeProvider replacement) {
+	// return getSimpleFacet().getSimpleAttribute().getTypeClass().setAssignedType(replacement);
+	// }
 
 	@Override
 	public Node setExtensible(boolean extensible) {
@@ -137,7 +144,8 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 	 */
 	@Override
 	public Node getTypeNode() {
-		return getTypeClass().getTypeNode();
+		return (Node) getSimpleFacet().getSimpleAttribute().getAssignedType();
+		// return (Node) getTypeClass().getTypeNode();
 	}
 
 	@Override
@@ -148,7 +156,7 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 	@Override
 	public List<Node> getChildren_TypeUsers() {
 		ArrayList<Node> users = new ArrayList<Node>();
-		users.add(getSimpleType());
+		users.add((Node) getSimpleType());
 		users.addAll(getSummaryFacet().getChildren());
 		users.addAll(getDetailFacet().getChildren());
 		return users;
@@ -161,28 +169,32 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 
 	@Override
 	public String getLabel() {
-		if (getExtendsType() == null)
+		if (getExtensionBase() == null)
 			return super.getLabel();
 		// else if (getExtendsType().getName().equals(getName()))
 		else if (isVersioned())
-			return super.getLabel() + " (Extends version: " + getExtendsType().getLibrary().getVersion() + ")";
+			return super.getLabel() + " (Extends version: " + getExtensionBase().getLibrary().getVersion() + ")";
 		else
-			return super.getLabel() + " (Extends: " + getExtendsType().getNameWithPrefix() + ")";
+			return super.getLabel() + " (Extends: " + getExtensionBase().getNameWithPrefix() + ")";
+	}
+
+	// /////////////////////////////////////////////////////////////////
+	//
+	// Simple Attribute Owner implementations
+	//
+	@Override
+	public TypeProvider getSimpleType() {
+		return getSimpleAttribute().getAssignedType();
 	}
 
 	@Override
-	public Node getExtendsType() {
-		return getTypeClass().getTypeNode();
+	public boolean setSimpleType(TypeProvider type) {
+		return getSimpleAttribute().setAssignedType(type);
 	}
 
 	@Override
-	public ComponentNode getSimpleType() {
-		return (ComponentNode) getSimpleFacet().getSimpleAttribute().getAssignedType();
-	}
-
-	@Override
-	public boolean setSimpleType(Node type) {
-		return getSimpleFacet().getSimpleAttribute().setAssignedType(type);
+	public SimpleAttributeNode getSimpleAttribute() {
+		return getSimpleFacet().getSimpleAttribute();
 	}
 
 	@Override
@@ -293,6 +305,7 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 
 	@Override
 	public void setName(String n, boolean doFamily) {
+		n = NodeNameUtils.fixCoreObjectName(n);
 		super.setName(n, doFamily);
 		for (Node user : getTypeUsers()) {
 			if (user instanceof PropertyNode)
@@ -320,6 +333,37 @@ public class CoreObjectNode extends ComponentNode implements ComplexComponentInt
 	@Override
 	public boolean isMergeSupported() {
 		return true;
+	}
+
+	@Override
+	public boolean isAssignableToElementRef() {
+		return false;
+	}
+
+	// @Override
+	// public TypeProvider getAssignedType() {
+	// return (TypeProvider) getSimpleType();
+	// }
+
+	// /////////////////////////////////////////////////////////////////
+	//
+	// Extension Owner implementations
+	//
+	@Override
+	public Node getExtensionBase() {
+		return extensionHandler != null ? extensionHandler.get() : null;
+	}
+
+	@Override
+	public void setExtension(final Node base) {
+		if (extensionHandler == null)
+			extensionHandler = new ExtensionHandler(this);
+		extensionHandler.set(base);
+	}
+
+	@Override
+	public ExtensionHandler getExtensionHandler() {
+		return extensionHandler;
 	}
 
 }

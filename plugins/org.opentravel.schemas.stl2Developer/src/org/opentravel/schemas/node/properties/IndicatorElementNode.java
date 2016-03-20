@@ -74,7 +74,7 @@ public class IndicatorElementNode extends PropertyNode {
 	}
 
 	@Override
-	public ImpliedNode getDefaultType() {
+	public ImpliedNode getRequiredType() {
 		return ModelNode.getIndicatorNode();
 	}
 

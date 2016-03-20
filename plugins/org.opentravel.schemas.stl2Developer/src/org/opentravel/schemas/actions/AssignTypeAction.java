@@ -30,6 +30,8 @@ import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.PostTypeChange;
 import org.opentravel.schemas.types.TypeNode;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.wizards.TypeSelectionWizard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,7 +100,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 		boolean ret = true;
 		for (Node cn : toChange) {
 			// TEST - this can be very slow when doing 150+ nodes because the setAssigned refreshes the display
-			if (!cn.setAssignedType(newType)) {
+			if (!((TypeUser) cn).setAssignedType((TypeProvider) newType)) {
 				ret = false;
 				DialogUserNotifier.openWarning("Warning", "Invalid type assignment");
 				// LOGGER.debug("Invalid type assigment: " + newType + " to " + cn);
@@ -153,16 +155,16 @@ public class AssignTypeAction extends OtmAbstractAction {
 	}
 
 	private void addTypeUsers(INode n, List<Node> users) {
-		if (n instanceof TypeNode) {
-			TypeNode tn = (TypeNode) n;
-			if (tn.isUser()) {
-				users.add(tn.getParent()); // This is a type node for a specific type user.
-			} else {
-				// This is a type node for the type provider.
-				users.addAll(tn.getParent().getTypeClass().getComponentUsers());
-			}
-		}
-
+		throw new IllegalStateException("Not Implemented Yet.");
+		// if (n instanceof TypeNode) {
+		// TypeNode tn = (TypeNode) n;
+		// if (tn.isUser()) {
+		// users.add(tn.getParent()); // This is a type node for a specific type user.
+		// } else {
+		// // This is a type node for the type provider.
+		// users.addAll(tn.getParent().getTypeClass().getTypeUsersAndDescendants());
+		// }
+		// }
 	}
 
 }

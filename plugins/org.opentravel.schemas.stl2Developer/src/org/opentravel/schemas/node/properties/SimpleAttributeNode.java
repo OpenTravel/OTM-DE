@@ -19,13 +19,12 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
-import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
-import org.opentravel.schemas.types.TypeUser;
+import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * A property node that represents a simple property of a core or value with attributes object. See
@@ -35,7 +34,7 @@ import org.opentravel.schemas.types.TypeUser;
  * 
  */
 
-public class SimpleAttributeNode extends PropertyNode implements TypeUser {
+public class SimpleAttributeNode extends PropertyNode {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(SimpleAttributeNode.class);
 
 	public SimpleAttributeNode(TLModelElement tlObj, INode parent) {
@@ -47,19 +46,20 @@ public class SimpleAttributeNode extends PropertyNode implements TypeUser {
 				((TLnSimpleAttribute) tlObj).setParentObject(tlOwner);
 
 			// Since the type assigned to this is the same as the parent facet, share the type class
-			type = ((Node) parent).getTypeClass();
+			// type = ((Node) parent).getTypeClass();
 		}
 	}
 
 	@Override
 	public boolean canAssign(Node type) {
-		return type instanceof ComponentNode ? ((ComponentNode) type).isAssignableToSimple() : false;
+		return type instanceof TypeProvider ? ((TypeProvider) type).isAssignableToSimple() : false;
 	}
 
 	@Override
 	public INode createProperty(Node type) {
 		// Need for DND but can't actually create a property, just set the type.
-		setAssignedType(type);
+		if (type instanceof TypeProvider)
+			setAssignedType((TypeProvider) type);
 		return this;
 	}
 
@@ -87,6 +87,12 @@ public class SimpleAttributeNode extends PropertyNode implements TypeUser {
 	@Override
 	public String getLabel() {
 		return modelObject.getLabel() == null ? "" : modelObject.getLabel();
+	}
+
+	@Override
+	public TypeProvider getAssignedType() {
+		return typeHandler.get();
+		// return (TypeProvider) getTypeClass().getTypeNode();
 	}
 
 	@Override

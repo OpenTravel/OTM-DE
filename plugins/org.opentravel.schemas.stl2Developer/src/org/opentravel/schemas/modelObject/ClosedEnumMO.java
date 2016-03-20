@@ -15,10 +15,12 @@
  */
 package org.opentravel.schemas.modelObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
 import org.opentravel.schemacompiler.model.TLExtension;
@@ -70,6 +72,70 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 		return "Closed Enumeration";
 	}
 
+	/**
+	 * @return the TLClosedEnumeration that extends the passed enum if any
+	 */
+	public TLAbstractEnumeration getExtension(TLAbstractEnumeration ce) {
+		return ce.getExtension() != null ? ce = (TLAbstractEnumeration) ce.getExtension().getExtendsEntity() : null;
+	}
+
+	/**
+	 * @see org.opentravel.schemas.modelObject.ModelObject#getExtendsType()
+	 */
+	@Override
+	public String getExtendsType() {
+		TLExtension tlExtension = getTLModelObj().getExtension();
+		String extendsTypeName = "";
+
+		if (tlExtension != null) {
+			if (tlExtension.getExtendsEntity() != null)
+				extendsTypeName = tlExtension.getExtendsEntity().getLocalName();
+			else
+				extendsTypeName = "--base type can not be found--";
+		}
+		return extendsTypeName;
+	}
+
+	@Override
+	public String getExtendsTypeNS() {
+		TLExtension tlExtension = getTLModelObj().getExtension();
+		return tlExtension == null || tlExtension.getExtendsEntity() == null ? "" : tlExtension.getExtendsEntity()
+				.getNamespace();
+	}
+
+	/**
+	 * @see org.opentravel.schemas.modelObject.ModelObject#getInheritedChildren()
+	 */
+	@Override
+	public List<?> getInheritedChildren() {
+		final List<TLModelElement> inheritedKids = new ArrayList<TLModelElement>();
+		// final TLClosedEnumeration closedEnum = getTLModelObj();
+		// TLAttribute other = new TLAttribute();
+		// other.setName("Other_" + closedEnum.getName());
+		// inheritedKids.add(other);
+		inheritedKids.addAll(getInheritedValues());
+		// The Codegen utils also insert non-inherited values
+		// inheritedKids.addAll(EnumCodegenUtils.getInheritedValues(getTLModelObj()));
+		return inheritedKids;
+	}
+
+	/**
+	 * @return list of values found in previous versions of this open enum
+	 */
+	private List<TLEnumValue> getInheritedValues() {
+		List<TLEnumValue> valueList = new ArrayList<TLEnumValue>();
+		// TLClosedEnumeration tlOE = getTLModelObj();
+		TLAbstractEnumeration oe = getExtension(getTLModelObj());
+		while (oe != null) {
+			valueList.addAll(oe.getValues());
+			if (oe.getExtension() != null)
+				oe = getExtension(oe);
+			else
+				oe = null;
+		}
+		return valueList;
+	}
+
 	@Override
 	public String getName() {
 		return getTLModelObj().getName();
@@ -86,9 +152,31 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 	}
 
 	@Override
+	public NamedEntity getTLBase() {
+		return srcObj.getExtension() != null ? srcObj.getExtension().getExtendsEntity() : null;
+	}
+
+	@Override
 	public String getNamePrefix() {
 		final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
 		return lib == null ? "" : lib.getPrefix();
+	}
+
+	/**
+	 * Is this Enum extended by <i>extension</i>? VWA does not use an TL extension handler. Use the parentType
+	 */
+	@Override
+	public boolean isExtendedBy(NamedEntity extension) {
+		if (extension == null || !(extension instanceof TLClosedEnumeration))
+			return false;
+		if (extension.getValidationIdentity() == null)
+			return false;
+
+		if (getTLModelObj() != null)
+			if (getTLModelObj().getExtension() != null)
+				if (getTLModelObj().getExtension().getValidationIdentity() != null)
+					return getTLModelObj().getExtension().getExtendsEntity() == extension;
+		return false;
 	}
 
 	@Override

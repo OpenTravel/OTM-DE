@@ -26,6 +26,7 @@ import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.RoleFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * A property node that represents a role enumeration value in a core object. See
@@ -39,10 +40,12 @@ public class RoleNode extends PropertyNode {
 
 	public RoleNode(RoleFacetNode parent, String name) {
 		super(new TLRole(), parent, name, PropertyNodeType.ROLE);
+		setAssignedType(getRequiredType());
 	}
 
 	public RoleNode(TLModelElement tlObj, RoleFacetNode parent) {
 		super(tlObj, parent, PropertyNodeType.ROLE);
+		setAssignedType(getRequiredType());
 	}
 
 	@Override
@@ -76,7 +79,12 @@ public class RoleNode extends PropertyNode {
 	}
 
 	@Override
-	public ImpliedNode getDefaultType() {
+	public TypeProvider getAssignedType() {
+		return getRequiredType();
+	}
+
+	@Override
+	public ImpliedNode getRequiredType() {
 		return ModelNode.getUndefinedNode();
 	}
 

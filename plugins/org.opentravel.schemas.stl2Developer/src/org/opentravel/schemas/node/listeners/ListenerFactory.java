@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.opentravel.schemacompiler.event.ModelElementListener;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.BusinessObjectNode;
-import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
@@ -29,7 +29,8 @@ import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.node.resources.ActionRequest;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,8 +58,8 @@ public class ListenerFactory {
 			return;
 		if (node instanceof EnumLiteralNode)
 			return; // do not assign listener
-		if (node instanceof ImpliedNode)
-			return;
+		// if (node instanceof ImpliedNode)
+		// return;
 		if (node instanceof ModelNode) {
 			((ModelNode) node).addListeners();
 			return;
@@ -73,24 +74,27 @@ public class ListenerFactory {
 
 		BaseNodeListener listener = null;
 		if (node instanceof PropertyNode)
-			listener = new PropertyNodeListener(node);
+			listener = new TypeUserListener(node);
 		else if (node instanceof SimpleFacetNode)
 			listener = new SimpleFacetNodeListener(node);
 		else if (node instanceof SimpleTypeNode)
-			listener = new NamedTypeListener(node); // was PropertyNodeListener
+			listener = new TypeUserListener(node);
 		else if (node instanceof LibraryNode)
 			listener = new LibraryNodeListener(node);
 		else if (node instanceof BusinessObjectNode)
 			listener = new BusinessObjectNodeListener(node);
-		else if (node instanceof ActionRequest)
-			listener = new ResourceDependencyListener(node);
+		// else if (node instanceof ActionRequest)
+		// listener = new ResourceDependencyListener(node);
+		// else if (node instanceof XsdNode)
+		// // Can't do this because on constructor the otmModel can not be made in super
+		// listener = new NamedTypeListener(((XsdNode) node).getOtmModel());
 		else
 			listener = new NamedTypeListener(node);
 
 		// debugging - trap if there is already a listener
 		Node lNode = Node.GetNode(node.getTLModelObject());
 		if (lNode != null) {
-			LOGGER.debug(node + " already has listeners.");
+			LOGGER.debug(node + " already has identity listeners.");
 		}
 
 		if (listener != null)
@@ -107,10 +111,27 @@ public class ListenerFactory {
 	public static void clearListners(Node node) {
 		if (node.getTLModelObject() == null)
 			return;
-		Collection<ModelElementListener> listeners = new ArrayList<>(node.getTLModelObject().getListeners());
-		if (!listeners.isEmpty())
-			for (ModelElementListener l : listeners)
-				node.getTLModelObject().removeListener(l);
+		clearListners(node.getTLModelObject());
+		// Collection<ModelElementListener> listeners = new ArrayList<>(node.getTLModelObject().getListeners());
+		// if (!listeners.isEmpty())
+		// for (ModelElementListener l : listeners)
+		// node.getTLModelObject().removeListener(l);
 	}
 
+	/**
+	 * Remove all listeners from this node's tl object.
+	 */
+	public static void clearListners(TLModelElement tlObj) {
+		Collection<ModelElementListener> listeners = new ArrayList<>(tlObj.getListeners());
+		if (!listeners.isEmpty())
+			for (ModelElementListener l : listeners) {
+				// just in case an event was not handled, make sure the type is unassigned.
+				if (l instanceof TypeUserListener) {
+					TypeUser user = (TypeUser) ((TypeUserListener) l).getNode();
+					TypeProvider type = user.getAssignedType();
+					type.removeTypeUser(user);
+				}
+				tlObj.removeListener(l);
+			}
+	}
 }

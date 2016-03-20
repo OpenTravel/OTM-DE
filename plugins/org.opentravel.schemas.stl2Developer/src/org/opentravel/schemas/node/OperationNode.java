@@ -29,6 +29,8 @@ import org.opentravel.schemacompiler.model.TLService;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.properties.ElementNode;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 
 /**
  * Service Operations.
@@ -63,10 +65,10 @@ public class OperationNode extends FacetNode implements VersionedObjectInterface
 		return super.createMinorVersionComponent(new OperationNode(new TLOperation()));
 	}
 
-	@Override
-	public boolean canExtend() {
-		return true;
-	}
+	// @Override
+	// public boolean canExtend() {
+	// return true;
+	// }
 
 	/*
 	 * (non-Javadoc)
@@ -222,8 +224,8 @@ public class OperationNode extends FacetNode implements VersionedObjectInterface
 		for (final Object msg : modelObject.getChildren()) {
 			final FacetNode fn = new FacetNode((TLFacet) msg);
 			this.linkChild(fn, false);
-			final Node np = new ElementNode(fn, subject.getName());
-			TLFacet tlf = (TLFacet) ((TLProperty) np.getTLModelObject()).getPropertyOwner();
+			final TypeUser np = new ElementNode(fn, subject.getName());
+			TLFacet tlf = (TLFacet) ((TLProperty) ((Node) np).getTLModelObject()).getOwner();
 			switch (type) {
 			case CREATE:
 				if (tlf.getFacetType().equals(TLFacetType.REQUEST))
@@ -231,33 +233,33 @@ public class OperationNode extends FacetNode implements VersionedObjectInterface
 				else if (tlf.getFacetType().equals(TLFacetType.RESPONSE))
 					np.setAssignedType(businessObject);
 				else if (tlf.getFacetType().equals(TLFacetType.NOTIFICATION))
-					np.setAssignedType((Node) businessObject.getIDFacet());
+					np.setAssignedType((TypeProvider) businessObject.getIDFacet());
 				break;
 			case DELETE:
 				if (tlf.getFacetType().equals(TLFacetType.REQUEST))
 					np.setAssignedType(businessObject);
 				else if (tlf.getFacetType().equals(TLFacetType.RESPONSE))
-					np.setAssignedType((Node) businessObject.getIDFacet());
+					np.setAssignedType((TypeProvider) businessObject.getIDFacet());
 				else if (tlf.getFacetType().equals(TLFacetType.NOTIFICATION))
 					np.setAssignedType(businessObject);
 				break;
 			case QUERY:
 				if (tlf.getFacetType().equals(TLFacetType.REQUEST)) {
-					np.setAssignedType((Node) ModelNode.getEmptyNode());
+					np.setAssignedType((TypeProvider) ModelNode.getEmptyNode());
 					if (businessObject.getQueryFacets().size() > 0) {
 						// Find the query facet that matches the name parameter
 						for (Node qf : businessObject.getQueryFacets())
 							if (qf.getLabel().equals(name))
-								np.setAssignedType(qf);
+								np.setAssignedType((TypeProvider) qf);
 					}
 				} else if (tlf.getFacetType().equals(TLFacetType.RESPONSE))
 					np.setAssignedType(businessObject);
 				else if (tlf.getFacetType().equals(TLFacetType.NOTIFICATION))
-					np.setAssignedType((Node) businessObject.getIDFacet());
+					np.setAssignedType((TypeProvider) businessObject.getIDFacet());
 				break;
 			case READ:
 				if (tlf.getFacetType().equals(TLFacetType.REQUEST))
-					np.setAssignedType((Node) businessObject.getIDFacet());
+					np.setAssignedType((TypeProvider) businessObject.getIDFacet());
 				else if (tlf.getFacetType().equals(TLFacetType.RESPONSE))
 					np.setAssignedType(businessObject);
 				else if (tlf.getFacetType().equals(TLFacetType.NOTIFICATION))
@@ -267,12 +269,12 @@ public class OperationNode extends FacetNode implements VersionedObjectInterface
 				if (tlf.getFacetType().equals(TLFacetType.REQUEST))
 					np.setAssignedType(businessObject);
 				else if (tlf.getFacetType().equals(TLFacetType.RESPONSE))
-					np.setAssignedType((Node) businessObject.getIDFacet());
+					np.setAssignedType((TypeProvider) businessObject.getIDFacet());
 				else if (tlf.getFacetType().equals(TLFacetType.NOTIFICATION))
 					np.setAssignedType(businessObject);
 				break;
 			}
-			np.visitAllNodes(new NodeVisitors().new FixNames());
+			((Node) np).visitAllNodes(new NodeVisitors().new FixNames());
 		}
 	}
 

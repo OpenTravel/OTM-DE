@@ -29,10 +29,13 @@ import java.util.List;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.opentravel.schemas.node.LibraryChainNode;
+import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.types.TypeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,8 +60,12 @@ public class LibraryTreeContentProvider implements ITreeContentProvider {
 			Node node = (Node) element;
 			List<Node> navChildren = new ArrayList<Node>();
 			navChildren.addAll(node.getNavChildren());
-			if (node.isNamedType())
-				navChildren.add(node.getTypeClass().getTypeTreeNode());
+			if (node instanceof TypeProvider)
+				navChildren.add(((TypeProvider) node).getWhereUsedNode());
+			if (node instanceof LibraryNode)
+				navChildren.add(((LibraryNode) node).getWhereUsedHandler().getWhereUsedNode());
+			if (node instanceof LibraryChainNode)
+				navChildren.add(((LibraryChainNode) node).getHead().getWhereUsedHandler().getWhereUsedNode());
 			navChildren.addAll(node.getInheritedChildren());
 			return navChildren != null ? navChildren.toArray() : null;
 		} else

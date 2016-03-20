@@ -60,6 +60,8 @@ import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.FileDialogs;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.views.ValidationResultsView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -457,7 +459,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 
 		ComplexComponentInterface ci = (ComplexComponentInterface) owner;
 		Node simpleProp = ci.getSimpleFacet().getSimpleAttribute();
-		simpleProp.setAssignedType(p.getType());
+		((TypeUser) simpleProp).setAssignedType((TypeProvider) p.getType());
 		copyDocumentation(p, simpleProp);
 		// TODO also copy the examples and equivalents
 		p.unlinkNode();
@@ -497,8 +499,8 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 		}
 		ComponentNode newProperty = NodeFactory.newComponentMember(targetFacet, tlModel);
 		NodeNameUtils.fixName(newProperty);
-		newProperty.setAssignedType(simpleAttribute.getType());
-		simpleAttribute.setAssignedType((Node) ModelNode.getEmptyNode());
+		((TypeUser) newProperty).setAssignedType((TypeProvider) simpleAttribute.getType());
+		((TypeUser) simpleAttribute).setAssignedType((TypeProvider) ModelNode.getEmptyNode());
 		copyDocumentation(simpleAttribute, newProperty);
 
 		return newProperty;

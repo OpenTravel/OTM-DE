@@ -39,6 +39,7 @@ import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.PostTypeChange;
+import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.widgets.OtmEventData;
 import org.opentravel.schemas.widgets.OtmHandlers;
 import org.opentravel.schemas.wizards.TypeSelectionWizard;
@@ -654,7 +655,7 @@ public class OtmActions {
 	private void setPropertyType(final OtmEventData ed) {
 		final INode pNode = mc.getCurrentNode_PropertiesView();
 		if (pNode != null)
-			pNode.setAssignedType(NodeFinders.findNodeByID(ed.getText()));
+			((PropertyNode) pNode).setAssignedType((TypeProvider) NodeFinders.findNodeByID(ed.getText()));
 		mc.refresh(pNode);
 	}
 

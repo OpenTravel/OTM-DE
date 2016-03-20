@@ -26,6 +26,7 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
@@ -45,6 +46,7 @@ import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -55,6 +57,7 @@ import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
+import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,19 +194,29 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	@Override
-	public boolean setAssignedType(Node type) {
+	public boolean setAssignedType(TypeProvider type) {
 		LOGGER.debug("Tried to set assigned type: " + getType());
 		return false;
+	}
+
+	@Override
+	public boolean setAssignedType(TLModelElement tlProvier) {
+		throw new IllegalAccessError("Not Implemented.");
+	}
+
+	@Override
+	public boolean setAssignedType() {
+		throw new IllegalAccessError("Not Implemented.");
 	}
 
 	public String getMsgKey() {
 		return MSGKEY;
 	}
 
-	@Override
-	public boolean canExtend() {
-		return true;
-	}
+	// @Override
+	// public boolean canExtend() {
+	// return true;
+	// }
 
 	@Override
 	public ComponentNode createMinorVersionComponent() {
@@ -229,7 +242,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		deleted = true;
 
 		// FIXME - TEST - handle type node
-		getTypeClass().clearWhereUsed();
+		// TEST getTypeClass().clearWhereUsed();
+		// getTypeClass().clear();
 
 		LOGGER.debug("Deleting rest resource: " + this);
 		if (tlObj.getOwningLibrary() != null)
@@ -282,8 +296,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return INode.CommandType.PROPERTY;
 	}
 
+	/**
+	 * Override to return subject.
+	 */
 	@Override
-	public Node getAssignedType() {
+	public TypeProvider getAssignedType() {
 		return getSubject();
 	}
 
@@ -303,9 +320,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return tlObj.getDocumentation() != null ? tlObj.getDocumentation().getDescription() : "";
 	}
 
-	@Override
+	// @Override
 	public Node getExtendsType() {
-		return getTypeClass().getTypeNode();
+		// should this implement Extension Owner?
+		throw new IllegalStateException("Need to add type handler to resource.");
+		// return (Node) getTypeClass().getTypeNode();
 	}
 
 	public String getExtendsEntityName() {
@@ -535,11 +554,6 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return true;
 	}
 
-	@Override
-	public boolean isTypeUser() {
-		return true;
-	}
-
 	public void setBasePath(String path) {
 		// if (!path.endsWith("/"))
 		// path = path + "/";
@@ -662,5 +676,25 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	@Override
 	public boolean isValid_NoWarnings() {
 		return TLModelCompileValidator.validateModelElement((TLModelElement) tlObj).count(FindingType.WARNING) == 0;
+	}
+
+	@Override
+	public NamedEntity getAssignedTLNamedEntity() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public TLModelElement getAssignedTLObject() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * If there is no subject, then set the type to undefined not unused.
+	 */
+	@Override
+	public TypeProvider getRequiredType() {
+		return subject != null ? null : ModelNode.getUndefinedNode();
 	}
 }

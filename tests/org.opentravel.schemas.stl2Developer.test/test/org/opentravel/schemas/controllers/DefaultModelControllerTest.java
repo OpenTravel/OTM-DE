@@ -35,6 +35,7 @@ import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
+import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
 import org.opentravel.schemas.utils.PropertyNodeBuilder;
 
@@ -73,7 +74,7 @@ public class DefaultModelControllerTest {
 		ComponentNode simple = ComponentNodeBuilder.createSimpleObject("simple").get();
 		PropertyNode p2 = PropertyNodeBuilder.create(PropertyNodeType.ATTRIBUTE).assign(simple).build();
 		VWA_Node vwa = ComponentNodeBuilder.createVWA("NVA").addAttribute(p2).get();
-		ComponentNode vwaType = vwa.getSimpleType();
+		TypeProvider vwaType = vwa.getSimpleType();
 		TLValueWithAttributes tvwa = (TLValueWithAttributes) vwa.getTLModelObject();
 		Assert.assertEquals(vwaType, vwa.getSimpleType());
 		res = dc.changeToSimple(p2);
@@ -140,7 +141,7 @@ public class DefaultModelControllerTest {
 	public void changeFromSimpleShouldCreateNewProperty() {
 		ComponentNode coType = ComponentNodeBuilder.createCoreObject("Type").get();
 		CoreObjectNode co = ComponentNodeBuilder.createCoreObject("Core").get();
-		co.getSimpleFacet().getSimpleAttribute().setAssignedType(coType);
+		co.getSimpleFacet().getSimpleAttribute().setAssignedType((TypeProvider) coType);
 
 		// make sure that summary is empty
 		Assert.assertEquals(0, co.getSummaryFacet().getChildren().size());
@@ -157,7 +158,7 @@ public class DefaultModelControllerTest {
 	public void changeFromSimpleShouldLeftSimpleAttributeWithEmpty() {
 		ComponentNode vwaType = ComponentNodeBuilder.createVWA("Type").get();
 		CoreObjectNode co = ComponentNodeBuilder.createCoreObject("Core").get();
-		co.getSimpleFacet().getSimpleAttribute().setAssignedType(vwaType);
+		co.getSimpleFacet().getSimpleAttribute().setAssignedType((TypeProvider) vwaType);
 
 		dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(), (ComponentNode) co.getSummaryFacet());
 
@@ -170,7 +171,7 @@ public class DefaultModelControllerTest {
 		ComponentNode vwaType = ComponentNodeBuilder.createVWA("Type").get();
 		VWA_Node co = ComponentNodeBuilder.createVWA("VWA").get();
 
-		co.getSimpleFacet().getSimpleAttribute().setAssignedType(vwaType);
+		co.getSimpleFacet().getSimpleAttribute().setAssignedType((TypeProvider) vwaType);
 
 		ComponentNode newProperty = dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(),
 				(ComponentNode) co.getSummaryFacet());
@@ -182,7 +183,7 @@ public class DefaultModelControllerTest {
 	public void changeFromSimpleShouldCreateElementForNotVWA() {
 		ComponentNode vwaType = ComponentNodeBuilder.createVWA("Type").get();
 		CoreObjectNode co = ComponentNodeBuilder.createCoreObject("Core").get();
-		co.getSimpleFacet().getSimpleAttribute().setAssignedType(vwaType);
+		co.getSimpleFacet().getSimpleAttribute().setAssignedType((TypeProvider) vwaType);
 
 		ComponentNode newProperty = dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(),
 				(ComponentNode) co.getSummaryFacet());
@@ -195,7 +196,7 @@ public class DefaultModelControllerTest {
 		ComponentNode vwaType = ComponentNodeBuilder.createVWA("Type").get();
 		String typeName = "NewCoreObject";
 		CoreObjectNode co = ComponentNodeBuilder.createCoreObject(typeName).get();
-		co.getSimpleFacet().getSimpleAttribute().setAssignedType(vwaType);
+		co.getSimpleFacet().getSimpleAttribute().setAssignedType((TypeProvider) vwaType);
 
 		ComponentNode newProperty = dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(),
 				(ComponentNode) co.getSummaryFacet());
@@ -208,7 +209,7 @@ public class DefaultModelControllerTest {
 		ComponentNode vwaType = ComponentNodeBuilder.createVWA("Type").get();
 
 		VWA_Node co = ComponentNodeBuilder.createVWA("VWA").get();
-		co.getSimpleFacet().getSimpleAttribute().setAssignedType(vwaType);
+		co.getSimpleFacet().getSimpleAttribute().setAssignedType((TypeProvider) vwaType);
 
 		String name = co.getSimpleFacet().getSimpleAttribute().getName();
 		ComponentNode newProperty = dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(),

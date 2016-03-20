@@ -59,6 +59,7 @@ import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.trees.library.LibrarySorter;
 import org.opentravel.schemas.trees.library.LibraryTreeLabelProvider;
 import org.opentravel.schemas.trees.library.LibraryTreeWithPropertiesContentProvider;
+import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.widgets.ButtonBarManager;
 import org.opentravel.schemas.widgets.WidgetFactory;
 import org.opentravel.schemas.wizards.validators.FormValidator;
@@ -382,7 +383,7 @@ public class NewPropertiesWizardPage extends WizardPage {
 			return null;
 		}
 		final PropertyNode copy = (PropertyNode) NodeFactory.newComponentMember((INode) editedFacet, o.cloneTLObj());
-		copy.setAssignedType(o.getType());
+		copy.setAssignedType((TypeProvider) o.getType());
 		getNewProperties().add(copy);
 		return copy;
 	}
@@ -424,7 +425,8 @@ public class NewPropertiesWizardPage extends WizardPage {
 	private void newPropertyFromType(final Node node) {
 		if (node.isAssignable()) {
 			final PropertyNode newProperty = newProperty();
-			newProperty.setAssignedType(node);
+			if (node instanceof TypeProvider)
+				newProperty.setAssignedType((TypeProvider) node);
 			String adjusted = NodeNameUtils.adjustCaseOfName(newProperty.getPropertyType(), node.getName());
 			newProperty.setName(adjusted);
 			displayNewProperty(newProperty);

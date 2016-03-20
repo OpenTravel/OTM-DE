@@ -41,6 +41,7 @@ import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.utils.StringComparator;
 
 /**
@@ -51,7 +52,7 @@ import org.opentravel.schemas.utils.StringComparator;
  * @author Dave Hollander
  * 
  */
-public class FacetNode extends ComponentNode implements PropertyOwnerInterface {
+public class FacetNode extends TypeProviderBase implements PropertyOwnerInterface, TypeProvider {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(FacetNode.class);
 
 	public FacetNode() {
@@ -212,10 +213,10 @@ public class FacetNode extends ComponentNode implements PropertyOwnerInterface {
 		return isExtensionPointFacet() ? this : getParent();
 	}
 
-	@Override
-	public int getTypeUsersCount() {
-		return getTypeClass() != null ? getTypeClass().getTypeUsersCount() : 0;
-	}
+	// @Override
+	// public int getWhereUsedCount() {
+	// return getWhereUsedCount();
+	// }
 
 	@Override
 	public boolean isAssignedByReference() {
@@ -298,11 +299,12 @@ public class FacetNode extends ComponentNode implements PropertyOwnerInterface {
 		return getName().endsWith(NodeNameUtils.DETAIL_LIST_SUFFIX);
 	}
 
-	@Override
-	public boolean isChoiceFacet() {
-		return getTLModelObject() instanceof TLAbstractFacet ? ((TLAbstractFacet) getTLModelObject()).getFacetType() == TLFacetType.CHOICE
-				: false;
-	}
+	// @Override
+	// public boolean isChoiceFacet() {
+	// return getTLModelObject() instanceof TLAbstractFacet ? ((TLAbstractFacet) getTLModelObject()).getFacetType() ==
+	// TLFacetType.CHOICE
+	// : false;
+	// }
 
 	@Override
 	public boolean isCustomFacet() {
@@ -375,6 +377,7 @@ public class FacetNode extends ComponentNode implements PropertyOwnerInterface {
 	 * 
 	 * @see org.opentravel.schemas.node.Node#isTypeProvider()
 	 */
+	// FIXME - create another facet for non-providers
 	@Override
 	public boolean isTypeProvider() {
 		if (getParent() == null)
@@ -454,27 +457,11 @@ public class FacetNode extends ComponentNode implements PropertyOwnerInterface {
 		else
 			pn = new ElementNode(new TLProperty(), this);
 		pn.setDescription(type.getDescription());
-		pn.setAssignedType(type);
+		if (type instanceof TypeProvider)
+			pn.setAssignedType((TypeProvider) type);
 		pn.setName(type.getName());
 		return pn;
 	}
-
-	// public boolean hasTheSameContext(final String contextId, final TLFacetType facetType) {
-	// if (getModelObject() == null || contextId == null || facetType == null) {
-	// return false;
-	// }
-	// final Object tlObject = getModelObject().getTLModelObj();
-	// final TLLibrary tlLib = (TLLibrary) getLibrary().getTLaLib();
-	// if (tlObject instanceof TLFacet) {
-	// final TLFacet facet = (TLFacet) tlObject;
-	// final TLFacetType thisType = facet.getFacetType();
-	// final TLContext thisContext = tlLib.getContext(this.getContext());
-	// if (thisContext != null && contextId.equals(thisContext.getContextId()) && thisType.equals(facetType)) {
-	// return true;
-	// }
-	// }
-	// return false;
-	// }
 
 	@Override
 	public boolean isAliasable() {
@@ -555,6 +542,11 @@ public class FacetNode extends ComponentNode implements PropertyOwnerInterface {
 				knownAliases.add(tla.getName());
 			}
 		}
+	}
+
+	@Override
+	public boolean isAssignableToElementRef() {
+		return false;
 	}
 
 }

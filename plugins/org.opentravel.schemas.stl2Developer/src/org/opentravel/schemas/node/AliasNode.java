@@ -25,6 +25,7 @@ import org.opentravel.schemacompiler.model.TLAliasOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.types.TypeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class AliasNode extends ComponentNode {
+public class AliasNode extends TypeProviderBase implements TypeProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AliasNode.class);
 
 	// public AliasNode() {
@@ -195,6 +196,7 @@ public class AliasNode extends ComponentNode {
 			LOGGER.warn("Can't set name unless the parent is the component, not a facet. " + getName());
 			return;
 		}
+		n = NodeNameUtils.fixComplexTypeName(n);
 		touchSiblingAliases(new renameAlias(this, n));
 	}
 
@@ -292,6 +294,21 @@ public class AliasNode extends ComponentNode {
 				user.setName(fullNewName);
 			}
 		}
+	}
+
+	@Override
+	public boolean isAssignableToSimple() {
+		return false;
+	}
+
+	@Override
+	public boolean isAssignableToVWA() {
+		return false;
+	}
+
+	@Override
+	public boolean isAssignableToElementRef() {
+		return false;
 	}
 
 }

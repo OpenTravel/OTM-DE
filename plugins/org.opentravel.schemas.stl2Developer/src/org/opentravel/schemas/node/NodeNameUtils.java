@@ -24,9 +24,13 @@ import java.util.EnumSet;
 import javax.xml.namespace.QName;
 
 import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemas.modelObject.XsdModelingUtils;
 import org.opentravel.schemas.node.NodeVisitors.FixNames;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
+import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 
 /**
  * Static utilities for manipulating the names of various objects.
@@ -128,35 +132,36 @@ public class NodeNameUtils {
 	 */
 
 	public static String fixElementName(Node n) {
-		String name = null;
+		String name = n.getName();
 		QName qName = null;
-		if (n.getTLTypeObject() != null) {
+
+		// Get the name from the assigned type and codegen utils.
+		if (((TypeUser) n).getAssignedTLObject() != null) {
 			// Type by reference to XML elements must use element name.
-			qName = PropertyCodegenUtils.getDefaultXmlElementName(n.getTLTypeObject(),
+			NamedEntity tlObj = ((TypeUser) n).getAssignedTLNamedEntity();
+			qName = PropertyCodegenUtils.getDefaultXmlElementName(((PropertyNode) n).getAssignedTLNamedEntity(),
 					n instanceof ElementReferenceNode);
 			if (qName != null)
 				name = qName.getLocalPart();
 		}
-		if (qName == null) {
-			// Is a simple or unassigned type. Use their name or suggest one.
-			name = n.getName();
-			if (name.isEmpty() && n.getTypeNode() == null) {
-				name = UNASIGNED_NAME;
-			} else {
-				if (n.getTypeNode() != null && n.getTypeNode().isSimpleListFacet()) {
-					name = n.getTypeNode().getName();
-					name = makePlural(stripUnderScore(stripSuffix(name, SIMPLE_LIST_SUFFIX)));
-				}
-			}
-			if (n instanceof ElementReferenceNode)
-				if (n.getTypeNode() != null)
-					name = n.getTypeNode().getName() + ID_RERFERENCE_SUFFIX;
-				else
-					name = ID_RERFERENCE_SUFFIX;
+		// When does fix name insist on using the name of the object?
+		TypeProvider assignedType = ((TypeUser) n).getAssignedType();
 
-			name = adjustCaseOfName(PropertyNodeType.ELEMENT, name);
-		}
-		return name != null ? name : UNASIGNED_NAME;
+		// Create or modify name based on type of node
+		if (qName == null && name.isEmpty() && assignedType != null)
+			name = assignedType.getName();
+
+		if (assignedType != null && ((Node) assignedType).isSimpleListFacet())
+			name = makePlural(stripUnderScore(stripSuffix(assignedType.getName(), SIMPLE_LIST_SUFFIX)));
+
+		if (n instanceof ElementReferenceNode)
+			if (assignedType != null)
+				name = assignedType.getName() + ID_RERFERENCE_SUFFIX;
+			else
+				name = ID_RERFERENCE_SUFFIX;
+
+		name = adjustCaseOfName(PropertyNodeType.ELEMENT, name);
+		return name != null && !name.isEmpty() ? name : UNASIGNED_NAME;
 	}
 
 	/**

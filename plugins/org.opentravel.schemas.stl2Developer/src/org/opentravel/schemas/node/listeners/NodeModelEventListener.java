@@ -22,6 +22,8 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,21 +35,20 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  *
  */
-public class ResourceModelEventListener implements
+public class NodeModelEventListener implements
 		ModelEventListener<OwnershipEvent<TLResource, TLModelElement>, TLResource> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceModelEventListener.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(NodeModelEventListener.class);
 
 	@Override
 	public void processModelEvent(OwnershipEvent<TLResource, TLModelElement> event) {
-		ResourceMemberInterface source = null;
-		ResourceMemberInterface affected = null;
-		if (event.getSource() instanceof TLModelElement)
-			source = getSourceNode(event.getSource());
-		if (event.getAffectedItem() instanceof TLModelElement)
-			affected = getSourceNode(event.getAffectedItem());
-		// LOGGER.debug("Event type: " + event.getType() + "  Source = " + source + ", Affected = " + affected);
-		if (affected == null || source == null)
-			return;
+		// ResourceMemberInterface source = null;
+		// if (event.getSource() instanceof TLModelElement)
+		// source = getResourceMemberFromEvent(event.getSource());
+		// if (event.getAffectedItem() instanceof TLModelElement)
+		// resourceAffected = getSourceNode(event.getAffectedItem());
+		LOGGER.debug("Node Model Event - type: " + event.getType());
+		// if (affected == null || source == null)
+		// return;
 
 		switch (event.getType()) {
 		case ACTION_ADDED:
@@ -65,12 +66,39 @@ public class ResourceModelEventListener implements
 			// Triggered by ResourceModelInterface.delete() which will delete children, clear listeners and remove
 			// itself from parent
 			// Just handle dependencies here
-			for (ModelElementListener l : event.getAffectedItem().getListeners())
-				if (l instanceof ResourceDependencyListener)
-					((ResourceMemberInterface) ((ResourceDependencyListener) l).getNode()).removeDependency(affected);
+			ResourceMemberInterface resourceAffected = null;
+			if (event.getAffectedItem() instanceof TLModelElement)
+				resourceAffected = getResourceMemberFromEvent(event.getAffectedItem());
+
+			if (resourceAffected instanceof ResourceMemberInterface)
+				for (ModelElementListener l : event.getAffectedItem().getListeners())
+					if (l instanceof ResourceDependencyListener)
+						((ResourceMemberInterface) ((ResourceDependencyListener) l).getNode())
+								.removeDependency(resourceAffected);
+			LOGGER.debug("Event type: " + event.getType() + "  Affected = " + resourceAffected);
+			break;
+
+		case ATTRIBUTE_REMOVED:
+		case PROPERTY_REMOVED:
+			// Triggered by NodeVisitor.DeleteVisitor()
+			// Remove the property type user from its assigned type where assigned list and handlers.
+			TypeUser user = getTypeUserFromEvent(event.getAffectedItem());
+			TypeProvider type = user.getAssignedType();
+			if (type != null) {
+				type.removeTypeUser(user);
+				LOGGER.debug("Property Removed type assignment: " + type + " from " + user);
+			}
+			break;
+		case CONTEXT_ADDED:
+		case CONTEXT_MODIFIED:
+		case CONTEXT_REMOVED:
+		case LIBRARY_ADDED:
+		case LIBRARY_REMOVED:
+		case IMPORT_ADDED:
+		case IMPORT_REMOVED:
 			break;
 		default:
-			LOGGER.debug("Unhandled event: " + event.getType() + " source = " + source + " affected = " + affected);
+			LOGGER.debug("Unhandled event: " + event.getType());
 			break;
 		}
 	}
@@ -85,7 +113,7 @@ public class ResourceModelEventListener implements
 		return null;
 	}
 
-	private ResourceMemberInterface getSourceNode(TLModelElement tlSource) {
+	private ResourceMemberInterface getResourceMemberFromEvent(TLModelElement tlSource) {
 		Node n = null;
 		for (ModelElementListener l : tlSource.getListeners())
 			if (l instanceof INodeListener) {
@@ -94,5 +122,16 @@ public class ResourceModelEventListener implements
 					break;
 			}
 		return n instanceof ResourceMemberInterface ? (ResourceMemberInterface) n : null;
+	}
+
+	private TypeUser getTypeUserFromEvent(TLModelElement tlSource) {
+		Node n = null;
+		for (ModelElementListener l : tlSource.getListeners())
+			if (l instanceof TypeUserListener) {
+				n = ((INodeListener) l).getNode();
+				if (n.getTLModelObject() == tlSource)
+					break;
+			}
+		return n instanceof TypeUser ? (TypeUser) n : null;
 	}
 }

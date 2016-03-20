@@ -24,15 +24,19 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.properties.AttributeNode;
+import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.PrintNode;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
+import org.opentravel.schemas.types.TypeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +67,60 @@ public class Delete_Tests {
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
 		lf = new LoadFiles();
+	}
+
+	@Test
+	public void deleteProperties() {
+		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", defaultProject);
+		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
+		bo.setName("TestBO");
+		ln.addMember(bo);
+		FacetNode facet = bo.getSummaryFacet();
+		Assert.assertNotNull(facet);
+		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+
+		// Given type user properties assigned types
+		ElementNode ele = new ElementNode(facet, "e1");
+		ele.setAssignedType(aType);
+		AttributeNode attr = new AttributeNode(facet, "att1");
+		attr.setAssignedType(aType);
+		int whereAssignedCount = aType.getWhereUsedCount();
+		Assert.assertEquals(2, facet.getChildren().size());
+
+		// Library must be editable to delete
+		Assert.assertTrue(ln.isEditable());
+		Assert.assertTrue(ele.isDeleteable());
+
+		// delete them and assure where used is updated.
+		ele.delete();
+		attr.delete();
+		Assert.assertEquals(0, facet.getChildren().size());
+		Assert.assertEquals(whereAssignedCount - 2, aType.getWhereUsedCount());
+	}
+
+	@Test
+	public void deleteBO_Test() {
+		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", defaultProject);
+		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
+		bo.setName("TestBO");
+		ln.addMember(bo);
+		FacetNode facet = bo.getSummaryFacet();
+		Assert.assertNotNull(facet);
+		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		int whereAssignedCount = aType.getWhereUsedCount();
+
+		// Given a BO with two properties with assigned types
+		ElementNode ele = new ElementNode(facet, "e1");
+		ele.setAssignedType(aType);
+		AttributeNode attr = new AttributeNode(facet, "att1");
+		attr.setAssignedType(aType);
+		Assert.assertEquals(2, facet.getChildren().size());
+
+		// Delete the BO and assure the assigned types on properties are correct.
+		bo.delete();
+		Assert.assertTrue(ele.isDeleted());
+		Assert.assertTrue(attr.isDeleted());
+		Assert.assertEquals("Should be equal.", whereAssignedCount, aType.getWhereUsedCount());
 	}
 
 	@Test

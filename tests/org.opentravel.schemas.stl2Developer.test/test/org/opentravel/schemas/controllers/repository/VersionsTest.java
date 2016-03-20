@@ -34,6 +34,7 @@ import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.node.AggregateFamilyNode;
 import org.opentravel.schemas.node.AggregateNode;
+import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
@@ -66,6 +67,7 @@ import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testers.GlobalSelectionTester;
 import org.opentravel.schemas.testers.NodeTester;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
+import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.osgi.framework.Version;
 import org.slf4j.Logger;
@@ -169,7 +171,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 				break;
 			}
 		}
-		Assert.assertSame(co, mCo.getExtendsType());
+		Assert.assertSame(co, mCo.getExtensionBase());
 		// Assert.assertSame(vn.getNewestVersion(), mCo);
 
 		checkCounts(chain);
@@ -214,7 +216,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		Assert.assertNotNull(mCo);
 		Assert.assertEquals(1, mCo.getSummaryFacet().getChildren().size());
 
-		// Assert.assertNotNull(mCo.getExtendsType());
+		// Assert.assertNotNull(mCo.getExtensionBase());
 
 		// testAddNodeHandler();
 		// testFacets();
@@ -465,21 +467,21 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		addAndRemoveDoc(idProperty);
 		assertTrue(!idProperty.isMandatory());
 		idProperty.setMandatory(true); // should work
-		assertTrue(idProperty.isMandatory());
+		assertTrue("Must set mandatory on object new to the minor.", idProperty.isMandatory());
 		Assert.assertEquals(NodeEditStatus.MINOR, newBO.getEditStatus());
 
 		//
 		// Make sure other actions are prohibited.
 		//
 		assertTrue(!newProperty.isMandatory());
-		newProperty.setMandatory(true); // should do nothing
-		assertTrue(!newProperty.isMandatory());
+		newProperty.setMandatory(true); // ignored because owning component is not new to chain.
+		assertTrue("Must NOT be allowed.", !newProperty.isMandatory());
 		assertTrue(!oldProperty.isMandatory());
 		oldProperty.setMandatory(true); // should do nothing
-		assertTrue(!oldProperty.isMandatory());
+		assertTrue("Must not be allowed.", !oldProperty.isMandatory());
 
-		// FIXME - AliasNode alias = new AliasNode(boInMinor, "testAlias");
-		// FIXME - assertTrue(alias != null);
+		AliasNode alias = new AliasNode(boInMinor, "testAlias");
+		assertTrue(alias != null);
 
 		checkValid(chain);
 		checkCounts(chain);
@@ -615,8 +617,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 
 	// @Test
 	public void checkNavChildren() {
-		// Chain should have 4
-		Assert.assertEquals(4, chain.getNavChildren().size());
+		// Chain should have 5 (include resources)
+		Assert.assertEquals(5, chain.getNavChildren().size());
 		checkChildrenClassType(chain, AggregateNode.class, null);
 
 		// VersionAggregate should have 3, one for each library
@@ -718,7 +720,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		if (!propOwner.isVWA_AttributeFacet()) {
 			newProp = new ElementNode(new FacetNode(), "np" + cnt++);
 			propOwner.addProperty(newProp);
-			newProp.setAssignedType(xsdStringNode);
+			newProp.setAssignedType((TypeProvider) xsdStringNode);
 			Assert.assertTrue(newProp.getLibrary() != null);
 			Assert.assertTrue(newProp.isDeleteable());
 			newProp.delete();
@@ -726,7 +728,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		}
 		PropertyNode newAttr = new AttributeNode(new FacetNode(), "np" + cnt++);
 		propOwner.addProperty(newAttr);
-		newAttr.setAssignedType(xsdStringNode);
+		newAttr.setAssignedType((TypeProvider) xsdStringNode);
 		Assert.assertEquals(cnt, propOwner.getChildren().size());
 	}
 
@@ -740,7 +742,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	private CoreObjectNode createCoreInMinor() {
 		CoreObjectNode nco = (CoreObjectNode) co.createMinorVersionComponent();
 		PropertyNode newProp = new ElementNode(nco.getSummaryFacet(), "te2");
-		newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
 
 		Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
 		TotalDescendents += 1;
@@ -769,7 +771,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	private BusinessObjectNode createBO_InMinor() {
 		BusinessObjectNode nbo = (BusinessObjectNode) bo.createMinorVersionComponent();
 		PropertyNode newProp = new ElementNode(nbo.getSummaryFacet(), "te2");
-		newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
 		Assert.assertEquals(1, bo.getSummaryFacet().getChildren().size());
 		TotalDescendents += 1;
 		MinorComplex += 1;
@@ -789,7 +791,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		VWA_Node nVwa = (VWA_Node) vwa.createMinorVersionComponent();
 		Assert.assertNotNull(nVwa);
 		PropertyNode newProp = new AttributeNode(nVwa.getAttributeFacet(), "te2");
-		newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
 		Assert.assertEquals(1, bo.getSummaryFacet().getChildren().size());
 		TotalDescendents += 1;
 		MinorComplex += 1;

@@ -42,9 +42,10 @@ import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
-import org.opentravel.schemas.types.TypeProvider;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 
 /**
  * The ComponentNode class handles nodes that represent model objects. It is overridden for most types and properties.
@@ -53,8 +54,8 @@ import org.opentravel.schemas.types.TypeProvider;
  * 
  */
 
-// TODO - this should not implement type provider -- sub-classes should.
-public class ComponentNode extends Node implements TypeProvider {
+// TODO - this should not implement type provider -- sub-classes should.implements TypeProvider
+public class ComponentNode extends Node {
 	// private final static Logger LOGGER = LoggerFactory.getLogger(ComponentNode.class);
 
 	/**
@@ -121,10 +122,10 @@ public class ComponentNode extends Node implements TypeProvider {
 		ListenerFactory.setListner(this);
 	}
 
-	@Override
-	public Node getTypeNode() {
-		return getTypeClass().getTypeNode();
-	}
+	// @Override
+	// public Node getTypeNode() {
+	// return getTypeClass().getTypeNode();
+	// }
 
 	@Override
 	public boolean isNamedType() {
@@ -343,16 +344,11 @@ public class ComponentNode extends Node implements TypeProvider {
 		return modelObject.getRepeat();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#getChildren_TypeUsers()
-	 */
 	@Override
 	public List<Node> getChildren_TypeUsers() {
 		ArrayList<Node> kids = new ArrayList<Node>();
 		for (Node child : getChildren()) {
-			if (child.isTypeUser())
+			if (child instanceof TypeUser)
 				kids.add(child);
 		}
 		return kids;
@@ -552,7 +548,7 @@ public class ComponentNode extends Node implements TypeProvider {
 			if (list.size() > 1) {
 				for (Node property : list) {
 					String aliasName = property.getName() + "_" + type.getName();
-					property.setAssignedType(new AliasNode(type, aliasName));
+					((TypeUser) property).setAssignedType((TypeProvider) new AliasNode(type, aliasName));
 					property.setName(aliasName);
 				}
 			}
@@ -581,7 +577,8 @@ public class ComponentNode extends Node implements TypeProvider {
 		if (owner.getLibrary() == owner.getChain().getHead())
 			return null;
 
-		newNode.getTypeClass().setBaseType(owner);
+		newNode.setExtendsType(owner);
+		// newNode.getTypeClass().setBaseType(owner);
 		if (newNode.getName() == null || newNode.getName().isEmpty())
 			newNode.setName(owner.getName()); // Some of the version handlers do not set name
 		owner.getChain().getHead().addMember(newNode);
@@ -603,9 +600,9 @@ public class ComponentNode extends Node implements TypeProvider {
 		newNode = new ExtensionPointNode(new TLExtensionPointFacet());
 
 		if (isFacet())
-			newNode.setExtendsType(this);
+			newNode.setExtension(this);
 		else if (isProperty())
-			newNode.setExtendsType(getParent());
+			newNode.setExtension(getParent());
 		else if (isCoreObject())
 			newNode.setExtendsType((INode) getSummaryFacet());
 		else if (isBusinessObject())
@@ -743,20 +740,20 @@ public class ComponentNode extends Node implements TypeProvider {
 		return isBusinessObject() || isCoreObject();
 	}
 
-	@Override
-	public boolean isAssignableToSimple() {
-		return false;
-	}
-
-	@Override
-	public boolean isAssignableToVWA() {
-		return false;
-	}
-
-	@Override
-	public boolean isAssignableToElementRef() {
-		return false;
-	}
+	// @Override
+	// public boolean isAssignableToSimple() {
+	// return false;
+	// }
+	//
+	// @Override
+	// public boolean isAssignableToVWA() {
+	// return false;
+	// }
+	//
+	// @Override
+	// public boolean isAssignableToElementRef() {
+	// return false;
+	// }
 
 	public void addProperty(final Node property) {
 		if (property == null)
@@ -779,9 +776,9 @@ public class ComponentNode extends Node implements TypeProvider {
 		}
 		if (this.isSimpleFacet()) {
 			if (property instanceof PropertyNode)
-				getChildren().get(0).setAssignedType(property.getAssignedType());
+				((TypeUser) getChildren().get(0)).setAssignedType(((TypeUser) property).getAssignedType());
 			else
-				getChildren().get(0).setAssignedType(property);
+				((TypeUser) getChildren().get(0)).setAssignedType((TypeProvider) property);
 		} else {
 			property.setParent(this);
 			if (index >= 0)
@@ -833,18 +830,19 @@ public class ComponentNode extends Node implements TypeProvider {
 					newNode = createPatchVersionComponent();
 				else if (getChain().isMinor() && this instanceof VersionedObjectInterface)
 					newNode = ((VersionedObjectInterface) this).createMinorVersionComponent();
-				// newNode = createMinorVersionComponent();
 			}
 			if (newNode != null)
 				newNode = (ComponentNode) newNode.createProperty(sourceNode);
 			else
 				newNode = (ComponentNode) createProperty(sourceNode);
+
 			if (this instanceof FacetNode && ((FacetNode) this).isSummary())
 				// In minor versions, all new properties must be optional.
 				if (!getLibrary().isMinorVersion())
 					newNode.setMandatory(true); // make summary facet properties mandatory by default.
 		} else {
-			setAssignedType(sourceNode);
+			if (this instanceof TypeUser && sourceNode instanceof TypeProvider)
+				((TypeUser) this).setAssignedType((TypeProvider) sourceNode);
 		}
 		return newNode;
 	}
@@ -896,65 +894,48 @@ public class ComponentNode extends Node implements TypeProvider {
 
 	/** TYPE Interfaces **/
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeProvider#getWhereUsedAsType()
-	 * 
-	 * @deprecated - use getTypeUsers()
-	 */
-	@Override
-	public ArrayList<Node> typeUsers() {
-		return getTypeClass().getTypeUsers();
-	}
+	// @Override
+	// public ArrayList<Node> typeUsers() {
+	// return getTypeClass().getTypeUsers();
+	// }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#getWhereUsed()
-	 */
-	@Override
-	public List<Node> getWhereUsed() {
-		return getTypeClass().getTypeUsers();
-	}
+	// @Override
+	// public List<Node> getWhereUsed_OLD() {
+	// return getTypeClass().getTypeUsers();
+	// }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeProvider#typeUsersCount()
-	 */
 	@Override
-	public int getTypeUsersCount() {
-		if (getTypeClass() == null)
-			return 0;
-
-		// return total count for all facets. Overloaded in facet class.
-		int cnt = getTypeClass().getTypeUsersCount();
-		for (Node n : getChildren())
-			cnt += n.getTypeUsersCount();
+	public int getWhereUsedCount() {
+		int cnt = 0;
+		if (this instanceof TypeProvider)
+			cnt = ((TypeProvider) this).getWhereUsedCount();
 		return cnt;
+
+		// if (getTypeClass() == null)
+		// return 0;
+		//
+		// // return total count for all facets. Overloaded in facet class.
+		// int cnt = getTypeClass().getTypeUsersCount();
+		// for (Node n : getChildren())
+		// cnt += n.getTypeUsersCount();
+		// return cnt;
 		// return getTypeClass() != null ? getTypeClass().getTypeUsersCount() : 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#getComponentUsersCount()
-	 */
-	@Override
-	public int getComponentUsersCount() {
-		return getTypeClass().getComponentUsersCount();
-	}
+	// @Override
+	// public int getComponentUsersCount() {
+	// return getTypeClass().getTypeUsersAndDescendantsCount();
+	// }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeProvider#getTypeOwner()
-	 */
-	@Override
-	public Node getTypeOwner() {
-		return getTypeClass().getTypeOwner();
-	}
+	// /*
+	// * (non-Javadoc)
+	// *
+	// * @see org.opentravel.schemas.types.TypeProvider#getTypeOwner()
+	// */
+	// @Override
+	// public Node getTypeOwner() {
+	// return getTypeClass().getTypeOwner();
+	// }
 
 	/**
 	 * Each access of children is sorting them based on order of MO's children.

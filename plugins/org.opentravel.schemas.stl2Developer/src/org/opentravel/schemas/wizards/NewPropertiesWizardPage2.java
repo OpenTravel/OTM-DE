@@ -56,6 +56,8 @@ import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.trees.library.LibrarySorter;
 import org.opentravel.schemas.trees.library.LibraryTreeLabelProvider;
 import org.opentravel.schemas.trees.library.LibraryTreeWithPropertiesContentProvider;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.widgets.ButtonBarManager;
 import org.opentravel.schemas.widgets.WidgetFactory;
 import org.opentravel.schemas.wizards.validators.FormValidator;
@@ -377,7 +379,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 			return null;
 		}
 		final PropertyNode copy = (PropertyNode) NodeFactory.newComponentMember((INode) owningFacet, o.cloneTLObj());
-		copy.setAssignedType(o.getType());
+		copy.setAssignedType((TypeProvider) o.getType());
 		getNewProperties().add(copy);
 		return copy;
 	}
@@ -388,8 +390,8 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 	private PropertyNode newProperty(final Node node) {
 		final PropertyNode newProperty = newProperty();
 		newProperty.setName(NodeNameUtils.adjustCaseOfName(newProperty.getPropertyType(), node.getName()));
-		if (node.isAssignable())
-			newProperty.setAssignedType(node);
+		if (node.isAssignable() && node instanceof TypeProvider)
+			newProperty.setAssignedType((TypeProvider) node);
 		else
 			setMessage(node + " is not assigable as type. No type assigned.", WARNING);
 		return newProperty;
@@ -536,7 +538,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 		typeButton.setEnabled(enabled);
 		if (selected != null) {
 			enabled = true;
-			typeButton.setEnabled(selected.isTypeUser() && newProperties.contains(selected));
+			typeButton.setEnabled(selected instanceof TypeUser && newProperties.contains(selected));
 		}
 		newAction.setEnabled(true);
 		updateCopyState();

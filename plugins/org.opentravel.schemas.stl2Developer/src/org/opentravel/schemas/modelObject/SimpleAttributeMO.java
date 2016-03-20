@@ -17,7 +17,8 @@ package org.opentravel.schemas.modelObject;
 
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemas.node.Node;
+import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,16 @@ public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
 	}
 
 	@Override
+	public void clearTLType() {
+	}
+
+	@Override
 	public void delete() {
+	}
+
+	@Override
+	public String getComponentType() {
+		return "Simple Attribute";
 	}
 
 	@Override
@@ -55,20 +65,16 @@ public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
 	}
 
 	@Override
-	public String getComponentType() {
-		return "Simple Attribute";
-	}
-
-	@Override
-	protected AbstractLibrary getLibrary(final TLnSimpleAttribute obj) {
-		return null;
-	}
-
-	@Override
 	public NamedEntity getTLType() {
 		// TL_VWA which is the srcObj parent does not provide access to the simple facet.
 		if (srcObj instanceof TLnSimpleAttribute) {
-			return ((Node) node.getParent()).getTLTypeObject();
+			if (srcObj.getParentObject() instanceof TLCoreObject) {
+				return ((TLCoreObject) srcObj.getParentObject()).getSimpleFacet().getSimpleType();
+			} else if (srcObj.getParentObject() instanceof TLValueWithAttributes)
+				return ((TLValueWithAttributes) srcObj.getParentObject()).getParentType();
+
+			throw new IllegalStateException("Not Implemented yet.");
+			// return ((Node) node.getParent()).getAssignedTLObject();
 		}
 		return srcObj.getType();
 	}
@@ -76,6 +82,11 @@ public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
 	@Override
 	public boolean isMandatory() {
 		return getTLModelObj().isMandatory();
+	}
+
+	@Override
+	public boolean moveDown() {
+		return false;
 	}
 
 	/**
@@ -89,11 +100,6 @@ public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
 	}
 
 	@Override
-	public boolean moveDown() {
-		return false;
-	}
-
-	@Override
 	public boolean setMandatory(final boolean selection) {
 		return false;
 	}
@@ -101,10 +107,6 @@ public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
 	@Override
 	public boolean setName(final String name) {
 		return false;
-	}
-
-	@Override
-	public void clearTLType() {
 	}
 
 	@Override
@@ -120,6 +122,11 @@ public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
 	@Override
 	public void setTLType(final NamedEntity tlObj) {
 		getTLModelObj().setType(tlObj);
+	}
+
+	@Override
+	protected AbstractLibrary getLibrary(final TLnSimpleAttribute obj) {
+		return null;
 	}
 
 }

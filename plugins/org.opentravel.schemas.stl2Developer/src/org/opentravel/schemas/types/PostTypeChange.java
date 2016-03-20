@@ -27,7 +27,7 @@ import org.opentravel.schemas.node.NodeNameUtils;
 public class PostTypeChange {
 
     /**
-     * Because changing name from {@link Type#setAssignedType(Node)} in case of setting the family
+     * Because changing name from {@link Type#set(Node)} in case of setting the family
      * will cause {@link ConcurrentModificationException} (in context of TypeResolver.resolveTypes
      * visitor), this method is in purpose of catching the new type assignments. From GUI this can
      * be achieved from different actions (e.g. DND, or assign button).

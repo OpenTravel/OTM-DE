@@ -34,6 +34,8 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.listeners.INodeListener;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base generic class for all resource nodes EXCEPT ResourceNode which is a full node. Provides alterative to
@@ -45,13 +47,17 @@ import org.opentravel.schemas.node.listeners.ListenerFactory;
  *            - the matching TLModel elements
  */
 public abstract class ResourceBase<TL> extends Node implements ResourceMemberInterface {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(ResourceBase.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceBase.class);
 	protected TL tlObj;
 
 	public ResourceBase(TL obj) {
 		this.tlObj = obj;
-		if (tlObj instanceof TLModelElement)
+		assert tlObj instanceof TLModelElement;
+		if (GetNode((TLModelElement) tlObj) == null)
+			// if (((TLModelElement) tlObj).getListeners().isEmpty())
 			ListenerFactory.setListner(this);
+		else
+			LOGGER.debug(this + " already had identity listener.");
 
 		// Sometimes the constructor will need to be invoked super on a newly constructed tl object (for example:
 		// ResourceParameter)

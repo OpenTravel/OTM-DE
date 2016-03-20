@@ -37,6 +37,8 @@ import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,15 +168,15 @@ public class LibraryTests {
 		Assert.assertNotNull(n.getLibrary());
 		Assert.assertNotNull(n.modelObject);
 		Assert.assertNotNull(n.getTLModelObject());
-		Assert.assertTrue(n.getTypeClass().verifyAssignment());
+		// Assert.assertTrue(n.getTypeClass().verifyAssignment());
 
-		Assert.assertNotNull(n.getTypeClass());
-		if (n.isTypeUser()) {
+		// Assert.assertNotNull(n.getTypeClass());
+		if (n instanceof TypeUser) {
 			// LOGGER.debug("Visit Node: " + n + " of type " + n.getClass().getSimpleName());
-			boolean x = n.getTypeClass().verifyAssignment();
+			// boolean x = n.getTypeClass().verifyAssignment();
 			// Resolver may not have run
 			// Assert.assertNotNull(n.getType());
-			Assert.assertEquals(n.getType(), n.getAssignedType());
+			Assert.assertEquals(n.getType(), ((TypeUser) n).getAssignedType());
 		}
 
 		if (n.getName().isEmpty())
@@ -463,7 +465,7 @@ public class LibraryTests {
 	private Node makeSimple(String name) {
 		Node n = new SimpleTypeNode(new TLSimple());
 		n.setName(name);
-		n.setAssignedType(NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
+		((TypeUser) n).setAssignedType((TypeProvider) NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
 		return n;
 	}
 

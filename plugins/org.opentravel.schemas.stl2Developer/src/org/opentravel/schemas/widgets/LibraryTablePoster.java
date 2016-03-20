@@ -46,6 +46,7 @@ import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.ColorProvider;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.trees.library.LibrarySorter;
+import org.opentravel.schemas.types.TypeUser;
 
 /**
  * 
@@ -109,7 +110,7 @@ public class LibraryTablePoster {
 			if (curNode instanceof XsdNode && curNode.getModelObject() instanceof XSDComplexMO) {
 				XsdNode xn = (XsdNode) curNode;// new XsdNode((LibraryMember)
 				// curNode.getModelObject().getTLModelObj(), curNode);
-				curNode = xn.getOtmModelChild();
+				curNode = xn.getOtmModel();
 			}
 
 			if (curNode.isTopLevelObject()) {
@@ -264,7 +265,7 @@ public class LibraryTablePoster {
 				item.setFont(Fonts.getFontRegistry().get(Fonts.inheritedItem));
 				item.setBackground(2, colorProvider.getColor(SWT.COLOR_YELLOW));
 			}
-			if (cn.getDefaultType() instanceof ImpliedNode)
+			if (cn instanceof TypeUser && ((TypeUser) cn).getRequiredType() instanceof ImpliedNode)
 				item.setText(2, "-------");
 
 			// flag duplicates

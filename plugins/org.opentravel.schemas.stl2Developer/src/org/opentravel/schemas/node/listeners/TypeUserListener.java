@@ -22,16 +22,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * A node identity listener used on nodes that are assigned types (type users). Handles modified type assignments.
+ * 
  * @author Dave
  *
  */
-public class PropertyNodeListener extends NodeIdentityListener implements INodeListener {
-	private static final Logger LOGGER = LoggerFactory.getLogger(PropertyNodeListener.class);
+public class TypeUserListener extends NodeIdentityListener implements INodeListener {
+	private static final Logger LOGGER = LoggerFactory.getLogger(TypeUserListener.class);
 
 	/**
 	 * 
 	 */
-	public PropertyNodeListener(Node node) {
+	public TypeUserListener(Node node) {
 		super(node);
 	}
 
@@ -41,12 +43,10 @@ public class PropertyNodeListener extends NodeIdentityListener implements INodeL
 
 		switch (event.getType()) {
 		case NAME_MODIFIED:
-			// LOGGER.debug("Name Modified - from: " + event.getOldValue() + " to: " + event.getNewValue());
 			break;
 		case DOCUMENTATION_MODIFIED:
 			break;
 		case TYPE_ASSIGNMENT_MODIFIED:
-			thisNode.getTypeClass().set(getNewValue(event), getOldValue(event));
 			break;
 		default:
 			break;

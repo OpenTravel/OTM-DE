@@ -33,8 +33,11 @@ public class ServiceNode extends ComponentNode {
 		super(tlSvc);
 
 		// If the service has not had nodes created (ie. first time being loaded) then create children
-		if (GetNode(tlSvc) == null)
+		if (tlSvc.getOperations().size() != getChildren().size())
 			addMOChildren();
+		// following won't work because listener assigned in super
+		// if (GetNode(tlSvc) == null)
+		// addMOChildren();
 
 		link(tlSvc, ln);
 	}

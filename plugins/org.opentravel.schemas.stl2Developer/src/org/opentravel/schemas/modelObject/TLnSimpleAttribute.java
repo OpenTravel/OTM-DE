@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryElement;
 import org.opentravel.schemacompiler.model.NamedEntity;
@@ -34,6 +35,7 @@ import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
+import org.opentravel.schemas.node.listeners.NodeIdentityListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,12 +66,162 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
 		parentObject = parentEntity;
 	}
 
-	/**
-	 * @param parentObject
-	 *            the parentObject to set
+	@Override
+	public void addEquivalent(final int index, final TLEquivalent equivalent) {
+		final TLEquivalentOwner equivalentOwner = getEquivalentOwner();
+		if (equivalentOwner != null) {
+			equivalentOwner.addEquivalent(index, equivalent);
+		}
+	}
+
+	@Override
+	public void addEquivalent(final TLEquivalent tle) {
+		final TLEquivalentOwner equivalentOwner = getEquivalentOwner();
+		if (equivalentOwner != null) {
+			equivalentOwner.addEquivalent(tle);
+		}
+	}
+
+	@Override
+	public void addExample(final int index, final TLExample example) {
+		final TLExampleOwner exampleOwner = getExampleOwner();
+		if (exampleOwner != null) {
+			exampleOwner.addExample(index, example);
+		}
+	}
+
+	@Override
+	public void addExample(final TLExample example) {
+		final TLExampleOwner exampleOwner = getExampleOwner();
+		if (exampleOwner != null) {
+			exampleOwner.addExample(example);
+		}
+	}
+
+	// /////////////////////////////////////////////////////////////////////
+	//
+	// Listeners - leave listener on this facade for identity but also add
+	// non-identity listeners to the parent to catch the tl model events.
+	//
+	@Override
+	public void addListener(ModelElementListener listener) {
+		super.addListener(listener);
+		if (!(listener instanceof NodeIdentityListener))
+			if (parentObject instanceof TLCoreObject)
+				((TLCoreObject) parentObject).getSimpleFacet().addListener(listener);
+			else
+				parentObject.addListener(listener);
+
+	}
+
+	@Override
+	public void removeListener(ModelElementListener listener) {
+		super.removeListener(listener);
+		if (!(listener instanceof NodeIdentityListener))
+			if (parentObject instanceof TLCoreObject)
+				((TLCoreObject) parentObject).getSimpleFacet().removeListener(listener);
+			else
+				parentObject.removeListener(listener);
+	}
+
+	@Override
+	public LibraryElement cloneElement(AbstractLibrary tlLib) {
+		TLnSimpleAttribute tlSa = new TLnSimpleAttribute(parentObject);
+		return tlSa;
+	}
+
+	@Override
+	public TLDocumentation getDocumentation() {
+		if (parentObject instanceof TLValueWithAttributes) {
+			return ((TLValueWithAttributes) parentObject).getDocumentation();
+		}
+		if (parentObject instanceof TLCoreObject) {
+			TLSimpleFacet simpleFacet = ((TLCoreObject) parentObject).getSimpleFacet();
+			if (simpleFacet != null)
+				return simpleFacet.getDocumentation();
+		}
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemacompiler.model.TLEquivalentOwner#getEquivalent(java.lang.String)
 	 */
-	public void setParentObject(TLModelElement parentObject) {
-		this.parentObject = parentObject;
+	@Override
+	public TLEquivalent getEquivalent(final String context) {
+		final TLEquivalentOwner equivalentOwner = getEquivalentOwner();
+		if (equivalentOwner != null) {
+			return equivalentOwner.getEquivalent(context);
+		}
+		return null;
+	}
+
+	@Override
+	public List<TLEquivalent> getEquivalents() {
+		final TLEquivalentOwner equivalentOwner = getEquivalentOwner();
+		if (equivalentOwner != null) {
+			return equivalentOwner.getEquivalents();
+		}
+		return new ArrayList<TLEquivalent>();
+	}
+
+	public String getExample() {
+		final TLExampleOwner exampleOwner = getExampleOwner();
+
+		if (exampleOwner != null) {
+			final List<TLExample> exampleList = exampleOwner.getExamples();
+			String example = null;
+
+			if (exampleList.size() > 0) {
+				example = exampleList.get(0).getValue();
+			}
+			return example;
+		}
+
+		return "";
+	}
+
+	@Override
+	public TLExample getExample(final String contextId) {
+		final TLExampleOwner exampleOwner = getExampleOwner();
+		if (exampleOwner != null) {
+			return exampleOwner.getExample(contextId);
+		}
+		return null;
+	}
+
+	@Override
+	public List<TLExample> getExamples() {
+		final TLExampleOwner exampleOwner = getExampleOwner();
+		if (exampleOwner != null) {
+			return exampleOwner.getExamples();
+		}
+		return new ArrayList<TLExample>();
+	}
+
+	public String getName() {
+		if (parentObject instanceof TLValueWithAttributes) {
+			return ((TLValueWithAttributes) parentObject).getLocalName() + "_Value";
+		} else if (parentObject instanceof TLCoreObject) {
+			return ((TLCoreObject) parentObject).getLocalName() + "_Simple";
+		}
+		return "Undefined";
+	}
+
+	@Override
+	public AbstractLibrary getOwningLibrary() {
+		if (parentObject instanceof TLValueWithAttributes) {
+			return ((TLValueWithAttributes) parentObject).getOwningLibrary();
+		} else if (parentObject instanceof TLCoreObject) {
+			return ((TLCoreObject) parentObject).getOwningLibrary();
+		}
+		return null;
+	}
+
+	@Override
+	public TLModel getOwningModel() {
+		return null;
 	}
 
 	/**
@@ -77,6 +229,16 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
 	 */
 	public TLModelElement getParentObject() {
 		return parentObject;
+	}
+
+	public TLEquivalent getTLEquivalent(final int index) {
+		if (parentObject instanceof TLValueWithAttributes) {
+			return ((TLValueWithAttributes) parentObject).getEquivalents().get(index);
+		}
+		if (parentObject instanceof TLCoreObject) {
+			return ((TLCoreObject) parentObject).getEquivalents().get(index);
+		}
+		return null;
 	}
 
 	public NamedEntity getType() {
@@ -91,6 +253,71 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
 			type = ((TLCoreObject) parentObject).getSimpleFacet().getSimpleType();
 		}
 		return type;
+	}
+
+	@Override
+	public String getValidationIdentity() {
+		return parentObject != null ? parentObject.getValidationIdentity() : "";
+	}
+
+	public boolean isMandatory() {
+		return true;
+	}
+
+	@Override
+	public void moveDown(final TLEquivalent equivalent) {
+
+	}
+
+	@Override
+	public void moveDown(final TLExample example) {
+
+	}
+
+	@Override
+	public void moveUp(final TLEquivalent equivalent) {
+
+	}
+
+	@Override
+	public void moveUp(final TLExample example) {
+
+	}
+
+	@Override
+	public void removeEquivalent(final TLEquivalent equivalent) {
+		final TLEquivalentOwner equivalentOwner = getEquivalentOwner();
+		if (equivalentOwner != null) {
+			equivalentOwner.removeEquivalent(equivalent);
+		}
+	}
+
+	@Override
+	public void removeExample(final TLExample example) {
+		final TLExampleOwner exampleOwner = getExampleOwner();
+		if (exampleOwner != null) {
+			exampleOwner.removeExample(example);
+		}
+	}
+
+	@Override
+	public void setDocumentation(final TLDocumentation doc) {
+		if (parentObject instanceof TLValueWithAttributes) {
+			((TLValueWithAttributes) parentObject).setDocumentation(doc);
+		}
+		if (parentObject instanceof TLCoreObject) {
+			TLSimpleFacet simpleFacet = ((TLCoreObject) parentObject).getSimpleFacet();
+			if (simpleFacet != null)
+				simpleFacet.setDocumentation(doc);
+		}
+	}
+
+	/**
+	 * @param parentObject
+	 *            the parentObject to set
+	 */
+	public void setParentObject(TLModelElement parentObject) {
+		this.parentObject = parentObject;
 	}
 
 	public void setType(final NamedEntity srcType) {
@@ -110,61 +337,19 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
 	}
 
 	@Override
-	public String getValidationIdentity() {
-		return parentObject != null ? parentObject.getValidationIdentity() : "";
+	public void sortEquivalents(final Comparator<TLEquivalent> comparator) {
+		final TLEquivalentOwner equivalentOwner = getEquivalentOwner();
+		if (equivalentOwner != null) {
+			equivalentOwner.sortEquivalents(comparator);
+		}
 	}
 
 	@Override
-	public AbstractLibrary getOwningLibrary() {
-		if (parentObject instanceof TLValueWithAttributes) {
-			return ((TLValueWithAttributes) parentObject).getOwningLibrary();
-		} else if (parentObject instanceof TLCoreObject) {
-			return ((TLCoreObject) parentObject).getOwningLibrary();
-		}
-		return null;
-	}
-
-	@Override
-	public LibraryElement cloneElement(AbstractLibrary tlLib) {
-		TLnSimpleAttribute tlSa = new TLnSimpleAttribute(parentObject);
-		return tlSa;
-	}
-
-	public String getName() {
-		if (parentObject instanceof TLValueWithAttributes) {
-			return ((TLValueWithAttributes) parentObject).getLocalName() + "_Value";
-		} else if (parentObject instanceof TLCoreObject) {
-			return ((TLCoreObject) parentObject).getLocalName() + "_Simple";
-		}
-		return "Undefined";
-	}
-
-	public String getExample() {
+	public void sortExamples(final Comparator<TLExample> comparator) {
 		final TLExampleOwner exampleOwner = getExampleOwner();
-
 		if (exampleOwner != null) {
-			final List<TLExample> exampleList = exampleOwner.getExamples();
-			String example = null;
-
-			if (exampleList.size() > 0) {
-				example = exampleList.get(0).getValue();
-			}
-			return example;
+			exampleOwner.sortExamples(comparator);
 		}
-
-		return "";
-	}
-
-	private TLExampleOwner getExampleOwner() {
-		TLExampleOwner exampleOwner = null;
-
-		if (parentObject instanceof TLValueWithAttributes) {
-			exampleOwner = (TLExampleOwner) parentObject;
-		}
-		if (parentObject instanceof TLCoreObject) {
-			exampleOwner = ((TLCoreObject) parentObject).getSimpleFacet();
-		}
-		return exampleOwner;
 	}
 
 	private TLEquivalentOwner getEquivalentOwner() {
@@ -179,173 +364,16 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
 		return equivalentOwner;
 	}
 
-	public TLEquivalent getTLEquivalent(final int index) {
+	private TLExampleOwner getExampleOwner() {
+		TLExampleOwner exampleOwner = null;
+
 		if (parentObject instanceof TLValueWithAttributes) {
-			return ((TLValueWithAttributes) parentObject).getEquivalents().get(index);
+			exampleOwner = (TLExampleOwner) parentObject;
 		}
 		if (parentObject instanceof TLCoreObject) {
-			return ((TLCoreObject) parentObject).getEquivalents().get(index);
+			exampleOwner = ((TLCoreObject) parentObject).getSimpleFacet();
 		}
-		return null;
-	}
-
-	@Override
-	public List<TLEquivalent> getEquivalents() {
-		final TLEquivalentOwner equivalentOwner = getEquivalentOwner();
-		if (equivalentOwner != null) {
-			return equivalentOwner.getEquivalents();
-		}
-		return new ArrayList<TLEquivalent>();
-	}
-
-	@Override
-	public void addEquivalent(final TLEquivalent tle) {
-		final TLEquivalentOwner equivalentOwner = getEquivalentOwner();
-		if (equivalentOwner != null) {
-			equivalentOwner.addEquivalent(tle);
-		}
-	}
-
-	@Override
-	public TLDocumentation getDocumentation() {
-		if (parentObject instanceof TLValueWithAttributes) {
-			return ((TLValueWithAttributes) parentObject).getDocumentation();
-		}
-		if (parentObject instanceof TLCoreObject) {
-			TLSimpleFacet simpleFacet = ((TLCoreObject) parentObject).getSimpleFacet();
-			if (simpleFacet != null)
-				return simpleFacet.getDocumentation();
-		}
-		return null;
-	}
-
-	@Override
-	public void setDocumentation(final TLDocumentation doc) {
-		if (parentObject instanceof TLValueWithAttributes) {
-			((TLValueWithAttributes) parentObject).setDocumentation(doc);
-		}
-		if (parentObject instanceof TLCoreObject) {
-			TLSimpleFacet simpleFacet = ((TLCoreObject) parentObject).getSimpleFacet();
-			if (simpleFacet != null)
-				simpleFacet.setDocumentation(doc);
-		}
-	}
-
-	public boolean isMandatory() {
-		return true;
-	}
-
-	@Override
-	public TLModel getOwningModel() {
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemacompiler.model.TLEquivalentOwner#getEquivalent(java.lang.String)
-	 */
-	@Override
-	public TLEquivalent getEquivalent(final String context) {
-		final TLEquivalentOwner equivalentOwner = getEquivalentOwner();
-		if (equivalentOwner != null) {
-			return equivalentOwner.getEquivalent(context);
-		}
-		return null;
-	}
-
-	@Override
-	public void addEquivalent(final int index, final TLEquivalent equivalent) {
-		final TLEquivalentOwner equivalentOwner = getEquivalentOwner();
-		if (equivalentOwner != null) {
-			equivalentOwner.addEquivalent(index, equivalent);
-		}
-	}
-
-	@Override
-	public void removeEquivalent(final TLEquivalent equivalent) {
-		final TLEquivalentOwner equivalentOwner = getEquivalentOwner();
-		if (equivalentOwner != null) {
-			equivalentOwner.removeEquivalent(equivalent);
-		}
-	}
-
-	@Override
-	public void moveUp(final TLEquivalent equivalent) {
-
-	}
-
-	@Override
-	public void moveDown(final TLEquivalent equivalent) {
-
-	}
-
-	@Override
-	public void sortEquivalents(final Comparator<TLEquivalent> comparator) {
-		final TLEquivalentOwner equivalentOwner = getEquivalentOwner();
-		if (equivalentOwner != null) {
-			equivalentOwner.sortEquivalents(comparator);
-		}
-	}
-
-	@Override
-	public List<TLExample> getExamples() {
-		final TLExampleOwner exampleOwner = getExampleOwner();
-		if (exampleOwner != null) {
-			return exampleOwner.getExamples();
-		}
-		return new ArrayList<TLExample>();
-	}
-
-	@Override
-	public TLExample getExample(final String contextId) {
-		final TLExampleOwner exampleOwner = getExampleOwner();
-		if (exampleOwner != null) {
-			return exampleOwner.getExample(contextId);
-		}
-		return null;
-	}
-
-	@Override
-	public void addExample(final TLExample example) {
-		final TLExampleOwner exampleOwner = getExampleOwner();
-		if (exampleOwner != null) {
-			exampleOwner.addExample(example);
-		}
-	}
-
-	@Override
-	public void addExample(final int index, final TLExample example) {
-		final TLExampleOwner exampleOwner = getExampleOwner();
-		if (exampleOwner != null) {
-			exampleOwner.addExample(index, example);
-		}
-	}
-
-	@Override
-	public void removeExample(final TLExample example) {
-		final TLExampleOwner exampleOwner = getExampleOwner();
-		if (exampleOwner != null) {
-			exampleOwner.removeExample(example);
-		}
-	}
-
-	@Override
-	public void moveUp(final TLExample example) {
-
-	}
-
-	@Override
-	public void moveDown(final TLExample example) {
-
-	}
-
-	@Override
-	public void sortExamples(final Comparator<TLExample> comparator) {
-		final TLExampleOwner exampleOwner = getExampleOwner();
-		if (exampleOwner != null) {
-			exampleOwner.sortExamples(comparator);
-		}
+		return exampleOwner;
 	}
 
 }

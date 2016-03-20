@@ -313,19 +313,15 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 
 	@Override
 	public boolean isExtendedBy(NamedEntity extension) {
-		if (this.getTLModelObj() == null)
-			return false;
-		if (this.getTLModelObj().getExtension() == null)
-			return false;
-		if (this.getTLModelObj().getExtension().getValidationIdentity() == null)
-			return false;
-		if (extension == null)
+		if (extension == null || !(extension instanceof TLBusinessObject))
 			return false;
 		if (extension.getValidationIdentity() == null)
 			return false;
 
-		if (this.getTLModelObj().getExtension().getExtendsEntity() == extension)
-			return true;
+		if (getTLModelObj() != null)
+			if (getTLModelObj().getExtension() != null)
+				if (getTLModelObj().getExtension().getValidationIdentity() != null)
+					return getTLModelObj().getExtension().getExtendsEntity() == extension;
 		return false;
 	}
 
@@ -336,9 +332,10 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 	public void setExtendsType(ModelObject<?> mo) {
 		removeBaseListener();
 		removeInheritedFacets();
-		if (mo == null) {
+		// Throw an extension ownership event for the removal before setting
+		if (mo == null)
 			getTLModelObj().setExtension(null);
-		} else {
+		else {
 			TLExtension tlExtension = getTLModelObj().getExtension();
 			if (tlExtension == null) {
 				tlExtension = new TLExtension();

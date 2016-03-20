@@ -17,12 +17,11 @@ package org.opentravel.schemas.node;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.opentravel.schemas.node.NodeFactory;
-import org.opentravel.schemas.node.properties.ElementNode;
-
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.XSDSimpleType;
+import org.opentravel.schemas.node.properties.ElementNode;
+import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * @author Pawel Jedruch
@@ -30,34 +29,41 @@ import org.opentravel.schemacompiler.model.XSDSimpleType;
  */
 public class NodeFactoryTest {
 
-    @Test
-    public void createElementNodeShouldPersistType() {
-        TLProperty tl = new TLProperty();
-        XSDSimpleType simpleType = new XSDSimpleType("string", null);
-        tl.setType(simpleType);
-        ElementNode element = (ElementNode) NodeFactory.newComponentMember(null, tl);
-        TLProperty afterCreate = (TLProperty) element.getModelObject().getTLModelObj();
-        Assert.assertSame(simpleType, afterCreate.getType());
-    }
+	@Test
+	public void createElementNodeShouldPersistType() {
+		TLProperty tl = new TLProperty();
+		XSDSimpleType simpleType = new XSDSimpleType("string", null);
+		tl.setType(simpleType);
+		ElementNode element = (ElementNode) NodeFactory.newComponentMember(null, tl);
+		TLProperty afterCreate = (TLProperty) element.getModelObject().getTLModelObj();
+		Assert.assertSame(simpleType, afterCreate.getType());
+	}
 
-    @Test
-    public void guiTypeAccess() {
-        TLProperty tl = new TLProperty();
-        TLSimple tlSimple = new TLSimple();
-        XSDSimpleType xsdSimple = new XSDSimpleType("string", null);
-        tlSimple.setParentType(xsdSimple);
-        tl.setType(tlSimple);
-        Assert.assertSame(tlSimple, tl.getType());
+	@Test
+	public void guiTypeAccess() {
+		TLProperty tl = new TLProperty();
+		TLSimple tlSimple = new TLSimple();
+		XSDSimpleType xsdSimple = new XSDSimpleType("string", null);
+		tlSimple.setParentType(xsdSimple);
+		tl.setType(tlSimple);
+		Assert.assertSame(tlSimple, tl.getType());
 
-        ElementNode element = (ElementNode) NodeFactory.newComponentMember(null, tl);
-        TLProperty afterCreate = (TLProperty) element.getModelObject().getTLModelObj();
-        Assert.assertSame(tlSimple, afterCreate.getType());
+		ElementNode element = (ElementNode) NodeFactory.newComponentMember(null, tl);
+		TLProperty afterCreate = (TLProperty) element.getModelObject().getTLModelObj();
+		Assert.assertSame(tlSimple, afterCreate.getType());
 
-        // These will all return UNASSIGNED since resolver has not run.
-        // getTypeName tries to fix the Type node resulting in a unassigned node.
-        Assert.assertFalse(element.getTypeName().isEmpty()); // properties view
-        Assert.assertFalse(element.getTypeNameWithPrefix().isEmpty()); // facet view
-        Assert.assertNotNull(element.getAssignedType());
+		// 3/7/2016 dmh - new typehandler will not try to assign name.
+		String s = element.getTypeName();
+		s = element.getTypeNameWithPrefix();
+		TypeProvider n = element.getAssignedType();
+		Assert.assertTrue(element.getTypeName().isEmpty()); // properties view
+		Assert.assertTrue(element.getTypeNameWithPrefix().isEmpty()); // facet view
+		Assert.assertNull(element.getAssignedType());
 
-    }
+		// // These will all return UNASSIGNED since resolver has not run.
+		// // getTypeName tries to fix the Type node resulting in a unassigned node.
+		// Assert.assertFalse(element.getTypeName().isEmpty()); // properties view
+		// Assert.assertFalse(element.getTypeNameWithPrefix().isEmpty()); // facet view
+		// Assert.assertNotNull(element.getAssignedType());
+	}
 }

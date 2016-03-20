@@ -29,6 +29,9 @@ import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.types.ExtensionHandler;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 
 /**
  * Extension points are used to add properties to facets in business or core objects. They have a facet structure but
@@ -40,10 +43,13 @@ import org.opentravel.schemas.properties.Images;
 public class ExtensionPointNode extends ComponentNode implements ComplexComponentInterface, ExtensionOwner,
 		PropertyOwnerInterface, LibraryMemberInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionPointNode.class);
+	private ExtensionHandler extensionHandler = null;
 
 	public ExtensionPointNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
+		extensionHandler = new ExtensionHandler(this);
+
 	}
 
 	@Override
@@ -56,17 +62,18 @@ public class ExtensionPointNode extends ComponentNode implements ComplexComponen
 		// LOGGER.debug("addProperties not implemented for this class: " + this.getClass());
 	}
 
-	@Override
-	public boolean canExtend() {
-		return true;
-	}
+	// @Override
+	// public boolean canExtend() {
+	// return true;
+	// }
 
 	@Override
 	public INode createProperty(final Node type) {
 		Node n = new ElementNode(this, type.getName());
 		n.setDescription(type.getDescription());
 		// linkChild(n, nodeIndexOf());
-		n.setAssignedType(type);
+		if (n instanceof TypeUser && type instanceof TypeProvider)
+			((TypeUser) n).setAssignedType((TypeProvider) type);
 		return n;
 	}
 
@@ -123,22 +130,10 @@ public class ExtensionPointNode extends ComponentNode implements ComplexComponen
 		((PropertyNode) property).removeProperty();
 	}
 
-	@Override
-	public boolean setSimpleType(Node type) {
-		return false;
-	}
-
-	@Override
-	public Node getExtendsType() {
-		return getTypeClass().getTypeNode();
-	}
-
-	@Override
-	public void setExtendsType(final INode sourceNode) {
-		assert (sourceNode.getLibrary() != getLibrary());
-		getTypeClass().setAssignedBaseType(sourceNode);
-		setIdentity("EP-->" + sourceNode);
-	}
+	// @Override
+	// public boolean setSimpleType(Node type) {
+	// return false;
+	// }
 
 	@Override
 	public boolean isExtensionPointFacet() {
@@ -150,10 +145,10 @@ public class ExtensionPointNode extends ComponentNode implements ComplexComponen
 		return n;
 	}
 
-	@Override
-	public ComponentNode getSimpleType() {
-		return null;
-	}
+	// @Override
+	// public ComponentNode getSimpleType() {
+	// return null;
+	// }
 
 	@Override
 	public SimpleFacetNode getSimpleFacet() {
@@ -163,6 +158,27 @@ public class ExtensionPointNode extends ComponentNode implements ComplexComponen
 	@Override
 	public boolean isNamedType() {
 		return true;
+	}
+
+	// /////////////////////////////////////////////////////////////////
+	//
+	// Extension Owner implementations
+	//
+	@Override
+	public Node getExtensionBase() {
+		return extensionHandler != null ? extensionHandler.get() : null;
+	}
+
+	@Override
+	public void setExtension(final Node base) {
+		if (extensionHandler == null)
+			extensionHandler = new ExtensionHandler(this);
+		extensionHandler.set(base);
+	}
+
+	@Override
+	public ExtensionHandler getExtensionHandler() {
+		return extensionHandler;
 	}
 
 }

@@ -30,18 +30,13 @@ import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
-import org.opentravel.schemas.node.resources.ActionFacet;
-import org.opentravel.schemas.node.resources.ActionNode;
-import org.opentravel.schemas.node.resources.ActionRequest;
-import org.opentravel.schemas.node.resources.ActionResponse;
-import org.opentravel.schemas.node.resources.ParamGroup;
 import org.opentravel.schemas.node.resources.ResourceBuilder;
 import org.opentravel.schemas.node.resources.ResourceNode;
-import org.opentravel.schemas.node.resources.ResourceParameter;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
+import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,47 +66,13 @@ public class ResourceObjectTests {
 	@Test
 	public void constructorTests() {
 		LibraryNode ln = mockLibrary.createNewLibrary("http://example.com/resource", "RT", pc.getDefaultProject());
-		TLResource resource = buildTLResource();
+		TLResource resource = new ResourceBuilder().buildTL();
 		ResourceNode rn = new ResourceNode(resource, ln);
 		ln.addMember(rn);
 		checkResource(rn);
-		checkResource(new ParamGroup(resource.getParamGroups().get(0)));
-		checkResource(new ResourceParameter(resource.getParamGroups().get(0).getParameters().get(0)));
-		checkResource(new ActionNode(resource.getActions().get(0)));
-		checkResource(new ActionRequest(resource.getActions().get(0).getRequest()));
-		checkResource(new ActionResponse(resource.getActions().get(0).getResponses().get(0)));
-		checkResource(new ActionFacet(resource.getActionFacets().get(0)));
 
-		List<Node> users = ln.getDescendants_TypeUsers();
+		List<TypeUser> users = ln.getDescendants_TypeUsers();
 		assertTrue(users.contains(rn));
-	}
-
-	private TLResource buildTLResource() {
-		// final String NAME = "testName";
-		// TLResource resource = new TLResource();
-		// resource.setName(NAME);
-		//
-		// TLParamGroup params = new TLParamGroup();
-		// resource.addParamGroup(params);
-		// params.setName(NAME);
-		// TLParameter parameter = new TLParameter();
-		// params.addParameter(parameter);
-		// parameter.setFieldRefName(NAME);
-		//
-		// TLAction action = new TLAction();
-		// resource.addAction(action);
-		// action.setActionId(NAME);
-		// TLActionResponse response = new TLActionResponse();
-		// action.addResponse(response);
-		// response.setPayloadTypeName(NAME);
-		// TLActionRequest request = new TLActionRequest();
-		// action.setRequest(request);
-		// request.setPayloadTypeName(NAME);
-		//
-		// TLActionFacet facet = new TLActionFacet();
-		// resource.addActionFacet(facet);
-		// facet.setName(NAME);
-		return new ResourceBuilder().buildTL();
 	}
 
 	@Test
@@ -133,36 +94,48 @@ public class ResourceObjectTests {
 		// Validate model and tl object
 		assertTrue(resource.getTLModelObject() instanceof TLResource);
 		assertNotNull(resource.getTLModelObject().getListeners());
-		TLResource tr = (TLResource) resource.getTLModelObject();
+		TLResource tlr = (TLResource) resource.getTLModelObject();
 
-		if (tr.getOwningLibrary() != null)
+		if (tlr.getOwningLibrary() != null)
 			Assert.assertNotNull(resource.getLibrary());
 
 		Object o;
-		o = tr.getActionFacets();
-		o = tr.getActions();
-		o = tr.getBusinessObjectRef();
-		o = tr.getBusinessObjectRefName();
-		o = tr.getBaseNamespace();
-		o = tr.getBasePath();
-		o = tr.getExtension();
-		o = tr.getListeners();
-		o = tr.getLocalName();
-		o = tr.getName();
-		o = tr.getNamespace();
-		o = tr.getParamGroups();
-		o = tr.getParentRefs();
-		o = tr.getVersion();
+		for (ResourceMemberInterface rmi : resource.getActionFacets())
+			checkResource(rmi);
+		for (ResourceMemberInterface rmi : resource.getActions()) {
+			checkResource(rmi);
+			for (Node child : rmi.getChildren())
+				checkResource((ResourceMemberInterface) child);
+		}
+		for (ResourceMemberInterface rmi : resource.getParameterGroups(false)) {
+			checkResource(rmi);
+			for (Node child : rmi.getChildren())
+				checkResource((ResourceMemberInterface) child);
+		}
+
+		o = tlr.getBusinessObjectRef();
+		o = tlr.getBusinessObjectRefName();
+		o = tlr.getBaseNamespace();
+		o = tlr.getBasePath();
+		o = tlr.getExtension();
+		o = tlr.getListeners();
+		o = tlr.getLocalName();
+		o = tlr.getName();
+		o = tlr.getNamespace();
+		o = tlr.getParentRefs();
+		o = tlr.getVersion();
 
 	}
 
 	private void checkResource(ResourceMemberInterface resource) {
+		LOGGER.debug("Checking " + resource + " " + resource.getClass().getSimpleName());
 		assert resource.getParent() != null;
 		assert resource.getName() != null;
 		assert resource.getLabel() != null;
 		assert resource.getTLModelObject() != null;
 		assert resource.getTLModelObject().getListeners() != null;
 		assert !resource.getTLModelObject().getListeners().isEmpty();
+		assert Node.GetNode(resource.getTLModelObject()) == resource;
 		resource.getFields(); // don't crash
 	}
 }

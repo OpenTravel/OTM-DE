@@ -20,6 +20,7 @@ package org.opentravel.schemas.node;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
@@ -45,6 +47,7 @@ import org.opentravel.schemas.controllers.repository.RepositoryIntegrationTestBa
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
+import org.opentravel.schemas.node.listeners.NodeIdentityListener;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
@@ -202,8 +205,8 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 				Node nc = NodeFactory.newComponentMember(n, eln, n.getName());
 				assertNotNull(nc.getLibrary());
 				nc.setExtendsType(n);
-				assertNotNull(nc.getExtendsType());
-				assertEquals(n, nc.getExtendsType());
+				assertNotNull(((ExtensionOwner) nc).getExtensionBase());
+				assertEquals(n, ((ExtensionOwner) nc).getExtensionBase());
 			}
 		}
 	}
@@ -216,8 +219,8 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 				Node nc = ((VersionedObjectInterface) n).createMinorVersionComponent();
 				assertNotNull(nc);
 				assertNotNull(nc.getLibrary());
-				assertNotNull(nc.getExtendsType());
-				assertEquals(n, nc.getExtendsType());
+				assertNotNull(((ExtensionOwner) nc).getExtensionBase());
+				assertEquals(n, ((ExtensionOwner) nc).getExtensionBase());
 				// Verify there is only one of these in the library
 				for (Node t : nc.getParent().getChildren())
 					if (t.getName().equals(nc.getName()))
@@ -226,6 +229,7 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 		}
 	}
 
+	// TODO - move this test to listeners tests
 	@Test
 	public void checkListeners() {
 		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
@@ -233,66 +237,76 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 
 		// check listeners in built-ins
 		Node string = NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE);
-		assert string.getTLModelObject().getListeners().size() == 1;
+		assert hasOneNamedTypeListener(string);
 		assert string.getNode(string.getTLModelObject().getListeners()) == string;
 
 		// Check to assure one and only one listener is created with each node
 		BusinessObjectNode bo = (BusinessObjectNode) NodeFactory.newComponent(new TLBusinessObject());
-		assert bo.getTLModelObject().getListeners().size() == 1;
+		assert hasOneNamedTypeListener(bo);
 		bo.setName("BO");
 		ln.addMember(bo);
-		assert bo.getTLModelObject().getListeners().size() == 1;
+		assert hasOneNamedTypeListener(bo);
 		assert bo.getNode(bo.getTLModelObject().getListeners()) == bo;
 		assert bo.getNode(((Node) bo.getIDFacet()).getTLModelObject().getListeners()) == bo.getIDFacet();
 
 		CoreObjectNode core = (CoreObjectNode) NodeFactory.newComponent(new TLCoreObject());
-		assert core.getTLModelObject().getListeners().size() == 1;
+		assert hasOneNamedTypeListener(core);
 		core.setName("CO");
 		ln.addMember(core);
-		assert core.getTLModelObject().getListeners().size() == 1;
+		assert hasOneNamedTypeListener(core);
 		assert core.getNode(core.getTLModelObject().getListeners()) == core;
 		assert core.getNode(((Node) core.getSummaryFacet()).getTLModelObject().getListeners()) == core
 				.getSummaryFacet();
 
 		VWA_Node vwa = (VWA_Node) NodeFactory.newComponent(new TLValueWithAttributes());
-		assert vwa.getTLModelObject().getListeners().size() == 1;
+		assert hasOneNamedTypeListener(vwa);
 		vwa.setName("VWA");
 		ln.addMember(vwa);
-		assert vwa.getTLModelObject().getListeners().size() == 1;
+		assert hasOneNamedTypeListener(vwa);
 		assert vwa.getNode(vwa.getTLModelObject().getListeners()) == vwa;
 
 		ChoiceObjectNode choice = (ChoiceObjectNode) NodeFactory.newComponent(new TLChoiceObject());
-		assert choice.getTLModelObject().getListeners().size() == 1;
+		assert hasOneNamedTypeListener(choice);
 		choice.setName("Choice");
 		ln.addMember(choice);
-		assert choice.getTLModelObject().getListeners().size() == 1;
+		assert hasOneNamedTypeListener(choice);
 		assert choice.getNode(choice.getTLModelObject().getListeners()) == choice;
 
 		SimpleTypeNode simple = (SimpleTypeNode) NodeFactory.newComponent(new TLSimple());
-		assert simple.getTLModelObject().getListeners().size() == 1;
+		assert hasOneNamedTypeListener(simple);
 		simple.setName("Simple");
 		ln.addMember(simple);
-		assert simple.getTLModelObject().getListeners().size() == 1;
+		assert hasOneNamedTypeListener(simple);
 		assert simple.getNode(simple.getTLModelObject().getListeners()) == simple;
 
 		EnumerationClosedNode ec = (EnumerationClosedNode) NodeFactory.newComponent(new TLClosedEnumeration());
-		assert ec.getTLModelObject().getListeners().size() == 1;
+		assert hasOneNamedTypeListener(ec);
 		ec.setName("ec");
 		ln.addMember(ec);
-		assert ec.getTLModelObject().getListeners().size() == 1;
+		assert hasOneNamedTypeListener(ec);
 		assert ec.getNode(ec.getTLModelObject().getListeners()) == ec;
 
 		EnumerationOpenNode eo = (EnumerationOpenNode) NodeFactory.newComponent(new TLOpenEnumeration());
-		assert eo.getTLModelObject().getListeners().size() == 1;
+		assert hasOneNamedTypeListener(eo);
 		eo.setName("eo");
 		ln.addMember(eo);
-		assert eo.getTLModelObject().getListeners().size() == 1;
+		assert hasOneNamedTypeListener(eo);
 		assert eo.getNode(eo.getTLModelObject().getListeners()) == eo;
 
 		// TODO - other property types
 		PropertyNode p1 = new ElementNode(bo.getIDFacet(), "i1");
-		assert p1.getTLModelObject().getListeners().size() == 1;
+		assert hasOneNamedTypeListener(p1);
 		assert p1.getNode(p1.getTLModelObject().getListeners()) == p1;
+	}
+
+	public boolean hasOneNamedTypeListener(Node n) {
+		int cnt = 0;
+		for (ModelElementListener l : n.getTLModelObject().getListeners())
+			if (l instanceof NodeIdentityListener) {
+				Assert.assertEquals(n, ((NodeIdentityListener) l).getNode());
+				cnt++;
+			}
+		return cnt == 1;
 	}
 
 	@Test
@@ -325,9 +339,7 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 				// null returned when type is not supported
 				if (n2 != null) {
 					if (type != ComponentNodeType.EXTENSION_POINT) {
-						// if (n2.getName().isEmpty())
-						// LOGGER.debug("Name is empty. Expecting: " + name);
-						Assert.assertEquals(name, n2.getName());
+						assertTrue("Names must be equal ignoring case.", name.equalsIgnoreCase(n2.getName()));
 					}
 					Assert.assertEquals(description, n2.getDescription());
 					Assert.assertNotNull(n2.getParent());

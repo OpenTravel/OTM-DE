@@ -81,6 +81,11 @@ public class ExtensionPointFacetMO extends ModelObject<TLExtensionPointFacet> {
 		return srcObj;
 	}
 
+	@Override
+	public NamedEntity getTLBase() {
+		return srcObj.getExtension() != null ? srcObj.getExtension().getExtendsEntity() : null;
+	}
+
 	// @Override
 	// public boolean isComplexAssignable() {
 	// return false;
@@ -92,6 +97,23 @@ public class ExtensionPointFacetMO extends ModelObject<TLExtensionPointFacet> {
 	// FIXME - prevents inclusion in tree view but need to understand why first.
 	@Override
 	public boolean isSimpleAssignable() {
+		return false;
+	}
+
+	/**
+	 * Is this extension point extended by <i>extension</i>?
+	 */
+	@Override
+	public boolean isExtendedBy(NamedEntity extension) {
+		if (extension == null)
+			return false;
+		if (extension.getValidationIdentity() == null)
+			return false;
+
+		if (getTLModelObj() != null)
+			if (getTLModelObj().getExtension() != null)
+				if (getTLModelObj().getExtension().getValidationIdentity() != null)
+					return getTLModelObj().getExtension().getExtendsEntity() == extension;
 		return false;
 	}
 
@@ -127,7 +149,6 @@ public class ExtensionPointFacetMO extends ModelObject<TLExtensionPointFacet> {
 	public void setExtendsType(ModelObject<?> mo) {
 		if (mo == null) {
 			getTLModelObj().setExtension(null);
-
 		} else {
 			TLExtension tlExtension = getTLModelObj().getExtension();
 

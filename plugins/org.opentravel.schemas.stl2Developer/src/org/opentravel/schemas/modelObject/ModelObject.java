@@ -40,7 +40,10 @@ import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLListFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.XsdNode;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The ModelObject abstract class provides a template for working with underlying model source objects. Model Object
@@ -68,7 +71,7 @@ import org.opentravel.schemas.node.interfaces.INode;
  * 
  */
 public abstract class ModelObject<TL> {
-	// private final static Logger LOGGER = LoggerFactory.getLogger(ModelObject.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(ModelObject.class);
 
 	protected TL srcObj;
 	protected INode node;
@@ -216,7 +219,10 @@ public abstract class ModelObject<TL> {
 	 */
 	public boolean isExtendedBy(NamedEntity extension) {
 		// LOGGER.debug("model object supertype used to answer is extended.");
-		return false;
+		if (node instanceof ExtensionOwner)
+			LOGGER.debug("isExtended should be overridden for " + node.getClass().getSimpleName());
+		// throw new IllegalStateException("isExtended should be overridden for " + node.getClass().getSimpleName());
+		return true;
 	}
 
 	public abstract TL getTLModelObj();

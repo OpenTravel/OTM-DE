@@ -15,13 +15,12 @@
  */
 package org.opentravel.schemas.node.listeners;
 
-import java.util.Collection;
-
-import org.opentravel.schemacompiler.event.ModelElementListener;
+import org.opentravel.schemacompiler.event.ModelEventType;
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.XsdNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,54 +46,58 @@ public class BaseNodeListener implements INodeListener {
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
 		Node newValue = getNewValue(event);
 		Node oldValue = getOldValue(event);
-		// LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode + ", old = " + oldValue
-		// + ", new = " + newValue);
+		if (event.getType() != ModelEventType.DOCUMENTATION_MODIFIED)
+			LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode + ", old = " + oldValue
+					+ ", new = " + newValue);
 	}
 
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
 		Node affectedNode = getAffectedNode(event);
-		// LOGGER.debug("Ownership event: " + event.getType() + " this = " + thisNode + " affected = " + affectedNode);
+		LOGGER.debug("Ownership event: " + event.getType() + " this = " + thisNode + " affected = " + affectedNode);
 	}
 
 	@Override
 	public Node getNode() {
-		return thisNode;
+		// XsdNodes are always represented by their OTM Model counterpart.
+		return thisNode instanceof XsdNode ? ((XsdNode) thisNode).getOtmModel() : thisNode;
+	}
+
+	public Node getSource(ValueChangeEvent<?, ?> event) {
+		Node source = null;
+		if (event.getSource() instanceof TLModelElement)
+			source = Node.GetNode((TLModelElement) event.getSource());
+		return source;
 	}
 
 	public Node getNewValue(ValueChangeEvent<?, ?> event) {
 		Node affectedNode = null;
-		if (event.getNewValue() instanceof TLModelElement) {
-			Collection<ModelElementListener> listeners = ((TLModelElement) event.getNewValue()).getListeners();
-			for (ModelElementListener listener : listeners) {
-				if (listener instanceof INodeListener)
-					affectedNode = ((INodeListener) listener).getNode();
-			}
-		}
+		if (event.getNewValue() instanceof TLModelElement)
+			affectedNode = Node.GetNode((TLModelElement) event.getNewValue());
 		return affectedNode;
 	}
 
 	public Node getOldValue(ValueChangeEvent<?, ?> event) {
 		Node affectedNode = null;
-		if (event.getOldValue() instanceof TLModelElement) {
-			Collection<ModelElementListener> listeners = ((TLModelElement) event.getOldValue()).getListeners();
-			for (ModelElementListener listener : listeners) {
-				if (listener instanceof INodeListener)
-					affectedNode = ((INodeListener) listener).getNode();
-			}
-		}
+		if (event.getOldValue() instanceof TLModelElement)
+			affectedNode = Node.GetNode((TLModelElement) event.getOldValue());
 		return affectedNode;
 	}
 
 	@Override
 	public Node getAffectedNode(OwnershipEvent<?, ?> event) {
 		Node affectedNode = null;
-		Collection<ModelElementListener> listeners = ((TLModelElement) event.getAffectedItem()).getListeners();
-		for (ModelElementListener listener : listeners) {
-			if (listener instanceof INodeListener)
-				affectedNode = ((INodeListener) listener).getNode();
-		}
+		if (event.getAffectedItem() instanceof TLModelElement)
+			affectedNode = Node.GetNode((TLModelElement) event.getAffectedItem());
 		return affectedNode;
+	}
+
+	@Override
+	public Node getSource(OwnershipEvent<?, ?> event) {
+		Node source = null;
+		if (event.getSource() instanceof TLModelElement)
+			source = Node.GetNode((TLModelElement) event.getSource());
+		return source;
 	}
 
 	@Override

@@ -1,0 +1,83 @@
+Type Class Notes
+
+Purpose - maintain relationships between a type provider and where it is assigned (where used).
+
+Orginal design created a type class that maintained lists and pointers independently of the underlying TL model. A type resolver was used to create these structures after all nodes were read in.
+
+Problems
+1. Lots of duplicated (or nearly duplicate) logic
+2. Code became complex and hard to maintain
+3. PostTypeChange.notyfications() - ??? eliminate need
+4. Why use image and lable providers? No other node does.
+5. TypeProvider interface is on the component node base class - not on specific type providers
+6. TypeUser seems good except missing from Open Enumeration
+7. TypeUserNode - seems to be same as TypeNode. Constructor never called.
+
+The TL model was improved to expose listeners that can be used to relate TL objects to their associated nodes. This exposes all of the logic in the model used to maintain referential integrity. 
+
+Type Providers
+- simple
+- complex
+- xsd*
+
+Type consumers
+- simple types
+- properties (attribute, element, references)
+- simple facets (core, vwa)
+- resources
+
+Notes:
+1. Using listeners will mean either a post constructor pass OR lazy evaluation
+
+New Design
+1. Type Node - node that displays children which are where used.
+	- like a facet - it has a parent and children
+	1 option 2 - create a separate structure for type assignments 
+
+2. TypeResolver.addToMap() visitor is a good place to verify lazy evaluation.
+	OK - Check to assure that all nodes added to map have identity listeners
+	Check Type.setAssignedType(source, map) before return to verify assignments
+	?? What about implied nodes? Should/must they have listeners?
+	
+3. Move Unassigned and others out of ModelNode. 
+	Treat them like project members?
+	
+4. Use delegation to clean up setAssignedType(node)
+
+5. Created Node.getAssignedTypeByListeners()
+	- handles XsdNode by returning its otmObject representation
+	- handles null types by returning ModelNode.getUnassignedNode()
+	
+JUNITs
+
+Bugs/Rabbit Holes
+1. Why doesn't simpleType library's String_Long have a listener?
+	>> ANS - because resolver is being run with just one library!
+2.	String has 3 listeners!
+	After type resolver it has 3! 
+		2 to it and 1 to the version node
+		Same with siblings
+	> This is IN a FAMILY
+	> Managed Business object has 2 BusinessObject listeners and 1 named type
+	Unmanaged simple only has 1
+	Built-in has only 1
+	
+	>> Where do i junit test 1 and only one listner? newComponent_Tests?
+		Add test to managed libraries
+		Add families to tests
+
+3. ProjectNode.load(TLProject) - 
+	uses newLibs.add(new LibraryNode(pi, this)); which runs resolver for each library
+	>> FIX to bypass resolver until project loaded.
+
+4. Node_NavChildren_Test - getTests - 
+	flags assignment error because there are two Built-in Empty objects.
+	Likely related to: Registering ANOTHER main controller.
+	also saw: string has a duplicate type.
+
+>> Nodes in multiple projects
+* libraryNodes are different
+* Nodes are different
+>> TEST: TL Objects are the same -- therefore there will be multiple identity listeners
+>> Nodes in chains
+* adding a library to a chain the TL Objects already have identity listener

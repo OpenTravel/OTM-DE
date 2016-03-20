@@ -230,10 +230,10 @@ public interface INode {
 	 */
 	public boolean isTypeProvider();
 
-	/**
-	 * @return true if this node can be assigned a type.
-	 */
-	public boolean isTypeUser();
+	// /**
+	// * @return true if this node can be assigned a type.
+	// */
+	// public boolean isTypeUser();
 
 	/**
 	 * @return true if this type of node will be assigned by reference not name. Implies the property name must be the
@@ -246,20 +246,20 @@ public interface INode {
 	 */
 	public void removeFromLibrary();
 
-	/**
-	 * Sets the type assigned to this node if appropriate. Sets TL type, type node and type users on the target node.
-	 * 
-	 * Restrictions enforced: 1) Simple Facets and Attribute Properties must have simple type. 2) VWA Attribute facets
-	 * may have simple type or VWA or Open Enum. ) SimpleProperties may not be circularly assigned to their owning
-	 * components. 4) node must be editable or in XSD library to set the TL type.
-	 * 
-	 * If typeNode is implied, the TL type is cleared.
-	 * 
-	 * @param typeNode
-	 *            to assign, or null to clear assignments.
-	 * @return true if set
-	 */
-	public boolean setAssignedType(Node typeNode);
+	// /**
+	// * Sets the type assigned to this node if appropriate. Sets TL type, type node and type users on the target node.
+	// *
+	// * Restrictions enforced: 1) Simple Facets and Attribute Properties must have simple type. 2) VWA Attribute facets
+	// * may have simple type or VWA or Open Enum. ) SimpleProperties may not be circularly assigned to their owning
+	// * components. 4) node must be editable or in XSD library to set the TL type.
+	// *
+	// * If typeNode is implied, the TL type is cleared.
+	// *
+	// * @param typeNode
+	// * to assign, or null to clear assignments.
+	// * @return true if set
+	// */
+	// public boolean setAssignedType(TypeProvider provider);
 
 	// /**
 	// * Sets the type assigned to this node if appropriate. Sets TL type, type node and type users on the target node.

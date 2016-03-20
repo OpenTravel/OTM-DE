@@ -30,6 +30,7 @@ import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.types.TestTypes;
+import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * Test the aggregate nodes which are navigation nodes used for library chains.
@@ -224,7 +225,7 @@ public class Aggregate_Tests {
 	private Node makeSimple(String name) {
 		Node n = new SimpleTypeNode(new TLSimple());
 		n.setName(name);
-		n.setAssignedType(NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
+		((SimpleTypeNode) n).setAssignedType((TypeProvider) NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
 		return n;
 	}
 

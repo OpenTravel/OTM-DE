@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.node.listeners;
 
+import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemas.node.Node;
 
@@ -30,14 +31,15 @@ public class NodeIdentityListener extends BaseNodeListener implements INodeListe
 
 	public NodeIdentityListener(Node node) {
 		super(node);
+	}
 
-		// Assertion made in factor where assignment is made.
-		// if (!(node instanceof ImpliedNode))
-		// assert node.getTLModelObject().getListeners().contains(this);
+	@Override
+	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
+		super.processOwnershipEvent(event);
 	}
 
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
-		// super.processValueChangeEvent(event);
+		super.processValueChangeEvent(event);
 	}
 }

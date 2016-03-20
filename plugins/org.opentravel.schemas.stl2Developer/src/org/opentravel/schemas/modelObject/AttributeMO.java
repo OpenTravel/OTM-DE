@@ -54,7 +54,7 @@ public class AttributeMO extends ModelObject<TLAttribute> {
 
 	@Override
 	public void removeFromTLParent() {
-		final TLAttributeOwner attributeOwner = getTLModelObj().getAttributeOwner();
+		final TLAttributeOwner attributeOwner = getTLModelObj().getOwner();
 		if (attributeOwner != null) {
 			attributeOwner.removeAttribute(getTLModelObj());
 		}

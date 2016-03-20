@@ -21,6 +21,10 @@ package org.opentravel.schemas.node;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.properties.SimpleAttributeNode;
+import org.opentravel.schemas.types.SimpleAttributeOwner;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,36 +40,13 @@ import org.slf4j.LoggerFactory;
 // Find a base type and/or Interface that can rationalize them.
 //
 
-public class SimpleFacetNode extends FacetNode {
+// In VWA it has a simple attribute node child
+
+public class SimpleFacetNode extends FacetNode implements TypeProvider, SimpleAttributeOwner {
 	private static final Logger LOGGER = LoggerFactory.getLogger(FacetNode.class);
 
 	public SimpleFacetNode(TLSimpleFacet obj) {
 		super(obj);
-
-		// ListenerFactory will provide listener for property type changes because only the TLSimpleFacet will throw
-		// event.
-		// SimpleFacetMO will inject a TLnSimpleAttribute to construction stream
-		// If owned by a VWA, the TLnSimpleAttribute owner will be set by the vwa node.
-	}
-
-	public Node getSimpleAttribute() {
-		return getChildren().get(0);
-	}
-
-	// Override to assure that a value will be delivered even though not considered a type user.
-	@Override
-	public Node getAssignedType() {
-		// LOGGER.debug("Get assigned type simple facet of " + getParent());
-		return getTypeClass().getTypeNode();
-	}
-
-	// public void setSimpleAttribute(Node typeNode) {
-	// getChildren().get(0).setAssignedType(typeNode);
-	// }
-
-	@Override
-	public boolean setAssignedType(Node replacement) {
-		return getSimpleAttribute().getTypeClass().setAssignedType(replacement);
 	}
 
 	/**
@@ -78,7 +59,8 @@ public class SimpleFacetNode extends FacetNode {
 	public INode createProperty(final Node sn) {
 		if (!getChildren().isEmpty()) {
 			INode child = getChildren().get(0);
-			child.setAssignedType(sn);
+			if (child instanceof TypeUser && sn instanceof TypeProvider)
+				((TypeUser) child).setAssignedType((TypeProvider) sn);
 		} else {
 			LOGGER.warn("Simple Facet (" + this + ")  does not have children.");
 		}
@@ -125,7 +107,7 @@ public class SimpleFacetNode extends FacetNode {
 	@Override
 	public void removeProperty(Node property) {
 		LOGGER.debug("removeProperty() - Setting simple facet " + getName() + " to empty.");
-		getTypeClass().setAssignedType((Node) ModelNode.getEmptyNode()); // set to empty.
+		getSimpleAttribute().setAssignedType();
 	}
 
 	@Override
@@ -145,6 +127,20 @@ public class SimpleFacetNode extends FacetNode {
 	@Override
 	public boolean isAssignableToVWA() {
 		return true;
+	}
+
+	public SimpleAttributeNode getSimpleAttribute() {
+		return (SimpleAttributeNode) getChildren().get(0);
+	}
+
+	@Override
+	public boolean setSimpleType(TypeProvider provider) {
+		return getSimpleAttribute().setAssignedType(provider);
+	}
+
+	@Override
+	public TypeProvider getSimpleType() {
+		return getSimpleAttribute().getAssignedType();
 	}
 
 }

@@ -55,6 +55,7 @@ import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.RoleFacetNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * @author Dave Hollander
@@ -87,6 +88,13 @@ public class PropertiesTests {
 		ln = lcn.getHead();
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "EQBO");
 		PropertyNode p = (PropertyNode) bo.getSummaryFacet().getChildren().get(0);
+		createEquivalents(p);
+	}
+
+	/**
+	 * Adds an equivalent to the property node and tests it.
+	 */
+	public void createEquivalents(PropertyNode p) {
 		Assert.assertNotNull(p);
 		p.setEquivalent("V1"); // creates handler
 		IValueWithContextHandler eqh = p.getEquivalentHandler();
@@ -271,7 +279,7 @@ public class PropertiesTests {
 		pn.setName("b");
 		Assert.assertNotNull(pn.getLibrary());
 		Assert.assertEquals(NodeNameUtils.fixIndicatorElementName("B"), pn.getName());
-		Assert.assertNotNull(pn.getDefaultType());
+		Assert.assertNotNull(pn.getRequiredType());
 		Assert.assertFalse(pn.getLabel().isEmpty());
 		Assert.assertNotNull(pn.getLibrary());
 
@@ -303,7 +311,7 @@ public class PropertiesTests {
 		pn.setName("b");
 		Assert.assertNotNull(pn.getLibrary());
 		Assert.assertEquals(NodeNameUtils.fixIndicatorElementName("b"), pn.getName());
-		Assert.assertNotNull(pn.getDefaultType());
+		Assert.assertNotNull(pn.getRequiredType());
 		Assert.assertFalse(pn.getLabel().isEmpty());
 		Assert.assertNotNull(pn.getLibrary());
 
@@ -379,18 +387,18 @@ public class PropertiesTests {
 		String ieText = "XInd";
 
 		epn = new ElementNode(summary, eText);
-		epn.setAssignedType(aType);
+		epn.setAssignedType((TypeProvider) aType);
 		apn = new AttributeNode(summary, aText);
-		apn.setAssignedType(NodeFinders.findNodeByName("id", Node.XSD_NAMESPACE));
+		apn.setAssignedType((TypeProvider) NodeFinders.findNodeByName("id", Node.XSD_NAMESPACE));
 		ipn = new IndicatorNode(summary, iText);
 		iepn = new IndicatorElementNode(summary, ieText);
 		rpn = new ElementReferenceNode(summary, rText);
 		boolean x = rpn.setAssignedType(bo);
-		Assert.assertEquals(eText, epn.getName());
-		Assert.assertEquals(aText, apn.getName());
-		Assert.assertEquals(iText, ipn.getName());
-		Assert.assertEquals(rText, rpn.getName());
-		Assert.assertEquals(ieText, iepn.getName());
+		Assert.assertEquals(NodeNameUtils.fixElementName(eText), epn.getName());
+		Assert.assertEquals(NodeNameUtils.fixAttributeName(aText), apn.getName());
+		Assert.assertEquals(NodeNameUtils.fixIndicatorName(iText), ipn.getName());
+		Assert.assertEquals(NodeNameUtils.fixIndicatorElementName(ieText), iepn.getName());
+		Assert.assertEquals(NodeNameUtils.fixElementRefName(rText), rpn.getName());
 
 		epn.setDescription(eText);
 		Assert.assertEquals(eText, epn.getDescription());
@@ -433,13 +441,14 @@ public class PropertiesTests {
 		assertNotNull(result); // should create new node and assign type
 		assertTrue(bo.getSummaryFacet().getChildren().contains(result));
 
-		((PropertyNode) result).setAssignedType(null);
+		((PropertyNode) result).setAssignedType();
 		result = ((ComponentNode) result).addPropertyFromDND(aType, false);
 		assertNull(result); // should assign type but not create new node
 	}
 
 	private void changeToAll(PropertyNode pn) {
 		int children = pn.getParent().getChildren().size();
+		assert pn.getParent() != null; // test the swap behavior too
 		pn = pn.changePropertyRole(PropertyNodeType.ATTRIBUTE);
 		pn = pn.changePropertyRole(PropertyNodeType.INDICATOR);
 		pn = pn.changePropertyRole(PropertyNodeType.INDICATOR_ELEMENT);

@@ -27,6 +27,7 @@ import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * A property node that represents a enumeration literal. See {@link NodeFactory#newComponentMember(INode, Object)}
@@ -40,11 +41,13 @@ public class EnumLiteralNode extends PropertyNode {
 	public EnumLiteralNode(ComponentNode parent, String name) {
 		super(new TLEnumValue(), parent, name, PropertyNodeType.ENUM_LITERAL);
 		this.setName(name);
+		// setAssignedType(getRequiredType());
 		// parent.getModelObject().addChild(this.getTLModelObject());
 	}
 
 	public EnumLiteralNode(TLModelElement tlObj, INode parent) {
 		super(tlObj, parent, PropertyNodeType.ENUM_LITERAL);
+		// setAssignedType(getRequiredType());
 	}
 
 	@Override
@@ -76,7 +79,12 @@ public class EnumLiteralNode extends PropertyNode {
 	}
 
 	@Override
-	public ImpliedNode getDefaultType() {
+	public TypeProvider getAssignedType() {
+		return getRequiredType();
+	}
+
+	@Override
+	public ImpliedNode getRequiredType() {
 		return ModelNode.getUndefinedNode();
 	}
 

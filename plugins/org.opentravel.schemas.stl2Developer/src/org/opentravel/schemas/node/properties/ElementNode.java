@@ -28,7 +28,6 @@ import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.EqExOneValueHandler.ValueWithContextType;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
-import org.opentravel.schemas.types.TypeUser;
 
 /**
  * A property node that represents an XML element. See {@link NodeFactory#newComponentMember(INode, Object)}
@@ -37,7 +36,7 @@ import org.opentravel.schemas.types.TypeUser;
  * 
  */
 
-public class ElementNode extends PropertyNode implements TypeUser {
+public class ElementNode extends PropertyNode {
 
 	/**
 	 * Add an element property to a facet or extension point.
@@ -48,7 +47,7 @@ public class ElementNode extends PropertyNode implements TypeUser {
 	 */
 	public ElementNode(PropertyOwnerInterface parent, String name) {
 		super(new TLProperty(), (Node) parent, name, PropertyNodeType.ELEMENT);
-		setAssignedType(ModelNode.getUnassignedNode());
+		setAssignedType((TypeProvider) ModelNode.getUnassignedNode());
 	}
 
 	/**
@@ -81,7 +80,8 @@ public class ElementNode extends PropertyNode implements TypeUser {
 		ElementNode n = new ElementNode(tlObj, null);
 		getParent().linkChild(n, indexOfNode());
 		n.setDescription(type.getDescription());
-		n.setAssignedType(type);
+		if (type instanceof TypeProvider)
+			n.setAssignedType((TypeProvider) type);
 		n.setName(type.getName());
 		return n;
 	}
@@ -140,11 +140,6 @@ public class ElementNode extends PropertyNode implements TypeUser {
 
 	@Override
 	public boolean isElement() {
-		return true;
-	}
-
-	@Override
-	public boolean isTypeUser() {
 		return true;
 	}
 

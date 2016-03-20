@@ -34,8 +34,10 @@ import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
-import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 
 /**
  * @author Dave Hollander
@@ -113,29 +115,30 @@ public class LoadFiles {
 			// LOGGER.debug("Cleaning Library " + ln + " with " +
 			// ln.getDescendants_TypeUsers().size()
 			// + " type users.");
-			for (Node n : ln.getDescendants_TypeUsers()) {
-				if (n.getType() instanceof ImpliedNode) {
-					if (((ImpliedNode) n.getType()).getImpliedType().equals(ImpliedNodeType.UnassignedType)) {
+			for (TypeUser n : ln.getDescendants_TypeUsers()) {
+				if (n.getAssignedType() instanceof ImpliedNode) {
+					if (((ImpliedNode) n.getAssignedType()).getImpliedType().equals(ImpliedNodeType.UnassignedType)) {
 						// LOGGER.debug("Removing " + n + " due to unassigned type.");
-						n.getOwningComponent().delete();
+						if (!((Node) n).isDeleted())
+							((Node) n).getOwningComponent().delete();
 						continue;
 					}
 				}
-				if (n.getTLTypeObject() == null) {
+				if (n.getAssignedTLObject() == null) {
 					// LOGGER.debug("Removing " + n + " due to null TL_TypeObject.");
-					n.getOwningComponent().delete();
+					((Node) n).getOwningComponent().delete();
 					continue;
 				}
-				if (!n.getTypeClass().verifyAssignment()) {
-					// LOGGER.debug("Removing " + n + " due to type node mismatch.");
-					n.getOwningComponent().delete();
-					continue;
-				}
+				// if (!n.getTypeClass().verifyAssignment()) {
+				// // LOGGER.debug("Removing " + n + " due to type node mismatch.");
+				// n.getOwningComponent().delete();
+				// continue;
+				// }
 				try {
-					srcVisitor.visit(n);
+					srcVisitor.visit((INode) n);
 				} catch (IllegalStateException e) {
 					// LOGGER.debug("Removing " + n + " due to: " + e.getLocalizedMessage());
-					n.getOwningComponent().delete();
+					((Node) n).getOwningComponent().delete();
 				}
 
 			}
@@ -197,7 +200,7 @@ public class LoadFiles {
 		Assert.assertNotNull(model);
 		Assert.assertNotNull(model.getTLModel());
 		Assert.assertTrue(Node.getNodeCount() > 100);
-		Assert.assertTrue(model.getUnassignedTypeCount() >= 14);
+		Assert.assertTrue("Bad count: " + model.getUnassignedTypeCount(), model.getUnassignedTypeCount() >= 14);
 		return ln;
 	}
 
@@ -261,7 +264,8 @@ public class LoadFiles {
 	}
 
 	private void actOnNode(INode n) {
-		n.setAssignedType((Node) n);
+		if (n instanceof TypeUser && n instanceof TypeProvider)
+			((TypeUser) n).setAssignedType((TypeProvider) n);
 		n.setName("TEST", true);
 		switch (nodeCount % 3) {
 		case 0:

@@ -134,21 +134,20 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 	// return true;
 	// }
 
+	/**
+	 * Is this Choice extended by <i>extension</i>?
+	 */
 	@Override
 	public boolean isExtendedBy(NamedEntity extension) {
-		if (this.getTLModelObj() == null)
-			return false;
-		if (this.getTLModelObj().getExtension() == null)
-			return false;
-		if (this.getTLModelObj().getExtension().getValidationIdentity() == null)
-			return false;
-		if (extension == null)
+		if (extension == null || !(extension instanceof TLChoiceObject))
 			return false;
 		if (extension.getValidationIdentity() == null)
 			return false;
 
-		if (this.getTLModelObj().getExtension().getExtendsEntity() == extension)
-			return true;
+		if (getTLModelObj() != null)
+			if (getTLModelObj().getExtension() != null)
+				if (getTLModelObj().getExtension().getValidationIdentity() != null)
+					return getTLModelObj().getExtension().getExtendsEntity() == extension;
 		return false;
 	}
 

@@ -40,40 +40,16 @@ public class SimpleMO extends ModelObject<TLSimple> {
 	}
 
 	@Override
-	public void delete() {
-		if (getTLModelObj().getOwningLibrary() != null) {
-			getTLModelObj().getOwningLibrary().removeNamedMember(getTLModelObj());
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.modelObject.ModelObject#clearTLType()
-	 */
-	@Override
 	public void clearTLType() {
 		// this.type = null;
 		this.srcObj.setParentType(null);
 	}
 
 	@Override
-	public void setTLType(final ModelObject<?> mo) {
-		Object tlObj = null;
-		if (mo != null)
-			tlObj = mo.getTLModelObj();
-		if (tlObj instanceof TLAttributeType)
-			getTLModelObj().setParentType((TLAttributeType) mo.getTLModelObj());
-	}
-
-	@Override
-	public void setTLType(final NamedEntity tlObj) {
-		getTLModelObj().setParentType((TLAttributeType) tlObj);
-	}
-
-	@Override
-	protected AbstractLibrary getLibrary(final TLSimple obj) {
-		return obj.getOwningLibrary();
+	public void delete() {
+		if (getTLModelObj().getOwningLibrary() != null) {
+			getTLModelObj().getOwningLibrary().removeNamedMember(getTLModelObj());
+		}
 	}
 
 	@Override
@@ -95,39 +71,14 @@ public class SimpleMO extends ModelObject<TLSimple> {
 	}
 
 	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
-
-	@Override
 	public String getNamePrefix() {
 		final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
 		return lib == null ? "" : lib.getPrefix();
 	}
 
-	// @Override
-	// public int getMaxLength() {
-	// return getTLModelObj().getMaxLength();
-	// }
-	//
-	// @Override
-	// public int getMinLength() {
-	// return getTLModelObj().getMinLength();
-	// }
-	//
-	// @Override
-	// public String getPattern() {
-	// return getTLModelObj().getPattern();
-	// }
-	//
-	// @Override
-	// public int getFractionDigits() {
-	// return getTLModelObj().getFractionDigits();
-	// }
-
 	@Override
-	public NamedEntity getTLType() {
-		return srcObj.getParentType();
+	public String getNamespace() {
+		return getTLModelObj().getNamespace();
 	}
 
 	@Override
@@ -135,40 +86,15 @@ public class SimpleMO extends ModelObject<TLSimple> {
 		return srcObj;
 	}
 
-	// @Override
-	// public int getTotalDigits() {
-	// return getTLModelObj().getTotalDigits();
-	// }
-	//
-	// @Override
-	// public String getMinInclusive() {
-	// return getTLModelObj().getMinInclusive();
-	// }
-	//
-	// @Override
-	// public String getMaxInclusive() {
-	// return getTLModelObj().getMaxInclusive();
-	// }
-	//
-	// @Override
-	// public String getMinExclusive() {
-	// return getTLModelObj().getMinExclusive();
-	// }
-	//
-	// @Override
-	// public String getMaxExclusive() {
-	// return getTLModelObj().getMaxExclusive();
-	// }
+	@Override
+	public NamedEntity getTLType() {
+		return srcObj.getParentType();
+	}
 
 	@Override
 	public boolean isSimpleAssignable() {
 		return true;
 	}
-
-	// @Override
-	// public boolean isSimpleType() {
-	// return true;
-	// }
 
 	@Override
 	public boolean isSimpleList() {
@@ -181,64 +107,29 @@ public class SimpleMO extends ModelObject<TLSimple> {
 		getTLModelObj().setListTypeInd(selected);
 	}
 
-	// @Override
-	// public boolean setMinLength(final int length) {
-	// getTLModelObj().setMinLength(length);
-	// return true;
-	// }
-	//
-	// @Override
-	// public boolean setMaxLength(final int length) {
-	// getTLModelObj().setMaxLength(length);
-	// return true;
-	// }
-	//
-	// @Override
-	// public boolean setFractionDigits(int digits) {
-	// getTLModelObj().setFractionDigits(digits);
-	// return true;
-	// }
-	//
-	// @Override
-	// public boolean setTotalDigits(int digits) {
-	// getTLModelObj().setTotalDigits(digits);
-	// return true;
-	// }
-	//
-	// @Override
-	// public boolean setMinInclusive(String value) {
-	// getTLModelObj().setMinInclusive(value);
-	// return true;
-	// }
-
-	// @Override
-	// public boolean setMaxInclusive(String value) {
-	// getTLModelObj().setMaxInclusive(value);
-	// return true;
-	// }
-	//
-	// @Override
-	// public boolean setMinExclusive(String value) {
-	// getTLModelObj().setMinExclusive(value);
-	// return true;
-	// }
-	//
-	// @Override
-	// public boolean setMaxExclusive(String value) {
-	// getTLModelObj().setMaxExclusive(value);
-	// return true;
-	// }
-
 	@Override
 	public boolean setName(final String name) {
 		getTLModelObj().setName(name);
 		return true;
 	}
 
-	// @Override
-	// public boolean setPattern(final String pattern) {
-	// getTLModelObj().setPattern(pattern);
-	// return true;
-	// }
+	@Override
+	public void setTLType(final ModelObject<?> mo) {
+		Object tlObj = null;
+		if (mo != null)
+			tlObj = mo.getTLModelObj();
+		if (tlObj instanceof TLAttributeType)
+			getTLModelObj().setParentType((TLAttributeType) mo.getTLModelObj());
+	}
+
+	@Override
+	public void setTLType(final NamedEntity tlObj) {
+		getTLModelObj().setParentType((TLAttributeType) tlObj);
+	}
+
+	@Override
+	protected AbstractLibrary getLibrary(final TLSimple obj) {
+		return obj.getOwningLibrary();
+	}
 
 }

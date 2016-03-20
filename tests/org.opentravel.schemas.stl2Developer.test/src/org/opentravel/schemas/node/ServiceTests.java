@@ -33,6 +33,7 @@ import org.opentravel.schemacompiler.model.TLService;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.repository.RepositoryIntegrationTestBase;
 import org.opentravel.schemas.node.OperationNode.ResourceOperationTypes;
@@ -42,6 +43,7 @@ import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.types.TypeResolver;
+import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.osgi.framework.Version;
 import org.slf4j.Logger;
@@ -73,9 +75,12 @@ public class ServiceTests extends RepositoryIntegrationTestBase {
 	@Before
 	public void beforeEachTest() {
 		// should be done in base class
-		// mc = new MainController();
-		// pc = (DefaultProjectController) mc.getProjectController();
-		// defaultProject = pc.getDefaultProject();
+		if (mc == null)
+			mc = new MainController();
+		if (pc == null)
+			pc = (DefaultProjectController) mc.getProjectController();
+		if (defaultProject == null)
+			defaultProject = pc.getDefaultProject();
 	}
 
 	@Test
@@ -112,7 +117,7 @@ public class ServiceTests extends RepositoryIntegrationTestBase {
 		// Only 4 because the bo has no query facet.
 		Assert.assertEquals(4, svc.getChildren().size());
 		List<Node> users = svc.getChildren_TypeUsers();
-		List<Node> descendents = svc.getDescendants_TypeUsers();
+		List<TypeUser> descendents = svc.getDescendants_TypeUsers();
 		List<Node> boUsers = bo.getTypeUsers();
 		Assert.assertNotNull(descendents); // 12
 		Assert.assertNotNull(boUsers); // 8. Some are typed by facets.
@@ -163,7 +168,7 @@ public class ServiceTests extends RepositoryIntegrationTestBase {
 		// Only 4 because the bo has no query facet.
 		assertEquals(4, svc.getChildren().size());
 		List<Node> users = svc.getChildren_TypeUsers();
-		List<Node> descendents = svc.getDescendants_TypeUsers();
+		List<TypeUser> descendents = svc.getDescendants_TypeUsers();
 		List<Node> boUsers = bo.getTypeUsers();
 		assertNotNull(descendents); // 12
 		assertNotNull(boUsers); // 8. Some are typed by facets.

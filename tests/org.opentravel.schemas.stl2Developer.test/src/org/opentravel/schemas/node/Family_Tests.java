@@ -32,6 +32,7 @@ import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.types.TestTypes;
+import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * @author Dave Hollander
@@ -115,7 +116,7 @@ public class Family_Tests {
 	private Node makeSimple(String name) {
 		Node n2 = new SimpleTypeNode(new TLSimple());
 		n2.setName(name);
-		n2.setAssignedType(NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
+		((SimpleTypeNode) n2).setAssignedType((TypeProvider) NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
 		return n2;
 	}
 
@@ -131,10 +132,10 @@ public class Family_Tests {
 		Node n1 = new SimpleTypeNode(new TLSimple());
 		final Node type = NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE);
 		n1.setName("s_1");
-		n1.setAssignedType(type);
+		((SimpleTypeNode) n1).setAssignedType((TypeProvider) type);
 		Node n2 = new SimpleTypeNode(new TLSimple());
 		n2.setName("s_2");
-		n2.setAssignedType(type);
+		((SimpleTypeNode) n2).setAssignedType((TypeProvider) type);
 
 		// Add simples to an un-managed library
 		ln.addMember(n1);

@@ -33,6 +33,6 @@ public class NamedTypeListener extends NodeIdentityListener implements INodeList
 
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
-		// super.processValueChangeEvent(event);
+		super.processValueChangeEvent(event);
 	}
 }

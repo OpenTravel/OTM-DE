@@ -27,6 +27,8 @@ import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 
 /**
  * @author Pawel Jedruch
@@ -74,13 +76,13 @@ public class PropertyNodeBuilder {
 
 	public PropertyNodeBuilder makeSimpleList(String name) {
 		CoreObjectNode coreObject = ComponentNodeBuilder.createCoreObject(name).get();
-		this.propertyNode.setAssignedType(coreObject.getSimpleListFacet());
+		this.propertyNode.setAssignedType((TypeProvider) coreObject.getSimpleListFacet());
 		return this;
 	}
 
 	public PropertyNodeBuilder makeDetailList(String name) {
 		CoreObjectNode coreObject = ComponentNodeBuilder.createCoreObject(name).get();
-		this.propertyNode.setAssignedType(coreObject.getDetailListFacet());
+		this.propertyNode.setAssignedType((TypeProvider) coreObject.getDetailListFacet());
 		return this;
 	}
 
@@ -120,7 +122,9 @@ public class PropertyNodeBuilder {
 	 * @return
 	 */
 	public PropertyNodeBuilder assign(ComponentNode type) {
-		propertyNode.getTypeClass().setAssignedType(type);
+		if (propertyNode instanceof TypeUser && type instanceof TypeProvider)
+			((TypeUser) propertyNode).setAssignedType((TypeProvider) type);
+		// propertyNode.getTypeClass().setAssignedType(type);
 		return this;
 	}
 

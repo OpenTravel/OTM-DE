@@ -46,20 +46,24 @@ import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.types.ExtensionHandler;
+import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * @author Dave Hollander
  * 
  */
-public class BusinessObjectNode extends ComponentNode implements ComplexComponentInterface, ExtensionOwner,
-		VersionedObjectInterface, LibraryMemberInterface {
+public class BusinessObjectNode extends TypeProviderBase implements ComplexComponentInterface, ExtensionOwner,
+		VersionedObjectInterface, LibraryMemberInterface, TypeProvider {
 
 	// private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
+	private ExtensionHandler extensionHandler = null;
 
 	public BusinessObjectNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
-		// done in super() - ListenerFactory.setListner(this);
+
+		extensionHandler = new ExtensionHandler(this);
 
 		if (getModelObject() == null) {
 			// LOGGER.debug("Missing model object on business object: " + this);
@@ -141,15 +145,15 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 		return this;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeProvider#getTypeNode()
-	 */
-	@Override
-	public Node getTypeNode() {
-		return getTypeClass().getTypeNode();
-	}
+	// /*
+	// * (non-Javadoc)
+	// *
+	// * @see org.opentravel.schemas.types.TypeProvider#getTypeNode()
+	// */
+	// @Override
+	// public Node getTypeNode() {
+	// return getTypeClass().getTypeNode();
+	// }
 
 	/*
 	 * (non-Javadoc)
@@ -204,21 +208,21 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 		return ComponentNodeType.BUSINESS;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.ComplexComponentInterface#getSimpleType()
-	 */
-	@Override
-	public ComponentNode getSimpleType() {
-		return null;
-	}
-
-	@Override
-	public boolean setSimpleType(Node type) {
-		return false;
-	}
-
+	// /*
+	// * (non-Javadoc)
+	// *
+	// * @see org.opentravel.schemas.node.ComplexComponentInterface#getSimpleType()
+	// */
+	// @Override
+	// public ComponentNode getSimpleType() {
+	// return null;
+	// }
+	//
+	// @Override
+	// public boolean setSimpleType(Node type) {
+	// return false;
+	// }
+	//
 	@Override
 	public SimpleFacetNode getSimpleFacet() {
 		return null;
@@ -249,18 +253,13 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 
 	@Override
 	public String getLabel() {
-		if (getExtendsType() == null)
+		if (getExtensionBase() == null)
 			return super.getLabel();
 		else if (isVersioned())
 			// else if (getExtendsType().getName().equals(getName()))
-			return super.getLabel() + " (Extends version:  " + getExtendsType().getLibrary().getVersion() + ")";
+			return super.getLabel() + " (Extends version:  " + getExtensionBase().getLibrary().getVersion() + ")";
 		else
-			return super.getLabel() + " (Extends: " + getExtendsType().getNameWithPrefix() + ")";
-	}
-
-	@Override
-	public Node getExtendsType() {
-		return getTypeClass().getTypeNode();
+			return super.getLabel() + " (Extends: " + getExtensionBase().getNameWithPrefix() + ")";
 	}
 
 	@Override
@@ -270,7 +269,7 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 
 	public void addAlias(String name) {
 		if (this.isEditable_newToChain())
-			new AliasNode(this, name);
+			new AliasNode(this, NodeNameUtils.fixBusinessObjectName(name));
 	}
 
 	public void addAliases(List<AliasNode> aliases) {
@@ -301,10 +300,10 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 		return ff;
 	}
 
-	@Override
-	public boolean canExtend() {
-		return true;
-	}
+	// @Override
+	// public boolean canExtend() {
+	// return true;
+	// }
 
 	@Override
 	public ComponentNode createMinorVersionComponent() {
@@ -431,7 +430,9 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 	 */
 	@Override
 	public void setName(String n) {
-		this.setName(n, true);
+		n = NodeNameUtils.fixBusinessObjectName(n);
+		setName(n, true);
+		// this.setName(n, true);
 		for (Node child : getChildren()) {
 			for (Node users : child.getTypeUsers())
 				NodeNameUtils.fixName(users);
@@ -445,10 +446,10 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 	 */
 	@Override
 	public void setName(String n, boolean doFamily) {
-		super.setName(n, doFamily);
+		super.setName(NodeNameUtils.fixBusinessObjectName(n), doFamily);
 		for (Node user : getTypeUsers()) {
 			if (user instanceof PropertyNode)
-				user.setName(n);
+				user.setName(NodeNameUtils.fixBusinessObjectName(n));
 		}
 	}
 
@@ -489,6 +490,42 @@ public class BusinessObjectNode extends ComponentNode implements ComplexComponen
 	@Override
 	public boolean isMergeSupported() {
 		return true;
+	}
+
+	@Override
+	public boolean isAssignableToSimple() {
+		return false;
+	}
+
+	@Override
+	public boolean isAssignableToVWA() {
+		return false;
+	}
+
+	@Override
+	public boolean isAssignableToElementRef() {
+		return false;
+	}
+
+	// /////////////////////////////////////////////////////////////////
+	//
+	// Extension Owner implementations
+	//
+	@Override
+	public Node getExtensionBase() {
+		return extensionHandler != null ? extensionHandler.get() : null;
+	}
+
+	@Override
+	public void setExtension(final Node base) {
+		if (extensionHandler == null)
+			extensionHandler = new ExtensionHandler(this);
+		extensionHandler.set(base);
+	}
+
+	@Override
+	public ExtensionHandler getExtensionHandler() {
+		return extensionHandler;
 	}
 
 }

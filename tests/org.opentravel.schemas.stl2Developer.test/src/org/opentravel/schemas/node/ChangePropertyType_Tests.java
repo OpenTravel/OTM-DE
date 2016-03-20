@@ -18,19 +18,24 @@
  */
 package org.opentravel.schemas.node;
 
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.model.TLValueWithAttributes;
+import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.LibraryNode;
-import org.opentravel.schemas.node.ModelNode;
-import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.NodeModelTestUtils;
-import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.properties.AttributeNode;
+import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.testUtils.LoadFiles;
+import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,64 +44,156 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class ChangePropertyType_Tests {
-    private final static Logger LOGGER = LoggerFactory.getLogger(ChangePropertyType_Tests.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(ChangePropertyType_Tests.class);
 
-    ModelNode model = null;
-    TestNode nt = new NodeTesters().new TestNode();
-    LoadFiles lf = new LoadFiles();
-    LibraryTests lt = new LibraryTests();
+	ModelNode model = null;
+	TestNode nt = new NodeTesters().new TestNode();
+	LoadFiles lf = new LoadFiles();
+	LibraryTests lt = new LibraryTests();
 
-    @Test
-    public void changePropertyTypeTests() throws Exception {
-        MainController mc = new MainController();
+	private MainController mc;
+	private MockLibrary ml;
+	private DefaultProjectController pc;
+	private ProjectNode defaultProject;
+	private LibraryChainNode lcn;
+	private LibraryNode ln;
+	private TypeProvider aType;
 
-        lf.loadTestGroupA(mc);
-        for (LibraryNode ln : Node.getAllLibraries()) {
-            ln.visitAllNodes(nt);
-            visitAllProperties(ln);
-        }
-        NodeModelTestUtils.testNodeModel();
-    }
+	@Before
+	public void beforeEachTest() {
+		mc = new MainController(); // New one for each test
+		ml = new MockLibrary();
+		pc = (DefaultProjectController) mc.getProjectController();
+		defaultProject = pc.getDefaultProject();
+		lcn = ml.createNewManagedLibrary("test", defaultProject);
+		ln = lcn.getHead();
+		aType = (TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
 
-    public void visitAllProperties(LibraryNode ln) {
-        VisitProperty visitor = new VisitProperty();
-        for (Node n : ln.getDescendants_TypeUsers()) {
-            if (n instanceof PropertyNode)
-                visitor.visit(n);
-        }
-    }
+		Assert.assertNotNull(ln);
+		Assert.assertNotNull(aType);
+		Assert.assertTrue(ln.isEditable());
+		Assert.assertNotNull(lcn);
+	}
 
-    class VisitProperty implements NodeVisitor {
+	@Test
+	public void isValidParentOf_Tests() {
+		// PropertyNode property = null;
+		Node parent = null;
 
-        @Override
-        public void visit(INode n) {
-            if (!(n instanceof PropertyNode))
-                return;
-            PropertyNode p = (PropertyNode) n;
-            switch (p.getPropertyType()) {
-                case ROLE:
-                case ENUM_LITERAL:
-                case SIMPLE:
-                case ALIAS:
-                    return;
-            }
+		// Indicator on VWA
+		VWA_Node vwa = new VWA_Node(new TLValueWithAttributes());
+		parent = (Node) vwa.getAttributeFacet();
+		// property = new IndicatorNode((PropertyOwnerInterface) parent, "ind");
+		// These all should fail
+		Assert.assertFalse(parent.isValidParentOf(PropertyNodeType.INDICATOR_ELEMENT));
+		Assert.assertFalse(parent.isValidParentOf(PropertyNodeType.ROLE));
+		Assert.assertFalse(parent.isValidParentOf(PropertyNodeType.ALIAS));
+		Assert.assertFalse(parent.isValidParentOf(PropertyNodeType.ENUM_LITERAL));
+		Assert.assertFalse(parent.isValidParentOf(PropertyNodeType.ELEMENT));
+		// These should pass
+		Assert.assertTrue(parent.isValidParentOf(PropertyNodeType.ATTRIBUTE));
+		Assert.assertTrue(parent.isValidParentOf(PropertyNodeType.INDICATOR));
+		Assert.assertTrue(parent.isValidParentOf(PropertyNodeType.ID));
+		// CHECK THIS - should this be false?
+		// Assert.assertTrue(parent.isValidParentOf(PropertyNodeType.ID_REFERENCE));
 
-            for (PropertyNodeType t : PropertyNodeType.values()) {
-                switch (t) {
-                    case ELEMENT:
-                    case ID_REFERENCE:
-                    case ATTRIBUTE:
-                    case INDICATOR:
-                    case INDICATOR_ELEMENT:
-                        // LOGGER.debug("Changing " + p.getPropertyType() + " "
-                        // + n.getNameWithPrefix() + " to " + t);
-                        p = p.changePropertyRole(t);
-                        nt.visit(p);
-                        break;
-                }
-                p.getOwningComponent().visitAllNodes(nt);
-            }
-            // LOGGER.debug("Tested " + n + "\n");
-        }
-    }
+		// TODO - add more test cases
+	}
+
+	@Test
+	public void changePropertyRole_Tests() {
+		PropertyNodeType toType = null;
+		PropertyNode property, changed = null;
+		PropertyOwnerInterface parent = null;
+
+		// Indicator on VWA
+		VWA_Node vwa = new VWA_Node(new TLValueWithAttributes());
+		vwa.setName("Vwa");
+		ln.addMember(vwa);
+		parent = vwa.getAttributeFacet();
+		property = new IndicatorNode(parent, "ind");
+		// These all should fail and return the property
+		changed = property.changePropertyRole(PropertyNodeType.INDICATOR_ELEMENT);
+		changed = property.changePropertyRole(PropertyNodeType.ELEMENT);
+		changed = property.changePropertyRole(PropertyNodeType.ENUM_LITERAL);
+		changed = property.changePropertyRole(PropertyNodeType.ROLE);
+		changed = property.changePropertyRole(PropertyNodeType.ALIAS);
+		Assert.assertEquals(property, changed);
+		// Converting to attribute should create new property
+		changed = property.changePropertyRole(PropertyNodeType.ATTRIBUTE);
+		Assert.assertNotEquals(property, changed);
+		nt.visit(changed);
+		// converting back should reuse the previous indicator
+		property = changed;
+		changed = property.changePropertyRole(PropertyNodeType.INDICATOR);
+		Assert.assertNotEquals(property, changed);
+		nt.visit(changed);
+
+		// Attribute on VWA
+		property = new AttributeNode(parent, "Attr1");
+		property.setAssignedType(aType);
+		int whereUsedCount = aType.getWhereUsedCount();
+		changed = property.changePropertyRole(PropertyNodeType.INDICATOR);
+		Assert.assertNotEquals(property, changed);
+		nt.visit(changed);
+		Assert.assertTrue(whereUsedCount > aType.getWhereUsedCount()); // attribute should
+
+		// TODO - add more use cases
+	}
+
+	@Test
+	public void changePropertyTypeTests() throws Exception {
+		MainController mc = new MainController();
+
+		lf.loadTestGroupA(mc);
+		for (LibraryNode ln : Node.getAllLibraries()) {
+			ln.visitAllNodes(nt);
+			visitAllProperties(ln);
+		}
+		NodeModelTestUtils.testNodeModel();
+	}
+
+	public void visitAllProperties(LibraryNode ln) {
+		VisitProperty visitor = new VisitProperty();
+		for (TypeUser n : ln.getDescendants_TypeUsers()) {
+			if (n instanceof PropertyNode)
+				visitor.visit((INode) n);
+		}
+	}
+
+	/**
+	 * Change role of the property then test it.
+	 */
+	class VisitProperty implements NodeVisitor {
+
+		@Override
+		public void visit(INode n) {
+			if (!(n instanceof PropertyNode))
+				return;
+			PropertyNode p = (PropertyNode) n;
+			switch (p.getPropertyType()) {
+			case ROLE:
+			case ENUM_LITERAL:
+			case SIMPLE:
+			case ALIAS:
+				return;
+			}
+
+			for (PropertyNodeType t : PropertyNodeType.values()) {
+				switch (t) {
+				case ELEMENT:
+				case ID_REFERENCE:
+				case ATTRIBUTE:
+				case INDICATOR:
+				case INDICATOR_ELEMENT:
+					LOGGER.debug("Changing " + p.getPropertyType() + " " + n.getNameWithPrefix() + " to " + t);
+					p = p.changePropertyRole(t);
+					nt.visit(p);
+					break;
+				}
+				p.getOwningComponent().visitAllNodes(nt);
+			}
+			// LOGGER.debug("Tested " + n + "\n");
+		}
+	}
 }

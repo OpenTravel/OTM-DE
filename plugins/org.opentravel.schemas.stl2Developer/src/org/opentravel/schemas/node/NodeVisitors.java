@@ -15,7 +15,7 @@
  */
 package org.opentravel.schemas.node;
 
-import org.opentravel.schemas.modelObject.TLEmpty;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -57,8 +57,8 @@ public class NodeVisitors {
 			Node node = (Node) n;
 
 			// Type class - clear out the where used and type class
-			if (node.getTypeClass() != null)
-				node.getTypeClass().clear();
+			// if (node.getTypeClass() != null)
+			// node.getTypeClass().clear();
 
 			// Use override behavior because Library nodes must clear out context.
 			if (node instanceof LibraryNode) {
@@ -90,7 +90,7 @@ public class NodeVisitors {
 
 		@Override
 		public void visit(INode n) {
-			// LOGGER.debug("DeleteVisitor: deleting " + n);
+			LOGGER.debug("DeleteVisitor: deleting " + n);
 			Node node = (Node) n;
 			// String nodeName = n.getName();
 
@@ -114,38 +114,40 @@ public class NodeVisitors {
 				// TODO - does this clean up properly?
 				// Type class - delete the where used and assignments to this type
 				if (n.isTypeProvider()) {
-					node.getTypeClass().delete(); // FIXME - unreachable, libraries are not type providers
+					// node.getTypeClass().delete(); // FIXME - unreachable, libraries are not type providers
 					assert true; // added 2/5/16 to verify unreachable
 				}
 
 			// Remove from where used list
 			// 2/5/16 - FIXME - should rely on listener, if not logic should be delegated to type class
-			if (node.isTypeUser()) {
-				if (node.getTypeClass() != null && node.getTypeClass().getTypeNode() != null
-						&& node.getTypeClass().getTypeNode().getTypeUsers() != null)
-					node.getTypeClass().getTypeNode().getTypeUsers().remove(node);
-			}
+			// if (node instanceof TypeUser) {
+			// if (node.getTypeClass() != null && node.getTypeClass().getTypeNode() != null
+			// && node.getTypeClass().getTypeNode().getTypeUsers() != null)
+			// node.getTypeClass().getTypeNode().getTypeUsers().remove(node);
+			// }
 
 			// Use override behavior because Library nodes must clear out project and context.
-			if (n instanceof LibraryNode) {
+			if (n instanceof LibraryNode)
 				((LibraryNode) n).delete(false); // just the library, not its members
-			}
 
 			// Unlink from tree
 			node.deleted = true;
 			if (node.getParent() != null)
 				node.getParent().remove(node);
 			else
-				LOGGER.warn("Tried to delete " + node + " with no parent.");
+				LOGGER.warn("Warning, tried to delete " + node + " with no parent--skipped remove().");
 
 			node.setParent(null);
 			node.setLibrary(null);
 
 			// Remove the TL entity from the TL Model.
 			if (node.modelObject != null) {
-				ListenerFactory.clearListners(node); // remove any listeners
+				TLModelElement tlObj = node.getTLModelObject();
+				// ListenerFactory.clearListners(node); // remove any listeners
 				node.modelObject.delete();
-				node.modelObject = node.newModelObject(new TLEmpty());
+				// node.modelObject = node.newModelObject(new TLEmpty());
+				ListenerFactory.clearListners(tlObj); // remove any listeners
+				LOGGER.debug("DeleteVisitor: deleted tl object " + node);
 			}
 
 			// LOGGER.debug("DeleteVisitor: deleted  " + nodeName);

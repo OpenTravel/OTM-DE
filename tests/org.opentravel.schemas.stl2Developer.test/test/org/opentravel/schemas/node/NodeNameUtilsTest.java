@@ -33,6 +33,7 @@ import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
 import org.opentravel.schemas.utils.PropertyNodeBuilder;
 
@@ -66,6 +67,28 @@ public class NodeNameUtilsTest {
 	 */
 
 	@Test
+	public void elementAssignedSimpleType() {
+		String typeName = "lowerCase";
+		PropertyNode pn = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).assignVWA("VWA").setName(typeName)
+				.build();
+		String actual = NodeNameUtils.fixElementName(pn);
+		String expected = "LowerCase";
+		assertEquals(expected, actual);
+		assertEquals(expected, pn.getName()); // make sure user could reassign name
+	}
+
+	@Test
+	public void elementAssignedComplexType() {
+		String typeName = "lowerCase";
+		PropertyNode pn = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).assignBuisnessObject("BO")
+				.setName(typeName).build();
+		String actual = NodeNameUtils.fixElementName(pn);
+		String expected = "BO";
+		assertEquals(expected, actual);
+		assertEquals(expected, pn.getName()); // make sure name comes from assigned BO
+	}
+
+	@Test
 	public void elementWithLowerCase() {
 		String typeName = "lowerCase";
 		PropertyNode pn = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).assignVWA("VWA").setName(typeName)
@@ -73,6 +96,7 @@ public class NodeNameUtilsTest {
 		String actual = NodeNameUtils.fixElementName(pn);
 		String expected = "LowerCase";
 		assertEquals(expected, actual);
+		assertEquals(expected, pn.getName());
 	}
 
 	@Test
@@ -89,7 +113,7 @@ public class NodeNameUtilsTest {
 		assert name.getLocalPart().equals(pn.getName());
 
 		// Facets get named by the compiler to use their long name. Make sure GUI matches.
-		pn.setAssignedType((Node) bo.getIDFacet());
+		pn.setAssignedType((TypeProvider) bo.getIDFacet());
 		name = PropertyCodegenUtils.getDefaultSchemaElementName(
 				(NamedEntity) ((Node) bo.getIDFacet()).getTLModelObject(), true);
 		assert name.getLocalPart().equals(pn.getName());
@@ -120,7 +144,7 @@ public class NodeNameUtilsTest {
 		PropertyNode pn = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).makeDetailList(typeName).build();
 		String actual = NodeNameUtils.fixElementName(pn);
 		// will append Detail suffix
-		String expected = XsdCodegenUtils.getGlobalElementName(pn.getTLTypeObject()).getLocalPart();
+		String expected = XsdCodegenUtils.getGlobalElementName(pn.getAssignedTLNamedEntity()).getLocalPart();
 		assertEquals(expected, actual);
 	}
 

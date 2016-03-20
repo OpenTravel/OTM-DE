@@ -37,6 +37,7 @@ import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.types.Type;
+import org.opentravel.schemas.types.TypeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,13 +75,26 @@ public class ChangeTo_Tests {
 	public void changeToVWA() {
 		// ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 		// LibraryChainNode lcn = new LibraryChainNode(ln);
+
+		// Given: business and core objects in a managed library used as types.
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "A");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "B");
-		VWA_Node vwa = null;
-		TLValueWithAttributes tlVwa = null;
+		CoreObjectNode user = ml.addCoreObjectToLibrary(ln, "User");
+		PropertyNode p1 = new ElementNode(user.getSummaryFacet(), "P1");
+		p1.setAssignedType(bo);
+		PropertyNode p2 = new ElementNode(user.getSummaryFacet(), "P2");
+		p2.setAssignedType(core);
+		PropertyNode p3 = new ElementNode(user.getSummaryFacet(), "P3");
+		p3.setAssignedType((TypeProvider) core.getDetailFacet());
+		int boWhereAssignedCount = bo.getWhereUsedAndDescendantsCount();
+		int coreWhereAssignedCount = core.getWhereUsedAndDescendantsCount();
 		tn.visit(core);
 		tn.visit(bo);
 
+		VWA_Node vwa = null;
+		TLValueWithAttributes tlVwa = null;
+
+		// Then a new VWA should be created and be assigned to the same places.
 		vwa = new VWA_Node(bo);
 		tlVwa = (TLValueWithAttributes) vwa.getTLModelObject();
 		Assert.assertEquals("A", vwa.getName());
@@ -88,15 +102,19 @@ public class ChangeTo_Tests {
 		Assert.assertEquals(tlVwa.getAttributes().size(), vwa.getAttributeFacet().getChildren().size());
 		bo.swap(vwa);
 		tn.visit(vwa);
+		Assert.assertEquals(boWhereAssignedCount, vwa.getWhereUsedAndDescendantsCount());
+		Assert.assertEquals(vwa, p1.getAssignedType());
 
 		vwa = new VWA_Node(core);
 		tlVwa = (TLValueWithAttributes) vwa.getTLModelObject();
 		Assert.assertEquals("B", vwa.getName());
 		Assert.assertEquals(core.getSimpleType(), vwa.getSimpleType());
 		Assert.assertEquals(tlVwa.getAttributes().size(), vwa.getAttributeFacet().getChildren().size());
-
 		core.swap(vwa);
 		tn.visit(vwa);
+		Assert.assertEquals(coreWhereAssignedCount, vwa.getWhereUsedAndDescendantsCount());
+		Assert.assertEquals(vwa, p2.getAssignedType());
+		Assert.assertEquals(vwa, p3.getAssignedType());
 	}
 
 	@Test
@@ -166,7 +184,7 @@ public class ChangeTo_Tests {
 		// NodeToReplace is input param
 		Assert.assertEquals(1, nodeToReplace.getTypeUsers().size());
 		LOGGER.debug("Changing selected component: " + nodeToReplace.getName() + " with "
-				+ nodeToReplace.getTypeUsersCount() + " users.");
+				+ nodeToReplace.getWhereUsedCount() + " users.");
 
 		// WHAT THE HECK IS THIS? Why is there only one object?
 		ComponentNode editedNode = nodeToReplace;
@@ -179,7 +197,7 @@ public class ChangeTo_Tests {
 		if (editedNode != nodeToReplace)
 			nodeToReplace.delete();
 
-		LOGGER.debug("Changing Edited component: " + editedNode.getName() + " with " + editedNode.getTypeUsersCount()
+		LOGGER.debug("Changing Edited component: " + editedNode.getName() + " with " + editedNode.getWhereUsedCount()
 				+ " users.");
 		Assert.assertEquals(1, editedNode.getTypeUsers().size());
 		Assert.assertEquals(editedNode, p1.getTypeNode());
@@ -278,10 +296,10 @@ public class ChangeTo_Tests {
 
 					if (aProperty != null) {
 						aPropertyAssignedType = aProperty.getType();
-						aPropertyAssignedType.getTypeUsersCount();
+						aPropertyAssignedType.getWhereUsedCount();
 						aPropertyAssignedType.getTypeUsers();
 						// link to the live list of who uses the assigned type before change
-						aType = aProperty.getTypeClass();
+						// aType = aProperty.getTypeClass();
 					}
 
 					nn = new BusinessObjectNode((CoreObjectNode) cn);
@@ -298,8 +316,9 @@ public class ChangeTo_Tests {
 								break;
 							}
 						}
-						Type newType = newProperty.getTypeClass();
-						Assert.assertNotSame(aType, newType);
+						// Type newType = newProperty.getTypeClass();
+						// Assert.assertNotSame(aType, newType);
+						// FIXME - check type assignments
 					}
 
 					cn.delete(); // close will leave links unchanged which is a problem is a core
@@ -308,7 +327,7 @@ public class ChangeTo_Tests {
 
 					if (newProperty != null) {
 						newAssignedType = newProperty.getType();
-						newAssignedType.getTypeUsersCount();
+						newAssignedType.getWhereUsedCount();
 						newProperty.getType().getTypeUsers();
 
 						// run property tests
@@ -361,6 +380,6 @@ public class ChangeTo_Tests {
 
 	protected void listTypeUsersCounts(LibraryNode ln) {
 		for (Node provider : ln.getDescendentsNamedTypeProviders())
-			LOGGER.debug(provider.getTypeUsersCount() + "\t users of type provider: " + provider);
+			LOGGER.debug(provider.getWhereUsedCount() + "\t users of type provider: " + provider);
 	}
 }

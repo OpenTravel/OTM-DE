@@ -20,33 +20,38 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
-import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.types.ExtensionHandler;
+import org.opentravel.schemas.types.TypeProvider;
 
 // FIXME - should not extend simple type node, simple and enum should extend from abstract simple or simple interface
-public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration, LibraryMemberInterface {
+public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration, LibraryMemberInterface, TypeProvider,
+		ExtensionOwner {
 	// public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration, ExtensionOwner,
 	// VersionedObjectInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(EnumerationClosedNode.class);
 
+	private ExtensionHandler extensionHandler = null;
+
 	public EnumerationClosedNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
+		extensionHandler = new ExtensionHandler(this);
 	}
 
 	public EnumerationClosedNode(EnumerationOpenNode openEnum) {
 		this(new TLClosedEnumeration());
 		if (openEnum.getLibrary() != null) {
-			if (openEnum.getExtendsType() != null)
+			if (openEnum.getExtensionBase() != null)
 				((TLAbstractEnumeration) getTLModelObject()).setExtension(((TLOpenEnumeration) openEnum
 						.getTLModelObject()).getExtension());
 			setLibrary(openEnum.getLibrary());
@@ -58,7 +63,8 @@ public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration
 			getLibrary().getTLaLib().removeNamedMember((LibraryMember) openEnum.getTLModelObject());
 			openEnum.unlinkNode();
 			// If openEnum was being used, the tl model will reassign but not type node
-			openEnum.getTypeClass().replaceTypeProvider(this, null);
+			// FIXME - TESTME
+			// openEnum.getTypeClass().replaceTypeProvider(this, null);
 
 			getLibrary().getSimpleRoot().linkChild(this);
 			// handle version managed libraries
@@ -104,14 +110,14 @@ public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration
 	}
 
 	@Override
-	public ImpliedNode getDefaultType() {
+	public ImpliedNode getRequiredType() {
 		return ModelNode.getDefaultStringNode();
 	}
 
 	@Override
 	public String getLabel() {
 		if (isVersioned())
-			return super.getLabel() + " (Extends version:  " + getExtendsType().getLibrary().getVersion() + ")";
+			return super.getLabel() + " (Extends version:  " + getExtensionBase().getLibrary().getVersion() + ")";
 		return super.getLabel();
 	}
 
@@ -161,24 +167,6 @@ public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration
 	}
 
 	@Override
-	public Node getExtendsType() {
-		// Lazy evaluation: get it from TL object after all nodes generated with listeners.
-		Node nType = ModelNode.getDefaultStringNode(); // Set base type.
-		if (((TLAbstractEnumeration) getTLModelObject()).getExtension() != null) {
-			NamedEntity eType = ((TLAbstractEnumeration) getTLModelObject()).getExtension().getExtendsEntity();
-			nType = GetNode(((TLModelElement) eType).getListeners());
-		}
-		if (getTypeClass().getTypeNode() != nType)
-			getTypeClass().setTypeNode(nType);
-		return getTypeClass().getTypeNode();
-	}
-
-	@Override
-	public void setExtendsType(final INode sourceNode) {
-		getTypeClass().setAssignedBaseType(sourceNode);
-	}
-
-	@Override
 	public void merge(Node source) {
 		if (!(source instanceof EnumerationClosedNode)) {
 			throw new IllegalStateException("Can only merge objects with the same type");
@@ -192,6 +180,27 @@ public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration
 	@Override
 	public boolean isMergeSupported() {
 		return true;
+	}
+
+	// /////////////////////////////////////////////////////////////////
+	//
+	// Extension Owner implementations
+	//
+	@Override
+	public Node getExtensionBase() {
+		return extensionHandler != null ? extensionHandler.get() : null;
+	}
+
+	@Override
+	public void setExtension(final Node base) {
+		if (extensionHandler == null)
+			extensionHandler = new ExtensionHandler(this);
+		extensionHandler.set(base);
+	}
+
+	@Override
+	public ExtensionHandler getExtensionHandler() {
+		return extensionHandler;
 	}
 
 }

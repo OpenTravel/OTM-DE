@@ -37,6 +37,8 @@ import org.opentravel.schemas.trees.type.TypeTreeIdReferenceTypeOnlyFilter;
 import org.opentravel.schemas.trees.type.TypeTreeSimpleTypeOnlyFilter;
 import org.opentravel.schemas.trees.type.TypeTreeVWASimpleTypeOnlyFilter;
 import org.opentravel.schemas.trees.type.TypeTreeVersionSelectionFilter;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -199,11 +201,11 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 		if (setNodeList != null) {
 			for (INode cn : selectionPage.getCurNodeList()) {
 				// LOGGER.debug("Assigning " + sn.getName() + " to list node " + cn.getName());
-				cn.setAssignedType((Node) sn);
+				((TypeUser) cn).setAssignedType((TypeProvider) sn);
 			}
 		} else if (curNode != null) {
 			// LOGGER.debug("Assigning " + selectionPage.getSelectedNode() + " to node " + curNode.getName());
-			curNode.setAssignedType(selectionPage.getSelectedNode());
+			((TypeUser) curNode).setAssignedType((TypeProvider) selectionPage.getSelectedNode());
 		} else
 			return false;
 		return true;

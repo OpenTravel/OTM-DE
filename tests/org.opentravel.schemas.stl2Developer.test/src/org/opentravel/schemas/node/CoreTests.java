@@ -31,6 +31,7 @@ import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
+import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * @author Dave Hollander
@@ -101,9 +102,9 @@ public class CoreTests {
 		Assert.assertTrue(core.getSimpleType() != null);
 		Assert.assertTrue(sfn.getSimpleAttribute().getType() == core.getSimpleType());
 
-		Node aType = NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
-		Assert.assertTrue(core.setAssignedType(aType));
-		Assert.assertTrue(sfn.setAssignedType(aType));
+		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		Assert.assertTrue(core.getSimpleFacet().getSimpleAttribute().setAssignedType(aType));
+		Assert.assertTrue(sfn.getSimpleAttribute().setAssignedType(aType));
 		// works - Assert.assertTrue(sfn.getSimpleAttribute().setAssignedType(aType));
 		Assert.assertTrue(core.setSimpleType(aType));
 		Assert.assertTrue(core.getSimpleType() == aType);
@@ -130,8 +131,6 @@ public class CoreTests {
 		Assert.assertTrue(sp.getType() != null);
 		Assert.assertFalse(sp.getType().getName().isEmpty());
 		// the simple facet and attribute share the type class ... either could be owner
-		Assert.assertTrue(sp.getTypeClass().getTypeOwner() == sp
-				|| sp.getTypeClass().getTypeOwner() == core.getSimpleFacet());
 		Assert.assertTrue(sp.getLibrary() == core.getLibrary());
 
 		Assert.assertNotNull(core.getSimpleFacet());
@@ -148,7 +147,6 @@ public class CoreTests {
 			Assert.assertTrue(property instanceof PropertyNode);
 			Assert.assertTrue(property.getType() != null);
 			Assert.assertFalse(property.getType().getName().isEmpty());
-			Assert.assertTrue(property.getTypeClass().getTypeOwner() == property);
 			Assert.assertTrue(property.getLibrary() == core.getLibrary());
 		}
 

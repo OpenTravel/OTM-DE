@@ -23,6 +23,7 @@ import org.opentravel.schemacompiler.saver.LibraryModelSaver;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.util.URLUtils;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.utils.BaseProjectTest;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
@@ -98,6 +99,7 @@ public class ProjectNodeTest extends BaseProjectTest {
 		Assert.assertFalse(attrWithSO.isUnAssigned());
 		Node reloadedBaseSimpleObject = mc.getModelController().getModel()
 				.findNode(baseSimpleObjectName, baseSimpleObjectNamespace);
-		Assert.assertSame(reloadedBaseSimpleObject, attrWithSO.getAssignedType());
+		Assert.assertSame(reloadedBaseSimpleObject, attrWithSO);
+		Assert.assertSame(((TypeUser) reloadedBaseSimpleObject).getAssignedType(), attrWithSO.getAssignedType());
 	}
 }

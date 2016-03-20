@@ -57,6 +57,8 @@ import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -218,16 +220,26 @@ public class MockLibrary {
 	/**
 	 * @return new business object or null if library is not editable
 	 */
-	public BusinessObjectNode addBusinessObjectToLibrary(LibraryNode ln, String name) {
+	public BusinessObjectNode addBusinessObjectToLibrary_Empty(LibraryNode ln, String name) {
 		if (name.isEmpty())
 			name = "TestBO";
-		Node string = NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE);
 
 		BusinessObjectNode newNode = (BusinessObjectNode) NodeFactory.newComponent(new TLBusinessObject());
 		newNode.setName(name);
 		ln.addMember(newNode);
 		newNode.setExtensible(true);
+		return ln.isEditable() ? newNode : null;
+	}
 
+	/**
+	 * @return new business object with 2 properties or null if library is not editable
+	 */
+	public BusinessObjectNode addBusinessObjectToLibrary(LibraryNode ln, String name) {
+		BusinessObjectNode newNode = addBusinessObjectToLibrary_Empty(ln, name);
+		if (newNode == null)
+			return null;
+
+		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE);
 		PropertyNode newProp = new ElementNode(newNode.getIDFacet(), "TestID");
 		newProp.setAssignedType(string);
 
@@ -279,21 +291,21 @@ public class MockLibrary {
 		CoreObjectNode n2 = (CoreObjectNode) NodeFactory.newComponent(new TLCoreObject());
 		n2.setName("N2");
 		ln.addMember(n2);
-		n2.setSimpleType(NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
+		n2.setSimpleType((TypeProvider) NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
 		PropertyNode n2Prop = new ElementNode(n2.getSummaryFacet(), n1.getName());
 		n2Prop.setAssignedType(n1);
 
 		CoreObjectNode n3 = (CoreObjectNode) NodeFactory.newComponent(new TLCoreObject());
 		n3.setName("N3");
 		ln.addMember(n3);
-		n3.setSimpleType(NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
-		PropertyNode n3PropA = new ElementNode(n3.getSummaryFacet(), n1.getName());
+		n3.setSimpleType((TypeProvider) NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
+		TypeUser n3PropA = new ElementNode(n3.getSummaryFacet(), n1.getName());
 		n3PropA.setAssignedType(n1);
 		PropertyNode n3PropB = new ElementNode(n3.getSummaryFacet(), n2.getName());
-		n3PropB.setAssignedType((Node) n2.getSummaryFacet());
+		n3PropB.setAssignedType((TypeProvider) n2.getSummaryFacet());
 
-		PropertyNode newProp = new ElementNode(n1.getIDFacet(), "TestID");
-		newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+		TypeUser newProp = new ElementNode(n1.getIDFacet(), "TestID");
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
 		newProp = new ElementNode(n1.getSummaryFacet(), n2.getName());
 		newProp.setAssignedType(n2);
 		newProp = new ElementNode(n1.getSummaryFacet(), "TestSumB");
@@ -301,15 +313,20 @@ public class MockLibrary {
 		return n1;
 	}
 
-	public CoreObjectNode addCoreObjectToLibrary(LibraryNode ln, String name) {
+	public CoreObjectNode addCoreObjectToLibrary_Empty(LibraryNode ln, String name) {
 		if (name.isEmpty())
 			name = "TestCore";
 		CoreObjectNode newNode = (CoreObjectNode) NodeFactory.newComponent(new TLCoreObject());
 		newNode.setName(name);
-		newNode.setSimpleType(NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
-		PropertyNode newProp = new ElementNode(newNode.getSummaryFacet(), "TestElement");
-		newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+		newNode.setSimpleType((TypeProvider) NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
 		ln.addMember(newNode);
+		return newNode;
+	}
+
+	public CoreObjectNode addCoreObjectToLibrary(LibraryNode ln, String name) {
+		CoreObjectNode newNode = addCoreObjectToLibrary_Empty(ln, name);
+		TypeUser newProp = new ElementNode(newNode.getSummaryFacet(), "TestElement");
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
 		return newNode;
 	}
 
@@ -321,7 +338,7 @@ public class MockLibrary {
 			name = "SimpleType";
 		SimpleTypeNode sn = new SimpleTypeNode(new TLSimple());
 		sn.setName(name);
-		sn.setAssignedType(NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
+		sn.setAssignedType((TypeProvider) NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
 		ln.addMember(sn);
 		return sn;
 	}
@@ -331,9 +348,9 @@ public class MockLibrary {
 			name = "TestVWA";
 		VWA_Node newNode = (VWA_Node) NodeFactory.newComponent(new TLValueWithAttributes());
 		newNode.setName(name);
-		newNode.setSimpleType(NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE));
+		newNode.setSimpleType((TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE));
 		PropertyNode newProp = new AttributeNode(newNode.getAttributeFacet(), "TestAttribute");
-		newProp.setAssignedType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
 		ln.addMember(newNode);
 		return newNode;
 	}
@@ -383,7 +400,7 @@ public class MockLibrary {
 	public ExtensionPointNode addExtensionPoint(LibraryNode ln, FacetNode facet) {
 		ExtensionPointNode ep = new ExtensionPointNode(new TLExtensionPointFacet());
 		ln.addMember(ep);
-		ep.setExtendsType(facet);
+		ep.setExtension(facet);
 		return ep;
 	}
 }

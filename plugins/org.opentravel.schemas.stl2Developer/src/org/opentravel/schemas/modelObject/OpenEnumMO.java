@@ -90,7 +90,7 @@ public class OpenEnumMO extends ModelObject<TLOpenEnumeration> {
 	 */
 	private List<TLEnumValue> getInheritedValues() {
 		List<TLEnumValue> valueList = new ArrayList<TLEnumValue>();
-		TLOpenEnumeration tlOE = getTLModelObj();
+		// TLOpenEnumeration tlOE = getTLModelObj();
 		TLAbstractEnumeration oe = getExtension(getTLModelObj());
 		while (oe != null) {
 			valueList.addAll(oe.getValues());
@@ -109,6 +109,30 @@ public class OpenEnumMO extends ModelObject<TLOpenEnumeration> {
 		return oe.getExtension() != null ? oe = (TLAbstractEnumeration) oe.getExtension().getExtendsEntity() : null;
 	}
 
+	/**
+	 * @see org.opentravel.schemas.modelObject.ModelObject#getExtendsType()
+	 */
+	@Override
+	public String getExtendsType() {
+		TLExtension tlExtension = getTLModelObj().getExtension();
+		String extendsTypeName = "";
+
+		if (tlExtension != null) {
+			if (tlExtension.getExtendsEntity() != null)
+				extendsTypeName = tlExtension.getExtendsEntity().getLocalName();
+			else
+				extendsTypeName = "--base type can not be found--";
+		}
+		return extendsTypeName;
+	}
+
+	@Override
+	public String getExtendsTypeNS() {
+		TLExtension tlExtension = getTLModelObj().getExtension();
+		return tlExtension == null || tlExtension.getExtendsEntity() == null ? "" : tlExtension.getExtendsEntity()
+				.getNamespace();
+	}
+
 	@Override
 	public String getName() {
 		return getTLModelObj().getName();
@@ -117,6 +141,11 @@ public class OpenEnumMO extends ModelObject<TLOpenEnumeration> {
 	@Override
 	public String getNamespace() {
 		return getTLModelObj().getNamespace();
+	}
+
+	@Override
+	public NamedEntity getTLBase() {
+		return srcObj.getExtension() != null ? srcObj.getExtension().getExtendsEntity() : null;
 	}
 
 	@Override
@@ -168,6 +197,23 @@ public class OpenEnumMO extends ModelObject<TLOpenEnumeration> {
 	public boolean setName(final String name) {
 		getTLModelObj().setName(name);
 		return true;
+	}
+
+	/**
+	 * Is this Enum extended by <i>extension</i>? VWA does not use an TL extension handler. Use the parentType
+	 */
+	@Override
+	public boolean isExtendedBy(NamedEntity extension) {
+		if (extension == null || !(extension instanceof TLOpenEnumeration))
+			return false;
+		if (extension.getValidationIdentity() == null)
+			return false;
+
+		if (getTLModelObj() != null)
+			if (getTLModelObj().getExtension() != null)
+				if (getTLModelObj().getExtension().getValidationIdentity() != null)
+					return getTLModelObj().getExtension().getExtendsEntity() == extension;
+		return false;
 	}
 
 	@Override

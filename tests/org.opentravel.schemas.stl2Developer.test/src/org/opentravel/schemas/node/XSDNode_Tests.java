@@ -133,15 +133,16 @@ public class XSDNode_Tests {
 			String an = st.getTypeName();
 			if (an.isEmpty())
 				an = "Empty";
-			String tn = st.getTypeClass().getTypeNode().getName();
-			if (!(st.getTypeClass().getTypeNode() instanceof ImpliedNode))
-				Assert.assertEquals(tn, an);
-			Assert.assertFalse(an.isEmpty());
-			// Check type namespace
-			String anp = st.getAssignedPrefix();
-			String tnp = st.getTypeClass().getTypeNode().getNamePrefix();
-			if (!(st.getTypeClass().getTypeNode() instanceof ImpliedNode))
-				Assert.assertEquals(tnp, anp);
+			// st.getAssignedType().getName();
+			// String tn = st.getTypeClass().getTypeNode().getName();
+			// if (!(st.getTypeClass().getTypeNode() instanceof ImpliedNode))
+			// Assert.assertEquals(tn, an);
+			// Assert.assertFalse(an.isEmpty());
+			// // Check type namespace
+			// String anp = st.getAssignedPrefix();
+			// String tnp = st.getTypeClass().getTypeNode().getNamePrefix();
+			// if (!(st.getTypeClass().getTypeNode() instanceof ImpliedNode))
+			// Assert.assertEquals(tnp, anp);
 			// Prefixes can be empty
 		}
 	}

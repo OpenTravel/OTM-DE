@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemas.node.ModelNode;
+import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.controllers.NodeImageProvider;
 import org.opentravel.schemas.node.controllers.NodeLabelProvider;
@@ -30,28 +30,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Creates a tree anchored to the type object on a ComponentNode to represent
- * users of a NamedType.
+ * Creates a tree branch anchored to the type object on a Node to represent users of a NamedType. Leaves are computed
+ * from the nodes where used data.
  * 
  * @author Dave Hollander
- * 
- */
-/**
- * TODO - Stop using the node tree! Use the "mistletoe" pattern making WhereUsed a separate tree parasitic on the main
- * tree. In libraryTreeContentProvider, inspect "typeProviders" to get the Users data from this structure. This should
- * Type Class--Type class can hold the TypeNode and its children.
- * 
- * Inline labelProvider in this class and use it in the libraryTreeLabelProvider. replace lable provider to children so
- * that the type and property are seen. Then don't use getOwningComponent. create a where used child node such that it
- * can be assigned behavior and stay out of children trees easier! expose the implied types as children of Model figure
- * how how to respond to inheritedChildren in libraryContentProvider
  * 
  */
 public class TypeNode extends Node {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TypeNode.class);
 
 	public enum TypeNodeType {
-		OWNER, USER
+		OWNER, USER, LIB
 	}
 
 	private NodeImageProvider imageProvider = simpleImageProvider("WhereUsed");
@@ -62,16 +51,22 @@ public class TypeNode extends Node {
 	/**
 	 * Create a new Where Used complete with new TL model and link to component
 	 */
-	public TypeNode(final Node parent) {
-		this.owner = parent;
+	public TypeNode(final TypeProvider parent) {
+		this.owner = (Node) parent;
+	}
+
+	public TypeNode(final LibraryNode lib) {
+		this.owner = lib;
 	}
 
 	public TypeNode(Node typeNode, TypeNodeType nodeType) {
 		this.owner = typeNode; // The user of this type
 		this.nodeType = nodeType;
-		String label = typeNode.getOwningComponent().getName();
-		if (typeNode.isNamedType())
-			label = typeNode.getComponentType();
+		String label = "";
+		if (typeNode.getOwningComponent() != null)
+			label = typeNode.getOwningComponent().getName();
+		// if (typeNode.isNamedType())
+		// label = typeNode.getComponentType();
 		labelProvider = simpleLabelProvider(label + " : " + typeNode.getName());
 		if (typeNode.isProperty())
 			imageProvider = nodeImageProvider(typeNode.getOwningComponent());
@@ -79,38 +74,26 @@ public class TypeNode extends Node {
 			imageProvider = nodeImageProvider(typeNode);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isEditable()
-	 */
+	public TypeNode(Node typeNode, Node owner2, TypeNodeType nodeType) {
+		this(typeNode, nodeType);
+		this.parent = owner2;
+	}
+
 	@Override
 	public boolean isEditable() {
 		return owner.isEditable();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#getParent()
-	 */
 	@Override
 	public Node getParent() {
 		Node p = owner;
-		// Make sure the nodes are real and live.
-		if (owner.getLibrary() == null)
-			p = owner.getParent();
-		if (p == null || p.getLibrary() == null || p.isDeleted())
-			// owner is not part of a library, make sure it is not in the unassigned list
-			ModelNode.getUnassignedNode().getTypeUsers().remove(owner);
 		return p;
 	}
 
 	@Override
 	public String getLabel() {
-		return getParent() == null ? labelProvider.getLabel() : labelProvider.getLabel() + " ("
-				+ getParent().getComponentUsersCount() + ")";
-		// return labelProvider.getLabel();
+		return owner instanceof TypeProvider ? labelProvider.getLabel() + " ("
+				+ ((TypeProvider) owner).getWhereUsedCount() + ")" : labelProvider.getLabel();
 	}
 
 	@Override
@@ -138,21 +121,26 @@ public class TypeNode extends Node {
 	@Override
 	public List<Node> getChildren() {
 		List<Node> users = new ArrayList<Node>();
-		// HashSet<Node> users = new HashSet<Node>();
-		// for (Node e : owner.getTypeClass().getComponentUsers())
-		// users.add(e.getOwningComponent());
-		if (owner == null) {
+		if (owner == null)
 			return Collections.emptyList();
-		}
-		for (Node e : owner.getTypeClass().getComponentUsers())
-			users.add(new TypeNode(e.getTypeClass().getTypeOwner(), TypeNodeType.USER));
-		// for (Node n : users) uniqueUsers.add(n);
+		if (owner instanceof TypeProvider)
+			for (Node u : ((TypeProvider) owner).getWhereUsedAndDescendants())
+				users.add(new TypeNode(u, TypeNodeType.USER));
+		else if (owner instanceof LibraryNode)
+			if (nodeType.equals(TypeNodeType.OWNER))
+				for (Node l : ((LibraryNode) owner).getWhereUsedHandler().getWhereUsed())
+					users.add(new TypeNode(l, owner, TypeNodeType.LIB));
+			else
+				for (Node l : ((LibraryNode) parent).getWhereUsedHandler().getUsersOfTypesFromOwnerLibrary(
+						(LibraryNode) owner))
+					users.add(new TypeNode((Node) l, TypeNodeType.USER));
 		return users;
 	}
 
 	@Override
 	public boolean hasChildren() {
-		return true;
+		return nodeType == TypeNodeType.OWNER;
+		// return true; // fixme - only type OWNER has children
 	}
 
 	private NodeImageProvider simpleImageProvider(final String imageName) {
@@ -197,11 +185,6 @@ public class TypeNode extends Node {
 		return nodeType.equals(TypeNodeType.USER) ? true : false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#sort()
-	 */
 	@Override
 	public void sort() {
 		getParent().sort();

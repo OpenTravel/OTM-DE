@@ -42,4 +42,6 @@ public interface INodeListener extends ModelElementListener {
 
 	public Node getAffectedNode(OwnershipEvent<?, ?> event);
 
+	public Node getSource(OwnershipEvent<?, ?> event);
+
 }

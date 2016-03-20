@@ -59,6 +59,7 @@ import org.opentravel.schemas.preferences.GeneralPreferencePage;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.TypeResolver;
+import org.opentravel.schemas.types.WhereUsedLibraryHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,6 +90,8 @@ public class LibraryNode extends Node {
 	protected ServiceNode serviceRoot;
 	protected NavNode resourceRoot;
 
+	protected WhereUsedLibraryHandler whereUsedHandler = null;
+
 	protected AbstractLibrary absTLLibrary; // Underlying TL library model object
 	protected TLLibrary genTLLib = null; // TL library for generated components.
 	protected ProjectItem projectItem; // The TL Project Item wrapped around this library
@@ -112,6 +115,13 @@ public class LibraryNode extends Node {
 		nsHandler = NamespaceHandler.getNamespaceHandler((ProjectNode) parent);
 		this.setNamespace(parent.getNamespace());
 		// LOGGER.debug("Created empty library without underlying model");
+
+	}
+
+	public WhereUsedLibraryHandler getWhereUsedHandler() {
+		if (whereUsedHandler == null)
+			whereUsedHandler = new WhereUsedLibraryHandler(this);
+		return whereUsedHandler;
 	}
 
 	/**
@@ -314,13 +324,16 @@ public class LibraryNode extends Node {
 		// LOGGER.debug("Imported " + sourceToNewMap.size() + " nodes. Ready to fix type assignments.");
 
 		// Change type users to use the imported nodes.
+		LibraryNode scopeLib = this;
+		if (global)
+			scopeLib = null;
 		for (final Entry<Node, Node> entry : sourceToNewMap.entrySet()) {
 			final Node sourceNode = entry.getKey();
 			imported.add(entry.getValue());
-			if (global)
-				sourceNode.replaceTypesWith(entry.getValue());
-			else
-				sourceNode.replaceTypesWith(entry.getValue(), this);
+			// if (global)
+			// sourceNode.replaceTypesWith(entry.getValue());
+			// else
+			sourceNode.replaceTypesWith(entry.getValue(), scopeLib);
 		}
 
 		return imported;
@@ -354,8 +367,7 @@ public class LibraryNode extends Node {
 
 		collapseContexts();
 
-		TypeResolver tr = new TypeResolver();
-		tr.resolveTypes(this);
+		new TypeResolver().resolveTypes(this);
 
 		// LOGGER.info("ImportNodes() imported " + sourceToNewMap.size() + " nodes. ");
 		return sourceToNewMap;
@@ -387,6 +399,8 @@ public class LibraryNode extends Node {
 			return null;
 		}
 
+		// FIXME - rip out all this context handling and just use this library's context
+		//
 		// Re-map context ID's in the cloned object and copy over any contexts for the target
 		// library that
 		// do not already exist
@@ -698,7 +712,7 @@ public class LibraryNode extends Node {
 				hasXsd = true;
 				if (n == null) {
 					xn = new XsdNode(mbr, this);
-					n = xn.getOtmModelChild();
+					n = xn.getOtmModel();
 					xn.setXsdType(true);
 				}
 				if (n == null)
@@ -721,7 +735,7 @@ public class LibraryNode extends Node {
 			Node n = GetNode(mbr); // use node if member is already modeled.
 			if (n == null) {
 				final XsdNode xn = new XsdNode(mbr, this);
-				n = xn.getOtmModelChild();
+				n = xn.getOtmModel();
 				xn.setXsdType(true);
 				n.setXsdType(true);
 			}
@@ -1022,7 +1036,7 @@ public class LibraryNode extends Node {
 		n.unlinkNode();
 		n.getLibrary().getTLLibrary().removeNamedMember((LibraryMember) n.getTLModelObject());
 		n.setLibrary(null);
-		n.fixAssignments();
+		// n.fixAssignments();
 	}
 
 	@Override
@@ -1371,7 +1385,7 @@ public class LibraryNode extends Node {
 				if (c instanceof SimpleTypeNode)
 					namedKids.add((SimpleTypeNode) c);
 				else if (c instanceof XsdNode && c.isSimpleType())
-					namedKids.add((SimpleTypeNode) ((XsdNode) c).getOtmModelChild());
+					namedKids.add((SimpleTypeNode) ((XsdNode) c).getOtmModel());
 			} else if (c.isNavigation())
 				namedKids.addAll(getNamedSimpleTypes(c));
 		}
@@ -1488,11 +1502,10 @@ public class LibraryNode extends Node {
 
 	/**
 	 * Get all type providers within library. Includes simple and complex objects only. Does NOT return any
-	 * local-anonymous types.
+	 * local-anonymous types. // FIXME - this method also is in Node. One in node does not include services.
 	 * 
 	 * @return
 	 */
-	// FIXME - this method also is in Node
 	@Deprecated
 	public List<Node> getDescendentsNamedTypes() {
 		ArrayList<Node> namedTypeProviders = new ArrayList<Node>();

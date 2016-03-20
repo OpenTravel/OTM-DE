@@ -56,6 +56,7 @@ import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 
 /**
@@ -82,10 +83,13 @@ public class NodeFactory {
 		ComponentNode newNode = newComponent_UnTyped(mbr);
 		if (newNode != null) {
 			if (newNode instanceof TypeUser)
-				newNode.getTypeClass().setAssignedTypeForThisNode(newNode);
-			for (Node n : newNode.getDescendants_TypeUsers()) {
-				n.getTypeClass().setAssignedTypeForThisNode(n);
-			}
+				// newNode.getTypeClass().setAssignedTypeForThisNode(newNode);
+				// ((TypeUser)newNode).setAssignedType(n)
+				for (TypeUser n : newNode.getDescendants_TypeUsers()) {
+					// ((Node) n).getTypeClass().setAssignedTypeForThisNode((Node) n);
+				}
+			// FIXME - use a type handler to get QName from documentation or MUCH simpler setter.
+			// Used in tests and Extension Wizard
 		}
 		return newNode;
 	}
@@ -99,8 +103,9 @@ public class NodeFactory {
 	 */
 	public static ComponentNode newComponent(LibraryMember mbr, INode type) {
 		ComponentNode newNode = newComponent_UnTyped(mbr);
-		if (newNode.isTypeUser())
-			newNode.setAssignedType((Node) type);
+		// if (newNode.isTypeUser() && type instanceof TypeProvider)
+		if (newNode instanceof TypeUser && type instanceof TypeProvider)
+			((TypeUser) newNode).setAssignedType((TypeProvider) type);
 		return newNode;
 	}
 
@@ -258,6 +263,7 @@ public class NodeFactory {
 			// + tlObj.getClass().getSimpleName());
 		}
 		if (parent != null && nn.getParent() == null) {
+			NodeNameUtils.fixName(nn); // make sure the name is legal (2/2016)
 			((Node) parent).linkChild(nn, false);
 			nn.setLibrary(parent.getLibrary());
 		}

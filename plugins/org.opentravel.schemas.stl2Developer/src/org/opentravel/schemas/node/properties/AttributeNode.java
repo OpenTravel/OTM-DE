@@ -37,16 +37,16 @@ import org.opentravel.schemas.types.TypeUser;
  * @author Dave Hollander
  * 
  */
-public class AttributeNode extends PropertyNode implements TypeUser {
+public class AttributeNode extends PropertyNode {
 
 	public AttributeNode(PropertyOwnerInterface parent, String name) {
 		super(new TLAttribute(), (Node) parent, name, PropertyNodeType.ATTRIBUTE);
-		setAssignedType(ModelNode.getUnassignedNode());
+		setAssignedType((TypeProvider) ModelNode.getUnassignedNode());
 	}
 
 	public AttributeNode(PropertyOwnerInterface parent, String name, PropertyNodeType type) {
 		super(new TLAttribute(), (Node) parent, name, type);
-		setAssignedType(ModelNode.getUnassignedNode());
+		setAssignedType((TypeProvider) ModelNode.getUnassignedNode());
 	}
 
 	public AttributeNode(TLModelElement tlObj, PropertyOwnerInterface parent) {
@@ -88,12 +88,25 @@ public class AttributeNode extends PropertyNode implements TypeUser {
 		TLAttribute tlObj = (TLAttribute) cloneTLObj();
 		int index = indexOfNode();
 		Node n = new AttributeNode(tlObj, null);
-		((TLAttribute) getTLModelObject()).getAttributeOwner().addAttribute(index, tlObj);
+		((TLAttribute) getTLModelObject()).getOwner().addAttribute(index, tlObj);
 		n.setName(type.getName(), false);
 		getParent().linkChild(n, index);
 		n.setDescription(type.getDescription());
-		n.setAssignedType(type);
+		if (type instanceof TypeProvider)
+			((TypeUser) n).setAssignedType((TypeProvider) type);
 		return n;
+	}
+
+	/**
+	 * Override to provide GUI assist: Since attributes can be renamed, there is no need to use the alias. Aliases are
+	 * not TLAttributeType members so the GUI assist must convert before assignment.
+	 */
+	@Override
+	public boolean setAssignedType(TypeProvider provider) {
+		if (provider instanceof AliasNode)
+			provider = (TypeProvider) ((Node) provider).getOwningComponent();
+		return typeHandler.set(provider);
+		// return getTypeClass().setAssignedType(replacement);
 	}
 
 	@Override
@@ -151,10 +164,10 @@ public class AttributeNode extends PropertyNode implements TypeUser {
 		return parent != null && parent.isVWA_AttributeFacet() ? false : true;
 	}
 
-	@Override
-	public boolean isTypeUser() {
-		return true;
-	}
+	// @Override
+	// public boolean isTypeUser() {
+	// return true;
+	// }
 
 	@Override
 	public void setName(String name) {

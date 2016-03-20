@@ -116,6 +116,14 @@ public class LibraryChainNode extends Node {
 		resourceRoot = new AggregateNode(AggregateType.RESOURCES, this);
 	}
 
+	private void setAggregateLibrary(LibraryNode ln) {
+		versions.setLibrary(ln);
+		complexRoot.setLibrary(ln);
+		simpleRoot.setLibrary(ln);
+		serviceRoot.setLibrary(ln);
+		resourceRoot.setLibrary(ln);
+	}
+
 	/**
 	 * Create a new chain and add to passed project. Model the project item and add to the new chain.
 	 * 
@@ -147,10 +155,11 @@ public class LibraryChainNode extends Node {
 			throw (new IllegalStateException("Could not get chain from project manager."));
 		}
 
-		for (ProjectItem item : piChain) {
+		for (ProjectItem item : piChain)
 			add(item);
-		}
-		// unneeded - setLibrary(getHead());
+
+		// Now that we know what is the head library, set that in the aggregates
+		setAggregateLibrary(getHead());
 	}
 
 	/**
@@ -162,13 +171,6 @@ public class LibraryChainNode extends Node {
 	public LibraryNode add(ProjectItem pi) {
 		// If the chain already has this PI, skip it.
 		LibraryNode newLib = versions.get(pi);
-		// for (Node n : versions.getChildren()) {
-		// if ((n instanceof LibraryNode))
-		// if (pi.equals(((LibraryNode) n).getProjectItem())) {
-		// newLib = (LibraryNode) n;
-		// break;
-		// } // todo - delegate to versionAggegateNode.contains(pi)
-		// }
 
 		if (newLib == null) {
 			// LOGGER.debug("Adding pi " + pi.getFilename() + " to chain " + getLabel());
@@ -191,10 +193,6 @@ public class LibraryChainNode extends Node {
 	public boolean isLaterVersion(Node node1, Node node2) {
 		return node1.getLibrary().getTLaLib().isLaterVersion(node2.getLibrary().getTLaLib());
 	}
-
-	// public boolean isNewer(LibraryNode ref, LibraryNode test) {
-	// return ref == null || test.getTLaLib().isLaterVersion(ref.getTLaLib()) ? true : false;
-	// }
 
 	/**
 	 * Add the passed node to the appropriate chain aggregate. Wrap the node in a version node in the library's children

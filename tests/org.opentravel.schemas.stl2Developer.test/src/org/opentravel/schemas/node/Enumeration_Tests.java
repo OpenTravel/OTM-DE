@@ -18,6 +18,10 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,10 +29,12 @@ import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
+import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * @author Dave Hollander
@@ -82,6 +88,24 @@ public class Enumeration_Tests {
 	}
 
 	@Test
+	public void enumLiterals() {
+		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		EnumerationOpenNode openEnum = ml.addOpenEnumToLibrary(ln, "OpenEnum");
+		EnumerationClosedNode closedEnum = ml.addClosedEnumToLibrary(ln, "ClosedEnum");
+
+		EnumLiteralNode lit1 = new EnumLiteralNode(openEnum, "lit1");
+		EnumLiteralNode lit2 = new EnumLiteralNode(openEnum, "lit2");
+
+		assertNotNull("Must have assigned type.", lit1.getAssignedType());
+		assertNotNull("Must have assigned type.", lit2.getAssignedType());
+
+		TypeProvider type = lit1.getAssignedType();
+		assertEquals("Must be required type.", lit1.getRequiredType(), type);
+		type = lit2.getAssignedType();
+		assertEquals("Must be required type.", lit2.getRequiredType(), type);
+	}
+
+	@Test
 	public void changeEnumsManaged() throws Exception {
 		LibraryChainNode lcn = ml.createNewManagedLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 		ln = lcn.getHead();
@@ -96,5 +120,42 @@ public class Enumeration_Tests {
 		NodeTesters tt = new NodeTesters();
 		tt.visitAllNodes(ln);
 
+	}
+
+	@Test
+	public void enumBaseTypes() throws Exception {
+		LibraryChainNode lcn = ml.createNewManagedLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		ln = lcn.getHead();
+
+		// Given - 4 enums
+		EnumerationOpenNode openBase = ml.addOpenEnumToLibrary(ln, "OpenEnum");
+		EnumLiteralNode ob1 = new EnumLiteralNode(openBase, "b1");
+		EnumLiteralNode ob2 = new EnumLiteralNode(openBase, "b2");
+		EnumerationClosedNode closedBase = ml.addClosedEnumToLibrary(ln, "ClosedEnum");
+		EnumLiteralNode cb1 = new EnumLiteralNode(closedBase, "c1");
+		EnumLiteralNode cb2 = new EnumLiteralNode(closedBase, "c2");
+		EnumerationOpenNode openExt = ml.addOpenEnumToLibrary(ln, "OpenEnum");
+		EnumLiteralNode oe1 = new EnumLiteralNode(openBase, "e1");
+		EnumerationClosedNode closedExt = ml.addClosedEnumToLibrary(ln, "ClosedEnum");
+
+		// getExtendsTypeName used in FacetView
+		assertTrue("Not extened will be empty", openBase.getExtendsTypeName().isEmpty());
+		assertTrue("Not extened will be empty", openExt.getExtendsTypeName().isEmpty());
+		assertTrue("Not extened will be empty", closedBase.getExtendsTypeName().isEmpty());
+		assertTrue("Not extened will be empty", closedExt.getExtendsTypeName().isEmpty());
+
+		// When - extend base with ext
+		openExt.setExtension(openBase);
+		closedExt.setExtension(closedBase);
+
+		// Then
+		assertTrue("Extension name is not empty", !openExt.getExtendsTypeName().isEmpty());
+		assertTrue("Ext extends base", openExt.getExtensionBase() == openBase);
+		assertTrue("Extension name is not empty", !closedExt.getExtendsTypeName().isEmpty());
+		assertTrue("Ext extends base", closedExt.getExtensionBase() == closedBase);
+
+		// TODO - test inherited children
+		assertTrue("Must have inherited children", !openExt.getInheritedChildren().isEmpty());
+		assertTrue("Must have inherited children", !closedExt.getInheritedChildren().isEmpty());
 	}
 }

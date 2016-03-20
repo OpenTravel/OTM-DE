@@ -28,7 +28,7 @@ import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.node.listeners.ResourceModelEventListener;
+import org.opentravel.schemas.node.listeners.NodeModelEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,22 +112,6 @@ public class ModelNode extends Node {
 		project.setParent(this);
 	}
 
-	// /**
-	// * Model the set of libraries returned from the compilier's loader. Note -
-	// * the newTLLib list may contain already modeled libraries. Create nodes,
-	// * set up contexts, resolve type references.
-	// *
-	// * @param libs
-	// */
-	// // TODO - refactor. This is really named wrong since it resolves types
-	// // TODO - only used in testing. replace then delete this method.
-	// public LibraryNode addLibraries(final List<AbstractLibrary> newTLLibs) {
-	// return null;
-	// // return addLibraries(newTLLibs,
-	// // Node.getModelNode().getDefaultProject());
-	//
-	// }
-
 	/**
 	 * @return the atomicTypeNode
 	 */
@@ -179,7 +163,7 @@ public class ModelNode extends Node {
 	}
 
 	public void addListeners() {
-		tlModel.addListener(new ResourceModelEventListener());
+		tlModel.addListener(new NodeModelEventListener());
 	}
 
 	/*
@@ -230,31 +214,6 @@ public class ModelNode extends Node {
 		return true;
 	}
 
-	// public void removeAllLibraries() {
-	// LOGGER.debug("ModelNode:removeLibraries() - " + getChildren().size());
-	// for (LibraryNode ln : Node.getAllUserLibraries()) {
-	// ln.delete();
-	// }
-	// }
-
-	// public void printLibraryPaths() {
-	// LOGGER.debug("ModelNode:printLibraryPaths()");
-	// for (final INode n : getChildren()) {
-	// if (n instanceof LibraryNode) {
-	// LOGGER.debug("\t" + n.getName() + "\tURL = "
-	// + ((LibraryNode) n).getPath());
-	// }
-	// }
-	// }
-
-	// public void clearModel() {
-	// // TODO - clear all projects in ProjectController first.
-	// getTLModel().clearModel();
-	// getChildren().clear();
-	// typeProviders = 0;
-	// typeUsers = 0;
-	// }
-
 	@Override
 	public String getName() {
 		return name;
@@ -274,19 +233,6 @@ public class ModelNode extends Node {
 	public boolean isDeleteable() {
 		return false;
 	}
-
-	// /**
-	// * @deprecated {@link Type.typeUsers()}
-	// */
-	// @Deprecated
-	// @Override
-	// public List<Node> getWhereUsed(final INode source, boolean editableOnly) {
-	// final List<Node> assigned = new ArrayList<Node>();
-	// for (final INode n : getChildren()) {
-	// assigned.addAll(getWhereUsed(source, n, editableOnly));
-	// }
-	// return assigned;
-	// }
 
 	@Override
 	public LibraryNode getLibrary() {
@@ -353,7 +299,7 @@ public class ModelNode extends Node {
 	}
 
 	/**
-	 * @return the unassignedNode
+	 * @return the unassignedNode for use on nodes that should have types assigned but are <i>missing</i>
 	 */
 	public static ImpliedNode getUnassignedNode() {
 		return unassignedNode;
@@ -378,12 +324,12 @@ public class ModelNode extends Node {
 	}
 
 	@Override
-	public int getTypeUsersCount() {
+	public int getWhereUsedCount() {
 		return typeUsers;
 	}
 
 	public int getUnassignedTypeCount() {
-		return unassignedNode.getTypeUsersCount();
+		return unassignedNode.getWhereUsedCount();
 	}
 
 	/**
@@ -432,11 +378,6 @@ public class ModelNode extends Node {
 		return impliedTLLib;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#isLibraryContainer()
-	 */
 	@Override
 	public boolean isLibraryContainer() {
 		return true;

@@ -26,6 +26,7 @@ import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * A property node that represents a boolean XML attribute with the semantics of "False unless present and true". See
@@ -82,7 +83,12 @@ public class IndicatorNode extends PropertyNode {
 	}
 
 	@Override
-	public ImpliedNode getDefaultType() {
+	public TypeProvider getAssignedType() {
+		return getRequiredType();
+	}
+
+	@Override
+	public ImpliedNode getRequiredType() {
 		return ModelNode.getIndicatorNode();
 	}
 

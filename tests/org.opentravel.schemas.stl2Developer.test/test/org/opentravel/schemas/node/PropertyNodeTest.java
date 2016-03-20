@@ -168,6 +168,7 @@ public class PropertyNodeTest {
 			if (name.equals(n.getName()))
 				return n;
 		}
+		Assert.assertTrue("findChild did not find: " + name, 1 == 2);
 		return null;
 	}
 

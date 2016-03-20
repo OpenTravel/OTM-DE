@@ -20,11 +20,9 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
-import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.Enumeration;
@@ -35,14 +33,19 @@ import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.types.ExtensionHandler;
+import org.opentravel.schemas.types.TypeProvider;
 
-public class EnumerationOpenNode extends ComponentNode implements ComplexComponentInterface, Enumeration,
-		ExtensionOwner, VersionedObjectInterface, LibraryMemberInterface {
+public class EnumerationOpenNode extends TypeProviderBase implements ComplexComponentInterface, Enumeration,
+		ExtensionOwner, VersionedObjectInterface, LibraryMemberInterface, TypeProvider {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(EnumerationOpenNode.class);
+	private ExtensionHandler extensionHandler = null;
 
 	public EnumerationOpenNode(LibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
+		extensionHandler = new ExtensionHandler(this);
+
 		// if (((TLAbstractEnumeration)mbr).getExtension() == null)
 		// getTypeClass().setTypeNode(ModelNode.getDefaultStringNode()); // Set base type.
 		// else
@@ -58,7 +61,7 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 		this(new TLOpenEnumeration());
 
 		if (closedEnum.getLibrary() != null) {
-			if (closedEnum.getExtendsType() != null)
+			if (closedEnum.getExtensionBase() != null)
 				((TLAbstractEnumeration) getTLModelObject()).setExtension(((TLClosedEnumeration) closedEnum
 						.getTLModelObject()).getExtension());
 
@@ -72,7 +75,8 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 			getLibrary().getTLaLib().removeNamedMember((LibraryMember) closedEnum.getTLModelObject());
 			closedEnum.unlinkNode();
 			// If openEnum was being used, the tl model will reassign but not type node
-			closedEnum.getTypeClass().replaceTypeProvider(this, null);
+			// FIXME - TESTME
+			// closedEnum.getTypeClass().replaceTypeProvider(this, null);
 
 			getLibrary().getComplexRoot().linkChild(this);
 			// handle version managed libraries
@@ -116,15 +120,15 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 		return null;
 	}
 
-	@Override
-	public ImpliedNode getDefaultType() {
-		return ModelNode.getDefaultStringNode();
-	}
+	// @Override
+	// public ImpliedNode getDefaultType() {
+	// return ModelNode.getDefaultStringNode();
+	// }
 
 	@Override
 	public String getLabel() {
 		if (isVersioned())
-			return super.getLabel() + " (Extends version:  " + getExtendsType().getLibrary().getVersion() + ")";
+			return super.getLabel() + " (Extends version:  " + getExtensionBase().getLibrary().getVersion() + ")";
 		return super.getLabel();
 	}
 
@@ -176,50 +180,6 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 	}
 
 	@Override
-	public ComponentNode getSimpleType() {
-		return null;
-	}
-
-	@Override
-	public Node getExtendsType() {
-		// Lazy evaluation: get it from TL object after all nodes generated with listeners.
-		Node nType = ModelNode.getDefaultStringNode(); // Set base type.
-		if (((TLAbstractEnumeration) getTLModelObject()).getExtension() != null) {
-			NamedEntity eType = ((TLAbstractEnumeration) getTLModelObject()).getExtension().getExtendsEntity();
-			nType = GetNode(((TLModelElement) eType).getListeners());
-		}
-		if (getTypeClass().getTypeNode() != nType)
-			getTypeClass().setTypeNode(nType);
-		return getTypeClass().getTypeNode();
-		// // base type might not have been loaded when constructor was called. check the tl model not the type node.
-		// return getExtensionNode();
-	}
-
-	// public EnumerationOpenNode getExtensionNode() {
-	// Collection<ModelElementListener> listeners = null;
-	// Node node = null;
-	// OpenEnumMO mo = (OpenEnumMO) getModelObject();
-	// if (mo.getExtension(mo.getTLModelObj()) != null)
-	// listeners = mo.getExtension(mo.getTLModelObj()).getListeners();
-	// if (listeners == null || listeners.isEmpty())
-	// return null;
-	// for (ModelElementListener listener : listeners)
-	// if (listener instanceof NamedTypeListener)
-	// node = ((NamedTypeListener) listener).getNode();
-	// return (EnumerationOpenNode) (node instanceof EnumerationOpenNode ? node : null);
-	// }
-
-	@Override
-	public void setExtendsType(final INode sourceNode) {
-		getTypeClass().setAssignedBaseType(sourceNode);
-	}
-
-	@Override
-	public boolean setSimpleType(Node type) {
-		return false;
-	}
-
-	@Override
 	public INode.CommandType getAddCommand() {
 		return INode.CommandType.ENUMERATION;
 	}
@@ -232,6 +192,37 @@ public class EnumerationOpenNode extends ComponentNode implements ComplexCompone
 	@Override
 	public SimpleFacetNode getSimpleFacet() {
 		return null;
+	}
+
+	@Override
+	public boolean isAssignableToSimple() {
+		return false;
+	}
+
+	@Override
+	public boolean isAssignableToElementRef() {
+		return false;
+	}
+
+	// /////////////////////////////////////////////////////////////////
+	//
+	// Extension Owner implementations
+	//
+	@Override
+	public Node getExtensionBase() {
+		return extensionHandler != null ? extensionHandler.get() : null;
+	}
+
+	@Override
+	public void setExtension(final Node base) {
+		if (extensionHandler == null)
+			extensionHandler = new ExtensionHandler(this);
+		extensionHandler.set(base);
+	}
+
+	@Override
+	public ExtensionHandler getExtensionHandler() {
+		return extensionHandler;
 	}
 
 }

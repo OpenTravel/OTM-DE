@@ -59,7 +59,7 @@ public class InheritedChildren_Tests {
 		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 		baseBO = ml.addBusinessObjectToLibrary(ln, "BaseBO");
 		extensionBO = ml.addBusinessObjectToLibrary(ln, "ExtensionBO");
-		extensionBO.setExtendsType(baseBO);
+		extensionBO.setExtension(baseBO);
 		Assert.assertFalse(extensionBO.getExtendsTypeName().isEmpty());
 	}
 
@@ -86,7 +86,7 @@ public class InheritedChildren_Tests {
 		BusinessObjectNode bo2 = ml.addBusinessObjectToLibrary(ln, "Bo2");
 		FacetNode sf = bo2.getSummaryFacet();
 		List<?> children = sf.getChildren();
-		bo2.setExtendsType(baseBO);
+		bo2.setExtension(baseBO);
 		Assert.assertEquals(sf, bo2.getSummaryFacet());
 		List<?> inherited = sf.getInheritedChildren();
 		LOGGER.debug("Done");

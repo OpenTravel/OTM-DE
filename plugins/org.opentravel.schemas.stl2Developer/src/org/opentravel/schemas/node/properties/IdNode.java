@@ -15,13 +15,15 @@
  */
 package org.opentravel.schemas.node.properties;
 
+import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.types.TypeUser;
+import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * A property node that represents an XML ID. See {@link NodeFactory#newComponentMember(INode, Object)}
@@ -29,22 +31,24 @@ import org.opentravel.schemas.types.TypeUser;
  * @author Dave Hollander
  * 
  */
-public class IdNode extends AttributeNode implements TypeUser {
-	Node idType = null;
+public class IdNode extends AttributeNode {
+	TypeProvider idType = null;
 
 	public IdNode(PropertyOwnerInterface parent, String name) {
 		super(parent, name, PropertyNodeType.ID);
 		setName("id");
-		idType = NodeFinders.findNodeByName("ID", XSD_NAMESPACE);
-		setAssignedType(idType);
+		idType = (TypeProvider) NodeFinders.findNodeByName("ID", XSD_NAMESPACE);
+		// does nothing because there is a required type. - setAssignedType(idType);
+		((TLAttribute) getTLModelObject()).setType((TLAttributeType) idType.getTLModelObject());
 		setIdentity("xml_ID on " + parent.getOwningComponent());
 		propertyType = PropertyNodeType.ID;
 	}
 
 	public IdNode(TLModelElement tlObj, PropertyOwnerInterface parent) {
 		super(tlObj, parent, PropertyNodeType.ID);
-		idType = NodeFinders.findNodeByName("ID", XSD_NAMESPACE);
-		setAssignedType(idType);
+		idType = (TypeProvider) NodeFinders.findNodeByName("ID", XSD_NAMESPACE);
+		// setAssignedType(idType);
+		((TLAttribute) getTLModelObject()).setType((TLAttributeType) idType.getTLModelObject());
 		setIdentity("xml_ID on " + getOwningComponent());
 		propertyType = PropertyNodeType.ID;
 	}
@@ -55,29 +59,7 @@ public class IdNode extends AttributeNode implements TypeUser {
 	}
 
 	@Override
-	public boolean isTypeUser() {
-		return false;
+	public TypeProvider getRequiredType() {
+		return idType;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.properties.PropertyNode#setAssignedType(org.opentravel.schemas.node.Node,
-	 * boolean)
-	 */
-	// @Override
-	// public boolean setAssignedType(Node replacement, boolean refresh) {
-	// return super.setAssignedType(idType);
-	// }
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.properties.PropertyNode#setAssignedType(org.opentravel.schemas.node.Node)
-	 */
-	@Override
-	public boolean setAssignedType(Node replacement) {
-		return super.setAssignedType(idType);
-	}
-
 }

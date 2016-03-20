@@ -17,13 +17,7 @@ package org.opentravel.schemas.node.listeners;
 
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
-import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLAttributeType;
-import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.SimpleFacetNode;
-import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.VersionNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,18 +49,21 @@ public class SimpleFacetNodeListener extends NodeIdentityListener implements INo
 			// LOGGER.debug("Type Assignment Change to " + thisNode + ", old  = " + getOldValue(event) + ", new = "
 			// + getNewValue(event) + " tl owner = " + thisNode.getTLModelObject().getOwningModel());
 			// Set type, add to newValue's user list and remove from old value's user list
-			thisNode.getTypeClass().set(getNewValue(event), getOldValue(event));
+			// thisNode.getTypeClass().set(getNewValue(event), getOldValue(event));
+
+			// I don't care...the simple will be read when needed and the where used should take care of it self
+			// throw new IllegalStateException("Not Implemented Yet - type assignement listener for simple facet.");
 
 			// Also set the simple attribute node
-			if (getNewValue(event) != null && thisNode.getParent() instanceof VWA_Node) {
-				NamedEntity tlTarget = (NamedEntity) getNewValue(event).getTLModelObject();
-				if (((SimpleFacetNode) thisNode).getSimpleAttribute() != null) {
-					TLModelElement tlAttr = ((SimpleFacetNode) thisNode).getSimpleAttribute().getTLModelObject();
-					if (tlAttr instanceof TLnSimpleAttribute && tlTarget instanceof TLAttributeType)
-						((TLnSimpleAttribute) tlAttr).setType(tlTarget);
-				}
-			}
-			break;
+			// if (getNewValue(event) != null && thisNode.getParent() instanceof VWA_Node) {
+			// NamedEntity tlTarget = (NamedEntity) getNewValue(event).getTLModelObject();
+			// if (((SimpleFacetNode) thisNode).getSimpleAttribute() != null) {
+			// TLModelElement tlAttr = ((SimpleFacetNode) thisNode).getSimpleAttribute().getTLModelObject();
+			// if (tlAttr instanceof TLnSimpleAttribute && tlTarget instanceof TLAttributeType)
+			// ((TLnSimpleAttribute) tlAttr).setType(tlTarget);
+			// }
+			// }
+			// break;
 		default:
 			break;
 		}
