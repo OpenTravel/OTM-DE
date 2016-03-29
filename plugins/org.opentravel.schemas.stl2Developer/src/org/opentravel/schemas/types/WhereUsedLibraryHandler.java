@@ -165,6 +165,9 @@ public class WhereUsedLibraryHandler {
 	 */
 	public List<Node> getUsersOfTypesFromOwnerLibrary(LibraryNode lib) {
 		List<Node> ul = new ArrayList<Node>();
+		if (lib == null)
+			return ul;
+
 		// Get type users
 		for (TypeUser user : lib.getDescendants_TypeUsers()) {
 			TypeProvider ut = user.getAssignedType();
