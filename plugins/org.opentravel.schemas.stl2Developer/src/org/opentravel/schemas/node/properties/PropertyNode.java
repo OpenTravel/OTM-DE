@@ -17,10 +17,7 @@ package org.opentravel.schemas.node.properties;
 
 import java.util.ArrayList;
 
-import javax.xml.namespace.QName;
-
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
@@ -29,8 +26,6 @@ import org.opentravel.schemacompiler.model.TLEquivalentOwner;
 import org.opentravel.schemacompiler.model.TLExample;
 import org.opentravel.schemacompiler.model.TLExampleOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemacompiler.model.TLProperty;
-import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.FacetNode;
@@ -105,25 +100,16 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	public boolean canAssign(Node type) {
 		if (type == null || !(type instanceof TypeProvider))
 			return false;
-
-		// // Allow assignment to non-type-user properties to simplify interface.
-		// if (!isTypeUser())
-		// if (type == ModelNode.getUndefinedNode() || type == ModelNode.getIndicatorNode())
-		// return true;
-		// else
-		// return false;
-		//
 		return true;
-		// }
 	}
 
-	/**
-	 * @return
-	 */
-	public QName getDefaultXmlElementName() {
-		boolean idRef = this instanceof ElementReferenceNode;
-		return PropertyCodegenUtils.getDefaultXmlElementName(getTLTypeObject(), idRef);
-	}
+	// /**
+	// * @return
+	// */
+	// public QName getDefaultXmlElementName() {
+	// boolean idRef = this instanceof ElementReferenceNode;
+	// return PropertyCodegenUtils.getDefaultXmlElementName(getTLTypeObject(), idRef);
+	// }
 
 	/**
 	 * @return the propertyType
@@ -151,33 +137,6 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	@Override
 	public String getTypeName() {
 		return typeHandler.getName();
-
-		// if (!(this instanceof TypeUser))
-		// return "";
-		//
-		// if (getTypeClass().getTypeNode() == null) {
-		// // Inherited nodes are not assigned a type class. If they were
-		// if (inherited)
-		// return getModelObject().getAssignedName();
-		//
-		// // LOGGER.warn("Trying to fix missing type assignment for " + getName());
-		// getTypeClass().setAssignedTypeForThisNode(this);
-		// }
-		//
-		// String name = getTypeClass().getTypeNode().getName();
-		//
-		// // For implied nodes, use the name they provide.
-		// if (getTypeClass().getTypeNode() instanceof ImpliedNode) {
-		// ImpliedNode in = (ImpliedNode) getTypeClass().getTypeNode();
-		// name = in.getImpliedType().getImpliedNodeType();
-		// // If the implied node is a union, add that to its assigned name
-		// if (in.getImpliedType().equals(ImpliedNodeType.Union))
-		// name += ": " + XsdModelingUtils.getAssignedXsdUnion(this);
-		// else if (in.getImpliedType().equals(ImpliedNodeType.UnassignedType))
-		// // add to the name a clue from the TL model of what should be assigned
-		// name += ": " + this.getModelObject().getTypeName();
-		// }
-		// return name == null ? "" : name;
 	}
 
 	@Override
@@ -271,7 +230,6 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	@Override
 	public Image getImage() {
 		throw new IllegalAccessError("Tried to get image from abstract property.");
-		// return Images.getImageRegistry().get("file");
 	}
 
 	@Override
@@ -406,8 +364,6 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 			}
 			return null;
 		}
-		// return super.getAssignedType();
-		// return (TypeProvider) getTypeClass().getTypeNode();
 		return typeHandler.get();
 	}
 
@@ -419,25 +375,11 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	@Override
 	public TLModelElement getAssignedTLObject() {
 		return typeHandler.getTLModelElement();
-		// NamedEntity tlType = null;
-		// if (modelObject != null)
-		// tlType = modelObject.getTLType();
-		// if (!(tlType instanceof TLModelElement)) {
-		// throw new IllegalStateException(this + " assigned type is not a model element.");
-		// }
-		// return (TLModelElement) tlType;
 	}
 
 	@Override
 	public NamedEntity getAssignedTLNamedEntity() {
 		return (modelObject != null ? modelObject.getTLType() : null);
-	}
-
-	@Deprecated
-	@Override
-	public ModelObject<?> getAssignedModelObject() {
-		return ((Node) typeHandler.get()).getModelObject();
-		// return getTypeClass().getTypeNode() != null ? ((Node) getTypeClass().getTypeNode()).getModelObject() : null;
 	}
 
 	/**
@@ -460,69 +402,11 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	@Override
 	public boolean setAssignedType(TLModelElement tlProvider) {
 		return typeHandler.set(tlProvider);
-		// throw new IllegalAccessError("Not Implemented.");
 	}
 
 	@Override
 	public void sort() {
 		getParent().sort();
-	}
-
-	/**
-	 * @return the type QName from the TL model object or XSD assigned type.
-	 */
-	@Override
-	public QName getTLTypeQName() {
-		return typeHandler.getQName();
-		// QName typeQname = null;
-		//
-		// NamedEntity type = getTLTypeObject();
-		// if (type != null) {
-		// String ns = type.getNamespace();
-		// String ln = type.getLocalName();
-		// if (ns != null && ln != null)
-		// typeQname = new QName(type.getNamespace(), type.getLocalName());
-		// } else
-		// // Try getting name from the TLModelObject typeName field.
-		// typeQname = getTLTypeNameField();
-		//
-		// // If still empty, try the XSD type information in the documentation
-		// if (typeQname == null)
-		// typeQname = XsdModelingUtils.getAssignedXsdType(this);
-		//
-		// return typeQname;
-	}
-
-	/**
-	 * Only needed for facets (see JIRA 510). 4/15/2013 - no longer needed.
-	 * 
-	 * @return QName or null if not found and correct.
-	 */
-	// TODO: delete if not needed
-	private QName getTLTypeNameField() {
-		if (getTLModelObject() instanceof TLProperty) {
-			TLProperty tlProp = (TLProperty) getTLModelObject();
-			String tName = tlProp.getTypeName();
-			// Use prefix if it has one to get namespace.
-			if (tName != null) {
-				int prefixIndex = tName.indexOf(":");
-				String prefix = "", name = "", ns = "";
-				if (prefixIndex > 0) {
-					prefix = tName.substring(0, prefixIndex);
-					name = tName.substring(prefixIndex + 1);
-				} else
-					name = tName;
-				if (tlProp.getOwningLibrary() != null) {
-					if (prefix.isEmpty())
-						ns = tlProp.getOwningLibrary().getNamespace();
-					else
-						ns = tlProp.getOwningLibrary().getNamespaceForPrefix(prefix);
-				}
-				QName qName = new QName(ns, name);
-				return qName;
-			}
-		}
-		return null;
 	}
 
 	/**
@@ -541,25 +425,30 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	public PropertyNode changePropertyRole(PropertyNodeType toType) {
 		PropertyNode newProperty = null;
 
-		if (getPropertyType().equals(toType))
-			newProperty = this;
-		else if (getParent() == null)
+		if (getParent().isValidParentOf(toType)) {
 			newProperty = alternateRoles.oldOrNew(toType);
-		else {
-			if (getParent().isValidParentOf(toType)) {
-				newProperty = alternateRoles.oldOrNew(toType);
-				if (newProperty != null) {
-					newProperty.copyDetails(this);
-					swap(newProperty);
+			if (newProperty != null) {
+				newProperty.copyDetails(this);
+				swap(newProperty);
+
+				// Now do type assignments
+				if (newProperty.getRequiredType() == null) {
+					// Has a user assigned type. Reuse previous assignment if any or else try type assigned to this.
+					TypeProvider newType = newProperty.getAssignedType();
+					if (newType == null || newType instanceof ImpliedNode)
+						newType = getAssignedType();
+					newProperty.setAssignedType(newType);
 				}
+				// Clear type assignments to <i>this</i> property to keep where used in sync.
+				getAssignedType().getWhereAssignedHandler().remove(this);
+				// Leave the type assigned to the TL Object for use as assigned type if they change back later.
 			}
 		}
 		return newProperty == null ? this : newProperty;
 	}
 
 	/**
-	 * Remove <i>this</i> property from the parent and add the <i>newProperty</i> in its place. Also assign type to new
-	 * property and remove type from this property.
+	 * Remove <i>this</i> property from the parent and add the <i>newProperty</i> in its place.
 	 */
 	public void swap(PropertyNode newProperty) {
 		// Link new property to the parent node.
@@ -570,13 +459,6 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		modelObject.removeFromTLParent();
 		// Remove this property from its parent
 		getParent().getChildren().remove(this);
-
-		// change assigned types
-		newProperty.setAssignedType(getAssignedType());
-		setAssignedType((TypeProvider) null);
-
-		// NOTE - enhancement - this will remove type from properties that user must restore. This has to be done or
-		// else the whereUsed will point to hidden properties.
 
 		// Remove from current TL parent and add to new. Model object will ignore if no parent.
 		modelObject.removeFromTLParent();
@@ -616,6 +498,11 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 			}
 	}
 
+	@Override
+	public TypeProvider getRequiredType() {
+		return null; // override for properties with fixed types
+	}
+
 	/**
 	 * A property within a facet can change roles. This class keeps track of the various implementations that may be
 	 * used for any property. All properties that can be alternated between should share this class.
@@ -633,7 +520,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		public IdNode oldIdN = null;
 
 		public AlternateRoles(PropertyNode pn) {
-			// Have to use type assigned not class because it is used in chained constructors
+			// Have to use role assigned not class because it is used in chained constructors
 			// so the class type may be wrong.
 			switch (pn.getPropertyType()) {
 			case ELEMENT:
@@ -677,6 +564,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 			PropertyNode pn = null;
 			switch (type) {
 			case ELEMENT:
+				// set pn to saved element if there is one or else create an element
 				pn = oldEleN != null ? oldEleN : new ElementNode(parent, getName());
 				oldEleN = (ElementNode) pn;
 				break;
@@ -708,11 +596,6 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 			return pn;
 		}
 
-	}
-
-	@Override
-	public TypeProvider getRequiredType() {
-		return null; // override for properties with fixed types
 	}
 
 }

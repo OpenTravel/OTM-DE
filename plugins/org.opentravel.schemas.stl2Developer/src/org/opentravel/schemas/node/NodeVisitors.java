@@ -26,6 +26,8 @@ import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.IndicatorElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,23 +110,12 @@ public class NodeVisitors {
 				return;
 			}
 
-			// DEAD-CODE???
-			if (!n.isEditable() && (n instanceof LibraryNode || n instanceof LibraryChainNode))
-				// LOGGER.debug("Deleting a non-editable library. " + n);
-				// TODO - does this clean up properly?
-				// Type class - delete the where used and assignments to this type
-				if (n.isTypeProvider()) {
-					// node.getTypeClass().delete(); // FIXME - unreachable, libraries are not type providers
-					assert true; // added 2/5/16 to verify unreachable
-				}
-
 			// Remove from where used list
-			// 2/5/16 - FIXME - should rely on listener, if not logic should be delegated to type class
-			// if (node instanceof TypeUser) {
-			// if (node.getTypeClass() != null && node.getTypeClass().getTypeNode() != null
-			// && node.getTypeClass().getTypeNode().getTypeUsers() != null)
-			// node.getTypeClass().getTypeNode().getTypeUsers().remove(node);
-			// }
+			if (node instanceof TypeProvider)
+				((TypeProvider) node).removeAll();
+
+			if (node instanceof TypeUser)
+				((TypeUser) node).setAssignedType();
 
 			// Use override behavior because Library nodes must clear out project and context.
 			if (n instanceof LibraryNode)
@@ -143,9 +134,7 @@ public class NodeVisitors {
 			// Remove the TL entity from the TL Model.
 			if (node.modelObject != null) {
 				TLModelElement tlObj = node.getTLModelObject();
-				// ListenerFactory.clearListners(node); // remove any listeners
 				node.modelObject.delete();
-				// node.modelObject = node.newModelObject(new TLEmpty());
 				ListenerFactory.clearListners(tlObj); // remove any listeners
 				LOGGER.debug("DeleteVisitor: deleted tl object " + node);
 			}
@@ -186,9 +175,7 @@ public class NodeVisitors {
 			else if (n instanceof IndicatorElementNode)
 				n.setName(NodeNameUtils.fixIndicatorElementName(n.getName()));
 			else if (n instanceof ElementReferenceNode) {
-				// 2/8/2016 - dmh - let setName() correct the name
 				n.setName(n.getName());
-				// n.setName(NodeNameUtils.fixIdReferenceName(n));
 			}
 		}
 	}

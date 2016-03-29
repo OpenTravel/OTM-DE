@@ -100,7 +100,7 @@ public class Clone_Tests {
 	@Test
 	public void shouldCloneElements() {
 		FacetNode facet = FacetNodeBuilder.create(ln).addElements("E1", "E2", "E3").build();
-		int assignedCount = builtin.getWhereUsedCount();
+		int assignedCount = builtin.getWhereAssignedCount();
 
 		// Given 3 elements were cloned
 		List<Node> kids = new ArrayList<Node>(facet.getChildren()); // list get added to by clone
@@ -117,7 +117,7 @@ public class Clone_Tests {
 
 		// Assert clones exist, has correct type and builtin count is larger
 		assert facet.getChildren().size() == 6;
-		assert builtin.getWhereUsedCount() == assignedCount + 6;
+		assert builtin.getWhereAssignedCount() == assignedCount + 6;
 		for (Node n : facet.getChildren())
 			assert ((TypeUser) n).getAssignedType() == builtin;
 		LOGGER.debug("Done");
@@ -126,7 +126,7 @@ public class Clone_Tests {
 	@Test
 	public void shouldCloneAttributes() {
 		FacetNode facet = FacetNodeBuilder.create(ln).addAttributes("A1", "A2", "A3").build();
-		int assignedCount = builtin.getWhereUsedCount();
+		int assignedCount = builtin.getWhereAssignedCount();
 
 		// Given 3 elements were cloned
 		List<Node> kids = new ArrayList<Node>(facet.getChildren()); // list get added to by clone
@@ -143,7 +143,7 @@ public class Clone_Tests {
 
 		// Assert clones exist, has correct type and builtin count is larger
 		assert facet.getChildren().size() == 6;
-		assert builtin.getWhereUsedCount() == assignedCount + 6;
+		assert builtin.getWhereAssignedCount() == assignedCount + 6;
 		for (Node n : facet.getChildren())
 			assert ((TypeUser) n).getAssignedType() == builtin;
 		LOGGER.debug("Done");

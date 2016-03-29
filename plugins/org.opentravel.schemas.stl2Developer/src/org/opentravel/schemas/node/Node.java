@@ -25,8 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.namespace.QName;
-
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.CodeGenerationException;
@@ -143,8 +141,6 @@ public abstract class Node implements INode {
 		nodeID = Integer.toString(nodeCount++);
 		setLibrary(null);
 		modelObject = newModelObject(new TLEmpty());
-		// if (!(this instanceof TypeNode))
-		// type = new Type(this);
 		versionNode = null;
 	}
 
@@ -171,7 +167,6 @@ public abstract class Node implements INode {
 			setIdentity(getName() + " (Null-TL-ModelObject)");
 		if (getIdentity().isEmpty())
 			setIdentity("Simple");
-		// The TLnSimpleAttribute has no validation identity until later.
 	}
 
 	/**
@@ -322,45 +317,14 @@ public abstract class Node implements INode {
 			return;
 		}
 
-		// 9/28/2015 dmh - moved to end to preserve linkages. Listeners will remove the whereUsed links.
-
-		// 9/28/2015 dmh - moved removeFromLibrary logic to LibraryNode.
-		// if (replacement.getLibrary() == null)
 		getLibrary().addMember(replacement); // does nothing in swap because replacement lib is already set to
 												// this.getLibrary()
-		// if (replacement.getLibrary() != ln) {
-		// replacement.removeFromLibrary();
-		// ln.addMember(replacement);
-		// }
-		// else
-		// LOGGER.debug("replaceWith() - replacement is assumed to already be member and was not added to library");
 
 		replaceTypesWith(replacement, null);
-		// if (this instanceof TypeProvider && replacement instanceof TypeProvider)
-		// if (((TypeProvider) this).getWhereAssignedHandler() != null)
-		// ((TypeProvider) this).getWhereAssignedHandler().replaceAll((TypeProvider) replacement);
 
 		// 9/28/2015 dmh - moved to end to preserve linkages. Listeners will remove the whereUsed links.
 		getLibrary().removeMember(this);
 	}
-
-	// /**
-	// * Use TypeNode to set the TL type and extension bases for this node and all children.
-	// */
-	// protected void fixAssignments() {
-	// ArrayList<Node> users = new ArrayList<Node>(getTypeClass().getTypeUsers());
-	// for (Node user : getTypeClass().getBaseUsers()) {
-	// getTypeClass().setAssignedBaseType(this);
-	// // user.getModelObject().setExtendsType(this.getModelObject());
-	// // typeUsers list includes base type users so remove them before doing assignments.
-	// users.remove(user);
-	// }
-	// for (Node user : users)
-	// user.getModelObject().setTLType(this.getModelObject());
-	//
-	// for (Node child : getChildren_TypeProviders())
-	// child.fixAssignments();
-	// }
 
 	/**
 	 * Replace all type assignments (base and assigned type) to this node with assignments to passed node. For every
@@ -389,16 +353,6 @@ public abstract class Node implements INode {
 
 		// If this has been extended, replace where extended
 		getWhereExtendedHandler().replace(replacement, libScope);
-
-		// Do Base type (extensions).
-		// Note: since only the top level object is extended there is no need to traverse where extended lists.
-		// if (this instanceof ExtensionOwner)
-		// if (scope == null || getLibrary() == libScope)
-		// if (((ExtensionOwner) this).getExtensionBase() != null)
-		// if (((ExtensionOwner) this).getExtensionHandler() != null) {
-		// LOGGER.debug("replaced extension base with " + replacement);
-		// ((ExtensionOwner) this).getExtensionHandler().set(replacement);
-		// }
 	}
 
 	/**
@@ -616,6 +570,24 @@ public abstract class Node implements INode {
 			// Some type users may also have children
 			if (n.hasChildren())
 				ret.addAll(n.getDescendants_TypeUsers());
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets the descendants that are extension owners.
+	 * 
+	 * @return new list of all descendants that are extension owners.
+	 */
+	public List<ExtensionOwner> getDescendants_ExtensionOwners() {
+		final ArrayList<ExtensionOwner> ret = new ArrayList<ExtensionOwner>();
+		for (final Node n : getChildren()) {
+			if (n instanceof ExtensionOwner)
+				ret.add((ExtensionOwner) n);
+
+			// Some type users may also have children
+			if (n.hasChildren())
+				ret.addAll(n.getDescendants_ExtensionOwners());
 		}
 		return ret;
 	}
@@ -851,19 +823,6 @@ public abstract class Node implements INode {
 		return null;
 	}
 
-	/**
-	 * Get the type class for this node. This should <b>not</b> be used except when creating a node set representing an
-	 * existing TL library.
-	 * 
-	 * @return - the type class representing the type assignments or else null
-	 */
-	// @Deprecated
-	// public Type getTypeClass() {
-	// if (type == null)
-	// type = new Type(this);
-	// return type;
-	// }
-
 	/*****************************************************************************
 	 * Children
 	 */
@@ -1085,11 +1044,6 @@ public abstract class Node implements INode {
 		return this instanceof PropertyNode;
 	}
 
-	// @Override
-	// public boolean isTypeUser() {
-	// return this instanceof TypeUser;
-	// }
-	//
 	public boolean isFacetAlias() {
 		return false;
 	}
@@ -1102,6 +1056,9 @@ public abstract class Node implements INode {
 		return false;
 	}
 
+	/**
+	 * @return if element, element reference or indicator element
+	 */
 	public boolean isElement() {
 		return false;
 	}
@@ -1300,10 +1257,6 @@ public abstract class Node implements INode {
 	public boolean isNewToChain() {
 		assert getOwningComponent() != null;
 		return !getOwningComponent().isVersioned();
-
-		// if (getOwningComponent().getVersionNode() == null)
-		// return false; // not in chain
-		// return getOwningComponent().getVersionNode().getPreviousVersion() == null;
 	}
 
 	/**
@@ -1398,11 +1351,6 @@ public abstract class Node implements INode {
 		return false;
 	}
 
-	// @Deprecated
-	// public boolean isExtendable() {
-	// return false;
-	// }
-
 	/**
 	 * Extensible objects have the ability to create extension points when compiled into schemas. These include core and
 	 * business objects as well as operations and extension points. {@link #isExtensible()}
@@ -1422,15 +1370,6 @@ public abstract class Node implements INode {
 	public Node setExtensible(boolean extensible) {
 		return this;
 	}
-
-	// /**
-	// *
-	// * @return true if this object can extend another object. Does not consider the state of the object or containing
-	// * library.
-	// */
-	// public boolean canExtend() {
-	// return false;
-	// }
 
 	/**
 	 * Extensible objects have the ability to create extension points when compiled into schemas. These include core and
@@ -1511,10 +1450,6 @@ public abstract class Node implements INode {
 		return this instanceof LibraryMemberInterface || this instanceof ServiceNode
 				|| (this instanceof FacetNode && isAssignable()) || this instanceof AliasNode
 				|| this instanceof ResourceNode || this instanceof OperationNode;
-
-		// return isBusinessObject() || isCoreObject() || isValueWithAttributes()
-		// || this instanceof ServiceNode
-		// || (isFacet() && isAssignable()) || isAlias() || isOperation() || isSimpleType();
 	}
 
 	@Override
@@ -1522,28 +1457,12 @@ public abstract class Node implements INode {
 		return false;
 	}
 
-	// public boolean isBaseTypeUser() {
-	// return false;
-	// }
-
 	/**
 	 * @return true if in an XSD type and element assignable.
 	 */
 	public boolean isXsdElementAssignable() {
 		return xsdType ? xsdNode.isElementAssignable() : false;
 	}
-
-	// /**
-	// * @return true if this is an XSD node for an XSD atomic type (impliedType == XSD_Atomic).
-	// */
-	// public boolean isXSD_Atomic() {
-	// if (getTypeClass().getTypeNode() instanceof ImpliedNode)
-	// LOGGER.debug("is " + this + " Atomic? "
-	// + ((ImpliedNode) getTypeClass().getTypeNode()).getImpliedType().equals(ImpliedNodeType.XSD_Atomic));
-	//
-	// return getTypeClass().getTypeNode() instanceof ImpliedNode ? ((ImpliedNode) getTypeClass().getTypeNode())
-	// .getImpliedType().equals(ImpliedNodeType.XSD_Atomic) : false;
-	// }
 
 	/**
 	 * @return - true if is in TL, built-in or xsd library
@@ -1617,11 +1536,6 @@ public abstract class Node implements INode {
 		return this instanceof OperationNode;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#isTypeProvider()
-	 */
 	@Override
 	public boolean isTypeProvider() {
 		if (this instanceof ImpliedNode)
@@ -1647,10 +1561,6 @@ public abstract class Node implements INode {
 		return modelObject.isSimpleAssignable();
 	}
 
-	// public boolean isChoiceFacet() {
-	// return false;
-	// }
-
 	public boolean isCustomFacet() {
 		return false;
 	}
@@ -1662,10 +1572,6 @@ public abstract class Node implements INode {
 	public boolean isQueryFacet() {
 		return false;
 	}
-
-	// public boolean isService() {
-	// return false;
-	// }
 
 	/**
 	 * @return true if <b>only</b> simple types can be assigned to this type user.
@@ -1744,9 +1650,6 @@ public abstract class Node implements INode {
 		if (n.isFacet() && !n.isQueryFacet() && !n.isRoleFacet()) {
 			n = n.parent; // compare across all facets.
 		}
-		// FIXME - TEST - OTA-54 - query facets can have same property names as
-		// properties in other
-		// facets, including other query facets.
 		if (n.nameEquals(testNode)) {
 			return false;
 		}
@@ -1933,11 +1836,6 @@ public abstract class Node implements INode {
 		setName(n, true);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#setName(java.lang.String, boolean)
-	 */
 	@Override
 	public void setName(final String n, final boolean doFamily) {
 		String newName = n;
@@ -2068,38 +1966,6 @@ public abstract class Node implements INode {
 		return changedNodes;
 	}
 
-	// @Deprecated
-	// public boolean setAssignedType(Node typeNode, boolean refresh) {
-	// return (this instanceof TypeUser) ? setAssignedType(typeNode) : false;
-	// }
-	// /**
-	// * @param typeNode
-	// * - use setAssignedType(TypeProvider provider) instead
-	// */
-	// @Deprecated
-	// public boolean setAssignedType(Node typeNode) {
-	// if (typeNode instanceof TypeProvider)
-	// return setAssignedType((TypeProvider) typeNode);
-	// return false;
-	// }
-
-	// @Override
-	// public boolean setAssignedType(TypeProvider provider) {
-	// return false;
-	// // return (this instanceof TypeUser) ? setAssignedType(typeNode) : false;
-	// }
-
-	// /**
-	// * Return the node used as the assigned type. NOTE: does not return node assigned as base types for core and
-	// * business objects.
-	// *
-	// * @return
-	// */
-	// public Node getAssignedType() {
-	// // LOGGER.debug("Get assigned type for " + this.getClass().getSimpleName() + ":" + this);
-	// return (this instanceof TypeUser) ? getAssignedTypeByListeners() : null;
-	// }
-
 	/**
 	 * Get the type assigned using the TL Model object and listeners.
 	 * 
@@ -2120,15 +1986,6 @@ public abstract class Node implements INode {
 		return type;
 	}
 
-	// /**
-	// * Return the base type - the node displayed in select Extends field.
-	// *
-	// * @return
-	// */
-	// public Node getExtendsType() {
-	// return null;
-	// }
-
 	/**
 	 * returns getAssignedType() as a node
 	 */
@@ -2145,8 +2002,6 @@ public abstract class Node implements INode {
 			return (Node) ((TypeUser) this).getAssignedType();
 		else
 			return null;
-
-		// return (Node) getTypeClass().getTypeNode();
 	}
 
 	@Override
@@ -2162,7 +2017,7 @@ public abstract class Node implements INode {
 	/**
 	 * @return the count of where this node is assigned as a type. Includes count of where children are used.
 	 */
-	public int getWhereUsedCount() {
+	public int getWhereAssignedCount() {
 		return 0;
 	}
 
@@ -2182,32 +2037,34 @@ public abstract class Node implements INode {
 		return false;
 	}
 
-	/**
-	 * Deprecated - If this is a TypeProvider then use getWhereUsed(). Note - this is not a live list, it is a copy of a
-	 * unmodifiable list.
-	 */
-	@Deprecated
-	@Override
-	public List<Node> getTypeUsers() {
-		List<Node> users = new ArrayList<Node>();
-		if (this instanceof TypeProvider)
-			users.addAll(((TypeProvider) this).getWhereUsed());
-		return users;
-	}
+	// /**
+	// * Deprecated - If this is a TypeProvider then use getWhereUsed(). Note - this is not a live list, it is a copy of
+	// a
+	// * unmodifiable list.
+	// */
+	// @Deprecated
+	// @Override
+	// public List<Node> getTypeUsers() {
+	// List<Node> users = new ArrayList<Node>();
+	// if (this instanceof TypeProvider)
+	// users.addAll(((TypeProvider) this).getWhereUsed());
+	// return users;
+	// }
 
-	/**
-	 * Set the extension base to the passed source node. If null, remove assignment. Extension base is maintained in the
-	 * TypeClass.typeNode.
-	 * 
-	 * Deprecated - Use ExtensionOwner.setExtension()
-	 * 
-	 * @param sourceNode
-	 */
-	@Deprecated
-	public void setExtendsType(final INode sourceNode) {
-		if (this instanceof ExtensionOwner)
-			((ExtensionOwner) this).setExtension((Node) sourceNode);
-	}
+	// /**
+	// * Set the extension base to the passed source node. If null, remove assignment. Extension base is maintained in
+	// the
+	// * TypeClass.typeNode.
+	// *
+	// * Deprecated - Use ExtensionOwner.setExtension()
+	// *
+	// * @param sourceNode
+	// */
+	// @Deprecated
+	// public void setExtendsType(final INode sourceNode) {
+	// if (this instanceof ExtensionOwner)
+	// ((ExtensionOwner) this).setExtension((Node) sourceNode);
+	// }
 
 	public void setRepeat(final int i) {
 		if (isEditable_newToChain())
@@ -2468,20 +2325,6 @@ public abstract class Node implements INode {
 			modelObject.setReferenceDoc(link, index);
 	}
 
-	// public INode newAlias(final TLAlias tla) {
-	// return null;
-	// }
-
-	// /**
-	// * Merge contexts of all children/descendents to the target id and context.
-	// *
-	// * Note: this is a newer version of merge that the one with just targetId.
-	// * @param Id
-	// * @param AppContext
-	// */
-	// public void mergeContext(String Id, String AppContext) {
-	//
-	// }
 	/**
 	 * Change all context users to use targetId. Iterates on all children. If the context would be duplicated, it is
 	 * added as an implementors documentation item.
@@ -2515,29 +2358,6 @@ public abstract class Node implements INode {
 					addImplementer("Other doc: " + od.getContext() + " = " + od.getText());
 			}
 		}
-
-		// Commented out on 9/20/2015 by dmh
-		// List<TLAdditionalDocumentationItem> odList;
-		// boolean hasTargetOd = false;
-		// if (getDocumentation() != null) {
-		// if ((odList = getDocumentation().getOtherDocs()) != null) {
-		// // If there already is one in target context then make into implementors doc instead
-		// for (TLAdditionalDocumentationItem od : odList) {
-		// if (od.getContext().equals(targetId)) {
-		// hasTargetOd = true;
-		// break;
-		// }
-		// }
-		// for (TLAdditionalDocumentationItem od : odList) {
-		// if (od.getContext().equals(contextId)) {
-		// if (!hasTargetOd)
-		// od.setContext(targetId);
-		// else
-		// addImplementer("Other doc: " + contextId + " = " + od.getText());
-		// }
-		// }
-		// }
-		// }
 
 		// Iterate through all children
 		for (Node n : getChildren())
@@ -2578,7 +2398,8 @@ public abstract class Node implements INode {
 
 	/**
 	 * @return true only if this object is in the version head library. false if not, false if owner is a service, or
-	 *         unmanaged.
+	 *         unmanaged. See also: isInHead2()
+	 * 
 	 */
 	// TODO Compare results of this from the commonly used:
 	// if (selectedNode.getLibrary() != selectedNode.getChain().getHead())
@@ -2596,17 +2417,6 @@ public abstract class Node implements INode {
 			return false;
 		return getChain().getHead().getDescendants_NamedTypes().contains(owner);
 	}
-
-	// /**
-	// * @return - a list of the descendants that have the this type assigned to them.
-	// */
-	// public List<Node> getWhereUsed_OLD() {
-	// if (this instanceof TypeProvider)
-	// return ((TypeProvider) this).getTypeUsers();
-	// else
-	// return new ArrayList<Node>();
-	// // return getTypeClass().getTypeUsers();
-	// }
 
 	/** ******************** Library access methods ******************/
 
@@ -2709,23 +2519,23 @@ public abstract class Node implements INode {
 		return null;
 	}
 
-	/**
-	 * @return - list of unique Context IDs used by any child of this node. Empty list if none.
-	 */
+	// /**
+	// * @return - list of unique Context IDs used by any child of this node. Empty list if none.
+	// */
 	// FIX or Remove - does not work for business objects and perhaps many others
-	@Deprecated
-	public List<String> getContextIds() {
-		final Map<String, String> ctxMap = new LinkedHashMap<String, String>();
-		ArrayList<String> ret = new ArrayList<String>();
-		List<TLContext> list = getCtxList();
-		for (TLContext tlc : list) {
-			if ((tlc != null && tlc.getApplicationContext() != null))
-				ctxMap.put(tlc.getApplicationContext(), tlc.getContextId());
-		}
-		ret.addAll(ctxMap.values());
-		// LOGGER.debug("Found "+ret.size()+" contexts in "+this.getName());
-		return ret;
-	}
+	// @Deprecated
+	// public List<String> getContextIds() {
+	// final Map<String, String> ctxMap = new LinkedHashMap<String, String>();
+	// ArrayList<String> ret = new ArrayList<String>();
+	// List<TLContext> list = getCtxList();
+	// for (TLContext tlc : list) {
+	// if ((tlc != null && tlc.getApplicationContext() != null))
+	// ctxMap.put(tlc.getApplicationContext(), tlc.getContextId());
+	// }
+	// ret.addAll(ctxMap.values());
+	// // LOGGER.debug("Found "+ret.size()+" contexts in "+this.getName());
+	// return ret;
+	// }
 
 	/**
 	 * @return - list of unique TLContexts used by any child of this node. Empty list if none.
@@ -2755,29 +2565,6 @@ public abstract class Node implements INode {
 		// LOGGER.debug("Found "+list.size()+" contexts in "+this.getName());
 		return list;
 	}
-
-	// FIXME - remove this
-	@Deprecated
-	public ModelObject<?> getAssignedModelObject() {
-		return this instanceof TypeUser ? ((TypeUser) this).getAssignedModelObject() : null;
-		// getTypeClass().getTypeOwner().getModelObject() : null;
-	}
-
-	// /**
-	// * @return the type assigned tl named entity reported by modelObject<?>.getTLType() which may be null
-	// */
-	// @Deprecated
-	// public NamedEntity getAssignedTLObject() {
-	// return (modelObject != null ? modelObject.getTLType() : null);
-	// // return getAssignedTLObject();
-	// }
-
-	//
-	// @Deprecated
-	// public void removeAssignedType() {
-	// // if (isTypeUser())
-	// // getTypeClass().removeAssignedType();
-	// }
 
 	/**
 	 * Can Assign - can the type be assigned to node?
@@ -2919,48 +2706,6 @@ public abstract class Node implements INode {
 		return newLM;
 	}
 
-	/**
-	 * Set all the type users in newNode to match this nodes assignments. assignments.
-	 * 
-	 * @param newNode
-	 */
-	// TEST Claim: Only does typeClass assignments, not TL model
-	protected void cloneTypeAssignments(Node newNode) {
-		// LOGGER.debug(this + " type is " + this.getType());
-		throw new IllegalStateException("CLONE TYPE ASSIGMENT is not implemented!");
-		// if (this instanceof PropertyNode) {
-		// newNode.setAssignedType((TypeProvider) this.getType());
-		// return;
-		// }
-		// if (this.isSimpleType()) {
-		// if (newNode.getAssignedTLObject() != this.getAssignedTLObject()) {
-		// // LOGGER.debug("Fixing type mismatch!." + newNode);
-		// newNode.getModelObject().setTLType(this.getAssignedModelObject());
-		// }
-		// newNode.getTypeClass().setTypeNode(getAssignedType());
-		// return;
-		// }
-		//
-		// List<TypeUser> srcUsers = this.getDescendants_TypeUsers();
-		// for (TypeUser n : newNode.getDescendants_TypeUsers()) {
-		// for (TypeUser u : srcUsers) {
-		// if ((n instanceof SimpleAttributeNode && u instanceof SimpleAttributeNode)
-		// || u.getName().equals(n.getName())) {
-		// if (n.getAssignedTLObject() != u.getAssignedTLObject()) {
-		// // LOGGER.debug("Fixing type mismatch!." + n);
-		// n.getModelObject().setTLType(u.getAssignedModelObject());
-		// }
-		// if (u.getAssignedTLObject() == null)
-		// n.getTypeClass().setTypeNode(ModelNode.getUnassignedNode());
-		// else
-		// n.getTypeClass().setTypeNode(u.getAssignedType());
-		// srcUsers.remove(u);
-		// break;
-		// }
-		// }
-		// }
-	}
-
 	public void sort() {
 	}
 
@@ -3072,20 +2817,13 @@ public abstract class Node implements INode {
 	}
 
 	// /**
-	// * @return null if a type can be assigned, otherwise an implied node.
+	// * Property and simple type nodes have types with qNames.
+	// *
+	// * @return
 	// */
-	// public TypeProvider getDefaultType() {
+	// public QName getTLTypeQName() {
 	// return null;
 	// }
-
-	/**
-	 * Property and simple type nodes have types with qNames.
-	 * 
-	 * @return
-	 */
-	public QName getTLTypeQName() {
-		return null;
-	}
 
 	/**
 	 * Visitors *********************************************
@@ -3142,11 +2880,6 @@ public abstract class Node implements INode {
 		}
 		if (this instanceof ExtensionOwner)
 			visitor.visit(this);
-
-		// // TODO - make interface for baseTypeusers
-		// if (isCoreObject() || isBusinessObject() || isExtensionPointFacet()) {
-		// visitor.visit(this);
-		// }
 	}
 
 	public void visitList(List<Node> list, NodeVisitor visitor) {
@@ -3162,6 +2895,12 @@ public abstract class Node implements INode {
 		return false;
 	}
 
+	/**
+	 * Can this object contain properties of the specified type? Only FacetNodes can be containers.
+	 * 
+	 * @param type
+	 * @return
+	 */
 	public boolean isValidParentOf(PropertyNodeType type) {
 		return false;
 	}

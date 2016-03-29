@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.node;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
@@ -26,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Base class for all type providers.
+ * Base class for all type providers. Primary role is to be a facade to WhereAssignedHandler.
  * 
  * @author Dave Hollander
  * 
@@ -46,17 +47,12 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 	}
 
 	@Override
-	public WhereAssignedHandler getWhereAssignedHandler() {
-		return whereAssignedHandler;
-	}
-
-	@Override
 	public void addWhereUsed(TypeUser user) {
 		whereAssignedHandler.add(user);
 	}
 
 	@Override
-	public Collection<Node> getWhereUsed() {
+	public Collection<TypeUser> getWhereAssigned() {
 		return whereAssignedHandler.getWhereAssigned();
 	}
 
@@ -65,12 +61,17 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 	 *         type
 	 */
 	@Override
-	public int getWhereUsedCount() {
-		return whereAssignedHandler.getWhereAssigned().size();
+	public int getWhereAssignedCount() {
+		return whereAssignedHandler.getWhereAssignedCount();
 	}
 
 	@Override
-	public Collection<Node> getWhereUsedAndDescendants() {
+	public WhereAssignedHandler getWhereAssignedHandler() {
+		return whereAssignedHandler;
+	}
+
+	@Override
+	public Collection<TypeUser> getWhereUsedAndDescendants() {
 		return whereAssignedHandler.getWhereAssignedIncludingDescendants();
 	}
 
@@ -84,51 +85,12 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 		return whereAssignedHandler.getWhereUsedNode();
 	}
 
-	@Override
-	public void setListener(TypeUser user) {
-		whereAssignedHandler.setListener(user);
-	}
-
-	@Override
-	public void removeListener(TypeUser user) {
-		whereAssignedHandler.removeListener(user);
-	}
-
-	@Override
-	public void removeTypeUser(TypeUser user) {
-		whereAssignedHandler.removeListener(user);
-		whereAssignedHandler.remove(user);
-	}
-
 	/**
-	 * Replace this provider with replacement for all users of this provider as a type. Also replaces type usage of
-	 * descendants of this owner node. Also does the TL properties. Note - user counts may change when business replace
-	 * core objects because core is also a valid simple type.
-	 * 
-	 * It is OK for the owner to not be in a library. This happens when it is being replaced.
-	 * 
-	 * @param replacement
-	 *            is the TypeProvider to use instead. Must be a typeProvider. skips assignment if replacement is not
-	 *            compatible with user.
-	 * @param libraryScope
-	 *            - if null to entire model, otherwise only replace users within specified library.
-	 */
-	public void replace(TypeProvider replacement) {
-		// if (whereUsedHandler.getWhereUsed().isEmpty()) &&
-		// if (getTypeUsers().isEmpty() && getBaseUsers().isEmpty())
-		// return;
-		LOGGER.debug("Replacing " + this + " with " + replacement);
-		throw new IllegalStateException("REPLACE user handler not implemented.");
-	}
-
-	// //////////////////////////////////////////////////////////////
-
-	/**
-	 * @return true if this object can be used as an assigned type or base type
+	 * @return true if this node can be assigned to an element reference
 	 */
 	@Override
-	public boolean isTypeProvider() {
-		return true;
+	public boolean isAssignableToElementRef() {
+		return false;
 	}
 
 	/**
@@ -148,11 +110,57 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 	}
 
 	/**
-	 * @return true if this node can be assigned to an element reference
+	 * @return true if this object can be used as an assigned type or base type
 	 */
 	@Override
-	public boolean isAssignableToElementRef() {
-		return false;
+	public boolean isTypeProvider() {
+		return true;
+	}
+
+	// /**
+	// * Replace this provider with replacement for all users of this provider as a type. Also replaces type usage of
+	// * descendants of this owner node. Also does the TL properties. Note - user counts may change when business
+	// replace
+	// * core objects because core is also a valid simple type.
+	// *
+	// * It is OK for the owner to not be in a library. This happens when it is being replaced.
+	// *
+	// * @param replacement
+	// * is the TypeProvider to use instead. Must be a typeProvider. skips assignment if replacement is not
+	// * compatible with user.
+	// * @param libraryScope
+	// * - if null to entire model, otherwise only replace users within specified library.
+	// */
+	// @Deprecated
+	// public void replace(TypeProvider replacement) {
+	// // if (whereUsedHandler.getWhereUsed().isEmpty()) &&
+	// // if (getTypeUsers().isEmpty() && getBaseUsers().isEmpty())
+	// // return;
+	// LOGGER.debug("Replacing " + this + " with " + replacement);
+	// throw new IllegalStateException("REPLACE user handler not implemented.");
+	// }
+
+	@Override
+	public void removeAll() {
+		Collection<TypeUser> users = new ArrayList<TypeUser>(getWhereAssigned());
+		for (TypeUser user : users)
+			removeTypeUser(user);
+	}
+
+	@Override
+	public void removeListener(TypeUser user) {
+		whereAssignedHandler.removeListener(user);
+	}
+
+	@Override
+	public void removeTypeUser(TypeUser user) {
+		whereAssignedHandler.removeListener(user);
+		whereAssignedHandler.remove(user);
+	}
+
+	@Override
+	public void setListener(TypeUser user) {
+		whereAssignedHandler.setListener(user);
 	}
 
 }

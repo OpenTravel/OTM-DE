@@ -20,6 +20,7 @@ import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.RectangleFigure;
 import org.eclipse.draw2d.ToolbarLayout;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.stl2Developer.editor.model.UINode;
 
 /**
@@ -28,27 +29,31 @@ import org.opentravel.schemas.stl2Developer.editor.model.UINode;
  */
 public class UnsupportedNodeEditPart extends GenericEditPart<Node> {
 
-    public UnsupportedNodeEditPart(UINode model) {
-        super(model);
-    }
+	public UnsupportedNodeEditPart(UINode model) {
+		super(model);
+	}
 
-    @Override
-    protected IFigure createFigure() {
-        return new UnsupporetedFigure();
-    }
+	@Override
+	protected IFigure createFigure() {
+		return new UnsupporetedFigure();
+	}
 
-    public class UnsupporetedFigure extends RectangleFigure {
+	public class UnsupporetedFigure extends RectangleFigure {
 
-        public UnsupporetedFigure() {
-            ToolbarLayout layout = new ToolbarLayout();
-            layout.setMinorAlignment(ToolbarLayout.ALIGN_CENTER);
-            layout.setStretchMinorAxis(false);
-            layout.setSpacing(2);
-            setLayoutManager(layout);
-            setPreferredSize(100, 100);
-            add(new Label("???: " + getNodeModel().getName()));
-        }
+		public UnsupporetedFigure() {
+			ToolbarLayout layout = new ToolbarLayout();
+			layout.setMinorAlignment(ToolbarLayout.ALIGN_CENTER);
+			layout.setStretchMinorAxis(false);
+			layout.setSpacing(2);
+			setLayoutManager(layout);
+			setPreferredSize(100, 100);
+			Node node = getNodeModel();
+			if (node instanceof ResourceMemberInterface)
+				add(new Label(node.getComponentType() + ":" + node.getName()));
+			else
+				add(new Label("???: " + getNodeModel().getName()));
+		}
 
-    }
+	}
 
 }

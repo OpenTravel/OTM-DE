@@ -194,7 +194,7 @@ public class NodeTesters {
 
 		// Check type information
 		if (n instanceof TypeProvider)
-			assert ((TypeProvider) n).getWhereUsed() != null;
+			assert ((TypeProvider) n).getWhereAssigned() != null;
 
 		// is tests - make sure they do not throw exception
 		n.isEditable();

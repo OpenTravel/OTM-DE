@@ -137,7 +137,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 			return;
 
 		// If GUI allows adding roles, but the node is not in the head library
-		if (actOnNode.isEnabled_AddProperties() && !actOnNode.isInHead()) {
+		if (actOnNode.isEnabled_AddProperties() && !actOnNode.isInHead2()) {
 			actOnNode = createVersionExtension(actOnNode);
 			if (actOnNode == null)
 				return; // should this post status or dialog?

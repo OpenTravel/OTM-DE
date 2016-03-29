@@ -174,11 +174,11 @@ public interface INode {
 	 */
 	public String getTypeNameWithPrefix();
 
-	/**
-	 * 
-	 * @return live list of editable nodes where this node is assigned as a type. New empty list if none.
-	 */
-	public List<Node> getTypeUsers();
+	// /**
+	// *
+	// * @return live list of editable nodes where this node is assigned as a type. New empty list if none.
+	// */
+	// public List<Node> getTypeUsers();
 
 	public List<LibraryNode> getUserLibraries();
 
@@ -245,38 +245,6 @@ public interface INode {
 	 * Remove this node from its library.
 	 */
 	public void removeFromLibrary();
-
-	// /**
-	// * Sets the type assigned to this node if appropriate. Sets TL type, type node and type users on the target node.
-	// *
-	// * Restrictions enforced: 1) Simple Facets and Attribute Properties must have simple type. 2) VWA Attribute facets
-	// * may have simple type or VWA or Open Enum. ) SimpleProperties may not be circularly assigned to their owning
-	// * components. 4) node must be editable or in XSD library to set the TL type.
-	// *
-	// * If typeNode is implied, the TL type is cleared.
-	// *
-	// * @param typeNode
-	// * to assign, or null to clear assignments.
-	// * @return true if set
-	// */
-	// public boolean setAssignedType(TypeProvider provider);
-
-	// /**
-	// * Sets the type assigned to this node if appropriate. Sets TL type, type node and type users on the target node.
-	// *
-	// * Restrictions enforced: 1) Simple Facets and Attribute Properties must have simple type. 2) VWA Attribute facets
-	// * may have simple type or VWA or Open Enum. ) SimpleProperties may not be circularly assigned to their owning
-	// * components. 4) node must be editable or in XSD library to set the TL type.
-	// *
-	// * If typeNode is implied, the TL type is cleared.
-	// *
-	// * @param typeNode
-	// * to assign, or null to clear assignments.
-	// * @param refresh
-	// * refresh the navigator tree to update where-used counts
-	// * @return true if set
-	// */
-	// public boolean setAssignedType(Node replacement, boolean refresh);
 
 	public void setName(final String n, final boolean doFamily);
 

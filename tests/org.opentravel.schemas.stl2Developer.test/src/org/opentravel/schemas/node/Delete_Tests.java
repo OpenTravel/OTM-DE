@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +39,7 @@ import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.PrintNode;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +87,7 @@ public class Delete_Tests {
 		ele.setAssignedType(aType);
 		AttributeNode attr = new AttributeNode(facet, "att1");
 		attr.setAssignedType(aType);
-		int whereAssignedCount = aType.getWhereUsedCount();
+		int whereAssignedCount = aType.getWhereAssignedCount();
 		Assert.assertEquals(2, facet.getChildren().size());
 
 		// Library must be editable to delete
@@ -95,11 +98,11 @@ public class Delete_Tests {
 		ele.delete();
 		attr.delete();
 		Assert.assertEquals(0, facet.getChildren().size());
-		Assert.assertEquals(whereAssignedCount - 2, aType.getWhereUsedCount());
+		Assert.assertEquals(whereAssignedCount - 2, aType.getWhereAssignedCount());
 	}
 
 	@Test
-	public void deleteBO_Test() {
+	public void deleteTypeUsers_Test() {
 		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", defaultProject);
 		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
 		bo.setName("TestBO");
@@ -107,7 +110,7 @@ public class Delete_Tests {
 		FacetNode facet = bo.getSummaryFacet();
 		Assert.assertNotNull(facet);
 		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
-		int whereAssignedCount = aType.getWhereUsedCount();
+		int whereAssignedCount = aType.getWhereAssignedCount();
 
 		// Given a BO with two properties with assigned types
 		ElementNode ele = new ElementNode(facet, "e1");
@@ -120,7 +123,40 @@ public class Delete_Tests {
 		bo.delete();
 		Assert.assertTrue(ele.isDeleted());
 		Assert.assertTrue(attr.isDeleted());
-		Assert.assertEquals("Should be equal.", whereAssignedCount, aType.getWhereUsedCount());
+		Assert.assertEquals("Should be equal.", whereAssignedCount, aType.getWhereAssignedCount());
+	}
+
+	@Test
+	public void deleteTypeProvider_Test() {
+		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", defaultProject);
+		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
+		bo.setName("TestBO");
+		ln.addMember(bo);
+		FacetNode facet = bo.getSummaryFacet();
+		Assert.assertNotNull(facet);
+		ElementNode ele = new ElementNode(facet, "e1");
+		AttributeNode attr = new AttributeNode(facet, "att1");
+		Assert.assertEquals(2, facet.getChildren().size());
+
+		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		int aTypeCount = aType.getWhereAssignedCount();
+
+		TypeProvider simpleType = ml.addSimpleTypeToLibrary(ln, "A_Simple");
+		((TypeUser) simpleType).setAssignedType(aType);
+		assertTrue("Must be 0.", simpleType.getWhereAssignedCount() == 0);
+
+		// Given a BO with two properties with assigned to simpleType
+		ele.setAssignedType(simpleType);
+		attr.setAssignedType(simpleType);
+		assertTrue("Must be 2.", simpleType.getWhereAssignedCount() == 2);
+
+		// Delete the simple type and assure the assigned types on properties are correct.
+		((Node) simpleType).delete();
+		assertTrue("Must be unassigned.", ele.getAssignedType() == ModelNode.getUnassignedNode());
+		assertTrue("Must be unassigned.", attr.getAssignedType() == ModelNode.getUnassignedNode());
+		assertTrue("Must be 0.", simpleType.getWhereAssignedCount() == 0);
+		assertTrue("Must be starting value.", aTypeCount == aType.getWhereAssignedCount());
+
 	}
 
 	@Test
@@ -348,12 +384,15 @@ public class Delete_Tests {
 				INode user = null;
 
 				// Make sure the users of this type are informed of deletion.
-				if (n.getTypeUsers().size() > 0) {
-					user = n.getTypeUsers().get(0);
-				}
-				n.delete();
-				if (user != null && n.isDeleteable()) {
-					Assert.assertNotSame(n, user.getType());
+				if (n instanceof TypeProvider) {
+					List<TypeUser> users = new ArrayList<TypeUser>(((TypeProvider) n).getWhereAssigned());
+					if (users.size() > 0) {
+						user = (INode) users.get(0);
+					}
+					n.delete();
+					if (user != null && n.isDeleteable()) {
+						Assert.assertNotSame(n, user.getType());
+					}
 				}
 			}
 		}

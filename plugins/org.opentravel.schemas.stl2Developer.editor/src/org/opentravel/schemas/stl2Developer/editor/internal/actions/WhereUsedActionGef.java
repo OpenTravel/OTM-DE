@@ -15,12 +15,15 @@
  */
 package org.opentravel.schemas.stl2Developer.editor.internal.actions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.gef.ui.parts.AbstractEditPartViewer;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.stl2Developer.editor.model.UINode;
 import org.opentravel.schemas.stl2Developer.editor.model.Diagram.Position;
+import org.opentravel.schemas.stl2Developer.editor.model.UINode;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 
 /**
  * @author Pawel Jedruch
@@ -28,31 +31,41 @@ import org.opentravel.schemas.stl2Developer.editor.model.Diagram.Position;
  */
 public class WhereUsedActionGef extends ShowHideNodeAction {
 
-    public WhereUsedActionGef(AbstractEditPartViewer viewer, String label) {
-        super(viewer, label);
-    }
+	public WhereUsedActionGef(AbstractEditPartViewer viewer, String label) {
+		super(viewer, label);
+	}
 
-    @Override
-    protected List<Node> getNewNodes(UINode n) {
-        return getOwningComponents(n.getNode().getWhereUsed());
-    }
+	@Override
+	protected List<Node> getNewNodes(UINode n) {
+		Node nn = n.getNode();
+		List<Node> usedNodes = new ArrayList<Node>();
+		// Changed to use where assigned - 3/28/16 - dmh
+		if (nn instanceof TypeProvider) {
+			for (TypeUser u : ((TypeProvider) nn).getWhereAssigned())
+				usedNodes.add((Node) u);
+			return getOwningComponents(usedNodes);
+		}
+		return null;
+	}
 
-    @Override
-    protected boolean isValidSelection(List<UINode> nodes) {
-        for (UINode n : nodes) {
-            if (!n.getNode().getWhereUsed().isEmpty())
-                return true;
-        }
-        return false;
-    }
+	@Override
+	protected boolean isValidSelection(List<UINode> nodes) {
+		for (UINode n : nodes) {
+			Node nn = n.getNode();
+			if (nn instanceof TypeProvider)
+				if (!((TypeProvider) nn).getWhereAssigned().isEmpty())
+					return true;
+		}
+		return false;
+	}
 
-    @Override
-    protected Position getInitialPosition(Node newNode, Node referance) {
-        if (newNode.isInstanceOf(referance)) {
-            return Position.BOTTOM;
-        } else if (referance.isInstanceOf(newNode)) {
-            return Position.TOP;
-        }
-        return Position.LEFT;
-    }
+	@Override
+	protected Position getInitialPosition(Node newNode, Node referance) {
+		if (newNode.isInstanceOf(referance)) {
+			return Position.BOTTOM;
+		} else if (referance.isInstanceOf(newNode)) {
+			return Position.TOP;
+		}
+		return Position.LEFT;
+	}
 }

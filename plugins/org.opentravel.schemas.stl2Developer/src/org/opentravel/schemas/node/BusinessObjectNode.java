@@ -48,6 +48,7 @@ import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.ExtensionHandler;
 import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 
 /**
  * @author Dave Hollander
@@ -145,51 +146,21 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 		return this;
 	}
 
-	// /*
-	// * (non-Javadoc)
-	// *
-	// * @see org.opentravel.schemas.types.TypeProvider#getTypeNode()
-	// */
-	// @Override
-	// public Node getTypeNode() {
-	// return getTypeClass().getTypeNode();
-	// }
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#hasChildren_TypeProviders()
-	 */
 	@Override
 	public boolean hasChildren_TypeProviders() {
 		return isXsdType() ? false : true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isNamedType()
-	 */
 	@Override
 	public boolean isNamedType() {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isAssignedByReference()
-	 */
 	@Override
 	public boolean isAssignedByReference() {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#getChildren_TypeUsers()
-	 */
 	@Override
 	public List<Node> getChildren_TypeUsers() {
 		ArrayList<Node> users = new ArrayList<Node>();
@@ -208,27 +179,11 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 		return ComponentNodeType.BUSINESS;
 	}
 
-	// /*
-	// * (non-Javadoc)
-	// *
-	// * @see org.opentravel.schemas.node.ComplexComponentInterface#getSimpleType()
-	// */
-	// @Override
-	// public ComponentNode getSimpleType() {
-	// return null;
-	// }
-	//
-	// @Override
-	// public boolean setSimpleType(Node type) {
-	// return false;
-	// }
-	//
 	@Override
 	public SimpleFacetNode getSimpleFacet() {
 		return null;
 	}
 
-	// FacetMO
 	@Override
 	public FacetNode getSummaryFacet() {
 		for (INode f : getChildren())
@@ -237,7 +192,6 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 		return null;
 	}
 
-	// FacetMO
 	@Override
 	public PropertyOwnerInterface getDetailFacet() {
 		for (INode f : getChildren())
@@ -299,11 +253,6 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 		ff = (FacetNode) NodeFactory.newComponentMember(this, newTlFacet);
 		return ff;
 	}
-
-	// @Override
-	// public boolean canExtend() {
-	// return true;
-	// }
 
 	@Override
 	public ComponentNode createMinorVersionComponent() {
@@ -423,31 +372,21 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#setName(java.lang.String)
-	 */
 	@Override
 	public void setName(String n) {
 		n = NodeNameUtils.fixBusinessObjectName(n);
 		setName(n, true);
 		// this.setName(n, true);
 		for (Node child : getChildren()) {
-			for (Node users : child.getTypeUsers())
-				NodeNameUtils.fixName(users);
+			for (TypeUser users : ((TypeProvider) child).getWhereAssigned())
+				NodeNameUtils.fixName((Node) users);
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#setName(java.lang.String, boolean)
-	 */
 	@Override
 	public void setName(String n, boolean doFamily) {
 		super.setName(NodeNameUtils.fixBusinessObjectName(n), doFamily);
-		for (Node user : getTypeUsers()) {
+		for (TypeUser user : getWhereAssigned()) {
 			if (user instanceof PropertyNode)
 				user.setName(NodeNameUtils.fixBusinessObjectName(n));
 		}

@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +54,33 @@ public class CoreTests {
 		mockLibrary = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
+	}
+
+	@Test
+	public void extendedCO() {
+		MainController mc = new MainController();
+		LoadFiles lf = new LoadFiles();
+		MockLibrary ml = new MockLibrary();
+		ProjectNode proj = mc.getProjectController().getDefaultProject();
+		assertNotNull("Null project", proj);
+		LibraryNode ln = lf.loadFile4(mc);
+		LibraryChainNode lcn = new LibraryChainNode(ln); // Test in managed library
+		ln.setEditable(true);
+
+		LibraryNode ln2 = ml.createNewLibrary("http://test.com", "tl2", proj);
+		LibraryChainNode lcn2 = new LibraryChainNode(ln2);
+		ln2.setEditable(true);
+
+		CoreObjectNode extendedCO = ml.addCoreObjectToLibrary(ln2, "ExtendedCO");
+		assertNotNull("Null object created.", extendedCO);
+
+		for (Node n : ln.getDescendants_NamedTypes())
+			if (n instanceof CoreObjectNode && n != extendedCO) {
+				extendedCO.setExtension(n);
+				checkCore((CoreObjectNode) n);
+				checkCore(extendedCO);
+			}
+
 	}
 
 	@Test

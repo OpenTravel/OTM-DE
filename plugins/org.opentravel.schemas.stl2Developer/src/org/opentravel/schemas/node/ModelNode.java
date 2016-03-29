@@ -324,12 +324,12 @@ public class ModelNode extends Node {
 	}
 
 	@Override
-	public int getWhereUsedCount() {
+	public int getWhereAssignedCount() {
 		return typeUsers;
 	}
 
 	public int getUnassignedTypeCount() {
-		return unassignedNode.getWhereUsedCount();
+		return unassignedNode.getWhereAssignedCount();
 	}
 
 	/**

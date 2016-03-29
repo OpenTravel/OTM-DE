@@ -42,6 +42,7 @@ import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.ExtensionHandler;
 import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 
 /**
  * @author Dave Hollander
@@ -327,15 +328,15 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 	public void setName(String n) {
 		this.setName(n, true);
 		for (Node child : getChildren()) {
-			for (Node users : child.getTypeUsers())
-				NodeNameUtils.fixName(users);
+			for (TypeUser users : ((TypeProvider) child).getWhereAssigned())
+				NodeNameUtils.fixName((Node) users);
 		}
 	}
 
 	@Override
 	public void setName(String n, boolean doFamily) {
 		super.setName(n, doFamily);
-		for (Node user : getTypeUsers()) {
+		for (TypeUser user : getWhereAssigned()) {
 			if (user instanceof PropertyNode)
 				user.setName(n);
 		}

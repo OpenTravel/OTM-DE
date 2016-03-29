@@ -21,8 +21,6 @@ package org.opentravel.schemas.node;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.namespace.QName;
-
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
@@ -87,21 +85,9 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 		setSimpleType(core.getSimpleType());
 	}
 
-	// @Override
-	// public Node getAssignedType() {
-	// return getSimpleType();
-	// }
-
 	@Override
 	public ComponentNode createMinorVersionComponent() {
 		return super.createMinorVersionComponent(new VWA_Node(createMinorTLVersion(this)));
-	}
-
-	@Override
-	public QName getTLTypeQName() {
-		QName typeQname = null;
-		typeQname = getSimpleFacet().getSimpleAttribute().getTLTypeQName();
-		return typeQname;
 	}
 
 	/**
@@ -206,40 +192,10 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 	// /**
 	// * Override to provide type from simple facet.
 	// */
-	// @Override
-	// public TypeProvider getAssignedType() {
-	// return getSimpleFacet().getAssignedType();
-	// }
-
 	@Override
 	public void sort() {
 		((FacetNode) getAttributeFacet()).sort();
 	}
-
-	// @Override
-	// public boolean setSimpleType(Node type) {
-	// // return getSimpleFacet().getSimpleAttribute().setAssignedType(type);
-	// if (type instanceof TypeProvider)
-	// return getSimpleFacet().getSimpleAttribute().setAssignedType((TypeProvider) type);
-	// return false;
-	// }
-
-	// // Must use simple attribute because facet is not type user.
-	// // 10/5/2015 - was not defined here, used supertype
-	// @Override
-	// public boolean setAssignedType(TypeProvider replacement) {
-	// return getSimpleFacet().getSimpleAttribute().getTypeClass().setAssignedType(replacement);
-	// }
-
-	// @Override
-	// public void setExtendsType(final INode sourceNode) {
-	// // // update TLModel
-	// // super.setExtendsType(sourceNode);
-	// // // make changes to node model
-	// // setSimpleType((Node) sourceNode);
-	// if (sourceNode instanceof ExtensionOwner)
-	// extensionHandler.set((ExtensionOwner) sourceNode);
-	// }
 
 	@Override
 	public void merge(Node source) {

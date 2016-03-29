@@ -37,6 +37,7 @@ import org.opentravel.schemas.modelObject.EmptyMO;
 import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
@@ -577,8 +578,8 @@ public class ComponentNode extends Node {
 		if (owner.getLibrary() == owner.getChain().getHead())
 			return null;
 
-		newNode.setExtendsType(owner);
-		// newNode.getTypeClass().setBaseType(owner);
+		if (newNode instanceof ExtensionOwner)
+			((ExtensionOwner) newNode).setExtension(owner);
 		if (newNode.getName() == null || newNode.getName().isEmpty())
 			newNode.setName(owner.getName()); // Some of the version handlers do not set name
 		owner.getChain().getHead().addMember(newNode);
@@ -601,12 +602,12 @@ public class ComponentNode extends Node {
 
 		if (isFacet())
 			newNode.setExtension(this);
-		else if (isProperty())
+		else if (this instanceof PropertyNode)
 			newNode.setExtension(getParent());
-		else if (isCoreObject())
-			newNode.setExtendsType((INode) getSummaryFacet());
-		else if (isBusinessObject())
-			newNode.setExtendsType((INode) getSummaryFacet());
+		else if (this instanceof CoreObjectNode)
+			newNode.setExtension((Node) getSummaryFacet());
+		else if (this instanceof BusinessObjectNode)
+			newNode.setExtension((Node) getSummaryFacet());
 		// else
 		// LOGGER.error("Can't add a property to this: " + this);
 		// If there already is an EP, then return that.
@@ -905,10 +906,10 @@ public class ComponentNode extends Node {
 	// }
 
 	@Override
-	public int getWhereUsedCount() {
+	public int getWhereAssignedCount() {
 		int cnt = 0;
 		if (this instanceof TypeProvider)
-			cnt = ((TypeProvider) this).getWhereUsedCount();
+			cnt = ((TypeProvider) this).getWhereAssignedCount();
 		return cnt;
 
 		// if (getTypeClass() == null)

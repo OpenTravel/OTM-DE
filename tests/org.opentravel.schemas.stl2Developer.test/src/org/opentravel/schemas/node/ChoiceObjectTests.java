@@ -71,11 +71,19 @@ public class ChoiceObjectTests {
 	@Test
 	public void fileReadTest() throws Exception {
 		LibraryNode testLib = new LoadFiles().loadFile6(mc);
+		LibraryNode ln2 = mockLibrary.createNewLibrary("http://example.com/choice", "CT", pc.getDefaultProject());
+		ChoiceObjectNode extendedChoice = mockLibrary.addChoice(ln2, "ExtendedChoice");
+
 		new LibraryChainNode(testLib); // Test in a chain
 
 		for (Node choice : testLib.getDescendants_NamedTypes()) {
-			if (choice instanceof ChoiceObjectNode)
+			if (choice instanceof ChoiceObjectNode) {
 				checkChoice((ChoiceObjectNode) choice);
+
+				extendedChoice.setExtension(choice);
+				checkChoice((ChoiceObjectNode) choice);
+				checkChoice(extendedChoice);
+			}
 		}
 	}
 
@@ -85,7 +93,7 @@ public class ChoiceObjectTests {
 	// new LibraryChainNode(ln); // Test in a chain
 	// }
 
-	private void checkChoice(ChoiceObjectNode choice) {
+	public void checkChoice(ChoiceObjectNode choice) {
 		Assert.assertTrue(choice instanceof ChoiceObjectNode);
 
 		// Validate model and tl object
@@ -114,6 +122,7 @@ public class ChoiceObjectTests {
 			assertFalse(name.isEmpty());
 			String label = f.getLabel();
 			assertFalse(f.getLabel().isEmpty());
+			assertTrue(((Node) poi).getParent() == choice);
 		}
 
 		// Does this extend another choice? If so, examine inherited children
@@ -124,6 +133,8 @@ public class ChoiceObjectTests {
 			if (choice.getName().equals("ExtendedChoice")) {
 				for (Node n : choice.getChildren())
 					if (n instanceof FacetNode) {
+						assertTrue(((Node) n).getParent() != null);
+
 						List<TLAttribute> tlAttrs = PropertyCodegenUtils.getInheritedFacetAttributes((TLFacet) n
 								.getTLModelObject());
 						List<Node> inheritedList = n.getInheritedChildren();
@@ -131,11 +142,8 @@ public class ChoiceObjectTests {
 							List<Node> x = n.getInheritedChildren();
 						}
 
-						assert !inheritedList.isEmpty();
-						assert inheritedList.size() == 3;
-						// check parent and owner of inherited...assure they are not n and n.getOwner()
-						//
-						// make sure we inherit ChoiceB
+						// assert !inheritedList.isEmpty();
+						// assert inheritedList.size() == 3;
 					}
 			}
 			assertNotNull(baseClass);

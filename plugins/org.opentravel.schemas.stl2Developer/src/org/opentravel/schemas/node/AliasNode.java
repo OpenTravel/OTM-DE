@@ -26,6 +26,7 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,11 +112,6 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#getOwningComponent()
-	 */
 	@Override
 	public Node getOwningComponent() {
 		return getParent() != null ? getParent().getOwningComponent() : this;
@@ -148,11 +144,6 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 		return getParent() != null ? getParent().isAssignable() : false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isAssignedByReference()
-	 */
 	@Override
 	public boolean isAssignedByReference() {
 		return getParent() != null ? getParent().isAssignedByReference() : false;
@@ -193,7 +184,7 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 		if (getParent() == null)
 			return; // happens during initial node creation
 		if (!(getParent() instanceof ComplexComponentInterface)) {
-			LOGGER.warn("Can't set name unless the parent is the component, not a facet. " + getName());
+			// LOGGER.warn("Can't set name unless the parent is the component, not a facet. " + getName());
 			return;
 		}
 		n = NodeNameUtils.fixComplexTypeName(n);
@@ -290,9 +281,9 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 			if (remainder.length() > 0)
 				fullNewName = newName + remainder;
 			n.getModelObject().setName(fullNewName);
-			for (Node user : n.getTypeUsers()) {
-				user.setName(fullNewName);
-			}
+			if (n instanceof TypeProvider)
+				for (TypeUser user : ((TypeProvider) n).getWhereAssigned())
+					user.setName(fullNewName);
 		}
 	}
 

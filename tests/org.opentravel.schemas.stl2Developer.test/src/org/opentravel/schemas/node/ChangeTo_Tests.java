@@ -18,7 +18,7 @@
  */
 package org.opentravel.schemas.node;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,10 +38,13 @@ import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.types.Type;
 import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Test changing types of library members (business objects, core object, vwa, etc.)
+ * 
  * @author Dave Hollander
  * 
  */
@@ -158,17 +161,17 @@ public class ChangeTo_Tests {
 		tn.visit(lcn);
 
 		// Make assignment and assure counts are correct.
-		List<?> list = null;
+		Collection<TypeUser> list = null;
 		p1.setAssignedType(vwa);
 		Assert.assertTrue("not assigned", p1.getAssignedType() == vwa);
-		list = vwa.getTypeUsers();
-		Assert.assertEquals(1, vwa.getTypeUsers().size());
+		list = vwa.getWhereAssigned();
+		Assert.assertEquals(1, vwa.getWhereAssigned().size());
 
 		ComponentNode nc = vwa.changeToCoreObject();
 		Assert.assertTrue("not assigned", p1.getAssignedType() == nc);
-		list = nc.getTypeUsers();
+		list = ((TypeProvider) nc).getWhereAssigned();
 		Assert.assertTrue("not member", list.contains(p1));
-		Assert.assertEquals(1, nc.getTypeUsers().size());
+		Assert.assertEquals(1, ((TypeProvider) nc).getWhereAssigned().size());
 	}
 
 	@Test
@@ -182,9 +185,9 @@ public class ChangeTo_Tests {
 		p1.setAssignedType(nodeToReplace);
 
 		// NodeToReplace is input param
-		Assert.assertEquals(1, nodeToReplace.getTypeUsers().size());
+		Assert.assertEquals(1, nodeToReplace.getWhereAssigned().size());
 		LOGGER.debug("Changing selected component: " + nodeToReplace.getName() + " with "
-				+ nodeToReplace.getWhereUsedCount() + " users.");
+				+ nodeToReplace.getWhereAssignedCount() + " users.");
 
 		// WHAT THE HECK IS THIS? Why is there only one object?
 		ComponentNode editedNode = nodeToReplace;
@@ -192,14 +195,14 @@ public class ChangeTo_Tests {
 
 		// code used in ChangeWizardPage
 		editedNode = editedNode.changeObject(SubType.CORE_OBJECT);
-		Assert.assertEquals(0, nodeToReplace.getTypeUsers().size());
+		Assert.assertEquals(0, nodeToReplace.getWhereAssigned().size());
 		// deleted in main controller
 		if (editedNode != nodeToReplace)
 			nodeToReplace.delete();
 
-		LOGGER.debug("Changing Edited component: " + editedNode.getName() + " with " + editedNode.getWhereUsedCount()
-				+ " users.");
-		Assert.assertEquals(1, editedNode.getTypeUsers().size());
+		LOGGER.debug("Changing Edited component: " + editedNode.getName() + " with "
+				+ editedNode.getWhereAssignedCount() + " users.");
+		Assert.assertEquals(1, ((TypeProvider) editedNode).getWhereAssigned().size());
 		Assert.assertEquals(editedNode, p1.getTypeNode());
 		// 1/22/15 - the counts are wrong!
 
@@ -296,8 +299,8 @@ public class ChangeTo_Tests {
 
 					if (aProperty != null) {
 						aPropertyAssignedType = aProperty.getType();
-						aPropertyAssignedType.getWhereUsedCount();
-						aPropertyAssignedType.getTypeUsers();
+						aPropertyAssignedType.getWhereAssignedCount();
+						((TypeProvider) aPropertyAssignedType).getWhereAssigned();
 						// link to the live list of who uses the assigned type before change
 						// aType = aProperty.getTypeClass();
 					}
@@ -327,8 +330,8 @@ public class ChangeTo_Tests {
 
 					if (newProperty != null) {
 						newAssignedType = newProperty.getType();
-						newAssignedType.getWhereUsedCount();
-						newProperty.getType().getTypeUsers();
+						newAssignedType.getWhereAssignedCount();
+						((TypeUser) newProperty).getAssignedType().getWhereAssigned();
 
 						// run property tests
 						Assert.assertEquals(aPropertyAssignedType.getNameWithPrefix(),
@@ -380,6 +383,6 @@ public class ChangeTo_Tests {
 
 	protected void listTypeUsersCounts(LibraryNode ln) {
 		for (Node provider : ln.getDescendentsNamedTypeProviders())
-			LOGGER.debug(provider.getWhereUsedCount() + "\t users of type provider: " + provider);
+			LOGGER.debug(provider.getWhereAssignedCount() + "\t users of type provider: " + provider);
 	}
 }

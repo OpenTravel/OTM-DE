@@ -274,7 +274,7 @@ public class ChangeWizardPage extends WizardPage {
 	 * Set the type of object. The editNode becomes the newly created object and the current node is put into history.
 	 */
 	private void setObjectType(final SubType st) {
-		LOGGER.debug("setObjectType(" + st + ") " + editedNode.getName() + " has " + editedNode.getWhereUsedCount()
+		LOGGER.debug("setObjectType(" + st + ") " + editedNode.getName() + " has " + editedNode.getWhereAssignedCount()
 				+ " users.");
 
 		final HistoryItem item = new HistoryItem(OpType.OBJECT_TYPE_CHANGE, editedNode, null);
@@ -283,7 +283,7 @@ public class ChangeWizardPage extends WizardPage {
 			editedNode = editedNode.changeObject(st);
 			tablePoster.postTable(editedNode);
 			updateFacetTypeButtons();
-			LOGGER.debug("After change " + editedNode.getName() + " has " + editedNode.getWhereUsedCount() + " users.");
+			LOGGER.debug("After change " + editedNode.getName() + " has " + editedNode.getWhereAssignedCount() + " users.");
 		} catch (Exception ex) {
 			undoLastOp();
 			LOGGER.warn("Error on chaning type to: " + st.toString());

@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.BuiltInLibrary;
 import org.opentravel.schemacompiler.model.TLFacet;
@@ -58,6 +59,8 @@ import org.opentravel.schemas.trees.type.TypeSelectionFilter;
 import org.opentravel.schemas.trees.type.TypeTree;
 import org.opentravel.schemas.trees.type.TypeTreeNameFilter;
 import org.opentravel.schemas.trees.type.TypeTreeNamespaceFilter;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.widgets.WidgetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,10 +111,17 @@ public class TypeSelectionPage extends WizardPage {
 		if (curNode instanceof CoreObjectNode) {
 			FacetNode sum = (FacetNode) ((CoreObjectNode) curNode).getSummaryFacet();
 			TLFacet tlSum = (TLFacet) sum.getTLModelObject();
-			// LOGGER.debug(curNode + " now has " + sum.getInheritedChildren().size() + " inherited children and "
-			// + sum.getChildren().size() + " children.");
-			// LOGGER.debug(curNode + " now has " + PropertyCodegenUtils.getInheritedFacetProperties(tlSum).size()
-			// + " inherited elements and " + tlSum.getElements().size() + " element children.");
+			LOGGER.debug(curNode + " now has " + sum.getInheritedChildren().size() + " inherited children and "
+					+ sum.getChildren().size() + " children.");
+			LOGGER.debug(curNode + " now has " + PropertyCodegenUtils.getInheritedFacetProperties(tlSum).size()
+					+ " inherited elements and " + tlSum.getElements().size() + " element children.");
+			// check assigned types and assure they have parents
+			for (Node n : sum.getChildren()) {
+				if (n instanceof TypeUser) {
+					TypeProvider type = ((TypeUser) n).getAssignedType();
+					assert ((Node) type).getParent() != null;
+				}
+			}
 		}
 	}
 

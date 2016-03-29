@@ -93,6 +93,8 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 	public ComponentNode createVersionExtension(Node selectedNode) {
 		ComponentNode actOnNode = null; // The node to perform the action on.
 		boolean result = false;
+		if (selectedNode.getChain() == null)
+			return null;
 
 		if (selectedNode.getChain().getHead().isPatchVersion()) {
 			// Will always be in a different library or else it is a ExtensionPoint facet.

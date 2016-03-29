@@ -55,47 +55,9 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 		NamedEntity tlObj = owner.getModelObject().getTLBase();
 		return Node.GetNode((TLModelElement) tlObj);
 
-		// TODO - modelObject only does Business, Choice and Core objects.
-
-		// From VWA
-		// TLAttributeType tlParent = ((TLValueWithAttributes) getTLModelObject()).getParentType();
-		// Node parent = GetNode(((TLModelElement) tlParent).getListeners());
-		// return parent;
-		// From closed enum:
-		// Lazy evaluation: get it from TL object after all nodes generated with listeners.
-		// Node nType = ModelNode.getDefaultStringNode(); // Set base type.
-		// if (((TLAbstractEnumeration) getTLModelObject()).getExtension() != null) {
-		// NamedEntity eType = ((TLAbstractEnumeration) getTLModelObject()).getExtension().getExtendsEntity();
-		// nType = GetNode(((TLModelElement) eType).getListeners());
-		// }
-		// if (getTypeClass().getTypeNode() != nType)
-		// getTypeClass().setTypeNode(nType);
-		// return (Node) getTypeClass().getTypeNode();
-
-		// From enum:
-		// Lazy evaluation: get it from TL object after all nodes generated with listeners.
-		// Node nType = ModelNode.getDefaultStringNode(); // Set base type.
-		// if (((TLAbstractEnumeration) getTLModelObject()).getExtension() != null) {
-		// NamedEntity eType = ((TLAbstractEnumeration) getTLModelObject()).getExtension().getExtendsEntity();
-		// nType = GetNode(((TLModelElement) eType).getListeners());
-		// }
-		// if (getTypeClass().getTypeNode() != nType)
-		// getTypeClass().setTypeNode(nType);
-		// return (Node) getTypeClass().getTypeNode();
-		// // base type might not have been loaded when constructor was called. check the tl model not the type node.
-		// return getExtensionNode();
-
-		// From choice
-		// if (getTLModelObject() instanceof TLExtensionOwner
-		// && ((TLExtensionOwner) getTLModelObject()).getExtension() != null) {
-		// NamedEntity tlBase = ((TLExtensionOwner) getTLModelObject()).getExtension().getExtendsEntity();
-		// if (tlBase instanceof TLModelElement)
-		// baseClass = GetNode(((TLModelElement) tlBase).getListeners());
-		// // for (ModelElementListener listener : ((TLModelElement) tlBase).getListeners())
-		// // if (listener instanceof BaseNodeListener)
-		// // baseClass = ((BaseNodeListener) listener).getNode();
-		// }
-		// return baseClass;
+		// From enum: works
+		// From VWA : works
+		// From choice works
 	}
 
 	/**
@@ -114,7 +76,8 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 		if (base == null)
 			return remove();
 
-		LOGGER.debug("Start - set extension base of " + owner.getNameWithPrefix() + " to " + base.getNameWithPrefix());
+		// LOGGER.debug("Start - set extension base of " + owner.getNameWithPrefix() + " to " +
+		// base.getNameWithPrefix());
 
 		// Save the old base object for after the assignment
 		Node oldBase = owner.getExtensionBase();
@@ -131,70 +94,25 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 		owner.getModelObject().setExtendsType(base.getModelObject());
 
 		// update library where used
+		// on initial load/type resolver old and base will be the same
+		if (oldBase == base)
+			if (base.getLibrary() != null)
+				base.getLibrary().getWhereUsedHandler().add(owner);
+		if (oldBase == null) {
+			if (base.getLibrary() != null)
+				base.getLibrary().getWhereUsedHandler().add(owner);
+		} else if (oldBase.getLibrary() != base.getLibrary()) {
+			if (base.getLibrary() != null)
+				base.getLibrary().getWhereUsedHandler().add(owner);
+			if (oldBase.getLibrary() != null)
+				oldBase.getLibrary().getWhereUsedHandler().remove(owner);
+		}
 
-		if (oldBase == null)
-			LOGGER.debug("END -" + owner + " changed assigment from null to " + base);
-		else
-			LOGGER.debug("END -" + owner + " changed assigment from " + oldBase.getNameWithPrefix() + " to "
-					+ base.getNameWithPrefix());
-
-		// /////////////////////////////////////////////////////
-		// Add handler listener
-		// Node oldValue = null;
-		// if (base instanceof ExtensionOwner)
-		// oldValue = ((ExtensionOwner) base).getExtendsType();
-		//
-		// whereExtendedHandler.setListener(base);
-		//
-		//
-		// // remove where used listener from old assigned type
-		// if (oldValue != target)
-		// ((TypeProvider) oldValue).removeListener(owner);
-
-		// update library where used
-		// if (oldValue.getLibrary() != base.getLibrary()) {
-		// if (base.getLibrary() != null)
-		// base.getLibrary().getWhereUsedHandler().add(owner);
-		// if (oldValue.getLibrary() != null)
-		// oldValue.getLibrary().getWhereUsedHandler().remove(owner);
-		// }
-
-		// if (!(owner instanceof ExtensionOwner))
-		// sourceNode = ModelNode.getUnassignedNode();
-		// if ((sourceNode == null) || (!sourceNode.isTypeProvider()))
-		// sourceNode = ModelNode.getUnassignedNode();
-
-		// From VWA:
-		// update TLModel
-		// super.setExtendsType(sourceNode);
-		// // make changes to node model
-		// setSimpleType((Node) sourceNode);
-
-		// FIXME
-		// LOGGER.error("Set on extension handler not implemented yet.");
-		// setBaseType((Node) sourceNode);
-		// Unlink if base type is already set.
-		// if ((typeNode.getTypeClass().baseUsers != null))
-		// typeNode.getTypeClass().baseUsers.remove(typeOwner);
-		//
-		// // Add this owner to the sources base users list
-		// if (!sourceNode.getTypeClass().baseUsers.contains(typeOwner))
-		// sourceNode.getTypeClass().baseUsers.add(typeOwner);
-		// // TESTME - this used to also add to the typeUsers array
-		//
-		// typeNode = sourceNode;
-
-		// Set the TL model if TLExtension owner or else set to null (clear)
-		// Note: VWAs are not members of TLExtensionOnwer and must have the parent type set instead.
-		// if (!(sourceNode instanceof ImpliedNode))
-		// if (owner.getTLModelObject() instanceof TLExtensionOwner)
-		// owner.getModelObject().setExtendsType(sourceNode.getModelObject());
-		// else if (owner instanceof VWA_Node)
-		// ((VWA_Node) owner).setAssignedType((TypeProvider) sourceNode);
+		// if (oldBase == null)
+		// LOGGER.debug("END -" + owner + " changed assigment from null to " + base);
 		// else
-		// owner.getModelObject().setExtendsType(null);
-
-		// LOGGER.debug("Set base type of " + owner + " to " + base);
+		// LOGGER.debug("END -" + owner + " changed assigment from " + oldBase.getNameWithPrefix() + " to "
+		// + base.getNameWithPrefix());
 		return false;
 	}
 
@@ -208,10 +126,6 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 		owner.getModelObject().setExtendsType(null);
 
 		removeListener();
-		// // Remove the listener from the old base type (if any)
-		// if (owner.getExtensionBase() != null)
-		// owner.getExtensionBase().getWhereExtendedHandler().removeListener(owner);
-
 		return true;
 	}
 
@@ -222,10 +136,6 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 				owner.getTLModelObject().removeListener(l);
 				return;
 			}
-
-		// if (owner.getExtensionBase() != null)
-		// owner.getExtensionBase().getWhereExtendedHandler().removeListener(owner);
-
 	}
 
 	@Override
@@ -240,11 +150,4 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 		return null;
 	}
 
-	// Not needed - just use set
-	// public void replace(Node replacement, LibraryNode scope) {
-	// // Get where this owne is used as the extension and replace with replacement
-	// Node owner = get();
-	// if (owner instanceof ExtensionOwner)
-	// ((ExtensionOwner) owner).setExtension(replacement);
-	// }
 }

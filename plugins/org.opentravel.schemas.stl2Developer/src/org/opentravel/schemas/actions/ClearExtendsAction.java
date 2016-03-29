@@ -20,68 +20,69 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Text;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.MainWindow;
 
 /**
- * Action that handles the selection and assignment of extensions for cores, business objects,
- * operations, and extension point facets.
+ * Action that handles the selection and assignment of extensions for cores, business objects, operations, and extension
+ * point facets.
  * 
  * @author S. Livezey
  */
 public class ClearExtendsAction extends OtmAbstractAction {
 
-    private Text extendsField;
-    private Button clearButton;
+	private Text extendsField;
+	private Button clearButton;
 
-    public ClearExtendsAction(MainWindow mainWindow, StringProperties props, Text extendsField,
-            Button clearButton) {
-        super(mainWindow, props);
-        this.extendsField = extendsField;
-        this.clearButton = clearButton;
+	public ClearExtendsAction(MainWindow mainWindow, StringProperties props, Text extendsField, Button clearButton) {
+		super(mainWindow, props);
+		this.extendsField = extendsField;
+		this.clearButton = clearButton;
 
-        clearButton.addSelectionListener(new SelectionListener() {
+		clearButton.addSelectionListener(new SelectionListener() {
 
-            @Override
-            public void widgetSelected(final SelectionEvent e) {
-                run();
-            }
+			@Override
+			public void widgetSelected(final SelectionEvent e) {
+				run();
+			}
 
-            @Override
-            public void widgetDefaultSelected(final SelectionEvent e) {
-            }
+			@Override
+			public void widgetDefaultSelected(final SelectionEvent e) {
+			}
 
-        });
-    }
+		});
+	}
 
-    /**
-     * @see org.eclipse.jface.action.Action#run()
-     */
-    @Override
-    public void run() {
-        boolean confirmClear = DialogUserNotifier.openConfirm(Messages.getString("OtmW.352"),
-                Messages.getString("OtmW.353"));
+	/**
+	 * @see org.eclipse.jface.action.Action#run()
+	 */
+	@Override
+	public void run() {
+		boolean confirmClear = DialogUserNotifier.openConfirm(Messages.getString("OtmW.352"),
+				Messages.getString("OtmW.353"));
 
-        if (confirmClear) {
-            Node n = mc.getSelectedNode_TypeView();
-            n.setExtendsType(null);
-            n.resetInheritedChildren();
-            mc.refresh();
-        }
-    }
+		if (confirmClear) {
+			Node n = mc.getSelectedNode_TypeView();
+			if (n instanceof ExtensionOwner)
+				((ExtensionOwner) n).setExtension(null);
+			n.resetInheritedChildren();
+			mc.refresh();
+		}
+	}
 
-    /**
-     * @see org.eclipse.jface.action.Action#setEnabled(boolean)
-     */
-    @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        if (extendsField != null)
-            extendsField.setEnabled(enabled);
-        if (clearButton != null)
-            clearButton.setEnabled(enabled);
-    }
+	/**
+	 * @see org.eclipse.jface.action.Action#setEnabled(boolean)
+	 */
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		if (extendsField != null)
+			extendsField.setEnabled(enabled);
+		if (clearButton != null)
+			clearButton.setEnabled(enabled);
+	}
 
 }

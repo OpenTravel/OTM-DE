@@ -93,7 +93,7 @@ public class TypeNode extends Node {
 	@Override
 	public String getLabel() {
 		return owner instanceof TypeProvider ? labelProvider.getLabel() + " ("
-				+ ((TypeProvider) owner).getWhereUsedCount() + ")" : labelProvider.getLabel();
+				+ ((TypeProvider) owner).getWhereAssignedCount() + ")" : labelProvider.getLabel();
 	}
 
 	@Override
@@ -124,8 +124,8 @@ public class TypeNode extends Node {
 		if (owner == null)
 			return Collections.emptyList();
 		if (owner instanceof TypeProvider)
-			for (Node u : ((TypeProvider) owner).getWhereUsedAndDescendants())
-				users.add(new TypeNode(u, TypeNodeType.USER));
+			for (TypeUser u : ((TypeProvider) owner).getWhereUsedAndDescendants())
+				users.add(new TypeNode((Node) u, TypeNodeType.USER));
 		else if (owner instanceof LibraryNode)
 			if (nodeType.equals(TypeNodeType.OWNER))
 				for (Node l : ((LibraryNode) owner).getWhereUsedHandler().getWhereUsed())

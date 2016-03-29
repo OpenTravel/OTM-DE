@@ -126,7 +126,8 @@ public class LoadFiles {
 				}
 				if (n.getAssignedTLObject() == null) {
 					// LOGGER.debug("Removing " + n + " due to null TL_TypeObject.");
-					((Node) n).getOwningComponent().delete();
+					if (((Node) n).getOwningComponent() != null)
+						((Node) n).getOwningComponent().delete();
 					continue;
 				}
 				// if (!n.getTypeClass().verifyAssignment()) {

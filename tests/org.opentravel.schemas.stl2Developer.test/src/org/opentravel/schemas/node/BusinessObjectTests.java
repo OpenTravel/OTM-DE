@@ -68,6 +68,28 @@ public class BusinessObjectTests {
 	}
 
 	@Test
+	public void extendedBO() {
+		MainController mc = new MainController();
+		LoadFiles lf = new LoadFiles();
+		MockLibrary ml = new MockLibrary();
+
+		LibraryNode ln = lf.loadFile4(mc);
+		LibraryChainNode lcn = new LibraryChainNode(ln); // Test in managed library
+		ln.setEditable(true);
+
+		BusinessObjectNode extendedBO = ml.addBusinessObjectToLibrary(ln, "ExtendedBO");
+		assertNotNull("Null object created.", extendedBO);
+
+		for (Node n : ln.getDescendants_NamedTypes())
+			if (n instanceof BusinessObjectNode && n != extendedBO) {
+				extendedBO.setExtension(n);
+				checkBO((BusinessObjectNode) n);
+				checkBO(extendedBO);
+			}
+
+	}
+
+	@Test
 	public void changeToBO() {
 		MockLibrary ml = new MockLibrary();
 		MainController mc = new MainController();
@@ -82,7 +104,7 @@ public class BusinessObjectTests {
 		new ElementNode(core.getSummaryFacet(), "TE2").setAssignedType(vwa);
 
 		int typeCount = ln.getDescendants_NamedTypes().size();
-		Assert.assertEquals(1, vwa.getWhereUsed().size());
+		Assert.assertEquals(1, vwa.getWhereAssigned().size());
 
 		tbo = (BusinessObjectNode) core.changeToBusinessObject();
 		BusinessObjectNode tboVwa = (BusinessObjectNode) vwa.changeToBusinessObject();
@@ -102,7 +124,7 @@ public class BusinessObjectTests {
 		checkBO(tboVwa);
 		tn.visit(ln);
 		Assert.assertEquals(typeCount, ln.getDescendants_NamedTypes().size());
-		Assert.assertEquals(1, tboVwa.getWhereUsed().size());
+		Assert.assertEquals(1, tboVwa.getWhereAssigned().size());
 
 		// FIXME
 		// is CO duplicated in the family?
@@ -131,33 +153,43 @@ public class BusinessObjectTests {
 		// printDescendants(lcn);
 
 		Assert.assertEquals(typeCount, ln.getDescendants_NamedTypes().size());
-		Assert.assertEquals(1, tboVwa.getWhereUsed().size());
+		Assert.assertEquals(1, tboVwa.getWhereAssigned().size());
 	}
 
-	private void checkBO(BusinessObjectNode bo) {
+	/**
+	 * Check the business object.
+	 */
+	public void checkBO(BusinessObjectNode bo) {
 		tn.visit(bo);
 
 		Assert.assertNotNull(bo.getLibrary());
 		Assert.assertTrue(bo.isBusinessObject());
 		Assert.assertTrue(bo instanceof BusinessObjectNode);
+		Assert.assertNull(bo.getAttributeFacet());
 
 		// must have 3 children
 		Assert.assertTrue(3 <= bo.getChildren().size());
 
-		Assert.assertNull(bo.getAttributeFacet());
-		Assert.assertNotNull(bo.getSummaryFacet());
-		Assert.assertNotNull(bo.getDetailFacet());
+		assertNotNull("Must have id facet.", bo.getIDFacet());
+		assertTrue("Facet parent must be bo.", ((Node) bo.getIDFacet()).getParent() == bo);
 
+		assertNotNull("Must have summary facet.", bo.getSummaryFacet());
+		assertTrue("Facet parent must be bo.", ((Node) bo.getSummaryFacet()).getParent() == bo);
 		for (Node property : bo.getSummaryFacet().getChildren()) {
-			Assert.assertTrue(property instanceof PropertyNode);
-			Assert.assertTrue(property.getType() != null);
-			Assert.assertTrue(property.getLibrary() == bo.getLibrary());
+			assertTrue(property instanceof PropertyNode);
+			assertTrue(property.getType() != null);
+			assertTrue(property.getLibrary() == bo.getLibrary());
+			assertTrue(property.getParent() == bo.getSummaryFacet());
 		}
+
+		assertNotNull("Must have detail facet.", bo.getDetailFacet());
+		assertTrue("Facet parent must be bo.", ((Node) bo.getDetailFacet()).getParent() == bo);
 		for (Node property : bo.getDetailFacet().getChildren()) {
-			Assert.assertTrue(property instanceof PropertyNode);
-			Assert.assertTrue(property.getType() != null);
-			Assert.assertFalse(property.getType().getName().isEmpty());
-			Assert.assertTrue(property.getLibrary() == bo.getLibrary());
+			assertTrue(property instanceof PropertyNode);
+			assertTrue(property.getType() != null);
+			assertTrue("Must have name.", !property.getType().getName().isEmpty());
+			assertTrue(property.getLibrary() == bo.getLibrary());
+			assertTrue(property.getParent() == bo.getDetailFacet());
 		}
 
 		tn.visit(bo);
@@ -204,31 +236,6 @@ public class BusinessObjectTests {
 				assert user.getAssignedType() == n;
 			}
 		assert aliasCnt == 1;
-
-		// 2/17/2016 dmh - i have no idea what this code is about.
-		// Facets are NOT type users and will not be in type user list.
-		// Facets do NOT have a type and should return null for get TL Type
-		// OLD code is here, new code is above
-		// List<Node> users = ln.getDescendants_TypeUsers();
-		// for (Node n : ln.getDescendants_TypeUsers())
-		// if (n.getName().equals("Profile_Detail")) {
-		// user = n;
-		// break;
-		// }
-		// Assert.assertNotNull(user);
-		// // TLModelElement userTL = user.getTLModelObject();
-		//
-		// // Comment out body of workaround method PropertyNode.getTLTypeNameField() to see error.
-		// // NamedEntity userTLtype = user.getTLTypeObject(); // Should be not-null: See JIRA 510.
-		// Assert.assertNotNull(user.getTLTypeObject()); // Should be not-null: See JIRA 510.
-		// QName qName = user.getTLTypeQName();
-		//
-		// // Type resolver needs a valid qName from this assigned type.
-		// Assert.assertFalse(qName.getNamespaceURI().isEmpty());
-		// Assert.assertFalse(qName.getLocalPart().isEmpty());
-		//
-		// // This will only work if the resolver found the qName for the elements assigned facets.
-		// ln.visitAllNodes(new NodeTesters().new TestNode());
 	}
 
 	@Test
@@ -292,7 +299,7 @@ public class BusinessObjectTests {
 		TypeUser user = bo.getDescendants_TypeUsers().get(1);
 
 		// NamedEntity userType = user.getTLTypeObject();
-		Assert.assertNotNull(user.getAssignedModelObject());
+		Assert.assertNotNull(user.getAssignedTLObject());
 
 		user.setAssignedType((TypeProvider) bo.getDetailFacet());
 		Assert.assertNotNull(user.getTLModelObject());

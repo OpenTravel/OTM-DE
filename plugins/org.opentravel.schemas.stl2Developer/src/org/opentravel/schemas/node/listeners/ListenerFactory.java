@@ -94,15 +94,15 @@ public class ListenerFactory {
 		// debugging - trap if there is already a listener
 		Node lNode = Node.GetNode(node.getTLModelObject());
 		if (lNode != null) {
-			LOGGER.debug(node + " already has identity listeners.");
-		}
-
-		if (listener != null)
+			// throw new IllegalStateException(node+" already has identity listeners.");
+			// FIXME - LOGGER.debug(node + " already has identity listener.");
+		} else if (listener != null) {
 			node.getTLModelObject().addListener(listener);
 
-		// If it is an identity listener, make sure it is associated with the node
-		if (listener instanceof NodeIdentityListener)
-			assert node.getTLModelObject().getListeners().contains(listener);
+			// If it is an identity listener, make sure it is associated with the node
+			if (listener instanceof NodeIdentityListener)
+				assert node.getTLModelObject().getListeners().contains(listener);
+		}
 	}
 
 	/**

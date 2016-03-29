@@ -16,11 +16,9 @@
 package org.opentravel.schemas.types;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.LibraryNode;
-import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
 
 /**
@@ -44,8 +42,6 @@ public interface TypeProvider {
 
 	public String getDescription();
 
-	// TODO - this should be collection of TypeUsers
-
 	public LibraryNode getLibrary();
 
 	public String getName();
@@ -58,33 +54,28 @@ public interface TypeProvider {
 	public INode getTypeNode();
 
 	/**
-	 * @return a list of nodes that use this as a type definition or base type
+	 * @return a unmodifiable collection of type users that use this as a type definition or base type
 	 */
-	public List<Node> getTypeUsers();
-
-	public WhereAssignedHandler getWhereAssignedHandler();
-
-	/**
-	 * @return a unmodifiable collection of nodes that use this as a type definition or base type
-	 */
-	public Collection<Node> getWhereUsed();
-
-	/**
-	 * @return a unmodifiable collection of nodes that use this or any of its descendants as a type definition or base
-	 *         type
-	 */
-	public Collection<Node> getWhereUsedAndDescendants();
-
-	/**
-	 * @return count of users of this type provider and its descendants
-	 */
-	public int getWhereUsedAndDescendantsCount();
+	public Collection<TypeUser> getWhereAssigned();
 
 	/**
 	 * @return (where used count) the number of type users which are nodes that use this as a type definition or base
 	 *         type
 	 */
-	public int getWhereUsedCount();
+	public int getWhereAssignedCount();
+
+	public WhereAssignedHandler getWhereAssignedHandler();
+
+	/**
+	 * @return a unmodifiable collection of nodes that use this or any of its descendants as a type definition or base
+	 *         type
+	 */
+	public Collection<TypeUser> getWhereUsedAndDescendants();
+
+	/**
+	 * @return count of users of this type provider and its descendants
+	 */
+	public int getWhereUsedAndDescendantsCount();
 
 	/**
 	 * @return a node suitable for use in navigator to represent the where used collection
@@ -114,19 +105,24 @@ public interface TypeProvider {
 	public boolean isTypeProvider();
 
 	/**
+	 * Remove provider as type for all users.
+	 */
+	public void removeAll();
+
+	/**
 	 * Remove the listener for the type user
 	 * 
 	 * @param user
 	 */
 	public void removeListener(TypeUser user);
 
-	public void setListener(TypeUser typeUser);
-
 	/**
 	 * Remove the type user from the where assigned list and its listener
 	 * 
 	 * @param user
 	 */
-	void removeTypeUser(TypeUser user);
+	public void removeTypeUser(TypeUser user);
+
+	public void setListener(TypeUser typeUser);
 
 }

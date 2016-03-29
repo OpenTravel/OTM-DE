@@ -46,7 +46,7 @@ public class NodeModelEventListener implements
 		// source = getResourceMemberFromEvent(event.getSource());
 		// if (event.getAffectedItem() instanceof TLModelElement)
 		// resourceAffected = getSourceNode(event.getAffectedItem());
-		LOGGER.debug("Node Model Event - type: " + event.getType());
+		// LOGGER.debug("Node Model Event - type: " + event.getType());
 		// if (affected == null || source == null)
 		// return;
 
@@ -75,7 +75,7 @@ public class NodeModelEventListener implements
 					if (l instanceof ResourceDependencyListener)
 						((ResourceMemberInterface) ((ResourceDependencyListener) l).getNode())
 								.removeDependency(resourceAffected);
-			LOGGER.debug("Event type: " + event.getType() + "  Affected = " + resourceAffected);
+			// LOGGER.debug("Event type: " + event.getType() + "  Affected = " + resourceAffected);
 			break;
 
 		case ATTRIBUTE_REMOVED:
@@ -86,7 +86,7 @@ public class NodeModelEventListener implements
 			TypeProvider type = user.getAssignedType();
 			if (type != null) {
 				type.removeTypeUser(user);
-				LOGGER.debug("Property Removed type assignment: " + type + " from " + user);
+				// LOGGER.debug("Property Removed type assignment: " + type + " from " + user);
 			}
 			break;
 		case CONTEXT_ADDED:
@@ -98,7 +98,7 @@ public class NodeModelEventListener implements
 		case IMPORT_REMOVED:
 			break;
 		default:
-			LOGGER.debug("Unhandled event: " + event.getType());
+			// LOGGER.debug("Unhandled event: " + event.getType());
 			break;
 		}
 	}

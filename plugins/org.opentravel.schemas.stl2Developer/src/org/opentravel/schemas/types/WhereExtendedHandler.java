@@ -65,7 +65,7 @@ public class WhereExtendedHandler {
 
 		public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
 			Node source = getSource(event);
-			LOGGER.debug("WhereExtends: " + event.getType() + " handler = " + handler.owner + " source = " + source);
+			// LOGGER.debug("WhereExtends: " + event.getType() + " handler = " + handler.owner + " source = " + source);
 
 			switch (event.getType()) {
 			case EXTENDS_ADDED:
@@ -79,10 +79,10 @@ public class WhereExtendedHandler {
 				}
 				break;
 			case EXTENDS_ENTITY_MODIFIED:
-				LOGGER.debug("Unhandled event: " + event.getType());
+				// LOGGER.debug("Unhandled event: " + event.getType());
 				break;
 			default:
-				LOGGER.debug("Unhandled event: " + event.getType());
+				// LOGGER.debug("Unhandled event: " + event.getType());
 
 			}
 		}
@@ -103,9 +103,8 @@ public class WhereExtendedHandler {
 					handler.add((ExtensionOwner) source);
 				break;
 			default:
-				LOGGER.debug(event.getType() + " - " + getSource(event) + " on " + getNode() + " changed to: "
-						+ getNewValue(event) + "  from " + getOldValue(event));
-
+				// LOGGER.debug(event.getType() + " - " + getSource(event) + " on " + getNode() + " changed to: "
+				// + getNewValue(event) + "  from " + getOldValue(event));
 				break;
 			}
 		}
@@ -123,7 +122,7 @@ public class WhereExtendedHandler {
 	private void add(ExtensionOwner user) {
 		if (!users.contains(user)) {
 			users.add(user);
-			LOGGER.debug("Added " + user + " to " + owner + " where extended list.");
+			// LOGGER.debug("Added " + user + " to " + owner + " where extended list.");
 		}
 	}
 
@@ -139,12 +138,12 @@ public class WhereExtendedHandler {
 	public void setListener(ExtensionOwner extension) {
 		for (ModelElementListener l : extension.getTLModelObject().getListeners())
 			if (l instanceof WhereExtendedListener && ((BaseNodeListener) l).getNode() == owner) {
-				LOGGER.debug("Trying to add a duplicate listener to " + extension + " for " + owner);
+				// LOGGER.debug("Trying to add a duplicate listener to " + extension + " for " + owner);
 				return;
 			}
 		WhereExtendedListener listener = new WhereExtendedListener(owner, this);
 		extension.getTLModelObject().addListener(listener);
-		LOGGER.debug("Added listener for provider " + owner + " to extension " + extension);
+		// LOGGER.debug("Added listener for provider " + owner + " to extension " + extension);
 	}
 
 	public void removeListener(ExtensionOwner user) {
@@ -156,10 +155,10 @@ public class WhereExtendedHandler {
 		if (listener != null) {
 			((Node) user).getTLModelObject().removeListener(listener);
 		} else if (user != null) {
-			LOGGER.warn("Listener for " + user + " not found to be removed.");
+			// LOGGER.warn("Listener for " + user + " not found to be removed.");
 			return;
 		}
-		LOGGER.debug("Removed listener from " + owner + " for user " + user);
+		// LOGGER.debug("Removed listener from " + owner + " for user " + user);
 	}
 
 	/**
@@ -197,7 +196,7 @@ public class WhereExtendedHandler {
 		for (ExtensionOwner extension : targets)
 			if (libScope == null || extension.getLibrary() == libScope) {
 				extension.setExtension(replacement);
-				LOGGER.debug("replaced extension base with " + replacement);
+				// LOGGER.debug("replaced extension base with " + replacement);
 			}
 	}
 

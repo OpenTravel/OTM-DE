@@ -18,19 +18,29 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Collections;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.Assert;
-
+//import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.types.TestTypes;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
+import org.opentravel.schemas.types.WhereAssignedHandler.WhereAssignedListener;
+import org.opentravel.schemas.types.WhereExtendedHandler.WhereExtendedListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +53,137 @@ public class ReplaceWith_Tests {
 
 	ModelNode model = null;
 	TestTypes tt = new TestTypes();
+
+	@Test
+	public void ReplaceAll_Tests() throws Exception {
+		DefaultProjectController pc;
+		MainController mc = new MainController();
+		MockLibrary ml = new MockLibrary();
+		pc = (DefaultProjectController) mc.getProjectController();
+		ProjectNode defaultProject = pc.getDefaultProject();
+		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		LibraryNode ln2 = ml.createNewLibrary(defaultProject.getNSRoot() + "/t", "test2", defaultProject);
+
+		// Given - each type provider in a core is being used as a type
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary_Empty(ln, "BO");
+		CoreObjectNode core = ml.addCoreObjectToLibrary_Empty(ln, "Test");
+		int i = 1;
+		ElementNode e = null;
+		e = new ElementNode(bo.getSummaryFacet(), "n" + i++);
+		e.setAssignedType(core);
+		for (Node d : core.getDescendants_TypeProviders()) {
+			e = new ElementNode(bo.getSummaryFacet(), "n" + i++);
+			e.setAssignedType((TypeProvider) d);
+		}
+		// Given - a different core in a different library where all children have namespaces
+		CoreObjectNode replacement = ml.addCoreObjectToLibrary_Empty(ln2, "Test");
+		for (Node c : replacement.getDescendants_TypeProviders())
+			assertTrue("Must have namespace.", !c.getNamespace().isEmpty());
+
+		// When - 1st core is replaced by second core
+		((TypeProvider) core).getWhereAssignedHandler().replaceAll(replacement);
+
+		// Then - all property types should be from replacement lib
+		for (Node p : bo.getSummaryFacet().getChildren()) {
+			TypeProvider type = ((TypeUser) p).getAssignedType();
+			assertTrue("Must be in ln2 library.", type.getLibrary() == ln2);
+			assertTrue("Must have ln2 namespace", ((Node) type).getNamespace().equals(ln2.getNamespace()));
+			assertTrue("Must have listener", hasWhereAssignedListener((TypeUser) p, type));
+		}
+		// Then - all original core type providers should not be assigned
+		for (Node p : core.getDescendants_TypeProviders())
+			assertTrue("Must be empty.", ((TypeProvider) p).getWhereAssigned().isEmpty());
+
+		// Then - all replacement core type providers should be assigned
+		for (Node p : replacement.getDescendants_TypeProviders())
+			assertTrue("Must NOT be empty.", !((TypeProvider) p).getWhereAssigned().isEmpty());
+
+	}
+
+	@Test
+	public void ExtensionHanderSet_Tests() throws Exception {
+		DefaultProjectController pc;
+		MainController mc = new MainController();
+		MockLibrary ml = new MockLibrary();
+		pc = (DefaultProjectController) mc.getProjectController();
+		ProjectNode defaultProject = pc.getDefaultProject();
+		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+
+		// Given - extension is an instance of base
+		Node base = ml.addBusinessObjectToLibrary(ln, "BaseBO");
+		ExtensionOwner extension = ml.addBusinessObjectToLibrary(ln, "ExtBO");
+		extension.setExtension(base);
+		assertTrue(extension.isInstanceOf(base));
+		assertTrue(hasWhereExtendedListener(extension, base));
+		assertTrue(base.getWhereExtendedHandler().getWhereExtended().contains(extension));
+
+		// When - cleared by setting to null
+		extension.getExtensionHandler().set(null);
+		assertFalse(extension.isInstanceOf(base));
+		assertFalse(hasWhereExtendedListener(extension, base));
+		assertFalse(base.getWhereExtendedHandler().getWhereExtended().contains(extension));
+
+		// When replaced with new base
+		extension.setExtension(base);
+		Node newBase = ml.addBusinessObjectToLibrary(ln, "NewBaseBO");
+		extension.getExtensionHandler().set(newBase);
+
+		// Then - assure base assignment and listeners are correct.
+		assertTrue(extension.isInstanceOf(newBase));
+		assertTrue(hasWhereExtendedListener(extension, newBase));
+		assertTrue(newBase.getWhereExtendedHandler().getWhereExtended().contains(extension));
+		// And - old base type is no longer extended
+		assertFalse(extension.isInstanceOf(base));
+		assertFalse(hasWhereExtendedListener(extension, base));
+		assertFalse(base.getWhereExtendedHandler().getWhereExtended().contains(extension));
+
+		// When - using Node.replaceTypesWith()
+
+		// Extension Point
+		// Core
+		// Choice
+		// VWA
+		// Open Enum
+		// Closed enum
+	}
+
+	@Test
+	public void ReplaceBaseTypesInDifferentLibrary_Test() throws Exception {
+		DefaultProjectController pc;
+		MainController mc = new MainController();
+		MockLibrary ml = new MockLibrary();
+		pc = (DefaultProjectController) mc.getProjectController();
+		ProjectNode defaultProject = pc.getDefaultProject();
+		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		LibraryNode ln2 = ml.createNewLibrary(defaultProject.getNSRoot() + "/ln2", "ln2", defaultProject);
+
+		// Given - one core extends another
+		CoreObjectNode baseCore = ml.addCoreObjectToLibrary_Empty(ln, "base");
+		CoreObjectNode extCore = ml.addCoreObjectToLibrary(ln, "ext");
+		((ExtensionOwner) extCore).setExtension(baseCore);
+
+		// When base core is replaced with a new one in different library
+		CoreObjectNode newBase = ml.addCoreObjectToLibrary_Empty(ln2, "newCore");
+		baseCore.replaceTypesWith(newBase, null);
+
+		// Then - ext should extend new base
+		assertTrue(newBase.getWhereExtendedHandler().getWhereExtended().contains(extCore));
+		assertFalse(baseCore.getWhereExtendedHandler().getWhereExtended().contains(extCore));
+	}
+
+	public boolean hasWhereExtendedListener(ExtensionOwner extension, Node base) {
+		for (ModelElementListener l : extension.getTLModelObject().getListeners())
+			if (l instanceof WhereExtendedListener)
+				return ((WhereExtendedListener) l).getNode() == base;
+		return false;
+	}
+
+	public boolean hasWhereAssignedListener(TypeUser user, TypeProvider type) {
+		for (ModelElementListener l : user.getTLModelObject().getListeners())
+			if (l instanceof WhereAssignedListener)
+				return ((WhereAssignedListener) l).getNode() == type;
+		return false;
+	}
 
 	// Use purpose built objects to test specific behaviors.
 	@Test
@@ -86,10 +227,10 @@ public class ReplaceWith_Tests {
 		}
 		core2 = (CoreObjectNode) core.clone();
 		core2.setName("core2");
-		core.setExtendsType(core2);
+		core.setExtension(core2);
 		bo2 = (BusinessObjectNode) bo.clone();
 		bo2.setName("bo2");
-		bo2.setExtendsType(bo);
+		bo2.setExtension(bo);
 
 		replaceProperties(bo, core2, core);
 		replaceProperties(bo2, core, core2);
@@ -102,12 +243,12 @@ public class ReplaceWith_Tests {
 		tt.visitAllNodes(ln);
 	}
 
-	private void replaceProperties(Node owner, Node p1, Node p2) {
+	private void replaceProperties(Node owner, TypeProvider p1, Node p2) {
 		// Set then replace all the properties of a BO.
-		for (Node n : owner.getDescendants_TypeUsers()) {
+		for (TypeUser n : owner.getDescendants_TypeUsers()) {
 			n.setAssignedType(p1);
 		}
-		p1.replaceTypesWith(p2, owner.getLibrary());
+		((Node) p1).replaceTypesWith(p2, owner.getLibrary());
 	}
 
 	@Test
@@ -198,9 +339,9 @@ public class ReplaceWith_Tests {
 
 		// Replace types with one pseudo-randomly selected from target library.
 		for (Node n : targets) {
-			if (n.getWhereUsed().size() > 0) {
+			if (n instanceof TypeProvider && ((TypeProvider) n).getWhereAssigned().size() > 0) {
 				// Note - many of these will not be allowed.
-				n.replaceTypesWith(sources.get(--cnt));
+				n.replaceTypesWith(sources.get(--cnt), null);
 				// LOGGER.debug(" replaced " + n + " with " + sources.get(cnt));
 				Assert.assertTrue(sources.get(cnt).getLibrary() != null);
 				Assert.assertTrue(n.getLibrary() != null);
@@ -231,6 +372,8 @@ public class ReplaceWith_Tests {
 				// If the swap fails, the node n will not be i a library but will be used as a type.
 				// Re-add it to a library.
 				// If swap is successful, n will be disconnected from library and will fail tests.
+				if (n.getName().equals("Phone"))
+					LOGGER.debug("Found Phone");
 				n.swap(lsNode);
 				tt.visitTypeNode(lsNode);
 			}

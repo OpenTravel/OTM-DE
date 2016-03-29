@@ -18,13 +18,8 @@
  */
 package org.opentravel.schemas.types;
 
-import javax.xml.namespace.QName;
-
-import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemas.modelObject.XsdModelingUtils;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ImpliedNodeType;
-import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,23 +70,23 @@ public abstract class AbstractAssignmentHandler<T> implements AssignmentHandler 
 		return (INode) get() != null ? ((INode) get()).getName() : "";
 	}
 
-	public QName getQName() {
-		QName typeQname = null;
-
-		NamedEntity type = getTLNamedEntity();
-		if (type != null) {
-			String ns = type.getNamespace();
-			String ln = type.getLocalName();
-			if (ns != null && ln != null)
-				typeQname = new QName(type.getNamespace(), type.getLocalName());
-
-			// If empty, try the XSD type information in the documentation
-			if (typeQname == null)
-				typeQname = XsdModelingUtils.getAssignedXsdType((Node) getOwner());
-
-		}
-		return typeQname;
-
-	}
+	// public QName getQName() {
+	// QName typeQname = null;
+	//
+	// NamedEntity type = getTLNamedEntity();
+	// if (type != null) {
+	// String ns = type.getNamespace();
+	// String ln = type.getLocalName();
+	// if (ns != null && ln != null)
+	// typeQname = new QName(type.getNamespace(), type.getLocalName());
+	//
+	// // If empty, try the XSD type information in the documentation
+	// if (typeQname == null)
+	// typeQname = XsdModelingUtils.getAssignedXsdType((Node) getOwner());
+	//
+	// }
+	// return typeQname;
+	//
+	// }
 
 }

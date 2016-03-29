@@ -40,6 +40,7 @@ import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.ExtensionHandler;
 import org.opentravel.schemas.types.SimpleAttributeOwner;
 import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -307,7 +308,7 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	public void setName(String n, boolean doFamily) {
 		n = NodeNameUtils.fixCoreObjectName(n);
 		super.setName(n, doFamily);
-		for (Node user : getTypeUsers()) {
+		for (TypeUser user : getWhereAssigned()) {
 			if (user instanceof PropertyNode)
 				user.setName(n);
 		}

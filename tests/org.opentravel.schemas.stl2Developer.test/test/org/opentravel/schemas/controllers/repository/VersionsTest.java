@@ -57,7 +57,7 @@ import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
-import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
@@ -140,7 +140,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// sbo = ml.addBusinessObjectToLibrary(secondLib, "sbo");
 		core2 = (CoreObjectNode) majorLibrary.findNodeByName("N2");
 		ExtensionPointNode ep = new ExtensionPointNode(new TLExtensionPointFacet());
-		ep.setExtendsType((INode) core2.getSummaryFacet());
+		ep.setExtension((Node) core2.getSummaryFacet());
 		secondLib.addMember(ep); // Extension point must be in different namespace than the type it extends.
 		LOGGER.debug("Created objects.");
 		checkValid(chain);
@@ -951,7 +951,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// TEST - Extension points, valid and invalid
 		ePatch = new ExtensionPointNode(new TLExtensionPointFacet());
 		patchLibrary.addMember(ePatch);
-		ePatch.setExtendsType((INode) co.getSummaryFacet());
+		((ExtensionOwner) ePatch).setExtension((Node) co.getSummaryFacet());
 		ePatch.addProperty(new IndicatorNode(ePatch, "patchInd"));
 
 		addAndRemoveDoc((PropertyNode) ePatch.getChildren().get(0));

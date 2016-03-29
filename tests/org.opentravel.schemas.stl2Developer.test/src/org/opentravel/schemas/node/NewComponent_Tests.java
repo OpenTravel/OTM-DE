@@ -204,7 +204,8 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 				LOGGER.debug("Extension owner: " + n);
 				Node nc = NodeFactory.newComponentMember(n, eln, n.getName());
 				assertNotNull(nc.getLibrary());
-				nc.setExtendsType(n);
+				if (nc instanceof ExtensionOwner)
+					((ExtensionOwner) nc).setExtension(n);
 				assertNotNull(((ExtensionOwner) nc).getExtensionBase());
 				assertEquals(n, ((ExtensionOwner) nc).getExtensionBase());
 			}

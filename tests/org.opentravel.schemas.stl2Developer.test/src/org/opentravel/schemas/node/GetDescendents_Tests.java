@@ -72,12 +72,12 @@ public class GetDescendents_Tests {
 		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "");
 
 		Assert.assertNotNull(co.getSimpleFacet().getSimpleAttribute().getTLTypeObject());
-		Assert.assertNotNull(co.getSimpleFacet().getSimpleAttribute().getTLTypeQName());
+		// Assert.assertNotNull(co.getSimpleFacet().getSimpleAttribute().getTLTypeQName());
 		co.visitAllTypeUsers(nt.new TestNode());
 		Assert.assertEquals(2, co.getDescendants_TypeUsers().size());
 
 		Assert.assertNotNull(vwa.getSimpleFacet().getSimpleAttribute().getTLTypeObject());
-		Assert.assertNotNull(vwa.getSimpleFacet().getSimpleAttribute().getTLTypeQName());
+		// Assert.assertNotNull(vwa.getSimpleFacet().getSimpleAttribute().getTLTypeQName());
 		vwa.visitAllTypeUsers(nt.new TestNode());
 		Assert.assertEquals(2, vwa.getDescendants_TypeUsers().size());
 

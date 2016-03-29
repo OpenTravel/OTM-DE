@@ -18,15 +18,12 @@
  */
 package org.opentravel.schemas.node;
 
-import javax.xml.namespace.QName;
-
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLSimple;
-import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.properties.EqExOneValueHandler;
@@ -181,10 +178,10 @@ public class SimpleTypeNode extends TypeProviderBase implements SimpleComponentI
 		return true;
 	}
 
-	@Override
-	public ModelObject<?> getAssignedModelObject() {
-		return ((Node) typeHandler.get()).getModelObject();
-	}
+	// @Override
+	// public ModelObject<?> getAssignedModelObject() {
+	// return ((Node) typeHandler.get()).getModelObject();
+	// }
 
 	@Override
 	public boolean setAssignedType(TypeProvider provider) {
@@ -199,16 +196,6 @@ public class SimpleTypeNode extends TypeProviderBase implements SimpleComponentI
 	@Override
 	public boolean setAssignedType() {
 		return typeHandler.set();
-	}
-
-	@Override
-	public QName getTLTypeQName() {
-		return typeHandler.getQName();
-		// NamedEntity ne = typeHandler.getTLNamedEntity();
-		// if (getAssignedTLObject() != null) {
-		// return new QName(ne.getNamespace(), ne.getLocalName());
-		// } else
-		// return XsdModelingUtils.getAssignedXsdType(this);
 	}
 
 	@Override

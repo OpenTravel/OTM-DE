@@ -81,16 +81,16 @@ public class NodeFactory {
 	 */
 	public static ComponentNode newComponent(LibraryMember mbr) {
 		ComponentNode newNode = newComponent_UnTyped(mbr);
-		if (newNode != null) {
-			if (newNode instanceof TypeUser)
-				// newNode.getTypeClass().setAssignedTypeForThisNode(newNode);
-				// ((TypeUser)newNode).setAssignedType(n)
-				for (TypeUser n : newNode.getDescendants_TypeUsers()) {
-					// ((Node) n).getTypeClass().setAssignedTypeForThisNode((Node) n);
-				}
-			// FIXME - use a type handler to get QName from documentation or MUCH simpler setter.
-			// Used in tests and Extension Wizard
-		}
+		// if (newNode != null) {
+		// if (newNode instanceof TypeUser)
+		// // newNode.getTypeClass().setAssignedTypeForThisNode(newNode);
+		// // ((TypeUser)newNode).setAssignedType(n)
+		// for (TypeUser n : newNode.getDescendants_TypeUsers()) {
+		// // ((Node) n).getTypeClass().setAssignedTypeForThisNode((Node) n);
+		// }
+		// // FIXME - use a type handler to get QName from documentation or MUCH simpler setter.
+		// // Used in tests and Extension Wizard
+		// }
 		return newNode;
 	}
 
@@ -267,6 +267,9 @@ public class NodeFactory {
 			((Node) parent).linkChild(nn, false);
 			nn.setLibrary(parent.getLibrary());
 		}
+		// if (nn.getParent() == null)
+		// // throw new IllegalStateException("Node factory create node with no parent: " + nn);
+		// LOGGER.debug("Node factory created node with no parent: " + nn);
 
 		return nn;
 	}

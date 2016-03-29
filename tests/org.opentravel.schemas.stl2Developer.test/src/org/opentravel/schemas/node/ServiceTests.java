@@ -21,6 +21,7 @@ package org.opentravel.schemas.node;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -118,7 +119,7 @@ public class ServiceTests extends RepositoryIntegrationTestBase {
 		Assert.assertEquals(4, svc.getChildren().size());
 		List<Node> users = svc.getChildren_TypeUsers();
 		List<TypeUser> descendents = svc.getDescendants_TypeUsers();
-		List<Node> boUsers = bo.getTypeUsers();
+		Collection<TypeUser> boUsers = bo.getWhereAssigned();
 		Assert.assertNotNull(descendents); // 12
 		Assert.assertNotNull(boUsers); // 8. Some are typed by facets.
 
@@ -169,7 +170,7 @@ public class ServiceTests extends RepositoryIntegrationTestBase {
 		assertEquals(4, svc.getChildren().size());
 		List<Node> users = svc.getChildren_TypeUsers();
 		List<TypeUser> descendents = svc.getDescendants_TypeUsers();
-		List<Node> boUsers = bo.getTypeUsers();
+		Collection<TypeUser> boUsers = bo.getWhereAssigned();
 		assertNotNull(descendents); // 12
 		assertNotNull(boUsers); // 8. Some are typed by facets.
 

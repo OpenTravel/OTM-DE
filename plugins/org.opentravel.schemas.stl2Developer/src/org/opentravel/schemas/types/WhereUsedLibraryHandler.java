@@ -26,6 +26,7 @@ import java.util.List;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,15 +94,28 @@ public class WhereUsedLibraryHandler {
 			users.add(userLib);
 	}
 
+	public void add(ExtensionOwner user) {
+		LibraryNode userLib = ((Node) user).getLibrary();
+		if (userLib != owner && !users.contains(userLib))
+			users.add(userLib);
+	}
+
 	/**
 	 * Remove user from where used list.
 	 * 
 	 */
 	public void remove(TypeUser user) {
 		LibraryNode lib = ((Node) user).getLibrary();
-		if (!users.contains(lib))
-			users.remove(lib);
-		// FIXME - if the last user is removed, then remove library
+		if (users.contains(lib))
+			if (getUsersOfTypesFromOwnerLibrary(lib).isEmpty())
+				users.remove(lib);
+	}
+
+	public void remove(ExtensionOwner user) {
+		LibraryNode lib = ((Node) user).getLibrary();
+		if (users.contains(lib))
+			if (getUsersOfTypesFromOwnerLibrary(lib).isEmpty())
+				users.remove(lib);
 	}
 
 	/**
@@ -151,13 +165,22 @@ public class WhereUsedLibraryHandler {
 	 */
 	public List<Node> getUsersOfTypesFromOwnerLibrary(LibraryNode lib) {
 		List<Node> ul = new ArrayList<Node>();
+		// Get type users
 		for (TypeUser user : lib.getDescendants_TypeUsers()) {
 			TypeProvider ut = user.getAssignedType();
-			Node userOwner = null;
+			// Node userOwner = null;
 			if (ut != null && ((Node) ut).getLibrary() == owner) {
 				// userOwner = ((Node) user).getOwningComponent();
 				if (!ul.contains(user))
 					ul.add((Node) user);
+			}
+		}
+		// Get extended objects
+		for (ExtensionOwner o : lib.getDescendants_ExtensionOwners()) {
+			Node extensionBase = o.getExtensionBase();
+			if (extensionBase != null && extensionBase.getLibrary() == owner) {
+				if (!ul.contains(extensionBase))
+					ul.add((Node) o);
 			}
 		}
 		return ul;

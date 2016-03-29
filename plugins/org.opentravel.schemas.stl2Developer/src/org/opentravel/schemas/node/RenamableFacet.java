@@ -16,6 +16,7 @@
 package org.opentravel.schemas.node;
 
 import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemas.types.TypeUser;
 
 /**
  * Used for Custom and Query Facets.
@@ -52,7 +53,7 @@ public class RenamableFacet extends FacetNode {
 			// ((TLFacet) getTLModelObject()).setContext("");
 			((TLFacet) getTLModelObject()).setLabel(name);
 			// rename their type users as well.
-			for (Node user : getTypeUsers()) {
+			for (TypeUser user : getWhereAssigned()) {
 				user.setName(getName());
 			}
 		}

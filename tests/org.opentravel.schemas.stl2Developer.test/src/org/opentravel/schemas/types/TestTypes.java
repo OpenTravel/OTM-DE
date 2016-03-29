@@ -158,20 +158,20 @@ public class TestTypes {
 		TypeProvider b = vwa.getSimpleFacet().getSimpleAttribute().getAssignedType();
 		Assert.assertEquals("VWA Assignment via simple", bType, b);
 		checkListeners(bType);
-		assert bType.getWhereUsed().contains(vwa.getSimpleFacet().getSimpleAttribute());
+		assert bType.getWhereAssigned().contains(vwa.getSimpleFacet().getSimpleAttribute());
 
 		vwa.setSimpleType(aType);
 		TypeProvider a = vwa.getSimpleType();
 		Assert.assertEquals("VWA Assignment via simple", aType, a);
 		checkListeners(aType);
-		assert aType.getWhereUsed().contains(vwa.getSimpleAttribute());
+		assert aType.getWhereAssigned().contains(vwa.getSimpleAttribute());
 
 		CoreObjectNode core = new CoreObjectNode(new TLCoreObject());
 		core.setName("Core1");
 		core.setSimpleType(aType);
 		assert core.getSimpleType() == aType;
 		checkListeners(aType);
-		assert aType.getWhereUsed().contains(core.getSimpleAttribute());
+		assert aType.getWhereAssigned().contains(core.getSimpleAttribute());
 
 	}
 
@@ -186,8 +186,7 @@ public class TestTypes {
 		Assert.assertEquals(1, identity);
 
 		// Go to all the where used nodes and make sure there is one and only one where used listener for this provider
-		for (Node userN : provider.getWhereUsed()) {
-			TypeUser user = (TypeUser) userN; // FIXME
+		for (TypeUser user : provider.getWhereAssigned()) {
 			int myListeners = 0;
 			for (ModelElementListener l : user.getTLModelObject().getListeners())
 				if (l instanceof WhereAssignedListener)
@@ -391,7 +390,7 @@ public class TestTypes {
 		ElementNode e2 = new ElementNode(coExt.getSummaryFacet(), "E2");
 		e1.setAssignedType(simple);
 		e2.setAssignedType(simple);
-		assertTrue(simple.getWhereUsedCount() == 3);
+		assertTrue(simple.getWhereAssignedCount() == 3);
 		// resolver uses visitors
 		nodeCount = 0;
 		moveFrom.visitAllTypeUsers(new CountVisits());
@@ -423,8 +422,8 @@ public class TestTypes {
 				newSimple = (SimpleTypeNode) n;
 
 		// then
-		assertTrue("Simple must have base type.", type1.getWhereUsed().contains(newSimple));
-		assertTrue("Simple must be used by original and new objects", simple.getWhereUsedCount() == 6);
+		assertTrue("Simple must have base type.", type1.getWhereAssigned().contains(newSimple));
+		assertTrue("Simple must be used by original and new objects", simple.getWhereAssignedCount() == 6);
 		assertTrue("coBase must be extended.", coBase.getWhereExtendedHandler().getWhereExtended().contains(coExt));
 		assertTrue("coBase must be extended.", coBase.getWhereExtendedHandler().getWhereExtended().contains(newExt));
 		assertTrue("coExt must still be instanceof coBase.", coExt.isInstanceOf(coBase));
@@ -486,7 +485,7 @@ public class TestTypes {
 	 * Assign typeToAssign to all of the facet's children and assure that the assignment worked.
 	 */
 	public void testFacetAssignments(FacetNode facet, TypeProvider typeToAssign) {
-		int usrCnt = typeToAssign.getWhereUsedCount();
+		int usrCnt = typeToAssign.getWhereAssignedCount();
 		for (Node property : facet.getChildren()) {
 
 			// Given TypeUser property that does not have fixed type assignment.
@@ -498,8 +497,8 @@ public class TestTypes {
 				// Then assure type node and tl elements are set, where used set and counts adjusted.
 				Assert.assertEquals(typeToAssign, ((TypeUser) property).getAssignedType());
 				Assert.assertEquals(typeToAssign.getTLModelObject(), ((TypeUser) property).getAssignedTLObject());
-				Assert.assertTrue(typeToAssign.getWhereUsed().contains(property));
-				Assert.assertEquals("User count after assignment.", typeToAssign.getWhereUsedCount(), ++usrCnt);
+				Assert.assertTrue(typeToAssign.getWhereAssigned().contains(property));
+				Assert.assertEquals("User count after assignment.", typeToAssign.getWhereAssignedCount(), ++usrCnt);
 			}
 		}
 	}
@@ -564,7 +563,7 @@ public class TestTypes {
 		Assert.assertFalse(n.getComponentType().isEmpty());
 
 		if (n instanceof TypeProvider)
-			assert ((TypeProvider) n).getWhereUsed() != null;
+			assert ((TypeProvider) n).getWhereAssigned() != null;
 
 		if (n instanceof TypeUser) {
 			ComponentNode cn = (ComponentNode) n;

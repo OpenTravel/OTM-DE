@@ -29,13 +29,14 @@ import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Manages lists of where type providers are assigned to type users. The handler is on the type providers. Assignment
- * handlers <b>must</b> add and removed listeners to the users via set and remove listener methods.
+ * handlers <b>must</b> add and removes listeners to the users via set and remove listener methods.
  * 
  * @author Dave Hollander
  * 
@@ -73,8 +74,8 @@ public class WhereAssignedHandler {
 			switch (event.getType()) {
 			case TYPE_ASSIGNMENT_MODIFIED:
 				// Listeners can't be set/removed here, doing so makes the event stream not have the assignment event.
-				LOGGER.debug("Type Assignment Modified event - " + getSource(event) + " on " + getNode()
-						+ " changed to: " + getNewValue(event) + "  from " + getOldValue(event));
+				// LOGGER.debug("Type Assignment Modified event - " + getSource(event) + " on " + getNode()
+				// + " changed to: " + getNewValue(event) + "  from " + getOldValue(event));
 
 				// VWA and Core have event listeners but are not type users.
 				Node source = getSource(event);
@@ -92,8 +93,8 @@ public class WhereAssignedHandler {
 			case NAME_MODIFIED:
 				break;
 			default:
-				LOGGER.debug(event.getType() + " - " + getSource(event) + " on " + getNode() + " changed to: "
-						+ getNewValue(event) + "  from " + getOldValue(event));
+				// LOGGER.debug(event.getType() + " - " + getSource(event) + " on " + getNode() + " changed to: "
+				// + getNewValue(event) + "  from " + getOldValue(event));
 
 				break;
 			}
@@ -112,7 +113,7 @@ public class WhereAssignedHandler {
 	public void add(TypeUser user) {
 		if (!users.contains(user)) {
 			users.add((Node) user);
-			LOGGER.debug("Added " + user + " to " + owner + " where assigned list.");
+			// LOGGER.debug("Added " + user + " to " + owner + " where assigned list.");
 		}
 	}
 
@@ -133,7 +134,7 @@ public class WhereAssignedHandler {
 		((Node) user).getTLModelObject().addListener(listener);
 		// listeners.add(listener); // Not sure why we are keeping array - debugging?
 
-		LOGGER.debug("Added listener for provider " + owner + " to user " + user);
+		// LOGGER.debug("Added listener for provider " + owner + " to user " + user);
 	}
 
 	public void setListener(ExtensionOwner owner) {
@@ -150,24 +151,63 @@ public class WhereAssignedHandler {
 			((Node) user).getTLModelObject().removeListener(listener);
 			// listeners.remove(listener);
 		} else if (user != null) {
-			LOGGER.warn("Listener for " + user + " not found to be removed.");
+			// LOGGER.warn("Listener for " + user + " not found to be removed.");
 			return;
 		}
-		LOGGER.debug("Removed listener from " + owner + " for user " + user);
+		// LOGGER.debug("Removed listener from " + owner + " for user " + user);
 	}
 
 	/**
 	 * @return the unmodifiable collection of users of this type.
 	 */
-	public Collection<Node> getWhereAssigned() {
+	@Deprecated
+	public Collection<Node> getWhereUsed() {
+		// Safety check - remove any deleted users
+		ArrayList<Node> whereused = new ArrayList<Node>();
+		for (Node n : whereused)
+			if (n.isDeleted()) {
+				users.remove(n);
+				// LOGGER.debug("Removed deleted user: " + n);
+			}
 		return Collections.unmodifiableCollection(users);
 	}
 
-	public Collection<Node> getWhereAssignedIncludingDescendants() {
-		List<Node> ul = new ArrayList<Node>(users);
+	/**
+	 * @return the unmodifiable collection of users of this type.
+	 */
+	public Collection<TypeUser> getWhereAssigned() {
+		ArrayList<TypeUser> whereused = new ArrayList<TypeUser>();
+		for (Node n : users)
+			if (n instanceof TypeUser)
+				whereused.add((TypeUser) n);
+		// Safety check - remove any deleted users
+		for (TypeUser n : whereused)
+			if (((INode) n).isDeleted()) {
+				users.remove(n);
+				// LOGGER.debug("Removed deleted user: " + n);
+			}
+		return Collections.unmodifiableCollection(whereused);
+	}
+
+	/**
+	 * @return the number of users of this type.
+	 */
+	public int getWhereAssignedCount() {
+		return users.size();
+	}
+
+	public Collection<TypeUser> getWhereAssignedIncludingDescendants() {
+		List<TypeUser> ul = new ArrayList<TypeUser>();
+		for (Node n : users)
+			if (n instanceof TypeUser)
+				ul.add((TypeUser) n);
+
+		if (((Node) owner).getOwningComponent() == null)
+			return ul; // happens when building inheritance wizard tree
+
 		for (Node n : ((Node) owner).getOwningComponent().getDescendants_TypeProviders())
-			if (!n.isDeleted())
-				ul.addAll(n.getTypeUsers());
+			if (!n.isDeleted() && n instanceof TypeProvider)
+				ul.addAll(((TypeProvider) n).getWhereAssigned());
 		return ul;
 	}
 
@@ -181,10 +221,9 @@ public class WhereAssignedHandler {
 	 * @param replacement
 	 */
 	public void replace(TypeProvider replacement) {
-		List<Node> users = new ArrayList<Node>(getWhereAssigned());
-		for (Node n : users)
-			if (n instanceof TypeUser)
-				((TypeUser) n).setAssignedType(replacement);
+		List<TypeUser> users = new ArrayList<TypeUser>(getWhereAssigned());
+		for (TypeUser n : users)
+			n.setAssignedType(replacement);
 	}
 
 	/**
@@ -198,12 +237,12 @@ public class WhereAssignedHandler {
 	public void replace(TypeProvider replacement, LibraryNode scopeLibrary) {
 		if (replacement == null)
 			return;
-		List<Node> users = new ArrayList<Node>(getWhereAssigned());
-		for (Node n : users)
-			if (n instanceof TypeUser && n.isEditable())
+		List<TypeUser> users = new ArrayList<TypeUser>(getWhereAssigned());
+		for (TypeUser n : users)
+			if (n.isEditable())
 				if (scopeLibrary == null || ((Node) n).getLibrary().equals(scopeLibrary)) {
 					((TypeUser) n).setAssignedType(replacement);
-					LOGGER.debug("replace " + n + " with " + replacement);
+					// LOGGER.debug("replace " + n + " with " + replacement);
 				}
 	}
 
@@ -233,21 +272,21 @@ public class WhereAssignedHandler {
 
 		// Replace where each type-provider child of this owner is used with it equivalent from replacement
 		for (Node child : ((Node) owner).getDescendants_TypeProviders()) {
-			Collection<Node> kids = new ArrayList<Node>(((TypeProvider) child).getWhereUsed());
-			for (Node n : kids) {
+			Collection<TypeUser> kids = new ArrayList<TypeUser>(((TypeProvider) child).getWhereAssigned());
+			for (TypeUser n : kids) {
 				// Try to find a replacement equivalent from replacement object
-				String name = ((TypeUser) n).getAssignedTLNamedEntity().getLocalName();
+				String name = n.getAssignedTLNamedEntity().getLocalName();
 				TypeProvider r = replacementTypes.get(name);
 				if (r == null) {
 					r = replacement;
-					LOGGER.debug("ReplaceAll equivalent not found for " + n + ", using " + r + " instead");
+					// LOGGER.debug("ReplaceAll equivalent not found for " + n + ", using " + r + " instead");
 				}
-				if (scopeLibrary == null || n.getLibrary().equals(scopeLibrary))
+				if (scopeLibrary == null || ((Node) n).getLibrary().equals(scopeLibrary))
 					if (n.isEditable()) {
 						((TypeUser) n).setAssignedType(r);
 						LOGGER.debug("replace " + n + " with " + r);
 					}
-				LOGGER.debug("ReplaceAll replaced " + n + " with " + r);
+				// LOGGER.debug("ReplaceAll replaced " + n + " with " + r);
 			}
 		}
 

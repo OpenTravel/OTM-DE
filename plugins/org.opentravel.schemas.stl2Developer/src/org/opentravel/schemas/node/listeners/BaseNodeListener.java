@@ -15,7 +15,6 @@
  */
 package org.opentravel.schemas.node.listeners;
 
-import org.opentravel.schemacompiler.event.ModelEventType;
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemacompiler.model.TLModelElement;
@@ -44,17 +43,17 @@ public class BaseNodeListener implements INodeListener {
 
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
-		Node newValue = getNewValue(event);
-		Node oldValue = getOldValue(event);
-		if (event.getType() != ModelEventType.DOCUMENTATION_MODIFIED)
-			LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode + ", old = " + oldValue
-					+ ", new = " + newValue);
+		// Node newValue = getNewValue(event);
+		// Node oldValue = getOldValue(event);
+		// if (event.getType() != ModelEventType.DOCUMENTATION_MODIFIED)
+		// LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode + ", old = " + oldValue
+		// + ", new = " + newValue);
 	}
 
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
-		Node affectedNode = getAffectedNode(event);
-		LOGGER.debug("Ownership event: " + event.getType() + " this = " + thisNode + " affected = " + affectedNode);
+		// Node affectedNode = getAffectedNode(event);
+		// LOGGER.debug("Ownership event: " + event.getType() + " this = " + thisNode + " affected = " + affectedNode);
 	}
 
 	@Override
