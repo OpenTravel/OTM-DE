@@ -16,6 +16,7 @@
 package org.opentravel.schemas.node;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
@@ -45,11 +46,6 @@ public class EnumerationOpenNode extends TypeProviderBase implements ComplexComp
 		super(mbr);
 		addMOChildren();
 		extensionHandler = new ExtensionHandler(this);
-
-		// if (((TLAbstractEnumeration)mbr).getExtension() == null)
-		// getTypeClass().setTypeNode(ModelNode.getDefaultStringNode()); // Set base type.
-		// else
-		// getTypeClass().setTypeNode(getExtensionNode());
 	}
 
 	/**
@@ -120,11 +116,6 @@ public class EnumerationOpenNode extends TypeProviderBase implements ComplexComp
 		return null;
 	}
 
-	// @Override
-	// public ImpliedNode getDefaultType() {
-	// return ModelNode.getDefaultStringNode();
-	// }
-
 	@Override
 	public String getLabel() {
 		if (isVersioned())
@@ -143,6 +134,22 @@ public class EnumerationOpenNode extends TypeProviderBase implements ComplexComp
 	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.Enumeration);
+	}
+
+	@Override
+	public void initInheritedChildren() {
+		List<?> inheritedMOChildren = modelObject.getInheritedChildren();
+		if (inheritedMOChildren == null || inheritedMOChildren.isEmpty()) {
+			inheritedChildren = Collections.emptyList();
+		} else {
+			for (final Object obj : inheritedMOChildren) {
+				ComponentNode nn = NodeFactory.newComponentMember(null, obj);
+				if (nn != null) {
+					linkInheritedChild(nn);
+					nn.inheritsFrom = null; // override value from link
+				}
+			}
+		}
 	}
 
 	@Override

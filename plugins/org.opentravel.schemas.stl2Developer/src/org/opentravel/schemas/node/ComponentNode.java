@@ -51,22 +51,24 @@ import org.opentravel.schemas.types.TypeUser;
 /**
  * The ComponentNode class handles nodes that represent model objects. It is overridden for most types and properties.
  * 
+ * This does not implement type provider -- sub-classes implement TypeProvider
+ * 
  * @author Dave Hollander
  * 
  */
 
-// TODO - this should not implement type provider -- sub-classes should.implements TypeProvider
 public class ComponentNode extends Node {
 	// private final static Logger LOGGER = LoggerFactory.getLogger(ComponentNode.class);
 
 	/**
-	 * Inherited nodes are not assigned a type class. If they were the where-used count would be wrong.
-	 * 
-	 * /** The list of inherited children for this node.
+	 * The list of inherited children for this node. Inherited nodes are not assigned a type class. If they were the
+	 * where-used count would be wrong.
 	 */
-	private List<Node> inheritedChildren;
+	protected List<Node> inheritedChildren;
 
-	/** Actual node where the inherited child is declared. */
+	/**
+	 * Actual node where the inherited child is declared.
+	 */
 	protected Node inheritsFrom = null;
 
 	/**
@@ -231,7 +233,7 @@ public class ComponentNode extends Node {
 	}
 
 	/** Lazy initialization of the inherited children list. */
-	private void initInheritedChildren() {
+	public void initInheritedChildren() {
 		List<?> inheritedMOChildren = modelObject.getInheritedChildren();
 		if ((inheritedMOChildren == null) || inheritedMOChildren.isEmpty()) {
 			inheritedChildren = Collections.emptyList();
@@ -245,13 +247,14 @@ public class ComponentNode extends Node {
 					linkInheritedChild(nn);
 					// Link to the actual node.
 					// Use a finder to locate node since there are no back-links.
-					if (obj instanceof TLModelElement) {
-						Node searchRoot = ModelNode.getModelNode();
-						nn.inheritsFrom = searchRoot.findNode(((TLModelElement) obj).getValidationIdentity());
-						if (nn.inheritsFrom != null && nn.inheritsFrom.getParent() != null)
-							// quicker this way - all others will have same parent
-							searchRoot = nn.inheritsFrom.getParent();
-					}
+					// if (obj instanceof TLModelElement) {
+					// nn.inheritsFrom = Node.GetNode((TLModelElement) obj);
+					// Node searchRoot = ModelNode.getModelNode();
+					// nn.inheritsFrom = searchRoot.findNode(((TLModelElement) obj).getValidationIdentity());
+					// if (nn.inheritsFrom != null && nn.inheritsFrom.getParent() != null)
+					// // quicker this way - all others will have same parent
+					// searchRoot = nn.inheritsFrom.getParent();
+					// }
 					nn.addMOChildren();
 				}
 			}
@@ -265,6 +268,7 @@ public class ComponentNode extends Node {
 		if ((inheritedChildren == null) || inheritedChildren.isEmpty()) {
 			inheritedChildren = new ArrayList<Node>();
 		}
+		child.inheritsFrom = Node.GetNode(child.getTLModelObject());
 		inheritedChildren.add(child);
 		child.setParent(this);
 		child.inherited = true;
@@ -380,7 +384,8 @@ public class ComponentNode extends Node {
 	public boolean isUnique() {
 		// LOGGER.debug("ComponentNode:isUnique() - test "+getNamespace+":"+name);
 		List<Node> siblings = new ArrayList<Node>(getParent().getChildren());
-		siblings.addAll(0, getParent().getInheritedChildren());
+		if (getParent().getInheritedChildren() != null)
+			siblings.addAll(0, getParent().getInheritedChildren());
 		int occurrence = 0; // look for second occurrence since this list is not a live list.
 
 		for (final Node n : siblings) {
@@ -641,18 +646,18 @@ public class ComponentNode extends Node {
 
 	/**
 	 * 
-	 * @param st
-	 *            - SubType to change to
+	 * @param SubType
+	 *            to change to
 	 * @return - new object created by changing this object
 	 */
 	public ComponentNode changeObject(SubType st) {
 		switch (st) {
 		case BUSINESS_OBJECT:
-			return this.changeToBusinessObject();
+			return changeToBusinessObject();
 		case CORE_OBJECT:
-			return this.changeToCoreObject();
+			return changeToCoreObject();
 		case VALUE_WITH_ATTRS:
-			return this.changeToVWA();
+			return changeToVWA();
 		default:
 			throw new IllegalArgumentException("SubType: " + st.toString() + " is not supporeted.");
 		}
@@ -837,8 +842,8 @@ public class ComponentNode extends Node {
 			else
 				newNode = (ComponentNode) createProperty(sourceNode);
 
+			// In minor versions, all new properties must be optional.
 			if (this instanceof FacetNode && ((FacetNode) this).isSummary())
-				// In minor versions, all new properties must be optional.
 				if (!getLibrary().isMinorVersion())
 					newNode.setMandatory(true); // make summary facet properties mandatory by default.
 		} else {

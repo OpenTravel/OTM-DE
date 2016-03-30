@@ -88,7 +88,7 @@ public class LibrarySorter extends ViewerSorter {
 	public int category(final Object element) {
 		final Node n = (Node) element;
 
-		if (n.getModelObject() == null)
+		if (n == null || n.getModelObject() == null)
 			return 0;
 
 		if (n instanceof TypeNode)

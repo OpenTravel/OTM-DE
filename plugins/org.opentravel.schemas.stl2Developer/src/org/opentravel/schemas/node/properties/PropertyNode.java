@@ -359,6 +359,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	public TypeProvider getAssignedType() {
 		if (isInheritedProperty()) {
 			// Inherited nodes are not assigned a type class. If they were the where-used count would be wrong.
+			assert getInheritsFrom() != this;
 			if (getInheritsFrom() != null) {
 				return ((TypeUser) getInheritsFrom()).getAssignedType();
 			}

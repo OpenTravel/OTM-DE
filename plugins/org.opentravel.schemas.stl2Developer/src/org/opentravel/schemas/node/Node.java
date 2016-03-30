@@ -1070,6 +1070,9 @@ public abstract class Node implements INode {
 		return false;
 	}
 
+	/**
+	 * @return the inherited field value or else false
+	 */
 	public boolean isInheritedProperty() {
 		return false;
 	}

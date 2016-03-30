@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLFacet;
@@ -43,6 +44,8 @@ import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.ExtensionHandler;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Dave Hollander
@@ -50,8 +53,8 @@ import org.opentravel.schemas.types.TypeUser;
  */
 public class ChoiceObjectNode extends TypeProviderBase implements ComplexComponentInterface, ExtensionOwner,
 		VersionedObjectInterface, LibraryMemberInterface, TypeProvider {
+	private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
 
-	// private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
 	private ExtensionHandler extensionHandler = null;
 
 	public ChoiceObjectNode(LibraryMember mbr) {
@@ -91,16 +94,6 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 	// getSummaryFacet().copyFacet((FacetNode) vwa.getAttributeFacet());
 	// }
 
-	// @Override
-	// public boolean isExtensible() {
-	// return getTLModelObject() != null ? !((TLComplexTypeBase) getTLModelObject()).isNotExtendable() : false;
-	// }
-	//
-	// @Override
-	// public boolean isExtensibleObject() {
-	// return true;
-	// }
-
 	@Override
 	public Node setExtensible(boolean extensible) {
 		if (isEditable_newToChain())
@@ -108,16 +101,6 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 				((TLComplexTypeBase) getTLModelObject()).setNotExtendable(!extensible);
 		return this;
 	}
-
-	// @Override
-	// public Node getTypeNode() {
-	// return getTypeClass().getTypeNode();
-	// }
-
-	// @Override
-	// public boolean hasChildren_TypeProviders() {
-	// return isXsdType() ? false : true;
-	// }
 
 	@Override
 	public boolean isNamedType() {
@@ -128,34 +111,6 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 	public boolean isAssignedByReference() {
 		return true;
 	}
-
-	// @Override
-	// public List<Node> getChildren_TypeUsers() {
-	// ArrayList<Node> users = new ArrayList<Node>();
-	// // users.addAll(getIDFacet().getChildren());
-	// // users.addAll(getSummaryFacet().getChildren());
-	// // TODO users.addAll(getDetailFacet().getChildren());
-	// // TODO for (INode facet : getCustomFacets())
-	// // TODO users.addAll(facet.getChildren());
-	// // TODO for (INode facet : getQueryFacets())
-	// // TODO users.addAll(facet.getChildren());
-	// return users;
-	// }
-
-	//
-
-	// @Override
-	// public FacetNode getSummaryFacet() {
-	// // for (INode f : getChildren())
-	// // if (((FacetNode) f).getFacetType().equals(TLFacetType.SUMMARY))
-	// // return (FacetNode) f;
-	// return null;
-	// }
-
-	// @Override
-	// public PropertyOwnerInterface getDetailFacet() {
-	// return null;
-	// }
 
 	@Override
 	public PropertyOwnerInterface getDefaultFacet() {
@@ -201,11 +156,6 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 		return (FacetNode) NodeFactory.newComponentMember(this, tf);
 	}
 
-	// @Override
-	// public boolean canExtend() {
-	// return true;
-	// }
-
 	@Override
 	public ComponentNode createMinorVersionComponent() {
 		return super.createMinorVersionComponent(new ChoiceObjectNode(createMinorTLVersion(this)));
@@ -217,45 +167,39 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 		return (ChoiceObjMO) (obj instanceof ChoiceObjMO ? obj : null);
 	}
 
-	// // Custom Facets
-	// public List<ComponentNode> getCustomFacets() {
-	// ArrayList<ComponentNode> ret = new ArrayList<ComponentNode>();
-	// for (INode f : getChildren()) {
-	// if (((Node) f).isCustomFacet()) {
-	// ret.add((ComponentNode) f);
-	// }
-	// }
-	// return ret;
-	// }
-	//
-	// public List<ComponentNode> getQueryFacets() {
-	// ArrayList<ComponentNode> ret = new ArrayList<ComponentNode>();
-	// for (INode f : getChildren()) {
-	// if (((Node) f).isQueryFacet()) {
-	// ret.add((ComponentNode) f);
-	// }
-	// }
-	// return ret;
-	// }
+	@Override
+	public void initInheritedChildren() {
+		// Create list of actual facet names from the tlFacet in this choice object
+		List<String> facetNames = new ArrayList<String>();
+		for (Node child : getChildren())
+			if (child instanceof FacetNode)
+				if (((TLFacet) child.getTLModelObject()).getLabel() != null)
+					facetNames.add(((TLFacet) child.getTLModelObject()).getLabel());
 
-	// private FacetNode findFacet(String label, String context) {
-	// label = emptyIfNull(label);
-	// context = emptyIfNull(context);
-	// for (Node c : getChildren()) {
-	// if (c instanceof FacetNode) {
-	// TLFacet tlFacet = (TLFacet) c.getTLModelObject();
-	// if (label.equals(emptyIfNull(tlFacet.getLabel())) && context.equals(emptyIfNull(tlFacet.getContext())))
-	// return (FacetNode) c;
-	// }
-	// }
-	// return null;
-	// }
+		// Add each facet found by the TL utilities to the list if not already in this choice
+		List<TLFacet> inheritedFacets = new ArrayList<TLFacet>();
+		for (TLFacet tlFacet : findInheritedFacets((TLFacetOwner) getTLModelObject(), TLFacetType.CHOICE)) {
+			// Node inherited = Node.GetNode(tlFacet);
+			String facetName = tlFacet.getLabel();
+			boolean found = false;
+			// if (!(inherited instanceof FacetNode))
+			// found = true; // don't add to inherited list
+			// else
+			for (String name : facetNames)
+				if (name.equals(facetName))
+					found = true;
+			if (!found)
+				inheritedFacets.add(tlFacet);
+		}
 
-	// private String emptyIfNull(String str) {
-	// if (str == null)
-	// return "";
-	// return str;
-	// }
+		// For each facet, create a node and add to inherited structures
+		for (TLFacet obj : inheritedFacets) {
+			ComponentNode nn = NodeFactory.newComponentMember(null, obj);
+			if (nn != null)
+				linkInheritedChild(nn);
+		}
+		// LOGGER.debug(this + " has " + inheritedFacets.size() + " inherited children.");
+	}
 
 	/**
 	 * It is copy of {@link FacetCodegenUtils#findGhostFacets(TLFacetOwner, TLFacetType)} but with this difference that
@@ -301,6 +245,8 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 			ghostFacet.setContext(inheritedFacet.getContext());
 			ghostFacet.setLabel(inheritedFacet.getLabel());
 			ghostFacet.setOwningEntity(facetOwner);
+			for (ModelElementListener l : inheritedFacet.getListeners())
+				ghostFacet.addListener(l);
 			ghostFacets.add(ghostFacet);
 		}
 		return ghostFacets;
@@ -355,32 +301,14 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 
 	@Override
 	public void merge(Node source) {
-		// FIXME
 		if (!(source instanceof ChoiceObjectNode)) {
-			throw new IllegalStateException("Can only merge objects with the same type");
+			throw new IllegalStateException("Can not merge choice objects.");
 		}
-		// ChoiceObjectNode business = (ChoiceObjectNode) source;
-		// getIDFacet().addProperties(business.getIDFacet().getChildren(), true);
-		// getSummaryFacet().addProperties(business.getSummaryFacet().getChildren(), true);
-		// getDetailFacet().addProperties(business.getDetailFacet().getChildren(), true);
-		// copyFacet(business.getCustomFacets());
-		// copyFacet(business.getQueryFacets());
 	}
-
-	// private void copyFacet(List<ComponentNode> facets) {
-	// for (ComponentNode f : facets) {
-	// FacetNode facet = (FacetNode) f;
-	// if (!NodeUtils.checker(facet).isInheritedFacet().get()) {
-	// TLFacet tlFacet = (TLFacet) facet.getTLModelObject();
-	// FacetNode newFacet = addFacet(tlFacet.getLabel(), tlFacet.getFacetType());
-	// newFacet.addProperties(facet.getChildren(), true);
-	// }
-	// }
-	// }
 
 	@Override
 	public boolean isMergeSupported() {
-		return true;
+		return false;
 	}
 
 	public PropertyOwnerInterface getSharedFacet() {
@@ -445,16 +373,6 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 	/* ****************************************************
 	 * Only needed for type hierarchy
 	 */
-	// @Override
-	// public ComponentNode getSimpleType() {
-	// return null;
-	// }
-	//
-	// @Override
-	// public boolean setSimpleType(Node type) {
-	// return false;
-	// }
-
 	@Override
 	public SimpleFacetNode getSimpleFacet() {
 		return null;

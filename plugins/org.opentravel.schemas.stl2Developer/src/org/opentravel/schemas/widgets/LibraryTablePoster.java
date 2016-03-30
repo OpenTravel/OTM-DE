@@ -25,6 +25,8 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.opentravel.schemas.modelObject.XSDComplexMO;
 import org.opentravel.schemas.node.AliasNode;
+import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
@@ -132,12 +134,14 @@ public class LibraryTablePoster {
 				postTableRows(curNode, "Extension Point: " + curNode.getName());
 			} else if (curNode.isFacet()) {
 				postTableRows(curNode, curNode.getLabel());
-				// } else if (curNode instanceof CoreObjectNode || curNode instanceof BusinessObjectNode
-				// || curNode instanceof VWA_Node || curNode instanceof OperationNode
-				// || curNode instanceof ChoiceObjectNode) {
 			} else if (curNode instanceof ComplexComponentInterface) {
+				if (curNode instanceof BusinessObjectNode || curNode instanceof ChoiceObjectNode)
+					if (showInherited(curNode) && curNode.getInheritedChildren() != null) {
+						sortedChildren.addAll(curNode.getInheritedChildren());
+						sortedChildren = sort(sortedChildren);
+					}
 				for (final Node child : sortedChildren) {
-					if (!child.isAlias()) {
+					if (!(child instanceof AliasNode)) {
 						postTableRows(child, child.getLabel());
 					}
 				}

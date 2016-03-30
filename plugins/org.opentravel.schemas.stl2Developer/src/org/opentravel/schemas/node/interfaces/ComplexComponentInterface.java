@@ -35,16 +35,6 @@ import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
  */
 public interface ComplexComponentInterface {
 
-	// /**
-	// * @return the type assigned to the simple facet or null if none.
-	// */
-	// public ComponentNode getSimpleType();
-	//
-	// /**
-	// * @return false if simple type could not be set.
-	// */
-	// public boolean setSimpleType(Node type);
-
 	/**
 	 * @return the simple facet or null if none.
 	 */
@@ -63,8 +53,6 @@ public interface ComplexComponentInterface {
 
 	/**
 	 * Create aliases for complex types used by two or more properties.
-	 * 
-	 * @return
 	 */
 	public void createAliasesForProperties();
 
