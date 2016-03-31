@@ -213,10 +213,10 @@ public class ComponentNode extends Node {
 			if (inheritedChildren != null)
 				inheritedChildren.clear();
 			// Do not keep a local copy until adding to the base forces update of all extensions.
-			// if (inheritedChildren == null) {
 			initInheritedChildren();
-			// }
 		}
+		if (inheritedChildren == null)
+			inheritedChildren = Collections.emptyList();
 		return inheritedChildren;
 	}
 
@@ -239,22 +239,10 @@ public class ComponentNode extends Node {
 			inheritedChildren = Collections.emptyList();
 		} else {
 			for (final Object obj : inheritedMOChildren) {
-				// ComponentNode nn = newComponentNode(obj);
 				// null parent allows us to control linkage.
 				ComponentNode nn = NodeFactory.newComponentMember(null, obj);
-
 				if (nn != null) {
 					linkInheritedChild(nn);
-					// Link to the actual node.
-					// Use a finder to locate node since there are no back-links.
-					// if (obj instanceof TLModelElement) {
-					// nn.inheritsFrom = Node.GetNode((TLModelElement) obj);
-					// Node searchRoot = ModelNode.getModelNode();
-					// nn.inheritsFrom = searchRoot.findNode(((TLModelElement) obj).getValidationIdentity());
-					// if (nn.inheritsFrom != null && nn.inheritsFrom.getParent() != null)
-					// // quicker this way - all others will have same parent
-					// searchRoot = nn.inheritsFrom.getParent();
-					// }
 					nn.addMOChildren();
 				}
 			}

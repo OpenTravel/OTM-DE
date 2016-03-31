@@ -31,6 +31,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
@@ -872,15 +874,13 @@ public class MainController {
 	}
 
 	/**
-	 * @return First node selected in TypeView. If selection of TypeView is empty then return first selected node from
-	 *         NavigatorView otherwise return null;
+	 * @return First node selected in active view otherwise null
 	 */
 	public Node getGloballySelectNode() {
-		Node node = getSelectedNode_TypeView();
-		if (node != null) {
-			return node;
-		}
-		node = getSelectedNode_NavigatorView();
+		Node node = null;
+		List<Node> nodes = getGloballySelectNodes();
+		if (!nodes.isEmpty())
+			node = nodes.get(0);
 		return node;
 	}
 
@@ -889,7 +889,16 @@ public class MainController {
 	 *         NavigatorView otherwise return empty list;
 	 */
 	public List<Node> getGloballySelectNodes() {
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		IWorkbenchPart part = page.getActivePart();
+		// FYI- this works: IViewPart view = page.findView(NavigatorView.VIEW_ID);
+
 		List<Node> nodes = getSelectedNodes_TypeView();
+		if (part instanceof OtmView)
+			nodes = ((OtmView) part).getSelectedNodes();
+
+		// This should never happen
+		assert nodes != null;
 		if (nodes == null || nodes.isEmpty()) {
 			nodes = getSelectedNodes_NavigatorView();
 		}
