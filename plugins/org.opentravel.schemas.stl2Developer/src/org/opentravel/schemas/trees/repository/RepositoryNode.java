@@ -94,6 +94,29 @@ public abstract class RepositoryNode extends Node implements Comparable<Reposito
 		return vChildren;
 	}
 
+	/**
+	 * Get all repository item nodes for all libraries in the repository. WARNING: this uses the lazy evaluation based
+	 * tree so will be slow the first time called.
+	 * 
+	 * @return list of all repository item nodes from all repository namespaces
+	 */
+	public List<Node> getDescendents_RepositoryItems() {
+		List<Node> rnKids = new ArrayList<Node>();
+		for (Node rnChild : getChildren())
+			rnKids.addAll(getDescendents_RepositoryItems(rnChild));
+		return rnKids;
+	}
+
+	private List<Node> getDescendents_RepositoryItems(Node n) {
+		List<Node> kids = new ArrayList<Node>();
+		for (Node m : n.getChildren())
+			if (m instanceof RepositoryItemNode)
+				kids.add(m);
+			else if (m.hasChildren())
+				kids.addAll(getDescendents_RepositoryItems(m));
+		return kids;
+	}
+
 	@Override
 	protected void setKidsLibrary() {
 		// do nothing

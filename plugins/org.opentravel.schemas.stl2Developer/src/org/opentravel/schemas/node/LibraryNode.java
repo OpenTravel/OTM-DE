@@ -20,6 +20,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +59,9 @@ import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.preferences.GeneralPreferencePage;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeResolver;
+import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.WhereUsedLibraryHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -955,6 +958,17 @@ public class LibraryNode extends Node {
 	}
 
 	/**
+	 * @return TypeProvider with matching name or null if not found.
+	 */
+	public TypeProvider findTypeProvider(String name) {
+		TypeProvider node = null;
+		for (TypeProvider p : getDescendants_TypeProviders())
+			if (p.getName().equals(name))
+				return p;
+		return node;
+	}
+
+	/**
 	 * Move a node from its library to a different library. Moves the node and underlying TL object.
 	 * 
 	 * @param source
@@ -1632,6 +1646,18 @@ public class LibraryNode extends Node {
 	@Override
 	public String toString() {
 		return getLabel();
+	}
+
+	/**
+	 * Replace all type users in this library using the passed map. The map must contain key/value pairs of library
+	 * nodes where the currently used library is the key. No action taken on types in libraries not in the map.
+	 */
+	public void replaceTypeUsers(HashMap<LibraryNode, LibraryNode> replacementMap) {
+		for (TypeUser user : getDescendants_TypeUsers()) {
+			LibraryNode replacementLib = replacementMap.get(user.getAssignedType().getLibrary());
+			if (user.isEditable() && replacementLib != null)
+				user.setAssignedType(replacementLib.findTypeProvider(user.getAssignedType().getName()));
+		}
 	}
 
 	/**

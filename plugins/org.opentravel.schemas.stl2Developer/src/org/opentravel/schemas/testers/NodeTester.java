@@ -19,6 +19,7 @@ import org.eclipse.core.expressions.PropertyTester;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.RenamableFacet;
 import org.opentravel.schemas.node.controllers.NodeUtils;
+import org.opentravel.schemas.types.TypeUser;
 
 public class NodeTester extends PropertyTester {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(NodeTester.class);
@@ -41,8 +42,8 @@ public class NodeTester extends PropertyTester {
 
 		if (IS_DELETEABLE.equals(property)) {
 			return canDelete(node);
-			// } else if (HAS_TYPE.equals(property)) {
-			// return hasType(node);
+		} else if (HAS_TYPE.equals(property)) {
+			return hasType(node);
 		} else if (IS_IN_TLLIBRARY.equals(property)) {
 			return node.isInTLLibrary();
 		} else if (IS_EDITABLE.equals(property)) {
@@ -70,13 +71,15 @@ public class NodeTester extends PropertyTester {
 		return node.getChain() != null ? node.getChain().isEditable() : node.isEditable();
 	}
 
-	// private boolean hasType(Node node) {
-	// Type type = node.getTypeClass();
-	// if (type != null) {
-	// return type.getTypeNode() != null;
-	// }
-	// return false;
-	// }
+	private boolean hasType(Node node) {
+		if (node instanceof TypeUser)
+			return ((TypeUser) node).getAssignedType() != null;
+		// Type type = node.getTypeClass();
+		// if (type != null) {
+		// return type.getTypeNode() != null;
+		// }
+		return false;
+	}
 
 	public boolean canAssign(Node property, Node type) {
 		if (property == null || type == null)

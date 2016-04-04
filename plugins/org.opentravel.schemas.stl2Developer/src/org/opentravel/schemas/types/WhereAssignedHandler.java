@@ -205,9 +205,9 @@ public class WhereAssignedHandler {
 		if (((Node) owner).getOwningComponent() == null)
 			return ul; // happens when building inheritance wizard tree
 
-		for (Node n : ((Node) owner).getOwningComponent().getDescendants_TypeProviders())
-			if (!n.isDeleted() && n instanceof TypeProvider)
-				ul.addAll(((TypeProvider) n).getWhereAssigned());
+		for (TypeProvider n : ((Node) owner).getOwningComponent().getDescendants_TypeProviders())
+			if (!((Node) n).isDeleted())
+				ul.addAll(n.getWhereAssigned());
 		return ul;
 	}
 
@@ -267,12 +267,12 @@ public class WhereAssignedHandler {
 	public void replaceAll(TypeProvider replacement, LibraryNode scopeLibrary) {
 		// Create map of replacement candidates
 		java.util.HashMap<String, TypeProvider> replacementTypes = new java.util.HashMap<String, TypeProvider>();
-		for (Node r : ((Node) replacement).getDescendants_TypeProviders())
-			replacementTypes.put(r.getName(), (TypeProvider) r);
+		for (TypeProvider r : ((Node) replacement).getDescendants_TypeProviders())
+			replacementTypes.put(r.getName(), r);
 
 		// Replace where each type-provider child of this owner is used with it equivalent from replacement
-		for (Node child : ((Node) owner).getDescendants_TypeProviders()) {
-			Collection<TypeUser> kids = new ArrayList<TypeUser>(((TypeProvider) child).getWhereAssigned());
+		for (TypeProvider child : ((Node) owner).getDescendants_TypeProviders()) {
+			Collection<TypeUser> kids = new ArrayList<TypeUser>(child.getWhereAssigned());
 			for (TypeUser n : kids) {
 				// Try to find a replacement equivalent from replacement object
 				String name = n.getAssignedTLNamedEntity().getLocalName();

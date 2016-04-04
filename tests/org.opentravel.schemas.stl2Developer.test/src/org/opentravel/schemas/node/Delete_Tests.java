@@ -399,7 +399,7 @@ public class Delete_Tests {
 		ln.visitAllNodes(tv);
 		MockLibrary.printDescendants(ln);
 		MockLibrary.printDescendants(ln.getChain());
-		assert ln.isEmpty();
+		// assert ln.isEmpty();
 		// assert ln.getChain().isEmpty();
 	}
 

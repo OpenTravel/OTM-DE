@@ -71,14 +71,14 @@ public class ReplaceWith_Tests {
 		ElementNode e = null;
 		e = new ElementNode(bo.getSummaryFacet(), "n" + i++);
 		e.setAssignedType(core);
-		for (Node d : core.getDescendants_TypeProviders()) {
+		for (TypeProvider d : core.getDescendants_TypeProviders()) {
 			e = new ElementNode(bo.getSummaryFacet(), "n" + i++);
-			e.setAssignedType((TypeProvider) d);
+			e.setAssignedType(d);
 		}
 		// Given - a different core in a different library where all children have namespaces
 		CoreObjectNode replacement = ml.addCoreObjectToLibrary_Empty(ln2, "Test");
-		for (Node c : replacement.getDescendants_TypeProviders())
-			assertTrue("Must have namespace.", !c.getNamespace().isEmpty());
+		for (TypeProvider c : replacement.getDescendants_TypeProviders())
+			assertTrue("Must have namespace.", !((Node) c).getNamespace().isEmpty());
 
 		// When - 1st core is replaced by second core
 		((TypeProvider) core).getWhereAssignedHandler().replaceAll(replacement);
@@ -91,12 +91,12 @@ public class ReplaceWith_Tests {
 			assertTrue("Must have listener", hasWhereAssignedListener((TypeUser) p, type));
 		}
 		// Then - all original core type providers should not be assigned
-		for (Node p : core.getDescendants_TypeProviders())
-			assertTrue("Must be empty.", ((TypeProvider) p).getWhereAssigned().isEmpty());
+		for (TypeProvider p : core.getDescendants_TypeProviders())
+			assertTrue("Must be empty.", p.getWhereAssigned().isEmpty());
 
 		// Then - all replacement core type providers should be assigned
-		for (Node p : replacement.getDescendants_TypeProviders())
-			assertTrue("Must NOT be empty.", !((TypeProvider) p).getWhereAssigned().isEmpty());
+		for (TypeProvider p : replacement.getDescendants_TypeProviders())
+			assertTrue("Must NOT be empty.", !p.getWhereAssigned().isEmpty());
 
 	}
 

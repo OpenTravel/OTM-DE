@@ -73,7 +73,7 @@ public class RepositoryControllerTests {
 	}
 
 	@Test
-	public void createVersion() throws Exception {
+	public void createVersionErrors() throws Exception {
 		// These creates should create NULL libraries because ln is not in a repository.
 		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
 		LibraryNode major = rc.createMajorVersion(ln);

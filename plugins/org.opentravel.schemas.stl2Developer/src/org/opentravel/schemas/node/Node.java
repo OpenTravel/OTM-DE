@@ -542,11 +542,11 @@ public abstract class Node implements INode {
 	 * 
 	 * @return new list of all descendants that can be assigned as a type.
 	 */
-	public List<Node> getDescendants_TypeProviders() {
-		final ArrayList<Node> ret = new ArrayList<Node>();
+	public List<TypeProvider> getDescendants_TypeProviders() {
+		final ArrayList<TypeProvider> ret = new ArrayList<TypeProvider>();
 		for (final Node n : getChildren()) {
 			if (n.isTypeProvider())
-				ret.add(n);
+				ret.add((TypeProvider) n);
 
 			// Some type users may also have children
 			if (n.hasChildren())
