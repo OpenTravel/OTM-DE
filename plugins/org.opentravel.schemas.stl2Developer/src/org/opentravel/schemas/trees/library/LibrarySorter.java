@@ -36,6 +36,7 @@ import org.opentravel.schemas.node.resources.ActionResponse;
 import org.opentravel.schemas.node.resources.ParamGroup;
 import org.opentravel.schemas.node.resources.ResourceParameter;
 import org.opentravel.schemas.types.TypeNode;
+import org.opentravel.schemas.types.TypeUserNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,6 +92,8 @@ public class LibrarySorter extends ViewerSorter {
 		if (n == null || n.getModelObject() == null)
 			return 0;
 
+		if (n instanceof TypeUserNode)
+			return 101;
 		if (n instanceof TypeNode)
 			return 100;
 

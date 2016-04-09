@@ -15,155 +15,190 @@
  */
 package org.opentravel.schemas.types;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.controllers.NodeImageProvider;
+import org.opentravel.schemas.node.controllers.NodeLabelProvider;
 import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A leaf on a typeTree that represents a user of the parent type.
- *
- * NOTE: there is no attempt to maintain this tree. It is created dynamically
- * when the tree is attached to a view as done in the LibraryTreeContentProvider.
+ * Creates a tree branch anchored to the type object on a Node to represent libraries used in type assignments for
+ * object properties in a library. Leaves are computed from library traversal of type users.
  * 
  * @author Dave Hollander
  * 
  */
-/**
- * TODO - Stop using the node tree! Use the "mistletoe" pattern making WhereUsed a separate tree parasitic on the main
- * tree. In libraryTreeContentProvider, inspect "typeProviders" to get the Users data from this structure. This should
- * Type Class--Type class can hold the TypeNode and its children.
- * 
- * Inline labelProvider in this class and use it in the libraryTreeLabelProvider. replace label provider to children so
- * that the type and property are seen. Then don't use getOwningComponent. create a where used child node such that it
- * can be assigned behavior and stay out of children trees easier! expose the implied types as children of Model
- * 
- */
-public class TypeUserNode extends ComponentNode {
-	@SuppressWarnings("unused")
+public class TypeUserNode extends Node {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TypeUserNode.class);
 
+	public enum TypeUserNodeType {
+		OWNER, PROVIDER_LIB
+	}
+
+	private NodeImageProvider imageProvider = simpleImageProvider("WhereUsed");
+	private NodeLabelProvider labelProvider = simpleLabelProvider("Uses Objects From");
+	private LibraryNode owner = null;
+	private TypeUserNodeType nodeType = TypeUserNodeType.OWNER;
+
 	/**
-	 * Create a new Where Used complete with new TL model and link to component
-	 */
-	public TypeUserNode(final Node parent) {
-		super();
-		this.setParent(parent);
-	}
-
-	/*
-	 * (non-Javadoc)
+	 * Create a "Uses" node to add to navigator tree. Children are libraries that contain type providers used by any
+	 * type user in the passed library.
 	 * 
-	 * @see org.opentravel.schemas.node.Node#delete()
+	 * @param lib
 	 */
-	@Override
-	public void delete() {
-		super.delete();
+	public TypeUserNode(final LibraryNode lib) {
+		this.owner = lib;
 	}
 
-	@Override
-	public String getPropertyRole() {
-		return "Alias";
-	}
-
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Create a node to represent the provider library.
 	 * 
-	 * @see org.opentravel.schemas.node.Node#getName()
+	 * @param typeNode
+	 * @param nodeType
 	 */
+	public TypeUserNode(LibraryNode providerLib, LibraryNode userLib) {
+		owner = providerLib; // library with type providers used in parent library
+		nodeType = TypeUserNodeType.PROVIDER_LIB;
+		String label = "";
+		parent = userLib;
+		labelProvider = simpleLabelProvider(providerLib.getLabel());
+		imageProvider = nodeImageProvider(providerLib.getOwningComponent());
+	}
+
 	@Override
-	public String getName() {
-		return "Where Used";
-		// return "Where "+getParent().getName()+" is used";
+	public boolean isEditable() {
+		return nodeType == TypeUserNodeType.OWNER ? owner.isEditable() : parent.isEditable();
+	}
+
+	@Override
+	public Node getParent() {
+		Node p = owner;
+		if (nodeType == TypeUserNodeType.PROVIDER_LIB)
+			return parent;
+		return p;
+	}
+
+	@Override
+	public String getLabel() {
+		return labelProvider.getLabel();
 	}
 
 	@Override
 	public Image getImage() {
-		return Images.getImageRegistry().get(Images.WhereUsed);
+		return imageProvider.getImage();
 	}
 
 	@Override
-	public boolean isNavigation() {
-		return true;
+	public void delete() {
 	}
 
 	@Override
 	public String getComponentType() {
-		return "WhereUsed: " + getName();
+		return "Uses:" + owner.getName();
 	}
 
 	/**
-	 * Get all of the components that use any aspect of the owning component. DO NOT make this a getChildren or the tree
-	 * will become invalid with nodes having multiple parents which will break lots of getChildren() users.
+	 * If this is the owner library, get all of the libraries containing type providers.
+	 * 
+	 * If this is provider library, return empty array.
 	 * 
 	 * This is used directly by the Library tree content provider.
 	 * 
 	 * @return
 	 */
-	// public List<Node> getUsers() {
-	// List<Node> users = new ArrayList<Node>();
-	// // HashSet<Node> users = new HashSet<Node>();
-	// for (Node e : getParent().getTypeClass().getTypeUsersAndDescendants())
-	// users.add(e.getOwningComponent());
-	// // for (Node n : users) uniqueUsers.add(n);
-	// return users;
-	// }
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.ComponentNode#hasNavChildrenWithProperties()
-	 */
 	@Override
-	public boolean hasNavChildrenWithProperties() {
-		return hasChildren();
+	public List<Node> getChildren() {
+		if (owner != null && nodeType.equals(TypeUserNodeType.OWNER)) {
+			List<Node> providerLibs = new ArrayList<Node>();
+			for (LibraryNode l : owner.getAssignedLibraries())
+				providerLibs.add(new TypeUserNode(l, owner));
+			return providerLibs;
+		} else
+			return Collections.emptyList();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#hasChildren()
-	 */
 	@Override
 	public boolean hasChildren() {
-		return true;
+		return nodeType == TypeUserNodeType.OWNER;
 	}
 
-	@Override
-	public List<Node> getNavChildren() {
-		return null;
+	private NodeImageProvider simpleImageProvider(final String imageName) {
+		return new NodeImageProvider() {
+
+			@Override
+			public Image getImage() {
+				final ImageRegistry imageRegistry = Images.getImageRegistry();
+				return imageRegistry.get(imageName);
+			}
+		};
+	}
+
+	private NodeImageProvider nodeImageProvider(final Node node) {
+		final Node imageNode = node;
+		return new NodeImageProvider() {
+
+			@Override
+			public Image getImage() {
+				return imageNode.getImage();
+			}
+		};
+	}
+
+	private NodeLabelProvider simpleLabelProvider(final String txt) {
+		final String label = txt;
+		return new NodeLabelProvider() {
+
+			@Override
+			public String getLabel() {
+				return label;
+			}
+		};
 	}
 
 	@Override
 	public boolean hasNavChildren() {
-		return false;
+		return true;
 	}
 
 	@Override
-	public boolean isDeleted() {
-		if (super.isDeleted()) {
-			return true;
-		}
-		return false;
+	public void sort() {
+		getParent().sort();
 	}
 
 	@Override
-	public boolean isDeleteable() {
-		return false;
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((owner == null) ? 0 : owner.hashCode());
+		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#setName(java.lang.String)
-	 */
-	@Override
-	public void setName(String n) {
-		return;
+	public LibraryNode getOwner() {
+		return owner;
 	}
 
+	// @Override
+	// public boolean equals(Object obj) {
+	// if (this == obj)
+	// return true;
+	// if (obj == null)
+	// return false;
+	// if (getClass() != obj.getClass())
+	// return false;
+	// TypeNode other = (TypeNode) obj;
+	// if (owner == null) {
+	// if (other.owner != null)
+	// return false;
+	// } else if (!owner.equals(other.owner))
+	// return false;
+	// return true;
+	// }
 }

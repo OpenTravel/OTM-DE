@@ -70,7 +70,7 @@ public class DialogUserNotifier {
 		return ret;
 	}
 
-	/*
+	/**
 	 * this method returns: 0 - for YES 1 - for NO 2 - for CANCEL(non-Javadoc)
 	 * 
 	 * @see org.opentravel.schemas.stl2developer.UserNotifier#openQuestionWithCancel(java.lang.String, java.lang.String)

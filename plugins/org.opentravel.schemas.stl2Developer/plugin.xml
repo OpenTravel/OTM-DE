@@ -707,6 +707,10 @@
 			description="Compile all libraries in the model" id="org.opentravel.schemas.commands.Compile"
 			name="Compile">
 		</command>
+		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+			description="Update Type Users to new versions" id="org.opentravel.schemas.commands.VersionUpdate"
+			name="VersionUpdate">
+		</command>
 		<category id="org.opentravel.schemas.stl2Developer.command.category"
 			name="OTM-DE Editor">
 		</category>
@@ -1038,6 +1042,9 @@
 					</with>
 				</and>
 			</enabledWhen -->
+		</handler>
+		<handler class ="org.opentravel.schemas.commands.VersionUpdateHandler"
+			commandId="org.opentravel.schemas.commands.VersionUpdate">
 		</handler>
 		<handler class="org.opentravel.schemas.commands.CloseProjectHandler"
 			commandId="org.opentravel.schemas.commands.CloseProject">

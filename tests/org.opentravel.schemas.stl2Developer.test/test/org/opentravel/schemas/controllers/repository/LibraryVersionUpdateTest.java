@@ -21,13 +21,10 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
-import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemas.node.BusinessObjectNode;
@@ -38,7 +35,6 @@ import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
-import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
@@ -46,8 +42,6 @@ import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
-import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryItemNode;
-import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.osgi.framework.Version;
@@ -150,19 +144,12 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		// As a major library, providerLib is now in its own chain.
 		assertTrue("Major versions must be head of chain.", providerLib == providerLib.getChain().getHead());
 
-		// // Walk selected library type users and collect all used libraries (type assignments and extensions)
-		HashMap<String, LibraryNode> usedLibs = new HashMap<String, LibraryNode>();
-		for (TypeUser user : userLib.getDescendants_TypeUsers()) {
-			TypeProvider provider = user.getAssignedType();
-			if (provider.getLibrary() != null)
-				if (provider.getLibrary().getChain() != null)
-					usedLibs.put(provider.getLibrary().getNamespace(), provider.getLibrary());
-		}
-		assertTrue("Must have at least one used library.", usedLibs.size() > 0);
-
+		// Business Logic
+		//
+		// Walk selected library type users and collect all used libraries (type assignments and extensions)
+		List<LibraryNode> usedLibs = userLib.getAssignedLibraries();
 		// Create replacement map
-		HashMap<LibraryNode, LibraryNode> replacementMap = buildUpdateMap(getRepositoryForTest());
-
+		HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(usedLibs);
 		// replace type users using the replacement map
 		userLib.replaceTypeUsers(replacementMap);
 
@@ -175,61 +162,62 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 				assertTrue("Must be in providerLib.", user.getAssignedType().getLibrary() == providerLib);
 			}
 		}
-
 	}
 
-	/**
-	 * For each item in the map parameter find the latest version. If different, add item and latest version to returned
-	 * map.
-	 * 
-	 * WARNING: this is very slow
-	 * 
-	 * @param usedLibs
-	 * @return
-	 * @throws RepositoryException
-	 */
-	private HashMap<LibraryNode, LibraryNode> buildUpdateMap(RepositoryNode repoNode) throws RepositoryException {
-		HashMap<LibraryNode, LibraryNode> replacementMap = new HashMap<>();
-
-		// get a map of all repository item nodes that have a later version and their later version repository item
-		Repository tlRepo = repoNode.getRepository();
-		HashMap<RepositoryItem, RepositoryItem> itemMap = new HashMap<>();
-
-		// For each item from the GUI repository find its latest version.
-		for (Node rn : repoNode.getDescendents_RepositoryItems()) {
-			if (!(rn instanceof RepositoryItemNode))
-				continue;
-			RepositoryItemNode ri = ((RepositoryItemNode) rn);
-			List<RepositoryItem> latestList = tlRepo.listItems(ri.getItem().getBaseNamespace(), true, true);
-			if (latestList.size() > 0) {
-				RepositoryItem latest = latestList.get(0);
-				if (latest != null && !latest.getNamespace().equals(ri.getItem().getNamespace()))
-					itemMap.put(((RepositoryItemNode) ri).getItem(), latestList.get(0));
-			}
-		}
-
-		// Create library map of namespace to library node for all libraries open in the GUI
-		HashMap<String, LibraryNode> libraryMap = new HashMap<>();
-		for (LibraryNode lib : ModelNode.getAllUserLibraries())
-			libraryMap.put(lib.getNamespace(), lib);
-
-		// Now map the repository items to actual libraries.
-		for (Entry<RepositoryItem, RepositoryItem> entry : itemMap.entrySet()) {
-			String entryNS = entry.getKey().getNamespace();
-			String latestNS = entry.getValue().getNamespace();
-			if (libraryMap.containsKey(entryNS))
-				replacementMap.put(libraryMap.get(entryNS), libraryMap.get(latestNS));
-			else
-				LOGGER.debug(entryNS + " has later version but is not open in GUI.");
-		}
-
-		// Print out replacement map
-		for (Entry<LibraryNode, LibraryNode> entry : replacementMap.entrySet())
-			LOGGER.debug("Replace " + entry.getKey() + " with " + entry.getValue());
-
-		return replacementMap;
-
-	}
+	// /**
+	// * For each passed library find the latest version.
+	// * If different, add library and latest version to returned map.
+	// *
+	// * WARNING: each library will invoke a slow process on the repository
+	// *
+	// * @param usedLibs
+	// *
+	// * @param usedLibs
+	// * @return maps of libraries, key is passed library and value is later version of library.
+	// * @throws RepositoryException
+	// */
+	// private HashMap<LibraryNode, LibraryNode> getVersionUpdateMap(List<LibraryNode> usedLibs) throws
+	// RepositoryException {
+	// HashMap<LibraryNode, LibraryNode> replacementMap = new HashMap<>();
+	//
+	// HashMap<LibraryNode, RepositoryItem> itemMap = new HashMap<>();
+	// List<RepositoryItem> ll;
+	// for (LibraryNode lib : usedLibs) {
+	// ProjectItem projItem = lib.getProjectItem();
+	// Repository lRepo = lib.getProjectItem().getRepository();
+	// String baseNS = projItem.getBaseNamespace();
+	//
+	// // For each used library, lookup the latest version.
+	// ll = lRepo.listItems(baseNS, true, true);
+	// if (ll.size() > 0) {
+	// RepositoryItem latest = ll.get(0);
+	// if (latest != null && !latest.getNamespace().equals(projItem.getNamespace()))
+	// itemMap.put(lib, ll.get(0));
+	// }
+	// }
+	//
+	// // Create library map of namespace to library node for all libraries open in the GUI
+	// HashMap<String, LibraryNode> libraryMap = new HashMap<>();
+	// for (LibraryNode lib : ModelNode.getAllUserLibraries())
+	// libraryMap.put(lib.getNamespace(), lib);
+	//
+	// // Now map the "latest versions" repository items to actual libraries.
+	// for (Entry<LibraryNode, RepositoryItem> entry : itemMap.entrySet()) {
+	// String entryNS = entry.getKey().getNamespace();
+	// String latestNS = entry.getValue().getNamespace();
+	// if (libraryMap.containsKey(entryNS))
+	// replacementMap.put(libraryMap.get(entryNS), libraryMap.get(latestNS));
+	// else
+	// LOGGER.debug(entryNS + " has later version but is not open in GUI.");
+	// }
+	//
+	// // Print out replacement map
+	// for (Entry<LibraryNode, LibraryNode> entry : replacementMap.entrySet())
+	// LOGGER.debug("Replace " + entry.getKey() + " with " + entry.getValue());
+	//
+	// return replacementMap;
+	//
+	// }
 
 	// private List<Node> getDescendents_Libraries(RepositoryNode rn) {
 	// List<Node> rnKids = new ArrayList<Node>();

@@ -62,10 +62,14 @@ public class LibraryTreeContentProvider implements ITreeContentProvider {
 			navChildren.addAll(node.getNavChildren());
 			if (node instanceof TypeProvider)
 				navChildren.add(((TypeProvider) node).getWhereUsedNode());
-			if (node instanceof LibraryNode)
+			if (node instanceof LibraryNode) {
 				navChildren.add(((LibraryNode) node).getWhereUsedHandler().getWhereUsedNode());
-			if (node instanceof LibraryChainNode)
+				navChildren.add(((LibraryNode) node).getWhereUsedHandler().getUsedByNode());
+			}
+			if (node instanceof LibraryChainNode) {
 				navChildren.add(((LibraryChainNode) node).getHead().getWhereUsedHandler().getWhereUsedNode());
+				navChildren.add(((LibraryChainNode) node).getHead().getWhereUsedHandler().getUsedByNode());
+			}
 			navChildren.addAll(node.getInheritedChildren());
 			return navChildren != null ? navChildren.toArray() : null;
 		} else

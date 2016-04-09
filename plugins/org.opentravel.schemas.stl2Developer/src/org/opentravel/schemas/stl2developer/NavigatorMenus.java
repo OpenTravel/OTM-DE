@@ -73,6 +73,7 @@ import org.opentravel.schemas.commands.ResourceCommandHandler;
 import org.opentravel.schemas.commands.SaveLibrariesHandler;
 import org.opentravel.schemas.commands.SaveLibraryHandler;
 import org.opentravel.schemas.commands.ValidateHandler;
+import org.opentravel.schemas.commands.VersionUpdateHandler;
 import org.opentravel.schemas.controllers.RepositoryController;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
@@ -103,6 +104,7 @@ import org.opentravel.schemas.trees.library.LibraryTreeContentProvider;
 import org.opentravel.schemas.trees.library.LibraryTreeLabelProvider;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.types.TypeNode;
+import org.opentravel.schemas.types.TypeUserNode;
 import org.opentravel.schemas.utils.RCPUtils;
 
 /**
@@ -143,7 +145,7 @@ public class NavigatorMenus extends TreeViewer {
 		final MenuManager libraryMenu = new MenuManager("Library", "Library_ID");
 		final MenuManager projectMenu = new MenuManager("Project", "Project_ID");
 		final MenuManager manageInMenu = new MenuManager("Manage in...", "Project_ID");
-		// final MenuManager modelMenu = new MenuManager("Model", "Model_ID");
+		final MenuManager versionUpdateMenu = new MenuManager("Update Type Users to new version", "VersionUpdate_ID");
 
 		final MenuManager copyMenu = new DisableIfEmptyMenu(Messages.getString("action.menu.navigation.copy"),
 				"Copy_ID", Messages.getString("action.menu.navigation.copy.tooltip"));
@@ -165,6 +167,8 @@ public class NavigatorMenus extends TreeViewer {
 		final Action newProjectAction = new NewProjectAction();
 		final IContributionItem compileAction = RCPUtils.createCommandContributionItem(site, CompileHandler.COMMAND_ID,
 				null, null, null);
+		final IContributionItem versionUpdateAction = RCPUtils.createCommandContributionItem(site,
+				VersionUpdateHandler.COMMAND_ID, null, null, null);
 
 		final IContributionItem saveAllLibrariesAction = RCPUtils.createCommandContributionItem(site,
 				SaveLibrariesHandler.COMMAND_ID, null, null, SaveLibrariesHandler.getIcon());
@@ -245,6 +249,7 @@ public class NavigatorMenus extends TreeViewer {
 				libraryMenu.add(new Separator());
 				libraryMenu.add(closeLibraries);
 
+				versionUpdateMenu.add(versionUpdateAction);
 				projectMenu.removeAll();
 				projectMenu.add(closeProjectAction);
 				projectMenu.add(newProjectAction);
@@ -416,6 +421,8 @@ public class NavigatorMenus extends TreeViewer {
 						manager.add(libraryMenu);
 					} else if (node instanceof TypeNode) {
 						manager.add(whereUsedMenu);
+					} else if (node instanceof TypeUserNode) {
+						manager.add(versionUpdateAction);
 					} else if (node instanceof ProjectNode || node instanceof LibraryNode
 							|| node instanceof LibraryChainNode || node instanceof NavNode) {
 						if (node.isInTLLibrary() || node instanceof NavNode) {

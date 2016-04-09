@@ -22,8 +22,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.swt.custom.BusyIndicator;
@@ -48,6 +50,7 @@ import org.opentravel.schemacompiler.version.PatchVersionHelper;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.ProjectNode;
@@ -421,6 +424,77 @@ public class DefaultRepositoryController implements RepositoryController {
 			}
 		}
 		return rootNSs;
+	}
+
+	/**
+	 * For each passed library find the latest version. If different, add library and latest version to returned map.
+	 * 
+	 * WARNING: each library will invoke a slow process on the repository
+	 * 
+	 * @param usedLibs
+	 * 
+	 * @param usedLibs
+	 * @return maps of libraries, key is passed library and value is later version of library.
+	 * @throws RepositoryException
+	 */
+	public HashMap<LibraryNode, LibraryNode> getVersionUpdateMap(List<LibraryNode> usedLibs) throws RepositoryException {
+		HashMap<LibraryNode, LibraryNode> replacementMap = new HashMap<>();
+
+		HashMap<LibraryNode, RepositoryItem> itemMap = new HashMap<>();
+		List<RepositoryItem> ll;
+		for (LibraryNode lib : usedLibs) {
+			ProjectItem projItem = lib.getProjectItem();
+			Repository lRepo = lib.getProjectItem().getRepository();
+			String baseNS = projItem.getBaseNamespace();
+			if (projItem == null || lRepo == null || baseNS.isEmpty())
+				continue;
+
+			// For each used library, lookup the latest version.
+			ll = lRepo.listItems(baseNS, true, true);
+			// list contains all library chains in that namespace
+			if (ll.size() > 0) {
+				for (RepositoryItem latest : ll)
+					if (latest != null && latest.getLibraryName().equals(projItem.getLibraryName())
+							&& !latest.getNamespace().equals(projItem.getNamespace()))
+						itemMap.put(lib, latest);
+			}
+		}
+
+		// Create library map of namespace to library node for all libraries open in the GUI
+		HashMap<String, LibraryNode> libraryMap = new HashMap<>();
+		for (LibraryNode lib : ModelNode.getAllUserLibraries())
+			libraryMap.put(lib.getNameWithPrefix(), lib);
+
+		// Now map the "latest versions" repository items to actual libraries.
+		for (Entry<LibraryNode, RepositoryItem> entry : itemMap.entrySet()) {
+			String entryNwPrefix = entry.getKey().getNameWithPrefix();
+			// Get the prefix for the repo item namespace for lookup in library map
+			String latestNS = entry.getValue().getNamespace();
+			String latestNwPrefix = entry.getKey().getNsHandler().getPrefix(latestNS) + ":"
+					+ entry.getValue().getLibraryName();
+
+			if (libraryMap.containsKey(latestNwPrefix))
+				replacementMap.put(libraryMap.get(entryNwPrefix), libraryMap.get(latestNwPrefix));
+			else {
+				String message = "Opening " + entry.getValue().getNamespace() + " - "
+						+ entry.getValue().getLibraryName() + " library.";
+				LOGGER.debug(message);
+				mc.postStatus(message);
+
+				// Open the repository item into the entry key's project.
+				ProjectItem newPI = mc.getProjectController().add(entry.getKey().getProject(), entry.getValue());
+				// could open a lot of libraries, find the right one
+				for (LibraryNode lib : ModelNode.getAllUserLibraries())
+					if (lib.getNameWithPrefix().equals(latestNwPrefix))
+						replacementMap.put(libraryMap.get(entryNwPrefix), lib);
+			}
+		}
+
+		// Print out replacement map
+		for (Entry<LibraryNode, LibraryNode> entry : replacementMap.entrySet())
+			LOGGER.debug("ReplacementMap Entry: " + entry.getKey() + " value = " + entry.getValue());
+
+		return replacementMap;
 	}
 
 	@Override

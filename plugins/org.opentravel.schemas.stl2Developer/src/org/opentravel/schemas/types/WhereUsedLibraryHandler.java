@@ -43,6 +43,7 @@ public class WhereUsedLibraryHandler {
 	// nodes that use this node as a type definition. Includes base type users.
 	protected ArrayList<LibraryNode> users = new ArrayList<LibraryNode>();
 	protected TypeNode whereUsedNode = null;
+	protected TypeUserNode usedByNode = null;
 	protected LibraryNode owner = null;
 
 	// protected ArrayList<WhereUsedListener> listeners = new ArrayList<WhereUsedListener>();
@@ -85,6 +86,7 @@ public class WhereUsedLibraryHandler {
 
 	public WhereUsedLibraryHandler(LibraryNode libraryNode) {
 		whereUsedNode = new TypeNode(libraryNode);
+		usedByNode = new TypeUserNode(libraryNode);
 		this.owner = libraryNode;
 	}
 
@@ -196,6 +198,14 @@ public class WhereUsedLibraryHandler {
 
 	public TypeNode getWhereUsedNode() {
 		return whereUsedNode;
+	}
+
+	public Node getUsedByNode() {
+		return usedByNode;
+	}
+
+	public void refreshUsedByNode() {
+		usedByNode = new TypeUserNode(owner);
 	}
 
 }

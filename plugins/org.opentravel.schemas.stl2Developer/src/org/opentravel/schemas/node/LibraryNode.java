@@ -1514,6 +1514,21 @@ public class LibraryNode extends Node {
 	}
 
 	/**
+	 * Get a list of libraries that contain types assigned to any type user in this library.
+	 */
+	public List<LibraryNode> getAssignedLibraries() {
+		// Walk selected library type users and collect all used libraries (type assignments and extensions)
+		List<LibraryNode> usedLibs = new ArrayList<LibraryNode>();
+		for (TypeUser user : getDescendants_TypeUsers()) {
+			TypeProvider provider = user.getAssignedType();
+			if (provider != null && provider.getLibrary() != null && provider.getLibrary().getChain() != null)
+				if (provider.getLibrary() != this && !usedLibs.contains(provider.getLibrary()))
+					usedLibs.add(provider.getLibrary());
+		}
+		return usedLibs;
+	}
+
+	/**
 	 * Get all type providers within library. Includes simple and complex objects only. Does NOT return any
 	 * local-anonymous types. // FIXME - this method also is in Node. One in node does not include services.
 	 * 
@@ -1653,10 +1668,14 @@ public class LibraryNode extends Node {
 	 * nodes where the currently used library is the key. No action taken on types in libraries not in the map.
 	 */
 	public void replaceTypeUsers(HashMap<LibraryNode, LibraryNode> replacementMap) {
+		TypeProvider provider = null;
 		for (TypeUser user : getDescendants_TypeUsers()) {
 			LibraryNode replacementLib = replacementMap.get(user.getAssignedType().getLibrary());
-			if (user.isEditable() && replacementLib != null)
-				user.setAssignedType(replacementLib.findTypeProvider(user.getAssignedType().getName()));
+			if (user.isEditable() && replacementLib != null) {
+				provider = replacementLib.findTypeProvider(user.getAssignedType().getName());
+				if (provider != null)
+					user.setAssignedType(provider); // don't set to null as null clears assignment
+			}
 		}
 	}
 

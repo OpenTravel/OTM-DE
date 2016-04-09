@@ -16,6 +16,7 @@
 package org.opentravel.schemas.testers;
 
 import org.eclipse.core.expressions.PropertyTester;
+import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.RenamableFacet;
 import org.opentravel.schemas.node.controllers.NodeUtils;
@@ -73,7 +74,8 @@ public class NodeTester extends PropertyTester {
 
 	private boolean hasType(Node node) {
 		if (node instanceof TypeUser)
-			return ((TypeUser) node).getAssignedType() != null;
+			return ((TypeUser) node).getAssignedType() != null
+					&& !(((TypeUser) node).getAssignedType() instanceof ImpliedNode);
 		// Type type = node.getTypeClass();
 		// if (type != null) {
 		// return type.getTypeNode() != null;
