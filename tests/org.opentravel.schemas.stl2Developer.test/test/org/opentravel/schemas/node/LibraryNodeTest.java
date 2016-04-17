@@ -20,6 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
@@ -28,6 +29,7 @@ import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.utils.BaseProjectTest;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
@@ -39,6 +41,52 @@ import org.osgi.framework.Version;
  * 
  */
 public class LibraryNodeTest extends BaseProjectTest {
+
+	@Test
+	public void libraryInMultipleProjects() throws LibrarySaveException {
+		ProjectNode project1 = createProject("Project1", rc.getLocalRepository(), "IT1");
+		ProjectNode project2 = createProject("Project2", rc.getLocalRepository(), "IT2");
+
+		LoadFiles lf = new LoadFiles();
+		// MockLibrary ml = new MockLibrary();
+		LibraryNode ln1 = lf.loadFile2(project1);
+		LibraryNode ln2 = lf.loadFile2(project2);
+		int ln2NamedTypeCount = ln2.getDescendants_NamedTypes().size();
+		List<Node> complexNamedtypes = ln2.getDescendants_NamedTypes(); // hold onto for later use.
+
+		assertTrue("Project is not empty.", !project1.getChildren().isEmpty());
+		assertTrue("Project is not empty.", !project2.getChildren().isEmpty());
+
+		// Close a library and check the other one to make sure it was not effected.
+		mc.getLibraryController().remove(Arrays.asList(ln1)); // used in close library command
+		// ln1.close(); // library controller uses close()
+		assertTrue("Project 1 must be empty.", project1.getChildren().isEmpty());
+		assertTrue("Lib1 must be empty.", ln1.getDescendants_NamedTypes().isEmpty());
+		assertTrue("Lib2 must have same number of named types.",
+				ln2.getDescendants_NamedTypes().size() == ln2NamedTypeCount);
+		for (Node n : ln2.getDescendants_NamedTypes())
+			assertTrue("Named type must not be deleted.", !n.isDeleted());
+
+		// Same test with libraries in a chain
+		ln1 = lf.loadFile2(project1);
+		LibraryChainNode lcn1 = new LibraryChainNode(ln1);
+		LibraryChainNode lcn2 = new LibraryChainNode(ln2);
+		mc.getLibraryController().remove(Arrays.asList(lcn1)); // used in close library controller
+		assertTrue("Project 1 must be empty.", project1.getChildren().isEmpty());
+		assertTrue("Lib1 must be empty.", ln1.getDescendants_NamedTypes().isEmpty());
+		assertTrue("Lib2 must have same number of named types.",
+				ln2.getDescendants_NamedTypes().size() == ln2NamedTypeCount);
+		for (Node n : ln2.getDescendants_NamedTypes())
+			assertTrue("Named type must not be deleted.", !n.isDeleted());
+
+		// delete second lib and insure deleted.
+		mc.getLibraryController().remove(Arrays.asList(lcn2)); // used in close library command
+		assertTrue("Project 2 must be empty.", project2.getChildren().isEmpty());
+		assertTrue("Lib2 must be empty.", ln2.getDescendants_NamedTypes().isEmpty());
+
+		// TODO - close the projects containing the libraries
+		// done in after tests
+	}
 
 	@Test
 	public void shouldNotDuplicatedContextOnImport() throws LibrarySaveException {

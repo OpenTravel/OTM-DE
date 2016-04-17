@@ -881,9 +881,30 @@ public class LibraryNode extends Node {
 		return getParent().getParent() instanceof LibraryChainNode ? (LibraryChainNode) getParent().getParent() : null;
 	}
 
+	/**
+	 * Close the library. If this library is not open in other projects, close all its members. If it is open in other
+	 * projects, just remove if from the project and make sure navNodes have valid parents. Remove library from project.
+	 * Only closes this library not others in the chain.
+	 */
 	@Override
 	public void close() {
-		close(true);
+		// If this library is not open in other projects remove all children, otherwise just close
+		LibraryNode libInOtherProject = null;
+		for (LibraryNode lib : ModelNode.getAllUserLibraries())
+			if (lib != this && lib.getNameWithPrefix().equals(getNameWithPrefix())) {
+				libInOtherProject = lib;
+				break;
+			}
+
+		close(libInOtherProject == null);
+
+		// make sure navNodes have valid parents then unlink them from this library
+		List<Node> kids = new ArrayList<Node>(getChildren());
+		if (libInOtherProject != null)
+			for (Node child : kids) {
+				child.setParent(libInOtherProject);
+				getChildren().remove(child);
+			}
 	}
 
 	/**
@@ -892,33 +913,38 @@ public class LibraryNode extends Node {
 	 * 
 	 * @param doMembers
 	 */
-	public void close(boolean doMembers) {
+	private void close(boolean doMembers) {
 		if (isBuiltIn())
 			return;
 		if (isDeleted())
 			return;
 
-		// When closing all members, use Node which will close the library with
-		// doMember = false;
+		Project project = getProject().getProject(); // do before unlinking
+
 		if (doMembers) {
-			if (isInChain())
-				// chain does not overload close, when called from chain, doMembers will be false.
-				getChain().close();
-			else
-				super.close();
-			return;
+			// if (isInChain())
+			// getChain().close();
+			// else {
+			List<Node> kids = new ArrayList<Node>(getChildren());
+			for (Node kid : kids)
+				kid.close();
+			// super.close();
+			// }
+			// Remove context
+			ContextController cc = OtmRegistry.getMainController().getContextController();
+			cc.clearContexts(this);
+		} else {
+			// Unlink from tree
+			if (getParent() != null && getParent().getChildren() != null)
+				getParent().getChildren().remove(this);
 		}
 
-		// This is only used by the visitor if it is a library node.
-		// LOGGER.debug("Closing library " + this);
-
-		// Remove context
-		ContextController cc = OtmRegistry.getMainController().getContextController();
-		cc.clearContexts(this);
-
-		// Remove from containing project.
-		Project project = getProject().getProject();
+		// Remove from containing TL (schema compiler/repository) project.
 		project.remove(projectItem);
+
+		deleted = true;
+		setParent(null);
+		setLibrary(null);
 
 		// LOGGER.info("Closed library " + this);
 		return;

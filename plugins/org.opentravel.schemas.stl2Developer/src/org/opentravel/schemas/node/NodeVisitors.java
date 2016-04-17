@@ -58,13 +58,9 @@ public class NodeVisitors {
 			// LOGGER.debug("CloseVisitor: closing " + n);
 			Node node = (Node) n;
 
-			// Type class - clear out the where used and type class
-			// if (node.getTypeClass() != null)
-			// node.getTypeClass().clear();
-
 			// Use override behavior because Library nodes must clear out context.
 			if (node instanceof LibraryNode) {
-				((LibraryNode) node).close(false); // just the library, not its members
+				((LibraryNode) node).close(); // libraries may or may not do members
 			}
 
 			// Unlink from tree

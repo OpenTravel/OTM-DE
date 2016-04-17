@@ -74,9 +74,13 @@ public class TypeNode extends Node {
 			imageProvider = nodeImageProvider(typeNode);
 	}
 
+	/**
+	 * Create type node for a library
+	 */
 	public TypeNode(Node typeNode, Node owner2, TypeNodeType nodeType) {
 		this(typeNode, nodeType);
 		this.parent = owner2;
+		labelProvider = simpleLabelProvider(typeNode.getNameWithPrefix());
 	}
 
 	@Override

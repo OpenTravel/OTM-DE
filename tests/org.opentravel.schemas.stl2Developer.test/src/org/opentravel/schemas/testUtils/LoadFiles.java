@@ -158,6 +158,10 @@ public class LoadFiles {
 	 */
 	public LibraryNode loadFile(MainController thisModel, String path) {
 		ProjectNode project = thisModel.getProjectController().getDefaultProject();
+		return loadFile(project, path);
+	}
+
+	public LibraryNode loadFile(ProjectNode project, String path) {
 		List<File> files = new ArrayList<File>();
 		files.add(new File(path));
 		project.add(files);
@@ -191,6 +195,10 @@ public class LoadFiles {
 		Assert.assertTrue(Node.getNodeCount() > 100);
 		Assert.assertTrue(model.getUnassignedTypeCount() >= 0);
 		return ln;
+	}
+
+	public LibraryNode loadFile2(ProjectNode project) {
+		return loadFile(project, filePath2);
 	}
 
 	// Has 14 unassigned types - references to STL2 library

@@ -209,11 +209,12 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	public String getLabel() {
 		if (getExtensionBase() == null)
 			return super.getLabel();
-		else if (isVersioned())
-			// else if (getExtendsType().getName().equals(getName()))
-			return super.getLabel() + " (Extends version:  " + getExtensionBase().getLibrary().getVersion() + ")";
-		else
-			return super.getLabel() + " (Extends: " + getExtensionBase().getNameWithPrefix() + ")";
+		// 4/13/2016 dmh - label is not helpful when extending an object from a different namespace
+		// else if (isVersioned())
+		// // else if (getExtendsType().getName().equals(getName()))
+		// return super.getLabel() + " (Extends version:  " + getExtensionBase().getLibrary().getVersion() + ")";
+		// else
+		return super.getLabel() + " (Extends: " + getExtensionBase().getNameWithPrefix() + ")";
 	}
 
 	@Override

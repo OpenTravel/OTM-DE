@@ -123,6 +123,17 @@ public class NavigatorMenus extends TreeViewer {
 		super(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		mainWindow = OtmRegistry.getMainWindow();
 
+		// Set up the content and label providers
+		//
+		setContentProvider(new LibraryTreeContentProvider());
+		IWorkbench workbench = site.getWorkbenchWindow().getWorkbench();
+		DecoratingStyledCellLabelProvider decorator = new DecoratingStyledCellLabelProvider(
+				new LibraryTreeLabelProvider(), workbench.getDecoratorManager(), null);
+		setLabelProvider(decorator);
+		setSorter(new LibrarySorter());
+
+		// Define the menus
+		//
 		final MenuManager componentMenu = new MenuManager("Object", "Component_Menu_ID");
 		final MenuManager facetMenu = new MenuManager("Object", "Facet_Menu_ID");
 		final MenuManager propertyMenu = new MenuManager("Object", "Property_Menu_ID");
@@ -212,15 +223,6 @@ public class NavigatorMenus extends TreeViewer {
 				ResourceCommandHandler.COMMAND_ID, "New Resource", null, ResourceCommandHandler.getIcon());
 
 		final MenuManager versionMenu = new MenuManager("Version...", "VersionMenuID");
-
-		// Set up the content and lable providers
-		//
-		setContentProvider(new LibraryTreeContentProvider());
-		IWorkbench workbench = site.getWorkbenchWindow().getWorkbench();
-		DecoratingStyledCellLabelProvider decorator = new DecoratingStyledCellLabelProvider(
-				new LibraryTreeLabelProvider(), workbench.getDecoratorManager(), null);
-		setLabelProvider(decorator);
-		setSorter(new LibrarySorter());
 
 		final MenuManager menuManager = new MenuManager();
 		final Menu menu = menuManager.createContextMenu(this.getControl());

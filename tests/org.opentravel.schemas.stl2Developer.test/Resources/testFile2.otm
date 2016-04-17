@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Library xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04"
+<Library xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_05"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04 OTA2_LibraryModel_v1.4.5.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_05 OTA2_LibraryModel_v1.5.0.xsd">
     
     <VersionScheme>OTA2</VersionScheme>
     <Status>Draft</Status>
     <Namespace>http://services.sabre.com/STL/Tests/2/v02</Namespace>
     <Prefix>t2</Prefix>
     <Name>Test2</Name>
-    <Import namespace="http://opentravel.org/common/v02" prefix="ota2"/>
-    <Import namespace="http://services.example.org/SERVICE/v02" prefix="ser"/>
-    <Context applicationContext="Default" context="default"/>
+    <Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
+    <Context applicationContext="Default" context="___ToBeRemoved___"/>
     
     <CoreObject name="StandardCore" notExtendable="false">
         <Aliases/>
@@ -77,7 +76,7 @@
             <Element name="StandardCore_Simple" repeat="0" type="StandardCore_Simple"/>
         </ID>
         <Summary>
-            <Element name="StandardCore_Summary" repeat="0" type="StandardCore_Summary">
+            <Element name="StandardCoreSummary" repeat="0" type="StandardCore_Summary">
                 <Documentation>
                     <Description>This was assigned the summary facet.</Description>
                 </Documentation>
@@ -92,7 +91,7 @@
             <Element name="StandardCore_Simple" repeat="0" type="StandardCore_Simple"/>
         </ID>
         <Summary>
-            <Element name="StandardCore_Detail" repeat="0" type="StandardCore_Detail">
+            <Element name="StandardCoreDetail" repeat="0" type="StandardCore_Detail">
                 <Documentation>
                     <Description>This was assigned the detail facet.</Description>
                 </Documentation>

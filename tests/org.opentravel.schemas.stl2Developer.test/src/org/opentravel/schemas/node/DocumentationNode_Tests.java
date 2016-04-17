@@ -62,7 +62,7 @@ public class DocumentationNode_Tests {
 		core.addDescription(testDescription);
 		Assert.assertFalse(core.getDescription().isEmpty());
 		lc.saveLibrary(lib, false);
-		lc.closeLibrary(lib);
+		// lc.closeLibrary(lib);
 		// TODO - find out why the saved value is "null Test Description"
 
 		defaultProject.add(path);

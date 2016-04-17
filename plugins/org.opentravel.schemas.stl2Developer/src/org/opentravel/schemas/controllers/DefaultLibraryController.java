@@ -237,28 +237,28 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		mc.getProjectController().save(pn);
 	}
 
-	@Override
-	public void closeLibrary(final LibraryNode library) {
-		closeLibraries(Arrays.asList(library));
-	}
+	// @Override
+	// public void closeLibrary(final LibraryNode library) {
+	// closeLibraries(Arrays.asList(library));
+	// }
 
-	@Override
-	public void closeLibraries(final List<LibraryNode> libraries) {
-		if (libraries == null || libraries.isEmpty()) {
-			return;
-		}
-		List<LibraryNode> libs = new ArrayList<LibraryNode>(libraries);
-		for (final LibraryNode lib : libs) {
-			lib.close();
-		}
-
-		final ValidationResultsView view = OtmRegistry.getValidationResultsView();
-		if (view != null) {
-			view.clearFindings();
-		}
-		mc.clearSelection();
-		mc.refresh();
-	}
+	// @Override
+	// public void closeLibraries(final List<LibraryNode> libraries) {
+	// if (libraries == null || libraries.isEmpty()) {
+	// return;
+	// }
+	// List<LibraryNode> libs = new ArrayList<LibraryNode>(libraries);
+	// for (final LibraryNode lib : libs) {
+	// lib.close();
+	// }
+	//
+	// final ValidationResultsView view = OtmRegistry.getValidationResultsView();
+	// if (view != null) {
+	// view.clearFindings();
+	// }
+	// mc.clearSelection();
+	// mc.refresh();
+	// }
 
 	@Override
 	public boolean saveLibrary(final LibraryNode library, boolean quiet) {
@@ -341,6 +341,14 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 	@Override
 	public void remove(final Collection<? extends Node> libraries) {
 		Set<ProjectNode> projectsToSave = new HashSet<ProjectNode>();
+		// remember which chains to remove from the projects
+		Set<LibraryChainNode> chains = new HashSet<LibraryChainNode>();
+		for (Node n : libraries)
+			if (n instanceof LibraryChainNode)
+				chains.add((LibraryChainNode) n);
+			else if (n.getChain() != null)
+				chains.add(n.getChain());
+
 		for (LibraryNode ln : getLibrariesToClose(libraries)) {
 			if (ln == null || ln.getParent() == null) {
 				LOGGER.error("ILLEGAL State - library " + ln + " parent is null.");
@@ -348,6 +356,12 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 				projectsToSave.add(ln.getProject());
 				ln.close(); // Don't use delete because recurses and deletes children from the library.
 			}
+		}
+		// Unlink each chain from parent
+		for (Node n : chains) {
+			if (n.getParent() != null)
+				n.getParent().getChildren().remove(n);
+			n.setParent(null);
 		}
 		for (ProjectNode project : projectsToSave) {
 			mc.getProjectController().save(project);
