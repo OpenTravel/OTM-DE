@@ -25,4 +25,5 @@ Require-Bundle: org.opentravel.schemas.stl2Developer.reposvc;bundle-version="4.0
  org.opentravel.schemas.stl2Developer.test.utils;bundle-version="4.0.0"
 Eclipse-RegisterBuddy: org.opentravel.schemas.stl2Developer.reposvc,
  org.opentravel.schemas.stl2Developer.schemacompiler
+Import-Package: org.opentravel.schemas.types
 
