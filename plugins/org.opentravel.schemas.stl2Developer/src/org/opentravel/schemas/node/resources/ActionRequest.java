@@ -246,7 +246,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	}
 
 	public boolean setParamGroup(String groupName) {
-		if (groupName.equals(ResourceField.NONE)) {
+		if (groupName == null || groupName.equals(ResourceField.NONE)) {
 			tlObj.setParamGroup(null);
 			LOGGER.debug("Set parameter group to null. " + groupName);
 		} else if (tlObj.getParamGroupName() != null && tlObj.getParamGroupName().equals(groupName)) {

@@ -21,7 +21,6 @@ import java.util.Collection;
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
-import org.opentravel.schemacompiler.model.TLHttpMethod;
 import org.opentravel.schemacompiler.model.TLMimeType;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLParamLocation;
@@ -113,8 +112,8 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 
 	public static String[] getHttpMethodStrings() {
 		int i = 0;
-		String[] values = new String[TLHttpMethod.values().length];
-		for (TLHttpMethod l : TLHttpMethod.values())
+		String[] values = new String[HttpMethod.values().length];
+		for (HttpMethod l : HttpMethod.values())
 			values[i++] = l.toString();
 		return values;
 
@@ -124,7 +123,7 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 		int i = 0;
 		String[] values = new String[TLMimeType.values().length];
 		for (TLMimeType l : TLMimeType.values())
-			values[i++] = l.toString();
+			values[i++] = l.toString(); // display values are from: l.toContentType()
 		return values;
 	}
 
@@ -247,5 +246,14 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 					((TLModelElement) tlObj).removeListener(l);
 				}
 		}
+	}
+
+	/**
+	 * Enumeration that denotes all of the GUI allowable HTTP methods for a REST action request. See compliler
+	 * TLHttpMethod for complete list
+	 */
+	public enum HttpMethod {
+		GET, PUT, POST, DELETE
+		// ,OPTIONS,HEAD,PATCH;
 	}
 }

@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.IColorProvider;
+import org.eclipse.jface.viewers.IFontProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -35,6 +36,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -151,7 +153,18 @@ public class ExampleView extends OtmAbstractView {
 		return viewer;
 	}
 
-	class ExampleTreeProvider extends LabelProvider implements IColorProvider {
+	class ExampleTreeProvider extends LabelProvider implements IColorProvider, IFontProvider {
+
+		/**
+		 * @see org.eclipse.jface.viewers.IFontProvider#getFont(java.lang.Object)
+		 */
+		@Override
+		public Font getFont(Object element) {
+			Font font = null; // null to use default font
+			// font = Fonts.getFontRegistry().get(Fonts.readOnlyItem);
+			// font = Fonts.getFontRegistry().get(Fonts.inheritedItem);
+			return font;
+		}
 
 		@Override
 		public Color getForeground(Object element) {

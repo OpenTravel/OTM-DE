@@ -136,7 +136,7 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 
 	@Override
 	public String getName() {
-		return !getStatusCodes().isEmpty() ? getStatusCodes() + " Response" : "MISSING Status Code";
+		return !getStatusCodes().isEmpty() ? getStatusCodes() + " Response" : "Default";
 	}
 
 	public String getStatusCodes() {
