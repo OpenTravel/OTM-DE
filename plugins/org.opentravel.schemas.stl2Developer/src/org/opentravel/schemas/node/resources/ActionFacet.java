@@ -46,11 +46,15 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RestResourceView.class);
 	protected String MSGKEY = "rest.ActionFacet";
 
-	class BasePayloadListener implements ResourceFieldListener {
+	public class BasePayloadListener implements ResourceFieldListener {
 		@Override
 		public boolean set(String name) {
 			setBasePayload(name);
 			return false;
+		}
+
+		public boolean set(Node selection) {
+			return setBasePayload(selection);
 		}
 	}
 
@@ -141,6 +145,13 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	}
 
 	/**
+	 * @return name of base payload or "None"
+	 */
+	public String getBasePayloadName() {
+		return tlObj.getBasePayloadName() != null ? tlObj.getBasePayloadName() : "None";
+	}
+
+	/**
 	 * @return a list of core and choice objects
 	 */
 	public List<Node> getBasePayloads() {
@@ -180,8 +191,8 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 		List<ResourceField> fields = new ArrayList<ResourceField>();
 
 		// Base Payload
-		new ResourceField(fields, tlObj.getBasePayloadName(), MSGKEY + ".fields.basePayload", ResourceFieldType.Enum,
-				new BasePayloadListener(), getBasePayloadCandidates());
+		new ResourceField(fields, getBasePayloadName(), MSGKEY + ".fields.basePayload", ResourceFieldType.ObjectSelect,
+				new BasePayloadListener(), this);
 
 		// Facet Reference = This can only be set to a facet in the resource subject business object
 		new ResourceField(fields, getReferenceFacetName(), MSGKEY + ".fields.referenceFacetName",
@@ -260,6 +271,7 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 		LOGGER.debug("Set Reference Type to " + value + " : " + tlObj.getReferenceType());
 	}
 
+	@Deprecated
 	public boolean setBasePayload(String actionObject) {
 		NamedEntity basePayload = null;
 		for (Node n : getBasePayloads())
@@ -267,5 +279,13 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 				basePayload = (NamedEntity) n.getTLModelObject();
 		tlObj.setBasePayload(basePayload);
 		return true;
+	}
+
+	public boolean setBasePayload(Node actionObject) {
+		if (actionObject.getTLModelObject() instanceof NamedEntity) {
+			tlObj.setBasePayload((NamedEntity) actionObject.getTLModelObject());
+			return true;
+		}
+		return false;
 	}
 }

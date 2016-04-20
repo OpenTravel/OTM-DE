@@ -69,6 +69,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.resources.ActionExample;
+import org.opentravel.schemas.node.resources.ActionFacet;
 import org.opentravel.schemas.node.resources.ActionNode;
 import org.opentravel.schemas.node.resources.ResourceField;
 import org.opentravel.schemas.node.resources.ResourceMenus;
@@ -76,6 +77,7 @@ import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.widgets.WidgetFactory;
+import org.opentravel.schemas.wizards.TypeSelectionWizard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -738,6 +740,16 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				pf.spinner.setData(field);
 				pf.spinner.setEnabled(enabled);
 				break;
+			case ObjectSelect:
+				pf.label = toolkit.createLabel(objectPropertyGroup, Messages.getString(field.getKey() + ".text"),
+						SWT.NONE);
+				pf.label.setBackground(objectPropertyGroup.getBackground());
+
+				pf.button = new Button(objectPropertyGroup, SWT.PUSH);
+				post(pf.button, field.getValue(), field);
+				pf.button.setEnabled(enabled);
+				pf.button.addSelectionListener(new ObjectSelectionListener());
+				break;
 			default:
 				post(createField(field.getKey(), objectPropertyGroup, pf), field.getValue());
 				pf.text.setData(field);
@@ -863,6 +875,36 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 			// LOGGER.debug("Button  " + value + " selected? " + button.getSelection());
 			if (field.getListener() != null)
 				field.getListener().set(value);
+			refresh();
+		}
+	}
+
+	class ObjectSelectionListener implements SelectionListener {
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			// Field data is in the parent group
+			if (!(e.getSource() instanceof Button) || ignoreListener)
+				return;
+			Button button = (Button) e.getSource();
+			if (!(button.getData() instanceof ResourceField))
+				return;
+
+			// Run the object selection wizard.
+			ResourceField field = (ResourceField) button.getData();
+			final TypeSelectionWizard wizard = new TypeSelectionWizard((Node) field.getData());
+			if (wizard.run(OtmRegistry.getActiveShell())) {
+				Node subject = wizard.getSelection();
+				if (field.getListener() != null)
+					if (field.getListener() instanceof ActionFacet.BasePayloadListener)
+						((ActionFacet.BasePayloadListener) field.getListener()).set(subject);
+					else if (field.getListener() instanceof ResourceNode.SubjectListener)
+						((ResourceNode.SubjectListener) field.getListener()).set(subject);
+			}
 			refresh();
 		}
 	}

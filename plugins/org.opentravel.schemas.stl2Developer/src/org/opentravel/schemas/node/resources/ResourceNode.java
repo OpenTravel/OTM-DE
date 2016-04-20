@@ -114,6 +114,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 			setSubject(name);
 			return false;
 		}
+
+		public boolean set(Node subject) {
+			setSubject(subject);
+			return true;
+		}
 	}
 
 	public class ExtensionListener implements ResourceFieldListener {
@@ -340,18 +345,15 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 				new ExtensionListener(), getPeerNames());
 
 		// Business Object = Get a list of business objects to use as enum values
-		new ResourceField(fields, tlObj.getBusinessObjectRefName(), MSGKEY + ".fields.businessObject",
-				ResourceFieldType.Enum, new SubjectListener(), getSubjectCandidates());
+		new ResourceField(fields, getSubjectName(), MSGKEY + ".fields.businessObject", ResourceFieldType.ObjectSelect,
+				new SubjectListener(), this);
+		// new ResourceField(fields, tlObj.getBusinessObjectRefName(), MSGKEY + ".fields.businessObject",
+		// ResourceFieldType.Enum, new SubjectListener(), getSubjectCandidates());
 
 		// Base Path
 		new ResourceField(fields, tlObj.getBasePath(), MSGKEY + ".fields.basePath", ResourceFieldType.String,
 				new BasePathListener());
 
-		// Parent ref has children to represent them
-		// // Parent Ref = Use an enum list to present all the possible parents and all peers
-		// new ResourceField(fields, Arrays.toString(getParentRefNames()), MSGKEY + ".fields.parentRef",
-		// ResourceFieldType.EnumList, new ParentRefListener(), getPeerNames());
-		//
 		// Abstract - yes/no button
 		new ResourceField(fields, Boolean.toString(tlObj.isAbstract()), MSGKEY + ".fields.abstract",
 				ResourceFieldType.CheckButton, new AbstractListener());
@@ -464,6 +466,10 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		if (tlObj != null && tlObj.getBusinessObjectRef() != null)
 			subject = this.getNode(tlObj.getBusinessObjectRef().getListeners());
 		return (BusinessObjectNode) subject;
+	}
+
+	public String getSubjectName() {
+		return tlObj.getBusinessObjectRef() != null ? tlObj.getBusinessObjectRef().getLocalName() : "None";
 	}
 
 	/**
@@ -602,6 +608,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 				tlObj.setBusinessObjectRef((TLBusinessObject) n.getTLModelObject());
 				LOGGER.debug("Set subect to " + name + ": " + tlObj.getBusinessObjectRefName());
 			}
+	}
+
+	public void setSubject(Node subject) {
+		if (subject.getTLModelObject() != null && subject.getTLModelObject() instanceof TLBusinessObject)
+			tlObj.setBusinessObjectRef((TLBusinessObject) subject.getTLModelObject());
 	}
 
 	/**

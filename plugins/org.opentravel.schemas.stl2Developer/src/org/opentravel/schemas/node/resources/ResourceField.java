@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class ResourceField {
 	public enum ResourceFieldType {
-		String, Int, Enum, List, EnumList, NodeList, CheckButton
+		String, Int, Enum, List, EnumList, NodeList, CheckButton, ObjectSelect
 	}
 
 	public static final String NONE = "NONE";

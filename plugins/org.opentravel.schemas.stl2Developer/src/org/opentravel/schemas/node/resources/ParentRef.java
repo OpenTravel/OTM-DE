@@ -88,7 +88,7 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 
 	@Override
 	public String getComponentType() {
-		return "Parameter Group";
+		return "Resource Parent";
 	}
 
 	@Override
