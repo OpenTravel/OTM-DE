@@ -58,7 +58,9 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.preferences.CompilerPreferences;
+import org.opentravel.schemas.properties.Fonts;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.views.OtmAbstractView;
@@ -161,6 +163,15 @@ public class ExampleView extends OtmAbstractView {
 		@Override
 		public Font getFont(Object element) {
 			Font font = null; // null to use default font
+			if (element instanceof DOMExampleModel) {
+				DOMExampleModel de = (DOMExampleModel) element;
+				PropertyNode prop = null;
+				if (de.getOwningNode() instanceof PropertyNode)
+					prop = (PropertyNode) de.getOwningNode();
+
+				if (prop != null && !prop.isMandatory())
+					font = Fonts.getFontRegistry().get(Fonts.inheritedItem);
+			}
 			// font = Fonts.getFontRegistry().get(Fonts.readOnlyItem);
 			// font = Fonts.getFontRegistry().get(Fonts.inheritedItem);
 			return font;
@@ -323,6 +334,9 @@ public class ExampleView extends OtmAbstractView {
 							childModel = new DOMExampleModel(child, ((Document) examples[0]).getDocumentElement());
 							childModel.setXmlString((String) examples[1]);
 							childModel.setJsonString((String) examples[2]);
+
+							// String nodeName = ((DOMExampleModel) childModel).getNodeName();
+							// LOGGER.debug("Deals with : nodeName = " + nodeName);
 						}
 					}
 				} catch (ValidationException e) {

@@ -21,8 +21,11 @@ import java.util.List;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.properties.Images;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -34,8 +37,19 @@ import org.w3c.dom.NodeList;
  * 
  */
 public class DOMExampleModel extends ExampleModel {
+	private static final Logger LOGGER = LoggerFactory.getLogger(DOMExampleModel.class);
 
 	private Node domNode;
+	private org.opentravel.schemas.node.Node owningNode = null;
+
+	/**
+	 * Constructor to use when for nested object. Owning Node set to actual nested node.
+	 */
+	public DOMExampleModel(org.opentravel.schemas.node.Node node, org.opentravel.schemas.node.Node owningNode,
+			Node child) {
+		this(node, child);
+		this.owningNode = owningNode;
+	}
 
 	/**
 	 * @param lib
@@ -44,6 +58,8 @@ public class DOMExampleModel extends ExampleModel {
 	public DOMExampleModel(org.opentravel.schemas.node.Node lib, Node domNode) {
 		super(lib);
 		this.domNode = domNode;
+		this.owningNode = findOwningNode();
+
 		this.setLabelProvider(new LabelProvider() {
 
 			@Override
@@ -116,10 +132,13 @@ public class DOMExampleModel extends ExampleModel {
 		if (map != null) {
 			for (int i = 0; i < map.getLength(); i++) {
 				Node child = map.item(i);
-				DOMExampleModel childModel = new DOMExampleModel(getNode(), child);
+				DOMExampleModel childModel = new DOMExampleModel(getNode(), getOwningNode(), child);
 				childModel.setXmlString(getXmlString());
 				childModel.setJsonString(getJsonString());
 				ret.add(childModel);
+				//
+				// String nodeName = getNodeName();
+				// LOGGER.debug("Deals with Complex Properties: nodeName = " + nodeName);
 			}
 		}
 		return ret;
@@ -134,9 +153,57 @@ public class DOMExampleModel extends ExampleModel {
 				childModel.setXmlString(getXmlString());
 				childModel.setJsonString(getJsonString());
 				ret.add(childModel);
+				//
+				// String nodeName = getNodeName();
+				// LOGGER.debug("Deals with ??: nodeName = " + nodeName);
 			}
 		}
 		return ret;
 	}
 
+	private org.opentravel.schemas.node.Node findOwningNode() {
+		String nodeName = getNodeName();
+		org.opentravel.schemas.node.Node result = null;
+		if (nodeName.equals(getNode().getName()))
+			return result; // this dom node is for this node
+		if (getNode().getName().startsWith("xmlns:"))
+			return result; // skip ns attrs
+		org.opentravel.schemas.node.Node root = owningNode;
+		if (owningNode == null)
+			root = getNode();
+
+		for (org.opentravel.schemas.node.Node n : root.getDescendants())
+			if (n.getName().equals(nodeName)) {
+				result = n;
+				break;
+			} else if (n instanceof FacetNode) {
+				for (org.opentravel.schemas.node.Node in : n.getInheritedChildren())
+					if (in.getName().equals(nodeName)) {
+						result = in;
+						break;
+					}
+			}
+
+		// TODO - not all levels of nesting are found. figure out why.
+		// TODO - extended object names are not found (e.g. SampleChoiceShared)
+		// if (result == null)
+		// LOGGER.debug("Owner not found for " + nodeName);
+		// else
+		// LOGGER.debug("Found owner for " + nodeName);
+		return result;
+	}
+
+	public org.opentravel.schemas.node.Node getOwningNode() {
+		return owningNode;
+	}
+
+	public String getNodeName() {
+		String nodeName = domNode.getNodeName(); // might have prefix
+		// String txt = getDisplayText();
+		// String nodeName = txt.split("=")[0]; // remove value
+		String[] nameArray = nodeName.split(":");
+		nodeName = nameArray[nameArray.length - 1]; // without prefix
+		return nodeName;
+
+	}
 }

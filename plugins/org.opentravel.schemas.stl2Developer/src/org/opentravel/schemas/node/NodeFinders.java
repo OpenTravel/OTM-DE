@@ -100,5 +100,4 @@ public class NodeFinders {
 	public static Node findNodeByID(final String ID) {
 		return Node.getModelNode().findNodeID(ID);
 	}
-
 }

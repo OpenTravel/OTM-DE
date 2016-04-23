@@ -556,6 +556,22 @@ public abstract class Node implements INode {
 	}
 
 	/**
+	 * Gets the descendants that are properties. Note: does not look inside assigned or base objects
+	 */
+	public List<PropertyNode> getDescendants_Properties() {
+		final ArrayList<PropertyNode> ret = new ArrayList<PropertyNode>();
+		for (final Node n : getChildren()) {
+			if (n instanceof PropertyNode)
+				ret.add((PropertyNode) n);
+
+			// Some type users may also have children
+			if (n.hasChildren())
+				ret.addAll(n.getDescendants_Properties());
+		}
+		return ret;
+	}
+
+	/**
 	 * Gets the descendants that are type users (can be assigned a type). Does not return navigation nodes.
 	 * {@link #getChildren_TypeUsers() Use getChildren_TypeUsers() for only immediate children.}
 	 * 
