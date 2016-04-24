@@ -24,6 +24,7 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
@@ -37,6 +38,29 @@ import org.w3c.dom.NodeList;
  * 
  */
 public class DOMExampleModel extends ExampleModel {
+	private final class DOMExampleLabelProvider extends LabelProvider {
+		@Override
+		public Image getImage(Object element) {
+			DOMExampleModel e = (DOMExampleModel) element;
+			if (e.isXSDComplexType()) {
+				return Images.getImageRegistry().get(Images.XSDComplexType);
+			} else if (e.isService()) {
+				return Images.getImageRegistry().get(Images.Service);
+			} else if (e.isFacet()) {
+				return Images.getImageRegistry().get(Images.Facet);
+			} else if (e.isAttribute()) {
+				return Images.getImageRegistry().get(Images.XSDAttribute);
+			}
+			return Images.getImageRegistry().get(Images.XSDElement);
+		}
+
+		@Override
+		public String getText(Object element) {
+			DOMExampleModel e = (DOMExampleModel) element;
+			return e.getDisplayText();
+		}
+	}
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(DOMExampleModel.class);
 
 	private Node domNode;
@@ -47,8 +71,11 @@ public class DOMExampleModel extends ExampleModel {
 	 */
 	public DOMExampleModel(org.opentravel.schemas.node.Node node, org.opentravel.schemas.node.Node owningNode,
 			Node child) {
-		this(node, child);
+		super(node);
+		this.domNode = child;
 		this.owningNode = owningNode;
+		this.owningNode = findOwningNode();
+		this.setLabelProvider(new DOMExampleLabelProvider());
 	}
 
 	/**
@@ -59,31 +86,7 @@ public class DOMExampleModel extends ExampleModel {
 		super(lib);
 		this.domNode = domNode;
 		this.owningNode = findOwningNode();
-
-		this.setLabelProvider(new LabelProvider() {
-
-			@Override
-			public Image getImage(Object element) {
-				DOMExampleModel e = (DOMExampleModel) element;
-				if (e.isXSDComplexType()) {
-					return Images.getImageRegistry().get(Images.XSDComplexType);
-				} else if (e.isService()) {
-					return Images.getImageRegistry().get(Images.Service);
-				} else if (e.isFacet()) {
-					return Images.getImageRegistry().get(Images.Facet);
-				} else if (e.isAttribute()) {
-					return Images.getImageRegistry().get(Images.XSDAttribute);
-				}
-				return Images.getImageRegistry().get(Images.XSDElement);
-			}
-
-			@Override
-			public String getText(Object element) {
-				DOMExampleModel e = (DOMExampleModel) element;
-				return e.getDisplayText();
-			}
-
-		});
+		this.setLabelProvider(new DOMExampleLabelProvider());
 	}
 
 	/**
@@ -149,7 +152,7 @@ public class DOMExampleModel extends ExampleModel {
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			Node child = childNodes.item(i);
 			if (child.getNodeType() != Node.TEXT_NODE) {
-				DOMExampleModel childModel = new DOMExampleModel(getNode(), child);
+				DOMExampleModel childModel = new DOMExampleModel(getNode(), getOwningNode(), child);
 				childModel.setXmlString(getXmlString());
 				childModel.setJsonString(getJsonString());
 				ret.add(childModel);
@@ -164,13 +167,19 @@ public class DOMExampleModel extends ExampleModel {
 	private org.opentravel.schemas.node.Node findOwningNode() {
 		String nodeName = getNodeName();
 		org.opentravel.schemas.node.Node result = null;
+
 		if (nodeName.equals(getNode().getName()))
 			return result; // this dom node is for this node
 		if (getNode().getName().startsWith("xmlns:"))
 			return result; // skip ns attrs
-		org.opentravel.schemas.node.Node root = owningNode;
-		if (owningNode == null)
-			root = getNode();
+
+		org.opentravel.schemas.node.Node root = getNode();
+		// If the owner has been found for siblings then try its type or owner
+		if (owningNode != null)
+			if (owningNode instanceof TypeUser)
+				root = (org.opentravel.schemas.node.Node) ((TypeUser) owningNode).getAssignedType();
+			else
+				root = owningNode.getOwningComponent();
 
 		for (org.opentravel.schemas.node.Node n : root.getDescendants())
 			if (n.getName().equals(nodeName)) {
@@ -184,7 +193,6 @@ public class DOMExampleModel extends ExampleModel {
 					}
 			}
 
-		// TODO - not all levels of nesting are found. figure out why.
 		// TODO - extended object names are not found (e.g. SampleChoiceShared)
 		// if (result == null)
 		// LOGGER.debug("Owner not found for " + nodeName);

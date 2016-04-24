@@ -335,8 +335,8 @@ public class ExampleView extends OtmAbstractView {
 							childModel.setXmlString((String) examples[1]);
 							childModel.setJsonString((String) examples[2]);
 
-							// String nodeName = ((DOMExampleModel) childModel).getNodeName();
-							// LOGGER.debug("Deals with : nodeName = " + nodeName);
+							// LOGGER.debug("DOM Doc Element : nodeName = " + ((DOMExampleModel)
+							// childModel).getNodeName());
 						}
 					}
 				} catch (ValidationException e) {
