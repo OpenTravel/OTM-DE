@@ -52,6 +52,7 @@ public class CompilePreferencePage extends PreferencePage implements IWorkbenchP
     private Button compileServicesCheckbox;
     private Button compileJsonCheckbox;
     private Button compileSwaggerCheckbox;
+    private Button compileHtmlCheckbox;
     private Text serviceEndpointUrlText;
     private Text resourceBaseUrlText;
     private Button generateExamplesCheckbox;
@@ -106,6 +107,10 @@ public class CompilePreferencePage extends PreferencePage implements IWorkbenchP
         new Label(composite, SWT.LEFT).setText("Compile Swagger:");
         compileSwaggerCheckbox = new Button(composite, SWT.CHECK);
         compileSwaggerCheckbox.setSelection(compilerPreferences.isCompileSwagger());
+
+        new Label(composite, SWT.LEFT).setText("Compile Documentation:");
+        compileHtmlCheckbox = new Button(composite, SWT.CHECK);
+        compileHtmlCheckbox.setSelection(compilerPreferences.isCompileHtml());
 
         final String serviceEndpoint = compilerPreferences.getServiceEndpointUrl();
         new Label(composite, SWT.LEFT).setText("Service Endpoint:");
@@ -183,6 +188,7 @@ public class CompilePreferencePage extends PreferencePage implements IWorkbenchP
         compilerPreferences.setCompileServices(compileServicesCheckbox.getSelection());
         compilerPreferences.setCompileJsonSchemas(compileJsonCheckbox.getSelection());
         compilerPreferences.setCompileSwagger(compileSwaggerCheckbox.getSelection());
+        compilerPreferences.setCompileHtml(compileHtmlCheckbox.getSelection());
         compilerPreferences.setServiceEndpointUrl(serviceEndpointUrlText.getText());
         compilerPreferences.setResourceBaseUrl(resourceBaseUrlText.getText());
         compilerPreferences.setGenerateExamples(generateExamplesCheckbox.getSelection());

@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartSite;
@@ -228,6 +229,16 @@ public class MainController {
 
 	public OtmWidgets getWidgets() {
 		return widgets;
+	}
+
+	public IWorkbench getWorkbench() {
+		IWorkbench workbench;
+		try {
+			workbench = PlatformUI.getWorkbench();
+		} catch (IllegalStateException e) {
+			return null; // No workbench or display.
+		}
+		return workbench;
 	}
 
 	public void setWidgets(final OtmWidgets widgets) {

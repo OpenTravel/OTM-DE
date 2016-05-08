@@ -22,6 +22,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.swt.widgets.Display;
 import org.opentravel.schemacompiler.event.ModelEvent;
 import org.opentravel.schemacompiler.event.ModelEventListener;
 import org.opentravel.schemacompiler.event.ModelEventType;
@@ -77,6 +82,10 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 	private ModelNode modelRoot;
 	public static String COMPILER_SUFFIX = "CompilerOutput";
 
+	private String lastCompileDirectory = "";
+	private String lastCompileMessage;
+	private ValidationFindings lastCompileFindings;
+
 	/**
 	 * Create a model controller If needed, creates a new model node and TLModel.
 	 * 
@@ -94,6 +103,11 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 				LOGGER.error("Could not create TLModel.");
 			}
 		}
+	}
+
+	@Override
+	public String getLastCompileDirectory() {
+		return lastCompileDirectory;
 	}
 
 	public LibraryController getLibraryController() {
@@ -149,73 +163,88 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 	 */
 	@Override
 	public void close() {
-		// LOGGER.debug("Closing model.");
 		LOGGER.error("CLOSE MODEL is NOT IMPLEMENTED.");
-		// OtmView view = OtmRegistry.getNavigatorView();
-		//
-		// assert modelRoot != null;
-		// assert modelRoot == mc.getModelNode();
-		//
-		// mc.getProjectController().closeAll();
-		// modelRoot.close();
-		//
-		// // Now open up a new one to make it easier to use when opening a library
-		// try {
-		// modelRoot = new ModelNode(newTLModel());
-		// } catch (LibraryLoaderException e) {
-		// LOGGER.warn("Error creating new TL Model: " + e.getLocalizedMessage());
-		// }
-		// // Get a new Project controller to create default and built-in
-		// mc.getProjectController().saveState(); // clear out eclipse saved state which is in
-		// // constructor
-		// mc.setProjectController(new DefaultProjectController(mc, MainController.getDefaultRepositoryManager()));
-		// mc.getProjectController().getDefaultProject(); // triggers its creation.
-		//
-		// view.setCurrentNode(modelRoot);
-		// mc.setModelNode(modelRoot);
-		// mc.clearSelection();
-		// mc.refresh();
+	}
+
+	public void syncWithUi(final String msg) {
+		Display.getDefault().asyncExec(new Runnable() {
+			public void run() {
+				OtmRegistry.getMainController().postStatus(msg);
+				// Update the project documentation view
+				if (OtmRegistry.getProjectDocView() != null)
+					OtmRegistry.getProjectDocView().setFocus();
+				DialogUserNotifier.openInformation("Compile Results", msg);
+				OtmRegistry.getMainController().refresh();
+			}
+		});
+	}
+
+	@Override
+	public void compileInBackground(final ProjectNode project) {
+		if (Display.getCurrent() == null)
+			compileModel(project); // not in UI Thread
+		else {
+			// run in a background job
+			mc.postStatus("Compiling " + project);
+			Job job = new Job("Compiling " + project) {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					monitor.beginTask("Compiling Project: " + project, 2);
+					monitor.worked(1);
+					String status = compile(project, monitor);
+					monitor.done();
+					syncWithUi(status);
+					return Status.OK_STATUS;
+				}
+			};
+			job.setUser(true);
+			job.schedule();
+		}
 	}
 
 	@Override
 	public void compileModel(ProjectNode project) {
+		mc.postStatus(compile(project, null));
+		final ValidationResultsView view = OtmRegistry.getValidationResultsView();
+		if (view != null)
+			view.setFindings(lastCompileFindings, project);
+
+	}
+
+	public String compile(ProjectNode project, IProgressMonitor monitor) {
 		if (project == null)
-			return;
+			return "Null project";
 
 		// Get a directory to compile into.
 		String directoryName = project.getProject().getProjectFile().getAbsolutePath();
 		directoryName = directoryName.substring(0, directoryName.length() - 4); // strip .otp
-		if (directoryName == null || directoryName.isEmpty()) {
-			directoryName = FileDialogs.postDirDialog(Messages.getString("fileDialog.directory.compilePath"));
-			directoryName = directoryName + project.getName();
-		}
+		// if (directoryName == null || directoryName.isEmpty()) {
+		// directoryName = FileDialogs.postDirDialog(Messages.getString("fileDialog.directory.compilePath"));
+		// directoryName = directoryName + project.getName();
+		// }
 		directoryName += "_" + COMPILER_SUFFIX;
 		final File targetFolder = new File(directoryName);
 		if (!targetFolder.exists()) {
 			if (!targetFolder.mkdirs()) {
 				LOGGER.warn("Could not make directory: " + targetFolder);
-				DialogUserNotifier.openError("Model Error", "Could not make directory " + targetFolder.getPath()
-						+ " for the compiled output.");
-				return;
+				return "Error. Could not make directory " + targetFolder.getPath() + " for the compiled output.";
 			}
 		}
 
 		// Do the compile.
-		final ValidationFindings findings = new ValidationFindings();
+		lastCompileFindings = new ValidationFindings();
 		try {
-			findings.addAll(compileModel(project.getProject(), targetFolder));
-			displayUserMessage(findings, targetFolder);
+			lastCompileFindings.addAll(compileModel(project.getProject(), targetFolder));
 		} catch (final SchemaCompilerException e) {
-			DialogUserNotifier.openError("Model Error", "Could not compile the model - " + e.getMessage());
+			return "Error: Could not compile - " + e.getMessage();
 		} catch (final Exception e) {
-			DialogUserNotifier.openError("Error",
-					"Could not compile the model, unknown error occurred - " + e.getMessage());
+			return "Error: Could not compile , unknown error occurred - " + e.getMessage();
 		}
-		final ValidationResultsView view = OtmRegistry.getValidationResultsView();
-		if (view != null) {
-			view.setFindings(findings, project);
-		}
-		mc.postStatus("Model compiled successfully in directory " + targetFolder.getAbsolutePath());
+
+		// TODO - save last compile dir using XMLMemento to be restored when restarting
+		lastCompileDirectory = targetFolder.getAbsolutePath();
+		lastCompileMessage = "Project compiled into directory " + lastCompileDirectory;
+		return lastCompileMessage;
 	}
 
 	/*
@@ -224,6 +253,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 	 * @see org.opentravel.schemas.otmActions.ModelController#compileModel(org.opentravel.schemas.node .ModelNode)
 	 */
 	@Override
+	@Deprecated
 	public void compileModel(ModelNode model) {
 		// LOGGER.debug("Compiling model " + model);
 		assert model != null;

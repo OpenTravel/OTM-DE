@@ -38,6 +38,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     private static final String PREF_COMPILE_SERVICES = PREFERENCE_PREFIX + "compileServices";
     private static final String PREF_COMPILE_JSON = PREFERENCE_PREFIX + "compileJson";
     private static final String PREF_COMPILE_SWAGGER = PREFERENCE_PREFIX + "compileSwagger";
+    private static final String PREF_COMPILE_HTML = PREFERENCE_PREFIX + "compileHtml";
     private static final String PREF_SERVICE_ENDPOINT_URL = PREFERENCE_PREFIX + "serviceEndpointUrl";
     private static final String PREF_RESOURCE_BASE_URL = PREFERENCE_PREFIX + "resourceBaseUrl";
     private static final String PREF_GENERATE_EXAMPLES = PREFERENCE_PREFIX + "generateExamples";
@@ -50,6 +51,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     private boolean compileJsonSchemas = true;
     private boolean compileServices = true;
     private boolean compileSwagger = true;
+    private boolean compileHtml = true;
     private String serviceEndpointUrl = null;
     private String resourceBaseUrl = null;
     private boolean generateExamples = true;
@@ -105,6 +107,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
         compileServices = preferenceStore.getBoolean(PREF_COMPILE_SERVICES);
         compileJsonSchemas = preferenceStore.getBoolean(PREF_COMPILE_JSON);
         compileSwagger = preferenceStore.getBoolean(PREF_COMPILE_SWAGGER);
+        compileHtml = preferenceStore.getBoolean(PREF_COMPILE_HTML);
         serviceEndpointUrl = preferenceStore.getString(PREF_SERVICE_ENDPOINT_URL);
         resourceBaseUrl = preferenceStore.getString(PREF_RESOURCE_BASE_URL);
         generateExamples = preferenceStore.getBoolean(PREF_GENERATE_EXAMPLES);
@@ -125,6 +128,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
         preferenceStore.setValue(PREF_COMPILE_SERVICES, compileServices);
         preferenceStore.setValue(PREF_COMPILE_JSON, compileJsonSchemas);
         preferenceStore.setValue(PREF_COMPILE_SWAGGER, compileSwagger);
+        preferenceStore.setValue(PREF_COMPILE_HTML, compileHtml);
         preferenceStore.setValue(PREF_SERVICE_ENDPOINT_URL, (serviceEndpointUrl == null) ? "" : serviceEndpointUrl);
         preferenceStore.setValue(PREF_RESOURCE_BASE_URL, (resourceBaseUrl == null) ? "" : resourceBaseUrl);
         preferenceStore.setValue(PREF_GENERATE_EXAMPLES, generateExamples);
@@ -223,6 +227,23 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     public void setCompileSwagger(final boolean compileSwagger) {
         this.compileSwagger = compileSwagger;
     }
+
+	/**
+	 * @see org.opentravel.schemacompiler.task.CompileAllTaskOptions#isCompileHtml()
+	 */
+	@Override
+	public boolean isCompileHtml() {
+		return compileHtml;
+	}
+
+	/**
+	 * Assigns the value of the 'compileHtml' field.
+	 *
+	 * @param compileHtml  the field value to assign
+	 */
+	public void setCompileHtml(boolean compileHtml) {
+		this.compileHtml = compileHtml;
+	}
 
 	/**
      * @see org.opentravel.schemacompiler.task.CommonCompilerTaskOptions#getCatalogLocation()

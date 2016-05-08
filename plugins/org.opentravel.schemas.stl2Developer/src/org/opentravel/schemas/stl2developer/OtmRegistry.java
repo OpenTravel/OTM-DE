@@ -27,6 +27,7 @@ import org.opentravel.schemas.views.DocumentationView;
 import org.opentravel.schemas.views.FacetView;
 import org.opentravel.schemas.views.NavigatorView;
 import org.opentravel.schemas.views.OtmView;
+import org.opentravel.schemas.views.ProjectDocView;
 import org.opentravel.schemas.views.PropertiesView;
 import org.opentravel.schemas.views.RepositoryView;
 import org.opentravel.schemas.views.RestResourceView;
@@ -63,6 +64,7 @@ public class OtmRegistry {
 	private static DocumentationView documentationView;
 	private static RepositoryView repositoryView;
 	private static RestResourceView resourceView;
+	private static ProjectDocView projectDocView;
 
 	/**
 	 * @return all active otmViews ( extension of eclipse view parts )
@@ -278,6 +280,14 @@ public class OtmRegistry {
 	public static void registerDocumentationView(DocumentationView documentationView) {
 		OtmRegistry.documentationView = documentationView;
 		// LOGGER.info("Registered DocumentationView");
+	}
+
+	public static ProjectDocView getProjectDocView() {
+		return projectDocView;
+	}
+
+	public static void registerProjectDocView(ProjectDocView view) {
+		OtmRegistry.projectDocView = view;
 	}
 
 	/**

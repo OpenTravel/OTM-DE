@@ -46,7 +46,7 @@ public class CompileHandler extends OtmAbstractHandler {
 			if (library != null)
 				project = library.getProject();
 		}
-		mc.getModelController().compileModel(project);
+		mc.getModelController().compileInBackground(project);
 
 		return null;
 	}

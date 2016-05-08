@@ -61,6 +61,11 @@
 			icon="icons/resources.gif" id="org.opentravel.schemas.stl2Developer.ResourceView"
 			name="REST View" restorable="true">
 		</view>
+		<view class="org.opentravel.schemas.views.ProjectDocView"
+			icon="icons/doc_open.gif" id="org.opentravel.schemas.stl2Developer.ProjectDocView"
+			name="Project Documentation" restorable="true">
+		</view>
+		
 	</extension>
 	<extension point="org.eclipse.ui.perspectiveExtensions">
 		<perspectiveExtension targetID="*">
@@ -97,7 +102,7 @@
 			</view>
 			<viewShortcut id="org.opentravel.schemas.stl2Developer.ExampleView">
 			</viewShortcut>
-			<view closeable="false" 
+			<view closeable="true" 
 				id="org.opentravel.schemas.stl2Developer.ExampleJsonView" minimized="false"
        			moveable="true" ratio="0.75f"   relationship="bottom"
         	 	relative="org.opentravel.schemas.stl2Developer.ExampleView"
@@ -105,7 +110,7 @@
 			</view>
 			<viewShortcut id="org.opentravel.schemas.stl2Developer.ExampleJsonView">
 			</viewShortcut>
-			<view closeable="false"
+			<view closeable="true"
 				id="org.opentravel.schemas.stl2Developer.ExampleXmlView" minimized="false"
 				moveable="true" ratio="0.75f" relationship="stack"
 				relative="org.opentravel.schemas.stl2Developer.ExampleJsonView"
@@ -154,6 +159,14 @@
 			</view>
 			<viewShortcut id="org.opentravel.schemas.stl2Developer.DocumentationView">
 			</viewShortcut>
+			<view closeable="true"
+				id="org.opentravel.schemas.stl2Developer.ProjectDocView"
+				minimized="false" moveable="true" relationship="stack"
+				relative="org.opentravel.schemas.stl2Developer.DocumentationView" standalone="false"
+				visible="true">
+			</view>
+			<viewShortcut id="org.opentravel.schemas.stl2Developer.ProjectDocView">
+			</viewShortcut>
 		</perspectiveExtension>
 	</extension>
 	<extension point="org.eclipse.ui.menus">
@@ -183,6 +196,12 @@
 					style="push">
 					<parameter name="org.eclipse.ui.views.showView.viewId"
 						value="org.opentravel.schemas.stl2Developer.ExampleXmlView">
+					</parameter>
+				</command>
+				<command commandId="org.eclipse.ui.views.showView" label="Project Documentation View"
+					style="push">
+					<parameter name="org.eclipse.ui.views.showView.viewId"
+						value="org.opentravel.schemas.stl2Developer.ProjectDocView">
 					</parameter>
 				</command>
 			</menu>
