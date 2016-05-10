@@ -202,6 +202,14 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 		}
 	}
 
+	// TODO - implement
+	// I have also added a static method that will allow you to generate documentation in a directory of your choosing.
+	// Just use the following lines of code. The generator will perform a validation check, but you can leave the
+	// ‘findings’ parameter null if you don’t care about them.
+	//
+	// ValidationFindings findings = new ValidationFindings();
+	// File indexHtml = DocumentationCompileTask.compileDocumentation( model, outputFolder, findings );
+
 	@Override
 	public void compileModel(ProjectNode project) {
 		mc.postStatus(compile(project, null));

@@ -545,7 +545,8 @@ public abstract class Node implements INode {
 	public List<TypeProvider> getDescendants_TypeProviders() {
 		final ArrayList<TypeProvider> ret = new ArrayList<TypeProvider>();
 		for (final Node n : getChildren()) {
-			if (n.isTypeProvider())
+			if (n instanceof TypeProvider)
+				// if (n.isTypeProvider())
 				ret.add((TypeProvider) n);
 
 			// Some type users may also have children
