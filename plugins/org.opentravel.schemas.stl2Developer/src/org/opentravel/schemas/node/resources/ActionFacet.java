@@ -194,6 +194,10 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 		new ResourceField(fields, getBasePayloadName(), MSGKEY + ".fields.basePayload", ResourceFieldType.ObjectSelect,
 				new BasePayloadListener(), this);
 
+		// Reference Type - enum list
+		new ResourceField(fields, getReferenceType(), MSGKEY + ".fields.referenceType",
+				ResourceField.ResourceFieldType.Enum, new ReferenceTypeListener(), getReferenceTypeStrings());
+
 		// Facet Reference = This can only be set to a facet in the resource subject business object
 		new ResourceField(fields, getReferenceFacetName(), MSGKEY + ".fields.referenceFacetName",
 				ResourceFieldType.Enum, new ReferenceNameListener(), getOwningComponent().getSubjectFacets(true));
@@ -201,10 +205,6 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 		// Repeat Count - an int
 		new ResourceField(fields, Integer.toString(tlObj.getReferenceRepeat()), MSGKEY + ".fields.referenceRepeat",
 				ResourceFieldType.Int, new ReferenceRepeatListener());
-
-		// Reference Type - enum list
-		new ResourceField(fields, getReferenceType(), MSGKEY + ".fields.referenceType",
-				ResourceField.ResourceFieldType.Enum, new ReferenceTypeListener(), getReferenceTypeStrings());
 
 		return fields;
 	}
