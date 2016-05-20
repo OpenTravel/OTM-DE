@@ -66,6 +66,7 @@ public class ConstraintHandler {
 	}
 
 	public String getMinInclusive() {
+		LOGGER.debug("get Min Inclusive: " + tlObj.getMinInclusive());
 		return tlObj.getMinInclusive();
 	}
 
@@ -81,7 +82,9 @@ public class ConstraintHandler {
 		return tlObj.getMaxExclusive();
 	}
 
-	public void setPattern(final String pattern) {
+	public void setPattern(String pattern) {
+		if (pattern.isEmpty())
+			pattern = null;
 		if (owner.isEditable_newToChain() && tlObj != null) {
 			tlObj.setPattern(pattern);
 		}
@@ -111,25 +114,34 @@ public class ConstraintHandler {
 		}
 	}
 
-	public void setMinInclusive(final String value) {
+	public void setMinInclusive(String value) {
+		if (value.isEmpty())
+			value = null;
 		if (owner.isEditable_newToChain() && tlObj != null) {
 			tlObj.setMinInclusive(value);
+			LOGGER.debug("Set min inclusive to: " + value);
 		}
 	}
 
-	public void setMaxInclusive(final String value) {
+	public void setMaxInclusive(String value) {
+		if (value.isEmpty())
+			value = null;
 		if (owner.isEditable_newToChain() && tlObj != null) {
 			tlObj.setMaxInclusive(value);
 		}
 	}
 
-	public void setMinExclusive(final String value) {
+	public void setMinExclusive(String value) {
+		if (value.isEmpty())
+			value = null;
 		if (owner.isEditable_newToChain() && tlObj != null) {
 			tlObj.setMinExclusive(value);
 		}
 	}
 
-	public void setMaxExclusive(final String value) {
+	public void setMaxExclusive(String value) {
+		if (value.isEmpty())
+			value = null;
 		if (owner.isEditable_newToChain() && tlObj != null) {
 			tlObj.setMaxExclusive(value);
 		}
