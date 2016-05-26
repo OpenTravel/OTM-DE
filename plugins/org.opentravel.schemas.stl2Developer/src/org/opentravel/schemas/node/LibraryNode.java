@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.loader.LibraryLoaderException;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.BuiltInLibrary;
 import org.opentravel.schemacompiler.model.LibraryElement;
@@ -650,17 +651,22 @@ public class LibraryNode extends Node {
 	 * Lock this library in its repository. User repository controller to handle exceptions with user dialogs.
 	 * 
 	 * @throws RepositoryException
+	 * @throws LibraryLoaderException
 	 */
 	// TODO - why is lock managed here while unlock is managed in project manager?
-	public void lock() throws RepositoryException {
+	// only called by run in repo controller and by tests in repository controller test
+	public void lock() throws RepositoryException, LibraryLoaderException {
 		ProjectNode pn = getProject();
 		if (pn == null)
 			throw new RepositoryException("Library was not part of a project");
 
 		// String path = pn.getProject().getProjectFile().getAbsolutePath();
 		File dir = pn.getProject().getProjectFile().getParentFile();
-		// TODO - make sure it is a directory and writable
-		// Prompt user to confirm directory.
+
+		// 5/2016 - dmh - refresh the project to assure the most current version is being locked.
+		// List<ProjectItem> updated = pn.getProject().getProjectManager().refreshManagedProjectItems();
+		pn.getProject().getProjectManager().refreshManagedProjectItems();
+
 		pn.getProject().getProjectManager().lock(getProjectItem(), dir);
 		// LOGGER.debug("Locked library which created local file: " + path);
 		setEditable(isAbsLibEditable());

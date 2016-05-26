@@ -47,6 +47,8 @@ import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 //import org.slf4j.LoggerFactory;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The ComponentNode class handles nodes that represent model objects. It is overridden for most types and properties.
@@ -58,7 +60,7 @@ import org.opentravel.schemas.types.TypeUser;
  */
 
 public class ComponentNode extends Node {
-	// private final static Logger LOGGER = LoggerFactory.getLogger(ComponentNode.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(ComponentNode.class);
 
 	/**
 	 * The list of inherited children for this node. Inherited nodes are not assigned a type class. If they were the
@@ -416,8 +418,10 @@ public class ComponentNode extends Node {
 	}
 
 	public void setMinInclusive(final String value) {
-		if (constraintHandler != null)
+		if (constraintHandler != null) {
 			constraintHandler.setMinInclusive(value);
+			LOGGER.debug("Set min inclusive.");
+		}
 	}
 
 	public void setMaxInclusive(final String value) {

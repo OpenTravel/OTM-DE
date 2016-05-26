@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.swt.custom.BusyIndicator;
+import org.opentravel.schemacompiler.loader.LibraryLoaderException;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemacompiler.repository.ProjectItem;
@@ -802,6 +803,9 @@ class LockThread extends Thread {
 		} catch (RepositoryException e) {
 			exception = e;
 			DefaultRepositoryController.postRepoException(e);
+		} catch (LibraryLoaderException e) {
+			exception = e;
+			DefaultRepositoryController.postRepoException(e);
 		}
 	}
 
@@ -810,6 +814,10 @@ class LockThread extends Thread {
 	}
 }
 
+/**
+ * Class to unlock a library in a background thread. Uses compilier's project manager to do the unlocking. Saves the
+ * library before unlocking.
+ */
 class UnlockThread extends Thread {
 	private LibraryNode ln;
 	private MainController mc;
