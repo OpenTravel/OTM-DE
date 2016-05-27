@@ -84,6 +84,14 @@ public class DialogUserNotifier {
 		return dg.open();
 	}
 
+	public static int openQuestionWithButtons(final String title, final String question, final String[] labels) {
+		if (!OtmRegistry.getMainWindow().hasDisplay())
+			return 2;
+		final MessageDialog dg = new MessageDialog(OtmRegistry.getActiveShell(), title, null, question,
+				MessageDialog.QUESTION, labels, 0);
+		return dg.open();
+	}
+
 	/**
 	 * Post the status message and refresh the UI display. Intended for use when background tasks complete.
 	 * 

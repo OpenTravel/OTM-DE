@@ -75,8 +75,9 @@ public class TypeUserNode extends Node {
 
 	@Override
 	public boolean isEditable() {
-		return owner.isEditable();
-		// return nodeType == TypeUserNodeType.OWNER ? owner.isEditable() : parent.isEditable();
+		// return owner.isEditable();
+		// 5/26/2016 - restored line below
+		return nodeType == TypeUserNodeType.OWNER ? owner.isEditable() : parent.isEditable();
 		// Owner - is the "uses objects from"
 		// Provider_LIB is a library that provides types
 	}

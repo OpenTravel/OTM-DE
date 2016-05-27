@@ -149,7 +149,8 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		// Walk selected library type users and collect all used libraries (type assignments and extensions)
 		List<LibraryNode> usedLibs = userLib.getAssignedLibraries();
 		// Create replacement map
-		HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(usedLibs);
+		HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(usedLibs, true);
+		// TODO - test with finalOnly set to true on getVersionUpdateMap()
 		// replace type users using the replacement map
 		userLib.replaceTypeUsers(replacementMap);
 

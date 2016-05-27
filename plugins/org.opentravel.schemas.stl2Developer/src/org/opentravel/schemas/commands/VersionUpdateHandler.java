@@ -66,13 +66,26 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 	private void updateLibrary(TypeUserNode userNode) {
 		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
 		List<LibraryNode> usedLibs = new ArrayList<LibraryNode>();
+		// FIXME - if nodeType==owner the get the children
 		usedLibs.add(userNode.getOwner());
 		LibraryNode libToUpdate = (LibraryNode) userNode.getParent();
+
+		// Ask the user if they want Draft versions?
+		boolean includeDrafts = false;
+		String question = "Update to latest Draft version? Answer Yes to include draft or No for only Final versions.";
+		String[] buttons = { "Draft", "Final", "Cancel" };
+		// if (DialogUserNotifier.openQuestion("Update to Latest Version", question))
+		// includeDrafts = true;
+		int result = DialogUserNotifier.openQuestionWithButtons("Update to Latest Version", question, buttons);
+		if (result == 1)
+			includeDrafts = true;
+		else if (result == 2)
+			return;
 
 		// Create replacement map
 		HashMap<LibraryNode, LibraryNode> replacementMap;
 		try {
-			replacementMap = rc.getVersionUpdateMap(usedLibs);
+			replacementMap = rc.getVersionUpdateMap(usedLibs, includeDrafts);
 		} catch (RepositoryException e1) {
 			DialogUserNotifier.openWarning("Version Update Warning", e1.getLocalizedMessage());
 			return;
@@ -89,8 +102,8 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 			return;
 		}
 
-		String question = "Do you want to update " + oldLib.getNameWithPrefix() + " with "
-				+ targetLib.getNameWithPrefix() + "?";
+		question = "Do you want to update " + oldLib.getNameWithPrefix() + " with " + targetLib.getNameWithPrefix()
+				+ "?";
 		if (DialogUserNotifier.openQuestion("Update to Latest Version", question))
 			// replace type users using the replacement map
 			libToUpdate.replaceTypeUsers(replacementMap);

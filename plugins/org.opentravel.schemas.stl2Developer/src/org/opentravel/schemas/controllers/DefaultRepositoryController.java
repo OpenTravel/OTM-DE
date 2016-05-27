@@ -439,6 +439,11 @@ public class DefaultRepositoryController implements RepositoryController {
 	 * @throws RepositoryException
 	 */
 	public HashMap<LibraryNode, LibraryNode> getVersionUpdateMap(List<LibraryNode> usedLibs) throws RepositoryException {
+		return getVersionUpdateMap(usedLibs, true);
+	}
+
+	public HashMap<LibraryNode, LibraryNode> getVersionUpdateMap(List<LibraryNode> usedLibs, boolean includeDrafts)
+			throws RepositoryException {
 		HashMap<LibraryNode, LibraryNode> replacementMap = new HashMap<>();
 
 		HashMap<LibraryNode, RepositoryItem> itemMap = new HashMap<>();
@@ -451,7 +456,7 @@ public class DefaultRepositoryController implements RepositoryController {
 				continue;
 
 			// For each used library, lookup the latest version.
-			ll = lRepo.listItems(baseNS, true, true);
+			ll = lRepo.listItems(baseNS, true, includeDrafts);
 			// list contains all library chains in that namespace
 			if (ll.size() > 0) {
 				for (RepositoryItem latest : ll)
