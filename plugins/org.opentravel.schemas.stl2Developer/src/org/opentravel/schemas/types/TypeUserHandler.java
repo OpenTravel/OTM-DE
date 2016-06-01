@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.types;
 
+import javax.xml.XMLConstants;
+
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLAttribute;
@@ -142,6 +144,11 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		TLModelElement tlTarget = target.getTLModelObject();
 		TypeProvider oldValue = owner.getAssignedType(); // hold onto to remove listener at end
 
+		// Validation will not be correct if a built-in type is represented by the TLSimple
+		if (target.getLibrary().isBuiltIn() && ((Node) target).isXsdType()
+				&& target.getLibrary().getNamespace().equals(XMLConstants.W3C_XML_SCHEMA_NS_URI))
+			tlTarget = ((Node) target).getXsdNode().getTLModelObject();
+
 		// Add handler listener
 		((TypeProvider) target).setListener(owner);
 
@@ -182,7 +189,7 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		// 3. if it is an implied type (role, enum, etc)
 		if (owner.getAssignedType() != target) {
 			// set((Node) target, (Node) oldValue);
-			LOGGER.debug("Trouble right here in river city.");
+			LOGGER.debug("Trouble right here in river city. Assigned type was not read back as assigned.");
 			// throw new IllegalStateException("Type was not assigned.");
 		}
 
@@ -207,22 +214,4 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		// LOGGER.debug("END -" + owner + " changed assigment from " + oldValue + " to " + target);
 		return true;
 	}
-
-	// public QName getQName() {
-	// QName typeQname = null;
-	//
-	// NamedEntity type = getTLNamedEntity();
-	// if (type != null) {
-	// String ns = type.getNamespace();
-	// String ln = type.getLocalName();
-	// if (ns != null && ln != null)
-	// typeQname = new QName(type.getNamespace(), type.getLocalName());
-	//
-	// // If still empty, try the XSD type information in the documentation
-	// if (typeQname == null)
-	// typeQname = XsdModelingUtils.getAssignedXsdType((Node) owner);
-	// }
-	// return typeQname;
-	// }
-
 }

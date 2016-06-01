@@ -66,7 +66,7 @@ public class ConstraintHandler {
 	}
 
 	public String getMinInclusive() {
-		LOGGER.debug("get Min Inclusive: " + tlObj.getMinInclusive());
+		// LOGGER.debug("get Min Inclusive: " + tlObj.getMinInclusive());
 		return tlObj.getMinInclusive();
 	}
 
@@ -119,7 +119,7 @@ public class ConstraintHandler {
 			value = null;
 		if (owner.isEditable_newToChain() && tlObj != null) {
 			tlObj.setMinInclusive(value);
-			LOGGER.debug("Set min inclusive to: " + value);
+			// LOGGER.debug("Set min inclusive to: " + value);
 		}
 	}
 
