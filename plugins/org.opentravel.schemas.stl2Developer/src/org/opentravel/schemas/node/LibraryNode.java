@@ -663,9 +663,10 @@ public class LibraryNode extends Node {
 		// String path = pn.getProject().getProjectFile().getAbsolutePath();
 		File dir = pn.getProject().getProjectFile().getParentFile();
 
+		// FIXME - don't get the list.
 		// 5/2016 - dmh - refresh the project to assure the most current version is being locked.
-		// List<ProjectItem> updated = pn.getProject().getProjectManager().refreshManagedProjectItems();
-		pn.getProject().getProjectManager().refreshManagedProjectItems();
+		List<ProjectItem> updated = pn.getProject().getProjectManager().refreshManagedProjectItems();
+		// pn.getProject().getProjectManager().refreshManagedProjectItems();
 
 		pn.getProject().getProjectManager().lock(getProjectItem(), dir);
 		// LOGGER.debug("Locked library which created local file: " + path);
