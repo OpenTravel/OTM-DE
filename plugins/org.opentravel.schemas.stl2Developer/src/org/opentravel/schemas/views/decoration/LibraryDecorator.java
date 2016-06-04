@@ -29,6 +29,7 @@ import org.opentravel.schemas.controllers.MainController.IRefreshListener;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.NamespaceHandler;
+import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
@@ -95,9 +96,13 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 			// } else if (element instanceof PropertyNode) {
 			// if (((PropertyNode) element).getAssignedType() == ModelNode.getUnassignedNode())
 			// decoration.addOverlay(warningDesc(), IDecoration.BOTTOM_LEFT);
-		} else if (element instanceof LibraryMemberInterface)
+		} else if (element instanceof LibraryMemberInterface) {
+			String nodeTxt = ((Node) element).getDecoration();
+			if (!nodeTxt.isEmpty())
+				decoration.addSuffix(nodeTxt);
 			if (!((LibraryMemberInterface) element).isValid())
 				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
+		}
 	}
 
 	private String getRepositoryNameDecoration(RepositoryInstanceNode element) {

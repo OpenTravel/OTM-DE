@@ -243,6 +243,7 @@ public abstract class Node implements INode {
 	@Override
 	public void removeFromLibrary() {
 		getLibrary().removeMember(this);
+		// LOGGER.debug("Removed " + this + " from " + getLibrary().getNameWithPrefix());
 	}
 
 	/**
@@ -361,7 +362,7 @@ public abstract class Node implements INode {
 	 * re-added it
 	 */
 	public static void deleteNodeList(final List<Node> list) {
-		LOGGER.debug("Delete Node List with " + list.size() + " members.");
+		// LOGGER.debug("Delete Node List with " + list.size() + " members.");
 		for (final INode n : list) {
 			n.delete();
 		}
@@ -673,9 +674,58 @@ public abstract class Node implements INode {
 		return (modelObject != null ? modelObject.getTLBase() : null);
 	}
 
-	/*
-	 * (non-Javadoc)
+	public String getDecoration() {
+		// if it is a named entity in a versioned library get version.
+		String decoration = " ";
+		if (isDeleted())
+			decoration += " (Deleted) ";
+
+		// version in chain
+		// if (library != null && library.isInChain()) {
+		// String version = "";
+		// NamedEntity ne = null;
+		// if (getTLModelObject() instanceof NamedEntity)
+		// ne = (NamedEntity) getTLModelObject();
+		// if (ne != null && ne.getOwningLibrary() != null)
+		// version = ne.getOwningLibrary().getVersion();
+		// if (!version.isEmpty())
+		// decoration += " (v " + version + "-" + library.getVersion() + ")";
+		// }
+		// Extension
+		if (this instanceof ExtensionOwner) {
+			String extensionTxt = "";
+			if (((ExtensionOwner) this).getExtensionBase() != null) {
+				ComponentNode cn = (ComponentNode) ((ExtensionOwner) this).getExtensionBase();
+				if (isVersioned())
+					extensionTxt = " (Extends version: " + cn.getTlVersion() + ")";
+				else
+					extensionTxt = " (Extends: " + cn.getNameWithPrefix() + ")";
+			}
+			decoration += extensionTxt;
+		}
+
+		// Append the number of users for this type provider
+		if (this instanceof TypeProvider && !(this instanceof ImpliedNode))
+			decoration += " (" + ((TypeProvider) this).getWhereUsedAndDescendantsCount() + " users)";
+		return decoration;
+	}
+
+	/**
+	 * Get the version from the TLLibrary
 	 * 
+	 * @return string of the version
+	 */
+	protected String getTlVersion() {
+		String version = "";
+		if (getTLModelObject() instanceof LibraryElement) {
+			LibraryElement le = (NamedEntity) getTLModelObject();
+			if (le != null && le.getOwningLibrary() != null)
+				version = le.getOwningLibrary().getVersion();
+		}
+		return version;
+	}
+
+	/*
 	 * @see org.opentravel.schemas.node.INode#getLabel()
 	 */
 	@Override
@@ -684,8 +734,6 @@ public abstract class Node implements INode {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.opentravel.schemas.node.INode#getName()
 	 */
 	@Override
@@ -2425,16 +2473,18 @@ public abstract class Node implements INode {
 	// if (selectedNode.getLibrary() != selectedNode.getChain().getHead())
 	public boolean isInHead() {
 		Node owner = getOwningComponent();
-		if (owner instanceof OperationNode) {
+		if (owner instanceof OperationNode)
 			owner = owner.getOwningComponent();
-		}
-		if (owner instanceof ServiceNode) {
-			// service do not have versionNode
+
+		// service do not have versionNode
+		if (owner instanceof ServiceNode)
 			return true;
-		}
+
 		// False if unmanaged.
 		if (owner == null || owner.versionNode == null)
 			return false;
+
+		// List<Node> x = getChain().getHead().getDescendants_NamedTypes();
 		return getChain().getHead().getDescendants_NamedTypes().contains(owner);
 	}
 

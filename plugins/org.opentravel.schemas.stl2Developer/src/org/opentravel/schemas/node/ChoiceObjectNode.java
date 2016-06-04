@@ -117,16 +117,16 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 		return getSharedFacet();
 	}
 
-	@Override
-	public String getLabel() {
-		if (getExtensionBase() == null)
-			return super.getLabel();
-		else if (isVersioned())
-			// else if (getExtendsType().getName().equals(getName()))
-			return super.getLabel() + " (Extends version:  " + getExtensionBase().getLibrary().getVersion() + ")";
-		else
-			return super.getLabel() + " (Extends: " + getExtensionBase().getNameWithPrefix() + ")";
-	}
+	// @Override
+	// public String getLabel() {
+	// if (getExtensionBase() == null)
+	// return super.getLabel();
+	// else if (isVersioned())
+	// // else if (getExtendsType().getName().equals(getName()))
+	// return super.getLabel() + " (Extends version:  " + getExtensionBase().getLibrary().getVersion() + ")";
+	// else
+	// return super.getLabel() + " (Extends: " + getExtensionBase().getNameWithPrefix() + ")";
+	// }
 
 	@Override
 	public Image getImage() {

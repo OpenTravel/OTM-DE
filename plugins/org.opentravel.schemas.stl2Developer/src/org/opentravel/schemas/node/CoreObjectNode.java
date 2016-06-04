@@ -168,16 +168,16 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 		return ComponentNodeType.CORE;
 	}
 
-	@Override
-	public String getLabel() {
-		if (getExtensionBase() == null)
-			return super.getLabel();
-		// else if (getExtendsType().getName().equals(getName()))
-		else if (isVersioned())
-			return super.getLabel() + " (Extends version: " + getExtensionBase().getLibrary().getVersion() + ")";
-		else
-			return super.getLabel() + " (Extends: " + getExtensionBase().getNameWithPrefix() + ")";
-	}
+	// @Override
+	// public String getLabel() {
+	// if (getExtensionBase() == null)
+	// return super.getLabel();
+	// // else if (getExtendsType().getName().equals(getName()))
+	// else if (isVersioned())
+	// return super.getLabel() + " (Extends version: " + getExtensionBase().getLibrary().getVersion() + ")";
+	// else
+	// return super.getLabel() + " (Extends: " + getExtensionBase().getNameWithPrefix() + ")";
+	// }
 
 	// /////////////////////////////////////////////////////////////////
 	//

@@ -28,6 +28,7 @@ import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.validate.ValidationException;
 import org.opentravel.schemacompiler.version.MinorVersionHelper;
@@ -556,30 +557,38 @@ public class ComponentNode extends Node {
 	protected LibraryMember createMinorTLVersion(VersionedObjectInterface node) {
 		MinorVersionHelper helper = new MinorVersionHelper();
 		Versioned v = null;
+		TLLibrary tlLib = getChain().getHead().getTLLibrary();
 		try {
-			v = helper.createNewMinorVersion((Versioned) getTLModelObject(), getChain().getHead().getTLLibrary());
+			v = helper.createNewMinorVersion((Versioned) getTLModelObject(), tlLib);
 		} catch (VersionSchemeException | ValidationException e) {
-			// LOGGER.debug("Exception creating minor TL version: " + e.getLocalizedMessage());
+			LOGGER.debug("Exception creating minor TL version in: " + tlLib.getPrefix() + ":" + tlLib.getName() + " "
+					+ e.getLocalizedMessage());
 			return null;
 		}
 		return (LibraryMember) v;
 	}
 
+	// newNode is the node constructed from the TL object returned from createMinorTLVersion()
 	protected ComponentNode createMinorVersionComponent(ComponentNode newNode) {
 		if (newNode.getModelObject() instanceof EmptyMO) {
 			// LOGGER.debug("Empty minor version created");
 			return null;
 		}
 		Node owner = this.getOwningComponent();
+
 		// exit if it is already in the head of the chain.
-		if (owner.getLibrary() == owner.getChain().getHead())
+		if (owner.isInHead())
 			return null;
 
 		if (newNode instanceof ExtensionOwner)
 			((ExtensionOwner) newNode).setExtension(owner);
 		if (newNode.getName() == null || newNode.getName().isEmpty())
 			newNode.setName(owner.getName()); // Some of the version handlers do not set name
+
+		// Add the new node to the library at the head of the chain
 		owner.getChain().getHead().addMember(newNode);
+		LibraryChainNode chain = owner.getChain();
+		chain.getComplexAggregate().getChildren().remove(owner);
 
 		return newNode;
 	}

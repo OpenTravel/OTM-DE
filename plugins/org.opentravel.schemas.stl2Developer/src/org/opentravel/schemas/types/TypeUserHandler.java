@@ -145,7 +145,7 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		TypeProvider oldValue = owner.getAssignedType(); // hold onto to remove listener at end
 
 		// Validation will not be correct if a built-in type is represented by the TLSimple
-		if (target.getLibrary().isBuiltIn() && ((Node) target).isXsdType()
+		if (target.getLibrary() != null && target.getLibrary().isBuiltIn() && ((Node) target).isXsdType()
 				&& target.getLibrary().getNamespace().equals(XMLConstants.W3C_XML_SCHEMA_NS_URI))
 			tlTarget = ((Node) target).getXsdNode().getTLModelObject();
 

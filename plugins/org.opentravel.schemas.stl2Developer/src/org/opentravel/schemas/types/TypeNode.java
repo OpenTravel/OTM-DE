@@ -63,7 +63,7 @@ public class TypeNode extends Node {
 		this.owner = typeNode; // The user of this type
 		this.nodeType = nodeType;
 		String label = "";
-		if (typeNode.getOwningComponent() != null)
+		if (typeNode != null && typeNode.getOwningComponent() != null)
 			label = typeNode.getOwningComponent().getName();
 		// if (typeNode.isNamedType())
 		// label = typeNode.getComponentType();

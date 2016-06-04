@@ -41,6 +41,8 @@ import org.opentravel.schemas.wizards.NewPropertiesWizard2;
 import org.opentravel.schemas.wizards.SimpleNameWizard;
 import org.opentravel.schemas.wizards.validators.NewNodeNameValidator;
 import org.opentravel.schemas.wizards.validators.NewPropertyValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Command Handler for the add a node to the model command. Handler for adding when a component node is selected.
@@ -53,7 +55,7 @@ import org.opentravel.schemas.wizards.validators.NewPropertyValidator;
  *
  */
 public class AddNodeHandler2 extends OtmAbstractHandler {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(AddNodeHandler2.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AddNodeHandler2.class);
 	public static String COMMAND_ID = "org.opentravel.schemas.commands.Add";
 
 	private Node selectedNode; // The user selected node.
@@ -202,8 +204,10 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 			if (actOnNode.isEnabled_AddProperties() && !actOnNode.isInHead())
 				actOnNode = createVersionExtension(selectedNode);
 		}
-		if (actOnNode == null)
+		if (actOnNode == null) {
+			LOGGER.debug("Error adding property, actOnNode is null.");
 			return;
+		}
 
 		try {
 			NewPropertiesWizard2 w2 = new NewPropertiesWizard2(actOnNode);

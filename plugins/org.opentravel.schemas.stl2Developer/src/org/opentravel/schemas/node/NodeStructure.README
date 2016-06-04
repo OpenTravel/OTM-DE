@@ -44,6 +44,8 @@ Note:
 			if (getLibrary().isInChain())
 				getChain().add(this);
 
+2) All listeners in a chain of objects will always link to the head version of an object.
+
 Inheritance:
 Properties are inherited from the base type. For Core and Business objects this is the
 		ComponentNode.getInheritedChildren() 

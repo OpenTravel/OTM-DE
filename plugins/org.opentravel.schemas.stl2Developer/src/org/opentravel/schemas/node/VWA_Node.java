@@ -122,13 +122,13 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 		return users;
 	}
 
-	@Override
-	public String getLabel() {
-		if (isVersioned())
-			return super.getLabel() + " (Extends version:  " + getExtensionBase().getLibrary().getVersion() + ")";
-		else
-			return super.getLabel();
-	}
+	// @Override
+	// public String getLabel() {
+	// if (isVersioned())
+	// return super.getLabel() + " (Extends version:  " + getExtensionBase().getLibrary().getVersion() + ")";
+	// else
+	// return super.getLabel();
+	// }
 
 	@Override
 	public Image getImage() {

@@ -17,6 +17,8 @@ package org.opentravel.schemas.node.listeners;
 
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemas.node.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This listener uses the base listener capability to return its node. No other behavior.
@@ -25,10 +27,11 @@ import org.opentravel.schemas.node.Node;
  *
  */
 public class NamedTypeListener extends NodeIdentityListener implements INodeListener {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(NamedTypeListener.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(NamedTypeListener.class);
 
 	public NamedTypeListener(Node node) {
 		super(node);
+		// LOGGER.debug("Added named type listener to " + node);
 	}
 
 	@Override

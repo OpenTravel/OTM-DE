@@ -29,7 +29,6 @@ import org.opentravel.schemas.node.controllers.NodeUtils;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Fonts;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.types.TypeProvider;
 
 public class LibraryTreeLabelProvider extends LabelProvider implements IFontProvider, IColorProvider,
 		IStyledLabelProvider {
@@ -49,16 +48,7 @@ public class LibraryTreeLabelProvider extends LabelProvider implements IFontProv
 				label = n.getName() + " [local] ";
 
 			// Add the extended label
-			// TODO - use IDecorator to add counts. IFontDecorator,ILabelDecorator
-			// if (n instanceof ImpliedNode && ((ImpliedNode) n).getImpliedType().equals(ImpliedNodeType.Duplicate))
-			// label = label + " (" + n.getChildren().size() + ")";
-			// else
-			if (n instanceof TypeProvider)
-				label = label + " (" + ((TypeProvider) n).getWhereUsedAndDescendantsCount() + ")";
-			// else if (n.isComponent() && ((ComponentNode) n).isTypeProvider()) {
-			// ComponentNode cn = (ComponentNode) n;
-			// label = label + " (" + cn.getTypeUsersCount() + ")";
-			// }
+			// 6/2016 - where used count moved to LibraryDecoration
 		}
 		return label;
 	}

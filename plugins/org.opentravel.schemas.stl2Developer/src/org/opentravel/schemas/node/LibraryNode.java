@@ -142,7 +142,8 @@ public class LibraryNode extends Node {
 	public LibraryNode(final AbstractLibrary alib, final Node parent) {
 		super(alib.getName());
 		if (parent instanceof VersionAggregateNode)
-			LOGGER.debug("Begin creating new library: " + alib.getName() + " in " + parent.getParent());
+			LOGGER.debug("Begin creating new library: " + alib.getPrefix() + ":" + alib.getName() + " in aggregate "
+					+ parent.getParent());
 		else
 			LOGGER.debug("Begin creating new library: " + alib.getName() + " in " + parent);
 
@@ -664,6 +665,8 @@ public class LibraryNode extends Node {
 		File dir = pn.getProject().getProjectFile().getParentFile();
 
 		// FIXME - don't get the list.
+		// try to lock - if throws exception then refresh and try again.
+
 		// 5/2016 - dmh - refresh the project to assure the most current version is being locked.
 		List<ProjectItem> updated = pn.getProject().getProjectManager().refreshManagedProjectItems();
 		// pn.getProject().getProjectManager().refreshManagedProjectItems();
@@ -747,16 +750,23 @@ public class LibraryNode extends Node {
 				final XsdNode xn = new XsdNode(mbr, this);
 				n = xn.getOtmModel();
 				xn.setXsdType(true);
-				n.setXsdType(true);
+				if (n == null)
+					LOGGER.debug("ERROR - null otm node.");
+				else
+					n.setXsdType(true); // FIXME
+			} else
+				LOGGER.debug("Used listener to get: " + n.getNameWithPrefix());
+			if (n != null) {
+				linkMember(n);
+				n.setLibrary(this);
 			}
-			linkMember(n);
-			n.setLibrary(this);
 		}
 	}
 
 	private void generateLibrary(final TLLibrary tlLib) {
 		for (final LibraryMember mbr : tlLib.getNamedMembers()) {
 			ComponentNode n = (ComponentNode) GetNode(mbr);
+			// ComponentNode n = (ComponentNode) getNodeIfInThisLib(mbr);
 			if (mbr instanceof TLService) {
 				if (n instanceof ServiceNode)
 					((ServiceNode) n).link((TLService) mbr, this);
@@ -773,11 +783,18 @@ public class LibraryNode extends Node {
 				// node. Otherwise create new ones.
 				if (n == null)
 					n = NodeFactory.newComponent_UnTyped(mbr);
+				else
+					LOGGER.debug("Used listener to generate: " + n.getNameWithPrefix());
 				linkMember(n);
 				// done in linkMember() - n.setLibrary(this);
 			}
 		}
 		new TypeResolver().resolveTypes(); // TODO - this is run too often
+	}
+
+	private ComponentNode getNodeIfInThisLib(LibraryMember mbr) {
+		ComponentNode cn = (ComponentNode) GetNode(mbr);
+		return cn != null && cn.getLibrary() != this ? null : cn;
 	}
 
 	public boolean hasGeneratedChildren() {
@@ -859,6 +876,8 @@ public class LibraryNode extends Node {
 		if (tln.getOwningLibrary() == null)
 			getTLLibrary().addNamedMember(tln);
 		else if (tln.getOwningLibrary() != getTLLibrary()) {
+			LOGGER.debug("Moving " + n + " from " + tln.getOwningLibrary().getPrefix() + ":"
+					+ tln.getOwningLibrary().getName() + " to " + getTLLibrary().getPrefix());
 			tln.getOwningLibrary().removeNamedMember(tln);
 			getTLLibrary().addNamedMember(tln);
 		}

@@ -116,12 +116,12 @@ public class EnumerationOpenNode extends TypeProviderBase implements ComplexComp
 		return null;
 	}
 
-	@Override
-	public String getLabel() {
-		if (isVersioned())
-			return super.getLabel() + " (Extends version:  " + getExtensionBase().getLibrary().getVersion() + ")";
-		return super.getLabel();
-	}
+	// @Override
+	// public String getLabel() {
+	// if (isVersioned())
+	// return super.getLabel() + " (Extends version:  " + getExtensionBase().getLibrary().getVersion() + ")";
+	// return super.getLabel();
+	// }
 
 	@Override
 	public List<String> getLiterals() {

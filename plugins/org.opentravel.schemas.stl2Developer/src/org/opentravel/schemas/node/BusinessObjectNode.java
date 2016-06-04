@@ -205,17 +205,17 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 		return getSummaryFacet();
 	}
 
-	@Override
-	public String getLabel() {
-		if (getExtensionBase() == null)
-			return super.getLabel();
-		// 4/13/2016 dmh - label is not helpful when extending an object from a different namespace
-		// else if (isVersioned())
-		// // else if (getExtendsType().getName().equals(getName()))
-		// return super.getLabel() + " (Extends version:  " + getExtensionBase().getLibrary().getVersion() + ")";
-		// else
-		return super.getLabel() + " (Extends: " + getExtensionBase().getNameWithPrefix() + ")";
-	}
+	// @Override
+	// public String getLabel() {
+	// if (getExtensionBase() == null)
+	// return super.getLabel();
+	// // 4/13/2016 dmh - label is not helpful when extending an object from a different namespace
+	// // else if (isVersioned())
+	// // // else if (getExtendsType().getName().equals(getName()))
+	// // return super.getLabel() + " (Extends version:  " + getExtensionBase().getLibrary().getVersion() + ")";
+	// // else
+	// return super.getLabel() + " (Extends: " + getExtensionBase().getNameWithPrefix() + ")";
+	// }
 
 	@Override
 	public Image getImage() {

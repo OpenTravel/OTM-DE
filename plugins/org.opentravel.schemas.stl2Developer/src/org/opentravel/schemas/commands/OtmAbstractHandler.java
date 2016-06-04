@@ -128,8 +128,14 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 		return actOnNode;
 	}
 
+	/**
+	 * If the library of the passed node is not in the chain's head library, ask the user if they want to create one.
+	 * 
+	 * @return user response or false if in head library
+	 */
 	private boolean postConfirm(String message, Node selectedNode) {
-		if (selectedNode.getLibrary() != selectedNode.getChain().getHead())
+		if (!selectedNode.isInHead())
+			// if (selectedNode.getLibrary() != selectedNode.getChain().getHead())
 			return (DialogUserNotifier.openConfirm(Messages.getString("action.component.version.title"),
 					Messages.getString(message)));
 		else
