@@ -25,6 +25,7 @@ import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
+import org.opentravel.schemas.node.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -132,13 +133,13 @@ public class TypeResolver {
 		if (type == null)
 			return null;
 
-		if (type.isSimpleFacet()) {
+		if (type instanceof SimpleFacetNode) {
 			ComplexComponentInterface owner = (ComplexComponentInterface) type.getOwningComponent();
 			if (owner instanceof SimpleAttributeOwner)
 				return (Node) ((SimpleAttributeOwner) owner).getSimpleType();
 			else
 				return (Node) owner;
-		} else if (type.isAlias()) {
+		} else if (type instanceof AliasNode) {
 			AliasNode alias = (AliasNode) type;
 			return alias.getOwningComponent();
 		}

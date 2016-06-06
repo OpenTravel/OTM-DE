@@ -58,7 +58,7 @@ public class TypeAssignmentTests {
 				defaultProject, pc);
 		ln.setEditable(true);
 
-		builtin = (SimpleTypeNode) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		builtin = (SimpleTypeNode) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		TypeProvider tp;
 		// Consistent set of all type providers
 		bo = ComponentNodeBuilder.createBusinessObject("boBase").get(ln);

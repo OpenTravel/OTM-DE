@@ -45,6 +45,7 @@ import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.FamilyNode;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeEditStatus;
@@ -115,7 +116,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	@Before
 	public void runBeforeEachTest() throws LibrarySaveException, RepositoryException {
 		LOGGER.debug("Before test.");
-		xsdStringNode = NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE);
+		xsdStringNode = NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
 		ProjectNode uploadProject = createProject("ToUploadLibrary", getRepositoryForTest(), "Test");
 
 		majorLibrary = LibraryNodeBuilder.create("TestLibrary", getRepositoryForTest().getNamespace() + "/Test/T2",
@@ -742,7 +743,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	private CoreObjectNode createCoreInMinor() {
 		CoreObjectNode nco = (CoreObjectNode) co.createMinorVersionComponent();
 		PropertyNode newProp = new ElementNode(nco.getSummaryFacet(), "te2");
-		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
 
 		Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
 		TotalDescendents += 1;
@@ -771,7 +772,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	private BusinessObjectNode createBO_InMinor() {
 		BusinessObjectNode nbo = (BusinessObjectNode) bo.createMinorVersionComponent();
 		PropertyNode newProp = new ElementNode(nbo.getSummaryFacet(), "te2");
-		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
 		Assert.assertEquals(1, bo.getSummaryFacet().getChildren().size());
 		TotalDescendents += 1;
 		MinorComplex += 1;
@@ -791,7 +792,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		VWA_Node nVwa = (VWA_Node) vwa.createMinorVersionComponent();
 		Assert.assertNotNull(nVwa);
 		PropertyNode newProp = new AttributeNode(nVwa.getAttributeFacet(), "te2");
-		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
 		Assert.assertEquals(1, bo.getSummaryFacet().getChildren().size());
 		TotalDescendents += 1;
 		MinorComplex += 1;

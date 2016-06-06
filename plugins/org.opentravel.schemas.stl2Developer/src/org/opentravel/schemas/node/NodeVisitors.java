@@ -67,7 +67,7 @@ public class NodeVisitors {
 			node.deleted = true;
 			if (node.getParent() != null && node.getParent().getChildren() != null) {
 				node.getParent().getChildren().remove(node);
-				if (node.getParent().isFamily())
+				if (node.getParent() instanceof FamilyNode)
 					node.getParent().updateFamily();
 			}
 			node.setParent(null);

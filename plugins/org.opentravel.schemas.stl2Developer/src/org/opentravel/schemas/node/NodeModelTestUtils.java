@@ -39,8 +39,8 @@ public class NodeModelTestUtils {
 	 */
 	public static void testNodeModel() {
 		LOGGER.debug("Test Node Model Tree.");
-		LOGGER.debug(testTree() + " We now have " + Node.getNodeCount() + " nodes in "
-				+ nodeInTest.getLibraries().size() + " libraries.");
+		// LOGGER.debug(testTree() + " We now have " + Node.getNodeCount() + " nodes in "
+		// + nodeInTest.getLibraries().size() + " libraries.");
 	}
 
 	private static String testTree() {

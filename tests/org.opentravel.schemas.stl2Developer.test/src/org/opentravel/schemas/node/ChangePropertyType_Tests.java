@@ -72,7 +72,7 @@ public class ChangePropertyType_Tests {
 		defaultProject = pc.getDefaultProject();
 		lcn = ml.createNewManagedLibrary("test", defaultProject);
 		ln = lcn.getHead();
-		aType = (TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 
 		Assert.assertNotNull(ln);
 		Assert.assertNotNull(aType);

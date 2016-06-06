@@ -70,7 +70,7 @@ public class LoadDepenedLibrariesAndResolvedTypes extends RepositoryIntegrationT
 		baseLib = LibraryNodeBuilder.create("Base", uploadProject.getNamespace(), "o1", new Version(1, 0, 0)).build(
 				uploadProject, pc);
 		SimpleTypeNode simpleInBase = ComponentNodeBuilder.createSimpleObject("MyString")
-				.assignType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE)).get();
+				.assignType(NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE)).get();
 		baseLib.addMember(simpleInBase);
 
 		extLib = LibraryNodeBuilder.create("Ext", uploadProject.getNamespace(), "o1", new Version(1, 0, 0)).build(

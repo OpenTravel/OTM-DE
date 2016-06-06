@@ -18,9 +18,6 @@
  */
 package org.opentravel.schemas.node;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.opentravel.schemas.controllers.MainController;
@@ -38,7 +35,7 @@ public class XSDNode_Tests {
 	private final static Logger LOGGER = LoggerFactory.getLogger(XSDNode_Tests.class);
 
 	// Lets make sure they are all unique
-	private Map<String, Node> providerMap = new HashMap<String, Node>(Node.getNodeCount());
+	// private Map<String, Node> providerMap = new HashMap<String, Node>(Node.getNodeCount());
 	int dups = 0;
 	int counter = 0;
 
@@ -52,7 +49,7 @@ public class XSDNode_Tests {
 		int libCnt = 0; // from init
 		int locals = 0; // locally defined nodes in the library
 		for (LibraryNode ln : Node.getAllLibraries()) {
-			providerMap.clear();
+			// providerMap.clear();
 			checkCounts(ln);
 			if (ln.isXSDSchema()) {
 				visitXsdNodes(ln);
@@ -62,7 +59,7 @@ public class XSDNode_Tests {
 		Assert.assertEquals(2, libCnt); // the default built-in libraries
 
 		for (LibraryNode ln : Node.getAllLibraries()) {
-			providerMap.clear();
+			// providerMap.clear();
 			checkCounts(ln);
 			if (ln.isXSDSchema()) {
 				visitXsdNodes(ln);
@@ -105,8 +102,8 @@ public class XSDNode_Tests {
 		if (!(n.isTypeProvider()))
 			return;
 
-		if (providerMap.put(n.getName(), n) != null)
-			dups++;
+		// if (providerMap.put(n.getName(), n) != null)
+		// dups++;
 		// THERE is a bug in family processing that leaves two duplicates.
 		// if (peerCount+1 != providerMap.size()) {
 		// dups++;

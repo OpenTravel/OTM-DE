@@ -65,7 +65,7 @@ public class Clone_Tests {
 		defaultProject = pc.getDefaultProject();
 		ln = mockLibrary.createNewLibrary("http://example.com/test", "test", defaultProject);
 		ln.setEditable(true);
-		builtin = (SimpleTypeNode) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		builtin = (SimpleTypeNode) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 	}
 
 	@Test

@@ -163,7 +163,7 @@ public class PropertiesTests {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
 		FacetNode summary = bo.getSummaryFacet();
 		Assert.assertNotNull(summary);
-		Node aType = NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn = null;
 
 		pn = new ElementNode(summary, "A");
@@ -194,7 +194,7 @@ public class PropertiesTests {
 		BusinessObjectNode A = mockLibrary.addBusinessObjectToLibrary(ln, "A");
 		PropertyOwnerInterface summary = bo.getSummaryFacet();
 		Assert.assertNotNull(summary);
-		Node aType = NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn = null;
 
 		pn = new ElementReferenceNode(summary, "ThisIsIgnored");
@@ -222,7 +222,7 @@ public class PropertiesTests {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
 		FacetNode summary = bo.getSummaryFacet();
 		Assert.assertNotNull(summary);
-		Node aType = NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, pn1 = null;
 
 		pn1 = new AttributeNode(summary, "A");
@@ -252,7 +252,7 @@ public class PropertiesTests {
 	public void createIds() {
 		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "Vwa");
 		IdNode id = new IdNode(vwa.getAttributeFacet(), "SomeIgnoredName");
-		Node idType = NodeFinders.findNodeByName("ID", Node.XSD_NAMESPACE);
+		Node idType = NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
 
 		Assert.assertEquals("id", id.getName());
 		Assert.assertEquals(idType, id.getAssignedType());
@@ -266,7 +266,7 @@ public class PropertiesTests {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
 		FacetNode summary = bo.getSummaryFacet();
 		Assert.assertNotNull(summary);
-		Node aType = NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, pn1 = null;
 
 		pn1 = new IndicatorElementNode(summary, "A");
@@ -298,7 +298,7 @@ public class PropertiesTests {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
 		FacetNode summary = bo.getSummaryFacet();
 		Assert.assertNotNull(summary);
-		Node aType = NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, pn1 = null;
 
 		pn1 = new IndicatorNode(summary, "A");
@@ -335,7 +335,7 @@ public class PropertiesTests {
 		closed.setName("C");
 		ln.addMember(closed);
 		EnumLiteralNode lit, litA;
-		Node aType = NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 
 		// TODO - use open.addLiteral() instead
 		litA = new EnumLiteralNode(open, "A");
@@ -353,7 +353,7 @@ public class PropertiesTests {
 	@Test
 	public void createRoles() {
 		CoreObjectNode core = mockLibrary.addCoreObjectToLibrary(ln, "Core");
-		Node aType = NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		RoleFacetNode roles = core.getRoleFacet();
 		RoleNode rn1, rn = null;
 
@@ -378,7 +378,7 @@ public class PropertiesTests {
 		ln.setEditable(true);
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "ct");
 		PropertyOwnerInterface summary = bo.getSummaryFacet();
-		Node aType = NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, epn, apn, ipn, rpn, iepn = null;
 		String eText = "Element";
 		String aText = "attribute";
@@ -389,7 +389,7 @@ public class PropertiesTests {
 		epn = new ElementNode(summary, eText);
 		epn.setAssignedType((TypeProvider) aType);
 		apn = new AttributeNode(summary, aText);
-		apn.setAssignedType((TypeProvider) NodeFinders.findNodeByName("id", Node.XSD_NAMESPACE));
+		apn.setAssignedType((TypeProvider) NodeFinders.findNodeByName("id", ModelNode.XSD_NAMESPACE));
 		ipn = new IndicatorNode(summary, iText);
 		iepn = new IndicatorElementNode(summary, ieText);
 		rpn = new ElementReferenceNode(summary, rText);
@@ -425,7 +425,7 @@ public class PropertiesTests {
 		ln.setEditable(true);
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "ct");
 		PropertyOwnerInterface summary = bo.getSummaryFacet();
-		Node aType = NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		ComponentNode cn = (ComponentNode) summary;
 
 		Node result = cn.addPropertyFromDND(aType, false); // should create property added to summary facet

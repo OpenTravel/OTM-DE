@@ -80,7 +80,7 @@ public class Delete_Tests {
 		ln.addMember(bo);
 		FacetNode facet = bo.getSummaryFacet();
 		Assert.assertNotNull(facet);
-		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		TypeProvider aType = ml.getSimpleTypeProvider();
 
 		// Given type user properties assigned types
 		ElementNode ele = new ElementNode(facet, "e1");
@@ -109,7 +109,7 @@ public class Delete_Tests {
 		ln.addMember(bo);
 		FacetNode facet = bo.getSummaryFacet();
 		Assert.assertNotNull(facet);
-		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		int whereAssignedCount = aType.getWhereAssignedCount();
 
 		// Given a BO with two properties with assigned types
@@ -138,7 +138,7 @@ public class Delete_Tests {
 		AttributeNode attr = new AttributeNode(facet, "att1");
 		Assert.assertEquals(2, facet.getChildren().size());
 
-		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		TypeProvider aType = ml.getSimpleTypeProvider();
 		int aTypeCount = aType.getWhereAssignedCount();
 
 		TypeProvider simpleType = ml.addSimpleTypeToLibrary(ln, "A_Simple");

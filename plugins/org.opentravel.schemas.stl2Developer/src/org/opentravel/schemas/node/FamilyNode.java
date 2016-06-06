@@ -76,6 +76,14 @@ public class FamilyNode extends NavNode {
 		setIdentity("Family2:" + getName());
 	}
 
+	public void add(Node newNode) {
+		assert newNode.getParent() != null;
+
+		newNode.getParent().remove(newNode);
+		getChildren().add(newNode);
+		newNode.setParent(this);
+	}
+
 	@Override
 	public String getComponentType() {
 		return "Family";
@@ -93,17 +101,17 @@ public class FamilyNode extends NavNode {
 		return kids;
 	}
 
-	@Override
-	public List<Node> getDescendants_NamedTypes() {
-		ArrayList<Node> kids = new ArrayList<Node>();
-		for (Node c : getChildren()) {
-			if (c.isTypeProvider())
-				kids.add(c);
-			if (c instanceof VersionNode && c.getChildren().size() > 0)
-				kids.add(c.getChildren().get(0));
-		}
-		return kids;
-	}
+	// @Override
+	// public List<Node> getDescendants_NamedTypes() {
+	// ArrayList<Node> kids = new ArrayList<Node>();
+	// for (Node c : getChildren()) {
+	// if (c.isTypeProvider())
+	// kids.add(c);
+	// if (c instanceof VersionNode && c.getChildren().size() > 0)
+	// kids.add(c.getChildren().get(0));
+	// }
+	// return kids;
+	// }
 
 	@Override
 	public String getName() {
@@ -118,13 +126,13 @@ public class FamilyNode extends NavNode {
 	@Override
 	public Image getImage() {
 		final ImageRegistry imageRegistry = Images.getImageRegistry();
-		return imageRegistry.get("family");
+		return imageRegistry != null ? imageRegistry.get("family") : null;
 	}
 
-	@Override
-	public boolean hasNavChildren() {
-		return !getChildren().isEmpty();
-	}
+	// @Override
+	// public boolean hasNavChildren() {
+	// return !getChildren().isEmpty();
+	// }
 
 	@Override
 	public boolean hasChildren_TypeProviders() {

@@ -264,9 +264,9 @@ public class ComponentNode extends Node {
 		child.setParent(this);
 		child.inherited = true;
 
-		if (!child.isLibrary()) {
-			child.setLibrary(getLibrary());
-		}
+		// if (!(child instanceof LibraryNode)) {
+		child.setLibrary(getLibrary());
+		// }
 		// LOGGER.debug("Linked inherited child " + child + " to parent " +
 		// this);
 		return true;
@@ -449,18 +449,18 @@ public class ComponentNode extends Node {
 
 	@Override
 	public Node getAssignable() {
-		if (isValueWithAttributes())
+		if (this instanceof VWA_Node)
 			return getSimpleProperty();
-		else if (isCoreObject())
+		else if (this instanceof CoreObjectNode)
 			return getSimpleProperty();
-		else if (isSimpleFacet())
+		else if (this instanceof SimpleFacetNode)
 			return getChildren().get(0);
 		return null;
 	}
 
 	private Node getSimpleProperty() {
 		for (Node n : getChildren()) {
-			if (n.isSimpleFacet())
+			if (n instanceof SimpleFacetNode)
 				return n.getChildren().get(0);
 		}
 		return null;
@@ -606,7 +606,7 @@ public class ComponentNode extends Node {
 		ExtensionPointNode newNode = null;
 		newNode = new ExtensionPointNode(new TLExtensionPointFacet());
 
-		if (isFacet())
+		if (this instanceof FacetNode)
 			newNode.setExtension(this);
 		else if (this instanceof PropertyNode)
 			newNode.setExtension(getParent());
@@ -671,10 +671,10 @@ public class ComponentNode extends Node {
 	 * 
 	 */
 	public ComponentNode changeToVWA() {
-		if (this.isValueWithAttributes()) {
+		if (this instanceof VWA_Node) {
 			return this;
 		}
-		if (this.isFacet()) {
+		if (this instanceof FacetNode) {
 			return ((ComponentNode) getParent()).changeToVWA();
 		}
 
@@ -691,10 +691,10 @@ public class ComponentNode extends Node {
 	}
 
 	public ComponentNode changeToCoreObject() {
-		if (this.isCoreObject()) {
+		if (this instanceof CoreObjectNode) {
 			return this;
 		}
-		if (this.isFacet()) {
+		if (this instanceof FacetNode) {
 			return ((ComponentNode) getParent()).changeToCoreObject();
 		}
 		// LOGGER.debug("Generating Core Object out of " + this.getName());
@@ -720,10 +720,10 @@ public class ComponentNode extends Node {
 	 * @return
 	 */
 	public ComponentNode changeToBusinessObject() {
-		if (this.isBusinessObject()) {
+		if (this instanceof BusinessObjectNode) {
 			return this;
 		}
-		if (this.isFacet()) {
+		if (this instanceof FacetNode) {
 			return ((ComponentNode) getParent()).changeToBusinessObject();
 		}
 		if (getLibrary() == null) {
@@ -741,26 +741,6 @@ public class ComponentNode extends Node {
 		return newNode;
 
 	}
-
-	@Override
-	public boolean isAliasable() {
-		return isBusinessObject() || isCoreObject();
-	}
-
-	// @Override
-	// public boolean isAssignableToSimple() {
-	// return false;
-	// }
-	//
-	// @Override
-	// public boolean isAssignableToVWA() {
-	// return false;
-	// }
-	//
-	// @Override
-	// public boolean isAssignableToElementRef() {
-	// return false;
-	// }
 
 	public void addProperty(final Node property) {
 		if (property == null)
@@ -781,7 +761,7 @@ public class ComponentNode extends Node {
 			// LOGGER.error("ERROR - Exit - Tried to add property to a non-FacetNode or enumeration " + this);
 			return;
 		}
-		if (this.isSimpleFacet()) {
+		if (this instanceof SimpleFacetNode) {
 			if (property instanceof PropertyNode)
 				((TypeUser) getChildren().get(0)).setAssignedType(((TypeUser) property).getAssignedType());
 			else

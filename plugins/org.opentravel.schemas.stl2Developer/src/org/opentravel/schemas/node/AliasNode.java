@@ -218,7 +218,7 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 		List<Node> peers = findOwningComponent().getDescendants();
 		String rootAlias = "";
 		for (Node node : peers) {
-			if (node.isAlias() && node.getParent() == findOwningComponent()) {
+			if (node instanceof AliasNode && node.getParent() == findOwningComponent()) {
 				if (thisAlias.startsWith(node.getName())) {
 					rootAlias = node.getName();
 				}
@@ -226,7 +226,7 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 		}
 		visitor.visit(this);
 		for (Node peer : peers) {
-			if (peer.isAlias() && peer != this) {
+			if (peer instanceof AliasNode && peer != this) {
 				if (peer.getName().startsWith(rootAlias)) {
 					visitor.visit(peer);
 				}
@@ -256,7 +256,7 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 
 		@Override
 		public void visit(Node n) {
-			if (n.isAlias())
+			if (n instanceof AliasNode)
 				toBeDeleted.add((AliasNode) n);
 		}
 

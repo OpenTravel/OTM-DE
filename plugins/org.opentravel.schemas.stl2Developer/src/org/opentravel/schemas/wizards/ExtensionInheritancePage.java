@@ -817,7 +817,7 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 			} else {
 				Node node = (Node) element;
 
-				if (node.isProperty()) {
+				if (node instanceof PropertyNode) {
 					final PropertyNode prop = (PropertyNode) node;
 					final NamedEntity elem = prop.getModelObject().getTLType();
 

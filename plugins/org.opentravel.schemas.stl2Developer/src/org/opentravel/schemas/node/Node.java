@@ -66,7 +66,6 @@ import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
-import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.listeners.INodeListener;
 import org.opentravel.schemas.node.listeners.NodeIdentityListener;
@@ -130,10 +129,10 @@ public abstract class Node implements INode {
 	// protected Type type = null; // Type information associated with properties
 	private String identity = ""; // just for debugging
 
-	static final String EMPTY_TYPE = "Empty";
-	public static final String OTA_NAMESPACE = "http://www.OpenTravel.org/ns/OTA2/Common_v01_00";
-	public static final String XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema";
-	private static final String Chameleon_NS = "http://chameleon.anonymous/ns";
+	// static final String EMPTY_TYPE = "Empty";
+	// see ImpliedNode - public static final String OTA_NAMESPACE = "http://www.OpenTravel.org/ns/OTA2/Common_v01_00";
+	// see ModelNode - public static final String XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema";
+	// see ModelNode - private static final String Chameleon_NS = "http://chameleon.anonymous/ns";
 
 	public Node() {
 		parent = null;
@@ -146,7 +145,7 @@ public abstract class Node implements INode {
 
 	public Node(String identity) {
 		this();
-		this.setIdentity(identity);
+		setIdentity(identity);
 	}
 
 	/**
@@ -214,41 +213,36 @@ public abstract class Node implements INode {
 
 	@Override
 	public boolean isDeleted() {
-		if (deleted)
-			return true;
 		if ((modelObject == null) || (modelObject.getTLModelObj() == null))
 			return true;
-		return false;
+		return deleted;
 	}
 
 	/**
-	 * Only removes the node from parent's children list, does not delete the node itself
-	 * 
-	 * @param n
+	 * Only remove the node from this children list. Not family or version aware. Does not delete the node.
 	 */
 	// Note - used in model creation to unlink nodes to add them to a family nav node.
 	protected void remove(final Node n) {
 		if (n == null)
 			return;
-
-		if (getChildren().contains(n))
-			children.remove(n);
-		else {
+		if (!children.remove(n)) {
 			LOGGER.warn("Attempting to delete a child " + n + " that is not in children list of parent " + this);
-			LOGGER.error("THIS IS BECAUSE IT is in a Family node under this node!");
+			LOGGER.error("THIS may be BECAUSE IT is in a Family node under this node!" + n.getParent());
 			// FIXME - will cause family nodes to not be deleted. See this in LibraryTests.moveMemberTests
 		}
 	}
 
+	/**
+	 * calls LibraryNode.removeMember()
+	 * 
+	 * @see LibraryNode
+	 */
 	@Override
 	public void removeFromLibrary() {
-		getLibrary().removeMember(this);
+		if (getLibrary() != null)
+			getLibrary().removeMember(this);
 		// LOGGER.debug("Removed " + this + " from " + getLibrary().getNameWithPrefix());
 	}
-
-	/**
-	 * *************************** End Delete ********************************************
-	 */
 
 	/**
 	 * Swap the replacement for this node. This node is replaced via {@link #replaceWith()} and removed from parent.
@@ -264,8 +258,8 @@ public abstract class Node implements INode {
 		assert (replacement != null) : "Null replacement node.";
 		assert (getLibrary() != null) : "Null library.";
 		assert (parent != null) : "Null parent";
-		assert (getTLModelObject() instanceof LibraryMember) : "TL Object is not library member.";
-		assert (replacement.getTLModelObject() instanceof LibraryMember) : "TL Object is not library member.";
+		assert (isTLLibraryMember()) : "TL Object is not library member.";
+		assert (replacement.isTLLibraryMember()) : "TL Object is not library member.";
 
 		final Node thisParent = parent;
 
@@ -414,7 +408,7 @@ public abstract class Node implements INode {
 		if (name == null || name.isEmpty())
 			return null;
 		if (ns == null || ns.isEmpty())
-			ns = Chameleon_NS;
+			ns = ModelNode.Chameleon_NS;
 		// Get past the model node.
 		Node x;
 		if (this instanceof ModelNode)
@@ -426,7 +420,7 @@ public abstract class Node implements INode {
 		// test to see if the library is in the target namespace then just test
 		// their kids for name
 		// String nodeNS = getNamespace();
-		if (!getNamespace().equals(ns) && !(getNamespace().equals(Chameleon_NS)))
+		if (!getNamespace().equals(ns) && !(getNamespace().equals(ModelNode.Chameleon_NS)))
 			return null;
 
 		for (final Node n : getChildren()) {
@@ -447,13 +441,13 @@ public abstract class Node implements INode {
 			return null;
 		Node child = null;
 		if (ns.isEmpty())
-			ns = Chameleon_NS;
+			ns = ModelNode.Chameleon_NS;
 		if (this.isTypeProvider() && this.getName().equals(name) && this.getNamespace().equals(ns))
 			return this;
 		for (Node x : getChildren()) {
 			if (x.isLibraryContainer())
 				child = x.findNode_TypeProvider(name, ns);
-			if (x.getNamespace().equals(ns) || (x.getNamespace().equals(Chameleon_NS))) {
+			if (x.getNamespace().equals(ns) || (x.getNamespace().equals(ModelNode.Chameleon_NS))) {
 				child = x.findNode_TypeProvider(name, ns);
 			}
 			if (child != null)
@@ -680,6 +674,9 @@ public abstract class Node implements INode {
 		if (isDeleted())
 			decoration += " (Deleted) ";
 
+		if (isDeprecated())
+			decoration += " (Deprecated)";
+
 		// version in chain
 		// if (library != null && library.isInChain()) {
 		// String version = "";
@@ -747,8 +744,6 @@ public abstract class Node implements INode {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.opentravel.schemas.node.INode#getNamePrefix()
 	 */
 	@Override
@@ -771,8 +766,6 @@ public abstract class Node implements INode {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.opentravel.schemas.node.INode#getNameWithPrefix()
 	 */
 	@Override
@@ -781,16 +774,15 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * @param testNode
-	 * @return
+	 * @return true if name and namespace are equal to other node
 	 */
 	protected boolean nameEquals(final INode other) {
-		if (this == other) {
+		if (this == other)
 			return true;
-		}
-		if (other == null) {
+
+		if (other == null)
 			return false;
-		}
+
 		if (getName() == null) {
 			if (other.getName() != null) {
 				return false;
@@ -850,13 +842,6 @@ public abstract class Node implements INode {
 	 */
 
 	/**
-	 * @return the nodeCount which is the current number of allocated nodes.
-	 */
-	public static int getNodeCount() {
-		return nodeCount;
-	}
-
-	/**
 	 * Get the static root model node.
 	 */
 	public static ModelNode getModelNode() {
@@ -864,27 +849,27 @@ public abstract class Node implements INode {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.opentravel.schemas.node.INode#getParent()
 	 */
-
 	@Override
 	public Node getParent() {
 		return parent;
 	}
 
+	// /**
+	// * @return the parent aggregate if this is in a chain, null otherwise
+	// */
 	@Override
 	public INode getParentAggregate() {
-		if (getLibrary().isInChain()) {
-			LibraryChainNode lcn = getLibrary().getChain();
-			if (this instanceof SimpleComponentInterface)
-				return lcn.getSimpleAggregate();
-			else if (this instanceof ComplexComponentInterface)
-				return lcn.getComplexAggregate();
-			else if (this instanceof ServiceNode || isOperation())
-				return lcn.getServiceAggregate();
-		}
+		// if (getLibrary().isInChain()) {
+		// LibraryChainNode lcn = getLibrary().getChain();
+		// if (this instanceof SimpleComponentInterface)
+		// return lcn.getSimpleAggregate();
+		// else if (this instanceof ComplexComponentInterface)
+		// return lcn.getComplexAggregate();
+		// else if (this instanceof ServiceNode || this instanceof OperationNode)
+		// return lcn.getServiceAggregate();
+		// }
 		return null;
 	}
 
@@ -900,10 +885,9 @@ public abstract class Node implements INode {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.opentravel.schemas.node.Node#getChildren_TypeProviders()
 	 */
+	// FIXME - why is this using isTypeProvider() ? Should instanceof test.
 	@Override
 	public List<Node> getChildren_TypeProviders() {
 		final ArrayList<Node> kids = new ArrayList<Node>();
@@ -980,13 +964,12 @@ public abstract class Node implements INode {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.opentravel.schemas.node.INode#hasChildren()
 	 */
 	@Override
 	public boolean hasChildren() {
-		return getChildren().size() > 0;
+		return !getChildren().isEmpty();
+		// return getChildren().size() > 0;
 	}
 
 	/*
@@ -1064,57 +1047,24 @@ public abstract class Node implements INode {
 	/*****************************************************************************
 	 * is Properties
 	 */
-	public boolean isAlias() {
-		return this instanceof AliasNode;
-	}
-
-	public boolean isBusinessObject() {
-		return this instanceof BusinessObjectNode;
-	}
-
-	public boolean isCoreObject() {
-		return this instanceof CoreObjectNode;
-	}
-
 	/**
-	 * @return true if instance of component node.
-	 */
-	public Boolean isComponent() {
-		return this instanceof ComponentNode;
-	}
-
-	public boolean isFacet() {
-		return this instanceof FacetNode;
-	}
-
-	public Boolean isFamily() {
-		return this instanceof FamilyNode;
-	}
-
-	public Boolean isLibrary() {
-		return this instanceof LibraryNode;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#isLibraryContainer()
+	 * @return true if this node or its descendants can contain libraries
 	 */
 	@Override
 	public boolean isLibraryContainer() {
 		return false;
 	}
 
-	public boolean isProperty() {
-		return this instanceof PropertyNode;
-	}
-
 	public boolean isFacetAlias() {
 		return false;
 	}
 
+	@Override
 	public boolean isAliasable() {
-		return false;
+		// overloaded on aliasable owning components.
+		return getOwningComponent() != null && this != getOwningComponent() ? getOwningComponent().isAliasable()
+				: false;
+		// return false;
 	}
 
 	public boolean isImportable() {
@@ -1411,10 +1361,6 @@ public abstract class Node implements INode {
 		return xsdNode;
 	}
 
-	public boolean isSimpleFacet() {
-		return false;
-	}
-
 	public boolean isListFacet() {
 		return false;
 	}
@@ -1570,8 +1516,11 @@ public abstract class Node implements INode {
 		return false;
 	}
 
-	public boolean isTopLevelObject() {
-		return (getTLModelObject() instanceof LibraryMember);
+	/**
+	 * @return true if tl model object is a library member
+	 */
+	public boolean isTLLibraryMember() {
+		return getTLModelObject() instanceof LibraryMember;
 	}
 
 	/**
@@ -1590,19 +1539,9 @@ public abstract class Node implements INode {
 		this.xsdType = xsdType;
 	}
 
-	/*****************************************************************************
-	 * is Properties - model object facade
-	 */
-	/**
-	 * @return - true if the node object is either open or closed enumeration ??? is enumeration always a facetNode?
-	 */
-	public boolean isRoleFacet() {
-		return false;
-	}
-
-	public boolean isOperation() {
-		return this instanceof OperationNode;
-	}
+	// /*****************************************************************************
+	// * is Properties - model object facade
+	// */
 
 	@Override
 	public boolean isTypeProvider() {
@@ -1666,10 +1605,6 @@ public abstract class Node implements INode {
 		return false;
 	}
 
-	public boolean isValueWithAttributes() {
-		return this instanceof VWA_Node;
-	}
-
 	/**
 	 * @return true if this object is a later version of another object. True if has same name as the object it extends.
 	 */
@@ -1694,7 +1629,7 @@ public abstract class Node implements INode {
 		if (this instanceof PropertyNode) {
 			n = n.parent;
 		}
-		if (n.isFacet() && !n.isCustomFacet() && !n.isQueryFacet() && !n.isRoleFacet()) {
+		if (n instanceof FacetNode && !n.isCustomFacet() && !n.isQueryFacet() && !(n instanceof RoleFacetNode)) {
 			n = n.parent; // compare across all facets.
 		}
 		for (final Node facet : n.getChildren()) {
@@ -1715,7 +1650,7 @@ public abstract class Node implements INode {
 		if (n instanceof PropertyNode) {
 			n = n.parent;
 		}
-		if (n.isFacet() && !n.isQueryFacet() && !n.isRoleFacet()) {
+		if (n instanceof FacetNode && !n.isQueryFacet() && !(n instanceof RoleFacetNode)) {
 			n = n.parent; // compare across all facets.
 		}
 		if (n.nameEquals(testNode)) {
@@ -1751,7 +1686,7 @@ public abstract class Node implements INode {
 			getChildren().add(index, child);
 		}
 		child.setParent(this);
-		if (!child.isLibrary()) {
+		if (!(child instanceof LibraryNode)) {
 			child.setLibrary(getLibrary());
 		}
 		// LOGGER.debug("Linked child " + child + " to parent " + this);
@@ -1782,23 +1717,25 @@ public abstract class Node implements INode {
 	 * @return false if child could not be linked.
 	 */
 	public boolean linkChild(final Node child, final boolean doFamily) {
-		if (child == null) {
+		if (child == null)
 			return false;
-		}
 
 		if (!linkChild(child, -1))
 			return false;
-		if (doFamily) {
-			// family = NodeNameUtils.makeFamilyName(getName());
-			child.family = NodeNameUtils.makeFamilyName(child.getName());
-			if (child.family.isEmpty()) {
-				return true;
-			}
 
+		if (doFamily) {
+			child.family = NodeNameUtils.makeFamilyName(child.getName());
 			// makeFamilyName returns empty if family prefix not found
+			if (child.family.isEmpty())
+				return true;
+
 			for (final Node peer : child.getSiblings()) {
 				if (child.family.equals(peer.family)) {
-					return child.addChildToFamily(peer);
+					if (peer instanceof FamilyNode)
+						((FamilyNode) peer).add(child);
+					else
+						new FamilyNode(peer, child);
+					return true;
 				}
 			}
 		}
@@ -1811,14 +1748,16 @@ public abstract class Node implements INode {
 	 * 
 	 * @return
 	 */
-	protected boolean addChildToFamily(Node peer) {
+	@Deprecated
+	private boolean addChildToFamily(Node peer) {
 		assert (parent != null) : "Assert: parent is null"; //
 		assert (peer.getParent() != null) : "Null peer parent.";
 
 		if (peer instanceof FamilyNode) {
-			parent.remove(this); // take the child out of the parentNode's list.
-			peer.getChildren().add(this); // add it to the family node
-			parent = peer;
+			((FamilyNode) peer).add(this);
+			// parent.remove(this); // take the child out of the parentNode's list.
+			// peer.getChildren().add(this); // add it to the family node
+			// parent = peer;
 		} else {
 			peer = new FamilyNode(this, peer);
 		}
@@ -1854,7 +1793,7 @@ public abstract class Node implements INode {
 		final String family = NodeNameUtils.makeFamilyName(this.getName());
 		if (parent != null) {
 			// Node already in a correct family - return false to avoid relinking
-			if (parent.isFamily() && parent.getName().equals(family)) {
+			if (parent instanceof FamilyNode && parent.getName().equals(family)) {
 				return false;
 			}
 			// if any of the siblings in the same family - return true
@@ -1927,7 +1866,7 @@ public abstract class Node implements INode {
 			final Node gp = parent.parent;
 			if (shouldCreateFamily()) {
 				Node par = parent;
-				if (parent.isFamily()) {
+				if (parent instanceof FamilyNode) {
 					par = gp; // link in above the family node
 				}
 				unlinkNode(); // remove from parentNode
@@ -2105,35 +2044,6 @@ public abstract class Node implements INode {
 		return false;
 	}
 
-	// /**
-	// * Deprecated - If this is a TypeProvider then use getWhereUsed(). Note - this is not a live list, it is a copy of
-	// a
-	// * unmodifiable list.
-	// */
-	// @Deprecated
-	// @Override
-	// public List<Node> getTypeUsers() {
-	// List<Node> users = new ArrayList<Node>();
-	// if (this instanceof TypeProvider)
-	// users.addAll(((TypeProvider) this).getWhereUsed());
-	// return users;
-	// }
-
-	// /**
-	// * Set the extension base to the passed source node. If null, remove assignment. Extension base is maintained in
-	// the
-	// * TypeClass.typeNode.
-	// *
-	// * Deprecated - Use ExtensionOwner.setExtension()
-	// *
-	// * @param sourceNode
-	// */
-	// @Deprecated
-	// public void setExtendsType(final INode sourceNode) {
-	// if (this instanceof ExtensionOwner)
-	// ((ExtensionOwner) this).setExtension((Node) sourceNode);
-	// }
-
 	public void setRepeat(final int i) {
 		if (isEditable_newToChain())
 			getModelObject().setRepeat(i);
@@ -2155,7 +2065,7 @@ public abstract class Node implements INode {
 	// TODO - why this and getComponentType???
 	public String getSimpleComponentType() {
 		// return for VWA Simple Facet Base as label
-		if (this.getOwningComponent().isValueWithAttributes())
+		if (this.getOwningComponent() instanceof VWA_Node)
 			return "Base";
 		return modelObject.getComponentType();
 	}
@@ -2297,9 +2207,8 @@ public abstract class Node implements INode {
 	}
 
 	public void setDescription(final String string) {
-		if (modelObject != null) {
+		if (modelObject != null)
 			modelObject.setDescriptionDoc(string);
-		}
 	}
 
 	/**
@@ -2330,26 +2239,9 @@ public abstract class Node implements INode {
 		return modelObject == null ? new TLDocumentation() : modelObject.getDocumentation();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#isDeprecated()
-	 */
 	@Override
 	public boolean isDeprecated() {
-		boolean ret = false;
-		if (getDocumentation() == null)
-			return ret;
-		if (getDocumentation().getDeprecations() == null)
-			return ret;
-		if (getDocumentation().getDeprecations().size() > 0)
-			for (TLDocumentationItem deprecation : getDocumentation().getDeprecations()) {
-				if (deprecation.getText().isEmpty())
-					continue;
-				ret = true;
-				break;
-			}
-		return ret;
+		return modelObject != null && modelObject.getDeprecation() != null ? true : false;
 	}
 
 	public void addDeprecated(String text) {
@@ -2588,24 +2480,6 @@ public abstract class Node implements INode {
 	public Node getAssignable() {
 		return null;
 	}
-
-	// /**
-	// * @return - list of unique Context IDs used by any child of this node. Empty list if none.
-	// */
-	// FIX or Remove - does not work for business objects and perhaps many others
-	// @Deprecated
-	// public List<String> getContextIds() {
-	// final Map<String, String> ctxMap = new LinkedHashMap<String, String>();
-	// ArrayList<String> ret = new ArrayList<String>();
-	// List<TLContext> list = getCtxList();
-	// for (TLContext tlc : list) {
-	// if ((tlc != null && tlc.getApplicationContext() != null))
-	// ctxMap.put(tlc.getApplicationContext(), tlc.getContextId());
-	// }
-	// ret.addAll(ctxMap.values());
-	// // LOGGER.debug("Found "+ret.size()+" contexts in "+this.getName());
-	// return ret;
-	// }
 
 	/**
 	 * @return - list of unique TLContexts used by any child of this node. Empty list if none.
@@ -2886,15 +2760,6 @@ public abstract class Node implements INode {
 		this.identity = identity;
 	}
 
-	// /**
-	// * Property and simple type nodes have types with qNames.
-	// *
-	// * @return
-	// */
-	// public QName getTLTypeQName() {
-	// return null;
-	// }
-
 	/**
 	 * Visitors *********************************************
 	 * 
@@ -2956,13 +2821,6 @@ public abstract class Node implements INode {
 		for (Node n : list) {
 			visitor.visit(n);
 		}
-	}
-
-	/**
-	 * @return true if children of the type are allowed in this node.
-	 */
-	public boolean isValidParentOf(Node node) {
-		return false;
 	}
 
 	/**

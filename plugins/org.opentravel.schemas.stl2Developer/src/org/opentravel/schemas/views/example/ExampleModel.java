@@ -25,6 +25,7 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.OperationNode;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.views.decoration.LibraryDecorator;
@@ -52,7 +53,7 @@ public class ExampleModel {
 			public Image getImage(Object element) {
 				if (node instanceof ServiceNode) {
 					return Images.getImageRegistry().get(Images.Service);
-				} else if (node.isOperation()) {
+				} else if (node instanceof OperationNode) {
 					return Images.getImageRegistry().get(Images.Facet);
 				} else if (node instanceof LibraryNode) {
 					return Images.getImageRegistry().get(Images.builtInLib);
@@ -84,7 +85,7 @@ public class ExampleModel {
 	protected String getPrefix(Node node) {
 		if (node instanceof ServiceNode) {
 			return "Service: ";
-		} else if (node.isOperation()) {
+		} else if (node instanceof OperationNode) {
 			return "Operation: ";
 		} else {
 			return "";

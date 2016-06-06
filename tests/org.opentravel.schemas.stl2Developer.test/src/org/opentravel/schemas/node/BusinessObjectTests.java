@@ -54,14 +54,14 @@ public class BusinessObjectTests {
 		int i = 0;
 		for (Node bo : lib.getDescendants_NamedTypes()) {
 			i++;
-			if (bo.isBusinessObject())
+			if (bo instanceof BusinessObjectNode)
 				checkBO((BusinessObjectNode) bo);
 		}
 		// Repeat test with library in a chain
 		LibraryChainNode lcn = new LibraryChainNode(lib);
 		for (Node bo : lcn.getDescendants_NamedTypes()) {
 			i--;
-			if (bo.isBusinessObject())
+			if (bo instanceof BusinessObjectNode)
 				checkBO((BusinessObjectNode) bo);
 		}
 		Assert.assertEquals(0, i); // Make sure we didn't lose objects when library was managed
@@ -163,7 +163,6 @@ public class BusinessObjectTests {
 		tn.visit(bo);
 
 		Assert.assertNotNull(bo.getLibrary());
-		Assert.assertTrue(bo.isBusinessObject());
 		Assert.assertTrue(bo instanceof BusinessObjectNode);
 		Assert.assertNull(bo.getAttributeFacet());
 

@@ -87,11 +87,13 @@ import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.OperationNode;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
+import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.properties.DefaultStringProperties;
@@ -445,7 +447,7 @@ public class NavigatorMenus extends TreeViewer {
 								manager.add(basicObjectMenu);
 							} else if (node instanceof ServiceNode) {
 								manager.add(serviceObjectMenu);
-							} else if (node.isOperation()) {
+							} else if (node instanceof OperationNode) {
 								manager.add(operationObjectMenu);
 								//
 							} else if (node instanceof BusinessObjectNode) {
@@ -474,7 +476,7 @@ public class NavigatorMenus extends TreeViewer {
 								manager.add(roleObjectMenu);
 							} else if (node instanceof EnumLiteralNode) {
 								manager.add(enumObjectMenu);
-							} else if (node.isProperty()) {
+							} else if (node instanceof PropertyNode) {
 								manager.add(propertyMenu);
 							}
 

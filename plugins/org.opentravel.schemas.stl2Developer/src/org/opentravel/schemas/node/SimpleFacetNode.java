@@ -99,10 +99,10 @@ public class SimpleFacetNode extends FacetNode implements TypeProvider, SimpleAt
 		return false;
 	}
 
-	@Override
-	public boolean isSimpleFacet() {
-		return true;
-	}
+	// @Override
+	// public boolean isSimpleFacet() {
+	// return true;
+	// }
 
 	@Override
 	public void removeProperty(Node property) {

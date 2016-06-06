@@ -100,13 +100,13 @@ public class MoveObjectToLibraryAction extends OtmAbstractAction {
 					"You can not move object within the same library version chain.");
 			return;
 		}
-		if (source.isInTLLibrary() && source.isTopLevelObject()) {
+		if (source.isInTLLibrary() && source.isTLLibraryMember()) {
 			source.getLibrary().moveMember(source, destination);
 			// done in the moveMember - destination.addContext(source);
 		} else {
 			LOGGER.warn("Cannot move - " + source.getName() + " node is not in TLLibrary or is not top level object");
 			LOGGER.debug("source in tllib? " + source.isInTLLibrary() + "  and is top level object? "
-					+ source.isTopLevelObject());
+					+ source.isTLLibraryMember());
 			DialogUserNotifier.openInformation("WARNING",
 					"You can not move object from a built-in or XSD library; use control-drag to copy.");
 			return;

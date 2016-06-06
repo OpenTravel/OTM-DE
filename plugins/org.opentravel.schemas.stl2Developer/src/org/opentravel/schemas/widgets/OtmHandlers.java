@@ -43,8 +43,10 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.OtmActions;
 import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.FamilyNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.RoleFacetNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.MainWindow;
@@ -186,7 +188,7 @@ public class OtmHandlers {
 							DialogUserNotifier.openInformation("WARNING", "Object is not editable, drop was ignored.");
 							event.detail = DND.DROP_NONE;
 						}
-						if (tNode.isRoleFacet()) {
+						if (tNode instanceof RoleFacetNode) {
 							event.detail = DND.DROP_NONE;
 							return;
 						}
@@ -311,7 +313,7 @@ public class OtmHandlers {
 					// LOGGER.debug("drag start used prev node: " + curNode);
 				}
 				if (curNode != null) {
-					if (curNode.isFamily() || curNode instanceof LibraryNode) {
+					if (curNode instanceof FamilyNode || curNode instanceof LibraryNode) {
 						LOGGER.debug("Why drag families or libraries?");
 					}
 					if (curNode.isAssignable()) {

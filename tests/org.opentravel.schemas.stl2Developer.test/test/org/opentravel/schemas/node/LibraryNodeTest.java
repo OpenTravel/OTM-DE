@@ -120,7 +120,7 @@ public class LibraryNodeTest extends BaseProjectTest {
 				new Version(1, 0, 0)).build(defaultProject, pc);
 
 		SimpleTypeNode moved = ComponentNodeBuilder.createSimpleObject("MyString")
-				.assignType(NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE)).get();
+				.assignType(NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE)).get();
 		moveFrom.addMember(moved);
 
 		PropertyNode withAssignedType = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).assign(moved).build();

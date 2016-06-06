@@ -38,6 +38,7 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.NavigatorMenus;
@@ -449,7 +450,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	 * @return
 	 */
 	public boolean shouldParentBeDisplayed(Node n) {
-		return n != null && (n.isProperty() && !(n instanceof RoleNode)) && !propertiesDisplayed;
+		return n != null && (n instanceof PropertyNode && !(n instanceof RoleNode)) && !propertiesDisplayed;
 	}
 
 	@Override

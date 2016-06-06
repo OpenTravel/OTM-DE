@@ -108,10 +108,10 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 		return true;
 	}
 
-	@Override
-	public boolean isValueWithAttributes() {
-		return true;
-	}
+	// @Override
+	// public boolean isValueWithAttributes() {
+	// return true;
+	// }
 
 	@Override
 	public List<Node> getChildren_TypeUsers() {

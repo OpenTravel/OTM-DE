@@ -443,6 +443,11 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	}
 
 	@Override
+	public boolean isAliasable() {
+		return isEditable_newToChain();
+	}
+
+	@Override
 	public boolean isAssignableToElementRef() {
 		return false;
 	}

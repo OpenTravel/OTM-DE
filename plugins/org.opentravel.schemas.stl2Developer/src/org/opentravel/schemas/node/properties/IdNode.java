@@ -18,6 +18,7 @@ package org.opentravel.schemas.node.properties;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeFinders;
@@ -37,7 +38,7 @@ public class IdNode extends AttributeNode {
 	public IdNode(PropertyOwnerInterface parent, String name) {
 		super(parent, name, PropertyNodeType.ID);
 		setName("id");
-		idType = (TypeProvider) NodeFinders.findNodeByName("ID", XSD_NAMESPACE);
+		idType = (TypeProvider) NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
 		// does nothing because there is a required type. - setAssignedType(idType);
 		((TLAttribute) getTLModelObject()).setType((TLAttributeType) idType.getTLModelObject());
 		setIdentity("xml_ID on " + parent.getOwningComponent());
@@ -46,7 +47,7 @@ public class IdNode extends AttributeNode {
 
 	public IdNode(TLModelElement tlObj, PropertyOwnerInterface parent) {
 		super(tlObj, parent, PropertyNodeType.ID);
-		idType = (TypeProvider) NodeFinders.findNodeByName("ID", XSD_NAMESPACE);
+		idType = (TypeProvider) NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
 		// setAssignedType(idType);
 		((TLAttribute) getTLModelObject()).setType((TLAttributeType) idType.getTLModelObject());
 		setIdentity("xml_ID on " + getOwningComponent());

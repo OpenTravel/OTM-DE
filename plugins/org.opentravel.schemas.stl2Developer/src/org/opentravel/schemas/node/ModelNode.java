@@ -15,8 +15,6 @@
  */
 package org.opentravel.schemas.node;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,7 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.xml.namespace.QName;
 
 import org.opentravel.schemacompiler.model.TLAttributeType;
-import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -46,10 +43,14 @@ public class ModelNode extends Node {
 	// public static String TempLib = "TemporaryLibrary";
 	private final static AtomicInteger counter = new AtomicInteger(0);
 	private TLModel tlModel;
-	private LibraryNode defaultLibrary; // Library used for paths and
-										// compilation
+	private LibraryNode defaultLibrary; // Library used for paths and compilation
 	private String name = "";
 	// Just have one so we can skip checking for null MO and TLmodelObjects
+
+	// Constants defined here because it is a singleton
+	public static final String XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema";
+	public static final String Chameleon_NS = "http://chameleon.anonymous/ns";
+
 	private TLModelElement tlModelEle = new TLModelElement() {
 
 		@Override
@@ -64,15 +65,15 @@ public class ModelNode extends Node {
 	};
 
 	// Statistics
-	private int typeProviders = 0;
-	private int typeUsers = 0;
+	// private int typeProviders = 0;
+	// private int typeUsers = 0;
 	private int unresolvedTypes = 0;
-	private int xsdTypes = 0;
-	private int resolvedXsdTypes = 0;
+	// private int xsdTypes = 0;
+	// private int resolvedXsdTypes = 0;
 
 	// These nodes are not in the TL model but used within the node model.
 	// They allow all nodes to have a type and related properties.
-	private static TLLibrary impliedTLLib = makeImpliedLibrary();
+	// private static TLLibrary impliedTLLib = makeImpliedLibrary();
 	protected static ImpliedNode undefinedNode = new ImpliedNode(ImpliedNode.Undefined);
 	protected static ImpliedNode indicatorNode = new ImpliedNode(ImpliedNodeType.Indicator);
 	protected static ImpliedNode unassignedNode = new ImpliedNode(ImpliedNodeType.UnassignedType);
@@ -112,12 +113,12 @@ public class ModelNode extends Node {
 		project.setParent(this);
 	}
 
-	/**
-	 * @return the atomicTypeNode
-	 */
-	public static ImpliedNode getAtomicTypeNode() {
-		return atomicTypeNode;
-	}
+	// /**
+	// * @return the atomicTypeNode
+	// */
+	// public static ImpliedNode getAtomicTypeNode() {
+	// return atomicTypeNode;
+	// }
 
 	@Override
 	public List<Node> getChildren() {
@@ -136,9 +137,9 @@ public class ModelNode extends Node {
 		return "Model";
 	}
 
-	public void setDefaultLibrary(LibraryNode dLib) {
-		defaultLibrary = dLib;
-	}
+	// public void setDefaultLibrary(LibraryNode dLib) {
+	// defaultLibrary = dLib;
+	// }
 
 	/**
 	 * Returns output file name without extension.
@@ -167,8 +168,6 @@ public class ModelNode extends Node {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.opentravel.schemas.node.Node#getTLModelObject()
 	 */
 	@Override
@@ -178,11 +177,6 @@ public class ModelNode extends Node {
 		// null MO and TLmodelObjects
 		return tlModelEle;
 	}
-
-	// @Override
-	// public List<Node> getNavChildren() {
-	// return getChildren();
-	// }
 
 	@Override
 	public Node getParent() {
@@ -195,8 +189,6 @@ public class ModelNode extends Node {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.opentravel.schemas.node.INode#hasChildren_TypeProviders()
 	 */
 	@Override
@@ -305,12 +297,12 @@ public class ModelNode extends Node {
 		return unassignedNode;
 	}
 
-	/**
-	 * @return the union node
-	 */
-	public static ImpliedNode getUnionNode() {
-		return unionTypeNode;
-	}
+	// /**
+	// * @return the union node
+	// */
+	// public static ImpliedNode getUnionNode() {
+	// return unionTypeNode;
+	// }
 
 	/**
 	 * @return the defaultStringNode
@@ -319,18 +311,18 @@ public class ModelNode extends Node {
 		return defaultStringNode;
 	}
 
-	public int getTypeProviderCount() {
-		return typeProviders;
-	}
-
-	@Override
-	public int getWhereAssignedCount() {
-		return typeUsers;
-	}
-
-	public int getUnassignedTypeCount() {
-		return unassignedNode.getWhereAssignedCount();
-	}
+	// public int getTypeProviderCount() {
+	// return typeProviders;
+	// }
+	//
+	// @Override
+	// public int getWhereAssignedCount() {
+	// return typeUsers;
+	// }
+	//
+	// public int getUnassignedTypeCount() {
+	// return unassignedNode.getWhereAssignedCount();
+	// }
 
 	/**
 	 * @return the unresolvedTypes
@@ -339,44 +331,44 @@ public class ModelNode extends Node {
 		return unresolvedTypes;
 	}
 
-	/**
-	 * @return the xsdTypes
-	 */
-	public int getXsdTypeCount() {
-		return xsdTypes;
-	}
+	// /**
+	// * @return the xsdTypes
+	// */
+	// public int getXsdTypeCount() {
+	// return xsdTypes;
+	// }
+	//
+	// /**
+	// * @return the
+	// */
+	// public int getResolvedXsdTypeCount() {
+	// return resolvedXsdTypes;
+	// }
 
-	/**
-	 * @return the
-	 */
-	public int getResolvedXsdTypeCount() {
-		return resolvedXsdTypes;
-	}
+	// /**
+	// * Create the library for the generated components.
+	// *
+	// * @param xLib
+	// */
+	// protected static TLLibrary makeImpliedLibrary() {
+	// TLLibrary impliedTLLib = new TLLibrary();
+	// impliedTLLib.setNamespace("uri:namespaces:impliedNS");
+	// impliedTLLib.setPrefix("implied");
+	// impliedTLLib.setName("ImpliedTypeLibrary");
+	// try {
+	// impliedTLLib.setLibraryUrl(new URL("file://temp"));
+	// } catch (MalformedURLException e) {
+	// LOGGER.error("Invalid URL exception");
+	// }
+	// return impliedTLLib;
+	// }
 
-	/**
-	 * Create the library for the generated components.
-	 * 
-	 * @param xLib
-	 */
-	protected static TLLibrary makeImpliedLibrary() {
-		TLLibrary impliedTLLib = new TLLibrary();
-		impliedTLLib.setNamespace("uri:namespaces:impliedNS");
-		impliedTLLib.setPrefix("implied");
-		impliedTLLib.setName("ImpliedTypeLibrary");
-		try {
-			impliedTLLib.setLibraryUrl(new URL("file://temp"));
-		} catch (MalformedURLException e) {
-			LOGGER.error("Invalid URL exception");
-		}
-		return impliedTLLib;
-	}
-
-	/**
-	 * @return the impliedTLLib
-	 */
-	public static TLLibrary getImpliedTLLib() {
-		return impliedTLLib;
-	}
+	// /**
+	// * @return the impliedTLLib
+	// */
+	// public static TLLibrary getImpliedTLLib() {
+	// return impliedTLLib;
+	// }
 
 	@Override
 	public boolean isLibraryContainer() {

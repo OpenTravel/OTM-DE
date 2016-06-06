@@ -225,7 +225,7 @@ public class Aggregate_Tests {
 	private Node makeSimple(String name) {
 		Node n = new SimpleTypeNode(new TLSimple());
 		n.setName(name);
-		((SimpleTypeNode) n).setAssignedType((TypeProvider) NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
+		((SimpleTypeNode) n).setAssignedType((TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE));
 		return n;
 	}
 

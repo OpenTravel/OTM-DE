@@ -27,6 +27,7 @@ import org.opentravel.schemacompiler.model.TLExample;
 import org.opentravel.schemacompiler.model.TLExampleOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
+import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.ImpliedNode;
@@ -157,7 +158,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		if (type != null) {
 			// inherited properties do not have tNodes.
 			kids.add(type);
-			if (type.isAlias()) {
+			if (type instanceof AliasNode) {
 				// If it is an alias, list its object as well.
 				kids.add(type.getParent());
 			}
@@ -346,7 +347,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 
 	@Override
 	public boolean hasNavChildrenWithProperties() {
-		return isProperty() && !(this instanceof IndicatorNode) && !(this instanceof EnumLiteralNode)
+		return this instanceof PropertyNode && !(this instanceof IndicatorNode) && !(this instanceof EnumLiteralNode)
 				&& !(this instanceof RoleNode) && modelObject != null && modelObject.getTLType() != null;
 	}
 

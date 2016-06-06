@@ -115,7 +115,7 @@ public class CoreTests {
 		LibraryNode coreLib = lf.loadFile4(mc);
 		new LibraryChainNode(coreLib); // Test in a chain
 		for (Node core : coreLib.getDescendants_NamedTypes()) {
-			if (core.isCoreObject())
+			if (core instanceof CoreObjectNode)
 				checkCore((CoreObjectNode) core);
 		}
 	}
@@ -131,7 +131,7 @@ public class CoreTests {
 		Assert.assertTrue(core.getSimpleType() != null);
 		Assert.assertTrue(sfn.getSimpleAttribute().getType() == core.getSimpleType());
 
-		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		Assert.assertTrue(core.getSimpleFacet().getSimpleAttribute().setAssignedType(aType));
 		Assert.assertTrue(sfn.getSimpleAttribute().setAssignedType(aType));
 		// works - Assert.assertTrue(sfn.getSimpleAttribute().setAssignedType(aType));
@@ -141,7 +141,6 @@ public class CoreTests {
 
 	private void checkCore(CoreObjectNode core) {
 		Assert.assertNotNull(core.getLibrary());
-		Assert.assertTrue(core.isCoreObject());
 		Assert.assertTrue(core instanceof CoreObjectNode);
 
 		// must have 6 children

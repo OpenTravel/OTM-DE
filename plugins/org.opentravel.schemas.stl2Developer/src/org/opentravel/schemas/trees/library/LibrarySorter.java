@@ -26,7 +26,10 @@ import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.OperationNode;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.RoleFacetNode;
+import org.opentravel.schemas.node.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.resources.ActionFacet;
@@ -156,17 +159,17 @@ public class LibrarySorter extends ViewerSorter {
 		}
 
 		if (n instanceof FacetNode) {
-			if (n.isSimpleFacet())
+			if (n instanceof SimpleFacetNode)
 				return 1;
 			if (n.isVWA_AttributeFacet())
 				return 2;
-			if (n.isRoleFacet())
+			if (n instanceof RoleFacetNode)
 				return 61;
 			if (n.isSimpleListFacet())
 				return 65;
 			if (n.isListFacet())
 				return 66;
-			if (n.isOperation())
+			if (n instanceof OperationNode)
 				return 67;
 
 			if (n.getTLModelObject() instanceof TLFacet) {
@@ -203,7 +206,7 @@ public class LibrarySorter extends ViewerSorter {
 			return 3;
 		if (n.isXSDSchema())
 			return 2;
-		if (n.isLibrary())
+		if (n instanceof LibraryNode)
 			return 1;
 
 		return 10;

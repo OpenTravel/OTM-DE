@@ -241,6 +241,8 @@ public interface INode {
 	 */
 	public boolean isAssignedByReference();
 
+	public boolean isAliasable();
+
 	/**
 	 * Remove this node from its library.
 	 */

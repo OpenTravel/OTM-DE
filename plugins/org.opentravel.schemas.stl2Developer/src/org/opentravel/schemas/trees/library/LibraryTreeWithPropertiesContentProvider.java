@@ -21,6 +21,7 @@ import java.util.List;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -61,7 +62,7 @@ public class LibraryTreeWithPropertiesContentProvider implements ITreeContentPro
 		if (element instanceof Node) {
 			final Node node = (Node) element;
 
-			if (node.isProperty() && !(node instanceof RoleNode)) {
+			if (node instanceof PropertyNode && !(node instanceof RoleNode)) {
 				final PropertyNode prop = (PropertyNode) node;
 				final NamedEntity elem = prop.getModelObject().getTLType();
 				final Node typeNode = NodeFinders.findNodeByValidationIentity(elem.getValidationIdentity());
@@ -72,7 +73,7 @@ public class LibraryTreeWithPropertiesContentProvider implements ITreeContentPro
 				List<Node> typeArray = new ArrayList<Node>();
 				typeArray.add(typeNode);
 				// If it is an alias, list its object as well.
-				if (typeNode.isAlias())
+				if (typeNode instanceof AliasNode)
 					typeArray.add(typeNode.getParent());
 				return typeArray.toArray();
 			}

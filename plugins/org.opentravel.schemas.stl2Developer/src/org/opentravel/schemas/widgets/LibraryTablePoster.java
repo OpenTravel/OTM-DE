@@ -106,7 +106,7 @@ public class LibraryTablePoster {
 			for (final Node kid : sortedChildren) {
 				postTableRows(kid, kid.getLabel());
 			}
-		} else if (curNode.isComponent()) {
+		} else if (curNode instanceof ComponentNode) {
 			// If the node is an XSD node, display its xChild node
 			// representation.
 			if (curNode instanceof XsdNode && curNode.getModelObject() instanceof XSDComplexMO) {
@@ -115,7 +115,7 @@ public class LibraryTablePoster {
 				curNode = xn.getOtmModel();
 			}
 
-			if (curNode.isTopLevelObject()) {
+			if (curNode.isTLLibraryMember()) {
 				// Put the aliases at the top of the table.
 				for (final Node kid : sortedChildren) {
 					if (kid instanceof AliasNode) {
@@ -132,7 +132,7 @@ public class LibraryTablePoster {
 				postTableRows(curNode, "Open: " + curNode.getName());
 			} else if (curNode instanceof ExtensionPointNode) {
 				postTableRows(curNode, "Extension Point: " + curNode.getName());
-			} else if (curNode.isFacet()) {
+			} else if (curNode instanceof FacetNode) {
 				postTableRows(curNode, curNode.getLabel());
 			} else if (curNode instanceof ComplexComponentInterface) {
 				if (curNode instanceof BusinessObjectNode || curNode instanceof ChoiceObjectNode)
@@ -212,7 +212,7 @@ public class LibraryTablePoster {
 					postTableRow(cn);
 				} else if (cn instanceof FacetNode) {
 					postTableRows(cn, cn.getLabel());
-				} else if (!cn.isFacet() && !cn.isAlias()) {
+				} else if (!(cn instanceof FacetNode) && !(cn instanceof AliasNode)) {
 					postTableRow(cn); // what falls through to here? enum-literal
 				}
 			}

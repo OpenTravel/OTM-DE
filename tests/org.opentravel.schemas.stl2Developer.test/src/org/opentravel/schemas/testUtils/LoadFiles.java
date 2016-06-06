@@ -31,7 +31,6 @@ import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ImpliedNodeType;
 import org.opentravel.schemas.node.LibraryNode;
-import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.ProjectNode;
@@ -185,15 +184,15 @@ public class LoadFiles {
 
 	// Has 1 unassigned types.
 	public LibraryNode loadFile1(MainController mc) {
-		ModelNode model = mc.getModelNode();
+		// ModelNode model = mc.getModelNode();
 		LibraryNode ln = loadFile(mc, filePath1);
 		Assert.assertNotNull(ln);
 		Assert.assertTrue(ln.getChildren().size() > 2);
-		Assert.assertNotNull(model);
-		Assert.assertNotNull(model.getTLModel());
+		// Assert.assertNotNull(model);
+		// Assert.assertNotNull(model.getTLModel());
 		Assert.assertTrue(Node.getAllLibraries().size() > 2);
-		Assert.assertTrue(Node.getNodeCount() > 100);
-		Assert.assertTrue(model.getUnassignedTypeCount() >= 0);
+		// Assert.assertTrue(Node.getNodeCount() > 100);
+		// Assert.assertTrue(model.getUnassignedTypeCount() >= 0);
 		return ln;
 	}
 
@@ -203,13 +202,13 @@ public class LoadFiles {
 
 	// Has 14 unassigned types - references to STL2 library
 	public LibraryNode loadFile2(MainController thisModel) {
-		ModelNode model = thisModel.getModelNode();
+		// ModelNode model = thisModel.getModelNode();
 		LibraryNode ln = loadFile(thisModel, filePath2);
 		Assert.assertNotNull(ln);
-		Assert.assertNotNull(model);
-		Assert.assertNotNull(model.getTLModel());
-		Assert.assertTrue(Node.getNodeCount() > 100);
-		Assert.assertTrue("Bad count: " + model.getUnassignedTypeCount(), model.getUnassignedTypeCount() >= 14);
+		// Assert.assertNotNull(model);
+		// Assert.assertNotNull(model.getTLModel());
+		// Assert.assertTrue(Node.getNodeCount() > 100);
+		// Assert.assertTrue("Bad count: " + model.getUnassignedTypeCount(), model.getUnassignedTypeCount() >= 14);
 		return ln;
 	}
 

@@ -237,7 +237,7 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 		// 2/2016 - not assigned in constructors - assert ln.getNode(ln.getTLModelObject().getListeners()) == ln;
 
 		// check listeners in built-ins
-		Node string = NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE);
+		Node string = NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
 		assert hasOneNamedTypeListener(string);
 		assert string.getNode(string.getTLModelObject().getListeners()) == string;
 
@@ -366,7 +366,7 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 		newOne = factory.newComponent(newBO, ComponentNodeType.ALIAS);
 		newOne.setName(newOne.getName() + "Alias");
 		nt.visit(newBO);
-		Assert.assertTrue(newBO.isBusinessObject());
+		Assert.assertTrue(newBO instanceof BusinessObjectNode);
 
 		// Create new core object.
 		newCO = factory.newComponent(en, ComponentNodeType.CORE);
@@ -376,7 +376,7 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 		newCO.visitAllNodes(nt);
 		newOne = factory.newComponent(newCO, ComponentNodeType.ALIAS);
 		nt.visit(newCO);
-		Assert.assertTrue(newCO.isCoreObject());
+		Assert.assertTrue(newCO instanceof CoreObjectNode);
 
 		newChoice = factory.newComponent(en, ComponentNodeType.CHOICE);
 		newCO.setName(newCO.getName() + "Choice");
@@ -384,7 +384,7 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 		newOne = factory.newComponent(en, ComponentNodeType.VWA);
 		newOne.setName(newOne.getName() + "VWA");
 		nt.visit(newOne);
-		Assert.assertTrue(newOne.isValueWithAttributes());
+		Assert.assertTrue(newOne instanceof VWA_Node);
 
 		// FIXME - you can not extend an object from the same library as the EP
 		// newOne = en.newComponent(ComponentNodeType.EXTENSION_POINT);

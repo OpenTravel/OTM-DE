@@ -36,6 +36,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.opentravel.schemas.controllers.OtmActions;
+import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.FamilyNode;
@@ -43,6 +44,7 @@ import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.SimpleTypeNode;
+import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
@@ -420,7 +422,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 			nameField.setEnabled(false);
 		// if (n.isFacet() && !n.isOperation() && !n.isCustomFacet() && !n.isQueryFacet())
 		// nameField.setEnabled(false);
-		if (n.isAlias() && n.getParent().isFacet())
+		if (n instanceof AliasNode && n.getParent() instanceof FacetNode)
 			nameField.setEnabled(false);
 		fields.postField(componentField, n.getComponentType(), false);
 		fields.postField(descField, n.getDescription(), n.isEditable_description());
@@ -446,7 +448,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 
 		if (n.getParent() == null || n.getModelObject() == null || n.getTLModelObject() == null) {
 			LOGGER.warn("Error with object: " + n.getNameWithPrefix());
-		} else if (n.getParent().isValueWithAttributes() && n.isFacet()) {
+		} else if (n.getParent() instanceof VWA_Node && n instanceof FacetNode) {
 			// for VWA - Facets should not have name and description editable
 			fields.postField(nameField, n.getName(), false);
 			fields.postField(descField, n.getDescription(), false);

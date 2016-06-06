@@ -166,44 +166,24 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 		return (modelObject instanceof XSDElementMO) ? true : false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.ComponentNode#isCoreObject()
-	 */
-	@Override
+	// @Override
 	public boolean isCoreObject() {
-		return otmModel.isCoreObject();
+		return otmModel instanceof CoreObjectNode;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.ComponentNode#isSimpleType()
-	 */
 	@Override
 	public boolean isSimpleType() {
 		return otmModel.isSimpleType();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.ComponentNode#isBusinessObject()
-	 */
-	@Override
+	// @Override
 	public boolean isBusinessObject() {
-		return otmModel.isBusinessObject();
+		return otmModel instanceof BusinessObjectNode;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isValueWithAttributes()
-	 */
-	@Override
+	// @Override
 	public boolean isValueWithAttributes() {
-		return otmModel.isValueWithAttributes();
+		return otmModel instanceof VWA_Node;
 	}
 
 	/*

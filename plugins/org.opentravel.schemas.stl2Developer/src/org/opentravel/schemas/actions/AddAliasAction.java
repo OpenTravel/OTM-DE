@@ -45,11 +45,6 @@ public class AddAliasAction extends OtmAbstractAction {
 		super(mainWindow, props);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.Action#run()
-	 */
 	@Override
 	public void run() {
 		addAlias();
@@ -58,16 +53,13 @@ public class AddAliasAction extends OtmAbstractAction {
 	@Override
 	public boolean isEnabled() {
 		Node n = getMainController().getCurrentNode_NavigatorView().getOwningComponent();
-		if (n.isAliasable())
-			return n.isEditable_newToChain();
-		// return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
-		return false;
+		return n.isAliasable();
 	}
 
 	public void addAlias() {
 		Node current = mc.getCurrentNode_NavigatorView();
 		current = current.getOwningComponent();
-		if (current != null && (current.isAliasable())) {
+		if (current != null && current.isAliasable()) {
 			final SimpleNameWizard wizard = new SimpleNameWizard(new ExternalizedStringProperties("wizard.aliasName"));
 			final ComponentNode cn = (ComponentNode) current;
 			wizard.setValidator(new NewNodeNameValidator(cn, wizard, Messages.getString("error.aliasName")));

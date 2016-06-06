@@ -337,14 +337,14 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	}
 
 	@Override
+	public boolean isAliasable() {
+		return isEditable_newToChain();
+	}
+
+	@Override
 	public boolean isAssignableToElementRef() {
 		return false;
 	}
-
-	// @Override
-	// public TypeProvider getAssignedType() {
-	// return (TypeProvider) getSimpleType();
-	// }
 
 	// /////////////////////////////////////////////////////////////////
 	//

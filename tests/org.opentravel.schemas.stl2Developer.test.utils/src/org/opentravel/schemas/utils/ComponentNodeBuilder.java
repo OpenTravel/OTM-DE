@@ -36,6 +36,7 @@ import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeFinders;
@@ -237,9 +238,9 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 	public static ComponentNodeBuilder<ComponentNode> createSimpleCore(String name) {
 		CoreObjectNode newNode = (CoreObjectNode) NodeFactory.newComponent(new TLCoreObject());
 		newNode.setName(name);
-		newNode.setSimpleType((TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+		newNode.setSimpleType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
 		PropertyNode newProp = new ElementNode(newNode.getSummaryFacet(), "Property");
-		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
 		return new ComponentNodeBuilder<ComponentNode>(newNode);
 	}
 
@@ -313,14 +314,14 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 
 	public ComponentNodeBuilder<T> addProperty(String name) {
 		PropertyNode newProp = new ElementNode(componentObject.getSummaryFacet(), name);
-		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
 		return this;
 	}
 
 	public ComponentNodeBuilder<T> setSimpleType() {
 		if (componentObject instanceof SimpleAttributeOwner) {
 			((SimpleAttributeOwner) componentObject).setSimpleType((TypeProvider) NodeFinders.findNodeByName("string",
-					Node.XSD_NAMESPACE));
+					ModelNode.XSD_NAMESPACE));
 		}
 		return this;
 	}

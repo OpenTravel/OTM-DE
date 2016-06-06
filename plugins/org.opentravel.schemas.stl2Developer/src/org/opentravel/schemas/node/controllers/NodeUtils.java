@@ -21,17 +21,22 @@ import java.util.List;
 import org.opentravel.schemacompiler.model.TLExampleOwner;
 import org.opentravel.schemacompiler.repository.impl.BuiltInProject;
 import org.opentravel.schemas.modelObject.FacetMO;
+import org.opentravel.schemas.node.AliasNode;
+import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ComponentNodeType;
+import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.OperationNode;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.RenamableFacet;
 import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -80,21 +85,21 @@ public class NodeUtils {
 		private Boolean isComponent(Node node, ComponentNodeType type) {
 			switch (type) {
 			case ALIAS:
-				return node.isAlias();
+				return node instanceof AliasNode;
 			case BUSINESS:
-				return node.isBusinessObject();
+				return node instanceof BusinessObjectNode;
 			case CLOSED_ENUM:
 				return node instanceof EnumerationClosedNode;
 			case OPEN_ENUM:
 				return node instanceof EnumerationOpenNode;
 			case CORE:
-				return node.isCoreObject();
+				return node instanceof CoreObjectNode;
 			case EXTENSION_POINT:
 				return node.isExtensionPointFacet();
 			case MESSAGE:
 				return node.isMessage();
 			case OPERATION:
-				return node.isOperation();
+				return node instanceof OperationNode;
 			case REQUEST:
 				return false; // TODO: how to check this ?
 			case RESPONSE:
@@ -106,7 +111,7 @@ public class NodeUtils {
 			case SIMPLE:
 				return node.isSimpleType();
 			case VWA:
-				return node.isValueWithAttributes();
+				return node instanceof VWA_Node;
 			default:
 				return false;
 

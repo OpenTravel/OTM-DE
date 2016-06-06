@@ -400,7 +400,7 @@ public class LibraryTests {
 		// makeSimple() does
 		// SimpleTypeNode sn = new SimpleTypeNode(new TLSimple());
 		// sn.setName(name);
-		// sn.setAssignedType(NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
+		// sn.setAssignedType(NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE));
 		ComponentNode s1 = (ComponentNode) makeSimple("s_1");
 		ComponentNode s2 = (ComponentNode) makeSimple("s_2");
 		ComponentNode sv1 = (ComponentNode) makeSimple("sv_1");
@@ -465,7 +465,7 @@ public class LibraryTests {
 	private Node makeSimple(String name) {
 		Node n = new SimpleTypeNode(new TLSimple());
 		n.setName(name);
-		((TypeUser) n).setAssignedType((TypeProvider) NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
+		((TypeUser) n).setAssignedType((TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE));
 		return n;
 	}
 

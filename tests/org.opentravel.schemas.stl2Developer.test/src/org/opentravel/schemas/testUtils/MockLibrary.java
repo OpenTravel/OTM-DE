@@ -46,12 +46,15 @@ import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
@@ -75,6 +78,13 @@ public class MockLibrary {
 	 * Create an unmanaged library.
 	 */
 	public LibraryNode createNewLibrary(String ns, String name, ProjectNode parent) {
+		LibraryNode ln = createNewLibrary_Empty(ns, name, parent);
+		addBusinessObjectToLibrary(ln, name + "InitialBO");
+		Assert.assertEquals(1, ln.getDescendants_NamedTypes().size());
+		return ln;
+	}
+
+	public LibraryNode createNewLibrary_Empty(String ns, String name, ProjectNode parent) {
 		TLLibrary tllib = new TLLibrary();
 		tllib.setName(name);
 		tllib.setStatus(TLLibraryStatus.DRAFT);
@@ -102,14 +112,12 @@ public class MockLibrary {
 		} catch (LibrarySaveException e) {
 			LOGGER.debug("Error Saving: ", e);
 		}
-		addBusinessObjectToLibrary(ln, name + "InitialBO");
 
 		ValidationFindings findings = ln.validate();
 		boolean valid = findings.count(FindingType.ERROR) == 0 ? true : false;
 		if (!valid)
 			printFindings(findings);
 
-		Assert.assertEquals(1, ln.getDescendants_NamedTypes().size());
 		Assert.assertTrue(valid);
 		return ln;
 	}
@@ -120,6 +128,17 @@ public class MockLibrary {
 	public LibraryChainNode createNewManagedLibrary(String ns, String name, ProjectNode parent) {
 		LibraryNode ln = createNewLibrary(ns, name, parent);
 		LibraryChainNode lcn = new LibraryChainNode(ln);
+		lcn.getHead().setEditable(true);
+		return lcn;
+	}
+
+	/**
+	 * Create new library as a managed library in a chain.
+	 */
+	public LibraryChainNode createNewManagedLibrary_Empty(String ns, String name, ProjectNode parent) {
+		LibraryNode ln = createNewLibrary_Empty(ns, name, parent);
+		LibraryChainNode lcn = new LibraryChainNode(ln);
+		lcn.getHead().setEditable(true);
 		return lcn;
 	}
 
@@ -239,7 +258,7 @@ public class MockLibrary {
 		if (newNode == null)
 			return null;
 
-		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE);
+		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
 		PropertyNode newProp = new ElementNode(newNode.getIDFacet(), "TestID");
 		newProp.setAssignedType(string);
 
@@ -251,7 +270,7 @@ public class MockLibrary {
 	public ChoiceObjectNode addChoice(LibraryNode ln, String name) {
 		if (name.isEmpty())
 			name = "ChoiceTest";
-		Node string = NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE);
+		Node string = NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
 
 		ChoiceObjectNode choice = new ChoiceObjectNode(new TLChoiceObject());
 		choice.setName(name);
@@ -291,21 +310,21 @@ public class MockLibrary {
 		CoreObjectNode n2 = (CoreObjectNode) NodeFactory.newComponent(new TLCoreObject());
 		n2.setName("N2");
 		ln.addMember(n2);
-		n2.setSimpleType((TypeProvider) NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
+		n2.setSimpleType((TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE));
 		PropertyNode n2Prop = new ElementNode(n2.getSummaryFacet(), n1.getName());
 		n2Prop.setAssignedType(n1);
 
 		CoreObjectNode n3 = (CoreObjectNode) NodeFactory.newComponent(new TLCoreObject());
 		n3.setName("N3");
 		ln.addMember(n3);
-		n3.setSimpleType((TypeProvider) NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
+		n3.setSimpleType((TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE));
 		TypeUser n3PropA = new ElementNode(n3.getSummaryFacet(), n1.getName());
 		n3PropA.setAssignedType(n1);
 		PropertyNode n3PropB = new ElementNode(n3.getSummaryFacet(), n2.getName());
 		n3PropB.setAssignedType((TypeProvider) n2.getSummaryFacet());
 
 		TypeUser newProp = new ElementNode(n1.getIDFacet(), "TestID");
-		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
 		newProp = new ElementNode(n1.getSummaryFacet(), n2.getName());
 		newProp.setAssignedType(n2);
 		newProp = new ElementNode(n1.getSummaryFacet(), "TestSumB");
@@ -318,7 +337,7 @@ public class MockLibrary {
 			name = "TestCore";
 		CoreObjectNode newNode = (CoreObjectNode) NodeFactory.newComponent(new TLCoreObject());
 		newNode.setName(name);
-		newNode.setSimpleType((TypeProvider) NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
+		newNode.setSimpleType((TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE));
 		ln.addMember(newNode);
 		return newNode;
 	}
@@ -326,7 +345,7 @@ public class MockLibrary {
 	public CoreObjectNode addCoreObjectToLibrary(LibraryNode ln, String name) {
 		CoreObjectNode newNode = addCoreObjectToLibrary_Empty(ln, name);
 		TypeUser newProp = new ElementNode(newNode.getSummaryFacet(), "TestElement");
-		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
 		return newNode;
 	}
 
@@ -338,7 +357,7 @@ public class MockLibrary {
 			name = "SimpleType";
 		SimpleTypeNode sn = new SimpleTypeNode(new TLSimple());
 		sn.setName(name);
-		sn.setAssignedType((TypeProvider) NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE));
+		sn.setAssignedType((TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE));
 		ln.addMember(sn);
 		return sn;
 	}
@@ -348,9 +367,9 @@ public class MockLibrary {
 			name = "TestVWA";
 		VWA_Node newNode = (VWA_Node) NodeFactory.newComponent(new TLValueWithAttributes());
 		newNode.setName(name);
-		newNode.setSimpleType((TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE));
+		newNode.setSimpleType((TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE));
 		PropertyNode newProp = new AttributeNode(newNode.getAttributeFacet(), "TestAttribute");
-		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE));
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
 		ln.addMember(newNode);
 		return newNode;
 	}
@@ -373,6 +392,34 @@ public class MockLibrary {
 		ln.addMember(newNode);
 		newNode.addLiteral("Lit-C1");
 		return newNode;
+	}
+
+	/**
+	 * Create a simple type with assigned simple type (date)
+	 */
+	public SimpleComponentInterface createSimple(String name) {
+		SimpleTypeNode n2 = new SimpleTypeNode(new TLSimple());
+		n2.setName(name);
+		((SimpleTypeNode) n2).setAssignedType(getSimpleTypeProvider());
+		return n2;
+	}
+
+	/**
+	 * Create a complex type with property assigned to simple type (date)
+	 */
+	public ComplexComponentInterface createComplex(String name) {
+		CoreObjectNode n2 = new CoreObjectNode(new TLCoreObject());
+		n2.setName(name);
+		PropertyNode child = new ElementNode(n2.getSummaryFacet(), name + "Property");
+		child.setAssignedType(getSimpleTypeProvider());
+		return n2;
+	}
+
+	/**
+	 * @return an XSD simple (date) assigned to type provider
+	 */
+	public TypeProvider getSimpleTypeProvider() {
+		return (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 	}
 
 	/**

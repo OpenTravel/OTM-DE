@@ -40,6 +40,7 @@ import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLListFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.XsdNode;
+import org.opentravel.schemas.node.controllers.DocumentationNodeModelManager;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.slf4j.Logger;
@@ -281,6 +282,16 @@ public abstract class ModelObject<TL> {
 		return srcObj instanceof TLDocumentationOwner && !(srcObj instanceof TLListFacet);
 	}
 
+	/**
+	 * @return 1st deprecation string or null
+	 */
+	public String getDeprecation() {
+		final TLDocumentation tld = getDocumentation();
+		if (tld == null || tld.getDeprecations() == null || tld.getDeprecations().isEmpty())
+			return null;
+		return tld.getDeprecations().get(0).getText().isEmpty() ? null : tld.getDeprecations().get(0).getText();
+	}
+
 	public String getDescriptionDoc() {
 		final TLDocumentation tld = getDocumentation();
 		return (tld == null || tld.getDescription() == null) ? "" : tld.getDescription();
@@ -304,6 +315,7 @@ public abstract class ModelObject<TL> {
 	 * TODO - convert the rest of the users to use DocumentationNodeModelManaager then delete these. Also see if
 	 * OtmActions that use the setters are still used.
 	 * 
+	 * @see DocumentationNodeModelManager
 	 */
 
 	public void addDeprecation(String string) {

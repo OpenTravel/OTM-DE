@@ -230,7 +230,7 @@ public class NodeFactory {
 				nn = new IndicatorNode((TLModelElement) tlObj, (PropertyOwnerInterface) parent);
 		} else if (tlObj instanceof TLAttribute) {
 			TLAttributeType type = ((TLAttribute) tlObj).getType();
-			if (type != null && type.getNamespace() != null && type.getNamespace().equals(Node.XSD_NAMESPACE)
+			if (type != null && type.getNamespace() != null && type.getNamespace().equals(ModelNode.XSD_NAMESPACE)
 					&& type.getLocalName().equals("ID"))
 				nn = new IdNode((TLModelElement) tlObj, (PropertyOwnerInterface) parent);
 			else

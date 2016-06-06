@@ -55,6 +55,7 @@ import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.OperationNode;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -320,7 +321,7 @@ public class ExampleView extends OtmAbstractView {
 					if (child instanceof ServiceNode) {
 						childModel = new ExampleModel(child);
 						childModel.addChildren(generateExamplesForNode(child.getChildren(), findingsAggregator));
-					} else if (child.isOperation()) {
+					} else if (child instanceof OperationNode) {
 						childModel = new ExampleModel(child);
 						childModel.addChildren(generateExamplesForNode(child.getChildren(), findingsAggregator));
 					} else {
@@ -507,7 +508,7 @@ public class ExampleView extends OtmAbstractView {
 	private Node getOwningComponent(Node n) {
 		if (n == null || n.getParent() == null)
 			return null; // Node could be removed/deleted.
-		if (n.isOperation() || n.getParent().isOperation()) {
+		if (n instanceof OperationNode || n.getParent() instanceof OperationNode) {
 			return n;
 		}
 		n = n.getOwningComponent();

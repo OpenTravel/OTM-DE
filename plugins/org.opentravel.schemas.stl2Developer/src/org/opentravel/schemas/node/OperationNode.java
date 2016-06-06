@@ -147,15 +147,15 @@ public class OperationNode extends FacetNode implements VersionedObjectInterface
 		return this;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.FacetNode#isRoleFacet()
-	 */
-	@Override
-	public boolean isRoleFacet() {
-		return false;
-	}
+	// /*
+	// * (non-Javadoc)
+	// *
+	// * @see org.opentravel.schemas.node.FacetNode#isRoleFacet()
+	// */
+	// @Override
+	// public boolean isRoleFacet() {
+	// return false;
+	// }
 
 	/**
 	 * Create a Service Operation for the passed service. Creates RQ, RS and Notif. Adds new operation to the TL Model.

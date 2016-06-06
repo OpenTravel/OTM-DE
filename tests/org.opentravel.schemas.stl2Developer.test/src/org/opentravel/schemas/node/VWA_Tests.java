@@ -94,7 +94,6 @@ public class VWA_Tests {
 		// test the lib with only vwa
 		LibraryNode vwaLib = lf.loadFile3(thisModel);
 		for (Node vwa : vwaLib.getDescendants_NamedTypes()) {
-			Assert.assertTrue(vwa.isValueWithAttributes());
 			Assert.assertTrue(vwa instanceof VWA_Node);
 			checkVWA((VWA_Node) vwa);
 		}
@@ -105,7 +104,7 @@ public class VWA_Tests {
 		for (LibraryNode ln : model.getUserLibraries()) {
 			List<Node> types = ln.getDescendants_NamedTypes();
 			for (Node n : types) {
-				if (n.isValueWithAttributes())
+				if (n instanceof VWA_Node)
 					checkVWA((VWA_Node) n);
 			}
 		}
@@ -134,9 +133,9 @@ public class VWA_Tests {
 		ln = mockLibrary.createNewLibrary("http://sabre.com/test", "test", defaultProject);
 		LibraryChainNode lcn = mockLibrary.createNewManagedLibrary("inChain", defaultProject);
 		ln.setEditable(true);
-		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
-		TypeProvider bType = (TypeProvider) NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE);
-		TypeProvider cType = (TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE);
+		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
+		TypeProvider bType = (TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE);
+		TypeProvider cType = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
 
 		// Check explicitly set by code.
 		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "VWA_Test");
@@ -219,7 +218,7 @@ public class VWA_Tests {
 		Assert.assertTrue(vwa.getSimpleType() != null);
 		Assert.assertTrue(sfn.getSimpleAttribute().getType() == vwa.getSimpleType());
 
-		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
+		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		// Assert.assertTrue(vwa.setAssignedType(aType));
 		// Assert.assertTrue(sfn.setAssignedType(aType));
 		// Assert.assertTrue(vwa.setSimpleType(aType));
@@ -241,7 +240,7 @@ public class VWA_Tests {
 		TypeProvider b = vwa.getSimpleType();
 		// Assert.assertEquals(a, b);
 		if (vwa.isEditable()) {
-			TypeProvider a = (TypeProvider) NodeFinders.findNodeByName("decimal", Node.XSD_NAMESPACE);
+			TypeProvider a = (TypeProvider) NodeFinders.findNodeByName("decimal", ModelNode.XSD_NAMESPACE);
 			vwa.setSimpleType(a);
 			Assert.assertEquals(a, vwa.getSimpleType());
 		}

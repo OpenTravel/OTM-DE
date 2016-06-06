@@ -32,6 +32,7 @@ import org.opentravel.schemas.types.TypeProvider;
  */
 public class ImpliedNode extends SimpleTypeNode implements TypeProvider {
 	protected ImpliedNodeType impliedType;
+	public static final String OTA_NAMESPACE = "http://www.OpenTravel.org/ns/OTA2/Common_v01_00";
 
 	public ImpliedNode(LibraryMember mbr) {
 		super(ImpliedNodeType.Empty.getTlObject());
@@ -108,7 +109,7 @@ public class ImpliedNode extends SimpleTypeNode implements TypeProvider {
 	protected static TLSimple XSD_Atomic = new TLSimple() {
 		@Override
 		public String getValidationIdentity() {
-			return "XSD_Atomic " + Node.OTA_NAMESPACE;
+			return "XSD_Atomic " + OTA_NAMESPACE;
 		}
 
 		@Override
@@ -119,7 +120,7 @@ public class ImpliedNode extends SimpleTypeNode implements TypeProvider {
 	protected static TLSimple Undefined = new TLSimple() {
 		@Override
 		public String getValidationIdentity() {
-			return "Undefined " + Node.OTA_NAMESPACE;
+			return "Undefined " + OTA_NAMESPACE;
 		}
 
 		@Override
@@ -130,7 +131,7 @@ public class ImpliedNode extends SimpleTypeNode implements TypeProvider {
 	protected static TLSimple defaultString = new TLSimple() {
 		@Override
 		public String getValidationIdentity() {
-			return "DefaultString " + Node.XSD_NAMESPACE;
+			return "DefaultString " + ModelNode.XSD_NAMESPACE;
 		}
 
 		@Override
@@ -141,7 +142,7 @@ public class ImpliedNode extends SimpleTypeNode implements TypeProvider {
 	protected static TLSimple missing = new TLSimple() {
 		@Override
 		public String getValidationIdentity() {
-			return "Unassigned-missingAssignment " + Node.OTA_NAMESPACE;
+			return "Unassigned-missingAssignment " + OTA_NAMESPACE;
 		}
 
 		@Override
@@ -152,7 +153,7 @@ public class ImpliedNode extends SimpleTypeNode implements TypeProvider {
 	protected static TLSimple indicator = new TLSimple() {
 		@Override
 		public String getValidationIdentity() {
-			return "OTA_Indicator " + Node.OTA_NAMESPACE;
+			return "OTA_Indicator " + OTA_NAMESPACE;
 		}
 
 		@Override
@@ -163,7 +164,7 @@ public class ImpliedNode extends SimpleTypeNode implements TypeProvider {
 	protected static TLSimple union = new TLSimple() {
 		@Override
 		public String getValidationIdentity() {
-			return "Union " + Node.OTA_NAMESPACE;
+			return "Union " + OTA_NAMESPACE;
 		}
 
 		@Override

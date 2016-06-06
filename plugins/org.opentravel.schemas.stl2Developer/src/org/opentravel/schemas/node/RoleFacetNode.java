@@ -92,8 +92,6 @@ public class RoleFacetNode extends FacetNode {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.opentravel.schemas.node.FacetNode#isDetailListFacet()
 	 */
 	@Override
@@ -102,8 +100,6 @@ public class RoleFacetNode extends FacetNode {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.opentravel.schemas.node.FacetNode#isListFacet()
 	 */
 	@Override
@@ -112,8 +108,6 @@ public class RoleFacetNode extends FacetNode {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.opentravel.schemas.node.FacetNode#isQueryFacet()
 	 */
 	@Override
@@ -121,14 +115,8 @@ public class RoleFacetNode extends FacetNode {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.FacetNode#isRoleFacet()
-	 */
 	@Override
-	public boolean isRoleFacet() {
-		return true;
+	public boolean isValidParentOf(PropertyNodeType type) {
+		return type.equals(PropertyNodeType.ROLE);
 	}
-
 }

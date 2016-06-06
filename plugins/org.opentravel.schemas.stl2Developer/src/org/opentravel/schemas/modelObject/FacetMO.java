@@ -41,7 +41,7 @@ import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.controllers.DefaultModelController;
 import org.opentravel.schemas.modelObject.events.OwnershipEventListener;
 import org.opentravel.schemas.modelObject.events.ValueChangeEventListener;
-import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.utils.StringComparator;
 import org.slf4j.Logger;
@@ -163,7 +163,7 @@ public class FacetMO extends ModelObject<TLFacet> {
 			LOGGER.error("Tried to delete a facet MO with no ownining entity.");
 			return;
 		}
-		if (!((ComponentNode) node).isFacet()) {
+		if (!(node instanceof FacetNode)) {
 			LOGGER.error("Tried to delete a facet MO with whose node is not a facet: " + node);
 		}
 		if ((getTLModelObj().getFacetType().equals(TLFacetType.REQUEST))

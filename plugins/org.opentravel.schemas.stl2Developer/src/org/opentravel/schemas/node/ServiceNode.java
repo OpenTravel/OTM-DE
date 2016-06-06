@@ -90,7 +90,7 @@ public class ServiceNode extends ComponentNode {
 	 * @param nodeInterface
 	 */
 	public void addCRUDQ_Operations(Node subject) {
-		if (!subject.isBusinessObject())
+		if (!(subject instanceof BusinessObjectNode))
 			return;
 		BusinessObjectNode bo = (BusinessObjectNode) subject;
 		for (ResourceOperationTypes op : ResourceOperationTypes.values())

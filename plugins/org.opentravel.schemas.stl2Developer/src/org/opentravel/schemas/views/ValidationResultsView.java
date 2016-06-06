@@ -61,6 +61,7 @@ import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.widgets.OtmEventData;
 import org.slf4j.Logger;
@@ -292,7 +293,7 @@ public class ValidationResultsView extends OtmAbstractView {
 						n = NodeFinders.findNodeByValidationIentity(f.getSource().getValidationIdentity());
 						if (n != null) {
 							// LOGGER.debug("Match " + n.getName() + " is property? " + n.isProperty());
-							if (!n.isProperty())
+							if (!(n instanceof PropertyNode))
 								n = n.getAssignable();
 							matches.add(n);
 						}

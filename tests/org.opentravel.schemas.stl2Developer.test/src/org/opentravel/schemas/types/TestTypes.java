@@ -142,8 +142,8 @@ public class TestTypes {
 		assert afterWuc + 2 == unAssigned.getWhereUsedAndDescendantsCount(); // two new unassigned types
 
 		// run test against simple types and complex types of all property types
-		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
-		TypeProvider bType = (TypeProvider) NodeFinders.findNodeByName("int", Node.XSD_NAMESPACE);
+		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
+		TypeProvider bType = (TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE);
 		int aTypeCount = ((TypeProvider) aType).getWhereUsedAndDescendantsCount();
 		checkListeners(aType);
 
@@ -228,13 +228,13 @@ public class TestTypes {
 		LibraryChainNode lcn = new LibraryChainNode(ln_inChain);
 		ln_inChain.setEditable(true);
 
-		TypeProvider type1 = (TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE);
+		TypeProvider type1 = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
 		TLModelElement tlType1 = type1.getTLModelObject();
 		assertNotNull(type1);
 		assertNotNull(tlType1);
 		assertTrue(tlType1 instanceof TLAttributeType);
-		TypeProvider type2 = (TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
-		Node type3 = NodeFinders.findNodeByName("decimal", Node.XSD_NAMESPACE);
+		TypeProvider type2 = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
+		Node type3 = NodeFinders.findNodeByName("decimal", ModelNode.XSD_NAMESPACE);
 		assertNotNull(type2);
 		assertNotNull(type3);
 
@@ -378,7 +378,7 @@ public class TestTypes {
 		// Given - a library with 2 cores with types and extensions assigned
 		LibraryNode moveFrom = LibraryNodeBuilder.create("MoveFrom", defaultProject.getNamespace() + "/Test/One", "o1",
 				new Version(1, 0, 0)).build(defaultProject, pc);
-		TypeProvider type1 = (TypeProvider) NodeFinders.findNodeByName("string", Node.XSD_NAMESPACE);
+		TypeProvider type1 = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
 		assertNotNull(type1);
 		SimpleTypeNode simple = ComponentNodeBuilder.createSimpleObject("simple").assignType((Node) type1)
 				.get(moveFrom);

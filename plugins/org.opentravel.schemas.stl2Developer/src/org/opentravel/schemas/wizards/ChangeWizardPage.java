@@ -42,13 +42,16 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.SimpleFacetNode;
 import org.opentravel.schemas.node.SubType;
+import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -283,7 +286,8 @@ public class ChangeWizardPage extends WizardPage {
 			editedNode = editedNode.changeObject(st);
 			tablePoster.postTable(editedNode);
 			updateFacetTypeButtons();
-			LOGGER.debug("After change " + editedNode.getName() + " has " + editedNode.getWhereAssignedCount() + " users.");
+			LOGGER.debug("After change " + editedNode.getName() + " has " + editedNode.getWhereAssignedCount()
+					+ " users.");
 		} catch (Exception ex) {
 			undoLastOp();
 			LOGGER.warn("Error on chaning type to: " + st.toString());
@@ -416,15 +420,15 @@ public class ChangeWizardPage extends WizardPage {
 	}
 
 	private void updateObjectTypeButtons() {
-		if (editedNode.isBusinessObject()) {
+		if (editedNode instanceof BusinessObjectNode) {
 			if (objectTypeButtons.containsKey(SubType.BUSINESS_OBJECT)) {
 				objectTypeButtons.get(SubType.BUSINESS_OBJECT).setSelection(true);
 			}
-		} else if (editedNode.isCoreObject()) {
+		} else if (editedNode instanceof CoreObjectNode) {
 			if (objectTypeButtons.containsKey(SubType.CORE_OBJECT)) {
 				objectTypeButtons.get(SubType.CORE_OBJECT).setSelection(true);
 			}
-		} else if (editedNode.isValueWithAttributes()) {
+		} else if (editedNode instanceof VWA_Node) {
 			if (objectTypeButtons.containsKey(SubType.VALUE_WITH_ATTRS)) {
 				objectTypeButtons.get(SubType.VALUE_WITH_ATTRS).setSelection(true);
 			}
@@ -524,7 +528,7 @@ public class ChangeWizardPage extends WizardPage {
 			if (facet == null) {
 				return;
 			}
-			if (owningFacet.isSimpleFacet()) {
+			if (owningFacet instanceof SimpleFacetNode) {
 				// special case - moving out from simple
 				changeFromSimple(property, (FacetNode) owningFacet, (FacetNode) facet);
 			} else {

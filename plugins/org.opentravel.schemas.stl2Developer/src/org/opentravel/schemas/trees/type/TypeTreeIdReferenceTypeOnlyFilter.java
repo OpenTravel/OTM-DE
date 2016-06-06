@@ -16,29 +16,34 @@
 package org.opentravel.schemas.trees.type;
 
 import org.eclipse.jface.viewers.Viewer;
+import org.opentravel.schemas.node.AliasNode;
+import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.VWA_Node;
 
 /**
- * Filter types for Id Reference Objects. For release 2.2 it will allow type assignment with list of
- * VWA, Core and Business objects and their aliases.
+ * Filter types for Id Reference Objects. For release 2.2 it will allow type assignment with list of VWA, Core and
+ * Business objects and their aliases.
  * 
  * @author Pawel Jedruch
  * 
  */
 public class TypeTreeIdReferenceTypeOnlyFilter extends TypeSelectionFilter {
 
-    @Override
-    public boolean isValidSelection(Node n) {
-        return n.isValueWithAttributes() || n.isCoreObject() || n.isBusinessObject() || n.isAlias();
-    }
+	@Override
+	public boolean isValidSelection(Node n) {
+		return n instanceof VWA_Node || n instanceof CoreObjectNode || n instanceof BusinessObjectNode
+				|| n instanceof AliasNode;
+	}
 
-    @Override
-    public boolean select(Viewer viewer, Object parentElement, Object element) {
-        if (element == null || !(element instanceof Node)) {
-            return false;
-        }
-        Node n = (Node) element;
-        return isValidSelection(n) || hasValidChildren(n);
-    }
+	@Override
+	public boolean select(Viewer viewer, Object parentElement, Object element) {
+		if (element == null || !(element instanceof Node)) {
+			return false;
+		}
+		Node n = (Node) element;
+		return isValidSelection(n) || hasValidChildren(n);
+	}
 
 }

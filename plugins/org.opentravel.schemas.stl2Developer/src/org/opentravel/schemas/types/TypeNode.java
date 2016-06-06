@@ -25,6 +25,7 @@ import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.controllers.NodeImageProvider;
 import org.opentravel.schemas.node.controllers.NodeLabelProvider;
+import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +69,7 @@ public class TypeNode extends Node {
 		// if (typeNode.isNamedType())
 		// label = typeNode.getComponentType();
 		labelProvider = simpleLabelProvider(label + " : " + typeNode.getName());
-		if (typeNode.isProperty())
+		if (typeNode instanceof PropertyNode)
 			imageProvider = nodeImageProvider(typeNode.getOwningComponent());
 		else
 			imageProvider = nodeImageProvider(typeNode);
