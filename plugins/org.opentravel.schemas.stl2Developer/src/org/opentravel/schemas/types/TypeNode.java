@@ -89,6 +89,7 @@ public class TypeNode extends Node {
 		return owner.isEditable();
 	}
 
+	// Returns the owner - the node that is the type user
 	@Override
 	public Node getParent() {
 		Node p = owner;
@@ -186,6 +187,7 @@ public class TypeNode extends Node {
 		return true;
 	}
 
+	// True if this node represents a type user
 	public boolean isUser() {
 		return nodeType.equals(TypeNodeType.USER) ? true : false;
 	}

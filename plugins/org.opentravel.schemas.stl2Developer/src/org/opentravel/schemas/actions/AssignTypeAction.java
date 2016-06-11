@@ -22,7 +22,6 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.opentravel.schemas.commands.OtmAbstractHandler;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -84,6 +83,8 @@ public class AssignTypeAction extends OtmAbstractAction {
 	@Override
 	public boolean isEnabled() {
 		Node n = getMainController().getCurrentNode_NavigatorView();
+		if (n == null || !(n instanceof TypeNode) || !((TypeNode) n).isUser())
+			return false;
 		return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
 	}
 
@@ -120,14 +121,16 @@ public class AssignTypeAction extends OtmAbstractAction {
 	}
 
 	// ** THIS IS NOT USED FOR TYPE SELECTION BUTTONS IN THE FACET TABLE
+	// This is used for Replace Where Used
 	private void typeSelector() {
-		List<Node> users = new ArrayList<Node>();
+		List<Node> users = new ArrayList<Node>(); // List of type users to replace type assignments with provider to be
+													// selected
 
 		List<Node> selections = getMainController().getSelectedNodes_NavigatorView();
 		if (selections != null)
 			for (Node s : selections) {
 				if (s instanceof TypeNode)
-					addTypeUsers(s, users); // get the users of the node, not just the node.
+					addTypeUsers((TypeNode) s, users); // get the users of the node, not just the node.
 				else
 					users.add(s);
 			}
@@ -139,6 +142,9 @@ public class AssignTypeAction extends OtmAbstractAction {
 				return null;
 			}
 		};
+
+		if (users == null || users.isEmpty())
+			return;
 		Node n = users.get(0);
 		if (n.getChain() != null && !n.isInHead2())
 			n = handler.createVersionExtension(n);
@@ -154,17 +160,14 @@ public class AssignTypeAction extends OtmAbstractAction {
 		mc.refresh(users.get(0));
 	}
 
-	private void addTypeUsers(INode n, List<Node> users) {
-		throw new IllegalStateException("Not Implemented Yet.");
-		// if (n instanceof TypeNode) {
-		// TypeNode tn = (TypeNode) n;
-		// if (tn.isUser()) {
-		// users.add(tn.getParent()); // This is a type node for a specific type user.
-		// } else {
-		// // This is a type node for the type provider.
-		// users.addAll(tn.getParent().getTypeClass().getTypeUsersAndDescendants());
-		// }
-		// }
+	private void addTypeUsers(TypeNode tn, List<Node> users) {
+		// throw new IllegalStateException("Not Implemented Yet.");
+		if (tn.isUser()) {
+			users.add(tn.getParent()); // This is a type node for a specific type user.
+			// } else {
+			// // This is a type node for the type provider.
+			// users.addAll(tn.getParent().getTypeClass().getTypeUsersAndDescendants());
+		}
 	}
 
 }

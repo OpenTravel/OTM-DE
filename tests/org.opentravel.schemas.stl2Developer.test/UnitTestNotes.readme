@@ -1,0 +1,42 @@
+Unit Test Notes
+
+Utilities
+
+ -org.opentravel.schemas.testUtils
+   -- MockLibrary
+		--- create libraries
+		--- add objects
+		--- print descendents and findings
+   	-- InitModel - just tests ability to create MainController
+	-- LoadFiles 
+		--- also has tests
+		--- load test files
+		--- clean model - removes loaded nodes with faults (not used)
+	-- ModelCheckUtils
+		--- check counts (not used)
+		--- compare (not used)
+	-- NodeTesters
+		--- TestNode - class implements visitor
+		--- PrintNode - visitor class that prints node name
+		--- ValidateTLObject - visitor class that checks TL object
+		--- visitNode - comprehensive assertions against object
+		--- validateTL - Validate the TL object owning and library relationships.
+		
+		
+Patterns - 
+
+New Objects
+	NEVER build bespoke objects unless they are the subject of the class. ALWAYS use MockLibrary.
+	
+Test design
+// Given - what is pre-condition
+// When - what is done
+// Then - what must be true
+			assertTrue("Must be in ln2 library.", type.getLibrary() == ln2);
+void org.junit.Assert.assertTrue(String message, boolean condition)
+
+Class design
+	Node - xxxx_Test - tests constructors and methods UNIQUE to a class
+		xxxConstructors()
+		xxxMethods()
+		usageCallingMethod()
