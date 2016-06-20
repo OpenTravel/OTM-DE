@@ -84,6 +84,13 @@ public class DialogUserNotifier {
 		return dg.open();
 	}
 
+	/**
+	 * 
+	 * @param title
+	 * @param question
+	 * @param labels
+	 * @return - index to button pressed (0, 1, ...)
+	 */
 	public static int openQuestionWithButtons(final String title, final String question, final String[] labels) {
 		if (!OtmRegistry.getMainWindow().hasDisplay())
 			return 2;

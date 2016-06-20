@@ -71,13 +71,11 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 		LibraryNode libToUpdate = (LibraryNode) userNode.getParent();
 
 		// Ask the user if they want Draft versions?
-		boolean includeDrafts = false;
 		String question = "Update to latest Draft version? Answer Yes to include draft or No for only Final versions.";
-		String[] buttons = { "Draft", "Final", "Cancel" };
-		// if (DialogUserNotifier.openQuestion("Update to Latest Version", question))
-		// includeDrafts = true;
+		String[] buttons = { "Yes", "No", "Cancel" };
 		int result = DialogUserNotifier.openQuestionWithButtons("Update to Latest Version", question, buttons);
-		if (result == 1)
+		boolean includeDrafts = false;
+		if (result == 0)
 			includeDrafts = true;
 		else if (result == 2)
 			return;
