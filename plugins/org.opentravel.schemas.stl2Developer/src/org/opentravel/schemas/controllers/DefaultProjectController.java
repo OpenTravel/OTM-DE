@@ -319,10 +319,12 @@ public class DefaultProjectController implements ProjectController {
 		// piList now has all of the project items for this chain.
 		List<LibraryChainNode> chains = new ArrayList<LibraryChainNode>();
 		if (!piList.isEmpty()) {
+			// does not work - mc.showBusy(true);
 			for (ProjectItem item : piList) {
 				if (pi == null)
 					pi = item; // return first one
 				if (item != null) {
+					// does not work - mc.postStatus("Opening " + item.getLibraryName());
 					LibraryChainNode lcn = project.getChain(item);
 					// FIXME - getChain is always returning null causing each chain member to create
 					// a new chain.
@@ -350,6 +352,7 @@ public class DefaultProjectController implements ProjectController {
 
 		// TODO - sync the repository view
 		// LOGGER.debug("Added repository item " + ri.getLibraryName() + " to " + project);
+		// mc.showBusy(false);
 		return pi;
 	}
 

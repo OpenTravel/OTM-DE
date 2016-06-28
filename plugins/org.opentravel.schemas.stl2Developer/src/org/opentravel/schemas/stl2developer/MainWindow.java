@@ -184,6 +184,8 @@ public class MainWindow extends ViewPart implements ISelectionListener {
 			return;
 
 		statusLineManager.setMessage(msg);
+		statusLineManager.update(true);
+		actionBars.updateActionBars();
 	}
 
 }

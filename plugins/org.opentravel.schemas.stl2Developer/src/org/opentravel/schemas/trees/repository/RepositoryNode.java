@@ -134,7 +134,7 @@ public abstract class RepositoryNode extends Node implements Comparable<Reposito
 		return Collections.emptyList();
 	}
 
-	public void refresh() {
+	public void refresh() throws RepositoryException {
 		vChildren = null;
 	}
 
@@ -292,13 +292,9 @@ public abstract class RepositoryNode extends Node implements Comparable<Reposito
 		}
 
 		@Override
-		public void refresh() {
+		public void refresh() throws RepositoryException {
 			if (isRemote()) {
-				try {
-					((RemoteRepository) getRepository()).refreshRepositoryMetadata();
-				} catch (RepositoryException e) {
-					LOGGER.error("Error on refreshin repository: " + getRepository().getDisplayName());
-				}
+				((RemoteRepository) getRepository()).refreshRepositoryMetadata();
 			}
 			super.refresh();
 		}
@@ -365,7 +361,7 @@ public abstract class RepositoryNode extends Node implements Comparable<Reposito
 		}
 
 		@Override
-		public void refresh() {
+		public void refresh() throws RepositoryException {
 			permission = null;
 			super.refresh();
 		}
@@ -483,6 +479,8 @@ public abstract class RepositoryNode extends Node implements Comparable<Reposito
 							try {
 								permission = rr.getUserAuthorization(getNamespace());
 							} catch (RepositoryException e) {
+								// TODO - either pass back the error for DialogManager display OR set permission to
+								// "error"
 								LOGGER.warn("Could not get permissions for base name:" + getNamespace() + ".");
 							}
 						}
@@ -646,7 +644,7 @@ public abstract class RepositoryNode extends Node implements Comparable<Reposito
 		}
 
 		@Override
-		public void refresh() {
+		public void refresh() throws RepositoryException {
 			((RepositoryNode) getParent()).refresh();
 		}
 	}
@@ -689,7 +687,7 @@ public abstract class RepositoryNode extends Node implements Comparable<Reposito
 		}
 
 		@Override
-		public void refresh() {
+		public void refresh() throws RepositoryException {
 			((RepositoryNode) getParent()).refresh();
 		}
 

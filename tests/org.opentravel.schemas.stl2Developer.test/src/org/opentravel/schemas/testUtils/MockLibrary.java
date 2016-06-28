@@ -15,6 +15,8 @@
  */
 package org.opentravel.schemas.testUtils;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -75,7 +77,7 @@ public class MockLibrary {
 	static final Logger LOGGER = LoggerFactory.getLogger(MockLibrary.class);
 
 	/**
-	 * Create an unmanaged library.
+	 * Create an unmanaged, editable library with one business object.
 	 */
 	public LibraryNode createNewLibrary(String ns, String name, ProjectNode parent) {
 		LibraryNode ln = createNewLibrary_Empty(ns, name, parent);
@@ -84,6 +86,9 @@ public class MockLibrary {
 		return ln;
 	}
 
+	/**
+	 * Create an unmanaged, editable library.
+	 */
 	public LibraryNode createNewLibrary_Empty(String ns, String name, ProjectNode parent) {
 		TLLibrary tllib = new TLLibrary();
 		tllib.setName(name);
@@ -267,6 +272,9 @@ public class MockLibrary {
 		return ln.isEditable() ? newNode : null;
 	}
 
+	/**
+	 * Create a choice object with an alias, summary and two choice facets all with properties.
+	 */
 	public ChoiceObjectNode addChoice(LibraryNode ln, String name) {
 		if (name.isEmpty())
 			name = "ChoiceTest";
@@ -450,4 +458,16 @@ public class MockLibrary {
 		ep.setExtension(facet);
 		return ep;
 	}
+
+	/**
+	 * Traverse all navChildren and assure all libraries are built in.
+	 */
+	public void assertOnlyBuiltInLibraries(Node node) {
+		for (Node n : node.getNavChildren()) {
+			if (n instanceof LibraryNode)
+				assertTrue("Remaining libraries must be built-in.", ((LibraryNode) n).isBuiltIn());
+			assertOnlyBuiltInLibraries(n);
+		}
+	}
+
 }

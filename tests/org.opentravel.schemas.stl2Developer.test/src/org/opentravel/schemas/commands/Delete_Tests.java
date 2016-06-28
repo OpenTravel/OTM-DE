@@ -16,7 +16,7 @@
 /**
  * 
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.commands;
 
 import static org.junit.Assert.assertTrue;
 
@@ -27,12 +27,30 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.AggregateFamilyNode;
+import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.node.ChoiceObjectNode;
+import org.opentravel.schemas.node.ChoiceObjectTests;
+import org.opentravel.schemas.node.CoreObjectNode;
+import org.opentravel.schemas.node.FacetNode;
+import org.opentravel.schemas.node.FamilyNode;
+import org.opentravel.schemas.node.LibraryChainNode;
+import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.ModelNode;
+import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
+import org.opentravel.schemas.node.NodeFinders;
+import org.opentravel.schemas.node.NodeNameUtils;
+import org.opentravel.schemas.node.NodeVisitors;
+import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -40,6 +58,7 @@ import org.opentravel.schemas.testUtils.NodeTesters.PrintNode;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
+import org.opentravel.schemas.utils.BaseProjectTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +66,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class Delete_Tests {
+public class Delete_Tests extends BaseProjectTest {
 	static final Logger LOGGER = LoggerFactory.getLogger(MockLibrary.class);
 
 	MockLibrary ml = null;
@@ -70,6 +89,79 @@ public class Delete_Tests {
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
 		lf = new LoadFiles();
+	}
+
+	/**
+	 * DeleteNodesHandler - uses node model controller
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void deleteHandler_Tests() throws Exception {
+		DeleteNodesHandler handler = new DeleteNodesHandler();
+
+		// Given an null list
+		List<Node> deleteList = null;
+		// When deleted
+		mc.getNodeModelController().deleteNodes(deleteList);
+		// Then no failure
+
+		// Given an empty list of selected nodes
+		deleteList = new ArrayList<Node>();
+		// When deleted
+		mc.getNodeModelController().deleteNodes(deleteList);
+		// Then no failure
+
+		// Given libraries in the default project
+		ProjectNode project = pc.getDefaultProject();
+		lf.loadTestGroupA(mc);
+		// Then all libraries must be deleted
+		deleteLibrariesTest(project);
+
+		// Given a user defined project with libraries in a chain
+		project = createProject("Project1", rc.getLocalRepository(), "IT1");
+		LibraryChainNode lcn1 = ml.createNewManagedLibrary("Lib1", project);
+		LibraryChainNode lcn2 = ml.createNewManagedLibrary("Lib2", project);
+		LibraryChainNode lcn3 = ml.createNewManagedLibrary("Lib3", project);
+		// List<LibraryNode> managed = new ArrayList<LibraryNode>();
+		// managed.add(lcn1.getHead());
+		// rc.manage(rc.getLocalRepository(), managed);
+		// rc.createMajorVersion(lcn1.getHead());
+		// Then all libraries must be deleted
+		deleteLibrariesTest(project);
+
+	}
+
+	private void deleteLibrariesTest(ProjectNode project) throws Exception {
+		ModelNode model = Node.getModelNode();
+		List<Node> deleteList = new ArrayList<Node>();
+
+		// Given - Project with libraries loaded
+		assertTrue("Project must have libraries.", !project.getUserLibraries().isEmpty());
+
+		// When - one library is deleted
+		LibraryNode lib = project.getUserLibraries().get(0);
+		lib.setEditable(true);
+		deleteList.add(lib);
+		mc.getNodeModelController().deleteNodes(deleteList);
+
+		// Then - library is deleted and not in the project and the library's objects are all deleted.
+		assertTrue("Library is deleted.", deleteList.get(0).isDeleted());
+		assertTrue("Project does not contain library.", !project.getUserLibraries().contains(lib));
+		for (Node n : lib.getDescendants_NamedTypes())
+			assertTrue("Named Type " + n + " is deleted.", n.isDeleted());
+
+		// When - rest are deleted
+		deleteList.clear();
+		for (LibraryNode ln : project.getUserLibraries())
+			deleteList.add(ln);
+		mc.getNodeModelController().deleteNodes(deleteList);
+
+		// Then - they must not be in the list of children collected by navigator view
+		// see LibraryTreeContentProvider
+		int libCnt = project.getUserLibraries().size();
+		assertTrue("Default Project must be empty.", libCnt == 0);
+		ml.assertOnlyBuiltInLibraries(model);
 	}
 
 	@Test
@@ -99,6 +191,70 @@ public class Delete_Tests {
 		attr.delete();
 		Assert.assertEquals(0, facet.getChildren().size());
 		Assert.assertEquals(whereAssignedCount - 2, aType.getWhereAssignedCount());
+	}
+
+	@Test
+	public void deleteFacets_BusinessObject() {
+		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", defaultProject);
+
+		// Given a business object with all facet types
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TestBO");
+		int facetCount = bo.getChildren().size();
+		FacetNode q1 = bo.addFacet("Query1", TLFacetType.QUERY);
+		FacetNode c1 = bo.addFacet("Custom1", TLFacetType.CUSTOM);
+		assertTrue("Must have five children", bo.getChildren().size() == facetCount + 2);
+		assertTrue("Query facet is NOT deleted.", !q1.isDeleted());
+		assertTrue("Custom facet is NOT deleted.", !c1.isDeleted());
+
+		// When the facets are deleted
+		q1.delete();
+		c1.delete();
+
+		// Then object must not contain facets
+		assertTrue("Object does NOT contain query facet.", !bo.getChildren().contains(q1));
+		assertTrue("Object does NOT contain custom facet.", !bo.getChildren().contains(c1));
+		assertTrue("Object only has 3 children.", bo.getChildren().size() == facetCount);
+		assertTrue("Facet is deleted.", q1.isDeleted());
+		assertTrue("Facet is deleted.", c1.isDeleted());
+	}
+
+	@Test
+	public void deleteFacets_ChoiceObject() {
+		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", defaultProject);
+		ChoiceObjectTests tests = new ChoiceObjectTests();
+
+		// Given a business object with all facet types
+		ChoiceObjectNode co = ml.addChoice(ln, "TestCO");
+		int facetCount = co.getChildren().size();
+		FacetNode c1 = co.addFacet("Added1");
+		FacetNode c2 = co.addFacet("Added2");
+		assertTrue("Must have five children", co.getChildren().size() == facetCount + 2);
+		assertTrue("Choice 1 facet is NOT deleted.", !c1.isDeleted());
+		assertTrue("Choice 2 facet is NOT deleted.", !c2.isDeleted());
+		tests.checkChoice(co);
+
+		// When the facets are deleted
+		c1.delete();
+		c2.delete();
+
+		// Then object must not contain facets
+		assertTrue("Object does NOT contain query facet.", !co.getChildren().contains(c1));
+		assertTrue("Object does NOT contain custom facet.", !co.getChildren().contains(c2));
+		assertTrue("Object only has original children count.", co.getChildren().size() == facetCount);
+		assertTrue("Facet is deleted.", c1.isDeleted());
+		assertTrue("Facet is deleted.", c2.isDeleted());
+
+		// When the other choice facets are deleted
+		for (PropertyOwnerInterface f : co.getChoiceFacets())
+			((FacetNode) f).delete();
+
+		// Then the object is still valid
+		tests.checkChoice(co);
+	}
+
+	@Test
+	public void deleteObjects() {
+		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", defaultProject);
 	}
 
 	@Test

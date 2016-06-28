@@ -90,7 +90,7 @@ public class NodeVisitors {
 		public void visit(INode n) {
 			LOGGER.debug("DeleteVisitor: deleting " + n);
 			Node node = (Node) n;
-			// String nodeName = n.getName();
+			String nodeName = n.getName();
 
 			if ((node instanceof ServiceNode) && node.getLibrary().isInChain()) {
 				// this has a entry in the service aggregate but no version node!
@@ -102,7 +102,7 @@ public class NodeVisitors {
 			}
 			// NOTE - libraries are ALWAYS delete-able even when not edit-able
 			if (!node.isDeleteable()) {
-				// LOGGER.debug("DeleteVisitor: not delete-able " + n);
+				LOGGER.debug("DeleteVisitor: not delete-able " + n);
 				return;
 			}
 
@@ -135,7 +135,7 @@ public class NodeVisitors {
 				LOGGER.debug("DeleteVisitor: deleted tl object " + node);
 			}
 
-			// LOGGER.debug("DeleteVisitor: deleted  " + nodeName);
+			LOGGER.debug("DeleteVisitor: deleted  " + nodeName);
 		}
 	}
 

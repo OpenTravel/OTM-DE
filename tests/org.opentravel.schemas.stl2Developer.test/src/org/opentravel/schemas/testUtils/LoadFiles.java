@@ -89,7 +89,7 @@ public class LoadFiles {
 	}
 
 	/**
-	 * Load files 1 through 5. No tests.
+	 * Load files 1 through 5 into default project. No tests.
 	 */
 	public int loadTestGroupA(MainController mc) throws Exception {
 		ProjectController pc = mc.getProjectController();

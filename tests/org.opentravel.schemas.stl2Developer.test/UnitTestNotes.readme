@@ -21,9 +21,17 @@ Utilities
 		--- ValidateTLObject - visitor class that checks TL object
 		--- visitNode - comprehensive assertions against object
 		--- validateTL - Validate the TL object owning and library relationships.
-		
+	-- Utils	
+		-- BaseProjectTest
+			-- See LibraryNodeTest
+			-- provides access to a repository controller needed to create projects
+				--	ProjectNode project1 = createProject("Project1", rc.getLocalRepository(), "IT1");
+
 		
 Patterns - 
+Node/* - 
+Command/* - 
+	inlcude all tests on nodes relevent to the action/command
 
 New Objects
 	NEVER build bespoke objects unless they are the subject of the class. ALWAYS use MockLibrary.

@@ -291,7 +291,7 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 		return TLFacetType.QUERY.equals(this.getFacetType()) || TLFacetType.REQUEST.equals(this.getFacetType())
 				|| TLFacetType.RESPONSE.equals(this.getFacetType())
 				|| TLFacetType.NOTIFICATION.equals(this.getFacetType())
-				|| TLFacetType.CUSTOM.equals(this.getFacetType());
+				|| TLFacetType.CUSTOM.equals(this.getFacetType()) || TLFacetType.CHOICE.equals(this.getFacetType());
 	}
 
 	@Override

@@ -123,13 +123,20 @@ public class DefaultRepositoryController implements RepositoryController {
 	}
 
 	private void updateNode(RepositoryNode node) {
-		node.refresh();
+		try {
+			node.refresh();
+		} catch (RepositoryException e) {
+			String msg = "Error refreshing " + node + " - " + e.getLocalizedMessage();
+			LOGGER.error(msg);
+			DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg);
+		}
 		refreshView(node);
 	}
 
 	private void refreshView(INode node) {
 		OtmView repositoryView = OtmRegistry.getRepositoryView();
-		repositoryView.refresh(node, true);
+		if (repositoryView != null)
+			repositoryView.refresh(node, true);
 	}
 
 	/**
