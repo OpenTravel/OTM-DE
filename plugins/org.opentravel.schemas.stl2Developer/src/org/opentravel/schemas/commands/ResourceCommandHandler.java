@@ -92,6 +92,9 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 			return null; // Nothing to act on
 		runCommand(getCmdType(exEvent.getCommand().getId()));
 		// mc.postStatus("Resource Handler.");
+		// TODO - Make resource view the current view
+		view.activate();
+
 		return null;
 	}
 
@@ -209,13 +212,17 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 	}
 
 	/**
-	 * Run type selection wizard to get a business object.
+	 * If the command was run from a business object, return that object otherwise run type selection wizard to get a
+	 * business object.
 	 * 
 	 * @param rn
 	 * @return business object or null.
 	 */
 	private BusinessObjectNode getBusinessObject(ResourceNode rn) {
 		// post a business object only Type Selection then pass the selected node.
+		if (mc.getCurrentNode_NavigatorView() instanceof BusinessObjectNode)
+			return (BusinessObjectNode) mc.getCurrentNode_NavigatorView();
+
 		Node subject = null;
 		final TypeSelectionWizard wizard = new TypeSelectionWizard(rn);
 		if (wizard.run(OtmRegistry.getActiveShell())) {
