@@ -121,8 +121,21 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 		// return tlObj.getName() != null ? tlObj.getName() : "";
 	}
 
+	public ParamGroup getParameterGroup() {
+		return (ParamGroup) Node.GetNode(tlObj.getParentParamGroup());
+		// return null;
+	}
+
 	public String getParameterGroupName() {
 		return tlObj.getParentParamGroupName();
+	}
+
+	public String getUrlContribution() {
+		String contribution = "";
+		ParamGroup pg = getParameterGroup();
+		if (pg != null)
+			contribution = getParentResource().getBasePath() + pg.getPathTemplate();
+		return contribution;
 	}
 
 	@Override

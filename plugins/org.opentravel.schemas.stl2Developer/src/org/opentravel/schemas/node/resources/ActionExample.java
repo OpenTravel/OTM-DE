@@ -15,6 +15,8 @@
  */
 package org.opentravel.schemas.node.resources;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages access to data for the Action Example URLs.
@@ -25,7 +27,7 @@ package org.opentravel.schemas.node.resources;
  *
  */
 public class ActionExample {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(ActionExample.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ActionExample.class);
 
 	private final static String SYSTEM = "http://example.com";
 	private ActionNode action;
@@ -65,7 +67,12 @@ public class ActionExample {
 			payload = action.tlObj.getRequest().getPayloadTypeName();
 		if (payload == null)
 			payload = "";
-		return !payload.isEmpty() ? "<" + payload + ">...</" + payload + ">" : "";
+		return !payload.isEmpty() ? " <" + payload + ">...</" + payload + ">" : "";
+	}
+
+	public String getSystem() {
+		return SYSTEM;
+		// TODO - use preference page to get resource base url
 	}
 
 	public String getLabel() {
@@ -75,12 +82,24 @@ public class ActionExample {
 	public String getURL() {
 		if (getMethod().isEmpty())
 			return "";
-		return getMethod() + " " + SYSTEM + getBasePath() + getTemplate() + getQueryTemplate() + " "
-				+ getPayloadExample();
+		String url = getMethod() + " " + getSystem();
+		url += action.getParentContribution();
+		url += action.getRequest().getPathTemplate() + getQueryTemplate();
+		url += getPayloadExample();
+		LOGGER.debug(url);
+		return url;
+
+		// LOGGER.debug(getMethod() + " " + SYSTEM + action.getRequest().getPathTemplate() + getQueryTemplate() + " "
+		// + getPayloadExample());
+		// return getMethod() + " " + SYSTEM + action.getRequest().getPathTemplate() + getQueryTemplate() + " "
+		// + getPayloadExample();
+		// return getMethod() + " " + SYSTEM + getBasePath() + getTemplate() + getQueryTemplate() + " "
+		// + getPayloadExample();
 	}
 
 	@Override
 	public String toString() {
 		return getLabel() + ": " + getURL();
 	}
+
 }

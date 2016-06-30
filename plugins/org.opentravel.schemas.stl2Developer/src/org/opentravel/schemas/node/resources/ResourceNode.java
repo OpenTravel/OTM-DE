@@ -176,7 +176,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	/**
-	 * Create a resource in the library of the libraryMember.
+	 * Create a resource in the library of the libraryMember. Hint, use ResourceBuilder.build() to complete the resource
+	 * properties.
 	 */
 	public ResourceNode(BusinessObjectNode businessObject) {
 		super(new ResourceBuilder().buildTL(businessObject));
@@ -326,9 +327,16 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	// @Override
-	public Node getExtendsType() {
+	public ResourceNode getExtendsType() {
+		Node base = null;
+		NamedEntity tl = null;
+		if (tlObj.getExtension() != null)
+			tl = tlObj.getExtension().getExtendsEntity();
+		if (tl instanceof TLResource)
+			base = Node.GetNode((TLResource) tl);
+		return base instanceof ResourceNode ? (ResourceNode) base : null;
 		// should this implement Extension Owner?
-		throw new IllegalStateException("Need to add type handler to resource.");
+		// throw new IllegalStateException("Need to add type handler to resource.");
 		// return (Node) getTypeClass().getTypeNode();
 	}
 
@@ -364,6 +372,25 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 		return fields;
 
+	}
+
+	/**
+	 * Return the base path and parameter contribution to the URL. Primary use case is for computing URL contribution of
+	 * parent resources for examples.
+	 * 
+	 * @return the path template for action request or empty string
+	 */
+	public String getPathContribution(ParamGroup params) {
+		String contribution = "";
+		for (Node child : getChildren())
+			if (child instanceof ParentRef) {
+				contribution = ((ParentRef) child).getUrlContribution();
+			}
+
+		// for (ActionNode action : getActions())
+		// if (action.getRequest().getHttpMethodAsString().equals(method.toString()))
+		// contribution = action.getRequest().getPathTemplate();
+		return contribution;
 	}
 
 	@Override
@@ -423,6 +450,23 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		for (Node n : paramGroups)
 			groupNames[i++] = n.getName();
 		return groupNames;
+	}
+
+	/**
+	 * @return parameter group from last parent resource node or null if none
+	 */
+	public ParamGroup getParentParamGroup() {
+		return getParentRef() != null ? getParentRef().getParameterGroup() : null;
+	}
+
+	/**
+	 * @return first parent reference resource node or null if none
+	 */
+	public ParentRef getParentRef() {
+		for (Node child : getChildren())
+			if (child instanceof ParentRef)
+				return ((ParentRef) child);
+		return null;
 	}
 
 	/**
@@ -558,6 +602,10 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	@Override
 	public boolean isNameEditable() {
 		return true;
+	}
+
+	public String getBasePath() {
+		return tlObj.getBasePath();
 	}
 
 	public void setBasePath(String path) {

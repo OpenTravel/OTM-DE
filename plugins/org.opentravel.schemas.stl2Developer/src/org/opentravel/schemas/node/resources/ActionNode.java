@@ -192,4 +192,15 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 		return getRequest().getParamGroup().getQueryTemplate();
 	}
 
+	/**
+	 * @return URL contribution made by parent ref or empty string
+	 */
+	public String getParentContribution() {
+		// Find the parent resource if any
+		ParentRef pr = getOwningComponent().getParentRef();
+		return pr != null ? pr.getUrlContribution() : "";
+		// ResourceNode ppg = getOwningComponent().getParentParamGroup();
+		// return parent != null ? ppg.getPathContribution() : "";
+	}
+
 }

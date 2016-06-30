@@ -113,11 +113,25 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	 * @param tlParamGroup
 	 */
 	public void createPathTemplate() {
-		String path = "";
+		String path = getOwningComponent().getBasePath();
 		if (tlObj.getParamGroup() != null)
-			path = ((ParamGroup) getNode(tlObj.getParamGroup().getListeners())).getPathTemplate();
-		setPathTemplate(path);
+			path += getParamGroup().getPathTemplate();
+		// path += ((ParamGroup) getNode(tlObj.getParamGroup().getListeners())).getPathTemplate();
+
+		setPathTemplate(getInheritedPath() + path);
 		LOGGER.debug("Created and set path template: " + tlObj.getPathTemplate());
+	}
+
+	public String getInheritedPath() {
+		String template = "";
+
+		// Find out if there is a parent resource and if so get its path contribution
+		// ResourceNode parentResource = getOwningComponent().getExtendsType();
+		// if (parentResource != null)
+		// // parent is always get template with ID
+		// template += parentResource.getPathContribution(HttpMethod.GET);
+		//
+		return template;
 	}
 
 	@Override
@@ -153,13 +167,13 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 				ResourceField.ResourceFieldType.String, new PathTemplateListener());
 
 		// HTTP Method
-		new ResourceField(fields, getHttpMethod(), MSGKEY + ".fields.httpMethod", ResourceFieldType.Enum,
+		new ResourceField(fields, getHttpMethodAsString(), MSGKEY + ".fields.httpMethod", ResourceFieldType.Enum,
 				new HttpMethodListener(), getHttpMethodStrings());
 
 		return fields;
 	}
 
-	public String getHttpMethod() {
+	public String getHttpMethodAsString() {
 		return tlObj.getHttpMethod() != null ? tlObj.getHttpMethod().toString() : "";
 	}
 
@@ -270,6 +284,10 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 			tlObj.setParamGroup(null);
 		LOGGER.debug("Set param group to " + group);
 		return false;
+	}
+
+	public String getPathTemplate() {
+		return tlObj.getPathTemplate();
 	}
 
 	public void setPathTemplate(String path) {

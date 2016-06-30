@@ -39,6 +39,7 @@ import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.FindingType;
 import org.opentravel.schemacompiler.validate.ValidationFinding;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
+import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.CoreObjectNode;
@@ -62,6 +63,8 @@ import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
+import org.opentravel.schemas.node.resources.ResourceBuilder;
+import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
@@ -75,6 +78,16 @@ import org.slf4j.LoggerFactory;
  */
 public class MockLibrary {
 	static final Logger LOGGER = LoggerFactory.getLogger(MockLibrary.class);
+
+	/**
+	 * Create umnamanged library in the default project
+	 * 
+	 * @param string
+	 * @return
+	 */
+	public LibraryNode createNewLibrary(ProjectController pc, String name) {
+		return createNewLibrary(pc.getDefaultUnmanagedNS(), name, pc.getDefaultProject());
+	}
 
 	/**
 	 * Create an unmanaged, editable library with one business object.
@@ -468,6 +481,15 @@ public class MockLibrary {
 				assertTrue("Remaining libraries must be built-in.", ((LibraryNode) n).isBuiltIn());
 			assertOnlyBuiltInLibraries(n);
 		}
+	}
+
+	/**
+	 * Create a new resource using the passed BO.
+	 */
+	public ResourceNode addResource(BusinessObjectNode bo) {
+		ResourceNode resource = new ResourceNode(bo);
+		new ResourceBuilder().build(resource, bo);
+		return resource;
 	}
 
 }
