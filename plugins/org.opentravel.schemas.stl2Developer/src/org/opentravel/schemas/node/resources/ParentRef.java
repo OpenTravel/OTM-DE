@@ -68,6 +68,11 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 		super(tlParentRef);
 	}
 
+	/**
+	 * Create an empty ParentRef and add to parent's children
+	 * 
+	 * @param parent
+	 */
 	public ParentRef(ResourceNode parent) {
 		super(new TLResourceParentRef(), parent);
 
@@ -131,10 +136,18 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 	}
 
 	public String getUrlContribution() {
+		// See if the parent resource has a grand-parent with contribution
 		String contribution = "";
+		ResourceNode parentResource = getParentResource();
+		ParentRef pRef = null;
+		if (parentResource != null)
+			pRef = parentResource.getParentRef();
+		if (pRef != null)
+			contribution = pRef.getUrlContribution();
+		// Now add the contribution from this parent
 		ParamGroup pg = getParameterGroup();
-		if (pg != null)
-			contribution = getParentResource().getBasePath() + pg.getPathTemplate();
+		if (pg != null && !deleted)
+			contribution += getParentResource().getBasePath() + pg.getPathTemplate();
 		return contribution;
 	}
 
@@ -160,6 +173,10 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 		return candidates;
 	}
 
+	/**
+	 * 
+	 * @return the resource node that this parent reference is pointing to (not the parent of this ParentRef).
+	 */
 	public ResourceNode getParentResource() {
 		return tlObj.getParentResource() != null ? (ResourceNode) getNode(tlObj.getParentResource().getListeners())
 				: null;

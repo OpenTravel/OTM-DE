@@ -687,14 +687,35 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 			tlObj.removeParentRef(toRemove);
 			LOGGER.debug("Removed parent : " + toRemove.getParentResourceName());
 		} else {
-			TLResourceParentRef ref = new TLResourceParentRef();
-			Node owner = getPeerByName(name);
-			if (owner != null) {
-				tlObj.addParentRef(ref);
-				ref.setParentResource((TLResource) owner.getTLModelObject());
-				LOGGER.debug("Added parent " + name + ": " + ref.getParentResourceName());
-			}
+			setParentRef(name);
 		}
+	}
+
+	/**
+	 * Create a ParentRef for the named parent resource. Note that there may be multiple references to the same parent
+	 * resource with different parameter groups.
+	 * 
+	 * @param parentName
+	 * @return the created ParentRef
+	 */
+	public ParentRef setParentRef(String parentName) {
+		ParentRef pr = new ParentRef(this);
+		pr.setParent(parentName);
+		LOGGER.debug("Added parent " + parentName + ": " + getParentRef().getParentResourceName() + " to " + this);
+		return pr;
+	}
+
+	/**
+	 * Create a ParentRef for named parent resource and set the parameter group. No error checking.
+	 * 
+	 * @param parentName
+	 * @param paramGroup
+	 * @return
+	 */
+	public ParentRef setParentRef(String parentName, String paramGroup) {
+		ParentRef pr = setParentRef(parentName);
+		pr.setParamGroup(paramGroup);
+		return pr;
 	}
 
 	@Override
