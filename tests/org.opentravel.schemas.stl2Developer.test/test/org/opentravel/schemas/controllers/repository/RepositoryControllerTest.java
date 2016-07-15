@@ -299,22 +299,22 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 		LibraryNode testLibary = LibraryNodeBuilder.create("TestLibrary",
 				getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0)).build(uploadProject,
 				pc);
-		LibraryChainNode library = rc.manage(getRepositoryForTest(), Collections.singletonList(testLibary)).get(0);
+		LibraryChainNode lcn = rc.manage(getRepositoryForTest(), Collections.singletonList(testLibary)).get(0);
 
-		library.getHead().lock();
+		lcn.getHead().lock();
 		String coreObjectName = "NewCoreObject";
-		library.getHead()
+		lcn.getHead()
 				.addMember(
 						ComponentNodeBuilder.createCoreObject(coreObjectName).addProperty("TestProperty")
 								.setSimpleType().get());
 
-		mc.getRepositoryController().unlock(library.getHead());
+		mc.getRepositoryController().unlock(lcn.getHead());
 
-		Assert.assertEquals(1, library.getDescendants_NamedTypes().size());
-		String libraryName = library.getHead().getName();
-		String libraryChainName = library.getName();
-		String namespace = library.getNamespace();
-		library.close();
+		Assert.assertEquals(1, lcn.getDescendants_NamedTypes().size());
+		String libraryName = lcn.getHead().getName();
+		String libraryChainName = lcn.getName();
+		String namespace = lcn.getNamespace();
+		lcn.close();
 
 		// revert library from repository
 		RepositoryItemNode nodeToRetrive = findRepositoryItem(libraryName, namespace, getRepositoryForTest());

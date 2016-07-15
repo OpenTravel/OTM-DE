@@ -24,14 +24,12 @@ import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
-import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.AggregateNode.AggregateType;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Images;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
 
 /**
  * Library chains are all libraries based on the same major release. Their content is aggregated in this node.
@@ -295,13 +293,31 @@ public class LibraryChainNode extends Node {
 		return false;
 	}
 
+	// only called as override on Node in LibraryNode.close()
 	@Override
 	public void close() {
-		ProjectNode project = (ProjectNode) getParent();
-		super.close();
-		// Super will close all libraries in the chain. Save the project since it will have changed.
-		ProjectController pc = OtmRegistry.getMainController().getProjectController();
-		pc.save(project);
+
+		// Use libraryNode.close on the head to reassign any components that use these nav nodes as parents
+		getHead().close();
+
+		// Versions
+		versions.close();
+
+		// close Aggregate Nodes, they do children array
+		complexRoot.close();
+		simpleRoot.close();
+		serviceRoot.close();
+		resourceRoot.close();
+		complexRoot = null;
+		simpleRoot = null;
+		serviceRoot = null;
+		resourceRoot = null;
+
+		setLibrary(null);
+		deleted = true;
+		modelObject = null;
+		if (getParent() != null)
+			parent.getChildren().remove(this);
 	}
 
 	@Override
@@ -407,6 +423,15 @@ public class LibraryChainNode extends Node {
 
 	public static String makeIdentity(String name, String baseNS, String majorNS) {
 		return name + ":" + baseNS + ":" + majorNS;
+	}
+
+	/**
+	 * Return the project containing this chain or its chain. Null if no project is found.
+	 * 
+	 * @return
+	 */
+	public ProjectNode getProject() {
+		return getParent() instanceof ProjectNode ? (ProjectNode) getParent() : null;
 	}
 
 	// @Override

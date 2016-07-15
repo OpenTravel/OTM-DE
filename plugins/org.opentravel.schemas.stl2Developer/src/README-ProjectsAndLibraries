@@ -1,0 +1,36 @@
+README - developer Notes - libraries and projects
+
+Libraries may be open in more than one project.
+
+MVC - should be followed (but is not always)
+	Model = The model directly manages the data, logic and rules of the application.
+
+	View = A view can be any output representation of information, such as a chart or a diagram. Multiple views of the same information are possible, such as a bar chart for management and a tabular view for accountants.
+
+	Controller = The third part, the controller, accepts input and converts it to commands for the model or view.
+
+To test to see if running under the workbench:
+		// Make sure this is running from the workbench before starting wizard.
+		if (!OtmRegistry.getMainWindow().hasDisplay())
+			return;
+
+Note: wizards can not be created when headless ... JFace throws NPE			
+
+
+Remove:
+	called by CloseLibrariesHandler and RemoveLibrariesAction(Obsolete)
+	1. Expand user selection(s) in the passed collection
+	2. LibraryNode.close() each effected library	
+
+	GUI Behaviors
+		1. When any library in a chain is removed the entire chain is removed.
+		
+	Questions:
+		LCN has close() method. Why not use that?
+		Should LCN save the containing project? I don't think so, that is controller behavior.
+Tests
+	LibraryNodeTests
+	DefaultLibraryController_Tests
+	
+TODO:
+	Try to make an interface for Library and LibraryChainNode

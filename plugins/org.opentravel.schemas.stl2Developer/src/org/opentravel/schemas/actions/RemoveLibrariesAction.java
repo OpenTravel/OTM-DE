@@ -28,6 +28,8 @@ import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 
 /**
+ * 7/2016 - UNUSED
+ * 
  * @author Dave Hollander
  * 
  */

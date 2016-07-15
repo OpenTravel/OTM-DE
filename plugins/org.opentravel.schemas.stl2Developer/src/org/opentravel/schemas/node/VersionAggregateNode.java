@@ -47,6 +47,16 @@ public class VersionAggregateNode extends AggregateNode {
 		throw (new IllegalStateException("Version aggregates can not contain " + n.getClass().getSimpleName()));
 	}
 
+	@Override
+	public void close() {
+		if (getParent() != null)
+			getParent().getChildren().remove(this);
+		getChildren().clear();
+		setLibrary(null);
+		modelObject = null;
+		deleted = true;
+	}
+
 	/**
 	 * @return the library matching this project item or null
 	 */

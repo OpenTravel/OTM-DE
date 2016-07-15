@@ -271,11 +271,13 @@ public class DefaultRepositoryController implements RepositoryController {
 
 	private Collection<LibraryNode> findLibraries(Collection<ProjectItem> publishedItems) {
 		List<LibraryNode> libraries = new ArrayList<LibraryNode>(publishedItems.size());
-		for (LibraryNode l : mc.getLibraryController().getUserLibraries()) {
+
+		// for (LibraryNode l : mc.getLibraryController().getUserLibraries()) {
+		for (LibraryNode l : Node.getAllUserLibraries())
 			if (publishedItems.contains(l.getProjectItem())) {
 				libraries.add(l);
 			}
-		}
+		// }
 		return libraries;
 	}
 

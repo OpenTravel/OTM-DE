@@ -21,6 +21,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
@@ -42,47 +43,64 @@ import org.osgi.framework.Version;
  */
 public class LibraryNodeTest extends BaseProjectTest {
 
+	// See DefaultLibraryController_Tests.removeManagedInMultipleProjects_Test()
 	@Test
 	public void libraryInMultipleProjects() throws LibrarySaveException {
+		// Given - the same file opened in 2 projects
 		ProjectNode project1 = createProject("Project1", rc.getLocalRepository(), "IT1");
 		ProjectNode project2 = createProject("Project2", rc.getLocalRepository(), "IT2");
 
 		LoadFiles lf = new LoadFiles();
-		// MockLibrary ml = new MockLibrary();
-		LibraryNode ln1 = lf.loadFile2(project1);
-		LibraryNode ln2 = lf.loadFile2(project2);
-		int ln2NamedTypeCount = ln2.getDescendants_NamedTypes().size();
-		List<Node> complexNamedtypes = ln2.getDescendants_NamedTypes(); // hold onto for later use.
+		// LibraryNode ln1 = lf.loadFile2(project1);
+		LibraryNode lib2 = lf.loadFile2(project2);
+		LibraryNode lib1 = lf.loadFile2(project1);
+		int ln2NamedTypeCount = lib2.getDescendants_NamedTypes().size();
+		// List<Node> complexNamedtypes = lib2.getDescendants_NamedTypes(); // hold onto for later use.
 
 		assertTrue("Project is not empty.", !project1.getChildren().isEmpty());
 		assertTrue("Project is not empty.", !project2.getChildren().isEmpty());
 
-		// Close a library and check the other one to make sure it was not effected.
-		mc.getLibraryController().remove(Arrays.asList(ln1)); // used in close library command
-		// ln1.close(); // library controller uses close()
+		// When - a library is removed
+		mc.getLibraryController().remove(Arrays.asList(lib1)); // used in close library command
+
+		// Then - check the other library to make sure it was not effected.
+		assertTrue("Project 1 must be empty.", project1.getLibraries().isEmpty());
 		assertTrue("Project 1 must be empty.", project1.getChildren().isEmpty());
-		assertTrue("Lib1 must be empty.", ln1.getDescendants_NamedTypes().isEmpty());
+		assertTrue("Lib1 must be empty.", lib1.getDescendants_NamedTypes().isEmpty());
 		assertTrue("Lib2 must have same number of named types.",
-				ln2.getDescendants_NamedTypes().size() == ln2NamedTypeCount);
-		for (Node n : ln2.getDescendants_NamedTypes())
+				lib2.getDescendants_NamedTypes().size() == ln2NamedTypeCount);
+		for (Node n : lib2.getDescendants_NamedTypes())
 			assertTrue("Named type must not be deleted.", !n.isDeleted());
 
 		// Same test with libraries in a chain
-		ln1 = lf.loadFile2(project1);
-		LibraryChainNode lcn1 = new LibraryChainNode(ln1);
-		LibraryChainNode lcn2 = new LibraryChainNode(ln2);
-		mc.getLibraryController().remove(Arrays.asList(lcn1)); // used in close library controller
+		//
+		// Given - lib1 reloaded from file, 2 projects containing chains
+		lib1 = lf.loadFile2(project1);
+		LibraryChainNode lcn1 = new LibraryChainNode(lib1);
+		LibraryChainNode lcn2 = new LibraryChainNode(lib2);
+
+		// When - library chain 1 is removed
+		mc.getLibraryController().remove(Collections.singletonList(lcn1)); // used in close library controller
+
+		// Then
+		assertTrue("Project 1 must have no libraries.", project1.getLibraries().isEmpty());
 		assertTrue("Project 1 must be empty.", project1.getChildren().isEmpty());
-		assertTrue("Lib1 must be empty.", ln1.getDescendants_NamedTypes().isEmpty());
+		assertTrue("Lib1 must be empty.", lib1.getDescendants_NamedTypes().isEmpty());
+
 		assertTrue("Lib2 must have same number of named types.",
-				ln2.getDescendants_NamedTypes().size() == ln2NamedTypeCount);
-		for (Node n : ln2.getDescendants_NamedTypes())
+				lib2.getDescendants_NamedTypes().size() == ln2NamedTypeCount);
+		// Each named type must not be deleted and must have a valid nav node and library
+		for (Node n : lib2.getDescendants_NamedTypes()) {
 			assertTrue("Named type must not be deleted.", !n.isDeleted());
+			assertTrue("Named type must be in lib2.", n.getLibrary() == lib2);
+			assertTrue("Named type's parent must not be deleted.", !n.getParent().isDeleted());
+			assertTrue("Named type's parent must be in lib2.", n.getParent().getLibrary() == lib2);
+		}
 
 		// delete second lib and insure deleted.
 		mc.getLibraryController().remove(Arrays.asList(lcn2)); // used in close library command
 		assertTrue("Project 2 must be empty.", project2.getChildren().isEmpty());
-		assertTrue("Lib2 must be empty.", ln2.getDescendants_NamedTypes().isEmpty());
+		assertTrue("Lib2 must be empty.", lib2.getDescendants_NamedTypes().isEmpty());
 
 		// TODO - close the projects containing the libraries
 		// done in after tests

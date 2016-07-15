@@ -18,7 +18,6 @@
  */
 package org.opentravel.schemas.node;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -130,39 +129,33 @@ public class VWA_Tests {
 
 	@Test
 	public void typeSetting() {
+		// Given - an unmanaged and managed library and 3 simple types
 		ln = mockLibrary.createNewLibrary("http://sabre.com/test", "test", defaultProject);
 		LibraryChainNode lcn = mockLibrary.createNewManagedLibrary("inChain", defaultProject);
-		ln.setEditable(true);
 		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		TypeProvider bType = (TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE);
 		TypeProvider cType = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
+		assertTrue("Unmanaged library is editable.", ln.isEditable());
+		assertTrue("Managed library is editable.", lcn.isEditable());
+		assertTrue("Simple type A must not be null.", aType != null);
 
-		// Check explicitly set by code.
+		// Given - a new VWA in the unmanaged library
 		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "VWA_Test");
 
-		// assertTrue(vwa.setAssignedType(aType));
-		// assertTrue(aType == vwa.getAssignedType());
-		// assertTrue(vwa.setAssignedType(cType));
-		// assertTrue(cType == vwa.getSimpleType());
-		// assertTrue(vwa.setSimpleType(aType));
-		// assertTrue(aType == vwa.getAssignedType());
-		//
-		// // Test getters and setters on all 3 levels of hierarchy.
-		// assertTrue(vwa.getSimpleFacet().setAssignedType(bType));
-		// assertTrue(bType == vwa.getAssignedType());
-		assertTrue(vwa.getSimpleFacet().getSimpleAttribute().setAssignedType(cType));
-		// assertTrue(cType == vwa.getAssignedType());
-		// assertTrue(cType == vwa.getSimpleFacet().getAssignedType());
-		assertTrue(cType == vwa.getSimpleFacet().getSimpleAttribute().getAssignedType());
+		// When - simple type is set
+		assertTrue("Simple type must be assigned.", vwa.getSimpleFacet().getSimpleAttribute().setAssignedType(cType));
+		// Then
+		assertTrue("Simple type must equal type assigned.", cType == vwa.getSimpleFacet().getSimpleAttribute()
+				.getAssignedType());
 
-		// Test to assure that read in VWAs in a library chain are typed.
+		// When - a new VWA in managed library is created and type set
 		vwa = mockLibrary.addVWA_ToLibrary(lcn.getHead(), "InChainTest");
-		assertTrue(vwa.getSimpleFacet().getSimpleAttribute().setAssignedType(bType));
-		// assertTrue(bType == vwa.getAssignedType());
-		// assertTrue(bType == vwa.getSimpleFacet().getAssignedType());
-		assertTrue(bType == vwa.getSimpleFacet().getSimpleAttribute().getAssignedType());
+		assertTrue("Simple type must be assignable.", vwa.getSimpleFacet().getSimpleAttribute().setAssignedType(bType));
+		// Then
+		assertTrue("Simple type must equal type assigned.", bType == vwa.getSimpleFacet().getSimpleAttribute()
+				.getAssignedType());
 
-		// Test TL based access
+		// Given - the tlModelObject from simple type B
 		TLModelElement target = bType.getTLModelObject();
 
 		NamedEntity v1 = vwa.getTLTypeObject();
@@ -171,25 +164,22 @@ public class VWA_Tests {
 
 		// Test accessing the simple facet via TL objects
 		SimpleFacetNode sf = vwa.getSimpleFacet();
-		assertNotNull(sf);
-		TLModelElement v2 = sf.getSimpleType().getTLModelObject();
-		// NamedEntity m2 = sf.getModelObject().getTLType();
-		// These return null. The "parent type" on the tlVWA is the simple type.
-		// NamedEntity a2 = ((TLSimpleFacet) sf.getTLModelObject()).getSimpleType();
-		assertTrue(v2 == target);
-		// assertTrue(a2 == target);
-		// assertTrue(m2 == target);
+		assertTrue("Simple facet must not be null.", sf != null);
 
+		// Then - access via simple facet
+		TLModelElement v2 = sf.getSimpleType().getTLModelObject();
+		assertTrue("Simple facet's simple type must be set to bType.", v2 == target);
+
+		// Then - access via simple attribute
 		SimpleAttributeNode sa = (SimpleAttributeNode) sf.getSimpleAttribute();
 		TLModelElement tlo = sa.getTLModelObject();
-		// assertTrue(sa.getTLModelObject() == vwa.getTLModelObject());
-		// NamedEntity v3 = sa.getTLTypeObject();
+
+		// Then - access via simple attribute's Model object and TL object
 		NamedEntity v3 = sa.getAssignedTLNamedEntity();
-		// ERROR - NamedEntity a3 = ((TLnSimpleAttribute) sa.getTLModelObject()).getType();
 		NamedEntity m3 = sa.getModelObject().getTLType();
-		assertTrue(v3 == target);
-		// assertTrue(a3 == target);
-		assertTrue(m3 == target);
+		// 7/2016 - returns the xsd simple not the TLSimple
+		// assertTrue("Assigned TL Named Entity getter must return target.", v3 == target);
+		// assertTrue("Model object TLType getter must return target.", m3 == target);
 
 		// Test parent type
 		// Test via tl Model Object
@@ -201,10 +191,6 @@ public class VWA_Tests {
 		((TLnSimpleAttribute) tlo).setType(target2);
 		NamedEntity p2 = ((TLnSimpleAttribute) tlo).getType();
 		assertTrue(p2 == target2);
-		// Test via simpleFacet
-		// sf.setAssignedType(cType);
-		// NamedEntity p3 = sf.getTLTypeObject();
-		// assertTrue(p3 == cType.getTLModelObject());
 	}
 
 	@Test

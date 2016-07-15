@@ -2780,6 +2780,7 @@ public abstract class Node implements INode {
 		visitor.visit(this);
 	}
 
+	// Depth First node traversal
 	@Override
 	public void visitAllNodes(NodeVisitor visitor) {
 		ArrayList<Node> kids = new ArrayList<Node>(getChildren());

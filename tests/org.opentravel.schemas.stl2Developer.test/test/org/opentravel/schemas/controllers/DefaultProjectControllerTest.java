@@ -88,26 +88,34 @@ public class DefaultProjectControllerTest extends BaseProjectTest {
 
 	@Test
 	public void crossLibraryLinks() throws LibrarySaveException {
+		// Given - library LocalOne with one member
 		LibraryNode local1 = LibraryNodeBuilder.create("LocalOne", defaultProject.getNamespace() + "/Test/One", "o1",
 				new Version(1, 0, 0)).build(defaultProject, pc);
 		SimpleTypeNode so = ComponentNodeBuilder.createSimpleObject("SO")
 				.assignType(NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE)).get();
 		local1.addMember(so);
 
+		// Given - second library that uses type from first library // Given - expected imports are 1st lib and common
 		LibraryNode local2 = LibraryNodeBuilder.create("LocalTwo", defaultProject.getNamespace() + "/Test/Two", "o2",
 				new Version(1, 0, 0)).build(defaultProject, pc);
 		PropertyNode property = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).setName("Reference").assign(so)
 				.build();
 		CoreObjectNode co = ComponentNodeBuilder.createCoreObject("CO").addToSummaryFacet(property).get();
 		local2.addMember(co);
-		mc.getLibraryController().saveAllLibraries(false);
+
+		// Given - set of namespaces from Local 2's tlLibrary
 		Set<String> expectedImports = new HashSet<String>();
 		for (TLNamespaceImport imported : local2.getTLLibrary().getNamespaceImports()) {
 			expectedImports.add(imported.getNamespace());
 		}
 
+		// When - saved and closed
+		mc.getLibraryController().saveAllLibraries(false);
 		mc.getLibraryController().remove(defaultProject.getLibraries());
+		// FIXME
+		// assertTrue("Default project must be empty.", defaultProject.getLibraries().isEmpty());
 
+		// When - opening Local 2 from file
 		File local2File = URLUtils.toFile(local2.getTLLibrary().getLibraryUrl());
 		defaultProject.add(Collections.singletonList(local2File));
 		LibraryNode reopenedLibrary = defaultProject.getLibraries().get(0);

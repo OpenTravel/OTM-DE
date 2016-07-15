@@ -249,6 +249,16 @@ public class AggregateNode extends NavNode {
 	}
 
 	@Override
+	public void close() {
+		if (getParent() != null)
+			getParent().getChildren().remove(this);
+		getChildren().clear();
+		setLibrary(null);
+		modelObject = null;
+		deleted = true;
+	}
+
+	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get("aggregateFolder");
 	}

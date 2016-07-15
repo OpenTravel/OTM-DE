@@ -64,6 +64,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implements interactions the user has with the Library View by acting upon the library nodes and model node.
+ *
+ * "the controller accepts input and converts it to commands for the model or view."
  * 
  * @author Agnieszka Janowska
  * 
@@ -75,6 +77,16 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		super(mainController);
 	}
 
+	/**
+	 * Called from the NewLibraryAction
+	 * 
+	 * Project taken from currently selected node or else the default project.
+	 * 
+	 * Prompts user using the New Library Wizard. The wizard creates a library then uses the createFromPrototype()
+	 * method.
+	 * 
+	 * @return newly created library or null if wizard canceled or not running in gui.
+	 */
 	@Override
 	public LibraryNode createLibrary() {
 		LibraryNode ln = null;
@@ -96,6 +108,10 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 			pn = mc.getProjectController().getDefaultProject();
 		else
 			pn = selected.getLibrary().getProject();
+
+		// Make sure this is running from the workbench before starting wizard.
+		if (!OtmRegistry.getMainWindow().hasDisplay())
+			return null;
 
 		final NewLibraryWizard wizard = new NewLibraryWizard(pn);
 		LibraryNode libNode = wizard.getLibraryNode();
@@ -341,28 +357,46 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 	@Override
 	public void remove(final Collection<? extends Node> libraries) {
 		Set<ProjectNode> projectsToSave = new HashSet<ProjectNode>();
-		// remember which chains to remove from the projects
-		Set<LibraryChainNode> chains = new HashSet<LibraryChainNode>();
-		for (Node n : libraries)
-			if (n instanceof LibraryChainNode)
-				chains.add((LibraryChainNode) n);
-			else if (n.getChain() != null)
-				chains.add(n.getChain());
 
-		for (LibraryNode ln : getLibrariesToClose(libraries)) {
-			if (ln == null || ln.getParent() == null) {
-				LOGGER.error("ILLEGAL State - library " + ln + " parent is null.");
-			} else {
-				projectsToSave.add(ln.getProject());
-				ln.close(); // Don't use delete because recurses and deletes children from the library.
-			}
+		for (Node n : libraries) {
+			if (n instanceof LibraryChainNode) {
+				projectsToSave.add(((LibraryChainNode) n).getProject());
+				n.close();
+			} else if (n instanceof LibraryNode) {
+				projectsToSave.add(((LibraryNode) n).getProject());
+				n.close();
+			} else
+				LOGGER.debug("Invalid library node in list to remove: " + n);
 		}
+
+		// 7/2016 - dmh added code above and commented out these sections
+		//
+		// remember which chains to remove from the projects
+		// Set<LibraryChainNode> chains = new HashSet<LibraryChainNode>();
+		// for (Node n : libraries)
+		// if (n instanceof LibraryChainNode)
+		// chains.add((LibraryChainNode) n);
+		// else if (n.getChain() != null)
+		// chains.add(n.getChain());
+
+		// Close all effected libraries and remember all projects that contain the libraries
+		// for (LibraryNode ln : getLibrariesToClose(libraries)) {
+		// if (ln == null || ln.getParent() == null) {
+		// LOGGER.error("ILLEGAL State - library " + ln + " parent is null.");
+		// } else {
+		// projectsToSave.add(ln.getProject());
+		// ln.close(); // Don't use delete because recurses and deletes children from the library.
+		// }
+		// }
 		// Unlink each chain from parent
-		for (Node n : chains) {
-			if (n.getParent() != null)
-				n.getParent().getChildren().remove(n);
-			n.setParent(null);
-		}
+		// for (Node n : chains) {
+		// if (n.getParent() != null)
+		// n.getParent().getChildren().remove(n);
+		// n.setParent(null);
+		// }
+
+		// Let controller save project...it knows when the project contains more than one library being closed.
+		// Save any modified projects
 		for (ProjectNode project : projectsToSave) {
 			mc.getProjectController().save(project);
 			mc.refresh(project); // give user feedback
@@ -370,6 +404,12 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		mc.clearSelection();
 	}
 
+	/**
+	 * 
+	 * @param a
+	 *            collection of nodes (project, library chain or library)
+	 * @return all libraries under the project or chain and any passed libraries
+	 */
 	private Collection<LibraryNode> getLibrariesToClose(Collection<? extends Node> newSelection) {
 		Set<LibraryNode> ret = new HashSet<LibraryNode>();
 		for (Node n : newSelection) {
@@ -389,22 +429,24 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		return saveLibraries(Node.getAllLibraries(), quiet);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.controllers.LibraryController#getUserLibraries()
-	 */
-	@Override
-	public List<LibraryNode> getUserLibraries() {
-		List<LibraryNode> libs = new ArrayList<LibraryNode>();
-		for (INode lib : Node.getAllLibraries()) {
-			if (lib instanceof LibraryNode) {
-				if (((LibraryNode) lib).getTLaLib() instanceof TLLibrary)
-					libs.add((LibraryNode) lib);
-			}
-		}
-		return libs;
-	}
+	// /*
+	// * (non-Javadoc)
+	// *
+	// * @see org.opentravel.schemas.controllers.LibraryController#getUserLibraries()
+	// */
+	// @Deprecated
+	// @Override
+	// public List<LibraryNode> getUserLibraries() {
+	// return Node.getAllUserLibraries();
+	// // List<LibraryNode> libs = new ArrayList<LibraryNode>();
+	// // for (INode lib : Node.getAllLibraries()) {
+	// // if (lib instanceof LibraryNode) {
+	// // if (((LibraryNode) lib).getTLaLib() instanceof TLLibrary)
+	// // libs.add((LibraryNode) lib);
+	// // }
+	// // }
+	// // return libs;
+	// }
 
 	/*
 	 * (non-Javadoc)

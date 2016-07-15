@@ -50,10 +50,10 @@ public interface LibraryController {
 
 	void changeNamespaceExtension(LibraryNode library, String namespace);
 
-	/**
-	 * @return list of open user (TLLibrary) libraries. Returns empty list if there are no user libraries.
-	 */
-	List<LibraryNode> getUserLibraries();
+	// /**
+	// * @return list of open user (TLLibrary) libraries. Returns empty list if there are no user libraries.
+	// */
+	// List<LibraryNode> getUserLibraries();
 
 	/**
 	 * Get all libraries assigned to a namespace.

@@ -49,6 +49,13 @@ public class CloseLibrariesHandler extends OtmAbstractHandler {
 		return COMMAND_ID;
 	}
 
+	/**
+	 * Determine if selected navigator nodes are in libraries or chains.
+	 * 
+	 * Side effect of setting toClose to contain all libraries or chain heads.
+	 * 
+	 * @return true if toClose is not empty
+	 */
 	@Override
 	public boolean isEnabled() {
 		toClose.clear();

@@ -918,26 +918,58 @@ public class LibraryNode extends Node {
 		LibraryNode libInOtherProject = null;
 		for (LibraryNode lib : ModelNode.getAllUserLibraries())
 			if (lib != this && lib.getNameWithPrefix().equals(getNameWithPrefix())) {
-				libInOtherProject = lib;
-				break;
+				// Use the editable lib if available.
+				if (libInOtherProject == null || lib.isEditable())
+					libInOtherProject = lib;
 			}
 
-		close(libInOtherProject == null);
+		close(libInOtherProject == null); // if null, unlink all members
 
-		// make sure navNodes have valid parents then unlink them from this library
-		List<Node> kids = new ArrayList<Node>(getChildren());
-		if (libInOtherProject != null)
-			for (Node child : kids) {
-				child.setParent(libInOtherProject);
-				getChildren().remove(child);
+		// Nodes representing named types are shared across libraries. (see generateLibrary())
+		// Go through each NavNode and make sure those nodes point to the nav nodes in the other library.
+		if (libInOtherProject != null) {
+			for (Node navNode : getChildren()) {
+				List<Node> objects = new ArrayList<Node>(navNode.getChildren());
+				for (Node child : objects) {
+					// Make sure child has a valid parent
+					if (child.getParent() == navNode) {
+						// If the node is wrapped in a version node, the version node needs to change.
+						Node actualChild = child;
+						if (child instanceof VersionNode)
+							actualChild = ((VersionNode) child).getVersionedObject();
+						if (actualChild instanceof ComplexComponentInterface) {
+							moveNamedType(child, libInOtherProject.getComplexRoot());
+						} else if (actualChild instanceof SimpleComponentInterface) {
+							moveNamedType(child, libInOtherProject.getSimpleRoot());
+						} else
+							LOGGER.debug("Unhandled child: " + child);
+					}
+					// Remove child from this libraries' navNodes.
+					navNode.getChildren().remove(child);
+				}
 			}
+		}
+
+	}
+
+	private void moveNamedType(Node child, Node newParent) {
+		if (!newParent.getChildren().contains(child))
+			newParent.getChildren().add(child);
+		child.setParent(newParent);
+		child.setLibrary(newParent.getLibrary());
+
 	}
 
 	/**
 	 * Close library which removes it from the GUI but not OTM model. It must be the caller's responsibility to assure
 	 * that the project state is saved.
 	 * 
+	 * node marked delete, parent and library set to null.
+	 * 
+	 * ProjectItem for this library is removed from the TL Project.
+	 * 
 	 * @param doMembers
+	 *            - if true each child member is closed and contexts cleared. if false this node is removed from parent
 	 */
 	private void close(boolean doMembers) {
 		if (isBuiltIn())
@@ -959,11 +991,12 @@ public class LibraryNode extends Node {
 			// Remove context
 			ContextController cc = OtmRegistry.getMainController().getContextController();
 			cc.clearContexts(this);
-		} else {
+		} // 7/2016 - dmh
+			// else {
 			// Unlink from tree
-			if (getParent() != null && getParent().getChildren() != null)
-				getParent().getChildren().remove(this);
-		}
+		if (getParent() != null && getParent().getChildren() != null)
+			getParent().getChildren().remove(this);
+		// }
 
 		// Remove from containing TL (schema compiler/repository) project.
 		project.remove(projectItem);

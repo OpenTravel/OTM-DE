@@ -124,7 +124,7 @@ public class OtmRegistry {
 	}
 
 	/**
-	 * @return the mainWindow use mainWindow.hadDisplay() to check if it is "headless"
+	 * @return the mainWindow use mainWindow.hasDisplay() to check if it is "headless"
 	 */
 	public static MainWindow getMainWindow() {
 		// need main window created before workbench will create it.
@@ -291,11 +291,18 @@ public class OtmRegistry {
 	}
 
 	/**
-	 * @return
+	 * @return null if headless or unable to get workbench or shell
 	 */
 	public static Shell getActiveShell() {
-		if (PlatformUI.getWorkbench() == null)
-			return null;
+		// if (!mainWindow.hasDisplay())
+		// return null;
+		// try {
+		// if (PlatformUI.getWorkbench() == null)
+		// return null;
+		// } catch (IllegalStateException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 		if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() == null)
 			return null;
 		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
