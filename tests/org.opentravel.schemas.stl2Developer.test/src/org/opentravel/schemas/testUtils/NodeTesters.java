@@ -41,6 +41,7 @@ import org.opentravel.schemas.node.OperationNode;
 import org.opentravel.schemas.node.SimpleFacetNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.types.TestTypes;
 import org.opentravel.schemas.types.TypeProvider;
 import org.slf4j.Logger;
@@ -158,8 +159,10 @@ public class NodeTesters {
 		// Check children
 		if (n instanceof NavNode)
 			Assert.assertTrue(n.getModelObject() instanceof EmptyMO);
+		// Resources don't use model objects so do not check their kids
 		else if (!(n.getModelObject() instanceof EmptyMO) && !(n instanceof LibraryNode)
-				&& !(n instanceof OperationNode) && !(n.getChildren().isEmpty())) {
+				&& !(n instanceof ResourceMemberInterface) && !(n instanceof OperationNode)
+				&& !(n.getChildren().isEmpty())) {
 			if (n.getChildren().size() != n.getModelObject().getChildren().size()) {
 				// List<?> kids = n.getChildren();
 				// List<?> moKids = n.getModelObject().getChildren();
@@ -175,7 +178,7 @@ public class NodeTesters {
 		// }
 		// String foo = name;
 		Assert.assertFalse(n.getName().isEmpty());
-		Assert.assertFalse(n.getIdentity().isEmpty()); // new 1/20/15
+		// Assert.assertFalse(n.getIdentity().isEmpty()); // new 1/20/15
 		Assert.assertFalse(n.getLabel().isEmpty());
 		if (n instanceof ComponentNode) {
 			if (n.getNamePrefix().isEmpty())

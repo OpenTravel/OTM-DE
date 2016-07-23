@@ -93,19 +93,20 @@ public class AggregateNode extends NavNode {
 
 		if (!duplicates.isEmpty())
 			addVersionedNode(nodeToAdd, duplicates);
-		else if (familyMatches.isEmpty())
+		else
+			// if (familyMatches.isEmpty())
 			getChildren().add(nodeToAdd); // simply add the node
-		else if (family == null) {
-			// if familyMatches contains a Aggregate family, just add to it otherwise create new one
-			AggregateFamilyNode afn = null;
-			for (Node n : familyMatches)
-				if (n instanceof AggregateFamilyNode)
-					afn = (AggregateFamilyNode) n;
-			if (afn == null)
-				new AggregateFamilyNode(this, familyName, nodeToAdd, familyMatches); // Start a new family
-			else
-				afn.add(nodeToAdd);
-		}
+			// else if (family == null) {
+			// // if familyMatches contains a Aggregate family, just add to it otherwise create new one
+			// AggregateFamilyNode afn = null;
+			// for (Node n : familyMatches)
+			// if (n instanceof AggregateFamilyNode)
+			// afn = (AggregateFamilyNode) n;
+			// if (afn == null)
+			// new AggregateFamilyNode(this, familyName, nodeToAdd, familyMatches); // Start a new family
+			// else
+			// afn.add(nodeToAdd);
+			// }
 	}
 
 	// Try to replace the existing name matching node

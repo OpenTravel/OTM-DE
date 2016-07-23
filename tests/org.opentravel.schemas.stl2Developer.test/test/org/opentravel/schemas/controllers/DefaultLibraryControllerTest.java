@@ -21,11 +21,15 @@ import java.util.Collections;
 
 import org.junit.Test;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.validate.FindingMessageFormat;
+import org.opentravel.schemacompiler.validate.ValidationFinding;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.utils.BaseProjectTest;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.osgi.framework.Version;
@@ -138,21 +142,32 @@ public class DefaultLibraryControllerTest extends BaseProjectTest {
 	@Test
 	public void removeManagedInMultipleProjects_Test() {
 		// Given - 1 library in two projects
+		NodeTesters nt = new NodeTesters();
 		LibraryController lc = mc.getLibraryController();
 		MockLibrary ml = new MockLibrary();
 		LoadFiles lf = new LoadFiles();
 
 		ProjectNode project2 = createProject("ToClose", rc.getLocalRepository(), "close");
-		LibraryNode lib1 = lf.loadFile2(defaultProject);
-		LibraryNode lib2 = lf.loadFile2(project2);
-		assertTrue("Default project has one library.", defaultProject.getLibraries().size() == 1);
-		assertTrue("Project2 has one library.", project2.getLibraries().size() == 1);
-		assertTrue("Libraries in the projects are different libraries.", lib1 != lib2);
+		LibraryNode lib1 = lf.loadFile7(defaultProject);
+		LibraryNode lib2 = lf.loadFile7(project2);
+		assertTrue("Default project must have one library.", defaultProject.getLibraries().size() == 1);
+		assertTrue("Project2 must have one library.", project2.getLibraries().size() == 1);
+		assertTrue("Libraries in the projects must be different libraries.", lib1 != lib2);
+		assertTrue("Library 1 must be valid.", lib1.isValid());
+		assertTrue("Library 2 must be valid.", lib2.isValid());
+		lib1.visitAllNodes(nt.new TestNode());
 
+		// Given -
 		// When - library is removed from 2nd project but not the first
 		lc.remove(project2.getLibraries());
-		assertTrue("Default project has one library.", defaultProject.getLibraries().size() == 1);
-		assertTrue("Project2 has no library.", project2.getLibraries().size() == 0);
+		assertTrue("Default project must have one library.", defaultProject.getLibraries().size() == 1);
+		assertTrue("Project2 must have no library.", project2.getLibraries().size() == 0);
+		ValidationFindings findings = lib1.validate();
+		for (ValidationFinding finding : findings.getAllFindingsAsList())
+			System.out.println("Finding: " + finding.getFormattedMessage(FindingMessageFormat.MESSAGE_ONLY_FORMAT));
+
+		assertTrue("Remaining Library must be valid.", lib1.isValid());
+		lib1.visitAllNodes(nt.new TestNode());
 
 		// TODO - test closing one version in a chain
 	}

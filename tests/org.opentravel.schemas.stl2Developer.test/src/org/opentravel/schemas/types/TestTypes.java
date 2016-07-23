@@ -321,7 +321,8 @@ public class TestTypes {
 		testSettingType();
 
 		// 9 is if you do not get the family owned types, 17 if you do.
-		Assert.assertEquals(9, testSimples(ln));
+		// Assert.assertEquals(9, testSimples(ln));
+		Assert.assertEquals(17, testSimples(ln));
 
 		lf.loadFile3(mc);
 		lf.loadFile4(mc);

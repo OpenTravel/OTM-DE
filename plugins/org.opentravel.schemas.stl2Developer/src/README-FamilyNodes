@@ -1,0 +1,27 @@
+README - developer Notes - FamilyNodes
+
+July 21, 2016 dmh
+
+Removing FamilyNodes from the application. After discussion with 2 modeling teams the decision was to removed the family hierarchy.
+
+Ultimatly, they would like to have them but under thier control.
+
+This looks at how to remove them and considers if it would be better to keep most of the logic or to create from new when modeler-controlled families are implemented.
+
+Assumption - family logic should implement SOC better and use handlers. The current code puts most/all family logic in Node and other calling classes.
+
+-----------------
+
+Constructors
+	Used in 
+		Node.addChildToFamily() -- deprecated and unused. Removed from Node class.
+		Node.linkChild(Node, Boolean) - used a lot
+		AggregateFamilyNode constructor
+			AggregateNode.add()
+			
+	Should be able to prevent FamilyNode/AggregateFamilyNode construction by bypassing code in two spots: linkChild and add.
+	
+	Once that is done:
+	1. Test in GUI - commenting out the two areas seems to work OK. Opens libraries and add new simple OK.
+	2. Fix all the junits that complain about families
+	3. Remove family from node fields are fix all resulting errors.

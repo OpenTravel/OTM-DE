@@ -411,15 +411,15 @@ public class LibraryTests {
 		Assert.assertEquals(1, ln.getSimpleRoot().getChildren().size());
 		Assert.assertEquals(2, ln.getDescendants_NamedTypes().size());
 		ln.addMember(s2);
-		Assert.assertEquals(1, ln.getSimpleRoot().getChildren().size());
+		Assert.assertEquals(2, ln.getSimpleRoot().getChildren().size());
 		Assert.assertEquals(3, ln.getDescendants_NamedTypes().size());
 
 		// Test managed
 		ln_inChain.addMember(sv1);
 		ln_inChain.addMember(sv2);
-		Assert.assertEquals(1, ln_inChain.getSimpleRoot().getChildren().size());
+		Assert.assertEquals(2, ln_inChain.getSimpleRoot().getChildren().size());
 		Assert.assertEquals(3, ln_inChain.getDescendants_NamedTypes().size());
-		Assert.assertEquals(1, lcn.getSimpleAggregate().getChildren().size());
+		Assert.assertEquals(2, lcn.getSimpleAggregate().getChildren().size());
 	}
 
 	@Test
@@ -445,7 +445,7 @@ public class LibraryTests {
 		ln_inChain.getTLLibrary().addNamedMember((LibraryMember) s2.getTLModelObject());
 		ln_inChain.linkMember(s2);
 		Assert.assertEquals(3, ln_inChain.getDescendants_NamedTypes().size());
-		Assert.assertEquals(1, ln_inChain.getSimpleRoot().getChildren().size());
+		Assert.assertEquals(2, ln_inChain.getSimpleRoot().getChildren().size());
 
 		//
 		// Test with Version wrapped objects
@@ -453,13 +453,13 @@ public class LibraryTests {
 		ln_inChain.getTLLibrary().addNamedMember((LibraryMember) sv1.getTLModelObject());
 		ln_inChain.linkMember(sv1);
 		new VersionNode(sv1);
-		Assert.assertEquals(2, ln_inChain.getSimpleRoot().getChildren().size());
+		Assert.assertEquals(3, ln_inChain.getSimpleRoot().getChildren().size());
 
 		ln_inChain.getTLLibrary().addNamedMember((LibraryMember) sv2.getTLModelObject());
 		ln_inChain.linkMember(sv2);
-		Assert.assertEquals(2, ln_inChain.getSimpleRoot().getChildren().size()); // two families
-		for (Node n : ln_inChain.getSimpleRoot().getChildren())
-			Assert.assertTrue(n instanceof FamilyNode);
+		Assert.assertEquals(4, ln_inChain.getSimpleRoot().getChildren().size()); // two families
+		// for (Node n : ln_inChain.getSimpleRoot().getChildren())
+		// Assert.assertTrue(n instanceof FamilyNode);
 	}
 
 	private Node makeSimple(String name) {

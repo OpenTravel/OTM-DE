@@ -88,7 +88,7 @@ public class NodeVisitors {
 
 		@Override
 		public void visit(INode n) {
-			LOGGER.debug("DeleteVisitor: deleting " + n);
+			// LOGGER.debug("DeleteVisitor: deleting " + n);
 			Node node = (Node) n;
 			String nodeName = n.getName();
 
@@ -102,7 +102,7 @@ public class NodeVisitors {
 			}
 			// NOTE - libraries are ALWAYS delete-able even when not edit-able
 			if (!node.isDeleteable()) {
-				LOGGER.debug("DeleteVisitor: not delete-able " + n);
+				// LOGGER.debug("DeleteVisitor: not delete-able " + n);
 				return;
 			}
 
@@ -121,8 +121,8 @@ public class NodeVisitors {
 			node.deleted = true;
 			if (node.getParent() != null)
 				node.getParent().remove(node);
-			else
-				LOGGER.warn("Warning, tried to delete " + node + " with no parent--skipped remove().");
+			// else
+			// LOGGER.warn("Warning, tried to delete " + node + " with no parent--skipped remove().");
 
 			node.setParent(null);
 			node.setLibrary(null);
@@ -132,10 +132,10 @@ public class NodeVisitors {
 				TLModelElement tlObj = node.getTLModelObject();
 				node.modelObject.delete();
 				ListenerFactory.clearListners(tlObj); // remove any listeners
-				LOGGER.debug("DeleteVisitor: deleted tl object " + node);
+				// LOGGER.debug("DeleteVisitor: deleted tl object " + node);
 			}
 
-			LOGGER.debug("DeleteVisitor: deleted  " + nodeName);
+			// LOGGER.debug("DeleteVisitor: deleted  " + nodeName);
 		}
 	}
 

@@ -93,16 +93,16 @@ public class VersionNode_Tests {
 		Assert.assertEquals(s1, v.getNewestVersion());
 		Assert.assertNull(v.getPreviousVersion());
 
-		//
-		// Now test with a family member
-		//
-		ln_inChain.getTLLibrary().addNamedMember((LibraryMember) s2.getTLModelObject());
-		ln_inChain.linkMember(s2);
-		Assert.assertEquals(1, ln_inChain.getSimpleRoot().getChildren().size());
-		v = new VersionNode(s2);
-		Assert.assertNotNull(v.getLibrary());
-		Assert.assertEquals(v, s2.getParent());
-		Assert.assertEquals(1, ln_inChain.getSimpleRoot().getChildren().size());
+		// //
+		// // Now test with a family member
+		// //
+		// ln_inChain.getTLLibrary().addNamedMember((LibraryMember) s2.getTLModelObject());
+		// ln_inChain.linkMember(s2);
+		// Assert.assertEquals(1, ln_inChain.getSimpleRoot().getChildren().size());
+		// v = new VersionNode(s2);
+		// Assert.assertNotNull(v.getLibrary());
+		// Assert.assertEquals(v, s2.getParent());
+		// Assert.assertEquals(1, ln_inChain.getSimpleRoot().getChildren().size());
 
 	}
 

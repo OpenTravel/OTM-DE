@@ -114,7 +114,11 @@ public abstract class Node implements INode {
 	private LibraryNode library; // link to the library node to which this node belongs
 	protected Node parent; // link to the parentNode node
 	private final ArrayList<Node> children; // links to the children
+
+	// FIXME - remove family
 	protected String family; // name stripped at the first under bar
+	// FIXME - remove identity and all references to it.
+	private String identity = ""; // just for debugging
 
 	protected VersionNode versionNode; // Link to the version node representing this node in a chain
 
@@ -126,8 +130,8 @@ public abstract class Node implements INode {
 	protected XsdNode xsdNode = null; // Link to node containing imported XSD representation
 	protected boolean xsdType = false; // True if this node represents an object that was created by
 										// the XSD utilities but has not be imported.
+
 	// protected Type type = null; // Type information associated with properties
-	private String identity = ""; // just for debugging
 
 	// static final String EMPTY_TYPE = "Empty";
 	// see ImpliedNode - public static final String OTA_NAMESPACE = "http://www.OpenTravel.org/ns/OTA2/Common_v01_00";
@@ -1723,47 +1727,48 @@ public abstract class Node implements INode {
 		if (!linkChild(child, -1))
 			return false;
 
-		if (doFamily) {
-			child.family = NodeNameUtils.makeFamilyName(child.getName());
-			// makeFamilyName returns empty if family prefix not found
-			if (child.family.isEmpty())
-				return true;
-
-			for (final Node peer : child.getSiblings()) {
-				if (child.family.equals(peer.family)) {
-					if (peer instanceof FamilyNode)
-						((FamilyNode) peer).add(child);
-					else
-						new FamilyNode(peer, child);
-					return true;
-				}
-			}
-		}
+		// if (doFamily) {
+		// child.family = NodeNameUtils.makeFamilyName(child.getName());
+		// // makeFamilyName returns empty if family prefix not found
+		// if (child.family.isEmpty())
+		// return true;
+		//
+		// for (final Node peer : child.getSiblings()) {
+		// if (child.family.equals(peer.family)) {
+		// if (peer instanceof FamilyNode)
+		// ((FamilyNode) peer).add(child);
+		// else
+		// new FamilyNode(peer, child);
+		// return true;
+		// }
+		// }
+		// }
 		return true;
 	}
 
-	/**
-	 * Add <i>this</i> child to a family node for it and its "peer" node. If the peer is a Family node then just add it,
-	 * otherwise create the family node.
-	 * 
-	 * @return
-	 */
-	@Deprecated
-	private boolean addChildToFamily(Node peer) {
-		assert (parent != null) : "Assert: parent is null"; //
-		assert (peer.getParent() != null) : "Null peer parent.";
-
-		if (peer instanceof FamilyNode) {
-			((FamilyNode) peer).add(this);
-			// parent.remove(this); // take the child out of the parentNode's list.
-			// peer.getChildren().add(this); // add it to the family node
-			// parent = peer;
-		} else {
-			peer = new FamilyNode(this, peer);
-		}
-		// LOGGER.debug("Added a child " + this + " to a family " + peer.family);
-		return true;
-	}
+	// /**
+	// * Add <i>this</i> child to a family node for it and its "peer" node. If the peer is a Family node then just add
+	// it,
+	// * otherwise create the family node.
+	// *
+	// * @return
+	// */
+	// @Deprecated
+	// private boolean addChildToFamily(Node peer) {
+	// assert (parent != null) : "Assert: parent is null"; //
+	// assert (peer.getParent() != null) : "Null peer parent.";
+	//
+	// if (peer instanceof FamilyNode) {
+	// ((FamilyNode) peer).add(this);
+	// // parent.remove(this); // take the child out of the parentNode's list.
+	// // peer.getChildren().add(this); // add it to the family node
+	// // parent = peer;
+	// } else {
+	// peer = new FamilyNode(this, peer);
+	// }
+	// // LOGGER.debug("Added a child " + this + " to a family " + peer.family);
+	// return true;
+	// }
 
 	/**
 	 * Adds the passed node as a child of <i>this</i> node, if its name and namespace are unique amongst the children.
@@ -2377,6 +2382,8 @@ public abstract class Node implements INode {
 			return false;
 
 		// List<Node> x = getChain().getHead().getDescendants_NamedTypes();
+		if (getChain() == null || getChain().getHead() == null)
+			return false;
 		return getChain().getHead().getDescendants_NamedTypes().contains(owner);
 	}
 

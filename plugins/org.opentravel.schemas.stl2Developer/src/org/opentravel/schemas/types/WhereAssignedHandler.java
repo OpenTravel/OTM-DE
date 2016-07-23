@@ -212,7 +212,21 @@ public class WhereAssignedHandler {
 	}
 
 	public int getWhereAssignedIncludingDescendantsCount() {
-		return getWhereAssignedIncludingDescendants().size();
+		// same logic as getWhereAssignedIncludingDescendants but without the array
+		// used in background decorators
+		int count = 0;
+		for (Node n : users)
+			if (n instanceof TypeUser)
+				count++;
+
+		if (((Node) owner).getOwningComponent() == null)
+			return count; // happens when building inheritance wizard tree
+
+		for (TypeProvider n : ((Node) owner).getOwningComponent().getDescendants_TypeProviders())
+			if (!((Node) n).isDeleted())
+				count += n.getWhereAssignedCount();
+		return count;
+		// return getWhereAssignedIncludingDescendants().size();
 	}
 
 	/**

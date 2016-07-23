@@ -30,7 +30,6 @@ import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.AggregateFamilyNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.ChoiceObjectTests;
@@ -441,22 +440,26 @@ public class Delete_Tests extends BaseProjectTest {
 		Node n1 = ml.addBusinessObjectToLibrary(ln, "AAA_BO");
 		assert ln.getComplexRoot().getChildren().contains(n1);
 		Node n2 = ml.addCoreObjectToLibrary(ln, "AAA_Core");
-		assert !ln.getComplexRoot().getChildren().contains(n1);
+		// July 2016 - family processing removed from app
+		assert ln.getComplexRoot().getChildren().contains(n1);
+		// assert !ln.getComplexRoot().getChildren().contains(n1);
 		Node n3 = ml.addVWA_ToLibrary(ln, "AAA_VWA");
 		FamilyNode family = null;
 		for (Node n : ln.getComplexRoot().getChildren())
 			if (n instanceof FamilyNode)
 				family = (FamilyNode) n;
-		assert family != null;
-		assert family.getChildren().size() == 3;
-		// delete them and make sure family deleted when only one left
-		n3.delete();
-		assert family.getChildren().size() == 2;
-		n2.delete();
-		assert family.isDeleted();
-		assert ln.getComplexRoot().getChildren().contains(n1);
-		n1.delete();
-		assert ln.isEmpty();
+		assertTrue("Must not have a family node as they were removed from the application.", family == null);
+
+		// assert family != null;
+		// assert family.getChildren().size() == 3;
+		// // delete them and make sure family deleted when only one left
+		// n3.delete();
+		// assert family.getChildren().size() == 2;
+		// n2.delete();
+		// assert family.isDeleted();
+		// assert ln.getComplexRoot().getChildren().contains(n1);
+		// n1.delete();
+		// assert ln.isEmpty();
 		ln.delete();
 
 		//
@@ -468,27 +471,32 @@ public class Delete_Tests extends BaseProjectTest {
 		assert ln.getComplexRoot().getChildren().contains(nc1.getParent());
 		assert ln.getChain().getComplexAggregate().getChildren().contains(nc1); // nc1 version node
 		Node nc2 = ml.addCoreObjectToLibrary(ln, "AAA_Core");
-		assert !ln.getComplexRoot().getChildren().contains(nc1.getParent());
+		// assert !ln.getComplexRoot().getChildren().contains(nc1.getParent());
+		assertTrue("Nodes that used to be in family must have version node with complex root as parent.", nc1
+				.getParent().getParent() == ln.getComplexRoot());
 		Node nc3 = ml.addVWA_ToLibrary(ln, "AAA_VWA");
 		FamilyNode family2 = null;
 		for (Node n : ln.getComplexRoot().getChildren())
 			if (n instanceof FamilyNode)
 				family2 = (FamilyNode) n;
-		assert family2 != null;
-		assert family2.getChildren().size() == 3;
-		AggregateFamilyNode afn = null;
-		for (Node n : ln.getChain().getComplexAggregate().getChildren())
-			if (n instanceof AggregateFamilyNode)
-				afn = (AggregateFamilyNode) n;
-		assert afn != null;
-		// delete them and make sure family deleted when only one left
+		assertTrue("Must not have a family node as they were removed from the application.", family2 == null);
+
+		// assert family2 != null;
+		// assert family2.getChildren().size() == 3;
+		// AggregateFamilyNode afn = null;
+		// for (Node n : ln.getChain().getComplexAggregate().getChildren())
+		// if (n instanceof AggregateFamilyNode)
+		// afn = (AggregateFamilyNode) n;
+		// assert afn != null;
+
+		// // delete them and make sure family deleted when only one left
 		nc3.delete();
-		assert afn.getChildren().size() == 2;
+		// assert afn.getChildren().size() == 2;
 		nc2.delete();
-		assert family.isDeleted();
-		assert afn.isDeleted();
-		assert ln.getComplexRoot().getChildren().contains(nc1.getVersionNode());// nc1 version node
-		assert ln.getChain().getComplexAggregate().getChildren().contains(nc1);
+		// assert family.isDeleted();
+		// assert afn.isDeleted();
+		// assert ln.getComplexRoot().getChildren().contains(nc1.getVersionNode());// nc1 version node
+		// assert ln.getChain().getComplexAggregate().getChildren().contains(nc1);
 		nc1.delete();
 		assert ln.isEmpty();
 		assert ln.getChain().isEmpty();

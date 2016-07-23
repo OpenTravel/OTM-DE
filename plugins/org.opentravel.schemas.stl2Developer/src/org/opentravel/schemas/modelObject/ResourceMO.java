@@ -39,6 +39,9 @@ public class ResourceMO extends ModelObject<TLResource> {
 			getTLModelObj().getOwningLibrary().removeNamedMember(getTLModelObj());
 	}
 
+	/**
+	 * Return an empty list - model object not used for resources.
+	 */
 	@Override
 	public List<?> getChildren() {
 		final List<TLModelElement> kids = new ArrayList<TLModelElement>();

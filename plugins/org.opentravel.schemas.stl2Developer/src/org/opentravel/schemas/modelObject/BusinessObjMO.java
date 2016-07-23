@@ -206,12 +206,12 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 
 	public void addCustomFacet(final TLFacet tlf) {
 		srcObj.addCustomFacet(tlf);
-		LOGGER.info("Added custom facet " + tlf.getLocalName() + " to BusinessObject " + this.getName());
+		// LOGGER.info("Added custom facet " + tlf.getLocalName() + " to BusinessObject " + this.getName());
 	}
 
 	public void addQueryFacet(final TLFacet tlf) {
 		srcObj.addQueryFacet(tlf);
-		LOGGER.info("Added query facet " + tlf.getLocalName() + " to BusinessObject " + this.getName());
+		// LOGGER.info("Added query facet " + tlf.getLocalName() + " to BusinessObject " + this.getName());
 	}
 
 	// It may already have been taken out of the library, but if not do so.

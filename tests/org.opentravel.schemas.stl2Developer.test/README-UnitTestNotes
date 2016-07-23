@@ -33,6 +33,12 @@ Node/* -
 Command/* - 
 	inlcude all tests on nodes relevent to the action/command
 
+Validating the Model
+		NodeTesters nt = new NodeTesters();
+		sourceLib.visitAllNodes(nt.new TestNode());
+	or just run the tlModel validation
+		node.validate();
+	
 New Objects
 	NEVER build bespoke objects unless they are the subject of the class. ALWAYS use MockLibrary.
 	

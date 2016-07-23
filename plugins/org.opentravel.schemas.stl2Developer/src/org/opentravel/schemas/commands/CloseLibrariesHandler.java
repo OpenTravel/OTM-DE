@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 
@@ -61,17 +60,15 @@ public class CloseLibrariesHandler extends OtmAbstractHandler {
 		toClose.clear();
 		List<Node> nodes = mc.getSelectedNodes_NavigatorView();
 		for (Node n : nodes) {
-			LibraryNode l = n.getLibrary();
-			if (n.getLibrary() == null)
+			if (n == null)
 				continue;
-			if (l.isInChain())
-				n = l.getChain();
-			if (n instanceof LibraryChainNode) {
-				l = ((LibraryChainNode) n).getHead();
-			}
-			if (toClose.contains(l))
+			n = n.getLibrary();
+			if (((LibraryNode) n).isInChain())
+				n = n.getChain();
+
+			if (toClose.contains(n))
 				continue;
-			toClose.add(l);
+			toClose.add(n);
 		}
 		return !toClose.isEmpty();
 	}

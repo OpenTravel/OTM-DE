@@ -54,6 +54,7 @@ import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.resources.ResourceNode;
@@ -783,8 +784,8 @@ public class LibraryNode extends Node {
 				// node. Otherwise create new ones.
 				if (n == null)
 					n = NodeFactory.newComponent_UnTyped(mbr);
-				else
-					LOGGER.debug("Used listener to generate: " + n.getNameWithPrefix());
+				// else
+				// LOGGER.debug("Used listener to generate: " + n.getNameWithPrefix());
 				linkMember(n);
 				// done in linkMember() - n.setLibrary(this);
 			}
@@ -876,8 +877,8 @@ public class LibraryNode extends Node {
 		if (tln.getOwningLibrary() == null)
 			getTLLibrary().addNamedMember(tln);
 		else if (tln.getOwningLibrary() != getTLLibrary()) {
-			LOGGER.debug("Moving " + n + " from " + tln.getOwningLibrary().getPrefix() + ":"
-					+ tln.getOwningLibrary().getName() + " to " + getTLLibrary().getPrefix());
+			// LOGGER.debug("Moving " + n + " from " + tln.getOwningLibrary().getPrefix() + ":"
+			// + tln.getOwningLibrary().getName() + " to " + getTLLibrary().getPrefix());
 			tln.getOwningLibrary().removeNamedMember(tln);
 			getTLLibrary().addNamedMember(tln);
 		}
@@ -930,23 +931,32 @@ public class LibraryNode extends Node {
 		if (libInOtherProject != null) {
 			for (Node navNode : getChildren()) {
 				List<Node> objects = new ArrayList<Node>(navNode.getChildren());
-				for (Node child : objects) {
-					// Make sure child has a valid parent
-					if (child.getParent() == navNode) {
-						// If the node is wrapped in a version node, the version node needs to change.
-						Node actualChild = child;
-						if (child instanceof VersionNode)
-							actualChild = ((VersionNode) child).getVersionedObject();
-						if (actualChild instanceof ComplexComponentInterface) {
-							moveNamedType(child, libInOtherProject.getComplexRoot());
-						} else if (actualChild instanceof SimpleComponentInterface) {
-							moveNamedType(child, libInOtherProject.getSimpleRoot());
-						} else
-							LOGGER.debug("Unhandled child: " + child);
+				if (navNode instanceof ServiceNode || navNode instanceof ResourceNode)
+					moveNamedType(navNode, libInOtherProject);
+				else
+					for (Node child : objects) {
+						// Make sure child has a valid parent
+						if (child.getParent() == navNode) {
+							// If the node is wrapped in a version node, the version node needs to change.
+							Node actualChild = child;
+							if (child instanceof VersionNode)
+								actualChild = ((VersionNode) child).getVersionedObject();
+							if (actualChild instanceof ComplexComponentInterface) {
+								moveNamedType(child, libInOtherProject.getComplexRoot());
+							} else if (actualChild instanceof SimpleComponentInterface) {
+								moveNamedType(child, libInOtherProject.getSimpleRoot());
+							} else if (actualChild instanceof OperationNode) {
+								// LOGGER.debug("What to do with operation? " + child);
+								moveNamedType(child, libInOtherProject.getServiceRoot());
+							} else if (actualChild instanceof ResourceMemberInterface)
+								moveNamedType(child, libInOtherProject.getResourceRoot());
+							// LOGGER.debug("What to do with resource? " + child);
+							else
+								LOGGER.debug("Unhandled child: " + child);
+						}
+						// Remove child from this libraries' navNodes.
+						navNode.getChildren().remove(child);
 					}
-					// Remove child from this libraries' navNodes.
-					navNode.getChildren().remove(child);
-				}
 			}
 		}
 
@@ -957,7 +967,6 @@ public class LibraryNode extends Node {
 			newParent.getChildren().add(child);
 		child.setParent(newParent);
 		child.setLibrary(newParent.getLibrary());
-
 	}
 
 	/**

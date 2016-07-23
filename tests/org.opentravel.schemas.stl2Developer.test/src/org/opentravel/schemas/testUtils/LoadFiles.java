@@ -50,6 +50,7 @@ public class LoadFiles {
 	private String path5 = "Resources" + File.separator + "testFile5.otm";
 	private String path5c = "Resources" + File.separator + "testFile5-Clean.otm";
 	private String path6 = "Resources" + File.separator + "testFile6.otm";
+	private String path7 = "Resources" + File.separator + "testFile7.otm";
 
 	private MainController mc;
 	private int nodeCount = 0;
@@ -244,6 +245,17 @@ public class LoadFiles {
 	public LibraryNode loadFile6(MainController thisModel) {
 		LibraryNode ln = loadFile(thisModel, path6);
 		return ln;
+	}
+
+	public LibraryNode loadFile6(ProjectNode project) {
+		return loadFile(project, path6);
+	}
+
+	/**
+	 * No Errors with resource and choice objects.
+	 */
+	public LibraryNode loadFile7(ProjectNode project) {
+		return loadFile(project, path7);
 	}
 
 	/**

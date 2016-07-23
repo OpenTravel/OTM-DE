@@ -240,7 +240,7 @@ public class ResourceObjectTests {
 
 	}
 
-	private void checkResource(ResourceMemberInterface resource) {
+	public void checkResource(ResourceMemberInterface resource) {
 		LOGGER.debug("Checking " + resource + " " + resource.getClass().getSimpleName());
 		assert resource.getParent() != null;
 		assert resource.getName() != null;

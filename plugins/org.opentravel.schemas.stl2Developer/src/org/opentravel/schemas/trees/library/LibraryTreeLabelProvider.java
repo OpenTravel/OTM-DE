@@ -48,7 +48,7 @@ public class LibraryTreeLabelProvider extends LabelProvider implements IFontProv
 				label = n.getName() + " [local] ";
 
 			// Add the extended label
-			// 6/2016 - where used count moved to LibraryDecoration
+			// 6/2016 - where used count moved to views.LibraryDecoration
 		}
 		return label;
 	}
