@@ -367,16 +367,12 @@ public class ReplaceWith_Tests {
 			if (n instanceof ServiceNode)
 				continue;
 			Node lsNode = NodeFinders.findTypeProviderByQName(new QName(source.getNamespace(), n.getName()), source);
-			// n.replaceWith(lsNode);
+			// Node lsNode = source.findNode(n.getName(), source.getNamespace());
 			if (lsNode != null) {
-				// If the swap fails, the node n will not be i a library but will be used as a type.
-				// Re-add it to a library.
-				// If swap is successful, n will be disconnected from library and will fail tests.
-				if (n.getName().equals("Phone"))
-					LOGGER.debug("Found Phone");
 				n.swap(lsNode);
 				tt.visitTypeNode(lsNode);
-			}
+			} else
+				LOGGER.debug(n + " was not found in source library.");
 		}
 	}
 

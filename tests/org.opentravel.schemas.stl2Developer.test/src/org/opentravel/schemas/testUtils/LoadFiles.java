@@ -286,7 +286,7 @@ public class LoadFiles {
 	private void actOnNode(INode n) {
 		if (n instanceof TypeUser && n instanceof TypeProvider)
 			((TypeUser) n).setAssignedType((TypeProvider) n);
-		n.setName("TEST", true);
+		n.setName("TEST");
 		switch (nodeCount % 3) {
 		case 0:
 			n.removeFromLibrary();

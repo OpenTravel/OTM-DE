@@ -43,13 +43,13 @@ public class NavNode extends Node {
 		super();
 		assert (parent != null) : "Parent is null.";
 		setName(name);
-		setIdentity("NavNode:" + getName());
+		// setIdentity("NavNode:" + getName());
 		setLibrary(parent.getLibrary());
 		// Don't break version node-component node bond.
 		if (parent instanceof VersionNode)
-			parent.getParent().linkChild(this, false);
+			parent.getParent().linkChild(this);
 		else
-			parent.linkChild(this, false); // link without doing family tests.
+			parent.linkChild(this); // link without doing family tests.
 	}
 
 	public boolean isComplexRoot() {

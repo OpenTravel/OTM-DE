@@ -119,7 +119,7 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 				newProperty = (PropertyNode) property.clone(null, null);
 				if (newProperty == null)
 					return; // ERROR
-				this.linkChild(newProperty, false); // must have parent for test and change to work
+				this.linkChild(newProperty); // must have parent for test and change to work
 				if (!this.isValidParentOf(newProperty.getPropertyType()))
 					newProperty = newProperty.changePropertyRole(PropertyNodeType.ATTRIBUTE);
 				modelObject.addChild(newProperty.getTLModelObject());
@@ -424,14 +424,15 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 	@Override
 	public void setName(String n) {
 		if (this instanceof OperationNode) {
-			super.setName(n, false);
+			super.setName(n);
 		}
 	}
 
-	@Override
-	public void setName(String n, boolean doFamily) {
-		super.setName(n, false); // Facets don't have families
-	}
+	// @Deprecated
+	// @Override
+	// public void setName(String n, boolean doFamily) {
+	// super.setName(n); // Facets don't have families
+	// }
 
 	@Override
 	public void sort() {

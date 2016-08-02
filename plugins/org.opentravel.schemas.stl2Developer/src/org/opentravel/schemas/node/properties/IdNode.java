@@ -41,7 +41,7 @@ public class IdNode extends AttributeNode {
 		idType = (TypeProvider) NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
 		// does nothing because there is a required type. - setAssignedType(idType);
 		((TLAttribute) getTLModelObject()).setType((TLAttributeType) idType.getTLModelObject());
-		setIdentity("xml_ID on " + parent.getOwningComponent());
+		// setIdentity("xml_ID on " + parent.getOwningComponent());
 		propertyType = PropertyNodeType.ID;
 	}
 
@@ -50,7 +50,7 @@ public class IdNode extends AttributeNode {
 		idType = (TypeProvider) NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
 		// setAssignedType(idType);
 		((TLAttribute) getTLModelObject()).setType((TLAttributeType) idType.getTLModelObject());
-		setIdentity("xml_ID on " + getOwningComponent());
+		// setIdentity("xml_ID on " + getOwningComponent());
 		propertyType = PropertyNodeType.ID;
 	}
 

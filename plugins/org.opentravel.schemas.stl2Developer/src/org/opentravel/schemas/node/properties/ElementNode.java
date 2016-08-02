@@ -149,9 +149,9 @@ public class ElementNode extends PropertyNode {
 		modelObject.setName(NodeNameUtils.fixElementName(this)); // let utils fix it if needed.
 	}
 
-	@Override
-	public void setName(String name, boolean doFamily) {
-		setName(name);
-	}
+	// @Override
+	// public void setName(String name, boolean doFamily) {
+	// setName(name);
+	// }
 
 }

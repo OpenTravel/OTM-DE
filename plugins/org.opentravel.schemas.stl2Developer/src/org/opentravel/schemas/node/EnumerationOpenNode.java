@@ -97,7 +97,7 @@ public class EnumerationOpenNode extends TypeProviderBase implements ComplexComp
 		if (isEditable_newToChain())
 			if (enumLiteral instanceof EnumLiteralNode) {
 				((TLOpenEnumeration) getTLModelObject()).addValue((TLEnumValue) enumLiteral.getTLModelObject());
-				this.linkChild(enumLiteral, false);
+				this.linkChild(enumLiteral);
 			}
 	}
 

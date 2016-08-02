@@ -40,7 +40,7 @@ public class IndicatorNode extends PropertyNode {
 
 	public IndicatorNode(PropertyOwnerInterface parent, String name) {
 		super(new TLIndicator(), (Node) parent, name, PropertyNodeType.INDICATOR);
-		setIdentity(name);
+		// setIdentity(name);
 
 		assert (!getTLModelObject().getListeners().isEmpty());
 	}

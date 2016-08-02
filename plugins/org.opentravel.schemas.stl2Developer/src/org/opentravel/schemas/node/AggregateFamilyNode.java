@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
+@Deprecated
 public class AggregateFamilyNode extends FamilyNode {
 	private static final Logger LOGGER = LoggerFactory.getLogger(FamilyNode.class);
 

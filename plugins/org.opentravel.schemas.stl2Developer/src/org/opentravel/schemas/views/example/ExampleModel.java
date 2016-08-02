@@ -170,7 +170,8 @@ public class ExampleModel {
 	}
 
 	private boolean compareNode(Node thiss, Node that) {
-		boolean ret = thiss.getIdentity().equals(that.getIdentity());
+		// boolean ret = thiss.getIdentity().equals(that.getIdentity());
+		boolean ret = thiss.getNameWithPrefix().equals(that.getNameWithPrefix());
 		return ret = ret || thiss == that;
 	}
 }

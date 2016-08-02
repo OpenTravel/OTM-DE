@@ -82,6 +82,10 @@ public class TypeUserNode extends Node {
 		// Provider_LIB is a library that provides types
 	}
 
+	public boolean isProviderLib() {
+		return nodeType == TypeUserNodeType.PROVIDER_LIB;
+	}
+
 	@Override
 	public Node getParent() {
 		Node p = owner;

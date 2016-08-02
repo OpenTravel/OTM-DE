@@ -116,9 +116,9 @@ public abstract class Node implements INode {
 	private final ArrayList<Node> children; // links to the children
 
 	// FIXME - remove family
-	protected String family; // name stripped at the first under bar
-	// FIXME - remove identity and all references to it.
-	private String identity = ""; // just for debugging
+	// protected String family; // name stripped at the first under bar
+	// DONE - remove identity and all references to it.
+	// private String identity = ""; // just for debugging
 
 	protected VersionNode versionNode; // Link to the version node representing this node in a chain
 
@@ -149,7 +149,7 @@ public abstract class Node implements INode {
 
 	public Node(String identity) {
 		this();
-		setIdentity(identity);
+		// setIdentity(identity);
 	}
 
 	/**
@@ -164,12 +164,12 @@ public abstract class Node implements INode {
 
 		modelObject.delete();
 		modelObject = newModelObject(tlModelObject);
-		if (tlModelObject != null)
-			setIdentity(tlModelObject.getValidationIdentity());
-		else
-			setIdentity(getName() + " (Null-TL-ModelObject)");
-		if (getIdentity().isEmpty())
-			setIdentity("Simple");
+		// if (tlModelObject != null)
+		// setIdentity(tlModelObject.getValidationIdentity());
+		// else
+		// setIdentity(getName() + " (Null-TL-ModelObject)");
+		// if (getIdentity().isEmpty())
+		// setIdentity("Simple");
 	}
 
 	/**
@@ -271,7 +271,7 @@ public abstract class Node implements INode {
 		// parent.linkChild(replacement, getName() != replacement.getName()); // skip family processing if the same name
 
 		// Add replacement to the parent if not already there.
-		parent.linkChild(replacement, false); // ignored if already linked, skip family processing
+		parent.linkChild(replacement); // ignored if already linked, skip family processing
 
 		// Fail if in the list more than once.
 		assert (replacement.getParent().getChildren().indexOf(replacement) == replacement.getParent().getChildren()
@@ -289,8 +289,6 @@ public abstract class Node implements INode {
 		replaceWith(replacement); // Removes this from library
 
 		// Post-checks
-		if (!(thisParent instanceof FamilyNode)) // family may be removed if this and replacement were only members
-			assert (replacement.getParent() == thisParent) : "Replacement parent not assigned.";
 		assert (this.library == null) : "This library should be null.";
 		assert (this.parent == null) : "This parent should be null.";
 	}
@@ -440,6 +438,7 @@ public abstract class Node implements INode {
 		return null;
 	}
 
+	// TODO - only used in tests
 	public Node findNode_TypeProvider(final String name, String ns) {
 		if (name == null || name.isEmpty())
 			return null;
@@ -470,26 +469,26 @@ public abstract class Node implements INode {
 	 */
 	public Node findNodeByName(String name) {
 		for (Node n : getDescendants_NamedTypes()) {
-			if (n.getName().equals(name) && !(n instanceof FamilyNode))
+			if (n.getName().equals(name))
 				return n;
 		}
 		return null;
 	}
 
-	/**
-	 * Find the first property node descendant of this node with the given name. The order searched is not guaranteed.
-	 * Will not find family nodes.
-	 * 
-	 * @param name
-	 * @return node found or null
-	 */
-	public Node findPropertyByName(String name) {
-		for (Node n : getDescendants()) {
-			if (n instanceof PropertyNode && n.getName().equals(name))
-				return n;
-		}
-		return null;
-	}
+	// /**
+	// * Find the first property node descendant of this node with the given name. The order searched is not guaranteed.
+	// * Will not find family nodes.
+	// *
+	// * @param name
+	// * @return node found or null
+	// */
+	// public Node findPropertyByName(String name) {
+	// for (Node n : getDescendants()) {
+	// if (n instanceof PropertyNode && n.getName().equals(name))
+	// return n;
+	// }
+	// return null;
+	// }
 
 	public String getValidationIdentity() {
 		if (modelObject != null && modelObject.getTLModelObj() != null) {
@@ -627,7 +626,8 @@ public abstract class Node implements INode {
 	 * @return string of the name
 	 */
 	public String getFamily() {
-		return family;
+		return "";
+		// return family;
 	}
 
 	@Override
@@ -834,9 +834,6 @@ public abstract class Node implements INode {
 		return nodeID;
 	}
 
-	/**
-	 * @return the component (named object) owner of this node or else this node.
-	 */
 	public Node getOwningComponent() {
 		return this;
 	}
@@ -1697,78 +1694,33 @@ public abstract class Node implements INode {
 		return true;
 	}
 
-	/**
-	 * Add the <i>child</i> node parameter to <i>this</i> node. Sets parentNode link of child. NOTE - must have a name
-	 * to support family processing. Does family processing. Does <b>not</b> check for version or aggregates.
-	 * 
-	 * @param child
-	 *            - node to be added
-	 */
-	public boolean linkChild(final Node child) {
-		return linkChild(child, true);
-	}
+	// /**
+	// * Add the <i>child</i> node parameter to <i>this</i> node. Sets parentNode link of child. NOTE - must have a name
+	// * to support family processing. Does family processing. Does <b>not</b> check for version or aggregates.
+	// *
+	// * @param child
+	// * - node to be added
+	// */
+	// public boolean linkChild(final Node child) {
+	// return linkChild(child);
+	// }
 
 	/**
-	 * Add the <i>child</i> node parameter to <i>this</i> node. Sets parentNode link of child. NOTE - must have a name
-	 * to support family processing.
+	 * Add the <i>child</i> node parameter to <i>this</i> node. Sets parentNode link of child.
 	 * 
 	 * @param child
 	 *            - node to be added
-	 * @param doFamily
-	 *            - if present and true, the child is added to the a family node if the name matches family conditions.
-	 *            If child.family is not set it will make a family name. Checks all the children of this node to see if
-	 *            the child should be added to the family instead of directly to this node.
 	 * @return false if child could not be linked.
 	 */
-	public boolean linkChild(final Node child, final boolean doFamily) {
+	public boolean linkChild(final Node child) {
 		if (child == null)
 			return false;
 
 		if (!linkChild(child, -1))
 			return false;
 
-		// if (doFamily) {
-		// child.family = NodeNameUtils.makeFamilyName(child.getName());
-		// // makeFamilyName returns empty if family prefix not found
-		// if (child.family.isEmpty())
-		// return true;
-		//
-		// for (final Node peer : child.getSiblings()) {
-		// if (child.family.equals(peer.family)) {
-		// if (peer instanceof FamilyNode)
-		// ((FamilyNode) peer).add(child);
-		// else
-		// new FamilyNode(peer, child);
-		// return true;
-		// }
-		// }
-		// }
 		return true;
 	}
-
-	// /**
-	// * Add <i>this</i> child to a family node for it and its "peer" node. If the peer is a Family node then just add
-	// it,
-	// * otherwise create the family node.
-	// *
-	// * @return
-	// */
-	// @Deprecated
-	// private boolean addChildToFamily(Node peer) {
-	// assert (parent != null) : "Assert: parent is null"; //
-	// assert (peer.getParent() != null) : "Null peer parent.";
-	//
-	// if (peer instanceof FamilyNode) {
-	// ((FamilyNode) peer).add(this);
-	// // parent.remove(this); // take the child out of the parentNode's list.
-	// // peer.getChildren().add(this); // add it to the family node
-	// // parent = peer;
-	// } else {
-	// peer = new FamilyNode(this, peer);
-	// }
-	// // LOGGER.debug("Added a child " + this + " to a family " + peer.family);
-	// return true;
-	// }
 
 	/**
 	 * Adds the passed node as a child of <i>this</i> node, if its name and namespace are unique amongst the children.
@@ -1779,36 +1731,13 @@ public abstract class Node implements INode {
 	 * @return true if linked, false if not unique
 	 */
 	public boolean linkIfUnique(final Node child) {
-		if (child == null) {
+		if ((child == null) || (!isUnique(child)))
 			return false;
-		}
-		if (!this.isUnique(child)) {
-			return false;
-		}
-		getChildren().add(child);
-		child.setParent(this);
-		return true;
-	}
 
-	/**
-	 * 
-	 * @return true if not in the correct family or family name matches any siblings
-	 */
-	public boolean shouldCreateFamily() {
-		final String family = NodeNameUtils.makeFamilyName(this.getName());
-		if (parent != null) {
-			// Node already in a correct family - return false to avoid relinking
-			if (parent instanceof FamilyNode && parent.getName().equals(family)) {
-				return false;
-			}
-			// if any of the siblings in the same family - return true
-			for (final Node n : getSiblings()) {
-				if (n.getFamily() != null && n.getFamily().equals(family)) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return linkChild(child, -1);
+		// getChildren().add(child);
+		// child.setParent(this);
+		// return true;
 	}
 
 	/**
@@ -1844,75 +1773,29 @@ public abstract class Node implements INode {
 	 * @param n
 	 *            - new name
 	 */
-	public void setName(final String n) {
-		setName(n, true);
-	}
-
-	@Override
-	public void setName(final String n, final boolean doFamily) {
-		String newName = n;
-		if (n == null || n.isEmpty()) {
+	public void setName(final String name) {
+		String newName = name;
+		if (name == null || name.isEmpty())
 			newName = UNDEFINED_PROPERTY_TXT;
-		}
 
-		if (getModelObject() != null) {
+		if (getModelObject() != null)
 			getModelObject().setName(newName);
-		} else {
-			LOGGER.warn("Missing model object - Can not set name to :" + n);
-		}
-
-		String oldFamily = family;
-		family = NodeNameUtils.makeFamilyName(newName);
-
-		// A name change may also change the family.
-		// Parent may not be set yet - GUI construction sets the name then links
-		// to do family
-		if ((doFamily) && (parent != null) && (parent.parent != null)) {
-			final Node gp = parent.parent;
-			if (shouldCreateFamily()) {
-				Node par = parent;
-				if (parent instanceof FamilyNode) {
-					par = gp; // link in above the family node
-				}
-				unlinkNode(); // remove from parentNode
-				par.linkChild(this); // will re-apply family logic
-			} else if (parent instanceof FamilyNode) {
-				if (!family.equals(parent.getName())) {
-					unlinkNode();
-					gp.linkChild(this);
-				}
-			} else if ((parent instanceof VersionNode) && (parent.getParent() instanceof FamilyNode)) {
-				VersionNode vn = (VersionNode) parent;
-				Node family = parent.getParent(); // is also vn parent
-				if (!family.equals(family.getName())) {
-					// do the aggregate
-					this.family = oldFamily;
-					if (vn.head == this) {
-						// remove from aggregate family, add to aggregate
-						getLibrary().getChain().removeAggregate((ComponentNode) this);
-						getLibrary().getChain().add((ComponentNode) this);
-					}
-					// Move the version node
-					final Node newParent = family.getParent();
-					vn.unlinkNode(); // TEST ME
-					newParent.linkChild(vn);
-					// if (family.getParent() != null)
-					// family.getParent().linkChild(vn);
-					// else
-					// LOGGER.error("Error: family does not have parent: " + family);
-					this.family = NodeNameUtils.makeFamilyName(newName);
-					vn.family = this.family;
-				}
-			}
-			// }
-			// TODO - if they change a family name ask then apply changes to all
-			// members of the family.
-		}
-		// Enhancement - control duplicates. Check to see if one was created and
-		// Check the duplicates and remove if appropriate.
-		// if (ModelNode.getDuplicateTypesNode().getChildren().contains(this))
-		// ModelNode.getDuplicateTypesNode().getChildren().remove(this);
+		else
+			LOGGER.warn("Missing model object - Can not set name to :" + name);
 	}
+
+	// @Deprecated
+	// @Override
+	// public void setName(final String name, final boolean doFamily) {
+	// String newName = name;
+	// if (name == null || name.isEmpty())
+	// newName = UNDEFINED_PROPERTY_TXT;
+	//
+	// if (getModelObject() != null)
+	// getModelObject().setName(newName);
+	// else
+	// LOGGER.warn("Missing model object - Can not set name to :" + name);
+	// }
 
 	/**
 	 * Simple parent setter. Set to null if it is the root node.
@@ -1938,7 +1821,6 @@ public abstract class Node implements INode {
 		if (!parent.children.remove(this))
 			LOGGER.debug("unlinkNode Error - child " + getName() + " was not in parent's " + parent.getName()
 					+ " child list.");
-		parent.updateFamily();
 		parent = null;
 		// recurse to remove version parent as well.
 		if (vn != null) {
@@ -1948,12 +1830,6 @@ public abstract class Node implements INode {
 			// unlink the version node it self
 			vn.unlinkNode();
 		}
-	}
-
-	/**
-	 * Checks to make sure the family structure is OK and adjusts if not. Overridden in FamilyNode.
-	 */
-	protected void updateFamily() {
 	}
 
 	/**
@@ -2753,19 +2629,19 @@ public abstract class Node implements INode {
 		return xml;
 	}
 
-	/**
-	 * @return the diagnostic identity
-	 */
-	public String getIdentity() {
-		return identity;
-	}
-
-	/**
-	 * Set the node's identity for diagnostics purposes
-	 */
-	public void setIdentity(String identity) {
-		this.identity = identity;
-	}
+	// /**
+	// * @return the diagnostic identity
+	// */
+	// public String getIdentity() {
+	// return identity;
+	// }
+	//
+	// /**
+	// * Set the node's identity for diagnostics purposes
+	// */
+	// public void setIdentity(String identity) {
+	// this.identity = identity;
+	// }
 
 	/**
 	 * Visitors *********************************************

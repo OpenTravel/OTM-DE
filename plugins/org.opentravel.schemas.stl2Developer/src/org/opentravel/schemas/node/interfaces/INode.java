@@ -139,6 +139,9 @@ public interface INode {
 	/*****************************************************************************
 	 * Public getters
 	 */
+	/**
+	 * @return the component (named object) owner of this node or else this node.
+	 */
 	public INode getOwningComponent();
 
 	public INode getParent();
@@ -248,7 +251,10 @@ public interface INode {
 	 */
 	public void removeFromLibrary();
 
-	public void setName(final String n, final boolean doFamily);
+	public void setName(String string);
+
+	// @Deprecated
+	// public void setName(final String n, final boolean doFamily);
 
 	/**
 	 * Visit this node and all of its descendants (recursive).

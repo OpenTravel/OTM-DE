@@ -57,7 +57,7 @@ public class OperationNode extends FacetNode implements VersionedObjectInterface
 	public OperationNode(TLOperation tlObj) {
 		super(tlObj);
 		addMOChildren();
-		setIdentity("Operation:" + getName());
+		// setIdentity("Operation:" + getName());
 	}
 
 	@Override
@@ -183,15 +183,15 @@ public class OperationNode extends FacetNode implements VersionedObjectInterface
 		}
 
 		((TLService) svc.modelObject.getTLModelObj()).addOperation((TLOperation) this.getTLModelObject());
-		this.setName(name, false);
-		setIdentity("Operation:" + getName());
+		this.setName(name);
+		// setIdentity("Operation:" + getName());
 		setExtensible(true);
-		svc.linkChild(this, false);
+		svc.linkChild(this);
 
 		// Create Messages from those in the new TLOperation
 		for (final Object msg : modelObject.getChildren()) {
 			final FacetNode fn = new FacetNode((TLFacet) msg);
-			this.linkChild(fn, false);
+			this.linkChild(fn);
 			new ElementNode(fn, "");
 		}
 	}
@@ -216,14 +216,14 @@ public class OperationNode extends FacetNode implements VersionedObjectInterface
 		((TLService) service.getTLModelObject()).addOperation(tlo);
 		tlo.setOwningService(((TLService) service.getTLModelObject()));
 		modelObject = ModelObjectFactory.newModelObject(tlo, this);
-		this.setName(name, false);
-		setIdentity("Operation:" + getName());
+		this.setName(name);
+		// setIdentity("Operation:" + getName());
 		setExtensible(true);
-		service.linkChild(this, false);
+		service.linkChild(this);
 
 		for (final Object msg : modelObject.getChildren()) {
 			final FacetNode fn = new FacetNode((TLFacet) msg);
-			this.linkChild(fn, false);
+			this.linkChild(fn);
 			final TypeUser np = new ElementNode(fn, subject.getName());
 			TLFacet tlf = (TLFacet) ((TLProperty) ((Node) np).getTLModelObject()).getOwner();
 			switch (type) {

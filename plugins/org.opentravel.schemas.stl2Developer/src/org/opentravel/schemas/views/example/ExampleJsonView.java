@@ -78,7 +78,8 @@ public class ExampleJsonView extends OtmAbstractView implements ISelectionListen
 				if (s == null) {
 					s = "";
 				}
-				jsonBox.setText(s);
+				if (!jsonBox.isDisposed())
+					jsonBox.setText(s);
 			}
 		}
 	}

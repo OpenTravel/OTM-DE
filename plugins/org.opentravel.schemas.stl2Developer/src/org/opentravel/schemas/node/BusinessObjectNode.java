@@ -374,24 +374,30 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	}
 
 	@Override
-	public void setName(String n) {
-		n = NodeNameUtils.fixBusinessObjectName(n);
-		setName(n, true);
+	public void setName(String name) {
+		// n = NodeNameUtils.fixBusinessObjectName(n);
 		// this.setName(n, true);
+		super.setName(NodeNameUtils.fixBusinessObjectName(name));
+		for (TypeUser user : getWhereAssigned()) {
+			if (user instanceof PropertyNode)
+				user.setName(NodeNameUtils.fixBusinessObjectName(name));
+		}
+
 		for (Node child : getChildren()) {
 			for (TypeUser users : ((TypeProvider) child).getWhereAssigned())
 				NodeNameUtils.fixName((Node) users);
 		}
 	}
 
-	@Override
-	public void setName(String n, boolean doFamily) {
-		super.setName(NodeNameUtils.fixBusinessObjectName(n), doFamily);
-		for (TypeUser user : getWhereAssigned()) {
-			if (user instanceof PropertyNode)
-				user.setName(NodeNameUtils.fixBusinessObjectName(n));
-		}
-	}
+	// @Deprecated
+	// @Override
+	// public void setName(String n, boolean doFamily) {
+	// // super.setName(NodeNameUtils.fixBusinessObjectName(n));
+	// // for (TypeUser user : getWhereAssigned()) {
+	// // if (user instanceof PropertyNode)
+	// // user.setName(NodeNameUtils.fixBusinessObjectName(n));
+	// // }
+	// }
 
 	@Override
 	public void sort() {

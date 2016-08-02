@@ -77,7 +77,7 @@ public class ServiceNode extends ComponentNode {
 	public ServiceNode(final Node n) {
 		this(new TLService(), n.getLibrary());
 		setDescription(n.getDescription());
-		setName(n.getName(), false);
+		setName(n.getName());
 		addCRUDQ_Operations(n);
 		// If a chain, the wrap the service in a version and add to chain aggregate.
 		if (n.getLibrary().isInChain())

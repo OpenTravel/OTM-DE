@@ -568,16 +568,16 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 					// user selection
 					if (userSelection != null) {
 						if (userSelection == propertyType) {
-							node.linkChild(NodeFactory.newComponentMember(node, property), false);
+							node.linkChild(NodeFactory.newComponentMember(node, property));
 						} else {
 							newTreePropertyNode(userSelection, node);
 						}
 						inheritanceHierarchies.add(inheritanceHierarchy);
 					} else {
-						node.linkChild(NodeFactory.newComponentMember(node, property), false);
+						node.linkChild(NodeFactory.newComponentMember(node, property));
 					}
 				} else {
-					node.linkChild(NodeFactory.newComponentMember(node, property), false);
+					node.linkChild(NodeFactory.newComponentMember(node, property));
 				}
 			}
 			if (baseFacet != null) {
@@ -592,11 +592,11 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 							if (userSelection != null) {
 								newTreePropertyNode(userSelection, node);
 							} else {
-								node.linkChild(NodeFactory.newComponentMember(node, property), false);
+								node.linkChild(NodeFactory.newComponentMember(node, property));
 							}
 							inheritanceHierarchies.add(inheritanceHierarchy);
 						} else {
-							node.linkChild(NodeFactory.newComponentMember(node, property), false);
+							node.linkChild(NodeFactory.newComponentMember(node, property));
 						}
 					}
 				}
@@ -610,7 +610,7 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 				for (Object childTLObj : modelObject.getChildren()) {
 					ComponentNode childNode = NodeFactory.newComponentMember(node, childTLObj);
 
-					node.linkChild(childNode, false);
+					node.linkChild(childNode);
 					createTreeNodeChildren(childNode);
 				}
 			}

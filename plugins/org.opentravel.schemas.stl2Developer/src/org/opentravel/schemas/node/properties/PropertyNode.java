@@ -70,7 +70,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		this.alternateRoles = new AlternateRoles(this);
 		if (parent != null) {
 			parent.getModelObject().addChild(tlObj); // link to TL model
-			((Node) parent).linkChild(this, false); // link to node model
+			((Node) parent).linkChild(this); // link to node model
 			setLibrary(parent.getLibrary());
 		}
 
@@ -322,7 +322,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 
 	@Override
 	public void setName(final String name) {
-		setName(name, false); // Override family behavior
+		setName(name);
 	}
 
 	/**
@@ -454,7 +454,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	 */
 	public void swap(PropertyNode newProperty) {
 		// Link new property to the parent node.
-		getParent().linkChild(newProperty, false); // no family processing needed
+		getParent().linkChild(newProperty); // no family processing needed
 		// Add the new property TL element to its TL Parent
 		newProperty.modelObject.addChild(newProperty.getTLModelObject());
 		// Remove this TL element from its TL parent.
@@ -478,7 +478,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 
 		setName(getName());
 		setMandatory(isMandatory());
-		setIdentity(source.getIdentity());
+		// setIdentity(source.getIdentity());
 
 		TLDocumentation doc, sDoc;
 		if (tlTarget instanceof TLDocumentationOwner && tlSource instanceof TLDocumentationOwner) {

@@ -264,7 +264,7 @@ public class NodeFactory {
 		}
 		if (parent != null && nn.getParent() == null) {
 			NodeNameUtils.fixName(nn); // make sure the name is legal (2/2016)
-			((Node) parent).linkChild(nn, false);
+			((Node) parent).linkChild(nn);
 			nn.setLibrary(parent.getLibrary());
 		}
 		// if (nn.getParent() == null)
@@ -340,7 +340,7 @@ public class NodeFactory {
 				cn.setExtensible(true);
 				cn.setName(n.getName());
 				cn.setDescription(n.getDescription());
-				cn.setIdentity(n.getName());
+				// cn.setIdentity(n.getName());
 
 				if (n.getLibrary().isEditable())
 					n.getLibrary().addMember(cn);

@@ -617,19 +617,20 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	public void setName(String n) {
-		this.setName(n, false);
+		// this.setName(n, false);
+		tlObj.setName(n);
 	}
 
-	@Override
-	public void setName(String n, boolean doFamily) {
-		// super.setName(n, doFamily);
-		tlObj.setName(n);
-		// There are no type users -- resources are not type assignable
-		// for (Node user : getTypeUsers()) {
-		// if (user instanceof PropertyNode)
-		// user.setName(n);
-		// }
-	}
+	// @Override
+	// public void setName(String n, boolean doFamily) {
+	// // super.setName(n, doFamily);
+	// // tlObj.setName(n);
+	// // There are no type users -- resources are not type assignable
+	// // for (Node user : getTypeUsers()) {
+	// // if (user instanceof PropertyNode)
+	// // user.setName(n);
+	// // }
+	// }
 
 	public boolean setExtension(String name) {
 		ResourceNode peer = getPeerByName(name);

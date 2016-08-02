@@ -308,11 +308,11 @@ public class ProjectNode extends Node implements INode {
 		return true;
 	}
 
-	@Override
-	public void setName(String n, boolean doFamily) {
-		if (!isBuiltIn())
-			project.setName(n);
-	}
+	// @Override
+	// public void setName(String n, boolean doFamily) {
+	// if (!isBuiltIn())
+	// project.setName(n);
+	// }
 
 	public void setNamespace(String namespace) {
 		if (namespace != null && !namespace.isEmpty())

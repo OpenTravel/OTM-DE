@@ -94,7 +94,7 @@ public class LibraryChainNode extends Node {
 		setParent(pn);
 		pn.getChildren().remove(ln);
 		pn.getChildren().add(this);
-		setIdentity(ln.getProjectItem().getBaseNamespace());
+		// setIdentity(ln.getProjectItem().getBaseNamespace());
 
 		setHead(ln);
 		createAggregates();
@@ -136,7 +136,7 @@ public class LibraryChainNode extends Node {
 			// LOGGER.debug("Null project item content!");
 			return;
 		}
-		setIdentity(pi.getBaseNamespace());
+		// setIdentity(pi.getBaseNamespace());
 
 		setParent(project);
 		project.getChildren().add(this);
@@ -385,19 +385,19 @@ public class LibraryChainNode extends Node {
 		return label;
 	}
 
-	/**
-	 * All members of the chain must have the same name, base namespace and major version number.
-	 */
-	@Override
-	public String getIdentity() {
-		String identity = "UNIDENTIFIED-CHAIN:someNS:9";
-		if (getHead() != null) {
-			NamespaceHandler handler = getHead().getNsHandler();
-			if (handler != null)
-				identity = makeIdentity();
-		}
-		return identity;
-	}
+	// /**
+	// * All members of the chain must have the same name, base namespace and major version number.
+	// */
+	// @Override
+	// public String getIdentity() {
+	// String identity = "UNIDENTIFIED-CHAIN:someNS:9";
+	// if (getHead() != null) {
+	// NamespaceHandler handler = getHead().getNsHandler();
+	// if (handler != null)
+	// identity = makeIdentity();
+	// }
+	// return identity;
+	// }
 
 	/**
 	 * See also {@link ProjectNode#makeChainIdentity(ProjectItem)} 9/23/2013 - this method does not use the repository

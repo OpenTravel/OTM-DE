@@ -79,7 +79,8 @@ public class ExampleXmlView extends OtmAbstractView implements ISelectionListene
 				if (s == null) {
 					s = "";
 				}
-				xmlBox.setText(s);
+				if (!xmlBox.isDisposed())
+					xmlBox.setText(s);
 			}
 		}
 	}

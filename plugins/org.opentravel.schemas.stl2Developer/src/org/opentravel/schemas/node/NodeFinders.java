@@ -48,21 +48,22 @@ public class NodeFinders {
 	 * @return the first type provider node that matches the QName in the model starting from the root or null. If QName
 	 *         is not found, the local part name is tried with the chameleon namespace.
 	 */
-	public static Node findTypeProviderByQName(final QName qname) {
-		if (qname == null)
-			return null;
-
-		Node n = Node.getModelNode().findNode_TypeProvider(qname.getLocalPart(), qname.getNamespaceURI());
-		if (n == null)
-			n = Node.getModelNode().findNode_TypeProvider(qname.getLocalPart(), XsdModelingUtils.ChameleonNS);
-		// LOGGER.debug("findNodeByQName ("+qname+") returning: "+n);
-		return n;
-	}
+	// public static Node findTypeProviderByQName(final QName qname) {
+	// if (qname == null)
+	// return null;
+	//
+	// Node n = Node.getModelNode().findNode_TypeProvider(qname.getLocalPart(), qname.getNamespaceURI());
+	// if (n == null)
+	// n = Node.getModelNode().findNode_TypeProvider(qname.getLocalPart(), XsdModelingUtils.ChameleonNS);
+	// // LOGGER.debug("findNodeByQName ("+qname+") returning: "+n);
+	// return n;
+	// }
 
 	/**
-	 * @return the first type provider node in the passed libary that matches the QName in the model starting from the
+	 * @return the first type provider node in the passed library that matches the QName in the model starting from the
 	 *         root or null. If QName is not found, the local part name is tried with the chameleon namespace.
 	 */
+	// TODO - only used in tests
 	public static Node findTypeProviderByQName(final QName qname, Node ln) {
 		if (qname == null)
 			return null;

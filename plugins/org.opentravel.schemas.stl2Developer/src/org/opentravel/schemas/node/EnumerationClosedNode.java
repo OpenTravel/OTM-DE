@@ -89,7 +89,7 @@ public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration
 		if (isEditable_newToChain())
 			if (enumLiteral instanceof EnumLiteralNode) {
 				((TLClosedEnumeration) getTLModelObject()).addValue((TLEnumValue) enumLiteral.getTLModelObject());
-				this.linkChild(enumLiteral, false);
+				this.linkChild(enumLiteral);
 			}
 	}
 

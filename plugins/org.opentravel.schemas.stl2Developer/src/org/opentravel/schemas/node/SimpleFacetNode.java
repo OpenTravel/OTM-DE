@@ -68,6 +68,11 @@ public class SimpleFacetNode extends FacetNode implements TypeProvider, SimpleAt
 	}
 
 	@Override
+	public Node getAssignable() {
+		return getChildren().get(0);
+	}
+
+	@Override
 	public TLFacetType getFacetType() {
 		return TLFacetType.SIMPLE;
 	}

@@ -57,7 +57,7 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 	public AliasNode(final Node parent, final TLAlias tlObj) {
 		this(tlObj);
 		if (parent != null) {
-			parent.linkChild(this, false); // link without doing family tests.
+			parent.linkChild(this);
 			setLibrary(parent.getLibrary());
 			if (parent instanceof BusinessObjectNode || parent instanceof CoreObjectNode) {
 				parent.getModelObject().addAlias(tlObj);
@@ -77,7 +77,7 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 		this(new TLAlias());
 		setName(name);
 		((TLAlias) getTLModelObject()).setName(name);
-		parent.linkChild(this, false); // link without doing family tests.
+		parent.linkChild(this); // link without doing family tests.
 		setLibrary(parent.getLibrary());
 		if (parent instanceof BusinessObjectNode || parent instanceof CoreObjectNode) {
 			parent.getModelObject().addAlias((TLAlias) getTLModelObject());

@@ -26,7 +26,6 @@ import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.types.TypeUserNode;
 
@@ -43,7 +42,7 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
-		ProjectNode project = null;
+		// ProjectNode project = null;
 		Node node = mc.getSelectedNode_NavigatorView();
 		if (node == null)
 			return null;
@@ -60,6 +59,10 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 	@Override
 	public boolean isEnabled() {
 		Node n = mc.getSelectedNode_NavigatorView();
+		// NOT OWNER
+		if (n instanceof TypeUserNode)
+			if (!((TypeUserNode) n).isProviderLib())
+				return false;
 		return n != null && n.isEditable() ? n instanceof TypeUserNode : false;
 	}
 
@@ -104,7 +107,7 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 				+ "?";
 		if (DialogUserNotifier.openQuestion("Update to Latest Version", question))
 			// replace type users using the replacement map
-			libToUpdate.replaceTypeUsers(replacementMap);
+			libToUpdate.replaceAllUsers(replacementMap);
 
 		// How to clear the TypeUserNode?
 		libToUpdate.getWhereUsedHandler().refreshUsedByNode();

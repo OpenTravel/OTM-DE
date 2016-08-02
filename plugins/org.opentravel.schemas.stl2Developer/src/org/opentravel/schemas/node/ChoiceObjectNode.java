@@ -272,21 +272,28 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 
 	@Override
 	public void setName(String n) {
-		this.setName(n, true);
+		// this.setName(n, true);
+		super.setName(n);
+		for (TypeUser user : getWhereAssigned()) {
+			if (user instanceof PropertyNode)
+				user.setName(n);
+		}
+
 		for (Node child : getChildren()) {
 			for (TypeUser users : ((TypeProvider) child).getWhereAssigned())
 				NodeNameUtils.fixName((Node) users);
 		}
 	}
 
-	@Override
-	public void setName(String n, boolean doFamily) {
-		super.setName(n, doFamily);
-		for (TypeUser user : getWhereAssigned()) {
-			if (user instanceof PropertyNode)
-				user.setName(n);
-		}
-	}
+	// @Deprecated
+	// @Override
+	// public void setName(String n, boolean doFamily) {
+	// super.setName(n);
+	// for (TypeUser user : getWhereAssigned()) {
+	// if (user instanceof PropertyNode)
+	// user.setName(n);
+	// }
+	// }
 
 	@Override
 	public void sort() {

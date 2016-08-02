@@ -54,7 +54,7 @@ public class VersionNode extends ComponentNode {
 		prevVersion = null;
 		node.setVersionNode(this);
 		setLibrary(node.getLibrary());
-		family = node.getFamily(); // needed for family processing in node.
+		// family = node.getFamily(); // needed for family processing in node.
 
 		// Insert this between parent and node.
 		setParent(node.getParent());

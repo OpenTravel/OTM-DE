@@ -182,7 +182,7 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 			String context = null;
 			FacetNode newFacet = createFacetNode(name, context, TLFacetType.QUERY);
 			componentObject.getModelObject().addQueryFacet((TLFacet) newFacet.getTLModelObject());
-			componentObject.linkChild(newFacet, false);
+			componentObject.linkChild(newFacet);
 			newFacet.setName(name);
 			return this;
 		}
@@ -191,7 +191,7 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 			String context = null;
 			FacetNode newFacet = createFacetNode(name, context, TLFacetType.CUSTOM);
 			componentObject.getModelObject().addCustomFacet((TLFacet) newFacet.getTLModelObject());
-			componentObject.linkChild(newFacet, false);
+			componentObject.linkChild(newFacet);
 			newFacet.setName(name);
 			return this;
 		}
@@ -199,7 +199,7 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 		public BusinessNodeBuilder addCustomFacet(String name, String context) {
 			FacetNode newFacet = createFacetNode(name, context, TLFacetType.CUSTOM);
 			componentObject.getModelObject().addCustomFacet((TLFacet) newFacet.getTLModelObject());
-			componentObject.linkChild(newFacet, false);
+			componentObject.linkChild(newFacet);
 			newFacet.setName(name);
 			return this;
 		}

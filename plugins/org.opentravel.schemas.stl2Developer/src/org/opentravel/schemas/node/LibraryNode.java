@@ -53,6 +53,7 @@ import org.opentravel.schemas.controllers.ContextController;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
@@ -192,7 +193,7 @@ public class LibraryNode extends Node {
 
 		// Save edit state: Test to see if this is an editable library.
 		updateLibraryStatus();
-		setIdentity(getLabel());
+		// setIdentity(getLabel());
 
 		// Set up the contexts
 		addContexts();
@@ -1608,16 +1609,23 @@ public class LibraryNode extends Node {
 	}
 
 	/**
-	 * Get a list of libraries that contain types assigned to any type user in this library.
+	 * Get a list of libraries that contain extensions or types assigned to any named object in this library.
 	 */
 	public List<LibraryNode> getAssignedLibraries() {
-		// Walk selected library type users and collect all used libraries (type assignments and extensions)
+		// Walk selected library type users and collect all used libraries (type assignments)
 		List<LibraryNode> usedLibs = new ArrayList<LibraryNode>();
 		for (TypeUser user : getDescendants_TypeUsers()) {
 			TypeProvider provider = user.getAssignedType();
 			if (provider != null && provider.getLibrary() != null && provider.getLibrary().getChain() != null)
 				if (provider.getLibrary() != this && !usedLibs.contains(provider.getLibrary()))
 					usedLibs.add(provider.getLibrary());
+		}
+		// Walk selected library type users and collect all used libraries (extensions)
+		for (ExtensionOwner owner : getDescendants_ExtensionOwners()) {
+			Node base = owner.getExtensionBase();
+			if (base != null && base.getLibrary() != null && base.getLibrary().getChain() != null)
+				if (base.getLibrary() != this && !usedLibs.contains(base.getLibrary()))
+					usedLibs.add(base.getLibrary());
 		}
 		return usedLibs;
 	}
@@ -1758,17 +1766,54 @@ public class LibraryNode extends Node {
 	}
 
 	/**
+	 * Replace assignments to all extension owners and type users in this library using the passed map. The map must
+	 * contain key/value pairs of library nodes where the currently used library is the key. No action taken on types in
+	 * libraries not in the map.
+	 */
+
+	public void replaceAllUsers(HashMap<LibraryNode, LibraryNode> replacementMap) {
+		replaceTypeUsers(replacementMap);
+		replaceExtensionUsers(replacementMap);
+	}
+
+	/**
 	 * Replace all type users in this library using the passed map. The map must contain key/value pairs of library
 	 * nodes where the currently used library is the key. No action taken on types in libraries not in the map.
 	 */
 	public void replaceTypeUsers(HashMap<LibraryNode, LibraryNode> replacementMap) {
 		TypeProvider provider = null;
 		for (TypeUser user : getDescendants_TypeUsers()) {
+			// Get the replacement library from the map using the assigned library as the key
 			LibraryNode replacementLib = replacementMap.get(user.getAssignedType().getLibrary());
 			if (user.isEditable() && replacementLib != null) {
+				// Find a type provider in new library with the same name as existing assigned type
 				provider = replacementLib.findTypeProvider(user.getAssignedType().getName());
 				if (provider != null)
+					// If found, set the new provider as the assigned type
 					user.setAssignedType(provider); // don't set to null as null clears assignment
+			}
+		}
+	}
+
+	/**
+	 * Replace all Extension users in this library using the passed map. The map must contain key/value pairs of library
+	 * nodes where the currently used library is the key. No action taken on types in libraries not in the map.
+	 */
+	public void replaceExtensionUsers(HashMap<LibraryNode, LibraryNode> replacementMap) {
+		Node provider = null;
+		for (ExtensionOwner owner : getDescendants_ExtensionOwners()) {
+			// Skip owners that do not extend another object or are not editable.
+			if (owner.getExtensionBase() == null || !((INode) owner).isEditable())
+				continue;
+
+			// Get the replacement library from the map using the assigned library as the key
+			LibraryNode replacementLib = replacementMap.get(owner.getExtensionBase().getLibrary());
+			if (replacementLib != null) {
+				// Find a type provider in new library with the same name as existing assigned type
+				provider = (Node) replacementLib.findTypeProvider(owner.getExtensionBase().getName());
+				// If found, set the new provider as the assigned type
+				if (provider != null)
+					owner.setExtension(provider); // don't set to null as null clears assignment
 			}
 		}
 	}

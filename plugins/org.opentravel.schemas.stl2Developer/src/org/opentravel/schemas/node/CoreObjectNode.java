@@ -207,6 +207,11 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	}
 
 	@Override
+	public Node getSimpleProperty() {
+		return getSimpleFacet().getChildren().get(0);
+	}
+
+	@Override
 	public PropertyOwnerInterface getSummaryFacet() {
 		for (INode f : getChildren())
 			if (((FacetNode) f).getFacetType().equals(TLFacetType.SUMMARY))
@@ -301,18 +306,24 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 
 	@Override
 	public void setName(String n) {
-		this.setName(n, true);
-	}
-
-	@Override
-	public void setName(String n, boolean doFamily) {
 		n = NodeNameUtils.fixCoreObjectName(n);
-		super.setName(n, doFamily);
+		super.setName(n);
 		for (TypeUser user : getWhereAssigned()) {
 			if (user instanceof PropertyNode)
 				user.setName(n);
 		}
 	}
+
+	// @Deprecated
+	// @Override
+	// public void setName(String n, boolean doFamily) {
+	// // n = NodeNameUtils.fixCoreObjectName(n);
+	// // super.setName(n);
+	// // for (TypeUser user : getWhereAssigned()) {
+	// // if (user instanceof PropertyNode)
+	// // user.setName(n);
+	// // }
+	// }
 
 	@Override
 	public void sort() {

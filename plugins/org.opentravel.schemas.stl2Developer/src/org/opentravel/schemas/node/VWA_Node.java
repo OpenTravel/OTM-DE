@@ -145,6 +145,11 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 	}
 
 	@Override
+	public Node getSimpleProperty() {
+		return getSimpleFacet().getChildren().get(0);
+	}
+
+	@Override
 	public ComponentNodeType getComponentNodeType() {
 		return ComponentNodeType.VWA;
 	}

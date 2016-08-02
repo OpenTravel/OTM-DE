@@ -89,7 +89,7 @@ public class AttributeNode extends PropertyNode {
 		int index = indexOfNode();
 		Node n = new AttributeNode(tlObj, null);
 		((TLAttribute) getTLModelObject()).getOwner().addAttribute(index, tlObj);
-		n.setName(type.getName(), false);
+		n.setName(type.getName());
 		getParent().linkChild(n, index);
 		n.setDescription(type.getDescription());
 		if (type instanceof TypeProvider)

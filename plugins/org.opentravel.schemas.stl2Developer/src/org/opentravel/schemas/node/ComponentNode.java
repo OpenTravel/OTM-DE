@@ -89,7 +89,6 @@ public class ComponentNode extends Node {
 
 	public ComponentNode() {
 		super();
-		family = "";
 		setListner();
 	}
 
@@ -447,22 +446,14 @@ public class ComponentNode extends Node {
 		return getModelObject().getAssignedPrefix();
 	}
 
+	// overridden where a simple type exists.
 	@Override
 	public Node getAssignable() {
-		if (this instanceof VWA_Node)
-			return getSimpleProperty();
-		else if (this instanceof CoreObjectNode)
-			return getSimpleProperty();
-		else if (this instanceof SimpleFacetNode)
-			return getChildren().get(0);
-		return null;
+		return getSimpleProperty();
 	}
 
-	private Node getSimpleProperty() {
-		for (Node n : getChildren()) {
-			if (n instanceof SimpleFacetNode)
-				return n.getChildren().get(0);
-		}
+	// overridden where a simple property exists.
+	public Node getSimpleProperty() {
 		return null;
 	}
 
@@ -771,7 +762,7 @@ public class ComponentNode extends Node {
 			if (index >= 0)
 				linkChild(property, index);
 			else
-				linkChild(property, false);
+				linkChild(property);
 			final ModelObject<?> propMO = property.getModelObject();
 			final ModelObject<?> mo = getModelObject();
 			if (propMO != null && mo != null) {

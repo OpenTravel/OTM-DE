@@ -24,8 +24,10 @@ import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public class FamilyNode extends NavNode {
 	private static final Logger LOGGER = LoggerFactory.getLogger(FamilyNode.class);
+	protected String family; // name stripped at the first under bar
 
 	/**
 	 * Constructor that creates a family node based on the node parameter. Move the node and its peer into the family
@@ -42,8 +44,8 @@ public class FamilyNode extends NavNode {
 		assert (!(n.getParent() instanceof FamilyNode)) : "wrong parent type";
 		assert (!(peer.getParent() instanceof FamilyNode)) : "wrong parent type";
 
-		setName(n.family.isEmpty() ? NodeNameUtils.makeFamilyName(n.getName()) : n.family);
-		setIdentity("Family:" + getName());
+		// setName(n.family.isEmpty() ? NodeNameUtils.makeFamilyName(n.getName()) : n.family);
+		// setIdentity("Family:" + getName());
 		// done in super() - setLibrary(n.getLibrary());
 
 		// link n and peer to this family node.
@@ -73,7 +75,7 @@ public class FamilyNode extends NavNode {
 	 */
 	public FamilyNode(final String name, final Node parent) {
 		super(name, parent);
-		setIdentity("Family2:" + getName());
+		// setIdentity("Family2:" + getName());
 	}
 
 	public void add(Node newNode) {
@@ -165,7 +167,6 @@ public class FamilyNode extends NavNode {
 			kid.setName(name + "_" + NodeNameUtils.getGivenName(kid.getName()));
 	}
 
-	@Override
 	protected void updateFamily() {
 		if (getParent() == null)
 			return; // During construction or delete, may not have a parent, do nothing.
