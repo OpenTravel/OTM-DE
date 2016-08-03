@@ -86,7 +86,6 @@ public class ComponentNode extends Node {
 	 * 
 	 * @see ComponentNode(library), ComponentNode(JaxB element), ComponentNode (name, getNamespace)
 	 */
-
 	public ComponentNode() {
 		super();
 		setListner();
@@ -126,11 +125,6 @@ public class ComponentNode extends Node {
 	private void setListner() {
 		ListenerFactory.setListner(this);
 	}
-
-	// @Override
-	// public Node getTypeNode() {
-	// return getTypeClass().getTypeNode();
-	// }
 
 	@Override
 	public boolean isNamedType() {
@@ -371,6 +365,7 @@ public class ComponentNode extends Node {
 	 * 
 	 * @return
 	 */
+	// FIXME - why here and in Node? Why different?
 	public boolean isUnique() {
 		// LOGGER.debug("ComponentNode:isUnique() - test "+getNamespace+":"+name);
 		List<Node> siblings = new ArrayList<Node>(getParent().getChildren());
@@ -776,16 +771,16 @@ public class ComponentNode extends Node {
 		}
 	}
 
-	/**
-	 * Add list of properties to a facet.
-	 * 
-	 * @param properties
-	 * @param clone
-	 *            - if true, the properties are cloned before adding.
-	 */
-	public void addProperties(List<Node> properties, boolean clone) {
-		// LOGGER.debug("addProperties not implemented for this class: " + this.getClass());
-	}
+	// /**
+	// * Add list of properties to a facet.
+	// *
+	// * @param properties
+	// * @param clone
+	// * - if true, the properties are cloned before adding.
+	// */
+	// public void addProperties(List<Node> properties, boolean clone) {
+	// // LOGGER.debug("addProperties not implemented for this class: " + this.getClass());
+	// }
 
 	/**
 	 * Add a new property from a Drag-and-Drop action. If version rules require, a new component is created.
@@ -872,47 +867,11 @@ public class ComponentNode extends Node {
 
 	/** TYPE Interfaces **/
 
-	// @Override
-	// public ArrayList<Node> typeUsers() {
-	// return getTypeClass().getTypeUsers();
-	// }
-
-	// @Override
-	// public List<Node> getWhereUsed_OLD() {
-	// return getTypeClass().getTypeUsers();
-	// }
-
-	@Override
-	public int getWhereAssignedCount() {
-		int cnt = 0;
-		if (this instanceof TypeProvider)
-			cnt = ((TypeProvider) this).getWhereAssignedCount();
-		return cnt;
-
-		// if (getTypeClass() == null)
-		// return 0;
-		//
-		// // return total count for all facets. Overloaded in facet class.
-		// int cnt = getTypeClass().getTypeUsersCount();
-		// for (Node n : getChildren())
-		// cnt += n.getTypeUsersCount();
-		// return cnt;
-		// return getTypeClass() != null ? getTypeClass().getTypeUsersCount() : 0;
-	}
-
-	// @Override
-	// public int getComponentUsersCount() {
-	// return getTypeClass().getTypeUsersAndDescendantsCount();
-	// }
-
-	// /*
-	// * (non-Javadoc)
-	// *
-	// * @see org.opentravel.schemas.types.TypeProvider#getTypeOwner()
-	// */
-	// @Override
-	// public Node getTypeOwner() {
-	// return getTypeClass().getTypeOwner();
+	// public int getWhereAssignedCount() {
+	// int cnt = 0;
+	// if (this instanceof TypeProvider)
+	// cnt = ((TypeProvider) this).getWhereAssignedCount();
+	// return cnt;
 	// }
 
 	/**

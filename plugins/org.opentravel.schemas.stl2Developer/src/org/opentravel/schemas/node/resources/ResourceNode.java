@@ -604,6 +604,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return true;
 	}
 
+	@Override
+	protected boolean isNavChild() {
+		return true;
+	}
+
 	public String getBasePath() {
 		return tlObj.getBasePath();
 	}

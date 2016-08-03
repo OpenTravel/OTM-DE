@@ -69,7 +69,7 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 	private void updateLibrary(TypeUserNode userNode) {
 		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
 		List<LibraryNode> usedLibs = new ArrayList<LibraryNode>();
-		// FIXME - if nodeType==owner the get the children
+		// FIXME - if nodeType==owner the get the children - when fixed, remove test from isEnabled()
 		usedLibs.add(userNode.getOwner());
 		LibraryNode libToUpdate = (LibraryNode) userNode.getParent();
 

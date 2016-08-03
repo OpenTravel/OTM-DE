@@ -16,13 +16,13 @@
 package org.opentravel.schemas.node;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLAbstractFacet;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAliasOwner;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
@@ -40,14 +40,6 @@ import org.slf4j.LoggerFactory;
 public class AliasNode extends TypeProviderBase implements TypeProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AliasNode.class);
 
-	// public AliasNode() {
-	// super();
-	// }
-
-	public AliasNode(final TLModelElement obj) {
-		super(obj);
-	}
-
 	/**
 	 * Add a new alias to a core or business object parent.
 	 * 
@@ -55,15 +47,8 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 	 * @param tlObj
 	 */
 	public AliasNode(final Node parent, final TLAlias tlObj) {
-		this(tlObj);
-		if (parent != null) {
-			parent.linkChild(this);
-			setLibrary(parent.getLibrary());
-			if (parent instanceof BusinessObjectNode || parent instanceof CoreObjectNode) {
-				parent.getModelObject().addAlias(tlObj);
-				createChildrenAliases(parent, tlObj);
-			}
-		}
+		super(tlObj);
+		addAlias(parent, tlObj);
 	}
 
 	/**
@@ -74,22 +59,25 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 	 */
 	public AliasNode(final Node parent, final String name) {
 		// Do not use the parent form of this constructor. The alias must be named before children are created.
-		this(new TLAlias());
+		super(new TLAlias());
 		setName(name);
 		((TLAlias) getTLModelObject()).setName(name);
-		parent.linkChild(this); // link without doing family tests.
-		setLibrary(parent.getLibrary());
-		if (parent instanceof BusinessObjectNode || parent instanceof CoreObjectNode) {
-			parent.getModelObject().addAlias((TLAlias) getTLModelObject());
-			createChildrenAliases(parent, (TLAlias) getTLModelObject());
+		addAlias(parent, ((TLAlias) getTLModelObject()));
+	}
+
+	// Constructor utility
+	private void addAlias(Node parent, final TLAlias tlObj) {
+		if (parent != null) {
+			parent.linkChild(this);
+			setLibrary(parent.getLibrary());
+			// Could also be a facet
+			if (parent instanceof BusinessObjectNode || parent instanceof CoreObjectNode) {
+				parent.getModelObject().addAlias(tlObj);
+				createChildrenAliases(parent, tlObj);
+			}
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#delete()
-	 */
 	@Override
 	public void delete() {
 		deleteAliasList visitor = new deleteAliasList();
@@ -150,6 +138,11 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 	}
 
 	@Override
+	protected boolean isNavChild() {
+		return true;
+	}
+
+	@Override
 	public boolean isSimpleAssignable() {
 		return getParent() != null ? getParent().isSimpleAssignable() : false;
 	}
@@ -166,7 +159,7 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 
 	@Override
 	public List<Node> getNavChildren() {
-		return null;
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -174,11 +167,6 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#setName(java.lang.String)
-	 */
 	@Override
 	public void setName(String n) {
 		if (getParent() == null)
@@ -214,7 +202,6 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 	private void touchSiblingAliases(Visitor visitor) {
 		// find parent component.
 		String thisAlias = getName();
-		Node component = findOwningComponent();
 		List<Node> peers = findOwningComponent().getDescendants();
 		String rootAlias = "";
 		for (Node node : peers) {

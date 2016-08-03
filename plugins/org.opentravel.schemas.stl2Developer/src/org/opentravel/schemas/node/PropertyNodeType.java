@@ -17,7 +17,6 @@ package org.opentravel.schemas.node;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.opentravel.schemas.node.properties.PropertyNode;
 
@@ -46,18 +45,18 @@ public enum PropertyNodeType {
 		return propertyType;
 	}
 
-	/**
-	 * Check if given node supports {@link PropertyNodeType}. This method supports {@link PropertyNode} and
-	 * {@link AliasNode}
-	 * 
-	 * @param node
-	 * @param type
-	 * @return true if for given {@link PropertyNodeType} can be assigned {@link Node}
-	 */
-	public static boolean isSupported(Node node, PropertyNodeType type) {
-		Collection<PropertyNodeType> supportedTypes = getSupportedTypes(node);
-		return supportedTypes.contains(type);
-	}
+	// /**
+	// * Check if given node supports {@link PropertyNodeType}. This method supports {@link PropertyNode} and
+	// * {@link AliasNode}
+	// *
+	// * @param node
+	// * @param type
+	// * @return true if for given {@link PropertyNodeType} can be assigned {@link Node}
+	// */
+	// public static boolean isSupported(Node node, PropertyNodeType type) {
+	// Collection<PropertyNodeType> supportedTypes = getSupportedTypes(node);
+	// return supportedTypes.contains(type);
+	// }
 
 	/**
 	 * This method supports {@link PropertyNode} and {@link AliasNode}
@@ -65,17 +64,17 @@ public enum PropertyNodeType {
 	 * @param node
 	 * @return list of supported {@link PropertyNodeType} for given node.
 	 */
-	public static Collection<PropertyNodeType> getSupportedTypes(Node node) {
-		if (node instanceof PropertyNode) {
-			return getSupportedTypes((PropertyNode) node);
-			// TODO: should AliasNode extends a PropertyNode ???
-		} else if (node instanceof AliasNode) {
-			return Collections.singleton(PropertyNodeType.ALIAS);
-		}
-		return Collections.emptyList();
-	}
+	// public static Collection<PropertyNodeType> getSupportedTypes(Node node) {
+	// if (node instanceof PropertyNode) {
+	// return getSupportedTypes((PropertyNode) node);
+	// // TODO: should AliasNode extends a PropertyNode ???
+	// } else if (node instanceof AliasNode) {
+	// return Collections.singleton(PropertyNodeType.ALIAS);
+	// }
+	// return Collections.emptyList();
+	// }
 
-	private static Collection<PropertyNodeType> getSupportedTypes(PropertyNode node) {
+	public static Collection<PropertyNodeType> getSupportedTypes(PropertyNode node) {
 		if (node.isVWA_Attribute() && !(node.getPropertyType() == SIMPLE)) {
 			return getVWA_PropertyTypes();
 		} else if (!getAllTypedPropertyTypes().contains(node.getPropertyType())) {

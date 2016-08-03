@@ -147,14 +147,6 @@ public interface INode {
 	public INode getParent();
 
 	/**
-	 * Is in library chain tells if this node is presented to the user both under its library and in a chain aggregate
-	 * node.
-	 * 
-	 * @return aggregate parent if exists, null otherwise
-	 */
-	public INode getParentAggregate();
-
-	/**
 	 * Same as {@link getAssignedType()}
 	 * 
 	 * @return
@@ -176,12 +168,6 @@ public interface INode {
 	 * @return name of the assigned type with prefix if the prefix is different that this node.
 	 */
 	public String getTypeNameWithPrefix();
-
-	// /**
-	// *
-	// * @return live list of editable nodes where this node is assigned as a type. New empty list if none.
-	// */
-	// public List<Node> getTypeUsers();
 
 	public List<LibraryNode> getUserLibraries();
 
@@ -253,9 +239,6 @@ public interface INode {
 
 	public void setName(String string);
 
-	// @Deprecated
-	// public void setName(final String n, final boolean doFamily);
-
 	/**
 	 * Visit this node and all of its descendants (recursive).
 	 */
@@ -266,10 +249,10 @@ public interface INode {
 	 */
 	public void visitChildren(NodeVisitor visitor);
 
-	/**
-	 * Visit this node and all of its descendants that are type providers (recursive).
-	 */
-	public void visitAllTypeProviders(NodeVisitor visitor);
+	// /**
+	// * Visit this node and all of its descendants that are type providers (recursive).
+	// */
+	// public void visitAllTypeProviders(NodeVisitor visitor);
 
 	/**
 	 * Visit this node and all of its descendants that are type users (recursive).

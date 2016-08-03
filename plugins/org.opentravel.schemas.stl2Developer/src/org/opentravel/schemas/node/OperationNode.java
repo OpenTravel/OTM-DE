@@ -110,6 +110,11 @@ public class OperationNode extends FacetNode implements VersionedObjectInterface
 		return false;
 	}
 
+	@Override
+	protected boolean isNavChild() {
+		return true;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

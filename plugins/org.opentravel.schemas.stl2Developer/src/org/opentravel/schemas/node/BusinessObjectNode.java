@@ -467,6 +467,10 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 		return extensionHandler != null ? extensionHandler.get() : null;
 	}
 
+	public String getExtendsTypeNS() {
+		return modelObject.getExtendsTypeNS();
+	}
+
 	@Override
 	public void setExtension(final Node base) {
 		if (extensionHandler == null)

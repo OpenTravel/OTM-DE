@@ -322,14 +322,11 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 	 * @return
 	 */
 	private String[] getSupportedRoleTypes(Node node) {
-		Collection<PropertyNodeType> types = PropertyNodeType.getSupportedTypes(node);
-		return generateDisplayList(types);
-	}
-
-	private static String[] generateDisplayList(Collection<PropertyNodeType> types) {
 		List<String> props = new ArrayList<String>();
-		for (PropertyNodeType t : types) {
-			props.add(t.getName());
+		if (node instanceof PropertyNode) {
+			Collection<PropertyNodeType> types = PropertyNodeType.getSupportedTypes((PropertyNode) node);
+			for (PropertyNodeType t : types)
+				props.add(t.getName());
 		}
 		return props.toArray(new String[props.size()]);
 	}
@@ -464,7 +461,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 			updateType(cn);
 
 			updateConstraints((ComponentNode) cn.getType(), false);
-			updatePropertyTypeCombo(cn);
+			updatePropertyTypeCombo((PropertyNode) cn);
 			if (cn.isElement()) {
 				if (cn.getTypeNode() != null && cn.getTypeNode().isDetailListFacet()) {
 					repeatNonValid.setVisible(true);
@@ -507,10 +504,10 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 		listButton.setEnabled(false);
 	}
 
-	private void updatePropertyTypeCombo(ComponentNode cn) {
-		roleCombo.setItems(getSupportedRoleTypes(cn));
-		roleCombo.setText(cn.getPropertyRole());
-		roleCombo.setEnabled(cn.isEditable());
+	private void updatePropertyTypeCombo(PropertyNode pn) {
+		roleCombo.setItems(getSupportedRoleTypes(pn));
+		roleCombo.setText(pn.getPropertyRole());
+		roleCombo.setEnabled(pn.isEditable());
 	}
 
 	private void updateType(final ComponentNode cn) {

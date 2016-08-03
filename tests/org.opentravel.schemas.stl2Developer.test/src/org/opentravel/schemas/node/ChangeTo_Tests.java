@@ -200,8 +200,6 @@ public class ChangeTo_Tests {
 		if (editedNode != nodeToReplace)
 			nodeToReplace.delete();
 
-		LOGGER.debug("Changing Edited component: " + editedNode.getName() + " with "
-				+ editedNode.getWhereAssignedCount() + " users.");
 		Assert.assertEquals(1, ((TypeProvider) editedNode).getWhereAssigned().size());
 		Assert.assertEquals(editedNode, p1.getTypeNode());
 		// 1/22/15 - the counts are wrong!
@@ -299,7 +297,7 @@ public class ChangeTo_Tests {
 
 					if (aProperty != null) {
 						aPropertyAssignedType = aProperty.getType();
-						aPropertyAssignedType.getWhereAssignedCount();
+						// aPropertyAssignedType.getWhereAssignedCount();
 						((TypeProvider) aPropertyAssignedType).getWhereAssigned();
 						// link to the live list of who uses the assigned type before change
 						// aType = aProperty.getTypeClass();
@@ -330,7 +328,7 @@ public class ChangeTo_Tests {
 
 					if (newProperty != null) {
 						newAssignedType = newProperty.getType();
-						newAssignedType.getWhereAssignedCount();
+						// newAssignedType.getWhereAssignedCount();
 						((TypeUser) newProperty).getAssignedType().getWhereAssigned();
 
 						// run property tests
@@ -382,7 +380,7 @@ public class ChangeTo_Tests {
 	}
 
 	protected void listTypeUsersCounts(LibraryNode ln) {
-		for (Node provider : ln.getDescendentsNamedTypeProviders())
-			LOGGER.debug(provider.getWhereAssignedCount() + "\t users of type provider: " + provider);
+		// for (Node provider : ln.getDescendentsNamedTypeProviders())
+		// LOGGER.debug(provider.getWhereAssignedCount() + "\t users of type provider: " + provider);
 	}
 }

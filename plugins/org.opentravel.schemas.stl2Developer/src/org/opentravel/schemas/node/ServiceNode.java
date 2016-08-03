@@ -131,6 +131,11 @@ public class ServiceNode extends ComponentNode {
 	}
 
 	@Override
+	protected boolean isNavChild() {
+		return true;
+	}
+
+	@Override
 	public boolean isTypeProvider() {
 		return false;
 	}

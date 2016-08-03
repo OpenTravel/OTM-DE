@@ -72,7 +72,6 @@ import org.opentravel.schemas.node.listeners.NodeIdentityListener;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
-import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.types.TypeProvider;
@@ -115,28 +114,16 @@ public abstract class Node implements INode {
 	protected Node parent; // link to the parentNode node
 	private final ArrayList<Node> children; // links to the children
 
-	// FIXME - remove family
-	// protected String family; // name stripped at the first under bar
-	// DONE - remove identity and all references to it.
-	// private String identity = ""; // just for debugging
-
 	protected VersionNode versionNode; // Link to the version node representing this node in a chain
 
 	protected ModelObject<?> modelObject; // Generic interface to TL Model objects.
 	protected boolean deleted = false;
 
-	protected boolean local = false; // Local nodes are not named nodes and are not to made visible
-										// in type assignment lists.
+	protected boolean local = false; // Local nodes are not named nodes and are not to made visible in type assignment
+										// lists.
 	protected XsdNode xsdNode = null; // Link to node containing imported XSD representation
 	protected boolean xsdType = false; // True if this node represents an object that was created by
 										// the XSD utilities but has not be imported.
-
-	// protected Type type = null; // Type information associated with properties
-
-	// static final String EMPTY_TYPE = "Empty";
-	// see ImpliedNode - public static final String OTA_NAMESPACE = "http://www.OpenTravel.org/ns/OTA2/Common_v01_00";
-	// see ModelNode - public static final String XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema";
-	// see ModelNode - private static final String Chameleon_NS = "http://chameleon.anonymous/ns";
 
 	public Node() {
 		parent = null;
@@ -149,7 +136,6 @@ public abstract class Node implements INode {
 
 	public Node(String identity) {
 		this();
-		// setIdentity(identity);
 	}
 
 	/**
@@ -164,12 +150,6 @@ public abstract class Node implements INode {
 
 		modelObject.delete();
 		modelObject = newModelObject(tlModelObject);
-		// if (tlModelObject != null)
-		// setIdentity(tlModelObject.getValidationIdentity());
-		// else
-		// setIdentity(getName() + " (Null-TL-ModelObject)");
-		// if (getIdentity().isEmpty())
-		// setIdentity("Simple");
 	}
 
 	/**
@@ -267,9 +247,6 @@ public abstract class Node implements INode {
 
 		final Node thisParent = parent;
 
-		// FIXME - if the names are not the same, may need family processing
-		// parent.linkChild(replacement, getName() != replacement.getName()); // skip family processing if the same name
-
 		// Add replacement to the parent if not already there.
 		parent.linkChild(replacement); // ignored if already linked, skip family processing
 
@@ -334,7 +311,6 @@ public abstract class Node implements INode {
 	 * @param scope
 	 *            (optional) - scope of the search (typically library or Node.getModelNode)
 	 */
-
 	public void replaceTypesWith(Node replacement, INode scope) {
 		if (replacement == null)
 			return;
@@ -346,7 +322,6 @@ public abstract class Node implements INode {
 
 		if (this instanceof TypeProvider && replacement instanceof TypeProvider)
 			((TypeProvider) this).getWhereAssignedHandler().replaceAll((TypeProvider) replacement, libScope);
-		// getTypeClass().replaceTypeProvider(replacement, libScope);
 
 		// If this has been extended, replace where extended
 		getWhereExtendedHandler().replace(replacement, libScope);
@@ -475,21 +450,6 @@ public abstract class Node implements INode {
 		return null;
 	}
 
-	// /**
-	// * Find the first property node descendant of this node with the given name. The order searched is not guaranteed.
-	// * Will not find family nodes.
-	// *
-	// * @param name
-	// * @return node found or null
-	// */
-	// public Node findPropertyByName(String name) {
-	// for (Node n : getDescendants()) {
-	// if (n instanceof PropertyNode && n.getName().equals(name))
-	// return n;
-	// }
-	// return null;
-	// }
-
 	public String getValidationIdentity() {
 		if (modelObject != null && modelObject.getTLModelObj() != null) {
 			return ((Validatable) modelObject.getTLModelObj()).getValidationIdentity();
@@ -512,11 +472,6 @@ public abstract class Node implements INode {
 		this.versionNode = version;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getChildren()
-	 */
 	@Override
 	public List<Node> getChildren() {
 		return children;
@@ -544,7 +499,6 @@ public abstract class Node implements INode {
 		final ArrayList<TypeProvider> ret = new ArrayList<TypeProvider>();
 		for (final Node n : getChildren()) {
 			if (n instanceof TypeProvider)
-				// if (n.isTypeProvider())
 				ret.add((TypeProvider) n);
 
 			// Some type users may also have children
@@ -636,11 +590,6 @@ public abstract class Node implements INode {
 		return imageRegistry.get("file");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getModelObject()
-	 */
 	@Override
 	public ModelObject<?> getModelObject() {
 		return modelObject;
@@ -726,17 +675,11 @@ public abstract class Node implements INode {
 		return version;
 	}
 
-	/*
-	 * @see org.opentravel.schemas.node.INode#getLabel()
-	 */
 	@Override
 	public String getLabel() {
 		return modelObject.getLabel() == null ? "" : modelObject.getLabel();
 	}
 
-	/*
-	 * @see org.opentravel.schemas.node.INode#getName()
-	 */
 	@Override
 	public String getName() {
 		if (modelObject == null)
@@ -747,19 +690,11 @@ public abstract class Node implements INode {
 		return modelObject.getName() == null ? "" : modelObject.getName();
 	}
 
-	/*
-	 * @see org.opentravel.schemas.node.INode#getNamePrefix()
-	 */
 	@Override
 	public String getNamePrefix() {
 		return getLibrary() == null ? "" : getLibrary().getNamePrefix();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getNamespace()
-	 */
 	@Override
 	public String getNamespace() {
 		return getLibrary() == null ? "" : getLibrary().getNamespace();
@@ -769,9 +704,6 @@ public abstract class Node implements INode {
 		return getLibrary() == null ? "" : getLibrary().getNamespaceWithPrefix();
 	}
 
-	/*
-	 * @see org.opentravel.schemas.node.INode#getNameWithPrefix()
-	 */
 	@Override
 	public String getNameWithPrefix() {
 		return getLibrary() == null ? getName() : getLibrary().getNamePrefix() + ":" + getName();
@@ -855,23 +787,6 @@ public abstract class Node implements INode {
 	@Override
 	public Node getParent() {
 		return parent;
-	}
-
-	// /**
-	// * @return the parent aggregate if this is in a chain, null otherwise
-	// */
-	@Override
-	public INode getParentAggregate() {
-		// if (getLibrary().isInChain()) {
-		// LibraryChainNode lcn = getLibrary().getChain();
-		// if (this instanceof SimpleComponentInterface)
-		// return lcn.getSimpleAggregate();
-		// else if (this instanceof ComplexComponentInterface)
-		// return lcn.getComplexAggregate();
-		// else if (this instanceof ServiceNode || this instanceof OperationNode)
-		// return lcn.getServiceAggregate();
-		// }
-		return null;
 	}
 
 	/*****************************************************************************
@@ -964,20 +879,11 @@ public abstract class Node implements INode {
 		return foundTypes;
 	}
 
-	/*
-	 * @see org.opentravel.schemas.node.INode#hasChildren()
-	 */
 	@Override
 	public boolean hasChildren() {
 		return !getChildren().isEmpty();
-		// return getChildren().size() > 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#hasChildren_TypeProviders()
-	 */
 	@Override
 	public boolean hasChildren_TypeProviders() {
 		return false;
@@ -1065,7 +971,6 @@ public abstract class Node implements INode {
 		// overloaded on aliasable owning components.
 		return getOwningComponent() != null && this != getOwningComponent() ? getOwningComponent().isAliasable()
 				: false;
-		// return false;
 	}
 
 	public boolean isImportable() {
@@ -1460,11 +1365,9 @@ public abstract class Node implements INode {
 	/**
 	 * @return true if this node should be displayed in navigator view tree with no filters
 	 */
-	// TODO - delegate this out
+	// DONE - overridden by some nodes
 	protected boolean isNavChild() {
-		return this instanceof LibraryMemberInterface || this instanceof ServiceNode
-				|| (this instanceof FacetNode && isAssignable()) || this instanceof AliasNode
-				|| this instanceof ResourceNode || this instanceof OperationNode;
+		return this instanceof LibraryMemberInterface;
 	}
 
 	@Override
@@ -1544,6 +1447,8 @@ public abstract class Node implements INode {
 	// * is Properties - model object facade
 	// */
 
+	// Should use instanceof TypeProvider
+	@Deprecated
 	@Override
 	public boolean isTypeProvider() {
 		if (this instanceof ImpliedNode)
@@ -1611,7 +1516,6 @@ public abstract class Node implements INode {
 	 */
 	public boolean isVersioned() {
 		return (this instanceof ExtensionOwner) ? getExtendsTypeName().equals(getName()) : false;
-		// return getExtendsType() != null ? getExtendsType().getName().equals(getName()) : false;
 	}
 
 	/**
@@ -1694,17 +1598,6 @@ public abstract class Node implements INode {
 		return true;
 	}
 
-	// /**
-	// * Add the <i>child</i> node parameter to <i>this</i> node. Sets parentNode link of child. NOTE - must have a name
-	// * to support family processing. Does family processing. Does <b>not</b> check for version or aggregates.
-	// *
-	// * @param child
-	// * - node to be added
-	// */
-	// public boolean linkChild(final Node child) {
-	// return linkChild(child);
-	// }
-
 	/**
 	 * Add the <i>child</i> node parameter to <i>this</i> node. Sets parentNode link of child.
 	 * 
@@ -1735,9 +1628,6 @@ public abstract class Node implements INode {
 			return false;
 
 		return linkChild(child, -1);
-		// getChildren().add(child);
-		// child.setParent(this);
-		// return true;
 	}
 
 	/**
@@ -1784,19 +1674,6 @@ public abstract class Node implements INode {
 			LOGGER.warn("Missing model object - Can not set name to :" + name);
 	}
 
-	// @Deprecated
-	// @Override
-	// public void setName(final String name, final boolean doFamily) {
-	// String newName = name;
-	// if (name == null || name.isEmpty())
-	// newName = UNDEFINED_PROPERTY_TXT;
-	//
-	// if (getModelObject() != null)
-	// getModelObject().setName(newName);
-	// else
-	// LOGGER.warn("Missing model object - Can not set name to :" + name);
-	// }
-
 	/**
 	 * Simple parent setter. Set to null if it is the root node.
 	 */
@@ -1832,47 +1709,47 @@ public abstract class Node implements INode {
 		}
 	}
 
-	/**
-	 * For each target node, if any of its children refer to this node, replace the assignment.
-	 * 
-	 * @param targets
-	 *            - list of nodes to test and change assignments
-	 * @return - list of changed nodes.
-	 */
-	public List<Node> setTLTypeOfTargetChildren(List<Node> targets, Node replacement) {
-		List<Node> changedNodes = new ArrayList<Node>();
-		for (Node t : targets) {
-			// test above the facet to get to the object level
-			if ((t.getParent() == replacement) || (t.getParent().getParent() == replacement)) {
-				// TODO - TEST - This seems all wrong.
-				LOGGER.debug("TODO - TEST - setTLTypeOfTargetChildren() - This seems all wrong. t = " + t.getName());
-				if (t instanceof TypeUser && replacement instanceof TypeProvider)
-					((TypeUser) t).setAssignedType((TypeProvider) replacement);
-				changedNodes.add(t);
-			}
-		}
-		return changedNodes;
-	}
+	// /**
+	// * For each target node, if any of its children refer to this node, replace the assignment.
+	// *
+	// * @param targets
+	// * - list of nodes to test and change assignments
+	// * @return - list of changed nodes.
+	// */
+	// public List<Node> setTLTypeOfTargetChildren(List<Node> targets, Node replacement) {
+	// List<Node> changedNodes = new ArrayList<Node>();
+	// for (Node t : targets) {
+	// // test above the facet to get to the object level
+	// if ((t.getParent() == replacement) || (t.getParent().getParent() == replacement)) {
+	// // TODO - TEST - This seems all wrong.
+	// LOGGER.debug("TODO - TEST - setTLTypeOfTargetChildren() - This seems all wrong. t = " + t.getName());
+	// if (t instanceof TypeUser && replacement instanceof TypeProvider)
+	// ((TypeUser) t).setAssignedType((TypeProvider) replacement);
+	// changedNodes.add(t);
+	// }
+	// }
+	// return changedNodes;
+	// }
 
-	/**
-	 * Get the type assigned using the TL Model object and listeners.
-	 * 
-	 * @return node assigned as the type or null if none.
-	 */
-	public Node getAssignedTypeByListeners() {
-		Node type = null;
-		if (this instanceof TypeUser) {
-			NamedEntity tlObj = ((TypeUser) this).getAssignedTLNamedEntity();
-			if (tlObj instanceof TLModelElement)
-				type = getNode(((TLModelElement) tlObj).getListeners());
-			// xsd types will have xsd nodes which have links to the simple node to use
-			if (type instanceof XsdNode)
-				type = ((XsdNode) type).getOtmModel();
-			if (type == null)
-				type = ModelNode.getUnassignedNode();
-		}
-		return type;
-	}
+	// /**
+	// * Get the type assigned using the TL Model object and listeners.
+	// *
+	// * @return node assigned as the type or null if none.
+	// */
+	// public Node getAssignedTypeByListeners() {
+	// Node type = null;
+	// if (this instanceof TypeUser) {
+	// NamedEntity tlObj = ((TypeUser) this).getAssignedTLNamedEntity();
+	// if (tlObj instanceof TLModelElement)
+	// type = getNode(((TLModelElement) tlObj).getListeners());
+	// // xsd types will have xsd nodes which have links to the simple node to use
+	// if (type instanceof XsdNode)
+	// type = ((XsdNode) type).getOtmModel();
+	// if (type == null)
+	// type = ModelNode.getUnassignedNode();
+	// }
+	// return type;
+	// }
 
 	/**
 	 * returns getAssignedType() as a node
@@ -1902,16 +1779,16 @@ public abstract class Node implements INode {
 		return "";
 	}
 
-	/**
-	 * @return the count of where this node is assigned as a type. Includes count of where children are used.
-	 */
-	public int getWhereAssignedCount() {
-		return 0;
-	}
+	// /**
+	// * @return the count of where this node is assigned as a type. Includes count of where children are used.
+	// */
+	// public int getWhereAssignedCount() {
+	// return 0;
+	// }
 
-	public int getComponentUsersCount() {
-		return 0;
-	}
+	// public int getComponentUsersCount() {
+	// return 0;
+	// }
 
 	/**
 	 * @return true if this node could be assigned a type but is unassigned.
@@ -1965,8 +1842,8 @@ public abstract class Node implements INode {
 		return getLibrary() != null ? getLibrary().getChain() : null;
 	}
 
-	public void setExtendable(final boolean state) {
-	}
+	// public void setExtendable(final boolean state) {
+	// }
 
 	/**
 	 * Get the editing status of the node based on chain head library or unmanaged library. Use to check if an object
@@ -2018,9 +1895,9 @@ public abstract class Node implements INode {
 		return modelObject.getExtendsType();
 	}
 
-	public String getExtendsTypeNS() {
-		return modelObject.getExtendsTypeNS();
-	}
+	// public String getExtendsTypeNS() {
+	// return modelObject.getExtendsTypeNS();
+	// }
 
 	/**
 	 * @return true if this is extended by the passed base node
@@ -2629,20 +2506,6 @@ public abstract class Node implements INode {
 		return xml;
 	}
 
-	// /**
-	// * @return the diagnostic identity
-	// */
-	// public String getIdentity() {
-	// return identity;
-	// }
-	//
-	// /**
-	// * Set the node's identity for diagnostics purposes
-	// */
-	// public void setIdentity(String identity) {
-	// this.identity = identity;
-	// }
-
 	/**
 	 * Visitors *********************************************
 	 * 
@@ -2672,16 +2535,16 @@ public abstract class Node implements INode {
 		visitor.visit(this);
 	}
 
-	@Override
-	public void visitAllTypeProviders(NodeVisitor visitor) {
-		for (Node c : getChildren_TypeProviders()) {
-			if (c != null)
-				c.visitAllTypeProviders(visitor);
-		}
-		if (isTypeProvider()) {
-			visitor.visit(this);
-		}
-	}
+	// @Override
+	// public void visitAllTypeProviders(NodeVisitor visitor) {
+	// for (Node c : getChildren_TypeProviders()) {
+	// if (c != null)
+	// c.visitAllTypeProviders(visitor);
+	// }
+	// if (isTypeProvider()) {
+	// visitor.visit(this);
+	// }
+	// }
 
 	@Override
 	public void visitAllTypeUsers(NodeVisitor visitor) {
@@ -2701,11 +2564,11 @@ public abstract class Node implements INode {
 			visitor.visit(this);
 	}
 
-	public void visitList(List<Node> list, NodeVisitor visitor) {
-		for (Node n : list) {
-			visitor.visit(n);
-		}
-	}
+	// public void visitList(List<Node> list, NodeVisitor visitor) {
+	// for (Node n : list) {
+	// visitor.visit(n);
+	// }
+	// }
 
 	/**
 	 * Can this object contain properties of the specified type? Only FacetNodes can be containers.

@@ -317,6 +317,11 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 	}
 
 	@Override
+	protected boolean isNavChild() {
+		return isAssignable();
+	}
+
+	@Override
 	public boolean isQueryFacet() {
 		return getTLModelObject() instanceof TLAbstractFacet ? ((TLAbstractFacet) getTLModelObject()).getFacetType() == TLFacetType.QUERY
 				: false;
