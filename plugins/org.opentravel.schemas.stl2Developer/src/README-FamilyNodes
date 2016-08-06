@@ -10,6 +10,8 @@ This looks at how to remove them and considers if it would be better to keep mos
 
 Assumption - family logic should implement SOC better and use handlers. The current code puts most/all family logic in Node and other calling classes.
 
+Removed all family logic and most associated control over names, etc.
+
 -----------------
 
 Constructors
@@ -23,5 +25,6 @@ Constructors
 	
 	Once that is done:
 	1. Test in GUI - commenting out the two areas seems to work OK. Opens libraries and add new simple OK.
-	2. Fix all the junits that complain about families
+	2. Fix all the junits that complain about families -- done.
 	3. Remove family from node fields are fix all resulting errors.
+		Only 3 errors in Node class, mostly in setName

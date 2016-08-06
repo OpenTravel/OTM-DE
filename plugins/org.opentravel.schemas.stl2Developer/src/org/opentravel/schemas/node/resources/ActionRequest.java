@@ -98,11 +98,10 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 
 	@Override
 	public void addListeners() {
-		// set listeners onto Param Groups to change path template
-		if (tlObj.getParamGroup() != null) {
-			tlObj.getParamGroup().addListener(new ResourceDependencyListener(this));
-			((ParamGroup) getNode(tlObj.getParamGroup().getListeners())).addPathListeners(this);
-		}
+		// set listeners onto Param Groups and params to change path template
+		if (tlObj != null && tlObj.getParamGroup() != null)
+			((ParamGroup) getNode(tlObj.getParamGroup().getListeners())).addListeners(this);
+
 		if (tlObj.getPayloadType() != null)
 			tlObj.getPayloadType().addListener(new ResourceDependencyListener(this));
 	}
@@ -129,7 +128,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 		// ResourceNode parentResource = getOwningComponent().getExtendsType();
 		// if (parentResource != null)
 		// // parent is always get template with ID
-		// template += parentResource.getPathContribution(HttpMethod.GET);
+		template += getOwningComponent().getPathContribution(getParamGroup());
 		//
 		return template;
 	}
@@ -275,11 +274,15 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 		return true;
 	}
 
+	// TODO - ADD TO JUNIT - remove old listener, add listeners to children parameters
 	protected boolean setParameterGroup(ParamGroup group) {
+		// Remove old listeners
+		if (tlObj != null && tlObj.getParamGroup() != null)
+			((ParamGroup) getNode(tlObj.getParamGroup().getListeners())).removeListeners(this);
+
 		if (group != null) {
 			tlObj.setParamGroup(group.tlObj);
-			if (group.tlObj != null)
-				group.tlObj.addListener(new ResourceDependencyListener(this));
+			group.addListeners(this);
 		} else
 			tlObj.setParamGroup(null);
 		LOGGER.debug("Set param group to " + group);

@@ -35,6 +35,7 @@ public class ResourceField {
 	String msgKey;
 	String value;
 	Object data;
+	boolean enabled = true;
 
 	ResourceFieldType type = ResourceFieldType.String; // default
 	ResourceFieldListener listener = null;
@@ -55,6 +56,18 @@ public class ResourceField {
 			ResourceFieldListener listener, Object data) {
 		this(parent, value, key, type, listener);
 		this.data = data;
+	}
+
+	public ResourceField(List<ResourceField> parent, String value, String key, ResourceFieldType type, boolean enabled,
+			ResourceFieldListener listener) {
+		this(parent, value, key, type, listener);
+		this.enabled = enabled;
+	}
+
+	public ResourceField(List<ResourceField> parent, String value, String key, ResourceFieldType type, boolean enabled,
+			ResourceFieldListener listener, Object data) {
+		this(parent, value, key, type, listener, data);
+		this.enabled = enabled;
 	}
 
 	public ResourceField(String value, String key) {
@@ -104,6 +117,10 @@ public class ResourceField {
 
 	public void setValue(String value) {
 		this.value = value;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
 	}
 
 }

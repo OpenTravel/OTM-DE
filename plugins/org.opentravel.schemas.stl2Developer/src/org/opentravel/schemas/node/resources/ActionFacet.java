@@ -92,12 +92,8 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 		getParent().addChild(this);
 		this.setLibrary(parent.getLibrary());
 
-		// TODO - add dependency to Business object facet
-		// if (tlObj.getBasePayload() instanceof TLModelElement)
-		// ((TLModelElement) tlObj.getBasePayload()).addListener(new ResourceDependencyListener(this));
-		if (tlObj.getReferenceType() != null) {
-			LOGGER.debug("TODO: add dependency to " + tlObj.getReferenceFacetName());
-		}
+		if (tlObj.getReferenceType() == null)
+			setReferenceType(getDefaultReferenceType());
 	}
 
 	public ActionFacet(ResourceNode parent) {
@@ -105,6 +101,11 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 		setName("NewActionFacet");
 		setReferenceFacetName(ResourceField.SUBGRP);
 		getParent().getTLModelObject().addActionFacet(tlObj);
+		setReferenceType(getDefaultReferenceType());
+	}
+
+	private String getDefaultReferenceType() {
+		return TLReferenceType.NONE.toString();
 	}
 
 	/**
@@ -196,15 +197,17 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 
 		// Reference Type - enum list
 		new ResourceField(fields, getReferenceType(), MSGKEY + ".fields.referenceType",
-				ResourceField.ResourceFieldType.Enum, new ReferenceTypeListener(), getReferenceTypeStrings());
+				ResourceField.ResourceFieldType.Enum, !getOwningComponent().isAbstract(), new ReferenceTypeListener(),
+				getReferenceTypeStrings());
 
 		// Facet Reference = This can only be set to a facet in the resource subject business object
 		new ResourceField(fields, getReferenceFacetName(), MSGKEY + ".fields.referenceFacetName",
-				ResourceFieldType.Enum, new ReferenceNameListener(), getOwningComponent().getSubjectFacets(true));
+				ResourceFieldType.Enum, !getOwningComponent().isAbstract(), new ReferenceNameListener(),
+				getOwningComponent().getSubjectFacets(true));
 
 		// Repeat Count - an int
 		new ResourceField(fields, Integer.toString(tlObj.getReferenceRepeat()), MSGKEY + ".fields.referenceRepeat",
-				ResourceFieldType.Int, new ReferenceRepeatListener());
+				ResourceFieldType.Int, !getOwningComponent().isAbstract(), new ReferenceRepeatListener());
 
 		return fields;
 	}
@@ -282,7 +285,9 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	}
 
 	public boolean setBasePayload(Node actionObject) {
-		if (actionObject.getTLModelObject() instanceof NamedEntity) {
+		if (actionObject == null)
+			tlObj.setBasePayload(null);
+		else if (actionObject.getTLModelObject() instanceof NamedEntity) {
 			tlObj.setBasePayload((NamedEntity) actionObject.getTLModelObject());
 			return true;
 		}

@@ -66,7 +66,7 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 	// Used by Actions
 	public void execute(Event event) {
 		if (event.data instanceof CommandType) {
-			getSelected();
+			setSelected();
 			runCommand((CommandType) event.data);
 		}
 		return;
@@ -88,13 +88,13 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 		LOGGER.debug(filePathParam);
 
 		view = OtmRegistry.getResourceView();
-		if (!getSelected())
+		setSelected();
+		if (selectedNode == null)
 			return null; // Nothing to act on
-		runCommand(getCmdType(exEvent.getCommand().getId()));
-		// mc.postStatus("Resource Handler.");
-		// TODO - Make resource view the current view
-		view.activate();
 
+		runCommand(getCmdType(exEvent.getCommand().getId()));
+		if (view != null)
+			view.activate();
 		return null;
 	}
 
@@ -118,11 +118,11 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 		return cmdType;
 	}
 
-	private boolean getSelected() {
-		selectedNode = (Node) view.getCurrentNode();
-		if (selectedNode == null)
-			selectedNode = mc.getCurrentNode_NavigatorView();
-		return selectedNode != null;
+	// Prefer selected node in Resource view, navigator view otherwise
+	private void setSelected() {
+		selectedNode = mc.getCurrentNode_NavigatorView();
+		if (view != null)
+			selectedNode = (Node) view.getCurrentNode();
 	}
 
 	private void runCommand(CommandType type) {
@@ -150,7 +150,8 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 				ResourceNode newR = new ResourceNode(selectedNode); // create named empty resource
 				BusinessObjectNode bo = getBusinessObject(newR);
 				if (bo == null) {
-					newR.delete();
+					newR.setAbstract(true);
+					// newR.delete();
 				} else {
 					new ResourceBuilder().build(newR, bo);
 					view.refresh(newR);

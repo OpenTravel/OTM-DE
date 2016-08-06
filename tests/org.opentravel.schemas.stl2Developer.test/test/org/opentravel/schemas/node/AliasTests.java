@@ -103,13 +103,14 @@ public class AliasTests {
 				.isEmpty());
 		// Then - must not NPE as accessed in library tree content providers
 		navChildren.addAll(a1.getNavChildren()); // must not NPE
+		assertTrue("Must not be null.", a1.getNavChildren() != null);
 
 		// Then - alias 2
 		assertTrue("Alias 2 must have parent.", a2.getParent() == parent2);
 		assertTrue("Alias TL Object must be present.", a2.getTLModelObject() instanceof TLAlias);
 		assertTrue("Parent TLObject must have alias.", !((TLCoreObject) parent2.getTLModelObject()).getAliases()
 				.isEmpty());
-		navChildren.addAll(a2.getNavChildren()); // must not NPE
+		assertTrue("Must not be null.", a2.getNavChildren() != null);
 
 		// Then - Children aliases are created
 		for (Node facet : parent1.getChildren()) {
@@ -119,9 +120,10 @@ public class AliasTests {
 			for (Node child : facet.getChildren()) {
 				assertTrue("Child's owning component must be parent.", child.getOwningComponent() == parent1);
 				assertTrue("Child's parent must be facet.", child.getParent() == facet);
-				navChildren.addAll(child.getNavChildren()); // must not NPE
-				if (child instanceof AliasNode)
+				if (child instanceof AliasNode) {
+					assertTrue("Must not be null.", child.getNavChildren() != null);
 					found = true;
+				}
 			}
 			assertTrue("Facets must have an alias as child node.", found == true);
 		}

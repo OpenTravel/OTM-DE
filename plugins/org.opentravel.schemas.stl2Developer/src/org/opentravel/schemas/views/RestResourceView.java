@@ -687,7 +687,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				pf.combo = new Combo(objectPropertyGroup, SWT.NULL);
 				pf.combo.setToolTipText(Messages.getString(field.getKey() + ".tooltip"));
 				post(pf.combo, (String[]) field.getData(), field.getValue());
-				pf.combo.setEnabled(enabled);
+				pf.combo.setEnabled(field.isEnabled());
 				if (field.getListener() != null)
 					pf.combo.addSelectionListener(new ComboListener());
 				pf.combo.setData(field);
@@ -725,6 +725,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				if (field.getValue().equals(Boolean.toString(true)))
 					pf.button.setSelection(true);
 				pf.button.setData(field);
+				pf.button.setEnabled(field.isEnabled());
 				pf.button.addSelectionListener(new CheckButtonListener());
 				break;
 			case Int:
@@ -735,10 +736,10 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				pf.spinner.setToolTipText(Messages.getString(field.getKey() + ".tooltip"));
 				pf.spinner.setToolTipText(Messages.getString(field.getKey() + ".tooltip"));
 				// pf.spinner.setBackground(objectPropertyGroup.getBackground());
-				pf.spinner.setValues(Integer.parseInt(field.getValue()), 1, 1000, 0, 10, 100);
+				pf.spinner.setValues(Integer.parseInt(field.getValue()), 1, 1000, 0, 1, 100);
 				pf.spinner.addSelectionListener(new SpinnerListener());
 				pf.spinner.setData(field);
-				pf.spinner.setEnabled(enabled);
+				pf.spinner.setEnabled(field.isEnabled());
 				break;
 			case ObjectSelect:
 				pf.label = toolkit.createLabel(objectPropertyGroup, Messages.getString(field.getKey() + ".text"),
@@ -747,12 +748,22 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 
 				pf.button = new Button(objectPropertyGroup, SWT.PUSH);
 				post(pf.button, field.getValue(), field);
-				pf.button.setEnabled(enabled);
+				pf.button.setEnabled(field.isEnabled());
 				pf.button.addSelectionListener(new ObjectSelectionListener());
+				// Clear button
+				pf = new PostedField();
+				postedFields.add(pf);
+				pf.label = toolkit.createLabel(objectPropertyGroup, "Remove Object", SWT.NONE);
+				pf.label.setBackground(objectPropertyGroup.getBackground());
+				pf.button = new Button(objectPropertyGroup, SWT.PUSH);
+				pf.button.addSelectionListener(new ObjectClearListener());
+				post(pf.button, "-Remove-", field);
+				pf.button.setEnabled(!field.getValue().equals("None")); // TODO - make this more robust
 				break;
 			default:
 				post(createField(field.getKey(), objectPropertyGroup, pf), field.getValue());
 				pf.text.setData(field);
+				pf.text.setEnabled(field.isEnabled());
 				pf.text.addModifyListener(new TextListener());
 				pf.text.addSelectionListener(new TextSelectionListener());
 				break;
@@ -877,6 +888,26 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				field.getListener().set(value);
 			refresh();
 		}
+	}
+
+	class ObjectClearListener implements SelectionListener {
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			// Field data is in the parent group
+			if (!(e.getSource() instanceof Button) || ignoreListener)
+				return;
+			Button button = (Button) e.getSource();
+			if (!(button.getData() instanceof ResourceField))
+				return;
+			ResourceField field = (ResourceField) button.getData();
+			field.getListener().set(null);
+			refresh();
+		}
+
 	}
 
 	class ObjectSelectionListener implements SelectionListener {

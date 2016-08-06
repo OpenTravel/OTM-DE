@@ -16,11 +16,18 @@ To test to see if running under the workbench:
 
 Note: wizards can not be created when headless ... JFace throws NPE			
 
+Libraries in Multiple Projects
+	There are separate classes for each library. (see test assertion in DefaultLibraryController_Tests)
+	Each library has its own navigation nodes
+	All libraries SHARE component nodes (I think...not sure what exactly are shared.)
+		LibraryNode.generateLibrary() uses the identity listener on the TL object to get the node. (Not for service or resources)
+		
 
 Remove:
 	called by CloseLibrariesHandler and RemoveLibrariesAction(Obsolete)
 	1. Expand user selection(s) in the passed collection
 	2. LibraryNode.close() each effected library	
+		a. if the library is open in a different project, the make sure the parent of all named types is to that different library.
 
 	GUI Behaviors
 		1. When any library in a chain is removed the entire chain is removed.

@@ -100,10 +100,33 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	}
 
 	/**
+	 * Add dependency listener to this group and all of its parameters. All parameters because they may change their
+	 * contribution. Also assure that the listeners do not already exist.
+	 * 
+	 */
+	public void addListeners(Node dependent) {
+		removeListeners(dependent);
+		tlObj.addListener(new ResourceDependencyListener(dependent));
+		for (Node param : getChildren())
+			((ResourceParameter) param).tlObj.addListener(new ResourceDependencyListener(dependent));
+	}
+
+	/**
+	 * Remove dependency listener(s) to this group and all of its parameters.
+	 * 
+	 */
+	public void removeListeners(Node dependent) {
+		removeListeners(tlObj, dependent);
+		for (Node param : getChildren())
+			removeListeners(param.getTLModelObject(), dependent);
+	}
+
+	/**
 	 * Add a dependency listener for all parameters that contribute to the path
 	 * 
 	 * @param pathUser
 	 */
+	@Deprecated
 	public void addPathListeners(Node pathUser) {
 		for (Node param : getChildren())
 			if (((ResourceParameter) param).isPathParam())

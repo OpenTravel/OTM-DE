@@ -1,0 +1,37 @@
+README - TODO
+	x - == DONE
+	
+Resources
+	Abstract Resource = no examples, no resource, reference facet?, not first class?
+			x - No Base Path allowed
+			x - Not 1st class
+			x - No Business Object
+			x -- I disabled the gui widgets, what if the data is invalid? Added remove button.
+		Actions - ? must it always be common for abstract?
+		ActionRequest - what does it mean to have a base request?
+		x - ActionResponse - no change
+	
+	Action - handle Common behavior
+	Parent Resource - Path Template is invalid because it has parameters
+	Action Facet - 	Sometimes an error (validation error) is shown, but if you select optional the none it will go away
+	change resource base path has to change all the RQ/RS paths
+	Path Template on RQ wrong whenever a parent resource
+	
+	x - Action Facet - increment repeat count by 1
+	x - Action Facet - When should Reference Facet be active?
+	x - Action Facet - ReferenceType must be NONE for abstract resources
+	x - NOT Done - triggered by events -- Example update - move to base of controller so that it runs whenever anything is touched.
+	x - Request - missing inherited Action Facet
+	x - Response - missing inherited Action Facet
+	x - Initial Resource creation - request path template does not include parameter
+	x - Wizard needs to allow no selection. Resource Command Handler - dialog before wizard
+	x - Change location on Parameter - has to change the path template where that parameter is used.
+		x - Path to Query works, but not change to header
+	
+	
+General - High Priority
+	Deleted - the deleted is both in the label and in the decoration
+		- should NEVER see deleted decoration : what is wrong and how to repeat?
+	ReplaceWhereUsed - with multiple selections. Works sometimes then failed to work.
+	On Library/Project close - clear effected contents of example and graphical views
+	Resource Remove Object button - make into a 3 column format

@@ -94,8 +94,6 @@ public class Node_NavChildren_Tests {
 				Assert.assertNull(null); //
 			else if (n instanceof VersionNode)
 				Assert.assertNull(null); // returns children of newest version
-			else if (n instanceof FamilyNode)
-				Assert.assertNull(null); // returns children of newest version
 			else if (n instanceof ComponentNode)
 				Assert.assertNull(null); // list only contains members for which isNavChild = true
 			else {

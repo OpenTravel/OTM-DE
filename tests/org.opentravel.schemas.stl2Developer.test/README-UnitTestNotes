@@ -47,6 +47,7 @@ Test design
 // When - what is done
 // Then - what must be true
 			assertTrue("Must be in ln2 library.", type.getLibrary() == ln2);
+			assertNotNull("Must not be null.", x.getNavChildren());
 void org.junit.Assert.assertTrue(String message, boolean condition)
 
 Class design

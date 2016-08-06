@@ -33,6 +33,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.listeners.INodeListener;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
+import org.opentravel.schemas.node.listeners.ResourceDependencyListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,11 +139,23 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 		return values;
 	}
 
-	public static String[] getReferenceTypeStrings() {
-		int i = 0;
-		String[] values = new String[TLReferenceType.values().length];
-		for (TLReferenceType l : TLReferenceType.values())
-			values[i++] = l.toString();
+	/**
+	 * @return all TL Modeled strings or for abstract resources just the first string
+	 */
+	public String[] getReferenceTypeStrings() {
+		String[] values;
+		// TODO - JUNIT - assure first TLRefereneType equals NONE
+		// Action Facets on Abstract Resources can not be set to anything but NONE.
+		if (getOwningComponent().isAbstract()) {
+			values = new String[1];
+			values[0] = TLReferenceType.values()[0].toString();
+		} else {
+			int i = 0;
+			values = new String[TLReferenceType.values().length];
+			for (TLReferenceType l : TLReferenceType.values())
+				values[i++] = l.toString();
+		}
+		LOGGER.debug("Reference Type Strings returned: " + values);
 		return values;
 	}
 
@@ -222,6 +235,22 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 	@Override
 	public void removeDependency(ResourceMemberInterface dependent) {
 		// LOGGER.debug(this + " has no dependency on " + dependent);
+	}
+
+	/**
+	 * Utility method to remove all ResourceDependacyListners from a TL Model Element (tlObj) for a specific node.
+	 * 
+	 * @param tl
+	 *            tlObj containing the listeners to remove
+	 * @param dependent
+	 *            node listening to the TL model element
+	 */
+	protected void removeListeners(TLModelElement tl, Node dependent) {
+		Collection<ModelElementListener> listeners = new ArrayList<ModelElementListener>(tl.getListeners());
+		for (ModelElementListener listener : listeners)
+			if (listener instanceof ResourceDependencyListener)
+				if (((ResourceDependencyListener) listener).getNode() == dependent)
+					tl.removeListener(listener);
 	}
 
 	@Override

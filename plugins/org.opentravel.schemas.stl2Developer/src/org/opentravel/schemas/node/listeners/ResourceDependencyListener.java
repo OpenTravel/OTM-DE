@@ -18,6 +18,7 @@ package org.opentravel.schemas.node.listeners;
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemacompiler.model.TLActionRequest;
+import org.opentravel.schemacompiler.model.TLParameter;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.resources.ActionRequest;
 import org.slf4j.Logger;
@@ -40,19 +41,26 @@ public class ResourceDependencyListener extends BaseNodeListener implements INod
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
 		super.processOwnershipEvent(event);
-		// LOGGER.debug("Ownership event: " + event);
+		LOGGER.debug("Ownership event: " + event);
 	}
 
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
 		super.processValueChangeEvent(event);
-		// LOGGER.debug("Value change event: " + event.getType());
-
-		if (event.getSource() instanceof TLActionRequest) {
+		LOGGER.debug("Value change event: " + event.getType());
+		if (event.getSource() instanceof TLParameter) {
+			switch (event.getType()) {
+			case LOCATION_MODIFIED: // path/query/header value change
+				((ActionRequest) thisNode).createPathTemplate();
+				break;
+			default:
+			}
+		} else if (event.getSource() instanceof TLActionRequest) {
 			switch (event.getType()) {
 			case PARAM_GROUP_ADDED:
 			case PARAM_GROUP_MODIFIED:
 			case PARAM_GROUP_REMOVED:
+			case LOCATION_MODIFIED: // path/query/header value change
 			case PAYLOAD_TYPE_MODIFIED:
 				((ActionRequest) thisNode).createPathTemplate();
 				break;
