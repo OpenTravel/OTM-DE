@@ -275,7 +275,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 			path += "/" + pt;
 		if (path.isEmpty())
 			path = "/"; // must at least have a slash
-		LOGGER.debug("Created path template: " + path);
+		LOGGER.debug("Get path template: " + path);
 		return path;
 	}
 

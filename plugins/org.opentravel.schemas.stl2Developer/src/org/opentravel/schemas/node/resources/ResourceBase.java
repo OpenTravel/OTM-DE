@@ -106,6 +106,7 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 	 */
 	@Override
 	public void delete() {
+		// LOGGER.debug("Deleting " + this);
 		clearListeners();
 		parent.getChildren().remove(this);
 		deleted = true;
@@ -221,12 +222,14 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 	@Override
 	public boolean isValid() {
 		// Set false when checking ONLY this object and its children
-		return TLModelCompileValidator.validateModelElement((TLModelElement) tlObj, false).count(FindingType.ERROR) == 0;
+		return !isDeleted() ? TLModelCompileValidator.validateModelElement((TLModelElement) tlObj, false).count(
+				FindingType.ERROR) == 0 : false;
 	}
 
 	@Override
 	public boolean isValid_NoWarnings() {
-		return TLModelCompileValidator.validateModelElement((TLModelElement) tlObj, false).count(FindingType.WARNING) == 0;
+		return !isDeleted() ? TLModelCompileValidator.validateModelElement((TLModelElement) tlObj, false).count(
+				FindingType.WARNING) == 0 : false;
 	}
 
 	/**

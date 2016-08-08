@@ -66,6 +66,7 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 	 */
 	public ParentRef(TLResourceParentRef tlParentRef) {
 		super(tlParentRef);
+		createPathTemplate();
 	}
 
 	/**
@@ -76,6 +77,7 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 	public ParentRef(ResourceNode parent) {
 		super(new TLResourceParentRef(), parent);
 
+		createPathTemplate();
 		getParent().getTLModelObject().addParentRef(tlObj);
 		tlObj.setParentResource(getParent().getTLModelObject());
 	}
@@ -136,18 +138,30 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 	}
 
 	public String getUrlContribution() {
-		// See if the parent resource has a grand-parent with contribution
-		String contribution = "";
-		ResourceNode parentResource = getParentResource();
-		ParentRef pRef = null;
-		if (parentResource != null)
-			pRef = parentResource.getParentRef();
-		if (pRef != null)
-			contribution = pRef.getUrlContribution();
-		// Now add the contribution from this parent
-		ParamGroup pg = getParameterGroup();
-		if (pg != null && !deleted)
-			contribution += getParentResource().getBasePath() + pg.getPathTemplate();
+		return tlObj.getPathTemplate();
+	}
+
+	/**
+	 * If the path template is empty, get a candidate from the parent resource.
+	 * 
+	 * @return
+	 */
+	private String createPathTemplate() {
+		String contribution = tlObj.getPathTemplate();
+		if (contribution == null || contribution.isEmpty()) {
+			// See if the parent resource has a grand-parent with contribution
+			ResourceNode parentResource = getParentResource();
+			ParentRef pRef = null;
+			if (parentResource != null)
+				pRef = parentResource.getParentRef();
+			if (pRef != null)
+				contribution = pRef.getUrlContribution();
+			// Now add the contribution from this parent
+			ParamGroup pg = getParameterGroup();
+			if (pg != null && !deleted)
+				contribution += getParentResource().getBasePath() + pg.getPathTemplate();
+			setPathTemplate(contribution);
+		}
 		return contribution;
 	}
 
@@ -222,7 +236,8 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 		// set the group and update the path template
 		if (pg != null) {
 			tlObj.setParentParamGroup(pg.getTLModelObject());
-			tlObj.setPathTemplate(pg.getPathTemplate());
+			setPathTemplate(""); // force the create to work
+			createPathTemplate();
 		} else {
 			tlObj.setParentParamGroup(null);
 			tlObj.setPathTemplate("/");

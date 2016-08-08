@@ -104,6 +104,9 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 
 		if (tlObj.getPayloadType() != null)
 			tlObj.getPayloadType().addListener(new ResourceDependencyListener(this));
+
+		// Listen to the containing resource for changes to the path template
+		getOwningComponent().getTLModelObject().addListener(new ResourceDependencyListener(this));
 	}
 
 	/**
@@ -117,8 +120,9 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 			path += getParamGroup().getPathTemplate();
 		// path += ((ParamGroup) getNode(tlObj.getParamGroup().getListeners())).getPathTemplate();
 
-		setPathTemplate(getInheritedPath() + path);
-		LOGGER.debug("Created and set path template: " + tlObj.getPathTemplate());
+		// setPathTemplate(getInheritedPath() + path);
+		setPathTemplate(path);
+		LOGGER.debug("Created path template: " + tlObj.getPathTemplate());
 	}
 
 	public String getInheritedPath() {

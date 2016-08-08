@@ -9,14 +9,22 @@ Resources
 			x -- I disabled the gui widgets, what if the data is invalid? Added remove button.
 		Actions - ? must it always be common for abstract?
 		ActionRequest - what does it mean to have a base request?
-		x - ActionResponse - no change
+	
+	Path Template
+		x - Change path on containing resource should change path on all action requests
+		x - Parent_Resource - initial path should be from parent
+		x - Parent_Resource - path template overrides path from parent in examples
+		x - Parent_Resource - change param group needs to change path template
+		x - Parent Resource - Path Template is invalid because it has parameters
+		x- Path Template on RQ wrong whenever a parent resource.
+		x -	When Parameters are set the template should NOT contain inherited path
+		x - change resource base path has to change all the RQ/RS paths
 	
 	Action - handle Common behavior
-	Parent Resource - Path Template is invalid because it has parameters
 	Action Facet - 	Sometimes an error (validation error) is shown, but if you select optional the none it will go away
-	change resource base path has to change all the RQ/RS paths
-	Path Template on RQ wrong whenever a parent resource
 	
+	x - ActionResponse - no change
+	x - Action Facet - if abstract resource it MUST be set to "NONE" not left null
 	x - Action Facet - increment repeat count by 1
 	x - Action Facet - When should Reference Facet be active?
 	x - Action Facet - ReferenceType must be NONE for abstract resources

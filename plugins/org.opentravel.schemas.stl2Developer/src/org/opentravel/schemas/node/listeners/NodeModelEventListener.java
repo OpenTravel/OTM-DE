@@ -15,6 +15,9 @@
  */
 package org.opentravel.schemas.node.listeners;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.event.ModelEventListener;
 import org.opentravel.schemacompiler.event.OwnershipEvent;
@@ -70,12 +73,16 @@ public class NodeModelEventListener implements
 			if (event.getAffectedItem() instanceof TLModelElement)
 				resourceAffected = getResourceMemberFromEvent(event.getAffectedItem());
 
-			if (resourceAffected instanceof ResourceMemberInterface)
-				for (ModelElementListener l : event.getAffectedItem().getListeners())
+			if (resourceAffected instanceof ResourceMemberInterface) {
+				Collection<ModelElementListener> listeners = new ArrayList<ModelElementListener>(event
+						.getAffectedItem().getListeners());
+				for (ModelElementListener l : listeners)
+					// for (ModelElementListener l : event.getAffectedItem().getListeners())
 					if (l instanceof ResourceDependencyListener)
 						((ResourceMemberInterface) ((ResourceDependencyListener) l).getNode())
 								.removeDependency(resourceAffected);
-			// LOGGER.debug("Event type: " + event.getType() + "  Affected = " + resourceAffected);
+				// LOGGER.debug("Event type: " + event.getType() + "  Affected = " + resourceAffected);
+			}
 			break;
 
 		case ATTRIBUTE_REMOVED:

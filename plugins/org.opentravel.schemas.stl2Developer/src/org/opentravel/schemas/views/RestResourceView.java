@@ -119,6 +119,8 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 	private IBaseLabelProvider decorator;
 	private Display display;
 
+	private Group examplePayloadGroup;
+
 	public RestResourceView() {
 		OtmRegistry.registerResourceView(this);
 	}
@@ -263,12 +265,24 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		objectPropertyGroup = new Group(compRight, SWT.NULL);
 		objectPropertyGroup.setText("Object Properties");
 		GridLayout opGL = new GridLayout();
-		opGL.numColumns = 2;
+		opGL.numColumns = 3;
 		objectPropertyGroup.setLayout(opGL);
 		GridData opGD = new GridData(SWT.FILL, SWT.TOP, true, false);
 		// GridData opGD = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
 		opGD.horizontalSpan = 2;
 		objectPropertyGroup.setLayoutData(opGD);
+
+		// Is there room for - NO, has to be inside OPG
+		// Example Payload display
+		// examplePayloadGroup = new Group(objectPropertyGroup, SWT.NULL);
+		// examplePayloadGroup.setText("Example Payload");
+		// GridLayout epGL = new GridLayout();
+		// epGL.numColumns = 1;
+		// examplePayloadGroup.setLayout(epGL);
+		// GridData epGD = new GridData(SWT.FILL, SWT.TOP, true, false);
+		// // GridData opGD = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+		// epGD.horizontalSpan = 1;
+		// examplePayloadGroup.setLayoutData(opGD);
 
 		// Fields use the objectPropertyGroup as the composite
 		//
@@ -598,7 +612,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		name.setText("Component");
 		name.setWidth(100);
 		msg.setText("Description");
-		msg.setWidth(300);
+		msg.setWidth(500);
 
 		for (ValidationFinding f : findings.getFindingsAsList(FindingType.ERROR))
 			post(table, f, node);
@@ -691,6 +705,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				if (field.getListener() != null)
 					pf.combo.addSelectionListener(new ComboListener());
 				pf.combo.setData(field);
+				pf.extra = toolkit.createLabel(objectPropertyGroup, "");
 				break;
 			case EnumList:
 				pf.label = toolkit.createLabel(objectPropertyGroup, Messages.getString(field.getKey() + ".text"),
@@ -715,6 +730,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 							button.addSelectionListener(new ButtonListener());
 						}
 					}
+				pf.extra = toolkit.createLabel(objectPropertyGroup, "");
 				break;
 			case CheckButton:
 				pf.label = toolkit.createLabel(objectPropertyGroup, Messages.getString(field.getKey() + ".text"),
@@ -727,6 +743,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				pf.button.setData(field);
 				pf.button.setEnabled(field.isEnabled());
 				pf.button.addSelectionListener(new CheckButtonListener());
+				pf.extra = toolkit.createLabel(objectPropertyGroup, "");
 				break;
 			case Int:
 				pf.label = toolkit.createLabel(objectPropertyGroup, Messages.getString(field.getKey() + ".text"),
@@ -740,6 +757,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				pf.spinner.addSelectionListener(new SpinnerListener());
 				pf.spinner.setData(field);
 				pf.spinner.setEnabled(field.isEnabled());
+				pf.extra = toolkit.createLabel(objectPropertyGroup, "");
 				break;
 			case ObjectSelect:
 				pf.label = toolkit.createLabel(objectPropertyGroup, Messages.getString(field.getKey() + ".text"),
@@ -751,14 +769,14 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				pf.button.setEnabled(field.isEnabled());
 				pf.button.addSelectionListener(new ObjectSelectionListener());
 				// Clear button
-				pf = new PostedField();
-				postedFields.add(pf);
-				pf.label = toolkit.createLabel(objectPropertyGroup, "Remove Object", SWT.NONE);
-				pf.label.setBackground(objectPropertyGroup.getBackground());
-				pf.button = new Button(objectPropertyGroup, SWT.PUSH);
-				pf.button.addSelectionListener(new ObjectClearListener());
-				post(pf.button, "-Remove-", field);
-				pf.button.setEnabled(!field.getValue().equals("None")); // TODO - make this more robust
+				// pf = new PostedField();
+				// postedFields.add(pf);
+				// pf.label = toolkit.createLabel(objectPropertyGroup, "Remove Object", SWT.NONE);
+				// pf.label.setBackground(objectPropertyGroup.getBackground());
+				pf.clear = new Button(objectPropertyGroup, SWT.PUSH);
+				pf.clear.addSelectionListener(new ObjectClearListener());
+				post(pf.clear, "-Remove-", field);
+				pf.clear.setEnabled(!field.getValue().equals("None")); // TODO - make this more robust
 				break;
 			default:
 				post(createField(field.getKey(), objectPropertyGroup, pf), field.getValue());
@@ -766,6 +784,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				pf.text.setEnabled(field.isEnabled());
 				pf.text.addModifyListener(new TextListener());
 				pf.text.addSelectionListener(new TextSelectionListener());
+				pf.extra = toolkit.createLabel(objectPropertyGroup, "");
 				break;
 			}
 		}
@@ -785,6 +804,8 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		public Label icon;
 		public Spinner spinner;
 		public Group buttons;
+		public Button clear; // optional 3rd button to clear field
+		public Label extra; // use when clear button is not used
 
 		public void dispose() {
 			if (text != null)
@@ -799,6 +820,10 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				icon.dispose();
 			if (spinner != null)
 				spinner.dispose();
+			if (clear != null)
+				clear.dispose();
+			if (extra != null)
+				extra.dispose();
 			if (buttons != null)
 				buttons.dispose();
 		}
