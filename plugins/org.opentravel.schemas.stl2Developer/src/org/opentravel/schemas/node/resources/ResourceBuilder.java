@@ -48,11 +48,20 @@ public class ResourceBuilder {
 	public ResourceBuilder() {
 	}
 
+	/**
+	 * Populate the passed resource to represent the passed business object.
+	 * 
+	 * @param rn
+	 *            resource node to populate
+	 * @param bo
+	 *            business object to use as the subject
+	 */
 	public void build(ResourceNode rn, BusinessObjectNode bo) {
 		if (bo == null || rn == null)
 			return;
 		TLResource rnTL = rn.getTLModelObject();
-		rnTL.setBusinessObjectRef((TLBusinessObject) bo.getTLModelObject());
+		// rnTL.setBusinessObjectRef((TLBusinessObject) bo.getTLModelObject());
+		rn.setSubject(bo);
 		rn.setName(bo.getName() + "Resource");
 		rn.setBasePath("/" + bo.getName() + "s");
 		rnTL.setAbstract(false);
@@ -108,6 +117,10 @@ public class ResourceBuilder {
 		return an;
 	}
 
+	/**
+	 * 
+	 * @return a TLResource populated with Parameter Group, Actions and Action Facets but NO subject
+	 */
 	public TLResource buildTL() {
 		return buildTL(NAME);
 	}

@@ -29,6 +29,7 @@ import org.opentravel.schemacompiler.model.TLParamLocation;
 import org.opentravel.schemacompiler.model.TLParameter;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.listeners.ResourceDependencyListener;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -204,13 +205,37 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		return getFacetRef() != null ? getFacetRef().getLabel() : "";
 	}
 
+	/**
+	 * Get facet names from subject business object. Omit query facets if this is an ID Parameter Group.
+	 * 
+	 * @return a string array of subject facet names.
+	 */
+	// TODO - JUNIT - add test for ID/non-ID group behavior
+	public String[] getSubjectFacets() {
+		List<FacetNode> facets = new ArrayList<FacetNode>();
+		for (Node facet : getOwningComponent().getSubject().getChildren()) {
+			if (!(facet instanceof FacetNode))
+				continue;
+			if (isIdGroup() && ((FacetNode) facet).isQueryFacet())
+				continue;
+			facets.add((FacetNode) facet);
+		}
+		int size = facets.size();
+		String[] fs = new String[size];
+		int i = 0;
+		for (Node facet : facets)
+			fs[i++] = facet.getLabel();
+		return fs;
+
+	}
+
 	@Override
 	public List<ResourceField> getFields() {
 		List<ResourceField> fields = new ArrayList<ResourceField>();
 
 		// Facet Name - list of facets from subject
 		new ResourceField(fields, getFacetLabel(), "rest.ParamGroup.fields.referenceFacetName", ResourceFieldType.Enum,
-				new ReferenceFacetListener(), getOwningComponent().getSubjectFacets(false));
+				new ReferenceFacetListener(), getSubjectFacets());
 
 		// idGroup - boolean
 		new ResourceField(fields, Boolean.toString(tlObj.isIdGroup()), "rest.ParamGroup.fields.idGroup",

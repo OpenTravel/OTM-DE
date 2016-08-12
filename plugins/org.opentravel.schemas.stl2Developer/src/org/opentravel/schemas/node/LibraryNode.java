@@ -611,16 +611,16 @@ public class LibraryNode extends Node {
 	}
 
 	/**
-	 * Uses linkChild() to link Node to the appropriate navigation node in this library. Does family processing. Does
-	 * set library and contexts. Does <b>not</b> impact the TL model. Does <b>not</b> do aggregate processing.
+	 * Uses linkChild() to link Node to the appropriate navigation node in this library. Does set library and contexts.
+	 * Does <b>not</b> impact the TL model. Does <b>not</b> do aggregate processing.
 	 * 
 	 * @return
 	 */
 	public boolean linkMember(Node n) {
 		if (n == null)
 			throw new IllegalArgumentException("Null parameter.");
-		if (n.getName().isEmpty())
-			throw new IllegalArgumentException("Node must have a name.");
+		// if (n.getName().isEmpty())
+		// throw new IllegalArgumentException("Node must have a name.");
 		boolean linkOK = true;
 
 		// LOGGER.debug("Linking node: "+n.getName());

@@ -21,11 +21,13 @@ package org.opentravel.schemas.node;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
@@ -67,14 +69,36 @@ public class ResourceObjectTests {
 
 	@Test
 	public void constructorTests() {
+		// Given - a library and the objects used in constructors
 		LibraryNode ln = ml.createNewLibrary("http://example.com/resource", "RT", pc.getDefaultProject());
-		TLResource resource = new ResourceBuilder().buildTL();
-		ResourceNode rn = new ResourceNode(resource, ln);
-		ln.addMember(rn);
-		checkResource(rn);
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "MyBo");
+		Node node = bo;
+		TLResource mbr = new TLResource();
+		mbr.setName("MyTlResource");
+		mbr.setBusinessObjectRef((TLBusinessObject) bo.getTLModelObject());
 
-		List<TypeUser> users = ln.getDescendants_TypeUsers();
-		assertTrue(users.contains(rn));
+		// When - used in LibraryNode.generateLibrary()
+		TLResource tlr = new ResourceBuilder().buildTL(); // get a populated tl resource
+		tlr.setBusinessObjectRef((TLBusinessObject) bo.getTLModelObject());
+		ResourceNode rn1 = new ResourceNode(tlr, ln);
+
+		// When - used in tests
+		ResourceNode rn2 = ml.addResource(bo);
+
+		// When - used in NodeFactory
+		ResourceNode rn3 = new ResourceNode(mbr);
+		ln.addMember(rn3);
+
+		// When - used in ResourceCommandHandler to launch wizard
+		ResourceNode rn4 = new ResourceNode(node);
+		// When - builder used as in ResourceCommandHandler
+		new ResourceBuilder().build(rn4, bo);
+
+		// Then - must be complete
+		checkResource(rn1);
+		checkResource(rn2);
+		checkResource(rn3);
+		checkResource(rn4);
 	}
 
 	@Test
@@ -86,6 +110,29 @@ public class ResourceObjectTests {
 			if (n instanceof ResourceNode)
 				checkResource((ResourceNode) n);
 		}
+	}
+
+	@Test
+	public void deleteResourceTest() {
+		// Given - a library and resource
+		LibraryNode ln = ml.createNewLibrary("http://example.com/resource", "RT", pc.getDefaultProject());
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "MyBo");
+		ResourceNode rn = ml.addResource(bo);
+		checkResource(rn);
+
+		// Given
+		Collection<TypeUser> l1 = bo.getWhereAssigned();
+		Collection<TypeUser> l2 = bo.getWhereUsedAndDescendants();
+		assertTrue("Resource must be in subject's where assigned list.", bo.getWhereAssigned().contains(rn));
+		assertTrue("Resource must have a subject.", rn.getSubject() == bo);
+		assertTrue("Resource must be in subject's where-used list.", bo.getWhereUsedAndDescendants().contains(rn));
+
+		// When - the resource is deleted
+		rn.delete();
+
+		// Then
+		assertTrue("Resource must be deleted.", rn.isDeleted());
+		assertTrue("Resource must NOT be in subject's where-used list.", !bo.getWhereUsedAndDescendants().contains(rn));
 	}
 
 	@Test
@@ -159,8 +206,8 @@ public class ResourceObjectTests {
 		for (ActionNode action : resource.getActions()) {
 			String url = action.getExample().getURL();
 			LOGGER.debug("Example: " + url + ".");
-			assertTrue("Action has example.", !url.isEmpty());
-			assertTrue("Example contains grand parent name", url.contains(grandParentBO.getName()));
+			assertTrue("Action must have example URL.", !url.isEmpty());
+			assertTrue("Example must contain grand parent name", url.contains(grandParentBO.getName()));
 		}
 
 	}
@@ -209,6 +256,17 @@ public class ResourceObjectTests {
 		assertNotNull(resource.getTLModelObject().getListeners());
 		TLResource tlr = (TLResource) resource.getTLModelObject();
 
+		// Validate that the resource is in the where used list for its subject
+		assertTrue("Must have a subject.", resource.getSubject() != null);
+		assertTrue("Subject must have resource in its where assigned list.", resource.getSubject().getWhereAssigned()
+				.contains(resource));
+		// LOGGER.debug("Subject must have resource in its where assigned list: "
+		// + resource.getSubject().getWhereAssigned().contains(resource));
+
+		// Make sure it is in the library
+		assertTrue("Must have library set.", resource.getLibrary() != null);
+		List<TypeUser> users = resource.getLibrary().getDescendants_TypeUsers();
+		assertTrue("Must be in library.", users.contains(resource));
 		if (tlr.getOwningLibrary() != null)
 			Assert.assertNotNull(resource.getLibrary());
 
@@ -241,7 +299,7 @@ public class ResourceObjectTests {
 	}
 
 	public void checkResource(ResourceMemberInterface resource) {
-		LOGGER.debug("Checking " + resource + " " + resource.getClass().getSimpleName());
+		// LOGGER.debug("Checking " + resource + " " + resource.getClass().getSimpleName());
 		assert resource.getParent() != null;
 		assert resource.getName() != null;
 		assert resource.getLabel() != null;

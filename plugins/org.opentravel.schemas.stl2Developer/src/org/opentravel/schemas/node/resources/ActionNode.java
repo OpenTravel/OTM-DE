@@ -148,6 +148,12 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	}
 
 	public ActionRequest getRequest() {
+		// FIXME
+		// ResourceCodegenUtils.getInheritedActions(resource)
+		// ResourceCodegenUtils.getInheritedResponses(action)
+		// ResourceCodegenUtils.getEffectivePath()
+		// ResourceCodegenUtils.getQualifiedActions(resource)
+
 		for (Node n : getChildren())
 			if (n instanceof ActionRequest)
 				return (ActionRequest) n;

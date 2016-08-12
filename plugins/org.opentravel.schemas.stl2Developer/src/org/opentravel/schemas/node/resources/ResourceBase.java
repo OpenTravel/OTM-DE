@@ -156,7 +156,7 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 			for (TLReferenceType l : TLReferenceType.values())
 				values[i++] = l.toString();
 		}
-		LOGGER.debug("Reference Type Strings returned: " + values);
+		// LOGGER.debug("Reference Type Strings returned: " + values.toString());
 		return values;
 	}
 

@@ -110,6 +110,10 @@ public class WhereAssignedHandler {
 		this.owner = owner;
 	}
 
+	/**
+	 * @param user
+	 *            type user to add if not already in list
+	 */
 	public void add(TypeUser user) {
 		if (!users.contains(user)) {
 			users.add((Node) user);

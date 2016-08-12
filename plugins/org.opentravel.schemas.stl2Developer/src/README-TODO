@@ -9,6 +9,14 @@ Resources
 			x -- I disabled the gui widgets, what if the data is invalid? Added remove button.
 		Actions - ? must it always be common for abstract?
 		ActionRequest - what does it mean to have a base request?
+	Create resource then assign subject - where used not set
+	
+	x - Parameter Group - if ID is selected, do NOT list query facets in facet list.
+	Parent_Resource - parameter group MUST be an ID Group
+		if parent resource has only one ID group, select it automatically when creating parent resource
+	Grand parent must contribute to example paths
+	
+	ToolTips - align with wording in GUI and presentation
 	
 	Path Template
 		x - Change path on containing resource should change path on all action requests

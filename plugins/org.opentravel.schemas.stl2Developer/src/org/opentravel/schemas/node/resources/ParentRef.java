@@ -90,6 +90,7 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 	public void delete() {
 		if (tlObj.getOwner() != null)
 			tlObj.getOwner().removeParentRef(tlObj);
+		setPathTemplate(null);
 		super.delete();
 	}
 
@@ -138,7 +139,7 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 	}
 
 	public String getUrlContribution() {
-		return tlObj.getPathTemplate();
+		return tlObj.getPathTemplate() != null ? tlObj.getPathTemplate() : "";
 	}
 
 	/**

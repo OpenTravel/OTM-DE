@@ -139,11 +139,14 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		assert (getModelObject() != null);
 		tlObj = getTLModelObject();
 
-		addMOChildren(); // NOTE - this will fail because of no library
+		addMOChildren(); // NOTE - this will fail if no library
 
 		if (getSubject() == null)
 			LOGGER.debug("No subject assigned: " + this);
-		LOGGER.debug("NOT IMPLEMENTED - resource node constructor.");
+		else
+			getSubject().addWhereUsed(this);
+
+		// LOGGER.debug("NOT IMPLEMENTED - resource node constructor.");
 		assert true;
 	}
 
@@ -159,32 +162,33 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 		if (getSubject() == null)
 			LOGGER.debug("No subject assigned: " + this);
+		else
+			getSubject().addWhereUsed(this);
 	}
 
 	/**
-	 * Create a resource in the library of the libraryMember. Name the resource using the library member name.
+	 * Create a resource in the library of the node. Name the resource using the library member name.
 	 */
-	public ResourceNode(Node libraryMember) {
+	public ResourceNode(Node node) {
 		super(new TLResource());
 		tlObj = getTLModelObject();
-		if (libraryMember == null || libraryMember.getName().isEmpty())
+		if (node == null || node.getName().isEmpty())
 			tlObj.setName("NewResource"); // must be named to add to library
 		else
-			tlObj.setName(libraryMember.getName() + "Resource");
+			tlObj.setName(node.getName() + "Resource");
 
-		libraryMember.getLibrary().addMember(this);
+		node.getLibrary().addMember(this);
 	}
 
-	/**
-	 * Create a resource in the library of the libraryMember. Hint, use ResourceBuilder.build() to complete the resource
-	 * properties.
-	 */
-	public ResourceNode(BusinessObjectNode businessObject) {
-		super(new ResourceBuilder().buildTL(businessObject));
-		tlObj = getTLModelObject();
-
-		businessObject.getLibrary().addMember(this);
-	}
+	// /**
+	// * Use the passed business object to build a fully populated resource added to the library of the passed BO.
+	// */
+	// public ResourceNode(BusinessObjectNode businessObject) {
+	// super(new ResourceBuilder().buildTL(businessObject));
+	// tlObj = getTLModelObject();
+	//
+	// businessObject.getLibrary().addMember(this);
+	// }
 
 	public void addChild(ResourceMemberInterface child) {
 		if (!getChildren().contains(child))
@@ -243,13 +247,10 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 		if (getChain() != null)
 			getChain().removeAggregate(this);
+		getSubject().removeTypeUser(this);
 		parent = null;
 		setLibrary(null);
 		deleted = true;
-
-		// FIXME - TEST - handle type node
-		// TEST getTypeClass().clearWhereUsed();
-		// getTypeClass().clear();
 
 		LOGGER.debug("Deleting rest resource: " + this);
 		if (tlObj.getOwningLibrary() != null)
@@ -538,6 +539,12 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return names;
 	}
 
+	/**
+	 * 
+	 * @param includeSubGrp
+	 *            if true include entry for the substitution group
+	 * @return list of facets on the subject business object
+	 */
 	public String[] getSubjectFacets(boolean includeSubGrp) {
 		if (getSubject() == null)
 			return new String[0];
@@ -679,8 +686,12 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	public void setSubject(Node subject) {
 		if (subject != null && subject.getTLModelObject() != null
-				&& subject.getTLModelObject() instanceof TLBusinessObject)
+				&& subject.getTLModelObject() instanceof TLBusinessObject) {
 			tlObj.setBusinessObjectRef((TLBusinessObject) subject.getTLModelObject());
+			// Set where used on BO
+			if (subject instanceof TypeProvider)
+				((TypeProvider) subject).addWhereUsed(this);
+		}
 	}
 
 	/**

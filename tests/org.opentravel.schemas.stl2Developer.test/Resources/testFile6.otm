@@ -303,7 +303,7 @@
             <Element name="SampleBusinessObject_Alias2Test1" repeat="0" type="SampleBusinessObject_Alias2_Test1"/>
         </Detail>
     </BusinessObject>
-    <Resource abstract="true" businessObjectRef="" firstClass="true" name="BaseResource">
+    <Resource abstract="true" businessObjectRef="CompoundBusinessObject" firstClass="true" name="BaseResource">
         <Action actionId="CommonErrors" common="true">
             <ActionResponse mimeTypes="APPLICATION_XML APPLICATION_JSON"
                 payloadType="SampleCore" statusCodes="403 500">
