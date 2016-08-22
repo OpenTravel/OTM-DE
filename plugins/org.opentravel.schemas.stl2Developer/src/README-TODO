@@ -1,6 +1,18 @@
 README - TODO
 	x - == DONE
-	
+
+Repository
+	 ExampleJsonView                  | Done initializing part control of class org.opentravel.schemas.views.example.ExampleJsonView
+	08:26:51,615 | WARN  | RemoteRepositoryClient           | The remote repository 'Opentravel' is unavailable.
+	08:26:51,615 | WARN  | RemoteRepositoryClient           | The remote repository 'Opentravel' is unavailable.
+	08:26:51,623 | ERROR | RepositoryNode                   | Could not fetch base-namespaces from repository: Opentravel  OTM Library Repository, reason: The remote repository is unavailable.
+	08:26:51,647 | ERROR | RepositoryNode                   | Couldn't fetch items under basename: http://www.opentravel.org/OTM
+	08:26:51,661 | WARN  | RemoteRepositoryClient           | The remote repository 'Opentravel' is unavailable.
+	08:26:51,661 | WARN  | RemoteRepositoryClient           | The remote repository 'Opentravel' is unavailable.
+	08:26:51,684 | WARN  | RepositoryNode                   | Could not get permissions for base name:http://www.opentravel.org/OTM.
+	08:26:51,709 | WARN  | RemoteRepositoryClient           | The remote repository 'Opentravel' is unavailable.
+	08:26:51,709 | WARN  | RemoteRepositoryClient           | The remote repository 'Opentravel' is unavailable.
+
 Resources
 	Abstract Resource = no examples, no resource, reference facet?, not first class?
 			x - No Base Path allowed
@@ -12,10 +24,10 @@ Resources
 	Create resource then assign subject - where used not set
 	
 	x - Parameter Group - if ID is selected, do NOT list query facets in facet list.
-	Parent_Resource - parameter group MUST be an ID Group
-		if parent resource has only one ID group, select it automatically when creating parent resource
-	Grand parent must contribute to example paths
-	
+	x - Parent_Resource - parameter group MUST be an ID Group
+	x -	if parent resource has only one ID group, select it automatically when creating parent resource
+	x - Grand parent must contribute to example paths
+	ENHANCEMENT - Show inherited Actions, ActionRequests, ActionResponses
 	ToolTips - align with wording in GUI and presentation
 	
 	Path Template

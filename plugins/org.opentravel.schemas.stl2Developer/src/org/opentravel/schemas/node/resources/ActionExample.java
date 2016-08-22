@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class ActionExample {
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = LoggerFactory.getLogger(ActionExample.class);
 
 	private final static String SYSTEM = "http://example.com";
@@ -36,32 +37,44 @@ public class ActionExample {
 		this.action = action;
 	}
 
-	public String getBasePath() {
-		String basePath = "";
-		if (action.tlObj.getOwner() != null) {
-			basePath = action.tlObj.getOwner().getBasePath();
-			if (basePath != null && basePath.endsWith("/"))
-				basePath = basePath.substring(0, basePath.length() - 1);
-		}
-		return basePath;
+	public String getURL() {
+		if (getMethod().isEmpty())
+			return "";
+		String url = getMethod() + " " + getSystem();
+		url += action.getParentContribution();
+		if (action.getParentContribution().isEmpty())
+			url += action.getRequest().getPathTemplate() + getQueryTemplate();
+		url += getPayloadExample();
+		// LOGGER.debug(url);
+		return url;
 	}
 
-	public String getMethod() {
+	// private String getBasePath() {
+	// String basePath = "";
+	// if (action.tlObj.getOwner() != null) {
+	// basePath = action.tlObj.getOwner().getBasePath();
+	// if (basePath != null && basePath.endsWith("/"))
+	// basePath = basePath.substring(0, basePath.length() - 1);
+	// }
+	// return basePath;
+	// }
+
+	private String getMethod() {
 		if (action.tlObj.getRequest() == null)
 			return "";
 		return action.tlObj.getRequest().getHttpMethod() != null ? action.tlObj.getRequest().getHttpMethod().toString()
 				: "";
 	}
 
-	public String getTemplate() {
-		return action.tlObj.getRequest() != null ? action.tlObj.getRequest().getPathTemplate() : "";
-	}
+	// private String getTemplate() {
+	// return action.tlObj.getRequest() != null ? action.tlObj.getRequest().getPathTemplate() : "";
+	// }
 
-	public String getQueryTemplate() {
+	private String getQueryTemplate() {
 		return action.getQueryTemplate();
 	}
 
-	public String getPayloadExample() {
+	private String getPayloadExample() {
 		String payload = "";
 		if (action.tlObj.getRequest() != null)
 			payload = action.tlObj.getRequest().getPayloadTypeName();
@@ -77,24 +90,6 @@ public class ActionExample {
 
 	public String getLabel() {
 		return action.tlObj.getActionId();
-	}
-
-	public String getURL() {
-		if (getMethod().isEmpty())
-			return "";
-		String url = getMethod() + " " + getSystem();
-		url += action.getParentContribution();
-		url += action.getRequest().getPathTemplate() + getQueryTemplate();
-		url += getPayloadExample();
-		LOGGER.debug(url);
-		return url;
-
-		// LOGGER.debug(getMethod() + " " + SYSTEM + action.getRequest().getPathTemplate() + getQueryTemplate() + " "
-		// + getPayloadExample());
-		// return getMethod() + " " + SYSTEM + action.getRequest().getPathTemplate() + getQueryTemplate() + " "
-		// + getPayloadExample();
-		// return getMethod() + " " + SYSTEM + getBasePath() + getTemplate() + getQueryTemplate() + " "
-		// + getPayloadExample();
 	}
 
 	@Override

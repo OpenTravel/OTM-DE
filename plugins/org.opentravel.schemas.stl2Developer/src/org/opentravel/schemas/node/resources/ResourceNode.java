@@ -449,7 +449,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	 */
 	public String[] getParameterGroupNames(boolean idGroupsOnly) {
 		List<ParamGroup> paramGroups = getParameterGroups(idGroupsOnly);
-		String[] groupNames = new String[paramGroups.size() + 1];
+		String[] groupNames = new String[paramGroups.size()];
 		int i = 0;
 		groupNames[i] = ResourceField.NONE;
 		for (Node n : paramGroups)

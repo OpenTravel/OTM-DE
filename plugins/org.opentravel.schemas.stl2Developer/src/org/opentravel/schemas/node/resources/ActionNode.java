@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.codegen.impl.QualifiedAction;
+import org.opentravel.schemacompiler.codegen.util.ResourceCodegenUtils;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionRequest;
@@ -202,11 +204,28 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	 * @return URL contribution made by parent ref or empty string
 	 */
 	public String getParentContribution() {
+		// FIXME - dependent on order of list
+		// There are many possibilities depending on if the ancestors are 1st class.
+		// Choose the longest.
+		String qaContrib = "";
+		for (QualifiedAction qa : ResourceCodegenUtils.getQualifiedActions(getOwningComponent().getTLModelObject())) {
+			if (qa.getAction() == tlObj)
+				if (qa.getPathTemplate().length() > qaContrib.length())
+					qaContrib = qa.getPathTemplate();
+		}
+		return qaContrib;
+
+		// String contribution = "";
+		// List<TLResourceParentRef> list = ResourceCodegenUtils.getInheritedParentRefs(getOwningComponent()
+		// .getTLModelObject());
+		// for (TLResourceParentRef tlRef : list) {
+		// contribution += tlRef.getPathTemplate();
+		// }
+		// return contribution;
 		// Find the parent resource if any
-		ParentRef pr = getOwningComponent().getParentRef();
-		return pr != null ? pr.getUrlContribution() : "";
+		// ParentRef pr = getOwningComponent().getParentRef();
+		// return pr != null ? pr.getUrlContribution() : "";
 		// ResourceNode ppg = getOwningComponent().getParentParamGroup();
 		// return parent != null ? ppg.getPathContribution() : "";
 	}
-
 }

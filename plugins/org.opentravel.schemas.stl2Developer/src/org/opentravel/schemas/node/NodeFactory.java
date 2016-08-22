@@ -21,7 +21,6 @@ package org.opentravel.schemas.node;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAttribute;
-import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
@@ -35,6 +34,7 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemacompiler.model.TLOperation;
 import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLPropertyType;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemacompiler.model.TLRole;
 import org.opentravel.schemacompiler.model.TLRoleEnumeration;
@@ -229,7 +229,7 @@ public class NodeFactory {
 			else
 				nn = new IndicatorNode((TLModelElement) tlObj, (PropertyOwnerInterface) parent);
 		} else if (tlObj instanceof TLAttribute) {
-			TLAttributeType type = ((TLAttribute) tlObj).getType();
+			TLPropertyType type = ((TLAttribute) tlObj).getType();
 			if (type != null && type.getNamespace() != null && type.getNamespace().equals(ModelNode.XSD_NAMESPACE)
 					&& type.getLocalName().equals("ID"))
 				nn = new IdNode((TLModelElement) tlObj, (PropertyOwnerInterface) parent);
