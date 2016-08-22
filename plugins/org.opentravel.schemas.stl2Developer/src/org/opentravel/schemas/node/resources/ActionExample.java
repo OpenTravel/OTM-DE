@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.node.resources;
 
+import org.opentravel.schemas.preferences.CompilerPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,15 +33,20 @@ public class ActionExample {
 
 	private final static String SYSTEM = "http://example.com";
 	private ActionNode action;
+	private String resourceBaseURL;
 
 	public ActionExample(ActionNode action) {
 		this.action = action;
+		if (getResourceBaseURL().isEmpty())
+			resourceBaseURL = SYSTEM;
+		else
+			resourceBaseURL = getResourceBaseURL();
 	}
 
 	public String getURL() {
 		if (getMethod().isEmpty())
 			return "";
-		String url = getMethod() + " " + getSystem();
+		String url = getMethod() + " " + resourceBaseURL;
 		url += action.getParentContribution();
 		if (action.getParentContribution().isEmpty())
 			url += action.getRequest().getPathTemplate() + getQueryTemplate();
@@ -49,15 +55,11 @@ public class ActionExample {
 		return url;
 	}
 
-	// private String getBasePath() {
-	// String basePath = "";
-	// if (action.tlObj.getOwner() != null) {
-	// basePath = action.tlObj.getOwner().getBasePath();
-	// if (basePath != null && basePath.endsWith("/"))
-	// basePath = basePath.substring(0, basePath.length() - 1);
-	// }
-	// return basePath;
-	// }
+	private String getResourceBaseURL() {
+		final CompilerPreferences compilePreferences = new CompilerPreferences(
+				CompilerPreferences.loadPreferenceStore());
+		return compilePreferences.getResourceBaseUrl();
+	}
 
 	private String getMethod() {
 		if (action.tlObj.getRequest() == null)
@@ -65,10 +67,6 @@ public class ActionExample {
 		return action.tlObj.getRequest().getHttpMethod() != null ? action.tlObj.getRequest().getHttpMethod().toString()
 				: "";
 	}
-
-	// private String getTemplate() {
-	// return action.tlObj.getRequest() != null ? action.tlObj.getRequest().getPathTemplate() : "";
-	// }
 
 	private String getQueryTemplate() {
 		return action.getQueryTemplate();
@@ -81,11 +79,6 @@ public class ActionExample {
 		if (payload == null)
 			payload = "";
 		return !payload.isEmpty() ? " <" + payload + ">...</" + payload + ">" : "";
-	}
-
-	public String getSystem() {
-		return SYSTEM;
-		// TODO - use preference page to get resource base url
 	}
 
 	public String getLabel() {
