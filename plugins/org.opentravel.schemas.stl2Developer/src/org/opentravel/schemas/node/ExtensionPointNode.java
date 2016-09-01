@@ -21,6 +21,7 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
 import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;

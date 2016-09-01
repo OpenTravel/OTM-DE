@@ -25,6 +25,7 @@ import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
 import org.opentravel.schemas.node.AggregateNode.AggregateType;
+import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;

@@ -23,6 +23,7 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLAbstractFacet;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAliasOwner;
+import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;

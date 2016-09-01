@@ -26,6 +26,8 @@ import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
+import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;

@@ -43,6 +43,12 @@ import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.modelObject.TLValueWithAttributesFacet;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
+import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.OperationNode;
+import org.opentravel.schemas.node.facets.QueryFacetNode;
+import org.opentravel.schemas.node.facets.RenamableFacet;
+import org.opentravel.schemas.node.facets.RoleFacetNode;
+import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.properties.AttributeNode;
@@ -304,9 +310,10 @@ public class NodeFactory {
 	private static ComponentNode createFacet(TLFacet facet) {
 		switch (facet.getFacetType()) {
 		case CUSTOM:
-		case QUERY:
 		case CHOICE:
 			return new RenamableFacet(facet);
+		case QUERY:
+			return new QueryFacetNode(facet);
 		case SHARED:
 		default:
 			return new FacetNode(facet);

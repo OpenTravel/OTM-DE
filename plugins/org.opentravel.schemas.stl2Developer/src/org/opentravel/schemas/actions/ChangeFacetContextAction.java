@@ -16,8 +16,8 @@
 package org.opentravel.schemas.actions;
 
 import org.opentravel.schemacompiler.model.TLContextReferrer;
-import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.MainWindow;

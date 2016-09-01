@@ -20,14 +20,13 @@ import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.OperationNode;
 import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.OperationNode.ResourceOperationTypes;
+import org.opentravel.schemas.node.facets.OperationNode;
+import org.opentravel.schemas.node.facets.OperationNode.ResourceOperationTypes;
 import org.opentravel.schemas.utils.BaseProjectTest;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.osgi.framework.Version;
-
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 
 /**

@@ -30,6 +30,7 @@ import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.utils.FacetNodeBuilder;

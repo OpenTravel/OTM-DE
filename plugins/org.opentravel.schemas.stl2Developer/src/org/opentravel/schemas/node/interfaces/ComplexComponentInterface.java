@@ -18,7 +18,7 @@
  */
 package org.opentravel.schemas.node.interfaces;
 
-import org.opentravel.schemas.node.SimpleFacetNode;
+import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 
 /**

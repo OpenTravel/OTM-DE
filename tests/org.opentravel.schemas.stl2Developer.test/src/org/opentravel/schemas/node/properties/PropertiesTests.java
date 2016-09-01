@@ -43,7 +43,6 @@ import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
-import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
@@ -52,8 +51,9 @@ import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.PropertyNodeType;
-import org.opentravel.schemas.node.RoleFacetNode;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.types.TypeProvider;
 

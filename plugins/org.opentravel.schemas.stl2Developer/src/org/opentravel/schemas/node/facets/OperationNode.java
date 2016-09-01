@@ -16,7 +16,7 @@
 /**
  * 
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.node.facets;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +27,14 @@ import org.opentravel.schemacompiler.model.TLOperation;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLService;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
+import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.ComponentNodeType;
+import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.ModelNode;
+import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.NodeVisitors;
+import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.types.TypeProvider;
@@ -65,46 +73,21 @@ public class OperationNode extends FacetNode implements VersionedObjectInterface
 		return super.createMinorVersionComponent(new OperationNode(new TLOperation()));
 	}
 
-	// @Override
-	// public boolean canExtend() {
-	// return true;
-	// }
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.FacetNode#isListFacet()
-	 */
 	@Override
 	public boolean isListFacet() {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.FacetNode#isMessage()
-	 */
 	@Override
 	public boolean isMessage() {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.FacetNode#isDetailListFacet()
-	 */
 	@Override
 	public boolean isDetailListFacet() {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.FacetNode#isCustomFacet()
-	 */
 	@Override
 	public boolean isCustomFacet() {
 		return false;
@@ -115,21 +98,11 @@ public class OperationNode extends FacetNode implements VersionedObjectInterface
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.FacetNode#isQueryFacet()
-	 */
 	@Override
 	public boolean isQueryFacet() {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.FacetNode#isDefaultFacet()
-	 */
 	@Override
 	public boolean isDefaultFacet() {
 		return false;
@@ -151,16 +124,6 @@ public class OperationNode extends FacetNode implements VersionedObjectInterface
 			((TLOperation) getTLModelObject()).setNotExtendable(!extensible);
 		return this;
 	}
-
-	// /*
-	// * (non-Javadoc)
-	// *
-	// * @see org.opentravel.schemas.node.FacetNode#isRoleFacet()
-	// */
-	// @Override
-	// public boolean isRoleFacet() {
-	// return false;
-	// }
 
 	/**
 	 * Create a Service Operation for the passed service. Creates RQ, RS and Notif. Adds new operation to the TL Model.

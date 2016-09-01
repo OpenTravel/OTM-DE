@@ -32,6 +32,7 @@ import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;

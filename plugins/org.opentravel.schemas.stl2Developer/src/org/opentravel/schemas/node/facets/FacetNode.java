@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.node.facets;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +33,14 @@ import org.opentravel.schemacompiler.model.TLRoleEnumeration;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemas.modelObject.TLValueWithAttributesFacet;
 import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
+import org.opentravel.schemas.node.AliasNode;
+import org.opentravel.schemas.node.CoreObjectNode;
+import org.opentravel.schemas.node.ModelNode;
+import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.NodeNameUtils;
+import org.opentravel.schemas.node.PropertyNodeType;
+import org.opentravel.schemas.node.TypeProviderBase;
+import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
@@ -93,6 +101,8 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 				// don't want to add to parent
 				np = p.clone(null, null);
 			}
+			// FIXME - same behavior in else
+			// only used in merge()
 			if (attrsOnly && p.isSimpleAssignable())
 				addProperty(np);
 			else
@@ -151,13 +161,13 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 		return modelObject.getComponentType();
 	}
 
-	public String getContext() {
-		final Object ne = modelObject.getTLModelObj();
-		if (ne instanceof TLFacet) {
-			return ((TLFacet) ne).getContext();
-		}
-		return null;
-	}
+	// public String getContext() {
+	// final Object ne = modelObject.getTLModelObj();
+	// if (ne instanceof TLFacet) {
+	// return ((TLFacet) ne).getContext();
+	// }
+	// return null;
+	// }
 
 	@Override
 	public TLFacetType getFacetType() {
@@ -371,19 +381,6 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 			return false;
 		return true;
 	}
-
-	// @Override
-	// public boolean isValidParentOf(Node type) {
-	// if (this instanceof RoleFacetNode)
-	// return type instanceof RoleNode;
-	// if (isVWA_AttributeFacet())
-	// return type.isVWASimpleAssignable();
-	// if (isListFacet())
-	// return false;
-	// if (type instanceof PropertyNode)
-	// return true;
-	// return false;
-	// }
 
 	@Override
 	public boolean isValidParentOf(PropertyNodeType type) {

@@ -33,6 +33,7 @@ import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
+import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.testUtils.LoadFiles;

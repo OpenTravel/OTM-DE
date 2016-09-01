@@ -27,6 +27,7 @@ import org.opentravel.schemacompiler.model.LibraryElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.IdNode;

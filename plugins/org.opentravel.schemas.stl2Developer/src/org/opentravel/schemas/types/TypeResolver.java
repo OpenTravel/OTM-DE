@@ -25,7 +25,7 @@ import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
-import org.opentravel.schemas.node.SimpleFacetNode;
+import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;

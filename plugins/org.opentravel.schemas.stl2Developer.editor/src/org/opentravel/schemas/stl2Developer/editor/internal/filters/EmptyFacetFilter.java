@@ -15,7 +15,7 @@
  */
 package org.opentravel.schemas.stl2Developer.editor.internal.filters;
 
-import org.opentravel.schemas.node.FacetNode;
+import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.stl2Developer.editor.model.UINode;
 
 /**

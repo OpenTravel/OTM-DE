@@ -18,8 +18,8 @@ package org.opentravel.schemas.testers;
 import org.eclipse.core.expressions.PropertyTester;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.RenamableFacet;
 import org.opentravel.schemas.node.controllers.NodeUtils;
+import org.opentravel.schemas.node.facets.RenamableFacet;
 import org.opentravel.schemas.types.TypeUser;
 
 public class NodeTester extends PropertyTester {

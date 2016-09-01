@@ -52,6 +52,7 @@ import org.opentravel.schemacompiler.util.URLUtils;
 import org.opentravel.schemas.controllers.ContextController;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
+import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;

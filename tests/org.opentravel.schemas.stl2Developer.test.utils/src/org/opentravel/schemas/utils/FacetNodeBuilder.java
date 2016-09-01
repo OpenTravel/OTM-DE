@@ -21,9 +21,9 @@ import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.node.BusinessObjectNode;
-import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.NodeFactory;
+import org.opentravel.schemas.node.facets.FacetNode;
 
 public class FacetNodeBuilder {
 	interface TLCreator {

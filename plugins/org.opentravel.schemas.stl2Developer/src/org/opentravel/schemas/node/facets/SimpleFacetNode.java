@@ -16,10 +16,13 @@
 /**
  * 
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.node.facets;
 
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
+import org.opentravel.schemas.node.CoreObjectNode;
+import org.opentravel.schemas.node.ModelNode;
+import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.types.SimpleAttributeOwner;

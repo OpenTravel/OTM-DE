@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.node.facets;
 
 import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.types.TypeUser;
 
 /**
@@ -30,9 +31,9 @@ public class RenamableFacet extends FacetNode {
 		super(tlObj);
 	}
 
-	public String getContext() {
-		return ((TLFacet) getTLModelObject()).getContext();
-	}
+	// public String getContext() {
+	// return ((TLFacet) getTLModelObject()).getContext();
+	// }
 
 	/**
 	 * Set the context for this renamable facet. If context is null, then set to the default context for the library.

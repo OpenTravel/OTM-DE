@@ -21,8 +21,8 @@ import java.util.List;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemas.node.FacetNode;
 import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;

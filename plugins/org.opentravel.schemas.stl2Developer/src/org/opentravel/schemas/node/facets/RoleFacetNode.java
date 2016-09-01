@@ -16,9 +16,11 @@
 /**
  * 
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.node.facets;
 
 import org.opentravel.schemacompiler.model.TLRoleEnumeration;
+import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.RoleNode;
 
@@ -71,45 +73,26 @@ public class RoleFacetNode extends FacetNode {
 		return this;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.FacetNode#isCustomFacet()
-	 */
 	@Override
 	public boolean isCustomFacet() {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.FacetNode#isDefaultFacet()
-	 */
 	@Override
 	public boolean isDefaultFacet() {
 		return false;
 	}
 
-	/*
-	 * @see org.opentravel.schemas.node.FacetNode#isDetailListFacet()
-	 */
 	@Override
 	public boolean isDetailListFacet() {
 		return false;
 	}
 
-	/*
-	 * @see org.opentravel.schemas.node.FacetNode#isListFacet()
-	 */
 	@Override
 	public boolean isListFacet() {
 		return false;
 	}
 
-	/*
-	 * @see org.opentravel.schemas.node.FacetNode#isQueryFacet()
-	 */
 	@Override
 	public boolean isQueryFacet() {
 		return false;

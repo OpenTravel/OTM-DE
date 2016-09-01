@@ -46,7 +46,7 @@ import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.FamilyNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.RoleFacetNode;
+import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.MainWindow;

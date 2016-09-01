@@ -27,6 +27,7 @@ import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemas.modelObject.XsdModelingUtils;
 import org.opentravel.schemas.node.NodeVisitors.FixNames;
+import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.types.TypeProvider;

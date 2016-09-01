@@ -33,6 +33,7 @@ import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;

@@ -25,8 +25,8 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.OperationNode;
 import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.views.decoration.LibraryDecorator;
 

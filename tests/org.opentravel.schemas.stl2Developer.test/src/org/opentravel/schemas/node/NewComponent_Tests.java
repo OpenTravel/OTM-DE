@@ -44,6 +44,8 @@ import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.repository.RepositoryIntegrationTestBase;
+import org.opentravel.schemas.node.facets.OperationNode;
+import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;

@@ -38,6 +38,8 @@ import org.opentravel.schemas.modelObject.BusinessObjMO.Events;
 import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.controllers.NodeUtils;
+import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;

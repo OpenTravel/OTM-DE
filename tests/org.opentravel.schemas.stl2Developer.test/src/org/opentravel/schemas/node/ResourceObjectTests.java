@@ -155,7 +155,7 @@ public class ResourceObjectTests {
 			String url = action.getExample().getURL();
 			LOGGER.debug("Example: " + url + ".");
 			assertTrue("Action has example.", !url.isEmpty());
-			if (action.getExample().getMethod().equals("GET"))
+			if (url.startsWith("GET"))
 				assertTrue("Get example is correct.",
 						url.startsWith("GET http://example.com/ResourceTestLibInitialBOs/{TestID}"));
 		}

@@ -61,6 +61,11 @@ import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.modelObject.XSDComplexMO;
 import org.opentravel.schemas.modelObject.XSDElementMO;
 import org.opentravel.schemas.modelObject.XSDSimpleMO;
+import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.OperationNode;
+import org.opentravel.schemas.node.facets.RenamableFacet;
+import org.opentravel.schemas.node.facets.RoleFacetNode;
+import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
@@ -116,7 +121,7 @@ public abstract class Node implements INode {
 
 	protected VersionNode versionNode; // Link to the version node representing this node in a chain
 
-	protected ModelObject<?> modelObject; // Generic interface to TL Model objects.
+	public ModelObject<?> modelObject; // Generic interface to TL Model objects.
 	protected boolean deleted = false;
 
 	protected boolean local = false; // Local nodes are not named nodes and are not to made visible in type assignment

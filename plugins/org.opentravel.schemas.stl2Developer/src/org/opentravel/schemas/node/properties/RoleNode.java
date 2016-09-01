@@ -23,7 +23,7 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.PropertyNodeType;
-import org.opentravel.schemas.node.RoleFacetNode;
+import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;

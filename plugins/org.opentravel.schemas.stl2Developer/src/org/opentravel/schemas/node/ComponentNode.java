@@ -37,6 +37,8 @@ import org.opentravel.schemacompiler.version.Versioned;
 import org.opentravel.schemas.modelObject.EmptyMO;
 import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.modelObject.ModelObject;
+import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;

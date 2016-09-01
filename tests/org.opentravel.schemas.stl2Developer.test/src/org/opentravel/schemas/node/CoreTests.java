@@ -27,6 +27,7 @@ import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.modelObject.SimpleAttributeMO;
 import org.opentravel.schemas.modelObject.SimpleFacetMO;
+import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.LoadFiles;

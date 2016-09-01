@@ -18,7 +18,8 @@ package org.opentravel.schemas.node;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLService;
-import org.opentravel.schemas.node.OperationNode.ResourceOperationTypes;
+import org.opentravel.schemas.node.facets.OperationNode;
+import org.opentravel.schemas.node.facets.OperationNode.ResourceOperationTypes;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
 

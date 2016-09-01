@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.resources.ResourceNode;
