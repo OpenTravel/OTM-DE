@@ -202,7 +202,6 @@ public class NodeTesters {
 		// is tests - make sure they do not throw exception
 		n.isEditable();
 		n.isLibraryContainer();
-		n.isVWA_AttributeFacet();
 		n.isTypeProvider();
 		// if (n instanceof TypeUser;
 		n.isAssignedByReference();

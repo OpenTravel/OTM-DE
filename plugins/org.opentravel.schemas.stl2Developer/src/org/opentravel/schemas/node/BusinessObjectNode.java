@@ -38,7 +38,9 @@ import org.opentravel.schemas.modelObject.BusinessObjMO.Events;
 import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.controllers.NodeUtils;
+import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
@@ -189,7 +191,7 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	@Override
 	public FacetNode getSummaryFacet() {
 		for (INode f : getChildren())
-			if (((FacetNode) f).getFacetType().equals(TLFacetType.SUMMARY))
+			if ((f instanceof FacetNode && ((FacetNode) f).isSummaryFacet()))
 				return (FacetNode) f;
 		return null;
 	}
@@ -197,7 +199,7 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	@Override
 	public PropertyOwnerInterface getDetailFacet() {
 		for (INode f : getChildren())
-			if (((FacetNode) f).getFacetType().equals(TLFacetType.DETAIL))
+			if ((f instanceof FacetNode) && ((FacetNode) f).isDetailFacet())
 				return (PropertyOwnerInterface) f;
 		return null;
 	}
@@ -206,18 +208,6 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	public PropertyOwnerInterface getDefaultFacet() {
 		return getSummaryFacet();
 	}
-
-	// @Override
-	// public String getLabel() {
-	// if (getExtensionBase() == null)
-	// return super.getLabel();
-	// // 4/13/2016 dmh - label is not helpful when extending an object from a different namespace
-	// // else if (isVersioned())
-	// // // else if (getExtendsType().getName().equals(getName()))
-	// // return super.getLabel() + " (Extends version:  " + getExtensionBase().getLibrary().getVersion() + ")";
-	// // else
-	// return super.getLabel() + " (Extends: " + getExtensionBase().getNameWithPrefix() + ")";
-	// }
 
 	@Override
 	public Image getImage() {
@@ -272,9 +262,8 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	public List<ComponentNode> getCustomFacets() {
 		ArrayList<ComponentNode> ret = new ArrayList<ComponentNode>();
 		for (INode f : getChildren()) {
-			if (((Node) f).isCustomFacet()) {
+			if (f instanceof CustomFacetNode)
 				ret.add((ComponentNode) f);
-			}
 		}
 		return ret;
 	}
@@ -282,9 +271,8 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	public List<ComponentNode> getQueryFacets() {
 		ArrayList<ComponentNode> ret = new ArrayList<ComponentNode>();
 		for (INode f : getChildren()) {
-			if (((Node) f).isQueryFacet()) {
+			if (f instanceof QueryFacetNode)
 				ret.add((ComponentNode) f);
-			}
 		}
 		return ret;
 	}

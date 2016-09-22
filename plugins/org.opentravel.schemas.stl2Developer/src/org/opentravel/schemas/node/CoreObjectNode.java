@@ -25,7 +25,6 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLCoreObject;
-import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.modelObject.CoreObjectMO;
 import org.opentravel.schemas.modelObject.ListFacetMO;
 import org.opentravel.schemas.node.facets.FacetNode;
@@ -217,7 +216,7 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	@Override
 	public PropertyOwnerInterface getSummaryFacet() {
 		for (INode f : getChildren())
-			if (((FacetNode) f).getFacetType().equals(TLFacetType.SUMMARY))
+			if (f instanceof FacetNode && ((FacetNode) f).isSummaryFacet())
 				return (PropertyOwnerInterface) f;
 		return null;
 	}
@@ -230,7 +229,7 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	@Override
 	public PropertyOwnerInterface getDetailFacet() {
 		for (INode f : getChildren())
-			if (((FacetNode) f).getFacetType().equals(TLFacetType.DETAIL))
+			if (f instanceof FacetNode && ((FacetNode) f).isDetailFacet())
 				return (PropertyOwnerInterface) f;
 		return null;
 	}

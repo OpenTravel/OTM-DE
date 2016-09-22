@@ -18,14 +18,14 @@ package org.opentravel.schemas.node.facets;
 import org.opentravel.schemacompiler.model.TLFacet;
 
 /**
- * Used for Query Facets.
+ * Used for Choice Facets.
  * 
  * @author Dave Hollander
  * 
  */
-public class QueryFacetNode extends RenamableFacet {
+public class ChoiceFacetNode extends RenamableFacet {
 
-	public QueryFacetNode(TLFacet tlObj) {
+	public ChoiceFacetNode(TLFacet tlObj) {
 		super(tlObj);
 	}
 
@@ -33,4 +33,5 @@ public class QueryFacetNode extends RenamableFacet {
 	public boolean isDeleteable() {
 		return super.isDeletable(true);
 	}
+
 }

@@ -16,7 +16,6 @@
 package org.opentravel.schemas.node.facets;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,18 +25,12 @@ import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemacompiler.model.TLListFacet;
-import org.opentravel.schemacompiler.model.TLOperation;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
-import org.opentravel.schemacompiler.model.TLRoleEnumeration;
-import org.opentravel.schemacompiler.model.TLSimpleFacet;
-import org.opentravel.schemas.modelObject.TLValueWithAttributesFacet;
-import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.TypeProviderBase;
 import org.opentravel.schemas.node.VWA_Node;
@@ -68,44 +61,20 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 		super(obj);
 	}
 
-	public FacetNode(final TLListFacet obj) {
-		super(obj);
-		// setName(obj.getLocalName());
-	}
-
-	public FacetNode(final TLOperation obj) {
-		super(obj);
-	}
-
-	public FacetNode(final TLRoleEnumeration obj) {
-		super(obj);
-	}
-
-	public FacetNode(final TLSimpleFacet obj) {
-		super(obj);
-	}
-
-	public FacetNode(final TLValueWithAttributesFacet obj) {
+	public FacetNode(final TLModelElement obj) {
 		super(obj);
 	}
 
 	@Override
 	public void addProperties(List<Node> properties, boolean clone) {
-		boolean attrsOnly = false;
-		Node np;
-		if (getParent() instanceof VWA_Node)
-			attrsOnly = true;
+		PropertyNode np;
 		for (Node p : properties) {
-			np = p;
-			if (clone) {
-				// don't want to add to parent
-				np = p.clone(null, null);
-			}
-			// FIXME - same behavior in else
-			// only used in merge()
-			if (attrsOnly && p.isSimpleAssignable())
-				addProperty(np);
-			else
+			if (!(p instanceof PropertyNode))
+				continue;
+			np = (PropertyNode) p;
+			if (clone)
+				np = (PropertyNode) p.clone(null, null); // add to clone not parent
+			if (isValidParentOf(np.getPropertyType()))
 				addProperty(np);
 		}
 	}
@@ -140,7 +109,7 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 	@Override
 	public INode createProperty(final Node type) {
 		PropertyNode pn = null;
-		if (isVWA_AttributeFacet())
+		if (this instanceof VWA_AttributeFacetNode)
 			pn = new AttributeNode(new TLAttribute(), this);
 		else
 			pn = new ElementNode(new TLProperty(), this);
@@ -161,14 +130,6 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 		return modelObject.getComponentType();
 	}
 
-	// public String getContext() {
-	// final Object ne = modelObject.getTLModelObj();
-	// if (ne instanceof TLFacet) {
-	// return ((TLFacet) ne).getContext();
-	// }
-	// return null;
-	// }
-
 	@Override
 	public TLFacetType getFacetType() {
 		if (!(getTLModelObject() instanceof TLAbstractFacet)) {
@@ -181,11 +142,6 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.Facet);
 	}
-
-	// @Override
-	// public int getWhereUsedCount() {
-	// return getWhereUsedCount();
-	// }
 
 	@Override
 	public String getLabel() {
@@ -233,10 +189,6 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 	public boolean isAssignable() {
 		if (getParent() == null)
 			return false;
-		if (getParent() instanceof VWA_Node)
-			return false;
-		if (getParent() instanceof OperationNode)
-			return false;
 
 		return (isComplexAssignable() || isSimpleAssignable()) ? true : false;
 	}
@@ -277,12 +229,6 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 	}
 
 	@Override
-	public boolean isCustomFacet() {
-		return getTLModelObject() instanceof TLAbstractFacet ? ((TLAbstractFacet) getTLModelObject()).getFacetType() == TLFacetType.CUSTOM
-				: false;
-	}
-
-	@Override
 	public boolean isDefaultFacet() {
 		if (getOwningComponent() instanceof VWA_Node)
 			return true;
@@ -291,34 +237,20 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 
 	@Override
 	public boolean isDeleteable() {
-		if (!super.isDeleteable())
-			return false;
+		return false;
+	}
 
-		// for OperationNode, which doesn't have facetType
-		if (this.getFacetType() == null) {
-			return true;
-		}
-		return TLFacetType.QUERY.equals(this.getFacetType()) || TLFacetType.REQUEST.equals(this.getFacetType())
-				|| TLFacetType.RESPONSE.equals(this.getFacetType())
-				|| TLFacetType.NOTIFICATION.equals(this.getFacetType())
-				|| TLFacetType.CUSTOM.equals(this.getFacetType()) || TLFacetType.CHOICE.equals(this.getFacetType());
+	public boolean isDetailFacet() {
+		return getFacetType() != null ? getFacetType().equals(TLFacetType.DETAIL) : false;
 	}
 
 	@Override
 	public boolean isDetailListFacet() {
-		if (!(getTLModelObject() instanceof TLListFacet))
-			return false;
-		return getName().endsWith(NodeNameUtils.DETAIL_LIST_SUFFIX);
+		return false;
 	}
 
-	@Override
-	public boolean isListFacet() {
-		return getModelObject().getTLModelObj() instanceof TLListFacet;
-	}
-
-	@Override
-	public boolean isMessage() {
-		return getParent() != null && getParent() instanceof OperationNode;
+	public boolean isIDFacet() {
+		return getFacetType() != null ? getFacetType().equals(TLFacetType.ID) : false;
 	}
 
 	@Override
@@ -326,22 +258,11 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 		return isExtensionPointFacet() ? true : false;
 	}
 
-	@Override
-	protected boolean isNavChild() {
-		return isAssignable();
-	}
-
-	@Override
-	public boolean isQueryFacet() {
-		return getTLModelObject() instanceof TLAbstractFacet ? ((TLAbstractFacet) getTLModelObject()).getFacetType() == TLFacetType.QUERY
-				: false;
-	}
-
 	/**
 	 * @return true if this facet is renameable.
 	 */
 	public boolean isRenameable() {
-		return this instanceof OperationNode || this instanceof RenamableFacet;
+		return false;
 	}
 
 	/**
@@ -349,58 +270,28 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 	 */
 	@Override
 	public boolean isSimpleAssignable() {
-		if (isSimpleListFacet())
-			return true;
-		return false;
+		return isSimpleListFacet();
 	}
 
 	@Override
 	public boolean isSimpleListFacet() {
-		if (!(getTLModelObject() instanceof TLListFacet))
-			return false;
-		return getName().endsWith(NodeNameUtils.SIMPLE_LIST_SUFFIX);
+		return false;
 	}
 
-	public boolean isSummary() {
-		return TLFacetType.SUMMARY.equals(getFacetType());
+	public boolean isSummaryFacet() {
+		return getFacetType() != null ? getFacetType().equals(TLFacetType.SUMMARY) : false;
 	}
 
-	/*
-	 * @see org.opentravel.schemas.node.Node#isTypeProvider()
-	 */
-	// FIXME - create another facet for non-providers
 	@Override
 	public boolean isTypeProvider() {
 		if (getParent() == null)
-			return false;
-		if (getParent() instanceof VWA_Node)
-			return false;
-		if (this instanceof OperationNode)
-			return false;
-		if (getParent() instanceof OperationNode)
 			return false;
 		return true;
 	}
 
 	@Override
 	public boolean isValidParentOf(PropertyNodeType type) {
-		// TODO - make sub-types for these types of facets
-		if (isListFacet())
-			return false;
-
-		// 2/13/2015 dmh
-		Collection<PropertyNodeType> allowed = null;
-		if (isVWA_AttributeFacet())
-			allowed = PropertyNodeType.getVWA_PropertyTypes();
-		else
-			allowed = PropertyNodeType.getAllTypedPropertyTypes();
-
-		return allowed.contains(type);
-	}
-
-	@Override
-	public boolean isVWA_AttributeFacet() {
-		return (getModelObject() instanceof ValueWithAttributesAttributeFacetMO);
+		return PropertyNodeType.getAllTypedPropertyTypes().contains(type);
 	}
 
 	/**
@@ -425,16 +316,7 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 
 	@Override
 	public void setName(String n) {
-		if (this instanceof OperationNode) {
-			super.setName(n);
-		}
 	}
-
-	// @Deprecated
-	// @Override
-	// public void setName(String n, boolean doFamily) {
-	// super.setName(n); // Facets don't have families
-	// }
 
 	@Override
 	public void sort() {
@@ -468,6 +350,19 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 				knownAliases.add(tla.getName());
 			}
 		}
+	}
+
+	/**
+	 * Return true if the node is delete-able using the version and managed state information used by Node. Used by
+	 * sub-types that are deletable.
+	 */
+	protected boolean isDeletable(boolean deletable) {
+		return deletable ? super.isDeleteable() : false;
+	}
+
+	@Override
+	protected boolean isNavChild() {
+		return isAssignable();
 	}
 
 }

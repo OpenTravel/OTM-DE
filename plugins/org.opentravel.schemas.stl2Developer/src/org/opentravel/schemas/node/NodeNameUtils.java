@@ -28,6 +28,7 @@ import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemas.modelObject.XsdModelingUtils;
 import org.opentravel.schemas.node.NodeVisitors.FixNames;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.types.TypeProvider;
@@ -350,7 +351,7 @@ public class NodeNameUtils {
 			name = name.substring(parent.length());
 		if (name.startsWith("_"))
 			name = name.substring(1);
-		if (fn.isQueryFacet()) {
+		if (fn instanceof QueryFacetNode) {
 			String facetType = fn.getFacetType().getIdentityName();
 			if (name.startsWith(facetType))
 				name = name.substring(facetType.length());

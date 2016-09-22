@@ -25,6 +25,7 @@ import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.SubType;
+import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
 
 /**
  * @author Agnieszka Janowska
@@ -82,7 +83,7 @@ public class ChangeWizard extends ValidatingWizard implements Cancelable {
 		}
 
 		public static ExtentedTLFacetType valueOf(ComponentNode facet) {
-			if (facet.isVWA_AttributeFacet()) {
+			if (facet instanceof VWA_AttributeFacetNode) {
 				return VWA_ATTRIBUTES;
 			}
 			if (facet.getFacetType() == null) {

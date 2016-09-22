@@ -57,6 +57,7 @@ import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
+import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
@@ -718,7 +719,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	private void testAddingPropertiesToFacet(ComponentNode propOwner) {
 		int cnt = propOwner.getChildren().size();
 		PropertyNode newProp = null;
-		if (!propOwner.isVWA_AttributeFacet()) {
+		if (!(propOwner instanceof VWA_AttributeFacetNode)) {
 			newProp = new ElementNode(new FacetNode(), "np" + cnt++);
 			propOwner.addProperty(newProp);
 			newProp.setAssignedType((TypeProvider) xsdStringNode);

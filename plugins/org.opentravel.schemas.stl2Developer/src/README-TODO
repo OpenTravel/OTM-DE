@@ -10,9 +10,11 @@ Resources
 	Action Facet - 	Sometimes an error (validation error) is shown, but if you select optional the none it will go away
 	ENHANCEMENT - Show inherited Actions, ActionRequests, ActionResponses
 	ToolTips - align with wording in GUI and presentation
-	ModelObject has a Node in it -- was attempt to findNode. Remove after fixing users.
 
 General - High Priority
+	Managing a library breaks/kills the background decorator thread.
+	Documentation in previous version not editable in current version...
+	Add roles to minor version and they original roles are not displayed
 	Resource builder - when the ID facet has an element reference 
 		all those properies are added to the id parameter group and should NOT be.
 	Deleted - the deleted is both in the label and in the decoration
@@ -20,11 +22,17 @@ General - High Priority
 		- when deleting an alias Nav view shows "Deleted"
 			refresh related. it is actually removed from parent
 		- *** open 1 project containing common. create 2nd project and add common. close 1st project. library in 2nd project shows all objects are (Deleted)
-		
+	ModelObject has a Node in it -- was attempt to findNode. Remove after fixing users.
+	remove ModelObject property change listener - businessObjectNode line 76
+	Library Uses Objects from - show state of library
+	type selection wizard - when some text is typed, hide libraries with no contents
+	
 	ReplaceWhereUsed - with multiple selections. Works sometimes then failed to work.
 	On Library/Project close - clear effected contents of example and graphical views
 	Resource Remove Object button - make into a 3 column format	
 
+Jetty Test Service - lines 100-102
+	
 	x - Create resource then assign subject - where used not set
 	x - Abstract Resource = no examples, no resource, reference facet?, not first class?
 			x - No Base Path allowed

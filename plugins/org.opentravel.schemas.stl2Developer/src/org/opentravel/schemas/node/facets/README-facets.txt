@@ -7,13 +7,15 @@ Basic Tenets:
 	- Some facets are library members
 	
 Types (TLFacetType)
-	There is a mismatch between the GUI facet types and compiler model's facet types. Types with an astrict * are not TL model types.
+	There is a mismatch between the GUI facet types and compiler model's facet types. 
+	Types with an astrict * are not TL model types.
 	TLFacetType - assigned to TLFacet instead of class.
 	
 	- * Role
 	- Custom
+	- Choice
+	- Query
 	- Shared
-	- choice
 	- Detail
 	- Summary
 	- ID
@@ -21,7 +23,6 @@ Types (TLFacetType)
 	- * simpleList
 	- * DetailList
 	- * List
-	- Query
 	- * ExtensionPoint
 	- * Operation
 		- Request
@@ -34,6 +35,10 @@ Constructors
 	- why does facetNode have so many constructors? they just call super(tlObj)
 	- NodeFactory.createFacet() and newComponentMember()
 	- ExtensionInheritancePage.
+	- When a business object is created, the component node super constructor calls addMOChildren() for facets as does the BO constructor. addMOChildren() uses the NodeFactory.newComponentMember() method
+	- AddQueryFacetAction uses NodeFactory for properties but uses:
+				FacetNode newFacet = bo.addFacet(wizard.getName(), facetType);
+			which uses NodeFactory
 	
 Contextual (Injection) Facets
 

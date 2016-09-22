@@ -35,6 +35,7 @@ import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.facets.OperationFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.RenamableFacet;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -97,7 +98,7 @@ public class NodeUtils {
 			case EXTENSION_POINT:
 				return node.isExtensionPointFacet();
 			case MESSAGE:
-				return node.isMessage();
+				return node instanceof OperationFacetNode;
 			case OPERATION:
 				return node instanceof OperationNode;
 			case REQUEST:

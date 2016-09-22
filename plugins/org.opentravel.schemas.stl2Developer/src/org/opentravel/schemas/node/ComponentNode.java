@@ -812,7 +812,7 @@ public class ComponentNode extends Node {
 				newNode = (ComponentNode) createProperty(sourceNode);
 
 			// In minor versions, all new properties must be optional.
-			if (this instanceof FacetNode && ((FacetNode) this).isSummary())
+			if (this instanceof FacetNode && ((FacetNode) this).isSummaryFacet())
 				if (!getLibrary().isMinorVersion())
 					newNode.setMandatory(true); // make summary facet properties mandatory by default.
 		} else {

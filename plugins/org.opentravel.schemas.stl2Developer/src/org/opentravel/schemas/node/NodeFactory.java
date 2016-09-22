@@ -43,12 +43,16 @@ import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.modelObject.TLValueWithAttributesFacet;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
+import org.opentravel.schemas.node.facets.ChoiceFacetNode;
+import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.ListFacetNode;
+import org.opentravel.schemas.node.facets.OperationFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
-import org.opentravel.schemas.node.facets.RenamableFacet;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
+import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.properties.AttributeNode;
@@ -250,12 +254,13 @@ public class NodeFactory {
 		} else if (tlObj instanceof TLAlias) {
 			nn = new AliasNode((Node) parent, (TLAlias) tlObj);
 			// Facets
+			//
 		} else if (tlObj instanceof TLValueWithAttributesFacet) {
-			nn = new FacetNode((TLValueWithAttributesFacet) tlObj);
+			nn = new VWA_AttributeFacetNode((TLValueWithAttributesFacet) tlObj);
 		} else if (tlObj instanceof TLFacet) {
 			nn = createFacet((TLFacet) tlObj);
 		} else if (tlObj instanceof TLListFacet) {
-			nn = new FacetNode((TLListFacet) tlObj);
+			nn = new ListFacetNode((TLListFacet) tlObj);
 		} else if (tlObj instanceof TLSimpleFacet) {
 			nn = new SimpleFacetNode((TLSimpleFacet) tlObj);
 		} else if (tlObj instanceof TLRoleEnumeration) {
@@ -308,13 +313,24 @@ public class NodeFactory {
 	}
 
 	private static ComponentNode createFacet(TLFacet facet) {
+		assert (facet.getFacetType() != null);
+
 		switch (facet.getFacetType()) {
 		case CUSTOM:
+			return new CustomFacetNode(facet);
 		case CHOICE:
-			return new RenamableFacet(facet);
+			return new ChoiceFacetNode(facet);
 		case QUERY:
 			return new QueryFacetNode(facet);
+		case REQUEST:
+		case RESPONSE:
+		case NOTIFICATION:
+			return new OperationFacetNode(facet);
 		case SHARED:
+		case DETAIL:
+		case ID:
+		case SIMPLE:
+		case SUMMARY:
 		default:
 			return new FacetNode(facet);
 		}

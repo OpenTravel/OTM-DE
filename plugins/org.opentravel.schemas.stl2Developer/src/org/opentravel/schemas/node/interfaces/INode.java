@@ -212,7 +212,7 @@ public interface INode {
 	 */
 	public boolean isNavigation();
 
-	public boolean isVWA_AttributeFacet();
+	// public boolean isVWA_AttributeFacet();
 
 	/**
 	 * @return true if NamedEntity and not operation or service

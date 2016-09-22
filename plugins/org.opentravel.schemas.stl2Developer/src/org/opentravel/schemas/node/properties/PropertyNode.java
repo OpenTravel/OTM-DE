@@ -34,6 +34,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.OperationFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
@@ -170,7 +171,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	public Node getOwningComponent() {
 		if (getParent() == null || getParent().getParent() == null)
 			return this;
-		if (getParent().isMessage())
+		if (getParent() instanceof OperationFacetNode)
 			return getParent();
 		if (getParent().isExtensionPointFacet())
 			return getParent();

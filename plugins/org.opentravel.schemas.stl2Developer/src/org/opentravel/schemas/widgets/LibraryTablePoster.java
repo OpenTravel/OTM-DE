@@ -37,6 +37,7 @@ import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.controllers.NodeUtils;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
@@ -176,9 +177,8 @@ public class LibraryTablePoster {
 	 */
 	protected void postTableRows(final Node n, final String separator) {
 		if (n != null) {
-			if (n.isListFacet()) {
+			if (n instanceof ListFacetNode)
 				return;
-			}
 
 			// Post the separator if not empty.
 			TableItem item = null;

@@ -15,22 +15,34 @@
  */
 package org.opentravel.schemas.node.facets;
 
-import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemas.modelObject.TLValueWithAttributesFacet;
+import org.opentravel.schemas.node.PropertyNodeType;
 
 /**
- * Used for Query Facets.
+ * Used for Request, Response and Notification Facets.
  * 
  * @author Dave Hollander
  * 
  */
-public class QueryFacetNode extends RenamableFacet {
+public class VWA_AttributeFacetNode extends FacetNode {
 
-	public QueryFacetNode(TLFacet tlObj) {
+	public VWA_AttributeFacetNode(TLValueWithAttributesFacet tlObj) {
 		super(tlObj);
 	}
 
 	@Override
-	public boolean isDeleteable() {
-		return super.isDeletable(true);
+	public boolean isAssignable() {
+		return false; // vwa facet can't be assigned independently of the VWA
 	}
+
+	@Override
+	public boolean isTypeProvider() {
+		return false; // can't be assigned therefore is not a type provider
+	}
+
+	@Override
+	public boolean isValidParentOf(PropertyNodeType type) {
+		return PropertyNodeType.getVWA_PropertyTypes().contains(type);
+	}
+
 }

@@ -74,33 +74,18 @@ public class OperationNode extends FacetNode implements VersionedObjectInterface
 	}
 
 	@Override
-	public boolean isListFacet() {
-		return false;
-	}
-
-	@Override
-	public boolean isMessage() {
-		return false;
-	}
-
-	@Override
 	public boolean isDetailListFacet() {
 		return false;
 	}
 
 	@Override
-	public boolean isCustomFacet() {
-		return false;
+	public boolean isDeleteable() {
+		return getParent().isDeleteable();
 	}
 
 	@Override
 	protected boolean isNavChild() {
 		return true;
-	}
-
-	@Override
-	public boolean isQueryFacet() {
-		return false;
 	}
 
 	@Override
@@ -113,9 +98,22 @@ public class OperationNode extends FacetNode implements VersionedObjectInterface
 		return getTLModelObject() != null ? !((TLOperation) getTLModelObject()).isNotExtendable() : false;
 	}
 
+	/**
+	 * @return true if this facet is renameable.
+	 */
+	@Override
+	public boolean isRenameable() {
+		return true;
+	}
+
 	@Override
 	public boolean isExtensibleObject() {
 		return true;
+	}
+
+	@Override
+	public boolean isTypeProvider() {
+		return false;
 	}
 
 	@Override

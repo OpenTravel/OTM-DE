@@ -208,7 +208,7 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 			TLFacet tl = createFacet(type);
 			tl.setContext(context);
 			tl.setLabel(name);
-			FacetNode node = new FacetNode(tl);
+			FacetNode node = (FacetNode) NodeFactory.newComponentMember(null, tl);
 			return node;
 		}
 

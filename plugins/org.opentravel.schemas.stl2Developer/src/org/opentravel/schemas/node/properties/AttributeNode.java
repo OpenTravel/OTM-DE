@@ -25,6 +25,7 @@ import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.EqExOneValueHandler.ValueWithContextType;
 import org.opentravel.schemas.properties.Images;
@@ -49,6 +50,13 @@ public class AttributeNode extends PropertyNode {
 		setAssignedType((TypeProvider) ModelNode.getUnassignedNode());
 	}
 
+	/**
+	 * 
+	 * @param tlObj
+	 *            TLAttribute
+	 * @param parent
+	 *            can be null
+	 */
 	public AttributeNode(TLModelElement tlObj, PropertyOwnerInterface parent) {
 		super(tlObj, (INode) parent, PropertyNodeType.ATTRIBUTE);
 
@@ -161,7 +169,7 @@ public class AttributeNode extends PropertyNode {
 	@Override
 	public boolean isOnlySimpleTypeUser() {
 		// allow VWAs to be assigned to VWA Attributes.
-		return parent != null && parent.isVWA_AttributeFacet() ? false : true;
+		return parent != null && parent instanceof VWA_AttributeFacetNode ? false : true;
 	}
 
 	// @Override

@@ -61,8 +61,12 @@ import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.modelObject.XSDComplexMO;
 import org.opentravel.schemas.modelObject.XSDElementMO;
 import org.opentravel.schemas.modelObject.XSDSimpleMO;
+import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.ListFacetNode;
+import org.opentravel.schemas.node.facets.OperationFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
+import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.facets.RenamableFacet;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
@@ -1135,7 +1139,7 @@ public abstract class Node implements INode {
 			return false; // not editable
 
 		// Service nodes are not in a chain
-		if (!(this instanceof ServiceNode) && !(this instanceof OperationNode) && !isMessage()) {
+		if (!(this instanceof ServiceNode) && !(this instanceof OperationNode) && !(this instanceof OperationFacetNode)) {
 			if (getChain() == null || getOwningComponent().getVersionNode() == null)
 				return true; // editable because it is not in a chain
 
@@ -1171,10 +1175,10 @@ public abstract class Node implements INode {
 			return true;
 		if (this instanceof OperationNode)
 			return true;
-		if (isMessage())
+		if (this instanceof OperationFacetNode)
 			return true;
 		if (getParent() != null)
-			if (this instanceof PropertyNode && getParent().isMessage())
+			if (this instanceof PropertyNode && getParent() instanceof OperationFacetNode)
 				return true;
 		return false;
 	}
@@ -1249,7 +1253,7 @@ public abstract class Node implements INode {
 			return isEditable_newToChain();
 
 		// Facets - same as parent unless a simple or list
-		if (this instanceof SimpleFacetNode || this.isListFacet())
+		if (this instanceof SimpleFacetNode || this instanceof ListFacetNode)
 			return false;
 		if (this instanceof FacetNode)
 			return getOwningComponent().isEnabled_AddProperties();
@@ -1270,10 +1274,6 @@ public abstract class Node implements INode {
 
 	public XsdNode getXsdNode() {
 		return xsdNode;
-	}
-
-	public boolean isListFacet() {
-		return false;
 	}
 
 	/**
@@ -1360,10 +1360,6 @@ public abstract class Node implements INode {
 	 * @return true if this is a simple object type.
 	 */
 	public boolean isSimpleType() {
-		return false;
-	}
-
-	public boolean isMessage() {
 		return false;
 	}
 
@@ -1479,15 +1475,7 @@ public abstract class Node implements INode {
 		return modelObject.isSimpleAssignable();
 	}
 
-	public boolean isCustomFacet() {
-		return false;
-	}
-
 	public boolean isDefaultFacet() {
-		return false;
-	}
-
-	public boolean isQueryFacet() {
 		return false;
 	}
 
@@ -1509,11 +1497,6 @@ public abstract class Node implements INode {
 
 	public boolean isAssignable() {
 		return isElementAssignable() || isTypeProvider() || isSimpleAssignable();
-	}
-
-	@Override
-	public boolean isVWA_AttributeFacet() {
-		return false;
 	}
 
 	/**
@@ -1539,7 +1522,8 @@ public abstract class Node implements INode {
 		if (this instanceof PropertyNode) {
 			n = n.parent;
 		}
-		if (n instanceof FacetNode && !n.isCustomFacet() && !n.isQueryFacet() && !(n instanceof RoleFacetNode)) {
+		if (n instanceof FacetNode && !(n instanceof CustomFacetNode) && !(n instanceof QueryFacetNode)
+				&& !(n instanceof RoleFacetNode)) {
 			n = n.parent; // compare across all facets.
 		}
 		for (final Node facet : n.getChildren()) {
@@ -1560,7 +1544,7 @@ public abstract class Node implements INode {
 		if (n instanceof PropertyNode) {
 			n = n.parent;
 		}
-		if (n instanceof FacetNode && !n.isQueryFacet() && !(n instanceof RoleFacetNode)) {
+		if (n instanceof FacetNode && !(n instanceof QueryFacetNode) && !(n instanceof RoleFacetNode)) {
 			n = n.parent; // compare across all facets.
 		}
 		if (n.nameEquals(testNode)) {

@@ -31,6 +31,7 @@ import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.listeners.ResourceDependencyListener;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
@@ -216,7 +217,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		for (Node facet : getOwningComponent().getSubject().getChildren()) {
 			if (!(facet instanceof FacetNode))
 				continue;
-			if (isIdGroup() && ((FacetNode) facet).isQueryFacet())
+			if (isIdGroup() && facet instanceof QueryFacetNode)
 				continue;
 			facets.add((FacetNode) facet);
 		}

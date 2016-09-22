@@ -33,6 +33,7 @@ import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.modelObject.ChoiceObjMO;
 import org.opentravel.schemas.modelObject.ModelObject;
+import org.opentravel.schemas.node.facets.ChoiceFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
@@ -332,9 +333,8 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 	public List<PropertyOwnerInterface> getChoiceFacets() {
 		List<PropertyOwnerInterface> facets = new ArrayList<PropertyOwnerInterface>();
 		for (Node n : getChildren())
-			if (n instanceof FacetNode)
-				if (((FacetNode) n).getFacetType().equals(TLFacetType.CHOICE))
-					facets.add((FacetNode) n);
+			if (n instanceof ChoiceFacetNode)
+				facets.add((FacetNode) n);
 		return facets;
 	}
 

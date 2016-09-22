@@ -74,27 +74,12 @@ public class RoleFacetNode extends FacetNode {
 	}
 
 	@Override
-	public boolean isCustomFacet() {
-		return false;
-	}
-
-	@Override
 	public boolean isDefaultFacet() {
 		return false;
 	}
 
 	@Override
 	public boolean isDetailListFacet() {
-		return false;
-	}
-
-	@Override
-	public boolean isListFacet() {
-		return false;
-	}
-
-	@Override
-	public boolean isQueryFacet() {
 		return false;
 	}
 

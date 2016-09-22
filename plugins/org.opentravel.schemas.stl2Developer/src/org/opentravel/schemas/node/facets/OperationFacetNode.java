@@ -18,14 +18,14 @@ package org.opentravel.schemas.node.facets;
 import org.opentravel.schemacompiler.model.TLFacet;
 
 /**
- * Used for Query Facets.
+ * Used for Request, Response and Notification Facets.
  * 
  * @author Dave Hollander
  * 
  */
-public class QueryFacetNode extends RenamableFacet {
+public class OperationFacetNode extends FacetNode {
 
-	public QueryFacetNode(TLFacet tlObj) {
+	public OperationFacetNode(TLFacet tlObj) {
 		super(tlObj);
 	}
 
@@ -33,4 +33,15 @@ public class QueryFacetNode extends RenamableFacet {
 	public boolean isDeleteable() {
 		return super.isDeletable(true);
 	}
+
+	@Override
+	public boolean isTypeProvider() {
+		return false;
+	}
+
+	@Override
+	public boolean isAssignable() {
+		return false;
+	}
+
 }

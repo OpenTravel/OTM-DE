@@ -27,7 +27,9 @@ import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -96,9 +98,9 @@ public class NewPropertiesWizard2 extends ValidatingWizard implements Cancelable
 
 	private void getScopeNode(Node selectedNode) {
 		scopeNode = OtmRegistry.getMainController().getModelNode();
-		if (selectedNode.isQueryFacet())
+		if (selectedNode instanceof QueryFacetNode)
 			scopeNode = selectedNode.getOwningComponent();
-		else if (selectedNode.isCustomFacet())
+		else if (selectedNode instanceof CustomFacetNode)
 			scopeNode = (Node) ((BusinessObjectNode) selectedNode.getOwningComponent()).getDetailFacet();
 
 	}

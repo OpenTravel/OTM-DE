@@ -17,7 +17,9 @@ package org.opentravel.schemas.actions;
 
 import org.opentravel.schemacompiler.model.TLContextReferrer;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.MainWindow;
@@ -54,8 +56,8 @@ public class ChangeFacetContextAction extends OtmAbstractAction {
 	@Override
 	public boolean isEnabled() {
 		LOGGER.debug("isEnabled for " + getMainController().getCurrentNode_NavigatorView());
-		if (getMainController().getCurrentNode_NavigatorView().isQueryFacet())
+		if (getMainController().getCurrentNode_NavigatorView() instanceof QueryFacetNode)
 			return true;
-		return (getMainController().getCurrentNode_NavigatorView().isCustomFacet()) ? true : false;
+		return (getMainController().getCurrentNode_NavigatorView() instanceof CustomFacetNode) ? true : false;
 	}
 }

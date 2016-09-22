@@ -383,6 +383,13 @@ public class MockLibrary {
 		return sn;
 	}
 
+	/**
+	 * Create VWA with one attribute property
+	 * 
+	 * @param ln
+	 * @param name
+	 * @return
+	 */
 	public VWA_Node addVWA_ToLibrary(LibraryNode ln, String name) {
 		if (name.isEmpty())
 			name = "TestVWA";

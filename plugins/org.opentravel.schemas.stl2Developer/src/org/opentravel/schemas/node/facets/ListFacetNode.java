@@ -15,22 +15,35 @@
  */
 package org.opentravel.schemas.node.facets;
 
-import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLListFacet;
+import org.opentravel.schemas.node.PropertyNodeType;
 
 /**
- * Used for Query Facets.
+ * Used for Detail and Summary List Facets.
  * 
  * @author Dave Hollander
  * 
  */
-public class QueryFacetNode extends RenamableFacet {
+public class ListFacetNode extends FacetNode {
 
-	public QueryFacetNode(TLFacet tlObj) {
+	public ListFacetNode(TLListFacet tlObj) {
 		super(tlObj);
 	}
 
 	@Override
-	public boolean isDeleteable() {
-		return super.isDeletable(true);
+	public boolean isSimpleListFacet() {
+		return (((TLListFacet) getTLModelObject()).getFacetType().equals(TLFacetType.SIMPLE)) ? true : false;
 	}
+
+	@Override
+	public boolean isDetailListFacet() {
+		return (((TLListFacet) getTLModelObject()).getFacetType().equals(TLFacetType.DETAIL)) ? true : false;
+	}
+
+	@Override
+	public boolean isValidParentOf(PropertyNodeType type) {
+		return false;
+	}
+
 }

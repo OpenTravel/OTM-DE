@@ -16,6 +16,7 @@
 package org.opentravel.schemas.node;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import javax.xml.namespace.QName;
 
@@ -411,27 +412,25 @@ public class NodeNameUtilsTest {
 	@Test
 	public void stripQueryFacetPrefix() {
 		String boName = "BO";
-		String facetName = "Query";
+		String facetName = "MyQuery";
 		BusinessObjectNode bo = ComponentNodeBuilder.createBusinessObject(boName).addQueryFacet(facetName).get();
 		FacetNode fn = (FacetNode) bo.getQueryFacets().get(0);
-		Assert.assertEquals(getFaceName((TLFacet) fn.getTLModelObject()), fn.getName());
+		assertTrue("TL name must equal node name.", getFacetName((TLFacet) fn.getTLModelObject()).equals(fn.getName()));
 
 		String newName = NodeNameUtils.stripFacetPrefix(fn, null);
-
-		Assert.assertEquals(facetName, newName);
+		assertTrue("NodeNameUtils must not alter name without prefix.", facetName.equals(newName));
 	}
 
 	@Test
 	public void stripCustomFacetPrefix() {
 		String boName = "BO";
-		String facetName = "Custom";
+		String facetName = "MyCustom";
 		BusinessObjectNode bo = ComponentNodeBuilder.createBusinessObject(boName).addCustomFacet(facetName).get();
 		FacetNode fn = (FacetNode) bo.getCustomFacets().get(0);
-		Assert.assertEquals(getFaceName((TLFacet) fn.getTLModelObject()), fn.getName());
+		assertTrue("TL name must equal node name.", getFacetName((TLFacet) fn.getTLModelObject()).equals(fn.getName()));
 
 		String newName = NodeNameUtils.stripFacetPrefix(fn, null);
-
-		Assert.assertEquals(facetName, newName);
+		assertTrue("NodeNameUtils must not alter name without prefix.", facetName.equals(newName));
 	}
 
 	@Test
@@ -440,14 +439,14 @@ public class NodeNameUtilsTest {
 		String facetName = "Custom_Custom";
 		BusinessObjectNode bo = ComponentNodeBuilder.createBusinessObject(boName).addCustomFacet(facetName).get();
 		FacetNode fn = (FacetNode) bo.getCustomFacets().get(0);
-		Assert.assertEquals(getFaceName((TLFacet) fn.getTLModelObject()), fn.getName());
+		Assert.assertEquals(getFacetName((TLFacet) fn.getTLModelObject()), fn.getName());
 
 		String newName = NodeNameUtils.stripFacetPrefix(fn, null);
 
 		Assert.assertEquals(facetName, newName);
 	}
 
-	private String getFaceName(TLFacet tlFacet) {
+	private String getFacetName(TLFacet tlFacet) {
 		return XsdCodegenUtils.getGlobalTypeName(tlFacet);
 	}
 }

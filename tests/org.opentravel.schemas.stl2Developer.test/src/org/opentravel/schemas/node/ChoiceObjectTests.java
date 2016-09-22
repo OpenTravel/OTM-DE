@@ -70,6 +70,19 @@ public class ChoiceObjectTests {
 	}
 
 	@Test
+	public void getFacetsTests() {
+		LibraryNode ln2 = mockLibrary.createNewLibrary("http://example.com/choice", "CT", pc.getDefaultProject());
+		ChoiceObjectNode c1 = mockLibrary.addChoice(ln2, "Choice");
+
+		assertTrue("Must have shared facet.", c1.getSharedFacet() != null);
+
+		int cfCnt = c1.getChoiceFacets().size();
+		c1.addFacet("cf1");
+		c1.addFacet("cf2");
+		assertTrue("Must have two more choice facets.", c1.getChoiceFacets().size() == cfCnt + 2);
+	}
+
+	@Test
 	public void fileReadTest() throws Exception {
 		LibraryNode testLib = new LoadFiles().loadFile6(mc);
 		LibraryNode ln2 = mockLibrary.createNewLibrary("http://example.com/choice", "CT", pc.getDefaultProject());

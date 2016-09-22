@@ -20,7 +20,7 @@ import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.types.TypeUser;
 
 /**
- * Used for Custom and Query Facets.
+ * Used for Custom and choice Facets.
  * 
  * @author Pawel Jedruch
  * 
@@ -29,19 +29,30 @@ public class RenamableFacet extends FacetNode {
 
 	public RenamableFacet(TLFacet tlObj) {
 		super(tlObj);
+		setContext();
 	}
 
-	// public String getContext() {
-	// return ((TLFacet) getTLModelObject()).getContext();
-	// }
+	/**
+	 * @return true if this facet is renameable.
+	 */
+	@Override
+	public boolean isRenameable() {
+		return true;
+	}
 
 	/**
-	 * Set the context for this renamable facet. If context is null, then set to the default context for the library.
+	 * Set the context for this rename-able facet. If context is null, then set to the default context for the library.
 	 */
 	public void setContext(String context) {
-		if (context == null)
-			context = getLibrary().getDefaultContextId();
-		((TLFacet) getTLModelObject()).setContext(context);
+		setContext();
+		// if (context == null)
+		// context = getLibrary().getDefaultContextId();
+		// ((TLFacet) getTLModelObject()).setContext(context);
+	}
+
+	public void setContext() {
+		if (getLibrary() != null)
+			((TLFacet) getTLModelObject()).setContext(getLibrary().getDefaultContextId());
 	}
 
 	@Override
