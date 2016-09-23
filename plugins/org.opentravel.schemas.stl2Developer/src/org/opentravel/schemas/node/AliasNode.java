@@ -212,14 +212,18 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 				}
 			}
 		}
+
+		// TL model will change name of all related aliases.
+		// Prune the list now to use to update whereAssigned properties
+		List<AliasNode> related = new ArrayList<AliasNode>();
+		for (Node peer : peers)
+			if (peer instanceof AliasNode && peer.getName().startsWith(rootAlias))
+				if (peer != this)
+					related.add((AliasNode) peer);
+
 		visitor.visit(this);
-		for (Node peer : peers) {
-			if (peer instanceof AliasNode && peer != this) {
-				if (peer.getName().startsWith(rootAlias)) {
-					visitor.visit(peer);
-				}
-			}
-		}
+		for (AliasNode peer : related)
+			visitor.visit(peer);
 	}
 
 	private interface Visitor {
@@ -264,11 +268,15 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 			if (n.getModelObject() == null)
 				throw new IllegalStateException("Model Object on " + getName() + " is null.");
 
-			String remainder = n.getName().substring(aliasName.length());
-			String fullNewName = newName;
-			if (remainder.length() > 0)
-				fullNewName = newName + remainder;
-			n.getModelObject().setName(fullNewName);
+			// The name may already have been changed. If so, leave it alone.
+			String fullNewName = n.getName();
+			if (!n.getName().startsWith(newName)) {
+				String remainder = n.getName().substring(aliasName.length());
+				fullNewName = newName;
+				if (remainder.length() > 0)
+					fullNewName = newName + remainder;
+				n.getModelObject().setName(fullNewName);
+			}
 			if (n instanceof TypeProvider)
 				for (TypeUser user : ((TypeProvider) n).getWhereAssigned())
 					user.setName(fullNewName);

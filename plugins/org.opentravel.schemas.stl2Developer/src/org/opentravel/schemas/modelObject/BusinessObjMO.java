@@ -29,6 +29,7 @@ import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
@@ -135,13 +136,13 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 		if (TLFacetType.CUSTOM.equals(affectedItem.getFacetType())) {
 			TLFacet removedFacet = getTLModelObj().getCustomFacet(affectedItem.getContext(), affectedItem.getLabel());
 			if (removedFacet != null && !isNotEmpty(removedFacet)) {
-				getTLModelObj().removeCustomFacet(removedFacet);
+				getTLModelObj().removeCustomFacet((TLContextualFacet) removedFacet);
 				firePropertyChange(Events.FACET_REMOVED, affectedItem, null);
 			}
 		} else if (TLFacetType.QUERY.equals(affectedItem.getFacetType())) {
 			TLFacet removedFacet = getTLModelObj().getQueryFacet(affectedItem.getContext(), affectedItem.getLabel());
 			if (removedFacet != null && !isNotEmpty(removedFacet)) {
-				getTLModelObj().removeQueryFacet(removedFacet);
+				getTLModelObj().removeQueryFacet((TLContextualFacet) removedFacet);
 				firePropertyChange(Events.FACET_REMOVED, removedFacet, null);
 			}
 		} else {
@@ -150,8 +151,18 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 		}
 	}
 
-	public TLFacet addFacet(String name, String context, TLFacetType type) {
-		TLFacet newFacet = createFacet(name, context, type);
+	/**
+	 * Add a custom or query facet to this business object.
+	 * 
+	 * @param name
+	 * @param context
+	 *            ignored, default context used
+	 * @param type
+	 *            CUSTOM or QUERY only
+	 * @return
+	 */
+	public TLContextualFacet addFacet(String name, String context, TLFacetType type) {
+		TLContextualFacet newFacet = createFacet(name, context, type);
 		if (TLFacetType.CUSTOM.equals(newFacet.getFacetType())) {
 			addCustomFacet(newFacet);
 		} else if (TLFacetType.QUERY.equals(newFacet.getFacetType())) {
@@ -178,10 +189,11 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 		return newFacet;
 	}
 
-	private TLFacet createFacet(String name, String context, TLFacetType type) {
-		TLFacet tf = new TLFacet();
-		tf.setLabel(name);
-		tf.setContext(context);
+	private TLContextualFacet createFacet(String name, String context, TLFacetType type) {
+		TLContextualFacet tf = new TLContextualFacet();
+		// tf.setLabel(name);
+		tf.setName(name);
+		// tf.setContext(context);
 		tf.setFacetType(type);
 		tf.setOwningEntity(getTLModelObj());
 		return tf;
@@ -189,7 +201,7 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 
 	@Override
 	public TLFacet addFacet(TLFacetType type) {
-		final TLFacet tlf = new TLFacet();
+		final TLContextualFacet tlf = new TLContextualFacet();
 		switch (type) {
 		case QUERY:
 			srcObj.addQueryFacet(tlf);
@@ -204,12 +216,12 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 		return tlf;
 	}
 
-	public void addCustomFacet(final TLFacet tlf) {
+	public void addCustomFacet(final TLContextualFacet tlf) {
 		srcObj.addCustomFacet(tlf);
 		// LOGGER.info("Added custom facet " + tlf.getLocalName() + " to BusinessObject " + this.getName());
 	}
 
-	public void addQueryFacet(final TLFacet tlf) {
+	public void addQueryFacet(final TLContextualFacet tlf) {
 		srcObj.addQueryFacet(tlf);
 		// LOGGER.info("Added query facet " + tlf.getLocalName() + " to BusinessObject " + this.getName());
 	}
@@ -235,13 +247,13 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 		return kids;
 	}
 
-	private void addFacets(List<TLFacet> inheritedFacet) {
-		for (TLFacet f : inheritedFacet) {
+	private void addFacets(List<TLContextualFacet> list) {
+		for (TLFacet f : list) {
 			addFacet(f);
 		}
 	}
 
-	public List<TLFacet> getInheritedFacet(TLFacetType type) {
+	public List<TLContextualFacet> getInheritedFacet(TLFacetType type) {
 		return FacetCodegenUtils.findGhostFacets(getTLModelObj(), type);
 	}
 

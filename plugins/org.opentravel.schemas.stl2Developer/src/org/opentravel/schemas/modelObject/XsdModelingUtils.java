@@ -40,6 +40,7 @@ import org.opentravel.schemacompiler.model.TLEquivalentOwner;
 import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLIndicator;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLPropertyType;
 import org.opentravel.schemacompiler.model.TLSimple;
@@ -130,7 +131,7 @@ public class XsdModelingUtils {
 	 *            - parent of the created core.
 	 * @return
 	 */
-	protected static LibraryMember buildCoreObject(final ComplexType complexType, String name, XsdNode xsdNode) {
+	protected static TLLibraryMember buildCoreObject(final ComplexType complexType, String name, XsdNode xsdNode) {
 		// LOGGER.debug("BuildCoreObject " + name + " for an xsd complex type.");
 
 		ExplicitGroup xsdSequence = null;
@@ -201,7 +202,7 @@ public class XsdModelingUtils {
 	 *            - parent of the created core.
 	 * @return
 	 */
-	protected static LibraryMember buildCoreObjectCG(final ExplicitGroup cg, String name, XsdNode xsdNode) {
+	protected static TLLibraryMember buildCoreObjectCG(final ExplicitGroup cg, String name, XsdNode xsdNode) {
 		// LOGGER.debug("buildCoreObjectCG() " + name + " for an xsd explicit group.");
 
 		// Initialize a TL core object to represent the complex type.
@@ -237,9 +238,9 @@ public class XsdModelingUtils {
 	 *            - parent of the created core.
 	 * @return - the tl library member created.
 	 */
-	public static LibraryMember buildSimpleObject(SimpleType simpleType, String name, XsdNode xsdNode) {
+	public static TLLibraryMember buildSimpleObject(SimpleType simpleType, String name, XsdNode xsdNode) {
 		// Initialize a core object to represent the complex type.
-		LibraryMember tlObj = null;
+		TLLibraryMember tlObj = null;
 		final TLSimple tls = new TLSimple();
 		final TLClosedEnumeration tlce = new TLClosedEnumeration();
 		int maxLength = 0;
@@ -340,7 +341,7 @@ public class XsdModelingUtils {
 	 * of a complex xsd model it receives.
 	 * 
 	 * @param tlObj
-	 *            - the libraryMember to be created
+	 *            - the LibraryMember to be created
 	 * @param xsdType
 	 *            - the complex type to analyze and build from
 	 * @param xsdNode
@@ -442,7 +443,7 @@ public class XsdModelingUtils {
 		if (ct instanceof TopLevelComplexType) {
 			// LOGGER.warn("Using create complex type on a Top Level type - error. Name: " + name);
 		}
-		LibraryMember newLM = buildCoreObject(ct, name, xsdNode);
+		TLLibraryMember newLM = buildCoreObject(ct, name, xsdNode);
 		ComponentNode cn = NodeFactory.newComponent_UnTyped(newLM);
 		xsdNode.getLibrary().addLocalMember(xsdNode, cn);
 		cn.setLibrary(xsdNode.getLibrary()); // links to LibraryNode and
@@ -454,7 +455,7 @@ public class XsdModelingUtils {
 
 	protected static Node createLocalChoiceGroup(ExplicitGroup ct, String name, XsdNode xsdNode) {
 
-		LibraryMember newLM = buildCoreObjectCG(ct, name, xsdNode);
+		TLLibraryMember newLM = buildCoreObjectCG(ct, name, xsdNode);
 		ComponentNode cn = NodeFactory.newComponent_UnTyped(newLM);
 		xsdNode.getLibrary().addLocalMember(xsdNode, cn);
 		// links to LibraryNode and TLLibrary
@@ -473,7 +474,7 @@ public class XsdModelingUtils {
 	 * @return
 	 */
 	private static Node createLocalSimpleType(LocalSimpleType simpleType, String name, XsdNode xsdNode) {
-		LibraryMember newLM = buildSimpleObject(simpleType, name, xsdNode);
+		TLLibraryMember newLM = buildSimpleObject(simpleType, name, xsdNode);
 		ComponentNode n = NodeFactory.newComponent_UnTyped(newLM);
 		xsdNode.getLibrary().addLocalMember(xsdNode, n);
 		return n;

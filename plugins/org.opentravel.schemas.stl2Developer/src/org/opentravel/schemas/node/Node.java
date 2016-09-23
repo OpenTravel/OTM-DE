@@ -35,6 +35,7 @@ import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryElement;
 import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.ModelElement;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
 import org.opentravel.schemacompiler.model.TLAttributeType;
@@ -45,6 +46,7 @@ import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 import org.opentravel.schemacompiler.model.TLEquivalentOwner;
 import org.opentravel.schemacompiler.model.TLExampleOwner;
 import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.FindingType;
@@ -262,7 +264,6 @@ public abstract class Node implements INode {
 		// Fail if in the list more than once.
 		assert (replacement.getParent().getChildren().indexOf(replacement) == replacement.getParent().getChildren()
 				.lastIndexOf(replacement));
-
 		// Force the replacement model object to be in the same library as this node.
 		AbstractLibrary thisTlLibrary = ((LibraryMember) this.getTLModelObject()).getOwningLibrary();
 		AbstractLibrary replacementTlLibrary = ((LibraryMember) replacement.getTLModelObject()).getOwningLibrary();
@@ -760,8 +761,8 @@ public abstract class Node implements INode {
 		return null;
 	}
 
-	static public Node GetNode(TLModelElement tlObj) {
-		return tlObj != null ? GetNode(tlObj.getListeners()) : null;
+	static public Node GetNode(ModelElement tlObj) {
+		return tlObj != null ? GetNode(((TLModelElement) tlObj).getListeners()) : null;
 	}
 
 	static public Node GetNode(Collection<ModelElementListener> listeners) {
@@ -2362,7 +2363,7 @@ public abstract class Node implements INode {
 			((TypeUser) newNode).setAssignedType(((TypeUser) newNode).getAssignedTLObject());
 
 		} else if (newLM instanceof LibraryMember) {
-			newNode = NodeFactory.newComponent_UnTyped((LibraryMember) newLM);
+			newNode = NodeFactory.newComponent_UnTyped((TLLibraryMember) newLM);
 			if (nameSuffix != null)
 				newNode.setName(newNode.getName() + nameSuffix);
 			if (getLibrary() != null)

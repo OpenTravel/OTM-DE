@@ -31,6 +31,7 @@ import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
@@ -170,9 +171,11 @@ public class FacetMO extends ModelObject<TLFacet> {
 				|| (getTLModelObj().getFacetType().equals(TLFacetType.NOTIFICATION))) {
 			getTLModelObj().clearFacet();
 		} else if (getTLModelObj().getFacetType().equals(TLFacetType.CUSTOM)) {
-			((TLBusinessObject) getTLModelObj().getOwningEntity()).removeCustomFacet(getTLModelObj());
+			((TLBusinessObject) getTLModelObj().getOwningEntity())
+					.removeCustomFacet((TLContextualFacet) getTLModelObj());
 		} else if (getTLModelObj().getFacetType().equals(TLFacetType.QUERY)) {
-			((TLBusinessObject) getTLModelObj().getOwningEntity()).removeQueryFacet(getTLModelObj());
+			((TLBusinessObject) getTLModelObj().getOwningEntity())
+					.removeQueryFacet((TLContextualFacet) getTLModelObj());
 		} else {
 			getTLModelObj().clearFacet();
 		}

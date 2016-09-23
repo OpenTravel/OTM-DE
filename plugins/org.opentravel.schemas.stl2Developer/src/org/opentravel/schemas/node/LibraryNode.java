@@ -34,7 +34,9 @@ import org.opentravel.schemacompiler.model.BuiltInLibrary;
 import org.opentravel.schemacompiler.model.LibraryElement;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemacompiler.model.TLService;
@@ -398,8 +400,8 @@ public class LibraryNode extends Node {
 		if (!importNodeCheck(source))
 			return null;
 
-		ContextUtils.resolveApplicationContexts((LibraryMember) source.getModelObject().getTLModelObj());
-		Node newNode = NodeFactory.newComponent_UnTyped((LibraryMember) source.cloneTLObj());
+		ContextUtils.resolveApplicationContexts((TLLibraryMember) source.getModelObject().getTLModelObj());
+		Node newNode = NodeFactory.newComponent_UnTyped((TLLibraryMember) source.cloneTLObj());
 
 		// Node newNode = source.clone(this, null);
 		if (newNode == null) {
@@ -453,8 +455,8 @@ public class LibraryNode extends Node {
 			LOGGER.error("Tried to import source node to non-TL library: " + this.getName());
 			return false;
 		}
-		if ((source.getTLModelObject() == null) || !(source.getTLModelObject() instanceof LibraryMember)) {
-			LOGGER.error("Exit - not a LibraryMember: " + source.getName());
+		if ((source.getTLModelObject() == null) || !(source.getTLModelObject() instanceof TLLibraryMember)) {
+			LOGGER.error("Exit - not a TLLibraryMember: " + source.getName());
 			return false;
 		}
 		if (!this.isEditable()) {
@@ -727,7 +729,7 @@ public class LibraryNode extends Node {
 			if ((mbr instanceof XSDSimpleType) || (mbr instanceof XSDComplexType) || (mbr instanceof XSDElement)) {
 				hasXsd = true;
 				if (n == null) {
-					xn = new XsdNode(mbr, this);
+					xn = new XsdNode((TLLibraryMember) mbr, this);
 					n = xn.getOtmModel();
 					xn.setXsdType(true);
 				}
@@ -735,7 +737,7 @@ public class LibraryNode extends Node {
 					continue;
 				n.setXsdType(true); // TESTME - may be null
 			} else if (n == null)
-				n = NodeFactory.newComponent_UnTyped(mbr);
+				n = NodeFactory.newComponent_UnTyped((TLLibraryMember) mbr);
 			linkMember(n);
 			n.setLibrary(this);
 		}
@@ -750,7 +752,7 @@ public class LibraryNode extends Node {
 		for (final LibraryMember mbr : xLib.getNamedMembers()) {
 			Node n = GetNode(mbr); // use node if member is already modeled.
 			if (n == null) {
-				final XsdNode xn = new XsdNode(mbr, this);
+				final XsdNode xn = new XsdNode((TLLibraryMember) mbr, this);
 				n = xn.getOtmModel();
 				xn.setXsdType(true);
 				if (n == null)
@@ -770,7 +772,10 @@ public class LibraryNode extends Node {
 		for (final LibraryMember mbr : tlLib.getNamedMembers()) {
 			ComponentNode n = (ComponentNode) GetNode(mbr);
 			// ComponentNode n = (ComponentNode) getNodeIfInThisLib(mbr);
-			if (mbr instanceof TLService) {
+			if (mbr instanceof TLContextualFacet) {
+				// extends facet not TLLibraryMember
+				LOGGER.debug("Do something with contextual facet: " + mbr.getLocalName());
+			} else if (mbr instanceof TLService) {
 				if (n instanceof ServiceNode)
 					((ServiceNode) n).link((TLService) mbr, this);
 				else
@@ -785,7 +790,7 @@ public class LibraryNode extends Node {
 				// If the parent is a version aggregate (inChain) and the tlLib already has nodes associated, use those
 				// node. Otherwise create new ones.
 				if (n == null)
-					n = NodeFactory.newComponent_UnTyped(mbr);
+					n = NodeFactory.newComponent_UnTyped((TLLibraryMember) mbr);
 				// else
 				// LOGGER.debug("Used listener to generate: " + n.getNameWithPrefix());
 				linkMember(n);
@@ -795,7 +800,7 @@ public class LibraryNode extends Node {
 		new TypeResolver().resolveTypes(); // TODO - this is run too often
 	}
 
-	private ComponentNode getNodeIfInThisLib(LibraryMember mbr) {
+	private ComponentNode getNodeIfInThisLib(TLLibraryMember mbr) {
 		ComponentNode cn = (ComponentNode) GetNode(mbr);
 		return cn != null && cn.getLibrary() != this ? null : cn;
 	}
@@ -853,7 +858,7 @@ public class LibraryNode extends Node {
 			LOGGER.warn("Tried to addMember() a null member: " + n);
 			return;
 		}
-		if (!(n.getTLModelObject() instanceof LibraryMember)) {
+		if (!(n.getTLModelObject() instanceof TLLibraryMember)) {
 			LOGGER.warn("Tried to addMember() a non-library member: " + n);
 			return;
 		}
@@ -875,7 +880,7 @@ public class LibraryNode extends Node {
 			n.removeFromLibrary();
 
 		// TL Library - Make sure the node's tl object is in the right tl library.
-		LibraryMember tln = (LibraryMember) n.getTLModelObject(); // cast checked above
+		TLLibraryMember tln = (TLLibraryMember) n.getTLModelObject(); // cast checked above
 		if (tln.getOwningLibrary() == null)
 			getTLLibrary().addNamedMember(tln);
 		else if (tln.getOwningLibrary() != getTLLibrary()) {
@@ -1099,7 +1104,8 @@ public class LibraryNode extends Node {
 		try {
 			source.getLibrary()
 					.getTLLibrary()
-					.moveNamedMember((LibraryMember) source.getTLModelObject(), destination.getLibrary().getTLLibrary());
+					.moveNamedMember((TLLibraryMember) source.getTLModelObject(),
+							destination.getLibrary().getTLLibrary());
 		} catch (Exception e) {
 			// Failed to move. Change destination to be this library and relink.
 			destination = this;
@@ -1138,13 +1144,13 @@ public class LibraryNode extends Node {
 					+ " - " + n.getClass().getSimpleName());
 			return;
 		}
-		if (!(n.getTLModelObject() instanceof LibraryMember)) {
-			LOGGER.warn("Tried to remove non-libraryMember: " + n);
+		if (!(n.getTLModelObject() instanceof TLLibraryMember)) {
+			LOGGER.warn("Tried to remove non-TLLibraryMember: " + n);
 			return;
 		}
 
 		n.unlinkNode();
-		n.getLibrary().getTLLibrary().removeNamedMember((LibraryMember) n.getTLModelObject());
+		n.getLibrary().getTLLibrary().removeNamedMember((TLLibraryMember) n.getTLModelObject());
 		n.setLibrary(null);
 		// n.fixAssignments();
 	}

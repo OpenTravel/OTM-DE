@@ -19,9 +19,9 @@
 package org.opentravel.schemas.node;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -51,7 +51,7 @@ public class SimpleTypeNode extends TypeProviderBase implements SimpleComponentI
 	protected IValueWithContextHandler exampleHandler = null;
 	protected TypeUserHandler typeHandler = null;
 
-	public SimpleTypeNode(LibraryMember mbr) {
+	public SimpleTypeNode(TLLibraryMember mbr) {
 		super(mbr);
 		assert (getTLModelObject() != null);
 

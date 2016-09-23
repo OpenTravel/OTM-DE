@@ -15,7 +15,9 @@
  */
 package org.opentravel.schemas.node.facets;
 
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLFacetType;
 
 /**
  * Used for Query Facets.
@@ -24,6 +26,12 @@ import org.opentravel.schemacompiler.model.TLFacet;
  * 
  */
 public class QueryFacetNode extends RenamableFacet {
+
+	// Testing constructor
+	public QueryFacetNode() {
+		super(new TLContextualFacet());
+		((TLContextualFacet) getTLModelObject()).setFacetType(TLFacetType.QUERY);
+	}
 
 	public QueryFacetNode(TLFacet tlObj) {
 		super(tlObj);

@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.util.List;
 
@@ -267,9 +269,9 @@ public class LibraryTests {
 
 		// Check initial library contexts
 		List<TLContext> fromLibContexts = fromLib.getTLLibrary().getContexts();
-		Assert.assertEquals(1, fromLibContexts.size());
+		assertTrue("Must only have 1 context.", fromLibContexts.size() == 1);
 		List<TLContext> toLibContexts = toLib.getTLLibrary().getContexts();
-		Assert.assertEquals(1, toLibContexts.size());
+		assertTrue("Must only have 1 context.", toLibContexts.size() == 1);
 
 		// Add then check context users
 		Node object = addContextUsers(fromLib);
@@ -279,7 +281,7 @@ public class LibraryTests {
 		String appContext1 = pn.getExampleHandler().getApplicationContext();
 		Assert.assertTrue(appContext1.startsWith("http://test.com/ns1"));
 
-		// Add another Context
+		// Add another Context to TL Library
 		TLContext tlc = new TLContext();
 		tlc.setApplicationContext("AppContext1");
 		tlc.setContextId("Cid1");

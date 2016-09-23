@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.opentravel.schemacompiler.event.ModelElementListener;
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.modelObject.XSDElementMO;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -50,7 +50,7 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 	 * @param obj
 	 *            - the TL XSDComplexType or XSDSimpleType
 	 */
-	public XsdNode(final LibraryMember obj, LibraryNode lib) {
+	public XsdNode(final TLLibraryMember obj, LibraryNode lib) {
 		super(obj); //
 		this.setLibrary(lib);
 		// Build all of the tl models now so they and their local types get rendered in the tree
@@ -98,7 +98,7 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 			LOGGER.error("Can not create a TL Model child without a library!. " + this.getName());
 
 		// Use this model object to build a TL_Object and use that to create a node.
-		ComponentNode cn = NodeFactory.newComponent_UnTyped(modelObject.buildTLModel(this));
+		ComponentNode cn = NodeFactory.newComponent_UnTyped((TLLibraryMember) modelObject.buildTLModel(this));
 		if (cn != null) {
 			cn.xsdNode = this;
 			otmModel = cn;

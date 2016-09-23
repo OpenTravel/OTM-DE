@@ -24,6 +24,7 @@ import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
@@ -43,7 +44,7 @@ public class EnumerationOpenNode extends TypeProviderBase implements ComplexComp
 	// private static final Logger LOGGER = LoggerFactory.getLogger(EnumerationOpenNode.class);
 	private ExtensionHandler extensionHandler = null;
 
-	public EnumerationOpenNode(LibraryMember mbr) {
+	public EnumerationOpenNode(TLLibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
 		extensionHandler = new ExtensionHandler(this);
@@ -104,7 +105,7 @@ public class EnumerationOpenNode extends TypeProviderBase implements ComplexComp
 
 	@Override
 	public ComponentNode createMinorVersionComponent() {
-		return super.createMinorVersionComponent(new EnumerationOpenNode(createMinorTLVersion(this)));
+		return super.createMinorVersionComponent(new EnumerationOpenNode((TLLibraryMember) createMinorTLVersion(this)));
 	}
 
 	@Override

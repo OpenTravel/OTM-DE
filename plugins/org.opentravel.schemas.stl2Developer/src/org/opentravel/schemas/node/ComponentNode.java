@@ -29,6 +29,7 @@ import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.validate.ValidationException;
 import org.opentravel.schemacompiler.version.MinorVersionHelper;
@@ -99,7 +100,7 @@ public class ComponentNode extends Node {
 	 * @param tlModelObject
 	 *            - the model object for the node
 	 */
-	public ComponentNode(final LibraryMember tlModelObject) {
+	public ComponentNode(final TLLibraryMember tlModelObject) {
 		//
 		super(tlModelObject);
 		// sub-types must render their children into nodes. See addMOChildren();

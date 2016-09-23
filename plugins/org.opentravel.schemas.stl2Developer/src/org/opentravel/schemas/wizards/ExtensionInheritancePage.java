@@ -51,12 +51,12 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
 import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLIndicator;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLPropertyOwner;
@@ -509,8 +509,8 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 			if (modelObject.getTLModelObj() instanceof TLModelElement) {
 				// 3/26/13 - may need to be changed to fix the 2nd extension wizard page.
 				// treeNode = new ComponentNode((TLModelElement) modelObject.getTLModelObj());
-				if (curNode.getTLModelObject() instanceof LibraryMember) {
-					treeNode = NodeFactory.newComponent((LibraryMember) curNode.cloneTLObj());
+				if (curNode.getTLModelObject() instanceof TLLibraryMember) {
+					treeNode = NodeFactory.newComponent((TLLibraryMember) curNode.cloneTLObj());
 					createTreeNodeChildren(treeNode);
 				}
 			}
@@ -822,8 +822,8 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 					final NamedEntity elem = prop.getModelObject().getTLType();
 
 					if (elem != null) {
-						if (elem instanceof LibraryMember) {
-							return new Object[] { NodeFactory.newComponent_UnTyped((LibraryMember) elem) };
+						if (elem instanceof TLLibraryMember) {
+							return new Object[] { NodeFactory.newComponent_UnTyped((TLLibraryMember) elem) };
 							// return new Object[] { ComponentNode.newCN((LibraryMember) elem) };
 						}
 						if (elem instanceof TLFacet) {

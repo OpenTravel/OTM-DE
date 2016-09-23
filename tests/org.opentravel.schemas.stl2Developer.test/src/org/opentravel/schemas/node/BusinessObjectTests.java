@@ -260,31 +260,34 @@ public class BusinessObjectTests {
 
 		// create a core that uses all the type provider nodes of the bo
 		CoreObjectNode co = ml.addCoreObjectToLibrary(ln, "user");
-		PropertyNode p1 = new ElementNode(co.getSummaryFacet(), "p1");
-		p1.setAssignedType(bo);
+		PropertyNode pBO = new ElementNode(co.getSummaryFacet(), "p1");
+		pBO.setAssignedType(bo);
 		// assertTrue(p1.getName().equals(boName));
 		// FIXME assertTrue("Invalid name: " + p1 + " should be " + bo, p1.getName().equals(boName));
-		PropertyNode p2 = new ElementNode(co.getSummaryFacet(), "p2");
-		p2.setAssignedType(alias1);
-		PropertyNode p3 = new ElementNode(co.getSummaryFacet(), "p3");
-		p3.setAssignedType(bo.getSummaryFacet());
-		PropertyNode p4 = new ElementNode(co.getSummaryFacet(), "p4");
-		p4.setAssignedType(aliasSummary);
+		PropertyNode pAlias1 = new ElementNode(co.getSummaryFacet(), "p2");
+		pAlias1.setAssignedType(alias1);
+		PropertyNode pBOSummary = new ElementNode(co.getSummaryFacet(), "p3");
+		pBOSummary.setAssignedType(bo.getSummaryFacet());
+		PropertyNode pBOSumAlias = new ElementNode(co.getSummaryFacet(), "p4");
+		pBOSumAlias.setAssignedType(aliasSummary);
+		assertTrue("Facet alias must be assigned as type.", !aliasSummary.getWhereAssigned().isEmpty());
 
 		// Change the BO name and assure the properties names changed
 		String ChangedName = "changedName";
 		bo.setName(ChangedName);
 		ChangedName = bo.getName(); // get the "fixed" name
-		assertTrue(p1.getName().equals(ChangedName));
-		assertTrue(p2.getName().equals(alias1.getName()));
-		assertTrue(p3.getName().startsWith(ChangedName));
+		assertTrue(pBO.getName().equals(ChangedName));
+		assertTrue(pAlias1.getName().equals(alias1.getName()));
+		assertTrue(pBOSummary.getName().startsWith(ChangedName));
 
 		// Alias on BOs must also be applied to the elements where used.
 		String aliasName2 = "aliasName2";
 		alias1.setName(aliasName2);
 		aliasName2 = alias1.getName(); // get the "fixed" name
-		assertTrue(p2.getName().equals(aliasName2));
-		assertTrue(p4.getName().startsWith(aliasName2));
+		assertTrue(pAlias1.getName().equals(aliasName2));
+		assertTrue("New alias name must propagate to facet aliases.", aliasSummary.getName().startsWith(aliasName2));
+		assertTrue("New alias name must propagate to properties using facet alias as type.", pBOSumAlias.getName()
+				.startsWith(aliasName2));
 	}
 
 	@Test

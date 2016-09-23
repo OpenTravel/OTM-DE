@@ -15,7 +15,9 @@
  */
 package org.opentravel.schemas.node.facets;
 
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLFacetType;
 
 /**
  * Used for Choice Facets.
@@ -24,6 +26,12 @@ import org.opentravel.schemacompiler.model.TLFacet;
  * 
  */
 public class ChoiceFacetNode extends RenamableFacet {
+
+	// Testing constructor
+	public ChoiceFacetNode() {
+		super(new TLContextualFacet());
+		((TLContextualFacet) getTLModelObject()).setFacetType(TLFacetType.CHOICE);
+	}
 
 	public ChoiceFacetNode(TLFacet tlObj) {
 		super(tlObj);

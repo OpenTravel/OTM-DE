@@ -21,10 +21,10 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.impl.QualifiedAction;
 import org.opentravel.schemacompiler.codegen.util.ResourceCodegenUtils;
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionRequest;
 import org.opentravel.schemacompiler.model.TLActionResponse;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLMimeType;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
@@ -168,7 +168,7 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	}
 
 	@Override
-	public LibraryMember getTLOwner() {
+	public TLLibraryMember getTLOwner() {
 		return tlObj.getOwner();
 	}
 

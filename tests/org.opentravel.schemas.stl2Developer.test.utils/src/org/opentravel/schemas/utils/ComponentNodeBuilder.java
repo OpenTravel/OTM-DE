@@ -18,10 +18,9 @@ package org.opentravel.schemas.utils;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
-import org.opentravel.schemacompiler.model.TLFacet;
-import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemacompiler.model.TLService;
 import org.opentravel.schemacompiler.model.TLSimple;
@@ -42,8 +41,10 @@ import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
+import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.types.SimpleAttributeOwner;
@@ -180,43 +181,43 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 
 		public BusinessNodeBuilder addQueryFacet(String name) {
 			String context = null;
-			FacetNode newFacet = createFacetNode(name, context, TLFacetType.QUERY);
-			componentObject.getModelObject().addQueryFacet((TLFacet) newFacet.getTLModelObject());
+			FacetNode newFacet = new QueryFacetNode();
+			componentObject.getModelObject().addQueryFacet((TLContextualFacet) newFacet.getTLModelObject());
 			componentObject.linkChild(newFacet);
 			newFacet.setName(name);
 			return this;
 		}
 
 		public BusinessNodeBuilder addCustomFacet(String name) {
-			String context = null;
-			FacetNode newFacet = createFacetNode(name, context, TLFacetType.CUSTOM);
-			componentObject.getModelObject().addCustomFacet((TLFacet) newFacet.getTLModelObject());
+			// String context = null;
+			CustomFacetNode newFacet = new CustomFacetNode();
+			componentObject.getModelObject().addCustomFacet((TLContextualFacet) newFacet.getTLModelObject());
 			componentObject.linkChild(newFacet);
 			newFacet.setName(name);
 			return this;
 		}
 
-		public BusinessNodeBuilder addCustomFacet(String name, String context) {
-			FacetNode newFacet = createFacetNode(name, context, TLFacetType.CUSTOM);
-			componentObject.getModelObject().addCustomFacet((TLFacet) newFacet.getTLModelObject());
-			componentObject.linkChild(newFacet);
-			newFacet.setName(name);
-			return this;
-		}
+		// public BusinessNodeBuilder addCustomFacet(String name, String context) {
+		// FacetNode newFacet = new CustomFacetNode();
+		// componentObject.getModelObject().addCustomFacet((TLContextualFacet) newFacet.getTLModelObject());
+		// componentObject.linkChild(newFacet);
+		// newFacet.setName(name);
+		// return this;
+		// }
 
-		private FacetNode createFacetNode(String name, String context, TLFacetType type) {
-			TLFacet tl = createFacet(type);
-			tl.setContext(context);
-			tl.setLabel(name);
-			FacetNode node = (FacetNode) NodeFactory.newComponentMember(null, tl);
-			return node;
-		}
-
-		private TLFacet createFacet(TLFacetType tlFacetType) {
-			TLFacet f = new TLFacet();
-			f.setFacetType(tlFacetType);
-			return f;
-		}
+		// private FacetNode createFacetNode(String name, String context, TLFacetType type) {
+		// TLFacet tl = createFacet(type);
+		// tl.setContext(context);
+		// tl.setLabel(name);
+		// FacetNode node = (FacetNode) NodeFactory.newComponentMember(null, tl);
+		// return node;
+		// }
+		//
+		// private TLFacet createFacet(TLFacetType tlFacetType) {
+		// TLFacet f = new TLFacet();
+		// f.setFacetType(tlFacetType);
+		// return f;
+		// }
 
 		public BusinessNodeBuilder extend(BusinessObjectNode boBase) {
 			componentObject.setExtension(boBase);

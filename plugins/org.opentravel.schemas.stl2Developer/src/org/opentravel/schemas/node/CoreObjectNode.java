@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemas.modelObject.CoreObjectMO;
 import org.opentravel.schemas.modelObject.ListFacetMO;
 import org.opentravel.schemas.node.facets.FacetNode;
@@ -59,7 +59,7 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	private static final Logger LOGGER = LoggerFactory.getLogger(CoreObjectNode.class);
 	private ExtensionHandler extensionHandler = null;
 
-	public CoreObjectNode(LibraryMember mbr) {
+	public CoreObjectNode(TLLibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
 		extensionHandler = new ExtensionHandler(this);
@@ -114,7 +114,7 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 
 	@Override
 	public ComponentNode createMinorVersionComponent() {
-		return super.createMinorVersionComponent(new CoreObjectNode(createMinorTLVersion(this)));
+		return super.createMinorVersionComponent(new CoreObjectNode((TLLibraryMember) createMinorTLVersion(this)));
 	}
 
 	@Override

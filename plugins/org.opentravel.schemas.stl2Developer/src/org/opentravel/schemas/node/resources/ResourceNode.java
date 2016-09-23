@@ -25,12 +25,12 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLExtension;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLParamGroup;
 import org.opentravel.schemacompiler.model.TLResource;
@@ -132,7 +132,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	/**************************************************************
 	 * 
 	 */
-	public ResourceNode(LibraryMember mbr) {
+	public ResourceNode(TLLibraryMember mbr) {
 		super(mbr);
 		ListenerFactory.setListner(this);
 

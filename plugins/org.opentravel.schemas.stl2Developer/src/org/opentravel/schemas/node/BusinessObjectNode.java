@@ -27,12 +27,13 @@ import java.util.Set;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemas.modelObject.BusinessObjMO;
 import org.opentravel.schemas.modelObject.BusinessObjMO.Events;
 import org.opentravel.schemas.modelObject.FacetMO;
@@ -64,7 +65,7 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	// private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
 	private ExtensionHandler extensionHandler = null;
 
-	public BusinessObjectNode(LibraryMember mbr) {
+	public BusinessObjectNode(TLLibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
 
@@ -242,14 +243,14 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 
 		// 9/19/2015 dmh - OVERRIDE context to assure context is default context.
 		FacetNode ff = null;
-		TLFacet newTlFacet = getModelObject().addFacet(name, getLibrary().getDefaultContextId(), type);
+		TLContextualFacet newTlFacet = getModelObject().addFacet(name, getLibrary().getDefaultContextId(), type);
 		ff = (FacetNode) NodeFactory.newComponentMember(this, newTlFacet);
 		return ff;
 	}
 
 	@Override
 	public ComponentNode createMinorVersionComponent() {
-		return super.createMinorVersionComponent(new BusinessObjectNode(createMinorTLVersion(this)));
+		return super.createMinorVersionComponent(new BusinessObjectNode((TLLibraryMember) createMinorTLVersion(this)));
 	}
 
 	@Override

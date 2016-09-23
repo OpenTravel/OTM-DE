@@ -22,8 +22,8 @@ import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLExtension;
-import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModelElement;
@@ -44,8 +44,9 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 	// srcObj.addChoiceFacet(tlf);
 	// }
 	//
-	public TLFacet addFacet(TLFacetType type) {
-		TLFacet tlf = new TLFacet();
+	// TODO - should this return a contextual facet?
+	public TLContextualFacet addFacet(TLFacetType type) {
+		TLContextualFacet tlf = (TLContextualFacet) new TLContextualFacet();
 		srcObj.addChoiceFacet(tlf);
 		return tlf;
 	}

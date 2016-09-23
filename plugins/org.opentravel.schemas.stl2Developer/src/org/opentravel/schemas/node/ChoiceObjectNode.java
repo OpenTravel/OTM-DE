@@ -26,11 +26,11 @@ import java.util.Set;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
 import org.opentravel.schemacompiler.event.ModelElementListener;
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemas.modelObject.ChoiceObjMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.facets.ChoiceFacetNode;
@@ -60,7 +60,7 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 
 	private ExtensionHandler extensionHandler = null;
 
-	public ChoiceObjectNode(LibraryMember mbr) {
+	public ChoiceObjectNode(TLLibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
 		extensionHandler = new ExtensionHandler(this);
@@ -161,7 +161,7 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 
 	@Override
 	public ComponentNode createMinorVersionComponent() {
-		return super.createMinorVersionComponent(new ChoiceObjectNode(createMinorTLVersion(this)));
+		return super.createMinorVersionComponent(new ChoiceObjectNode((TLLibraryMember) createMinorTLVersion(this)));
 	}
 
 	@Override

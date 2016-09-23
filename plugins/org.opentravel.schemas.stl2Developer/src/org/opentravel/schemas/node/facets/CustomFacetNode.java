@@ -15,7 +15,8 @@
  */
 package org.opentravel.schemas.node.facets;
 
-import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
+import org.opentravel.schemacompiler.model.TLFacetType;
 
 /**
  * Used for Custom Facets.
@@ -25,7 +26,13 @@ import org.opentravel.schemacompiler.model.TLFacet;
  */
 public class CustomFacetNode extends RenamableFacet {
 
-	public CustomFacetNode(TLFacet tlObj) {
+	// Testing constructor
+	public CustomFacetNode() {
+		super(new TLContextualFacet());
+		((TLContextualFacet) getTLModelObject()).setFacetType(TLFacetType.CUSTOM);
+	}
+
+	public CustomFacetNode(TLContextualFacet tlObj) {
 		super(tlObj);
 	}
 

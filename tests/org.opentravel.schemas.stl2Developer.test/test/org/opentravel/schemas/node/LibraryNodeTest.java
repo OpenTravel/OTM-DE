@@ -22,7 +22,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -116,20 +115,20 @@ public class LibraryNodeTest extends BaseProjectTest {
 		c.setApplicationContext("newContext");
 		importFrom.getTLLibrary().addContext(c);
 		importFrom.addContexts();
-		BusinessObjectNode bo = ComponentNodeBuilder.createBusinessObject("BO")
-				.addCustomFacet("name", c.getContextId()).addCustomFacet("name2", c.getContextId()).get();
+		BusinessObjectNode bo = ComponentNodeBuilder.createBusinessObject("BO").addCustomFacet("name")
+				.addCustomFacet("name2").get(); // 9/2016 - custom facets no longer have context
 		importFrom.addMember(bo);
 
 		LibraryNode importTo = LibraryNodeBuilder.create("ImportTo", defaultProject.getNamespace() + "/Test/TO", "to",
 				new Version(1, 0, 0)).build(defaultProject, pc);
 
-		List<String> beforeImport = importTo.getContextIds();
-		List<String> fromContexts = importFrom.getContextIds();
-		Node newNode = importTo.importNode(bo);
-		List<String> afterImport = importTo.getContextIds();
+		// List<String> beforeImport = importTo.getContextIds();
+		// List<String> fromContexts = importFrom.getContextIds();
+		importTo.importNode(bo);
+		// List<String> afterImport = importTo.getContextIds();
 
 		// FIXME - Assert.assertEquals(2, importTo.getContextIds().size());
-		Assert.assertNotNull(importTo.getTLLibrary().getContext(c.getContextId()));
+		assertTrue("Context must not be imported.", importTo.getTLLibrary().getContext(c.getContextId()) == null);
 	}
 
 	@Test

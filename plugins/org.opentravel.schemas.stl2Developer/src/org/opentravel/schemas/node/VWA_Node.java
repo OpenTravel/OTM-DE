@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
 import org.opentravel.schemas.node.facets.FacetNode;
@@ -54,7 +54,7 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 	// private static final Logger LOGGER = LoggerFactory.getLogger(VWA_Node.class);
 	private ExtensionHandler extensionHandler = null;
 
-	public VWA_Node(LibraryMember mbr) {
+	public VWA_Node(TLLibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
 
@@ -89,7 +89,7 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 
 	@Override
 	public ComponentNode createMinorVersionComponent() {
-		return super.createMinorVersionComponent(new VWA_Node(createMinorTLVersion(this)));
+		return super.createMinorVersionComponent(new VWA_Node((TLLibraryMember) createMinorTLVersion(this)));
 	}
 
 	/**

@@ -19,11 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLReferenceType;
 import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.CoreObjectNode;
@@ -87,7 +87,8 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	 */
 	public ActionFacet(TLActionFacet tlActionFacet) {
 		super(tlActionFacet);
-		parent = this.getNode(((LibraryMember) tlObj.getOwningResource()).getListeners());
+		parent = this.getNode(((TLLibraryMember) tlObj.getOwningResource()).getListeners());
+		// parent = this.getNode(((LibraryMember) tlObj.getOwningResource()).getListeners());
 		assert parent instanceof ResourceNode;
 		getParent().addChild(this);
 		this.setLibrary(parent.getLibrary());
@@ -233,7 +234,7 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	}
 
 	@Override
-	public LibraryMember getTLOwner() {
+	public TLLibraryMember getTLOwner() {
 		return tlObj.getOwningResource();
 	}
 

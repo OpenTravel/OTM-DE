@@ -18,8 +18,8 @@ package org.opentravel.schemas.node;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
@@ -46,7 +46,7 @@ public class ExtensionPointNode extends ComponentNode implements ComplexComponen
 	// private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionPointNode.class);
 	private ExtensionHandler extensionHandler = null;
 
-	public ExtensionPointNode(LibraryMember mbr) {
+	public ExtensionPointNode(TLLibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
 		extensionHandler = new ExtensionHandler(this);

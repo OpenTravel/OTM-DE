@@ -15,7 +15,7 @@
  */
 package org.opentravel.schemas.node;
 
-import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 
 public enum ImpliedNodeType {
 
@@ -25,9 +25,9 @@ public enum ImpliedNodeType {
 			ImpliedNode.defaultString);
 
 	private String impliedNodeType;
-	private LibraryMember impliedTLObject;
+	private TLLibraryMember impliedTLObject;
 
-	private ImpliedNodeType(String impliedNodeType, LibraryMember tlObject) {
+	private ImpliedNodeType(String impliedNodeType, TLLibraryMember tlObject) {
 		this.impliedNodeType = impliedNodeType;
 		this.impliedTLObject = tlObject;
 	}
@@ -42,7 +42,7 @@ public enum ImpliedNodeType {
 	/**
 	 * @return the impliedTLObject
 	 */
-	public LibraryMember getTlObject() {
+	public TLLibraryMember getTlObject() {
 		return impliedTLObject;
 	}
 

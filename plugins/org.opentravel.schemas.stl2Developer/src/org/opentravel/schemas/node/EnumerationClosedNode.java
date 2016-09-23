@@ -19,10 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
@@ -42,7 +42,7 @@ public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration
 
 	private ExtensionHandler extensionHandler = null;
 
-	public EnumerationClosedNode(LibraryMember mbr) {
+	public EnumerationClosedNode(TLLibraryMember mbr) {
 		super(mbr);
 		addMOChildren();
 		extensionHandler = new ExtensionHandler(this);
@@ -55,12 +55,12 @@ public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration
 				((TLAbstractEnumeration) getTLModelObject()).setExtension(((TLOpenEnumeration) openEnum
 						.getTLModelObject()).getExtension());
 			setLibrary(openEnum.getLibrary());
-			getLibrary().getTLaLib().addNamedMember((LibraryMember) this.getTLModelObject());
+			getLibrary().getTLaLib().addNamedMember((TLLibraryMember) this.getTLModelObject());
 
 			for (Node lit : openEnum.getChildren()) {
 				addProperty(lit.clone(this, null));
 			}
-			getLibrary().getTLaLib().removeNamedMember((LibraryMember) openEnum.getTLModelObject());
+			getLibrary().getTLaLib().removeNamedMember((TLLibraryMember) openEnum.getTLModelObject());
 			openEnum.unlinkNode();
 			// If openEnum was being used, the tl model will reassign but not type node
 			// FIXME - TESTME

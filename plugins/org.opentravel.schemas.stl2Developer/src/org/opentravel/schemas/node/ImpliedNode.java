@@ -18,7 +18,7 @@
  */
 package org.opentravel.schemas.node;
 
-import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemas.types.TypeProvider;
 
@@ -34,7 +34,7 @@ public class ImpliedNode extends SimpleTypeNode implements TypeProvider {
 	protected ImpliedNodeType impliedType;
 	public static final String OTA_NAMESPACE = "http://www.OpenTravel.org/ns/OTA2/Common_v01_00";
 
-	public ImpliedNode(LibraryMember mbr) {
+	public ImpliedNode(TLLibraryMember mbr) {
 		super(ImpliedNodeType.Empty.getTlObject());
 		impliedType = ImpliedNodeType.Empty;
 

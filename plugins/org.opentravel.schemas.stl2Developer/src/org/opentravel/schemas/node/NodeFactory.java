@@ -18,17 +18,18 @@
  */
 package org.opentravel.schemas.node;
 
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLEnumValue;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLIndicator;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLListFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
@@ -89,7 +90,7 @@ public class NodeFactory {
 	 * @param mbr
 	 * @return
 	 */
-	public static ComponentNode newComponent(LibraryMember mbr) {
+	public static ComponentNode newComponent(TLLibraryMember mbr) {
 		ComponentNode newNode = newComponent_UnTyped(mbr);
 		// if (newNode != null) {
 		// if (newNode instanceof TypeUser)
@@ -111,7 +112,7 @@ public class NodeFactory {
 	 * @param type
 	 * @return newly created and typed node.
 	 */
-	public static ComponentNode newComponent(LibraryMember mbr, INode type) {
+	public static ComponentNode newComponent(TLLibraryMember mbr, INode type) {
 		ComponentNode newNode = newComponent_UnTyped(mbr);
 		// if (newNode.isTypeUser() && type instanceof TypeProvider)
 		if (newNode instanceof TypeUser && type instanceof TypeProvider)
@@ -124,7 +125,7 @@ public class NodeFactory {
 	 * 
 	 * @return newly created node or null
 	 */
-	public static ComponentNode newComponent_UnTyped(final LibraryMember mbr) {
+	public static ComponentNode newComponent_UnTyped(final TLLibraryMember mbr) {
 		ComponentNode cn = null;
 		if (mbr == null)
 			return cn;
@@ -184,7 +185,7 @@ public class NodeFactory {
 	}
 
 	public static Node newComponent(ComponentNodeType type) {
-		LibraryMember tlObj = null;
+		TLLibraryMember tlObj = null;
 
 		switch (type) {
 		case BUSINESS:
@@ -257,6 +258,8 @@ public class NodeFactory {
 			//
 		} else if (tlObj instanceof TLValueWithAttributesFacet) {
 			nn = new VWA_AttributeFacetNode((TLValueWithAttributesFacet) tlObj);
+		} else if (tlObj instanceof TLContextualFacet) {
+			nn = createFacet((TLContextualFacet) tlObj);
 		} else if (tlObj instanceof TLFacet) {
 			nn = createFacet((TLFacet) tlObj);
 		} else if (tlObj instanceof TLListFacet) {
@@ -312,9 +315,7 @@ public class NodeFactory {
 		return newNode;
 	}
 
-	private static ComponentNode createFacet(TLFacet facet) {
-		assert (facet.getFacetType() != null);
-
+	private static ComponentNode createFacet(TLContextualFacet facet) {
 		switch (facet.getFacetType()) {
 		case CUSTOM:
 			return new CustomFacetNode(facet);
@@ -322,6 +323,22 @@ public class NodeFactory {
 			return new ChoiceFacetNode(facet);
 		case QUERY:
 			return new QueryFacetNode(facet);
+		default:
+			break;
+		}
+		return null;
+	}
+
+	private static ComponentNode createFacet(TLFacet facet) {
+		assert (facet.getFacetType() != null);
+
+		switch (facet.getFacetType()) {
+		// case CUSTOM:
+		// return new CustomFacetNode(facet);
+		// case CHOICE:
+		// return new ChoiceFacetNode(facet);
+		// case QUERY:
+		// return new QueryFacetNode(facet);
 		case REQUEST:
 		case RESPONSE:
 		case NOTIFICATION:
