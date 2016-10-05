@@ -774,7 +774,9 @@ public class LibraryNode extends Node {
 			// ComponentNode n = (ComponentNode) getNodeIfInThisLib(mbr);
 			if (mbr instanceof TLContextualFacet) {
 				// extends facet not TLLibraryMember
-				LOGGER.debug("Do something with contextual facet: " + mbr.getLocalName());
+
+				LOGGER.debug("Do something with contextual facet: " + mbr.getLocalName()
+						+ ((TLContextualFacet) mbr).isLocalFacet());
 			} else if (mbr instanceof TLService) {
 				if (n instanceof ServiceNode)
 					((ServiceNode) n).link((TLService) mbr, this);

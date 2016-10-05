@@ -96,6 +96,9 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 		if (selectedNode.getChain() == null)
 			return null;
 
+		if (selectedNode.isInHead())
+			LOGGER.warn("No version extension needed, " + selectedNode + " is already in head library.");
+
 		if (selectedNode.getChain().getHead().isPatchVersion()) {
 			// Will always be in a different library or else it is a ExtensionPoint facet.
 			if (!selectedNode.isExtensionPointFacet()) {

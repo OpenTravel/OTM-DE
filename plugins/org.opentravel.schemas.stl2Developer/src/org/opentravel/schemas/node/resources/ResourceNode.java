@@ -584,6 +584,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		// return !getChildren().isEmpty();
 	}
 
+	@Override
+	public boolean hasNavChildrenWithProperties() {
+		return false;
+	}
+
 	public boolean isAbstract() {
 		return tlObj.isAbstract();
 	}

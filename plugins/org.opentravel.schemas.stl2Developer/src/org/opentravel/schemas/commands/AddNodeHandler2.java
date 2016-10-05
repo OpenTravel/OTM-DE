@@ -27,11 +27,13 @@ import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
+import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
@@ -65,7 +67,10 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 		mc = OtmRegistry.getMainController();
 		selectedNode = mc.getGloballySelectNode();
 		actOnNode = (ComponentNode) selectedNode;
-		runCommand(getActionType(event));
+		if (event.data instanceof ComponentNode)
+			runCommand(((ComponentNode) event.data));
+		else
+			runCommand(getActionType(event));
 		mc.postStatus("Add Property Handler added the property.");
 	}
 
@@ -86,7 +91,6 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 		if (exEvent.getTrigger() instanceof Event) {
 			event = (Event) exEvent.getTrigger();
 			actionType = getActionType(event);
-
 		}
 		return actionType;
 	}
@@ -98,12 +102,69 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 		return null;
 	}
 
+	/**
+	 * Run add command to add property to target. if needed, create minor version of object; add property; set mandatory
+	 * if needed
+	 * 
+	 * Global selectedNode is object to use as type to assign to property; if DND this is the dragged object.
+	 * 
+	 * @param targetNode
+	 *            - property, facet or object to add property to, if DND this is the drop target
+	 */
+	private void runCommand(ComponentNode targetNode) {
+		// Property will be added to newNode. newNode will be changed if new version is needed.
+		ComponentNode newNode = targetNode;
+
+		// if needed, create minor version of object
+		if (targetNode.getChain() != null) {
+			if (targetNode.isEnabled_AddProperties() && !targetNode.isInHead())
+				newNode = createVersionExtension(targetNode.getOwningComponent());
+			if (newNode == null)
+				return; // they did a cancel
+
+			// Find same facet in new object as they dropped onto
+			if (targetNode == targetNode.getOwningComponent())
+				newNode = (ComponentNode) newNode.getDefaultFacet();
+			else {
+				// if dropped on property, match owning facet
+				if (targetNode instanceof PropertyNode)
+					targetNode = (ComponentNode) targetNode.getParent();
+
+				// find matching facet
+				if (targetNode instanceof FacetNode)
+					for (Node n : newNode.getChildren())
+						if (n.getName().equals(targetNode.getName())) {
+							newNode = (ComponentNode) n;
+							break;
+						}
+			}
+		}
+		if (newNode == null) {
+			LOGGER.debug("newNode is null.");
+			return; // Error
+		}
+
+		// add property - new node must be property owner
+		newNode = (ComponentNode) newNode.createProperty(selectedNode);
+
+		if (newNode == null) {
+			LOGGER.debug("newNode is null.");
+			return; // Error
+		}
+
+		// make summary facet properties default to mandatory unless in minor version
+		FacetNode owningFacet = (FacetNode) newNode.getParent();
+		if (owningFacet.isSummaryFacet() && !newNode.getLibrary().isMinorVersion())
+			newNode.setMandatory(true);
+
+		mc.refresh(newNode);
+		OtmRegistry.getNavigatorView().refresh();
+	}
+
 	private void runCommand(PropertyNodeType actionType) {
 		INode.CommandType type = selectedNode.getAddCommand();
 		if (selectedNode instanceof CoreObjectNode && actionType == PropertyNodeType.ROLE)
 			type = INode.CommandType.ROLE;
-		else if (selectedNode instanceof ServiceNode)
-			type = INode.CommandType.OPERATION;
 
 		switch (type) {
 		case ROLE:

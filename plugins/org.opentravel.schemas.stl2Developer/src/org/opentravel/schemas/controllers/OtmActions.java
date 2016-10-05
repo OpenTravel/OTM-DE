@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.opentravel.schemas.actions.AssignTypeAction;
 import org.opentravel.schemas.actions.SetDescriptionEqExAction;
 import org.opentravel.schemas.actions.SetObjectNameAction;
+import org.opentravel.schemas.commands.AddNodeHandler2;
 import org.opentravel.schemas.commands.OtmAbstractHandler;
 import org.opentravel.schemas.controllers.DefaultContextController.ContextViewType;
 import org.opentravel.schemas.node.ComponentNode;
@@ -38,8 +39,8 @@ import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.types.PostTypeChange;
 import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.widgets.OtmEventData;
 import org.opentravel.schemas.widgets.OtmHandlers;
 import org.opentravel.schemas.wizards.TypeSelectionWizard;
@@ -612,21 +613,36 @@ public class OtmActions {
 		}
 		// LOGGER.debug("tableNode = " + tableNode + "\tsourceNode = " + sourceNode);
 
+		// 10/2016 dmh - restructured logic and fixed bug where DND was different than add for minor versions
+		if (ed.isDragCopy() || tableNode.isUnAssigned()) {
+			// Just set the type
+			if (tableNode instanceof TypeUser && sourceNode instanceof TypeProvider)
+				((TypeUser) tableNode).setAssignedType((TypeProvider) sourceNode);
+		} else {
+			// add property, set mandatory if needed
+			// if needed, create minor version of object
+			// GloballySelectNode is the navigator node (sourceNode)
+			Event event = new Event();
+			event.data = tableNode; // signals handler to add to this node
+			new AddNodeHandler2().execute(event);
+		}
+
+		// OLD CODE
 		/*
 		 * If the user did a Control DND or dropped onto a facet or on property with the same type then add a new
 		 * property. Otherwise, change the type.
 		 */
-		Node ownNode = getOwningNodeForDrop(tableNode);
-		Node newNode = tableNode.addPropertyFromDND(sourceNode, ed.isDragCopy());
-		if (newNode == null)
-			PostTypeChange.notyfications(tableNode, sourceNode);
-		else {
-			ownNode = getOwningNodeForDrop(newNode);
-			if (tableNode.getLibrary() != ownNode.getLibrary())
-				DialogUserNotifier.openInformation("Information", Messages.getString("action.component.version.minor"));
-		}
+		// Node ownNode = getOwningNodeForDrop(tableNode);
+		// Node newNode = tableNode.addPropertyFromDND(sourceNode, ed.isDragCopy());
+		// if (newNode == null)
+		// PostTypeChange.notyfications(tableNode, sourceNode);
+		// else {
+		// ownNode = getOwningNodeForDrop(newNode);
+		// if (tableNode.getLibrary() != ownNode.getLibrary())
+		// DialogUserNotifier.openInformation("Information", Messages.getString("action.component.version.minor"));
+		// }
 
-		mc.refresh(ownNode);
+		// mc.refresh(ownNode);
 	}
 
 	private void showInvalidTargetWarning() {

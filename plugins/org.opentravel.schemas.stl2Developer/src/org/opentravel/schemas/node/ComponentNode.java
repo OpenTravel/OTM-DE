@@ -792,6 +792,7 @@ public class ComponentNode extends Node {
 	 *            - force a copy even if this node does not have assigned type
 	 * @return the new node or null if the type was only assigned.
 	 */
+	@Deprecated
 	public Node addPropertyFromDND(Node sourceNode, boolean isCopy) {
 		// XSD types can only be the library member, not facets
 		if (sourceNode.isXsdType())
@@ -817,6 +818,7 @@ public class ComponentNode extends Node {
 				if (!getLibrary().isMinorVersion())
 					newNode.setMandatory(true); // make summary facet properties mandatory by default.
 		} else {
+			// Just set the type
 			if (this instanceof TypeUser && sourceNode instanceof TypeProvider)
 				((TypeUser) this).setAssignedType((TypeProvider) sourceNode);
 		}

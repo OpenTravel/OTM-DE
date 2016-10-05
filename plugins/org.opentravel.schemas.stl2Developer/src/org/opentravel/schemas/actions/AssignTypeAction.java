@@ -27,7 +27,6 @@ import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.types.PostTypeChange;
 import org.opentravel.schemas.types.TypeNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
@@ -100,15 +99,20 @@ public class AssignTypeAction extends OtmAbstractAction {
 		Node last = null;
 		boolean ret = true;
 		for (Node cn : toChange) {
-			// TEST - this can be very slow when doing 150+ nodes because the setAssigned refreshes the display
-			if (!((TypeUser) cn).setAssignedType((TypeProvider) newType)) {
-				ret = false;
+			// 10/2016 dmh - clean up logic and skip fixName since done in assign type
+			ret = ((TypeUser) cn).setAssignedType((TypeProvider) newType);
+			if (!ret)
 				DialogUserNotifier.openWarning("Warning", "Invalid type assignment");
-				// LOGGER.debug("Invalid type assigment: " + newType + " to " + cn);
-			} else {
-				// this is all notyfications() does: NodeNameUtils.fixName(cn);
-				PostTypeChange.notyfications(cn, newType);
-			}
+
+			// // TEST - this can be very slow when doing 150+ nodes because the setAssigned refreshes the display
+			// if (!((TypeUser) cn).setAssignedType((TypeProvider) newType)) {
+			// ret = false;
+			// DialogUserNotifier.openWarning("Warning", "Invalid type assignment");
+			// // LOGGER.debug("Invalid type assigment: " + newType + " to " + cn);
+			// } else {
+			// // this is all notyfications() does: NodeNameUtils.fixName(cn);
+			// PostTypeChange.notyfications(cn, newType);
+			// }
 			if (last != null && cn.getParent() != last.getParent()) {
 				last = cn;
 				OtmRegistry.getNavigatorView().refresh(last.getParent());

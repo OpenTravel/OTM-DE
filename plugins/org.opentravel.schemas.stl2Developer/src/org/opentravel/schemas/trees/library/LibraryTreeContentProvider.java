@@ -59,6 +59,11 @@ public class LibraryTreeContentProvider implements ITreeContentProvider {
 		if (element instanceof Node) {
 			Node node = (Node) element;
 			List<Node> navChildren = new ArrayList<Node>();
+			if (node.isDeleted()) {
+				LOGGER.debug("Skipping deleted node: " + node);
+				return null;
+			}
+			// TODO - delegate adding where used children
 			navChildren.addAll(node.getNavChildren());
 			if (node instanceof TypeProvider)
 				navChildren.add(((TypeProvider) node).getWhereUsedNode());

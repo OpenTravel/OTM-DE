@@ -29,21 +29,26 @@ import org.opentravel.schemas.node.controllers.NodeUtils;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Fonts;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LibraryTreeLabelProvider extends LabelProvider implements IFontProvider, IColorProvider,
 		IStyledLabelProvider {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTreeLabelProvider.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTreeLabelProvider.class);
 
 	@Override
 	public String getText(final Object element) {
 		String label = "Unknown object type.";
 		if (element instanceof INode) {
 			final Node n = (Node) element;
+			if (n.isDeleted()) {
+				LOGGER.debug("Tried to provide text for deleted node.");
+				// label += " (Deleted)"; // make debugging easier
+				return null;
+			}
 			label = n.getLabel();
-			if (n.isDeleted())
-				label += " (Deleted)"; // make debugging easier
 
-			// TODO - migrate this into node model.
+			// TODO - migrate this into decorator.
 			if (n.isLocal())
 				label = n.getName() + " [local] ";
 
@@ -112,7 +117,11 @@ public class LibraryTreeLabelProvider extends LabelProvider implements IFontProv
 
 	@Override
 	public StyledString getStyledText(Object element) {
-		return new StyledString(getText(element));
+		if (element instanceof INode) {
+			if (!((INode) element).isDeleted())
+				return new StyledString(getText(element));
+		}
+		return new StyledString("");
 	}
 
 }
