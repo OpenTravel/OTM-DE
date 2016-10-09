@@ -22,6 +22,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
@@ -33,6 +34,7 @@ import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.testUtils.LoadFiles;
@@ -101,11 +103,49 @@ public class ChoiceObjectTests {
 		}
 	}
 
-	// @Test
-	// public void mockCoreTest() {
-	// ln = mockLibrary.createNewLibrary("http://sabre.com/test", "test", defaultProject);
-	// new LibraryChainNode(ln); // Test in a chain
-	// }
+	@Test
+	public void extensionTests() {
+		// Given the choice test file with 2 choice objects
+		LibraryNode ln = new LoadFiles().loadFile_Choice(defaultProject);
+		// new LibraryChainNode(ln); // Test in a chain
+
+		ChoiceObjectNode choice = null;
+		ChoiceObjectNode extChoice = null;
+		for (Node n : ln.getDescendants_NamedTypes())
+			if (n instanceof ChoiceObjectNode) {
+				if (((ChoiceObjectNode) n).getExtensionBase() == null)
+					choice = (ChoiceObjectNode) n;
+				else
+					extChoice = (ChoiceObjectNode) n;
+			}
+		assertTrue("Must have base choice object.", choice != null);
+		assertTrue("Choice must have 3 contextual facets.", getContextualFacets(choice).size() == 3);
+		assertTrue("Must have extended choice object.", extChoice != null);
+		assertTrue("Extended choice must have 4 contextual facets.", getContextualFacets(extChoice).size() == 4);
+
+		// Given - the choice extension should work exactly like business object.
+		BusinessObjectNode bo = null;
+		BusinessObjectNode exBo = null;
+		for (Node n : ln.getDescendants_NamedTypes())
+			if (n instanceof BusinessObjectNode) {
+				if (((BusinessObjectNode) n).getExtensionBase() == null)
+					bo = (BusinessObjectNode) n;
+				else
+					exBo = (BusinessObjectNode) n;
+			}
+		assertTrue("Must have base business object.", bo != null);
+		assertTrue("BO must have 4 contextual facets.", getContextualFacets(bo).size() == 4);
+		assertTrue("Must have extended business object.", exBo != null);
+		assertTrue("Extended BO must have 6 contextual facets.", getContextualFacets(exBo).size() == 6);
+	}
+
+	private List<ContextualFacetNode> getContextualFacets(Node container) {
+		ArrayList<ContextualFacetNode> facets = new ArrayList<ContextualFacetNode>();
+		for (Node n : container.getDescendants())
+			if (n instanceof ContextualFacetNode)
+				facets.add((ContextualFacetNode) n);
+		return facets;
+	}
 
 	public void checkChoice(ChoiceObjectNode choice) {
 		Assert.assertTrue(choice instanceof ChoiceObjectNode);

@@ -19,7 +19,7 @@ import org.eclipse.core.expressions.PropertyTester;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.controllers.NodeUtils;
-import org.opentravel.schemas.node.facets.RenamableFacet;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.types.TypeUser;
 
 public class NodeTester extends PropertyTester {
@@ -61,7 +61,7 @@ public class NodeTester extends PropertyTester {
 	private boolean canDelete(Node node) {
 		// we can not use isDeleteable in RenambleFacet because it prevents delete from code. Check
 		// deleteVisitor.
-		if (node instanceof RenamableFacet) {
+		if (node instanceof ContextualFacetNode) {
 			return !NodeUtils.checker(node).isInheritedFacet().get();
 		} else {
 			return node.isDeleteable();

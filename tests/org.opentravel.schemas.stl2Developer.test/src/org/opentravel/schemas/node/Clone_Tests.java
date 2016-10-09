@@ -182,20 +182,27 @@ public class Clone_Tests {
 		LoadFiles lf = new LoadFiles();
 		model = mc.getModelNode();
 
+		// Test cloning to the same library.
+		//
 		LibraryNode source = lf.loadFile5Clean(mc);
 		new LibraryChainNode(source); // Test in a chain
 		// test cloning within library.
 		source.setEditable(true);
+		Node.getModelNode().visitAllNodes(tt.new TestNode());
 		cloneMembers(source, source);
 
 		LOGGER.debug("Testing cloning properties.");
 		for (Node ne : source.getDescendants_NamedTypes())
 			cloneProperties(ne);
 		tt.visitAllNodes(source);
+		Node.getModelNode().visitAllNodes(tt.new TestNode());
 
+		// Test cloning to a different library
+		//
 		// commented some libs out to keep the total time down
 		LibraryNode target = lf.loadFile1(mc);
 		new LibraryChainNode(target); // Test in a chain
+		Node.getModelNode().visitAllNodes(tt.new TestNode());
 		lf.loadTestGroupA(mc);
 
 		lf.cleanModel();

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:Library
+    xmlns:ns2="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06 OTA2_LibraryModel_v1.6.0.xsd">
+    
+    <ns2:VersionScheme>OTA2</ns2:VersionScheme>
+    <ns2:Status>Draft</ns2:Status>
+    <ns2:Namespace>http://local/junits/tests/choice/v0</ns2:Namespace>
+    <ns2:Prefix>c</ns2:Prefix>
+    <ns2:Name>testFile_Choice1</ns2:Name>
+    <ns2:Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
+    <ns2:Context
+        applicationContext="http://local/junits/tests/choice/v0" context="c"/>
+    <ns2:ChoiceObject name="BaseChoice" notExtendable="false">
+        <ns2:Aliases/>
+        <ns2:Shared>
+            <ns2:Attribute name="property3" referenceRepeat="0" type="xsd:string"/>
+            <ns2:Element name="Property1" repeat="0" type="xsd:string"/>
+            <ns2:Indicator name="property2Ind" publishAsElement="false"/>
+        </ns2:Shared>
+    </ns2:ChoiceObject>
+    <ns2:ChoiceObject name="ExtChoice" notExtendable="false">
+        <ns2:Extension extends="BaseChoice"/>
+        <ns2:Aliases/>
+        <ns2:Shared>
+            <ns2:Element name="ESString" repeat="0" type="xsd:string"/>
+        </ns2:Shared>
+    </ns2:ChoiceObject>
+    
+    <ns2:BusinessObject name="BOBase" notExtendable="false">
+        <ns2:Aliases/>
+        <ns2:ID>
+            <ns2:Element name="String" repeat="0" type="xsd:string"/>
+        </ns2:ID>
+        <ns2:Summary>
+            <ns2:Element mandatory="true" name="SumString" repeat="0" type="xsd:string"/>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Element name="DetailString" repeat="0" type="xsd:string"/>
+        </ns2:Detail>
+    </ns2:BusinessObject>
+    
+    <ns2:BusinessObject name="BOExtension" notExtendable="false">
+        <ns2:Extension extends="BOBase"/>
+        <ns2:Aliases/>
+        <ns2:ID>
+            <ns2:Element name="ExString" repeat="0" type="xsd:string"/>
+        </ns2:ID>
+        <ns2:Summary>
+            <ns2:Element mandatory="true" name="ExSumString" repeat="0" type="xsd:string"/>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Element name="ExDetailString" repeat="0" type="xsd:string"/>
+        </ns2:Detail>
+    </ns2:BusinessObject>
+    <ns2:ContextualFacet facetOwner="BOBase" name="BaseCustom1"
+        notExtendable="false" type="Custom">
+        <ns2:Element name="C1String" repeat="0" type="xsd:string"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="BOBase" name="BaseCustom2"
+        notExtendable="false" type="Custom">
+        <ns2:Element name="C2String" repeat="0" type="xsd:string"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="BOBase" name="BaseQuery1"
+        notExtendable="false" type="Query">
+        <ns2:Element name="Q1String" repeat="0" type="xsd:string"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="BOBase" name="BaseQuery2"
+        notExtendable="false" type="Query">
+        <ns2:Element name="Q2String" repeat="0" type="xsd:string"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="BOExtension" name="BaseCustom1"
+        notExtendable="false" type="Custom"/>
+    <ns2:ContextualFacet facetOwner="BOExtension" name="BaseCustom2"
+        notExtendable="false" type="Custom"/>
+    <ns2:ContextualFacet facetOwner="BOExtension" name="ExCustom1"
+        notExtendable="false" type="Custom">
+        <ns2:Element name="ExC1String" repeat="0" type="xsd:string"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="BOExtension" name="BaseQuery1"
+        notExtendable="false" type="Query"/>
+    <ns2:ContextualFacet facetOwner="BOExtension" name="BaseQuery2"
+        notExtendable="false" type="Query"/>
+    <ns2:ContextualFacet facetOwner="BOExtension" name="ExQuery1"
+        notExtendable="false" type="Query">
+        <ns2:Element name="ExQ1String" repeat="0" type="xsd:string"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="BaseChoice" name="A"
+        notExtendable="false" type="Choice">
+        <ns2:Element name="StringA" repeat="0" type="xsd:string"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="BaseChoice" name="B"
+        notExtendable="false" type="Choice">
+        <ns2:Element name="StringB" repeat="0" type="xsd:string"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="BaseChoice" name="C"
+        notExtendable="false" type="Choice">
+        <ns2:Attribute name="cString" referenceRepeat="0" type="xsd:string"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="ExtChoice" name="A"
+        notExtendable="false" type="Choice">
+        <ns2:Element name="EAString" repeat="0" type="xsd:string"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="ExtChoice" name="B"
+        notExtendable="false" type="Choice">
+        <ns2:Element name="EBString" repeat="0" type="xsd:string"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="ExtChoice" name="ExC"
+        notExtendable="false" type="Choice">
+        <ns2:Element name="ExCString" repeat="0" type="xsd:string"/>
+    </ns2:ContextualFacet>
+    
+</ns2:Library>

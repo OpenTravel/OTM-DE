@@ -37,7 +37,7 @@ import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.OperationFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
-import org.opentravel.schemas.node.facets.RenamableFacet;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -196,8 +196,8 @@ public class NodeUtils {
 
 				@Override
 				public boolean match() {
-					if (node instanceof RenamableFacet) {
-						RenamableFacet f = (RenamableFacet) node;
+					if (node instanceof ContextualFacetNode) {
+						ContextualFacetNode f = (ContextualFacetNode) node;
 						if (f.getModelObject() instanceof FacetMO) {
 							FacetMO ff = (FacetMO) f.getModelObject();
 							return ff.isInherited();

@@ -243,9 +243,11 @@ public class FacetMO extends ModelObject<TLFacet> {
 		case SUMMARY:
 			return "Summary-Facet";
 		case SHARED:
-			return "Shared";
+			return "Shared-Facet";
 		case CHOICE:
-			return "Choice";
+			return "Choice-Facet";
+		case UPDATE:
+			return "Update-Facet";
 		}
 		LOGGER.debug("Warning: missing facet display name for facet of type: " + facetType);
 		// should never happen. Make sure that switch cover all cases.
@@ -259,6 +261,7 @@ public class FacetMO extends ModelObject<TLFacet> {
 
 	@Override
 	public String getLabel() {
+		// 10/2016 dmh - override getLabel() in ContextualFacetNode
 		String label = getDisplayName(srcObj.getFacetType());
 		if (srcObj.getFacetType().equals(TLFacetType.CUSTOM) || srcObj.getFacetType().equals(TLFacetType.QUERY)) {
 			label = XsdCodegenUtils.getGlobalTypeName(getTLModelObj());
@@ -284,15 +287,16 @@ public class FacetMO extends ModelObject<TLFacet> {
 		// Custom and query facets report the wrong name, so use their local name (Jan 11, 2013)
 		if (getTLModelObj().getFacetType().equals(TLFacetType.SUMMARY))
 			name = name + "_" + TLFacetType.SUMMARY.getIdentityName();
-
-		else if (getTLModelObj().getFacetType().equals(TLFacetType.QUERY))
-			name = getTLModelObj().getLocalName();
 		else if (getTLModelObj().getOwningEntity() == null)
 			name = ""; // bug fix for xsdCodegenUtils.getFacetTypeName
-		else if (getTLModelObj().getFacetType().equals(TLFacetType.CUSTOM)) {
-			TLFacetOwner x = getTLModelObj().getOwningEntity();
-			name = getTLModelObj().getLocalName();
-		}
+
+		// 10/2016 - dmh - query and custom extend contextualFacet which overrides getName()
+		// else if (getTLModelObj().getFacetType().equals(TLFacetType.QUERY))
+		// name = getTLModelObj().getLocalName();
+		// else if (getTLModelObj().getFacetType().equals(TLFacetType.CUSTOM)) {
+		// TLFacetOwner x = getTLModelObj().getOwningEntity();
+		// name = getTLModelObj().getLocalName();
+		// }
 
 		return name == null ? getTLModelObj().getContext() : name;
 	}

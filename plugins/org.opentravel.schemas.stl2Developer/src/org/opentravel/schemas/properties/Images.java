@@ -48,6 +48,8 @@ public class Images {
 	public static final String CoreObject = "CoreObjectMO";
 	public static final String ChoiceObject = "ChoiceObject";
 	public static final String Facet = "Facet";
+	public static final String ContextualFacet = "ContextualFacet";
+	public static final String ContributedFacet = "ContributedFacet";
 
 	public static final String Folder = "folder";
 	public static final String Resources = "Resources";
@@ -123,6 +125,10 @@ public class Images {
 		image_registry.put(ChoiceObject, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/Choice.gif"));
 		image_registry.put(Facet, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/Facet.gif"));
 		image_registry.put(RoleValue, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/RoleValue.jpg"));
+		image_registry.put(ContextualFacet,
+				AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/Facet-contextual.gif"));
+		image_registry.put(ContributedFacet,
+				AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/Facet-contrib.gif"));
 
 		image_registry.put("aggregateFolder",
 				AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/aggregateFolder.gif"));

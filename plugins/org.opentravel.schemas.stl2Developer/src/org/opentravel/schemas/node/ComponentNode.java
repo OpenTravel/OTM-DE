@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
@@ -146,8 +147,13 @@ public class ComponentNode extends Node {
 		childrenInitialized = true;
 
 		// Build list of direct children of the model object
+		ComponentNode nn = null;
 		for (final Object obj : modelObject.getChildren()) {
-			final ComponentNode nn = NodeFactory.newComponentMember(this, obj);
+			if (obj instanceof TLContextualFacet && !((TLContextualFacet) obj).isLocalFacet()) {
+				LOGGER.debug("skipping contributed facet: ");
+				continue;
+			}
+			nn = NodeFactory.newComponentMember(this, obj);
 			if (nn != null)
 				nn.addMOChildren();
 		}
@@ -912,6 +918,10 @@ public class ComponentNode extends Node {
 	@Override
 	public void sort() {
 		getModelObject().sort();
+	}
+
+	public void setContext() {
+		// Override where needed
 	}
 
 }

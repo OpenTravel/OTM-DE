@@ -36,14 +36,11 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.controllers.NodeUtils;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
-import org.opentravel.schemas.node.properties.AttributeNode;
-import org.opentravel.schemas.node.properties.ElementNode;
-import org.opentravel.schemas.node.properties.ElementReferenceNode;
-import org.opentravel.schemas.node.properties.IndicatorElementNode;
-import org.opentravel.schemas.node.properties.IndicatorNode;
+import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.Fonts;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.ColorProvider;
@@ -187,11 +184,13 @@ public class LibraryTablePoster {
 				item.setText(separator);
 				item.setBackground(colorProvider.getColor(SWT.COLOR_GRAY));
 				item.setData(n);
-				if (n.isInheritedProperty() || NodeUtils.checker(n).isInheritedFacet().get()) {
+				if (n.isInheritedProperty())
 					decorateInheritedItem(item);
-				} else {
+				else if (n instanceof ContextualFacetNode && !((ContextualFacetNode) n).isLocal())
+					decorateContributedItem(item, n);
+				else
 					item.setForeground(colorProvider.getColor(SWT.COLOR_DARK_BLUE));
-				}
+
 			}
 
 			// Sort the table rows
@@ -202,14 +201,16 @@ public class LibraryTablePoster {
 			}
 			children = sort(children);
 			for (final Node cn : children) {
-				if (cn instanceof ElementReferenceNode) {
+				if (cn instanceof PropertyNode) {
 					postTableRow(cn);
-				} else if (cn instanceof IndicatorNode) {
-					postTableRow(cn);
-				} else if (cn instanceof AttributeNode) {
-					postTableRow(cn);
-				} else if ((cn instanceof ElementNode) || (cn instanceof IndicatorElementNode)) {
-					postTableRow(cn);
+					// if (cn instanceof ElementReferenceNode) {
+					// postTableRow(cn);
+					// } else if (cn instanceof IndicatorNode) {
+					// postTableRow(cn);
+					// } else if (cn instanceof AttributeNode) {
+					// postTableRow(cn);
+					// } else if ((cn instanceof ElementNode) || (cn instanceof IndicatorElementNode)) {
+					// postTableRow(cn);
 				} else if (cn instanceof FacetNode) {
 					postTableRows(cn, cn.getLabel());
 				} else if (!(cn instanceof FacetNode) && !(cn instanceof AliasNode)) {
@@ -218,6 +219,13 @@ public class LibraryTablePoster {
 			}
 
 		}
+	}
+
+	private void decorateContributedItem(TableItem item, Node n) {
+		item.setImage(0, n.getImage());
+		item.setFont(Fonts.getFontRegistry().get(Fonts.inheritedItem));
+		item.setForeground(colorProvider.getColor(SWT.COLOR_DARK_RED));
+		item.setGrayed(true);
 	}
 
 	private void decorateInheritedItem(TableItem item) {

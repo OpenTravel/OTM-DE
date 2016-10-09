@@ -26,6 +26,7 @@ import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
@@ -98,9 +99,9 @@ public class LibrarySorter extends ViewerSorter {
 			return 0;
 
 		if (n instanceof TypeUserNode)
-			return 101;
+			return 701;
 		if (n instanceof TypeNode)
-			return 100;
+			return 700;
 
 		if (n instanceof ProjectNode) {
 			if (n.isEditable())
@@ -138,6 +139,8 @@ public class LibrarySorter extends ViewerSorter {
 				return inheritAdjust + 300;
 			}
 		}
+		if (n instanceof ContributedFacetNode)
+			return 600; // after the properties
 
 		if (n instanceof AliasNode)
 			return 0;

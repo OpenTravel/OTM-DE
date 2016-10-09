@@ -51,6 +51,10 @@ public class LoadFiles {
 	private String path5c = "Resources" + File.separator + "testFile5-Clean.otm";
 	private String path6 = "Resources" + File.separator + "testFile6.otm";
 	private String path7 = "Resources" + File.separator + "testFile7.otm";
+	private String contextFile1 = "Resources" + File.separator + "base_library.otm";
+	private String contextFile2 = "Resources" + File.separator + "facets1_library.otm";
+	private String contextFile3 = "Resources" + File.separator + "facets2_library.otm";
+	private String choiceFile1 = "Resources" + File.separator + "testFile_Choice1.otm";
 
 	private MainController mc;
 	private int nodeCount = 0;
@@ -256,6 +260,34 @@ public class LoadFiles {
 	 */
 	public LibraryNode loadFile7(ProjectNode project) {
 		return loadFile(project, path7);
+	}
+
+	/**
+	 * No Errors with contextual facets.
+	 */
+	public LibraryNode loadFile_FacetBase(ProjectNode project) {
+		return loadFile(project, contextFile1);
+	}
+
+	/**
+	 * No Errors with contextual facets.
+	 */
+	public LibraryNode loadFile_Choice(ProjectNode project) {
+		return loadFile(project, choiceFile1);
+	}
+
+	/**
+	 * No Errors with contextual facets.
+	 */
+	public LibraryNode loadFile_Facets1(ProjectNode project) {
+		return loadFile(project, contextFile2);
+	}
+
+	/**
+	 * No Errors with contextual facets.
+	 */
+	public LibraryNode loadFile_Facets2(ProjectNode project) {
+		return loadFile(project, contextFile3);
 	}
 
 	/**

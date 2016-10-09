@@ -202,15 +202,15 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 		List<Node> namedTypes = ln.getDescendants_NamedTypes();
 		for (Node n : namedTypes) {
 			// LOGGER.debug("Testing: " + n);
-			if (n instanceof ExtensionOwner) {
-				LOGGER.debug("Extension owner: " + n);
-				Node nc = NodeFactory.newComponentMember(n, eln, n.getName());
-				assertNotNull(nc.getLibrary());
-				if (nc instanceof ExtensionOwner)
-					((ExtensionOwner) nc).setExtension(n);
-				assertNotNull(((ExtensionOwner) nc).getExtensionBase());
-				assertEquals(n, ((ExtensionOwner) nc).getExtensionBase());
-			}
+			// if (n instanceof ExtensionOwner) {
+			// LOGGER.debug("Extension owner: " + n);
+			// Node nc = NodeFactory.newComponentMember(n, eln, n.getName());
+			// assertNotNull(nc.getLibrary());
+			// if (nc instanceof ExtensionOwner)
+			// ((ExtensionOwner) nc).setExtension(n);
+			// assertNotNull(((ExtensionOwner) nc).getExtensionBase());
+			// assertEquals(n, ((ExtensionOwner) nc).getExtensionBase());
+			// }
 		}
 	}
 

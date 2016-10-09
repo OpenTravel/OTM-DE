@@ -305,6 +305,7 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 		((PropertyNode) property).removeProperty();
 	}
 
+	@Deprecated
 	public void setContext(final String context) {
 		if (!isEditable_newToChain())
 			return;

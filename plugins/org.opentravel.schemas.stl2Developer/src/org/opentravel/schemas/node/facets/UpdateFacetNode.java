@@ -16,23 +16,28 @@
 package org.opentravel.schemas.node.facets;
 
 import org.opentravel.schemacompiler.model.TLContextualFacet;
-import org.opentravel.schemacompiler.model.TLFacetType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Used for Custom Facets.
+ * Contextual Facets.
+ * 
+ * These facets extend a business or choice object. They may or may not be in the same library
+ * 
+ * Contextual facet extends TLFacet and TLModelElement (not TLLibraryMember)
  * 
  * @author Dave Hollander
  * 
  */
-public class CustomFacetNode extends ContextualFacetNode {
+public class UpdateFacetNode extends ContextualFacetNode {
+	private static final Logger LOGGER = LoggerFactory.getLogger(UpdateFacetNode.class);
 
 	// Testing constructor
-	public CustomFacetNode() {
+	public UpdateFacetNode() {
 		super(new TLContextualFacet());
-		((TLContextualFacet) getTLModelObject()).setFacetType(TLFacetType.CUSTOM);
 	}
 
-	public CustomFacetNode(TLContextualFacet tlObj) {
+	public UpdateFacetNode(TLContextualFacet tlObj) {
 		super(tlObj);
 	}
 

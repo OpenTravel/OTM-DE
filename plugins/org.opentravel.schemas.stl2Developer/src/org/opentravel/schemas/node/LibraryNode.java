@@ -50,10 +50,12 @@ import org.opentravel.schemacompiler.repository.RemoteRepository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.util.ContextUtils;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemacompiler.util.URLUtils;
 import org.opentravel.schemas.controllers.ContextController;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
@@ -629,6 +631,8 @@ public class LibraryNode extends Node {
 		// LOGGER.debug("Linking node: "+n.getName());
 		if (n instanceof ComplexComponentInterface)
 			linkOK = complexRoot.linkChild(n);
+		else if (n instanceof ContextualFacetNode)
+			linkOK = complexRoot.linkChild(n);
 		else if (n instanceof SimpleComponentInterface)
 			linkOK = simpleRoot.linkChild(n);
 		else if (n instanceof ResourceNode) {
@@ -771,12 +775,16 @@ public class LibraryNode extends Node {
 	private void generateLibrary(final TLLibrary tlLib) {
 		for (final LibraryMember mbr : tlLib.getNamedMembers()) {
 			ComponentNode n = (ComponentNode) GetNode(mbr);
-			// ComponentNode n = (ComponentNode) getNodeIfInThisLib(mbr);
 			if (mbr instanceof TLContextualFacet) {
-				// extends facet not TLLibraryMember
-
-				LOGGER.debug("Do something with contextual facet: " + mbr.getLocalName()
-						+ ((TLContextualFacet) mbr).isLocalFacet());
+				// OTM16Upgrade.otm16Enabled = true;
+				if (OTM16Upgrade.otm16Enabled) {
+					if (!((TLContextualFacet) mbr).isLocalFacet()) {
+						ContextualFacetNode cf = NodeFactory.createFacet((TLContextualFacet) mbr);
+						cf.print();
+						addMember(cf);
+					}
+				} else
+					LOGGER.debug("Skipping contextual facet: " + mbr.getLocalName());
 			} else if (mbr instanceof TLService) {
 				if (n instanceof ServiceNode)
 					((ServiceNode) n).link((TLService) mbr, this);
@@ -793,10 +801,7 @@ public class LibraryNode extends Node {
 				// node. Otherwise create new ones.
 				if (n == null)
 					n = NodeFactory.newComponent_UnTyped((TLLibraryMember) mbr);
-				// else
-				// LOGGER.debug("Used listener to generate: " + n.getNameWithPrefix());
 				linkMember(n);
-				// done in linkMember() - n.setLibrary(this);
 			}
 		}
 		new TypeResolver().resolveTypes(); // TODO - this is run too often
@@ -860,7 +865,8 @@ public class LibraryNode extends Node {
 			LOGGER.warn("Tried to addMember() a null member: " + n);
 			return;
 		}
-		if (!(n.getTLModelObject() instanceof TLLibraryMember)) {
+		// if (!(n.getTLModelObject() instanceof TLLibraryMember)) {
+		if (!(n.getTLModelObject() instanceof LibraryMember)) {
 			LOGGER.warn("Tried to addMember() a non-library member: " + n);
 			return;
 		}
@@ -882,7 +888,7 @@ public class LibraryNode extends Node {
 			n.removeFromLibrary();
 
 		// TL Library - Make sure the node's tl object is in the right tl library.
-		TLLibraryMember tln = (TLLibraryMember) n.getTLModelObject(); // cast checked above
+		LibraryMember tln = (LibraryMember) n.getTLModelObject(); // cast checked above
 		if (tln.getOwningLibrary() == null)
 			getTLLibrary().addNamedMember(tln);
 		else if (tln.getOwningLibrary() != getTLLibrary()) {
@@ -1643,6 +1649,7 @@ public class LibraryNode extends Node {
 	 * Get all type providers within library. Includes simple and complex objects only. Does NOT return any
 	 * local-anonymous types. // FIXME - this method also is in Node. One in node does not include services.
 	 * 
+	 * @see Node.getDescendants_NamedTypes()
 	 * @return
 	 */
 	@Deprecated

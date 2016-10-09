@@ -54,6 +54,8 @@ import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.ExtensionHandler;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Dave Hollander
@@ -62,7 +64,7 @@ import org.opentravel.schemas.types.TypeUser;
 public class BusinessObjectNode extends TypeProviderBase implements ComplexComponentInterface, ExtensionOwner,
 		VersionedObjectInterface, LibraryMemberInterface, TypeProvider {
 
-	// private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
 	private ExtensionHandler extensionHandler = null;
 
 	public BusinessObjectNode(TLLibraryMember mbr) {
@@ -71,15 +73,17 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 
 		extensionHandler = new ExtensionHandler(this);
 
-		if (getModelObject() == null) {
-			// LOGGER.debug("Missing model object on business object: " + this);
-			return;
-		}
+		assert getModelObject() != null;
+		// if (getModelObject() == null) {
+		// // LOGGER.debug("Missing model object on business object: " + this);
+		// return;
+		// }
 
 		getModelObject().addPropertyChangeListener(new PropertyChangeListener() {
 
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
+				LOGGER.debug("Property Change event on busness object " + this);
 				if (Events.FACET_ADDED.toString().equals(evt.getPropertyName())) {
 					createNewFacet(BusinessObjectNode.this, evt.getNewValue());
 				} else if (Events.FACET_UPDATED.toString().equals(evt.getPropertyName())) {
@@ -131,6 +135,11 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 		setDocumentation(vwa.getDocumentation());
 
 		getSummaryFacet().copyFacet((FacetNode) vwa.getAttributeFacet());
+	}
+
+	@Override
+	public TLBusinessObject getTLModelObject() {
+		return (TLBusinessObject) modelObject.getTLModelObj();
 	}
 
 	@Override

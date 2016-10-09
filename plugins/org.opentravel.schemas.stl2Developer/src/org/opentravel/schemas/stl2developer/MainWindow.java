@@ -29,6 +29,7 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.ContextController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.views.NavigatorView;
@@ -66,6 +67,11 @@ public class MainWindow extends ViewPart implements ISelectionListener {
 
 	public MainWindow() {
 		LOGGER.info("Main Window constructor ran. " + this.getClass());
+
+		// Testing 1.6 support
+		// OTM16Upgrade.otm16Enabled = true;
+		OTM16Upgrade.otm16Enabled = false;
+
 		try {
 			// IWorkbench x = PlatformUI.getWorkbench();
 			mainDisplay = PlatformUI.getWorkbench().getDisplay();

@@ -438,17 +438,21 @@ public class TestTypes {
 		}
 	}
 
+	/**
+	 * Examine all objects under SimpleRoot and return count.
+	 * 
+	 * @param ln
+	 * @return
+	 */
 	public int testSimples(LibraryNode ln) {
 		int simpleCnt = 0;
 		for (Node sn : ln.getSimpleRoot().getChildren()) {
-			if (sn.isSimpleType()) {
-				simpleCnt++;
-				Assert.assertNotNull(((TypeUser) sn).getAssignedType());
-				if (((TypeUser) sn).getAssignedType() instanceof ImpliedNode) {
-					boolean x = ((TypeUser) sn).getAssignedType() instanceof ImpliedNode;
-				}
-				Assert.assertFalse(((TypeUser) sn).getAssignedType() instanceof ImpliedNode);
-			}
+			assertTrue("Must be simple type.", sn.isSimpleType());
+			assertTrue("Must be a type user.", sn instanceof TypeUser);
+			assertTrue("Must have assigned type.", ((TypeUser) sn).getAssignedType() != null);
+			assertTrue("Must not be assigned implied type.",
+					!(((TypeUser) sn).getAssignedType() instanceof ImpliedNode));
+			simpleCnt++;
 		}
 		return simpleCnt;
 	}

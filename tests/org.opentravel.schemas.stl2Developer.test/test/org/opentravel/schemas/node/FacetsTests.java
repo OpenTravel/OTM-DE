@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLAbstractFacet;
 import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLListFacet;
@@ -35,21 +36,25 @@ import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemacompiler.repository.Repository;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.modelObject.TLValueWithAttributesFacet;
 import org.opentravel.schemas.node.facets.ChoiceFacetNode;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.facets.OperationFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
-import org.opentravel.schemas.node.facets.RenamableFacet;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
+import org.opentravel.schemas.node.facets.UpdateFacetNode;
 import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -210,8 +215,8 @@ public class FacetsTests {
 	private void classBasedTests(LibraryNode lib) {
 		LOGGER.debug("Checking query facets in " + lib);
 		for (Node n : lib.getDescendants()) {
-			if (n instanceof RenamableFacet)
-				checkFacet((RenamableFacet) n);
+			if (n instanceof ContextualFacetNode)
+				checkFacet((ContextualFacetNode) n);
 			else if (n instanceof SimpleFacetNode)
 				checkFacet((SimpleFacetNode) n);
 			else if (n instanceof OperationFacetNode)
@@ -227,6 +232,121 @@ public class FacetsTests {
 			else if (n instanceof FacetNode)
 				checkBaseFacet((FacetNode) n);
 		}
+	}
+
+	@Test
+	public void otm16EnabledTests() {
+		OTM16Upgrade.otm16Enabled = true;
+
+		// Given libraries loaded from file that contain contextual facets
+		// NOTE: load order is important if the compiler is to resolve contributors
+		lf.loadFile_Facets1(defaultProject);
+		lf.loadFile_Facets2(defaultProject);
+		LibraryNode base = lf.loadFile_FacetBase(defaultProject);
+
+		// Then libraries must have contextual facets and those facets must have owners.
+		for (LibraryNode ln : defaultProject.getLibraries()) {
+			List<ContextualFacetNode> facets = getContextualFacets(ln);
+			assertTrue("Must have some contextual facets.", !facets.isEmpty());
+			for (ContextualFacetNode cf : facets) {
+				assertTrue("Must have owner.", cf.getOwningComponent() != null);
+			}
+		}
+
+		// Then - check contributions to objects in the base library
+		//
+		// FacetTestBO must have 4 contextual facets. 2 local and 2 contributed
+		checkFacetContents(base, "FacetTestBO", 2, 2);
+		// extended BO must have 4 contextual facets as children and no inherited
+		checkFacetContents(base, "ExtFacetTestBO", 2, 2);
+		// FacetTestChoice must have 2 choice facets. One from base library and one local and one from lib1
+		checkFacetContents(base, "FacetTestChoice", 1, 1);
+		// extended choice must have 4 contextual facets as children and no inherited
+		checkFacetContents(base, "ExtFacetTestChoice", 1, 1);
+
+		// Then extensions must have inherited children
+		for (Node n : base.getDescendants_NamedTypes()) {
+			if (n instanceof ExtensionOwner)
+				if (((ExtensionOwner) n).getExtensionBase() != null) {
+					// Contextual facets should all have inherited properties
+					for (Node cf : n.getChildren())
+						if (cf instanceof ContextualFacetNode) {
+							List<?> moKids = ((FacetMO) cf.getModelObject()).getInheritedChildren();
+							List<Node> iKids = cf.getInheritedChildren();
+							LOGGER.debug(cf + " has " + moKids.size() + " inherited model kids and " + iKids.size()
+									+ " inherited kids.");
+							assertTrue("Must have inherited children.", !cf.getInheritedChildren().isEmpty());
+						}
+				}
+		}
+	}
+
+	private List<ContextualFacetNode> getContextualFacets(Node container) {
+		ArrayList<ContextualFacetNode> facets = new ArrayList<ContextualFacetNode>();
+		for (Node n : container.getDescendants())
+			if (n instanceof ContextualFacetNode)
+				facets.add((ContextualFacetNode) n);
+		return facets;
+	}
+
+	private void checkFacetContents(Node base, String targetName, int local, int contributed) {
+		int localCnt = 0, contributedCnt = 0;
+		int total = local + contributed;
+		for (Node n : base.getDescendants_NamedTypes())
+			if (n.getName().equals(targetName)) {
+				List<ContextualFacetNode> facets = getContextualFacets(n);
+				assertTrue(targetName + " must have " + total + " contextual facets.", facets.size() == total);
+				assertTrue(targetName + " must not have inherited children.", n.getInheritedChildren().isEmpty());
+				for (ContextualFacetNode cf : facets)
+					if (cf.isLocal())
+						localCnt++;
+					else
+						contributedCnt++;
+				assertTrue(targetName + " must have " + local + " local contextual facets.", localCnt == local);
+				assertTrue(targetName + " must have " + contributed + " contributed facets.",
+						contributedCnt == contributed);
+			}
+	}
+
+	@Test
+	public void otm16EnabledTests_Constructors() {
+		OTM16Upgrade.otm16Enabled = true;
+		// Given a versioned library
+		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
+		LibraryNode ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
+		new LibraryChainNode(ln_inChain);
+		ln_inChain.setEditable(true);
+		assertTrue("Library must exist.", ln != null);
+		assertTrue("Library must exist.", ln_inChain != null);
+
+		// Create each of the contextual facets
+		TLContextualFacet tlObj = new TLContextualFacet();
+		ContextualFacetNode cf = null;
+		ContextualFacetNode cfFactory = null;
+
+		tlObj.setFacetType(TLFacetType.CUSTOM);
+		cf = new CustomFacetNode(tlObj);
+		cfFactory = NodeFactory.createFacet(tlObj);
+		assertTrue("Must not be null.", cf != null);
+		assertTrue("Must not be null.", cfFactory != null);
+
+		tlObj.setFacetType(TLFacetType.QUERY);
+		cf = new QueryFacetNode(tlObj);
+		cfFactory = NodeFactory.createFacet(tlObj);
+		assertTrue("Must not be null.", cf != null);
+		assertTrue("Must not be null.", cfFactory != null);
+
+		tlObj.setFacetType(TLFacetType.CHOICE);
+		cf = new ChoiceFacetNode(tlObj);
+		cfFactory = NodeFactory.createFacet(tlObj);
+		assertTrue("Must not be null.", cf != null);
+		assertTrue("Must not be null.", cfFactory != null);
+
+		tlObj.setFacetType(TLFacetType.UPDATE);
+		cf = new UpdateFacetNode(tlObj);
+		cfFactory = NodeFactory.createFacet(tlObj);
+		assertTrue("Must not be null.", cf != null);
+		assertTrue("Must not be null.", cfFactory != null);
 	}
 
 	@Test
@@ -381,22 +501,22 @@ public class FacetsTests {
 		assertTrue("Must be delete-able.", qn.isDeleteable());
 	}
 
-	public void checkFacet(RenamableFacet rf) {
-		LOGGER.debug("Checking rename-able Facet: " + rf);
+	public void checkFacet(ContextualFacetNode rf) {
+		LOGGER.debug("Checking Contextual Facet: " + rf);
 		final String NEWCONTEXT = "myContext"; // must be ignored
 		final String NEWNAME = "myName";
 
 		assertTrue("Must be renamable.", rf.isRenameable());
 
 		// setContext()
-		// String dc = rf.getLibrary().getDefaultContextId();
-		// String fc = ((TLFacet) rf.getTLModelObject()).getContext();
+		String dc = rf.getLibrary().getDefaultContextId();
+		String fc = rf.getTLModelObject().getContext();
 		// assertTrue("Initial context must be default context.",
 		// rf.getLibrary().getDefaultContextId().equals(((TLFacet) rf.getTLModelObject()).getContext()));
-		rf.setContext(NEWCONTEXT);
-		// fc = ((TLFacet) rf.getTLModelObject()).getContext();
+		rf.setContext(NEWCONTEXT); // ignored!
+		fc = rf.getTLModelObject().getContext();
 		assertTrue("Context must be set to default.",
-				rf.getLibrary().getDefaultContextId().equals(((TLFacet) rf.getTLModelObject()).getContext()));
+				rf.getLibrary().getDefaultContextId().equals(rf.getTLModelObject().getContext()));
 
 		// setName()
 		//
@@ -430,8 +550,15 @@ public class FacetsTests {
 			checkFacet((QueryFacetNode) rf);
 		else if (rf instanceof CustomFacetNode)
 			checkFacet((CustomFacetNode) rf);
+		else if (rf instanceof UpdateFacetNode)
+			checkFacet((UpdateFacetNode) rf);
 		else if (rf instanceof ChoiceFacetNode)
 			checkFacet((ChoiceFacetNode) rf);
+	}
+
+	public void checkFacet(UpdateFacetNode qn) {
+		LOGGER.debug("Checking contextual Facet: " + qn);
+		assertTrue("Must be delete-able.", qn.isDeleteable());
 	}
 
 	public void checkFacet(CustomFacetNode qn) {

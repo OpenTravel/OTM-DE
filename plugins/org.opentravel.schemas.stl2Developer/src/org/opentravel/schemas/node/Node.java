@@ -45,7 +45,6 @@ import org.opentravel.schemacompiler.model.TLDocumentationItem;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 import org.opentravel.schemacompiler.model.TLEquivalentOwner;
 import org.opentravel.schemacompiler.model.TLExampleOwner;
-import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
@@ -63,13 +62,13 @@ import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.modelObject.XSDComplexMO;
 import org.opentravel.schemas.modelObject.XSDElementMO;
 import org.opentravel.schemas.modelObject.XSDSimpleMO;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.facets.OperationFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
-import org.opentravel.schemas.node.facets.RenamableFacet;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
@@ -694,9 +693,9 @@ public abstract class Node implements INode {
 	public String getName() {
 		if (modelObject == null)
 			return "";
-		if (modelObject.getTLModelObj() instanceof TLFacet
-				&& ((TLFacet) modelObject.getTLModelObj()).getOwningEntity() == null)
-			return "";
+		// if (modelObject.getTLModelObj() instanceof TLFacet
+		// && ((TLFacet) modelObject.getTLModelObj()).getOwningEntity() == null)
+		// return "";
 		return modelObject.getName() == null ? "" : modelObject.getName();
 	}
 
@@ -1002,7 +1001,7 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * @return the inherited field value or else false
+	 * @return the inherited field value or else false. If contextual facet checks the model object.
 	 */
 	public boolean isInheritedProperty() {
 		return false;
@@ -1251,6 +1250,9 @@ public abstract class Node implements INode {
 			return isEditable_isNewOrAsMinor();
 
 		if (this instanceof ExtensionPointNode)
+			return isEditable_newToChain();
+
+		if (this instanceof ContextualFacetNode)
 			return isEditable_newToChain();
 
 		// Facets - same as parent unless a simple or list
@@ -2050,8 +2052,8 @@ public abstract class Node implements INode {
 		if (this instanceof PropertyNode && ((PropertyNode) this).getExampleHandler() != null)
 			((PropertyNode) this).getExampleHandler().fix(targetId);
 
-		if (this instanceof RenamableFacet)
-			((RenamableFacet) this).setContext(targetId);
+		if (this instanceof ContextualFacetNode)
+			((ContextualFacetNode) this).setContext(targetId);
 
 		if (getDocumentation() != null && getDocumentation().getOtherDocs() != null) {
 			// Avoid concurrent modification

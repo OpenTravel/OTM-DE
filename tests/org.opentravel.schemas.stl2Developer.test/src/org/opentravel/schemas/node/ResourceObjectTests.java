@@ -27,7 +27,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
@@ -75,11 +74,11 @@ public class ResourceObjectTests {
 		Node node = bo;
 		TLResource mbr = new TLResource();
 		mbr.setName("MyTlResource");
-		mbr.setBusinessObjectRef((TLBusinessObject) bo.getTLModelObject());
+		mbr.setBusinessObjectRef(bo.getTLModelObject());
 
 		// When - used in LibraryNode.generateLibrary()
 		TLResource tlr = new ResourceBuilder().buildTL(); // get a populated tl resource
-		tlr.setBusinessObjectRef((TLBusinessObject) bo.getTLModelObject());
+		tlr.setBusinessObjectRef(bo.getTLModelObject());
 		ResourceNode rn1 = new ResourceNode(tlr, ln);
 
 		// When - used in tests

@@ -48,9 +48,9 @@ public class LibraryTreeLabelProvider extends LabelProvider implements IFontProv
 			}
 			label = n.getLabel();
 
-			// TODO - migrate this into decorator.
-			if (n.isLocal())
-				label = n.getName() + " [local] ";
+			// // TODO - migrate this into decorator.
+			// if (n.isLocal())
+			// label = n.getName() + " [local] ";
 
 			// Add the extended label
 			// 6/2016 - where used count moved to views.LibraryDecoration

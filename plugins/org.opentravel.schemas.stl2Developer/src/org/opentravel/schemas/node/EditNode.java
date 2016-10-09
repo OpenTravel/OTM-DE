@@ -87,11 +87,6 @@ public class EditNode extends ComponentNode {
 		return useType == null ? "" : useType;
 	}
 
-	@Override
-	public boolean isSimpleType() {
-		return false;
-	}
-
 	/**
 	 * Edit nodes may NOT be linked into the tree.
 	 */
@@ -99,11 +94,6 @@ public class EditNode extends ComponentNode {
 	public boolean linkChild(final Node child) {
 		return false;
 	}
-
-	// @Override
-	// public boolean linkChild(final Node child, final boolean doFamily) {
-	// return false;
-	// }
 
 	@Override
 	public boolean linkChild(final Node child, final int index) {

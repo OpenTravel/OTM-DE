@@ -58,8 +58,8 @@ public class ElementNode extends PropertyNode {
 	 * @param parent
 	 *            if not null, add element to the parent.
 	 */
-	public ElementNode(TLModelElement tlObj, INode parent) {
-		super(tlObj, parent, PropertyNodeType.ELEMENT);
+	public ElementNode(TLModelElement tlObj, PropertyOwnerInterface parent) {
+		super(tlObj, (INode) parent, PropertyNodeType.ELEMENT);
 		if (getEditStatus().equals(NodeEditStatus.MINOR))
 			setMandatory(false);
 		else if (tlObj instanceof TLProperty)
