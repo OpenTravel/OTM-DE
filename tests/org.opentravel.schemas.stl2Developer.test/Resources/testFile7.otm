@@ -3,7 +3,6 @@
     xmlns:ns2="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06 OTA2_LibraryModel_v1.6.0.xsd">
-    
     <ns2:VersionScheme>OTA2</ns2:VersionScheme>
     <ns2:Status>Draft</ns2:Status>
     <ns2:Namespace>http://www.OpenTravel.org/ns/OTA2/SchemaCompiler/test-package_v2</ns2:Namespace>
