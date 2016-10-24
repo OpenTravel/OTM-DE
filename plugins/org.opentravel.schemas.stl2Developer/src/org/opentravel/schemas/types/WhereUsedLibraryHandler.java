@@ -88,6 +88,7 @@ public class WhereUsedLibraryHandler {
 		whereUsedNode = new TypeNode(libraryNode);
 		usedByNode = new TypeUserNode(libraryNode);
 		this.owner = libraryNode;
+		LOGGER.debug("Constructed where used handler for " + libraryNode);
 	}
 
 	public void add(TypeUser user) {

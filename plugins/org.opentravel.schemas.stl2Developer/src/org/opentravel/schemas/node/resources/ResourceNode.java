@@ -429,7 +429,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	@Override
-	public List<Node> getNavChildren() {
+	public List<Node> getNavChildren(boolean deep) {
 		return Collections.emptyList();
 	}
 
@@ -579,15 +579,14 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	};
 
 	@Override
-	public boolean hasNavChildren() {
+	public boolean hasNavChildren(boolean deep) {
 		return false;
-		// return !getChildren().isEmpty();
 	}
 
-	@Override
-	public boolean hasNavChildrenWithProperties() {
-		return false;
-	}
+	// @Override
+	// public boolean hasNavChildrenWithProperties() {
+	// return false;
+	// }
 
 	public boolean isAbstract() {
 		return tlObj.isAbstract();
@@ -630,7 +629,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	@Override
-	protected boolean isNavChild() {
+	public boolean isNavChild(boolean deep) {
 		return true;
 	}
 

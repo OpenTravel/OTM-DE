@@ -19,7 +19,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.Messages;
-import org.opentravel.schemas.wizards.NewPropertiesWizard;
+import org.opentravel.schemas.wizards.ValidatingWizard;
 
 /**
  * @author Agnieszka Janowska
@@ -28,9 +28,9 @@ import org.opentravel.schemas.wizards.NewPropertiesWizard;
 public class NewPropertyValidator implements FormValidator {
 
 	private final Node parentNode;
-	private final NewPropertiesWizard wizard;
+	private final ValidatingWizard wizard;
 
-	public NewPropertyValidator(final Node parent, final NewPropertiesWizard wizard) {
+	public NewPropertyValidator(final Node parent, final ValidatingWizard wizard) {
 		parentNode = parent;
 		this.wizard = wizard;
 	}
@@ -42,9 +42,9 @@ public class NewPropertyValidator implements FormValidator {
 	 */
 	@Override
 	public void validate() throws ValidationException {
-		if (wizard == null)
-			return;
-		validate(wizard.getSelectedNode());
+		// if (wizard == null)
+		// return;
+		// validate(wizard.getSelectedNode());
 	}
 
 	@Override

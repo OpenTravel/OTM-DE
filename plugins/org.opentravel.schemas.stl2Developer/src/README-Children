@@ -1,0 +1,193 @@
+README - developer Notes - Children
+
+NOTES - this is as it was before 10/2016 
+	it is now much cleaner.
+	ContentProviders simply call getNavChildren() and hasNavChildren().
+	
+	getNavChildren() and hasNavChildren() have been simplified but there are still several overrides. For the most part, it is the leaf nodes that must report if they can be included via isNavChild(boolean deep).
+	
+	The deep boolean instructs leaf nodes if they should include themselves. Facets only include properties if propertyNode.isNavChild(true) is called.
+	
+USERS -----------------
+	trees.library.LibraryTreeWithPropertiesContentProvider
+		ONLY Used in AddProperty Wizard Page 2 -- org.opentravel.schemas.wizards.NewPropertiesWizardPage2
+		hasChildren(Object)
+			boolean hasChildren = node.hasNavChildrenWithProperties();
+			if (!hasChildren && includeInheritedChildren) {
+				hasChildren = node.hasInheritedChildren();
+			}
+			return hasChildren;
+		TODO - why is AddProperty wizard different than TypeSelectionWizard?
+			It is for the left panel on page 1! - getting new properties from types and properties
+			TODO - add some instructions on the page about double click
+			TypeSelectionWizard uses TypeTreeContentProvider 
+			Does it need inherited facets and properties? 
+				Facets - yes and implemented, 
+				Properties - would be nice to have
+		
+	trees.library.LibraryTreeContentProvider
+		Primary Navigation Menu Content Provider.
+		hasChildren(Object)
+			PropertyNode or ResourceNode - return false  TODO - remove from here when sure they fail both calls
+			return node.hasNavChildrenWithProperties() ? true : node.hasInheritedChildren();
+
+	trees.type.ExtensionTreeContentProvider
+		TODO - update to use instanceof ExtensionOwner
+	
+	trees.type.TypeTreeContentProvider - IS very CLEAN
+		Type Selection Wizard - only type providers
+		uses only getChildren_TypeProviders() and hasChildren_TypeProviders()
+
+Tree Providers - provide children of the passed element. Approach is to pass all potential children then filter out
+		- Navigation View	library members, type providers, where used, 
+							services and resources + inherited switch + properties switch (broken)
+							- deleted nodes
+				Filters
+					LibraryTreeNameFilter
+					LibraryPropertyFilter
+					LibraryTreeInheritedFilter
+				TODO - why are there no properties?
+
+		- Type Selection 	all type providers + filters
+		- Add Property 		library members, type providers, creatable properties
+		- Extension Selection all ExtensionOwners	
+
+	trees.library.LibraryTreeContentProvider
+	trees.library.LibraryTreeWithPropertiesContentProvider
+	trees.type.TypeTreeContentProvider - IS very CLEAN
+	trees.type.ExtensionTreeContentProvider
+
+		
+METHODS ---------------
+hasChildren_TypeProviders()
+		org.opentravel.schemas.trees.type.TypeTreeContentProvider.hasChildren(Object) - IS very CLEAN
+			TypeSelectionWizard
+			
+getChildren()
+	Node - simple getter on children (live list)
+	ComponentNode - synchChildrenWithMO() - TEST removing or moving to facet
+	ModelNode
+	ProjectNode
+	TypeNode
+	TypeUserNode
+	ContributedFacet
+	RepositoryNode
+
+hasChildren()
+
+getChildren_TypeProviders()
+	Node - TODO fix test
+	
+hasNavChildren()
+	used by 
+		-- NOW being tested in content provider
+			WORKS - TODO - Make sure these are aligned with getNavChildren(). I think TypeNode and typeUserNode is not.
+		-- THINK - should NavigatorView filters be accessbile? How?
+			How are they applied? I assume by the view and getChildren() in content providers doesn't know the view
+		XXX hasNavChildrenWithProperties()
+		
+	Defined
+		Node - abstract		LOTS of overrides
+		OK - ComponentNode - true if any child isNavChild() (fast, no new array)
+			ResourceNode - false, no overrides
+			ResourceBase - true if has children
+			AliasNode - false
+			FacetNode - true if any child is AliasNode	FIXME - This prevents nav view from getting properties
+			SimpleTypeNode - true (to allow where used) Fixed - if getT
+			VersionNode - false
+		OK - LibraryNode - true if has children and parent is not VersionAggregateNode
+		LibraryChainNode - true if has children
+		NavNode - true if has children
+		ProjectNode - true if has children
+		RepositoryNode - false
+		TypeNode, TypeUserNode - true
+	
+isNavigation()
+	Is this node a navigation node or part of the OTM model? Includes all library containers and libraries.
+	Used in find() and content filters to denote when to examine descendents.
+	TODO - why don't TypeNode and TypeUserNodes override?
+	TODO - should these implement the WhereUsedInterface (renamed?)
+	TODO - why don't TypeNode and TypeUserNodes extend NavNode?
+	Node - false	
+		Overrides - True - NavNode, LibraryNode, LibraryChainNode, ModelNode, ProjectNode
+		
+isNavChild() - RENAME isNavVisiable ???
+	Fast, no memory allocation
+	Used in hasNavChildren() and node.ComponentNode.getNavChildren()
+	TESTS - org.opentravel.schemas.node.Node_NavChildren_Tests
+	--> True for nodes that are backed by a TLModelObject
+			and Implied Node on root
+		False for nodes backed by TLEmpty or TLnSimpleAttribute, VersionNode, 
+			WHY? Library Nodes, Property Nodes
+		
+	 * @return true if this node should be displayed in navigator view tree with no filters
+		Node - return this instanceof LibraryMemberInterface (BO, Core, etc);
+		Overrides - True - ResourceNode, ServiceNode, LibraryNode, LibraryChainNode
+		AliasNode - True
+		FacetNode - true 
+		OperationNode - True
+		VWA_AttributeFacetNode - false
+		True - ImpliedNode
+		
+getNavChildren()
+	org.opentravel.schemas.trees.type.TypeSelectionFilter.hasValidChildren(Node)
+	org.opentravel.schemas.trees.library.LibraryTreeContentProvider.getChildren(Object)
+	
+	Node - getChildren()
+	Overrides
+		OK - ComponentNode - new list of getChildren() where members pass isNavChild()
+		LibraryNode - return parent instanceof VersionAggregateNode ? new ArrayList<Node>() : getChildren();
+		PropertyNode - return assigned type and if alias the alias owner.
+		VersionNode - return getNewestVersion().getNavChildren();
+		VersionAggregateNode - return super.getChildren() = Node.getChildren(); --> changed to super.getNavChildren()
+		FacetNode - only aliases 	and where used	-- FIXME
+		ResourceNode - empty list
+		AliasNode - empty list
+		RepositoryNode = null
+
+getInheritedChildren()
+	Defined
+		Node - Collections.emptyList()
+			ComponentNode - initInheritedChildren()
+			TODO - either override or create Inherited interface
+					
+initInheritedChildren() - gets list from ModelObject initInheritedChildren(), links them linkInheritedChild(), addMOChildren()
+		overridden in 
+			ChoiceObjectNode - uses TLobject
+			EnumeratedOpenNode - like component node but different children treatment
+			
+hasInheritedChildren - no overrides
+	Defined - Node - getInheritedChildren().isEmpty()
+	
+XXX hasNavChildrenWithProperties()
+XXX	Defined
+XXX		org.opentravel.schemas.node.Node.hasNavChildrenWithProperties()
+XXX			/**
+			* @return true if there are children that are properties that can be assigned a type. Does not include indicators,
+			*         enumeration literals, or roles Does not include properties whose model object or TL Type are NULL.
+			*         (modelObject != null && modelObject.getTLType() != null;)
+			*/
+			public boolean hasNavChildrenWithProperties() {
+				return hasNavChildren();
+			}
+		XXX PropertyNode - return true unless overriden (indicator, role, enum literal)
+		XXX ResourceNode - return false	 TODO - override initInheritedChildren() then remove from here
+		XXX VersionNode - return false   TODO - override initInheritedChildren() then remove from here
+		XXX SimpleTypeNode - true (where used)
+		XXX XsdNode - true if underlying node has children
+		
+	used by
+		XXX trees.library.LibraryTreeWithPropertiesContentProvider.hasChildren(Object)
+		XXX - trees.library.LibraryTreeContentProvider.hasChildren(Object)
+			PropertyNode or ResourceNode - return false  TODO - remove from here when sure they fail both calls
+			return node.hasNavChildrenWithProperties() ? true : node.hasInheritedChildren();
+
+hasChildren_TypeProviders()
+	Users
+		org.opentravel.schemas.node.Node.getChildren_TypeProviders()
+		org.opentravel.schemas.trees.type.TypeTreeContentProvider.hasChildren(Object)
+		
+
+
+ComponentNode.synchChildrenWithMO(List<Node>)
+	Used by ComponentNode.getChildren()

@@ -16,9 +16,6 @@
 package org.opentravel.schemas.wizards.validators;
 
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.PropertyNodeType;
-import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.wizards.NewPropertiesWizard;
 
 /**
@@ -27,12 +24,12 @@ import org.opentravel.schemas.wizards.NewPropertiesWizard;
  */
 public class EqExValidator implements FormValidator {
 
-	private final Node parentNode;
-	private final NewPropertiesWizard wizard;
+	// private final Node parentNode;
+	// private final NewPropertiesWizard wizard;
 
 	public EqExValidator(final Node parent, final NewPropertiesWizard wizard) {
-		parentNode = parent;
-		this.wizard = wizard;
+		// parentNode = parent;
+		// this.wizard = wizard;
 	}
 
 	/*
@@ -42,28 +39,28 @@ public class EqExValidator implements FormValidator {
 	 */
 	@Override
 	public void validate() throws ValidationException {
-		final PropertyNode n = wizard.getSelectedNode();
-		if (n == null) {
-			return;
-		}
-		// TODO - why does validate have side effect?
-		n.setLibrary(parentNode.getLibrary());
-		if (n.getName() == null || n.getName().isEmpty()) {
-			throw new ValidationException(Messages.getString("error.newPropertyName"));
-		}
-		if (n.getPropertyType() == null || n.getPropertyType() == PropertyNodeType.UNKNOWN) {
-			throw new ValidationException(Messages.getString("error.newPropertyType") + " (" + n.getName() + ")");
-		}
-		// if (n.getModelObject() == null || n.getModelObject().getTLType() == null) {
-		// if (n.getPropertyType() == PropertyNodeType.ATTRIBUTE || n.getPropertyType() ==
-		// PropertyNodeType.ELEMENT) {
-		// throw new ValidationException(Messages.getString("error.newPropertyTLType") + " (" +
-		// n.getName() + ")");
+		// final PropertyNode n = wizard.getSelectedNode();
+		// if (n == null) {
+		// return;
 		// }
+		// // TODO - why does validate have side effect?
+		// n.setLibrary(parentNode.getLibrary());
+		// if (n.getName() == null || n.getName().isEmpty()) {
+		// throw new ValidationException(Messages.getString("error.newPropertyName"));
 		// }
-		if (!parentNode.isUnique(n)) {
-			throw new ValidationException(Messages.getString("error.newProperty"));
-		}
+		// if (n.getPropertyType() == null || n.getPropertyType() == PropertyNodeType.UNKNOWN) {
+		// throw new ValidationException(Messages.getString("error.newPropertyType") + " (" + n.getName() + ")");
+		// }
+		// // if (n.getModelObject() == null || n.getModelObject().getTLType() == null) {
+		// // if (n.getPropertyType() == PropertyNodeType.ATTRIBUTE || n.getPropertyType() ==
+		// // PropertyNodeType.ELEMENT) {
+		// // throw new ValidationException(Messages.getString("error.newPropertyTLType") + " (" +
+		// // n.getName() + ")");
+		// // }
+		// // }
+		// if (!parentNode.isUnique(n)) {
+		// throw new ValidationException(Messages.getString("error.newProperty"));
+		// }
 	}
 
 	@Override

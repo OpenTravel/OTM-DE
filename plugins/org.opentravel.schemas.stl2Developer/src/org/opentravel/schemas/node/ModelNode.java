@@ -15,7 +15,6 @@
  */
 package org.opentravel.schemas.node;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -43,7 +42,7 @@ public class ModelNode extends Node {
 	// public static String TempLib = "TemporaryLibrary";
 	private final static AtomicInteger counter = new AtomicInteger(0);
 	private TLModel tlModel;
-	private LibraryNode defaultLibrary; // Library used for paths and compilation
+	// private LibraryNode defaultLibrary; // Library used for paths and compilation
 	private String name = "";
 	// Just have one so we can skip checking for null MO and TLmodelObjects
 
@@ -80,8 +79,8 @@ public class ModelNode extends Node {
 	protected static ImpliedNode defaultStringNode = new ImpliedNode(ImpliedNodeType.String);
 	protected static ImpliedNode atomicTypeNode = new ImpliedNode(ImpliedNodeType.XSD_Atomic);
 	protected static ImpliedNode unionTypeNode = new ImpliedNode(ImpliedNodeType.Union);
-	protected static ImpliedNode duplicateTypesNode = new ImpliedNode(ImpliedNodeType.Duplicate);
-	protected List<Node> duplicateTypes = new ArrayList<Node>();
+	// protected static ImpliedNode duplicateTypesNode = new ImpliedNode(ImpliedNodeType.Duplicate);
+	// protected List<Node> duplicateTypes = new ArrayList<Node>();
 
 	protected static Node emptyNode = null; // will be set to a built-in type.
 	private static final QName OTA_EMPTY_QNAME = new QName("http://www.opentravel.org/OTM/Common/v0", "Empty");
@@ -91,7 +90,7 @@ public class ModelNode extends Node {
 	public ModelNode(final TLModel model) {
 		super();
 		setParent(null);
-		duplicateTypesNode.initialize(this);
+		// duplicateTypesNode.initialize(this);
 		undefinedNode.initialize(this);
 		indicatorNode.initialize(this);
 		unassignedNode.initialize(this);
@@ -141,23 +140,23 @@ public class ModelNode extends Node {
 	// defaultLibrary = dLib;
 	// }
 
-	/**
-	 * Returns output file name without extension.
-	 * 
-	 * @param fn
-	 * @return
-	 */
-	public String getFilePath() {
-		if (defaultLibrary == null)
-			return "";
-
-		final String fileName = defaultLibrary.getPath();
-		if ((fileName == null) || (fileName.isEmpty())) {
-			return "";
-		}
-		final int i = fileName.lastIndexOf(".");
-		return i > 0 ? fileName.substring(0, i) : "";
-	}
+	// /**
+	// * Returns output file name without extension.
+	// *
+	// * @param fn
+	// * @return
+	// */
+	// public String getFilePath() {
+	// if (defaultLibrary == null)
+	// return "";
+	//
+	// final String fileName = defaultLibrary.getPath();
+	// if ((fileName == null) || (fileName.isEmpty())) {
+	// return "";
+	// }
+	// final int i = fileName.lastIndexOf(".");
+	// return i > 0 ? fileName.substring(0, i) : "";
+	// }
 
 	public TLModel getTLModel() {
 		return tlModel;
@@ -183,10 +182,11 @@ public class ModelNode extends Node {
 		return null; // top of the tree
 	}
 
-	@Override
-	public boolean hasNavChildren() {
-		return getChildren().size() > 0;
-	}
+	// @Override
+	// public boolean hasNavChildren(boolean deep) {
+	// return !getChildren().isEmpty();
+	// // return getChildren().size() > 0;
+	// }
 
 	/*
 	 * @see org.opentravel.schemas.node.INode#hasChildren_TypeProviders()
@@ -257,24 +257,24 @@ public class ModelNode extends Node {
 			LOGGER.error("Empty Node could not be set. Be sure that library is loaded early.");
 	}
 
-	/**
-	 * duplicates are set by the type resolver
-	 */
-	public static ImpliedNode getDuplicateTypesNode() {
-		return duplicateTypesNode;
-	}
-
-	public void addDuplicateType(Node n) {
-		duplicateTypesNode.getChildren().add(n);
-	}
-
-	public List<Node> getDuplicateTypes() {
-		return duplicateTypesNode.getChildren();
-	}
-
-	public boolean isDuplicate(Node n) {
-		return duplicateTypesNode.getChildren().contains(n);
-	}
+	// /**
+	// * duplicates are set by the type resolver
+	// */
+	// public static ImpliedNode getDuplicateTypesNode() {
+	// return duplicateTypesNode;
+	// }
+	//
+	// public void addDuplicateType(Node n) {
+	// duplicateTypesNode.getChildren().add(n);
+	// }
+	//
+	// public List<Node> getDuplicateTypes() {
+	// return duplicateTypesNode.getChildren();
+	// }
+	//
+	// public boolean isDuplicate(Node n) {
+	// return duplicateTypesNode.getChildren().contains(n);
+	// }
 
 	/**
 	 * @return the indicatorNode
@@ -297,13 +297,6 @@ public class ModelNode extends Node {
 		return unassignedNode;
 	}
 
-	// /**
-	// * @return the union node
-	// */
-	// public static ImpliedNode getUnionNode() {
-	// return unionTypeNode;
-	// }
-
 	/**
 	 * @return the defaultStringNode
 	 */
@@ -311,64 +304,12 @@ public class ModelNode extends Node {
 		return defaultStringNode;
 	}
 
-	// public int getTypeProviderCount() {
-	// return typeProviders;
-	// }
-	//
-	// @Override
-	// public int getWhereAssignedCount() {
-	// return typeUsers;
-	// }
-	//
-	// public int getUnassignedTypeCount() {
-	// return unassignedNode.getWhereAssignedCount();
-	// }
-
 	/**
 	 * @return the unresolvedTypes
 	 */
 	public int getUnresolvedTypeCount() {
 		return unresolvedTypes;
 	}
-
-	// /**
-	// * @return the xsdTypes
-	// */
-	// public int getXsdTypeCount() {
-	// return xsdTypes;
-	// }
-	//
-	// /**
-	// * @return the
-	// */
-	// public int getResolvedXsdTypeCount() {
-	// return resolvedXsdTypes;
-	// }
-
-	// /**
-	// * Create the library for the generated components.
-	// *
-	// * @param xLib
-	// */
-	// protected static TLLibrary makeImpliedLibrary() {
-	// TLLibrary impliedTLLib = new TLLibrary();
-	// impliedTLLib.setNamespace("uri:namespaces:impliedNS");
-	// impliedTLLib.setPrefix("implied");
-	// impliedTLLib.setName("ImpliedTypeLibrary");
-	// try {
-	// impliedTLLib.setLibraryUrl(new URL("file://temp"));
-	// } catch (MalformedURLException e) {
-	// LOGGER.error("Invalid URL exception");
-	// }
-	// return impliedTLLib;
-	// }
-
-	// /**
-	// * @return the impliedTLLib
-	// */
-	// public static TLLibrary getImpliedTLLib() {
-	// return impliedTLLib;
-	// }
 
 	@Override
 	public boolean isLibraryContainer() {

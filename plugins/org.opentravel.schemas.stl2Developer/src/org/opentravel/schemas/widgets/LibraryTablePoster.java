@@ -40,13 +40,16 @@ import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.Fonts;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.ColorProvider;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.trees.library.LibrarySorter;
+import org.opentravel.schemas.types.TypeNode;
 import org.opentravel.schemas.types.TypeUser;
+import org.opentravel.schemas.types.TypeUserNode;
 
 /**
  * 
@@ -90,7 +93,8 @@ public class LibraryTablePoster {
 	 */
 	public void postTable(Node curNode) {
 		clearTable();
-
+		if (curNode instanceof TypeNode || curNode instanceof TypeUserNode)
+			return;
 		if (curNode == null) {
 			return;
 		}
@@ -201,19 +205,13 @@ public class LibraryTablePoster {
 			}
 			children = sort(children);
 			for (final Node cn : children) {
-				if (cn instanceof PropertyNode) {
+				if (cn instanceof PropertyNode)
 					postTableRow(cn);
-					// if (cn instanceof ElementReferenceNode) {
-					// postTableRow(cn);
-					// } else if (cn instanceof IndicatorNode) {
-					// postTableRow(cn);
-					// } else if (cn instanceof AttributeNode) {
-					// postTableRow(cn);
-					// } else if ((cn instanceof ElementNode) || (cn instanceof IndicatorElementNode)) {
-					// postTableRow(cn);
-				} else if (cn instanceof FacetNode) {
+				else if (cn instanceof FacetNode)
 					postTableRows(cn, cn.getLabel());
-				} else if (!(cn instanceof FacetNode) && !(cn instanceof AliasNode)) {
+				else if (cn instanceof WhereUsedNodeInterface)
+					continue; // skip
+				else if (!(cn instanceof AliasNode)) {
 					postTableRow(cn); // what falls through to here? enum-literal
 				}
 			}

@@ -25,6 +25,7 @@ import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.controllers.NodeImageProvider;
 import org.opentravel.schemas.node.controllers.NodeLabelProvider;
+import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class TypeNode extends Node {
+public class TypeNode extends Node implements WhereUsedNodeInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TypeNode.class);
 
 	public enum TypeNodeType {
@@ -120,9 +121,7 @@ public class TypeNode extends Node {
 	 * Get all of the components that use any aspect of the owning component. DO NOT make this a getChildren or the tree
 	 * will become invalid with nodes having multiple parents which will break lots of getChildren() users.
 	 * 
-	 * This is used directly by the Library tree content provider.
-	 * 
-	 * @return
+	 * @return new list of children
 	 */
 	@Override
 	public List<Node> getChildren() {
@@ -182,14 +181,27 @@ public class TypeNode extends Node {
 		};
 	}
 
+	/**
+	 * Always true because lazy evaluation of children.
+	 */
 	@Override
-	public boolean hasNavChildren() {
+	public boolean hasTreeChildren(boolean deep) {
 		return true;
+	}
+
+	@Override
+	public List<Node> getTreeChildren(boolean deep) {
+		return getChildren();
 	}
 
 	// True if this node represents a type user
 	public boolean isUser() {
 		return nodeType.equals(TypeNodeType.USER) ? true : false;
+	}
+
+	@Override
+	public boolean isLibraryMemberContainer() {
+		return false;
 	}
 
 	@Override

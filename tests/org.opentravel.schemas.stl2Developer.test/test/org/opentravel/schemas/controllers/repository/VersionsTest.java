@@ -518,7 +518,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		Node versionsAgg = chain.getVersions();
 		Assert.assertTrue(versionsAgg instanceof VersionAggregateNode);
 		Assert.assertEquals(TotalLibraries, versionsAgg.getChildren().size());
-		Assert.assertEquals(TotalLibraries, versionsAgg.getNavChildren().size());
+		Assert.assertEquals(TotalLibraries, versionsAgg.getNavChildren(false).size());
 		Assert.assertTrue(versionsAgg.getParent() == chain);
 		Assert.assertTrue(versionsAgg.getChain() == chain);
 
@@ -620,36 +620,36 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	// @Test
 	public void checkNavChildren() {
 		// Chain should have 5 (include resources)
-		Assert.assertEquals(5, chain.getNavChildren().size());
+		Assert.assertEquals(5, chain.getNavChildren(false).size());
 		checkChildrenClassType(chain, AggregateNode.class, null);
 
 		// VersionAggregate should have 3, one for each library
-		Assert.assertEquals(3, chain.getVersions().getNavChildren().size());
+		Assert.assertEquals(3, chain.getVersions().getNavChildren(false).size());
 
 		// Libraries should have 2 or 3, simple, complex and service
 		// Libraries that are not at the head will return empty list.
-		Assert.assertEquals(0, patchLibrary.getNavChildren().size());
-		Assert.assertEquals(0, minorLibrary.getNavChildren().size());
-		Assert.assertEquals(0, majorLibrary.getNavChildren().size());
+		Assert.assertEquals(0, patchLibrary.getNavChildren(false).size());
+		Assert.assertEquals(0, minorLibrary.getNavChildren(false).size());
+		Assert.assertEquals(0, majorLibrary.getNavChildren(false).size());
 
 		// Nav Nodes should ONLY have version -- NEVER GOES INTO LOOP
-		for (Node nn : patchLibrary.getNavChildren()) {
+		for (Node nn : patchLibrary.getNavChildren(false)) {
 			Assert.assertTrue(nn instanceof NavNode);
 			checkChildrenClassType(nn, VersionNode.class, null);
 			// Version nodes should have NO nav children.
-			for (Node vn : nn.getNavChildren())
-				Assert.assertEquals(0, vn.getNavChildren().size());
+			for (Node vn : nn.getNavChildren(false))
+				Assert.assertEquals(0, vn.getNavChildren(false).size());
 		}
 
 		// Aggregates should have Active Simple, Active Complex and Service.
 		// This checks both children and then navChildren.
 		checkChildrenClassType(((Node) chain.getComplexAggregate()), ComplexComponentInterface.class,
 				AggregateFamilyNode.class);
-		for (Node nc : ((Node) chain.getComplexAggregate()).getNavChildren()) {
+		for (Node nc : ((Node) chain.getComplexAggregate()).getNavChildren(false)) {
 			Assert.assertTrue(nc instanceof ComplexComponentInterface);
 		}
 		checkChildrenClassType(((Node) chain.getSimpleAggregate()), SimpleComponentInterface.class, null);
-		for (Node nc : ((Node) chain.getSimpleAggregate()).getNavChildren()) {
+		for (Node nc : ((Node) chain.getSimpleAggregate()).getNavChildren(false)) {
 			Assert.assertTrue(nc instanceof SimpleComponentInterface);
 		}
 

@@ -113,6 +113,8 @@ public class EqExOneValueHandler implements IValueWithContextHandler, ModelEleme
 
 	@Override
 	public String get(String context) {
+		if (owner.getLibrary() == null)
+			return "";
 		if (context == null)
 			context = owner.getLibrary().getDefaultContextId();
 		switch (type) {

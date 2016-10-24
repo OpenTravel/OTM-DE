@@ -61,9 +61,7 @@ import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.preferences.CompilerPreferences;
-import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
-import org.opentravel.schemas.stl2developer.FileDialogs;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
@@ -255,74 +253,69 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 		return lastCompileMessage;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.otmActions.ModelController#compileModel(org.opentravel.schemas.node .ModelNode)
-	 */
 	@Override
 	@Deprecated
 	public void compileModel(ModelNode model) {
-		// LOGGER.debug("Compiling model " + model);
-		assert model != null;
-
-		final TLModel tlModel = (model.getTLModel());
-		String path = model.getFilePath();
-
-		boolean isPathDirectory = false;
-		if (path == null || path.isEmpty()) {
-			path = FileDialogs.postDirDialog(Messages.getString("fileDialog.directory.compilePath"));
-			isPathDirectory = true;
-		}
-		if (path != null) {
-			if (!isPathDirectory) {
-				path = path + "_codegenOutput";
-			}
-			final File targetFolder = new File(path);
-			if (!targetFolder.exists()) {
-				if (!targetFolder.mkdirs()) {
-					LOGGER.warn("Could not make directory: " + targetFolder);
-					DialogUserNotifier.openError("Model Error", "Could not make directory " + targetFolder.getPath()
-							+ " for the compiled output.");
-					return;
-				}
-			}
-
-			final ValidationFindings findings = new ValidationFindings();
-			try {
-				findings.addAll(compileModel(tlModel, targetFolder));
-				displayUserMessage(findings, targetFolder);
-			} catch (final SchemaCompilerException e) {
-				LOGGER.error("Cannot compile model", e);
-				DialogUserNotifier.openError("Model Error", "Could not compile the model - " + e.getMessage());
-			} catch (final Exception e) {
-				LOGGER.error("Unknown compiler error", e);
-				DialogUserNotifier.openError("Error",
-						"Could not compile the model, unknown error occurred - " + e.getMessage());
-			}
-			final ValidationResultsView view = OtmRegistry.getValidationResultsView();
-			if (view != null) {
-				view.setFindings(findings, model);
-			}
-		}
-	}
-
-	public ValidationFindings compileModel(final TLModel tlModel, final File targetFolder)
-			throws SchemaCompilerException {
-		final CompilerPreferences compilePreferences = new CompilerPreferences(
-				CompilerPreferences.loadPreferenceStore());
-		final CompileAllCompilerTask codegenTask = new CompileAllCompilerTask();
-		ValidationFindings findings = new ValidationFindings();
-
-		// final ContextsView contextsView = OtmRegistry.getContextsView();
-		// if (contextsView != null) {
-		// codegenTask.setExampleContext(contextsView.getContextController().getDefaultContextId());
+		// // LOGGER.debug("Compiling model " + model);
+		// assert model != null;
+		//
+		// final TLModel tlModel = (model.getTLModel());
+		// String path = model.getFilePath();
+		//
+		// boolean isPathDirectory = false;
+		// if (path == null || path.isEmpty()) {
+		// path = FileDialogs.postDirDialog(Messages.getString("fileDialog.directory.compilePath"));
+		// isPathDirectory = true;
 		// }
-		codegenTask.applyTaskOptions(compilePreferences);
-		codegenTask.setOutputFolder(targetFolder.getAbsolutePath());
-		findings = codegenTask.compileOutput(tlModel);
-		return findings;
+		// if (path != null) {
+		// if (!isPathDirectory) {
+		// path = path + "_codegenOutput";
+		// }
+		// final File targetFolder = new File(path);
+		// if (!targetFolder.exists()) {
+		// if (!targetFolder.mkdirs()) {
+		// LOGGER.warn("Could not make directory: " + targetFolder);
+		// DialogUserNotifier.openError("Model Error", "Could not make directory " + targetFolder.getPath()
+		// + " for the compiled output.");
+		// return;
+		// }
+		// }
+		//
+		// final ValidationFindings findings = new ValidationFindings();
+		// try {
+		// findings.addAll(compileModel(tlModel, targetFolder));
+		// displayUserMessage(findings, targetFolder);
+		// } catch (final SchemaCompilerException e) {
+		// LOGGER.error("Cannot compile model", e);
+		// DialogUserNotifier.openError("Model Error", "Could not compile the model - " + e.getMessage());
+		// } catch (final Exception e) {
+		// LOGGER.error("Unknown compiler error", e);
+		// DialogUserNotifier.openError("Error",
+		// "Could not compile the model, unknown error occurred - " + e.getMessage());
+		// }
+		// final ValidationResultsView view = OtmRegistry.getValidationResultsView();
+		// if (view != null) {
+		// view.setFindings(findings, model);
+		// }
+		// }
 	}
+
+	// public ValidationFindings compileModel(final TLModel tlModel, final File targetFolder)
+	// throws SchemaCompilerException {
+	// // final CompilerPreferences compilePreferences = new CompilerPreferences(
+	// // CompilerPreferences.loadPreferenceStore());
+	// // final CompileAllCompilerTask codegenTask = new CompileAllCompilerTask();
+	// ValidationFindings findings = new ValidationFindings();
+	// //
+	// // // final ContextsView contextsView = OtmRegistry.getContextsView();
+	// // // if (contextsView != null) {
+	// // // codegenTask.setExampleContext(contextsView.getContextController().getDefaultContextId());
+	// // // }
+	// // codegenTask.applyTaskOptions(compilePreferences);
+	// // codegenTask.setOutputFolder(targetFolder.getAbsolutePath());
+	// // findings = codegenTask.compileOutput(tlModel);
+	// return findings;
+	// }
 
 	public ValidationFindings compileModel(final Project project, final File targetFolder)
 			throws SchemaCompilerException {

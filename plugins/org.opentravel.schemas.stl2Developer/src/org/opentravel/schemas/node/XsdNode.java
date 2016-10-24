@@ -145,22 +145,22 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 		return getOtmModel().isMissingAssignedType();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.ComponentNode#hasNavChildrenWithProperties()
-	 */
-	@Override
-	public boolean hasNavChildrenWithProperties() {
-		if (getOtmModel() == null)
-			return false;
-		for (final INode n : getOtmModel().getChildren()) {
-			// if (n.isNavChildWithProperties()) {
-			return true;
-			// }
-		}
-		return false;
-	}
+	// /*
+	// * (non-Javadoc)
+	// *
+	// * @see org.opentravel.schemas.node.ComponentNode#hasNavChildrenWithProperties()
+	// */
+	// @Override
+	// public boolean hasNavChildrenWithProperties() {
+	// if (getOtmModel() == null)
+	// return false;
+	// for (final INode n : getOtmModel().getChildren()) {
+	// // if (n.isNavChildWithProperties()) {
+	// return true;
+	// // }
+	// }
+	// return false;
+	// }
 
 	public boolean isXsdElement() {
 		return (modelObject instanceof XSDElementMO) ? true : false;

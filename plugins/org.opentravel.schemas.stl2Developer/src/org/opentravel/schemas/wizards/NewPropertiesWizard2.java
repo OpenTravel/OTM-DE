@@ -22,6 +22,7 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
+import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.Node;
@@ -125,7 +126,21 @@ public class NewPropertiesWizard2 extends ValidatingWizard implements Cancelable
 	@Override
 	public boolean performFinish() {
 		canceled = false;
+		cleanFacet();
 		return true;
+	}
+
+	/**
+	 * The content provider could leave inherited or where used in facet, remove them.
+	 */
+	private void cleanFacet() {
+		ArrayList<Node> kids = new ArrayList<Node>(actOnNode.getChildren());
+		for (Node kid : kids) {
+			if (kid instanceof AliasNode)
+				continue;
+			if (!(kid instanceof PropertyNode) || kid.isInheritedProperty())
+				actOnNode.getChildren().remove(kid);
+		}
 	}
 
 	@Override
@@ -134,6 +149,7 @@ public class NewPropertiesWizard2 extends ValidatingWizard implements Cancelable
 		for (PropertyNode p : page.getNewProperties()) {
 			actOnNode.removeProperty(p);
 		}
+		cleanFacet();
 		return true;
 	}
 

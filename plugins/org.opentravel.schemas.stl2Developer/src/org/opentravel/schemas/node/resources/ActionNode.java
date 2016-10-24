@@ -178,7 +178,7 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	}
 
 	@Override
-	public boolean hasNavChildren() {
+	public boolean hasNavChildren(boolean deep) {
 		return false;
 	}
 

@@ -43,7 +43,8 @@ import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.NavigatorMenus;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.trees.library.LibraryPropertyOnlyFilter;
+import org.opentravel.schemas.trees.library.LibraryPropertyFilter;
+import org.opentravel.schemas.trees.library.LibraryTreeContentProvider;
 import org.opentravel.schemas.trees.library.LibraryTreeInheritedFilter;
 import org.opentravel.schemas.trees.library.LibraryTreeNameFilter;
 import org.opentravel.schemas.types.TypeNode;
@@ -67,7 +68,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	private NavigatorMenus navigatorMenus = null;
 	private Text filterText;
 	private LibraryTreeNameFilter textFilter;
-	private LibraryPropertyOnlyFilter propFilter;
+	private LibraryPropertyFilter propFilter;
 	private LibraryTreeInheritedFilter inheritedFilter;
 
 	private Node curNode;
@@ -149,7 +150,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 		// Set up Filters
 		textFilter = new LibraryTreeNameFilter();
 		inheritedFilter = new LibraryTreeInheritedFilter();
-		propFilter = new LibraryPropertyOnlyFilter();
+		propFilter = new LibraryPropertyFilter();
 		// start out with filters on
 		navigatorMenus.addFilter(textFilter);
 		navigatorMenus.addFilter(inheritedFilter);
@@ -390,10 +391,15 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 		if (navigatorMenus == null)
 			return; // happens during initial load
 		this.propertiesDisplayed = on;
-		if (propertiesDisplayed)
+		((LibraryTreeContentProvider) navigatorMenus.getContentProvider()).setDeepMode(propertiesDisplayed);
+		if (propertiesDisplayed) {
 			navigatorMenus.removeFilter(propFilter);
-		else
+			// navigatorMenus
+			// .setContentProvider(new LibraryTreeWithPropertiesContentProvider(inheritedPropertiesDisplayed));
+		} else {
 			navigatorMenus.addFilter(propFilter);
+			// navigatorMenus.setContentProvider(new LibraryTreeContentProvider());
+		}
 		navigatorMenus.refresh(OtmRegistry.getTypeView().getCurrentNode());
 		OtmRegistry.getTypeView().refreshAllViews();
 		// LOGGER.debug("SetDeepProperty  - properties? "+propertiesDisplayed+ " inherited? " +

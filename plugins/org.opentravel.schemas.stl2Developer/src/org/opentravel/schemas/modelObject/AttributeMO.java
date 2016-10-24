@@ -22,9 +22,11 @@ import org.opentravel.schemacompiler.model.TLAttributeOwner;
 import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeNameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AttributeMO extends ModelObject<TLAttribute> {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(AttributeMO.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AttributeMO.class);
 
 	public AttributeMO(final TLAttribute obj) {
 		super(obj);
@@ -180,7 +182,12 @@ public class AttributeMO extends ModelObject<TLAttribute> {
 
 	@Override
 	public void setTLType(final NamedEntity tlObj) {
-		getTLModelObj().setType((TLAttributeType) tlObj);
+		if (tlObj instanceof TLAttributeType)
+			getTLModelObj().setType((TLAttributeType) tlObj);
+		else
+			LOGGER.debug("Tried to set tlAttribute with " + tlObj.getLocalName() + " of class "
+					+ tlObj.getClass().getSimpleName());
+
 	}
 
 }

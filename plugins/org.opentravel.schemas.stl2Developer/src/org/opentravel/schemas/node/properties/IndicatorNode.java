@@ -97,11 +97,11 @@ public class IndicatorNode extends PropertyNode {
 		return Images.getImageRegistry().get(Images.Indicator);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getLabel()
-	 */
+	@Override
+	public boolean isNavChild(boolean deep) {
+		return false;
+	}
+
 	@Override
 	public String getLabel() {
 		return modelObject.getLabel() == null ? "" : modelObject.getLabel();

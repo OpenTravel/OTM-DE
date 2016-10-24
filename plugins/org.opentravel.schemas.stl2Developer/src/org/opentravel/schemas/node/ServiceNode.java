@@ -132,7 +132,7 @@ public class ServiceNode extends ComponentNode {
 	}
 
 	@Override
-	protected boolean isNavChild() {
+	public boolean isNavChild(boolean deep) {
 		return true;
 	}
 

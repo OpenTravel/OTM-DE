@@ -79,11 +79,6 @@ public class RoleFacetNode extends FacetNode {
 	}
 
 	@Override
-	public boolean isDetailListFacet() {
-		return false;
-	}
-
-	@Override
 	public boolean isValidParentOf(PropertyNodeType type) {
 		return type.equals(PropertyNodeType.ROLE);
 	}

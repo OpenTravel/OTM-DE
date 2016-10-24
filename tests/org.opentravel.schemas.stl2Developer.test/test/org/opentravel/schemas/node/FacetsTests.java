@@ -452,10 +452,12 @@ public class FacetsTests {
 			LOGGER.debug("Checking summary Facet: " + fn);
 		if (fn.isDetailFacet())
 			LOGGER.debug("Checking detail Facet: " + fn);
-		if (fn.isSimpleListFacet())
-			LOGGER.debug("Checking simple list Facet: " + fn);
-		if (fn.isDetailListFacet())
-			LOGGER.debug("Checking detail list Facet: " + fn);
+		if (fn instanceof ListFacetNode) {
+			if (((ListFacetNode) fn).isSimpleListFacet())
+				LOGGER.debug("Checking simple list Facet: " + fn);
+			if (((ListFacetNode) fn).isDetailListFacet())
+				LOGGER.debug("Checking detail list Facet: " + fn);
+		}
 
 		assertTrue("Must be valid parent to attributes.", fn.isValidParentOf(PropertyNodeType.ATTRIBUTE));
 		assertTrue("Must be valid parent to elements.", fn.isValidParentOf(PropertyNodeType.ELEMENT));

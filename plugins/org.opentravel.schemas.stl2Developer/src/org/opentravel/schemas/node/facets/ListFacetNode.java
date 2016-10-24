@@ -36,7 +36,6 @@ public class ListFacetNode extends FacetNode {
 		return (((TLListFacet) getTLModelObject()).getFacetType().equals(TLFacetType.SIMPLE)) ? true : false;
 	}
 
-	@Override
 	public boolean isDetailListFacet() {
 		return (((TLListFacet) getTLModelObject()).getFacetType().equals(TLFacetType.DETAIL)) ? true : false;
 	}

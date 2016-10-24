@@ -15,10 +15,14 @@
  */
 package org.opentravel.schemas.node.properties;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
+import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.PropertyNodeType;
@@ -77,6 +81,33 @@ public class SimpleAttributeNode extends PropertyNode {
 	@Override
 	public boolean isOnlySimpleTypeUser() {
 		return true;
+	}
+
+	@Override
+	public boolean hasNavChildren(boolean deep) {
+		return deep && getNavType() != null;
+	}
+
+	@Override
+	public boolean isNavChild(boolean deep) {
+		return deep;
+	}
+
+	// Do not show implied types in tree views
+	private Node getNavType() {
+		Node type = getTypeNode();
+		return type instanceof ImpliedNode ? null : type;
+	}
+
+	/**
+	 * Return new array containing assigned type
+	 */
+	public List<Node> getNavChildren(boolean deep) {
+		Node type = getNavType();
+		ArrayList<Node> kids = new ArrayList<Node>();
+		if (deep && type != null)
+			kids.add(type);
+		return kids;
 	}
 
 	@Override

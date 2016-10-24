@@ -54,8 +54,11 @@ import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.trees.library.LibrarySorter;
+import org.opentravel.schemas.trees.library.LibraryTreeContentProvider;
+import org.opentravel.schemas.trees.library.LibraryTreeInheritedFilter;
 import org.opentravel.schemas.trees.library.LibraryTreeLabelProvider;
 import org.opentravel.schemas.trees.library.LibraryTreeWithPropertiesContentProvider;
+import org.opentravel.schemas.trees.type.TypeTreeWhereUsedFilter;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.widgets.ButtonBarManager;
@@ -148,7 +151,8 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 		rightPanelGD.grabExcessHorizontalSpace = true;
 
 		libraryTree = new TreeViewer(container);
-		libraryTree.setContentProvider(new LibraryTreeWithPropertiesContentProvider(false));
+		libraryTree.setContentProvider(new LibraryTreeContentProvider(true));
+		// libraryTree.setContentProvider(new LibraryTreeWithPropertiesContentProvider(false));
 		libraryTree.setLabelProvider(new LibraryTreeLabelProvider());
 		libraryTree.setSorter(new LibrarySorter());
 		libraryTree.setInput(scopeNode);
@@ -157,6 +161,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 
 			@Override
 			public void selectionChanged(final SelectionChangedEvent event) {
+				LOGGER.debug("Library tree Selection Changed.");
 				updateCopyState();
 			}
 		});
@@ -164,6 +169,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 
 			@Override
 			public void doubleClick(final DoubleClickEvent event) {
+				LOGGER.debug("Library Tree double click.");
 				final ISelection selection = event.getSelection();
 				if (selection instanceof StructuredSelection) {
 					final StructuredSelection s = (StructuredSelection) selection;
@@ -183,6 +189,8 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 		propertyTree = new TreeViewer(container);
 		propertyTree.setContentProvider(new LibraryTreeWithPropertiesContentProvider(false));
 		propertyTree.setLabelProvider(new LibraryTreeLabelProvider());
+		propertyTree.addFilter(new TypeTreeWhereUsedFilter());
+		propertyTree.addFilter(new LibraryTreeInheritedFilter());
 		propertyTree.setSorter(new LibrarySorter());
 		propertyTree.setInput(owningFacet);
 		propertyTree.getControl().setLayoutData(listGD);
@@ -190,6 +198,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 
 			@Override
 			public void selectionChanged(final SelectionChangedEvent event) {
+				LOGGER.debug("Property Tree Selection Changed.");
 				final Object selection = propertyTree.getSelection();
 				if (selection instanceof IStructuredSelection) {
 					final Object first = ((IStructuredSelection) selection).getFirstElement();
@@ -374,6 +383,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 	 * @return newly created property cloned from passed property.
 	 */
 	private PropertyNode newProperty(final PropertyNode o) {
+		LOGGER.debug("New Property from property " + o);
 		if (!enabledPropertyTypes.contains(o.getPropertyType())) {
 			setMessage(o.getPropertyType().getName() + "s are not allowed for this object", WARNING);
 			return null;
@@ -388,6 +398,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 	 * @return newly created property with name and type taken from passed node.
 	 */
 	private PropertyNode newProperty(final Node node) {
+		LOGGER.debug("New Property: " + node);
 		final PropertyNode newProperty = newProperty();
 		newProperty.setName(NodeNameUtils.adjustCaseOfName(newProperty.getPropertyType(), node.getName()));
 		if (node.isAssignable() && node instanceof TypeProvider)
@@ -401,6 +412,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 	 * @return newly created blank property.
 	 */
 	private PropertyNode newProperty() {
+		LOGGER.debug("New Property.");
 		final String name = "property" + counter.getAndIncrement();
 		PropertyNode newProperty = null;
 		if (enabledPropertyTypes.contains(PropertyNodeType.ELEMENT))

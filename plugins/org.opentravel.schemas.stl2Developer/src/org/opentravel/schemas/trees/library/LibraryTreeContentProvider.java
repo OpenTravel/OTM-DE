@@ -21,26 +21,37 @@ package org.opentravel.schemas.trees.library;
  * property types. Inherited and property types may be filtered
  * out.
  * 
+ * Deep mode can be set which will passed onto the getTreeChildren(deepMode). 
+ * In this mode properties and assigned types are returned.
+ * 
  * @author Dave Hollander
  */
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.node.resources.ResourceNode;
-import org.opentravel.schemas.types.TypeProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LibraryTreeContentProvider implements ITreeContentProvider {
-	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTreeContentProvider.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTreeContentProvider.class);
+
+	private boolean deepMode = false;
+
+	public LibraryTreeContentProvider() {
+		deepMode = false;
+	}
+
+	public LibraryTreeContentProvider(boolean deep) {
+		deepMode = deep;
+	}
+
+	public boolean isDeepMode() {
+		return deepMode;
+	}
+
+	public void setDeepMode(boolean deepMode) {
+		this.deepMode = deepMode;
+	}
 
 	/**
 	 * Get top level elements under the top library element - used for initial display Preconditions - we have library
@@ -57,50 +68,25 @@ public class LibraryTreeContentProvider implements ITreeContentProvider {
 	@Override
 	public Object[] getChildren(final Object element) {
 		if (element instanceof Node) {
-			Node node = (Node) element;
-			List<Node> navChildren = new ArrayList<Node>();
-			if (node.isDeleted()) {
-				LOGGER.debug("Skipping deleted node: " + node);
-				return null;
-			}
-			// TODO - delegate adding where used children
-			navChildren.addAll(node.getNavChildren());
-			if (node instanceof TypeProvider)
-				navChildren.add(((TypeProvider) node).getWhereUsedNode());
-			if (node instanceof LibraryNode) {
-				navChildren.add(((LibraryNode) node).getWhereUsedHandler().getWhereUsedNode());
-				navChildren.add(((LibraryNode) node).getWhereUsedHandler().getUsedByNode());
-			}
-			if (node instanceof LibraryChainNode) {
-				navChildren.add(((LibraryChainNode) node).getHead().getWhereUsedHandler().getWhereUsedNode());
-				navChildren.add(((LibraryChainNode) node).getHead().getWhereUsedHandler().getUsedByNode());
-			}
-			navChildren.addAll(node.getInheritedChildren());
-			return navChildren != null ? navChildren.toArray() : null;
-		} else
-			throw new IllegalArgumentException("getChildren was not passed a node. Element is " + element);
+			// LOGGER.debug("Getting children of ", ((Node) element));
+			// List<Node> tKids = ((Node) element).getTreeChildren(false);
+			// return tKids.toArray();
+			return ((Node) element).getTreeChildren(deepMode).toArray();
+		}
+		throw new IllegalArgumentException("getChildren was not passed a node. Element is " + element);
 	}
 
 	@Override
 	public boolean hasChildren(final Object element) {
-		if (element instanceof Node) {
-			Node node = (Node) element;
-			// Do not display under version nodes unless user selects the node or it has been
-			// extended. This allows focus refreshes to work correctly.
-			if ((Node) element instanceof VersionNode)
-				return false;
-			if ((Node) element instanceof ResourceNode)
-				return false;
-			return node.hasNavChildrenWithProperties() ? true : node.hasInheritedChildren();
-		}
+		if (element instanceof Node)
+			return ((Node) element).hasTreeChildren(deepMode);
 		return false;
 	}
 
 	@Override
 	public Object getParent(final Object element) {
-		if (element instanceof Node) {
+		if (element instanceof Node)
 			return ((INode) element).getParent();
-		}
 		return null;
 	}
 

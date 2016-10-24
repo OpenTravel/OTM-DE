@@ -15,7 +15,10 @@
  */
 package org.opentravel.schemas.node.facets;
 
+import java.util.List;
+
 import org.opentravel.schemas.modelObject.TLValueWithAttributesFacet;
+import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.PropertyNodeType;
 
 /**
@@ -43,6 +46,21 @@ public class VWA_AttributeFacetNode extends FacetNode {
 	@Override
 	public boolean isValidParentOf(PropertyNodeType type) {
 		return PropertyNodeType.getVWA_PropertyTypes().contains(type);
+	}
+
+	@Override
+	public List<Node> getTreeChildren(boolean deep) {
+		return getNavChildren(deep);
+	}
+
+	@Override
+	public boolean hasTreeChildren(boolean deep) {
+		return hasNavChildren(deep); // override facet
+	}
+
+	@Override
+	public boolean isNavChild(boolean deep) {
+		return deep;
 	}
 
 }

@@ -200,7 +200,7 @@ public class Aggregate_Tests {
 		// Test if adding in family to newer version of library in chain
 
 		// Test Get Children
-		Assert.assertEquals(6, as.getNavChildren().size()); // not overriden, should be child count.
+		Assert.assertEquals(6, as.getNavChildren(false).size()); // not overriden, should be child count.
 		Assert.assertEquals(6, as.getChildren().size());
 
 		// Test Remove

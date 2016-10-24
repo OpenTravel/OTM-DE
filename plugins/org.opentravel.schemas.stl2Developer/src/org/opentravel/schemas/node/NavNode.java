@@ -96,6 +96,11 @@ public class NavNode extends Node {
 	}
 
 	@Override
+	public boolean isNavChild(boolean deep) {
+		return true;
+	}
+
+	@Override
 	public String getComponentType() {
 		return "Navigation Node";
 	}
@@ -116,10 +121,10 @@ public class NavNode extends Node {
 	// return getChildren();
 	// }
 
-	@Override
-	public boolean hasNavChildren() {
-		return !getChildren().isEmpty();
-	}
+	// @Override
+	// public boolean hasNavChildren(boolean deep) {
+	// return !getChildren().isEmpty();
+	// }
 
 	/*
 	 * (non-Javadoc)

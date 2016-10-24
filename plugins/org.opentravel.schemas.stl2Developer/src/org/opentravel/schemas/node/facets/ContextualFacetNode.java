@@ -93,6 +93,7 @@ public class ContextualFacetNode extends FacetNode {
 
 	@Override
 	public String getName() {
+		// see also get LocalName - has parentage in name
 		return getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
 	}
 

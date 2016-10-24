@@ -18,14 +18,17 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
@@ -33,15 +36,17 @@ import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.types.TestTypes;
-import org.opentravel.schemas.types.TypeUserNode;
 
 /**
- * Test the aggregate nodes which are navigation nodes used for library chains.
+ * Test getNavChildren(), hasNavChildren() and isNavChild(). These are used by content providers for navigation menu and
+ * node-tree based wizards.
  * 
  * @author Dave Hollander
  * 
  */
 public class Node_NavChildren_Tests {
+	// private final static Logger LOGGER = LoggerFactory.getLogger(Node_NavChildren_Tests.class);
+
 	ModelNode model = null;
 	TestTypes tt = new TestTypes();
 
@@ -62,6 +67,7 @@ public class Node_NavChildren_Tests {
 		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
+		model = mc.getModelNode();
 
 		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
 		ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
@@ -73,57 +79,107 @@ public class Node_NavChildren_Tests {
 		ln_inChain.visitAllNodes(tn);
 	}
 
+	/**
+	 * Test all specialized behaviors in overrides. Also tests alignment of isNavChild() with getNavChildren()
+	 * 
+	 * One big test that uses lots of libraries...so to keep running time down, all tests are done at once.
+	 * 
+	 * @throws Exception
+	 */
 	@Test
-	public void getTests() {
-		// check for NPEs
-		for (Node n : ln_inChain.getDescendants()) {
-			n.getNavChildren();
-		}
-		// check overridden values
-		for (Node n : ln_inChain.getDescendants()) {
+	public void getNavChildrenTests() throws Exception {
+		//
+		// Given = lots of libraries in chains
+		lf.loadTestGroupA(mc);
+		for (LibraryNode ln : defaultProject.getLibraries())
+			new LibraryChainNode(ln);
+
+		//
+		// When - each node is examined
+		//
+		for (Node n : model.getDescendants()) {
+
+			// Debugging trap
+			// if (n instanceof FacetNode) {
+			// List<Node> tk = n.getTreeChildren(false);
+			// List<Node> nk = n.getNavChildren(false);
+			// boolean tc = n.hasTreeChildren(false);
+			// boolean nc = n.hasNavChildren(false);
+			// System.out.println("HELPME");
+			// }
+
+			//
+			// Then - Make sure getTreeChildren() does not error out.
+			//
+			List<Node> tKids = n.getTreeChildren(false);
+			if (n.hasTreeChildren(false))
+				assertTrue("If there are tree children the must be tree children.", !tKids.isEmpty());
+			if (n.hasNavChildren(false))
+				assertTrue("If there are nav children the must be tree children.", !tKids.isEmpty());
+
+			//
+			// Then - Make sure getNavChildren() and hasNavChildren() and isNavChild() are aligned
+			//
+			boolean deep = false;
+			List<Node> nKids = n.getNavChildren(deep);
+			if (n.hasNavChildren(deep))
+				assertTrue("hasNavChildren is true so getNavChildren() must have kids.", !nKids.isEmpty());
+			else
+				assertTrue("hasNavChildren must match getNavChildren().", nKids.isEmpty());
+			for (Node kid : nKids)
+				assertTrue("Get nav children must pass isNavChild()", kid.isNavChild(deep));
+
+			deep = true;
+			nKids = n.getNavChildren(deep);
+			if (n.hasNavChildren(deep))
+				assertTrue("hasNavChildren is true so getNavChildren() must have kids.", !nKids.isEmpty());
+			else
+				assertTrue("hasNavChildren must match getNavChildren().", nKids.isEmpty());
+			for (Node kid : nKids)
+				assertTrue("Get nav children must pass isNavChild()", kid.isNavChild(deep));
+
+			//
+			// Then - Test classes that always do not have navChildren
+			//
 			if ((n instanceof LibraryNode) && (n.parent instanceof VersionAggregateNode))
-				Assert.assertTrue(n.getNavChildren().isEmpty());
+				assertTrue("Must be empty.", n.getNavChildren(true).isEmpty());
+			else if (n instanceof VersionAggregateNode)
+				assertTrue("Must be empty.", n.getNavChildren(true).isEmpty());
 			else if (n instanceof RepositoryNode)
-				Assert.assertNull(n.getNavChildren());
+				assertTrue("Must be empty.", n.getNavChildren(true).isEmpty());
 			else if (n instanceof AliasNode)
-				Assert.assertNull(n.getNavChildren());
+				assertTrue("Must be empty.", n.getNavChildren(true).isEmpty());
+
+			//
+			// Then - Test Overridden behavior
+			//
+			else if (n instanceof ExtensionPointNode)
+				// Some properties will not be in the list. Could have children but no navChildren
+				assertTrue("Must not be null.", n.getNavChildren(true) != null);
 			else if (n instanceof FacetNode)
-				Assert.assertNull(null); // only aliases are nav children
+				// Some properties will not be in the list. Could have children but no navChildren
+				assertTrue("Must not be null.", n.getNavChildren(true) != null);
 			else if (n instanceof PropertyNode)
-				Assert.assertNull(null); // only aliases are nav children
-			else if (n instanceof TypeUserNode)
-				Assert.assertNull(null); //
+				// getNavChildren may return assigned type and aliases
+				assertTrue("Must not be null.", n.getNavChildren(true) != null);
+			else if (n instanceof SimpleTypeNode)
+				assertTrue("Nav child must only be assigned type if any.", n.getNavChildren(true).size() < 2);
 			else if (n instanceof VersionNode)
-				Assert.assertNull(null); // returns children of newest version
-			else if (n instanceof ComponentNode)
-				Assert.assertNull(null); // list only contains members for which isNavChild = true
+				assertTrue("Head node children must be version node's navChildren.", ((VersionNode) n)
+						.getNewestVersion().getNavChildren(true).size() == n.getNavChildren(true).size());
+			else if (n instanceof Enumeration)
+				assertTrue("Enumeration getNavChildren must be empty.", n.getNavChildren(true).isEmpty());
+			else if (n instanceof VWA_Node)
+				// only the simple is Nav child ??Why??
+				assertTrue("Get Nav Children must not be null.", n.getNavChildren(true) != null);
 			else {
-				if (n.getNavChildren().size() != n.getChildren().size()) {
-					List<Node> kids = n.getNavChildren();
-					kids = n.getChildren();
-				}
-				Assert.assertEquals(n.getNavChildren().size(), n.getChildren().size());
+				assertTrue("Must not be TypeUser node.", !(n instanceof WhereUsedNodeInterface));
+				//
+				// Finally - if not special case all children are nav children
+				//
+				assertTrue("Default case where all children are navigation.", n.getNavChildren(true).size() == n
+						.getChildren().size());
 			}
 		}
 	}
-
-	@Test
-	public void isTests() {
-		// check for NPEs
-		for (Node n : ln_inChain.getDescendants()) {
-			n.isNavChild();
-			n.isNavigation();
-		}
-	}
-
-	@Test
-	public void hasTests() {
-		// check for NPEs
-		for (Node n : ln_inChain.getDescendants()) {
-			n.hasNavChildren();
-			n.hasNavChildrenWithProperties();
-		}
-
-	}
-
 }

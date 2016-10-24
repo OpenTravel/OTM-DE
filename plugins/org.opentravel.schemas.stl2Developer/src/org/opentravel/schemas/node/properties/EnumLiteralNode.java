@@ -93,31 +93,26 @@ public class EnumLiteralNode extends PropertyNode {
 		return Images.getImageRegistry().get(Images.RoleValue);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getLabel()
-	 */
 	@Override
 	public String getLabel() {
 		return modelObject.getLabel() == null ? "" : modelObject.getLabel();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.properties.PropertyNode#getOwningComponent()
-	 */
 	@Override
 	public Node getOwningComponent() {
 		return getParent();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.PropertyNode#setName(java.lang.String)
-	 */
+	@Override
+	public boolean isNavChild(boolean deep) {
+		return false;
+	}
+
+	// @Override
+	// public boolean hasNavChildrenWithProperties() {
+	// return false;
+	// }
+	//
 	@Override
 	public void setName(String name) {
 		if (isEditable_newToChain())

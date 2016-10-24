@@ -20,7 +20,6 @@ package org.opentravel.schemas.trees.library;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.properties.PropertyNode;
 
 /**
@@ -30,21 +29,13 @@ import org.opentravel.schemas.node.properties.PropertyNode;
  * @author Dave Hollander
  * 
  */
-public class LibraryPropertyOnlyFilter extends ViewerFilter {
+public class LibraryPropertyFilter extends ViewerFilter {
 	// private static final Logger LOGGER =
 	// LoggerFactory.getLogger(LibraryTreeContentProvider.class);
 
 	@Override
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
-		if ((parentElement instanceof Node) && (element instanceof Node)) {
-			final Node n = (Node) parentElement;
-			// LOGGER.debug( "Is node property type? "+n.isProperty());
-			if (n instanceof PropertyNode)
-				return false;
-			else
-				return true;
-		}
-		return false;
+		return !(element instanceof PropertyNode);
 	}
 
 }

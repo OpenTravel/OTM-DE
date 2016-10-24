@@ -17,7 +17,6 @@ package org.opentravel.schemas.node;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -159,34 +158,34 @@ public class ComponentNode extends Node {
 		}
 	}
 
-	/**
-	 * Navigation Component nodes are: complex, facet, service, simpleAssignable
-	 */
-	@Override
-	public List<Node> getNavChildren() {
-		final List<Node> ret = new ArrayList<Node>();
-		for (final Node n : getChildren()) {
-			if (n.isNavChild()) {
-				ret.add(n);
-			}
-		}
-		return ret;
-	}
+	// /**
+	// * Returns a new array list of nodes.
+	// *
+	// * Navigation Component nodes are: complex, facet, service, simpleAssignable
+	// */
+	// @Override
+	// public List<Node> getNavChildren() {
+	// final List<Node> ret = new ArrayList<Node>();
+	// for (final Node n : getChildren()) {
+	// if (n.isNavChild()) {
+	// ret.add(n);
+	// }
+	// }
+	// return ret;
+	// }
 
-	@Override
-	public boolean hasNavChildren() {
-		for (final Node n : getChildren()) {
-			if (n.isNavChild()) {
-				return true;
-			}
-		}
-		return false;
-	}
+	// @Override
+	// public boolean hasNavChildren() {
+	// for (final Node n : getChildren())
+	// if (n.isNavChild())
+	// return true;
+	// return false;
+	// }
 
-	@Override
-	public boolean hasNavChildrenWithProperties() {
-		return !getChildren().isEmpty();
-	}
+	// @Override
+	// public boolean hasNavChildrenWithProperties() {
+	// return !getChildren().isEmpty();
+	// }
 
 	/**
 	 * Actual node where the inherited child is declared.
@@ -885,35 +884,35 @@ public class ComponentNode extends Node {
 	// return cnt;
 	// }
 
-	/**
-	 * Each access of children is sorting them based on order of MO's children.
-	 */
-	@Override
-	public List<Node> getChildren() {
-		return synchChildrenWithMO(super.getChildren());
-	}
+	// /**
+	// * Each access of children is sorting them based on order of MO's children.
+	// */
+	// @Override
+	// public List<Node> getChildren() {
+	// return synchChildrenWithMO(super.getChildren());
+	// }
 
-	/**
-	 * Synchronize order of children with ModelObject children order.
-	 * 
-	 * @param children
-	 * @return sorted list of children based on order of ModelObject.
-	 */
-	private List<Node> synchChildrenWithMO(List<Node> children) {
-		if (getModelObject() == null)
-			return Collections.emptyList(); // happens during delete.
-		final List<?> tlChildrenOrder = getModelObject().getChildren();
-		Collections.sort(children, new Comparator<Node>() {
-
-			@Override
-			public int compare(Node o1, Node o2) {
-				Integer idx1 = tlChildrenOrder.indexOf(o1.getModelObject().getTLModelObj());
-				Integer idx2 = tlChildrenOrder.indexOf(o2.getModelObject().getTLModelObj());
-				return idx1.compareTo(idx2);
-			}
-		});
-		return children;
-	}
+	// /**
+	// * Synchronize order of children with ModelObject children order.
+	// *
+	// * @param children
+	// * @return sorted list of children based on order of ModelObject.
+	// */
+	// protected List<Node> synchChildrenWithMO(List<Node> children) {
+	// if (getModelObject() == null)
+	// return Collections.emptyList(); // happens during delete.
+	// final List<?> tlChildrenOrder = getModelObject().getChildren();
+	// Collections.sort(children, new Comparator<Node>() {
+	//
+	// @Override
+	// public int compare(Node o1, Node o2) {
+	// Integer idx1 = tlChildrenOrder.indexOf(o1.getModelObject().getTLModelObj());
+	// Integer idx2 = tlChildrenOrder.indexOf(o2.getModelObject().getTLModelObj());
+	// return idx1.compareTo(idx2);
+	// }
+	// });
+	// return children;
+	// }
 
 	@Override
 	public void sort() {

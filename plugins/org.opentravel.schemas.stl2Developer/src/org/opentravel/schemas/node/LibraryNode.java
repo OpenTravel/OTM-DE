@@ -783,8 +783,9 @@ public class LibraryNode extends Node {
 						cf.print();
 						addMember(cf);
 					}
-				} else
-					LOGGER.debug("Skipping contextual facet: " + mbr.getLocalName());
+				}
+				// else
+				// LOGGER.debug("Skipping contextual facet: " + mbr.getLocalName());
 			} else if (mbr instanceof TLService) {
 				if (n instanceof ServiceNode)
 					((ServiceNode) n).link((TLService) mbr, this);
@@ -807,10 +808,10 @@ public class LibraryNode extends Node {
 		new TypeResolver().resolveTypes(); // TODO - this is run too often
 	}
 
-	private ComponentNode getNodeIfInThisLib(TLLibraryMember mbr) {
-		ComponentNode cn = (ComponentNode) GetNode(mbr);
-		return cn != null && cn.getLibrary() != this ? null : cn;
-	}
+	// private ComponentNode getNodeIfInThisLib(TLLibraryMember mbr) {
+	// ComponentNode cn = (ComponentNode) GetNode(mbr);
+	// return cn != null && cn.getLibrary() != this ? null : cn;
+	// }
 
 	public boolean hasGeneratedChildren() {
 		return genTLLib.getNamedMembers().size() > 0 ? true : false;
@@ -1197,14 +1198,39 @@ public class LibraryNode extends Node {
 	}
 
 	@Override
-	public List<Node> getNavChildren() {
-		return parent instanceof VersionAggregateNode ? new ArrayList<Node>() : getChildren();
+	public List<Node> getNavChildren(boolean deep) {
+		if (parent instanceof VersionAggregateNode)
+			return new ArrayList<Node>();
+		else
+			return new ArrayList<Node>(getChildren());
 	}
+
+	@Override
+	public List<Node> getTreeChildren(boolean deep) {
+		List<Node> treeKids = getNavChildren(deep);
+		if (!treeKids.contains(getWhereUsedHandler().getWhereUsedNode()))
+			treeKids.add(getWhereUsedHandler().getWhereUsedNode());
+		if (!treeKids.contains(getWhereUsedHandler().getUsedByNode()))
+			treeKids.add(getWhereUsedHandler().getUsedByNode());
+		return treeKids;
+	}
+
+	@Override
+	public boolean hasTreeChildren(boolean deep) {
+		return true; // include where used and uses from
+	}
+
+	// FIXME - this should work but TLEmpty would have to extend abstract library
+	// @Override
+	// public AbstractLibrary getTLModelObject() {
+	// return modelObject.getTLModelObj() instanceof TLEmpty ? null : (AbstractLibrary) modelObject.getTLModelObj();
+	// }
 
 	@Override
 	public String getNamespace() {
 		// return emptyIfNull(getTLaLib().getNamespace());
 		return modelObject.getNamespace(); // some libraries have empty mo
+		// return getTLModelObject() == null ? "" : getTLModelObject().getNamespace();
 	}
 
 	public String getNSBase() {
@@ -1232,10 +1258,18 @@ public class LibraryNode extends Node {
 	}
 
 	@Override
-	public boolean hasNavChildren() {
+	public boolean hasNavChildren(boolean deep) {
 		if (parent instanceof VersionAggregateNode)
 			return false;
-		return getChildren().size() <= 0 ? false : true;
+		return !getChildren().isEmpty();
+	}
+
+	/**
+	 * Override to false if it is in a chain.
+	 */
+	@Override
+	public boolean isNavChild(boolean deep) {
+		return !(parent instanceof VersionAggregateNode);
 	}
 
 	/**
@@ -1262,20 +1296,15 @@ public class LibraryNode extends Node {
 		return null;
 	}
 
-	private List<ResourceNode> getResources() {
-		List<ResourceNode> resources = new ArrayList<ResourceNode>();
-		for (Node n : getResourceRoot().getChildren()) {
-			if (n instanceof ResourceNode)
-				resources.add((ResourceNode) n);
-		}
-		return resources;
-	}
+	// private List<ResourceNode> getResources() {
+	// List<ResourceNode> resources = new ArrayList<ResourceNode>();
+	// for (Node n : getResourceRoot().getChildren()) {
+	// if (n instanceof ResourceNode)
+	// resources.add((ResourceNode) n);
+	// }
+	// return resources;
+	// }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#hasChildren_TypeProviders()
-	 */
 	@Override
 	public boolean hasChildren_TypeProviders() {
 		return getChildren().size() > 0 ? true : false;

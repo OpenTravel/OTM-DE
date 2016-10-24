@@ -204,7 +204,7 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 	}
 
 	@Override
-	public boolean hasNavChildren() {
+	public boolean hasNavChildren(boolean deep) {
 		return !getChildren().isEmpty();
 	}
 

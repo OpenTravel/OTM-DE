@@ -31,6 +31,9 @@ General - High Priority
 	On Library/Project close - clear effected contents of example and graphical views
 	Resource Remove Object button - make into a 3 column format	
 
+	Remove CompileAction - replaced by compile handler
+	
+	
 Jetty Test Service - lines 100-102
 	
 	x - Create resource then assign subject - where used not set

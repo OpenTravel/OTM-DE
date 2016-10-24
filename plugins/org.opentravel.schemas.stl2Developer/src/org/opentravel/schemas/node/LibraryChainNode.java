@@ -455,10 +455,11 @@ public class LibraryChainNode extends Node {
 		return versions;
 	}
 
-	@Override
-	public boolean hasNavChildren() {
-		return getChildren().size() <= 0 ? false : true;
-	}
+	// @Override
+	// public boolean hasNavChildren(boolean deep) {
+	// return !getChildren().isEmpty();
+	// // return getChildren().size() <= 0 ? false : true;
+	// }
 
 	@Override
 	public boolean isEditable() {
@@ -476,6 +477,21 @@ public class LibraryChainNode extends Node {
 
 	public INode getSimpleAggregate() {
 		return simpleRoot;
+	}
+
+	@Override
+	public List<Node> getTreeChildren(boolean deep) {
+		List<Node> treeKids = getNavChildren(deep);
+		if (!treeKids.contains(getHead().getWhereUsedHandler().getWhereUsedNode()))
+			treeKids.add(getHead().getWhereUsedHandler().getWhereUsedNode());
+		if (!treeKids.contains(getHead().getWhereUsedHandler().getUsedByNode()))
+			treeKids.add(getHead().getWhereUsedHandler().getUsedByNode());
+		return treeKids;
+	}
+
+	@Override
+	public boolean hasTreeChildren(boolean deep) {
+		return true; // include where used and uses from
 	}
 
 	public boolean isPatch() {
@@ -513,6 +529,11 @@ public class LibraryChainNode extends Node {
 	@Override
 	public boolean hasChildren_TypeProviders() {
 		return versions.getChildren().size() > 0 ? true : false;
+	}
+
+	@Override
+	public boolean isNavChild(boolean deep) {
+		return true;
 	}
 
 	@Override

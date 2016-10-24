@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.trees.library;
+package org.opentravel.schemas.node.interfaces;
 
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerFilter;
-import org.opentravel.schemas.node.Node;
 
-public class LibraryTreeInheritedFilter extends ViewerFilter {
-
-	@Override
-	public boolean select(Viewer viewer, Object parentElement, Object element) {
-		if (element instanceof Node)
-			return (!((Node) element).isInheritedProperty());
-		return false;
-	}
+/**
+ * User Nodes represent where-used information. They are not part of the OTM object tree but are presented in the
+ * navigator and may be children.
+ * 
+ * @author Dave
+ *
+ */
+public interface WhereUsedNodeInterface {
+	/**
+	 * Must return false
+	 */
+	public boolean isLibraryMemberContainer();
 
 }

@@ -25,6 +25,7 @@ import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.controllers.NodeImageProvider;
 import org.opentravel.schemas.node.controllers.NodeLabelProvider;
+import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class TypeUserNode extends Node {
+public class TypeUserNode extends Node implements WhereUsedNodeInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TypeUserNode.class);
 
 	public enum TypeUserNodeType {
@@ -95,6 +96,11 @@ public class TypeUserNode extends Node {
 	}
 
 	@Override
+	public boolean isLibraryMemberContainer() {
+		return false;
+	};
+
+	@Override
 	public String getLabel() {
 		return labelProvider.getLabel();
 	}
@@ -124,7 +130,8 @@ public class TypeUserNode extends Node {
 	 */
 	@Override
 	public List<Node> getChildren() {
-		if (owner != null && nodeType.equals(TypeUserNodeType.OWNER)) {
+		if (owner != null) {
+			// if (owner != null && nodeType.equals(TypeUserNodeType.OWNER)) {
 			List<Node> providerLibs = new ArrayList<Node>();
 			for (LibraryNode l : owner.getAssignedLibraries())
 				providerLibs.add(new TypeUserNode(l, owner));
@@ -172,8 +179,23 @@ public class TypeUserNode extends Node {
 	}
 
 	@Override
-	public boolean hasNavChildren() {
+	public boolean hasNavChildren(boolean deep) {
+		return nodeType == TypeUserNodeType.PROVIDER_LIB ? false : true;
+		// FIXME - only return true if there are provider libs
+		// return true;
+	}
+
+	/**
+	 * Always true because lazy evaluation of children.
+	 */
+	@Override
+	public boolean hasTreeChildren(boolean deep) {
 		return true;
+	}
+
+	@Override
+	public List<Node> getTreeChildren(boolean deep) {
+		return getChildren();
 	}
 
 	@Override

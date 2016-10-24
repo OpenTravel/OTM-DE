@@ -111,24 +111,29 @@ public class VersionNode extends ComponentNode {
 		return head != null;
 	}
 
-	// NOTE - this gives the desired result.
-	// Version nodes that are also the latest do not have children while clicking on one that has
-	// been extended will show the base type.
-	@Override
-	public boolean hasNavChildrenWithProperties() {
-		return false;
-	}
+	// // NOTE - this gives the desired result.
+	// // Version nodes that are also the latest do not have children while clicking on one that has
+	// // been extended will show the base type.
+	// @Override
+	// public boolean hasNavChildrenWithProperties() {
+	// return false;
+	// }
 
 	@Override
-	public List<Node> getNavChildren() {
+	public List<Node> getNavChildren(boolean deep) {
 		// this simplifies links from validation, user experience and showing families in the other aggregates.
-		return getNewestVersion().getNavChildren();
+		return getNewestVersion().getNavChildren(deep);
 		// return Collections.emptyList();
 	}
 
 	@Override
-	public boolean hasNavChildren() {
-		return false;
+	public boolean hasNavChildren(boolean deep) {
+		return getNewestVersion().hasNavChildren(deep);
+	}
+
+	@Override
+	public boolean isNavChild(boolean deep) {
+		return getNewestVersion().isNavChild(deep);
 	}
 
 	@Override

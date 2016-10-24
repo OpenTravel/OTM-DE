@@ -174,12 +174,12 @@ public abstract class RepositoryNode extends Node implements Comparable<Reposito
 	}
 
 	@Override
-	public List<Node> getNavChildren() {
-		return null;
+	public List<Node> getNavChildren(boolean deep) {
+		return Collections.emptyList();
 	}
 
 	@Override
-	public boolean hasNavChildren() {
+	public boolean hasNavChildren(boolean deep) {
 		return false;
 	}
 

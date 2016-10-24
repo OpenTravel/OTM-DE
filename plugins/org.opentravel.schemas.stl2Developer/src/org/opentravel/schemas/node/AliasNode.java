@@ -139,7 +139,7 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 	}
 
 	@Override
-	protected boolean isNavChild() {
+	public boolean isNavChild(boolean deep) {
 		return true;
 	}
 
@@ -159,12 +159,12 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 	}
 
 	@Override
-	public List<Node> getNavChildren() {
-		return Collections.emptyList();
+	public List<Node> getNavChildren(boolean deep) {
+		return new ArrayList<Node>();
 	}
 
 	@Override
-	public boolean hasNavChildren() {
+	public boolean hasNavChildren(boolean deep) {
 		return false;
 	}
 

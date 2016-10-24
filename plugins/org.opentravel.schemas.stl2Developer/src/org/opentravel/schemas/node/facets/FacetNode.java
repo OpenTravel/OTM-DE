@@ -17,6 +17,7 @@ package org.opentravel.schemas.node.facets;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
@@ -151,18 +152,17 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 		return label.isEmpty() ? "" : label;
 	}
 
-	/**
-	 * Facets can have aliases which are nav nodes.
-	 */
 	@Override
-	public List<Node> getNavChildren() {
-		final ArrayList<Node> ret = new ArrayList<Node>();
-		for (final Node n : getChildren()) {
-			if (n instanceof AliasNode) {
-				ret.add(n);
-			}
-		}
-		return ret;
+	public List<Node> getTreeChildren(boolean deep) {
+		List<Node> navChildren = getNavChildren(deep);
+		navChildren.addAll(getInheritedChildren());
+		navChildren.add(getWhereUsedNode());
+		return navChildren;
+	}
+
+	@Override
+	public boolean hasTreeChildren(boolean deep) {
+		return true; // where used node
 	}
 
 	@Override
@@ -170,20 +170,52 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 		return isExtensionPointFacet() ? this : getParent();
 	}
 
+	/**
+	 * Each access of children is sorting them based on order of MO's children.
+	 */
+	@Override
+	public List<Node> getChildren() {
+		return synchChildrenWithMO(super.getChildren());
+	}
+
+	/**
+	 * Synchronize order of children with ModelObject children order.
+	 * 
+	 * @param children
+	 * @return sorted list of children based on order of ModelObject.
+	 */
+	protected List<Node> synchChildrenWithMO(List<Node> children) {
+		if (getModelObject() == null)
+			return Collections.emptyList(); // happens during delete.
+		final List<?> tlChildrenOrder = getModelObject().getChildren();
+		Collections.sort(children, new Comparator<Node>() {
+
+			@Override
+			public int compare(Node o1, Node o2) {
+				Integer idx1 = tlChildrenOrder.indexOf(o1.getModelObject().getTLModelObj());
+				Integer idx2 = tlChildrenOrder.indexOf(o2.getModelObject().getTLModelObj());
+				return idx1.compareTo(idx2);
+			}
+		});
+		return children;
+	}
+
 	@Override
 	public boolean hasChildren_TypeProviders() {
 		return isXsdType() ? false : true;
 	}
 
-	@Override
-	public boolean hasNavChildren() {
-		for (final Node n : getChildren()) {
-			if (n instanceof AliasNode) {
-				return true;
-			}
-		}
-		return false;
-	}
+	// @Override
+	// public boolean hasNavChildren(boolean deep) {
+	// if (deep)
+	// return !getChildren().isEmpty();
+	// for (final Node n : getChildren()) {
+	// if (n instanceof AliasNode) {
+	// return true;
+	// }
+	// }
+	// return false;
+	// }
 
 	@Override
 	public boolean isAssignable() {
@@ -244,11 +276,6 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 		return getFacetType() != null ? getFacetType().equals(TLFacetType.DETAIL) : false;
 	}
 
-	@Override
-	public boolean isDetailListFacet() {
-		return false;
-	}
-
 	public boolean isIDFacet() {
 		return getFacetType() != null ? getFacetType().equals(TLFacetType.ID) : false;
 	}
@@ -273,7 +300,6 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 		return isSimpleListFacet();
 	}
 
-	@Override
 	public boolean isSimpleListFacet() {
 		return false;
 	}
@@ -362,8 +388,9 @@ public class FacetNode extends TypeProviderBase implements PropertyOwnerInterfac
 	}
 
 	@Override
-	protected boolean isNavChild() {
-		return isAssignable();
+	public boolean isNavChild(boolean deep) {
+		// return isAssignable();
+		return true;
 	}
 
 }

@@ -18,8 +18,6 @@
  */
 package org.opentravel.schemas.node;
 
-import java.util.List;
-
 import org.opentravel.schemacompiler.repository.ProjectItem;
 
 /**
@@ -67,9 +65,9 @@ public class VersionAggregateNode extends AggregateNode {
 		return null;
 	}
 
-	@Override
-	public List<Node> getNavChildren() {
-		return super.getChildren();
-	}
+	// @Override
+	// public List<Node> getNavChildren() {
+	// return super.getNavChildren();
+	// }
 
 }

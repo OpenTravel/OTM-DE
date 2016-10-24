@@ -73,20 +73,20 @@ public class OperationNode extends FacetNode implements VersionedObjectInterface
 		return super.createMinorVersionComponent(new OperationNode(new TLOperation()));
 	}
 
-	@Override
-	public boolean isDetailListFacet() {
-		return false;
-	}
+	// @Override
+	// public boolean isDetailListFacet() {
+	// return false;
+	// }
 
 	@Override
 	public boolean isDeleteable() {
 		return getParent().isDeleteable();
 	}
 
-	@Override
-	protected boolean isNavChild() {
-		return true;
-	}
+	// @Override
+	// protected boolean isNavChild() {
+	// return true;
+	// }
 
 	@Override
 	public boolean isDefaultFacet() {

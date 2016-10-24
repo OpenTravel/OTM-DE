@@ -18,6 +18,9 @@
  */
 package org.opentravel.schemas.node;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
@@ -99,13 +102,25 @@ public class SimpleTypeNode extends TypeProviderBase implements SimpleComponentI
 	}
 
 	@Override
-	public boolean hasNavChildren() {
-		return true; // True because where used is a nav child.
+	public boolean hasNavChildren(boolean deep) {
+		return deep && getNavType() != null;
 	}
 
-	@Override
-	public boolean hasNavChildrenWithProperties() {
-		return true; // True because where used is a nav child.
+	// Do not show implied types in tree views
+	private Node getNavType() {
+		Node type = getTypeNode();
+		return type instanceof ImpliedNode ? null : type;
+	}
+
+	/**
+	 * Return new array containing assigned type
+	 */
+	public List<Node> getNavChildren(boolean deep) {
+		Node type = getNavType();
+		ArrayList<Node> kids = new ArrayList<Node>();
+		if (deep && type != null)
+			kids.add(type);
+		return kids;
 	}
 
 	// @Override

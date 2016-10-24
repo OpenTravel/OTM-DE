@@ -273,13 +273,13 @@ public class ProjectNode extends Node implements INode {
 
 	@Override
 	public boolean hasChildren() {
-		return getChildren().isEmpty() ? false : true;
+		return !getChildren().isEmpty();
 	}
 
-	@Override
-	public boolean hasNavChildren() {
-		return getChildren().isEmpty() ? false : true;
-	}
+	// @Override
+	// public boolean hasNavChildren() {
+	// return !getChildren().isEmpty();
+	// }
 
 	@Override
 	public boolean isDeprecated() {
@@ -300,6 +300,11 @@ public class ProjectNode extends Node implements INode {
 
 	@Override
 	public boolean isLibraryContainer() {
+		return true;
+	}
+
+	@Override
+	public boolean isNavChild(boolean deep) {
 		return true;
 	}
 

@@ -74,7 +74,7 @@ public abstract class TypeSelectionFilter extends ViewerFilter {
 		// deeper ancestors are valid
 		if (!hasValidChild) {
 			Set<Node> children = new HashSet<Node>(n.getChildren_TypeProviders());
-			List<Node> navChildren = n.getNavChildren();
+			List<Node> navChildren = n.getNavChildren(false);
 
 			if (navChildren != null)
 				children.addAll(navChildren);

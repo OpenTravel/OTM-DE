@@ -28,6 +28,7 @@ import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemas.modelObject.XsdModelingUtils;
 import org.opentravel.schemas.node.NodeVisitors.FixNames;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -153,7 +154,8 @@ public class NodeNameUtils {
 		if (qName == null && name.isEmpty() && assignedType != null)
 			name = assignedType.getName();
 
-		if (assignedType != null && ((Node) assignedType).isSimpleListFacet())
+		if (assignedType != null && assignedType instanceof ListFacetNode
+				&& ((ListFacetNode) assignedType).isSimpleListFacet())
 			name = makePlural(stripUnderScore(stripSuffix(assignedType.getName(), SIMPLE_LIST_SUFFIX)));
 
 		if (n instanceof ElementReferenceNode)

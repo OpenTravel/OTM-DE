@@ -170,10 +170,11 @@ public class LibrarySorter extends ViewerSorter {
 				return 2;
 			if (n instanceof RoleFacetNode)
 				return 61;
-			if (n.isSimpleListFacet())
-				return 65;
-			if (n instanceof ListFacetNode)
+			if (n instanceof ListFacetNode) {
+				if (((ListFacetNode) n).isSimpleListFacet())
+					return 65;
 				return 66;
+			}
 			if (n instanceof OperationNode)
 				return 67;
 

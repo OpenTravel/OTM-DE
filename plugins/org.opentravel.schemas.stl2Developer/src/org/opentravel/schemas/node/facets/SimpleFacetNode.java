@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.node.facets;
 
+import java.util.List;
+
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemas.node.CoreObjectNode;
@@ -149,6 +151,31 @@ public class SimpleFacetNode extends FacetNode implements TypeProvider, SimpleAt
 	@Override
 	public TypeProvider getSimpleType() {
 		return getSimpleAttribute().getAssignedType();
+	}
+
+	@Override
+	public List<Node> getTreeChildren(boolean deep) {
+		List<Node> kids = getNavChildren(deep);
+		if (parent instanceof CoreObjectNode)
+			kids.add(getWhereUsedNode());
+		return kids;
+	}
+
+	@Override
+	public boolean hasTreeChildren(boolean deep) {
+		if (parent instanceof CoreObjectNode)
+			return true; // where used node
+		return deep;
+	}
+
+	@Override
+	public boolean hasNavChildren(boolean deep) {
+		return deep; // only show attribute in deep mode
+	}
+
+	@Override
+	public boolean isNavChild(boolean deep) {
+		return deep;
 	}
 
 }

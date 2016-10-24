@@ -15,6 +15,9 @@
  */
 package org.opentravel.schemas.node.properties;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLRole;
@@ -53,11 +56,6 @@ public class RoleNode extends PropertyNode {
 		return type instanceof ImpliedNode ? true : false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.PropertyNode#createProperty(org.opentravel.schemas.node.Node)
-	 */
 	@Override
 	public INode createProperty(Node type) {
 		TLRole tlObj = (TLRole) cloneTLObj();
@@ -89,15 +87,25 @@ public class RoleNode extends PropertyNode {
 	}
 
 	@Override
+	public List<Node> getTreeChildren(boolean deep) {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public List<Node> getNavChildren(boolean deep) {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public boolean hasNavChildren(boolean deep) {
+		return false;
+	}
+
+	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.RoleValue);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getLabel()
-	 */
 	@Override
 	public String getLabel() {
 		return modelObject.getLabel() == null ? "" : modelObject.getLabel();
@@ -108,11 +116,11 @@ public class RoleNode extends PropertyNode {
 		return (RoleFacetNode) parent;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.PropertyNode#setName(java.lang.String)
-	 */
+	@Override
+	public boolean isNavChild(boolean deep) {
+		return false;
+	}
+
 	@Override
 	public void setName(String name) {
 		modelObject.setName(name);

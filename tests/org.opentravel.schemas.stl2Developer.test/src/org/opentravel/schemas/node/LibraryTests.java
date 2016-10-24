@@ -143,7 +143,7 @@ public class LibraryTests {
 			Assert.assertEquals(20, ln.getDescendants_NamedTypes().size());
 		}
 
-		Assert.assertTrue(ln.getChildren().size() == ln.getNavChildren().size());
+		Assert.assertTrue(ln.getChildren().size() == ln.getNavChildren(false).size());
 		Assert.assertTrue(ln.getParent() instanceof ProjectNode);
 
 		Assert.assertNotNull(ln.getTLaLib());

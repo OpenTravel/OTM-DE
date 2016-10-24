@@ -159,6 +159,16 @@ public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration
 	}
 
 	@Override
+	public boolean hasNavChildren(boolean deep) {
+		return false;
+	}
+
+	@Override
+	public List<Node> getNavChildren(boolean deep) {
+		return new ArrayList<Node>();
+	}
+
+	@Override
 	public Node setExtensible(boolean extensible) {
 		if (isEditable_newToChain())
 			if (extensible)

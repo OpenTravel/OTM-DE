@@ -17,6 +17,7 @@ package org.opentravel.schemas.node;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.types.TypeNode;
@@ -44,6 +45,19 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 	public TypeProviderBase(final TLModelElement obj) {
 		super(obj);
 		whereAssignedHandler = new WhereAssignedHandler(this);
+	}
+
+	@Override
+	public List<Node> getTreeChildren(boolean deep) {
+		List<Node> navChildren = getNavChildren(deep);
+		navChildren.addAll(getInheritedChildren());
+		navChildren.add(getWhereUsedNode());
+		return navChildren;
+	}
+
+	@Override
+	public boolean hasTreeChildren(boolean deep) {
+		return true; // allow where used nodes
 	}
 
 	@Override

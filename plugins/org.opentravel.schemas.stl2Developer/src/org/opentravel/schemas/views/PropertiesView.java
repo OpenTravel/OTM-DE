@@ -46,6 +46,7 @@ import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
@@ -463,7 +464,8 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 			updateConstraints((ComponentNode) cn.getType(), false);
 			updatePropertyTypeCombo((PropertyNode) cn);
 			if (cn.isElement()) {
-				if (cn.getTypeNode() != null && cn.getTypeNode().isDetailListFacet()) {
+				if (cn.getTypeNode() != null && cn.getTypeNode() instanceof ListFacetNode
+						&& ((ListFacetNode) cn.getTypeNode()).isDetailListFacet()) {
 					repeatNonValid.setVisible(true);
 					repeatNonValid.setText("---");
 					repeatSpinner.setVisible(false);

@@ -55,6 +55,11 @@ public class IndicatorElementNode extends PropertyNode {
 		return (type == ModelNode.getIndicatorNode() || type == ModelNode.getUndefinedNode());
 	}
 
+	@Override
+	public boolean isNavChild(boolean deep) {
+		return false;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

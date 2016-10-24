@@ -77,6 +77,7 @@ import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
+import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.listeners.INodeListener;
 import org.opentravel.schemas.node.listeners.NodeIdentityListener;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -511,7 +512,7 @@ public abstract class Node implements INode {
 				ret.add((TypeProvider) n);
 
 			// Some type users may also have children
-			if (n.hasChildren())
+			if (n.hasChildren() && !(n instanceof WhereUsedNodeInterface))
 				ret.addAll(n.getDescendants_TypeProviders());
 		}
 		return ret;
@@ -545,6 +546,10 @@ public abstract class Node implements INode {
 			if (n instanceof TypeUser)
 				ret.add((TypeUser) n);
 
+			// Do not traverse UserNodes
+			if (n instanceof WhereUsedNodeInterface)
+				continue;
+
 			// Some type users may also have children
 			if (n.hasChildren())
 				ret.addAll(n.getDescendants_TypeUsers());
@@ -564,7 +569,7 @@ public abstract class Node implements INode {
 				ret.add((ExtensionOwner) n);
 
 			// Some type users may also have children
-			if (n.hasChildren())
+			if (n.hasChildren() && !(n instanceof WhereUsedNodeInterface))
 				ret.addAll(n.getDescendants_ExtensionOwners());
 		}
 		return ret;
@@ -803,10 +808,37 @@ public abstract class Node implements INode {
 	 */
 
 	/**
-	 * @return list of the children to be used for navigation purposes.
+	 * Get a new list of child nodes that are to be displayed in navigator trees.
+	 * 
+	 * @param deep
+	 *            when true some nodes will return more children such as properties
+	 * 
+	 * @see {@link #isNavChild()}
+	 * @see {@link org.opentravel.schemas.node.Node_NavChildren_Tests#getNavChildrenTests()}
+	 * 
+	 * @return new list of children to be used for navigation purposes.
 	 */
-	public List<Node> getNavChildren() {
-		return getChildren();
+	public List<Node> getNavChildren(boolean deep) {
+		ArrayList<Node> kids = new ArrayList<Node>();
+		for (Node c : getChildren())
+			if (c.isNavChild(deep))
+				kids.add(c);
+		return kids;
+	}
+
+	/**
+	 * Get all immediate navChildren that are to be presented in the OTM Object Tree. Includes where used nodes.
+	 * Overridden on nodes that add nodes such as where used to the tree view.
+	 * 
+	 * @see {@link #getNavChildren()}
+	 * 
+	 * @param deep
+	 *            - include properties
+	 * 
+	 * @return new list
+	 */
+	public List<Node> getTreeChildren(boolean deep) {
+		return getNavChildren(deep);
 	}
 
 	/*
@@ -898,15 +930,23 @@ public abstract class Node implements INode {
 		return false;
 	}
 
-	public abstract boolean hasNavChildren();
-
 	/**
-	 * @return true if there are children that are properties that can be assigned a type. Does not include indicators,
-	 *         enumeration literals, or roles Does not include properties whose model object or TL Type are NULL.
-	 *         (modelObject != null && modelObject.getTLType() != null;)
+	 * Fast (no array creation) method to determine if there are navChildren that should be displayed in navigator
+	 * trees.
+	 * 
+	 * @param deep
+	 *            enable the "deep" property mode
 	 */
-	public boolean hasNavChildrenWithProperties() {
-		return hasNavChildren();
+	public boolean hasNavChildren(boolean deep) {
+		for (final Node n : getChildren())
+			if (n.isNavChild(deep))
+				return true;
+		return false;
+	}
+
+	// Override on classes that add to getNavChildren()
+	public boolean hasTreeChildren(boolean deep) {
+		return hasNavChildren(deep);
 	}
 
 	/**
@@ -1367,10 +1407,12 @@ public abstract class Node implements INode {
 	}
 
 	/**
+	 * Fast method to determine if this node should be displayed in navigation views
+	 * 
 	 * @return true if this node should be displayed in navigator view tree with no filters
+	 * @see {@link org.opentravel.schemas.node.Node_NavChildren_Tests#hasTests() }
 	 */
-	// DONE - overridden by some nodes
-	protected boolean isNavChild() {
+	public boolean isNavChild(boolean deep) {
 		return this instanceof LibraryMemberInterface;
 	}
 
@@ -2419,14 +2461,6 @@ public abstract class Node implements INode {
 
 	@Override
 	public boolean isAssignedByReference() {
-		return false;
-	}
-
-	public boolean isSimpleListFacet() {
-		return false;
-	}
-
-	public boolean isDetailListFacet() {
 		return false;
 	}
 
