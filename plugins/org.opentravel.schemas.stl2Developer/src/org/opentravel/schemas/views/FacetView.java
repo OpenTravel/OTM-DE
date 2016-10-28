@@ -420,8 +420,7 @@ public class FacetView extends OtmAbstractView {
 
 			setButtonState(target);
 
-			// if (node.isFamily())
-			// LOGGER.debug("Family " + node.getName());
+			boolean editableNew = node.isEditable_newToChain();
 
 			if (node instanceof FacetNode) {
 				boolean edit = node.isEditable() && !node.isInheritedProperty();
@@ -471,14 +470,14 @@ public class FacetView extends OtmAbstractView {
 			return;
 		}
 
-		for (IWithNodeAction action : getNodeActions()) {
+		for (IWithNodeAction action : getNodeActions())
 			action.setCurrentNode(curNode);
-		}
 
-		nameField.setEnabled(curNode.isEditable());
-		extendableAction.setEnabled(curNode.isEditable());
+		boolean editable = curNode.isEditable();
+		nameField.setEnabled(editable);
+		extendableAction.setEnabled(editable);
 
-		if (curNode.isEditable() && curNode.isInTLLibrary()) {
+		if (editable && curNode.isInTLLibrary()) {
 			if (curNode instanceof Enumeration) {
 				extendableAction.setChecked(curNode instanceof EnumerationOpenNode);
 				extendableLabel.setText(Messages.getString("OtmW.74.Open"));

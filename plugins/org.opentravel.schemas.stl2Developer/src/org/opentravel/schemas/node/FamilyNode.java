@@ -15,7 +15,6 @@
  */
 package org.opentravel.schemas.node;
 
-
 @Deprecated
 public class FamilyNode extends NavNode {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(FamilyNode.class);
@@ -31,7 +30,8 @@ public class FamilyNode extends NavNode {
 	 *            - node to add to the family
 	 */
 	public FamilyNode(final Node n, final Node peer) {
-		super(NodeNameUtils.makeFamilyName(n.getName()), n.getParent());
+		super(n.getName(), n.getParent());
+		// super(NodeNameUtils.makeFamilyName(n.getName()), n.getParent());
 		assert (peer != null) : "Family Node functions have been removed.";
 		// assert (parent != null) : "Parent is null.";
 		// assert (!(n.getParent() instanceof FamilyNode)) : "wrong parent type";

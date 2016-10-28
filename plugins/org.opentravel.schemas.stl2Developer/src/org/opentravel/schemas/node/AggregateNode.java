@@ -83,12 +83,12 @@ public class AggregateNode extends NavNode {
 			return;
 		}
 
-		// TODO - TEST - is this logic correct if there is a family "s" and adding a "s" object?
-		final String familyName = NodeNameUtils.makeFamilyName(nodeToAdd.getName());
+		// // TODO - TEST - is this logic correct if there is a family "s" and adding a "s" object?
+		// final String familyName = NodeNameUtils.makeFamilyName(nodeToAdd.getName());
 
-		// children families and components that have same family prefix
-		final List<Node> familyMatches = findFamilyNameMatches(getChildren(), familyName);
-
+		// // children families and components that have same family prefix
+		// final List<Node> familyMatches = findFamilyNameMatches(getChildren(), familyName);
+		//
 		// If the nodeToAdd name is already in the chain then we need to handle the version logic.
 		final List<Node> duplicates = findExactMatches(getChildren(), nodeToAdd.getName());
 
@@ -97,17 +97,17 @@ public class AggregateNode extends NavNode {
 		else
 			// if (familyMatches.isEmpty())
 			getChildren().add(nodeToAdd); // simply add the node
-			// else if (family == null) {
-			// // if familyMatches contains a Aggregate family, just add to it otherwise create new one
-			// AggregateFamilyNode afn = null;
-			// for (Node n : familyMatches)
-			// if (n instanceof AggregateFamilyNode)
-			// afn = (AggregateFamilyNode) n;
-			// if (afn == null)
-			// new AggregateFamilyNode(this, familyName, nodeToAdd, familyMatches); // Start a new family
-			// else
-			// afn.add(nodeToAdd);
-			// }
+		// else if (family == null) {
+		// // if familyMatches contains a Aggregate family, just add to it otherwise create new one
+		// AggregateFamilyNode afn = null;
+		// for (Node n : familyMatches)
+		// if (n instanceof AggregateFamilyNode)
+		// afn = (AggregateFamilyNode) n;
+		// if (afn == null)
+		// new AggregateFamilyNode(this, familyName, nodeToAdd, familyMatches); // Start a new family
+		// else
+		// afn.add(nodeToAdd);
+		// }
 	}
 
 	// Try to replace the existing name matching node

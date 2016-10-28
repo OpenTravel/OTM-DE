@@ -21,6 +21,7 @@ package org.opentravel.schemas.types;
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.node.NamespaceHandler;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.types.WhereExtendedHandler.WhereExtendedListener;
@@ -49,8 +50,10 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 		return (Node) owner;
 	}
 
+	/**
+	 * Return the base object node. Uses base from TL Model Object.
+	 */
 	public Node get() {
-
 		// Get the extension base from the TL Model Element
 		NamedEntity tlObj = owner.getModelObject().getTLBase();
 		return Node.GetNode((TLModelElement) tlObj);
@@ -58,6 +61,22 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 		// From enum: works
 		// From VWA : works
 		// From choice works
+	}
+
+	/**
+	 * Extension is used for both structure and versioning.
+	 * 
+	 * Version extensions will be in the same root namespace and have the same name.
+	 */
+	public boolean isVersioned() {
+		if (get() == null)
+			return false;
+		String ons = NamespaceHandler.getNSBase((Node) owner);
+		String bns = NamespaceHandler.getNSBase(get());
+		String on = ((Node) owner).getName();
+		String bn = get().getName();
+
+		return ons.equals(bns) && on.equals(bn);
 	}
 
 	/**
@@ -146,8 +165,7 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 
 	@Override
 	public NamedEntity getTLNamedEntity() {
-		// TODO Auto-generated method stub
-		return null;
+		return owner.getModelObject().getTLBase();
 	}
 
 }

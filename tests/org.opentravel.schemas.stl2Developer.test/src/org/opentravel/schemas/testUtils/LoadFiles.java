@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.testUtils;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -62,11 +64,22 @@ public class LoadFiles {
 	public LoadFiles() {
 	}
 
+	/**
+	 * Assure Test files can be read.
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void loadFiles() throws Exception {
 		this.mc = new MainController();
+		// check special files
+		ProjectController pc = mc.getProjectController();
+		ProjectNode proj = pc.getDefaultProject();
+		loadFile_Choice(proj);
+		loadFile6(proj);
+		loadFile7(proj);
 
-		int libCnt = 3; // built-ins
+		int libCnt = 3 + 3; // built-ins
 		try {
 			loadFile1(mc);
 			libCnt++;
@@ -84,6 +97,7 @@ public class LoadFiles {
 		Assert.assertEquals(libCnt, Node.getAllLibraries().size());
 
 		loadTestGroupA(mc);
+
 	}
 
 	@Test
@@ -166,12 +180,14 @@ public class LoadFiles {
 	}
 
 	public LibraryNode loadFile(ProjectNode project, String path) {
+		assertTrue("Must have a non-null project.", project != null);
 		List<File> files = new ArrayList<File>();
 		files.add(new File(path));
+		assertTrue("File must exist.", files.get(0).exists());
 		project.add(files);
-		Assert.assertNotNull(project);
-		Assert.assertTrue(project.getChildren().size() > 0);
 
+		// Then - project must have the new library
+		assertTrue("Project must have children.", project.getChildren().size() > 0);
 		URL u = URLUtils.toURL(new File(System.getProperty("user.dir") + File.separator + path));
 		LibraryNode ln = null;
 		for (LibraryNode lib : project.getLibraries()) {
@@ -182,8 +198,8 @@ public class LoadFiles {
 			}
 
 		}
-		Assert.assertNotNull(ln);
-		Assert.assertTrue(ln.getChildren().size() > 1);
+		assertTrue("Library must be found that has the correct url.", ln != null);
+		assertTrue("Library must have children.", ln.getChildren().size() > 0);
 		return ln;
 	}
 

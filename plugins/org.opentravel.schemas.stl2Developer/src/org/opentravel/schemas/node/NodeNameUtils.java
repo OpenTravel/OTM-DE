@@ -294,18 +294,18 @@ public class NodeNameUtils {
 		return i > 0 ? name.substring(i) : name;
 	}
 
-	/**
-	 * Function to Parse the name at the first underscore "_" and return the first token
-	 * 
-	 * @return the portion before the underscore or an empty string
-	 */
-	public static String makeFamilyName(final String name) {
-		if (name == null || name.isEmpty()) {
-			return "";
-		}
-		final int i = name.indexOf("_");
-		return i > 0 ? name.substring(0, i) : name;
-	}
+	// /**
+	// * Function to Parse the name at the first underscore "_" and return the first token
+	// *
+	// * @return the portion before the underscore or an empty string
+	// */
+	// public static String makeFamilyName(final String name) {
+	// if (name == null || name.isEmpty()) {
+	// return "";
+	// }
+	// final int i = name.indexOf("_");
+	// return i > 0 ? name.substring(0, i) : name;
+	// }
 
 	/**
 	 * Split a string looking like {urn:scim:schemas:core:1.0}Status as created by qName.toString() back into a qname.
@@ -394,9 +394,12 @@ public class NodeNameUtils {
 		return string + "s";
 	}
 
-	private static String stripSuffix(String str, String prefix) {
-		if (str != null && str.endsWith(prefix))
-			return str.substring(0, str.indexOf(prefix));
+	/**
+	 * Remove suffix from end of string.
+	 */
+	private static String stripSuffix(String str, String suffix) {
+		if (str != null && str.endsWith(suffix))
+			return str.substring(0, str.indexOf(suffix));
 		else
 			return str;
 	}

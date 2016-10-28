@@ -85,6 +85,7 @@ import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
+import org.opentravel.schemas.types.ExtensionHandler;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.WhereExtendedHandler;
@@ -1545,10 +1546,15 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * @return true if this object is a later version of another object. True if has same name as the object it extends.
+	 * @return true if this object is a later version of another object. True if has same base ns and name as the object
+	 *         it extends.
 	 */
 	public boolean isVersioned() {
-		return (this instanceof ExtensionOwner) ? getExtendsTypeName().equals(getName()) : false;
+		// return (this instanceof ExtensionOwner) ? getExtendsTypeName().equals(getName()) : false;
+		ExtensionHandler handler = null;
+		if (this instanceof ExtensionOwner)
+			handler = ((ExtensionOwner) this).getExtensionHandler();
+		return handler != null ? handler.isVersioned() : false;
 	}
 
 	/**
