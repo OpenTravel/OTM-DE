@@ -72,14 +72,17 @@ public class LoadFiles {
 	@Test
 	public void loadFiles() throws Exception {
 		this.mc = new MainController();
+		int libCnt = Node.getAllLibraries().size(); // built-ins
+
 		// check special files
 		ProjectController pc = mc.getProjectController();
 		ProjectNode proj = pc.getDefaultProject();
 		loadFile_Choice(proj);
+		libCnt++;
 		loadFile6(proj);
-		loadFile7(proj);
+		libCnt++;
+		// duplicate ns/name - loadFile7(proj);
 
-		int libCnt = 3 + 3; // built-ins
 		try {
 			loadFile1(mc);
 			libCnt++;

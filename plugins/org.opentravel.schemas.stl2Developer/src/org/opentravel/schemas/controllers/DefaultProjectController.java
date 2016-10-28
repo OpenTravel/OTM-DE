@@ -54,6 +54,7 @@ import org.opentravel.schemacompiler.repository.RepositoryNamespaceUtils;
 import org.opentravel.schemacompiler.repository.impl.BuiltInProject;
 import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.LibraryNode;
@@ -197,16 +198,22 @@ public class DefaultProjectController implements ProjectController {
 	 * @param loadingErros
 	 */
 	private void showFindings(final ValidationFindings loadingErros) {
-		// do not block UI
-		Display.getDefault().asyncExec(new Runnable() {
+		if (!OtmRegistry.getMainWindow().hasDisplay()) {
+			LOGGER.debug("Showing " + loadingErros.count() + " findings.");
+			for (String msg : loadingErros.getAllValidationMessages(FindingMessageFormat.MESSAGE_ONLY_FORMAT))
+				LOGGER.debug("   " + msg);
+		} else {
+			// do not block UI
+			Display.getDefault().asyncExec(new Runnable() {
 
-			@Override
-			public void run() {
-				FindingsDialog.open(OtmRegistry.getActiveShell(), Messages.getString("dialog.findings.title"),
-						Messages.getString("dialog.findings.message"), loadingErros.getAllFindingsAsList());
+				@Override
+				public void run() {
+					FindingsDialog.open(OtmRegistry.getActiveShell(), Messages.getString("dialog.findings.title"),
+							Messages.getString("dialog.findings.message"), loadingErros.getAllFindingsAsList());
 
-			}
-		});
+				}
+			});
+		}
 	}
 
 	@Override
