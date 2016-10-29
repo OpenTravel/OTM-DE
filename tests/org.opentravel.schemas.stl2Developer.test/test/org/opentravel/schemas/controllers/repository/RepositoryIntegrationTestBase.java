@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.mockito.Mockito;
 import org.opentravel.schemacompiler.index.FreeTextSearchService;
+import org.opentravel.schemacompiler.index.FreeTextSearchServiceFactory;
 import org.opentravel.schemacompiler.repository.Project;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RemoteRepository;
@@ -152,7 +153,7 @@ public abstract class RepositoryIntegrationTestBase {
 	}
 
 	public final static void reinitializeRepositories() throws IOException, RepositoryException {
-		FreeTextSearchService searchSerfice = FreeTextSearchService.getInstance();
+		FreeTextSearchService searchSerfice = FreeTextSearchServiceFactory.getInstance();
 		searchSerfice.stopService();
 		jettyServer.initializeRuntimeRepository();
 		searchSerfice.startService();
