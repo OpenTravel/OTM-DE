@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<r:RepositoryUsers xmlns="http://www.w3.org/2001/XMLSchema" xmlns:r="http://www.OpenTravel.org/ns/OTA2/RepositoryInfoExt_v01_00">
+    <r:User userId="admin" lastName="admin" encryptedPassword="AOxvAVbKZKfyEIheEsu2kX3gfJtB89kZnPHC3/muKZ4rZIuRdzy7tQDgg/HV3igEtypORNUJB9YrXlzQm7NLg+yjV4xw6wHWJPDUUfcI+yyEuTRWrfD+lWVNI9CAxIvfVVVXYmsiaIlL8Aa6BQ/qYNJGrlk1wUBcrrmTZxs+i+0="/>
+    <r:User userId="testuser" lastName="testuser" encryptedPassword="AOxvAVbKZKfyEIheEsu2kX3gfJtB89kZnPHC3/muKZ4rZIuRdzy7tQDgg/HV3igEtypORNUJB9YrXlzQm7NLg+yjV4xw6wHWJPDUUfcI+yyEuTRWrfD+lWVNI9CAxIvfVVVXYmsiaIlL8Aa6BQ/qYNJGrlk1wUBcrrmTZxs+i+0="/>
+</r:RepositoryUsers>
