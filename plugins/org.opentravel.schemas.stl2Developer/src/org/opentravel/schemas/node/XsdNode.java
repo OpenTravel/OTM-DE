@@ -117,7 +117,8 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 
 	@Override
 	public String getName() {
-		return modelObject.getName();
+		return "";
+		// return modelObject.getName();
 	}
 
 	@Override
@@ -174,6 +175,7 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 	@Override
 	public boolean isSimpleType() {
 		return otmModel.isSimpleType();
+		// If this is never reached then this Node method can become instanceof test
 	}
 
 	// @Override

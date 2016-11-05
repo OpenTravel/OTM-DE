@@ -21,7 +21,9 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.modelObject.SimpleAttributeMO;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
+import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
@@ -41,17 +43,17 @@ import org.opentravel.schemas.types.TypeProvider;
 public class SimpleAttributeNode extends PropertyNode {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(SimpleAttributeNode.class);
 
-	public SimpleAttributeNode(TLModelElement tlObj, INode parent) {
+	public SimpleAttributeNode(TLnSimpleAttribute tlObj, INode parent) {
 		super(tlObj, parent, PropertyNodeType.SIMPLE);
 
 		if (parent != null) {
 			TLModelElement tlOwner = ((Node) parent.getParent()).getTLModelObject();
-			if ((tlOwner instanceof TLFacetOwner) || (tlObj instanceof TLnSimpleAttribute))
-				((TLnSimpleAttribute) tlObj).setParentObject(tlOwner);
-
-			// Since the type assigned to this is the same as the parent facet, share the type class
-			// type = ((Node) parent).getTypeClass();
+			if ((tlOwner instanceof TLFacetOwner))
+				tlObj.setParentObject(tlOwner);
 		}
+
+		assert (modelObject instanceof SimpleAttributeMO);
+
 	}
 
 	@Override
@@ -111,19 +113,33 @@ public class SimpleAttributeNode extends PropertyNode {
 	}
 
 	@Override
+	public String getName() {
+		return getTLModelObject() == null || getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
+	}
+
+	@Override
+	public TLnSimpleAttribute getTLModelObject() {
+		return (TLnSimpleAttribute) (modelObject != null ? modelObject.getTLModelObj() : null);
+	}
+
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.SIMPLE_ATTRIBUTE;
+	}
+
+	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.XSDAttribute);
 	}
 
-	@Override
-	public String getLabel() {
-		return modelObject.getLabel() == null ? "" : modelObject.getLabel();
-	}
+	// @Override
+	// public String getLabel() {
+	// return modelObject.getLabel() == null ? "" : modelObject.getLabel();
+	// }
 
 	@Override
 	public TypeProvider getAssignedType() {
 		return typeHandler.get();
-		// return (TypeProvider) getTypeClass().getTypeNode();
 	}
 
 	@Override

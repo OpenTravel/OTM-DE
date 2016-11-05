@@ -17,7 +17,8 @@ package org.opentravel.schemas.node.properties;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLIndicator;
-import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.modelObject.IndicatorMO;
+import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
@@ -42,12 +43,11 @@ public class IndicatorElementNode extends PropertyNode {
 		((TLIndicator) getTLModelObject()).setPublishAsElement(true);
 	}
 
-	public IndicatorElementNode(TLModelElement tlObj, PropertyOwnerInterface parent) {
+	public IndicatorElementNode(TLIndicator tlObj, PropertyOwnerInterface parent) {
 		super(tlObj, (INode) parent, PropertyNodeType.INDICATOR_ELEMENT);
 		((TLIndicator) tlObj).setPublishAsElement(true);
 
-		if (!(tlObj instanceof TLIndicator))
-			throw new IllegalArgumentException("Invalid object for an indicator.");
+		assert (modelObject instanceof IndicatorMO);
 	}
 
 	@Override
@@ -84,6 +84,21 @@ public class IndicatorElementNode extends PropertyNode {
 	}
 
 	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.INDICATOR_ELEMENT;
+	}
+
+	@Override
+	public TLIndicator getTLModelObject() {
+		return (TLIndicator) getModelObject().getTLModelObj();
+	}
+
+	@Override
+	public String getName() {
+		return getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
+	}
+
+	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.IndicatorElement);
 	}
@@ -95,7 +110,8 @@ public class IndicatorElementNode extends PropertyNode {
 	 */
 	@Override
 	public String getLabel() {
-		return modelObject.getLabel() == null ? "" : modelObject.getLabel();
+		return getName();
+		// return modelObject.getLabel() == null ? "" : modelObject.getLabel();
 	}
 
 	@Override
@@ -105,23 +121,13 @@ public class IndicatorElementNode extends PropertyNode {
 	}
 
 	@Override
-	public boolean isElement() {
-		return true;
-	}
-
-	@Override
 	public boolean isIndicator() {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.PropertyNode#setName(java.lang.String)
-	 */
 	@Override
 	public void setName(String name) {
-		modelObject.setName(NodeNameUtils.fixIndicatorElementName(name));
+		getTLModelObject().setName(NodeNameUtils.fixIndicatorElementName(name));
 	}
 
 }

@@ -31,7 +31,6 @@ import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
-import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 
@@ -50,6 +49,7 @@ public class NodeNameUtils {
 	public static final String ENUM_PREFIX = "Enum_";
 	private static final String ID_RERFERENCE_SUFFIX = "Ref";
 	public static final String SIMPLE_SUFFIX = "_Simple";
+	public static final String OPERATION_PREFIX = "Operation: ";
 
 	private static final FixNames FIXNAME_INSTANCE = new NodeVisitors().new FixNames();;
 
@@ -133,8 +133,39 @@ public class NodeNameUtils {
 	 * @param n
 	 * @return string containing adjusted element name.
 	 */
-
 	public static String fixElementName(Node n) {
+		return fixElementName(n, "");
+	}
+
+	public static String fixElementName(Node n, String newName) {
+		QName qName = null;
+		TypeProvider assignedType = ((TypeUser) n).getAssignedType();
+
+		// Try to use the passed name if not empty
+		String name = adjustCaseOfName(PropertyNodeType.ELEMENT, newName);
+		if (newName.isEmpty())
+			name = adjustCaseOfName(PropertyNodeType.ELEMENT, n.getName());
+
+		// If it has an assigned type, then
+		if (assignedType != null) {
+			// determine if the name is derived from the type
+			qName = PropertyCodegenUtils.getDefaultXmlElementName((NamedEntity) assignedType.getTLModelObject(),
+					n instanceof ElementReferenceNode);
+			if (qName != null)
+				name = qName.getLocalPart();
+			else if (name.isEmpty())
+				// If the name is empty
+				if (assignedType instanceof ImpliedNode)
+					// If no name and implied assigned, then return the name of the implied node.
+					name = assignedType.getName();
+				else
+					name = adjustCaseOfName(PropertyNodeType.ELEMENT, assignedType.getName());
+		}
+		return name;
+	}
+
+	@Deprecated
+	private static String fixElementNameOLD(Node n) {
 		String name = n.getName();
 		QName qName = null;
 
@@ -142,8 +173,7 @@ public class NodeNameUtils {
 		if (((TypeUser) n).getAssignedTLObject() != null) {
 			// Type by reference to XML elements must use element name.
 			NamedEntity tlObj = ((TypeUser) n).getAssignedTLNamedEntity();
-			qName = PropertyCodegenUtils.getDefaultXmlElementName(((PropertyNode) n).getAssignedTLNamedEntity(),
-					n instanceof ElementReferenceNode);
+			qName = PropertyCodegenUtils.getDefaultXmlElementName(tlObj, n instanceof ElementReferenceNode);
 			if (qName != null)
 				name = qName.getLocalPart();
 		}
@@ -251,10 +281,21 @@ public class NodeNameUtils {
 		node.visitAllNodes(FIXNAME_INSTANCE);
 	}
 
+	// /**
+	// * Assure a simple type name conforms with the rules.
+	// */
+	// @Deprecated
+	// public static String fixSimpleTypeName(String name) {
+	// return toInitialCap((stripTypeSuffix(name)));
+	// }
+
 	/**
 	 * Assure a simple type name conforms with the rules.
 	 */
-	public static String fixSimpleTypeName(String name) {
+	public static String fixSimpleTypeName(SimpleComponentNode node, String name) {
+		// String name = node.getName();
+		if (name == null || name.isEmpty())
+			name = node.getAssignedType().getName();
 		return toInitialCap((stripTypeSuffix(name)));
 	}
 
@@ -409,12 +450,24 @@ public class NodeNameUtils {
 	}
 
 	private static String toInitialCap(String name) {
+		if (name == null || name.isEmpty())
+			return "";
 		String firstChar = name.substring(0, 1);
 		String rest = (String) name.subSequence(1, name.length());
 		return firstChar.toUpperCase().concat(rest);
 	}
 
 	public NodeNameUtils() {
+	}
+
+	public static String fixServiceName(String name) {
+		return toInitialCap(name);
+	}
+
+	public static String fixOperationName(String name) {
+		if (name.startsWith(OPERATION_PREFIX))
+			name = name.substring(OPERATION_PREFIX.length());
+		return name;
 	}
 
 }

@@ -528,7 +528,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		if (getLibrary() == null)
 			return new String[0];
 		List<Node> subjects = new ArrayList<Node>();
-		for (Node n : getLibrary().getDescendants_NamedTypes())
+		for (Node n : getLibrary().getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode)
 				subjects.add(n);
 		String[] names = new String[subjects.size() + 1];
@@ -569,6 +569,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	@Override
 	public String getTooltip() {
 		return Messages.getString(MSGKEY + ".tooltip");
+	}
+
+	@Override
+	public String getName() {
+		return getTLModelObject() == null || getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
 	}
 
 	@Override
@@ -681,7 +686,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 			tlObj.setBusinessObjectRefName("");
 			LOGGER.debug("Set subject to null.");
 		}
-		for (Node n : getLibrary().getDescendants_NamedTypes())
+		for (Node n : getLibrary().getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode && n.getName().equals(name)) {
 				tlObj.setBusinessObjectRef((TLBusinessObject) n.getTLModelObject());
 				LOGGER.debug("Set subect to " + name + ": " + tlObj.getBusinessObjectRefName());

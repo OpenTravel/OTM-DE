@@ -41,7 +41,7 @@ public class OperationMO extends ModelObject<TLOperation> {
 	@Override
 	public void delete() {
 		if (getTLModelObj().getOwningService() == null)
-			LOGGER.warn("Operation " + getName() + " has no owning service.");
+			LOGGER.warn("Operation " + node + " has no owning service.");
 		else
 			getTLModelObj().getOwningService().removeOperation(this.getTLModelObj());
 	}
@@ -55,23 +55,24 @@ public class OperationMO extends ModelObject<TLOperation> {
 		return kids;
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Operation";
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Operation";
+	// }
 
 	@Override
 	protected AbstractLibrary getLibrary(final TLOperation obj) {
 		return null;
 	}
 
-	@Override
-	public String getName() {
-		// LOGGER.debug("OperationName from getTLModelObj().getLocalName():" +
-		// getTLModelObj().getLocalName());
-		return getTLModelObj().getName();
-
-	}
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// // LOGGER.debug("OperationName from getTLModelObj().getLocalName():" +
+	// // getTLModelObj().getLocalName());
+	// return getTLModelObj().getName();
+	//
+	// }
 
 	@Override
 	public String getNamePrefix() {

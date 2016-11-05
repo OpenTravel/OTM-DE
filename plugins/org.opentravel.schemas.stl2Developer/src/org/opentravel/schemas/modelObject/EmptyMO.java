@@ -21,6 +21,8 @@ import org.opentravel.schemas.node.LibraryNode;
 /**
  * Class to use when there is no TL model object.
  * 
+ * XsdNode, NavNode, ImpliedNode, TypeNode, ModelNode, ProjectNode SimpleTypeNode ?? LibraryNode during constructor.
+ * 
  * @author Dave Hollander
  * 
  */
@@ -36,15 +38,15 @@ public class EmptyMO extends ModelObject<TLEmpty> {
 	// return true;
 	// }
 
-	@Override
-	public String getComponentType() {
-		return "Empty Model";
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Empty Model";
+	// }
 
-	@Override
-	public String getName() {
-		return "empty";
-	}
+	// @Override
+	// public String getName() {
+	// return "empty";
+	// }
 
 	@Override
 	public String getNamePrefix() {

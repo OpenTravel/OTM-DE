@@ -42,12 +42,13 @@ import org.opentravel.schemas.node.FamilyNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.PropertyNodeType;
-import org.opentravel.schemas.node.SimpleTypeNode;
+import org.opentravel.schemas.node.SimpleComponentNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -451,7 +452,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 			fields.postField(nameField, n.getName(), false);
 			fields.postField(descField, n.getDescription(), false);
 			typeField.setEnabled(false);
-		} else if (cn instanceof SimpleTypeNode) {
+		} else if (cn instanceof SimpleComponentNode) {
 			updateType(cn);
 			updateConstraints(cn);
 		} else if (cn instanceof SimpleAttributeNode) {
@@ -463,7 +464,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 
 			updateConstraints((ComponentNode) cn.getType(), false);
 			updatePropertyTypeCombo((PropertyNode) cn);
-			if (cn.isElement()) {
+			if (cn instanceof ElementNode) {
 				if (cn.getTypeNode() != null && cn.getTypeNode() instanceof ListFacetNode
 						&& ((ListFacetNode) cn.getTypeNode()).isDetailListFacet()) {
 					repeatNonValid.setVisible(true);

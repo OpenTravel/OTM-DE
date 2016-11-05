@@ -1,0 +1,17 @@
+README - developer Notes - Resources
+
+Events
+	Resources use the tlObj events to signal changes that impact other fields. for example, a ResourceDependencyListener is placed onto ParameterGroups and individual parameters to catch changes that impact the paths for action requests that use that parameter group.
+
+Examples
+	Computed on the fly from data in the action contained in the example class.
+	
+Node Relations and identity
+	Except for parent/child relationships, all relationships are maintainied in the TL Model Elements. This requires using the listners to get the node associated to a relationship. 
+		For example, to act on the parameter group associated with a request:
+			((ParamGroup)getNode(tlObj.getParamGroup().getListeners())).removeListeners(this);
+		To get a node from a listener:
+			((ResourceDependencyListener) listener).getNode();
+
+Tests
+	package org.opentravel.schemas.node.ResourceObjectTests

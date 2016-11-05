@@ -18,6 +18,7 @@ package org.opentravel.schemas.node;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLService;
+import org.opentravel.schemas.modelObject.ServiceMO;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.OperationNode.ResourceOperationTypes;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -41,6 +42,9 @@ public class ServiceNode extends ComponentNode {
 		// addMOChildren();
 
 		link(tlSvc, ln);
+
+		assert (modelObject instanceof ServiceMO);
+
 	}
 
 	public void link(final TLService tlSvc, LibraryNode ln) {
@@ -83,10 +87,19 @@ public class ServiceNode extends ComponentNode {
 		// If a chain, the wrap the service in a version and add to chain aggregate.
 		if (n.getLibrary().isInChain())
 			n.getLibrary().getChain().add(this);
+
+		assert (modelObject instanceof ServiceMO);
+		assert (getTLModelObject() instanceof TLService);
+	}
+
+	@Override
+	public void setName(final String name) {
+		getTLModelObject().setName(NodeNameUtils.fixServiceName(name));
 	}
 
 	/**
 	 * Add CRUDQ operations to service. Set message elements to subject. Query operations are made for each query facet.
+	 * Does nothing if the node is not a business object.
 	 * 
 	 * @param nodeInterface
 	 */
@@ -96,9 +109,9 @@ public class ServiceNode extends ComponentNode {
 		BusinessObjectNode bo = (BusinessObjectNode) subject;
 		for (ResourceOperationTypes op : ResourceOperationTypes.values())
 			if (!op.equals(ResourceOperationTypes.QUERY))
-				new OperationNode(this, op.displayName, op, subject);
+				new OperationNode(this, op.displayName, op, bo);
 		for (Node n : bo.getQueryFacets())
-			new OperationNode(this, n.getLabel(), ResourceOperationTypes.QUERY, subject);
+			new OperationNode(this, n.getLabel(), ResourceOperationTypes.QUERY, bo);
 	}
 
 	@Override
@@ -123,6 +136,16 @@ public class ServiceNode extends ComponentNode {
 	}
 
 	@Override
+	public String getName() {
+		return getTLModelObject() == null || getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
+	}
+
+	@Override
+	public TLService getTLModelObject() {
+		return (TLService) (modelObject != null ? modelObject.getTLModelObj() : null);
+	}
+
+	@Override
 	public boolean isAssignable() {
 		return false;
 	}
@@ -137,7 +160,7 @@ public class ServiceNode extends ComponentNode {
 	}
 
 	@Override
-	public boolean isTypeProvider() {
+	public boolean isNamedEntity() {
 		return false;
 	}
 

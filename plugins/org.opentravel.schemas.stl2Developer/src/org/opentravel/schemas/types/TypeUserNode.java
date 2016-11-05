@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.controllers.NodeImageProvider;
@@ -81,6 +82,11 @@ public class TypeUserNode extends Node implements WhereUsedNodeInterface {
 		return nodeType == TypeUserNodeType.OWNER ? owner.isEditable() : parent.isEditable();
 		// Owner - is the "uses objects from"
 		// Provider_LIB is a library that provides types
+	}
+
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.NAVIGATION;
 	}
 
 	public boolean isProviderLib() {
@@ -213,6 +219,11 @@ public class TypeUserNode extends Node implements WhereUsedNodeInterface {
 
 	public LibraryNode getOwner() {
 		return owner;
+	}
+
+	@Override
+	public String getName() {
+		return labelProvider.getLabel();
 	}
 
 	// @Override

@@ -71,21 +71,21 @@ public class XSDElementMO extends ModelObject<XSDElement> {
 	// return null;
 	// }
 
-	@Override
-	public String getComponentType() {
-		return "XSD Element";
-	}
-
+	// @Override
+	// public String getComponentType() {
+	// return "XSD Element";
+	// }
+	//
 	@Override
 	protected AbstractLibrary getLibrary(final XSDElement obj) {
 		return null;
 	}
 
-	@Override
-	public String getName() {
-		return getTLModelObj().getLocalName();
-	}
-
+	// @Override
+	// public String getName() {
+	// return getTLModelObj().getLocalName();
+	// }
+	//
 	@Override
 	public String getNamePrefix() {
 		return "";

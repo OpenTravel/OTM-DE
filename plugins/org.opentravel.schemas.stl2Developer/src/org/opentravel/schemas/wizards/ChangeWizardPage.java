@@ -41,12 +41,10 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.LibraryNode;
-import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.SubType;
 import org.opentravel.schemas.node.VWA_Node;
@@ -125,7 +123,11 @@ public class ChangeWizardPage extends WizardPage {
 	}
 
 	private enum OpType {
-		LIB_CHANGE, OBJECT_TYPE_CHANGE, OWNING_FACET_CHANGE, OWNING_FACET_CHANGE_TO_SIMPLE, OWNING_FACET_CHANGE_FROM_SIMPLE;
+		LIB_CHANGE,
+		OBJECT_TYPE_CHANGE,
+		OWNING_FACET_CHANGE,
+		OWNING_FACET_CHANGE_TO_SIMPLE,
+		OWNING_FACET_CHANGE_FROM_SIMPLE;
 	}
 
 	protected ChangeWizardPage(final String pageName, final String title, final FormValidator validator,
@@ -573,7 +575,8 @@ public class ChangeWizardPage extends WizardPage {
 			SimpleFacetNode sf = (SimpleFacetNode) simpleFacet;
 			Node simpleProp = sf.getSimpleAttribute();
 			if (simpleProp == null) {
-				simpleProp = new ComponentNode((TLModelElement) ModelNode.getEmptyType());
+				assert (false); // FIXME - if needed, create concrete node
+				// simpleProp = new ComponentNode((TLModelElement) ModelNode.getEmptyType());
 			}
 			// Copy the simple property for history / revert. Set its type.
 			Node clone = simpleProp.clone(null, null);

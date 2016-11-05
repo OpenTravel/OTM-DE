@@ -84,9 +84,8 @@ public class NewComponentHandler extends AbstractHandler {
 			Assert.notNull(newOne.getLibrary());
 
 			// If they created a service and selected an object, then build CRUD operations for that object.
-			if (editNode.getTLType() != null && newOne instanceof ServiceNode) {
+			if (editNode.getTLType() != null && newOne instanceof ServiceNode)
 				((ServiceNode) newOne).addCRUDQ_Operations(editNode.getTLType());
-			}
 			mc.selectNavigatorNodeAndRefresh(newOne);
 		}
 	}

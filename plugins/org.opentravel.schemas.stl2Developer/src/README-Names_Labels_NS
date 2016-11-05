@@ -1,0 +1,13 @@
+README - developer Notes - Names, Labels, Namespaces, NS Prefix
+
+10/2016 - moved all responsibility for accessing the TL Model out of ModelObjects into Nodes.
+		Effectively making the Nodes act as Controllers and the TL Objects are the Model.
+
+Usage
+	Name
+	Label
+	
+Methods
+	getTLModelObject() - strongly typed to return the specific TL class associated with the node.
+	getName() - relies upon getTLModelObject()
+			Specialized for use LocalName or Name depending on the underlying TL object (model)

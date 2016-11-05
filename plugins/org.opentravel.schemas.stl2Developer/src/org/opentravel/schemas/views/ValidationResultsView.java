@@ -454,7 +454,7 @@ public class ValidationResultsView extends OtmAbstractView {
 		} else if (node.isTLLibrary())
 			findings = TLModelCompileValidator.validateModelElement(((LibraryNode) node).getTLaLib());
 		else if (node.isNavigation()) {
-			for (Node n : node.getDescendants_NamedTypes()) {
+			for (Node n : node.getDescendants_LibraryMembers()) {
 				if (findings == null)
 					findings = TLModelCompileValidator.validateModelElement(n.getTLModelObject());
 				else

@@ -48,15 +48,16 @@ public class ResourceMO extends ModelObject<TLResource> {
 		return kids;
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Resource Object";
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Resource Object";
+	// }
 
-	@Override
-	public String getName() {
-		return getTLModelObj().getName();
-	}
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// return getTLModelObj().getName();
+	// }
 
 	@Override
 	public String getNamePrefix() {

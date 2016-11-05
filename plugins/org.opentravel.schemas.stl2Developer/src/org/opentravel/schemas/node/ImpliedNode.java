@@ -18,8 +18,11 @@
  */
 package org.opentravel.schemas.node;
 
+import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLSimple;
+import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 
 /**
@@ -30,7 +33,7 @@ import org.opentravel.schemas.types.TypeProvider;
  * @author Dave Hollander
  * 
  */
-public class ImpliedNode extends SimpleTypeNode implements TypeProvider {
+public class ImpliedNode extends SimpleComponentNode implements TypeProvider {
 	protected ImpliedNodeType impliedType;
 	public static final String OTA_NAMESPACE = "http://www.OpenTravel.org/ns/OTA2/Common_v01_00";
 
@@ -86,23 +89,12 @@ public class ImpliedNode extends SimpleTypeNode implements TypeProvider {
 		return "Implied: " + getName();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.ComponentNode#getAssignedName()
-	 */
 	@Override
 	public String getTypeName() {
 		return impliedType.getImpliedNodeType();
 	}
 
-	// public void clear() {
-	// getTypeClass().clear();
-	// }
-
 	public void initialize(Node parent) {
-		// getTypeClass().clear();
-		// getTypeClass().setTypeNode(null);
 		setParent(parent);
 	}
 
@@ -184,10 +176,10 @@ public class ImpliedNode extends SimpleTypeNode implements TypeProvider {
 		}
 	};
 
-	@Override
-	public boolean isSimpleType() {
-		return true;
-	}
+	// @Override
+	// public boolean isSimpleType() {
+	// return true;
+	// }
 
 	@Override
 	public boolean isSimpleTypeProvider() {
@@ -195,13 +187,40 @@ public class ImpliedNode extends SimpleTypeNode implements TypeProvider {
 	}
 
 	@Override
-	public boolean isTypeProvider() {
+	public boolean isNamedEntity() {
 		return true;
 	}
 
 	@Override
 	public boolean isAssignable() {
 		return true;
+	}
+
+	@Override
+	public Image getImage() {
+		return Images.getImageRegistry().get(Images.XSDSimpleType);
+	}
+
+	@Override
+	public NamedEntity getTLOjbect() {
+		// return getImpliedType().getTlObject();
+		return (NamedEntity) modelObject.getTLModelObj();
+		// return ImpliedNodeType.Empty.getTlObject();
+	}
+
+	@Override
+	public TLLibraryMember getTLModelObject() {
+		return (TLLibraryMember) getTLOjbect();
+	}
+
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.SIMPLE;
+	}
+
+	@Override
+	public void setName(String name) {
+		// DO NOTHING
 	}
 
 }

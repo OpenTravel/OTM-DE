@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
@@ -34,8 +35,8 @@ import org.opentravel.schemas.types.ExtensionHandler;
 import org.opentravel.schemas.types.TypeProvider;
 
 // FIXME - should not extend simple type node, simple and enum should extend from abstract simple or simple interface
-public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration, LibraryMemberInterface, TypeProvider,
-		ExtensionOwner {
+public class EnumerationClosedNode extends SimpleComponentNode implements Enumeration, LibraryMemberInterface,
+		TypeProvider, ExtensionOwner {
 	// public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration, ExtensionOwner,
 	// VersionedObjectInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(EnumerationClosedNode.class);
@@ -46,6 +47,8 @@ public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration
 		super(mbr);
 		addMOChildren();
 		extensionHandler = new ExtensionHandler(this);
+
+		assert (mbr instanceof TLClosedEnumeration);
 	}
 
 	public EnumerationClosedNode(EnumerationOpenNode openEnum) {
@@ -93,12 +96,6 @@ public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration
 			}
 	}
 
-	// @Override
-	// public ComponentNode createMinorVersionComponent() {
-	// return super.createMinorVersionComponent(new EnumerationClosedNode(
-	// (TLClosedEnumeration) createMinorTLVersion(this)));
-	// }
-
 	@Override
 	public INode.CommandType getAddCommand() {
 		return INode.CommandType.ENUMERATION;
@@ -112,6 +109,16 @@ public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration
 	@Override
 	public ImpliedNode getRequiredType() {
 		return ModelNode.getDefaultStringNode();
+	}
+
+	@Override
+	public String getName() {
+		return getTLModelObject().getName();
+	}
+
+	@Override
+	public TLClosedEnumeration getTLModelObject() {
+		return (TLClosedEnumeration) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	@Override
@@ -132,30 +139,18 @@ public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration
 	// Enumerations do not have equivalents
 	@Override
 	public String getEquivalent(String context) {
-		equivalentHandler = null;
 		return "";
 	}
 
 	// Enumerations do not have examples
 	@Override
 	public String getExample(String context) {
-		exampleHandler = null;
 		return "";
 	}
 
 	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.Enumeration);
-	}
-
-	@Override
-	public boolean isAssignableToSimple() {
-		return true;
-	}
-
-	@Override
-	public boolean isAssignableToVWA() {
-		return true;
 	}
 
 	@Override
@@ -217,4 +212,13 @@ public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration
 		return extensionHandler;
 	}
 
+	@Override
+	public NamedEntity getTLOjbect() {
+		return getTLModelObject();
+	}
+
+	@Override
+	public void setName(String name) {
+		getTLModelObject().setName(NodeNameUtils.fixEnumerationName(name));
+	}
 }

@@ -46,8 +46,9 @@ public class ProjectMO extends ModelObject<TLProject> {
 		return getTLModelObj().isDeprecated();
 	}
 
+	// TODO - make this more robust
 	public boolean isEditable() {
-		return !getName().contains("Built");
+		return !node.getName().contains("Built");
 		// return getTLModelObj().isEditable();
 	}
 
@@ -57,22 +58,23 @@ public class ProjectMO extends ModelObject<TLProject> {
 		return getTLModelObj().getProjectItems();
 	}
 
-	@Override
-	public String getComponentType() {
-		// TODO Auto-generated method stub
-		return "Project: " + getName();
-	}
+	// @Override
+	// public String getComponentType() {
+	// // TODO Auto-generated method stub
+	// return "Project: " + getName();
+	// }
 
 	@Override
 	protected AbstractLibrary getLibrary(TLProject obj) {
 		return null;
 	}
 
-	@Override
-	public String getName() {
-		return getTLModelObj().getName();
-	}
-
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// return getTLModelObj().getName();
+	// }
+	//
 	@Override
 	public String getNamePrefix() {
 		return "";

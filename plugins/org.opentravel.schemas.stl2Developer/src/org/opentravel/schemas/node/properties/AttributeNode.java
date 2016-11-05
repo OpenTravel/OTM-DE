@@ -18,7 +18,9 @@ package org.opentravel.schemas.node.properties;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.modelObject.AttributeMO;
 import org.opentravel.schemas.node.AliasNode;
+import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
@@ -57,11 +59,10 @@ public class AttributeNode extends PropertyNode {
 	 * @param parent
 	 *            can be null
 	 */
-	public AttributeNode(TLModelElement tlObj, PropertyOwnerInterface parent) {
+	public AttributeNode(TLAttribute tlObj, PropertyOwnerInterface parent) {
 		super(tlObj, (INode) parent, PropertyNodeType.ATTRIBUTE);
 
-		if (!(tlObj instanceof TLAttribute))
-			throw new IllegalArgumentException("Invalid object for an attribute.");
+		assert (modelObject instanceof AttributeMO);
 	}
 
 	/*
@@ -118,6 +119,11 @@ public class AttributeNode extends PropertyNode {
 	}
 
 	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.ATTRIBUTE;
+	}
+
+	@Override
 	public String getEquivalent(String context) {
 		if (equivalentHandler == null)
 			equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
@@ -154,10 +160,20 @@ public class AttributeNode extends PropertyNode {
 
 	@Override
 	public String getLabel() {
-		String label = modelObject.getLabel();
+		String label = getName();
 		if (getType() != null)
-			label = getName() + " [" + getTypeNameWithPrefix() + "]";
+			label += " [" + getTypeNameWithPrefix() + "]";
 		return label;
+	}
+
+	@Override
+	public String getName() {
+		return getTLModelObject().getName();
+	}
+
+	@Override
+	public TLAttribute getTLModelObject() {
+		return (TLAttribute) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	@Override
@@ -179,7 +195,8 @@ public class AttributeNode extends PropertyNode {
 
 	@Override
 	public void setName(String name) {
-		modelObject.setName(NodeNameUtils.fixAttributeName(name));
+		// modelObject.setName(NodeNameUtils.fixAttributeName(name));
+		getTLModelObject().setName(NodeNameUtils.fixAttributeName(name));
 	}
 
 }

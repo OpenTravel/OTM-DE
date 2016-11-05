@@ -26,6 +26,7 @@ import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
+import org.opentravel.schemas.modelObject.OpenEnumMO;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.Enumeration;
@@ -48,6 +49,9 @@ public class EnumerationOpenNode extends TypeProviderBase implements ComplexComp
 		super(mbr);
 		addMOChildren();
 		extensionHandler = new ExtensionHandler(this);
+
+		assert (modelObject instanceof OpenEnumMO);
+		assert (mbr instanceof TLOpenEnumeration);
 	}
 
 	/**
@@ -204,6 +208,16 @@ public class EnumerationOpenNode extends TypeProviderBase implements ComplexComp
 	}
 
 	@Override
+	public String getName() {
+		return getTLModelObject() == null || getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
+	}
+
+	@Override
+	public TLOpenEnumeration getTLModelObject() {
+		return (TLOpenEnumeration) (modelObject != null ? modelObject.getTLModelObj() : null);
+	}
+
+	@Override
 	public boolean isAssignableToSimple() {
 		return false;
 	}
@@ -211,6 +225,11 @@ public class EnumerationOpenNode extends TypeProviderBase implements ComplexComp
 	@Override
 	public boolean isAssignableToElementRef() {
 		return false;
+	}
+
+	@Override
+	public void setName(String name) {
+		getTLModelObject().setName(NodeNameUtils.fixEnumerationName(name));
 	}
 
 	// /////////////////////////////////////////////////////////////////

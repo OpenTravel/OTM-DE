@@ -48,24 +48,25 @@ public class AliasMO extends ModelObject<TLAlias> {
 		return null;
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Alias: " + getName();
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Alias: " + getName();
+	// }
 
 	@Override
 	protected AbstractLibrary getLibrary(final TLAlias obj) {
 		return obj.getOwningLibrary();
 	}
 
-	@Override
-	public String getName() {
-		final TLAlias tlModelObj = getTLModelObj();
-		if (tlModelObj != null) {
-			return tlModelObj.getName();
-		}
-		return null;
-	}
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// final TLAlias tlModelObj = getTLModelObj();
+	// if (tlModelObj != null) {
+	// return tlModelObj.getName();
+	// }
+	// return null;
+	// }
 
 	@Override
 	public String getNamePrefix() {
@@ -73,6 +74,7 @@ public class AliasMO extends ModelObject<TLAlias> {
 		return lib == null ? "" : lib.getPrefix();
 	}
 
+	@Deprecated
 	@Override
 	public String getNamespace() {
 		return getTLModelObj().getNamespace();

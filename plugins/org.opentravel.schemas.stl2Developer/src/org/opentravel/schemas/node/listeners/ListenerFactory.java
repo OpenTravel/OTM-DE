@@ -20,15 +20,8 @@ import java.util.Collection;
 
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.node.BusinessObjectNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.SimpleTypeNode;
-import org.opentravel.schemas.node.VersionNode;
-import org.opentravel.schemas.node.facets.SimpleFacetNode;
-import org.opentravel.schemas.node.properties.EnumLiteralNode;
-import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
@@ -54,55 +47,32 @@ public class ListenerFactory {
 	 */
 	public static void setListner(Node node) {
 		// clearListners(node);
+
 		if (node.getTLModelObject() == null)
 			return;
-		if (node instanceof EnumLiteralNode)
-			return; // do not assign listener
-		// if (node instanceof ImpliedNode)
-		// return;
 		if (node instanceof ModelNode) {
 			((ModelNode) node).addListeners();
 			return;
 		}
-		if (node instanceof VersionNode)
-			return; // tl object already points to head.
 
-		// if (node instanceof IndicatorNode)
-
-		// TODO - The simple facet for a VWA is a GUI construct that does not exist in the compiler's
-		// TLValueWithAttributes class
-
-		BaseNodeListener listener = null;
-		if (node instanceof PropertyNode)
-			listener = new TypeUserListener(node);
-		else if (node instanceof SimpleFacetNode)
-			listener = new SimpleFacetNodeListener(node);
-		else if (node instanceof SimpleTypeNode)
-			listener = new TypeUserListener(node);
-		else if (node instanceof LibraryNode)
-			listener = new LibraryNodeListener(node);
-		else if (node instanceof BusinessObjectNode)
-			listener = new BusinessObjectNodeListener(node);
-		// else if (node instanceof ActionRequest)
-		// listener = new ResourceDependencyListener(node);
-		// else if (node instanceof XsdNode)
-		// // Can't do this because on constructor the otmModel can not be made in super
-		// listener = new NamedTypeListener(((XsdNode) node).getOtmModel());
-		else
-			listener = new NamedTypeListener(node);
-
-		// debugging - trap if there is already a listener
-		Node lNode = Node.GetNode(node.getTLModelObject());
-		if (lNode != null) {
-			// throw new IllegalStateException(node+" already has identity listeners.");
-			// FIXME - LOGGER.debug(node + " already has identity listener.");
-		} else if (listener != null) {
+		// Get listener from node delegated methods.
+		BaseNodeListener listener = node.getNewListener();
+		// Assign if there is not already one assigned
+		if (listener != null && Node.GetNode(node.getTLModelObject()) == null)
 			node.getTLModelObject().addListener(listener);
 
-			// If it is an identity listener, make sure it is associated with the node
-			if (listener instanceof NodeIdentityListener)
-				assert node.getTLModelObject().getListeners().contains(listener);
-		}
+		// debugging - trap if there is already a listener
+		// Node lNode = Node.GetNode(node.getTLModelObject());
+		// if (lNode != null) {
+		// // throw new IllegalStateException(node+" already has identity listeners.");
+		// // LOGGER.debug(node + " already has identity listener.");
+		// } else if (listener != null) {
+		// node.getTLModelObject().addListener(listener);
+		//
+		// // If it is an identity listener, make sure it is associated with the node
+		// if (listener instanceof NodeIdentityListener)
+		// assert node.getTLModelObject().getListeners().contains(listener);
+		// }
 	}
 
 	/**

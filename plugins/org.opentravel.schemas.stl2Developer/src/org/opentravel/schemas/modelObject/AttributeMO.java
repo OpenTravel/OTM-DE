@@ -62,11 +62,12 @@ public class AttributeMO extends ModelObject<TLAttribute> {
 		}
 	}
 
-	@Override
-	public String getName() {
-		return getTLModelObj().getName() == null || getTLModelObj().getName().isEmpty() ? "" : getTLModelObj()
-				.getName();
-	}
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// return getTLModelObj().getName() == null || getTLModelObj().getName().isEmpty() ? "" : getTLModelObj()
+	// .getName();
+	// }
 
 	// Model does not know what namespace the attribute or its owning component
 	// is in.
@@ -95,10 +96,10 @@ public class AttributeMO extends ModelObject<TLAttribute> {
 		return srcObj != null ? ((TLAttribute) srcObj).getTypeName() : "";
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Attribute";
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Attribute";
+	// }
 
 	@Override
 	protected AbstractLibrary getLibrary(final TLAttribute obj) {
@@ -176,7 +177,7 @@ public class AttributeMO extends ModelObject<TLAttribute> {
 
 			// Assure attribute names conform to the rules
 			if (!((Node) getNode()).isXsdType())
-				setName(NodeNameUtils.fixAttributeName(getName()));
+				setName(NodeNameUtils.fixAttributeName(node.getName()));
 		}
 	}
 

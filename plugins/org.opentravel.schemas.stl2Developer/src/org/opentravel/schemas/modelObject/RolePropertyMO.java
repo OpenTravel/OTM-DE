@@ -27,10 +27,10 @@ public class RolePropertyMO extends ModelObject<TLRole> {
 	public RolePropertyMO() {
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Role";
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Role";
+	// }
 
 	@Override
 	public boolean setName(final String name) {
@@ -46,11 +46,11 @@ public class RolePropertyMO extends ModelObject<TLRole> {
 		return null;
 	}
 
-	@Override
-	public String getName() {
-		return getTLModelObj() != null ? getTLModelObj().getName() : "";
-	}
-
+	// @Override
+	// public String getName() {
+	// return getTLModelObj() != null ? getTLModelObj().getName() : "";
+	// }
+	//
 	@Override
 	public String getNamePrefix() {
 		return null;

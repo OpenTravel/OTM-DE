@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.controllers.NodeImageProvider;
@@ -76,6 +77,11 @@ public class TypeNode extends Node implements WhereUsedNodeInterface {
 			imageProvider = nodeImageProvider(typeNode);
 	}
 
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.NAVIGATION;
+	}
+
 	/**
 	 * Create type node for a library
 	 */
@@ -101,6 +107,11 @@ public class TypeNode extends Node implements WhereUsedNodeInterface {
 	public String getLabel() {
 		return owner instanceof TypeProvider ? labelProvider.getLabel() + " ("
 				+ ((TypeProvider) owner).getWhereAssignedCount() + ")" : labelProvider.getLabel();
+	}
+
+	@Override
+	public String getName() {
+		return labelProvider.getLabel();
 	}
 
 	@Override

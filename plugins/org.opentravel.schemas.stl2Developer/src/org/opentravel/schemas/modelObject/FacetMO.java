@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
 import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
-import org.opentravel.schemacompiler.codegen.util.XsdCodegenUtils;
 import org.opentravel.schemacompiler.event.ModelEventType;
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
@@ -37,7 +36,6 @@ import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemacompiler.model.TLOperation;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.controllers.DefaultModelController;
 import org.opentravel.schemas.modelObject.events.OwnershipEventListener;
@@ -217,11 +215,12 @@ public class FacetMO extends ModelObject<TLFacet> {
 		return inheritedKids;
 	}
 
-	@Override
-	public String getComponentType() {
-		return getDisplayName(getTLModelObj().getFacetType());
-	}
+	// @Override
+	// public String getComponentType() {
+	// return getDisplayName(getTLModelObj().getFacetType());
+	// }
 
+	@Deprecated
 	public static String getDisplayName(TLFacetType facetType) {
 		switch (facetType) {
 		case ID:
@@ -254,52 +253,53 @@ public class FacetMO extends ModelObject<TLFacet> {
 		return "";
 	}
 
+	@Deprecated
 	@Override
 	protected AbstractLibrary getLibrary(final TLFacet obj) {
 		return null;
 	}
 
-	@Override
-	public String getLabel() {
-		// 10/2016 dmh - override getLabel() in ContextualFacetNode
-		String label = getDisplayName(srcObj.getFacetType());
-		if (srcObj.getFacetType().equals(TLFacetType.CUSTOM) || srcObj.getFacetType().equals(TLFacetType.QUERY)) {
-			label = XsdCodegenUtils.getGlobalTypeName(getTLModelObj());
-			String parent = srcObj.getOwningEntity().getLocalName();
-			if (label.startsWith(parent)) {
-				label = label.substring((srcObj.getOwningEntity().getLocalName()).length());
-			}
-			if (label.startsWith("_"))
-				label = label.substring(1);
-		} else if (srcObj.getFacetType().equals(TLFacetType.CHOICE)) {
-			label = label + ": " + srcObj.getLabel();
-			// } else if (srcObj.getFacetType().equals(TLFacetType.SHARED)) {
-			// label = srcObj.getLabel() + label;
-		} else if (srcObj.getOwningEntity() instanceof TLOperation)
-			getDisplayName(srcObj.getFacetType());
-		return label;
-	}
+	// @Override
+	// public String getLabel() {
+	// // 10/2016 dmh - override getLabel() in ContextualFacetNode
+	// String label = getDisplayName(srcObj.getFacetType());
+	// if (srcObj.getFacetType().equals(TLFacetType.CUSTOM) || srcObj.getFacetType().equals(TLFacetType.QUERY)) {
+	// label = XsdCodegenUtils.getGlobalTypeName(getTLModelObj());
+	// String parent = srcObj.getOwningEntity().getLocalName();
+	// if (label.startsWith(parent)) {
+	// label = label.substring((srcObj.getOwningEntity().getLocalName()).length());
+	// }
+	// if (label.startsWith("_"))
+	// label = label.substring(1);
+	// } else if (srcObj.getFacetType().equals(TLFacetType.CHOICE)) {
+	// label = label + ": " + srcObj.getLabel();
+	// // } else if (srcObj.getFacetType().equals(TLFacetType.SHARED)) {
+	// // label = srcObj.getLabel() + label;
+	// } else if (srcObj.getOwningEntity() instanceof TLOperation)
+	// getDisplayName(srcObj.getFacetType());
+	// return label;
+	// }
 
-	@Override
-	public String getName() {
-		String name = XsdCodegenUtils.getGlobalTypeName(getTLModelObj());
-		// Summary facets XSD names do not use the Summary suffix, but we do in the modeling.
-		// Custom and query facets report the wrong name, so use their local name (Jan 11, 2013)
-		if (getTLModelObj().getFacetType().equals(TLFacetType.SUMMARY))
-			name = name + "_" + TLFacetType.SUMMARY.getIdentityName();
-		else if (getTLModelObj().getOwningEntity() == null)
-			name = ""; // bug fix for xsdCodegenUtils.getFacetTypeName
-
-		// 10/2016 - dmh - query and custom extend contextualFacet which overrides getName()
-		// else if (getTLModelObj().getFacetType().equals(TLFacetType.QUERY))
-		// name = getTLModelObj().getLocalName();
-		// else if (getTLModelObj().getFacetType().equals(TLFacetType.CUSTOM)) {
-		// TLFacetOwner x = getTLModelObj().getOwningEntity();
-		// name = getTLModelObj().getLocalName();
-		// }
-
-		return name == null ? getTLModelObj().getContext() : name;
-	}
+	// @Override
+	// public String getName() {
+	// String name = XsdCodegenUtils.getGlobalTypeName(getTLModelObj());
+	// // Summary facets XSD names do not use the Summary suffix, but we do in the modeling.
+	// // Custom and query facets report the wrong name, so use their local name (Jan 11, 2013)
+	// if (getTLModelObj().getFacetType().equals(TLFacetType.SUMMARY))
+	// name = name + "_" + TLFacetType.SUMMARY.getIdentityName();
+	// else if (getTLModelObj().getOwningEntity() == null)
+	// name = ""; // bug fix for xsdCodegenUtils.getFacetTypeName
+	//
+	// // 10/2016 - dmh - query and custom extend contextualFacet which overrides getName()
+	// // else if (getTLModelObj().getFacetType().equals(TLFacetType.QUERY))
+	// // name = getTLModelObj().getLocalName();
+	// // else if (getTLModelObj().getFacetType().equals(TLFacetType.CUSTOM)) {
+	// // TLFacetOwner x = getTLModelObj().getOwningEntity();
+	// // name = getTLModelObj().getLocalName();
+	// // }
+	//
+	// return name == null ? getTLModelObj().getContext() : name;
+	// }
 
 	@Override
 	public String getNamePrefix() {

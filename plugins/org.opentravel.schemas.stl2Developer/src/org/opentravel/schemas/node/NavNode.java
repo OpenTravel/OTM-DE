@@ -102,7 +102,7 @@ public class NavNode extends Node {
 
 	@Override
 	public String getComponentType() {
-		return "Navigation Node";
+		return "Navigation";
 	}
 
 	/**
@@ -141,10 +141,10 @@ public class NavNode extends Node {
 		this.name = name;
 	}
 
-	@Override
-	public String getLabel() {
-		return name;
-	}
+	// @Override
+	// public String getLabel() {
+	// return name;
+	// }
 
 	@Override
 	public String getName() {

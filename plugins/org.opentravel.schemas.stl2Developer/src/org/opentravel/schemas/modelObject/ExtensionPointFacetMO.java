@@ -55,15 +55,16 @@ public class ExtensionPointFacetMO extends ModelObject<TLExtensionPointFacet> {
 
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Extension Point Facet";
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Extension Point Facet";
+	// }
 
-	@Override
-	public String getName() {
-		return getTLModelObj().getLocalName() == null ? "-not assigned-" : getTLModelObj().getLocalName();
-	}
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// return getTLModelObj().getLocalName() == null ? "-not assigned-" : getTLModelObj().getLocalName();
+	// }
 
 	@Override
 	public String getNamePrefix() {

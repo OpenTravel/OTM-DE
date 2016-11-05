@@ -102,7 +102,7 @@ public interface TypeProvider {
 	/**
 	 * @return true if this object can be used as an assigned type or base type
 	 */
-	public boolean isTypeProvider();
+	public boolean isNamedEntity();
 
 	/**
 	 * Remove provider as type for all users.

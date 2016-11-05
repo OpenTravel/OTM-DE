@@ -158,7 +158,7 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	 */
 	public List<Node> getBasePayloads() {
 		List<Node> candidates = new ArrayList<Node>();
-		for (Node n : getLibrary().getDescendants_NamedTypes())
+		for (Node n : getLibrary().getDescendants_LibraryMembers())
 			if (n instanceof CoreObjectNode)
 				candidates.add(n);
 			else if (n instanceof ChoiceObjectNode)

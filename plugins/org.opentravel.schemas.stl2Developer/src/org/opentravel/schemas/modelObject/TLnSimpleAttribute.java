@@ -246,12 +246,16 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
 			throw new IllegalStateException("TLnSimpleAttribute not initialized properly.");
 
 		NamedEntity type = null;
-		if (parentObject instanceof TLValueWithAttributes) {
-			// LOGGER.warn("TLnSimpleAttribute does not have access to the parent's simple facet.");
-			type = ((TLValueWithAttributes) parentObject).getParentType();
-		} else if (parentObject instanceof TLCoreObject) {
+		if (parentObject instanceof TLSimpleFacet)
+			type = ((TLSimpleFacet) parentObject).getSimpleType();
+		else if (parentObject instanceof TLCoreObject)
 			type = ((TLCoreObject) parentObject).getSimpleFacet().getSimpleType();
+		else if (parentObject instanceof TLValueWithAttributes) {
+			// should never be true
+			type = ((TLValueWithAttributes) parentObject).getParentType();
+			assert (false);
 		}
+
 		return type;
 	}
 
@@ -329,11 +333,17 @@ public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOw
 			// return;
 			throw new IllegalArgumentException("Can not set simple attribute type to argument: " + srcType);
 		}
-		if (parentObject instanceof TLValueWithAttributes) {
-			((TLValueWithAttributes) parentObject).setParentType((TLAttributeType) srcType);
-		} else if (parentObject instanceof TLCoreObject) {
+
+		if (parentObject instanceof TLSimpleFacet)
+			((TLSimpleFacet) parentObject).setSimpleType(srcType);
+		else if (parentObject instanceof TLCoreObject)
 			((TLCoreObject) parentObject).getSimpleFacet().setSimpleType(srcType);
+		else if (parentObject instanceof TLValueWithAttributes) {
+			// should never happen
+			((TLValueWithAttributes) parentObject).setParentType((TLAttributeType) srcType);
+			assert (false);
 		}
+
 	}
 
 	@Override

@@ -18,6 +18,7 @@ package org.opentravel.schemas.node.properties;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
@@ -93,8 +94,24 @@ public class IndicatorNode extends PropertyNode {
 	}
 
 	@Override
+	public String getName() {
+		return getTLModelObject() == null || getTLModelObject().getName() == null
+				|| getTLModelObject().getName().isEmpty() ? "" : getTLModelObject().getName();
+	}
+
+	@Override
+	public TLIndicator getTLModelObject() {
+		return (TLIndicator) (modelObject != null ? modelObject.getTLModelObj() : null);
+	}
+
+	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.Indicator);
+	}
+
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.INDICATOR;
 	}
 
 	@Override
@@ -104,7 +121,8 @@ public class IndicatorNode extends PropertyNode {
 
 	@Override
 	public String getLabel() {
-		return modelObject.getLabel() == null ? "" : modelObject.getLabel();
+		return getName();
+		// return modelObject.getLabel() == null ? "" : modelObject.getLabel();
 	}
 
 	@Override
@@ -118,14 +136,9 @@ public class IndicatorNode extends PropertyNode {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.PropertyNode#setName(java.lang.String)
-	 */
 	@Override
 	public void setName(String name) {
-		modelObject.setName(NodeNameUtils.fixIndicatorName(name));
+		getTLModelObject().setName(NodeNameUtils.fixIndicatorName(name));
 	}
 
 }

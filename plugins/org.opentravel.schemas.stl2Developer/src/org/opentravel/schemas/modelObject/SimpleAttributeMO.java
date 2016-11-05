@@ -17,8 +17,6 @@ package org.opentravel.schemas.modelObject;
 
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLCoreObject;
-import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,15 +36,16 @@ public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
 	public void delete() {
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Simple Attribute";
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Simple Attribute";
+	// }
 
-	@Override
-	public String getName() {
-		return getTLModelObj().getName();
-	}
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// return getTLModelObj().getName();
+	// }
 
 	// Model does not know what namespace the attribute or its owning component is in.
 	@Override
@@ -67,15 +66,16 @@ public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
 	@Override
 	public NamedEntity getTLType() {
 		// TL_VWA which is the srcObj parent does not provide access to the simple facet.
-		if (srcObj instanceof TLnSimpleAttribute) {
-			if (srcObj.getParentObject() instanceof TLCoreObject) {
-				return ((TLCoreObject) srcObj.getParentObject()).getSimpleFacet().getSimpleType();
-			} else if (srcObj.getParentObject() instanceof TLValueWithAttributes)
-				return ((TLValueWithAttributes) srcObj.getParentObject()).getParentType();
-
-			throw new IllegalStateException("Not Implemented yet.");
-			// return ((Node) node.getParent()).getAssignedTLObject();
-		}
+		// if (srcObj instanceof TLnSimpleAttribute) {
+		// if (srcObj.getParentObject() instanceof TLCoreObject) {
+		// return ((TLCoreObject) srcObj.getParentObject()).getSimpleFacet().getSimpleType();
+		// } else if (srcObj.getParentObject() instanceof TLValueWithAttributes)
+		// return ((TLValueWithAttributes) srcObj.getParentObject()).getParentType();
+		//
+		// return null;
+		// // throw new IllegalStateException("Not Implemented yet.");
+		// // return ((Node) node.getParent()).getAssignedTLObject();
+		// }
 		return srcObj.getType();
 	}
 

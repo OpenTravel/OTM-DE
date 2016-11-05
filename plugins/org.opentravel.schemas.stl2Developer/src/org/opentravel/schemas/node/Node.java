@@ -78,7 +78,9 @@ import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
+import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.INodeListener;
+import org.opentravel.schemas.node.listeners.NamedTypeListener;
 import org.opentravel.schemas.node.listeners.NodeIdentityListener;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
@@ -431,7 +433,7 @@ public abstract class Node implements INode {
 		Node child = null;
 		if (ns.isEmpty())
 			ns = ModelNode.Chameleon_NS;
-		if (this.isTypeProvider() && this.getName().equals(name) && this.getNamespace().equals(ns))
+		if (this.isNamedEntity() && this.getName().equals(name) && this.getNamespace().equals(ns))
 			return this;
 		for (Node x : getChildren()) {
 			if (x.isLibraryContainer())
@@ -454,7 +456,7 @@ public abstract class Node implements INode {
 	 * @return node found or null
 	 */
 	public Node findNodeByName(String name) {
-		for (Node n : getDescendants_NamedTypes()) {
+		for (Node n : getDescendants_LibraryMembers()) {
 			if (n.getName().equals(name))
 				return n;
 		}
@@ -692,18 +694,12 @@ public abstract class Node implements INode {
 
 	@Override
 	public String getLabel() {
-		return modelObject.getLabel() == null ? "" : modelObject.getLabel();
+		return getName();
+		// return modelObject.getLabel() == null ? "" : modelObject.getLabel();
 	}
 
 	@Override
-	public String getName() {
-		if (modelObject == null)
-			return "";
-		// if (modelObject.getTLModelObj() instanceof TLFacet
-		// && ((TLFacet) modelObject.getTLModelObj()).getOwningEntity() == null)
-		// return "";
-		return modelObject.getName() == null ? "" : modelObject.getName();
-	}
+	public abstract String getName();
 
 	@Override
 	public String getNamePrefix() {
@@ -850,7 +846,7 @@ public abstract class Node implements INode {
 	public List<Node> getChildren_TypeProviders() {
 		final ArrayList<Node> kids = new ArrayList<Node>();
 		for (final Node n : getChildren()) {
-			if (n.isTypeProvider() || n.hasChildren_TypeProviders()) {
+			if (n.isNamedEntity() || n.hasChildren_TypeProviders()) {
 				if (n instanceof VersionNode && ((VersionNode) n).getVersionedObject() != null)
 					kids.add(((VersionNode) n).getVersionedObject());
 				else
@@ -861,22 +857,23 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * return new list. Traverse via hasChildren. For version chains, it uses the version node and does not touch
-	 * aggregates.
+	 * return new list of NamedEntities. Traverse via hasChildren. For version chains, it uses the version node and does
+	 * not touch aggregates.
 	 */
 	@Override
-	public List<Node> getDescendants_NamedTypes() {
+	public List<Node> getDescendants_LibraryMembers() {
 		// keep duplicates out of the list that version aggregates may introduce
 		HashSet<Node> namedKids = new HashSet<Node>();
 		for (Node c : getChildren()) {
 			// TL model considers services as named library member
-			if (c instanceof ServiceNode)
-				namedKids.add(c);
-			else if (c.isTypeProvider()) {
-				namedKids.add(c);
-			} else if (c.hasChildren())
+			if (isLibraryMember(c))
+				if (c instanceof VersionNode)
+					namedKids.add(((VersionNode) c).getNewestVersion());
+				else
+					namedKids.add(c);
+			else if (c.hasChildren())
 				// If it is named type, do not go into it.
-				namedKids.addAll(c.getDescendants_NamedTypes());
+				namedKids.addAll(c.getDescendants_LibraryMembers());
 		}
 		return new ArrayList<Node>(namedKids);
 	}
@@ -1024,13 +1021,6 @@ public abstract class Node implements INode {
 	}
 
 	public boolean isImportable() {
-		return false;
-	}
-
-	/**
-	 * @return if element, element reference or indicator element
-	 */
-	public boolean isElement() {
 		return false;
 	}
 
@@ -1495,12 +1485,12 @@ public abstract class Node implements INode {
 	// */
 
 	// Should use instanceof TypeProvider
-	@Deprecated
+	// BUT - implied node is a type provider!
 	@Override
-	public boolean isTypeProvider() {
+	public boolean isNamedEntity() {
 		if (this instanceof ImpliedNode)
 			return false;
-		return getTLModelObject() != null ? getTLModelObject() instanceof NamedEntity : false;
+		return getTLModelObject() instanceof NamedEntity;
 	}
 
 	/**
@@ -1508,6 +1498,15 @@ public abstract class Node implements INode {
 	 */
 	public boolean isNamedType() {
 		return false;
+	}
+
+	/**
+	 * True if is a compiler LibraryMember and not an impled node.
+	 */
+	public boolean isLibraryMember(Node n) {
+		if (this instanceof ImpliedNode)
+			return false;
+		return n.getTLModelObject() instanceof LibraryMember;
 	}
 
 	public boolean isElementAssignable() {
@@ -1542,7 +1541,7 @@ public abstract class Node implements INode {
 	}
 
 	public boolean isAssignable() {
-		return isElementAssignable() || isTypeProvider() || isSimpleAssignable();
+		return isElementAssignable() || isNamedEntity() || isSimpleAssignable();
 	}
 
 	/**
@@ -1858,19 +1857,22 @@ public abstract class Node implements INode {
 	}
 
 	@Override
-	public abstract String getComponentType();
-
-	// TODO - why this and getComponentType???
-	public String getSimpleComponentType() {
-		// return for VWA Simple Facet Base as label
-		if (this.getOwningComponent() instanceof VWA_Node)
-			return "Base";
-		return modelObject.getComponentType();
+	public String getComponentType() {
+		return getComponentNodeType() == null ? "" : getComponentNodeType().getDescription();
 	}
 
 	@Override
 	public LibraryNode getLibrary() {
 		return library;
+	}
+
+	/**
+	 * Get a new listener for this type of node.
+	 * 
+	 * @return
+	 */
+	public BaseNodeListener getNewListener() {
+		return new NamedTypeListener(this);
 	}
 
 	/**
@@ -2177,7 +2179,7 @@ public abstract class Node implements INode {
 		// List<Node> x = getChain().getHead().getDescendants_NamedTypes();
 		if (getChain() == null || getChain().getHead() == null)
 			return false;
-		return getChain().getHead().getDescendants_NamedTypes().contains(owner);
+		return getChain().getHead().getDescendants_LibraryMembers().contains(owner);
 	}
 
 	/** ******************** Library access methods ******************/
@@ -2485,10 +2487,9 @@ public abstract class Node implements INode {
 		// Only do deep dependencies validation on libraries.
 		ValidationFindings findings = TLModelCompileValidator.validateModelElement(this.getTLModelObject(),
 				this instanceof LibraryNode);
-		// for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
-		// {
-		// LOGGER.debug("Finding: " + f);
-		// }
+		for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
+			LOGGER.debug("Finding: " + f);
+
 		return findings;
 	}
 

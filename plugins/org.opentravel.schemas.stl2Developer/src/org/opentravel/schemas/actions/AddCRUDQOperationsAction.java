@@ -54,8 +54,7 @@ public class AddCRUDQOperationsAction extends OtmAbstractAction {
 		// post a business object only Type Selection then pass the selected node.
 		final TypeSelectionWizard wizard = new TypeSelectionWizard(service);
 		if (wizard.run(OtmRegistry.getActiveShell())) {
-			Node subject = wizard.getSelection();
-			((ServiceNode) service).addCRUDQ_Operations(subject);
+			((ServiceNode) service).addCRUDQ_Operations(wizard.getSelection());
 			mc.refresh(service);
 		}
 	}

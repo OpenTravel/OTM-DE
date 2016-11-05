@@ -66,11 +66,12 @@ public class ElementPropertyMO extends ModelObject<TLProperty> {
 		}
 	}
 
-	@Override
-	public String getName() {
-		return getTLModelObj() == null || getTLModelObj().getName() == null || getTLModelObj().getName().isEmpty() ? ""
-				: getTLModelObj().getName();
-	}
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// return getTLModelObj() == null || getTLModelObj().getName() == null || getTLModelObj().getName().isEmpty() ? ""
+	// : getTLModelObj().getName();
+	// }
 
 	/**
 	 * Returns the repeat count - returns a 1 if tl object is 0 because that is the xsd default the user expects to see.
@@ -92,10 +93,10 @@ public class ElementPropertyMO extends ModelObject<TLProperty> {
 		return "";
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Element";
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Element";
+	// }
 
 	@Override
 	public TLProperty getTLModelObj() {

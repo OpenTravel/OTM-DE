@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.types.TypeNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
@@ -127,7 +128,7 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 	 * @return true if this object can be used as an assigned type or base type
 	 */
 	@Override
-	public boolean isTypeProvider() {
+	public boolean isNamedEntity() {
 		return true;
 	}
 
@@ -177,4 +178,21 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 		whereAssignedHandler.setListener(user);
 	}
 
+	/**
+	 * Assign the name to all properties that use this type provider. Also update all type users contained by children.
+	 * 
+	 * @param name
+	 */
+	protected void updateNames(String name) {
+		for (TypeUser user : getWhereAssigned()) {
+			if (user instanceof PropertyNode)
+				user.setName(NodeNameUtils.fixBusinessObjectName(name));
+		}
+
+		for (Node child : getChildren()) {
+			for (TypeUser users : ((TypeProvider) child).getWhereAssigned())
+				((Node) users).visitAllNodes(new NodeVisitors().new FixNames());
+		}
+
+	}
 }

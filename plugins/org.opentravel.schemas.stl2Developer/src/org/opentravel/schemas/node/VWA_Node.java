@@ -23,11 +23,12 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
-import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
+import org.opentravel.schemas.modelObject.ValueWithAttributesMO;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
+import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -54,12 +55,15 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 	// private static final Logger LOGGER = LoggerFactory.getLogger(VWA_Node.class);
 	private ExtensionHandler extensionHandler = null;
 
-	public VWA_Node(TLLibraryMember mbr) {
+	public VWA_Node(TLValueWithAttributes mbr) {
 		super(mbr);
 		addMOChildren();
 
-		if (((TLValueWithAttributes) getTLModelObject()).getParentType() == null)
+		if (getTLModelObject().getParentType() == null)
 			setSimpleType((TypeProvider) ModelNode.getEmptyNode());
+
+		assert (modelObject instanceof ValueWithAttributesMO);
+
 	}
 
 	public VWA_Node(BusinessObjectNode bo) {
@@ -69,9 +73,9 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 		bo.getLibrary().addMember(this);
 		setDocumentation(bo.getDocumentation());
 
-		((FacetNode) getAttributeFacet()).copyFacet((FacetNode) bo.getIDFacet());
-		((FacetNode) getAttributeFacet()).copyFacet(bo.getSummaryFacet());
-		((FacetNode) getAttributeFacet()).copyFacet((FacetNode) bo.getDetailFacet());
+		((PropertyOwnerNode) getAttributeFacet()).copyFacet((FacetNode) bo.getIDFacet());
+		((PropertyOwnerNode) getAttributeFacet()).copyFacet(bo.getSummaryFacet());
+		((PropertyOwnerNode) getAttributeFacet()).copyFacet((FacetNode) bo.getDetailFacet());
 		setSimpleType((TypeProvider) ModelNode.getEmptyNode());
 	}
 
@@ -82,14 +86,14 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 		core.getLibrary().addMember(this);
 		setDocumentation(core.getDocumentation());
 
-		((FacetNode) getAttributeFacet()).copyFacet((FacetNode) core.getSummaryFacet());
-		((FacetNode) getAttributeFacet()).copyFacet((FacetNode) core.getDetailFacet());
+		((PropertyOwnerNode) getAttributeFacet()).copyFacet((FacetNode) core.getSummaryFacet());
+		((PropertyOwnerNode) getAttributeFacet()).copyFacet((FacetNode) core.getDetailFacet());
 		setSimpleType(core.getSimpleType());
 	}
 
 	@Override
 	public ComponentNode createMinorVersionComponent() {
-		return super.createMinorVersionComponent(new VWA_Node((TLLibraryMember) createMinorTLVersion(this)));
+		return super.createMinorVersionComponent(new VWA_Node((TLValueWithAttributes) createMinorTLVersion(this)));
 	}
 
 	/**
@@ -97,7 +101,17 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 	 */
 	@Override
 	public NamedEntity getTLTypeObject() {
-		return ((TLValueWithAttributes) getTLModelObject()).getParentType();
+		return getTLModelObject().getParentType();
+	}
+
+	@Override
+	public String getName() {
+		return getTLModelObject() == null || getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
+	}
+
+	@Override
+	public TLValueWithAttributes getTLModelObject() {
+		return (TLValueWithAttributes) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	@Override
@@ -106,7 +120,7 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 	}
 
 	@Override
-	public boolean isTypeProvider() {
+	public boolean isNamedEntity() {
 		return true;
 	}
 
@@ -168,12 +182,21 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 
 	@Override
 	public PropertyOwnerInterface getAttributeFacet() {
-		for (INode f : getChildren()) {
-			if (f.getModelObject() instanceof ValueWithAttributesAttributeFacetMO)
+		for (INode f : getChildren())
+			if (f instanceof VWA_AttributeFacetNode)
 				return (PropertyOwnerInterface) f;
-		}
 		return null;
+	}
 
+	// VWA is NOT a TypeUser
+	@Override
+	public Node getType() {
+		return null; // Does NOT have type ... simple attribute does
+	}
+
+	@Override
+	public void setName(String name) {
+		getTLModelObject().setName(NodeNameUtils.fixVWAName(name));
 	}
 
 	// /////////////////////////////////////////////////////////////////

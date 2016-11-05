@@ -37,28 +37,28 @@ public class ListFacetMO extends ModelObject<TLListFacet> {
 		return getTLModelObj().getAliases();
 	}
 
-	@Override
-	public String getComponentType() {
-		return getTLModelObj().getLocalName();
-	}
+	// @Override
+	// public String getComponentType() {
+	// return getTLModelObj().getLocalName();
+	// }
 
-	@Override
-	public String getLabel() {
-		// Simple and Detail lists
-		String label = srcObj.getFacetType() == null ? "" : FacetMO.getDisplayName(srcObj.getFacetType());
-		label = "List_" + label;
-		return label;
-	}
+	// @Override
+	// public String getLabel() {
+	// // Simple and Detail lists
+	// String label = srcObj.getFacetType() == null ? "" : FacetMO.getDisplayName(srcObj.getFacetType());
+	// label = "List_" + label;
+	// return label;
+	// }
 
 	@Override
 	protected AbstractLibrary getLibrary(final TLListFacet obj) {
 		return null;
 	}
 
-	@Override
-	public String getName() {
-		return getTLModelObj().getLocalName() == null ? "" : getTLModelObj().getLocalName();
-	}
+	// @Override
+	// public String getName() {
+	// return getTLModelObj().getLocalName() == null ? "" : getTLModelObj().getLocalName();
+	// }
 
 	@Override
 	public String getNamePrefix() {

@@ -22,10 +22,13 @@ import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
+import org.opentravel.schemas.modelObject.SimpleFacetMO;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.listeners.BaseNodeListener;
+import org.opentravel.schemas.node.listeners.SimpleFacetNodeListener;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.types.SimpleAttributeOwner;
 import org.opentravel.schemas.types.TypeProvider;
@@ -47,11 +50,15 @@ import org.slf4j.LoggerFactory;
 
 // In VWA it has a simple attribute node child
 
-public class SimpleFacetNode extends FacetNode implements TypeProvider, SimpleAttributeOwner {
+public class SimpleFacetNode extends PropertyOwnerNode implements TypeProvider, SimpleAttributeOwner {
 	private static final Logger LOGGER = LoggerFactory.getLogger(FacetNode.class);
 
 	public SimpleFacetNode(TLSimpleFacet obj) {
 		super(obj);
+
+		assert (modelObject instanceof SimpleFacetMO);
+		// TLSimpleFacet - SimpleFacetMO
+		// parent = Core Object Node, VWA
 	}
 
 	/**
@@ -77,17 +84,17 @@ public class SimpleFacetNode extends FacetNode implements TypeProvider, SimpleAt
 		return getChildren().get(0);
 	}
 
-	@Override
-	public TLFacetType getFacetType() {
-		return TLFacetType.SIMPLE;
-	}
+	// @Override
+	// public String getLabel() {
+	// String label = getSimpleComponentType();
+	// if (label.indexOf("-Facet") > 0)
+	// label = label.substring(0, label.indexOf("-Facet"));
+	// return label.isEmpty() ? "" : label;
+	// }
 
 	@Override
-	public String getLabel() {
-		String label = getSimpleComponentType();
-		if (label.indexOf("-Facet") > 0)
-			label = label.substring(0, label.indexOf("-Facet"));
-		return label.isEmpty() ? "" : label;
+	public BaseNodeListener getNewListener() {
+		return new SimpleFacetNodeListener(this);
 	}
 
 	@Override
@@ -176,6 +183,27 @@ public class SimpleFacetNode extends FacetNode implements TypeProvider, SimpleAt
 	@Override
 	public boolean isNavChild(boolean deep) {
 		return deep;
+	}
+
+	@Override
+	public String getName() {
+		return getTLModelObject() == null || getTLModelObject().getLocalName() == null ? "" : getTLModelObject()
+				.getLocalName();
+	}
+
+	@Override
+	public TLSimpleFacet getTLModelObject() {
+		return (TLSimpleFacet) (modelObject != null ? modelObject.getTLModelObj() : null);
+	}
+
+	@Override
+	public TLFacetType getFacetType() {
+		return TLFacetType.SIMPLE;
+	}
+
+	@Override
+	public String getComponentType() {
+		return getFacetType().getIdentityName();
 	}
 
 }

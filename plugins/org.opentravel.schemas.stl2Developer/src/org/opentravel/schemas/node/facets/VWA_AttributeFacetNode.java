@@ -17,7 +17,10 @@ package org.opentravel.schemas.node.facets;
 
 import java.util.List;
 
+import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.modelObject.TLValueWithAttributesFacet;
+import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
+import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.PropertyNodeType;
 
@@ -27,10 +30,12 @@ import org.opentravel.schemas.node.PropertyNodeType;
  * @author Dave Hollander
  * 
  */
-public class VWA_AttributeFacetNode extends FacetNode {
+public class VWA_AttributeFacetNode extends PropertyOwnerNode {
 
 	public VWA_AttributeFacetNode(TLValueWithAttributesFacet tlObj) {
 		super(tlObj);
+
+		assert (modelObject instanceof ValueWithAttributesAttributeFacetMO);
 	}
 
 	@Override
@@ -39,7 +44,7 @@ public class VWA_AttributeFacetNode extends FacetNode {
 	}
 
 	@Override
-	public boolean isTypeProvider() {
+	public boolean isNamedEntity() {
 		return false; // can't be assigned therefore is not a type provider
 	}
 
@@ -61,6 +66,26 @@ public class VWA_AttributeFacetNode extends FacetNode {
 	@Override
 	public boolean isNavChild(boolean deep) {
 		return deep;
+	}
+
+	@Override
+	public String getName() {
+		return getComponentType();
+	}
+
+	@Override
+	public TLValueWithAttributesFacet getTLModelObject() {
+		return (TLValueWithAttributesFacet) (modelObject != null ? modelObject.getTLModelObj() : null);
+	}
+
+	@Override
+	public TLFacetType getFacetType() {
+		return TLFacetType.SIMPLE;
+	}
+
+	@Override
+	public String getComponentType() {
+		return ComponentNodeType.ATTRIBUTES.toString();
 	}
 
 }

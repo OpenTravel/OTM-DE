@@ -62,6 +62,8 @@ import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
+import org.opentravel.schemas.node.listeners.BaseNodeListener;
+import org.opentravel.schemas.node.listeners.LibraryNodeListener;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.preferences.GeneralPreferencePage;
@@ -547,7 +549,7 @@ public class LibraryNode extends Node {
 		// More than one context is being used. Merge context of children the collapse down the unused contexts.
 		//
 		// Merge contexts in all children of this library.
-		for (Node n : getDescendants_NamedTypes()) {
+		for (Node n : getDescendants_LibraryMembers()) {
 			n.mergeContext(tlc.getContextId());
 		}
 
@@ -1169,6 +1171,11 @@ public class LibraryNode extends Node {
 		return this;
 	}
 
+	@Override
+	public BaseNodeListener getNewListener() {
+		return new LibraryNodeListener(this);
+	}
+
 	public AbstractLibrary getTLaLib() {
 		return absTLLibrary;
 	}
@@ -1229,7 +1236,8 @@ public class LibraryNode extends Node {
 	@Override
 	public String getNamespace() {
 		// return emptyIfNull(getTLaLib().getNamespace());
-		return modelObject.getNamespace(); // some libraries have empty mo
+		return getTLModelObject().getNamespace();
+		// return modelObject.getNamespace(); // some libraries have empty mo
 		// return getTLModelObject() == null ? "" : getTLModelObject().getNamespace();
 	}
 
@@ -1346,18 +1354,21 @@ public class LibraryNode extends Node {
 		// LOGGER.debug("LibraryNode:setName() - name set to " + n);
 	}
 
+	// @Override
+	// public String getName() {
+	// return emptyIfNull(getTLaLib().getName());
+	// }
+
 	@Override
 	public String getName() {
-		return emptyIfNull(getTLaLib().getName());
+		return getTLModelObject() == null || getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
 	}
 
 	@Override
 	public String getLabel() {
 		String prefix = "";
-
 		if (!getNamePrefix().isEmpty())
 			prefix = getNamePrefix() + ":";
-
 		return prefix + getName();
 	}
 
@@ -1522,25 +1533,26 @@ public class LibraryNode extends Node {
 	/**
 	 * Note - locally defined types are not returned, only those with public names. For XSD nodes, the OTM model node is
 	 * returned
-	 * 
+	 *
 	 * @return list of all named simple types in this library.
 	 */
-	// FIXME - ONLY used in tests. move or remove
-	public List<SimpleTypeNode> getNamedSimpleTypes() {
-		return (getNamedSimpleTypes(simpleRoot));
+	// FIXME - ONLY used in tests. move to simpleComponentNode? or remove
+	public List<SimpleComponentNode> getDescendentsSimpleComponents() {
+		return (getDescendentsSimpleComponents(simpleRoot));
 	}
 
-	private List<SimpleTypeNode> getNamedSimpleTypes(INode n) {
-		ArrayList<SimpleTypeNode> namedKids = new ArrayList<SimpleTypeNode>();
+	private List<SimpleComponentNode> getDescendentsSimpleComponents(INode n) {
+		ArrayList<SimpleComponentNode> namedKids = new ArrayList<SimpleComponentNode>();
 		for (Node c : n.getChildren()) {
 			// has simple, enum, family and xsd nodes in the list.
-			if (c.isTypeProvider()) {
-				if (c instanceof SimpleTypeNode)
-					namedKids.add((SimpleTypeNode) c);
-				else if (c instanceof XsdNode && c.isSimpleType())
-					namedKids.add((SimpleTypeNode) ((XsdNode) c).getOtmModel());
+			if (c instanceof TypeProvider && !(c instanceof ImpliedNode)) {
+				// if (c.isTypeProvider()) {
+				if (c instanceof SimpleComponentNode)
+					namedKids.add((SimpleComponentNode) c);
+				else if (c instanceof XsdNode && ((XsdNode) c).getOtmModel() instanceof SimpleComponentNode)
+					namedKids.add((SimpleComponentNode) ((XsdNode) c).getOtmModel());
 			} else if (c.isNavigation())
-				namedKids.addAll(getNamedSimpleTypes(c));
+				namedKids.addAll(getDescendentsSimpleComponents(c));
 		}
 		return namedKids;
 	}
@@ -1574,6 +1586,12 @@ public class LibraryNode extends Node {
 	 */
 	public TLLibrary getTLLibrary() {
 		return absTLLibrary instanceof TLLibrary ? (TLLibrary) absTLLibrary : genTLLib;
+	}
+
+	@Override
+	public AbstractLibrary getTLModelObject() {
+		return absTLLibrary instanceof AbstractLibrary ? (AbstractLibrary) absTLLibrary : genTLLib;
+		// return (AbstractLibrary) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	/**
@@ -1645,7 +1663,7 @@ public class LibraryNode extends Node {
 
 	private Collection<? extends Node> gntp(Node n) {
 		ArrayList<Node> lst = new ArrayList<Node>();
-		if (n.isTypeProvider() && !isLocal())
+		if (n.isNamedEntity() && !isLocal())
 			lst.add(n);
 		for (Node gc : n.getChildren())
 			lst.addAll(gntp(gc));

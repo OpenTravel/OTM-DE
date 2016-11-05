@@ -19,8 +19,8 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
-import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemas.modelObject.ExtensionPointFacetMO;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
@@ -46,11 +46,13 @@ public class ExtensionPointNode extends ComponentNode implements ComplexComponen
 	// private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionPointNode.class);
 	private ExtensionHandler extensionHandler = null;
 
-	public ExtensionPointNode(TLLibraryMember mbr) {
+	public ExtensionPointNode(TLExtensionPointFacet mbr) {
 		super(mbr);
 		addMOChildren();
 		extensionHandler = new ExtensionHandler(this);
 
+		assert (modelObject instanceof ExtensionPointFacetMO);
+		// assert (mbr instanceof TLExtensionPointFacet);
 	}
 
 	@Override
@@ -111,18 +113,28 @@ public class ExtensionPointNode extends ComponentNode implements ComplexComponen
 		return getName();
 	}
 
+	// @Override
+	// public String getName() {
+	// String name = "unnamed";
+	// // Could be TLEmpty
+	// if ((getTLModelObject() != null) && (getTLModelObject() instanceof TLExtensionPointFacet))
+	// name = ((TLExtensionPointFacet) getTLModelObject()).getLocalName();
+	// if (name == null)
+	// name = "unnamed";
+	// String prefix = "ExtensionPoint_";
+	// if (name.startsWith(prefix))
+	// name = name.substring(prefix.length(), name.length());
+	// return name + "_ExtensionPoint";
+	// }
 	@Override
 	public String getName() {
-		String name = "unnamed";
-		// Could be TLEmpty
-		if ((getTLModelObject() != null) && (getTLModelObject() instanceof TLExtensionPointFacet))
-			name = ((TLExtensionPointFacet) getTLModelObject()).getLocalName();
-		if (name == null)
-			name = "unnamed";
-		String prefix = "ExtensionPoint_";
-		if (name.startsWith(prefix))
-			name = name.substring(prefix.length(), name.length());
-		return name + "_ExtensionPoint";
+		return getTLModelObject() == null || getTLModelObject().getLocalName() == null
+				|| getTLModelObject().getLocalName().isEmpty() ? "-not assigned-" : getTLModelObject().getLocalName();
+	}
+
+	@Override
+	public TLExtensionPointFacet getTLModelObject() {
+		return (TLExtensionPointFacet) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	// added 9/7/2015 - was not removing properties from newPropertyWizard

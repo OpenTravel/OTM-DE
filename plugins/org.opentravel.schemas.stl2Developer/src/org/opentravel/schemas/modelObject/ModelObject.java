@@ -137,10 +137,10 @@ public abstract class ModelObject<TL> {
 		return Collections.emptyList();
 	}
 
-	/**
-	 * @return - Return the type name of the component
-	 */
-	public abstract String getComponentType();
+	// /**
+	// * @return - Return the type name of the component
+	// */
+	// public abstract String getComponentType();
 
 	public TLDocumentation getDocumentation() {
 		TLDocumentation tld = null;
@@ -172,21 +172,25 @@ public abstract class ModelObject<TL> {
 
 	protected abstract AbstractLibrary getLibrary(TL obj);
 
-	/**
-	 * Label is the node's name plus any optional additional generated text that clarifies the role/purpose/type of the
-	 * node to the user. Labels can not be set. Label to be used in tree views. Sub types must override to provide
-	 * additional text.
-	 * 
-	 * @return - name
-	 */
-	public String getLabel() {
-		return getName();
-	}
-
-	/**
-	 * @return - the user managed name of the object.
-	 */
-	public abstract String getName();
+	// /**
+	// * Label is the node's name plus any optional additional generated text that clarifies the role/purpose/type of
+	// the
+	// * node to the user. Labels can not be set. Label to be used in tree views. Sub types must override to provide
+	// * additional text.
+	// *
+	// * @return - name
+	// */
+	// public String getLabel() {
+	// return node.getName();
+	// }
+	//
+	// /**
+	// * @return - the user managed name of the object.
+	// */
+	// public String getName() {
+	// // assert (false);
+	// return "EEEE";
+	// }
 
 	public abstract String getNamePrefix();
 

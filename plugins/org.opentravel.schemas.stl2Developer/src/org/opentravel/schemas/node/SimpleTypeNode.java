@@ -18,15 +18,10 @@
  */
 package org.opentravel.schemas.node;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLClosedEnumeration;
-import org.opentravel.schemacompiler.model.TLLibraryMember;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLSimple;
+import org.opentravel.schemas.modelObject.SimpleMO;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.properties.EqExOneValueHandler;
@@ -45,132 +40,32 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class SimpleTypeNode extends TypeProviderBase implements SimpleComponentInterface, TypeUser,
+public class SimpleTypeNode extends SimpleComponentNode implements SimpleComponentInterface, TypeUser,
 		LibraryMemberInterface, TypeProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleTypeNode.class);
 
 	// Handlers for equivalents and examples
 	protected IValueWithContextHandler equivalentHandler = null;
 	protected IValueWithContextHandler exampleHandler = null;
-	protected TypeUserHandler typeHandler = null;
 
-	public SimpleTypeNode(TLLibraryMember mbr) {
+	public SimpleTypeNode(TLSimple mbr) {
 		super(mbr);
-		assert (getTLModelObject() != null);
-
 		typeHandler = new TypeUserHandler(this);
+		constraintHandler = new ConstraintHandler((TLSimple) getTLModelObject(), this);
 
-		if (this instanceof EnumerationClosedNode)
-			assert getTLModelObject() instanceof TLClosedEnumeration;
-		else if (this instanceof SimpleTypeNode) {
-			assert getTLModelObject() instanceof TLSimple;
-			constraintHandler = new ConstraintHandler((TLSimple) getTLModelObject(), this);
-		}
+		assert (getTLModelObject() != null);
+		assert (modelObject instanceof SimpleMO);
 	}
 
-	@Override
-	public boolean canAssign(Node type) {
-		return type instanceof TypeProvider ? ((TypeProvider) type).isAssignableToSimple() : false;
-	}
-
-	@Override
-	public String getTypeName() {
-		// // FIXME - TESTME
-		// // For implied nodes, use the name they provide.
-		// if (typeHandler.get() instanceof ImpliedNode) {
-		// ImpliedNode in = (ImpliedNode) typeHandler.get();
-		// String name = in.getImpliedType().getImpliedNodeType();
-		// // If the implied node is a union, add that to its assigned name
-		// if (in.getImpliedType().equals(ImpliedNodeType.Union))
-		// throw new IllegalStateException("How to handle getTypeName() for unions?");
-		// name += ": " + XsdModelingUtils.getAssignedXsdUnion(this);
-		// }
-		//
-		return typeHandler.getName();
-	}
-
-	@Override
-	public String getTypeNameWithPrefix() {
-		String typeName = getTypeName() == null ? "" : getTypeName();
-		if (getAssignedType() == null)
-			return "";
-		if (getAssignedType() instanceof ImpliedNode)
-			return typeName;
-		if (getNamePrefix().equals(getAssignedPrefix()))
-			return typeName; // only prefix names in different namespaces
-		return getType().getNamePrefix() + ":" + typeName;
-	}
-
-	@Override
-	public boolean hasNavChildren(boolean deep) {
-		return deep && getNavType() != null;
-	}
-
-	// Do not show implied types in tree views
-	private Node getNavType() {
-		Node type = getTypeNode();
-		return type instanceof ImpliedNode ? null : type;
-	}
-
-	/**
-	 * Return new array containing assigned type
-	 */
-	public List<Node> getNavChildren(boolean deep) {
-		Node type = getNavType();
-		ArrayList<Node> kids = new ArrayList<Node>();
-		if (deep && type != null)
-			kids.add(type);
-		return kids;
-	}
-
-	// @Override
-	// public boolean isTypeUser() {
-	// return this instanceof Enumeration ? false : true;
+	// // Do not show implied types in tree views
+	// private Node getNavType() {
+	// Node type = getTypeNode();
+	// return type instanceof ImpliedNode ? null : type;
 	// }
-	//
-	@Override
-	public boolean isAssignableToSimple() {
-		return true;
-	}
-
-	@Override
-	public boolean isAssignableToVWA() {
-		return true;
-	}
-
-	@Override
-	public boolean isNamedType() {
-		return true;
-	}
-
-	@Override
-	public Node getBaseType() {
-		// Base type is the assigned type
-		return (Node) typeHandler.get();
-		// FIXME - since this is base type, should this be type user?
-
-		// if (getTypeClass().getTypeNode() == null) {
-		// if (getTLModelObject() instanceof TLSimple)
-		// getTypeClass().setTypeNode(ModelNode.getUnassignedNode());
-		// }
-		// return (Node) getTypeClass().getTypeNode();
-	}
 
 	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.XSDSimpleType);
-	}
-
-	@Override
-	public NamedEntity getTLBaseType() {
-		return typeHandler.getTLNamedEntity();
-		// NamedEntity x = null;
-		// if (getTLModelObject() instanceof TLSimple) {
-		// x = ((TLSimple) getTLModelObject()).getParentType();
-		// } else
-		// x = (NamedEntity) getTypeClass().getTypeNode().getTLModelObject();
-		// // created by constructor;
-		// return x;
 	}
 
 	@Override
@@ -179,43 +74,19 @@ public class SimpleTypeNode extends TypeProviderBase implements SimpleComponentI
 	}
 
 	@Override
-	public boolean isSimpleType() {
-		return true;
+	public String getName() {
+		return getTLModelObject() == null || getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
 	}
 
 	@Override
-	public boolean isOnlySimpleTypeUser() {
-		return true;
+	public void setName(String name) {
+		getTLModelObject().setName(NodeNameUtils.fixSimpleTypeName(this, name));
 	}
 
+	// Type User handler will resolve to xsd node as needed.
 	@Override
-	public boolean isTypeProvider() {
-		return true;
-	}
-
-	// @Override
-	// public ModelObject<?> getAssignedModelObject() {
-	// return ((Node) typeHandler.get()).getModelObject();
-	// }
-
-	@Override
-	public boolean setAssignedType(TypeProvider provider) {
-		return typeHandler.set(provider);
-	}
-
-	@Override
-	public boolean setAssignedType(TLModelElement tlProvider) {
-		return typeHandler.set(tlProvider);
-	}
-
-	@Override
-	public boolean setAssignedType() {
-		return typeHandler.set();
-	}
-
-	@Override
-	public boolean isSimpleTypeProvider() {
-		return true;
+	public TLSimple getTLModelObject() {
+		return (TLSimple) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	/**
@@ -263,31 +134,6 @@ public class SimpleTypeNode extends TypeProviderBase implements SimpleComponentI
 			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
 		exampleHandler.set(example, null);
 		return exampleHandler;
-	}
-
-	@Override
-	public boolean isAssignableToElementRef() {
-		return false;
-	}
-
-	@Override
-	public TypeProvider getAssignedType() {
-		return typeHandler.get();
-	}
-
-	@Override
-	public NamedEntity getAssignedTLNamedEntity() {
-		return typeHandler.getTLNamedEntity();
-	}
-
-	@Override
-	public TLModelElement getAssignedTLObject() {
-		return typeHandler.getTLModelElement();
-	}
-
-	@Override
-	public TypeProvider getRequiredType() {
-		return null;
 	}
 
 }

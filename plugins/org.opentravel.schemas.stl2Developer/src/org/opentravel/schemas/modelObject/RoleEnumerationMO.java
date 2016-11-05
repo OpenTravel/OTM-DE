@@ -73,10 +73,11 @@ public class RoleEnumerationMO extends ModelObject<TLRoleEnumeration> {
 	// return true;
 	// }
 	//
-	@Override
-	public String getComponentType() {
-		return getTLModelObj().getLocalName();
-	}
+	// @Deprecated
+	// @Override
+	// public String getComponentType() {
+	// return getTLModelObj().getLocalName();
+	// }
 
 	/**
 	 * Set the name on a role - can't be done. Model objects do not know who their parentNode is. There is no
@@ -93,21 +94,22 @@ public class RoleEnumerationMO extends ModelObject<TLRoleEnumeration> {
 		return getTLModelObj().getRoles();
 	}
 
-	@Override
-	public String getLabel() {
-		return "Roles";
-	}
+	// @Override
+	// public String getLabel() {
+	// return "Roles";
+	// }
 
 	@Override
 	protected AbstractLibrary getLibrary(final TLRoleEnumeration obj) {
 		return getTLModelObj().getOwningLibrary();
 	}
 
-	@Override
-	public String getName() {
-		return getTLModelObj().getLocalName();
-	}
-
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// return getTLModelObj().getLocalName();
+	// }
+	//
 	@Override
 	public String getNamePrefix() {
 		return "";

@@ -17,6 +17,7 @@ package org.opentravel.schemas.node.facets;
 
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemas.modelObject.FacetMO;
 
 /**
  * Used for Choice Facets.
@@ -34,6 +35,7 @@ public class ChoiceFacetNode extends ContextualFacetNode {
 
 	public ChoiceFacetNode(TLContextualFacet tlObj) {
 		super(tlObj);
+		assert (modelObject instanceof FacetMO);
 	}
 
 	@Override

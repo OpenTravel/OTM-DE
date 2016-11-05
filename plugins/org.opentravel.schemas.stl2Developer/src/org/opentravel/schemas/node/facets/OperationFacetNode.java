@@ -35,7 +35,7 @@ public class OperationFacetNode extends FacetNode {
 	}
 
 	@Override
-	public boolean isTypeProvider() {
+	public boolean isNamedEntity() {
 		return false;
 	}
 

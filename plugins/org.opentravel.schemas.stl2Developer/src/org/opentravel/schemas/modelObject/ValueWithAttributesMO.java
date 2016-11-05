@@ -69,10 +69,10 @@ public class ValueWithAttributesMO extends ModelObject<TLValueWithAttributes> {
 		return kids;
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Value With Attributes";
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Value With Attributes";
+	// }
 
 	@Override
 	public void clearTLType() {
@@ -89,10 +89,11 @@ public class ValueWithAttributesMO extends ModelObject<TLValueWithAttributes> {
 			getTLModelObj().setParentType(null); // clear value
 	}
 
-	@Override
-	public String getName() {
-		return getTLModelObj().getName();
-	}
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// return getTLModelObj().getName();
+	// }
 
 	@Override
 	public String getNamespace() {

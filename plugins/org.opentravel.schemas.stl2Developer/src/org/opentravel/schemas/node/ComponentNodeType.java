@@ -19,14 +19,39 @@
 package org.opentravel.schemas.node;
 
 /**
+ * Note - facet types provided by compiler TLFacetType
+ * 
  * @author Dave Hollander
  * 
  */
 public enum ComponentNodeType {
-	CLOSED_ENUM("Enumeration Closed"), ALIAS("Alias"), OPEN_ENUM("Enumeration Open"), VWA("Value With Attributes"), CHOICE(
-			"Choice Object"), CORE("Core Object"), BUSINESS("Business Object"), RESOURCE("Resource"), SERVICE("Service"), MESSAGE(
-			"Message"), OPERATION("Operation"), REQUEST("Request"), RESPONSE("Response"), NOTIFICATION("Notification"), EXTENSION_POINT(
-			"Extension Point Facet"), SIMPLE("Simple Object");
+	ALIAS("Alias"),
+	ATTRIBUTE("Attribute"),
+	ATTRIBUTES("Attributes"),
+	BUSINESS("Business Object"),
+	CHOICE("Choice Object"),
+	CLOSED_ENUM("Closed Enumeration"),
+	CORE("Core Object"),
+	ELEMENT("Element"),
+	ELEMENT_REF("Element Reference"),
+	ENUM_LITERAL("Enumeration Value"),
+	EXTENSION_POINT("Extension Point Facet"),
+	INDICATOR("Indicator"),
+	INDICATOR_ELEMENT("Indicator Element"),
+	MESSAGE("Message"),
+	NAVIGATION("Navigation"),
+	NOTIFICATION("Notification"),
+	OPEN_ENUM("Open Enumeration"),
+	OPERATION("Operation"),
+	REQUEST("Request"),
+	RESOURCE("Resource"),
+	RESPONSE("Response"),
+	ROLE("Role"),
+	ROLES("Roles"),
+	SIMPLE("Simple Object"),
+	SIMPLE_ATTRIBUTE("Simple Attribute"),
+	SERVICE("Service"),
+	VWA("Value With Attributes");
 
 	private String desc;
 

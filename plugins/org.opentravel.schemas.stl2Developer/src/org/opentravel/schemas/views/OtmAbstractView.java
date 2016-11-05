@@ -35,261 +35,260 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public abstract class OtmAbstractView extends ViewPart implements OtmView {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OtmAbstractView.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(OtmAbstractView.class);
 
-    protected MainController mc;
-    private MainWindow mainWindow;
+	protected MainController mc;
+	private MainWindow mainWindow;
 
-    protected OtmAbstractView() {
-        this(OtmRegistry.getMainController());
-    }
+	protected OtmAbstractView() {
+		this(OtmRegistry.getMainController());
+	}
 
-    protected OtmAbstractView(MainController mc) {
-        this.mc = mc;
-        if (mc == null) {
-            throw new IllegalArgumentException("Tried to construct view without a main controller.");
-        }
-        mainWindow = mc.getMainWindow();
-    }
+	protected OtmAbstractView(MainController mc) {
+		this.mc = mc;
+		if (mc == null) {
+			throw new IllegalArgumentException("Tried to construct view without a main controller.");
+		}
+		mainWindow = mc.getMainWindow();
+	}
 
-    protected MainWindow getMainWindow() {
-        return mainWindow;
-    }
+	protected MainWindow getMainWindow() {
+		return mainWindow;
+	}
 
-    protected MainController getMainController() {
-        return mc;
-    }
+	protected MainController getMainController() {
+		return mc;
+	}
 
-    @Override
-    public boolean activate() {
-        if (mainWindow == null)
-            return false;
+	@Override
+	public boolean activate() {
+		if (mainWindow == null)
+			return false;
 
-        // TODO - how to know if it was already active?
-        try {
-            PlatformUI.getWorkbench();
-        } catch (IllegalStateException e) {
-            return false; // No workbench or display.
-        }
+		// TODO - how to know if it was already active?
+		try {
+			PlatformUI.getWorkbench();
+		} catch (IllegalStateException e) {
+			return false; // No workbench or display.
+		}
 
-        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().activate(this);
-        try {
-            PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-                    .showView(this.getViewID());
-        } catch (PartInitException e) {
-            LOGGER.debug("Error showing view: " + getViewID());
-            return false;
-        }
-        return true;
-    }
+		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().activate(this);
+		try {
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(this.getViewID());
+		} catch (PartInitException e) {
+			LOGGER.debug("Error showing view: " + getViewID());
+			return false;
+		}
+		return true;
+	}
 
-    @Override
-    public void refreshAllViews() {
-        for (OtmView view : OtmRegistry.getAllActiveViews()) {
-            view.refresh();
-        }
-    }
+	@Override
+	public void refreshAllViews() {
+		for (OtmView view : OtmRegistry.getAllActiveViews()) {
+			view.refresh();
+		}
+	}
 
-    @Override
-    public void refreshAllViews(INode node) {
-        for (OtmView view : OtmRegistry.getAllActiveViews()) {
-            view.refresh(node);
-        }
-    }
+	@Override
+	public void refreshAllViews(INode node) {
+		for (OtmView view : OtmRegistry.getAllActiveViews()) {
+			view.refresh(node);
+		}
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#refresh(org.opentravel.schemas.node.INode, boolean)
-     */
-    @Override
-    public void refresh(INode node, boolean force) {
-        refresh(node);
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#refresh(org.opentravel.schemas.node.INode, boolean)
+	 */
+	@Override
+	public void refresh(INode node, boolean force) {
+		refresh(node);
+	}
 
-    // Override this method if the view can recreate its contents.
-    @Override
-    public void refresh(boolean regenerate) {
-        refresh();
-    }
+	// Override this method if the view can recreate its contents.
+	@Override
+	public void refresh(boolean regenerate) {
+		refresh();
+	}
 
-    /** ************** Override if needed for a view ***************** **/
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#clearFilter()
-     */
-    @Override
-    public void clearFilter() {
-    }
+	/** ************** Override if needed for a view ***************** **/
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#clearFilter()
+	 */
+	@Override
+	public void clearFilter() {
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#clearSelection()
-     */
-    @Override
-    public void clearSelection() {
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#clearSelection()
+	 */
+	@Override
+	public void clearSelection() {
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#getPreviousNode()
-     */
-    @Override
-    public INode getPreviousNode() {
-        return null;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#getPreviousNode()
+	 */
+	@Override
+	public INode getPreviousNode() {
+		return null;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#collapse()
-     */
-    @Override
-    public void collapse() {
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#collapse()
+	 */
+	@Override
+	public void collapse() {
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#expand()
-     */
-    @Override
-    public void expand() {
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#expand()
+	 */
+	@Override
+	public void expand() {
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#isShowInheritedProperties()
-     */
-    @Override
-    public boolean isShowInheritedProperties() {
-        return OtmRegistry.getNavigatorView().isShowInheritedProperties();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#isShowInheritedProperties()
+	 */
+	@Override
+	public boolean isShowInheritedProperties() {
+		return OtmRegistry.getNavigatorView().isShowInheritedProperties();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#isListening()
-     */
-    @Override
-    public boolean isListening() {
-        return true;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#isListening()
+	 */
+	@Override
+	public boolean isListening() {
+		return true;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#select(org.opentravel.schemas.node.INode)
-     */
-    @Override
-    public void select(INode node) {
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#select(org.opentravel.schemas.node.INode)
+	 */
+	@Override
+	public void select(INode node) {
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#setDeepPropertyView(boolean)
-     */
-    @Override
-    public void setDeepPropertyView(boolean state) {
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#setDeepPropertyView(boolean)
+	 */
+	@Override
+	public void setDeepPropertyView(boolean state) {
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#setExactMatchFiltering(boolean)
-     */
-    @Override
-    public void setExactMatchFiltering(boolean state) {
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#setExactMatchFiltering(boolean)
+	 */
+	@Override
+	public void setExactMatchFiltering(boolean state) {
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#setInput(org.opentravel.schemas.node.INode)
-     */
-    @Override
-    public void setInput(INode node) {
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#setInput(org.opentravel.schemas.node.INode)
+	 */
+	@Override
+	public void setInput(INode node) {
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#setInheritedPropertiesDisplayed(boolean)
-     */
-    @Override
-    public void setInheritedPropertiesDisplayed(boolean state) {
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#setInheritedPropertiesDisplayed(boolean)
+	 */
+	@Override
+	public void setInheritedPropertiesDisplayed(boolean state) {
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#moveDown()
-     */
-    @Override
-    public void moveDown() {
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#moveDown()
+	 */
+	@Override
+	public void moveDown() {
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#moveUp()
-     */
-    @Override
-    public void moveUp() {
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#moveUp()
+	 */
+	@Override
+	public void moveUp() {
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#setListening(boolean)
-     */
-    @Override
-    public void setListening(boolean state) {
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#setListening(boolean)
+	 */
+	@Override
+	public void setListening(boolean state) {
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#restorePreviousNode()
-     */
-    @Override
-    public void restorePreviousNode() {
-        setCurrentNode(getPreviousNode());
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#restorePreviousNode()
+	 */
+	@Override
+	public void restorePreviousNode() {
+		setCurrentNode(getPreviousNode());
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.views.OtmView#moveDown()
-     * 
-     * Overridden by views that maintain trees.
-     */
-    @Override
-    public void remove(INode node) {
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.views.OtmView#moveDown()
+	 * 
+	 * Overridden by views that maintain trees.
+	 */
+	@Override
+	public void remove(INode node) {
+	}
 
-    /**
-     * @param selection
-     * @return Return first node from selection. For the {@link TypeNode} will return his parent
-     *         (since TypeNodes are not in the real tree). If selection is not Structured or the
-     *         firstElement in selection is not {@link INode} then return null;
-     */
-    public INode extractFirstNode(ISelection selection) {
-        if (selection instanceof StructuredSelection) {
-            Object firstElement = ((StructuredSelection) selection).getFirstElement();
-            if (firstElement instanceof INode) {
-                INode node = (INode) firstElement;
-                if (node instanceof TypeNode) {
-                    return node.getParent();
-                }
-                return node;
-            }
-        }
-        return null;
-    }
+	/**
+	 * @param selection
+	 * @return Return first node from selection. For the {@link TypeNode} will return his parent (since TypeNodes are
+	 *         not in the real tree). If selection is not Structured or the firstElement in selection is not
+	 *         {@link INode} then return null;
+	 */
+	public INode extractFirstNode(ISelection selection) {
+		if (selection instanceof StructuredSelection) {
+			Object firstElement = ((StructuredSelection) selection).getFirstElement();
+			if (firstElement instanceof INode) {
+				INode node = (INode) firstElement;
+				if (node instanceof TypeNode) {
+					return node.getParent();
+				}
+				return node;
+			}
+		}
+		return null;
+	}
 }

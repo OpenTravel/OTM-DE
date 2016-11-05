@@ -102,22 +102,22 @@ public class XSDSimpleMO extends ModelObject<XSDSimpleType> {
 	// return null;
 	// }
 
-	@Override
-	public String getComponentType() {
-		return "XSD Simple Type";
-	}
-
+	// @Override
+	// public String getComponentType() {
+	// return "XSD Simple Type";
+	// }
+	//
 	@Override
 	protected AbstractLibrary getLibrary(final XSDSimpleType obj) {
 		return null;
 	}
 
-	@Override
-	public String getName() {
-		if (srcObj == null)
-			getTlObj(); // try to render its src object.
-		return srcObj == null ? "Undefined" : getTLModelObj().getLocalName();
-	}
+	// @Override
+	// public String getName() {
+	// if (srcObj == null)
+	// getTlObj(); // try to render its src object.
+	// return srcObj == null ? "Undefined" : getTLModelObj().getLocalName();
+	// }
 
 	@Override
 	public String getNamePrefix() {

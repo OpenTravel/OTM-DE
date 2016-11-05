@@ -41,6 +41,7 @@ import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.controllers.NodeUtils;
 import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
@@ -48,12 +49,12 @@ import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
-import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.listeners.BaseNodeListener;
+import org.opentravel.schemas.node.listeners.BusinessObjectNodeListener;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.ExtensionHandler;
 import org.opentravel.schemas.types.TypeProvider;
-import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,12 +135,17 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 		vwa.getLibrary().addMember(this);
 		setDocumentation(vwa.getDocumentation());
 
-		getSummaryFacet().copyFacet((FacetNode) vwa.getAttributeFacet());
+		getSummaryFacet().copyFacet((PropertyOwnerNode) vwa.getAttributeFacet());
+	}
+
+	@Override
+	public String getName() {
+		return getTLModelObject().getName();
 	}
 
 	@Override
 	public TLBusinessObject getTLModelObject() {
-		return (TLBusinessObject) modelObject.getTLModelObj();
+		return (TLBusinessObject) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	@Override
@@ -207,10 +213,10 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	}
 
 	@Override
-	public PropertyOwnerInterface getDetailFacet() {
+	public PropertyOwnerNode getDetailFacet() {
 		for (INode f : getChildren())
 			if ((f instanceof FacetNode) && ((FacetNode) f).isDetailFacet())
-				return (PropertyOwnerInterface) f;
+				return (PropertyOwnerNode) f;
 		return null;
 	}
 
@@ -224,9 +230,16 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 		return Images.getImageRegistry().get(Images.BusinessObject);
 	}
 
-	public void addAlias(String name) {
+	@Override
+	public BaseNodeListener getNewListener() {
+		return new BusinessObjectNodeListener(this);
+	}
+
+	public AliasNode addAlias(String name) {
+		AliasNode alias = null;
 		if (this.isEditable_newToChain())
-			new AliasNode(this, NodeNameUtils.fixBusinessObjectName(name));
+			alias = new AliasNode(this, NodeNameUtils.fixBusinessObjectName(name));
+		return alias;
 	}
 
 	public void addAliases(List<AliasNode> aliases) {
@@ -375,18 +388,25 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 
 	@Override
 	public void setName(String name) {
+		getTLModelObject().setName(NodeNameUtils.fixBusinessObjectName(name));
+		updateNames(NodeNameUtils.fixBusinessObjectName(name));
+
 		// n = NodeNameUtils.fixBusinessObjectName(n);
 		// this.setName(n, true);
-		super.setName(NodeNameUtils.fixBusinessObjectName(name));
-		for (TypeUser user : getWhereAssigned()) {
-			if (user instanceof PropertyNode)
-				user.setName(NodeNameUtils.fixBusinessObjectName(name));
-		}
+		// super.setName(NodeNameUtils.fixBusinessObjectName(name));
+		// updateNames(NodeNameUtils.fixBusinessObjectName(name));
 
-		for (Node child : getChildren()) {
-			for (TypeUser users : ((TypeProvider) child).getWhereAssigned())
-				NodeNameUtils.fixName((Node) users);
-		}
+		//
+		// for (TypeUser user : getWhereAssigned()) {
+		// if (user instanceof PropertyNode)
+		// user.setName(NodeNameUtils.fixBusinessObjectName(name));
+		// }
+		//
+		// for (Node child : getChildren()) {
+		// for (TypeUser users : ((TypeProvider) child).getWhereAssigned())
+		// ((Node) users).visitAllNodes(new NodeVisitors().new FixNames());
+		// // NodeNameUtils.fixName((Node) users);
+		// }
 	}
 
 	// @Deprecated

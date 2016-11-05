@@ -8,6 +8,8 @@ NOTES - this is as it was before 10/2016
 	
 	The deep boolean instructs leaf nodes if they should include themselves. Facets only include properties if propertyNode.isNavChild(true) is called.
 	
+-----------------------------------------------------------------
+
 USERS -----------------
 	trees.library.LibraryTreeWithPropertiesContentProvider
 		ONLY Used in AddProperty Wizard Page 2 -- org.opentravel.schemas.wizards.NewPropertiesWizardPage2

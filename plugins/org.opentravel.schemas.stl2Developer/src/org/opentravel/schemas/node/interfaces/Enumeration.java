@@ -27,4 +27,6 @@ public interface Enumeration {
 	 * Get a list of the enumeration values
 	 */
 	public List<String> getLiterals();
+
+	public void setName(String name);
 }

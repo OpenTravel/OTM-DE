@@ -41,16 +41,17 @@ public class EnumLiteralMO extends ModelObject<TLEnumValue> {
 		return null;
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Enumeration Literal Value";
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Enumeration Literal Value";
+	// }
 
-	@Override
-	public String getName() {
-		return srcObj != null ? getTLModelObj().getLiteral() : "UndefindedLiteral";
-	}
-
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// return srcObj != null ? getTLModelObj().getLiteral() : "UndefindedLiteral";
+	// }
+	//
 	@Override
 	public String getNamePrefix() {
 		return "";

@@ -86,7 +86,7 @@ public interface INode {
 	 * 
 	 * @return all descendants that are named types.
 	 */
-	public List<Node> getDescendants_NamedTypes();
+	public List<Node> getDescendants_LibraryMembers();
 
 	public boolean hasChildren();
 
@@ -212,17 +212,10 @@ public interface INode {
 	 */
 	public boolean isNavigation();
 
-	// public boolean isVWA_AttributeFacet();
-
 	/**
-	 * @return true if NamedEntity and not operation or service
+	 * @return true if NamedEntity and not implied
 	 */
-	public boolean isTypeProvider();
-
-	// /**
-	// * @return true if this node can be assigned a type.
-	// */
-	// public boolean isTypeUser();
+	public boolean isNamedEntity();
 
 	/**
 	 * @return true if this type of node will be assigned by reference not name. Implies the property name must be the

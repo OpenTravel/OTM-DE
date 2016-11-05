@@ -64,11 +64,11 @@ public class OpenEnumMO extends ModelObject<TLOpenEnumeration> {
 		return getTLModelObj().getValues();
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Open Enumeration";
-	}
-
+	// @Override
+	// public String getComponentType() {
+	// return "Open Enumeration";
+	// }
+	//
 	/**
 	 * @see org.opentravel.schemas.modelObject.ModelObject#getInheritedChildren()
 	 */
@@ -133,10 +133,11 @@ public class OpenEnumMO extends ModelObject<TLOpenEnumeration> {
 				.getNamespace();
 	}
 
-	@Override
-	public String getName() {
-		return getTLModelObj().getName();
-	}
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// return getTLModelObj().getName();
+	// }
 
 	@Override
 	public String getNamespace() {

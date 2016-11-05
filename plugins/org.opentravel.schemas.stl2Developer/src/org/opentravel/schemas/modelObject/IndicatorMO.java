@@ -66,11 +66,12 @@ public class IndicatorMO extends ModelObject<TLIndicator> {
 		}
 	}
 
-	@Override
-	public String getName() {
-		String name = getTLModelObj().getName();
-		return name == null || name.isEmpty() ? "" : name;
-	}
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// String name = getTLModelObj().getName();
+	// return name == null || name.isEmpty() ? "" : name;
+	// }
 
 	// Model does not know what namespace the attribute or its owning component
 	// is in.
@@ -89,10 +90,10 @@ public class IndicatorMO extends ModelObject<TLIndicator> {
 		return srcObj;
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Indicator";
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Indicator";
+	// }
 
 	@Override
 	protected AbstractLibrary getLibrary(final TLIndicator obj) {

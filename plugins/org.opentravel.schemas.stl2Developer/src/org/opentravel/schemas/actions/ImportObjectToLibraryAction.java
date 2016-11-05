@@ -99,7 +99,7 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 		final List<Node> eligibleForImporting = new ArrayList<Node>();
 		for (Node n : sourceNodes) {
 			if (n instanceof LibraryNode)
-				eligibleForImporting.addAll(n.getDescendants_NamedTypes());
+				eligibleForImporting.addAll(n.getDescendants_LibraryMembers());
 			else if (!(n.getLibrary()).equals(destination))
 				eligibleForImporting.add(n);
 		}

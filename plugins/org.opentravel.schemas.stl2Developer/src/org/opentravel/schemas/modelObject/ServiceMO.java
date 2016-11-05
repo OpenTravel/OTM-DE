@@ -39,15 +39,16 @@ public class ServiceMO extends ModelObject<TLService> {
 		return getTLModelObj().getOperations();
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Service";
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Service";
+	// }
 
-	@Override
-	public String getName() {
-		return getTLModelObj().getName();
-	}
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// return getTLModelObj().getName();
+	// }
 
 	@Override
 	public String getNamespace() {

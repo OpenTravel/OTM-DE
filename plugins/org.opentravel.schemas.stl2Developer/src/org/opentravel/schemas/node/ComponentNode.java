@@ -39,6 +39,7 @@ import org.opentravel.schemas.modelObject.EmptyMO;
 import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
@@ -351,10 +352,10 @@ public class ComponentNode extends Node {
 		return kids;
 	}
 
-	@Override
-	public String getComponentType() {
-		return modelObject.getComponentType();
-	}
+	// @Override
+	// public String getComponentType() {
+	// return modelObject.getComponentType();
+	// }
 
 	public boolean isMissingAssignedType() {
 		if (modelObject.getTLType() == null)
@@ -498,15 +499,15 @@ public class ComponentNode extends Node {
 	/**
 	 * @return - Node for ID facet if it exists, null otherwise.
 	 */
-	public PropertyOwnerInterface getIDFacet() {
-		return (PropertyOwnerInterface) getFacetOfType(TLFacetType.ID);
+	public PropertyOwnerNode getIDFacet() {
+		return (PropertyOwnerNode) getFacetOfType(TLFacetType.ID);
 	}
 
 	/**
 	 * @return - Node for SUMMARY facet if it exists, null otherwise.
 	 */
-	public PropertyOwnerInterface getSummaryFacet() {
-		return (PropertyOwnerInterface) getFacetOfType(TLFacetType.SUMMARY);
+	public PropertyOwnerNode getSummaryFacet() {
+		return (PropertyOwnerNode) getFacetOfType(TLFacetType.SUMMARY);
 	}
 
 	public ComponentNode getSimpleFacet() {
@@ -624,8 +625,8 @@ public class ComponentNode extends Node {
 	/**
 	 * @return - Node for ID facet if it exists, null otherwise.
 	 */
-	public PropertyOwnerInterface getDetailFacet() {
-		return (PropertyOwnerInterface) getFacetOfType(TLFacetType.DETAIL);
+	public PropertyOwnerNode getDetailFacet() {
+		return (PropertyOwnerNode) getFacetOfType(TLFacetType.DETAIL);
 	}
 
 	/**
@@ -877,43 +878,6 @@ public class ComponentNode extends Node {
 
 	/** TYPE Interfaces **/
 
-	// public int getWhereAssignedCount() {
-	// int cnt = 0;
-	// if (this instanceof TypeProvider)
-	// cnt = ((TypeProvider) this).getWhereAssignedCount();
-	// return cnt;
-	// }
-
-	// /**
-	// * Each access of children is sorting them based on order of MO's children.
-	// */
-	// @Override
-	// public List<Node> getChildren() {
-	// return synchChildrenWithMO(super.getChildren());
-	// }
-
-	// /**
-	// * Synchronize order of children with ModelObject children order.
-	// *
-	// * @param children
-	// * @return sorted list of children based on order of ModelObject.
-	// */
-	// protected List<Node> synchChildrenWithMO(List<Node> children) {
-	// if (getModelObject() == null)
-	// return Collections.emptyList(); // happens during delete.
-	// final List<?> tlChildrenOrder = getModelObject().getChildren();
-	// Collections.sort(children, new Comparator<Node>() {
-	//
-	// @Override
-	// public int compare(Node o1, Node o2) {
-	// Integer idx1 = tlChildrenOrder.indexOf(o1.getModelObject().getTLModelObj());
-	// Integer idx2 = tlChildrenOrder.indexOf(o2.getModelObject().getTLModelObj());
-	// return idx1.compareTo(idx2);
-	// }
-	// });
-	// return children;
-	// }
-
 	@Override
 	public void sort() {
 		getModelObject().sort();
@@ -921,6 +885,11 @@ public class ComponentNode extends Node {
 
 	public void setContext() {
 		// Override where needed
+	}
+
+	@Override
+	public String getName() {
+		return "";
 	}
 
 }

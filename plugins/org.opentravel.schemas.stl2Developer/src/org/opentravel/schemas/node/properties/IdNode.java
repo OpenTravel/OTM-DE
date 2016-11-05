@@ -18,6 +18,7 @@ package org.opentravel.schemas.node.properties;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.modelObject.AttributeMO;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
@@ -52,6 +53,9 @@ public class IdNode extends AttributeNode {
 		((TLAttribute) getTLModelObject()).setType((TLAttributeType) idType.getTLModelObject());
 		// setIdentity("xml_ID on " + getOwningComponent());
 		propertyType = PropertyNodeType.ID;
+
+		assert (modelObject instanceof AttributeMO);
+		assert (tlObj instanceof TLAttribute);
 	}
 
 	@Override

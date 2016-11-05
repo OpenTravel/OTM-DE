@@ -18,7 +18,10 @@
  */
 package org.opentravel.schemas.node.facets;
 
+import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLRoleEnumeration;
+import org.opentravel.schemas.modelObject.RoleEnumerationMO;
+import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -29,10 +32,12 @@ import org.opentravel.schemas.node.properties.RoleNode;
  * @author Dave Hollander
  * 
  */
-public class RoleFacetNode extends FacetNode {
+public class RoleFacetNode extends PropertyOwnerNode {
 
 	public RoleFacetNode(TLRoleEnumeration tlObj) {
 		super(tlObj);
+
+		assert (modelObject instanceof RoleEnumerationMO);
 	}
 
 	/**
@@ -82,4 +87,26 @@ public class RoleFacetNode extends FacetNode {
 	public boolean isValidParentOf(PropertyNodeType type) {
 		return type.equals(PropertyNodeType.ROLE);
 	}
+
+	@Override
+	public TLRoleEnumeration getTLModelObject() {
+		return (TLRoleEnumeration) (getModelObject() != null ? getModelObject().getTLModelObj() : null);
+
+	}
+
+	@Override
+	public TLFacetType getFacetType() {
+		return null;
+	}
+
+	@Override
+	public String getComponentType() {
+		return ComponentNodeType.ROLES.toString();
+	}
+
+	@Override
+	public String getName() {
+		return getComponentType();
+	}
+
 }

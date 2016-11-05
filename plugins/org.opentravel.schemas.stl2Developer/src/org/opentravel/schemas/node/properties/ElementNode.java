@@ -16,9 +16,9 @@
 package org.opentravel.schemas.node.properties;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
-import org.opentravel.schemas.node.ModelNode;
+import org.opentravel.schemas.modelObject.ElementPropertyMO;
+import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.NodeFactory;
@@ -46,8 +46,23 @@ public class ElementNode extends PropertyNode {
 	 * @param name
 	 */
 	public ElementNode(PropertyOwnerInterface parent, String name) {
+		this(parent, name, null);
+		// super(new TLProperty(), (Node) parent, name, PropertyNodeType.ELEMENT);
+		// setAssignedType((TypeProvider) ModelNode.getUnassignedNode());
+	}
+
+	/**
+	 * Add element to property owner (facet, extension point).
+	 * 
+	 * @param parent
+	 *            - if null, the caller must link the node and add to TL Model parent
+	 * @param name
+	 * @param type
+	 *            type to assign, will be set to" unassigned" if null
+	 */
+	public ElementNode(PropertyOwnerInterface parent, String name, TypeProvider type) {
 		super(new TLProperty(), (Node) parent, name, PropertyNodeType.ELEMENT);
-		setAssignedType((TypeProvider) ModelNode.getUnassignedNode());
+		setAssignedType(type);
 	}
 
 	/**
@@ -58,12 +73,15 @@ public class ElementNode extends PropertyNode {
 	 * @param parent
 	 *            if not null, add element to the parent.
 	 */
-	public ElementNode(TLModelElement tlObj, PropertyOwnerInterface parent) {
+	public ElementNode(TLProperty tlObj, PropertyOwnerInterface parent) {
 		super(tlObj, (INode) parent, PropertyNodeType.ELEMENT);
 		if (getEditStatus().equals(NodeEditStatus.MINOR))
 			setMandatory(false);
 		else if (tlObj instanceof TLProperty)
 			setMandatory(((TLProperty) tlObj).isMandatory()); // default value for properties
+
+		assert (tlObj instanceof TLProperty);
+		assert (modelObject instanceof ElementPropertyMO);
 	}
 
 	@Override
@@ -101,6 +119,11 @@ public class ElementNode extends PropertyNode {
 	}
 
 	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.ELEMENT;
+	}
+
+	@Override
 	public String getEquivalent(String context) {
 		if (equivalentHandler == null)
 			equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
@@ -132,21 +155,29 @@ public class ElementNode extends PropertyNode {
 
 	@Override
 	public String getLabel() {
-		String label = modelObject.getLabel();
+		String label = getName();
 		if (getType() != null)
-			label = getName() + " [" + getTypeNameWithPrefix() + "]";
+			label += " [" + getTypeNameWithPrefix() + "]";
 		return label;
 	}
 
 	@Override
-	public boolean isElement() {
-		return true;
+	public String getName() {
+		return getTLModelObject() == null || getTLModelObject().getName() == null
+				|| getTLModelObject().getName().isEmpty() ? "" : getTLModelObject().getName();
+	}
+
+	@Override
+	public TLProperty getTLModelObject() {
+		return (TLProperty) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	@Override
 	public void setName(String name) {
-		modelObject.setName(name); // try the passed name
-		modelObject.setName(NodeNameUtils.fixElementName(this)); // let utils fix it if needed.
+		// modelObject.setName(name); // try the passed name
+		// modelObject.setName(NodeNameUtils.fixElementName(this)); // let utils fix it if needed.
+		// getTLModelObject().setName(name); // Must set name before the utils try to fix them.
+		getTLModelObject().setName(NodeNameUtils.fixElementName(this, name)); // let utils fix it as needed.
 	}
 
 	// @Override

@@ -68,15 +68,15 @@ public class ValueWithAttributesAttributeFacetMO extends ModelObject<TLValueWith
 		return inheritedKids;
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Attributes Facet";
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Attributes Facet";
+	// }
 
-	@Override
-	public String getName() {
-		return DISPLAY_NAME;
-	}
+	// @Override
+	// public String getName() {
+	// return DISPLAY_NAME;
+	// }
 
 	@Override
 	protected AbstractLibrary getLibrary(final TLValueWithAttributesFacet obj) {

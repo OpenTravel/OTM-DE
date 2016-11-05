@@ -57,20 +57,21 @@ public class CoreObjectMO extends ModelObject<TLCoreObject> {
 		return kids;
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Core Object";
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Core Object";
+	// }
 
 	@Override
 	protected AbstractLibrary getLibrary(final TLCoreObject obj) {
 		return obj.getOwningLibrary();
 	}
 
-	@Override
-	public String getName() {
-		return getTLModelObj().getName();
-	}
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// return getTLModelObj().getName();
+	// }
 
 	@Override
 	public String getNamePrefix() {

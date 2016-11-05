@@ -67,10 +67,10 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 		return kids;
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Choice Object";
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Choice Object";
+	// }
 
 	@Override
 	public String getExtendsType() {
@@ -99,15 +99,16 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 		return extendsNS;
 	}
 
-	@Override
-	public String getLabel() {
-		return getName();
-	}
+	// @Override
+	// public String getLabel() {
+	// return getName();
+	// }
 
-	@Override
-	public String getName() {
-		return getTLModelObj().getName();
-	}
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// return getTLModelObj().getName();
+	// }
 
 	@Override
 	public String getNamePrefix() {

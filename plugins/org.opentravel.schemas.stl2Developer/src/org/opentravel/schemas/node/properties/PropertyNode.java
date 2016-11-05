@@ -37,6 +37,8 @@ import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.OperationFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.listeners.BaseNodeListener;
+import org.opentravel.schemas.node.listeners.TypeUserListener;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.TypeUserHandler;
@@ -373,7 +375,13 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 
 	@Override
 	public String getLabel() {
-		return modelObject.getLabel() == null ? "" : modelObject.getLabel();
+		return getName();
+		// return modelObject.getLabel() == null ? "" : modelObject.getLabel();
+	}
+
+	@Override
+	public BaseNodeListener getNewListener() {
+		return new TypeUserListener(this);
 	}
 
 	/**
@@ -411,7 +419,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		// EnumLiterals are overridden.
 
 		// Otherwise Properties are always owned by a facet.
-		return getParent().getParent().isTypeProvider() ? getParent().getParent() : this;
+		return getParent().getParent().isNamedEntity() ? getParent().getParent() : this;
 	}
 
 	/**

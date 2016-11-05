@@ -186,6 +186,9 @@ public class LibraryTablePoster {
 			if (!separator.isEmpty()) {
 				item = new TableItem(table, SWT.BOLD | SWT.FILL);
 				item.setText(separator);
+				if (n instanceof FacetNode)
+					item.setText(1, ((FacetNode) n).getComponentType());
+
 				item.setBackground(colorProvider.getColor(SWT.COLOR_GRAY));
 				item.setData(n);
 				if (n.isInheritedProperty())

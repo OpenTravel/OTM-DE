@@ -65,11 +65,12 @@ public class SimpleFacetMO extends ModelObject<TLSimpleFacet> {
 		return srcObj.getSimpleType();
 	}
 
-	@Override
-	public String getName() {
-		// LOGGER.debug(getTLModelObj().getSimpleTypeName()+"|"+ getTLModelObj().getLocalName());
-		return getTLModelObj().getLocalName() == null ? "" : getTLModelObj().getLocalName();
-	}
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// // LOGGER.debug(getTLModelObj().getSimpleTypeName()+"|"+ getTLModelObj().getLocalName());
+	// return getTLModelObj().getLocalName() == null ? "" : getTLModelObj().getLocalName();
+	// }
 
 	@Override
 	public String getNamePrefix() {
@@ -86,10 +87,10 @@ public class SimpleFacetMO extends ModelObject<TLSimpleFacet> {
 		return srcObj;
 	}
 
-	@Override
-	public String getComponentType() {
-		return FacetMO.getDisplayName(getTLModelObj().getFacetType());
-	}
+	// @Override
+	// public String getComponentType() {
+	// return FacetMO.getDisplayName(getTLModelObj().getFacetType());
+	// }
 
 	@Override
 	protected AbstractLibrary getLibrary(final TLSimpleFacet obj) {

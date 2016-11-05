@@ -88,7 +88,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 	}
 
 	public static boolean execute(List<Node> toChange, Node newType) {
-		if (newType == null || !newType.isTypeProvider()) {
+		if (newType == null || !newType.isNamedEntity()) {
 			LOGGER.warn("No type to assign. Early Exit.");
 			return false;
 		}

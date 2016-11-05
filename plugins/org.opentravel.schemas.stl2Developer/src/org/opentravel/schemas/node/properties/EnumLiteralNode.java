@@ -17,8 +17,9 @@ package org.opentravel.schemas.node.properties;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLEnumValue;
-import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.modelObject.EnumLiteralMO;
 import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
@@ -26,6 +27,7 @@ import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 
@@ -45,9 +47,11 @@ public class EnumLiteralNode extends PropertyNode {
 		// parent.getModelObject().addChild(this.getTLModelObject());
 	}
 
-	public EnumLiteralNode(TLModelElement tlObj, INode parent) {
+	public EnumLiteralNode(TLEnumValue tlObj, INode parent) {
 		super(tlObj, parent, PropertyNodeType.ENUM_LITERAL);
-		// setAssignedType(getRequiredType());
+
+		assert (modelObject instanceof EnumLiteralMO);
+
 	}
 
 	@Override
@@ -84,8 +88,24 @@ public class EnumLiteralNode extends PropertyNode {
 	}
 
 	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.ENUM_LITERAL;
+	}
+
+	@Override
 	public ImpliedNode getRequiredType() {
 		return ModelNode.getUndefinedNode();
+	}
+
+	@Override
+	public String getName() {
+		return getTLModelObject() == null || getTLModelObject().getLiteral() == null
+				|| getTLModelObject().getLiteral().isEmpty() ? "" : getTLModelObject().getLiteral();
+	}
+
+	@Override
+	public TLEnumValue getTLModelObject() {
+		return (TLEnumValue) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	@Override
@@ -95,7 +115,13 @@ public class EnumLiteralNode extends PropertyNode {
 
 	@Override
 	public String getLabel() {
-		return modelObject.getLabel() == null ? "" : modelObject.getLabel();
+		return getName();
+		// return modelObject.getLabel() == null ? "" : modelObject.getLabel();
+	}
+
+	@Override
+	public BaseNodeListener getNewListener() {
+		return null;
 	}
 
 	@Override
@@ -116,7 +142,7 @@ public class EnumLiteralNode extends PropertyNode {
 	@Override
 	public void setName(String name) {
 		if (isEditable_newToChain())
-			modelObject.setName(NodeNameUtils.fixEnumerationValue(name));
+			getTLModelObject().setLiteral(NodeNameUtils.fixEnumerationValue(name));
 	}
 
 }

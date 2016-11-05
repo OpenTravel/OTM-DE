@@ -24,10 +24,10 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLCoreObject;
-import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemas.modelObject.CoreObjectMO;
 import org.opentravel.schemas.modelObject.ListFacetMO;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
@@ -35,14 +35,12 @@ import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
-import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.ExtensionHandler;
 import org.opentravel.schemas.types.SimpleAttributeOwner;
 import org.opentravel.schemas.types.TypeProvider;
-import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,15 +57,18 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	private static final Logger LOGGER = LoggerFactory.getLogger(CoreObjectNode.class);
 	private ExtensionHandler extensionHandler = null;
 
-	public CoreObjectNode(TLLibraryMember mbr) {
+	public CoreObjectNode(TLCoreObject mbr) {
 		super(mbr);
 		addMOChildren();
 		extensionHandler = new ExtensionHandler(this);
 
+		assert (modelObject instanceof CoreObjectMO);
 		// If the mbr was not null but simple type is, set the simple type
-		if (modelObject instanceof CoreObjectMO)
-			if (((CoreObjectMO) modelObject).getSimpleValueType() == null)
-				setSimpleType((TypeProvider) ModelNode.getEmptyNode());
+		if (getTLModelObject().getSimpleFacet().getSimpleType() == null)
+			setSimpleType((TypeProvider) ModelNode.getEmptyNode());
+
+		if (((CoreObjectMO) modelObject).getSimpleValueType() == null)
+			setSimpleType((TypeProvider) ModelNode.getEmptyNode());
 	}
 
 	public CoreObjectNode(BusinessObjectNode bo) {
@@ -92,13 +93,15 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 		vwa.getLibrary().addMember(this);
 		setDocumentation(vwa.getDocumentation());
 
-		((FacetNode) getSummaryFacet()).copyFacet((FacetNode) vwa.getAttributeFacet());
+		getSummaryFacet().copyFacet((PropertyOwnerNode) vwa.getAttributeFacet());
 		setSimpleType(vwa.getSimpleType());
 	}
 
-	public void addAlias(String name) {
+	public AliasNode addAlias(String name) {
+		AliasNode alias = null;
 		if (this.isEditable_newToChain())
-			new AliasNode(this, NodeNameUtils.fixCoreObjectName(name));
+			alias = new AliasNode(this, NodeNameUtils.fixCoreObjectName(name));
+		return alias;
 	}
 
 	public void addAliases(List<AliasNode> aliases) {
@@ -114,7 +117,7 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 
 	@Override
 	public ComponentNode createMinorVersionComponent() {
-		return super.createMinorVersionComponent(new CoreObjectNode((TLLibraryMember) createMinorTLVersion(this)));
+		return super.createMinorVersionComponent(new CoreObjectNode((TLCoreObject) createMinorTLVersion(this)));
 	}
 
 	@Override
@@ -138,6 +141,16 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 			if (getTLModelObject() instanceof TLComplexTypeBase)
 				((TLComplexTypeBase) getTLModelObject()).setNotExtendable(!extensible);
 		return this;
+	}
+
+	@Override
+	public String getName() {
+		return getTLModelObject() == null || getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
+	}
+
+	@Override
+	public TLCoreObject getTLModelObject() {
+		return (TLCoreObject) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	/*
@@ -214,10 +227,10 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	}
 
 	@Override
-	public PropertyOwnerInterface getSummaryFacet() {
+	public FacetNode getSummaryFacet() {
 		for (INode f : getChildren())
 			if (f instanceof FacetNode && ((FacetNode) f).isSummaryFacet())
-				return (PropertyOwnerInterface) f;
+				return (FacetNode) f;
 		return null;
 	}
 
@@ -227,10 +240,10 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	}
 
 	@Override
-	public PropertyOwnerInterface getDetailFacet() {
+	public FacetNode getDetailFacet() {
 		for (INode f : getChildren())
 			if (f instanceof FacetNode && ((FacetNode) f).isDetailFacet())
-				return (PropertyOwnerInterface) f;
+				return (FacetNode) f;
 		return null;
 	}
 
@@ -308,12 +321,15 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 
 	@Override
 	public void setName(String n) {
-		n = NodeNameUtils.fixCoreObjectName(n);
-		super.setName(n);
-		for (TypeUser user : getWhereAssigned()) {
-			if (user instanceof PropertyNode)
-				user.setName(n);
-		}
+		getTLModelObject().setName(NodeNameUtils.fixCoreObjectName(n));
+		updateNames(NodeNameUtils.fixCoreObjectName(n));
+
+		// super.setName(n);
+		// for (TypeUser user : getWhereAssigned()) {
+		// if (user instanceof PropertyNode)
+		// user.setName(n);
+		// }
+		// // FIXME - see business object
 	}
 
 	// @Deprecated

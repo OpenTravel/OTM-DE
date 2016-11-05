@@ -143,31 +143,32 @@ public class NodeVisitors {
 	 * @author Dave Hollander
 	 * 
 	 */
+	@Deprecated
 	public class FixNames implements NodeVisitor {
-
+		// FIXME - should not be needed. the node name utils are embedded in node name setters now (11/2016)
 		@Override
 		public void visit(INode in) {
 			Node n = (Node) in;
 			if (n instanceof ElementNode)
-				n.setName(NodeNameUtils.fixElementName(n));
+				n.setName(n.getName());
 			else if (n instanceof AttributeNode)
-				n.setName(NodeNameUtils.fixAttributeName(n.getName()));
+				n.setName(n.getName());
 			else if (n instanceof IndicatorNode)
-				n.setName(NodeNameUtils.fixIndicatorName(n.getName()));
+				n.setName(n.getName());
 			else if (n instanceof Enumeration)
-				n.setName(NodeNameUtils.fixEnumerationName(n.getName()));
-			else if (n.isSimpleType())
-				n.setName(NodeNameUtils.fixSimpleTypeName(n.getName()));
+				n.setName(n.getName());
+			else if (n instanceof SimpleComponentNode)
+				n.setName(n.getName());
 			else if (n instanceof VWA_Node)
-				n.setName(NodeNameUtils.fixVWAName(n.getName()));
+				n.setName(n.getName());
 			else if (n instanceof CoreObjectNode)
-				n.setName(NodeNameUtils.fixCoreObjectName(n.getName()));
+				n.setName(n.getName());
 			else if (n instanceof BusinessObjectNode)
-				n.setName(NodeNameUtils.fixBusinessObjectName(n.getName()));
+				n.setName(n.getName());
 			else if (n instanceof AliasNode)
-				n.setName(NodeNameUtils.adjustCaseOfName(PropertyNodeType.ALIAS, n.getName()));
+				n.setName(n.getName());
 			else if (n instanceof IndicatorElementNode)
-				n.setName(NodeNameUtils.fixIndicatorElementName(n.getName()));
+				n.setName(n.getName());
 			else if (n instanceof ElementReferenceNode) {
 				n.setName(n.getName());
 			}

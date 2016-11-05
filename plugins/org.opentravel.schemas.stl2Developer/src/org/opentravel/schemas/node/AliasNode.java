@@ -16,13 +16,13 @@
 package org.opentravel.schemas.node;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLAbstractFacet;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAliasOwner;
+import org.opentravel.schemas.modelObject.AliasMO;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.properties.Images;
@@ -50,6 +50,9 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 	public AliasNode(final Node parent, final TLAlias tlObj) {
 		super(tlObj);
 		addAlias(parent, tlObj);
+
+		assert (modelObject instanceof AliasMO);
+		assert (getTLModelObject() != null);
 	}
 
 	/**
@@ -62,8 +65,11 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 		// Do not use the parent form of this constructor. The alias must be named before children are created.
 		super(new TLAlias());
 		setName(name);
-		((TLAlias) getTLModelObject()).setName(name);
-		addAlias(parent, ((TLAlias) getTLModelObject()));
+		getTLModelObject().setName(name);
+		addAlias(parent, getTLModelObject());
+
+		assert (modelObject instanceof AliasMO);
+		assert (getTLModelObject() != null);
 	}
 
 	// Constructor utility
@@ -72,7 +78,8 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 			parent.linkChild(this);
 			setLibrary(parent.getLibrary());
 			// Could also be a facet
-			if (parent instanceof BusinessObjectNode || parent instanceof CoreObjectNode) {
+			if (parent.getTLModelObject() instanceof TLAliasOwner) {
+				// if (parent instanceof BusinessObjectNode || parent instanceof CoreObjectNode) {
 				parent.getModelObject().addAlias(tlObj);
 				createChildrenAliases(parent, tlObj);
 			}
@@ -112,20 +119,31 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 	}
 
 	@Override
+	public TLAlias getTLModelObject() {
+		return (TLAlias) modelObject.getTLModelObj();
+	}
+
+	@Override
+	public String getName() {
+		return getTLModelObject().getName();
+	}
+
+	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.Alias);
 	}
 
 	@Override
 	public boolean isFacetAlias() {
-		final Object model = modelObject.getTLModelObj();
-		if (model instanceof TLAlias) {
-			final TLAliasOwner owner = ((TLAlias) model).getOwningEntity();
-			if (owner == null || owner instanceof TLAbstractFacet) {
-				return true;
-			}
-		}
-		return false;
+		return getTLModelObject().getOwningEntity() instanceof TLAbstractFacet;
+		// final Object model = modelObject.getTLModelObj();
+		// if (model instanceof TLAlias) {
+		// final TLAliasOwner owner = ((TLAlias) model).getOwningEntity();
+		// if (owner == null || owner instanceof TLAbstractFacet) {
+		// return true;
+		// }
+		// }
+		// return false;
 	}
 
 	@Override

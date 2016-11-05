@@ -30,7 +30,9 @@ import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryNamespaceUtils;
 import org.opentravel.schemacompiler.repository.impl.BuiltInProject;
 import org.opentravel.schemas.controllers.ProjectController;
+import org.opentravel.schemas.modelObject.EmptyMO;
 import org.opentravel.schemas.modelObject.ModelObject;
+import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -52,6 +54,8 @@ public class ProjectNode extends Node implements INode {
 	 */
 	public ProjectNode() {
 		this.project = null;
+
+		// EmptyMO - TLEmpty
 	}
 
 	/**
@@ -67,6 +71,8 @@ public class ProjectNode extends Node implements INode {
 		setName(tlProject.getName());
 		Node.getModelNode().addProject(this);
 		load(tlProject);
+
+		assert (modelObject instanceof EmptyMO);
 	}
 
 	/**
@@ -200,11 +206,6 @@ public class ProjectNode extends Node implements INode {
 		return getName() + " [" + prefix + project.getProjectId() + "]";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getName()
-	 */
 	@Override
 	public String getName() {
 		return project.getName();
@@ -342,42 +343,24 @@ public class ProjectNode extends Node implements INode {
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#hasChildren_TypeProviders()
-	 */
+	// @Override
+	// public String getName() {
+	// return getTLModelObject() == null || getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
+	// }
+
+	@Override
+	public TLEmpty getTLModelObject() {
+		return (TLEmpty) getModelObject().getTLModelObj();
+	}
+
 	@Override
 	public boolean hasChildren_TypeProviders() {
 		return getChildren().size() > 0 ? true : false;
 	}
 
-	// /* (non-Javadoc)
-	// * @see org.opentravel.schemas.node.INode#isTypeUser()
-	// */
-	// @Override
-	// public boolean isTypeUser() {
-	// return false;
-	// }
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#removeFromLibrary()
-	 */
 	@Override
 	public void removeFromLibrary() {
 	}
-
-	// /*
-	// * (non-Javadoc)
-	// *
-	// * @see org.opentravel.schemas.node.INode#setAssignedType(org.opentravel.schemas.node.INode )
-	// */
-	// @Override
-	// public boolean setAssignedType(Node typeNode) {
-	// return false;
-	// }
 
 	/*
 	 * (non-Javadoc)
@@ -385,7 +368,7 @@ public class ProjectNode extends Node implements INode {
 	 * @see org.opentravel.schemas.node.INode#isTypeProvider()
 	 */
 	@Override
-	public boolean isTypeProvider() {
+	public boolean isNamedEntity() {
 		return false;
 	}
 

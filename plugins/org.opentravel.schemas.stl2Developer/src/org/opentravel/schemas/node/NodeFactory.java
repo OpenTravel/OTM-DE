@@ -122,58 +122,31 @@ public class NodeFactory {
 			return cn;
 
 		if (mbr instanceof TLValueWithAttributes)
-			cn = new VWA_Node(mbr);
+			cn = new VWA_Node((TLValueWithAttributes) mbr);
 		else if (mbr instanceof TLBusinessObject)
 			cn = new BusinessObjectNode(mbr);
 		else if (mbr instanceof TLCoreObject)
-			cn = new CoreObjectNode(mbr);
+			cn = new CoreObjectNode((TLCoreObject) mbr);
 		else if (mbr instanceof TLChoiceObject)
-			cn = new ChoiceObjectNode(mbr);
+			cn = new ChoiceObjectNode((TLChoiceObject) mbr);
 		else if (mbr instanceof TLSimple)
-			cn = new SimpleTypeNode(mbr);
+			cn = new SimpleTypeNode((TLSimple) mbr);
 		else if (mbr instanceof TLOpenEnumeration)
 			cn = new EnumerationOpenNode(mbr);
 		else if (mbr instanceof TLClosedEnumeration)
 			cn = new EnumerationClosedNode(mbr);
 		else if (mbr instanceof TLExtensionPointFacet)
-			cn = new ExtensionPointNode(mbr);
+			cn = new ExtensionPointNode((TLExtensionPointFacet) mbr);
 		else if (mbr instanceof TLResource)
 			cn = new ResourceNode(mbr);
 		else {
-			cn = new ComponentNode(mbr);
+			// cn = new ComponentNode(mbr);
+			assert (false);
 			// LOGGER.debug("Using default factory type for " + mbr.getClass().getSimpleName());
 		}
 
 		return cn;
 	}
-
-	// /*******************************************************************************************
-	// * Create a new top level named type using the passed node as template to determine node type
-	// */
-	//
-	// public static Node newComponent(LibraryMemberInterface template) {
-	// Node newNode = null;
-	// if (template instanceof ResourceNode)
-	// newNode = new ResourceNode(new TLResource());
-	// else if (template instanceof BusinessObjectNode)
-	// newNode = new BusinessObjectNode(new TLBusinessObject());
-	// else if (template instanceof CoreObjectNode)
-	// newNode = new CoreObjectNode(new TLCoreObject());
-	// else if (template instanceof ChoiceObjectNode)
-	// newNode = new ChoiceObjectNode(new TLChoiceObject());
-	// else if (template instanceof VWA_Node)
-	// newNode = new VWA_Node(new TLValueWithAttributes());
-	// else if (template instanceof EnumerationOpenNode)
-	// newNode = new EnumerationOpenNode(new TLOpenEnumeration());
-	// // Must test for closed enum before simple type because it extends simple
-	// else if (template instanceof EnumerationClosedNode)
-	// newNode = new EnumerationClosedNode(new TLClosedEnumeration());
-	// else if (template instanceof SimpleTypeNode)
-	// newNode = new SimpleTypeNode(new TLSimple());
-	// else if (template instanceof ExtensionPointNode)
-	// newNode = new ExtensionPointNode(new TLExtensionPointFacet());
-	// return newNode;
-	// }
 
 	public static Node newComponent(ComponentNodeType type) {
 		TLLibraryMember tlObj = null;
@@ -192,7 +165,7 @@ public class NodeFactory {
 			tlObj = new TLValueWithAttributes();
 			break;
 		case EXTENSION_POINT:
-			tlObj = new TLOpenEnumeration();
+			tlObj = new TLExtensionPointFacet();
 			break;
 		case OPEN_ENUM:
 			tlObj = new TLOpenEnumeration();
@@ -232,9 +205,9 @@ public class NodeFactory {
 		else if (tlObj instanceof TLRole)
 			nn = new RoleNode((TLRole) tlObj, (RoleFacetNode) parent);
 		else if (tlObj instanceof TLEnumValue)
-			nn = new EnumLiteralNode((TLModelElement) tlObj, parent);
+			nn = new EnumLiteralNode((TLEnumValue) tlObj, parent);
 		else if (tlObj instanceof TLnSimpleAttribute)
-			nn = new SimpleAttributeNode((TLModelElement) tlObj, parent);
+			nn = new SimpleAttributeNode((TLnSimpleAttribute) tlObj, parent);
 		//
 		// Alias
 		//
@@ -261,7 +234,8 @@ public class NodeFactory {
 		// Others
 		//
 		else if (tlObj instanceof TLModelElement)
-			nn = new ComponentNode((TLModelElement) tlObj);
+			assert (false);
+		// nn = new ComponentNode((TLModelElement) tlObj);
 		// LOGGER.debug("newComponentNode() - generic source TLModelElement type. "
 		// + tlObj.getClass().getSimpleName());
 
@@ -279,41 +253,14 @@ public class NodeFactory {
 		return nn;
 	}
 
-	// /**
-	// * Create a new component of the same class and add it to a library.
-	// *
-	// * @param template
-	// * class of object to create - must be named type
-	// * @param ln
-	// * library to add member or NULL
-	// * @param nameRoot
-	// * string to put before the class name as the object name or NULL for unnamed.
-	// * @return newly created library member
-	// */
-	// @Deprecated
-	// public static Node newComponentMember(Node template, LibraryNode ln, String nameRoot) {
-	// Node newNode = null;
-	// if (template instanceof LibraryMemberInterface)
-	// newNode = newComponent((LibraryMemberInterface) template);
-	//
-	// if (newNode != null && ln != null) {
-	// if (nameRoot != null)
-	// newNode.setName(nameRoot + template.getClass().getSimpleName());
-	// else
-	// newNode.setName(template.getClass().getSimpleName());
-	// ln.addMember(newNode);
-	// }
-	// return newNode;
-	// }
-
 	public static PropertyNode createAttribute(TLAttribute tlObj, PropertyOwnerInterface parent) {
 		PropertyNode nn;
-		TLPropertyType type = ((TLAttribute) tlObj).getType();
+		TLPropertyType type = tlObj.getType();
 		if (type != null && type.getNamespace() != null && type.getNamespace().equals(ModelNode.XSD_NAMESPACE)
 				&& type.getLocalName().equals("ID"))
-			nn = new IdNode((TLModelElement) tlObj, (PropertyOwnerInterface) parent);
+			nn = new IdNode((TLModelElement) tlObj, parent);
 		else
-			nn = new AttributeNode((TLModelElement) tlObj, (PropertyOwnerInterface) parent);
+			nn = new AttributeNode(tlObj, parent);
 		return nn;
 	}
 
@@ -353,19 +300,19 @@ public class NodeFactory {
 
 	public static PropertyNode createIndicator(TLIndicator tlObj, PropertyOwnerInterface parent) {
 		PropertyNode nn;
-		if (((TLIndicator) tlObj).isPublishAsElement())
-			nn = new IndicatorElementNode((TLModelElement) tlObj, (PropertyOwnerInterface) parent);
+		if (tlObj.isPublishAsElement())
+			nn = new IndicatorElementNode(tlObj, parent);
 		else
-			nn = new IndicatorNode((TLModelElement) tlObj, (PropertyOwnerInterface) parent);
+			nn = new IndicatorNode(tlObj, parent);
 		return nn;
 	}
 
 	public static PropertyNode createProperty(TLProperty tlObj, PropertyOwnerInterface parent) {
 		PropertyNode nn;
-		if (((TLProperty) tlObj).isReference())
-			nn = new ElementReferenceNode((TLModelElement) tlObj, (PropertyOwnerInterface) parent);
+		if (tlObj.isReference())
+			nn = new ElementReferenceNode(tlObj, parent);
 		else
-			nn = new ElementNode((TLModelElement) tlObj, parent);
+			nn = new ElementNode(tlObj, parent);
 		return nn;
 	}
 

@@ -67,10 +67,10 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 		return getTLModelObj().getValues();
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Closed Enumeration";
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Closed Enumeration";
+	// }
 
 	/**
 	 * @return the TLClosedEnumeration that extends the passed enum if any
@@ -136,10 +136,11 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 		return valueList;
 	}
 
-	@Override
-	public String getName() {
-		return getTLModelObj().getName();
-	}
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// return getTLModelObj().getName();
+	// }
 
 	@Override
 	public String getNamespace() {

@@ -57,18 +57,18 @@ public class SimpleMO extends ModelObject<TLSimple> {
 		return new ArrayList<Object>();
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Simple Type";
-	}
-
-	@Override
-	public String getName() {
-		if (getTLModelObj().getLocalName() == null) {
-			return "";
-		}
-		return getTLModelObj().getLocalName().isEmpty() ? "" : getTLModelObj().getLocalName();
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Simple Type";
+	// }
+	//
+	// @Override
+	// public String getName() {
+	// if (getTLModelObj().getLocalName() == null) {
+	// return "";
+	// }
+	// return getTLModelObj().getLocalName().isEmpty() ? "" : getTLModelObj().getLocalName();
+	// }
 
 	@Override
 	public String getNamePrefix() {

@@ -20,6 +20,7 @@ import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,14 +40,20 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
 		Node affectedNode = getAffectedNode(event);
-		// LOGGER.debug("Library Ownership event: " + event.getType() + " this = " + thisNode + " affected = " +
-		// affectedNode);
+		// LOGGER.debug("Library Ownership event: " + event.getType() + " this = " + thisNode + " affected = "
+		// + affectedNode);
 		LibraryNode ln = (LibraryNode) thisNode;
 
 		switch (event.getType()) {
 		case MEMBER_ADDED:
 			// LOGGER.debug("Ownership change event: added" + affectedNode + " to " + thisNode);
 			// Add the affected node to this library
+			if (affectedNode instanceof ContextualFacetNode) {
+				if (affectedNode.getParent() != null)
+					break; // do nothing
+				// else
+				// LOGGER.debug("Contextual facet with no parent.");
+			}
 			if (affectedNode instanceof VersionNode)
 				ln.linkMember(((VersionNode) affectedNode).getNewestVersion());
 			else
@@ -59,6 +66,14 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 		case MEMBER_REMOVED:
 			// LOGGER.debug("Ownership change event: removed " + affectedNode + " from " + thisNode);
 			// Remove affected from this library
+			Node parent = affectedNode.getParent();
+			if (parent instanceof VersionNode)
+				parent = parent.getParent();
+			if (parent instanceof ComponentNode) {
+				// LOGGER.debug("Library is not the parent for " + affectedNode);
+				// This must be a ContextualFacet (or similar) and will be removed with parent
+				break; // do nothing
+			}
 			if (ln.isInChain()) {
 				ln.getChain().removeAggregate((ComponentNode) affectedNode);
 			}

@@ -19,8 +19,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLRole;
+import org.opentravel.schemas.modelObject.RolePropertyMO;
+import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
@@ -46,9 +47,12 @@ public class RoleNode extends PropertyNode {
 		setAssignedType(getRequiredType());
 	}
 
-	public RoleNode(TLModelElement tlObj, RoleFacetNode parent) {
+	public RoleNode(TLRole tlObj, RoleFacetNode parent) {
 		super(tlObj, parent, PropertyNodeType.ROLE);
 		setAssignedType(getRequiredType());
+
+		assert (modelObject instanceof RolePropertyMO);
+		// assert (tlObj instanceof TLRole);
 	}
 
 	@Override
@@ -87,6 +91,16 @@ public class RoleNode extends PropertyNode {
 	}
 
 	@Override
+	public String getName() {
+		return getTLModelObject() == null || getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
+	}
+
+	@Override
+	public TLRole getTLModelObject() {
+		return (TLRole) (modelObject != null ? modelObject.getTLModelObj() : null);
+	}
+
+	@Override
 	public List<Node> getTreeChildren(boolean deep) {
 		return Collections.emptyList();
 	}
@@ -102,13 +116,19 @@ public class RoleNode extends PropertyNode {
 	}
 
 	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.ROLE;
+	}
+
+	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.RoleValue);
 	}
 
 	@Override
 	public String getLabel() {
-		return modelObject.getLabel() == null ? "" : modelObject.getLabel();
+		return getName();
+		// return modelObject.getLabel() == null ? "" : modelObject.getLabel();
 	}
 
 	@Override
@@ -123,7 +143,7 @@ public class RoleNode extends PropertyNode {
 
 	@Override
 	public void setName(String name) {
-		modelObject.setName(name);
+		getTLModelObject().setName(name);
 	}
 
 }

@@ -18,6 +18,7 @@ package org.opentravel.schemas.node;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.properties.Images;
 
 /**
@@ -79,6 +80,10 @@ public class VersionNode extends ComponentNode {
 		assert (node.getParent() == this) : "Node is not linked to version node.";
 	}
 
+	// TODO - TEST/FIX ME
+	// this creates a model object with the initial TLModelElement. Why?
+	// Does getTLModelElement need to be trapped here? Get ModelObject?
+
 	/**
 	 * Return the actual node wrapped by this version node.
 	 * 
@@ -86,6 +91,18 @@ public class VersionNode extends ComponentNode {
 	 */
 	public Node getVersionedObject() {
 		return getChildren().isEmpty() ? null : getChildren().get(0);
+	}
+
+	@Override
+	public BaseNodeListener getNewListener() {
+		return null; // tl object already points to head.
+	}
+
+	@Override
+	public String getComponentType() {
+		if (getNewestVersion() == null || getNewestVersion().getComponentNodeType() == null)
+			return "";
+		return getNewestVersion().getComponentNodeType().getDescription();
 	}
 
 	@Override
@@ -137,7 +154,7 @@ public class VersionNode extends ComponentNode {
 	}
 
 	@Override
-	public boolean isTypeProvider() {
+	public boolean isNamedEntity() {
 		return false;
 	}
 

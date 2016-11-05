@@ -26,11 +26,11 @@ import java.util.Set;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
 import org.opentravel.schemacompiler.event.ModelElementListener;
+import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemas.modelObject.ChoiceObjMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.facets.ChoiceFacetNode;
@@ -60,13 +60,17 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 
 	private ExtensionHandler extensionHandler = null;
 
-	public ChoiceObjectNode(TLLibraryMember mbr) {
+	public ChoiceObjectNode(TLChoiceObject mbr) {
 		super(mbr);
 		addMOChildren();
 		extensionHandler = new ExtensionHandler(this);
 
 		assert (getSharedFacet() != null);
 		assert (getModelObject() != null);
+
+		assert (modelObject instanceof ChoiceObjMO);
+		// assert (mbr instanceof TLChoiceObject);
+
 	}
 
 	/**
@@ -149,7 +153,7 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 
 	public FacetNode addFacet(String name) {
 		if (!isEditable_newToChain())
-			throw new IllegalArgumentException("Can not add facet to " + this);
+			throw new IllegalArgumentException("Not Editable - can not add facet to " + this);
 		if (getLibrary().getDefaultContextId() == null || getLibrary().getDefaultContextId().isEmpty())
 			throw new IllegalStateException("No context value to assign to facet.");
 
@@ -161,13 +165,23 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 
 	@Override
 	public ComponentNode createMinorVersionComponent() {
-		return super.createMinorVersionComponent(new ChoiceObjectNode((TLLibraryMember) createMinorTLVersion(this)));
+		return super.createMinorVersionComponent(new ChoiceObjectNode((TLChoiceObject) createMinorTLVersion(this)));
 	}
 
 	@Override
 	public ChoiceObjMO getModelObject() {
 		ModelObject<?> obj = super.getModelObject();
 		return (ChoiceObjMO) (obj instanceof ChoiceObjMO ? obj : null);
+	}
+
+	@Override
+	public String getName() {
+		return getTLModelObject().getName();
+	}
+
+	@Override
+	public TLChoiceObject getTLModelObject() {
+		return (TLChoiceObject) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	@Override

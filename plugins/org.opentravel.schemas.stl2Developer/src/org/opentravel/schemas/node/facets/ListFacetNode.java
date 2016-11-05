@@ -17,6 +17,7 @@ package org.opentravel.schemas.node.facets;
 
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLListFacet;
+import org.opentravel.schemas.modelObject.ListFacetMO;
 import org.opentravel.schemas.node.PropertyNodeType;
 
 /**
@@ -25,24 +26,52 @@ import org.opentravel.schemas.node.PropertyNodeType;
  * @author Dave Hollander
  * 
  */
-public class ListFacetNode extends FacetNode {
+public class ListFacetNode extends PropertyOwnerNode {
 
 	public ListFacetNode(TLListFacet tlObj) {
 		super(tlObj);
+
+		assert (modelObject instanceof ListFacetMO);
 	}
 
 	@Override
 	public boolean isSimpleListFacet() {
-		return (((TLListFacet) getTLModelObject()).getFacetType().equals(TLFacetType.SIMPLE)) ? true : false;
+		return getTLModelObject().getFacetType().equals(TLFacetType.SIMPLE) ? true : false;
 	}
 
 	public boolean isDetailListFacet() {
-		return (((TLListFacet) getTLModelObject()).getFacetType().equals(TLFacetType.DETAIL)) ? true : false;
+		return getTLModelObject().getFacetType().equals(TLFacetType.DETAIL) ? true : false;
 	}
 
 	@Override
 	public boolean isValidParentOf(PropertyNodeType type) {
 		return false;
+	}
+
+	@Override
+	public boolean isSimpleAssignable() {
+		return isSimpleListFacet();
+	}
+
+	@Override
+	public TLListFacet getTLModelObject() {
+		return (TLListFacet) (getModelObject() != null ? getModelObject().getTLModelObj() : null);
+
+	}
+
+	@Override
+	public TLFacetType getFacetType() {
+		return getTLModelObject().getFacetType();
+	}
+
+	@Override
+	public String getComponentType() {
+		return getFacetType().getIdentityName();
+	}
+
+	@Override
+	public String getName() {
+		return getTLModelObject().getLocalName();
 	}
 
 }

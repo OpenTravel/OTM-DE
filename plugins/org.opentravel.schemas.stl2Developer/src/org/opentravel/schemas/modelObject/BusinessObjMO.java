@@ -257,10 +257,11 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 		return FacetCodegenUtils.findGhostFacets(getTLModelObj(), type);
 	}
 
-	@Override
-	public String getName() {
-		return getTLModelObj().getName();
-	}
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// return getTLModelObj().getName();
+	// }
 
 	@Override
 	public String getNamespace() {
@@ -428,10 +429,10 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 		return ghostFacets;
 	}
 
-	@Override
-	public String getComponentType() {
-		return "Business Object";
-	}
+	// @Override
+	// public String getComponentType() {
+	// return "Business Object";
+	// }
 
 	@Override
 	public boolean setName(final String name) {

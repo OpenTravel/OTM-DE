@@ -36,21 +36,22 @@ public class TLModelMO extends ModelObject<TLModel> {
 		return null;
 	}
 
-	@Override
-	public String getComponentType() {
-		return null;
-	}
+	// @Override
+	// public String getComponentType() {
+	// return null;
+	// }
 
 	@Override
 	protected AbstractLibrary getLibrary(final TLModel obj) {
 		return null;
 	}
 
-	@Override
-	public String getName() {
-		return null;
-	}
-
+	// @Deprecated
+	// @Override
+	// public String getName() {
+	// return null;
+	// }
+	//
 	@Override
 	public String getNamePrefix() {
 		return null;
