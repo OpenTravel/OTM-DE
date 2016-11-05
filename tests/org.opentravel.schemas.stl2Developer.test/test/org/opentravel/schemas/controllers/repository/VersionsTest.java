@@ -167,7 +167,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		LOGGER.debug("Created Minor version of: " + chain.getHead());
 		// Test core in minor library
 		mCo = null;
-		for (Node n : minorLibrary.getDescendants_NamedTypes()) {
+		for (Node n : minorLibrary.getDescendants_LibraryMembers()) {
 			if (n.getName().equals(co.getName())) {
 				mCo = (CoreObjectNode) n;
 				break;
@@ -210,8 +210,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 
 		// adhoc tests
 		assertTrue(TotalLibraries == chain.getLibraries().size());
-		assertTrue(chain.getDescendants_NamedTypes().contains(bo));
-		assertTrue(majorLibrary.getDescendants_NamedTypes().contains(bo));
+		assertTrue(chain.getDescendants_LibraryMembers().contains(bo));
+		assertTrue(majorLibrary.getDescendants_LibraryMembers().contains(bo));
 
 		// verify the core object, co, created in the minor library contains properties from the
 		// extension point in the patch.
@@ -368,7 +368,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// 1. If a prior version of the term existed, its content and structure can be modified in any way
 		// TEST - in a new major, verify named objects exist in both chains are both chains are valid.
 		// TEST - rename, delete and add properties to rolled up major objects
-		for (Node n : chain.getDescendants_NamedTypes()) {
+		for (Node n : chain.getDescendants_LibraryMembers()) {
 			if (n instanceof ExtensionPointNode)
 				continue; // would be rolled up
 			Node mn = newMajor.findNodeByName(n.getName());
@@ -376,7 +376,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 				continue;
 			assertTrue(mn != null);
 		}
-		ArrayList<Node> nodes = new ArrayList<Node>(newMajor.getDescendants_NamedTypes());
+		ArrayList<Node> nodes = new ArrayList<Node>(newMajor.getDescendants_LibraryMembers());
 		for (Node n : nodes) {
 			n.setName(n.getName() + "_TEST");
 			// TODO - modify properties
@@ -387,7 +387,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// 2. Any new term can be defined
 		// TEST - create all new object types
 		addNamedObjects(newMajor);
-		Assert.assertEquals(TotalNamedObjects, newMajor.getDescendants_NamedTypes().size());
+		Assert.assertEquals(TotalNamedObjects, newMajor.getDescendants_LibraryMembers().size());
 
 		// verify ability to add doc to all simple types
 		for (Node n : newMajor.getSimpleRoot().getChildren())
@@ -433,7 +433,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// Try all the things we are allowed to do in a minor
 		//
 		// Ensure it creates a BO in the minor and it extends the original BO
-		assertTrue(!minorLibrary.getDescendants_NamedTypes().contains(bo));
+		assertTrue(!minorLibrary.getDescendants_LibraryMembers().contains(bo));
 		assertTrue(bo.isEditable()); // is the chain that contains it editable?
 
 		BusinessObjectNode boInMinor = (BusinessObjectNode) bo.createMinorVersionComponent();
@@ -441,7 +441,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		assertTrue(boInMinor.isEditable());
 		assertTrue(!boInMinor.isEditable_newToChain());
 		Assert.assertEquals(NodeEditStatus.MINOR, boInMinor.getEditStatus());
-		assertTrue(minorLibrary.getDescendants_NamedTypes().contains(boInMinor));
+		assertTrue(minorLibrary.getDescendants_LibraryMembers().contains(boInMinor));
 
 		// change a pre-existing old property
 		PropertyNode oldProperty = (PropertyNode) bo.getSummaryFacet().getChildren().get(0);
@@ -721,7 +721,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		PropertyNode newProp = null;
 		if (!(propOwner instanceof VWA_AttributeFacetNode)) {
 			newProp = new ElementNode(new FacetNode(), "np" + cnt++);
-			propOwner.addProperty(newProp);
+			propOwner.addProperty(newProp); // Needed???
 			newProp.setAssignedType((TypeProvider) xsdStringNode);
 			Assert.assertTrue(newProp.getLibrary() != null);
 			Assert.assertTrue(newProp.isDeleteable());
@@ -743,8 +743,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	 */
 	private CoreObjectNode createCoreInMinor() {
 		CoreObjectNode nco = (CoreObjectNode) co.createMinorVersionComponent();
-		PropertyNode newProp = new ElementNode(nco.getSummaryFacet(), "te2");
-		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
+		TypeProvider type = ((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
+		PropertyNode newProp = new ElementNode(nco.getSummaryFacet(), "te2", type);
 
 		Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
 		TotalDescendents += 1;
@@ -763,17 +763,17 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		}
 		Assert.assertFalse(co.isEditable_newToChain());
 		Assert.assertEquals(1, nco.getSummaryFacet().getChildren().size());
-		Assert.assertTrue(chain.getDescendants_NamedTypes().contains(nco));
-		Assert.assertTrue(minorLibrary.getDescendants_NamedTypes().contains(nco));
-		Assert.assertFalse(majorLibrary.getDescendants_NamedTypes().contains(nco));
+		Assert.assertTrue(chain.getDescendants_LibraryMembers().contains(nco));
+		Assert.assertTrue(minorLibrary.getDescendants_LibraryMembers().contains(nco));
+		Assert.assertFalse(majorLibrary.getDescendants_LibraryMembers().contains(nco));
 
 		return nco;
 	}
 
 	private BusinessObjectNode createBO_InMinor() {
 		BusinessObjectNode nbo = (BusinessObjectNode) bo.createMinorVersionComponent();
-		PropertyNode newProp = new ElementNode(nbo.getSummaryFacet(), "te2");
-		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
+		TypeProvider type = ((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
+		PropertyNode newProp = new ElementNode(nbo.getSummaryFacet(), "te2", type);
 		Assert.assertEquals(1, bo.getSummaryFacet().getChildren().size());
 		TotalDescendents += 1;
 		MinorComplex += 1;
@@ -782,9 +782,9 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		Assert.assertNotNull(nbo);
 		Assert.assertNotNull(nbo.getVersionNode().getPreviousVersion());
 		Assert.assertEquals(1, nbo.getSummaryFacet().getChildren().size());
-		Assert.assertTrue(chain.getDescendants_NamedTypes().contains(nbo));
-		Assert.assertTrue(minorLibrary.getDescendants_NamedTypes().contains(nbo));
-		Assert.assertFalse(majorLibrary.getDescendants_NamedTypes().contains(nbo));
+		Assert.assertTrue(chain.getDescendants_LibraryMembers().contains(nbo));
+		Assert.assertTrue(minorLibrary.getDescendants_LibraryMembers().contains(nbo));
+		Assert.assertFalse(majorLibrary.getDescendants_LibraryMembers().contains(nbo));
 
 		return nbo;
 	}
@@ -801,9 +801,9 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// Make sure a new was created in the newMinor library.
 		Assert.assertNotNull(nVwa);
 		Assert.assertEquals(1, nVwa.getAttributeFacet().getChildren().size());
-		Assert.assertTrue(chain.getDescendants_NamedTypes().contains(nVwa));
-		Assert.assertTrue(minorLibrary.getDescendants_NamedTypes().contains(nVwa));
-		Assert.assertFalse(majorLibrary.getDescendants_NamedTypes().contains(nVwa));
+		Assert.assertTrue(chain.getDescendants_LibraryMembers().contains(nVwa));
+		Assert.assertTrue(minorLibrary.getDescendants_LibraryMembers().contains(nVwa));
+		Assert.assertFalse(majorLibrary.getDescendants_LibraryMembers().contains(nVwa));
 
 		return nVwa;
 	}
@@ -835,8 +835,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	public void testMove() {
 		// This will work because moveMember is at the model level. It is used by the controller
 		// which applies the business logic if it is valid to move.
-		List<Node> namedTypes = chain.getDescendants_NamedTypes();
-		int namedTypeCnt = chain.getDescendants_NamedTypes().size();
+		List<Node> namedTypes = chain.getDescendants_LibraryMembers();
+		int namedTypeCnt = chain.getDescendants_LibraryMembers().size();
 		LOGGER.debug("testMove " + TotalDescendents + " " + namedTypeCnt + " " + bo.getLibrary());
 
 		// FIXME -
@@ -1097,29 +1097,29 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	private void checkCounts(LibraryChainNode chain) {
 
 		// Make sure all the base objects are accessible.
-		List<Node> namedTypes = chain.getDescendants_NamedTypes();
-		int namedTypeCnt = chain.getDescendants_NamedTypes().size();
+		List<Node> namedTypes = chain.getDescendants_LibraryMembers();
+		int namedTypeCnt = chain.getDescendants_LibraryMembers().size();
 		Assert.assertEquals(TotalDescendents, namedTypeCnt);
 
 		// Make sure all the types are in the versions aggregate
 		// Only gets "head" objects in a version chain by using the aggregate.
 		AggregateNode aggregate = (AggregateNode) chain.getComplexAggregate();
-		List<Node> nt = aggregate.getDescendants_NamedTypes();
-		namedTypeCnt = aggregate.getDescendants_NamedTypes().size();
+		List<Node> nt = aggregate.getDescendants_LibraryMembers();
+		namedTypeCnt = aggregate.getDescendants_LibraryMembers().size();
 		Assert.assertEquals(AggregateComplex, namedTypeCnt);
 
 		// FIXME - should be 8. The patch extension point should not be included because it is
 		// wrapped up into the minor
-		namedTypeCnt = chain.getSimpleAggregate().getDescendants_NamedTypes().size();
+		namedTypeCnt = chain.getSimpleAggregate().getDescendants_LibraryMembers().size();
 		Assert.assertEquals(AggregateSimple, namedTypeCnt);
 
 		// Check the service
-		namedTypeCnt = chain.getServiceAggregate().getDescendants_NamedTypes().size();
+		namedTypeCnt = chain.getServiceAggregate().getDescendants_LibraryMembers().size();
 		Assert.assertEquals(1, namedTypeCnt);
 
 		// Check counts against the underlying TL library
 		for (LibraryNode lib : chain.getLibraries()) {
-			int libCnt = lib.getDescendants_NamedTypes().size();
+			int libCnt = lib.getDescendants_LibraryMembers().size();
 			int tlCnt = lib.getTLaLib().getNamedMembers().size();
 			Assert.assertEquals(libCnt, tlCnt);
 		}
@@ -1154,9 +1154,9 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 			cEnum = ncEnum;
 			oEnum = noEnum;
 
-			TotalDescendents = lib.getChain().getDescendants_NamedTypes().size();
-			AggregateComplex = lib.getChain().getComplexAggregate().getDescendants_NamedTypes().size();
-			AggregateSimple = lib.getChain().getSimpleAggregate().getDescendants_NamedTypes().size();
+			TotalDescendents = lib.getChain().getDescendants_LibraryMembers().size();
+			AggregateComplex = lib.getChain().getComplexAggregate().getDescendants_LibraryMembers().size();
+			AggregateSimple = lib.getChain().getSimpleAggregate().getDescendants_LibraryMembers().size();
 		}
 	}
 

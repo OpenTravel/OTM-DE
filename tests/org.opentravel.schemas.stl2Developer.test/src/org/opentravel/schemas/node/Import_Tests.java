@@ -131,7 +131,7 @@ public class Import_Tests {
 
 		target.importNode(bo);
 		target.importNode(core);
-		Assert.assertEquals(3, target.getDescendants_NamedTypes().size());
+		Assert.assertEquals(3, target.getDescendants_LibraryMembers().size());
 		Assert.assertEquals(beforeImportFamilies, familyCount(target));
 	}
 
@@ -152,6 +152,7 @@ public class Import_Tests {
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "testCore");
 		FacetNode summary = bo.getSummaryFacet();
 		int coreKids = core.getChildren().size();
+		int startingCount = summary.getChildren().size();
 
 		// Add 3 core objects as property types to see the aliases get made.
 		ElementNode prop1, prop2, prop3 = null;
@@ -165,7 +166,7 @@ public class Import_Tests {
 		bo.createAliasesForProperties();
 		// FIXME - i now have 3 aliases on the core with the same name because the assign type changed the properties to
 		// the same name
-		Assert.assertTrue(summary.getChildren().size() == 4); // 1 + the three added
+		Assert.assertTrue(startingCount + 3 == summary.getChildren().size()); // 1 + the three added
 		Assert.assertEquals(coreKids + 3, core.getChildren().size());
 		// Assert.assertEquals("P1_testCore", prop1.getName());
 		// Assert.assertEquals("P1_testCore", prop1.getTypeName());

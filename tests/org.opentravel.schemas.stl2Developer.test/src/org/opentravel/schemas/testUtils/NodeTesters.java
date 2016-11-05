@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.testUtils;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLAttribute;
@@ -164,8 +166,8 @@ public class NodeTesters {
 				&& !(n instanceof ResourceMemberInterface) && !(n instanceof OperationNode)
 				&& !(n.getChildren().isEmpty())) {
 			if (n.getChildren().size() != n.getModelObject().getChildren().size()) {
-				// List<?> kids = n.getChildren();
-				// List<?> moKids = n.getModelObject().getChildren();
+				List<?> kids = n.getChildren();
+				List<?> moKids = n.getModelObject().getChildren();
 				LOGGER.debug("Children sizes are not equal.");
 			}
 			Assert.assertEquals(n.getChildren().size(), n.getModelObject().getChildren().size());
@@ -177,6 +179,8 @@ public class NodeTesters {
 		// name = n.getName();
 		// }
 		// String foo = name;
+		if (n.getName().isEmpty())
+			LOGGER.debug("Empty Name: " + n.getName());
 		Assert.assertFalse(n.getName().isEmpty());
 		// Assert.assertFalse(n.getIdentity().isEmpty()); // new 1/20/15
 		Assert.assertFalse(n.getLabel().isEmpty());
@@ -202,7 +206,7 @@ public class NodeTesters {
 		// is tests - make sure they do not throw exception
 		n.isEditable();
 		n.isLibraryContainer();
-		n.isTypeProvider();
+		n.isNamedEntity();
 		// if (n instanceof TypeUser;
 		n.isAssignedByReference();
 		n.isLibraryContainer();

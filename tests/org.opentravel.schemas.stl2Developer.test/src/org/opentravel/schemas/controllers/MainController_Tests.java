@@ -59,7 +59,7 @@ public class MainController_Tests {
 			ln.visitAllNodes(nt.new TestNode());
 			if (i++ == 3) {
 				int x = 0;
-				for (Node n : ln.getDescendants_NamedTypes())
+				for (Node n : ln.getDescendants_LibraryMembers())
 					if (x++ == 4) testNode = n;
 			}
 		}

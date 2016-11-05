@@ -53,14 +53,14 @@ public class BusinessObjectTests {
 
 		LibraryNode lib = lf.loadFile4(mc);
 		int i = 0;
-		for (Node bo : lib.getDescendants_NamedTypes()) {
+		for (Node bo : lib.getDescendants_LibraryMembers()) {
 			i++;
 			if (bo instanceof BusinessObjectNode)
 				checkBO((BusinessObjectNode) bo);
 		}
 		// Repeat test with library in a chain
 		LibraryChainNode lcn = new LibraryChainNode(lib);
-		for (Node bo : lcn.getDescendants_NamedTypes()) {
+		for (Node bo : lcn.getDescendants_LibraryMembers()) {
 			i--;
 			if (bo instanceof BusinessObjectNode)
 				checkBO((BusinessObjectNode) bo);
@@ -81,7 +81,7 @@ public class BusinessObjectTests {
 		BusinessObjectNode extendedBO = ml.addBusinessObjectToLibrary(ln, "ExtendedBO");
 		assertNotNull("Null object created.", extendedBO);
 
-		for (Node n : ln.getDescendants_NamedTypes())
+		for (Node n : ln.getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode && n != extendedBO) {
 				extendedBO.setExtension(n);
 				checkBO((BusinessObjectNode) n);
@@ -102,9 +102,9 @@ public class BusinessObjectTests {
 		ml.addBusinessObjectToLibrary(ln, "bo");
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "vwa");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "co");
-		new ElementNode(core.getSummaryFacet(), "TE2").setAssignedType(vwa);
+		new ElementNode(core.getSummaryFacet(), "TE2", vwa);
 
-		int typeCount = ln.getDescendants_NamedTypes().size();
+		int typeCount = ln.getDescendants_LibraryMembers().size();
 		Assert.assertEquals(1, vwa.getWhereAssigned().size());
 
 		tbo = (BusinessObjectNode) core.changeToBusinessObject();
@@ -124,7 +124,7 @@ public class BusinessObjectTests {
 		checkBO(tbo);
 		checkBO(tboVwa);
 		tn.visit(ln);
-		Assert.assertEquals(typeCount, ln.getDescendants_NamedTypes().size());
+		Assert.assertEquals(typeCount, ln.getDescendants_LibraryMembers().size());
 		Assert.assertEquals(1, tboVwa.getWhereAssigned().size());
 
 		// FIXME
@@ -136,8 +136,8 @@ public class BusinessObjectTests {
 		vwa = ml.addVWA_ToLibrary(ln, "vwa2");
 		new ElementNode(core.getSummaryFacet(), "TestElement").setAssignedType(vwa);
 
-		typeCount = ln.getDescendants_NamedTypes().size();
-		Assert.assertEquals(typeCount, lcn.getDescendants_NamedTypes().size()); // check get descendants
+		typeCount = ln.getDescendants_LibraryMembers().size();
+		Assert.assertEquals(typeCount, lcn.getDescendants_LibraryMembers().size()); // check get descendants
 
 		tbo = (BusinessObjectNode) core.changeToBusinessObject();
 		tboVwa = (BusinessObjectNode) vwa.changeToBusinessObject();
@@ -147,13 +147,13 @@ public class BusinessObjectTests {
 		vwa.setLibrary(tboVwa.getLibrary());
 		vwa.delete();
 
-		int tc2 = lcn.getDescendants_NamedTypes().size();
+		int tc2 = lcn.getDescendants_LibraryMembers().size();
 		// on a chain only aggregates are counted. Must be equal to library count.
 		Assert.assertEquals(tc2, typeCount);
 		// printDescendants(ln);
 		// printDescendants(lcn);
 
-		Assert.assertEquals(typeCount, ln.getDescendants_NamedTypes().size());
+		Assert.assertEquals(typeCount, ln.getDescendants_LibraryMembers().size());
 		Assert.assertEquals(1, tboVwa.getWhereAssigned().size());
 	}
 
@@ -214,7 +214,7 @@ public class BusinessObjectTests {
 
 		// File 1 has a business object Profile with 5 facets and 1 alias
 		BusinessObjectNode bo = null;
-		for (Node n : ln.getDescendants_NamedTypes())
+		for (Node n : ln.getDescendants_LibraryMembers())
 			if (n.getName().equals("Profile"))
 				bo = (BusinessObjectNode) n;
 		assert bo != null;
@@ -247,47 +247,67 @@ public class BusinessObjectTests {
 		ProjectNode defaultProject = pc.getDefaultProject();
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 
+		// Given - a Business Object with alias
 		final String boName = "initialBOName";
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, boName);
-		bo.addAlias("boAlias");
-		AliasNode alias1 = bo.getAliases().get(0);
-		assertNotNull(alias1);
+		AliasNode alias1 = bo.addAlias("boAlias");
 		AliasNode aliasSummary = null;
 		for (Node n : bo.getSummaryFacet().getChildren())
 			if (n instanceof AliasNode)
 				aliasSummary = (AliasNode) n;
+		// Then the alias must exist on the bo and it's facet
+		assertNotNull(alias1);
 		assertNotNull(aliasSummary);
 
-		// create a core that uses all the type provider nodes of the bo
+		// When - a core is created that has elements that use the BO and aliases as properties
 		CoreObjectNode co = ml.addCoreObjectToLibrary(ln, "user");
-		PropertyNode pBO = new ElementNode(co.getSummaryFacet(), "p1");
-		pBO.setAssignedType(bo);
-		// assertTrue(p1.getName().equals(boName));
-		// FIXME assertTrue("Invalid name: " + p1 + " should be " + bo, p1.getName().equals(boName));
-		PropertyNode pAlias1 = new ElementNode(co.getSummaryFacet(), "p2");
-		pAlias1.setAssignedType(alias1);
-		PropertyNode pBOSummary = new ElementNode(co.getSummaryFacet(), "p3");
-		pBOSummary.setAssignedType(bo.getSummaryFacet());
-		PropertyNode pBOSumAlias = new ElementNode(co.getSummaryFacet(), "p4");
-		pBOSumAlias.setAssignedType(aliasSummary);
+		PropertyNode pBO = new ElementNode(co.getSummaryFacet(), "p1", bo);
+		PropertyNode pAlias1 = new ElementNode(co.getSummaryFacet(), "p2", alias1);
+		PropertyNode pBOSummary = new ElementNode(co.getSummaryFacet(), "p3", bo.getSummaryFacet());
+		PropertyNode pBOSumAlias = new ElementNode(co.getSummaryFacet(), "p4", aliasSummary);
+		// Then - the facet alias has where used
 		assertTrue("Facet alias must be assigned as type.", !aliasSummary.getWhereAssigned().isEmpty());
+		// Then - the elements are named after their type
+		assertTrue("Element name must be the BO name.", pBO.getName().equals(bo.getName()));
+		assertTrue("Element name must be alias name.", pAlias1.getName().contains(alias1.getName()));
+		assertTrue("Element name must NOT be facet name.", !pBOSummary.getName().equals(bo.getSummaryFacet().getName()));
+		// Then - assigned facet name will be constructed by compiler using owning object and facet type.
+		assertTrue("Element name must start with BO name.", pBOSummary.getName().startsWith(bo.getName()));
+		assertTrue("Element name must contain facet name.",
+				pBOSummary.getName().contains(bo.getSummaryFacet().getName()));
+		assertTrue("Element name must start with alias name.", pBOSumAlias.getName().startsWith(alias1.getName()));
 
-		// Change the BO name and assure the properties names changed
-		String ChangedName = "changedName";
-		bo.setName(ChangedName);
-		ChangedName = bo.getName(); // get the "fixed" name
-		assertTrue(pBO.getName().equals(ChangedName));
-		assertTrue(pAlias1.getName().equals(alias1.getName()));
-		assertTrue(pBOSummary.getName().startsWith(ChangedName));
+		// When - Change the BO name
+		String changedName = "changedName";
+		bo.setName(changedName);
+		changedName = NodeNameUtils.fixBusinessObjectName(changedName); // get the "fixed" name
 
-		// Alias on BOs must also be applied to the elements where used.
+		// Then - the business object name and facets must change.
+		assertTrue("Business Object name must be fixed name.", pBO.getName().equals(changedName));
+		assertTrue("Alias name must be unchanged.", pAlias1.getName().equals(alias1.getName()));
+		assertTrue("Facet name must start with BO name.", pBOSummary.getName().startsWith(changedName));
+		// Then - the facet alias has where used
+		assertTrue("Facet alias must be assigned as type.", !aliasSummary.getWhereAssigned().isEmpty());
+		// Then - the elements are named after their type
+		assertTrue("Element name must be the BO name.", pBO.getName().equals(changedName));
+		assertTrue("Element name must contain facet name.",
+				pBOSummary.getName().contains(bo.getSummaryFacet().getName()));
+		assertTrue("Element name must start with BO name.", pBOSummary.getName().startsWith(changedName));
+		assertTrue("Element name must start with alias name.", pBOSumAlias.getName().startsWith(alias1.getName()));
+		assertTrue("Element name must start with alias name.", pAlias1.getName().startsWith(alias1.getName()));
+
+		// When - alias name changed
 		String aliasName2 = "aliasName2";
 		alias1.setName(aliasName2);
 		aliasName2 = alias1.getName(); // get the "fixed" name
-		assertTrue(pAlias1.getName().equals(aliasName2));
-		assertTrue("New alias name must propagate to facet aliases.", aliasSummary.getName().startsWith(aliasName2));
-		assertTrue("New alias name must propagate to properties using facet alias as type.", pBOSumAlias.getName()
-				.startsWith(aliasName2));
+
+		// Then - all aliases on BO must change name
+		assertTrue("Alias Name must change.", pAlias1.getName().equals(aliasName2));
+		assertTrue("Alias on summary facet must change.", aliasSummary.getName().startsWith(aliasName2));
+
+		// Then - all type users of those aliases must change name
+		assertTrue("Element name must start with changed alias name.", pBOSumAlias.getName().startsWith(aliasName2));
+		assertTrue("Element name must start with changed alias name.", pAlias1.getName().startsWith(aliasName2));
 	}
 
 	@Test

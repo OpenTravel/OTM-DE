@@ -290,11 +290,16 @@ public class TestTypes {
 
 		// Test with both property and type in versioned libraries.
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln_inChain, "Bo1");
-		p1 = (PropertyNode) bo.getSummaryFacet().getChildren().get(0);
-		p1.setAssignedType(s1);
+		p1 = null;
+		for (Node t : bo.getSummaryFacet().getChildren())
+			if (t instanceof ElementNode) {
+				p1 = (PropertyNode) t;
+			}
+		assertTrue("Element property was found.", p1 != null);
+		p1.setAssignedType(s1); // a simple type
 		assertEquals(s1, p1.getAssignedType());
 		p1.setAssignedType(v2); // a versioned node
-		assertEquals(v2, p1.getAssignedType());
+		assertEquals(v2, p1.getAssignedType()); // a simple type
 
 		// Test with aliases as types
 		AliasNode a1 = new AliasNode(bo, "A4bo1");
@@ -387,10 +392,8 @@ public class TestTypes {
 		CoreObjectNode coExt = ComponentNodeBuilder.createCoreObject("COExt").extend(coBase).get(moveFrom);
 		assertTrue(coExt.isInstanceOf(coBase));
 		coBase.setSimpleType(simple);
-		ElementNode e1 = new ElementNode(coBase.getSummaryFacet(), "E1");
-		ElementNode e2 = new ElementNode(coExt.getSummaryFacet(), "E2");
-		e1.setAssignedType(simple);
-		e2.setAssignedType(simple);
+		ElementNode e1 = new ElementNode(coBase.getSummaryFacet(), "E1", simple);
+		ElementNode e2 = new ElementNode(coExt.getSummaryFacet(), "E2", simple);
 		assertTrue(simple.getWhereAssignedCount() == 3);
 		// resolver uses visitors
 		nodeCount = 0;
@@ -406,15 +409,15 @@ public class TestTypes {
 
 		// when
 		// each member is imported to moveTo library (cloned and library assigned, not typed)
-		for (Node n : moveFrom.getDescendants_NamedTypes())
+		for (Node n : moveFrom.getDescendants_LibraryMembers())
 			moveTo.importNode(n);
-		assertTrue("moveTo must have 3 members.", moveTo.getDescendants_NamedTypes().size() == 3);
+		assertTrue("moveTo must have 3 members.", moveTo.getDescendants_LibraryMembers().size() == 3);
 		// Type resolver run
 		new TypeResolver().resolveTypes(moveTo);
 
 		CoreObjectNode newBase, newExt = null;
 		SimpleTypeNode newSimple = null;
-		for (Node n : moveTo.getDescendants_NamedTypes())
+		for (Node n : moveTo.getDescendants_LibraryMembers())
 			if (n.getName().equals("COBase"))
 				newBase = (CoreObjectNode) n;
 			else if (n.getName().equals("COExt"))

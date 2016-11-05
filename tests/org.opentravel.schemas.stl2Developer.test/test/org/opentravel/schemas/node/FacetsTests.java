@@ -49,6 +49,7 @@ import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.facets.OperationFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
+import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
@@ -228,7 +229,7 @@ public class FacetsTests {
 			else if (n instanceof VWA_AttributeFacetNode)
 				checkFacet((VWA_AttributeFacetNode) n);
 			else if (n instanceof RoleFacetNode)
-				checkRoleFacet((FacetNode) n);
+				checkRoleFacet((RoleFacetNode) n);
 			else if (n instanceof FacetNode)
 				checkBaseFacet((FacetNode) n);
 		}
@@ -265,7 +266,7 @@ public class FacetsTests {
 		checkFacetContents(base, "ExtFacetTestChoice", 1, 1);
 
 		// Then extensions must have inherited children
-		for (Node n : base.getDescendants_NamedTypes()) {
+		for (Node n : base.getDescendants_LibraryMembers()) {
 			if (n instanceof ExtensionOwner)
 				if (((ExtensionOwner) n).getExtensionBase() != null) {
 					// Contextual facets should all have inherited properties
@@ -292,7 +293,7 @@ public class FacetsTests {
 	private void checkFacetContents(Node base, String targetName, int local, int contributed) {
 		int localCnt = 0, contributedCnt = 0;
 		int total = local + contributed;
-		for (Node n : base.getDescendants_NamedTypes())
+		for (Node n : base.getDescendants_LibraryMembers())
 			if (n.getName().equals(targetName)) {
 				List<ContextualFacetNode> facets = getContextualFacets(n);
 				assertTrue(targetName + " must have " + total + " contextual facets.", facets.size() == total);
@@ -415,7 +416,7 @@ public class FacetsTests {
 		assertTrue("Must be valid parent of id.", vf.isValidParentOf(PropertyNodeType.ID));
 
 		assertFalse("Must NOT be delete-able.", vf.isDeleteable());
-		assertFalse("Must NOT be type provider.", vf.isTypeProvider());
+		assertFalse("Must NOT be type provider.", vf.isNamedEntity());
 		assertFalse("Must NOT be assignable.", vf.isAssignable());
 		assertFalse("Must NOT be valid parent of element.", vf.isValidParentOf(PropertyNodeType.ELEMENT));
 		assertFalse("Must NOT be valid parent of ID Reference.", vf.isValidParentOf(PropertyNodeType.ID_REFERENCE));
@@ -440,11 +441,11 @@ public class FacetsTests {
 		LOGGER.debug("Checking Operation Facet Node: " + of);
 
 		assertTrue("Must be delete-able.", of.isDeleteable());
-		assertFalse("Must NOT be type provider.", of.isTypeProvider());
+		assertFalse("Must NOT be type provider.", of.isNamedEntity());
 		assertFalse("Must NOT be assignable.", of.isAssignable());
 	}
 
-	public void checkBaseFacet(FacetNode fn) {
+	public void checkBaseFacet(PropertyOwnerNode fn) {
 		LOGGER.debug("Checking Facet: " + fn);
 		if (fn.isIDFacet())
 			LOGGER.debug("Checking id Facet: " + fn);
@@ -530,7 +531,7 @@ public class FacetsTests {
 		//
 		assertTrue("Must be assignable.", rf.isAssignable());
 		assertTrue("Must be assignable to complex.", rf.isComplexAssignable());
-		assertTrue("Must be type provider.", rf.isTypeProvider());
+		assertTrue("Must be type provider.", rf.isNamedEntity());
 		assertTrue("Must be valid parent to attributes.", rf.isValidParentOf(PropertyNodeType.ATTRIBUTE));
 		assertTrue("Must be valid parent to elements.", rf.isValidParentOf(PropertyNodeType.ELEMENT));
 
@@ -573,30 +574,31 @@ public class FacetsTests {
 		assertTrue("Must be delete-able.", qn.isDeleteable());
 	}
 
-	public void checkRoleFacet(FacetNode roleFacet) {
-		LOGGER.debug("Checking Facet: " + roleFacet);
+	public void checkRoleFacet(RoleFacetNode roleFacetNode) {
+		LOGGER.debug("Checking Facet: " + roleFacetNode);
 
-		assertTrue("Must be role facet.", roleFacet instanceof RoleFacetNode);
+		assertTrue("Must be role facet.", roleFacetNode instanceof RoleFacetNode);
 		// assertTrue("Must be delete-able.", roleFacet.isDeleteable());
-		assertTrue("Must be assignable.", roleFacet.isAssignable());
-		assertTrue("Must be assignable to complex.", roleFacet.isComplexAssignable());
-		assertTrue("Must be type provider.", roleFacet.isTypeProvider());
-		assertTrue("Must be valid parent to roles.", roleFacet.isValidParentOf(PropertyNodeType.ROLE));
+		assertTrue("Must be assignable.", roleFacetNode.isAssignable());
+		assertTrue("Must be assignable to complex.", roleFacetNode.isComplexAssignable());
+		assertTrue("Must be type provider.", roleFacetNode.isNamedEntity());
+		assertTrue("Must be valid parent to roles.", roleFacetNode.isValidParentOf(PropertyNodeType.ROLE));
 		// FIXME - assertTrue("Must be assignable to VWA.", roleFacet.isAssignableToVWA());
 
-		assertFalse("Must NOT be assignable to simple.", roleFacet.isAssignableToSimple());
-		assertFalse("Must NOT be assignable to simple.", roleFacet.isSimpleAssignable());
-		assertFalse("Must NOT be valid parent to attributes.", roleFacet.isValidParentOf(PropertyNodeType.ATTRIBUTE));
-		assertFalse("Must NOT be valid parent to elements.", roleFacet.isValidParentOf(PropertyNodeType.ELEMENT));
-		assertFalse("Must NOT be renamable.", roleFacet.isRenameable());
+		assertFalse("Must NOT be assignable to simple.", roleFacetNode.isAssignableToSimple());
+		assertFalse("Must NOT be assignable to simple.", roleFacetNode.isSimpleAssignable());
+		assertFalse("Must NOT be valid parent to attributes.",
+				roleFacetNode.isValidParentOf(PropertyNodeType.ATTRIBUTE));
+		assertFalse("Must NOT be valid parent to elements.", roleFacetNode.isValidParentOf(PropertyNodeType.ELEMENT));
+		assertFalse("Must NOT be renamable.", roleFacetNode.isRenameable());
 
-		assertFalse("Must NOT be assignable to element ref", roleFacet.isAssignableToElementRef());
-		assertFalse("Must NOT be default facet.", roleFacet.isDefaultFacet());
-		assertFalse("Must NOT be named type.", roleFacet.isNamedType());
+		assertFalse("Must NOT be assignable to element ref", roleFacetNode.isAssignableToElementRef());
+		assertFalse("Must NOT be default facet.", roleFacetNode.isDefaultFacet());
+		assertFalse("Must NOT be named type.", roleFacetNode.isNamedType());
 
 		// Behaviors
-		RoleNode role = new RoleNode((RoleFacetNode) roleFacet, "newRole1");
-		assertTrue("Must be able to add roles.", role.getParent() == roleFacet);
-		assertTrue("Must be able to add child.", roleFacet.getChildren().contains(role));
+		RoleNode role = new RoleNode((RoleFacetNode) roleFacetNode, "newRole1");
+		assertTrue("Must be able to add roles.", role.getParent() == roleFacetNode);
+		assertTrue("Must be able to add child.", roleFacetNode.getChildren().contains(role));
 	}
 }

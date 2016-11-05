@@ -125,7 +125,7 @@ public class LoadDepenedLibrariesAndResolvedTypes extends RepositoryIntegrationT
 
 		// make sure that base library is loaded and type are resolved
 		LibraryChainNode lib = findLibrary(extLib.getName(), uploadProject.getChildren());
-		VWA_Node vwaNode = (VWA_Node) lib.getDescendants_NamedTypes().get(0);
+		VWA_Node vwaNode = (VWA_Node) lib.getDescendants_LibraryMembers().get(0);
 		AttributeNode attr = (AttributeNode) vwaNode.getAttributeFacet().getChildren().get(0);
 		Assert.assertNotSame(ModelNode.getUnassignedNode(), attr.getTypeNode());
 		Assert.assertSame(attr.getTypeNode().getModelObject().getTLModelObj(), attr.getTLTypeObject());

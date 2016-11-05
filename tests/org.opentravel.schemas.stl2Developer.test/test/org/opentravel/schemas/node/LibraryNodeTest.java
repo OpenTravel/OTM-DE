@@ -53,7 +53,7 @@ public class LibraryNodeTest extends BaseProjectTest {
 		// LibraryNode ln1 = lf.loadFile2(project1);
 		LibraryNode lib2 = lf.loadFile2(project2);
 		LibraryNode lib1 = lf.loadFile2(project1);
-		int ln2NamedTypeCount = lib2.getDescendants_NamedTypes().size();
+		int ln2NamedTypeCount = lib2.getDescendants_LibraryMembers().size();
 		// List<Node> complexNamedtypes = lib2.getDescendants_NamedTypes(); // hold onto for later use.
 
 		assertTrue("Project is not empty.", !project1.getChildren().isEmpty());
@@ -65,10 +65,10 @@ public class LibraryNodeTest extends BaseProjectTest {
 		// Then - check the other library to make sure it was not effected.
 		assertTrue("Project 1 must be empty.", project1.getLibraries().isEmpty());
 		assertTrue("Project 1 must be empty.", project1.getChildren().isEmpty());
-		assertTrue("Lib1 must be empty.", lib1.getDescendants_NamedTypes().isEmpty());
+		assertTrue("Lib1 must be empty.", lib1.getDescendants_LibraryMembers().isEmpty());
 		assertTrue("Lib2 must have same number of named types.",
-				lib2.getDescendants_NamedTypes().size() == ln2NamedTypeCount);
-		for (Node n : lib2.getDescendants_NamedTypes())
+				lib2.getDescendants_LibraryMembers().size() == ln2NamedTypeCount);
+		for (Node n : lib2.getDescendants_LibraryMembers())
 			assertTrue("Named type must not be deleted.", !n.isDeleted());
 
 		// Same test with libraries in a chain
@@ -84,12 +84,12 @@ public class LibraryNodeTest extends BaseProjectTest {
 		// Then
 		assertTrue("Project 1 must have no libraries.", project1.getLibraries().isEmpty());
 		assertTrue("Project 1 must be empty.", project1.getChildren().isEmpty());
-		assertTrue("Lib1 must be empty.", lib1.getDescendants_NamedTypes().isEmpty());
+		assertTrue("Lib1 must be empty.", lib1.getDescendants_LibraryMembers().isEmpty());
 
 		assertTrue("Lib2 must have same number of named types.",
-				lib2.getDescendants_NamedTypes().size() == ln2NamedTypeCount);
+				lib2.getDescendants_LibraryMembers().size() == ln2NamedTypeCount);
 		// Each named type must not be deleted and must have a valid nav node and library
-		for (Node n : lib2.getDescendants_NamedTypes()) {
+		for (Node n : lib2.getDescendants_LibraryMembers()) {
 			assertTrue("Named type must not be deleted.", !n.isDeleted());
 			assertTrue("Named type must be in lib2.", n.getLibrary() == lib2);
 			assertTrue("Named type's parent must not be deleted.", !n.getParent().isDeleted());
@@ -99,7 +99,7 @@ public class LibraryNodeTest extends BaseProjectTest {
 		// delete second lib and insure deleted.
 		mc.getLibraryController().remove(Arrays.asList(lcn2)); // used in close library command
 		assertTrue("Project 2 must be empty.", project2.getChildren().isEmpty());
-		assertTrue("Lib2 must be empty.", lib2.getDescendants_NamedTypes().isEmpty());
+		assertTrue("Lib2 must be empty.", lib2.getDescendants_LibraryMembers().isEmpty());
 
 		// TODO - close the projects containing the libraries
 		// done in after tests
@@ -199,7 +199,7 @@ public class LibraryNodeTest extends BaseProjectTest {
 				new Version(1, 0, 0)).build(defaultProject, pc);
 
 		// when
-		moveTo.importNodes(moveFrom.getDescendants_NamedTypes(), false);
+		moveTo.importNodes(moveFrom.getDescendants_LibraryMembers(), false);
 
 		// then
 		assertSame(coBase, element.getAssignedType());
@@ -222,10 +222,10 @@ public class LibraryNodeTest extends BaseProjectTest {
 				new Version(1, 0, 0)).build(defaultProject, pc);
 
 		// when
-		importTo.importNodes(moveFrom.getDescendants_NamedTypes(), true);
+		importTo.importNodes(moveFrom.getDescendants_LibraryMembers(), true);
 
 		// then
-		assertEquals(2, importTo.getDescendants_NamedTypes().size());
+		assertEquals(2, importTo.getDescendants_LibraryMembers().size());
 		Node newBase = importTo.findNodeByName("COBase");
 		Node newExt = importTo.findNodeByName("COExt");
 		boolean x = newExt.isInstanceOf(newBase);
@@ -250,10 +250,10 @@ public class LibraryNodeTest extends BaseProjectTest {
 				new Version(1, 0, 0)).build(defaultProject, pc);
 
 		// when
-		importTo.importNodes(moveFrom.getDescendants_NamedTypes(), false);
+		importTo.importNodes(moveFrom.getDescendants_LibraryMembers(), false);
 
 		// then
-		assertEquals(2, importTo.getDescendants_NamedTypes().size());
+		assertEquals(2, importTo.getDescendants_LibraryMembers().size());
 		Node newBase = importTo.findNodeByName("COBase");
 		Node newExt = importTo.findNodeByName("COExt");
 		assertTrue("Original extension must extend original base.", coExt.isInstanceOf(coBase));
@@ -284,14 +284,14 @@ public class LibraryNodeTest extends BaseProjectTest {
 
 		// then - cloned node must be in target library
 		assertTrue(newNode != null);
-		assertTrue(moveTo.getDescendants_NamedTypes().contains(newNode));
+		assertTrue(moveTo.getDescendants_LibraryMembers().contains(newNode));
 
 		// when
 		newNode = moveTo.importNode(coExt);
 
 		// then - cloned node must be in target library
 		assertTrue(newNode != null);
-		assertTrue(moveTo.getDescendants_NamedTypes().contains(newNode));
+		assertTrue(moveTo.getDescendants_LibraryMembers().contains(newNode));
 		assertTrue(newNode.isInstanceOf(coBase)); // should have cloned extension
 		// NOTE - no type resolution has happened yet so where extended will not be set.
 

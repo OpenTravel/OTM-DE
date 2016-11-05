@@ -18,6 +18,7 @@
  */
 package org.opentravel.schemas.node.properties;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -162,6 +163,7 @@ public class PropertiesTests {
 		Assert.assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn = null;
+		int startCount = summary.getChildren().size();
 
 		pn = new ElementNode(summary, "A");
 		Assert.assertNotNull(pn);
@@ -182,7 +184,7 @@ public class PropertiesTests {
 		pn = (PropertyNode) pn.createProperty(aType);
 		Assert.assertNotNull(pn);
 
-		Assert.assertEquals(4, summary.getChildren().size()); // addBO creates one
+		Assert.assertEquals(startCount + 3, summary.getChildren().size()); // addBO creates one
 	}
 
 	@Test
@@ -193,6 +195,7 @@ public class PropertiesTests {
 		Assert.assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn = null;
+		int startCount = summary.getChildren().size();
 
 		pn = new ElementReferenceNode(summary, "ThisIsIgnored");
 		Assert.assertNotNull(pn);
@@ -211,7 +214,7 @@ public class PropertiesTests {
 		pn = (PropertyNode) pn.createProperty(aType);
 		Assert.assertNotNull(pn);
 
-		Assert.assertEquals(4, summary.getChildren().size()); // addBO creates one
+		Assert.assertEquals(startCount + 3, summary.getChildren().size()); // addBO creates one
 	}
 
 	@Test
@@ -221,12 +224,15 @@ public class PropertiesTests {
 		Assert.assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, pn1 = null;
+		int startingCount = summary.getChildren().size();
 
+		// When - new attribute
 		pn1 = new AttributeNode(summary, "A");
 		Assert.assertNotNull(pn1);
 		Assert.assertNotNull(pn1.getLibrary());
 		Assert.assertEquals("a", pn1.getName());
 
+		// When - new attribute
 		pn = new AttributeNode(new TLAttribute(), summary);
 		Assert.assertNotNull(pn);
 		pn.setName("b");
@@ -235,6 +241,7 @@ public class PropertiesTests {
 		Assert.assertFalse(pn.getLabel().isEmpty());
 		Assert.assertNotNull(pn.getLibrary());
 
+		// When - new attribute
 		pn = (PropertyNode) pn1.createProperty(aType);
 		Assert.assertNotNull(pn);
 
@@ -242,7 +249,9 @@ public class PropertiesTests {
 		// TODO - test examples ~!!!
 		// TODO - test equivalents ~!!!
 
-		Assert.assertEquals(4, summary.getChildren().size()); // addBO creates one
+		assertEquals("All children must be accounted for.", startingCount + 3, summary.getChildren().size()); // addBO
+																												// creates
+																												// one
 	}
 
 	@Test
@@ -265,6 +274,7 @@ public class PropertiesTests {
 		Assert.assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, pn1 = null;
+		int startCount = summary.getChildren().size();
 
 		pn1 = new IndicatorElementNode(summary, "A");
 		Assert.assertNotNull(pn1);
@@ -287,7 +297,7 @@ public class PropertiesTests {
 		// TODO - test examples ~!!!
 		// TODO - test equivalents ~!!!
 
-		Assert.assertEquals(4, summary.getChildren().size()); // addBO creates one
+		Assert.assertEquals(startCount + 3, summary.getChildren().size()); // addBO creates one
 	}
 
 	@Test
@@ -297,6 +307,7 @@ public class PropertiesTests {
 		Assert.assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, pn1 = null;
+		int startCount = summary.getChildren().size();
 
 		pn1 = new IndicatorNode(summary, "A");
 		Assert.assertNotNull(pn1);
@@ -319,7 +330,7 @@ public class PropertiesTests {
 		// TODO - test examples ~!!!
 		// TODO - test equivalents ~!!!
 
-		Assert.assertEquals(4, summary.getChildren().size()); // addBO creates one
+		Assert.assertEquals(startCount + 3, summary.getChildren().size()); // addBO creates one
 	}
 
 	@Test
@@ -353,6 +364,7 @@ public class PropertiesTests {
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		RoleFacetNode roles = core.getRoleFacet();
 		RoleNode rn1, rn = null;
+		int startCount = roles.getChildren().size();
 
 		rn1 = new RoleNode(roles, "A");
 		Assert.assertNotNull(rn1);
@@ -367,7 +379,7 @@ public class PropertiesTests {
 		Assert.assertNotNull(rn);
 		Assert.assertEquals("date", rn.getName());
 
-		Assert.assertEquals(3, roles.getChildren().size());
+		Assert.assertEquals(startCount + 3, roles.getChildren().size());
 	}
 
 	@Test
@@ -375,7 +387,7 @@ public class PropertiesTests {
 		ln.setEditable(true);
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "ct");
 		PropertyOwnerInterface summary = bo.getSummaryFacet();
-		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
+		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, epn, apn, ipn, rpn, iepn = null;
 		String eText = "Element";
 		String aText = "attribute";
@@ -383,8 +395,7 @@ public class PropertiesTests {
 		String rText = "ctRef";
 		String ieText = "XInd";
 
-		epn = new ElementNode(summary, eText);
-		epn.setAssignedType((TypeProvider) aType);
+		epn = new ElementNode(summary, eText, aType);
 		apn = new AttributeNode(summary, aText);
 		apn.setAssignedType((TypeProvider) NodeFinders.findNodeByName("id", ModelNode.XSD_NAMESPACE));
 		ipn = new IndicatorNode(summary, iText);

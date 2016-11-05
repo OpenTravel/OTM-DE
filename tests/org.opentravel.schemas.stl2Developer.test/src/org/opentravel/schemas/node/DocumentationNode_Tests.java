@@ -123,7 +123,7 @@ public class DocumentationNode_Tests {
 			nt.visitAllNodes(ln);
 			getDocs(ln);
 		}
-		NodeModelTestUtils.testNodeModel();
+		// NodeModelTestUtils.testNodeModel();
 	}
 
 	private void getDocs(LibraryNode ln) {

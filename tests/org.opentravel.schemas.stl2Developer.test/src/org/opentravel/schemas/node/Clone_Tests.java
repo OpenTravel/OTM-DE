@@ -192,7 +192,7 @@ public class Clone_Tests {
 		cloneMembers(source, source);
 
 		LOGGER.debug("Testing cloning properties.");
-		for (Node ne : source.getDescendants_NamedTypes())
+		for (Node ne : source.getDescendants_LibraryMembers())
 			cloneProperties(ne);
 		tt.visitAllNodes(source);
 		Node.getModelNode().visitAllNodes(tt.new TestNode());
@@ -227,7 +227,7 @@ public class Clone_Tests {
 		int mbrCount = 0, equCount = 0;
 		Node clone;
 
-		for (Node n : ln.getDescendants_NamedTypes()) {
+		for (Node n : ln.getDescendants_LibraryMembers()) {
 			// Assert.assertNotNull(n.cloneNew(null)); // no library, so it will fail node tests
 			equCount = countEquivelents(n);
 			if (n instanceof ServiceNode)

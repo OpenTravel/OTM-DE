@@ -240,8 +240,8 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 		CoreObjectNode newNode = (CoreObjectNode) NodeFactory.newComponent(new TLCoreObject());
 		newNode.setName(name);
 		newNode.setSimpleType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
-		PropertyNode newProp = new ElementNode(newNode.getSummaryFacet(), "Property");
-		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
+		PropertyNode newProp = new ElementNode(newNode.getSummaryFacet(), "Property",
+				((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE)));
 		return new ComponentNodeBuilder<ComponentNode>(newNode);
 	}
 
@@ -314,8 +314,8 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 	}
 
 	public ComponentNodeBuilder<T> addProperty(String name) {
-		PropertyNode newProp = new ElementNode(componentObject.getSummaryFacet(), name);
-		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
+		TypeProvider type = ((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
+		PropertyNode newProp = new ElementNode(componentObject.getSummaryFacet(), name, type);
 		return this;
 	}
 

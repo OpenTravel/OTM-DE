@@ -132,31 +132,39 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 	@Test
 	public void baseTypeTests() throws LibrarySaveException, RepositoryException {
 
+		// Given - an editable major version library in the respository
 		LOGGER.debug("Before test.");
 		ProjectNode uploadProject = createProject("ToUploadLibrary", getRepositoryForTest(), "Test");
 		majorLibrary = LibraryNodeBuilder.create("TestLibrary", getRepositoryForTest().getNamespace() + "/Test/T2",
 				"prefix", new Version(1, 0, 0)).build(uploadProject, pc);
 		chain = rc.manage(getRepositoryForTest(), Collections.singletonList(majorLibrary)).get(0);
 		boolean locked = rc.lock(chain.getHead());
-		Assert.assertTrue(locked);
-		Assert.assertTrue(majorLibrary.isEditable());
-		Assert.assertEquals(RepositoryItemState.MANAGED_WIP, chain.getHead().getProjectItem().getState());
+		assertTrue("Repository must successfully lock library.", locked);
+		assertTrue("Library in repo must be editable.", majorLibrary.isEditable());
+		assertTrue("Head library must be managed WIP.", RepositoryItemState.MANAGED_WIP == chain.getHead()
+				.getProjectItem().getState());
 		LOGGER.debug("Managed major library in repository.");
 
-		// Library to contain objects created to be extended.
+		// Given - an unmanaged Library to contain objects created to be extended.
 		LibraryNode eln = ml.createNewLibrary(defaultProject.getNSRoot() + "/extensions", "testE", defaultProject);
 		ml.addBusinessObjectToLibrary(eln, "ExtensionBase");
+		assertTrue("Unmanaged library must be editable.", eln.isEditable());
 
-		// Test in unmanaged library
+		// Given - another unmanaged library with content
 		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		assertTrue("Unmanaged library must be editable.", ln.isEditable());
 		ml.addOneOfEach(ln, "Unmanaged");
-		ml.addEP(ln, eln);
+		// When - adding an extension point to unmanaged
+		ml.addEP(ln, eln); // add ep to ln referencing BO in eln
+		// Then - must be valid extension
 		testExtension(ln, eln);
 		checkValid(chain);
 
 		// Test in a managed major
 		ml.addOneOfEach(majorLibrary, "Major");
+		// When - adding an extension point to managed major library
 		ml.addEP(majorLibrary, eln);
+		// Then - must be valid extension
 		testExtension(majorLibrary, eln);
 		checkValid(chain);
 
@@ -198,9 +206,21 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 	}
 
 	// eln is library to allow extension points must extend content in a different library
+	/**
+	 * 
+	 * @param ln
+	 *            library containing the extension point
+	 * @param eln
+	 *            library containing the referenced object
+	 */
 	private void testExtension(LibraryNode ln, LibraryNode eln) {
-		List<Node> namedTypes = ln.getDescendants_NamedTypes();
+		List<Node> namedTypes = ln.getDescendants_LibraryMembers();
 		for (Node n : namedTypes) {
+			// Then - the EP exists
+			// Then - the EP has a referenced object
+			// Then - the referenced object exists in eln
+			// Then - the referenced object where-extended include EP
+
 			// LOGGER.debug("Testing: " + n);
 			// if (n instanceof ExtensionOwner) {
 			// LOGGER.debug("Extension owner: " + n);
@@ -215,7 +235,7 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 	}
 
 	private void testNewVersion(LibraryNode ln, LibraryNode major) {
-		List<Node> namedTypes = major.getDescendants_NamedTypes();
+		List<Node> namedTypes = major.getDescendants_LibraryMembers();
 		for (Node n : namedTypes) {
 			if (n instanceof VersionedObjectInterface) {
 				LOGGER.debug("Version Extension owner: " + n);

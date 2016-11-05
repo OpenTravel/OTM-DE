@@ -20,7 +20,7 @@ import org.eclipse.swt.graphics.Color;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.SimpleTypeNode;
+import org.opentravel.schemas.node.SimpleComponentNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.stl2Developer.editor.internal.layouts.INodeLayout;
 import org.opentravel.schemas.stl2Developer.editor.internal.layouts.VerticalNodeLayout;
@@ -89,7 +89,7 @@ public class Features {
 		boolean ret = node instanceof VWA_Node;
 		ret = ret || node instanceof BusinessObjectNode;
 		ret = ret || node instanceof CoreObjectNode;
-		if (node instanceof SimpleTypeNode) {
+		if (node instanceof SimpleComponentNode) {
 			return isShowingSimpleObjectsAsUsedType();
 		}
 		return ret;

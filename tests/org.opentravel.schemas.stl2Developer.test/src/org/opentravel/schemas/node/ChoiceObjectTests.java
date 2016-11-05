@@ -92,7 +92,7 @@ public class ChoiceObjectTests {
 
 		new LibraryChainNode(testLib); // Test in a chain
 
-		for (Node choice : testLib.getDescendants_NamedTypes()) {
+		for (Node choice : testLib.getDescendants_LibraryMembers()) {
 			if (choice instanceof ChoiceObjectNode) {
 				checkChoice((ChoiceObjectNode) choice);
 
@@ -111,7 +111,7 @@ public class ChoiceObjectTests {
 
 		ChoiceObjectNode choice = null;
 		ChoiceObjectNode extChoice = null;
-		for (Node n : ln.getDescendants_NamedTypes())
+		for (Node n : ln.getDescendants_LibraryMembers())
 			if (n instanceof ChoiceObjectNode) {
 				if (((ChoiceObjectNode) n).getExtensionBase() == null)
 					choice = (ChoiceObjectNode) n;
@@ -126,7 +126,7 @@ public class ChoiceObjectTests {
 		// Given - the choice extension should work exactly like business object.
 		BusinessObjectNode bo = null;
 		BusinessObjectNode exBo = null;
-		for (Node n : ln.getDescendants_NamedTypes())
+		for (Node n : ln.getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode) {
 				if (((BusinessObjectNode) n).getExtensionBase() == null)
 					bo = (BusinessObjectNode) n;

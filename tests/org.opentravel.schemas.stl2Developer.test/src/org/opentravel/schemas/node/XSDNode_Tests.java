@@ -72,14 +72,14 @@ public class XSDNode_Tests {
 
 	private void checkCounts(LibraryNode lib) {
 		int simpleCnt = 0;
-		for (Node type : lib.getDescendants_NamedTypes()) {
+		for (Node type : lib.getDescendants_LibraryMembers()) {
 			if (type.isSimpleType()) {
 				simpleCnt++;
 			}
 		}
 		String libName = lib.getName();
-		int libCnt = lib.getNamedSimpleTypes().size();
-		Assert.assertEquals(simpleCnt, lib.getNamedSimpleTypes().size());
+		int libCnt = lib.getDescendentsSimpleComponents().size();
+		Assert.assertEquals(simpleCnt, lib.getDescendentsSimpleComponents().size());
 	}
 
 	private void visitXsdNodes(INode node) {
@@ -99,7 +99,7 @@ public class XSDNode_Tests {
 	}
 
 	private void checkName(Node n) {
-		if (!(n.isTypeProvider()))
+		if (!(n.isNamedEntity()))
 			return;
 
 		// if (providerMap.put(n.getName(), n) != null)
@@ -119,7 +119,7 @@ public class XSDNode_Tests {
 	}
 
 	private void visitSimpleTypes(LibraryNode ln) {
-		for (SimpleTypeNode st : ln.getNamedSimpleTypes()) {
+		for (SimpleComponentNode st : ln.getDescendentsSimpleComponents()) {
 			Assert.assertNotNull(st.getLibrary());
 			Assert.assertNotNull(st.getBaseType());
 

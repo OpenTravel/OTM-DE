@@ -459,7 +459,7 @@ public class Family_Tests {
 		Node nn3 = null;
 		int siblingCount = 0;
 
-		for (Node n : ln.getDescendants_NamedTypes()) {
+		for (Node n : ln.getDescendants_LibraryMembers()) {
 			tt.visitTypeNode(n);
 			Assert.assertFalse(n instanceof FamilyNode);
 			siblingCount = 0;

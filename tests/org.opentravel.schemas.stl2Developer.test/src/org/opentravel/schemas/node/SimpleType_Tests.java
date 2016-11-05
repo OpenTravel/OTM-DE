@@ -52,16 +52,20 @@ public class SimpleType_Tests {
 
 	private void checkCounts(LibraryNode lib) {
 		int simpleCnt = 0;
-		for (Node type : lib.getDescendants_NamedTypes()) {
+		for (Node type : lib.getDescendants_LibraryMembers()) {
 			if (type.isSimpleType()) {
 				simpleCnt++;
 			}
 		}
-		Assert.assertEquals(simpleCnt, lib.getNamedSimpleTypes().size());
+		// if (simpleCnt != lib.getDescendentsSimpleComponents().size()) {
+		// List<SimpleComponentNode> list = lib.getDescendentsSimpleComponents();
+		// LOGGER.debug("Simple Counts are wrong.");
+		// }
+		Assert.assertEquals(simpleCnt, lib.getDescendentsSimpleComponents().size());
 	}
 
 	private void visitSimpleTypes(LibraryNode ln) {
-		for (SimpleTypeNode st : ln.getNamedSimpleTypes()) {
+		for (SimpleComponentNode st : ln.getDescendentsSimpleComponents()) {
 			Assert.assertNotNull(st);
 			Assert.assertNotNull(st.getLibrary());
 			Assert.assertNotNull(st.getBaseType());

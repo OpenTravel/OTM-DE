@@ -116,10 +116,10 @@ public class LibraryTests {
 	}
 
 	private void removeAllMembers(LibraryNode ln) {
-		for (Node n : ln.getDescendants_NamedTypes()) {
+		for (Node n : ln.getDescendants_LibraryMembers()) {
 			ln.removeMember(n); // May change type assignments!
 		}
-		Assert.assertTrue(ln.getDescendants_NamedTypes().size() < 1);
+		Assert.assertTrue(ln.getDescendants_LibraryMembers().size() < 1);
 	}
 
 	/**
@@ -133,14 +133,14 @@ public class LibraryTests {
 			Assert.assertTrue(ln.hasGeneratedChildren());
 		}
 		Assert.assertTrue(ln.getChildren().size() > 1);
-		Assert.assertTrue(ln.getDescendants_NamedTypes().size() > 1);
+		Assert.assertTrue(ln.getDescendants_LibraryMembers().size() > 1);
 
 		if (ln.getName().equals("OTA2_BuiltIns_v2.0.0")) {
-			Assert.assertEquals(85, ln.getDescendants_NamedTypes().size());
+			Assert.assertEquals(85, ln.getDescendants_LibraryMembers().size());
 		}
 
 		if (ln.getName().equals("XMLSchema")) {
-			Assert.assertEquals(20, ln.getDescendants_NamedTypes().size());
+			Assert.assertEquals(20, ln.getDescendants_LibraryMembers().size());
 		}
 
 		Assert.assertTrue(ln.getChildren().size() == ln.getNavChildren(false).size());
@@ -311,8 +311,15 @@ public class LibraryTests {
 		Assert.assertEquals(1, toLibContexts.size());
 	}
 
+	/**
+	 * Add example and equivalent to 1st property in the library. Add a custom facet. Add TLAdditionalDocumentationItem
+	 * and set context
+	 * 
+	 * @param lib
+	 * @return
+	 */
 	private Node addContextUsers(LibraryNode lib) {
-		Node object = lib.getDescendants_NamedTypes().get(0);
+		Node object = lib.getDescendants_LibraryMembers().get(0);
 		Node tu = object.getChildren_TypeUsers().get(0);
 		Assert.assertNotNull(tu);
 		Assert.assertTrue(tu instanceof PropertyNode);
@@ -345,7 +352,7 @@ public class LibraryTests {
 		Assert.assertTrue(fromLib.isEditable());
 		Assert.assertTrue(toLib.isEditable());
 		List<TLContext> toLibContexts = toLib.getTLLibrary().getContexts();
-		List<TLContext> fromLibContexts = fromLib.getTLLibrary().getContexts();
+		List<TLContext> fromLibContexts = fromLib.getTLLibrary().getContexts(); // live list
 
 		// Assure context is used by a property (ex, eq, facet and other doc)
 		Node object = addContextUsers(fromLib);
@@ -355,38 +362,42 @@ public class LibraryTests {
 		object.getLibrary().moveMember(object, toLib);
 		Assert.assertEquals(2, fromLibContexts.size());
 		Assert.assertEquals(1, toLibContexts.size());
-		Assert.assertEquals(2, toLib.getDescendants_NamedTypes().size());
+		Assert.assertEquals(2, toLib.getDescendants_LibraryMembers().size()); // BO and CustomFacet
 
 		// Load up the old test libraries and move lots and lots of stuff then test to-library
 		ModelNode model = mc.getModelNode();
 		lf.loadTestGroupA(mc);
 
-		int count = toLib.getDescendants_NamedTypes().size();
+		int count = toLib.getDescendants_LibraryMembers().size();
 		for (LibraryNode ln : model.getUserLibraries()) {
 			if (ln != toLib && ln != fromLib) {
 				LibraryChainNode lcn = new LibraryChainNode(ln);
-				int libCount = ln.getDescendants_NamedTypes().size();
-				for (Node n : ln.getDescendants_NamedTypes()) {
+				int libCount = ln.getDescendants_LibraryMembers().size();
+				for (Node n : ln.getDescendants_LibraryMembers()) {
 					if (n instanceof ServiceNode)
 						continue;
+
+					// Custom Facet test case
+					// if (n instanceof BusinessObjectNode && !((BusinessObjectNode) n).getCustomFacets().isEmpty())
+					// LOGGER.debug("Business Object with custom facets.");
 
 					if (n.getLibrary().moveMember(n, toLib))
 						count++;
 
 					// Make sure the node is removed.
-					Assert.assertEquals(--libCount, ln.getDescendants_NamedTypes().size());
+					Assert.assertEquals(--libCount, ln.getDescendants_LibraryMembers().size());
 
 					// Track toLib count growth - use to breakpoint when debugging
-					// int toCount = toLib.getDescendants_NamedTypes().size();
-					// if (count != toCount) {
-					// LOGGER.debug("Problem with " + n);
-					// count = toCount;
-					// }
+					int toCount = toLib.getDescendants_LibraryMembers().size();
+					if (count != toCount) {
+						LOGGER.debug("Problem with " + n);
+						// count = toCount; // fix the count so the loop can continue
+					}
 				}
 			}
 		}
 		Assert.assertEquals(1, toLibContexts.size());
-		Assert.assertEquals(count, toLib.getDescendants_NamedTypes().size());
+		Assert.assertEquals(count, toLib.getDescendants_LibraryMembers().size());
 
 		// FIXME Assert.assertFalse(fromChain.getContextIds().isEmpty());
 		// FIXME Assert.assertFalse(toChain.getContextIds().isEmpty());
@@ -411,16 +422,16 @@ public class LibraryTests {
 		// Test un-managed
 		ln.addMember(s1);
 		Assert.assertEquals(1, ln.getSimpleRoot().getChildren().size());
-		Assert.assertEquals(2, ln.getDescendants_NamedTypes().size());
+		Assert.assertEquals(2, ln.getDescendants_LibraryMembers().size());
 		ln.addMember(s2);
 		Assert.assertEquals(2, ln.getSimpleRoot().getChildren().size());
-		Assert.assertEquals(3, ln.getDescendants_NamedTypes().size());
+		Assert.assertEquals(3, ln.getDescendants_LibraryMembers().size());
 
 		// Test managed
 		ln_inChain.addMember(sv1);
 		ln_inChain.addMember(sv2);
 		Assert.assertEquals(2, ln_inChain.getSimpleRoot().getChildren().size());
-		Assert.assertEquals(3, ln_inChain.getDescendants_NamedTypes().size());
+		Assert.assertEquals(3, ln_inChain.getDescendants_LibraryMembers().size());
 		Assert.assertEquals(2, lcn.getSimpleAggregate().getChildren().size());
 	}
 
@@ -439,14 +450,14 @@ public class LibraryTests {
 		// Library already has InitialBO
 		ln_inChain.getTLLibrary().addNamedMember((LibraryMember) s1.getTLModelObject());
 		ln_inChain.linkMember(s1);
-		Assert.assertEquals(2, ln_inChain.getDescendants_NamedTypes().size());
+		Assert.assertEquals(2, ln_inChain.getDescendants_LibraryMembers().size());
 
 		//
 		// Now test with a family member
 		//
 		ln_inChain.getTLLibrary().addNamedMember((LibraryMember) s2.getTLModelObject());
 		ln_inChain.linkMember(s2);
-		Assert.assertEquals(3, ln_inChain.getDescendants_NamedTypes().size());
+		Assert.assertEquals(3, ln_inChain.getDescendants_LibraryMembers().size());
 		Assert.assertEquals(2, ln_inChain.getSimpleRoot().getChildren().size());
 
 		//

@@ -129,6 +129,7 @@ public class ChangeTo_Tests {
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "B");
 		TLCoreObject tlCore = null;
 		tn.visit(bo);
+		int startCount = core.getSummaryFacet().getChildren().size();
 
 		core = new CoreObjectNode(bo);
 		bo.swap(core);
@@ -136,7 +137,7 @@ public class ChangeTo_Tests {
 
 		tlCore = (TLCoreObject) core.getTLModelObject();
 		Assert.assertEquals("A", core.getName());
-		Assert.assertEquals(2, core.getSummaryFacet().getChildren().size());
+		Assert.assertEquals(startCount + 1, core.getSummaryFacet().getChildren().size());
 		Assert.assertEquals(tlCore.getSummaryFacet().getElements().size(), core.getSummaryFacet().getChildren().size());
 
 		core = new CoreObjectNode(vwa);
@@ -263,7 +264,7 @@ public class ChangeTo_Tests {
 		// ln.getDescendants_NamedTypes().size();
 
 		// Get all type level children and change them.
-		for (INode n : ln.getDescendants_NamedTypes()) {
+		for (INode n : ln.getDescendants_LibraryMembers()) {
 			equCount = countEquivelents((Node) n);
 			// if (n.getName().equals("EmploymentZZZ"))
 			// LOGGER.debug("Doing EmploymentZZZ");
@@ -351,7 +352,7 @@ public class ChangeTo_Tests {
 					tn.visit(nn);
 				}
 
-				else if (cn instanceof SimpleTypeNode) {
+				else if (cn instanceof SimpleComponentNode) {
 					// No test implemented.
 					continue;
 				}

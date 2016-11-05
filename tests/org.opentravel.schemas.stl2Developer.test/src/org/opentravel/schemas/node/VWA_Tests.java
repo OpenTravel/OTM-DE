@@ -29,6 +29,7 @@ import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
@@ -41,6 +42,7 @@ import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 
 /**
  * @author Dave Hollander
@@ -74,7 +76,7 @@ public class VWA_Tests {
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "bo");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "co");
 		VWA_Node tVwa = null, vwa = ml.addVWA_ToLibrary(ln, "vwa");
-		int typeCount = ln.getDescendants_NamedTypes().size();
+		int typeCount = ln.getDescendants_LibraryMembers().size();
 
 		tVwa = (VWA_Node) core.changeToVWA();
 		checkVWA(tVwa);
@@ -82,7 +84,7 @@ public class VWA_Tests {
 		checkVWA(tVwa);
 
 		tn.visit(ln);
-		Assert.assertEquals(typeCount, ln.getDescendants_NamedTypes().size());
+		Assert.assertEquals(typeCount, ln.getDescendants_LibraryMembers().size());
 	}
 
 	@Test
@@ -93,7 +95,7 @@ public class VWA_Tests {
 
 		// test the lib with only vwa
 		LibraryNode vwaLib = lf.loadFile3(thisModel);
-		for (Node vwa : vwaLib.getDescendants_NamedTypes()) {
+		for (Node vwa : vwaLib.getDescendants_LibraryMembers()) {
 			Assert.assertTrue(vwa instanceof VWA_Node);
 			checkVWA((VWA_Node) vwa);
 		}
@@ -102,7 +104,7 @@ public class VWA_Tests {
 		// test all libs
 		lf.loadTestGroupA(thisModel);
 		for (LibraryNode ln : model.getUserLibraries()) {
-			List<Node> types = ln.getDescendants_NamedTypes();
+			List<Node> types = ln.getDescendants_LibraryMembers();
 			for (Node n : types) {
 				if (n instanceof VWA_Node)
 					checkVWA((VWA_Node) n);
@@ -195,7 +197,64 @@ public class VWA_Tests {
 	}
 
 	@Test
+	public void VWA_ConstructorsTests() {
+		// Given a library and a Simple Type
+		ln = mockLibrary.createNewLibrary("http://opentravel.org/test", "test", defaultProject);
+		ln.setEditable(true);
+		TypeProvider emptyNode = (TypeProvider) ModelNode.getEmptyNode();
+		TypeProvider sType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
+		TLSimple tlsType = (TLSimple) sType.getTLModelObject();
+		assertTrue("Found tlsType.", tlsType != null);
+		String vName = "TestVWA";
+
+		// Build 2 TLValueWithAttributes
+		TLAttribute tlAttr1 = new TLAttribute();
+		tlAttr1.setType(tlsType);
+		tlAttr1.setName("attr1");
+
+		TLValueWithAttributes tlVWAnoParent = new TLValueWithAttributes();
+		tlVWAnoParent.addAttribute(tlAttr1);
+		tlVWAnoParent.setName(vName + "noParent");
+
+		TLValueWithAttributes tlVWAwithParent = new TLValueWithAttributes();
+		tlVWAwithParent.addAttribute(tlAttr1);
+		tlVWAwithParent.setName(vName + "withParent");
+		tlVWAwithParent.setParentType(tlsType);
+		assertTrue("tlVWA has type set.", tlVWAwithParent.getParentType() == tlsType);
+
+		// When - construct node from TL object
+		VWA_Node nVwaNoParent = new VWA_Node(tlVWAnoParent);
+		// Then
+		assertTrue("VWA has name set.", nVwaNoParent.getName().startsWith(vName));
+		assertTrue("VWA has 1 child.", nVwaNoParent.getAttributeFacet().getChildren().size() == 1);
+		// Then - value access is recurring problem, test each step
+		assertTrue("VWA is NOT a Type User", !(nVwaNoParent instanceof TypeUser));
+		assertTrue("VWA does NOT have assigned type.", nVwaNoParent.getType() == null);
+		assertTrue("VWA simple facet is NOT a Type User", !(nVwaNoParent instanceof TypeUser));
+		assertTrue("VWA simple facet does NOT have assigned type.", nVwaNoParent.getSimpleFacet().getType() == null);
+		assertTrue("VWA simple attribute is Type User", nVwaNoParent.getSimpleAttribute() instanceof TypeUser);
+		assertTrue("VWA simple attribute has  assigned type.", nVwaNoParent.getSimpleAttribute().getType() == emptyNode);
+
+		// When - construct node from TL object
+		VWA_Node nVwawithParent = new VWA_Node(tlVWAwithParent);
+		// Then
+		assertTrue("VWA has name set.", nVwawithParent.getName().startsWith(vName));
+		assertTrue("VWA has 1 child.", nVwawithParent.getAttributeFacet().getChildren().size() == 1);
+		// Then - value access is recurring problem, test each step
+		assertTrue("VWA is NOT a Type User", !(nVwawithParent instanceof TypeUser));
+		assertTrue("VWA does NOT have assigned type.", nVwawithParent.getType() == null);
+		assertTrue("VWA simple facet is NOT a Type User", !(nVwawithParent instanceof TypeUser));
+		assertTrue("VWA simple facet does NOT have assigned type.", nVwawithParent.getSimpleFacet().getType() == null);
+		assertTrue("VWA simple attribute is Type User", nVwawithParent.getSimpleAttribute() instanceof TypeUser);
+		assertTrue("VWA simple attribute has  assigned type.", nVwawithParent.getSimpleAttribute().getType() == sType);
+
+		// TODO - add tests for cast constructors (see changeTo)
+	}
+
+	@Test
 	public void mockVWATest() {
+
+		//
 		ln = mockLibrary.createNewLibrary("http://opentravel.org/test", "test", defaultProject);
 		ln.setEditable(true);
 		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "VWA_Test");

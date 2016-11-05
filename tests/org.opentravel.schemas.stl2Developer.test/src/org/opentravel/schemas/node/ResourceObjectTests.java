@@ -105,7 +105,7 @@ public class ResourceObjectTests {
 		LibraryNode testLib = new LoadFiles().loadFile6(mc);
 		new LibraryChainNode(testLib); // Test in a chain
 
-		for (Node n : testLib.getDescendants_NamedTypes()) {
+		for (Node n : testLib.getDescendants_LibraryMembers()) {
 			if (n instanceof ResourceNode)
 				checkResource((ResourceNode) n);
 		}
@@ -140,7 +140,7 @@ public class ResourceObjectTests {
 		// Given - a valid resource using mock library provided business object
 		LibraryNode ln = ml.createNewLibrary(pc, "ResourceTestLib");
 		BusinessObjectNode bo = null;
-		for (Node n : ln.getDescendants_NamedTypes())
+		for (Node n : ln.getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode) {
 				bo = (BusinessObjectNode) n;
 				break;
@@ -166,7 +166,7 @@ public class ResourceObjectTests {
 		// Given - a valid resource using mock library provided business object
 		LibraryNode ln = ml.createNewLibrary(pc, "ResourceTestLib");
 		BusinessObjectNode bo = null;
-		for (Node n : ln.getDescendants_NamedTypes())
+		for (Node n : ln.getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode) {
 				bo = (BusinessObjectNode) n;
 				break;
@@ -217,7 +217,7 @@ public class ResourceObjectTests {
 		// Given - a valid resource using mock library provided business object
 		LibraryNode ln = ml.createNewLibrary(pc, "ResourceTestLib");
 		BusinessObjectNode bo = null;
-		for (Node n : ln.getDescendants_NamedTypes())
+		for (Node n : ln.getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode) {
 				bo = (BusinessObjectNode) n;
 				break;

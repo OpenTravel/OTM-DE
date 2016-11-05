@@ -112,6 +112,7 @@ public class Enumeration_Tests {
 
 		EnumerationOpenNode openEnum = ml.addOpenEnumToLibrary(ln, "OpenEnum");
 		EnumerationClosedNode closedEnum = ml.addClosedEnumToLibrary(ln, "ClosedEnum");
+		Assert.assertTrue(ln.isValid()); // validates TL library
 
 		EnumerationOpenNode o2 = new EnumerationOpenNode(closedEnum);
 		EnumerationClosedNode c2 = new EnumerationClosedNode(openEnum);

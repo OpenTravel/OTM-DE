@@ -72,7 +72,8 @@ public class LoadFiles {
 	@Test
 	public void loadFiles() throws Exception {
 		this.mc = new MainController();
-		int libCnt = Node.getAllLibraries().size(); // built-ins
+		int libCnt = 3; // built in libs
+		// Node.getAllLibraries().size(); // built-ins
 
 		// check special files
 		ProjectController pc = mc.getProjectController();
@@ -241,7 +242,7 @@ public class LoadFiles {
 
 		Assert.assertNotNull(ln);
 		Assert.assertTrue(ln.getChildren().size() > 1);
-		Assert.assertTrue(ln.getDescendants_NamedTypes().size() >= 3);
+		Assert.assertTrue(ln.getDescendants_LibraryMembers().size() >= 3);
 
 		return ln;
 	}
@@ -250,7 +251,7 @@ public class LoadFiles {
 		LibraryNode ln = loadFile(thisModel, filePath4);
 		Assert.assertNotNull(ln);
 		Assert.assertTrue(ln.getChildren().size() > 1);
-		List<Node> d = ln.getDescendants_NamedTypes();
+		List<Node> d = ln.getDescendants_LibraryMembers();
 		Assert.assertEquals(7, d.size());
 		return ln;
 	}

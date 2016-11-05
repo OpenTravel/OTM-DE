@@ -26,16 +26,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.PropertyOwnerNode;
+import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.types.TestTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test getNavChildren(), hasNavChildren() and isNavChild(). These are used by content providers for navigation menu and
@@ -45,7 +49,7 @@ import org.opentravel.schemas.types.TestTypes;
  * 
  */
 public class Node_NavChildren_Tests {
-	// private final static Logger LOGGER = LoggerFactory.getLogger(Node_NavChildren_Tests.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(Node_NavChildren_Tests.class);
 
 	ModelNode model = null;
 	TestTypes tt = new TestTypes();
@@ -156,19 +160,21 @@ public class Node_NavChildren_Tests {
 			else if (n instanceof ExtensionPointNode)
 				// Some properties will not be in the list. Could have children but no navChildren
 				assertTrue("Must not be null.", n.getNavChildren(true) != null);
-			else if (n instanceof FacetNode)
+			else if (n instanceof PropertyOwnerNode)
 				// Some properties will not be in the list. Could have children but no navChildren
 				assertTrue("Must not be null.", n.getNavChildren(true) != null);
 			else if (n instanceof PropertyNode)
 				// getNavChildren may return assigned type and aliases
 				assertTrue("Must not be null.", n.getNavChildren(true) != null);
-			else if (n instanceof SimpleTypeNode)
+			else if (n instanceof SimpleComponentNode)
 				assertTrue("Nav child must only be assigned type if any.", n.getNavChildren(true).size() < 2);
 			else if (n instanceof VersionNode)
 				assertTrue("Head node children must be version node's navChildren.", ((VersionNode) n)
 						.getNewestVersion().getNavChildren(true).size() == n.getNavChildren(true).size());
 			else if (n instanceof Enumeration)
 				assertTrue("Enumeration getNavChildren must be empty.", n.getNavChildren(true).isEmpty());
+			else if (n instanceof RoleNode || n instanceof RoleFacetNode)
+				assertTrue("Role getNavChildren must be empty.", n.getNavChildren(true).isEmpty());
 			else if (n instanceof VWA_Node)
 				// only the simple is Nav child ??Why??
 				assertTrue("Get Nav Children must not be null.", n.getNavChildren(true) != null);
@@ -177,6 +183,11 @@ public class Node_NavChildren_Tests {
 				//
 				// Finally - if not special case all children are nav children
 				//
+				// if (n.getNavChildren(true).size() != n.getChildren().size()) {
+				// List<Node> nc = n.getNavChildren(true);
+				// List<Node> ch = n.getChildren();
+				// LOGGER.debug("Invalid nav child count.");
+				// }
 				assertTrue("Default case where all children are navigation.", n.getNavChildren(true).size() == n
 						.getChildren().size());
 			}

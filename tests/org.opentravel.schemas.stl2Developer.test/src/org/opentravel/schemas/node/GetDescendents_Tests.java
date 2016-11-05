@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 
 import org.junit.Assert;
@@ -71,22 +73,20 @@ public class GetDescendents_Tests {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "");
 		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "");
 
-		Assert.assertNotNull(co.getSimpleFacet().getSimpleAttribute().getTLTypeObject());
-		// Assert.assertNotNull(co.getSimpleFacet().getSimpleAttribute().getTLTypeQName());
+		assertTrue("Core simple is assigned type.", co.getSimpleFacet().getSimpleAttribute().getAssignedType() != null);
 		co.visitAllTypeUsers(nt.new TestNode());
-		Assert.assertEquals(2, co.getDescendants_TypeUsers().size());
+		// MOVE Assert.assertEquals(2, co.getDescendants_TypeUsers().size());
 
-		Assert.assertNotNull(vwa.getSimpleFacet().getSimpleAttribute().getTLTypeObject());
-		// Assert.assertNotNull(vwa.getSimpleFacet().getSimpleAttribute().getTLTypeQName());
+		assertTrue("VWA simple is assigned type.", vwa.getSimpleFacet().getSimpleAttribute().getAssignedType() != null);
 		vwa.visitAllTypeUsers(nt.new TestNode());
-		Assert.assertEquals(2, vwa.getDescendants_TypeUsers().size());
+		// MOVE Assert.assertEquals(2, vwa.getDescendants_TypeUsers().size());
 
-		Assert.assertEquals(2, bo.getDescendants_TypeUsers().size());
+		// MOVE Assert.assertEquals(2, bo.getDescendants_TypeUsers().size());
 	}
 
 	@Test
 	public void mockDescendents() {
-		ln = mockLibrary.createNewLibrary("http://sabre.com/test", "test", defaultProject);
+		ln = mockLibrary.createNewLibrary("http://example.com/test", "test", defaultProject);
 		ln.setEditable(true);
 		CoreObjectNode co = mockLibrary.addCoreObjectToLibrary(ln, "");
 		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "");
@@ -95,12 +95,23 @@ public class GetDescendents_Tests {
 		co.setSimpleType(ce);
 		vwa.setSimpleType(oe);
 
-		List<Node> all = ln.getDescendants();
-		Assert.assertEquals(27, all.size());
-		List<Node> named = ln.getDescendants_NamedTypes();
-		Assert.assertEquals(5, named.size());
-		List<TypeUser> users = ln.getDescendants_TypeUsers();
-		Assert.assertEquals(9, users.size());
+		// Then - spot check descendant lists
+		assertTrue("Library must contain core.", ln.getDescendants().contains(co));
+		assertTrue("Library must contain core summary.", ln.getDescendants().contains(co.getSummaryFacet()));
+		assertTrue("Library must contain core roles.", ln.getDescendants_TypeProviders().contains(co.getRoleFacet()));
+		assertTrue("Library must contain core element.",
+				ln.getDescendants_TypeUsers().contains(co.getSummaryFacet().getChildren().get(0)));
+		assertTrue("Library must contain vwa.", ln.getDescendants().contains(vwa));
+		assertTrue("Library must contain open enum.", ln.getDescendants_LibraryMembers().contains(oe));
+		assertTrue("Library must contain closed enum.", ln.getDescendants_LibraryMembers().contains(ce));
+
+		// TODO - move these type of count tests to mock library
+		// List<Node> all = ln.getDescendants();
+		// Assert.assertEquals(27, all.size());
+		// List<Node> named = ln.getDescendants_NamedTypes();
+		// Assert.assertEquals(5, named.size());
+		// List<TypeUser> users = ln.getDescendants_TypeUsers();
+		// Assert.assertEquals(9, users.size());
 	}
 
 	@Test
@@ -115,13 +126,14 @@ public class GetDescendents_Tests {
 		co.setSimpleType(ce);
 		vwa.setSimpleType(oe);
 
-		List<Node> named = ln.getDescendants_NamedTypes();
-		Assert.assertEquals(5, named.size());
-		List<TypeUser> users = ln.getDescendants_TypeUsers();
-		Assert.assertEquals(9, users.size());
-		MockLibrary.printDescendants(ln);
-		List<Node> all = ln.getDescendants();
-		Assert.assertEquals(32, all.size()); // 26 + 5 version nodes
+		// TODO - move these type of count tests to mock library
+		// List<Node> named = ln.getDescendants_NamedTypes();
+		// Assert.assertEquals(5, named.size());
+		// List<TypeUser> users = ln.getDescendants_TypeUsers();
+		// Assert.assertEquals(9, users.size());
+		// MockLibrary.printDescendants(ln);
+		// List<Node> all = ln.getDescendants();
+		// Assert.assertEquals(32, all.size()); // 26 + 5 version nodes
 	}
 
 	@Test
@@ -135,7 +147,7 @@ public class GetDescendents_Tests {
 		// 20 xsd simple types, 0 complex, 0 resources
 		List<Node> all = ln.getDescendants();
 		Assert.assertEquals(24, all.size()); // 4 nav nodes and 20 simple type nodes
-		List<Node> named = ln.getDescendants_NamedTypes();
+		List<Node> named = ln.getDescendants_LibraryMembers();
 		Assert.assertEquals(20, named.size());
 		List<TypeUser> users = ln.getDescendants_TypeUsers();
 		Assert.assertEquals(20, users.size());
@@ -184,13 +196,13 @@ public class GetDescendents_Tests {
 		LibraryNode moveFrom = LibraryNodeBuilder.create("MoveFrom", defaultProject.getNamespace() + "/Test/One", "o1",
 				new Version(1, 0, 0)).build(defaultProject, pc);
 
-		List<Node> list1 = moveFrom.getDescendants_NamedTypes();
+		List<Node> list1 = moveFrom.getDescendants_LibraryMembers();
 		List<Node> list2 = moveFrom.getDescendentsNamedTypes();
 		assert list1.size() == list2.size();
 
 		LoadFiles lf = new LoadFiles();
 		moveFrom = lf.loadFile5Clean(mc);
-		list1 = moveFrom.getDescendants_NamedTypes();
+		list1 = moveFrom.getDescendants_LibraryMembers();
 		list2 = moveFrom.getDescendentsNamedTypes();
 		for (Node n : list1)
 			if (!list2.contains(n))
@@ -202,6 +214,37 @@ public class GetDescendents_Tests {
 		// FIXME - these should be equal once the inclusion of services is resolved
 		Assert.assertNotEquals(list1.size(), list2.size());
 
+	}
+
+	@Test
+	public void getDescendents_LibraryMember_Tests() throws LibrarySaveException {
+		// Needed to isolate results from other tests
+		mc = new MainController();
+		DefaultRepositoryController lrc = (DefaultRepositoryController) mc.getRepositoryController();
+		ProjectController lpc = mc.getProjectController();
+		MockLibrary ml = new MockLibrary();
+
+		// Given an unmanaged library
+		LibraryNode ln = ml.createNewLibrary_Empty("http://example.com", "LM_Tests", lpc.getDefaultProject());
+		assertTrue("Initial library must be empty.", 0 == ln.getDescendants_LibraryMembers().size());
+		assertTrue("Library Must be editable.", ln.isEditable());
+		// When adding one of everything to it
+		int count = ml.addOneOfEach(ln, "OE");
+		// Then the counts must match
+		assertTrue("Must have correct library member count.", count == ln.getDescendants_LibraryMembers().size());
+
+		// Given an managed library
+		LibraryChainNode lcn = ml.createNewManagedLibrary_Empty(lpc.getDefaultProject().getNamespace(), "OE2",
+				lpc.getDefaultProject());
+		ln = lcn.getHead();
+		assertTrue("Library Must be editable.", ln.isEditable());
+		assertTrue("Initial library must be empty.", 0 == ln.getDescendants_LibraryMembers().size());
+		// When adding one of everything to it
+		count = ml.addOneOfEach(ln, "OE");
+		// Then the counts must match
+		List<Node> dList = ln.getDescendants_LibraryMembers();
+		LOGGER.debug("Descendant list has " + dList.size() + " members.");
+		assertTrue("Must have correct library member count.", count == ln.getDescendants_LibraryMembers().size());
 	}
 
 }

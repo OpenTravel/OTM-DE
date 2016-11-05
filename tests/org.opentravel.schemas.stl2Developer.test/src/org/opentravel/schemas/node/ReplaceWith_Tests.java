@@ -207,7 +207,7 @@ public class ReplaceWith_Tests {
 		BusinessObjectNode bo = null, bo2 = null;
 		ServiceNode svc = null;
 		// ExtensionPointNode ex = null;
-		for (Node n : ln.getDescendants_NamedTypes()) {
+		for (Node n : ln.getDescendants_LibraryMembers()) {
 			if (n instanceof SimpleTypeNode)
 				simple = (SimpleTypeNode) n;
 			if (n instanceof EnumerationClosedNode)
@@ -263,16 +263,16 @@ public class ReplaceWith_Tests {
 		l1.setEditable(true);
 		// tt.visitAllNodes(l5);
 		// tt.visitAllNodes(l1);
-		int beforeCnt1 = l1.getDescendants_NamedTypes().size();
-		int beforeCnt5 = l5.getDescendants_NamedTypes().size();
+		int beforeCnt1 = l1.getDescendants_LibraryMembers().size();
+		int beforeCnt5 = l5.getDescendants_LibraryMembers().size();
 
 		replaceMembers(l1, l1);
 		replaceMembers(l1, l5);
 
 		tt.visitAllNodes(l1);
 		tt.visitAllNodes(l5);
-		Assert.assertEquals(beforeCnt1, l1.getDescendants_NamedTypes().size());
-		Assert.assertEquals(beforeCnt5, l5.getDescendants_NamedTypes().size());
+		Assert.assertEquals(beforeCnt1, l1.getDescendants_LibraryMembers().size());
+		Assert.assertEquals(beforeCnt5, l5.getDescendants_LibraryMembers().size());
 	}
 
 	@Test
@@ -306,16 +306,16 @@ public class ReplaceWith_Tests {
 		l1.setEditable(true);
 		// tt.visitAllNodes(l5);
 		// tt.visitAllNodes(l1);
-		int beforeCnt1 = l1.getDescendants_NamedTypes().size();
-		int beforeCnt5 = l5.getDescendants_NamedTypes().size();
+		int beforeCnt1 = l1.getDescendants_LibraryMembers().size();
+		int beforeCnt5 = l5.getDescendants_LibraryMembers().size();
 
 		replaceMembers(l1, l5);
 		replaceMembers(l5, l1);
 		tt.visitAllNodes(l1);
 		tt.visitAllNodes(l5);
 
-		Assert.assertEquals(beforeCnt1, l1.getDescendants_NamedTypes().size());
-		Assert.assertEquals(beforeCnt5, l5.getDescendants_NamedTypes().size());
+		Assert.assertEquals(beforeCnt1, l1.getDescendants_LibraryMembers().size());
+		Assert.assertEquals(beforeCnt5, l5.getDescendants_LibraryMembers().size());
 
 		swap(l1, l5);
 		tt.visitAllNodes(l1);
@@ -331,9 +331,9 @@ public class ReplaceWith_Tests {
 	 */
 	private void replaceMembers(LibraryNode ls, LibraryNode lt) {
 		// Sort the list so that the order is consistent with each test.
-		List<Node> targets = lt.getDescendants_NamedTypes();
+		List<Node> targets = lt.getDescendants_LibraryMembers();
 		Collections.sort(targets, lt.new NodeComparable());
-		List<Node> sources = ls.getDescendants_NamedTypes();
+		List<Node> sources = ls.getDescendants_LibraryMembers();
 		Collections.sort(sources, ls.new NodeComparable());
 		int cnt = sources.size();
 
@@ -363,7 +363,7 @@ public class ReplaceWith_Tests {
 	private void swap(LibraryNode source, LibraryNode target) {
 		// Now, replace the nodes within their structures.
 		int i = 1;
-		for (Node n : target.getDescendants_NamedTypes()) {
+		for (Node n : target.getDescendants_LibraryMembers()) {
 			if (n instanceof ServiceNode)
 				continue;
 			Node lsNode = NodeFinders.findTypeProviderByQName(new QName(source.getNamespace(), n.getName()), source);
