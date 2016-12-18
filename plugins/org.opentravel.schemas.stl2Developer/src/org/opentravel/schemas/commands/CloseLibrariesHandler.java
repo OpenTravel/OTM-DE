@@ -20,8 +20,8 @@ import java.util.List;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
 
 /**
  * 
@@ -33,12 +33,18 @@ public class CloseLibrariesHandler extends OtmAbstractHandler {
 
 	public static String COMMAND_ID = "org.opentravel.schemas.commands.CloseLibraries";
 
-	private List<Node> toClose = new ArrayList<Node>();
+	private List<LibraryNavNode> toClose = new ArrayList<LibraryNavNode>();
 
+	/**
+	 * Close one or more libraries using library controller
+	 */
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
 		if (isEnabled())
-			mc.getLibraryController().remove(toClose);
+			// mc.getLibraryController().remove(toClose);
+			// for (LibraryNavNode lnn : toClose)
+			// lnn.close();
+			mc.getProjectController().remove(toClose);
 
 		return null;
 	}
@@ -60,15 +66,21 @@ public class CloseLibrariesHandler extends OtmAbstractHandler {
 		toClose.clear();
 		List<Node> nodes = mc.getSelectedNodes_NavigatorView();
 		for (Node n : nodes) {
-			if (n == null)
-				continue;
-			n = n.getLibrary();
-			if (((LibraryNode) n).isInChain())
-				n = n.getChain();
+			// Only library nav nodes know which project the library is in.
+			if (n instanceof LibraryNavNode)
+				toClose.add((LibraryNavNode) n);
 
-			if (toClose.contains(n))
-				continue;
-			toClose.add(n);
+			// if (n == null)
+			// continue;
+			// if (n instanceof LibraryNavNode)
+			// n = (Node) ((LibraryNavNode) n).getThisLib();
+			// else {
+			// n = n.getLibrary();
+			// if (((LibraryNode) n).isInChain())
+			// n = n.getChain();
+			// }
+			// if (!toClose.contains(n))
+			// toClose.add(n);
 		}
 		return !toClose.isEmpty();
 	}

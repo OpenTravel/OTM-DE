@@ -18,8 +18,7 @@ package org.opentravel.schemas.types;
 import java.util.Collection;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.node.LibraryNode;
-import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
  * Implementations of this interface are type definitions or other assignable nodes that represent type definitions such
@@ -48,10 +47,10 @@ public interface TypeProvider {
 
 	public TLModelElement getTLModelObject();
 
-	/**
-	 * @return the component node used to represent users of this type.
-	 */
-	public INode getTypeNode();
+	// /**
+	// * @return the component node used to represent users of this type.
+	// */
+	// public INode getTypeNode();
 
 	/**
 	 * @return a unmodifiable collection of type users that use this as a type definition or base type

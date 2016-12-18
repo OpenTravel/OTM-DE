@@ -22,19 +22,19 @@ import org.eclipse.jface.viewers.ViewerSorter;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ExtensionPointNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
-import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.resources.ActionFacet;
 import org.opentravel.schemas.node.resources.ActionNode;
 import org.opentravel.schemas.node.resources.ActionRequest;
@@ -163,7 +163,7 @@ public class LibrarySorter extends ViewerSorter {
 			return 18;
 		}
 
-		if (n instanceof FacetNode) {
+		if (n instanceof PropertyOwnerInterface) {
 			if (n instanceof SimpleFacetNode)
 				return 1;
 			if (n instanceof VWA_AttributeFacetNode)

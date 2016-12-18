@@ -51,14 +51,14 @@ import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.validate.ValidationException;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.modelObject.ModelObject;
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.preferences.CompilerPreferences;
 import org.opentravel.schemas.properties.Fonts;
@@ -348,7 +348,7 @@ public class ExampleView extends OtmAbstractView {
 					// FindingMessageFormat.IDENTIFIED_FORMAT)));
 				} catch (CodeGenerationException e) {
 					DialogUserNotifier.openError("Example View",
-							"Could not generate examples properly - an error occurred: " + e);
+							"Could not generate examples properly - an error occurred: " + e.getLocalizedMessage());
 					// LOGGER.error("Exception during example generation", e);
 				}
 				if (childModel != null)

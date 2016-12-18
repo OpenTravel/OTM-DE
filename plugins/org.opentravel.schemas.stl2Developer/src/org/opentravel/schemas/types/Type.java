@@ -20,8 +20,8 @@ package org.opentravel.schemas.types;
 
 import java.util.ArrayList;
 
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

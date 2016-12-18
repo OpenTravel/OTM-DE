@@ -40,7 +40,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Handles type assignment. Type assignment constrains the value space of the property. It does not change its
- * structure.
+ * structure. Type assignments are made to the undelying TL model object. Events from TL model manage the where
+ * assigned.
  * 
  * @author Dave Hollander
  * 
@@ -72,7 +73,7 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 			else
 				return (TypeProvider) ModelNode.getUnassignedNode();
 
-		Node n = Node.GetNode(getTLModelElement());
+		Node n = Node.GetNode(getTLModelElement().getListeners());
 		// if (n == null)
 		// LOGGER.debug("get(); of assigned type is null. Perhaps containing library has not been loaded and modeled yet.");
 		// throw new IllegalStateException("TypeUser.get() is null.");

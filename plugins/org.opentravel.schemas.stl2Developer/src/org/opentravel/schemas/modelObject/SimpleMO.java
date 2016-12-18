@@ -18,10 +18,8 @@ package org.opentravel.schemas.modelObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAttributeType;
-import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLSimple;
 
 /**
@@ -70,16 +68,16 @@ public class SimpleMO extends ModelObject<TLSimple> {
 	// return getTLModelObj().getLocalName().isEmpty() ? "" : getTLModelObj().getLocalName();
 	// }
 
-	@Override
-	public String getNamePrefix() {
-		final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
-		return lib == null ? "" : lib.getPrefix();
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
+	// return lib == null ? "" : lib.getPrefix();
+	// }
 
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
 
 	@Override
 	public TLSimple getTLModelObj() {
@@ -96,16 +94,16 @@ public class SimpleMO extends ModelObject<TLSimple> {
 		return true;
 	}
 
-	@Override
-	public boolean isSimpleList() {
-		return srcObj.isListTypeInd();
-	}
+	// @Override
+	// public boolean isSimpleList() {
+	// return srcObj.isListTypeInd();
+	// }
 
-	@Override
-	public void setList(final boolean selected) {
-		getTLModelObj().setPattern("");
-		getTLModelObj().setListTypeInd(selected);
-	}
+	// @Override
+	// public void setList(final boolean selected) {
+	// getTLModelObj().setPattern("");
+	// getTLModelObj().setListTypeInd(selected);
+	// }
 
 	@Override
 	public boolean setName(final String name) {
@@ -113,23 +111,23 @@ public class SimpleMO extends ModelObject<TLSimple> {
 		return true;
 	}
 
-	@Override
-	public void setTLType(final ModelObject<?> mo) {
-		Object tlObj = null;
-		if (mo != null)
-			tlObj = mo.getTLModelObj();
-		if (tlObj instanceof TLAttributeType)
-			getTLModelObj().setParentType((TLAttributeType) mo.getTLModelObj());
-	}
+	// @Override
+	// public void setTLType(final ModelObject<?> mo) {
+	// Object tlObj = null;
+	// if (mo != null)
+	// tlObj = mo.getTLModelObj();
+	// if (tlObj instanceof TLAttributeType)
+	// getTLModelObj().setParentType((TLAttributeType) mo.getTLModelObj());
+	// }
 
 	@Override
 	public void setTLType(final NamedEntity tlObj) {
 		getTLModelObj().setParentType((TLAttributeType) tlObj);
 	}
 
-	@Override
-	protected AbstractLibrary getLibrary(final TLSimple obj) {
-		return obj.getOwningLibrary();
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLSimple obj) {
+	// return obj.getOwningLibrary();
+	// }
 
 }

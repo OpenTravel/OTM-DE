@@ -16,6 +16,7 @@
 package org.opentravel.schemas.node;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,6 @@ public class NavNode extends Node {
 		super();
 		assert (parent != null) : "Parent is null.";
 		setName(name);
-		// setIdentity("NavNode:" + getName());
 		setLibrary(parent.getLibrary());
 		// Don't break version node-component node bond.
 		if (parent instanceof VersionNode)
@@ -86,10 +86,6 @@ public class NavNode extends Node {
 		return this == getLibrary().getServiceRoot() ? true : false;
 	}
 
-	// public boolean isElementRoot() {
-	// return this == getLibrary().getElementRoot() ? true : false;
-	// }
-
 	@Override
 	public boolean isNavigation() {
 		return true;
@@ -116,21 +112,6 @@ public class NavNode extends Node {
 			return ComponentNodeType.CORE;
 	}
 
-	// @Override
-	// public List<Node> getNavChildren() {
-	// return getChildren();
-	// }
-
-	// @Override
-	// public boolean hasNavChildren(boolean deep) {
-	// return !getChildren().isEmpty();
-	// }
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#hasChildren_TypeProviders()
-	 */
 	@Override
 	public boolean hasChildren_TypeProviders() {
 		return getChildren().size() > 0;
@@ -140,11 +121,6 @@ public class NavNode extends Node {
 	public void setName(final String name) {
 		this.name = name;
 	}
-
-	// @Override
-	// public String getLabel() {
-	// return name;
-	// }
 
 	@Override
 	public String getName() {

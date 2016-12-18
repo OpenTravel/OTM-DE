@@ -29,6 +29,7 @@ import org.opentravel.schemas.node.controllers.NullContextNodeModelController;
 import org.opentravel.schemas.node.controllers.NullNodeImageProvider;
 import org.opentravel.schemas.node.controllers.NullNodeLabelProvider;
 import org.opentravel.schemas.node.controllers.NullNodeValueController;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -19,12 +19,11 @@ import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.controllers.ContextModelManager;
 import org.opentravel.schemas.node.ContextNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ContextNode.ContextNodeType;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLLibrary;

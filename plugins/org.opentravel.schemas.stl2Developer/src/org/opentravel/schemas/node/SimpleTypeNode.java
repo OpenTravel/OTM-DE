@@ -57,6 +57,15 @@ public class SimpleTypeNode extends SimpleComponentNode implements SimpleCompone
 		assert (modelObject instanceof SimpleMO);
 	}
 
+	public boolean isSimpleList() {
+		return getTLModelObject().isListTypeInd();
+	}
+
+	public void setList(final boolean selected) {
+		getTLModelObject().setPattern("");
+		getTLModelObject().setListTypeInd(selected);
+	}
+
 	// // Do not show implied types in tree views
 	// private Node getNavType() {
 	// Node type = getTypeNode();

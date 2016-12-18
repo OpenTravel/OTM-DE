@@ -15,8 +15,6 @@
  */
 package org.opentravel.schemas.modelObject;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
-import org.opentravel.schemas.node.LibraryNode;
 
 /**
  * Class to use when there is no TL model object.
@@ -48,16 +46,16 @@ public class EmptyMO extends ModelObject<TLEmpty> {
 	// return "empty";
 	// }
 
-	@Override
-	public String getNamePrefix() {
-		return "";
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// return "";
+	// }
 
-	@Override
-	public String getNamespace() {
-		// EmptyMO is used for built in libraries. Get the ns from the library.
-		return node instanceof LibraryNode ? ((LibraryNode) node).getTLaLib().getNamespace() : "";
-	}
+	// @Override
+	// public String getNamespace() {
+	// // EmptyMO is used for built in libraries. Get the ns from the library.
+	// return node instanceof LibraryNode ? ((LibraryNode) node).getTLaLib().getNamespace() : "";
+	// }
 
 	@Override
 	public TLEmpty getTLModelObj() {
@@ -77,9 +75,9 @@ public class EmptyMO extends ModelObject<TLEmpty> {
 		srcObj = null;
 	}
 
-	@Override
-	protected AbstractLibrary getLibrary(final TLEmpty obj) {
-		return null;
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLEmpty obj) {
+	// return null;
+	// }
 
 }

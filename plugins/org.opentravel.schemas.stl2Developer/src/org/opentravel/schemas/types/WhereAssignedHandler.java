@@ -26,10 +26,10 @@ import java.util.List;
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -293,11 +293,12 @@ public class WhereAssignedHandler {
 			Collection<TypeUser> kids = new ArrayList<TypeUser>(child.getWhereAssigned());
 			for (TypeUser n : kids) {
 				// Try to find a replacement equivalent from replacement object
-				String name = n.getAssignedTLNamedEntity().getLocalName();
+				String name = n.getAssignedType().getName();
+				// String name = n.getAssignedTLNamedEntity().getLocalName();
 				TypeProvider r = replacementTypes.get(name);
 				if (r == null) {
 					r = replacement;
-					// LOGGER.debug("ReplaceAll equivalent not found for " + n + ", using " + r + " instead");
+					LOGGER.debug("ReplaceAll equivalent not found for " + n + ", using " + r + " instead");
 				}
 				if (scopeLibrary == null || ((Node) n).getLibrary().equals(scopeLibrary))
 					if (n.isEditable()) {

@@ -20,10 +20,8 @@ import java.util.List;
 
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLExtension;
-import org.opentravel.schemacompiler.model.TLLibrary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,10 +60,10 @@ public class CoreObjectMO extends ModelObject<TLCoreObject> {
 	// return "Core Object";
 	// }
 
-	@Override
-	protected AbstractLibrary getLibrary(final TLCoreObject obj) {
-		return obj.getOwningLibrary();
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLCoreObject obj) {
+	// return obj.getOwningLibrary();
+	// }
 
 	// @Deprecated
 	// @Override
@@ -73,16 +71,16 @@ public class CoreObjectMO extends ModelObject<TLCoreObject> {
 	// return getTLModelObj().getName();
 	// }
 
-	@Override
-	public String getNamePrefix() {
-		final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
-		return lib == null ? "" : lib.getPrefix();
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
+	// return lib == null ? "" : lib.getPrefix();
+	// }
 
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
 
 	public NamedEntity getSimpleValueType() {
 		return srcObj.getSimpleFacet().getSimpleType();
@@ -194,9 +192,9 @@ public class CoreObjectMO extends ModelObject<TLCoreObject> {
 		return true;
 	}
 
-	@Override
-	public void addAlias(final TLAlias tla) {
-		srcObj.addAlias(tla);
-	}
+	// @Override
+	// public void addAlias(final TLAlias tla) {
+	// srcObj.addAlias(tla);
+	// }
 
 }

@@ -18,13 +18,11 @@ package org.opentravel.schemas.modelObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLEnumValue;
 import org.opentravel.schemacompiler.model.TLExtension;
-import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemas.utils.StringComparator;
@@ -139,10 +137,10 @@ public class OpenEnumMO extends ModelObject<TLOpenEnumeration> {
 	// return getTLModelObj().getName();
 	// }
 
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
 
 	@Override
 	public NamedEntity getTLBase() {
@@ -154,16 +152,16 @@ public class OpenEnumMO extends ModelObject<TLOpenEnumeration> {
 		return srcObj;
 	}
 
-	@Override
-	public String getNamePrefix() {
-		final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
-		return lib == null ? "" : lib.getPrefix();
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
+	// return lib == null ? "" : lib.getPrefix();
+	// }
 
-	@Override
-	protected AbstractLibrary getLibrary(final TLOpenEnumeration obj) {
-		return obj.getOwningLibrary();
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLOpenEnumeration obj) {
+	// return obj.getOwningLibrary();
+	// }
 
 	// @Override
 	// public boolean isComplexAssignable() {

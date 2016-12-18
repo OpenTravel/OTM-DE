@@ -22,6 +22,7 @@ import org.opentravel.schemas.modelObject.ServiceMO;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.OperationNode.ResourceOperationTypes;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Images;
 
 /**

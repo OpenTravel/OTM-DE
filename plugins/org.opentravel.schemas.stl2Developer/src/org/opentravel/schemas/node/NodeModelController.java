@@ -55,6 +55,7 @@ public class NodeModelController {
 	 * 
 	 * Confirm delete of node list with the user.
 	 */
+	@Deprecated
 	public void deleteSelectedNodes() {
 		final List<Node> facetDelList = mc.getSelectedNodes_TypeView();
 		final List<Node> treeDelList = mc.getSelectedNodes_NavigatorView();
@@ -123,7 +124,9 @@ public class NodeModelController {
 					}
 				}
 
-				Node.deleteNodeList(toDelete);
+				for (final INode n : toDelete)
+					n.delete();
+				// Node.deleteNodeList(toDelete);
 
 				mc.refresh(focusNode);
 				mc.selectNavigatorNodeAndRefresh(focusNode);

@@ -16,8 +16,8 @@
 package org.opentravel.schemas.actions;
 
 import org.opentravel.schemas.controllers.RepositoryController;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
 

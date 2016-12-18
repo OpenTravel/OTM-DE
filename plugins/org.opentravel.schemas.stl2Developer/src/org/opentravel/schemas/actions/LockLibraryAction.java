@@ -16,8 +16,10 @@
 package org.opentravel.schemas.actions;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeEditStatus;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.StringProperties;
@@ -29,33 +31,45 @@ import org.opentravel.schemas.properties.StringProperties;
  * 
  */
 public class LockLibraryAction extends OtmAbstractAction {
-    private static StringProperties propDefault = new ExternalizedStringProperties(
-            "action.library.lock");
+	private static StringProperties propDefault = new ExternalizedStringProperties("action.library.lock");
 
-    public LockLibraryAction() {
-        super(propDefault);
-    }
+	public LockLibraryAction() {
+		super(propDefault);
+	}
 
-    public LockLibraryAction(final StringProperties props) {
-        super(props);
-    }
+	public LockLibraryAction(final StringProperties props) {
+		super(props);
+	}
 
-    @Override
-    public void run() {
-        mc.getRepositoryController().lock();
-    }
+	@Override
+	public void run() {
+		mc.getRepositoryController().lock();
+	}
 
-    @Override
-    public ImageDescriptor getImageDescriptor() {
-        return Images.getImageRegistry().getDescriptor(Images.Lock);
-    }
+	@Override
+	public ImageDescriptor getImageDescriptor() {
+		return Images.getImageRegistry().getDescriptor(Images.Lock);
+	}
 
-    // enable when Work-in-progress item.
-    @Override
-    public boolean isEnabled(Node node) {
-        Node n = getMainController().getCurrentNode_NavigatorView();
-        if (n == null || n.getLibrary() == null)
-            return false;
-        return n.getLibrary().getEditStatus().equals(NodeEditStatus.MANAGED_READONLY);
-    }
+	// enable when Work-in-progress item.
+	@Override
+	public boolean isEnabled(Node node) {
+		Node n = getMainController().getCurrentNode_NavigatorView();
+		if (n == null || n.getLibrary() == null)
+			return false;
+
+		// Get effective library
+		LibraryNode ln = n.getLibrary();
+		// Components can be in older versions
+		if (ln.getChain() != null)
+			ln = ln.getChain().getHead();
+
+		// RepositoryItemState state = ln.getProjectItem().getState();
+		// NodeEditStatus status = n.getEditStatus();
+		// TLLibraryStatus status2 = ln.getStatus();
+
+		if (ln.getStatus().equals(TLLibraryStatus.FINAL))
+			return false;
+		return n.getEditStatus().equals(NodeEditStatus.MANAGED_READONLY);
+	}
 }

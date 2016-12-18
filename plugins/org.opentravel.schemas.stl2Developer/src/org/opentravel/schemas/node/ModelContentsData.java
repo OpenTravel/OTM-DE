@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistableElement;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

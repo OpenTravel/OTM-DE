@@ -29,13 +29,17 @@ import org.opentravel.schemas.commands.AddNodeHandler2;
 import org.opentravel.schemas.commands.OtmAbstractHandler;
 import org.opentravel.schemas.controllers.DefaultContextController.ContextViewType;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.ConstraintHandler;
+import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
-import org.opentravel.schemas.node.PropertyNodeType;
+import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -354,7 +358,9 @@ public class OtmActions {
 		if (!(mc.getCurrentNode_PropertiesView() instanceof ComponentNode)) {
 			return;
 		}
-		((ComponentNode) mc.getCurrentNode_PropertiesView()).setMaxLength(wd.getInt());
+		ConstraintHandler ch = ((ComponentNode) mc.getCurrentNode_PropertiesView()).getConstraintHandler();
+		if (ch != null)
+			ch.setMaxLength(wd.getInt());
 	}
 
 	public static int changeMinLength() {
@@ -365,7 +371,9 @@ public class OtmActions {
 		if (!(mc.getCurrentNode_PropertiesView() instanceof ComponentNode)) {
 			return;
 		}
-		((ComponentNode) mc.getCurrentNode_PropertiesView()).setMinLength(wd.getInt());
+		ConstraintHandler ch = ((ComponentNode) mc.getCurrentNode_PropertiesView()).getConstraintHandler();
+		if (ch != null)
+			ch.setMinLength(wd.getInt());
 	}
 
 	public static int changeFractionDigits() {
@@ -376,7 +384,9 @@ public class OtmActions {
 		if (!(mc.getCurrentNode_PropertiesView() instanceof ComponentNode)) {
 			return;
 		}
-		((ComponentNode) mc.getCurrentNode_PropertiesView()).setFractionDigits(wd.getInt());
+		ConstraintHandler ch = ((ComponentNode) mc.getCurrentNode_PropertiesView()).getConstraintHandler();
+		if (ch != null)
+			ch.setFractionDigits(wd.getInt());
 	}
 
 	public static int changeTotalDigits() {
@@ -387,35 +397,45 @@ public class OtmActions {
 		if (!(mc.getCurrentNode_PropertiesView() instanceof ComponentNode)) {
 			return;
 		}
-		((ComponentNode) mc.getCurrentNode_PropertiesView()).setTotalDigits(wd.getInt());
+		ConstraintHandler ch = ((ComponentNode) mc.getCurrentNode_PropertiesView()).getConstraintHandler();
+		if (ch != null)
+			ch.setTotalDigits(wd.getInt());
 	}
 
 	public void setMinInclusive(final OtmEventData wd) {
 		if (!(mc.getCurrentNode_PropertiesView() instanceof ComponentNode)) {
 			return;
 		}
-		((ComponentNode) mc.getCurrentNode_PropertiesView()).setMinInclusive(wd.getText());
+		ConstraintHandler ch = ((ComponentNode) mc.getCurrentNode_PropertiesView()).getConstraintHandler();
+		if (ch != null)
+			ch.setMinInclusive(wd.getText());
 	}
 
 	public void setMaxInclusive(final OtmEventData wd) {
 		if (!(mc.getCurrentNode_PropertiesView() instanceof ComponentNode)) {
 			return;
 		}
-		((ComponentNode) mc.getCurrentNode_PropertiesView()).setMaxInclusive(wd.getText());
+		ConstraintHandler ch = ((ComponentNode) mc.getCurrentNode_PropertiesView()).getConstraintHandler();
+		if (ch != null)
+			ch.setMaxInclusive(wd.getText());
 	}
 
 	public void setMinExclusive(final OtmEventData wd) {
 		if (!(mc.getCurrentNode_PropertiesView() instanceof ComponentNode)) {
 			return;
 		}
-		((ComponentNode) mc.getCurrentNode_PropertiesView()).setMinExclusive(wd.getText());
+		ConstraintHandler ch = ((ComponentNode) mc.getCurrentNode_PropertiesView()).getConstraintHandler();
+		if (ch != null)
+			ch.setMinExclusive(wd.getText());
 	}
 
 	public void setMaxExclusive(final OtmEventData wd) {
 		if (!(mc.getCurrentNode_PropertiesView() instanceof ComponentNode)) {
 			return;
 		}
-		((ComponentNode) mc.getCurrentNode_PropertiesView()).setMaxExclusive(wd.getText());
+		ConstraintHandler ch = ((ComponentNode) mc.getCurrentNode_PropertiesView()).getConstraintHandler();
+		if (ch != null)
+			ch.setMaxExclusive(wd.getText());
 	}
 
 	public static int changePropertyRoleEventID() {
@@ -463,7 +483,9 @@ public class OtmActions {
 	}
 
 	public void changeRepeatCount(final OtmEventData wd) {
-		((Node) mc.getCurrentNode_PropertiesView()).setRepeat(wd.getInt());
+		if (mc.getCurrentNode_PropertiesView() instanceof ElementNode)
+			((ElementNode) mc.getCurrentNode_PropertiesView()).setRepeat(wd.getInt());
+		// ((Node) mc.getCurrentNode_PropertiesView()).setRepeat(wd.getInt());
 	}
 
 	public static int setName() {
@@ -573,7 +595,9 @@ public class OtmActions {
 	}
 
 	private void setPattern(final OtmEventData wd) {
-		((ComponentNode) mc.getCurrentNode_PropertiesView()).setPattern(wd.getText());
+		ConstraintHandler ch = ((ComponentNode) mc.getCurrentNode_PropertiesView()).getConstraintHandler();
+		if (ch != null)
+			ch.setPattern(wd.getText());
 	}
 
 	public static int importToTree() {
@@ -654,7 +678,7 @@ public class OtmActions {
 	 */
 	private Node getOwningNodeForDrop(Node node) {
 		Node ownNode = node.getOwningComponent();
-		if (ownNode instanceof FacetNode && !ownNode.isExtensionPointFacet()) {
+		if (ownNode instanceof FacetNode && !(ownNode instanceof ExtensionPointNode)) {
 			ownNode = getOwningNodeForDrop(ownNode);
 		}
 		return ownNode;
@@ -690,7 +714,9 @@ public class OtmActions {
 	}
 
 	public void toggleList(final OtmEventData wd) {
-		mc.getCurrentNode_PropertiesView().getModelObject().setList(wd.isSelected());
+		if (mc.getCurrentNode_PropertiesView() instanceof SimpleTypeNode)
+			((SimpleTypeNode) mc.getCurrentNode_PropertiesView()).setList(wd.isSelected());
+		// mc.getCurrentNode_PropertiesView().getModelObject().setList(wd.isSelected());
 		mc.refresh();
 	}
 

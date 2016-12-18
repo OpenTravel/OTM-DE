@@ -26,14 +26,16 @@ import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 import org.opentravel.schemas.controllers.MainController.IRefreshListener;
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.NamespaceHandler;
+import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
@@ -67,6 +69,10 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 
 	@Override
 	public void decorate(Object element, IDecoration decoration) {
+		// Decorate Library Nav Nodes as if they were the library the link to a project.
+		if (element instanceof LibraryNavNode)
+			element = ((LibraryNavNode) element).getThisLib();
+
 		if (element instanceof LibraryNode) {
 			decoration.addSuffix(getLibraryDecoration((LibraryNode) element));
 			if (!((LibraryNode) element).isValid())
@@ -97,6 +103,8 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 			// } else if (element instanceof PropertyNode) {
 			// if (((PropertyNode) element).getAssignedType() == ModelNode.getUnassignedNode())
 			// decoration.addOverlay(warningDesc(), IDecoration.BOTTOM_LEFT);
+		} else if (element instanceof NavNode) {
+			decoration.addSuffix("  (" + (((NavNode) element).getChildren().size() + " Objects)"));
 		} else if (element instanceof LibraryMemberInterface) {
 			String nodeTxt = ((Node) element).getDecoration();
 			if (!nodeTxt.isEmpty())

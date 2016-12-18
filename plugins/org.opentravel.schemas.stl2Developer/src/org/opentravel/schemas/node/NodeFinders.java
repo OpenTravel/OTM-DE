@@ -20,7 +20,6 @@ package org.opentravel.schemas.node;
 
 import javax.xml.namespace.QName;
 
-import org.opentravel.schemas.modelObject.XsdModelingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,23 +58,24 @@ public class NodeFinders {
 	// return n;
 	// }
 
-	/**
-	 * @return the first type provider node in the passed library that matches the QName in the model starting from the
-	 *         root or null. If QName is not found, the local part name is tried with the chameleon namespace.
-	 */
-	// TODO - only used in tests
-	public static Node findTypeProviderByQName(final QName qname, Node ln) {
-		if (qname == null)
-			return null;
-		if (ln == null)
-			ln = Node.getModelNode();
-
-		Node n = ln.findNode_TypeProvider(qname.getLocalPart(), qname.getNamespaceURI());
-		if (n == null)
-			n = ln.findNode_TypeProvider(qname.getLocalPart(), XsdModelingUtils.ChameleonNS);
-		// LOGGER.debug("findNodeByQName ("+qname+") returning: "+n);
-		return n;
-	}
+	// /**
+	// * @return the first type provider node in the passed library that matches the QName in the model starting from
+	// the
+	// * root or null. If QName is not found, the local part name is tried with the chameleon namespace.
+	// */
+	// // TODO - only used in tests
+	// public static Node findTypeProviderByQName(final QName qname, Node ln) {
+	// if (qname == null)
+	// return null;
+	// if (ln == null)
+	// ln = Node.getModelNode();
+	//
+	// Node n = ln.findNode_TypeProvider(qname.getLocalPart(), qname.getNamespaceURI());
+	// if (n == null)
+	// n = ln.findNode_TypeProvider(qname.getLocalPart(), XsdModelingUtils.ChameleonNS);
+	// // LOGGER.debug("findNodeByQName ("+qname+") returning: "+n);
+	// return n;
+	// }
 
 	/**
 	 * @return the first node that matches the QName in the model starting from the root or null.

@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -150,6 +150,9 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 			break;
 		case NONE:
 			importedNodesMap = destination.importNodes(eligibleForImporting).values();
+			break;
+		case CANCEL:
+		default:
 			break;
 		}
 

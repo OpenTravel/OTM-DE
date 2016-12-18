@@ -76,19 +76,34 @@ public interface OtmView {
     public String getViewID();
 
     /**
-     * @return the state of the is inherited properties control
-     */
-    public boolean isShowInheritedProperties();
-
-    /**
      * @return the state of the listening control
      */
     public boolean isListening();
 
     /**
+     * @return the state of the is inherited properties control
+     */
+    public boolean isShowInheritedProperties();
+
+    /**
+     * Move current node down
+     */
+    public void moveDown();
+
+    /**
+     * Move current node up
+     */
+    public void moveUp();
+
+    /**
      * Command the view to refresh its contents.
      */
     public void refresh();
+
+    /**
+     * Refresh the view. If regenerate is true, regenerate the contents first.
+     */
+    public void refresh(boolean regenerate);
 
     /**
      * Command the view to refresh and set its contents.
@@ -113,6 +128,11 @@ public interface OtmView {
     public void refreshAllViews(INode node);
 
     /**
+     * Set the previous node to the current node.
+     */
+    public void restorePreviousNode();
+
+    /**
      * Select the view node. Generates a selection event.
      * 
      * @param node
@@ -124,6 +144,11 @@ public interface OtmView {
      * Set the currently displayed node to the passed node.
      */
     public void setCurrentNode(INode node);
+
+    /**
+     * Set the property type filter.
+     */
+    public void setDeepPropertyView(boolean state);
 
     /**
      * Set the exact matches only filter.
@@ -141,34 +166,9 @@ public interface OtmView {
     public void setInput(INode node);
 
     /**
-     * Set the property type filter.
-     */
-    public void setDeepPropertyView(boolean state);
-
-    /**
-     * Move current node down
-     */
-    public void moveDown();
-
-    /**
-     * Move current node up
-     */
-    public void moveUp();
-
-    /**
      * Enable or disable listening (linked behavior)
      */
     public void setListening(final boolean state);
-
-    /**
-     * Set the previous node to the current node.
-     */
-    public void restorePreviousNode();
-
-    /**
-     * Refresh the view. If regenerate is true, regenerate the contents first.
-     */
-    public void refresh(boolean regenerate);
 
     void remove(INode node);
 

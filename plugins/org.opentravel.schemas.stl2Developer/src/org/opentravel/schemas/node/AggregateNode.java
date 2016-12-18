@@ -25,6 +25,8 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.views.FacetView;
@@ -43,8 +45,11 @@ public class AggregateNode extends NavNode {
 	private AggregateType aggType;
 
 	public enum AggregateType {
-		RESOURCES("Resources"), SimpleTypes("Simple Objects"), ComplexTypes("Complex Objects"), Service("Service"), Versions(
-				"Versions");
+		RESOURCES("Resources"),
+		SimpleTypes("Simple Objects"),
+		ComplexTypes("Complex Objects"),
+		Service("Service"),
+		Versions("Versions");
 		private final String label;
 
 		private AggregateType(String label) {
@@ -115,24 +120,24 @@ public class AggregateNode extends NavNode {
 		// If the duplicate is in the same library then the user made a mistake.
 		// Leave the node in the aggregate so the user can fix the problem.
 		Node parent = this;
-		for (Node n : duplicates) {
+		for (Node dup : duplicates) {
 			parent = this;
 
 			// If the duplicate is in an aggregate family, put nodeToAdd in that family
-			for (Node a : getChildren())
-				if (a instanceof AggregateFamilyNode && a.getFamily().equals(nodeToAdd.getFamily()))
-					parent = a;
+			// for (Node a : getChildren())
+			// if (a instanceof AggregateFamilyNode && a.getFamily().equals(nodeToAdd.getFamily()))
+			// parent = a;
 
-			if (nodeToAdd.getLibrary() == n.getLibrary()) {
-				// add the duplicate and let user fix the error
+			if (nodeToAdd.getLibrary() == dup.getLibrary()) {
+				// same library mean not different version so add the duplicate and let user fix the error
 				if (!parent.getChildren().contains(nodeToAdd)) {
 					parent.getChildren().add(nodeToAdd);
 				}
 			} else {
-				if (nodeToAdd.isLaterVersion(n)) {
+				if (nodeToAdd.isLaterVersion(dup)) {
 					// Replace older object with same name with the node to be added
-					parent.getChildren().remove(n);
-					insertPreviousVersion(nodeToAdd, (ComponentNode) n);
+					parent.getChildren().remove(dup);
+					insertPreviousVersion(nodeToAdd, (ComponentNode) dup);
 					if (!parent.getChildren().contains(nodeToAdd))
 						parent.getChildren().add(nodeToAdd);
 				}
@@ -234,7 +239,7 @@ public class AggregateNode extends NavNode {
 
 	}
 
-	protected void remove(Node node) {
+	public void remove(Node node) {
 		if (!getChildren().remove(node)) {
 			// if it was not found, it may be in a family node
 			ArrayList<Node> kids = new ArrayList<Node>(getChildren());

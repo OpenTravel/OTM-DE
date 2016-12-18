@@ -19,10 +19,10 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.modelObject.ModelObject;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.Node.NodeVisitor;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
  * Interface to nodes in the model.
@@ -204,6 +204,12 @@ public interface INode {
 	public boolean isLibraryContainer();
 
 	/**
+	 * @return true if this node can be renamed. Overriding nodes must account for all factors, not just class
+	 *         membership. (is editable, is inherited, etc).
+	 */
+	boolean isRenameable();
+
+	/**
 	 * Is this node a navigation node or part of the OTM model? Includes all library containers and libraries.
 	 * 
 	 * @see isLibraryContainer()
@@ -241,11 +247,6 @@ public interface INode {
 	 * Visit this node and all of its children.
 	 */
 	public void visitChildren(NodeVisitor visitor);
-
-	// /**
-	// * Visit this node and all of its descendants that are type providers (recursive).
-	// */
-	// public void visitAllTypeProviders(NodeVisitor visitor);
 
 	/**
 	 * Visit this node and all of its descendants that are type users (recursive).

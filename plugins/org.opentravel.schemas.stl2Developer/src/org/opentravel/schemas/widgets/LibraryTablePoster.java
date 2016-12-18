@@ -39,9 +39,11 @@ import org.opentravel.schemas.node.controllers.NodeUtils;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
+import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Fonts;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.ColorProvider;
@@ -134,7 +136,7 @@ public class LibraryTablePoster {
 				postTableRows(curNode, "Open: " + curNode.getName());
 			} else if (curNode instanceof ExtensionPointNode) {
 				postTableRows(curNode, "Extension Point: " + curNode.getName());
-			} else if (curNode instanceof FacetNode) {
+			} else if (curNode instanceof PropertyOwnerNode) {
 				postTableRows(curNode, curNode.getLabel());
 			} else if (curNode instanceof ComplexComponentInterface) {
 				if (curNode instanceof BusinessObjectNode || curNode instanceof ChoiceObjectNode)
@@ -143,9 +145,9 @@ public class LibraryTablePoster {
 						sortedChildren = sort(sortedChildren);
 					}
 				for (final Node child : sortedChildren) {
-					if (!(child instanceof AliasNode)) {
-						postTableRows(child, child.getLabel());
-					}
+					if (!(child instanceof AliasNode))
+						postTableRows(child, child.getName());
+
 				}
 			}
 			if (table.getSelectionIndices() != selectionIndices) {
@@ -186,8 +188,9 @@ public class LibraryTablePoster {
 			if (!separator.isEmpty()) {
 				item = new TableItem(table, SWT.BOLD | SWT.FILL);
 				item.setText(separator);
-				if (n instanceof FacetNode)
-					item.setText(1, ((FacetNode) n).getComponentType());
+				if (n instanceof PropertyOwnerInterface)
+					item.setText(1, n.getLabel()); // separator will be name
+				// item.setText(1, ((FacetNode) n).getComponentType());
 
 				item.setBackground(colorProvider.getColor(SWT.COLOR_GRAY));
 				item.setData(n);

@@ -99,19 +99,24 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 		// base.getNameWithPrefix());
 
 		// Save the old base object for after the assignment
-		Node oldBase = owner.getExtensionBase();
-		// If owner was extending a different base, remove the link and listener.
-		if (oldBase != null) {
-			oldBase.getWhereExtendedHandler().removeListener(owner);
-			oldBase.getWhereExtendedHandler().remove((Node) owner);
-			owner.getModelObject().setExtendsType(null); // allow ownership event to happen
+		Node oldBase = owner.getExtensionBase(); // from TL object
+		if (oldBase == base) {
+			// TL Object relation already set. Insure the where used is correct. Handler prevents duplicates.
+			base.getWhereExtendedHandler().add(owner);
+			base.getWhereExtendedHandler().setListener(owner);
+		} else {
+			// If owner was extending a different base, remove the link and listener.
+			if (oldBase != null) {
+				oldBase.getWhereExtendedHandler().removeListener(owner);
+				oldBase.getWhereExtendedHandler().remove((Node) owner);
+				owner.getModelObject().setExtendsType(null); // allow ownership event to happen
+			}
+			// Add a where extended listener to the new base before making the assignment
+			base.getWhereExtendedHandler().setListener(owner);
+
+			// Do the assignment
+			owner.getModelObject().setExtendsType(base.getModelObject());
 		}
-		// Add a where extended listener to the new base before making the assignment
-		base.getWhereExtendedHandler().setListener(owner);
-
-		// Do the assignment
-		owner.getModelObject().setExtendsType(base.getModelObject());
-
 		// update library where used
 		// on initial load/type resolver old and base will be the same
 		if (oldBase == base)

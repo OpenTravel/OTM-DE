@@ -122,20 +122,22 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 		return Node.getModelNode().getTLModel();
 	}
 
+	@Deprecated
+	// 11/11/2016 - dmh - not used anywhere
 	@Override
 	public ModelNode createNewModel() {
 		// LOGGER.debug("Creating new model");
 		ModelNode model = null;
-		try {
-			model = new ModelNode(newTLModel());
-			// TODO - TEST - how can this work? Is it needed?
-			// model.setMainWindow(mainWindow);
-			libraryController.openLibrary(model);
-		} catch (final LibraryLoaderException e) {
-			LOGGER.error("Error while creating model", e);
-			DialogUserNotifier.openError("Model error", "Could not create new model - " + e.getMessage());
-		}
-		OtmRegistry.getValidationResultsView().validateNode(Node.getModelNode());
+		// try {
+		// model = new ModelNode(newTLModel());
+		// // TODO - TEST - how can this work? Is it needed?
+		// // model.setMainWindow(mainWindow);
+		// libraryController.openLibrary(model);
+		// } catch (final LibraryLoaderException e) {
+		// LOGGER.error("Error while creating model", e);
+		// DialogUserNotifier.openError("Model error", "Could not create new model - " + e.getMessage());
+		// }
+		// OtmRegistry.getValidationResultsView().validateNode(Node.getModelNode());
 		// TODO - prevent the extra validation message?
 		return model;
 	}
@@ -222,7 +224,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 			return "Null project";
 
 		// Get a directory to compile into.
-		String directoryName = project.getProject().getProjectFile().getAbsolutePath();
+		String directoryName = project.getTLProject().getProjectFile().getAbsolutePath();
 		directoryName = directoryName.substring(0, directoryName.length() - 4); // strip .otp
 		// if (directoryName == null || directoryName.isEmpty()) {
 		// directoryName = FileDialogs.postDirDialog(Messages.getString("fileDialog.directory.compilePath"));
@@ -240,7 +242,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 		// Do the compile.
 		lastCompileFindings = new ValidationFindings();
 		try {
-			lastCompileFindings.addAll(compileModel(project.getProject(), targetFolder));
+			lastCompileFindings.addAll(compileModel(project.getTLProject(), targetFolder));
 		} catch (final SchemaCompilerException e) {
 			return "Error: Could not compile - " + e.getMessage();
 		} catch (final Exception e) {

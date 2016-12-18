@@ -23,7 +23,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
-import org.opentravel.schemas.node.PropertyNodeType;
+import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.EqExOneValueHandler.ValueWithContextType;
 import org.opentravel.schemas.properties.Images;
@@ -94,7 +94,7 @@ public class ElementNode extends PropertyNode {
 		// int index = indexOfNode();
 		int tlIndex = indexOfTLProperty();
 		TLProperty tlObj = (TLProperty) cloneTLObj();
-		((TLProperty) getTLModelObject()).getPropertyOwner().addElement(tlIndex, tlObj);
+		getTLModelObject().getOwner().addElement(tlIndex, tlObj);
 		ElementNode n = new ElementNode(tlObj, null);
 		getParent().linkChild(n, indexOfNode());
 		n.setDescription(type.getDescription());
@@ -104,13 +104,26 @@ public class ElementNode extends PropertyNode {
 		return n;
 	}
 
+	public int getRepeat() {
+		return getTLModelObject().getRepeat();
+	}
+
 	/**
 	 * Get the index (0..sizeof()) of this property in the facet list.
 	 */
 	@Override
 	public int indexOfTLProperty() {
-		final TLProperty thisProp = (TLProperty) getTLModelObject();
-		return thisProp.getPropertyOwner().getElements().indexOf(thisProp);
+		return getTLModelObject().getOwner().getElements().indexOf(getTLModelObject());
+	}
+
+	@Override
+	public boolean isMandatory() {
+		return getTLModelObject().isMandatory();
+	}
+
+	@Override
+	public boolean isRenameable() {
+		return isEditable() && !inherited && !(getAssignedType() instanceof ComplexComponentInterface);
 	}
 
 	@Override
@@ -163,13 +176,24 @@ public class ElementNode extends PropertyNode {
 
 	@Override
 	public String getName() {
-		return getTLModelObject() == null || getTLModelObject().getName() == null
-				|| getTLModelObject().getName().isEmpty() ? "" : getTLModelObject().getName();
+		return emptyIfNull(getTLModelObject().getName());
+
+		// return getTLModelObject() == null || getTLModelObject().getName() == null
+		// || getTLModelObject().getName().isEmpty() ? "" : getTLModelObject().getName();
 	}
 
 	@Override
 	public TLProperty getTLModelObject() {
 		return (TLProperty) (modelObject != null ? modelObject.getTLModelObj() : null);
+	}
+
+	/**
+	 * Allowed in major versions and on objects new in a minor.
+	 */
+	public void setMandatory(final boolean selection) {
+		if (isEditable_newToChain())
+			if (getOwningComponent().isNewToChain() || !getLibrary().isInChain())
+				getTLModelObject().setMandatory(selection);
 	}
 
 	@Override
@@ -178,6 +202,12 @@ public class ElementNode extends PropertyNode {
 		// modelObject.setName(NodeNameUtils.fixElementName(this)); // let utils fix it if needed.
 		// getTLModelObject().setName(name); // Must set name before the utils try to fix them.
 		getTLModelObject().setName(NodeNameUtils.fixElementName(this, name)); // let utils fix it as needed.
+	}
+
+	public void setRepeat(final int i) {
+		if (isEditable_newToChain())
+			getTLModelObject().setRepeat(i);
+		return;
 	}
 
 	// @Override

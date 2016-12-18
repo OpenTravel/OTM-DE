@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.Event;
 import org.opentravel.schemas.commands.AddNodeHandler2;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.PropertyNodeType;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.MainWindow;

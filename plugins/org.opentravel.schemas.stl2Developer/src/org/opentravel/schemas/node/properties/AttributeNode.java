@@ -25,7 +25,6 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
-import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -42,9 +41,15 @@ import org.opentravel.schemas.types.TypeUser;
  */
 public class AttributeNode extends PropertyNode {
 
+	public AttributeNode(PropertyOwnerInterface facet, String name, TypeProvider type) {
+		super(new TLAttribute(), (Node) facet, name, PropertyNodeType.ATTRIBUTE);
+		setAssignedType(type);
+	}
+
 	public AttributeNode(PropertyOwnerInterface parent, String name) {
-		super(new TLAttribute(), (Node) parent, name, PropertyNodeType.ATTRIBUTE);
-		setAssignedType((TypeProvider) ModelNode.getUnassignedNode());
+		this(parent, name, ModelNode.getUnassignedNode());
+		// super(new TLAttribute(), (Node) parent, name, PropertyNodeType.ATTRIBUTE);
+		// setAssignedType((TypeProvider) ModelNode.getUnassignedNode());
 	}
 
 	public AttributeNode(PropertyOwnerInterface parent, String name, PropertyNodeType type) {
@@ -168,7 +173,7 @@ public class AttributeNode extends PropertyNode {
 
 	@Override
 	public String getName() {
-		return getTLModelObject().getName();
+		return emptyIfNull(getTLModelObject().getName());
 	}
 
 	@Override
@@ -178,14 +183,23 @@ public class AttributeNode extends PropertyNode {
 
 	@Override
 	public int indexOfTLProperty() {
-		final TLAttribute thisProp = (TLAttribute) getTLModelObject();
-		return thisProp.getAttributeOwner().getAttributes().indexOf(thisProp);
+		return getTLModelObject().getOwner().getAttributes().indexOf(getTLModelObject());
+	}
+
+	@Override
+	public boolean isMandatory() {
+		return getTLModelObject().isMandatory();
 	}
 
 	@Override
 	public boolean isOnlySimpleTypeUser() {
 		// allow VWAs to be assigned to VWA Attributes.
 		return parent != null && parent instanceof VWA_AttributeFacetNode ? false : true;
+	}
+
+	@Override
+	public boolean isRenameable() {
+		return isEditable() && !inherited;
 	}
 
 	// @Override
@@ -197,6 +211,15 @@ public class AttributeNode extends PropertyNode {
 	public void setName(String name) {
 		// modelObject.setName(NodeNameUtils.fixAttributeName(name));
 		getTLModelObject().setName(NodeNameUtils.fixAttributeName(name));
+	}
+
+	/**
+	 * Allowed in major versions and on objects new in a minor.
+	 */
+	public void setMandatory(final boolean selection) {
+		if (isEditable_newToChain())
+			if (getOwningComponent().isNewToChain() || !getLibrary().isInChain())
+				getTLModelObject().setMandatory(selection);
 	}
 
 }

@@ -27,7 +27,6 @@ import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
-import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
@@ -86,6 +85,11 @@ public class SimpleAttributeNode extends PropertyNode {
 	}
 
 	@Override
+	public boolean isMandatory() {
+		return getTLModelObject().isMandatory();
+	}
+
+	@Override
 	public boolean hasNavChildren(boolean deep) {
 		return deep && getNavType() != null;
 	}
@@ -97,7 +101,7 @@ public class SimpleAttributeNode extends PropertyNode {
 
 	// Do not show implied types in tree views
 	private Node getNavType() {
-		Node type = getTypeNode();
+		Node type = getType();
 		return type instanceof ImpliedNode ? null : type;
 	}
 
@@ -114,7 +118,7 @@ public class SimpleAttributeNode extends PropertyNode {
 
 	@Override
 	public String getName() {
-		return getTLModelObject() == null || getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
+		return emptyIfNull(getTLModelObject().getName());
 	}
 
 	@Override
@@ -141,6 +145,15 @@ public class SimpleAttributeNode extends PropertyNode {
 	public TypeProvider getAssignedType() {
 		return typeHandler.get();
 	}
+
+	// /**
+	// * Allowed in major versions and on objects new in a minor.
+	// */
+	// public void setMandatory(final boolean selection) {
+	// if (isEditable_newToChain())
+	// if (getOwningComponent().isNewToChain() || !getLibrary().isInChain())
+	// getTLModelObject().setMandatory(selection);
+	// }
 
 	@Override
 	public void setName(String name) {

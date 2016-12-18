@@ -17,10 +17,8 @@ package org.opentravel.schemas.modelObject;
 
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLListFacet;
-import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,25 +48,25 @@ public class ListFacetMO extends ModelObject<TLListFacet> {
 	// return label;
 	// }
 
-	@Override
-	protected AbstractLibrary getLibrary(final TLListFacet obj) {
-		return null;
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLListFacet obj) {
+	// return null;
+	// }
 
 	// @Override
 	// public String getName() {
 	// return getTLModelObj().getLocalName() == null ? "" : getTLModelObj().getLocalName();
 	// }
 
-	@Override
-	public String getNamePrefix() {
-		return "";
-	}
-
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// return "";
+	// }
+	//
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
 
 	@Override
 	public TLListFacet getTLModelObj() {
@@ -80,10 +78,10 @@ public class ListFacetMO extends ModelObject<TLListFacet> {
 		return false;
 	}
 
-	@Override
-	public AbstractLibrary getOwningLibrary() {
-		return srcObj != null ? srcObj.getItemFacet().getOwningEntity().getOwningLibrary() : null;
-	}
+	// @Override
+	// public AbstractLibrary getOwningLibrary() {
+	// return srcObj != null ? srcObj.getItemFacet().getOwningEntity().getOwningLibrary() : null;
+	// }
 
 	// @Override
 	// public boolean isFacet() {
@@ -94,10 +92,10 @@ public class ListFacetMO extends ModelObject<TLListFacet> {
 	public void delete() {
 	}
 
-	@Override
-	public boolean isSimpleList() {
-		return (getTLModelObj().getItemFacet() instanceof TLSimpleFacet);
-	}
+	// @Override
+	// public boolean isSimpleList() {
+	// return (getTLModelObj().getItemFacet() instanceof TLSimpleFacet);
+	// }
 
 	public boolean isDetailList() {
 		return (getTLModelObj().getItemFacet() instanceof TLFacet);

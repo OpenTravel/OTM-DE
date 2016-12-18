@@ -22,7 +22,7 @@ import static org.opentravel.schemas.stl2developer.MainWindow.WARNING_MSG;
 import java.util.List;
 
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.StringProperties;

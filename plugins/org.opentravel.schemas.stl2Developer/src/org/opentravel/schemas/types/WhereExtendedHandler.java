@@ -25,9 +25,9 @@ import java.util.Collections;
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,7 @@ public class WhereExtendedHandler {
 
 		public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
 			Node source = getSource(event);
-			// LOGGER.debug("WhereExtends: " + event.getType() + " handler = " + handler.owner + " source = " + source);
+			LOGGER.debug("WhereExtends: " + event.getType() + " handler = " + handler.owner + " source = " + source);
 
 			switch (event.getType()) {
 			case EXTENDS_ADDED:
@@ -119,7 +119,7 @@ public class WhereExtendedHandler {
 		this.owner = owner;
 	}
 
-	private void add(ExtensionOwner user) {
+	protected void add(ExtensionOwner user) {
 		if (!users.contains(user)) {
 			users.add(user);
 			// LOGGER.debug("Added " + user + " to " + owner + " where extended list.");

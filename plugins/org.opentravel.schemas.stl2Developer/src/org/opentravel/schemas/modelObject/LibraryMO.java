@@ -47,10 +47,10 @@ public class LibraryMO extends ModelObject<AbstractLibrary> {
 	// return "Library: " + getName();
 	// }
 
-	@Override
-	protected AbstractLibrary getLibrary(AbstractLibrary obj) {
-		return obj;
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(AbstractLibrary obj) {
+	// return obj;
+	// }
 
 	// @Deprecated
 	// @Override
@@ -58,20 +58,20 @@ public class LibraryMO extends ModelObject<AbstractLibrary> {
 	// return getTLModelObj().getName();
 	// }
 
-	@Override
-	public String getNamePrefix() {
-		return "";
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// return "";
+	// }
 
 	@Override
 	public AbstractLibrary getTLModelObj() {
 		return srcObj;
 	}
 
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
 
 	@Override
 	public boolean setName(String name) {

@@ -81,17 +81,18 @@ import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.ExtensionPointNode;
-import org.opentravel.schemas.node.FamilyNode;
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.SimpleComponentNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.RoleNode;
@@ -389,35 +390,25 @@ public class NavigatorMenus extends TreeViewer {
 					// Prepare the dynamic list menus
 					copyMenu.removeAll();
 					moveMenu.removeAll();
-					manageInMenu.removeAll();
 					manager.updateAll(true);
-					manageInMenu.setVisible(true);
+
+					// Set up cascade menus
 					versionMenu.removeAll();
 					if (node.getLibrary() != null && node.getLibrary().isManaged())
 						versionMenu.setVisible(true);
-
-					// Set up cascade menus
-					for (final Action action : createVersionActions(node)) {
+					for (final Action action : createVersionActions(node))
 						versionMenu.add(action);
-					}
 
-					for (final Action libAction : createImportActionsForLibraries(node)) {
+					for (final Action libAction : createImportActionsForLibraries(node))
 						copyMenu.add(libAction);
-					}
 
-					for (final Action libAction : createMoveActionsForLibraries(node)) {
+					for (final Action libAction : createMoveActionsForLibraries(node))
 						moveMenu.add(libAction);
-					}
-					for (final Action action : createRepositoryActionsForLibraries(node)) {
+
+					manageInMenu.removeAll();
+					manageInMenu.setVisible(true);
+					for (final Action action : createRepositoryActionsForLibraries(node))
 						manageInMenu.add(action);
-						if (node instanceof LibraryNode) {
-							if (((LibraryNode) node).getProjectItem() != null && ((LibraryNode) node).isManaged()) {
-								// && !((LibraryNode) node).getProjectItem().getState()
-								// .equals(RepositoryItemState.UNMANAGED)) {
-								// manageInMenu.setVisible(false);
-							}
-						}
-					}
 
 					if (node.isXsdType() || node.isXSDSchema()) {
 						// You can only import nodes representing XSD types.
@@ -428,19 +419,13 @@ public class NavigatorMenus extends TreeViewer {
 					} else if (node instanceof TypeUserNode) {
 						manager.add(versionUpdateAction);
 					} else if (node instanceof ProjectNode || node instanceof LibraryNode
-							|| node instanceof LibraryChainNode || node instanceof NavNode) {
+							|| node instanceof LibraryNavNode || node instanceof LibraryChainNode
+							|| node instanceof NavNode) {
 						if (node.isInTLLibrary() || node instanceof NavNode) {
 							manager.add(navigationMenu);
 						}
 						manager.add(libraryMenu);
 						manager.add(projectMenu);
-					} else if (node instanceof FamilyNode) {
-						if (node.isInTLLibrary()) {
-							manager.add(basicWithCopyDeleteMoveMenu);
-						} else {
-							manager.add(basicObjectMenu);
-						}
-						manager.add(libraryMenu);
 					} else if (node instanceof ComponentNode) {
 						if (node.isInModel()) {
 							if (!node.isEditable()) {
@@ -469,7 +454,7 @@ public class NavigatorMenus extends TreeViewer {
 								manager.add(facetMenu);
 							} else if (node instanceof ExtensionPointNode) {
 								manager.add(xpFacetObjectMenu);
-							} else if (node.isSimpleType()) {
+							} else if (node instanceof SimpleComponentNode) {
 								manager.add(simpleObjectMenu);
 							} else if (node instanceof SimpleAttributeNode) {
 							} else if (node instanceof RoleNode) {
@@ -560,7 +545,9 @@ public class NavigatorMenus extends TreeViewer {
 			final StringProperties sp = new DefaultStringProperties();
 			sp.set(PropertyType.TEXT, rn.getName());
 			ManageInRepositoryAction action = new ManageInRepositoryAction(sp, rn);
-			if (lib instanceof LibraryNode) {
+			if (lib instanceof LibraryNavNode)
+				action.setLibrary(((LibraryNavNode) lib).getLibrary());
+			else if (lib instanceof LibraryNode) {
 				action.setLibrary((LibraryNode) lib);
 			}
 			repoActions.add(action);

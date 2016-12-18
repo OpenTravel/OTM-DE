@@ -5,8 +5,17 @@ README - developer Notes - Names, Labels, Namespaces, NS Prefix
 
 Usage
 	Name
+		Facets = the name of an element when assigned the facet as a type. Presented in the Name column
 	Label
+		Facets = the type of facet presented in Role column
 	
+	LibraryTablePoster
+			item.setText(0, n.getName());
+			item.setText(1, cn.getLabel());
+	LibraryTreeLabelProvider
+			label = n.getNavigatorName();
+				Contextual Facets - getName()
+
 Methods
 	getTLModelObject() - strongly typed to return the specific TL class associated with the node.
 	getName() - relies upon getTLModelObject()

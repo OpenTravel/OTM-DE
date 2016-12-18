@@ -23,14 +23,18 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -56,13 +60,13 @@ import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.preferences.DefaultPreferences;
 import org.opentravel.schemas.properties.Messages;
@@ -168,7 +172,7 @@ public class DefaultProjectController implements ProjectController {
 	}
 
 	/**
-	 * Does NOT add them to the Node project model. Use {projectNode}.add(FileList)
+	 * @see {@link org.opentravel.schemas.node.ProjectNode#add()}
 	 */
 	@Override
 	public List<ProjectItem> addLibrariesToTLProject(Project project, List<File> libraryFiles) {
@@ -216,18 +220,23 @@ public class DefaultProjectController implements ProjectController {
 		}
 	}
 
+	/**
+	 * {@link org.opentravel.schemas.controllers.DefaultLibraryController#createNewLibraryFromPrototype(LibraryNode)}
+	 * {@link org.opentravel.schemas.controllers.DefaultLibraryController#createLibrary(String, String, URL, String, ProjectNode)}
+	 */
 	@Override
-	public LibraryNode add(ProjectNode pn, AbstractLibrary tlLib) {
+	public LibraryNavNode add(ProjectNode pn, AbstractLibrary tlLib) {
 		if (pn == null || tlLib == null)
 			throw new IllegalArgumentException("Null argument.");
 
 		ProjectItem pi = null;
-		LibraryNode ln = null;
+		LibraryNavNode lnn = null;
 		try {
-			pi = pn.getProject().getProjectManager().addUnmanagedProjectItem(tlLib, pn.getProject());
+			pi = pn.getTLProject().getProjectManager().addUnmanagedProjectItem(tlLib, pn.getTLProject());
 			if (pi != null) {
-				ln = new LibraryNode(pi, pn);
-				fixElementNames(ln);
+				List<ProjectItem> piList = new ArrayList<ProjectItem>();
+				piList.add(pi);
+				lnn = pn.load(piList);
 				mc.refresh(pn);
 				// LOGGER.debug("Added library " + ln.getName() + " to " + pn);
 			}
@@ -238,9 +247,13 @@ public class DefaultProjectController implements ProjectController {
 			LOGGER.error("Could not add repository item to project. " + ex.getLocalizedMessage());
 			DialogUserNotifier.openError("Project Error", ex.getLocalizedMessage());
 		}
-		return ln;
+		return lnn;
 	}
 
+	/**
+	 * Add tlLibrary to the chain
+	 * {@link org.opentravel.schemas.controllers.DefaultRepositoryController#createVersion(LibraryNode, boolean)}
+	 */
 	@Override
 	public LibraryNode add(LibraryNode ln, AbstractLibrary tlLib) {
 		ProjectNode pn = ln.getProject();
@@ -249,7 +262,7 @@ public class DefaultProjectController implements ProjectController {
 
 		ProjectItem pi = null;
 		try {
-			pi = pn.getProject().getProjectManager().addUnmanagedProjectItem(tlLib, pn.getProject());
+			pi = pn.getTLProject().getProjectManager().addUnmanagedProjectItem(tlLib, pn.getTLProject());
 		} catch (RepositoryException e) {
 			LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
 			DialogUserNotifier.openError("Project Error", e.getLocalizedMessage());
@@ -257,31 +270,25 @@ public class DefaultProjectController implements ProjectController {
 		if (pi != null)
 			ln = new LibraryNode(pi, ln.getChain());
 		mc.refresh(pn);
-		// LOGGER.debug("Added library " + ln.getName() + " to " + pn);
+		LOGGER.debug("Added library " + ln.getName() + " to " + pn);
 		return ln;
 	}
 
 	/**
-	 * Add the modeled library to the project.
+	 * Add passed repository item to managed project.
 	 * 
-	 * @param pn
-	 * @param ln
+	 * The project items are then loaded into the ProjectNode which creates the modeled libraries.
+	 * 
+	 * Forces repository refresh policy to ALWAYS for this action.
+	 * 
+	 * Displays findings. Types are resolved and the gui is refreshed.
+	 * 
+	 * @see {@link org.opentravel.schemas.controllers.DefaultRepositoryController#getVersionUpdateMap()}
+	 *      {@link org.opentravel.schemas.actions.AddToProjectAction#run()}
+	 * 
+	 * @return the first project item returned from project manager
+	 * 
 	 */
-	public ProjectItem add(ProjectNode pn, LibraryNode ln) {
-		if (pn == null || ln == null)
-			return null;
-
-		ProjectItem pi = null;
-		try {
-			pi = pn.getProject().getProjectManager().addUnmanagedProjectItem(ln.getTLaLib(), pn.getProject());
-		} catch (RepositoryException e) {
-			LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
-			DialogUserNotifier.openError("Project Error", e.getLocalizedMessage());
-		}
-		ln.setProjectItem(pi);
-		return pi;
-	}
-
 	@Override
 	public ProjectItem add(ProjectNode project, RepositoryItem ri) {
 		if (project == null)
@@ -291,29 +298,32 @@ public class DefaultProjectController implements ProjectController {
 		List<ProjectItem> piList = null;
 		ValidationFindings findings = new ValidationFindings();
 		try {
-			// workaround to make sure the local version of library will be up-to-date with remote
-			// repository
+			// workaround to make sure the local version of library will be up-to-date with remote repository
 			RefreshPolicy refreshPolicy = null;
 			if (ri.getRepository() instanceof RemoteRepositoryClient) {
 				RemoteRepositoryClient client = (RemoteRepositoryClient) ri.getRepository();
 				refreshPolicy = client.getRefreshPolicy();
 				client.setRefreshPolicy(RefreshPolicy.ALWAYS);
 			}
-			piList = project.getProject().getProjectManager()
-					.addManagedProjectItems(Arrays.asList(new RepositoryItem[] { ri }), project.getProject(), findings);
+
+			// Add RepoItem to managed project
+			piList = project
+					.getTLProject()
+					.getProjectManager()
+					.addManagedProjectItems(Arrays.asList(new RepositoryItem[] { ri }), project.getTLProject(),
+							findings);
 
 			// restore refresh policy
 			if (ri.getRepository() instanceof RemoteRepositoryClient) {
 				RemoteRepositoryClient client = (RemoteRepositoryClient) ri.getRepository();
 				client.setRefreshPolicy(refreshPolicy);
 			}
+			// FIXME - only findings relevant to the opened libraries
 			if (findings.hasFinding()) {
 				if (PlatformUI.isWorkbenchRunning())
 					FindingsDialog.open(OtmRegistry.getActiveShell(), Messages.getString("dialog.findings.title"),
 							Messages.getString("dialog.findings.message"), findings.getAllFindingsAsList());
 			}
-			if (!piList.isEmpty())
-				pi = piList.get(0);
 		} catch (LibraryLoaderException e) {
 			LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
 			DialogUserNotifier.openError("Project Error", e.getLocalizedMessage());
@@ -323,37 +333,20 @@ public class DefaultProjectController implements ProjectController {
 			DialogUserNotifier.openError("Project Error", e.getLocalizedMessage());
 		}
 
-		// TEST - make sure any member of the chain is not already opened.
 		// piList now has all of the project items for this chain.
-		List<LibraryChainNode> chains = new ArrayList<LibraryChainNode>();
 		if (!piList.isEmpty()) {
-			// does not work - mc.showBusy(true);
-			for (ProjectItem item : piList) {
-				if (pi == null)
-					pi = item; // return first one
-				if (item != null) {
-					// does not work - mc.postStatus("Opening " + item.getLibraryName());
-					LibraryChainNode lcn = project.getChain(item);
-					// FIXME - getChain is always returning null causing each chain member to create
-					// a new chain.
-					if (lcn == null) {
-						lcn = new LibraryChainNode(item, project);
-						chains.add(lcn);
-					} else {
-						lcn.add(item);
-					}
-				}
-
-				try {
-					project.getProject().getProjectManager().saveProject(project.getProject());
-				} catch (LibrarySaveException e) {
-					e.printStackTrace();
-					DialogUserNotifier.openError("Could not save project.", e.getLocalizedMessage());
-				}
+			pi = piList.get(0);
+			project.load(piList);
+			// TODO - catch and report on errors
+			try {
+				project.getTLProject().getProjectManager().saveProject(project.getTLProject());
+			} catch (LibrarySaveException e) {
+				e.printStackTrace();
+				DialogUserNotifier.openError("Could not save project.", e.getLocalizedMessage());
 			}
-			TypeResolver tr = new TypeResolver();
-			tr.resolveTypes(); // do the whole model to check if new libraries resolved broken
-								// links.
+			// }
+			// do the whole model to check if new libraries resolved broken links.
+			new TypeResolver().resolveTypes();
 			mc.refresh(project);
 		} else
 			LOGGER.warn("Repository item " + ri.getLibraryName() + " not added to project.");
@@ -425,11 +418,6 @@ public class DefaultProjectController implements ProjectController {
 		this.defaultProject = defaultProject;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.controllers.ProjectController#getNamespace()
-	 */
 	@Override
 	public String getNamespace() {
 		return null;
@@ -460,7 +448,11 @@ public class DefaultProjectController implements ProjectController {
 							monitor.beginTask("Opening Project", memento.getChildren().length + 1);
 							monitor.worked(1);
 							IStatus status = loadProjects(memento, monitor);
+
+							monitor.worked(1);
+							new TypeResolver().resolveTypes();
 							testAndSetDefaultProject();
+
 							monitor.done();
 							syncWithUi("Project Opened");
 							return status;
@@ -493,9 +485,10 @@ public class DefaultProjectController implements ProjectController {
 		if (fn == null)
 			return;
 
-		if (Display.getCurrent() == null)
+		if (Display.getCurrent() == null) {
 			open(fn, null); // not in UI Thread
-		else {
+			new TypeResolver().resolveTypes();
+		} else {
 			// run in a background job
 			mc.postStatus("Opening " + fn);
 			Job job = new Job("Opening Projects") {
@@ -504,6 +497,10 @@ public class DefaultProjectController implements ProjectController {
 					monitor.beginTask("Opening Project: " + fn, 3);
 					monitor.worked(1);
 					open(fn, monitor);
+
+					monitor.worked(1);
+					new TypeResolver().resolveTypes();
+
 					monitor.done();
 					syncWithUi("Project Opened");
 					return Status.OK_STATUS;
@@ -559,6 +556,7 @@ public class DefaultProjectController implements ProjectController {
 		return project;
 	}
 
+	@Override
 	public ProjectNode open(String fileName, IProgressMonitor monitor) {
 		if (fileName == null || fileName.isEmpty())
 			LOGGER.error("Tried to open null or empty file.");
@@ -625,18 +623,41 @@ public class DefaultProjectController implements ProjectController {
 	}
 
 	@Override
+	public void remove(LibraryNavNode libraryNav) {
+		remove(Collections.singletonList(libraryNav));
+	}
+
+	/**
+	 * Remove each library from Project node and tlProject. Close each library and save impacted projects.
+	 */
+	@Override
+	public void remove(List<LibraryNavNode> list) {
+		Set<ProjectNode> impactedProjects = new HashSet<ProjectNode>();
+		for (LibraryNavNode lnn : list) {
+			ProjectNode pn = lnn.getProject();
+			impactedProjects.add(pn);
+			pn.getTLProject().remove(lnn.getLibrary().getTLaLib());
+			lnn.close();
+			assert (!pn.getChildren().contains(lnn));
+		}
+		for (ProjectNode pn : impactedProjects) {
+			OtmRegistry.getNavigatorView().refresh(pn, true);
+			save(pn);
+		}
+		// mc.refresh();
+	}
+
+	@Override
 	public void close(ProjectNode pn) {
 		if (pn == null || pn.isBuiltIn()) {
 			return;
 		}
-
-		save(pn);
-		pn.getProject().getProjectManager().closeProject(pn.getProject());
-		pn.close();
-		// reload default project
-		if (pn == getDefaultProject()) {
-			ProjectNode newDefaultProject = openProject(getDefaultProject().getProject().getProjectFile().toString());
-			defaultProject = newDefaultProject;
+		if (pn == getDefaultProject())
+			pn.closeAll();
+		else {
+			save(pn);
+			pn.getTLProject().getProjectManager().closeProject(pn.getTLProject());
+			pn.close();
 		}
 		mc.refresh();
 		// LOGGER.debug("Closed project: " + pn);
@@ -659,8 +680,8 @@ public class DefaultProjectController implements ProjectController {
 		for (ProjectNode p : ModelNode.getAllProjects()) {
 			if (p == getBuiltInProject() || p == getDefaultProject())
 				continue;
-			if (p.getProject().getProjectFile() != null)
-				projectFiles.add(p.getProject().getProjectFile().getAbsolutePath());
+			if (p.getTLProject().getProjectFile() != null)
+				projectFiles.add(p.getTLProject().getProjectFile().getAbsolutePath());
 			close(p);
 		}
 		mc.refresh();
@@ -682,7 +703,7 @@ public class DefaultProjectController implements ProjectController {
 		Job job = new Job("Refreshing Projects") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				monitor.beginTask("Refreshing Projects ", jobcount);
+				monitor.beginTask("Refreshing Projects ", jobcount + 2);
 				monitor.worked(1);
 				try {
 					monitor.subTask("Refresh all managed libraries from repository.");
@@ -694,6 +715,10 @@ public class DefaultProjectController implements ProjectController {
 				}
 				monitor.worked(1);
 				open(projects, monitor);
+
+				monitor.worked(1);
+				new TypeResolver().resolveTypes();
+
 				monitor.done();
 				syncWithUi("Projects Refreshed");
 				return Status.OK_STATUS;
@@ -715,14 +740,14 @@ public class DefaultProjectController implements ProjectController {
 
 		mc.showBusy(true);
 		try {
-			pn.getProject().getProjectManager().saveProject(pn.getProject());
+			pn.getTLProject().getProjectManager().saveProject(pn.getTLProject());
 			// save the project file only, not the libraries and ignore findings
 			// pn.getProject().getProjectManager().saveProject(pn.getProject(), true, null);
 		} catch (LibrarySaveException e) {
 			// e.printStackTrace();
 			mc.showBusy(false);
 			LOGGER.error("Could not save project");
-			DialogUserNotifier.openError("Project Error", "Could not save project.");
+			DialogUserNotifier.openError("Project Error", "Could not save project. \n" + e.getLocalizedMessage());
 		}
 		mc.showBusy(false);
 	}
@@ -737,7 +762,7 @@ public class DefaultProjectController implements ProjectController {
 	@Override
 	public void saveAll() {
 		// UNUSED
-		ProjectManager pm = getDefaultProject().getProject().getProjectManager();
+		ProjectManager pm = getDefaultProject().getTLProject().getProjectManager();
 		for (Project p : pm.getAllProjects())
 			try {
 				pm.saveProject(p);
@@ -748,6 +773,9 @@ public class DefaultProjectController implements ProjectController {
 
 	}
 
+	/**
+	 * {@link org.opentravel.schemas.actions.NewProjectAction#run()}
+	 */
 	@Override
 	public ProjectNode newProject() {
 		// Run the wizard
@@ -761,6 +789,10 @@ public class DefaultProjectController implements ProjectController {
 		return null;
 	}
 
+	// TODO - collapse these into one
+	/**
+	 * {@link org.opentravel.schemas.commands.CreateProjectFromRepo#execute(ExecutionEvent)}
+	 */
 	@Override
 	public void newProject(String defaultName, String selectedRoot, String selectedExt) {
 		// Run the wizard
@@ -855,7 +887,7 @@ public class DefaultProjectController implements ProjectController {
 	public void testAndSetDefaultProject() {
 		defaultNS = OtmRegistry.getMainController().getRepositoryController().getLocalRepository().getNamespace();
 		for (ProjectNode pn : getAll()) {
-			if (pn.getProject().getProjectId().equals(defaultNS)) {
+			if (pn.getTLProject().getProjectId().equals(defaultNS)) {
 				defaultProject = pn;
 				break;
 			}
@@ -883,8 +915,8 @@ public class DefaultProjectController implements ProjectController {
 		for (ProjectNode p : projects) {
 			// Filter out built-in and default project?
 			// Make into Items
-			if (p.getProject().getProjectFile() != null) {
-				IProjectToken item = new ProjectToken(p.getProject().getProjectFile());
+			if (p.getTLProject().getProjectFile() != null) {
+				IProjectToken item = new ProjectToken(p.getTLProject().getProjectFile());
 				openProjects.add(item);
 			}
 		}

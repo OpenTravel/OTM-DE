@@ -26,10 +26,9 @@ import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 import org.opentravel.schemacompiler.event.ModelEventType;
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
-import org.opentravel.schemacompiler.model.AbstractLibrary;
-import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
@@ -145,14 +144,14 @@ public class FacetMO extends ModelObject<TLFacet> {
 		return true;
 	}
 
-	/**
-	 * You can not add aliases to facets.
-	 */
-	@Override
-	@Deprecated
-	public void addAlias(final TLAlias tla) {
-		// Not found, add it.
-	}
+	// /**
+	// * You can not add aliases to facets.
+	// */
+	// @Override
+	// @Deprecated
+	// public void addAlias(final TLAlias tla) {
+	// // Not found, add it.
+	// }
 
 	@Override
 	public void delete() {
@@ -168,7 +167,9 @@ public class FacetMO extends ModelObject<TLFacet> {
 				|| (getTLModelObj().getFacetType().equals(TLFacetType.RESPONSE))
 				|| (getTLModelObj().getFacetType().equals(TLFacetType.NOTIFICATION))) {
 			getTLModelObj().clearFacet();
-		} else if (getTLModelObj().getFacetType().equals(TLFacetType.CUSTOM)) {
+		} else if (getTLModelObj().getFacetType().equals(TLFacetType.CHOICE))
+			((TLChoiceObject) getTLModelObj().getOwningEntity()).removeChoiceFacet((TLContextualFacet) getTLModelObj());
+		if (getTLModelObj().getFacetType().equals(TLFacetType.CUSTOM)) {
 			((TLBusinessObject) getTLModelObj().getOwningEntity())
 					.removeCustomFacet((TLContextualFacet) getTLModelObj());
 		} else if (getTLModelObj().getFacetType().equals(TLFacetType.QUERY)) {
@@ -253,11 +254,11 @@ public class FacetMO extends ModelObject<TLFacet> {
 		return "";
 	}
 
-	@Deprecated
-	@Override
-	protected AbstractLibrary getLibrary(final TLFacet obj) {
-		return null;
-	}
+	// @Deprecated
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLFacet obj) {
+	// return null;
+	// }
 
 	// @Override
 	// public String getLabel() {
@@ -301,15 +302,15 @@ public class FacetMO extends ModelObject<TLFacet> {
 	// return name == null ? getTLModelObj().getContext() : name;
 	// }
 
-	@Override
-	public String getNamePrefix() {
-		return null;
-	}
-
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// return null;
+	// }
+	//
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
 
 	@Override
 	public TLFacet getTLModelObj() {

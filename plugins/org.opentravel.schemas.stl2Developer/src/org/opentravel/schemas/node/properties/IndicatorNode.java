@@ -24,7 +24,6 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
-import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
@@ -95,8 +94,7 @@ public class IndicatorNode extends PropertyNode {
 
 	@Override
 	public String getName() {
-		return getTLModelObject() == null || getTLModelObject().getName() == null
-				|| getTLModelObject().getName().isEmpty() ? "" : getTLModelObject().getName();
+		return emptyIfNull(getTLModelObject().getName());
 	}
 
 	@Override
@@ -134,6 +132,11 @@ public class IndicatorNode extends PropertyNode {
 	@Override
 	public boolean isIndicator() {
 		return true;
+	}
+
+	@Override
+	public boolean isRenameable() {
+		return isEditable() && !inherited;
 	}
 
 	@Override

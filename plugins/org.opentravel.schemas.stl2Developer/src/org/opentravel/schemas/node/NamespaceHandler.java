@@ -26,6 +26,7 @@ import java.util.Set;
 import org.opentravel.schemacompiler.version.VersionScheme;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
 import org.opentravel.schemacompiler.version.VersionSchemeFactory;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.preferences.GeneralPreferencePage;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.OtmRegistry;

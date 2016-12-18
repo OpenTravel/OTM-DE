@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.node.libraries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,13 +24,25 @@ import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
+import org.opentravel.schemas.node.AggregateNode;
 import org.opentravel.schemas.node.AggregateNode.AggregateType;
+import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.NamespaceHandler;
+import org.opentravel.schemas.node.NavNode;
+import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.VersionAggregateNode;
+import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Images;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Library chains are all libraries based on the same major release. Their content is aggregated in this node.
@@ -38,8 +50,8 @@ import org.opentravel.schemas.properties.Images;
  * @author Dave Hollander
  * 
  */
-public class LibraryChainNode extends Node {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryChainNode.class);
+public class LibraryChainNode extends Node implements LibraryInterface {
+	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryChainNode.class);
 
 	protected static final String LIBRARY_CHAIN = "Library Collection";
 
@@ -77,6 +89,8 @@ public class LibraryChainNode extends Node {
 	 * Create a new chain and move the passed library from its parent to the chain. The library parent will be used as
 	 * the chain's parent. Children are the 4 aggregate nodes linked by their constructors.
 	 * 
+	 * {@link org.opentravel.schemas.controllers.DefaultRepositoryController#convertToChains(Collection<LibraryNode>)}
+	 * 
 	 * @param ln
 	 *            - library to add to new chain.
 	 */
@@ -85,26 +99,26 @@ public class LibraryChainNode extends Node {
 		if (ln == null)
 			return;
 		if (ln.isInChain())
-			return;
+			throw new IllegalStateException("Library is already in a chain.");
+		// return;
+		if (ln.getProject() == null)
+			throw new IllegalStateException("Library did not have project.");
+		if (ln.getParent() == null || (!(ln.getParent() instanceof LibraryNavNode)))
+			throw new IllegalStateException("Library parent is not a LibraryNavNode.");
 
-		ProjectNode pn = ln.getProject();
-		if (pn == null) {
-			// LOGGER.error("Library Chains must be made from libraries in a project.");
-			return;
-		}
-		setParent(pn);
-		pn.getChildren().remove(ln);
-		pn.getChildren().add(this);
-		// setIdentity(ln.getProjectItem().getBaseNamespace());
+		// Inform the LibraryModelManager of the change
+		((LibraryNavNode) ln.getParent()).setThisLib(this);
+		getModelNode().getLibraryManager().replace(ln, this);
 
+		parent = ln.getParent();
 		setHead(ln);
 		createAggregates();
-		versions.add(ln);
+		versions.add(ln); // add to children and set parent
 
 		aggregateChildren(ln);
 		ln.updateLibraryStatus();
 
-		// LOGGER.debug("Created library chain " + this.getLabel());
+		LOGGER.debug("Created library chain " + this.getLabel());
 	}
 
 	private void createAggregates() {
@@ -115,6 +129,9 @@ public class LibraryChainNode extends Node {
 		resourceRoot = new AggregateNode(AggregateType.RESOURCES, this);
 	}
 
+	/**
+	 * Sets the library in all the aggregate nodes.
+	 */
 	private void setAggregateLibrary(LibraryNode ln) {
 		versions.setLibrary(ln);
 		complexRoot.setLibrary(ln);
@@ -128,30 +145,34 @@ public class LibraryChainNode extends Node {
 	 * 
 	 * @param pi
 	 *            - project item to be modeled and added to chain
-	 * @param project
+	 * @param projNode
 	 *            - parent of the chain
 	 */
-	public LibraryChainNode(ProjectItem pi, ProjectNode project) {
+	public LibraryChainNode(ProjectItem pi, ProjectNode projNode) {
 		super();
 		if (pi == null || pi.getContent() == null) {
 			// LOGGER.debug("Null project item content!");
 			return;
 		}
-		// setIdentity(pi.getBaseNamespace());
+		if (pi.getContent().getOwningModel() == null) {
+			LOGGER.debug("Project item does not have owning model.");
+			return;
+		}
 
-		setParent(project);
-		project.getChildren().add(this);
+		LOGGER.debug("Creating chain for project item " + pi.getLibraryName());
+
+		setParent(new LibraryNavNode(this, projNode));
+		getModelNode().getLibraryManager().add(this);
 
 		setHead(null);
 
 		chain = new ArrayList<LibraryNode>();
 		createAggregates();
-
 		List<ProjectItem> piChain = null;
 		try {
 			piChain = pi.getProjectManager().getVersionChain(pi);
 		} catch (VersionSchemeException e1) {
-			throw (new IllegalStateException("Could not get chain from project manager."));
+			throw (new IllegalStateException("Could not get chain from project manager. " + e1.getLocalizedMessage()));
 		}
 
 		for (ProjectItem item : piChain)
@@ -172,7 +193,7 @@ public class LibraryChainNode extends Node {
 		LibraryNode newLib = versions.get(pi);
 
 		if (newLib == null) {
-			// LOGGER.debug("Adding pi " + pi.getFilename() + " to chain " + getLabel());
+			LOGGER.debug("Adding pi " + pi.getFilename() + " to chain " + getLabel());
 			newLib = new LibraryNode(pi, this);
 			versions.add(newLib); // simply add this library to library list.
 			newLib.updateLibraryStatus();
@@ -249,7 +270,7 @@ public class LibraryChainNode extends Node {
 	}
 
 	/**
-	 * @return true if this chain contains this node
+	 * @return true if this chain contains the node's library
 	 */
 	public boolean contains(Node node) {
 		return versions.getChildren().contains(node.getLibrary());
@@ -294,31 +315,27 @@ public class LibraryChainNode extends Node {
 		return false;
 	}
 
-	// only called as override on Node in LibraryNode.close()
+	/**
+	 * Walk all members and close them. Caller is responsible to assure this library chain is not used in other projects
+	 * {@link #LibraryModelManager}
+	 */
 	@Override
 	public void close() {
-
-		// Use libraryNode.close on the head to reassign any components that use these nav nodes as parents
-		getHead().close();
-
-		// Versions
-		versions.close();
-
-		// close Aggregate Nodes, they do children array
-		complexRoot.close();
-		simpleRoot.close();
-		serviceRoot.close();
-		resourceRoot.close();
-		complexRoot = null;
-		simpleRoot = null;
-		serviceRoot = null;
-		resourceRoot = null;
-
-		setLibrary(null);
-		deleted = true;
-		modelObject = null;
-		if (getParent() != null)
-			parent.getChildren().remove(this);
+		LOGGER.debug("Closing " + getNameWithPrefix());
+		if (getParent() instanceof LibraryNavNode) {
+			((LibraryNavNode) getParent()).close();
+		} else {
+			// Take kids out of chain then close them
+			for (Node n : getChildren_New()) {
+				n.setParent(null);
+				n.close();
+			}
+			deleted = true;
+			setParent(null);
+			setLibrary(null);
+		}
+		assert (isEmpty());
+		assert (getHead() == null);
 	}
 
 	@Override
@@ -326,11 +343,6 @@ public class LibraryChainNode extends Node {
 		return LIBRARY_CHAIN;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#getChain()
-	 */
 	@Override
 	public LibraryChainNode getChain() {
 		return this;
@@ -341,11 +353,6 @@ public class LibraryChainNode extends Node {
 		return Images.getImageRegistry().get(Images.libraryChain);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#getLabel()
-	 */
 	@Override
 	public String getLabel() {
 		String label = "Version Chain";
@@ -355,11 +362,6 @@ public class LibraryChainNode extends Node {
 		return label;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#getLibraries()
-	 */
 	@Override
 	public List<LibraryNode> getLibraries() {
 		ArrayList<LibraryNode> libs = new ArrayList<LibraryNode>();
@@ -370,11 +372,6 @@ public class LibraryChainNode extends Node {
 		return libs;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#getName()
-	 */
 	@Override
 	public String getName() {
 		String label = "Version Chain";
@@ -386,25 +383,13 @@ public class LibraryChainNode extends Node {
 		return label;
 	}
 
-	// /**
-	// * All members of the chain must have the same name, base namespace and major version number.
-	// */
-	// @Override
-	// public String getIdentity() {
-	// String identity = "UNIDENTIFIED-CHAIN:someNS:9";
-	// if (getHead() != null) {
-	// NamespaceHandler handler = getHead().getNsHandler();
-	// if (handler != null)
-	// identity = makeIdentity();
-	// }
-	// return identity;
-	// }
-
 	/**
 	 * See also {@link ProjectNode#makeChainIdentity(ProjectItem)} 9/23/2013 - this method does not use the repository
 	 * for managed base namespaces. It matches the behavior or makeChainIdentity in ProjectNode.
 	 */
 	public String makeChainIdentity() {
+		assert (getHead() != null);
+
 		String name = getHead().getName();
 		NamespaceHandler handler = getHead().getNsHandler();
 		String baseNS = handler.removeVersion(getHead().getNamespace());
@@ -427,24 +412,14 @@ public class LibraryChainNode extends Node {
 	}
 
 	/**
-	 * Return the project containing this chain or its chain. Null if no project is found.
-	 * 
-	 * @return
+	 * @return the project containing this chain. Null if no project is found.
 	 */
 	public ProjectNode getProject() {
-		return getParent() instanceof ProjectNode ? (ProjectNode) getParent() : null;
+		if (getParent() instanceof LibraryNavNode)
+			return ((LibraryNavNode) getParent()).getProject();
+		else
+			return getParent() instanceof ProjectNode ? (ProjectNode) getParent() : null;
 	}
-
-	// @Override
-	// public List<Node> getNavChildren() {
-	// // // 3/11/2015 dmh - do not return the version aggregate.
-	// // // this simplifies links from validation, user experience and showing families in the other aggregates.
-	// // ArrayList<Node> kids = new ArrayList<Node>();
-	// // kids.addAll(getChildren());
-	// // kids.remove(versions);
-	// // return kids;
-	// return getChildren();
-	// }
 
 	/**
 	 * Get the parent of the actual libraries in the chain.
@@ -454,12 +429,6 @@ public class LibraryChainNode extends Node {
 	public Node getVersions() {
 		return versions;
 	}
-
-	// @Override
-	// public boolean hasNavChildren(boolean deep) {
-	// return !getChildren().isEmpty();
-	// // return getChildren().size() <= 0 ? false : true;
-	// }
 
 	@Override
 	public boolean isEditable() {
@@ -521,11 +490,6 @@ public class LibraryChainNode extends Node {
 		return complexRoot;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#hasChildren_TypeProviders()
-	 */
 	@Override
 	public boolean hasChildren_TypeProviders() {
 		return versions.getChildren().size() > 0 ? true : false;
@@ -562,10 +526,6 @@ public class LibraryChainNode extends Node {
 		for (LibraryNode ln : getLibraries())
 			findings.addAll(TLModelCompileValidator.validateModelElement(ln.getTLaLib()));
 
-		// for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
-		// {
-		// LOGGER.debug("Finding: " + f);
-		// }
 		return findings;
 	}
 

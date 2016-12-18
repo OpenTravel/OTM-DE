@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLModelElement;
@@ -78,20 +77,20 @@ public class ValueWithAttributesAttributeFacetMO extends ModelObject<TLValueWith
 	// return DISPLAY_NAME;
 	// }
 
-	@Override
-	protected AbstractLibrary getLibrary(final TLValueWithAttributesFacet obj) {
-		return null;
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLValueWithAttributesFacet obj) {
+	// return null;
+	// }
 
-	@Override
-	public String getNamePrefix() {
-		return null;
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// return null;
+	// }
 
-	@Override
-	public String getNamespace() {
-		return null;
-	}
+	// @Override
+	// public String getNamespace() {
+	// return null;
+	// }
 
 	@Override
 	public boolean setName(final String name) {

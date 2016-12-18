@@ -19,8 +19,10 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
+import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.modelObject.ExtensionPointFacetMO;
+import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
@@ -41,7 +43,7 @@ import org.opentravel.schemas.types.TypeUser;
  * @author Dave Hollander
  * 
  */
-public class ExtensionPointNode extends ComponentNode implements ComplexComponentInterface, ExtensionOwner,
+public class ExtensionPointNode extends PropertyOwnerNode implements ComplexComponentInterface, ExtensionOwner,
 		PropertyOwnerInterface, LibraryMemberInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionPointNode.class);
 	private ExtensionHandler extensionHandler = null;
@@ -148,10 +150,10 @@ public class ExtensionPointNode extends ComponentNode implements ComplexComponen
 	// return false;
 	// }
 
-	@Override
-	public boolean isExtensionPointFacet() {
-		return true;
-	}
+	// @Override
+	// public boolean isExtensionPointFacet() {
+	// return true;
+	// }
 
 	protected Node newElementProperty() {
 		ElementNode n = new ElementNode(new TLProperty(), this);
@@ -196,6 +198,17 @@ public class ExtensionPointNode extends ComponentNode implements ComplexComponen
 	@Override
 	public ExtensionHandler getExtensionHandler() {
 		return extensionHandler;
+	}
+
+	@Override
+	public TLFacetType getFacetType() {
+		return null;
+	}
+
+	@Override
+	public String getComponentType() {
+		// TLFacetType facetType = getTLModelObject().getFacetType();
+		return ComponentNodeType.EXTENSION_POINT.getDescription();
 	}
 
 }

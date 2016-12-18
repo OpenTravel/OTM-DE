@@ -19,7 +19,9 @@ import org.eclipse.jface.viewers.Viewer;
 import org.opentravel.schemas.modelObject.ExtensionPointFacetMO;
 import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.modelObject.ModelObject;
+import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.INode;
 
 /**
  * Type selection filter that only allow the selection of a particular type of model object. This is used during the
@@ -41,6 +43,7 @@ public class TypeTreeExtensionSelectionFilter extends TypeSelectionFilter {
 	 * @param modelObjectType
 	 *            the type of model object that should be
 	 */
+	// TODO - make this use Nodes not ModelObjects
 	@SuppressWarnings("unchecked")
 	public TypeTreeExtensionSelectionFilter(ModelObject<?> modelObject) {
 		this.modelObject = modelObject;
@@ -59,22 +62,35 @@ public class TypeTreeExtensionSelectionFilter extends TypeSelectionFilter {
 	public boolean isValidSelection(Node n) {
 		boolean isValid = false;
 
+		// Do same as commented out below using Nodes not MO
+		// 11/10/2016 dmh
 		if (n != null) {
-			ModelObject<?> modelObject = n.getModelObject();
-
-			if ((extensionType == null) || extensionType.equals(modelObject.getClass())) {
-				if (this.modelObject instanceof ExtensionPointFacetMO) {
+			INode thisNode = this.modelObject.getNode();
+			if ((extensionType == null) || extensionType.equals(n.getModelObject().getClass())) {
+				if (n instanceof ExtensionPointNode)
 					// XP Facets must select extensions in a different namespace
-					// if (n.getParent().getModelObject().isExtendable()) {
-					isValid = (n.getNamespace() != null) && !n.getNamespace().equals(this.modelObject.getNamespace());
-					// }
-				} else {
-					// commented out to allow extensions even if base is not extend-able.
-					// isValid = modelObject.isExtendable();
+					isValid = n.getNamespace() != null && !n.getNamespace().equals(thisNode.getNamespace());
+				else
 					isValid = true;
-				}
 			}
 		}
+
+		// if (n != null) {
+		// ModelObject<?> modelObject = n.getModelObject();
+		//
+		// if ((extensionType == null) || extensionType.equals(modelObject.getClass())) {
+		// if (this.modelObject instanceof ExtensionPointFacetMO) {
+		// // XP Facets must select extensions in a different namespace
+		// // if (n.getParent().getModelObject().isExtendable()) {
+		// isValid = (n.getNamespace() != null) && !n.getNamespace().equals(this.modelObject.getNamespace());
+		// // }
+		// } else {
+		// // commented out to allow extensions even if base is not extend-able.
+		// // isValid = modelObject.isExtendable();
+		// isValid = true;
+		// }
+		// }
+		// }
 		return isValid;
 	}
 

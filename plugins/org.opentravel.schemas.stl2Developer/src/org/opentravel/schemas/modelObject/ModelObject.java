@@ -24,7 +24,6 @@ import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
-import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLDocumentation;
@@ -35,7 +34,6 @@ import org.opentravel.schemacompiler.model.TLEquivalentOwner;
 import org.opentravel.schemacompiler.model.TLExample;
 import org.opentravel.schemacompiler.model.TLExampleOwner;
 import org.opentravel.schemacompiler.model.TLFacet;
-import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLListFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
@@ -99,13 +97,13 @@ public abstract class ModelObject<TL> {
 		this.node = node;
 	}
 
-	public AbstractLibrary getOwningLibrary() {
-		return srcObj instanceof LibraryMember ? ((LibraryMember) srcObj).getOwningLibrary() : null;
-	}
+	// public AbstractLibrary getOwningLibrary() {
+	// return srcObj instanceof LibraryMember ? ((LibraryMember) srcObj).getOwningLibrary() : null;
+	// }
 
-	public String getAssignedName() {
-		return getTLType() == null || getTLType().getLocalName() == null ? "" : getTLType().getLocalName();
-	}
+	// public String getAssignedName() {
+	// return getTLType() == null || getTLType().getLocalName() == null ? "" : getTLType().getLocalName();
+	// }
 
 	public String getAssignedPrefix() {
 		final NamedEntity type = getTLType();
@@ -170,39 +168,11 @@ public abstract class ModelObject<TL> {
 		}
 	}
 
-	protected abstract AbstractLibrary getLibrary(TL obj);
+	// protected abstract AbstractLibrary getLibrary(TL obj);
 
-	// /**
-	// * Label is the node's name plus any optional additional generated text that clarifies the role/purpose/type of
-	// the
-	// * node to the user. Labels can not be set. Label to be used in tree views. Sub types must override to provide
-	// * additional text.
-	// *
-	// * @return - name
-	// */
-	// public String getLabel() {
-	// return node.getName();
-	// }
-	//
-	// /**
-	// * @return - the user managed name of the object.
-	// */
-	// public String getName() {
-	// // assert (false);
-	// return "EEEE";
-	// }
+	// public abstract String getNamePrefix();
 
-	public abstract String getNamePrefix();
-
-	public abstract String getNamespace(); // TL*.getNamespace() is only implemented for some TL* classes/interfaces
-
-	// public String getPattern() {
-	// return "";
-	// }
-	//
-	public int getRepeat() {
-		return -1;
-	}
+	// public abstract String getNamespace(); // TL*.getNamespace() is only implemented for some TL* classes/interfaces
 
 	/**
 	 * Get the local name of the extension type.
@@ -232,11 +202,7 @@ public abstract class ModelObject<TL> {
 
 	public abstract TL getTLModelObj();
 
-	public boolean isMandatory() {
-		return false;
-	}
-
-	// public boolean isComplexAssignable() {
+	// public boolean isMandatory() {
 	// return false;
 	// }
 
@@ -247,9 +213,9 @@ public abstract class ModelObject<TL> {
 		return false;
 	}
 
-	public boolean setMandatory(final boolean selection) {
-		return false;
-	}
+	// public boolean setMandatory(final boolean selection) {
+	// return false;
+	// }
 
 	public abstract boolean setName(String name);
 
@@ -257,13 +223,14 @@ public abstract class ModelObject<TL> {
 		return false;
 	}
 
-	/**
-	 * Set the type of underlying TL Model object. Also assure the name conforms to the rules for that type of property.
-	 * 
-	 * @param mo
-	 */
-	public void setTLType(final ModelObject<?> mo) {
-	}
+	// /**
+	// * Set the type of underlying TL Model object. Also assure the name conforms to the rules for that type of
+	// property.
+	// *
+	// * @param mo
+	// */
+	// public void setTLType(final ModelObject<?> mo) {
+	// }
 
 	/**
 	 * This should only be used by sub-types. The sub-types set the TL model objects.
@@ -426,8 +393,8 @@ public abstract class ModelObject<TL> {
 		infoDoc.setText(string);
 	}
 
-	public void addAlias(final TLAlias tla) {
-	}
+	// public void addAlias(final TLAlias tla) {
+	// }
 
 	public void addToLibrary(AbstractLibrary tlLibrary) {
 		if (srcObj instanceof LibraryMember && tlLibrary instanceof TLLibrary) {
@@ -450,9 +417,9 @@ public abstract class ModelObject<TL> {
 		return false;
 	}
 
-	protected int indexOf() {
-		return 0;
-	}
+	// protected int indexOf() {
+	// return 0;
+	// }
 
 	public void removeFromTLParent() {
 	}
@@ -478,13 +445,13 @@ public abstract class ModelObject<TL> {
 		return null;
 	}
 
-	/**
-	 * Get the type name from the TL model object. NOTE: this should only be used for GUI hints and NOT type
-	 * assignments.
-	 */
-	public String getTypeName() {
-		return "";
-	}
+	// /**
+	// * Get the type name from the TL model object. NOTE: this should only be used for GUI hints and NOT type
+	// * assignments.
+	// */
+	// public String getTypeName() {
+	// return "";
+	// }
 
 	public NamedEntity getTLBase() {
 		return null;
@@ -504,6 +471,7 @@ public abstract class ModelObject<TL> {
 	 * @return - list of TLContexts or else empty list Contexts are used in OtherDocs, facets, examples and equivalents.
 	 *         Overridden for attributes/elements/indicators that have examples and equivalents
 	 */
+	@Deprecated
 	public List<TLContext> getContexts() {
 		if (!(getTLModelObj() instanceof LibraryMember))
 			return Collections.emptyList();
@@ -559,12 +527,12 @@ public abstract class ModelObject<TL> {
 		return list;
 	}
 
-	public void setList(boolean selected) {
-	}
+	// public void setList(boolean selected) {
+	// }
 
-	public boolean isSimpleList() {
-		return false;
-	}
+	// public boolean isSimpleList() {
+	// return false;
+	// }
 
 	public void sort() {
 		// LOGGER.debug("ModelObject:sort() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
@@ -579,14 +547,14 @@ public abstract class ModelObject<TL> {
 		return false;
 	}
 
-	/**
-	 * Create new TLFacet and add to facet owner. Overridden in objects that support adding facets.
-	 * 
-	 * @return the newly added TLFacet or null
-	 */
-	public TLFacet addFacet(TLFacetType type) {
-		return null;
-	}
+	// /**
+	// * Create new TLFacet and add to facet owner. Overridden in objects that support adding facets.
+	// *
+	// * @return the newly added TLFacet or null
+	// */
+	// public TLFacet addFacet(TLFacetType type) {
+	// return null;
+	// }
 
 	protected static String emptyIfNull(final String string) {
 		return string == null ? "" : string;

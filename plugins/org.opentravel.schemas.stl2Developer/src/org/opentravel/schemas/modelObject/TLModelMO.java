@@ -17,7 +17,6 @@ package org.opentravel.schemas.modelObject;
 
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.TLModel;
 
 public class TLModelMO extends ModelObject<TLModel> {
@@ -41,10 +40,10 @@ public class TLModelMO extends ModelObject<TLModel> {
 	// return null;
 	// }
 
-	@Override
-	protected AbstractLibrary getLibrary(final TLModel obj) {
-		return null;
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLModel obj) {
+	// return null;
+	// }
 
 	// @Deprecated
 	// @Override
@@ -52,15 +51,15 @@ public class TLModelMO extends ModelObject<TLModel> {
 	// return null;
 	// }
 	//
-	@Override
-	public String getNamePrefix() {
-		return null;
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// return null;
+	// }
 
-	@Override
-	public String getNamespace() {
-		return null;
-	}
+	// @Override
+	// public String getNamespace() {
+	// return null;
+	// }
 
 	@Override
 	public boolean setName(final String name) {

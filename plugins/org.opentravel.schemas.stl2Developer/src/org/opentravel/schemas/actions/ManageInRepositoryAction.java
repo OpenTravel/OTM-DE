@@ -20,7 +20,7 @@ import java.util.Collections;
 
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemas.controllers.RepositoryController;
-import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.trees.repository.RepositoryNode;

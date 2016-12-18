@@ -26,15 +26,16 @@ import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.node.CoreObjectNode;
+import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.TypeProviderBase;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
@@ -106,7 +107,7 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 
 	/**
 	 * Make a copy of all the properties of the source facet and add to this facet. If the property is of the wrong
-	 * type, it is changed into an attribute first.
+	 * type, it is changed into an attribute.
 	 * 
 	 * @param sourceFacet
 	 */
@@ -199,7 +200,7 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 
 	@Override
 	public Node getOwningComponent() {
-		return isExtensionPointFacet() ? this : getParent();
+		return this instanceof ExtensionPointNode ? this : getParent();
 	}
 
 	/**
@@ -302,15 +303,15 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 
 	@Override
 	public boolean isNamedType() {
-		return isExtensionPointFacet() ? true : false;
+		return this instanceof ExtensionPointNode ? true : false;
 	}
 
-	/**
-	 * @return true if this facet is renameable.
-	 */
-	public boolean isRenameable() {
-		return false;
-	}
+	// /**
+	// * @return true if this facet is renameable.
+	// */
+	// public boolean isRenameable() {
+	// return false;
+	// }
 
 	/**
 	 * Facets assigned to core object list types have no model objects but may be page1-assignable.

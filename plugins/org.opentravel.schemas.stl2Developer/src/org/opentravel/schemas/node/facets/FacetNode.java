@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.codegen.util.XsdCodegenUtils;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
@@ -145,24 +146,18 @@ public class FacetNode extends PropertyOwnerNode implements PropertyOwnerInterfa
 	}
 
 	@Override
-	public String getLabel() {
-		return getName();
-		// String label = getModelObject().getLabel();
-		// if (label.indexOf("-Facet") > 0)
-		// label = label.substring(0, label.indexOf("-Facet"));
-		// return label.isEmpty() ? "" : label;
+	public String getPropertyRole() {
+		return getComponentType();
 	}
 
-	// FIXME
+	@Override
+	public String getLabel() {
+		return getComponentType();
+	}
+
 	@Override
 	public String getName() {
-		return getComponentType();
-		// if (modelObject == null)
-		// return "";
-		// // if (modelObject.getTLModelObj() instanceof TLFacet
-		// // && ((TLFacet) modelObject.getTLModelObj()).getOwningEntity() == null)
-		// // return "";
-		// return modelObject.getName() == null ? "" : modelObject.getName();
+		return XsdCodegenUtils.getSubstitutableElementName(getTLModelObject()).getLocalPart();
 	}
 
 	@Override

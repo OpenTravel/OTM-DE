@@ -18,8 +18,6 @@ package org.opentravel.schemas.modelObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
-import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLResource;
 //import org.slf4j.Logger;
@@ -59,16 +57,16 @@ public class ResourceMO extends ModelObject<TLResource> {
 	// return getTLModelObj().getName();
 	// }
 
-	@Override
-	public String getNamePrefix() {
-		final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
-		return lib == null ? "" : lib.getPrefix();
-	}
-
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
+	// return lib == null ? "" : lib.getPrefix();
+	// }
+	//
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
 
 	@Override
 	public TLResource getTLModelObj() {
@@ -81,10 +79,10 @@ public class ResourceMO extends ModelObject<TLResource> {
 		return true;
 	}
 
-	@Override
-	protected AbstractLibrary getLibrary(final TLResource obj) {
-		return obj.getOwningLibrary();
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLResource obj) {
+	// return obj.getOwningLibrary();
+	// }
 	// @Override
 	// public String getExtendsType() {
 	// TLExtension tlExtension = getTLModelObj().getExtension();

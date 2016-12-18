@@ -18,7 +18,8 @@ package org.opentravel.schemas.node.facets;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLListFacet;
 import org.opentravel.schemas.modelObject.ListFacetMO;
-import org.opentravel.schemas.node.PropertyNodeType;
+import org.opentravel.schemas.node.ComponentNodeType;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 
 /**
  * Used for Detail and Summary List Facets.
@@ -67,6 +68,13 @@ public class ListFacetNode extends PropertyOwnerNode {
 	@Override
 	public String getComponentType() {
 		return getFacetType().getIdentityName();
+	}
+
+	@Override
+	public String getLabel() {
+		if (isDefaultFacet())
+			return ComponentNodeType.DETAIL_LIST.getDescription();
+		return ComponentNodeType.SIMPLE_LIST.getDescription();
 	}
 
 	@Override

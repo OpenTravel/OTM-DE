@@ -17,7 +17,6 @@ package org.opentravel.schemas.modelObject;
 
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.XSDComplexType;
@@ -94,25 +93,25 @@ public class XSDComplexMO extends ModelObject<XSDComplexType> {
 	// return "XSD Complex Type";
 	// }
 	//
-	@Override
-	protected AbstractLibrary getLibrary(final XSDComplexType obj) {
-		return null;
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final XSDComplexType obj) {
+	// return null;
+	// }
 
 	// @Override
 	// public String getName() {
 	// return getTLModelObj().getLocalName();
 	// }
 
-	@Override
-	public String getNamePrefix() {
-		return getTLModelObj().getOwningLibrary().getPrefix();
-	}
-
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// return getTLModelObj().getOwningLibrary().getPrefix();
+	// }
+	//
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
 
 	@Override
 	public XSDComplexType getTLModelObj() {

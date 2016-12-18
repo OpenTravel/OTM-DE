@@ -24,9 +24,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +88,7 @@ public class WhereUsedLibraryHandler {
 		whereUsedNode = new TypeNode(libraryNode);
 		usedByNode = new TypeUserNode(libraryNode);
 		this.owner = libraryNode;
-		LOGGER.debug("Constructed where used handler for " + libraryNode);
+		// LOGGER.debug("Constructed where used handler for " + libraryNode);
 	}
 
 	public void add(TypeUser user) {

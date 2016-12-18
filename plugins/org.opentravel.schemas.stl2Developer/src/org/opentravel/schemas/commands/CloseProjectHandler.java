@@ -17,9 +17,9 @@ package org.opentravel.schemas.commands;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 
 /**
@@ -33,6 +33,9 @@ public class CloseProjectHandler extends OtmAbstractHandler {
 	public static String COMMAND_ID = "org.opentravel.schemas.commands.CloseProject";
 	ProjectNode project = null;
 
+	/**
+	 * Use project controller to close a project
+	 */
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
 		if (isEnabled())

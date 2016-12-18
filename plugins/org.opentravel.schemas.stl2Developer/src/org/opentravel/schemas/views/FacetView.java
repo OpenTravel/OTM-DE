@@ -60,7 +60,7 @@ import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -80,6 +80,8 @@ import org.opentravel.schemas.widgets.OtmSections;
 import org.opentravel.schemas.widgets.OtmTextFields;
 import org.opentravel.schemas.widgets.OtmWidgets;
 import org.opentravel.schemas.widgets.WidgetFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Create and maintain the facet table panel. Posts content into the table. Maintains a current and previous node
@@ -89,7 +91,7 @@ import org.opentravel.schemas.widgets.WidgetFactory;
  */
 public class FacetView extends OtmAbstractView {
 	public static String VIEW_ID = "org.opentravel.schemas.stl2Developer.FacetView";
-	// private static final Logger LOGGER = LoggerFactory.getLogger(FacetView.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FacetView.class);
 
 	private FormToolkit toolkit;
 	private ScrolledForm form;
@@ -249,8 +251,6 @@ public class FacetView extends OtmAbstractView {
 		buttonBarManager = new ButtonBarManager(SWT.FLAT);
 
 		// Set up button bar
-		// cloneSelectedFacetNodesAction = new CloneSelectedFacetNodesAction();
-		// addAsNodeWithAction(cloneSelectedFacetNodesAction);
 		upFacetAction = new UpFacetAction(mainWindow, ExternalizedStringProperties.create("OtmW.66", "OtmW.67"));
 		addAsNodeWithAction(upFacetAction);
 		downFacetAction = new DownFacetAction(mainWindow, ExternalizedStringProperties.create("OtmW.68", "OtmW.69"));
@@ -267,7 +267,6 @@ public class FacetView extends OtmAbstractView {
 				DeleteNodesHandler.COMMAND_ID, null, null, null);
 		buttonBarManager.add(newComplexAction);
 		buttonBarManager.add(addAction);
-		// buttonBarManager.add(cloneSelectedFacetNodesAction);
 		buttonBarManager.add(deleteFromCommand);
 		buttonBarManager.add(upFacetAction);
 		buttonBarManager.add(downFacetAction);
@@ -403,6 +402,10 @@ public class FacetView extends OtmAbstractView {
 	private void postNode(Node target) {
 		if (!getMainWindow().hasDisplay())
 			return;
+		if (target == null || target.isDeleted()) {
+			LOGGER.debug("Posted deleted node: " + target);
+			return;
+		}
 		// LOGGER.debug("Posting facet table for node: " + target);
 		OtmHandlers.suspendHandlers();
 		Node node = target;
@@ -415,25 +418,18 @@ public class FacetView extends OtmAbstractView {
 				clearTable();
 				return;
 			}
-			// if (target.isProperty())
-			// node = node.getOwningComponent();
 
 			setButtonState(target);
 
-			boolean editableNew = node.isEditable_newToChain();
-
-			if (node instanceof FacetNode) {
+			if (node instanceof PropertyOwnerNode) {
 				boolean edit = node.isEditable() && !node.isInheritedProperty();
-				// boolean edit = node.isEditable() && !NodeUtils.checker(node).isInheritedFacet().get();
-				mc.getFields().postField(nameField, node.getLabel(), edit);
-				nameField.setEnabled(((FacetNode) node).isRenameable());
+				mc.getFields().postField(nameField, node.getName(), edit);
+				nameField.setEnabled(((PropertyOwnerNode) node).isRenameable());
 			} else if (!(node instanceof NavNode))
 				mc.getFields().postField(nameField, node.getName(), node.isEditable_newToChain());
 			else
 				mc.getFields().postField(nameField, node.getLabel(), false);
 
-			// if (node.isFacet() && !node.isOperation() && !node.isCustomFacet() && !node.isQueryFacet())
-			// nameField.setEnabled(false);
 			if (node instanceof ExtensionPointNode)
 				nameField.setEnabled(false);
 
@@ -509,11 +505,6 @@ public class FacetView extends OtmAbstractView {
 		nameField.setEnabled(false);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.views.OtmAbstractView#res3053torePreviousNode()
-	 */
 	@Override
 	public void restorePreviousNode() {
 		// LOGGER.debug("Restoring previous node: " + prevNode);

@@ -25,6 +25,7 @@ import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.modelObject.XSDElementMO;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.NamedTypeListener;
 import org.opentravel.schemas.node.listeners.NodeIdentityListener;
 import org.slf4j.Logger;
@@ -40,8 +41,8 @@ import org.slf4j.LoggerFactory;
 public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(XsdNode.class);
-	protected ComponentNode otmModel = null; // a pointer to a node/model object and tlObj
-												// representing the xsd type
+	public ComponentNode otmModel = null; // a pointer to a node/model object and tlObj
+											// representing the xsd type
 
 	/**
 	 * Create an XsdNode to represent and XSD Simple or Complex type. Creates an XsdNode with model object, sets name
@@ -174,6 +175,7 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 
 	@Override
 	public boolean isSimpleType() {
+		assert (false);
 		return otmModel.isSimpleType();
 		// If this is never reached then this Node method can become instanceof test
 	}

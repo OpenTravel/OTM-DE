@@ -27,10 +27,12 @@ import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemas.modelObject.XsdModelingUtils;
 import org.opentravel.schemas.node.NodeVisitors.FixNames;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 
@@ -101,6 +103,16 @@ public class NodeNameUtils {
 	}
 
 	/**
+	 * Make sure a choice object name conforms to the rules. Strip of "Type" suffix.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public static String fixChoiceObjectName(String name) {
+		return toInitialCap((stripTypeSuffix(name)));
+	}
+
+	/**
 	 * Make sure a core object name conforms to the rules. Strip of "Type" suffix.
 	 * 
 	 * @param name
@@ -153,8 +165,11 @@ public class NodeNameUtils {
 					n instanceof ElementReferenceNode);
 			if (qName != null)
 				name = qName.getLocalPart();
+			else if (assignedType instanceof ListFacetNode && ((ListFacetNode) assignedType).isSimpleListFacet())
+				// Just add "s" instead of "_Simple_List"
+				name = makePlural(stripUnderScore(stripSuffix(assignedType.getName(), SIMPLE_LIST_SUFFIX)));
 			else if (name.isEmpty())
-				// If the name is empty
+				// If the name is empty and no name is required
 				if (assignedType instanceof ImpliedNode)
 					// If no name and implied assigned, then return the name of the implied node.
 					name = assignedType.getName();
@@ -237,8 +252,12 @@ public class NodeNameUtils {
 		return value;
 	}
 
-	public static String fixFacetName(String name) {
-		return toInitialCap((stripTypeSuffix(name)));
+	// public static String fixFacetName(String name) {
+	// return toInitialCap((stripTypeSuffix(name)));
+	// }
+	public static String fixContextualFacetName(ContextualFacetNode cfn, String name) {
+		return toInitialCap(stripFacetPrefix(cfn, name));
+		// String gtn = XsdCodegenUtils.getGlobalTypeName(fn.getTLModelObject());
 	}
 
 	public static String fixIdReferenceName(Node n) {
@@ -369,6 +388,14 @@ public class NodeNameUtils {
 	}
 
 	public static String stipSimpleSuffix(String name) {
+		if (name == null || name.isEmpty())
+			return "";
+		if (name.endsWith(SIMPLE_SUFFIX))
+			name = name.substring(0, name.indexOf(SIMPLE_SUFFIX));
+		return name;
+	}
+
+	public static String stipSimpleListSuffix(String name) {
 		if (name == null || name.isEmpty())
 			return "";
 		if (name.endsWith(SIMPLE_SUFFIX))

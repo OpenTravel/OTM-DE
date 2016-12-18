@@ -25,7 +25,6 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
-import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.properties.Images;
@@ -99,8 +98,7 @@ public class EnumLiteralNode extends PropertyNode {
 
 	@Override
 	public String getName() {
-		return getTLModelObject() == null || getTLModelObject().getLiteral() == null
-				|| getTLModelObject().getLiteral().isEmpty() ? "" : getTLModelObject().getLiteral();
+		return emptyIfNull(getTLModelObject().getLiteral());
 	}
 
 	@Override
@@ -132,6 +130,11 @@ public class EnumLiteralNode extends PropertyNode {
 	@Override
 	public boolean isNavChild(boolean deep) {
 		return false;
+	}
+
+	@Override
+	public boolean isRenameable() {
+		return isEditable() && !inherited;
 	}
 
 	// @Override

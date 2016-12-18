@@ -18,14 +18,9 @@ package org.opentravel.schemas.modelObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
-import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLExtension;
-import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModelElement;
 
 public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
@@ -35,21 +30,21 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 		super(obj);
 	}
 
-	@Override
-	public void addAlias(final TLAlias tla) {
-		srcObj.addAlias(tla);
-	}
+	// @Override
+	// public void addAlias(final TLAlias tla) {
+	// srcObj.addAlias(tla);
+	// }
 
 	// public void addFacet(TLFacet tlf) {
 	// srcObj.addChoiceFacet(tlf);
 	// }
 	//
-	// TODO - should this return a contextual facet?
-	public TLContextualFacet addFacet(TLFacetType type) {
-		TLContextualFacet tlf = (TLContextualFacet) new TLContextualFacet();
-		srcObj.addChoiceFacet(tlf);
-		return tlf;
-	}
+	// // TODO - should this return a contextual facet?
+	// public TLContextualFacet addFacet(TLFacetType type) {
+	// TLContextualFacet tlf = (TLContextualFacet) new TLContextualFacet();
+	// srcObj.addChoiceFacet(tlf);
+	// return tlf;
+	// }
 
 	// It may already have been taken out of the library, but if not do so.
 	@Override
@@ -110,16 +105,16 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 	// return getTLModelObj().getName();
 	// }
 
-	@Override
-	public String getNamePrefix() {
-		final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
-		return lib == null ? "" : lib.getPrefix();
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
+	// return lib == null ? "" : lib.getPrefix();
+	// }
 
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
 
 	@Override
 	public NamedEntity getTLBase() {
@@ -176,10 +171,10 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 		return true;
 	}
 
-	@Override
-	protected AbstractLibrary getLibrary(final TLChoiceObject obj) {
-		return obj.getOwningLibrary();
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLChoiceObject obj) {
+	// return obj.getOwningLibrary();
+	// }
 
 	// /**
 	// * @return the base class node using the tl model element extension and listeners

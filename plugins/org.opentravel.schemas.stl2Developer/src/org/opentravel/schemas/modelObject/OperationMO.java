@@ -18,7 +18,6 @@ package org.opentravel.schemas.modelObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLModelElement;
@@ -60,10 +59,10 @@ public class OperationMO extends ModelObject<TLOperation> {
 	// return "Operation";
 	// }
 
-	@Override
-	protected AbstractLibrary getLibrary(final TLOperation obj) {
-		return null;
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLOperation obj) {
+	// return null;
+	// }
 
 	// @Deprecated
 	// @Override
@@ -74,15 +73,15 @@ public class OperationMO extends ModelObject<TLOperation> {
 	//
 	// }
 
-	@Override
-	public String getNamePrefix() {
-		return "";
-	}
-
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// return "";
+	// }
+	//
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
 
 	@Override
 	public TLOperation getTLModelObj() {

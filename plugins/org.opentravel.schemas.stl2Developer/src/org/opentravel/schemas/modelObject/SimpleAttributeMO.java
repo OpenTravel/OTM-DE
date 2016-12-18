@@ -15,7 +15,6 @@
  */
 package org.opentravel.schemas.modelObject;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,16 +46,16 @@ public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
 	// return getTLModelObj().getName();
 	// }
 
-	// Model does not know what namespace the attribute or its owning component is in.
-	@Override
-	public String getNamePrefix() {
-		return "";
-	}
-
-	@Override
-	public String getNamespace() {
-		return "";
-	}
+	// // Model does not know what namespace the attribute or its owning component is in.
+	// @Override
+	// public String getNamePrefix() {
+	// return "";
+	// }
+	//
+	// @Override
+	// public String getNamespace() {
+	// return "";
+	// }
 
 	@Override
 	public TLnSimpleAttribute getTLModelObj() {
@@ -79,10 +78,10 @@ public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
 		return srcObj.getType();
 	}
 
-	@Override
-	public boolean isMandatory() {
-		return getTLModelObj().isMandatory();
-	}
+	// @Override
+	// public boolean isMandatory() {
+	// return getTLModelObj().isMandatory();
+	// }
 
 	@Override
 	public boolean moveDown() {
@@ -99,34 +98,34 @@ public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
 		return false;
 	}
 
-	@Override
-	public boolean setMandatory(final boolean selection) {
-		return false;
-	}
+	// @Override
+	// public boolean setMandatory(final boolean selection) {
+	// return false;
+	// }
 
 	@Override
 	public boolean setName(final String name) {
 		return false;
 	}
 
-	@Override
-	public void setTLType(final ModelObject<?> mo) {
-		Object tlObj = null;
-		if (mo != null)
-			tlObj = mo.getTLModelObj();
-		if (tlObj instanceof NamedEntity) {
-			getTLModelObj().setType((NamedEntity) tlObj);
-		}
-	}
-
+	// @Override
+	// public void setTLType(final ModelObject<?> mo) {
+	// Object tlObj = null;
+	// if (mo != null)
+	// tlObj = mo.getTLModelObj();
+	// if (tlObj instanceof NamedEntity) {
+	// getTLModelObj().setType((NamedEntity) tlObj);
+	// }
+	// }
+	//
 	@Override
 	public void setTLType(final NamedEntity tlObj) {
 		getTLModelObj().setType(tlObj);
 	}
 
-	@Override
-	protected AbstractLibrary getLibrary(final TLnSimpleAttribute obj) {
-		return null;
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLnSimpleAttribute obj) {
+	// return null;
+	// }
 
 }

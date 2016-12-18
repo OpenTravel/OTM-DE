@@ -15,13 +15,9 @@
  */
 package org.opentravel.schemas.modelObject;
 
-import java.util.List;
-
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAliasOwner;
 import org.opentravel.schemacompiler.model.TLFacet;
-import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLListFacet;
 
 /**
@@ -43,53 +39,37 @@ public class AliasMO extends ModelObject<TLAlias> {
 		srcObj = null;
 	}
 
-	@Override
-	public List<?> getChildren() {
-		return null;
-	}
-
 	// @Override
-	// public String getComponentType() {
-	// return "Alias: " + getName();
-	// }
-
-	@Override
-	protected AbstractLibrary getLibrary(final TLAlias obj) {
-		return obj.getOwningLibrary();
-	}
-
-	// @Deprecated
-	// @Override
-	// public String getName() {
-	// final TLAlias tlModelObj = getTLModelObj();
-	// if (tlModelObj != null) {
-	// return tlModelObj.getName();
-	// }
+	// public List<?> getChildren() {
 	// return null;
 	// }
 
-	@Override
-	public String getNamePrefix() {
-		final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
-		return lib == null ? "" : lib.getPrefix();
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLAlias obj) {
+	// return null;
+	// // return obj.getOwningLibrary();
+	// }
 
-	@Deprecated
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// return getTLModelObj().getOwningLibrary() != null ? getTLModelObj().getOwningLibrary().getPrefix() : "";
+	// // final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
+	// // return lib == null ? "" : lib.getPrefix();
+	// }
+
+	// @Deprecated
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
 
 	@Override
 	public TLAlias getTLModelObj() {
 		return srcObj;
 	}
 
-	// @Override
-	// public boolean isComplexAssignable() {
-	// return true;
-	// }
-
+	// Used in rename visitor - FIXME
+	@Deprecated
 	@Override
 	public boolean setName(final String name) {
 		getTLModelObj().setName(name);

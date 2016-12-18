@@ -18,12 +18,15 @@ package org.opentravel.schemas.controllers;
 import java.io.File;
 import java.util.List;
 
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.repository.Project;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
  * Interface for all the project related activity. Note that the global model is controlled by {@link ModelController}
@@ -33,7 +36,13 @@ import org.opentravel.schemas.node.ProjectNode;
  */
 public interface ProjectController {
 
-	public List<ProjectItem> addLibrariesToTLProject(Project project, List<File> libraryFiles);
+	/**
+	 * Add a TL Library to the project and create a LibraryNode to represent it.
+	 * 
+	 * @param pn
+	 * @param tlLib
+	 */
+	public LibraryNavNode add(ProjectNode pn, AbstractLibrary tlLib);
 
 	/**
 	 * Add a library from a repository to the project.
@@ -44,18 +53,71 @@ public interface ProjectController {
 	public ProjectItem add(ProjectNode projectNode, RepositoryItem repositoryItem);
 
 	/**
-	 * Add a TL Library to the project and create a LibraryNode to represent it.
+	 * Get a list of project items from the compiler repository manager. Project items contain AbstractLibraries.
 	 * 
-	 * @param pn
-	 * @param tlLib
+	 * Does NOT add them to the Node project model.
+	 * 
+	 * @see {@link ProjectNode#add(FileList)}
 	 */
-	public LibraryNode add(ProjectNode pn, AbstractLibrary tlLib);
+	public List<ProjectItem> addLibrariesToTLProject(Project project, List<File> libraryFiles);
 
 	/**
-	 * Saves, closes and removes a project from the model
+	 * @return the builtInProject
+	 */
+	public ProjectNode getBuiltInProject();
+
+	public String getDefaultUnmanagedNS();
+
+	/**
+	 * Governed namespaces are namespaces that are protected via the repositories. Open governed namespaces are assigned
+	 * to open projects.
 	 * 
-	 * @param project
-	 *            {@link ProjectNode} to be closed
+	 * @return list of governed namespaces in currently open projects.
+	 */
+	public List<String> getOpenGovernedNamespaces();
+
+	/**
+	 * Projects govern a specific namespace. This method returns namespaces that are eligible to be governed.
+	 */
+	public List<String> getSuggestedNamespaces();
+
+	/**
+	 * Create a new project with TL model using the Wizard to have user enter projectFile, ID which defines the governed
+	 * namespace, name and description.
+	 */
+	public ProjectNode newProject();
+
+	/**
+	 * @param defaultName
+	 * @param selectedRoot
+	 * @param selectedExt
+	 */
+	public void newProject(String defaultName, String selectedRoot, String selectedExt);
+
+	public ProjectNode open(String fileName, IProgressMonitor monitor);
+
+	public ProjectNode openProject(String projectFile);
+
+	public void refreshMaster();
+
+	/**
+	 * Remove the associated library from the associated project both in the TL and GUI models.
+	 */
+	public void remove(List<LibraryNavNode> libNavlist);
+
+	/**
+	 * Remove the associated library from the associated project both in the TL and GUI models.
+	 */
+	public void remove(LibraryNavNode libraryNavNode);
+
+	public void saveState();
+
+	LibraryNode add(LibraryNode ln, AbstractLibrary tlLib);
+
+	/**
+	 * Save and close the project. If it is the default project all children are closed without saving.
+	 * 
+	 * @see {@link org.opentravel.schemas.commands.CloseProjectHandler#execute(ExecutionEvent)}
 	 */
 	void close(ProjectNode project);
 
@@ -75,11 +137,6 @@ public interface ProjectController {
 	 */
 	List<ProjectNode> getAll();
 
-	/**
-	 * @return the builtInProject
-	 */
-	public ProjectNode getBuiltInProject();
-
 	ProjectNode getDefaultProject();
 
 	/**
@@ -92,21 +149,6 @@ public interface ProjectController {
 	 * the project.
 	 */
 	void open();
-
-	/**
-	 * Create a new project with TL model using the Wizard to have user enter projectFile, ID which defines the governed
-	 * namespace, name and description.
-	 */
-	public ProjectNode newProject();
-
-	/**
-	 * @param defaultName
-	 * @param selectedRoot
-	 * @param selectedExt
-	 */
-	public void newProject(String defaultName, String selectedRoot, String selectedExt);
-
-	public void refreshMaster();
 
 	/**
 	 * Save the project.
@@ -134,26 +176,5 @@ public interface ProjectController {
 	 * 
 	 */
 	void saveAll();
-
-	public void saveState();
-
-	/**
-	 * Projects govern a specific namespace. This method returns namespaces that are eligible to be governed.
-	 */
-	public List<String> getSuggestedNamespaces();
-
-	/**
-	 * Governed namespaces are namespaces that are protected via the repositories. Open governed namespaces are assigned
-	 * to open projects.
-	 * 
-	 * @return list of governed namespaces in currently open projects.
-	 */
-	public List<String> getOpenGovernedNamespaces();
-
-	public String getDefaultUnmanagedNS();
-
-	LibraryNode add(LibraryNode ln, AbstractLibrary tlLib);
-
-	public ProjectNode openProject(String projectFile);
 
 }

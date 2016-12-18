@@ -30,7 +30,6 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
-import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
@@ -43,6 +42,12 @@ import org.opentravel.schemas.types.TypeProvider;
  */
 public class ElementReferenceNode extends PropertyNode {
 
+	public ElementReferenceNode(PropertyOwnerInterface parent, String name, TypeProvider reference) {
+		super(new TLProperty(), (Node) parent, name, PropertyNodeType.ID_REFERENCE);
+		getTLModelObject().setReference(true);
+		setAssignedType(reference);
+	}
+
 	/**
 	 * Add an element reference property to a facet or extension point.
 	 * 
@@ -50,11 +55,11 @@ public class ElementReferenceNode extends PropertyNode {
 	 *            - if null, the caller must link the node and add to TL Model parent
 	 * @param name
 	 */
-
 	public ElementReferenceNode(PropertyOwnerInterface parent, String name) {
-		super(new TLProperty(), (Node) parent, name, PropertyNodeType.ID_REFERENCE);
-		((TLProperty) getTLModelObject()).setReference(true);
-		setAssignedType((TypeProvider) ModelNode.getUnassignedNode());
+		this(parent, name, ModelNode.getUnassignedNode());
+		// super(new TLProperty(), (Node) parent, name, PropertyNodeType.ID_REFERENCE);
+		// ((TLProperty) getTLModelObject()).setReference(true);
+		// setAssignedType((TypeProvider) ModelNode.getUnassignedNode());
 	}
 
 	/**
@@ -127,7 +132,7 @@ public class ElementReferenceNode extends PropertyNode {
 
 	@Override
 	public String getName() {
-		return getTLModelObject().getName();
+		return emptyIfNull(getTLModelObject().getName());
 	}
 
 	@Override

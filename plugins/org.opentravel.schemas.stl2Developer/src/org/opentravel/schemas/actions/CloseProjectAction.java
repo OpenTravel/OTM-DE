@@ -44,6 +44,7 @@ public class CloseProjectAction extends AbstractGlobalSelectionAction {
 
 	@Override
 	public void run() {
+		assert (false);
 		if (toClose != null) {
 			OtmRegistry.getMainController().getProjectController().close(toClose);
 			toClose = null;
@@ -52,7 +53,9 @@ public class CloseProjectAction extends AbstractGlobalSelectionAction {
 
 	@Override
 	protected boolean isEnabled(Object object) {
-		@SuppressWarnings("unchecked")
+		// @SuppressWarnings("unchecked")
+		assert (false);
+
 		List<Node> newSelection = (List<Node>) object;
 		if (newSelection.size() != 1) {
 			return false;

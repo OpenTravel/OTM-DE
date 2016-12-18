@@ -18,7 +18,6 @@ package org.opentravel.schemas.modelObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.slf4j.Logger;
@@ -72,15 +71,15 @@ public class SimpleFacetMO extends ModelObject<TLSimpleFacet> {
 	// return getTLModelObj().getLocalName() == null ? "" : getTLModelObj().getLocalName();
 	// }
 
-	@Override
-	public String getNamePrefix() {
-		return "";
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// return "";
+	// }
 
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
 
 	@Override
 	public TLSimpleFacet getTLModelObj() {
@@ -92,10 +91,10 @@ public class SimpleFacetMO extends ModelObject<TLSimpleFacet> {
 	// return FacetMO.getDisplayName(getTLModelObj().getFacetType());
 	// }
 
-	@Override
-	protected AbstractLibrary getLibrary(final TLSimpleFacet obj) {
-		return null;
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLSimpleFacet obj) {
+	// return null;
+	// }
 
 	// @Override
 	// public boolean isComplexAssignable() {

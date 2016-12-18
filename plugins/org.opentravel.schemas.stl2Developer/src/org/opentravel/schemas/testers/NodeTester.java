@@ -76,10 +76,6 @@ public class NodeTester extends PropertyTester {
 		if (node instanceof TypeUser)
 			return ((TypeUser) node).getAssignedType() != null
 					&& !(((TypeUser) node).getAssignedType() instanceof ImpliedNode);
-		// Type type = node.getTypeClass();
-		// if (type != null) {
-		// return type.getTypeNode() != null;
-		// }
 		return false;
 	}
 

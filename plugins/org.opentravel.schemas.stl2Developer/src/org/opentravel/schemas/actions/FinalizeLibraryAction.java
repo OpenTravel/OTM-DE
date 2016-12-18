@@ -15,63 +15,73 @@
  */
 package org.opentravel.schemas.actions;
 
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
-import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.properties.ExternalizedStringProperties;
-import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
+import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.properties.ExternalizedStringProperties;
+import org.opentravel.schemas.properties.StringProperties;
 
 /**
- * Finalize a version of a library.
+ * Finalize action - finalize current version of a library.
  * 
  * @author Dave Hollander
  * 
  */
 public class FinalizeLibraryAction extends OtmAbstractAction {
-    private static StringProperties propDefault = new ExternalizedStringProperties(
-            "action.library.finalize");
+	private static StringProperties propDefault = new ExternalizedStringProperties("action.library.finalize");
 
-    public FinalizeLibraryAction() {
-        super(propDefault);
-    }
+	public FinalizeLibraryAction() {
+		super(propDefault);
+	}
 
-    public FinalizeLibraryAction(final StringProperties props) {
-        super(props);
-    }
+	public FinalizeLibraryAction(final StringProperties props) {
+		super(props);
+	}
 
-    @Override
-    public void run() {
-        for (LibraryNode ln : mc.getSelectedLibraries()) {
-            mc.getRepositoryController().markFinal(ln);
-        }
-    }
+	@Override
+	public void run() {
+		for (LibraryNode ln : mc.getSelectedLibraries()) {
+			mc.getRepositoryController().markFinal(ln);
+		}
+	}
 
-    // enable when Work-in-progress item.
-    @Override
-    public boolean isEnabled() {
-        INode n = getMainController().getCurrentNode_NavigatorView();
-        if (n instanceof LibraryChainNode)
-            n = ((LibraryChainNode) n).getLibrary();
-        if (n instanceof LibraryNode) {
-            RepositoryItemState state = ((LibraryNode) n).getProjectItem().getState();
-            TLLibraryStatus status = ((LibraryNode) n).getStatus();
-            if (((LibraryNode) n).getStatus().equals(TLLibraryStatus.FINAL))
-                return false;
-            switch (state) {
-                case MANAGED_LOCKED:
-                    // TODO - what other behaviors are needed for these states?
-                    return true;
-                case MANAGED_UNLOCKED:
-                    return true;
-                case MANAGED_WIP:
-                    return true;
-                case UNMANAGED:
-                    return false;
-            }
-        }
-        return false;
-    }
+	@Override
+	public boolean isEnabled() {
+		INode n = getMainController().getCurrentNode_NavigatorView();
+
+		// Find the effective library
+		if (n instanceof LibraryNavNode)
+			n = n.getLibrary();
+		if (n instanceof ComponentNode)
+			n = n.getLibrary();
+		if (n instanceof LibraryChainNode)
+			n = ((LibraryChainNode) n).getLibrary();
+
+		if (n instanceof LibraryNode) {
+			// If it is final then return false.
+			TLLibraryStatus status = ((LibraryNode) n).getStatus();
+			if (((LibraryNode) n).getStatus().equals(TLLibraryStatus.FINAL))
+				return false;
+
+			// Check repo state
+			RepositoryItemState state = ((LibraryNode) n).getProjectItem().getState();
+			switch (state) {
+			case MANAGED_LOCKED:
+			case MANAGED_UNLOCKED:
+			case MANAGED_WIP:
+				return true;
+
+			case UNMANAGED:
+			case BUILT_IN:
+			default:
+				return false;
+			}
+		}
+		return false;
+	}
 
 }

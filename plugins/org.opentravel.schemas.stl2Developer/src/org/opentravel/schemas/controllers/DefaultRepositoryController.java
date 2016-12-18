@@ -49,13 +49,13 @@ import org.opentravel.schemacompiler.version.MajorVersionHelper;
 import org.opentravel.schemacompiler.version.MinorVersionHelper;
 import org.opentravel.schemacompiler.version.PatchVersionHelper;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -81,12 +81,6 @@ public class DefaultRepositoryController implements RepositoryController {
 	public DefaultRepositoryController(MainController mc, RepositoryManager localRepositoryManager) {
 		this.mc = mc;
 		this.repositoryManager = localRepositoryManager;
-		// 5/27/2015 dmh - for performance reasons when the network connection is bad skip this refresh
-		// try {
-		// localRepositoryManager.refreshRemoteRepositories();
-		// } catch (RepositoryException e) {
-		// postRepoException(e);
-		// }
 	}
 
 	public File getRepositoryFileLocation() {
@@ -175,6 +169,7 @@ public class DefaultRepositoryController implements RepositoryController {
 		if (!items.isEmpty()) {
 			ProjectManager pm = items.get(0).getProjectManager();
 			Collection<ProjectItem> publishedItems = publishItems(pm, items, repository.getRepository());
+
 			if (!publishedItems.isEmpty()) {
 				Collection<LibraryNode> publishedLibs = findLibraries(publishedItems);
 				List<LibraryChainNode> chains = convertToChains(publishedLibs);
@@ -185,6 +180,12 @@ public class DefaultRepositoryController implements RepositoryController {
 		return Collections.emptyList();
 	}
 
+	/**
+	 * Publish passed items to passed repository. If the repository reports there are dependent items, ask the user if
+	 * they want them published as well.
+	 * 
+	 * @return list of published items
+	 */
 	private Collection<ProjectItem> publishItems(ProjectManager pm, List<ProjectItem> items, Repository repository) {
 		Collection<ProjectItem> publishedItems = Collections.emptyList();
 		try {
@@ -211,18 +212,30 @@ public class DefaultRepositoryController implements RepositoryController {
 		return publishedItems;
 	}
 
+	/**
+	 * Check to see if any items are already published. Check to assure items are in the correct namespace for the
+	 * repository.
+	 * 
+	 * @return
+	 * @throws RepositoryException
+	 * @throws PublishWithLocalDependenciesException
+	 */
 	private Collection<ProjectItem> publish(ProjectManager pm, Collection<ProjectItem> items, Repository repository)
 			throws RepositoryException, PublishWithLocalDependenciesException {
+		// Remove already managed items
 		Collection<ProjectItem> managed = getManagedItems(repository, items);
 		if (!managed.isEmpty()) {
 			postRepoError("alreadyManaged");
+			return Collections.emptyList(); // added 11/21/2016
 		}
+		// Remove items whose namespace is not manage in repository
 		Collection<ProjectItem> invalid = getItemsWithInvalidNamespace(repository, items);
 		if (!invalid.isEmpty()) {
 			postRepoError("managedNS");
 			return Collections.emptyList();
 		}
 
+		// Publish project items in the repository.
 		pm.publish(items, repository);
 		return items;
 	}
@@ -272,20 +285,20 @@ public class DefaultRepositoryController implements RepositoryController {
 	private Collection<LibraryNode> findLibraries(Collection<ProjectItem> publishedItems) {
 		List<LibraryNode> libraries = new ArrayList<LibraryNode>(publishedItems.size());
 
-		// for (LibraryNode l : mc.getLibraryController().getUserLibraries()) {
 		for (LibraryNode l : Node.getAllUserLibraries())
-			if (publishedItems.contains(l.getProjectItem())) {
+			if (publishedItems.contains(l.getProjectItem()))
 				libraries.add(l);
-			}
-		// }
+
 		return libraries;
 	}
 
 	private List<LibraryChainNode> convertToChains(Collection<LibraryNode> publishedLibs) {
 		List<LibraryChainNode> chains = new ArrayList<LibraryChainNode>(publishedLibs.size());
+		// LibraryModelManager mgr = Node.getModelNode().getLibraryManager();
 		for (LibraryNode l : publishedLibs) {
-			// TODO: need to execute l.editable () ?? previously it was
-			chains.add(new LibraryChainNode(l));
+			// Could have duplicates in the list
+			if (!l.isInChain())
+				chains.add(new LibraryChainNode(l));
 		}
 		return chains;
 	}
@@ -293,7 +306,8 @@ public class DefaultRepositoryController implements RepositoryController {
 	private List<ProjectItem> toProjectItems(List<LibraryNode> libs) {
 		List<ProjectItem> items = new ArrayList<ProjectItem>(libs.size());
 		for (LibraryNode l : libs) {
-			items.add(l.getProjectItem());
+			if (l != null)
+				items.add(l.getProjectItem());
 		}
 		return items;
 	}
@@ -307,6 +321,7 @@ public class DefaultRepositoryController implements RepositoryController {
 		CommitThread ct = new CommitThread(ln);
 		BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), ct);
 		refreshAll(ln);
+		mc.postStatus("Library " + ln + " committed.");
 		return ct.getResult();
 	}
 
@@ -324,7 +339,9 @@ public class DefaultRepositoryController implements RepositoryController {
 		if (lt.getException() != null) {
 			LOGGER.debug("TODO - handle exception: " + lt.getException().getLocalizedMessage());
 		}
+		ln.updateLibraryStatus();
 		refreshAll(ln);
+		mc.postStatus("Library " + ln + " locked.");
 		return true;
 	}
 
@@ -348,6 +365,7 @@ public class DefaultRepositoryController implements RepositoryController {
 		BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), ut);
 		refreshAll(ln);
 		LOGGER.debug("UnLocked library " + this);
+		mc.postStatus("Library " + ln + " unlocked.");
 		return ut.getResult();
 	}
 
@@ -357,13 +375,15 @@ public class DefaultRepositoryController implements RepositoryController {
 		BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), rt);
 		refreshAll(ln);
 		LOGGER.debug("UnLocked and reverted library " + ln);
+		mc.postStatus("Library " + ln + " unlocked.");
 		return rt.getLoaded();
-
 	}
 
 	@Override
 	public boolean markFinal(LibraryNode ln) {
+		assert (ln.getProjectItem() != null);
 		boolean result = true;
+
 		// must be unlocked to be promoted to final.
 		if (ln.isLocked())
 			if (!unlock(ln))
@@ -374,12 +394,13 @@ public class DefaultRepositoryController implements RepositoryController {
 				"Warning, making a library final can not be undone. Do you want to continue?"))
 			return false;
 		try {
-			ln.markFinal();
+			ln.getProjectItem().getProjectManager().promote(ln.getProjectItem());
 		} catch (RepositoryException e) {
 			result = false;
 			postRepoException(e);
 		}
 		refreshAll(ln);
+		mc.postStatus("Library " + ln + " finalized.");
 		return result;
 	}
 
@@ -614,8 +635,8 @@ public class DefaultRepositoryController implements RepositoryController {
 	private LibraryNode createVersion(LibraryNode library, boolean isPatch) {
 
 		RepositoryNode rn = find(library.getProjectItem().getRepository());
-		PatchVersionHelper patchVH = new PatchVersionHelper(library.getProject().getProject());
-		MinorVersionHelper minorVH = new MinorVersionHelper(library.getProject().getProject());
+		PatchVersionHelper patchVH = new PatchVersionHelper(library.getProject().getTLProject());
+		MinorVersionHelper minorVH = new MinorVersionHelper(library.getProject().getTLProject());
 		TLLibrary newTLLib = null;
 		LibraryNode newLib = null;
 
@@ -642,6 +663,9 @@ public class DefaultRepositoryController implements RepositoryController {
 		return newLib;
 	}
 
+	/**
+	 * {@link org.opentravel.schemas.actions.VersionMajorAction#run()}
+	 */
 	@Override
 	public LibraryNode createMajorVersion(LibraryNode library) {
 
@@ -649,7 +673,8 @@ public class DefaultRepositoryController implements RepositoryController {
 			return null;
 
 		RepositoryNode rn = find(library.getProjectItem().getRepository());
-		MajorVersionHelper mvh = new MajorVersionHelper(library.getProject().getProject());
+		// LibraryModelManager libMrg = Node.getModelNode().getLibraryManager();
+		MajorVersionHelper mvh = new MajorVersionHelper(library.getProject().getTLProject());
 		TLLibrary major = null;
 		LibraryNode newLib = null;
 
@@ -691,6 +716,7 @@ public class DefaultRepositoryController implements RepositoryController {
 	 * @param library
 	 * @return true if ready.
 	 */
+	// FIXME - make this into a wizard or progress monitor so the user can track progress
 	private boolean versionPreparation(LibraryNode library) {
 		if (library.getProject() == null) {
 			postRepoError("noProject");
@@ -850,8 +876,8 @@ class UnlockThread extends Thread {
 		try {
 			final LibraryModelSaver lms = new LibraryModelSaver();
 			lms.saveLibrary(ln.getTLLibrary());
-			ProjectManager pm = ((DefaultProjectController) mc.getProjectController()).getDefaultProject().getProject()
-					.getProjectManager();
+			ProjectManager pm = ((DefaultProjectController) mc.getProjectController()).getDefaultProject()
+					.getTLProject().getProjectManager();
 			pm.unlock(ln.getProjectItem(), true);
 			ln.updateLibraryStatus();
 			result = true;
@@ -881,7 +907,7 @@ class CommitThread extends Thread {
 
 	public void run() {
 		try {
-			ln.commit();
+			ln.commit(); // Add comments
 		} catch (RepositoryException e) {
 			result = false;
 			DefaultRepositoryController.postRepoException(e);
@@ -909,9 +935,9 @@ class RevertThread extends Thread {
 		try {
 			final LibraryModelSaver lms = new LibraryModelSaver();
 			lms.saveLibrary(ln.getTLLibrary());
-			String projectFile = ln.getProject().getProject().getProjectFile().toString();
-			ProjectManager pm = ((DefaultProjectController) mc.getProjectController()).getDefaultProject().getProject()
-					.getProjectManager();
+			String projectFile = ln.getProject().getTLProject().getProjectFile().toString();
+			ProjectManager pm = ((DefaultProjectController) mc.getProjectController()).getDefaultProject()
+					.getTLProject().getProjectManager();
 			pm.unlock(ln.getProjectItem(), false);
 			boolean isDefault = ln.getProject() == mc.getProjectController().getDefaultProject();
 			mc.getProjectController().close(ln.getProject());

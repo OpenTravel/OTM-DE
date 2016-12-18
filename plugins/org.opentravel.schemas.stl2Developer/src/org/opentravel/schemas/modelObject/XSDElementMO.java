@@ -17,7 +17,6 @@ package org.opentravel.schemas.modelObject;
 
 import javax.xml.namespace.QName;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.XSDElement;
 import org.opentravel.schemas.node.XsdNode;
@@ -76,26 +75,26 @@ public class XSDElementMO extends ModelObject<XSDElement> {
 	// return "XSD Element";
 	// }
 	//
-	@Override
-	protected AbstractLibrary getLibrary(final XSDElement obj) {
-		return null;
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final XSDElement obj) {
+	// return null;
+	// }
 
 	// @Override
 	// public String getName() {
 	// return getTLModelObj().getLocalName();
 	// }
 	//
-	@Override
-	public String getNamePrefix() {
-		return "";
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// return "";
+	// }
 
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
-
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
+	//
 	@Override
 	public XSDElement getTLModelObj() {
 		return srcObj;
@@ -132,11 +131,10 @@ public class XSDElementMO extends ModelObject<XSDElement> {
 	// return typeName != null ? typeName.getPrefix() + ":" + typeName.getLocalPart() : "";
 	// }
 
-	@Override
-	public String getAssignedName() {
-		QName typeName = srcObj.getJaxbElement().getType();
-		return typeName != null ? typeName.getLocalPart() : "";
-	}
+	// public String getAssignedName() {
+	// QName typeName = srcObj.getJaxbElement().getType();
+	// return typeName != null ? typeName.getLocalPart() : "";
+	// }
 
 	@Override
 	public String getAssignedPrefix() {

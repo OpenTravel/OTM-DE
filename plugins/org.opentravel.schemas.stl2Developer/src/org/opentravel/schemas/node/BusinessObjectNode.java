@@ -18,12 +18,9 @@
  */
 package org.opentravel.schemas.node;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
@@ -31,14 +28,12 @@ import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
-import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemas.modelObject.BusinessObjMO;
-import org.opentravel.schemas.modelObject.BusinessObjMO.Events;
-import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.controllers.NodeUtils;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.PropertyOwnerNode;
@@ -75,39 +70,6 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 		extensionHandler = new ExtensionHandler(this);
 
 		assert getModelObject() != null;
-		// if (getModelObject() == null) {
-		// // LOGGER.debug("Missing model object on business object: " + this);
-		// return;
-		// }
-
-		getModelObject().addPropertyChangeListener(new PropertyChangeListener() {
-
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				LOGGER.debug("Property Change event on busness object " + this);
-				if (Events.FACET_ADDED.toString().equals(evt.getPropertyName())) {
-					createNewFacet(BusinessObjectNode.this, evt.getNewValue());
-				} else if (Events.FACET_UPDATED.toString().equals(evt.getPropertyName())) {
-					TLFacet ff = (TLFacet) evt.getNewValue();
-					FacetNode node = findFacet(ff.getLabel(), ff.getContext());
-					if (node == null) {
-						// LOGGER.warn("Couldnt find inhertied facet. Will recreate.");
-						createNewFacet(BusinessObjectNode.this, evt.getNewValue());
-					} else if (node.getModelObject() instanceof FacetMO) {
-						((FacetMO) node.getModelObject()).attachInheritanceListener();
-					}
-				} else if (Events.FACET_REMOVED.toString().equals(evt.getPropertyName())) {
-					TLFacet ff = (TLFacet) evt.getOldValue();
-					FacetNode node = findFacet(ff.getLabel(), ff.getContext());
-					node.delete();
-				}
-			}
-
-			private void createNewFacet(BusinessObjectNode businessObjectNode, Object newValue) {
-				NodeFactory.newComponentMember(businessObjectNode, newValue);
-			}
-
-		});
 	}
 
 	/**
@@ -226,6 +188,31 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	}
 
 	@Override
+	public List<Node> getInheritedChildren() {
+		initInheritedChildren();
+		if (inheritedChildren == null)
+			inheritedChildren = Collections.emptyList();
+		return inheritedChildren;
+	}
+
+	// 11/8/2016 - rework of initInheritedChildren()
+	/**
+	 * Get the ghost facets from the TL Model. Model all of them.
+	 */
+	@Override
+	public void initInheritedChildren() {
+		inheritedChildren = Collections.emptyList();
+		// Model each facet returned in the list of new TLFacets from the TL Model
+		for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.CUSTOM))
+			linkInheritedChild(NodeFactory.newComponentMember(null, cf));
+		for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.QUERY))
+			linkInheritedChild(NodeFactory.newComponentMember(null, cf));
+		for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.UPDATE))
+			linkInheritedChild(NodeFactory.newComponentMember(null, cf));
+
+	}
+
+	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.BusinessObject);
 	}
@@ -257,16 +244,12 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	 * @return
 	 */
 	// TODO - consider allowing them in minor and use createMinorVersionOfComponent()
-	public FacetNode addFacet(String name, TLFacetType type) {
+	public ContextualFacetNode addFacet(String name, TLFacetType type) {
 		if (!isEditable_newToChain())
 			throw new IllegalArgumentException("Can not add facet to " + this);
-		if (getLibrary().getDefaultContextId() == null || getLibrary().getDefaultContextId().isEmpty())
-			throw new IllegalStateException("No context value to create facet with.");
 
-		// 9/19/2015 dmh - OVERRIDE context to assure context is default context.
-		FacetNode ff = null;
-		TLContextualFacet newTlFacet = getModelObject().addFacet(name, getLibrary().getDefaultContextId(), type);
-		ff = (FacetNode) NodeFactory.newComponentMember(this, newTlFacet);
+		TLContextualFacet newTlFacet = getModelObject().addFacet(name, type);
+		ContextualFacetNode ff = (ContextualFacetNode) NodeFactory.newComponentMember(this, newTlFacet);
 		return ff;
 	}
 
@@ -283,89 +266,43 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 
 	// Custom Facets
 	public List<ComponentNode> getCustomFacets() {
+		return getCustomFacets(false);
+	}
+
+	/**
+	 * @param includeInherited
+	 *            add inherited facets to the list
+	 * @return new list of custom facets
+	 */
+	public List<ComponentNode> getCustomFacets(boolean includeInherited) {
 		ArrayList<ComponentNode> ret = new ArrayList<ComponentNode>();
 		for (INode f : getChildren()) {
 			if (f instanceof CustomFacetNode)
 				ret.add((ComponentNode) f);
 		}
+		if (includeInherited)
+			for (INode f : getInheritedChildren())
+				if (f instanceof CustomFacetNode)
+					ret.add((ComponentNode) f);
 		return ret;
 	}
 
 	public List<ComponentNode> getQueryFacets() {
+		return getQueryFacets(false);
+	}
+
+	public List<ComponentNode> getQueryFacets(boolean includeInherited) {
 		ArrayList<ComponentNode> ret = new ArrayList<ComponentNode>();
 		for (INode f : getChildren()) {
 			if (f instanceof QueryFacetNode)
 				ret.add((ComponentNode) f);
 		}
+		if (includeInherited)
+			for (INode f : getInheritedChildren())
+				if (f instanceof QueryFacetNode)
+					ret.add((ComponentNode) f);
+
 		return ret;
-	}
-
-	private FacetNode findFacet(String label, String context) {
-		label = emptyIfNull(label);
-		context = emptyIfNull(context);
-		for (Node c : getChildren()) {
-			if (c instanceof FacetNode) {
-				TLFacet tlFacet = (TLFacet) c.getTLModelObject();
-				if (label.equals(emptyIfNull(tlFacet.getLabel())) && context.equals(emptyIfNull(tlFacet.getContext())))
-					return (FacetNode) c;
-			}
-		}
-		return null;
-	}
-
-	private String emptyIfNull(String str) {
-		if (str == null)
-			return "";
-		return str;
-	}
-
-	/**
-	 * It is copy of {@link FacetCodegenUtils#findGhostFacets(TLFacetOwner, TLFacetType)} but with this difference that
-	 * it returns all facet with given facet type from all extension hierarchy of facetOwner.
-	 * 
-	 * @param facetOwner
-	 *            the facet owner for which to return "ghost facets"
-	 * @param facetType
-	 *            the type of ghost facets to retrieve
-	 * @return List<TLFacet>
-	 */
-	public List<TLFacet> findInheritedFacets(TLFacetOwner facetOwner, TLFacetType facetType) {
-		Set<String> inheritedFacetNames = new HashSet<String>();
-		List<TLFacet> inheritedFacets = new ArrayList<TLFacet>();
-		TLFacetOwner extendedOwner = FacetCodegenUtils.getFacetOwnerExtension(facetOwner);
-		Set<TLFacetOwner> visitedOwners = new HashSet<TLFacetOwner>();
-
-		// Find all of the inherited facets of the specified facet type
-		while (extendedOwner != null) {
-			List<TLFacet> facetList = FacetCodegenUtils.getAllFacetsOfType(extendedOwner, facetType);
-
-			for (TLFacet facet : facetList) {
-				String facetKey = facetType.getIdentityName(facet.getContext(), facet.getLabel());
-
-				if (!inheritedFacetNames.contains(facetKey)) {
-					inheritedFacetNames.add(facetKey);
-					inheritedFacets.add(facet);
-				}
-			}
-			visitedOwners.add(extendedOwner);
-			extendedOwner = FacetCodegenUtils.getFacetOwnerExtension(extendedOwner);
-
-			if (visitedOwners.contains(extendedOwner)) {
-				break; // exit if we encounter a circular reference
-			}
-		}
-
-		List<TLFacet> ghostFacets = new ArrayList<TLFacet>();
-
-		for (TLFacet inheritedFacet : inheritedFacets) {
-			TLFacet ghostFacet = new TLFacet();
-			ghostFacet.setFacetType(facetType);
-			ghostFacet.setContext(inheritedFacet.getContext());
-			ghostFacet.setLabel(inheritedFacet.getLabel());
-			ghostFacet.setOwningEntity(facetOwner);
-			ghostFacets.add(ghostFacet);
-		}
-		return ghostFacets;
 	}
 
 	@Override
@@ -390,34 +327,7 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	public void setName(String name) {
 		getTLModelObject().setName(NodeNameUtils.fixBusinessObjectName(name));
 		updateNames(NodeNameUtils.fixBusinessObjectName(name));
-
-		// n = NodeNameUtils.fixBusinessObjectName(n);
-		// this.setName(n, true);
-		// super.setName(NodeNameUtils.fixBusinessObjectName(name));
-		// updateNames(NodeNameUtils.fixBusinessObjectName(name));
-
-		//
-		// for (TypeUser user : getWhereAssigned()) {
-		// if (user instanceof PropertyNode)
-		// user.setName(NodeNameUtils.fixBusinessObjectName(name));
-		// }
-		//
-		// for (Node child : getChildren()) {
-		// for (TypeUser users : ((TypeProvider) child).getWhereAssigned())
-		// ((Node) users).visitAllNodes(new NodeVisitors().new FixNames());
-		// // NodeNameUtils.fixName((Node) users);
-		// }
 	}
-
-	// @Deprecated
-	// @Override
-	// public void setName(String n, boolean doFamily) {
-	// // super.setName(NodeNameUtils.fixBusinessObjectName(n));
-	// // for (TypeUser user : getWhereAssigned()) {
-	// // if (user instanceof PropertyNode)
-	// // user.setName(NodeNameUtils.fixBusinessObjectName(n));
-	// // }
-	// }
 
 	@Override
 	public void sort() {
@@ -447,7 +357,10 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 			FacetNode facet = (FacetNode) f;
 			if (!NodeUtils.checker(facet).isInheritedFacet().get()) {
 				TLFacet tlFacet = (TLFacet) facet.getTLModelObject();
-				FacetNode newFacet = addFacet(tlFacet.getLabel(), tlFacet.getFacetType());
+				String name = "";
+				if (tlFacet instanceof TLContextualFacet)
+					name = ((TLContextualFacet) tlFacet).getName();
+				FacetNode newFacet = addFacet(name, tlFacet.getFacetType());
 				newFacet.addProperties(facet.getChildren(), true);
 			}
 		}

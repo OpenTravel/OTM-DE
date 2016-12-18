@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.node;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,7 +24,10 @@ import javax.xml.namespace.QName;
 import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.controllers.LibraryModelManager;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryInterface;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.NodeModelEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +43,9 @@ import org.slf4j.LoggerFactory;
  */
 public class ModelNode extends Node {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ModelNode.class);
-	// public static String TempLib = "TemporaryLibrary";
+
 	private final static AtomicInteger counter = new AtomicInteger(0);
 	private TLModel tlModel;
-	// private LibraryNode defaultLibrary; // Library used for paths and compilation
 	private String name = "";
 	// Just have one so we can skip checking for null MO and TLmodelObjects
 
@@ -64,11 +67,7 @@ public class ModelNode extends Node {
 	};
 
 	// Statistics
-	// private int typeProviders = 0;
-	// private int typeUsers = 0;
 	private int unresolvedTypes = 0;
-	// private int xsdTypes = 0;
-	// private int resolvedXsdTypes = 0;
 
 	// These nodes are not in the TL model but used within the node model.
 	// They allow all nodes to have a type and related properties.
@@ -87,6 +86,13 @@ public class ModelNode extends Node {
 
 	protected ModelContentsData mc = new ModelContentsData();
 
+	private LibraryModelManager libMgr = null;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param model
+	 */
 	public ModelNode(final TLModel model) {
 		super();
 		setParent(null);
@@ -98,13 +104,23 @@ public class ModelNode extends Node {
 		name = "Model_Root_" + counter.incrementAndGet();
 		root = this;
 		tlModel = model;
+		libMgr = new LibraryModelManager(this);
 
 		addListeners();
 
-		// // TODO - like ProjectNode - see if the MO adds value
-		// modelObject = ModelObjectFactory.newModelObject(tlModel, this);
-		//
 		// LOGGER.debug("ModelNode(TLModel) done.");
+	}
+
+	/**
+	 * 
+	 * @return new list of libraries managed by the library model manager
+	 */
+	public List<LibraryInterface> getManagedLibraries() {
+		return libMgr.getLibraries();
+	}
+
+	public LibraryModelManager getLibraryManager() {
+		return libMgr;
 	}
 
 	public void addProject(final ProjectNode project) {
@@ -112,12 +128,17 @@ public class ModelNode extends Node {
 		project.setParent(this);
 	}
 
-	// /**
-	// * @return the atomicTypeNode
-	// */
-	// public static ImpliedNode getAtomicTypeNode() {
-	// return atomicTypeNode;
-	// }
+	@Override
+	public void close() {
+		List<Node> kids = new ArrayList<Node>(getChildren());
+		for (Node n : kids)
+			n.close();
+		libMgr = new LibraryModelManager(this);
+		undefinedNode.initialize(this);
+		indicatorNode.initialize(this);
+		unassignedNode.initialize(this);
+		defaultStringNode.initialize(this);
+	}
 
 	@Override
 	public List<Node> getChildren() {
@@ -136,28 +157,6 @@ public class ModelNode extends Node {
 		return "Model";
 	}
 
-	// public void setDefaultLibrary(LibraryNode dLib) {
-	// defaultLibrary = dLib;
-	// }
-
-	// /**
-	// * Returns output file name without extension.
-	// *
-	// * @param fn
-	// * @return
-	// */
-	// public String getFilePath() {
-	// if (defaultLibrary == null)
-	// return "";
-	//
-	// final String fileName = defaultLibrary.getPath();
-	// if ((fileName == null) || (fileName.isEmpty())) {
-	// return "";
-	// }
-	// final int i = fileName.lastIndexOf(".");
-	// return i > 0 ? fileName.substring(0, i) : "";
-	// }
-
 	public TLModel getTLModel() {
 		return tlModel;
 	}
@@ -166,12 +165,10 @@ public class ModelNode extends Node {
 		tlModel.addListener(new NodeModelEventListener());
 	}
 
-	/*
-	 * @see org.opentravel.schemas.node.Node#getTLModelObject()
-	 */
 	@Override
 	public TLModelElement getTLModelObject() {
 		// Models do not have model elements, just TLModel.
+		// TLModel is not an TLModelElement.
 		// But return an empty just have one so we can skip checking for
 		// null MO and TLmodelObjects
 		return tlModelEle;
@@ -182,18 +179,20 @@ public class ModelNode extends Node {
 		return null; // top of the tree
 	}
 
-	// @Override
-	// public boolean hasNavChildren(boolean deep) {
-	// return !getChildren().isEmpty();
-	// // return getChildren().size() > 0;
-	// }
-
-	/*
-	 * @see org.opentravel.schemas.node.INode#hasChildren_TypeProviders()
-	 */
 	@Override
 	public boolean hasChildren_TypeProviders() {
 		return getChildren().size() > 0 ? true : false;
+	}
+
+	/**
+	 * @return true if namespace is managed by any of the child projects
+	 */
+	public boolean isInProjectNS(String namespace) {
+		for (Node n : getChildren())
+			if (n instanceof ProjectNode)
+				if (namespace.startsWith(n.getNamespace())) // order is significant due to versions
+					return true;
+		return false;
 	}
 
 	@Override
@@ -228,12 +227,7 @@ public class ModelNode extends Node {
 
 	@Override
 	public LibraryNode getLibrary() {
-		List<LibraryNode> libs = getLibraries();
-		if (libs.isEmpty()) {
-			return null;
-		} else {
-			return libs.get(0);
-		}
+		return null;
 	}
 
 	/**
@@ -256,25 +250,6 @@ public class ModelNode extends Node {
 		if (emptyNode == null)
 			LOGGER.error("Empty Node could not be set. Be sure that library is loaded early.");
 	}
-
-	// /**
-	// * duplicates are set by the type resolver
-	// */
-	// public static ImpliedNode getDuplicateTypesNode() {
-	// return duplicateTypesNode;
-	// }
-	//
-	// public void addDuplicateType(Node n) {
-	// duplicateTypesNode.getChildren().add(n);
-	// }
-	//
-	// public List<Node> getDuplicateTypes() {
-	// return duplicateTypesNode.getChildren();
-	// }
-	//
-	// public boolean isDuplicate(Node n) {
-	// return duplicateTypesNode.getChildren().contains(n);
-	// }
 
 	/**
 	 * @return the indicatorNode

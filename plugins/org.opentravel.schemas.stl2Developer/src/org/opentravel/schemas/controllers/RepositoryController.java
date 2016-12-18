@@ -20,13 +20,13 @@ package org.opentravel.schemas.controllers;
 
 import java.util.List;
 
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
-import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
+import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.trees.repository.RepositoryNode;
 
 /**
  * @author Dave Hollander
@@ -34,118 +34,125 @@ import org.opentravel.schemacompiler.repository.RepositoryItem;
  */
 public interface RepositoryController {
 
-    /**
-     * @return the root of the repository tree. Repository root will be created if needed.
-     */
-    public RepositoryNode getRoot();
+	public boolean addRemoteRepository(String location, String userId, String password);
 
-    /**
-     * @return a new list of all repository nodes
-     */
-    public List<RepositoryNode> getAll();
+	public boolean changeCredentials(String location, String userId, String password);
 
-    /**
-     * @return The local repository node.
-     */
-    public RepositoryNode getLocalRepository();
+	public boolean commit(LibraryNode source);
 
-    /**
-     * Get a list of all the namespaces in known repositories.
-     * 
-     * @return
-     */
-    public List<String> getRootNamespaces();
+	/**
+	 * Create a new chain from the new major version created from the passed library.
+	 * 
+	 * @param library
+	 * @return the newly created major version library in the versions node of a new chain.
+	 */
+	public LibraryNode createMajorVersion(LibraryNode library);
 
-    /**
-     * Publish selected libraries and all dependencies to selected repository. If successful, a new
-     * chains are created and the libraries added to them.
-     * 
-     * @param repository
-     *            - target repository
-     * @param libraries
-     *            - selected libraries to be managed in repository
-     * @return list of all published libraries converted to library chain
-     */
-    public List<LibraryChainNode> manage(RepositoryNode repository, List<LibraryNode> libraries);
+	/**
+	 * Add a minor version to the chain and return the new minor version.
+	 * 
+	 * @param library
+	 * @return
+	 */
+	public LibraryNode createMinorVersion(LibraryNode library);
 
-    /**
-     * Lock the selected libraries.
-     */
-    void lock();
+	/**
+	 * Create a patch version of the passed library and return the patch version.
+	 * 
+	 * @param library
+	 * @return
+	 */
+	public LibraryNode createPatchVersion(LibraryNode library);
 
-    /**
-     * Lock the selected libraries.
-     * @param commitWIP TODO
-     */
-    void unlock(boolean commitWIP);
+	/**
+	 * @return a new list of all repository nodes
+	 */
+	public List<RepositoryNode> getAll();
 
-    /**
-     * Rebuild repository node tree.
-     * 
-     * @param n
-     */
-    public void sync(INode n);
+	/**
+	 * @return The local repository node.
+	 */
+	public RepositoryNode getLocalRepository();
 
-    public boolean markFinal(LibraryNode library);
+	/**
+	 * @return the root of the repository tree. Repository root will be created if needed.
+	 */
+	public RepositoryNode getRoot();
 
-    public boolean lock(LibraryNode library);
+	/**
+	 * Get a list of all the namespaces in known repositories.
+	 * 
+	 * @return
+	 */
+	public List<String> getRootNamespaces();
 
-    public boolean unlock(LibraryNode library);
+	/**
+	 * @return true if the namespace is within scope of the namespaces managed by the repository.
+	 */
+	public boolean isInManagedNS(String namespace, RepositoryNode repository);
 
-    public ProjectNode unlockAndRevert(LibraryNode library);
+	public boolean lock(LibraryNode library);
 
-    /**
-     * Create a patch version of the passed library and return the patch version.
-     * 
-     * @param library
-     * @return
-     */
-    public LibraryNode createPatchVersion(LibraryNode library);
+	/**
+	 * Publish selected libraries and all dependencies to selected repository. If successful, a new chains are created
+	 * and the libraries added to them.
+	 * 
+	 * @param repository
+	 *            - target repository
+	 * @param libraries
+	 *            - selected libraries to be managed in repository
+	 * @return list of all published libraries converted to library chain
+	 */
+	public List<LibraryChainNode> manage(RepositoryNode repository, List<LibraryNode> libraries);
 
-    /**
-     * Add a minor version to the chain and return the new minor version.
-     * 
-     * @param library
-     * @return
-     */
-    public LibraryNode createMinorVersion(LibraryNode library);
+	public boolean markFinal(LibraryNode library);
 
-    /**
-     * Create a new chain from the new major version created from the passed library.
-     * 
-     * @param library
-     * @return the newly created major version library in the versions node of a new chain.
-     */
-    public LibraryNode createMajorVersion(LibraryNode library);
+	public void removeRemoteRepository(RepositoryNode node);
 
-    /**
-     * Validate that the namespace is within the scope of namespaces managed by the available
-     * repositories.
-     * 
-     * @param namespace
-     * @return
-     */
-    public boolean validateBaseNamespace(String namespace);
+	/**
+	 * Searches the contents of the repository using the free-text keywords provided.
+	 * 
+	 * @param string
+	 * @see Repository#search(String, boolean, boolean)
+	 */
+	public List<RepositoryItem> search(String phrase);
 
-    /**
-     * @return true if the namespace is within scope of the namespaces managed by the repository.
-     */
-    public boolean isInManagedNS(String namespace, RepositoryNode repository);
+	/**
+	 * Rebuild repository node tree.
+	 * 
+	 * @param n
+	 */
+	public void sync(INode n);
 
-    public boolean addRemoteRepository(String location, String userId, String password);
+	/**
+	 * Lock the selected libraries.
+	 * 
+	 * @param commitWIP
+	 *            commit library before unlocking if true, otherwise revert
+	 */
+	public void unlock(boolean commitWIP);
 
-    public boolean changeCredentials(String location, String userId, String password);
+	/**
+	 * Public Only for testing
+	 * 
+	 * @param library
+	 * @return
+	 */
+	public boolean unlock(LibraryNode library);
 
-    /**
-     * Searches the contents of the repository using the free-text keywords provided.
-     * 
-     * @param string
-     * @see Repository#search(String, boolean, boolean)
-     */
-    public List<RepositoryItem> search(String phrase);
+	public ProjectNode unlockAndRevert(LibraryNode library);
 
-    public void removeRemoteRepository(RepositoryNode node);
+	/**
+	 * Validate that the namespace is within the scope of namespaces managed by the available repositories.
+	 * 
+	 * @param namespace
+	 * @return
+	 */
+	public boolean validateBaseNamespace(String namespace);
 
-    public boolean commit(LibraryNode source);
+	/**
+	 * Lock the selected libraries.
+	 */
+	void lock();
 
 }

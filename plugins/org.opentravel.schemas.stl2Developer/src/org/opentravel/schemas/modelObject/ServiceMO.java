@@ -17,8 +17,6 @@ package org.opentravel.schemas.modelObject;
 
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
-import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLOperation;
 import org.opentravel.schemacompiler.model.TLService;
 
@@ -50,26 +48,26 @@ public class ServiceMO extends ModelObject<TLService> {
 	// return getTLModelObj().getName();
 	// }
 
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
 
 	@Override
 	public TLService getTLModelObj() {
 		return srcObj;
 	}
 
-	@Override
-	public String getNamePrefix() {
-		final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
-		return lib == null ? "" : lib.getPrefix();
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
+	// return lib == null ? "" : lib.getPrefix();
+	// }
 
-	@Override
-	public AbstractLibrary getLibrary(final TLService obj) {
-		return obj.getOwningLibrary();
-	}
+	// @Override
+	// public AbstractLibrary getLibrary(final TLService obj) {
+	// return obj.getOwningLibrary();
+	// }
 
 	@Override
 	public boolean setName(final String name) {

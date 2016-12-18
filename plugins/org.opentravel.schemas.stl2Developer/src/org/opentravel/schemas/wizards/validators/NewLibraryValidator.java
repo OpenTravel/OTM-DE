@@ -15,9 +15,9 @@
  */
 package org.opentravel.schemas.wizards.validators;
 
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.NamespaceHandler;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.preferences.GeneralPreferencePage;
 import org.opentravel.schemas.properties.Messages;
 

@@ -24,7 +24,6 @@ import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
 import org.opentravel.schemacompiler.model.TLIndicator;
-import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 
@@ -66,16 +65,16 @@ public class ExtensionPointFacetMO extends ModelObject<TLExtensionPointFacet> {
 	// return getTLModelObj().getLocalName() == null ? "-not assigned-" : getTLModelObj().getLocalName();
 	// }
 
-	@Override
-	public String getNamePrefix() {
-		final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
-		return lib == null ? "" : lib.getPrefix();
-	}
-
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
+	// return lib == null ? "" : lib.getPrefix();
+	// }
+	//
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
 
 	@Override
 	public TLExtensionPointFacet getTLModelObj() {
@@ -161,11 +160,11 @@ public class ExtensionPointFacetMO extends ModelObject<TLExtensionPointFacet> {
 		}
 	}
 
-	@Override
-	protected AbstractLibrary getLibrary(TLExtensionPointFacet obj) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(TLExtensionPointFacet obj) {
+	// // TODO Auto-generated method stub
+	// return null;
+	// }
 
 	@Override
 	public boolean setName(String name) {

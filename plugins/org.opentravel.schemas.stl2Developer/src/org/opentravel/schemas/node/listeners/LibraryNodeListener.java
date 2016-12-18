@@ -17,10 +17,10 @@ package org.opentravel.schemas.node.listeners;
 
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,13 +40,17 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
 		Node affectedNode = getAffectedNode(event);
-		// LOGGER.debug("Library Ownership event: " + event.getType() + " this = " + thisNode + " affected = "
-		// + affectedNode);
+		LOGGER.debug("Library Ownership event: " + event.getType() + " this = " + thisNode + " affected = "
+				+ affectedNode);
 		LibraryNode ln = (LibraryNode) thisNode;
 
 		switch (event.getType()) {
 		case MEMBER_ADDED:
 			// LOGGER.debug("Ownership change event: added" + affectedNode + " to " + thisNode);
+			// No listener on TLObject - do nothing
+			if (affectedNode == null)
+				return;
+
 			// Add the affected node to this library
 			if (affectedNode instanceof ContextualFacetNode) {
 				if (affectedNode.getParent() != null)
@@ -69,7 +73,7 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 			Node parent = affectedNode.getParent();
 			if (parent instanceof VersionNode)
 				parent = parent.getParent();
-			if (parent instanceof ComponentNode) {
+			if (parent == null || parent instanceof ComponentNode) {
 				// LOGGER.debug("Library is not the parent for " + affectedNode);
 				// This must be a ContextualFacet (or similar) and will be removed with parent
 				break; // do nothing

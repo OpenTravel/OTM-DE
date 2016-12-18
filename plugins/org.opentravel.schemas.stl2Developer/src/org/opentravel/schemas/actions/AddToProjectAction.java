@@ -24,6 +24,12 @@ import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryItemNode;
 
+/**
+ * Action to add repository items to a project.
+ * 
+ * @author Dave
+ *
+ */
 public class AddToProjectAction extends OtmAbstractAction {
 	private static final StringProperties propsDefault = new ExternalizedStringProperties(
 			"action.repository.addToProject");

@@ -16,6 +16,8 @@
 package org.opentravel.schemas.node;
 
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,10 +75,10 @@ public class EditNode extends ComponentNode {
 		return nodeType == null ? "" : nodeType;
 	}
 
-	@Override
-	public int getRepeat() {
-		return modelObject.getRepeat();
-	}
+	// @Override
+	// public int getRepeat() {
+	// return modelObject.getRepeat();
+	// }
 
 	/**
 	 * Get the use type which describes how the node can be used in the construction of other model components
@@ -177,7 +179,6 @@ public class EditNode extends ComponentNode {
 		return propertyType;
 	}
 
-	@Override
 	public void setRepeat(final int cnt) {
 		if (modelObject != null) {
 			modelObject.setRepeat(cnt);

@@ -16,8 +16,8 @@
 package org.opentravel.schemas.wizards.validators;
 
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.wizards.ValidatingWizard;
 

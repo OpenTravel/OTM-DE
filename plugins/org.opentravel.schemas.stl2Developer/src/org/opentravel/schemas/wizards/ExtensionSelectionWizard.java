@@ -20,6 +20,7 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -61,7 +62,7 @@ public class ExtensionSelectionWizard extends Wizard implements IDoubleClickList
 		addPage(selectionPage);
 
 		// Additional page needed for extensions.
-		if (!curNode.isExtensionPointFacet()) {
+		if (!(curNode instanceof ExtensionPointNode)) {
 			inheritancePage = new ExtensionInheritancePage(
 					"Inherited Fields",
 					"Inherited Fields",
@@ -85,7 +86,7 @@ public class ExtensionSelectionWizard extends Wizard implements IDoubleClickList
 		if (curNode != null) {
 			((ExtensionOwner) curNode).setExtension(selectionPage.getSelectedNode());
 			// curNode.setExtendsType(selectionPage.getSelectedNode());
-			if (!curNode.isExtensionPointFacet())
+			if (!(curNode instanceof ExtensionPointNode))
 				inheritancePage.doPerformFinish();
 			OtmRegistry.getMainController().refresh();
 		}

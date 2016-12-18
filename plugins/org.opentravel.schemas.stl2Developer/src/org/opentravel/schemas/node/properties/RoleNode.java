@@ -26,7 +26,6 @@ import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
-import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
@@ -92,7 +91,7 @@ public class RoleNode extends PropertyNode {
 
 	@Override
 	public String getName() {
-		return getTLModelObject() == null || getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
+		return emptyIfNull(getTLModelObject().getName());
 	}
 
 	@Override
@@ -139,6 +138,11 @@ public class RoleNode extends PropertyNode {
 	@Override
 	public boolean isNavChild(boolean deep) {
 		return false;
+	}
+
+	@Override
+	public boolean isRenameable() {
+		return isEditable() && !inherited;
 	}
 
 	@Override

@@ -147,7 +147,7 @@ public class SimpleFacetNode extends PropertyOwnerNode implements TypeProvider, 
 	}
 
 	public SimpleAttributeNode getSimpleAttribute() {
-		return (SimpleAttributeNode) getChildren().get(0);
+		return getChildren().isEmpty() ? null : (SimpleAttributeNode) getChildren().get(0);
 	}
 
 	@Override
@@ -187,8 +187,7 @@ public class SimpleFacetNode extends PropertyOwnerNode implements TypeProvider, 
 
 	@Override
 	public String getName() {
-		return getTLModelObject() == null || getTLModelObject().getLocalName() == null ? "" : getTLModelObject()
-				.getLocalName();
+		return emptyIfNull(getTLModelObject().getLocalName());
 	}
 
 	@Override

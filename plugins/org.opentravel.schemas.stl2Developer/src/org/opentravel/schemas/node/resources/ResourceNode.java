@@ -44,7 +44,6 @@ import org.opentravel.schemas.modelObject.ResourceMO;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ComponentNodeType;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.facets.FacetNode;
@@ -52,6 +51,7 @@ import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
@@ -247,7 +247,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 		if (getChain() != null)
 			getChain().removeAggregate(this);
-		getSubject().removeTypeUser(this);
+		if (getSubject() != null)
+			getSubject().removeTypeUser(this);
 		parent = null;
 		setLibrary(null);
 		deleted = true;

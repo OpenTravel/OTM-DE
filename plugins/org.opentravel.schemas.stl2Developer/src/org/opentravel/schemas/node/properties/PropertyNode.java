@@ -30,9 +30,9 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.OperationFacetNode;
@@ -167,14 +167,6 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	protected IValueWithContextHandler exampleHandler = null;
 
 	protected TypeUserHandler typeHandler = null;
-
-	// /**
-	// * @return
-	// */
-	// public QName getDefaultXmlElementName() {
-	// boolean idRef = this instanceof ElementReferenceNode;
-	// return PropertyCodegenUtils.getDefaultXmlElementName(getTLTypeObject(), idRef);
-	// }
 
 	/**
 	 * Create a property node to represent the passed TL Model object.
@@ -414,7 +406,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 			return this;
 		if (getParent() instanceof OperationFacetNode)
 			return getParent();
-		if (getParent().isExtensionPointFacet())
+		if (getParent() instanceof ExtensionPointNode)
 			return getParent();
 		// EnumLiterals are overridden.
 
@@ -504,6 +496,13 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		return getAssignedType() != null ? getAssignedType().isAssignedByReference() : false;
 	}
 
+	/**
+	 * @return true if indicator element or attribute.
+	 */
+	public boolean isIndicator() {
+		return false;
+	}
+
 	@Override
 	public boolean isDeleteable() {
 		if (modelObject == null)
@@ -532,13 +531,6 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	public boolean isNavChild(boolean deep) {
 		return deep;
 	}
-
-	// @Override
-	// public boolean hasNavChildrenWithProperties() {
-	// if (modelObject == null || modelObject.getTLType() == null)
-	// return false;
-	// return true;
-	// }
 
 	/**
 	 * @return true if this property is an attribute of a Value With Attributes object.
@@ -608,15 +600,6 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 
 	public IValueWithContextHandler setExample(String example) {
 		return null;
-	}
-
-	/**
-	 * Allowed in major versions and on objects new in a minor.
-	 */
-	public void setMandatory(final boolean selection) {
-		if (isEditable_newToChain())
-			if (getOwningComponent().isNewToChain() || !getLibrary().isInChain())
-				getModelObject().setMandatory(selection);
 	}
 
 	@Override

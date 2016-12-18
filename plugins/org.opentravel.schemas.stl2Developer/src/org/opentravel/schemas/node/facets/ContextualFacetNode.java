@@ -87,14 +87,34 @@ public class ContextualFacetNode extends FacetNode {
 	}
 
 	@Override
-	public String getLabel() {
+	public String getNavigatorName() {
 		return getName();
 	}
 
 	@Override
+	public String getLabel() {
+		return getFacetType().getIdentityName();
+	}
+
+	/**
+	 * Set the name of this contextual (custom or query) facet. Name is simply the facet name and not its global type
+	 * name.
+	 * 
+	 * @see getLocalName()
+	 */
+	@Override
 	public String getName() {
-		// see also get LocalName - has parentage in name
+		// // see also get LocalName - has parentage in name
 		return getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
+	}
+
+	/**
+	 * Set the name of this contextual (custom or query) facet. Name is the facet name and its parent to create global
+	 * type name.
+	 */
+	public String getLocalName() {
+		// // see also get LocalName - has parentage in name
+		return getTLModelObject().getLocalName() == null ? "" : getTLModelObject().getLocalName();
 	}
 
 	@Override
@@ -112,10 +132,10 @@ public class ContextualFacetNode extends FacetNode {
 		return (FacetMO) modelObject;
 	}
 
-	@Override
-	public boolean isInheritedProperty() {
-		return getModelObject().isInherited();
-	}
+	// @Override
+	// public boolean isInheritedProperty() {
+	// return getModelObject().isInherited();
+	// }
 
 	/**
 	 * @return true if this facet is declared in the same library as the object it contributes to. Always true for
@@ -126,12 +146,9 @@ public class ContextualFacetNode extends FacetNode {
 		return OTM16Upgrade.otm16Enabled ? getTLModelObject().isLocalFacet() : true;
 	}
 
-	/**
-	 * @return true if this facet is re-nameable.
-	 */
 	@Override
 	public boolean isRenameable() {
-		return true;
+		return isEditable() && !inherited;
 	}
 
 	public void print() {
@@ -167,18 +184,19 @@ public class ContextualFacetNode extends FacetNode {
 		// getTLModelObject().setContext(context);
 	}
 
+	/**
+	 * Set the name of this contextual (custom or query) facet. Name is simply the facet name and not its global type
+	 * name.
+	 */
 	@Override
 	public void setName(String n) {
 		String name = n;
 		// Strip the object name and "query" string if present.
-		name = NodeNameUtils.stripFacetPrefix(this, name);
-		if (getModelObject() != null) {
-			getTLModelObject().setName(name);
-			// rename their type users as well.
-			for (TypeUser user : getWhereAssigned()) {
-				user.setName(getName());
-			}
-		}
+		name = NodeNameUtils.fixContextualFacetName(this, name);
+		getTLModelObject().setName(name);
+		// rename their type users as well.
+		for (TypeUser user : getWhereAssigned())
+			user.setName(name);
 	}
 
 }

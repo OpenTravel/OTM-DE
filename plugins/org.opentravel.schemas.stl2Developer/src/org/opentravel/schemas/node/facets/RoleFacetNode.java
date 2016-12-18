@@ -23,8 +23,8 @@ import org.opentravel.schemacompiler.model.TLRoleEnumeration;
 import org.opentravel.schemas.modelObject.RoleEnumerationMO;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.RoleNode;
 
 /**

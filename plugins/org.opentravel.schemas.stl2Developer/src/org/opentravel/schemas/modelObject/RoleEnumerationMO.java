@@ -17,7 +17,6 @@ package org.opentravel.schemas.modelObject;
 
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLRole;
 import org.opentravel.schemacompiler.model.TLRoleEnumeration;
@@ -99,10 +98,10 @@ public class RoleEnumerationMO extends ModelObject<TLRoleEnumeration> {
 	// return "Roles";
 	// }
 
-	@Override
-	protected AbstractLibrary getLibrary(final TLRoleEnumeration obj) {
-		return getTLModelObj().getOwningLibrary();
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLRoleEnumeration obj) {
+	// return getTLModelObj().getOwningLibrary();
+	// }
 
 	// @Deprecated
 	// @Override
@@ -110,15 +109,15 @@ public class RoleEnumerationMO extends ModelObject<TLRoleEnumeration> {
 	// return getTLModelObj().getLocalName();
 	// }
 	//
-	@Override
-	public String getNamePrefix() {
-		return "";
-	}
-
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// return "";
+	// }
+	//
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
 
 	@Override
 	public TLRoleEnumeration getTLModelObj() {

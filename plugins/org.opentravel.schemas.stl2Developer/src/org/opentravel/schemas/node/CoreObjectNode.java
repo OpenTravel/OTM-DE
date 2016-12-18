@@ -27,6 +27,7 @@ import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemas.modelObject.CoreObjectMO;
 import org.opentravel.schemas.modelObject.ListFacetMO;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
@@ -67,10 +68,14 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 		if (getTLModelObject().getSimpleFacet().getSimpleType() == null)
 			setSimpleType((TypeProvider) ModelNode.getEmptyNode());
 
-		if (((CoreObjectMO) modelObject).getSimpleValueType() == null)
-			setSimpleType((TypeProvider) ModelNode.getEmptyNode());
 	}
 
+	/**
+	 * Create new core with same name and documentation as the business object. Copy all ID and summary facet properties
+	 * in to the summary facet. Copy all detail properties into detail facet.
+	 * 
+	 * @param bo
+	 */
 	public CoreObjectNode(BusinessObjectNode bo) {
 		this(new TLCoreObject());
 
@@ -86,6 +91,11 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 		setSimpleType((TypeProvider) ModelNode.getEmptyNode());
 	}
 
+	/**
+	 * Add to VWA's library a new core with a copy of all the VWA attributes in the summary facet.
+	 * 
+	 * @param vwa
+	 */
 	public CoreObjectNode(VWA_Node vwa) {
 		this(new TLCoreObject());
 
@@ -110,11 +120,6 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 		}
 	}
 
-	// @Override
-	// public boolean canExtend() {
-	// return true;
-	// }
-
 	@Override
 	public ComponentNode createMinorVersionComponent() {
 		return super.createMinorVersionComponent(new CoreObjectNode((TLCoreObject) createMinorTLVersion(this)));
@@ -129,11 +134,6 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	public boolean isExtensibleObject() {
 		return true;
 	}
-
-	// @Override
-	// public boolean setAssignedType(TypeProvider replacement) {
-	// return getSimpleFacet().getSimpleAttribute().getTypeClass().setAssignedType(replacement);
-	// }
 
 	@Override
 	public Node setExtensible(boolean extensible) {
@@ -151,17 +151,6 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	@Override
 	public TLCoreObject getTLModelObject() {
 		return (TLCoreObject) (modelObject != null ? modelObject.getTLModelObj() : null);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeProvider#getTypeNode()
-	 */
-	@Override
-	public Node getTypeNode() {
-		return (Node) getSimpleFacet().getSimpleAttribute().getAssignedType();
-		// return (Node) getTypeClass().getTypeNode();
 	}
 
 	@Override
@@ -182,17 +171,6 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	public ComponentNodeType getComponentNodeType() {
 		return ComponentNodeType.CORE;
 	}
-
-	// @Override
-	// public String getLabel() {
-	// if (getExtensionBase() == null)
-	// return super.getLabel();
-	// // else if (getExtendsType().getName().equals(getName()))
-	// else if (isVersioned())
-	// return super.getLabel() + " (Extends version: " + getExtensionBase().getLibrary().getVersion() + ")";
-	// else
-	// return super.getLabel() + " (Extends: " + getExtensionBase().getNameWithPrefix() + ")";
-	// }
 
 	// /////////////////////////////////////////////////////////////////
 	//
@@ -259,9 +237,8 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	// List w/model object ListFacetMO - Simple_List
 	public ComponentNode getSimpleListFacet() {
 		for (Node f : getChildren())
-			if (f.modelObject instanceof ListFacetMO)
-				if (((ListFacetMO) f.modelObject).isSimpleList())
-					return (ComponentNode) f;
+			if (f instanceof ListFacetNode && ((ListFacetNode) f).isSimpleListFacet())
+				return (ComponentNode) f;
 		return null;
 	}
 
@@ -323,25 +300,7 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	public void setName(String n) {
 		getTLModelObject().setName(NodeNameUtils.fixCoreObjectName(n));
 		updateNames(NodeNameUtils.fixCoreObjectName(n));
-
-		// super.setName(n);
-		// for (TypeUser user : getWhereAssigned()) {
-		// if (user instanceof PropertyNode)
-		// user.setName(n);
-		// }
-		// // FIXME - see business object
 	}
-
-	// @Deprecated
-	// @Override
-	// public void setName(String n, boolean doFamily) {
-	// // n = NodeNameUtils.fixCoreObjectName(n);
-	// // super.setName(n);
-	// // for (TypeUser user : getWhereAssigned()) {
-	// // if (user instanceof PropertyNode)
-	// // user.setName(n);
-	// // }
-	// }
 
 	@Override
 	public void sort() {

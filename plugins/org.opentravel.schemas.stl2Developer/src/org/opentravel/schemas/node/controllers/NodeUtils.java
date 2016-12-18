@@ -28,17 +28,19 @@ import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.SimpleComponentNode;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.OperationFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 
@@ -96,7 +98,7 @@ public class NodeUtils {
 			case CORE:
 				return node instanceof CoreObjectNode;
 			case EXTENSION_POINT:
-				return node.isExtensionPointFacet();
+				return node instanceof ExtensionPointNode;
 			case MESSAGE:
 				return node instanceof OperationFacetNode;
 			case OPERATION:
@@ -110,7 +112,7 @@ public class NodeUtils {
 			case SERVICE:
 				return node instanceof ServiceNode;
 			case SIMPLE:
-				return node.isSimpleType();
+				return node instanceof SimpleComponentNode;
 			case VWA:
 				return node instanceof VWA_Node;
 			default:
@@ -299,7 +301,7 @@ public class NodeUtils {
 	// TODO: find better place for this method
 
 	public static boolean isBuildInProject(ProjectNode n) {
-		return BuiltInProject.BUILTIN_PROJECT_ID.equals(n.getProject().getProjectId());
+		return BuiltInProject.BUILTIN_PROJECT_ID.equals(n.getTLProject().getProjectId());
 	}
 
 	public static boolean isProject(Node n) {

@@ -17,7 +17,6 @@ package org.opentravel.schemas.modelObject;
 
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.TLEnumValue;
 
 public class EnumLiteralMO extends ModelObject<TLEnumValue> {
@@ -31,10 +30,10 @@ public class EnumLiteralMO extends ModelObject<TLEnumValue> {
 		getTLModelObj().getOwningEnum().removeValue(this.getTLModelObj());
 	}
 
-	@Override
-	protected AbstractLibrary getLibrary(final TLEnumValue obj) {
-		return obj != null && obj.getOwningEnum() != null ? obj.getOwningEnum().getOwningLibrary() : null;
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLEnumValue obj) {
+	// return obj != null && obj.getOwningEnum() != null ? obj.getOwningEnum().getOwningLibrary() : null;
+	// }
 
 	@Override
 	public List<?> getChildren() {
@@ -52,16 +51,16 @@ public class EnumLiteralMO extends ModelObject<TLEnumValue> {
 	// return srcObj != null ? getTLModelObj().getLiteral() : "UndefindedLiteral";
 	// }
 	//
-	@Override
-	public String getNamePrefix() {
-		return "";
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// return "";
+	// }
 
-	@Override
-	public String getNamespace() {
-		return "";
-	}
-
+	// @Override
+	// public String getNamespace() {
+	// return "";
+	// }
+	//
 	@Override
 	public TLEnumValue getTLModelObj() {
 		return srcObj;
@@ -116,7 +115,6 @@ public class EnumLiteralMO extends ModelObject<TLEnumValue> {
 		return false;
 	}
 
-	@Override
 	protected int indexOf() {
 		return getTLModelObj().getOwningEnum().getValues().indexOf(getTLModelObj());
 	}

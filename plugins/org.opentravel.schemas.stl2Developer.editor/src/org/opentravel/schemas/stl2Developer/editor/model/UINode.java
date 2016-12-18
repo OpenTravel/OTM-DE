@@ -112,7 +112,7 @@ public class UINode {
 	 */
 	public Collection<UINode> getConnectedAsSource() {
 		List<UINode> ret = new ArrayList<UINode>();
-		UINode uiTypeUser = owner.findUINode(node.getTypeNode());
+		UINode uiTypeUser = owner.findUINode(node.getType());
 		if (uiTypeUser != null)
 			ret.add(uiTypeUser);
 		return ret;

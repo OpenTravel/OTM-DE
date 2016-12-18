@@ -15,9 +15,7 @@
  */
 package org.opentravel.schemas.modelObject;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
-import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.XSDSimpleType;
 import org.opentravel.schemas.node.XsdNode;
 import org.slf4j.Logger;
@@ -64,33 +62,33 @@ public class XSDSimpleMO extends ModelObject<XSDSimpleType> {
 		return srcObj;
 	}
 
-	@Override
-	public String getAssignedName() {
-
-		// NamedEntity tltype = super.getTLType(); // here we need to get srcObj
-		// instead of getTLType
-
-		final NamedEntity tltype = getTLModelObj();
-
-		if (tltype instanceof XSDSimpleType) {
-			final XSDSimpleType type = (XSDSimpleType) tltype;
-			if (type.getJaxbType() != null && type.getJaxbType().getRestriction() != null
-					&& type.getJaxbType().getRestriction().getBase() != null) {
-				if (type.getJaxbType().getRestriction().getBase().getPrefix().length() == 0) {
-					return type.getJaxbType().getRestriction().getBase().getLocalPart();
-				} else {
-					return type.getJaxbType().getRestriction().getBase().getPrefix() + ":"
-							+ type.getJaxbType().getRestriction().getBase().getLocalPart();
-				}
-			} else if (type.getJaxbType() != null && type.getJaxbType().getUnion() != null
-					&& type.getJaxbType().getUnion().getMemberTypes() != null) {
-				return XsdModelingUtils.parseUnion(type);
-			}
-		}
-
-		return super.getAssignedName();
-
-	}
+	// @Override
+	// public String getAssignedName() {
+	//
+	// // NamedEntity tltype = super.getTLType(); // here we need to get srcObj
+	// // instead of getTLType
+	//
+	// final NamedEntity tltype = getTLModelObj();
+	//
+	// if (tltype instanceof XSDSimpleType) {
+	// final XSDSimpleType type = (XSDSimpleType) tltype;
+	// if (type.getJaxbType() != null && type.getJaxbType().getRestriction() != null
+	// && type.getJaxbType().getRestriction().getBase() != null) {
+	// if (type.getJaxbType().getRestriction().getBase().getPrefix().length() == 0) {
+	// return type.getJaxbType().getRestriction().getBase().getLocalPart();
+	// } else {
+	// return type.getJaxbType().getRestriction().getBase().getPrefix() + ":"
+	// + type.getJaxbType().getRestriction().getBase().getLocalPart();
+	// }
+	// } else if (type.getJaxbType() != null && type.getJaxbType().getUnion() != null
+	// && type.getJaxbType().getUnion().getMemberTypes() != null) {
+	// return XsdModelingUtils.parseUnion(type);
+	// }
+	// }
+	//
+	// return super.getAssignedName();
+	//
+	// }
 
 	@Override
 	public void delete() {
@@ -107,10 +105,10 @@ public class XSDSimpleMO extends ModelObject<XSDSimpleType> {
 	// return "XSD Simple Type";
 	// }
 	//
-	@Override
-	protected AbstractLibrary getLibrary(final XSDSimpleType obj) {
-		return null;
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final XSDSimpleType obj) {
+	// return null;
+	// }
 
 	// @Override
 	// public String getName() {
@@ -119,15 +117,15 @@ public class XSDSimpleMO extends ModelObject<XSDSimpleType> {
 	// return srcObj == null ? "Undefined" : getTLModelObj().getLocalName();
 	// }
 
-	@Override
-	public String getNamePrefix() {
-		return "";
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// return "";
+	// }
 
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
 
 	// @Override
 	// public String getPattern() {

@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
  * Viewer filter that adds an additional method to verify that the selection chosen by the user is a valid type.

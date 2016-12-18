@@ -32,6 +32,7 @@ public enum ComponentNodeType {
 	CHOICE("Choice Object"),
 	CLOSED_ENUM("Closed Enumeration"),
 	CORE("Core Object"),
+	DETAIL_LIST("Detail List"),
 	ELEMENT("Element"),
 	ELEMENT_REF("Element Reference"),
 	ENUM_LITERAL("Enumeration Value"),
@@ -49,6 +50,7 @@ public enum ComponentNodeType {
 	ROLE("Role"),
 	ROLES("Roles"),
 	SIMPLE("Simple Object"),
+	SIMPLE_LIST("Simple List"),
 	SIMPLE_ATTRIBUTE("Simple Attribute"),
 	SERVICE("Service"),
 	VWA("Value With Attributes");

@@ -37,9 +37,6 @@ import org.opentravel.schemas.types.TypeProvider;
 // FIXME - should not extend simple type node, simple and enum should extend from abstract simple or simple interface
 public class EnumerationClosedNode extends SimpleComponentNode implements Enumeration, LibraryMemberInterface,
 		TypeProvider, ExtensionOwner {
-	// public class EnumerationClosedNode extends SimpleTypeNode implements Enumeration, ExtensionOwner,
-	// VersionedObjectInterface {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(EnumerationClosedNode.class);
 
 	private ExtensionHandler extensionHandler = null;
 
@@ -60,14 +57,13 @@ public class EnumerationClosedNode extends SimpleComponentNode implements Enumer
 			setLibrary(openEnum.getLibrary());
 			getLibrary().getTLaLib().addNamedMember((TLLibraryMember) this.getTLModelObject());
 
+			setName(openEnum.getName());
 			for (Node lit : openEnum.getChildren()) {
 				addProperty(lit.clone(this, null));
 			}
 			getLibrary().getTLaLib().removeNamedMember((TLLibraryMember) openEnum.getTLModelObject());
 			openEnum.unlinkNode();
 			// If openEnum was being used, the tl model will reassign but not type node
-			// FIXME - TESTME
-			// openEnum.getTypeClass().replaceTypeProvider(this, null);
 
 			getLibrary().getSimpleRoot().linkChild(this);
 			// handle version managed libraries
@@ -75,7 +71,7 @@ public class EnumerationClosedNode extends SimpleComponentNode implements Enumer
 				getChain().add(this);
 
 			setDocumentation(openEnum.getDocumentation());
-			setName(openEnum.getName());
+
 			openEnum.delete();
 		}
 		// LOGGER.debug("Created closed enum from open.");

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.node.libraries;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -44,7 +44,6 @@ import org.opentravel.schemacompiler.model.XSDComplexType;
 import org.opentravel.schemacompiler.model.XSDElement;
 import org.opentravel.schemacompiler.model.XSDLibrary;
 import org.opentravel.schemacompiler.model.XSDSimpleType;
-import org.opentravel.schemacompiler.repository.Project;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RemoteRepository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
@@ -53,14 +52,30 @@ import org.opentravel.schemacompiler.util.ContextUtils;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemacompiler.util.URLUtils;
 import org.opentravel.schemas.controllers.ContextController;
-import org.opentravel.schemas.controllers.ProjectController;
+import org.opentravel.schemas.controllers.LibraryModelManager;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
+import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.CoreObjectNode;
+import org.opentravel.schemas.node.EnumerationClosedNode;
+import org.opentravel.schemas.node.ImpliedNode;
+import org.opentravel.schemas.node.NamespaceHandler;
+import org.opentravel.schemas.node.NavNode;
+import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.NodeEditStatus;
+import org.opentravel.schemas.node.NodeFactory;
+import org.opentravel.schemas.node.NodeVisitors;
+import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.SimpleComponentNode;
+import org.opentravel.schemas.node.VersionAggregateNode;
+import org.opentravel.schemas.node.VersionNode;
+import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
-import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
+import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.LibraryNodeListener;
@@ -85,7 +100,7 @@ import org.slf4j.LoggerFactory;
  * (shearing layer) between the schema driven TLModel and the GUI driven node model.
  */
 
-public class LibraryNode extends Node {
+public class LibraryNode extends Node implements LibraryInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryNode.class);
 
 	protected static final String DEFAULT_LIBRARY_TYPE = "Library";
@@ -117,9 +132,14 @@ public class LibraryNode extends Node {
 	/**
 	 * Default constructor. Used for user-directed library creation. Names type node "Library" and does <i>not</i>
 	 * create navNodes.
+	 * 
+	 * @see {@link org.opentravel.schemas.wizards.NewLibraryWizard#NewLibraryWizard(ProjectNode)}
 	 */
+	// FIXME - change wizard to use a libraryNavNode then delete this
 	public LibraryNode(Node parent) {
 		super();
+		assert (parent instanceof ProjectNode);
+
 		setLibrary(this);
 		absTLLibrary = new TLLibrary();
 		setParent(parent);
@@ -138,51 +158,67 @@ public class LibraryNode extends Node {
 	}
 
 	/**
-	 * Create a library node and all of its children based on the TL model library. Link to the passed parent node. If
-	 * the parent is not a project or Nav node, it will be set to the default project. May be invoked with an new, empty
-	 * library.
+	 * Create a library node and all of its children based on the TL model library. Create LibraryNavNode linking this
+	 * library to the parent project. May be invoked with an new, empty library. Assures library managed by the
+	 * appropriate TL Project.
 	 * 
-	 * Note - invoker must set namespace and prefix.
+	 * Note - caller must set namespace and prefix.
+	 * 
+	 * @see {@link org.opentravel.schemas.controllers.DefaultRepositoryController#createMajorVersion(LibraryNode)}
 	 * 
 	 * @param alib
 	 * @param parent
-	 *            - if null, library is added to default project
+	 *            project to link to with the new LibraryNavNode
 	 */
-	public LibraryNode(final AbstractLibrary alib, final Node parent) {
+	public LibraryNode(final AbstractLibrary alib, final ProjectNode parent) {
 		super(alib.getName());
-		if (parent instanceof VersionAggregateNode)
-			LOGGER.debug("Begin creating new library: " + alib.getPrefix() + ":" + alib.getName() + " in aggregate "
-					+ parent.getParent());
-		else
-			LOGGER.debug("Begin creating new library: " + alib.getName() + " in " + parent);
+		if (parent == null)
+			throw new IllegalArgumentException("Parent project must not be null.");
+		LOGGER.debug("Begin creating new library: " + alib.getName() + " in " + parent);
+
+		setLibrary(this);
+		absTLLibrary = alib;
+
+		// Parent is a new library nav node
+		setParent(new LibraryNavNode(this, parent));
+
+		// Register the library
+		getModelNode().getLibraryManager().add(this);
+
+		// Set the Project Item, add to project if not already a member
+		setProjectItem(getProject().add(alib));
+
+		initLibrary(alib);
+
+		LOGGER.debug("Library created: " + this.getName());
+	}
+
+	public LibraryNode(final AbstractLibrary alib, final VersionAggregateNode parent) {
+		super(alib.getName());
+		// if (parent instanceof VersionAggregateNode)
+		LOGGER.debug("Begin creating new library: " + alib.getPrefix() + ":" + alib.getName() + " in aggregate "
+				+ parent.getParent());
+		// else
+		// LOGGER.debug("Begin creating new library: " + alib.getName() + " in " + parent);
+		assert (parent != null);
 
 		setLibrary(this);
 		absTLLibrary = alib;
 		setParent(parent);
-		ProjectController pc = OtmRegistry.getMainController().getProjectController();
-		if (parent == null)
-			setParent(pc.getDefaultProject());
-		else if ((!(parent instanceof ProjectNode) && !(parent instanceof NavNode)))
-			setParent(pc.getDefaultProject());
 		getParent().linkLibrary(this);
 
-		ProjectItem pi = null;
-		for (ProjectItem item : getProject().getProject().getProjectItems()) {
-			if (item.getContent() == alib) {
-				pi = item;
-				break; // todo - delegate to project.get(alib)
-			}
-		}
-		if (pi == null) {
-			try {
-				pi = getProject().getProject().getProjectManager()
-						.addUnmanagedProjectItem(alib, getProject().getProject());
-			} catch (RepositoryException e1) {
-				LOGGER.error("Error adding " + alib.getName() + " to project.");
-			}
-		}
-		setProjectItem(pi);
+		assert (getProject() != null);
+		assert (getProject().getTLProject() != null);
 
+		// Set the Project Item, add to project if not already a member
+		setProjectItem(getProject().add(alib));
+
+		initLibrary(alib);
+
+		LOGGER.debug("Library created: " + this.getName());
+	}
+
+	private void initLibrary(final AbstractLibrary alib) {
 		nsHandler = NamespaceHandler.getNamespaceHandler(this);
 		nsHandler.registerLibrary(this);
 
@@ -204,7 +240,8 @@ public class LibraryNode extends Node {
 
 		// Set up the contexts
 		addContexts();
-		LOGGER.debug("Library created: " + this.getName());
+		addListeners();
+
 	}
 
 	private void addListeners() {
@@ -215,26 +252,18 @@ public class LibraryNode extends Node {
 		ListenerFactory.clearListners(this);
 	}
 
-	public LibraryNode(ProjectItem pi, ProjectNode projectNode) {
-		this(pi.getContent(), projectNode);
-		projectItem = pi;
-
-		// Save edit state: may be different with Project Item.
-		// Make sure library is in the managed namespace of the project.
-		updateLibraryStatus();
-	}
-
+	// org.opentravel.schemas.controllers.DefaultProjectController.add(LibraryNode, AbstractLibrary)
+	// org.opentravel.schemas.node.LibraryChainNode.add(ProjectItem)
 	public LibraryNode(ProjectItem pi, LibraryChainNode chain) {
-		this(pi.getContent(), chain.getVersions());
-		for (Node members : getDescendentsNamedTypes()) {
+		this(pi.getContent(), (VersionAggregateNode) chain.getVersions());
+		for (Node members : getDescendants_LibraryMembers()) {
+			// for (Node members : getDescendentsNamedTypes()) {
 			if (members instanceof ComponentNode) {
 				chain.add((ComponentNode) members);
 			}
 		}
-		ServiceNode serviceNode = getService();
-		if (serviceNode != null) {
-			chain.add(serviceNode);
-		}
+		chain.add(getService());
+
 		// Do NOT add resource here. It is done in addMember().
 		// TODO - fix service to match resource (or vice versa)
 		// for (ResourceNode r : getResources())
@@ -267,7 +296,7 @@ public class LibraryNode extends Node {
 			} else if (!isInProjectNS())
 				this.editable = false;
 		}
-		getEditableState(); // dead and duplicate code?
+		getEditableState();
 	}
 
 	@Override
@@ -311,7 +340,12 @@ public class LibraryNode extends Node {
 		return getNamespace().contains(getParent().getNamespace());
 	}
 
+	/**
+	 * @return true if complex, simple, resource and service roots are null or empty
+	 */
 	public boolean isEmpty() {
+		if (complexRoot == null)
+			return true; // assume others are null also
 		if (complexRoot.isEmpty())
 			if (simpleRoot.isEmpty())
 				if (resourceRoot.isEmpty())
@@ -496,7 +530,7 @@ public class LibraryNode extends Node {
 	 * Add a tlContext to the library if none exists. Then, if this is a TL Library add the context to the context
 	 * controller. If the TLLibrary associated with this library does not have a context, make one.
 	 */
-	protected void addContexts() {
+	public void addContexts() {
 		ContextController cc = OtmRegistry.getMainController().getContextController();
 		if (cc == null)
 			throw new IllegalStateException("Context Controller not registered before use.");
@@ -522,7 +556,7 @@ public class LibraryNode extends Node {
 	 * the library may be changed to merge contexts to the default.
 	 */
 	// Collapse all contexts down to one. Temporary fix that may be in place for years.
-	protected void collapseContexts() {
+	public void collapseContexts() {
 		// LOGGER.debug("Ready to merge contexts for library: " + this);
 		if (!(getTLaLib() instanceof TLLibrary)) {
 			LOGGER.error("Error. Not a valid library for collapseContexts.");
@@ -673,36 +707,36 @@ public class LibraryNode extends Node {
 			throw new RepositoryException("Library was not part of a project");
 
 		// String path = pn.getProject().getProjectFile().getAbsolutePath();
-		File dir = pn.getProject().getProjectFile().getParentFile();
+		File dir = pn.getTLProject().getProjectFile().getParentFile();
 
 		// FIXME - don't get the list.
 		// try to lock - if throws exception then refresh and try again.
 
 		// 5/2016 - dmh - refresh the project to assure the most current version is being locked.
-		List<ProjectItem> updated = pn.getProject().getProjectManager().refreshManagedProjectItems();
+		List<ProjectItem> updated = pn.getTLProject().getProjectManager().refreshManagedProjectItems();
 		// pn.getProject().getProjectManager().refreshManagedProjectItems();
 
-		pn.getProject().getProjectManager().lock(getProjectItem(), dir);
+		pn.getTLProject().getProjectManager().lock(getProjectItem(), dir);
 		// LOGGER.debug("Locked library which created local file: " + path);
 		setEditable(isAbsLibEditable());
 	}
 
-	/**
-	 * Unlock this library in its repository.
-	 * 
-	 * @return empty string if successful or an error message from repository.
-	 */
-	// Not Used
-	public void unlock() throws RepositoryException {
-		ProjectNode pn = getProject();
-		if (pn == null)
-			throw new RepositoryException("Library was not part of a project");
-
-		OtmRegistry.getMainController().getRepositoryController().unlockAndRevert(this);
-		// pn.getProject().getProjectManager().unlock(getProjectItem(), true);
-		// LOGGER.debug("UnLocked library " + this);
-		setEditable(isAbsLibEditable());
-	}
+	// /**
+	// * Unlock this library in its repository.
+	// *
+	// * @return empty string if successful or an error message from repository.
+	// */
+	// // Not Used
+	// public void unlock() throws RepositoryException {
+	// ProjectNode pn = getProject();
+	// if (pn == null)
+	// throw new RepositoryException("Library was not part of a project");
+	//
+	// OtmRegistry.getMainController().getRepositoryController().unlockAndRevert(this);
+	// // pn.getProject().getProjectManager().unlock(getProjectItem(), true);
+	// // LOGGER.debug("UnLocked library " + this);
+	// setEditable(isAbsLibEditable());
+	// }
 
 	/**
 	 * Use the generator appropriate to the library type. Gets each member of the abstract library and creates the
@@ -714,13 +748,14 @@ public class LibraryNode extends Node {
 	 *            - abstract library from TL model
 	 */
 	protected void generateModel(final AbstractLibrary alib) {
-		// LOGGER.debug("Generating library "+alib.getName()+".");
+		LOGGER.debug("Generating library " + alib.getName() + ".");
 		if (alib instanceof XSDLibrary)
 			generateLibrary((XSDLibrary) alib);
 		else if (alib instanceof BuiltInLibrary)
 			generateLibrary((BuiltInLibrary) alib);
 		else if (alib instanceof TLLibrary)
 			generateLibrary((TLLibrary) alib);
+		LOGGER.debug("Done generating library " + alib.getName() + ".");
 	}
 
 	private void generateLibrary(final BuiltInLibrary biLib) {
@@ -807,14 +842,14 @@ public class LibraryNode extends Node {
 				linkMember(n);
 			}
 		}
-		new TypeResolver().resolveTypes(); // TODO - this is run too often
+		// new TypeResolver().resolveTypes(); // TODO - this is run too often
 	}
 
 	// private ComponentNode getNodeIfInThisLib(TLLibraryMember mbr) {
 	// ComponentNode cn = (ComponentNode) GetNode(mbr);
 	// return cn != null && cn.getLibrary() != this ? null : cn;
 	// }
-
+	// FIXME - only used in tests
 	public boolean hasGeneratedChildren() {
 		return genTLLib.getNamedMembers().size() > 0 ? true : false;
 	}
@@ -887,6 +922,7 @@ public class LibraryNode extends Node {
 		}
 
 		// If it is in a different library, remove it from that one.
+		// FIXME - dead code - if in a library then will fail the parent test above
 		if (n.getLibrary() != null && n.getLibrary() != this)
 			n.removeFromLibrary();
 
@@ -900,8 +936,8 @@ public class LibraryNode extends Node {
 			tln.getOwningLibrary().removeNamedMember(tln);
 			getTLLibrary().addNamedMember(tln);
 		}
-
-		// Add to this library child array
+		// LibraryNodeListener will link node or its version node
+		// Add to this library child array will fail gracefully
 		if (linkMember(n)) {
 			// If this library is in a chain, add the member to the chain's aggregates.
 			if (isInChain())
@@ -909,7 +945,10 @@ public class LibraryNode extends Node {
 		}
 
 		// Fail if in the list more than once.
-		if (n.getParent().getChildren().indexOf(n) != n.getParent().getChildren().lastIndexOf(n))
+		Node trueChild = n;
+		if (getParent() instanceof VersionNode)
+			trueChild = n.getParent();
+		if (trueChild.getParent().getChildren().indexOf(n) != trueChild.getParent().getChildren().lastIndexOf(n))
 			LOGGER.error(n + " is in list more than once.");
 		// assert (n.getParent().getChildren().indexOf(n) == n.getParent().getChildren().lastIndexOf(n));
 
@@ -927,146 +966,67 @@ public class LibraryNode extends Node {
 	}
 
 	/**
-	 * Close the library. If this library is not open in other projects, close all its members. If it is open in other
-	 * projects, just remove if from the project and make sure navNodes have valid parents. Remove library from project.
-	 * Only closes this library not others in the chain.
+	 * If this library's parent is a LibraryNavNode the close it. If it is in a chain, close the chain. Otherwise, walk
+	 * all members and close them.
+	 * 
+	 * <b>WARNING:</b> this simply closes the library and <b>not</b> the underlying TL library. The library may be in
+	 * multiple projects.
+	 * 
+	 * @see To remove a library from a project use ProjectController.remove(LibraryNavNode)
+	 * 
+	 *      {@link #LibraryModelManager}
 	 */
 	@Override
 	public void close() {
-		// If this library is not open in other projects remove all children, otherwise just close
-		LibraryNode libInOtherProject = null;
-		for (LibraryNode lib : ModelNode.getAllUserLibraries())
-			if (lib != this && lib.getNameWithPrefix().equals(getNameWithPrefix())) {
-				// Use the editable lib if available.
-				if (libInOtherProject == null || lib.isEditable())
-					libInOtherProject = lib;
-			}
-
-		close(libInOtherProject == null); // if null, unlink all members
-
-		// Nodes representing named types are shared across libraries. (see generateLibrary())
-		// Go through each NavNode and make sure those nodes point to the nav nodes in the other library.
-		if (libInOtherProject != null) {
-			for (Node navNode : getChildren()) {
-				List<Node> objects = new ArrayList<Node>(navNode.getChildren());
-				if (navNode instanceof ServiceNode || navNode instanceof ResourceNode)
-					moveNamedType(navNode, libInOtherProject);
-				else
-					for (Node child : objects) {
-						// Make sure child has a valid parent
-						if (child.getParent() == navNode) {
-							// If the node is wrapped in a version node, the version node needs to change.
-							Node actualChild = child;
-							if (child instanceof VersionNode)
-								actualChild = ((VersionNode) child).getVersionedObject();
-							if (actualChild instanceof ComplexComponentInterface) {
-								moveNamedType(child, libInOtherProject.getComplexRoot());
-							} else if (actualChild instanceof SimpleComponentInterface) {
-								moveNamedType(child, libInOtherProject.getSimpleRoot());
-							} else if (actualChild instanceof OperationNode) {
-								// LOGGER.debug("What to do with operation? " + child);
-								moveNamedType(child, libInOtherProject.getServiceRoot());
-							} else if (actualChild instanceof ResourceMemberInterface)
-								moveNamedType(child, libInOtherProject.getResourceRoot());
-							// LOGGER.debug("What to do with resource? " + child);
-							else
-								LOGGER.debug("Unhandled child: " + child);
-						}
-						// Remove child from this libraries' navNodes.
-						navNode.getChildren().remove(child);
-					}
-			}
+		LOGGER.debug("Closing " + getNameWithPrefix());
+		if (getChain() != null)
+			getChain().close();
+		else if (getParent() instanceof LibraryNavNode)
+			((LibraryNavNode) getParent()).close();
+		else {
+			for (Node n : getChildren_New())
+				n.close();
+			setParent(null);
+			deleted = true;
 		}
-
-	}
-
-	private void moveNamedType(Node child, Node newParent) {
-		if (!newParent.getChildren().contains(child))
-			newParent.getChildren().add(child);
-		child.setParent(newParent);
-		child.setLibrary(newParent.getLibrary());
+		assert (isEmpty());
+		assert (deleted);
+		assert (getParent() == null);
 	}
 
 	/**
-	 * Close library which removes it from the GUI but not OTM model. It must be the caller's responsibility to assure
-	 * that the project state is saved.
-	 * 
-	 * node marked delete, parent and library set to null.
-	 * 
-	 * ProjectItem for this library is removed from the TL Project.
-	 * 
-	 * @param doMembers
-	 *            - if true each child member is closed and contexts cleared. if false this node is removed from parent
-	 */
-	private void close(boolean doMembers) {
-		if (isBuiltIn())
-			return;
-		if (isDeleted())
-			return;
-
-		Project project = getProject().getProject(); // do before unlinking
-
-		if (doMembers) {
-			// if (isInChain())
-			// getChain().close();
-			// else {
-			List<Node> kids = new ArrayList<Node>(getChildren());
-			for (Node kid : kids)
-				kid.close();
-			// super.close();
-			// }
-			// Remove context
-			ContextController cc = OtmRegistry.getMainController().getContextController();
-			cc.clearContexts(this);
-		} // 7/2016 - dmh
-			// else {
-			// Unlink from tree
-		if (getParent() != null && getParent().getChildren() != null)
-			getParent().getChildren().remove(this);
-		// }
-
-		// Remove from containing TL (schema compiler/repository) project.
-		project.remove(projectItem);
-
-		deleted = true;
-		setParent(null);
-		setLibrary(null);
-
-		// LOGGER.info("Closed library " + this);
-		return;
-	}
-
-	/**
-	 * Commit changes to the repository.
+	 * Commit changes to the repository. {@link org.opentravel.schemas.controllers.CommitThread#run()}
 	 * 
 	 * @throws RepositoryException
 	 */
+	// TODO - why is this here when other repo actions are in libraryController?
 	public void commit() throws RepositoryException {
 		projectItem.getProjectManager().commit(this.projectItem);
 		// LOGGER.debug("Committed " + this);
 	}
 
+	/**
+	 * Libraries are not deleted, just closed.
+	 */
 	@Override
 	public void delete() {
-		delete(true);
+		close();
 	}
 
+	/**
+	 * Delete this library from the repository project and project node. Does <b>not</b> check Library Model Manager to
+	 * see if the library is used elsewhere.
+	 * 
+	 * <b>NOTE:</b> parent must be the project the library is to be removed from. Libraries can have multiple parents!
+	 * 
+	 * @param doMembers
+	 *            when true delete all members of the library
+	 */
 	public void delete(boolean doMembers) {
 		if (isBuiltIn())
 			return;
+		close();
 
-		// Remove from project.
-		if (getParent() instanceof ProjectNode) {
-			ProjectNode pn = (ProjectNode) getParent();
-			pn.getProject().remove(projectItem);
-		}
-		// Remove context
-		ContextController cc = OtmRegistry.getMainController().getContextController();
-		cc.clearContexts(this);
-
-		// Now delete the nodes.
-		if (doMembers)
-			super.delete();
 	}
 
 	/**
@@ -1149,7 +1109,7 @@ public class LibraryNode extends Node {
 	 * NOTE - does not replace this node with an earlier version in a version chain.
 	 * 
 	 */
-	protected void removeMember(final Node n) {
+	public void removeMember(final Node n) {
 		if (n == null || n.getTLModelObject() == null) {
 			LOGGER.warn("LibraryNode:removeMember() - error. model object or tl model object is null. " + n.getName()
 					+ " - " + n.getClass().getSimpleName());
@@ -1235,10 +1195,7 @@ public class LibraryNode extends Node {
 
 	@Override
 	public String getNamespace() {
-		// return emptyIfNull(getTLaLib().getNamespace());
 		return getTLModelObject().getNamespace();
-		// return modelObject.getNamespace(); // some libraries have empty mo
-		// return getTLModelObject() == null ? "" : getTLModelObject().getNamespace();
 	}
 
 	public String getNSBase() {
@@ -1304,15 +1261,6 @@ public class LibraryNode extends Node {
 		return null;
 	}
 
-	// private List<ResourceNode> getResources() {
-	// List<ResourceNode> resources = new ArrayList<ResourceNode>();
-	// for (Node n : getResourceRoot().getChildren()) {
-	// if (n instanceof ResourceNode)
-	// resources.add((ResourceNode) n);
-	// }
-	// return resources;
-	// }
-
 	@Override
 	public boolean hasChildren_TypeProviders() {
 		return getChildren().size() > 0 ? true : false;
@@ -1350,14 +1298,7 @@ public class LibraryNode extends Node {
 		if (!this.isTLLibrary() || getTLaLib() == null)
 			return;
 		getTLaLib().setName(n);
-		// Libraries do not use families...no need for super behavior.
-		// LOGGER.debug("LibraryNode:setName() - name set to " + n);
 	}
-
-	// @Override
-	// public String getName() {
-	// return emptyIfNull(getTLaLib().getName());
-	// }
 
 	@Override
 	public String getName() {
@@ -1377,18 +1318,6 @@ public class LibraryNode extends Node {
 	 */
 	public boolean isMoveable() {
 		return isManaged() ? isEditable() : isTLLibrary();
-	}
-
-	/**
-	 * Temporary library has a specific name
-	 * 
-	 * @deprecated
-	 */
-	@Deprecated
-	protected boolean isTemporaryLibrary() {
-		if (getName().equals(TempLib))
-			return true;
-		return false;
 	}
 
 	public void setNamespace(String ns) {
@@ -1435,13 +1364,6 @@ public class LibraryNode extends Node {
 		// TODO - implement the rest of the version logic!
 	}
 
-	public void markFinal() throws RepositoryException {
-		if (absTLLibrary instanceof TLLibrary) {
-			getProjectItem().getProjectManager().promote(projectItem);
-			// LOGGER.debug("Set status of " + this + " to Final.");
-		}
-	}
-
 	public String getVersion() {
 		String version = "";
 		if (absTLLibrary != null && absTLLibrary instanceof TLLibrary) {
@@ -1455,6 +1377,14 @@ public class LibraryNode extends Node {
 		final URL fileURL = URLUtils.toURL(file);
 		// LOGGER.debug("File url being set to: "+fileURL);
 		absTLLibrary.setLibraryUrl(fileURL);
+	}
+
+	/**
+	 * NOTE - a library can many project parents as it can belong to multiple projects. It can also be a library chain.
+	 */
+	@Override
+	public Node getParent() {
+		return parent;
 	}
 
 	/**
@@ -1495,17 +1425,23 @@ public class LibraryNode extends Node {
 	}
 
 	/**
-	 * Return the project containing this library or its chain. Null if no project is found.
+	 * Return the project this library or its chain have as its parent. <b>Note</b> that libraries can belong to
+	 * multiple projects.
 	 * 
-	 * @return
+	 * @see {@link LibraryModelManager#isUsedElsewhere(LibraryInterface, ProjectNode)}
+	 * @return parent project or null if no project is found.
 	 */
 	public ProjectNode getProject() {
-		if (getParent() instanceof ProjectNode)
-			return (ProjectNode) getParent();
-		else if (getParent() instanceof NavNode)
-			return (ProjectNode) getParent().getParent().getParent();
-		else
-			return null;
+		ProjectNode pn = null;
+		if (getParent() instanceof LibraryNavNode)
+			pn = ((LibraryNavNode) getParent()).getProject();
+		else if (getParent() instanceof ProjectNode)
+			pn = (ProjectNode) getParent();
+		else if (getParent() instanceof LibraryChainNode)
+			pn = ((LibraryChainNode) getParent()).getProject();
+		else if (getParent() instanceof VersionAggregateNode)
+			pn = ((VersionAggregateNode) getParent()).getProject();
+		return pn;
 	}
 
 	/**
@@ -1603,10 +1539,6 @@ public class LibraryNode extends Node {
 		this.curContext = curContext;
 	}
 
-	private static String emptyIfNull(final String string) {
-		return string == null ? "" : string;
-	}
-
 	@Override
 	public boolean isDeleted() {
 		return deleted;
@@ -1701,27 +1633,8 @@ public class LibraryNode extends Node {
 	 */
 	@Deprecated
 	public List<Node> getDescendentsNamedTypes() {
-		ArrayList<Node> namedTypeProviders = new ArrayList<Node>();
-		for (Node n : getChildren())
-			namedTypeProviders.addAll(gnt(n));
-		return namedTypeProviders;
+		return getDescendants_LibraryMembers();
 	}
-
-	private Collection<? extends Node> gnt(Node n) {
-		ArrayList<Node> list = new ArrayList<Node>();
-		if (n.isNamedType() && !isLocal())
-			list.add(n);
-		for (Node gc : n.getChildren())
-			list.addAll(gnt(gc));
-		return list;
-	}
-
-	/**
-	 * Creates a new library from the library with version incremented. Returns the new library.
-	 * 
-	 * @param project
-	 * @return
-	 */
 
 	/**
 	 * Is the library ready to version?
@@ -1754,12 +1667,6 @@ public class LibraryNode extends Node {
 		return status;
 	}
 
-	// @Override
-	// public String getEditStatusMsg() {
-	// // LOGGER.debug(this + " library status = " + getEditStatus().msgID());
-	// return Messages.getString(getEditStatus().msgID());
-	// }
-
 	/**
 	 * @return true if this library is managed in a repository.
 	 */
@@ -1782,11 +1689,7 @@ public class LibraryNode extends Node {
 	 * @return true if this library's namespace is within the project's namespace.
 	 */
 	public boolean isInProjectNS() {
-		// String projectNS = "ZZZZZXXXXCCCCVVVVV"; // never found!
-		// if (getProject() != null)
-		// projectNS = getProject().getNamespace();
-		// return getNamespace().startsWith(projectNS);
-		return getProject() != null ? getNamespace().startsWith(getProject().getNamespace()) : false;
+		return getModelNode().isInProjectNS(getNamespace());
 	}
 
 	/**
@@ -1802,8 +1705,6 @@ public class LibraryNode extends Node {
 	 * @return true if this library is a major or minor version
 	 */
 	public boolean isMinorOrMajorVersion() {
-		// return !nsHandler.getNS_Minor(getNamespace()).equals("0")
-		// && nsHandler.getNS_Patch(getNamespace()).equals("0");
 		return nsHandler.getNS_Patch(getNamespace()).equals("0");
 	}
 
@@ -1884,7 +1785,7 @@ public class LibraryNode extends Node {
 	/**
 	 * Done by the service node constructor. No need to do it anywhere else.
 	 */
-	protected void setServiceRoot(ServiceNode serviceNode) {
+	public void setServiceRoot(ServiceNode serviceNode) {
 		serviceRoot = serviceNode;
 	}
 
@@ -1896,7 +1797,7 @@ public class LibraryNode extends Node {
 	}
 
 	public void setAsDefault() {
-		this.getProject().getProject().setDefaultItem(getProjectItem());
+		this.getProject().getTLProject().setDefaultItem(getProjectItem());
 	}
 
 }

@@ -24,33 +24,27 @@ import org.opentravel.schemas.properties.StringProperties;
  * 
  */
 public class OpenLibraryAction extends OtmAbstractAction {
-    private static StringProperties propDefault = new ExternalizedStringProperties(
-            "action.library.open");
+	private static StringProperties propDefault = new ExternalizedStringProperties("action.library.open");
 
-    /**
+	/**
 	 *
 	 */
-    public OpenLibraryAction(final StringProperties props) {
-        super(props);
-    }
+	public OpenLibraryAction(final StringProperties props) {
+		super(props);
+	}
 
-    public OpenLibraryAction() {
-        super(propDefault);
-    }
+	public OpenLibraryAction() {
+		super(propDefault);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.Action#run()
-     */
-    @Override
-    public void run() {
-        // final ModelNode modelNode = mc.getModelNode();
-        mc.getLibraryController().openLibrary(mc.getSelectedNode_NavigatorView());
-    }
+	@Override
+	public void run() {
+		// final ModelNode modelNode = mc.getModelNode();
+		mc.getLibraryController().openLibrary(mc.getSelectedNode_NavigatorView());
+	}
 
-    @Override
-    public boolean isEnabled(Node node) {
-        return true;
-    }
+	@Override
+	public boolean isEnabled(Node node) {
+		return true;
+	}
 }

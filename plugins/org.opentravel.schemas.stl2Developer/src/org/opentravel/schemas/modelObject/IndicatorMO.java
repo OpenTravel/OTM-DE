@@ -15,7 +15,6 @@
  */
 package org.opentravel.schemas.modelObject;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLIndicatorOwner;
 import org.slf4j.Logger;
@@ -75,15 +74,15 @@ public class IndicatorMO extends ModelObject<TLIndicator> {
 
 	// Model does not know what namespace the attribute or its owning component
 	// is in.
-	@Override
-	public String getNamePrefix() {
-		return "";
-	}
-
-	@Override
-	public String getNamespace() {
-		return "";
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// return "";
+	// }
+	//
+	// @Override
+	// public String getNamespace() {
+	// return "";
+	// }
 
 	@Override
 	public TLIndicator getTLModelObj() {
@@ -95,15 +94,14 @@ public class IndicatorMO extends ModelObject<TLIndicator> {
 	// return "Indicator";
 	// }
 
-	@Override
-	protected AbstractLibrary getLibrary(final TLIndicator obj) {
-		return null;
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLIndicator obj) {
+	// return null;
+	// }
 
 	/**
 	 * NOTE: as of 5/9/2012 this count includes inherited properties!
 	 */
-	@Override
 	protected int indexOf() {
 		final TLIndicator thisProp = getTLModelObj();
 		return thisProp.getOwner().getIndicators().indexOf(thisProp);
@@ -119,10 +117,10 @@ public class IndicatorMO extends ModelObject<TLIndicator> {
 	// return srcObj.isPublishAsElement();
 	// }
 
-	@Override
-	public boolean isMandatory() {
-		return false; // indicators are always assumed false unless present.
-	}
+	// @Override
+	// public boolean isMandatory() {
+	// return false; // indicators are always assumed false unless present.
+	// }
 
 	/**
 	 * Move if you can, return false if you can not.

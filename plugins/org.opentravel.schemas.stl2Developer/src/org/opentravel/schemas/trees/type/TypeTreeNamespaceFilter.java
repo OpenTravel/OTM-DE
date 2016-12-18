@@ -19,7 +19,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
-
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 
 public class TypeTreeNamespaceFilter extends ViewerFilter {

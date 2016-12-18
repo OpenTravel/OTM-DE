@@ -82,7 +82,7 @@ public abstract class SimpleComponentNode extends TypeProviderBase implements Si
 
 	// Do not show implied types in tree views
 	private Node getNavType() {
-		Node type = getTypeNode();
+		Node type = getType();
 		return type instanceof ImpliedNode ? null : type;
 	}
 
@@ -133,10 +133,10 @@ public abstract class SimpleComponentNode extends TypeProviderBase implements Si
 		return new TypeUserListener(this);
 	}
 
-	@Override
-	public NamedEntity getTLBaseType() {
-		return typeHandler.getTLNamedEntity();
-	}
+	// @Override
+	// public NamedEntity getTLBaseType() {
+	// return typeHandler.getTLNamedEntity();
+	// }
 
 	@Override
 	public abstract NamedEntity getTLOjbect();

@@ -15,7 +15,6 @@
  */
 package org.opentravel.schemas.modelObject;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.TLRole;
 
 public class RolePropertyMO extends ModelObject<TLRole> {
@@ -41,25 +40,25 @@ public class RolePropertyMO extends ModelObject<TLRole> {
 		return true;
 	}
 
-	@Override
-	protected AbstractLibrary getLibrary(final TLRole obj) {
-		return null;
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLRole obj) {
+	// return null;
+	// }
 
 	// @Override
 	// public String getName() {
 	// return getTLModelObj() != null ? getTLModelObj().getName() : "";
 	// }
 	//
-	@Override
-	public String getNamePrefix() {
-		return null;
-	}
-
-	@Override
-	public String getNamespace() {
-		return "";
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// return null;
+	// }
+	//
+	// @Override
+	// public String getNamespace() {
+	// return "";
+	// }
 
 	@Override
 	public TLRole getTLModelObj() {
@@ -88,8 +87,7 @@ public class RolePropertyMO extends ModelObject<TLRole> {
 		}
 	}
 
-	@Override
-	public int indexOf() {
+	private int indexOf() {
 		final TLRole thisProp = getTLModelObj();
 		return getTLModelObj().getRoleEnumeration().getRoles().indexOf(thisProp);
 	}

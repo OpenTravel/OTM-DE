@@ -19,21 +19,19 @@
 package org.opentravel.schemas.node;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
-import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
-import org.opentravel.schemacompiler.model.TLFacet;
-import org.opentravel.schemacompiler.model.TLFacetOwner;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.modelObject.ChoiceObjMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.facets.ChoiceFacetNode;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
@@ -64,13 +62,11 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 		super(mbr);
 		addMOChildren();
 		extensionHandler = new ExtensionHandler(this);
+		inheritedChildren = Collections.emptyList();
 
 		assert (getSharedFacet() != null);
 		assert (getModelObject() != null);
-
 		assert (modelObject instanceof ChoiceObjMO);
-		// assert (mbr instanceof TLChoiceObject);
-
 	}
 
 	/**
@@ -151,16 +147,18 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 		}
 	}
 
-	public FacetNode addFacet(String name) {
+	public ContextualFacetNode addFacet(String name) {
 		if (!isEditable_newToChain())
 			throw new IllegalArgumentException("Not Editable - can not add facet to " + this);
 		if (getLibrary().getDefaultContextId() == null || getLibrary().getDefaultContextId().isEmpty())
 			throw new IllegalStateException("No context value to assign to facet.");
 
-		TLFacet tf = getModelObject().addFacet(TLFacetType.CHOICE);
-		tf.setLabel(NodeNameUtils.fixFacetName(name));
-		tf.setContext(getLibrary().getDefaultContextId());
-		return (FacetNode) NodeFactory.newComponentMember(this, tf);
+		TLContextualFacet tf = new TLContextualFacet();
+		getTLModelObject().addChoiceFacet(tf);
+		ContextualFacetNode cfn = (ContextualFacetNode) NodeFactory.newComponentMember(this, tf);
+		if (cfn != null)
+			cfn.setName(name);
+		return cfn;
 	}
 
 	@Override
@@ -185,89 +183,112 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 	}
 
 	@Override
-	public void initInheritedChildren() {
-		// Create list of actual facet names from the tlFacet in this choice object
-		List<String> facetNames = new ArrayList<String>();
-		for (Node child : getChildren())
-			if (child instanceof FacetNode)
-				if (((TLFacet) child.getTLModelObject()).getLabel() != null)
-					facetNames.add(((TLFacet) child.getTLModelObject()).getLabel());
-
-		// Add each facet found by the TL utilities to the list if not already in this choice
-		List<TLFacet> inheritedFacets = new ArrayList<TLFacet>();
-		for (TLFacet tlFacet : findInheritedFacets((TLFacetOwner) getTLModelObject(), TLFacetType.CHOICE)) {
-			// Node inherited = Node.GetNode(tlFacet);
-			String facetName = tlFacet.getLabel();
-			boolean found = false;
-			// if (!(inherited instanceof FacetNode))
-			// found = true; // don't add to inherited list
-			// else
-			for (String name : facetNames)
-				if (name.equals(facetName))
-					found = true;
-			if (!found)
-				inheritedFacets.add(tlFacet);
-		}
-
-		// For each facet, create a node and add to inherited structures
-		for (TLFacet obj : inheritedFacets) {
-			ComponentNode nn = NodeFactory.newComponentMember(null, obj);
-			if (nn != null)
-				linkInheritedChild(nn);
-		}
-		// LOGGER.debug(this + " has " + inheritedFacets.size() + " inherited children.");
+	public List<Node> getInheritedChildren() {
+		initInheritedChildren();
+		if (inheritedChildren == null)
+			inheritedChildren = Collections.emptyList();
+		return inheritedChildren;
 	}
 
+	// 11/8/2016 - rework of initInheritedChildren()
 	/**
-	 * It is copy of {@link FacetCodegenUtils#findGhostFacets(TLFacetOwner, TLFacetType)} but with this difference that
-	 * it returns all facet with given facet type from all extension hierarchy of facetOwner.
-	 * 
-	 * @param facetOwner
-	 *            the facet owner for which to return "ghost facets"
-	 * @param facetType
-	 *            the type of ghost facets to retrieve
-	 * @return List<TLFacet>
+	 * Get the ghost facets from the TL Model. Model all of them.
 	 */
-	public List<TLFacet> findInheritedFacets(TLFacetOwner facetOwner, TLFacetType facetType) {
-		Set<String> inheritedFacetNames = new HashSet<String>();
-		List<TLFacet> inheritedFacets = new ArrayList<TLFacet>();
-		TLFacetOwner extendedOwner = FacetCodegenUtils.getFacetOwnerExtension(facetOwner);
-		Set<TLFacetOwner> visitedOwners = new HashSet<TLFacetOwner>();
-
-		// Find all of the inherited facets of the specified facet type
-		while (extendedOwner != null) {
-			List<TLFacet> facetList = FacetCodegenUtils.getAllFacetsOfType(extendedOwner, facetType);
-
-			for (TLFacet facet : facetList) {
-				String facetKey = facetType.getIdentityName(facet.getContext(), facet.getLabel());
-
-				if (!inheritedFacetNames.contains(facetKey)) {
-					inheritedFacetNames.add(facetKey);
-					inheritedFacets.add(facet);
-				}
-			}
-			visitedOwners.add(extendedOwner);
-			extendedOwner = FacetCodegenUtils.getFacetOwnerExtension(extendedOwner);
-
-			if (visitedOwners.contains(extendedOwner)) {
-				break; // exit if we encounter a circular reference
-			}
+	@Override
+	public void initInheritedChildren() {
+		inheritedChildren = Collections.emptyList();
+		// Model each facet returned in the list of new TLFacets from the TL Model
+		for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.CHOICE)) {
+			linkInheritedChild(NodeFactory.newComponentMember(null, cf));
 		}
-
-		List<TLFacet> ghostFacets = new ArrayList<TLFacet>();
-
-		for (TLFacet inheritedFacet : inheritedFacets) {
-			TLFacet ghostFacet = new TLFacet();
-			ghostFacet.setFacetType(facetType);
-			ghostFacet.setContext(inheritedFacet.getContext());
-			ghostFacet.setLabel(inheritedFacet.getLabel());
-			ghostFacet.setOwningEntity(facetOwner);
-			for (ModelElementListener l : inheritedFacet.getListeners())
-				ghostFacet.addListener(l);
-			ghostFacets.add(ghostFacet);
-		}
-		return ghostFacets;
 	}
+
+	// // @Override
+	// public void initInheritedChildrenOLD() {
+	// // Create list of actual facet names from the tlFacet in this choice object
+	// List<String> facetNames = new ArrayList<String>();
+	// for (Node child : getChildren())
+	// if (child instanceof FacetNode)
+	// if (((TLFacet) child.getTLModelObject()).getLabel() != null)
+	// facetNames.add(((TLFacet) child.getTLModelObject()).getLabel());
+	//
+	// // Add each facet found by the TL utilities to the list if not already in this choice
+	// List<TLFacet> inheritedFacets = new ArrayList<TLFacet>();
+	// for (TLFacet tlFacet : findInheritedFacets((TLFacetOwner) getTLModelObject(), TLFacetType.CHOICE)) {
+	// // Node inherited = Node.GetNode(tlFacet);
+	// String facetName = tlFacet.getLabel();
+	// boolean found = false;
+	// // if (!(inherited instanceof FacetNode))
+	// // found = true; // don't add to inherited list
+	// // else
+	// for (String name : facetNames)
+	// if (name.equals(facetName))
+	// found = true;
+	// if (!found)
+	// inheritedFacets.add(tlFacet);
+	// }
+	//
+	// // For each facet, create a node and add to inherited structures
+	// for (TLFacet obj : inheritedFacets) {
+	// ComponentNode nn = NodeFactory.newComponentMember(null, obj);
+	// if (nn != null)
+	// linkInheritedChild(nn);
+	// }
+	// // LOGGER.debug(this + " has " + inheritedFacets.size() + " inherited children.");
+	// }
+
+	// /**
+	// * It is copy of {@link FacetCodegenUtils#findGhostFacets(TLFacetOwner, TLFacetType)} but with this difference
+	// that
+	// * it returns all facet with given facet type from all extension hierarchy of facetOwner.
+	// *
+	// * @param facetOwner
+	// * the facet owner for which to return "ghost facets"
+	// * @param facetType
+	// * the type of ghost facets to retrieve
+	// * @return List<TLFacet>
+	// */
+	// @Deprecated
+	// public List<TLFacet> findInheritedFacets(TLFacetOwner facetOwner, TLFacetType facetType) {
+	// Set<String> inheritedFacetNames = new HashSet<String>();
+	// List<TLFacet> inheritedFacets = new ArrayList<TLFacet>();
+	// TLFacetOwner extendedOwner = FacetCodegenUtils.getFacetOwnerExtension(facetOwner);
+	// Set<TLFacetOwner> visitedOwners = new HashSet<TLFacetOwner>();
+	//
+	// // Find all of the inherited facets of the specified facet type
+	// while (extendedOwner != null) {
+	// List<TLFacet> facetList = FacetCodegenUtils.getAllFacetsOfType(extendedOwner, facetType);
+	//
+	// for (TLFacet facet : facetList) {
+	// String facetKey = facetType.getIdentityName(facet.getContext(), facet.getLabel());
+	//
+	// if (!inheritedFacetNames.contains(facetKey)) {
+	// inheritedFacetNames.add(facetKey);
+	// inheritedFacets.add(facet);
+	// }
+	// }
+	// visitedOwners.add(extendedOwner);
+	// extendedOwner = FacetCodegenUtils.getFacetOwnerExtension(extendedOwner);
+	//
+	// if (visitedOwners.contains(extendedOwner)) {
+	// break; // exit if we encounter a circular reference
+	// }
+	// }
+	//
+	// List<TLFacet> ghostFacets = new ArrayList<TLFacet>();
+	//
+	// for (TLFacet inheritedFacet : inheritedFacets) {
+	// TLFacet ghostFacet = new TLFacet();
+	// ghostFacet.setFacetType(facetType);
+	// ghostFacet.setContext(inheritedFacet.getContext());
+	// ghostFacet.setLabel(inheritedFacet.getLabel());
+	// ghostFacet.setOwningEntity(facetOwner);
+	// for (ModelElementListener l : inheritedFacet.getListeners())
+	// ghostFacet.addListener(l);
+	// ghostFacets.add(ghostFacet);
+	// }
+	// return ghostFacets;
+	// }
 
 	@Override
 	public INode.CommandType getAddCommand() {
@@ -288,14 +309,13 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 	}
 
 	@Override
-	public void setName(String n) {
-		// this.setName(n, true);
-		super.setName(n);
+	public void setName(String name) {
+		name = NodeNameUtils.fixChoiceObjectName(name);
+		getTLModelObject().setName(name);
 		for (TypeUser user : getWhereAssigned()) {
 			if (user instanceof PropertyNode)
-				user.setName(n);
+				user.setName(name);
 		}
-
 		for (Node child : getChildren()) {
 			for (TypeUser users : ((TypeProvider) child).getWhereAssigned())
 				NodeNameUtils.fixName((Node) users);
@@ -365,6 +385,11 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 	@Override
 	public boolean isAssignableToVWA() {
 		return false;
+	}
+
+	@Override
+	public boolean isAliasable() {
+		return isEditable_newToChain();
 	}
 
 	@Override

@@ -1,0 +1,178 @@
+README - developer Notes - Opening and Closing Libraries
+
+	* Libraries are opened and get their content from ProjectItems from the compiler.
+	* Libraries may be opened 
+		directly or 
+		as part of a project or 
+		as part of a chain.
+	* A project item may be listed multiple times in a project if it is in a chain.
+	
+	* -Delete - remove from gui and TL models
+	* -Remove- library from project impacts both project node and TLProject
+	* -Close- only impact Project Node making it safe for project close and shutdown.
+
+	* -Delete - remove from gui and TL models
+	* -Remove - remove navNode-library from NavNode-Project. TL and GUI. No change to library.
+	* -Close  - remove from GUI only
+
+	ProjectNode
+		close()
+		close(LibraryInterface)
+		close(LibraryNavNode)
+		closeAll()
+		removeAllFromTLProject()
+		removeFromLibrary() - no-op
+	LibraryNavNode
+		close()
+	LibraryChainNode
+		close() - close parent else close children
+	LibraryNode
+		close() - close parent else close children
+		delete() - close() only  **Overrides Node.delete()
+	LibraryModelManager
+	ProjectController
+		close(PN)
+		closeAll()
+		remove(<libNavNodes>)
+		remove(LibraryNavNode)
+	LibraryController
+		remove(List<Node>) - dead code
+
+TODO/Testing
+	OK - Make sure everything in library is closed - services, resources, etc
+	OK - try deleting libraries - must not delete children of other project
+	OK - fix library decoration
+	OK - Properties view
+	OK - fix nav children
+	OK - Do again with library chains
+	OK - ProjectNode load() v. load2()
+	fix other open/load paths
+		OK - Open Project
+		OK - Open Library
+		OK - Init Load
+		Open Library from Repo
+	OK -  other close paths
+	OK save paths
+		OK - save library
+		OK - exit application
+		OK - Save Project on Close
+		OK - Save all on close - duplicates
+	fix new paths
+		OK - New Library Wizard
+		OK - New Library Error Path - extra lib created
+		New Project
+	locked v. unlocked for editing
+	Navigator Menus
+		Replace where used at library level
+		Unlock
+	Make sure the TLProject matches
+	Test creating major and minor versions
+	Version AggregateNode - tree children
+	xsd importers
+	Should built-in libraries use libNavNodes?
+	finders
+	Why are version chains added to project node on construction?
+	Type Selection wizard from simple type
+	DND on to simple type Node type field
+	test, test and test some more.
+
+	
+-----------------------------------------------------------------
+
+PATHS -----------------
+Project
+	Close
+	
+	Startup
+		org.opentravel.schemas.stl2developer.ApplicationWorkbenchAdvisor.postStartup()
+			DefaultProjectController.initProjects()		 
+				DefaultProjectController.loadProjects(XMLMemento, IProgressMonitor)
+					DefaultProjectController.open(String, IProgressMonitor)
+						DefaultProjectController.openProject(String, ValidationFindings)
+							DefaultProjectController.loadProject(Project)
+								ProjectNode.ProjectNode(Project)
+									ProjectNode.load2()
+				resolve types
+	
+	Open Project
+		(Add to project -- a chain)
+		...
+				LibraryModelController
+					LibraryChainNode.LibraryChainNode(ProjectItem, ProjectNode)
+						for (ProjectItem item : piChain)
+							add(item);
+								LibraryNode.LibraryNode(ProjectItem, LibraryChainNode)
+									LibraryNode.LibraryNode(AbstractLibrary, Node)
+
+		(Add to project -- a library)
+		AddToProjectAction.run()
+			DefaultProjectController.add(PN, RI)
+				LibraryChainNode.LibraryChainNode(PI, PN)
+				-->ERROR - chain not LibraryNavNode
+				
+				
+		OpenProjectHandler.execute(ExecutionEvent)
+		DefaultProjectController.open()
+			Run file selection dialog
+			Start background
+				DefaultProjectController.open(filename, monitor)
+					openProject(fn, monitor)
+						loadProject(tlProject)
+x->							ProjectNode.Constructor(tlProject)
+					resolve types
+					
+	Close Project
+		CloseProjectHandler.execute(ExecutionEvent)
+			DefaultProjectController.close(ProjectNode)
+				Close project in TL Repository Manager
+				ProjectNode.close() 
+					ProjectNode.close(LI)
+						Unlink
+						LibModelManager().close(lib, this)
+							Lib/Chain.close()
+								Chain.close()
+									head.close  <-- uses old close, should be OK
+									versions.close
+									aggregates.close()
+				
+	New Project
+		CreateProjectFromRepo.execute(ExecutionEvent)
+		NewProjectAction.run()
+			DefaultProjectController.newProject()
+				run wizard
+				DefaultProjectController.create(File, String, String, String)
+					DefaultProjectController.loadProject(Project)
+						ProjectNode.Constructor(tlProject)
+x->							ProjectNode.load(tlProject)
+			
+				
+	LibraryChainNode.Constructor(library)
+-->		manually link to project
+		
+	Open Library - OpenLibAction.run() - simple and clean
+		DefaultLibraryController.openLibrary()
+			Find project using passed node
+			Run file selection dialog
+			ProjectNode.add(Files)
+				Add files in list to the TL project
+x->DONE			ProjectNode.load(tl project)
+					For each  project item in project
+						All library via library controller (LibraryNavNode factory)
+						Add LibraryNavNode to children
+			Resolve Types
+			Refresh
+	Close Library
+		CloseLibrariesHandler.execute(ExecutionEvent)
+			DefaultProjectController.close(List<LibraryNavNode>)
+				for each LNN LNN.close()
+		
+	New Library
+		DefaultLibraryController.createLibrary()
+			DefaultLibraryController.createNewLibraryFromPrototype(LibraryNode)
+				
+CLASSES ---------------
+	schemas/controllers/LibraryModelManager.java
+		Introduced 11/2016 to manage libraries for the model node. 
+		Acts as a LibraryNavNode factory for project items
+METHODS ---------------
+		

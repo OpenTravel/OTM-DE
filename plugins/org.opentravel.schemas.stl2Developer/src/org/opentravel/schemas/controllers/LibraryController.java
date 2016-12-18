@@ -20,11 +20,10 @@ import java.util.List;
 
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
-import org.opentravel.schemas.node.LibraryNode;
-import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
  * Central place for all the library related actions. Note that the global model actions are controlled by
@@ -41,7 +40,7 @@ public interface LibraryController {
 	 * @return
 	 * 
 	 */
-	LibraryNode createLibrary();
+	LibraryNavNode createLibrary();
 
 	/**
 	 * Change namespace. If the namespace is shared, the user is asked if they want to change all, one or none.
@@ -70,8 +69,12 @@ public interface LibraryController {
 	 * @param model
 	 *            {@link ModelNode} to which attach the opened library
 	 */
-	void openLibrary(ProjectNode model);
+	// Private - void openLibrary(ProjectNode model);
 
+	/**
+	 * OpenLibraryAction - Find the nearest parent that can contain a library then open the existing library and add it
+	 * to that parent. Opens already existing library using a file selection dialog and adds it to the model.
+	 */
 	void openLibrary(INode model);
 
 	// /**

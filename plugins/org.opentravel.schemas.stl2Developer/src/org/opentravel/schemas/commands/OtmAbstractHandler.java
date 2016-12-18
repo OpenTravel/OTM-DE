@@ -22,6 +22,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.facets.OperationNode;
@@ -101,7 +102,7 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 
 		if (selectedNode.getChain().getHead().isPatchVersion()) {
 			// Will always be in a different library or else it is a ExtensionPoint facet.
-			if (!selectedNode.isExtensionPointFacet()) {
+			if (!(selectedNode instanceof ExtensionPointNode)) {
 				if (result = postConfirm("action.component.version.patch", selectedNode))
 					actOnNode = ((ComponentNode) selectedNode).createPatchVersionComponent();
 			}

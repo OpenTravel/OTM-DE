@@ -63,12 +63,11 @@ public class VersionNode extends ComponentNode {
 		// Fixed 1/12/15 - family safe
 		// un-fixed 1/19/15 -- see VersionNode_Tests
 		node.getParent().getChildren().add(this);
-		// node.getParent().linkChild(this);
 		node.setParent(this);
 
-		if (getParent().getChildren().contains(node)) {
-			node = node;
-		}
+		// if (getParent().getChildren().contains(node)) {
+		// node = node;
+		// }
 
 		// Replace listener on the head node's tl Model Element
 		// ListenerFactory.setListner(head); // creates 3rd listener
@@ -111,30 +110,11 @@ public class VersionNode extends ComponentNode {
 		// return head.getImage();
 	}
 
-	// TESTING ONLY
-	// @Override
-	// public List<Node> getChildren() {
-	// return super.getChildren();
-	// }
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#hasChildren_TypeProviders()
-	 */
 	@Override
 	public boolean hasChildren_TypeProviders() {
 		// Type providers are delivered from their version nodes.
 		return head != null;
 	}
-
-	// // NOTE - this gives the desired result.
-	// // Version nodes that are also the latest do not have children while clicking on one that has
-	// // been extended will show the base type.
-	// @Override
-	// public boolean hasNavChildrenWithProperties() {
-	// return false;
-	// }
 
 	@Override
 	public List<Node> getNavChildren(boolean deep) {
@@ -208,5 +188,10 @@ public class VersionNode extends ComponentNode {
 
 		// delete copy in the version aggregate
 		getChain().removeAggregate((ComponentNode) node);
+	}
+
+	@Override
+	public String getName() {
+		return head != null ? head.getName() + " (v)" : "";
 	}
 }

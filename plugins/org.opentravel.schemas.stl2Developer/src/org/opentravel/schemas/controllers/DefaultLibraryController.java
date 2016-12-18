@@ -40,17 +40,18 @@ import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.saver.LibraryModelSaver;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
-import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.opentravel.schemacompiler.visitor.DependencyNavigator;
 import org.opentravel.schemacompiler.visitor.ModelElementVisitorAdapter;
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.actions.NewLibraryAction;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.FileDialogs;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.views.OtmView;
 import org.opentravel.schemas.views.ValidationResultsView;
 import org.opentravel.schemas.views.decoration.LibraryDecorator;
@@ -67,7 +68,7 @@ import org.slf4j.LoggerFactory;
  *
  * "the controller accepts input and converts it to commands for the model or view."
  * 
- * @author Agnieszka Janowska
+ * @author Agnieszka Janowska / Dave Hollander
  * 
  */
 public class DefaultLibraryController extends OtmControllerBase implements LibraryController {
@@ -78,7 +79,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 	}
 
 	/**
-	 * Called from the NewLibraryAction
+	 * Called from the {@link NewLibraryAction#run()}
 	 * 
 	 * Project taken from currently selected node or else the default project.
 	 * 
@@ -88,12 +89,15 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 	 * @return newly created library or null if wizard canceled or not running in gui.
 	 */
 	@Override
-	public LibraryNode createLibrary() {
-		LibraryNode ln = null;
+	public LibraryNavNode createLibrary() {
+		LibraryNavNode lnn = null;
 		ProjectNode pn = null;
 
 		final OtmView view = OtmRegistry.getNavigatorView();
 		if (view == null)
+			return null;
+		// Make sure this is running from the workbench before starting wizard.
+		if (!OtmRegistry.getMainWindow().hasDisplay())
 			return null;
 
 		// Find the active project
@@ -109,62 +113,69 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		else
 			pn = selected.getLibrary().getProject();
 
-		// Make sure this is running from the workbench before starting wizard.
-		if (!OtmRegistry.getMainWindow().hasDisplay())
-			return null;
-
+		// Run wizard
 		final NewLibraryWizard wizard = new NewLibraryWizard(pn);
 		LibraryNode libNode = wizard.getLibraryNode();
 		wizard.setValidator(new NewLibraryValidator(libNode, pn.getNamespace()));
 		wizard.run(OtmRegistry.getActiveShell());
 		if (!wizard.wasCanceled()) {
 			// Create an OTM file, then add that file to the project.
-			ln = createNewLibraryFromPrototype(libNode);
-			// remove prototype library
-			libNode.delete();
-			// pn.getChildren().remove(libNode);
-			// libNode.setParent(null);
-			if (ln != null) {
-				if (saveLibrary(ln, true)) {
+
+			// remove prototype library then create new library in project
+			pn.getChildren().remove(libNode);
+			libNode.setParent(null);
+			lnn = createNewLibraryFromPrototype(libNode, pn);
+
+			if (lnn != null) {
+				if (save(lnn)) {
 					getView().refreshAllViews();
-					view.select(ln);
+					view.select(lnn);
 				} else {
-					ln.delete();
+					LOGGER.debug("Could not save file.");
+					DialogUserNotifier.openWarning("File Save", "Could not save library.");
+					lnn.delete();
 				}
 			}
 		}
-		return ln;
+
+		assert (!pn.getChildren().contains(libNode)) : "Prototype library not removed from project.";
+
+		return lnn;
 	}
 
+	// Unused
+	@Deprecated
 	@Override
 	public void changeNamespace(final LibraryNode library, final String newNS) {
-		if (library == null || newNS == null || newNS.isEmpty())
-			throw new IllegalArgumentException("Null or empty namespace change.");
-		LOGGER.debug("Changing namespace to " + newNS);
 
-		// Is the library shared?
-		final List<LibraryNode> libs = getLibrariesWithNamespace(newNS);
-		if (libs.size() < 1) {
-			library.getNsHandler().renameInProject(library.getNamespace(), newNS);
-		} else {
-			switch (postChangeMessage(libs)) {
-			case GLOBAL:
-				library.getNsHandler().rename(library.getNamespace(), newNS);
-				break;
-			case LOCAL:
-				library.getNsHandler().renameInProject(library.getNamespace(), newNS);
-				break;
-			}
-		}
+		assert (false) : "Should be dead code 11/2016";
+
+		// if (library == null || newNS == null || newNS.isEmpty())
+		// throw new IllegalArgumentException("Null or empty namespace change.");
+		// LOGGER.debug("Changing namespace to " + newNS);
+		//
+		// // Is the library shared?
+		// final List<LibraryNode> libs = getLibrariesWithNamespace(newNS);
+		// if (libs.size() < 1) {
+		// library.getNsHandler().renameInProject(library.getNamespace(), newNS);
+		// } else {
+		// switch (postChangeMessage(libs)) {
+		// case GLOBAL:
+		// library.getNsHandler().rename(library.getNamespace(), newNS);
+		// break;
+		// case LOCAL:
+		// library.getNsHandler().renameInProject(library.getNamespace(), newNS);
+		// break;
+		// }
+		// }
 	}
 
-	@Override
-	public void changeNamespaceExtension(LibraryNode lib, String extension) {
-		// TODO Auto-generated method stub
-		LOGGER.debug("Changing namespace extension to: " + extension);
-	}
-
+	// Unused
+	@Deprecated
 	private GlobalDialogResult postChangeMessage(List<LibraryNode> libs) {
+
+		assert (false); // should be dead code - 11/2016
+
 		final StringBuilder message = new StringBuilder(
 				"The namespace you want to change is shared by more than one library (");
 		for (final LibraryNode lib : libs) {
@@ -189,12 +200,13 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 	 * and namespaces are not registered. After is this complete, a project item representing this library can be added
 	 * to the project node.
 	 * 
-	 * @param model
+	 * <b>Note:</b> refresh is called so the project must not contain the prototype library
+	 * 
+	 * @param project
 	 * @param libNode
 	 * @return - a new library node with links to the TL Abstract Library.
 	 */
-	public LibraryNode createNewLibraryFromPrototype(final LibraryNode libNode) {
-		final ProjectNode pn = (ProjectNode) libNode.getParent();
+	public LibraryNavNode createNewLibraryFromPrototype(final LibraryNode libNode, final ProjectNode pn) {
 		final ProjectController pc = mc.getProjectController();
 
 		final TLLibrary tlLib = new TLLibrary();
@@ -205,16 +217,17 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		tlLib.setLibraryUrl(libNode.getTLaLib().getLibraryUrl());
 		tlLib.setNamespace(libNode.getNamespace());
 
+		if (pn.getChildren().contains(libNode))
+			pn.getChildren().remove(libNode);
 		return pc.add(pn, tlLib);
 	}
 
-	/**
-	 * Find the nearest parent that can contain a library then open the existing library and add it to that parent.
-	 * Parent must be a project node.
-	 */
 	@Override
 	public void openLibrary(INode node) {
-		ProjectNode project = null;
+		LOGGER.debug("Opening library");
+
+		// Determine what project to use
+		ProjectNode pn = null;
 		if (node == null)
 			node = mc.getProjectController().getDefaultProject();
 		while (!(node instanceof ProjectNode)) {
@@ -222,18 +235,28 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 			if (node == null)
 				node = mc.getProjectController().getDefaultProject();
 		}
-		project = (ProjectNode) node;
-		openLibrary(project);
-		mc.refresh();
-		LOGGER.debug("Opening library for project " + project);
-	}
+		pn = (ProjectNode) node;
 
-	@Override
-	public void openLibrary(ProjectNode pn) {
-		LOGGER.debug("Opening library");
-		if (pn == null)
+		// Get the List of files from the user
+		List<File> files = openLibraryDialog();
+		if (files == null || files.isEmpty())
 			return;
 
+		// Open files using the Project Node
+		pn.add(files);
+
+		// for (LibraryNode ln : project.getLibraries())
+		// ((DefaultProjectController) mc.getProjectController()).fixElementNames(ln);
+
+		new TypeResolver().resolveTypes();
+
+		mc.getProjectController().save(pn);
+
+		mc.refresh();
+		LOGGER.debug("Opened library for project " + pn);
+	}
+
+	private List<File> openLibraryDialog() {
 		// Prompt the user to select one or more files
 		final FileDialog fd = FileDialogs.postFilesDialog();
 
@@ -245,12 +268,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 			}
 		}
 
-		pn.add(filesToOpen);
-		for (LibraryNode ln : pn.getLibraries())
-			((DefaultProjectController) mc.getProjectController()).fixElementNames(ln);
-
-		mc.refresh();
-		mc.getProjectController().save(pn);
+		return filesToOpen;
 	}
 
 	// @Override
@@ -276,6 +294,13 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 	// mc.refresh();
 	// }
 
+	public boolean save(final LibraryNavNode lnn) {
+		if (lnn.getLibrary() instanceof LibraryNode)
+			return saveLibrary((LibraryNode) lnn.getLibrary(), true);
+		return false;
+	}
+
+	// SaveSelectedLibraryAsAction
 	@Override
 	public boolean saveLibrary(final LibraryNode library, boolean quiet) {
 		if (library != null) {
@@ -285,20 +310,24 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		return false;
 	}
 
-	private List<TLLibrary> getEditableUsersLibraraies(List<LibraryNode> libraries) {
-		final List<TLLibrary> toSave = new ArrayList<TLLibrary>();
+	private Set<TLLibrary> getEditableUsersLibraraies(List<LibraryNode> libraries) {
+		final Set<TLLibrary> saveSet = new HashSet<TLLibrary>();
+		// final List<TLLibrary> toSave = new ArrayList<TLLibrary>();
 		for (final LibraryNode lib : libraries) {
 			final AbstractLibrary tlLib = lib.getTLaLib();
 			if (lib.isEditable() && tlLib instanceof TLLibrary) {
-				toSave.add((TLLibrary) tlLib);
+				saveSet.add((TLLibrary) tlLib);
+				// toSave.add((TLLibrary) tlLib);
 			}
 		}
-		return toSave;
+		return saveSet;
 	}
 
+	// SaveLibraryHandler
+	// SaveSelectedLibrariesAction
 	@Override
 	public boolean saveLibraries(final List<LibraryNode> libraries, boolean quiet) {
-		final List<TLLibrary> toSave = getEditableUsersLibraraies(libraries);
+		final Set<TLLibrary> toSave = getEditableUsersLibraraies(libraries);
 		if (toSave.isEmpty()) {
 			// DialogUserNotifier.openInformation("Warning", Messages.getString("action.saveAll.noUserDefied"));
 			LOGGER.debug("No user defined libraries to save");
@@ -354,105 +383,26 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		return userMessage.toString();
 	}
 
+	/**
+	 * {@link #CloseLibrariesHandler} Libraries are now (11/11/2016) closed from Projects or LibraryNavNodes since the
+	 * library does not know which of many possible projects is the parent to be affected.
+	 */
+	@Deprecated
 	@Override
 	public void remove(final Collection<? extends Node> libraries) {
 		Set<ProjectNode> projectsToSave = new HashSet<ProjectNode>();
 
-		for (Node n : libraries) {
-			if (n instanceof LibraryChainNode) {
-				projectsToSave.add(((LibraryChainNode) n).getProject());
-				n.close();
-			} else if (n instanceof LibraryNode) {
-				projectsToSave.add(((LibraryNode) n).getProject());
-				n.close();
-			} else
-				LOGGER.debug("Invalid library node in list to remove: " + n);
-		}
-
-		// 7/2016 - dmh added code above and commented out these sections
-		//
-		// remember which chains to remove from the projects
-		// Set<LibraryChainNode> chains = new HashSet<LibraryChainNode>();
-		// for (Node n : libraries)
-		// if (n instanceof LibraryChainNode)
-		// chains.add((LibraryChainNode) n);
-		// else if (n.getChain() != null)
-		// chains.add(n.getChain());
-
-		// Close all effected libraries and remember all projects that contain the libraries
-		// for (LibraryNode ln : getLibrariesToClose(libraries)) {
-		// if (ln == null || ln.getParent() == null) {
-		// LOGGER.error("ILLEGAL State - library " + ln + " parent is null.");
-		// } else {
-		// projectsToSave.add(ln.getProject());
-		// ln.close(); // Don't use delete because recurses and deletes children from the library.
-		// }
-		// }
-		// Unlink each chain from parent
-		// for (Node n : chains) {
-		// if (n.getParent() != null)
-		// n.getParent().getChildren().remove(n);
-		// n.setParent(null);
-		// }
-
-		// Let controller save project...it knows when the project contains more than one library being closed.
-		// Save any modified projects
-		for (ProjectNode project : projectsToSave) {
-			mc.getProjectController().save(project);
-			mc.refresh(project); // give user feedback
-		}
-		mc.clearSelection();
+		assert (false) : "Should be dead code 11/2016";
 	}
 
-	/**
-	 * 
-	 * @param a
-	 *            collection of nodes (project, library chain or library)
-	 * @return all libraries under the project or chain and any passed libraries
-	 */
-	private Collection<LibraryNode> getLibrariesToClose(Collection<? extends Node> newSelection) {
-		Set<LibraryNode> ret = new HashSet<LibraryNode>();
-		for (Node n : newSelection) {
-			if (n instanceof LibraryChainNode) {
-				ret.addAll(getLibrariesToClose(n.getLibraries()));
-			} else if (n instanceof LibraryNode && !n.isBuiltIn()) {
-				ret.add((LibraryNode) n);
-			} else if (n instanceof ProjectNode) {
-				ret.addAll(getLibrariesToClose(n.getChildren()));
-			}
-		}
-		return ret;
-	}
-
+	// SaveLibrariesHandler
 	@Override
 	public boolean saveAllLibraries(boolean quiet) {
 		return saveLibraries(Node.getAllLibraries(), quiet);
 	}
 
-	// /*
-	// * (non-Javadoc)
-	// *
-	// * @see org.opentravel.schemas.controllers.LibraryController#getUserLibraries()
-	// */
-	// @Deprecated
-	// @Override
-	// public List<LibraryNode> getUserLibraries() {
-	// return Node.getAllUserLibraries();
-	// // List<LibraryNode> libs = new ArrayList<LibraryNode>();
-	// // for (INode lib : Node.getAllLibraries()) {
-	// // if (lib instanceof LibraryNode) {
-	// // if (((LibraryNode) lib).getTLaLib() instanceof TLLibrary)
-	// // libs.add((LibraryNode) lib);
-	// // }
-	// // }
-	// // return libs;
-	// }
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.controllers.LibraryController#getLibrariesWithNamespace()
-	 */
+	// TODO - make private or remove (changeNamespace())
+	@Deprecated
 	@Override
 	public List<LibraryNode> getLibrariesWithNamespace(final String namespace) {
 		final List<LibraryNode> toReturn = new ArrayList<LibraryNode>();
@@ -466,24 +416,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		return toReturn;
 	}
 
-	// TODO - remove open from the interface.
-	// @Override
-	// public List<AbstractLibrary> open(final String fileName) {
-	// LOGGER.info("Not Implemented - libraryController.open is not implemented. Use project controller.");
-	// return null;
-	// }
-
-	public void validateLibrary(final LibraryNode library) {
-		LOGGER.debug("Validating library " + library);
-
-		assert library != null;
-
-		final ValidationResultsView view = OtmRegistry.getValidationResultsView();
-		if (view != null) {
-			view.setFindings(TLModelCompileValidator.validateModelElement(library.getTLModelObject()), library);
-		}
-	}
-
+	// org.opentravel.schemas.preferences.GeneralPreferencePage.performOk()
 	@Override
 	public void updateLibraryStatus() {
 		for (LibraryNode ln : Node.getAllUserLibraries()) {
@@ -492,6 +425,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		mc.refresh();
 	}
 
+	// org.opentravel.schemas.views.decoration.LibraryDecorator.getLibraryStatus(LibraryNode)
 	@Override
 	public String getLibraryStatus(LibraryNode library) {
 		// TODO: use i18n for text
@@ -514,6 +448,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 				library.isEditable());
 	}
 
+	// org.opentravel.schemas.actions.XSD2OTMAction.convertLibraryToOTM()
 	@Override
 	public List<LibraryNode> convertXSD2OTM(LibraryNode xsdLibrary, boolean withDependecies) {
 		HashMap<Node, Node> sourceToNewMap = new HashMap<Node, Node>();
@@ -530,6 +465,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		return newLibs;
 	}
 
+	// TODO - make private
 	public List<LibraryNode> convertXSD2OTM(LibraryNode xsdLibrary, boolean withDependecies, Set<LibraryNode> visited,
 			Map<Node, Node> sourceToNewMap) {
 		if (!xsdLibrary.isXSDSchema())
@@ -553,9 +489,10 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 
 		URL otmLibraryURL = createLibURL(xsdLibrary);
 		String otmLibraryName = "OTM_" + xsdLibrary.getName();
-		LibraryNode newLib = createLibrary(otmLibraryName, xsdLibrary.getNamePrefix(), otmLibraryURL,
+		LibraryNavNode lnn = createLibrary(otmLibraryName, xsdLibrary.getNamePrefix(), otmLibraryURL,
 				xsdLibrary.getNamespace(), xsdLibrary.getProject());
 
+		LibraryNode newLib = lnn.getLibrary();
 		if (newLib != null) {
 			// make it temporary editable to import types
 			newLib.setEditable(true);
@@ -603,7 +540,11 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		return xsd;
 	}
 
-	private LibraryNode createLibrary(String name, String prefix, URL url, String namespace, ProjectNode pn) {
+	/**
+	 * {@link org.opentravel.schemas.controllers.DefaultLibraryController#convertXSD2OTM(LibraryNode, boolean,
+	 * Set<LibraryNode>, Map<Node, Node>)}
+	 */
+	private LibraryNavNode createLibrary(String name, String prefix, URL url, String namespace, ProjectNode pn) {
 		final TLLibrary tlLib = new TLLibrary();
 		tlLib.setStatus(TLLibraryStatus.DRAFT);
 		tlLib.setPrefix(prefix);
@@ -613,5 +554,11 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 
 		final ProjectController pc = mc.getProjectController();
 		return pc.add(pn, tlLib);
+	}
+
+	@Override
+	public void changeNamespaceExtension(LibraryNode library, String namespace) {
+		// TODO Auto-generated method stub
+
 	}
 }

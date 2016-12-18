@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.node.properties;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.AliasNode;
 
 /**
  * @author Dave Hollander

@@ -22,7 +22,7 @@ import org.opentravel.schemas.modelObject.TLValueWithAttributesFacet;
 import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.PropertyNodeType;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 
 /**
  * Used for Request, Response and Notification Facets.
@@ -69,8 +69,15 @@ public class VWA_AttributeFacetNode extends PropertyOwnerNode {
 	}
 
 	@Override
+	public String getNavigatorName() {
+		return getFacetType().getIdentityName();
+	}
+
+	@Override
 	public String getName() {
-		return getComponentType();
+		return getParent().getName();
+		// return emptyIfNull(getTLModelObject().getLocalName());
+		// return getComponentType();
 	}
 
 	@Override

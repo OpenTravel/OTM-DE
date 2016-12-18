@@ -17,9 +17,9 @@ package org.opentravel.schemas.wizards;
 
 import java.util.List;
 
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.PropertyNodeType;
+import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -19,6 +19,10 @@
 package org.opentravel.schemas.node;
 
 import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemas.controllers.LibraryModelManager;
+import org.opentravel.schemas.node.interfaces.LibraryInterface;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
  * The version aggregate node collects libraries that are in a chain. The library chain displays it children which are
@@ -33,6 +37,8 @@ public class VersionAggregateNode extends AggregateNode {
 
 	public VersionAggregateNode(AggregateType type, Node parent) {
 		super(type, parent);
+
+		assert (parent instanceof LibraryChainNode);
 	}
 
 	public void add(LibraryNode ln) {
@@ -49,6 +55,10 @@ public class VersionAggregateNode extends AggregateNode {
 	public void close() {
 		if (getParent() != null)
 			getParent().getChildren().remove(this);
+		for (Node n : getChildren_New())
+			if (n instanceof LibraryNode)
+				n.close();
+		// TEST - does this do long chains correctly?
 		getChildren().clear();
 		setLibrary(null);
 		modelObject = null;
@@ -63,6 +73,16 @@ public class VersionAggregateNode extends AggregateNode {
 			if (pi.equals(((LibraryNode) n).getProjectItem()))
 				return (LibraryNode) n;
 		return null;
+	}
+
+	/**
+	 * Return the project this chain has as its parent. <b>Note</b> that libraries can belong to multiple projects.
+	 * 
+	 * @see {@link LibraryModelManager#isUsedElsewhere(LibraryInterface, ProjectNode)}
+	 * @return parent project or null if no project is found.
+	 */
+	public ProjectNode getProject() {
+		return ((LibraryChainNode) getParent()).getProject();
 	}
 
 	// @Override

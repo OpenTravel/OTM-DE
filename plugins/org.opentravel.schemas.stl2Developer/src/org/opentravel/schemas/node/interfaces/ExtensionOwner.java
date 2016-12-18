@@ -17,8 +17,8 @@ package org.opentravel.schemas.node.interfaces;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.modelObject.ModelObject;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.types.ExtensionHandler;
 
 /**
@@ -35,6 +35,11 @@ import org.opentravel.schemas.types.ExtensionHandler;
  */
 public interface ExtensionOwner {
 
+	// Node level impls - return "" if not overridden.
+	public String getExtendsTypeName();
+
+	public String getExtendsTypeNS();
+
 	/**
 	 * @return the base type - the node displayed in select Extends field. Null if no base type.
 	 */
@@ -46,6 +51,17 @@ public interface ExtensionOwner {
 	 * @return the handler if this owner extends a base, otherwise null.
 	 */
 	public ExtensionHandler getExtensionHandler();
+
+	public LibraryNode getLibrary();
+
+	/**
+	 * @return the ModelObject to use for assignment and tests
+	 */
+	public ModelObject<?> getModelObject();
+
+	public String getNameWithPrefix();
+
+	public TLModelElement getTLModelObject();
 
 	public boolean isInstanceOf(Node base);
 
@@ -62,21 +78,5 @@ public interface ExtensionOwner {
 	 * @param base
 	 */
 	public void setExtension(Node base);
-
-	// Node level impls - return "" if not overridden.
-	public String getExtendsTypeName();
-
-	public String getExtendsTypeNS();
-
-	public String getNameWithPrefix();
-
-	public LibraryNode getLibrary();
-
-	/**
-	 * @return the ModelObject to use for assignment and tests
-	 */
-	public ModelObject<?> getModelObject();
-
-	public TLModelElement getTLModelObject();
 
 }

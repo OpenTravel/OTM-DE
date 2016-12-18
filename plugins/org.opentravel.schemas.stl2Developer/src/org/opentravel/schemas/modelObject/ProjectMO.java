@@ -20,7 +20,6 @@ package org.opentravel.schemas.modelObject;
 
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,10 +63,10 @@ public class ProjectMO extends ModelObject<TLProject> {
 	// return "Project: " + getName();
 	// }
 
-	@Override
-	protected AbstractLibrary getLibrary(TLProject obj) {
-		return null;
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(TLProject obj) {
+	// return null;
+	// }
 
 	// @Deprecated
 	// @Override
@@ -75,15 +74,15 @@ public class ProjectMO extends ModelObject<TLProject> {
 	// return getTLModelObj().getName();
 	// }
 	//
-	@Override
-	public String getNamePrefix() {
-		return "";
-	}
-
-	@Override
-	public String getNamespace() {
-		return getTLModelObj().getNamespace();
-	}
+	// @Override
+	// public String getNamePrefix() {
+	// return "";
+	// }
+	//
+	// @Override
+	// public String getNamespace() {
+	// return getTLModelObj().getNamespace();
+	// }
 
 	@Override
 	public TLProject getTLModelObj() {

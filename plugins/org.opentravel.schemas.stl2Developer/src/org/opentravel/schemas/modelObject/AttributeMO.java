@@ -15,13 +15,10 @@
  */
 package org.opentravel.schemas.modelObject;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLAttributeOwner;
 import org.opentravel.schemacompiler.model.TLAttributeType;
-import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.NodeNameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,17 +66,17 @@ public class AttributeMO extends ModelObject<TLAttribute> {
 	// .getName();
 	// }
 
-	// Model does not know what namespace the attribute or its owning component
-	// is in.
-	@Override
-	public String getNamePrefix() {
-		return "";
-	}
+	// // Model does not know what namespace the attribute or its owning component
+	// // is in.
+	// @Override
+	// public String getNamePrefix() {
+	// return "";
+	// }
 
-	@Override
-	public String getNamespace() {
-		return "";
-	}
+	// @Override
+	// public String getNamespace() {
+	// return "";
+	// }
 
 	@Override
 	public TLAttribute getTLModelObj() {
@@ -91,31 +88,30 @@ public class AttributeMO extends ModelObject<TLAttribute> {
 		return srcObj.getType();
 	}
 
-	@Override
-	public String getTypeName() {
-		return srcObj != null ? ((TLAttribute) srcObj).getTypeName() : "";
-	}
+	// @Override
+	// public String getTypeName() {
+	// return srcObj != null ? ((TLAttribute) srcObj).getTypeName() : "";
+	// }
 
 	// @Override
 	// public String getComponentType() {
 	// return "Attribute";
 	// }
 
-	@Override
-	protected AbstractLibrary getLibrary(final TLAttribute obj) {
-		return null;
-	}
+	// @Override
+	// protected AbstractLibrary getLibrary(final TLAttribute obj) {
+	// return null;
+	// }
 
-	@Override
 	protected int indexOf() {
 		final TLAttribute thisProp = getTLModelObj();
-		return thisProp.getAttributeOwner().getAttributes().indexOf(thisProp);
+		return thisProp.getOwner().getAttributes().indexOf(thisProp);
 	}
 
-	@Override
-	public boolean isMandatory() {
-		return getTLModelObj().isMandatory();
-	}
+	// @Override
+	// public boolean isMandatory() {
+	// return getTLModelObj().isMandatory();
+	// }
 
 	/**
 	 * Move if you can, return false if you can not.
@@ -134,18 +130,18 @@ public class AttributeMO extends ModelObject<TLAttribute> {
 	@Override
 	public boolean moveDown() {
 		// only count attributes, not elements or indicators
-		if (indexOf() + 1 < getTLModelObj().getAttributeOwner().getAttributes().size()) {
+		if (indexOf() + 1 < getTLModelObj().getOwner().getAttributes().size()) {
 			getTLModelObj().moveDown();
 			return true;
 		}
 		return false;
 	}
 
-	@Override
-	public boolean setMandatory(final boolean selection) {
-		getTLModelObj().setMandatory(selection);
-		return true;
-	}
+	// @Override
+	// public boolean setMandatory(final boolean selection) {
+	// getTLModelObj().setMandatory(selection);
+	// return true;
+	// }
 
 	@Override
 	public boolean setName(final String name) {
@@ -165,21 +161,21 @@ public class AttributeMO extends ModelObject<TLAttribute> {
 		this.srcObj.setType(null);
 	}
 
-	@Override
-	public void setTLType(final ModelObject<?> mo) {
-		Object tlObj = null;
-		if (mo != null)
-			tlObj = mo.getTLModelObj();
-		if (tlObj instanceof TLAttributeType) {
-			final TLAttributeType attributeType = (TLAttributeType) tlObj;
-			getTLModelObj().setType(attributeType);
-			// super.setTLType(attributeType);
-
-			// Assure attribute names conform to the rules
-			if (!((Node) getNode()).isXsdType())
-				setName(NodeNameUtils.fixAttributeName(node.getName()));
-		}
-	}
+	// @Override
+	// public void setTLType(final ModelObject<?> mo) {
+	// Object tlObj = null;
+	// if (mo != null)
+	// tlObj = mo.getTLModelObj();
+	// if (tlObj instanceof TLAttributeType) {
+	// final TLAttributeType attributeType = (TLAttributeType) tlObj;
+	// getTLModelObj().setType(attributeType);
+	// // super.setTLType(attributeType);
+	//
+	// // Assure attribute names conform to the rules
+	// if (!((Node) getNode()).isXsdType())
+	// setName(NodeNameUtils.fixAttributeName(node.getName()));
+	// }
+	// }
 
 	@Override
 	public void setTLType(final NamedEntity tlObj) {

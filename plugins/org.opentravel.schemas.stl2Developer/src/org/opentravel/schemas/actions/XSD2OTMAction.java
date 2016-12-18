@@ -21,8 +21,8 @@ import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 import org.opentravel.schemas.controllers.LibraryController;
 import org.opentravel.schemas.navigation.GlobalSelectionProvider;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 
 public class XSD2OTMAction extends AbstractGlobalSelectionAction {

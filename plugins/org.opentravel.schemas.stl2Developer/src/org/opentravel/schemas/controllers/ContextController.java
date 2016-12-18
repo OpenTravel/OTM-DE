@@ -19,9 +19,8 @@ import java.util.List;
 
 import org.opentravel.schemas.controllers.DefaultContextController.ContextViewType;
 import org.opentravel.schemas.node.ContextNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
-
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLContextReferrer;

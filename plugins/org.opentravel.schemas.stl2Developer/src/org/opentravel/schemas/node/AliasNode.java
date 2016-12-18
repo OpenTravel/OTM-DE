@@ -24,7 +24,9 @@ import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAliasOwner;
 import org.opentravel.schemas.modelObject.AliasMO;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
@@ -50,6 +52,9 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 	public AliasNode(final Node parent, final TLAlias tlObj) {
 		super(tlObj);
 		addAlias(parent, tlObj);
+		// Prevent NPE in code gen utils and assure the name is not null.
+		if (tlObj.getName() == null)
+			tlObj.setName("");
 
 		assert (modelObject instanceof AliasMO);
 		assert (getTLModelObject() != null);
@@ -61,11 +66,10 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 	 * @param parentNode
 	 * @param en
 	 */
-	public AliasNode(final Node parent, final String name) {
+	public AliasNode(final Node parent, String name) {
 		// Do not use the parent form of this constructor. The alias must be named before children are created.
 		super(new TLAlias());
-		setName(name);
-		getTLModelObject().setName(name);
+		getTLModelObject().setName(name == null ? "" : name);
 		addAlias(parent, getTLModelObject());
 
 		assert (modelObject instanceof AliasMO);
@@ -77,12 +81,12 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 		if (parent != null) {
 			parent.linkChild(this);
 			setLibrary(parent.getLibrary());
-			// Could also be a facet
-			if (parent.getTLModelObject() instanceof TLAliasOwner) {
-				// if (parent instanceof BusinessObjectNode || parent instanceof CoreObjectNode) {
-				parent.getModelObject().addAlias(tlObj);
-				createChildrenAliases(parent, tlObj);
-			}
+			//
+			if (parent.getTLModelObject() instanceof TLAliasOwner)
+				if (!(parent instanceof PropertyOwnerNode)) {
+					((TLAliasOwner) parent.getTLModelObject()).addAlias(tlObj);
+					createChildrenAliases(parent, tlObj);
+				}
 		}
 	}
 
@@ -159,6 +163,11 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 	@Override
 	public boolean isNavChild(boolean deep) {
 		return true;
+	}
+
+	@Override
+	public boolean isRenameable() {
+		return isEditable() && !(parent instanceof PropertyOwnerInterface);
 	}
 
 	@Override

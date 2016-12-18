@@ -23,7 +23,6 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeFinders;
-import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.types.TypeProvider;
 
@@ -38,7 +37,10 @@ public class IdNode extends AttributeNode {
 
 	public IdNode(PropertyOwnerInterface parent, String name) {
 		super(parent, name, PropertyNodeType.ID);
-		setName("id");
+		// setName("id");
+		if (name == null || name.isEmpty())
+			name = "id";
+		setName(name);
 		idType = (TypeProvider) NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
 		// does nothing because there is a required type. - setAssignedType(idType);
 		((TLAttribute) getTLModelObject()).setType((TLAttributeType) idType.getTLModelObject());

@@ -36,22 +36,20 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.opentravel.schemas.controllers.OtmActions;
-import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.FamilyNode;
-import org.opentravel.schemas.node.NavNode;
+import org.opentravel.schemas.node.ConstraintHandler;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.SimpleComponentNode;
+import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.ElementNode;
-import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.properties.Messages;
@@ -406,23 +404,23 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 
 		OtmHandlers.suspendHandlers();
 		clearProperties(); // Clear the fields, and the propertyNode pointer
+		fields.postField(nameField, n.getName(), n.isRenameable());
 		//
-		if (n instanceof FacetNode) {
-			boolean edit = n.isEditable() && !n.isInheritedProperty();
-			// boolean edit = n.isEditable() && !NodeUtils.checker(n).isInheritedFacet().get();
-			fields.postField(nameField, n.getLabel(), edit);
-			nameField.setEnabled(((FacetNode) n).isRenameable());
-		} else if (!(n instanceof NavNode) || n instanceof FamilyNode)
-			mc.getFields().postField(nameField, n.getName(), n.isEditable_newToChain());
-		else
-			mc.getFields().postField(nameField, n.getLabel(), false);
+		// if (n instanceof PropertyOwnerNode) {
+		// boolean edit = n.isEditable() && !n.isInheritedProperty();
+		// fields.postField(nameField, n.getName(), edit);
+		// // fields.postField(nameField, n.getLabel(), edit);
+		// nameField.setEnabled(((PropertyOwnerNode) n).isRenameable());
+		// } else if (!(n instanceof NavNode))
+		// // mc.getFields().postField(nameField, n.getLabel(), false);
+		// mc.getFields().postField(nameField, n.getName(), false);
 
-		if (n instanceof ElementReferenceNode)
-			nameField.setEnabled(false);
+		// if (n instanceof ElementReferenceNode)
+		// nameField.setEnabled(false);
 		// if (n.isFacet() && !n.isOperation() && !n.isCustomFacet() && !n.isQueryFacet())
 		// nameField.setEnabled(false);
-		if (n instanceof AliasNode && n.getParent() instanceof FacetNode)
-			nameField.setEnabled(false);
+		// if (n instanceof AliasNode && n.getParent() instanceof FacetNode)
+		// nameField.setEnabled(false);
 		fields.postField(componentField, n.getComponentType(), false);
 		fields.postField(descField, n.getDescription(), n.isEditable_description());
 		fields.postField(nameSpaceField, n.getNamespace(), false);
@@ -449,7 +447,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 			LOGGER.warn("Error with object: " + n.getNameWithPrefix());
 		} else if (n.getParent() instanceof VWA_Node && n instanceof FacetNode) {
 			// for VWA - Facets should not have name and description editable
-			fields.postField(nameField, n.getName(), false);
+			// fields.postField(nameField, n.getName(), false);
 			fields.postField(descField, n.getDescription(), false);
 			typeField.setEnabled(false);
 		} else if (cn instanceof SimpleComponentNode) {
@@ -465,18 +463,18 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 			updateConstraints((ComponentNode) cn.getType(), false);
 			updatePropertyTypeCombo((PropertyNode) cn);
 			if (cn instanceof ElementNode) {
-				if (cn.getTypeNode() != null && cn.getTypeNode() instanceof ListFacetNode
-						&& ((ListFacetNode) cn.getTypeNode()).isDetailListFacet()) {
+				if (cn.getType() != null && cn.getType() instanceof ListFacetNode
+						&& ((ListFacetNode) cn.getType()).isDetailListFacet()) {
 					repeatNonValid.setVisible(true);
 					repeatNonValid.setText("---");
 					repeatSpinner.setVisible(false);
 				} else {
 					repeatNonValid.setVisible(false);
 					repeatSpinner.setVisible(true);
-					widgets.postSpinner(repeatSpinner, cn.getRepeat(), cn.isEditable());
+					widgets.postSpinner(repeatSpinner, ((ElementNode) cn).getRepeat(), cn.isEditable());
 				}
 			}
-			if (!cn.isIndicator())
+			if (!((PropertyNode) cn).isIndicator())
 				postMandatoryButton(cn);
 			// in this case fixNames should set type
 			if (cn.isAssignedComplexType())
@@ -543,21 +541,24 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 	private void updateConstraints(final ComponentNode cn, boolean editable) {
 		if (cn == null)
 			return;
-		if (cn.isSimpleType())
+		if (cn instanceof SimpleComponentNode)
 			listButton.setEnabled(true);
-		if (cn.getModelObject().isSimpleList()) {
-			listButton.setSelection(true);
-		} else {
-			listButton.setSelection(false);
-			fields.postField(patternField, cn.getPattern(), editable);
-			widgets.postSpinner(minLenSpinner, cn.getMinLen(), editable);
-			widgets.postSpinner(maxLenSpinner, cn.getMaxLen(), editable);
-			widgets.postSpinner(fractionDigitsSpinner, cn.getFractionDigits(), editable);
-			widgets.postSpinner(totalDigitsSpinner, cn.getTotalDigits(), editable);
-			fields.postField(minInclusiveText, cn.getMinInclusive(), editable);
-			fields.postField(maxInclusiveText, cn.getMaxInclusive(), editable);
-			fields.postField(minExclusiveText, cn.getMinExclusive(), editable);
-			fields.postField(maxExclusiveText, cn.getMaxExclusive(), editable);
+		if (cn instanceof SimpleTypeNode)
+			listButton.setSelection(((SimpleTypeNode) cn).isSimpleList());
+		else {
+			ConstraintHandler ch = cn.getConstraintHandler();
+			if (ch != null) {
+				listButton.setSelection(false);
+				fields.postField(patternField, ch.getPattern(), editable);
+				widgets.postSpinner(minLenSpinner, ch.getMinLen(), editable);
+				widgets.postSpinner(maxLenSpinner, ch.getMaxLen(), editable);
+				widgets.postSpinner(fractionDigitsSpinner, ch.getFractionDigits(), editable);
+				widgets.postSpinner(totalDigitsSpinner, ch.getTotalDigits(), editable);
+				fields.postField(minInclusiveText, ch.getMinInclusive(), editable);
+				fields.postField(maxInclusiveText, ch.getMaxInclusive(), editable);
+				fields.postField(minExclusiveText, ch.getMinExclusive(), editable);
+				fields.postField(maxExclusiveText, ch.getMaxExclusive(), editable);
+			}
 		}
 	}
 

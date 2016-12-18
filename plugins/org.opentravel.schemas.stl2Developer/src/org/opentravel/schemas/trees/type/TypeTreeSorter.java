@@ -16,8 +16,8 @@
 package org.opentravel.schemas.trees.type;
 
 import org.eclipse.jface.viewers.ViewerSorter;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
  * @author Dave Hollander

@@ -42,14 +42,14 @@ import org.opentravel.schemacompiler.repository.RepositoryFileManager;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.schemas.actions.ImportObjectToLibraryAction;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeModelController;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.Activator;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -357,6 +357,8 @@ public class MainController {
 					libraries.addAll(((LibraryChainNode) node).getLibraries());
 			}
 		}
+		// Set<LibraryNode> libs = new HashSet<LibraryNode>();
+		// return new ArrayList<>(libs);
 		return libraries;
 	}
 
@@ -571,71 +573,6 @@ public class MainController {
 
 	/** ********************* LEGACY BUSINESS LOGIC *************************** **/
 
-	// public void addQueryFacet() {
-	// addFacet(TLFacetType.QUERY);
-	// }
-	//
-	// public void addCustomFacet() {
-	// addFacet(TLFacetType.CUSTOM);
-	// }
-	//
-	// TODO - make into command. Have the two actions use a parameter so that there can be just one.
-	// private void addFacet(final TLFacetType facetType) {
-	// // pre-test done in actions
-	// // if (!(getSelectedNode_NavigatorView() instanceof BusinessObjectNode))
-	// // return;
-	//
-	// final ComponentNode current = (ComponentNode) getSelectedNode_NavigatorView();
-	// if (current != null && current instanceof BusinessObjectNode) {
-	//
-	// // if (current != null && current.isBusinessObject()) {
-	// // if (!current.getLibrary().isMajorVersion()) {
-	// // // New facets can only be added in major versions.
-	// // // TODO - consider allowing them in minor and use createMinorVersionOfComponent()
-	// // // LOGGER.debug("Tried to add facet to a minor or patch version.");
-	// // return;
-	// // }
-	//
-	// // Custom facets can only have properties that are also in the detail while query can
-	// // have others.
-	// // custom can now have any property set!
-	// final ComponentNode propertyOwner = facetType.equals(TLFacetType.CUSTOM) ? current.getDetailFacet()
-	// : current;
-	//
-	// // Set up the wizard
-	// // FIXME - not getting all the newly created contexts!
-	// // String defaultContext = contextController.getDefaultContextId(current.getLibrary());
-	// String defaultContext = current.getLibrary().getDefaultContextId();
-	// String defaultName = "";
-	// boolean canBeEmpty = TLFacetType.QUERY.equals(facetType);
-	// if (TLFacetType.CUSTOM.equals(facetType)) {
-	// defaultName = defaultContext;
-	// }
-	// final NewFacetWizard wizard = new NewFacetWizard(propertyOwner, defaultName);
-	// wizard.setValidator(new NewFacetValidator(current, facetType, wizard));
-	//
-	// wizard.run(OtmRegistry.getActiveShell());
-	// if (!wizard.wasCanceled()) {
-	// // LOGGER.info("Creating new custom facet of type " + facetType + " and properties "
-	// // + wizard.getSelectedProperties());
-	// // Get the name from the wizard (enhance wizard)
-	//
-	// BusinessObjectNode bo = (BusinessObjectNode) current;
-	// if (TLFacetType.QUERY.equals(facetType) && (wizard.getName() == null || wizard.getName().isEmpty())) {
-	// defaultContext = null;
-	// }
-	// FacetNode newFacet = bo.addFacet(wizard.getName(), facetType);
-	// for (final PropertyNode n : wizard.getSelectedProperties()) {
-	// NodeFactory.newComponentMember(newFacet, n.cloneTLObj());
-	// }
-	// refresh(bo);
-	// }
-	// } else {
-	// DialogUserNotifier.openWarning("Add Custom Facet", "Custom Facets can only be added to Business Objects");
-	// // LOGGER.warn("New custom facet can be added only to Business Objects, tried to add to: " + current);
-	// }
-	// }
-
 	/**
 	 * Runs change wizard on the selected component.
 	 */
@@ -782,24 +719,25 @@ public class MainController {
 		}
 	}
 
+	@Deprecated
 	public NewPropertiesWizard initializeNewPropertiesWizard(final INode component) {
 		NewPropertiesWizard newPropertiesWizard = null;
 		// code migrated to AddPropertytoComponent handler.
 		return newPropertiesWizard;
 	}
 
-	/**
-	 *
-	 */
-	// /TODO - move
-	public void setExtendable(final boolean extendable) {
-		// final Node facetNode = getSelectedNode_TypeView();
-		// if (facetNode != null) {
-		// LOGGER.debug("Changing extendable property of " + facetNode + " to " + extendable);
-		// facetNode.setExtendable(extendable);
-		// defaultView.refreshAllViews();
-		// }
-	}
+	// /**
+	// *
+	// */
+	// // /TODO - move
+	// public void setExtendable(final boolean extendable) {
+	// // final Node facetNode = getSelectedNode_TypeView();
+	// // if (facetNode != null) {
+	// // LOGGER.debug("Changing extendable property of " + facetNode + " to " + extendable);
+	// // facetNode.setExtendable(extendable);
+	// // defaultView.refreshAllViews();
+	// // }
+	// }
 
 	public void clearSelection() {
 		final OtmView view = OtmRegistry.getNavigatorView();

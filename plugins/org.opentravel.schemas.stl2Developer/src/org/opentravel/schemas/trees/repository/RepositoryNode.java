@@ -118,7 +118,7 @@ public abstract class RepositoryNode extends Node implements Comparable<Reposito
 	}
 
 	@Override
-	protected void setKidsLibrary() {
+	public void setKidsLibrary() {
 		// do nothing
 	}
 

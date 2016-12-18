@@ -20,23 +20,26 @@ package org.opentravel.schemas.node;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.repository.Project;
 import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryNamespaceUtils;
 import org.opentravel.schemacompiler.repository.impl.BuiltInProject;
+import org.opentravel.schemas.controllers.LibraryModelManager;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.modelObject.EmptyMO;
-import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryInterface;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.types.TypeResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +57,7 @@ public class ProjectNode extends Node implements INode {
 	 */
 	public ProjectNode() {
 		this.project = null;
-
+		parent = Node.getModelNode();
 		// EmptyMO - TLEmpty
 	}
 
@@ -70,8 +73,9 @@ public class ProjectNode extends Node implements INode {
 		this.project = tlProject;
 		setName(tlProject.getName());
 		Node.getModelNode().addProject(this);
-		load(tlProject);
+		load(tlProject.getProjectItems());
 
+		assert (parent instanceof ModelNode);
 		assert (modelObject instanceof EmptyMO);
 	}
 
@@ -81,107 +85,118 @@ public class ProjectNode extends Node implements INode {
 	 * @param lib
 	 */
 	@Override
+	// FIXME - only used in library node constructors
 	public void linkLibrary(LibraryNode lib) {
 		if (lib != null && !getChildren().contains(lib))
 			getChildren().add(lib);
 	}
 
 	/**
-	 * Load the GUI model with all unmodeled libraries from the TL Project into this project. Resolves types after all
-	 * the libraries are loaded.
+	 * Create a library nav node for the chain then add the nav node.
+	 * 
+	 * @param lcn
 	 */
-	protected void load(final Project tlProject) {
-		// LOGGER.debug("Load libraries from project: " + tlProject.getName());
+	public void linkLibrary(LibraryChainNode lcn) {
+		LibraryNavNode lnn = new LibraryNavNode(lcn, this);
+		if (!getChildren().contains(lnn))
+			getChildren().add(lnn);
+	}
 
-		// Create library nodes under the project for each new project item
-		ArrayList<LibraryNode> newLibs = new ArrayList<LibraryNode>();
-		ArrayList<ProjectItem> existingItems = new ArrayList<ProjectItem>();
-		Map<String, LibraryChainNode> chainMap = new HashMap<String, LibraryChainNode>();
-		LibraryChainNode lcn = null;
-		LibraryNode ln = null;
+	public LibraryNavNode load(final List<ProjectItem> piList) {
+		LibraryModelManager manager = getParent().getLibraryManager();
+		LibraryNavNode lnn = null;
 
-		// Record what libraries including those in chains already have been modeled.
-		for (INode n : getChildren()) {
-			if (n instanceof LibraryNode)
-				existingItems.add(((LibraryNode) n).getProjectItem());
-			else if (n instanceof LibraryChainNode) {
-				lcn = (LibraryChainNode) n;
-				chainMap.put(makeChainIdentity(lcn.getHead().getProjectItem()), lcn);
-				for (Node lib : lcn.getLibraries())
-					existingItems.add(((LibraryNode) lib).getProjectItem());
-			}
+		for (ProjectItem pi : piList) {
+			lnn = manager.add(pi, this);
+			if (lnn != null) // can fail to create chain
+				assert (getChildren().contains(lnn));
+
 		}
-
-		// Add new libraries to project or chains.
-		for (ProjectItem pi : tlProject.getProjectItems()) {
-			if (!existingItems.contains(pi) && pi.getContent() != null) {
-				if (pi.getRepository() == null) {
-					// If not from repository, just create library.
-					newLibs.add(new LibraryNode(pi, this));
-				} else {
-					// If in repo, create a chain if not already created.
-					String chainName = makeChainIdentity(pi);
-					if (chainMap.containsKey(chainName)) {
-						// Add this library to its chain
-						lcn = chainMap.get(chainName);
-						if ((ln = lcn.add(pi)) != null)
-							newLibs.add(ln);
-					} else {
-						// Create new chain for this project item.
-						lcn = new LibraryChainNode(pi, this);
-						chainMap.put(chainName, lcn);
-						newLibs.addAll(lcn.getLibraries());
-					}
-				}
-			}
-		}
-
-		// Resolve XSD and property types.
-		TypeResolver tr = new TypeResolver();
-		tr.resolveTypes();
-
-		// LOGGER.debug("Loaded project containing " + newLibs.size() + " libraries.");
+		return lnn;
 	}
 
 	/**
 	 * Add the files to the project and models all new project items in the GUI model. NOTE - for performance reasons,
 	 * always try to add multiple files at once.
+	 * {@link org.opentravel.schemas.controllers.DefaultLibraryController#openLibrary(ProjectNode)}
 	 */
 	public void add(List<File> libraryFiles) {
 		ProjectController pc = OtmRegistry.getMainController().getProjectController();
 		pc.addLibrariesToTLProject(this.project, libraryFiles);
-		load(this.project);
+		load(this.project.getProjectItems());
 	}
 
-	public void add(String path) {
-		List<File> files = new ArrayList<File>();
-		files.add(new File(path));
-		add(files);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getChildren()
+	/**
+	 * Close each library or chain using the library model manager. Does <b>not</b> close the TL Project.
 	 */
 	@Override
-	public List<Node> getChildren() {
-		return super.getChildren();
+	public void close() {
+		LOGGER.debug("Closing " + getName());
+		List<Node> libs = new ArrayList<Node>(getChildren());
+		for (Node n : libs)
+			n.close();
+		unlinkNode();
 	}
+
+	/**
+	 * Remove this library from this project then use library manager to attempt to close members
+	 * 
+	 * <b>Note:</b> use project controller to remove libraries from TL Project.
+	 * 
+	 * @param lib
+	 *            - navigator node identifying which library or chain to close
+	 */
+	public void close(LibraryInterface lib) {
+		// Find the affected LibraryNavNode
+		for (Node n : getChildren())
+			if (n instanceof LibraryNavNode && ((LibraryNavNode) n).getThisLib() == lib) {
+				close((LibraryNavNode) n);
+				return;
+			}
+	}
+
+	/**
+	 * Remove the associated library from this project. Using library manager, attempt to close members if this is the
+	 * last project to use this library.
+	 * 
+	 * <b>Note:</b> use project controller to remove libraries from TL Project.
+	 * 
+	 * @param lib
+	 *            - navigator node identifying which library or chain to close
+	 */
+	public void close(LibraryNavNode lnn) {
+		getChildren().remove(lnn);
+		getParent().getLibraryManager().close(lnn.getThisLib(), this);
+		lnn.setParent(null);
+		lnn.deleted = true;
+	}
+
+	public void unlinkNode(LibraryInterface lib) {
+		// Find the child and unlink it
+		// List<Node> kids = new ArrayList<Node>(getChildren());
+		for (Node child : getChildren())
+			if (child == lib) {
+				child.unlinkNode();
+				return;
+			} else if (child instanceof LibraryNavNode)
+				if (((LibraryNavNode) child).getThisLib() == lib) {
+					child.unlinkNode();
+					return;
+				}
+	}
+
+	// @Override
+	// public List<Node> getChildren() {
+	// // List<Node> kids = super.getChildren();
+	// // for (Node kid : kids)
+	// // if (!(kid instanceof LibraryNavNode) && !this.isBuiltIn())
+	// // LOGGER.debug("Wrong type of child.");
+	// return super.getChildren();
+	// }
 
 	@Override
 	public String getComponentType() {
 		return "Project: " + getName();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getModelObject()
-	 */
-	@Override
-	public ModelObject<?> getModelObject() {
-		return modelObject;
 	}
 
 	@Override
@@ -211,21 +226,37 @@ public class ProjectNode extends Node implements INode {
 		return project.getName();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Try to find the project item for the library. If not found, try to add it to the project.
 	 * 
-	 * @see org.opentravel.schemas.node.INode#getNamePrefix()
+	 * @return the project item associated with this library
 	 */
+	public ProjectItem add(AbstractLibrary tlLib) {
+		ProjectItem pi = getProjectItem(tlLib);
+		if (pi == null)
+			try {
+				pi = getTLProject().getProjectManager().addUnmanagedProjectItem(tlLib, getTLProject());
+			} catch (RepositoryException e1) {
+				LOGGER.error("Error adding " + tlLib.getName() + " to project. " + e1.getLocalizedMessage());
+			}
+		return pi;
+	}
+
+	/**
+	 * @return the project item associated with the passed TL AbstractLibrary or null
+	 */
+	public ProjectItem getProjectItem(AbstractLibrary tlLib) {
+		for (ProjectItem item : getTLProject().getProjectItems())
+			if (item.getContent() == tlLib)
+				return item;
+		return null;
+	}
+
 	@Override
 	public String getNamePrefix() {
 		return "";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getNamespace()
-	 */
 	@Override
 	public String getNamespace() {
 		return project.getProjectId();
@@ -262,25 +293,15 @@ public class ProjectNode extends Node implements INode {
 		return project.getProjectId() + "/" + project.getName();
 	}
 
-	// @Override
-	// public List<Node> getNavChildren() {
-	// return super.getChildren();
-	// }
-
 	@Override
-	public Node getParent() {
-		return super.getParent();
+	public ModelNode getParent() {
+		return (ModelNode) parent;
 	}
 
 	@Override
 	public boolean hasChildren() {
 		return !getChildren().isEmpty();
 	}
-
-	// @Override
-	// public boolean hasNavChildren() {
-	// return !getChildren().isEmpty();
-	// }
 
 	@Override
 	public boolean isDeprecated() {
@@ -295,7 +316,6 @@ public class ProjectNode extends Node implements INode {
 
 	@Override
 	public boolean isEditable() {
-		// return ((ProjectMO)getModelObject()).isEditable();
 		return true;
 	}
 
@@ -333,20 +353,10 @@ public class ProjectNode extends Node implements INode {
 
 	/** Not Applicable for Project Interface *********************/
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getType()
-	 */
 	@Override
 	public Node getType() {
 		return null;
 	}
-
-	// @Override
-	// public String getName() {
-	// return getTLModelObject() == null || getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
-	// }
 
 	@Override
 	public TLEmpty getTLModelObject() {
@@ -362,17 +372,25 @@ public class ProjectNode extends Node implements INode {
 	public void removeFromLibrary() {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#isTypeProvider()
+	/**
+	 * Remove all project items from this project. NO save, tests or checks.
 	 */
+	public void removeAllFromTLProject() {
+		for (Node lib : getChildren())
+			// get past LibraryNavNode and VersionNodes
+			if (lib.getLibrary() != null)
+				project.remove(lib.getLibrary().getProjectItem());
+	}
+
 	@Override
 	public boolean isNamedEntity() {
 		return false;
 	}
 
-	public Project getProject() {
+	/**
+	 * @return the compiler model repository project
+	 */
+	public Project getTLProject() {
 		return project;
 	}
 
@@ -429,6 +447,13 @@ public class ProjectNode extends Node implements INode {
 				ns = base + "/" + extension;
 		}
 		return RepositoryNamespaceUtils.normalizeUri(ns);
+	}
+
+	public void closeAll() {
+		for (Node n : getChildren_New()) {
+			n.close();
+			getChildren().remove(n);
+		}
 	}
 
 }
