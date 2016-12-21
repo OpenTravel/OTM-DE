@@ -24,11 +24,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
-import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.CustomFacetNode;
-import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
@@ -75,7 +73,9 @@ public class NewPropertiesWizard2 extends ValidatingWizard implements Cancelable
 		String error = "";
 		if (actOnNode == null)
 			error = "Node to be acted upon is null.";
-		else if (!(actOnNode instanceof FacetNode) && !(actOnNode instanceof ExtensionPointNode))
+		else if (actOnNode instanceof SimpleFacetNode)
+			error = "Node to be acted upon is not a component that can own properties.";
+		else if (!(actOnNode instanceof PropertyOwnerInterface))
 			error = "Node to be acted upon is not a component that can own properties.";
 		else if (!actOnNode.isEditable())
 			error = "Node to be acted upon is not editable.";

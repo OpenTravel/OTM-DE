@@ -113,13 +113,17 @@ public class LibraryModelManager {
 			newLNN = modelLibraryInterface(pi, project);
 		} else {
 			// Already modeled - add new LibraryNavNode to this project
-			if (li instanceof LibraryNode)
-				if (((LibraryNode) li).isInChain())
-					newLNN = new LibraryNavNode(((LibraryNode) li).getChain(), project);
-				else
-					newLNN = new LibraryNavNode((LibraryNode) li, project);
-			else if (li instanceof LibraryChainNode)
-				newLNN = new LibraryNavNode((LibraryChainNode) li, project);
+			if (li.getChain() == null)
+				newLNN = new LibraryNavNode((LibraryNode) li, project);
+			else
+				newLNN = new LibraryNavNode(li.getChain(), project);
+			// if (li instanceof LibraryNode)
+			// if (((LibraryNode) li).isInChain())
+			// newLNN = new LibraryNavNode(((LibraryNode) li).getChain(), project);
+			// else
+			// newLNN = new LibraryNavNode((LibraryNode) li, project);
+			// else if (li instanceof LibraryChainNode)
+			// newLNN = new LibraryNavNode((LibraryChainNode) li, project);
 		}
 
 		assert (newLNN != null);
@@ -133,20 +137,19 @@ public class LibraryModelManager {
 		if (li instanceof LibraryNode) {
 			if (!((LibraryNode) li).isInChain())
 				assert (newLNN.getLibrary() == li);
-			else {
-				LOGGER.debug("???What to test here?");
+			else
 				assert (newLNN.getThisLib() instanceof LibraryChainNode);
-				((LibraryChainNode) newLNN.getThisLib()).getLibraries().contains(li);
-			}
-			// TODO test the chain case
+			((LibraryChainNode) newLNN.getThisLib()).getLibraries().contains(li);
 		} else if (li instanceof LibraryChainNode)
 			assert (((LibraryChainNode) li).getLibraries().contains(newLNN.getLibrary()));
 
+		LOGGER.debug("Adding library to model from project item: " + pi.getLibraryName());
 		return newLNN;
 	}
 
 	private LibraryNavNode modelLibraryInterface(ProjectItem pi, ProjectNode project) {
 		LibraryInterface li = null;
+		LibraryNavNode newLNN = null;
 		LOGGER.debug("First time library has been model: " + pi.getLibraryName());
 
 		if (pi.getRepository() == null)
@@ -168,25 +171,30 @@ public class LibraryModelManager {
 				if (!libraries.contains(chain)) {
 					LOGGER.debug("Create chain for a minor version.");
 					li = new LibraryChainNode(pi, project);
-				} else
+				} else {
+					LOGGER.debug("Add to existing chain.");
 					li = chain;
+					if (li.getParent() instanceof LibraryNavNode)
+						newLNN = new LibraryNavNode(chain, project);
+				}
 			}
 		}
 
 		// Add the library to the list
-		LibraryNavNode newLNN = null;
-		if (li != null) {
+		if (li != null && newLNN == null) {
 			if (!libraries.contains(li))
 				libraries.add(li);
 
 			// Get the LibraryNavNode to return
 			if (li.getParent() instanceof LibraryNavNode)
 				newLNN = (LibraryNavNode) li.getParent();
-		} else
-			LOGGER.error("li is null!");
+			else
+				LOGGER.error("Newly modeled library " + li + " is missing nav node!");
+		}
+		if (li == null)
+			LOGGER.error("Did not successfully model the library " + pi.getLibraryName() + " !");
 
-		if (newLNN == null)
-			LOGGER.warn("Newly model library without LNN.");
+		assert (newLNN != null);
 		return newLNN;
 	}
 
@@ -203,6 +211,17 @@ public class LibraryModelManager {
 		// li = chain;
 		// }
 		// return li;
+	}
+
+	/**
+	 * @return all projects that contain this library interface
+	 */
+	public List<ProjectNode> findProjects(LibraryInterface li) {
+		List<ProjectNode> projects = new ArrayList<ProjectNode>();
+		for (ProjectNode pn : parent.getProjects())
+			if (pn.contains(li))
+				projects.add(pn);
+		return projects;
 	}
 
 	private LibraryInterface createNewChain(ProjectItem pi, ProjectNode project) {

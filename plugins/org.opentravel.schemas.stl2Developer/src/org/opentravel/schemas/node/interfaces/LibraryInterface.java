@@ -20,6 +20,8 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
@@ -38,6 +40,11 @@ public interface LibraryInterface {
 
 	public Image getImage();
 
+	/**
+	 * @return this if is a chain, chain if library is in a chain or null
+	 */
+	public LibraryChainNode getChain();
+
 	public String getLabel();
 
 	/**
@@ -48,6 +55,8 @@ public interface LibraryInterface {
 	public String getName();
 
 	public List<Node> getNavChildren(boolean deep);
+
+	public LibraryNavNode getLibraryNavNode();
 
 	/**
 	 * Could be a Project or a LibraryChainNode. NOTE: if library or chain there may be other projects that are also

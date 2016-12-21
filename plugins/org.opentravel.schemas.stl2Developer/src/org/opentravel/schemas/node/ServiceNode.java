@@ -176,4 +176,14 @@ public class ServiceNode extends ComponentNode {
 		return false;
 	}
 
+	@Override
+	public boolean isEnabled_AddProperties() {
+		if (getLibrary() == null || parent == null || !isEditable() || isDeleted())
+			return false;
+
+		// Adding to service will automatically create correct service operation to add to.
+		if (!getLibrary().isInChain())
+			return true;
+		return !getLibrary().getChain().getHead().getEditStatus().equals(NodeEditStatus.PATCH);
+	}
 }

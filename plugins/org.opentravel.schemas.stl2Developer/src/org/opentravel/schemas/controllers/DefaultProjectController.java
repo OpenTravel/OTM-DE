@@ -65,6 +65,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
@@ -623,8 +624,23 @@ public class DefaultProjectController implements ProjectController {
 	}
 
 	@Override
+	public void remove(LibraryInterface library, ProjectNode pn) {
+		// The LibraryNavNode for this library may point to ANY project, don't use it
+		// Search the project for the nav node for this library
+		LibraryNavNode lnn = null;
+		for (Node n : pn.getChildren())
+			if (n instanceof LibraryNavNode)
+				if (((LibraryNavNode) n).contains(library)) {
+					lnn = (LibraryNavNode) n;
+					break;
+				}
+		remove(lnn);
+	}
+
+	@Override
 	public void remove(LibraryNavNode libraryNav) {
-		remove(Collections.singletonList(libraryNav));
+		if (libraryNav != null)
+			remove(Collections.singletonList(libraryNav));
 	}
 
 	/**

@@ -536,4 +536,10 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 	public boolean hasResources() {
 		return !resourceRoot.getChildren().isEmpty();
 	}
+
+	@Override
+	public LibraryNavNode getLibraryNavNode() {
+		return (LibraryNavNode) getParent();
+	}
+
 }

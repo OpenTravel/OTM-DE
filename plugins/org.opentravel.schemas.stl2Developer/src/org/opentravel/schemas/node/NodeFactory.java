@@ -42,6 +42,7 @@ import org.opentravel.schemacompiler.model.TLRoleEnumeration;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
+import org.opentravel.schemacompiler.model.XSDSimpleType;
 import org.opentravel.schemas.modelObject.TLValueWithAttributesFacet;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
 import org.opentravel.schemas.node.facets.ChoiceFacetNode;
@@ -139,6 +140,8 @@ public class NodeFactory {
 			cn = new ExtensionPointNode((TLExtensionPointFacet) mbr);
 		else if (mbr instanceof TLResource)
 			cn = new ResourceNode(mbr);
+		else if (mbr instanceof XSDSimpleType)
+			cn = new SimpleTypeNode((TLSimple) Node.GetNode(mbr).getTLModelObject());
 		else {
 			// cn = new ComponentNode(mbr);
 			assert (false);
@@ -233,8 +236,9 @@ public class NodeFactory {
 		//
 		// Others
 		//
-		else if (tlObj instanceof TLModelElement)
-			assert (false);
+		else if (tlObj instanceof TLLibraryMember)
+			nn = newComponent_UnTyped((TLLibraryMember) tlObj);
+		// assert (false);
 		// nn = new ComponentNode((TLModelElement) tlObj);
 		// LOGGER.debug("newComponentNode() - generic source TLModelElement type. "
 		// + tlObj.getClass().getSimpleName());

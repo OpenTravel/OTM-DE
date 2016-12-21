@@ -58,7 +58,7 @@ public class LibraryNavNode extends Node {
 		library.setParent(this);
 		project.getChildren().add(this);
 
-		LOGGER.debug("Created library nav node for library " + library);
+		LOGGER.debug("Created library nav node for library " + library + " in project " + project);
 	}
 
 	/**
@@ -85,7 +85,7 @@ public class LibraryNavNode extends Node {
 		chain.setParent(this);
 		project.getChildren().add(this);
 
-		LOGGER.debug("Created library nav node for chain " + chain);
+		LOGGER.debug("Created library nav node for chain " + chain + " in project " + project);
 	}
 
 	public LibraryInterface getThisLib() {
@@ -189,6 +189,25 @@ public class LibraryNavNode extends Node {
 	public void setThisLib(LibraryInterface library) {
 		getChildren().clear();
 		getChildren().add((Node) library);
+	}
+
+	/**
+	 * Return true if the passed library or chain is contained in this nav node. Members of chains are tested as
+	 * required.
+	 */
+	public boolean contains(LibraryInterface li) {
+		if (getThisLib() == null)
+			return false;
+		if (getThisLib() == li)
+			return true;
+		if (li instanceof LibraryNode && getThisLib() instanceof LibraryChainNode)
+			return ((LibraryChainNode) getThisLib()).contains((Node) li);
+		return false;
+	}
+
+	@Override
+	public boolean isNavigation() {
+		return true;
 	}
 
 }

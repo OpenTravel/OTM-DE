@@ -56,6 +56,7 @@ import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.opentravel.schemacompiler.version.MinorVersionHelper;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
 import org.opentravel.schemacompiler.version.Versioned;
+import org.opentravel.schemas.controllers.LibraryModelManager;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
 import org.opentravel.schemas.modelObject.TLEmpty;
@@ -71,6 +72,7 @@ import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
+import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
@@ -205,6 +207,13 @@ public abstract class Node implements INode {
 	 */
 	public static ModelNode getModelNode() {
 		return root;
+	}
+
+	/**
+	 * Get the static root library model manager.
+	 */
+	public static LibraryModelManager getLibraryModelManager() {
+		return root.getLibraryManager();
 	}
 
 	/**
@@ -673,6 +682,11 @@ public abstract class Node implements INode {
 	public String getDecoration() {
 		// if it is a named entity in a versioned library get version.
 		String decoration = " ";
+
+		// The number of users for this type provider
+		if (this instanceof TypeProvider && !(this instanceof ImpliedNode))
+			decoration += " (" + ((TypeProvider) this).getWhereUsedAndDescendantsCount() + " users)";
+
 		if (isDeleted())
 			decoration += " (*) ";
 
@@ -690,28 +704,33 @@ public abstract class Node implements INode {
 		// if (!version.isEmpty())
 		// decoration += " (v " + version + "-" + library.getVersion() + ")";
 		// }
+
 		// Extension
 		if (this instanceof ExtensionOwner) {
 			String extensionTxt = "";
-			if (((ExtensionOwner) this).getExtensionBase() != null) {
-				ComponentNode cn = (ComponentNode) ((ExtensionOwner) this).getExtensionBase();
-				if (isVersioned())
-					extensionTxt = " (Extends version: " + cn.getTlVersion() + ")";
+			ComponentNode exBase = (ComponentNode) ((ExtensionOwner) this).getExtensionBase();
+			if (exBase != null)
+				// if (isVersioned())
+				extensionTxt += "   (Extends: " + exBase.getNameWithPrefix() + ")";
+			if (isEditable_isNewOrAsMinor()) {
+				if (isInHead2() && !getLibrary().isMinorVersion())
+					extensionTxt += "   (Full Editing)";
 				else
-					extensionTxt = " (Extends: " + cn.getNameWithPrefix() + ")";
-			} else {
-				if (!isInHead2())
-					// Tell them which older version this came from
-					extensionTxt = " (From version: " + getTlVersion() + ")";
-				else
-					extensionTxt = " (Current version: " + getTlVersion() + ")";
+					extensionTxt += " (From version " + getTlVersion() + " - Minor Editing Only)";
 			}
+			// extensionTxt = " (Extends version: " + cn.getTlVersion() + ")";
+			// else
+			// } else {
+			// if (!isInHead2())
+			// // Tell them which older version this came from
+			// extensionTxt += "   (From version " + getTlVersion() + " - Minor Editing Only)";
+			// else
+			// extensionTxt = "   (Full Editing)";
+			// // extensionTxt = " (Current version: " + getTlVersion() + ")";
+			// }
 			decoration += extensionTxt;
 		}
 
-		// Append the number of users for this type provider
-		if (this instanceof TypeProvider && !(this instanceof ImpliedNode))
-			decoration += " (" + ((TypeProvider) this).getWhereUsedAndDescendantsCount() + " users)";
 		return decoration;
 	}
 
@@ -1530,20 +1549,20 @@ public abstract class Node implements INode {
 
 		// service, operation, message or message property
 		// Adding to service will automatically create correct service operation to add to.
-		if (this instanceof ServiceNode)
-			if (!getLibrary().isInChain())
-				return true;
-			else
-				return !getLibrary().getChain().getHead().getEditStatus().equals(NodeEditStatus.PATCH);
-		else if (isEditable_inService() && getLibrary().getChain() != null
+		// overridden
+		// if (this instanceof ServiceNode)
+		// if (!getLibrary().isInChain())
+		// return true;
+		// else
+		// return !getLibrary().getChain().getHead().getEditStatus().equals(NodeEditStatus.PATCH);
+		// else
+		if (isEditable_inService() && getLibrary().getChain() != null
 				&& getLibrary().getChain().getHead() == getLibrary())
 			// Only add properties to service in the head library.
 			return !getLibrary().getChain().getHead().getEditStatus().equals(NodeEditStatus.PATCH);
 
 		// Operations, business, core, vwa, open enums and extension points - allow major, minor, or unmanaged and
 		if (this instanceof VersionedObjectInterface)
-			// if (getEditStatus().equals(NodeEditStatus.FULL) || getEditStatus().equals(NodeEditStatus.MINOR))
-			// return true;
 			return isEditable_isNewOrAsMinor();
 
 		if (this instanceof Enumeration)
@@ -1559,6 +1578,10 @@ public abstract class Node implements INode {
 		if (this instanceof SimpleFacetNode || this instanceof ListFacetNode)
 			return false;
 		if (this instanceof FacetNode)
+			return getOwningComponent().isEnabled_AddProperties();
+		if (this instanceof VWA_AttributeFacetNode)
+			return getOwningComponent().isEnabled_AddProperties();
+		if (this instanceof RoleFacetNode)
 			return getOwningComponent().isEnabled_AddProperties();
 
 		// Properties - same as parent
@@ -1919,7 +1942,8 @@ public abstract class Node implements INode {
 	public boolean isValid() {
 		if (isBuiltIn())
 			return true; // skip built in libraries and their content
-		return validate().count(FindingType.ERROR) == 0 ? true : false;
+		ValidationFindings findings = validate();
+		return findings != null && findings.count(FindingType.ERROR) == 0 ? true : false;
 	}
 
 	/**

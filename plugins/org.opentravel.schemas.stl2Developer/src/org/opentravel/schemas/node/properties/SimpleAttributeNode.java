@@ -136,24 +136,10 @@ public class SimpleAttributeNode extends PropertyNode {
 		return Images.getImageRegistry().get(Images.XSDAttribute);
 	}
 
-	// @Override
-	// public String getLabel() {
-	// return modelObject.getLabel() == null ? "" : modelObject.getLabel();
-	// }
-
 	@Override
 	public TypeProvider getAssignedType() {
 		return typeHandler.get();
 	}
-
-	// /**
-	// * Allowed in major versions and on objects new in a minor.
-	// */
-	// public void setMandatory(final boolean selection) {
-	// if (isEditable_newToChain())
-	// if (getOwningComponent().isNewToChain() || !getLibrary().isInChain())
-	// getTLModelObject().setMandatory(selection);
-	// }
 
 	@Override
 	public void setName(String name) {

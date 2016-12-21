@@ -25,6 +25,7 @@ import org.opentravel.schemacompiler.repository.Project;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 
@@ -176,5 +177,10 @@ public interface ProjectController {
 	 * 
 	 */
 	void saveAll();
+
+	/**
+	 * Remove the passed library from the passed project.
+	 */
+	public void remove(LibraryInterface library, ProjectNode pn);
 
 }

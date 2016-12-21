@@ -55,6 +55,7 @@ import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -675,25 +676,42 @@ public class DefaultRepositoryController implements RepositoryController {
 		RepositoryNode rn = find(library.getProjectItem().getRepository());
 		// LibraryModelManager libMrg = Node.getModelNode().getLibraryManager();
 		MajorVersionHelper mvh = new MajorVersionHelper(library.getProject().getTLProject());
-		TLLibrary major = null;
+		TLLibrary tlMajor = null;
 		LibraryNode newLib = null;
+		LibraryChainNode lcn = null;
+		ProjectNode thisProject = library.getProject();
 
 		try {
-			major = mvh.createNewMajorVersion(library.getTLLibrary());
+			tlMajor = mvh.createNewMajorVersion(library.getTLLibrary());
 		} catch (VersionSchemeException e) {
 			postRepoException(e);
 		} catch (ValidationException e) {
 			postRepoException(e);
 		} catch (LibrarySaveException e) {
 			postRepoException(e);
+		} catch (IllegalArgumentException e) {
+			postRepoException(e);
 		}
 
-		LibraryChainNode lcn = null;
-		if (major != null) {
-			newLib = new LibraryNode(major, library.getProject());
+		if (tlMajor != null) {
+			// Create Library from new TL library
+			newLib = new LibraryNode(tlMajor, library.getProject());
+			// Create chain by managing the new library
 			List<LibraryChainNode> chains = manage(rn, Collections.singletonList(newLib));
+
+			// Replace passed library with new NavNode for chain in all projects
 			lcn = findLibrary(chains, newLib.getLibrary().getName());
 			if (lcn != null) {
+				LibraryModelManager libMrg = Node.getLibraryModelManager();
+				ProjectController pc = mc.getProjectController();
+				List<ProjectNode> pList = libMrg.findProjects(library);
+				for (ProjectNode pn : libMrg.findProjects(library)) {
+					pc.remove(library, pn);
+					// NavNode will be created with library is create in the original project
+					if (pn != thisProject)
+						new LibraryNavNode(lcn, pn);
+				}
+				// Lock the new library
 				lock(newLib);
 			}
 			sync(rn);

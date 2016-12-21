@@ -1800,4 +1800,11 @@ public class LibraryNode extends Node implements LibraryInterface {
 		this.getProject().getTLProject().setDefaultItem(getProjectItem());
 	}
 
+	@Override
+	public LibraryNavNode getLibraryNavNode() {
+		if (getChain() != null)
+			return getChain().getLibraryNavNode();
+		return getParent() instanceof LibraryNavNode ? (LibraryNavNode) getParent() : null;
+	}
+
 }
