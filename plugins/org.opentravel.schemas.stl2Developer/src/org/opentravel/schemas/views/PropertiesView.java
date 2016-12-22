@@ -67,6 +67,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * View for the node properties pane.
  * 
  * @author Dave Hollander
  * 
@@ -404,23 +405,8 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 
 		OtmHandlers.suspendHandlers();
 		clearProperties(); // Clear the fields, and the propertyNode pointer
-		fields.postField(nameField, n.getName(), n.isRenameable());
-		//
-		// if (n instanceof PropertyOwnerNode) {
-		// boolean edit = n.isEditable() && !n.isInheritedProperty();
-		// fields.postField(nameField, n.getName(), edit);
-		// // fields.postField(nameField, n.getLabel(), edit);
-		// nameField.setEnabled(((PropertyOwnerNode) n).isRenameable());
-		// } else if (!(n instanceof NavNode))
-		// // mc.getFields().postField(nameField, n.getLabel(), false);
-		// mc.getFields().postField(nameField, n.getName(), false);
 
-		// if (n instanceof ElementReferenceNode)
-		// nameField.setEnabled(false);
-		// if (n.isFacet() && !n.isOperation() && !n.isCustomFacet() && !n.isQueryFacet())
-		// nameField.setEnabled(false);
-		// if (n instanceof AliasNode && n.getParent() instanceof FacetNode)
-		// nameField.setEnabled(false);
+		fields.postField(nameField, n.getName(), n.isRenameable());
 		fields.postField(componentField, n.getComponentType(), false);
 		fields.postField(descField, n.getDescription(), n.isEditable_description());
 		fields.postField(nameSpaceField, n.getNamespace(), false);

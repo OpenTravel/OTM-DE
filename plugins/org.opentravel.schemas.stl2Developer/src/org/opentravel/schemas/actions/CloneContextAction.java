@@ -32,17 +32,17 @@ public class CloneContextAction extends OtmAbstractAction {
 		super(mainWindow, props);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.Action#run()
-	 */
 	@Override
 	public void run() {
 		// ContextsView view = OtmRegistry.getContextsView();
 		// if (view != null) {
 		// view.getContextController().cloneContext();
 		// }
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return false;
 	}
 
 }

@@ -445,7 +445,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 			return "Built-in";
 		}
 		return LibraryDecorator.translateStatusState(library.getStatus(), pi.getState(), pi.getLockedByUser(),
-				library.isEditable());
+				library.isEditable(), library.isMinorVersion());
 	}
 
 	// org.opentravel.schemas.actions.XSD2OTMAction.convertLibraryToOTM()

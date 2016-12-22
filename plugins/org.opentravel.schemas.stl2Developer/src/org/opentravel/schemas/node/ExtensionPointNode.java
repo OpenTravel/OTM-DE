@@ -175,6 +175,12 @@ public class ExtensionPointNode extends PropertyOwnerNode implements ComplexComp
 		return true;
 	}
 
+	// Gets name from where it extends
+	@Override
+	public boolean isRenameable() {
+		return false;
+	}
+
 	// /////////////////////////////////////////////////////////////////
 	//
 	// Extension Owner implementations

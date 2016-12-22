@@ -15,6 +15,8 @@
  */
 package org.opentravel.schemas.actions;
 
+import org.opentravel.schemas.node.ContextNode;
+import org.opentravel.schemas.node.ContextNode.ContextNodeType;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -26,37 +28,43 @@ import org.opentravel.schemas.views.ContextsView;
  */
 public class MergeContextAction extends OtmAbstractAction {
 
-    /**
+	/**
 	 *
 	 */
-    public MergeContextAction(final MainWindow mainWindow, final StringProperties props) {
-        super(mainWindow, props);
-    }
+	public MergeContextAction(final MainWindow mainWindow, final StringProperties props) {
+		super(mainWindow, props);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.Action#run()
-     */
-    @Override
-    public void run() {
-        ContextsView view = OtmRegistry.getContextsView();
-        if (view != null) {
-            view.getContextController().mergeContext();
-        }
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.action.Action#run()
+	 */
+	@Override
+	public void run() {
+		ContextsView view = OtmRegistry.getContextsView();
+		if (view != null) {
+			view.getContextController().mergeContext();
+		}
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.actions.IWithNodeAction.AbstractWithNodeAction#isEnabled()
-     */
-    // 5/20/2013 dmh - does not work. Is not called as the context tree is traversed.
-    // @Override
-    // public boolean isEnabled() {
-    // ContextsView view = OtmRegistry.getContextsView();
-    // return view == null || view.getCurrentNode() == null ? false : view.getCurrentNode()
-    // .isEditable();
-    // }
+	@Override
+	public boolean isEnabled() {
+		ContextsView view = OtmRegistry.getContextsView();
+		if (view == null)
+			return false;
+
+		// Only enable if the library has more than one context
+		ContextNode n = view.getSelectedContextNode();
+		if (n != null) {
+			if (n.getType() == ContextNodeType.CONTEXT_ITEM)
+				n = n.getParent();
+			if (n.getType() != ContextNodeType.LIBRARY_ROOT)
+				return false;
+			if (n.getChildren().size() > 1)
+				return n.getLibraryNode().isEditable();
+		}
+		return false;
+	}
 
 }

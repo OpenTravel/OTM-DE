@@ -163,34 +163,39 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 
 	public static String translateStatusState(TLLibraryStatus status, RepositoryItemState state, String lockedBy,
 			boolean isEditableInGui) {
-		if (state == RepositoryItemState.BUILT_IN) {
-			return "Built-in";
-		}
-		if (TLLibraryStatus.FINAL.equals(status)) {
-			return "Final";
-		} else if (status == null) {
-			return "NULL Status";
-		} else {
-			switch (state) {
-			case MANAGED_LOCKED:
-				return "Locked: " + lockedBy;
-			case MANAGED_UNLOCKED:
-				return "Draft";
-			case MANAGED_WIP:
-				if (isEditableInGui)
-					return "Editable";
-				else
-					return "Locked: " + lockedBy;
-			case UNMANAGED:
-				return "";
-			case BUILT_IN:
-				// should be handled before checking if final
-				return "Built-in";
-			default:
-				return "Unknown";
-			}
-		}
+		return translateStatusState(status, state, lockedBy, isEditableInGui, false);
+	}
 
+	public static String translateStatusState(TLLibraryStatus status, RepositoryItemState state, String lockedBy,
+			boolean isEditableInGui, boolean isMinor) {
+		if (state == RepositoryItemState.BUILT_IN)
+			return "Built-in";
+		if (TLLibraryStatus.FINAL.equals(status))
+			return "Final";
+		else if (status == null)
+			return "NULL Status";
+
+		switch (state) {
+		case MANAGED_LOCKED:
+			return "Locked: " + lockedBy;
+		case MANAGED_UNLOCKED:
+			return "Draft";
+		case MANAGED_WIP:
+			if (isEditableInGui)
+				if (isMinor)
+					return "Editable - Minor";
+				else
+					return "Editable";
+			else
+				return "Locked: " + lockedBy;
+		case UNMANAGED:
+			return "";
+		case BUILT_IN:
+			// should be handled before checking if final
+			return "Built-in";
+		default:
+			return "Unknown";
+		}
 	}
 
 	private String getChildCount(RepositoryRootNsNode node) {

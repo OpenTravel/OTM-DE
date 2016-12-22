@@ -57,10 +57,7 @@ import org.opentravel.schemas.controllers.OtmActions;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
-import org.opentravel.schemas.node.ExtensionPointNode;
-import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -421,17 +418,18 @@ public class FacetView extends OtmAbstractView {
 
 			setButtonState(target);
 
-			if (node instanceof PropertyOwnerNode) {
-				boolean edit = node.isEditable() && !node.isInheritedProperty();
-				mc.getFields().postField(nameField, node.getName(), edit);
-				nameField.setEnabled(((PropertyOwnerNode) node).isRenameable());
-			} else if (!(node instanceof NavNode))
-				mc.getFields().postField(nameField, node.getName(), node.isEditable_newToChain());
-			else
-				mc.getFields().postField(nameField, node.getLabel(), false);
-
-			if (node instanceof ExtensionPointNode)
-				nameField.setEnabled(false);
+			mc.getFields().postField(nameField, node.getName(), node.isRenameable());
+			// if (node instanceof PropertyOwnerNode) {
+			// boolean edit = node.isEditable() && !node.isInheritedProperty();
+			// mc.getFields().postField(nameField, node.getName(), edit);
+			// nameField.setEnabled(((PropertyOwnerNode) node).isRenameable());
+			// } else if (!(node instanceof NavNode))
+			// mc.getFields().postField(nameField, node.getName(), node.isEditable_newToChain());
+			// else
+			// mc.getFields().postField(nameField, node.getLabel(), false);
+			//
+			// if (node instanceof ExtensionPointNode)
+			// nameField.setEnabled(false);
 
 			mc.getFields().postField(typeField, node.getComponentType(), false);
 			mc.getFields().postField(extendsField, node.getExtendsTypeName(), false);

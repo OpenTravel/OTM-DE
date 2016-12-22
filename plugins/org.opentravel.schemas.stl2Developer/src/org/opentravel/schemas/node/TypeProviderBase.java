@@ -132,6 +132,11 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 		return true;
 	}
 
+	@Override
+	public boolean isRenameable() {
+		return isEditable_newToChain();
+	}
+
 	// /**
 	// * Replace this provider with replacement for all users of this provider as a type. Also replaces type usage of
 	// * descendants of this owner node. Also does the TL properties. Note - user counts may change when business

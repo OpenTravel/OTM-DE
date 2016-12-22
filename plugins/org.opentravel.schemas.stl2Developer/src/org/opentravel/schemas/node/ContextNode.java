@@ -82,7 +82,8 @@ public class ContextNode {
 	}
 
 	public void setApplicationContext(String object) {
-		appContextController.setValue(object);
+		if (object != null && !object.isEmpty())
+			appContextController.setValue(object);
 	}
 
 	public String getApplicationContext() {
@@ -90,11 +91,13 @@ public class ContextNode {
 	}
 
 	public void setContextId(String object) {
-		contextIdController.setValue(object);
+		if (object != null && !object.isEmpty())
+			contextIdController.setValue(object);
 	}
 
 	public void setDescription(String object) {
-		descriptionController.setValue(object);
+		if (object != null && !object.isEmpty())
+			descriptionController.setValue(object);
 	}
 
 	public String getDescription() {

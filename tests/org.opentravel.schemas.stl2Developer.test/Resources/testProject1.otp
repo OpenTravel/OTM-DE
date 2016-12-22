@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<otp:Project xmlns="http://www.w3.org/2001/XMLSchema" xmlns:otp="http://www.OpenTravel.org/ns/OTA2/Project_v01_00">
+    <otp:projectId>http://opentravel.org/local/dave/t4</otp:projectId>
+    <otp:name>TestProject1</otp:name>
+    <otp:description></otp:description>
+    <otp:UnmanagedProjectItem defaultItem="true">
+        <otp:FileLocation>testFile2.otm</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+    <otp:ManagedProjectItem>
+        <otp:Repository>Opentravel</otp:Repository>
+        <otp:BaseNamespace>http://opentravel.org/local/dave/t4</otp:BaseNamespace>
+        <otp:Filename>OTA_SimpleTypes_0_0_0.otm</otp:Filename>
+        <otp:Version>1.0.0</otp:Version>
+    </otp:ManagedProjectItem>
+    <otp:UnmanagedProjectItem>
+        <otp:FileLocation>testFile1.otm</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+    <otp:UnmanagedProjectItem>
+        <otp:FileLocation>testFile3.otm</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+    <otp:UnmanagedProjectItem>
+        <otp:FileLocation>testFile5.otm</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+</otp:Project>

@@ -174,7 +174,7 @@ public class LibraryModelManager {
 				} else {
 					LOGGER.debug("Add to existing chain.");
 					li = chain;
-					if (li.getParent() instanceof LibraryNavNode)
+					if (!(li.getParent() instanceof LibraryNavNode) || li.getParent().getParent() != project)
 						newLNN = new LibraryNavNode(chain, project);
 				}
 			}

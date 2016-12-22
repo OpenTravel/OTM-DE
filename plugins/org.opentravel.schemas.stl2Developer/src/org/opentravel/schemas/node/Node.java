@@ -711,12 +711,18 @@ public abstract class Node implements INode {
 			ComponentNode exBase = (ComponentNode) ((ExtensionOwner) this).getExtensionBase();
 			if (exBase != null)
 				// if (isVersioned())
-				extensionTxt += "   (Extends: " + exBase.getNameWithPrefix() + ")";
+				extensionTxt += "(Extends: " + exBase.getNameWithPrefix() + ")";
+			// extensionTxt += "   (Extends: " + exBase.getTlVersion() + ")";
 			if (isEditable_isNewOrAsMinor()) {
-				if (isInHead2() && !getLibrary().isMinorVersion())
-					extensionTxt += "   (Full Editing)";
+				if (getLibrary().isInHead2() && !getLibrary().isMinorVersion())
+					extensionTxt += "(Full Editing)";
+				else if (isInHead2())
+					if (getLibrary().isNewToChain())
+						extensionTxt += "(New to library - Full Editing)";
+					else
+						extensionTxt += "(Current version - Minor Editing Only)";
 				else
-					extensionTxt += " (From version " + getTlVersion() + " - Minor Editing Only)";
+					extensionTxt += "(From version " + getTlVersion() + " - Minor Editing Only)";
 			}
 			// extensionTxt = " (Extends version: " + cn.getTlVersion() + ")";
 			// else
@@ -728,7 +734,7 @@ public abstract class Node implements INode {
 			// extensionTxt = "   (Full Editing)";
 			// // extensionTxt = " (Current version: " + getTlVersion() + ")";
 			// }
-			decoration += extensionTxt;
+			decoration += "  " + extensionTxt;
 		}
 
 		return decoration;
@@ -1498,13 +1504,10 @@ public abstract class Node implements INode {
 		if (getLibrary() == null || isDeleted() || !isEditable())
 			return false; // not editable
 
-		// Do not allow editing navigation nodes unless they are family nodes.
-		// if (this instanceof NavNode && !(this instanceof FamilyNode))
-		// return false;
-
 		if (getChain() == null)
 			return true; // editable and not in a chain
 
+		// Only properties in an extension point may be edited in a patch version
 		if (getChain().getHead().isPatchVersion())
 			if (getOwningComponent() instanceof ExtensionPointNode)
 				return !isInheritedProperty();
@@ -1522,7 +1525,7 @@ public abstract class Node implements INode {
 			return false; // is not in the head library of the chain.
 
 		if (this instanceof PropertyNode)
-			return !isInheritedProperty(); // properties in the head are editable
+			return !isInheritedProperty(); // properties in the head library are editable
 
 		// It is in head of chain. Return true if there are no previous versions
 		return !getOwningComponent().isVersioned();
