@@ -26,6 +26,7 @@ import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 import org.opentravel.schemacompiler.event.ModelEventType;
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
@@ -160,24 +161,45 @@ public class FacetMO extends ModelObject<TLFacet> {
 			// LOGGER.error("Tried to delete a facet MO with no ownining entity.");
 			return;
 		}
-		// if (!(node instanceof FacetNode)) {
-		// LOGGER.error("Tried to delete a facet MO with whose node is not a facet: " + node);
-		// }
-		if ((getTLModelObj().getFacetType().equals(TLFacetType.REQUEST))
-				|| (getTLModelObj().getFacetType().equals(TLFacetType.RESPONSE))
-				|| (getTLModelObj().getFacetType().equals(TLFacetType.NOTIFICATION))) {
+		TLFacetOwner oe = getTLModelObj().getOwningEntity();
+		AbstractLibrary ol = getTLModelObj().getOwningLibrary();
+		TLFacetType facetType = getTLModelObj().getFacetType();
+
+		if (facetType.equals(TLFacetType.REQUEST) || facetType.equals(TLFacetType.RESPONSE)
+				|| facetType.equals(TLFacetType.NOTIFICATION)) {
 			getTLModelObj().clearFacet();
-		} else if (getTLModelObj().getFacetType().equals(TLFacetType.CHOICE))
-			((TLChoiceObject) getTLModelObj().getOwningEntity()).removeChoiceFacet((TLContextualFacet) getTLModelObj());
-		if (getTLModelObj().getFacetType().equals(TLFacetType.CUSTOM)) {
-			((TLBusinessObject) getTLModelObj().getOwningEntity())
-					.removeCustomFacet((TLContextualFacet) getTLModelObj());
+		} else if (facetType.equals(TLFacetType.CHOICE)) {
+			((TLChoiceObject) oe).removeChoiceFacet((TLContextualFacet) getTLModelObj());
+			ol.removeNamedMember((TLContextualFacet) getTLModelObj());
+		} else if (getTLModelObj().getFacetType().equals(TLFacetType.CUSTOM)) {
+			((TLBusinessObject) oe).removeCustomFacet((TLContextualFacet) getTLModelObj());
+			ol.removeNamedMember((TLContextualFacet) getTLModelObj());
 		} else if (getTLModelObj().getFacetType().equals(TLFacetType.QUERY)) {
-			((TLBusinessObject) getTLModelObj().getOwningEntity())
-					.removeQueryFacet((TLContextualFacet) getTLModelObj());
+			((TLBusinessObject) oe).removeQueryFacet((TLContextualFacet) getTLModelObj());
+			ol.removeNamedMember((TLContextualFacet) getTLModelObj());
 		} else {
 			getTLModelObj().clearFacet();
 		}
+
+		// if (!(node instanceof FacetNode)) {
+		// LOGGER.error("Tried to delete a facet MO with whose node is not a facet: " + node);
+		// }
+		// if ((getTLModelObj().getFacetType().equals(TLFacetType.REQUEST))
+		// || (getTLModelObj().getFacetType().equals(TLFacetType.RESPONSE))
+		// || (getTLModelObj().getFacetType().equals(TLFacetType.NOTIFICATION))) {
+		// getTLModelObj().clearFacet();
+		// } else if (getTLModelObj().getFacetType().equals(TLFacetType.CHOICE))
+		// ((TLChoiceObject) getTLModelObj().getOwningEntity()).removeChoiceFacet((TLContextualFacet) getTLModelObj());
+		// if (getTLModelObj().getFacetType().equals(TLFacetType.CUSTOM)) {
+		// ((TLBusinessObject) getTLModelObj().getOwningEntity())
+		// .removeCustomFacet((TLContextualFacet) getTLModelObj());
+		// } else if (getTLModelObj().getFacetType().equals(TLFacetType.QUERY)) {
+		// ((TLBusinessObject) getTLModelObj().getOwningEntity())
+		// .removeQueryFacet((TLContextualFacet) getTLModelObj());
+		// } else {
+		// getTLModelObj().clearFacet();
+		// }
+		// getTLModelObj().getOwningLibrary().removeNamedMember(namedMember);
 	}
 
 	@Override

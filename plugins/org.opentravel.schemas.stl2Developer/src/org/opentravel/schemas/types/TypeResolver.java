@@ -80,8 +80,10 @@ public class TypeResolver {
 			LOGGER.debug("Resolving Types in " + lib);
 			lib.setEditable(true);
 			if (lib.isInChain()) {
+				// lib.getChain().visitAllExtensionOwners(new checkBaseTypes());
 				lib.getChain().visitAllTypeUsers(new resolveTypes());
 				lib.getChain().visitAllExtensionOwners(new resolveBaseTypes());
+				// lib.getChain().visitAllExtensionOwners(new checkBaseTypes());
 			} else {
 				lib.visitAllTypeUsers(new resolveTypes());
 				lib.visitAllExtensionOwners(new resolveBaseTypes());
@@ -98,11 +100,32 @@ public class TypeResolver {
 		public void visit(INode in) {
 			if (in instanceof ExtensionOwner) {
 				Node base = ((ExtensionOwner) in).getExtensionBase();
-				if (base != null)
+				if (base != null) {
 					((ExtensionOwner) in).setExtension(base);
+					base.getLibrary().checkExtension(base);
+				}
 			}
 		}
 	}
+
+	// private class checkBaseTypes implements NodeVisitor {
+	// @Override
+	// public void visit(INode in) {
+	// if (in instanceof ExtensionOwner) {
+	// Node base = ((ExtensionOwner) in).getExtensionBase();
+	// if (base != null)
+	// if (base.getLibrary().getDescendants_LibraryMembers().contains(base))
+	// LOGGER.debug(base.getNameWithPrefix() + " is in library.");
+	// else {
+	// LOGGER.error(base.getNameWithPrefix() + " is not in library.");
+	// for (LibraryNode ln : Node.getAllUserLibraries())
+	// for (Node n : ln.getDescendants_LibraryMembers())
+	// if (n == base)
+	// LOGGER.error(base.getNameWithPrefix() + " is in " + ln + " library.");
+	// }
+	// }
+	// }
+	// }
 
 	private class resolveTypes implements NodeVisitor {
 		@Override

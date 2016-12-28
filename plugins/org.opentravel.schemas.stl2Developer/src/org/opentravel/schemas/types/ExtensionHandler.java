@@ -76,6 +76,8 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 		String on = ((Node) owner).getName();
 		String bn = get().getName();
 
+		boolean eq = ons.equals(bns) && on.equals(bn);
+		// LOGGER.debug("Is " + get() + " new to library? " + eq + "  " + ons + " =? " + bns + "  " + on + " =? " + bn);
 		return ons.equals(bns) && on.equals(bn);
 	}
 
@@ -97,6 +99,10 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 
 		// LOGGER.debug("Start - set extension base of " + owner.getNameWithPrefix() + " to " +
 		// base.getNameWithPrefix());
+		// Can assign facets to extension points.
+		if (!base.getLibrary().getDescendants_LibraryMembers().contains(base.getOwningComponent()))
+			LOGGER.error("Base library does not contain base object " + base);
+		// assert (base.getLibrary().getDescendants_LibraryMembers().contains(base));
 
 		// Save the old base object for after the assignment
 		Node oldBase = owner.getExtensionBase(); // from TL object
@@ -132,10 +138,13 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 				oldBase.getLibrary().getWhereUsedHandler().remove(owner);
 		}
 
+		if (!base.getLibrary().getDescendants_LibraryMembers().contains(base.getOwningComponent()))
+			LOGGER.error("Base library does not contain base object " + base);
+		// assert (base.getLibrary().getDescendants_LibraryMembers().contains(base));
 		// if (oldBase == null)
-		// LOGGER.debug("END -" + owner + " changed assigment from null to " + base);
+		// LOGGER.debug("END -" + owner + " changed assignment from null to " + base);
 		// else
-		// LOGGER.debug("END -" + owner + " changed assigment from " + oldBase.getNameWithPrefix() + " to "
+		// LOGGER.debug("END -" + owner + " changed assignment from " + oldBase.getNameWithPrefix() + " to "
 		// + base.getNameWithPrefix());
 		return false;
 	}

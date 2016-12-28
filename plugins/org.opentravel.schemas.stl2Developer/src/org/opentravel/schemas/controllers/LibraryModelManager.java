@@ -99,7 +99,7 @@ public class LibraryModelManager {
 		if (li != null)
 			assert (!((Node) li).isDeleted());
 
-		// If the library or chain is in the project. All Done.
+		// All Done If the library or chain is in the project.
 		if (li != null && project.getLibraries().contains(li)) {
 			// TODO - do NOT do this. TODO - have caller handle null or return error condition
 			// If they are trying to open an version, the expose the version directly.
@@ -137,9 +137,10 @@ public class LibraryModelManager {
 		if (li instanceof LibraryNode) {
 			if (!((LibraryNode) li).isInChain())
 				assert (newLNN.getLibrary() == li);
-			else
+			else {
 				assert (newLNN.getThisLib() instanceof LibraryChainNode);
-			((LibraryChainNode) newLNN.getThisLib()).getLibraries().contains(li);
+				assert ((LibraryChainNode) newLNN.getThisLib()).getLibraries().contains(li);
+			}
 		} else if (li instanceof LibraryChainNode)
 			assert (((LibraryChainNode) li).getLibraries().contains(newLNN.getLibrary()));
 

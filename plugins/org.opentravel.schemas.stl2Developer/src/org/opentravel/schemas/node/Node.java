@@ -240,7 +240,7 @@ public abstract class Node implements INode {
 	protected WhereExtendedHandler whereExtendedHandler = null;
 
 	// Ancestry
-	private LibraryNode library; // link to the library node to which this node belongs
+	protected LibraryNode library; // link to the library node to which this node belongs
 
 	protected Node parent; // link to the parentNode node
 
@@ -708,22 +708,50 @@ public abstract class Node implements INode {
 		// Extension
 		if (this instanceof ExtensionOwner) {
 			String extensionTxt = "";
-			ComponentNode exBase = (ComponentNode) ((ExtensionOwner) this).getExtensionBase();
-			if (exBase != null)
-				// if (isVersioned())
-				extensionTxt += "(Extends: " + exBase.getNameWithPrefix() + ")";
-			// extensionTxt += "   (Extends: " + exBase.getTlVersion() + ")";
-			if (isEditable_isNewOrAsMinor()) {
-				if (getLibrary().isInHead2() && !getLibrary().isMinorVersion())
-					extensionTxt += "(Full Editing)";
-				else if (isInHead2())
-					if (getLibrary().isNewToChain())
-						extensionTxt += "(New to library - Full Editing)";
-					else
-						extensionTxt += "(Current version - Minor Editing Only)";
-				else
-					extensionTxt += "(From version " + getTlVersion() + " - Minor Editing Only)";
+			ComponentNode exBase = null;
+			if (!isVersioned())
+				exBase = (ComponentNode) ((ExtensionOwner) this).getExtensionBase();
+			if (getLibrary() != null)
+				getLibrary().checkExtension(this);
+
+			if (exBase != null) {
+				extensionTxt += "Extends: " + exBase.getNameWithPrefix() + " ";
+				if (getChain() != null)
+					extensionTxt += " - ";
 			}
+			// Version and edit-ability
+			if (getChain() != null) {
+				// if (versionBase != null)
+				if (isInHead())
+					extensionTxt += "Current Version";
+				else
+					extensionTxt += "Version: " + getTlVersion();
+				if (isEditable())
+					extensionTxt += " - ";
+			}
+			if (isEditable()) {
+				if (getChain() == null) // Not in chain
+					extensionTxt += "Full Editing";
+				else if (isInHead())
+					if (isNewToChain())
+						extensionTxt += "Full Editing"; // Is newly added to chain
+					else
+						extensionTxt += "Minor Editing";
+				else if (this instanceof VersionedObjectInterface)
+					extensionTxt += "Minor Editing will create new version";
+			}
+			// Match logic in org.opentravel.schemas.commands.OtmAbstractHandler.createVersionExtension(Node).
+			// if (isEditable_isNewOrAsMinor()) {
+			// if (isInHead2() && !getLibrary().isMinorVersion())
+			// extensionTxt += "(Full Editing)";
+			// else if (isInHead2())
+			// if (isNewToChain())
+			// extensionTxt += "(Full Editing - New to library)";
+			// else
+			// extensionTxt += "(Minor Editing Only)";
+			// else
+			// extensionTxt += "(Minor Editing - Will create new version)";
+			// }
 			// extensionTxt = " (Extends version: " + cn.getTlVersion() + ")";
 			// else
 			// } else {
@@ -734,10 +762,17 @@ public abstract class Node implements INode {
 			// extensionTxt = "   (Full Editing)";
 			// // extensionTxt = " (Current version: " + getTlVersion() + ")";
 			// }
-			decoration += "  " + extensionTxt;
+			decoration += surround(extensionTxt);
 		}
 
 		return decoration;
+	}
+
+	public String surround(String txt) {
+		if (txt != null && !txt.isEmpty()) {
+			return " (" + txt + ")";
+		}
+		return "";
 	}
 
 	public PropertyOwnerInterface getDefaultFacet() {
@@ -1702,6 +1737,7 @@ public abstract class Node implements INode {
 		// List<Node> x = getChain().getHead().getDescendants_NamedTypes();
 		if (getChain() == null || getChain().getHead() == null)
 			return false;
+		List<Node> members = getChain().getHead().getDescendants_LibraryMembers();
 		return getChain().getHead().getDescendants_LibraryMembers().contains(owner);
 	}
 
@@ -2233,8 +2269,8 @@ public abstract class Node implements INode {
 	public void setLibrary(final LibraryNode ln) {
 		library = ln;
 		// Library chains use the library node to point to the head library.
-		if (!(this instanceof LibraryChainNode))
-			setKidsLibrary();
+		// if (!(this instanceof LibraryChainNode))
+		setKidsLibrary();
 	}
 
 	public void setMoreInfo(String info, int index) {

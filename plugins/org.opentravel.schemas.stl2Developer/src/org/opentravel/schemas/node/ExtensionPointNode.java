@@ -54,7 +54,6 @@ public class ExtensionPointNode extends PropertyOwnerNode implements ComplexComp
 		extensionHandler = new ExtensionHandler(this);
 
 		assert (modelObject instanceof ExtensionPointFacetMO);
-		// assert (mbr instanceof TLExtensionPointFacet);
 	}
 
 	@Override
@@ -196,6 +195,9 @@ public class ExtensionPointNode extends PropertyOwnerNode implements ComplexComp
 
 	@Override
 	public void setExtension(final Node base) {
+		assert getLibrary() != null;
+		assert getLibrary() != base.getLibrary();
+
 		if (extensionHandler == null)
 			extensionHandler = new ExtensionHandler(this);
 		extensionHandler.set(base);

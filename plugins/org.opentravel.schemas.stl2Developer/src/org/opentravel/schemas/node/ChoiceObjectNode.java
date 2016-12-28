@@ -291,6 +291,15 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 	// }
 
 	@Override
+	public void delete() {
+		// Must delete the contextual facets separately because they are separate library members.
+		for (Node n : getChildren_New())
+			if (n instanceof ContextualFacetNode)
+				n.delete();
+		super.delete();
+	}
+
+	@Override
 	public INode.CommandType getAddCommand() {
 		return INode.CommandType.PROPERTY;
 	}

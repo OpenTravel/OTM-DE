@@ -26,7 +26,6 @@ import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
-import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
@@ -121,8 +120,8 @@ public abstract class ComponentNode extends Node {
 	 */
 	public ComponentNode(final TLModelElement obj) {
 		super(obj);
-		if (obj instanceof TLFacet)
-			addMOChildren();
+		// if (obj instanceof TLFacet)
+		// addMOChildren();
 		setListner();
 	}
 
@@ -724,6 +723,7 @@ public abstract class ComponentNode extends Node {
 			return null;
 		}
 		Node owner = this.getOwningComponent();
+		// owner.getLibrary().checkExtension(owner);
 
 		// exit if it is already in the head of the chain.
 		if (owner.isInHead())
@@ -735,10 +735,11 @@ public abstract class ComponentNode extends Node {
 			newNode.setName(owner.getName()); // Some of the version handlers do not set name
 
 		// Add the new node to the library at the head of the chain
-		owner.getChain().getHead().addMember(newNode);
 		LibraryChainNode chain = owner.getChain();
+		chain.getHead().addMember(newNode);
 		chain.getComplexAggregate().getChildren().remove(owner);
 
+		owner.getLibrary().checkExtension(owner);
 		return newNode;
 	}
 

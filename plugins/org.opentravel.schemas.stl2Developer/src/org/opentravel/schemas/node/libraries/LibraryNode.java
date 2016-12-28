@@ -835,14 +835,31 @@ public class LibraryNode extends Node implements LibraryInterface {
 				} else
 					new ResourceNode((TLResource) mbr, this);
 			else {
-				// If the parent is a version aggregate (inChain) and the tlLib already has nodes associated, use those
-				// node. Otherwise create new ones.
+				// If the tlLib already has nodes associated, use those nodes; Otherwise create new ones.
 				if (n == null)
 					n = NodeFactory.newComponent_UnTyped((TLLibraryMember) mbr);
 				linkMember(n);
+
+				assert (getDescendants_LibraryMembers().contains(n));
 			}
 		}
 		// new TypeResolver().resolveTypes(); // TODO - this is run too often
+	}
+
+	public void checkExtension(Node n) {
+		if (n instanceof ExtensionOwner) {
+			Node base = ((ExtensionOwner) n).getExtensionBase();
+			if (base != null)
+				if (!base.getLibrary().getDescendants_LibraryMembers().contains(base)) {
+					LOGGER.error(base.getNameWithPrefix() + " library is not correct.");
+					for (LibraryNode ln : Node.getAllUserLibraries())
+						for (Node n2 : ln.getDescendants_LibraryMembers())
+							if (n2 == base) {
+								base.setLibrary(ln);
+								LOGGER.error("Corrected library " + base.getNameWithPrefix() + " to " + ln);
+							}
+				}
+		}
 	}
 
 	// private ComponentNode getNodeIfInThisLib(TLLibraryMember mbr) {
@@ -1693,6 +1710,8 @@ public class LibraryNode extends Node implements LibraryInterface {
 	}
 
 	/**
+	 * Check the namespace and return true if patch and minor values are 0.
+	 * 
 	 * @return true if this library is a major version
 	 */
 	public boolean isMajorVersion() {

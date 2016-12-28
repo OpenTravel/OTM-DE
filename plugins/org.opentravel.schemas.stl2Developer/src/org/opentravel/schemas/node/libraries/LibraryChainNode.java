@@ -65,24 +65,6 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 	protected RepositoryItem repoItem;
 	protected List<LibraryNode> chain;
 
-	/**
-	 * Same as lcn.getLibrary().
-	 * 
-	 * @return library at the head of the chain.
-	 */
-	public LibraryNode getHead() {
-		return getLibrary();
-	}
-
-	private void setHead(LibraryNode newHead) {
-		setLibrary(newHead);
-	}
-
-	@Override
-	public void setLibrary(LibraryNode ln) {
-		super.setLibrary(ln); // sets the library in all the children.
-	}
-
 	protected ProjectItem projectItem; // The TL Project Item wrapped around this library
 
 	/**
@@ -100,7 +82,6 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 			return;
 		if (ln.isInChain())
 			throw new IllegalStateException("Library is already in a chain.");
-		// return;
 		if (ln.getProject() == null)
 			throw new IllegalStateException("Library did not have project.");
 		if (ln.getParent() == null || (!(ln.getParent() instanceof LibraryNavNode)))
@@ -127,17 +108,6 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 		simpleRoot = new AggregateNode(AggregateType.SimpleTypes, this);
 		serviceRoot = new AggregateNode(AggregateType.Service, this);
 		resourceRoot = new AggregateNode(AggregateType.RESOURCES, this);
-	}
-
-	/**
-	 * Sets the library in all the aggregate nodes.
-	 */
-	private void setAggregateLibrary(LibraryNode ln) {
-		versions.setLibrary(ln);
-		complexRoot.setLibrary(ln);
-		simpleRoot.setLibrary(ln);
-		serviceRoot.setLibrary(ln);
-		resourceRoot.setLibrary(ln);
 	}
 
 	/**
@@ -179,7 +149,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 			add(item);
 
 		// Now that we know what is the head library, set that in the aggregates
-		setAggregateLibrary(getHead());
+		// setAggregateLibrary(getHead());
 	}
 
 	/**
@@ -202,6 +172,47 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 			setHead(newLib);
 
 		return newLib;
+	}
+
+	/**
+	 * Same as lcn.getLibrary().
+	 * 
+	 * @return library at the head of the chain.
+	 */
+	public LibraryNode getHead() {
+		return getLibrary();
+	}
+
+	/**
+	 * @return the major version that anchors this chain
+	 */
+	public LibraryNode getMajor() {
+		for (LibraryNode ln : getLibraries())
+			if (ln.isMajorVersion())
+				return ln;
+		return null;
+	}
+
+	private void setHead(LibraryNode newHead) {
+		setLibrary(newHead);
+	}
+
+	@Override
+	public void setLibrary(LibraryNode ln) {
+		library = ln;
+		// super.setLibrary(ln); // sets the library in all the children.
+	}
+
+	/**
+	 * Sets the library in all the aggregate nodes.
+	 */
+	private void setAggregateLibrary(LibraryNode ln) {
+		LOGGER.debug("Setting library in chain to " + ln.getNameWithPrefix());
+		// versions.setLibrary(ln);
+		complexRoot.setLibrary(ln);
+		simpleRoot.setLibrary(ln);
+		serviceRoot.setLibrary(ln);
+		resourceRoot.setLibrary(ln);
 	}
 
 	/**
@@ -355,11 +366,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 
 	@Override
 	public String getLabel() {
-		String label = "Version Chain";
-		if (getHead() != null) {
-			label = getHead().getLabel();
-		}
-		return label;
+		return getHead() != null ? getHead().getLabel() : "VersionChain";
 	}
 
 	@Override

@@ -49,6 +49,7 @@ public class FacetNode extends PropertyOwnerNode implements PropertyOwnerInterfa
 
 	public FacetNode(final TLFacet obj) {
 		super(obj);
+		addMOChildren();
 
 		assert (modelObject instanceof FacetMO);
 	}

@@ -72,6 +72,8 @@ import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Create Component Nodes of various sub-types.
@@ -80,7 +82,7 @@ import org.opentravel.schemas.types.TypeUser;
  * 
  */
 public class NodeFactory {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(NodeFactory.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(NodeFactory.class);
 
 	/*******************************************************************************************
 	 * New ComponentNode methods that also create new objects in underlying model
@@ -121,6 +123,7 @@ public class NodeFactory {
 		ComponentNode cn = null;
 		if (mbr == null)
 			return cn;
+		LOGGER.debug("Creating new untyped component for " + mbr.getLocalName());
 
 		if (mbr instanceof TLValueWithAttributes)
 			cn = new VWA_Node((TLValueWithAttributes) mbr);
@@ -147,6 +150,8 @@ public class NodeFactory {
 			assert (false);
 			// LOGGER.debug("Using default factory type for " + mbr.getClass().getSimpleName());
 		}
+
+		LOGGER.debug("Created new untyped component " + cn);
 
 		return cn;
 	}
