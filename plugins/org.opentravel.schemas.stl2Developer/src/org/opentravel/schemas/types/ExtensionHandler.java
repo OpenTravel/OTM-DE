@@ -57,10 +57,6 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 		// Get the extension base from the TL Model Element
 		NamedEntity tlObj = owner.getModelObject().getTLBase();
 		return Node.GetNode((TLModelElement) tlObj);
-
-		// From enum: works
-		// From VWA : works
-		// From choice works
 	}
 
 	/**
@@ -76,7 +72,7 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 		String on = ((Node) owner).getName();
 		String bn = get().getName();
 
-		boolean eq = ons.equals(bns) && on.equals(bn);
+		// boolean eq = ons.equals(bns) && on.equals(bn);
 		// LOGGER.debug("Is " + get() + " new to library? " + eq + "  " + ons + " =? " + bns + "  " + on + " =? " + bn);
 		return ons.equals(bns) && on.equals(bn);
 	}

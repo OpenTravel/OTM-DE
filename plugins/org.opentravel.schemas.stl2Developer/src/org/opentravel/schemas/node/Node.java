@@ -646,8 +646,8 @@ public abstract class Node implements INode {
 		final ArrayList<Node> kids = new ArrayList<Node>();
 		for (final Node n : getChildren()) {
 			if (n.isNamedEntity() || n.hasChildren_TypeProviders()) {
-				if (n instanceof VersionNode && ((VersionNode) n).getVersionedObject() != null)
-					kids.add(((VersionNode) n).getVersionedObject());
+				if (n instanceof VersionNode && ((VersionNode) n).get() != null)
+					kids.add(((VersionNode) n).get());
 				else
 					kids.add(n);
 			}
@@ -707,13 +707,17 @@ public abstract class Node implements INode {
 
 		// Extension
 		if (this instanceof ExtensionOwner) {
-			String extensionTxt = "";
-			ComponentNode exBase = null;
-			if (!isVersioned())
-				exBase = (ComponentNode) ((ExtensionOwner) this).getExtensionBase();
 			if (getLibrary() != null)
 				getLibrary().checkExtension(this);
 
+			String extensionTxt = "";
+
+			// The only true extension will be to the oldest version of this object. All other extensions will be for
+			// versions.
+			ComponentNode exBase = (ComponentNode) getExtendsType();
+			// Node oldestVersion = getVersionNode().getOldestVersion();
+			// if (oldestVersion instanceof ExtensionOwner && !oldestVersion.isVersioned())
+			// exBase = (ComponentNode) ((ExtensionOwner) oldestVersion).getExtensionBase();
 			if (exBase != null) {
 				extensionTxt += "Extends: " + exBase.getNameWithPrefix() + " ";
 				if (getChain() != null)
@@ -723,7 +727,10 @@ public abstract class Node implements INode {
 			if (getChain() != null) {
 				// if (versionBase != null)
 				if (isInHead())
-					extensionTxt += "Current Version";
+					if (getLibrary().isMajorVersion())
+						extensionTxt += "Major Version";
+					else
+						extensionTxt += "Current Version";
 				else
 					extensionTxt += "Version: " + getTlVersion();
 				if (isEditable())
@@ -830,8 +837,8 @@ public abstract class Node implements INode {
 	 */
 
 	/**
-	 * return new list of NamedEntities. Traverse via hasChildren. For version chains, it uses the version node and does
-	 * not touch aggregates.
+	 * return new list of NamedEntities. Traverse via hasChildren. For version chains, it returns the newest version
+	 * using the version node and does not touch aggregates.
 	 */
 	@Override
 	public List<Node> getDescendants_LibraryMembers() {
@@ -845,7 +852,6 @@ public abstract class Node implements INode {
 				else
 					namedKids.add(c);
 			else if (c.hasChildren())
-				// If it is named type, do not go into it.
 				namedKids.addAll(c.getDescendants_LibraryMembers());
 		}
 		return new ArrayList<Node>(namedKids);
@@ -961,10 +967,30 @@ public abstract class Node implements INode {
 	}
 
 	/**
+	 * Return the actual extension object. Will not return objects that are using extension for version relationships.
+	 * This method will examine the whole chain to find the oldest version of the object and return its base type if
+	 * any.
+	 */
+	public Node getExtendsType() {
+		if (this instanceof ExtensionOwner) {
+			Node oldestVersion = this;
+			if (getVersionNode() != null)
+				oldestVersion = getVersionNode().getOldestVersion();
+			if (oldestVersion instanceof ExtensionOwner && !oldestVersion.isVersioned())
+				return ((ExtensionOwner) oldestVersion).getExtensionBase();
+		}
+		return null;
+	}
+
+	/**
+	 * Find the actual extension object and return its name. Will not find objects that are using extension for version
+	 * relationships.
+	 * 
+	 * @see #getExtendsType()
 	 * @return name of the extension entity or empty string
 	 */
 	public String getExtendsTypeName() {
-		return modelObject != null ? modelObject.getExtendsType() : "";
+		return getExtendsType() != null ? getExtendsType().getName() : "";
 	}
 
 	@Override

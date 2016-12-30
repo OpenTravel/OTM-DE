@@ -76,6 +76,7 @@ import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.LibraryNodeListener;
@@ -850,10 +851,11 @@ public class LibraryNode extends Node implements LibraryInterface {
 		if (n instanceof ExtensionOwner) {
 			Node base = ((ExtensionOwner) n).getExtensionBase();
 			if (base != null)
-				if (!base.getLibrary().getDescendants_LibraryMembers().contains(base)) {
+				if (!base.getLibrary().get_LibraryMembers().contains(base)) {
 					LOGGER.error(base.getNameWithPrefix() + " library is not correct.");
+					List<LibraryMemberInterface> members = base.getLibrary().get_LibraryMembers();
 					for (LibraryNode ln : Node.getAllUserLibraries())
-						for (Node n2 : ln.getDescendants_LibraryMembers())
+						for (LibraryMemberInterface n2 : ln.get_LibraryMembers())
 							if (n2 == base) {
 								base.setLibrary(ln);
 								LOGGER.error("Corrected library " + base.getNameWithPrefix() + " to " + ln);
@@ -862,10 +864,6 @@ public class LibraryNode extends Node implements LibraryInterface {
 		}
 	}
 
-	// private ComponentNode getNodeIfInThisLib(TLLibraryMember mbr) {
-	// ComponentNode cn = (ComponentNode) GetNode(mbr);
-	// return cn != null && cn.getLibrary() != this ? null : cn;
-	// }
 	// FIXME - only used in tests
 	public boolean hasGeneratedChildren() {
 		return genTLLib.getNamedMembers().size() > 0 ? true : false;
@@ -1620,6 +1618,25 @@ public class LibraryNode extends Node implements LibraryInterface {
 	}
 
 	/**
+	 * Get a new list of library members in this library. Version nodes return their actual object. Includes objects
+	 * inside NavNodes.
+	 * 
+	 * @return
+	 */
+	public List<LibraryMemberInterface> get_LibraryMembers() {
+		List<LibraryMemberInterface> members = new ArrayList<LibraryMemberInterface>();
+		for (Node n : getChildren()) {
+			if (n instanceof NavNode)
+				members.addAll(((NavNode) n).get_LibraryMembers());
+			if (n instanceof VersionNode && ((VersionNode) n).get() != null)
+				n = ((VersionNode) n).get();
+			if (n instanceof LibraryMemberInterface)
+				members.add((LibraryMemberInterface) n);
+		}
+		return members;
+	}
+
+	/**
 	 * Get a list of libraries that contain extensions or types assigned to any named object in this library.
 	 */
 	public List<LibraryNode> getAssignedLibraries() {
@@ -1645,7 +1662,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 * Get all type providers within library. Includes simple and complex objects only. Does NOT return any
 	 * local-anonymous types. // FIXME - this method also is in Node. One in node does not include services.
 	 * 
-	 * @see Node.getDescendants_NamedTypes()
+	 * @see Node.getDescendants_LibraryMembers()
 	 * @return
 	 */
 	@Deprecated
@@ -1654,7 +1671,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	}
 
 	/**
-	 * Is the library ready to version?
+	 * Is the library ready to version? True if it is it managed and valid.
 	 */
 	public boolean isReadyToVersion() {
 		// LOGGER.debug("Ready to version? valid: " + isValid() + ", managed: " + isManaged());

@@ -30,6 +30,8 @@ import org.opentravel.schemas.properties.Images;
  * @author Dave Hollander
  * 
  */
+// TODO - make the subject a LibraryMemberInterface
+// TODO - try to convert this to a handler
 public class VersionNode extends ComponentNode {
 
 	protected ComponentNode head; // link to the latest/newest version of this object
@@ -88,7 +90,7 @@ public class VersionNode extends ComponentNode {
 	 * 
 	 * @return node or null
 	 */
-	public Node getVersionedObject() {
+	public Node get() {
 		return getChildren().isEmpty() ? null : getChildren().get(0);
 	}
 
@@ -138,9 +140,26 @@ public class VersionNode extends ComponentNode {
 		return false;
 	}
 
+	/**
+	 * @return true if this is new to the chain (prevNode == null). Fast and efficient.
+	 */
+	public boolean isNewToChain() {
+		return prevVersion == null ? true : false;
+	}
+
 	@Override
 	public boolean isEditable() {
 		return false;
+	}
+
+	/**
+	 * @return the oldest version of this object in the chain
+	 */
+	public Node getOldestVersion() {
+		VersionNode vn = this;
+		while (!vn.isNewToChain())
+			vn = prevVersion.getVersionNode();
+		return vn.get();
 	}
 
 	/**
@@ -194,4 +213,5 @@ public class VersionNode extends ComponentNode {
 	public String getName() {
 		return head != null ? head.getName() + " (v)" : "";
 	}
+
 }

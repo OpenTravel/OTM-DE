@@ -59,7 +59,6 @@ import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.Enumeration;
-import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
@@ -483,11 +482,15 @@ public class FacetView extends OtmAbstractView {
 			}
 
 			// Don't allow users to break version relationships
-			if (curNode instanceof ExtensionOwner && !curNode.isVersioned()) {
-				extendsAction.setEnabled(curNode.isEditable_newToChain());
-				clearExtendsAction.setEnabled(curNode.isEditable_newToChain()
-						&& curNode.getExtendsTypeName().length() > 0);
+			if (curNode.isEditable_newToChain()) {
+				extendsAction.setEnabled(true);
+				clearExtendsAction.setEnabled(curNode.getExtendsType() != null);
 			}
+			// if (curNode instanceof ExtensionOwner && !curNode.isVersioned()) {
+			// extendsAction.setEnabled(curNode.isEditable_newToChain());
+			// clearExtendsAction.setEnabled(curNode.isEditable_newToChain()
+			// && !curNode.getExtendsTypeName().isEmpty());
+			// }
 		}
 	}
 

@@ -723,7 +723,7 @@ public abstract class ComponentNode extends Node {
 			return null;
 		}
 		Node owner = this.getOwningComponent();
-		// owner.getLibrary().checkExtension(owner);
+		owner.getLibrary().checkExtension(owner);
 
 		// exit if it is already in the head of the chain.
 		if (owner.isInHead())

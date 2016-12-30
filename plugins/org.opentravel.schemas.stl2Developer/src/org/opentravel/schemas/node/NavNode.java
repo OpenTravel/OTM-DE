@@ -15,7 +15,11 @@
  */
 package org.opentravel.schemas.node;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
@@ -110,6 +114,22 @@ public class NavNode extends Node {
 			return ComponentNodeType.SIMPLE;
 		else
 			return ComponentNodeType.CORE;
+	}
+
+	/**
+	 * Get a new list of library members in this Nav Node. Version nodes return their version of the actual object.
+	 * 
+	 * @return
+	 */
+	public List<LibraryMemberInterface> get_LibraryMembers() {
+		List<LibraryMemberInterface> members = new ArrayList<LibraryMemberInterface>();
+		for (Node n : getChildren()) {
+			if (n instanceof VersionNode && ((VersionNode) n).get() != null)
+				n = ((VersionNode) n).get();
+			if (n instanceof LibraryMemberInterface)
+				members.add((LibraryMemberInterface) n);
+		}
+		return members;
 	}
 
 	@Override
