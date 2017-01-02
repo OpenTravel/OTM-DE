@@ -84,14 +84,6 @@ public class SimpleFacetNode extends PropertyOwnerNode implements TypeProvider, 
 		return getChildren().get(0);
 	}
 
-	// @Override
-	// public String getLabel() {
-	// String label = getSimpleComponentType();
-	// if (label.indexOf("-Facet") > 0)
-	// label = label.substring(0, label.indexOf("-Facet"));
-	// return label.isEmpty() ? "" : label;
-	// }
-
 	@Override
 	public BaseNodeListener getNewListener() {
 		return new SimpleFacetNodeListener(this);
@@ -115,11 +107,6 @@ public class SimpleFacetNode extends PropertyOwnerNode implements TypeProvider, 
 		// 6/21/2013 - this was true in Node.java. I dont think it should be.
 		return false;
 	}
-
-	// @Override
-	// public boolean isSimpleFacet() {
-	// return true;
-	// }
 
 	@Override
 	public void removeProperty(Node property) {

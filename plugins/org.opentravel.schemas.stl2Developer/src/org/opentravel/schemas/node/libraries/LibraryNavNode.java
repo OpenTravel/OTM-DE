@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
  */
 
 public class LibraryNavNode extends Node {
-	// public class LibraryNavNode extends Node implements LibraryInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryNavNode.class);
 
 	protected static final String DEFAULT_LIBRARY_TYPE = "Library Nav";
@@ -58,7 +57,7 @@ public class LibraryNavNode extends Node {
 		library.setParent(this);
 		project.getChildren().add(this);
 
-		LOGGER.debug("Created library nav node for library " + library + " in project " + project);
+		// LOGGER.debug("Created library nav node for library " + library + " in project " + project);
 	}
 
 	/**
@@ -85,15 +84,12 @@ public class LibraryNavNode extends Node {
 		chain.setParent(this);
 		project.getChildren().add(this);
 
-		LOGGER.debug("Created library nav node for chain " + chain + " in project " + project);
+		// LOGGER.debug("Created library nav node for chain " + chain + " in project " + project);
 	}
 
 	public LibraryInterface getThisLib() {
 		if (getChildren().isEmpty())
 			return null;
-		// if (((Node) getChildren().get(0)).isDeleted())
-		// LOGGER.debug("OOPS ... library was deleted.");
-
 		return (LibraryInterface) getChildren().get(0);
 	}
 
@@ -109,14 +105,16 @@ public class LibraryNavNode extends Node {
 
 	@Override
 	public String getName() {
-		return getThisLib() != null ? getThisLib().getName() + "  " + nodeID + "/" + ((Node) getThisLib()).getNodeID()
-				: "(*)";
+		// return getThisLib() != null ? getThisLib().getName() + "  " + nodeID + "/" + ((Node)
+		// getThisLib()).getNodeID()
+		// : "(*)";
+		return getThisLib() != null ? getThisLib().getName() : "";
 	}
 
-	// FIXME - remove nodeID then remove getNodeID from Node
 	@Override
 	public String getLabel() {
-		return getThisLib().getLabel() + "  " + nodeID + "/" + ((Node) getThisLib()).getNodeID();
+		// return getThisLib().getLabel() + "  " + nodeID + "/" + ((Node) getThisLib()).getNodeID();
+		return getThisLib() != null ? getThisLib().getLabel() : "";
 	}
 
 	@Override

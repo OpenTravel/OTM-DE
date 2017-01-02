@@ -99,7 +99,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 		aggregateChildren(ln);
 		ln.updateLibraryStatus();
 
-		LOGGER.debug("Created library chain " + this.getLabel());
+		// LOGGER.debug("Created library chain " + this.getLabel());
 	}
 
 	private void createAggregates() {
@@ -125,11 +125,11 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 			return;
 		}
 		if (pi.getContent().getOwningModel() == null) {
-			LOGGER.debug("Project item does not have owning model.");
+			// LOGGER.debug("Project item does not have owning model.");
 			return;
 		}
 
-		LOGGER.debug("Creating chain for project item " + pi.getLibraryName());
+		// LOGGER.debug("Creating chain for project item " + pi.getLibraryName());
 
 		setParent(new LibraryNavNode(this, projNode));
 		getModelNode().getLibraryManager().add(this);
@@ -163,7 +163,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 		LibraryNode newLib = versions.get(pi);
 
 		if (newLib == null) {
-			LOGGER.debug("Adding pi " + pi.getFilename() + " to chain " + getLabel());
+			// LOGGER.debug("Adding pi " + pi.getFilename() + " to chain " + getLabel());
 			newLib = new LibraryNode(pi, this);
 			versions.add(newLib); // simply add this library to library list.
 			newLib.updateLibraryStatus();
@@ -203,17 +203,17 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 		// super.setLibrary(ln); // sets the library in all the children.
 	}
 
-	/**
-	 * Sets the library in all the aggregate nodes.
-	 */
-	private void setAggregateLibrary(LibraryNode ln) {
-		LOGGER.debug("Setting library in chain to " + ln.getNameWithPrefix());
-		// versions.setLibrary(ln);
-		complexRoot.setLibrary(ln);
-		simpleRoot.setLibrary(ln);
-		serviceRoot.setLibrary(ln);
-		resourceRoot.setLibrary(ln);
-	}
+	// /**
+	// * Sets the library in all the aggregate nodes.
+	// */
+	// private void setAggregateLibrary(LibraryNode ln) {
+	// LOGGER.debug("Setting library in chain to " + ln.getNameWithPrefix());
+	// // versions.setLibrary(ln);
+	// complexRoot.setLibrary(ln);
+	// simpleRoot.setLibrary(ln);
+	// serviceRoot.setLibrary(ln);
+	// resourceRoot.setLibrary(ln);
+	// }
 
 	/**
 	 * Return true if 1st node is from a later version that node2. For example: (v01:flight, v00:flight) returns true.
@@ -332,7 +332,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 	 */
 	@Override
 	public void close() {
-		LOGGER.debug("Closing " + getNameWithPrefix());
+		// LOGGER.debug("Closing " + getNameWithPrefix());
 		if (getParent() instanceof LibraryNavNode) {
 			((LibraryNavNode) getParent()).close();
 		} else {

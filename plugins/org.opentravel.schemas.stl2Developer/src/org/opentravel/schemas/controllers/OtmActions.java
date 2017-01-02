@@ -30,7 +30,6 @@ import org.opentravel.schemas.commands.OtmAbstractHandler;
 import org.opentravel.schemas.controllers.DefaultContextController.ContextViewType;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ConstraintHandler;
-import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.SimpleTypeNode;
@@ -81,13 +80,6 @@ public class OtmActions {
 	private static final int setPropertyType = 36;
 	private static final int setOrNewPropertyType = 37;
 	private static final int setNameSpace = 38;
-
-	// these are not used anymore. (7/17/12)
-	// private static final int setDeprecatedDoc = 40;
-	// private static final int setReferenceDoc = 41;
-	// private static final int setDeveloperDoc = 42;
-	// private static final int setMoreInfo = 43;
-	// private static final int setOtherDoc = 44;
 
 	private static final int typeSelector = 46;
 	private static final int propertyTypeSelector = 47;
@@ -650,39 +642,22 @@ public class OtmActions {
 			event.data = tableNode; // signals handler to add to this node
 			new AddNodeHandler2().execute(event);
 		}
-
-		// OLD CODE
-		/*
-		 * If the user did a Control DND or dropped onto a facet or on property with the same type then add a new
-		 * property. Otherwise, change the type.
-		 */
-		// Node ownNode = getOwningNodeForDrop(tableNode);
-		// Node newNode = tableNode.addPropertyFromDND(sourceNode, ed.isDragCopy());
-		// if (newNode == null)
-		// PostTypeChange.notyfications(tableNode, sourceNode);
-		// else {
-		// ownNode = getOwningNodeForDrop(newNode);
-		// if (tableNode.getLibrary() != ownNode.getLibrary())
-		// DialogUserNotifier.openInformation("Information", Messages.getString("action.component.version.minor"));
-		// }
-
-		// mc.refresh(ownNode);
 	}
 
 	private void showInvalidTargetWarning() {
 		DialogUserNotifier.openInformation("WARNING", Messages.getString("dnd.drop.invalid.object"));
 	}
 
-	/**
-	 * In case of assigning type to a message, we should get service instead of message
-	 */
-	private Node getOwningNodeForDrop(Node node) {
-		Node ownNode = node.getOwningComponent();
-		if (ownNode instanceof FacetNode && !(ownNode instanceof ExtensionPointNode)) {
-			ownNode = getOwningNodeForDrop(ownNode);
-		}
-		return ownNode;
-	}
+	// /**
+	// * In case of assigning type to a message, we should get service instead of message
+	// */
+	// private Node getOwningNodeForDrop(Node node) {
+	// Node ownNode = node.getOwningComponent();
+	// if (ownNode instanceof FacetNode && !(ownNode instanceof ExtensionPointNode)) {
+	// ownNode = getOwningNodeForDrop(ownNode);
+	// }
+	// return ownNode;
+	// }
 
 	/**
 	 * Set the assigned type of the current property posted in the properties view. Event data (in ed.text) is used as

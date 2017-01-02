@@ -20,7 +20,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,8 +54,6 @@ import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.views.OtmView;
 import org.opentravel.schemas.views.ValidationResultsView;
 import org.opentravel.schemas.views.decoration.LibraryDecorator;
-import org.opentravel.schemas.wizards.GlobalLocalCancelDialog;
-import org.opentravel.schemas.wizards.GlobalLocalCancelDialog.GlobalDialogResult;
 import org.opentravel.schemas.wizards.NewLibraryWizard;
 import org.opentravel.schemas.wizards.NewLibraryWizardPage;
 import org.opentravel.schemas.wizards.validators.NewLibraryValidator;
@@ -144,56 +141,56 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 	}
 
 	// Unused
-	@Deprecated
-	@Override
-	public void changeNamespace(final LibraryNode library, final String newNS) {
-
-		assert (false) : "Should be dead code 11/2016";
-
-		// if (library == null || newNS == null || newNS.isEmpty())
-		// throw new IllegalArgumentException("Null or empty namespace change.");
-		// LOGGER.debug("Changing namespace to " + newNS);
-		//
-		// // Is the library shared?
-		// final List<LibraryNode> libs = getLibrariesWithNamespace(newNS);
-		// if (libs.size() < 1) {
-		// library.getNsHandler().renameInProject(library.getNamespace(), newNS);
-		// } else {
-		// switch (postChangeMessage(libs)) {
-		// case GLOBAL:
-		// library.getNsHandler().rename(library.getNamespace(), newNS);
-		// break;
-		// case LOCAL:
-		// library.getNsHandler().renameInProject(library.getNamespace(), newNS);
-		// break;
-		// }
-		// }
-	}
+	// @Deprecated
+	// @Override
+	// public void changeNamespace(final LibraryNode library, final String newNS) {
+	//
+	// assert (false) : "Should be dead code 11/2016";
+	//
+	// if (library == null || newNS == null || newNS.isEmpty())
+	// throw new IllegalArgumentException("Null or empty namespace change.");
+	// LOGGER.debug("Changing namespace to " + newNS);
+	//
+	// // Is the library shared?
+	// final List<LibraryNode> libs = getLibrariesWithNamespace(newNS);
+	// if (libs.size() < 1) {
+	// library.getNsHandler().renameInProject(library.getNamespace(), newNS);
+	// } else {
+	// switch (postChangeMessage(libs)) {
+	// case GLOBAL:
+	// library.getNsHandler().rename(library.getNamespace(), newNS);
+	// break;
+	// case LOCAL:
+	// library.getNsHandler().renameInProject(library.getNamespace(), newNS);
+	// break;
+	// }
+	// }
+	// }
 
 	// Unused
-	@Deprecated
-	private GlobalDialogResult postChangeMessage(List<LibraryNode> libs) {
-
-		assert (false); // should be dead code - 11/2016
-
-		final StringBuilder message = new StringBuilder(
-				"The namespace you want to change is shared by more than one library (");
-		for (final LibraryNode lib : libs) {
-			message.append(lib.getName()).append(", ");
-		}
-		message.delete(message.length() - 2, message.length());
-		message.append("). The namespace can be changed in the following manners:")
-				.append("\n Global - namespace is changed globally and all the libraries within the namespace will be affected "
-						+ "(prefix will stay the same and will now point to the new namespace)")
-				.append("\n Local - namespace will be changed only for the local library which trigerred the change "
-						+ "(if the new namespace is not yet registered within the model, new 'Undefined' prefix will be assinged to it; "
-						+ "otherwise the namespace is assigned already existing prefix).")
-				.append("\n Cancel - leave the namespace unchanged.");
-		final GlobalLocalCancelDialog nsChangeDialog = new GlobalLocalCancelDialog(OtmRegistry.getActiveShell(),
-				message.toString());
-		nsChangeDialog.open();
-		return nsChangeDialog.getResult();
-	}
+	// @Deprecated
+	// private GlobalDialogResult postChangeMessage(List<LibraryNode> libs) {
+	//
+	// assert (false); // should be dead code - 11/2016
+	//
+	// final StringBuilder message = new StringBuilder(
+	// "The namespace you want to change is shared by more than one library (");
+	// for (final LibraryNode lib : libs) {
+	// message.append(lib.getName()).append(", ");
+	// }
+	// message.delete(message.length() - 2, message.length());
+	// message.append("). The namespace can be changed in the following manners:")
+	// .append("\n Global - namespace is changed globally and all the libraries within the namespace will be affected "
+	// + "(prefix will stay the same and will now point to the new namespace)")
+	// .append("\n Local - namespace will be changed only for the local library which trigerred the change "
+	// + "(if the new namespace is not yet registered within the model, new 'Undefined' prefix will be assinged to it; "
+	// + "otherwise the namespace is assigned already existing prefix).")
+	// .append("\n Cancel - leave the namespace unchanged.");
+	// final GlobalLocalCancelDialog nsChangeDialog = new GlobalLocalCancelDialog(OtmRegistry.getActiveShell(),
+	// message.toString());
+	// nsChangeDialog.open();
+	// return nsChangeDialog.getResult();
+	// }
 
 	/**
 	 * Using the name and path, create a .otm file. The new library node is not added to a project (parent is not set)
@@ -245,9 +242,6 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		// Open files using the Project Node
 		pn.add(files);
 
-		// for (LibraryNode ln : project.getLibraries())
-		// ((DefaultProjectController) mc.getProjectController()).fixElementNames(ln);
-
 		new TypeResolver().resolveTypes();
 
 		mc.getProjectController().save(pn);
@@ -270,29 +264,6 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 
 		return filesToOpen;
 	}
-
-	// @Override
-	// public void closeLibrary(final LibraryNode library) {
-	// closeLibraries(Arrays.asList(library));
-	// }
-
-	// @Override
-	// public void closeLibraries(final List<LibraryNode> libraries) {
-	// if (libraries == null || libraries.isEmpty()) {
-	// return;
-	// }
-	// List<LibraryNode> libs = new ArrayList<LibraryNode>(libraries);
-	// for (final LibraryNode lib : libs) {
-	// lib.close();
-	// }
-	//
-	// final ValidationResultsView view = OtmRegistry.getValidationResultsView();
-	// if (view != null) {
-	// view.clearFindings();
-	// }
-	// mc.clearSelection();
-	// mc.refresh();
-	// }
 
 	public boolean save(final LibraryNavNode lnn) {
 		if (lnn.getLibrary() instanceof LibraryNode)
@@ -383,17 +354,17 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		return userMessage.toString();
 	}
 
-	/**
-	 * {@link #CloseLibrariesHandler} Libraries are now (11/11/2016) closed from Projects or LibraryNavNodes since the
-	 * library does not know which of many possible projects is the parent to be affected.
-	 */
-	@Deprecated
-	@Override
-	public void remove(final Collection<? extends Node> libraries) {
-		Set<ProjectNode> projectsToSave = new HashSet<ProjectNode>();
-
-		assert (false) : "Should be dead code 11/2016";
-	}
+	// /**
+	// * {@link #CloseLibrariesHandler} Libraries are now (11/11/2016) closed from Projects or LibraryNavNodes since the
+	// * library does not know which of many possible projects is the parent to be affected.
+	// */
+	// @Deprecated
+	// @Override
+	// public void remove(final Collection<? extends Node> libraries) {
+	// Set<ProjectNode> projectsToSave = new HashSet<ProjectNode>();
+	//
+	// assert (false) : "Should be dead code 11/2016";
+	// }
 
 	// SaveLibrariesHandler
 	@Override
@@ -402,19 +373,19 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 	}
 
 	// TODO - make private or remove (changeNamespace())
-	@Deprecated
-	@Override
-	public List<LibraryNode> getLibrariesWithNamespace(final String namespace) {
-		final List<LibraryNode> toReturn = new ArrayList<LibraryNode>();
-		if (namespace != null) {
-			for (final INode n : Node.getAllLibraries()) {
-				if (n instanceof LibraryNode && namespace.equals(n.getNamespace())) {
-					toReturn.add((LibraryNode) n);
-				}
-			}
-		}
-		return toReturn;
-	}
+	// @Deprecated
+	// @Override
+	// public List<LibraryNode> getLibrariesWithNamespace(final String namespace) {
+	// final List<LibraryNode> toReturn = new ArrayList<LibraryNode>();
+	// if (namespace != null) {
+	// for (final INode n : Node.getAllLibraries()) {
+	// if (n instanceof LibraryNode && namespace.equals(n.getNamespace())) {
+	// toReturn.add((LibraryNode) n);
+	// }
+	// }
+	// }
+	// return toReturn;
+	// }
 
 	// org.opentravel.schemas.preferences.GeneralPreferencePage.performOk()
 	@Override
@@ -556,9 +527,9 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		return pc.add(pn, tlLib);
 	}
 
-	@Override
-	public void changeNamespaceExtension(LibraryNode library, String namespace) {
-		// TODO Auto-generated method stub
-
-	}
+	// @Override
+	// public void changeNamespaceExtension(LibraryNode library, String namespace) {
+	// // TODO Auto-generated method stub
+	//
+	// }
 }

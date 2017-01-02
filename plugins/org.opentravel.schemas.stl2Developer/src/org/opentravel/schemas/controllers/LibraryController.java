@@ -15,12 +15,10 @@
  */
 package org.opentravel.schemas.controllers;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
-import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -34,6 +32,24 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
  */
 public interface LibraryController {
 
+	// /**
+	// * Change namespace. If the namespace is shared, the user is asked if they want to change all, one or none.
+	// */
+	// void changeNamespace(LibraryNode library, String namespace);
+
+	// void changeNamespaceExtension(LibraryNode library, String namespace);
+
+	/**
+	 * Convert given library to OTM. This method will convert given library, and if needed all his dependencies.
+	 * 
+	 * @param xsdLibrary
+	 *            - XSD schema, non-otm file.
+	 * @param withDependecies
+	 *            TODO
+	 * @return newly created otm library and all dependencies from given xsd schema.
+	 */
+	List<LibraryNode> convertXSD2OTM(LibraryNode xsdLibrary, boolean withDependecies);
+
 	/**
 	 * Creates new library in the project currently selected in the navigator view.
 	 * 
@@ -42,34 +58,20 @@ public interface LibraryController {
 	 */
 	LibraryNavNode createLibrary();
 
-	/**
-	 * Change namespace. If the namespace is shared, the user is asked if they want to change all, one or none.
-	 */
-	void changeNamespace(LibraryNode library, String namespace);
-
-	void changeNamespaceExtension(LibraryNode library, String namespace);
-
 	// /**
-	// * @return list of open user (TLLibrary) libraries. Returns empty list if there are no user libraries.
+	// * Get all libraries assigned to a namespace.
+	// *
+	// * @param namespace
+	// * @return list of libraries assigned to the namespace.
 	// */
-	// List<LibraryNode> getUserLibraries();
+	// List<LibraryNode> getLibrariesWithNamespace(String namespace);
 
 	/**
-	 * Get all libraries assigned to a namespace.
-	 * 
-	 * @param namespace
-	 * @return list of libraries assigned to the namespace.
+	 * @param libary
+	 *            with status and {@link ProjectItem} with {@link RepositoryItemState}
+	 * @return status base on {@link LibraryNode#getStatus()} and {@link ProjectItem#getState()}.
 	 */
-
-	List<LibraryNode> getLibrariesWithNamespace(String namespace);
-
-	/**
-	 * Opens already existing library using a file selection dialog and adds it to the model.
-	 * 
-	 * @param model
-	 *            {@link ModelNode} to which attach the opened library
-	 */
-	// Private - void openLibrary(ProjectNode model);
+	String getLibraryStatus(LibraryNode libary);
 
 	/**
 	 * OpenLibraryAction - Find the nearest parent that can contain a library then open the existing library and add it
@@ -78,48 +80,20 @@ public interface LibraryController {
 	void openLibrary(INode model);
 
 	// /**
-	// * Opens the library returns a list of TL libraries representing the file and its dependents.
-	// * Note, the list may contain libraries that are already in the model.
-	// *
-	// * @return list of Abstract Libraries related to the file and its imports.
-	// * @throws LibraryLoaderException
-	// */
-	// public List<AbstractLibrary> open(final String filePath) throws LibraryLoaderException;
-
-	// /**
-	// * Saves, closes and removes a library from its model
-	// *
-	// * @param library
-	// * {@link LibraryNode} to be closed
-	// */
-	// void closeLibrary(LibraryNode library);
-
-	// /**
-	// * Saves, closes and removes the given libraries from their models
+	// * Remove the library from the parent project.
 	// *
 	// * @param libraries
-	// * list of {@link LibraryNode}s to be closed
 	// */
-	// void closeLibraries(List<LibraryNode> libraries);
-
-	// /**
-	// * Saves, closes and removes all the user defined libraries from the given model
-	// *
-	// * @param model
-	// * {@link ModelNode} of the libraries to be closed
-	// */
-	// void closeAllLibraries(INode model);
+	// void remove(Collection<? extends Node> libraries);
 
 	/**
-	 * Saves the given library to the physical file
+	 * Saves all the user defined libraries in the given model
 	 * 
-	 * @param library
-	 *            {@link LibraryNode} to be saved
 	 * @param quiet
 	 *            be quite, do not notify user of happy path
-	 * @return false if library was not saved successfully
+	 * @return false in case one if libraries was not saved successfully
 	 */
-	boolean saveLibrary(LibraryNode library, boolean quiet);
+	boolean saveAllLibraries(boolean quiet);
 
 	/**
 	 * Saves the given libraries to the physical files
@@ -133,42 +107,19 @@ public interface LibraryController {
 	boolean saveLibraries(List<LibraryNode> libraries, boolean quiet);
 
 	/**
-	 * Saves all the user defined libraries in the given model
+	 * Saves the given library to the physical file
 	 * 
+	 * @param library
+	 *            {@link LibraryNode} to be saved
 	 * @param quiet
 	 *            be quite, do not notify user of happy path
-	 * @return false in case one if libraries was not saved successfully
+	 * @return false if library was not saved successfully
 	 */
-	boolean saveAllLibraries(boolean quiet);
-
-	/**
-	 * Remove the library from the parent project.
-	 * 
-	 * @param libraries
-	 */
-	void remove(Collection<? extends Node> libraries);
+	boolean saveLibrary(LibraryNode library, boolean quiet);
 
 	/**
 	 * Update the editable status for all libraries.
 	 */
 	void updateLibraryStatus();
-
-	/**
-	 * @param libary
-	 *            with status and {@link ProjectItem} with {@link RepositoryItemState}
-	 * @return status base on {@link LibraryNode#getStatus()} and {@link ProjectItem#getState()}.
-	 */
-	String getLibraryStatus(LibraryNode libary);
-
-	/**
-	 * Convert given library to OTM. This method will convert given library, and if needed all his dependencies.
-	 * 
-	 * @param xsdLibrary
-	 *            - XSD schema, non-otm file.
-	 * @param withDependecies
-	 *            TODO
-	 * @return newly created otm library and all dependencies from given xsd schema.
-	 */
-	List<LibraryNode> convertXSD2OTM(LibraryNode xsdLibrary, boolean withDependecies);
 
 }

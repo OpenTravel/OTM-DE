@@ -106,10 +106,10 @@ public class EditNode extends ComponentNode {
 	 * Source Object
 	 */
 
-	@Override
-	public boolean linkIfUnique(final Node child) {
-		return false;
-	}
+	// @Override
+	// public boolean linkIfUnique(final Node child) {
+	// return false;
+	// }
 
 	/**
 	 * Set the type elements of the node.

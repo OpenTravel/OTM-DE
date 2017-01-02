@@ -37,25 +37,6 @@ public abstract class AbstractAssignmentHandler<T> implements AssignmentHandler 
 	public AbstractAssignmentHandler() {
 	}
 
-	// /**
-	// * @return the Node used in type assignments to the owner of this type class or unassigned node. Will never return
-	// * null.
-	// */
-	// @SuppressWarnings("unchecked")
-	// public T get() {
-	// if (getTLModelElement() == null)
-	// if (getOwner().getXsdNode() != null)
-	// return (T) ModelNode.getUndefinedNode();
-	// else
-	// return (T) ModelNode.getUnassignedNode();
-	//
-	// Node n = Node.GetNode(getTLModelElement());
-	// if (n == null)
-	// LOGGER.debug("get(); of assigned type is null. Perhaps containing library has not been loaded and modeled yet.");
-	// // throw new IllegalStateException("TypeUser.get() is null.");
-	// return (T) n;
-	// }
-
 	public String getName() {
 		// FIXME - TESTME
 		// For implied nodes, use the name they provide.
@@ -69,24 +50,5 @@ public abstract class AbstractAssignmentHandler<T> implements AssignmentHandler 
 		}
 		return (INode) get() != null ? ((INode) get()).getName() : "";
 	}
-
-	// public QName getQName() {
-	// QName typeQname = null;
-	//
-	// NamedEntity type = getTLNamedEntity();
-	// if (type != null) {
-	// String ns = type.getNamespace();
-	// String ln = type.getLocalName();
-	// if (ns != null && ln != null)
-	// typeQname = new QName(type.getNamespace(), type.getLocalName());
-	//
-	// // If empty, try the XSD type information in the documentation
-	// if (typeQname == null)
-	// typeQname = XsdModelingUtils.getAssignedXsdType((Node) getOwner());
-	//
-	// }
-	// return typeQname;
-	//
-	// }
 
 }

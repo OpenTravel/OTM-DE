@@ -418,18 +418,6 @@ public class FacetView extends OtmAbstractView {
 			setButtonState(target);
 
 			mc.getFields().postField(nameField, node.getName(), node.isRenameable());
-			// if (node instanceof PropertyOwnerNode) {
-			// boolean edit = node.isEditable() && !node.isInheritedProperty();
-			// mc.getFields().postField(nameField, node.getName(), edit);
-			// nameField.setEnabled(((PropertyOwnerNode) node).isRenameable());
-			// } else if (!(node instanceof NavNode))
-			// mc.getFields().postField(nameField, node.getName(), node.isEditable_newToChain());
-			// else
-			// mc.getFields().postField(nameField, node.getLabel(), false);
-			//
-			// if (node instanceof ExtensionPointNode)
-			// nameField.setEnabled(false);
-
 			mc.getFields().postField(typeField, node.getComponentType(), false);
 			mc.getFields().postField(extendsField, node.getExtendsTypeName(), false);
 
@@ -486,11 +474,6 @@ public class FacetView extends OtmAbstractView {
 				extendsAction.setEnabled(true);
 				clearExtendsAction.setEnabled(curNode.getExtendsType() != null);
 			}
-			// if (curNode instanceof ExtensionOwner && !curNode.isVersioned()) {
-			// extendsAction.setEnabled(curNode.isEditable_newToChain());
-			// clearExtendsAction.setEnabled(curNode.isEditable_newToChain()
-			// && !curNode.getExtendsTypeName().isEmpty());
-			// }
 		}
 	}
 

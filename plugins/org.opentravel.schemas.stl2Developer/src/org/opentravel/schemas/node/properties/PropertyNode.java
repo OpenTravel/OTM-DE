@@ -163,9 +163,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	protected AlternateRoles alternateRoles;
 
 	protected IValueWithContextHandler equivalentHandler = null;
-
 	protected IValueWithContextHandler exampleHandler = null;
-
 	protected TypeUserHandler typeHandler = null;
 
 	/**
@@ -490,7 +488,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		return 0;
 	}
 
-	@Override
+	// @Override
 	public boolean isAssignedComplexType() {
 		// Need to test because inherited properties do not have assigned types.
 		return getAssignedType() != null ? getAssignedType().isAssignedByReference() : false;

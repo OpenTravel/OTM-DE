@@ -58,7 +58,6 @@ import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.EnumerationClosedNode;
-import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.NamespaceHandler;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
@@ -67,7 +66,6 @@ import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeVisitors;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.SimpleComponentNode;
 import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.XsdNode;
@@ -175,7 +173,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 		super(alib.getName());
 		if (parent == null)
 			throw new IllegalArgumentException("Parent project must not be null.");
-		LOGGER.debug("Begin creating new library: " + alib.getName() + " in " + parent);
+		// LOGGER.debug("Begin creating new library: " + alib.getName() + " in " + parent);
 
 		setLibrary(this);
 		absTLLibrary = alib;
@@ -191,16 +189,13 @@ public class LibraryNode extends Node implements LibraryInterface {
 
 		initLibrary(alib);
 
-		LOGGER.debug("Library created: " + this.getName());
+		// LOGGER.debug("Library created: " + this.getName());
 	}
 
 	public LibraryNode(final AbstractLibrary alib, final VersionAggregateNode parent) {
 		super(alib.getName());
-		// if (parent instanceof VersionAggregateNode)
-		LOGGER.debug("Begin creating new library: " + alib.getPrefix() + ":" + alib.getName() + " in aggregate "
-				+ parent.getParent());
-		// else
-		// LOGGER.debug("Begin creating new library: " + alib.getName() + " in " + parent);
+		// LOGGER.debug("Begin creating new library: " + alib.getPrefix() + ":" + alib.getName() + " in aggregate "
+		// + parent.getParent());
 		assert (parent != null);
 
 		setLibrary(this);
@@ -216,7 +211,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 
 		initLibrary(alib);
 
-		LOGGER.debug("Library created: " + this.getName());
+		// LOGGER.debug("Library created: " + this.getName());
 	}
 
 	private void initLibrary(final AbstractLibrary alib) {
@@ -332,14 +327,15 @@ public class LibraryNode extends Node implements LibraryInterface {
 		this.editable = editable;
 	}
 
-	/**
-	 * @return true if namespaces are unmanaged OR namespaces are managed and this library is in its project namespace.
-	 */
-	public boolean isEditableByNamespacePolicy() {
-		if (!GeneralPreferencePage.areNamespacesManaged())
-			return true;
-		return getNamespace().contains(getParent().getNamespace());
-	}
+	// /**
+	// * @return true if namespaces are unmanaged OR namespaces are managed and this library is in its project
+	// namespace.
+	// */
+	// public boolean isEditableByNamespacePolicy() {
+	// if (!GeneralPreferencePage.areNamespacesManaged())
+	// return true;
+	// return getNamespace().contains(getParent().getNamespace());
+	// }
 
 	/**
 	 * @return true if complex, simple, resource and service roots are null or empty
@@ -749,14 +745,14 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 *            - abstract library from TL model
 	 */
 	protected void generateModel(final AbstractLibrary alib) {
-		LOGGER.debug("Generating library " + alib.getName() + ".");
+		// LOGGER.debug("Generating library " + alib.getName() + ".");
 		if (alib instanceof XSDLibrary)
 			generateLibrary((XSDLibrary) alib);
 		else if (alib instanceof BuiltInLibrary)
 			generateLibrary((BuiltInLibrary) alib);
 		else if (alib instanceof TLLibrary)
 			generateLibrary((TLLibrary) alib);
-		LOGGER.debug("Done generating library " + alib.getName() + ".");
+		// LOGGER.debug("Done generating library " + alib.getName() + ".");
 	}
 
 	private void generateLibrary(final BuiltInLibrary biLib) {
@@ -801,8 +797,9 @@ public class LibraryNode extends Node implements LibraryInterface {
 					LOGGER.debug("ERROR - null otm node.");
 				else
 					n.setXsdType(true); // FIXME
-			} else
-				LOGGER.debug("Used listener to get: " + n.getNameWithPrefix());
+			}
+			// else
+			// LOGGER.debug("Used listener to get: " + n.getNameWithPrefix());
 			if (n != null) {
 				linkMember(n);
 				n.setLibrary(this);
@@ -993,7 +990,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 */
 	@Override
 	public void close() {
-		LOGGER.debug("Closing " + getNameWithPrefix());
+		// LOGGER.debug("Closing " + getNameWithPrefix());
 		if (getChain() != null)
 			getChain().close();
 		else if (getParent() instanceof LibraryNavNode)
@@ -1481,32 +1478,33 @@ public class LibraryNode extends Node implements LibraryInterface {
 		return emptyIfNull(comments);
 	}
 
-	/**
-	 * Note - locally defined types are not returned, only those with public names. For XSD nodes, the OTM model node is
-	 * returned
-	 *
-	 * @return list of all named simple types in this library.
-	 */
-	// FIXME - ONLY used in tests. move to simpleComponentNode? or remove
-	public List<SimpleComponentNode> getDescendentsSimpleComponents() {
-		return (getDescendentsSimpleComponents(simpleRoot));
-	}
-
-	private List<SimpleComponentNode> getDescendentsSimpleComponents(INode n) {
-		ArrayList<SimpleComponentNode> namedKids = new ArrayList<SimpleComponentNode>();
-		for (Node c : n.getChildren()) {
-			// has simple, enum, family and xsd nodes in the list.
-			if (c instanceof TypeProvider && !(c instanceof ImpliedNode)) {
-				// if (c.isTypeProvider()) {
-				if (c instanceof SimpleComponentNode)
-					namedKids.add((SimpleComponentNode) c);
-				else if (c instanceof XsdNode && ((XsdNode) c).getOtmModel() instanceof SimpleComponentNode)
-					namedKids.add((SimpleComponentNode) ((XsdNode) c).getOtmModel());
-			} else if (c.isNavigation())
-				namedKids.addAll(getDescendentsSimpleComponents(c));
-		}
-		return namedKids;
-	}
+	// /**
+	// * Note - locally defined types are not returned, only those with public names. For XSD nodes, the OTM model node
+	// is
+	// * returned
+	// *
+	// * @return list of all named simple types in this library.
+	// */
+	// // FIXME - ONLY used in tests. move to simpleComponentNode? or remove
+	// public List<SimpleComponentNode> getDescendentsSimpleComponents() {
+	// return (getDescendentsSimpleComponents(simpleRoot));
+	// }
+	//
+	// private List<SimpleComponentNode> getDescendentsSimpleComponents(INode n) {
+	// ArrayList<SimpleComponentNode> namedKids = new ArrayList<SimpleComponentNode>();
+	// for (Node c : n.getChildren()) {
+	// // has simple, enum, family and xsd nodes in the list.
+	// if (c instanceof TypeProvider && !(c instanceof ImpliedNode)) {
+	// // if (c.isTypeProvider()) {
+	// if (c instanceof SimpleComponentNode)
+	// namedKids.add((SimpleComponentNode) c);
+	// else if (c instanceof XsdNode && ((XsdNode) c).getOtmModel() instanceof SimpleComponentNode)
+	// namedKids.add((SimpleComponentNode) ((XsdNode) c).getOtmModel());
+	// } else if (c.isNavigation())
+	// namedKids.addAll(getDescendentsSimpleComponents(c));
+	// }
+	// return namedKids;
+	// }
 
 	/**
 	 * @return - list of context id strings, empty list of not TLLibrary or no contexts assigned.

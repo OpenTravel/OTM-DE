@@ -241,22 +241,15 @@ public abstract class Node implements INode {
 
 	// Ancestry
 	protected LibraryNode library; // link to the library node to which this node belongs
-
 	protected Node parent; // link to the parentNode node
-
 	private final ArrayList<Node> children; // links to the children
-
 	protected VersionNode versionNode; // Link to the version node representing this node in a chain
 
 	public ModelObject<?> modelObject; // Generic interface to TL Model objects.
-
 	protected boolean deleted = false;
-
 	public boolean local = false; // Local nodes are not named nodes and are not to made visible in type assignment
-
 	// lists.
 	public XsdNode xsdNode = null; // Link to node containing imported XSD representation
-
 	public boolean xsdType = false; // True if this node represents an object that was created by
 									// the XSD utilities but has not be imported.
 
@@ -693,18 +686,6 @@ public abstract class Node implements INode {
 		if (isDeprecated())
 			decoration += " (Deprecated)";
 
-		// version in chain
-		// if (library != null && library.isInChain()) {
-		// String version = "";
-		// NamedEntity ne = null;
-		// if (getTLModelObject() instanceof NamedEntity)
-		// ne = (NamedEntity) getTLModelObject();
-		// if (ne != null && ne.getOwningLibrary() != null)
-		// version = ne.getOwningLibrary().getVersion();
-		// if (!version.isEmpty())
-		// decoration += " (v " + version + "-" + library.getVersion() + ")";
-		// }
-
 		// Extension
 		if (this instanceof ExtensionOwner) {
 			if (getLibrary() != null)
@@ -712,12 +693,9 @@ public abstract class Node implements INode {
 
 			String extensionTxt = "";
 
-			// The only true extension will be to the oldest version of this object. All other extensions will be for
-			// versions.
+			// The only true extension will be to the oldest version of this object.
+			// All other extensions will be for versions.
 			ComponentNode exBase = (ComponentNode) getExtendsType();
-			// Node oldestVersion = getVersionNode().getOldestVersion();
-			// if (oldestVersion instanceof ExtensionOwner && !oldestVersion.isVersioned())
-			// exBase = (ComponentNode) ((ExtensionOwner) oldestVersion).getExtensionBase();
 			if (exBase != null) {
 				extensionTxt += "Extends: " + exBase.getNameWithPrefix() + " ";
 				if (getChain() != null)
@@ -729,6 +707,8 @@ public abstract class Node implements INode {
 				if (isInHead())
 					if (getLibrary().isMajorVersion())
 						extensionTxt += "Major Version";
+					else if (isNewToChain())
+						extensionTxt += "New to this version";
 					else
 						extensionTxt += "Current Version";
 				else
@@ -747,28 +727,6 @@ public abstract class Node implements INode {
 				else if (this instanceof VersionedObjectInterface)
 					extensionTxt += "Minor Editing will create new version";
 			}
-			// Match logic in org.opentravel.schemas.commands.OtmAbstractHandler.createVersionExtension(Node).
-			// if (isEditable_isNewOrAsMinor()) {
-			// if (isInHead2() && !getLibrary().isMinorVersion())
-			// extensionTxt += "(Full Editing)";
-			// else if (isInHead2())
-			// if (isNewToChain())
-			// extensionTxt += "(Full Editing - New to library)";
-			// else
-			// extensionTxt += "(Minor Editing Only)";
-			// else
-			// extensionTxt += "(Minor Editing - Will create new version)";
-			// }
-			// extensionTxt = " (Extends version: " + cn.getTlVersion() + ")";
-			// else
-			// } else {
-			// if (!isInHead2())
-			// // Tell them which older version this came from
-			// extensionTxt += "   (From version " + getTlVersion() + " - Minor Editing Only)";
-			// else
-			// extensionTxt = "   (Full Editing)";
-			// // extensionTxt = " (Current version: " + getTlVersion() + ")";
-			// }
 			decoration += surround(extensionTxt);
 		}
 
@@ -1165,10 +1123,10 @@ public abstract class Node implements INode {
 		return libs;
 	}
 
-	public RoleFacetNode getRoleFacet() {
-		// Find the roles facet
-		return getOwningComponent() != this ? getOwningComponent().getRoleFacet() : null;
-	}
+	// public RoleFacetNode getRoleFacet() {
+	// // Find the roles facet
+	// return getOwningComponent() != this ? getOwningComponent().getRoleFacet() : null;
+	// }
 
 	/**
 	 * @return a new list of children of the parent after this node is removed
@@ -1241,8 +1199,8 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Get all user libraries (OTM TLLibrary) under <i>this</i> node. Note - only searches library containers. Libraries
-	 * in the tree with an ancestor that is not a library container will not be found.
+	 * Get all user libraries (OTM TLLibrary). Note - only searches library containers. Libraries in the tree with an
+	 * ancestor that is not a library container will not be found.
 	 * 
 	 * @return new list of library nodes.
 	 */
@@ -1329,15 +1287,15 @@ public abstract class Node implements INode {
 		return false;
 	}
 
-	/**
-	 * @return true if the node has a complex type assigned as the type of the property
-	 * 
-	 *         Should use Node.isRenamable()
-	 */
-	@Deprecated
-	public boolean isAssignedComplexType() {
-		return false;
-	}
+	// /**
+	// * @return true if the node has a complex type assigned as the type of the property
+	// *
+	// * Should use Node.isRenamable()
+	// */
+	// @Deprecated
+	// public boolean isAssignedComplexType() {
+	// return false;
+	// }
 
 	public boolean isBuiltIn() {
 		LibraryNode ln = getLibrary();
@@ -1385,7 +1343,17 @@ public abstract class Node implements INode {
 		if (isInService() && getChain() != null)
 			return getLibrary().getChain().getHead() == getLibrary() && isEditable();
 
-		return getLibrary().isManaged() ? isInHead() && isEditable() : isEditable();
+		// Library members can only be deleted if they are new to the chain.
+		if (getLibrary().isManaged()) {
+			if (isInHead() && isEditable()) {
+				if (this instanceof LibraryMemberInterface)
+					return isNewToChain();
+				return true;
+			} else
+				return false;
+		}
+		return isEditable();
+		// return getLibrary().isManaged() ? isInHead() && isEditable() && isNewToChain() : isEditable();
 	}
 
 	@Override
@@ -1763,7 +1731,7 @@ public abstract class Node implements INode {
 		// List<Node> x = getChain().getHead().getDescendants_NamedTypes();
 		if (getChain() == null || getChain().getHead() == null)
 			return false;
-		List<Node> members = getChain().getHead().getDescendants_LibraryMembers();
+		// List<Node> members = getChain().getHead().getDescendants_LibraryMembers();
 		return getChain().getHead().getDescendants_LibraryMembers().contains(owner);
 	}
 
@@ -2064,12 +2032,12 @@ public abstract class Node implements INode {
 	 * @return false if child could not be linked.
 	 */
 	public boolean linkChild(final Node child) {
-		if (child == null)
-			return false;
-		if (!linkChild(child, -1))
-			return false;
-
-		return true;
+		return linkChild(child, -1);
+		// if (child == null)
+		// return false;
+		// if (!linkChild(child, -1))
+		// return false;
+		// return true;
 	}
 
 	/**
@@ -2105,20 +2073,20 @@ public abstract class Node implements INode {
 		return true;
 	}
 
-	/**
-	 * Adds the passed node as a child of <i>this</i> node, if its name and namespace are unique amongst the children.
-	 * Used to link properties to facets.
-	 * 
-	 * @param child
-	 *            - node to link in
-	 * @return true if linked, false if not unique
-	 */
-	public boolean linkIfUnique(final Node child) {
-		if ((child == null) || (!isUnique(child)))
-			return false;
-
-		return linkChild(child, -1);
-	}
+	// /**
+	// * Adds the passed node as a child of <i>this</i> node, if its name and namespace are unique amongst the children.
+	// * Used to link properties to facets.
+	// *
+	// * @param child
+	// * - node to link in
+	// * @return true if linked, false if not unique
+	// */
+	// public boolean linkIfUnique(final Node child) {
+	// if ((child == null) || (!isUnique(child)))
+	// return false;
+	//
+	// return linkChild(child, -1);
+	// }
 
 	/**
 	 * 
@@ -2403,7 +2371,7 @@ public abstract class Node implements INode {
 	public void unlinkNode() {
 		if (parent == null) {
 			if (!getChildren().isEmpty())
-				LOGGER.error("unlinkNode ERROR - null parent. EXIT");
+				LOGGER.error("unlinkNode ERROR - null parent or no children. EXIT");
 			return;
 		}
 		VersionNode vn = null;

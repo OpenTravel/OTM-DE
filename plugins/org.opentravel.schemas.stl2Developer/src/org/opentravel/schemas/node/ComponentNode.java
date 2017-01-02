@@ -120,8 +120,6 @@ public abstract class ComponentNode extends Node {
 	 */
 	public ComponentNode(final TLModelElement obj) {
 		super(obj);
-		// if (obj instanceof TLFacet)
-		// addMOChildren();
 		setListner();
 	}
 
@@ -168,48 +166,6 @@ public abstract class ComponentNode extends Node {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Add a new property from a Drag-and-Drop action. If version rules require, a new component is created.
-	 * 
-	 * @param isCopy
-	 *            - force a copy even if this node does not have assigned type
-	 * @return the new node or null if the type was only assigned.
-	 */
-	@Deprecated
-	public Node addPropertyFromDND(Node sourceNode, boolean isCopy) {
-		assert (false);
-		return null; // 11/10/2016 - found deprecated and unused.
-		// // XSD types can only be the library member, not facets
-		// if (sourceNode.isXsdType())
-		// sourceNode = sourceNode.getOwningComponent();
-		//
-		// ComponentNode newNode = null;
-		// if (isCopy || !isUnAssigned()) {
-		// // Create a new property of the same type as this
-		// // If dropping on a patch or minor version, create the component for the new property.
-		// if (getChain() != null) {
-		// if (getChain().isPatch())
-		// newNode = createPatchVersionComponent();
-		// else if (getChain().isMinor() && this instanceof VersionedObjectInterface)
-		// newNode = ((VersionedObjectInterface) this).createMinorVersionComponent();
-		// }
-		// if (newNode != null)
-		// newNode = (ComponentNode) newNode.createProperty(sourceNode);
-		// else
-		// newNode = (ComponentNode) createProperty(sourceNode);
-		//
-		// // In minor versions, all new properties must be optional.
-		// if (this instanceof FacetNode && ((FacetNode) this).isSummaryFacet())
-		// if (!getLibrary().isMinorVersion())
-		// newNode.setMandatory(true); // make summary facet properties mandatory by default.
-		// } else {
-		// // Just set the type
-		// if (this instanceof TypeUser && sourceNode instanceof TypeProvider)
-		// ((TypeUser) this).setAssignedType((TypeProvider) sourceNode);
-		// }
-		// return newNode;
 	}
 
 	/**

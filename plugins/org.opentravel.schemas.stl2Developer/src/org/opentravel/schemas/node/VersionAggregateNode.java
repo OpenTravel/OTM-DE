@@ -35,10 +35,8 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
  */
 public class VersionAggregateNode extends AggregateNode {
 
-	public VersionAggregateNode(AggregateType type, Node parent) {
+	public VersionAggregateNode(AggregateType type, LibraryChainNode parent) {
 		super(type, parent);
-
-		assert (parent instanceof LibraryChainNode);
 	}
 
 	public void add(LibraryNode ln) {
@@ -47,9 +45,9 @@ public class VersionAggregateNode extends AggregateNode {
 		ln.setParent(this);
 	}
 
-	public void add(Node n) {
-		throw (new IllegalStateException("Version aggregates can not contain " + n.getClass().getSimpleName()));
-	}
+	// public void add(Node n) {
+	// throw (new IllegalStateException("Version aggregates can not contain " + n.getClass().getSimpleName()));
+	// }
 
 	@Override
 	public void close() {
@@ -82,12 +80,11 @@ public class VersionAggregateNode extends AggregateNode {
 	 * @return parent project or null if no project is found.
 	 */
 	public ProjectNode getProject() {
-		return ((LibraryChainNode) getParent()).getProject();
+		return getParent().getProject();
 	}
 
-	// @Override
-	// public List<Node> getNavChildren() {
-	// return super.getNavChildren();
-	// }
-
+	@Override
+	public LibraryChainNode getParent() {
+		return (LibraryChainNode) parent;
+	}
 }

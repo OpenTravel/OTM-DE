@@ -67,10 +67,6 @@ public class VersionNode extends ComponentNode {
 		node.getParent().getChildren().add(this);
 		node.setParent(this);
 
-		// if (getParent().getChildren().contains(node)) {
-		// node = node;
-		// }
-
 		// Replace listener on the head node's tl Model Element
 		// ListenerFactory.setListner(head); // creates 3rd listener
 		assert GetNode(getTLModelObject()) == head; // make sure listener is correct.
@@ -122,7 +118,6 @@ public class VersionNode extends ComponentNode {
 	public List<Node> getNavChildren(boolean deep) {
 		// this simplifies links from validation, user experience and showing families in the other aggregates.
 		return getNewestVersion().getNavChildren(deep);
-		// return Collections.emptyList();
 	}
 
 	@Override

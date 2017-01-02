@@ -123,7 +123,7 @@ public class NodeFactory {
 		ComponentNode cn = null;
 		if (mbr == null)
 			return cn;
-		LOGGER.debug("Creating new untyped component for " + mbr.getLocalName());
+		// LOGGER.debug("Creating new untyped component for " + mbr.getLocalName());
 
 		if (mbr instanceof TLValueWithAttributes)
 			cn = new VWA_Node((TLValueWithAttributes) mbr);
@@ -151,7 +151,7 @@ public class NodeFactory {
 			// LOGGER.debug("Using default factory type for " + mbr.getClass().getSimpleName());
 		}
 
-		LOGGER.debug("Created new untyped component " + cn);
+		// LOGGER.debug("Created new untyped component " + cn);
 
 		return cn;
 	}
@@ -243,10 +243,6 @@ public class NodeFactory {
 		//
 		else if (tlObj instanceof TLLibraryMember)
 			nn = newComponent_UnTyped((TLLibraryMember) tlObj);
-		// assert (false);
-		// nn = new ComponentNode((TLModelElement) tlObj);
-		// LOGGER.debug("newComponentNode() - generic source TLModelElement type. "
-		// + tlObj.getClass().getSimpleName());
 
 		if (parent != null && nn.getParent() == null) {
 			NodeNameUtils.fixName(nn); // make sure the name is legal (2/2016)
@@ -254,10 +250,6 @@ public class NodeFactory {
 			nn.setLibrary(parent.getLibrary());
 		}
 		nn.setContext(); // assure default context set as needed
-
-		// if (nn.getParent() == null)
-		// throw new IllegalStateException("Node factory create node with no parent: " + nn);
-		// LOGGER.debug("Node factory created node with no parent: " + nn);
 
 		return nn;
 	}

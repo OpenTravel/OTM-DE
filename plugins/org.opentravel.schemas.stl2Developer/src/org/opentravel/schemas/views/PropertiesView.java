@@ -463,7 +463,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 			if (!((PropertyNode) cn).isIndicator())
 				postMandatoryButton(cn);
 			// in this case fixNames should set type
-			if (cn.isAssignedComplexType())
+			if (((PropertyNode) cn).isAssignedComplexType())
 				nameField.setEnabled(false);
 		}
 

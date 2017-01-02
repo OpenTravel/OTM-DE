@@ -86,7 +86,7 @@ public class LibraryModelManager {
 	 * @return Return a LibraryNavNode to use as a child in a tree.
 	 */
 	public LibraryNavNode add(ProjectItem pi, ProjectNode project) {
-		LOGGER.debug("Adding library to model from project item: " + pi.getLibraryName());
+		// LOGGER.debug("Adding library to model from project item: " + pi.getLibraryName());
 		LibraryInterface li = null;
 		LibraryNavNode newLNN = null;
 
@@ -117,13 +117,6 @@ public class LibraryModelManager {
 				newLNN = new LibraryNavNode((LibraryNode) li, project);
 			else
 				newLNN = new LibraryNavNode(li.getChain(), project);
-			// if (li instanceof LibraryNode)
-			// if (((LibraryNode) li).isInChain())
-			// newLNN = new LibraryNavNode(((LibraryNode) li).getChain(), project);
-			// else
-			// newLNN = new LibraryNavNode((LibraryNode) li, project);
-			// else if (li instanceof LibraryChainNode)
-			// newLNN = new LibraryNavNode((LibraryChainNode) li, project);
 		}
 
 		assert (newLNN != null);
@@ -144,14 +137,14 @@ public class LibraryModelManager {
 		} else if (li instanceof LibraryChainNode)
 			assert (((LibraryChainNode) li).getLibraries().contains(newLNN.getLibrary()));
 
-		LOGGER.debug("Adding library to model from project item: " + pi.getLibraryName());
+		// LOGGER.debug("Adding library to model from project item: " + pi.getLibraryName());
 		return newLNN;
 	}
 
 	private LibraryNavNode modelLibraryInterface(ProjectItem pi, ProjectNode project) {
 		LibraryInterface li = null;
 		LibraryNavNode newLNN = null;
-		LOGGER.debug("First time library has been model: " + pi.getLibraryName());
+		// LOGGER.debug("First time library has been model: " + pi.getLibraryName());
 
 		if (pi.getRepository() == null)
 			// Library is Unmanaged - create library node.
@@ -165,15 +158,13 @@ public class LibraryModelManager {
 				li = createNewChain(pi, project);
 			} else {
 				// Managed library that belongs to a chain.
-				// // First, see if the chain has already been managed here
-				// li = findChain(chain);
-				//
+				// First, see if the chain has already been managed here
 				// If the chain was not found, try to create one.
 				if (!libraries.contains(chain)) {
-					LOGGER.debug("Create chain for a minor version.");
+					// LOGGER.debug("Create chain for a minor version.");
 					li = new LibraryChainNode(pi, project);
 				} else {
-					LOGGER.debug("Add to existing chain.");
+					// LOGGER.debug("Add to existing chain.");
 					li = chain;
 					if (!(li.getParent() instanceof LibraryNavNode) || li.getParent().getParent() != project)
 						newLNN = new LibraryNavNode(chain, project);
@@ -189,29 +180,14 @@ public class LibraryModelManager {
 			// Get the LibraryNavNode to return
 			if (li.getParent() instanceof LibraryNavNode)
 				newLNN = (LibraryNavNode) li.getParent();
-			else
-				LOGGER.error("Newly modeled library " + li + " is missing nav node!");
+			// else
+			// LOGGER.error("Newly modeled library " + li + " is missing nav node!");
 		}
 		if (li == null)
 			LOGGER.error("Did not successfully model the library " + pi.getLibraryName() + " !");
 
 		assert (newLNN != null);
 		return newLNN;
-	}
-
-	/**
-	 * @return the chain if it is found in any of the projects or null if not found
-	 */
-	private LibraryInterface findChain(LibraryChainNode chain) {
-		LibraryInterface li = null;
-		if (libraries.contains(chain))
-			li = chain;
-		return li;
-		// for (ProjectNode pn : parent.getProjects())
-		// if (pn.getChildren().contains(chain)) {
-		// li = chain;
-		// }
-		// return li;
 	}
 
 	/**
@@ -226,7 +202,7 @@ public class LibraryModelManager {
 	}
 
 	private LibraryInterface createNewChain(ProjectItem pi, ProjectNode project) {
-		LOGGER.debug("No projects contain a chain for the project item. Create new chain.");
+		// LOGGER.debug("No projects contain a chain for the project item. Create new chain.");
 		LibraryInterface li = new LibraryChainNode(pi, project);
 		if (li == null || li.getParent() == null)
 			LOGGER.warn("Failed to create valid library chain.");
@@ -276,10 +252,10 @@ public class LibraryModelManager {
 						break;
 					}
 				}
-		if (pn != null)
-			LOGGER.debug(((Node) lib).getName() + " is also used in " + pn);
-		else
-			LOGGER.debug(((Node) lib).getName() + " is only used in passsed project " + project);
+		// if (pn != null)
+		// LOGGER.debug(((Node) lib).getName() + " is also used in " + pn);
+		// else
+		// LOGGER.debug(((Node) lib).getName() + " is only used in passsed project " + project);
 		return pn;
 	}
 
@@ -291,14 +267,14 @@ public class LibraryModelManager {
 	 *            - caller is expected to remove library from project
 	 */
 	public void close(LibraryInterface lib, ProjectNode projectNode) {
-		LOGGER.debug("Closing " + ((Node) lib).getName());
+		// LOGGER.debug("Closing " + ((Node) lib).getName());
 		ProjectNode pn = getFirstOtherProject(lib, projectNode);
 		if (pn != null) {
-			LOGGER.debug("Only remove from project. " + ((Node) lib).getName());
+			// LOGGER.debug("Only remove from project. " + ((Node) lib).getName());
 			lib.setParent(pn);
 		} else {
 			// If reached then the library is not used elsewhere
-			LOGGER.debug("Not used elsewhere...close. " + ((Node) lib).getName());
+			// LOGGER.debug("Not used elsewhere...close. " + ((Node) lib).getName());
 			// Must remove parent for close to work
 			lib.setParent(null);
 			lib.close();

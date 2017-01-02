@@ -202,14 +202,8 @@ public class AttributeNode extends PropertyNode {
 		return isEditable() && !inherited;
 	}
 
-	// @Override
-	// public boolean isTypeUser() {
-	// return true;
-	// }
-
 	@Override
 	public void setName(String name) {
-		// modelObject.setName(NodeNameUtils.fixAttributeName(name));
 		getTLModelObject().setName(NodeNameUtils.fixAttributeName(name));
 	}
 

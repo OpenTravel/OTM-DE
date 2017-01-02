@@ -35,11 +35,6 @@ public class MergeContextAction extends OtmAbstractAction {
 		super(mainWindow, props);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.Action#run()
-	 */
 	@Override
 	public void run() {
 		ContextsView view = OtmRegistry.getContextsView();

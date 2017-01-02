@@ -165,11 +165,6 @@ public class ServiceNode extends ComponentNode {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#hasChildren_TypeProviders()
-	 */
 	@Override
 	public boolean hasChildren_TypeProviders() {
 		// enable if we want to have messages assignable as types.

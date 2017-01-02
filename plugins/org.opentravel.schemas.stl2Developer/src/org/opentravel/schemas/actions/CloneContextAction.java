@@ -34,10 +34,6 @@ public class CloneContextAction extends OtmAbstractAction {
 
 	@Override
 	public void run() {
-		// ContextsView view = OtmRegistry.getContextsView();
-		// if (view != null) {
-		// view.getContextController().cloneContext();
-		// }
 	}
 
 	@Override

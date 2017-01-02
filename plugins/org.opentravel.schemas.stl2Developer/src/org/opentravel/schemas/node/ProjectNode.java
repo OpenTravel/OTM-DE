@@ -185,15 +185,6 @@ public class ProjectNode extends Node implements INode {
 				}
 	}
 
-	// @Override
-	// public List<Node> getChildren() {
-	// // List<Node> kids = super.getChildren();
-	// // for (Node kid : kids)
-	// // if (!(kid instanceof LibraryNavNode) && !this.isBuiltIn())
-	// // LOGGER.debug("Wrong type of child.");
-	// return super.getChildren();
-	// }
-
 	@Override
 	public String getComponentType() {
 		return "Project: " + getName();
@@ -333,12 +324,6 @@ public class ProjectNode extends Node implements INode {
 	public boolean isNavigation() {
 		return true;
 	}
-
-	// @Override
-	// public void setName(String n, boolean doFamily) {
-	// if (!isBuiltIn())
-	// project.setName(n);
-	// }
 
 	public void setNamespace(String namespace) {
 		if (namespace != null && !namespace.isEmpty())

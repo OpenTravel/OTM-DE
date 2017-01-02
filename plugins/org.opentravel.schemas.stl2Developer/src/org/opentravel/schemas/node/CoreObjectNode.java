@@ -115,9 +115,8 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	}
 
 	public void addAliases(List<AliasNode> aliases) {
-		for (AliasNode a : aliases) {
+		for (AliasNode a : aliases)
 			addAlias(a.getName());
-		}
 	}
 
 	@Override
@@ -226,7 +225,7 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	}
 
 	// Role w/model object RoleEnumerationMO
-	@Override
+	// @Override
 	public RoleFacetNode getRoleFacet() {
 		for (Node f : getChildren())
 			if (f instanceof RoleFacetNode)

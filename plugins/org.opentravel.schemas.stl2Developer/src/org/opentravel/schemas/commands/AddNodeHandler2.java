@@ -43,8 +43,6 @@ import org.opentravel.schemas.wizards.NewPropertiesWizard2;
 import org.opentravel.schemas.wizards.SimpleNameWizard;
 import org.opentravel.schemas.wizards.validators.NewNodeNameValidator;
 import org.opentravel.schemas.wizards.validators.NewPropertyValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Command Handler for the add a node to the model command. Handler for adding when a component node is selected.
@@ -57,7 +55,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class AddNodeHandler2 extends OtmAbstractHandler {
-	private static final Logger LOGGER = LoggerFactory.getLogger(AddNodeHandler2.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(AddNodeHandler2.class);
 	public static String COMMAND_ID = "org.opentravel.schemas.commands.Add";
 
 	private Node selectedNode; // The user selected node.
@@ -140,7 +138,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 			}
 		}
 		if (newNode == null) {
-			LOGGER.debug("newNode is null.");
+			// LOGGER.debug("newNode is null.");
 			return; // Error
 		}
 
@@ -148,7 +146,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 		newNode = (ComponentNode) newNode.createProperty(selectedNode);
 
 		if (newNode == null) {
-			LOGGER.debug("newNode is null.");
+			// LOGGER.debug("newNode is null.");
 			return; // Error
 		}
 
@@ -193,9 +191,9 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 	 *            - core object or one of its facets or properties.
 	 */
 	public void addRoleToNode() {
-		if (actOnNode == null)
+		if (actOnNode == null || !(actOnNode instanceof CoreObjectNode))
 			return; // should this post status or dialog?
-		RoleFacetNode roleFacet = actOnNode.getRoleFacet();
+		RoleFacetNode roleFacet = ((CoreObjectNode) actOnNode).getRoleFacet();
 		if (roleFacet == null)
 			return;
 
@@ -204,7 +202,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 			actOnNode = createVersionExtension(actOnNode);
 			if (actOnNode == null)
 				return; // should this post status or dialog?
-			roleFacet = actOnNode.getRoleFacet();
+			roleFacet = ((CoreObjectNode) actOnNode).getRoleFacet();
 		}
 
 		final SimpleNameWizard wizard = new SimpleNameWizard(new ExternalizedStringProperties("action.addRole"), 10);
@@ -266,7 +264,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 				actOnNode = createVersionExtension(selectedNode);
 		}
 		if (actOnNode == null) {
-			LOGGER.debug("Error adding property, actOnNode is null.");
+			// LOGGER.debug("Error adding property, actOnNode is null.");
 			return;
 		}
 

@@ -137,29 +137,6 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 		return isEditable_newToChain();
 	}
 
-	// /**
-	// * Replace this provider with replacement for all users of this provider as a type. Also replaces type usage of
-	// * descendants of this owner node. Also does the TL properties. Note - user counts may change when business
-	// replace
-	// * core objects because core is also a valid simple type.
-	// *
-	// * It is OK for the owner to not be in a library. This happens when it is being replaced.
-	// *
-	// * @param replacement
-	// * is the TypeProvider to use instead. Must be a typeProvider. skips assignment if replacement is not
-	// * compatible with user.
-	// * @param libraryScope
-	// * - if null to entire model, otherwise only replace users within specified library.
-	// */
-	// @Deprecated
-	// public void replace(TypeProvider replacement) {
-	// // if (whereUsedHandler.getWhereUsed().isEmpty()) &&
-	// // if (getTypeUsers().isEmpty() && getBaseUsers().isEmpty())
-	// // return;
-	// LOGGER.debug("Replacing " + this + " with " + replacement);
-	// throw new IllegalStateException("REPLACE user handler not implemented.");
-	// }
-
 	@Override
 	public void removeAll() {
 		Collection<TypeUser> users = new ArrayList<TypeUser>(getWhereAssigned());

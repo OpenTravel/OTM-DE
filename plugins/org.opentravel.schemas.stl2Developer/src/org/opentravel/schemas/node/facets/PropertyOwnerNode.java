@@ -146,44 +146,10 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 		return INode.CommandType.PROPERTY;
 	}
 
-	// @Override
-	// public String getComponentType() {
-	// TLFacetType facetType = null;
-	// if (getTLModelObject() instanceof TLAbstractFacet)
-	// facetType = ((TLAbstractFacet) getTLModelObject()).getFacetType();
-	// if (facetType == null)
-	// return "FIXME-delegate needed???";
-	// return facetType.getIdentityName();
-	//
-	// // return modelObject.getComponentType();
-	// }
-
-	// @Override
-	// public TLFacetType getFacetType() {
-	// if (!(getTLModelObject() instanceof TLAbstractFacet)) {
-	// return null;
-	// }
-	// return ((TLAbstractFacet) getTLModelObject()).getFacetType();
-	// }
-
 	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.Facet);
 	}
-
-	// @Override
-	// public String getLabel() {
-	// String label = getModelObject().getLabel();
-	// if (label.indexOf("-Facet") > 0)
-	// label = label.substring(0, label.indexOf("-Facet"));
-	// return label.isEmpty() ? "" : label;
-	// }
-
-	// {
-	// if (modelObject == null)
-	// return "";
-	// return modelObject.getName() == null ? "" : modelObject.getName();
-	// }
 
 	@Override
 	public List<Node> getTreeChildren(boolean deep) {
@@ -284,7 +250,6 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 	public boolean isDefaultFacet() {
 		if (getOwningComponent() instanceof VWA_Node)
 			return true;
-		// return ((TLAbstractFacet) getTLModelObject()).getFacetType() == TLFacetType.SUMMARY;
 		return false;
 	}
 
@@ -305,13 +270,6 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 	public boolean isNamedType() {
 		return this instanceof ExtensionPointNode ? true : false;
 	}
-
-	// /**
-	// * @return true if this facet is renameable.
-	// */
-	// public boolean isRenameable() {
-	// return false;
-	// }
 
 	/**
 	 * Facets assigned to core object list types have no model objects but may be page1-assignable.
@@ -374,28 +332,6 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 			}
 		});
 		modelObject.sort();
-	}
-
-	/**
-	 * Add nodes for all TLAliases that do not have nodes. This ONLY adds a node for an existing TLFacet. It does not
-	 * create a TLFacet.
-	 * 
-	 * @param name
-	 */
-	public void updateAliasNodes() {
-		// if (!(getTLModelObject() instanceof TLFacet))
-		// return;
-		// List<String> knownAliases = new ArrayList<String>();
-		// for (Node n : getChildren()) {
-		// if (n instanceof AliasNode)
-		// knownAliases.add(n.getName());
-		// }
-		// for (TLAlias tla : ((TLFacet) getTLModelObject()).getAliases()) {
-		// if (!knownAliases.contains(tla.getName())) {
-		// new AliasNode(this, tla);
-		// knownAliases.add(tla.getName());
-		// }
-		// }
 	}
 
 	/**

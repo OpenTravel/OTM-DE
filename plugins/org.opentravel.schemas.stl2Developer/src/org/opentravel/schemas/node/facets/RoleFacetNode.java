@@ -73,7 +73,6 @@ public class RoleFacetNode extends PropertyOwnerNode {
 		return INode.CommandType.ROLE;
 	}
 
-	@Override
 	public RoleFacetNode getRoleFacet() {
 		return this;
 	}

@@ -65,8 +65,6 @@ import org.opentravel.schemas.widgets.ButtonBarManager;
 import org.opentravel.schemas.widgets.WidgetFactory;
 import org.opentravel.schemas.wizards.validators.FormValidator;
 import org.opentravel.schemas.wizards.validators.ValidationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Page to add new properties directly to an existing facet. Adds to existing facet to allow all type assignment logic
@@ -76,7 +74,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class NewPropertiesWizardPage2 extends WizardPage {
-	private static final Logger LOGGER = LoggerFactory.getLogger(NewPropertiesWizardPage2.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(NewPropertiesWizardPage2.class);
 
 	private class TextModifyListener implements ModifyListener {
 		@Override
@@ -161,7 +159,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 
 			@Override
 			public void selectionChanged(final SelectionChangedEvent event) {
-				LOGGER.debug("Library tree Selection Changed.");
+				// LOGGER.debug("Library tree Selection Changed.");
 				updateCopyState();
 			}
 		});
@@ -169,7 +167,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 
 			@Override
 			public void doubleClick(final DoubleClickEvent event) {
-				LOGGER.debug("Library Tree double click.");
+				// LOGGER.debug("Library Tree double click.");
 				final ISelection selection = event.getSelection();
 				if (selection instanceof StructuredSelection) {
 					final StructuredSelection s = (StructuredSelection) selection;
@@ -198,7 +196,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 
 			@Override
 			public void selectionChanged(final SelectionChangedEvent event) {
-				LOGGER.debug("Property Tree Selection Changed.");
+				// LOGGER.debug("Property Tree Selection Changed.");
 				final Object selection = propertyTree.getSelection();
 				if (selection instanceof IStructuredSelection) {
 					final Object first = ((IStructuredSelection) selection).getFirstElement();
@@ -383,7 +381,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 	 * @return newly created property cloned from passed property.
 	 */
 	private PropertyNode newProperty(final PropertyNode o) {
-		LOGGER.debug("New Property from property " + o);
+		// LOGGER.debug("New Property from property " + o);
 		if (!enabledPropertyTypes.contains(o.getPropertyType())) {
 			setMessage(o.getPropertyType().getName() + "s are not allowed for this object", WARNING);
 			return null;
@@ -398,7 +396,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 	 * @return newly created property with name and type taken from passed node.
 	 */
 	private PropertyNode newProperty(final Node node) {
-		LOGGER.debug("New Property: " + node);
+		// LOGGER.debug("New Property: " + node);
 		final PropertyNode newProperty = newProperty();
 		newProperty.setName(NodeNameUtils.adjustCaseOfName(newProperty.getPropertyType(), node.getName()));
 		if (node.isAssignable() && node instanceof TypeProvider)
@@ -412,7 +410,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 	 * @return newly created blank property.
 	 */
 	private PropertyNode newProperty() {
-		LOGGER.debug("New Property.");
+		// LOGGER.debug("New Property.");
 		final String name = "property" + counter.getAndIncrement();
 		PropertyNode newProperty = null;
 		if (enabledPropertyTypes.contains(PropertyNodeType.ELEMENT))
@@ -439,7 +437,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 	private void chooseAssignedType() {
 		final PropertyNode node = getSelectedNode();
 		if (node.getOwningComponent() == null) {
-			LOGGER.error("chhoseTLType error - node " + node + " owner is null.");
+			// LOGGER.error("chhoseTLType error - node " + node + " owner is null.");
 			setMessage("Error. " + node + " does not have an owner.", ERROR);
 			return;
 		}

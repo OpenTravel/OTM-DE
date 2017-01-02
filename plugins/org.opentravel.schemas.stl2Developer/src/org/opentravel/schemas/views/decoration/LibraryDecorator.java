@@ -204,7 +204,7 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 	}
 
 	private String getLibraryDecoration(LibraryNode element) {
-		return getDecoration(getLibraryStatus(element), getLibraryVersion(element));
+		return getDecoration(getLibraryVersion(element), getLibraryStatus(element));
 	}
 
 	public String getLibraryStatus(LibraryNode lib) {

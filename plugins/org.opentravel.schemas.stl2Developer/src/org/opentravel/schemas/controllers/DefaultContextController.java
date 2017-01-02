@@ -15,14 +15,10 @@
  */
 package org.opentravel.schemas.controllers;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLContextReferrer;
 import org.opentravel.schemacompiler.model.TLLibrary;
@@ -79,24 +75,24 @@ public class DefaultContextController extends OtmControllerBase implements Conte
 		manager.addLibraryContexts(ln);
 	}
 
-	@Deprecated
-	@Override
-	public List<String> getAvailableContextIds() {
-		Node node = getCurrentNodeFromMainWindow();
-		if (node == null)
-			return Collections.emptyList();
-		return manager.getAvailableContextIds(node.getLibrary());
-	}
+	// @Deprecated
+	// @Override
+	// public List<String> getAvailableContextIds() {
+	// Node node = getCurrentNodeFromMainWindow();
+	// if (node == null)
+	// return Collections.emptyList();
+	// return manager.getAvailableContextIds(node.getLibrary());
+	// }
 
 	@Override
 	public List<String> getAvailableContextIds(final LibraryNode ln) {
 		return manager.getAvailableContextIds(ln);
 	}
 
-	@Override
-	public List<String> getAvailableContextIds(AbstractLibrary tlib) {
-		return manager.getAvailableContextIds(tlib);
-	}
+	// @Override
+	// public List<String> getAvailableContextIds(AbstractLibrary tlib) {
+	// return manager.getAvailableContextIds(tlib);
+	// }
 
 	@Override
 	public String getDefaultContextId() {
@@ -106,34 +102,16 @@ public class DefaultContextController extends OtmControllerBase implements Conte
 		return "";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.controllers.ContextController#getDefaultContextId(org.opentravel.schemas.node
-	 * .LibraryNode)
-	 */
 	@Override
 	public String getDefaultContextId(LibraryNode ln) {
 		return manager.getDefaultContextId(ln);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.controllers.ContextController#getApplicationContext(org.opentravel.schemas.node
-	 * .LibraryNode, java.lang.String)
-	 */
-	@Override
-	public String getApplicationContext(LibraryNode ln, String contextId) {
-		return manager.getApplicationContext(ln, contextId);
-	}
+	// @Override
+	// public String getApplicationContext(LibraryNode ln, String contextId) {
+	// return manager.getApplicationContext(ln, contextId);
+	// }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.controllers.ContextController#getSelectedId(org.opentravel.schemas.controllers
-	 * .DefaultContextController.ContextViewType, org.opentravel.schemas.node.LibraryNode)
-	 */
 	@Override
 	public String getSelectedId(ContextViewType view, LibraryNode ln) {
 		String id = "";
@@ -156,15 +134,15 @@ public class DefaultContextController extends OtmControllerBase implements Conte
 		return manager.getRoot();
 	}
 
-	/**
-	 * Add new context to context manager and TLLibrary
-	 */
-	@Override
-	public void newContext(LibraryNode library, String id, String value) {
-		ContextNode newNode = manager.newContext(library);
-		newNode.setApplicationContext(value);
-		newNode.setContextId(id);
-	}
+	// /**
+	// * Add new context to context manager and TLLibrary
+	// */
+	// @Override
+	// public void newContext(LibraryNode library, String id, String value) {
+	// ContextNode newNode = manager.newContext(library);
+	// newNode.setApplicationContext(value);
+	// newNode.setContextId(id);
+	// }
 
 	/**
 	 * Used in AddContext action and handler
@@ -198,41 +176,41 @@ public class DefaultContextController extends OtmControllerBase implements Conte
 		view.refreshAllViews();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.controllers.ContextController#clearContexts()
-	 */
-	@Override
-	public void clearContexts() {
-		manager.clear();
-		viewSelections.clear();
-	}
+	// /*
+	// * (non-Javadoc)
+	// *
+	// * @see org.opentravel.schemas.controllers.ContextController#clearContexts()
+	// */
+	// @Override
+	// public void clearContexts() {
+	// manager.clear();
+	// viewSelections.clear();
+	// }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.controllers.ContextController#clearContexts()
-	 */
-	@Override
-	public void clearContexts(LibraryNode ln) {
-		manager.clear(ln);
-		// remove any selections for this library
-		ArrayList<ContextViewType> keys = new ArrayList<ContextViewType>();
-		for (Entry<ContextViewType, ViewSelection> e : viewSelections.entrySet()) {
-			if (e.getValue().lib == ln) {
-				keys.add(e.getKey());
-			}
-		}
-		for (ContextViewType key : keys) {
-			if (key != null) {
-				LOGGER.debug("Removing view selection for view: " + key.name() + " whose value is "
-						+ viewSelections.get(key).contextId);
-				viewSelections.remove(key);
-
-			}
-		}
-	}
+	// /*
+	// * (non-Javadoc)
+	// *
+	// * @see org.opentravel.schemas.controllers.ContextController#clearContexts()
+	// */
+	// @Override
+	// public void clearContexts(LibraryNode ln) {
+	// manager.clear(ln);
+	// // remove any selections for this library
+	// ArrayList<ContextViewType> keys = new ArrayList<ContextViewType>();
+	// for (Entry<ContextViewType, ViewSelection> e : viewSelections.entrySet()) {
+	// if (e.getValue().lib == ln) {
+	// keys.add(e.getKey());
+	// }
+	// }
+	// for (ContextViewType key : keys) {
+	// if (key != null) {
+	// LOGGER.debug("Removing view selection for view: " + key.name() + " whose value is "
+	// + viewSelections.get(key).contextId);
+	// viewSelections.remove(key);
+	//
+	// }
+	// }
+	// }
 
 	/*
 	 * (non-Javadoc)
@@ -309,13 +287,13 @@ public class DefaultContextController extends OtmControllerBase implements Conte
 		}
 	}
 
-	/**
-	 * @return the manager
-	 */
-	@Override
-	public ContextModelManager getContextModelManager() {
-		return manager;
-	}
+	// /**
+	// * @return the manager
+	// */
+	// @Override
+	// public ContextModelManager getContextModelManager() {
+	// return manager;
+	// }
 
 	/*
 	 * (non-Javadoc)
@@ -366,31 +344,8 @@ public class DefaultContextController extends OtmControllerBase implements Conte
 	public void changeContext(final TLContextReferrer referrer) {
 		LOGGER.info("Change context.");
 		throw new IllegalAccessError("Change Context is not implemented.");
-		// if (referrer == null) {
-		// DialogUserNotifier.openWarning("Context Change",
-		// "You can only change contexts on properties that are not empty");
-		// return;
-		// }
-		// final AbstractLibrary owningLibrary = referrer.getOwningLibrary();
-		// if (owningLibrary instanceof TLLibrary) {
-		// final TLLibrary tlLib = (TLLibrary) owningLibrary;
-		// final SimpleNameWizard wizard = new SimpleNameWizard(new ExternalizedStringProperties(
-		// "wizard.changeContext"), getAvailableContextIds(tlLib));
-		// wizard.setValidator(new ContextChangeValidator(referrer, wizard));
-		// wizard.run(OtmRegistry.getActiveShell());
-		// if (!wizard.wasCanceled()) {
-		// final String contextId = wizard.getText();
-		// referrer.setContext(contextId);
-		// mainWindow.refreshAllViews();
-		// }
-		// }
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.controllers.ContextController#cloneContext()
-	 */
 	@Override
 	public void cloneContext() {
 		if (view == null)
@@ -418,18 +373,18 @@ public class DefaultContextController extends OtmControllerBase implements Conte
 		cloneContext();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.controllers.ContextController#copyContext(org.opentravel.schemas.node.Node,
-	 * org.opentravel.schemas.node.LibraryNode)
-	 */
-	@Override
-	public void copyContext(Node node, LibraryNode ln) {
-		for (TLContext tlc : node.getUsedContexts()) {
-			manager.copyContext(tlc, ln);
-		}
-	}
+	// /*
+	// * (non-Javadoc)
+	// *
+	// * @see org.opentravel.schemas.controllers.ContextController#copyContext(org.opentravel.schemas.node.Node,
+	// * org.opentravel.schemas.node.LibraryNode)
+	// */
+	// @Override
+	// public void copyContext(Node node, LibraryNode ln) {
+	// for (TLContext tlc : node.getUsedContexts()) {
+	// manager.copyContext(tlc, ln);
+	// }
+	// }
 
 	/*
 	 * (non-Javadoc)
