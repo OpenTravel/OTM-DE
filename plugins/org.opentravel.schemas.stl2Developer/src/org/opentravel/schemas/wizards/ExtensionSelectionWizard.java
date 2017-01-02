@@ -83,7 +83,7 @@ public class ExtensionSelectionWizard extends Wizard implements IDoubleClickList
 
 	@Override
 	public boolean performFinish() {
-		if (curNode != null) {
+		if (curNode != null && curNode instanceof ExtensionOwner) {
 			((ExtensionOwner) curNode).setExtension(selectionPage.getSelectedNode());
 			// curNode.setExtendsType(selectionPage.getSelectedNode());
 			if (!(curNode instanceof ExtensionPointNode))

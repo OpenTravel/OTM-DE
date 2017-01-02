@@ -107,7 +107,7 @@ public class ContextsView extends OtmAbstractView implements ISelectionListener,
 
 	@Override
 	public void createPartControl(final Composite parent) {
-		LOGGER.info("Initializing part control of " + this.getClass());
+		// LOGGER.info("Initializing part control of " + this.getClass());
 
 		OtmRegistry.registerContextsView(this);
 

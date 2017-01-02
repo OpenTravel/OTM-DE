@@ -85,7 +85,7 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 
 	/**
 	 * Create a new VWA named the Core name. Copy all documentation. Make an attribute property from each property in
-	 * the Summary and Detail facets. Assign simple type to be core simple type.
+	 * the Summary and Detail facets. Assign simple type to be core simple type. Add to same library as the core object.
 	 * 
 	 * @param core
 	 *            is the Core Object to copy from.

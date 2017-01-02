@@ -163,4 +163,14 @@ public class NavNode extends Node {
 	public boolean isEmpty() {
 		return getChildren() != null ? getChildren().isEmpty() : true;
 	}
+
+	/**
+	 * @return true if this member is a child or if it has a version node that is a child.
+	 */
+	public boolean contains(Node member) {
+		Node thisNode = member;
+		if (member.getVersionNode() != null)
+			thisNode = member.getVersionNode();
+		return getChildren().contains(thisNode);
+	}
 }

@@ -531,7 +531,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 		ValidationFindings findings = new ValidationFindings();
 
 		for (LibraryNode ln : getLibraries())
-			findings.addAll(TLModelCompileValidator.validateModelElement(ln.getTLaLib()));
+			findings.addAll(TLModelCompileValidator.validateModelElement(ln.getTLaLib(), true));
 
 		return findings;
 	}

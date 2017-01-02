@@ -45,6 +45,8 @@ import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.Node.NodeVisitor;
+import org.opentravel.schemas.node.NodeVisitors;
 import org.opentravel.schemas.node.SubType;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.FacetNode;
@@ -358,8 +360,12 @@ public class ChangeWizardPage extends WizardPage {
 		for (HistoryItem item : history) {
 			// Need to delete them to remove them from where used type lists.
 			// Change facets does not need delete.
-			if (item.opType.equals(OpType.OBJECT_TYPE_CHANGE))
-				item.previousNode.delete();
+			if (item.opType.equals(OpType.OBJECT_TYPE_CHANGE)) {
+				// Use the visitor because without a library it will not be delete-able.
+				NodeVisitor visitor = new NodeVisitors().new deleteVisitor();
+				item.previousNode.visitAllNodes(visitor);
+				// item.previousNode.delete();
+			}
 		}
 		history.removeAllElements();
 	}

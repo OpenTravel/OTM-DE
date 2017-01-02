@@ -53,7 +53,7 @@ public class ExampleXmlView extends OtmAbstractView implements ISelectionListene
 		OtmRegistry.registerExampleXmlView(this);
 		xmlBox = initializeXmlBox(parent);
 		getSite().getPage().addSelectionListener("org.opentravel.schemas.stl2Developer.ExampleView", this);
-		LOGGER.info("Done initializing part control of " + this.getClass());
+		// LOGGER.info("Done initializing part control of " + this.getClass());
 	}
 
 	/**

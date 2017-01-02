@@ -66,7 +66,7 @@ public class MainWindow extends ViewPart implements ISelectionListener {
 	private Display mainDisplay;
 
 	public MainWindow() {
-		LOGGER.info("Main Window constructor ran. " + this.getClass());
+		// LOGGER.info("Main Window constructor ran. " + this.getClass());
 
 		// Testing 1.6 support
 		// OTM16Upgrade.otm16Enabled = true;
@@ -85,7 +85,7 @@ public class MainWindow extends ViewPart implements ISelectionListener {
 
 	@Override
 	public void createPartControl(final Composite parent) {
-		LOGGER.info("Create part control in " + this.getClass());
+		// LOGGER.info("Create part control in " + this.getClass());
 		initializeMainWindow(parent.getDisplay());
 
 	}
@@ -97,7 +97,7 @@ public class MainWindow extends ViewPart implements ISelectionListener {
 
 		mainDisplay = display;
 		colorProvider = new ColorProvider(display);
-		LOGGER.info("Done initializing part control of " + this.getClass());
+		LOGGER.info("Done initializing " + this.getClass());
 	}
 
 	public boolean hasDisplay() {

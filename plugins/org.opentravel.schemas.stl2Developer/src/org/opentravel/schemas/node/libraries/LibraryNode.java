@@ -1132,7 +1132,8 @@ public class LibraryNode extends Node implements LibraryInterface {
 			return;
 		}
 
-		n.unlinkNode();
+		if (n.getParent() != null)
+			n.unlinkNode();
 		n.getLibrary().getTLLibrary().removeNamedMember((TLLibraryMember) n.getTLModelObject());
 		n.setLibrary(null);
 		// n.fixAssignments();
@@ -1141,6 +1142,17 @@ public class LibraryNode extends Node implements LibraryInterface {
 	@Override
 	public LibraryNode getLibrary() {
 		return this;
+	}
+
+	/**
+	 * @return string of version number from ns handler IFF managed project item, empty string otherwise.
+	 */
+	public String getLibraryVersion() {
+		String version = "";
+		if (getProjectItem() != null && getNsHandler() != null
+				&& !RepositoryItemState.UNMANAGED.equals(getProjectItem().getState()))
+			version = getNsHandler().getNSVersion(getNamespace());
+		return version;
 	}
 
 	@Override
@@ -1839,6 +1851,27 @@ public class LibraryNode extends Node implements LibraryInterface {
 		if (getChain() != null)
 			return getChain().getLibraryNavNode();
 		return getParent() instanceof LibraryNavNode ? (LibraryNavNode) getParent() : null;
+	}
+
+	/**
+	 * Check all members to see if this is a member.
+	 * 
+	 * @param member
+	 * @return true if the member is a member of this library.
+	 */
+	public boolean contains(Node member) {
+		if (member instanceof LibraryMemberInterface) {
+			if (complexRoot.contains(member))
+				return true;
+			if (simpleRoot.contains(member))
+				return true;
+			if (serviceRoot == member)
+				return true;
+			if (resourceRoot.contains(member))
+				return true;
+			// if ( elementRoot;
+		}
+		return false;
 	}
 
 }

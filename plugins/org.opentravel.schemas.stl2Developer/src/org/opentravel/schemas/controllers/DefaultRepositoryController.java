@@ -365,7 +365,7 @@ public class DefaultRepositoryController implements RepositoryController {
 		UnlockThread ut = new UnlockThread(ln, mc);
 		BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), ut);
 		refreshAll(ln);
-		LOGGER.debug("UnLocked library " + this);
+		// LOGGER.debug("UnLocked library " + this);
 		mc.postStatus("Library " + ln + " unlocked.");
 		return ut.getResult();
 	}
@@ -375,7 +375,7 @@ public class DefaultRepositoryController implements RepositoryController {
 		RevertThread rt = new RevertThread(ln, mc);
 		BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), rt);
 		refreshAll(ln);
-		LOGGER.debug("UnLocked and reverted library " + ln);
+		// LOGGER.debug("UnLocked and reverted library " + ln);
 		mc.postStatus("Library " + ln + " unlocked.");
 		return rt.getLoaded();
 	}
@@ -515,7 +515,7 @@ public class DefaultRepositoryController implements RepositoryController {
 			else {
 				String message = "Opening " + entry.getValue().getNamespace() + " - "
 						+ entry.getValue().getLibraryName() + " library.";
-				LOGGER.debug(message);
+				// LOGGER.debug(message);
 				mc.postStatus(message);
 
 				// Open the repository item into the entry key's project.
@@ -528,8 +528,8 @@ public class DefaultRepositoryController implements RepositoryController {
 		}
 
 		// Print out replacement map
-		for (Entry<LibraryNode, LibraryNode> entry : replacementMap.entrySet())
-			LOGGER.debug("ReplacementMap Entry: " + entry.getKey() + " value = " + entry.getValue());
+		// for (Entry<LibraryNode, LibraryNode> entry : replacementMap.entrySet())
+		// LOGGER.debug("ReplacementMap Entry: " + entry.getKey() + " value = " + entry.getValue());
 
 		return replacementMap;
 	}
@@ -562,7 +562,7 @@ public class DefaultRepositoryController implements RepositoryController {
 			String msg = Messages.getString(REPO_MESSAGE_PREFIX + "invalidLocation");
 			msg += "\n\n" + e.getLocalizedMessage();
 			DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg);
-			LOGGER.debug("Repository Error: " + msg);
+			LOGGER.warn("Repository Error: " + msg);
 			return false;
 		}
 		return true;
@@ -750,7 +750,7 @@ public class DefaultRepositoryController implements RepositoryController {
 			return false;
 		}
 		if (library.getChain() == null) {
-			LOGGER.debug("Missing chain for library " + library);
+			LOGGER.warn("Missing chain for library " + library);
 			return false;
 		}
 
@@ -813,7 +813,7 @@ public class DefaultRepositoryController implements RepositoryController {
 
 	public static void postRepoException(Exception e) {
 		DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), e.getLocalizedMessage());
-		LOGGER.debug("Repository Exception: " + e.getLocalizedMessage());
+		LOGGER.warn("Repository Exception: " + e.getLocalizedMessage());
 	}
 
 	public static void postRepoWarning(String message) {
@@ -821,7 +821,7 @@ public class DefaultRepositoryController implements RepositoryController {
 		if (msg.equals('!' + message + '!'))
 			LOGGER.error("Bad warning message: " + message);
 		DialogUserNotifier.openWarning(Messages.getString(REPO_WARNING_TITLE), msg);
-		LOGGER.debug("Repository Warning: " + msg);
+		LOGGER.warn("Repository Warning: " + msg);
 	}
 
 	public static void postRepoError(String message) {
@@ -829,7 +829,7 @@ public class DefaultRepositoryController implements RepositoryController {
 		if (msg.equals('!' + message + '!'))
 			LOGGER.error("Bad error message: " + message);
 		DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg);
-		LOGGER.debug("Repository Error: " + msg);
+		// LOGGER.debug("Repository Error: " + msg);
 	}
 
 }

@@ -44,7 +44,8 @@ import org.opentravel.schemas.actions.ImportObjectToLibraryAction;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.NodeModelController;
+import org.opentravel.schemas.node.Node.NodeVisitor;
+import org.opentravel.schemas.node.NodeVisitors;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -96,7 +97,7 @@ public class MainController {
 	private final LibraryController libraryController;
 	private final ModelController modelController;
 	private final ContextController contextController;
-	private final NodeModelController nodeModelController;
+	// private final NodeModelController nodeModelController;
 	private ProjectController projectController;
 	private RepositoryController repositoryController;
 
@@ -149,7 +150,7 @@ public class MainController {
 		// LOGGER.info("Initializing Model Node.");
 		modelNode = modelController.getModel();
 		// LOGGER.info("Initializing nodeModel controller.");
-		nodeModelController = new NodeModelController(this);
+		// nodeModelController = new NodeModelController(this);
 		// LOGGER.info("Initializing Context controller.");
 		contextController = new DefaultContextController(this);
 		// LOGGER.info("Initializing Repository controller.");
@@ -192,9 +193,9 @@ public class MainController {
 		return modelController;
 	}
 
-	public NodeModelController getNodeModelController() {
-		return nodeModelController;
-	}
+	// public NodeModelController getNodeModelController() {
+	// return nodeModelController;
+	// }
 
 	/**
 	 * @return the projectController
@@ -635,8 +636,12 @@ public class MainController {
 				editedNode.setLibrary(srcLib);
 				srcLib.moveMember(editedNode, destLib);
 			}
-			if (editedNode != nodeToReplace)
-				nodeToReplace.delete();
+			if (editedNode != nodeToReplace) {
+				// Use the visitor because without a library it will not be delete-able.
+				NodeVisitor visitor = new NodeVisitors().new deleteVisitor();
+				nodeToReplace.visitAllNodes(visitor);
+				// nodeToReplace.delete();
+			}
 			selectNavigatorNodeAndRefresh(editedNode);
 			refresh(editedNode);
 
@@ -648,8 +653,8 @@ public class MainController {
 		// Test Result
 		// NodeModelTestUtils.testNodeModel();
 		// Validate the library after doing change.
-		checkModelCounts(srcLib);
-		checkModelCounts(editedNode.getLibrary());
+		// checkModelCounts(srcLib); // these don't work right with chains and contextual facets
+		// checkModelCounts(editedNode.getLibrary());
 		// }
 	}
 

@@ -2209,8 +2209,9 @@ public abstract class Node implements INode {
 			return;
 		}
 
-		getLibrary().addMember(replacement); // does nothing in swap because replacement lib is already set to
-												// this.getLibrary()
+		if (!getLibrary().contains(replacement))
+			getLibrary().addMember(replacement); // does nothing in swap because replacement lib is already set to
+													// this.getLibrary()
 
 		replaceTypesWith(replacement, null);
 
@@ -2333,6 +2334,7 @@ public abstract class Node implements INode {
 		assert (parent != null) : "Null parent";
 		assert (isTLLibraryMember()) : "TL Object is not library member.";
 		assert (replacement.isTLLibraryMember()) : "TL Object is not library member.";
+		assert (this instanceof LibraryMemberInterface);
 
 		final Node thisParent = parent;
 
@@ -2387,7 +2389,8 @@ public abstract class Node implements INode {
 			if (this instanceof ComponentNode)
 				getChain().removeAggregate((ComponentNode) this);
 			// unlink the version node it self
-			vn.unlinkNode();
+			if (vn.getParent() != null)
+				vn.unlinkNode();
 		}
 	}
 
@@ -2400,8 +2403,8 @@ public abstract class Node implements INode {
 			return null;
 		ValidationFindings findings = TLModelCompileValidator.validateModelElement(this.getTLModelObject(),
 				this instanceof LibraryNode);
-		for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
-			LOGGER.debug("Finding: " + f);
+		// for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
+		// LOGGER.debug("Finding: " + f);
 
 		return findings;
 	}

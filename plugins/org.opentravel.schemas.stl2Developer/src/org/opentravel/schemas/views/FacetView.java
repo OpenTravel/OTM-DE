@@ -59,6 +59,7 @@ import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
@@ -399,7 +400,7 @@ public class FacetView extends OtmAbstractView {
 		if (!getMainWindow().hasDisplay())
 			return;
 		if (target == null || target.isDeleted()) {
-			LOGGER.debug("Posted deleted node: " + target);
+			LOGGER.warn("Posted deleted node: " + target);
 			return;
 		}
 		// LOGGER.debug("Posting facet table for node: " + target);
@@ -471,7 +472,8 @@ public class FacetView extends OtmAbstractView {
 
 			// Don't allow users to break version relationships
 			if (curNode.isEditable_newToChain()) {
-				extendsAction.setEnabled(true);
+				if (curNode instanceof ExtensionOwner)
+					extendsAction.setEnabled(true);
 				clearExtendsAction.setEnabled(curNode.getExtendsType() != null);
 			}
 		}

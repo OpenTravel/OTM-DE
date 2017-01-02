@@ -60,6 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3._2001.xmlschema.Annotated;
 import org.w3._2001.xmlschema.Annotation;
+import org.w3._2001.xmlschema.Any;
 import org.w3._2001.xmlschema.Attribute;
 import org.w3._2001.xmlschema.AttributeGroupRef;
 import org.w3._2001.xmlschema.ComplexType;
@@ -670,6 +671,8 @@ public class XsdModelingUtils {
 		Node typeNode = null;
 		final TLProperty tlp = new TLProperty();
 
+		if (p instanceof Any)
+			return; // Not supported.
 		if (!(p instanceof JAXBElement<?>)) {
 			LOGGER.error("Early Exit - property is not a JaxB element.");
 			return;

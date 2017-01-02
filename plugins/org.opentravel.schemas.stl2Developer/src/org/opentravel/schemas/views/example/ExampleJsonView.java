@@ -52,7 +52,7 @@ public class ExampleJsonView extends OtmAbstractView implements ISelectionListen
 		OtmRegistry.registerExampleJsonView(this);
 		jsonBox = initializeJsonBox(parent);
 		getSite().getPage().addSelectionListener("org.opentravel.schemas.stl2Developer.ExampleView", this);
-		LOGGER.info("Done initializing part control of " + this.getClass());
+		// LOGGER.info("Done initializing part control of " + this.getClass());
 	}
 
 	/**

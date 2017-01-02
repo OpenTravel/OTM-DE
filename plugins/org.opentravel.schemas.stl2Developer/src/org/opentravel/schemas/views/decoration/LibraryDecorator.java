@@ -21,12 +21,10 @@ import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 import org.eclipse.jface.viewers.LabelProviderChangedEvent;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
-import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 import org.opentravel.schemas.controllers.MainController.IRefreshListener;
-import org.opentravel.schemas.node.NamespaceHandler;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
@@ -203,8 +201,8 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 		return "(" + count + ")";
 	}
 
-	private String getLibraryDecoration(LibraryNode element) {
-		return getDecoration(getLibraryVersion(element), getLibraryStatus(element));
+	private String getLibraryDecoration(LibraryNode lib) {
+		return getDecoration(getLibraryVersion(lib), getLibraryStatus(lib));
 	}
 
 	public String getLibraryStatus(LibraryNode lib) {
@@ -212,17 +210,18 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 	}
 
 	public String getLibraryVersion(LibraryNode lib) {
-		String version = "";
-		NamespaceHandler nsHandler = null;
-		if (lib != null) {
-			nsHandler = lib.getNsHandler();
-			ProjectItem projectItem = lib.getProjectItem();
-			if (projectItem != null && nsHandler != null
-					&& !RepositoryItemState.UNMANAGED.equals(projectItem.getState())) {
-				version = nsHandler.getNSVersion(lib.getNamespace());
-			}
-		}
-		return version;
+		return lib.getLibraryVersion();
+		// String version = "";
+		// NamespaceHandler nsHandler = null;
+		// if (lib != null) {
+		// nsHandler = lib.getNsHandler();
+		// ProjectItem projectItem = lib.getProjectItem();
+		// if (projectItem != null && nsHandler != null
+		// && !RepositoryItemState.UNMANAGED.equals(projectItem.getState())) {
+		// version = nsHandler.getNSVersion(lib.getNamespace());
+		// }
+		// }
+		// return version;
 	}
 
 	private String getDecoration(String status, String version) {

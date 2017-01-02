@@ -531,20 +531,18 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 			listButton.setEnabled(true);
 		if (cn instanceof SimpleTypeNode)
 			listButton.setSelection(((SimpleTypeNode) cn).isSimpleList());
-		else {
-			ConstraintHandler ch = cn.getConstraintHandler();
-			if (ch != null) {
-				listButton.setSelection(false);
-				fields.postField(patternField, ch.getPattern(), editable);
-				widgets.postSpinner(minLenSpinner, ch.getMinLen(), editable);
-				widgets.postSpinner(maxLenSpinner, ch.getMaxLen(), editable);
-				widgets.postSpinner(fractionDigitsSpinner, ch.getFractionDigits(), editable);
-				widgets.postSpinner(totalDigitsSpinner, ch.getTotalDigits(), editable);
-				fields.postField(minInclusiveText, ch.getMinInclusive(), editable);
-				fields.postField(maxInclusiveText, ch.getMaxInclusive(), editable);
-				fields.postField(minExclusiveText, ch.getMinExclusive(), editable);
-				fields.postField(maxExclusiveText, ch.getMaxExclusive(), editable);
-			}
+
+		ConstraintHandler ch = cn.getConstraintHandler();
+		if (ch != null) {
+			fields.postField(patternField, ch.getPattern(), editable);
+			widgets.postSpinner(minLenSpinner, ch.getMinLen(), editable);
+			widgets.postSpinner(maxLenSpinner, ch.getMaxLen(), editable);
+			widgets.postSpinner(fractionDigitsSpinner, ch.getFractionDigits(), editable);
+			widgets.postSpinner(totalDigitsSpinner, ch.getTotalDigits(), editable);
+			fields.postField(minInclusiveText, ch.getMinInclusive(), editable);
+			fields.postField(maxInclusiveText, ch.getMaxInclusive(), editable);
+			fields.postField(minExclusiveText, ch.getMinExclusive(), editable);
+			fields.postField(maxExclusiveText, ch.getMaxExclusive(), editable);
 		}
 	}
 

@@ -114,7 +114,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 
 	@Override
 	public void createPartControl(final Composite parent) {
-		LOGGER.info("Initializing part control of " + this.getClass());
+		// LOGGER.info("Initializing part control of " + this.getClass());
 		if (parent == null)
 			throw new IllegalArgumentException("Can not create part without a parent composite.");
 
