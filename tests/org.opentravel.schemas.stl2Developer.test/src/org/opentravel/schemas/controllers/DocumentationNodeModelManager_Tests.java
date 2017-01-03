@@ -26,16 +26,15 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.DocumentationNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeModelTestUtils;
 import org.opentravel.schemas.node.DocumentationNode.DocumentationNodeType;
 import org.opentravel.schemas.node.controllers.DescriptionDocItemNodeModelController;
 import org.opentravel.schemas.node.controllers.DocumentationNodeModelManager;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.NodeTesters;
-
 import org.opentravel.schemacompiler.model.TLDocumentationItem;
 
 /**

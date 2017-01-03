@@ -15,9 +15,13 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.utils.BaseProjectTest;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
@@ -29,8 +33,8 @@ public class NodeExtensionTest extends BaseProjectTest {
 
 	@Override
 	protected void callBeforeEachTest() throws LibrarySaveException {
-		lib = LibraryNodeBuilder.create("Example", "http://example.org", "p", new Version(1, 1, 1)).build(
-				defaultProject, pc);
+		lib = LibraryNodeBuilder.create("Example", "http://example.org", "p", new Version(1, 1, 1)).build(testProject,
+				pc);
 		lib.setEditable(true);
 	}
 
@@ -39,6 +43,26 @@ public class NodeExtensionTest extends BaseProjectTest {
 		BusinessObjectNode boBase = ComponentNodeBuilder.createBusinessObject("name").get(lib);
 		BusinessObjectNode boExtend = ComponentNodeBuilder.createBusinessObject("Extend").extend(boBase).get(lib);
 		Assert.assertTrue(boExtend.isExtendedBy(boBase));
+
+	}
+
+	// Make sure the libraries are correct.
+	@Test
+	public void extensionDoesNotChangeAssignedLibrary() throws LibrarySaveException {
+		LibraryNode libE = LibraryNodeBuilder.create("Example2", "http://example.org", "p", new Version(1, 1, 1))
+				.build(testProject, pc);
+		new LibraryChainNode(libE);
+		libE.setEditable(true);
+
+		BusinessObjectNode boBase = ComponentNodeBuilder.createBusinessObject("name").get(lib);
+		BusinessObjectNode boExtend = ComponentNodeBuilder.createBusinessObject("Extend").extend(boBase).get(libE);
+
+		Assert.assertTrue(boExtend.isExtendedBy(boBase));
+		assertTrue("base must be in base library.", boBase.getLibrary().getDescendants_LibraryMembers()
+				.contains(boBase));
+		assertTrue("extension must be in extension library.", boExtend.getLibrary() == libE);
+		assertTrue("extension must be in extension library.", boExtend.getLibrary().getDescendants_LibraryMembers()
+				.contains(boExtend));
 	}
 
 	@Test

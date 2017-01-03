@@ -19,9 +19,9 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.NodeTesters;
 

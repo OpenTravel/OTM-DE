@@ -31,6 +31,8 @@ import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.resources.ActionNode;
 import org.opentravel.schemas.node.resources.ParentRef;
 import org.opentravel.schemas.node.resources.ResourceBuilder;
@@ -155,7 +157,7 @@ public class ResourceObjectTests {
 			LOGGER.debug("Example: " + url + ".");
 			assertTrue("Action has example.", !url.isEmpty());
 			if (url.startsWith("GET"))
-				assertTrue("Get example is correct.",
+				assertTrue("Get example must be correct.",
 						url.startsWith("GET http://example.com/ResourceTestLibInitialBOs/{TestID}"));
 		}
 	}

@@ -34,8 +34,6 @@ import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.ImpliedNode;
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
@@ -43,6 +41,8 @@ import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.types.TypeUser;
@@ -129,46 +129,63 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		LOGGER.debug("Before tests done.");
 	}
 
+	// Create two libraries where one uses types from the other then version the type provider
 	@Test
 	public void updateVersionTest_AssignedTypes() throws RepositoryException {
-		// Create two libraries where one uses types from the other then version the type provider
+		// Given - two managed, locked and editable libraries.
 
-		// Find a simple type in the provider library to assign
+		// Given - a simple type in the provider library to assign
 		providerLib = lib2;
 		SimpleTypeNode simpleType = ml.addSimpleTypeToLibrary(providerLib, "simpleType");
 
-		// Create user library containing the objects that will get updated and assign them to the found type
+		// Given - user library containing the objects that will get updated and assign them to the found type
 		LibraryNode userLib = lib1;
 		ml.addOneOfEach(userLib, "User");
 		for (TypeUser user : userLib.getDescendants_TypeUsers())
 			user.setAssignedType(simpleType);
 
-		// Version the provider library
+		// When - provider lib is Versioned
 		providerLib = rc.createMajorVersion(providerLib);
+		// Then
 		assertTrue("Must have major version of provider library.", providerLib != null);
 		assertTrue("Must have type providers", !providerLib.getDescendants_TypeProviders().isEmpty());
 		assertTrue("Must be new library.", providerLib != lib2);
 		assertTrue("Major versions must be head of chain.", providerLib == providerLib.getChain().getHead());
+		// Then - type users still use the type from the old version
+		assertTrue("Assigned type is NOT in major version.", simpleType.getLibrary() != providerLib);
+		for (TypeUser user : userLib.getDescendants_TypeUsers())
+			if (!(user.getAssignedType() instanceof ImpliedNode) && user.getRequiredType() == null)
+				if (user.getAssignedType() != simpleType)
+					LOGGER.debug("AssignedType = " + user.getAssignedType());
+				else
+					assertTrue("Type user must be assigned to simple type.", user.getAssignedType() == simpleType);
 
-		// Business Logic - setup the map and prepare for the call used by the Version Update Handler.
 		//
+		// Library level assigned type replacement Business Logic
+		// - setup the map and prepare for the call used by the Version Update Handler.
+		//
+		// Given - a replacement map of used libraries and their later versions.
 		// Walk selected library type users and collect all used libraries (type assignments and extensions)
 		List<LibraryNode> usedLibs = userLib.getAssignedLibraries();
-		// Create replacement map
+		assertTrue("Must have simple type library in list.", usedLibs.contains(simpleType.getLibrary()));
 		HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(usedLibs, true);
-		// TODO - test with finalOnly set to true on getVersionUpdateMap()
-		// Use calls used by Version Update Handler t0 replace type users using the replacement map
+		assertTrue("Replacement map must map simple type lib to major version.",
+				replacementMap.get(simpleType.getLibrary()) == providerLib);
+
+		// When - call used by Version Update Handler t0 replace type users using the replacement map
 		userLib.replaceTypeUsers(replacementMap);
 
-		// Make sure it worked
+		// Then
+		assertTrue(simpleType.getWhereAssigned().isEmpty());
 		for (TypeUser user : userLib.getDescendants_TypeUsers()) {
-			if (!(user.getAssignedType() instanceof ImpliedNode)) {
+			if (!(user.getAssignedType() instanceof ImpliedNode) && user.getRequiredType() == null) {
 				if (user.getAssignedType().getLibrary() != providerLib)
 					LOGGER.debug("Error - " + user + " assigned type is in wrong library: "
 							+ ((Node) user.getAssignedType()).getNameWithPrefix());
 				assertTrue("Must be in providerLib.", user.getAssignedType().getLibrary() == providerLib);
 			}
 		}
+		// TODO - test with finalOnly set to true on getVersionUpdateMap()
 	}
 
 	@Test

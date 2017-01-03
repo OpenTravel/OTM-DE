@@ -41,26 +41,26 @@ import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.validate.FindingType;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.modelObject.ListFacetMO;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.ImpliedNode;
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.LibraryTests;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.SimpleComponentNode;
 import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.NodeIdentityListener;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
@@ -70,6 +70,7 @@ import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.types.WhereAssignedHandler.WhereAssignedListener;
+import org.opentravel.schemas.utils.BaseProjectTest;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.osgi.framework.Version;
@@ -81,7 +82,7 @@ import org.w3c.dom.Document;
  * @author Dave Hollander
  * 
  */
-public class TestTypes {
+public class TestTypes extends BaseProjectTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TestTypes.class);
 
 	NodeTesters nt = new NodeTesters();
@@ -89,17 +90,20 @@ public class TestTypes {
 	LibraryTests lt = new LibraryTests();
 	MockLibrary ml = null;
 	LibraryNode ln = null;
-	MainController mc;
-	DefaultProjectController pc;
 	ProjectNode defaultProject;
 	int nodeCount;
+
+	// From baseProjecTest
+	// rc, mc, pc, testProject
+	// MainController mc;
+	// DefaultProjectController pc;
 
 	@Before
 	public void beforeAllTests() {
 		LOGGER.debug("Initializing Test Setup.");
-		mc = new MainController();
+		// mc = new MainController();
 		ml = new MockLibrary();
-		pc = (DefaultProjectController) mc.getProjectController();
+		// pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
 	}
 
@@ -195,14 +199,14 @@ public class TestTypes {
 			Assert.assertEquals(user + " where used listeners error:", 1, myListeners);
 		}
 
-		// If it is a type user, there should be only one where used
-		if (provider instanceof TypeUser) {
-			int whereUsed = 0;
-			for (ModelElementListener l : listeners)
-				if (l instanceof WhereAssignedListener)
-					whereUsed++;
-			Assert.assertEquals(1, whereUsed);
-		}
+		// // If it is a type user, there should be only one where used
+		// if (provider instanceof TypeUser) {
+		// int whereUsed = 0;
+		// for (ModelElementListener l : listeners)
+		// if (l instanceof WhereAssignedListener)
+		// whereUsed++;
+		// Assert.assertEquals(1, whereUsed);
+		// }
 	}
 
 	public int getIdentityListenerCount(Node n) {
@@ -317,8 +321,14 @@ public class TestTypes {
 
 	@Test
 	public void checkTypes() throws Exception {
-		lf.loadFile1(mc);
+		String NS = "http://opentravel.org/local/dave";
+		defaultProject.setNamespace(NS);
+
+		// lf.loadFile2(mc);
+		// lf.loadFile4(mc);
+
 		ln = lf.loadFile5(mc);
+		lf.loadFile1(mc);
 
 		for (Node n : Node.getAllUserLibraries()) {
 			visitAllNodes(n);
@@ -346,7 +356,7 @@ public class TestTypes {
 		Node prop;
 		LOGGER.debug("TEST being run -- testsetAssignedTypeForThisNode");
 
-		ln = ml.createNewLibrary(ns, "LIB", null);
+		ln = ml.createNewLibrary(ns, "LIB", pc.getDefaultProject());
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "BO");
 
 		// ret = bo.getTypeClass().setAssignedTypeForThisNode(bo);
@@ -395,27 +405,32 @@ public class TestTypes {
 		ElementNode e1 = new ElementNode(coBase.getSummaryFacet(), "E1", simple);
 		ElementNode e2 = new ElementNode(coExt.getSummaryFacet(), "E2", simple);
 		assertTrue(simple.getWhereAssignedCount() == 3);
-		// resolver uses visitors
+		assertTrue("Core object must be extension owner.", coExt instanceof ExtensionOwner);
+
+		// When - visited as done in type resolver
 		nodeCount = 0;
 		moveFrom.visitAllTypeUsers(new CountVisits());
 		int typeUsers = nodeCount;
 		nodeCount = 0;
-		moveFrom.visitAllBaseTypeUsers(new CountVisits());
+		moveFrom.visitAllExtensionOwners(new CountVisits());
 		int baseUsers = nodeCount;
-		assertTrue("Two extension owners.", baseUsers == 2);
+		// Then - check visit counts
+		assertTrue("Must have visited 5 type users.", typeUsers == 5);
+		assertTrue("Must have visited 2 extension owners.", baseUsers == 2);
 
 		LibraryNode moveTo = LibraryNodeBuilder.create("MoveTo", defaultProject.getNamespace() + "/Test/TO", "to",
 				new Version(1, 0, 0)).build(defaultProject, pc);
 
-		// when
+		// When
 		// each member is imported to moveTo library (cloned and library assigned, not typed)
 		for (Node n : moveFrom.getDescendants_LibraryMembers())
 			moveTo.importNode(n);
 		assertTrue("moveTo must have 3 members.", moveTo.getDescendants_LibraryMembers().size() == 3);
-		// Type resolver run
+		// and Type resolver run
 		new TypeResolver().resolveTypes(moveTo);
 
-		CoreObjectNode newBase, newExt = null;
+		// Find the imported objects
+		CoreObjectNode newBase = null, newExt = null;
 		SimpleTypeNode newSimple = null;
 		for (Node n : moveTo.getDescendants_LibraryMembers())
 			if (n.getName().equals("COBase"))
@@ -426,10 +441,15 @@ public class TestTypes {
 				newSimple = (SimpleTypeNode) n;
 
 		// then
+		assertTrue("newBase must have been found.", newBase != null);
 		assertTrue("Simple must have base type.", type1.getWhereAssigned().contains(newSimple));
 		assertTrue("Simple must be used by original and new objects", simple.getWhereAssignedCount() == 6);
-		assertTrue("coBase must be extended.", coBase.getWhereExtendedHandler().getWhereExtended().contains(coExt));
+		assertTrue("coBase must have orginal extension.",
+				coBase.getWhereExtendedHandler().getWhereExtended().contains(coExt));
+		assertTrue("newExt must have extension base for visitor to work.",
+				((ExtensionOwner) newExt).getExtensionBase() != null);
 		assertTrue("coBase must be extended.", coBase.getWhereExtendedHandler().getWhereExtended().contains(newExt));
+
 		assertTrue("coExt must still be instanceof coBase.", coExt.isInstanceOf(coBase));
 		assertTrue("newExt must be instanceof coBase.", newExt.isInstanceOf(coBase));
 	}
@@ -450,7 +470,7 @@ public class TestTypes {
 	public int testSimples(LibraryNode ln) {
 		int simpleCnt = 0;
 		for (Node sn : ln.getSimpleRoot().getChildren()) {
-			assertTrue("Must be simple type.", sn.isSimpleType());
+			assertTrue("Must be simple type.", sn instanceof SimpleComponentNode);
 			assertTrue("Must be a type user.", sn instanceof TypeUser);
 			assertTrue("Must have assigned type.", ((TypeUser) sn).getAssignedType() != null);
 			assertTrue("Must not be assigned implied type.",

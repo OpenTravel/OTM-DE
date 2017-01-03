@@ -49,6 +49,8 @@ import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.NodeIdentityListener;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
@@ -159,6 +161,10 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 		// Then - must be valid extension
 		testExtension(ln, eln);
 		checkValid(chain);
+
+		String ns1 = ln.getNamespace();
+		String ns2 = majorLibrary.getNamespace();
+		LOGGER.debug("Must be different namespaces." + ns1 + ns2);
 
 		// Test in a managed major
 		ml.addOneOfEach(majorLibrary, "Major");

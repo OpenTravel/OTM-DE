@@ -24,9 +24,9 @@ import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.NodeFactory;
-import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 

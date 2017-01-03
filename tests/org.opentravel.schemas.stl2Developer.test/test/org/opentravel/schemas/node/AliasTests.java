@@ -31,6 +31,8 @@ import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -89,6 +91,7 @@ public class AliasTests {
 	private void testConstructors(LibraryNode ln) {
 		// Given - objects used in constructors
 		TLAlias tlAlias = new TLAlias();
+		tlAlias.setName("Co1Alias1");
 		BusinessObjectNode parent1 = ml.addBusinessObjectToLibrary(ln, "bo2");
 		CoreObjectNode parent2 = ml.addCoreObjectToLibrary(ln, "co1");
 		List<Node> navChildren = new ArrayList<Node>();

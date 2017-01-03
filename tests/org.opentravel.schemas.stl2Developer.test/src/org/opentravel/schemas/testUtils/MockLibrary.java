@@ -15,6 +15,8 @@
  */
 package org.opentravel.schemas.testUtils;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -45,8 +47,6 @@ import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.ExtensionPointNode;
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
@@ -57,6 +57,8 @@ import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
@@ -108,7 +110,6 @@ public class MockLibrary {
 		TLLibrary tllib = new TLLibrary();
 		tllib.setName(name);
 		tllib.setStatus(TLLibraryStatus.DRAFT);
-		// causes compiler errors - tllib.setNamespaceAndVersion(ns, "0.0.0");
 		tllib.setNamespaceAndVersion(ns, "1.0.0");
 		tllib.setPrefix("nsPrefix");
 		// LOGGER.debug("Set new library namespace to: " + tllib.getPrefix() + ":"
@@ -170,7 +171,8 @@ public class MockLibrary {
 		LibraryNode ln = createNewLibrary(parent.getNamespace(), name, parent);
 		Assert.assertTrue(ln.isInProjectNS());
 		LibraryChainNode lcn = new LibraryChainNode(ln);
-		// not needed -- ln.setEditable(true); // override ns policy for chains
+		// not needed -- ???
+		ln.setEditable(true); // override ns policy for chains
 		Assert.assertTrue(ln.isEditable());
 		return lcn;
 	}
@@ -243,7 +245,7 @@ public class MockLibrary {
 		int initialCount = ln.getDescendants_LibraryMembers().size();
 		int finalCount = initialCount;
 		if (ln.isEditable()) {
-			BusinessObjectNode bo = addBusinessObjectToLibrary(ln, nameRoot + "BO");
+			addBusinessObjectToLibrary(ln, nameRoot + "BO");
 			addClosedEnumToLibrary(ln, nameRoot + "CE");
 			addCoreObjectToLibrary(ln, nameRoot + "CO");
 			addOpenEnumToLibrary(ln, nameRoot + "OE");
@@ -252,14 +254,6 @@ public class MockLibrary {
 			ChoiceObjectNode choice = addChoice(ln, nameRoot + "Choice");
 			// NO - DO NOT DO THIS - addExtensionPoint(ln, bo.getSummaryFacet());
 			int addedCount = 7;
-
-			// Add facets to the BO and choice
-			FacetNode facet = bo.addFacet("f1", TLFacetType.CUSTOM);
-			ElementReferenceNode er = new ElementReferenceNode(facet, "TestEleRef");
-			er.setAssignedType(bo);
-
-			bo.addFacet("f1", TLFacetType.QUERY);
-			choice.addFacet("c1");
 
 			finalCount = ln.getDescendants_LibraryMembers().size();
 			Assert.assertEquals(addedCount + initialCount, finalCount);
@@ -283,7 +277,7 @@ public class MockLibrary {
 	}
 
 	/**
-	 * @return new business object with 2 properties or null if library is not editable
+	 * @return new business object with properties or null if library is not editable
 	 */
 	public BusinessObjectNode addBusinessObjectToLibrary(LibraryNode ln, String name) {
 		BusinessObjectNode newNode = addBusinessObjectToLibrary_Empty(ln, name);
@@ -292,17 +286,21 @@ public class MockLibrary {
 
 		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
 
-		PropertyNode newProp = new ElementNode(newNode.getIDFacet(), "TestEleInID", string);
-		new IdNode(newNode.getIDFacet(), "TestId");
+		new ElementNode(newNode.getIDFacet(), "TestEleInID" + name, string);
+		// If there are too many ID in extension the library is invalid.
+		new IdNode(newNode.getIDFacet(), "TestId" + name);
 
-		newProp = new ElementNode(newNode.getSummaryFacet(), "TestEle", string);
-		newProp = new AttributeNode(newNode.getSummaryFacet(), "TestAttribute");
-		newProp.setAssignedType(string);
+		new ElementNode(newNode.getSummaryFacet(), "TestEle" + name, string);
+		new AttributeNode(newNode.getSummaryFacet(), "TestAttribute" + name, string);
+		new IndicatorElementNode(newNode.getSummaryFacet(), "TestIndicatorEle" + name);
+		new IndicatorNode(newNode.getSummaryFacet(), "TestIndicator" + name);
 
-		new IndicatorElementNode(newNode.getSummaryFacet(), "TestIndicatorEle");
-		new IndicatorNode(newNode.getSummaryFacet(), "TestIndicator");
+		// Add facets
+		new ElementReferenceNode(newNode.addFacet("c1" + name, TLFacetType.CUSTOM), "TestEleRef" + name, newNode);
+		new AttributeNode(newNode.addFacet("q1" + name, TLFacetType.QUERY), "TestAttribute2" + name, string);
 
-		// Assert.assertTrue("Library must be valid with new BO.", ln.isValid()); // validates TL library
+		assertTrue("Library must be valid with new BO.", ln.isValid()); // validates TL library
+		LOGGER.debug("Created business object " + name);
 		return ln.isEditable() ? newNode : null;
 	}
 
@@ -322,7 +320,7 @@ public class MockLibrary {
 		if (ln != null)
 			ln.addMember(choice);
 		// FIXME - restore after alias codegen utils are fixed 11/2016.
-		choice.addAlias("CAlias");
+		// choice.addAlias("CAlias");
 
 		// Add properties to shared facet
 		PropertyOwnerInterface shared = choice.getSharedFacet();
@@ -340,6 +338,37 @@ public class MockLibrary {
 		new IndicatorNode(f2, "c2p3");
 
 		return choice;
+	}
+
+	/**
+	 * Create two business objects where one extends the other.
+	 * 
+	 * @return the extended business object
+	 */
+	public Node addExtendedBO(LibraryNode ln1, LibraryNode ln2, String baseName) {
+		BusinessObjectNode n1 = (BusinessObjectNode) NodeFactory.newComponent(new TLBusinessObject());
+		n1.setName(baseName + "Base");
+		ln1.addMember(n1);
+		TypeUser newProp = new ElementNode(n1.getIDFacet(), "TestID");
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
+
+		BusinessObjectNode n2 = (BusinessObjectNode) NodeFactory.newComponent(new TLBusinessObject());
+		n2.setName(baseName + "Ext");
+		ln2.addMember(n2);
+		newProp = new ElementNode(n2.getIDFacet(), "TestID");
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
+
+		n2.setExtension(n1);
+
+		// Verify extension
+		assertTrue(n2.getExtensionBase() == n1);
+		// Verify libraries and objects match
+		assertTrue(n1.getLibrary() == ln1);
+		assertTrue(n2.getLibrary() == ln2);
+		assertTrue(ln1.getDescendants_LibraryMembers().contains(n1));
+		assertTrue(ln2.getDescendants_LibraryMembers().contains(n2));
+
+		return n2;
 	}
 
 	/**
@@ -503,17 +532,6 @@ public class MockLibrary {
 		ln.addMember(ep);
 		ep.setExtension(facet);
 		return ep;
-	}
-
-	/**
-	 * Traverse all navChildren and assure all libraries are built in.
-	 */
-	public void assertOnlyBuiltInLibraries(Node node) {
-		// for (Node n : node.getNavChildren(false)) {
-		// if (n instanceof LibraryNode)
-		// assertTrue("Remaining libraries must be built-in.", ((LibraryNode) n).isBuiltIn());
-		// assertOnlyBuiltInLibraries(n);
-		// }
 	}
 
 	/**

@@ -31,6 +31,7 @@ import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.utils.FacetNodeBuilder;
@@ -41,11 +42,13 @@ import com.google.common.collect.Lists;
 public class PropertyNodeTest {
 
 	private LibraryNode ln = null;
+	MainController mc;
+	MockLibrary mockLibrary;
 
 	@Before
 	public void beforeEachTest() {
-		MainController mc = new MainController();
-		MockLibrary mockLibrary = new MockLibrary();
+		mc = new MainController();
+		mockLibrary = new MockLibrary();
 		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
 		ln = mockLibrary.createNewLibrary("http://example.com/test", "test", defaultProject);
@@ -122,6 +125,12 @@ public class PropertyNodeTest {
 		findChild(facetNode, i0Name).moveProperty(PropertyNode.UP);
 		assertOrderOfNodeAndMO(facetNode);
 		assertFacetOrder(facetNode.getChildren(), "A1", i0Name, i1Name, "E1");
+	}
+
+	@Test
+	public void isRenameableTests() {
+		mockLibrary.addOneOfEach(ln, "Rn");
+		// Then - each property type should report renameable correct.
 	}
 
 	private void assertOrderOfNodeAndMO(FacetNode facetNode) {

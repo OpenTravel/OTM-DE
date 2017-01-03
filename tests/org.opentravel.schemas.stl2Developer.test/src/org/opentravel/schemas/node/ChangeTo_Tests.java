@@ -18,18 +18,21 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Collection;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
-import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLProperty;
-import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
@@ -76,77 +79,98 @@ public class ChangeTo_Tests {
 
 	@Test
 	public void changeToVWA() {
-		// ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		// LibraryChainNode lcn = new LibraryChainNode(ln);
 
 		// Given: business and core objects in a managed library used as types.
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "A");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "B");
 		CoreObjectNode user = ml.addCoreObjectToLibrary(ln, "User");
-		PropertyNode p1 = new ElementNode(user.getSummaryFacet(), "P1");
-		p1.setAssignedType(bo);
-		PropertyNode p2 = new ElementNode(user.getSummaryFacet(), "P2");
-		p2.setAssignedType(core);
-		PropertyNode p3 = new ElementNode(user.getSummaryFacet(), "P3");
-		p3.setAssignedType((TypeProvider) core.getDetailFacet());
+		PropertyNode p1 = new ElementNode(user.getSummaryFacet(), "P1", bo);
+		PropertyNode p2 = new ElementNode(user.getSummaryFacet(), "P2", core);
+		PropertyNode p3 = new ElementNode(user.getSummaryFacet(), "P3", core.getDetailFacet());
+
+		int boCount = bo.getIDFacet().getChildren().size() + bo.getSummaryFacet().getChildren().size()
+				+ bo.getDetailFacet().getChildren().size();
+		int coreCount = core.getSummaryFacet().getChildren().size() + core.getDetailFacet().getChildren().size();
 		int boWhereAssignedCount = bo.getWhereUsedAndDescendantsCount();
 		int coreWhereAssignedCount = core.getWhereUsedAndDescendantsCount();
 		tn.visit(core);
 		tn.visit(bo);
 
 		VWA_Node vwa = null;
-		TLValueWithAttributes tlVwa = null;
 
-		// Then a new VWA should be created and be assigned to the same places.
+		// When - a new VWA is created from BO
 		vwa = new VWA_Node(bo);
-		tlVwa = (TLValueWithAttributes) vwa.getTLModelObject();
-		Assert.assertEquals("A", vwa.getName());
-		Assert.assertEquals(2, vwa.getAttributeFacet().getChildren().size());
-		Assert.assertEquals(tlVwa.getAttributes().size(), vwa.getAttributeFacet().getChildren().size());
+		// Then - name and property counts are correct.
+		assertEquals(bo.getName(), vwa.getName());
+		assertEquals("Must have attribute for each BO property.", boCount, vwa.getAttributeFacet().getChildren().size());
+		// Then - TL object may have attributes and indicators
+		assertEquals("TL properties must match property nodes.", vwa.getAttributeFacet().getModelObject().getChildren()
+				.size(), vwa.getAttributeFacet().getChildren().size());
+
+		// When - VWA replaces BO.
 		bo.swap(vwa);
 		tn.visit(vwa);
-		Assert.assertEquals(boWhereAssignedCount, vwa.getWhereUsedAndDescendantsCount());
-		Assert.assertEquals(vwa, p1.getAssignedType());
+		assertEquals(boWhereAssignedCount, vwa.getWhereUsedAndDescendantsCount());
+		assertEquals(vwa, p1.getAssignedType());
 
+		//
+		// When - a new VWA is created from Core
 		vwa = new VWA_Node(core);
-		tlVwa = (TLValueWithAttributes) vwa.getTLModelObject();
-		Assert.assertEquals("B", vwa.getName());
-		Assert.assertEquals(core.getSimpleType(), vwa.getSimpleType());
-		Assert.assertEquals(tlVwa.getAttributes().size(), vwa.getAttributeFacet().getChildren().size());
+		assertEquals("B", vwa.getName());
+		assertEquals(core.getSimpleType(), vwa.getSimpleType());
+		assertEquals("Must have attribute for each Core property.", coreCount, vwa.getAttributeFacet().getChildren()
+				.size());
+		assertEquals("TL properties must match property nodes.", vwa.getAttributeFacet().getModelObject().getChildren()
+				.size(), vwa.getAttributeFacet().getChildren().size());
+
+		// When - VWA replaces core.
 		core.swap(vwa);
 		tn.visit(vwa);
-		Assert.assertEquals(coreWhereAssignedCount, vwa.getWhereUsedAndDescendantsCount());
-		Assert.assertEquals(vwa, p2.getAssignedType());
-		Assert.assertEquals(vwa, p3.getAssignedType());
+		assertEquals(coreWhereAssignedCount, vwa.getWhereUsedAndDescendantsCount());
+		assertEquals(vwa, p2.getAssignedType());
+		assertEquals(vwa, p3.getAssignedType());
+		assertTrue("VWA must be in the library after swap.", ln.getDescendants_LibraryMembers().contains(vwa));
+		assertTrue("Core must NOT be in the library after swap.", !ln.getDescendants_LibraryMembers().contains(core));
 	}
 
 	@Test
 	public void changeToCore() {
-		// ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		// LibraryChainNode lcn = new LibraryChainNode(ln);
-		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "A");
 		CoreObjectNode core = null;
-		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "B");
-		TLCoreObject tlCore = null;
-		tn.visit(bo);
-		int startCount = core.getSummaryFacet().getChildren().size();
+		// TODO - add where used tests
 
+		// Given a Business Object in managed, editable library
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "A");
+		int boCount = bo.getSummaryFacet().getChildren().size() + bo.getIDFacet().getChildren().size();
+		tn.visit(bo);
+		// Given a VWA
+		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "B");
+		int vwaCount = vwa.getAttributeFacet().getChildren().size();
+
+		// When - core created from BO replaces the business object
 		core = new CoreObjectNode(bo);
 		bo.swap(core);
+
+		// Then - test name and summary facet properties
 		tn.visit(core);
+		assertEquals("A", core.getName());
+		assertEquals(boCount, core.getSummaryFacet().getChildren().size());
+		assertEquals(core.getModelObject().getChildren().size(), core.getSummaryFacet().getChildren().size());
+		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMembers().contains(core));
+		assertTrue("BO must NOT be in the library after swap.", !ln.getDescendants_LibraryMembers().contains(bo));
 
-		tlCore = (TLCoreObject) core.getTLModelObject();
-		Assert.assertEquals("A", core.getName());
-		Assert.assertEquals(startCount + 1, core.getSummaryFacet().getChildren().size());
-		Assert.assertEquals(tlCore.getSummaryFacet().getElements().size(), core.getSummaryFacet().getChildren().size());
-
+		// When - core created from VWA replaces VWA
 		core = new CoreObjectNode(vwa);
-		tlCore = (TLCoreObject) core.getTLModelObject();
-		Assert.assertEquals("B", core.getName());
-		Assert.assertEquals(1, core.getSummaryFacet().getChildren().size());
-		Assert.assertEquals(core.getSimpleType(), vwa.getSimpleType());
-		Assert.assertEquals(tlCore.getSummaryFacet().getAttributes().size(), core.getSummaryFacet().getChildren()
-				.size());
+		vwa.swap(core);
+
+		// Then - test name and summary facet properties
+		assertEquals("B", core.getName());
+		tn.visit(core);
+		assertEquals(vwaCount, core.getSummaryFacet().getChildren().size());
+		assertEquals(core.getSimpleType(), vwa.getSimpleType());
+		assertEquals(core.getTLModelObject().getSummaryFacet().getAttributes().size(), core.getSummaryFacet()
+				.getChildren().size());
+		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMembers().contains(core));
+		assertTrue("VWA must NOT be in the library after swap.", !ln.getDescendants_LibraryMembers().contains(vwa));
 	}
 
 	@Test
@@ -202,7 +226,7 @@ public class ChangeTo_Tests {
 			nodeToReplace.delete();
 
 		Assert.assertEquals(1, ((TypeProvider) editedNode).getWhereAssigned().size());
-		Assert.assertEquals(editedNode, p1.getTypeNode());
+		Assert.assertEquals(editedNode, p1.getType());
 		// 1/22/15 - the counts are wrong!
 
 	}
@@ -242,7 +266,10 @@ public class ChangeTo_Tests {
 
 		lf.loadTestGroupA(mc);
 		for (LibraryNode ln : model.getUserLibraries()) {
-			lcn = new LibraryChainNode(ln);
+			if (!ln.isInChain())
+				lcn = new LibraryChainNode(ln);
+			else
+				lcn = ln.getChain();
 
 			changeMembers(ln);
 

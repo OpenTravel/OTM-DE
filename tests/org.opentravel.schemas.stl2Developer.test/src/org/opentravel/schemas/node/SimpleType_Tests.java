@@ -18,9 +18,15 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
@@ -38,7 +44,7 @@ public class SimpleType_Tests {
 		MainController mc = new MainController();
 		LoadFiles lf = new LoadFiles();
 		int loadedCnt = lf.loadTestGroupA(mc);
-		Assert.assertEquals(5, loadedCnt);
+		assertEquals(6, loadedCnt); // 1-5 and simple types
 
 		int libCnt = 0;
 		for (LibraryNode ln : Node.getAllLibraries()) {
@@ -46,26 +52,31 @@ public class SimpleType_Tests {
 			visitSimpleTypes(ln);
 			libCnt++;
 		}
-		Assert.assertEquals(7, libCnt);
+		assertEquals(8, libCnt);
 
 	}
 
 	private void checkCounts(LibraryNode lib) {
 		int simpleCnt = 0;
-		for (Node type : lib.getDescendants_LibraryMembers()) {
-			if (type.isSimpleType()) {
+		for (Node type : lib.getDescendants_LibraryMembers())
+			if (type instanceof SimpleComponentNode)
 				simpleCnt++;
-			}
-		}
-		// if (simpleCnt != lib.getDescendentsSimpleComponents().size()) {
-		// List<SimpleComponentNode> list = lib.getDescendentsSimpleComponents();
-		// LOGGER.debug("Simple Counts are wrong.");
-		// }
-		Assert.assertEquals(simpleCnt, lib.getDescendentsSimpleComponents().size());
+
+		// if (simpleCnt != lib.getDescendants_SimpleComponents().size())
+		// LOGGER.debug("Count Error: " + lib.getDescendants_SimpleComponents().size());
+		assertEquals(simpleCnt, lib.getDescendants_SimpleComponents().size());
+	}
+
+	private List<SimpleComponentNode> getDescendentsSimpleComponents(LibraryNode ln) {
+		List<SimpleComponentNode> kids = new ArrayList<SimpleComponentNode>();
+		for (Node n : ln.getSimpleRoot().getChildren())
+			if (n instanceof SimpleComponentNode)
+				kids.add((SimpleComponentNode) n);
+		return kids;
 	}
 
 	private void visitSimpleTypes(LibraryNode ln) {
-		for (SimpleComponentNode st : ln.getDescendentsSimpleComponents()) {
+		for (SimpleComponentNode st : getDescendentsSimpleComponents(ln)) {
 			Assert.assertNotNull(st);
 			Assert.assertNotNull(st.getLibrary());
 			Assert.assertNotNull(st.getBaseType());

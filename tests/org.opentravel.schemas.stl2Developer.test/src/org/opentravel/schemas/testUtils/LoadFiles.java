@@ -32,12 +32,13 @@ import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ImpliedNodeType;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.types.TypeUser;
 
 /**
@@ -57,11 +58,17 @@ public class LoadFiles {
 	private String contextFile2 = "Resources" + File.separator + "facets1_library.otm";
 	private String contextFile3 = "Resources" + File.separator + "facets2_library.otm";
 	private String choiceFile1 = "Resources" + File.separator + "testFile_Choice1.otm";
+	private String Project1 = "Resources" + File.separator + "testProject1.otp";
+	private String Project2 = "Resources" + File.separator + "testProject2.otp";
 
 	private MainController mc;
 	private int nodeCount = 0;
 
 	public LoadFiles() {
+	}
+
+	public void setMainController(MainController mc) {
+		this.mc = mc;
 	}
 
 	/**
@@ -180,7 +187,11 @@ public class LoadFiles {
 	 */
 	public LibraryNode loadFile(MainController thisModel, String path) {
 		ProjectNode project = thisModel.getProjectController().getDefaultProject();
-		return loadFile(project, path);
+		LibraryNode ln = loadFile(project, path);
+		assertTrue(ln != null);
+		ln.setEditable(true);
+		assertTrue(ln.isEditable());
+		return ln;
 	}
 
 	public LibraryNode loadFile(ProjectNode project, String path) {
@@ -188,6 +199,7 @@ public class LoadFiles {
 		List<File> files = new ArrayList<File>();
 		files.add(new File(path));
 		assertTrue("File must exist.", files.get(0).exists());
+		System.out.println("Project " + project + " namespace = " + project.getNamespace());
 		project.add(files);
 
 		// Then - project must have the new library
@@ -209,15 +221,9 @@ public class LoadFiles {
 
 	// Has 1 unassigned types.
 	public LibraryNode loadFile1(MainController mc) {
-		// ModelNode model = mc.getModelNode();
 		LibraryNode ln = loadFile(mc, filePath1);
-		Assert.assertNotNull(ln);
-		Assert.assertTrue(ln.getChildren().size() > 2);
-		// Assert.assertNotNull(model);
-		// Assert.assertNotNull(model.getTLModel());
-		Assert.assertTrue(Node.getAllLibraries().size() > 2);
-		// Assert.assertTrue(Node.getNodeCount() > 100);
-		// Assert.assertTrue(model.getUnassignedTypeCount() >= 0);
+		assertTrue(ln.getChildren().size() > 2);
+		assertTrue(Node.getAllLibraries().size() > 2);
 		return ln;
 	}
 
@@ -226,15 +232,8 @@ public class LoadFiles {
 	}
 
 	// Has 14 unassigned types - references to STL2 library
-	public LibraryNode loadFile2(MainController thisModel) {
-		// ModelNode model = thisModel.getModelNode();
-		LibraryNode ln = loadFile(thisModel, filePath2);
-		Assert.assertNotNull(ln);
-		// Assert.assertNotNull(model);
-		// Assert.assertNotNull(model.getTLModel());
-		// Assert.assertTrue(Node.getNodeCount() > 100);
-		// Assert.assertTrue("Bad count: " + model.getUnassignedTypeCount(), model.getUnassignedTypeCount() >= 14);
-		return ln;
+	public LibraryNode loadFile2(MainController thisMC) {
+		return loadFile(thisMC, filePath2);
 	}
 
 	public LibraryNode loadFile3(MainController thisModel) {
@@ -254,6 +253,10 @@ public class LoadFiles {
 		List<Node> d = ln.getDescendants_LibraryMembers();
 		Assert.assertEquals(7, d.size());
 		return ln;
+	}
+
+	public LibraryNode loadFile5() {
+		return loadFile5(mc);
 	}
 
 	public LibraryNode loadFile5(MainController thisModel) {
@@ -311,20 +314,40 @@ public class LoadFiles {
 	}
 
 	/**
+	 * Load project with test files 1,2,3. Simulates paths used by open project
+	 */
+	public ProjectNode loadProject(ProjectController pc) {
+		String fn = Project1; // files
+		ProjectNode pn = pc.open(fn, null);
+		new TypeResolver().resolveTypes();
+		return pn;
+	}
+
+	/**
+	 * Load project with test files 1,2,3. Simulates paths used by open project
+	 */
+	public ProjectNode loadProject2(ProjectController pc) {
+		String fn = Project2; // files
+		ProjectNode pn = pc.open(fn, null);
+		new TypeResolver().resolveTypes();
+		return pn;
+	}
+
+	/**
 	 * Load the test files 1 though 5 and visit all nodes. Then either remove or delete each node.
 	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testSuiteTests() throws Exception {
-		MainController mc = new MainController();
-		LoadFiles lf = new LoadFiles();
-		lf.loadFile1(mc);
+		mc = new MainController();
+		LoadFiles lf = this;
 
-		lf.loadFile5(mc);
-		lf.loadFile3(mc);
 		lf.loadFile4(mc);
 		lf.loadFile2(mc);
+		lf.loadFile1(mc);
+		lf.loadFile5(mc);
+		lf.loadFile3(mc);
 
 		mc.getModelNode().visitAllNodes(new NodeTesters().new TestNode());
 

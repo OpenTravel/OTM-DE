@@ -31,11 +31,14 @@ import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLModel;
+import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
@@ -181,11 +184,22 @@ public class NodeNameUtilsTest {
 
 	@Test
 	public void elementWithSimpleList() {
+		// Given - a core simple list facet and an element
 		String typeName = "CO";
-		PropertyNode pn = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).makeSimpleList(typeName).build();
-		String actual = NodeNameUtils.fixElementName(pn);
+		ElementNode ele = new ElementNode(new TLProperty(), null);
+		CoreObjectNode core = new CoreObjectNode(new TLCoreObject());
+		core.setName(typeName);
+		// When assigned
+		ele.setAssignedType((TypeProvider) core.getSimpleListFacet());
 		String expected = typeName + "s";
-		assertEquals(expected, actual);
+		String actual = NodeNameUtils.fixElementName(ele);
+		// Then
+		assertTrue("Utils corrected name.", actual.equals(expected));
+		assertTrue("Element has corrected name.", ele.getName().equals(expected));
+
+		// PropertyNode pn = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).makeSimpleList(typeName).build();
+		// String actual = NodeNameUtils.fixElementName(pn);
+		// assertEquals(expected, actual);
 	}
 
 	@Test
@@ -470,43 +484,54 @@ public class NodeNameUtilsTest {
 	@Test
 	public void stripQueryFacetPrefix() {
 		String boName = "BO";
-		String facetName = "MyQuery";
+		String facetName = "myQuery";
 		BusinessObjectNode bo = ComponentNodeBuilder.createBusinessObject(boName).addQueryFacet(facetName).get();
-		FacetNode fn = (FacetNode) bo.getQueryFacets().get(0);
-		assertTrue("TL name must equal node name.", getFacetName((TLFacet) fn.getTLModelObject()).equals(fn.getName()));
+		ContextualFacetNode fn = (ContextualFacetNode) bo.getQueryFacets().get(0);
+		assertTrue("TL name must equal node name.", fn.getTLModelObject().getName().equals(fn.getName()));
 
-		String newName = NodeNameUtils.stripFacetPrefix(fn, null);
-		assertTrue("NodeNameUtils must not alter name without prefix.", facetName.equals(newName));
+		String expectedName = NodeNameUtils.fixContextualFacetName(fn, facetName);
+		assertTrue("Actual name must be fixed by node name utils.", fn.getName().equals(expectedName));
 	}
 
 	@Test
 	public void stripCustomFacetPrefix() {
 		String boName = "BO";
-		String facetName = "MyCustom";
+		String facetName = "myCustom";
 		BusinessObjectNode bo = ComponentNodeBuilder.createBusinessObject(boName).addCustomFacet(facetName).get();
-		FacetNode fn = (FacetNode) bo.getCustomFacets().get(0);
-		assertTrue("TL name must equal node name.", getFacetName((TLFacet) fn.getTLModelObject()).equals(fn.getName()));
+		ContextualFacetNode fn = (ContextualFacetNode) bo.getCustomFacets().get(0);
+		// String gtn = XsdCodegenUtils.getGlobalTypeName(fn.getTLModelObject());
+		// String cfn = fn.getName();
+		// String lfn = fn.getLocalName();
 
-		String newName = NodeNameUtils.stripFacetPrefix(fn, null);
-		assertTrue("NodeNameUtils must not alter name without prefix.", facetName.equals(newName));
+		// Then - assure custom facet name is corrected
+		String expectedName = NodeNameUtils.fixContextualFacetName(fn, facetName);
+		assertTrue("Contextual node name corrected.", fn.getName().equals(expectedName));
+		assertTrue("TL name must equal node name.", fn.getTLModelObject().getName().equals(fn.getName()));
+
+		// When - rename
+		String changedName = "SomeOtherName";
+		fn.setName(changedName);
+
+		// Then - make sure original boName is not repeated
+		assertTrue("Custom facet has new name.", fn.getName().equals(changedName));
 	}
 
 	@Test
 	public void stripCustomFacetPrefix2() {
 		// Given - a BO with custom facet
 		String boName = "BO";
-		String facetName = "Custom_Custom";
+		String facetName = "Custom_myCustom";
 		BusinessObjectNode bo = ComponentNodeBuilder.createBusinessObject(boName).addCustomFacet(facetName).get();
-		FacetNode fn = (FacetNode) bo.getCustomFacets().get(0);
-		String tlName = getFacetName((TLFacet) fn.getTLModelObject());
+		ContextualFacetNode fn = (ContextualFacetNode) bo.getCustomFacets().get(0);
+		String tlName = fn.getTLModelObject().getName();
 
 		// Then
 		assertEquals("Node and TL object names must be equal.", tlName, fn.getName());
 
 		// When Facet Prefix is stripped. done in ContextualFacet.setName()
-		String newName = NodeNameUtils.stripFacetPrefix(fn, null);
+		String expectedName = NodeNameUtils.fixContextualFacetName(fn, facetName);
 		// Then name must be as predicted.
-		assertEquals("Name must be " + facetName, facetName, newName);
+		assertEquals("Name must be " + expectedName, facetName, expectedName);
 	}
 
 	private String getFacetName(TLFacet tlFacet) {

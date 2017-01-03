@@ -18,12 +18,20 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemas.controllers.LibraryController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -51,7 +59,7 @@ public class DocumentationNode_Tests {
 		final String testDescription = "Test Description";
 
 		LibraryNode lib = mockLibUtil.createNewLibrary(defaultProject.getNamespace() + "/Test", getClass()
-				.getSimpleName(), null);
+				.getSimpleName(), defaultProject);
 		Assert.assertNotNull(lib);
 		String path = lib.getPath();
 		String name = lib.getName();
@@ -65,7 +73,9 @@ public class DocumentationNode_Tests {
 		// lc.closeLibrary(lib);
 		// TODO - find out why the saved value is "null Test Description"
 
-		defaultProject.add(path);
+		List<File> files = new ArrayList<>();
+		files.add(new File(path));
+		defaultProject.add(files); // FIXME
 		for (LibraryNode ln : defaultProject.getLibraries()) {
 			if (ln.getName().equals(name)) {
 				for (Node n : ln.getDescendentsNamedTypes()) {
@@ -137,8 +147,8 @@ public class DocumentationNode_Tests {
 			int index = 0;
 
 			// TODO - use documentation controller/class not node directly.
-			Assert.assertNotNull(n.getDescription());
-			Assert.assertNotNull(n.getDevelopers());
+			assertTrue(n.getDescription() != null);
+			assertTrue(n.getDevelopers() != null);
 			// Assert.assertNotNull(n.getMoreInfo(index));
 			// Assert.assertNotNull(n.getDeprecated(index));
 			// Assert.assertNotNull(n.getReferenceLink(index));
@@ -149,7 +159,7 @@ public class DocumentationNode_Tests {
 			// n.setDeprecated(doc, index);
 			n.setReferenceLink(doc, index);
 
-			Assert.assertEquals(doc, n.getDescription());
+			assertEquals(doc, n.getDescription());
 			// Assert.assertEquals(doc, n.getDevelopers(index));
 			// Assert.assertEquals(doc, n.getMoreInfo(index));
 			// Assert.assertEquals(doc, n.getDeprecated(index));

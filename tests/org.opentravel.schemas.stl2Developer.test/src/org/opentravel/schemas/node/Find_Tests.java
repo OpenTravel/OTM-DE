@@ -24,6 +24,8 @@ import javax.xml.namespace.QName;
 
 import org.junit.Test;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.NodeTesters;
 
@@ -78,7 +80,8 @@ public class Find_Tests {
 
 		lf.loadTestGroupA(mc);
 		for (LibraryNode ln : model.getUserLibraries()) {
-			new LibraryChainNode(ln); // make the library managed.
+			if (!ln.isInChain())
+				new LibraryChainNode(ln); // make the library managed.
 			tt.visitAllNodes(ln);
 		}
 

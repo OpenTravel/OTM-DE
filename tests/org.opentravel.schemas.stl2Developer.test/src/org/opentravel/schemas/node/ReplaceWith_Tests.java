@@ -22,9 +22,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.xml.namespace.QName;
+
+
 
 //import junit.framework.Assert;
 import org.junit.Assert;
@@ -33,6 +36,7 @@ import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
@@ -64,6 +68,11 @@ public class ReplaceWith_Tests {
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 		LibraryNode ln2 = ml.createNewLibrary(defaultProject.getNSRoot() + "/t", "test2", defaultProject);
 
+		// // JUNK - name testing
+		// BusinessObjectNode bbb = ml.addBusinessObjectToLibrary(ln2, "bbb");
+		// for (Node n : bbb.getChildren())
+		// LOGGER.debug("Name = " + n.getName());
+
 		// Given - each type provider in a core is being used as a type
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary_Empty(ln, "BO");
 		CoreObjectNode core = ml.addCoreObjectToLibrary_Empty(ln, "Test");
@@ -75,8 +84,14 @@ public class ReplaceWith_Tests {
 			e = new ElementNode(bo.getSummaryFacet(), "n" + i++);
 			e.setAssignedType(d);
 		}
-		// Given - a different core in a different library where all children have namespaces
+		// Then - all core type providers must be assigned
+		for (TypeProvider p : core.getDescendants_TypeProviders())
+			assertTrue("Must NOT be empty.", !p.getWhereAssigned().isEmpty());
+
+		// Given - a different core with same name in a different library where all children have namespaces
 		CoreObjectNode replacement = ml.addCoreObjectToLibrary_Empty(ln2, "Test");
+		assertTrue("Core names must be same for exact replacement matches.",
+				core.getName().equals(replacement.getName()));
 		for (TypeProvider c : replacement.getDescendants_TypeProviders())
 			assertTrue("Must have namespace.", !((Node) c).getNamespace().isEmpty());
 
@@ -97,7 +112,6 @@ public class ReplaceWith_Tests {
 		// Then - all replacement core type providers should be assigned
 		for (TypeProvider p : replacement.getDescendants_TypeProviders())
 			assertTrue("Must NOT be empty.", !p.getWhereAssigned().isEmpty());
-
 	}
 
 	@Test
@@ -125,7 +139,7 @@ public class ReplaceWith_Tests {
 
 		// When replaced with new base
 		extension.setExtension(base);
-		Node newBase = ml.addBusinessObjectToLibrary(ln, "NewBaseBO");
+		Node newBase = ml.addBusinessObjectToLibrary_Empty(ln, "NewBaseBO");
 		extension.getExtensionHandler().set(newBase);
 
 		// Then - assure base assignment and listeners are correct.
@@ -361,13 +375,15 @@ public class ReplaceWith_Tests {
 	 *            - library will stay same size but have replaced types.
 	 */
 	private void swap(LibraryNode source, LibraryNode target) {
+		Map<String, Node> sources = new HashMap<>();
+		for (Node n : source.getDescendants_LibraryMembers())
+			sources.put(n.getName(), n);
+
 		// Now, replace the nodes within their structures.
-		int i = 1;
 		for (Node n : target.getDescendants_LibraryMembers()) {
 			if (n instanceof ServiceNode)
 				continue;
-			Node lsNode = NodeFinders.findTypeProviderByQName(new QName(source.getNamespace(), n.getName()), source);
-			// Node lsNode = source.findNode(n.getName(), source.getNamespace());
+			Node lsNode = sources.get(n.getName());
 			if (lsNode != null) {
 				n.swap(lsNode);
 				tt.visitTypeNode(lsNode);

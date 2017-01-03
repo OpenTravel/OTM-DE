@@ -28,15 +28,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.ChoiceObjectTests;
-import org.opentravel.schemas.node.CoreObjectNode;
-import org.opentravel.schemas.node.FamilyNode;
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
@@ -46,6 +40,9 @@ import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
@@ -69,11 +66,13 @@ public class Delete_Tests extends BaseProjectTest {
 
 	MockLibrary ml = null;
 	LibraryNode ln = null;
-	MainController mc;
-	DefaultProjectController pc;
-	ProjectNode defaultProject;
+	// MainController mc;
+	// DefaultProjectController pc;
+	// ProjectNode defaultProject;
 	ModelNode model = null;
 	LoadFiles lf = null;
+	// From baseProjecTest
+	// rc, mc, pc, testProject
 
 	NodeVisitor dv = new NodeVisitors().new deleteVisitor();
 	PrintNode pv = new NodeTesters().new PrintNode();
@@ -82,10 +81,10 @@ public class Delete_Tests extends BaseProjectTest {
 
 	@Before
 	public void beforeAllTests() {
-		mc = new MainController();
+		// mc = new MainController();
 		ml = new MockLibrary();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
+		// pc = (DefaultProjectController) mc.getProjectController();
+		// defaultProject = pc.getDefaultProject();
 		lf = new LoadFiles();
 	}
 
@@ -98,22 +97,16 @@ public class Delete_Tests extends BaseProjectTest {
 	public void deleteHandler_Tests() throws Exception {
 		DeleteNodesHandler handler = new DeleteNodesHandler();
 
-		// Given an null list
 		List<Node> deleteList = null;
-		// When deleted
-		mc.getNodeModelController().deleteNodes(deleteList);
-		// Then no failure
 
 		// Given an empty list of selected nodes
 		deleteList = new ArrayList<Node>();
-		// When deleted
-		mc.getNodeModelController().deleteNodes(deleteList);
-		// Then no failure
 
 		// Given libraries in the default project
 		ProjectNode project = pc.getDefaultProject();
 		lf.loadTestGroupA(mc);
-		// Then all libraries must be deleted
+		// When deleted using nodeModelController
+		// Then deleting libraries closes them
 		deleteLibrariesTest(project);
 
 		// Given a user defined project with libraries in a chain
@@ -140,31 +133,27 @@ public class Delete_Tests extends BaseProjectTest {
 		// When - one library is deleted
 		LibraryNode lib = project.getUserLibraries().get(0);
 		lib.setEditable(true);
-		deleteList.add(lib);
-		mc.getNodeModelController().deleteNodes(deleteList);
+		lib.delete();
 
 		// Then - library is deleted and not in the project and the library's objects are all deleted.
-		assertTrue("Library is deleted.", deleteList.get(0).isDeleted());
-		assertTrue("Project does not contain library.", !project.getUserLibraries().contains(lib));
+		assertTrue("Library is deleted.", lib.isDeleted());
+		assertTrue("Project must not contain library.", !project.getUserLibraries().contains(lib));
 		for (Node n : lib.getDescendants_LibraryMembers())
 			assertTrue("Named Type " + n + " is deleted.", n.isDeleted());
 
-		// When - rest are deleted
-		deleteList.clear();
-		for (LibraryNode ln : project.getUserLibraries())
-			deleteList.add(ln);
-		mc.getNodeModelController().deleteNodes(deleteList);
+		// When - rest are deleted (closed)
+		List<LibraryNode> libList = project.getUserLibraries();
+		for (LibraryNode ln : libList)
+			ln.delete();
 
-		// Then - they must not be in the list of children collected by navigator view
-		// see LibraryTreeContentProvider
+		// Then - they must not be in the list of children
 		int libCnt = project.getUserLibraries().size();
-		assertTrue("Default Project must be empty.", libCnt == 0);
-		ml.assertOnlyBuiltInLibraries(model);
+		assertTrue("Project must be empty.", libCnt == 0);
 	}
 
 	@Test
 	public void deleteProperties() {
-		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", defaultProject);
+		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", testProject);
 		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
 		bo.setName("TestBO");
 		ln.addMember(bo);
@@ -193,7 +182,7 @@ public class Delete_Tests extends BaseProjectTest {
 
 	@Test
 	public void deleteFacets_BusinessObject() {
-		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", defaultProject);
+		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", testProject);
 
 		// Given a business object with all facet types
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TestBO");
@@ -218,7 +207,7 @@ public class Delete_Tests extends BaseProjectTest {
 
 	@Test
 	public void deleteFacets_ChoiceObject() {
-		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", defaultProject);
+		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", testProject);
 		ChoiceObjectTests tests = new ChoiceObjectTests();
 
 		// Given a business object with all facet types
@@ -252,12 +241,17 @@ public class Delete_Tests extends BaseProjectTest {
 
 	@Test
 	public void deleteObjects() {
-		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", defaultProject);
+		// Given - test setup
+		// When - library created
+		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", testProject);
+		// Then
+		assertTrue(ln != null);
+		assertTrue(ln.getParent() instanceof LibraryNavNode);
 	}
 
 	@Test
 	public void deleteTypeUsers_Test() {
-		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", defaultProject);
+		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", testProject);
 		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
 		bo.setName("TestBO");
 		ln.addMember(bo);
@@ -282,7 +276,7 @@ public class Delete_Tests extends BaseProjectTest {
 
 	@Test
 	public void deleteTypeProvider_Test() {
-		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", defaultProject);
+		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", testProject);
 		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
 		bo.setName("TestBO");
 		ln.addMember(bo);
@@ -360,7 +354,7 @@ public class Delete_Tests extends BaseProjectTest {
 
 		case 1:
 			// Case 1 - simple library, not editable, with constructed objects
-			ln = ml.createNewLibrary("http://test.com/ns" + testCase, "testCase" + testCase, defaultProject);
+			ln = ml.createNewLibrary("http://test.com/ns" + testCase, "testCase" + testCase, testProject);
 			ln.setEditable(false);
 			count = ml.addOneOfEach(ln, "case1");
 			ln.visitAllNodes(tv);
@@ -373,7 +367,7 @@ public class Delete_Tests extends BaseProjectTest {
 
 		case 2:
 			// Case 2 - unmanaged library, editable, with constructed objects
-			ln = ml.createNewLibrary("http://test.com/ns" + testCase, "testCase" + testCase, defaultProject);
+			ln = ml.createNewLibrary("http://test.com/ns" + testCase, "testCase" + testCase, testProject);
 			ln.setEditable(true);
 			count = ml.addOneOfEach(ln, "case2");
 			ln.visitAllNodes(tv);
@@ -384,7 +378,7 @@ public class Delete_Tests extends BaseProjectTest {
 
 		case 3:
 			// Case 3 - managed library, editable, with constructed objects
-			ln = ml.createNewLibrary("http://test.com/ns" + testCase, "testCase" + testCase, defaultProject);
+			ln = ml.createNewLibrary("http://test.com/ns" + testCase, "testCase" + testCase, testProject);
 			count = ml.addOneOfEach(ln, "case" + testCase);
 			ln.visitAllNodes(tv);
 			Assert.assertEquals(count, ln.getDescendants_LibraryMembers().size());
@@ -400,7 +394,7 @@ public class Delete_Tests extends BaseProjectTest {
 			break;
 
 		case 4:
-			ln = ml.createNewLibrary("http://test.com/ns" + testCase, "testCase" + testCase, defaultProject);
+			ln = ml.createNewLibrary("http://test.com/ns" + testCase, "testCase" + testCase, testProject);
 			count = ml.addOneOfEach(ln, "case" + testCase);
 			ln.visitAllNodes(tv);
 			Assert.assertEquals(count, ln.getDescendants_LibraryMembers().size());
@@ -432,85 +426,13 @@ public class Delete_Tests extends BaseProjectTest {
 
 	@Test
 	public void deleteFamily() throws Exception {
-		// TODO - if in chain, make sure both library and aggregate family is done
-		ln = getEmptyLibrary(false);
-
-		// Create a family
-		Node n1 = ml.addBusinessObjectToLibrary(ln, "AAA_BO");
-		assert ln.getComplexRoot().getChildren().contains(n1);
-		Node n2 = ml.addCoreObjectToLibrary(ln, "AAA_Core");
-		// July 2016 - family processing removed from app
-		assert ln.getComplexRoot().getChildren().contains(n1);
-		// assert !ln.getComplexRoot().getChildren().contains(n1);
-		Node n3 = ml.addVWA_ToLibrary(ln, "AAA_VWA");
-		FamilyNode family = null;
-		for (Node n : ln.getComplexRoot().getChildren())
-			if (n instanceof FamilyNode)
-				family = (FamilyNode) n;
-		assertTrue("Must not have a family node as they were removed from the application.", family == null);
-
-		// assert family != null;
-		// assert family.getChildren().size() == 3;
-		// // delete them and make sure family deleted when only one left
-		// n3.delete();
-		// assert family.getChildren().size() == 2;
-		// n2.delete();
-		// assert family.isDeleted();
-		// assert ln.getComplexRoot().getChildren().contains(n1);
-		// n1.delete();
-		// assert ln.isEmpty();
-		ln.delete();
-
-		//
-		// Now repeat in managed library
-		//
-		ln = getEmptyLibrary(true);
-		// Create a family. because they are managed, the components will be wrapped in version nodes
-		Node nc1 = ml.addBusinessObjectToLibrary(ln, "AAA_BO");
-		assert ln.getComplexRoot().getChildren().contains(nc1.getParent());
-		assert ln.getChain().getComplexAggregate().getChildren().contains(nc1); // nc1 version node
-		Node nc2 = ml.addCoreObjectToLibrary(ln, "AAA_Core");
-		// assert !ln.getComplexRoot().getChildren().contains(nc1.getParent());
-		assertTrue("Nodes that used to be in family must have version node with complex root as parent.", nc1
-				.getParent().getParent() == ln.getComplexRoot());
-		Node nc3 = ml.addVWA_ToLibrary(ln, "AAA_VWA");
-		FamilyNode family2 = null;
-		for (Node n : ln.getComplexRoot().getChildren())
-			if (n instanceof FamilyNode)
-				family2 = (FamilyNode) n;
-		assertTrue("Must not have a family node as they were removed from the application.", family2 == null);
-
-		// assert family2 != null;
-		// assert family2.getChildren().size() == 3;
-		// AggregateFamilyNode afn = null;
-		// for (Node n : ln.getChain().getComplexAggregate().getChildren())
-		// if (n instanceof AggregateFamilyNode)
-		// afn = (AggregateFamilyNode) n;
-		// assert afn != null;
-
-		// // delete them and make sure family deleted when only one left
-		nc3.delete();
-		// assert afn.getChildren().size() == 2;
-		nc2.delete();
-		// assert family.isDeleted();
-		// assert afn.isDeleted();
-		// assert ln.getComplexRoot().getChildren().contains(nc1.getVersionNode());// nc1 version node
-		// assert ln.getChain().getComplexAggregate().getChildren().contains(nc1);
-		nc1.delete();
-		assert ln.isEmpty();
-		assert ln.getChain().isEmpty();
-	}
-
-	private LibraryNode getEmptyLibrary(boolean managed) {
-		LibraryNode ln = ml.createNewLibrary("http://test.com/ns/df1", "testCase-deleteFamily", defaultProject);
-		if (managed)
-			new LibraryChainNode(ln);
-		ln.setEditable(true); // must be done after LCN created
-		List<Node> list = new ArrayList<Node>(ln.getDescendants_LibraryMembers());
-		for (Node n : list)
-			n.delete();
-		assert ln.isEmpty();
-		return ln;
+		// RENAME - library in multiple projects
+		// See DefaultLibraryControllerTests
+		// Given 2 projects
+		// Given same library opened in both projects
+		// 1 node shared across projects
+		// delete one from project A and the other is not deleted
+		// delete one from project B and the other is not deleted
 	}
 
 	/**
@@ -525,21 +447,22 @@ public class Delete_Tests extends BaseProjectTest {
 		lf.loadTestGroupA(mc);
 		int i = 0;
 		for (LibraryNode ln : model.getUserLibraries()) {
-			new LibraryChainNode(ln); // Test in a chain
+			if (!ln.isInChain())
+				new LibraryChainNode(ln); // Test in a chain
 			ln.setEditable(true);
-			if (i++ == 1)
-				deleteNodeListTest(ln);
-			else
-				deleteEachMember(ln);
+			// if (i++ == 1)
+			// deleteNodeListTest(ln);
+			// else
+			deleteEachMember(ln);
 		}
 		tt.visitAllNodes(model);
 	}
 
 	private void deleteEachMember(LibraryNode ln) {
 		for (Node n : ln.getDescendants()) {
-			if (n instanceof CoreObjectNode)
-				if (n.getName().startsWith("PaymentC"))
-					LOGGER.debug("Core: " + n);
+			// if (n instanceof CoreObjectNode)
+			// if (n.getName().startsWith("PaymentC"))
+			// LOGGER.debug("Core: " + n);
 
 			if (!n.isNavigation()) {
 				if (n.isDeleted())
@@ -566,12 +489,12 @@ public class Delete_Tests extends BaseProjectTest {
 		// assert ln.getChain().isEmpty();
 	}
 
-	private void deleteNodeListTest(LibraryNode ln) {
-		ArrayList<Node> members = new ArrayList<Node>(ln.getDescendants_LibraryMembers());
-		ln.visitAllNodes(tv);
-		Node.deleteNodeList(members);
-		ln.visitAllNodes(tv);
-		assert ln.isEmpty();
-	}
+	// private void deleteNodeListTest(LibraryNode ln) {
+	// ArrayList<Node> members = new ArrayList<Node>(ln.getDescendants_LibraryMembers());
+	// ln.visitAllNodes(tv);
+	// Node.deleteNodeList(members);
+	// ln.visitAllNodes(tv);
+	// assert ln.isEmpty();
+	// }
 
 }

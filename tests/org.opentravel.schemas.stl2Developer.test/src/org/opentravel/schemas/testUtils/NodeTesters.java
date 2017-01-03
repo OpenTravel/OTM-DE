@@ -34,7 +34,6 @@ import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ImpliedNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
@@ -44,6 +43,7 @@ import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.types.TestTypes;
 import org.opentravel.schemas.types.TypeProvider;
 import org.slf4j.Logger;
@@ -137,7 +137,7 @@ public class NodeTesters {
 		}
 
 		// Check links.
-		Assert.assertFalse(n.getNodeID().isEmpty());
+		Assert.assertFalse(n.getNodeID().isEmpty()); // used in drag-n-drop
 		Assert.assertNotNull(n.getParent());
 
 		if (!n.isLibraryContainer())

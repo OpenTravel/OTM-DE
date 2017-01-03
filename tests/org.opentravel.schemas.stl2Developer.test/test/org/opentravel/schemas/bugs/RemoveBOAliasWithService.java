@@ -18,11 +18,11 @@ package org.opentravel.schemas.bugs;
 import org.junit.Test;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.OperationNode.ResourceOperationTypes;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.utils.BaseProjectTest;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
@@ -38,8 +38,8 @@ public class RemoveBOAliasWithService extends BaseProjectTest {
     @Test
     public void npeOneRemoveBOWithAliasUsedInQueryOperation() throws LibrarySaveException {
         LibraryNode local1 = LibraryNodeBuilder.create("LocalOne",
-                defaultProject.getNamespace() + "/Test/One", "o1", new Version(1, 0, 0)).build(
-                defaultProject, pc);
+                testProject.getNamespace() + "/Test/One", "o1", new Version(1, 0, 0)).build(
+                testProject, pc);
 
         BusinessObjectNode bo = ComponentNodeBuilder.createBusinessObject("BO").addAlias("BOAlias")
                 .get();

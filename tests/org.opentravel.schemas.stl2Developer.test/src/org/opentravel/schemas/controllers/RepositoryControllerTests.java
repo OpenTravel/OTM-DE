@@ -22,11 +22,11 @@ import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.LibraryTests;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;

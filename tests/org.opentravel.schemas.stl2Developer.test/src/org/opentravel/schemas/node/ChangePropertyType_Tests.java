@@ -30,10 +30,13 @@ import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
@@ -247,9 +250,13 @@ public class ChangePropertyType_Tests {
 				case ATTRIBUTE:
 				case INDICATOR:
 				case INDICATOR_ELEMENT:
-					LOGGER.debug("Changing " + p.getPropertyType() + " " + n.getNameWithPrefix() + " to " + t);
+					// LOGGER.debug("Changing " + p.getPropertyType() + " " + n.getNameWithPrefix() + " to " + t);
 					p = p.changePropertyRole(t);
 					nt.visit(p);
+					break;
+				default:
+					LOGGER.debug("unknown property type " + p.getPropertyType() + " " + n.getNameWithPrefix() + " to "
+							+ t);
 					break;
 				}
 				p.getOwningComponent().visitAllNodes(nt);

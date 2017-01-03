@@ -20,7 +20,9 @@ package org.opentravel.schemas.node;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -41,8 +43,11 @@ public class NamespaceHandler_Tests {
 		String ns = "http://foo.bar";
 		final String ns2 = "http://foo.bar/too";
 		final String pre = "aaa";
+		MainController mc = new MainController();
+		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
+		ProjectNode defaultProject = pc.getDefaultProject();
 
-		LibraryNode ln = mockLibrary.createNewLibrary(ns, "test", null);
+		LibraryNode ln = mockLibrary.createNewLibrary(ns, "test", defaultProject);
 		ln.setNSPrefix(pre);
 		Assert.assertFalse(ln.getNamespace().isEmpty());
 		Assert.assertFalse(ln.getNamePrefix().isEmpty());

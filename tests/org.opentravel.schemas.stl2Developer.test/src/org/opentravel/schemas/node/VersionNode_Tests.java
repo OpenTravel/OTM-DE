@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +27,8 @@ import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -70,6 +74,7 @@ public class VersionNode_Tests {
 		VersionNode v = null;
 
 		try {
+			assertTrue("S1 must not have library.", s1.getLibrary() == null);
 			v = new VersionNode(s1); // no library
 			Assert.assertFalse(true); // should never reach here
 		} catch (IllegalStateException e) {
@@ -79,6 +84,7 @@ public class VersionNode_Tests {
 		ln_inChain.getTLLibrary().addNamedMember((LibraryMember) s1.getTLModelObject());
 		s1.setLibrary(ln_inChain);
 		try {
+			assertTrue("S1 must not have parent.", s1.getParent() == null);
 			v = new VersionNode(s1); // no parent
 			Assert.assertFalse(true); // should never reach here
 		} catch (IllegalStateException e) {
@@ -92,18 +98,6 @@ public class VersionNode_Tests {
 		// Assert.assertTrue(s1.family.equals(v.family));
 		Assert.assertEquals(s1, v.getNewestVersion());
 		Assert.assertNull(v.getPreviousVersion());
-
-		// //
-		// // Now test with a family member
-		// //
-		// ln_inChain.getTLLibrary().addNamedMember((LibraryMember) s2.getTLModelObject());
-		// ln_inChain.linkMember(s2);
-		// Assert.assertEquals(1, ln_inChain.getSimpleRoot().getChildren().size());
-		// v = new VersionNode(s2);
-		// Assert.assertNotNull(v.getLibrary());
-		// Assert.assertEquals(v, s2.getParent());
-		// Assert.assertEquals(1, ln_inChain.getSimpleRoot().getChildren().size());
-
 	}
 
 	private Node makeSimple(String name) {

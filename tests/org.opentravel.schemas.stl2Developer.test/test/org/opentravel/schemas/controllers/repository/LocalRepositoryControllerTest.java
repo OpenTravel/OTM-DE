@@ -19,11 +19,10 @@ import java.util.Collections;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.opentravel.schemas.node.LibraryNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.osgi.framework.Version;
-
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;

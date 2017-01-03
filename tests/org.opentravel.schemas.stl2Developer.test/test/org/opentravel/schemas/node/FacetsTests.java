@@ -22,8 +22,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLAbstractFacet;
@@ -36,6 +38,7 @@ import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemacompiler.repository.Repository;
+import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.DefaultRepositoryController;
@@ -56,9 +59,12 @@ import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.facets.UpdateFacetNode;
 import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
@@ -97,6 +103,11 @@ public class FacetsTests {
 		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
+	}
+
+	@After
+	public void afterAllTests() {
+		OTM16Upgrade.otm16Enabled = false;
 	}
 
 	@Test
@@ -156,21 +167,22 @@ public class FacetsTests {
 		assertTrue("ExtendedBO extends BaseBO.", extendedBO.isExtendedBy(baseBO));
 
 		// Then - there should be an inherited facet.
-		// List<Node> inheritedFacets = extendedBO.getInheritedChildren(); // FIXME - should not be empty
-		CustomFacetNode inheritedCustom = (CustomFacetNode) extendedBO.getCustomFacets().get(0);
+		assertTrue("Must have inherited child.", !extendedBO.getInheritedChildren().isEmpty());
+		CustomFacetNode inheritedCustom = (CustomFacetNode) extendedBO.getCustomFacets(true).get(0);
 		assertTrue("Must have inherited custom facet.", inheritedCustom != null);
 
 		// Then - there should be inherited children in the facets.
 		List<Node> inheritedKids = extendedBO.getSummaryFacet().getInheritedChildren();
 		List<Node> kids = extendedBO.getSummaryFacet().getChildren();
-		assertTrue("Extended BO must have children.", !kids.isEmpty());
-		assertTrue("Extended BO must have inherited children.", !inheritedKids.isEmpty());
+		assertTrue("Extended BO summary must have properties.", !kids.isEmpty());
+		assertTrue("Extended BO summary must have inherited properties.", !inheritedKids.isEmpty());
 
 		// When - delete the attribute in c1 (base custom)
 		inheritedKids = inheritedCustom.getInheritedChildren();
 		kids = inheritedCustom.getChildren();
 		c1.remove(a1);
 		inheritedCustom.getChildren();
+		// TODO - finish test
 	}
 
 	@Test
@@ -362,9 +374,14 @@ public class FacetsTests {
 		checkRoleFacet(core.getRoleFacet());
 		List<Node> inheritedKids = core.getRoleFacet().getInheritedChildren();
 		// TODO - make sure minor version has inherited children
+	}
 
+	@Test
+	public void repositoryTestsNeedToBeMoved() throws RepositoryException {
+		String myNS = "http://local/junits";
 		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
-		assertTrue("Repository controller is not null.", rc != null);
+		assertTrue("Repository controller must not be null.", rc != null);
+		assertTrue("Local repository must not be null.", rc.getLocalRepository() != null);
 		List<RepositoryNode> repos = rc.getAll();
 		RepositoryNode localRepoNode = rc.getLocalRepository();
 		LOGGER.debug("Repo namespace is ", rc.getLocalRepository().getNamespaceWithPrefix());
@@ -382,12 +399,13 @@ public class FacetsTests {
 		}
 		LOGGER.debug("Repo Root namespaces: ", localRepo.listRootNamespaces());
 
-		ln.setNamespace(rc.getLocalRepository().getNamespace());
-		LOGGER.debug("Set namespace to ", ln.getNamespace());
-		List<LibraryNode> libs = new ArrayList<LibraryNode>();
-		libs.add(ln);
-		List<LibraryChainNode> lcns = rc.manage(rc.getLocalRepository(), libs);
-		assertTrue("There are library chains.", !lcns.isEmpty());
+		// Given - a library in the local repo namespace
+		ln = ml.createNewLibrary(rc.getLocalRepository().getNamespace(), "test1r", defaultProject);
+		assertTrue("Library must not be null.", ln != null);
+		// When - managed
+		List<LibraryChainNode> lcns = rc.manage(rc.getLocalRepository(), Collections.singletonList(ln));
+		// Then
+		assertTrue("There must be library chains.", !lcns.isEmpty());
 	}
 
 	public void checkFacet(ListFacetNode lf) {
@@ -424,11 +442,14 @@ public class FacetsTests {
 				vf.isValidParentOf(PropertyNodeType.INDICATOR_ELEMENT));
 
 		// Behaviors
+		// Given - a list with a new property
 		List<Node> properties = new ArrayList<Node>();
 		PropertyNode p = new AttributeNode(new TLAttribute(), null);
 		p.setName("attr1");
 		properties.add(p);
+		// When - list is added to attribute facet
 		vf.addProperties(properties, false);
+		// Then
 		assertTrue("Must have new property as child.", vf.getChildren().contains(p));
 	}
 
@@ -506,26 +527,26 @@ public class FacetsTests {
 
 	public void checkFacet(ContextualFacetNode rf) {
 		LOGGER.debug("Checking Contextual Facet: " + rf);
-		final String NEWCONTEXT = "myContext"; // must be ignored
 		final String NEWNAME = "myName";
 
-		assertTrue("Must be renamable.", rf.isRenameable());
-
+		// final String NEWCONTEXT = "myContext"; // must be ignored
 		// setContext()
-		String dc = rf.getLibrary().getDefaultContextId();
-		String fc = rf.getTLModelObject().getContext();
-		// assertTrue("Initial context must be default context.",
-		// rf.getLibrary().getDefaultContextId().equals(((TLFacet) rf.getTLModelObject()).getContext()));
-		rf.setContext(NEWCONTEXT); // ignored!
-		fc = rf.getTLModelObject().getContext();
-		assertTrue("Context must be set to default.",
-				rf.getLibrary().getDefaultContextId().equals(rf.getTLModelObject().getContext()));
+		// String dc = rf.getLibrary().getDefaultContextId();
+		// String fc = rf.getTLModelObject().getContext();
+		// // assertTrue("Initial context must be default context.",
+		// // rf.getLibrary().getDefaultContextId().equals(((TLFacet) rf.getTLModelObject()).getContext()));
+		// rf.setContext(NEWCONTEXT); // ignored!
+		// fc = rf.getTLModelObject().getContext();
+		// assertTrue("Context must be set to default.",
+		// rf.getLibrary().getDefaultContextId().equals(rf.getTLModelObject().getContext()));
 
 		// setName()
 		//
+		assertTrue("Must be renamable.", rf.isRenameable());
 		rf.setName(NEWNAME);
 		String n = rf.getName();
-		assertTrue("Facet must have new name.", rf.getName().contains(NEWNAME));
+		assertTrue("Facet must contain new name.",
+				rf.getName().contains(NodeNameUtils.fixContextualFacetName(rf, NEWNAME)));
 
 		// Inherited statements
 		//

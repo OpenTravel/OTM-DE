@@ -39,6 +39,8 @@ import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.repository.RepositoryIntegrationTestBase;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.OperationNode.ResourceOperationTypes;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -116,8 +118,7 @@ public class ServiceTests extends RepositoryIntegrationTestBase {
 		svc.delete();
 
 		svc = new ServiceNode(bo);
-		// Only 4 because the bo has no query facet.
-		Assert.assertEquals(4, svc.getChildren().size());
+		Assert.assertEquals(5, svc.getChildren().size());
 		List<Node> users = svc.getChildren_TypeUsers();
 		List<TypeUser> descendents = svc.getDescendants_TypeUsers();
 		Collection<TypeUser> boUsers = bo.getWhereAssigned();
@@ -167,8 +168,8 @@ public class ServiceTests extends RepositoryIntegrationTestBase {
 		// Add a service to the major library
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(majorLibrary, "Business1");
 		ServiceNode svc = new ServiceNode(bo);
-		// Only 4 because the bo has no query facet.
-		assertEquals(4, svc.getChildren().size());
+		// 5 because the bo has custom and query facet.
+		assertEquals(5, svc.getChildren().size());
 		List<Node> users = svc.getChildren_TypeUsers();
 		List<TypeUser> descendents = svc.getDescendants_TypeUsers();
 		Collection<TypeUser> boUsers = bo.getWhereAssigned();
@@ -180,9 +181,9 @@ public class ServiceTests extends RepositoryIntegrationTestBase {
 		OperationNode minorOp = new OperationNode(svc, "MinorOp");
 		users = svc.getChildren_TypeUsers();
 		descendents = svc.getDescendants_TypeUsers();
-		assertEquals(4, svc.getChildren().size()); // should still be 4
-		assertNotNull(descendents); // 12
-		assertNotNull(boUsers); // 8. Some are typed by facets.
+		assertEquals(5, svc.getChildren().size()); // should still be 5
+		assertNotNull(descendents); // 15
+		assertNotNull(boUsers); // 10. Some are typed by facets.
 
 		// There should now be services in both major and minor libraries.
 		for (LibraryNode ln : chain.getLibraries()) {

@@ -26,17 +26,18 @@ import org.junit.Test;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemas.controllers.repository.RepositoryIntegrationTestBase;
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryItemNode;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
@@ -80,14 +81,26 @@ public class LoadDepenedLibrariesAndResolvedTypes extends RepositoryIntegrationT
 		VWA_Node vwa = ComponentNodeBuilder.createVWA("VWA").addAttribute(withAssignedType).get();
 		extLib.addMember(vwa);
 		withAssignedType.setAssignedType(simpleInBase);
-		// withAssignedType.getTypeClass().setAssignedType(simpleInBase);
+
+		Assert.assertTrue("", uploadProject != null);
+		Assert.assertTrue("", baseLib != null);
+		Assert.assertTrue("", extLib != null);
+		Assert.assertTrue("", baseLib.isEditable());
+		Assert.assertTrue("", extLib.isEditable());
+		Assert.assertTrue("", baseLib.getProject() == uploadProject);
+		Assert.assertTrue("", extLib.getProject() == uploadProject);
+		Assert.assertTrue("", simpleInBase != null);
+		Assert.assertTrue("", withAssignedType != null);
+		Assert.assertTrue("", withAssignedType.getAssignedType() == simpleInBase);
+		Assert.assertTrue("", vwa != null);
 	}
 
 	@Test
 	public void manageOneByOneStartingFromBaseLibrary() throws RepositoryException {
+		// When - given libraries are managed in repository
 		LibraryChainNode baseChain = rc.manage(getRepositoryForTest(), Collections.singletonList(baseLib)).get(0);
 		LibraryChainNode extChain = rc.manage(getRepositoryForTest(), Collections.singletonList(extLib)).get(0);
-
+		// Then
 		assertAllLibrariesLoadedCorrectly(baseChain, extChain);
 	}
 
@@ -111,28 +124,33 @@ public class LoadDepenedLibrariesAndResolvedTypes extends RepositoryIntegrationT
 	}
 
 	private void assertAllLibrariesLoadedCorrectly(LibraryChainNode baseChain, LibraryChainNode extChain) {
-		// clean up project
-		mc.getLibraryController().remove(Collections.singletonList(baseChain));
+		// Given - an empty project with libraries in the repository
 
 		// find repository item before delete.
 		RepositoryItemNode nodeToRetrive = findRepositoryItem(extChain, getRepositoryForTest());
-		mc.getLibraryController().remove(Collections.singletonList(extChain));
+
+		// Remove libraries from TL and GUI models
+		mc.getProjectController().remove((LibraryNavNode) baseChain.getParent());
+		mc.getProjectController().remove((LibraryNavNode) extChain.getParent());
 		Assert.assertEquals(0, uploadProject.getChildren().size());
 
-		// load only library with dependencies
+		// When - load only 1 library which should also load the other to resolve dependencies
 		pc.add(uploadProject, nodeToRetrive.getItem());
-		Assert.assertEquals(2, uploadProject.getChildren().size());
 
-		// make sure that base library is loaded and type are resolved
+		// Then - make sure that base library is loaded and type are resolved
+		Assert.assertEquals(2, uploadProject.getChildren().size());
 		LibraryChainNode lib = findLibrary(extLib.getName(), uploadProject.getChildren());
+		Assert.assertTrue("Ext Library must be in project.", lib != null);
 		VWA_Node vwaNode = (VWA_Node) lib.getDescendants_LibraryMembers().get(0);
+		Assert.assertTrue("VWA must be found.", vwaNode instanceof VWA_Node);
 		AttributeNode attr = (AttributeNode) vwaNode.getAttributeFacet().getChildren().get(0);
-		Assert.assertNotSame(ModelNode.getUnassignedNode(), attr.getTypeNode());
-		Assert.assertSame(attr.getTypeNode().getModelObject().getTLModelObj(), attr.getTLTypeObject());
+		Assert.assertTrue("attribute must have assigned type.", !attr.isUnAssigned());
 	}
 
 	private LibraryChainNode findLibrary(String name, Collection<? extends Node> libs) {
 		for (Node n : libs) {
+			if (n instanceof LibraryNavNode)
+				n = (Node) ((LibraryNavNode) n).getThisLib();
 			if (n instanceof LibraryChainNode) {
 				LibraryChainNode lch = (LibraryChainNode) n;
 				if (name.equals(lch.getHead().getName()))

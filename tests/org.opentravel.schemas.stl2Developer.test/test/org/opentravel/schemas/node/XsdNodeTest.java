@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.utils.BaseProjectTest;
 
@@ -32,10 +33,10 @@ public class XsdNodeTest extends BaseProjectTest {
 
 	@Test
 	public void shouldCreateCorrectVWA() {
-		List<ProjectItem> items = pc.addLibrariesToTLProject(defaultProject.getProject(),
+		List<ProjectItem> items = pc.addLibrariesToTLProject(testProject.getTLProject(),
 				Collections.singletonList(new File("Resources/CreateVWAFromExtened.xsd")));
 		ProjectItem pi = items.get(0);
-		LibraryNode libNode = new LibraryNode(pi, defaultProject);
+		LibraryNode libNode = new LibraryNode(pi.getContent(), testProject);
 		TypeResolver tr = new TypeResolver();
 		tr.resolveTypes(libNode);
 		for (Node n : libNode.getDescendentsNamedTypes()) {

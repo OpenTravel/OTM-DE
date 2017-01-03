@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 
 import org.junit.Assert;
@@ -27,6 +29,8 @@ import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
@@ -80,7 +84,7 @@ public class Import_Tests {
 		// make sure that destLib is editable (move to project with correct ns)
 		String projectFile = MockLibrary.createTempFile("TempProject", ".otp");
 		ProjectNode project = pc.create(new File(projectFile), destLib.getNamespace(), "Name", "");
-		destLib = pc.add(project, destLib.getTLaLib());
+		destLib = pc.add(project, destLib.getTLaLib()).getLibrary();
 		Assert.assertTrue(destLib.isEditable());
 
 		// Make sure the source is still OK
@@ -105,17 +109,21 @@ public class Import_Tests {
 
 		// LOGGER.debug("\n");
 		LOGGER.debug("Start Import ***************************");
-		// int destTypes = destLib.getDescendants_NamedTypes().size();
-
-		// make sure that destLib is editable (move to project with correct ns)
+		// TODO - what has this to do with IMPORT???
+		// make sure that destLib is editable
 		String projectFile = MockLibrary.createTempFile("TempProject", ".otp");
 		ProjectNode project = pc.create(new File(projectFile), destLib.getNamespace(), "Name", "");
-		destLib = pc.add(project, destLib.getTLaLib());
-		Assert.assertTrue(destLib.isEditable());
+		assertTrue("Project must have same namespace as destLib.", project.getNamespace()
+				.equals(destLib.getNamespace()));
+
+		// When - a library is added to a project that governs it's namespace
+		destLib = pc.add(project, destLib.getTLaLib()).getLibrary();
+
+		// Then - the library must be editable.
+		assertTrue(destLib.isEditable());
 
 		// Make sure the source is still OK
 		sourceLib.visitAllNodes(nt.new TestNode());
-
 		// Make sure the imported nodes are OK.
 		destLib.visitAllNodes(nt.new TestNode());
 	}

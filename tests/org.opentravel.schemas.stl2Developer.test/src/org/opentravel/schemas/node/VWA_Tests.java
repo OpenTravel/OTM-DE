@@ -35,6 +35,8 @@ import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
@@ -161,7 +163,7 @@ public class VWA_Tests {
 		// Given - the tlModelObject from simple type B
 		TLModelElement target = bType.getTLModelObject();
 
-		NamedEntity v1 = vwa.getTLTypeObject();
+		// NamedEntity v1 = vwa.getTLTypeObject();
 		TLValueWithAttributes t1 = (TLValueWithAttributes) vwa.getTLModelObject();
 		TLAttributeType a1 = t1.getParentType(); // null
 

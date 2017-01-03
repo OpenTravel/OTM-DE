@@ -28,7 +28,6 @@ import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.controllers.RepositoryController;
 import org.opentravel.schemas.node.NamespaceHandler;
-import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;

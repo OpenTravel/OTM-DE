@@ -39,9 +39,9 @@ import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
-import org.opentravel.schemas.node.LibraryChainNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.stl2Developer.reposvc.JettyTestServer;
 import org.opentravel.schemas.stl2Developer.reposvc.RepositoryTestUtils;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -92,7 +92,7 @@ public abstract class RepositoryIntegrationTestBase {
 	public void afterEachTest() throws RepositoryException, IOException {
 		pc.closeAll();
 		for (ProjectNode pn : projectsToClean) {
-			RepositoryTestUtils.deleteContents(pn.getProject().getProjectFile().getParentFile());
+			RepositoryTestUtils.deleteContents(pn.getTLProject().getProjectFile().getParentFile());
 		}
 		projectsToClean.clear();
 		reinitializeRepositories();
@@ -100,7 +100,7 @@ public abstract class RepositoryIntegrationTestBase {
 
 	public void removeProject(ProjectNode pn) {
 		if (projectsToClean.remove(pn)) {
-			RepositoryTestUtils.deleteContents(pn.getProject().getProjectFile().getParentFile());
+			RepositoryTestUtils.deleteContents(pn.getTLProject().getProjectFile().getParentFile());
 		}
 	}
 

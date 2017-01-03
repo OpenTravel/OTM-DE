@@ -24,6 +24,7 @@ import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeResolver;

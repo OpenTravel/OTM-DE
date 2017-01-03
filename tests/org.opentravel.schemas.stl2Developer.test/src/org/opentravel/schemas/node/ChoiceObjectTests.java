@@ -36,6 +36,8 @@ import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
@@ -119,9 +121,10 @@ public class ChoiceObjectTests {
 					extChoice = (ChoiceObjectNode) n;
 			}
 		assertTrue("Must have base choice object.", choice != null);
-		assertTrue("Choice must have 3 contextual facets.", getContextualFacets(choice).size() == 3);
+		assertTrue("Choice must have 2 contextual facets.", getContextualFacets(choice).size() == 2);
 		assertTrue("Must have extended choice object.", extChoice != null);
-		assertTrue("Extended choice must have 4 contextual facets.", getContextualFacets(extChoice).size() == 4);
+		assertTrue("Extended choice must have 2 contextual facets.", getContextualFacets(extChoice).size() == 2);
+		assertTrue("Extended choice must have 2 inherited facets.", extChoice.getInheritedChildren().size() == 2);
 
 		// Given - the choice extension should work exactly like business object.
 		BusinessObjectNode bo = null;
@@ -134,9 +137,10 @@ public class ChoiceObjectTests {
 					exBo = (BusinessObjectNode) n;
 			}
 		assertTrue("Must have base business object.", bo != null);
-		assertTrue("BO must have 4 contextual facets.", getContextualFacets(bo).size() == 4);
+		assertTrue("BO must have 2 contextual facets.", getContextualFacets(bo).size() == 2);
 		assertTrue("Must have extended business object.", exBo != null);
-		assertTrue("Extended BO must have 6 contextual facets.", getContextualFacets(exBo).size() == 6);
+		assertTrue("Extended BO must have 2 contextual facets.", getContextualFacets(exBo).size() == 2);
+		assertTrue("Extended BO must have 2 inherited facets.", exBo.getInheritedChildren().size() == 2);
 	}
 
 	private List<ContextualFacetNode> getContextualFacets(Node container) {

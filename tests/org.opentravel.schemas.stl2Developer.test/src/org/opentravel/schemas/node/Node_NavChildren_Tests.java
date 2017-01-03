@@ -30,6 +30,9 @@ import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
@@ -96,7 +99,10 @@ public class Node_NavChildren_Tests {
 		// Given = lots of libraries in chains
 		lf.loadTestGroupA(mc);
 		for (LibraryNode ln : defaultProject.getLibraries())
-			new LibraryChainNode(ln);
+			if (!ln.isInChain())
+				new LibraryChainNode(ln);
+			else
+				lcn = ln.getChain();
 
 		//
 		// When - each node is examined
@@ -147,6 +153,9 @@ public class Node_NavChildren_Tests {
 			//
 			if ((n instanceof LibraryNode) && (n.parent instanceof VersionAggregateNode))
 				assertTrue("Must be empty.", n.getNavChildren(true).isEmpty());
+			else if (n instanceof LibraryNavNode)
+				assertTrue("Must be size from library", n.getNavChildren(false).size() == ((LibraryNavNode) n)
+						.getThisLib().getNavChildren(false).size());
 			else if (n instanceof VersionAggregateNode)
 				assertTrue("Must be empty.", n.getNavChildren(true).isEmpty());
 			else if (n instanceof RepositoryNode)
@@ -188,8 +197,8 @@ public class Node_NavChildren_Tests {
 				// List<Node> ch = n.getChildren();
 				// LOGGER.debug("Invalid nav child count.");
 				// }
-				assertTrue("Default case where all children are navigation.", n.getNavChildren(true).size() == n
-						.getChildren().size());
+				assertTrue("Size error in default case where all children are navigation.", n.getNavChildren(true)
+						.size() == n.getChildren().size());
 			}
 		}
 	}

@@ -30,6 +30,8 @@ import org.opentravel.schemas.modelObject.SimpleAttributeMO;
 import org.opentravel.schemas.modelObject.SimpleFacetMO;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
@@ -150,17 +152,14 @@ public class CoreTests {
 		PropertyNode pAlias1 = new ElementNode(elements.getSummaryFacet(), "p2", alias1);
 		PropertyNode pcoreSummary = new ElementNode(elements.getSummaryFacet(), "p3", core.getSummaryFacet());
 		PropertyNode pcoreSumAlias = new ElementNode(elements.getSummaryFacet(), "p4", aliasSummary);
+
 		// Then - the facet alias has where used
 		assertTrue("Facet alias must be assigned as type.", !aliasSummary.getWhereAssigned().isEmpty());
 		// Then - the elements are named after their type
 		assertTrue("Element name must be the core name.", pcore.getName().equals(core.getName()));
 		assertTrue("Element name must be alias name.", pAlias1.getName().contains(alias1.getName()));
-		assertTrue("Element name must NOT be facet name.",
-				!pcoreSummary.getName().equals(core.getSummaryFacet().getName()));
-		// Then - assigned facet name will be constructed by compiler using owning object and facet type.
+		assertTrue("Element name must be facet name.", pcoreSummary.getName().equals(core.getSummaryFacet().getName()));
 		assertTrue("Element name must start with core name.", pcoreSummary.getName().startsWith(core.getName()));
-		assertTrue("Element name must NOT contain facet name because it is a simple core.", !pcoreSummary.getName()
-				.contains(core.getSummaryFacet().getName()));
 		assertTrue("Element name must start with alias name.", pcoreSumAlias.getName().startsWith(alias1.getName()));
 
 		// When - Change the core name

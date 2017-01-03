@@ -41,17 +41,16 @@ import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
-import org.opentravel.schemas.node.LibraryChainNode;
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.PropertyNodeType;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.types.TypeProvider;
 
@@ -125,8 +124,9 @@ public class PropertiesTests {
 
 		// Add context to library and context manager -
 		// must use context controller because it is needed in the valid context tests.
-		mc.getContextController().newContext(ln, "C1", "CA1");
-		mc.getContextController().newContext(ln, "C2", "CA2");
+		// 1/1/2017 dmh - commented out as this is the only caller of newContext()
+		// mc.getContextController().newContext(ln, "C1", "CA1");
+		// mc.getContextController().newContext(ln, "C2", "CA2");
 
 		// Create 2 values
 		handler.set("V2", "C1"); // removes other values
@@ -257,10 +257,12 @@ public class PropertiesTests {
 	@Test
 	public void createIds() {
 		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "Vwa");
-		IdNode id = new IdNode(vwa.getAttributeFacet(), "SomeIgnoredName");
+		final String idName = "SomeIgnoredName";
+		IdNode id = new IdNode(vwa.getAttributeFacet(), idName);
 		Node idType = NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
 
-		Assert.assertEquals("id", id.getName());
+		// Assert.assertEquals("id", id.getName());
+		Assert.assertEquals(NodeNameUtils.fixAttributeName(idName), id.getName());
 		Assert.assertEquals(idType, id.getAssignedType());
 		Assert.assertEquals(id.getPropertyType(), PropertyNodeType.ID);
 		Assert.assertEquals(id.alternateRoles.currentType, PropertyNodeType.ID);

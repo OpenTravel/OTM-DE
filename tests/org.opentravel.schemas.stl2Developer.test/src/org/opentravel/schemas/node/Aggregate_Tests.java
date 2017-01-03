@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +28,8 @@ import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.AggregateNode.AggregateType;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -129,11 +133,9 @@ public class Aggregate_Tests {
 
 	@Test
 	public void addChildren() {
-		// Create 2 aggregate nodes and 4 simple types, 3 in a family.
-		// AggregateNode ac = new AggregateNode(AggregateType.ComplexTypes, lcn);
-		// AggregateNode as = new AggregateNode(AggregateType.SimpleTypes, lcn);
-		AggregateNode as = (AggregateNode) lcn.getSimpleAggregate();
-		AggregateNode ac = (AggregateNode) lcn.getComplexAggregate();
+		// Given - aggregate nodes from a library chain and 4 simples
+		AggregateNode simpleAgg = (AggregateNode) lcn.getSimpleAggregate();
+		AggregateNode complexAgg = (AggregateNode) lcn.getComplexAggregate();
 		ComponentNode s1 = (ComponentNode) makeSimple("s_1");
 		ComponentNode s2 = (ComponentNode) makeSimple("s_2");
 		ComponentNode s3 = (ComponentNode) makeSimple("s_3");
@@ -141,81 +143,64 @@ public class Aggregate_Tests {
 
 		// Check pre-tests
 		try {
-			ac.add(s1);
+			complexAgg.add(s1);
 			Assert.assertFalse(true); // should never reach here
 		} catch (IllegalStateException e) {
 			Assert.assertNotNull(e); // should error because of wrong type
 		}
 
 		try {
-			as.add(s1);
+			simpleAgg.add(s1);
 			Assert.assertFalse(true); // should never reach here
 		} catch (IllegalArgumentException e) {
-			Assert.assertNotNull(e); // should error because of no library
+			Assert.assertNotNull(e); // should error because of simple has no library
 		}
 
 		// addMember() - broadly used. used in node constructors.
 		// linkMember() - protected, used by addMember(), used in initial library generation
 		//
-		// ln_inChain is a library node with in the lcn chain.
+		// ln_inChain is a library node within the lcn chain.
 		ln_inChain.addMember(s1);
-		as.add(s1); // not needed but safe
-		Assert.assertEquals(1, as.getChildren().size());
+		simpleAgg.add(s1); // not needed but safe
+		Assert.assertEquals(1, simpleAgg.getChildren().size());
 
-		// Put Not family member nf in the library
+		// Put nf in the library
 		ln_inChain.addMember(nf);
-		Assert.assertEquals(2, as.getChildren().size());
+		Assert.assertEquals(2, simpleAgg.getChildren().size());
 
 		// Put s2 in
 		ln_inChain.addMember(s2); // Invokes family code
-		Assert.assertEquals(3, as.getChildren().size());
-
-		// get the new family node
-		// AggregateFamilyNode afn = null;
-		// for (Node n : as.getChildren())
-		// if (n instanceof AggregateFamilyNode)
-		// afn = (AggregateFamilyNode) n;
-		// Assert.assertNotNull(afn);
-		// Assert.assertEquals(2, afn.getChildren().size());
+		Assert.assertEquals(3, simpleAgg.getChildren().size());
 
 		ln_inChain.getTLLibrary().addNamedMember((LibraryMember) s3.getTLModelObject());
 		ln_inChain.addMember(s3); // Invokes family code
-		Assert.assertEquals(4, as.getChildren().size());
-		// Assert.assertEquals(3, afn.getChildren().size());
+		assertEquals(4, simpleAgg.getChildren().size());
 
-		// Test replacing logic
+		// Create 2 simples and add to chain
 		ComponentNode s3d = (ComponentNode) makeSimple("s_3d", ln_inChain);
 		ComponentNode nd = (ComponentNode) makeSimple("nf", ln_inChain);
 
-		as.add(nd);
-		Assert.assertEquals(5, as.getChildren().size());
-		// Assert.assertEquals(3, afn.getChildren().size());
-		// test replacing existing node in family
-		as.add(s3d);
-		Assert.assertEquals(6, as.getChildren().size());
-		// Assert.assertEquals(4, afn.getChildren().size());
+		simpleAgg.add(nd); // does nothing
+		simpleAgg.add(s3d);
+		assertEquals(6, simpleAgg.getChildren().size());
 
 		// TODO
 		// Test if adding to newer version of library in chain
 		// Test if adding in family to newer version of library in chain
 
 		// Test Get Children
-		Assert.assertEquals(6, as.getNavChildren(false).size()); // not overriden, should be child count.
-		Assert.assertEquals(6, as.getChildren().size());
+		Assert.assertEquals(6, simpleAgg.getNavChildren(false).size()); // not overriden, should be child count.
+		Assert.assertEquals(6, simpleAgg.getChildren().size());
 
 		// Test Remove
-		as.remove(s1);
-		// Assert.assertEquals(3, as.getChildren().size());
-		// Assert.assertEquals(3, afn.getChildren().size());
-		as.remove(nd);
-		// Assert.assertEquals(2, as.getChildren().size());
-		as.remove(nd); // should fail without error
-		// Assert.assertEquals(2, as.getChildren().size());
-		as.remove(nf);
-		as.remove(s2);
-		as.remove(s3);
-		as.remove(s3d);
-		Assert.assertEquals(0, as.getChildren().size());
+		simpleAgg.remove(s1);
+		simpleAgg.remove(nd);
+		simpleAgg.remove(nd); // should fail without error
+		simpleAgg.remove(nf);
+		simpleAgg.remove(s2);
+		simpleAgg.remove(s3);
+		simpleAgg.remove(s3d);
+		Assert.assertEquals(0, simpleAgg.getChildren().size());
 	}
 
 	/**

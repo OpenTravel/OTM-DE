@@ -18,11 +18,10 @@ package org.opentravel.schemas.testUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemas.node.LibraryNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.opentravel.schemacompiler.model.LibraryMember;
 
 /**

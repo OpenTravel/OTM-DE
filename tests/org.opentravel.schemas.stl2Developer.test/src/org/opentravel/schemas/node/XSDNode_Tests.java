@@ -18,11 +18,15 @@
  */
 package org.opentravel.schemas.node;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,8 +82,8 @@ public class XSDNode_Tests {
 			}
 		}
 		String libName = lib.getName();
-		int libCnt = lib.getDescendentsSimpleComponents().size();
-		Assert.assertEquals(simpleCnt, lib.getDescendentsSimpleComponents().size());
+		int libCnt = getDescendentsSimpleComponents(lib).size();
+		Assert.assertEquals(simpleCnt, getDescendentsSimpleComponents(lib).size());
 	}
 
 	private void visitXsdNodes(INode node) {
@@ -96,6 +100,14 @@ public class XSDNode_Tests {
 				}
 			}
 		}
+	}
+
+	private List<SimpleComponentNode> getDescendentsSimpleComponents(LibraryNode ln) {
+		List<SimpleComponentNode> kids = new ArrayList<SimpleComponentNode>();
+		for (Node n : ln.getSimpleRoot().getChildren())
+			if (n instanceof SimpleComponentNode)
+				kids.add((SimpleComponentNode) n);
+		return kids;
 	}
 
 	private void checkName(Node n) {
@@ -119,7 +131,7 @@ public class XSDNode_Tests {
 	}
 
 	private void visitSimpleTypes(LibraryNode ln) {
-		for (SimpleComponentNode st : ln.getDescendentsSimpleComponents()) {
+		for (SimpleComponentNode st : getDescendentsSimpleComponents(ln)) {
 			Assert.assertNotNull(st.getLibrary());
 			Assert.assertNotNull(st.getBaseType());
 

@@ -26,6 +26,8 @@ import org.junit.Test;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
@@ -78,7 +80,7 @@ public class BusinessObjectTests {
 		LibraryChainNode lcn = new LibraryChainNode(ln); // Test in managed library
 		ln.setEditable(true);
 
-		BusinessObjectNode extendedBO = ml.addBusinessObjectToLibrary(ln, "ExtendedBO");
+		BusinessObjectNode extendedBO = ml.addBusinessObjectToLibrary_Empty(ln, "ExtendedBO");
 		assertNotNull("Null object created.", extendedBO);
 
 		for (Node n : ln.getDescendants_LibraryMembers())
@@ -87,7 +89,7 @@ public class BusinessObjectTests {
 				checkBO((BusinessObjectNode) n);
 				checkBO(extendedBO);
 			}
-
+		// see also org.opentravel.schemas.node.InheritedChildren_Tests
 	}
 
 	@Test
