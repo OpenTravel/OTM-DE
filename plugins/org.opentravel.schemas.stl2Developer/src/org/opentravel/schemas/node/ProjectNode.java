@@ -131,7 +131,7 @@ public class ProjectNode extends Node implements INode {
 	 */
 	@Override
 	public void close() {
-		LOGGER.debug("Closing " + getName());
+		// LOGGER.debug("Closing " + getName());
 		List<Node> libs = new ArrayList<Node>(getChildren());
 		for (Node n : libs)
 			n.close();

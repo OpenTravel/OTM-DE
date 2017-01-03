@@ -29,8 +29,6 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Manages lists of where extension owners are assigned to this object. The where extended handler is on the extension
@@ -42,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class WhereExtendedHandler {
-	private static final Logger LOGGER = LoggerFactory.getLogger(WhereExtendedHandler.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(WhereExtendedHandler.class);
 
 	// nodes that use this node as a base/extension type.
 	protected ArrayList<ExtensionOwner> users = new ArrayList<ExtensionOwner>();
@@ -65,7 +63,7 @@ public class WhereExtendedHandler {
 
 		public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
 			Node source = getSource(event);
-			LOGGER.debug("WhereExtends: " + event.getType() + " handler = " + handler.owner + " source = " + source);
+			// LOGGER.debug("WhereExtends: " + event.getType() + " handler = " + handler.owner + " source = " + source);
 
 			switch (event.getType()) {
 			case EXTENDS_ADDED:

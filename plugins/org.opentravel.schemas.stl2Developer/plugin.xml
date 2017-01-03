@@ -911,11 +911,11 @@
 						<iterate ifEmpty="false" operator="and">
 							<and>
 								<not>
-									<instanceof value="org.opentravel.schemas.node.LibraryNode">
+									<instanceof value="org.opentravel.schemas.node.libraries.LibraryNode">
 									</instanceof>
 								</not>
 								<not>
-									<instanceof value="org.opentravel.schemas.node.LibraryChainNode">
+									<instanceof value="org.opentravel.schemas.node.libraries.LibraryChainNode">
 									</instanceof>
 								</not>
 								<test property="stl2Developer.node.isDeleteable">

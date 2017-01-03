@@ -182,6 +182,11 @@ public class FacetNode extends PropertyOwnerNode implements PropertyOwnerInterfa
 		return false;
 	}
 
+	@Override
+	public boolean isRenameable() {
+		return false;
+	}
+
 	/**
 	 * Facets assigned to core object list types have no model objects but may be page1-assignable.
 	 */
