@@ -40,7 +40,12 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander, Agnieszka Janowska
  * 
  */
-
+// 1/5/2017 dmh
+// FIXME - this is way too complicated. Reduce dependency on stored namespaces. Make into utils and only one handler.
+// Consider adding to LibraryModelManager.
+// Remember - libraries and projects have namespaces
+// Remember - the relationship between library and project is not 1 to 1
+//
 public class NamespaceHandler {
 	static final Logger LOGGER = LoggerFactory.getLogger(NamespaceHandler.class);
 	// private final ModelNode model;
@@ -89,6 +94,8 @@ public class NamespaceHandler {
 
 	}
 
+	// FIXME - there is no strong relationship between library and project
+	// What is instances for ???
 	/**
 	 * Get Prefix for the namespace. Checks all projects.
 	 * 
@@ -114,6 +121,8 @@ public class NamespaceHandler {
 	/**
 	 * @return Set of all namespaces in the project.
 	 */
+	// 1/4/2017 unused
+	@Deprecated
 	public List<String> getNamespaces() {
 		List<String> namespaces = new ArrayList<String>();
 		for (String ns : namespacesAndPrefixes.keySet())
@@ -121,24 +130,28 @@ public class NamespaceHandler {
 		return namespaces;
 	}
 
-	/**
-	 * Rename the old namespace to the new one in all projects. Note: rename does not remove the old namespace.
-	 */
-	public void rename(final String oldNS, final String newNS) {
-		for (NamespaceHandler nsHandler : instances.values()) {
-			nsHandler.renameInProject(oldNS, newNS);
-		}
-	}
+	// /**
+	// * Rename the old namespace to the new one in all projects.
+	// * Note: rename does not remove the old namespace.
+	// */
+	// public void rename(final String oldNS, final String newNS) {
+	// for (NamespaceHandler nsHandler : instances.values()) {
+	// nsHandler.renameInProject(oldNS, newNS);
+	// }
+	// }
 
 	/**
 	 * Rename the old namespace to the new one using this projects ns handler. Does <b>not</b> change namespace assigned
 	 * to any library.
 	 */
-	public void renameInProject(final String oldNS, final String newNS) {
+	public void rename(final String oldNS, final String newNS) {
 		if (!namespacesAndPrefixes.containsKey(oldNS))
 			return;
 
 		String prefix = namespacesAndPrefixes.get(oldNS);
+		if (prefix == null || prefix.isEmpty()) {
+			LOGGER.error("Null or empty namespace prefix ");
+		}
 		namespacesAndPrefixes.remove(oldNS);
 		namespacesAndPrefixes.put(newNS, prefix);
 	}
@@ -158,7 +171,7 @@ public class NamespaceHandler {
 	 */
 	public String registerLibrary(final LibraryNode library) {
 		final String namespace = library.getNamespace();
-		final String candidatePrefix = isDefined(library.getNamePrefix()) ? library.getNamePrefix() : "";
+		final String candidatePrefix = isDefined(library.getPrefix()) ? library.getPrefix() : "";
 		String prefix = "";
 
 		if (namespace == null || namespace.isEmpty()) {
@@ -166,10 +179,16 @@ public class NamespaceHandler {
 			throw new IllegalArgumentException("Null or empty namespace.");
 		}
 
-		// Find the right prefix
+		// Find the right prefix - if already defined for the namespace, use the earlier definition
 		prefix = getPrefix(namespace);
 		if (!isDefined(prefix))
 			prefix = candidatePrefix;
+
+		if (prefix == null || prefix.isEmpty()) {
+			LOGGER.error("Null or empty namespace prefix on library " + library.getName());
+			prefix = "default";
+			// throw new IllegalArgumentException("Null or empty namespace prefix.");
+		}
 
 		// If new, register the namespace/prefix set
 		if (!namespacesAndPrefixes.containsKey(namespace)) {
@@ -180,7 +199,7 @@ public class NamespaceHandler {
 		if (!prefix.equals(candidatePrefix))
 			setPrefix(library, prefix);
 
-		// LOGGER.info("Registered namespace (" + prefix + ")" + namespace);
+		// LOGGER.info("Registered namespace (" + prefix + ")" + namespace + " for library " + library);
 		return prefix;
 	}
 
@@ -199,6 +218,8 @@ public class NamespaceHandler {
 		String prefix = getPrefix(newNamespace);
 		if (!isDefined(prefix))
 			prefix = "";
+		if (prefix.isEmpty())
+			LOGGER.debug("Setting empty prefix on namespace " + newNamespace);
 
 		if (!namespacesAndPrefixes.containsKey(newNamespace)) {
 			namespacesAndPrefixes.put(newNamespace, prefix);

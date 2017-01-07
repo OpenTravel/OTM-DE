@@ -43,7 +43,7 @@ public class NewLibraryValidator implements FormValidator {
 		final String[] unacceptable = new String[] { Node.UNDEFINED_PROPERTY_TXT };
 
 		final String namespace = library.getNamespace();
-		final String prefix = library.getNamePrefix();
+		final String prefix = library.getPrefix();
 		final NamespaceHandler handler = library.getNsHandler();
 
 		// Make sure the fields are filled out

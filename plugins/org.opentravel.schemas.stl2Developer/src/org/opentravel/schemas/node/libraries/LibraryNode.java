@@ -669,7 +669,8 @@ public class LibraryNode extends Node implements LibraryInterface {
 		else if (n instanceof SimpleComponentInterface)
 			linkOK = simpleRoot.linkChild(n);
 		else if (n instanceof ResourceNode) {
-			linkOK = getResourceRoot().getChildren().add(n);
+			if (!getResourceRoot().getChildren().contains(n))
+				getResourceRoot().getChildren().add(n);
 			n.setParent(getResourceRoot());
 		} else if (n instanceof ServiceNode)
 			; // Nothing to do because services are already linked to library.
@@ -717,23 +718,6 @@ public class LibraryNode extends Node implements LibraryInterface {
 		// LOGGER.debug("Locked library which created local file: " + path);
 		setEditable(isAbsLibEditable());
 	}
-
-	// /**
-	// * Unlock this library in its repository.
-	// *
-	// * @return empty string if successful or an error message from repository.
-	// */
-	// // Not Used
-	// public void unlock() throws RepositoryException {
-	// ProjectNode pn = getProject();
-	// if (pn == null)
-	// throw new RepositoryException("Library was not part of a project");
-	//
-	// OtmRegistry.getMainController().getRepositoryController().unlockAndRevert(this);
-	// // pn.getProject().getProjectManager().unlock(getProjectItem(), true);
-	// // LOGGER.debug("UnLocked library " + this);
-	// setEditable(isAbsLibEditable());
-	// }
 
 	/**
 	 * Use the generator appropriate to the library type. Gets each member of the abstract library and creates the
@@ -877,7 +861,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 			if (getTLLibrary().getContextByApplicationContext(n.getNamespace()) == null) {
 				final TLContext ctx = new TLContext();
 				ctx.setApplicationContext(n.getNamespace());
-				ctx.setContextId(n.getNamePrefix());
+				ctx.setContextId(n.getPrefix());
 				if (ctx.getContextId().isEmpty())
 					ctx.setContextId("Imported");
 				getTLLibrary().addContext(ctx);
@@ -1236,13 +1220,13 @@ public class LibraryNode extends Node implements LibraryInterface {
 
 	@Override
 	public String getNamespaceWithPrefix() {
-		final String prefix = getNamePrefix();
+		final String prefix = getPrefix();
 		final String namespace = getNamespace();
 		return (prefix.isEmpty() ? "() " + namespace : "( " + prefix + " ) " + namespace);
 	}
 
 	@Override
-	public String getNamePrefix() {
+	public String getPrefix() {
 		return emptyIfNull(getTLaLib().getPrefix());
 	}
 
@@ -1332,8 +1316,8 @@ public class LibraryNode extends Node implements LibraryInterface {
 	@Override
 	public String getLabel() {
 		String prefix = "";
-		if (!getNamePrefix().isEmpty())
-			prefix = getNamePrefix() + ":";
+		if (!getPrefix().isEmpty())
+			prefix = getPrefix() + ":";
 		return prefix + getName();
 	}
 
@@ -1349,9 +1333,10 @@ public class LibraryNode extends Node implements LibraryInterface {
 			throw new IllegalStateException("Null nsHandler");
 		if (ns == null || ns.isEmpty())
 			throw new IllegalArgumentException("Null or empty namespace argument.");
-		String prefix = getNamePrefix(); // save in case not registered.
+		String prefix = getPrefix(); // save in case not registered.
 		nsHandler.setLibraryNamespace(this, ns);
-		if (getNamePrefix().isEmpty()) {
+		// FIXME - huh???
+		if (getPrefix().isEmpty()) {
 			nsHandler.setNamespacePrefix(ns, prefix);
 			setNSPrefix(prefix);
 		}

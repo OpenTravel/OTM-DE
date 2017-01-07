@@ -137,10 +137,12 @@ public class PropertiesTests {
 		Assert.assertEquals("V3", handler.get("C2"));
 
 		handler.set("V4", "C2"); // removes other values
-		handler.fix("C2"); // should do nothing
+
+		// C2 is not in context controller so fix changes context value to nsPrefix
+		handler.fix("C2");
 		Assert.assertEquals(1, handler.getCount());
-		Assert.assertEquals("V4", handler.get("C2"));
-		Assert.assertTrue(handler.getApplicationContext().equals("CA2"));
+		Assert.assertEquals("V4", handler.get(defaultContextId));
+		Assert.assertTrue(handler.getApplicationContext().equals(defaultAppContext));
 
 		// Test fix to move value V4 to default context.
 		handler.fix(null);

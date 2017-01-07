@@ -301,7 +301,7 @@ public class XsdModelingUtils {
 			}
 		} else if (simpleType != null) {
 			if (simpleType.getUnion() != null) {
-				unionName = parseUnion(simpleType, xsdNode.getNamePrefix());
+				unionName = parseUnion(simpleType, xsdNode.getPrefix());
 			} else if (simpleType.getList() != null) {
 				// for a list just set a flag then get the type down below.
 				tls.setListTypeInd(true);

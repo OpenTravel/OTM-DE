@@ -2,7 +2,8 @@ README - developer Notes - Children
 
 NOTES - this is as it was before 10/2016 
 	it is now much cleaner.
-	ContentProviders simply call getNavChildren() and hasNavChildren().
+	ContentProviders simply call getTreeChildren(deep)
+		tree children use getNavChildren() and hasNavChildren() then add node specific nodes such as type nodes.
 	
 	getNavChildren() and hasNavChildren() have been simplified but there are still several overrides. For the most part, it is the leaf nodes that must report if they can be included via isNavChild(boolean deep).
 	

@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Library xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04"
+<Library xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_05"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04 OTA2_LibraryModel_v1.4.5.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_05 OTA2_LibraryModel_v1.5.0.xsd">
     
     <VersionScheme>OTA2</VersionScheme>
     <Status>Draft</Status>
-    <Namespace>http://services.sabre.com/STL/Examples/v02</Namespace>
-    <Prefix>t3</Prefix>
+    <Namespace>http://opentravel.org/local/dave/t4</Namespace>
+    <Prefix>t2</Prefix>
     <Name>Test3</Name>
-    <Import namespace="http://opentravel.org/common/v02" prefix="ota2"/>
+    <Includes>testFile5.otm</Includes>
+    <Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
     <Context applicationContext="Default" context="default"/>
     
     <ValueWithAttrs name="AttributeGroupVWA" type="ota2:Empty">
@@ -56,12 +57,12 @@
     </ValueWithAttrs>
     
     <ValueWithAttrs name="VWA_as_valueType" type="SimpleVWA">
-        <Attribute name="family" type="ota2:String_Short">
+        <Attribute name="family" type="String_Short">
             <Documentation>
                 <Description>A string with a minimum length of 1 and a maximum length of 128.</Description>
             </Documentation>
         </Attribute>
-        <Attribute name="aka" type="ota2:String_Short">
+        <Attribute name="aka" type="String_Short">
             <Documentation>
                 <Description>A string with a minimum length of 1 and a maximum length of 128.</Description>
             </Documentation>

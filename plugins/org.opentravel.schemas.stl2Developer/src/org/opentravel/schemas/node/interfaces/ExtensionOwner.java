@@ -41,7 +41,10 @@ public interface ExtensionOwner {
 	public String getExtendsTypeNS();
 
 	/**
+	 * Return the base type if any. Note that the base type may be a true extension or may be used for versions.
+	 * 
 	 * @return the base type - the node displayed in select Extends field. Null if no base type.
+	 * @see Node#getExtendsType()
 	 */
 	public Node getExtensionBase();
 

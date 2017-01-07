@@ -18,8 +18,7 @@ package org.opentravel.schemas.trees.type;
 import org.eclipse.jface.viewers.Viewer;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.libraries.LibraryChainNode;
-import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.interfaces.LibraryInterface;
 
 /**
  * Provide only business objects to the type selection wizard.
@@ -52,7 +51,7 @@ public class BusinessObjectOnlyTypeFilter extends TypeSelectionFilter {
 			return false;
 
 		final Node n = (Node) element;
-		if (n instanceof LibraryNode || n instanceof LibraryChainNode)
+		if (n instanceof LibraryInterface)
 			return targetNamespace == null || n.getNamespace().equals(targetNamespace);
 		if (n.isNavigation())
 			return true;

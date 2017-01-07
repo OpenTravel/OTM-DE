@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Library xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04"
+<Library xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_05"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04 OTA2_LibraryModel_v1.4.6.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_05 OTA2_LibraryModel_v1.5.0.xsd">
     
     <VersionScheme>OTA2</VersionScheme>
     <Status>Draft</Status>
-    <Namespace>http://www.sabre.com/ns/OTA2/Demo/Profile5/v1_0</Namespace>
-    <Prefix>t5</Prefix>
+    <Namespace>http://opentravel.org/local/dave/t4</Namespace>
+    <Prefix>t2</Prefix>
     <Name>Test5</Name>
     <Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
-    <Import namespace="http://opentravel.org/common/v02" prefix="ota2"/>
+    <Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
     <Context
         applicationContext="http://www.sabre.com/ns/OTA2/Demo/Profile/v01" context="Profile"/>
-    <Context
-        applicationContext="http://www.sabre.com/ns/OTA2/Demo/Profile/Legacy" context="Legacy"/>
-    <Context applicationContext="TODO" context="TODO"/>
     
     <Simple name="String_PersonName" type="String_Short">
         <Example context="Profile">Sally Smythe</Example>
@@ -127,12 +124,12 @@
             </Documentation>
             <Example context="Profile">IATA</Example>
         </Attribute>
-        <Indicator name="multiAirport" publishAsElement="false">
+        <Indicator name="multiAirportInd" publishAsElement="false">
             <Documentation>
                 <Description>are there more than one airports served?</Description>
             </Documentation>
         </Indicator>
-        <Indicator name="alternateLocation" publishAsElement="false">
+        <Indicator name="alternateLocationInd" publishAsElement="false">
             <Documentation>
                 <Description>are others OK?</Description>
             </Documentation>
@@ -180,8 +177,8 @@
     </Simple>
     
     <Enumeration_Open name="HotelTypes">
-        <Value literal="motel"/>
-        <Value literal="hotel"/>
+        <Value label="" literal="motel"/>
+        <Value label="" literal="hotel"/>
     </Enumeration_Open>
     
     <ValueWithAttrs name="Payment" type="ota2:Money">
@@ -201,7 +198,7 @@
             </Documentation>
             <Example context="Profile">11136982222</Example>
         </Attribute>
-        <Indicator name="idChecked" publishAsElement="false">
+        <Indicator name="idCheckedInd" publishAsElement="false">
             <Documentation>
                 <Description>True if identification was checked prior to accepting payment.</Description>
             </Documentation>
@@ -210,11 +207,11 @@
     
     <CoreObject name="Phone" notExtendable="false">
         <Aliases>Telephone HomePhone MobilePhone WorkPhone</Aliases>
-        <Simple type="ota2:String_Phone">
+        <Simple type="ota2:Empty">
             <Example context="Profile">5551212</Example>
         </Simple>
         <Summary>
-            <Attribute name="CountryCode" type="String_Short">
+            <Attribute name="countryCode" type="String_Short">
                 <Example context="Profile">011</Example>
             </Attribute>
             <Element mandatory="true" name="AreaCode" repeat="0" type="String_Short">
@@ -223,14 +220,14 @@
             <Element mandatory="true" name="CityCode" repeat="0" type="String_Short">
                 <Example context="Profile">555</Example>
             </Element>
-            <Element mandatory="true" name="Exchange" repeat="0" type="ota2:String_Short">
+            <Element mandatory="true" name="Exchange" repeat="0" type="String_Short">
                 <Example context="Profile">1212</Example>
             </Element>
         </Summary>
         <Detail>
             <Element name="Usage" repeat="0" type="Usage"/>
             <Element name="ServiceLoc" repeat="0" type="Location"/>
-            <Element mandatory="true" name="Remarks" repeat="5" type="ota2:String_Long">
+            <Element mandatory="true" name="Remarks" repeat="5" type="String_Long">
                 <Example context="Profile">Do not call after 5pm Pacific</Example>
             </Element>
         </Detail>
@@ -244,12 +241,12 @@
     <BusinessObject name="Profile" notExtendable="false">
         <Aliases>TravelerProfile</Aliases>
         <ID>
-            <Attribute mandatory="true" name="Authority" type="xsd:string">
-                <Equivalent context="Legacy"/>
+            <Attribute mandatory="true" name="authority" type="xsd:string">
+                <Equivalent context="Profile"/>
                 <Example context="Profile">Auth1</Example>
             </Attribute>
             <Element mandatory="true" name="ProfileID" repeat="0" type="xsd:string">
-                <Equivalent context="Legacy"/>
+                <Equivalent context="Profile"/>
                 <Example context="Profile">Profile123</Example>
             </Element>
         </ID>
@@ -263,18 +260,18 @@
         </Summary>
         <Detail>
             <Element name="Remarks" repeat="0" type="String_Long"/>
-            <Indicator name="ShareInd" publishAsElement="false"/>
-            <Indicator name="SyncInd" publishAsElement="false"/>
-            <Indicator name="HoldInd" publishAsElement="false"/>
+            <Indicator name="shareInd" publishAsElement="false"/>
+            <Indicator name="syncInd" publishAsElement="false"/>
+            <Indicator name="holdInd" publishAsElement="false"/>
         </Detail>
-        <Query context="Profile" label="" notExtendable="true">
-            <Element name="PhoneNumber" repeat="0" type="Phone_Simple_List"/>
+        <Query context="Profile" label="Profile" notExtendable="true">
+            <Element name="Phones" repeat="0" type="Phone_Simple_List"/>
         </Query>
-        <Custom context="Legacy" label="" notExtendable="false">
+        <Custom context="Profile" label="Legacy" notExtendable="false">
             <Element name="Remarks" repeat="0" type="String_Long">
                 <Example context="Profile">Remarks</Example>
             </Element>
-            <Indicator name="ShareInd" publishAsElement="false"/>
+            <Indicator name="shareInd" publishAsElement="false"/>
         </Custom>
     </BusinessObject>
     
@@ -329,7 +326,7 @@
             </Attribute>
         </ID>
         <Summary>
-            <Attribute name="company" type="ota2:String_Tiny">
+            <Attribute name="company" type="String_Tiny">
                 <Documentation>
                     <Description>The IATA assigned code for the Agency or Airine</Description>
                 </Documentation>
@@ -415,8 +412,8 @@
                 <Example context="Profile">First Bank of Travel</Example>
             </Element>
             <Element name="MagneticStrip" repeat="0" type="xsd:string"/>
-            <Indicator name="signatureOnFile" publishAsElement="false"/>
-            <Indicator name="isValid" publishAsElement="false"/>
+            <Indicator name="signatureOnFileInd" publishAsElement="false"/>
+            <Indicator name="validInd" publishAsElement="false"/>
         </Detail>
     </BusinessObject>
     
@@ -438,7 +435,7 @@
         </Element>
         <Element name="Amount" repeat="0" type="Amount"/>
         <Element name="PaymentCard" repeat="0" type="PaymentCard"/>
-        <Indicator name="Date_MMYY" publishAsElement="true">
+        <Indicator name="Date_MMYYInd" publishAsElement="true">
             <Documentation>
                 <Description>Added this description and the a-z regex</Description>
             </Documentation>
@@ -448,7 +445,7 @@
     
     <CoreObject name="Flight" notExtendable="true">
         <Aliases/>
-        <Simple type="ota2:String_Short"/>
+        <Simple type="ota2:Empty"/>
         <Summary>
             <Element mandatory="true" name="FlightNumber" repeat="0" type="Flight_Number">
                 <Documentation>
@@ -471,7 +468,7 @@
                 <Equivalent context="Profile">CarrierCode</Equivalent>
                 <Example context="Profile">WW</Example>
             </Element>
-            <Element mandatory="true" name="ClassOfService" repeat="0" type="ota2:String_Tiny">
+            <Element mandatory="true" name="ClassOfService" repeat="0" type="String_Tiny">
                 <Documentation>
                     <Description>The flight class of service associated to the ancillary service.  Mapped to:
                         SR05_42_CLSV</Description>
@@ -497,12 +494,11 @@
             </Element>
         </Summary>
         <Detail>
-            <Indicator name="stopOver" publishAsElement="false">
+            <Indicator name="stopOverInd" publishAsElement="false">
                 <Documentation>
                     <Description>A code that applies to whether the flight is a stop over or not (X, O).   Mapped to:
                         SR05_42_STOV</Description>
                 </Documentation>
-                <Equivalent context="TODO">SR05_42_STOV</Equivalent>
             </Indicator>
         </Detail>
     </CoreObject>

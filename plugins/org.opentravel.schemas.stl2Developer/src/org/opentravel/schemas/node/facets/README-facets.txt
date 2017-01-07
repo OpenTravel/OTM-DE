@@ -32,7 +32,8 @@ Types (TLFacetType)
 
 
 Constructors 
-	- why does facetNode have so many constructors? they just call super(tlObj)
+	-Fixed with PropertyOwnerNode.
+		why does facetNode have so many constructors? they just call super(tlObj)
 	- NodeFactory.createFacet() and newComponentMember()
 	- ExtensionInheritancePage.
 	- When a business object is created, the component node super constructor calls addMOChildren() for facets as does the BO constructor. addMOChildren() uses the NodeFactory.newComponentMember() method

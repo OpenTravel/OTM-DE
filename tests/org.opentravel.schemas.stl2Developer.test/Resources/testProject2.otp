@@ -9,12 +9,6 @@
     <otp:UnmanagedProjectItem>
         <otp:FileLocation>testFile4.otm</otp:FileLocation>
     </otp:UnmanagedProjectItem>
-    <otp:ManagedProjectItem>
-        <otp:Repository>Opentravel</otp:Repository>
-        <otp:BaseNamespace>http://opentravel.org/local/dave/t4</otp:BaseNamespace>
-        <otp:Filename>OTA_SimpleTypes_0_0_0.otm</otp:Filename>
-        <otp:Version>1.0.0</otp:Version>
-    </otp:ManagedProjectItem>
     <otp:UnmanagedProjectItem>
         <otp:FileLocation>testFile1.otm</otp:FileLocation>
     </otp:UnmanagedProjectItem>
@@ -24,4 +18,10 @@
     <otp:UnmanagedProjectItem>
         <otp:FileLocation>testFile5.otm</otp:FileLocation>
     </otp:UnmanagedProjectItem>
+    <otp:ManagedProjectItem>
+        <otp:Repository>Opentravel</otp:Repository>
+        <otp:BaseNamespace>http://opentravel.org/local/dave/t4</otp:BaseNamespace>
+        <otp:Filename>OTA_SimpleTypes_0_0_0.otm</otp:Filename>
+        <otp:Version>1.0.0</otp:Version>
+    </otp:ManagedProjectItem>
 </otp:Project>

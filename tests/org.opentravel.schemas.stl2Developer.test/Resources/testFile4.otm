@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Library xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04"
+<Library xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_05"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_04 OTA2_LibraryModel_v1.4.5.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_05 OTA2_LibraryModel_v1.5.0.xsd">
     
     <VersionScheme>OTA2</VersionScheme>
     <Status>Draft</Status>
-    <Namespace>http://services.sabre.com/STL/Test4/v02</Namespace>
+    <Namespace>http://www.opentravel.org/OTM/Test4/v04</Namespace>
     <Prefix>t4</Prefix>
     <Name>Test4</Name>
-    <Import namespace="http://opentravel.org/common/v02" prefix="ota2"/>
+    <Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
     <Context applicationContext="Default" context="default"/>
     
     <CoreObject name="StandardCore" notExtendable="false">
         <Aliases/>
-        <Simple type="ota2:String_Long"/>
+        <Simple type="ota2:Empty"/>
         <Summary>
             <Attribute name="flight_Number" type="ota2:Name_Location"/>
             <Element name="Age" repeat="0" type="ota2:Name_Proper"/>
@@ -37,10 +37,10 @@
         <Aliases/>
         <Simple type="ota2:Empty"/>
         <Summary>
-            <Attribute name="flightNum" type="ota2:String_Short"/>
+            <Attribute name="flightNum" type="ota1:String_Short"/>
             <Element name="Age" repeat="0" type="ota2:Date_Birth"/>
             <Element name="Flight_Misc" repeat="0" type="ota2:String_Medium"/>
-            <Element name="AirlineSpecification" repeat="0" type="ota2:String_Long"/>
+            <Element name="AirlineSpecification" repeat="0" type="ota1:String_Long"/>
             <Indicator name="testInd" publishAsElement="false"/>
         </Summary>
         <Detail/>
@@ -51,8 +51,8 @@
         <Aliases/>
         <Simple type="ota2:Empty"/>
         <Summary>
-            <Attribute name="aircraft_Type" type="ota2:String_Tiny"/>
-            <Element name="Aircraft_Configuration" repeat="0" type="ota2:String_Tiny"/>
+            <Attribute name="aircraft_Type" type="ota1:String_Tiny"/>
+            <Element name="Aircraft_Configuration" repeat="0" type="ota1:String_Tiny"/>
         </Summary>
         <Detail>
             <Element name="MealService_TypeList" repeat="0" type="ota2:Price"/>
@@ -76,7 +76,7 @@
             <Element name="StandardCore_Simple" repeat="0" type="StandardCore_Simple"/>
         </ID>
         <Summary>
-            <Element name="StandardCore_Summary" repeat="0" type="StandardCore_Summary">
+            <Element name="StandardCoreSummary" repeat="0" type="StandardCore_Summary">
                 <Documentation>
                     <Description>This was assigned the summary facet.</Description>
                 </Documentation>
@@ -91,7 +91,7 @@
             <Element name="StandardCore_Simple" repeat="0" type="StandardCore_Simple"/>
         </ID>
         <Summary>
-            <Element name="StandardCore_Detail" repeat="0" type="StandardCore_Detail">
+            <Element name="StandardCoreDetail" repeat="0" type="StandardCore_Detail">
                 <Documentation>
                     <Description>This was assigned the detail facet.</Description>
                 </Documentation>
@@ -106,7 +106,7 @@
             <Element name="StandardCore_Simple" repeat="0" type="StandardCore_Simple"/>
         </ID>
         <Summary>
-            <Element name="BasicCore" reference="true" repeat="0" type="BasicCore"/>
+            <Element name="BasicCoreRef" reference="true" repeat="0" type="BasicCore"/>
         </Summary>
         <Detail/>
     </BusinessObject>

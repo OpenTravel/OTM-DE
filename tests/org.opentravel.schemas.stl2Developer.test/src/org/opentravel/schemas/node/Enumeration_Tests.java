@@ -130,11 +130,11 @@ public class Enumeration_Tests {
 		LibraryChainNode lcn = ml.createNewManagedLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 		ln = lcn.getHead();
 
-		// Given - 4 enums
-		EnumerationOpenNode openBase = ml.addOpenEnumToLibrary(ln, "OpenEnum");
+		// Given - 4 enums - MUST have different names
+		EnumerationOpenNode openBase = ml.addOpenEnumToLibrary(ln, "OpenEnumBase");
 		EnumLiteralNode ob1 = new EnumLiteralNode(openBase, "b1");
 		EnumLiteralNode ob2 = new EnumLiteralNode(openBase, "b2");
-		EnumerationClosedNode closedBase = ml.addClosedEnumToLibrary(ln, "ClosedEnum");
+		EnumerationClosedNode closedBase = ml.addClosedEnumToLibrary(ln, "ClosedEnumBase");
 		EnumLiteralNode cb1 = new EnumLiteralNode(closedBase, "c1");
 		EnumLiteralNode cb2 = new EnumLiteralNode(closedBase, "c2");
 		EnumerationOpenNode openExt = ml.addOpenEnumToLibrary(ln, "OpenEnum");
@@ -142,20 +142,26 @@ public class Enumeration_Tests {
 		EnumerationClosedNode closedExt = ml.addClosedEnumToLibrary(ln, "ClosedEnum");
 
 		// getExtendsTypeName used in FacetView
-		assertTrue("Not extened will be empty", openBase.getExtendsTypeName().isEmpty());
-		assertTrue("Not extened will be empty", openExt.getExtendsTypeName().isEmpty());
-		assertTrue("Not extened will be empty", closedBase.getExtendsTypeName().isEmpty());
-		assertTrue("Not extened will be empty", closedExt.getExtendsTypeName().isEmpty());
+		assertTrue("Not extened must be empty", openBase.getExtendsTypeName().isEmpty());
+		assertTrue("Not extened must be empty", openExt.getExtendsTypeName().isEmpty());
+		assertTrue("Not extened must be empty", closedBase.getExtendsTypeName().isEmpty());
+		assertTrue("Not extened must be empty", closedExt.getExtendsTypeName().isEmpty());
 
 		// When - extend base with ext
 		openExt.setExtension(openBase);
 		closedExt.setExtension(closedBase);
 
 		// Then
-		assertTrue("Extension name is not empty", !openExt.getExtendsTypeName().isEmpty());
-		assertTrue("Ext extends base", openExt.getExtensionBase() == openBase);
-		assertTrue("Extension name is not empty", !closedExt.getExtendsTypeName().isEmpty());
-		assertTrue("Ext extends base", closedExt.getExtensionBase() == closedBase);
+		// String oeName = openExt.getExtendsTypeName();
+		// Node oeBaseType = openExt.getExtendsType();
+		// Node oeBase = openExt.getExtensionBase();
+		// String ceName = closedExt.getExtendsTypeName();
+		// Node ceBase = closedExt.getExtensionBase();
+		assertTrue("Extension name must not be empty", !openExt.getExtendsTypeName().isEmpty());
+		assertTrue("Ext must extend base", openExt.getExtensionBase() == openBase);
+		assertTrue("ExtendsType must be the ExtensionBase", openExt.getExtensionBase() == openExt.getExtendsType());
+		assertTrue("Extension name must not be empty", !closedExt.getExtendsTypeName().isEmpty());
+		assertTrue("Ext must extend base", closedExt.getExtensionBase() == closedBase);
 
 		// TODO - test inherited children
 		assertTrue("Must have inherited children", !openExt.getInheritedChildren().isEmpty());

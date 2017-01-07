@@ -91,20 +91,21 @@ public class VWA_Tests {
 
 	@Test
 	public void loadLibraryTests() throws Exception {
-		MainController thisModel = new MainController();
+		MainController mc = new MainController();
 		LoadFiles lf = new LoadFiles();
-		model = thisModel.getModelNode();
+		model = mc.getModelNode();
 
 		// test the lib with only vwa
-		LibraryNode vwaLib = lf.loadFile3(thisModel);
+		LibraryNode vwaLib = lf.loadFile3(mc);
 		for (Node vwa : vwaLib.getDescendants_LibraryMembers()) {
 			Assert.assertTrue(vwa instanceof VWA_Node);
 			checkVWA((VWA_Node) vwa);
 		}
-		vwaLib.close();
+		mc.getProjectController().remove(vwaLib.getLibraryNavNode());
+		// vwaLib.close();
 
 		// test all libs
-		lf.loadTestGroupA(thisModel);
+		lf.loadTestGroupA(mc);
 		for (LibraryNode ln : model.getUserLibraries()) {
 			List<Node> types = ln.getDescendants_LibraryMembers();
 			for (Node n : types) {

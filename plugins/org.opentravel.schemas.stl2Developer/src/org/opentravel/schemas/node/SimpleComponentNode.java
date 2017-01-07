@@ -70,9 +70,9 @@ public abstract class SimpleComponentNode extends TypeProviderBase implements Si
 			return "";
 		if (getAssignedType() instanceof ImpliedNode)
 			return typeName;
-		if (getNamePrefix().equals(getAssignedPrefix()))
+		if (getPrefix().equals(getAssignedPrefix()))
 			return typeName; // only prefix names in different namespaces
-		return getType().getNamePrefix() + ":" + typeName;
+		return getType().getPrefix() + ":" + typeName;
 	}
 
 	@Override

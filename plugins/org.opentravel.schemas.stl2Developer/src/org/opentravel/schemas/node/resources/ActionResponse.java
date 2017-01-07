@@ -245,7 +245,11 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 		int i = 0;
 		data[i++] = ResourceField.NONE;
 		for (Node n : nodes)
-			data[i++] = n.getLabel();
+			if (n.getOwningComponent() == this.getOwningComponent())
+				data[i++] = n.getLabel();
+		// Do NOT include facets from base types
+		// else
+		// data[i++] = n.getParent().getName() + ":" + n.getLabel();
 		return data;
 	}
 

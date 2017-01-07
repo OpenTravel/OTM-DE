@@ -13,8 +13,8 @@ Resources
 
 General - High Priority
 	Managing a library breaks/kills the background decorator thread.
-	Documentation in previous version not editable in current version...
 	Add roles to minor version and they original roles are not displayed
+	Documentation in previous version not editable in current version...
 	Resource builder - when the ID facet has an element reference 
 		all those properies are added to the id parameter group and should NOT be.
 	Deleted - the deleted is both in the label and in the decoration
@@ -27,12 +27,17 @@ General - High Priority
 	Library Uses Objects from - show state of library
 	type selection wizard - when some text is typed, hide libraries with no contents
 	
+	change wizard - add support for choice - contextual facets become choices
 	ReplaceWhereUsed - with multiple selections. Works sometimes then failed to work.
 	On Library/Project close - clear effected contents of example and graphical views
 	Resource Remove Object button - make into a 3 column format	
 
 	Remove CompileAction - replaced by compile handler
+	Remove NewPropertiesWizard - replaced
+	Remove NewPropertiesWizardPage - replaced
+	Remove EqExValidator
 	
+	Add projectItem.getState to Properties view
 	
 Jetty Test Service - lines 100-102
 	

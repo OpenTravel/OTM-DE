@@ -91,7 +91,7 @@ public class ResourceObjectTests {
 		ln.addMember(rn3);
 
 		// When - used in ResourceCommandHandler to launch wizard
-		ResourceNode rn4 = new ResourceNode(node);
+		ResourceNode rn4 = new ResourceNode(node.getLibrary(), bo);
 		// When - builder used as in ResourceCommandHandler
 		new ResourceBuilder().build(rn4, bo);
 

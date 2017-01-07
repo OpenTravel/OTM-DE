@@ -24,12 +24,14 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.codegen.util.ResourceCodegenUtils;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLExtension;
+import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLParamGroup;
@@ -167,17 +169,27 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	/**
-	 * Create a resource in the library of the node. Name the resource using the library member name.
+	 * Create a resource in the library of the node. Name the resource using the library member name. If the node has an
+	 * editable library add the resource to that library.
+	 * 
+	 * @param library
+	 *            - add to the library if not null and editable
+	 * @param business_object
+	 *            - use the name to name the resource or if null "NewResource"
 	 */
-	public ResourceNode(Node node) {
+	public ResourceNode(LibraryNode ln, BusinessObjectNode bo) {
 		super(new TLResource());
 		tlObj = getTLModelObject();
-		if (node == null || node.getName().isEmpty())
+		if (bo == null)
 			tlObj.setName("NewResource"); // must be named to add to library
 		else
-			tlObj.setName(node.getName() + "Resource");
+			tlObj.setName(bo.getName() + "Resource");
 
-		node.getLibrary().addMember(this);
+		if (ln != null && ln.isEditable()) {
+			ln.addMember(this);
+			assert getLibrary() != null;
+		} else
+			LOGGER.warn("Resource not added to library. " + ln + " Is not an editable library.");
 	}
 
 	// /**
@@ -238,10 +250,10 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	@Override
 	public void delete() {
 		LOGGER.debug("Deleting rest resource: " + this);
-		List<Node> kids = new ArrayList<Node>(getChildren());
-		for (Node kid : kids) {
+		// List<Node> kids = new ArrayList<Node>(getChildren());
+		for (Node kid : getChildren_New())
 			kid.delete();
-		}
+
 		if (getParent().getChildren() != null)
 			getParent().getChildren().remove(this);
 
@@ -563,7 +575,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 			fs[i++] = ResourceField.SUBGRP;
 		for (Node facet : subject.getChildren())
 			if (facet instanceof FacetNode)
-				fs[i++] = facet.getLabel();
+				fs[i++] = ResourceCodegenUtils.getActionFacetReferenceName((TLFacet) facet.getTLModelObject());
 		return fs;
 	}
 

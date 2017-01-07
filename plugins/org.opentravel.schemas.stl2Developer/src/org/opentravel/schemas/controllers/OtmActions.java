@@ -105,7 +105,7 @@ public class OtmActions {
 	}
 
 	public void doEvent(final OtmEventData wd) {
-		LOGGER.debug("Triggered event " + wd.getBusinessEvent() + ".");
+		// LOGGER.debug("Triggered event " + wd.getBusinessEvent() + ".");
 		OtmHandlers.suspendHandlers();
 		switch (wd.getBusinessEvent()) {
 		case noOp:
@@ -513,7 +513,7 @@ public class OtmActions {
 	private void setNameSpace(final OtmEventData wd) {
 		final INode curNode = mc.getCurrentNode_PropertiesView();
 		if (curNode != null && curNode instanceof LibraryNode) {
-			((LibraryNode) curNode).getNsHandler().renameInProject(curNode.getNamespace(), wd.getText());
+			((LibraryNode) curNode).getNsHandler().rename(curNode.getNamespace(), wd.getText());
 		}
 	}
 

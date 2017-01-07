@@ -66,9 +66,6 @@ public class Delete_Tests extends BaseProjectTest {
 
 	MockLibrary ml = null;
 	LibraryNode ln = null;
-	// MainController mc;
-	// DefaultProjectController pc;
-	// ProjectNode defaultProject;
 	ModelNode model = null;
 	LoadFiles lf = null;
 	// From baseProjecTest
@@ -81,10 +78,7 @@ public class Delete_Tests extends BaseProjectTest {
 
 	@Before
 	public void beforeAllTests() {
-		// mc = new MainController();
 		ml = new MockLibrary();
-		// pc = (DefaultProjectController) mc.getProjectController();
-		// defaultProject = pc.getDefaultProject();
 		lf = new LoadFiles();
 	}
 
@@ -445,56 +439,39 @@ public class Delete_Tests extends BaseProjectTest {
 		model = mc.getModelNode();
 
 		lf.loadTestGroupA(mc);
-		int i = 0;
 		for (LibraryNode ln : model.getUserLibraries()) {
 			if (!ln.isInChain())
 				new LibraryChainNode(ln); // Test in a chain
 			ln.setEditable(true);
-			// if (i++ == 1)
-			// deleteNodeListTest(ln);
-			// else
-			deleteEachMember(ln);
+			deleteEachNode(ln);
 		}
 		tt.visitAllNodes(model);
 	}
 
-	private void deleteEachMember(LibraryNode ln) {
+	private void deleteEachNode(LibraryNode ln) {
 		for (Node n : ln.getDescendants()) {
-			// if (n instanceof CoreObjectNode)
-			// if (n.getName().startsWith("PaymentC"))
-			// LOGGER.debug("Core: " + n);
+			if (n.isNavigation())
+				continue;
+			if (n.isDeleted())
+				continue;
+			if (!n.isDeleteable())
+				continue;
 
-			if (!n.isNavigation()) {
-				if (n.isDeleted())
-					continue;
-				INode user = null;
+			INode user = null;
 
-				// Make sure the users of this type are informed of deletion.
-				if (n instanceof TypeProvider) {
-					List<TypeUser> users = new ArrayList<TypeUser>(((TypeProvider) n).getWhereAssigned());
-					if (users.size() > 0) {
-						user = (INode) users.get(0);
-					}
-					n.delete();
-					if (user != null && n.isDeleteable()) {
-						Assert.assertNotSame(n, user.getType());
-					}
-				}
+			// Make sure the users of this type are informed of deletion.
+			if (n instanceof TypeProvider) {
+				List<TypeUser> users = new ArrayList<TypeUser>(((TypeProvider) n).getWhereAssigned());
+				if (users.size() > 0)
+					user = (INode) users.get(0);
 			}
+			n.delete();
+			if (user != null)
+				Assert.assertNotSame(n, user.getType());
+
 		}
 		ln.visitAllNodes(tv);
 		MockLibrary.printDescendants(ln);
 		MockLibrary.printDescendants(ln.getChain());
-		// assert ln.isEmpty();
-		// assert ln.getChain().isEmpty();
 	}
-
-	// private void deleteNodeListTest(LibraryNode ln) {
-	// ArrayList<Node> members = new ArrayList<Node>(ln.getDescendants_LibraryMembers());
-	// ln.visitAllNodes(tv);
-	// Node.deleteNodeList(members);
-	// ln.visitAllNodes(tv);
-	// assert ln.isEmpty();
-	// }
-
 }

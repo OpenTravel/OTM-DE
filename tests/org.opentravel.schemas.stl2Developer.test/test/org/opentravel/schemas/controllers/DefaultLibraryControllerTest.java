@@ -164,8 +164,7 @@ public class DefaultLibraryControllerTest extends BaseProjectTest {
 
 		// When - one library closed
 		ulib3.close();
-		assertTrue("Project does not contain library parent.", !testProject.getChildren()
-				.contains(ulib3.getParent()));
+		assertTrue("Project does not contain library parent.", !testProject.getChildren().contains(ulib3.getParent()));
 		assertTrue("Library model manager does not manage library.", !libMgr.getUserLibraries().contains(ulib3));
 
 		// When - closed
@@ -204,13 +203,16 @@ public class DefaultLibraryControllerTest extends BaseProjectTest {
 		// Then
 		assertTrue("Project must have children.", !projectC.getChildren().isEmpty());
 		assertTrue("Project must have children.", !projectD.getChildren().isEmpty());
+
 		// Then - common library is shared
-		LibraryNavNode libC = findLibrary(projectC, "OTA_SimpleTypes");
-		LibraryNavNode libD = findLibrary(projectD, "OTA_SimpleTypes");
-		assertTrue("Project must have OTA_SimpleTypes", libC != null);
-		assertTrue("Project must have OTA_SimpleTypes", libD != null);
-		assertTrue("Projects must have different library nav nodes.", libC != libD);
-		assertTrue("Projects must share the library.", libC.getLibrary() == libD.getLibrary());
+		// OTA_SimpleTypes is no long loaded
+		// LibraryNavNode libC = findLibrary(projectC, "OTA_SimpleTypes");
+		// LibraryNavNode libD = findLibrary(projectD, "OTA_SimpleTypes");
+		// assertTrue("Project must have OTA_SimpleTypes", libC != null);
+		// assertTrue("Project must have OTA_SimpleTypes", libD != null);
+		// assertTrue("Projects must have different library nav nodes.", libC != libD);
+		// assertTrue("Projects must share the library.", libC.getLibrary() == libD.getLibrary());
+
 		// Then - all libraries must be managed
 		List<LibraryInterface> managedLibs = Node.getModelNode().getLibraryManager().getLibraries();
 		for (Node l : projectC.getChildren())
@@ -302,16 +304,17 @@ public class DefaultLibraryControllerTest extends BaseProjectTest {
 		List<Node> Bmembers = lib2.getDescendants_LibraryMembers();
 		assertTrue("Must have library members.", !lib1.isEmpty());
 
+		final String simpleTypeName = "SampleEnum_Open";
 		Node AsimpleType = null;
 		for (Node n : Amembers)
-			if (n.getName().equals("SampleEnum_Open"))
+			if (n.getName().equals(simpleTypeName))
 				AsimpleType = n;
 		assertTrue("Must find simple type.", AsimpleType != null);
 		Node BsimpleType = null;
 		for (Node n : Bmembers)
-			if (n.getName().equals("SampleEnum_Open"))
+			if (n.getName().equals(simpleTypeName))
 				BsimpleType = n;
-		assertTrue("Must find simple type.", BsimpleType != null);
+		assertTrue("TestLib 6 Must have simple type " + simpleTypeName, BsimpleType != null);
 		assertTrue("Must be same type.", AsimpleType == BsimpleType);
 
 		// When

@@ -200,12 +200,12 @@ public class DefaultProjectController implements ProjectController {
 	}
 
 	/**
-	 * @param loadingErros
+	 * @param loadingErrors
 	 */
-	private void showFindings(final ValidationFindings loadingErros) {
+	private void showFindings(final ValidationFindings loadingErrors) {
 		if (!OtmRegistry.getMainWindow().hasDisplay()) {
-			LOGGER.debug("Showing " + loadingErros.count() + " findings.");
-			for (String msg : loadingErros.getAllValidationMessages(FindingMessageFormat.MESSAGE_ONLY_FORMAT))
+			LOGGER.debug("Showing " + loadingErrors.count() + " findings.");
+			for (String msg : loadingErrors.getAllValidationMessages(FindingMessageFormat.MESSAGE_ONLY_FORMAT))
 				LOGGER.debug("   " + msg);
 		} else {
 			// do not block UI
@@ -214,7 +214,7 @@ public class DefaultProjectController implements ProjectController {
 				@Override
 				public void run() {
 					FindingsDialog.open(OtmRegistry.getActiveShell(), Messages.getString("dialog.findings.title"),
-							Messages.getString("dialog.findings.message"), loadingErros.getAllFindingsAsList());
+							Messages.getString("dialog.findings.message"), loadingErrors.getAllFindingsAsList());
 
 				}
 			});

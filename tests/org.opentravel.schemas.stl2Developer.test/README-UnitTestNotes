@@ -50,6 +50,14 @@ Test design
 			assertNotNull("Must not be null.", x.getNavChildren());
 void org.junit.Assert.assertTrue(String message, boolean condition)
 
+Testing in Minor and Patch Versions
+	This will make a new library in any specific version. No previous versions are related. NOT in a library chain!
+		ln = LibraryNodeBuilder.create("Example", "http://example.org", "p", new Version(1, 1, 0)).build(defaultProject, pc);
+		ln.setEditable(true);
+		assertTrue("Library is minor version.", ln.isMinorVersion());
+		lcn = new LibraryChainNode(ln); // put in chain
+
+
 Class design
 	Node - xxxx_Test - tests constructors and methods UNIQUE to a class
 		xxxConstructors()

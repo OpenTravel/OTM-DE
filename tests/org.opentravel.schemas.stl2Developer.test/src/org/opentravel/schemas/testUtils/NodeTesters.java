@@ -185,9 +185,9 @@ public class NodeTesters {
 		// Assert.assertFalse(n.getIdentity().isEmpty()); // new 1/20/15
 		Assert.assertFalse(n.getLabel().isEmpty());
 		if (n instanceof ComponentNode) {
-			if (n.getNamePrefix().isEmpty())
-				n.getNamePrefix();
-			Assert.assertFalse(n.getNamePrefix() == null);
+			if (n.getPrefix().isEmpty())
+				n.getPrefix();
+			Assert.assertFalse(n.getPrefix() == null);
 			Assert.assertFalse(n.getNamespace().isEmpty());
 			Assert.assertFalse(n.getNameWithPrefix().isEmpty());
 		}

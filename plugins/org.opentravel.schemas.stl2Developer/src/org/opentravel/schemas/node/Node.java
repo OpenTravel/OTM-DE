@@ -928,6 +928,8 @@ public abstract class Node implements INode {
 	 * Return the actual extension object. Will not return objects that are using extension for version relationships.
 	 * This method will examine the whole chain to find the oldest version of the object and return its base type if
 	 * any.
+	 * 
+	 * @see ExtensionOwner#getExtensionBase()
 	 */
 	public Node getExtendsType() {
 		if (this instanceof ExtensionOwner) {
@@ -1026,8 +1028,8 @@ public abstract class Node implements INode {
 	public abstract String getName();
 
 	@Override
-	public String getNamePrefix() {
-		return getLibrary() == null ? "" : getLibrary().getNamePrefix();
+	public String getPrefix() {
+		return getLibrary() == null ? "" : getLibrary().getPrefix();
 	}
 
 	@Override
@@ -1041,7 +1043,7 @@ public abstract class Node implements INode {
 
 	@Override
 	public String getNameWithPrefix() {
-		return getLibrary() == null ? getName() : getLibrary().getNamePrefix() + ":" + getName();
+		return getLibrary() == null ? getName() : getLibrary().getPrefix() + ":" + getName();
 	}
 
 	/**
@@ -1199,8 +1201,7 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Get all user libraries (OTM TLLibrary). Note - only searches library containers. Libraries in the tree with an
-	 * ancestor that is not a library container will not be found.
+	 * Get all user libraries (OTM TLLibrary) from the LibraryModelManager.
 	 * 
 	 * @return new list of library nodes.
 	 */

@@ -85,4 +85,9 @@ public interface LibraryInterface {
 
 	public void setParent(Node project);
 
+	// /**
+	// * @return true if this library or chain contains any business objects
+	// */
+	// public boolean containsBusinessObjects();
+
 }

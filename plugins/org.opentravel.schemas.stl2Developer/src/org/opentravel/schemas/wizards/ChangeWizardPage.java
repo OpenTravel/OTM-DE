@@ -295,7 +295,7 @@ public class ChangeWizardPage extends WizardPage {
 	}
 
 	private String getLibraryString(final LibraryNode library) {
-		return library.getNamePrefix() + ":" + library.getName();
+		return library.getPrefix() + ":" + library.getName();
 	}
 
 	public void undoAllOperation() {

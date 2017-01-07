@@ -27,7 +27,7 @@ public interface LibraryMemberInterface extends INode {
 
 	public String getLabel();
 
-	public String getNamePrefix();
+	public String getPrefix();
 
 	public String getNamespace();
 

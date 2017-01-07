@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns="http://com.sabre.schemas.stl2Developer.test"
+<xsd:schema xmlns="http://opentravel.org/OTM/Developer.test"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified"
-  elementFormDefault="qualified" targetNamespace="http://com.sabre.schemas.stl2Developer.test">
+  elementFormDefault="qualified" targetNamespace="http://opentravel.org/OTM/Developer.test">
   <xsd:complexType name="Fee">
     <xsd:simpleContent>
       <xsd:extension base="Amount">

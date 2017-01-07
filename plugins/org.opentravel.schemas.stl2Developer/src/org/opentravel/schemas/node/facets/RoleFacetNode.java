@@ -83,6 +83,11 @@ public class RoleFacetNode extends PropertyOwnerNode {
 	}
 
 	@Override
+	public boolean isRenameable() {
+		return false;
+	}
+
+	@Override
 	public boolean isValidParentOf(PropertyNodeType type) {
 		return type.equals(PropertyNodeType.ROLE);
 	}

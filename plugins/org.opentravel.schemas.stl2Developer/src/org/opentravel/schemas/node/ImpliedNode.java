@@ -63,7 +63,7 @@ public class ImpliedNode extends SimpleComponentNode implements TypeProvider {
 	 * @see org.opentravel.schemas.node.Node#getNamePrefix()
 	 */
 	@Override
-	public String getNamePrefix() {
+	public String getPrefix() {
 		return "IMPLIED";
 	}
 

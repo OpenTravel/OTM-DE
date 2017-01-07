@@ -84,7 +84,8 @@ public class AggregateNode extends NavNode {
 			getChildren().add(nodeToAdd);
 			return;
 		} else if (nodeToAdd instanceof ResourceNode) {
-			getChildren().add(nodeToAdd);
+			if (!getChildren().contains(nodeToAdd))
+				getChildren().add(nodeToAdd);
 			return;
 		}
 

@@ -452,9 +452,9 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 			return "";
 		if (getAssignedType() instanceof ImpliedNode)
 			return typeName;
-		if (getNamePrefix().equals(getAssignedPrefix()))
+		if (getPrefix().equals(getAssignedPrefix()))
 			return typeName;
-		return getType().getNamePrefix() + " : " + typeName;
+		return getType().getPrefix() + " : " + typeName;
 	}
 
 	/**

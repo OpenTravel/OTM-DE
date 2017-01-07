@@ -20,8 +20,8 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.Node.NodeVisitor;
+import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
@@ -130,8 +130,14 @@ public interface INode {
 
 	public String getName();
 
-	public String getNamePrefix();
+	/**
+	 * @return the namespace prefix from the TL Library
+	 */
+	public String getPrefix();
 
+	/**
+	 * @return the namespace from the TL Library
+	 */
 	public String getNamespace();
 
 	public String getNameWithPrefix();

@@ -201,6 +201,10 @@ public class EqExOneValueHandler implements IValueWithContextHandler, ModelEleme
 	// return false;
 	// }
 
+	/**
+	 * Set the context to the passed context IF and ONLY IF that context is in the TL Library AND context controller.
+	 * Uses default context otherwise.
+	 */
 	@Override
 	public void fix(String sourceContext) {
 		if (sourceContext == null || !confirmContextExists(sourceContext))

@@ -58,13 +58,14 @@ public class LibraryNodeTest extends BaseProjectTest {
 		LibraryNode lib2 = lf.loadFile2(project2);
 		int ln2NamedTypeCount = lib2.getDescendants_LibraryMembers().size();
 		// List<Node> complexNamedtypes = lib2.getDescendants_NamedTypes(); // hold onto for later use.
-
 		assertTrue("Project is not empty.", !project1.getChildren().isEmpty());
 		assertTrue("Project is not empty.", !project2.getChildren().isEmpty());
+		// Library parent is not reliable way to find project
+		LibraryNavNode lnn1 = (LibraryNavNode) project1.getChildren().get(0);
+		LibraryNavNode lnn2 = (LibraryNavNode) project2.getChildren().get(0);
 
 		// When - a library is removed
-		pc.remove((LibraryNavNode) lib1.getParent());
-		// FIXME - mc.getLibraryController().remove(Arrays.asList(lib1)); // used in close library command
+		pc.remove(lnn1);
 
 		// Then - check to make sure it was closed and removed.
 		assertTrue("Project 1 must be empty.", project1.getLibraries().isEmpty());
@@ -82,9 +83,10 @@ public class LibraryNodeTest extends BaseProjectTest {
 		// Given - lib1 reloaded from file, 2 projects containing chains
 		lib1 = lf.loadFile2(project1);
 		LibraryChainNode lcn1 = new LibraryChainNode(lib1);
+		lnn1 = (LibraryNavNode) project1.getChildren().get(0);
 		// Project 2 already has LNN for library
-		LibraryNavNode lnn1 = (LibraryNavNode) lib1.getChain().getParent();
-		LibraryNavNode lnn2 = (LibraryNavNode) lib2.getChain().getParent();
+
+		// Then there must be two
 		assertTrue("Lib nav nodes must be different.", lnn1 != lnn2);
 
 		// When - library chain 1 is removed

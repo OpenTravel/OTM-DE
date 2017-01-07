@@ -538,7 +538,7 @@ public class MockLibrary {
 	 * Create a new resource using the passed BO.
 	 */
 	public ResourceNode addResource(BusinessObjectNode bo) {
-		ResourceNode resource = new ResourceNode(bo);
+		ResourceNode resource = new ResourceNode(bo.getLibrary(), bo);
 		new ResourceBuilder().build(resource, bo);
 		return resource;
 	}

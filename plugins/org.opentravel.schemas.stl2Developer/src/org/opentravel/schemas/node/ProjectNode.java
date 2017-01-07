@@ -244,7 +244,7 @@ public class ProjectNode extends Node implements INode {
 	}
 
 	@Override
-	public String getNamePrefix() {
+	public String getPrefix() {
 		return "";
 	}
 

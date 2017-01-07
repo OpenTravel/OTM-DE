@@ -17,13 +17,26 @@
             <Element name="Property1" repeat="0" type="xsd:string"/>
             <Indicator name="property2Ind" publishAsElement="false"/>
         </Shared>
+        <Choice context="c" label="BC1" notExtendable="false">
+            <Element name="Decimal" repeat="0" type="xsd:decimal"/>
+        </Choice>
+        <Choice context="c" label="BC2" notExtendable="false">
+            <Element name="Time" repeat="0" type="xsd:time"/>
+        </Choice>
     </ChoiceObject>
     <ChoiceObject name="ExtChoice" notExtendable="false">
         <Extension extends="BaseChoice"/>
         <Aliases/>
         <Shared>
             <Element name="ESString" repeat="0" type="xsd:string"/>
+            <Element name="BOBase" repeat="0" type="BOBase"/>
         </Shared>
+        <Choice context="c" label="EC1" notExtendable="false">
+            <Element name="DateTime" repeat="0" type="xsd:dateTime"/>
+        </Choice>
+        <Choice context="c" label="EC2" notExtendable="false">
+            <Element name="BOExtension" repeat="0" type="BOExtension"/>
+        </Choice>
     </ChoiceObject>
     
     <BusinessObject name="BOBase" notExtendable="false">
@@ -37,6 +50,8 @@
         <Detail>
             <Element name="DetailString" repeat="0" type="xsd:string"/>
         </Detail>
+        <Query context="c" label="BQ1" notExtendable="false"/>
+        <Custom context="c" label="BC1" notExtendable="false"/>
     </BusinessObject>
     
     <BusinessObject name="BOExtension" notExtendable="false">
@@ -51,6 +66,8 @@
         <Detail>
             <Element name="ExDetailString" repeat="0" type="xsd:string"/>
         </Detail>
+        <Query context="c" label="EQ1" notExtendable="false"/>
+        <Custom context="c" label="EC1" notExtendable="false"/>
     </BusinessObject>
     
 </Library>

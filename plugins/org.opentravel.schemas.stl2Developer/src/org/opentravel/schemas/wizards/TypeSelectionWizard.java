@@ -158,8 +158,6 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 			selectionPage.setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(new BusinessObjMO(
 					new TLBusinessObject())));
 		else if (resource)
-			// selectionPage.setTypeSelectionFilter(new
-			// BusinessObjectOnlyTypeFilter(curNodeList.get(0).getNamespace()));
 			selectionPage.setTypeSelectionFilter(new BusinessObjectOnlyTypeFilter(null));
 		else if (idReference)
 			selectionPage.setTypeSelectionFilter(new TypeTreeIdReferenceTypeOnlyFilter());

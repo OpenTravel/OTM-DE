@@ -148,7 +148,7 @@ public class TestTypes extends BaseProjectTest {
 		// run test against simple types and complex types of all property types
 		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		TypeProvider bType = (TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE);
-		int aTypeCount = ((TypeProvider) aType).getWhereUsedAndDescendantsCount();
+		int aTypeCount = aType.getWhereUsedAndDescendantsCount();
 		checkListeners(aType);
 
 		AttributeNode a1 = new AttributeNode(bo.getSummaryFacet(), "a1");
@@ -481,7 +481,8 @@ public class TestTypes extends BaseProjectTest {
 	}
 
 	private void testSettingType() {
-		final String testNS = "http://www.sabre.com/ns/OTA2/Demo/Profile/v01";
+		// final String testNS = "http://www.sabre.com/ns/OTA2/Demo/Profile/v01";
+		final String testNS = "http://opentravel.org/local/dave/t4";
 		TypeProvider typeToAssign = (TypeProvider) NodeFinders.findNodeByName("String_Long", testNS);
 		Assert.assertNotNull(typeToAssign);
 

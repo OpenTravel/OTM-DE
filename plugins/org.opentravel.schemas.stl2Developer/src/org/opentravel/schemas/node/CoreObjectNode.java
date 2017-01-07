@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemas.modelObject.CoreObjectMO;
@@ -36,6 +37,7 @@ import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
+import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.properties.Images;
@@ -105,6 +107,11 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 
 		getSummaryFacet().copyFacet((PropertyOwnerNode) vwa.getAttributeFacet());
 		setSimpleType(vwa.getSimpleType());
+
+		// User assist - create an attribute for the VWA base type
+		AttributeNode attr = new AttributeNode(new TLAttribute(), getSummaryFacet());
+		attr.setName(vwa.getName());
+		attr.setAssignedType(vwa.getSimpleType());
 	}
 
 	public AliasNode addAlias(String name) {

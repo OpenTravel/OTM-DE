@@ -108,7 +108,7 @@ public class LibraryTests {
 			assertTrue(ln.isEditable());
 			assertFalse(ln.getPath().isEmpty());
 			assertTrue(ln.getNamespace().equals(ln.getTLaLib().getNamespace()));
-			assertTrue(ln.getNamePrefix().equals(ln.getTLaLib().getPrefix()));
+			assertTrue(ln.getPrefix().equals(ln.getTLaLib().getPrefix()));
 		}
 
 		// Make sure we can create new empty libraries as used by wizard
@@ -162,7 +162,7 @@ public class LibraryTests {
 
 		Assert.assertFalse(ln.getName().isEmpty());
 		Assert.assertFalse(ln.getNamespace().isEmpty());
-		Assert.assertFalse(ln.getNamePrefix().isEmpty());
+		Assert.assertFalse(ln.getPrefix().isEmpty());
 
 		if (ln.isTLLibrary()) {
 			Assert.assertFalse(ln.getContextIds().isEmpty());

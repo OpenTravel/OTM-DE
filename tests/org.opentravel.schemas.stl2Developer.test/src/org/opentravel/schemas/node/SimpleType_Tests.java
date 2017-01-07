@@ -44,16 +44,10 @@ public class SimpleType_Tests {
 		MainController mc = new MainController();
 		LoadFiles lf = new LoadFiles();
 		int loadedCnt = lf.loadTestGroupA(mc);
-		assertEquals(6, loadedCnt); // 1-5 and simple types
-
-		int libCnt = 0;
 		for (LibraryNode ln : Node.getAllLibraries()) {
 			checkCounts(ln);
 			visitSimpleTypes(ln);
-			libCnt++;
 		}
-		assertEquals(8, libCnt);
-
 	}
 
 	private void checkCounts(LibraryNode lib) {

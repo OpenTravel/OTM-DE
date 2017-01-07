@@ -208,7 +208,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 
 		final TLLibrary tlLib = new TLLibrary();
 		tlLib.setStatus(TLLibraryStatus.DRAFT);
-		tlLib.setPrefix(libNode.getNamePrefix());
+		tlLib.setPrefix(libNode.getPrefix());
 		tlLib.setName(libNode.getName());
 		tlLib.setComments(libNode.getComments());
 		tlLib.setLibraryUrl(libNode.getTLaLib().getLibraryUrl());
@@ -460,7 +460,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 
 		URL otmLibraryURL = createLibURL(xsdLibrary);
 		String otmLibraryName = "OTM_" + xsdLibrary.getName();
-		LibraryNavNode lnn = createLibrary(otmLibraryName, xsdLibrary.getNamePrefix(), otmLibraryURL,
+		LibraryNavNode lnn = createLibrary(otmLibraryName, xsdLibrary.getPrefix(), otmLibraryURL,
 				xsdLibrary.getNamespace(), xsdLibrary.getProject());
 
 		LibraryNode newLib = lnn.getLibrary();

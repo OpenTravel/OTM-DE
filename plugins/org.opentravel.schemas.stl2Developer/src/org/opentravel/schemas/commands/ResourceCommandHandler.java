@@ -25,7 +25,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Event;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.resources.ActionFacet;
 import org.opentravel.schemas.node.resources.ActionNode;
 import org.opentravel.schemas.node.resources.ActionResponse;
@@ -57,6 +57,7 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 	}
 
 	private Node selectedNode; // The user selected node.
+	private BusinessObjectNode predicate;
 	private OtmView view;
 
 	protected Node getSelectedNode(ExecutionEvent exEvent) {
@@ -118,17 +119,37 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 		return cmdType;
 	}
 
-	// Prefer selected node in Resource view, navigator view otherwise
+	/**
+	 * If view is set return the current node from the view. Use navigator node otherwise.
+	 */
 	private void setSelected() {
-		selectedNode = mc.getCurrentNode_NavigatorView();
+		if (mc.getCurrentNode_NavigatorView() instanceof BusinessObjectNode)
+			predicate = (BusinessObjectNode) mc.getCurrentNode_NavigatorView();
+
 		if (view != null)
 			selectedNode = (Node) view.getCurrentNode();
+		else
+			selectedNode = mc.getCurrentNode_NavigatorView();
+	}
+
+	/**
+	 * @return the library if unmanaged, library at the head of the chain or null if not editable
+	 */
+	private LibraryNode getEffectiveLibrary(Node node) {
+		LibraryNode effectiveLib = node.getLibrary();
+		if (effectiveLib != null) {
+			// If it is in a chain, get the head of the chain
+			if (effectiveLib.getChain() != null && !effectiveLib.isInHead())
+				effectiveLib = effectiveLib.getChain().getHead();
+		}
+		return effectiveLib.isEditable() ? effectiveLib : null;
 	}
 
 	private void runCommand(CommandType type) {
 		ResourceNode rn = null;
-		if (selectedNode.getOwningComponent() instanceof ResourceMemberInterface)
+		if (selectedNode.getOwningComponent() instanceof ResourceNode)
 			rn = (ResourceNode) selectedNode.getOwningComponent();
+
 		if (selectedNode == null) {
 			return;
 		}
@@ -146,17 +167,22 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 				OtmRegistry.getNavigatorView().refresh(); // refresh entire navigator view tree because content changed
 			break;
 		case RESOURCE:
-			if (selectedNode != null && selectedNode.getLibrary() != null) {
-				ResourceNode newR = new ResourceNode(selectedNode); // create named empty resource
-				BusinessObjectNode bo = getBusinessObject(newR);
-				if (bo == null) {
+			// Try to get an editable library
+			LibraryNode effectiveLib = getEffectiveLibrary(selectedNode);
+			if (effectiveLib != null) {
+				ResourceNode newR = new ResourceNode(effectiveLib, predicate); // create named empty resource
+
+				// Use the preselected BO or run wizard.
+				if (predicate == null)
+					predicate = getBusinessObject(newR);
+
+				if (predicate == null)
 					newR.setAbstract(true);
-					// newR.delete();
-				} else {
-					new ResourceBuilder().build(newR, bo);
-					view.refresh(newR);
-					mc.refresh(); // update the navigator view
-				}
+				else
+					new ResourceBuilder().build(newR, predicate);
+				view.select(newR);
+				view.refresh(newR);
+				mc.refresh(); // update the navigator view
 			} else
 				postWarning(type);
 			break;

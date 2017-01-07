@@ -82,16 +82,17 @@ public class VersionNode_Tests {
 		}
 
 		ln_inChain.getTLLibrary().addNamedMember((LibraryMember) s1.getTLModelObject());
+		// Listeners set parent when added to tl library
 		s1.setLibrary(ln_inChain);
 		try {
-			assertTrue("S1 must not have parent.", s1.getParent() == null);
-			v = new VersionNode(s1); // no parent
+			assertTrue("S2 must not have parent.", s2.getParent() == null);
+			v = new VersionNode(s2); // no parent
 			Assert.assertFalse(true); // should never reach here
 		} catch (IllegalStateException e) {
 			Assert.assertNotNull(e);
 		}
 
-		ln_inChain.linkMember(s1);
+		// ln_inChain.linkMember(s1);
 		v = new VersionNode(s1);
 		Assert.assertNotNull(v.getLibrary());
 		Assert.assertEquals(v, s1.getParent());

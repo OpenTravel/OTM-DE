@@ -543,7 +543,7 @@ public class LibraryPropertySource extends AbstractPropertySource<LibraryNode> {
 
 			@Override
 			public Object getValue() {
-				return source.getNamePrefix();
+				return source.getPrefix();
 			}
 
 			@Override
