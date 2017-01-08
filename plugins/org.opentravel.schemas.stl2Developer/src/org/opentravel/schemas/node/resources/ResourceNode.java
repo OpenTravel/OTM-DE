@@ -96,7 +96,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		@Override
 		public boolean set(String value) {
 			tlObj.setFirstClass(Boolean.valueOf(value));
-			LOGGER.debug("Set first class to: " + tlObj.isFirstClass());
+			// LOGGER.debug("Set first class to: " + tlObj.isFirstClass());
 			return false;
 		}
 	}
@@ -249,7 +249,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	public void delete() {
-		LOGGER.debug("Deleting rest resource: " + this);
+		// LOGGER.debug("Deleting rest resource: " + this);
 		// List<Node> kids = new ArrayList<Node>(getChildren());
 		for (Node kid : getChildren_New())
 			kid.delete();
@@ -265,10 +265,10 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		setLibrary(null);
 		deleted = true;
 
-		LOGGER.debug("Deleting rest resource: " + this);
+		// LOGGER.debug("Deleting rest resource: " + this);
 		if (tlObj.getOwningLibrary() != null)
 			tlObj.getOwningLibrary().removeNamedMember(tlObj);
-		LOGGER.debug("Deleted rest resource: " + this);
+		// LOGGER.debug("Deleted rest resource: " + this);
 	}
 
 	public List<ActionNode> getActions() {
@@ -612,7 +612,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	public void setAbstract(boolean flag) {
 		tlObj.setAbstract(flag);
-		LOGGER.debug("Set abstract to: " + tlObj.isAbstract());
+		// LOGGER.debug("Set abstract to: " + tlObj.isAbstract());
 	}
 
 	@Override
@@ -659,7 +659,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		// if (!path.endsWith("/"))
 		// path = path + "/";
 		tlObj.setBasePath(path);
-		LOGGER.debug("Set base path to " + path + ": " + tlObj.getBasePath());
+		// LOGGER.debug("Set base path to " + path + ": " + tlObj.getBasePath());
 	}
 
 	@Override
@@ -685,10 +685,10 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 			TLExtension ext = new TLExtension();
 			tlObj.setExtension(ext);
 			ext.setExtendsEntity(peer.getTLModelObject());
-			LOGGER.debug("Set extension to " + name + ": " + tlObj.getExtension().getExtendsEntityName());
+			// LOGGER.debug("Set extension to " + name + ": " + tlObj.getExtension().getExtendsEntityName());
 		} else {
 			tlObj.setExtension(null);
-			LOGGER.debug("Set extension to null:" + tlObj.getExtension());
+			// LOGGER.debug("Set extension to null:" + tlObj.getExtension());
 		}
 		return false;
 	}
@@ -697,12 +697,12 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		if (name == null || name.equals(ResourceField.NONE)) {
 			tlObj.setBusinessObjectRef(null);
 			tlObj.setBusinessObjectRefName("");
-			LOGGER.debug("Set subject to null.");
+			// LOGGER.debug("Set subject to null.");
 		}
 		for (Node n : getLibrary().getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode && n.getName().equals(name)) {
 				tlObj.setBusinessObjectRef((TLBusinessObject) n.getTLModelObject());
-				LOGGER.debug("Set subect to " + name + ": " + tlObj.getBusinessObjectRefName());
+				// LOGGER.debug("Set subect to " + name + ": " + tlObj.getBusinessObjectRefName());
 			}
 	}
 
@@ -738,7 +738,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		}
 		if (toRemove != null) {
 			tlObj.removeParentRef(toRemove);
-			LOGGER.debug("Removed parent : " + toRemove.getParentResourceName());
+			// LOGGER.debug("Removed parent : " + toRemove.getParentResourceName());
 		} else {
 			setParentRef(name);
 		}
@@ -754,7 +754,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	public ParentRef setParentRef(String parentName) {
 		ParentRef pr = new ParentRef(this);
 		pr.setParent(parentName);
-		LOGGER.debug("Added parent " + parentName + ": " + getParentRef().getParentResourceName() + " to " + this);
+		// LOGGER.debug("Added parent " + parentName + ": " + getParentRef().getParentResourceName() + " to " + this);
 		return pr;
 	}
 

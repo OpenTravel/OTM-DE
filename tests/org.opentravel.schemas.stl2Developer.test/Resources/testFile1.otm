@@ -5,8 +5,8 @@
     
     <VersionScheme>OTA2</VersionScheme>
     <Status>Draft</Status>
-    <Namespace>http://opentravel.org/local/dave/t4</Namespace>
-    <Prefix>t2</Prefix>
+    <Namespace>http://opentravel.org/local/dave/t4/v01</Namespace>
+    <Prefix>t1</Prefix>
     <Name>Test1</Name>
     <Includes>testFile5.otm</Includes>
     <Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>

@@ -194,7 +194,7 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 	 */
 	public boolean setPayloadType(String payloadName) {
 		if (tlObj.getPayloadTypeName() != null && tlObj.getPayloadTypeName().equals(payloadName)) {
-			LOGGER.debug("No change because names are the same. " + payloadName);
+			// LOGGER.debug("No change because names are the same. " + payloadName);
 			return false;
 		}
 		setPayload(getOwningComponent().getActionFacet(payloadName));
@@ -206,11 +206,11 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 			tlObj.setPayloadType(null);
 			tlObj.setPayloadTypeName(null);
 			tlObj.setMimeTypes(null); // validation warning when mime types are set.
-			LOGGER.debug("Reset payload.");
+			// LOGGER.debug("Reset payload.");
 		} else {
 			tlObj.setPayloadType(af.getTLModelObject());
 			af.tlObj.addListener(new ResourceDependencyListener(this));
-			LOGGER.debug("Set payload to " + af.getName() + " : " + tlObj.getPayloadTypeName());
+			// LOGGER.debug("Set payload to " + af.getName() + " : " + tlObj.getPayloadTypeName());
 		}
 	}
 
@@ -225,7 +225,7 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 			tlObj.removeMimeType(type);
 		else
 			tlObj.addMimeType(type);
-		LOGGER.debug("Set Mime types to: " + tlObj.getMimeTypes());
+		// LOGGER.debug("Set Mime types to: " + tlObj.getMimeTypes());
 	}
 
 	private void setStatusCode(String value) {
@@ -236,7 +236,7 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 		else
 			codes.add(selection);
 		tlObj.setStatusCodes(codes);
-		LOGGER.debug("Set Status Codes to " + value + " : " + tlObj.getStatusCodes());
+		// LOGGER.debug("Set Status Codes to " + value + " : " + tlObj.getStatusCodes());
 	}
 
 	protected String[] getPossiblePayloadNames() {

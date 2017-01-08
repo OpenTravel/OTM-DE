@@ -51,17 +51,17 @@ public class Find_Tests {
 		// QName qn = new QName("NameSpace", "Name");
 		// Assert.assertNull(NodeFinders.findTypeProviderByQName(qn));
 		//
-		// qn = new QName("http://www.sabre.com/ns/OTA2/Demo/Profile/v01", "OutboundFlight");
+		// qn = new QName("http://opentravel.org/local/dave/t4/v01", "OutboundFlight");
 		// Assert.assertNotNull(NodeFinders.findTypeProviderByQName(qn));
 		//
 		// Node alias = NodeFinders.findTypeProviderByQName(qn);
-		// qn = new QName("http://www.sabre.com/ns/OTA2/Demo/Profile/v01", "Card");
+		// qn = new QName("http://opentravel.org/local/dave/t4/v01", "Card");
 		// Assert.assertNotNull(alias);
 		//
-		// qn = new QName("http://www.sabre.com/ns/OTA2/Demo/Profile/v01", "Card");
+		// qn = new QName("http://opentravel.org/local/dave/t4/v01", "Card");
 		// Assert.assertNotNull(NodeFinders.findTypeProviderByQName(qn));
 		//
-		// qn = new QName("http://www.sabre.com/ns/OTA2/Demo/Profile/v01", "TravelerProfile");
+		// qn = new QName("http://opentravel.org/local/dave/t4/v01", "TravelerProfile");
 		// Assert.assertNotNull(NodeFinders.findTypeProviderByQName(qn));
 		//
 		// qn = new QName("http://services.sabre.com/STL/Examples/v02", "SimpleVWA");
@@ -85,16 +85,16 @@ public class Find_Tests {
 			tt.visitAllNodes(ln);
 		}
 
-		QName qn = new QName("http://www.sabre.com/ns/OTA2/Demo/Profile/v01", "OutboundFlight");
+		QName qn = new QName("http://opentravel.org/local/dave/t4/v01", "OutboundFlight");
 		assertTrue("Must find node: " + qn, NodeFinders.findNodeByQName(qn) != null);
 
-		qn = new QName("http://www.sabre.com/ns/OTA2/Demo/Profile/v01", "OutboundFlight");
+		qn = new QName("http://opentravel.org/local/dave/t4/v01", "OutboundFlight");
 		assertTrue("Must find node: " + qn, NodeFinders.findNodeByQName(qn) != null);
 
-		qn = new QName("http://www.sabre.com/ns/OTA2/Demo/Profile/v01", "Card");
+		qn = new QName("http://opentravel.org/local/dave/t4/v01", "Card");
 		assertTrue("Must find node: " + qn, NodeFinders.findNodeByQName(qn) != null);
 
-		qn = new QName("http://www.sabre.com/ns/OTA2/Demo/Profile/v01", "TravelerProfile");
+		qn = new QName("http://opentravel.org/local/dave/t4/v01", "TravelerProfile");
 		assertTrue("Must find node: " + qn, NodeFinders.findNodeByQName(qn) != null);
 
 		qn = new QName("http://services.sabre.com/STL/Examples/v02", "SimpleVWA");

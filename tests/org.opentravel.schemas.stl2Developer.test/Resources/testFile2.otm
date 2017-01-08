@@ -5,7 +5,7 @@
     
     <VersionScheme>OTA2</VersionScheme>
     <Status>Draft</Status>
-    <Namespace>http://opentravel.org/local/dave/t4</Namespace>
+    <Namespace>http://opentravel.org/local/dave/t4/v02</Namespace>
     <Prefix>t2</Prefix>
     <Name>Test2</Name>
     <Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>

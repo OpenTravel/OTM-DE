@@ -168,7 +168,7 @@ public class ChangeTo_Tests {
 		assertEquals(vwaCount, core.getSummaryFacet().getChildren().size());
 		assertEquals(core.getSimpleType(), vwa.getSimpleType());
 		assertEquals(core.getTLModelObject().getSummaryFacet().getAttributes().size(), core.getSummaryFacet()
-				.getChildren().size());
+				.getChildren().size() - 1); // vwa value is added as attribute to core
 		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMembers().contains(core));
 		assertTrue("VWA must NOT be in the library after swap.", !ln.getDescendants_LibraryMembers().contains(vwa));
 	}

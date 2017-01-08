@@ -241,7 +241,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 
 	public void setHttpMethod(String method) {
 		tlObj.setHttpMethod(TLHttpMethod.valueOf(method));
-		LOGGER.debug("Set HTTP method to " + method);
+		// LOGGER.debug("Set HTTP method to " + method);
 	}
 
 	/**
@@ -255,7 +255,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 			tlObj.removeMimeType(type);
 		else
 			tlObj.addMimeType(type);
-		LOGGER.debug("Set Mime types to: " + tlObj.getMimeTypes());
+		// LOGGER.debug("Set Mime types to: " + tlObj.getMimeTypes());
 	}
 
 	@Override
@@ -265,7 +265,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	public boolean setParamGroup(String groupName) {
 		if (groupName == null || groupName.equals(ResourceField.NONE)) {
 			tlObj.setParamGroup(null);
-			LOGGER.debug("Set parameter group to null. " + groupName);
+			// LOGGER.debug("Set parameter group to null. " + groupName);
 		} else if (tlObj.getParamGroupName() != null && tlObj.getParamGroupName().equals(groupName)) {
 			LOGGER.debug("No change because names are the same. " + groupName);
 		} else
@@ -274,7 +274,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 				if (node.getName().equals(groupName))
 					setParameterGroup(node);
 		createPathTemplate();
-		LOGGER.debug("Set parameter group to " + groupName + " : " + tlObj.getParamGroupName());
+		// LOGGER.debug("Set parameter group to " + groupName + " : " + tlObj.getParamGroupName());
 		return true;
 	}
 
@@ -289,7 +289,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 			group.addListeners(this);
 		} else
 			tlObj.setParamGroup(null);
-		LOGGER.debug("Set param group to " + group);
+		// LOGGER.debug("Set param group to " + group);
 		return false;
 	}
 
@@ -301,7 +301,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 		if (path == null || path.isEmpty())
 			path = "/";
 		tlObj.setPathTemplate(path);
-		LOGGER.debug("Set Path template to " + path + ": " + tlObj.getPathTemplate());
+		// LOGGER.debug("Set Path template to " + path + ": " + tlObj.getPathTemplate());
 	}
 
 	/**
@@ -312,7 +312,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	 */
 	public boolean setPayloadType(String payloadName) {
 		if (tlObj.getPayloadTypeName() != null && tlObj.getPayloadTypeName().equals(payloadName)) {
-			LOGGER.debug("No change because names are the same. " + payloadName);
+			// LOGGER.debug("No change because names are the same. " + payloadName);
 			return false;
 		}
 		setPayload(getOwningComponent().getActionFacet(payloadName));
@@ -324,11 +324,11 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 			tlObj.setPayloadType(null);
 			tlObj.setPayloadTypeName(null);
 			tlObj.setMimeTypes(null); // validation warning when mime types are set.
-			LOGGER.debug("Reset payload.");
+			// LOGGER.debug("Reset payload.");
 		} else {
 			tlObj.setPayloadType(af.getTLModelObject());
 			af.tlObj.addListener(new ResourceDependencyListener(this));
-			LOGGER.debug("Set payload to " + af.getName() + " : " + tlObj.getPayloadTypeName());
+			// LOGGER.debug("Set payload to " + af.getName() + " : " + tlObj.getPayloadTypeName());
 		}
 	}
 

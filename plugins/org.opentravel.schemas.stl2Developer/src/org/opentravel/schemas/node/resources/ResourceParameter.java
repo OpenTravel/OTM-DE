@@ -53,7 +53,7 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 		@Override
 		public boolean set(String name) {
 			tlObj.setLocation(TLParamLocation.valueOf(name));
-			LOGGER.debug("Set location to: " + tlObj.getLocation());
+			// LOGGER.debug("Set location to: " + tlObj.getLocation());
 			return false;
 		}
 	}
@@ -164,13 +164,13 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 
 	public void setFieldRef(String name) {
 		tlObj.setFieldRefName(name);
-		LOGGER.debug("Set Field Reference to " + name + " : " + tlObj.getFieldRefName());
+		// LOGGER.debug("Set Field Reference to " + name + " : " + tlObj.getFieldRefName());
 	}
 
 	@Override
 	public void setName(final String name) {
 		tlObj.setFieldRefName(name);
-		LOGGER.debug("Set Field Reference to " + name + " : " + tlObj.getFieldRefName());
+		// LOGGER.debug("Set Field Reference to " + name + " : " + tlObj.getFieldRefName());
 	}
 
 }

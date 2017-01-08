@@ -204,8 +204,9 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 
 	protected String getFacetLabel() {
 		Node facetRef = getFacetRef();
-		
-		return (facetRef != null) ? ResourceCodegenUtils.getActionFacetReferenceName( (TLFacet) facetRef.getTLModelObject() ) : "";
+
+		return (facetRef != null) ? ResourceCodegenUtils.getActionFacetReferenceName((TLFacet) facetRef
+				.getTLModelObject()) : "";
 	}
 
 	/**
@@ -227,7 +228,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		String[] fs = new String[size];
 		int i = 0;
 		for (Node facet : facets)
-			fs[i++] = ResourceCodegenUtils.getActionFacetReferenceName( (TLFacet) facet.getTLModelObject() );
+			fs[i++] = ResourceCodegenUtils.getActionFacetReferenceName((TLFacet) facet.getTLModelObject());
 		return fs;
 
 	}
@@ -303,7 +304,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 			path += "/" + pt;
 		if (path.isEmpty())
 			path = "/"; // must at least have a slash
-		LOGGER.debug("Get path template: " + path);
+			// LOGGER.debug("Get path template: " + path);
 		return path;
 	}
 
@@ -362,7 +363,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		clearParameters();
 		for (Node n : getPossibleFields()) {
 			new ResourceParameter(this, n);
-			LOGGER.debug("Added parameter for " + n.getName());
+			// LOGGER.debug("Added parameter for " + n.getName());
 		}
 	}
 
@@ -378,14 +379,14 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	 */
 	public boolean setReferenceFacet(String name) {
 		for (Node n : getOwningComponent().getSubject().getChildren()) {
-			String facetName = ResourceCodegenUtils.getActionFacetReferenceName( (TLFacet) n.getTLModelObject() );
-			
+			String facetName = ResourceCodegenUtils.getActionFacetReferenceName((TLFacet) n.getTLModelObject());
+
 			if ((facetName != null) && facetName.equals(name)) {
 				tlObj.setFacetRef((TLFacet) n.getTLModelObject());
 				upDateParameters();
 				if (tlObj.getName().isEmpty())
 					tlObj.setName(name);
-				LOGGER.debug("Set reference facet to: " + tlObj.getFacetRefName());
+				// LOGGER.debug("Set reference facet to: " + tlObj.getFacetRefName());
 				return true; // denote change
 			}
 		}

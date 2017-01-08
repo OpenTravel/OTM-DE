@@ -32,7 +32,6 @@ import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
-import org.opentravel.schemas.views.RestResourceView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +42,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class ActionFacet extends ResourceBase<TLActionFacet> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(RestResourceView.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ActionFacet.class);
 	protected String MSGKEY = "rest.ActionFacet";
 
 	public class BasePayloadListener implements ResourceFieldListener {
@@ -262,17 +261,17 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 			tlObj.setReferenceFacetName(null);
 		else
 			tlObj.setReferenceFacetName(name);
-		LOGGER.debug("Set Reference facet name to " + name + " : " + tlObj.getReferenceFacetName());
+		// LOGGER.debug("Set Reference facet name to " + name + " : " + tlObj.getReferenceFacetName());
 	}
 
 	public void setReferenceRepeat(Integer i) {
 		tlObj.setReferenceRepeat(i);
-		LOGGER.debug("Set Reference repeat to " + i);
+		// LOGGER.debug("Set Reference repeat to " + i);
 	}
 
 	public void setReferenceType(String value) {
 		tlObj.setReferenceType(TLReferenceType.valueOf(value));
-		LOGGER.debug("Set Reference Type to " + value + " : " + tlObj.getReferenceType());
+		// LOGGER.debug("Set Reference Type to " + value + " : " + tlObj.getReferenceType());
 	}
 
 	@Deprecated
