@@ -73,6 +73,7 @@ public class ProjectNode extends Node implements INode {
 		this.project = tlProject;
 		setName(tlProject.getName());
 		Node.getModelNode().addProject(this);
+
 		load(tlProject.getProjectItems());
 
 		assert (parent instanceof ModelNode);
@@ -105,6 +106,9 @@ public class ProjectNode extends Node implements INode {
 	public LibraryNavNode load(final List<ProjectItem> piList) {
 		LibraryModelManager manager = getParent().getLibraryManager();
 		LibraryNavNode lnn = null;
+
+		if (piList.isEmpty())
+			LOGGER.warn(this + " project item list is empty.");
 
 		for (ProjectItem pi : piList) {
 			lnn = manager.add(pi, this);

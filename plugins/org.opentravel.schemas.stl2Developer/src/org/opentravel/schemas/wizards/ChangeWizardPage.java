@@ -394,6 +394,7 @@ public class ChangeWizardPage extends WizardPage {
 				markSelectedFacetTypeButton(facetTypeButtons.get(ft));
 			} else {
 				facetTypeButtons.get(ft).setSelection(false);
+				facetRadioButton = null;
 			}
 		}
 	}

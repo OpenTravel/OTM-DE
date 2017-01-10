@@ -29,6 +29,7 @@ import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLPropertyType;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.controllers.DefaultProjectController;
@@ -37,6 +38,8 @@ import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.properties.AttributeNode;
+import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
@@ -52,28 +55,29 @@ import org.opentravel.schemas.types.TypeUser;
  */
 public class VWA_Tests {
 	ModelNode model = null;
-	MockLibrary mockLibrary = null;
+	MockLibrary ml = null;
 	LibraryNode ln = null;
 	MainController mc;
 	DefaultProjectController pc;
 	ProjectNode defaultProject;
+	LoadFiles lf = null;
 	TestNode tn = new NodeTesters().new TestNode();
+	TypeProvider emptyNode = null;
+	TypeProvider sType = null;
 
 	@Before
 	public void beforeEachTest() {
 		mc = new MainController();
-		mockLibrary = new MockLibrary();
+		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
+		lf = new LoadFiles();
+		emptyNode = (TypeProvider) ModelNode.getEmptyNode();
+		sType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 	}
 
 	@Test
 	public void changeToVWA() {
-		MockLibrary ml = new MockLibrary();
-		// MainController mc = new MainController();
-		// DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
-		// ProjectNode defaultProject = pc.getDefaultProject();
-
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "bo");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "co");
@@ -90,54 +94,22 @@ public class VWA_Tests {
 	}
 
 	@Test
-	public void loadLibraryTests() throws Exception {
-		MainController mc = new MainController();
-		LoadFiles lf = new LoadFiles();
-		model = mc.getModelNode();
-
-		// test the lib with only vwa
-		LibraryNode vwaLib = lf.loadFile3(mc);
-		for (Node vwa : vwaLib.getDescendants_LibraryMembers()) {
-			Assert.assertTrue(vwa instanceof VWA_Node);
-			checkVWA((VWA_Node) vwa);
-		}
-		mc.getProjectController().remove(vwaLib.getLibraryNavNode());
-		// vwaLib.close();
-
+	public void VWA_LoadLibraryTests() throws Exception {
 		// test all libs
 		lf.loadTestGroupA(mc);
-		for (LibraryNode ln : model.getUserLibraries()) {
+		for (LibraryNode ln : mc.getModelNode().getUserLibraries()) {
 			List<Node> types = ln.getDescendants_LibraryMembers();
-			for (Node n : types) {
+			for (Node n : types)
 				if (n instanceof VWA_Node)
 					checkVWA((VWA_Node) n);
-			}
 		}
-		// make sure we can build one.
-		makeVwa("TEST_V1", vwaLib);
 	}
 
-	// @Test
-	// public void getTypeQName() {
-	// ln = mockLibrary.createNewLibrary("http://sabre.com/test", "test", defaultProject);
-	// ln.setEditable(true);
-	// VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "VWA_Test");
-	// // QName typeQname = vwa.getTLTypeQName();
-	// SimpleAttributeNode sa = (SimpleAttributeNode) vwa.getSimpleFacet().getSimpleAttribute();
-	// Assert.assertNotNull(sa);
-	//
-	// TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", Node.XSD_NAMESPACE);
-	// vwa.setSimpleType(aType);
-	// // typeQname = sa.getTLTypeQName();
-	// // Assert.assertEquals("date", typeQname.getLocalPart());
-	// // Assert.assertEquals(Node.XSD_NAMESPACE, typeQname.getNamespaceURI());
-	// }
-
 	@Test
-	public void typeSetting() {
+	public void VWA_TypeSettingTests() {
 		// Given - an unmanaged and managed library and 3 simple types
-		ln = mockLibrary.createNewLibrary("http://sabre.com/test", "test", defaultProject);
-		LibraryChainNode lcn = mockLibrary.createNewManagedLibrary("inChain", defaultProject);
+		ln = ml.createNewLibrary("http://sabre.com/test", "test", defaultProject);
+		LibraryChainNode lcn = ml.createNewManagedLibrary("inChain", defaultProject);
 		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		TypeProvider bType = (TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE);
 		TypeProvider cType = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
@@ -146,7 +118,7 @@ public class VWA_Tests {
 		assertTrue("Simple type A must not be null.", aType != null);
 
 		// Given - a new VWA in the unmanaged library
-		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "VWA_Test");
+		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "VWA_Test");
 
 		// When - simple type is set
 		assertTrue("Simple type must be assigned.", vwa.getSimpleFacet().getSimpleAttribute().setAssignedType(cType));
@@ -155,7 +127,7 @@ public class VWA_Tests {
 				.getAssignedType());
 
 		// When - a new VWA in managed library is created and type set
-		vwa = mockLibrary.addVWA_ToLibrary(lcn.getHead(), "InChainTest");
+		vwa = ml.addVWA_ToLibrary(lcn.getHead(), "InChainTest");
 		assertTrue("Simple type must be assignable.", vwa.getSimpleFacet().getSimpleAttribute().setAssignedType(bType));
 		// Then
 		assertTrue("Simple type must equal type assigned.", bType == vwa.getSimpleFacet().getSimpleAttribute()
@@ -200,12 +172,32 @@ public class VWA_Tests {
 	}
 
 	@Test
+	public void VWA_AttributeAssignedTypeTests() {
+		ln = ml.createNewLibrary("http://opentravel.org/test", "test", defaultProject);
+		ln.setEditable(true);
+		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "VWA1");
+		new AttributeNode(vwa.getAttributeFacet(), "A1");
+		new IndicatorNode(vwa.getAttributeFacet(), "I1");
+		TypeProvider a = (TypeProvider) NodeFinders.findNodeByName("decimal", ModelNode.XSD_NAMESPACE);
+
+		// Check simple type
+		vwa.setSimpleType(a);
+		Assert.assertEquals(a, vwa.getSimpleType());
+
+		// Check all attributes/indicators
+		for (Node n : vwa.getAttributeFacet().getChildren()) {
+			PropertyNode pn = (PropertyNode) n;
+			pn.setAssignedType(a);
+			if (pn instanceof AttributeNode)
+				assertTrue(pn.getType() == a);
+		}
+	}
+
+	@Test
 	public void VWA_EqEx_Tests() {
 		// Given a library and a Simple Type
-		ln = mockLibrary.createNewLibrary("http://opentravel.org/test", "test", defaultProject);
+		ln = ml.createNewLibrary("http://opentravel.org/test", "test", defaultProject);
 		ln.setEditable(true);
-		TypeProvider emptyNode = (TypeProvider) ModelNode.getEmptyNode();
-		TypeProvider sType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		TLSimple tlsType = (TLSimple) sType.getTLModelObject();
 		assertTrue("Must find tlsType.", tlsType != null);
 		String vName = "TestVWA";
@@ -242,10 +234,8 @@ public class VWA_Tests {
 	@Test
 	public void VWA_ConstructorsTests() {
 		// Given a library and a Simple Type
-		ln = mockLibrary.createNewLibrary("http://opentravel.org/test", "test", defaultProject);
+		ln = ml.createNewLibrary("http://opentravel.org/test", "test", defaultProject);
 		ln.setEditable(true);
-		TypeProvider emptyNode = (TypeProvider) ModelNode.getEmptyNode();
-		TypeProvider sType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		TLSimple tlsType = (TLSimple) sType.getTLModelObject();
 		assertTrue("Found tlsType.", tlsType != null);
 		String vName = "TestVWA";
@@ -299,73 +289,77 @@ public class VWA_Tests {
 		// TODO - add tests for cast constructors (see changeTo)
 	}
 
-	@Test
-	public void mockVWATest() {
+	// @Test
+	// public void mockVWATest() {
+	//
+	//
+	// ln = ml.createNewLibrary("http://opentravel.org/test", "test", defaultProject);
+	// ln.setEditable(true);
+	// VWA_Node vwa = ml.addVWA_ToLibrary(ln, "VWA_Test");
+	// Assert.assertEquals("VWA_Test", vwa.getName());
+	// Assert.assertTrue(vwa.getSimpleFacet() instanceof SimpleFacetNode);
+	// SimpleFacetNode sfn = vwa.getSimpleFacet();
+	// Assert.assertTrue(vwa.getSimpleType() != null);
+	// Assert.assertTrue(sfn.getSimpleAttribute().getType() == vwa.getSimpleType());
 
-		//
-		ln = mockLibrary.createNewLibrary("http://opentravel.org/test", "test", defaultProject);
-		ln.setEditable(true);
-		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "VWA_Test");
-		Assert.assertEquals("VWA_Test", vwa.getName());
-		Assert.assertTrue(vwa.getSimpleFacet() instanceof SimpleFacetNode);
-		SimpleFacetNode sfn = vwa.getSimpleFacet();
-		Assert.assertTrue(vwa.getSimpleType() != null);
-		Assert.assertTrue(sfn.getSimpleAttribute().getType() == vwa.getSimpleType());
+	// TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
+	// Assert.assertTrue(vwa.setAssignedType(aType));
+	// Assert.assertTrue(sfn.setAssignedType(aType));
+	// Assert.assertTrue(vwa.setSimpleType(aType));
+	// Assert.assertTrue(vwa.getSimpleType() == aType);
 
-		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
-		// Assert.assertTrue(vwa.setAssignedType(aType));
-		// Assert.assertTrue(sfn.setAssignedType(aType));
-		// Assert.assertTrue(vwa.setSimpleType(aType));
-		// Assert.assertTrue(vwa.getSimpleType() == aType);
+	// // 2/22/2015 dmh - vwa not allowed as type of simple type. Should it?
+	// String OTA_NS = "http://opentravel.org/common/v02";
+	// Node oType = NodeFinders.findNodeByName("CodeList", OTA_NS);
+	// }
 
-		// 2/22/2015 dmh - vwa not allowed as type of simple type. Should it?
-		String OTA_NS = "http://opentravel.org/common/v02";
-		Node oType = NodeFinders.findNodeByName("CodeList", OTA_NS);
-	}
+	/**
+	 * Check the structure of the passed VWA
+	 */
+	public void checkVWA(VWA_Node vwa) {
 
-	private void checkVWA(VWA_Node vwa) {
+		// Make sure named structures are present
+		assertTrue(vwa.getSimpleFacet() != null);
+		assertTrue(vwa.getSimpleAttribute() != null);
+		assertTrue(vwa.getAttributeFacet() != null);
 
-		Assert.assertNotNull(vwa.getLibrary());
+		// Make sure there are libraries assigned to all
+		assertTrue(vwa.getLibrary() != null);
+		assertTrue(vwa.getSimpleFacet().getLibrary() != null);
+		assertTrue(vwa.getSimpleAttribute().getLibrary() != null);
+		assertTrue(vwa.getAttributeFacet().getLibrary() != null);
 
 		// SimpleType
-		// Assert.assertNotNull(vwa.getAssignedType());
-		Assert.assertNotNull(vwa.getSimpleType());
-		// Node a = vwa.getAssignedType();
-		TypeProvider b = vwa.getSimpleType();
-		// Assert.assertEquals(a, b);
-		if (vwa.isEditable()) {
-			TypeProvider a = (TypeProvider) NodeFinders.findNodeByName("decimal", ModelNode.XSD_NAMESPACE);
-			vwa.setSimpleType(a);
-			Assert.assertEquals(a, vwa.getSimpleType());
-		}
-
-		// Must have only two children
-		Assert.assertTrue(vwa.getChildren().size() == 2);
-
-		// Simple Facet
-		Assert.assertNotNull(vwa.getSimpleFacet());
-		Assert.assertTrue(vwa.getSimpleFacet().getChildren().size() == 1);
+		assertTrue(vwa.getSimpleType() != null);
+		assertTrue(vwa.getSimpleAttribute().getType() == vwa.getSimpleType());
 
 		// Attribute Facet
-		Assert.assertNotNull(vwa.getAttributeFacet());
 		for (Node ap : vwa.getAttributeFacet().getChildren()) {
 			assert ap instanceof PropertyNode;
 			assert Node.GetNode(ap.getTLModelObject()) == ap;
-			Assert.assertNotNull(((PropertyNode) ap).getAssignedType());
+			assertTrue(((PropertyNode) ap).getAssignedType() != null);
 			assert ap.getLibrary() == vwa.getLibrary();
 		}
 
 	}
 
-	protected void makeVwa(String name, LibraryNode ln) {
+	@Test
+	public void VWA_FactoryTest() {
+		ln = ml.createNewLibrary("http://opentravel.org/test", "test", defaultProject);
+		ln.setEditable(true);
+		String name = "Vwa1";
+
+		// Given - tlVWA has 100 properties
 		TLValueWithAttributes tlVWA = new TLValueWithAttributes();
 		tlVWA.setName(name);
 		for (int attCnt = 1; attCnt < 100; attCnt++) {
 			TLAttribute tlA = new TLAttribute();
 			tlA.setName(name + "_a" + attCnt);
 			tlVWA.addAttribute(tlA);
+			tlA.setType((TLPropertyType) sType.getTLModelObject());
 		}
 
+		// When - the factory is used to create a node
 		VWA_Node v = (VWA_Node) NodeFactory.newComponent(tlVWA);
 		ln.addMember(v);
 		checkVWA(v);

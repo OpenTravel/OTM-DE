@@ -552,6 +552,11 @@ public class DefaultProjectController implements ProjectController {
 			}
 			project = null;
 		}
+		if (project != null) {
+			if (project.getProjectItems().isEmpty())
+				DialogUserNotifier.openError("Error opening project. ", "Project has no libraries.");
+			LOGGER.debug("Read " + project.getProjectItems().size() + " items from project: " + projectFile);
+		}
 		if (isUI)
 			mc.showBusy(false);
 		return project;

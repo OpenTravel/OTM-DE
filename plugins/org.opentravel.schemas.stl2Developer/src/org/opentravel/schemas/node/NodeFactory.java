@@ -43,8 +43,8 @@ import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemacompiler.model.XSDSimpleType;
-import org.opentravel.schemas.modelObject.TLnValueWithAttributesFacet;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
+import org.opentravel.schemas.modelObject.TLnValueWithAttributesFacet;
 import org.opentravel.schemas.node.facets.ChoiceFacetNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.CustomFacetNode;
@@ -247,9 +247,11 @@ public class NodeFactory {
 		if (parent != null && nn.getParent() == null) {
 			NodeNameUtils.fixName(nn); // make sure the name is legal (2/2016)
 			((Node) parent).linkChild(nn);
-			nn.setLibrary(parent.getLibrary());
+			if (parent.getLibrary() != null) {
+				nn.setLibrary(parent.getLibrary());
+				nn.setContext(); // assure default context set as needed
+			}
 		}
-		nn.setContext(); // assure default context set as needed
 
 		return nn;
 	}
