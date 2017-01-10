@@ -336,6 +336,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	/**
 	 * @return equivalent handler if property has equivalents, null otherwise
 	 */
+	@Override
 	public IValueWithContextHandler getEquivalentHandler() {
 		return equivalentHandler;
 	}

@@ -43,7 +43,7 @@ import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemacompiler.model.XSDSimpleType;
-import org.opentravel.schemas.modelObject.TLValueWithAttributesFacet;
+import org.opentravel.schemas.modelObject.TLnValueWithAttributesFacet;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
 import org.opentravel.schemas.node.facets.ChoiceFacetNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
@@ -224,8 +224,8 @@ public class NodeFactory {
 		//
 		// Facets
 		//
-		else if (tlObj instanceof TLValueWithAttributesFacet)
-			nn = new VWA_AttributeFacetNode((TLValueWithAttributesFacet) tlObj);
+		else if (tlObj instanceof TLnValueWithAttributesFacet)
+			nn = new VWA_AttributeFacetNode((TLnValueWithAttributesFacet) tlObj);
 		else if (tlObj instanceof TLContextualFacet)
 			nn = createFacet((TLContextualFacet) tlObj);
 		else if (tlObj instanceof TLFacet)

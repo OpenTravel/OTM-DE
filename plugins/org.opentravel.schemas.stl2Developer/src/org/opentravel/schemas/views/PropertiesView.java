@@ -548,7 +548,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 
 	private void updateEquivalent(ComponentNode cn, String context) {
 		final String eqToolTip = Messages.getString("OtmW." + "317"); //$NON-NLS-1$
-		exampleField.setToolTipText(eqToolTip + " (" + context + ")"); // show context
+		equivalentField.setToolTipText(eqToolTip + " (" + context + ")"); // show context
 		fields.postField(equivalentField, cn.getEquivalent(context), cn.isEditable_equivalent());
 	}
 

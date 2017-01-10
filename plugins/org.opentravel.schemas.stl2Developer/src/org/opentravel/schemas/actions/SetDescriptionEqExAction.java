@@ -18,8 +18,6 @@ package org.opentravel.schemas.actions;
 import org.eclipse.swt.widgets.Event;
 import org.opentravel.schemas.commands.AddNodeHandler2;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.SimpleTypeNode;
-import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -89,16 +87,20 @@ public class SetDescriptionEqExAction extends OtmAbstractAction {
 				owner.setDescription(value);
 				break;
 			case EXAMPLE:
-				if (owner instanceof PropertyNode)
-					((PropertyNode) owner).setExample(value);
-				else if (owner instanceof SimpleTypeNode)
-					((SimpleTypeNode) owner).setExample(value);
+				if (owner.getExampleHandler() != null)
+					owner.getExampleHandler().set(value, null);
+				// if (owner instanceof PropertyNode)
+				// ((PropertyNode) owner).setExample(value);
+				// else if (owner instanceof SimpleTypeNode)
+				// ((SimpleTypeNode) owner).setExample(value);
 				break;
 			case EQUIVALENT:
-				if (owner instanceof PropertyNode)
-					((PropertyNode) owner).setEquivalent(value);
-				else if (owner instanceof SimpleTypeNode)
-					((SimpleTypeNode) owner).setEquivalent(value);
+				if (owner.getEquivalentHandler() != null)
+					owner.getEquivalentHandler().set(value, null);
+				// if (owner instanceof PropertyNode)
+				// ((PropertyNode) owner).setEquivalent(value);
+				// else if (owner instanceof SimpleTypeNode)
+				// ((SimpleTypeNode) owner).setEquivalent(value);
 				break;
 			default:
 				break;

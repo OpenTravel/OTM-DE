@@ -130,8 +130,10 @@ public class EqExOneValueHandler implements IValueWithContextHandler, ModelEleme
 
 	@Override
 	public void set(String value, String context) {
-		if (!owner.isEditable() || owner.getLibrary() == null)
+		if (!owner.isEditable() || owner.getLibrary() == null) {
+			LOGGER.warn("Must have owner library to set example and equivalent values.");
 			return;
+		}
 		if (context == null && !confirmContextExists(context))
 			context = owner.getLibrary().getDefaultContextId();
 

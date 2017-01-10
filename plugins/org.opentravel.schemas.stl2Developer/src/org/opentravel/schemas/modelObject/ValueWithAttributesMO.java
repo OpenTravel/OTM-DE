@@ -36,15 +36,16 @@ public class ValueWithAttributesMO extends ModelObject<TLValueWithAttributes> {
 	// private final static Logger LOGGER = LoggerFactory.getLogger(ValueWithAttributesMO.class);
 
 	private final TLSimpleFacet valueFacet;
-	private final TLValueWithAttributesFacet attributeFacet;
+	private final TLnValueWithAttributesFacet attributeFacet;
 
 	public ValueWithAttributesMO(final TLValueWithAttributes obj) {
 		super(obj);
 		valueFacet = new TLSimpleFacet();
+		// It is not a facet owner - valueFacet.setOwningEntity(obj);
 		valueFacet.setSimpleType(obj.getParentType());
 		valueFacet.setFacetType(TLFacetType.SIMPLE);
 
-		attributeFacet = new TLValueWithAttributesFacet(obj);
+		attributeFacet = new TLnValueWithAttributesFacet(obj);
 		if (obj.getParentType() != null) {
 			setTLType(obj.getParentType());
 		}

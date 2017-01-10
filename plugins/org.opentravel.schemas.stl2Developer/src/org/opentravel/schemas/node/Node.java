@@ -86,6 +86,7 @@ import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.INodeListener;
 import org.opentravel.schemas.node.listeners.NamedTypeListener;
 import org.opentravel.schemas.node.listeners.NodeIdentityListener;
+import org.opentravel.schemas.node.properties.IValueWithContextHandler;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
@@ -922,6 +923,16 @@ public abstract class Node implements INode {
 
 	public String getEditStatusMsg() {
 		return Messages.getString(getEditStatus().msgID());
+	}
+
+	@Override
+	public IValueWithContextHandler getEquivalentHandler() {
+		return null;
+	}
+
+	@Override
+	public IValueWithContextHandler getExampleHandler() {
+		return null;
 	}
 
 	/**

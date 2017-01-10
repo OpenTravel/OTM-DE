@@ -6,7 +6,7 @@
     <VersionScheme>OTA2</VersionScheme>
     <Status>Draft</Status>
     <Namespace>http://opentravel.org/local/dave/t4/v01</Namespace>
-    <Prefix>t5</Prefix>
+    <Prefix>t3</Prefix>
     <Name>Test5</Name>
     <Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
     <Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
@@ -113,7 +113,7 @@
         </Attribute>
     </ValueWithAttrs>
     
-    <ValueWithAttrs name="Location" type="ota2:Code_IATA_Airport">
+    <ValueWithAttrs name="Location" type="ota2:Empty">
         <Documentation>
             <Description>On location VWA</Description>
         </Documentation>
@@ -181,7 +181,7 @@
         <Value label="" literal="hotel"/>
     </Enumeration_Open>
     
-    <ValueWithAttrs name="Payment" type="ota2:Money">
+    <ValueWithAttrs name="Payment" type="ota2:Empty">
         <Documentation>
             <Description>Amount of the payment.</Description>
         </Documentation>

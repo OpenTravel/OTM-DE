@@ -33,6 +33,7 @@ import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
+import org.opentravel.schemas.node.properties.IValueWithContextHandler;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.ExtensionHandler;
@@ -57,6 +58,11 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 		super(mbr);
 		addMOChildren();
 
+		// Make the parent of the simple attribute this tl object.
+		// Parent is needed for parent type and eq/ex
+		getSimpleAttribute().getTLModelObject().setParentObject(mbr);
+
+		// ParentType is be type assigned to the value facet
 		if (getTLModelObject().getParentType() == null)
 			setSimpleType((TypeProvider) ModelNode.getEmptyNode());
 
@@ -259,6 +265,41 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 	@Override
 	public boolean isAssignableToElementRef() {
 		return false;
+	}
+
+	// TL ValueWithAttributes is direct owner of example and equivalents, not the value facet
+	@Override
+	public String getEquivalent(final String context) {
+		return getSimpleAttribute().getEquivalent(context);
+	}
+
+	/**
+	 * @return equivalent handler from simple attribute
+	 */
+	@Override
+	public IValueWithContextHandler getEquivalentHandler() {
+		return getSimpleAttribute().getEquivalentHandler();
+	}
+
+	/**
+	 * @return example handler from simple attribute
+	 */
+	@Override
+	public IValueWithContextHandler getExampleHandler() {
+		return getSimpleAttribute().getExampleHandler();
+	}
+
+	@Override
+	public String getExample(final String context) {
+		return getSimpleAttribute().getExample(context);
+	}
+
+	public void setEquivalent(final String value) {
+		getSimpleAttribute().setEquivalent(value);
+	}
+
+	public void setExample(final String value) {
+		getSimpleAttribute().setExample(value);
 	}
 
 	// /////////////////////////////////////////////////////////////////

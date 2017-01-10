@@ -97,10 +97,10 @@ public class Find_Tests {
 		qn = new QName("http://opentravel.org/local/dave/t4/v01", "TravelerProfile");
 		assertTrue("Must find node: " + qn, NodeFinders.findNodeByQName(qn) != null);
 
-		qn = new QName("http://services.sabre.com/STL/Examples/v02", "SimpleVWA");
+		qn = new QName("http://opentravel.org/local/dave/t4/v01", "SimpleVWA");
 		assertTrue("Must find node: " + qn, NodeFinders.findNodeByQName(qn) != null);
 
-		qn = new QName("http://services.sabre.com/STL/Test4/v02", "BasicCore");
+		qn = new QName("http://www.opentravel.org/OTM/Test4/v04", "BasicCore");
 		assertTrue("Must find node: " + qn, NodeFinders.findNodeByQName(qn) != null);
 	}
 

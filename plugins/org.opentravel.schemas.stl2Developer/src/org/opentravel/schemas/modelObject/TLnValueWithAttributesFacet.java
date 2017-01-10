@@ -35,11 +35,11 @@ import org.opentravel.schemacompiler.model.TLValueWithAttributes;
  * An substitute TLModelElement to allow constructors to work on the Value With Attributes attribute
  * facet which does not exist in the TL Model.
  */
-public class TLValueWithAttributesFacet extends TLAbstractFacet implements TLAttributeOwner,
+public class TLnValueWithAttributesFacet extends TLAbstractFacet implements TLAttributeOwner,
         TLIndicatorOwner, TLEquivalentOwner, TLExampleOwner {
     private final TLValueWithAttributes tlVWA;
 
-    public TLValueWithAttributesFacet(final TLValueWithAttributes vwa) {
+    public TLnValueWithAttributesFacet(final TLValueWithAttributes vwa) {
         super();
         tlVWA = vwa;
     }

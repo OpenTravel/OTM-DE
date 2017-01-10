@@ -24,11 +24,11 @@ import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 
-public class ValueWithAttributesAttributeFacetMO extends ModelObject<TLValueWithAttributesFacet> {
+public class ValueWithAttributesAttributeFacetMO extends ModelObject<TLnValueWithAttributesFacet> {
 
 	public static final String DISPLAY_NAME = "Attributes";
 
-	public ValueWithAttributesAttributeFacetMO(final TLValueWithAttributesFacet obj) {
+	public ValueWithAttributesAttributeFacetMO(final TLnValueWithAttributesFacet obj) {
 		super(obj);
 	}
 
@@ -116,7 +116,7 @@ public class ValueWithAttributesAttributeFacetMO extends ModelObject<TLValueWith
 	}
 
 	@Override
-	public TLValueWithAttributesFacet getTLModelObj() {
+	public TLnValueWithAttributesFacet getTLModelObj() {
 		return srcObj;
 	}
 

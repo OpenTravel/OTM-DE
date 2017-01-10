@@ -86,7 +86,7 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
 		String filePathParam = exEvent.getParameter("org.opentravel.schemas.stl2Developer.newAction");
-		LOGGER.debug(filePathParam);
+		// LOGGER.debug(filePathParam);
 
 		view = OtmRegistry.getResourceView();
 		setSelected();

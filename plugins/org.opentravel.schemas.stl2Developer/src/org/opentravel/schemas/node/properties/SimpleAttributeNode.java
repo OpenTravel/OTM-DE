@@ -28,6 +28,7 @@ import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.properties.EqExOneValueHandler.ValueWithContextType;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 
@@ -144,6 +145,36 @@ public class SimpleAttributeNode extends PropertyNode {
 	@Override
 	public void setName(String name) {
 		// LOGGER.debug("Tried to set the name of a simple property.");
+	}
+
+	@Override
+	public String getEquivalent(String context) {
+		if (equivalentHandler == null)
+			equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
+		return equivalentHandler != null ? equivalentHandler.get(context) : "";
+	}
+
+	@Override
+	public IValueWithContextHandler setEquivalent(String example) {
+		if (equivalentHandler == null)
+			equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
+		equivalentHandler.set(example, null);
+		return equivalentHandler;
+	}
+
+	@Override
+	public String getExample(String context) {
+		if (exampleHandler == null)
+			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
+		return exampleHandler != null ? exampleHandler.get(context) : "";
+	}
+
+	@Override
+	public IValueWithContextHandler setExample(String example) {
+		if (exampleHandler == null)
+			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
+		exampleHandler.set(example, null);
+		return exampleHandler;
 	}
 
 }

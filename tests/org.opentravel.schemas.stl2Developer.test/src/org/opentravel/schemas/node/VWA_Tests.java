@@ -200,6 +200,46 @@ public class VWA_Tests {
 	}
 
 	@Test
+	public void VWA_EqEx_Tests() {
+		// Given a library and a Simple Type
+		ln = mockLibrary.createNewLibrary("http://opentravel.org/test", "test", defaultProject);
+		ln.setEditable(true);
+		TypeProvider emptyNode = (TypeProvider) ModelNode.getEmptyNode();
+		TypeProvider sType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
+		TLSimple tlsType = (TLSimple) sType.getTLModelObject();
+		assertTrue("Must find tlsType.", tlsType != null);
+		String vName = "TestVWA";
+		String Ex1 = "Example Value 1";
+		String Eq1 = "Equivalent Value 1";
+
+		// Build VWA
+		TLAttribute tlAttr1 = new TLAttribute();
+		tlAttr1.setType(tlsType);
+		tlAttr1.setName("attr1");
+		TLValueWithAttributes thisTLVWA = new TLValueWithAttributes();
+		thisTLVWA.addAttribute(tlAttr1);
+		thisTLVWA.setName(vName + "noParent");
+		VWA_Node thisVWA = new VWA_Node(thisTLVWA);
+		ln.addMember(thisVWA); // needed to set context on eq/ex
+
+		// When - eq and ex set on vwa
+		thisVWA.getExampleHandler().set(Ex1, null);
+		thisVWA.getEquivalentHandler().set(Eq1, null);
+		// Then - can get value
+		assertTrue("Must have same example.", thisVWA.getExample(null).equals(Ex1));
+		assertTrue("Must have same equivalent.", thisVWA.getEquivalent(null).equals(Eq1));
+
+		// Test each child
+		for (Node n : thisVWA.getAttributeFacet().getChildren()) {
+			n.getExampleHandler().set(Ex1, null);
+			n.getEquivalentHandler().set(Eq1, null);
+			// Then - can get value
+			assertTrue("Must have same example.", ((PropertyNode) n).getExample(null).equals(Ex1));
+			assertTrue("Must have same equivalent.", ((PropertyNode) n).getEquivalent(null).equals(Eq1));
+		}
+	}
+
+	@Test
 	public void VWA_ConstructorsTests() {
 		// Given a library and a Simple Type
 		ln = mockLibrary.createNewLibrary("http://opentravel.org/test", "test", defaultProject);
@@ -223,20 +263,25 @@ public class VWA_Tests {
 		tlVWAwithParent.addAttribute(tlAttr1);
 		tlVWAwithParent.setName(vName + "withParent");
 		tlVWAwithParent.setParentType(tlsType);
-		assertTrue("tlVWA has type set.", tlVWAwithParent.getParentType() == tlsType);
+		assertTrue("tlVWA must have type set.", tlVWAwithParent.getParentType() == tlsType);
 
 		// When - construct node from TL object
 		VWA_Node nVwaNoParent = new VWA_Node(tlVWAnoParent);
-		// Then
-		assertTrue("VWA has name set.", nVwaNoParent.getName().startsWith(vName));
-		assertTrue("VWA has 1 child.", nVwaNoParent.getAttributeFacet().getChildren().size() == 1);
 		// Then - value access is recurring problem, test each step
-		assertTrue("VWA is NOT a Type User", !(nVwaNoParent instanceof TypeUser));
-		assertTrue("VWA does NOT have assigned type.", nVwaNoParent.getType() == null);
-		assertTrue("VWA simple facet is NOT a Type User", !(nVwaNoParent instanceof TypeUser));
-		assertTrue("VWA simple facet does NOT have assigned type.", nVwaNoParent.getSimpleFacet().getType() == null);
-		assertTrue("VWA simple attribute is Type User", nVwaNoParent.getSimpleAttribute() instanceof TypeUser);
-		assertTrue("VWA simple attribute has  assigned type.", nVwaNoParent.getSimpleAttribute().getType() == emptyNode);
+		assertTrue("VWA must have name set.", nVwaNoParent.getName().startsWith(vName));
+		assertTrue("VWA must have 1 child.", nVwaNoParent.getAttributeFacet().getChildren().size() == 1);
+		assertTrue("VWA must NOT be a Type User", !(nVwaNoParent instanceof TypeUser));
+		assertTrue("VWA must NOT have assigned type.", nVwaNoParent.getType() == null);
+		// Then - test simple facet
+		assertTrue("VWA must have simple facet.", nVwaNoParent.getSimpleFacet() != null);
+		assertTrue("VWA simple facet must NOT be a Type User", !(nVwaNoParent.getSimpleFacet() instanceof TypeUser));
+		assertTrue("VWA simple facet must NOT have assigned type.", nVwaNoParent.getSimpleFacet().getType() == null);
+		// Then - test simple attribute
+		assertTrue("VWA must have simple attribute.", nVwaNoParent.getSimpleAttribute() != null);
+		assertTrue("VWA simple attribute must be a Type User", nVwaNoParent.getSimpleAttribute() instanceof TypeUser);
+		// Node et = nVwaNoParent.getSimpleAttribute().getType();
+		assertTrue("VWA simple attribute must have Empty as assigned type.", nVwaNoParent.getSimpleAttribute()
+				.getType() == emptyNode);
 
 		// When - construct node from TL object
 		VWA_Node nVwawithParent = new VWA_Node(tlVWAwithParent);

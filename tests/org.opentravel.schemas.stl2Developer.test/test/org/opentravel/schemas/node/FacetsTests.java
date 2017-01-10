@@ -44,7 +44,7 @@ import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.modelObject.FacetMO;
-import org.opentravel.schemas.modelObject.TLValueWithAttributesFacet;
+import org.opentravel.schemas.modelObject.TLnValueWithAttributesFacet;
 import org.opentravel.schemas.node.facets.ChoiceFacetNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.CustomFacetNode;
@@ -135,7 +135,7 @@ public class FacetsTests {
 		assertTrue("Facet must not be null.", tlSf != null);
 		TLValueWithAttributes tlVWA = new TLValueWithAttributes();
 		assertTrue("Facet must not be null.", tlVWA != null);
-		TLValueWithAttributesFacet tlVf = new TLValueWithAttributesFacet(tlVWA);
+		TLnValueWithAttributesFacet tlVf = new TLnValueWithAttributesFacet(tlVWA);
 		assertTrue("Facet must not be null.", tlVf != null);
 	}
 

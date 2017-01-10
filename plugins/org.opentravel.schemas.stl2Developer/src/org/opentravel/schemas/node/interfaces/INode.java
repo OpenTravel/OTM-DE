@@ -23,6 +23,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.properties.IValueWithContextHandler;
 
 /**
  * Interface to nodes in the model.
@@ -87,6 +88,16 @@ public interface INode {
 	 * @return all descendants that are named types.
 	 */
 	public List<Node> getDescendants_LibraryMembers();
+
+	/**
+	 * @return equivalent handler if supported, null otherwise
+	 */
+	public IValueWithContextHandler getEquivalentHandler();
+
+	/**
+	 * @return example handler if supported, null otherwise
+	 */
+	public IValueWithContextHandler getExampleHandler();
 
 	public boolean hasChildren();
 

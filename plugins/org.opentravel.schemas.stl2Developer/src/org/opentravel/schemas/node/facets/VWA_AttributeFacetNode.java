@@ -18,7 +18,7 @@ package org.opentravel.schemas.node.facets;
 import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemas.modelObject.TLValueWithAttributesFacet;
+import org.opentravel.schemas.modelObject.TLnValueWithAttributesFacet;
 import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.Node;
@@ -32,7 +32,7 @@ import org.opentravel.schemas.node.properties.PropertyNodeType;
  */
 public class VWA_AttributeFacetNode extends PropertyOwnerNode {
 
-	public VWA_AttributeFacetNode(TLValueWithAttributesFacet tlObj) {
+	public VWA_AttributeFacetNode(TLnValueWithAttributesFacet tlObj) {
 		super(tlObj);
 
 		assert (modelObject instanceof ValueWithAttributesAttributeFacetMO);
@@ -81,8 +81,8 @@ public class VWA_AttributeFacetNode extends PropertyOwnerNode {
 	}
 
 	@Override
-	public TLValueWithAttributesFacet getTLModelObject() {
-		return (TLValueWithAttributesFacet) (modelObject != null ? modelObject.getTLModelObj() : null);
+	public TLnValueWithAttributesFacet getTLModelObject() {
+		return (TLnValueWithAttributesFacet) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	@Override

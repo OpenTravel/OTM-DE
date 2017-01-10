@@ -105,7 +105,7 @@ public class OtmActions {
 	}
 
 	public void doEvent(final OtmEventData wd) {
-		// LOGGER.debug("Triggered event " + wd.getBusinessEvent() + ".");
+		LOGGER.debug("Triggered event " + wd.getBusinessEvent() + ".");
 		OtmHandlers.suspendHandlers();
 		switch (wd.getBusinessEvent()) {
 		case noOp:
@@ -536,16 +536,11 @@ public class OtmActions {
 
 	private void setExample(final OtmEventData wd) {
 		final Node n = (Node) mc.getCurrentNode_PropertiesView();
-		final String text = wd.getText();
+		// final String text = wd.getText();
 		Event e = new Event();
 		SetDescriptionEqExAction action = new SetDescriptionEqExAction(mc.getMainWindow());
 		e.data = action.new SetDescriptionEvent(n, wd.getText(), SetDescriptionEqExAction.DescriptionType.EXAMPLE);
 		action.runWithEvent(e);
-
-		// if (n instanceof PropertyNode)
-		// ((PropertyNode) n).setExample(text);
-		// else if (n instanceof SimpleTypeNode)
-		// ((SimpleTypeNode) n).setExample(text);
 	}
 
 	public static int setEquivalence() {
@@ -554,16 +549,11 @@ public class OtmActions {
 
 	private void setEquivalence(final OtmEventData wd) {
 		final Node n = (Node) mc.getCurrentNode_PropertiesView();
-		final String text = wd.getText();
+		// final String text = wd.getText();
 		Event e = new Event();
 		SetDescriptionEqExAction action = new SetDescriptionEqExAction(mc.getMainWindow());
 		e.data = action.new SetDescriptionEvent(n, wd.getText(), SetDescriptionEqExAction.DescriptionType.EQUIVALENT);
 		action.runWithEvent(e);
-
-		// if (n instanceof PropertyNode)
-		// ((PropertyNode) n).setEquivalent(text);
-		// else if (n instanceof SimpleTypeNode)
-		// ((SimpleTypeNode) n).setEquivalent(text);
 	}
 
 	public static int setPattern() {

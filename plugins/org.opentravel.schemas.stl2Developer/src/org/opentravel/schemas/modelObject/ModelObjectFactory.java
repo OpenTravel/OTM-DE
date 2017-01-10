@@ -110,8 +110,8 @@ public class ModelObjectFactory {
 			ret = (ModelObject<TL>) new ElementPropertyMO((TLProperty) obj);
 		} else if (obj instanceof TLListFacet) {
 			ret = (ModelObject<TL>) new ListFacetMO((TLListFacet) obj);
-		} else if (obj instanceof TLValueWithAttributesFacet) {
-			ret = (ModelObject<TL>) new ValueWithAttributesAttributeFacetMO((TLValueWithAttributesFacet) obj);
+		} else if (obj instanceof TLnValueWithAttributesFacet) {
+			ret = (ModelObject<TL>) new ValueWithAttributesAttributeFacetMO((TLnValueWithAttributesFacet) obj);
 		} else if (obj instanceof TLSimpleFacet) {
 			ret = (ModelObject<TL>) new SimpleFacetMO((TLSimpleFacet) obj);
 		} else if (obj instanceof TLFacet) {

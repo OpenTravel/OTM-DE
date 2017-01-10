@@ -103,23 +103,24 @@ public class DocumentationNode_Tests {
 
 		// Payment has description
 		Node n = lib1.findNodeByName("Payment");
-		Assert.assertTrue(!n.getDescription().isEmpty());
+		assertTrue(!n.getDescription().isEmpty());
 
 		// PaymentCard_MagneticStrip has description, implementor and more info
 		n = lib1.findNodeByName("PaymentCard_MagneticStrip");
-		Assert.assertTrue(!n.getDescription().isEmpty());
-		Assert.assertTrue(!n.getDocumentation().getImplementers().isEmpty());
-		Assert.assertTrue(!n.getDocumentation().getMoreInfos().isEmpty());
+		assertTrue(!n.getDescription().isEmpty());
+		assertTrue(!n.getDocumentation().getImplementers().isEmpty());
+		assertTrue(!n.getDocumentation().getMoreInfos().isEmpty());
 
+		// TODO - move to eq/ex junit
 		// Date_MMYY has both ex and eq
 		n = lib1.findNodeByName("Date_MMYY");
-		Assert.assertTrue(((SimpleTypeNode) n).getExample(null).isEmpty());
-		Assert.assertTrue(((SimpleTypeNode) n).getEquivalent(null).isEmpty());
+		assertTrue(!((SimpleTypeNode) n).getExample(null).isEmpty());
+		assertTrue(!((SimpleTypeNode) n).getEquivalent(null).isEmpty());
 
 		// Age has both equivalents and examples
 		n = lib1.findNodeByName("Age");
-		Assert.assertTrue(((VWA_Node) n).getExample(null).isEmpty());
-		Assert.assertTrue(((VWA_Node) n).getEquivalent(null).isEmpty());
+		assertTrue(!((VWA_Node) n).getExample(null).isEmpty());
+		assertTrue(!((VWA_Node) n).getEquivalent(null).isEmpty());
 	}
 
 	@Test
