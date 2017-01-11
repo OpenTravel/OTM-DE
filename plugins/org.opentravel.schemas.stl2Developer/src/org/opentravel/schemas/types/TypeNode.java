@@ -96,7 +96,9 @@ public class TypeNode extends Node implements WhereUsedNodeInterface {
 		return owner.isEditable();
 	}
 
-	// Returns the owner - the node that is the type user
+	/**
+	 * Returns the owner - the node that is the type user
+	 */
 	@Override
 	public Node getParent() {
 		Node p = owner;
@@ -106,7 +108,7 @@ public class TypeNode extends Node implements WhereUsedNodeInterface {
 	@Override
 	public String getLabel() {
 		return owner instanceof TypeProvider ? labelProvider.getLabel() + " ("
-				+ ((TypeProvider) owner).getWhereAssignedCount() + ")" : labelProvider.getLabel();
+				+ ((TypeProvider) owner).getWhereUsedAndDescendantsCount() + ")" : labelProvider.getLabel();
 	}
 
 	@Override

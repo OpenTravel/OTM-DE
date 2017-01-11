@@ -50,7 +50,7 @@ public class LoadFiles {
 	private String filePath2 = "Resources" + File.separator + "testFile2.otm";
 	private String filePath3 = "Resources" + File.separator + "testFile3.otm";
 	private String filePath4 = "Resources" + File.separator + "testFile4.otm";
-	private String path5 = "Resources" + File.separator + "testFile5.otm";
+	private String filePath5 = "Resources" + File.separator + "testFile5.otm";
 	private String path5c = "Resources" + File.separator + "testFile5-Clean.otm";
 	private String path6 = "Resources" + File.separator + "testFile6.otm";
 	private String path7 = "Resources" + File.separator + "testFile7.otm";
@@ -128,7 +128,7 @@ public class LoadFiles {
 		files.add(new File(filePath2));
 		files.add(new File(filePath3));
 		files.add(new File(filePath4));
-		files.add(new File(path5));
+		files.add(new File(filePath5));
 		pc.getDefaultProject().add(files);
 		int libCnt = pc.getDefaultProject().getChildren().size();
 		return libCnt;
@@ -263,7 +263,7 @@ public class LoadFiles {
 	}
 
 	public LibraryNode loadFile5(MainController thisModel) {
-		LibraryNode ln = loadFile(thisModel, path5);
+		LibraryNode ln = loadFile(thisModel, filePath5);
 		return ln;
 	}
 

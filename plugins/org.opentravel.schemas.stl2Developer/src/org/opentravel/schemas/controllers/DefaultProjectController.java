@@ -350,7 +350,8 @@ public class DefaultProjectController implements ProjectController {
 			new TypeResolver().resolveTypes();
 			mc.refresh(project);
 		} else
-			LOGGER.warn("Repository item " + ri.getLibraryName() + " not added to project.");
+			LOGGER.warn("Repository item " + ri.getLibraryName()
+					+ " not added to project. No ManagedProjectItems found.");
 
 		// TODO - sync the repository view
 		// LOGGER.debug("Added repository item " + ri.getLibraryName() + " to " + project);

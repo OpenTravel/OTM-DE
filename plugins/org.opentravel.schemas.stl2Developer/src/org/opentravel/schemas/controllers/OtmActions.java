@@ -622,8 +622,11 @@ public class OtmActions {
 		// 10/2016 dmh - restructured logic and fixed bug where DND was different than add for minor versions
 		if (ed.isDragCopy() || tableNode.isUnAssigned()) {
 			// Just set the type
-			if (tableNode instanceof TypeUser && sourceNode instanceof TypeProvider)
+			if (tableNode instanceof TypeUser && sourceNode instanceof TypeProvider) {
 				((TypeUser) tableNode).setAssignedType((TypeProvider) sourceNode);
+				mc.refresh(tableNode);
+				OtmRegistry.getNavigatorView().refresh();
+			}
 		} else {
 			// add property, set mandatory if needed
 			// if needed, create minor version of object

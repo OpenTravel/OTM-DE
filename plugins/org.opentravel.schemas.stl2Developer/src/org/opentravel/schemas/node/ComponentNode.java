@@ -219,21 +219,26 @@ public abstract class ComponentNode extends Node {
 
 	}
 
-	public ComponentNode changeToCoreObject() {
-		if (this instanceof CoreObjectNode) {
-			return this;
-		}
-		if (this instanceof FacetNode) {
+	/**
+	 * Create a core object and replace this object in the library and changes all type assignments to the new core.
+	 * 
+	 * @return
+	 */
+	public CoreObjectNode changeToCoreObject() {
+		if (this instanceof CoreObjectNode)
+			return (CoreObjectNode) this;
+
+		if (this instanceof FacetNode)
 			return ((ComponentNode) getParent()).changeToCoreObject();
-		}
+
 		// LOGGER.debug("Generating Core Object out of " + this.getName());
 
-		ComponentNode newCN = null;
-		if (this instanceof BusinessObjectNode) {
+		CoreObjectNode newCN = null;
+		if (this instanceof BusinessObjectNode)
 			newCN = new CoreObjectNode((BusinessObjectNode) this);
-		} else if (this instanceof VWA_Node) {
+		else if (this instanceof VWA_Node)
 			newCN = new CoreObjectNode((VWA_Node) this);
-		}
+
 		if (newCN != null)
 			swap(newCN);
 		return newCN;

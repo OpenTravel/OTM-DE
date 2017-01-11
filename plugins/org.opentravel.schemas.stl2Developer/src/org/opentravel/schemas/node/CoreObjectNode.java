@@ -76,6 +76,8 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	 * Create new core with same name and documentation as the business object. Copy all ID and summary facet properties
 	 * in to the summary facet. Copy all detail properties into detail facet.
 	 * 
+	 * Note: this core is added to the same library as the business object creating a validation error.
+	 * 
 	 * @param bo
 	 */
 	public CoreObjectNode(BusinessObjectNode bo) {

@@ -66,7 +66,7 @@ public class ChoiceObjectTests {
 	}
 
 	@Test
-	public void constructorTests() {
+	public void CH_ConstructorTests() {
 		LibraryNode ln = mockLibrary.createNewLibrary("http://example.com/choice", "CT", pc.getDefaultProject());
 		ChoiceObjectNode cn = mockLibrary.addChoice(ln, "ChoiceTest1");
 
@@ -74,7 +74,7 @@ public class ChoiceObjectTests {
 	}
 
 	@Test
-	public void getFacetsTests() {
+	public void CH_GetFacetsTests() {
 		LibraryNode ln2 = mockLibrary.createNewLibrary("http://example.com/choice", "CT", pc.getDefaultProject());
 		ChoiceObjectNode c1 = mockLibrary.addChoice(ln2, "Choice");
 
@@ -87,7 +87,7 @@ public class ChoiceObjectTests {
 	}
 
 	@Test
-	public void fileReadTest() throws Exception {
+	public void CH_FileReadTest() throws Exception {
 		LibraryNode testLib = new LoadFiles().loadFile6(mc);
 		LibraryNode ln2 = mockLibrary.createNewLibrary("http://example.com/choice", "CT", pc.getDefaultProject());
 		ChoiceObjectNode extendedChoice = mockLibrary.addChoice(ln2, "ExtendedChoice");
@@ -106,7 +106,7 @@ public class ChoiceObjectTests {
 	}
 
 	@Test
-	public void extensionTests() {
+	public void CH_ExtensionTests() {
 		// Given the choice test file with 2 choice objects
 		LibraryNode ln = new LoadFiles().loadFile_Choice(defaultProject);
 		// new LibraryChainNode(ln); // Test in a chain

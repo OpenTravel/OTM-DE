@@ -82,7 +82,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 	@Override
 	public boolean isEnabled() {
 		Node n = getMainController().getCurrentNode_NavigatorView();
-		if (n == null || !(n instanceof TypeNode) || !((TypeNode) n).isUser())
+		if (n == null || !(n instanceof TypeNode))
 			return false;
 		return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
 	}
@@ -104,15 +104,6 @@ public class AssignTypeAction extends OtmAbstractAction {
 			if (!ret)
 				DialogUserNotifier.openWarning("Warning", "Invalid type assignment");
 
-			// // TEST - this can be very slow when doing 150+ nodes because the setAssigned refreshes the display
-			// if (!((TypeUser) cn).setAssignedType((TypeProvider) newType)) {
-			// ret = false;
-			// DialogUserNotifier.openWarning("Warning", "Invalid type assignment");
-			// // LOGGER.debug("Invalid type assigment: " + newType + " to " + cn);
-			// } else {
-			// // this is all notyfications() does: NodeNameUtils.fixName(cn);
-			// PostTypeChange.notyfications(cn, newType);
-			// }
 			if (last != null && cn.getParent() != last.getParent()) {
 				last = cn;
 				OtmRegistry.getNavigatorView().refresh(last.getParent());
@@ -168,9 +159,10 @@ public class AssignTypeAction extends OtmAbstractAction {
 		// throw new IllegalStateException("Not Implemented Yet.");
 		if (tn.isUser()) {
 			users.add(tn.getParent()); // This is a type node for a specific type user.
-			// } else {
-			// // This is a type node for the type provider.
-			// users.addAll(tn.getParent().getTypeClass().getTypeUsersAndDescendants());
+		} else {
+			// This is a type node for the type provider.
+			for (TypeUser n : ((TypeProvider) tn.getParent()).getWhereAssigned())
+				users.add((Node) n);
 		}
 	}
 

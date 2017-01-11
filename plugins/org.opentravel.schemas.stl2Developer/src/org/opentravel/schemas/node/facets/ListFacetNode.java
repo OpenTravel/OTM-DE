@@ -72,7 +72,7 @@ public class ListFacetNode extends PropertyOwnerNode {
 
 	@Override
 	public String getLabel() {
-		if (isDefaultFacet())
+		if (isDetailListFacet())
 			return ComponentNodeType.DETAIL_LIST.getDescription();
 		return ComponentNodeType.SIMPLE_LIST.getDescription();
 	}

@@ -44,6 +44,8 @@ import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.modelObject.FacetMO;
+import org.opentravel.schemas.modelObject.SimpleAttributeMO;
+import org.opentravel.schemas.modelObject.SimpleFacetMO;
 import org.opentravel.schemas.modelObject.TLnValueWithAttributesFacet;
 import org.opentravel.schemas.node.facets.ChoiceFacetNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
@@ -241,7 +243,7 @@ public class FacetsTests {
 			else if (n instanceof VWA_AttributeFacetNode)
 				checkFacet((VWA_AttributeFacetNode) n);
 			else if (n instanceof RoleFacetNode)
-				checkRoleFacet((RoleFacetNode) n);
+				checkFacet((RoleFacetNode) n);
 			else if (n instanceof FacetNode)
 				checkBaseFacet((FacetNode) n);
 		}
@@ -371,7 +373,7 @@ public class FacetsTests {
 		assertTrue("Library is minor version.", ln.isMinorVersion());
 
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "Core1");
-		checkRoleFacet(core.getRoleFacet());
+		checkFacet(core.getRoleFacet());
 		List<Node> inheritedKids = core.getRoleFacet().getInheritedChildren();
 		// TODO - make sure minor version has inherited children
 	}
@@ -411,19 +413,41 @@ public class FacetsTests {
 	public void checkFacet(ListFacetNode lf) {
 		LOGGER.debug("Checking List Facet Node: " + lf);
 
-		if (lf.isSimpleListFacet())
+		if (lf.isSimpleListFacet()) {
 			LOGGER.debug("Simple List Facet Node");
-		if (lf.isDetailListFacet())
+			assertTrue(lf.getName().startsWith(lf.getOwningComponent().getName()));
+			assertTrue(lf.getName().contains("Simple"));
+			assertTrue(lf.getLabel().equals(ComponentNodeType.SIMPLE_LIST.getDescription()));
+		}
+		if (lf.isDetailListFacet()) {
 			LOGGER.debug("Detail List Facet Node");
-
+			assertTrue(lf.getName().startsWith(lf.getOwningComponent().getName()));
+			assertTrue(lf.getName().contains("Detail"));
+			assertTrue(lf.getLabel().equals(ComponentNodeType.DETAIL_LIST.getDescription()));
+		}
 		assertFalse("Must NOT be delete-able.", lf.isDeleteable());
 		assertFalse("Must NOT be valid parent.", lf.isValidParentOf(PropertyNodeType.ATTRIBUTE));
 		assertFalse("Must NOT be valid parent.", lf.isValidParentOf(PropertyNodeType.ELEMENT));
+		assertFalse("Must NOT be valid parent.", lf.isValidParentOf(PropertyNodeType.INDICATOR));
 	}
 
 	public void checkFacet(SimpleFacetNode sf) {
 		LOGGER.debug("Checking Simple Facet Node: " + sf);
 		assertFalse("Must NOT be delete-able.", sf.isDeleteable());
+
+		assertTrue(sf.getModelObject() instanceof SimpleFacetMO);
+		assertTrue(sf.getTLModelObject() instanceof TLSimpleFacet);
+		assertTrue(sf.getLibrary() == sf.getParent().getLibrary());
+
+		if (sf.getOwningComponent() instanceof VWA_Node) {
+			assertTrue("Simple facet must have 1 child.", sf.getChildren().size() == 1);
+			Node sp = sf.getChildren().get(0);
+			assertTrue(sp instanceof PropertyNode);
+			assertTrue(sp.getModelObject() instanceof SimpleAttributeMO);
+			assertTrue(sp.getType() != null);
+			assertTrue(!sp.getType().getName().isEmpty());
+			assertTrue(sp.getLibrary() == sf.getLibrary());
+		}
 	}
 
 	public void checkFacet(VWA_AttributeFacetNode vf) {
@@ -442,15 +466,49 @@ public class FacetsTests {
 				vf.isValidParentOf(PropertyNodeType.INDICATOR_ELEMENT));
 
 		// Behaviors
-		// Given - a list with a new property
-		List<Node> properties = new ArrayList<Node>();
-		PropertyNode p = new AttributeNode(new TLAttribute(), null);
-		p.setName("attr1");
-		properties.add(p);
-		// When - list is added to attribute facet
-		vf.addProperties(properties, false);
-		// Then
-		assertTrue("Must have new property as child.", vf.getChildren().contains(p));
+		if (vf.getOwningComponent().isEditable()) {
+			// Given - a list with a new property
+			List<Node> properties = new ArrayList<Node>();
+			PropertyNode p = new AttributeNode(new TLAttribute(), null);
+			p.setName("attr1");
+			properties.add(p);
+			// When - list is added to attribute facet
+			vf.addProperties(properties, false);
+			// Then
+			assertTrue("Must have new property as child.", vf.getChildren().contains(p));
+		}
+	}
+
+	/**
+	 * WARNING - ADDS Properties!!!
+	 * 
+	 * @param rf
+	 */
+	public void checkFacet(PropertyOwnerNode rf) {
+		if (rf instanceof ChoiceFacetNode)
+			checkFacet((ChoiceFacetNode) rf);
+		else if (rf instanceof CustomFacetNode)
+			checkFacet((CustomFacetNode) rf);
+		else if (rf instanceof ListFacetNode)
+			checkFacet((ListFacetNode) rf);
+		else if (rf instanceof OperationNode)
+			checkFacet((OperationNode) rf);
+		else if (rf instanceof OperationFacetNode)
+			checkFacet((OperationFacetNode) rf);
+		else if (rf instanceof QueryFacetNode)
+			checkFacet((QueryFacetNode) rf);
+		else if (rf instanceof QueryFacetNode)
+			checkFacet((QueryFacetNode) rf);
+		else if (rf instanceof RoleFacetNode)
+			checkFacet((RoleFacetNode) rf);
+		else if (rf instanceof SimpleFacetNode)
+			checkFacet((SimpleFacetNode) rf);
+		else if (rf instanceof UpdateFacetNode)
+			checkFacet((UpdateFacetNode) rf);
+		else if (rf instanceof VWA_AttributeFacetNode)
+			checkFacet((VWA_AttributeFacetNode) rf);
+		else
+			checkBaseFacet(rf);
 	}
 
 	public void checkFacet(OperationNode sf) {
@@ -467,66 +525,70 @@ public class FacetsTests {
 	}
 
 	public void checkBaseFacet(PropertyOwnerNode fn) {
-		LOGGER.debug("Checking Facet: " + fn);
 		if (fn.isIDFacet())
-			LOGGER.debug("Checking id Facet: " + fn);
-		if (fn.isSummaryFacet())
-			LOGGER.debug("Checking summary Facet: " + fn);
-		if (fn.isDetailFacet())
-			LOGGER.debug("Checking detail Facet: " + fn);
-		if (fn instanceof ListFacetNode) {
-			if (((ListFacetNode) fn).isSimpleListFacet())
-				LOGGER.debug("Checking simple list Facet: " + fn);
-			if (((ListFacetNode) fn).isDetailListFacet())
-				LOGGER.debug("Checking detail list Facet: " + fn);
+			LOGGER.debug("Checking Id Facet:      " + fn);
+		else if (fn.isSummaryFacet())
+			LOGGER.debug("Checking Summary Facet: " + fn);
+		else if (fn.isDetailFacet())
+			LOGGER.debug("Checking Detail Facet:  " + fn);
+		else
+			LOGGER.debug("Checking Facet:         " + fn + " of type " + fn.getFacetType());
+
+		// Check children
+		for (Node property : fn.getChildren()) {
+			if (property instanceof AliasNode)
+				continue;
+			assertTrue(property instanceof PropertyNode);
+			assertTrue(property.getType() != null);
+			assertTrue(property.getParent() == fn);
 		}
 
 		assertTrue("Must be valid parent to attributes.", fn.isValidParentOf(PropertyNodeType.ATTRIBUTE));
 		assertTrue("Must be valid parent to elements.", fn.isValidParentOf(PropertyNodeType.ELEMENT));
-		assertFalse("Must NOT be delete-able.", fn.isDeleteable());
 
-		// assertTrue("Must be assignable.", qn.isAssignable());
-		// assertTrue("Must be assignable to complex.", qn.isComplexAssignable());
-		// assertTrue("Must be type provider.", qn.isTypeProvider());
-		// assertFalse("May be default facet.", qn.isDefaultFacet());
-
-		// assertFalse("Must be renamable.", qn.isRenameable());
-		// assertFalse("Must NOT be assignable to element ref", qn.isAssignableToElementRef());
-		// assertFalse("Must NOT be assignable to simple.", qn.isAssignableToSimple());
-		// assertFalse("Must NOT be assignable to simple.", qn.isSimpleAssignable());
-		// assertFalse("Must NOT be assignable to VWA.", qn.isAssignableToVWA());
-		// assertFalse("Must be query facet.", qn.isQueryFacet());
-		// assertFalse("Must NOT be custom facet.", qn.isCustomFacet());
-		// assertFalse("Must NOT be named type.", qn.isNamedType());
+		if (fn.isIDFacet() || fn.isDetailFacet() || fn.isSummaryFacet())
+			assertFalse("Must NOT be delete-able.", fn.isDeleteable());
 
 		// Behaviors
-		AttributeNode attr = new AttributeNode(fn, "att1");
-		ElementNode ele = new ElementNode(fn, "ele1");
-		assertTrue("Must be able to add attributes.", attr.getParent() == fn);
-		assertTrue("Must be able to add elements.", ele.getParent() == fn);
+		if (fn.getOwningComponent().isEditable()) {
+			AttributeNode attr = new AttributeNode(fn, "att1");
+			ElementNode ele = new ElementNode(fn, "ele1");
+			assertTrue("Must be able to add attributes.", attr.getParent() == fn);
+			assertTrue("Must be able to add elements.", ele.getParent() == fn);
 
-		// Create array of attribute and element properties to add
-		List<Node> properties = new ArrayList<Node>();
-		attr = new AttributeNode(new TLAttribute(), null);
-		ele = new ElementNode(new TLProperty(), null);
-		attr.setName("attr1");
-		ele.setName("ele1");
-		properties.add(attr);
-		properties.add(ele);
+			// Create array of attribute and element properties to add
+			List<Node> properties = new ArrayList<Node>();
+			AttributeNode attr2 = new AttributeNode(new TLAttribute(), null);
+			ElementNode ele2 = new ElementNode(new TLProperty(), null);
+			attr2.setName("att2");
+			ele2.setName("ele2");
+			properties.add(attr2);
+			properties.add(ele2);
 
-		// Then add using facet method
-		fn.addProperties(properties, false);
-		assertTrue("Must have new property as child.", fn.getChildren().contains(attr));
-		assertTrue("Must have new property as child.", fn.getChildren().contains(ele));
+			// Then add using facet method
+			fn.addProperties(properties, false);
+			assertTrue("Must have new property as child.", fn.getChildren().contains(attr2));
+			assertTrue("Must have new property as child.", fn.getChildren().contains(ele2));
+
+			// Then remove them
+			attr.delete();
+			ele.delete();
+			attr2.delete();
+			ele2.delete();
+		}
 	}
 
 	public void checkFacet(QueryFacetNode qn) {
-		LOGGER.debug("Checking query Facet: " + qn);
-		assertTrue("Must be delete-able.", qn.isDeleteable());
+		LOGGER.debug("Checking Query Facet: " + qn);
+		checkBaseFacet(qn);
+		if (qn.getOwningComponent().isEditable())
+			assertTrue("Must be delete-able.", qn.isDeleteable());
 	}
 
 	public void checkFacet(ContextualFacetNode rf) {
 		LOGGER.debug("Checking Contextual Facet: " + rf);
+		checkBaseFacet(rf);
+
 		final String NEWNAME = "myName";
 
 		// final String NEWCONTEXT = "myContext"; // must be ignored
@@ -581,21 +643,24 @@ public class FacetsTests {
 	}
 
 	public void checkFacet(UpdateFacetNode qn) {
-		LOGGER.debug("Checking contextual Facet: " + qn);
+		LOGGER.debug("Checking Update Contextual Facet: " + qn);
 		assertTrue("Must be delete-able.", qn.isDeleteable());
 	}
 
 	public void checkFacet(CustomFacetNode qn) {
-		LOGGER.debug("Checking Facet: " + qn);
-		assertTrue("Must be delete-able.", qn.isDeleteable());
+		LOGGER.debug("Checking Custom Facet: " + qn);
+		checkBaseFacet(qn);
+		if (qn.getOwningComponent().isEditable())
+			assertTrue("Must be delete-able.", qn.isDeleteable());
 	}
 
 	public void checkFacet(ChoiceFacetNode qn) {
 		LOGGER.debug("Checking Facet: " + qn);
 		assertTrue("Must be delete-able.", qn.isDeleteable());
+		checkBaseFacet(qn);
 	}
 
-	public void checkRoleFacet(RoleFacetNode roleFacetNode) {
+	public void checkFacet(RoleFacetNode roleFacetNode) {
 		LOGGER.debug("Checking Facet: " + roleFacetNode);
 
 		assertTrue("Must be role facet.", roleFacetNode instanceof RoleFacetNode);

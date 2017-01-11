@@ -42,11 +42,14 @@ import org.opentravel.schemacompiler.validate.ValidationFinding;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.node.BusinessObjectTests;
 import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.CoreObjectNode;
+import org.opentravel.schemas.node.CoreObjectTests;
 import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.ExtensionPointNode;
+import org.opentravel.schemas.node.FacetsTests;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
@@ -54,7 +57,9 @@ import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.VWA_Tests;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -280,6 +285,11 @@ public class MockLibrary {
 	 * @return new business object with properties or null if library is not editable
 	 */
 	public BusinessObjectNode addBusinessObjectToLibrary(LibraryNode ln, String name) {
+		for (Node n : ln.getDescendants_LibraryMembers())
+			if (n.getName().equals(name)) {
+				LOGGER.warn("Tried to create a business object with duplicate name: " + name);
+				return (BusinessObjectNode) n;
+			}
 		BusinessObjectNode newNode = addBusinessObjectToLibrary_Empty(ln, name);
 		if (newNode == null)
 			return null;
@@ -299,7 +309,10 @@ public class MockLibrary {
 		new ElementReferenceNode(newNode.addFacet("c1" + name, TLFacetType.CUSTOM), "TestEleRef" + name, newNode);
 		new AttributeNode(newNode.addFacet("q1" + name, TLFacetType.QUERY), "TestAttribute2" + name, string);
 
-		assertTrue("Library must be valid with new BO.", ln.isValid()); // validates TL library
+		if (!ln.isValid()) {
+			printValidationFindings(ln);
+			assertTrue("Library must be valid with new BO.", ln.isValid()); // validates TL library
+		}
 		LOGGER.debug("Created business object " + name);
 		return ln.isEditable() ? newNode : null;
 	}
@@ -543,4 +556,27 @@ public class MockLibrary {
 		return resource;
 	}
 
+	public void printValidationFindings(Node n) {
+		ValidationFindings findings = n.validate();
+		for (ValidationFinding finding : findings.getAllFindingsAsList())
+			LOGGER.debug(finding.getFormattedMessage(FindingMessageFormat.DEFAULT));
+	}
+
+	public void checkObject(Node node) {
+		assertTrue(node != null);
+		if (node instanceof BusinessObjectNode)
+			new BusinessObjectTests().checkBusinessObject((BusinessObjectNode) node);
+		if (node instanceof CoreObjectNode)
+			new CoreObjectTests().checkCore((CoreObjectNode) node);
+		if (node instanceof VWA_Node)
+			new VWA_Tests().checkVWA((VWA_Node) node);
+		if (node instanceof PropertyOwnerNode)
+			new FacetsTests().checkFacet((PropertyOwnerNode) node);
+
+		if (!node.isValid()) {
+			printValidationFindings(node);
+			assertTrue("Node must be valid.", node.isValid());
+		}
+
+	}
 }

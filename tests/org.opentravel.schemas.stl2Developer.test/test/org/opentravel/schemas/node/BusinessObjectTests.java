@@ -21,8 +21,9 @@ package org.opentravel.schemas.node;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.facets.FacetNode;
@@ -46,32 +47,123 @@ import org.slf4j.LoggerFactory;
 public class BusinessObjectTests {
 	static final Logger LOGGER = LoggerFactory.getLogger(MockLibrary.class);
 
+	ModelNode model = null;
+	MockLibrary ml = null;
+	LibraryNode ln = null;
+	MainController mc;
+	DefaultProjectController pc;
+	ProjectNode defaultProject;
+	LoadFiles lf = null;
 	TestNode tn = new NodeTesters().new TestNode();
+	TypeProvider emptyNode = null;
+	TypeProvider sType = null;
 
-	@Test
-	public void businessObjectTest() throws Exception {
-		MainController mc = new MainController();
-		LoadFiles lf = new LoadFiles();
-
-		LibraryNode lib = lf.loadFile4(mc);
-		int i = 0;
-		for (Node bo : lib.getDescendants_LibraryMembers()) {
-			i++;
-			if (bo instanceof BusinessObjectNode)
-				checkBO((BusinessObjectNode) bo);
-		}
-		// Repeat test with library in a chain
-		LibraryChainNode lcn = new LibraryChainNode(lib);
-		for (Node bo : lcn.getDescendants_LibraryMembers()) {
-			i--;
-			if (bo instanceof BusinessObjectNode)
-				checkBO((BusinessObjectNode) bo);
-		}
-		Assert.assertEquals(0, i); // Make sure we didn't lose objects when library was managed
+	@Before
+	public void beforeEachTest() {
+		mc = new MainController();
+		ml = new MockLibrary();
+		pc = (DefaultProjectController) mc.getProjectController();
+		defaultProject = pc.getDefaultProject();
+		lf = new LoadFiles();
+		emptyNode = (TypeProvider) ModelNode.getEmptyNode();
+		sType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 	}
 
 	@Test
-	public void extendedBO() {
+	public void BO_ConstructorsTests() {
+
+	}
+
+	// factory tests
+	@Test
+	public void BO_FactoryTests() {
+
+	}
+
+	// load from library tests
+	@Test
+	public void BO_LibraryLoadTests() throws Exception {
+		lf.loadTestGroupA(mc);
+
+		for (LibraryNode lib : mc.getModelNode().getUserLibraries()) {
+			for (Node bo : lib.getDescendants_LibraryMembers()) {
+				if (bo instanceof BusinessObjectNode)
+					checkBusinessObject((BusinessObjectNode) bo);
+			}
+			// Repeat test with library in a chain
+			LibraryChainNode lcn = new LibraryChainNode(lib);
+			for (Node bo : lcn.getDescendants_LibraryMembers()) {
+				if (bo instanceof BusinessObjectNode)
+					checkBusinessObject((BusinessObjectNode) bo);
+			}
+		}
+	}
+
+	/**
+	 * all tests to be used in these tests and by other junits
+	 */
+	public boolean checkBusinessObject(BusinessObjectNode bo) {
+
+		// Check fixed structure
+		assertTrue("Must have identity listener.", Node.GetNode(bo.getTLModelObject()) == bo);
+		assertTrue("Must have id facet.", bo.getIDFacet() != null);
+		assertTrue("ID Facet parent must be bo.", ((Node) bo.getIDFacet()).getParent() == bo);
+		assertTrue("TL Facet must report this is ID facet.", bo.getIDFacet().isIDFacet());
+
+		assertTrue("Must have summary facet.", bo.getSummaryFacet() != null);
+		assertTrue("Summary Facet parent must be bo.", ((Node) bo.getSummaryFacet()).getParent() == bo);
+		assertTrue("TL Facet must report this is Summary facet.", bo.getSummaryFacet().isSummaryFacet());
+
+		assertTrue("Must have detail facet.", bo.getDetailFacet() != null);
+		assertTrue("Facet parent must be bo.", ((Node) bo.getDetailFacet()).getParent() == bo);
+		assertTrue("TL Facet must report this is Detail facet.", bo.getDetailFacet().isDetailFacet());
+		assertTrue(bo.getAttributeFacet() == null); // It does not have one.
+		assertTrue("Must have TL Busness Object.", bo.getTLModelObject() instanceof TLBusinessObject);
+
+		// Is assertions
+		assertTrue("If editable it must also be aliasable.", bo.isAliasable() == bo.isEditable_newToChain());
+		assertTrue("", bo.isExtensibleObject());
+		assertTrue("", bo.isNamedEntity());
+		assertTrue("", bo.isNamedType());
+		assertTrue("", bo instanceof TypeProvider);
+
+		// check name and label
+		assertTrue("BO must have a name.", !bo.getName().isEmpty());
+		assertTrue("BO must have a label.", !bo.getLabel().isEmpty());
+
+		// Check everything's library
+		assertTrue(bo.getLibrary() != null);
+		LibraryNode thisLib = bo.getLibrary();
+		for (Node n : bo.getDescendants()) {
+			assertTrue(n.getLibrary() == thisLib);
+			assertTrue(n.getOwningComponent() == bo);
+			assertTrue("Must not be deleted.", !n.isDeleted());
+			assertTrue("Must have identity listener.", Node.GetNode(n.getTLModelObject()) == n);
+		}
+
+		// Parent Links
+		assertTrue("BO must be child of parent.", bo.getParent().getChildren().contains(bo));
+		assertTrue("BO must be in list only once.", bo.getParent().getChildren().indexOf(bo) == bo.getParent()
+				.getChildren().lastIndexOf(bo));
+
+		// must have at least 3 children
+		assertTrue(3 <= bo.getChildren().size());
+
+		// Check all the children
+		for (Node n : bo.getChildren())
+			ml.checkObject(n);
+
+		tn.visit(bo);
+
+		return true;
+	}
+
+	/**
+	 * Business Object Specific Tests *******************************************************
+	 * 
+	 */
+	@Test
+	public void BO_ExensionTests() {
 		MainController mc = new MainController();
 		LoadFiles lf = new LoadFiles();
 		MockLibrary ml = new MockLibrary();
@@ -86,51 +178,32 @@ public class BusinessObjectTests {
 		for (Node n : ln.getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode && n != extendedBO) {
 				extendedBO.setExtension(n);
-				checkBO((BusinessObjectNode) n);
-				checkBO(extendedBO);
+				checkBusinessObject((BusinessObjectNode) n);
+				checkBusinessObject(extendedBO);
 			}
 		// see also org.opentravel.schemas.node.InheritedChildren_Tests
 	}
 
 	@Test
-	public void changeToBO() {
+	public void BO_ChangeToTests() {
 		MockLibrary ml = new MockLibrary();
 		MainController mc = new MainController();
 		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
 
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		BusinessObjectNode tbo = null;
 		ml.addBusinessObjectToLibrary(ln, "bo");
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "vwa");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "co");
 		new ElementNode(core.getSummaryFacet(), "TE2", vwa);
 
-		int typeCount = ln.getDescendants_LibraryMembers().size();
-		Assert.assertEquals(1, vwa.getWhereAssigned().size());
-
-		tbo = (BusinessObjectNode) core.changeToBusinessObject();
+		// When VWA and Core are changed
+		BusinessObjectNode tboCore = (BusinessObjectNode) core.changeToBusinessObject();
 		BusinessObjectNode tboVwa = (BusinessObjectNode) vwa.changeToBusinessObject();
 
-		// Fail if in the list more than once.
-		Assert.assertTrue("Not child", tbo.getParent().getChildren().contains(tbo));
-		Assert.assertTrue(tbo.getParent().getChildren().indexOf(tbo) == tbo.getParent().getChildren().lastIndexOf(tbo));
-		Assert.assertTrue(tboVwa.getParent().getChildren().indexOf(tboVwa) == tboVwa.getParent().getChildren()
-				.lastIndexOf(tboVwa));
-
-		core.setLibrary(tbo.getLibrary());
-		core.delete(); // does nothing unless lib is not null
-		vwa.setLibrary(tboVwa.getLibrary());
-		vwa.delete();
-
-		checkBO(tbo);
-		checkBO(tboVwa);
-		tn.visit(ln);
-		Assert.assertEquals(typeCount, ln.getDescendants_LibraryMembers().size());
-		Assert.assertEquals(1, tboVwa.getWhereAssigned().size());
-
-		// FIXME
-		// is CO duplicated in the family?
+		// Then
+		checkBusinessObject(tboCore);
+		checkBusinessObject(tboVwa);
 
 		// Same test, but as part of a chain
 		LibraryChainNode lcn = new LibraryChainNode(ln); // make sure is version safe
@@ -138,67 +211,16 @@ public class BusinessObjectTests {
 		vwa = ml.addVWA_ToLibrary(ln, "vwa2");
 		new ElementNode(core.getSummaryFacet(), "TestElement").setAssignedType(vwa);
 
-		typeCount = ln.getDescendants_LibraryMembers().size();
-		Assert.assertEquals(typeCount, lcn.getDescendants_LibraryMembers().size()); // check get descendants
-
-		tbo = (BusinessObjectNode) core.changeToBusinessObject();
+		tboCore = (BusinessObjectNode) core.changeToBusinessObject();
 		tboVwa = (BusinessObjectNode) vwa.changeToBusinessObject();
+		checkBusinessObject(tboCore);
+		checkBusinessObject(tboVwa);
 
-		core.setLibrary(tbo.getLibrary());
-		core.delete(); // does nothing unless lib is not null
-		vwa.setLibrary(tboVwa.getLibrary());
-		vwa.delete();
-
-		int tc2 = lcn.getDescendants_LibraryMembers().size();
-		// on a chain only aggregates are counted. Must be equal to library count.
-		Assert.assertEquals(tc2, typeCount);
-		// printDescendants(ln);
-		// printDescendants(lcn);
-
-		Assert.assertEquals(typeCount, ln.getDescendants_LibraryMembers().size());
-		Assert.assertEquals(1, tboVwa.getWhereAssigned().size());
-	}
-
-	/**
-	 * Check the business object.
-	 */
-	public void checkBO(BusinessObjectNode bo) {
-		tn.visit(bo);
-
-		Assert.assertNotNull(bo.getLibrary());
-		Assert.assertTrue(bo instanceof BusinessObjectNode);
-		Assert.assertNull(bo.getAttributeFacet());
-
-		// must have 3 children
-		Assert.assertTrue(3 <= bo.getChildren().size());
-
-		assertNotNull("Must have id facet.", bo.getIDFacet());
-		assertTrue("Facet parent must be bo.", ((Node) bo.getIDFacet()).getParent() == bo);
-
-		assertNotNull("Must have summary facet.", bo.getSummaryFacet());
-		assertTrue("Facet parent must be bo.", ((Node) bo.getSummaryFacet()).getParent() == bo);
-		for (Node property : bo.getSummaryFacet().getChildren()) {
-			assertTrue(property instanceof PropertyNode);
-			assertTrue(property.getType() != null);
-			assertTrue(property.getLibrary() == bo.getLibrary());
-			assertTrue(property.getParent() == bo.getSummaryFacet());
-		}
-
-		assertNotNull("Must have detail facet.", bo.getDetailFacet());
-		assertTrue("Facet parent must be bo.", ((Node) bo.getDetailFacet()).getParent() == bo);
-		for (Node property : bo.getDetailFacet().getChildren()) {
-			assertTrue(property instanceof PropertyNode);
-			assertTrue(property.getType() != null);
-			assertTrue("Must have name.", !property.getType().getName().isEmpty());
-			assertTrue(property.getLibrary() == bo.getLibrary());
-			assertTrue(property.getParent() == bo.getDetailFacet());
-		}
-
-		tn.visit(bo);
+		// TODO - validate where assigned was changed
 	}
 
 	@Test
-	public void facetAsTypeOnLoad() {
+	public void BO_facetAsType() {
 		MainController mc = new MainController();
 		LoadFiles lf = new LoadFiles();
 		LibraryNode ln = lf.loadFile1(mc);
@@ -219,16 +241,22 @@ public class BusinessObjectTests {
 		for (Node n : ln.getDescendants_LibraryMembers())
 			if (n.getName().equals("Profile"))
 				bo = (BusinessObjectNode) n;
-		assert bo != null;
+		assertTrue("Profile object must be in test 1.", bo != null);
+
 		// Check facets
+		final int expectedFacetCount = 5;
 		int facetCnt = 0;
 		for (Node n : bo.getChildren())
 			if (n instanceof FacetNode) {
 				facetCnt++;
-				user.setAssignedType((TypeProvider) n);
-				assert user.getAssignedType() == n;
+				user.setAssignedType((FacetNode) n);
+				assertTrue("User must be assigned facet as type.", user.getAssignedType() == n);
+				assertTrue("Facet must have user in where assigned list.",
+						((FacetNode) n).getWhereAssigned().contains(user));
 			}
-		assert facetCnt == 5;
+		assertTrue("Profile business object in test 1 must have " + expectedFacetCount + " facets.",
+				facetCnt == expectedFacetCount);
+
 		// check alias
 		int aliasCnt = 0;
 		for (Node n : bo.getChildren())
@@ -241,12 +269,8 @@ public class BusinessObjectTests {
 	}
 
 	@Test
-	public void nameChange() {
+	public void BO_NameChangeTests() {
 		// On name change, all users of the BO and its aliases and facets also need to change.
-		MockLibrary ml = new MockLibrary();
-		MainController mc = new MainController();
-		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
-		ProjectNode defaultProject = pc.getDefaultProject();
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 
 		// Given - a Business Object with alias
@@ -310,24 +334,6 @@ public class BusinessObjectTests {
 		// Then - all type users of those aliases must change name
 		assertTrue("Element name must start with changed alias name.", pBOSumAlias.getName().startsWith(aliasName2));
 		assertTrue("Element name must start with changed alias name.", pAlias1.getName().startsWith(aliasName2));
-	}
-
-	@Test
-	public void FacetAsType() {
-		// Facets as types throw the resolver off because they have type names not types.
-		MockLibrary ml = new MockLibrary();
-		MainController mc = new MainController();
-		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
-		ProjectNode defaultProject = pc.getDefaultProject();
-		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "tbo");
-		TypeUser user = bo.getDescendants_TypeUsers().get(1);
-
-		// NamedEntity userType = user.getTLTypeObject();
-		Assert.assertNotNull(user.getAssignedTLObject());
-
-		user.setAssignedType((TypeProvider) bo.getDetailFacet());
-		Assert.assertNotNull(user.getTLModelObject());
 	}
 
 }

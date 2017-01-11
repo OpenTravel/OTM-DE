@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.functional;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -23,6 +23,20 @@ import org.junit.Test;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.AliasNode;
+import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.node.ChoiceObjectNode;
+import org.opentravel.schemas.node.CoreObjectNode;
+import org.opentravel.schemas.node.EnumerationClosedNode;
+import org.opentravel.schemas.node.EnumerationOpenNode;
+import org.opentravel.schemas.node.ExtensionPointNode;
+import org.opentravel.schemas.node.ImpliedNode;
+import org.opentravel.schemas.node.ModelNode;
+import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.NodeFinders;
+import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.SimpleTypeNode;
+import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.MockLibrary;

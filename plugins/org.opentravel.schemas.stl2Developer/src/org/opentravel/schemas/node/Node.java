@@ -1988,6 +1988,8 @@ public abstract class Node implements INode {
 		if (isBuiltIn())
 			return true; // skip built in libraries and their content
 		ValidationFindings findings = validate();
+		// if (findings.count(FindingType.ERROR) > 0)
+		// LOGGER.debug("Validation found errors.");
 		return findings != null && findings.count(FindingType.ERROR) == 0 ? true : false;
 	}
 
