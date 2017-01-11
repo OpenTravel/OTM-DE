@@ -268,10 +268,10 @@
             <Indicator name="syncInd" publishAsElement="false"/>
             <Indicator name="holdInd" publishAsElement="false"/>
         </Detail>
-        <Query context="Profile" label="" notExtendable="true">
+        <Query context="Profile" label="Profile" notExtendable="true">
             <Element name="Phones" repeat="0" type="Phone_Simple_List"/>
         </Query>
-        <Custom context="Legacy" label="" notExtendable="false">
+        <Custom context="Legacy" label="Legacy" notExtendable="false">
             <Element name="Remarks" repeat="0" type="String_Long">
                 <Example context="Profile">Remarks</Example>
             </Element>

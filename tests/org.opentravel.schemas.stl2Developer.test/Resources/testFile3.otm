@@ -5,51 +5,51 @@
     
     <VersionScheme>OTA2</VersionScheme>
     <Status>Draft</Status>
-    <Namespace>http://opentravel.org/local/dave/t4/v01</Namespace>
-    <Prefix>t3</Prefix>
+    <Namespace>http://www.opentravel.org/Sandbox/junits/v1</Namespace>
+    <Prefix>tga</Prefix>
     <Name>Test3</Name>
     <Includes>testFile5.otm</Includes>
     <Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
     <Context applicationContext="Default" context="default"/>
     
     <ValueWithAttrs name="AttributeGroupVWA" type="ota2:Empty">
-        <Attribute name="agentDuty" type="ota2:Code_AgentDuty">
+        <Attribute name="agentDuty" type="String_Short">
             <Documentation>
                 <Description>Typically a two to five character code (alpha, numeric, or combination) that specifies a travel agent duty code that is used for agency authentication.</Description>
             </Documentation>
         </Attribute>
-        <Attribute name="city" type="ota2:Code_IATA_City">
+        <Attribute name="city" type="String_Short">
             <Documentation>
                 <Description>A three character code for a city.</Description>
             </Documentation>
         </Attribute>
-        <Attribute name="ERSP" type="ota2:Code_IATA_ERSP">
+        <Attribute name="eRSP" type="String_Short">
             <Documentation>
                 <Description>A unique IATA (in cooperation with ATA and ARC) code used as a means of identification when performing online bookings with airlines.</Description>
             </Documentation>
         </Attribute>
-        <Attribute name="state" type="ota2:Code_State">
+        <Attribute name="state" type="String_Short">
             <Documentation>
                 <Description>A 2 character abbreviation for a state.</Description>
             </Documentation>
         </Attribute>
-        <Attribute name="tour" type="ota2:Code_Tour">
+        <Attribute name="tour" type="String_Short">
             <Documentation>
                 <Description>Up to a 32 character numeric or alphanumeric tour code.</Description>
             </Documentation>
         </Attribute>
     </ValueWithAttrs>
     
-    <ValueWithAttrs name="SimpleVWA" type="ota2:Name_Location">
+    <ValueWithAttrs name="SimpleVWA" type="ota2:Empty">
         <Documentation>
             <Description>full name</Description>
         </Documentation>
-        <Attribute name="fullname" type="ota2:Name_Proper">
+        <Attribute name="fullname" type="String_Short">
             <Documentation>
                 <Description>A name used to describe a person, place or thing, such as a hotel, airport or company.</Description>
             </Documentation>
         </Attribute>
-        <Attribute name="nickname" type="ota2:String_Medium">
+        <Attribute name="nickname" type="String_Short">
             <Documentation>
                 <Description>commonly used name</Description>
             </Documentation>

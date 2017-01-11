@@ -5,26 +5,30 @@
     
     <VersionScheme>OTA2</VersionScheme>
     <Status>Draft</Status>
-    <Namespace>http://www.opentravel.org/OTM/Test4/v04</Namespace>
+    <Namespace>http://www.opentravel.org/Sandbox/junits/ns4/v4</Namespace>
     <Prefix>t4</Prefix>
     <Name>Test4</Name>
-    <Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
+    <Import fileHints="otm://Opentravel/Common_0_0_0.otm"
+        namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
+    <Import fileHints="testFile5.otm"
+        namespace="http://www.opentravel.org/Sandbox/junits/v1" prefix="tga"/>
+    <Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
     <Context applicationContext="Default" context="default"/>
     
-    <CoreObject name="StandardCore" notExtendable="false">
+    <CoreObject name="StandardCore4" notExtendable="false">
         <Aliases/>
-        <Simple type="ota2:Empty"/>
+        <Simple type="tga:String_Short"/>
         <Summary>
-            <Attribute name="flight_Number" type="ota2:Name_Location"/>
-            <Element name="Age" repeat="0" type="ota2:Name_Proper"/>
-            <Element name="AirlineSpecification" repeat="0" type="ota2:Date_YYYY"/>
-            <Element name="Flight_Misc" repeat="0" type="ota2:Date_Timestamp"/>
+            <Attribute name="flight_Number" type="tga:String_Short"/>
+            <Element name="Age" repeat="0" type="tga:Age"/>
+            <Element name="AirlineSpecification" repeat="0" type="tga:String_Medium"/>
+            <Element name="Flight_Misc" repeat="0" type="tga:String_Short"/>
             <Indicator name="testInd" publishAsElement="false"/>
         </Summary>
         <Detail>
-            <Attribute name="pRBD" type="ota2:Date_DateTime"/>
-            <Element name="RequestedDetailLevel" repeat="0" type="ota2:Date_Date"/>
-            <Element name="RestrictedPayload" repeat="0" type="ota2:Date_Birth"/>
+            <Attribute name="pRBD" type="tga:String_Short"/>
+            <Element name="RequestedDetailLevel" repeat="0" type="tga:String_Short"/>
+            <Element name="RestrictedPayload" repeat="0" type="tga:String_Short"/>
         </Detail>
         <Roles>
             <Role value="StdRole"/>
@@ -33,26 +37,26 @@
         </Roles>
     </CoreObject>
     
-    <CoreObject name="BasicCore" notExtendable="false">
+    <CoreObject name="BasicCore4" notExtendable="false">
         <Aliases/>
-        <Simple type="ota2:Empty"/>
+        <Simple type="tga:String_Short"/>
         <Summary>
-            <Attribute name="flightNum" type="ota1:String_Short"/>
-            <Element name="Age" repeat="0" type="ota2:Date_Birth"/>
-            <Element name="Flight_Misc" repeat="0" type="ota2:String_Medium"/>
-            <Element name="AirlineSpecification" repeat="0" type="ota1:String_Long"/>
+            <Attribute name="flightNum" type="tga:String_Medium"/>
+            <Element name="Age" repeat="0" type="tga:Age"/>
+            <Element name="Flight_Misc" repeat="0" type="tga:String_Medium"/>
+            <Element name="AirlineSpecification" repeat="0" type="tga:String_Short"/>
             <Indicator name="testInd" publishAsElement="false"/>
         </Summary>
         <Detail/>
     </CoreObject>
     
     <CoreObject name="CoreExtension" notExtendable="false">
-        <Extension extends="StandardCore"/>
+        <Extension extends="StandardCore4"/>
         <Aliases/>
         <Simple type="ota2:Empty"/>
         <Summary>
-            <Attribute name="aircraft_Type" type="ota1:String_Tiny"/>
-            <Element name="Aircraft_Configuration" repeat="0" type="ota1:String_Tiny"/>
+            <Attribute name="aircraft_Type" type="tga:String_Long"/>
+            <Element name="Aircraft_Configuration" repeat="0" type="tga:String_Medium"/>
         </Summary>
         <Detail>
             <Element name="MealService_TypeList" repeat="0" type="ota2:Price"/>
@@ -62,10 +66,10 @@
     <BusinessObject name="StdCoreProperties" notExtendable="false">
         <Aliases/>
         <ID>
-            <Element name="StandardCore_Simple" repeat="0" type="StandardCore_Simple"/>
+            <Element name="StandardCore_Simple" repeat="0" type="StandardCore4_Simple"/>
         </ID>
         <Summary>
-            <Element name="StandardCore" repeat="0" type="StandardCore"/>
+            <Element name="StandardCore4" repeat="0" type="StandardCore4"/>
         </Summary>
         <Detail/>
     </BusinessObject>
@@ -73,10 +77,10 @@
     <BusinessObject name="SummaryCoreProperty" notExtendable="false">
         <Aliases/>
         <ID>
-            <Element name="StandardCore_Simple" repeat="0" type="StandardCore_Simple"/>
+            <Element name="StandardCore_Simple" repeat="0" type="StandardCore4_Simple"/>
         </ID>
         <Summary>
-            <Element name="StandardCoreSummary" repeat="0" type="StandardCore_Summary">
+            <Element name="StandardCore4Summary" repeat="0" type="StandardCore4_Summary">
                 <Documentation>
                     <Description>This was assigned the summary facet.</Description>
                 </Documentation>
@@ -88,10 +92,11 @@
     <BusinessObject name="DetailCoreProperty" notExtendable="false">
         <Aliases/>
         <ID>
-            <Element name="StandardCore_Simple" repeat="0" type="StandardCore_Simple"/>
+            <Attribute name="property1" type="xsd:ID"/>
+            <Element name="StandardCore_Simple" repeat="0" type="StandardCore4_Simple"/>
         </ID>
         <Summary>
-            <Element name="StandardCoreDetail" repeat="0" type="StandardCore_Detail">
+            <Element name="StandardCore4Detail" repeat="0" type="StandardCore4_Detail">
                 <Documentation>
                     <Description>This was assigned the detail facet.</Description>
                 </Documentation>
@@ -103,10 +108,11 @@
     <BusinessObject name="BaseCoreProperty" notExtendable="false">
         <Aliases/>
         <ID>
-            <Element name="StandardCore_Simple" repeat="0" type="StandardCore_Simple"/>
+            <Element name="StandardCore_Simple" repeat="0" type="StandardCore4_Simple"/>
         </ID>
         <Summary>
-            <Element name="BasicCoreRef" reference="true" repeat="0" type="BasicCore"/>
+            <Element name="DetailCorePropertyRef" reference="true"
+                repeat="0" type="DetailCoreProperty"/>
         </Summary>
         <Detail/>
     </BusinessObject>

@@ -5,16 +5,16 @@
     
     <VersionScheme>OTA2</VersionScheme>
     <Status>Draft</Status>
-    <Namespace>http://opentravel.org/local/dave/t4/v01</Namespace>
-    <Prefix>t1</Prefix>
+    <Namespace>http://www.opentravel.org/Sandbox/junits/ns1/v1</Namespace>
+    <Prefix>tga</Prefix>
     <Name>Test1</Name>
-    <Includes>testFile5.otm</Includes>
     <Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
-    <Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
+    <Import fileHints="testFile5.otm"
+        namespace="http://www.opentravel.org/Sandbox/junits/v1" prefix="tga"/>
     <Context
-        applicationContext="http://www.sabre.com/ns/OTA2/Demo/Profile/v01" context="Profile"/>
+        applicationContext="http://www.opentravel.org/ns/OTA2/Demo/Profile/v01" context="Profile"/>
     
-    <Simple name="String_PersonName" type="String_Short">
+    <Simple name="String_PersonName" type="tga:String_Short">
         <Example context="Profile">Sally Smythe</Example>
     </Simple>
     
@@ -28,7 +28,7 @@
     
     <ValueWithAttrs name="Amount" type="xsd:integer">
         <Example context="Profile">2345.56</Example>
-        <Attribute name="currencyCode" type="ota2:Code_ISO_Currency">
+        <Attribute name="currencyCode" type="tga:Currency_Code">
             <Documentation>
                 <Description>soo</Description>
             </Documentation>
@@ -49,11 +49,11 @@
     
     <Simple name="PositiveValueUnder1M" type="xsd:positiveInteger"/>
     
-    <Simple name="PaymentCard_Issuer" type="String_Short">
+    <Simple name="PaymentCard_Issuer" type="tga:String_Short">
         <Example context="Profile">First Bank of Travel</Example>
     </Simple>
     
-    <Simple name="PaymentCard_MagneticStrip" pattern="[0-9\-]{1,65}" type="String_Short">
+    <Simple name="PaymentCard_MagneticStrip" pattern="[0-9\-]{1,65}" type="tga:String_Short">
         <Documentation>
             <Description>Payment card stripe.</Description>
             <Implementer>MICR characters are printed in the form of either an E-13B or CMC-7 Font.</Implementer>
@@ -62,7 +62,7 @@
         <Example context="Profile">111-111-111-111</Example>
     </Simple>
     
-    <Simple name="Check_MICR" pattern="[0-9,: = ?]{1,38}" type="String_Short">
+    <Simple name="Check_MICR" pattern="[0-9,: = ?]{1,38}" type="tga:String_Short">
         <Documentation>
             <Description>Check MICR magnetic stripe.</Description>
             <Implementer>MICR characters are printed in the form of either an E-13B or CMC-7 Font.</Implementer>
@@ -71,23 +71,23 @@
         <Example context="Profile">00=344:333443445</Example>
     </Simple>
     
-    <Simple name="PaymentCard_Type" type="String_Short">
+    <Simple name="PaymentCard_Type" type="tga:String_Short">
         <Example context="Profile">VVV</Example>
     </Simple>
     
-    <Simple name="Usage" type="String_Short">
+    <Simple name="Usage" type="tga:String_Short">
         <Documentation>
             <Description>How the data is used</Description>
         </Documentation>
         <Example context="Profile">usage</Example>
     </Simple>
     
-    <Simple name="warning" type="String_Short">
+    <Simple name="warning" type="tga:String_Short">
         <Example context="Profile">warning</Example>
     </Simple>
     
     <ValueWithAttrs name="Tax" type="xsd:positiveInteger">
-        <Attribute name="amount" type="PositiveValueUnder1M"/>
+        <Attribute name="amount" type="tga:PositiveValueUnder1M"/>
         <Attribute name="taxCode" type="xsd:string"/>
         <Attribute name="taxName" type="xsd:string"/>
         <Attribute mandatory="true" name="ticketingCode" type="xsd:string">
@@ -99,7 +99,7 @@
         </Attribute>
     </ValueWithAttrs>
     
-    <ValueWithAttrs name="Location" type="String_Short">
+    <ValueWithAttrs name="Location" type="tga:String_Short">
         <Documentation>
             <Description>On location VWA</Description>
         </Documentation>
@@ -124,26 +124,26 @@
     
     <CoreObject name="PaymentCard" notExtendable="false">
         <Aliases>Card CreditCard</Aliases>
-        <Simple type="PaymentCard_Number"/>
+        <Simple type="tga:PaymentCard_Number"/>
         <Summary>
-            <Attribute name="expire" type="Date_MMYY">
+            <Attribute name="expire" type="tga:Date_MMYY">
                 <Example context="Profile">0714</Example>
             </Attribute>
-            <Attribute name="holder" type="String_PersonName">
+            <Attribute name="holder" type="tga:String_PersonName">
                 <Example context="Profile">Joe E Smith</Example>
             </Attribute>
             <Element name="Number" repeat="0" type="PaymentCard_Simple"/>
         </Summary>
         <Detail>
-            <Attribute name="type" type="PaymentCard_Type">
+            <Attribute name="type" type="tga:PaymentCard_Type">
                 <Example context="Profile">Visa</Example>
             </Attribute>
-            <Attribute name="effective" type="Date_MMYY"/>
-            <Element name="Issuer" repeat="0" type="PaymentCard_Issuer">
+            <Attribute name="effective" type="tga:Date_MMYY"/>
+            <Element name="Issuer" repeat="0" type="tga:PaymentCard_Issuer">
                 <Example context="Profile">First Bank of Travel</Example>
             </Element>
-            <Element name="MagneticStrip" repeat="0" type="PaymentCard_MagneticStrip"/>
-            <Element name="Employment" repeat="0" type=""/>
+            <Element name="MagneticStrip" repeat="0" type="tga:PaymentCard_MagneticStrip"/>
+            <Element name="Employment" repeat="0" type="tga:Employment"/>
             <Element name="PresentEmployment" repeat="0" type="PresentEmployment"/>
             <Indicator name="signatureOnFileInd" publishAsElement="false"/>
             <Indicator name="validInd" publishAsElement="false"/>
@@ -159,29 +159,29 @@
     
     <CoreObject name="EmploymentZZZ" notExtendable="false">
         <Aliases>PresentEmployment</Aliases>
-        <Simple type="String_Medium"/>
+        <Simple type="tga:String_Medium"/>
         <Summary>
-            <Attribute name="number" type="String_Short">
+            <Attribute name="number" type="tga:String_Short">
                 <Example context="Profile">332258</Example>
             </Attribute>
-            <Attribute name="title" type="String_Short">
+            <Attribute name="title" type="tga:String_Short">
                 <Example context="Profile">Geek-N-Nerd</Example>
             </Attribute>
-            <Attribute name="level" type="String_Short">
+            <Attribute name="level" type="tga:String_Short">
                 <Example context="Profile">Director</Example>
             </Attribute>
-            <Attribute name="status" type="Status_Employment">
+            <Attribute name="status" type="tga:Status_Employment">
                 <Example context="Profile">Active</Example>
             </Attribute>
-            <Element name="Company" repeat="0" type="String_Short">
+            <Element name="Company" repeat="0" type="tga:String_Short">
                 <Example context="Profile">Sabre, Inc.</Example>
             </Element>
-            <Element name="Employment" repeat="0" type=""/>
+            <Element name="Employment" repeat="0" type="tga:Employment"/>
             <Element name="PresentEmployment" repeat="0" type="PresentEmployment"/>
-            <Element name="Employer" repeat="0" type=""/>
+            <Element name="Employer" repeat="0" type="tga:Employer"/>
         </Summary>
         <Detail>
-            <Element name="PaymentCard" repeat="0" type="PaymentCard"/>
+            <Element name="PaymentCard" repeat="0" type="tga:PaymentCard"/>
         </Detail>
         <Roles>
             <Role value="Current"/>
@@ -189,7 +189,7 @@
         </Roles>
     </CoreObject>
     
-    <Simple name="Status_Employment" type="String_Long">
+    <Simple name="Status_Employment" type="tga:String_Long">
         <Example context="Profile">World Wide Air</Example>
     </Simple>
     
@@ -206,12 +206,12 @@
         <Value label="" literal="hotel"/>
     </Enumeration_Open>
     
-    <ValueWithAttrs name="Payment" type="String_Long">
+    <ValueWithAttrs name="Payment" type="tga:String_Long">
         <Documentation>
             <Description>Amount of the payment.</Description>
         </Documentation>
         <Example context="Profile">23.56</Example>
-        <Attribute name="tax" type="String_Long">
+        <Attribute name="tax" type="tga:String_Long">
             <Documentation>
                 <Description>Tax portion of the payment amount.</Description>
             </Documentation>
@@ -232,30 +232,30 @@
     
     <CoreObject name="Phone" notExtendable="false">
         <Aliases>WorkPhone HomePhone MobilePhone</Aliases>
-        <Simple type="ota2:Empty">
+        <Simple type="String_Short">
             <Example context="Profile">5551212</Example>
         </Simple>
         <Summary>
-            <Attribute name="country" type="String_Short">
+            <Attribute name="country" type="tga:String_Short">
                 <Example context="Profile">011</Example>
             </Attribute>
-            <Element mandatory="true" name="Area" repeat="0" type="String_Short">
+            <Element mandatory="true" name="Area" repeat="0" type="tga:String_Short">
                 <Example context="Profile">909</Example>
             </Element>
-            <Element mandatory="true" name="City" repeat="0" type="String_Short">
+            <Element mandatory="true" name="City" repeat="0" type="tga:String_Short">
                 <Example context="Profile">555</Example>
             </Element>
-            <Element mandatory="true" name="Exchange" repeat="0" type="String_Short">
+            <Element mandatory="true" name="Exchange" repeat="0" type="tga:String_Short">
                 <Example context="Profile">1212</Example>
             </Element>
         </Summary>
         <Detail>
-            <Element name="Usage" repeat="0" type="Usage"/>
-            <Element name="ServiceLoc" repeat="0" type="Location"/>
-            <Element mandatory="true" name="Remarks" repeat="5" type="ota2:String_Medium">
+            <Element name="Usage" repeat="0" type="tga:Usage"/>
+            <Element name="ServiceLoc" repeat="0" type="tga:Location"/>
+            <Element mandatory="true" name="Remarks" repeat="5" type="tga:String_Long">
                 <Example context="Profile">Do not call after 5pm Pacific</Example>
             </Element>
-            <Element name="CreditCard" repeat="0" type=""/>
+            <Element name="CreditCard" repeat="0" type="CreditCard"/>
         </Detail>
         <Roles>
             <Role value="Home"/>
@@ -271,21 +271,21 @@
                 <Equivalent context="Profile"/>
                 <Example context="Profile">Auth1</Example>
             </Attribute>
-            <Element mandatory="true" name="ProfileID" repeat="0" type="String_Medium">
+            <Element mandatory="true" name="ProfileID" repeat="0" type="tga:String_Medium">
                 <Equivalent context="Profile"/>
             </Element>
         </ID>
         <Summary>
-            <Element name="Name" repeat="0" type="String_PersonName"/>
+            <Element name="Name" repeat="0" type="tga:String_PersonName"/>
             <Element name="PaymentCardDetail" repeat="0" type="PaymentCard_Detail_List"/>
             <Element name="PresentEmployment" repeat="0" type="PresentEmployment"/>
         </Summary>
         <Detail>
-            <Element name="Remarks" repeat="0" type="String_Medium"/>
-            <Element name="HomePhone" repeat="0" type=""/>
-            <Element name="MobilePhone" repeat="0" type=""/>
-            <Element name="WorkPhone" repeat="0" type=""/>
-            <Element name="Age" repeat="0" type="Age">
+            <Element name="Remarks" repeat="0" type="tga:String_Medium"/>
+            <Element name="HomePhone" repeat="0" type="HomePhone"/>
+            <Element name="MobilePhone" repeat="0" type="MobilePhone"/>
+            <Element name="WorkPhone" repeat="0" type="WorkPhone"/>
+            <Element name="Age" repeat="0" type="tga:Age">
                 <Documentation>
                     <Description>Number of years person or object has existed.</Description>
                 </Documentation>
@@ -295,10 +295,10 @@
             <Indicator name="holdInd" publishAsElement="false"/>
         </Detail>
         <Query context="Profile" label="Profile" notExtendable="true">
-            <Element name="Phones" repeat="0" type="Phone_Simple_List"/>
+            <Element name="PhoneDetail" repeat="0" type="Phone_Detail_List"/>
         </Query>
         <Custom context="Profile" label="Legacy" notExtendable="false">
-            <Element name="Remarks" repeat="0" type="String_Long">
+            <Element name="Remarks" repeat="0" type="tga:String_Long">
                 <Example context="Profile">Remarks</Example>
             </Element>
             <Indicator name="shareInd" publishAsElement="false"/>
@@ -319,9 +319,9 @@
     
     <CoreObject name="Flight" notExtendable="true">
         <Aliases>OutboundFlight ReturnFlight</Aliases>
-        <Simple type="String_Long"/>
+        <Simple type="tga:String_Long"/>
         <Summary>
-            <Element mandatory="true" name="FlightNumber" repeat="0" type="String_Long">
+            <Element mandatory="true" name="FlightNumber" repeat="0" type="tga:String_Long">
                 <Documentation>
                     <Description>The flight number associated to the service.   Mapped to: SR05_42_FLTN</Description>
                 </Documentation>
@@ -334,7 +334,7 @@
                 </Documentation>
                 <Equivalent context="Profile">DepartureDate</Equivalent>
             </Element>
-            <Element mandatory="true" name="Carrier" repeat="0" type="String_Long">
+            <Element mandatory="true" name="Carrier" repeat="0" type="tga:String_Long">
                 <Documentation>
                     <Description>The carrier code of the flight associated to the service.  Mapped to: 
                         SR05_42_CXRC</Description>
@@ -342,7 +342,7 @@
                 <Equivalent context="Profile">CarrierCode</Equivalent>
                 <Example context="Profile">WWA</Example>
             </Element>
-            <Element mandatory="true" name="ClassOfService" repeat="0" type="String_Long">
+            <Element mandatory="true" name="ClassOfService" repeat="0" type="tga:String_Long">
                 <Documentation>
                     <Description>The flight class of service associated to the ancillary service.  Mapped to:
                         SR05_42_CLSV</Description>
@@ -350,7 +350,7 @@
                 <Equivalent context="Profile">ClassOfService</Equivalent>
                 <Example context="Profile">F00</Example>
             </Element>
-            <Element mandatory="true" name="DepartureCity" repeat="0" type="String_Long">
+            <Element mandatory="true" name="DepartureCity" repeat="0" type="tga:String_Long">
                 <Documentation>
                     <Description>The origin or depature city code of the flight associated to the service.   Mapped to:
                         
@@ -362,7 +362,7 @@
                 <Equivalent context="Profile">DepartureCity</Equivalent>
                 <Example context="Profile">LGA</Example>
             </Element>
-            <Element mandatory="true" name="ArrivalCity" repeat="0" type="String_Long">
+            <Element mandatory="true" name="ArrivalCity" repeat="0" type="tga:String_Long">
                 <Documentation>
                     <Description>The destination or arrival city of the flight associated to the service.   Mapped to:
                         SR05_42_ACTY</Description>
@@ -381,25 +381,25 @@
         </Detail>
     </CoreObject>
     
-    <ValueWithAttrs name="POS_Location" type="String_Long">
+    <ValueWithAttrs name="POS_Location" type="tga:String_Long">
         <Documentation>
             <Description>A location for an airline or agency agent. Can be used to describe the actual, pseudo or home
   location.</Description>
         </Documentation>
         <Equivalent context="Profile">Location.POS</Equivalent>
         <Example context="Profile">POS Value</Example>
-        <Attribute name="country" type="String_Long">
+        <Attribute name="country" type="tga:String_Long">
             <Equivalent context="Profile">country</Equivalent>
             <Example context="Profile">US</Example>
         </Attribute>
-        <Attribute name="province" type="String_Long">
+        <Attribute name="province" type="tga:String_Long">
             <Equivalent context="Profile">province</Equivalent>
             <Example context="Profile">CA</Example>
         </Attribute>
-        <Attribute name="city" type="String_Long">
+        <Attribute name="city" type="tga:String_Long">
             <Example context="Profile">Den</Example>
         </Attribute>
-        <Attribute name="number" type="String_Long">
+        <Attribute name="number" type="tga:String_Long">
             <Documentation>
                 <Description>agent station number or agency iata number</Description>
             </Documentation>
@@ -414,7 +414,7 @@
         </Documentation>
         <Aliases/>
         <ID>
-            <Attribute name="pcc" type="String_Medium">
+            <Attribute name="pcc" type="tga:String_Medium">
                 <Documentation>
                     <Description>Psuedo is either Agency PCC or Agent AAA. Required for most sources, unless MultiHost code is provided.</Description>
                 </Documentation>
@@ -423,7 +423,7 @@
             </Attribute>
         </ID>
         <Summary>
-            <Attribute name="company" type="String_Medium">
+            <Attribute name="company" type="tga:String_Medium">
                 <Documentation>
                     <Description>The IATA assigned code for the Agency or Airine</Description>
                 </Documentation>
@@ -432,41 +432,41 @@
             </Attribute>
         </Summary>
         <Detail>
-            <Attribute name="duty" type="String_Medium">
+            <Attribute name="duty" type="tga:String_Medium">
                 <Documentation>
                     <Description>An authority code assigned to a requestor.</Description>
                 </Documentation>
                 <Equivalent context="Profile">DutyCode</Equivalent>
                 <Example context="Profile">ddd</Example>
             </Attribute>
-            <Attribute name="lniata" type="String_Medium">
+            <Attribute name="lniata" type="tga:String_Medium">
                 <Documentation>
                     <Description>LNIATA of the Console the agent signed into.</Description>
                 </Documentation>
                 <Equivalent context="Profile">Lniata</Equivalent>
                 <Example context="Profile">156354</Example>
             </Attribute>
-            <Attribute name="sine" type="String_Medium">
+            <Attribute name="sine" type="tga:String_Medium">
                 <Documentation>
                     <Description>Identifies the agent or party within the requesting entity.</Description>
                 </Documentation>
                 <Equivalent context="Profile">Sine</Equivalent>
                 <Example context="Profile">555</Example>
             </Attribute>
-            <Attribute name="multiHost" type="String_Medium">
+            <Attribute name="multiHost" type="tga:String_Medium">
                 <Documentation>
                     <Description>Airline partition for multi-host source locations.</Description>
                 </Documentation>
                 <Equivalent context="Profile">MultiHost</Equivalent>
                 <Example context="Profile">WWB</Example>
             </Attribute>
-            <Element name="Actual" repeat="0" type="String_Medium">
+            <Element name="Actual" repeat="0" type="tga:String_Medium">
                 <Documentation>
                     <Description>Actual is where the transaction is initiated.</Description>
                 </Documentation>
                 <Equivalent context="Profile">Actual</Equivalent>
             </Element>
-            <Element name="Home" repeat="100000" type="String_Medium">
+            <Element name="Home" repeat="100000" type="tga:String_Medium">
                 <Documentation>
                     <Description>Home is assigned to the agent account.</Description>
                 </Documentation>
@@ -483,13 +483,11 @@
         <Example context="Profile">-04:00</Example>
     </Simple>
     
-    <Simple name="Flight_Number" type="stl2:stl2_FlightNumber"/>
+    <Simple name="Flight_Number" type="String_Short"/>
     
     <Simple name="Code_Airline" pattern="[A-Z0-9]{2}[A-Z]?" type="xsd:string"/>
     
     <Simple name="Code_City" pattern="[a-zA-Z]{3}" type="xsd:string"/>
-    
-    <Simple name="Cabin_3Chars" pattern="[A-Z0-9]{3}" type="xsd:string"/>
     
     <Enumeration_Closed name="Cabin_OrFare">
         <Value label="" literal="Cabin"/>
@@ -516,64 +514,60 @@
     
     <Simple name="Cabin_3Chars" pattern="[A-Z0-9]{3}" type="xsd:string"/>
     
-    <Simple name="Cabin_3Chars" pattern="[A-Z0-9]{3}" type="xsd:string"/>
-    
-    <Simple name="Cabin_3Chars" pattern="[A-Z0-9]{3}" type="xsd:string"/>
-    
     <Service name="ProfileService">
         <Operation Name="Create" notExtendable="true">
             <Request>
-                <Element name="ProfileDetail" repeat="0" type="Profile_Detail"/>
+                <Element name="ProfileDetail" repeat="0" type="tga:Profile_Detail"/>
             </Request>
             <Response>
-                <Element name="ProfileIdentifier" repeat="0" type="Profile_ID"/>
+                <Element name="ProfileIdentifier" repeat="0" type="tga:Profile_ID"/>
             </Response>
             <Notification>
-                <Element name="ProfileSummary" repeat="0" type="Profile_Summary"/>
+                <Element name="ProfileSummary" repeat="0" type="tga:Profile_Summary"/>
             </Notification>
         </Operation>
         <Operation Name="Read" notExtendable="true">
             <Request>
-                <Element name="ProfileIdentifier" repeat="0" type="Profile_ID"/>
+                <Element name="ProfileIdentifier" repeat="0" type="tga:Profile_ID"/>
             </Request>
             <Response>
-                <Element name="TravelerProfile" repeat="0" type="TravelerProfile"/>
+                <Element name="TravelerProfile" repeat="0" type="tga:TravelerProfile"/>
             </Response>
             <Notification>
-                <Element name="Profile" repeat="0" type="Profile"/>
+                <Element name="Profile" repeat="0" type="tga:Profile"/>
             </Notification>
         </Operation>
         <Operation Name="Update" notExtendable="true">
             <Request>
-                <Element name="ProfileDetail" repeat="0" type="Profile_Detail"/>
+                <Element name="ProfileDetail" repeat="0" type="tga:Profile_Detail"/>
             </Request>
             <Response>
-                <Element name="ProfileIdentifier" repeat="0" type="Profile_ID"/>
+                <Element name="ProfileIdentifier" repeat="0" type="tga:Profile_ID"/>
             </Response>
             <Notification>
-                <Element name="ProfileSummary" repeat="0" type="Profile_Summary"/>
+                <Element name="ProfileSummary" repeat="0" type="tga:Profile_Summary"/>
             </Notification>
         </Operation>
         <Operation Name="Delete" notExtendable="true">
             <Request>
-                <Element name="Profile" repeat="0" type="Profile"/>
+                <Element name="Profile" repeat="0" type="tga:Profile"/>
             </Request>
             <Response>
-                <Element name="ProfileIdentifier" repeat="0" type="Profile_ID"/>
+                <Element name="ProfileIdentifier" repeat="0" type="tga:Profile_ID"/>
             </Response>
             <Notification>
-                <Element name="ProfileSummary" repeat="0" type="Profile_Summary"/>
+                <Element name="ProfileSummary" repeat="0" type="tga:Profile_Summary"/>
             </Notification>
         </Operation>
         <Operation Name="Query" notExtendable="true">
             <Request>
-                <Element name="Profile" repeat="0" type="Profile"/>
+                <Element name="Profile" repeat="0" type="tga:Profile"/>
             </Request>
             <Response>
-                <Element name="Profile" repeat="100" type="Profile"/>
+                <Element name="Profile" repeat="100" type="tga:Profile"/>
             </Response>
             <Notification>
-                <Element name="ProfileIdentifier" repeat="0" type="Profile_ID"/>
+                <Element name="ProfileIdentifier" repeat="0" type="tga:Profile_ID"/>
             </Notification>
         </Operation>
     </Service>

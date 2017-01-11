@@ -5,26 +5,31 @@
     
     <VersionScheme>OTA2</VersionScheme>
     <Status>Draft</Status>
-    <Namespace>http://opentravel.org/local/dave/t4/v02</Namespace>
+    <Namespace>http://www.opentravel.org/Sandbox/junits/ns2/v1</Namespace>
     <Prefix>t2</Prefix>
     <Name>Test2</Name>
-    <Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
-    <Context applicationContext="Default" context="___ToBeRemoved___"/>
+    <Import fileHints="otm://Opentravel/OTA_SimpleTypes_0_0_0.otm"
+        namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
+    <Import fileHints="testFile1.otm"
+        namespace="http://www.opentravel.org/Sandbox/junits/ns1/v1" prefix="tga"/>
+    <Import fileHints="testFile5.otm"
+        namespace="http://www.opentravel.org/Sandbox/junits/v1" prefix="tga1"/>
+    <Context applicationContext="Default" context="t2"/>
     
     <CoreObject name="StandardCore" notExtendable="false">
         <Aliases/>
         <Simple type="BasicCore"/>
         <Summary>
-            <Attribute name="flight_Number" type="ser:Flight_Number"/>
-            <Element name="Age" repeat="0" type="ser:Age"/>
-            <Element name="AirlineSpecification" repeat="0" type="ser:AirlineSpecification"/>
-            <Element name="Flight_Misc" repeat="0" type="ser:Flight_Misc"/>
+            <Attribute name="flight_Number" type="tga1:String_Short"/>
+            <Element name="Age" repeat="0" type="tga1:Age"/>
+            <Element name="AirlineSpecification" repeat="0" type="tga1:String_Short"/>
+            <Element name="Flight_Misc" repeat="0" type="tga1:String_Short"/>
             <Indicator name="testInd" publishAsElement="false"/>
         </Summary>
         <Detail>
-            <Attribute name="pRBD" type="ser:PRBD"/>
-            <Element name="RequestedDetailLevel" repeat="0" type="ser:RequestedDetailLevel"/>
-            <Element name="RestrictedPayload" repeat="0" type="ser:RestrictedPayload"/>
+            <Attribute name="pRBD" type="tga1:String_Short"/>
+            <Element name="RequestedDetailLevel" repeat="0" type="tga1:String_Short"/>
+            <Element name="RestrictedPayload" repeat="0" type="tga1:String_Short"/>
         </Detail>
         <Roles>
             <Role value="StdRole"/>
@@ -37,10 +42,10 @@
         <Aliases/>
         <Simple type="ota2:Empty"/>
         <Summary>
-            <Attribute name="flightNum" type="ser:Flight_Number"/>
-            <Element name="Age" repeat="0" type="ser:Age"/>
-            <Element name="Flight_Misc" repeat="0" type="ser:Flight_Misc"/>
-            <Element name="AirlineSpecification" repeat="0" type="ser:AirlineSpecification"/>
+            <Attribute name="flightNum" type="ota2:FlightNumber_Suffix"/>
+            <Element name="Age" repeat="0" type="tga:Age"/>
+            <Element name="Flight_Misc" repeat="0" type="tga:Flight_Number"/>
+            <Element name="AirlineSpecification" repeat="0" type="tga:Code_Airline"/>
             <Indicator name="testInd" publishAsElement="false"/>
         </Summary>
         <Detail/>
@@ -51,11 +56,11 @@
         <Aliases/>
         <Simple type="ota2:Empty"/>
         <Summary>
-            <Attribute name="aircraft_Type" type="ser:Aircraft_Type"/>
-            <Element name="Aircraft_Configuration" repeat="0" type="ser:Aircraft_Configuration"/>
+            <Attribute name="aircraft_Type" type="tga1:String_Short"/>
+            <Element name="Aircraft_Configuration" repeat="0" type="tga1:String_Short"/>
         </Summary>
         <Detail>
-            <Element name="MealService_TypeList" repeat="0" type="ser:MealService_TypeList"/>
+            <Element name="MealService_TypeList" repeat="0" type="tga1:String_Short"/>
         </Detail>
     </CoreObject>
     
