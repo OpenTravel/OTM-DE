@@ -7,7 +7,7 @@
     <ns2:Status>Draft</ns2:Status>
     <ns2:Namespace>http://www.OpenTravel.org/ns/OTA2/SchemaCompiler/test-package_v2</ns2:Namespace>
     <ns2:Prefix>pkg2</ns2:Prefix>
-    <ns2:Name>library_1_p2</ns2:Name>
+    <ns2:Name>Test7</ns2:Name>
     <ns2:Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
     <ns2:Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
     <ns2:Context applicationContext="test-applicationContext" context="test"/>
