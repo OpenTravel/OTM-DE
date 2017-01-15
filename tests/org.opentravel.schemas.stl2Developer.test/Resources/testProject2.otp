@@ -3,6 +3,18 @@
     <otp:projectId>http://opentravel.org/local/dave/t2x</otp:projectId>
     <otp:name>TestProject1</otp:name>
     <otp:description></otp:description>
+    <otp:ManagedProjectItem>
+        <otp:Repository>Opentravel</otp:Repository>
+        <otp:BaseNamespace>http://opentravel.org/local/dave/t4</otp:BaseNamespace>
+        <otp:Filename>CodeList_0_0_0.otm</otp:Filename>
+        <otp:Version>1.0.0</otp:Version>
+    </otp:ManagedProjectItem>
+    <otp:ManagedProjectItem>
+        <otp:Repository>Opentravel</otp:Repository>
+        <otp:BaseNamespace>http://opentravel.org/local/dave/t4</otp:BaseNamespace>
+        <otp:Filename>Common_0_0_0.otm</otp:Filename>
+        <otp:Version>1.0.0</otp:Version>
+    </otp:ManagedProjectItem>
     <otp:UnmanagedProjectItem defaultItem="true">
         <otp:FileLocation>testFile2.otm</otp:FileLocation>
     </otp:UnmanagedProjectItem>
@@ -24,4 +36,49 @@
         <otp:Filename>OTA_SimpleTypes_0_0_0.otm</otp:Filename>
         <otp:Version>1.0.0</otp:Version>
     </otp:ManagedProjectItem>
+    <otp:ManagedProjectItem>
+        <otp:Repository>Opentravel</otp:Repository>
+        <otp:BaseNamespace>http://www.opentravel.org/OTM/Common</otp:BaseNamespace>
+        <otp:Filename>CodeList_1_0_0.otm</otp:Filename>
+        <otp:Version>1.0.0</otp:Version>
+    </otp:ManagedProjectItem>
+    <otp:ManagedProjectItem>
+        <otp:Repository>Opentravel</otp:Repository>
+        <otp:BaseNamespace>http://opentravel.org/local/dave/t4</otp:BaseNamespace>
+        <otp:Filename>CodeList_1_0_0.otm</otp:Filename>
+        <otp:Version>1.0.0</otp:Version>
+    </otp:ManagedProjectItem>
+    <otp:ManagedProjectItem>
+        <otp:Repository>Opentravel</otp:Repository>
+        <otp:BaseNamespace>http://opentravel.org/local/dave/t4</otp:BaseNamespace>
+        <otp:Filename>OTA_SimpleTypes_0_0_0.otm</otp:Filename>
+        <otp:Version>1.0.0</otp:Version>
+    </otp:ManagedProjectItem>
+    <otp:ManagedProjectItem>
+        <otp:Repository>Opentravel</otp:Repository>
+        <otp:BaseNamespace>http://opentravel.org/local/dave/t4</otp:BaseNamespace>
+        <otp:Filename>OTA_SimpleTypes_0_0_0.otm</otp:Filename>
+        <otp:Version>1.0.0</otp:Version>
+    </otp:ManagedProjectItem>
+    <otp:ManagedProjectItem>
+        <otp:Repository>Opentravel</otp:Repository>
+        <otp:BaseNamespace>http://opentravel.org/local/dave/t4</otp:BaseNamespace>
+        <otp:Filename>CodeList_0_0_0.otm</otp:Filename>
+        <otp:Version>1.0.0</otp:Version>
+    </otp:ManagedProjectItem>
+    <otp:ManagedProjectItem>
+        <otp:Repository>Opentravel</otp:Repository>
+        <otp:BaseNamespace>http://opentravel.org/local/dave/t4</otp:BaseNamespace>
+        <otp:Filename>Common_0_0_0.otm</otp:Filename>
+        <otp:Version>1.0.0</otp:Version>
+    </otp:ManagedProjectItem>
+    <otp:ManagedProjectItem>
+        <otp:Repository>Opentravel</otp:Repository>
+        <otp:BaseNamespace>http://opentravel.org/local/dave/t4</otp:BaseNamespace>
+        <otp:Filename>OTA_SimpleTypes_0_0_0.otm</otp:Filename>
+        <otp:Version>1.0.0</otp:Version>
+    </otp:ManagedProjectItem>
+    <otp:RepositoryReferences>
+        <otp:RepositoryRef repositoryId="Opentravel">http://opentravelmodel.net</otp:RepositoryRef>
+    </otp:RepositoryReferences>
 </otp:Project>

@@ -209,11 +209,12 @@ public class NamespaceHandler {
 	 * 
 	 * @param library
 	 * @param newNamespace
+	 * @return
 	 */
-	public void setLibraryNamespace(final LibraryNode library, final String newNamespace) {
+	public boolean setLibraryNamespace(final LibraryNode library, final String newNamespace) {
 		if (!isDefined(newNamespace)) {
 			LOGGER.warn("Cannot change namespace of " + library + " to null or empty");
-			return;
+			return false;
 		}
 		String prefix = getPrefix(newNamespace);
 		if (!isDefined(prefix))
@@ -224,8 +225,15 @@ public class NamespaceHandler {
 		if (!namespacesAndPrefixes.containsKey(newNamespace)) {
 			namespacesAndPrefixes.put(newNamespace, prefix);
 		}
-		setNamespace(library, newNamespace);
+		try {
+			setNamespace(library, newNamespace);
+		} catch (IllegalArgumentException e) {
+			LOGGER.debug("Error setting namespace on " + library + " to " + newNamespace + " : "
+					+ e.getLocalizedMessage());
+			return false;
+		}
 		setPrefix(library, prefix);
+		return true;
 	}
 
 	/**
@@ -248,7 +256,7 @@ public class NamespaceHandler {
 	/**
 	 * Simply set the library's namespace
 	 */
-	private void setNamespace(LibraryNode lib, String namespace) {
+	private void setNamespace(LibraryNode lib, String namespace) throws IllegalArgumentException {
 		lib.getTLaLib().setNamespace(namespace);
 	}
 

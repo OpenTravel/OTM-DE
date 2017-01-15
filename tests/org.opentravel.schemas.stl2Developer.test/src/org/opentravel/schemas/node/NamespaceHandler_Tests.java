@@ -110,10 +110,7 @@ public class NamespaceHandler_Tests {
 			handler.createValidNamespace(namespace, testVersionError);
 			handler.createValidNamespace(namespace, testExtension, testVersionError);
 
-			// rename
-			// handler.rename(namespace, testNS);
-
-			// Set
+			// Set - should handle error of duplicate name/ns without failing
 			handler.setNamespacePrefix(testNS, "TST");
 			handler.setLibraryNamespace(ln, testNS);
 

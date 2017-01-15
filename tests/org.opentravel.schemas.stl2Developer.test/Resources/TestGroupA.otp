@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<otp:Project xmlns="http://www.w3.org/2001/XMLSchema" xmlns:otp="http://www.OpenTravel.org/ns/OTA2/Project_v01_00">
+    <otp:projectId>http://www.opentravel.org/Sandbox/junits</otp:projectId>
+    <otp:name>TestGroupA</otp:name>
+    <otp:description></otp:description>
+    <otp:ManagedProjectItem>
+        <otp:Repository>Opentravel</otp:Repository>
+        <otp:BaseNamespace>http://www.opentravel.org/OTM/Common</otp:BaseNamespace>
+        <otp:Filename>OTA_SimpleTypes_0_0_0.otm</otp:Filename>
+        <otp:Version>0.0.0</otp:Version>
+    </otp:ManagedProjectItem>
+    <otp:ManagedProjectItem>
+        <otp:Repository>Opentravel</otp:Repository>
+        <otp:BaseNamespace>http://www.opentravel.org/OTM/Common</otp:BaseNamespace>
+        <otp:Filename>CodeList_0_0_0.otm</otp:Filename>
+        <otp:Version>0.0.0</otp:Version>
+    </otp:ManagedProjectItem>
+    <otp:ManagedProjectItem>
+        <otp:Repository>Opentravel</otp:Repository>
+        <otp:BaseNamespace>http://www.opentravel.org/OTM/Common</otp:BaseNamespace>
+        <otp:Filename>Common_0_0_0.otm</otp:Filename>
+        <otp:Version>0.0.0</otp:Version>
+    </otp:ManagedProjectItem>
+    <otp:ManagedProjectItem>
+        <otp:Repository>Opentravel</otp:Repository>
+        <otp:BaseNamespace>http://www.opentravel.org/OTM/Common</otp:BaseNamespace>
+        <otp:Filename>CodeList_1_0_0.otm</otp:Filename>
+        <otp:Version>1.0.0</otp:Version>
+    </otp:ManagedProjectItem>
+    <otp:UnmanagedProjectItem defaultItem="true">
+        <otp:FileLocation>testFile1.otm</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+    <otp:UnmanagedProjectItem>
+        <otp:FileLocation>testFile2.otm</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+    <otp:UnmanagedProjectItem>
+        <otp:FileLocation>testFile3.otm</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+    <otp:UnmanagedProjectItem>
+        <otp:FileLocation>testFile4.otm</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+    <otp:UnmanagedProjectItem>
+        <otp:FileLocation>testFile5.otm</otp:FileLocation>
+    </otp:UnmanagedProjectItem>
+    <otp:RepositoryReferences>
+        <otp:RepositoryRef repositoryId="Opentravel">http://opentravelmodel.net</otp:RepositoryRef>
+    </otp:RepositoryReferences>
+</otp:Project>

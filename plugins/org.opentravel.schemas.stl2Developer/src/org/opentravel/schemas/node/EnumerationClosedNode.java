@@ -29,6 +29,7 @@ import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.ExtensionHandler;
@@ -36,7 +37,7 @@ import org.opentravel.schemas.types.TypeProvider;
 
 // FIXME - should not extend simple type node, simple and enum should extend from abstract simple or simple interface
 public class EnumerationClosedNode extends SimpleComponentNode implements Enumeration, LibraryMemberInterface,
-		TypeProvider, ExtensionOwner {
+		TypeProvider, ExtensionOwner, VersionedObjectInterface {
 
 	private ExtensionHandler extensionHandler = null;
 
@@ -90,6 +91,12 @@ public class EnumerationClosedNode extends SimpleComponentNode implements Enumer
 				((TLClosedEnumeration) getTLModelObject()).addValue((TLEnumValue) enumLiteral.getTLModelObject());
 				this.linkChild(enumLiteral);
 			}
+	}
+
+	@Override
+	public ComponentNode createMinorVersionComponent() {
+		return super
+				.createMinorVersionComponent(new EnumerationClosedNode((TLLibraryMember) createMinorTLVersion(this)));
 	}
 
 	@Override

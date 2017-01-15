@@ -8,28 +8,24 @@
     <Namespace>http://www.opentravel.org/Sandbox/junits/ns2/v1</Namespace>
     <Prefix>t2</Prefix>
     <Name>Test2</Name>
-    <Import fileHints="otm://Opentravel/OTA_SimpleTypes_0_0_0.otm"
-        namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
-    <Import fileHints="testFile1.otm"
-        namespace="http://www.opentravel.org/Sandbox/junits/ns1/v1" prefix="tga"/>
-    <Import fileHints="testFile5.otm"
-        namespace="http://www.opentravel.org/Sandbox/junits/v1" prefix="tga1"/>
+    <Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
+    <Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
     <Context applicationContext="Default" context="t2"/>
     
     <CoreObject name="StandardCore" notExtendable="false">
         <Aliases/>
         <Simple type="BasicCore"/>
         <Summary>
-            <Attribute name="flight_Number" type="tga1:String_Short"/>
-            <Element name="Age" repeat="0" type="tga1:Age"/>
-            <Element name="AirlineSpecification" repeat="0" type="tga1:String_Short"/>
-            <Element name="Flight_Misc" repeat="0" type="tga1:String_Short"/>
+            <Attribute name="flight_Number" type="xsd:string"/>
+            <Element name="Age" repeat="0" type="xsd:string"/>
+            <Element name="AirlineSpecification" repeat="0" type="xsd:string"/>
+            <Element name="Flight_Misc" repeat="0" type="xsd:string"/>
             <Indicator name="testInd" publishAsElement="false"/>
         </Summary>
         <Detail>
-            <Attribute name="pRBD" type="tga1:String_Short"/>
-            <Element name="RequestedDetailLevel" repeat="0" type="tga1:String_Short"/>
-            <Element name="RestrictedPayload" repeat="0" type="tga1:String_Short"/>
+            <Attribute name="pRBD" type="xsd:string"/>
+            <Element name="RequestedDetailLevel" repeat="0" type="xsd:string"/>
+            <Element name="RestrictedPayload" repeat="0" type="xsd:string"/>
         </Detail>
         <Roles>
             <Role value="StdRole"/>
@@ -42,10 +38,10 @@
         <Aliases/>
         <Simple type="ota2:Empty"/>
         <Summary>
-            <Attribute name="flightNum" type="ota2:FlightNumber_Suffix"/>
-            <Element name="Age" repeat="0" type="tga:Age"/>
-            <Element name="Flight_Misc" repeat="0" type="tga:Flight_Number"/>
-            <Element name="AirlineSpecification" repeat="0" type="tga:Code_Airline"/>
+            <Attribute name="flightNum" type="xsd:string"/>
+            <Element name="Age" repeat="0" type="xsd:string"/>
+            <Element name="Flight_Misc" repeat="0" type="xsd:string"/>
+            <Element name="AirlineSpecification" repeat="0" type="xsd:string"/>
             <Indicator name="testInd" publishAsElement="false"/>
         </Summary>
         <Detail/>
@@ -56,11 +52,11 @@
         <Aliases/>
         <Simple type="ota2:Empty"/>
         <Summary>
-            <Attribute name="aircraft_Type" type="tga1:String_Short"/>
-            <Element name="Aircraft_Configuration" repeat="0" type="tga1:String_Short"/>
+            <Attribute name="aircraft_Type" type="xsd:string"/>
+            <Element name="Aircraft_Configuration" repeat="0" type="xsd:string"/>
         </Summary>
         <Detail>
-            <Element name="MealService_TypeList" repeat="0" type="tga1:String_Short"/>
+            <Element name="MealService_TypeList" repeat="0" type="xsd:string"/>
         </Detail>
     </CoreObject>
     
@@ -115,5 +111,7 @@
         </Summary>
         <Detail/>
     </BusinessObject>
+    
+    <Simple name="SimpleString" type="xsd:string"/>
     
 </Library>

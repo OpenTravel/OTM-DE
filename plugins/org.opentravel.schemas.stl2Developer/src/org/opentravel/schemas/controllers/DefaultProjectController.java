@@ -183,6 +183,7 @@ public class DefaultProjectController implements ProjectController {
 			newItems = openLibrary(project, libraryFiles, findings);
 			ValidationFindings loadingFindings = getLoadingFindings(findings);
 			if (!loadingFindings.isEmpty()) {
+				LOGGER.error("Validation findings opening: " + libraryFiles);
 				showFindings(loadingFindings);
 			}
 		} catch (RepositoryException e) {
@@ -514,7 +515,7 @@ public class DefaultProjectController implements ProjectController {
 	}
 
 	public Project openProject(String fileName, ValidationFindings findings) {
-		// LOGGER.debug("Opening Project. Filename = " + fileName);
+		LOGGER.debug("Opening Project. Filename = " + fileName);
 		File projectFile = new File(fileName);
 		Project project = null;
 		boolean isUI = Display.getCurrent() != null;
@@ -523,44 +524,39 @@ public class DefaultProjectController implements ProjectController {
 		try {
 			project = projectManager.loadProject(projectFile, findings);
 		} catch (RepositoryException e) {
-			if (isUI)
-				mc.showBusy(false);
-			if (isUI)
-				DialogUserNotifier.openError(
-						"Project Error",
-						MessageFormat.format(Messages.getString("error.openProject.invalidRemoteProject"),
-								e.getMessage(), projectFile.toString()));
+			postLoadError("Project Error", MessageFormat.format(
+					Messages.getString("error.openProject.invalidRemoteProject"), e.getMessage(),
+					projectFile.toString()));
 		} catch (LibraryLoaderException e) {
 			// happens when default project is created.
-			if (isUI) {
-				mc.showBusy(false);
-				DialogUserNotifier.openError("Project Error", "Could not load project libraries.");
-			}
+			postLoadError("Project Error", "Could not load project libraries.");
 			project = null;
 		} catch (IllegalArgumentException e) {
-			if (isUI)
-				mc.showBusy(false);
-			if (isUI)
-				DialogUserNotifier.openError("Error opening project. ", e.getMessage());
+			postLoadError("Error opening project. ", e.getMessage());
 			project = null;
 		} catch (Throwable e) {
-			if (isUI) {
-				mc.showBusy(false);
-				String msg = e.getMessage();
-				if (msg == null || msg.isEmpty())
-					msg = e.getClass().getSimpleName();
-				DialogUserNotifier.openError("Error opening project. ", msg);
-			}
+			String msg = e.getMessage();
+			if (msg == null || msg.isEmpty())
+				msg = e.getClass().getSimpleName();
+			postLoadError("Error opening project. ", msg);
 			project = null;
 		}
 		if (project != null) {
 			if (project.getProjectItems().isEmpty())
-				DialogUserNotifier.openError("Error opening project. ", "Project has no libraries.");
+				postLoadError("Error opening project. ", "Project has no libraries.");
 			LOGGER.debug("Read " + project.getProjectItems().size() + " items from project: " + projectFile);
 		}
 		if (isUI)
 			mc.showBusy(false);
 		return project;
+	}
+
+	private void postLoadError(String title, String message) {
+		if (Display.getCurrent() != null) {
+			mc.showBusy(false);
+			DialogUserNotifier.openError(title, message);
+		}
+		LOGGER.error(title + " : " + message);
 	}
 
 	@Override

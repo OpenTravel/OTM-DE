@@ -69,6 +69,7 @@ public class Enumeration_Tests {
 		TLEnumValue tlcv1 = new TLEnumValue();
 		tlcv1.setLiteral("value 1");
 		tlc.addValue(tlcv1);
+
 		EnumerationClosedNode closedEnum = new EnumerationClosedNode(tlc);
 		Assert.assertNotNull(closedEnum);
 		Assert.assertEquals(1, closedEnum.getChildren().size());
@@ -152,18 +153,13 @@ public class Enumeration_Tests {
 		closedExt.setExtension(closedBase);
 
 		// Then
-		// String oeName = openExt.getExtendsTypeName();
-		// Node oeBaseType = openExt.getExtendsType();
-		// Node oeBase = openExt.getExtensionBase();
-		// String ceName = closedExt.getExtendsTypeName();
-		// Node ceBase = closedExt.getExtensionBase();
 		assertTrue("Extension name must not be empty", !openExt.getExtendsTypeName().isEmpty());
 		assertTrue("Ext must extend base", openExt.getExtensionBase() == openBase);
 		assertTrue("ExtendsType must be the ExtensionBase", openExt.getExtensionBase() == openExt.getExtendsType());
 		assertTrue("Extension name must not be empty", !closedExt.getExtendsTypeName().isEmpty());
 		assertTrue("Ext must extend base", closedExt.getExtensionBase() == closedBase);
 
-		// TODO - test inherited children
+		// Then - test inherited children
 		assertTrue("Must have inherited children", !openExt.getInheritedChildren().isEmpty());
 		assertTrue("Must have inherited children", !closedExt.getInheritedChildren().isEmpty());
 	}

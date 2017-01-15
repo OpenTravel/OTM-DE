@@ -49,17 +49,19 @@ public class LibraryNodeTest extends BaseProjectTest {
 	// See DefaultLibraryController_Tests.removeManagedInMultipleProjects_Test()
 	@Test
 	public void libraryInMultipleProjects() throws LibrarySaveException {
+		LoadFiles lf = new LoadFiles();
+
 		// Given - the same file opened in 2 projects
 		ProjectNode project1 = createProject("Project1", rc.getLocalRepository(), "IT1");
 		ProjectNode project2 = createProject("Project2", rc.getLocalRepository(), "IT2");
-
-		LoadFiles lf = new LoadFiles();
 		LibraryNode lib1 = lf.loadFile2(project1);
 		LibraryNode lib2 = lf.loadFile2(project2);
+		assertTrue("Library1 must not be null.", lib1 != null);
+		assertTrue("Library2 must not be null.", lib2 != null);
 		int ln2NamedTypeCount = lib2.getDescendants_LibraryMembers().size();
 		// List<Node> complexNamedtypes = lib2.getDescendants_NamedTypes(); // hold onto for later use.
-		assertTrue("Project is not empty.", !project1.getChildren().isEmpty());
-		assertTrue("Project is not empty.", !project2.getChildren().isEmpty());
+		assertTrue("Project1 must have 1 child library.", project1.getChildren().size() == 1);
+		assertTrue("Project2 must have 1 child library.", project2.getChildren().size() == 1);
 		// Library parent is not reliable way to find project
 		LibraryNavNode lnn1 = (LibraryNavNode) project1.getChildren().get(0);
 		LibraryNavNode lnn2 = (LibraryNavNode) project2.getChildren().get(0);

@@ -1334,11 +1334,12 @@ public class LibraryNode extends Node implements LibraryInterface {
 		if (ns == null || ns.isEmpty())
 			throw new IllegalArgumentException("Null or empty namespace argument.");
 		String prefix = getPrefix(); // save in case not registered.
-		nsHandler.setLibraryNamespace(this, ns);
-		// FIXME - huh???
-		if (getPrefix().isEmpty()) {
-			nsHandler.setNamespacePrefix(ns, prefix);
-			setNSPrefix(prefix);
+		if (nsHandler.setLibraryNamespace(this, ns)) {
+			// don't set prefix if library namespace could not be set
+			if (getPrefix().isEmpty()) {
+				nsHandler.setNamespacePrefix(ns, prefix);
+				setNSPrefix(prefix);
+			}
 		}
 		updateLibraryStatus();
 	}
