@@ -22,7 +22,9 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.opentravel.schemas.commands.OtmAbstractHandler;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
+import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.MainWindow;
@@ -87,6 +89,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 		return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
 	}
 
+	// From OTM Actions (46) - typeSelector - type selection buttons in facet view
 	public static boolean execute(List<Node> toChange, Node newType) {
 		if (newType == null || !newType.isNamedEntity()) {
 			LOGGER.warn("No type to assign. Early Exit.");
@@ -166,4 +169,56 @@ public class AssignTypeAction extends OtmAbstractAction {
 		}
 	}
 
+	/**
+	 * Run type selection wizard and assign selected type of the pass node list. Will create minor versions of the nodes
+	 * in the list if necessary.
+	 * 
+	 * @param list
+	 *            - nodes selected to be assigned the type selected.
+	 */
+	public static void execute(TypeUser user) {
+		OtmAbstractHandler handler = new OtmAbstractHandler() {
+			@Override
+			public Object execute(ExecutionEvent event) throws ExecutionException {
+				return null;
+			}
+		};
+
+		// If the owning component is not in the head the make a minor version of the owner.
+		Node owner = ((Node) user).getOwningComponent();
+		if (owner != null && owner.getChain() != null && !owner.isInHead2()) {
+			owner = handler.createVersionExtension(owner);
+			// TODO - why does no.isInheritedProperty() fail on new version extensions?
+			FacetNode owningFacet = findFacet(owner, ((Node) user).getParent().getName());
+			user = (TypeUser) ((Node) user).clone(owningFacet, "");
+		}
+		if (owner == null)
+			return;
+
+		// Determine if the property is in the same version as the owner. Older versions will be inherited.
+		if (((Node) user).isInheritedProperty()) {
+			LOGGER.debug("YEP");
+			FacetNode owningFacet = findFacet(owner, ((Node) user).getParent().getName());
+			user = (TypeUser) ((Node) user).clone(owningFacet, "");
+		}
+
+		// Now run the wizard
+		ArrayList<Node> list = new ArrayList<Node>();
+		list.add((Node) user);
+		final TypeSelectionWizard wizard = new TypeSelectionWizard(list);
+		if (wizard.run(OtmRegistry.getActiveShell()))
+			AssignTypeAction.execute(wizard.getList(), wizard.getSelection());
+		else
+			DialogUserNotifier.openInformation("No Selection", Messages.getString("OtmW.101")); //$NON-NLS-1$
+
+		OtmRegistry.getMainController().refresh(owner);
+	}
+
+	private static FacetNode findFacet(Node owner, String name) {
+		for (Node n : owner.getChildren())
+			if (n instanceof FacetNode)
+				if (n.getName().equals(name))
+					return (FacetNode) n;
+		return null;
+	}
 }

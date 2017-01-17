@@ -118,7 +118,10 @@ public class LibraryModelManager {
 			else
 				newLNN = new LibraryNavNode(li.getChain(), project);
 		}
-
+		if (newLNN == null || newLNN.getLibrary() == null) {
+			LOGGER.warn("Error creating new library nav node.");
+			return null;
+		}
 		assert (newLNN != null);
 		assert (newLNN.getLibrary() != null);
 
@@ -186,7 +189,7 @@ public class LibraryModelManager {
 		if (li == null)
 			LOGGER.error("Did not successfully model the library " + pi.getLibraryName() + " !");
 
-		assert (newLNN != null);
+		// assert (newLNN != null);
 		return newLNN;
 	}
 

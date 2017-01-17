@@ -121,11 +121,11 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 	public LibraryChainNode(ProjectItem pi, ProjectNode projNode) {
 		super();
 		if (pi == null || pi.getContent() == null) {
-			// LOGGER.debug("Null project item content!");
+			LOGGER.debug("Null project item content!");
 			return;
 		}
 		if (pi.getContent().getOwningModel() == null) {
-			// LOGGER.debug("Project item does not have owning model.");
+			LOGGER.debug("Project item does not have owning model.");
 			return;
 		}
 
@@ -395,7 +395,8 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 	 * for managed base namespaces. It matches the behavior or makeChainIdentity in ProjectNode.
 	 */
 	public String makeChainIdentity() {
-		assert (getHead() != null);
+		if (getHead() == null)
+			return "";
 
 		String name = getHead().getName();
 		NamespaceHandler handler = getHead().getNsHandler();

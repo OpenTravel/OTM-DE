@@ -17,8 +17,6 @@ package org.opentravel.schemas.controllers;
 
 import java.util.ArrayList;
 
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.TableItem;
@@ -26,14 +24,12 @@ import org.opentravel.schemas.actions.AssignTypeAction;
 import org.opentravel.schemas.actions.SetDescriptionEqExAction;
 import org.opentravel.schemas.actions.SetObjectNameAction;
 import org.opentravel.schemas.commands.AddNodeHandler2;
-import org.opentravel.schemas.commands.OtmAbstractHandler;
 import org.opentravel.schemas.controllers.DefaultContextController.ContextViewType;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ConstraintHandler;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.SimpleTypeNode;
-import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
@@ -304,42 +300,51 @@ public class OtmActions {
 		if (list.size() <= 0)
 			list.add(getFacetSelection());
 
-		// If the node is not in the head library, then create one.
-		OtmAbstractHandler handler = new OtmAbstractHandler() {
-			@Override
-			public Object execute(ExecutionEvent event) throws ExecutionException {
-				return null;
-			}
-		};
-		Node node = list.get(0);
-		// String name = node.getName();
-		Node owner = node.getOwningComponent();
-		// FacetNode fn = (FacetNode) node.getParent();
-		if (node.getChain() != null && !node.isInHead2()) {
-			Node newOwner = handler.createVersionExtension(owner);
-			if (newOwner == null)
-				return;
-			// Now, add cloned property to contain the updated type assignment
-			FacetNode owningFacet = (FacetNode) newOwner.findNodeByName(node.getParent().getName());
-			if (owningFacet == null)
-				return;
-			PropertyNode clone = (PropertyNode) node.clone(owningFacet, "");
+		if (list.get(0) instanceof TypeUser)
+			AssignTypeAction.execute(((TypeUser) list.get(0)));
+		else
+			LOGGER.debug("Invalid node to select type for: " + list.get(0));
 
-			list.clear();
-			list.add(clone);
-		}
-
-		if (list.size() > 0) {
-			final TypeSelectionWizard wizard = new TypeSelectionWizard(list);
-			if (wizard.run(OtmRegistry.getActiveShell())) {
-				AssignTypeAction.execute(wizard.getList(), wizard.getSelection());
-			} else {
-				DialogUserNotifier.openInformation("No Selection", Messages.getString("OtmW.101")); //$NON-NLS-1$
-
-			}
-			mc.refresh(n);
-		} else
-			LOGGER.warn("typeSelector did not have a list to act upon.");
+		// // If the node is not in the head library, then create one.
+		// OtmAbstractHandler handler = new OtmAbstractHandler() {
+		// @Override
+		// public Object execute(ExecutionEvent event) throws ExecutionException {
+		// return null;
+		// }
+		// };
+		// Node node = list.get(0);
+		// // String name = node.getName();
+		// Node owner = node.getOwningComponent();
+		// String op = owner.getPrefix();
+		// String np = node.getPrefix(); // library says 2.03, tl says 2.0
+		// String ownerPrefix = ((BusinessObjectNode) owner).getTLModelObject().getOwningLibrary().getPrefix();
+		// AbstractLibrary tlLib = ((ElementNode) node).getTLModelObject().getOwner().getOwningLibrary();
+		// String prefix = ((ElementNode) node).getTLModelObject().getOwningLibrary().getPrefix();
+		// // FacetNode fn = (FacetNode) node.getParent();
+		// if (node.getChain() != null && !node.isInHead2()) {
+		// // Node newOwner = handler.createVersionExtension(owner);
+		// // if (newOwner == null)
+		// // return;
+		// // Now, add cloned property to contain the updated type assignment
+		// FacetNode owningFacet = (FacetNode) newOwner.findNodeByName(node.getParent().getName());
+		// if (owningFacet == null)
+		// return;
+		// PropertyNode clone = (PropertyNode) node.clone(owningFacet, "");
+		//
+		// list.clear();
+		// list.add(clone);
+		// }
+		//
+		// if (list.size() > 0) {
+		// final TypeSelectionWizard wizard = new TypeSelectionWizard(list);
+		// if (wizard.run(OtmRegistry.getActiveShell())) {
+		// AssignTypeAction.execute(wizard.getList(), wizard.getSelection());
+		// } else {
+		//				DialogUserNotifier.openInformation("No Selection", Messages.getString("OtmW.101")); //$NON-NLS-1$
+		// }
+		// mc.refresh(n);
+		// } else
+		// LOGGER.warn("typeSelector did not have a list to act upon.");
 	}
 
 	public static int changeMaxLength() {

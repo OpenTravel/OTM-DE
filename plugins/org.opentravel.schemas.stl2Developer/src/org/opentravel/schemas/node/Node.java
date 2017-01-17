@@ -553,8 +553,8 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Find the first node in the named type descendants of this node with the given name. The order searched is not
-	 * guaranteed. Will not find family nodes.
+	 * Find the first library member node in the named type descendants of this node with the given name. The order
+	 * searched is not guaranteed. Will not find family nodes.
 	 * 
 	 * @param name
 	 * @return node found or null
