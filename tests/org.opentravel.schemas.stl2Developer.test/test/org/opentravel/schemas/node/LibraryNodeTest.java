@@ -58,13 +58,17 @@ public class LibraryNodeTest extends BaseProjectTest {
 		LibraryNode lib2 = lf.loadFile2(project2);
 		assertTrue("Library1 must not be null.", lib1 != null);
 		assertTrue("Library2 must not be null.", lib2 != null);
-		int ln2NamedTypeCount = lib2.getDescendants_LibraryMembers().size();
-		// List<Node> complexNamedtypes = lib2.getDescendants_NamedTypes(); // hold onto for later use.
 		assertTrue("Project1 must have 1 child library.", project1.getChildren().size() == 1);
 		assertTrue("Project2 must have 1 child library.", project2.getChildren().size() == 1);
 		// Library parent is not reliable way to find project
 		LibraryNavNode lnn1 = (LibraryNavNode) project1.getChildren().get(0);
 		LibraryNavNode lnn2 = (LibraryNavNode) project2.getChildren().get(0);
+		assertTrue("LibraryNavNode 1 must not be null.", lnn1 != null);
+		assertTrue("LibraryNavNode 2 must not be null.", lnn2 != null);
+		assertTrue("LibraryNavNodes must be different.", lnn1 != lnn2);
+		// hold onto for later use.
+		// List<Node> complexNamedtypes = lib2.getDescendants_NamedTypes();
+		int ln2NamedTypeCount = lib2.getDescendants_LibraryMembers().size();
 
 		// When - a library is removed
 		pc.remove(lnn1);

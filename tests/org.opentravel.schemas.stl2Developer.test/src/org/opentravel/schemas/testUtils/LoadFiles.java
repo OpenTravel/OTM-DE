@@ -79,35 +79,34 @@ public class LoadFiles {
 	@Test
 	public void loadFiles() throws Exception {
 		this.mc = new MainController();
-		int libCnt = Node.getAllLibraries().size(); // built in libs
+		List<LibraryNode> loaded = new ArrayList<LibraryNode>();
 
 		// check special files
 		ProjectController pc = mc.getProjectController();
 		ProjectNode proj = pc.getDefaultProject();
-		loadFile_Choice(proj);
-		libCnt++;
-		loadFile6(proj);
-		libCnt++;
+		loaded.add(loadFile_Choice(proj));
+		loaded.add(loadFile6(proj));
 		// duplicate ns/name - loadFile7(proj);
 
 		try {
-			loadFile1(mc);
-			libCnt++;
-			loadFile2(mc);
-			libCnt++;
-			loadFile3(mc);
-			libCnt++;
-			loadFile4(mc);
-			libCnt++;
-			loadFile5(mc);
-			libCnt++;
+			loaded.add(loadFile1(mc));
+			loaded.add(loadFile2(mc));
+			loaded.add(loadFile3(mc));
+			loaded.add(loadFile4(mc));
+			loaded.add(loadFile5(mc));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		Assert.assertEquals(libCnt, Node.getAllLibraries().size());
+
+		List<LibraryNode> libs = Node.getAllLibraries();
+		List<LibraryNode> projLibs = proj.getLibraries();
+		for (LibraryNode ln : loaded) {
+			assertTrue(ln != null);
+			assertTrue("Model must contain library.", libs.contains(ln));
+			assertTrue("Project must contain library.", projLibs.contains(ln));
+		}
 
 		loadTestGroupA(mc);
-
 	}
 
 	@Test
@@ -137,6 +136,7 @@ public class LoadFiles {
 	/**
 	 * Remove any nodes with bad assignments. The removed nodes will not pass Node_Tests/visitNode().
 	 */
+	@Deprecated
 	public void cleanModel() {
 		NodeVisitor srcVisitor = new NodeTesters().new ValidateTLObject();
 		for (LibraryNode ln : Node.getAllUserLibraries()) {
@@ -230,6 +230,12 @@ public class LoadFiles {
 		return ln;
 	}
 
+	/**
+	 * Standalone test file. Does not import/include other libraries.
+	 * 
+	 * @param project
+	 * @return
+	 */
 	public LibraryNode loadFile2(ProjectNode project) {
 		return loadFile(project, filePath2);
 	}

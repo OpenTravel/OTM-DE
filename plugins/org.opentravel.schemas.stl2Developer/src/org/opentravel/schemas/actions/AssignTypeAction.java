@@ -188,7 +188,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 		Node owner = ((Node) user).getOwningComponent();
 		if (owner != null && owner.getChain() != null && !owner.isInHead2()) {
 			owner = handler.createVersionExtension(owner);
-			// TODO - why does no.isInheritedProperty() fail on new version extensions?
+			// Inherited children fails until children are retrieved (lazy evaluation). Force cloning now.
 			FacetNode owningFacet = findFacet(owner, ((Node) user).getParent().getName());
 			user = (TypeUser) ((Node) user).clone(owningFacet, "");
 		}
@@ -197,7 +197,6 @@ public class AssignTypeAction extends OtmAbstractAction {
 
 		// Determine if the property is in the same version as the owner. Older versions will be inherited.
 		if (((Node) user).isInheritedProperty()) {
-			LOGGER.debug("YEP");
 			FacetNode owningFacet = findFacet(owner, ((Node) user).getParent().getName());
 			user = (TypeUser) ((Node) user).clone(owningFacet, "");
 		}
@@ -210,6 +209,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 			AssignTypeAction.execute(wizard.getList(), wizard.getSelection());
 		else
 			DialogUserNotifier.openInformation("No Selection", Messages.getString("OtmW.101")); //$NON-NLS-1$
+			// TODO - should the new owner be removed?
 
 		OtmRegistry.getMainController().refresh(owner);
 	}

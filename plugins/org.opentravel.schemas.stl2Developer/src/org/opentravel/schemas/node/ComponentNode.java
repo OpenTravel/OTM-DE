@@ -701,6 +701,7 @@ public abstract class ComponentNode extends Node {
 		chain.getComplexAggregate().getChildren().remove(owner);
 
 		owner.getLibrary().checkExtension(owner);
+		// TODO - should old properties be set to inherited?
 		return newNode;
 	}
 
