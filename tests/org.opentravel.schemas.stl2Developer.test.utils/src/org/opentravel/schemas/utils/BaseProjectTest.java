@@ -78,6 +78,7 @@ public abstract class BaseProjectTest {
 		pc.closeAll();
 
 		for (ProjectNode pn : projectsToClean) {
+			System.out.println("Cleaning project: " + pn);
 			RepositoryTestUtils.deleteContents(pn.getTLProject().getProjectFile().getParentFile());
 		}
 		projectsToClean.clear();

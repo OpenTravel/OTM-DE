@@ -1229,6 +1229,8 @@ public abstract class Node implements INode {
 	}
 
 	/**
+	 * Simple getter of the versionNode field.
+	 * 
 	 * @return the version node representing this node in the specific library in a chain.
 	 */
 	public VersionNode getVersionNode() {

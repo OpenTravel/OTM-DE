@@ -126,7 +126,7 @@ public class NewComponentWizard extends Wizard implements IDoubleClickListener {
 		}
 		editNode.setDescription(ncPage1.getDescription());
 		editNode.setUseType(ncPage1.getComponentType());
-		editNode.setLibrary(targetNode.getLibrary());
+		editNode.setLibrary(targetNode.getLibrary().getHead());
 		editNode.setParent(targetNode);
 		editNode.setTLType(serviceSubjectSelectionPage.getSelectedNode());
 		return editNode;

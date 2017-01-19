@@ -285,6 +285,11 @@ public class MockLibrary {
 	 * @return new business object with properties or null if library is not editable
 	 */
 	public BusinessObjectNode addBusinessObjectToLibrary(LibraryNode ln, String name) {
+		return addBusinessObjectToLibrary(ln, name, true);
+
+	}
+
+	public BusinessObjectNode addBusinessObjectToLibrary(LibraryNode ln, String name, boolean addID) {
 		for (Node n : ln.getDescendants_LibraryMembers())
 			if (n.getName().equals(name)) {
 				LOGGER.warn("Tried to create a business object with duplicate name: " + name);
@@ -297,8 +302,7 @@ public class MockLibrary {
 		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
 
 		new ElementNode(newNode.getIDFacet(), "TestEleInID" + name, string);
-		// If there are too many ID in extension the library is invalid.
-		new IdNode(newNode.getIDFacet(), "TestId" + name);
+		IdNode idNode = new IdNode(newNode.getIDFacet(), "TestId" + name);
 
 		new ElementNode(newNode.getSummaryFacet(), "TestEle" + name, string);
 		new AttributeNode(newNode.getSummaryFacet(), "TestAttribute" + name, string);
@@ -313,6 +317,9 @@ public class MockLibrary {
 			printValidationFindings(ln);
 			assertTrue("Library must be valid with new BO.", ln.isValid()); // validates TL library
 		}
+		// If there are too many ID in extension the library is invalid.
+		if (!addID)
+			idNode.delete();
 		LOGGER.debug("Created business object " + name);
 		return ln.isEditable() ? newNode : null;
 	}
@@ -337,18 +344,18 @@ public class MockLibrary {
 
 		// Add properties to shared facet
 		PropertyOwnerInterface shared = choice.getSharedFacet();
-		new ElementNode(shared, "shared1");
+		new ElementNode(shared, "shared1" + name);
 
 		// Add two choice facets
 		FacetNode f1 = choice.addFacet("c1");
-		new ElementNode(f1, "c1p1", string);
-		new AttributeNode(f1, "c1p2");
-		new IndicatorNode(f1, "c1p3");
+		new ElementNode(f1, "c1p1" + name, string);
+		new AttributeNode(f1, "c1p2" + name);
+		new IndicatorNode(f1, "c1p3" + name);
 
 		FacetNode f2 = choice.addFacet("c2");
-		new ElementNode(f2, "c2p1"); // unassigned
-		new AttributeNode(f2, "c2p2");
-		new IndicatorNode(f2, "c2p3");
+		new ElementNode(f2, "c2p1" + name); // unassigned
+		new AttributeNode(f2, "c2p2" + name);
+		new IndicatorNode(f2, "c2p3" + name);
 
 		return choice;
 	}
@@ -432,7 +439,7 @@ public class MockLibrary {
 	public CoreObjectNode addCoreObjectToLibrary(LibraryNode ln, String name) {
 		TypeProvider type = ((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
 		CoreObjectNode newNode = addCoreObjectToLibrary_Empty(ln, name);
-		TypeUser newProp = new ElementNode(newNode.getSummaryFacet(), "TestElement", type);
+		TypeUser newProp = new ElementNode(newNode.getSummaryFacet(), "TestElement" + name, type);
 		newNode.getRoleFacet().addRole(name + "Role");
 		return newNode;
 	}

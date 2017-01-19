@@ -320,7 +320,8 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 		// // Show the node under the aggregate in the chain instead of in library.
 		// if (n.getParentAggregate() != null)
 		// n = n.getParentAggregate();
-		navigatorMenus.refreshNode((Node) n, true);
+		navigatorMenus.refreshNode((Node) n, false);
+		// 1/19/17 - navigatorMenus.refreshNode((Node) n, true);
 	}
 
 	/**

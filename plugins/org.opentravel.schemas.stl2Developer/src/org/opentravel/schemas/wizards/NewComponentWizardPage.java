@@ -123,15 +123,16 @@ public class NewComponentWizardPage extends WizardPage {
 
 		// Post the library state information
 		final Label label1 = new Label(container, SWT.NULL);
+		LibraryNode targetLib = targetNode.getLibrary().getHead();
 		if (!targetNode.isEditable())
 			label1.setText(Messages.getString("wizard.newObject.libraryState.notEditable"));
 		else
 			label1.setText(Messages.getString("wizard.newObject.libraryState.editable"));
 		label1.setToolTipText(Messages.getString("wizard.newObject.libraryState.tooltip"));
 		final Label libraryField = new Label(container, SWT.NULL | SWT.READ_ONLY);
-		libraryField.setText(targetNode.getLibrary().getLabel() + " [" + targetNode.getLibrary().getVersion() + " ]");
+		libraryField.setText(targetLib.getLabel() + " [" + targetLib.getVersion() + " ]");
 		libraryField.setToolTipText(Messages.getString("wizard.newObject.libraryState.tooltip"));
-		if (targetNode.getLibrary().getEditStatus().equals(NodeEditStatus.PATCH)) {
+		if (targetLib.getEditStatus().equals(NodeEditStatus.PATCH)) {
 			label1.setText(Messages.getString("wizard.newObject.libraryState.patch"));
 			libraryField.setToolTipText(Messages.getString("wizard.newObject.select.tooltip.patch"));
 		}
@@ -177,7 +178,7 @@ public class NewComponentWizardPage extends WizardPage {
 		ComponentNodeType[] list = componentList;
 		String tooltip = Messages.getString("wizard.newObject.select.tooltip.noService");
 		// if (targetNode.getLibrary().getEditStatus().equals(NodeEditStatus.PATCH)) {
-		LibraryNode lib = targetNode.getChain() == null ? targetNode.getLibrary() : targetNode.getChain().getHead();
+		LibraryNode lib = targetNode.getLibrary().getHead();
 		if (lib.getEditStatus().equals(NodeEditStatus.PATCH)) {
 			list = PatchComponentList;
 			tooltip = Messages.getString("wizard.newObject.select.tooltip.Patch");
@@ -232,7 +233,7 @@ public class NewComponentWizardPage extends WizardPage {
 		if (!targetNode.getLibrary().hasService())
 			tooltip = Messages.getString("wizard.newObject.select.tooltip.Service");
 
-		if (targetNode.getLibrary().getEditStatus().equals(NodeEditStatus.PATCH))
+		if (targetNode.getLibrary().getHead().getEditStatus().equals(NodeEditStatus.PATCH))
 			postButtons(PatchComponentList, tooltip, container);
 		else {
 			if (targetNode.getLibrary().hasService())

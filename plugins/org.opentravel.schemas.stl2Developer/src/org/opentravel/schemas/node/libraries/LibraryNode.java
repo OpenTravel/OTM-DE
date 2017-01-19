@@ -1860,4 +1860,13 @@ public class LibraryNode extends Node implements LibraryInterface {
 		return false;
 	}
 
+	/**
+	 * @return this library if unmanaged or the head of the chain for managed libraries
+	 */
+	public LibraryNode getHead() {
+		if (isManaged())
+			return getChain().getHead();
+		return this;
+	}
+
 }

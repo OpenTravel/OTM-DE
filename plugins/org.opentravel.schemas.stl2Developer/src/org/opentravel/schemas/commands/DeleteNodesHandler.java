@@ -25,9 +25,12 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.actions.ActionFactory;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Command Handler for deleting nodes from the model .
@@ -38,11 +41,11 @@ import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 public class DeleteNodesHandler extends OtmAbstractHandler {
 
 	public static final String COMMAND_ID = ActionFactory.DELETE.getCommandId();
+	private final static Logger LOGGER = LoggerFactory.getLogger(DeleteNodesHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
 		List<Node> selectedNodes = mc.getGloballySelectNodes();
-		// mc.getNodeModelController().deleteNodes(selectedNodes);
 		deleteNodes(selectedNodes);
 		return null;
 	}
@@ -85,9 +88,7 @@ public class DeleteNodesHandler extends OtmAbstractHandler {
 					sb.append(", ");
 				sb.append(n.getName());
 			}
-			final boolean ans = DialogUserNotifier.openConfirm(Messages.getString("OtmW.120"), listing + sb.toString());
-
-			if (ans) {
+			if (DialogUserNotifier.openConfirm(Messages.getString("OtmW.120"), listing + sb.toString())) {
 				// LOGGER.debug("Deleting the objects: " + sb.toString());
 				// Determine where to focus when delete is done
 				Node currentNode = ((Node) mc.getCurrentNode_TypeView());
@@ -97,6 +98,9 @@ public class DeleteNodesHandler extends OtmAbstractHandler {
 					while (toDelete.contains(focusNode)) {
 						focusNode = focusNode.getParent();
 					}
+					// If in a versioned chain, go to the containing nav node
+					if (focusNode instanceof VersionNode)
+						focusNode = focusNode.getParent();
 				}
 
 				for (final INode n : toDelete)
@@ -104,7 +108,7 @@ public class DeleteNodesHandler extends OtmAbstractHandler {
 
 				mc.refresh(focusNode);
 				mc.selectNavigatorNodeAndRefresh(focusNode);
-
+				// LOGGER.debug("Delete done. Refreshing views to display:", focusNode.getNameWithPrefix());
 			}
 		}
 	}

@@ -158,6 +158,8 @@ public class VersionNode extends ComponentNode {
 	}
 
 	/**
+	 * Simple getter of the head field.
+	 * 
 	 * @return the newest version of the object (version head).
 	 */
 	public Node getNewestVersion() {

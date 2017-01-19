@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.CoreObjectNode;
@@ -79,7 +80,7 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 	private CoreObjectNode mCo = null;
 	private ExtensionPointNode ePatch = null;
 
-	private LibraryNode providerLib;
+	private LibraryNode versionedLib2;
 
 	@Override
 	public RepositoryNode getRepositoryForTest() {
@@ -135,8 +136,8 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		// Given - two managed, locked and editable libraries.
 
 		// Given - a simple type in the provider library to assign
-		providerLib = lib2;
-		SimpleTypeNode simpleType = ml.addSimpleTypeToLibrary(providerLib, "simpleType");
+		versionedLib2 = lib2;
+		SimpleTypeNode simpleType = ml.addSimpleTypeToLibrary(versionedLib2, "simpleType");
 
 		// Given - user library containing the objects that will get updated and assign them to the found type
 		LibraryNode userLib = lib1;
@@ -145,14 +146,14 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 			user.setAssignedType(simpleType);
 
 		// When - provider lib is Versioned
-		providerLib = rc.createMajorVersion(providerLib);
+		versionedLib2 = rc.createMajorVersion(versionedLib2);
 		// Then
-		assertTrue("Must have major version of provider library.", providerLib != null);
-		assertTrue("Must have type providers", !providerLib.getDescendants_TypeProviders().isEmpty());
-		assertTrue("Must be new library.", providerLib != lib2);
-		assertTrue("Major versions must be head of chain.", providerLib == providerLib.getChain().getHead());
+		assertTrue("Must have major version of provider library.", versionedLib2 != null);
+		assertTrue("Must have type providers", !versionedLib2.getDescendants_TypeProviders().isEmpty());
+		assertTrue("Must be new library.", versionedLib2 != lib2);
+		assertTrue("Major versions must be head of chain.", versionedLib2 == versionedLib2.getChain().getHead());
 		// Then - type users still use the type from the old version
-		assertTrue("Assigned type is NOT in major version.", simpleType.getLibrary() != providerLib);
+		assertTrue("Assigned type is NOT in major version.", simpleType.getLibrary() != versionedLib2);
 		for (TypeUser user : userLib.getDescendants_TypeUsers())
 			if (!(user.getAssignedType() instanceof ImpliedNode) && user.getRequiredType() == null)
 				if (user.getAssignedType() != simpleType)
@@ -170,7 +171,7 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		assertTrue("Must have simple type library in list.", usedLibs.contains(simpleType.getLibrary()));
 		HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(usedLibs, true);
 		assertTrue("Replacement map must map simple type lib to major version.",
-				replacementMap.get(simpleType.getLibrary()) == providerLib);
+				replacementMap.get(simpleType.getLibrary()) == versionedLib2);
 
 		// When - call used by Version Update Handler t0 replace type users using the replacement map
 		userLib.replaceTypeUsers(replacementMap);
@@ -179,10 +180,10 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		assertTrue(simpleType.getWhereAssigned().isEmpty());
 		for (TypeUser user : userLib.getDescendants_TypeUsers()) {
 			if (!(user.getAssignedType() instanceof ImpliedNode) && user.getRequiredType() == null) {
-				if (user.getAssignedType().getLibrary() != providerLib)
+				if (user.getAssignedType().getLibrary() != versionedLib2)
 					LOGGER.debug("Error - " + user + " assigned type is in wrong library: "
 							+ ((Node) user.getAssignedType()).getNameWithPrefix());
-				assertTrue("Must be in providerLib.", user.getAssignedType().getLibrary() == providerLib);
+				assertTrue("Must be in providerLib.", user.getAssignedType().getLibrary() == versionedLib2);
 			}
 		}
 		// TODO - test with finalOnly set to true on getVersionUpdateMap()
@@ -192,18 +193,18 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 	public void updateVersionTest_BaseTypes() throws RepositoryException {
 		// Create two libraries where one extends types from the other then version the type provider
 
-		// Find a Extension Owners in the provider library to assign
+		// Create Extension Owners in the provider library
 		BusinessObjectNode boType = ml.addBusinessObjectToLibrary(lib2, "boType");
 		ChoiceObjectNode choiceType = ml.addChoice(lib2, "choiceType");
 		CoreObjectNode coreType = ml.addCoreObjectToLibrary(lib2, "coreType");
 		EnumerationClosedNode ecType = ml.addClosedEnumToLibrary(lib2, "ecType");
 		EnumerationOpenNode eoType = ml.addOpenEnumToLibrary(lib2, "eoType");
-		// ExtensionPointNode epType = ml.a(lib2, "epType");
 		VWA_Node vwaType = ml.addVWA_ToLibrary(lib2, "vwaType");
 
-		// Create user library containing the objects that will get updated and assign them to the found type
-		LibraryNode userLib = lib1;
-		BusinessObjectNode boExtension = ml.addBusinessObjectToLibrary(lib1, "boExtension");
+		// ??? Create user library containing the objects that will get updated and assign them to the found type
+		// Given - library 1 with one of each object extending objects in library 2
+		// LibraryNode userLib = lib1;
+		BusinessObjectNode boExtension = ml.addBusinessObjectToLibrary(lib1, "boExtension", false); // No id in id facet
 		boExtension.setExtension(boType);
 		assertTrue("Business object must extend boType.", boExtension.getExtensionBase() == boType);
 		ChoiceObjectNode choiceExtension = ml.addChoice(lib1, "choiceExtension");
@@ -217,35 +218,43 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		VWA_Node vwaExtension = ml.addVWA_ToLibrary(lib1, "vwaExtension");
 		vwaExtension.setExtension(vwaType);
 
-		// Version the provider library
+		// Given - both libraries are valid.
+		ValidationFindings findings1 = lib1.validate();
+		ValidationFindings findings2 = lib2.validate();
+		MockLibrary.printFindings(findings1);
+		MockLibrary.printFindings(findings2);
+		assertTrue("Library must be valid.", lib1.validate().isEmpty());
 		assertTrue("Library must be valid.", lib2.validate().isEmpty());
-		providerLib = rc.createMajorVersion(lib2);
-		assertTrue("Must have major version of provider library.", providerLib != null);
-		assertTrue("Must have type providers", !providerLib.getDescendants_TypeProviders().isEmpty());
-		assertTrue("Must be new library.", providerLib != lib2);
-		assertTrue("Major versions must be head of chain.", providerLib == providerLib.getChain().getHead());
+
+		// When - create major version of library lib2 containing the base types
+		versionedLib2 = rc.createMajorVersion(lib2);
+		assertTrue("Must have major version of library 2.", versionedLib2 != null);
+		assertTrue("Must have type providers", !versionedLib2.getDescendants_TypeProviders().isEmpty());
+		assertTrue("Must be new library.", versionedLib2 != lib2);
+		assertTrue("Major versions must be head of chain.", versionedLib2 == versionedLib2.getChain().getHead());
 
 		// Business Logic - setup the map and prepare for the call used by the Version Update Handler.
 		//
 		// Walk selected library type users and collect all used libraries (type assignments and extensions)
-		List<LibraryNode> usedLibs = userLib.getAssignedLibraries();
-		assertTrue("There must be one assigned library.", !usedLibs.isEmpty());
+		List<LibraryNode> usedLibs1 = lib1.getAssignedLibraries();
+		List<LibraryNode> usedLibs2 = versionedLib2.getAssignedLibraries();
+		assertTrue("There must be one assigned library.", !usedLibs2.isEmpty());
 
 		// Create replacement map
-		HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(usedLibs, true);
+		HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(usedLibs1, true);
 		// TODO - test with finalOnly set to true on getVersionUpdateMap()
 
 		// Use calls used by Version Update Handler to replace type users using the replacement map
-		userLib.replaceAllUsers(replacementMap);
+		lib1.replaceAllUsers(replacementMap);
 
 		// Make sure it worked
-		for (ExtensionOwner owner : userLib.getDescendants_ExtensionOwners()) {
+		for (ExtensionOwner owner : lib1.getDescendants_ExtensionOwners()) {
 			if (!(owner.getExtensionBase() instanceof ImpliedNode)) {
-				if (owner.getExtensionBase().getLibrary() != providerLib)
+				if (owner.getExtensionBase().getLibrary() != versionedLib2)
 					LOGGER.debug("Error - " + owner + " assigned type is in wrong library: "
 							+ ((Node) owner.getExtensionBase()).getNameWithPrefix());
 				assertTrue("Extension Owner must be in providerLib version 2.",
-						owner.getExtensionBase().getLibrary() == providerLib);
+						owner.getExtensionBase().getLibrary() == versionedLib2);
 			}
 		}
 	}

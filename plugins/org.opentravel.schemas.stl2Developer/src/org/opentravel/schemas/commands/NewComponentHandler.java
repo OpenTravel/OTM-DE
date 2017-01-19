@@ -87,6 +87,9 @@ public class NewComponentHandler extends AbstractHandler {
 			if (editNode.getTLType() != null && newOne instanceof ServiceNode)
 				((ServiceNode) newOne).addCRUDQ_Operations(editNode.getTLType());
 			mc.selectNavigatorNodeAndRefresh(newOne);
+
+			// Edit node is NOT in the library so there is no need to remove it
+			assert (!editNode.getLibrary().contains(editNode));
 		}
 	}
 }
