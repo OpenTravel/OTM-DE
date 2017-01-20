@@ -320,8 +320,8 @@ public class NodeFactory {
 	}
 
 	/**
-	 * Create a new component node and model object and link it to <i>this</i>library's Complex or Simple Root node.
-	 * Used for creating model objects from nodes constructed by GUI otmHandlers and wizards.
+	 * Create a new component node and model object and link it to the passed node's head library Complex or Simple Root
+	 * node. Used for creating model objects from nodes constructed by GUI otmHandlers and wizards.
 	 * 
 	 * @see {@link NewComponent_Tests.java}
 	 * @param n
@@ -346,13 +346,13 @@ public class NodeFactory {
 				cn.setExtensible(true);
 				cn.setName(n.getName());
 				cn.setDescription(n.getDescription());
-				// cn.setIdentity(n.getName());
 
-				if (n.getLibrary().isEditable())
-					n.getLibrary().addMember(cn);
-				else
-					// Put the new node at the head of the chain.
-					n.getLibrary().getChain().getHead().addMember(cn);
+				n.getLibrary().getHead().addMember(cn);
+				// if (n.getLibrary().isEditable())
+				// n.getLibrary().addMember(cn);
+				// else
+				// // Put the new node at the head of the chain.
+				// n.getLibrary().getChain().getHead().addMember(cn);
 
 				if (cn instanceof ChoiceObjectNode) {
 					((ChoiceObjectNode) cn).addFacet("A");

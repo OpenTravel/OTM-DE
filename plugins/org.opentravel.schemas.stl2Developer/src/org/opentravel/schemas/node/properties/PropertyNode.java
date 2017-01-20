@@ -531,6 +531,12 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		return deep;
 	}
 
+	// Override if not re-nameable.
+	@Override
+	public boolean isRenameable() {
+		return isEditable() && !inherited && getAssignedType().isRenameableWhereUsed();
+	}
+
 	/**
 	 * @return true if this property is an attribute of a Value With Attributes object.
 	 */

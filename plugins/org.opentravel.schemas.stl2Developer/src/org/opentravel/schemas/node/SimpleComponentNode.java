@@ -113,6 +113,11 @@ public abstract class SimpleComponentNode extends TypeProviderBase implements Si
 	}
 
 	@Override
+	public boolean isRenameableWhereUsed() {
+		return true;
+	}
+
+	@Override
 	public Node getBaseType() {
 		// Base type is the assigned type
 		return (Node) typeHandler.get();

@@ -142,6 +142,11 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 	}
 
 	@Override
+	public boolean isRenameableWhereUsed() {
+		return true;
+	}
+
+	@Override
 	public List<Node> getChildren_TypeUsers() {
 		ArrayList<Node> users = new ArrayList<Node>();
 		users.add(getSimpleFacet().getSimpleAttribute());

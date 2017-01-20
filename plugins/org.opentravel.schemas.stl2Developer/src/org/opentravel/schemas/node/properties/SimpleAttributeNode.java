@@ -91,6 +91,11 @@ public class SimpleAttributeNode extends PropertyNode {
 	}
 
 	@Override
+	public boolean isRenameable() {
+		return false; // name must come from owning object
+	}
+
+	@Override
 	public boolean hasNavChildren(boolean deep) {
 		return deep && getNavType() != null;
 	}

@@ -31,6 +31,7 @@ import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.MockLibrary;
@@ -129,8 +130,57 @@ public class PropertyNodeTest {
 
 	@Test
 	public void isRenameableTests() {
+		// Given - library with one of each object type
 		mockLibrary.addOneOfEach(ln, "Rn");
+		BusinessObjectNode bo = null;
+		VWA_Node vwa = null;
+		CoreObjectNode core = null;
+		EnumerationOpenNode eo = null;
+		for (LibraryMemberInterface n : ln.get_LibraryMembers())
+			if (n instanceof BusinessObjectNode)
+				bo = (BusinessObjectNode) n;
+			else if (n instanceof VWA_Node)
+				vwa = (VWA_Node) n;
+			else if (n instanceof CoreObjectNode)
+				core = (CoreObjectNode) n;
+			else if (n instanceof EnumerationOpenNode)
+				eo = (EnumerationOpenNode) n;
+		// Given - the business object extends another one
+		BusinessObjectNode boBase = mockLibrary.addBusinessObjectToLibrary(ln, "Rn2");
+		bo.setExtension(boBase);
+		assertTrue("BO extends BO Base", bo.getExtensionBase() == boBase);
+
 		// Then - each property type should report renameable correct.
+		assertTrue("Enum Literals must be renameable.", eo.getChildren().get(0).isRenameable());
+		assertTrue("Role nodes must be renameable.", core.getSimpleAttribute().isRenameable());
+
+		// Then - properties that must not be reassigned
+		assertTrue("Simple attributes must NOT be renameable.", true);
+
+		// Then - Business object will have one of each property type assigned simple type
+		for (Node n : bo.getDescendants())
+			if (n instanceof PropertyNode) {
+				// Then - check with different type assignments
+				propertyRenameableCheck((PropertyNode) n);
+				if (vwa.canAssign(n))
+					((PropertyNode) n).setAssignedType(vwa);
+				propertyRenameableCheck((PropertyNode) n);
+				if (core.canAssign(n))
+					((PropertyNode) n).setAssignedType(core);
+				propertyRenameableCheck((PropertyNode) n);
+			}
+	}
+
+	public void propertyRenameableCheck(PropertyNode pn) {
+		// if editable and not inherited then it depends on the assigned type.
+		if (!pn.isEditable())
+			assertTrue("Uneditable property must not be renameable.", !pn.isRenameable());
+		else if (pn.isInheritedProperty())
+			assertTrue("Inherited property must not be renameable.", !pn.isRenameable());
+		else if (!pn.getAssignedType().isRenameableWhereUsed())
+			assertTrue("Property's assigned type requires it to not be renameable.", !pn.isRenameable());
+		else
+			assertTrue("Property must be renameable.", pn.isRenameable());
 	}
 
 	private void assertOrderOfNodeAndMO(FacetNode facetNode) {

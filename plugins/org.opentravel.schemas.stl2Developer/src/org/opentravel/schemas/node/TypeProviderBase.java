@@ -138,6 +138,11 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 	}
 
 	@Override
+	public boolean isRenameableWhereUsed() {
+		return false;
+	}
+
+	@Override
 	public void removeAll() {
 		Collection<TypeUser> users = new ArrayList<TypeUser>(getWhereAssigned());
 		for (TypeUser user : users)

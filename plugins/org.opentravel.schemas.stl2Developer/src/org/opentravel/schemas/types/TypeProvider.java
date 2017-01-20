@@ -124,4 +124,13 @@ public interface TypeProvider {
 
 	public void setListener(TypeUser typeUser);
 
+	/**
+	 * OTM Enforces properties to have the same name as their assigned type except for VWA and Open Enum. Exceptions
+	 * must override this method. This method does <b>not</b> account for edit-ability or inheritance as those are
+	 * characteristics of the property not assigned type.
+	 * 
+	 * @return true if a property assigned this type can be renamed.
+	 */
+	public boolean isRenameableWhereUsed();
+
 }

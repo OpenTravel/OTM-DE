@@ -23,7 +23,6 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
-import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.EqExOneValueHandler.ValueWithContextType;
 import org.opentravel.schemas.properties.Images;
@@ -119,11 +118,6 @@ public class ElementNode extends PropertyNode {
 	@Override
 	public boolean isMandatory() {
 		return getTLModelObject().isMandatory();
-	}
-
-	@Override
-	public boolean isRenameable() {
-		return isEditable() && !inherited && !(getAssignedType() instanceof ComplexComponentInterface);
 	}
 
 	@Override

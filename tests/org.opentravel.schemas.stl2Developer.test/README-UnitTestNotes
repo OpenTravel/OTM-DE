@@ -27,9 +27,44 @@ Utilities
 			-- provides access to a repository controller needed to create projects
 				--	ProjectNode project1 = createProject("Project1", rc.getLocalRepository(), "IT1");
 
+Question: should test be in src or test?
+	src gives access to protected but not private data and methods. So does test.
+	Test is understood in maven projects to be excluded from application. Migrate to /test
 		
 Patterns - 
 Node/* - 
+	/**
+	 * constructor tests
+	 */
+	@Test
+	public void Core_ConstructorTests() {
+
+	}
+
+	/**
+	 * factory tests
+	 */
+	@Test
+	public void Core_FactoryTests() {
+
+	}
+
+	/**
+	 * load from library tests
+	 */
+	@Test
+	public void Core_FileLoadTests() {
+
+	}
+
+	/**
+	 * assigned type tests
+	 */
+	@Test
+	public void Core_TypeAssignmentTests() {
+
+	}
+	
 Command/* - 
 	inlcude all tests on nodes relevent to the action/command
 

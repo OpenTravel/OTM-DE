@@ -271,6 +271,11 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 		return this instanceof ExtensionPointNode ? true : false;
 	}
 
+	@Override
+	public boolean isRenameableWhereUsed() {
+		return ((TypeProvider) getOwningComponent()).isRenameableWhereUsed();
+	}
+
 	/**
 	 * Facets assigned to core object list types have no model objects but may be page1-assignable.
 	 */

@@ -164,6 +164,11 @@ public class EnumerationOpenNode extends TypeProviderBase implements ComplexComp
 	}
 
 	@Override
+	public boolean isRenameableWhereUsed() {
+		return true;
+	}
+
+	@Override
 	public boolean isAssignableToVWA() {
 		return true;
 	}

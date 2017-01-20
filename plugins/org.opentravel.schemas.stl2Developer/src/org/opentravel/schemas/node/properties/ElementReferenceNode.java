@@ -136,6 +136,11 @@ public class ElementReferenceNode extends PropertyNode {
 	}
 
 	@Override
+	public boolean isRenameable() {
+		return false; // name must come from assigned object
+	}
+
+	@Override
 	public int indexOfTLProperty() {
 		final TLProperty thisProp = (TLProperty) getTLModelObject();
 		return thisProp.getOwner().getElements().indexOf(thisProp);
