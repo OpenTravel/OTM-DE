@@ -152,10 +152,10 @@ public class PropertyNodeTest {
 
 		// Then - each property type should report renameable correct.
 		assertTrue("Enum Literals must be renameable.", eo.getChildren().get(0).isRenameable());
-		assertTrue("Role nodes must be renameable.", core.getSimpleAttribute().isRenameable());
+		assertTrue("Role nodes must be renameable.", core.getRoleFacet().getChildren().get(0).isRenameable());
 
 		// Then - properties that must not be reassigned
-		assertTrue("Simple attributes must NOT be renameable.", true);
+		assertTrue("Simple attributes must NOT be renameable.", !core.getSimpleAttribute().isRenameable());
 
 		// Then - Business object will have one of each property type assigned simple type
 		for (Node n : bo.getDescendants())

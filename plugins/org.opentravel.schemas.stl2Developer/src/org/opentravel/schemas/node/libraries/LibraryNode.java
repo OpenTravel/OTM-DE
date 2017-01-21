@@ -86,6 +86,7 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.types.TypeUser;
+import org.opentravel.schemas.types.TypeUserNode;
 import org.opentravel.schemas.types.WhereUsedLibraryHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1633,7 +1634,17 @@ public class LibraryNode extends Node implements LibraryInterface {
 	}
 
 	/**
-	 * Get a list of libraries that contain extensions or types assigned to any named object in this library.
+	 * Examine each descendant that is a type user or extension owner, if those nodes use types from other libraries,
+	 * add that library to returned list. Used by {@link TypeUserNode#getChildren()}
+	 * <p>
+	 * WhereUseHandler provides the inverse relationship. Libraries in the list should have this library in their where
+	 * used handler. {@link WhereUsedLibraryHandler#getWhereUsed()}
+	 * 
+	 * @see {@link org.opentravel.schemas.controllers.repository.LibraryVersionUpdateTest#updateVersionTest_BaseTypes()}
+	 *      for tests.
+	 * 
+	 * @return a new array list of libraries that contain extensions or types assigned to any named object in this
+	 *         library.
 	 */
 	public List<LibraryNode> getAssignedLibraries() {
 		// Walk selected library type users and collect all used libraries (type assignments)

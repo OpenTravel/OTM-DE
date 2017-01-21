@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
@@ -194,67 +195,87 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		// Create two libraries where one extends types from the other then version the type provider
 
 		// Create Extension Owners in the provider library
-		BusinessObjectNode boType = ml.addBusinessObjectToLibrary(lib2, "boType");
-		ChoiceObjectNode choiceType = ml.addChoice(lib2, "choiceType");
-		CoreObjectNode coreType = ml.addCoreObjectToLibrary(lib2, "coreType");
-		EnumerationClosedNode ecType = ml.addClosedEnumToLibrary(lib2, "ecType");
-		EnumerationOpenNode eoType = ml.addOpenEnumToLibrary(lib2, "eoType");
-		VWA_Node vwaType = ml.addVWA_ToLibrary(lib2, "vwaType");
+		LibraryNode baseLib = lib2;
+		BusinessObjectNode boType = ml.addBusinessObjectToLibrary(baseLib, "boType");
+		ChoiceObjectNode choiceType = ml.addChoice(baseLib, "choiceType");
+		CoreObjectNode coreType = ml.addCoreObjectToLibrary(baseLib, "coreType");
+		EnumerationClosedNode ecType = ml.addClosedEnumToLibrary(baseLib, "ecType");
+		EnumerationOpenNode eoType = ml.addOpenEnumToLibrary(baseLib, "eoType");
+		VWA_Node vwaType = ml.addVWA_ToLibrary(baseLib, "vwaType");
 
 		// ??? Create user library containing the objects that will get updated and assign them to the found type
 		// Given - library 1 with one of each object extending objects in library 2
 		// LibraryNode userLib = lib1;
 		BusinessObjectNode boExtension = ml.addBusinessObjectToLibrary(lib1, "boExtension", false); // No id in id facet
-		boExtension.setExtension(boType);
-		assertTrue("Business object must extend boType.", boExtension.getExtensionBase() == boType);
 		ChoiceObjectNode choiceExtension = ml.addChoice(lib1, "choiceExtension");
-		choiceExtension.setExtension(choiceType);
 		CoreObjectNode coreExtension = ml.addCoreObjectToLibrary(lib1, "coreExtension");
-		coreExtension.setExtension(coreType);
 		EnumerationClosedNode ecExtension = ml.addClosedEnumToLibrary(lib1, "ecExtension");
-		ecExtension.setExtension(ecType);
 		EnumerationOpenNode eoExtension = ml.addOpenEnumToLibrary(lib1, "eoExtension");
-		eoExtension.setExtension(eoType);
 		VWA_Node vwaExtension = ml.addVWA_ToLibrary(lib1, "vwaExtension");
+		boExtension.setExtension(boType);
+		choiceExtension.setExtension(choiceType);
+		coreExtension.setExtension(coreType);
+		ecExtension.setExtension(ecType);
+		eoExtension.setExtension(eoType);
 		vwaExtension.setExtension(vwaType);
+		assertTrue("BoExtension must extend boType.", boExtension.getExtensionBase() == boType);
+
+		// Then - baseLib must list lib1 as where used
+		assertTrue("Lib1 must not use other libraries.", lib1.getWhereUsedHandler().getWhereUsed().isEmpty());
+		assertTrue("baseLib must use other libraries.", !baseLib.getWhereUsedHandler().getWhereUsed().isEmpty());
+		// Then - Lib1 must list baseLib as an assigned library
+		assertTrue("Lib1 must have at least one assigned library.", !lib1.getAssignedLibraries().isEmpty());
+		assertTrue("baseLib must NOT have an assigned library.", baseLib.getAssignedLibraries().isEmpty());
 
 		// Given - both libraries are valid.
 		ValidationFindings findings1 = lib1.validate();
-		ValidationFindings findings2 = lib2.validate();
+		ValidationFindings findings2 = baseLib.validate();
 		MockLibrary.printFindings(findings1);
 		MockLibrary.printFindings(findings2);
 		assertTrue("Library must be valid.", lib1.validate().isEmpty());
-		assertTrue("Library must be valid.", lib2.validate().isEmpty());
+		assertTrue("Library must be valid.", baseLib.validate().isEmpty());
 
-		// When - create major version of library lib2 containing the base types
-		versionedLib2 = rc.createMajorVersion(lib2);
-		assertTrue("Must have major version of library 2.", versionedLib2 != null);
-		assertTrue("Must have type providers", !versionedLib2.getDescendants_TypeProviders().isEmpty());
-		assertTrue("Must be new library.", versionedLib2 != lib2);
-		assertTrue("Major versions must be head of chain.", versionedLib2 == versionedLib2.getChain().getHead());
+		AbstractLibrary tlLib = baseLib.getTLLibrary();
 
+		// When - create major version of library baseLib containing the base types
+		LibraryNode versionedbaseLib = rc.createMajorVersion(baseLib);
+		// After major version, the baseLib is no longer in the tlModel or LibraryModelManager
+		uploadProject.add(tlLib);
+
+		// Then -
+		assertTrue("Must have major version of library 2.", versionedbaseLib != null);
+		assertTrue("Must have type providers", !versionedbaseLib.getDescendants_TypeProviders().isEmpty());
+		assertTrue("Must be new library.", versionedbaseLib != baseLib);
+		assertTrue("Major versions must be head of chain.", versionedbaseLib == versionedbaseLib.getChain().getHead());
+
+		// Then -
+		Node newBase = boExtension.getExtensionBase();
+		assertTrue("BoExtension must still extend boType.", boExtension.getExtensionBase() == boType);
+
+		// When -
 		// Business Logic - setup the map and prepare for the call used by the Version Update Handler.
 		//
-		// Walk selected library type users and collect all used libraries (type assignments and extensions)
-		List<LibraryNode> usedLibs1 = lib1.getAssignedLibraries();
-		List<LibraryNode> usedLibs2 = versionedLib2.getAssignedLibraries();
-		assertTrue("There must be one assigned library.", !usedLibs2.isEmpty());
-
 		// Create replacement map
-		HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(usedLibs1, true);
+		HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(lib1.getAssignedLibraries(), true);
 		// TODO - test with finalOnly set to true on getVersionUpdateMap()
 
 		// Use calls used by Version Update Handler to replace type users using the replacement map
 		lib1.replaceAllUsers(replacementMap);
 
-		// Make sure it worked
+		// Then - Make sure it worked
+		Node newBase2 = boExtension.getExtensionBase();
+		assertTrue("BoExtension must extend boType.", boExtension.getExtensionBase() == boType);
+
 		for (ExtensionOwner owner : lib1.getDescendants_ExtensionOwners()) {
+			Node base = owner.getExtensionBase();
 			if (!(owner.getExtensionBase() instanceof ImpliedNode)) {
-				if (owner.getExtensionBase().getLibrary() != versionedLib2)
+				if (owner.getExtensionBase() == null || owner.getExtensionBase().getLibrary() == null)
+					LOGGER.debug("Error - " + owner.getNameWithPrefix() + " does not have extension base. ");
+				if (owner.getExtensionBase().getLibrary() != versionedbaseLib)
 					LOGGER.debug("Error - " + owner + " assigned type is in wrong library: "
 							+ ((Node) owner.getExtensionBase()).getNameWithPrefix());
 				assertTrue("Extension Owner must be in providerLib version 2.",
-						owner.getExtensionBase().getLibrary() == versionedLib2);
+						owner.getExtensionBase().getLibrary() == versionedbaseLib);
 			}
 		}
 	}
