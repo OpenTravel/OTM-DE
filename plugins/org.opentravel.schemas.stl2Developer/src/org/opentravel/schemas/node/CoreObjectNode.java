@@ -29,7 +29,6 @@ import org.opentravel.schemas.modelObject.CoreObjectMO;
 import org.opentravel.schemas.modelObject.ListFacetMO;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
-import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
@@ -107,7 +106,7 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 		vwa.getLibrary().addMember(this);
 		setDocumentation(vwa.getDocumentation());
 
-		getSummaryFacet().copyFacet((PropertyOwnerNode) vwa.getAttributeFacet());
+		getSummaryFacet().copyFacet(vwa.getAttributeFacet());
 		setSimpleType(vwa.getSimpleType());
 
 		// User assist - create an attribute for the VWA base type

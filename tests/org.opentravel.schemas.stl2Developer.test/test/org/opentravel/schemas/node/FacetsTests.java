@@ -49,6 +49,7 @@ import org.opentravel.schemas.modelObject.SimpleFacetMO;
 import org.opentravel.schemas.modelObject.TLnValueWithAttributesFacet;
 import org.opentravel.schemas.node.facets.ChoiceFacetNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
@@ -113,7 +114,7 @@ public class FacetsTests {
 	}
 
 	@Test
-	public void constructorTests() {
+	public void Facets_ConstructorTests() {
 
 		// Given two libraries, one managed one not managed
 		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
@@ -154,13 +155,14 @@ public class FacetsTests {
 	}
 
 	@Test
-	public void inheritanceTests() {
-		// Given a BO that extends another BO so that there are inherited children
+	public void Facets_InheritanceTests() {
+
+		// Given - a BO in a library
 		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
 		BusinessObjectNode baseBO = ml.addBusinessObjectToLibrary(ln, "BaseBO");
 		CustomFacetNode c1 = (CustomFacetNode) baseBO.addFacet("BaseC1", TLFacetType.CUSTOM);
 		AttributeNode a1 = new AttributeNode(c1, "cAttr1");
-
+		// Given - a second, empty BO to be extended
 		BusinessObjectNode extendedBO = ml.addBusinessObjectToLibrary_Empty(ln, "ExBO");
 		new ElementNode(extendedBO.getSummaryFacet(), "ExEle");
 
@@ -188,7 +190,7 @@ public class FacetsTests {
 	}
 
 	@Test
-	public void copyFacetTest() {
+	public void Facets_CopyFacetTests() {
 		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
 
 		// Given a facet with 8 mixed properties
@@ -199,7 +201,7 @@ public class FacetsTests {
 		// Given an standard facet and a VWA Attribute facet
 		TLFacet tlf = new TLFacet();
 		tlf.setFacetType(TLFacetType.SUMMARY);
-		FacetNode fn = (FacetNode) NodeFactory.newComponentMember(null, tlf);
+		FacetNode fn = (FacetNode) NodeFactory.newMember(null, tlf);
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "myVWA"); // vwa with one attr
 		VWA_AttributeFacetNode an = (VWA_AttributeFacetNode) vwa.getAttributeFacet();
 
@@ -216,19 +218,19 @@ public class FacetsTests {
 	// createPropertyTests()
 	// getComponentType
 
-	@Test
-	public void renameableFacetTests() throws Exception {
-		lf.loadTestGroupA(mc);
-		for (LibraryNode lib : pc.getDefaultProject().getLibraries()) {
-			lib.setEditable(true);
-			assertTrue("Library must be editable.", lib.isEditable());
-			ml.addChoice(lib, "choice1");
-			classBasedTests(lib);
-		}
-	}
+	// @Test
+	// public void Facets_RenameableFacetTests() throws Exception {
+	// lf.loadTestGroupA(mc);
+	// for (LibraryNode lib : pc.getDefaultProject().getLibraries()) {
+	// lib.setEditable(true);
+	// assertTrue("Library must be editable.", lib.isEditable());
+	// ml.addChoice(lib, "choice1");
+	// classBasedTests(lib);
+	// }
+	// }
 
-	private void classBasedTests(LibraryNode lib) {
-		LOGGER.debug("Checking query facets in " + lib);
+	public void checkAllFacetsInLibrary(LibraryNode lib) {
+		LOGGER.debug("Checking all facets in " + lib);
 		for (Node n : lib.getDescendants()) {
 			if (n instanceof ContextualFacetNode)
 				checkFacet((ContextualFacetNode) n);
@@ -250,7 +252,7 @@ public class FacetsTests {
 	}
 
 	@Test
-	public void otm16EnabledTests() {
+	public void Facets_OTM16EnabledTests() {
 		OTM16Upgrade.otm16Enabled = true;
 
 		// Given libraries loaded from file that contain contextual facets
@@ -294,6 +296,8 @@ public class FacetsTests {
 						}
 				}
 		}
+
+		OTM16Upgrade.otm16Enabled = false;
 	}
 
 	private List<ContextualFacetNode> getContextualFacets(Node container) {
@@ -324,7 +328,7 @@ public class FacetsTests {
 	}
 
 	@Test
-	public void otm16EnabledTests_Constructors() {
+	public void Facets_Constructors_v16() {
 		OTM16Upgrade.otm16Enabled = true;
 		// Given a versioned library
 		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
@@ -362,10 +366,12 @@ public class FacetsTests {
 		cfFactory = NodeFactory.createFacet(tlObj);
 		assertTrue("Must not be null.", cf != null);
 		assertTrue("Must not be null.", cfFactory != null);
+
+		OTM16Upgrade.otm16Enabled = false;
 	}
 
 	@Test
-	public void roleFacetTests() throws Exception {
+	public void Facets_RoleTests() throws Exception {
 		String myNS = "http://local/junits";
 		// ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
 		ln = LibraryNodeBuilder.create("Example", myNS, "p", new Version(1, 1, 0)).build(defaultProject, pc);
@@ -536,11 +542,26 @@ public class FacetsTests {
 
 		// Check children
 		for (Node property : fn.getChildren()) {
+			if (fn instanceof ContributedFacetNode) {
+				assertTrue(OTM16Upgrade.otm16Enabled);
+				assertTrue(property.getParent() == ((ContributedFacetNode) fn).getContributor());
+				continue;
+			}
 			if (property instanceof AliasNode)
 				continue;
-			assertTrue(property instanceof PropertyNode);
-			assertTrue(property.getType() != null);
-			assertTrue(property.getParent() == fn);
+			if (property instanceof ContextualFacetNode) {
+				assertTrue(OTM16Upgrade.otm16Enabled);
+				if (property instanceof ContributedFacetNode)
+					assertTrue(property.getParent() == fn);
+				continue;
+			}
+			if (property instanceof PropertyNode) {
+				assertTrue(property.getParent() == fn);
+				assertTrue(property.getType() != null);
+			} else {
+				LOGGER.debug("ERROR - invalid property type: " + property + " " + property.getClass().getSimpleName());
+				assertTrue(false);
+			}
 		}
 
 		assertTrue("Must be valid parent to attributes.", fn.isValidParentOf(PropertyNodeType.ATTRIBUTE));
@@ -551,17 +572,24 @@ public class FacetsTests {
 
 		// Behaviors
 		if (fn.getOwningComponent().isEditable()) {
-			AttributeNode attr = new AttributeNode(fn, "att1");
-			ElementNode ele = new ElementNode(fn, "ele1");
-			assertTrue("Must be able to add attributes.", attr.getParent() == fn);
-			assertTrue("Must be able to add elements.", ele.getParent() == fn);
+			AttributeNode attr = new AttributeNode(fn, "att1x");
+			ElementNode ele = new ElementNode(fn, "ele1x");
+			if (fn instanceof ContributedFacetNode) {
+				assertTrue("Must be able to add attributes.",
+						attr.getParent() == ((ContributedFacetNode) fn).getContributor());
+				assertTrue("Must be able to add elements.",
+						ele.getParent() == ((ContributedFacetNode) fn).getContributor());
+			} else {
+				assertTrue("Must be able to add attributes.", attr.getParent() == fn);
+				assertTrue("Must be able to add elements.", ele.getParent() == fn);
 
+			}
 			// Create array of attribute and element properties to add
 			List<Node> properties = new ArrayList<Node>();
 			AttributeNode attr2 = new AttributeNode(new TLAttribute(), null);
 			ElementNode ele2 = new ElementNode(new TLProperty(), null);
-			attr2.setName("att2");
-			ele2.setName("ele2");
+			attr2.setName("att2x");
+			ele2.setName("ele2x");
 			properties.add(attr2);
 			properties.add(ele2);
 
@@ -589,34 +617,27 @@ public class FacetsTests {
 		LOGGER.debug("Checking Contextual Facet: " + rf);
 		checkBaseFacet(rf);
 
-		final String NEWNAME = "myName";
-
-		// final String NEWCONTEXT = "myContext"; // must be ignored
-		// setContext()
-		// String dc = rf.getLibrary().getDefaultContextId();
-		// String fc = rf.getTLModelObject().getContext();
-		// // assertTrue("Initial context must be default context.",
-		// // rf.getLibrary().getDefaultContextId().equals(((TLFacet) rf.getTLModelObject()).getContext()));
-		// rf.setContext(NEWCONTEXT); // ignored!
-		// fc = rf.getTLModelObject().getContext();
-		// assertTrue("Context must be set to default.",
-		// rf.getLibrary().getDefaultContextId().equals(rf.getTLModelObject().getContext()));
-
 		// setName()
 		//
+		final String NEWNAME = "myName";
+		final String oldName = rf.getName();
 		assertTrue("Must be renamable.", rf.isRenameable());
 		rf.setName(NEWNAME);
 		String n = rf.getName();
 		assertTrue("Facet must contain new name.",
 				rf.getName().contains(NodeNameUtils.fixContextualFacetName(rf, NEWNAME)));
+		rf.setName(oldName);
 
 		// Inherited statements
 		//
 		assertTrue("Must be assignable.", rf.isAssignable());
 		assertTrue("Must be assignable to complex.", rf.isComplexAssignable());
-		assertTrue("Must be type provider.", rf.isNamedEntity());
 		assertTrue("Must be valid parent to attributes.", rf.isValidParentOf(PropertyNodeType.ATTRIBUTE));
 		assertTrue("Must be valid parent to elements.", rf.isValidParentOf(PropertyNodeType.ELEMENT));
+		if (OTM16Upgrade.otm16Enabled)
+			assertTrue("Must be named entity.", rf.isNamedEntity());
+		else
+			assertFalse("Must NOT be named entity.", rf.isNamedEntity());
 
 		assertFalse("Must NOT be assignable to element ref", rf.isAssignableToElementRef());
 		assertFalse("Must NOT be assignable to simple.", rf.isAssignableToSimple());
@@ -631,6 +652,11 @@ public class FacetsTests {
 		ElementNode ele = new ElementNode(rf, "ele1");
 		assertTrue("Must be able to add attributes.", attr.getParent() == rf);
 		assertTrue("Must be able to add elements.", ele.getParent() == rf);
+		assertTrue(rf.getChildren().contains(ele));
+		attr.delete();
+		ele.delete();
+		assertFalse(rf.getChildren().contains(attr));
+		assertFalse(rf.getChildren().contains(ele));
 
 		if (rf instanceof QueryFacetNode)
 			checkFacet((QueryFacetNode) rf);
@@ -656,7 +682,8 @@ public class FacetsTests {
 
 	public void checkFacet(ChoiceFacetNode qn) {
 		LOGGER.debug("Checking Facet: " + qn);
-		assertTrue("Must be delete-able.", qn.isDeleteable());
+		if (!qn.isInheritedProperty() && qn.getParent().isDeleteable())
+			assertTrue("Must be delete-able.", qn.isDeleteable());
 		checkBaseFacet(qn);
 	}
 

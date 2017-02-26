@@ -44,6 +44,7 @@ import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 import org.opentravel.schemacompiler.saver.LibraryModelSaver;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemacompiler.validate.ValidationException;
 import org.opentravel.schemacompiler.version.MajorVersionHelper;
 import org.opentravel.schemacompiler.version.MinorVersionHelper;
@@ -319,6 +320,9 @@ public class DefaultRepositoryController implements RepositoryController {
 			postRepoWarning("alreadyManaged");
 			return false;
 		}
+		if (!post16UpgradeConfirmation())
+			return false;
+
 		CommitThread ct = new CommitThread(ln);
 		BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), ct);
 		refreshAll(ln);
@@ -362,6 +366,9 @@ public class DefaultRepositoryController implements RepositoryController {
 	// return value only used in versionPreperation
 	@Override
 	public boolean unlock(LibraryNode ln) {
+		if (!post16UpgradeConfirmation())
+			return false;
+
 		UnlockThread ut = new UnlockThread(ln, mc);
 		BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), ut);
 		refreshAll(ln);
@@ -832,6 +839,18 @@ public class DefaultRepositoryController implements RepositoryController {
 		// LOGGER.debug("Repository Error: " + msg);
 	}
 
+	/**
+	 * @return true if older than version 1.6 OR user confirms saving
+	 */
+	public static boolean post16UpgradeConfirmation() {
+		if (OTM16Upgrade.otm16Enabled) {
+			// Post user warning
+			if (!DialogUserNotifier.openConfirm("Warning", Messages.getString("action.saveAll.version16")))
+				return false;
+			return true;
+		}
+		return true;
+	}
 }
 
 /**

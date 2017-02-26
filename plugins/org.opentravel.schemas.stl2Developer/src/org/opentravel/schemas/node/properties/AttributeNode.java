@@ -34,7 +34,7 @@ import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 
 /**
- * A property node that represents an XML attribute. See {@link NodeFactory#newComponentMember(INode, Object)}
+ * A property node that represents an XML attribute. See {@link NodeFactory#newMember(INode, Object)}
  * 
  * @author Dave Hollander
  * 

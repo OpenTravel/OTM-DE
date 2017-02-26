@@ -29,7 +29,7 @@ import org.opentravel.schemas.properties.Images;
 
 /**
  * A property node that represents a boolean XML element with the semantics of "False unless present and true". See
- * {@link NodeFactory#newComponentMember(INode, Object)}
+ * {@link NodeFactory#newMember(INode, Object)}
  * 
  * @author Dave Hollander
  * 

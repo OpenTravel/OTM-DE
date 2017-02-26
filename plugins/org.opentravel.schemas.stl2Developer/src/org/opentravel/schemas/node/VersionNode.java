@@ -18,6 +18,8 @@ package org.opentravel.schemas.node;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.properties.Images;
 
@@ -30,9 +32,12 @@ import org.opentravel.schemas.properties.Images;
  * @author Dave Hollander
  * 
  */
+//
 // TODO - make the subject a LibraryMemberInterface
 // TODO - try to convert this to a handler
-public class VersionNode extends ComponentNode {
+// TODO - do NOT keep model object - return head.gettlmodelobject()
+//
+public class VersionNode extends ComponentNode implements FacadeInterface {
 
 	protected ComponentNode head; // link to the latest/newest version of this object
 	protected ComponentNode prevVersion; // link to the preceding version. If null, it is new to the
@@ -87,7 +92,18 @@ public class VersionNode extends ComponentNode {
 	 * @return node or null
 	 */
 	public Node get() {
-		return getChildren().isEmpty() ? null : getChildren().get(0);
+		// return getChildren().isEmpty() ? null : getChildren().get(0);
+		return head;
+	}
+
+	@Override
+	public TLModelElement getTLModelObject() {
+		if (head != null)
+			return head.getTLModelObject();
+		// Head is not set until after needed in super() constructor
+		if (getModelObject() == null)
+			assert false;
+		return (TLModelElement) getModelObject().getTLModelObj();
 	}
 
 	@Override
@@ -145,6 +161,11 @@ public class VersionNode extends ComponentNode {
 	@Override
 	public boolean isEditable() {
 		return false;
+	}
+
+	@Override
+	public Node getOwningComponent() {
+		return head != null ? head.getOwningComponent() : null;
 	}
 
 	/**

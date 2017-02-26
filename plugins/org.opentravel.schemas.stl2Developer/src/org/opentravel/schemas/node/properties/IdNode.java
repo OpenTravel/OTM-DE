@@ -27,7 +27,7 @@ import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.types.TypeProvider;
 
 /**
- * A property node that represents an XML ID. See {@link NodeFactory#newComponentMember(INode, Object)}
+ * A property node that represents an XML ID. See {@link NodeFactory#newMember(INode, Object)}
  * 
  * @author Dave Hollander
  * 

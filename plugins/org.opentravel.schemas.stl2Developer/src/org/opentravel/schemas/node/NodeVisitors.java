@@ -17,6 +17,7 @@ package org.opentravel.schemas.node;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node.NodeVisitor;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -56,19 +57,24 @@ public class NodeVisitors {
 
 		@Override
 		public void visit(INode n) {
-			// LOGGER.debug("CloseVisitor: closing " + n);
+			LOGGER.debug("CloseVisitor: closing " + n);
 			Node node = (Node) n;
 
 			// Use override behavior because Library nodes must clear out context.
-			if (node instanceof LibraryNode) {
+			if (node instanceof LibraryNode)
 				((LibraryNode) node).close(); // libraries may or may not do members
-			}
+
+			if (node instanceof ContextualFacetNode)
+				((ContextualFacetNode) node).close();
+			// LOGGER.debug("Closing contextual facet: " + node);
 
 			// Unlink from tree
 			node.deleted = true;
 			if (node.getParent() != null && node.getParent().getChildren() != null) {
 				node.getParent().getChildren().remove(node);
-			}
+			} else
+				LOGGER.debug("Could not remove " + node + " from parent.");
+
 			node.setParent(null);
 			node.setLibrary(null);
 

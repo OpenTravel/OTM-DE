@@ -87,6 +87,8 @@ import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.SimpleComponentNode;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
@@ -446,6 +448,8 @@ public class NavigatorMenus extends TreeViewer {
 							} else if (node instanceof Enumeration) {
 								manager.add(componentMenu);
 							} else if (node instanceof AliasNode) {
+								manager.add(componentMenu);
+							} else if (node instanceof ContextualFacetNode && !(node instanceof ContributedFacetNode)) {
 								manager.add(componentMenu);
 								//
 							} else if (node instanceof FacetNode) {

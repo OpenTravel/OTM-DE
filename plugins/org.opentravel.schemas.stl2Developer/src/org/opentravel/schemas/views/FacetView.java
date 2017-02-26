@@ -58,6 +58,7 @@ import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -146,8 +147,18 @@ public class FacetView extends OtmAbstractView {
 			if (event.item instanceof TableItem) {
 				final TableItem ti = (TableItem) event.item;
 				final Node node = (Node) ti.getData();
+				// Properties in contributed facets are the actual properties so there is no way to determine if the
+				// view is showing an object or facet for enable tests. Used the grayed state instead.
+				if (ti.getGrayed()) {
+					// LOGGER.debug(node + " is grayed"); // grayed state of check box
+					disableAll();
+					buttonBarManager.enable(false);
+				}
 				// Update this view
-				setButtonState(node);
+				else {
+					setButtonState(node);
+					buttonBarManager.enable(true);
+				}
 				currentNode = node;
 			}
 		}
@@ -442,7 +453,7 @@ public class FacetView extends OtmAbstractView {
 	}
 
 	/**
-	 * Set the button and field state based on node.
+	 * Set the button and field state based on node. ONLY does name and extendible!
 	 * 
 	 * @param curNode
 	 */
@@ -473,6 +484,8 @@ public class FacetView extends OtmAbstractView {
 			// Don't allow users to break version relationships
 			if (curNode.isEditable_newToChain()) {
 				if (curNode instanceof ExtensionOwner)
+					extendsAction.setEnabled(true);
+				if (curNode instanceof ContextualFacetNode)
 					extendsAction.setEnabled(true);
 				clearExtendsAction.setEnabled(curNode.getExtendsType() != null);
 			}

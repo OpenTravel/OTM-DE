@@ -29,7 +29,7 @@ import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 
 /**
- * A property node that represents an XML element. See {@link NodeFactory#newComponentMember(INode, Object)}
+ * A property node that represents an XML element. See {@link NodeFactory#newMember(INode, Object)}
  * 
  * @author Dave Hollander
  * 

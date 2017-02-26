@@ -21,14 +21,24 @@ package org.opentravel.schemas.node;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
+import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.facets.ContributedFacetNode;
+import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
@@ -80,16 +90,157 @@ public class BusinessObjectTests {
 
 	}
 
+	@Test
+	public void BO_ContextualFacets_v15() {
+		// Given a business object in a library to be editable
+		OTM16Upgrade.otm16Enabled = false;
+		LibraryNode ln = ml.createNewLibrary_Empty("http://example.com", "TestLib1", defaultProject);
+		ln.setEditable(true);
+		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
+		bo.setName("TestBO");
+		ln.addMember(bo);
+		assertTrue(bo.isEditable_newToChain()); // required to add facets
+		// Given - an id facet property to make the bo valid
+		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
+		new ElementNode(bo.getIDFacet(), "TestEleInID" + bo.getName(), string);
+		//
+		int count = ln.getDescendants_LibraryMembers().size();
+		checkBusinessObject(bo);
+
+		// When - using addFacet to add a custom facet
+		ContextualFacetNode cf = bo.addFacet("Custom1", TLFacetType.CUSTOM);
+		// Then
+		assertTrue(cf != null);
+		assertTrue(cf.getParent() == bo);
+		assertTrue(cf.getOwningComponent() == bo);
+		assertTrue(cf instanceof CustomFacetNode);
+		assertTrue("Identity listener must be set.", Node.GetNode(((CustomFacetNode) cf).getTLModelObject()) == cf);
+
+		// When - using the factory to add a custom facet
+		TLContextualFacet tlCf = new TLContextualFacet();
+		tlCf.setFacetType(TLFacetType.CUSTOM);
+		tlCf.setName("Custom2");
+		bo.getTLModelObject().addCustomFacet(tlCf);
+		ComponentNode cf2 = NodeFactory.newMember(bo, tlCf);
+		// Then
+		assertTrue(cf2 != null);
+		assertTrue(cf2.getParent() == bo);
+		assertTrue(cf2.getOwningComponent() == bo);
+		assertTrue(cf2 instanceof CustomFacetNode);
+		assertTrue("Identity listener must be set.", Node.GetNode(((CustomFacetNode) cf2).getTLModelObject()) == cf2);
+
+		// Then - no new Library Members were added to library
+		assertTrue(count == ln.getDescendants_LibraryMembers().size());
+		assertTrue(ln.getDescendants_ContextualFacets().size() == 2);
+		assertTrue(ln.getComplexRoot().getChildren().size() == 1);
+
+		// Then
+		checkBusinessObject(bo);
+
+		// When - version the library
+		LibraryChainNode lcn = new LibraryChainNode(ln);
+		// Then - assure contextual facets are NOT wrapped in version nodes
+		for (Node n : bo.getChildren())
+			assertTrue(n instanceof FacetNode);
+	}
+
+	@Test
+	public void BO_ContextualFacets_v16() {
+		// Given a business object in a library to be editable
+		OTM16Upgrade.otm16Enabled = true;
+		LibraryNode ln = ml.createNewLibrary_Empty("http://example.com/t2", "TestLib2", defaultProject);
+		LibraryChainNode lcn = new LibraryChainNode(ln);
+		ln.setEditable(true);
+		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
+		bo.setName("TestBO");
+		ln.addMember(bo);
+		assertTrue(bo.isEditable_newToChain()); // required to add facets
+		// Given - an id facet property to make the bo valid
+		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
+		new ElementNode(bo.getIDFacet(), "TestEleInID" + bo.getName(), string);
+		//
+		int count = ln.getDescendants_LibraryMembers().size();
+		checkBusinessObject(bo);
+
+		// When - addFacet() used to add a custom facet
+		ContextualFacetNode cf = bo.addFacet("Custom1", TLFacetType.CUSTOM);
+		// Then
+		assertTrue(cf != null);
+		assertTrue(!(cf instanceof ContributedFacetNode));
+		assertTrue(cf instanceof CustomFacetNode);
+		assertTrue(ln.contains(cf));
+		// Only true if non-versioned library - assertTrue("Contextual Facet parent must be nav node", cf.getParent() ==
+		// bo.getParent());
+		assertTrue(cf.getOwningComponent() == bo);
+		assertTrue("Identity listener must be set.", Node.GetNode(((CustomFacetNode) cf).getTLModelObject()) == cf);
+
+		// When - adding elements and attributes to contextual facet
+		AttributeNode attr = new AttributeNode(cf, "att1");
+		ElementNode ele = new ElementNode(cf, "ele1");
+		// Then
+		assertTrue("Must be able to add attributes.", attr.getParent() == cf);
+		assertTrue("Must be able to add elements.", ele.getParent() == cf);
+
+		// When - adding elements and attributes to contributed facet
+		ContributedFacetNode contrib = cf.getWhereContributed();
+		AttributeNode attr2 = new AttributeNode(contrib, "att2");
+		ElementNode ele2 = new ElementNode(contrib, "ele2");
+		// Then
+		assertTrue("Must be able to add attributes.", attr2.getParent() == cf);
+		assertTrue("Must be able to add elements.", ele2.getParent() == cf);
+
+		// When - factory used to add a custom facet
+		TLContextualFacet tlCf = ContextualFacetNode.createTL("Custom2", TLFacetType.CUSTOM);
+		ContextualFacetNode cf2 = (ContextualFacetNode) NodeFactory.newObjectNode(tlCf, ln);
+		assertTrue(cf2.getWhereContributed() == null);
+		ContributedFacetNode conf2 = (ContributedFacetNode) NodeFactory.newMember(bo, tlCf);
+		// // Then
+		assertTrue(conf2.getLocalName().startsWith(bo.getName()));
+		assertTrue(cf2 instanceof CustomFacetNode);
+		assertTrue("Identity listener must be set.", Node.GetNode(((CustomFacetNode) cf2).getTLModelObject()) == cf2);
+
+		// Then - new Library Members were added to library
+		assertTrue(count != ln.getDescendants_LibraryMembers().size());
+		List<ContextualFacetNode> cfs = ln.getDescendants_ContextualFacets();
+		assertTrue(ln.getDescendants_ContextualFacets().size() == 4);
+
+		// When - adding other facet types
+		bo.addFacet("q1", TLFacetType.QUERY);
+		bo.addFacet("u1", TLFacetType.UPDATE);
+
+		// Then
+		checkBusinessObject(bo);
+
+		// Then - assure contextual facets are NOT wrapped in version nodes
+		for (Node n : bo.getChildren())
+			assertTrue(n instanceof FacetNode);
+
+		OTM16Upgrade.otm16Enabled = false;
+	}
+
+	@Test
+	public void BO_MockLibraryTest() {
+		// Given a business object with one of each contextual facet
+		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "bo");
+
+		// Assure the mock library created a valid BO
+		checkBusinessObject(bo);
+	}
+
 	// load from library tests
 	@Test
 	public void BO_LibraryLoadTests() throws Exception {
 		lf.loadTestGroupA(mc);
 
-		for (LibraryNode lib : mc.getModelNode().getUserLibraries()) {
+		List<LibraryNode> libs = mc.getModelNode().getUserLibraries();
+		for (LibraryNode lib : libs) {
 			for (Node bo : lib.getDescendants_LibraryMembers()) {
 				if (bo instanceof BusinessObjectNode)
 					checkBusinessObject((BusinessObjectNode) bo);
 			}
+			if (lib.isInChain())
+				continue;
 			// Repeat test with library in a chain
 			LibraryChainNode lcn = new LibraryChainNode(lib);
 			for (Node bo : lcn.getDescendants_LibraryMembers()) {
@@ -97,6 +248,42 @@ public class BusinessObjectTests {
 					checkBusinessObject((BusinessObjectNode) bo);
 			}
 		}
+	}
+
+	// Simulate process in addMOChildren
+	// load from library tests
+	@Test
+	public void BO_LibraryLoadTests_v16() throws Exception {
+		OTM16Upgrade.otm16Enabled = true;
+		lf.loadFile_FacetBase(defaultProject);
+
+		List<LibraryNode> libs = mc.getModelNode().getUserLibraries();
+		assertTrue(libs.size() > 0);
+		LibraryNode lib = libs.get(0);
+		lib.setEditable(true);
+
+		for (ContextualFacetNode cf : lib.getDescendants_ContextualFacets()) {
+			if (cf instanceof ContributedFacetNode)
+				assertTrue(((ContributedFacetNode) cf).getContributor() != null);
+			else
+				assertTrue(cf.getWhereContributed() != null);
+			assertTrue(cf.getParent() != null);
+			ml.checkObject(cf);
+		}
+
+		for (Node bo : lib.getDescendants_LibraryMembers()) {
+			if (bo instanceof BusinessObjectNode)
+				checkBusinessObject((BusinessObjectNode) bo);
+		}
+
+		// Repeat test with library in a chain
+		LibraryChainNode lcn = new LibraryChainNode(lib);
+		for (Node bo : lcn.getDescendants_LibraryMembers()) {
+			if (bo instanceof BusinessObjectNode)
+				checkBusinessObject((BusinessObjectNode) bo);
+		}
+
+		OTM16Upgrade.otm16Enabled = false;
 	}
 
 	/**
@@ -131,14 +318,24 @@ public class BusinessObjectTests {
 		assertTrue("BO must have a name.", !bo.getName().isEmpty());
 		assertTrue("BO must have a label.", !bo.getLabel().isEmpty());
 
-		// Check everything's library
+		// Check all descendants
 		assertTrue(bo.getLibrary() != null);
 		LibraryNode thisLib = bo.getLibrary();
 		for (Node n : bo.getDescendants()) {
 			assertTrue(n.getLibrary() == thisLib);
-			assertTrue(n.getOwningComponent() == bo);
+			// Nested contextual facets are owned by parent facet.
+			if (!(n.getOwningComponent() instanceof ContextualFacetNode))
+				assertTrue("Business object must be owning component.", n.getOwningComponent() == bo);
 			assertTrue("Must not be deleted.", !n.isDeleted());
-			assertTrue("Must have identity listener.", Node.GetNode(n.getTLModelObject()) == n);
+			if (n instanceof ContributedFacetNode) {
+				assertTrue("Contributed facets only used for version 1.6 and higher.", OTM16Upgrade.otm16Enabled);
+				assertTrue("Must have identity listener of contributor contextual facet.",
+						Node.GetNode(n.getTLModelObject()) == ((ContributedFacetNode) n).get());
+			} else if (n instanceof FacadeInterface)
+				assertTrue("Must have identity listener.",
+						Node.GetNode(n.getTLModelObject()) == ((FacadeInterface) n).get());
+			else
+				assertTrue("Must have identity listener.", Node.GetNode(n.getTLModelObject()) == n);
 		}
 
 		// Parent Links
@@ -150,8 +347,13 @@ public class BusinessObjectTests {
 		assertTrue(3 <= bo.getChildren().size());
 
 		// Check all the children
-		for (Node n : bo.getChildren())
+		for (Node n : bo.getChildren()) {
 			ml.checkObject(n);
+			assertTrue(!(n instanceof VersionNode));
+			if (!OTM16Upgrade.otm16Enabled)
+				assertTrue("Contributed facets are only supported in version 1.6 and later.",
+						!(n instanceof ContributedFacetNode));
+		}
 
 		tn.visit(bo);
 
@@ -190,6 +392,7 @@ public class BusinessObjectTests {
 		MainController mc = new MainController();
 		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
+		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
 
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 		ml.addBusinessObjectToLibrary(ln, "bo");
@@ -200,6 +403,9 @@ public class BusinessObjectTests {
 		// When VWA and Core are changed
 		BusinessObjectNode tboCore = (BusinessObjectNode) core.changeToBusinessObject();
 		BusinessObjectNode tboVwa = (BusinessObjectNode) vwa.changeToBusinessObject();
+		// Given - an id facet property to make the bo valid
+		new ElementNode(tboCore.getIDFacet(), "TestEleInID" + tboCore.getName(), string);
+		new ElementNode(tboVwa.getIDFacet(), "TestEleInID" + tboVwa.getName(), string);
 
 		// Then
 		checkBusinessObject(tboCore);
@@ -213,6 +419,8 @@ public class BusinessObjectTests {
 
 		tboCore = (BusinessObjectNode) core.changeToBusinessObject();
 		tboVwa = (BusinessObjectNode) vwa.changeToBusinessObject();
+		new ElementNode(tboCore.getIDFacet(), "TestEleInID" + tboCore.getName(), string);
+		new ElementNode(tboVwa.getIDFacet(), "TestEleInID" + tboVwa.getName(), string);
 		checkBusinessObject(tboCore);
 		checkBusinessObject(tboVwa);
 
@@ -220,7 +428,7 @@ public class BusinessObjectTests {
 	}
 
 	@Test
-	public void BO_facetAsType() {
+	public void BO_FacetAsTypeTests() {
 		MainController mc = new MainController();
 		LoadFiles lf = new LoadFiles();
 		LibraryNode ln = lf.loadFile1(mc);
@@ -238,8 +446,9 @@ public class BusinessObjectTests {
 
 		// File 1 has a business object Profile with 5 facets and 1 alias
 		BusinessObjectNode bo = null;
-		for (Node n : ln.getDescendants_LibraryMembers())
-			if (n.getName().equals("Profile"))
+		List<Node> members = ln.getDescendants_LibraryMembers();
+		for (Node n : members)
+			if (n.getName().equals("Profile") && n instanceof BusinessObjectNode)
 				bo = (BusinessObjectNode) n;
 		assertTrue("Profile object must be in test 1.", bo != null);
 

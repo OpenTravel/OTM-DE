@@ -352,7 +352,12 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 	}
 
 	private TLModel newTLModel() throws LibraryLoaderException {
-		TLModel tlModel = new TLModel();
+		TLModel tlModel = null;
+		try {
+			tlModel = new TLModel();
+		} catch (Exception e) {
+			LOGGER.debug("Exception creating new model: " + e.getLocalizedMessage());
+		}
 		tlModel.addListener(new ModelIntegrityChecker());
 		tlModel.addListener(objectsListeners);
 		return tlModel;
@@ -530,7 +535,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 			String name = NodeNameUtils.stipSimpleSuffix(simpleAttribute.getName());
 			tlModel = createTLProperty(name);
 		}
-		ComponentNode newProperty = NodeFactory.newComponentMember(targetFacet, tlModel);
+		ComponentNode newProperty = NodeFactory.newMember(targetFacet, tlModel);
 		NodeNameUtils.fixName(newProperty);
 		((TypeUser) newProperty).setAssignedType((TypeProvider) simpleAttribute.getType());
 		((TypeUser) simpleAttribute).setAssignedType((TypeProvider) ModelNode.getEmptyNode());

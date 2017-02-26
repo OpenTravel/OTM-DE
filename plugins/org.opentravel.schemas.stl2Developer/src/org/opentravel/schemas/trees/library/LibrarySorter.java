@@ -86,8 +86,9 @@ public class LibrarySorter extends ViewerSorter {
 				val = 1;
 			else if (index1 < index2)
 				val = -1;
-		} else
+		} else {
 			return super.compare(viewer, e1, e2);
+		}
 		return val;
 	}
 
@@ -137,6 +138,20 @@ public class LibrarySorter extends ViewerSorter {
 				return inheritAdjust + 300;
 			case ELEMENT:
 				return inheritAdjust + 300;
+			case ALIAS:
+				break;
+			case ENUM_LITERAL:
+				break;
+			case ID:
+				break;
+			case ROLE:
+				break;
+			case SIMPLE:
+				break;
+			case UNKNOWN:
+				break;
+			default:
+				break;
 			}
 		}
 		if (n instanceof ContributedFacetNode)
@@ -193,15 +208,19 @@ public class LibrarySorter extends ViewerSorter {
 				case CUSTOM:
 					return 50;
 				case CHOICE:
-					return 51;
+					return 50;
 				case QUERY:
-					return 60;
+					return 50;
+				case UPDATE:
+					return 50;
 				case REQUEST:
 					return 70;
 				case RESPONSE:
 					return 80;
 				case NOTIFICATION:
 					return 90;
+				default:
+					break;
 				}
 			} else
 				LOGGER.error("Don't know what " + n + " is!");

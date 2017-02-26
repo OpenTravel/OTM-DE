@@ -16,6 +16,8 @@
 package org.opentravel.schemas.actions;
 
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
+import org.opentravel.schemas.commands.ContextualFacetHandler;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
@@ -50,7 +52,10 @@ public class AddQueryFacetAction extends OtmAbstractAction {
 
 	@Override
 	public void run() {
-		addQueryFacet();
+		if (OTM16Upgrade.otm16Enabled)
+			addContextualFacet(TLFacetType.QUERY);
+		else
+			addQueryFacet();
 	}
 
 	// GlobalSelectionTester gst = new GlobalSelectionTester();
@@ -61,6 +66,31 @@ public class AddQueryFacetAction extends OtmAbstractAction {
 		// Unmanaged or in the most current (head) library in version chain.
 		Node n = mc.getCurrentNode_NavigatorView().getOwningComponent();
 		return n instanceof BusinessObjectNode ? n.isEditable_newToChain() : false;
+	}
+
+	private void addContextualFacet(TLFacetType type) {
+		ContextualFacetHandler cfh = new ContextualFacetHandler();
+		ComponentNode current = (ComponentNode) mc.getSelectedNode_NavigatorView().getOwningComponent();
+		if (current != null && current instanceof BusinessObjectNode)
+			cfh.addContextualFacet((BusinessObjectNode) current, TLFacetType.QUERY);
+
+		// // Verify the current node is editable business object
+		// ComponentNode current = (ComponentNode) mc.getSelectedNode_NavigatorView().getOwningComponent();
+		// if (current == null || !(current instanceof BusinessObjectNode) || !current.isEditable_newToChain()) {
+		// DialogUserNotifier.openWarning("Add Query Facet", "Query Facets can only be added to new Business Objects");
+		// return;
+		// }
+		// BusinessObjectNode bo = (BusinessObjectNode) current;
+		//
+		// // Create the contextual facet
+		// QueryFacetNode qf = new QueryFacetNode();
+		// qf.setName("new");
+		// bo.getLibrary().addMember(qf);
+		// bo.getTLModelObject().addQueryFacet(qf.getTLModelObject());
+		//
+		// // Create contributed facet
+		// NodeFactory.newComponentMember(bo, qf.getTLModelObject());
+		// mc.refresh(bo);
 	}
 
 	private void addQueryFacet() {
@@ -84,7 +114,7 @@ public class AddQueryFacetAction extends OtmAbstractAction {
 		if (!wizard.wasCanceled()) {
 			FacetNode newFacet = bo.addFacet(wizard.getName(), facetType);
 			for (final PropertyNode n : wizard.getSelectedProperties()) {
-				NodeFactory.newComponentMember(newFacet, n.cloneTLObj());
+				NodeFactory.newMember(newFacet, n.cloneTLObj());
 			}
 		}
 		mc.refresh(bo);

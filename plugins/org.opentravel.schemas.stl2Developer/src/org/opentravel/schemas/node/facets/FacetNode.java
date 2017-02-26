@@ -223,12 +223,14 @@ public class FacetNode extends PropertyOwnerNode implements PropertyOwnerInterfa
 			if (n instanceof AliasNode)
 				knownAliases.add(n.getName());
 		}
-		for (TLAlias tla : ((TLFacet) getTLModelObject()).getAliases()) {
-			if (!knownAliases.contains(tla.getName())) {
-				new AliasNode(this, tla);
-				knownAliases.add(tla.getName());
+		// model object can be null for contributed facets
+		if (getTLModelObject() != null)
+			for (TLAlias tla : getTLModelObject().getAliases()) {
+				if (!knownAliases.contains(tla.getName())) {
+					new AliasNode(this, tla);
+					knownAliases.add(tla.getName());
+				}
 			}
-		}
 	}
 
 }

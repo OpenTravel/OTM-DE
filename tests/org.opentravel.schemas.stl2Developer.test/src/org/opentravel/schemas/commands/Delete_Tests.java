@@ -28,9 +28,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ChoiceObjectNode;
-import org.opentravel.schemas.node.ChoiceObjectTests;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
@@ -202,7 +202,7 @@ public class Delete_Tests extends BaseProjectTest {
 	@Test
 	public void deleteFacets_ChoiceObject() {
 		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", testProject);
-		ChoiceObjectTests tests = new ChoiceObjectTests();
+		// ChoiceObjectTests tests = new ChoiceObjectTests();
 
 		// Given a business object with all facet types
 		ChoiceObjectNode co = ml.addChoice(ln, "TestCO");
@@ -212,7 +212,8 @@ public class Delete_Tests extends BaseProjectTest {
 		assertTrue("Must have five children", co.getChildren().size() == facetCount + 2);
 		assertTrue("Choice 1 facet is NOT deleted.", !c1.isDeleted());
 		assertTrue("Choice 2 facet is NOT deleted.", !c2.isDeleted());
-		tests.checkChoice(co);
+		ml.checkObject(co);
+		// tests.checkChoice(co);
 
 		// When the facets are deleted
 		c1.delete();
@@ -230,7 +231,8 @@ public class Delete_Tests extends BaseProjectTest {
 			((FacetNode) f).delete();
 
 		// Then the object is still valid
-		tests.checkChoice(co);
+		ml.checkObject(co);
+		// tests.checkChoice(co);
 	}
 
 	@Test
@@ -307,8 +309,11 @@ public class Delete_Tests extends BaseProjectTest {
 		// Delete Visitor
 		int namedTypeCnt = setUpCase(1);
 		int descendants = ln.getDescendants().size();
-		ln.getComplexRoot().visitAllNodes(dv); // should do nothing
-		ln.getSimpleRoot().visitAllNodes(dv); // should do nothing
+		if (!OTM16Upgrade.otm16Enabled) {
+			// Delete visitor will delete contributed facets
+			ln.getComplexRoot().visitAllNodes(dv); // should do nothing
+			ln.getSimpleRoot().visitAllNodes(dv); // should do nothing
+		}
 		ln.visitAllNodes(tv); // test visitor, should not change library
 		Assert.assertEquals(descendants, ln.getDescendants().size());
 		Assert.assertEquals(namedTypeCnt, ln.getDescendants_LibraryMembers().size());

@@ -21,10 +21,8 @@ import java.util.List;
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
-import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLFacet;
-import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.modelObject.events.OwnershipEventListener;
 import org.slf4j.Logger;
@@ -140,25 +138,25 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 	// }
 	// }
 
-	/**
-	 * Add a custom or query facet to this business object.
-	 * 
-	 * @param name
-	 * @param type
-	 *            CUSTOM or QUERY only
-	 * @return
-	 */
-	public TLContextualFacet addFacet(String name, TLFacetType type) {
-		TLContextualFacet newFacet = createFacet(name, type);
-		if (TLFacetType.CUSTOM.equals(newFacet.getFacetType()))
-			addCustomFacet(newFacet);
-		else if (TLFacetType.QUERY.equals(newFacet.getFacetType()))
-			addQueryFacet(newFacet);
-		else
-			throw new RuntimeException("Type is not supported: + " + newFacet.getFacetType()
-					+ ". Can only add custom or query facet.");
-		return newFacet;
-	}
+	// /**
+	// * Add a custom or query facet to this business object.
+	// *
+	// * @param name
+	// * @param type
+	// * CUSTOM or QUERY only
+	// * @return
+	// */
+	// public TLContextualFacet addFacet(String name, TLFacetType type) {
+	// TLContextualFacet newFacet = createFacet(name, type);
+	// if (TLFacetType.CUSTOM.equals(newFacet.getFacetType()))
+	// addCustomFacet(newFacet);
+	// else if (TLFacetType.QUERY.equals(newFacet.getFacetType()))
+	// addQueryFacet(newFacet);
+	// else
+	// throw new RuntimeException("Type is not supported: + " + newFacet.getFacetType()
+	// + ". Can only add custom or query facet.");
+	// return newFacet;
+	// }
 
 	// private TLFacet findFacet(String name, String context, TLFacetType type) {
 	// if (TLFacetType.CUSTOM.equals(type))
@@ -174,15 +172,15 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 	// return newFacet;
 	// }
 
-	private TLContextualFacet createFacet(String name, TLFacetType type) {
-		TLContextualFacet tf = new TLContextualFacet();
-		// tf.setLabel(name);
-		tf.setName(name);
-		// tf.setContext(context);
-		tf.setFacetType(type);
-		tf.setOwningEntity(getTLModelObj());
-		return tf;
-	}
+	// private TLContextualFacet createFacet(String name, TLFacetType type) {
+	// TLContextualFacet tf = new TLContextualFacet();
+	// // tf.setLabel(name);
+	// tf.setName(name);
+	// // tf.setContext(context);
+	// tf.setFacetType(type);
+	// tf.setOwningEntity(getTLModelObj());
+	// return tf;
+	// }
 
 	// @Override
 	// public TLFacet addFacet(TLFacetType type) {
@@ -201,15 +199,15 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 	// return tlf;
 	// }
 
-	public void addCustomFacet(final TLContextualFacet tlf) {
-		srcObj.addCustomFacet(tlf);
-		// LOGGER.info("Added custom facet " + tlf.getLocalName() + " to BusinessObject " + this.getName());
-	}
+	// public void addCustomFacet(final TLContextualFacet tlf) {
+	// srcObj.addCustomFacet(tlf);
+	// // LOGGER.info("Added custom facet " + tlf.getLocalName() + " to BusinessObject " + this.getName());
+	// }
 
-	public void addQueryFacet(final TLContextualFacet tlf) {
-		srcObj.addQueryFacet(tlf);
-		// LOGGER.info("Added query facet " + tlf.getLocalName() + " to BusinessObject " + this.getName());
-	}
+	// public void addQueryFacet(final TLContextualFacet tlf) {
+	// srcObj.addQueryFacet(tlf);
+	// // LOGGER.info("Added query facet " + tlf.getLocalName() + " to BusinessObject " + this.getName());
+	// }
 
 	// It may already have been taken out of the library, but if not do so.
 	@Override
@@ -228,6 +226,7 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 		kids.add(getTLModelObj().getDetailFacet());
 		kids.addAll(getTLModelObj().getQueryFacets());
 		kids.addAll(getTLModelObj().getCustomFacets());
+		kids.addAll(getTLModelObj().getUpdateFacets());
 		kids.addAll(getTLModelObj().getAliases());
 		return kids;
 	}

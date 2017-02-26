@@ -34,6 +34,8 @@ import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.OperationFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -176,6 +178,8 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		super(tlObj);
 		this.propertyType = propertyType;
 		this.alternateRoles = new AlternateRoles(this);
+		if (parent instanceof ContributedFacetNode)
+			parent = ((ContributedFacetNode) parent).getContributor();
 		if (parent != null) {
 			parent.getModelObject().addChild(tlObj); // link to TL model
 			((Node) parent).linkChild(this); // link to node model
@@ -408,8 +412,11 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		if (getParent() instanceof ExtensionPointNode)
 			return getParent();
 		// EnumLiterals are overridden.
+		if (getParent() instanceof ContextualFacetNode)
+			return getParent().getOwningComponent();
 
 		// Otherwise Properties are always owned by a facet.
+		// TODO - delegate as is done with contextual facets
 		return getParent().getParent().isNamedEntity() ? getParent().getParent() : this;
 	}
 

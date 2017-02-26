@@ -31,7 +31,7 @@ public class OperationFacetNode extends FacetNode {
 
 	@Override
 	public boolean isDeleteable() {
-		return super.isDeletable(true);
+		return super.isDeleteable(true);
 	}
 
 	@Override

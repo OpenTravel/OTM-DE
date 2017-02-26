@@ -49,7 +49,7 @@ public class FacetNodeBuilder {
 		buildFacet();
 		for (String n : names) {
 			Object obj = tlCreator.create(n);
-			NodeFactory.newComponentMember(facet, obj);
+			NodeFactory.newMember(facet, obj);
 		}
 		return this;
 	}

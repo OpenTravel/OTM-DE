@@ -15,9 +15,12 @@
  */
 package org.opentravel.schemas.node.facets;
 
+import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
+import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.modelObject.FacetMO;
+import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 
 /**
  * Used for Choice Facets.
@@ -39,13 +42,47 @@ public class ChoiceFacetNode extends ContextualFacetNode {
 	}
 
 	@Override
+	public boolean canOwn(ContextualFacetNode targetCF) {
+		if (targetCF instanceof ChoiceFacetNode)
+			return targetCF != this;
+		return false;
+	}
+
+	@Override
 	public TLContextualFacet getTLModelObject() {
 		return (TLContextualFacet) modelObject.getTLModelObj();
 	}
 
+	/**
+	 * Create new TLChoice facet and add to passed owner choice object.
+	 * 
+	 * @param owner
+	 * @param name
+	 */
+	public void setOwner(ContextualFacetOwnerInterface owner) {
+		TLContextualFacet newFacet = getTLModelObject();
+		newFacet.setOwningEntity(owner.getTLModelObject());
+		newFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
+		if (owner.getTLModelObject() instanceof TLChoiceObject)
+			((TLChoiceObject) owner.getTLModelObject()).addChoiceFacet(newFacet);
+
+		super.add(owner, newFacet);
+	}
+
 	@Override
-	public boolean isDeleteable() {
-		return super.isDeletable(true);
+	protected void addToTLParent(TLFacetOwner tlOwner) {
+		if (tlOwner instanceof TLChoiceObject)
+			((TLChoiceObject) tlOwner).addChoiceFacet(getTLModelObject());
+		else if (tlOwner instanceof TLContextualFacet)
+			((TLContextualFacet) tlOwner).addChildFacet(getTLModelObject());
+	}
+
+	@Override
+	protected void removeFromTLParent() {
+		if (getTLModelObject().getOwningEntity() instanceof TLChoiceObject)
+			((TLChoiceObject) getTLModelObject().getOwningEntity()).removeChoiceFacet(getTLModelObject());
+		else if (getTLModelObject().getOwningEntity() instanceof TLContextualFacet)
+			((TLContextualFacet) getTLModelObject().getOwningEntity()).removeChildFacet(getTLModelObject());
 	}
 
 }

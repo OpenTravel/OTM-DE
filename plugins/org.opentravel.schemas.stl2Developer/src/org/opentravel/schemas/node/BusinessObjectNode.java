@@ -29,17 +29,19 @@ import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemas.modelObject.BusinessObjMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.controllers.NodeUtils;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
+import org.opentravel.schemas.node.facets.UpdateFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -58,12 +60,12 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class BusinessObjectNode extends TypeProviderBase implements ComplexComponentInterface, ExtensionOwner,
-		VersionedObjectInterface, LibraryMemberInterface, TypeProvider {
+		ContextualFacetOwnerInterface, VersionedObjectInterface, LibraryMemberInterface, TypeProvider {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
 	private ExtensionHandler extensionHandler = null;
 
-	public BusinessObjectNode(TLLibraryMember mbr) {
+	public BusinessObjectNode(TLBusinessObject mbr) {
 		super(mbr);
 		addMOChildren();
 
@@ -183,6 +185,14 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	}
 
 	@Override
+	public ContributedFacetNode getContributedFacet(TLContextualFacet tlObj) {
+		for (Node child : getChildren())
+			if (child instanceof ContributedFacetNode && child.getTLModelObject() == tlObj)
+				return (ContributedFacetNode) child;
+		return null;
+	}
+
+	@Override
 	public PropertyOwnerInterface getDefaultFacet() {
 		return getSummaryFacet();
 	}
@@ -203,13 +213,43 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	public void initInheritedChildren() {
 		inheritedChildren = Collections.emptyList();
 		// Model each facet returned in the list of new TLFacets from the TL Model
-		for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.CUSTOM))
-			linkInheritedChild(NodeFactory.newComponentMember(null, cf));
-		for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.QUERY))
-			linkInheritedChild(NodeFactory.newComponentMember(null, cf));
-		for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.UPDATE))
-			linkInheritedChild(NodeFactory.newComponentMember(null, cf));
+		List<TLContextualFacet> tlCfs = new ArrayList<TLContextualFacet>();
+		tlCfs.addAll(FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.CUSTOM));
+		tlCfs.addAll(FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.QUERY));
+		tlCfs.addAll(FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.UPDATE));
+		// TODO - why is this called so often?
+		List<TLContextualFacet> allTLCfs = new ArrayList<TLContextualFacet>();
+		for (ContextualFacetNode cfn : getModelNode().getDescendants_ContextualFacets())
+			allTLCfs.add(cfn.getTLModelObject());
 
+		// Some (all?) of the facets will be new without identity listener
+		// Match on facetType, Name, OwningLibrary and Owning Entity
+		for (TLContextualFacet cf : tlCfs) {
+			if (GetNode(cf) == null)
+				cf = find(allTLCfs, cf);
+			if (GetNode(cf) != null)
+				linkInheritedChild(NodeFactory.newMember(null, cf));
+			else
+				LOGGER.debug("Failed to find matching Contextual Facet Node: ");
+		}
+		// for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.CUSTOM))
+		// linkInheritedChild(NodeFactory.newComponentMember(null, cf));
+		// for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.QUERY))
+		// linkInheritedChild(NodeFactory.newComponentMember(null, cf));
+		// for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.UPDATE))
+		// linkInheritedChild(NodeFactory.newComponentMember(null, cf));
+
+	}
+
+	private TLContextualFacet find(List<TLContextualFacet> allTLCfs, TLContextualFacet ghostCF) {
+		LOGGER.debug("Find: " + ghostCF.getName());
+		for (TLContextualFacet tlCf : allTLCfs)
+			if (tlCf.getName().equals(ghostCF.getName()))
+				// if (tlCf.getOwningEntity() == ghostCF.getOwningEntity())
+				if (tlCf.getFacetType() == ghostCF.getFacetType())
+					if (tlCf.getOwningLibrary() == ghostCF.getOwningLibrary())
+						return tlCf;
+		return null;
 	}
 
 	@Override
@@ -241,21 +281,40 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	 * 
 	 * @param name
 	 * @param type
-	 * @return
+	 * @return the new contextual facet (not contributed)
 	 */
 	// TODO - consider allowing them in minor and use createMinorVersionOfComponent()
 	public ContextualFacetNode addFacet(String name, TLFacetType type) {
 		if (!isEditable_newToChain())
 			throw new IllegalArgumentException("Can not add facet to " + this);
 
-		TLContextualFacet newTlFacet = getModelObject().addFacet(name, type);
-		ContextualFacetNode ff = (ContextualFacetNode) NodeFactory.newComponentMember(this, newTlFacet);
-		return ff;
+		TLContextualFacet tlCf = ContextualFacetNode.createTL(name, type);
+		ContextualFacetNode cf = null;
+		if (TLFacetType.CUSTOM.equals(type))
+			cf = new CustomFacetNode(tlCf);
+		else if (TLFacetType.QUERY.equals(type))
+			cf = new QueryFacetNode(tlCf);
+		else if (TLFacetType.UPDATE.equals(type))
+			cf = new UpdateFacetNode(tlCf);
+
+		cf.setOwner(this);
+		return cf;
+	}
+
+	@Override
+	public boolean canOwn(ContextualFacetNode targetCF) {
+		if (targetCF instanceof CustomFacetNode)
+			return true;
+		if (targetCF instanceof QueryFacetNode)
+			return true;
+		if (targetCF instanceof UpdateFacetNode)
+			return true;
+		return false;
 	}
 
 	@Override
 	public ComponentNode createMinorVersionComponent() {
-		return super.createMinorVersionComponent(new BusinessObjectNode((TLLibraryMember) createMinorTLVersion(this)));
+		return super.createMinorVersionComponent(new BusinessObjectNode((TLBusinessObject) createMinorTLVersion(this)));
 	}
 
 	@Override

@@ -24,6 +24,7 @@ import java.util.List;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
+import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
@@ -79,6 +80,11 @@ public class TypeResolver {
 			wasEditable = lib.isEditable(); // Resolve all libraries, not just editable ones
 			// LOGGER.debug("Resolving Types in " + lib);
 			lib.setEditable(true);
+
+			// Resolve all un-linked contributed facets FIRST since that impacts children
+			for (ContributedFacetNode cf : lib.getDescendants_ContributedFacets())
+				cf.setContributor(null); // will resolve using identity listeners
+
 			if (lib.isInChain()) {
 				lib.getChain().visitAllTypeUsers(new resolveTypes());
 				lib.getChain().visitAllExtensionOwners(new resolveBaseTypes());
@@ -86,6 +92,7 @@ public class TypeResolver {
 				lib.visitAllTypeUsers(new resolveTypes());
 				lib.visitAllExtensionOwners(new resolveBaseTypes());
 			}
+
 			lib.setEditable(wasEditable);
 		}
 

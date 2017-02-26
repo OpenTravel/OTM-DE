@@ -18,12 +18,9 @@
  */
 package org.opentravel.schemas.node;
 
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
@@ -55,98 +52,98 @@ public class Family_Tests {
 
 	@Before
 	public void beforeAllTests() {
-		mc = new MainController();
-		ml = new MockLibrary();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
+		// mc = new MainController();
+		// ml = new MockLibrary();
+		// pc = (DefaultProjectController) mc.getProjectController();
+		// defaultProject = pc.getDefaultProject();
 	}
 
-	@Test
-	public void familyConstructors() {
+	// @Test
+	// public void familyConstructors() {
 
-		// // Given two libraries, one managed one not managed
-		// ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
-		// LibraryNode ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
-		// new LibraryChainNode(ln_inChain);
-		// ln_inChain.setEditable(true);
-		//
-		// // Given two simple types with same family name, only one in library
-		// Node n1 = (Node) ml.createSimple("s_1");
-		// Node n2 = (Node) ml.createSimple("s_2");
-		// ln.addMember(n1);
-		// assertTrue("Library must be editable.", ln.isEditable());
-		// assertTrue("Managed library must be editable", ln_inChain.isEditable());
-		// assertTrue("Must have same family name", n1.getFamily().equals(n2.getFamily()));
-		//
-		// // When - new family node from the 2 nodes (unmanaged)
-		// FamilyNode fn = new FamilyNode(n1, n2);
-		// // NOTE - there will be a warning from Node.remove() because n2 was not in library.
-		//
-		// // Then - check all constructor managed values
-		// checkNewFamily(ln, fn, n1, n2);
-		//
-		// //
-		// // Given - node in managed library
-		// Node nc1 = (Node) ml.createSimple("m_1");
-		// ln_inChain.addMember(nc1);
-		// assertTrue("Node is in managed library.", nc1.getParent() instanceof VersionNode);
-		//
-		// // Given - node in managed library but added to bypass family processing
-		// Node nc2 = (Node) ml.createSimple("m_2");
-		// ln_inChain.getTLLibrary().addNamedMember((LibraryMember) nc2.getTLModelObject());
-		// ln_inChain.simpleRoot.linkChild(nc2, false); // no family processing
-		// // nc1 is version wrapped, nc2 is not.
-		//
-		// // When - family node created
-		// fn = new FamilyNode(nc1, nc2);
-		//
-		// // Then
-		// checkNewFamily(ln_inChain, fn, nc1, nc2);
-		//
-		// //
-		// // When - family constructor (AggregateFamilyNode usage)
-		// final String TestName = "TestFamily";
-		// fn = new FamilyNode(TestName, ln_inChain.getComplexRoot());
-		// // Then
-		// assertTrue("Family node created.", fn != null);
-		// assertTrue("Library contains family.", ln_inChain.getComplexRoot().getChildren().contains(fn));
-		//
-		// LOGGER.debug("Family Test constructor test complete.");
-	}
+	// // Given two libraries, one managed one not managed
+	// ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
+	// LibraryNode ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
+	// new LibraryChainNode(ln_inChain);
+	// ln_inChain.setEditable(true);
+	//
+	// // Given two simple types with same family name, only one in library
+	// Node n1 = (Node) ml.createSimple("s_1");
+	// Node n2 = (Node) ml.createSimple("s_2");
+	// ln.addMember(n1);
+	// assertTrue("Library must be editable.", ln.isEditable());
+	// assertTrue("Managed library must be editable", ln_inChain.isEditable());
+	// assertTrue("Must have same family name", n1.getFamily().equals(n2.getFamily()));
+	//
+	// // When - new family node from the 2 nodes (unmanaged)
+	// FamilyNode fn = new FamilyNode(n1, n2);
+	// // NOTE - there will be a warning from Node.remove() because n2 was not in library.
+	//
+	// // Then - check all constructor managed values
+	// checkNewFamily(ln, fn, n1, n2);
+	//
+	// //
+	// // Given - node in managed library
+	// Node nc1 = (Node) ml.createSimple("m_1");
+	// ln_inChain.addMember(nc1);
+	// assertTrue("Node is in managed library.", nc1.getParent() instanceof VersionNode);
+	//
+	// // Given - node in managed library but added to bypass family processing
+	// Node nc2 = (Node) ml.createSimple("m_2");
+	// ln_inChain.getTLLibrary().addNamedMember((LibraryMember) nc2.getTLModelObject());
+	// ln_inChain.simpleRoot.linkChild(nc2, false); // no family processing
+	// // nc1 is version wrapped, nc2 is not.
+	//
+	// // When - family node created
+	// fn = new FamilyNode(nc1, nc2);
+	//
+	// // Then
+	// checkNewFamily(ln_inChain, fn, nc1, nc2);
+	//
+	// //
+	// // When - family constructor (AggregateFamilyNode usage)
+	// final String TestName = "TestFamily";
+	// fn = new FamilyNode(TestName, ln_inChain.getComplexRoot());
+	// // Then
+	// assertTrue("Family node created.", fn != null);
+	// assertTrue("Library contains family.", ln_inChain.getComplexRoot().getChildren().contains(fn));
+	//
+	// LOGGER.debug("Family Test constructor test complete.");
+	// }
 
-	public void checkNewFamily(LibraryNode ln, FamilyNode fn, Node n1, Node n2) {
-		// assertTrue("All parameters are not null.", fn != null && ln != null && n1 != null && n2 != null);
-		// assertTrue("Family name set the same as child.", fn.getName().equals(n1.getFamily()));
-		// assertTrue("Family library set.", ln == fn.getLibrary());
-		// assertTrue("Family identity set.", fn.getIdentity().startsWith("Family"));
-		//
-		// Node root = ln.getSimpleRoot();
-		// if (fn.getParent() == ln.getComplexRoot())
-		// root = ln.getComplexRoot();
-		// assertTrue("Family parent is root.", fn.getParent() == root);
-		// assertTrue("Root does not contain node.", !root.getChildren().contains(n1));
-		// assertTrue("Root does not contain node.", !root.getChildren().contains(n2));
-		// assertTrue("Root has only one child.", root.getChildren().size() == 1);
-		// assertTrue("Root contains family.", root.getChildren().contains(fn));
-		//
-		// assertTrue("Family has two members.", fn.getChildren().size() == 2);
-		// if (n1.getVersionNode() == null) {
-		// assertTrue("Node parent is the family.", n1.getParent() == fn);
-		// assertTrue("Family contains the node.", fn.getChildren().contains(n1));
-		// } else {
-		// // bad test - it assumes version node implementation not used in constructor
-		// assertTrue("Node parent is still version node.", n1.getParent() == n1.getVersionNode());
-		// assertTrue("Version Node parent is the family.", n1.getVersionNode().getParent() == fn);
-		// assertTrue("Family contains the version node.", fn.getChildren().contains(n1.getVersionNode()));
-		// }
-		// if (n2.getVersionNode() == null) {
-		// assertTrue("Node parent is the family.", n2.getParent() == fn);
-		// assertTrue("Family contains the node.", fn.getChildren().contains(n2));
-		// } else {
-		// assertTrue("Version Node parent is the family.", n2.getVersionNode().getParent() == fn);
-		// assertTrue("Family contains the version node.", fn.getChildren().contains(n2.getVersionNode()));
-		// }
-	}
+	// public void checkNewFamily(LibraryNode ln, FamilyNode fn, Node n1, Node n2) {
+	// assertTrue("All parameters are not null.", fn != null && ln != null && n1 != null && n2 != null);
+	// assertTrue("Family name set the same as child.", fn.getName().equals(n1.getFamily()));
+	// assertTrue("Family library set.", ln == fn.getLibrary());
+	// assertTrue("Family identity set.", fn.getIdentity().startsWith("Family"));
+	//
+	// Node root = ln.getSimpleRoot();
+	// if (fn.getParent() == ln.getComplexRoot())
+	// root = ln.getComplexRoot();
+	// assertTrue("Family parent is root.", fn.getParent() == root);
+	// assertTrue("Root does not contain node.", !root.getChildren().contains(n1));
+	// assertTrue("Root does not contain node.", !root.getChildren().contains(n2));
+	// assertTrue("Root has only one child.", root.getChildren().size() == 1);
+	// assertTrue("Root contains family.", root.getChildren().contains(fn));
+	//
+	// assertTrue("Family has two members.", fn.getChildren().size() == 2);
+	// if (n1.getVersionNode() == null) {
+	// assertTrue("Node parent is the family.", n1.getParent() == fn);
+	// assertTrue("Family contains the node.", fn.getChildren().contains(n1));
+	// } else {
+	// // bad test - it assumes version node implementation not used in constructor
+	// assertTrue("Node parent is still version node.", n1.getParent() == n1.getVersionNode());
+	// assertTrue("Version Node parent is the family.", n1.getVersionNode().getParent() == fn);
+	// assertTrue("Family contains the version node.", fn.getChildren().contains(n1.getVersionNode()));
+	// }
+	// if (n2.getVersionNode() == null) {
+	// assertTrue("Node parent is the family.", n2.getParent() == fn);
+	// assertTrue("Family contains the node.", fn.getChildren().contains(n2));
+	// } else {
+	// assertTrue("Version Node parent is the family.", n2.getVersionNode().getParent() == fn);
+	// assertTrue("Family contains the version node.", fn.getChildren().contains(n2.getVersionNode()));
+	// }
+	// }
 
 	// // Given - a managed library with two simple types in a family
 	// public FamilyNode createFamilyAndManagedLibrary() {
@@ -454,44 +451,44 @@ public class Family_Tests {
 	// }
 	// }
 
-	private void siblingTest(LibraryNode ln) {
-		Node nn1 = null;
-		Node nn2 = null;
-		Node nn3 = null;
-		int siblingCount = 0;
-
-		for (Node n : ln.getDescendants_LibraryMembers()) {
-			tt.visitTypeNode(n);
-			Assert.assertFalse(n instanceof FamilyNode);
-			siblingCount = 0;
-			if (n.getParent() instanceof FamilyNode)
-				siblingCount = n.getParent().getChildren().size();
-			nn1 = n.clone(); // makes duplication in library
-			nn2 = n.clone();
-			nn3 = n.clone();
-			INode parent = n.getParent();
-			if (nn1 != null) {
-				tt.visitTypeNode(nn1); // skip services
-				Assert.assertTrue(nn1.getParent() instanceof FamilyNode);
-				nn1.removeFromLibrary();
-			}
-			if (nn2 != null) {
-				tt.visitTypeNode(nn2); // skip services
-				Assert.assertTrue(nn2.getParent() instanceof FamilyNode);
-				nn2.removeFromLibrary();
-			}
-			if (nn3 != null) {
-				tt.visitTypeNode(nn3); // skip services
-				Assert.assertTrue(nn3.getParent() instanceof FamilyNode);
-				n.replaceWith(nn3);
-				n = nn3;
-				tt.visitTypeNode(n);
-			}
-			if (siblingCount > 0) {
-				Assert.assertEquals(siblingCount, n.getParent().getChildren().size());
-				Assert.assertTrue(n.getParent() instanceof FamilyNode);
-			}
-		}
-
-	}
+	// private void siblingTest(LibraryNode ln) {
+	// Node nn1 = null;
+	// Node nn2 = null;
+	// Node nn3 = null;
+	// int siblingCount = 0;
+	//
+	// for (Node n : ln.getDescendants_LibraryMembers()) {
+	// tt.visitTypeNode(n);
+	// Assert.assertFalse(n instanceof FamilyNode);
+	// siblingCount = 0;
+	// if (n.getParent() instanceof FamilyNode)
+	// siblingCount = n.getParent().getChildren().size();
+	// nn1 = n.clone(); // makes duplication in library
+	// nn2 = n.clone();
+	// nn3 = n.clone();
+	// INode parent = n.getParent();
+	// if (nn1 != null) {
+	// tt.visitTypeNode(nn1); // skip services
+	// Assert.assertTrue(nn1.getParent() instanceof FamilyNode);
+	// nn1.removeFromLibrary();
+	// }
+	// if (nn2 != null) {
+	// tt.visitTypeNode(nn2); // skip services
+	// Assert.assertTrue(nn2.getParent() instanceof FamilyNode);
+	// nn2.removeFromLibrary();
+	// }
+	// if (nn3 != null) {
+	// tt.visitTypeNode(nn3); // skip services
+	// Assert.assertTrue(nn3.getParent() instanceof FamilyNode);
+	// n.replaceWith(nn3);
+	// n = nn3;
+	// tt.visitTypeNode(n);
+	// }
+	// if (siblingCount > 0) {
+	// Assert.assertEquals(siblingCount, n.getParent().getChildren().size());
+	// Assert.assertTrue(n.getParent() instanceof FamilyNode);
+	// }
+	// }
+	//
+	// }
 }

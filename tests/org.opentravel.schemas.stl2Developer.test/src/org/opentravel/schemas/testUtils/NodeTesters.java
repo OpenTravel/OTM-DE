@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.testUtils;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 
 import org.junit.Assert;
@@ -42,6 +44,7 @@ import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.types.TestTypes;
@@ -112,6 +115,9 @@ public class NodeTesters {
 			LOGGER.debug("Test node " + n + " is ImpliedNode. Skipping.");
 			return;
 		}
+		// Check Listeners
+		if (n instanceof LibraryMemberInterface)
+			assertTrue("Must have identity listener.", Node.GetNode(n.getTLModelObject()) != null);
 
 		// Test the source object
 		if (n instanceof LibraryNode) {

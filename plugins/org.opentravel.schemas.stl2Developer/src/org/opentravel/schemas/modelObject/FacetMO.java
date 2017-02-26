@@ -26,10 +26,8 @@ import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 import org.opentravel.schemacompiler.event.ModelEventType;
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
-import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
@@ -145,61 +143,19 @@ public class FacetMO extends ModelObject<TLFacet> {
 		return true;
 	}
 
-	// /**
-	// * You can not add aliases to facets.
-	// */
-	// @Override
-	// @Deprecated
-	// public void addAlias(final TLAlias tla) {
-	// // Not found, add it.
-	// }
-
 	@Override
 	public void delete() {
 		removeBaseListener();
+
+		// Contextual facets handled in ContextualFacetNode
+		if (getTLModelObj() instanceof TLContextualFacet)
+			return;
+
 		if (getTLModelObj().getOwningEntity() == null) {
-			// LOGGER.error("Tried to delete a facet MO with no ownining entity.");
+			LOGGER.error("Tried to delete a facet MO with no ownining entity.");
 			return;
 		}
-		TLFacetOwner oe = getTLModelObj().getOwningEntity();
-		AbstractLibrary ol = getTLModelObj().getOwningLibrary();
-		TLFacetType facetType = getTLModelObj().getFacetType();
-
-		if (facetType.equals(TLFacetType.REQUEST) || facetType.equals(TLFacetType.RESPONSE)
-				|| facetType.equals(TLFacetType.NOTIFICATION)) {
-			getTLModelObj().clearFacet();
-		} else if (facetType.equals(TLFacetType.CHOICE)) {
-			((TLChoiceObject) oe).removeChoiceFacet((TLContextualFacet) getTLModelObj());
-			ol.removeNamedMember((TLContextualFacet) getTLModelObj());
-		} else if (getTLModelObj().getFacetType().equals(TLFacetType.CUSTOM)) {
-			((TLBusinessObject) oe).removeCustomFacet((TLContextualFacet) getTLModelObj());
-			ol.removeNamedMember((TLContextualFacet) getTLModelObj());
-		} else if (getTLModelObj().getFacetType().equals(TLFacetType.QUERY)) {
-			((TLBusinessObject) oe).removeQueryFacet((TLContextualFacet) getTLModelObj());
-			ol.removeNamedMember((TLContextualFacet) getTLModelObj());
-		} else {
-			getTLModelObj().clearFacet();
-		}
-
-		// if (!(node instanceof FacetNode)) {
-		// LOGGER.error("Tried to delete a facet MO with whose node is not a facet: " + node);
-		// }
-		// if ((getTLModelObj().getFacetType().equals(TLFacetType.REQUEST))
-		// || (getTLModelObj().getFacetType().equals(TLFacetType.RESPONSE))
-		// || (getTLModelObj().getFacetType().equals(TLFacetType.NOTIFICATION))) {
-		// getTLModelObj().clearFacet();
-		// } else if (getTLModelObj().getFacetType().equals(TLFacetType.CHOICE))
-		// ((TLChoiceObject) getTLModelObj().getOwningEntity()).removeChoiceFacet((TLContextualFacet) getTLModelObj());
-		// if (getTLModelObj().getFacetType().equals(TLFacetType.CUSTOM)) {
-		// ((TLBusinessObject) getTLModelObj().getOwningEntity())
-		// .removeCustomFacet((TLContextualFacet) getTLModelObj());
-		// } else if (getTLModelObj().getFacetType().equals(TLFacetType.QUERY)) {
-		// ((TLBusinessObject) getTLModelObj().getOwningEntity())
-		// .removeQueryFacet((TLContextualFacet) getTLModelObj());
-		// } else {
-		// getTLModelObj().clearFacet();
-		// }
-		// getTLModelObj().getOwningLibrary().removeNamedMember(namedMember);
+		getTLModelObj().clearFacet();
 	}
 
 	@Override
@@ -209,6 +165,8 @@ public class FacetMO extends ModelObject<TLFacet> {
 		kids.addAll(getTLModelObj().getIndicators());
 		kids.addAll(getTLModelObj().getElements());
 		kids.addAll(getTLModelObj().getAliases());
+		if (getTLModelObj() instanceof TLContextualFacet)
+			kids.addAll(((TLContextualFacet) getTLModelObj()).getChildFacets());
 		return kids;
 	}
 
@@ -238,100 +196,37 @@ public class FacetMO extends ModelObject<TLFacet> {
 		return inheritedKids;
 	}
 
-	// @Override
-	// public String getComponentType() {
-	// return getDisplayName(getTLModelObj().getFacetType());
-	// }
-
-	@Deprecated
-	public static String getDisplayName(TLFacetType facetType) {
-		switch (facetType) {
-		case ID:
-			return "ID-Facet";
-		case CUSTOM:
-			return "Custom-Facet";
-		case DETAIL:
-			return "Detail-Facet";
-		case NOTIFICATION:
-			return "Notification-Facet";
-		case QUERY:
-			return "Query-Facet";
-		case REQUEST:
-			return "Request-Facet";
-		case RESPONSE:
-			return "Response-Facet";
-		case SIMPLE:
-			return "Simple-Facet";
-		case SUMMARY:
-			return "Summary-Facet";
-		case SHARED:
-			return "Shared-Facet";
-		case CHOICE:
-			return "Choice-Facet";
-		case UPDATE:
-			return "Update-Facet";
-		}
-		LOGGER.debug("Warning: missing facet display name for facet of type: " + facetType);
-		// should never happen. Make sure that switch cover all cases.
-		return "";
-	}
-
 	// @Deprecated
-	// @Override
-	// protected AbstractLibrary getLibrary(final TLFacet obj) {
-	// return null;
+	// public static String getDisplayName(TLFacetType facetType) {
+	// switch (facetType) {
+	// case ID:
+	// return "ID-Facet";
+	// case CUSTOM:
+	// return "Custom-Facet";
+	// case DETAIL:
+	// return "Detail-Facet";
+	// case NOTIFICATION:
+	// return "Notification-Facet";
+	// case QUERY:
+	// return "Query-Facet";
+	// case REQUEST:
+	// return "Request-Facet";
+	// case RESPONSE:
+	// return "Response-Facet";
+	// case SIMPLE:
+	// return "Simple-Facet";
+	// case SUMMARY:
+	// return "Summary-Facet";
+	// case SHARED:
+	// return "Shared-Facet";
+	// case CHOICE:
+	// return "Choice-Facet";
+	// case UPDATE:
+	// return "Update-Facet";
 	// }
-
-	// @Override
-	// public String getLabel() {
-	// // 10/2016 dmh - override getLabel() in ContextualFacetNode
-	// String label = getDisplayName(srcObj.getFacetType());
-	// if (srcObj.getFacetType().equals(TLFacetType.CUSTOM) || srcObj.getFacetType().equals(TLFacetType.QUERY)) {
-	// label = XsdCodegenUtils.getGlobalTypeName(getTLModelObj());
-	// String parent = srcObj.getOwningEntity().getLocalName();
-	// if (label.startsWith(parent)) {
-	// label = label.substring((srcObj.getOwningEntity().getLocalName()).length());
-	// }
-	// if (label.startsWith("_"))
-	// label = label.substring(1);
-	// } else if (srcObj.getFacetType().equals(TLFacetType.CHOICE)) {
-	// label = label + ": " + srcObj.getLabel();
-	// // } else if (srcObj.getFacetType().equals(TLFacetType.SHARED)) {
-	// // label = srcObj.getLabel() + label;
-	// } else if (srcObj.getOwningEntity() instanceof TLOperation)
-	// getDisplayName(srcObj.getFacetType());
-	// return label;
-	// }
-
-	// @Override
-	// public String getName() {
-	// String name = XsdCodegenUtils.getGlobalTypeName(getTLModelObj());
-	// // Summary facets XSD names do not use the Summary suffix, but we do in the modeling.
-	// // Custom and query facets report the wrong name, so use their local name (Jan 11, 2013)
-	// if (getTLModelObj().getFacetType().equals(TLFacetType.SUMMARY))
-	// name = name + "_" + TLFacetType.SUMMARY.getIdentityName();
-	// else if (getTLModelObj().getOwningEntity() == null)
-	// name = ""; // bug fix for xsdCodegenUtils.getFacetTypeName
-	//
-	// // 10/2016 - dmh - query and custom extend contextualFacet which overrides getName()
-	// // else if (getTLModelObj().getFacetType().equals(TLFacetType.QUERY))
-	// // name = getTLModelObj().getLocalName();
-	// // else if (getTLModelObj().getFacetType().equals(TLFacetType.CUSTOM)) {
-	// // TLFacetOwner x = getTLModelObj().getOwningEntity();
-	// // name = getTLModelObj().getLocalName();
-	// // }
-	//
-	// return name == null ? getTLModelObj().getContext() : name;
-	// }
-
-	// @Override
-	// public String getNamePrefix() {
-	// return null;
-	// }
-	//
-	// @Override
-	// public String getNamespace() {
-	// return getTLModelObj().getNamespace();
+	// LOGGER.debug("Warning: missing facet display name for facet of type: " + facetType);
+	// // should never happen. Make sure that switch cover all cases.
+	// return "";
 	// }
 
 	@Override
@@ -339,11 +234,7 @@ public class FacetMO extends ModelObject<TLFacet> {
 		return srcObj;
 	}
 
-	// @Override
-	// public boolean isComplexAssignable() {
-	// return true;
-	// }
-	//
+	@Deprecated
 	@Override
 	public boolean setName(final String name) {
 		// Only custom and query facets can be named.
@@ -378,6 +269,12 @@ public class FacetMO extends ModelObject<TLFacet> {
 				return object.getName();
 			}
 		});
+		// f.sortAliases(new StringComparator<TLAlias>() {
+		// @Override
+		// protected String getString(TLAlias object) {
+		// return object.getName();
+		// }
+		// });
 	}
 
 	private static TLFacet findGhostFacets(TLFacetOwner facetOwner, TLFacet obj) {

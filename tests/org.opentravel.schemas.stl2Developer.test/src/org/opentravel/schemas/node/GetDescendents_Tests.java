@@ -213,8 +213,8 @@ public class GetDescendents_Tests {
 			if (!list1.contains(n))
 				LOGGER.debug("list 1 is missing: " + n);
 
-		// FIXME - these should be equal once the inclusion of services is resolved
-		Assert.assertNotEquals(list1.size(), list2.size());
+		// these should be equal once the inclusion of services is resolved
+		Assert.assertEquals(list1.size(), list2.size());
 
 	}
 

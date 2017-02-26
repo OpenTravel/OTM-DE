@@ -31,6 +31,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -507,7 +508,10 @@ public class OtmActions {
 		// properties name field.
 		Event e = new Event();
 		e.widget = wd.getWidget();
-		e.data = mc.getCurrentNode_FacetView().getOwningComponent();
+		INode n = mc.getCurrentNode_FacetView();
+		e.data = n;
+		if (!(n instanceof LibraryMemberInterface))
+			e.data = n.getOwningComponent();
 		new SetObjectNameAction(mc.getMainWindow()).runWithEvent(e);
 	}
 

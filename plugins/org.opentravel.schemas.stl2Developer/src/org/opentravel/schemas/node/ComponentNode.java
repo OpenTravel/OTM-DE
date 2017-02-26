@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.ModelElement;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
@@ -37,9 +38,12 @@ import org.opentravel.schemacompiler.version.Versioned;
 import org.opentravel.schemas.modelObject.EmptyMO;
 import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.modelObject.ModelObject;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
+import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -489,7 +493,7 @@ public abstract class ComponentNode extends Node {
 		} else {
 			for (final Object obj : inheritedMOChildren) {
 				// null parent allows us to control linkage.
-				ComponentNode nn = NodeFactory.newComponentMember(null, obj);
+				ComponentNode nn = NodeFactory.newMember(null, obj);
 				if (nn != null) {
 					linkInheritedChild(nn);
 					nn.addMOChildren();
@@ -576,15 +580,18 @@ public abstract class ComponentNode extends Node {
 			inheritedChildren = new ArrayList<Node>();
 		}
 		child.inheritsFrom = Node.GetNode(child.getTLModelObject());
-		inheritedChildren.add(child);
-		child.setParent(this);
-		child.inherited = true;
-
-		// if (!(child instanceof LibraryNode)) {
-		child.setLibrary(getLibrary());
-		// }
-		// LOGGER.debug("Linked inherited child " + child + " to parent " +
-		// this);
+		if (child instanceof PropertyNode && child.inheritsFrom == child) {
+			LOGGER.debug("ERROR - child inherits from itself: " + child);
+			child.inheritsFrom = null;
+			child.inherited = false;
+			// assert child.inheritsFrom != child; // Only prop nodes?
+		} else {
+			inheritedChildren.add(child);
+			child.setParent(this);
+			child.inherited = true;
+			child.setLibrary(getLibrary());
+		}
+		// LOGGER.debug("Linked inherited child " + child + " to parent " + this);
 		return true;
 	}
 
@@ -653,11 +660,15 @@ public abstract class ComponentNode extends Node {
 		// Build list of direct children of the model object
 		ComponentNode nn = null;
 		for (final Object obj : modelObject.getChildren()) {
-			if (obj instanceof TLContextualFacet && !((TLContextualFacet) obj).isLocalFacet()) {
-				LOGGER.debug("skipping contributed facet: ");
-				continue;
-			}
-			nn = NodeFactory.newComponentMember(this, obj);
+			nn = (ComponentNode) GetNode((ModelElement) obj);
+			if (nn != null) {
+				if (nn instanceof ContextualFacetNode && ((ContextualFacetNode) nn).isNamedEntity())
+					new ContributedFacetNode((TLContextualFacet) obj, (ContextualFacetOwnerInterface) this);
+				else
+					// Just link it in
+					linkChild(nn);
+			} else
+				nn = NodeFactory.newMember(this, obj);
 			if (nn != null)
 				nn.addMOChildren();
 		}

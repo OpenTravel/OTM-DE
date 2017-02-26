@@ -34,7 +34,7 @@ public class NodeFactoryTest {
 		TLProperty tl = new TLProperty();
 		XSDSimpleType simpleType = new XSDSimpleType("string", null);
 		tl.setType(simpleType);
-		ElementNode element = (ElementNode) NodeFactory.newComponentMember(null, tl);
+		ElementNode element = (ElementNode) NodeFactory.newMember(null, tl);
 		TLProperty afterCreate = (TLProperty) element.getModelObject().getTLModelObj();
 		Assert.assertSame(simpleType, afterCreate.getType());
 	}
@@ -48,7 +48,7 @@ public class NodeFactoryTest {
 		tl.setType(tlSimple);
 		Assert.assertSame(tlSimple, tl.getType());
 
-		ElementNode element = (ElementNode) NodeFactory.newComponentMember(null, tl);
+		ElementNode element = (ElementNode) NodeFactory.newMember(null, tl);
 		TLProperty afterCreate = (TLProperty) element.getModelObject().getTLModelObj();
 		Assert.assertSame(tlSimple, afterCreate.getType());
 

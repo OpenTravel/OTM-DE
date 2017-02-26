@@ -154,13 +154,13 @@ public class DefaultProjectController implements ProjectController {
 		}
 		if (fixNeeded > 0) {
 			// FIXME - this must be done in UI thread, but is in background on startup.
-			if (DialogUserNotifier.openConfirm("Name Rules", fixNeeded
-					+ " errors in element naming were detected. Should these be fixed automatically?"))
-				for (TypeUser n : ln.getDescendants_TypeUsers()) {
-					if (n instanceof ElementNode)
-						if (!(((Node) n).getName().equals(NodeNameUtils.fixElementName((Node) n))))
-							((ElementNode) n).setName("");
-				}
+			// if (DialogUserNotifier.openConfirm("Name Rules", fixNeeded
+			// + " errors in element naming were detected. Should these be fixed automatically?"))
+			// for (TypeUser n : ln.getDescendants_TypeUsers()) {
+			// if (n instanceof ElementNode)
+			// if (!(((Node) n).getName().equals(NodeNameUtils.fixElementName((Node) n))))
+			// ((ElementNode) n).setName("");
+			// }
 		}
 	}
 

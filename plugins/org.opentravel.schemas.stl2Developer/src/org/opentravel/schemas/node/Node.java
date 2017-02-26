@@ -45,8 +45,8 @@ import org.opentravel.schemacompiler.model.TLDocumentationItem;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 import org.opentravel.schemacompiler.model.TLEquivalentOwner;
 import org.opentravel.schemacompiler.model.TLExampleOwner;
-import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.FindingType;
 import org.opentravel.schemacompiler.validate.Validatable;
@@ -64,6 +64,7 @@ import org.opentravel.schemas.modelObject.XSDComplexMO;
 import org.opentravel.schemas.modelObject.XSDElementMO;
 import org.opentravel.schemas.modelObject.XSDSimpleMO;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
@@ -76,6 +77,7 @@ import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
@@ -218,21 +220,47 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * @return - return the node from the identity listener from the collection tlObject's listeners
+	 * @return - return the node from the identity listener from the collection tlObject's listeners. If a facade, get
+	 *         it's wrapped node.
 	 */
 	static public Node GetNode(Collection<ModelElementListener> listeners) {
+		Node n = null;
 		for (ModelElementListener listener : listeners)
-			if (listener instanceof NodeIdentityListener)
-				return ((NodeIdentityListener) listener).getNode();
-		return null;
+			if (listener instanceof NodeIdentityListener) {
+				n = ((NodeIdentityListener) listener).getNode();
+				break;
+			}
+		if (n instanceof FacadeInterface)
+			n = ((FacadeInterface) n).get();
+		return n;
 	}
 
 	// TODO - why are these static? why have both static and non-static?
 	/**
-	 * @return - return the node from the tlObject's identity listener
+	 * @return - return the node from the tlObject's identity listener. If a facade, get it's wrapped node.
 	 */
 	static public Node GetNode(ModelElement tlObj) {
 		return tlObj != null ? GetNode(((TLModelElement) tlObj).getListeners()) : null;
+	}
+
+	/**
+	 * If the listener has a null node, don't use it for finding node.
+	 * 
+	 * @param listeners
+	 *            collection from the TL Object
+	 * @return the node associated with the first NodeIdentityListener.
+	 */
+	public Node getNode(Collection<ModelElementListener> listeners) {
+		Node n = null;
+		for (ModelElementListener listener : listeners)
+			if (listener instanceof NodeIdentityListener) {
+				if (((NodeIdentityListener) listener).getNode() != null)
+					n = ((NodeIdentityListener) listener).getNode();
+				break;
+			}
+		if (n instanceof FacadeInterface)
+			n = ((FacadeInterface) n).get();
+		return n;
 	}
 
 	protected String nodeID; // unique ID assigned to each node automatically
@@ -368,7 +396,7 @@ public abstract class Node implements INode {
 
 		// Use the node factory to create the gui representation.
 		if (this instanceof PropertyNode) {
-			newNode = NodeFactory.newComponentMember(null, newLM);
+			newNode = NodeFactory.newMember(null, newLM);
 			if (nameSuffix != null)
 				newNode.setName(newNode.getName() + nameSuffix);
 			if (parent instanceof ComponentNode) {
@@ -378,7 +406,7 @@ public abstract class Node implements INode {
 			((TypeUser) newNode).setAssignedType(((TypeUser) newNode).getAssignedTLObject());
 
 		} else if (newLM instanceof LibraryMember) {
-			newNode = NodeFactory.newComponent_UnTyped((TLLibraryMember) newLM);
+			newNode = NodeFactory.newComponent_UnTyped((LibraryMember) newLM);
 			if (nameSuffix != null)
 				newNode.setName(newNode.getName() + nameSuffix);
 			if (getLibrary() != null)
@@ -441,8 +469,7 @@ public abstract class Node implements INode {
 	public void close() {
 		if (getLibrary() != null)
 			getLibrary().setEditable(true);
-		NodeVisitor visitor = new NodeVisitors().new closeVisitor();
-		this.visitAllNodes(visitor);
+		this.visitAllNodes(new NodeVisitors().new closeVisitor());
 	}
 
 	public Document compileExampleDOM() {
@@ -791,6 +818,38 @@ public abstract class Node implements INode {
 		return ret;
 	}
 
+	public List<ContributedFacetNode> getDescendants_ContributedFacets() {
+		final ArrayList<ContributedFacetNode> ret = new ArrayList<ContributedFacetNode>();
+		for (final Node n : getChildren()) {
+			if (n instanceof ContributedFacetNode)
+				ret.add((ContributedFacetNode) n);
+
+			// Some children may have contributed facets
+			if (n.hasChildren() && !(n instanceof WhereUsedNodeInterface))
+				ret.addAll(n.getDescendants_ContributedFacets());
+		}
+		return ret;
+
+	}
+
+	/**
+	 * 
+	 * @return new list of all contextual facets including contributed facets
+	 */
+	public List<ContextualFacetNode> getDescendants_ContextualFacets() {
+		final ArrayList<ContextualFacetNode> ret = new ArrayList<ContextualFacetNode>();
+		for (final Node n : getChildren()) {
+			if (n instanceof ContextualFacetNode)
+				ret.add((ContextualFacetNode) n);
+
+			// Some children may have contributed facets
+			if (n.hasChildren() && !(n instanceof WhereUsedNodeInterface))
+				ret.addAll(n.getDescendants_ContextualFacets());
+		}
+		return ret;
+
+	}
+
 	/*****************************************************************************
 	 * Static getters
 	 */
@@ -805,9 +864,9 @@ public abstract class Node implements INode {
 		HashSet<Node> namedKids = new HashSet<Node>();
 		for (Node c : getChildren()) {
 			// TL model considers services as named library member
-			if (isLibraryMember(c))
-				if (c instanceof VersionNode)
-					namedKids.add(((VersionNode) c).getNewestVersion());
+			if (c.isLibraryMember())
+				if (c instanceof FacadeInterface)
+					namedKids.add(((FacadeInterface) c).get());
 				else
 					namedKids.add(c);
 			else if (c.hasChildren())
@@ -985,6 +1044,8 @@ public abstract class Node implements INode {
 	public List<Node> getLaterVersions() {
 		List<Versioned> versions = null;
 		List<Node> vNodes = new ArrayList<Node>();
+		if (!(this instanceof TypeUser))
+			return null;
 		Node assignedType = (Node) ((TypeUser) this).getAssignedType();
 		if (assignedType == null)
 			return null;
@@ -1095,31 +1156,23 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * If the listener has a null node, don't use it for finding node.
-	 * 
-	 * @param listeners
-	 *            collection from the TL Object
-	 * @return the node associated with the first NodeIdentityListener.
-	 */
-	public Node getNode(Collection<ModelElementListener> listeners) {
-		for (ModelElementListener listener : listeners)
-			if (listener instanceof NodeIdentityListener)
-				if (((NodeIdentityListener) listener).getNode() != null)
-					return ((NodeIdentityListener) listener).getNode();
-		return null;
-	}
-
-	/**
 	 * Used in drag-n-drop
 	 */
 	public String getNodeID() {
 		return nodeID;
 	}
 
+	/**
+	 * Return the owning named entity. For contextual facets that have been contributed to a named entity then the owner
+	 * of all children will be the named entity.
+	 */
 	public Node getOwningComponent() {
 		return this;
 	}
 
+	/**
+	 * Return actual parent.
+	 */
 	@Override
 	public Node getParent() {
 		return parent;
@@ -1338,6 +1391,10 @@ public abstract class Node implements INode {
 		if (getLibrary() == null)
 			return false;
 
+		// If it doesn't have a parent then it is not linked and can be deleted.
+		if (getOwningComponent() == null || getOwningComponent().getParent() == null)
+			return true;
+
 		// You can't delete anything from a patch except an extension point OR a newly added object
 		if (getLibrary().getChain() != null)
 			if (getOwningComponent().isInHead() && getLibrary().getChain().getHead().isPatchVersion()) {
@@ -1348,10 +1405,6 @@ public abstract class Node implements INode {
 				else
 					return false; // nothing else can be deleted
 			}
-
-		// If it doesn't have a parent then it is not linked and can be deleted.
-		if (getOwningComponent() == null || getOwningComponent().getParent() == null)
-			return true;
 
 		// Services always return false for inhead(). Make sure it is in the head library.
 		if (isInService() && getChain() != null)
@@ -1644,8 +1697,6 @@ public abstract class Node implements INode {
 	 */
 	public boolean isEnabled_AssignType() {
 		boolean enabled = false;
-		if (parent instanceof Enumeration)
-			return enabled; // attributes on enumeration are not editable
 		if (isEditable() && this instanceof TypeUser)
 			// if (isEditable() && this instanceof TypeUser && !isInheritedProperty())
 			if (getChain() == null || getChain().isMajor())
@@ -1831,12 +1882,14 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * True if is a compiler LibraryMember and not an impled node.
+	 * True if is a compiler LibraryMember and not an implied node. False for version 1.5 contextual facets.
 	 */
-	public boolean isLibraryMember(Node n) {
+	public boolean isLibraryMember() {
 		if (this instanceof ImpliedNode)
 			return false;
-		return n.getTLModelObject() instanceof LibraryMember;
+		if (this instanceof ContextualFacetNode && !OTM16Upgrade.otm16Enabled)
+			return false;
+		return getTLModelObject() instanceof LibraryMember;
 	};
 
 	/**
@@ -1850,8 +1903,9 @@ public abstract class Node implements INode {
 		return false;
 	}
 
-	// Should use instanceof TypeProvider
-	// BUT - implied node is a type provider!
+	/**
+	 * Do NOT use instanceof TypeProvider because implied node is a type provider!
+	 */
 	@Override
 	public boolean isNamedEntity() {
 		if (this instanceof ImpliedNode)
@@ -2049,11 +2103,6 @@ public abstract class Node implements INode {
 	 */
 	public boolean linkChild(final Node child) {
 		return linkChild(child, -1);
-		// if (child == null)
-		// return false;
-		// if (!linkChild(child, -1))
-		// return false;
-		// return true;
 	}
 
 	/**
@@ -2088,21 +2137,6 @@ public abstract class Node implements INode {
 		// LOGGER.debug("Linked child " + child + " to parent " + this);
 		return true;
 	}
-
-	// /**
-	// * Adds the passed node as a child of <i>this</i> node, if its name and namespace are unique amongst the children.
-	// * Used to link properties to facets.
-	// *
-	// * @param child
-	// * - node to link in
-	// * @return true if linked, false if not unique
-	// */
-	// public boolean linkIfUnique(final Node child) {
-	// if ((child == null) || (!isUnique(child)))
-	// return false;
-	//
-	// return linkChild(child, -1);
-	// }
 
 	/**
 	 * 
@@ -2540,9 +2574,11 @@ public abstract class Node implements INode {
 
 	private List<TLContext> getCtxList() {
 		ArrayList<TLContext> list = new ArrayList<TLContext>();
-		List<TLContext> cList = getModelObject().getContexts();
-		if (cList.size() > 0) {
-			list.addAll(cList);
+		if (getModelObject() != null) {
+			List<TLContext> cList = getModelObject().getContexts();
+			if (cList.size() > 0) {
+				list.addAll(cList);
+			}
 		}
 		for (Node child : getChildren()) {
 			list.addAll(child.getCtxList());

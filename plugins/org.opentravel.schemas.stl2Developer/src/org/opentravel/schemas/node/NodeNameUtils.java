@@ -416,6 +416,8 @@ public class NodeNameUtils {
 		if (newName != null) {
 			name = newName;
 		}
+		if (fn.getOwningComponent() == null)
+			return name;
 		String parent = fn.getOwningComponent().getName();
 		if (name.startsWith(parent))
 			name = name.substring(parent.length());

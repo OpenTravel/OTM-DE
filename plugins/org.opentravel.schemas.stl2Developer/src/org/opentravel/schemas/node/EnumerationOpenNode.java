@@ -149,7 +149,7 @@ public class EnumerationOpenNode extends TypeProviderBase implements ComplexComp
 			inheritedChildren = Collections.emptyList();
 		} else {
 			for (final Object obj : inheritedMOChildren) {
-				ComponentNode nn = NodeFactory.newComponentMember(null, obj);
+				ComponentNode nn = NodeFactory.newMember(null, obj);
 				if (nn != null) {
 					linkInheritedChild(nn);
 					nn.inheritsFrom = null; // override value from link

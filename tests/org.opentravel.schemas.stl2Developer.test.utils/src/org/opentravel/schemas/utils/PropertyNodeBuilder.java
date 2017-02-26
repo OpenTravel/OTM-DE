@@ -44,7 +44,7 @@ public class PropertyNodeBuilder {
 
 	public static PropertyNodeBuilder create(PropertyNodeType elementType) {
 		Object tlObject = creatTLObject(elementType);
-		ComponentNode newComponentMember = NodeFactory.newComponentMember(null, tlObject);
+		ComponentNode newComponentMember = NodeFactory.newMember(null, tlObject);
 		if (newComponentMember instanceof PropertyNode) {
 			return new PropertyNodeBuilder((PropertyNode) newComponentMember);
 		} else {

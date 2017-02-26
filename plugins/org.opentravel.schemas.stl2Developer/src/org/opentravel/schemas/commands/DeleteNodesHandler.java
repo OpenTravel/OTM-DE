@@ -75,8 +75,9 @@ public class DeleteNodesHandler extends OtmAbstractHandler {
 		}
 
 		if (i > 0)
-			DialogUserNotifier.openWarning("Object Delete", "The following nodes are not allowed to be deleted: "
-					+ doNotDelete);
+			// DialogUserNotifier.openWarning("Object Delete", "The following nodes are not allowed to be deleted: "
+			DialogUserNotifier
+					.openWarning(Messages.getString("OtmW.122"), Messages.getString("OtmW.123") + doNotDelete);
 
 		// Make the user confirm the list of nodes to be deleted.
 		if (toDelete.size() > 0) {

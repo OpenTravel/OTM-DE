@@ -180,8 +180,10 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 					newR.setAbstract(true);
 				else
 					new ResourceBuilder().build(newR, predicate);
-				view.select(newR);
-				view.refresh(newR);
+				if (view != null) {
+					view.select(newR);
+					view.refresh(newR);
+				}
 				mc.refresh(); // update the navigator view
 			} else
 				postWarning(type);

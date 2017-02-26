@@ -31,7 +31,7 @@ import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 
 /**
- * A property node that represents a enumeration literal. See {@link NodeFactory#newComponentMember(INode, Object)}
+ * A property node that represents a enumeration literal. See {@link NodeFactory#newMember(INode, Object)}
  * 
  * @author Dave Hollander
  * 
@@ -125,6 +125,11 @@ public class EnumLiteralNode extends PropertyNode {
 	@Override
 	public Node getOwningComponent() {
 		return getParent();
+	}
+
+	@Override
+	public boolean isEnabled_AssignType() {
+		return false;
 	}
 
 	@Override

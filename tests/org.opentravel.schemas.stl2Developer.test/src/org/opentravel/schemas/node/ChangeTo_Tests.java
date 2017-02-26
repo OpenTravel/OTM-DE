@@ -144,7 +144,8 @@ public class ChangeTo_Tests {
 		tn.visit(bo);
 		// Given a VWA
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "B");
-		int vwaCount = vwa.getAttributeFacet().getChildren().size();
+		// vwa value is added as attribute to core
+		int vwaCount = vwa.getAttributeFacet().getChildren().size() + 1;
 
 		// When - core created from BO replaces the business object
 		core = new CoreObjectNode(bo);
@@ -168,7 +169,7 @@ public class ChangeTo_Tests {
 		assertEquals(vwaCount, core.getSummaryFacet().getChildren().size());
 		assertEquals(core.getSimpleType(), vwa.getSimpleType());
 		assertEquals(core.getTLModelObject().getSummaryFacet().getAttributes().size(), core.getSummaryFacet()
-				.getChildren().size() - 1); // vwa value is added as attribute to core
+				.getChildren().size());
 		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMembers().contains(core));
 		assertTrue("VWA must NOT be in the library after swap.", !ln.getDescendants_LibraryMembers().contains(vwa));
 	}

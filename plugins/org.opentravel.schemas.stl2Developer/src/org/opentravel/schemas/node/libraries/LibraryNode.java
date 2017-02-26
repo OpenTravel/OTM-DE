@@ -70,6 +70,7 @@ import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -82,6 +83,7 @@ import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.preferences.GeneralPreferencePage;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeResolver;
@@ -254,10 +256,8 @@ public class LibraryNode extends Node implements LibraryInterface {
 	public LibraryNode(ProjectItem pi, LibraryChainNode chain) {
 		this(pi.getContent(), (VersionAggregateNode) chain.getVersions());
 		for (Node members : getDescendants_LibraryMembers()) {
-			// for (Node members : getDescendentsNamedTypes()) {
-			if (members instanceof ComponentNode) {
+			if (members instanceof ComponentNode)
 				chain.add((ComponentNode) members);
-			}
 		}
 		chain.add(getService());
 
@@ -793,20 +793,30 @@ public class LibraryNode extends Node implements LibraryInterface {
 	}
 
 	private void generateLibrary(final TLLibrary tlLib) {
+		LOGGER.debug("Gererating Library: " + tlLib.getName());
+
+		// When contextual facets can be library members (version 1.6 and later, model them first
+		// Contextual facets will be processed twice. Once here to create library member and once in addMOChildren()
+		// The same TLContextual facet will be in both the contextual facet and contributed facet and the listener will
+		// be used to link them.
+		if (OTM16Upgrade.otm16Enabled)
+			for (final TLContextualFacet cf : tlLib.getContextualFacetTypes()) {
+				LOGGER.debug("Generating contextual facet: " + cf.getLocalName());
+				Node n = GetNode(cf);
+				if (n == null)
+					n = NodeFactory.newObjectNode(cf, this);
+				assert (getDescendants_LibraryMembers().contains(n));
+			}
+
 		for (final LibraryMember mbr : tlLib.getNamedMembers()) {
+			// Skip members that are in a different library than their owner
+			if (mbr instanceof TLContextualFacet)
+				// if (!((TLContextualFacet) mbr).isLocalFacet())
+				continue; // Model in its own library.
+
+			LOGGER.debug("Generating named member: " + mbr.getLocalName());
 			ComponentNode n = (ComponentNode) GetNode(mbr);
-			if (mbr instanceof TLContextualFacet) {
-				// OTM16Upgrade.otm16Enabled = true;
-				if (OTM16Upgrade.otm16Enabled) {
-					if (!((TLContextualFacet) mbr).isLocalFacet()) {
-						ContextualFacetNode cf = NodeFactory.createFacet((TLContextualFacet) mbr);
-						cf.print();
-						addMember(cf);
-					}
-				}
-				// else
-				// LOGGER.debug("Skipping contextual facet: " + mbr.getLocalName());
-			} else if (mbr instanceof TLService) {
+			if (mbr instanceof TLService) {
 				if (n instanceof ServiceNode)
 					((ServiceNode) n).link((TLService) mbr, this);
 				else
@@ -820,13 +830,13 @@ public class LibraryNode extends Node implements LibraryInterface {
 			else {
 				// If the tlLib already has nodes associated, use those nodes; Otherwise create new ones.
 				if (n == null)
-					n = NodeFactory.newComponent_UnTyped((TLLibraryMember) mbr);
-				linkMember(n);
-
-				assert (getDescendants_LibraryMembers().contains(n));
+					n = NodeFactory.newObjectNode((LibraryMember) mbr, this);
+				// if (n != null) {
+				// linkMember(n);
+				// assert (getDescendants_LibraryMembers().contains(n));
+				// }
 			}
 		}
-		// new TypeResolver().resolveTypes(); // TODO - this is run too often
 	}
 
 	public void checkExtension(Node n) {
@@ -975,7 +985,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 */
 	@Override
 	public void close() {
-		// LOGGER.debug("Closing " + getNameWithPrefix());
+		LOGGER.debug("Closing " + getNameWithPrefix());
 		if (getChain() != null)
 			getChain().close();
 		else if (getParent() instanceof LibraryNavNode)
@@ -986,7 +996,10 @@ public class LibraryNode extends Node implements LibraryInterface {
 			setParent(null);
 			deleted = true;
 		}
-		assert (isEmpty());
+		if (!isEmpty())
+			LOGGER.debug("Closed library " + this + " is not empty.");
+
+		// assert (isEmpty());
 		assert (deleted);
 		assert (getParent() == null);
 	}
@@ -998,6 +1011,10 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 */
 	// TODO - why is this here when other repo actions are in libraryController?
 	public void commit() throws RepositoryException {
+		if (OTM16Upgrade.otm16Enabled) {
+			DialogUserNotifier.openWarning("Not Supported", "Can not commit version 1.6 libraries yet.");
+			return;
+		}
 		projectItem.getProjectManager().commit(this.projectItem);
 		// LOGGER.debug("Committed " + this);
 	}
@@ -1068,17 +1085,23 @@ public class LibraryNode extends Node implements LibraryInterface {
 		addListeners();
 		destination.addListeners();
 
-		// Move the TL object to destination tl library.
-		try {
-			source.getLibrary()
-					.getTLLibrary()
-					.moveNamedMember((TLLibraryMember) source.getTLModelObject(),
-							destination.getLibrary().getTLLibrary());
-		} catch (Exception e) {
-			// Failed to move. Change destination to be this library and relink.
-			destination = this;
-			LOGGER.debug("moveNamedMember failed. Adding back to " + this + " library.");
-		}
+		if (source instanceof ContextualFacetNode && !(source instanceof ContributedFacetNode)) {
+			// Do the move manually. Let listeners handle the nodes.
+			TLContextualFacet tlSource = ((ContextualFacetNode) source).getTLModelObject();
+			tlSource.getOwningLibrary().removeNamedMember(tlSource);
+			destination.getTLLibrary().addNamedMember(tlSource);
+		} else
+			// Move the TL object to destination tl library.
+			try {
+				source.getLibrary()
+						.getTLLibrary()
+						.moveNamedMember((TLLibraryMember) source.getTLModelObject(),
+								destination.getLibrary().getTLLibrary());
+			} catch (Exception e) {
+				// Failed to move. Change destination to be this library and relink.
+				destination = this;
+				LOGGER.debug("moveNamedMember failed. Adding back to " + this + " library.");
+			}
 		removeListeners();
 		destination.removeListeners();
 

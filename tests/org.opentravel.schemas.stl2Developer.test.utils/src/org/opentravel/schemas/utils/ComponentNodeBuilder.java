@@ -18,7 +18,6 @@ package org.opentravel.schemas.utils;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
-import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
@@ -40,8 +39,8 @@ import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.CustomFacetNode;
-import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -180,9 +179,10 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 		}
 
 		public BusinessNodeBuilder addQueryFacet(String name) {
-			String context = null;
-			FacetNode newFacet = new QueryFacetNode();
-			componentObject.getModelObject().addQueryFacet((TLContextualFacet) newFacet.getTLModelObject());
+			// String context = null;
+			ContextualFacetNode newFacet = new QueryFacetNode();
+			componentObject.getTLModelObject().addQueryFacet(newFacet.getTLModelObject());
+			// componentObject.getModelObject().addQueryFacet((TLContextualFacet) newFacet.getTLModelObject());
 			componentObject.linkChild(newFacet);
 			newFacet.setName(name);
 			return this;
@@ -191,7 +191,8 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 		public BusinessNodeBuilder addCustomFacet(String name) {
 			// String context = null;
 			CustomFacetNode newFacet = new CustomFacetNode();
-			componentObject.getModelObject().addCustomFacet((TLContextualFacet) newFacet.getTLModelObject());
+			componentObject.getTLModelObject().addCustomFacet(newFacet.getTLModelObject());
+			// componentObject.getModelObject().addCustomFacet((TLContextualFacet) newFacet.getTLModelObject());
 			componentObject.linkChild(newFacet);
 			newFacet.setName(name);
 			return this;

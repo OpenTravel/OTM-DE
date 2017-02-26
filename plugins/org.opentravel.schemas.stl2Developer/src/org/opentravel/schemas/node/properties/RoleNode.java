@@ -33,7 +33,7 @@ import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * A property node that represents a role enumeration value in a core object. See
- * {@link NodeFactory#newComponentMember(INode, Object)}
+ * {@link NodeFactory#newMember(INode, Object)}
  * 
  * @author Dave Hollander
  * 

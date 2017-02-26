@@ -126,6 +126,8 @@ public class MainController {
 					RepositoryFileManager.getDefaultRepositoryLocation()), ss);
 			LOGGER.error("Invalid local repository", ex);
 			PlatformUI.getWorkbench().close();
+		} catch (Exception e) {
+			LOGGER.warn("Unknow exception: " + e.getLocalizedMessage());
 		}
 		return defaultManager;
 	}

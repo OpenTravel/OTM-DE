@@ -17,10 +17,20 @@ package org.opentravel.schemas.node.facets;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
+import org.opentravel.schemacompiler.model.TLFacetOwner;
+import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.modelObject.FacetMO;
+import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeNameUtils;
+import org.opentravel.schemas.node.VersionNode;
+import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
+import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
@@ -39,40 +49,128 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class ContextualFacetNode extends FacetNode {
+public abstract class ContextualFacetNode extends FacetNode implements LibraryMemberInterface,
+		ComplexComponentInterface, ContextualFacetOwnerInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ContextualFacetNode.class);
 
-	private ContributedFacetNode whereContributed = null;
-
-	public ContextualFacetNode(TLContextualFacet tlObj) {
-		super(tlObj);
-		setContext();
-
-		// If this is not a local facet, then set the contributed facet node onto the owner
-		Node owner = getOwningComponent();
-		if (!isLocal() && owner != null) {
-			LOGGER.debug("contributed facet: ");
-			whereContributed = new ContributedFacetNode(this);
-			owner.linkChild(whereContributed);
-			whereContributed.setLibrary(owner.getLibrary());
-		}
+	/**
+	 * Create a TLContextualFacet. Not added to object or library.
+	 * 
+	 * @param name
+	 * @param type
+	 * @return
+	 */
+	public static TLContextualFacet createTL(String name, TLFacetType type) {
+		TLContextualFacet newFacet = new TLContextualFacet();
+		newFacet.setName(name);
+		newFacet.setFacetType(type);
+		return newFacet;
 	}
+
+	private ContributedFacetNode whereContributed = null;
 
 	public ContextualFacetNode() {
 		// super();
 		// Contributed facets do not have MO or TL objects.
 	}
 
+	public ContextualFacetNode(TLContextualFacet tlObj) {
+		super(tlObj);
+		setContext();
+
+		Node n = GetNode(tlObj.getOwningLibrary());
+		if (n instanceof LibraryNode)
+			setLibrary((LibraryNode) n);
+
+		if (canBeLibraryMember()) {
+			// v1.6+ - If the owner has already been modeled then create and link contributed facet
+			Node owner = GetNode(tlObj.getOwningEntity());
+			if (owner instanceof ContextualFacetOwnerInterface) {
+				ContextualFacetOwnerInterface cOwner = (ContextualFacetOwnerInterface) owner;
+				ContributedFacetNode contrib = cOwner.getContributedFacet(tlObj);
+				// If this has not already been contributed the make contributed facet.
+				if (contrib == null)
+					contrib = new ContributedFacetNode(tlObj, cOwner);
+				setWhereContributed(contrib);
+			}
+		}
+
+		// assert GetNode(tlObj) == this; // Not true when creating inherited facets
+		// assert getLibrary() != null; // Not true if the tlObj is newly created
+	}
+
+	/**
+	 * @return true if the contextual facet could be a library member (true for v1.6 and later)
+	 */
+	public static boolean canBeLibraryMember() {
+		return OTM16Upgrade.otm16Enabled;
+	}
+
+	@Override
+	public abstract boolean canOwn(ContextualFacetNode targetCF);
+
+	@Override
+	public void close() {
+		// super.close();
+		removeFromTLParent();
+		if (whereContributed != null)
+			whereContributed.unlinkNode();
+	}
+
+	@Override
+	public void delete() {
+		// Normal delete then the contributed facet
+		super.delete();
+		if (OTM16Upgrade.otm16Enabled) {
+			// May be null when contributed facet is deleted
+			if (getTLModelObject() != null && getTLModelObject().getOwningLibrary() != null)
+				getTLModelObject().getOwningLibrary().removeNamedMember(getTLModelObject());
+			if (whereContributed != null)
+				whereContributed.delete();
+		} else {
+			removeFromTLParent();
+		}
+
+		// assert !oldParent.getChildren().contains(this);
+		if (OTM16Upgrade.otm16Enabled) {
+			assert getTLModelObject().getOwningLibrary() == null;
+			assert getTLModelObject().getOwningEntity() == null;
+		}
+	}
+
+	@Override
+	public PropertyOwnerInterface getAttributeFacet() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ContributedFacetNode getContributedFacet(TLContextualFacet tlCf) {
+		for (Node child : getChildren())
+			if (child instanceof ContributedFacetNode && child.getTLModelObject() == tlCf)
+				return (ContributedFacetNode) child;
+		return null;
+	}
+
 	@Override
 	public String getDecoration() {
+		String decoration = "";
 		if (OTM16Upgrade.otm16Enabled) {
-			if (!isLocal())
-				if (getOwningComponent().getLibrary() != getLibrary())
-					return " : Contributes to " + getOwningComponent().getLibrary();
+			// decoration += " :CtxF " + nodeID;
+			decoration += "   : " + getLabel();
+			if (whereContributed != null && whereContributed.getParent() != null)
+				if (whereContributed.getParent().getLibrary() == getLibrary())
+					decoration += " contributed to " + whereContributed.getParent().getName();
 				else
-					return " : Contributed from " + getLibrary();
+					decoration += " contributed to " + whereContributed.getParent().getNameWithPrefix();
 		}
-		return "";
+		return decoration;
+	}
+
+	@Override
+	public String getExtendsTypeName() {
+		return whereContributed != null && whereContributed.getParent() != null ? whereContributed.getParent()
+				.getName() : "";
 	}
 
 	@Override
@@ -80,51 +178,26 @@ public class ContextualFacetNode extends FacetNode {
 		if (OTM16Upgrade.otm16Enabled) {
 			if (whereContributed == null)
 				return Images.getImageRegistry().get(Images.Facet);
-			if (!isLocal())
-				return Images.getImageRegistry().get(Images.ContextualFacet);
+			// if (!isLocal())
+			return Images.getImageRegistry().get(Images.ContextualFacet);
 		}
 		return Images.getImageRegistry().get(Images.Facet);
 	}
 
 	@Override
-	public String getNavigatorName() {
-		return getName();
-	}
-
-	@Override
 	public String getLabel() {
-		return getFacetType().getIdentityName();
+		return getTLModelObject() != null ? getFacetType().getIdentityName() : "";
 	}
 
 	/**
-	 * Set the name of this contextual (custom or query) facet. Name is simply the facet name and not its global type
-	 * name.
-	 * 
-	 * @see getLocalName()
-	 */
-	@Override
-	public String getName() {
-		// // see also get LocalName - has parentage in name
-		return getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
-	}
-
-	/**
-	 * Set the name of this contextual (custom or query) facet. Name is the facet name and its parent to create global
-	 * type name.
+	 * Get the full name of this contextual (custom or query) facet. Name is the facet name plus its parent(s) names to
+	 * create global type name.
 	 */
 	public String getLocalName() {
+		if (getTLModelObject() == null)
+			return "";
 		// // see also get LocalName - has parentage in name
 		return getTLModelObject().getLocalName() == null ? "" : getTLModelObject().getLocalName();
-	}
-
-	@Override
-	public Node getOwningComponent() {
-		return Node.GetNode(getTLModelObject().getOwningEntity());
-	}
-
-	@Override
-	public TLContextualFacet getTLModelObject() {
-		return (TLContextualFacet) modelObject.getTLModelObj();
 	}
 
 	@Override
@@ -132,10 +205,63 @@ public class ContextualFacetNode extends FacetNode {
 		return (FacetMO) modelObject;
 	}
 
-	// @Override
-	// public boolean isInheritedProperty() {
-	// return getModelObject().isInherited();
-	// }
+	/**
+	 * Get the name of this contextual (custom or query) facet. Name is simply the facet name and not its global type
+	 * name.
+	 * 
+	 * @see getLocalName()
+	 */
+	@Override
+	public String getName() {
+		// // see also get LocalName - has parentage in name
+		if (getTLModelObject() == null)
+			return "";
+		return getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
+	}
+
+	@Override
+	public String getNavigatorName() {
+		return getLocalName();
+	}
+
+	/**
+	 * @return the owning entity reported by the TL Model Object. If no owning entity then this is returned.
+	 */
+	@Override
+	public Node getOwningComponent() {
+		if (getTLModelObject() == null)
+			return null;
+		if (getTLModelObject().getOwningEntity() == null)
+			return this;
+		return Node.GetNode(getTLModelObject().getOwningEntity());
+	}
+
+	@Override
+	public SimpleFacetNode getSimpleFacet() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public TLContextualFacet getTLModelObject() {
+		return (TLContextualFacet) modelObject.getTLModelObj();
+	}
+
+	public ContributedFacetNode getWhereContributed() {
+		return whereContributed;
+	}
+
+	@Override
+	public boolean isDeleteable() {
+		if (isInheritedProperty())
+			return false;
+		if (isNamedEntity()) {
+			// Node's delete logic is based on owning component which will be wrong for contextual facets in version 1.6
+			// and later.
+			return getLibrary().isEditable() && isInHead2();
+		}
+		return super.isDeleteable(true) && !isInheritedProperty();
+	}
 
 	/**
 	 * @return true if this facet is declared in the same library as the object it contributes to. Always true for
@@ -143,7 +269,19 @@ public class ContextualFacetNode extends FacetNode {
 	 */
 	@Override
 	public boolean isLocal() {
+		if (getTLModelObject() == null)
+			return false;
 		return OTM16Upgrade.otm16Enabled ? getTLModelObject().isLocalFacet() : true;
+	}
+
+	/**
+	 * Contextual facets are only named entities if their parent is a NavNode not an object.
+	 */
+	@Override
+	public boolean isNamedEntity() {
+		if (getParent() instanceof VersionNode)
+			return getParent().getParent() instanceof NavNode;
+		return getParent() instanceof NavNode;
 	}
 
 	@Override
@@ -179,9 +317,6 @@ public class ContextualFacetNode extends FacetNode {
 	 */
 	public void setContext(String context) {
 		setContext();
-		// if (context == null)
-		// context = getLibrary().getDefaultContextId();
-		// getTLModelObject().setContext(context);
 	}
 
 	/**
@@ -198,5 +333,86 @@ public class ContextualFacetNode extends FacetNode {
 		for (TypeUser user : getWhereAssigned())
 			user.setName(name);
 	}
+
+	public abstract void setOwner(ContextualFacetOwnerInterface owner);
+
+	public void setWhereContributed(ContributedFacetNode contributedFacetNode) {
+		whereContributed = contributedFacetNode;
+	}
+
+	// Drives sort order in navigation menu
+	@Override
+	public String toString() {
+		return getLocalName();
+	}
+
+	/**
+	 * Add this contextual facet to the owner. Removes existing contributed facet if needed.
+	 * 
+	 * @param owner
+	 * @param newFacet
+	 */
+	protected void add(ContextualFacetOwnerInterface owner, TLContextualFacet newFacet) {
+		// if already contributed, remove the contributed facet.
+		if (getWhereContributed() != null)
+			getWhereContributed().unlinkNode();
+
+		// Add this node to owner
+		// done by linkChild() - setLibrary(owner.getLibrary());
+		if (OTM16Upgrade.otm16Enabled) {
+			// Adding member takes care of version nodes
+			owner.getLibrary().addMember(this);
+			// Create contributed facet and link to owner
+			ContributedFacetNode contrib = new ContributedFacetNode(newFacet);
+			((Node) owner).linkChild(contrib);
+		} else {
+			// Just link it to the owner
+			((Node) owner).linkChild(this);
+		}
+	}
+
+	/**
+	 * Add this contextual facet to owning entity. Overloaded by each contextual facet type.
+	 * 
+	 */
+	protected abstract void addToTLParent(TLFacetOwner tlOwner);
+
+	/**
+	 * @return true if name and namespace are equal to other node
+	 */
+	@Override
+	protected boolean nameEquals(final INode other) {
+		if (this == other)
+			return true;
+		if (other == null)
+			return false;
+
+		String thisName = getLocalName();
+		String otherName = other.getName();
+		if (other instanceof ContextualFacetNode)
+			otherName = getLocalName();
+
+		if (thisName == null) {
+			if (otherName != null) {
+				return false;
+			}
+		} else if (!thisName.equals(otherName)) {
+			return false;
+		}
+		if (getNamespace() == null) {
+			if (other.getNamespace() != null) {
+				return false;
+			}
+		} else if (!getNamespace().equals(other.getNamespace())) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Remove this contextual facet from owning entity. Overloaded by each contextual facet type.
+	 * 
+	 */
+	protected abstract void removeFromTLParent();
 
 }

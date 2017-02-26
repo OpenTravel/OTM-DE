@@ -18,6 +18,7 @@
  */
 package org.opentravel.schemas.node;
 
+import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
@@ -43,10 +44,12 @@ import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemacompiler.model.XSDSimpleType;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
 import org.opentravel.schemas.modelObject.TLnValueWithAttributesFacet;
 import org.opentravel.schemas.node.facets.ChoiceFacetNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
@@ -57,7 +60,10 @@ import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.facets.UpdateFacetNode;
 import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
+import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
@@ -70,8 +76,6 @@ import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
-import org.opentravel.schemas.types.TypeProvider;
-import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,26 +104,57 @@ public class NodeFactory {
 		return newNode;
 	}
 
-	/**
-	 * Create a new component and use the type node to set its type.
-	 * 
-	 * @param mbr
-	 * @param type
-	 * @return newly created and typed node.
-	 */
-	public static ComponentNode newComponent(TLLibraryMember mbr, INode type) {
-		ComponentNode newNode = newComponent_UnTyped(mbr);
-		if (newNode instanceof TypeUser && type instanceof TypeProvider)
-			((TypeUser) newNode).setAssignedType((TypeProvider) type);
-		return newNode;
-	}
+	// /**
+	// * Create a new component and use the type node to set its type.
+	// *
+	// * @param mbr
+	// * @param type
+	// * @return newly created and typed node.
+	// */
+	// public static ComponentNode newComponent(TLLibraryMember mbr, INode type) {
+	// ComponentNode newNode = newComponent_UnTyped(mbr);
+	// if (newNode instanceof TypeUser && type instanceof TypeProvider)
+	// ((TypeUser) newNode).setAssignedType((TypeProvider) type);
+	// return newNode;
+	// }
 
 	/*******************************************************************************************
-	 * New ComponentNode methods that also create new objects in underlying model
+	 * 
+	 * New ComponentNode methods that also create new objects in underlying model objects.
+	 */
+
+	/**
+	 * Create new Library Member (BO, Choice, Core, etc) based on the passed TL object.
+	 * <p>
+	 * For OTM version 1.6 and later, ContextualFacets are modeled as top-level ContextualFacetNodes. In version OTM
+	 * version 1.5 contextual facets are skipped. Contributed facets are NOT created.
+	 * 
+	 * @param mbr
+	 *            TLModelElement to be modeled
+	 * @param library
+	 *            LibraryNode to add the new node to
+	 * @return newly created node or null
+	 */
+	public static ComponentNode newObjectNode(final LibraryMember mbr, final LibraryNode library) {
+		ComponentNode cn = newComponent_UnTyped(mbr);
+		if (cn != null) {
+			// Why not the more feature rich addMember(cn);
+			// library.linkMember(cn); // add to library and sets library on cn
+			library.addMember(cn); // add to library and sets library on cn
+			assert (library.getDescendants_LibraryMembers().contains(cn));
+		}
+		return cn;
+	}
+
+	/**
+	 * Create new Library Member based on the passed TL object.
+	 * <p>
+	 * For OTM version 1.6 and later, ContextualFacets are modeled as top-level ContextualFacetNodes. In version OTM
+	 * version 1.5 contextual facets are skipped.
 	 * 
 	 * @return newly created node or null
 	 */
-	public static ComponentNode newComponent_UnTyped(final TLLibraryMember mbr) {
+	public static ComponentNode newComponent_UnTyped(final LibraryMember mbr) {
 		ComponentNode cn = null;
 		if (mbr == null)
 			return cn;
@@ -128,7 +163,7 @@ public class NodeFactory {
 		if (mbr instanceof TLValueWithAttributes)
 			cn = new VWA_Node((TLValueWithAttributes) mbr);
 		else if (mbr instanceof TLBusinessObject)
-			cn = new BusinessObjectNode(mbr);
+			cn = new BusinessObjectNode((TLBusinessObject) mbr);
 		else if (mbr instanceof TLCoreObject)
 			cn = new CoreObjectNode((TLCoreObject) mbr);
 		else if (mbr instanceof TLChoiceObject)
@@ -136,16 +171,19 @@ public class NodeFactory {
 		else if (mbr instanceof TLSimple)
 			cn = new SimpleTypeNode((TLSimple) mbr);
 		else if (mbr instanceof TLOpenEnumeration)
-			cn = new EnumerationOpenNode(mbr);
+			cn = new EnumerationOpenNode((TLOpenEnumeration) mbr);
 		else if (mbr instanceof TLClosedEnumeration)
-			cn = new EnumerationClosedNode(mbr);
+			cn = new EnumerationClosedNode((TLClosedEnumeration) mbr);
 		else if (mbr instanceof TLExtensionPointFacet)
 			cn = new ExtensionPointNode((TLExtensionPointFacet) mbr);
 		else if (mbr instanceof TLResource)
-			cn = new ResourceNode(mbr);
+			cn = new ResourceNode((TLResource) mbr);
 		else if (mbr instanceof XSDSimpleType)
 			cn = new SimpleTypeNode((TLSimple) Node.GetNode(mbr).getTLModelObject());
-		else {
+		else if (mbr instanceof TLContextualFacet) {
+			if (OTM16Upgrade.otm16Enabled)
+				cn = createFacet((TLContextualFacet) mbr);
+		} else {
 			// cn = new ComponentNode(mbr);
 			assert (false);
 			// LOGGER.debug("Using default factory type for " + mbr.getClass().getSimpleName());
@@ -156,7 +194,7 @@ public class NodeFactory {
 		return cn;
 	}
 
-	public static Node newComponent(ComponentNodeType type) {
+	private static Node newComponent(ComponentNodeType type) {
 		TLLibraryMember tlObj = null;
 
 		switch (type) {
@@ -191,7 +229,8 @@ public class NodeFactory {
 	}
 
 	/**
-	 * Creates a member of a top level component and properties.
+	 * Creates a <b>member</b> of a top level object (Library Member). In version 1.6 and later contextual facets become
+	 * ContributedFacetNodes since these are parts of objects.
 	 * 
 	 * @param parent
 	 *            is the top-level component used for properties, can be null
@@ -199,8 +238,13 @@ public class NodeFactory {
 	 *            is TL model object to create member from
 	 * @return the newly created and modeled node
 	 */
-	public static ComponentNode newComponentMember(INode parent, Object tlObj) {
+	// TODO - change type of tlObj
+	public static ComponentNode newMember(INode parent, Object tlObj) {
 		ComponentNode nn = null;
+		if (!(parent instanceof ServiceNode) && parent != null && !(parent instanceof LibraryMemberInterface)
+				&& !(parent instanceof PropertyOwnerInterface))
+			LOGGER.warn("Invalid parent type for new member: " + parent);
+
 		//
 		// Properties
 		//
@@ -226,9 +270,15 @@ public class NodeFactory {
 		//
 		else if (tlObj instanceof TLnValueWithAttributesFacet)
 			nn = new VWA_AttributeFacetNode((TLnValueWithAttributesFacet) tlObj);
-		else if (tlObj instanceof TLContextualFacet)
-			nn = createFacet((TLContextualFacet) tlObj);
-		else if (tlObj instanceof TLFacet)
+		else if (tlObj instanceof TLContextualFacet) {
+			if (OTM16Upgrade.otm16Enabled) {
+				if (parent instanceof ContextualFacetOwnerInterface)
+					nn = new ContributedFacetNode((TLContextualFacet) tlObj, (ContextualFacetOwnerInterface) parent);
+				else
+					nn = new ContributedFacetNode((TLContextualFacet) tlObj);
+			} else
+				nn = createFacet((TLContextualFacet) tlObj);
+		} else if (tlObj instanceof TLFacet)
 			nn = createFacet((TLFacet) tlObj);
 		else if (tlObj instanceof TLListFacet)
 			nn = new ListFacetNode((TLListFacet) tlObj);
@@ -256,7 +306,7 @@ public class NodeFactory {
 		return nn;
 	}
 
-	public static PropertyNode createAttribute(TLAttribute tlObj, PropertyOwnerInterface parent) {
+	private static PropertyNode createAttribute(TLAttribute tlObj, PropertyOwnerInterface parent) {
 		PropertyNode nn;
 		TLPropertyType type = tlObj.getType();
 		if (type != null && type.getNamespace() != null && type.getNamespace().equals(ModelNode.XSD_NAMESPACE)
@@ -267,23 +317,29 @@ public class NodeFactory {
 		return nn;
 	}
 
-	public static ContextualFacetNode createFacet(TLContextualFacet facet) {
-		switch (facet.getFacetType()) {
+	public static ContextualFacetNode createFacet(TLContextualFacet tlFacet) {
+		// if (!facet.isLocalFacet()) {
+		// LOGGER.debug("Skipping Non-local facet: " + facet.getName());
+		// return null;
+		// }
+		LOGGER.debug("Creating contextual facet: " + tlFacet.getName());
+
+		switch (tlFacet.getFacetType()) {
 		case CUSTOM:
-			return new CustomFacetNode(facet);
+			return new CustomFacetNode(tlFacet);
 		case CHOICE:
-			return new ChoiceFacetNode(facet);
+			return new ChoiceFacetNode(tlFacet);
 		case QUERY:
-			return new QueryFacetNode(facet);
+			return new QueryFacetNode(tlFacet);
 		case UPDATE:
-			return new UpdateFacetNode(facet);
+			return new UpdateFacetNode(tlFacet);
 		default:
 			break;
 		}
 		return null;
 	}
 
-	public static FacetNode createFacet(TLFacet facet) {
+	private static FacetNode createFacet(TLFacet facet) {
 		assert (facet.getFacetType() != null);
 
 		switch (facet.getFacetType()) {
@@ -301,7 +357,7 @@ public class NodeFactory {
 		}
 	}
 
-	public static PropertyNode createIndicator(TLIndicator tlObj, PropertyOwnerInterface parent) {
+	private static PropertyNode createIndicator(TLIndicator tlObj, PropertyOwnerInterface parent) {
 		PropertyNode nn;
 		if (tlObj.isPublishAsElement())
 			nn = new IndicatorElementNode(tlObj, parent);
@@ -310,7 +366,7 @@ public class NodeFactory {
 		return nn;
 	}
 
-	public static PropertyNode createProperty(TLProperty tlObj, PropertyOwnerInterface parent) {
+	private static PropertyNode createProperty(TLProperty tlObj, PropertyOwnerInterface parent) {
 		PropertyNode nn;
 		if (tlObj.isReference())
 			nn = new ElementReferenceNode(tlObj, parent);

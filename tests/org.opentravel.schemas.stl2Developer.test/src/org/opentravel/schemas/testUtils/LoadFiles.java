@@ -40,12 +40,16 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.types.TypeUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Dave Hollander
  * 
  */
 public class LoadFiles {
+	private static final Logger LOGGER = LoggerFactory.getLogger(LoadFiles.class);
+
 	private String filePath1 = "Resources" + File.separator + "testFile1.otm";
 	private String filePath2 = "Resources" + File.separator + "testFile2.otm";
 	private String filePath3 = "Resources" + File.separator + "testFile3.otm";
@@ -187,6 +191,9 @@ public class LoadFiles {
 	public LibraryNode loadFile(MainController thisModel, String path) {
 		ProjectNode project = thisModel.getProjectController().getDefaultProject();
 		LibraryNode ln = loadFile(project, path);
+		if (ln == null) {
+			LOGGER.error("Failed to load file (" + new File(path).canRead() + "): " + path);
+		}
 		assertTrue(ln != null);
 		ln.setEditable(true);
 		assertTrue(ln.isEditable());
@@ -202,7 +209,7 @@ public class LoadFiles {
 		project.add(files);
 
 		if (project.getChildren().size() <= 0)
-			System.out.println("Project failed to load " + path);
+			LOGGER.error("Failed to load file (" + new File(path).canRead() + "): " + path);
 		else {
 			// Then - project must have the new library
 			assertTrue("Project must have children.", project.getChildren().size() > 0);

@@ -32,9 +32,11 @@ import org.opentravel.schemas.modelObject.ChoiceObjMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.facets.ChoiceFacetNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -53,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class ChoiceObjectNode extends TypeProviderBase implements ComplexComponentInterface, ExtensionOwner,
-		VersionedObjectInterface, LibraryMemberInterface, TypeProvider {
+		ContextualFacetOwnerInterface, VersionedObjectInterface, LibraryMemberInterface, TypeProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
 
 	private ExtensionHandler extensionHandler = null;
@@ -116,6 +118,14 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 	}
 
 	@Override
+	public ContributedFacetNode getContributedFacet(TLContextualFacet tlObj) {
+		for (Node child : getChildren())
+			if (child instanceof ContributedFacetNode && child.getTLModelObject() == tlObj)
+				return (ContributedFacetNode) child;
+		return null;
+	}
+
+	@Override
 	public PropertyOwnerInterface getDefaultFacet() {
 		return getSharedFacet();
 	}
@@ -139,15 +149,18 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 	public ContextualFacetNode addFacet(String name) {
 		if (!isEditable_newToChain())
 			throw new IllegalArgumentException("Not Editable - can not add facet to " + this);
-		if (getLibrary().getDefaultContextId() == null || getLibrary().getDefaultContextId().isEmpty())
-			throw new IllegalStateException("No context value to assign to facet.");
 
-		TLContextualFacet tf = new TLContextualFacet();
-		getTLModelObject().addChoiceFacet(tf);
-		ContextualFacetNode cfn = (ContextualFacetNode) NodeFactory.newComponentMember(this, tf);
-		if (cfn != null)
-			cfn.setName(name);
-		return cfn;
+		TLContextualFacet tlCf = ContextualFacetNode.createTL(name, TLFacetType.CHOICE);
+		ContextualFacetNode cf = new ChoiceFacetNode(tlCf);
+		cf.setOwner(this);
+		return cf;
+	}
+
+	@Override
+	public boolean canOwn(ContextualFacetNode targetCF) {
+		if (targetCF instanceof ChoiceFacetNode)
+			return true;
+		return false;
 	}
 
 	@Override
@@ -188,7 +201,7 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 		inheritedChildren = Collections.emptyList();
 		// Model each facet returned in the list of new TLFacets from the TL Model
 		for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.CHOICE)) {
-			linkInheritedChild(NodeFactory.newComponentMember(null, cf));
+			linkInheritedChild(NodeFactory.newMember(null, cf));
 		}
 	}
 

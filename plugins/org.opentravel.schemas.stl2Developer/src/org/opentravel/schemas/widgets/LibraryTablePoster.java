@@ -37,6 +37,7 @@ import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.controllers.NodeUtils;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.facets.PropertyOwnerNode;
@@ -190,17 +191,19 @@ public class LibraryTablePoster {
 				item.setText(separator);
 				if (n instanceof PropertyOwnerInterface)
 					item.setText(1, n.getLabel()); // separator will be name
-				// item.setText(1, ((FacetNode) n).getComponentType());
 
 				item.setBackground(colorProvider.getColor(SWT.COLOR_GRAY));
 				item.setData(n);
-				if (n.isInheritedProperty())
-					decorateInheritedItem(item);
-				else if (n instanceof ContextualFacetNode && !((ContextualFacetNode) n).isLocal())
+				if (n instanceof ContributedFacetNode) {
 					decorateContributedItem(item, n);
+					item.setText(((ContributedFacetNode) n).getLocalName());
+					item.setImage(n.getImage());
+				} else if (n instanceof ContextualFacetNode)
+					item.setText(((ContextualFacetNode) n).getLocalName());
+				else if (n.isInheritedProperty())
+					decorateInheritedItem(item);
 				else
 					item.setForeground(colorProvider.getColor(SWT.COLOR_DARK_BLUE));
-
 			}
 
 			// Sort the table rows
@@ -212,10 +215,13 @@ public class LibraryTablePoster {
 			children = sort(children);
 			for (final Node cn : children) {
 				if (cn instanceof PropertyNode)
-					postTableRow(cn);
-				else if (cn instanceof FacetNode)
-					postTableRows(cn, cn.getLabel());
-				else if (cn instanceof WhereUsedNodeInterface)
+					postTableRow(cn, n instanceof ContributedFacetNode);
+				else if (cn instanceof FacetNode) {
+					if (cn instanceof ContributedFacetNode)
+						// && !showInherited(cn))
+						// continue; // skip
+						postTableRows(cn, cn.getName());
+				} else if (cn instanceof WhereUsedNodeInterface)
 					continue; // skip
 				else if (!(cn instanceof AliasNode)) {
 					postTableRow(cn); // what falls through to here? enum-literal
@@ -238,6 +244,12 @@ public class LibraryTablePoster {
 		item.setGrayed(true);
 	}
 
+	private void decorateContributedItem(TableItem item) {
+		item.setFont(Fonts.getFontRegistry().get(Fonts.inheritedItem));
+		item.setForeground(colorProvider.getColor(SWT.COLOR_DARK_RED));
+		item.setGrayed(true);
+	}
+
 	private void decorateReadonlyItem(TableItem item) {
 		item.setFont(Fonts.getFontRegistry().get(Fonts.readOnlyItem));
 		item.setForeground(colorProvider.getColor(SWT.COLOR_DARK_GRAY));
@@ -252,6 +264,19 @@ public class LibraryTablePoster {
 	 * @param i
 	 */
 	protected TableItem postTableRow(final Node n) {
+		return postTableRow(n, false);
+	}
+
+	/**
+	 * Create a row table item for the node.
+	 * 
+	 * @param n
+	 *            node to display
+	 * @param contributed
+	 *            if true will be decorated as contributed
+	 * @return TableItem
+	 */
+	protected TableItem postTableRow(final Node n, final boolean contributed) {
 		// LOGGER.debug("postTableRow( "+n.getName()+" ) - editable? "+n.isEditable());
 
 		final TableItem item = new TableItem(table, SWT.NONE);
@@ -262,13 +287,12 @@ public class LibraryTablePoster {
 			// post the icons
 			item.setImage(0, n.getImage());
 
-			if (n.isInheritedProperty() || NodeUtils.checker(n).isInheritedFacet().get()) {
-				// if (!n.isEnabled_AssignType()) {
+			if (contributed)
+				decorateContributedItem(item);
+			else if (n.isInheritedProperty() || NodeUtils.checker(n).isInheritedFacet().get())
 				decorateInheritedItem(item);
-			} else if (!n.isEditable() || !n.isInHead2()) {
+			else if (!n.isEditable() || !n.isInHead2())
 				decorateReadonlyItem(item);
-
-			}
 
 			item.setText(0, n.getName());
 			item.setText(1, cn.getPropertyRole());

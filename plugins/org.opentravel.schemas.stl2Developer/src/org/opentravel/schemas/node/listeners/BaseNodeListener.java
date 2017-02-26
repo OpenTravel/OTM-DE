@@ -43,17 +43,30 @@ public class BaseNodeListener implements INodeListener {
 
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
-		// Node newValue = getNewValue(event);
-		// Node oldValue = getOldValue(event);
+		Node newValue = getNewValue(event);
+		Node oldValue = getOldValue(event);
+		switch (event.getType()) {
+		case DOCUMENTATION_MODIFIED:
+		case NAME_MODIFIED:
+		case TYPE_ASSIGNMENT_MODIFIED:
+			break;
+		case FACET_OWNER_MODIFIED:
+			LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode + ", old = " + oldValue
+					+ ", new = " + newValue);
+			// if (thisNode instanceof ContextualFacetNode)
+			// ((ContextualFacetNode)thisNode).updateContribution((ContextualFacetNode )newValue);
+			break;
+		default:
+			LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode + ", old = " + oldValue
+					+ ", new = " + newValue);
+		}
 		// if (event.getType() != ModelEventType.DOCUMENTATION_MODIFIED)
-		// LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode + ", old = " + oldValue
-		// + ", new = " + newValue);
 	}
 
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
-		// Node affectedNode = getAffectedNode(event);
-		// LOGGER.debug("Ownership event: " + event.getType() + " this = " + thisNode + " affected = " + affectedNode);
+		Node affectedNode = getAffectedNode(event);
+		LOGGER.debug("Ownership event: " + event.getType() + " this = " + thisNode + " affected = " + affectedNode);
 	}
 
 	@Override

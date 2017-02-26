@@ -34,6 +34,8 @@ import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.node.VersionNode;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -238,6 +240,12 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 			return;
 		if (node.getLibrary() == null)
 			throw new IllegalArgumentException("Tried to add node with null library. " + node);
+
+		// Skip over contextual facets that are not named entities (version 1.5)
+		if (node instanceof ContextualFacetNode && !((ContextualFacetNode) node).isNamedEntity())
+			return;
+		if (node instanceof ContributedFacetNode)
+			return;
 
 		// LOGGER.debug("Adding " + node + " to library chain.");
 

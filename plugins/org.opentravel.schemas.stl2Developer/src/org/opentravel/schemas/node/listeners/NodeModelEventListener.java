@@ -49,7 +49,7 @@ public class NodeModelEventListener implements
 		// source = getResourceMemberFromEvent(event.getSource());
 		// if (event.getAffectedItem() instanceof TLModelElement)
 		// resourceAffected = getSourceNode(event.getAffectedItem());
-		// LOGGER.debug("Node Model Event - type: " + event.getType());
+		LOGGER.debug("Node Model Event - type: " + event.getType());
 		// if (affected == null || source == null)
 		// return;
 

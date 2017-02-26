@@ -34,7 +34,7 @@ import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * A property node that represents a simple property of a core or value with attributes object. See
- * {@link NodeFactory#newComponentMember(INode, Object)}
+ * {@link NodeFactory#newMember(INode, Object)}
  * 
  * @author Dave Hollander
  * 

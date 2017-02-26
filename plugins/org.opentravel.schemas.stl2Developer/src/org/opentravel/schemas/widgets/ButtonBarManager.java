@@ -47,9 +47,10 @@ public class ButtonBarManager extends ContributionManager {
 
 	public void enable(boolean enabled) {
 		buttonBar.setEnabled(enabled);
+		// if not enabled make buttons grey
+		for (Button b : buttonBar.getButtons())
+			b.setEnabled(enabled);
 		buttonBar.update();
-		// TODO make buttons grey
-
 	}
 
 	/*

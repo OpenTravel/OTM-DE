@@ -48,7 +48,7 @@ public class AddEnumValueAction extends OtmAbstractAction {
 	@Override
 	public boolean isEnabled() {
 		Node n = mc.getCurrentNode_NavigatorView().getOwningComponent();
-		boolean result = n.isEnabled_AddProperties();
+		// boolean result = n.isEnabled_AddProperties();
 		return n instanceof Enumeration ? n.isEnabled_AddProperties() : false;
 
 		// if (getMainController().getCurrentNode_NavigatorView() instanceof EnumLiteralNode)

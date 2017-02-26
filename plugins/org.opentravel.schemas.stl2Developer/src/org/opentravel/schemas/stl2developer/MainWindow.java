@@ -32,6 +32,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.ContextController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.preferences.GeneralPreferencePage;
 import org.opentravel.schemas.views.NavigatorView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,8 @@ public class MainWindow extends ViewPart implements ISelectionListener {
 
 		// Testing 1.6 support
 		// OTM16Upgrade.otm16Enabled = true;
-		OTM16Upgrade.otm16Enabled = false;
+		// OTM16Upgrade.otm16Enabled = false;
+		OTM16Upgrade.otm16Enabled = GeneralPreferencePage.isOTM16Enabled();
 
 		try {
 			// IWorkbench x = PlatformUI.getWorkbench();

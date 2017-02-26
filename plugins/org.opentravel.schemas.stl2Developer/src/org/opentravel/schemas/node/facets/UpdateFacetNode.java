@@ -15,7 +15,10 @@
  */
 package org.opentravel.schemas.node.facets;
 
+import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
+import org.opentravel.schemacompiler.model.TLFacetOwner;
+import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +45,42 @@ public class UpdateFacetNode extends ContextualFacetNode {
 	}
 
 	@Override
-	public boolean isDeleteable() {
-		return super.isDeletable(true);
+	public boolean canOwn(ContextualFacetNode targetCF) {
+		if (targetCF instanceof UpdateFacetNode)
+			return targetCF != this;
+		return false;
+	}
+
+	/**
+	 * Create new TLUpdate facet and add to passed owner choice object.
+	 * 
+	 * @param owner
+	 * @param name
+	 */
+	public void setOwner(ContextualFacetOwnerInterface owner) {
+		TLContextualFacet newFacet = getTLModelObject();
+		newFacet.setOwningEntity(owner.getTLModelObject());
+		newFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
+		if (owner.getTLModelObject() instanceof TLBusinessObject)
+			((TLBusinessObject) owner.getTLModelObject()).addUpdateFacet(newFacet);
+
+		super.add(owner, newFacet);
+	}
+
+	@Override
+	protected void addToTLParent(TLFacetOwner tlOwner) {
+		if (tlOwner instanceof TLBusinessObject)
+			((TLBusinessObject) tlOwner).addUpdateFacet(getTLModelObject());
+		else if (tlOwner instanceof TLContextualFacet)
+			((TLContextualFacet) tlOwner).addChildFacet(getTLModelObject());
+	}
+
+	@Override
+	protected void removeFromTLParent() {
+		if (getTLModelObject().getOwningEntity() instanceof TLBusinessObject)
+			((TLBusinessObject) getTLModelObject().getOwningEntity()).removeUpdateFacet(getTLModelObject());
+		else if (getTLModelObject().getOwningEntity() instanceof TLContextualFacet)
+			((TLContextualFacet) getTLModelObject().getOwningEntity()).removeChildFacet(getTLModelObject());
 	}
 
 }

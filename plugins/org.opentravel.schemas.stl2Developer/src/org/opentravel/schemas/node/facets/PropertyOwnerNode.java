@@ -191,8 +191,10 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 
 			@Override
 			public int compare(Node o1, Node o2) {
-				Integer idx1 = tlChildrenOrder.indexOf(o1.getModelObject().getTLModelObj());
-				Integer idx2 = tlChildrenOrder.indexOf(o2.getModelObject().getTLModelObj());
+				Integer idx1 = tlChildrenOrder.indexOf(o1.getTLModelObject());
+				Integer idx2 = tlChildrenOrder.indexOf(o2.getTLModelObject());
+				// Integer idx1 = tlChildrenOrder.indexOf(o1.getModelObject().getTLModelObj());
+				// Integer idx2 = tlChildrenOrder.indexOf(o2.getModelObject().getTLModelObj());
 				return idx1.compareTo(idx2);
 			}
 		});
@@ -341,9 +343,9 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 
 	/**
 	 * Return true if the node is delete-able using the version and managed state information used by Node. Used by
-	 * sub-types that are deletable.
+	 * sub-types that are deleteable.
 	 */
-	protected boolean isDeletable(boolean deletable) {
+	protected boolean isDeleteable(boolean deletable) {
 		return deletable ? super.isDeleteable() : false;
 	}
 

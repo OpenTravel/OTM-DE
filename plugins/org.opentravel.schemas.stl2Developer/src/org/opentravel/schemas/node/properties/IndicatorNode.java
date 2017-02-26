@@ -30,7 +30,7 @@ import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * A property node that represents a boolean XML attribute with the semantics of "False unless present and true". See
- * {@link NodeFactory#newComponentMember(INode, Object)}
+ * {@link NodeFactory#newMember(INode, Object)}
  * 
  * @author Dave Hollander
  * 
@@ -127,6 +127,11 @@ public class IndicatorNode extends PropertyNode {
 	public int indexOfTLProperty() {
 		final TLIndicator thisProp = (TLIndicator) getTLModelObject();
 		return thisProp.getOwner().getIndicators().indexOf(thisProp);
+	}
+
+	@Override
+	public boolean isEnabled_AssignType() {
+		return false;
 	}
 
 	@Override

@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 import org.junit.Assert;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
@@ -35,6 +36,7 @@ import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemacompiler.saver.LibraryModelSaver;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemacompiler.util.URLUtils;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.FindingType;
@@ -104,7 +106,10 @@ public class MockLibrary {
 	public LibraryNode createNewLibrary(String ns, String name, ProjectNode parent) {
 		LibraryNode ln = createNewLibrary_Empty(ns, name, parent);
 		addBusinessObjectToLibrary(ln, name + "InitialBO");
-		Assert.assertEquals(1, ln.getDescendants_LibraryMembers().size());
+		if (OTM16Upgrade.otm16Enabled)
+			Assert.assertEquals(3, ln.getDescendants_LibraryMembers().size());
+		else
+			Assert.assertEquals(1, ln.getDescendants_LibraryMembers().size());
 		return ln;
 	}
 
@@ -246,6 +251,7 @@ public class MockLibrary {
 	 * @param ln
 	 */
 	public int addOneOfEach(LibraryNode ln, String nameRoot) {
+
 		LOGGER.debug("Adding one of each object type to " + ln + " with name root of " + nameRoot);
 		int initialCount = ln.getDescendants_LibraryMembers().size();
 		int finalCount = initialCount;
@@ -258,8 +264,11 @@ public class MockLibrary {
 			addVWA_ToLibrary(ln, nameRoot + "VWA");
 			ChoiceObjectNode choice = addChoice(ln, nameRoot + "Choice");
 			// NO - DO NOT DO THIS - addExtensionPoint(ln, bo.getSummaryFacet());
-			int addedCount = 7;
 
+			int addedCount = 7;
+			if (OTM16Upgrade.otm16Enabled)
+				addedCount += 4; // custom, query and choice facets
+			List<Node> descendants = ln.getDescendants_LibraryMembers();
 			finalCount = ln.getDescendants_LibraryMembers().size();
 			Assert.assertEquals(addedCount + initialCount, finalCount);
 		} else

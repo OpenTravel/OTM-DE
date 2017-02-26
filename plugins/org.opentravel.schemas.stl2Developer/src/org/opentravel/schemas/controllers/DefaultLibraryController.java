@@ -38,6 +38,7 @@ import org.opentravel.schemacompiler.model.XSDLibrary;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.saver.LibraryModelSaver;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.visitor.DependencyNavigator;
 import org.opentravel.schemacompiler.visitor.ModelElementVisitorAdapter;
@@ -47,6 +48,7 @@ import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.FileDialogs;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -304,6 +306,14 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 			LOGGER.debug("No user defined libraries to save");
 			return false;
 		}
+
+		if (OTM16Upgrade.otm16Enabled) {
+			// Post user warning
+			if (!DialogUserNotifier.openConfirm("Warning", Messages.getString("action.saveAll.version16")))
+				return false;
+		}
+		// assert false; // Don't let junits save
+
 		final LibraryModelSaver lms = new LibraryModelSaver();
 		final StringBuilder successfulSaves = new StringBuilder();
 		final StringBuilder errorSaves = new StringBuilder();

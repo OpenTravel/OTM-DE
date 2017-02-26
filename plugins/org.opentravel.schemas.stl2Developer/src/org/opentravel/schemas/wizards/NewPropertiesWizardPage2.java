@@ -386,7 +386,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 			setMessage(o.getPropertyType().getName() + "s are not allowed for this object", WARNING);
 			return null;
 		}
-		final PropertyNode copy = (PropertyNode) NodeFactory.newComponentMember((INode) owningFacet, o.cloneTLObj());
+		final PropertyNode copy = (PropertyNode) NodeFactory.newMember((INode) owningFacet, o.cloneTLObj());
 		copy.setAssignedType((TypeProvider) o.getType());
 		getNewProperties().add(copy);
 		return copy;

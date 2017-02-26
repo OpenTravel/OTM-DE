@@ -24,7 +24,6 @@ import org.opentravel.schemas.commands.OtmAbstractHandler;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
-import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.MainWindow;
@@ -207,9 +206,9 @@ public class AssignTypeAction extends OtmAbstractAction {
 		final TypeSelectionWizard wizard = new TypeSelectionWizard(list);
 		if (wizard.run(OtmRegistry.getActiveShell()))
 			AssignTypeAction.execute(wizard.getList(), wizard.getSelection());
-		else
-			DialogUserNotifier.openInformation("No Selection", Messages.getString("OtmW.101")); //$NON-NLS-1$
-			// TODO - should the new owner be removed?
+		// else
+		//			DialogUserNotifier.openInformation("No Selection", Messages.getString("OtmW.101")); //$NON-NLS-1$
+		// TODO - should the new owner be removed?
 
 		OtmRegistry.getMainController().refresh(owner);
 	}

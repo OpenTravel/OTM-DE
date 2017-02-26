@@ -168,7 +168,7 @@ public class CoreObjectTests {
 	}
 
 	@Test
-	public void Core_changeToTests() {
+	public void Core_ChangeToTests() {
 		// The change to method adds swap() to the constructor generated core.
 		//
 		CoreObjectNode tco = null;

@@ -27,12 +27,14 @@ import org.opentravel.schemas.modelObject.BusinessObjMO;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.resources.ActionFacet;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.trees.type.BusinessObjectOnlyTypeFilter;
+import org.opentravel.schemas.trees.type.ContextualFacetOwnersTypeFilter;
 import org.opentravel.schemas.trees.type.CoreAndChoiceObjectOnlyTypeFilter;
 import org.opentravel.schemas.trees.type.TypeTreeExtensionSelectionFilter;
 import org.opentravel.schemas.trees.type.TypeTreeIdReferenceTypeOnlyFilter;
@@ -103,6 +105,7 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 		boolean versions = false;
 		boolean resource = false;
 		boolean coreAndChoice = false;
+		boolean contextualFacet = false;
 
 		if (curNodeList != null) {
 			for (Node n : curNodeList) {
@@ -122,6 +125,8 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 						resource = true;
 					else if (n instanceof ElementReferenceNode)
 						idReference = true;
+					else if (n instanceof ContextualFacetNode)
+						contextualFacet = true;
 				}
 			}
 		}
@@ -143,6 +148,11 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 			title = Messages.getString("wizard.typeSelection.title.resource");
 			description = Messages.getString("wizard.typeSelection.description.resource");
 		}
+		if (contextualFacet) {
+			pageName = Messages.getString("wizard.typeSelection.pageName.contextualFacet");
+			title = Messages.getString("wizard.typeSelection.title.contextualFacet");
+			description = Messages.getString("wizard.typeSelection.description.contextualFacet");
+		}
 		selectionPage = new TypeSelectionPage(pageName, title, description, null, setNodeList);
 
 		// Set the filters based on type of passed node.
@@ -159,6 +169,9 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 					new TLBusinessObject())));
 		else if (resource)
 			selectionPage.setTypeSelectionFilter(new BusinessObjectOnlyTypeFilter(null));
+		else if (contextualFacet)
+			selectionPage.setTypeSelectionFilter(new ContextualFacetOwnersTypeFilter((ContextualFacetNode) setNodeList
+					.get(0)));
 		else if (idReference)
 			selectionPage.setTypeSelectionFilter(new TypeTreeIdReferenceTypeOnlyFilter());
 
@@ -234,8 +247,9 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 		dialog = new WizardDialog(shell, this);
 		dialog.setPageSize(700, 600);
 		dialog.create();
-		dialog.open();
-		return true;
+		int result = dialog.open();
+		return result == org.eclipse.jface.window.Window.OK ? true : false;
+		// return true;
 	}
 
 	/**

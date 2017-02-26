@@ -40,8 +40,8 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
 		Node affectedNode = getAffectedNode(event);
-		// LOGGER.debug("Library Ownership event: " + event.getType() + " this = " + thisNode + " affected = "
-		// + affectedNode);
+		LOGGER.debug("Library Ownership event: " + event.getType() + " this = " + thisNode + " affected = "
+				+ affectedNode);
 		LibraryNode ln = (LibraryNode) thisNode;
 
 		switch (event.getType()) {
@@ -54,6 +54,8 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 			// Add the affected node to this library
 			if (affectedNode instanceof ContextualFacetNode) {
 				if (affectedNode.getParent() != null)
+					break; // do nothing
+				if (!((ContextualFacetNode) affectedNode).canBeLibraryMember())
 					break; // do nothing
 				// else
 				// LOGGER.debug("Contextual facet with no parent.");
@@ -70,7 +72,11 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 		case MEMBER_REMOVED:
 			// LOGGER.debug("Ownership change event: removed " + affectedNode + " from " + thisNode);
 			// Remove affected from this library
+			if (affectedNode == null || affectedNode.getParent() == null)
+				return; // happens during deletes
+			// LOGGER.debug("ERROR -- null parent.");
 			Node parent = affectedNode.getParent();
+
 			if (parent instanceof VersionNode)
 				parent = parent.getParent();
 			if (parent == null || parent instanceof ComponentNode) {
