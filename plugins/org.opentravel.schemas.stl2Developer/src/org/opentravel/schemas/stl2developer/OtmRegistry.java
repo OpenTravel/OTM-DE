@@ -202,7 +202,7 @@ public class OtmRegistry {
 	/**
 	 * @return the typeView
 	 */
-	public static OtmView getTypeView() {
+	public static TypeView getTypeView() {
 		if (typeView == null) {
 			RCPUtils.findOrCreateView(TypeView.VIEW_ID);
 		}

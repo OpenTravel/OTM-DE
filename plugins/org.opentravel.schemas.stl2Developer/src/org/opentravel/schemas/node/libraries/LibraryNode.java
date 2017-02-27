@@ -83,7 +83,6 @@ import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.preferences.GeneralPreferencePage;
 import org.opentravel.schemas.properties.Images;
-import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeResolver;
@@ -1011,11 +1010,13 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 */
 	// TODO - why is this here when other repo actions are in libraryController?
 	public void commit() throws RepositoryException {
-		if (OTM16Upgrade.otm16Enabled) {
-			DialogUserNotifier.openWarning("Not Supported", "Can not commit version 1.6 libraries yet.");
-			return;
-		}
-		projectItem.getProjectManager().commit(this.projectItem);
+		// if (OTM16Upgrade.otm16Enabled) {
+		// DialogUserNotifier.openWarning("Not Supported", "Can not commit version 1.6 libraries yet.");
+		// return;
+		// }
+		// TODO - get remarks from user
+		String remarks = "";
+		projectItem.getProjectManager().commit(this.projectItem, remarks);
 		// LOGGER.debug("Committed " + this);
 	}
 

@@ -565,14 +565,34 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	public boolean moveProperty(final int direction) {
 		if (!isEditable_newToChain())
 			return false;
+		boolean ret = false;
 		// we don't have to sort children since their are always sorted
-		if (direction == UP)
-			return modelObject.moveUp(); // move the actual TL Property.
-		else if (direction == DOWN)
-			return modelObject.moveDown(); // move the actual TL Property.
-		else {
-			// LOGGER.warn("Do not understand direction: " + direction);
-			return false;
+		if (direction == UP) {
+			ret = modelObject.moveUp(); // move the actual TL Property.
+			if (ret)
+				moveUp();
+		} else if (direction == DOWN) {
+			ret = modelObject.moveDown(); // move the actual TL Property.
+			if (ret)
+				moveDown();
+		}
+		// LOGGER.warn("Do not understand direction: " + direction);
+		return ret;
+	}
+
+	private void moveDown() {
+		int index = parent.getChildren().indexOf(this);
+		if (index < parent.getChildren().size() - 1) {
+			parent.getChildren().remove(index++);
+			parent.getChildren().add(index, this);
+		}
+	}
+
+	private void moveUp() {
+		int index = parent.getChildren().indexOf(this);
+		if (index > 0) {
+			parent.getChildren().remove(index--);
+			parent.getChildren().add(index, this);
 		}
 	}
 

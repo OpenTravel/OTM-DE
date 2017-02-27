@@ -17,10 +17,12 @@ package org.opentravel.schemas.actions;
 
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.properties.StringProperties;
+import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.views.OtmView;
+import org.opentravel.schemas.views.TypeView;
 
 /**
  * @author Agnieszka Janowska
@@ -42,9 +44,20 @@ public class UpFacetAction extends OtmAbstractAction {
 	 */
 	@Override
 	public void run() {
-		final OtmView view = OtmRegistry.getTypeView();
+		final TypeView view = (TypeView) OtmRegistry.getTypeView();
 		if (view != null) {
-			view.moveUp();
+			boolean ret = true;
+
+			for (final Node n : view.getSelectedNodes()) {
+				if (!n.moveProperty(PropertyNode.UP) || ret == false) {
+					ret = false;
+				}
+			}
+			if (ret) {
+				view.setFacetViewFocus(-1);
+			} else {
+				DialogUserNotifier.openInformation("WARNING", Messages.getString("action.move.warning"));
+			}
 		}
 	}
 

@@ -28,148 +28,137 @@ import org.opentravel.schemas.node.interfaces.INode;
  */
 public interface OtmView {
 
-    /**
-     * Attempt to activate this view.
-     * 
-     * @return true if successful.
-     */
-    public boolean activate();
+	/**
+	 * Attempt to activate this view.
+	 * 
+	 * @return true if successful.
+	 */
+	public boolean activate();
 
-    /**
-     * Clear filter text
-     */
-    public void clearFilter();
+	/**
+	 * Clear filter text
+	 */
+	public void clearFilter();
 
-    /**
-     * Clear the view selection.
-     */
-    public void clearSelection();
+	/**
+	 * Clear the view selection.
+	 */
+	public void clearSelection();
 
-    /**
-     * Collapse the view fully.
-     */
-    public void collapse();
+	/**
+	 * Collapse the view fully.
+	 */
+	public void collapse();
 
-    /**
-     * Expand the view fully.
-     */
-    public void expand();
+	/**
+	 * Expand the view fully.
+	 */
+	public void expand();
 
-    /**
-     * @return the current node being displayed
-     */
-    public INode getCurrentNode();
+	/**
+	 * @return the current node being displayed
+	 */
+	public INode getCurrentNode();
 
-    /**
-     * @return the node that was displayed prior to the current one.
-     */
-    public INode getPreviousNode();
+	/**
+	 * @return the node that was displayed prior to the current one.
+	 */
+	public INode getPreviousNode();
 
-    /**
-     * @return a new list of the currently selected nodes, possibly empty.
-     */
-    public List<Node> getSelectedNodes();
+	/**
+	 * @return a new list of the currently selected nodes, possibly empty.
+	 */
+	public List<Node> getSelectedNodes();
 
-    /**
-     * @return the string that identifies this view.
-     */
-    public String getViewID();
+	/**
+	 * @return the string that identifies this view.
+	 */
+	public String getViewID();
 
-    /**
-     * @return the state of the listening control
-     */
-    public boolean isListening();
+	/**
+	 * @return the state of the listening control
+	 */
+	public boolean isListening();
 
-    /**
-     * @return the state of the is inherited properties control
-     */
-    public boolean isShowInheritedProperties();
+	/**
+	 * @return the state of the is inherited properties control
+	 */
+	public boolean isShowInheritedProperties();
 
-    /**
-     * Move current node down
-     */
-    public void moveDown();
+	/**
+	 * Command the view to refresh its contents.
+	 */
+	public void refresh();
 
-    /**
-     * Move current node up
-     */
-    public void moveUp();
+	/**
+	 * Refresh the view. If regenerate is true, regenerate the contents first.
+	 */
+	public void refresh(boolean regenerate);
 
-    /**
-     * Command the view to refresh its contents.
-     */
-    public void refresh();
+	/**
+	 * Command the view to refresh and set its contents.
+	 */
+	public void refresh(INode node);
 
-    /**
-     * Refresh the view. If regenerate is true, regenerate the contents first.
-     */
-    public void refresh(boolean regenerate);
+	/**
+	 * Command the view to refresh and set its contents. If force, any user controls are ignored/overriden.
+	 */
+	public void refresh(INode node, boolean force);
 
-    /**
-     * Command the view to refresh and set its contents.
-     */
-    public void refresh(INode node);
+	/**
+	 * Command to refresh all view contents.
+	 */
+	public void refreshAllViews();
 
-    /**
-     * Command the view to refresh and set its contents. If force, any user controls are
-     * ignored/overriden.
-     */
-    public void refresh(INode node, boolean force);
+	/**
+	 * Command the view to refresh its contents and set the current view to <i>node</i>. By default, the navigator view
+	 * is set.
+	 */
+	public void refreshAllViews(INode node);
 
-    /**
-     * Command to refresh all view contents.
-     */
-    public void refreshAllViews();
+	/**
+	 * Set the previous node to the current node.
+	 */
+	public void restorePreviousNode();
 
-    /**
-     * Command the view to refresh its contents and set the current view to <i>node</i>. By default,
-     * the navigator view is set.
-     */
-    public void refreshAllViews(INode node);
+	/**
+	 * Select the view node. Generates a selection event.
+	 * 
+	 * @param node
+	 *            to select.
+	 */
+	public void select(final INode node);
 
-    /**
-     * Set the previous node to the current node.
-     */
-    public void restorePreviousNode();
+	/**
+	 * Set the currently displayed node to the passed node.
+	 */
+	public void setCurrentNode(INode node);
 
-    /**
-     * Select the view node. Generates a selection event.
-     * 
-     * @param node
-     *            to select.
-     */
-    public void select(final INode node);
+	/**
+	 * Set the property type filter.
+	 */
+	public void setDeepPropertyView(boolean state);
 
-    /**
-     * Set the currently displayed node to the passed node.
-     */
-    public void setCurrentNode(INode node);
+	/**
+	 * Set the exact matches only filter.
+	 */
+	public void setExactMatchFiltering(final boolean state);
 
-    /**
-     * Set the property type filter.
-     */
-    public void setDeepPropertyView(boolean state);
+	/**
+	 * Set the inherited properties filter.
+	 */
+	public void setInheritedPropertiesDisplayed(final boolean state);
 
-    /**
-     * Set the exact matches only filter.
-     */
-    public void setExactMatchFiltering(final boolean state);
+	/**
+	 * Set the input data source for the view.
+	 */
+	public void setInput(INode node);
 
-    /**
-     * Set the inherited properties filter.
-     */
-    public void setInheritedPropertiesDisplayed(final boolean state);
+	/**
+	 * Enable or disable listening (linked behavior)
+	 */
+	public void setListening(final boolean state);
 
-    /**
-     * Set the input data source for the view.
-     */
-    public void setInput(INode node);
-
-    /**
-     * Enable or disable listening (linked behavior)
-     */
-    public void setListening(final boolean state);
-
-    void remove(INode node);
+	void remove(INode node);
 
 }

@@ -28,9 +28,6 @@ import org.eclipse.ui.PartInitException;
 import org.opentravel.schemas.navigation.DoubleClickSelection;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.properties.Messages;
-import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 
 /**
@@ -135,37 +132,39 @@ public class TypeView extends OtmAbstractView implements ISelectionListener {
 		return listening;
 	}
 
-	@Override
-	public void moveDown() {
-		boolean ret = true;
+	// public void moveDown() {
+	// boolean ret = true;
+	//
+	// for (final Node n : getSelectedNodes()) {
+	// if (!n.moveProperty(PropertyNode.DOWN) || ret == false) {
+	// ret = false;
+	// }
+	// }
+	// if (ret) {
+	// facetView.setFocus(1);
+	// } else {
+	// DialogUserNotifier.openInformation("WARNING", Messages.getString("action.move.warning"));
+	// }
+	// }
 
-		for (final Node n : getSelectedNodes()) {
-			if (!n.moveProperty(PropertyNode.DOWN) || ret == false) {
-				ret = false;
-			}
-		}
-		if (ret) {
-			facetView.setFocus(1);
-		} else {
-			DialogUserNotifier.openInformation("WARNING", Messages.getString("action.move.warning"));
-		}
+	public void setFacetViewFocus(int i) {
+		facetView.setFocus(i);
 	}
 
-	@Override
-	public void moveUp() {
-		boolean ret = true;
-
-		for (final Node n : getSelectedNodes()) {
-			if (!n.moveProperty(PropertyNode.UP) || ret == false) {
-				ret = false;
-			}
-		}
-		if (ret) {
-			facetView.setFocus(-1);
-		} else {
-			DialogUserNotifier.openInformation("WARNING", Messages.getString("action.move.warning"));
-		}
-	}
+	// public void moveUp() {
+	// boolean ret = true;
+	//
+	// for (final Node n : getSelectedNodes()) {
+	// if (!n.moveProperty(PropertyNode.UP) || ret == false) {
+	// ret = false;
+	// }
+	// }
+	// if (ret) {
+	// facetView.setFocus(-1);
+	// } else {
+	// DialogUserNotifier.openInformation("WARNING", Messages.getString("action.move.warning"));
+	// }
+	// }
 
 	@Override
 	public void refresh() {

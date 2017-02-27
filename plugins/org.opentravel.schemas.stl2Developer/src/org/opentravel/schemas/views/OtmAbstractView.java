@@ -160,14 +160,6 @@ public abstract class OtmAbstractView extends ViewPart implements OtmView {
 	}
 
 	@Override
-	public void moveDown() {
-	}
-
-	@Override
-	public void moveUp() {
-	}
-
-	@Override
 	public void setListening(boolean state) {
 	}
 

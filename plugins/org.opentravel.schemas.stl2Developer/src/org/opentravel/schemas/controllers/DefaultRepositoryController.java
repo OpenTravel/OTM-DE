@@ -915,7 +915,9 @@ class UnlockThread extends Thread {
 			lms.saveLibrary(ln.getTLLibrary());
 			ProjectManager pm = ((DefaultProjectController) mc.getProjectController()).getDefaultProject()
 					.getTLProject().getProjectManager();
-			pm.unlock(ln.getProjectItem(), true);
+			// TODO - add remarks
+			String remarks = "";
+			pm.unlock(ln.getProjectItem(), true, remarks);
 			ln.updateLibraryStatus();
 			result = true;
 		} catch (RepositoryException e) {
