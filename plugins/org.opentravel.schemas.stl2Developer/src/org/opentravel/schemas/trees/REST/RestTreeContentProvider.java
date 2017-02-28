@@ -24,6 +24,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
 
 /**
  * Tree content provider for the REST Resource View.
@@ -36,7 +37,9 @@ public class RestTreeContentProvider implements ITreeContentProvider {
 	@Override
 	public Object[] getElements(final Object element) {
 		List<Node> kids = new ArrayList<Node>();
-		if (element instanceof NavNode && ((NavNode) element).isResourceRoot())
+		if (element instanceof LibraryChainNode)
+			kids = ((LibraryChainNode) element).getResrouceAggregate().getChildren();
+		else if (element instanceof NavNode && ((NavNode) element).isResourceRoot())
 			kids = ((Node) element).getChildren();
 		return kids.toArray();
 	}

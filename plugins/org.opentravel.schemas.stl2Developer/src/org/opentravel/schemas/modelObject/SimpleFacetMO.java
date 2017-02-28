@@ -46,10 +46,6 @@ public class SimpleFacetMO extends ModelObject<TLSimpleFacet> {
 	public void delete() {
 	}
 
-	// public TLModelElement getSimpleAttribute() {
-	// return simpleProperty;
-	// }
-
 	@Override
 	public List<?> getChildren() {
 		final List<Object> kids = new ArrayList<Object>();
@@ -64,43 +60,11 @@ public class SimpleFacetMO extends ModelObject<TLSimpleFacet> {
 		return srcObj.getSimpleType();
 	}
 
-	// @Deprecated
-	// @Override
-	// public String getName() {
-	// // LOGGER.debug(getTLModelObj().getSimpleTypeName()+"|"+ getTLModelObj().getLocalName());
-	// return getTLModelObj().getLocalName() == null ? "" : getTLModelObj().getLocalName();
-	// }
-
-	// @Override
-	// public String getNamePrefix() {
-	// return "";
-	// }
-
-	// @Override
-	// public String getNamespace() {
-	// return getTLModelObj().getNamespace();
-	// }
-
 	@Override
 	public TLSimpleFacet getTLModelObj() {
 		return srcObj;
 	}
 
-	// @Override
-	// public String getComponentType() {
-	// return FacetMO.getDisplayName(getTLModelObj().getFacetType());
-	// }
-
-	// @Override
-	// protected AbstractLibrary getLibrary(final TLSimpleFacet obj) {
-	// return null;
-	// }
-
-	// @Override
-	// public boolean isComplexAssignable() {
-	// return true;
-	// }
-	//
 	@Override
 	public boolean isSimpleAssignable() {
 		return true;
@@ -109,12 +73,6 @@ public class SimpleFacetMO extends ModelObject<TLSimpleFacet> {
 	@Override
 	public boolean setName(final String name) {
 		return false;
-	}
-
-	@Override
-	public void clearTLType() {
-		// this.type = null;
-		this.srcObj.setSimpleType(null);
 	}
 
 }

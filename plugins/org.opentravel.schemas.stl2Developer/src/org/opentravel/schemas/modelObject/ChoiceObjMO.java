@@ -30,22 +30,6 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 		super(obj);
 	}
 
-	// @Override
-	// public void addAlias(final TLAlias tla) {
-	// srcObj.addAlias(tla);
-	// }
-
-	// public void addFacet(TLFacet tlf) {
-	// srcObj.addChoiceFacet(tlf);
-	// }
-	//
-	// // TODO - should this return a contextual facet?
-	// public TLContextualFacet addFacet(TLFacetType type) {
-	// TLContextualFacet tlf = (TLContextualFacet) new TLContextualFacet();
-	// srcObj.addChoiceFacet(tlf);
-	// return tlf;
-	// }
-
 	// It may already have been taken out of the library, but if not do so.
 	@Override
 	public void delete() {
@@ -61,11 +45,6 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 		kids.addAll(getTLModelObj().getAliases());
 		return kids;
 	}
-
-	// @Override
-	// public String getComponentType() {
-	// return "Choice Object";
-	// }
 
 	@Override
 	public String getExtendsType() {
@@ -94,28 +73,6 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 		return extendsNS;
 	}
 
-	// @Override
-	// public String getLabel() {
-	// return getName();
-	// }
-
-	// @Deprecated
-	// @Override
-	// public String getName() {
-	// return getTLModelObj().getName();
-	// }
-
-	// @Override
-	// public String getNamePrefix() {
-	// final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
-	// return lib == null ? "" : lib.getPrefix();
-	// }
-
-	// @Override
-	// public String getNamespace() {
-	// return getTLModelObj().getNamespace();
-	// }
-
 	@Override
 	public NamedEntity getTLBase() {
 		return srcObj.getExtension() != null ? srcObj.getExtension().getExtendsEntity() : null;
@@ -125,11 +82,6 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 	public TLChoiceObject getTLModelObj() {
 		return srcObj;
 	}
-
-	// @Override
-	// public boolean isComplexAssignable() {
-	// return true;
-	// }
 
 	/**
 	 * Is this Choice extended by <i>extension</i>?
@@ -170,25 +122,5 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 		getTLModelObj().setName(name);
 		return true;
 	}
-
-	// @Override
-	// protected AbstractLibrary getLibrary(final TLChoiceObject obj) {
-	// return obj.getOwningLibrary();
-	// }
-
-	// /**
-	// * @return the base class node using the tl model element extension and listeners
-	// */
-	// public Object getBaseClass() {
-	// Node baseClass = null;
-	// if (srcObj instanceof TLExtensionOwner && srcObj.getExtension() != null) {
-	// NamedEntity tlBase = srcObj.getExtension().getExtendsEntity();
-	// if (tlBase instanceof TLModelElement)
-	// for (ModelElementListener listener : ((TLModelElement) tlBase).getListeners())
-	// if (listener instanceof BaseNodeListener)
-	// baseClass = ((BaseNodeListener) listener).getNode();
-	// }
-	// return baseClass;
-	// }
 
 }

@@ -34,16 +34,6 @@ public class IndicatorMO extends ModelObject<TLIndicator> {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.modelObject.ModelObject#clearTLType()
-	 */
-	@Override
-	public void clearTLType() {
-		// Nothing to do - tl model has no type for indicators.
-	}
-
 	@Override
 	public void addToTLParent(ModelObject<?> parentMO, int index) {
 		if (parentMO.getTLModelObj() instanceof TLIndicatorOwner) {
@@ -65,39 +55,10 @@ public class IndicatorMO extends ModelObject<TLIndicator> {
 		}
 	}
 
-	// @Deprecated
-	// @Override
-	// public String getName() {
-	// String name = getTLModelObj().getName();
-	// return name == null || name.isEmpty() ? "" : name;
-	// }
-
-	// Model does not know what namespace the attribute or its owning component
-	// is in.
-	// @Override
-	// public String getNamePrefix() {
-	// return "";
-	// }
-	//
-	// @Override
-	// public String getNamespace() {
-	// return "";
-	// }
-
 	@Override
 	public TLIndicator getTLModelObj() {
 		return srcObj;
 	}
-
-	// @Override
-	// public String getComponentType() {
-	// return "Indicator";
-	// }
-
-	// @Override
-	// protected AbstractLibrary getLibrary(final TLIndicator obj) {
-	// return null;
-	// }
 
 	/**
 	 * NOTE: as of 5/9/2012 this count includes inherited properties!
@@ -106,21 +67,6 @@ public class IndicatorMO extends ModelObject<TLIndicator> {
 		final TLIndicator thisProp = getTLModelObj();
 		return thisProp.getOwner().getIndicators().indexOf(thisProp);
 	}
-
-	// @Override
-	// public boolean isIndicatorProperty() {
-	// return !srcObj.isPublishAsElement();
-	// }
-	//
-	// @Override
-	// public boolean isIndicatorElement() {
-	// return srcObj.isPublishAsElement();
-	// }
-
-	// @Override
-	// public boolean isMandatory() {
-	// return false; // indicators are always assumed false unless present.
-	// }
 
 	/**
 	 * Move if you can, return false if you can not.

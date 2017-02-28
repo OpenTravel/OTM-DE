@@ -561,7 +561,11 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		newFacet.addProperty(this);
 	}
 
-	@Override
+	/**
+	 * 
+	 * @param direction
+	 * @return true if moved, false otherwise
+	 */
 	public boolean moveProperty(final int direction) {
 		if (!isEditable_newToChain())
 			return false;

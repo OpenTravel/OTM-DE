@@ -69,15 +69,10 @@ public class ValueWithAttributesMO extends ModelObject<TLValueWithAttributes> {
 	}
 
 	// @Override
-	// public String getComponentType() {
-	// return "Value With Attributes";
+	// public void clearTLType() {
+	// // this.type = null;
+	// this.srcObj.setParentType(null);
 	// }
-
-	@Override
-	public void clearTLType() {
-		// this.type = null;
-		this.srcObj.setParentType(null);
-	}
 
 	@Override
 	public void setExtendsType(ModelObject<?> mo) {
@@ -87,28 +82,6 @@ public class ValueWithAttributesMO extends ModelObject<TLValueWithAttributes> {
 		} else
 			getTLModelObj().setParentType(null); // clear value
 	}
-
-	// @Deprecated
-	// @Override
-	// public String getName() {
-	// return getTLModelObj().getName();
-	// }
-
-	// @Override
-	// public String getNamespace() {
-	// return getTLModelObj().getNamespace();
-	// }
-
-	// @Override
-	// public String getNamePrefix() {
-	// final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
-	// return lib == null ? "" : lib.getPrefix();
-	// }
-
-	// @Override
-	// protected AbstractLibrary getLibrary(final TLValueWithAttributes obj) {
-	// return obj.getOwningLibrary();
-	// }
 
 	public NamedEntity getSimpleValueType() {
 		return srcObj.getParentType();
@@ -131,11 +104,6 @@ public class ValueWithAttributesMO extends ModelObject<TLValueWithAttributes> {
 		return getTLModelObj().getParentType() == extension;
 	}
 
-	// @Override
-	// public boolean isComplexAssignable() {
-	// return true;
-	// }
-	//
 	@Override
 	public boolean isSimpleAssignable() {
 		return true;

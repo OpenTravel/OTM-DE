@@ -581,7 +581,8 @@ public abstract class ComponentNode extends Node {
 		}
 		child.inheritsFrom = Node.GetNode(child.getTLModelObject());
 		if (child instanceof PropertyNode && child.inheritsFrom == child) {
-			LOGGER.debug("ERROR - child inherits from itself: " + child);
+			if (!(this instanceof EnumerationOpenNode))
+				LOGGER.debug("ERROR - child inherits from itself: " + child);
 			child.inheritsFrom = null;
 			child.inherited = false;
 			// assert child.inheritsFrom != child; // Only prop nodes?

@@ -757,7 +757,6 @@ public abstract class Node implements INode {
 			}
 			decoration += surround(extensionTxt);
 		}
-
 		return decoration;
 	}
 
@@ -2193,10 +2192,6 @@ public abstract class Node implements INode {
 		// Iterate through all children
 		for (Node n : getChildren())
 			n.mergeContext(targetId);
-	}
-
-	public boolean moveProperty(final int i) {
-		return false;
 	}
 
 	/**

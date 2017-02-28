@@ -90,9 +90,11 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 
 	public ParamGroup(ResourceNode rn, ComponentNode fn, boolean idGroup) {
 		this(rn);
-		setName(fn.getLabel());
+		if (fn != null) {
+			setName(fn.getLabel());
+			setReferenceFacet(fn.getLabel());
+		}
 		setIdGroup(idGroup);
-		setReferenceFacet(fn.getLabel());
 	}
 
 	@Override
@@ -304,7 +306,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 			path += "/" + pt;
 		if (path.isEmpty())
 			path = "/"; // must at least have a slash
-			// LOGGER.debug("Get path template: " + path);
+		// LOGGER.debug("Get path template: " + path);
 		return path;
 	}
 

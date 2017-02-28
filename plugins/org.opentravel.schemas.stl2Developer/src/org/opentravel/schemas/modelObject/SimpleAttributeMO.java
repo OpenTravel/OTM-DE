@@ -28,34 +28,8 @@ public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
 	}
 
 	@Override
-	public void clearTLType() {
-	}
-
-	@Override
 	public void delete() {
 	}
-
-	// @Override
-	// public String getComponentType() {
-	// return "Simple Attribute";
-	// }
-
-	// @Deprecated
-	// @Override
-	// public String getName() {
-	// return getTLModelObj().getName();
-	// }
-
-	// // Model does not know what namespace the attribute or its owning component is in.
-	// @Override
-	// public String getNamePrefix() {
-	// return "";
-	// }
-	//
-	// @Override
-	// public String getNamespace() {
-	// return "";
-	// }
 
 	@Override
 	public TLnSimpleAttribute getTLModelObj() {
@@ -64,24 +38,8 @@ public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
 
 	@Override
 	public NamedEntity getTLType() {
-		// TL_VWA which is the srcObj parent does not provide access to the simple facet.
-		// if (srcObj instanceof TLnSimpleAttribute) {
-		// if (srcObj.getParentObject() instanceof TLCoreObject) {
-		// return ((TLCoreObject) srcObj.getParentObject()).getSimpleFacet().getSimpleType();
-		// } else if (srcObj.getParentObject() instanceof TLValueWithAttributes)
-		// return ((TLValueWithAttributes) srcObj.getParentObject()).getParentType();
-		//
-		// return null;
-		// // throw new IllegalStateException("Not Implemented yet.");
-		// // return ((Node) node.getParent()).getAssignedTLObject();
-		// }
 		return srcObj.getType();
 	}
-
-	// @Override
-	// public boolean isMandatory() {
-	// return getTLModelObj().isMandatory();
-	// }
 
 	@Override
 	public boolean moveDown() {
@@ -98,34 +56,14 @@ public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
 		return false;
 	}
 
-	// @Override
-	// public boolean setMandatory(final boolean selection) {
-	// return false;
-	// }
-
 	@Override
 	public boolean setName(final String name) {
 		return false;
 	}
 
-	// @Override
-	// public void setTLType(final ModelObject<?> mo) {
-	// Object tlObj = null;
-	// if (mo != null)
-	// tlObj = mo.getTLModelObj();
-	// if (tlObj instanceof NamedEntity) {
-	// getTLModelObj().setType((NamedEntity) tlObj);
-	// }
-	// }
-	//
 	@Override
 	public void setTLType(final NamedEntity tlObj) {
 		getTLModelObj().setType(tlObj);
 	}
-
-	// @Override
-	// protected AbstractLibrary getLibrary(final TLnSimpleAttribute obj) {
-	// return null;
-	// }
 
 }

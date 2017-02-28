@@ -337,6 +337,25 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	@Override
+	public String getDecoration() {
+		String decoration = "";
+		if (getSubject() != null)
+			decoration += "  (Exposes: " + getSubject().getNameWithPrefix() + ") - ";
+		String extensionTxt = " ";
+		if (isInHead())
+			if (getLibrary().isMajorVersion())
+				extensionTxt += "Major Version";
+			else if (isNewToChain())
+				extensionTxt += "New to this version";
+			else
+				extensionTxt += "Current Version";
+		else
+			extensionTxt += "Version: " + getTlVersion();
+		decoration += surround(extensionTxt);
+		return decoration;
+	}
+
+	@Override
 	public PropertyOwnerInterface getDefaultFacet() {
 		return null;
 	}
@@ -418,11 +437,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	public String getLabel() {
-		if (getSubject() == null)
-			// if (getExtendsType() == null)
-			return super.getLabel();
-		else
-			return super.getLabel() + "(Exposes: " + getSubject() + ")";
+		// if (getSubject() == null)
+		// if (getExtendsType() == null)
+		return super.getLabel();
+		// else
+		// return super.getLabel() + "(Exposes: " + getSubject() + ")";
 		// else if (isVersioned())
 		// else if (getExtendsType().getName().equals(getName()))
 		// return super.getLabel() + " (Extends version:  " + getExtendsType().getLibrary().getVersion() + ")";
@@ -632,6 +651,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	@Override
+	public boolean isEditable() {
+		return getLibrary().isEditable();
+	}
+
+	@Override
 	public boolean isMergeSupported() {
 		return false;
 	}
@@ -643,7 +667,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	public boolean isNameEditable() {
-		return true;
+		return isEditable();
+		// return true;
 	}
 
 	@Override

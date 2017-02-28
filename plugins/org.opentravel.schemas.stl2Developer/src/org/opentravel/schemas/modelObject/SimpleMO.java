@@ -38,12 +38,6 @@ public class SimpleMO extends ModelObject<TLSimple> {
 	}
 
 	@Override
-	public void clearTLType() {
-		// this.type = null;
-		this.srcObj.setParentType(null);
-	}
-
-	@Override
 	public void delete() {
 		if (getTLModelObj().getOwningLibrary() != null) {
 			getTLModelObj().getOwningLibrary().removeNamedMember(getTLModelObj());
@@ -54,30 +48,6 @@ public class SimpleMO extends ModelObject<TLSimple> {
 	public List<Object> getChildren() {
 		return new ArrayList<Object>();
 	}
-
-	// @Override
-	// public String getComponentType() {
-	// return "Simple Type";
-	// }
-	//
-	// @Override
-	// public String getName() {
-	// if (getTLModelObj().getLocalName() == null) {
-	// return "";
-	// }
-	// return getTLModelObj().getLocalName().isEmpty() ? "" : getTLModelObj().getLocalName();
-	// }
-
-	// @Override
-	// public String getNamePrefix() {
-	// final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
-	// return lib == null ? "" : lib.getPrefix();
-	// }
-
-	// @Override
-	// public String getNamespace() {
-	// return getTLModelObj().getNamespace();
-	// }
 
 	@Override
 	public TLSimple getTLModelObj() {
@@ -94,40 +64,15 @@ public class SimpleMO extends ModelObject<TLSimple> {
 		return true;
 	}
 
-	// @Override
-	// public boolean isSimpleList() {
-	// return srcObj.isListTypeInd();
-	// }
-
-	// @Override
-	// public void setList(final boolean selected) {
-	// getTLModelObj().setPattern("");
-	// getTLModelObj().setListTypeInd(selected);
-	// }
-
 	@Override
 	public boolean setName(final String name) {
 		getTLModelObj().setName(name);
 		return true;
 	}
 
-	// @Override
-	// public void setTLType(final ModelObject<?> mo) {
-	// Object tlObj = null;
-	// if (mo != null)
-	// tlObj = mo.getTLModelObj();
-	// if (tlObj instanceof TLAttributeType)
-	// getTLModelObj().setParentType((TLAttributeType) mo.getTLModelObj());
-	// }
-
 	@Override
 	public void setTLType(final NamedEntity tlObj) {
 		getTLModelObj().setParentType((TLAttributeType) tlObj);
 	}
-
-	// @Override
-	// protected AbstractLibrary getLibrary(final TLSimple obj) {
-	// return obj.getOwningLibrary();
-	// }
 
 }

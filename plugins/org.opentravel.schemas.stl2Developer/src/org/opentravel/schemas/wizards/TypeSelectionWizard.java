@@ -113,6 +113,8 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 					setNodeList.add(0, n); // why in front of list?
 					if (n instanceof ActionFacet)
 						coreAndChoice = true;
+					else if (n instanceof ResourceNode)
+						resource = true;
 					else if (n.getLaterVersions() != null)
 						versions = true;
 					else if (n.getOwningComponent() instanceof VWA_Node)
@@ -121,8 +123,6 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 						simple = true;
 					else if (n instanceof ServiceNode)
 						service = true;
-					else if (n instanceof ResourceNode)
-						resource = true;
 					else if (n instanceof ElementReferenceNode)
 						idReference = true;
 					else if (n instanceof ContextualFacetNode)

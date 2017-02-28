@@ -244,7 +244,8 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 
 	@Override
 	public boolean isNameEditable() {
-		return true;
+		return super.isEditable();
+		// return true;
 	}
 
 	@Override

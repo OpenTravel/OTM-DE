@@ -75,24 +75,34 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 			decoration.addSuffix(getLibraryDecoration((LibraryNode) element));
 			if (!((LibraryNode) element).isValid())
 				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
+
 		} else if (element instanceof LibraryChainNode) {
 			LibraryNode head = ((LibraryChainNode) element).getHead();
 			if (!((LibraryChainNode) element).isValid())
 				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
 			decoration.addSuffix(getLibraryDecoration(head));
+
 		} else if (element instanceof RepositoryInstanceNode) {
 			decoration.addSuffix(getRepositoryNameDecoration((RepositoryInstanceNode) element));
+
 		} else if (element instanceof RepositoryChainNode) {
 			RepositoryChainNode node = (RepositoryChainNode) element;
 			decoration.addSuffix(getNamespaceDecoration(node));
+
 		} else if (element instanceof RepositoryItemNode) {
 			RepositoryItemNode node = (RepositoryItemNode) element;
 			decoration.addSuffix(getRepositoryItemDecoration(node.getItem()));
+
 		} else if (element instanceof RepositoryRootNsNode) {
 			decoration.addSuffix(getNamespaceDecoration((RepositoryRootNsNode) element));
+
 		} else if (element instanceof ResourceNode) {
+			String txt = ((ResourceNode) element).getDecoration();
+			if (!txt.isEmpty())
+				decoration.addSuffix(txt);
 			if (!((ResourceMemberInterface) element).isValid())
 				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
+
 		} else if (element instanceof ResourceMemberInterface) {
 			if (!((ResourceMemberInterface) element).isValid())
 				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
@@ -101,14 +111,17 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 			// } else if (element instanceof PropertyNode) {
 			// if (((PropertyNode) element).getAssignedType() == ModelNode.getUnassignedNode())
 			// decoration.addOverlay(warningDesc(), IDecoration.BOTTOM_LEFT);
+
 		} else if (element instanceof NavNode) {
 			decoration.addSuffix("  (" + (((NavNode) element).getChildren().size() + " Objects)"));
+
 		} else if (element instanceof LibraryMemberInterface) {
 			String nodeTxt = ((Node) element).getDecoration();
 			if (!nodeTxt.isEmpty())
 				decoration.addSuffix(nodeTxt);
 			if (!((LibraryMemberInterface) element).isValid())
 				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
+
 		} else if (element instanceof ContextualFacetNode) {
 			String nodeTxt = ((ContextualFacetNode) element).getDecoration();
 			if (!nodeTxt.isEmpty())

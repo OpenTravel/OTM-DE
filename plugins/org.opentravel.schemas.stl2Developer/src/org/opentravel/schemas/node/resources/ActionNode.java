@@ -184,7 +184,8 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 
 	@Override
 	public boolean isNameEditable() {
-		return true;
+		return super.isEditable();
+		// return true;
 	}
 
 	@Override

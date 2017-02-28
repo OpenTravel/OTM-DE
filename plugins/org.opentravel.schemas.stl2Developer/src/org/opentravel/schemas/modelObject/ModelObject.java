@@ -97,14 +97,6 @@ public abstract class ModelObject<TL> {
 		this.node = node;
 	}
 
-	// public AbstractLibrary getOwningLibrary() {
-	// return srcObj instanceof LibraryMember ? ((LibraryMember) srcObj).getOwningLibrary() : null;
-	// }
-
-	// public String getAssignedName() {
-	// return getTLType() == null || getTLType().getLocalName() == null ? "" : getTLType().getLocalName();
-	// }
-
 	public String getAssignedPrefix() {
 		final NamedEntity type = getTLType();
 		if (type == null)
@@ -135,11 +127,6 @@ public abstract class ModelObject<TL> {
 		return Collections.emptyList();
 	}
 
-	// /**
-	// * @return - Return the type name of the component
-	// */
-	// public abstract String getComponentType();
-
 	public TLDocumentation getDocumentation() {
 		TLDocumentation tld = null;
 		if (this.isDocumentationOwner()) {
@@ -167,12 +154,6 @@ public abstract class ModelObject<TL> {
 			docOwner.setDocumentation(documentation);
 		}
 	}
-
-	// protected abstract AbstractLibrary getLibrary(TL obj);
-
-	// public abstract String getNamePrefix();
-
-	// public abstract String getNamespace(); // TL*.getNamespace() is only implemented for some TL* classes/interfaces
 
 	/**
 	 * Get the local name of the extension type.
@@ -202,10 +183,6 @@ public abstract class ModelObject<TL> {
 
 	public abstract TL getTLModelObj();
 
-	// public boolean isMandatory() {
-	// return false;
-	// }
-
 	// 6/30 - seems broken. did not find AttributeMO
 	// USED ALOT
 	// Assert.assertTrue(ap.getModelObject().isSimpleAssignable());
@@ -213,24 +190,11 @@ public abstract class ModelObject<TL> {
 		return false;
 	}
 
-	// public boolean setMandatory(final boolean selection) {
-	// return false;
-	// }
-
 	public abstract boolean setName(String name);
 
 	public boolean setRepeat(final int count) {
 		return false;
 	}
-
-	// /**
-	// * Set the type of underlying TL Model object. Also assure the name conforms to the rules for that type of
-	// property.
-	// *
-	// * @param mo
-	// */
-	// public void setTLType(final ModelObject<?> mo) {
-	// }
 
 	/**
 	 * This should only be used by sub-types. The sub-types set the TL model objects.
@@ -393,9 +357,6 @@ public abstract class ModelObject<TL> {
 		infoDoc.setText(string);
 	}
 
-	// public void addAlias(final TLAlias tla) {
-	// }
-
 	public void addToLibrary(AbstractLibrary tlLibrary) {
 		if (srcObj instanceof LibraryMember && tlLibrary instanceof TLLibrary) {
 			LibraryMember lm = (LibraryMember) srcObj;
@@ -416,10 +377,6 @@ public abstract class ModelObject<TL> {
 		// LOGGER.debug("ModelObject:moveDpwn() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
 		return false;
 	}
-
-	// protected int indexOf() {
-	// return 0;
-	// }
 
 	public void removeFromTLParent() {
 	}
@@ -444,14 +401,6 @@ public abstract class ModelObject<TL> {
 		// return type;
 		return null;
 	}
-
-	// /**
-	// * Get the type name from the TL model object. NOTE: this should only be used for GUI hints and NOT type
-	// * assignments.
-	// */
-	// public String getTypeName() {
-	// return "";
-	// }
 
 	public NamedEntity getTLBase() {
 		return null;
@@ -527,13 +476,6 @@ public abstract class ModelObject<TL> {
 		return list;
 	}
 
-	// public void setList(boolean selected) {
-	// }
-
-	// public boolean isSimpleList() {
-	// return false;
-	// }
-
 	public void sort() {
 		// LOGGER.debug("ModelObject:sort() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
 	}
@@ -546,15 +488,6 @@ public abstract class ModelObject<TL> {
 	public boolean addChild(TLModelElement child) {
 		return false;
 	}
-
-	// /**
-	// * Create new TLFacet and add to facet owner. Overridden in objects that support adding facets.
-	// *
-	// * @return the newly added TLFacet or null
-	// */
-	// public TLFacet addFacet(TLFacetType type) {
-	// return null;
-	// }
 
 	protected static String emptyIfNull(final String string) {
 		return string == null ? "" : string;

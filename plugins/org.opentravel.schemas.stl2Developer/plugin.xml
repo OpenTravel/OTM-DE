@@ -969,7 +969,9 @@
 				</with>
 			</enabledWhen>
 		</handler>
-		<!-- Resource Commands -->
+		<!-- 
+		Resource Commands 
+		-->
 		<handler class="org.opentravel.schemas.commands.ResourceCommandHandler"
 			commandId="org.opentravel.schemas.commands.newResource">
 			<enabledWhen>
@@ -993,38 +995,111 @@
 		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
 			commandId="org.opentravel.schemas.commands.newResource.DELETE">
 			<enabledWhen>
-			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
+				<with variable="org.opentravel.schemas.selection.nodes">
+					<iterate ifEmpty="false" operator="or">
+						<test property="stl2Developer.selection.newToChain">
+						</test>
+					</iterate>
+				</with>
 			</enabledWhen>
+			<activeWhen>
+				<with variable="activeMenu">
+					<iterate ifEmpty="false" operator="or">
+						<equals value="org.opentravel.schemas.stl2Developer.ResourceView">
+						</equals>
+					</iterate>
+				</with>
+			</activeWhen>
 		</handler>
 		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
 			commandId="org.opentravel.schemas.commands.newResource.ACTION">
 			<enabledWhen>
-			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
+				<with variable="org.opentravel.schemas.selection.nodes">
+					<iterate ifEmpty="false" operator="or">
+						<test property="stl2Developer.selection.newToChain">
+						</test>
+					</iterate>
+				</with>
 			</enabledWhen>
+			<activeWhen>
+				<with variable="activeMenu">
+					<iterate ifEmpty="false" operator="or">
+						<equals value="org.opentravel.schemas.stl2Developer.ResourceView">
+						</equals>
+					</iterate>
+				</with>
+			</activeWhen>
 		</handler>
 		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
 			commandId="org.opentravel.schemas.commands.newResource.ACTIONFACET">
 			<enabledWhen>
-			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
+				<with variable="org.opentravel.schemas.selection.nodes">
+					<iterate ifEmpty="false" operator="or">
+						<test property="stl2Developer.selection.newToChain">
+						</test>
+					</iterate>
+				</with>
 			</enabledWhen>
+			<activeWhen>
+				<with variable="activeMenu">
+					<iterate ifEmpty="false" operator="or">
+						<equals value="org.opentravel.schemas.stl2Developer.ResourceView">
+						</equals>
+					</iterate>
+				</with>
+			</activeWhen>
 		</handler>
 		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
 			commandId="org.opentravel.schemas.commands.newResource.ACTIONRESPONSE">
 			<enabledWhen>
 			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
 			</enabledWhen>
+			<activeWhen>
+				<with variable="activeMenu">
+					<iterate ifEmpty="false" operator="or">
+						<equals value="org.opentravel.schemas.stl2Developer.ResourceView">
+						</equals>
+					</iterate>
+				</with>
+			</activeWhen>
 		</handler>
 		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
 			commandId="org.opentravel.schemas.commands.newResource.PARAMGROUP">
 			<enabledWhen>
-			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
+				<with variable="org.opentravel.schemas.selection.nodes">
+					<iterate ifEmpty="false" operator="or">
+						<test property="stl2Developer.selection.newToChain">
+						</test>
+					</iterate>
+				</with>
 			</enabledWhen>
+			<activeWhen>
+				<with variable="activeMenu">
+					<iterate ifEmpty="false" operator="or">
+						<equals value="org.opentravel.schemas.stl2Developer.ResourceView">
+						</equals>
+					</iterate>
+				</with>
+			</activeWhen>
 		</handler>
 		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
 			commandId="org.opentravel.schemas.commands.newResource.PARENTREF">
 			<enabledWhen>
-			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
+				<with variable="org.opentravel.schemas.selection.nodes">
+					<iterate ifEmpty="false" operator="or">
+						<test property="stl2Developer.selection.newToChain">
+						</test>
+					</iterate>
+				</with>
 			</enabledWhen>
+			<activeWhen>
+				<with variable="activeMenu">
+					<iterate ifEmpty="false" operator="or">
+						<equals value="org.opentravel.schemas.stl2Developer.ResourceView">
+						</equals>
+					</iterate>
+				</with>
+			</activeWhen>
 		</handler>
 		
 		<handler class="org.opentravel.schemas.commands.CreateProjectFromRepo"

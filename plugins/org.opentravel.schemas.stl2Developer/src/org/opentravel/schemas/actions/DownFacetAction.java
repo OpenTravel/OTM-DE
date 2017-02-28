@@ -25,7 +25,7 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.views.TypeView;
 
 /**
- * @author Agnieszka Janowska
+ * @author Dave Hollander
  * 
  */
 public class DownFacetAction extends OtmAbstractAction {
@@ -34,27 +34,18 @@ public class DownFacetAction extends OtmAbstractAction {
 		super(mainWindow, props);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.Action#run()
-	 */
 	@Override
 	public void run() {
 		final TypeView view = OtmRegistry.getTypeView();
 		if (view != null) {
-			boolean ret = true;
-
-			for (final Node n : view.getSelectedNodes()) {
-				if (!n.moveProperty(PropertyNode.DOWN) || ret == false) {
-					ret = false;
-				}
-			}
-			if (ret) {
+			boolean ret = false;
+			for (final Node n : view.getSelectedNodes())
+				if (n instanceof PropertyNode)
+					ret = ((PropertyNode) n).moveProperty(PropertyNode.DOWN);
+			if (ret)
 				view.setFacetViewFocus(1);
-			} else {
+			else
 				DialogUserNotifier.openInformation("WARNING", Messages.getString("action.move.warning"));
-			}
 		}
 	}
 
@@ -64,12 +55,7 @@ public class DownFacetAction extends OtmAbstractAction {
 			return false;
 		if (!(currentNode instanceof PropertyNode))
 			return false;
-
 		return (currentNode.isEditable_newToChain());
-
-		// if (currentNode.getChain() != null)
-		// return currentNode.getChain().getEditStatus().equals(NodeEditStatus.FULL);
-		// return currentNode.isEditable();
 	}
 
 }

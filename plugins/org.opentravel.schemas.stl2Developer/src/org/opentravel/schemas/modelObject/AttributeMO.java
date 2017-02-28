@@ -59,25 +59,6 @@ public class AttributeMO extends ModelObject<TLAttribute> {
 		}
 	}
 
-	// @Deprecated
-	// @Override
-	// public String getName() {
-	// return getTLModelObj().getName() == null || getTLModelObj().getName().isEmpty() ? "" : getTLModelObj()
-	// .getName();
-	// }
-
-	// // Model does not know what namespace the attribute or its owning component
-	// // is in.
-	// @Override
-	// public String getNamePrefix() {
-	// return "";
-	// }
-
-	// @Override
-	// public String getNamespace() {
-	// return "";
-	// }
-
 	@Override
 	public TLAttribute getTLModelObj() {
 		return srcObj;
@@ -88,30 +69,10 @@ public class AttributeMO extends ModelObject<TLAttribute> {
 		return srcObj.getType();
 	}
 
-	// @Override
-	// public String getTypeName() {
-	// return srcObj != null ? ((TLAttribute) srcObj).getTypeName() : "";
-	// }
-
-	// @Override
-	// public String getComponentType() {
-	// return "Attribute";
-	// }
-
-	// @Override
-	// protected AbstractLibrary getLibrary(final TLAttribute obj) {
-	// return null;
-	// }
-
 	protected int indexOf() {
 		final TLAttribute thisProp = getTLModelObj();
 		return thisProp.getOwner().getAttributes().indexOf(thisProp);
 	}
-
-	// @Override
-	// public boolean isMandatory() {
-	// return getTLModelObj().isMandatory();
-	// }
 
 	/**
 	 * Move if you can, return false if you can not.
@@ -137,45 +98,11 @@ public class AttributeMO extends ModelObject<TLAttribute> {
 		return false;
 	}
 
-	// @Override
-	// public boolean setMandatory(final boolean selection) {
-	// getTLModelObj().setMandatory(selection);
-	// return true;
-	// }
-
 	@Override
 	public boolean setName(final String name) {
 		getTLModelObj().setName(name);
-		// LOGGER.debug("Set attr name to: " + name);
 		return true;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.modelObject.ModelObject#clearTLType()
-	 */
-	@Override
-	public void clearTLType() {
-		// this.type = null;
-		this.srcObj.setType(null);
-	}
-
-	// @Override
-	// public void setTLType(final ModelObject<?> mo) {
-	// Object tlObj = null;
-	// if (mo != null)
-	// tlObj = mo.getTLModelObj();
-	// if (tlObj instanceof TLAttributeType) {
-	// final TLAttributeType attributeType = (TLAttributeType) tlObj;
-	// getTLModelObj().setType(attributeType);
-	// // super.setTLType(attributeType);
-	//
-	// // Assure attribute names conform to the rules
-	// if (!((Node) getNode()).isXsdType())
-	// setName(NodeNameUtils.fixAttributeName(node.getName()));
-	// }
-	// }
 
 	@Override
 	public void setTLType(final NamedEntity tlObj) {
@@ -184,7 +111,6 @@ public class AttributeMO extends ModelObject<TLAttribute> {
 		else
 			LOGGER.debug("Tried to set tlAttribute with " + tlObj.getLocalName() + " of class "
 					+ tlObj.getClass().getSimpleName());
-
 	}
 
 }

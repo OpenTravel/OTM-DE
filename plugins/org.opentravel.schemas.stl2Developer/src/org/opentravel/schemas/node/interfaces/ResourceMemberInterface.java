@@ -82,6 +82,8 @@ public interface ResourceMemberInterface {
 
 	public boolean hasChildren();
 
+	public boolean isEditable();
+
 	public boolean isNameEditable();
 
 	/**

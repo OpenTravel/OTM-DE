@@ -60,43 +60,10 @@ public class ElementPropertyMO extends ModelObject<TLProperty> {
 
 	@Override
 	public void removeFromTLParent() {
-		if (getTLModelObj().getPropertyOwner() != null) {
-			getTLModelObj().getPropertyOwner().removeProperty(getTLModelObj());
+		if (getTLModelObj().getOwner() != null) {
+			getTLModelObj().getOwner().removeProperty(getTLModelObj());
 		}
 	}
-
-	// @Deprecated
-	// @Override
-	// public String getName() {
-	// return getTLModelObj() == null || getTLModelObj().getName() == null || getTLModelObj().getName().isEmpty() ? ""
-	// : getTLModelObj().getName();
-	// }
-
-	// /**
-	// * Returns the repeat count - returns a 1 if tl object is 0 because that is the xsd default the user expects to
-	// see.
-	// */
-	// @Override
-	// public int getRepeat() {
-	// return getTLModelObj().getRepeat() == 0 ? 1 : getTLModelObj().getRepeat();
-	// }
-
-	// // Model does not know what namespace the attribute or its owning component
-	// // is in.
-	// @Override
-	// public String getNamePrefix() {
-	// return "";
-	// }
-
-	// @Override
-	// public String getNamespace() {
-	// return "";
-	// }
-
-	// @Override
-	// public String getComponentType() {
-	// return "Element";
-	// }
 
 	@Override
 	public TLProperty getTLModelObj() {
@@ -108,11 +75,6 @@ public class ElementPropertyMO extends ModelObject<TLProperty> {
 		return srcObj.getType();
 	}
 
-	// @Override
-	// public String getTypeName() {
-	// return ((TLProperty) srcObj).getTypeName();
-	// }
-
 	/**
 	 * Get the index (0..sizeof()) of this property in the facet list. Use Node.indexTLProperty().
 	 */
@@ -120,17 +82,6 @@ public class ElementPropertyMO extends ModelObject<TLProperty> {
 		final TLProperty thisProp = getTLModelObj();
 		return thisProp.getOwner().getElements().indexOf(thisProp);
 	}
-
-	// @Override
-	// public boolean isMandatory() {
-	// return getTLModelObj().isMandatory();
-	// }
-
-	// @Override
-	// public boolean setMandatory(final boolean selection) {
-	// getTLModelObj().setMandatory(selection);
-	// return true;
-	// }
 
 	/**
 	 * Business logic about correct name done at node level.
@@ -165,28 +116,6 @@ public class ElementPropertyMO extends ModelObject<TLProperty> {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.modelObject.ModelObject#clearTLType()
-	 */
-	@Override
-	public void clearTLType() {
-		// this.type = null;
-		this.srcObj.setType(null);
-	}
-
-	// @Override
-	// public void setTLType(final ModelObject<?> mo) {
-	// Object tlObj = null;
-	// if (mo != null)
-	// tlObj = mo.getTLModelObj();
-	// if (tlObj instanceof TLPropertyType) {
-	// final TLPropertyType propertyType = (TLPropertyType) tlObj;
-	// getTLModelObj().setType(propertyType);
-	// }
-	// }
-
 	@Override
 	public void setTLType(final NamedEntity tlObj) {
 		getTLModelObj().setType((TLPropertyType) tlObj);
@@ -197,18 +126,4 @@ public class ElementPropertyMO extends ModelObject<TLProperty> {
 		getTLModelObj().setRepeat(cnt);
 		return true;
 	}
-
-	// @Override
-	// protected AbstractLibrary getLibrary(final TLProperty obj) {
-	// return null;
-	// }
-
-	// public boolean isID_Reference() {
-	// return srcObj.isReference();
-	// }
-	//
-	// public void setToReference(boolean state) {
-	// srcObj.setReference(state);
-	// }
-
 }

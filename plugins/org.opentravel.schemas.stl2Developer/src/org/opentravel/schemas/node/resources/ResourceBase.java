@@ -220,6 +220,11 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 	}
 
 	@Override
+	public boolean isEditable() {
+		return getLibrary().isEditable();
+	}
+
+	@Override
 	public boolean isValid() {
 		// Set false when checking ONLY this object and its children
 		return !isDeleted() ? TLModelCompileValidator.validateModelElement((TLModelElement) tlObj, false).count(

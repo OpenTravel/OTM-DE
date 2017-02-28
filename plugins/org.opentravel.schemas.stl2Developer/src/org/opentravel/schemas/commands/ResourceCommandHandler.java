@@ -42,7 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Command Handler for resource related commands.
+ * Command Handler for resource related commands. Commands are enabled/disabled in plugin.xml handler extensions.
  * 
  * @author Dave Hollander
  *
@@ -158,7 +158,7 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 		case DELETE:
 			Node owner = selectedNode.getOwningComponent();
 			for (Node n : view.getSelectedNodes())
-				if (n.isDeleteable())
+				if (owner.isEditable() && n.isDeleteable())
 					n.delete();
 				else
 					postWarning(type, n);

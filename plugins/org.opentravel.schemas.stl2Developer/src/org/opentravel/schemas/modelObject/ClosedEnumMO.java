@@ -55,20 +55,10 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 			srcObj.getOwningLibrary().removeNamedMember(srcObj);
 	}
 
-	// @Override
-	// protected AbstractLibrary getLibrary(final TLClosedEnumeration obj) {
-	// return obj.getOwningLibrary();
-	// }
-
 	@Override
 	public List<TLEnumValue> getChildren() {
 		return getTLModelObj().getValues();
 	}
-
-	// @Override
-	// public String getComponentType() {
-	// return "Closed Enumeration";
-	// }
 
 	/**
 	 * @return the TLClosedEnumeration that extends the passed enum if any
@@ -107,10 +97,6 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 	@Override
 	public List<?> getInheritedChildren() {
 		final List<TLModelElement> inheritedKids = new ArrayList<TLModelElement>();
-		// final TLClosedEnumeration closedEnum = getTLModelObj();
-		// TLAttribute other = new TLAttribute();
-		// other.setName("Other_" + closedEnum.getName());
-		// inheritedKids.add(other);
 		inheritedKids.addAll(getInheritedValues());
 		// The Codegen utils also insert non-inherited values
 		// inheritedKids.addAll(EnumCodegenUtils.getInheritedValues(getTLModelObj()));
@@ -134,17 +120,6 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 		return valueList;
 	}
 
-	// @Deprecated
-	// @Override
-	// public String getName() {
-	// return getTLModelObj().getName();
-	// }
-
-	// @Override
-	// public String getNamespace() {
-	// return getTLModelObj().getNamespace();
-	// }
-
 	@Override
 	public TLClosedEnumeration getTLModelObj() {
 		return srcObj;
@@ -154,12 +129,6 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 	public NamedEntity getTLBase() {
 		return srcObj.getExtension() != null ? srcObj.getExtension().getExtendsEntity() : null;
 	}
-
-	// @Override
-	// public String getNamePrefix() {
-	// final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
-	// return lib == null ? "" : lib.getPrefix();
-	// }
 
 	/**
 	 * Is this Enum extended by <i>extension</i>? VWA does not use an TL extension handler. Use the parentType

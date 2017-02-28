@@ -39,30 +39,6 @@ public class AliasMO extends ModelObject<TLAlias> {
 		srcObj = null;
 	}
 
-	// @Override
-	// public List<?> getChildren() {
-	// return null;
-	// }
-
-	// @Override
-	// protected AbstractLibrary getLibrary(final TLAlias obj) {
-	// return null;
-	// // return obj.getOwningLibrary();
-	// }
-
-	// @Override
-	// public String getNamePrefix() {
-	// return getTLModelObj().getOwningLibrary() != null ? getTLModelObj().getOwningLibrary().getPrefix() : "";
-	// // final TLLibrary lib = (TLLibrary) getLibrary(getTLModelObj());
-	// // return lib == null ? "" : lib.getPrefix();
-	// }
-
-	// @Deprecated
-	// @Override
-	// public String getNamespace() {
-	// return getTLModelObj().getNamespace();
-	// }
-
 	@Override
 	public TLAlias getTLModelObj() {
 		return srcObj;
