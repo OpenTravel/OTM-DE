@@ -1005,21 +1005,21 @@ public class LibraryNode extends Node implements LibraryInterface {
 		assert (getParent() == null);
 	}
 
-	/**
-	 * Commit changes to the repository. {@link org.opentravel.schemas.controllers.CommitThread#run()}
-	 * 
-	 * @throws RepositoryException
-	 */
-	// TODO - why is this here when other repo actions are in libraryController?
-	public void commit() throws RepositoryException {
-		// if (OTM16Upgrade.otm16Enabled) {
-		// DialogUserNotifier.openWarning("Not Supported", "Can not commit version 1.6 libraries yet.");
-		// return;
-		// }
-		// TODO - get remarks from user
-		String remarks = "";
-		projectItem.getProjectManager().commit(this.projectItem, remarks);
-	}
+	// /**
+	// * Commit changes to the repository. {@link org.opentravel.schemas.controllers.CommitThread#run()}
+	// *
+	// * @throws RepositoryException
+	// */
+	// // TODO - why is this here when other repo actions are in libraryController?
+	// public void commit() throws RepositoryException {
+	// // if (OTM16Upgrade.otm16Enabled) {
+	// // DialogUserNotifier.openWarning("Not Supported", "Can not commit version 1.6 libraries yet.");
+	// // return;
+	// // }
+	// // TODO - get remarks from user
+	// String remarks = "";
+	// projectItem.getProjectManager().commit(this.projectItem, remarks);
+	// }
 
 	public List<RepositoryItemCommit> getCommitHistory() {
 		RepositoryItemHistory h = null;

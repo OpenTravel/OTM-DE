@@ -27,6 +27,7 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemacompiler.repository.RepositoryItemCommit;
+import org.opentravel.schemas.actions.CommitLibraryAction;
 import org.opentravel.schemas.node.NamespaceHandler;
 import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -258,7 +259,7 @@ public class LibraryPropertySource extends AbstractPropertySource<LibraryNode> {
 
 			@Override
 			public void setValue(Object value) {
-				OtmRegistry.getMainController().getRepositoryController().commit(source);
+				new CommitLibraryAction().run();
 			}
 
 			@Override
@@ -391,7 +392,7 @@ public class LibraryPropertySource extends AbstractPropertySource<LibraryNode> {
 				List<RepositoryItemCommit> histories = source.getCommitHistory();
 				RepositoryItemCommit item = null;
 				if (histories != null)
-					item = histories.get(histories.size() - 1);
+					item = histories.get(0);
 				return item != null ? item.getRemarks() + " by " + item.getUser() + " on " + item.getEffectiveOn() : "";
 			}
 

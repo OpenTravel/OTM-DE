@@ -38,7 +38,7 @@ public interface RepositoryController {
 
 	public boolean changeCredentials(String location, String userId, String password);
 
-	public boolean commit(LibraryNode source);
+	public boolean commit(LibraryNode ln, String remark);
 
 	/**
 	 * Create a new chain from the new major version created from the passed library.
@@ -129,6 +129,7 @@ public interface RepositoryController {
 	 * 
 	 * @param commitWIP
 	 *            commit library before unlocking if true, otherwise revert
+	 * @param remark
 	 */
 	public void unlock(boolean commitWIP);
 
@@ -154,5 +155,4 @@ public interface RepositoryController {
 	 * Lock the selected libraries.
 	 */
 	void lock();
-
 }

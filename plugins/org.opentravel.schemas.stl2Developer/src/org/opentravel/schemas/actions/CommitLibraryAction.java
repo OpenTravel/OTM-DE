@@ -23,6 +23,8 @@ import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.wizards.SetDocumentationWizard;
 
 /**
  * Manage a library in a repository.
@@ -44,7 +46,12 @@ public class CommitLibraryAction extends OtmAbstractAction {
 	@Override
 	public void run() {
 		for (LibraryNode ln : mc.getSelectedLibraries()) {
-			mc.getRepositoryController().commit(ln);
+			SetDocumentationWizard wizard = new SetDocumentationWizard(ln);
+			wizard.run(OtmRegistry.getActiveShell());
+			if (!wizard.wasCanceled()) {
+				String remark = wizard.getDocText();
+				mc.getRepositoryController().commit(ln, remark);
+			}
 		}
 	}
 

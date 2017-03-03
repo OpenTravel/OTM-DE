@@ -64,6 +64,7 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryTreeRoot;
 import org.opentravel.schemas.views.OtmView;
+import org.opentravel.schemas.wizards.SetDocumentationWizard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -315,7 +316,7 @@ public class DefaultRepositoryController implements RepositoryController {
 	}
 
 	@Override
-	public boolean commit(LibraryNode ln) {
+	public boolean commit(LibraryNode ln, String remark) {
 		if (!ln.isManaged()) {
 			postRepoWarning("alreadyManaged");
 			return false;
@@ -323,11 +324,16 @@ public class DefaultRepositoryController implements RepositoryController {
 		if (!post16UpgradeConfirmation())
 			return false;
 
-		CommitThread ct = new CommitThread(ln);
+		CommitThread ct = new CommitThread(ln, remark);
 		BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), ct);
 		refreshAll(ln);
 		mc.postStatus("Library " + ln + " committed.");
+		LOGGER.debug("Committed " + ln + " result = " + ct.getResult());
 		return ct.getResult();
+	}
+
+	public boolean commit(LibraryNode ln) {
+		return commit(ln, "");
 	}
 
 	@Override
@@ -354,11 +360,10 @@ public class DefaultRepositoryController implements RepositoryController {
 	@Override
 	public void unlock(boolean commitWIP) {
 		for (LibraryNode ln : mc.getSelectedLibraries()) {
-			if (commitWIP) {
+			if (commitWIP)
 				unlock(ln);
-			} else {
+			else
 				unlockAndRevert(ln);
-			}
 		}
 	}
 
@@ -369,12 +374,19 @@ public class DefaultRepositoryController implements RepositoryController {
 		if (!post16UpgradeConfirmation())
 			return false;
 
-		UnlockThread ut = new UnlockThread(ln, mc);
-		BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), ut);
-		refreshAll(ln);
-		// LOGGER.debug("UnLocked library " + this);
-		mc.postStatus("Library " + ln + " unlocked.");
-		return ut.getResult();
+		SetDocumentationWizard wizard = new SetDocumentationWizard(ln);
+		wizard.run(OtmRegistry.getActiveShell());
+		if (!wizard.wasCanceled()) {
+			String remark = wizard.getDocText();
+
+			UnlockThread ut = new UnlockThread(ln, mc, remark);
+			BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), ut);
+			refreshAll(ln);
+			// LOGGER.debug("UnLocked library " + this);
+			mc.postStatus("Library " + ln + " unlocked.");
+			return ut.getResult();
+		}
+		return false;
 	}
 
 	@Override
@@ -899,10 +911,12 @@ class UnlockThread extends Thread {
 	private LibraryNode ln;
 	private MainController mc;
 	private boolean result = false;
+	private String remark;
 
-	public UnlockThread(LibraryNode ln, MainController mc) {
+	public UnlockThread(LibraryNode ln, MainController mc, String remark) {
 		this.ln = ln;
 		this.mc = mc;
+		this.remark = remark;
 	}
 
 	public boolean getResult() {
@@ -915,9 +929,7 @@ class UnlockThread extends Thread {
 			lms.saveLibrary(ln.getTLLibrary());
 			ProjectManager pm = ((DefaultProjectController) mc.getProjectController()).getDefaultProject()
 					.getTLProject().getProjectManager();
-			// TODO - add remarks
-			String remarks = "";
-			pm.unlock(ln.getProjectItem(), true, remarks);
+			pm.unlock(ln.getProjectItem(), true, remark);
 			ln.updateLibraryStatus();
 			result = true;
 		} catch (RepositoryException e) {
@@ -934,10 +946,12 @@ class UnlockThread extends Thread {
 
 class CommitThread extends Thread {
 	private LibraryNode ln;
+	private String remark;
 	private boolean result = true;
 
-	public CommitThread(LibraryNode ln) {
+	public CommitThread(LibraryNode ln, String remark) {
 		this.ln = ln;
+		this.remark = remark;
 	}
 
 	public boolean getResult() {
@@ -946,7 +960,7 @@ class CommitThread extends Thread {
 
 	public void run() {
 		try {
-			ln.commit(); // Add comments
+			ln.getProjectItem().getProjectManager().commit(ln.getProjectItem(), remark);
 		} catch (RepositoryException e) {
 			result = false;
 			DefaultRepositoryController.postRepoException(e);
