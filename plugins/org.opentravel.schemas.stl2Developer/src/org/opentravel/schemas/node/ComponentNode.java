@@ -691,8 +691,12 @@ public abstract class ComponentNode extends Node {
 
 	// newNode is the node constructed from the TL object returned from createMinorTLVersion()
 	protected ComponentNode createMinorVersionComponent(ComponentNode newNode) {
+		assert !getOwningComponent().isInHead();
+		assert newNode instanceof ExtensionOwner;
+		// TODO - should resource be an extension owner? Is it versioned that way?
+		// 3/2/2017 - resources are not versioned via gui
 		if (newNode.getModelObject() instanceof EmptyMO) {
-			// LOGGER.debug("Empty minor version created");
+			LOGGER.debug("Empty minor version created");
 			return null;
 		}
 		Node owner = this.getOwningComponent();

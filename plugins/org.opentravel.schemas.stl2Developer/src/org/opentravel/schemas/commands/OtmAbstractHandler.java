@@ -25,6 +25,7 @@ import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.properties.Messages;
@@ -93,6 +94,7 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 	 */
 	public ComponentNode createVersionExtension(Node selectedNode) {
 		ComponentNode actOnNode = null; // The node to perform the action on.
+		FacetNode selectedFacet = null;
 		boolean result = false;
 		if (selectedNode.getChain() == null)
 			return null;
@@ -111,6 +113,11 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 
 		// If a major minor version, create a new object of same type and add base link to this.
 		else if (selectedNode.getChain().getHead().isMinorOrMajorVersion()) {
+			if (selectedNode instanceof FacetNode) {
+				// Hold onto for later and use the owner to create versioned component
+				selectedFacet = (FacetNode) selectedNode;
+				selectedNode = selectedNode.getOwningComponent();
+			}
 			if (selectedNode instanceof VersionedObjectInterface) {
 				if (result = postConfirm("action.component.version.minor", selectedNode))
 					actOnNode = ((VersionedObjectInterface) selectedNode).createMinorVersionComponent();
@@ -129,6 +136,12 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 			DialogUserNotifier.openWarning("Error", "Could not create minor version of " + selectedNode
 					+ ". Try validating the library and correcting any problems reported.");
 
+		// If not null then return the matching facet in the new component
+		if (selectedFacet != null) {
+			for (Node n : actOnNode.getChildren())
+				if (n.getName().equals(selectedFacet.getName()))
+					actOnNode = (ComponentNode) n;
+		}
 		return actOnNode;
 	}
 

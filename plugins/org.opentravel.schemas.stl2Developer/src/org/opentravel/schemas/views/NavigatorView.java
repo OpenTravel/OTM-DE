@@ -134,7 +134,8 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 			@Override
 			public void modifyText(ModifyEvent e) {
 				textFilter.setText(filterText.getText());
-				refreshAllViews();
+				// refreshAllViews();
+				refresh();
 			}
 		});
 

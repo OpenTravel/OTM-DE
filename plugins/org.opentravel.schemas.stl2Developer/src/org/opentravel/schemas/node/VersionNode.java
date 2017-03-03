@@ -92,8 +92,9 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 	 * @return node or null
 	 */
 	public Node get() {
-		// return getChildren().isEmpty() ? null : getChildren().get(0);
-		return head;
+		// Older versions will have head set to the latest version.
+		return getChildren().isEmpty() ? null : getChildren().get(0);
+		// return head;
 	}
 
 	@Override

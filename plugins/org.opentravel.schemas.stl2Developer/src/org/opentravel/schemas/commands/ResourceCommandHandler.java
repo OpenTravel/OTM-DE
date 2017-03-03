@@ -177,7 +177,9 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 					predicate = getBusinessObject(newR);
 
 				if (predicate == null)
-					newR.setAbstract(true);
+					// 3/2/2017 dmh - make cancel exit with no resource created.
+					// newR.setAbstract(true);
+					newR.delete();
 				else
 					new ResourceBuilder().build(newR, predicate);
 				if (view != null) {

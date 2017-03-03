@@ -171,8 +171,9 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 	private void clearProperties() {
 		if (!mainWindow.hasDisplay())
 			return;
+		if (propertyComposite.isDisposed())
+			return;
 		widgets.clearTextFields(propertyComposite);
-		// widgets.clearTextFields(documentationComposite);
 		roleCombo.setEnabled(false);
 		roleCombo.setText("");
 		mandatoryButton.setEnabled(false);

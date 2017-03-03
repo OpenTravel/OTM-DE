@@ -47,6 +47,8 @@ import org.opentravel.schemacompiler.model.XSDSimpleType;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RemoteRepository;
 import org.opentravel.schemacompiler.repository.RepositoryException;
+import org.opentravel.schemacompiler.repository.RepositoryItemCommit;
+import org.opentravel.schemacompiler.repository.RepositoryItemHistory;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.util.ContextUtils;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
@@ -1017,7 +1019,17 @@ public class LibraryNode extends Node implements LibraryInterface {
 		// TODO - get remarks from user
 		String remarks = "";
 		projectItem.getProjectManager().commit(this.projectItem, remarks);
-		// LOGGER.debug("Committed " + this);
+	}
+
+	public List<RepositoryItemCommit> getCommitHistory() {
+		RepositoryItemHistory h = null;
+		try {
+			h = projectItem.getRepository().getHistory(projectItem);
+			h.getCommitHistory();// LOGGER.debug("Committed " + this);
+		} catch (RepositoryException e) {
+			LOGGER.debug("Exception: " + e.getLocalizedMessage());
+		}
+		return h != null ? h.getCommitHistory() : null;
 	}
 
 	/**
@@ -1495,39 +1507,17 @@ public class LibraryNode extends Node implements LibraryInterface {
 
 	public String getComments() {
 		String comments = "";
-		if (absTLLibrary instanceof TLLibrary) {
+		if (absTLLibrary instanceof TLLibrary)
 			comments = ((TLLibrary) absTLLibrary).getComments();
-		}
 		return emptyIfNull(comments);
 	}
 
-	// /**
-	// * Note - locally defined types are not returned, only those with public names. For XSD nodes, the OTM model node
-	// is
-	// * returned
-	// *
-	// * @return list of all named simple types in this library.
-	// */
-	// // FIXME - ONLY used in tests. move to simpleComponentNode? or remove
-	// public List<SimpleComponentNode> getDescendentsSimpleComponents() {
-	// return (getDescendentsSimpleComponents(simpleRoot));
-	// }
-	//
-	// private List<SimpleComponentNode> getDescendentsSimpleComponents(INode n) {
-	// ArrayList<SimpleComponentNode> namedKids = new ArrayList<SimpleComponentNode>();
-	// for (Node c : n.getChildren()) {
-	// // has simple, enum, family and xsd nodes in the list.
-	// if (c instanceof TypeProvider && !(c instanceof ImpliedNode)) {
-	// // if (c.isTypeProvider()) {
-	// if (c instanceof SimpleComponentNode)
-	// namedKids.add((SimpleComponentNode) c);
-	// else if (c instanceof XsdNode && ((XsdNode) c).getOtmModel() instanceof SimpleComponentNode)
-	// namedKids.add((SimpleComponentNode) ((XsdNode) c).getOtmModel());
-	// } else if (c.isNavigation())
-	// namedKids.addAll(getDescendentsSimpleComponents(c));
-	// }
-	// return namedKids;
-	// }
+	public String getRemarks() {
+		String comments = "";
+		if (absTLLibrary instanceof TLLibrary)
+			comments = ((TLLibrary) absTLLibrary).getComments();
+		return emptyIfNull(comments);
+	}
 
 	/**
 	 * @return - list of context id strings, empty list of not TLLibrary or no contexts assigned.

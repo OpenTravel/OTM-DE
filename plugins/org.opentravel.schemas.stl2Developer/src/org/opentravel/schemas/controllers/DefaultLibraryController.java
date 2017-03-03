@@ -364,38 +364,11 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		return userMessage.toString();
 	}
 
-	// /**
-	// * {@link #CloseLibrariesHandler} Libraries are now (11/11/2016) closed from Projects or LibraryNavNodes since the
-	// * library does not know which of many possible projects is the parent to be affected.
-	// */
-	// @Deprecated
-	// @Override
-	// public void remove(final Collection<? extends Node> libraries) {
-	// Set<ProjectNode> projectsToSave = new HashSet<ProjectNode>();
-	//
-	// assert (false) : "Should be dead code 11/2016";
-	// }
-
 	// SaveLibrariesHandler
 	@Override
 	public boolean saveAllLibraries(boolean quiet) {
 		return saveLibraries(Node.getAllLibraries(), quiet);
 	}
-
-	// TODO - make private or remove (changeNamespace())
-	// @Deprecated
-	// @Override
-	// public List<LibraryNode> getLibrariesWithNamespace(final String namespace) {
-	// final List<LibraryNode> toReturn = new ArrayList<LibraryNode>();
-	// if (namespace != null) {
-	// for (final INode n : Node.getAllLibraries()) {
-	// if (n instanceof LibraryNode && namespace.equals(n.getNamespace())) {
-	// toReturn.add((LibraryNode) n);
-	// }
-	// }
-	// }
-	// return toReturn;
-	// }
 
 	// org.opentravel.schemas.preferences.GeneralPreferencePage.performOk()
 	@Override
@@ -537,9 +510,4 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		return pc.add(pn, tlLib);
 	}
 
-	// @Override
-	// public void changeNamespaceExtension(LibraryNode library, String namespace) {
-	// // TODO Auto-generated method stub
-	//
-	// }
 }

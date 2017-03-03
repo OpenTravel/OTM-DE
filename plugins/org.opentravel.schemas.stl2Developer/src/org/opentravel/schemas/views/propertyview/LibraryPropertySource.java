@@ -26,6 +26,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
+import org.opentravel.schemacompiler.repository.RepositoryItemCommit;
 import org.opentravel.schemas.node.NamespaceHandler;
 import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -81,7 +82,9 @@ public class LibraryPropertySource extends AbstractPropertySource<LibraryNode> {
 				.getString("view.properties.library.label.lock"), "", Messages
 				.getString("view.properties.library.tooltip.lock")), MANAGE(Messages
 				.getString("view.properties.library.label.manage"), "", Messages
-				.getString("view.properties.library.tooltip.manage"));
+				.getString("view.properties.library.tooltip.manage")), HISTORY(Messages
+				.getString("view.properties.library.label.commitHistory"), CAT_REMOTE, Messages
+				.getString("view.properties.library.tooltip.commitHistory"));
 
 		private final String displayName;
 		private final String category;
@@ -144,6 +147,7 @@ public class LibraryPropertySource extends AbstractPropertySource<LibraryNode> {
 		setters.add(createVersion());
 		setters.add(createRepository());
 		setters.add(createStatus());
+		setters.add(createCommitHistory());
 		setters.add(createButtonBar());
 		return setters;
 	}
@@ -365,6 +369,30 @@ public class LibraryPropertySource extends AbstractPropertySource<LibraryNode> {
 			@Override
 			public Object getValue() {
 				return OtmRegistry.getMainController().getLibraryController().getLibraryStatus(source);
+			}
+
+			@Override
+			public PropertyDescriptor getPropertyDescriptor() {
+				return new PropertyDescriptor(getId(), getDisplayName());
+			}
+		};
+	}
+
+	private PropertySetter createCommitHistory() {
+		return new EnabledNodeSetter(LibProperties.HISTORY) {
+
+			@Override
+			public void setValue(Object value) {
+				// DO NOTHING
+			}
+
+			@Override
+			public Object getValue() {
+				List<RepositoryItemCommit> histories = source.getCommitHistory();
+				RepositoryItemCommit item = null;
+				if (histories != null)
+					item = histories.get(histories.size() - 1);
+				return item != null ? item.getRemarks() + " by " + item.getUser() + " on " + item.getEffectiveOn() : "";
 			}
 
 			@Override

@@ -59,274 +59,269 @@ import org.slf4j.LoggerFactory;
 
 class PropertySheetPage extends Page {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PropertySheetPage.class);
-    private static final String UNDEFINED_CATEGORY_KEY = Messages
-            .getString("view.properties.basicCategory");
-    private ScrolledForm form;
-    private IPropertySource source;
-    private NodePropertySourceFactory factory = new NodePropertySourceFactory();
-    private final FormToolkit toolkit;
-    private LocalResourceManager resManager;
-    private ISelection currentSelection;
-    private List<IExternalDependencies> disposeList = new ArrayList<IExternalDependencies>();
+	private static final Logger LOGGER = LoggerFactory.getLogger(PropertySheetPage.class);
+	private static final String UNDEFINED_CATEGORY_KEY = Messages.getString("view.properties.basicCategory");
+	private ScrolledForm form;
+	private IPropertySource source;
+	private NodePropertySourceFactory factory = new NodePropertySourceFactory();
+	private final FormToolkit toolkit;
+	private LocalResourceManager resManager;
+	private ISelection currentSelection;
+	private List<IExternalDependencies> disposeList = new ArrayList<IExternalDependencies>();
 
-    public PropertySheetPage(Node node) {
-        source = factory.createPropertySource(node);
-        toolkit = WidgetFactory.createFormToolkit(PlatformUI.getWorkbench().getDisplay());
-    }
+	public PropertySheetPage(Node node) {
+		source = factory.createPropertySource(node);
+		toolkit = WidgetFactory.createFormToolkit(PlatformUI.getWorkbench().getDisplay());
+	}
 
-    /**
-     * @param currentPart
-     * @param currentSelection
-     */
-    public void selectionChanged(IWorkbenchPart currentPart, ISelection selection) {
-        if (isSameSelection(currentSelection, selection))
-            return;
-        currentSelection = selection;
-        IStructuredSelection sel = (IStructuredSelection) currentSelection;
-        IPropertySource newSource = factory.createPropertySource((Node) sel.getFirstElement());
-        if (newSource != null) {
-            removeAll();
-            source = newSource;
-            initForm(form.getBody(), newSource);
-        }
+	/**
+	 * @param currentPart
+	 * @param currentSelection
+	 */
+	public void selectionChanged(IWorkbenchPart currentPart, ISelection selection) {
+		LOGGER.debug("Selection Changed.");
+		if (isSameSelection(currentSelection, selection))
+			return;
+		currentSelection = selection;
+		IStructuredSelection sel = (IStructuredSelection) currentSelection;
+		IPropertySource newSource = factory.createPropertySource((Node) sel.getFirstElement());
+		if (newSource != null) {
+			removeAll();
+			source = newSource;
+			initForm(form.getBody(), newSource);
+		}
 
-    }
+	}
 
-    private boolean isSameSelection(ISelection currentSelection, ISelection newSelection) {
-        if (newSelection == null) {
-            if (currentSelection == null) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return newSelection.equals(currentSelection);
-        }
-    }
+	private boolean isSameSelection(ISelection currentSelection, ISelection newSelection) {
+		if (newSelection == null) {
+			if (currentSelection == null) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return newSelection.equals(currentSelection);
+		}
+	}
 
-    private void removeAll() {
-        for (Control c : form.getBody().getChildren()) {
-            c.dispose();
-        }
-        for (IExternalDependencies ed : disposeList) {
-            ed.dispose();
-        }
-        disposeList.clear();
-        form.getForm().setText(null);
-    }
+	private void removeAll() {
+		for (Control c : form.getBody().getChildren()) {
+			c.dispose();
+		}
+		for (IExternalDependencies ed : disposeList) {
+			ed.dispose();
+		}
+		disposeList.clear();
+		form.getForm().setText(null);
+	}
 
-    @Override
-    public void createControl(Composite parent) {
-        form = toolkit.createScrolledForm(parent);
-        resManager = new LocalResourceManager(JFaceResources.getResources(), form);
-        GridLayoutFactory.fillDefaults().extendedMargins(10, 10, 10, 10).numColumns(2)
-                .applyTo(form.getBody());
-        toolkit.paintBordersFor(form.getBody());
-        if (source != null) {
-            initForm(form.getBody(), source);
-        } else {
-            createEmptyForm(form.getBody());
-        }
-    }
+	@Override
+	public void createControl(Composite parent) {
+		form = toolkit.createScrolledForm(parent);
+		resManager = new LocalResourceManager(JFaceResources.getResources(), form);
+		GridLayoutFactory.fillDefaults().extendedMargins(10, 10, 10, 10).numColumns(2).applyTo(form.getBody());
+		toolkit.paintBordersFor(form.getBody());
+		if (source == null)
+			source = factory.createPropertySource((Node) OtmRegistry.getNavigatorView().getCurrentNode());
+		if (source != null) {
+			initForm(form.getBody(), source);
+		} else {
+			createEmptyForm(form.getBody());
+		}
+	}
 
-    private void createEmptyForm(Composite body) {
-        form.setText("Please select Library, Project or Repository");
-    }
+	private void createEmptyForm(Composite body) {
+		form.setText("Please select Library, Project or Repository");
+	}
 
-    private void initForm(Composite parent, IPropertySource source) {
-        IPropertyDescriptor[] descs = source.getPropertyDescriptors();
-        Map<String, List<IPropertyDescriptor>> categories = getCategories(descs);
-        for (Entry<String, List<IPropertyDescriptor>> e : categories.entrySet()) {
-            createSection(parent, e.getKey(), e.getValue());
-        }
-        form.reflow(true);
-    }
+	private void initForm(Composite parent, IPropertySource source) {
+		IPropertyDescriptor[] descs = source.getPropertyDescriptors();
+		Map<String, List<IPropertyDescriptor>> categories = getCategories(descs);
+		for (Entry<String, List<IPropertyDescriptor>> e : categories.entrySet()) {
+			createSection(parent, e.getKey(), e.getValue());
+		}
+		form.reflow(true);
+	}
 
-    private void createSection(Composite parent, String key, List<IPropertyDescriptor> value) {
-        Section section = toolkit.createSection(parent, Section.TITLE_BAR | Section.TWISTIE
-                | Section.EXPANDED);
-        section.setText(key);
-        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, false).span(2, -1)
-                .applyTo(section);
+	private void createSection(Composite parent, String key, List<IPropertyDescriptor> value) {
+		Section section = toolkit.createSection(parent, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
+		section.setText(key);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, false).span(2, -1).applyTo(section);
 
-        parent = toolkit.createComposite(section, SWT.WRAP);
-        section.setClient(parent);
-        GridLayoutFactory.fillDefaults().extendedMargins(10, 10, 10, 10).numColumns(2)
-                .applyTo(parent);
-        for (IPropertyDescriptor pd : value) {
-            createField(parent, pd);
-        }
-    }
+		parent = toolkit.createComposite(section, SWT.WRAP);
+		section.setClient(parent);
+		GridLayoutFactory.fillDefaults().extendedMargins(10, 10, 10, 10).numColumns(2).applyTo(parent);
+		for (IPropertyDescriptor pd : value) {
+			createField(parent, pd);
+		}
+	}
 
-    private void createField(Composite parent, final IPropertyDescriptor pd) {
-        Label label = toolkit.createLabel(parent, pd.getDisplayName());
-        label.setToolTipText(pd.getDescription());
+	private void createField(Composite parent, final IPropertyDescriptor pd) {
+		Label label = toolkit.createLabel(parent, pd.getDisplayName());
+		label.setToolTipText(pd.getDescription());
 
-        Object value = source.getPropertyValue(pd.getId());
-        if (value instanceof IPropertySource) {
-            Composite composite = toolkit.createComposite(parent);
-            composite.setLayout(new RowLayout());
-            for (IPropertyDescriptor desc : ((IPropertySource) value).getPropertyDescriptors()) {
-                createPropertyDescritpor(composite, desc, null, (IPropertySource) value);
-            }
-            GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, false)
-                    .applyTo(composite);
-        } else {
-            GridData layoutData = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL)
-                    .grab(true, false).create();
-            createPropertyDescritpor(parent, pd, layoutData, source);
-        }
+		Object value = source.getPropertyValue(pd.getId());
+		if (value instanceof IPropertySource) {
+			Composite composite = toolkit.createComposite(parent);
+			composite.setLayout(new RowLayout());
+			for (IPropertyDescriptor desc : ((IPropertySource) value).getPropertyDescriptors()) {
+				createPropertyDescritpor(composite, desc, null, (IPropertySource) value);
+			}
+			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(composite);
+		} else {
+			GridData layoutData = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, false).create();
+			createPropertyDescritpor(parent, pd, layoutData, source);
+		}
 
-    }
+	}
 
-    private void createPropertyDescritpor(Composite parent, IPropertyDescriptor pd,
-            Object layoutData, IPropertySource source) {
-        Control cellControl = null;
-        GridData customGD = null;
-        CellEditor ce = null;
-        if (pd instanceof IFormPropertyDescriptor) {
-            ce = ((IFormPropertyDescriptor) pd).createPropertyEditor(toolkit);
-            customGD = ((IFormPropertyDescriptor) pd).getCustomGridData();
-            PropertyCellEditorListener l = new PropertyCellEditorListener(pd.getId(), ce, source);
-            ce.addListener(l);
-        } else {
-            ce = new ReadOnlyCellEditor(toolkit);
-        }
-        ce.create(parent);
-        if (pd instanceof IReadonlyPropertyDescriptor) {
-            ce.getControl().setEnabled(!((IReadonlyPropertyDescriptor) pd).isReadonly());
-        }
-        if (pd instanceof IExternalDependencies) {
-            ((IExternalDependencies) pd).init(this);
-            disposeList.add((IExternalDependencies) pd);
-        }
-        ce.setValue(source.getPropertyValue(pd.getId()));
-        cellControl = ce.getControl();
-        cellControl.setToolTipText(pd.getDescription());
-        if (customGD != null) {
-            cellControl.setLayoutData(customGD);
-        } else {
-            cellControl.setLayoutData(layoutData);
-        }
-    }
+	private void createPropertyDescritpor(Composite parent, IPropertyDescriptor pd, Object layoutData,
+			IPropertySource source) {
+		Control cellControl = null;
+		GridData customGD = null;
+		CellEditor ce = null;
+		if (pd instanceof IFormPropertyDescriptor) {
+			ce = ((IFormPropertyDescriptor) pd).createPropertyEditor(toolkit);
+			customGD = ((IFormPropertyDescriptor) pd).getCustomGridData();
+			PropertyCellEditorListener l = new PropertyCellEditorListener(pd.getId(), ce, source);
+			ce.addListener(l);
+		} else {
+			ce = new ReadOnlyCellEditor(toolkit);
+		}
+		ce.create(parent);
+		if (pd instanceof IReadonlyPropertyDescriptor) {
+			ce.getControl().setEnabled(!((IReadonlyPropertyDescriptor) pd).isReadonly());
+		}
+		if (pd instanceof IExternalDependencies) {
+			((IExternalDependencies) pd).init(this);
+			disposeList.add((IExternalDependencies) pd);
+		}
+		ce.setValue(source.getPropertyValue(pd.getId()));
+		cellControl = ce.getControl();
+		cellControl.setToolTipText(pd.getDescription());
+		if (customGD != null) {
+			cellControl.setLayoutData(customGD);
+		} else {
+			cellControl.setLayoutData(layoutData);
+		}
+	}
 
-    private Map<String, List<IPropertyDescriptor>> getCategories(
-            IPropertyDescriptor[] propertyDescriptors) {
-        Map<String, List<IPropertyDescriptor>> categories = new LinkedHashMap<String, List<IPropertyDescriptor>>();
-        for (IPropertyDescriptor desc : propertyDescriptors) {
-            String cat = desc.getCategory();
-            if (cat == null) {
-                cat = UNDEFINED_CATEGORY_KEY;
-            }
-            List<IPropertyDescriptor> descs = categories.get(cat);
-            if (descs == null) {
-                descs = new ArrayList<IPropertyDescriptor>(5);
-                categories.put(cat, descs);
-            }
-            descs.add(desc);
-        }
-        return categories;
-    }
+	private Map<String, List<IPropertyDescriptor>> getCategories(IPropertyDescriptor[] propertyDescriptors) {
+		Map<String, List<IPropertyDescriptor>> categories = new LinkedHashMap<String, List<IPropertyDescriptor>>();
+		for (IPropertyDescriptor desc : propertyDescriptors) {
+			String cat = desc.getCategory();
+			if (cat == null) {
+				cat = UNDEFINED_CATEGORY_KEY;
+			}
+			List<IPropertyDescriptor> descs = categories.get(cat);
+			if (descs == null) {
+				descs = new ArrayList<IPropertyDescriptor>(5);
+				categories.put(cat, descs);
+			}
+			descs.add(desc);
+		}
+		return categories;
+	}
 
-    public void refresh() {
-        IStructuredSelection sel = (IStructuredSelection) currentSelection;
-        if (sel != null) {
-        	IPropertySource newSource = factory.createPropertySource((Node) sel.getFirstElement());
-        	if (newSource != null) {
-        		removeAll();
-        		source = newSource;
-        		initForm(form.getBody(), newSource);
-        	}
-        }
-    }
+	public void refresh() {
+		IStructuredSelection sel = (IStructuredSelection) currentSelection;
+		if (sel != null) {
+			IPropertySource newSource = factory.createPropertySource((Node) sel.getFirstElement());
+			if (newSource != null) {
+				removeAll();
+				source = newSource;
+				initForm(form.getBody(), newSource);
+			}
+		}
+	}
 
-    @Override
-    public Control getControl() {
-        return form;
-    }
+	@Override
+	public Control getControl() {
+		return form;
+	}
 
-    @Override
-    public void setFocus() {
-        form.setFocus();
-    }
+	@Override
+	public void setFocus() {
+		form.setFocus();
+	}
 
-    class PropertyCellEditorListener implements ICellEditorListener {
+	class PropertyCellEditorListener implements ICellEditorListener {
 
-        private Object id;
-        private CellEditor editor;
-        private IPropertySource source;
+		private Object id;
+		private CellEditor editor;
+		private IPropertySource source;
 
-        public PropertyCellEditorListener(Object id, CellEditor editor, IPropertySource source) {
-            this.id = id;
-            this.editor = editor;
-            this.source = source;
-        }
+		public PropertyCellEditorListener(Object id, CellEditor editor, IPropertySource source) {
+			this.id = id;
+			this.editor = editor;
+			this.source = source;
+		}
 
-        @Override
-        public void applyEditorValue() {
-            try {
-                source.setPropertyValue(id, editor.getValue());
-            } catch (IllegalArgumentException ex) {
-                DialogUserNotifier.openError("ERROR", ex.getMessage());
-                LOGGER.info("Error on setting property [" + id + "]: " + ex.getMessage());
-            }
-            refresh();
-            OtmRegistry.getMainController().refresh();
-        }
+		@Override
+		public void applyEditorValue() {
+			try {
+				source.setPropertyValue(id, editor.getValue());
+			} catch (IllegalArgumentException ex) {
+				DialogUserNotifier.openError("ERROR", ex.getMessage());
+				LOGGER.info("Error on setting property [" + id + "]: " + ex.getMessage());
+			}
+			refresh();
+			OtmRegistry.getMainController().refresh();
+		}
 
-        @Override
-        public void cancelEditor() {
-        }
+		@Override
+		public void cancelEditor() {
+		}
 
-        @Override
-        public void editorValueChanged(boolean oldValidState, boolean newValidState) {
-        }
+		@Override
+		public void editorValueChanged(boolean oldValidState, boolean newValidState) {
+		}
 
-    }
+	}
 
-    class ReadOnlyCellEditor extends FormCellEditor {
+	class ReadOnlyCellEditor extends FormCellEditor {
 
-        private Text text;
-        private final FormToolkit toolkit;
+		private Text text;
+		private final FormToolkit toolkit;
 
-        public ReadOnlyCellEditor(FormToolkit toolkit) {
-            this.toolkit = toolkit;
-        }
+		public ReadOnlyCellEditor(FormToolkit toolkit) {
+			this.toolkit = toolkit;
+		}
 
-        @Override
-        protected Control createControl(Composite parent) {
-            text = toolkit.createText(parent, "");
-            text.setBackground(resManager.createColor(new RGB(240, 240, 240)));
-            text.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
-            text.setEditable(false);
-            return text;
-        }
+		@Override
+		protected Control createControl(Composite parent) {
+			text = toolkit.createText(parent, "");
+			text.setBackground(resManager.createColor(new RGB(240, 240, 240)));
+			text.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
+			text.setEditable(false);
+			return text;
+		}
 
-        @Override
-        protected Object doGetValue() {
-            return text.getText();
-        }
+		@Override
+		protected Object doGetValue() {
+			return text.getText();
+		}
 
-        @Override
-        protected void doSetFocus() {
-            text.setFocus();
-        }
+		@Override
+		protected void doSetFocus() {
+			text.setFocus();
+		}
 
-        @Override
-        protected void doSetValue(Object value) {
-            if (value == null) {
-                value = "";
-            }
-            text.setText((String) value);
-        }
+		@Override
+		protected void doSetValue(Object value) {
+			if (value == null) {
+				value = "";
+			}
+			text.setText((String) value);
+		}
 
-    }
+	}
 
-    public String getName() {
-        if (source != null)
-            return source.toString();
-        return "";
-    }
+	public String getName() {
+		if (source != null)
+			return source.toString();
+		return "";
+	}
 
 }

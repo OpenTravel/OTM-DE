@@ -17,9 +17,12 @@ package org.opentravel.schemas.trees.library;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
+import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.types.TypeNode;
+import org.opentravel.schemas.types.TypeUserNode;
 
 /**
  * 
@@ -27,6 +30,7 @@ import org.opentravel.schemas.node.properties.PropertyNode;
  * 
  */
 public class LibraryTreeNameFilter extends ViewerFilter {
+	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTreeNameFilter.class);
 
 	private String txtFilter = "";
 	private boolean exactFiltering = false;
@@ -36,19 +40,25 @@ public class LibraryTreeNameFilter extends ViewerFilter {
 		if (txtFilter == null || txtFilter.isEmpty()) {
 			return true;
 		}
-		if (element == null || !(element instanceof Node)) {
+		if (element == null || !(element instanceof Node) || element instanceof ImpliedNode) {
 			return false;
 		}
-		final INode n = (INode) element;
+		final Node n = (Node) element;
+		// LOGGER.debug("Select " + n + " ?");
+		// Skip node types that show where used
+		if (n instanceof VersionAggregateNode || n instanceof TypeNode || n instanceof TypeUserNode)
+			return false;
 		if (shouldBeDisplayed(n)) {
 			return true;
 		}
 		return childMatches(n);
 	}
 
+	// getTreeChildren is used in navigator libraryTreeContentProvider
 	// 3/30/2015 dmh - found stack overflow in log file
-	private boolean childMatches(final INode cn) {
-		for (final INode n : cn.getChildren()) {
+	private boolean childMatches(final Node cn) {
+		// LOGGER.debug("Trying to match " + cn);
+		for (final Node n : cn.getChildren()) {
 			if (n != cn && childMatches(n)) {
 				return true;
 			}
@@ -59,11 +69,12 @@ public class LibraryTreeNameFilter extends ViewerFilter {
 		return false;
 	}
 
-	private boolean shouldBeDisplayed(final INode cn) {
-		return textMatches(cn) || assignmentMatches(cn);
+	private boolean shouldBeDisplayed(final Node cn) {
+		// return textMatches(cn) || assignmentMatches(cn);
+		return textMatches(cn);
 	}
 
-	private boolean textMatches(final INode cn) {
+	private boolean textMatches(final Node cn) {
 		if (cn.getName() == null) {
 			return false;
 		}
@@ -73,7 +84,7 @@ public class LibraryTreeNameFilter extends ViewerFilter {
 		return cn.getName().toLowerCase().contains(txtFilter);
 	}
 
-	private boolean assignmentMatches(final INode cn) {
+	private boolean assignmentMatches(final Node cn) {
 		boolean matches = false;
 		if (!isExactFiltering() && cn instanceof PropertyNode) {
 			PropertyNode p = (PropertyNode) cn;
