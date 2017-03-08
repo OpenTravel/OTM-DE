@@ -24,7 +24,7 @@ public class LibraryTreeInheritedFilter extends ViewerFilter {
 	@Override
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
 		if (element instanceof Node)
-			return (!((Node) element).isInheritedProperty());
+			return (!((Node) element).isInherited());
 		return false;
 	}
 

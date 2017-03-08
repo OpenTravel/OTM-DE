@@ -15,10 +15,6 @@
  */
 package org.opentravel.schemas.actions;
 
-import static org.opentravel.schemas.node.controllers.NodeUtils.isBuildInProject;
-import static org.opentravel.schemas.node.controllers.NodeUtils.isDefaultProject;
-import static org.opentravel.schemas.node.controllers.NodeUtils.isProject;
-
 import java.util.List;
 
 import org.eclipse.ui.PlatformUI;
@@ -67,10 +63,13 @@ public class CloseProjectAction extends AbstractGlobalSelectionAction {
 	}
 
 	private ProjectNode getProjectToClose(Node n) {
-		if (isProject(n) && !(isBuildInProject((ProjectNode) n) || isDefaultProject(n))) {
-			return ((ProjectNode) n);
-		}
-		return null;
+		if (!(n instanceof ProjectNode))
+			return null;
+		if (((ProjectNode) n).isBuiltIn())
+			return null;
+		if (((ProjectNode) n).isDefaultProject())
+			return null;
+		return ((ProjectNode) n);
 	}
 
 }

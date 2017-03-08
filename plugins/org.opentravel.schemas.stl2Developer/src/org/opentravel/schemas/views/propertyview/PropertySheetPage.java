@@ -54,12 +54,9 @@ import org.opentravel.schemas.views.propertyview.desc.IFormPropertyDescriptor;
 import org.opentravel.schemas.views.propertyview.desc.IReadonlyPropertyDescriptor;
 import org.opentravel.schemas.views.propertyview.editors.FormCellEditor;
 import org.opentravel.schemas.widgets.WidgetFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class PropertySheetPage extends Page {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(PropertySheetPage.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(PropertySheetPage.class);
 	private static final String UNDEFINED_CATEGORY_KEY = Messages.getString("view.properties.basicCategory");
 	private ScrolledForm form;
 	private IPropertySource source;
@@ -79,7 +76,7 @@ class PropertySheetPage extends Page {
 	 * @param currentSelection
 	 */
 	public void selectionChanged(IWorkbenchPart currentPart, ISelection selection) {
-		LOGGER.debug("Selection Changed.");
+		// LOGGER.debug("Selection Changed.");
 		if (isSameSelection(currentSelection, selection))
 			return;
 		currentSelection = selection;
@@ -264,7 +261,7 @@ class PropertySheetPage extends Page {
 				source.setPropertyValue(id, editor.getValue());
 			} catch (IllegalArgumentException ex) {
 				DialogUserNotifier.openError("ERROR", ex.getMessage());
-				LOGGER.info("Error on setting property [" + id + "]: " + ex.getMessage());
+				// LOGGER.info("Error on setting property [" + id + "]: " + ex.getMessage());
 			}
 			refresh();
 			OtmRegistry.getMainController().refresh();

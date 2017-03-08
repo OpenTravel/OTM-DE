@@ -503,7 +503,7 @@ public abstract class ComponentNode extends Node {
 	}
 
 	@Override
-	public boolean isInheritedProperty() {
+	public boolean isInherited() {
 		return inherited;
 	}
 
@@ -572,6 +572,13 @@ public abstract class ComponentNode extends Node {
 		return local ? true : xsdType;
 	}
 
+	/**
+	 * Adds passed child node to inheritedChildren array. Sets where inherited from using the listener on the child's
+	 * TLObject. Set parent, library and inherited flag.
+	 * 
+	 * @param child
+	 * @return
+	 */
 	public boolean linkInheritedChild(final ComponentNode child) {
 		if (child == null) {
 			return false;

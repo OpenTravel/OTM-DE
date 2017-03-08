@@ -113,4 +113,13 @@ public class DialogUserNotifier {
 		});
 	}
 
+	public static void syncErrorWithUi(final String msg) {
+		Display.getDefault().asyncExec(new Runnable() {
+			public void run() {
+				if (!msg.isEmpty())
+					openError("Error", msg);
+			}
+		});
+	}
+
 }

@@ -44,15 +44,13 @@ import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.widgets.OtmEventData;
 import org.opentravel.schemas.widgets.OtmHandlers;
 import org.opentravel.schemas.wizards.TypeSelectionWizard;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Dave Hollander
  * 
  */
 public class OtmActions {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OtmActions.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(OtmActions.class);
 
 	private MainController mc = null; // hold onto for refreshes
 
@@ -102,7 +100,7 @@ public class OtmActions {
 	}
 
 	public void doEvent(final OtmEventData wd) {
-		LOGGER.debug("Triggered event " + wd.getBusinessEvent() + ".");
+		// LOGGER.debug("Triggered event " + wd.getBusinessEvent() + ".");
 		OtmHandlers.suspendHandlers();
 		switch (wd.getBusinessEvent()) {
 		case noOp:
@@ -278,7 +276,7 @@ public class OtmActions {
 	}
 
 	private void otherDocContextSelector() {
-		LOGGER.error("OtmActions tried to execute otherDocContextSelector");
+		// LOGGER.error("OtmActions tried to execute otherDocContextSelector");
 		Assert.isTrue(1 == 1); // We should NEVER get here
 	}
 
@@ -303,49 +301,8 @@ public class OtmActions {
 
 		if (list.get(0) instanceof TypeUser)
 			AssignTypeAction.execute(((TypeUser) list.get(0)));
-		else
-			LOGGER.debug("Invalid node to select type for: " + list.get(0));
-
-		// // If the node is not in the head library, then create one.
-		// OtmAbstractHandler handler = new OtmAbstractHandler() {
-		// @Override
-		// public Object execute(ExecutionEvent event) throws ExecutionException {
-		// return null;
-		// }
-		// };
-		// Node node = list.get(0);
-		// // String name = node.getName();
-		// Node owner = node.getOwningComponent();
-		// String op = owner.getPrefix();
-		// String np = node.getPrefix(); // library says 2.03, tl says 2.0
-		// String ownerPrefix = ((BusinessObjectNode) owner).getTLModelObject().getOwningLibrary().getPrefix();
-		// AbstractLibrary tlLib = ((ElementNode) node).getTLModelObject().getOwner().getOwningLibrary();
-		// String prefix = ((ElementNode) node).getTLModelObject().getOwningLibrary().getPrefix();
-		// // FacetNode fn = (FacetNode) node.getParent();
-		// if (node.getChain() != null && !node.isInHead2()) {
-		// // Node newOwner = handler.createVersionExtension(owner);
-		// // if (newOwner == null)
-		// // return;
-		// // Now, add cloned property to contain the updated type assignment
-		// FacetNode owningFacet = (FacetNode) newOwner.findNodeByName(node.getParent().getName());
-		// if (owningFacet == null)
-		// return;
-		// PropertyNode clone = (PropertyNode) node.clone(owningFacet, "");
-		//
-		// list.clear();
-		// list.add(clone);
-		// }
-		//
-		// if (list.size() > 0) {
-		// final TypeSelectionWizard wizard = new TypeSelectionWizard(list);
-		// if (wizard.run(OtmRegistry.getActiveShell())) {
-		// AssignTypeAction.execute(wizard.getList(), wizard.getSelection());
-		// } else {
-		//				DialogUserNotifier.openInformation("No Selection", Messages.getString("OtmW.101")); //$NON-NLS-1$
-		// }
-		// mc.refresh(n);
-		// } else
-		// LOGGER.warn("typeSelector did not have a list to act upon.");
+		// else
+		// LOGGER.debug("Invalid node to select type for: " + list.get(0));
 	}
 
 	public static int changeMaxLength() {
@@ -468,7 +425,7 @@ public class OtmActions {
 	public void changeContext(OtmEventData wd) {
 		Node n = (Node) mc.getCurrentNode_PropertiesView();
 		if (n == null) {
-			LOGGER.error("No current properties Node. Early Exit.");
+			// LOGGER.error("No current properties Node. Early Exit.");
 			return;
 		}
 		ContextController cc = mc.getContextController();
@@ -596,7 +553,7 @@ public class OtmActions {
 	}
 
 	private void importToTree(final OtmEventData ed) {
-		LOGGER.debug("importToTree. ed = " + ed);
+		// LOGGER.debug("importToTree. ed = " + ed);
 		mc.importSelectedToDragTarget(ed.isDragCopy());
 	}
 
@@ -613,7 +570,7 @@ public class OtmActions {
 		// Find the node representing the table row dropped upon.
 		final TableItem ti = (TableItem) ed.getWidget();
 		if ((ti == null) || (ti.getData() == null) || (!(ti.getData() instanceof ComponentNode))) {
-			LOGGER.warn("set or new property - early exit due to invalid entry conditions.");
+			// LOGGER.warn("set or new property - early exit due to invalid entry conditions.");
 			showInvalidTargetWarning();
 			return;
 		}
@@ -622,7 +579,7 @@ public class OtmActions {
 		// Get the drag source node from the event data.
 		final Node sourceNode = NodeFinders.findNodeByID(ed.getText());
 		if (sourceNode == null) {
-			LOGGER.warn("set or new property - early exit due to invalid drop target.");
+			// LOGGER.warn("set or new property - early exit due to invalid drop target.");
 			showInvalidTargetWarning();
 			return;
 		}

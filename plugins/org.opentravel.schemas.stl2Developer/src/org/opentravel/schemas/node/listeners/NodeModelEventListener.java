@@ -27,8 +27,6 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Add or remove children from model. see ResourceMemberChangeIntegrityChecker for example.
@@ -40,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NodeModelEventListener implements
 		ModelEventListener<OwnershipEvent<TLResource, TLModelElement>, TLResource> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(NodeModelEventListener.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(NodeModelEventListener.class);
 
 	@Override
 	public void processModelEvent(OwnershipEvent<TLResource, TLModelElement> event) {
@@ -49,7 +47,7 @@ public class NodeModelEventListener implements
 		// source = getResourceMemberFromEvent(event.getSource());
 		// if (event.getAffectedItem() instanceof TLModelElement)
 		// resourceAffected = getSourceNode(event.getAffectedItem());
-		LOGGER.debug("Node Model Event - type: " + event.getType());
+		// LOGGER.debug("Node Model Event - type: " + event.getType());
 		// if (affected == null || source == null)
 		// return;
 

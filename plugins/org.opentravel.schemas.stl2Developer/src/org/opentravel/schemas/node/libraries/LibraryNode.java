@@ -91,8 +91,6 @@ import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.TypeUserNode;
 import org.opentravel.schemas.types.WhereUsedLibraryHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The LibraryNode class manages an internal navigation oriented node a library model class. Libraries are model classes
@@ -104,7 +102,7 @@ import org.slf4j.LoggerFactory;
  */
 
 public class LibraryNode extends Node implements LibraryInterface {
-	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryNode.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryNode.class);
 
 	protected static final String DEFAULT_LIBRARY_TYPE = "Library";
 	protected static final String XSD_LIBRARY_TYPE = "XSD Library";
@@ -329,16 +327,6 @@ public class LibraryNode extends Node implements LibraryInterface {
 		this.editable = editable;
 	}
 
-	// /**
-	// * @return true if namespaces are unmanaged OR namespaces are managed and this library is in its project
-	// namespace.
-	// */
-	// public boolean isEditableByNamespacePolicy() {
-	// if (!GeneralPreferencePage.areNamespacesManaged())
-	// return true;
-	// return getNamespace().contains(getParent().getNamespace());
-	// }
-
 	/**
 	 * @return true if complex, simple, resource and service roots are null or empty
 	 */
@@ -408,8 +396,9 @@ public class LibraryNode extends Node implements LibraryInterface {
 			if (newNode != null && newNode != source) {
 				nameFixer.visit(newNode);
 				sourceToNewMap.put(source, newNode);
-			} else
-				LOGGER.warn("Import duplicate excluded from map: " + newNode);
+			}
+			// else
+			// LOGGER.warn("Import duplicate excluded from map: " + newNode);
 		}
 
 		collapseContexts();
@@ -431,7 +420,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	public Node importNode(final Node source) {
 		// LOGGER.debug("Importing source node: " + source.getName());
 		if (source.getLibrary() == this) {
-			LOGGER.error("Tried to import to same library: " + this.getName());
+			// LOGGER.error("Tried to import to same library: " + this.getName());
 			return source; // nothing to do.
 		}
 		if (!importNodeCheck(source))
@@ -442,7 +431,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 
 		// Node newNode = source.clone(this, null);
 		if (newNode == null) {
-			LOGGER.warn("Could not clone " + source + " a " + source.getClass().getSimpleName());
+			// LOGGER.warn("Could not clone " + source + " a " + source.getClass().getSimpleName());
 			return null;
 		}
 
@@ -468,7 +457,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 					if (ctx.getContextId().isEmpty())
 						ctx.setContextId("Imported");
 					if (ctx.getContextId().equals(ctx.getApplicationContext())) {
-						LOGGER.error("Context id is equal to application context" + ctx.getContextId());
+						// LOGGER.error("Context id is equal to application context" + ctx.getContextId());
 						// TODO - this only creates duplicate contexts with multiple id values which are later
 						// automatically appended with a number to be unique
 						ctx.setContextId("Imported");
@@ -489,15 +478,15 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 */
 	private boolean importNodeCheck(Node source) {
 		if (this.getTLLibrary() == null) {
-			LOGGER.error("Tried to import source node to non-TL library: " + this.getName());
+			// LOGGER.error("Tried to import source node to non-TL library: " + this.getName());
 			return false;
 		}
 		if ((source.getTLModelObject() == null) || !(source.getTLModelObject() instanceof TLLibraryMember)) {
-			LOGGER.error("Exit - not a TLLibraryMember: " + source.getName());
+			// LOGGER.error("Exit - not a TLLibraryMember: " + source.getName());
 			return false;
 		}
 		if (!this.isEditable()) {
-			LOGGER.error("Tried to import to a read-only library: " + this.getName());
+			// LOGGER.error("Tried to import to a read-only library: " + this.getName());
 			return false;
 		}
 		return true;
@@ -558,7 +547,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	public void collapseContexts() {
 		// LOGGER.debug("Ready to merge contexts for library: " + this);
 		if (!(getTLaLib() instanceof TLLibrary)) {
-			LOGGER.error("Error. Not a valid library for collapseContexts.");
+			// LOGGER.error("Error. Not a valid library for collapseContexts.");
 			return;
 		}
 
@@ -619,7 +608,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 			try {
 				genTLLib.setLibraryUrl(new URL("temp"));
 			} catch (MalformedURLException e) {
-				LOGGER.error("Invalid URL exception");
+				// LOGGER.error("Invalid URL exception");
 			}
 		} else {
 			genTLLib.setNamespace(xLib.getNamespace());
@@ -667,7 +656,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 		if (n instanceof ComplexComponentInterface)
 			linkOK = complexRoot.linkChild(n);
 		else if (n instanceof ContextualFacetNode)
-			linkOK = complexRoot.linkChild(n);
+			linkOK = complexRoot.linkChild(n); // unreachable - contextual is complexComponent
 		else if (n instanceof SimpleComponentInterface)
 			linkOK = simpleRoot.linkChild(n);
 		else if (n instanceof ResourceNode) {
@@ -679,8 +668,8 @@ public class LibraryNode extends Node implements LibraryInterface {
 		else if (n.isXsdElementAssignable())
 			// TODO - i don't think this is ever reached. ElementRoot is never accessed.
 			linkOK = elementRoot.linkChild(n.getXsdNode());
-		else
-			LOGGER.error("linkMember is trying to add unknown object type: " + n + ":" + n.getClass().getSimpleName());
+		// else
+		// LOGGER.error("linkMember is trying to add unknown object type: " + n + ":" + n.getClass().getSimpleName());
 		// I don't know why but only service node creates stack overflow.
 		// Services can't be moved, so they will never have to change their lib.
 		if (linkOK) {
@@ -779,10 +768,10 @@ public class LibraryNode extends Node implements LibraryInterface {
 				final XsdNode xn = new XsdNode((TLLibraryMember) mbr, this);
 				n = xn.getOtmModel();
 				xn.setXsdType(true);
-				if (n == null)
-					LOGGER.debug("ERROR - null otm node.");
-				else
+				if (n != null)
 					n.setXsdType(true); // FIXME
+					// else
+					// LOGGER.debug("ERROR - null otm node.");
 			}
 			// else
 			// LOGGER.debug("Used listener to get: " + n.getNameWithPrefix());
@@ -794,7 +783,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	}
 
 	private void generateLibrary(final TLLibrary tlLib) {
-		LOGGER.debug("Gererating Library: " + tlLib.getName());
+		// LOGGER.debug("Gererating Library: " + tlLib.getName());
 
 		// When contextual facets can be library members (version 1.6 and later, model them first
 		// Contextual facets will be processed twice. Once here to create library member and once in addMOChildren()
@@ -802,7 +791,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 		// be used to link them.
 		if (OTM16Upgrade.otm16Enabled)
 			for (final TLContextualFacet cf : tlLib.getContextualFacetTypes()) {
-				LOGGER.debug("Generating contextual facet: " + cf.getLocalName());
+				// LOGGER.debug("Generating contextual facet: " + cf.getLocalName());
 				Node n = GetNode(cf);
 				if (n == null)
 					n = NodeFactory.newObjectNode(cf, this);
@@ -815,7 +804,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 				// if (!((TLContextualFacet) mbr).isLocalFacet())
 				continue; // Model in its own library.
 
-			LOGGER.debug("Generating named member: " + mbr.getLocalName());
+			// LOGGER.debug("Generating named member: " + mbr.getLocalName());
 			ComponentNode n = (ComponentNode) GetNode(mbr);
 			if (mbr instanceof TLService) {
 				if (n instanceof ServiceNode)
@@ -845,13 +834,13 @@ public class LibraryNode extends Node implements LibraryInterface {
 			Node base = ((ExtensionOwner) n).getExtensionBase();
 			if (base != null)
 				if (!base.getLibrary().get_LibraryMembers().contains(base)) {
-					LOGGER.error(base.getNameWithPrefix() + " library is not correct.");
+					// LOGGER.error(base.getNameWithPrefix() + " library is not correct.");
 					List<LibraryMemberInterface> members = base.getLibrary().get_LibraryMembers();
 					for (LibraryNode ln : Node.getAllUserLibraries())
 						for (LibraryMemberInterface n2 : ln.get_LibraryMembers())
 							if (n2 == base) {
 								base.setLibrary(ln);
-								LOGGER.error("Corrected library " + base.getNameWithPrefix() + " to " + ln);
+								// LOGGER.error("Corrected library " + base.getNameWithPrefix() + " to " + ln);
 							}
 				}
 		}
@@ -904,28 +893,28 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 */
 	public void addMember(final Node n) {
 		if (!isEditable()) {
-			LOGGER.warn("Tried to addMember() " + n + " to non-editable library " + this);
+			// LOGGER.warn("Tried to addMember() " + n + " to non-editable library " + this);
 			return;
 		}
 		if (n == null || n.getTLModelObject() == null) {
-			LOGGER.warn("Tried to addMember() a null member: " + n);
+			// LOGGER.warn("Tried to addMember() a null member: " + n);
 			return;
 		}
 		// if (!(n.getTLModelObject() instanceof TLLibraryMember)) {
 		if (!(n.getTLModelObject() instanceof LibraryMember)) {
-			LOGGER.warn("Tried to addMember() a non-library member: " + n);
+			// LOGGER.warn("Tried to addMember() a non-library member: " + n);
 			return;
 		}
 
 		// This code is only needed because of defect in XSD importer.
 		if (n.getParent() != null && n.getParent().getChildren().contains(n)) {
-			LOGGER.warn(n + " is already a child of its parent.");
+			// LOGGER.warn(n + " is already a child of its parent.");
 			return;
 		} else if ((n instanceof SimpleComponentInterface) && getSimpleRoot().getChildren().contains(n)) {
-			LOGGER.warn(n + " is already a child of its parent.");
+			// LOGGER.warn(n + " is already a child of its parent.");
 			return;
 		} else if ((n instanceof ComplexComponentInterface) && getComplexRoot().getChildren().contains(n)) {
-			LOGGER.warn(n + " is already a child of its parent.");
+			// LOGGER.warn(n + " is already a child of its parent.");
 			return;
 		}
 
@@ -956,8 +945,8 @@ public class LibraryNode extends Node implements LibraryInterface {
 		Node trueChild = n;
 		if (getParent() instanceof VersionNode)
 			trueChild = n.getParent();
-		if (trueChild.getParent().getChildren().indexOf(n) != trueChild.getParent().getChildren().lastIndexOf(n))
-			LOGGER.error(n + " is in list more than once.");
+		// if (trueChild.getParent().getChildren().indexOf(n) != trueChild.getParent().getChildren().lastIndexOf(n))
+		// LOGGER.error(n + " is in list more than once.");
 		// assert (n.getParent().getChildren().indexOf(n) == n.getParent().getChildren().lastIndexOf(n));
 
 	}
@@ -986,7 +975,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 */
 	@Override
 	public void close() {
-		LOGGER.debug("Closing " + getNameWithPrefix());
+		// LOGGER.debug("Closing " + getNameWithPrefix());
 		if (getChain() != null)
 			getChain().close();
 		else if (getParent() instanceof LibraryNavNode)
@@ -997,29 +986,13 @@ public class LibraryNode extends Node implements LibraryInterface {
 			setParent(null);
 			deleted = true;
 		}
-		if (!isEmpty())
-			LOGGER.debug("Closed library " + this + " is not empty.");
+		// if (!isEmpty())
+		// LOGGER.debug("Closed library " + this + " is not empty.");
 
 		// assert (isEmpty());
 		assert (deleted);
 		assert (getParent() == null);
 	}
-
-	// /**
-	// * Commit changes to the repository. {@link org.opentravel.schemas.controllers.CommitThread#run()}
-	// *
-	// * @throws RepositoryException
-	// */
-	// // TODO - why is this here when other repo actions are in libraryController?
-	// public void commit() throws RepositoryException {
-	// // if (OTM16Upgrade.otm16Enabled) {
-	// // DialogUserNotifier.openWarning("Not Supported", "Can not commit version 1.6 libraries yet.");
-	// // return;
-	// // }
-	// // TODO - get remarks from user
-	// String remarks = "";
-	// projectItem.getProjectManager().commit(this.projectItem, remarks);
-	// }
 
 	public List<RepositoryItemCommit> getCommitHistory() {
 		RepositoryItemHistory h = null;
@@ -1027,7 +1000,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 			h = projectItem.getRepository().getHistory(projectItem);
 			h.getCommitHistory();// LOGGER.debug("Committed " + this);
 		} catch (RepositoryException e) {
-			LOGGER.debug("Exception: " + e.getLocalizedMessage());
+			// LOGGER.debug("Exception: " + e.getLocalizedMessage());
 		}
 		return h != null ? h.getCommitHistory() : null;
 	}
@@ -1113,7 +1086,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 			} catch (Exception e) {
 				// Failed to move. Change destination to be this library and relink.
 				destination = this;
-				LOGGER.debug("moveNamedMember failed. Adding back to " + this + " library.");
+				// LOGGER.debug("moveNamedMember failed. Adding back to " + this + " library.");
 			}
 		removeListeners();
 		destination.removeListeners();
@@ -1144,12 +1117,12 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 */
 	public void removeMember(final Node n) {
 		if (n == null || n.getTLModelObject() == null) {
-			LOGGER.warn("LibraryNode:removeMember() - error. model object or tl model object is null. " + n.getName()
-					+ " - " + n.getClass().getSimpleName());
+			// LOGGER.warn("LibraryNode:removeMember() - error. model object or tl model object is null. " + n.getName()
+			// + " - " + n.getClass().getSimpleName());
 			return;
 		}
 		if (!(n.getTLModelObject() instanceof TLLibraryMember)) {
-			LOGGER.warn("Tried to remove non-TLLibraryMember: " + n);
+			// LOGGER.warn("Tried to remove non-TLLibraryMember: " + n);
 			return;
 		}
 

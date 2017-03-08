@@ -25,46 +25,40 @@ import org.opentravel.schemas.properties.StringProperties;
  * @author Dave Hollander
  * 
  */
+// TODO - collapse the major/minor/patch into one
+@Deprecated
 public class VersionPatchAction extends OtmAbstractAction {
-    private static StringProperties propsDefault = new ExternalizedStringProperties(
-            "action.library.version.patch");
+	private static StringProperties propsDefault = new ExternalizedStringProperties("action.library.version.patch");
 
-    public VersionPatchAction() {
-        super(propsDefault);
-    }
+	public VersionPatchAction() {
+		super(propsDefault);
+	}
 
-    public VersionPatchAction(final StringProperties props) {
-        super(props);
-    }
+	public VersionPatchAction(final StringProperties props) {
+		super(props);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.Action#run()
-     */
-    @Override
-    public void run() {
-        for (Node node : mc.getSelectedNodes_NavigatorView()) {
-            mc.postStatus("Patch Version " + node);
-            RepositoryController rc = mc.getRepositoryController();
-            node = node.getLibrary();
-            if (node != null && node instanceof LibraryNode)
-                rc.createPatchVersion((LibraryNode) node);
-        }
-        mc.refresh();
-    }
+	@Override
+	public void run() {
+		for (Node node : mc.getSelectedNodes_NavigatorView()) {
+			mc.postStatus("Patch Version " + node);
+			RepositoryController rc = mc.getRepositoryController();
+			node = node.getLibrary();
+			if (node != null && node instanceof LibraryNode)
+				rc.createPatchVersion((LibraryNode) node);
+		}
+		mc.refresh();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.Action#isEnabled()
-     */
-    @Override
-    public boolean isEnabled() {
-        LibraryNode ln = null;
-        if (mc.getSelectedNode_NavigatorView() != null)
-            ln = mc.getSelectedNode_NavigatorView().getLibrary();
-        return ln != null && ln.isManaged();
-    }
+	@Override
+	public boolean isEnabled() {
+		LibraryNode ln = null;
+		if (mc.getSelectedNode_NavigatorView() != null)
+			ln = mc.getSelectedNode_NavigatorView().getLibrary();
+		// Don't allow lock unless library is in a project with managing namespace
+		if (!ln.isInProjectNS())
+			return false;
+		return ln != null && ln.isManaged();
+	}
 
 }

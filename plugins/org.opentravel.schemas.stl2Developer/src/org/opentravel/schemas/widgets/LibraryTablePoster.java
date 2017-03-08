@@ -200,7 +200,7 @@ public class LibraryTablePoster {
 					item.setImage(n.getImage());
 				} else if (n instanceof ContextualFacetNode)
 					item.setText(((ContextualFacetNode) n).getLocalName());
-				else if (n.isInheritedProperty())
+				else if (n.isInherited())
 					decorateInheritedItem(item);
 				else
 					item.setForeground(colorProvider.getColor(SWT.COLOR_DARK_BLUE));
@@ -289,7 +289,7 @@ public class LibraryTablePoster {
 
 			if (contributed)
 				decorateContributedItem(item);
-			else if (n.isInheritedProperty() || NodeUtils.checker(n).isInheritedFacet().get())
+			else if (n.isInherited() || NodeUtils.checker(n).isInheritedFacet().get())
 				decorateInheritedItem(item);
 			else if (!n.isEditable() || !n.isInHead2())
 				decorateReadonlyItem(item);
@@ -309,7 +309,7 @@ public class LibraryTablePoster {
 				item.setText(2, "-------");
 
 			// flag duplicates
-			if (!cn.isUnique() && !cn.isInheritedProperty()) {
+			if (!cn.isUnique() && !cn.isInherited()) {
 				item.setImage(Images.getImageRegistry().get(Images.Error));
 			}
 		}

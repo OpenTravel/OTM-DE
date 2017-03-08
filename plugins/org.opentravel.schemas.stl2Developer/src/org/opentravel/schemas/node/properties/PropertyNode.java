@@ -321,7 +321,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	 */
 	@Override
 	public TypeProvider getAssignedType() {
-		if (isInheritedProperty()) {
+		if (isInherited()) {
 			// Inherited nodes are not assigned a type class. If they were the where-used count would be wrong.
 			assert getInheritsFrom() != this;
 			if (getInheritsFrom() != null) {
@@ -515,7 +515,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 			return false;
 		if (getModelObject().getTLModelObj() instanceof TLnSimpleAttribute)
 			return false;
-		if (isInheritedProperty())
+		if (isInherited())
 			return false;
 		return super.isDeleteable();
 	}

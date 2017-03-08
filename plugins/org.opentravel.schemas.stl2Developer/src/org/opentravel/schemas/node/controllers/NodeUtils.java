@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLExampleOwner;
 import org.opentravel.schemacompiler.repository.impl.BuiltInProject;
-import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
@@ -60,8 +59,14 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
  * 
  * @author Pawel Jedruch
  */
+// TODO - replace with more traditional tests. This is a great style but difficult to maintain in parallel with other
+// tests.
+// Alternatively, extract all the logic in node and use this technique.
+// Deprecated methods are unused.
+//
 public class NodeUtils {
 
+	@Deprecated
 	public static NodeChecker checker(Node node) {
 		return new NodeChecker(node);
 	}
@@ -164,21 +169,25 @@ public class NodeUtils {
 			return matches;
 		}
 
+		@Deprecated
 		public NodeChecker is(ComponentNodeType type) {
 			getMatches().add(new ComponentMatcher(node, type));
 			return this;
 		}
 
+		@Deprecated
 		public NodeChecker ownerIs(ComponentNodeType type) {
 			getMatches().add(new ComponentMatcher(node.getOwningComponent(), type));
 			return this;
 		}
 
+		@Deprecated
 		public NodeChecker is(PropertyNodeType type) {
 			getMatches().add(new PropertyMatcher(node, type));
 			return this;
 		}
 
+		@Deprecated
 		public NodeChecker isExampleSupported() {
 			getMatches().add(new Matcher() {
 
@@ -200,12 +209,13 @@ public class NodeUtils {
 				public boolean match() {
 					if (node instanceof ContextualFacetNode) {
 						ContextualFacetNode f = (ContextualFacetNode) node;
-						if (f.getModelObject() instanceof FacetMO) {
-							FacetMO ff = (FacetMO) f.getModelObject();
-							return ff.isInherited();
-						} else {
-							// DEBUG
-						}
+						return f.isInherited();
+						// if (f.getModelObject() instanceof FacetMO) {
+						// FacetMO ff = (FacetMO) f.getModelObject();
+						// return ff.isInherited();
+						// } else {
+						// // DEBUG
+						// }
 					}
 					return false;
 				}
@@ -214,6 +224,7 @@ public class NodeUtils {
 			return this;
 		}
 
+		@Deprecated
 		public NodeChecker isPatch() {
 			getMatches().add(new Matcher() {
 
@@ -232,6 +243,7 @@ public class NodeUtils {
 			return this;
 		}
 
+		@Deprecated
 		public NodeChecker isInMinorOrPatch() {
 			getMatches().add(new Matcher() {
 
@@ -250,6 +262,7 @@ public class NodeUtils {
 			return this;
 		}
 
+		@Deprecated
 		public NodeChecker existInPreviousVersions() {
 			getMatches().add(new Matcher() {
 
@@ -300,14 +313,17 @@ public class NodeUtils {
 
 	// TODO: find better place for this method
 
+	@Deprecated
 	public static boolean isBuildInProject(ProjectNode n) {
 		return BuiltInProject.BUILTIN_PROJECT_ID.equals(n.getTLProject().getProjectId());
 	}
 
+	@Deprecated
 	public static boolean isProject(Node n) {
 		return n instanceof ProjectNode;
 	}
 
+	@Deprecated
 	public static boolean isDefaultProject(Node n) {
 		return n == OtmRegistry.getMainController().getProjectController().getDefaultProject();
 	}

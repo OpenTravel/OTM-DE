@@ -1442,7 +1442,7 @@ public abstract class Node implements INode {
 	 * Implied nodes and nodes without libraries are always editable. Nodes in chains return if chain is editable.
 	 * 
 	 * @return true if the node's library is editable and is not inherited.
-	 * @see Node#isInheritedProperty()
+	 * @see Node#isInherited()
 	 */
 	@Override
 	public boolean isEditable() {
@@ -1451,7 +1451,7 @@ public abstract class Node implements INode {
 			result = getChain().isEditable();
 		else if (this instanceof ImpliedNode)
 			result = true;
-		else if (isInheritedProperty())
+		else if (isInherited())
 			result = false;
 		else if (getLibrary() == null)
 			result = true;
@@ -1465,16 +1465,16 @@ public abstract class Node implements INode {
 	 * @return Can the description field be edited?
 	 */
 	public boolean isEditable_description() {
-		return getTLModelObject() instanceof TLDocumentationOwner ? isInHead2() && !isInheritedProperty()
+		return getTLModelObject() instanceof TLDocumentationOwner ? isInHead2() && !isInherited()
 				&& isEditable() : false;
 	}
 
 	public boolean isEditable_equivalent() {
-		return getTLModelObject() instanceof TLEquivalentOwner ? !isInheritedProperty() && isEditable() : false;
+		return getTLModelObject() instanceof TLEquivalentOwner ? !isInherited() && isEditable() : false;
 	}
 
 	public boolean isEditable_example() {
-		return getTLModelObject() instanceof TLExampleOwner ? !isInheritedProperty() && isEditable() : false;
+		return getTLModelObject() instanceof TLExampleOwner ? !isInherited() && isEditable() : false;
 	}
 
 	/**
@@ -1605,7 +1605,7 @@ public abstract class Node implements INode {
 		// Only properties in an extension point may be edited in a patch version
 		if (getChain().getHead().isPatchVersion())
 			if (getOwningComponent() instanceof ExtensionPointNode)
-				return !isInheritedProperty();
+				return !isInherited();
 			else
 				return false; // no editing in a patch version
 
@@ -1620,7 +1620,7 @@ public abstract class Node implements INode {
 			return false; // is not in the head library of the chain.
 
 		if (this instanceof PropertyNode)
-			return !isInheritedProperty(); // properties in the head library are editable
+			return !isInherited(); // properties in the head library are editable
 
 		// It is in head of chain. Return true if there are no previous versions
 		return !getOwningComponent().isVersioned();
@@ -1704,7 +1704,7 @@ public abstract class Node implements INode {
 				enabled = false; // no changes in a patch
 			else if (this instanceof SimpleAttributeNode)
 				enabled = isNewToChain(); // only allow editing if owner is new to the minor
-			else if (isInHead2() && !isInheritedProperty())
+			else if (isInHead2() && !isInherited())
 				enabled = true; // Allow unless this property also exists in prev version
 			else if (getLaterVersions() != null)
 				enabled = true; // If the assigned type has a newer version then allow them to select that.
@@ -1811,7 +1811,7 @@ public abstract class Node implements INode {
 	/**
 	 * @return the inherited field value or else false.
 	 */
-	public boolean isInheritedProperty() {
+	public boolean isInherited() {
 		return false;
 	}
 

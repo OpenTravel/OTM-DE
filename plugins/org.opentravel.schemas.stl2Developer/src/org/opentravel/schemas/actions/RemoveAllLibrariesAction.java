@@ -15,9 +15,6 @@
  */
 package org.opentravel.schemas.actions;
 
-import static org.opentravel.schemas.node.controllers.NodeUtils.isBuildInProject;
-import static org.opentravel.schemas.node.controllers.NodeUtils.isProject;
-
 import java.util.List;
 
 import org.opentravel.schemas.node.Node;
@@ -39,7 +36,7 @@ public class RemoveAllLibrariesAction extends RemoveLibrariesAction {
 	@Override
 	protected boolean selectionSupported(List<? extends Node> newSelection) {
 		for (Node n : newSelection) {
-			if (!isProject(n) || isBuildInProject((ProjectNode) n))
+			if (!(n instanceof ProjectNode) || ((ProjectNode) n).isBuiltIn())
 				return false;
 		}
 		return true;

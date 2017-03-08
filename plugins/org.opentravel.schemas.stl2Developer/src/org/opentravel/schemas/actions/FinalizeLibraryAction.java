@@ -16,11 +16,7 @@
 package org.opentravel.schemas.actions;
 
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
-import org.opentravel.schemacompiler.repository.RepositoryItemState;
-import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.node.libraries.LibraryChainNode;
-import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
@@ -53,23 +49,17 @@ public class FinalizeLibraryAction extends OtmAbstractAction {
 	public boolean isEnabled() {
 		INode n = getMainController().getCurrentNode_NavigatorView();
 
-		// Find the effective library
-		if (n instanceof LibraryNavNode)
-			n = n.getLibrary();
-		if (n instanceof ComponentNode)
-			n = n.getLibrary();
-		if (n instanceof LibraryChainNode)
-			n = ((LibraryChainNode) n).getLibrary();
-
-		if (n instanceof LibraryNode) {
+		if (n.getLibrary() instanceof LibraryNode) {
+			LibraryNode ln = n.getLibrary();
+			// Don't allow lock unless library is in a project with managing namespace
+			if (!ln.isInProjectNS())
+				return false;
 			// If it is final then return false.
-			TLLibraryStatus status = ((LibraryNode) n).getStatus();
-			if (((LibraryNode) n).getStatus().equals(TLLibraryStatus.FINAL))
+			if (ln.getStatus().equals(TLLibraryStatus.FINAL))
 				return false;
 
 			// Check repo state
-			RepositoryItemState state = ((LibraryNode) n).getProjectItem().getState();
-			switch (state) {
+			switch (ln.getProjectItem().getState()) {
 			case MANAGED_LOCKED:
 			case MANAGED_UNLOCKED:
 			case MANAGED_WIP:

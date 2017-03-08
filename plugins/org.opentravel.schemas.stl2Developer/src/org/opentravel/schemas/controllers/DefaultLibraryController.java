@@ -59,8 +59,6 @@ import org.opentravel.schemas.views.decoration.LibraryDecorator;
 import org.opentravel.schemas.wizards.NewLibraryWizard;
 import org.opentravel.schemas.wizards.NewLibraryWizardPage;
 import org.opentravel.schemas.wizards.validators.NewLibraryValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Implements interactions the user has with the Library View by acting upon the library nodes and model node.
@@ -71,7 +69,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class DefaultLibraryController extends OtmControllerBase implements LibraryController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLibraryController.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLibraryController.class);
 
 	public DefaultLibraryController(final MainController mainController) {
 		super(mainController);
@@ -130,7 +128,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 					getView().refreshAllViews();
 					view.select(lnn);
 				} else {
-					LOGGER.debug("Could not save file.");
+					// LOGGER.debug("Could not save file.");
 					DialogUserNotifier.openWarning("File Save", "Could not save library.");
 					lnn.delete();
 				}
@@ -223,7 +221,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 
 	@Override
 	public void openLibrary(INode node) {
-		LOGGER.debug("Opening library");
+		// LOGGER.debug("Opening library");
 
 		// Determine what project to use
 		ProjectNode pn = null;
@@ -249,7 +247,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		mc.getProjectController().save(pn);
 
 		mc.refresh();
-		LOGGER.debug("Opened library for project " + pn);
+		// LOGGER.debug("Opened library for project " + pn);
 	}
 
 	private List<File> openLibraryDialog() {
@@ -277,7 +275,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 	@Override
 	public boolean saveLibrary(final LibraryNode library, boolean quiet) {
 		if (library != null) {
-			LOGGER.debug("Saving library " + library.getName());
+			// LOGGER.debug("Saving library " + library.getName());
 			return saveLibraries(Arrays.asList(library), quiet);
 		}
 		return false;
@@ -303,7 +301,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		final Set<TLLibrary> toSave = getEditableUsersLibraraies(libraries);
 		if (toSave.isEmpty()) {
 			// DialogUserNotifier.openInformation("Warning", Messages.getString("action.saveAll.noUserDefied"));
-			LOGGER.debug("No user defined libraries to save");
+			// LOGGER.debug("No user defined libraries to save");
 			return false;
 		}
 
@@ -322,7 +320,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 			final String libraryName = library.getName();
 			final URL libraryUrl = library.getLibraryUrl();
 			try {
-				LOGGER.debug("Saving library: " + libraryName + " " + libraryUrl);
+				// LOGGER.debug("Saving library: " + libraryName + " " + libraryUrl);
 				findings.addAll(lms.saveLibrary(library));
 				if (!quiet)
 					successfulSaves.append("\n").append(libraryName).append(" (").append(libraryUrl).append(")");

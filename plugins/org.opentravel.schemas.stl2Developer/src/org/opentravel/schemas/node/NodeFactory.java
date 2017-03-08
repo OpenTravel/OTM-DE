@@ -62,7 +62,6 @@ import org.opentravel.schemas.node.facets.UpdateFacetNode;
 import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
@@ -76,8 +75,6 @@ import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Create Component Nodes of various sub-types.
@@ -86,7 +83,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class NodeFactory {
-	private static final Logger LOGGER = LoggerFactory.getLogger(NodeFactory.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(NodeFactory.class);
 
 	/*******************************************************************************************
 	 * New ComponentNode methods that also create new objects in underlying model
@@ -241,9 +238,9 @@ public class NodeFactory {
 	// TODO - change type of tlObj
 	public static ComponentNode newMember(INode parent, Object tlObj) {
 		ComponentNode nn = null;
-		if (!(parent instanceof ServiceNode) && parent != null && !(parent instanceof LibraryMemberInterface)
-				&& !(parent instanceof PropertyOwnerInterface))
-			LOGGER.warn("Invalid parent type for new member: " + parent);
+		// if (!(parent instanceof ServiceNode) && parent != null && !(parent instanceof LibraryMemberInterface)
+		// && !(parent instanceof PropertyOwnerInterface))
+		// LOGGER.warn("Invalid parent type for new member: " + parent);
 
 		//
 		// Properties
@@ -322,7 +319,7 @@ public class NodeFactory {
 		// LOGGER.debug("Skipping Non-local facet: " + facet.getName());
 		// return null;
 		// }
-		LOGGER.debug("Creating contextual facet: " + tlFacet.getName());
+		// LOGGER.debug("Creating contextual facet: " + tlFacet.getName());
 
 		switch (tlFacet.getFacetType()) {
 		case CUSTOM:

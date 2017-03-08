@@ -59,7 +59,7 @@ public class RestTreeStyledLabelProvider extends LabelProvider implements IStyle
 			final Node n = (Node) element;
 			if (!n.isEditable())
 				font = Fonts.getFontRegistry().get(Fonts.readOnlyItem);
-			else if (n.isInheritedProperty() || NodeUtils.checker(n).isInheritedFacet().get())
+			else if (n.isInherited() || NodeUtils.checker(n).isInheritedFacet().get())
 				font = Fonts.getFontRegistry().get(Fonts.inheritedItem);
 			// is this inherited from an earlier version?
 			else if (n.getChain() != null && n.getLibrary() != n.getChain().getHead())

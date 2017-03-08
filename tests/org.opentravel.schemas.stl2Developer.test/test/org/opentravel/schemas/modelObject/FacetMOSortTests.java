@@ -27,7 +27,7 @@ import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLProperty;
 
-public class FacetMOTest {
+public class FacetMOSortTests {
 
 	private TLFacet facet;
 	private TLProperty e3;

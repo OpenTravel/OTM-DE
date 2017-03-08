@@ -138,7 +138,7 @@ public class NewPropertiesWizard2 extends ValidatingWizard implements Cancelable
 		for (Node kid : kids) {
 			if (kid instanceof AliasNode)
 				continue;
-			if (!(kid instanceof PropertyNode) || kid.isInheritedProperty())
+			if (!(kid instanceof PropertyNode) || kid.isInherited())
 				actOnNode.getChildren().remove(kid);
 		}
 	}

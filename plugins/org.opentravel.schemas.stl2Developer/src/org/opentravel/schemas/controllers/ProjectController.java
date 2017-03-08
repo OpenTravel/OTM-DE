@@ -24,6 +24,7 @@ import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.repository.Project;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
+import org.opentravel.schemas.controllers.DefaultProjectController.OpenedProject;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
@@ -95,21 +96,26 @@ public interface ProjectController {
 	 */
 	public void newProject(String defaultName, String selectedRoot, String selectedExt);
 
-	public ProjectNode open(String fileName, IProgressMonitor monitor);
+	public OpenedProject open(String fileName, IProgressMonitor monitor);
 
-	public ProjectNode openProject(String projectFile);
+	public OpenedProject openTLProject(String projectFile);
 
 	public void refreshMaster();
 
 	/**
-	 * Remove the associated library from the associated project both in the TL and GUI models.
+	 * Remove the passed library from the passed project.
 	 */
-	public void remove(List<LibraryNavNode> libNavlist);
+	public void remove(LibraryInterface library, ProjectNode pn);
 
 	/**
 	 * Remove the associated library from the associated project both in the TL and GUI models.
 	 */
 	public void remove(LibraryNavNode libraryNavNode);
+
+	/**
+	 * Remove the associated library from the associated project both in the TL and GUI models.
+	 */
+	public void remove(List<LibraryNavNode> libNavlist);
 
 	public void saveState();
 
@@ -177,10 +183,5 @@ public interface ProjectController {
 	 * 
 	 */
 	void saveAll();
-
-	/**
-	 * Remove the passed library from the passed project.
-	 */
-	public void remove(LibraryInterface library, ProjectNode pn);
 
 }

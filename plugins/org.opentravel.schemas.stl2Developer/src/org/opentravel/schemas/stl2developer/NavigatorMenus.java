@@ -59,9 +59,8 @@ import org.opentravel.schemas.actions.NewLibraryAction;
 import org.opentravel.schemas.actions.NewProjectAction;
 import org.opentravel.schemas.actions.OpenLibraryAction;
 import org.opentravel.schemas.actions.UnlockLibraryAction;
-import org.opentravel.schemas.actions.VersionMajorAction;
-import org.opentravel.schemas.actions.VersionMinorAction;
-import org.opentravel.schemas.actions.VersionPatchAction;
+import org.opentravel.schemas.actions.VersionAction;
+import org.opentravel.schemas.actions.VersionAction.VersionType;
 import org.opentravel.schemas.commands.AddNodeHandler2;
 import org.opentravel.schemas.commands.CloseLibrariesHandler;
 import org.opentravel.schemas.commands.CloseProjectHandler;
@@ -506,9 +505,12 @@ public class NavigatorMenus extends TreeViewer {
 			private List<Action> createVersionActions(Node node) {
 				final List<Action> actions = new ArrayList<Action>();
 
-				actions.add(new VersionMajorAction());
-				actions.add(new VersionMinorAction());
-				actions.add(new VersionPatchAction());
+				actions.add(new VersionAction(VersionType.MAJOR));
+				actions.add(new VersionAction(VersionType.MINOR));
+				actions.add(new VersionAction(VersionType.PATCH));
+				// actions.add(new VersionMajorAction());
+				// actions.add(new VersionMinorAction());
+				// actions.add(new VersionPatchAction());
 				return actions;
 			}
 

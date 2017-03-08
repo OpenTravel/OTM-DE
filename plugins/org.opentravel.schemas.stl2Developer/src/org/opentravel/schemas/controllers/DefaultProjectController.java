@@ -62,13 +62,11 @@ import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.preferences.DefaultPreferences;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.Activator;
@@ -77,8 +75,6 @@ import org.opentravel.schemas.stl2developer.FileDialogs;
 import org.opentravel.schemas.stl2developer.FindingsDialog;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.TypeResolver;
-import org.opentravel.schemas.types.TypeUser;
-import org.opentravel.schemas.views.ValidationResultsView;
 import org.opentravel.schemas.wizards.NewProjectWizard;
 import org.opentravel.schemas.wizards.validators.NewProjectValidator;
 import org.slf4j.Logger;
@@ -109,6 +105,16 @@ public class DefaultProjectController implements ProjectController {
 	private final String dialogText = "Select a project file";
 
 	/**
+	 * Class for grouping TL Project, ProjectNode, validation findings and result messages.
+	 */
+	public class OpenedProject {
+		String resultMsg = "";
+		ValidationFindings findings;
+		Project tlProject;
+		public ProjectNode project;
+	}
+
+	/**
 	 * Create controller and open projects in background thread.
 	 */
 	public DefaultProjectController(final MainController mc, RepositoryManager repositoryManager) {
@@ -116,10 +122,6 @@ public class DefaultProjectController implements ProjectController {
 		this.projectManager = new ProjectManager(mc.getModelController().getTLModel(), true, repositoryManager);
 		getBuiltInProject(); // make sure these exist
 		getDefaultProject(); // make sure these exist
-	}
-
-	public void syncWithUi(final String msg) {
-		DialogUserNotifier.syncWithUi(msg);
 	}
 
 	protected void createDefaultProject() {
@@ -134,34 +136,7 @@ public class DefaultProjectController implements ProjectController {
 			DialogUserNotifier.openError("Default Project Error",
 					Messages.getString("error.openProject.defaultProject", defaultPath));
 		}
-	}
-
-	@Override
-	public ProjectNode openProject(String fileName) {
-		Project project = openProject(fileName, new ValidationFindings());
-		return loadProject(project);
-	}
-
-	protected void fixElementNames(LibraryNode ln) {
-		int fixNeeded = 0;
-		if (!ln.isEditable())
-			return;
-
-		for (TypeUser n : ln.getDescendants_TypeUsers()) {
-			if (n instanceof ElementNode)
-				if (!(((Node) n).getName().equals(NodeNameUtils.fixElementName((Node) n))))
-					fixNeeded++;
-		}
-		if (fixNeeded > 0) {
-			// FIXME - this must be done in UI thread, but is in background on startup.
-			// if (DialogUserNotifier.openConfirm("Name Rules", fixNeeded
-			// + " errors in element naming were detected. Should these be fixed automatically?"))
-			// for (TypeUser n : ln.getDescendants_TypeUsers()) {
-			// if (n instanceof ElementNode)
-			// if (!(((Node) n).getName().equals(NodeNameUtils.fixElementName((Node) n))))
-			// ((ElementNode) n).setName("");
-			// }
-		}
+		defaultPath = defaultProject.getTLProject().getProjectFile().getPath();
 	}
 
 	public List<ProjectItem> openLibrary(Project project, List<File> fileName, ValidationFindings findings)
@@ -183,17 +158,17 @@ public class DefaultProjectController implements ProjectController {
 			newItems = openLibrary(project, libraryFiles, findings);
 			ValidationFindings loadingFindings = getLoadingFindings(findings);
 			if (!loadingFindings.isEmpty()) {
-				LOGGER.error("Validation findings opening: " + libraryFiles);
+				// LOGGER.error("Validation findings opening: " + libraryFiles);
 				showFindings(loadingFindings);
 			}
 		} catch (RepositoryException e) {
-			LOGGER.error("Could not add library file to project.");
+			// LOGGER.error("Could not add library file to project.");
 			DialogUserNotifier.openError("Project Error", "Could not add to project.");
 		} catch (LibraryLoaderException e) {
-			LOGGER.error("Could not add library file to project.");
+			// LOGGER.error("Could not add library file to project.");
 			DialogUserNotifier.openError("Project Error", "Could not add to project.");
 		} catch (Throwable e) {
-			LOGGER.error("Error when adding to project", e);
+			// LOGGER.error("Error when adding to project", e);
 			DialogUserNotifier.openError("Project Error", "Could not add to project.");
 		}
 		// LOGGER.debug("Added libraries to " + project.getName());
@@ -243,10 +218,10 @@ public class DefaultProjectController implements ProjectController {
 				// LOGGER.debug("Added library " + ln.getName() + " to " + pn);
 			}
 		} catch (RepositoryException e) {
-			LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
+			// LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
 			DialogUserNotifier.openError("Project Error", e.getLocalizedMessage());
 		} catch (IllegalArgumentException ex) {
-			LOGGER.error("Could not add repository item to project. " + ex.getLocalizedMessage());
+			// LOGGER.error("Could not add repository item to project. " + ex.getLocalizedMessage());
 			DialogUserNotifier.openError("Project Error", ex.getLocalizedMessage());
 		}
 		return lnn;
@@ -266,13 +241,13 @@ public class DefaultProjectController implements ProjectController {
 		try {
 			pi = pn.getTLProject().getProjectManager().addUnmanagedProjectItem(tlLib, pn.getTLProject());
 		} catch (RepositoryException e) {
-			LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
+			// LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
 			DialogUserNotifier.openError("Project Error", e.getLocalizedMessage());
 		}
 		if (pi != null)
 			ln = new LibraryNode(pi, ln.getChain());
 		mc.refresh(pn);
-		LOGGER.debug("Added library " + ln.getName() + " to " + pn);
+		// LOGGER.debug("Added library " + ln.getName() + " to " + pn);
 		return ln;
 	}
 
@@ -327,11 +302,11 @@ public class DefaultProjectController implements ProjectController {
 							Messages.getString("dialog.findings.message"), findings.getAllFindingsAsList());
 			}
 		} catch (LibraryLoaderException e) {
-			LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
+			// LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
 			DialogUserNotifier.openError("Project Error", e.getLocalizedMessage());
 
 		} catch (RepositoryException e) {
-			LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
+			// LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
 			DialogUserNotifier.openError("Project Error", e.getLocalizedMessage());
 		}
 
@@ -366,7 +341,7 @@ public class DefaultProjectController implements ProjectController {
 		try {
 			newProject = projectManager.newProject(file, ID, name, description);
 		} catch (Exception e) {
-			LOGGER.error("Could not create new project: ", e);
+			// LOGGER.error("Could not create new project: ", e);
 			DialogUserNotifier.openError("New Project Error", e.getLocalizedMessage());
 			return null;
 		}
@@ -413,13 +388,13 @@ public class DefaultProjectController implements ProjectController {
 		return defaultProject == null ? "" : defaultProject.getNamespace();
 	}
 
-	/**
-	 * @param defaultProject
-	 *            the defaultProject to set
-	 */
-	public void setDefaultProject(ProjectNode defaultProject) {
-		this.defaultProject = defaultProject;
-	}
+	// /**
+	// * @param defaultProject
+	// * the defaultProject to set
+	// */
+	// public void setDefaultProject(ProjectNode defaultProject) {
+	// this.defaultProject = defaultProject;
+	// }
 
 	@Override
 	public String getNamespace() {
@@ -448,7 +423,7 @@ public class DefaultProjectController implements ProjectController {
 					Job job = new Job("Opening Saved Projects") {
 						@Override
 						protected IStatus run(IProgressMonitor monitor) {
-							monitor.beginTask("Opening Project", memento.getChildren().length + 1);
+							monitor.beginTask("Opening Project", memento.getChildren().length * 2);
 							monitor.worked(1);
 							IStatus status = loadProjects(memento, monitor);
 
@@ -457,7 +432,7 @@ public class DefaultProjectController implements ProjectController {
 							testAndSetDefaultProject();
 
 							monitor.done();
-							syncWithUi("Project Opened");
+							DialogUserNotifier.syncWithUi("Project Opened");
 							return status;
 						};
 					};
@@ -469,20 +444,15 @@ public class DefaultProjectController implements ProjectController {
 		// LOGGER.info("Done initializing " + this.getClass());
 	}
 
-	public void open(ArrayList<String> projectFiles, IProgressMonitor monitor) {
-		for (String fileName : projectFiles) {
-			ValidationFindings findings = null;
-			Project project = openProject(fileName, findings);
-			if (monitor != null) {
-				monitor.worked(1);
-				monitor.subTask(fileName);
-			}
-			loadProject(project);
-		}
-	}
-
+	/**
+	 * Entry point for command handler.
+	 * 
+	 * Prompt the user for the file path. Creates job to run open(filePath, progressMonitor) then runs type resolver. If
+	 * there is no current display the project is simply opened and type resolver run.
+	 */
 	@Override
 	public void open() {
+		LOGGER.debug("Open Project.");
 		String[] extensions = { "*." + PROJECT_EXT };
 		final String fn = FileDialogs.postFileDialog(extensions, dialogText);
 		if (fn == null)
@@ -499,13 +469,12 @@ public class DefaultProjectController implements ProjectController {
 				protected IStatus run(IProgressMonitor monitor) {
 					monitor.beginTask("Opening Project: " + fn, 3);
 					monitor.worked(1);
-					open(fn, monitor);
-
+					OpenedProject op = open(fn, monitor);
 					monitor.worked(1);
 					new TypeResolver().resolveTypes();
 
 					monitor.done();
-					syncWithUi("Project Opened");
+					DialogUserNotifier.syncWithUi(op.resultMsg);
 					return Status.OK_STATUS;
 				}
 			};
@@ -514,70 +483,125 @@ public class DefaultProjectController implements ProjectController {
 		}
 	}
 
-	public Project openProject(String fileName, ValidationFindings findings) {
-		LOGGER.debug("Opening Project. Filename = " + fileName);
-		File projectFile = new File(fileName);
+	// /**
+	// * Open and load project in current thread.
+	// */
+	// // Used by Revert
+	// @Override
+	// public ProjectNode openAndLoadProject(String fileName) {
+	// OpenedProject project = openTLProject(fileName);
+	// return loadProject(project.tlProject);
+	// }
+
+	/**
+	 * Open the TL Project using the file name. If in the GUI thread will show busy.
+	 * 
+	 * @param fileName
+	 *            project file to open
+	 * @return new OpenedProject containing the opened TL Project and error and success messages and findings.
+	 */
+	public OpenedProject openTLProject(String fileName) {
+		// LOGGER.debug("Opening Project. Filename = " + fileName);
+		String resultMsg = "";
 		Project project = null;
+		File projectFile = new File(fileName);
+		ValidationFindings findings = new ValidationFindings();
+
 		boolean isUI = Display.getCurrent() != null;
 		if (isUI)
 			mc.showBusy(true);
 		try {
 			project = projectManager.loadProject(projectFile, findings);
 		} catch (RepositoryException e) {
-			postLoadError("Project Error", MessageFormat.format(
-					Messages.getString("error.openProject.invalidRemoteProject"), e.getMessage(),
-					projectFile.toString()));
+			resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
+			project = null;
 		} catch (LibraryLoaderException e) {
-			// happens when default project is created.
-			postLoadError("Project Error", "Could not load project libraries.");
+			resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
 			project = null;
 		} catch (IllegalArgumentException e) {
-			postLoadError("Error opening project. ", e.getMessage());
+			resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
 			project = null;
 		} catch (Throwable e) {
-			String msg = e.getMessage();
-			if (msg == null || msg.isEmpty())
-				msg = e.getClass().getSimpleName();
-			postLoadError("Error opening project. ", msg);
+			resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
 			project = null;
 		}
-		if (project != null) {
-			if (project.getProjectItems().isEmpty())
-				postLoadError("Error opening project. ", "Project has no libraries.");
-			LOGGER.debug("Read " + project.getProjectItems().size() + " items from project: " + projectFile);
-		}
+
 		if (isUI)
 			mc.showBusy(false);
-		return project;
+
+		if (project != null) {
+			if (project.getProjectItems().isEmpty()) {
+				resultMsg = "Could not load project. Project could not read libraries.";
+				if (Display.getCurrent() != null)
+					DialogUserNotifier.openError("Project Error", resultMsg);
+			} else
+				resultMsg = project.getProjectItems().size() + " project items read.";
+			// LOGGER.debug("Read " + project.getProjectItems().size() + " items from project: " + fileName);
+		}
+
+		OpenedProject op = new OpenedProject();
+		op.resultMsg = resultMsg;
+		op.tlProject = project;
+		op.findings = findings;
+		return op;
 	}
 
-	private void postLoadError(String title, String message) {
+	private String postLoadError(String errorMsg, String fileName) {
+		String title = "Project Error";
+		String message = MessageFormat.format(Messages.getString("error.openProject.invalidRemoteProject"), errorMsg,
+				fileName);
+
 		if (Display.getCurrent() != null) {
 			mc.showBusy(false);
 			DialogUserNotifier.openError(title, message);
 		}
 		LOGGER.error(title + " : " + message);
+		return message;
 	}
 
-	@Override
-	public ProjectNode open(String fileName, IProgressMonitor monitor) {
-		if (fileName == null || fileName.isEmpty())
-			LOGGER.error("Tried to open null or empty file.");
+	/**
+	 * Convenience function for {@link #open(ArrayList, IProgressMonitor)}. Opens project using the file name. Update
+	 * UI. Then loadProject()
+	 */
+	public OpenedProject open(String fileName, IProgressMonitor monitor) {
+		ArrayList<String> fileNames = new ArrayList<>();
+		fileNames.add(fileName);
+		return open(fileNames, monitor);
+	}
+
+	/**
+	 * Open Projects using the file names. Update UI and monitor twice for each file. Then loadProject() Used in open()
+	 * and refreshMaster()
+	 */
+	public OpenedProject open(ArrayList<String> projectFiles, IProgressMonitor monitor) {
 		// LOGGER.debug("Opening project from file: " + fileName);
-
-		ValidationFindings findings = null;
-		Project project = openProject(fileName, findings);
-		if (monitor != null) {
-			monitor.worked(1);
-			Display.getDefault().asyncExec(new Runnable() {
-				public void run() {
-					mc.refresh(); // update the user interface asynchronously
-				}
-			});
+		OpenedProject op = null;
+		if (projectFiles == null || projectFiles.isEmpty()) {
+			op = new OpenedProject();
+			op.resultMsg = "Tried to open null or empty file.";
+			return op;
 		}
-		ProjectNode pn = loadProject(project);
+		for (String fileName : projectFiles) {
+			if (monitor != null)
+				monitor.subTask("Opening " + fileName);
+			op = openTLProject(fileName);
+			if (monitor != null)
+				monitor.worked(1);
+			op.project = loadProject(op.tlProject);
 
-		return pn;
+			// If project is null and monitor is not null then an error occurred in background
+			if (monitor != null) {
+				monitor.worked(1);
+				if (op.project == null)
+					DialogUserNotifier.syncErrorWithUi(op.resultMsg);
+				Display.getDefault().asyncExec(new Runnable() {
+					public void run() {
+						mc.refresh(); // update the user interface asynchronously
+					}
+				});
+			}
+		}
+		return op;
 	}
 
 	/**
@@ -603,8 +627,6 @@ public class DefaultProjectController implements ProjectController {
 		}
 		// LOGGER.debug("Creating Project Node.");
 		ProjectNode pn = new ProjectNode(project);
-		for (LibraryNode ln : pn.getLibraries())
-			fixElementNames(ln);
 		if (Display.getCurrent() != null) {
 			mc.selectNavigatorNodeAndRefresh(pn);
 			mc.postStatus("Loaded Project: " + pn);
@@ -690,6 +712,11 @@ public class DefaultProjectController implements ProjectController {
 		projectManager.closeAll();
 	}
 
+	/**
+	 * Create a list of all project files then close all projects.
+	 * 
+	 * Then, in a background job, refresh the TL Projects then reopen the projects.
+	 */
 	@Override
 	public void refreshMaster() {
 		ArrayList<String> projectFiles = new ArrayList<>();
@@ -714,7 +741,7 @@ public class DefaultProjectController implements ProjectController {
 			return;
 		}
 
-		final int jobcount = projectFiles.size() + 2;
+		final int jobcount = projectFiles.size() * 2;
 		final ArrayList<String> projects = new ArrayList<String>(projectFiles);
 		mc.postStatus("Opening Projects");
 		// run in a background job
@@ -728,17 +755,18 @@ public class DefaultProjectController implements ProjectController {
 					projectManager.refreshManagedProjectItems();
 				} catch (LibraryLoaderException | RepositoryException e) {
 					monitor.done();
-					syncWithUi("Error refreshing from repository.");
+					DialogUserNotifier.syncWithUi("Error refreshing from repository.");
 					return Status.CANCEL_STATUS;
 				}
 				monitor.worked(1);
 				open(projects, monitor);
 
 				monitor.worked(1);
+				monitor.subTask("Resolving types.");
 				new TypeResolver().resolveTypes();
 
 				monitor.done();
-				syncWithUi("Projects Refreshed");
+				DialogUserNotifier.syncWithUi("Projects Refreshed");
 				return Status.OK_STATUS;
 			}
 		};
@@ -764,7 +792,7 @@ public class DefaultProjectController implements ProjectController {
 		} catch (LibrarySaveException e) {
 			// e.printStackTrace();
 			mc.showBusy(false);
-			LOGGER.error("Could not save project");
+			// LOGGER.error("Could not save project");
 			DialogUserNotifier.openError("Project Error", "Could not save project. \n" + e.getLocalizedMessage());
 		}
 		mc.showBusy(false);
@@ -785,7 +813,7 @@ public class DefaultProjectController implements ProjectController {
 			try {
 				pm.saveProject(p);
 			} catch (LibrarySaveException e) {
-				e.printStackTrace();
+				// e.printStackTrace();
 				LOGGER.error("Could not save project");
 			}
 
@@ -887,6 +915,9 @@ public class DefaultProjectController implements ProjectController {
 			monitor.beginTask("Opening Projects", memento.getChildren(OTM_PROJECT).length * 2);
 			for (IMemento mProject : children) {
 				monitor.subTask(mProject.getString(OTM_PROJECT_LOCATION));
+				// Skip the default project which is opened earlier
+				if (mProject.getString(OTM_PROJECT_LOCATION).equals(defaultPath))
+					continue;
 				open(mProject.getString(OTM_PROJECT_LOCATION), monitor);
 				monitor.worked(1);
 				if (monitor.isCanceled()) {
@@ -1041,50 +1072,52 @@ public class DefaultProjectController implements ProjectController {
 
 	}
 
-	/**
-	 * Open a project in a UI thread with wait cursor.
-	 * 
-	 * See DefaultRepositoryController for details.
-	 * 
-	 * @author Dave
-	 * 
-	 */
-	class OpenProjectThread extends Thread {
-		private String fileName;
-		private ValidationFindings findings = new ValidationFindings();
-		private ProjectNode projectNode = null;
-
-		public OpenProjectThread(String filename) {
-			this.fileName = filename;
-		}
-
-		public ValidationFindings getFindings() {
-			return findings;
-		}
-
-		public ProjectNode getProjectNode() {
-			return projectNode;
-		}
-
-		public void run() {
-			Project project = openProject(fileName, findings);
-			if (project != null) {
-				ValidationFindings loadingFindings = getLoadingFindings(findings);
-				if (!loadingFindings.isEmpty()) {
-					showFindings(loadingFindings);
-					// for (String finding : loadingFindings
-					// .getAllValidationMessages(FindingMessageFormat.MESSAGE_ONLY_FORMAT))
-					// LOGGER.debug("Finding: " + finding);
-				}
-
-				projectNode = loadProject(project); // Create gui model for the project
-
-				final ValidationResultsView view = OtmRegistry.getValidationResultsView();
-				if (view != null) {
-					view.setFindings(findings, projectNode);
-				}
-			}
-		}
-	}
+	// /**
+	// * Open a project in a UI thread with wait cursor.
+	// *
+	// * See DefaultRepositoryController for details.
+	// *
+	// * @author Dave
+	// *
+	// */
+	// // UNUSED
+	// // @Deprecated
+	// class OpenProjectThread extends Thread {
+	// private String fileName;
+	// private ValidationFindings findings = new ValidationFindings();
+	// private ProjectNode projectNode = null;
+	//
+	// public OpenProjectThread(String filename) {
+	// this.fileName = filename;
+	// }
+	//
+	// public ValidationFindings getFindings() {
+	// return findings;
+	// }
+	//
+	// public ProjectNode getProjectNode() {
+	// return projectNode;
+	// }
+	//
+	// public void run() {
+	// Project project = openTLProject(fileName).tlProject;
+	// if (project != null) {
+	// ValidationFindings loadingFindings = getLoadingFindings(findings);
+	// if (!loadingFindings.isEmpty()) {
+	// showFindings(loadingFindings);
+	// // for (String finding : loadingFindings
+	// // .getAllValidationMessages(FindingMessageFormat.MESSAGE_ONLY_FORMAT))
+	// // LOGGER.debug("Finding: " + finding);
+	// }
+	//
+	// projectNode = loadProject(project); // Create gui model for the project
+	//
+	// final ValidationResultsView view = OtmRegistry.getValidationResultsView();
+	// if (view != null) {
+	// view.setFindings(findings, projectNode);
+	// }
+	// }
+	// }
+	// }
 
 }

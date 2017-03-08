@@ -30,8 +30,6 @@ import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Node visitors for generic, commonly used functions.
@@ -42,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class NodeVisitors {
-	private static final Logger LOGGER = LoggerFactory.getLogger(NodeVisitors.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(NodeVisitors.class);
 
 	/**
 	 * Close this node. Do not change the model. Does delete type assignments. Does not delete children nor change view
@@ -57,7 +55,7 @@ public class NodeVisitors {
 
 		@Override
 		public void visit(INode n) {
-			LOGGER.debug("CloseVisitor: closing " + n);
+			// LOGGER.debug("CloseVisitor: closing " + n);
 			Node node = (Node) n;
 
 			// Use override behavior because Library nodes must clear out context.
@@ -70,10 +68,10 @@ public class NodeVisitors {
 
 			// Unlink from tree
 			node.deleted = true;
-			if (node.getParent() != null && node.getParent().getChildren() != null) {
+			if (node.getParent() != null && node.getParent().getChildren() != null)
 				node.getParent().getChildren().remove(node);
-			} else
-				LOGGER.debug("Could not remove " + node + " from parent.");
+			// else
+			// LOGGER.debug("Could not remove " + node + " from parent.");
 
 			node.setParent(null);
 			node.setLibrary(null);

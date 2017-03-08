@@ -22,21 +22,42 @@ import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
 
 /**
+ * Create a major/minor/patch version of the library
+ *
  * @author Dave Hollander
  * 
  */
-// TODO - collapse the major/minor/patch into one
-@Deprecated
-public class VersionMajorAction extends OtmAbstractAction {
+public class VersionAction extends OtmAbstractAction {
 	private static StringProperties propsDefault = new ExternalizedStringProperties("action.library.version.major");
+	private static StringProperties propsMajor = new ExternalizedStringProperties("action.library.version.major");
+	private static StringProperties propsMinor = new ExternalizedStringProperties("action.library.version.minor");
+	private static StringProperties propsPatch = new ExternalizedStringProperties("action.library.version.patch");
+	private VersionType versionType = null;
 
-	public VersionMajorAction() {
+	public enum VersionType {
+		MAJOR, MINOR, PATCH
+	}
+
+	public VersionAction(VersionType type) {
 		super(propsDefault);
+		versionType = type;
+		// Override the default properties
+		switch (versionType) {
+		case MAJOR:
+			initialize(propsMajor);
+			break;
+		case MINOR:
+			initialize(propsMinor);
+			break;
+		case PATCH:
+			initialize(propsPatch);
+			break;
+		}
 	}
 
-	public VersionMajorAction(final StringProperties props) {
-		super(props);
-	}
+	// public VersionAction(final StringProperties props) {
+	// super(props);
+	// }
 
 	/**
 	 * run repository controller create major version
@@ -44,11 +65,28 @@ public class VersionMajorAction extends OtmAbstractAction {
 	@Override
 	public void run() {
 		for (Node node : mc.getSelectedNodes_NavigatorView()) {
-			mc.postStatus("Major Version " + node);
 			RepositoryController rc = mc.getRepositoryController();
 			node = node.getLibrary();
-			if (node instanceof LibraryNode)
-				rc.createMajorVersion((LibraryNode) node);
+			if (!(node.getLibrary() instanceof LibraryNode))
+				return;
+			LibraryNode ln = node.getLibrary();
+			if (ln.getTLaLib().getOwningModel() == null)
+				return;
+
+			switch (versionType) {
+			case MAJOR:
+				mc.postStatus("Major Version " + ln);
+				rc.createMajorVersion(ln);
+				break;
+			case MINOR:
+				mc.postStatus("Minor Version " + node);
+				rc.createMinorVersion(ln);
+				break;
+			case PATCH:
+				mc.postStatus("Patch Version " + node);
+				rc.createPatchVersion(ln);
+				break;
+			}
 		}
 	}
 
@@ -59,8 +97,8 @@ public class VersionMajorAction extends OtmAbstractAction {
 		if (n != null)
 			ln = n.getLibrary();
 		// Don't allow lock unless library is in a project with managing namespace
-		if (!ln.isInProjectNS())
+		if (ln == null || !ln.isInProjectNS())
 			return false;
-		return ln != null && ln.isManaged();
+		return ln.isManaged();
 	}
 }

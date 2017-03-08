@@ -253,14 +253,14 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 
 	@Override
 	public boolean isDeleteable() {
-		if (isInheritedProperty())
+		if (isInherited())
 			return false;
 		if (isNamedEntity()) {
 			// Node's delete logic is based on owning component which will be wrong for contextual facets in version 1.6
 			// and later.
 			return getLibrary().isEditable() && isInHead2();
 		}
-		return super.isDeleteable(true) && !isInheritedProperty();
+		return super.isDeleteable(true) && !isInherited();
 	}
 
 	/**

@@ -47,13 +47,12 @@ import org.opentravel.schemacompiler.model.BuiltInLibrary;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.XSDLibrary;
-import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.controllers.NodeUtils;
+import org.opentravel.schemas.node.SimpleComponentNode;
+import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.trees.type.TypeSelectionFilter;
 import org.opentravel.schemas.trees.type.TypeTree;
 import org.opentravel.schemas.trees.type.TypeTreeNameFilter;
@@ -294,13 +293,22 @@ public class TypeSelectionPage extends WizardPage {
 
 	private List<Node> getExcludeNodes(INode node) {
 		Node n = (Node) node;
-		if (NodeUtils.checker(n).ownerIs(ComponentNodeType.VWA).is(PropertyNodeType.SIMPLE).get()) {
+		if (n.getOwningComponent() instanceof VWA_Node && n instanceof SimpleComponentNode)
 			return Collections.singletonList(n.getOwningComponent());
-		} else if (NodeUtils.checker(n).ownerIs(ComponentNodeType.CORE).is(PropertyNodeType.SIMPLE).get()) {
+
+		if (n.getOwningComponent() instanceof CoreObjectNode && n instanceof SimpleComponentNode)
 			return Collections.singletonList(n.getOwningComponent());
-		} else if (NodeUtils.checker(n).is(ComponentNodeType.CORE).get()) {
+
+		if (n instanceof CoreObjectNode)
 			return Collections.singletonList(n);
-		}
+
+		// if (NodeUtils.checker(n).ownerIs(ComponentNodeType.VWA).is(PropertyNodeType.SIMPLE).get()) {
+		// return Collections.singletonList(n.getOwningComponent());
+		// } else if (NodeUtils.checker(n).ownerIs(ComponentNodeType.CORE).is(PropertyNodeType.SIMPLE).get()) {
+		// return Collections.singletonList(n.getOwningComponent());
+		// } else if (n instanceof CoreObjectNode) {
+		// return Collections.singletonList(n);
+		// }
 		return Collections.emptyList();
 	}
 

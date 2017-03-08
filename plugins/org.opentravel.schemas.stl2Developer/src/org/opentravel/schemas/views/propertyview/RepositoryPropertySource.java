@@ -22,7 +22,10 @@ import java.util.List;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.opentravel.ns.ota2.repositoryinfo_v01_00.RefreshPolicy;
 import org.opentravel.schemacompiler.repository.Repository;
+import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
+import org.opentravel.schemacompiler.repository.RepositoryItemCommit;
+import org.opentravel.schemacompiler.repository.RepositoryItemHistory;
 import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 import org.opentravel.schemas.properties.Messages;
@@ -50,7 +53,8 @@ public class RepositoryPropertySource extends AbstractPropertySource<RepositoryN
 				.getString("view.properties.repository.label.refresh"), CAT_BASIC, Messages
 				.getString("view.properties.repository.tooltip.refresh")), PERMISSON(Messages
 				.getString("view.properties.repository.label.permission"), CAT_BASIC), LOCKED_BY(Messages
-				.getString("view.properties.repository.label.lockedBy"), CAT_BASIC);
+				.getString("view.properties.repository.label.lockedBy"), CAT_BASIC), HISTORY(Messages
+				.getString("view.properties.library.label.commitHistory"), CAT_BASIC);
 
 		private final String displayName;
 		private final String category;
@@ -110,6 +114,13 @@ public class RepositoryPropertySource extends AbstractPropertySource<RepositoryN
 		}
 		if (source instanceof RepositoryItemNode) {
 			setters.add(createLockedBy(((RepositoryItemNode) source).getItem()));
+
+			// I can't figure out how to do a list. so just do the 1st one.
+			List<RepositoryItemCommit> histories = getHistories(((RepositoryItemNode) source).getItem());
+			if (histories != null)
+				setters.add(createHistoryItem(histories.get(0)));
+			// for (RepositoryItemCommit history : getHistories(((RepositoryItemNode) source).getItem()))
+			// setters.add(createHistoryItem(history));
 		}
 		return setters;
 	}
@@ -260,6 +271,71 @@ public class RepositoryPropertySource extends AbstractPropertySource<RepositoryN
 			}
 		};
 	}
+
+	private List<RepositoryItemCommit> getHistories(RepositoryItem repositoryItem) {
+		RepositoryItemHistory h = null;
+		List<RepositoryItemCommit> histories = null;
+		try {
+			h = repositoryItem.getRepository().getHistory(repositoryItem);
+			histories = h.getCommitHistory();// LOGGER.debug("Committed " + this);
+		} catch (RepositoryException e) {
+		}
+		return histories;
+	}
+
+	// private String toString(RepositoryItemCommit item) {
+	// return item != null ? item.getRemarks() + " by " + item.getUser() + " on " + item.getEffectiveOn() : "";
+	// }
+
+	private PropertySetter createHistoryItem(final RepositoryItemCommit item) {
+		return new ReadonlyEnumSetter(RepositoryProperties.HISTORY) {
+
+			@Override
+			public void setValue(Object value) {
+				// DO NOTHING
+			}
+
+			@Override
+			public Object getValue() {
+				return item != null ? item.getRemarks() + " by " + item.getUser() + " on " + item.getEffectiveOn() : "";
+				// return RepositoryPropertySource.this.toString(item);
+			}
+		};
+	}
+
+	// Using Enum combo throws SWT disposed wigit exception
+	//
+	// private PropertySetter createCommitHistory(final RepositoryItem repositoryItem) {
+	// return new ReadonlyEnumSetter(RepositoryProperties.HISTORY) {
+	//
+	// @Override
+	// public void setValue(Object value) {
+	// // DO NOTHING
+	// }
+	//
+	// @Override
+	// public Object getValue() {
+	// List<RepositoryItemCommit> histories = getHistories(repositoryItem);
+	// RepositoryItemCommit item = null;
+	// if (histories != null)
+	// item = histories.get(0);
+	// return RepositoryPropertySource.this.toString(item);
+	// }
+	//
+	// @Override
+	// public PropertyDescriptor createPropertyDescriptor() {
+	// List<RepositoryItemCommit> histories = getHistories(repositoryItem);
+	// List<String> str = new ArrayList<String>();
+	// if (histories != null)
+	// for (RepositoryItemCommit item : histories)
+	// str.add(RepositoryPropertySource.this.toString(item));
+	//
+	// ComboboxPropertyDescriptor pd = new ComboboxPropertyDescriptor(getId(), getDisplayName(), str);
+	// return pd;
+	//
+	// }
+	// };
+	// }
 
 	abstract class ReadonlyEnumSetter extends EnumPropertySetter {
 

@@ -69,7 +69,7 @@ public class LibraryTreeLabelProvider extends LabelProvider implements IFontProv
 			final Node n = (Node) element;
 			if (!n.isEditable())
 				font = Fonts.getFontRegistry().get(Fonts.readOnlyItem);
-			else if (n.isInheritedProperty() || NodeUtils.checker(n).isInheritedFacet().get())
+			else if (n.isInherited() || NodeUtils.checker(n).isInheritedFacet().get())
 				font = Fonts.getFontRegistry().get(Fonts.inheritedItem);
 			// is this inherited from an earlier version?
 			else if (n.getChain() != null && n.getLibrary() != n.getChain().getHead())
@@ -89,7 +89,7 @@ public class LibraryTreeLabelProvider extends LabelProvider implements IFontProv
 			final Node n = (Node) element;
 			if (n.isDeprecated())
 				color = OtmRegistry.getMainWindow().getColorProvider().getColor(SWT.COLOR_DARK_MAGENTA);
-			else if (n.isInheritedProperty() || NodeUtils.checker(n).isInheritedFacet().get())
+			else if (n.isInherited() || NodeUtils.checker(n).isInheritedFacet().get())
 				color = OtmRegistry.getMainWindow().getColorProvider().getColor(SWT.COLOR_DARK_BLUE);
 			else if (!n.isEditable())
 				color = OtmRegistry.getMainWindow().getColorProvider().getColor(SWT.COLOR_DARK_GRAY);

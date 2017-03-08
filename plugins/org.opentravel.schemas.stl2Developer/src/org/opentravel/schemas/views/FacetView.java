@@ -411,7 +411,7 @@ public class FacetView extends OtmAbstractView {
 		if (!getMainWindow().hasDisplay())
 			return;
 		if (target == null || target.isDeleted()) {
-			LOGGER.warn("Posted deleted node: " + target);
+			// LOGGER.warn("Posted deleted node: " + target);
 			return;
 		}
 		// LOGGER.debug("Posting facet table for node: " + target);

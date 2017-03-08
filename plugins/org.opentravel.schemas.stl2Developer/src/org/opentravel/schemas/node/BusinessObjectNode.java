@@ -324,7 +324,7 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	}
 
 	// Custom Facets
-	public List<ComponentNode> getCustomFacets() {
+	public List<CustomFacetNode> getCustomFacets() {
 		return getCustomFacets(false);
 	}
 
@@ -333,16 +333,16 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	 *            add inherited facets to the list
 	 * @return new list of custom facets
 	 */
-	public List<ComponentNode> getCustomFacets(boolean includeInherited) {
-		ArrayList<ComponentNode> ret = new ArrayList<ComponentNode>();
+	public List<CustomFacetNode> getCustomFacets(boolean includeInherited) {
+		ArrayList<CustomFacetNode> ret = new ArrayList<CustomFacetNode>();
 		for (INode f : getChildren()) {
 			if (f instanceof CustomFacetNode)
-				ret.add((ComponentNode) f);
+				ret.add((CustomFacetNode) f);
 		}
 		if (includeInherited)
 			for (INode f : getInheritedChildren())
 				if (f instanceof CustomFacetNode)
-					ret.add((ComponentNode) f);
+					ret.add((CustomFacetNode) f);
 		return ret;
 	}
 
@@ -416,7 +416,10 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 		getIDFacet().addProperties(business.getIDFacet().getChildren(), true);
 		getSummaryFacet().addProperties(business.getSummaryFacet().getChildren(), true);
 		getDetailFacet().addProperties(business.getDetailFacet().getChildren(), true);
-		copyFacet(business.getCustomFacets());
+
+		List<ComponentNode> customs = new ArrayList<ComponentNode>();
+		customs.addAll(business.getCustomFacets());
+		copyFacet(customs);
 		copyFacet(business.getQueryFacets());
 	}
 

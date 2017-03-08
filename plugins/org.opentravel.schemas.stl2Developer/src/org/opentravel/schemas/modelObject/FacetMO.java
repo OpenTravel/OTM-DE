@@ -53,10 +53,14 @@ public class FacetMO extends ModelObject<TLFacet> {
 		addBaseListener();
 	}
 
-	public void attachInheritanceListener() {
-		removeBaseListener();
-		addBaseListener();
-	}
+	// 3/4/2017 - dmh
+	// TODO - the listeners have been commented out prior to deletion. Testing without them is Good.
+	// TODO - Delete in next major release.
+
+	// public void attachInheritanceListener() {
+	// removeBaseListener();
+	// addBaseListener();
+	// }
 
 	private void addBaseListener() {
 		List<TLFacetType> inheritedTypes = Arrays.asList(TLFacetType.CUSTOM, TLFacetType.QUERY);
@@ -73,18 +77,19 @@ public class FacetMO extends ModelObject<TLFacet> {
 		}
 	}
 
-	public boolean isInherited() {
-		return inheritedFacetListener != null;
-	}
+	// // Was USED via NodeChecker in label providers, node tester
+	// public boolean isInherited() {
+	// return inheritedFacetListener != null;
+	// }
 
 	private void removeBaseListener() {
 		if (inheritedFacetListener != null) {
-			DefaultModelController modelC = (DefaultModelController) OtmRegistry.getMainController()
-					.getModelController();
-			modelC.removeSourceListener(inheritedFacetListener);
-			inheritedFacetListener = null;
-			modelC.removeSourceListener(ownershipListener);
-			ownershipListener = null;
+			// DefaultModelController modelC = (DefaultModelController) OtmRegistry.getMainController()
+			// .getModelController();
+			// modelC.removeSourceListener(inheritedFacetListener);
+			// inheritedFacetListener = null;
+			// modelC.removeSourceListener(ownershipListener);
+			// ownershipListener = null;
 		}
 	}
 
@@ -94,12 +99,13 @@ public class FacetMO extends ModelObject<TLFacet> {
 
 			@Override
 			public void processModelEvent(ValueChangeEvent<TLFacet, String> event) {
-				setName(event.getNewValue());
+				// setName(event.getNewValue());
 			}
 
 			@Override
 			public boolean supported(ModelEventType type) {
-				return ModelEventType.LABEL_MODIFIED.equals(type);
+				// return ModelEventType.LABEL_MODIFIED.equals(type);
+				return false;
 			}
 
 		};
@@ -114,15 +120,15 @@ public class FacetMO extends ModelObject<TLFacet> {
 
 			@Override
 			public void processModelEvent(OwnershipEvent<TLFacetOwner, TLFacet> event) {
-				List<ModelEventType> events = Arrays.asList(ModelEventType.CUSTOM_FACET_REMOVED,
-						ModelEventType.QUERY_FACET_REMOVED);
-				// it can be deleted from delete() code.
-				if (inheritedFacetListener != null) {
-					if (events.contains(event.getType())
-							&& event.getAffectedItem() == inheritedFacetListener.getSource()) {
-						removeBaseListener();
-					}
-				}
+				// List<ModelEventType> events = Arrays.asList(ModelEventType.CUSTOM_FACET_REMOVED,
+				// ModelEventType.QUERY_FACET_REMOVED);
+				// // it can be deleted from delete() code.
+				// if (inheritedFacetListener != null) {
+				// if (events.contains(event.getType())
+				// && event.getAffectedItem() == inheritedFacetListener.getSource()) {
+				// removeBaseListener();
+				// }
+				// }
 			}
 
 		};
@@ -196,44 +202,12 @@ public class FacetMO extends ModelObject<TLFacet> {
 		return inheritedKids;
 	}
 
-	// @Deprecated
-	// public static String getDisplayName(TLFacetType facetType) {
-	// switch (facetType) {
-	// case ID:
-	// return "ID-Facet";
-	// case CUSTOM:
-	// return "Custom-Facet";
-	// case DETAIL:
-	// return "Detail-Facet";
-	// case NOTIFICATION:
-	// return "Notification-Facet";
-	// case QUERY:
-	// return "Query-Facet";
-	// case REQUEST:
-	// return "Request-Facet";
-	// case RESPONSE:
-	// return "Response-Facet";
-	// case SIMPLE:
-	// return "Simple-Facet";
-	// case SUMMARY:
-	// return "Summary-Facet";
-	// case SHARED:
-	// return "Shared-Facet";
-	// case CHOICE:
-	// return "Choice-Facet";
-	// case UPDATE:
-	// return "Update-Facet";
-	// }
-	// LOGGER.debug("Warning: missing facet display name for facet of type: " + facetType);
-	// // should never happen. Make sure that switch cover all cases.
-	// return "";
-	// }
-
 	@Override
 	public TLFacet getTLModelObj() {
 		return srcObj;
 	}
 
+	// FIXME - used by aliasNode rename visitor. Is that needed anymore???
 	@Deprecated
 	@Override
 	public boolean setName(final String name) {
@@ -277,6 +251,8 @@ public class FacetMO extends ModelObject<TLFacet> {
 		// });
 	}
 
+	// TODO - remove when removing listeners
+	@Deprecated
 	private static TLFacet findGhostFacets(TLFacetOwner facetOwner, TLFacet obj) {
 		TLFacetOwner extendedOwner = FacetCodegenUtils.getFacetOwnerExtension(facetOwner);
 		Set<TLFacetOwner> visitedOwners = new HashSet<TLFacetOwner>();

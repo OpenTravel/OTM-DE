@@ -304,6 +304,10 @@ public class ProjectNode extends Node implements INode {
 		return false;
 	}
 
+	public boolean isDefaultProject() {
+		return this == OtmRegistry.getMainController().getProjectController().getDefaultProject();
+	}
+
 	@Override
 	public boolean isDeleteable() {
 		return false;

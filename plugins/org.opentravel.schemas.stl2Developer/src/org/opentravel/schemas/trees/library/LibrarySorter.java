@@ -125,7 +125,7 @@ public class LibrarySorter extends ViewerSorter {
 		}
 
 		if (n instanceof PropertyNode) {
-			int inheritAdjust = n.isInheritedProperty() ? 0 : 10;
+			int inheritAdjust = n.isInherited() ? 0 : 10;
 			// All inherited first, then actual
 			switch (((PropertyNode) n).getPropertyType()) {
 			case INDICATOR:

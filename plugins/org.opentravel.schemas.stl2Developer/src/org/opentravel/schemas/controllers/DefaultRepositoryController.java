@@ -997,7 +997,8 @@ class RevertThread extends Thread {
 			if (isDefault) {
 				loaded = mc.getProjectController().getDefaultProject();
 			} else {
-				loaded = mc.getProjectController().openProject(projectFile);
+				// loaded = mc.getProjectController().openAndLoadProject(projectFile);
+				loaded = mc.getProjectController().open(projectFile, null).project;
 			}
 			LOGGER.debug("RevertThread completed. Loaded = " + loaded);
 		} catch (RepositoryException e) {

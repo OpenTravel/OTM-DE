@@ -195,7 +195,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 			return;
 
 		// Determine if the property is in the same version as the owner. Older versions will be inherited.
-		if (((Node) user).isInheritedProperty()) {
+		if (((Node) user).isInherited()) {
 			FacetNode owningFacet = findFacet(owner, ((Node) user).getParent().getName());
 			user = (TypeUser) ((Node) user).clone(owningFacet, "");
 		}
