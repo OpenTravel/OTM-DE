@@ -832,7 +832,7 @@
 							<or>
 								<test property="stl2Developer.node.hasType">
 								</test>
-								<instanceof value="org.opentravel.schemas.types.TypeNode">
+								<instanceof value="org.opentravel.schemas.types.whereused.WhereUsedNode">
 								</instanceof>
 							</or>
 						</iterate>

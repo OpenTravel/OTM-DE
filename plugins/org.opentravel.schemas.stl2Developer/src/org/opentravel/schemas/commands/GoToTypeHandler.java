@@ -27,8 +27,8 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.types.TypeNode;
 import org.opentravel.schemas.types.TypeUser;
+import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.opentravel.schemas.views.NavigatorView;
 import org.opentravel.schemas.views.OtmView;
 import org.slf4j.Logger;
@@ -88,7 +88,7 @@ public class GoToTypeHandler extends AbstractHandler {
 	}
 
 	private Node getTypeNode(Node node) {
-		if (node instanceof TypeNode) {
+		if (node instanceof WhereUsedNode) {
 			return node.getParent();
 		}
 		if (node instanceof TypeUser)

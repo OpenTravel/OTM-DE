@@ -18,6 +18,7 @@ package org.opentravel.schemas.types;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
  * These nodes can be assigned a type.
@@ -60,6 +61,8 @@ public interface TypeUser {
 
 	public boolean isEditable();
 
+	public Node getOwningComponent();
+
 	/**
 	 * Set Assigned Type. Sets the where assigned on the associated type provider.
 	 */
@@ -79,4 +82,6 @@ public interface TypeUser {
 	boolean setAssignedType();
 
 	public void setName(String name);
+
+	public LibraryNode getLibrary();
 }

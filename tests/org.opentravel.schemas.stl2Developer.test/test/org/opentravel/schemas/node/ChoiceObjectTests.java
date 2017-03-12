@@ -195,7 +195,7 @@ public class ChoiceObjectTests {
 				+ ch2.getChoiceFacets().size());
 		// Then - the inherited tree filter depends on isInherited.
 		for (Node n : ch3.getInheritedChildren())
-			assertTrue("Must be inherited.", n.isInheritedProperty());
+			assertTrue("Must be inherited.", n.isInherited());
 
 		//
 		// When - adding and deleting facets to base types

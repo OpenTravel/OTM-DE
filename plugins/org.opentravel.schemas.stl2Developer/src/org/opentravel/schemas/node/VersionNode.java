@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
@@ -110,6 +111,16 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 	@Override
 	public BaseNodeListener getNewListener() {
 		return null; // tl object already points to head.
+	}
+
+	public List<Node> getAllVersions() {
+		List<Node> versions = new ArrayList<Node>();
+		Node v = head;
+		do {
+			versions.add(v);
+			v = v.getVersionNode().getPreviousVersion();
+		} while (v != null);
+		return versions;
 	}
 
 	@Override

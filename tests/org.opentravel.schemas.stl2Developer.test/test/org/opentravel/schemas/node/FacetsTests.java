@@ -22,7 +22,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.After;
@@ -37,11 +36,8 @@ import org.opentravel.schemacompiler.model.TLListFacet;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
-import org.opentravel.schemacompiler.repository.Repository;
-import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.modelObject.SimpleAttributeMO;
@@ -72,7 +68,6 @@ import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
-import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.types.TestTypes;
 import org.opentravel.schemas.utils.FacetNodeBuilder;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
@@ -123,10 +118,7 @@ public class FacetsTests {
 		ln_inChain.setEditable(true);
 		assertTrue("Library must exist.", ln != null);
 		assertTrue("Library must exist.", ln_inChain != null);
-		constructorTL_Tests();
-	}
 
-	private void constructorTL_Tests() {
 		// Given - one of each TLFacet type.
 		TLFacet tlf = new TLFacet();
 		assertTrue("Facet must not be null.", tlf != null);
@@ -172,8 +164,12 @@ public class FacetsTests {
 
 		// Then - there should be an inherited facet.
 		assertTrue("Must have inherited child.", !extendedBO.getInheritedChildren().isEmpty());
-		CustomFacetNode inheritedCustom = (CustomFacetNode) extendedBO.getCustomFacets(true).get(0);
-		assertTrue("Must have inherited custom facet.", inheritedCustom != null);
+		CustomFacetNode inheritedCustom = null;
+		for (CustomFacetNode cf : extendedBO.getCustomFacets(true)) {
+			if (cf.getInheritsFrom() == c1)
+				inheritedCustom = cf;
+		}
+		assertTrue("Must have inherited c1 custom facet.", inheritedCustom != null);
 
 		// Then - there should be inherited children in the facets.
 		List<Node> inheritedKids = extendedBO.getSummaryFacet().getInheritedChildren();
@@ -181,12 +177,36 @@ public class FacetsTests {
 		assertTrue("Extended BO summary must have properties.", !kids.isEmpty());
 		assertTrue("Extended BO summary must have inherited properties.", !inheritedKids.isEmpty());
 
+		// When - custom facet name change
+		String newName = "ChangedName";
+		String startingName = inheritedCustom.getName();
+		c1.setName(newName);
+		// Then - name must change on inherited facet
+		assertTrue(c1.getName().contains(newName));
+		assertTrue(!inheritedCustom.getName().equals(startingName));
+
 		// When - delete the attribute in c1 (base custom)
 		inheritedKids = inheritedCustom.getInheritedChildren();
 		kids = inheritedCustom.getChildren();
 		c1.remove(a1);
 		inheritedCustom.getChildren();
 		// TODO - finish test
+	}
+
+	@Test
+	public void Facets_MergeTests() {
+
+		// Given - a BO in a library
+		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
+		BusinessObjectNode baseBO = ml.addBusinessObjectToLibrary(ln, "BaseBO");
+		// Given - a second BO
+		BusinessObjectNode sourceBO = ml.addBusinessObjectToLibrary(ln, "SourceBO");
+		int originalSize = baseBO.getCustomFacets().size();
+
+		// When - merged
+		baseBO.merge(sourceBO);
+		// Then - there must be additional custom facets.
+		assertTrue(baseBO.getCustomFacets().size() > originalSize);
 	}
 
 	@Test
@@ -384,37 +404,37 @@ public class FacetsTests {
 		// TODO - make sure minor version has inherited children
 	}
 
-	@Test
-	public void repositoryTestsNeedToBeMoved() throws RepositoryException {
-		String myNS = "http://local/junits";
-		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
-		assertTrue("Repository controller must not be null.", rc != null);
-		assertTrue("Local repository must not be null.", rc.getLocalRepository() != null);
-		List<RepositoryNode> repos = rc.getAll();
-		RepositoryNode localRepoNode = rc.getLocalRepository();
-		LOGGER.debug("Repo namespace is ", rc.getLocalRepository().getNamespaceWithPrefix());
-		Repository localRepo = localRepoNode.getRepository();
-		List<String> repoRootNSs = localRepo.listRootNamespaces();
-		List<String> repoNSs = localRepo.listAllNamespaces();
-		List<String> repoBaseNSs = localRepo.listBaseNamespaces();
-		LOGGER.debug("Repo Root namespaces: ", repoRootNSs);
-		LOGGER.debug("Repo Base namespaces: ", repoBaseNSs);
-		LOGGER.debug("Repo All namespaces: ", repoNSs);
-		try {
-			localRepo.createRootNamespace(myNS);
-		} catch (Exception e) {
-			LOGGER.debug("Error setting Repo Root namespaces: ", e.getLocalizedMessage());
-		}
-		LOGGER.debug("Repo Root namespaces: ", localRepo.listRootNamespaces());
-
-		// Given - a library in the local repo namespace
-		ln = ml.createNewLibrary(rc.getLocalRepository().getNamespace(), "test1r", defaultProject);
-		assertTrue("Library must not be null.", ln != null);
-		// When - managed
-		List<LibraryChainNode> lcns = rc.manage(rc.getLocalRepository(), Collections.singletonList(ln));
-		// Then
-		assertTrue("There must be library chains.", !lcns.isEmpty());
-	}
+	// @Test
+	// public void repositoryTestsNeedToBeMoved() throws RepositoryException {
+	// String myNS = "http://local/junits";
+	// DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
+	// assertTrue("Repository controller must not be null.", rc != null);
+	// assertTrue("Local repository must not be null.", rc.getLocalRepository() != null);
+	// List<RepositoryNode> repos = rc.getAll();
+	// RepositoryNode localRepoNode = rc.getLocalRepository();
+	// LOGGER.debug("Repo namespace is ", rc.getLocalRepository().getNamespaceWithPrefix());
+	// Repository localRepo = localRepoNode.getRepository();
+	// List<String> repoRootNSs = localRepo.listRootNamespaces();
+	// List<String> repoNSs = localRepo.listAllNamespaces();
+	// List<String> repoBaseNSs = localRepo.listBaseNamespaces();
+	// LOGGER.debug("Repo Root namespaces: ", repoRootNSs);
+	// LOGGER.debug("Repo Base namespaces: ", repoBaseNSs);
+	// LOGGER.debug("Repo All namespaces: ", repoNSs);
+	// try {
+	// localRepo.createRootNamespace(myNS);
+	// } catch (Exception e) {
+	// LOGGER.debug("Error setting Repo Root namespaces: ", e.getLocalizedMessage());
+	// }
+	// LOGGER.debug("Repo Root namespaces: ", localRepo.listRootNamespaces());
+	//
+	// // Given - a library in the local repo namespace
+	// ln = ml.createNewLibrary(rc.getLocalRepository().getNamespace(), "test1r", defaultProject);
+	// assertTrue("Library must not be null.", ln != null);
+	// // When - managed
+	// List<LibraryChainNode> lcns = rc.manage(rc.getLocalRepository(), Collections.singletonList(ln));
+	// // Then
+	// assertTrue("There must be library chains.", !lcns.isEmpty());
+	// }
 
 	public void checkFacet(ListFacetNode lf) {
 		LOGGER.debug("Checking List Facet Node: " + lf);
@@ -682,7 +702,7 @@ public class FacetsTests {
 
 	public void checkFacet(ChoiceFacetNode qn) {
 		LOGGER.debug("Checking Facet: " + qn);
-		if (!qn.isInheritedProperty() && qn.getParent().isDeleteable())
+		if (!qn.isInherited() && qn.getParent().isDeleteable())
 			assertTrue("Must be delete-able.", qn.isDeleteable());
 		checkBaseFacet(qn);
 	}

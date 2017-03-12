@@ -18,7 +18,9 @@ package org.opentravel.schemas.types;
 import java.util.Collection;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.types.whereused.WhereUsedNode;
 
 /**
  * Implementations of this interface are type definitions or other assignable nodes that represent type definitions such
@@ -79,7 +81,7 @@ public interface TypeProvider {
 	/**
 	 * @return a node suitable for use in navigator to represent the where used collection
 	 */
-	public TypeNode getWhereUsedNode();
+	public WhereUsedNode getWhereUsedNode();
 
 	/**
 	 * @return true if this node can be assigned to an element reference
@@ -132,5 +134,9 @@ public interface TypeProvider {
 	 * @return true if a property assigned this type can be renamed.
 	 */
 	public boolean isRenameableWhereUsed();
+
+	public Node getOwningComponent();
+
+	public Node getParent();
 
 }

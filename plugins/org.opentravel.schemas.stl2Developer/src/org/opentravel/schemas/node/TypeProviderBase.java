@@ -21,10 +21,10 @@ import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.types.TypeNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.WhereAssignedHandler;
+import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +96,7 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 	}
 
 	@Override
-	public TypeNode getWhereUsedNode() {
+	public WhereUsedNode getWhereUsedNode() {
 		return whereAssignedHandler.getWhereUsedNode();
 	}
 

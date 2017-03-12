@@ -33,7 +33,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.opentravel.schemas.controllers.OtmActions;
-import org.opentravel.schemas.node.FamilyNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
@@ -47,7 +46,7 @@ import org.opentravel.schemas.trees.library.LibraryPropertyFilter;
 import org.opentravel.schemas.trees.library.LibraryTreeContentProvider;
 import org.opentravel.schemas.trees.library.LibraryTreeInheritedFilter;
 import org.opentravel.schemas.trees.library.LibraryTreeNameFilter;
-import org.opentravel.schemas.types.TypeNode;
+import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.opentravel.schemas.widgets.WidgetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -204,7 +203,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 			if (ss.getFirstElement() instanceof Node)
 				node = (Node) ss.getFirstElement();
 		}
-		if (node instanceof TypeNode)
+		if (node instanceof WhereUsedNode)
 			n = node.getParent();
 		else if (node instanceof VersionNode)
 			n = (((VersionNode) node).getNewestVersion());
@@ -365,10 +364,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 
 		selectedNodes.clear();
 		for (final Object o : iss.toList()) {
-			if (o instanceof FamilyNode) {
-				final FamilyNode family = (FamilyNode) o;
-				selectedNodes.addAll(family.getChildren());
-			} else if (o instanceof Node) {
+			if (o instanceof Node) {
 				selectedNodes.add((Node) o);
 				if (((Node) o).getLibrary() != null)
 					mc.postStatus(((Node) o).getEditStatusMsg());

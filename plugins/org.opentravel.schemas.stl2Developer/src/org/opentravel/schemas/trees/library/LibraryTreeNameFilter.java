@@ -21,8 +21,8 @@ import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.types.TypeNode;
-import org.opentravel.schemas.types.TypeUserNode;
+import org.opentravel.schemas.types.whereused.TypeUsageNode;
+import org.opentravel.schemas.types.whereused.WhereUsedNode;
 
 /**
  * 
@@ -46,7 +46,7 @@ public class LibraryTreeNameFilter extends ViewerFilter {
 		final Node n = (Node) element;
 		// LOGGER.debug("Select " + n + " ?");
 		// Skip node types that show where used
-		if (n instanceof VersionAggregateNode || n instanceof TypeNode || n instanceof TypeUserNode)
+		if (n instanceof VersionAggregateNode || n instanceof WhereUsedNode || n instanceof TypeUsageNode)
 			return false;
 		if (shouldBeDisplayed(n)) {
 			return true;

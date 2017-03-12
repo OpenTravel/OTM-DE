@@ -23,7 +23,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.types.TypeNode;
+import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.opentravel.schemas.views.ValidationResultsView;
 
 /**
@@ -64,7 +64,7 @@ public class ValidateHandler extends OtmAbstractHandler {
 	@Override
 	public boolean isEnabled() {
 		node = mc.getSelectedNode_NavigatorView();
-		if (node instanceof ImpliedNode || node instanceof TypeNode)
+		if (node instanceof ImpliedNode || node instanceof WhereUsedNode)
 			return false;
 		return node != null ? !node.isBuiltIn() && !node.isXSDSchema() : false;
 	}

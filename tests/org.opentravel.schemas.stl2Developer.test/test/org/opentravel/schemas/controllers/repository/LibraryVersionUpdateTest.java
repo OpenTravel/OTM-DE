@@ -168,6 +168,7 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		//
 		// Given - a replacement map of used libraries and their later versions.
 		// Walk selected library type users and collect all used libraries (type assignments and extensions)
+		// FIXME - changed 3/12/2017 to return head libraries
 		List<LibraryNode> usedLibs = userLib.getAssignedLibraries();
 		assertTrue("Must have simple type library in list.", usedLibs.contains(simpleType.getLibrary()));
 		HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(usedLibs, true);
@@ -224,6 +225,7 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		assertTrue("Lib1 must not use other libraries.", lib1.getWhereUsedHandler().getWhereUsed().isEmpty());
 		assertTrue("baseLib must use other libraries.", !baseLib.getWhereUsedHandler().getWhereUsed().isEmpty());
 		// Then - Lib1 must list baseLib as an assigned library
+		// FIXME - changed 3/12/2017 to return head libraries
 		assertTrue("Lib1 must have at least one assigned library.", !lib1.getAssignedLibraries().isEmpty());
 		assertTrue("baseLib must NOT have an assigned library.", baseLib.getAssignedLibraries().isEmpty());
 

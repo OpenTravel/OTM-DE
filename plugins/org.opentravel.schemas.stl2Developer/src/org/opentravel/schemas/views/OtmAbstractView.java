@@ -24,7 +24,7 @@ import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.types.TypeNode;
+import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -174,7 +174,7 @@ public abstract class OtmAbstractView extends ViewPart implements OtmView {
 
 	/**
 	 * @param selection
-	 * @return Return first node from selection. For the {@link TypeNode} will return his parent (since TypeNodes are
+	 * @return Return first node from selection. For the {@link WhereUsedNode} will return his parent (since TypeNodes are
 	 *         not in the real tree). If selection is not Structured or the firstElement in selection is not
 	 *         {@link INode} then return null;
 	 */
@@ -183,7 +183,7 @@ public abstract class OtmAbstractView extends ViewPart implements OtmView {
 			Object firstElement = ((StructuredSelection) selection).getFirstElement();
 			if (firstElement instanceof INode) {
 				INode node = (INode) firstElement;
-				if (node instanceof TypeNode) {
+				if (node instanceof WhereUsedNode) {
 					return node.getParent();
 				}
 				return node;

@@ -27,8 +27,6 @@ package org.opentravel.schemas.trees.library;
  * @author Dave Hollander
  */
 
-import java.util.List;
-
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.opentravel.schemas.node.Node;
@@ -71,7 +69,7 @@ public class LibraryTreeContentProvider implements ITreeContentProvider {
 	public Object[] getChildren(final Object element) {
 		if (element instanceof Node) {
 			// LOGGER.debug("Getting children of ", ((Node) element));
-			List<Node> tKids = ((Node) element).getTreeChildren(false);
+			// List<Node> tKids = ((Node) element).getTreeChildren(false);
 			// return tKids.toArray();
 			return ((Node) element).getTreeChildren(deepMode).toArray();
 		}

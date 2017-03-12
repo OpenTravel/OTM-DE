@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +42,7 @@ public class Type {
 
 	protected Node typeOwner = null; // the node to which types are assigned
 	protected Node typeNode = null; // node used as the type
-	protected TypeNode treeNode = null;
+	protected WhereUsedNode treeNode = null;
 
 	// nodes that use this node as a type definition. Includes base type users.
 	protected ArrayList<Node> typeUsers = new ArrayList<Node>();

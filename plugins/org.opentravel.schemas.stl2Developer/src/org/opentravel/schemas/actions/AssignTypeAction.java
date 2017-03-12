@@ -28,9 +28,9 @@ import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.types.TypeNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
+import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.opentravel.schemas.wizards.TypeSelectionWizard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +83,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 	@Override
 	public boolean isEnabled() {
 		Node n = getMainController().getCurrentNode_NavigatorView();
-		if (n == null || !(n instanceof TypeNode))
+		if (n == null || !(n instanceof WhereUsedNode))
 			return false;
 		return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
 	}
@@ -126,8 +126,8 @@ public class AssignTypeAction extends OtmAbstractAction {
 		List<Node> selections = getMainController().getSelectedNodes_NavigatorView();
 		if (selections != null)
 			for (Node s : selections) {
-				if (s instanceof TypeNode)
-					addTypeUsers((TypeNode) s, users); // get the users of the node, not just the node.
+				if (s instanceof WhereUsedNode)
+					addTypeUsers((WhereUsedNode) s, users); // get the users of the node, not just the node.
 				else
 					users.add(s);
 			}
@@ -157,7 +157,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 		mc.refresh(users.get(0));
 	}
 
-	private void addTypeUsers(TypeNode tn, List<Node> users) {
+	private void addTypeUsers(WhereUsedNode tn, List<Node> users) {
 		// throw new IllegalStateException("Not Implemented Yet.");
 		if (tn.isUser()) {
 			users.add(tn.getParent()); // This is a type node for a specific type user.

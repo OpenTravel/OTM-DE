@@ -31,6 +31,8 @@ import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
+import org.opentravel.schemas.types.whereused.WhereTypeProviderUsedNode;
+import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +48,7 @@ public class WhereAssignedHandler {
 
 	// nodes that use this node as a type definition.
 	protected ArrayList<Node> users = new ArrayList<Node>();
-	protected TypeNode whereUsedNode = null;
+	protected WhereUsedNode whereUsedNode = null;
 	protected TypeProvider owner = null;
 
 	/*********************************************************************************
@@ -106,7 +108,8 @@ public class WhereAssignedHandler {
 	 * Create a where assigned listener for this type provider <i>owner</i>.
 	 */
 	public WhereAssignedHandler(TypeProvider owner) {
-		whereUsedNode = new TypeNode(owner);
+		// whereUsedNode = new WhereUsedNode(owner);
+		whereUsedNode = new WhereTypeProviderUsedNode(owner);
 		this.owner = owner;
 	}
 
@@ -313,7 +316,7 @@ public class WhereAssignedHandler {
 		replace(replacement, scopeLibrary);
 	}
 
-	public TypeNode getWhereUsedNode() {
+	public WhereUsedNode getWhereUsedNode() {
 		return whereUsedNode;
 	}
 

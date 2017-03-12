@@ -91,7 +91,7 @@ public class InheritedChildren_Tests {
 		Assert.assertFalse(inherited.isEmpty());
 		assertTrue("All base properties must be inherited.",
 				baseBO.getSummaryFacet().getChildren().size() == inherited.size());
-		Assert.assertTrue(inherited.get(0).isInheritedProperty());
+		Assert.assertTrue(inherited.get(0).isInherited());
 
 		baseBO.addFacet("C2", TLFacetType.CUSTOM);
 		List<TLContextualFacet> inf = FacetCodegenUtils.findGhostFacets(extensionBO.getTLModelObject(),

@@ -334,7 +334,7 @@ public class LoadFiles {
 	 */
 	public ProjectNode loadProject(ProjectController pc) {
 		String fn = Project1; // files
-		ProjectNode pn = pc.open(fn, null);
+		ProjectNode pn = pc.open(fn, null).project;
 		new TypeResolver().resolveTypes();
 		return pn;
 	}
@@ -344,7 +344,7 @@ public class LoadFiles {
 	 */
 	public ProjectNode loadProject2(ProjectController pc) {
 		String fn = Project2; // files
-		ProjectNode pn = pc.open(fn, null);
+		ProjectNode pn = pc.open(fn, null).project;
 		new TypeResolver().resolveTypes();
 		return pn;
 	}

@@ -50,9 +50,9 @@ import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.ColorProvider;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.trees.library.LibrarySorter;
-import org.opentravel.schemas.types.TypeNode;
 import org.opentravel.schemas.types.TypeUser;
-import org.opentravel.schemas.types.TypeUserNode;
+import org.opentravel.schemas.types.whereused.TypeUsageNode;
+import org.opentravel.schemas.types.whereused.WhereUsedNode;
 
 /**
  * 
@@ -96,7 +96,7 @@ public class LibraryTablePoster {
 	 */
 	public void postTable(Node curNode) {
 		clearTable();
-		if (curNode instanceof TypeNode || curNode instanceof TypeUserNode)
+		if (curNode instanceof WhereUsedNode || curNode instanceof TypeUsageNode)
 			return;
 		if (curNode == null) {
 			return;

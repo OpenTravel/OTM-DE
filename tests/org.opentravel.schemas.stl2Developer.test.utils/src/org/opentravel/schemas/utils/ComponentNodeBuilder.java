@@ -198,28 +198,6 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 			return this;
 		}
 
-		// public BusinessNodeBuilder addCustomFacet(String name, String context) {
-		// FacetNode newFacet = new CustomFacetNode();
-		// componentObject.getModelObject().addCustomFacet((TLContextualFacet) newFacet.getTLModelObject());
-		// componentObject.linkChild(newFacet);
-		// newFacet.setName(name);
-		// return this;
-		// }
-
-		// private FacetNode createFacetNode(String name, String context, TLFacetType type) {
-		// TLFacet tl = createFacet(type);
-		// tl.setContext(context);
-		// tl.setLabel(name);
-		// FacetNode node = (FacetNode) NodeFactory.newComponentMember(null, tl);
-		// return node;
-		// }
-		//
-		// private TLFacet createFacet(TLFacetType tlFacetType) {
-		// TLFacet f = new TLFacet();
-		// f.setFacetType(tlFacetType);
-		// return f;
-		// }
-
 		public BusinessNodeBuilder extend(BusinessObjectNode boBase) {
 			componentObject.setExtension(boBase);
 			return this;

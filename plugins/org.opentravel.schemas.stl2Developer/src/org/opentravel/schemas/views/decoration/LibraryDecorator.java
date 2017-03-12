@@ -42,6 +42,7 @@ import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryChainNod
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryInstanceNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryItemNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryRootNsNode;
+import org.opentravel.schemas.types.whereused.WhereUsedNode;
 
 public class LibraryDecorator extends BaseLabelProvider implements ILightweightLabelDecorator, IRefreshListener {
 
@@ -68,6 +69,10 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 	@Override
 	public void decorate(Object element, IDecoration decoration) {
 		// Decorate Library Nav Nodes as if they were the library the link to a project.
+		if (!(element instanceof Node))
+			return;
+
+		Node node = (Node) element;
 		if (element instanceof LibraryNavNode)
 			element = ((LibraryNavNode) element).getThisLib();
 
@@ -86,12 +91,12 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 			decoration.addSuffix(getRepositoryNameDecoration((RepositoryInstanceNode) element));
 
 		} else if (element instanceof RepositoryChainNode) {
-			RepositoryChainNode node = (RepositoryChainNode) element;
-			decoration.addSuffix(getNamespaceDecoration(node));
+			RepositoryChainNode rn = (RepositoryChainNode) element;
+			decoration.addSuffix(getNamespaceDecoration(rn));
 
 		} else if (element instanceof RepositoryItemNode) {
-			RepositoryItemNode node = (RepositoryItemNode) element;
-			decoration.addSuffix(getRepositoryItemDecoration(node.getItem()));
+			RepositoryItemNode ri = (RepositoryItemNode) element;
+			decoration.addSuffix(getRepositoryItemDecoration(ri.getItem()));
 
 		} else if (element instanceof RepositoryRootNsNode) {
 			decoration.addSuffix(getNamespaceDecoration((RepositoryRootNsNode) element));
@@ -111,6 +116,9 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 			// } else if (element instanceof PropertyNode) {
 			// if (((PropertyNode) element).getAssignedType() == ModelNode.getUnassignedNode())
 			// decoration.addOverlay(warningDesc(), IDecoration.BOTTOM_LEFT);
+
+		} else if (node instanceof WhereUsedNode) {
+			decoration.addSuffix(node.getDecoration());
 
 		} else if (element instanceof NavNode) {
 			decoration.addSuffix("  (" + (((NavNode) element).getChildren().size() + " Objects)"));

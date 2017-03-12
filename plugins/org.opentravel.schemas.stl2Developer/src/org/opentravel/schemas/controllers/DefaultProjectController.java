@@ -452,7 +452,7 @@ public class DefaultProjectController implements ProjectController {
 	 */
 	@Override
 	public void open() {
-		LOGGER.debug("Open Project.");
+		// LOGGER.debug("Open Project.");
 		String[] extensions = { "*." + PROJECT_EXT };
 		final String fn = FileDialogs.postFileDialog(extensions, dialogText);
 		if (fn == null)
@@ -699,7 +699,8 @@ public class DefaultProjectController implements ProjectController {
 			pn.getTLProject().getProjectManager().closeProject(pn.getTLProject());
 			pn.close();
 		}
-		mc.refresh();
+		if (Display.getCurrent() != null)
+			mc.refresh();
 		// LOGGER.debug("Closed project: " + pn);
 	}
 
@@ -727,9 +728,9 @@ public class DefaultProjectController implements ProjectController {
 				continue;
 			if (p.getTLProject().getProjectFile() != null)
 				projectFiles.add(p.getTLProject().getProjectFile().getAbsolutePath());
-			close(p);
+			if (Display.getCurrent() == null)
+				close(p);
 		}
-		mc.refresh();
 
 		/**
 		 * Open a list of project files with a progress monitor
@@ -748,8 +749,20 @@ public class DefaultProjectController implements ProjectController {
 		Job job = new Job("Refreshing Projects") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				monitor.beginTask("Refreshing Projects ", jobcount + 2);
+				monitor.beginTask("Refreshing Projects ", jobcount);
+
+				// Close all projects
+				monitor.subTask("Closing Projects ");
+				for (ProjectNode p : ModelNode.getAllProjects()) {
+					if (p == getBuiltInProject() || p == getDefaultProject())
+						continue;
+					close(p);
+				}
+				// Refresh the navigator view in UI thread
+				DialogUserNotifier.syncWithUi("Projects closed.");
 				monitor.worked(1);
+
+				monitor.subTask("Refreshing Projects ");
 				try {
 					monitor.subTask("Refresh all managed libraries from repository.");
 					projectManager.refreshManagedProjectItems();
@@ -761,7 +774,6 @@ public class DefaultProjectController implements ProjectController {
 				monitor.worked(1);
 				open(projects, monitor);
 
-				monitor.worked(1);
 				monitor.subTask("Resolving types.");
 				new TypeResolver().resolveTypes();
 

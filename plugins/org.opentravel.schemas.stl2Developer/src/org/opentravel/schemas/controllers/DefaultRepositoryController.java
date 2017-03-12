@@ -332,6 +332,7 @@ public class DefaultRepositoryController implements RepositoryController {
 		return ct.getResult();
 	}
 
+	@Deprecated
 	public boolean commit(LibraryNode ln) {
 		return commit(ln, "");
 	}
@@ -781,6 +782,12 @@ public class DefaultRepositoryController implements RepositoryController {
 			msgID = "repository.version.check.final";
 		else if (!needsFinal)
 			msgID = "repository.version.check.OK";
+
+		// In development
+		// LibraryOrchestrationWizard wizard = new LibraryOrchestrationWizard(library, this);
+		// wizard.run(OtmRegistry.getActiveShell());
+		// if (wizard.wasCanceled())
+		// return false;
 
 		isOK = DialogUserNotifier.openConfirm(Messages.getString("repository.version.check.title"),
 				Messages.getString(msgID));

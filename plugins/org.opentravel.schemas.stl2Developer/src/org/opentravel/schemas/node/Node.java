@@ -1114,7 +1114,14 @@ public abstract class Node implements INode {
 
 	@Override
 	public String getNameWithPrefix() {
-		return getLibrary() == null ? getName() : getLibrary().getPrefix() + ":" + getName();
+		String prefix = "";
+		if (getLibrary() == null) {
+			// owning library might have been closed
+			if (getTLModelObject() instanceof NamedEntity)
+				prefix = ((NamedEntity) getTLModelObject()).getOwningLibrary().getPrefix();
+		} else
+			prefix = getLibrary().getPrefix();
+		return prefix + ":" + getName();
 	}
 
 	/**
@@ -1465,8 +1472,8 @@ public abstract class Node implements INode {
 	 * @return Can the description field be edited?
 	 */
 	public boolean isEditable_description() {
-		return getTLModelObject() instanceof TLDocumentationOwner ? isInHead2() && !isInherited()
-				&& isEditable() : false;
+		return getTLModelObject() instanceof TLDocumentationOwner ? isInHead2() && !isInherited() && isEditable()
+				: false;
 	}
 
 	public boolean isEditable_equivalent() {

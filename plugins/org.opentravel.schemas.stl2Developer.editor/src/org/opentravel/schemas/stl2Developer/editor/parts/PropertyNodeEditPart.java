@@ -66,7 +66,7 @@ public class PropertyNodeEditPart extends GenericEditPart<Node> implements Mouse
 		getFigure().setName(getNodeModel().getName());
 		getFigure().setType(getNodeModel().getTypeNameWithPrefix());
 		getFigure().setTypeImage(getModel().getTypeImage());
-		if (getModel().getNode().isInheritedProperty()) {
+		if (getModel().getNode().isInherited()) {
 			// TODO: move this to Features class
 			getFigure().setFont(Fonts.getFontRegistry().get(Fonts.inheritedItem));
 			getFigure().setForegroundColor(ColorConstants.darkBlue);

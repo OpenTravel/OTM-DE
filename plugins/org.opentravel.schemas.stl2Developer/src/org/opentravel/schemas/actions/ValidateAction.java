@@ -25,7 +25,7 @@ import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.types.TypeNode;
+import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.opentravel.schemas.views.ValidationResultsView;
 
 /**
@@ -76,7 +76,7 @@ public class ValidateAction extends AbstractGlobalSelectionAction {
 			return false;
 		}
 		Node n = newSelection.get(0);
-		if (n instanceof ImpliedNode || n instanceof TypeNode)
+		if (n instanceof ImpliedNode || n instanceof WhereUsedNode)
 			return false;
 		return n != null ? !n.isBuiltIn() && !n.isXSDSchema() : false;
 	}

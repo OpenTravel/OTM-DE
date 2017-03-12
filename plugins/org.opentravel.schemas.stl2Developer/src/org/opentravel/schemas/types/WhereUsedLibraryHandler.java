@@ -21,13 +21,18 @@ package org.opentravel.schemas.types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
+import org.opentravel.schemas.types.whereused.LibraryDependsOnNode;
+import org.opentravel.schemas.types.whereused.WhereLibraryUsedNode;
+import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +47,8 @@ public class WhereUsedLibraryHandler {
 
 	// nodes that use this node as a type definition. Includes base type users.
 	protected ArrayList<LibraryNode> users = new ArrayList<LibraryNode>();
-	protected TypeNode whereUsedNode = null;
-	protected TypeUserNode usedByNode = null;
+	protected WhereUsedNode whereUsedNode = null;
+	protected LibraryDependsOnNode usedByNode = null;
 	protected LibraryNode owner = null;
 
 	// protected ArrayList<WhereUsedListener> listeners = new ArrayList<WhereUsedListener>();
@@ -69,14 +74,6 @@ public class WhereUsedLibraryHandler {
 				// assignment event.
 				// LOGGER.debug(getSource(event) + " on " + getNode() + " changed to: " + getNewValue(event) + "  from "
 				// + getOldValue(event));
-				// if (getNewValue(event) == getNode()) {
-				// handler.add((TypeUser) getSource(event));
-				// // handler.setListener((TypeUser) getSource(event));
-				// }
-				// if (getOldValue(event) == getNode()) {
-				// handler.remove((TypeUser) getSource(event));
-				// // handler.removeListener((TypeUser) getSource(event));
-				// }
 				break;
 			default:
 				break;
@@ -85,8 +82,8 @@ public class WhereUsedLibraryHandler {
 	}
 
 	public WhereUsedLibraryHandler(LibraryNode libraryNode) {
-		whereUsedNode = new TypeNode(libraryNode);
-		usedByNode = new TypeUserNode(libraryNode);
+		whereUsedNode = new WhereLibraryUsedNode(libraryNode);
+		usedByNode = new LibraryDependsOnNode(libraryNode);
 		this.owner = libraryNode;
 		// LOGGER.debug("Constructed where used handler for " + libraryNode);
 	}
@@ -155,6 +152,28 @@ public class WhereUsedLibraryHandler {
 	}
 
 	/**
+	 * Get all libraries that have types that are assigned types from this library or chain.
+	 * 
+	 * @param deep
+	 *            if true collect users from the chain that contains the library.
+	 * @return unmodifiable collection of libraries that contain users of this library
+	 */
+	public Collection<LibraryNode> getWhereUsed(boolean deep) {
+		LOGGER.debug("Getting where used for: " + owner.getNameWithPrefix());
+		Set<LibraryNode> chainUsers = new HashSet<>();
+		// List<LibraryNode> chainUsers = new ArrayList<LibraryNode>();
+		if (deep)
+			for (LibraryNode ln : owner.getChain().getLibraries())
+				chainUsers.addAll(ln.getWhereUsedHandler().getWhereUsed());
+		else
+			chainUsers.addAll(users);
+		chainUsers.remove(owner);
+		chainUsers.removeAll(owner.getChain().getLibraries());
+		return Collections.unmodifiableCollection(chainUsers);
+		// return chainUsers;
+	}
+
+	/**
 	 * @return the unmodifiable collection of users of this type.
 	 */
 	public Collection<LibraryNode> getWhereUsed() {
@@ -164,32 +183,51 @@ public class WhereUsedLibraryHandler {
 	/**
 	 * Find all type providers in a library that have types assigned to owner library.
 	 * 
-	 * @return
+	 * @return unmodifyable list of type users and extension owners
 	 */
-	public List<Node> getUsersOfTypesFromOwnerLibrary(LibraryNode lib) {
-		List<Node> ul = new ArrayList<Node>();
-		if (lib == null)
-			return ul;
+	public Collection<Node> getUsersOfTypesFromOwnerLibrary(LibraryNode ownerLib) {
+		return getUsersOfTypesFromOwnerLibrary(ownerLib, false);
+	}
 
-		// Get type users
-		for (TypeUser user : lib.getDescendants_TypeUsers()) {
-			TypeProvider ut = user.getAssignedType();
-			// Node userOwner = null;
-			if (ut != null && ((Node) ut).getLibrary() == owner) {
-				// userOwner = ((Node) user).getOwningComponent();
-				if (!ul.contains(user))
-					ul.add((Node) user);
+	public Collection<Node> getUsersOfTypesFromOwnerLibrary(LibraryNode ownerLib, boolean deep) {
+		Set<Node> userSet = new HashSet<Node>();
+		if (ownerLib == null)
+			return Collections.unmodifiableCollection(userSet);
+
+		// Get the libraries to examine
+		List<LibraryNode> ownerLibs = new ArrayList<LibraryNode>();
+		if (deep && ownerLib.getChain() != null)
+			ownerLibs.addAll(ownerLib.getChain().getLibraries());
+		else
+			ownerLibs.add(ownerLib);
+
+		// Get all the libraries in this handler's owner chain
+		List<LibraryNode> theseOwners = new ArrayList<LibraryNode>();
+		if (deep && owner.getChain() != null)
+			theseOwners.addAll(owner.getChain().getLibraries());
+		else
+			theseOwners.add(owner);
+
+		// For each library in the ownerLib chain
+		for (LibraryNode ol : ownerLibs) {
+			// Get type users
+			for (TypeUser user : ol.getDescendants_TypeUsers()) {
+				TypeProvider typeProvider = user.getAssignedType();
+				// if (ut != null && ((Node) ut).getLibrary() == owner) {
+				if (typeProvider != null && theseOwners.contains(typeProvider.getLibrary())) {
+					userSet.add((Node) user);
+				}
+			}
+			// Get extended objects
+			for (ExtensionOwner eo : ol.getDescendants_ExtensionOwners()) {
+				Node extensionBase = eo.getExtensionBase();
+				if (extensionBase != null && theseOwners.contains(extensionBase.getLibrary())) {
+					userSet.add((Node) eo);
+				}
 			}
 		}
-		// Get extended objects
-		for (ExtensionOwner o : lib.getDescendants_ExtensionOwners()) {
-			Node extensionBase = o.getExtensionBase();
-			if (extensionBase != null && extensionBase.getLibrary() == owner) {
-				if (!ul.contains(extensionBase))
-					ul.add((Node) o);
-			}
-		}
-		return ul;
+		// TODO - may have to match against all libs in owner chain
+		return Collections.unmodifiableCollection(userSet);
 	}
 
 	public int getTypeUsersAndDescendantsCount() {
@@ -197,7 +235,7 @@ public class WhereUsedLibraryHandler {
 		return (0);
 	}
 
-	public TypeNode getWhereUsedNode() {
+	public WhereUsedNode getWhereUsedNode() {
 		return whereUsedNode;
 	}
 
@@ -206,7 +244,7 @@ public class WhereUsedLibraryHandler {
 	}
 
 	public void refreshUsedByNode() {
-		usedByNode = new TypeUserNode(owner);
+		usedByNode = new LibraryDependsOnNode(owner);
 	}
 
 }

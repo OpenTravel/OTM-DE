@@ -29,6 +29,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
+import org.opentravel.schemas.types.whereused.WhereUsedNode;
 
 /**
  * Manages lists of where extension owners are assigned to this object. The where extended handler is on the extension
@@ -46,7 +47,7 @@ public class WhereExtendedHandler {
 	protected ArrayList<ExtensionOwner> users = new ArrayList<ExtensionOwner>();
 	protected Node owner = null;
 
-	protected TypeNode whereUsedNode = null;
+	protected WhereUsedNode whereUsedNode = null;
 
 	/*********************************************************************************
 	 *

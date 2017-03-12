@@ -27,7 +27,7 @@ import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
-import org.opentravel.schemas.types.TypeUserNode;
+import org.opentravel.schemas.types.whereused.TypeUsageNode;
 
 /**
  * Update type assignments to later versions.
@@ -46,8 +46,8 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 		Node node = mc.getSelectedNode_NavigatorView();
 		if (node == null)
 			return null;
-		if (node instanceof TypeUserNode)
-			updateLibrary((TypeUserNode) node);
+		if (node instanceof TypeUsageNode)
+			updateLibrary((TypeUsageNode) node);
 		return null;
 	}
 
@@ -60,17 +60,17 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 	public boolean isEnabled() {
 		Node n = mc.getSelectedNode_NavigatorView();
 		// NOT OWNER
-		if (n instanceof TypeUserNode)
-			if (!((TypeUserNode) n).isProviderLib())
-				return false;
-		return n != null && n.isEditable() ? n instanceof TypeUserNode : false;
+		// if (n instanceof TypeUsageNode)
+		// if (!((TypeUsageNode) n).isProviderLib())
+		// return false;
+		return n != null && n.isEditable() ? n instanceof TypeUsageNode : false;
 	}
 
-	private void updateLibrary(TypeUserNode userNode) {
+	private void updateLibrary(TypeUsageNode userNode) {
 		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
 		List<LibraryNode> usedLibs = new ArrayList<LibraryNode>();
 		// FIXME - if nodeType==owner the get the children - when fixed, remove test from isEnabled()
-		usedLibs.add(userNode.getOwner());
+		// usedLibs.add(userNode.getOwner());
 		LibraryNode libToUpdate = (LibraryNode) userNode.getParent();
 
 		// Ask the user if they want Draft versions?

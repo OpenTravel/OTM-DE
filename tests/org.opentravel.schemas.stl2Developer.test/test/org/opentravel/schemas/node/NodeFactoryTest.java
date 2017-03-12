@@ -27,6 +27,7 @@ import org.opentravel.schemas.types.TypeProvider;
  * @author Pawel Jedruch
  * 
  */
+@Deprecated
 public class NodeFactoryTest {
 
 	@Test

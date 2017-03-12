@@ -21,10 +21,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
@@ -89,8 +91,9 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.types.TypeUser;
-import org.opentravel.schemas.types.TypeUserNode;
 import org.opentravel.schemas.types.WhereUsedLibraryHandler;
+import org.opentravel.schemas.types.whereused.LibraryDependsOnNode;
+import org.opentravel.schemas.types.whereused.TypeUsageNode;
 
 /**
  * The LibraryNode class manages an internal navigation oriented node a library model class. Libraries are model classes
@@ -770,8 +773,8 @@ public class LibraryNode extends Node implements LibraryInterface {
 				xn.setXsdType(true);
 				if (n != null)
 					n.setXsdType(true); // FIXME
-					// else
-					// LOGGER.debug("ERROR - null otm node.");
+				// else
+				// LOGGER.debug("ERROR - null otm node.");
 			}
 			// else
 			// LOGGER.debug("Used listener to get: " + n.getNameWithPrefix());
@@ -996,11 +999,13 @@ public class LibraryNode extends Node implements LibraryInterface {
 
 	public List<RepositoryItemCommit> getCommitHistory() {
 		RepositoryItemHistory h = null;
-		try {
-			h = projectItem.getRepository().getHistory(projectItem);
-			h.getCommitHistory();// LOGGER.debug("Committed " + this);
-		} catch (RepositoryException e) {
-			// LOGGER.debug("Exception: " + e.getLocalizedMessage());
+		if (projectItem != null && projectItem.getRepository() != null) {
+			try {
+				h = projectItem.getRepository().getHistory(projectItem);
+				h.getCommitHistory();// LOGGER.debug("Committed " + this);
+			} catch (RepositoryException e) {
+				// LOGGER.debug("Exception: " + e.getLocalizedMessage());
+			}
 		}
 		return h != null ? h.getCommitHistory() : null;
 	}
@@ -1386,9 +1391,17 @@ public class LibraryNode extends Node implements LibraryInterface {
 
 	public String getVersion() {
 		String version = "";
-		if (absTLLibrary != null && absTLLibrary instanceof TLLibrary) {
+		if (absTLLibrary != null && absTLLibrary instanceof TLLibrary)
 			version = ((TLLibrary) absTLLibrary).getVersion();
-		}
+		return emptyIfNull(version);
+	}
+
+	public String getVersion_Major() {
+		String version = "";
+		if (absTLLibrary != null && absTLLibrary instanceof TLLibrary)
+			version = ((TLLibrary) absTLLibrary).getVersion();
+		if (version.contains("."))
+			version = version.substring(0, version.indexOf("."));
 		return emptyIfNull(version);
 	}
 
@@ -1622,7 +1635,9 @@ public class LibraryNode extends Node implements LibraryInterface {
 
 	/**
 	 * Examine each descendant that is a type user or extension owner, if those nodes use types from other libraries,
-	 * add that library to returned list. Used by {@link TypeUserNode#getChildren()}
+	 * add that library to returned list, if the library is in a chain, return the head library.
+	 * 
+	 * Used by {@link LibraryDependsOnNode#getChildren()} and {@link TypeUsageNode#getChildren()}
 	 * <p>
 	 * WhereUseHandler provides the inverse relationship. Libraries in the list should have this library in their where
 	 * used handler. {@link WhereUsedLibraryHandler#getWhereUsed()}
@@ -1634,22 +1649,25 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 *         library.
 	 */
 	public List<LibraryNode> getAssignedLibraries() {
-		// Walk selected library type users and collect all used libraries (type assignments)
-		List<LibraryNode> usedLibs = new ArrayList<LibraryNode>();
+		Set<LibraryNode> usedLibs = new HashSet<LibraryNode>();
+
+		// Walk selected library type users and collect all used libraries
 		for (TypeUser user : getDescendants_TypeUsers()) {
 			TypeProvider provider = user.getAssignedType();
-			if (provider != null && provider.getLibrary() != null && provider.getLibrary().getChain() != null)
-				if (provider.getLibrary() != this && !usedLibs.contains(provider.getLibrary()))
-					usedLibs.add(provider.getLibrary());
+			if (provider != null && provider.getLibrary() != null && !provider.getLibrary().isBuiltIn())
+				usedLibs.add(provider.getLibrary().getHead());// returns lib if unmanaged
 		}
-		// Walk selected library type users and collect all used libraries (extensions)
+		// Walk selected library extension owner and collect all used libraries
 		for (ExtensionOwner owner : getDescendants_ExtensionOwners()) {
 			Node base = owner.getExtensionBase();
-			if (base != null && base.getLibrary() != null && base.getLibrary().getChain() != null)
-				if (base.getLibrary() != this && !usedLibs.contains(base.getLibrary()))
-					usedLibs.add(base.getLibrary());
+			if (base != null && base.getLibrary() != null && !base.getLibrary().isBuiltIn())
+				usedLibs.add(base.getLibrary().getHead());// returns lib if unmanaged
 		}
-		return usedLibs;
+		// Don't match any library in this chain.
+		if (this.getChain() != null)
+			usedLibs.removeAll(this.getChain().getLibraries());
+		usedLibs.remove(this);
+		return new ArrayList<LibraryNode>(usedLibs);
 	}
 
 	/**

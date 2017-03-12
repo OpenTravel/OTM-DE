@@ -242,7 +242,7 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	}
 
 	private TLContextualFacet find(List<TLContextualFacet> allTLCfs, TLContextualFacet ghostCF) {
-		LOGGER.debug("Find: " + ghostCF.getName());
+		// LOGGER.debug("Find: " + ghostCF.getName());
 		for (TLContextualFacet tlCf : allTLCfs)
 			if (tlCf.getName().equals(ghostCF.getName()))
 				// if (tlCf.getOwningEntity() == ghostCF.getOwningEntity())

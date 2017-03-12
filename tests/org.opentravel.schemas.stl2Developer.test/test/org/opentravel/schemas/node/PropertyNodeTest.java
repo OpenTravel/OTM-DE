@@ -58,7 +58,7 @@ public class PropertyNodeTest {
 	@Test
 	public void shouldMoveUp() {
 		FacetNode facetNode = FacetNodeBuilder.create().addElements("E1", "E2", "E3").build();
-		findChild(facetNode, "E2").moveProperty(PropertyNode.UP);
+		((PropertyNode) findChild(facetNode, "E2")).moveProperty(PropertyNode.UP);
 		assertOrderOfNodeAndMO(facetNode);
 		assertFacetOrder(facetNode.getChildren(), "E2", "E1", "E3");
 	}
@@ -123,7 +123,7 @@ public class PropertyNodeTest {
 		FacetNode facetNode = FacetNodeBuilder.create(ln).addAttributes("A1").addIndicators("I0", "I1")
 				.addElements("E1").build();
 		assertNotNull(facetNode);
-		findChild(facetNode, i0Name).moveProperty(PropertyNode.UP);
+		((PropertyNode) findChild(facetNode, i0Name)).moveProperty(PropertyNode.UP);
 		assertOrderOfNodeAndMO(facetNode);
 		assertFacetOrder(facetNode.getChildren(), "A1", i0Name, i1Name, "E1");
 	}
@@ -175,7 +175,7 @@ public class PropertyNodeTest {
 		// if editable and not inherited then it depends on the assigned type.
 		if (!pn.isEditable())
 			assertTrue("Uneditable property must not be renameable.", !pn.isRenameable());
-		else if (pn.isInheritedProperty())
+		else if (pn.isInherited())
 			assertTrue("Inherited property must not be renameable.", !pn.isRenameable());
 		else if (!pn.getAssignedType().isRenameableWhereUsed())
 			assertTrue("Property's assigned type requires it to not be renameable.", !pn.isRenameable());
@@ -223,10 +223,10 @@ public class PropertyNodeTest {
 		Assert.assertEquals(Arrays.asList(string), toNames(children));
 	}
 
-	private Node findChild(Node parent, String name) {
+	private PropertyNode findChild(Node parent, String name) {
 		for (Node n : parent.getChildren()) {
-			if (name.equals(n.getName()))
-				return n;
+			if (n instanceof PropertyNode && name.equals(n.getName()))
+				return (PropertyNode) n;
 		}
 		Assert.assertTrue("findChild did not find: " + name, 1 == 2);
 		return null;

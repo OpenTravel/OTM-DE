@@ -133,9 +133,8 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 					lnn.delete();
 				}
 			}
+			assert (!pn.getChildren().contains(libNode)) : "Prototype library not removed from project.";
 		}
-
-		assert (!pn.getChildren().contains(libNode)) : "Prototype library not removed from project.";
 
 		return lnn;
 	}
