@@ -24,16 +24,17 @@ import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
- * Branch node for libraries this library depends on for types. Represents a collection of all libraries that provide
- * types to the owning library.
+ * Root of tree that describes libraries and type providers used by the owner library or library chain.
+ * 
+ * Branch nodes represent the collection of all libraries that provide types to the owning library.
  * 
  * @author Dave Hollander
  * 
  */
-public class LibraryDependsOnNode extends WhereUsedNode<LibraryNode> implements WhereUsedNodeInterface {
+public class LibraryUsesNode extends WhereUsedNode<LibraryNode> implements WhereUsedNodeInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryDependsOnNode.class);
 
-	public LibraryDependsOnNode(final LibraryNode lib) {
+	public LibraryUsesNode(final LibraryNode lib) {
 		super(lib);
 		labelProvider = simpleLabelProvider("Uses");
 	}
@@ -43,9 +44,9 @@ public class LibraryDependsOnNode extends WhereUsedNode<LibraryNode> implements 
 		String decoration = " ";
 		decoration += "(Libraries that provide types to " + owner.getName();
 		if (owner.getChain() != null)
-			decoration += " version " + ((LibraryNode) owner).getVersion_Major() + "+";
+			decoration += " version " + owner.getVersion_Major() + "+";
 		decoration += ")";
-		// decoration += this.getClass().getSimpleName();
+		decoration += this.getClass().getSimpleName();
 		return decoration;
 	}
 
@@ -56,8 +57,8 @@ public class LibraryDependsOnNode extends WhereUsedNode<LibraryNode> implements 
 	public List<Node> getChildren() {
 		if (owner != null) {
 			List<Node> providerLibs = new ArrayList<Node>();
-			for (LibraryNode l : ((LibraryNode) owner).getAssignedLibraries())
-				providerLibs.add(new LibraryDependedOnNode(l, (LibraryNode) owner));
+			for (LibraryNode l : owner.getAssignedLibraries())
+				providerLibs.add(new LibraryProviderNode(l, owner));
 			return providerLibs;
 		} else
 			return Collections.emptyList();

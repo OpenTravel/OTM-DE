@@ -23,16 +23,17 @@ import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.types.TypeUser;
 
 /**
- * Leaf node describing a TypeUser or ExtensionOwner. Exposes which specific version of an object in a chain provides
- * the assigned type or extension base.
+ * Leaf node describing a TypeUser. Used as leaf node in both where used and uses trees.
+ * 
+ * Exposes which specific versioned objects in a chain provides the assigned type.
  * 
  * @author Dave Hollander
  * 
  */
-public class TypeProviderUserNode extends WhereUsedNode<TypeUser> implements WhereUsedNodeInterface {
+public class TypeUserNode extends WhereUsedNode<TypeUser> implements WhereUsedNodeInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(TypeProviderUserNode.class);
 
-	public TypeProviderUserNode(TypeUser user) {
+	public TypeUserNode(TypeUser user) {
 		super(user); // sets owner
 
 		String label = "--no owner--";
@@ -47,6 +48,7 @@ public class TypeProviderUserNode extends WhereUsedNode<TypeUser> implements Whe
 		String decoration = "  ";
 		decoration += "uses ";
 		decoration += " " + ((Node) owner.getAssignedType()).getNameWithPrefix();
+		decoration += this.getClass().getSimpleName();
 		return decoration;
 	}
 

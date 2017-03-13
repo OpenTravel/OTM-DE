@@ -31,7 +31,7 @@ import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
-import org.opentravel.schemas.types.whereused.WhereTypeProviderUsedNode;
+import org.opentravel.schemas.types.whereused.TypeProviderWhereUsedNode;
 import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +109,7 @@ public class WhereAssignedHandler {
 	 */
 	public WhereAssignedHandler(TypeProvider owner) {
 		// whereUsedNode = new WhereUsedNode(owner);
-		whereUsedNode = new WhereTypeProviderUsedNode(owner);
+		whereUsedNode = new TypeProviderWhereUsedNode(owner);
 		this.owner = owner;
 	}
 

@@ -26,6 +26,8 @@ import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
+ * Root of a tree describing all the libraries and their type where the onwer's types are used.
+ * 
  * Branch node assigned to a library to describe all the other libraries that use types from this library or any of the
  * versions in the chain.
  * 
@@ -34,12 +36,11 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
  * @author Dave Hollander
  * 
  */
-public class WhereLibraryUsedNode extends WhereUsedNode<LibraryNode> implements WhereUsedNodeInterface {
+public class LibraryWhereUsedNode extends WhereUsedNode<LibraryNode> implements WhereUsedNodeInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(WhereLibraryUsedNode.class);
 
-	public WhereLibraryUsedNode(final LibraryNode lib) {
+	public LibraryWhereUsedNode(final LibraryNode lib) {
 		super(lib); // assigns owner
-		this.owner = lib;
 	}
 
 	@Override
@@ -47,8 +48,9 @@ public class WhereLibraryUsedNode extends WhereUsedNode<LibraryNode> implements 
 		String decoration = "  (";
 		decoration += "Libraries that use types from " + owner.getName();
 		if (owner.getChain() != null)
-			decoration += " version " + ((LibraryNode) owner).getVersion_Major() + "+";
+			decoration += " version " + owner.getVersion_Major() + "+";
 		decoration += ")";
+		decoration += this.getClass().getSimpleName();
 		return decoration;
 	}
 
@@ -71,7 +73,7 @@ public class WhereLibraryUsedNode extends WhereUsedNode<LibraryNode> implements 
 
 		for (Node l : owner.getWhereUsedHandler().getWhereUsed(true))
 			if (l instanceof LibraryNode)
-				users.add(new LibraryUserNode((LibraryNode) l, (LibraryNode) owner));
+				users.add(new LibraryUserNode((LibraryNode) l, owner));
 		return new ArrayList<Node>(users);
 	}
 

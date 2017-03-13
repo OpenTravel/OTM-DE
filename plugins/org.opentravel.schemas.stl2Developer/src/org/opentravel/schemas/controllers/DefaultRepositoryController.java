@@ -479,7 +479,9 @@ public class DefaultRepositoryController implements RepositoryController {
 	}
 
 	/**
-	 * For each passed library find the latest version. If different, add library and latest version to returned map.
+	 * For each passed library find the latest version.
+	 * 
+	 * If different, add library and latest version to returned map.
 	 * 
 	 * WARNING: each library will invoke a slow process on the repository
 	 * 
@@ -507,6 +509,7 @@ public class DefaultRepositoryController implements RepositoryController {
 				continue;
 
 			// For each used library, lookup the latest version.
+			// TODO - update listItems call to use libraryStatus
 			ll = lRepo.listItems(baseNS, true, includeDrafts);
 			// list contains all library chains in that namespace
 			if (ll.size() > 0) {

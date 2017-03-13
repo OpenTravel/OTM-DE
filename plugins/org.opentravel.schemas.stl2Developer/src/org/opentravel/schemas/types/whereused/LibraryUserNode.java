@@ -27,7 +27,7 @@ import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 
 /**
- * Represents a library that uses types from a different library.
+ * Represents a library (owner) that uses types from a provider library.
  * 
  * @author Dave Hollander
  * 
@@ -36,27 +36,29 @@ public class LibraryUserNode extends WhereUsedNode<LibraryNode> implements Where
 	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryUserNode.class);
 
 	/**
+	 * 
 	 * Owner will always be the head of the chain.
 	 * 
 	 * @param userLibrary
 	 *            - owner of this node is the library that uses types from the other library
-	 * @param owningLibrary
+	 * @param providerLibrary
 	 *            is the library that provides types to the user library
 	 */
-	public LibraryUserNode(LibraryNode userLibrary, LibraryNode owningLibrary) {
+	public LibraryUserNode(LibraryNode userLibrary, LibraryNode providerLibrary) {
 		super(userLibrary);
 		if (userLibrary.getChain() != null && userLibrary.getChain().getHead() != null)
 			owner = userLibrary.getChain().getHead();
-		this.parent = owningLibrary;
+		this.parent = providerLibrary;
 		labelProvider = simpleLabelProvider(userLibrary.getName());
-		imageProvider = nodeImageProvider(owningLibrary.getOwningComponent());
+		imageProvider = nodeImageProvider(providerLibrary.getOwningComponent());
 	}
 
 	@Override
 	public String getDecoration() {
 		String decoration = "  ";
 		if (owner.getChain() != null)
-			decoration += "(version " + ((LibraryNode) owner).getVersion_Major() + "+)";
+			decoration += "(version " + owner.getVersion_Major() + "+)";
+		decoration += "  " + this.getClass().getSimpleName();
 		return decoration;
 	}
 
@@ -77,11 +79,9 @@ public class LibraryUserNode extends WhereUsedNode<LibraryNode> implements Where
 		List<Node> users = new ArrayList<Node>();
 		if (owner == null)
 			return Collections.emptyList();
-		for (Node l : ((LibraryNode) parent).getWhereUsedHandler().getUsersOfTypesFromOwnerLibrary((LibraryNode) owner,
-				true))
-			// users.add(new LibraryUserNode((LibraryNode) l));
+		for (Node l : ((LibraryNode) parent).getWhereUsedHandler().getUsersOfTypesFromOwnerLibrary(owner, true))
 			if (l instanceof TypeUser)
-				users.add(new TypeProviderUserNode((TypeUser) l));
+				users.add(new TypeUserNode((TypeUser) l));
 			else if (l instanceof ExtensionOwner)
 				users.add(new ExtensionUserNode((ExtensionOwner) l));
 		return users;

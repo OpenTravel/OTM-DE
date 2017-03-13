@@ -29,23 +29,25 @@ import org.opentravel.schemas.types.WhereAssignedHandler;
 import org.opentravel.schemas.types.WhereExtendedHandler;
 
 /**
- * Branch node of a tree that describes where this owner and previous minor versions of this owner and any of thier
- * sub-facets are used as an assigned type or extension base.
+ * Root of where used tree anchored to type providers in the navigation trees.
+ * 
+ * Describes where this type provider owner and previous minor versions of this owner and any of their sub-facets are
+ * used as an assigned type or extension base.
  * 
  * Leaves are computed by the owner's {@link WhereAssignedHandler} and {@link WhereExtendedHandler}. Leaf
- * {@link TypeProviderUserNode}s are dynamically assigned to reduce memory footprint and allow navigation to find the
- * actual library member.
+ * {@link TypeUserNode}s are dynamically assigned to reduce memory footprint and allow navigation to find the actual
+ * library member.
  * 
  * @author Dave Hollander
  * 
  */
-public class WhereTypeProviderUsedNode extends WhereUsedNode<TypeProvider> implements WhereUsedNodeInterface {
+public class TypeProviderWhereUsedNode extends WhereUsedNode<TypeProvider> implements WhereUsedNodeInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(WhereTypeProviderUsedNode.class);
 
 	/**
 	 * Create a new Where Used complete with new TL model and link to component
 	 */
-	public WhereTypeProviderUsedNode(final TypeProvider parent) {
+	public TypeProviderWhereUsedNode(final TypeProvider parent) {
 		super(parent);
 	}
 
@@ -60,7 +62,7 @@ public class WhereTypeProviderUsedNode extends WhereUsedNode<TypeProvider> imple
 
 	@Override
 	public String getLabel() {
-		return labelProvider.getLabel() + " (" + ((TypeProvider) owner).getWhereUsedAndDescendantsCount() + ")";
+		return labelProvider.getLabel() + " (" + owner.getWhereUsedAndDescendantsCount() + ")";
 	}
 
 	/**
@@ -86,7 +88,7 @@ public class WhereTypeProviderUsedNode extends WhereUsedNode<TypeProvider> imple
 		for (Node version : versions) {
 			if (version instanceof TypeProvider) {
 				for (TypeUser u : ((TypeProvider) version).getWhereUsedAndDescendants())
-					users.add(new TypeProviderUserNode(u));
+					users.add(new TypeUserNode(u));
 			}
 			if (version instanceof ExtensionOwner) {
 				for (ExtensionOwner whereExtended : version.getWhereExtendedHandler().getWhereExtended())

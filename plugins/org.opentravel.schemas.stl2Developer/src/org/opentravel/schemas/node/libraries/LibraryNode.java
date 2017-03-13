@@ -92,7 +92,7 @@ import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.WhereUsedLibraryHandler;
-import org.opentravel.schemas.types.whereused.LibraryDependsOnNode;
+import org.opentravel.schemas.types.whereused.LibraryUsesNode;
 import org.opentravel.schemas.types.whereused.TypeUsageNode;
 
 /**
@@ -1637,7 +1637,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 * Examine each descendant that is a type user or extension owner, if those nodes use types from other libraries,
 	 * add that library to returned list, if the library is in a chain, return the head library.
 	 * 
-	 * Used by {@link LibraryDependsOnNode#getChildren()} and {@link TypeUsageNode#getChildren()}
+	 * Used by {@link LibraryUsesNode#getChildren()} and {@link TypeUsageNode#getChildren()}
 	 * <p>
 	 * WhereUseHandler provides the inverse relationship. Libraries in the list should have this library in their where
 	 * used handler. {@link WhereUsedLibraryHandler#getWhereUsed()}

@@ -20,18 +20,19 @@ import java.util.Collections;
 import java.util.List;
 
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.types.TypeUser;
 
 /**
- * Leaf node that describes a library that is depended on to provide types. Children are other LibraryDependedOnNodes
- * and TypeDependedOnNodes.
+ * Describes a library that is depended on to provide types to the user library. Children are other LibraryProviderNodes
+ * and Type/Extension UserNodes.
  * 
  * @author Dave Hollander
  * 
  */
-public class LibraryDependedOnNode extends WhereUsedNode<LibraryNode> implements WhereUsedNodeInterface {
+public class LibraryProviderNode extends WhereUsedNode<LibraryNode> implements WhereUsedNodeInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryDependedOnNode.class);
 
 	/**
@@ -42,7 +43,7 @@ public class LibraryDependedOnNode extends WhereUsedNode<LibraryNode> implements
 	 * @param userLib
 	 *            is the library that depends on the provided types (parent)
 	 */
-	public LibraryDependedOnNode(LibraryNode providerLib, LibraryNode userLib) {
+	public LibraryProviderNode(LibraryNode providerLib, LibraryNode userLib) {
 		super(providerLib); // sets owner
 		parent = userLib;
 		labelProvider = simpleLabelProvider(providerLib.getName());
@@ -53,13 +54,13 @@ public class LibraryDependedOnNode extends WhereUsedNode<LibraryNode> implements
 	public String getDecoration() {
 		String decoration = "  (";
 		if (owner.getChain() != null)
-			decoration += "version " + ((LibraryNode) owner).getVersion_Major();
+			decoration += "version " + owner.getVersion_Major();
 		decoration += " provides types to ";
 		decoration += " " + parent.getName();
 		if (parent.getChain() != null)
 			decoration += " version " + ((LibraryNode) parent).getVersion_Major() + "+";
 		decoration += ")";
-		// decoration += this.getClass().getSimpleName();
+		decoration += this.getClass().getSimpleName();
 		return decoration;
 	}
 
@@ -74,13 +75,15 @@ public class LibraryDependedOnNode extends WhereUsedNode<LibraryNode> implements
 			return Collections.emptyList();
 
 		List<Node> providerLibs = new ArrayList<Node>();
-		for (LibraryNode l : ((LibraryNode) owner).getAssignedLibraries())
-			providerLibs.add(new LibraryDependedOnNode(l, (LibraryNode) owner));
+		for (LibraryNode l : owner.getAssignedLibraries())
+			providerLibs.add(new LibraryProviderNode(l, owner));
 
 		// Get the types in the owner lib that are used in the parent's chain
-		for (Node user : ((LibraryNode) owner).getWhereUsedHandler().getUsersOfTypesFromOwnerLibrary(
-				(LibraryNode) parent, true))
-			providerLibs.add(new TypeProviderUserNode((TypeUser) user));
+		for (Node user : owner.getWhereUsedHandler().getUsersOfTypesFromOwnerLibrary((LibraryNode) parent, true))
+			if (user instanceof TypeUser)
+				providerLibs.add(new TypeUserNode((TypeUser) user));
+			else if (user instanceof ExtensionOwner)
+				providerLibs.add(new ExtensionUserNode((ExtensionOwner) user));
 
 		return providerLibs;
 	}

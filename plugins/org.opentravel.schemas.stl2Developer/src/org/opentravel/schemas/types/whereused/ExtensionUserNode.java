@@ -23,8 +23,8 @@ import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 
 /**
- * Leaf node describing a TypeUser or ExtensionOwner. Exposes which specific version of an object in a chain provides
- * the assigned type or extension base.
+ * Leaf node describing an ExtensionOwner. Exposes which specific versioned object in a chain provides the extension
+ * base to the user.
  * 
  * @author Dave Hollander
  * 

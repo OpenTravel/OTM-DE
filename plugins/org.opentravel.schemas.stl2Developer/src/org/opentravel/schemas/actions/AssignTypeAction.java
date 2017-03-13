@@ -82,10 +82,11 @@ public class AssignTypeAction extends OtmAbstractAction {
 	 */
 	@Override
 	public boolean isEnabled() {
-		Node n = getMainController().getCurrentNode_NavigatorView();
-		if (n == null || !(n instanceof WhereUsedNode))
-			return false;
-		return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
+		return false;
+		// Node n = getMainController().getCurrentNode_NavigatorView();
+		// if (n == null || !(n instanceof WhereUsedNode))
+		// return false;
+		// return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
 	}
 
 	// From OTM Actions (46) - typeSelector - type selection buttons in facet view
