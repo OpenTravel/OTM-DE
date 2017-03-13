@@ -835,7 +835,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	public void checkExtension(Node n) {
 		if (n instanceof ExtensionOwner) {
 			Node base = ((ExtensionOwner) n).getExtensionBase();
-			if (base != null)
+			if (base != null && base.getLibrary() != null)
 				if (!base.getLibrary().get_LibraryMembers().contains(base)) {
 					// LOGGER.error(base.getNameWithPrefix() + " library is not correct.");
 					List<LibraryMemberInterface> members = base.getLibrary().get_LibraryMembers();

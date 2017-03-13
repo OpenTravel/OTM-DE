@@ -17,8 +17,9 @@ package org.opentravel.schemas.commands;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -27,6 +28,8 @@ import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
+import org.opentravel.schemas.types.whereused.ExtensionUserNode;
+import org.opentravel.schemas.types.whereused.LibraryProviderNode;
 import org.opentravel.schemas.types.whereused.TypeUserNode;
 
 /**
@@ -46,8 +49,8 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 		Node node = mc.getSelectedNode_NavigatorView();
 		if (node == null)
 			return null;
-		if (node instanceof TypeUserNode)
-			updateLibrary((TypeUserNode) node);
+		if (node instanceof LibraryProviderNode)
+			updateLibrary((LibraryProviderNode) node);
 		return null;
 	}
 
@@ -59,19 +62,22 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 	@Override
 	public boolean isEnabled() {
 		Node n = mc.getSelectedNode_NavigatorView();
-		// NOT OWNER
-		// if (n instanceof TypeUsageNode)
-		// if (!((TypeUsageNode) n).isProviderLib())
-		// return false;
+		if (n instanceof LibraryProviderNode)
+			return true;
 		return n != null && n.isEditable() ? n instanceof TypeUserNode : false;
 	}
 
-	private void updateLibrary(TypeUserNode userNode) {
+	private void updateLibrary(LibraryProviderNode providerLibNode) {
 		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
-		List<LibraryNode> usedLibs = new ArrayList<LibraryNode>();
-		// FIXME - if nodeType==owner the get the children - when fixed, remove test from isEnabled()
-		// usedLibs.add(userNode.getOwner());
-		LibraryNode libToUpdate = (LibraryNode) userNode.getParent();
+		LibraryNode libToUpdate = (LibraryNode) providerLibNode.getParent();
+
+		// Get a list of extensionOwners and TypeUsers from libToUpdate
+		Set<LibraryNode> usedLibs = new HashSet<LibraryNode>();
+		for (Node n : providerLibNode.getChildren())
+			if (n instanceof TypeUserNode)
+				usedLibs.add(((TypeUserNode) n).getOwner().getAssignedType().getLibrary());
+			else if (n instanceof ExtensionUserNode)
+				usedLibs.add(((ExtensionUserNode) n).getOwner().getExtensionBase().getLibrary());
 
 		// Ask the user if they want Draft versions?
 		String question = "Update to latest Draft version? Answer Yes to include draft or No for only Final versions.";
@@ -86,7 +92,7 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 		// Create replacement map
 		HashMap<LibraryNode, LibraryNode> replacementMap;
 		try {
-			replacementMap = rc.getVersionUpdateMap(usedLibs, includeDrafts);
+			replacementMap = rc.getVersionUpdateMap(new ArrayList<LibraryNode>(usedLibs), includeDrafts);
 		} catch (RepositoryException e1) {
 			DialogUserNotifier.openWarning("Version Update Warning", e1.getLocalizedMessage());
 			return;

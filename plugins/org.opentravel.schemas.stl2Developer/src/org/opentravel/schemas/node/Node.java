@@ -1117,7 +1117,8 @@ public abstract class Node implements INode {
 		String prefix = "";
 		if (getLibrary() == null) {
 			// owning library might have been closed
-			if (getTLModelObject() instanceof NamedEntity)
+			if (getTLModelObject() instanceof NamedEntity
+					&& ((NamedEntity) getTLModelObject()).getOwningLibrary() != null)
 				prefix = ((NamedEntity) getTLModelObject()).getOwningLibrary().getPrefix();
 		} else
 			prefix = getLibrary().getPrefix();

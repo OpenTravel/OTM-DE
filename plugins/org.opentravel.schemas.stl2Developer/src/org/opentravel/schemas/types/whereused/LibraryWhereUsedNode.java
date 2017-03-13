@@ -50,7 +50,7 @@ public class LibraryWhereUsedNode extends WhereUsedNode<LibraryNode> implements 
 		if (owner.getChain() != null)
 			decoration += " version " + owner.getVersion_Major() + "+";
 		decoration += ")";
-		decoration += this.getClass().getSimpleName();
+		// decoration += this.getClass().getSimpleName();
 		return decoration;
 	}
 

@@ -55,8 +55,7 @@ public class TypeProviderWhereUsedNode extends WhereUsedNode<TypeProvider> imple
 	public String getDecoration() {
 		String decoration = "  ";
 		decoration += "All versions of " + owner.getName() + " in this chain are used by:";
-		//
-		decoration += "  " + this.getClass().getSimpleName();
+		// decoration += "  " + this.getClass().getSimpleName();
 		return decoration;
 	}
 

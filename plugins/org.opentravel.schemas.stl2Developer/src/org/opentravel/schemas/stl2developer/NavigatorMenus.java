@@ -107,7 +107,7 @@ import org.opentravel.schemas.trees.library.LibrarySorter;
 import org.opentravel.schemas.trees.library.LibraryTreeContentProvider;
 import org.opentravel.schemas.trees.library.LibraryTreeLabelProvider;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
-import org.opentravel.schemas.types.whereused.LibraryUserNode;
+import org.opentravel.schemas.types.whereused.LibraryProviderNode;
 import org.opentravel.schemas.types.whereused.TypeProviderWhereUsedNode;
 import org.opentravel.schemas.utils.RCPUtils;
 
@@ -417,7 +417,7 @@ public class NavigatorMenus extends TreeViewer {
 						manager.add(libraryMenu);
 					} else if (node instanceof TypeProviderWhereUsedNode) {
 						manager.add(whereUsedMenu);
-					} else if (node instanceof LibraryUserNode) {
+					} else if (node instanceof LibraryProviderNode) {
 						manager.add(versionUpdateAction);
 					} else if (node instanceof ProjectNode || node instanceof LibraryNode
 							|| node instanceof LibraryNavNode || node instanceof LibraryChainNode

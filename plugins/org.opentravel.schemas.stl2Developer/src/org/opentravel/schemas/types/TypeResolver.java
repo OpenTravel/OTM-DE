@@ -105,7 +105,7 @@ public class TypeResolver {
 		public void visit(INode in) {
 			if (in instanceof ExtensionOwner) {
 				Node base = ((ExtensionOwner) in).getExtensionBase();
-				if (base != null) {
+				if (base != null && base.getLibrary() != null) {
 					((ExtensionOwner) in).setExtension(base);
 					base.getLibrary().checkExtension(base);
 				}

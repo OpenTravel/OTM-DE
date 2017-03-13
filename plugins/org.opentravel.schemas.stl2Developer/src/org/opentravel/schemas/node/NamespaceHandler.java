@@ -303,7 +303,7 @@ public class NamespaceHandler {
 		try {
 			return scheme.getBaseNamespace(namespace);
 		} catch (IllegalArgumentException e) {
-			LOGGER.error("Namespace does not conform to scheme: " + namespace + "  " + e.getLocalizedMessage());
+			// LOGGER.error("Namespace does not conform to scheme: " + namespace + "  " + e.getLocalizedMessage());
 			return namespace;
 		}
 	}

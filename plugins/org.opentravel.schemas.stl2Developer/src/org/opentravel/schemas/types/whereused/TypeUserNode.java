@@ -48,7 +48,7 @@ public class TypeUserNode extends WhereUsedNode<TypeUser> implements WhereUsedNo
 		String decoration = "  ";
 		decoration += "uses ";
 		decoration += " " + ((Node) owner.getAssignedType()).getNameWithPrefix();
-		decoration += this.getClass().getSimpleName();
+		// decoration += this.getClass().getSimpleName();
 		return decoration;
 	}
 

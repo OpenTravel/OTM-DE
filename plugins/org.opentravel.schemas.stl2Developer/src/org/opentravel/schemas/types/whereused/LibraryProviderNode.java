@@ -60,7 +60,7 @@ public class LibraryProviderNode extends WhereUsedNode<LibraryNode> implements W
 		if (parent.getChain() != null)
 			decoration += " version " + ((LibraryNode) parent).getVersion_Major() + "+";
 		decoration += ")";
-		decoration += this.getClass().getSimpleName();
+		// decoration += this.getClass().getSimpleName();
 		return decoration;
 	}
 
@@ -95,12 +95,6 @@ public class LibraryProviderNode extends WhereUsedNode<LibraryNode> implements W
 
 	@Override
 	public boolean hasNavChildren(boolean deep) {
-		return true;
-	}
-
-	// FIXME - should be instanceof test
-	@Deprecated
-	public boolean isProviderLib() {
 		return true;
 	}
 

@@ -162,13 +162,14 @@ public class WhereUsedLibraryHandler {
 		// LOGGER.debug("Getting where used for: " + owner.getNameWithPrefix());
 		Set<LibraryNode> chainUsers = new HashSet<>();
 		// List<LibraryNode> chainUsers = new ArrayList<LibraryNode>();
-		if (deep)
+		if (deep && owner.getChain() != null)
 			for (LibraryNode ln : owner.getChain().getLibraries())
 				chainUsers.addAll(ln.getWhereUsedHandler().getWhereUsed());
 		else
 			chainUsers.addAll(users);
 		chainUsers.remove(owner);
-		chainUsers.removeAll(owner.getChain().getLibraries());
+		if (deep && owner.getChain() != null)
+			chainUsers.removeAll(owner.getChain().getLibraries());
 		return Collections.unmodifiableCollection(chainUsers);
 		// return chainUsers;
 	}
