@@ -51,7 +51,7 @@ import org.opentravel.schemas.stl2developer.ColorProvider;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.trees.library.LibrarySorter;
 import org.opentravel.schemas.types.TypeUser;
-import org.opentravel.schemas.types.whereused.TypeUsageNode;
+import org.opentravel.schemas.types.whereused.TypeUserNode;
 import org.opentravel.schemas.types.whereused.WhereUsedNode;
 
 /**
@@ -96,7 +96,8 @@ public class LibraryTablePoster {
 	 */
 	public void postTable(Node curNode) {
 		clearTable();
-		if (curNode instanceof WhereUsedNode || curNode instanceof TypeUsageNode)
+		// Unneeded - Should be fixed by selection handler
+		if (curNode instanceof WhereUsedNode && !(curNode instanceof TypeUserNode))
 			return;
 		if (curNode == null) {
 			return;

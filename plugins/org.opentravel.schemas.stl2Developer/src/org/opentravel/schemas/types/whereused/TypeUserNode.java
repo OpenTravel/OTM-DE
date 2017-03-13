@@ -67,8 +67,4 @@ public class TypeUserNode extends WhereUsedNode<TypeUser> implements WhereUsedNo
 		return false;
 	}
 
-	public boolean isUser() {
-		return true;
-	}
-
 }

@@ -46,6 +46,7 @@ import org.opentravel.schemas.trees.library.LibraryPropertyFilter;
 import org.opentravel.schemas.trees.library.LibraryTreeContentProvider;
 import org.opentravel.schemas.trees.library.LibraryTreeInheritedFilter;
 import org.opentravel.schemas.trees.library.LibraryTreeNameFilter;
+import org.opentravel.schemas.types.whereused.TypeUserNode;
 import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.opentravel.schemas.widgets.WidgetFactory;
 import org.slf4j.Logger;
@@ -203,7 +204,9 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 			if (ss.getFirstElement() instanceof Node)
 				node = (Node) ss.getFirstElement();
 		}
-		if (node instanceof WhereUsedNode)
+		if (node instanceof TypeUserNode)
+			n = (Node) ((TypeUserNode) node).getOwner();
+		else if (node instanceof WhereUsedNode)
 			n = node.getParent();
 		else if (node instanceof VersionNode)
 			n = (((VersionNode) node).getNewestVersion());

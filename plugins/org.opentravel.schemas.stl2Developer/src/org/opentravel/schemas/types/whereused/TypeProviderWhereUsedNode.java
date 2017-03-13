@@ -47,8 +47,8 @@ public class TypeProviderWhereUsedNode extends WhereUsedNode<TypeProvider> imple
 	/**
 	 * Create a new Where Used complete with new TL model and link to component
 	 */
-	public TypeProviderWhereUsedNode(final TypeProvider parent) {
-		super(parent);
+	public TypeProviderWhereUsedNode(final TypeProvider provider) {
+		super(provider);
 	}
 
 	@Override
@@ -112,9 +112,4 @@ public class TypeProviderWhereUsedNode extends WhereUsedNode<TypeProvider> imple
 		return true;
 	}
 
-	// True if this node represents a type user
-	public boolean isUser() {
-		return true;
-		// return nodeType.equals(TypeNodeType.USER) ? true : false;
-	}
 }

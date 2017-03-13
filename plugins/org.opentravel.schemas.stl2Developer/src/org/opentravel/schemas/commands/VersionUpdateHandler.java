@@ -27,7 +27,7 @@ import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
-import org.opentravel.schemas.types.whereused.TypeUsageNode;
+import org.opentravel.schemas.types.whereused.TypeUserNode;
 
 /**
  * Update type assignments to later versions.
@@ -46,8 +46,8 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 		Node node = mc.getSelectedNode_NavigatorView();
 		if (node == null)
 			return null;
-		if (node instanceof TypeUsageNode)
-			updateLibrary((TypeUsageNode) node);
+		if (node instanceof TypeUserNode)
+			updateLibrary((TypeUserNode) node);
 		return null;
 	}
 
@@ -63,10 +63,10 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 		// if (n instanceof TypeUsageNode)
 		// if (!((TypeUsageNode) n).isProviderLib())
 		// return false;
-		return n != null && n.isEditable() ? n instanceof TypeUsageNode : false;
+		return n != null && n.isEditable() ? n instanceof TypeUserNode : false;
 	}
 
-	private void updateLibrary(TypeUsageNode userNode) {
+	private void updateLibrary(TypeUserNode userNode) {
 		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
 		List<LibraryNode> usedLibs = new ArrayList<LibraryNode>();
 		// FIXME - if nodeType==owner the get the children - when fixed, remove test from isEnabled()

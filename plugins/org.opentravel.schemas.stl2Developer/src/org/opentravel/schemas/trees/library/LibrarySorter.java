@@ -41,7 +41,8 @@ import org.opentravel.schemas.node.resources.ActionRequest;
 import org.opentravel.schemas.node.resources.ActionResponse;
 import org.opentravel.schemas.node.resources.ParamGroup;
 import org.opentravel.schemas.node.resources.ResourceParameter;
-import org.opentravel.schemas.types.whereused.TypeUsageNode;
+import org.opentravel.schemas.types.whereused.LibraryUsesNode;
+import org.opentravel.schemas.types.whereused.LibraryWhereUsedNode;
 import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,10 +100,12 @@ public class LibrarySorter extends ViewerSorter {
 		if (n == null || n.getModelObject() == null)
 			return 0;
 
-		if (n instanceof TypeUsageNode)
+		if (n instanceof LibraryUsesNode)
 			return 701;
-		if (n instanceof WhereUsedNode)
+		if (n instanceof LibraryWhereUsedNode)
 			return 700;
+		if (n instanceof WhereUsedNode<?>)
+			return 699;
 
 		if (n instanceof ProjectNode) {
 			if (n.isEditable())

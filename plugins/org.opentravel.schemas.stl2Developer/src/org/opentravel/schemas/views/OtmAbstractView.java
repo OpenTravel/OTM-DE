@@ -24,6 +24,8 @@ import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.types.whereused.ExtensionUserNode;
+import org.opentravel.schemas.types.whereused.TypeUserNode;
 import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,8 +176,8 @@ public abstract class OtmAbstractView extends ViewPart implements OtmView {
 
 	/**
 	 * @param selection
-	 * @return Return first node from selection. For the {@link WhereUsedNode} will return his parent (since TypeNodes are
-	 *         not in the real tree). If selection is not Structured or the firstElement in selection is not
+	 * @return Return first node from selection. For the {@link WhereUsedNode} will return his parent (since TypeNodes
+	 *         are not in the real tree). If selection is not Structured or the firstElement in selection is not
 	 *         {@link INode} then return null;
 	 */
 	public INode extractFirstNode(ISelection selection) {
@@ -183,7 +185,11 @@ public abstract class OtmAbstractView extends ViewPart implements OtmView {
 			Object firstElement = ((StructuredSelection) selection).getFirstElement();
 			if (firstElement instanceof INode) {
 				INode node = (INode) firstElement;
-				if (node instanceof WhereUsedNode) {
+				if (node instanceof TypeUserNode)
+					return (INode) ((TypeUserNode) node).getOwner();
+				else if (node instanceof ExtensionUserNode)
+					return (INode) ((ExtensionUserNode) node).getOwner();
+				else if (node instanceof WhereUsedNode) {
 					return node.getParent();
 				}
 				return node;

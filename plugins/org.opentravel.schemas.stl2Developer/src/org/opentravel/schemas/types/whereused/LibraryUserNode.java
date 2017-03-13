@@ -45,10 +45,10 @@ public class LibraryUserNode extends WhereUsedNode<LibraryNode> implements Where
 	 *            is the library that provides types to the user library
 	 */
 	public LibraryUserNode(LibraryNode userLibrary, LibraryNode providerLibrary) {
-		super(userLibrary);
+		super(userLibrary, providerLibrary);
 		if (userLibrary.getChain() != null && userLibrary.getChain().getHead() != null)
 			owner = userLibrary.getChain().getHead();
-		this.parent = providerLibrary;
+		// this.parent = providerLibrary;
 		labelProvider = simpleLabelProvider(userLibrary.getName());
 		imageProvider = nodeImageProvider(providerLibrary.getOwningComponent());
 	}
@@ -69,8 +69,7 @@ public class LibraryUserNode extends WhereUsedNode<LibraryNode> implements Where
 	}
 
 	/**
-	 * Get all of the components that use any aspect of the owning component. DO NOT make this a getChildren or the tree
-	 * will become invalid with nodes having multiple parents which will break lots of getChildren() users.
+	 * Get all of the components that use any any types from of the owning library or chain.
 	 * 
 	 * @return new list of children
 	 */
@@ -91,12 +90,6 @@ public class LibraryUserNode extends WhereUsedNode<LibraryNode> implements Where
 	public boolean hasChildren() {
 		return false;
 		// return true; // fixme - only type OWNER has children
-	}
-
-	// True if this node represents a type user
-	public boolean isUser() {
-		return true;
-		// return nodeType.equals(TypeNodeType.USER) ? true : false;
 	}
 
 }

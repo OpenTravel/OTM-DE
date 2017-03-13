@@ -47,6 +47,11 @@ public abstract class WhereUsedNode<O> extends Node implements WhereUsedNodeInte
 	protected NodeLabelProvider labelProvider = simpleLabelProvider("Where Used");
 	protected O owner = null;
 
+	public WhereUsedNode(final LibraryNode lib, LibraryNode parent) {
+		this.owner = (O) lib;
+		this.parent = parent;
+	}
+
 	public WhereUsedNode(final LibraryNode lib) {
 		this.owner = (O) lib;
 	}
@@ -121,12 +126,13 @@ public abstract class WhereUsedNode<O> extends Node implements WhereUsedNodeInte
 		return labelProvider.getLabel();
 	}
 
-	/**
-	 * Returns the owner - the node that is the type user
-	 */
+	public O getOwner() {
+		return owner;
+	}
+
 	@Override
 	public Node getParent() {
-		return (Node) owner;
+		return (Node) parent;
 	}
 
 	@Override
@@ -156,13 +162,6 @@ public abstract class WhereUsedNode<O> extends Node implements WhereUsedNodeInte
 	@Override
 	public boolean isEditable() {
 		return owner != null ? ((Node) owner).isEditable() : false;
-	}
-
-	/**
-	 * @return True if this node represents a type user
-	 */
-	public boolean isUser() {
-		return false; // Override for true
 	}
 
 	@Override

@@ -63,7 +63,7 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 
 	private TypeSelectionPage selectionPage;
 	private WizardDialog dialog;
-	private boolean dontFinish = false; // use only as converting to action class.
+	private boolean dontFinish = false; // see run() - use only as converting to action class.
 
 	/**
 	 * Type selection wizard to select a node to assign as a type.
@@ -107,6 +107,7 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 		boolean coreAndChoice = false;
 		boolean contextualFacet = false;
 
+		// FIXME - how does a list of nodes impact the selection?
 		if (curNodeList != null) {
 			for (Node n : curNodeList) {
 				if (n != null && n.isEditable()) {

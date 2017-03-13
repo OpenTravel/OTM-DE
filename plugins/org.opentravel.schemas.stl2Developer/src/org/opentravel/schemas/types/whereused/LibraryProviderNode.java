@@ -44,8 +44,8 @@ public class LibraryProviderNode extends WhereUsedNode<LibraryNode> implements W
 	 *            is the library that depends on the provided types (parent)
 	 */
 	public LibraryProviderNode(LibraryNode providerLib, LibraryNode userLib) {
-		super(providerLib); // sets owner
-		parent = userLib;
+		super(providerLib, userLib); // sets owner
+		// parent = userLib;
 		labelProvider = simpleLabelProvider(providerLib.getName());
 		imageProvider = nodeImageProvider(providerLib.getOwningComponent());
 	}

@@ -30,7 +30,8 @@ import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
-import org.opentravel.schemas.types.whereused.WhereUsedNode;
+import org.opentravel.schemas.types.whereused.LibraryUserNode;
+import org.opentravel.schemas.types.whereused.TypeProviderWhereUsedNode;
 import org.opentravel.schemas.wizards.TypeSelectionWizard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,39 +55,31 @@ public class AssignTypeAction extends OtmAbstractAction {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AssignTypeAction.class);
 	private static StringProperties propsDefault = new ExternalizedStringProperties("action.replaceUsers");
 
-	// private MainController mc;
-
 	/**
 	 *
 	 */
 	public AssignTypeAction(final MainWindow mainWindow) {
 		super(mainWindow, propsDefault);
-		// mc = OtmRegistry.getMainController();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.Action#run()
-	 */
 	@Override
 	public void run() {
-		LOGGER.debug("Replace starting.");
-		typeSelector();
+		LOGGER.debug("Replace Where Used action starting.");
+		Node n = mc.getSelectedNode_NavigatorView();
+		if (n instanceof TypeProviderWhereUsedNode)
+			replaceTypeSelection((TypeProviderWhereUsedNode) n);
+		// else if (n instanceof LibraryUserNode)
+		// replaceLibrary((LibraryUserNode) n);
+		return;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.actions.IWithNodeAction.AbstractWithNodeAction#isEnabled()
-	 */
 	@Override
 	public boolean isEnabled() {
-		return false;
-		// Node n = getMainController().getCurrentNode_NavigatorView();
-		// if (n == null || !(n instanceof WhereUsedNode))
 		// return false;
-		// return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
+		Node n = getMainController().getCurrentNode_NavigatorView();
+		if (n == null || !(n instanceof TypeProviderWhereUsedNode))
+			return false;
+		return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
 	}
 
 	// From OTM Actions (46) - typeSelector - type selection buttons in facet view
@@ -118,56 +111,91 @@ public class AssignTypeAction extends OtmAbstractAction {
 		return ret;
 	}
 
-	// ** THIS IS NOT USED FOR TYPE SELECTION BUTTONS IN THE FACET TABLE
-	// This is used for Replace Where Used
-	private void typeSelector() {
-		List<Node> users = new ArrayList<Node>(); // List of type users to replace type assignments with provider to be
-													// selected
+	/**
+	 * Replace the provider library with the latest version.
+	 * 
+	 * DOES NOT WORK...disabled (for now)
+	 */
+	private void replaceLibrary(LibraryUserNode user) {
+		// LibraryNode providerLibrary = (LibraryNode) user.getParent();
+		// LibraryNode userLibrary = user.getOwner();
+		//
+		// // Determine if the provider library has a later version
+		// if (providerLibrary.getChain() == null) {
+		// DialogUserNotifier.openWarning("Not Versioned", "The provider library is not versioned.");
+		// return;
+		// }
+		// // If the user library is not at head version ???
+		// if (!userLibrary.isEditable()) {
+		// LOGGER.debug("User is not editable.");
+		// return;
+		// }
+		// List<Node> kids = user.getChildren();
+		// for (Node n : kids) {
+		// // if the kid uses an older version of the provider library, update it.
+		// if (n instanceof TypeUserNode) {
+		// TypeUser tu = ((TypeUserNode) n).getOwner();
+		// Node at = (Node) ((TypeUser) tu).getAssignedType();
+		// if (at.getVersionNode() != null)
+		// if (at.getVersionNode().getNewestVersion() != at)
+		// LOGGER.debug("Update type assigned to " + n + " assigned " + at.getNameWithPrefix() + " to  "
+		// + at.getVersionNode().getNewestVersion());
+		// List<Node> laterATs = at.getLaterVersions();
+		// if (laterATs != null && !laterATs.isEmpty())
+		// LOGGER.debug("Update type assigned to " + n + " assigned " + at.getNameWithPrefix() + "?");
+		// }
+		// }
+		//
+		// MinorVersionHelper vh = new MinorVersionHelper();
+		// List<TLLibrary> tlCandiates = null;
+		// try {
+		// tlCandiates = vh.getLaterMinorVersions(providerLibrary.getTLLibrary());
+		// } catch (VersionSchemeException e) {
+		// e.printStackTrace();
+		// }
+		// List<Node> candiates = providerLibrary.getChain().getLaterVersions();
+		// return;
+	}
 
-		List<Node> selections = getMainController().getSelectedNodes_NavigatorView();
-		if (selections != null)
-			for (Node s : selections) {
-				if (s instanceof WhereUsedNode)
-					addTypeUsers((WhereUsedNode) s, users); // get the users of the node, not just the node.
-				else
-					users.add(s);
-			}
+	/**
+	 * Execute "Replace Where Used" action on a specific type provider
+	 * 
+	 * (Not used for TYPE SELECTION BUTTONS in the facet table.)
+	 * 
+	 * @param providerWhereUsed
+	 */
+	private void replaceTypeSelection(TypeProviderWhereUsedNode providerWhereUsed) {
+		TypeProvider provider = providerWhereUsed.getOwner();
 
-		// If the node is not in the head library, then create one.
-		OtmAbstractHandler handler = new OtmAbstractHandler() {
-			@Override
-			public Object execute(ExecutionEvent event) throws ExecutionException {
-				return null;
-			}
-		};
-
+		List<TypeUser> users = new ArrayList<TypeUser>();
+		for (TypeUser user : provider.getWhereAssigned())
+			if (user.isEditable())
+				users.add(user);
 		if (users == null || users.isEmpty())
 			return;
-		Node n = users.get(0);
-		if (n.getChain() != null && !n.isInHead2())
-			n = handler.createVersionExtension(n);
-		if (n == null)
-			return;
 
-		// runSetTypeWizard(OtmRegistry.getActiveShell(), users );
-		final TypeSelectionWizard wizard = new TypeSelectionWizard(new ArrayList<Node>(users));
+		final TypeSelectionWizard wizard = new TypeSelectionWizard((Node) users.get(0));
 		if (wizard.run(OtmRegistry.getActiveShell())) {
-			execute(wizard.getList(), wizard.getSelection());
+			Node newType = wizard.getSelection();
+			if (!(newType instanceof TypeProvider))
+				return;
+			if (DialogUserNotifier.openConfirm("Confirm replace where used.", "Replace assigned type to: " + newType)) {
+				for (TypeUser user : users)
+					user.setAssignedType((TypeProvider) newType);
+			}
 		}
-
-		mc.refresh(users.get(0));
+		mc.refresh();
 	}
 
-	private void addTypeUsers(WhereUsedNode tn, List<Node> users) {
-		// throw new IllegalStateException("Not Implemented Yet.");
-		if (tn.isUser()) {
-			users.add(tn.getParent()); // This is a type node for a specific type user.
-		} else {
-			// This is a type node for the type provider.
-			for (TypeUser n : ((TypeProvider) tn.getParent()).getWhereAssigned())
-				users.add((Node) n);
-		}
-	}
+	// private void addTypeUsers(LibraryUserNode tn, List<Node> users) {
+	// users.add(tn.getParent()); // This is a type node for a specific type user.
+	// }
+	//
+	// private void addTypeUsers(TypeUserNode tn, List<Node> users) {
+	// // This is a type node for the type provider.
+	// for (TypeUser n : ((TypeProvider) tn.getParent()).getWhereAssigned())
+	// users.add((Node) n);
+	// }
 
 	/**
 	 * Run type selection wizard and assign selected type of the pass node list. Will create minor versions of the nodes

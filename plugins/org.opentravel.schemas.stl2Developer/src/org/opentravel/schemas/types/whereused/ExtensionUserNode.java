@@ -65,8 +65,4 @@ public class ExtensionUserNode extends WhereUsedNode<ExtensionOwner> implements 
 		return false;
 	}
 
-	public boolean isUser() {
-		return true;
-	}
-
 }
