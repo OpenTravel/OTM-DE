@@ -721,6 +721,7 @@ public class DefaultProjectController implements ProjectController {
 	@Override
 	public void refreshMaster() {
 		ArrayList<String> projectFiles = new ArrayList<>();
+		LOGGER.debug("Master Refresh Starting.");
 
 		// Close all project nodes
 		for (ProjectNode p : ModelNode.getAllProjects()) {

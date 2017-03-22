@@ -2439,7 +2439,7 @@ public abstract class Node implements INode {
 		// recurse to remove version parent as well.
 		if (vn != null) {
 			// unlink from the chain aggregate node
-			if (this instanceof ComponentNode)
+			if (this instanceof ComponentNode && getChain() != null)
 				getChain().removeAggregate((ComponentNode) this);
 			// unlink the version node it self
 			if (vn.getParent() != null)

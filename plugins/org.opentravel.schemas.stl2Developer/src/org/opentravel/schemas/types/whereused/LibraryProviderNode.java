@@ -75,7 +75,7 @@ public class LibraryProviderNode extends WhereUsedNode<LibraryNode> implements W
 			return Collections.emptyList();
 
 		List<Node> providerLibs = new ArrayList<Node>();
-		for (LibraryNode l : owner.getAssignedLibraries())
+		for (LibraryNode l : owner.getAssignedLibraries(false))
 			providerLibs.add(new LibraryProviderNode(l, owner));
 
 		// Get the types in the owner lib that are used in the parent's chain

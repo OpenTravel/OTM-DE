@@ -517,7 +517,7 @@ public class NavigatorMenus extends TreeViewer {
 			private List<LibraryNode> getListOfLibraries(final Node node) {
 				final List<LibraryNode> libs = new ArrayList<LibraryNode>();
 				for (final LibraryNode ln : Node.getAllUserLibraries()) {
-					if (ln.isInChain()) {
+					if (ln.getChain() != null) {
 						// add if it is not in the node's chain and the head of the chain
 						if (!ln.getChain().contains(node) && ln.isEditable())
 							libs.add(ln);

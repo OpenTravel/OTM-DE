@@ -57,7 +57,7 @@ public class LibraryUsesNode extends WhereUsedNode<LibraryNode> implements Where
 	public List<Node> getChildren() {
 		if (owner != null) {
 			List<Node> providerLibs = new ArrayList<Node>();
-			for (LibraryNode l : owner.getAssignedLibraries())
+			for (LibraryNode l : owner.getAssignedLibraries(true))
 				providerLibs.add(new LibraryProviderNode(l, owner));
 			return providerLibs;
 		} else

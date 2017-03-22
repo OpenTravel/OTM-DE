@@ -82,9 +82,9 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 				// This must be a ContextualFacet (or similar) and will be removed with parent
 				break; // do nothing
 			}
-			if (ln.isInChain()) {
+			if (ln.getChain() != null)
 				ln.getChain().removeAggregate((ComponentNode) affectedNode);
-			}
+
 			affectedNode.unlinkNode();
 			break;
 

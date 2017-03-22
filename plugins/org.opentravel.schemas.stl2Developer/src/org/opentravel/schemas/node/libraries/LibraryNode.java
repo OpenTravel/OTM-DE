@@ -955,7 +955,8 @@ public class LibraryNode extends Node implements LibraryInterface {
 	}
 
 	public boolean isInChain() {
-		return getParent() instanceof VersionAggregateNode;
+		// assert getParent() instanceof VersionAggregateNode;
+		return getChain() != null;
 	}
 
 	@Override
@@ -1642,13 +1643,26 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 * WhereUseHandler provides the inverse relationship. Libraries in the list should have this library in their where
 	 * used handler. {@link WhereUsedLibraryHandler#getWhereUsed()}
 	 * 
+	 * @param deep
+	 *            if true collect users from the chain that contains the library.
+	 * 
 	 * @see {@link org.opentravel.schemas.controllers.repository.LibraryVersionUpdateTest#updateVersionTest_BaseTypes()}
 	 *      for tests.
 	 * 
 	 * @return a new array list of libraries that contain extensions or types assigned to any named object in this
 	 *         library.
 	 */
-	public List<LibraryNode> getAssignedLibraries() {
+	public List<LibraryNode> getAssignedLibraries(boolean deep) {
+		Set<LibraryNode> usedLibs = new HashSet<LibraryNode>();
+		if (deep && getChain() != null)
+			for (LibraryNode lib : getChain().getLibraries())
+				usedLibs.addAll(lib.getAssignedLibraries());
+		else
+			usedLibs.addAll(getAssignedLibraries());
+		return new ArrayList<LibraryNode>(usedLibs);
+	}
+
+	private List<LibraryNode> getAssignedLibraries() {
 		Set<LibraryNode> usedLibs = new HashSet<LibraryNode>();
 
 		// Walk selected library type users and collect all used libraries

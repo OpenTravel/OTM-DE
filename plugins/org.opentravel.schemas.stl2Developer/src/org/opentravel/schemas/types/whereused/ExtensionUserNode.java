@@ -46,7 +46,7 @@ public class ExtensionUserNode extends WhereUsedNode<ExtensionOwner> implements 
 	public String getDecoration() {
 		String decoration = "  ";
 		decoration += "extends ";
-		// decoration += " " + owner.getExtensionBase().getNameWithPrefix();
+		decoration += " " + owner.getExtensionBase().getNameWithPrefix();
 		return decoration;
 	}
 

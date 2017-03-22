@@ -169,7 +169,7 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		// Given - a replacement map of used libraries and their later versions.
 		// Walk selected library type users and collect all used libraries (type assignments and extensions)
 		// FIXME - changed 3/12/2017 to return head libraries
-		List<LibraryNode> usedLibs = userLib.getAssignedLibraries();
+		List<LibraryNode> usedLibs = userLib.getAssignedLibraries(false);
 		assertTrue("Must have simple type library in list.", usedLibs.contains(simpleType.getLibrary()));
 		HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(usedLibs, true);
 		assertTrue("Replacement map must map simple type lib to major version.",
@@ -226,8 +226,8 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		assertTrue("baseLib must use other libraries.", !baseLib.getWhereUsedHandler().getWhereUsed().isEmpty());
 		// Then - Lib1 must list baseLib as an assigned library
 		// FIXME - changed 3/12/2017 to return head libraries
-		assertTrue("Lib1 must have at least one assigned library.", !lib1.getAssignedLibraries().isEmpty());
-		assertTrue("baseLib must NOT have an assigned library.", baseLib.getAssignedLibraries().isEmpty());
+		assertTrue("Lib1 must have at least one assigned library.", !lib1.getAssignedLibraries(false).isEmpty());
+		assertTrue("baseLib must NOT have an assigned library.", baseLib.getAssignedLibraries(false).isEmpty());
 
 		// Given - both libraries are valid.
 		ValidationFindings findings1 = lib1.validate();
@@ -258,7 +258,8 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		// Business Logic - setup the map and prepare for the call used by the Version Update Handler.
 		//
 		// Create replacement map
-		HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(lib1.getAssignedLibraries(), true);
+		HashMap<LibraryNode, LibraryNode> replacementMap = rc.getVersionUpdateMap(lib1.getAssignedLibraries(false),
+				true);
 		// TODO - test with finalOnly set to true on getVersionUpdateMap()
 
 		// Use calls used by Version Update Handler to replace type users using the replacement map
