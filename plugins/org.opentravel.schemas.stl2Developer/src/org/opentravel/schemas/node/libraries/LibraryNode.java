@@ -33,9 +33,9 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.loader.LibraryLoaderException;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.BuiltInLibrary;
-import org.opentravel.schemacompiler.model.LibraryElement;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLContextReferrer;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
@@ -52,7 +52,6 @@ import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItemCommit;
 import org.opentravel.schemacompiler.repository.RepositoryItemHistory;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
-import org.opentravel.schemacompiler.util.ContextUtils;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemacompiler.util.URLUtils;
 import org.opentravel.schemas.controllers.ContextController;
@@ -429,7 +428,8 @@ public class LibraryNode extends Node implements LibraryInterface {
 		if (!importNodeCheck(source))
 			return null;
 
-		ContextUtils.resolveApplicationContexts((TLLibraryMember) source.getModelObject().getTLModelObj());
+		// Don't use ContextUtils because may create new contexts in the target library
+		// ContextUtils.resolveApplicationContexts((TLLibraryMember) source.getModelObject().getTLModelObj());
 		Node newNode = NodeFactory.newComponent_UnTyped((TLLibraryMember) source.cloneTLObj());
 
 		// Node newNode = source.clone(this, null);
@@ -438,41 +438,57 @@ public class LibraryNode extends Node implements LibraryInterface {
 			return null;
 		}
 
-		// FIXME - rip out all this context handling and just use this library's context
+		// 3/23/2017 - simplified context handling to just set to new library default.
+		for (Node child : newNode.getDescendants())
+			if (child.getTLModelObject() instanceof TLContextReferrer)
+				((TLContextReferrer) child.getTLModelObject()).setContext(getDefaultContextId());
+
+		assert getTLLibrary().getContexts().size() == 1;
+
+		// TLLibrary sourceTLLib = null;
+		// if (source.getTLModelObject() instanceof LibraryElement)
+		// sourceTLLib = (TLLibrary) ((LibraryElement)source.getTLModelObject()).getOwningLibrary();
+
+		// // Don't use ContextUtils because may create new contexts in the target library
+		// if (newNode.getTLModelObject() instanceof LibraryElement )
+		// ContextUtils.translateContextIdReferences((LibraryElement)newNode.getTLModelObject(), sourceTLLib,
+		// getTLLibrary());
+
+		// // FIXME - rip out all this context handling and just use this library's context
+		// //
+		// // Re-map context ID's in the cloned object and copy over any contexts for the target
+		// // library that
+		// // do not already exist
+		// Object sourceTLObj = source.getModelObject().getTLModelObj();
+		// Object newTLObj = newNode.getModelObject().getTLModelObj();
+		// AbstractLibrary targetLib = getTLaLib();
 		//
-		// Re-map context ID's in the cloned object and copy over any contexts for the target
-		// library that
-		// do not already exist
-		Object sourceTLObj = source.getModelObject().getTLModelObj();
-		Object newTLObj = newNode.getModelObject().getTLModelObj();
-		AbstractLibrary targetLib = getTLaLib();
-
-		if ((newTLObj instanceof LibraryElement) && (targetLib instanceof TLLibrary)) {
-			LibraryElement sourceLibElement = (LibraryElement) sourceTLObj;
-			TLLibrary targetLibrary = (TLLibrary) getTLaLib();
-
-			if (sourceLibElement.getOwningLibrary() instanceof TLLibrary) {
-				ContextUtils.translateContextIdReferences((LibraryElement) newTLObj,
-						(TLLibrary) sourceLibElement.getOwningLibrary(), targetLibrary);
-				// Patch - translate can create context with empty ID. this patch is a work around.
-				// TODO - still need to prevent it.
-				for (TLContext ctx : targetLibrary.getContexts()) {
-					if (ctx.getContextId().isEmpty())
-						ctx.setContextId("Imported");
-					if (ctx.getContextId().equals(ctx.getApplicationContext())) {
-						// LOGGER.error("Context id is equal to application context" + ctx.getContextId());
-						// TODO - this only creates duplicate contexts with multiple id values which are later
-						// automatically appended with a number to be unique
-						ctx.setContextId("Imported");
-					}
-				}
-			}
-		}
+		// if ((newTLObj instanceof LibraryElement) && (targetLib instanceof TLLibrary)) {
+		// LibraryElement sourceLibElement = (LibraryElement) sourceTLObj;
+		// TLLibrary targetLibrary = (TLLibrary) getTLaLib();
+		//
+		// if (sourceLibElement.getOwningLibrary() instanceof TLLibrary) {
+		// ContextUtils.translateContextIdReferences((LibraryElement) newTLObj,
+		// (TLLibrary) sourceLibElement.getOwningLibrary(), targetLibrary);
+		// // Patch - translate can create context with empty ID. this patch is a work around.
+		// // TODO - still need to prevent it.
+		// for (TLContext ctx : targetLibrary.getContexts()) {
+		// if (ctx.getContextId().isEmpty())
+		// ctx.setContextId("Imported");
+		// if (ctx.getContextId().equals(ctx.getApplicationContext())) {
+		// // LOGGER.error("Context id is equal to application context" + ctx.getContextId());
+		// // TODO - this only creates duplicate contexts with multiple id values which are later
+		// // automatically appended with a number to be unique
+		// ctx.setContextId("Imported");
+		// }
+		// }
+		// }
+		// }
 		addMember(newNode);
 
-		if (!(newNode instanceof EnumerationClosedNode)) {
+		if (!(newNode instanceof EnumerationClosedNode))
 			newNode.setExtensible(true);
-		}
+
 		return (newNode);
 	}
 

@@ -455,14 +455,14 @@ public abstract class Node implements INode {
 			return null;
 		}
 
-		LibraryElement newLM = null;
+		LibraryElement newLE = null;
 		try {
-			newLM = getTLModelObject().cloneElement(getLibrary().getTLaLib());
+			newLE = getTLModelObject().cloneElement(getLibrary().getTLaLib());
 		} catch (IllegalArgumentException e) {
 			LOGGER.warn("Can not clone " + this + ". Exception: " + e.getLocalizedMessage());
 			return null;
 		}
-		return newLM;
+		return newLE;
 	}
 
 	@Override

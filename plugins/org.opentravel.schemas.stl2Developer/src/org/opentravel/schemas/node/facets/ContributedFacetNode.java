@@ -105,6 +105,7 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 		assert oldParent.getChildren().contains(this);
 
 		// Remove where contributed and delete from TL Model then normal delete
+		tlContributor = null; // used by getContributor for lazy evaluation
 		if (getContributor() != null) {
 			getContributor().removeFromTLParent();
 			getContributor().setWhereContributed(null);

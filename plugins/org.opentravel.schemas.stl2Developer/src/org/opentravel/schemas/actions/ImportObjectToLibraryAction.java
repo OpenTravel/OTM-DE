@@ -55,11 +55,6 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 		this.library = library;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.Action#run()
-	 */
 	@Override
 	public void run() {
 		importSelectedToLibrary(library);
