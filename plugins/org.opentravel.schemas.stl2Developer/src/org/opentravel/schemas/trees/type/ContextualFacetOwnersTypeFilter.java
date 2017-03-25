@@ -16,10 +16,12 @@
 package org.opentravel.schemas.trees.type;
 
 import org.eclipse.jface.viewers.Viewer;
+import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
-import org.opentravel.schemas.node.interfaces.LibraryInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provide only objects that are ContextualFacetOwners to the type selection wizard.
@@ -28,37 +30,46 @@ import org.opentravel.schemas.node.interfaces.LibraryInterface;
  *
  */
 public class ContextualFacetOwnersTypeFilter extends TypeSelectionFilter {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ContextualFacetOwnersTypeFilter.class);
 
-	private ContextualFacetNode targetCF = null;
+	private TLFacetType type = null;
 
-	@Override
-	public boolean isValidSelection(Node n) {
-		return (n instanceof ContextualFacetOwnerInterface) && ((ContextualFacetOwnerInterface) n).canOwn(targetCF);
+	/**
+	 * Filter to select only contextual facet owners.
+	 * 
+	 * @param contextualFacet
+	 *            facet to match. Candidate owners must return true for canOwn(node)
+	 */
+	public ContextualFacetOwnersTypeFilter(ContextualFacetNode contextualFacet) {
+		this.type = contextualFacet.getTLModelObject().getFacetType();
 	}
 
 	/**
-	 * Filter to select only business object nodes.
+	 * Filter to select only contextual facet owners.
 	 * 
 	 * @param node
-	 *            Contextual Facet to
+	 *            Type of facet to match. Candidate owners must return true for canOwn(type)
 	 */
-	public ContextualFacetOwnersTypeFilter(ContextualFacetNode node) {
-		targetCF = node;
+	public ContextualFacetOwnersTypeFilter(TLFacetType type) {
+		this.type = type;
+	}
+
+	@Override
+	public boolean isValidSelection(Node n) {
+		if (n instanceof ContextualFacetOwnerInterface)
+			if (n instanceof ContextualFacetOwnerInterface)
+				return ((ContextualFacetOwnerInterface) n).canOwn(type);
+		return false;
 	}
 
 	@Override
 	public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
-		if (element == null || !(element instanceof Node))
-			return false;
-
-		final Node n = (Node) element;
-		if (n instanceof LibraryInterface)
-			return true;
-		if (n.isNavigation())
-			return true;
-		if (!(n instanceof ContextualFacetOwnerInterface))
-			return false;
-		// Match the target Contextual Facet
-		return ((ContextualFacetOwnerInterface) n).canOwn(targetCF);
+		if (element instanceof Node) {
+			if (((Node) element).isNavigation())
+				return true;
+			if (element instanceof ContextualFacetOwnerInterface)
+				return ((ContextualFacetOwnerInterface) element).canOwn(type);
+		}
+		return false;
 	}
 }

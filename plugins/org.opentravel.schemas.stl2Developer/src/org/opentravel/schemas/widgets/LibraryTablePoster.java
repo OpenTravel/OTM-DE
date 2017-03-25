@@ -113,11 +113,9 @@ public class LibraryTablePoster {
 				postTableRows(kid, kid.getLabel());
 			}
 		} else if (curNode instanceof ComponentNode) {
-			// If the node is an XSD node, display its xChild node
-			// representation.
+			// If the node is an XSD node, display its xChild node representation.
 			if (curNode instanceof XsdNode && curNode.getModelObject() instanceof XSDComplexMO) {
 				XsdNode xn = (XsdNode) curNode;// new XsdNode((LibraryMember)
-				// curNode.getModelObject().getTLModelObj(), curNode);
 				curNode = xn.getOtmModel();
 			}
 
@@ -199,9 +197,11 @@ public class LibraryTablePoster {
 					decorateContributedItem(item, n);
 					item.setText(((ContributedFacetNode) n).getLocalName());
 					item.setImage(n.getImage());
-				} else if (n instanceof ContextualFacetNode)
+				} else if (n instanceof ContextualFacetNode) {
 					item.setText(((ContextualFacetNode) n).getLocalName());
-				else if (n.isInherited())
+					if (n.isInherited())
+						decorateInheritedItem(item);
+				} else if (n.isInherited())
 					decorateInheritedItem(item);
 				else
 					item.setForeground(colorProvider.getColor(SWT.COLOR_DARK_BLUE));

@@ -72,6 +72,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 		mc.postStatus("Add Property Handler added the property.");
 	}
 
+	// execute target for Add button
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
 		mc = OtmRegistry.getMainController();

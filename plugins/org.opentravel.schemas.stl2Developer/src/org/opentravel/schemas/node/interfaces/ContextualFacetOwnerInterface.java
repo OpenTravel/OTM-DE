@@ -20,6 +20,7 @@ package org.opentravel.schemas.node.interfaces;
 
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
+import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
@@ -53,5 +54,13 @@ public interface ContextualFacetOwnerInterface {
 	 * @return
 	 */
 	public boolean canOwn(ContextualFacetNode targetCF);
+
+	/**
+	 * Return True if this owner can own the passed ContextualFacet
+	 * 
+	 * @param FacetType
+	 * @return
+	 */
+	public boolean canOwn(TLFacetType type);
 
 }

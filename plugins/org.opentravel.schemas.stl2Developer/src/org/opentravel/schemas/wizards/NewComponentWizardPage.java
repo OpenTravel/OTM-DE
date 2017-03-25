@@ -16,6 +16,7 @@
 package org.opentravel.schemas.wizards;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -37,12 +38,22 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
+import org.opentravel.schemas.modelObject.BusinessObjMO;
+import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Messages;
+import org.opentravel.schemas.trees.type.BusinessObjectOnlyTypeFilter;
+import org.opentravel.schemas.trees.type.ContextualFacetOnwersContentProvider;
+import org.opentravel.schemas.trees.type.ContextualFacetOwnersTypeFilter;
+import org.opentravel.schemas.trees.type.ExtensionTreeContentProvider;
+import org.opentravel.schemas.trees.type.TypeTreeExtensionSelectionFilter;
 import org.opentravel.schemas.widgets.WidgetFactory;
 
 public class NewComponentWizardPage extends WizardPage {
@@ -64,13 +75,13 @@ public class NewComponentWizardPage extends WizardPage {
 	private static ComponentNodeType[] simpleComponentList = { ComponentNodeType.SIMPLE, ComponentNodeType.CLOSED_ENUM };
 
 	private static ComponentNodeType[] PatchComponentList = { ComponentNodeType.EXTENSION_POINT };
-	// private static ComponentNodeType[] PatchComponentList = { ComponentNodeType.SIMPLE,
-	// ComponentNodeType.CLOSED_ENUM,
-	// ComponentNodeType.EXTENSION_POINT };
 
-	private static ComponentNodeType[] componentList = { ComponentNodeType.BUSINESS, ComponentNodeType.CHOICE,
+	private static ComponentNodeType[] ComponentList = { ComponentNodeType.BUSINESS, ComponentNodeType.CHOICE,
 			ComponentNodeType.CORE, ComponentNodeType.VWA, ComponentNodeType.OPEN_ENUM, ComponentNodeType.CLOSED_ENUM,
 			ComponentNodeType.SIMPLE, ComponentNodeType.EXTENSION_POINT };
+
+	private static ComponentNodeType[] ContextualFacetsList = { ComponentNodeType.CHOICE_FACET,
+			ComponentNodeType.CUSTOM_FACET, ComponentNodeType.QUERY_FACET };
 
 	private int nCols;
 	private Map<ComponentNodeType, Button> objectTypeButtons;
@@ -97,7 +108,7 @@ public class NewComponentWizardPage extends WizardPage {
 			Node node) {
 		super(pageName, title, titleImage);
 		setTitle(title);
-		setDescription("WHY IS THIS NOT SHOWING UP???");
+		setDescription("");
 		// TODO - Why doesn't description show?
 		targetNode = node;
 	}
@@ -105,11 +116,52 @@ public class NewComponentWizardPage extends WizardPage {
 	@Override
 	public boolean canFlipToNextPage() {
 		// LOGGER.debug("NewComponentPage - can flip? ");
-		if (combo.getText().equals(ComponentNodeType.SERVICE.getDescription()) && !name.getText().isEmpty())
-			// if (selectedType == ComponentNodeType.SERVICE && !name.getText().isEmpty())
-			return true;
-		else
-			return false;
+		if (!name.getText().isEmpty()) {
+			setFilter(ComponentNodeType.fromString(combo.getText()));
+			if (combo.getText().equals(ComponentNodeType.SERVICE.getDescription())) {
+				getNextPage().setTitle(Messages.getString("wizard.newObject.page.service.title"));
+				getNextPage().setDescription(Messages.getString("wizard.newObject.page.service.description"));
+				return true;
+			}
+			getNextPage().setTitle(Messages.getString("wizard.newObject.page.facet.title"));
+			getNextPage().setDescription(Messages.getString("wizard.newObject.page.facet.description"));
+			if (combo.getText().equals(ComponentNodeType.CHOICE_FACET.getDescription()))
+				return true;
+			if (combo.getText().equals(ComponentNodeType.CUSTOM_FACET.getDescription()))
+				return true;
+			if (combo.getText().equals(ComponentNodeType.QUERY_FACET.getDescription()))
+				return true;
+		}
+		return false;
+	}
+
+	private void setFilter(ComponentNodeType type) {
+		switch (type) {
+		case CHOICE_FACET:
+			((TypeSelectionPage) getNextPage()).setTypeSelectionFilter(new ContextualFacetOwnersTypeFilter(
+					TLFacetType.CHOICE));
+			((TypeSelectionPage) getNextPage()).setTypeTreeContentProvider(new ContextualFacetOnwersContentProvider());
+			break;
+		case CUSTOM_FACET:
+			((TypeSelectionPage) getNextPage()).setTypeSelectionFilter(new ContextualFacetOwnersTypeFilter(
+					TLFacetType.CUSTOM));
+			((TypeSelectionPage) getNextPage()).setTypeTreeContentProvider(new ContextualFacetOnwersContentProvider());
+			break;
+		case QUERY_FACET:
+			((TypeSelectionPage) getNextPage()).setTypeSelectionFilter(new ContextualFacetOwnersTypeFilter(
+					TLFacetType.QUERY));
+			((TypeSelectionPage) getNextPage()).setTypeTreeContentProvider(new ContextualFacetOnwersContentProvider());
+			break;
+		case SERVICE:
+			((TypeSelectionPage) getNextPage()).setTypeSelectionFilter(new BusinessObjectOnlyTypeFilter(null));
+			((TypeSelectionPage) getNextPage()).setTypeTreeContentProvider(new ExtensionTreeContentProvider());
+		case EXTENSION_POINT:
+			ModelObject<?> tlmo = new BusinessObjMO(new TLBusinessObject());
+			((TypeSelectionPage) getNextPage()).setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(tlmo));
+			((TypeSelectionPage) getNextPage()).setTypeTreeContentProvider(new ExtensionTreeContentProvider());
+			break;
+		}
+
 	}
 
 	@Override
@@ -120,31 +172,37 @@ public class NewComponentWizardPage extends WizardPage {
 		container.setLayout(layout);
 		nCols = 2;
 		layout.numColumns = nCols;
+		// Size the wizard
+		final GridData containerGD = new GridData();
+		containerGD.horizontalAlignment = SWT.FILL;
+		containerGD.verticalAlignment = SWT.FILL;
+		containerGD.grabExcessHorizontalSpace = true;
+		containerGD.grabExcessVerticalSpace = true;
+		containerGD.widthHint = 600;
+		// containerGD.heightHint = 800;
+		containerGD.heightHint = 1600;
+		container.setLayoutData(containerGD);
 
-		// Post the library state information
-		final Label label1 = new Label(container, SWT.NULL);
+		// Post the library state and name
 		LibraryNode targetLib = targetNode.getLibrary().getHead();
+		final Label libraryLabel = new Label(container, SWT.NULL);
 		if (!targetNode.isEditable())
-			label1.setText(Messages.getString("wizard.newObject.libraryState.notEditable"));
+			libraryLabel.setText(Messages.getString("wizard.newObject.libraryState.notEditable"));
 		else
-			label1.setText(Messages.getString("wizard.newObject.libraryState.editable"));
-		label1.setToolTipText(Messages.getString("wizard.newObject.libraryState.tooltip"));
-		final Label libraryField = new Label(container, SWT.NULL | SWT.READ_ONLY);
-		libraryField.setText(targetLib.getLabel() + " [" + targetLib.getVersion() + " ]");
-		libraryField.setToolTipText(Messages.getString("wizard.newObject.libraryState.tooltip"));
+			libraryLabel.setText(Messages.getString("wizard.newObject.libraryState.editable"));
+		libraryLabel.setToolTipText(Messages.getString("wizard.newObject.libraryState.tooltip"));
+
+		final Label libraryName = new Label(container, SWT.NULL | SWT.READ_ONLY);
+		libraryName.setText(targetLib.getLabel() + " [" + targetLib.getVersion() + " ]");
+		libraryName.setToolTipText(Messages.getString("wizard.newObject.libraryState.tooltip"));
 		if (targetLib.getEditStatus().equals(NodeEditStatus.PATCH)) {
-			label1.setText(Messages.getString("wizard.newObject.libraryState.patch"));
-			libraryField.setToolTipText(Messages.getString("wizard.newObject.select.tooltip.patch"));
+			libraryLabel.setText(Messages.getString("wizard.newObject.libraryState.patch"));
+			libraryName.setToolTipText(Messages.getString("wizard.newObject.select.tooltip.patch"));
 		}
 
-		// Composite buttonContainer = new Composite(container, SWT.NULL);
-		// final Composite objectButtonsComposite = createObjectTypeRadios(container);
-		// final GridData gdButtons = new GridData(GridData.FILL_HORIZONTAL);
-		// objectButtonsComposite.setLayoutData(gdButtons);
-		// objectButtonsComposite.setLayout(layout);
-
-		// Post the combo and other fields.
+		// Post the combo
 		postCombo(Messages.getString("wizard.newObject.select.text"));
+		// Post name and description
 		postCommonFields();
 
 		final GridData gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -169,21 +227,30 @@ public class NewComponentWizardPage extends WizardPage {
 	}
 
 	private void postCombo(final String label) {
+		LibraryNode lib = targetNode.getLibrary().getHead();
+
 		Label cl = new Label(container, SWT.NONE);
 		cl.setText(label);
 		combo = WidgetFactory.createCombo(container, SWT.BORDER | SWT.READ_ONLY);
 		combo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		ComponentNodeType targetType = contextGuess(targetNode);
-		ComponentNodeType[] list = componentList;
+		ArrayList<ComponentNodeType> list = new ArrayList<ComponentNodeType>();
+
 		String tooltip = Messages.getString("wizard.newObject.select.tooltip.noService");
-		// if (targetNode.getLibrary().getEditStatus().equals(NodeEditStatus.PATCH)) {
-		LibraryNode lib = targetNode.getLibrary().getHead();
+
 		if (lib.getEditStatus().equals(NodeEditStatus.PATCH)) {
-			list = PatchComponentList;
+			list.addAll(Arrays.asList(PatchComponentList));
 			tooltip = Messages.getString("wizard.newObject.select.tooltip.Patch");
 			targetType = ComponentNodeType.EXTENSION_POINT;
+		} else {
+			list.addAll(Arrays.asList(ComponentList));
+
+			// Version 1.6 and later add the contextual facets
+			if (OTM16Upgrade.otm16Enabled)
+				list.addAll(Arrays.asList(ContextualFacetsList));
 		}
+		// Put the list into combo widget
 		int index = 0;
 		for (ComponentNodeType item : list) {
 			combo.add(item.getDescription());
@@ -191,8 +258,8 @@ public class NewComponentWizardPage extends WizardPage {
 				combo.select(index);
 			index++;
 		}
+
 		// If the library doesn't have a service, add it to the drop-down list.
-		// FIXME - should not post list if any in the chain has service.
 		boolean hasService = false;
 		if (targetNode.getChain() != null)
 			hasService = targetNode.getChain().hasService();
@@ -205,7 +272,7 @@ public class NewComponentWizardPage extends WizardPage {
 		cl.setToolTipText(tooltip);
 		combo.setToolTipText(tooltip);
 
-		// combo.setText("");
+		// set listeners
 		combo.addKeyListener(new FacetKeyListener());
 		combo.addModifyListener(new TextModifyListener()); // set dirty flag
 		combo.addTraverseListener(new TextTraverseListener()); // handle tabs
@@ -270,6 +337,9 @@ public class NewComponentWizardPage extends WizardPage {
 		selectedType = type;
 	}
 
+	/**
+	 * Create global name and description fields with labels and tool tips.
+	 */
 	private void postCommonFields() {
 		final Label label1 = new Label(container, SWT.NULL);
 		label1.setText(Messages.getString("wizard.nameField.label"));
@@ -288,7 +358,7 @@ public class NewComponentWizardPage extends WizardPage {
 		newDescription = WidgetFactory.createText(container, SWT.BORDER | SWT.MULTI);
 		newDescription.setText("");
 		newDescription.setToolTipText(Messages.getString("wizard.newObject.descriptionField.tooltip"));
-		newDescription.setLayoutData(new GridData(GridData.FILL_BOTH));
+		newDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 	}
 
 	// this listener fires with each key stroke -- but does not have data

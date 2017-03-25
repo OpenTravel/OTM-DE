@@ -18,6 +18,7 @@ package org.opentravel.schemas.commands;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.Node;
@@ -85,6 +86,7 @@ public class ContextualFacetHandler extends OtmAbstractHandler {
 		mc.refresh(bo);
 	}
 
+	// Only called from Add Choice Facet Action for version 1.5
 	public void addContextualFacet(ChoiceObjectNode co) {
 		// Verify the current node is editable business object
 		if (co == null || !co.isEditable_newToChain()) {
@@ -92,12 +94,12 @@ public class ContextualFacetHandler extends OtmAbstractHandler {
 					"Choice Facets can only be added to non-versioned Choice objects.");
 			return;
 		}
-		// ChoiceObjectNode co = (ChoiceObjectNode) current;
 
 		// Create the contextual facet
 		ChoiceFacetNode cf = new ChoiceFacetNode();
 		cf.setName(getName(co));
-		co.getLibrary().addMember(cf);
+		if (OTM16Upgrade.otm16Enabled)
+			co.getLibrary().addMember(cf);
 		co.getTLModelObject().addChoiceFacet(cf.getTLModelObject());
 
 		// Create contributed facet

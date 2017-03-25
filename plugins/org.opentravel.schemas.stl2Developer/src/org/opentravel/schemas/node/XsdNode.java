@@ -136,33 +136,11 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isMissingAssignedType()
-	 */
 	@Override
 	public boolean isMissingAssignedType() {
 		// LOGGER.debug("check xsdNode "+getName()+" for missing type");
 		return getOtmModel().isMissingAssignedType();
 	}
-
-	// /*
-	// * (non-Javadoc)
-	// *
-	// * @see org.opentravel.schemas.node.ComponentNode#hasNavChildrenWithProperties()
-	// */
-	// @Override
-	// public boolean hasNavChildrenWithProperties() {
-	// if (getOtmModel() == null)
-	// return false;
-	// for (final INode n : getOtmModel().getChildren()) {
-	// // if (n.isNavChildWithProperties()) {
-	// return true;
-	// // }
-	// }
-	// return false;
-	// }
 
 	public boolean isXsdElement() {
 		return (modelObject instanceof XSDElementMO) ? true : false;
@@ -190,11 +168,6 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 		return otmModel instanceof VWA_Node;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.SimpleComponentInterface#isSimpleTypeProvider()
-	 */
 	@Override
 	public boolean isSimpleTypeProvider() {
 		return otmModel instanceof SimpleComponentInterface;
@@ -203,15 +176,8 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 	@Override
 	public INode getBaseType() {
 		throw new IllegalAccessError("xsd node getBaseType() is not implemented.");
-		// return null; // never called
-		// return otmModel.isBaseTypeUser() ? otmModel.getType() : null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.SimpleComponentInterface#getTLOjbect()
-	 */
 	@Override
 	public NamedEntity getTLOjbect() {
 		return otmModel.getTLModelObject() instanceof NamedEntity ? (NamedEntity) otmModel.getTLModelObject() : null;

@@ -66,11 +66,6 @@ public class ExtensionPointNode extends PropertyOwnerNode implements ComplexComp
 		// LOGGER.debug("addProperties not implemented for this class: " + this.getClass());
 	}
 
-	// @Override
-	// public boolean canExtend() {
-	// return true;
-	// }
-
 	@Override
 	public INode createProperty(final Node type) {
 		Node n = new ElementNode(this, type.getName());
@@ -114,19 +109,6 @@ public class ExtensionPointNode extends PropertyOwnerNode implements ComplexComp
 		return getName();
 	}
 
-	// @Override
-	// public String getName() {
-	// String name = "unnamed";
-	// // Could be TLEmpty
-	// if ((getTLModelObject() != null) && (getTLModelObject() instanceof TLExtensionPointFacet))
-	// name = ((TLExtensionPointFacet) getTLModelObject()).getLocalName();
-	// if (name == null)
-	// name = "unnamed";
-	// String prefix = "ExtensionPoint_";
-	// if (name.startsWith(prefix))
-	// name = name.substring(prefix.length(), name.length());
-	// return name + "_ExtensionPoint";
-	// }
 	@Override
 	public String getName() {
 		return getTLModelObject() == null || getTLModelObject().getLocalName() == null
@@ -144,25 +126,10 @@ public class ExtensionPointNode extends PropertyOwnerNode implements ComplexComp
 		((PropertyNode) property).removeProperty();
 	}
 
-	// @Override
-	// public boolean setSimpleType(Node type) {
-	// return false;
-	// }
-
-	// @Override
-	// public boolean isExtensionPointFacet() {
-	// return true;
-	// }
-
 	protected Node newElementProperty() {
 		ElementNode n = new ElementNode(new TLProperty(), this);
 		return n;
 	}
-
-	// @Override
-	// public ComponentNode getSimpleType() {
-	// return null;
-	// }
 
 	@Override
 	public SimpleFacetNode getSimpleFacet() {

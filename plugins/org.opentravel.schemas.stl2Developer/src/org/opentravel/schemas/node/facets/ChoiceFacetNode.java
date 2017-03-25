@@ -30,7 +30,9 @@ import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
  */
 public class ChoiceFacetNode extends ContextualFacetNode {
 
-	// Testing constructor
+	/**
+	 * Create a TLContextual facet set to choice and use it to create this choice facet node.
+	 */
 	public ChoiceFacetNode() {
 		super(new TLContextualFacet());
 		((TLContextualFacet) getTLModelObject()).setFacetType(TLFacetType.CHOICE);
@@ -49,24 +51,29 @@ public class ChoiceFacetNode extends ContextualFacetNode {
 	}
 
 	@Override
+	public boolean canOwn(TLFacetType type) {
+		switch (type) {
+		case CHOICE:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	@Override
 	public TLContextualFacet getTLModelObject() {
 		return (TLContextualFacet) modelObject.getTLModelObj();
 	}
 
-	/**
-	 * Create new TLChoice facet and add to passed owner choice object.
-	 * 
-	 * @param owner
-	 * @param name
-	 */
+	@Override
 	public void setOwner(ContextualFacetOwnerInterface owner) {
-		TLContextualFacet newFacet = getTLModelObject();
-		newFacet.setOwningEntity(owner.getTLModelObject());
-		newFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
+		TLContextualFacet tlFacet = getTLModelObject();
+		tlFacet.setOwningEntity(owner.getTLModelObject());
+		tlFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
 		if (owner.getTLModelObject() instanceof TLChoiceObject)
-			((TLChoiceObject) owner.getTLModelObject()).addChoiceFacet(newFacet);
+			((TLChoiceObject) owner.getTLModelObject()).addChoiceFacet(tlFacet);
 
-		super.add(owner, newFacet);
+		super.add(owner, tlFacet);
 	}
 
 	@Override

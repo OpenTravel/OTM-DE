@@ -94,6 +94,9 @@ public class AddChoiceFacetAction extends OtmAbstractAction {
 		mc.refresh(co);
 	}
 
+	/*
+	 * Version 1.5 and older
+	 */
 	private void addChoiceFacet() {
 		ContextualFacetHandler cfh = new ContextualFacetHandler();
 		ComponentNode current = (ComponentNode) mc.getSelectedNode_NavigatorView().getOwningComponent();

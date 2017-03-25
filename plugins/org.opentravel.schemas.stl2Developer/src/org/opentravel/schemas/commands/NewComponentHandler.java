@@ -19,19 +19,17 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.EditNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.NodeFactory;
-import org.opentravel.schemas.node.NodeNameUtils;
-import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.wizards.NewComponentWizard;
-import org.springframework.util.Assert;
 
 /**
- * @author Pawel Jedruch
+ * Verify library state allows new objects then run new component wizard to create a new library member.
+ * {@link NewComponentWizard}
+ * 
+ * @author Dave Hollander
  * 
  */
 public class NewComponentHandler extends AbstractHandler {
@@ -73,23 +71,25 @@ public class NewComponentHandler extends AbstractHandler {
 		}
 
 		final NewComponentWizard wizard = new NewComponentWizard(selected);
+		Node newOne = wizard.run(OtmRegistry.getActiveShell());
+
 		EditNode editNode = null;
 
-		editNode = wizard.postNewComponentWizard(OtmRegistry.getActiveShell());
-		if (editNode != null) {
-			ComponentNodeType type = ComponentNodeType.fromString(editNode.getUseType());
+		// editNode = wizard.run(OtmRegistry.getActiveShell());
+		// if (editNode != null) {
+		// ComponentNodeType type = ComponentNodeType.fromString(editNode.getUseType());
+		//
+		// Node newOne = new NodeFactory().newComponent(editNode, type);
+		// newOne.setName(NodeNameUtils.fixComplexTypeName(newOne.getName()));
+		// Assert.notNull(newOne.getLibrary());
 
-			Node newOne = new NodeFactory().newComponent(editNode, type);
-			newOne.setName(NodeNameUtils.fixComplexTypeName(newOne.getName()));
-			Assert.notNull(newOne.getLibrary());
+		// If they created a service and selected an object, then build CRUD operations for that object.
+		// if (editNode.getTLType() != null && newOne instanceof ServiceNode)
+		// ((ServiceNode) newOne).addCRUDQ_Operations(editNode.getTLType());
+		mc.selectNavigatorNodeAndRefresh(newOne);
 
-			// If they created a service and selected an object, then build CRUD operations for that object.
-			if (editNode.getTLType() != null && newOne instanceof ServiceNode)
-				((ServiceNode) newOne).addCRUDQ_Operations(editNode.getTLType());
-			mc.selectNavigatorNodeAndRefresh(newOne);
-
-			// Edit node is NOT in the library so there is no need to remove it
-			assert (!editNode.getLibrary().contains(editNode));
-		}
+		// Edit node is NOT in the library so there is no need to remove it
+		// assert (!editNode.getLibrary().contains(editNode));
+		// }
 	}
 }

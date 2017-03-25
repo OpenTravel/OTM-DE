@@ -545,8 +545,16 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 		return findings;
 	}
 
+	/**
+	 * @return true if any library in the chain has a service
+	 */
 	public boolean hasService() {
-		return !serviceRoot.getChildren().isEmpty();
+		for (LibraryNode lib : getLibraries())
+			if (lib.hasService())
+				return true;
+		return false;
+
+		// return !serviceRoot.getChildren().isEmpty();
 	}
 
 	public boolean hasResources() {

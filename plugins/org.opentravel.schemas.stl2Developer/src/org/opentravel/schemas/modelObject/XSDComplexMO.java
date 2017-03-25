@@ -88,41 +88,11 @@ public class XSDComplexMO extends ModelObject<XSDComplexType> {
 		return XsdModelingUtils.createDoc(annotation);
 	}
 
-	// @Override
-	// public String getComponentType() {
-	// return "XSD Complex Type";
-	// }
-	//
-	// @Override
-	// protected AbstractLibrary getLibrary(final XSDComplexType obj) {
-	// return null;
-	// }
-
-	// @Override
-	// public String getName() {
-	// return getTLModelObj().getLocalName();
-	// }
-
-	// @Override
-	// public String getNamePrefix() {
-	// return getTLModelObj().getOwningLibrary().getPrefix();
-	// }
-	//
-	// @Override
-	// public String getNamespace() {
-	// return getTLModelObj().getNamespace();
-	// }
-
 	@Override
 	public XSDComplexType getTLModelObj() {
 		return srcObj;
 	}
 
-	// @Override
-	// public boolean isComplexAssignable() {
-	// return true;
-	// }
-	//
 	@Override
 	public boolean setName(final String name) {
 		return false;

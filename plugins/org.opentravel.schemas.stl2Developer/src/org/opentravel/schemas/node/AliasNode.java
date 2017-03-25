@@ -140,14 +140,6 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 	@Override
 	public boolean isFacetAlias() {
 		return getTLModelObject().getOwningEntity() instanceof TLAbstractFacet;
-		// final Object model = modelObject.getTLModelObj();
-		// if (model instanceof TLAlias) {
-		// final TLAliasOwner owner = ((TLAlias) model).getOwningEntity();
-		// if (owner == null || owner instanceof TLAbstractFacet) {
-		// return true;
-		// }
-		// }
-		// return false;
 	}
 
 	@Override

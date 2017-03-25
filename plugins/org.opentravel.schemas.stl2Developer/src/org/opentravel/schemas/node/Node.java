@@ -542,6 +542,12 @@ public abstract class Node implements INode {
 		return null;
 	}
 
+	private String getValidationIdentity() {
+		if (getTLModelObject() != null && getTLModelObject() instanceof Validatable)
+			return ((Validatable) getTLModelObject()).getValidationIdentity();
+		return "";
+	}
+
 	/**
 	 * find a named node starting from <i>this</i> node.
 	 */
@@ -1196,11 +1202,6 @@ public abstract class Node implements INode {
 		return libs;
 	}
 
-	// public RoleFacetNode getRoleFacet() {
-	// // Find the roles facet
-	// return getOwningComponent() != this ? getOwningComponent().getRoleFacet() : null;
-	// }
-
 	/**
 	 * @return a new list of children of the parent after this node is removed
 	 */
@@ -1279,13 +1280,6 @@ public abstract class Node implements INode {
 	@Override
 	public List<LibraryNode> getUserLibraries() {
 		return getModelNode().getLibraryManager().getUserLibraries();
-	}
-
-	public String getValidationIdentity() {
-		if (modelObject != null && modelObject.getTLModelObj() != null) {
-			return ((Validatable) modelObject.getTLModelObj()).getValidationIdentity();
-		}
-		return "";
 	}
 
 	/**

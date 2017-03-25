@@ -46,21 +46,25 @@ public class CustomFacetNode extends ContextualFacetNode {
 		return false;
 	}
 
-	/**
-	 * Create new TLQuery facet and add to passed owner choice object.
-	 * 
-	 * @param owner
-	 * @param name
-	 */
+	@Override
+	public boolean canOwn(TLFacetType type) {
+		switch (type) {
+		case CUSTOM:
+			return true;
+		default:
+			return false;
+		}
+	}
+
 	public void setOwner(ContextualFacetOwnerInterface owner) {
 		// Add to TL Object
-		TLContextualFacet newFacet = getTLModelObject();
-		newFacet.setOwningEntity(owner.getTLModelObject());
-		newFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
+		TLContextualFacet tlFacet = getTLModelObject();
+		tlFacet.setOwningEntity(owner.getTLModelObject());
+		tlFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
 		// v1.5 and earlier throws ignored library member added event - NodeModelEventListener.
 		if (owner.getTLModelObject() instanceof TLBusinessObject)
-			((TLBusinessObject) owner.getTLModelObject()).addCustomFacet(newFacet);
-		super.add(owner, newFacet);
+			((TLBusinessObject) owner.getTLModelObject()).addCustomFacet(tlFacet);
+		super.add(owner, tlFacet);
 	}
 
 	@Override

@@ -191,42 +191,44 @@ public class NodeFactory {
 		return cn;
 	}
 
-	private static Node newComponent(ComponentNodeType type) {
-		TLLibraryMember tlObj = null;
-
-		switch (type) {
-		case BUSINESS:
-			tlObj = new TLBusinessObject();
-			break;
-		case CHOICE:
-			tlObj = new TLChoiceObject();
-			break;
-		case CORE:
-			tlObj = new TLCoreObject();
-			break;
-		case VWA:
-			tlObj = new TLValueWithAttributes();
-			break;
-		case EXTENSION_POINT:
-			tlObj = new TLExtensionPointFacet();
-			break;
-		case OPEN_ENUM:
-			tlObj = new TLOpenEnumeration();
-			break;
-		case CLOSED_ENUM:
-			tlObj = new TLClosedEnumeration();
-			break;
-		case SIMPLE:
-			tlObj = new TLSimple();
-			break;
-		default:
-			// LOGGER.debug("Unknown type in new component: "+type);
-		}
-		return newComponent(tlObj);
-	}
+	// private static Node newComponent(ComponentNodeType type) {
+	// TLLibraryMember tlObj = null;
+	//
+	// switch (type) {
+	// case BUSINESS:
+	// tlObj = new TLBusinessObject();
+	// break;
+	// case CHOICE:
+	// tlObj = new TLChoiceObject();
+	// break;
+	// case CORE:
+	// tlObj = new TLCoreObject();
+	// break;
+	// case VWA:
+	// tlObj = new TLValueWithAttributes();
+	// break;
+	// case EXTENSION_POINT:
+	// tlObj = new TLExtensionPointFacet();
+	// break;
+	// case OPEN_ENUM:
+	// tlObj = new TLOpenEnumeration();
+	// break;
+	// case CLOSED_ENUM:
+	// tlObj = new TLClosedEnumeration();
+	// break;
+	// case SIMPLE:
+	// tlObj = new TLSimple();
+	// break;
+	// default:
+	// // LOGGER.debug("Unknown type in new component: "+type);
+	// }
+	// return newComponent(tlObj);
+	// }
 
 	/**
-	 * Creates a <b>member</b> of a top level object (Library Member). In version 1.6 and later contextual facets become
+	 * Creates a <b>member</b> of a top level object (Library Member).
+	 * 
+	 * In version 1.5 contextual facets are added to the parent. In version 1.6 and later contextual facets become
 	 * ContributedFacetNodes since these are parts of objects.
 	 * 
 	 * @param parent
@@ -372,48 +374,44 @@ public class NodeFactory {
 		return nn;
 	}
 
-	/**
-	 * Create a new component node and model object and link it to the passed node's head library Complex or Simple Root
-	 * node. Used for creating model objects from nodes constructed by GUI otmHandlers and wizards.
-	 * 
-	 * @see {@link NewComponent_Tests.java}
-	 * @param n
-	 *            template node for name, description and parent
-	 * @param type
-	 *            objectType strings as defined in ComponentNodeType
-	 * @return node created
-	 * 
-	 */
-	public Node newComponent(Node n, final ComponentNodeType type) {
-		if (n == null || n.getLibrary() == null)
-			return null;
-		Node cn = null;
-		switch (type) {
-		case SERVICE:
-			return new ServiceNode(n);
-		case ALIAS:
-			return new AliasNode(n, n.getName());
-		default:
-			cn = newComponent(type);
-			if (cn != null) {
-				cn.setExtensible(true);
-				cn.setName(n.getName());
-				cn.setDescription(n.getDescription());
-
-				n.getLibrary().getHead().addMember(cn);
-				// if (n.getLibrary().isEditable())
-				// n.getLibrary().addMember(cn);
-				// else
-				// // Put the new node at the head of the chain.
-				// n.getLibrary().getChain().getHead().addMember(cn);
-
-				if (cn instanceof ChoiceObjectNode) {
-					((ChoiceObjectNode) cn).addFacet("A");
-					((ChoiceObjectNode) cn).addFacet("B");
-				}
-			}
-		}
-		return cn;
-	}
+	// Moved to new ComponentWizard
+	// /**
+	// * Create a new component node and model object and link it to the passed node's head library Complex or Simple
+	// Root
+	// * node. Used for creating model objects from nodes constructed by GUI otmHandlers and wizards.
+	// *
+	// * @see {@link NewComponent_Tests.java}
+	// * @param n
+	// * template node for name, description and parent
+	// * @param type
+	// * objectType strings as defined in ComponentNodeType
+	// * @return node created
+	// *
+	// */
+	// public Node newComponent(Node n, final ComponentNodeType type) {
+	// if (n == null || n.getLibrary() == null)
+	// return null;
+	// Node cn = null;
+	// switch (type) {
+	// case SERVICE:
+	// return new ServiceNode(n);
+	// case ALIAS:
+	// return new AliasNode(n, n.getName());
+	// default:
+	// cn = newComponent(type);
+	// if (cn != null) {
+	// cn.setExtensible(true);
+	// cn.setName(n.getName());
+	// cn.setDescription(n.getDescription());
+	//
+	// n.getLibrary().getHead().addMember(cn);
+	// if (cn instanceof ChoiceObjectNode) {
+	// ((ChoiceObjectNode) cn).addFacet("A");
+	// ((ChoiceObjectNode) cn).addFacet("B");
+	// }
+	// }
+	// }
+	// return cn;
+	// }
 
 }

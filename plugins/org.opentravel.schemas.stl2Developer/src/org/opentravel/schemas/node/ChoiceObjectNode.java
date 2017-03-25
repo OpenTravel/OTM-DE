@@ -66,38 +66,10 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 		extensionHandler = new ExtensionHandler(this);
 		inheritedChildren = Collections.emptyList();
 
-		assert (getSharedFacet() != null);
-		assert (getModelObject() != null);
+		assert (getSharedFacet() instanceof FacetNode);
+		assert (getTLModelObject() instanceof TLChoiceObject);
 		assert (modelObject instanceof ChoiceObjMO);
 	}
-
-	/**
-	 * Create a new choice object using the core as a template and add to the same library as the core object.
-	 * 
-	 * @param core
-	 */
-	// public ChoiceObjectNode(CoreObjectNode core) {
-	// this(new TLChoiceObject());
-	//
-	// addAliases(core.getAliases());
-	//
-	// setName(core.getName());
-	// core.getLibrary().addMember(this); // version managed library safe add
-	// setDocumentation(core.getDocumentation());
-	//
-	// getSummaryFacet().copyFacet((FacetNode) core.getSummaryFacet());
-	// // TODO ((FacetNode) getDetailFacet()).copyFacet((FacetNode) core.getDetailFacet());
-	// }
-
-	// public ChoiceObjectNode(VWA_Node vwa) {
-	// this(new TLChoiceObject());
-	//
-	// setName(vwa.getName());
-	// vwa.getLibrary().addMember(this);
-	// setDocumentation(vwa.getDocumentation());
-	//
-	// getSummaryFacet().copyFacet((FacetNode) vwa.getAttributeFacet());
-	// }
 
 	@Override
 	public Node setExtensible(boolean extensible) {
@@ -161,6 +133,17 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 		if (targetCF instanceof ChoiceFacetNode)
 			return true;
 		return false;
+	}
+
+	@Override
+	public boolean canOwn(TLFacetType type) {
+		switch (type) {
+		case SHARED:
+		case CHOICE:
+			return true;
+		default:
+			return false;
+		}
 	}
 
 	@Override

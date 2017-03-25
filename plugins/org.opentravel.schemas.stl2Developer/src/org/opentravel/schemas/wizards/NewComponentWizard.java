@@ -21,12 +21,33 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.opentravel.schemacompiler.model.TLAliasOwner;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLChoiceObject;
+import org.opentravel.schemacompiler.model.TLClosedEnumeration;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
+import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
+import org.opentravel.schemacompiler.model.TLOpenEnumeration;
+import org.opentravel.schemacompiler.model.TLSimple;
+import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.modelObject.BusinessObjMO;
 import org.opentravel.schemas.modelObject.ModelObject;
+import org.opentravel.schemas.node.AliasNode;
+import org.opentravel.schemas.node.ChoiceObjectNode;
+import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.EditNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.NodeFactory;
+import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.facets.ChoiceFacetNode;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.facets.CustomFacetNode;
+import org.opentravel.schemas.node.facets.QueryFacetNode;
+import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.NavigatorMenus;
@@ -47,6 +68,7 @@ public class NewComponentWizard extends Wizard implements IDoubleClickListener {
 	private WizardDialog dialog;
 	public NavigatorMenus libraryTreeView;
 	private EditNode editNode = new EditNode();
+	private Node result;
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(NewComponentWizard.class);
 
@@ -64,10 +86,9 @@ public class NewComponentWizard extends Wizard implements IDoubleClickListener {
 		addPage(ncPage1);
 
 		serviceSubjectSelectionPage = new TypeSelectionPage(
-				"Service Subject Selection",
-				"Select Service Subject",
-				"Select an subject for the service messages. Or go back and finish without creating operations and messages.",
-				null, targetNode);
+				Messages.getString("wizard.newObject.page.service.pageName"),
+				Messages.getString("wizard.newObject.page.service.title"),
+				Messages.getString("wizard.newObject.page.service.description"), null, targetNode);
 		serviceSubjectSelectionPage.addDoubleClickListener(this);
 		// Set the filter to only business objects.
 		TLBusinessObject tlbo = new TLBusinessObject();
@@ -80,7 +101,7 @@ public class NewComponentWizard extends Wizard implements IDoubleClickListener {
 
 	@Override
 	public boolean canFinish() {
-		// We can finish if an extension facet is selected AND ???
+		// We can finish if an extension facet is selected because it has no name.
 		if (ncPage1.getComponentType().equals(ComponentNodeType.EXTENSION_POINT.getDescription()))
 			return true;
 		if ((ncPage1.getComponentType().isEmpty()) || ncPage1.getName().isEmpty())
@@ -90,7 +111,8 @@ public class NewComponentWizard extends Wizard implements IDoubleClickListener {
 
 	@Override
 	public boolean performFinish() {
-		editNode = createNode();
+		result = newComponent(targetNode, serviceSubjectSelectionPage.getSelectedNode(), ncPage1.getName(),
+				ncPage1.getDescription(), ComponentNodeType.fromString(ncPage1.getComponentType()));
 		return true;
 	}
 
@@ -101,35 +123,14 @@ public class NewComponentWizard extends Wizard implements IDoubleClickListener {
 	 * @return
 	 */
 	// invoker must instantiate the class first: NewComponent wizard = new NewComponent();
-	public EditNode postNewComponentWizard(final Shell shell) {
+	public Node run(final Shell shell) {
 		dialog = new WizardDialog(shell, this);
 		dialog.create();
 		dialog.open();
-		if (editNode == null || editNode.getName() == null || editNode.getName().isEmpty()) {
-			return null;
-		}
-		return editNode;
-	}
-
-	/**
-	 * Create a node by reading data from the wizard pages.
-	 * 
-	 * @return
-	 */
-	private EditNode createNode() {
-		if (ncPage1.getComponentType().equals(ComponentNodeType.EXTENSION_POINT.getDescription())) {
-			// for Extension Point Facet set name as Undefined regardless of what it was set to.
-			// Even if the name was set empty in the dialog, set it again to Undefined.
-			editNode.setName("Undefined");
-		} else {
-			editNode.setName(ncPage1.getName());
-		}
-		editNode.setDescription(ncPage1.getDescription());
-		editNode.setUseType(ncPage1.getComponentType());
-		editNode.setLibrary(targetNode.getLibrary().getHead());
-		editNode.setParent(targetNode);
-		editNode.setTLType(serviceSubjectSelectionPage.getSelectedNode());
-		return editNode;
+		// if (editNode == null || editNode.getName() == null || editNode.getName().isEmpty()) {
+		// return null;
+		// }
+		return result;
 	}
 
 	@Override
@@ -139,5 +140,143 @@ public class NewComponentWizard extends Wizard implements IDoubleClickListener {
 			dialog.close();
 		}
 	}
+
+	// *******************************************************************************
+	// Create the node on finish
+	//
+	/**
+	 * Create a new component node and model object and link it to the passed node's head library Complex or Simple Root
+	 * node. Used for creating model objects from nodes constructed by GUI otmHandlers and wizards.
+	 * 
+	 * @see {@link NewComponent_Tests.java}
+	 * @param parent
+	 *            parent for the new object. New object will be placed into parent's library.
+	 * @param subject
+	 *            subject node for services and custom facets
+	 * @param type
+	 *            objectType defined in {@link ComponentNodeType}
+	 * @param name
+	 *            name to assign new object
+	 * @param description
+	 *            description to assign new object
+	 * @return node created
+	 * 
+	 */
+	public Node newComponent(final Node parent, final Node subject, final String name, final String description,
+			final ComponentNodeType type) {
+		if (parent == null || parent.getLibrary() == null)
+			return null;
+
+		LibraryNode lib = parent.getLibrary().getHead();
+		Node cn = null;
+		ContextualFacetNode cf = null;
+		TLContextualFacet tlcf = null;
+
+		switch (type) {
+		case SERVICE:
+			ServiceNode svc = new ServiceNode(parent.getLibrary());
+			svc.setName(name);
+			svc.addCRUDQ_Operations(subject);
+			return svc;
+		case ALIAS:
+			return parent.getTLModelObject() instanceof TLAliasOwner ? new AliasNode(parent, name) : null;
+		case BUSINESS:
+			cn = linkNewNode(new TLBusinessObject(), lib, name, description);
+			break;
+		case CHOICE:
+			cn = linkNewNode(new TLChoiceObject(), lib, name, description);
+			break;
+		case CORE:
+			cn = linkNewNode(new TLCoreObject(), lib, name, description);
+			break;
+		case VWA:
+			cn = linkNewNode(new TLValueWithAttributes(), lib, name, description);
+			break;
+		case EXTENSION_POINT:
+			cn = linkNewNode(new TLExtensionPointFacet(), lib, name, description);
+			break;
+		case OPEN_ENUM:
+			cn = linkNewNode(new TLOpenEnumeration(), lib, name, description);
+			break;
+		case CLOSED_ENUM:
+			cn = linkNewNode(new TLClosedEnumeration(), lib, name, description);
+			break;
+		case SIMPLE:
+			cn = linkNewNode(new TLSimple(), lib, name, description);
+			break;
+		case CHOICE_FACET:
+			cn = linkContextual(new ChoiceFacetNode(), subject, lib, name, description);
+			break;
+		case CUSTOM_FACET:
+			cn = linkContextual(new CustomFacetNode(), subject, lib, name, description);
+			break;
+		case QUERY_FACET:
+			cn = linkContextual(new QueryFacetNode(), subject, lib, name, description);
+			break;
+		default:
+			break;
+		}
+		return cn;
+	}
+
+	private Node linkContextual(ContextualFacetNode cf, Node subject, LibraryNode lib, String name, String description) {
+		cf.setName(name);
+		cf.setDescription(description);
+		if (subject instanceof ContextualFacetOwnerInterface)
+			cf.setOwner((ContextualFacetOwnerInterface) subject);
+		else
+			lib.addMember(cf);
+		return cf;
+	}
+
+	private Node linkNewNode(TLLibraryMember tlObj, final LibraryNode lib, final String name, final String description) {
+		ComponentNode cn = NodeFactory.newComponent(tlObj);
+
+		if (cn != null) {
+			cn.setExtensible(true);
+			cn.setName(name);
+			cn.setDescription(description);
+			lib.addMember(cn);
+			if (cn instanceof ChoiceObjectNode) {
+				((ChoiceObjectNode) cn).addFacet("A");
+				((ChoiceObjectNode) cn).addFacet("B");
+			}
+		}
+		return cn;
+	}
+
+	// private static Node newComponent(ComponentNodeType type) {
+	// TLLibraryMember tlObj = null;
+	//
+	// switch (type) {
+	// case BUSINESS:
+	// tlObj = new TLBusinessObject();
+	// break;
+	// case CHOICE:
+	// tlObj = new TLChoiceObject();
+	// break;
+	// case CORE:
+	// tlObj = new TLCoreObject();
+	// break;
+	// case VWA:
+	// tlObj = new TLValueWithAttributes();
+	// break;
+	// case EXTENSION_POINT:
+	// tlObj = new TLExtensionPointFacet();
+	// break;
+	// case OPEN_ENUM:
+	// tlObj = new TLOpenEnumeration();
+	// break;
+	// case CLOSED_ENUM:
+	// tlObj = new TLClosedEnumeration();
+	// break;
+	// case SIMPLE:
+	// tlObj = new TLSimple();
+	// break;
+	// default:
+	// // LOGGER.debug("Unknown type in new component: "+type);
+	// }
+	// return NodeFactory.newComponent(tlObj);
+	// }
 
 }

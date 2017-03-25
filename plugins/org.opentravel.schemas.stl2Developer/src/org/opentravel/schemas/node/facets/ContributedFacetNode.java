@@ -21,6 +21,7 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
+import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.node.Node;
@@ -87,6 +88,11 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 	@Override
 	public boolean canOwn(ContextualFacetNode targetCF) {
 		return getContributor() != null ? getContributor().canOwn(targetCF) : false;
+	}
+
+	@Override
+	public boolean canOwn(TLFacetType type) {
+		return getContributor() != null ? getContributor().canOwn(type) : false;
 	}
 
 	@Override

@@ -313,6 +313,21 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	}
 
 	@Override
+	public boolean canOwn(TLFacetType type) {
+		switch (type) {
+		case ID:
+		case SUMMARY:
+		case DETAIL:
+		case CUSTOM:
+		case QUERY:
+		case UPDATE:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	@Override
 	public ComponentNode createMinorVersionComponent() {
 		return super.createMinorVersionComponent(new BusinessObjectNode((TLBusinessObject) createMinorTLVersion(this)));
 	}

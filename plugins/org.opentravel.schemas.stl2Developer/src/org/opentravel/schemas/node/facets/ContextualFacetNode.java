@@ -186,6 +186,8 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 
 	@Override
 	public String getLabel() {
+		if (inherited)
+			return getTLModelObject() != null ? getFacetType().getIdentityName() + " (Inherited)" : "";
 		return getTLModelObject() != null ? getFacetType().getIdentityName() : "";
 	}
 
@@ -334,6 +336,11 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 			user.setName(name);
 	}
 
+	/**
+	 * Add this facet to passed contextual facet owner.
+	 * 
+	 * @param owner
+	 */
 	public abstract void setOwner(ContextualFacetOwnerInterface owner);
 
 	public void setWhereContributed(ContributedFacetNode contributedFacetNode) {

@@ -44,7 +44,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.BuiltInLibrary;
-import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.XSDLibrary;
 import org.opentravel.schemas.node.CoreObjectNode;
@@ -101,26 +100,8 @@ public class TypeSelectionPage extends WizardPage {
 		setTitle(title);
 		setDescription(description);
 		curNode = n;
-		// LOGGER.debug("Created Initial Type Selection Page for node: " + n);
 		checkCore((Node) n);
-	}
-
-	protected void checkCore(Node curNode) {
-		if (curNode instanceof CoreObjectNode) {
-			FacetNode sum = (FacetNode) ((CoreObjectNode) curNode).getSummaryFacet();
-			TLFacet tlSum = (TLFacet) sum.getTLModelObject();
-			// LOGGER.debug(curNode + " now has " + sum.getInheritedChildren().size() + " inherited children and "
-			// + sum.getChildren().size() + " children.");
-			// LOGGER.debug(curNode + " now has " + PropertyCodegenUtils.getInheritedFacetProperties(tlSum).size()
-			// + " inherited elements and " + tlSum.getElements().size() + " element children.");
-			// check assigned types and assure they have parents
-			for (Node n : sum.getChildren()) {
-				if (n instanceof TypeUser) {
-					TypeProvider type = ((TypeUser) n).getAssignedType();
-					assert ((Node) type).getParent() != null;
-				}
-			}
-		}
+		// LOGGER.debug("Created Initial Type Selection Page for node: " + n);
 	}
 
 	/**
@@ -246,11 +227,18 @@ public class TypeSelectionPage extends WizardPage {
 	}
 
 	public void setTypeSelectionFilter(TypeSelectionFilter typeSelectionFilter) {
+		if (treeViewer != null)
+			treeViewer.removeFilter(this.typeSelectionFilter);
 		this.typeSelectionFilter = typeSelectionFilter;
+		if (treeViewer != null)
+			treeViewer.addFilter(typeSelectionFilter);
 	}
 
 	public void setTypeTreeContentProvider(IContentProvider typeTreeContentProvider) {
 		this.typeTreeContentProvider = typeTreeContentProvider;
+		if (treeViewer != null)
+			treeViewer.setContentProvider(typeTreeContentProvider);
+		LOGGER.debug("Set content provider to: " + typeTreeContentProvider.getClass().getSimpleName());
 	}
 
 	public void addDoubleClickListener(final IDoubleClickListener listener) {
@@ -421,6 +409,25 @@ public class TypeSelectionPage extends WizardPage {
 		radio.setText(curNodeList.get(0).getName() + " Only");
 		radio.setData(firstNodeOnly);
 		radio.addSelectionListener(new ButtonSelectionHandler());
+	}
+
+	/**
+	 * check assigned types and assure they have parents
+	 * 
+	 * @param curNode
+	 *            checked if Core Object
+	 */
+	protected void checkCore(Node curNode) {
+		if (curNode instanceof CoreObjectNode) {
+			FacetNode sum = (FacetNode) ((CoreObjectNode) curNode).getSummaryFacet();
+			// check assigned types and assure they have parents
+			for (Node n : sum.getChildren()) {
+				if (n instanceof TypeUser) {
+					TypeProvider type = ((TypeUser) n).getAssignedType();
+					assert ((Node) type).getParent() != null;
+				}
+			}
+		}
 	}
 
 }

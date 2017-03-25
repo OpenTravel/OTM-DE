@@ -84,6 +84,8 @@ public class FacetNode extends PropertyOwnerNode implements PropertyOwnerInterfa
 
 	@Override
 	public String getLabel() {
+		if (inherited)
+			return getComponentType() + " (Inherited)";
 		return getComponentType();
 	}
 

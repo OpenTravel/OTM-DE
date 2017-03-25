@@ -137,7 +137,7 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 					+ ". Try validating the library and correcting any problems reported.");
 
 		// If not null then return the matching facet in the new component
-		if (selectedFacet != null) {
+		if (selectedFacet != null && actOnNode != null) {
 			for (Node n : actOnNode.getChildren())
 				if (n.getName().equals(selectedFacet.getName()))
 					actOnNode = (ComponentNode) n;

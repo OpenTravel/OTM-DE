@@ -18,6 +18,7 @@ package org.opentravel.schemas.node.facets;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
+import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,12 +52,16 @@ public class UpdateFacetNode extends ContextualFacetNode {
 		return false;
 	}
 
-	/**
-	 * Create new TLUpdate facet and add to passed owner choice object.
-	 * 
-	 * @param owner
-	 * @param name
-	 */
+	@Override
+	public boolean canOwn(TLFacetType type) {
+		switch (type) {
+		case UPDATE:
+			return true;
+		default:
+			return false;
+		}
+	}
+
 	public void setOwner(ContextualFacetOwnerInterface owner) {
 		TLContextualFacet newFacet = getTLModelObject();
 		newFacet.setOwningEntity(owner.getTLModelObject());

@@ -18,8 +18,10 @@
  */
 package org.opentravel.schemas.node;
 
+import org.opentravel.schemacompiler.model.TLFacetType;
+
 /**
- * Note - facet types provided by compiler TLFacetType
+ * Note - other facet types provided by compiler {@link TLFacetType}
  * 
  * @author Dave Hollander
  * 
@@ -30,6 +32,8 @@ public enum ComponentNodeType {
 	ATTRIBUTES("Attributes"),
 	BUSINESS("Business Object"),
 	CHOICE("Choice Object"),
+	CHOICE_FACET("Choice Facet"),
+	CUSTOM_FACET("Custom Facet"),
 	CLOSED_ENUM("Closed Enumeration"),
 	CORE("Core Object"),
 	DETAIL_LIST("Detail List"),
@@ -44,6 +48,7 @@ public enum ComponentNodeType {
 	NOTIFICATION("Notification"),
 	OPEN_ENUM("Open Enumeration"),
 	OPERATION("Operation"),
+	QUERY_FACET("Query Facet"),
 	REQUEST("Request"),
 	RESOURCE("Resource"),
 	RESPONSE("Response"),

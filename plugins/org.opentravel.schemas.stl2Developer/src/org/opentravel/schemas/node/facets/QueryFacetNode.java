@@ -46,12 +46,16 @@ public class QueryFacetNode extends ContextualFacetNode {
 		return false;
 	}
 
-	/**
-	 * Create new TLQuery facet and add to passed owner choice object.
-	 * 
-	 * @param owner
-	 * @param name
-	 */
+	@Override
+	public boolean canOwn(TLFacetType type) {
+		switch (type) {
+		case QUERY:
+			return true;
+		default:
+			return false;
+		}
+	}
+
 	public void setOwner(ContextualFacetOwnerInterface owner) {
 		TLContextualFacet newFacet = getTLModelObject();
 		newFacet.setOwningEntity(owner.getTLModelObject());
