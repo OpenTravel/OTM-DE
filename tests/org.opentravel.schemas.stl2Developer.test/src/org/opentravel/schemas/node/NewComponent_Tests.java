@@ -44,7 +44,6 @@ import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.repository.RepositoryIntegrationTestBase;
-import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
@@ -119,7 +118,7 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 			n.visitAllNodes(nt);
 		}
 
-		createNewComponents(noService);
+		// createNewComponents(noService);
 
 		for (Node n : Node.getAllUserLibraries()) {
 			n.visitAllNodes(nt);
@@ -338,106 +337,106 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 		return cnt == 1;
 	}
 
-	@Test
-	public void createAllTypes() {
-		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "testBO");
-		ServiceNode svc;
-		if (ln.getServiceRoot() == null)
-			svc = new ServiceNode(ln);
-		else
-			svc = (ServiceNode) ln.getServiceRoot();
-		OperationNode operation = new OperationNode(svc, "Op1");
-		EditNode editNode = new EditNode(ln);
-		String name = "testEditNode";
-		String description = "Testing creating new objects.";
-		editNode.setName(name);
-		editNode.setDescription(description);
-		Node n2;
+	// @Test
+	// public void createAllTypes() {
+	// ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+	// BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "testBO");
+	// ServiceNode svc;
+	// if (ln.getServiceRoot() == null)
+	// svc = new ServiceNode(ln);
+	// else
+	// svc = (ServiceNode) ln.getServiceRoot();
+	// OperationNode operation = new OperationNode(svc, "Op1");
+	// EditNode editNode = new EditNode(ln);
+	// String name = "testEditNode";
+	// String description = "Testing creating new objects.";
+	// editNode.setName(name);
+	// editNode.setDescription(description);
+	// Node n2;
+	//
+	// NodeFactory factory = new NodeFactory();
+	// for (ComponentNodeType type : ComponentNodeType.values()) {
+	// String tName = type.getDescription();
+	// Assert.assertNotNull(ComponentNodeType.fromString(tName));
+	//
+	// if (type.equals(ComponentNodeType.ALIAS))
+	// n2 = factory.newComponent(bo, type);
+	// else {
+	// // LOGGER.debug("Ready to create a " + type.getDescription());
+	// n2 = factory.newComponent(editNode, type);
+	// // null returned when type is not supported
+	// if (n2 != null) {
+	// if (type != ComponentNodeType.EXTENSION_POINT) {
+	// assertTrue("Names must be equal ignoring case.", name.equalsIgnoreCase(n2.getName()));
+	// }
+	// Assert.assertEquals(description, n2.getDescription());
+	// Assert.assertNotNull(n2.getParent());
+	// Assert.assertEquals(ln, n2.getLibrary());
+	// }
+	// }
+	// }
+	// }
 
-		NodeFactory factory = new NodeFactory();
-		for (ComponentNodeType type : ComponentNodeType.values()) {
-			String tName = type.getDescription();
-			Assert.assertNotNull(ComponentNodeType.fromString(tName));
-
-			if (type.equals(ComponentNodeType.ALIAS))
-				n2 = factory.newComponent(bo, type);
-			else {
-				// LOGGER.debug("Ready to create a " + type.getDescription());
-				n2 = factory.newComponent(editNode, type);
-				// null returned when type is not supported
-				if (n2 != null) {
-					if (type != ComponentNodeType.EXTENSION_POINT) {
-						assertTrue("Names must be equal ignoring case.", name.equalsIgnoreCase(n2.getName()));
-					}
-					Assert.assertEquals(description, n2.getDescription());
-					Assert.assertNotNull(n2.getParent());
-					Assert.assertEquals(ln, n2.getLibrary());
-				}
-			}
-		}
-	}
-
-	public void createNewComponents(LibraryNode ln) {
-		Node newOne, newBO, newCO, newChoice;
-		en = new EditNode(ln);
-		ln.setEditable(true);
-		en.setName("TestObject");
-
-		NodeFactory factory = new NodeFactory();
-		// Create Business Object
-		newBO = factory.newComponent(en, ComponentNodeType.BUSINESS);
-		newBO.setName(newBO.getName() + "Business");
-		nt.visit(newBO);
-		addProperties((ComponentNode) newBO); // properties first so alias is not counted as child
-		newBO.visitAllNodes(nt);
-		newOne = factory.newComponent(newBO, ComponentNodeType.ALIAS);
-		newOne.setName(newOne.getName() + "Alias");
-		nt.visit(newBO);
-		Assert.assertTrue(newBO instanceof BusinessObjectNode);
-
-		// Create new core object.
-		newCO = factory.newComponent(en, ComponentNodeType.CORE);
-		newCO.setName(newCO.getName() + "Core");
-		addProperties((ComponentNode) newCO);
-		addRoles((CoreObjectNode) newCO);
-		newCO.visitAllNodes(nt);
-		newOne = factory.newComponent(newCO, ComponentNodeType.ALIAS);
-		nt.visit(newCO);
-		Assert.assertTrue(newCO instanceof CoreObjectNode);
-
-		newChoice = factory.newComponent(en, ComponentNodeType.CHOICE);
-		newCO.setName(newCO.getName() + "Choice");
-
-		newOne = factory.newComponent(en, ComponentNodeType.VWA);
-		newOne.setName(newOne.getName() + "VWA");
-		nt.visit(newOne);
-		Assert.assertTrue(newOne instanceof VWA_Node);
-
-		// FIXME - you can not extend an object from the same library as the EP
-		// newOne = en.newComponent(ComponentNodeType.EXTENSION_POINT);
-		// newOne.setExtendsType(((BusinessObjectNode) newBO).getSummaryFacet());
-		// newOne.setName(newOne.getName() + "EP");
-		// nt.visit(newOne);
-
-		newOne = factory.newComponent(en, ComponentNodeType.CLOSED_ENUM);
-		newOne.setName(newOne.getName() + "CE");
-		addLiterals(newOne);
-		nt.visit(newOne);
-
-		newOne = factory.newComponent(en, ComponentNodeType.OPEN_ENUM);
-		newOne.setName(newOne.getName() + "OE");
-		nt.visit(newOne);
-
-		newOne = factory.newComponent(en, ComponentNodeType.SIMPLE);
-		newOne.setName(newOne.getName() + "Simple");
-		nt.visit(newOne);
-
-		en.setTLType(newBO); // used as subject of CRUD operations
-		newOne = factory.newComponent(en, ComponentNodeType.SERVICE);
-		newOne.setName(newOne.getName() + "SVC");
-		nt.visit(newOne);
-	}
+	// public void createNewComponents(LibraryNode ln) {
+	// Node newOne, newBO, newCO, newChoice;
+	// en = new EditNode(ln);
+	// ln.setEditable(true);
+	// en.setName("TestObject");
+	//
+	// NodeFactory factory = new NodeFactory();
+	// // Create Business Object
+	// newBO = factory.newComponent(en, ComponentNodeType.BUSINESS);
+	// newBO.setName(newBO.getName() + "Business");
+	// nt.visit(newBO);
+	// addProperties((ComponentNode) newBO); // properties first so alias is not counted as child
+	// newBO.visitAllNodes(nt);
+	// newOne = factory.newComponent(newBO, ComponentNodeType.ALIAS);
+	// newOne.setName(newOne.getName() + "Alias");
+	// nt.visit(newBO);
+	// Assert.assertTrue(newBO instanceof BusinessObjectNode);
+	//
+	// // Create new core object.
+	// newCO = factory.newComponent(en, ComponentNodeType.CORE);
+	// newCO.setName(newCO.getName() + "Core");
+	// addProperties((ComponentNode) newCO);
+	// addRoles((CoreObjectNode) newCO);
+	// newCO.visitAllNodes(nt);
+	// newOne = factory.newComponent(newCO, ComponentNodeType.ALIAS);
+	// nt.visit(newCO);
+	// Assert.assertTrue(newCO instanceof CoreObjectNode);
+	//
+	// newChoice = factory.newComponent(en, ComponentNodeType.CHOICE);
+	// newCO.setName(newCO.getName() + "Choice");
+	//
+	// newOne = factory.newComponent(en, ComponentNodeType.VWA);
+	// newOne.setName(newOne.getName() + "VWA");
+	// nt.visit(newOne);
+	// Assert.assertTrue(newOne instanceof VWA_Node);
+	//
+	// // FIXME - you can not extend an object from the same library as the EP
+	// // newOne = en.newComponent(ComponentNodeType.EXTENSION_POINT);
+	// // newOne.setExtendsType(((BusinessObjectNode) newBO).getSummaryFacet());
+	// // newOne.setName(newOne.getName() + "EP");
+	// // nt.visit(newOne);
+	//
+	// newOne = factory.newComponent(en, ComponentNodeType.CLOSED_ENUM);
+	// newOne.setName(newOne.getName() + "CE");
+	// addLiterals(newOne);
+	// nt.visit(newOne);
+	//
+	// newOne = factory.newComponent(en, ComponentNodeType.OPEN_ENUM);
+	// newOne.setName(newOne.getName() + "OE");
+	// nt.visit(newOne);
+	//
+	// newOne = factory.newComponent(en, ComponentNodeType.SIMPLE);
+	// newOne.setName(newOne.getName() + "Simple");
+	// nt.visit(newOne);
+	//
+	// en.setTLType(newBO); // used as subject of CRUD operations
+	// newOne = factory.newComponent(en, ComponentNodeType.SERVICE);
+	// newOne.setName(newOne.getName() + "SVC");
+	// nt.visit(newOne);
+	// }
 
 	private void addProperties(ComponentNode n) {
 		Assert.assertNotNull(n.getSummaryFacet());

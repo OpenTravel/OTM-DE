@@ -26,9 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-
-
 //import junit.framework.Assert;
 import org.junit.Assert;
 import org.junit.Test;
@@ -209,7 +206,7 @@ public class ReplaceWith_Tests {
 		ProjectNode defaultProject = pc.getDefaultProject();
 		NewComponent_Tests nc = new NewComponent_Tests();
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		nc.createNewComponents(ln);
+		// nc.createNewComponents(ln);
 
 		tt.visitAllNodes(ln);
 
