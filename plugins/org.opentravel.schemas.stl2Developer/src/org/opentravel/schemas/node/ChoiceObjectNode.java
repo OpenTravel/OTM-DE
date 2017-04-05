@@ -248,6 +248,11 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 	}
 
 	@Override
+	public boolean isExtensibleObject() {
+		return true;
+	}
+
+	@Override
 	public boolean isMergeSupported() {
 		return false;
 	}

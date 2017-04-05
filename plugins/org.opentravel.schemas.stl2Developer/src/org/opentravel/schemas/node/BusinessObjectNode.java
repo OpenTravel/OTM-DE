@@ -112,10 +112,10 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 		return (TLBusinessObject) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
-	@Override
-	public boolean isExtensible() {
-		return getTLModelObject() != null ? !((TLComplexTypeBase) getTLModelObject()).isNotExtendable() : false;
-	}
+	// @Override
+	// public boolean isExtensible() {
+	// return getTLModelObject() != null ? !((TLComplexTypeBase) getTLModelObject()).isNotExtendable() : false;
+	// }
 
 	@Override
 	public boolean isExtensibleObject() {

@@ -108,6 +108,7 @@ public class LibraryTablePoster {
 
 		List<Node> sortedChildren = new ArrayList<Node>(curNode.getChildren());
 		sortedChildren = sort(sortedChildren);
+
 		if (curNode instanceof ServiceNode) {
 			for (final Node kid : sortedChildren) {
 				postTableRows(kid, kid.getLabel());
@@ -144,11 +145,9 @@ public class LibraryTablePoster {
 						sortedChildren.addAll(curNode.getInheritedChildren());
 						sortedChildren = sort(sortedChildren);
 					}
-				for (final Node child : sortedChildren) {
-					if (!(child instanceof AliasNode))
+				for (final Node child : sortedChildren)
+					if (child instanceof PropertyOwnerInterface)
 						postTableRows(child, child.getName());
-
-				}
 			}
 			if (table.getSelectionIndices() != selectionIndices) {
 				table.select(selectionIndices);

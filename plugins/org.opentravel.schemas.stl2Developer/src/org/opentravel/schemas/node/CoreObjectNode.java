@@ -132,10 +132,10 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 		return super.createMinorVersionComponent(new CoreObjectNode((TLCoreObject) createMinorTLVersion(this)));
 	}
 
-	@Override
-	public boolean isExtensible() {
-		return getTLModelObject() != null ? !((TLComplexTypeBase) getTLModelObject()).isNotExtendable() : false;
-	}
+	// @Override
+	// public boolean isExtensible() {
+	// return getTLModelObject() != null ? !((TLComplexTypeBase) getTLModelObject()).isNotExtendable() : false;
+	// }
 
 	@Override
 	public boolean isExtensibleObject() {

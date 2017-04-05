@@ -26,6 +26,7 @@ import org.opentravel.schemas.modelObject.SimpleFacetMO;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.SimpleFacetNodeListener;
@@ -174,6 +175,8 @@ public class SimpleFacetNode extends PropertyOwnerNode implements TypeProvider, 
 
 	@Override
 	public String getName() {
+		if (getParent() instanceof VWA_Node)
+			return "Value";
 		return emptyIfNull(getTLModelObject().getLocalName());
 	}
 

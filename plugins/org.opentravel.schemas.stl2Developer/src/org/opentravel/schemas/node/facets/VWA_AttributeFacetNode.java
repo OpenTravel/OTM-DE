@@ -75,7 +75,8 @@ public class VWA_AttributeFacetNode extends PropertyOwnerNode {
 
 	@Override
 	public String getName() {
-		return getParent().getName();
+		return "Attributes";
+		// return getParent().getName();
 		// return emptyIfNull(getTLModelObject().getLocalName());
 		// return getComponentType();
 	}

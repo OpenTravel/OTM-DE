@@ -229,10 +229,10 @@ public class OperationNode extends PropertyOwnerNode implements VersionedObjectI
 		return true;
 	}
 
-	@Override
-	public boolean isExtensibleObject() {
-		return true;
-	}
+	// @Override
+	// public boolean isExtensibleObject() {
+	// return true;
+	// }
 
 	@Override
 	public boolean isNamedEntity() {

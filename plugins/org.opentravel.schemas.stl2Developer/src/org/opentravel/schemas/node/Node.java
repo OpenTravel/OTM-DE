@@ -39,6 +39,7 @@ import org.opentravel.schemacompiler.model.ModelElement;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
 import org.opentravel.schemacompiler.model.TLAttributeType;
+import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationItem;
@@ -1730,17 +1731,18 @@ public abstract class Node implements INode {
 	 *         extension points on compile.
 	 */
 	public boolean isExtensible() {
-		return true;
+		if (getTLModelObject() instanceof TLComplexTypeBase)
+			return !((TLComplexTypeBase) getTLModelObject()).isNotExtendable();
+		return false;
 	}
 
 	/**
-	 * Extensible objects have the ability to create extension points when compiled into schemas. These include core and
-	 * business objects as well as operations and extension points. {@link #isExtensible()}
+	 * Does this object have the ability to create extension points when compiled into schemas. These include choice,
 	 * 
 	 * @return true if this object has the characteristic of being extensible
 	 */
 	public boolean isExtensibleObject() {
-		return true;
+		return false; // FIXED 4/5/2017 - should be overriden to be true
 	}
 
 	public boolean isFacetAlias() {

@@ -238,7 +238,7 @@ public class TypeSelectionPage extends WizardPage {
 		this.typeTreeContentProvider = typeTreeContentProvider;
 		if (treeViewer != null)
 			treeViewer.setContentProvider(typeTreeContentProvider);
-		LOGGER.debug("Set content provider to: " + typeTreeContentProvider.getClass().getSimpleName());
+		// LOGGER.debug("Set content provider to: " + typeTreeContentProvider.getClass().getSimpleName());
 	}
 
 	public void addDoubleClickListener(final IDoubleClickListener listener) {

@@ -66,6 +66,7 @@ import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
+import org.opentravel.schemas.stl2developer.ColorProvider;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.utils.RCPUtils;
@@ -96,6 +97,7 @@ public class FacetView extends OtmAbstractView {
 	private MainWindow mainWindow;
 
 	private Composite tableComposite;
+	private ColorProvider colorProvider;
 
 	private Table table; // listener needs this to be class scoped
 	private TableViewer facetViewer;
@@ -200,6 +202,10 @@ public class FacetView extends OtmAbstractView {
 
 		// Enable drop onto the table
 		mc.getHandlers().enableDropTarget(table, mc.getActions(), OtmActions.setOrNewPropertyType(), mc.getWidgets());
+
+		// Save the color provider for this display
+		colorProvider = new ColorProvider(facetComposite.getDisplay());
+
 	}
 
 	@Override
@@ -466,29 +472,38 @@ public class FacetView extends OtmAbstractView {
 		for (IWithNodeAction action : getNodeActions())
 			action.setCurrentNode(curNode);
 
-		boolean editable = curNode.isEditable();
-		nameField.setEnabled(editable);
-		extendableAction.setEnabled(editable);
+		nameField.setEnabled(curNode.isEditable_newToChain());
 
-		if (editable && curNode.isInTLLibrary()) {
-			if (curNode instanceof Enumeration) {
-				extendableAction.setChecked(curNode instanceof EnumerationOpenNode);
-				extendableLabel.setText(Messages.getString("OtmW.74.Open"));
-				extendableLabel.setToolTipText(Messages.getString("OtmW.75.Open"));
-			} else if (curNode.isExtensibleObject()) {
-				extendableAction.setChecked(curNode.isExtensible());
-				extendableLabel.setText(Messages.getString("OtmW.74"));
-				extendableLabel.setToolTipText(Messages.getString("OtmW.75"));
-			}
+		// extend-able action controls extension points OR open/closed enum
+		if (curNode instanceof Enumeration) {
+			extendableLabel.setText(Messages.getString("OtmW.74.Open"));
+			extendableLabel.setToolTipText(Messages.getString("OtmW.75.Open"));
+		} else {
+			extendableLabel.setText(Messages.getString("OtmW.74"));
+			extendableLabel.setToolTipText(Messages.getString("OtmW.75"));
+		}
+		if (curNode instanceof EnumerationOpenNode)
+			extendableAction.setChecked(true);
+		else if (curNode.isExtensibleObject())
+			extendableAction.setChecked(curNode.isExtensible());
+		else
+			extendableAction.setChecked(false);
+		// Enable/disable extendable action
+		if ((curNode instanceof Enumeration || curNode.isExtensibleObject()) && curNode.isEditable_newToChain()) {
+			extendableAction.setEnabled(true);
+			extendableLabel.setBackground(colorProvider.getColor(SWT.COLOR_WHITE));
+		} else {
+			extendableAction.setEnabled(false);
+			extendableLabel.setBackground(colorProvider.getColor(SWT.COLOR_WIDGET_LIGHT_SHADOW));
+		}
 
-			// Don't allow users to break version relationships
-			if (curNode.isEditable_newToChain()) {
-				if (curNode instanceof ExtensionOwner)
-					extendsAction.setEnabled(true);
-				if (curNode instanceof ContextualFacetNode)
-					extendsAction.setEnabled(true);
-				clearExtendsAction.setEnabled(curNode.getExtendsType() != null);
-			}
+		// Set extends field and buttons. Don't allow users to break version relationships
+		if (curNode.isEditable_newToChain()) {
+			if (curNode instanceof ExtensionOwner)
+				extendsAction.setEnabled(true);
+			if (curNode instanceof ContextualFacetNode)
+				extendsAction.setEnabled(true);
+			clearExtendsAction.setEnabled(curNode.getExtendsType() != null);
 		}
 	}
 

@@ -59,7 +59,7 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 	public ContributedFacetNode(TLContextualFacet tlCF) {
 		// Hold on to the contextual facet for resolution by type resolver
 		setContributor(tlCF);
-		LOGGER.debug("Contributed Facet Created: " + tlCF.getLocalName());
+		// LOGGER.debug("Contributed Facet Created: " + tlCF.getLocalName());
 	}
 
 	/**
