@@ -713,7 +713,8 @@ public abstract class Node implements INode {
 
 		// The number of users for this type provider
 		if (this instanceof TypeProvider && !(this instanceof ImpliedNode))
-			decoration += " (" + ((TypeProvider) this).getWhereUsedAndDescendantsCount() + " users)";
+			decoration += " (" + ((TypeProvider) this).getWhereUsedNode().getWhereUsedCount() + " users)";
+		// ((TypeProvider) this).getWhereUsedAndDescendantsCount()
 
 		if (isDeleted())
 			decoration += " (*) ";
@@ -723,6 +724,7 @@ public abstract class Node implements INode {
 
 		// Extension
 		if (this instanceof ExtensionOwner) {
+			// FIXME - don't use this except testing
 			if (getLibrary() != null)
 				getLibrary().checkExtension(this);
 
