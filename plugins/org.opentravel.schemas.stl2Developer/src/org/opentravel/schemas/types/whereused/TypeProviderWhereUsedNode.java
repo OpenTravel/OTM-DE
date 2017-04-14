@@ -55,13 +55,79 @@ public class TypeProviderWhereUsedNode extends WhereUsedNode<TypeProvider> imple
 	public String getDecoration() {
 		String decoration = "  ";
 		decoration += "All versions of " + owner.getName() + " in this chain are used by:";
-		// decoration += "  " + this.getClass().getSimpleName();
 		return decoration;
 	}
 
 	@Override
 	public String getLabel() {
-		return labelProvider.getLabel() + " (" + owner.getWhereUsedAndDescendantsCount() + ")";
+		return labelProvider.getLabel() + " (" + getWhereUsedCount() + ")";
+	}
+
+	/**
+	 * 
+	 * @return count of where all minor versions of this provider is use as type or extension
+	 */
+	public int getWhereUsedCount() {
+		int count = 0;
+		for (Node v : getAllVersions())
+			count += ((TypeProvider) v).getWhereUsedAndDescendantsCount();
+		// versioned objects will include themselves so decrement count.
+		if (owner.getParent() instanceof VersionNode)
+			if (((Node) owner).getVersionNode().getPreviousVersion() != null)
+				count--;
+		return count;
+	}
+
+	/**
+	 * @return list of all users of any version as type or extension
+	 */
+	public List<TypeUser> getAllUsers(boolean editableOnly) {
+		List<TypeUser> users = new ArrayList<TypeUser>();
+		for (Node version : getAllVersions()) {
+			for (TypeUser user : ((TypeProvider) version).getWhereAssigned())
+				if (editableOnly) {
+					if (user.getLibrary().isInHead2())
+						users.add(user);
+				} else
+					users.add(user);
+		}
+		return users;
+	}
+
+	/**
+	 * 
+	 * @param editableOnly
+	 * @return all extension owners that extend this node or any version of this node. Exclude other versions of this
+	 *         node.
+	 */
+	public List<ExtensionOwner> getAllExtensions(boolean editableOnly) {
+		List<ExtensionOwner> owners = new ArrayList<ExtensionOwner>();
+		for (Node version : getAllVersions()) {
+			if (version.getWhereExtendedHandler() != null) {
+				for (ExtensionOwner e : version.getWhereExtendedHandler().getWhereExtended()) {
+					if (owner.getName().equals(((Node) e).getName()))
+						continue; // skip versions of this node.
+					if (editableOnly) {
+						if (((Node) e).getLibrary().isInHead2())
+							owners.add(e);
+					} else
+						owners.add(e);
+				}
+			}
+		}
+		return owners;
+	}
+
+	/**
+	 * Get users of all versions of this object
+	 */
+	public List<Node> getAllVersions() {
+		List<Node> versions = new ArrayList<Node>();
+		if (owner.getParent() instanceof VersionNode)
+			versions.addAll(((Node) owner).getVersionNode().getAllVersions());
+		else
+			versions.add((Node) owner);
+		return versions;
 	}
 
 	/**
@@ -76,26 +142,44 @@ public class TypeProviderWhereUsedNode extends WhereUsedNode<TypeProvider> imple
 		if (owner == null)
 			return Collections.emptyList();
 
-		// Get users of all versions of this object
-		List<Node> versions = new ArrayList<Node>();
-		if (owner.getParent() instanceof VersionNode)
-			versions.addAll(((Node) owner).getVersionNode().getAllVersions());
-		else
-			versions.add((Node) owner);
-
-		// Get all users of this as a type
-		for (Node version : versions) {
+		// Get all users of all versions of this object
+		for (Node version : getAllVersions()) {
 			if (version instanceof TypeProvider) {
 				for (TypeUser u : ((TypeProvider) version).getWhereUsedAndDescendants())
 					users.add(new TypeUserNode(u));
 			}
 			if (version instanceof ExtensionOwner) {
 				for (ExtensionOwner whereExtended : version.getWhereExtendedHandler().getWhereExtended())
-					users.add(new ExtensionUserNode(whereExtended));
+					if (whereExtended != owner)
+						users.add(new ExtensionUserNode(whereExtended));
 			}
 		}
 
+		// return stripOlderVersions(users);
 		return users;
+	}
+
+	// 4/9/2017 - needed but does not work
+	private List<Node> stripOlderVersions(List<Node> users) {
+		List<Node> strippedList = new ArrayList<Node>();
+		for (Node n : users) {
+			if (n.getOwningComponent() instanceof ExtensionOwner) {
+				String eName = ((ExtensionOwner) n.getOwningComponent()).getExtendsTypeName();
+				String oName = n.getOwningComponent().getName();
+				Node eType = n.getOwningComponent().getExtendsType();
+				if (!eName.equals(oName))
+					strippedList.add(n); // Not a versioning relationship
+				if (n.getOwningComponent().isLatestVersion())
+					strippedList.add(n);
+			}
+			// if (!((ExtensionOwner) n.getOwningComponent()).getExtendsTypeName().equals(
+			// n.getOwningComponent().getName()))
+			//
+			// if (n.getOwningComponent().getVersionNode() != null) {
+			// if (n.getOwningComponent() == n.getOwningComponent().getVersionNode().getNewestVersion())
+			// strippedList.add(n);
+		}
+		return strippedList;
 	}
 
 	@Override

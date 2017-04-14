@@ -54,6 +54,9 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 			throw new IllegalStateException("Version node - " + node + " parent is null.");
 		if (node.getLibrary() == null)
 			throw new IllegalStateException("Version Head library is null.");
+		// added 4/10/2017 dmh
+		if (node.getVersionNode() != null)
+			throw new IllegalStateException(node + " is already wrapped by a version node.");
 
 		// Fail if in the list more than once.
 		assert (node.getParent().getChildren().indexOf(node) == node.getParent().getChildren().lastIndexOf(node));
@@ -63,20 +66,16 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 		prevVersion = null;
 		node.setVersionNode(this);
 		setLibrary(node.getLibrary());
-		// family = node.getFamily(); // needed for family processing in node.
 
 		// Insert this between parent and node.
 		setParent(node.getParent());
 		node.getParent().getChildren().remove(node);
-		// Fixed 1/12/15 - family safe
-		// un-fixed 1/19/15 -- see VersionNode_Tests
 		node.getParent().getChildren().add(this);
 		node.setParent(this);
 
 		// Replace listener on the head node's tl Model Element
 		// ListenerFactory.setListner(head); // creates 3rd listener
 		assert GetNode(getTLModelObject()) == head; // make sure listener is correct.
-
 		assert (getParent() != null);
 		assert (!getParent().getChildren().contains(node)) : "Parent still contains node.";
 		assert (getChildren().contains(node)) : "Version node does not contain node.";
@@ -153,6 +152,51 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 		return getNewestVersion().hasNavChildren(deep);
 	}
 
+	/**
+	 * Insert node in versions list. Update all the newest object links.
+	 * 
+	 * @param newNode
+	 *            is node not in version list to be inserted
+	 */
+	public void insert(ComponentNode newNode) {
+		boolean isHead = false;
+		// Find out if it is the head version
+		for (Node n : getChildren())
+			if (!newNode.isLaterVersion(n)) {
+				isHead = false; // It is not head, so just add to list
+				break;
+			}
+
+		getChildren().add(newNode);
+		if (isHead) {
+			// Make head
+			setPreviousVersion(head);
+			setNewestVersion(newNode);
+			// } else {
+			// // Just add to children
+		}
+		// if (newNode.isLaterVersion(newest))
+		// toBePlaced.getVersionNode().setNewestVersion(newest);
+		// if (toBePlaced.getVersionNode().getPreviousVersion() == null) {
+		// newest.getVersionNode().setPreviousVersion(toBePlaced);
+		// return;
+		// }
+
+		// toBePlaced.getVersionNode().setNewestVersion(newest);
+		// VersionNode toBePlacedVN = toBePlaced.getVersionNode();
+		// ComponentNode n = toBePlacedVN.getPreviousVersion();
+		// while (n != null) {
+		// n.getVersionNode().setNewestVersion(newest);
+		// if (toBePlaced.isLaterVersion(n)) {
+		// // if (toBePlaced.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib())) {
+		// n.getVersionNode().setPreviousVersion(toBePlaced);
+		// toBePlacedVN.setPreviousVersion(n.getVersionNode().getPreviousVersion());
+		// n = toBePlaced;
+		// }
+		// n = n.getVersionNode().getPreviousVersion();
+		// }
+	}
+
 	@Override
 	public boolean isNavChild(boolean deep) {
 		return getNewestVersion().isNavChild(deep);
@@ -161,6 +205,10 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 	@Override
 	public boolean isNamedEntity() {
 		return false;
+	}
+
+	public boolean isHead(Node candidate) {
+		return candidate == head;
 	}
 
 	/**
@@ -175,6 +223,9 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 		return false;
 	}
 
+	/**
+	 * Return owning component of head object
+	 */
 	@Override
 	public Node getOwningComponent() {
 		return head != null ? head.getOwningComponent() : null;
@@ -186,7 +237,11 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 	public Node getOldestVersion() {
 		VersionNode vn = this;
 		while (!vn.isNewToChain())
-			vn = prevVersion.getVersionNode();
+			if (vn == vn.getPreviousVersion().getVersionNode())
+				return vn.get(); // FIXME - bad version chain
+			else
+				vn = vn.getPreviousVersion().getVersionNode();
+		// vn = prevVersion.getVersionNode();
 		return vn.get();
 	}
 
@@ -196,6 +251,15 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 	 * @return the newest version of the object (version head).
 	 */
 	public Node getNewestVersion() {
+		return head;
+	}
+
+	/**
+	 * Simple getter of the head field.
+	 * 
+	 * @return the newest version of the object (version head).
+	 */
+	public Node getHead() {
 		return head;
 	}
 
@@ -215,8 +279,7 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 	}
 
 	/**
-	 * Remove passed child from this family node. If the family is left with one member, then that member is moved to
-	 * the parent and this family is deleted.
+	 * Remove passed child from this version node's children list AND aggregate.
 	 */
 	@Override
 	protected void remove(final Node node) {

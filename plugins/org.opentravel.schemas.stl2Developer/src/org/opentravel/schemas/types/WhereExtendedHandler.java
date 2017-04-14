@@ -170,7 +170,7 @@ public class WhereExtendedHandler {
 	// Only library members can be extended so getWhereDescendantsAreExtended is not needed.
 
 	public int getWhereExtendedCount() {
-		return users.size();
+		return users.contains(owner) ? users.size() - 1 : users.size();
 	}
 
 	/**

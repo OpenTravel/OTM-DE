@@ -1,0 +1,12 @@
+README - developer Notes - Versions
+
+VersionNode
+ * Version nodes are used in the Versions aggregate to isolate actual component nodes from their parent library. 
+  * For libraries that are part of a chain, all links to component nodes will be through a version node. 
+  * For the non-version aggregate nodes, the links are directly to the most current component node.
+
+ Constructor only called by LibraryChainNode.add(componentNode) IFF node's parent is not a version node
+ after creating a version node (if needed) the node is added to complex or simple aggregate
+ 
+ ** Assumption - there should be only one version node for all minor versions of an object in a chain
+	Question - what should parent be for older versions?

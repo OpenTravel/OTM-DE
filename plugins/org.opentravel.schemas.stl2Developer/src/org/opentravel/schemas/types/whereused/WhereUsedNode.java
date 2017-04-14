@@ -131,6 +131,11 @@ public abstract class WhereUsedNode<O> extends Node implements WhereUsedNodeInte
 	}
 
 	@Override
+	public Node getOwningComponent() {
+		return ((Node) owner).getOwningComponent();
+	}
+
+	@Override
 	public Node getParent() {
 		return (Node) parent;
 	}

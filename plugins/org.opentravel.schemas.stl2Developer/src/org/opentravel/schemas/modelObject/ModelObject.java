@@ -73,6 +73,8 @@ public abstract class ModelObject<TL> {
 	private final static Logger LOGGER = LoggerFactory.getLogger(ModelObject.class);
 
 	protected TL srcObj;
+
+	// FIXME - remove node
 	protected INode node;
 
 	public ModelObject() {
@@ -93,9 +95,9 @@ public abstract class ModelObject<TL> {
 		return node;
 	}
 
-	public void setNode(final INode node) {
-		this.node = node;
-	}
+	// public void setNode(final INode node) {
+	// this.node = node;
+	// }
 
 	public String getAssignedPrefix() {
 		final NamedEntity type = getTLType();

@@ -24,7 +24,7 @@ import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.WhereAssignedHandler;
-import org.opentravel.schemas.types.whereused.WhereUsedNode;
+import org.opentravel.schemas.types.whereused.TypeProviderWhereUsedNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,14 +90,22 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 		return whereAssignedHandler.getWhereAssignedIncludingDescendants();
 	}
 
+	/**
+	 * @return count of where this provider and descendants is used as type or extension
+	 */
 	@Override
 	public int getWhereUsedAndDescendantsCount() {
-		return whereAssignedHandler.getWhereAssignedIncludingDescendantsCount();
+		int count = 0;
+		if (whereExtendedHandler != null)
+			count += whereExtendedHandler.getWhereExtendedCount();
+		if (whereAssignedHandler != null)
+			count += whereAssignedHandler.getWhereAssignedIncludingDescendantsCount();
+		return count;
 	}
 
 	@Override
-	public WhereUsedNode getWhereUsedNode() {
-		return whereAssignedHandler.getWhereUsedNode();
+	public TypeProviderWhereUsedNode getWhereUsedNode() {
+		return (TypeProviderWhereUsedNode) whereAssignedHandler.getWhereUsedNode();
 	}
 
 	/**

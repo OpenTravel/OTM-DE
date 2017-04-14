@@ -23,6 +23,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.opentravel.schemas.commands.OtmAbstractHandler;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -64,7 +65,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 
 	@Override
 	public void run() {
-		LOGGER.debug("Replace Where Used action starting.");
+		LOGGER.debug("Assign Type action starting.");
 		Node n = mc.getSelectedNode_NavigatorView();
 		if (n instanceof TypeProviderWhereUsedNode)
 			replaceTypeSelection((TypeProviderWhereUsedNode) n);
@@ -165,15 +166,15 @@ public class AssignTypeAction extends OtmAbstractAction {
 	 * @param providerWhereUsed
 	 */
 	private void replaceTypeSelection(TypeProviderWhereUsedNode providerWhereUsed) {
-		TypeProvider provider = providerWhereUsed.getOwner();
+		// TypeProvider provider = providerWhereUsed.getOwner();
 
-		List<TypeUser> users = new ArrayList<TypeUser>();
-		for (TypeUser user : provider.getWhereAssigned())
-			if (user.isEditable())
-				users.add(user);
+		List<TypeUser> users = providerWhereUsed.getAllUsers(true);
+		List<ExtensionOwner> owners = providerWhereUsed.getAllExtensions(true);
 		if (users == null || users.isEmpty())
 			return;
 
+		// If the type assigned to the node passed to the wizard has later versions the selection will be limited to its
+		// later versions.
 		final TypeSelectionWizard wizard = new TypeSelectionWizard((Node) users.get(0));
 		if (wizard.run(OtmRegistry.getActiveShell())) {
 			Node newType = wizard.getSelection();
@@ -182,6 +183,8 @@ public class AssignTypeAction extends OtmAbstractAction {
 			if (DialogUserNotifier.openConfirm("Confirm replace where used.", "Replace assigned type to: " + newType)) {
 				for (TypeUser user : users)
 					user.setAssignedType((TypeProvider) newType);
+				for (ExtensionOwner owner : owners)
+					owner.setExtension(newType);
 			}
 		}
 		mc.refresh();
@@ -197,14 +200,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 	// users.add((Node) n);
 	// }
 
-	/**
-	 * Run type selection wizard and assign selected type of the pass node list. Will create minor versions of the nodes
-	 * in the list if necessary.
-	 * 
-	 * @param list
-	 *            - nodes selected to be assigned the type selected.
-	 */
-	public static void execute(TypeUser user) {
+	private static TypeUser createVersionExtension(TypeUser user) {
 		OtmAbstractHandler handler = new OtmAbstractHandler() {
 			@Override
 			public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -220,8 +216,37 @@ public class AssignTypeAction extends OtmAbstractAction {
 			FacetNode owningFacet = findFacet(owner, ((Node) user).getParent().getName());
 			user = (TypeUser) ((Node) user).clone(owningFacet, "");
 		}
-		if (owner == null)
+		return owner == null ? null : user;
+	}
+
+	/**
+	 * Run type selection wizard and assign selected type of the pass node list. Will create minor versions of the nodes
+	 * in the list if necessary.
+	 * 
+	 * @param list
+	 *            - nodes selected to be assigned the type selected.
+	 */
+	public static void execute(TypeUser user) {
+		// OtmAbstractHandler handler = new OtmAbstractHandler() {
+		// @Override
+		// public Object execute(ExecutionEvent event) throws ExecutionException {
+		// return null;
+		// }
+		// };
+
+		// If the owning component is not in the head the make a minor version of the owner.
+		user = createVersionExtension(user);
+		// if (owner != null && owner.getChain() != null && !owner.isInHead2()) {
+		// owner = handler.createVersionExtension(owner);
+		// // Inherited children fails until children are retrieved (lazy evaluation). Force cloning now.
+		// FacetNode owningFacet = findFacet(owner, ((Node) user).getParent().getName());
+		// user = (TypeUser) ((Node) user).clone(owningFacet, "");
+		// }
+		if (user == null) {
+			LOGGER.debug("Failed to create version.");
 			return;
+		}
+		Node owner = ((Node) user).getOwningComponent();
 
 		// Determine if the property is in the same version as the owner. Older versions will be inherited.
 		if (((Node) user).isInherited()) {

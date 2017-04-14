@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Library xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_05"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_05 OTA2_LibraryModel_v1.5.0.xsd">
+    
+    <VersionScheme>OTA2</VersionScheme>
+    <Status>Draft</Status>
+    <Namespace>http://www.opentravel.org/Sandbox/Test/v0_2</Namespace>
+    <Prefix>u-0002</Prefix>
+    <Name>VersionTest_Unmanaged</Name>
+    <Context
+        applicationContext="http://www.opentravel.org/Sandbox/unmanaged/v0" context="u"/>
+    
+</Library>

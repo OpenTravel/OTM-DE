@@ -507,22 +507,22 @@ public abstract class ComponentNode extends Node {
 		return inherited;
 	}
 
-	/**
-	 * Returns true if the 'otherNode's' library meets both of the following conditions:
-	 * <ul>
-	 * <li>The other library is assigned to the same version scheme and base namespace as this one.</li>
-	 * <li>The version of the other library is considered to be later than this library's version according to the
-	 * version scheme.</li>
-	 * </ul>
-	 * 
-	 * @see org.opentravel.schemacompiler.model.AbstractLibrary.isLaterVersion
-	 * @param n
-	 *            node whose library to compare to this nodes library
-	 * @return boolean
-	 */
-	public boolean isLaterVersion(Node n) {
-		return (this.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib()));
-	}
+	// /**
+	// * Returns true if the 'otherNode's' library meets both of the following conditions:
+	// * <ul>
+	// * <li>The other library is assigned to the same version scheme and base namespace as this one.</li>
+	// * <li>The version of the other library is considered to be later than this library's version according to the
+	// * version scheme.</li>
+	// * </ul>
+	// *
+	// * @see org.opentravel.schemacompiler.model.AbstractLibrary.isLaterVersion
+	// * @param n
+	// * node whose library to compare to this nodes library
+	// * @return boolean
+	// */
+	// public boolean isLaterVersion(Node n) {
+	// return (this.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib()));
+	// }
 
 	@Override
 	public boolean isLocal() {

@@ -64,6 +64,8 @@ public class LoadFiles {
 	private String choiceFile1 = "Resources" + File.separator + "testFile_Choice1.otm";
 	private String Project1 = "Resources" + File.separator + "testProject1.otp";
 	private String Project2 = "Resources" + File.separator + "testProject2.otp";
+	private String VersionTestProject = "Resources" + File.separator + "VersionTests" + File.separator
+			+ "VersionTests.otp";
 
 	private MainController mc;
 	private int nodeCount = 0;
@@ -344,6 +346,16 @@ public class LoadFiles {
 	 */
 	public ProjectNode loadProject2(ProjectController pc) {
 		String fn = Project2; // files
+		ProjectNode pn = pc.open(fn, null).project;
+		new TypeResolver().resolveTypes();
+		return pn;
+	}
+
+	/**
+	 * Load project with versioned test files from OTA repository
+	 */
+	public ProjectNode loadVersionTestProject(ProjectController pc) {
+		String fn = VersionTestProject; // files
 		ProjectNode pn = pc.open(fn, null).project;
 		new TypeResolver().resolveTypes();
 		return pn;

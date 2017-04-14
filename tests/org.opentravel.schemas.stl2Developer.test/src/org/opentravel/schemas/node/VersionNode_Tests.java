@@ -20,20 +20,21 @@ package org.opentravel.schemas.node;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.LibraryMember;
-import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.types.TestTypes;
-import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * @author Dave Hollander
@@ -69,43 +70,101 @@ public class VersionNode_Tests {
 
 	@Test
 	public void constructor() {
-		ComponentNode s1 = (ComponentNode) makeSimple("s_1");
-		ComponentNode s2 = (ComponentNode) makeSimple("s_2");
+		ComponentNode s1 = (ComponentNode) ml.createSimple("s_1");
+		ComponentNode s2 = (ComponentNode) ml.createSimple("s_2");
+		ComponentNode s3 = (ComponentNode) ml.createSimple("s_3");
 		VersionNode v = null;
 
+		// When - illegal state
+		assertTrue("S1 must not have library.", s1.getLibrary() == null);
 		try {
-			assertTrue("S1 must not have library.", s1.getLibrary() == null);
 			v = new VersionNode(s1); // no library
 			Assert.assertFalse(true); // should never reach here
 		} catch (IllegalStateException e) {
 			Assert.assertNotNull(e);
+			assertTrue(v == null);
 		}
 
-		ln_inChain.getTLLibrary().addNamedMember((LibraryMember) s1.getTLModelObject());
-		// Listeners set parent when added to tl library
-		s1.setLibrary(ln_inChain);
+		// When - illegal state
 		try {
-			assertTrue("S2 must not have parent.", s2.getParent() == null);
-			v = new VersionNode(s2); // no parent
+			v = new VersionNode(s1); // should fail because it already is wrapped.
 			Assert.assertFalse(true); // should never reach here
 		} catch (IllegalStateException e) {
 			Assert.assertNotNull(e);
 		}
 
-		// ln_inChain.linkMember(s1);
-		v = new VersionNode(s1);
+		// When added to library chain - creates Version Node, sets library
+		ln_inChain.getTLLibrary().addNamedMember((LibraryMember) s1.getTLModelObject());
+		// Then
+		assertTrue("Must have version node.", s1.getVersionNode() != null);
+		assertTrue("Must have library.", s1.getLibrary() == ln_inChain);
+
+		// When - added to a chain as is done when opening chains
+		try {
+			lcn.add(s2); // must be in a library
+			Assert.assertFalse(true); // should never reach here
+		} catch (IllegalArgumentException e) {
+			Assert.assertNotNull(e);
+		}
+
+		// When - add to library uses constructor to add to aggregate
+		ln_inChain.setEditable(true);
+		assertTrue(ln_inChain.isEditable());
+		ln_inChain.addMember(s2);
+		ln_inChain.addMember(s3);
+		// Then -
+		assertTrue("S2 must be added to aggregate.", lcn.getSimpleAggregate().contains(s2));
+		assertTrue("Must have version node.", s2.getVersionNode() != null);
+		assertTrue("S3 must be added to aggregate.", lcn.getSimpleAggregate().contains(s3));
+		assertTrue("Must have version node.", s3.getVersionNode() != null);
+
+		// then
+		v = s1.getVersionNode();
 		Assert.assertNotNull(v.getLibrary());
 		Assert.assertEquals(v, s1.getParent());
-		// Assert.assertTrue(s1.family.equals(v.family));
 		Assert.assertEquals(s1, v.getNewestVersion());
 		Assert.assertNull(v.getPreviousVersion());
 	}
 
-	private Node makeSimple(String name) {
-		Node n = new SimpleTypeNode(new TLSimple());
-		n.setName(name);
-		((SimpleTypeNode) n).setAssignedType((TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE));
-		return n;
+	@Test
+	public void projectLoadTest() {
+		ProjectNode pn = lf.loadVersionTestProject(pc);
+		assertTrue(pn != null);
+
+		// Pre-check assertions
+		List<LibraryNode> libs = pn.getLibraries();
+		assertTrue(libs.size() == 3);
+		assertTrue("Project has one library.", pn.getChildren().size() == 1);
+		LibraryNavNode lnn = (LibraryNavNode) pn.getChildren().get(0);
+		assertTrue(lnn != null);
+		LibraryChainNode lcn = (LibraryChainNode) lnn.getChildren().get(0);
+		assertTrue(lcn != null);
+		VersionAggregateNode van = lcn.getVersions();
+		assertTrue("Version aggregate has 3 libraries.", van.getChildren().size() == 3);
+		AggregateNode ca = lcn.getComplexAggregate();
+		assertTrue(!ca.getChildren().isEmpty());
+
+		// Find the business object
+		BusinessObjectNode bo = null;
+		for (Node n : ca.getChildren())
+			if (n instanceof BusinessObjectNode)
+				bo = (BusinessObjectNode) n;
+		assertTrue(bo != null);
+
+		// Check version node
+		VersionNode vn = bo.getVersionNode();
+		assertTrue("BO must have a version node.", vn != null);
+		assertTrue("BO parent must be a version node.", bo.getParent() == vn);
+		assertTrue("BO must be a child of version node.", vn.getChildren().contains(bo));
+		assertTrue("BO must be Version Node head.", vn.getHead() == bo);
+		assertTrue("Version node previous must NOT be bo.", vn.getPreviousVersion() != bo);
+		assertTrue("Version node previous must be a child of vn.", vn.getChildren().contains(vn.getPreviousVersion()));
+		// These will not work until converted over to single VN for all versions of same object.
+		// for (Node c : vn.getChildren()) {
+		// assertTrue("VN Child head must be bo.", c.getVersionNode().getHead() == bo);
+		// assertTrue("VN Child must share version node.", c.getVersionNode() == vn);
+		// }
+
 	}
 
 }

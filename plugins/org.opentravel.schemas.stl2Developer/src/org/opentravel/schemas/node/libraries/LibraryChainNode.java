@@ -113,7 +113,8 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 	}
 
 	/**
-	 * Create a new chain and add to passed project. Model the project item and add to the new chain.
+	 * Create a new chain and add to passed project. Model the project item(s) and add to the new chain. All versions of
+	 * libraries in the chain are modeled.
 	 * 
 	 * @param pi
 	 *            - project item to be modeled and added to chain
@@ -254,6 +255,8 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 			serviceRoot.add(node);
 		else if (node instanceof ResourceNode)
 			resourceRoot.add(node);
+
+		// TODO - move VN creation to AggregateNode
 		// Otherwise add version wrapper if not already wrapped
 		else if (!(node.getParent() instanceof VersionNode))
 			new VersionNode(node);
@@ -315,7 +318,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 		if (lib.getServiceRoot() != null) {
 			add((ComponentNode) lib.getServiceRoot());
 		}
-		for (Node n : lib.getDescendentsNamedTypes()) {
+		for (Node n : lib.getDescendants_LibraryMembers()) {
 			add((ComponentNode) n);
 		}
 	}
@@ -442,7 +445,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 	 * 
 	 * @return - the version aggregate node
 	 */
-	public Node getVersions() {
+	public VersionAggregateNode getVersions() {
 		return versions;
 	}
 
@@ -460,7 +463,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 		return true;
 	}
 
-	public INode getSimpleAggregate() {
+	public AggregateNode getSimpleAggregate() {
 		return simpleRoot;
 	}
 
@@ -498,11 +501,11 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 		return resourceRoot;
 	}
 
-	public INode getServiceAggregate() {
+	public AggregateNode getServiceAggregate() {
 		return serviceRoot;
 	}
 
-	public INode getComplexAggregate() {
+	public AggregateNode getComplexAggregate() {
 		return complexRoot;
 	}
 

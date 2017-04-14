@@ -713,7 +713,10 @@ public abstract class Node implements INode {
 
 		// The number of users for this type provider
 		if (this instanceof TypeProvider && !(this instanceof ImpliedNode))
+			// if (((TypeProvider) this).getWhereUsedNode() != null)
 			decoration += " (" + ((TypeProvider) this).getWhereUsedNode().getWhereUsedCount() + " users)";
+		// else
+		// decoration += " (0 users)";
 		// ((TypeProvider) this).getWhereUsedAndDescendantsCount()
 
 		if (isDeleted())
@@ -725,8 +728,8 @@ public abstract class Node implements INode {
 		// Extension
 		if (this instanceof ExtensionOwner) {
 			// FIXME - don't use this except testing
-			if (getLibrary() != null)
-				getLibrary().checkExtension(this);
+			// if (getLibrary() != null)
+			// getLibrary().checkExtension(this);
 
 			String extensionTxt = "";
 
@@ -1047,33 +1050,64 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * @return list of later versions in a minor chain or null for the type assigned to this node.
+	 * True if unversioned or versioned and the latest version.
+	 * 
+	 * @return
+	 */
+	public boolean isLatestVersion() {
+		if (getVersionNode() == null)
+			return true;
+		return getOwningComponent().getVersionNode().getNewestVersion() == this;
+		// return false;
+	}
+
+	/**
+	 * Returns true if the other's Library meets both of the following conditions:
+	 * <ul>
+	 * <li>The other library is assigned to the same version scheme and base namespace as this one.</li>
+	 * <li>The version of the other library is considered to be later than this library's version according to the
+	 * version scheme.</li>
+	 * </ul>
+	 * 
+	 * @see org.opentravel.schemacompiler.model.AbstractLibrary.isLaterVersion
+	 * 
+	 * @param other
+	 * @return boolean
+	 */
+	public boolean isLaterVersion(Node other) {
+		if (getLibrary() == null || other.getLibrary() == null)
+			return false;
+		return getLibrary().getTLaLib().isLaterVersion(other.getLibrary().getTLaLib());
+	}
+
+	/**
+	 * Use the Minor version helper to get later versions of the assigned type.
+	 * 
+	 * @return for the type assigned to this node, return a list of later versions in a minor chain or null.
 	 */
 	public List<Node> getLaterVersions() {
-		List<Versioned> versions = null;
-		List<Node> vNodes = new ArrayList<Node>();
 		if (!(this instanceof TypeUser))
 			return null;
 		Node assignedType = (Node) ((TypeUser) this).getAssignedType();
-		if (assignedType == null)
+		if (assignedType == null || assignedType instanceof ImpliedNode)
+			return null;
+		if (!(assignedType.getTLModelObject() instanceof Versioned))
 			return null;
 
-		if (assignedType.getTLModelObject() instanceof Versioned && !(assignedType instanceof ImpliedNode)) {
-			try {
-				versions = new MinorVersionHelper().getLaterMinorVersions((Versioned) assignedType.getTLModelObject());
-				for (Versioned v : versions) {
-					for (ModelElementListener l : ((TLModelElement) v).getListeners())
-						if (l instanceof INodeListener)
-							vNodes.add(((INodeListener) l).getNode()); // could be duplicates if multiple listeners
-				}
-			} catch (VersionSchemeException e) {
-				LOGGER.debug("Error: " + e.getLocalizedMessage());
-				return null;
+		List<Versioned> versions = null;
+		List<Node> vNodes = new ArrayList<Node>();
+		try {
+			versions = new MinorVersionHelper().getLaterMinorVersions((Versioned) assignedType.getTLModelObject());
+			for (Versioned v : versions) {
+				for (ModelElementListener l : ((TLModelElement) v).getListeners())
+					if (l instanceof INodeListener)
+						vNodes.add(((INodeListener) l).getNode()); // could be duplicates if multiple listeners
 			}
-		} else
+		} catch (VersionSchemeException e) {
+			LOGGER.debug("Error: " + e.getLocalizedMessage());
 			return null;
+		}
 		return vNodes.isEmpty() ? null : vNodes;
-
 	}
 
 	/**

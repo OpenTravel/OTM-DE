@@ -39,9 +39,7 @@ public class OperationMO extends ModelObject<TLOperation> {
 
 	@Override
 	public void delete() {
-		if (getTLModelObj().getOwningService() == null)
-			LOGGER.warn("Operation " + node + " has no owning service.");
-		else
+		if (getTLModelObj().getOwningService() != null)
 			getTLModelObj().getOwningService().removeOperation(this.getTLModelObj());
 	}
 

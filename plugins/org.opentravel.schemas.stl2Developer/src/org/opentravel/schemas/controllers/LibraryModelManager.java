@@ -86,7 +86,7 @@ public class LibraryModelManager {
 	 * @return Return a LibraryNavNode to use as a child in a tree.
 	 */
 	public LibraryNavNode add(ProjectItem pi, ProjectNode project) {
-		// LOGGER.debug("Adding library to model from project item: " + pi.getLibraryName());
+		// LOGGER.debug("Adding library to model from project item: " + pi.getVersion() + " " + pi.getLibraryName());
 		LibraryInterface li = null;
 		LibraryNavNode newLNN = null;
 
@@ -99,12 +99,13 @@ public class LibraryModelManager {
 		if (li != null)
 			assert (!((Node) li).isDeleted());
 
-		// All Done If the library or chain is in the project.
+		// All Done - the library or chain is in the project.
 		if (li != null && project.getLibraries().contains(li)) {
 			// TODO - do NOT do this. TODO - have caller handle null or return error condition
 			// If they are trying to open an version, the expose the version directly.
 			// if (li.getParent() instanceof VersionAggregateNode)
 			// newLNN = (LibraryNavNode) new LibraryChainNode(pi, project).getParent();
+			// LOGGER.debug("Skipping adding " + li + " to libraryModelManager.");
 			return null;
 		}
 

@@ -232,17 +232,6 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 
 	public String getLibraryVersion(LibraryNode lib) {
 		return lib.getLibraryVersion();
-		// String version = "";
-		// NamespaceHandler nsHandler = null;
-		// if (lib != null) {
-		// nsHandler = lib.getNsHandler();
-		// ProjectItem projectItem = lib.getProjectItem();
-		// if (projectItem != null && nsHandler != null
-		// && !RepositoryItemState.UNMANAGED.equals(projectItem.getState())) {
-		// version = nsHandler.getNSVersion(lib.getNamespace());
-		// }
-		// }
-		// return version;
 	}
 
 	private String getDecoration(String status, String version) {

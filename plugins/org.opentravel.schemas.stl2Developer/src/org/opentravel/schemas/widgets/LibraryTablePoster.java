@@ -141,6 +141,7 @@ public class LibraryTablePoster {
 				postTableRows(curNode, curNode.getLabel());
 			} else if (curNode instanceof ComplexComponentInterface) {
 				if (curNode instanceof BusinessObjectNode || curNode instanceof ChoiceObjectNode)
+					// These objects can have inherited facets.
 					if (showInherited(curNode) && curNode.getInheritedChildren() != null) {
 						sortedChildren.addAll(curNode.getInheritedChildren());
 						sortedChildren = sort(sortedChildren);

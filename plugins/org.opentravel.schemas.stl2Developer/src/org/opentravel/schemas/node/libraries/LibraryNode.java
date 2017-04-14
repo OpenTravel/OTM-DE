@@ -37,6 +37,7 @@ import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLContextReferrer;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
+import org.opentravel.schemacompiler.model.TLExtensionOwner;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
@@ -75,6 +76,7 @@ import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
@@ -93,6 +95,8 @@ import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.WhereUsedLibraryHandler;
 import org.opentravel.schemas.types.whereused.LibraryUsesNode;
 import org.opentravel.schemas.types.whereused.TypeUserNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The LibraryNode class manages an internal navigation oriented node a library model class. Libraries are model classes
@@ -104,7 +108,7 @@ import org.opentravel.schemas.types.whereused.TypeUserNode;
  */
 
 public class LibraryNode extends Node implements LibraryInterface {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryNode.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryNode.class);
 
 	protected static final String DEFAULT_LIBRARY_TYPE = "Library";
 	protected static final String XSD_LIBRARY_TYPE = "XSD Library";
@@ -851,17 +855,30 @@ public class LibraryNode extends Node implements LibraryInterface {
 	public void checkExtension(Node n) {
 		if (n instanceof ExtensionOwner) {
 			Node base = ((ExtensionOwner) n).getExtensionBase();
-			if (base != null && base.getLibrary() != null)
+			if (base != null && base.getLibrary() != null) {
 				if (!base.getLibrary().get_LibraryMembers().contains(base)) {
 					// LOGGER.error(base.getNameWithPrefix() + " library is not correct.");
-					List<LibraryMemberInterface> members = base.getLibrary().get_LibraryMembers();
+					// List<LibraryMemberInterface> members = base.getLibrary().get_LibraryMembers();
 					for (LibraryNode ln : Node.getAllUserLibraries())
 						for (LibraryMemberInterface n2 : ln.get_LibraryMembers())
 							if (n2 == base) {
 								base.setLibrary(ln);
-								// LOGGER.error("Corrected library " + base.getNameWithPrefix() + " to " + ln);
+								LOGGER.error("Corrected library " + base.getNameWithPrefix() + " to " + ln);
 							}
 				}
+				// Has base, if a version base then make sure version node is set
+				if (base.getName().equals(n.getName()) && !(n instanceof Enumeration)) {
+					if (!n.getVersionNode().getChildren().contains(base))
+						LOGGER.error("Version node for " + n + " MUST have base in it's children.");
+					if (n.getVersionNode().getPreviousVersion() == null)
+						LOGGER.error(n + " MUST have previous version.");
+				}
+			} else {
+				// No base, check tl model
+				if (getTLModelObject() instanceof TLExtensionOwner)
+					if (((TLExtensionOwner) getTLModelObject()).getExtension() != null)
+						LOGGER.error("base was null but tlExtension was not. ");
+			}
 		}
 	}
 
@@ -1741,6 +1758,10 @@ public class LibraryNode extends Node implements LibraryInterface {
 				status = NodeEditStatus.PATCH;
 		}
 		return status;
+	}
+
+	public boolean isFinal() {
+		return getTLLibrary() == null ? false : getTLLibrary().getStatus() == TLLibraryStatus.FINAL;
 	}
 
 	/**

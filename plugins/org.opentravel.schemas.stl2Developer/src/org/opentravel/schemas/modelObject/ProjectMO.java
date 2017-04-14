@@ -45,11 +45,11 @@ public class ProjectMO extends ModelObject<TLProject> {
 		return getTLModelObj().isDeprecated();
 	}
 
-	// TODO - make this more robust
-	public boolean isEditable() {
-		return !node.getName().contains("Built");
-		// return getTLModelObj().isEditable();
-	}
+	// // TODO - make this more robust
+	// public boolean isEditable() {
+	// return !node.getName().contains("Built");
+	// // return getTLModelObj().isEditable();
+	// }
 
 	@Override
 	public List<?> getChildren() {

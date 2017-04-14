@@ -105,10 +105,9 @@ public class WhereAssignedHandler {
 
 	/*********************************************************************************
 	 * 
-	 * Create a where assigned listener for this type provider <i>owner</i>.
+	 * Create a where assigned handler for this type provider <i>owner</i>.
 	 */
 	public WhereAssignedHandler(TypeProvider owner) {
-		// whereUsedNode = new WhereUsedNode(owner);
 		whereUsedNode = new TypeProviderWhereUsedNode(owner);
 		this.owner = owner;
 	}
@@ -118,6 +117,9 @@ public class WhereAssignedHandler {
 	 *            type user to add if not already in list
 	 */
 	public void add(TypeUser user) {
+		// if (users.isEmpty())
+		// whereUsedNode = new TypeProviderWhereUsedNode(owner);
+
 		if (!users.contains(user)) {
 			users.add((Node) user);
 			// LOGGER.debug("Added " + user + " to " + owner + " where assigned list.");

@@ -1,0 +1,13 @@
+Library Load Processing
+
+OpenLibraryAction.run()
+	DefaultLibraryController().openLibrary(node)
+		ProjectNode.add(files)
+			DefaultProjectController.addLibrariesToTLProject(tlProject, files)
+			load(items)
+				LibraryModelManager.add(pi, ProjectNode)
+		TypeResolver.resoveTypes()
+	
+
+DefaultRepositoryController.manage()
+	DefaultRepositoryController.convertToChains() -> new LibraryChainNode(LibraryNode)

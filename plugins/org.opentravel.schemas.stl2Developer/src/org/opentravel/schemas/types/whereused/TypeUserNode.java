@@ -44,6 +44,20 @@ public class TypeUserNode extends WhereUsedNode<TypeUser> implements WhereUsedNo
 	}
 
 	@Override
+	public boolean isEditable() {
+		if (owner.getLibrary().isFinal())
+			return false;
+		if (!owner.getLibrary().isEditable())
+			return false;
+
+		// Not editable if owner is Minor and not new to chain and assigned the latest version
+		if (((Node) owner).getLibrary().isMinorVersion() && !((Node) owner).isNewToChain()
+				&& ((Node) owner.getAssignedType()).isInHead())
+			return false;
+		return ((Node) owner).getLibrary().isInHead2();
+	}
+
+	@Override
 	public String getDecoration() {
 		String decoration = "  ";
 		decoration += "uses ";

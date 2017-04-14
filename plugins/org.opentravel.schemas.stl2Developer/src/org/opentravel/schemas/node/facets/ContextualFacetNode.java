@@ -253,6 +253,11 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 		return whereContributed;
 	}
 
+	// @Override
+	// public boolean hasTreeChildren(boolean deep) {
+	// return false; // do not allow where used nodes
+	// }
+
 	@Override
 	public boolean isDeleteable() {
 		if (isInherited())

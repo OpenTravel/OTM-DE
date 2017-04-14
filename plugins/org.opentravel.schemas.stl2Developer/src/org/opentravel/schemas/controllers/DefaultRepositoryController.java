@@ -421,7 +421,8 @@ public class DefaultRepositoryController implements RepositoryController {
 			postRepoException(e);
 		}
 		refreshAll(ln);
-		mc.postStatus("Library " + ln + " finalized.");
+		if (result)
+			mc.postStatus("Library " + ln + " finalized.");
 		return result;
 	}
 
