@@ -23,6 +23,8 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.properties.Images;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -39,6 +41,7 @@ import org.opentravel.schemas.properties.Images;
 // TODO - do NOT keep model object - return head.gettlmodelobject()
 //
 public class VersionNode extends ComponentNode implements FacadeInterface {
+	private static final Logger LOGGER = LoggerFactory.getLogger(VersionNode.class);
 
 	protected ComponentNode head; // link to the latest/newest version of this object
 	protected ComponentNode prevVersion; // link to the preceding version. If null, it is new to the
@@ -56,7 +59,8 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 			throw new IllegalStateException("Version Head library is null.");
 		// added 4/10/2017 dmh
 		if (node.getVersionNode() != null)
-			throw new IllegalStateException(node + " is already wrapped by a version node.");
+			// throw new IllegalStateException(node + " is already wrapped by a version node.");
+			LOGGER.debug(node + " is already wrapped by a version node.");
 
 		// Fail if in the list more than once.
 		assert (node.getParent().getChildren().indexOf(node) == node.getParent().getChildren().lastIndexOf(node));

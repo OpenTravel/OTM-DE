@@ -76,7 +76,6 @@ import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
-import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -410,8 +409,10 @@ public abstract class Node implements INode {
 			newNode = NodeFactory.newComponent_UnTyped((LibraryMember) newLM);
 			if (nameSuffix != null)
 				newNode.setName(newNode.getName() + nameSuffix);
-			if (getLibrary() != null)
-				getLibrary().addMember(newNode);
+			// 4/26/2017 - must used passed library if not null
+			// if (getLibrary() != null)
+			// getLibrary().addMember(newNode);
+			lib.addMember(newNode);
 		} else {
 			LOGGER.warn("clone not supported for this node: " + this);
 			return null;
@@ -1698,18 +1699,20 @@ public abstract class Node implements INode {
 			// Only add properties to service in the head library.
 			return !getLibrary().getChain().getHead().getEditStatus().equals(NodeEditStatus.PATCH);
 
-		// Operations, business, core, vwa, open enums and extension points - allow major, minor, or unmanaged and
+		// Operations, business, core, vwa, open enums - allow major, minor, or unmanaged and
 		if (this instanceof VersionedObjectInterface)
 			return isEditable_isNewOrAsMinor();
 
-		if (this instanceof Enumeration)
-			return isEditable_isNewOrAsMinor();
+		// Is a versionedObjectInterface implementer
+		// if (this instanceof Enumeration)
+		// return isEditable_isNewOrAsMinor();
 
 		if (this instanceof ExtensionPointNode)
 			return isEditable_newToChain();
 
-		if (this instanceof ContextualFacetNode)
-			return isEditable_newToChain();
+		// delegated
+		// if (this instanceof ContextualFacetNode)
+		// return isEditable_newToChain();
 
 		// Facets - same as parent unless a simple or list
 		if (this instanceof SimpleFacetNode || this instanceof ListFacetNode)

@@ -110,6 +110,18 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	public abstract boolean canOwn(ContextualFacetNode targetCF);
 
 	@Override
+	public Node clone(Node parent, String nameSuffix) {
+		Node newNode = super.clone(parent, nameSuffix);
+		// Now, add the owner
+		if (parent != null && parent.getLibrary() != null)
+			parent.getLibrary().addMember(newNode);
+		if (getOwningComponent() != null)
+			((ContextualFacetNode) newNode).setOwner((ContextualFacetOwnerInterface) getOwningComponent());
+		((TLContextualFacet) newNode.getTLModelObject()).setOwningLibrary(parent.getLibrary().getTLModelObject());
+		return newNode;
+	}
+
+	@Override
 	public void close() {
 		// super.close();
 		removeFromTLParent();
@@ -163,6 +175,10 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 					decoration += " contributed to " + whereContributed.getParent().getName();
 				else
 					decoration += " contributed to " + whereContributed.getParent().getNameWithPrefix();
+			decoration += "  (Version: " + getTlVersion();
+			if (!isInHead())
+				decoration += " Not Editable";
+			decoration += ")";
 		}
 		return decoration;
 	}
@@ -270,6 +286,25 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 		return super.isDeleteable(true) && !isInherited();
 	}
 
+	@Override
+	public boolean isEnabled_AddProperties() {
+		if (getLibrary() == null || isDeleted() || !isEditable())
+			return false; // not editable
+		if (getChain() == null)
+			return true; // editable and not in a chain
+		// If in a chain, it must be the head library
+		return isInHead();
+	}
+
+	@Override
+	public boolean isInHead() {
+		// Owning component used in isInHead() does not control editing of contextual facets because they may be in
+		// different libraries.
+		if (getChain() == null || getChain().getHead() == null)
+			return false;
+		return getChain().getHead() == getLibrary();
+	}
+
 	/**
 	 * @return true if this facet is declared in the same library as the object it contributes to. Always true for
 	 *         versions 1.5 and earlier
@@ -373,7 +408,8 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 		// done by linkChild() - setLibrary(owner.getLibrary());
 		if (OTM16Upgrade.otm16Enabled) {
 			// Adding member takes care of version nodes
-			owner.getLibrary().addMember(this);
+			if (getLibrary() == null)
+				owner.getLibrary().addMember(this);
 			// Create contributed facet and link to owner
 			ContributedFacetNode contrib = new ContributedFacetNode(newFacet);
 			((Node) owner).linkChild(contrib);

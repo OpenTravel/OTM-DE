@@ -29,10 +29,10 @@ import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
  */
 public class QueryFacetNode extends ContextualFacetNode {
 
-	// Testing constructor
+	// wizard and Testing constructor
 	public QueryFacetNode() {
 		super(new TLContextualFacet());
-		((TLContextualFacet) getTLModelObject()).setFacetType(TLFacetType.QUERY);
+		getTLModelObject().setFacetType(TLFacetType.QUERY);
 	}
 
 	public QueryFacetNode(TLContextualFacet tlObj) {
@@ -59,7 +59,11 @@ public class QueryFacetNode extends ContextualFacetNode {
 	public void setOwner(ContextualFacetOwnerInterface owner) {
 		TLContextualFacet newFacet = getTLModelObject();
 		newFacet.setOwningEntity(owner.getTLModelObject());
-		newFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
+		// If this facet is not already in a library add it to owner's library
+		if (getLibrary() != null)
+			newFacet.setOwningLibrary(getLibrary().getTLLibrary());
+		else
+			newFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
 		if (owner.getTLModelObject() instanceof TLBusinessObject)
 			((TLBusinessObject) owner.getTLModelObject()).addQueryFacet(newFacet);
 

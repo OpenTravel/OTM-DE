@@ -222,10 +222,9 @@ public class NewComponentWizard extends Wizard implements IDoubleClickListener {
 	private Node linkContextual(ContextualFacetNode cf, Node subject, LibraryNode lib, String name, String description) {
 		cf.setName(name);
 		cf.setDescription(description);
+		lib.addMember(cf);
 		if (subject instanceof ContextualFacetOwnerInterface)
 			cf.setOwner((ContextualFacetOwnerInterface) subject);
-		else
-			lib.addMember(cf);
 		return cf;
 	}
 

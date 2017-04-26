@@ -51,6 +51,9 @@ import org.opentravel.schemas.wizards.validators.NewPropertyValidator;
  * 
  * Handles action: org.opentravel.schemas.commands.AddProperties
  * 
+ * Enabled by stl2Developer.selection.canAdd in org.opentravel.schemas.testers.GlobalSelectionTester which calls
+ * isEnabled_AddProperties()
+ * 
  * @author Dave Hollander
  *
  */
