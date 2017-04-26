@@ -1051,8 +1051,16 @@
 		</handler>
 		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
 			commandId="org.opentravel.schemas.commands.newResource.ACTIONRESPONSE">
-			<enabledWhen>
+			<!-- enabledWhen>
 			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
+			</enabledWhen -->
+			<enabledWhen>
+				<with variable="org.opentravel.schemas.selection.nodes">
+					<iterate ifEmpty="false" operator="or">
+						<test property="stl2Developer.selection.newToChain">
+						</test>
+					</iterate>
+				</with>
 			</enabledWhen>
 			<activeWhen>
 				<with variable="activeMenu">
