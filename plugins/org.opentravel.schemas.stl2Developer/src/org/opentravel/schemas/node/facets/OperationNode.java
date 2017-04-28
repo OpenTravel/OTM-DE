@@ -23,12 +23,14 @@ import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOperation;
 import org.opentravel.schemas.modelObject.OperationMO;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.NodeVisitors;
 import org.opentravel.schemas.node.ServiceNode;
@@ -59,6 +61,12 @@ public class OperationNode extends PropertyOwnerNode implements VersionedObjectI
 		}
 	}
 
+	/**
+	 * Model the TLOperation and all of its children. Does <b>not</b> set parent or library. Use node factory to model
+	 * with parent and library.
+	 * 
+	 * @param tlObj
+	 */
 	public OperationNode(TLOperation tlObj) {
 		super(tlObj);
 		addMOChildren();
@@ -76,8 +84,9 @@ public class OperationNode extends PropertyOwnerNode implements VersionedObjectI
 	public OperationNode(ServiceNode svc, String name) {
 		super(new TLOperation()); // creates model object
 
-		LibraryNode head = null;
 		String svcName = svc.getName();
+		// TODO - why is this creating services?
+		LibraryNode head = null;
 		if (svc.getLibrary() != null && svc.getLibrary().getChain() != null)
 			head = svc.getLibrary().getChain().getHead();
 
@@ -99,8 +108,9 @@ public class OperationNode extends PropertyOwnerNode implements VersionedObjectI
 		// Create Messages from those in the new TLOperation
 		for (final Object msg : modelObject.getChildren()) {
 			if (msg instanceof TLFacet) {
-				final FacetNode fn = new FacetNode((TLFacet) msg);
-				this.linkChild(fn);
+				// final FacetNode fn = new FacetNode((TLFacet) msg);
+				FacetNode fn = (FacetNode) NodeFactory.newMember(this, msg);
+				// this.linkChild(fn);
 				new ElementNode(fn, "");
 			}
 		}
@@ -113,10 +123,12 @@ public class OperationNode extends PropertyOwnerNode implements VersionedObjectI
 	 * Create a Service Operation as a facet node of the passed service. Creates RQ, RS and Notif Messages complete with
 	 * Subject element.
 	 * 
+	 * @param service
 	 * @param name
 	 *            of the operation
-	 * @param subject
-	 *            is the business object to assign to the messages
+	 * @param type
+	 * @param businessObject
+	 *            the business object to assign to the messages
 	 */
 	public OperationNode(final ServiceNode service, String name, ResourceOperationTypes type,
 			BusinessObjectNode businessObject) {
@@ -124,7 +136,7 @@ public class OperationNode extends PropertyOwnerNode implements VersionedObjectI
 		if (businessObject == null)
 			return;
 
-		final TLOperation tlo = getTLModelObject();
+		final TLOperation tlo = getTLModelObject(); // has RQ, RS and Notif facets
 		service.getTLModelObject().addOperation(tlo);
 		tlo.setOwningService(service.getTLModelObject());
 		this.setName(name);
@@ -135,8 +147,10 @@ public class OperationNode extends PropertyOwnerNode implements VersionedObjectI
 			if (!(msg instanceof TLFacet))
 				continue;
 
-			final FacetNode fn = new FacetNode((TLFacet) msg);
-			this.linkChild(fn);
+			// final FacetNode fn = new FacetNode((TLFacet) msg);
+			// final FacetNode fn = (FacetNode) NodeFactory.newMember(this, msg);
+			final FacetNode fn = (FacetNode) Node.GetNode((TLModelElement) msg);
+			// this.linkChild(fn);
 			final ElementNode np = new ElementNode(fn, businessObject.getName());
 			TLFacet tlf = (TLFacet) np.getTLModelObject().getOwner();
 			switch (type) {
@@ -166,6 +180,7 @@ public class OperationNode extends PropertyOwnerNode implements VersionedObjectI
 			((Node) np).visitAllNodes(new NodeVisitors().new FixNames());
 		}
 
+		assert (getChildren().size() == 3);
 		assert (modelObject instanceof OperationMO);
 		assert (getTLModelObject() instanceof TLOperation);
 	}

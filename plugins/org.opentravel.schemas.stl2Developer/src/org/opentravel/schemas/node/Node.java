@@ -1551,6 +1551,7 @@ public abstract class Node implements INode {
 	 * 
 	 * Use for characteristics that may be changed in a minor version of an object
 	 */
+	// Only used for enum literals and roles
 	public boolean isEditable_inMinor() {
 		if (getLibrary() == null || isDeleted() || !isEditable())
 			return false; // not editable
@@ -1564,6 +1565,8 @@ public abstract class Node implements INode {
 		if (getLibrary() != getChain().getHead())
 			return false; // is not in the head library of the chain.
 
+		// FIXME - should not use version node, should use library chain.
+		// FIXME - should not return true...might not be a minor
 		// It is in head of chain. Return true if there are no previous versions
 		if (getOwningComponent().getVersionNode().getPreviousVersion() == null)
 			return true;
@@ -1575,7 +1578,7 @@ public abstract class Node implements INode {
 	/**
 	 * @return true if this node editable, not a patch and either a service, operation, message or message property.
 	 */
-	// TODO - reconile with isInService()
+	// Done 4/28/2017 - reconcile with isInService()
 	public boolean isEditable_inService() {
 		if (!isEditable())
 			return false;
@@ -1584,6 +1587,27 @@ public abstract class Node implements INode {
 		if (getLibrary().getChain() != null)
 			if (getLibrary().getChain().getHead().isPatchVersion())
 				return false;
+		return isInService();
+		// if (this instanceof ServiceNode)
+		// return true;
+		// if (this instanceof OperationNode)
+		// return true;
+		// if (this instanceof OperationFacetNode)
+		// return true;
+		// if (getParent() != null)
+		// if (this instanceof PropertyNode && getParent() instanceof OperationFacetNode)
+		// return true;
+		// return false;
+	}
+
+	/**
+	 * Returns true if this is a service, operation, operationFacet or owned by an operaton facet.
+	 * 
+	 * JUNIT: {@link org.opentravel.schemas.node.Node_IsTests#isInServiceTest()}
+	 * 
+	 * @return
+	 */
+	public boolean isInService() {
 		if (this instanceof ServiceNode)
 			return true;
 		if (this instanceof OperationNode)
@@ -1594,6 +1618,11 @@ public abstract class Node implements INode {
 			if (this instanceof PropertyNode && getParent() instanceof OperationFacetNode)
 				return true;
 		return false;
+
+		// if (this instanceof FacetNode)
+		// return getParent() instanceof OperationNode;
+		// else
+		// return getOwningComponent().getParent() instanceof OperationNode;
 	}
 
 	/**
@@ -1863,17 +1892,6 @@ public abstract class Node implements INode {
 	 */
 	public boolean isInModel() {
 		return isInTLLibrary() || isInBuiltIn() || isInXSDSchema();
-	}
-
-	public boolean isInService() {
-		if (this instanceof ServiceNode)
-			return true;
-		if (this instanceof OperationNode)
-			return true;
-		if (this instanceof FacetNode)
-			return getParent() instanceof OperationNode;
-		else
-			return getOwningComponent().getParent() instanceof OperationNode;
 	}
 
 	/**

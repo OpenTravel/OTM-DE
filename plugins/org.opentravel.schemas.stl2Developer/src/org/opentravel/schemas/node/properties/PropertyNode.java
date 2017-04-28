@@ -412,8 +412,11 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		if (getParent() instanceof ExtensionPointNode)
 			return getParent();
 		// EnumLiterals are overridden.
+		// If version 1.6 or later return the parent contextual facet
 		if (getParent() instanceof ContextualFacetNode)
-			return getParent().getOwningComponent();
+			// return getParent().getOwningComponent();
+			return ((ContextualFacetNode) getParent()).canBeLibraryMember() ? getParent() : getParent()
+					.getOwningComponent();
 
 		// Otherwise Properties are always owned by a facet.
 		// TODO - delegate as is done with contextual facets

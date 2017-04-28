@@ -102,7 +102,7 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	/**
 	 * @return true if the contextual facet could be a library member (true for v1.6 and later)
 	 */
-	public static boolean canBeLibraryMember() {
+	public boolean canBeLibraryMember() {
 		return OTM16Upgrade.otm16Enabled;
 	}
 

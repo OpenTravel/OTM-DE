@@ -29,7 +29,8 @@ Utilities
 
 Question: should test be in src or test?
 	src gives access to protected but not private data and methods. So does test.
-	Test is understood in maven projects to be excluded from application. Migrate to /test
+	Test is understood in maven projects to be excluded from application. 
+	** --> Migrate to /test <-- **
 		
 Patterns - 
 Node/* - 

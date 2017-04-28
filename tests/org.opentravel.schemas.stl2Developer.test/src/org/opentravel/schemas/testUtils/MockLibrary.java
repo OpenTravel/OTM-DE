@@ -56,11 +56,15 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeFinders;
+import org.opentravel.schemas.node.OperationTests;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.ServiceTests;
 import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.VWA_Tests;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
@@ -582,12 +586,16 @@ public class MockLibrary {
 		assertTrue(node != null);
 		if (node instanceof BusinessObjectNode)
 			new BusinessObjectTests().checkBusinessObject((BusinessObjectNode) node);
-		if (node instanceof CoreObjectNode)
+		else if (node instanceof CoreObjectNode)
 			new CoreObjectTests().checkCore((CoreObjectNode) node);
-		if (node instanceof VWA_Node)
+		else if (node instanceof VWA_Node)
 			new VWA_Tests().checkVWA((VWA_Node) node);
-		if (node instanceof PropertyOwnerNode)
+		else if (node instanceof PropertyOwnerNode)
 			new FacetsTests().checkFacet((PropertyOwnerNode) node);
+		else if (node instanceof ServiceNode)
+			new ServiceTests().check((ServiceNode) node);
+		else if (node instanceof OperationNode)
+			new OperationTests().check((OperationNode) node);
 
 		if (!node.isValid()) {
 			printValidationFindings(node);

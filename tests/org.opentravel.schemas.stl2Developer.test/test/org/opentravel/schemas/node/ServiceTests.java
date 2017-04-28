@@ -18,11 +18,10 @@
  */
 package org.opentravel.schemas.node;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
@@ -31,12 +30,8 @@ import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOperation;
 import org.opentravel.schemacompiler.model.TLService;
-import org.opentravel.schemacompiler.repository.RepositoryException;
-import org.opentravel.schemacompiler.repository.RepositoryItemState;
-import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.controllers.repository.RepositoryIntegrationTestBase;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.OperationNode.ResourceOperationTypes;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -45,11 +40,8 @@ import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
-import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.types.TypeUser;
-import org.opentravel.schemas.utils.LibraryNodeBuilder;
-import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +49,8 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class ServiceTests extends RepositoryIntegrationTestBase {
+public class ServiceTests {
+	// public class ServiceTests extends RepositoryIntegrationTestBase {
 	private final static Logger LOGGER = LoggerFactory.getLogger(ServiceTests.class);
 
 	ModelNode model = null;
@@ -67,13 +60,14 @@ public class ServiceTests extends RepositoryIntegrationTestBase {
 
 	MockLibrary ml = new MockLibrary();
 	LibraryNode ln = null;
-	// MainController mc;
-	// DefaultProjectController pc;
-	// ProjectNode defaultProject;
+	BusinessObjectNode bo = null;
+	MainController mc;
+	DefaultProjectController pc;
+	ProjectNode defaultProject;
 
 	private LibraryNode majorLibrary = null;
-	private LibraryNode minorLibrary = null;
-	private LibraryNode patchLibrary = null;
+	// private LibraryNode minorLibrary = null;
+	// private LibraryNode patchLibrary = null;
 	private LibraryChainNode chain = null;
 
 	@Before
@@ -85,9 +79,62 @@ public class ServiceTests extends RepositoryIntegrationTestBase {
 			pc = (DefaultProjectController) mc.getProjectController();
 		if (defaultProject == null)
 			defaultProject = pc.getDefaultProject();
+
+		ln = ml.createNewLibrary("http://example.com", "isTests", defaultProject);
+		new LibraryChainNode(ln); // test in a chain
+		ln.setEditable(true);
+		assertTrue(ln.isEditable());
+
+		bo = ml.addBusinessObjectToLibrary(ln, "TestSubjectBO");
+		assertNotNull(bo);
+	}
+
+	public void check(ServiceNode svc) {
+		assertTrue(svc.getParent() instanceof LibraryNode);
+		for (Node n : svc.getChildren())
+			assertTrue(n instanceof OperationNode);
 	}
 
 	@Test
+	public void constructorFromCore_Test() {
+		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "TestCore");
+		ServiceNode svc = new ServiceNode(core);
+		assertTrue(svc.getChildren().size() == 0);
+	}
+
+	@Test
+	public void constructorFromLib_Test() {
+		ServiceNode svc = new ServiceNode(ln);
+		assertTrue(svc.getChildren().size() == 0);
+	}
+
+	@Test
+	public void constructorFromBO_Test() {
+		ServiceNode svc = new ServiceNode(bo);
+		int OperationCount = ResourceOperationTypes.values().length - 1; // Not including queries
+
+		assertTrue(svc.getName().equals(bo.getName()));
+		assertTrue(svc.getChildren().size() >= OperationCount);
+		for (Node on : svc.getChildren()) {
+			assertTrue(on instanceof OperationNode);
+			assertTrue(on.getChildren().size() == 3);
+			ml.checkObject(on);
+		}
+	}
+
+	@Test
+	public void operationConstructor() {
+		// OperationNode on = new OperationNode(service, name, type, businessObject)
+	}
+
+	@Test
+	public void constructorFromTL_Tests() {
+		TLService tlSvc = new TLService();
+		ServiceNode svc = new ServiceNode(tlSvc, ln);
+	}
+
+	// FIXME
+	// @Test
 	public void mockServiceTest() {
 		MainController mc = new MainController();
 		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
@@ -152,53 +199,54 @@ public class ServiceTests extends RepositoryIntegrationTestBase {
 		svc.visitAllNodes(tn);
 	}
 
-	@Test
-	public void ServicesInVersions() throws LibrarySaveException, RepositoryException {
-		LOGGER.debug("Before test.");
-		ProjectNode uploadProject = createProject("ToUploadLibrary", getRepositoryForTest(), "SvcTest");
-		majorLibrary = LibraryNodeBuilder.create("SvcTestLibrary", getRepositoryForTest().getNamespace() + "/Test/Svc",
-				"prefix", new Version(1, 0, 0)).build(uploadProject, pc);
-		chain = rc.manage(getRepositoryForTest(), Collections.singletonList(majorLibrary)).get(0);
-		boolean locked = rc.lock(chain.getHead());
-		Assert.assertTrue(locked);
-		Assert.assertTrue(majorLibrary.isEditable());
-		Assert.assertEquals(RepositoryItemState.MANAGED_WIP, chain.getHead().getProjectItem().getState());
-		LOGGER.debug("Managed major library in repository.");
-
-		// Add a service to the major library
-		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(majorLibrary, "Business1");
-		ServiceNode svc = new ServiceNode(bo);
-		// 5 because the bo has custom and query facet.
-		assertEquals(5, svc.getChildren().size());
-		List<Node> users = svc.getChildren_TypeUsers();
-		List<TypeUser> descendents = svc.getDescendants_TypeUsers();
-		Collection<TypeUser> boUsers = bo.getWhereAssigned();
-		assertNotNull(descendents); // 12
-		assertNotNull(boUsers); // 8. Some are typed by facets.
-
-		// Create a minor library and add an operation to the service
-		minorLibrary = rc.createMinorVersion(majorLibrary);
-		OperationNode minorOp = new OperationNode(svc, "MinorOp");
-		users = svc.getChildren_TypeUsers();
-		descendents = svc.getDescendants_TypeUsers();
-		assertEquals(5, svc.getChildren().size()); // should still be 5
-		assertNotNull(descendents); // 15
-		assertNotNull(boUsers); // 10. Some are typed by facets.
-
-		// There should now be services in both major and minor libraries.
-		for (LibraryNode ln : chain.getLibraries()) {
-			assertNotNull(ln.getServiceRoot().getChildren().get(0));
-		}
-	}
-
-	@Override
-	public RepositoryNode getRepositoryForTest() {
-		for (RepositoryNode rn : rc.getAll()) {
-			if (rn.isRemote()) {
-				return rn;
-			}
-		}
-		throw new IllegalStateException("Missing remote repository. Check your configuration.");
-	}
+	// FIXME
+	// @Test
+	// public void ServicesInVersions() throws LibrarySaveException, RepositoryException {
+	// LOGGER.debug("Before test.");
+	// ProjectNode uploadProject = createProject("ToUploadLibrary", getRepositoryForTest(), "SvcTest");
+	// majorLibrary = LibraryNodeBuilder.create("SvcTestLibrary", getRepositoryForTest().getNamespace() + "/Test/Svc",
+	// "prefix", new Version(1, 0, 0)).build(uploadProject, pc);
+	// chain = rc.manage(getRepositoryForTest(), Collections.singletonList(majorLibrary)).get(0);
+	// boolean locked = rc.lock(chain.getHead());
+	// Assert.assertTrue(locked);
+	// Assert.assertTrue(majorLibrary.isEditable());
+	// Assert.assertEquals(RepositoryItemState.MANAGED_WIP, chain.getHead().getProjectItem().getState());
+	// LOGGER.debug("Managed major library in repository.");
+	//
+	// // Add a service to the major library
+	// BusinessObjectNode bo = ml.addBusinessObjectToLibrary(majorLibrary, "Business1");
+	// ServiceNode svc = new ServiceNode(bo);
+	// // 5 because the bo has custom and query facet.
+	// assertEquals(5, svc.getChildren().size());
+	// List<Node> users = svc.getChildren_TypeUsers();
+	// List<TypeUser> descendents = svc.getDescendants_TypeUsers();
+	// Collection<TypeUser> boUsers = bo.getWhereAssigned();
+	// assertNotNull(descendents); // 12
+	// assertNotNull(boUsers); // 8. Some are typed by facets.
+	//
+	// // Create a minor library and add an operation to the service
+	// minorLibrary = rc.createMinorVersion(majorLibrary);
+	// OperationNode minorOp = new OperationNode(svc, "MinorOp");
+	// users = svc.getChildren_TypeUsers();
+	// descendents = svc.getDescendants_TypeUsers();
+	// assertEquals(5, svc.getChildren().size()); // should still be 5
+	// assertNotNull(descendents); // 15
+	// assertNotNull(boUsers); // 10. Some are typed by facets.
+	//
+	// // There should now be services in both major and minor libraries.
+	// for (LibraryNode ln : chain.getLibraries()) {
+	// assertNotNull(ln.getServiceRoot().getChildren().get(0));
+	// }
+	// }
+	//
+	// @Override
+	// public RepositoryNode getRepositoryForTest() {
+	// for (RepositoryNode rn : rc.getAll()) {
+	// if (rn.isRemote()) {
+	// return rn;
+	// }
+	// }
+	// throw new IllegalStateException("Missing remote repository. Check your configuration.");
+	// }
 
 }

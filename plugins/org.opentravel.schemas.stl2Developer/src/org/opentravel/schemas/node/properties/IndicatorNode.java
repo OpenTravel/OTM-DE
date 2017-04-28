@@ -114,7 +114,8 @@ public class IndicatorNode extends PropertyNode {
 
 	@Override
 	public boolean isNavChild(boolean deep) {
-		return false;
+		return deep;
+		// return false;
 	}
 
 	@Override
