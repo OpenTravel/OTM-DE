@@ -38,6 +38,7 @@ public class Images {
 	public static final String XSDSimpleType = "XSDSimpleType";
 	public static final String WhereUsed = "WhereUsed";
 	public static final String ID_Reference = "ID_Reference";
+	public static final String ID_Attr_Reference = "ID_Attr_Reference";
 	public static final String IndicatorElement = "IndicatorElement";
 
 	public static final String Simple = "Simple";
@@ -171,6 +172,8 @@ public class Images {
 
 		image_registry.put("ID_Reference",
 				AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/id_reference.gif"));
+		image_registry.put("ID_Attr_Reference",
+				AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/id_attr_ref.gif"));
 		image_registry.put("IndicatorElement",
 				AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/indicatorElement.gif"));
 		image_registry.put(Validate, AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, "icons/validate.gif"));

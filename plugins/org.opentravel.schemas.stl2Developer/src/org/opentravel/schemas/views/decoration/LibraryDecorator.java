@@ -189,10 +189,15 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 			boolean isEditableInGui, boolean isMinor) {
 		if (state == RepositoryItemState.BUILT_IN)
 			return "Built-in";
-		if (TLLibraryStatus.FINAL.equals(status))
-			return "Final";
-		else if (status == null)
+
+		if (status == null)
 			return "NULL Status";
+		if (status.equals(TLLibraryStatus.FINAL))
+			return "Final";
+		if (status.equals(TLLibraryStatus.UNDER_REVIEW))
+			return "Under Review";
+		if (status.equals(TLLibraryStatus.OBSOLETE))
+			return "Obsolete";
 
 		switch (state) {
 		case MANAGED_LOCKED:

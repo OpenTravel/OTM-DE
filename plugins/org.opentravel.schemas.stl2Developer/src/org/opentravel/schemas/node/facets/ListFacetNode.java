@@ -36,6 +36,11 @@ public class ListFacetNode extends PropertyOwnerNode {
 	}
 
 	@Override
+	public boolean isEnabled_AddProperties() {
+		return false;
+	}
+
+	@Override
 	public boolean isSimpleListFacet() {
 		return getTLModelObject().getFacetType().equals(TLFacetType.SIMPLE) ? true : false;
 	}

@@ -72,6 +72,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		public AttributeNode oldAttrN = null;
 		public IndicatorElementNode oldIndEleN = null;
 		public ElementReferenceNode oldEleRefN = null;
+		public AttributeReferenceNode oldAttrRefN = null;
 		public IdNode oldIdN = null;
 
 		public AlternateRoles(PropertyNode pn) {
@@ -89,6 +90,9 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 				break;
 			case ID_REFERENCE:
 				oldEleRefN = (ElementReferenceNode) pn;
+				break;
+			case ID_ATTR_REF:
+				oldAttrRefN = (AttributeReferenceNode) pn;
 				break;
 			case INDICATOR:
 				oldIndN = (IndicatorNode) pn;
@@ -127,6 +131,10 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 				pn = oldEleRefN != null ? oldEleRefN : new ElementReferenceNode(parent, getName());
 				oldEleRefN = (ElementReferenceNode) pn;
 				break;
+			case ID_ATTR_REF:
+				pn = oldAttrRefN != null ? oldAttrRefN : new AttributeReferenceNode(parent, getName());
+				oldAttrRefN = (AttributeReferenceNode) pn;
+				break;
 			case ATTRIBUTE:
 				pn = oldAttrN != null ? oldAttrN : new AttributeNode(parent, getName());
 				oldAttrN = (AttributeNode) pn;
@@ -146,7 +154,8 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 			default:
 
 			}
-			pn.alternateRoles = this; // in case there was a new node created.
+			if (pn != null)
+				pn.alternateRoles = this; // in case there was a new node created.
 			currentType = type;
 			return pn;
 		}
@@ -503,6 +512,11 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	public boolean isAssignedComplexType() {
 		// Need to test because inherited properties do not have assigned types.
 		return getAssignedType() != null ? getAssignedType().isAssignedByReference() : false;
+	}
+
+	@Override
+	public boolean isEnabled_AddProperties() {
+		return this != getOwningComponent() ? getOwningComponent().isEnabled_AddProperties() : false;
 	}
 
 	/**

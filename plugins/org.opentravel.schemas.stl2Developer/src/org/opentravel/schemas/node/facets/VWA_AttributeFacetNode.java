@@ -44,6 +44,11 @@ public class VWA_AttributeFacetNode extends PropertyOwnerNode {
 	}
 
 	@Override
+	public boolean isEnabled_AddProperties() {
+		return getOwningComponent().isEnabled_AddProperties();
+	}
+
+	@Override
 	public boolean isNamedEntity() {
 		return false; // can't be assigned therefore is not a type provider
 	}

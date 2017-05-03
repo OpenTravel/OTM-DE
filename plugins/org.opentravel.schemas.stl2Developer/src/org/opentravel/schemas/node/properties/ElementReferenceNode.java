@@ -42,12 +42,6 @@ import org.opentravel.schemas.types.TypeProvider;
  */
 public class ElementReferenceNode extends PropertyNode {
 
-	public ElementReferenceNode(PropertyOwnerInterface parent, String name, TypeProvider reference) {
-		super(new TLProperty(), (Node) parent, name, PropertyNodeType.ID_REFERENCE);
-		getTLModelObject().setReference(true);
-		setAssignedType(reference);
-	}
-
 	/**
 	 * Add an element reference property to a facet or extension point.
 	 * 
@@ -57,9 +51,12 @@ public class ElementReferenceNode extends PropertyNode {
 	 */
 	public ElementReferenceNode(PropertyOwnerInterface parent, String name) {
 		this(parent, name, ModelNode.getUnassignedNode());
-		// super(new TLProperty(), (Node) parent, name, PropertyNodeType.ID_REFERENCE);
-		// ((TLProperty) getTLModelObject()).setReference(true);
-		// setAssignedType((TypeProvider) ModelNode.getUnassignedNode());
+	}
+
+	public ElementReferenceNode(PropertyOwnerInterface parent, String name, TypeProvider reference) {
+		super(new TLProperty(), (Node) parent, name, PropertyNodeType.ID_REFERENCE);
+		getTLModelObject().setReference(true);
+		setAssignedType(reference);
 	}
 
 	/**
@@ -77,36 +74,24 @@ public class ElementReferenceNode extends PropertyNode {
 	}
 
 	@Override
-	public TLProperty getTLModelObject() {
-		return (TLProperty) getModelObject().getTLModelObj();
-	}
-
-	@Override
 	public boolean canAssign(Node type) {
 		if (type.getOwningComponent() instanceof BusinessObjectNode)
 			return true;
 		if (type.getOwningComponent() instanceof CoreObjectNode)
 			return true;
 		if (type instanceof ImpliedNode)
-			return true;
-		return true;
+			return true; // FIXME
+		return true; // FIXME
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.PropertyNode#createProperty(org.opentravel.schemas.node.Node)
-	 */
 	@Override
 	public INode createProperty(Node type) {
-		// int index = indexOfNode();
 		TLProperty tlObj = (TLProperty) cloneTLObj();
 		tlObj.setReference(true);
-		// getTLModelObject().getOwner().addElement(index, tlObj); // bad index
+
 		getTLModelObject().getOwner().addElement(tlObj);
 		ElementReferenceNode n = new ElementReferenceNode(tlObj, null);
 		n.setName(type.getName());
-		// getParent().linkChild(n, indexOfNode());
 		getParent().linkChild(n);
 		n.setDescription(type.getDescription());
 		if (type instanceof TypeProvider)
@@ -127,7 +112,6 @@ public class ElementReferenceNode extends PropertyNode {
 	@Override
 	public String getLabel() {
 		return getName();
-		// return modelObject.getLabel();
 	}
 
 	@Override
@@ -136,8 +120,8 @@ public class ElementReferenceNode extends PropertyNode {
 	}
 
 	@Override
-	public boolean isRenameable() {
-		return false; // name must come from assigned object
+	public TLProperty getTLModelObject() {
+		return (TLProperty) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	@Override
@@ -147,6 +131,12 @@ public class ElementReferenceNode extends PropertyNode {
 	}
 
 	@Override
+	public boolean isRenameable() {
+		return false; // name must come from assigned object
+	}
+
+	// FIXME
+	@Override
 	public void setName(String name) {
 		QName ln = PropertyCodegenUtils.getDefaultSchemaElementName((NamedEntity) getAssignedTLObject(), true);
 		if (ln == null || getType() == null || (getType() instanceof ImpliedNode))
@@ -154,11 +144,6 @@ public class ElementReferenceNode extends PropertyNode {
 		else {
 			getTLModelObject().setName(ln.getLocalPart());
 		}
-		// 2/8/2016 - dmh - use codegen utils to get the facet names correct.
-		// if (getType() == null || (getType() instanceof ImpliedNode))
-		// modelObject.setName(NodeNameUtils.fixElementRefName(name));
-		// else
-		// modelObject.setName(NodeNameUtils.fixElementRefName(getType().getName()));
 	}
 
 }

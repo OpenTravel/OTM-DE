@@ -16,19 +16,24 @@
 package org.opentravel.schemas.actions;
 
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
+import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Finalize action - finalize current version of a library.
  * 
  * @author Dave Hollander
  * 
+ *         Obsolete - see {@link FinalizeLibraryAction}
  */
 public class FinalizeLibraryAction extends OtmAbstractAction {
 	private static StringProperties propDefault = new ExternalizedStringProperties("action.library.finalize");
+	private static final Logger LOGGER = LoggerFactory.getLogger(FinalizeLibraryAction.class);
 
 	public FinalizeLibraryAction() {
 		super(propDefault);
@@ -51,12 +56,21 @@ public class FinalizeLibraryAction extends OtmAbstractAction {
 
 		if (n.getLibrary() instanceof LibraryNode) {
 			LibraryNode ln = n.getLibrary();
+			RepositoryItemState state = ln.getProjectItem().getState();
+			TLLibraryStatus status = ln.getProjectItem().getStatus();
+			LOGGER.debug(ln + " status = " + status + "   state = " + state + "   next = "
+					+ ln.getStatus().nextStatus());
+			// Is too late, shows up in next call
+			// this.setText(ln.getStatus().nextStatus().toString());
+
 			// Don't allow lock unless library is in a project with managing namespace
 			if (!ln.isInProjectNS())
 				return false;
 			// If it is final then return false.
 			if (ln.getStatus().equals(TLLibraryStatus.FINAL))
 				return false;
+			// if (!status.nextStatus().equals(TLLibraryStatus.FINAL))
+			// return false;
 
 			// Check repo state
 			switch (ln.getProjectItem().getState()) {

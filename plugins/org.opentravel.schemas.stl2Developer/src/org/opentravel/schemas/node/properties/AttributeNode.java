@@ -48,8 +48,6 @@ public class AttributeNode extends PropertyNode {
 
 	public AttributeNode(PropertyOwnerInterface parent, String name) {
 		this(parent, name, ModelNode.getUnassignedNode());
-		// super(new TLAttribute(), (Node) parent, name, PropertyNodeType.ATTRIBUTE);
-		// setAssignedType((TypeProvider) ModelNode.getUnassignedNode());
 	}
 
 	public AttributeNode(PropertyOwnerInterface parent, String name, PropertyNodeType type) {
@@ -120,7 +118,6 @@ public class AttributeNode extends PropertyNode {
 		if (provider instanceof AliasNode)
 			provider = (TypeProvider) ((Node) provider).getOwningComponent();
 		return typeHandler.set(provider);
-		// return getTypeClass().setAssignedType(replacement);
 	}
 
 	@Override

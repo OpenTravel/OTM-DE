@@ -111,9 +111,14 @@ public class FacetNode extends PropertyOwnerNode implements PropertyOwnerInterfa
 	}
 
 	@Override
-	public boolean isNamedType() {
-		return false;
+	public boolean isEnabled_AddProperties() {
+		return getOwningComponent().isEnabled_AddProperties();
 	}
+
+	// @Override
+	// public boolean isNamedType() {
+	// return false;
+	// }
 
 	@Override
 	public boolean isRenameable() {

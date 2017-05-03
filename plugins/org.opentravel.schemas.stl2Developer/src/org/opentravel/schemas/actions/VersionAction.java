@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.actions;
 
+import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemas.controllers.RepositoryController;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -98,6 +99,8 @@ public class VersionAction extends OtmAbstractAction {
 			ln = n.getLibrary();
 		// Don't allow lock unless library is in a project with managing namespace
 		if (ln == null || !ln.isInProjectNS())
+			return false;
+		if (!ln.getStatus().equals(TLLibraryStatus.FINAL))
 			return false;
 		return ln.isManaged();
 	}

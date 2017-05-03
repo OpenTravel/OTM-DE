@@ -400,6 +400,7 @@ public class DefaultRepositoryController implements RepositoryController {
 		return rt.getLoaded();
 	}
 
+	@Deprecated
 	@Override
 	public boolean markFinal(LibraryNode ln) {
 		assert (ln.getProjectItem() != null);
@@ -423,6 +424,47 @@ public class DefaultRepositoryController implements RepositoryController {
 		refreshAll(ln);
 		if (result)
 			mc.postStatus("Library " + ln + " finalized.");
+		return result;
+	}
+
+	@Override
+	public boolean promote(LibraryNode ln, TLLibraryStatus targetStatus) {
+		assert (ln.getProjectItem() != null);
+		boolean result = true;
+
+		// must be unlocked to be promoted.
+		if (ln.isLocked())
+			if (!unlock(ln))
+				return false;
+
+		// Items must be in the MANAGED_UNLOCKED state in order to be promoted.
+		ProjectItem pi = ln.getProjectItem();
+		if (!pi.getState().equals(RepositoryItemState.MANAGED_UNLOCKED)) {
+			String msg = Messages.getString(REPO_ERROR_PREFIX + "notManagedUnlocked");
+			DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg);
+			return false;
+		}
+		// Assure the intended promotion is allowed
+		if (!pi.getStatus().nextStatus().equals(targetStatus)) {
+			String msg = Messages.getString(REPO_ERROR_PREFIX + "incorrectStatus");
+			DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg);
+			return false;
+		}
+		// Confirm Use intends to promote.
+		if (!DialogUserNotifier.openConfirm("Promote Library", "Warning, promoting a library to " + targetStatus
+				+ " can not be undone. Do you want to continue?"))
+			return false;
+
+		// DO IT
+		try {
+			pi.getProjectManager().promote(ln.getProjectItem());
+		} catch (RepositoryException e) {
+			result = false;
+			postRepoException(e);
+		}
+		refreshAll(ln);
+		if (result)
+			mc.postStatus("Library " + ln + " promoted to " + targetStatus + ".");
 		return result;
 	}
 
@@ -769,6 +811,10 @@ public class DefaultRepositoryController implements RepositoryController {
 			postRepoError("notManaged");
 			return false;
 		}
+		if (!library.getStatus().equals(TLLibraryStatus.FINAL)) {
+			postRepoError("notFinal");
+			return false;
+		}
 		if (!library.isReadyToVersion()) {
 			postRepoError("notValid");
 			return false;
@@ -780,12 +826,12 @@ public class DefaultRepositoryController implements RepositoryController {
 
 		String msgID = "repository.version.check.all";
 		boolean isOK = false;
-		boolean needsFinal = library.getStatus().equals(TLLibraryStatus.DRAFT);
+		// boolean needsFinal = library.getStatus().equals(TLLibraryStatus.DRAFT);
 		boolean editable = library.getEditStatus().equals(NodeEditStatus.FULL);
-		if (needsFinal && !editable)
-			msgID = "repository.version.check.final";
-		else if (!needsFinal)
-			msgID = "repository.version.check.OK";
+		// if (needsFinal && !editable)
+		// msgID = "repository.version.check.final";
+		// else if (!needsFinal)
+		msgID = "repository.version.check.OK";
 
 		// In development
 		// LibraryOrchestrationWizard wizard = new LibraryOrchestrationWizard(library, this);
@@ -795,15 +841,16 @@ public class DefaultRepositoryController implements RepositoryController {
 
 		isOK = DialogUserNotifier.openConfirm(Messages.getString("repository.version.check.title"),
 				Messages.getString(msgID));
-		if (isOK && needsFinal) {
-			if (!library.isLocked())
-				lock(library);
-			isOK = commit(library);
-			if (isOK)
-				isOK = unlock(library);
-			if (isOK && needsFinal)
-				isOK = markFinal(library);
-		}
+		// Code below is not needed - Final library will be unlocked and committed
+		// if (isOK && needsFinal) {
+		// if (!library.isLocked())
+		// lock(library);
+		// isOK = commit(library);
+		// if (isOK)
+		// isOK = unlock(library);
+		// if (isOK && needsFinal)
+		// isOK = markFinal(library);
+		// }
 		return isOK;
 	}
 
@@ -840,6 +887,7 @@ public class DefaultRepositoryController implements RepositoryController {
 	public static String REPO_ERROR_TITLE = "repository.error.title";
 	public static String REPO_WARNING_TITLE = "repository.warning";
 	public static String REPO_MESSAGE_PREFIX = "repository.warning.";
+	public static String REPO_ERROR_PREFIX = "repository.error.";
 
 	public static void postRepoException(Exception e) {
 		DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), e.getLocalizedMessage());

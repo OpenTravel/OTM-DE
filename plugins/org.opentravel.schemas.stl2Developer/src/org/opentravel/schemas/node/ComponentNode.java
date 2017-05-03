@@ -539,10 +539,10 @@ public abstract class ComponentNode extends Node {
 		return false;
 	}
 
-	@Override
-	public boolean isNamedType() {
-		return false;
-	}
+	// @Override
+	// public boolean isNamedType() {
+	// return false;
+	// }
 
 	/**
 	 * Test this node against those in the parentNode to and return true if the name is unique within its parent and

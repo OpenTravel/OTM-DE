@@ -163,12 +163,18 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 				((TLProperty) tlOwner).setType((TLPropertyType) tlTarget);
 			else
 				return false; // do nothing
-		else if (tlOwner instanceof TLAttribute)
-			if (tlTarget instanceof TLAttributeType)
+		else if (tlOwner instanceof TLAttribute) {
+			if (((TLAttribute) tlOwner).isReference()) {
+				if (owner.canAssign((Node) target)) {
+					((TLAttribute) tlOwner).setType((TLPropertyType) tlTarget);
+					((TLAttribute) tlOwner).setName(NodeNameUtils.fixAttributeRefName(target.getName()));
+				} else
+					return false;
+			} else if (tlTarget instanceof TLAttributeType)
 				((TLAttribute) tlOwner).setType((TLAttributeType) tlTarget);
 			else
 				return false;
-		else if (tlOwner instanceof TLSimpleFacet)
+		} else if (tlOwner instanceof TLSimpleFacet)
 			if (tlTarget instanceof NamedEntity) {
 				((TLSimpleFacet) tlOwner).setSimpleType((NamedEntity) tlTarget);
 				// Listener will set the simple attribute node

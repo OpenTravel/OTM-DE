@@ -268,10 +268,10 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 		return false;
 	}
 
-	@Override
-	public boolean isNamedType() {
-		return this instanceof ExtensionPointNode ? true : false;
-	}
+	// @Override
+	// public boolean isNamedType() {
+	// return this instanceof ExtensionPointNode ? true : false;
+	// }
 
 	@Override
 	public boolean isRenameableWhereUsed() {

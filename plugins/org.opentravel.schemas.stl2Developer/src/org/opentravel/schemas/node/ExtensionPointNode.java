@@ -137,9 +137,14 @@ public class ExtensionPointNode extends PropertyOwnerNode implements ComplexComp
 	}
 
 	@Override
-	public boolean isNamedType() {
-		return true;
+	public boolean isEnabled_AddProperties() {
+		return isEditable_newToChain();
 	}
+
+	// @Override
+	// public boolean isNamedType() {
+	// return true;
+	// }
 
 	// Gets name from where it extends
 	@Override

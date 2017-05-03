@@ -95,6 +95,11 @@ public class SimpleFacetNode extends PropertyOwnerNode implements TypeProvider, 
 		return false;
 	}
 
+	@Override
+	public boolean isEnabled_AddProperties() {
+		return false;
+	}
+
 	/**
 	 * Facets assigned to core object list types have no model objects but may be page1-assignable.
 	 */

@@ -56,5 +56,5 @@ public interface ComplexComponentInterface {
 	 */
 	public void createAliasesForProperties();
 
-	public boolean isNamedType();
+	// public boolean isNamedType();
 }

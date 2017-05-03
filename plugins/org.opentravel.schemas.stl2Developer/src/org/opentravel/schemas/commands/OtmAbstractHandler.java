@@ -61,7 +61,7 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 	}
 
 	public void execute(OtmEventData event) {
-		LOGGER.debug("Menthod not implemented");
+		LOGGER.debug("Method not implemented");
 	}
 
 	protected MainWindow getMainWindow() {

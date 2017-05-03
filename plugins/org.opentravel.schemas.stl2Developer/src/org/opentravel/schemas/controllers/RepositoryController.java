@@ -20,6 +20,7 @@ package org.opentravel.schemas.controllers;
 
 import java.util.List;
 
+import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemacompiler.repository.Repository;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemas.node.ProjectNode;
@@ -155,4 +156,6 @@ public interface RepositoryController {
 	 * Lock the selected libraries.
 	 */
 	void lock();
+
+	public boolean promote(LibraryNode ln, TLLibraryStatus targetStatus);
 }

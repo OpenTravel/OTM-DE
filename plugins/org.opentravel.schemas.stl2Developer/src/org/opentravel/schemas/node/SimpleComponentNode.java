@@ -107,10 +107,10 @@ public abstract class SimpleComponentNode extends TypeProviderBase implements Si
 		return true;
 	}
 
-	@Override
-	public boolean isNamedType() {
-		return true;
-	}
+	// @Override
+	// public boolean isNamedType() {
+	// return true;
+	// }
 
 	@Override
 	public boolean isRenameableWhereUsed() {

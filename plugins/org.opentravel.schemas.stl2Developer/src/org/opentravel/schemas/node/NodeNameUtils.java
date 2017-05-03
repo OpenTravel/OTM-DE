@@ -228,6 +228,15 @@ public class NodeNameUtils {
 		return name;
 	}
 
+	public static String fixAttributeRefName(String name) {
+		if (name == null || name.isEmpty())
+			name = UNASIGNED_NAME;
+		if (!name.endsWith(ID_RERFERENCE_SUFFIX))
+			name = name + ID_RERFERENCE_SUFFIX;
+		name = adjustCaseOfName(PropertyNodeType.ATTRIBUTE, name);
+		return name;
+	}
+
 	public static String fixElementRefName(String name) {
 		if (name == null || name.isEmpty())
 			name = UNASIGNED_NAME;

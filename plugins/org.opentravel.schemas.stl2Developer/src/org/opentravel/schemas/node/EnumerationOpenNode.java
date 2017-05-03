@@ -158,10 +158,10 @@ public class EnumerationOpenNode extends TypeProviderBase implements ComplexComp
 		}
 	}
 
-	@Override
-	public boolean isNamedType() {
-		return true;
-	}
+	// @Override
+	// public boolean isNamedType() {
+	// return true;
+	// }
 
 	@Override
 	public boolean isRenameableWhereUsed() {

@@ -86,6 +86,11 @@ public class SimpleAttributeNode extends PropertyNode {
 	}
 
 	@Override
+	public boolean isEnabled_AddProperties() {
+		return false;
+	}
+
+	@Override
 	public boolean isMandatory() {
 		return getTLModelObject().isMandatory();
 	}

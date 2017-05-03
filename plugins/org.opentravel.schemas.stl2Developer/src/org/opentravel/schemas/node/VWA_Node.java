@@ -131,10 +131,10 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 		return (TLValueWithAttributes) modelObject.getTLModelObj();
 	}
 
-	@Override
-	public boolean isNamedType() {
-		return true;
-	}
+	// @Override
+	// public boolean isNamedType() {
+	// return true;
+	// }
 
 	@Override
 	public boolean isNamedEntity() {

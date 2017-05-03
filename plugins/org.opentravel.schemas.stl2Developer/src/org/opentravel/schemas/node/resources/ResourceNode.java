@@ -660,10 +660,10 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return false;
 	}
 
-	@Override
-	public boolean isNamedType() {
-		return false;
-	}
+	// @Override
+	// public boolean isNamedType() {
+	// return false;
+	// }
 
 	@Override
 	public boolean isNameEditable() {

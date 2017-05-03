@@ -79,10 +79,10 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 		return this;
 	}
 
-	@Override
-	public boolean isNamedType() {
-		return true;
-	}
+	// @Override
+	// public boolean isNamedType() {
+	// return true;
+	// }
 
 	@Override
 	public boolean isAssignedByReference() {

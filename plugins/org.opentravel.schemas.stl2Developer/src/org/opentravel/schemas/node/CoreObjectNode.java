@@ -160,10 +160,10 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 		return (TLCoreObject) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
-	@Override
-	public boolean isNamedType() {
-		return true;
-	}
+	// @Override
+	// public boolean isNamedType() {
+	// return true;
+	// }
 
 	@Override
 	public List<Node> getChildren_TypeUsers() {

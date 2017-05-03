@@ -39,6 +39,7 @@ public enum ComponentNodeType {
 	DETAIL_LIST("Detail List"),
 	ELEMENT("Element"),
 	ELEMENT_REF("Element Reference"),
+	ATTRIBUTE_REF("Attribute Reference"),
 	ENUM_LITERAL("Enumeration Value"),
 	EXTENSION_POINT("Extension Point Facet"),
 	INDICATOR("Indicator"),

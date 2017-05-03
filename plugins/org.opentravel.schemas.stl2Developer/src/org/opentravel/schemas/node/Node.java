@@ -68,13 +68,10 @@ import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.facets.OperationFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
-import org.opentravel.schemas.node.facets.SimpleFacetNode;
-import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
@@ -1696,7 +1693,7 @@ public abstract class Node implements INode {
 		// return getOwningComponent().getVersionNode().getPreviousVersion() == null;
 	}
 
-	public boolean isElementAssignable() {
+	protected boolean isElementAssignable() {
 		return modelObject instanceof XSDElementMO;
 	}
 
@@ -1732,32 +1729,28 @@ public abstract class Node implements INode {
 		if (this instanceof VersionedObjectInterface)
 			return isEditable_isNewOrAsMinor();
 
-		// Is a versionedObjectInterface implementer
+		// Enumeration is a versionedObjectInterface implementer
 		// if (this instanceof Enumeration)
 		// return isEditable_isNewOrAsMinor();
 
-		if (this instanceof ExtensionPointNode)
-			return isEditable_newToChain();
-
 		// delegated
+		// if (this instanceof ExtensionPointNode)
+		// return isEditable_newToChain();
 		// if (this instanceof ContextualFacetNode)
 		// return isEditable_newToChain();
-
-		// Facets - same as parent unless a simple or list
-		if (this instanceof SimpleFacetNode || this instanceof ListFacetNode)
-			return false;
-		if (this instanceof FacetNode)
-			return getOwningComponent().isEnabled_AddProperties();
-		if (this instanceof VWA_AttributeFacetNode)
-			return getOwningComponent().isEnabled_AddProperties();
-		if (this instanceof RoleFacetNode)
-			return getOwningComponent().isEnabled_AddProperties();
-
-		// Properties - same as parent
-		if (this instanceof SimpleAttributeNode)
-			return false;
-		if (this instanceof PropertyNode)
-			return this != getOwningComponent() ? getOwningComponent().isEnabled_AddProperties() : false;
+		// if (this instanceof SimpleAttributeNode)
+		// return false;
+		// if (this instanceof SimpleFacetNode || this instanceof ListFacetNode)
+		// return false;
+		// Properties and Facets - same as parent unless a simple or list
+		// if (this instanceof FacetNode)
+		// return getOwningComponent().isEnabled_AddProperties();
+		// if (this instanceof VWA_AttributeFacetNode)
+		// return getOwningComponent().isEnabled_AddProperties();
+		// if (this instanceof RoleFacetNode)
+		// return getOwningComponent().isEnabled_AddProperties();
+		// if (this instanceof PropertyNode)
+		// return this != getOwningComponent() ? getOwningComponent().isEnabled_AddProperties() : false;
 
 		return false;
 	}
@@ -1890,6 +1883,7 @@ public abstract class Node implements INode {
 	/**
 	 * @return - true if is in TL, built-in or xsd library
 	 */
+	@Deprecated
 	public boolean isInModel() {
 		return isInTLLibrary() || isInBuiltIn() || isInXSDSchema();
 	}
@@ -1973,12 +1967,12 @@ public abstract class Node implements INode {
 		return getTLModelObject() instanceof NamedEntity;
 	}
 
-	/**
-	 * @return true if a named top level object (business, core, enum, vwa, simple, extension point facet)
-	 */
-	public boolean isNamedType() {
-		return false;
-	}
+	// /**
+	// * @return true if a named top level object (business, core, enum, vwa, simple, extension point facet)
+	// */
+	// public boolean isNamedType() {
+	// return false;
+	// }
 
 	/**
 	 * Fast method to determine if this node should be displayed in navigation views
@@ -1999,6 +1993,7 @@ public abstract class Node implements INode {
 	 * 
 	 * @return true <b>only</b> if owning components is in chain and new to the chain
 	 */
+	// TODO - this may not work for deep chains
 	public boolean isNewToChain() {
 		assert getOwningComponent() != null;
 		return !getOwningComponent().isVersioned();

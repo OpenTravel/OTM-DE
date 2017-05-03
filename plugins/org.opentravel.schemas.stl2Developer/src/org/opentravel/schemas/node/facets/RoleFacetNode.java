@@ -83,6 +83,11 @@ public class RoleFacetNode extends PropertyOwnerNode {
 	}
 
 	@Override
+	public boolean isEnabled_AddProperties() {
+		return getOwningComponent().isEnabled_AddProperties();
+	}
+
+	@Override
 	public boolean isRenameable() {
 		return false;
 	}

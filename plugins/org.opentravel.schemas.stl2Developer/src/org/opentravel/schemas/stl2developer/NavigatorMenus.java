@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPartSite;
+import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemas.actions.AddAliasAction;
 import org.opentravel.schemas.actions.AddCRUDQOperationsAction;
 import org.opentravel.schemas.actions.AddChoiceFacetAction;
@@ -52,6 +53,7 @@ import org.opentravel.schemas.actions.CloneSelectedTreeNodesAction;
 import org.opentravel.schemas.actions.CommitLibraryAction;
 import org.opentravel.schemas.actions.FinalizeLibraryAction;
 import org.opentravel.schemas.actions.ImportObjectToLibraryAction;
+import org.opentravel.schemas.actions.LifeCycleAction;
 import org.opentravel.schemas.actions.LockLibraryAction;
 import org.opentravel.schemas.actions.ManageInRepositoryAction;
 import org.opentravel.schemas.actions.MoveObjectToLibraryAction;
@@ -174,6 +176,13 @@ public class NavigatorMenus extends TreeViewer {
 		final Action lockLibraryAction = new LockLibraryAction();
 		final Action unlockLibraryAction = new UnlockLibraryAction();
 
+		final Action lifeCycle_finalize = new LifeCycleAction(TLLibraryStatus.FINAL);
+		final Action lifeCycle_review = new LifeCycleAction(TLLibraryStatus.UNDER_REVIEW);
+		final Action lifeCycle_obsolete = new LifeCycleAction(TLLibraryStatus.OBSOLETE);
+
+		final IContributionItem validateAction = RCPUtils.createCommandContributionItem(site,
+				ValidateHandler.COMMAND_ID, null, null, ValidateHandler.getIcon());
+
 		// Project Menu Items
 		final IContributionItem closeProjectAction = RCPUtils.createCommandContributionItem(site,
 				CloseProjectHandler.COMMAND_ID, null, null, null);
@@ -219,8 +228,6 @@ public class NavigatorMenus extends TreeViewer {
 		final IContributionItem deleteObjectAction = RCPUtils.createCommandContributionItem(site,
 				DeleteNodesHandler.COMMAND_ID, null, null, null);
 		final Action replaceAction = new AssignTypeAction(mainWindow);
-		final IContributionItem validateAction = RCPUtils.createCommandContributionItem(site,
-				ValidateHandler.COMMAND_ID, null, null, ValidateHandler.getIcon());
 
 		// Expose Business Object as Resource Service action
 		final IContributionItem newResourceAction = RCPUtils.createCommandContributionItem(site,
@@ -248,7 +255,10 @@ public class NavigatorMenus extends TreeViewer {
 				libraryMenu.add(commitLibraryAction);
 				libraryMenu.add(lockLibraryAction);
 				libraryMenu.add(unlockLibraryAction);
-				libraryMenu.add(finalizeLibraryAction);
+				// libraryMenu.add(finalizeLibraryAction);
+				libraryMenu.add(lifeCycle_review);
+				libraryMenu.add(lifeCycle_finalize);
+				libraryMenu.add(lifeCycle_obsolete);
 				libraryMenu.add(new Separator());
 				libraryMenu.add(saveSelectedLibrariesAction);
 				libraryMenu.add(saveAllLibrariesAction);

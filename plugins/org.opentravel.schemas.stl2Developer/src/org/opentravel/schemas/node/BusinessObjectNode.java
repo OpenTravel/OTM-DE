@@ -135,10 +135,10 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 		return isXsdType() ? false : true;
 	}
 
-	@Override
-	public boolean isNamedType() {
-		return true;
-	}
+	// @Override
+	// public boolean isNamedType() {
+	// return true;
+	// }
 
 	@Override
 	public boolean isAssignedByReference() {
