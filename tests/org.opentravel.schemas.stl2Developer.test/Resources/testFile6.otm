@@ -2,7 +2,7 @@
 <Library xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_05"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_05 OTA2_LibraryModel_v1.5.0.xsd">
-    
+	 
     <VersionScheme>OTA2</VersionScheme>
     <Status>Draft</Status>
     <Namespace>http://www.OpenTravel.org/ns/OTA2/SchemaCompiler/test-package_v2</Namespace>
@@ -22,6 +22,28 @@
     </Simple>
     
     <Simple fractionDigits="2" name="TestFloat" totalDigits="4" type="xsd:decimal"/>
+    
+    <Enumeration_Open name="SampleEnum_Open">
+        <Documentation>
+            <Description>SampleEnum-documentation-line_3</Description>
+        </Documentation>
+        <Value label="" literal="four">
+            <Documentation>
+                <Description>Four</Description>
+            </Documentation>
+        </Value>
+        <Value label="" literal="five">
+            <Documentation>
+                <Description>Five</Description>
+            </Documentation>
+        </Value>
+        <Value label="" literal="six">
+            <Documentation>
+                <Description>Six</Description>
+            </Documentation>
+            <Equivalent context="test">six-equivalent</Equivalent>
+        </Value>
+    </Enumeration_Open>
     
     <Enumeration_Open name="SampleEnumExt_Open">
         <Extension extends="SampleEnum_Open"/>
@@ -281,8 +303,7 @@
             <Element name="SampleBusinessObject_Alias2Test1" repeat="0" type="SampleBusinessObject_Alias2_Test1"/>
         </Detail>
     </BusinessObject>
-    <Resource abstract="true" businessObjectRef="CompoundBusinessObject"
-        firstClass="true" name="BaseResource">
+    <Resource abstract="true" businessObjectRef="CompoundBusinessObject" firstClass="true" name="BaseResource">
         <Action actionId="CommonErrors" common="true">
             <ActionResponse mimeTypes="APPLICATION_XML APPLICATION_JSON"
                 payloadType="SampleCore" statusCodes="403 500">
