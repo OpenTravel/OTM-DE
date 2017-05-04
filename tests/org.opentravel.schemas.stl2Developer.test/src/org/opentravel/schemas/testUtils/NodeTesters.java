@@ -176,7 +176,8 @@ public class NodeTesters {
 				List<?> moKids = n.getModelObject().getChildren();
 				LOGGER.debug("Children sizes are not equal.");
 			}
-			Assert.assertEquals(n.getChildren().size(), n.getModelObject().getChildren().size());
+			// Will not be true if BO has contextual facets
+			// Assert.assertEquals(n.getChildren().size(), n.getModelObject().getChildren().size());
 		}
 
 		// Check names

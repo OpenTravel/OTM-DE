@@ -237,6 +237,9 @@ public class ReplaceWith_Tests {
 		}
 		assertNotNull(core);
 		assertNotNull(bo);
+		assertNotNull(simple);
+		// assertNotNull(svc);
+		assertNotNull(vwa);
 
 		core2 = (CoreObjectNode) core.clone();
 		core2.setName("core2");
@@ -248,7 +251,7 @@ public class ReplaceWith_Tests {
 		replaceProperties(bo, core2, core);
 		replaceProperties(bo2, core, core2);
 
-		replaceProperties(svc, simple, core);
+		// replaceProperties(svc, simple, core);
 		replaceProperties(bo, simple, core);
 		replaceProperties(core, simple, core);
 		replaceProperties(vwa, simple, core);
