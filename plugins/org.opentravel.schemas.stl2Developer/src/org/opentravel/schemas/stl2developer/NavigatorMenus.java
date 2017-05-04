@@ -49,7 +49,7 @@ import org.opentravel.schemas.actions.AddQueryFacetAction;
 import org.opentravel.schemas.actions.AddRoleAction;
 import org.opentravel.schemas.actions.AssignTypeAction;
 import org.opentravel.schemas.actions.ChangeAction;
-import org.opentravel.schemas.actions.CloneSelectedTreeNodesAction;
+import org.opentravel.schemas.actions.CopyNodeAction;
 import org.opentravel.schemas.actions.CommitLibraryAction;
 import org.opentravel.schemas.actions.FinalizeLibraryAction;
 import org.opentravel.schemas.actions.ImportObjectToLibraryAction;
@@ -201,7 +201,7 @@ public class NavigatorMenus extends TreeViewer {
 		final IContributionItem closeLibraries = RCPUtils.createCommandContributionItem(site,
 				CloseLibrariesHandler.COMMAND_ID, null, null, null);
 
-		final Action cloneObjectAction = new CloneSelectedTreeNodesAction(mainWindow, new ExternalizedStringProperties(
+		final Action cloneObjectAction = new CopyNodeAction(mainWindow, new ExternalizedStringProperties(
 				"action.cloneObject"));
 
 		final Action changeObjectAction = new ChangeAction(mainWindow);

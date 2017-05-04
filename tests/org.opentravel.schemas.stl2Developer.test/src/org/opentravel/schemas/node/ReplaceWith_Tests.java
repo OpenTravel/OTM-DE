@@ -19,6 +19,7 @@
 package org.opentravel.schemas.node;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
@@ -206,7 +207,7 @@ public class ReplaceWith_Tests {
 		ProjectNode defaultProject = pc.getDefaultProject();
 		NewComponent_Tests nc = new NewComponent_Tests();
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		// nc.createNewComponents(ln);
+		ml.addOneOfEach(ln, "RTT");
 
 		tt.visitAllNodes(ln);
 
@@ -231,11 +232,12 @@ public class ReplaceWith_Tests {
 				core = (CoreObjectNode) n;
 			if (n instanceof BusinessObjectNode)
 				bo = (BusinessObjectNode) n;
-			// if (n instanceof ExtensionPointNode)
-			// ex = (ExtensionPointNode) n;
 			if (n instanceof ServiceNode)
 				svc = (ServiceNode) n;
 		}
+		assertNotNull(core);
+		assertNotNull(bo);
+
 		core2 = (CoreObjectNode) core.clone();
 		core2.setName("core2");
 		core.setExtension(core2);
@@ -247,7 +249,6 @@ public class ReplaceWith_Tests {
 		replaceProperties(bo2, core, core2);
 
 		replaceProperties(svc, simple, core);
-		// replaceProperties(ex, simple, core);
 		replaceProperties(bo, simple, core);
 		replaceProperties(core, simple, core);
 		replaceProperties(vwa, simple, core);

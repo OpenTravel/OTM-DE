@@ -188,7 +188,7 @@ public class LibraryModelManager {
 			// LOGGER.error("Newly modeled library " + li + " is missing nav node!");
 		}
 		if (li == null)
-			LOGGER.error("Did not successfully model the library " + pi.getLibraryName() + " !");
+			LOGGER.error("Did not successfully model the library: " + pi.getLibraryName());
 
 		// assert (newLNN != null);
 		return newLNN;
@@ -205,12 +205,20 @@ public class LibraryModelManager {
 		return projects;
 	}
 
+	/**
+	 * Create a chain from the project item.
+	 * 
+	 * @param pi
+	 * @param project
+	 * @return chain (library interface) or null on error
+	 */
 	private LibraryInterface createNewChain(ProjectItem pi, ProjectNode project) {
 		// LOGGER.debug("No projects contain a chain for the project item. Create new chain.");
 		LibraryInterface li = new LibraryChainNode(pi, project);
-		if (li == null || li.getParent() == null)
+		if (li == null || li.getParent() == null) {
 			LOGGER.warn("Failed to create valid library chain.");
-
+			li = null;
+		}
 		return li;
 	}
 

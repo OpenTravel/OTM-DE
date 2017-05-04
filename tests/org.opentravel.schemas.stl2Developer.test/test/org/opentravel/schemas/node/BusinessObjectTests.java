@@ -311,7 +311,6 @@ public class BusinessObjectTests {
 		assertTrue("If editable it must also be aliasable.", bo.isAliasable() == bo.isEditable_newToChain());
 		assertTrue("", bo.isExtensibleObject());
 		assertTrue("", bo.isNamedEntity());
-		assertTrue("", bo.isNamedType());
 		assertTrue("", bo instanceof TypeProvider);
 
 		// check name and label

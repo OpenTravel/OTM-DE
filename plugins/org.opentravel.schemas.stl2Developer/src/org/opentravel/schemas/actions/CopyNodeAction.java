@@ -25,15 +25,15 @@ import org.opentravel.schemas.stl2developer.MainWindow;
 /**
  * Implements the "Copy" menu action.
  * 
- * @author Agnieszka Janowska
+ * @author Dave Hollander
  * 
  */
-public class CloneSelectedTreeNodesAction extends OtmAbstractAction {
+public class CopyNodeAction extends OtmAbstractAction {
 
 	/**
 	 *
 	 */
-	public CloneSelectedTreeNodesAction(final MainWindow mainWindow, final StringProperties props) {
+	public CopyNodeAction(final MainWindow mainWindow, final StringProperties props) {
 		super(mainWindow, props);
 	}
 

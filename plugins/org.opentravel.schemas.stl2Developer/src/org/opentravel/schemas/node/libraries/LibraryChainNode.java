@@ -128,7 +128,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 			return;
 		}
 		if (pi.getContent().getOwningModel() == null) {
-			LOGGER.debug("Project item does not have owning model.");
+			LOGGER.debug("Project item " + pi.getContent().getName() + " does not have owning model.");
 			return;
 		}
 

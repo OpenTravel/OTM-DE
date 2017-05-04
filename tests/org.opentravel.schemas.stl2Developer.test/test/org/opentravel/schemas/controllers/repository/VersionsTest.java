@@ -947,6 +947,9 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	// Patch Versions
 	public void specPatch() {
 		// int beforeCount = chain.getDescendants_NamedTypes().size();
+		if (patchLibrary == null)
+			return;
+
 		assertTrue(patchLibrary.isEditable());
 
 		// TEST adding content types

@@ -80,7 +80,9 @@ public class AssignTypeAction extends OtmAbstractAction {
 		Node n = getMainController().getCurrentNode_NavigatorView();
 		if (n == null || !(n instanceof TypeProviderWhereUsedNode))
 			return false;
-		return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
+		// Allow replacement if any user is editable
+		return (!((TypeProviderWhereUsedNode) n).getAllUsers(true).isEmpty());
+		// return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
 	}
 
 	// From OTM Actions (46) - typeSelector - type selection buttons in facet view

@@ -258,15 +258,14 @@ public class Clone_Tests {
 	}
 
 	private void cloneProperties(Node n) {
-		if (n.isNamedType())
-			for (Node p : n.getDescendants()) {
-				if (p instanceof PropertyNode) {
-					if (p.getParent() instanceof ComponentNode)
-						((ComponentNode) p.getParent()).addProperty(p.clone());
-					else
-						LOGGER.debug(p + "has invalid class of parent.");
-				}
+		for (Node p : n.getDescendants()) {
+			if (p instanceof PropertyNode) {
+				if (p.getParent() instanceof ComponentNode)
+					((ComponentNode) p.getParent()).addProperty(p.clone());
+				else
+					LOGGER.debug(p + "has invalid class of parent.");
 			}
+		}
 		tt.visitAllNodes(n);
 	}
 

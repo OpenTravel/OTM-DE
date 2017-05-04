@@ -29,6 +29,7 @@ import org.junit.BeforeClass;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemas.controllers.DefaultRepositoryController;
+import org.opentravel.schemas.controllers.LibraryModelManager;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.Node;
@@ -74,12 +75,17 @@ public abstract class BaseProjectTest {
 
 	@After
 	public void afterEachTest() throws RepositoryException, IOException {
+		LibraryModelManager mgr = Node.getLibraryModelManager();
+		int userLibCount = mgr.getUserLibraries().size();
+		List<LibraryNode> userLibs = mgr.getUserLibraries();
+
 		pc.getDefaultProject().removeAllFromTLProject();
 		pc.closeAll();
 
 		for (ProjectNode pn : projectsToClean) {
-			System.out.println("Cleaning project: " + pn);
-			RepositoryTestUtils.deleteContents(pn.getTLProject().getProjectFile().getParentFile());
+			File projFile = pn.getTLProject().getProjectFile().getParentFile();
+			System.out.println("Cleaning project: " + pn + "  file = " + projFile.toString());
+			RepositoryTestUtils.deleteContents(projFile);
 		}
 		projectsToClean.clear();
 

@@ -664,7 +664,7 @@ public class FacetsTests {
 		assertFalse("Must NOT be assignable to simple.", rf.isSimpleAssignable());
 		assertFalse("Must NOT be assignable to VWA.", rf.isAssignableToVWA());
 		assertFalse("Must NOT be default facet.", rf.isDefaultFacet());
-		assertFalse("Must NOT be named type.", rf.isNamedType());
+		assertFalse("Must NOT be named type.", rf.isNamedEntity());
 
 		// Behaviors
 		//
@@ -727,7 +727,7 @@ public class FacetsTests {
 
 		assertFalse("Must NOT be assignable to element ref", roleFacetNode.isAssignableToElementRef());
 		assertFalse("Must NOT be default facet.", roleFacetNode.isDefaultFacet());
-		assertFalse("Must NOT be named type.", roleFacetNode.isNamedType());
+		assertFalse("Must NOT be named type.", !roleFacetNode.isNamedEntity());
 
 		// Behaviors
 		RoleNode role = new RoleNode((RoleFacetNode) roleFacetNode, "newRole1");

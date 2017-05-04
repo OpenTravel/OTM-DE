@@ -255,8 +255,9 @@ public class MockLibrary {
 	 * @param ln
 	 */
 	public int addOneOfEach(LibraryNode ln, String nameRoot) {
-
+		Assert.assertNotNull(ln);
 		LOGGER.debug("Adding one of each object type to " + ln + " with name root of " + nameRoot);
+
 		int initialCount = ln.getDescendants_LibraryMembers().size();
 		int finalCount = initialCount;
 		if (ln.isEditable()) {
@@ -267,7 +268,7 @@ public class MockLibrary {
 			addSimpleTypeToLibrary(ln, nameRoot + "S");
 			addVWA_ToLibrary(ln, nameRoot + "VWA");
 			ChoiceObjectNode choice = addChoice(ln, nameRoot + "Choice");
-			// NO - DO NOT DO THIS - addExtensionPoint(ln, bo.getSummaryFacet());
+			// DO NOT DO THIS - addExtensionPoint(ln, bo.getSummaryFacet());
 
 			int addedCount = 7;
 			if (OTM16Upgrade.otm16Enabled)

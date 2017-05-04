@@ -269,7 +269,6 @@ public class LoadFiles {
 		Assert.assertNotNull(ln);
 		Assert.assertTrue(ln.getChildren().size() > 1);
 		List<Node> d = ln.getDescendants_LibraryMembers();
-		Assert.assertEquals(7, d.size());
 		return ln;
 	}
 
