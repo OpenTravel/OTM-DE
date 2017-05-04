@@ -8,8 +8,7 @@
     <Namespace>http://www.opentravel.org/Sandbox/junits/ns4/v4</Namespace>
     <Prefix>t4</Prefix>
     <Name>Test4</Name>
-    <Import fileHints="otm://Opentravel/Common_0_0_0.otm"
-        namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
+    <Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
     <Import fileHints="testFile5.otm"
         namespace="http://www.opentravel.org/Sandbox/junits/v1" prefix="tga"/>
     <Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
@@ -59,7 +58,7 @@
             <Element name="Aircraft_Configuration" repeat="0" type="tga:String_Medium"/>
         </Summary>
         <Detail>
-            <Element name="MealService_TypeList" repeat="0" type="ota2:Price"/>
+            <Element name="MealService_TypeList" repeat="0" type="Price"/>
         </Detail>
     </CoreObject>
     
@@ -116,5 +115,27 @@
         </Summary>
         <Detail/>
     </BusinessObject>
+    
+    <ValueWithAttrs name="Price" type="xsd:decimal">
+        <Documentation>
+            <Description>Specifies price after all applicable taxes of a product such as the rate for a room or fare for a flight.</Description>
+        </Documentation>
+        <Attribute name="amountBeforeTax" type="xsd:decimal">
+            <Documentation>
+                <Description>The price before taxes are applied.</Description>
+            </Documentation>
+        </Attribute>
+        <Attribute name="currencyCode" type="Code_Currency">
+            <Documentation>
+                <Description>The currency code for the amount.</Description>
+            </Documentation>
+        </Attribute>
+    </ValueWithAttrs>
+    
+    <Simple name="Code_Currency" pattern="([a-zA-Z]{3})?" type="xsd:string">
+        <Documentation>
+            <Description>Currency code - Preferred currencty code is a 3 char currency code as defined in ISO 4127</Description>
+        </Documentation>
+    </Simple>
     
 </Library>

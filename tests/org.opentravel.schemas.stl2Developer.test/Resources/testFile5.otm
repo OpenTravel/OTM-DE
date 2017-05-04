@@ -9,9 +9,7 @@
     <Prefix>tga</Prefix>
     <Name>Test5</Name>
     <Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
-    <Import
-        fileHints="otm://Opentravel/Common_0_0_0.otm otm://Opentravel/OTA_SimpleTypes_0_0_0.otm otm://Opentravel/CodeList_0_0_0.otm"
-        namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
+    <Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
     <Import fileHints="testFile1.otm"
         namespace="http://www.opentravel.org/Sandbox/junits/ns1/v1" prefix="tga"/>
     <Import fileHints="testFile4.otm"
@@ -192,7 +190,7 @@
             <Description>Amount of the payment.</Description>
         </Documentation>
         <Example context="Common">23.56</Example>
-        <Attribute name="tax" type="ota2:Money">
+        <Attribute name="tax" type="Money">
             <Documentation>
                 <Description>Tax portion of the payment amount.</Description>
             </Documentation>
@@ -236,10 +234,10 @@
             <Indicator name="syncInd" publishAsElement="false"/>
             <Indicator name="holdInd" publishAsElement="false"/>
         </Detail>
-        <Query context="Profile" label="Profile" notExtendable="true">
+        <Query context="Common" label="Profile" notExtendable="true">
             <Element name="PhoneDetail" repeat="0" type="Phone_Detail_List"/>
         </Query>
-        <Custom context="Profile" label="Legacy" notExtendable="false">
+        <Custom context="Common" label="Legacy" notExtendable="false">
             <Element name="Remarks" repeat="0" type="String_Long">
                 <Example context="Common">Remarks</Example>
             </Element>
@@ -591,7 +589,7 @@ The URL, system and company attributes can be omitted only when the system conte
         </Documentation>
         <Equivalent context="Common">StateProvType</Equivalent>
         <Example context="Common">TX</Example>
-        <Attribute name="name" type="ota2:String_Short">
+        <Attribute name="name" type="xsd:string">
             <Documentation>
                 <Description>State, province, or region name or code needed to identify location.</Description>
                 <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength0to64</Implementer>
@@ -600,7 +598,7 @@ The URL, system and company attributes can be omitted only when the system conte
         </Attribute>
     </ValueWithAttrs>
     
-    <ValueWithAttrs name="Email" type="ota2:String">
+    <ValueWithAttrs name="Email" type="xsd:string">
         <Documentation>
             <Description>Electronic email addresses, in IETF specified format.</Description>
             <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to128</Implementer>
@@ -613,14 +611,14 @@ The URL, system and company attributes can be omitted only when the system conte
             </Documentation>
             <Equivalent context="Common">EmailType</Equivalent>
         </Attribute>
-        <Attribute name="remark" type="ota2:String_Text">
+        <Attribute name="remark" type="String_Text">
             <Documentation>
                 <Description>A remark associated with the e-mail address.</Description>
                 <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to128</Implementer>
             </Documentation>
             <Equivalent context="Common">Remark</Equivalent>
         </Attribute>
-        <Attribute name="textFormat" type="ota2:String_Short">
+        <Attribute name="textFormat" type="xsd:string">
             <Documentation>
                 <Description>Example: text/plain</Description>
                 <Implementer>LocalAnonymousType: EmailType_TextFormat</Implementer>
@@ -655,13 +653,13 @@ The URL, system and company attributes can be omitted only when the system conte
                 <Description>Uri of the creating system. The URI should be an URL and be globally unique. Should only be omitted when the context is clearly implied for the containing document.</Description>
             </Documentation>
         </Attribute>
-        <Attribute name="system" type="ota2:String_Short">
+        <Attribute name="system" type="xsd:string">
             <Documentation>
                 <Description>Name or identifier for the creating system.</Description>
             </Documentation>
             <Example context="Common">sysABC3344</Example>
         </Attribute>
-        <Attribute name="company" type="ota2:String_Short">
+        <Attribute name="company" type="xsd:string">
             <Documentation>
                 <Description>Name of the company that manages the reference system.</Description>
             </Documentation>
@@ -708,11 +706,11 @@ The URL, system and company attributes can be omitted only when the system conte
         </Attribute>
     </ValueWithAttrs>
     
-    <ValueWithAttrs name="Code" type="ota2:String_Tiny">
+    <ValueWithAttrs name="Code" type="String_Tiny">
         <Documentation>
             <Description>Any code used to specify an item, for example, type of traveler, service code, room amenity, etc.</Description>
         </Documentation>
-        <Attribute name="codeContext" type="ota2:String_Tiny">
+        <Attribute name="codeContext" type="String_Tiny">
             <Documentation>
                 <Description>Identifies the source authority for the code.</Description>
             </Documentation>
@@ -726,13 +724,13 @@ The URL, system and company attributes can be omitted only when the system conte
         </Documentation>
     </Simple>
     
-    <ValueWithAttrs name="Address_StreetNumber" type="ota2:String_Short">
+    <ValueWithAttrs name="Address_StreetNumber" type="xsd:string">
         <Documentation>
             <Description/>
             <Implementer>Extension: StreetNmbrType</Implementer>
         </Documentation>
         <Example context="Common">563</Example>
-        <Attribute name="streetNmbrSuffix" type="ota2:String_Tiny">
+        <Attribute name="streetNmbrSuffix" type="String_Tiny">
             <Documentation>
                 <Description>Usually a letter right after the street number (A in 66-A, B in 123-B etc).</Description>
                 <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to8</Implementer>
@@ -740,7 +738,7 @@ The URL, system and company attributes can be omitted only when the system conte
             <Equivalent context="Common">StreetNmbrSuffix</Equivalent>
             <Example context="Common">B</Example>
         </Attribute>
-        <Attribute name="streetDirection" type="ota2:String_Tiny">
+        <Attribute name="streetDirection" type="String_Tiny">
             <Documentation>
                 <Description>Street direction of an address (e.g., N, E, S, NW, SW).</Description>
                 <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to8</Implementer>
@@ -756,7 +754,7 @@ The URL, system and company attributes can be omitted only when the system conte
             <Equivalent context="Common">RuralRouteNmbr</Equivalent>
             <Example context="Common">88</Example>
         </Attribute>
-        <Attribute name="pO_Box" type="ota2:String_Short">
+        <Attribute name="pO_Box" type="xsd:string">
             <Documentation>
                 <Description>Defines a Post Office Box number.</Description>
             </Documentation>
@@ -788,7 +786,7 @@ The URL, system and company attributes can be omitted only when the system conte
         </Documentation>
         <Equivalent context="Common">CountryNameType</Equivalent>
         <Example context="Common">IR</Example>
-        <Attribute name="name" type="ota2:String_Short">
+        <Attribute name="name" type="xsd:string">
             <Documentation>
                 <Description>The name or code of a country (e.g. as used in an address or to specify citizenship of a traveller).</Description>
                 <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength0to64</Implementer>
@@ -812,14 +810,14 @@ The URL, system and company attributes can be omitted only when the system conte
         </Documentation>
     </Simple>
     
-    <ValueWithAttrs name="CompanyName" type="ota2:String">
+    <ValueWithAttrs name="CompanyName" type="xsd:string">
         <Documentation>
             <Description>Identifies a company by name.</Description>
             <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength0to128</Implementer>
         </Documentation>
         <Equivalent context="Common">CompanyNameType</Equivalent>
         <Example context="Common">Travel Adventure Partners Incorporated</Example>
-        <Attribute name="division" type="ota2:String_Short">
+        <Attribute name="division" type="xsd:string">
             <Documentation>
                 <Description>The division name or ID with which the contact is associated.</Description>
                 <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to32</Implementer>
@@ -827,7 +825,7 @@ The URL, system and company attributes can be omitted only when the system conte
             <Equivalent context="Common">Division</Equivalent>
             <Example context="Common">Travel Division</Example>
         </Attribute>
-        <Attribute name="department" type="ota2:String_Short">
+        <Attribute name="department" type="xsd:string">
             <Documentation>
                 <Description>The department name or ID with which the contact is associated.</Description>
                 <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to32</Implementer>
@@ -835,7 +833,7 @@ The URL, system and company attributes can be omitted only when the system conte
             <Equivalent context="Common">Department</Equivalent>
             <Example context="Common">Adventure department</Example>
         </Attribute>
-        <Attribute name="shortName" type="ota2:String_Short">
+        <Attribute name="shortName" type="xsd:string">
             <Documentation>
                 <Description>Used to provide the company common name.</Description>
                 <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to32</Implementer>
@@ -858,14 +856,14 @@ The URL, system and company attributes can be omitted only when the system conte
             <Description>Provides address information. Unformatted addresses are captured using the simple facet.</Description>
         </Documentation>
         <Aliases/>
-        <Simple type="ota2:String_Long">
+        <Simple type="String_Long2">
             <Documentation>
                 <Description>When the address is unformatted (FormattedInd="false") these lines will contain free form address details. When the address is formatted and street number and street name must be sent independently, the street number will be sent using StreetNmbr, and the street name will be sent in the first AddressLine occurrence.</Description>
                 <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to255</Implementer>
             </Documentation>
         </Simple>
         <Summary>
-            <Element name="AddressLine" repeat="4" type="ota2:String_Short">
+            <Element name="AddressLine" repeat="4" type="xsd:string">
                 <Documentation>
                     <Description>Address in an unstructured format.</Description>
                 </Documentation>
@@ -885,7 +883,7 @@ The URL, system and company attributes can be omitted only when the system conte
                 <Equivalent context="Common">StreetNmbr</Equivalent>
                 <Example context="Common">111</Example>
             </Element>
-            <Element name="Street" repeat="1" type="ota2:String_Short">
+            <Element name="Street" repeat="1" type="xsd:string">
                 <Documentation>
                     <Description>May contain the street number when the Street number element is missing.</Description>
                     <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to255</Implementer>
@@ -893,7 +891,7 @@ The URL, system and company attributes can be omitted only when the system conte
                 <Equivalent context="Common">AddressLine</Equivalent>
                 <Example context="Common">Travers Street</Example>
             </Element>
-            <Element name="City" repeat="1" type="ota2:String_Short">
+            <Element name="City" repeat="1" type="xsd:string">
                 <Documentation>
                     <Description>City (e.g., Dublin), town, or postal station (i.e., a postal service territory, often used in a military address).</Description>
                     <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to64</Implementer>
@@ -901,7 +899,7 @@ The URL, system and company attributes can be omitted only when the system conte
                 <Equivalent context="Common">CityName</Equivalent>
                 <Example context="Common">Dublin</Example>
             </Element>
-            <Element name="County" repeat="1" type="ota2:String_Short">
+            <Element name="County" repeat="1" type="xsd:string">
                 <Documentation>
                     <Description>County or Region Name (e.g., Fairfax).</Description>
                     <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to32</Implementer>
@@ -925,7 +923,7 @@ The URL, system and company attributes can be omitted only when the system conte
                 <Equivalent context="Common">CountryName</Equivalent>
                 <Example context="Common">IE</Example>
             </Element>
-            <Element name="PostalCode" repeat="1" type="ota2:String_Short">
+            <Element name="PostalCode" repeat="1" type="xsd:string">
                 <Documentation>
                     <Description>Post Office Code number.</Description>
                     <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to16</Implementer>
@@ -957,7 +955,7 @@ The URL, system and company attributes can be omitted only when the system conte
                 </Documentation>
                 <Example context="Common">AUT</Example>
             </Attribute>
-            <Element name="Remark" repeat="0" type="ota2:String_Text">
+            <Element name="Remark" repeat="0" type="String_Text">
                 <Documentation>
                     <Description>A remark associated with this address.</Description>
                     <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to128</Implementer>
@@ -985,7 +983,7 @@ The URL, system and company attributes can be omitted only when the system conte
         </Roles>
     </CoreObject>
     
-    <ValueWithAttrs name="Address_BldgRoom" type="ota2:String">
+    <ValueWithAttrs name="Address_BldgRoom" type="xsd:string">
         <Example context="Common">Bldg H</Example>
         <Indicator name="buldingInd" publishAsElement="false">
             <Documentation>
@@ -994,7 +992,7 @@ The URL, system and company attributes can be omitted only when the system conte
         </Indicator>
     </ValueWithAttrs>
     
-    <Simple name="GUID" type="ota2:String_Short">
+    <Simple name="GUID" type="xsd:string">
         <Documentation>
             <Description>A globally unique ID for an object. Objects will typically use the full identifier which includes system context information. This form should only be used when the system that recognizes the GUID is easily determined.</Description>
         </Documentation>
@@ -1006,7 +1004,7 @@ The URL, system and company attributes can be omitted only when the system conte
             <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}anyURI</Implementer>
         </Documentation>
         <Equivalent context="Common">URL_Type</Equivalent>
-        <Attribute name="type" type="ota2:String_Short">
+        <Attribute name="type" type="xsd:string">
             <Documentation>
                 <Description>Defines the purpose of the URL address, such as personal, business, public, etc.</Description>
                 <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to16</Implementer>
@@ -1046,7 +1044,7 @@ This type will not support  IATA 3 char airline designator codes. There are no I
         </Documentation>
     </Simple>
     
-    <Simple maxLength="1" name="FlightNumber_Suffix" pattern="([A-Z])?" type="ota2:String_Character_One">
+    <Simple maxLength="1" name="FlightNumber_Suffix" pattern="([A-Z])?" type="String_Character_One">
         <Documentation>
             <Description>Single upper case letter used to distinguish multiple flights of the same number originating on the same date.</Description>
             <Implementer>Assigned XSD Type:
@@ -1192,7 +1190,7 @@ This type will not support  IATA 3 char airline designator codes. There are no I
             <Description>Information about a telephone number, including the actual number and its usage.</Description>
         </Documentation>
         <Aliases>HomePhone</Aliases>
-        <Simple type="ota2:String_Short"/>
+        <Simple type="xsd:string"/>
         <Summary>
             <Attribute name="countryAccessCode" type="Telephone_CountryAccessCode">
                 <Documentation>
@@ -1231,14 +1229,14 @@ This type will not support  IATA 3 char airline designator codes. There are no I
             </Attribute>
         </Summary>
         <Detail>
-            <Attribute name="pIN" type="ota2:String_Tiny">
+            <Attribute name="pIN" type="String_Tiny">
                 <Documentation>
                     <Description>Additional codes used for pager or telephone access rights.</Description>
                     <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to8</Implementer>
                 </Documentation>
                 <Equivalent context="Common">PIN</Equivalent>
             </Attribute>
-            <Attribute name="remark" type="ota2:String_Text">
+            <Attribute name="remark" type="String_Text">
                 <Documentation>
                     <Description>A remark associated with the telephone number.</Description>
                     <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to128</Implementer>
@@ -1246,21 +1244,21 @@ This type will not support  IATA 3 char airline designator codes. There are no I
                 <Equivalent context="Common">Remark</Equivalent>
             </Attribute>
             <Element name="Privacy" repeat="0" type="Privacy"/>
-            <Element name="PhoneLocationType" repeat="0" type="ota2:PhoneLocation_Enum">
+            <Element name="PhoneLocationType" repeat="0" type="PhoneLocation_Enum">
                 <Documentation>
                     <Description>Describes the location of the phone, such as Home, Office, Property Reservation Office, etc.</Description>
                     <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}OTA_CodeType</Implementer>
                 </Documentation>
                 <Equivalent context="Common">PhoneLocationType</Equivalent>
             </Element>
-            <Element name="PhoneTechType" repeat="0" type="ota2:PhoneTechType_Enum">
+            <Element name="PhoneTechType" repeat="0" type="PhoneTechType_Enum">
                 <Documentation>
                     <Description>Indicates type of technology associated with this telephone number, such as Voice, Data, Fax, Pager, Mobile, TTY, etc.</Description>
                     <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}OTA_CodeType</Implementer>
                 </Documentation>
                 <Equivalent context="Common">PhoneTechType</Equivalent>
             </Element>
-            <Element name="PhoneUseType" repeat="0" type="ota2:PhoneUseType_Enum">
+            <Element name="PhoneUseType" repeat="0" type="PhoneUseType_Enum">
                 <Documentation>
                     <Description>Describes the type of telephone number, in the context of its general use (e.g. Home, Business, Emergency Contact, Travel Arranger, Day, Evening). Refer to OpenTravel Code List Phone Use Type (PUT).</Description>
                     <Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}OTA_CodeType</Implementer>
@@ -1281,6 +1279,108 @@ This type will not support  IATA 3 char airline designator codes. There are no I
             <Role value="Other"/>
         </Roles>
     </CoreObject>
+    
+    <Enumeration_Open name="ProfileType_Enum">
+        <Documentation>
+            <Description>Specifies the type of profile.</Description>
+        </Documentation>
+        <Value label="" literal="Airline"/>
+        <Value label="" literal="Arranger"/>
+        <Value label="" literal="Association"/>
+        <Value label="" literal="Authorized signer"/>
+        <Value label="" literal="Billing contact"/>
+        <Value label="" literal="Car rental"/>
+        <Value label="" literal="Corporation"/>
+        <Value label="" literal="CRO"/>
+        <Value label="" literal="Cruise line"/>
+        <Value label="" literal="Customer"/>
+        <Value label="" literal="Employee"/>
+        <Value label="" literal="Event host"/>
+        <Value label="" literal="GDS"/>
+        <Value label="" literal="General service contractor"/>
+        <Value label="" literal="Group"/>
+        <Value label="" literal="Hotel"/>
+        <Value label="" literal="Internet broker"/>
+        <Value label="" literal="Representation company"/>
+        <Value label="" literal="Supplier partner"/>
+        <Value label="" literal="Tour operator"/>
+        <Value label="" literal="Travel agency"/>
+        <Value label="" literal="Travel agent"/>
+        <Value label="" literal="Wholesaler"/>
+    </Enumeration_Open>
+    
+    <Simple fractionDigits="3" name="Money" type="xsd:decimal">
+        <Documentation>
+            <Description>Specifies an amount, max 3 decimals.</Description>
+            <Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}decimal</Implementer>
+        </Documentation>
+        <Equivalent context="Common">Money</Equivalent>
+    </Simple>
+    
+    <Simple maxLength="4096" name="String_Text" type="xsd:string">
+        <Documentation>
+            <Description>A string intended for free text 
+Minimum length of 0 and maximum length of 4096</Description>
+        </Documentation>
+    </Simple>
+    
+    <Simple maxLength="32" name="String_Tiny" type="xsd:string">
+        <Documentation>
+            <Description>A tiny string  
+Minimum length of 0 and a maximum length of 32</Description>
+        </Documentation>
+    </Simple>
+    
+    <Simple maxLength="4096" name="String_Long2" type="xsd:string">
+        <Documentation>
+            <Description>A long string  
+Minimum length of 0 and a maximum length of 4096</Description>
+        </Documentation>
+    </Simple>
+    
+    <Simple maxLength="1" name="String_Character_One" type="xsd:string">
+        <Documentation>
+            <Description>Single  character string
+Minimum length of 0 and a maximum length of 1</Description>
+        </Documentation>
+    </Simple>
+    
+    <Enumeration_Open name="PhoneLocation_Enum">
+        <Documentation>
+            <Description>Where the phone is located.</Description>
+        </Documentation>
+        <Value label="" literal="Brand reservations office"/>
+        <Value label="" literal="Central reservations office"/>
+        <Value label="" literal="Home"/>
+        <Value label="" literal="Managing company"/>
+        <Value label="" literal="Mobile"/>
+        <Value label="" literal="Office"/>
+        <Value label="" literal="Property direct"/>
+        <Value label="" literal="Property reservation Office"/>
+        <Value label="" literal="Sales office"/>
+    </Enumeration_Open>
+    
+    <Enumeration_Open name="PhoneTechType_Enum">
+        <Documentation>
+            <Description>Defines the technology associated with this phone number.</Description>
+        </Documentation>
+        <Value label="" literal="Voice"/>
+        <Value label="" literal="Fax"/>
+        <Value label="" literal="Pager"/>
+        <Value label="" literal="TTY"/>
+    </Enumeration_Open>
+    
+    <Enumeration_Open name="PhoneUseType_Enum">
+        <Value label="" literal="Contact"/>
+        <Value label="" literal="Daytime contact"/>
+        <Value label="" literal="Emergency contact"/>
+        <Value label="" literal="Evening contact"/>
+        <Value label="" literal="Guest use"/>
+        <Value label="" literal="Mobile"/>
+        <Value label="" literal="Pickup contact"/>
+        <Value label="" literal="Toll free number"/>
+        <Value label="" literal="Travel arranger"/>
+    </Enumeration_Open>
     
     <Service name="ProfileService">
         <Operation Name="Create" notExtendable="false">
