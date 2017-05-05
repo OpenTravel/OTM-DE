@@ -58,7 +58,7 @@ public class BusinessObjectTests {
 	static final Logger LOGGER = LoggerFactory.getLogger(MockLibrary.class);
 
 	ModelNode model = null;
-	MockLibrary ml = null;
+	MockLibrary ml = new MockLibrary();
 	LibraryNode ln = null;
 	MainController mc;
 	DefaultProjectController pc;
@@ -71,7 +71,6 @@ public class BusinessObjectTests {
 	@Before
 	public void beforeEachTest() {
 		mc = new MainController();
-		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
 		lf = new LoadFiles();

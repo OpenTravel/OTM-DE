@@ -24,12 +24,14 @@ import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLAttributeType;
+import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLPropertyType;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
+import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
 import org.opentravel.schemas.node.ModelNode;
@@ -180,12 +182,15 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 				// Listener will set the simple attribute node
 			} else
 				return false;
-		else if (tlOwner instanceof TLnSimpleAttribute)
+		else if (tlOwner instanceof TLnSimpleAttribute) {
+			if (((TLnSimpleAttribute) tlOwner).getParentObject() instanceof TLValueWithAttributes)
+				if (tlTarget instanceof TLCoreObject)
+					return false; // Core is a tl attribute type but not allowed assigned to VWA
 			if (tlTarget instanceof TLAttributeType)
 				((TLnSimpleAttribute) tlOwner).setType((NamedEntity) tlTarget);
 			else
 				return false;
-		else if (tlOwner instanceof TLAbstractEnumeration) {
+		} else if (tlOwner instanceof TLAbstractEnumeration) {
 			TLExtension extension = new TLExtension();
 			extension.setExtendsEntity((NamedEntity) tlTarget);
 			((TLAbstractEnumeration) tlOwner).setExtension(extension);

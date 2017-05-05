@@ -106,6 +106,12 @@ public class VWA_Tests {
 	}
 
 	@Test
+	public void VWA_InvalidTypeSettingTests() {
+		// Try setting the simple attribute node with a variety of nodes
+		// Core should not work.
+	}
+
+	@Test
 	public void VWA_TypeSettingTests() {
 		// Given - an unmanaged and managed library and 3 simple types
 		ln = ml.createNewLibrary("http://sabre.com/test", "test", defaultProject);

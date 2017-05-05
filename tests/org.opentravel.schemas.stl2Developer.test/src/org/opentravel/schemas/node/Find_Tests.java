@@ -51,17 +51,17 @@ public class Find_Tests {
 		// QName qn = new QName("NameSpace", "Name");
 		// Assert.assertNull(NodeFinders.findTypeProviderByQName(qn));
 		//
-		// qn = new QName("http://opentravel.org/local/dave/t4/v01", "OutboundFlight");
+		// qn = new QName(NS, "OutboundFlight");
 		// Assert.assertNotNull(NodeFinders.findTypeProviderByQName(qn));
 		//
 		// Node alias = NodeFinders.findTypeProviderByQName(qn);
-		// qn = new QName("http://opentravel.org/local/dave/t4/v01", "Card");
+		// qn = new QName(NS, "Card");
 		// Assert.assertNotNull(alias);
 		//
-		// qn = new QName("http://opentravel.org/local/dave/t4/v01", "Card");
+		// qn = new QName(NS, "Card");
 		// Assert.assertNotNull(NodeFinders.findTypeProviderByQName(qn));
 		//
-		// qn = new QName("http://opentravel.org/local/dave/t4/v01", "TravelerProfile");
+		// qn = new QName(NS, "TravelerProfile");
 		// Assert.assertNotNull(NodeFinders.findTypeProviderByQName(qn));
 		//
 		// qn = new QName("http://services.sabre.com/STL/Examples/v02", "SimpleVWA");
@@ -85,22 +85,25 @@ public class Find_Tests {
 			tt.visitAllNodes(ln);
 		}
 
-		QName qn = new QName("http://opentravel.org/local/dave/t4/v01", "OutboundFlight");
+		String NS = "http://www.opentravel.org/Sandbox/junits/ns1/v1";
+		String NS2 = "http://www.opentravel.org/Sandbox/junits/ns2/v1";
+		String NS3 = "http://www.opentravel.org/Sandbox/junits/v1";
+
+		// An alias on Flight in test 1
+		QName qn = new QName(NS, "OutboundFlight");
 		assertTrue("Must find node: " + qn, NodeFinders.findNodeByQName(qn) != null);
 
-		qn = new QName("http://opentravel.org/local/dave/t4/v01", "OutboundFlight");
+		qn = new QName(NS, "Card");
 		assertTrue("Must find node: " + qn, NodeFinders.findNodeByQName(qn) != null);
 
-		qn = new QName("http://opentravel.org/local/dave/t4/v01", "Card");
+		qn = new QName(NS, "TravelerProfile");
 		assertTrue("Must find node: " + qn, NodeFinders.findNodeByQName(qn) != null);
 
-		qn = new QName("http://opentravel.org/local/dave/t4/v01", "TravelerProfile");
+		// Test 3
+		qn = new QName(NS3, "SimpleVWA");
 		assertTrue("Must find node: " + qn, NodeFinders.findNodeByQName(qn) != null);
-
-		qn = new QName("http://opentravel.org/local/dave/t4/v01", "SimpleVWA");
-		assertTrue("Must find node: " + qn, NodeFinders.findNodeByQName(qn) != null);
-
-		qn = new QName("http://www.opentravel.org/OTM/Test4/v04", "BasicCore");
+		// Test 2
+		qn = new QName(NS2, "BasicCore");
 		assertTrue("Must find node: " + qn, NodeFinders.findNodeByQName(qn) != null);
 	}
 

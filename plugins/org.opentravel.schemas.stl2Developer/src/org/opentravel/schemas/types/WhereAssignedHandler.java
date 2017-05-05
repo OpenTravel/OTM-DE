@@ -265,7 +265,7 @@ public class WhereAssignedHandler {
 			if (n.isEditable())
 				if (scopeLibrary == null || ((Node) n).getLibrary().equals(scopeLibrary)) {
 					((TypeUser) n).setAssignedType(replacement);
-					// LOGGER.debug("replace " + n + " with " + replacement);
+					LOGGER.debug("replace " + n + " with " + replacement);
 				}
 	}
 

@@ -55,12 +55,12 @@ public class ReplaceWith_Tests {
 
 	ModelNode model = null;
 	TestTypes tt = new TestTypes();
+	MockLibrary ml = new MockLibrary();
 
 	@Test
 	public void ReplaceAll_Tests() throws Exception {
 		DefaultProjectController pc;
 		MainController mc = new MainController();
-		MockLibrary ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
@@ -116,7 +116,6 @@ public class ReplaceWith_Tests {
 	public void ExtensionHanderSet_Tests() throws Exception {
 		DefaultProjectController pc;
 		MainController mc = new MainController();
-		MockLibrary ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
@@ -163,7 +162,6 @@ public class ReplaceWith_Tests {
 	public void ReplaceBaseTypesInDifferentLibrary_Test() throws Exception {
 		DefaultProjectController pc;
 		MainController mc = new MainController();
-		MockLibrary ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
@@ -202,7 +200,6 @@ public class ReplaceWith_Tests {
 	public void ReplaceTypesTest() throws Exception {
 		DefaultProjectController pc;
 		MainController mc = new MainController();
-		MockLibrary ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
 		NewComponent_Tests nc = new NewComponent_Tests();
@@ -243,27 +240,42 @@ public class ReplaceWith_Tests {
 
 		core2 = (CoreObjectNode) core.clone();
 		core2.setName("core2");
-		core.setExtension(core2);
+		// FIXME - move to extension tests
+		// core.setExtension(core2);
 		bo2 = (BusinessObjectNode) bo.clone();
 		bo2.setName("bo2");
-		bo2.setExtension(bo);
+		// bo2.setExtension(bo);
 
 		replaceProperties(bo, core2, core);
 		replaceProperties(bo2, core, core2);
 
 		// replaceProperties(svc, simple, core);
 		replaceProperties(bo, simple, core);
-		replaceProperties(core, simple, core);
+		replaceProperties(core, simple, core2);
 		replaceProperties(vwa, simple, core);
 		tt.visitAllNodes(ln);
 	}
 
+	/**
+	 * Assign p1 to all of owner's type users. Then replaceTypeWith() p2 for p1.
+	 * 
+	 * @param owner
+	 * @param p1
+	 * @param p2
+	 */
 	private void replaceProperties(Node owner, TypeProvider p1, Node p2) {
-		// Set then replace all the properties of a BO.
-		for (TypeUser n : owner.getDescendants_TypeUsers()) {
-			n.setAssignedType(p1);
-		}
+		ml.checkObject(owner);
+		for (TypeUser n : owner.getDescendants_TypeUsers())
+			// Only do one so the owner remains valid
+			if (n.setAssignedType(p1))
+				break;
+
+		ml.checkObject(owner);
+
 		((Node) p1).replaceTypesWith(p2, owner.getLibrary());
+
+		// Then - check object
+		ml.checkObject(owner);
 	}
 
 	@Test

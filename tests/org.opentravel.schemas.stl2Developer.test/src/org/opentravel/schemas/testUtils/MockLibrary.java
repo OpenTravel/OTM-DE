@@ -599,7 +599,7 @@ public class MockLibrary {
 			new OperationTests().check((OperationNode) node);
 
 		if (!node.isValid()) {
-			printValidationFindings(node);
+			printValidationFindings(node.getOwningComponent());
 			assertTrue("Node must be valid.", node.isValid());
 		}
 

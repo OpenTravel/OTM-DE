@@ -118,6 +118,12 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 		}
 	}
 
+	/**
+	 * Create a new choice contextual facet and assign to this object
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public ContextualFacetNode addFacet(String name) {
 		if (!isEditable_newToChain())
 			throw new IllegalArgumentException("Not Editable - can not add facet to " + this);
