@@ -368,12 +368,16 @@ public class LibraryTests {
 		List<TLContext> toLibContexts = toLib.getTLLibrary().getContexts();
 		List<TLContext> fromLibContexts = fromLib.getTLLibrary().getContexts(); // live list
 
+		// Identity listener used in moveMember() so assure it is correct.
+		assertTrue(Node.GetNode(toLib.getTLLibrary()) == toLib);
+		assertTrue(Node.GetNode(fromLib.getTLLibrary()) == fromLib);
+
 		// Assure context is used by a property (ex, eq, facet and other doc)
 		Node object = addContextUsers(fromLib);
 		Assert.assertEquals(2, fromLibContexts.size());
 
 		// do the move and check to assure only one context in to-library
-		object.getLibrary().moveMember(object, toLib);
+		object.getLibrary().moveMember(object, toLib); // listener removed from toLib
 		Assert.assertEquals(2, fromLibContexts.size());
 		Assert.assertEquals(1, toLibContexts.size());
 		Assert.assertEquals(2, toLib.getDescendants_LibraryMembers().size()); // BO and CustomFacet
@@ -382,15 +386,17 @@ public class LibraryTests {
 		ModelNode model = mc.getModelNode();
 		lf.loadTestGroupA(mc);
 
+		// Identity listener used in moveMember() so assure it is correct.
+		assertTrue(Node.GetNode(toLib.getTLLibrary()) == toLib);
 		int count = toLib.getDescendants_LibraryMembers().size();
 		for (LibraryNode ln : model.getUserLibraries()) {
 			if (ln != toLib && ln != fromLib) {
-				LibraryChainNode lcn;
-				if (ln.isInChain())
-					lcn = ln.getChain();
-				else
-					lcn = new LibraryChainNode(ln);
+				// if (!ln.isInChain())
+				// new LibraryChainNode(ln);
+
 				int libCount = ln.getDescendants_LibraryMembers().size();
+				assertTrue(Node.GetNode(ln.getTLLibrary()) == ln);
+
 				for (Node n : ln.getDescendants_LibraryMembers()) {
 					if (n instanceof ServiceNode)
 						continue;
@@ -399,9 +405,11 @@ public class LibraryTests {
 					// if (n instanceof BusinessObjectNode && !((BusinessObjectNode) n).getCustomFacets().isEmpty())
 					// LOGGER.debug("Business Object with custom facets.");
 					LOGGER.debug("Moving " + n + " from " + n.getLibrary() + " to " + toLib);
+					assertTrue(n.getLibrary() == ln);
 
 					if (n.getLibrary().moveMember(n, toLib))
 						count++;
+					assertTrue("To Lib must contain moved member.", toLib.getDescendants_LibraryMembers().contains(n));
 
 					// Make sure the node is removed.
 					if (libCount - 1 != ln.getDescendants_LibraryMembers().size()) {

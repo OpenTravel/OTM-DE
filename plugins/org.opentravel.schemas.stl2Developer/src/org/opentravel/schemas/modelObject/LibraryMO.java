@@ -41,37 +41,10 @@ public class LibraryMO extends ModelObject<AbstractLibrary> {
 		return getTLModelObj().getNamedMembers();
 	}
 
-	// @Override
-	// public String getComponentType() {
-	// // TODO Auto-generated method stub
-	// return "Library: " + getName();
-	// }
-
-	// @Override
-	// protected AbstractLibrary getLibrary(AbstractLibrary obj) {
-	// return obj;
-	// }
-
-	// @Deprecated
-	// @Override
-	// public String getName() {
-	// return getTLModelObj().getName();
-	// }
-
-	// @Override
-	// public String getNamePrefix() {
-	// return "";
-	// }
-
 	@Override
 	public AbstractLibrary getTLModelObj() {
 		return srcObj;
 	}
-
-	// @Override
-	// public String getNamespace() {
-	// return getTLModelObj().getNamespace();
-	// }
 
 	@Override
 	public boolean setName(String name) {

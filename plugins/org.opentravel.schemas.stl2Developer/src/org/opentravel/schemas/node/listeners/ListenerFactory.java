@@ -57,22 +57,10 @@ public class ListenerFactory {
 
 		// Get listener from node delegated methods.
 		BaseNodeListener listener = node.getNewListener();
+
 		// Assign if there is not already one assigned
 		if (listener != null && Node.GetNode(node.getTLModelObject()) == null)
 			node.getTLModelObject().addListener(listener);
-
-		// debugging - trap if there is already a listener
-		// Node lNode = Node.GetNode(node.getTLModelObject());
-		// if (lNode != null) {
-		// // throw new IllegalStateException(node+" already has identity listeners.");
-		// // LOGGER.debug(node + " already has identity listener.");
-		// } else if (listener != null) {
-		// node.getTLModelObject().addListener(listener);
-		//
-		// // If it is an identity listener, make sure it is associated with the node
-		// if (listener instanceof NodeIdentityListener)
-		// assert node.getTLModelObject().getListeners().contains(listener);
-		// }
 	}
 
 	/**
@@ -82,10 +70,6 @@ public class ListenerFactory {
 		if (node.getTLModelObject() == null)
 			return;
 		clearListners(node.getTLModelObject());
-		// Collection<ModelElementListener> listeners = new ArrayList<>(node.getTLModelObject().getListeners());
-		// if (!listeners.isEmpty())
-		// for (ModelElementListener l : listeners)
-		// node.getTLModelObject().removeListener(l);
 	}
 
 	/**

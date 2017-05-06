@@ -23,12 +23,15 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
@@ -45,6 +48,40 @@ import org.osgi.framework.Version;
  * 
  */
 public class LibraryNodeTest extends BaseProjectTest {
+
+	@Test
+	public void libraryConstructorsTests() {
+		MockLibrary ml = new MockLibrary();
+		ProjectNode project1 = createProject("Project1", rc.getLocalRepository(), "IT1");
+		String ns = "http://example.com/ns1";
+
+		// When - Simple constructor (see notes on constructor)
+		LibraryNode fromProj = new LibraryNode(project1);
+		assertTrue(fromProj != null);
+		ListenerFactory.setListner(fromProj);
+		assertTrue(Node.GetNode(fromProj.getTLLibrary()) == fromProj);
+
+		// When - constructed from tl library
+		LibraryNode fromTL = new LibraryNode(createTL("FTL", ns), project1);
+		assertTrue(fromTL != null);
+		assertTrue(Node.GetNode(fromTL.getTLLibrary()) == fromTL);
+
+		// public LibraryNode(final AbstractLibrary alib, final VersionAggregateNode parent) {
+
+		// When - mock library used
+		LibraryNode fromML = ml.createNewLibrary_Empty(ns, "FML", project1);
+		assertTrue(fromML != null);
+		assertTrue(Node.GetNode(fromML.getTLLibrary()) == fromML);
+	}
+
+	public TLLibrary createTL(String name, String ns) {
+		TLLibrary tllib = new TLLibrary();
+		tllib.setName(name);
+		tllib.setStatus(TLLibraryStatus.DRAFT);
+		tllib.setNamespaceAndVersion(ns, "1.0.0");
+		tllib.setPrefix("nsPrefix");
+		return tllib;
+	}
 
 	// See DefaultLibraryController_Tests.removeManagedInMultipleProjects_Test()
 	@Test

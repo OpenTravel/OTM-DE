@@ -21,6 +21,8 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Add or remove children from libraries.
@@ -29,7 +31,7 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
  *
  */
 public class LibraryNodeListener extends NodeIdentityListener implements INodeListener {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryNodeListener.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryNodeListener.class);
 
 	public LibraryNodeListener(Node node) {
 		super(node);
@@ -38,8 +40,8 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
 		Node affectedNode = getAffectedNode(event);
-		// LOGGER.debug("Library Ownership event: " + event.getType() + " this = " + thisNode + " affected = "
-		// + affectedNode);
+		LOGGER.debug("Library Ownership event: " + event.getType() + " this = " + thisNode + " affected = "
+				+ affectedNode);
 		LibraryNode ln = (LibraryNode) thisNode;
 
 		switch (event.getType()) {

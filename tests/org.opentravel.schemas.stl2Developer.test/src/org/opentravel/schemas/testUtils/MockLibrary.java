@@ -585,6 +585,7 @@ public class MockLibrary {
 
 	public void checkObject(Node node) {
 		assertTrue(node != null);
+		assertTrue("Must have identity listener.", Node.GetNode(node.getTLModelObject()) == node);
 		if (node instanceof BusinessObjectNode)
 			new BusinessObjectTests().checkBusinessObject((BusinessObjectNode) node);
 		else if (node instanceof CoreObjectNode)

@@ -57,6 +57,7 @@ import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemacompiler.util.URLUtils;
 import org.opentravel.schemas.controllers.ContextController;
 import org.opentravel.schemas.controllers.LibraryModelManager;
+import org.opentravel.schemas.modelObject.LibraryMO;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
@@ -102,9 +103,10 @@ import org.slf4j.LoggerFactory;
  * The LibraryNode class manages an internal navigation oriented node a library model class. Libraries are model classes
  * that contain named members representing global types and elements from either schemas (XSD), built-in-types or OTA2
  * model components.
- * 
+ * <p>
  * QUESTION - why host the TL abstract library directly instead of through MO? MO are supposed to be a isolation layer
- * (shearing layer) between the schema driven TLModel and the GUI driven node model.
+ * (shearing layer) between the schema driven TLModel and the GUI driven node model. TODO - choose one or the other, not
+ * both {@link LibraryMO} is basically useless.
  */
 
 public class LibraryNode extends Node implements LibraryInterface {
@@ -140,6 +142,12 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 * Default constructor. Used for user-directed library creation. Names type node "Library" and does <i>not</i>
 	 * create navNodes.
 	 * 
+	 * <p>
+	 * <b>NOTE:</b> does not create model object or listeners!
+	 * <p>
+	 * NOTE: Wizard is only user and it replaces it with one created by project controller
+	 * <p>
+	 * 
 	 * @see {@link org.opentravel.schemas.wizards.NewLibraryWizard#NewLibraryWizard(ProjectNode)}
 	 */
 	// FIXME - change wizard to use a libraryNavNode then delete this
@@ -155,7 +163,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 		nsHandler = NamespaceHandler.getNamespaceHandler((ProjectNode) parent);
 		this.setNamespace(parent.getNamespace());
 		// LOGGER.debug("Created empty library without underlying model");
-
+		// TODO - why no listener?
 	}
 
 	public WhereUsedLibraryHandler getWhereUsedHandler() {
@@ -244,8 +252,8 @@ public class LibraryNode extends Node implements LibraryInterface {
 
 		// Set up the contexts
 		addContexts();
+		// Create Listeners
 		addListeners();
-
 	}
 
 	private void addListeners() {
@@ -1092,23 +1100,22 @@ public class LibraryNode extends Node implements LibraryInterface {
 			throw new IllegalArgumentException(source + " is not a component.");
 		if (destination == null)
 			throw new IllegalArgumentException("Move destination library is null.");
-		if (!(destination.getTLaLib() instanceof TLLibrary))
+		if (!(destination.getTLModelObject() instanceof TLLibrary))
 			throw new IllegalArgumentException("Move destination library is not a TLLibrary.");
+		if (source.getLibrary() != this)
+			throw new IllegalArgumentException("Internal error - source of move is in wrong library.");
 
 		// FIXME - this does not do services at all.
 		// You can't move a service it one already exists in target library.
 		// if (source.isService() && destination.hasService())
 		if (source instanceof ServiceNode)
-			return false;
+			throw new IllegalArgumentException("Services can not be moved.");
 
-		// Moved to LibraryNodeListener
-		// Remove from source
-		// if (isInChain()) {
-		// getChain().removeAggregate((ComponentNode) source);
-		// }
-		// source.unlinkNode();
-		addListeners();
-		destination.addListeners();
+		// Assure listeners are correct
+		if (Node.GetNode(getTLModelObject()) != this)
+			throw new IllegalArgumentException("Internal Error - incorrect listener on " + this);
+		if (Node.GetNode(destination.getTLModelObject()) != destination)
+			throw new IllegalArgumentException("Internal Error - incorrect listener on " + destination);
 
 		if (source instanceof ContextualFacetNode && !(source instanceof ContributedFacetNode)) {
 			// Do the move manually. Let listeners handle the nodes.
@@ -1118,27 +1125,15 @@ public class LibraryNode extends Node implements LibraryInterface {
 		} else
 			// Move the TL object to destination tl library.
 			try {
-				source.getLibrary()
-						.getTLLibrary()
-						.moveNamedMember((TLLibraryMember) source.getTLModelObject(),
-								destination.getLibrary().getTLLibrary());
+				getTLLibrary().moveNamedMember((TLLibraryMember) source.getTLModelObject(), destination.getTLLibrary());
 			} catch (Exception e) {
-				// Failed to move. Change destination to be this library and relink.
+				// Failed to move.
 				destination = this;
-				// LOGGER.debug("moveNamedMember failed. Adding back to " + this + " library.");
+				throw new IllegalArgumentException("Internal Error - " + e.getLocalizedMessage());
 			}
-		removeListeners();
-		destination.removeListeners();
 
 		destination.collapseContexts(); // reduce down to one context
 		assert (destination.getTLLibrary().getContexts().size() == 1);
-
-		// Add to destination library chain
-		// TODO - should this use addMember() ?
-		// destination.linkMember(source);
-		// if (destination.isInChain()) {
-		// destination.getChain().add((ComponentNode) source);
-		// }
 		return true;
 	}
 
@@ -1193,6 +1188,12 @@ public class LibraryNode extends Node implements LibraryInterface {
 		return new LibraryNodeListener(this);
 	}
 
+	/**
+	 * Use {@link #getTLModelObject()}
+	 * 
+	 * @return
+	 */
+	@Deprecated
 	public AbstractLibrary getTLaLib() {
 		return absTLLibrary;
 	}
@@ -1338,12 +1339,12 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 */
 	@Override
 	public boolean isBuiltIn() {
-		return getTLaLib() instanceof BuiltInLibrary;
+		return getTLModelObject() instanceof BuiltInLibrary;
 	}
 
 	@Override
 	public boolean isTLLibrary() {
-		return getTLaLib() instanceof TLLibrary;
+		return getTLModelObject() instanceof TLLibrary;
 	}
 
 	/**
