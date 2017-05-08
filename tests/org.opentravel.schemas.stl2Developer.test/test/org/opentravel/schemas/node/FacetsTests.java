@@ -278,7 +278,7 @@ public class FacetsTests {
 		// NOTE: load order is important if the compiler is to resolve contributors
 		lf.loadFile_Facets1(defaultProject);
 		lf.loadFile_Facets2(defaultProject);
-		LibraryNode base = lf.loadFile_FacetBase(defaultProject);
+		LibraryNode baseLib = lf.loadFile_FacetBase(defaultProject);
 
 		// Then libraries must have contextual facets and those facets must have owners.
 		for (LibraryNode ln : defaultProject.getLibraries()) {
@@ -292,19 +292,19 @@ public class FacetsTests {
 		// Then - check contributions to objects in the base library
 		//
 		// FacetTestBO must have 4 contextual facets. 2 local and 2 contributed
-		checkFacetContents(base, "FacetTestBO", 2, 2);
+		checkFacetContents(baseLib, "FacetTestBO", 2, 2);
 		// 6 from facet test 1 library - 4 direct and two injected into contributed facets
 		// 3 more from test 2 library - all injected into facets
 
 		// extended BO must have 4 contextual facets as children and no inherited
-		checkFacetContents(base, "ExtFacetTestBO", 2, 2);
+		checkFacetContents(baseLib, "ExtFacetTestBO", 2, 2);
 		// FacetTestChoice must have 2 choice facets. One from base library and one local and one from lib1
-		checkFacetContents(base, "FacetTestChoice", 1, 1);
+		checkFacetContents(baseLib, "FacetTestChoice", 1, 1);
 		// extended choice must have 4 contextual facets as children and no inherited
-		checkFacetContents(base, "ExtFacetTestChoice", 1, 1);
+		checkFacetContents(baseLib, "ExtFacetTestChoice", 1, 1);
 
 		// Then extensions must have inherited children
-		for (Node n : base.getDescendants_LibraryMembers()) {
+		for (Node n : baseLib.getDescendants_LibraryMembers()) {
 			if (n instanceof ExtensionOwner)
 				if (((ExtensionOwner) n).getExtensionBase() != null) {
 					// Contextual facets should all have inherited properties
@@ -330,6 +330,17 @@ public class FacetsTests {
 		return facets;
 	}
 
+	/**
+	 * Starting with the base node, find descendants with the target name. Those descendants must match the passed
+	 * counts.
+	 * 
+	 * @param base
+	 * @param targetName
+	 * @param local
+	 *            number of isLocal() contextual facets
+	 * @param contributed
+	 *            number of other facets (contributed)
+	 */
 	private void checkFacetContents(Node base, String targetName, int local, int contributed) {
 		int localCnt = 0, contributedCnt = 0;
 		int total = local + contributed;

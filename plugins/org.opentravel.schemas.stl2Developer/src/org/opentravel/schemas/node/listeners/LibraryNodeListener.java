@@ -40,8 +40,8 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
 		Node affectedNode = getAffectedNode(event);
-		LOGGER.debug("Library Ownership event: " + event.getType() + " this = " + thisNode + " affected = "
-				+ affectedNode);
+		// LOGGER.debug("Library Ownership event: " + event.getType() + " this = " + thisNode + " affected = "
+		// + affectedNode);
 		LibraryNode ln = (LibraryNode) thisNode;
 
 		switch (event.getType()) {

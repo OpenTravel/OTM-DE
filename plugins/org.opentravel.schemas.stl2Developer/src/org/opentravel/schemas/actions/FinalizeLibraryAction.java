@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Dave Hollander
  * 
- *         Obsolete - see {@link FinalizeLibraryAction}
+ *         Obsolete - see {@link LifeCycleAction}
  */
 public class FinalizeLibraryAction extends OtmAbstractAction {
 	private static StringProperties propDefault = new ExternalizedStringProperties("action.library.finalize");

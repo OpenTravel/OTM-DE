@@ -17,6 +17,8 @@ package org.opentravel.schemas.actions;
 
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
+import org.opentravel.schemacompiler.repository.impl.RepositoryUtils;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.RepositoryController;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -121,6 +123,13 @@ public class LifeCycleAction extends OtmAbstractAction {
 		if (!ln.getProjectItem().getStatus().nextStatus().equals(targetStatus))
 			return false;
 
+		// Obsolete only be enabled if the library is 1.6 and 1.6 mode
+		if (targetStatus.equals(TLLibraryStatus.OBSOLETE)) {
+			if (!OTM16Upgrade.otm16Enabled)
+				return false;
+			if (!RepositoryUtils.isOTM16Library(ln.getProjectItem().getContent()))
+				return false;
+		}
 		return ln.isManaged();
 	}
 }
