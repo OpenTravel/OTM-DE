@@ -14,7 +14,8 @@
         namespace="http://www.OpenTravel.org/ns/OTA2/SchemaCompiler/test-package-facets/base/v1" prefix="b"/>
     <ns2:Context applicationContext="default-applicationContext" context="default"/>
     <ns2:Comments>Facet-1 Test Library</ns2:Comments>
-    <ns2:ContextualFacet facetOwner="b:FacetTestChoice" name="ChoiceF2"
+    <ns2:ContextualFacet facetNamespace=""
+        facetOwner="b:FacetTestChoice" name="ChoiceF2"
         notExtendable="false" type="Choice">
         <ns2:Attribute name="attributeChoiceF2" referenceRepeat="0" type="xsd:string">
             <ns2:Documentation>
@@ -32,46 +33,50 @@
             </ns2:Documentation>
         </ns2:Indicator>
     </ns2:ContextualFacet>
-    <ns2:ContextualFacet facetOwner="FacetTestChoice_ChoiceF2"
-        name="ChoiceF2A" notExtendable="false" type="Choice">
+    <ns2:ContextualFacet facetNamespace=""
+        facetOwner="FacetTestChoice_ChoiceF2" name="ChoiceF2A"
+        notExtendable="false" type="Choice">
         <ns2:Attribute name="attributeChoiceF2A" referenceRepeat="0" type="xsd:string"/>
         <ns2:Element name="String" repeat="0" type="xsd:string"/>
         <ns2:Indicator name="indicatorChoiceF2AInd" publishAsElement="false"/>
     </ns2:ContextualFacet>
-    <ns2:ContextualFacet facetOwner="b:FacetTestBO" name="CustomF2"
-        notExtendable="false" type="Custom">
+    <ns2:ContextualFacet facetNamespace="" facetOwner="b:FacetTestBO"
+        name="CustomF2" notExtendable="false" type="Custom">
         <ns2:Attribute name="attributeCustomF2" referenceRepeat="0" type="xsd:string"/>
         <ns2:Element name="ElementCustomF2" repeat="0" type="xsd:string"/>
         <ns2:Indicator name="indicatorCustomF2Ind" publishAsElement="false"/>
     </ns2:ContextualFacet>
-    <ns2:ContextualFacet facetOwner="FacetTestBO_CustomF2"
-        name="CustomF2A" notExtendable="false" type="Custom">
+    <ns2:ContextualFacet facetNamespace=""
+        facetOwner="FacetTestBO_CustomF2" name="CustomF2A"
+        notExtendable="false" type="Custom">
         <ns2:Attribute name="attributeChoiceF2A" referenceRepeat="0" type="xsd:string"/>
         <ns2:Element name="String" repeat="0" type="xsd:string"/>
         <ns2:Indicator name="indicatorChoiceF2AInd" publishAsElement="false"/>
     </ns2:ContextualFacet>
-    <ns2:ContextualFacet facetOwner="b:FacetTestBO" name="QueryF2"
-        notExtendable="false" type="Query">
+    <ns2:ContextualFacet facetNamespace="" facetOwner="b:FacetTestBO"
+        name="QueryF2" notExtendable="false" type="Query">
         <ns2:Attribute name="attributeQueryF2" referenceRepeat="0" type="xsd:string"/>
         <ns2:Element name="ElementQueryF2" repeat="0" type="xsd:string"/>
         <ns2:Indicator name="indicatorQueryF2Ind" publishAsElement="false"/>
     </ns2:ContextualFacet>
-    <ns2:ContextualFacet facetOwner="FacetTestBO_Query_QueryF2"
-        name="QueryF2A" notExtendable="false" type="Query">
+    <ns2:ContextualFacet facetNamespace=""
+        facetOwner="FacetTestBO_Query_QueryF2" name="QueryF2A"
+        notExtendable="false" type="Query">
         <ns2:Attribute name="attributeQueryF2A" referenceRepeat="0" type="xsd:string"/>
         <ns2:Element name="String" repeat="0" type="xsd:string"/>
         <ns2:Indicator name="indicatorQueryF2AInd" publishAsElement="false"/>
     </ns2:ContextualFacet>
-    <ns2:ContextualFacet facetOwner="b:FacetTestBO" name="UpdateF2"
-        notExtendable="false" type="Update">
+    <ns2:ContextualFacet facetNamespace="" facetOwner="b:FacetTestBO"
+        name="UpdateF2" notExtendable="false" type="Update">
         <ns2:Attribute name="attributeUpdateF2" referenceRepeat="0" type="xsd:string"/>
         <ns2:Element name="String" repeat="0" type="xsd:string"/>
         <ns2:Indicator name="indicatorUpdateF2Ind" publishAsElement="false"/>
     </ns2:ContextualFacet>
-    <ns2:ContextualFacet facetOwner="FacetTestBO_Update_UpdateF2"
-        name="UpdateF2A" notExtendable="false" type="Update">
+    <ns2:ContextualFacet facetNamespace=""
+        facetOwner="FacetTestBO_Update_UpdateF2" name="UpdateF2A"
+        notExtendable="false" type="Update">
         <ns2:Attribute name="attributeUpdateF2A" referenceRepeat="0" type="xsd:string"/>
-        <ns2:Element name="String" repeat="0" type="xsd:string"/>
+        <ns2:Element name="String2a" repeat="0" type="xsd:string"/>
         <ns2:Indicator name="indicatorUpdateF2AInd" publishAsElement="false"/>
     </ns2:ContextualFacet>
     
