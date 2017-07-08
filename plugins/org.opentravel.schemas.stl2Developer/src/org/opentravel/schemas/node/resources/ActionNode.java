@@ -19,13 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.codegen.impl.QualifiedAction;
 import org.opentravel.schemacompiler.codegen.util.ResourceCodegenUtils;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionRequest;
 import org.opentravel.schemacompiler.model.TLActionResponse;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLMimeType;
+import org.opentravel.schemacompiler.model.TLResourceParentRef;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
@@ -45,6 +45,7 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	private static final Logger LOGGER = LoggerFactory.getLogger(ActionNode.class);
 	private String MSGKEY = "rest.ActionNode";
 	private ActionExample example = null;
+	private List<InheritedResourceMember> inheritedResponses;
 
 	public class CommonListener implements ResourceFieldListener {
 		@Override
@@ -61,6 +62,7 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	 */
 	public ActionNode(TLAction tlAction) {
 		super(tlAction);
+		initInherited();
 	}
 
 	/**
@@ -77,6 +79,8 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 		TLActionRequest tlr = new TLActionRequest();
 		tlObj.setRequest(tlr); // must have owner for parent to be set correctly
 		new ActionRequest(tlr);
+
+		initInherited();
 	}
 
 	public void setRQRS(String label, ActionFacet af, List<TLMimeType> rqMimeTypes, List<TLMimeType> rsMimeTypes,
@@ -104,6 +108,25 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 			new ActionResponse(res);
 	}
 
+	public List<InheritedResourceMember> getInherited() {
+		return inheritedResponses;
+	}
+
+	public void initInherited() {
+		// Remove old ones and assure there is an array
+		// if (inheritedResponses == null)
+		inheritedResponses = new ArrayList<InheritedResourceMember>();
+		if (tlObj == null)
+			return;
+		// Note - tlAR may not have been modeled yet
+		for (TLActionResponse tlAR : ResourceCodegenUtils.getInheritedResponses(tlObj))
+			if (!inheritedResponses.contains(Node.GetNode(tlAR)))
+				if (!getChildren().contains(Node.GetNode(tlAR)))
+					inheritedResponses.add(new InheritedResourceMember(tlAR));
+		// inheritedResponses.add(new InheritedResourceMember((ActionResponse) Node.GetNode(tlAR)));
+		LOGGER.debug("Handle inherited responses.");
+	}
+
 	public void addResponse(ActionResponse actionResponse) {
 		if (!getChildren().contains(actionResponse))
 			getChildren().add(actionResponse);
@@ -117,6 +140,19 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 		if (tlObj.getOwner() != null)
 			tlObj.getOwner().removeAction(tlObj);
 		super.delete();
+	}
+
+	@Override
+	public List<Node> getNavChildren(boolean deep) {
+		List<Node> kids = new ArrayList<Node>();
+		kids.addAll(super.getChildren());
+		if (deep) {
+			if (inheritedResponses == null)
+				initInherited();
+			if (!inheritedResponses.isEmpty())
+				kids.addAll(inheritedResponses);
+		}
+		return kids;
 	}
 
 	@Override
@@ -201,32 +237,23 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 		return getRequest().getParamGroup().getQueryTemplate();
 	}
 
+	public String getPathTemplate() {
+		return getRequest() != null ? getRequest().getPathTemplate() : "";
+	}
+
 	/**
+	 * Uses ResourceCodegenUtils. If a parent resource reference is present, the resulting path will include the path of
+	 * the parent.
+	 * 
 	 * @return URL contribution made by parent ref or empty string
 	 */
 	public String getParentContribution() {
-		// FIXME - dependent on order of list
-		// There are many possibilities depending on if the ancestors are 1st class.
-		// Choose the longest.
-		String qaContrib = "";
-		for (QualifiedAction qa : ResourceCodegenUtils.getQualifiedActions(getOwningComponent().getTLModelObject())) {
-			if (qa.getAction() == tlObj)
-				if (qa.getPathTemplate().length() > qaContrib.length())
-					qaContrib = qa.getPathTemplate();
+		String contribution = getOwningComponent().getTLModelObject().getBasePath();
+		List<TLResourceParentRef> list = ResourceCodegenUtils.getInheritedParentRefs(getOwningComponent()
+				.getTLModelObject());
+		for (TLResourceParentRef tlRef : list) {
+			contribution += tlRef.getPathTemplate();
 		}
-		return qaContrib;
-
-		// String contribution = "";
-		// List<TLResourceParentRef> list = ResourceCodegenUtils.getInheritedParentRefs(getOwningComponent()
-		// .getTLModelObject());
-		// for (TLResourceParentRef tlRef : list) {
-		// contribution += tlRef.getPathTemplate();
-		// }
-		// return contribution;
-		// Find the parent resource if any
-		// ParentRef pr = getOwningComponent().getParentRef();
-		// return pr != null ? pr.getUrlContribution() : "";
-		// ResourceNode ppg = getOwningComponent().getParentParamGroup();
-		// return parent != null ? ppg.getPathContribution() : "";
+		return contribution;
 	}
 }

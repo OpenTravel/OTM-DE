@@ -28,6 +28,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Navigation Nodes describe GUI model objects that are not part of the TL Model. They ease navigating the GUI and
  * <b>not</b> representing the OTM model.
+ * <p>
+ * NavNodes only contain objects (LibraryMembers). If the object is in a version chain, then all of the objects in that
+ * chain will have a link to a single NavNode which is a child of the corresponding AggregateNode in the chain.
  * 
  * @author Dave Hollander
  * 
@@ -50,18 +53,10 @@ public class NavNode extends Node {
 		setName(name);
 		setLibrary(parent.getLibrary());
 		// Don't break version node-component node bond.
-		if (parent instanceof VersionNode)
-			parent.getParent().linkChild(this);
-		else
-			parent.linkChild(this); // link without doing family tests.
-	}
-
-	public boolean isComplexRoot() {
-		return this == getLibrary().getComplexRoot() ? true : false;
-	}
-
-	public boolean isResourceRoot() {
-		return getLibrary() != null ? this == getLibrary().getResourceRoot() : false;
+		// if (parent instanceof VersionNode)
+		// parent.getParent().linkChild(this);
+		// else
+		parent.linkChild(this); // link without doing family tests.
 	}
 
 	@Override
@@ -80,6 +75,14 @@ public class NavNode extends Node {
 	@Override
 	public boolean isLibraryContainer() {
 		return false;
+	}
+
+	public boolean isComplexRoot() {
+		return this == getLibrary().getComplexRoot() ? true : false;
+	}
+
+	public boolean isResourceRoot() {
+		return getLibrary() != null ? this == getLibrary().getResourceRoot() : false;
 	}
 
 	public boolean isSimpleRoot() {
@@ -117,15 +120,15 @@ public class NavNode extends Node {
 	}
 
 	/**
-	 * Get a new list of library members in this Nav Node. Version nodes return their version of the actual object.
+	 * Get a new list of library members in this Nav Node.
 	 * 
 	 * @return
 	 */
 	public List<LibraryMemberInterface> get_LibraryMembers() {
 		List<LibraryMemberInterface> members = new ArrayList<LibraryMemberInterface>();
 		for (Node n : getChildren()) {
-			if (n instanceof VersionNode && ((VersionNode) n).get() != null)
-				n = ((VersionNode) n).get();
+			// if (n instanceof VersionNode && ((VersionNode) n).get() != null)
+			// n = ((VersionNode) n).get();
 			if (n instanceof LibraryMemberInterface)
 				members.add((LibraryMemberInterface) n);
 		}
@@ -168,9 +171,9 @@ public class NavNode extends Node {
 	 * @return true if this member is a child or if it has a version node that is a child.
 	 */
 	public boolean contains(Node member) {
-		Node thisNode = member;
-		if (member.getVersionNode() != null)
-			thisNode = member.getVersionNode();
-		return getChildren().contains(thisNode);
+		// Node thisNode = member;
+		// if (member.getVersionNode() != null)
+		// thisNode = member.getVersionNode();
+		return getChildren().contains(member);
 	}
 }

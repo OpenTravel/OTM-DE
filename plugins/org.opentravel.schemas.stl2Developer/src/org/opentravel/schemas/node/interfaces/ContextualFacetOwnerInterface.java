@@ -18,6 +18,9 @@
  */
 package org.opentravel.schemas.node.interfaces;
 
+import java.util.List;
+
+import org.opentravel.schemacompiler.model.LibraryElement;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
@@ -34,11 +37,26 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
  */
 public interface ContextualFacetOwnerInterface {
 
+	/**
+	 * Contextual facets are cloned when their owner is cloned.
+	 */
+	public LibraryElement cloneTLObj();
+
 	public TLFacetOwner getTLModelObject();
 
 	public LibraryNode getLibrary();
 
 	public Node getParent();
+
+	/**
+	 * @return list of contextual facets identified by the contributed facets in this object
+	 */
+	public List<ContextualFacetNode> getContextualFacets();
+
+	/**
+	 * @return list of contributed facet children of this object
+	 */
+	public List<ContributedFacetNode> getContributedFacets();
 
 	/**
 	 * 

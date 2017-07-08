@@ -380,21 +380,21 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 	@Override
 	public String getLibraryStatus(LibraryNode library) {
 		// TODO: use i18n for text
-		if (library == null || library.getTLaLib() == null)
+		if (library == null || library.getModelObject() == null)
 			return "NULL Status";
 
-		if (library.getTLaLib() instanceof XSDLibrary)
+		if (library.getTLModelObject() instanceof XSDLibrary)
 			return "XSD";
 
 		ProjectItem pi = library.getProjectItem();
 		// During adding library there is some kind of duplication. Until resolving unnecessary
 		// duplication check this
-		if (pi == null) {
+		if (pi == null)
 			return "NULL Status";
-		}
-		if (library.getTLaLib() instanceof BuiltInLibrary) {
+
+		if (library.getTLModelObject() instanceof BuiltInLibrary)
 			return "Built-in";
-		}
+
 		return LibraryDecorator.translateStatusState(library.getStatus(), pi.getState(), pi.getLockedByUser(),
 				library.isEditable(), library.isMinorVersion());
 	}

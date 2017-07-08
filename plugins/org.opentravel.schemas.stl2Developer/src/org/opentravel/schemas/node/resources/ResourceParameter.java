@@ -23,7 +23,6 @@ import org.opentravel.schemacompiler.model.TLMemberField;
 import org.opentravel.schemacompiler.model.TLParamGroup;
 import org.opentravel.schemacompiler.model.TLParamLocation;
 import org.opentravel.schemacompiler.model.TLParameter;
-import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.properties.Images;
@@ -139,13 +138,13 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 	 * @param isIdGroup
 	 */
 	public void guessLocation(boolean isIdGroup) {
-		if (tlObj.getFieldRef() instanceof TLProperty)
-			if (isIdGroup)
-				tlObj.setLocation(TLParamLocation.PATH);
-			else
-				tlObj.setLocation(TLParamLocation.QUERY);
+		if (isIdGroup)
+			tlObj.setLocation(TLParamLocation.PATH);
+		// else if (tlObj.getFieldRef() instanceof TLProperty)
+		// tlObj.setLocation(TLParamLocation.QUERY);
 		else
-			tlObj.setLocation(TLParamLocation.HEADER);
+			tlObj.setLocation(TLParamLocation.QUERY);
+		// tlObj.setLocation(TLParamLocation.HEADER);
 	}
 
 	public boolean isPathParam() {

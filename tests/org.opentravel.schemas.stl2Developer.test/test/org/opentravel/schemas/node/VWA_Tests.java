@@ -84,9 +84,11 @@ public class VWA_Tests {
 		VWA_Node tVwa = null, vwa = ml.addVWA_ToLibrary(ln, "vwa");
 		int typeCount = ln.getDescendants_LibraryMembers().size();
 
-		tVwa = (VWA_Node) core.changeToVWA();
+		tVwa = (VWA_Node) bo.changeObject(SubType.VALUE_WITH_ATTRS);
 		checkVWA(tVwa);
-		tVwa = (VWA_Node) vwa.changeToVWA();
+		tVwa = (VWA_Node) core.changeObject(SubType.VALUE_WITH_ATTRS);
+		checkVWA(tVwa);
+		tVwa = (VWA_Node) vwa.changeObject(SubType.VALUE_WITH_ATTRS);
 		checkVWA(tVwa);
 
 		tn.visit(ln);
@@ -127,16 +129,16 @@ public class VWA_Tests {
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "VWA_Test");
 
 		// When - simple type is set
-		assertTrue("Simple type must be assigned.", vwa.getSimpleFacet().getSimpleAttribute().setAssignedType(cType));
+		assertTrue("Simple type must be assigned.", vwa.getFacet_Simple().getSimpleAttribute().setAssignedType(cType));
 		// Then
-		assertTrue("Simple type must equal type assigned.", cType == vwa.getSimpleFacet().getSimpleAttribute()
+		assertTrue("Simple type must equal type assigned.", cType == vwa.getFacet_Simple().getSimpleAttribute()
 				.getAssignedType());
 
 		// When - a new VWA in managed library is created and type set
 		vwa = ml.addVWA_ToLibrary(lcn.getHead(), "InChainTest");
-		assertTrue("Simple type must be assignable.", vwa.getSimpleFacet().getSimpleAttribute().setAssignedType(bType));
+		assertTrue("Simple type must be assignable.", vwa.getFacet_Simple().getSimpleAttribute().setAssignedType(bType));
 		// Then
-		assertTrue("Simple type must equal type assigned.", bType == vwa.getSimpleFacet().getSimpleAttribute()
+		assertTrue("Simple type must equal type assigned.", bType == vwa.getFacet_Simple().getSimpleAttribute()
 				.getAssignedType());
 
 		// Given - the tlModelObject from simple type B
@@ -147,7 +149,7 @@ public class VWA_Tests {
 		TLAttributeType a1 = t1.getParentType(); // null
 
 		// Test accessing the simple facet via TL objects
-		SimpleFacetNode sf = vwa.getSimpleFacet();
+		SimpleFacetNode sf = vwa.getFacet_Simple();
 		assertTrue("Simple facet must not be null.", sf != null);
 
 		// Then - access via simple facet
@@ -269,9 +271,9 @@ public class VWA_Tests {
 		assertTrue("VWA must NOT be a Type User", !(nVwaNoParent instanceof TypeUser));
 		assertTrue("VWA must NOT have assigned type.", nVwaNoParent.getType() == null);
 		// Then - test simple facet
-		assertTrue("VWA must have simple facet.", nVwaNoParent.getSimpleFacet() != null);
-		assertTrue("VWA simple facet must NOT be a Type User", !(nVwaNoParent.getSimpleFacet() instanceof TypeUser));
-		assertTrue("VWA simple facet must NOT have assigned type.", nVwaNoParent.getSimpleFacet().getType() == null);
+		assertTrue("VWA must have simple facet.", nVwaNoParent.getFacet_Simple() != null);
+		assertTrue("VWA simple facet must NOT be a Type User", !(nVwaNoParent.getFacet_Simple() instanceof TypeUser));
+		assertTrue("VWA simple facet must NOT have assigned type.", nVwaNoParent.getFacet_Simple().getType() == null);
 		// Then - test simple attribute
 		assertTrue("VWA must have simple attribute.", nVwaNoParent.getSimpleAttribute() != null);
 		assertTrue("VWA simple attribute must be a Type User", nVwaNoParent.getSimpleAttribute() instanceof TypeUser);
@@ -288,7 +290,7 @@ public class VWA_Tests {
 		assertTrue("VWA is NOT a Type User", !(nVwawithParent instanceof TypeUser));
 		assertTrue("VWA does NOT have assigned type.", nVwawithParent.getType() == null);
 		assertTrue("VWA simple facet is NOT a Type User", !(nVwawithParent instanceof TypeUser));
-		assertTrue("VWA simple facet does NOT have assigned type.", nVwawithParent.getSimpleFacet().getType() == null);
+		assertTrue("VWA simple facet does NOT have assigned type.", nVwawithParent.getFacet_Simple().getType() == null);
 		assertTrue("VWA simple attribute is Type User", nVwawithParent.getSimpleAttribute() instanceof TypeUser);
 		assertTrue("VWA simple attribute has  assigned type.", nVwawithParent.getSimpleAttribute().getType() == sType);
 
@@ -325,13 +327,13 @@ public class VWA_Tests {
 	public void checkVWA(VWA_Node vwa) {
 
 		// Make sure named structures are present
-		assertTrue(vwa.getSimpleFacet() != null);
+		assertTrue(vwa.getFacet_Simple() != null);
 		assertTrue(vwa.getSimpleAttribute() != null);
 		assertTrue(vwa.getAttributeFacet() != null);
 
 		// Make sure there are libraries assigned to all
 		assertTrue(vwa.getLibrary() != null);
-		assertTrue(vwa.getSimpleFacet().getLibrary() != null);
+		assertTrue(vwa.getFacet_Simple().getLibrary() != null);
 		assertTrue(vwa.getSimpleAttribute().getLibrary() != null);
 		assertTrue(vwa.getAttributeFacet().getLibrary() != null);
 

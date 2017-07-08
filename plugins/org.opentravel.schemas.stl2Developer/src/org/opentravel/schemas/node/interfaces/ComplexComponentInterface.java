@@ -38,18 +38,18 @@ public interface ComplexComponentInterface {
 	/**
 	 * @return the simple facet or null if none.
 	 */
-	public SimpleFacetNode getSimpleFacet();
+	public SimpleFacetNode getFacet_Simple();
 
 	public PropertyOwnerInterface getAttributeFacet(); // VWA only
 
-	public PropertyOwnerInterface getSummaryFacet();
+	public PropertyOwnerInterface getFacet_Summary();
 
-	public PropertyOwnerInterface getDetailFacet();
+	public PropertyOwnerInterface getFacet_Detail();
 
 	/**
 	 * @return null or the default facet for the complex object
 	 */
-	public PropertyOwnerInterface getDefaultFacet();
+	public PropertyOwnerInterface getFacet_Default();
 
 	/**
 	 * Create aliases for complex types used by two or more properties.

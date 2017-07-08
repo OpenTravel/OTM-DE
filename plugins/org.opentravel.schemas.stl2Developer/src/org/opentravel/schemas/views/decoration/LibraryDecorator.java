@@ -27,6 +27,7 @@ import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 import org.opentravel.schemas.controllers.MainController.IRefreshListener;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -73,65 +74,71 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 			return;
 
 		Node node = (Node) element;
-		if (element instanceof LibraryNavNode)
-			element = ((LibraryNavNode) element).getThisLib();
+		// If versioned, get the head of the versioned object chain
+		if (node instanceof VersionNode)
+			node = ((VersionNode) node).get();
 
-		if (element instanceof LibraryNode) {
-			decoration.addSuffix(getLibraryDecoration((LibraryNode) element));
-			if (!((LibraryNode) element).isValid())
+		if (node instanceof LibraryNavNode)
+			node = (Node) ((LibraryNavNode) node).getThisLib();
+
+		if (node instanceof LibraryNode) {
+			decoration.addSuffix(getLibraryDecoration((LibraryNode) node));
+			if (!((LibraryNode) node).isValid())
 				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
 
-		} else if (element instanceof LibraryChainNode) {
-			LibraryNode head = ((LibraryChainNode) element).getHead();
-			if (!((LibraryChainNode) element).isValid())
-				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
-			decoration.addSuffix(getLibraryDecoration(head));
+		} else if (node instanceof LibraryChainNode) {
+			LibraryNode head = ((LibraryChainNode) node).getHead();
+			if (head != null) {
+				if (!((LibraryChainNode) node).isValid())
+					decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
+				decoration.addSuffix(getLibraryDecoration(head));
+			}
 
-		} else if (element instanceof RepositoryInstanceNode) {
-			decoration.addSuffix(getRepositoryNameDecoration((RepositoryInstanceNode) element));
+		} else if (node instanceof RepositoryInstanceNode) {
+			decoration.addSuffix(getRepositoryNameDecoration((RepositoryInstanceNode) node));
 
-		} else if (element instanceof RepositoryChainNode) {
-			RepositoryChainNode rn = (RepositoryChainNode) element;
+		} else if (node instanceof RepositoryChainNode) {
+			RepositoryChainNode rn = (RepositoryChainNode) node;
 			decoration.addSuffix(getNamespaceDecoration(rn));
 
-		} else if (element instanceof RepositoryItemNode) {
-			RepositoryItemNode ri = (RepositoryItemNode) element;
+		} else if (node instanceof RepositoryItemNode) {
+			RepositoryItemNode ri = (RepositoryItemNode) node;
 			decoration.addSuffix(getRepositoryItemDecoration(ri.getItem()));
 
-		} else if (element instanceof RepositoryRootNsNode) {
-			decoration.addSuffix(getNamespaceDecoration((RepositoryRootNsNode) element));
+		} else if (node instanceof RepositoryRootNsNode) {
+			decoration.addSuffix(getNamespaceDecoration((RepositoryRootNsNode) node));
 
-		} else if (element instanceof ResourceNode) {
-			String txt = ((ResourceNode) element).getDecoration();
+		} else if (node instanceof ResourceNode) {
+			String txt = ((ResourceNode) node).getDecoration();
 			if (!txt.isEmpty())
 				decoration.addSuffix(txt);
-			if (!((ResourceMemberInterface) element).isValid())
+			if (!((ResourceMemberInterface) node).isValid())
 				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
 
-		} else if (element instanceof ResourceMemberInterface) {
-			if (!((ResourceMemberInterface) element).isValid())
+		} else if (node instanceof ResourceMemberInterface) {
+			String txt = node.getDecoration();
+			if (!txt.isEmpty())
+				decoration.addSuffix(txt);
+			if (!((ResourceMemberInterface) node).isValid())
 				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
-			else if (!((ResourceMemberInterface) element).isValid_NoWarnings())
+			else if (!((ResourceMemberInterface) node).isValid_NoWarnings())
 				decoration.addOverlay(warningDesc(), IDecoration.BOTTOM_LEFT);
-			// } else if (element instanceof PropertyNode) {
-			// if (((PropertyNode) element).getAssignedType() == ModelNode.getUnassignedNode())
-			// decoration.addOverlay(warningDesc(), IDecoration.BOTTOM_LEFT);
 
 		} else if (node instanceof WhereUsedNode) {
 			decoration.addSuffix(node.getDecoration());
 
-		} else if (element instanceof NavNode) {
-			decoration.addSuffix("  (" + (((NavNode) element).getChildren().size() + " Objects)"));
+		} else if (node instanceof NavNode) {
+			decoration.addSuffix("  (" + (((NavNode) node).getChildren().size() + " Objects)"));
 
-		} else if (element instanceof LibraryMemberInterface) {
-			String nodeTxt = ((Node) element).getDecoration();
+		} else if (node instanceof LibraryMemberInterface) {
+			String nodeTxt = ((Node) node).getDecoration();
 			if (!nodeTxt.isEmpty())
 				decoration.addSuffix(nodeTxt);
-			if (!((LibraryMemberInterface) element).isValid())
+			if (!((LibraryMemberInterface) node).isValid())
 				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
 
-		} else if (element instanceof ContextualFacetNode) {
-			String nodeTxt = ((ContextualFacetNode) element).getDecoration();
+		} else if (node instanceof ContextualFacetNode) {
+			String nodeTxt = ((ContextualFacetNode) node).getDecoration();
 			if (!nodeTxt.isEmpty())
 				decoration.addSuffix(nodeTxt);
 		}
@@ -228,7 +235,7 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 	}
 
 	private String getLibraryDecoration(LibraryNode lib) {
-		return getDecoration(getLibraryVersion(lib), getLibraryStatus(lib));
+		return "  " + getDecoration(getLibraryVersion(lib), getLibraryStatus(lib));
 	}
 
 	public String getLibraryStatus(LibraryNode lib) {
@@ -240,7 +247,9 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 	}
 
 	private String getDecoration(String status, String version) {
-		return surround(status) + surround(version);
+		if (status.isEmpty() && version.isEmpty())
+			return "";
+		return surround(status + " " + version);
 	}
 
 	private String surround(String txt) {

@@ -190,7 +190,7 @@ public class ServiceTests {
 		ln.visitAllNodes(tn);
 
 		// Make sure services created from GUI can be resolved.
-		svc = new ServiceNode((Node) bo.getDetailFacet());
+		svc = new ServiceNode((Node) bo.getFacet_Detail());
 		tr = new TypeResolver();
 		tr.resolveTypes(ln);
 		ln.visitAllNodes(tn);

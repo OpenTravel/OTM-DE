@@ -151,13 +151,6 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 		String contribution = tlObj.getPathTemplate();
 		if (contribution == null || contribution.isEmpty()) {
 			// See if the parent resource has a grand-parent with contribution
-			ResourceNode parentResource = getParentResource();
-			// ParentRef pRef = null;
-			// if (parentResource != null)
-			// pRef = parentResource.getParentRef();
-			// if (pRef != null)
-			// contribution = pRef.getUrlContribution();
-			// Now add the contribution from this parent
 			ParamGroup pg = getParameterGroup();
 			if (pg != null && !deleted)
 				contribution += getParentResource().getBasePath() + pg.getPathTemplate();

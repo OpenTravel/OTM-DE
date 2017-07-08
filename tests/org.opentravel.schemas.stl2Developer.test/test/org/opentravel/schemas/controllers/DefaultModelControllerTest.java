@@ -65,10 +65,10 @@ public class DefaultModelControllerTest {
 
 		Assert.assertTrue(res);
 		Assert.assertSame(coType, co.getSimpleType());
-		Assert.assertEquals(1, co.getSimpleFacet().getChildren().size());
+		Assert.assertEquals(1, co.getFacet_Simple().getChildren().size());
 
 		// 2/3/2015 dmh added tests to assure properties are removed
-		Assert.assertEquals(0, co.getSummaryFacet().getChildren().size()); // checks node structure
+		Assert.assertEquals(0, co.getFacet_Summary().getChildren().size()); // checks node structure
 		Assert.assertEquals(0, tco.getSummaryFacet().getElements().size()); // checks TL Model structure
 		// 2/3/2015 dmh added VWA test
 		ComponentNode simple = ComponentNodeBuilder.createSimpleObject("simple").get();
@@ -92,7 +92,7 @@ public class DefaultModelControllerTest {
 
 		dc.changeToSimple(p);
 
-		Assert.assertTrue(co.getSimpleFacet().getSimpleAttribute() instanceof SimpleAttributeNode);
+		Assert.assertTrue(co.getFacet_Simple().getSimpleAttribute() instanceof SimpleAttributeNode);
 	}
 
 	@Test
@@ -104,7 +104,7 @@ public class DefaultModelControllerTest {
 		boolean res = dc.changeToSimple(p);
 
 		Assert.assertTrue(res);
-		Assert.assertTrue(co.getSummaryFacet().getChildren().isEmpty());
+		Assert.assertTrue(co.getFacet_Summary().getChildren().isEmpty());
 	}
 
 	@Test
@@ -113,7 +113,7 @@ public class DefaultModelControllerTest {
 		PropertyNode p = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).assign(coType).build();
 		CoreObjectNode co = ComponentNodeBuilder.createCoreObject("Core").addToSummaryFacet(p).get();
 
-		boolean res = dc.changeToSimple((PropertyNode) co.getSimpleFacet().getSimpleAttribute());
+		boolean res = dc.changeToSimple((PropertyNode) co.getFacet_Simple().getSimpleAttribute());
 
 		Assert.assertFalse(res);
 	}
@@ -126,14 +126,14 @@ public class DefaultModelControllerTest {
 		CoreObjectNode co = ComponentNodeBuilder.createCoreObject("Core").addToSummaryFacet(p).get();
 
 		dc.changeToSimple(p);
-		assertDocumentationEquals(createSampleDoc(), co.getSimpleFacet().getSimpleAttribute().getDocumentation());
+		assertDocumentationEquals(createSampleDoc(), co.getFacet_Simple().getSimpleAttribute().getDocumentation());
 	}
 
 	@Test
 	public void changeFromSimpleNotSimpleAttributeShouldReturnFalse() {
 		PropertyNode p = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).build();
 		CoreObjectNode co = ComponentNodeBuilder.createCoreObject("Core").addToSummaryFacet(p).get();
-		ComponentNode newProperty = dc.moveSimpleToFacet(p, (ComponentNode) co.getSummaryFacet());
+		ComponentNode newProperty = dc.moveSimpleToFacet(p, (ComponentNode) co.getFacet_Summary());
 		Assert.assertNull(newProperty);
 	}
 
@@ -141,16 +141,16 @@ public class DefaultModelControllerTest {
 	public void changeFromSimpleShouldCreateNewProperty() {
 		ComponentNode coType = ComponentNodeBuilder.createCoreObject("Type").get();
 		CoreObjectNode co = ComponentNodeBuilder.createCoreObject("Core").get();
-		co.getSimpleFacet().getSimpleAttribute().setAssignedType((TypeProvider) coType);
+		co.getFacet_Simple().getSimpleAttribute().setAssignedType((TypeProvider) coType);
 
 		// make sure that summary is empty
-		Assert.assertEquals(0, co.getSummaryFacet().getChildren().size());
-		ComponentNode newProperty = dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(),
-				(ComponentNode) co.getSummaryFacet());
+		Assert.assertEquals(0, co.getFacet_Summary().getChildren().size());
+		ComponentNode newProperty = dc.moveSimpleToFacet(co.getFacet_Simple().getSimpleAttribute(),
+				(ComponentNode) co.getFacet_Summary());
 
 		Assert.assertNotNull(newProperty);
-		Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
-		Assert.assertSame(newProperty, co.getSummaryFacet().getChildren().get(0));
+		Assert.assertEquals(1, co.getFacet_Summary().getChildren().size());
+		Assert.assertSame(newProperty, co.getFacet_Summary().getChildren().get(0));
 		Assert.assertSame(coType, newProperty.getType());
 	}
 
@@ -158,11 +158,11 @@ public class DefaultModelControllerTest {
 	public void changeFromSimpleShouldLeftSimpleAttributeWithEmpty() {
 		ComponentNode vwaType = ComponentNodeBuilder.createVWA("Type").get();
 		CoreObjectNode co = ComponentNodeBuilder.createCoreObject("Core").get();
-		co.getSimpleFacet().getSimpleAttribute().setAssignedType((TypeProvider) vwaType);
+		co.getFacet_Simple().getSimpleAttribute().setAssignedType((TypeProvider) vwaType);
 
-		dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(), (ComponentNode) co.getSummaryFacet());
+		dc.moveSimpleToFacet(co.getFacet_Simple().getSimpleAttribute(), (ComponentNode) co.getFacet_Summary());
 
-		Assert.assertSame(ModelNode.getEmptyNode(), co.getSimpleFacet().getSimpleAttribute().getType());
+		Assert.assertSame(ModelNode.getEmptyNode(), co.getFacet_Simple().getSimpleAttribute().getType());
 
 	}
 
@@ -171,10 +171,10 @@ public class DefaultModelControllerTest {
 		ComponentNode vwaType = ComponentNodeBuilder.createVWA("Type").get();
 		VWA_Node co = ComponentNodeBuilder.createVWA("VWA").get();
 
-		co.getSimpleFacet().getSimpleAttribute().setAssignedType((TypeProvider) vwaType);
+		co.getFacet_Simple().getSimpleAttribute().setAssignedType((TypeProvider) vwaType);
 
-		ComponentNode newProperty = dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(),
-				(ComponentNode) co.getSummaryFacet());
+		ComponentNode newProperty = dc.moveSimpleToFacet(co.getFacet_Simple().getSimpleAttribute(),
+				(ComponentNode) co.getFacet_Summary());
 
 		Assert.assertTrue(newProperty instanceof AttributeNode);
 	}
@@ -183,10 +183,10 @@ public class DefaultModelControllerTest {
 	public void changeFromSimpleShouldCreateElementForNotVWA() {
 		ComponentNode vwaType = ComponentNodeBuilder.createVWA("Type").get();
 		CoreObjectNode co = ComponentNodeBuilder.createCoreObject("Core").get();
-		co.getSimpleFacet().getSimpleAttribute().setAssignedType((TypeProvider) vwaType);
+		co.getFacet_Simple().getSimpleAttribute().setAssignedType((TypeProvider) vwaType);
 
-		ComponentNode newProperty = dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(),
-				(ComponentNode) co.getSummaryFacet());
+		ComponentNode newProperty = dc.moveSimpleToFacet(co.getFacet_Simple().getSimpleAttribute(),
+				(ComponentNode) co.getFacet_Summary());
 
 		Assert.assertTrue(newProperty instanceof ElementNode);
 	}
@@ -196,10 +196,10 @@ public class DefaultModelControllerTest {
 		ComponentNode vwaType = ComponentNodeBuilder.createVWA("Type").get();
 		String typeName = "NewCoreObject";
 		CoreObjectNode co = ComponentNodeBuilder.createCoreObject(typeName).get();
-		co.getSimpleFacet().getSimpleAttribute().setAssignedType((TypeProvider) vwaType);
+		co.getFacet_Simple().getSimpleAttribute().setAssignedType((TypeProvider) vwaType);
 
-		ComponentNode newProperty = dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(),
-				(ComponentNode) co.getSummaryFacet());
+		ComponentNode newProperty = dc.moveSimpleToFacet(co.getFacet_Simple().getSimpleAttribute(),
+				(ComponentNode) co.getFacet_Summary());
 
 		Assert.assertEquals(typeName, newProperty.getName());
 	}
@@ -209,11 +209,11 @@ public class DefaultModelControllerTest {
 		ComponentNode vwaType = ComponentNodeBuilder.createVWA("Type").get();
 
 		VWA_Node co = ComponentNodeBuilder.createVWA("VWA").get();
-		co.getSimpleFacet().getSimpleAttribute().setAssignedType((TypeProvider) vwaType);
+		co.getFacet_Simple().getSimpleAttribute().setAssignedType((TypeProvider) vwaType);
 
-		String name = co.getSimpleFacet().getSimpleAttribute().getName();
-		ComponentNode newProperty = dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(),
-				(ComponentNode) co.getSummaryFacet());
+		String name = co.getFacet_Simple().getSimpleAttribute().getName();
+		ComponentNode newProperty = dc.moveSimpleToFacet(co.getFacet_Simple().getSimpleAttribute(),
+				(ComponentNode) co.getFacet_Summary());
 
 		Assert.assertEquals(NodeNameUtils.fixAttributeName(name), newProperty.getName());
 	}
@@ -223,13 +223,13 @@ public class DefaultModelControllerTest {
 		VWA_Node vwaType = ComponentNodeBuilder.createVWA("Type").get();
 
 		VWA_Node co = ComponentNodeBuilder.createVWA("VWA").get();
-		SimpleAttributeNode san = (SimpleAttributeNode) co.getSimpleFacet().getSimpleAttribute();
+		SimpleAttributeNode san = (SimpleAttributeNode) co.getFacet_Simple().getSimpleAttribute();
 		TLDocumentation doc = createSampleDoc();
 		san.getModelObject().setDocumentation(doc);
 		san.setAssignedType(vwaType);
 
-		ComponentNode newProperty = dc.moveSimpleToFacet(co.getSimpleFacet().getSimpleAttribute(),
-				(ComponentNode) co.getSummaryFacet());
+		ComponentNode newProperty = dc.moveSimpleToFacet(co.getFacet_Simple().getSimpleAttribute(),
+				(ComponentNode) co.getFacet_Summary());
 		Assert.assertNotSame(doc, newProperty.getDocumentation());
 		assertDocumentationEquals(doc, newProperty.getDocumentation());
 

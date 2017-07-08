@@ -66,6 +66,8 @@ public interface ResourceMemberInterface {
 
 	public String getName();
 
+	public List<Node> getNavChildren(boolean deep);
+
 	public INode getOwningComponent();
 
 	public INode getParent();

@@ -84,7 +84,7 @@ public class PropertiesTests {
 		LibraryChainNode lcn = mockLibrary.createNewManagedLibrary("EQ_Test", pc.getDefaultProject());
 		ln = lcn.getHead();
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "EQBO");
-		PropertyNode p = (PropertyNode) bo.getSummaryFacet().getChildren().get(0);
+		PropertyNode p = (PropertyNode) bo.getFacet_Summary().getChildren().get(0);
 		createEquivalents(p);
 	}
 
@@ -105,7 +105,7 @@ public class PropertiesTests {
 		LibraryChainNode lcn = mockLibrary.createNewManagedLibrary("EQ_Test", pc.getDefaultProject());
 		ln = lcn.getHead();
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "EQBO");
-		PropertyNode p = (PropertyNode) bo.getSummaryFacet().getChildren().get(0);
+		PropertyNode p = (PropertyNode) bo.getFacet_Summary().getChildren().get(0);
 		Assert.assertNotNull(p);
 		p.setExample("V1"); // creates handler
 		IValueWithContextHandler exh = p.getExampleHandler();
@@ -161,7 +161,7 @@ public class PropertiesTests {
 	@Test
 	public void createElements() {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
-		FacetNode summary = bo.getSummaryFacet();
+		FacetNode summary = bo.getFacet_Summary();
 		Assert.assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn = null;
@@ -193,7 +193,7 @@ public class PropertiesTests {
 	public void createElementRefs() {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
 		BusinessObjectNode A = mockLibrary.addBusinessObjectToLibrary(ln, "A");
-		PropertyOwnerInterface summary = bo.getSummaryFacet();
+		PropertyOwnerInterface summary = bo.getFacet_Summary();
 		Assert.assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn = null;
@@ -222,7 +222,7 @@ public class PropertiesTests {
 	@Test
 	public void createAttributes() {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
-		FacetNode summary = bo.getSummaryFacet();
+		FacetNode summary = bo.getFacet_Summary();
 		Assert.assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, pn1 = null;
@@ -274,7 +274,7 @@ public class PropertiesTests {
 	@Test
 	public void createIndicatorElements() {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
-		FacetNode summary = bo.getSummaryFacet();
+		FacetNode summary = bo.getFacet_Summary();
 		Assert.assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, pn1 = null;
@@ -307,7 +307,7 @@ public class PropertiesTests {
 	@Test
 	public void createIndicator() {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
-		FacetNode summary = bo.getSummaryFacet();
+		FacetNode summary = bo.getFacet_Summary();
 		Assert.assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, pn1 = null;
@@ -390,7 +390,7 @@ public class PropertiesTests {
 	public void changeRoles() {
 		ln.setEditable(true);
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "ct");
-		PropertyOwnerInterface summary = bo.getSummaryFacet();
+		PropertyOwnerInterface summary = bo.getFacet_Summary();
 		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, epn, apn, ipn, rpn, iepn = null;
 		String eText = "Element";
@@ -436,7 +436,7 @@ public class PropertiesTests {
 		// This seems to be dependent on the type of "this" node. create property should only be implemented for facets.
 		ln.setEditable(true);
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "ct");
-		PropertyOwnerInterface summary = bo.getSummaryFacet();
+		PropertyOwnerInterface summary = bo.getFacet_Summary();
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		ComponentNode cn = (ComponentNode) summary;
 

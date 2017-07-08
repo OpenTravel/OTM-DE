@@ -84,8 +84,8 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 		setDocumentation(bo.getDocumentation());
 
 		getAttributeFacet().copyFacet(bo.getIDFacet());
-		getAttributeFacet().copyFacet(bo.getSummaryFacet());
-		getAttributeFacet().copyFacet(bo.getDetailFacet());
+		getAttributeFacet().copyFacet(bo.getFacet_Summary());
+		getAttributeFacet().copyFacet(bo.getFacet_Detail());
 		setSimpleType((TypeProvider) ModelNode.getEmptyNode());
 	}
 
@@ -103,8 +103,8 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 		core.getLibrary().addMember(this);
 		setDocumentation(core.getDocumentation());
 
-		getAttributeFacet().copyFacet(core.getSummaryFacet());
-		getAttributeFacet().copyFacet(core.getDetailFacet());
+		getAttributeFacet().copyFacet(core.getFacet_Summary());
+		getAttributeFacet().copyFacet(core.getFacet_Detail());
 		setSimpleType(core.getSimpleType());
 	}
 
@@ -149,7 +149,7 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 	@Override
 	public List<Node> getChildren_TypeUsers() {
 		ArrayList<Node> users = new ArrayList<Node>();
-		users.add(getSimpleFacet().getSimpleAttribute());
+		users.add(getFacet_Simple().getSimpleAttribute());
 		users.addAll(getAttributeFacet().getChildren());
 		return users;
 	}
@@ -168,7 +168,7 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 	}
 
 	@Override
-	public SimpleFacetNode getSimpleFacet() {
+	public SimpleFacetNode getFacet_Simple() {
 		for (INode f : getChildren()) {
 			if (f instanceof SimpleFacetNode)
 				return (SimpleFacetNode) f;
@@ -178,7 +178,7 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 
 	@Override
 	public Node getSimpleProperty() {
-		return getSimpleFacet().getChildren().get(0);
+		return getFacet_Simple().getChildren().get(0);
 	}
 
 	@Override
@@ -187,7 +187,7 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 	}
 
 	@Override
-	public PropertyOwnerNode getDefaultFacet() {
+	public PropertyOwnerNode getFacet_Default() {
 		return (PropertyOwnerNode) getAttributeFacet();
 	}
 
@@ -231,7 +231,7 @@ public class VWA_Node extends TypeProviderBase implements ComplexComponentInterf
 
 	@Override
 	public SimpleAttributeNode getSimpleAttribute() {
-		return getSimpleFacet().getSimpleAttribute();
+		return getFacet_Simple().getSimpleAttribute();
 	}
 
 	// // 10/5/2015 - was commented out

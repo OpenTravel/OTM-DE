@@ -77,6 +77,7 @@ import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -390,6 +391,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 
 	/**
 	 * Import a list of nodes to this library. Fixes the names of the imported components.
+	 * {@link org.opentravel.schemas.actions.ImportObjectToLibraryAction#importSelectedToLibrary(LibraryNode)}
 	 * 
 	 * @return list of imported nodes excluding those not imported.
 	 */
@@ -442,7 +444,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 
 		// Don't use ContextUtils because may create new contexts in the target library
 		// ContextUtils.resolveApplicationContexts((TLLibraryMember) source.getModelObject().getTLModelObj());
-		Node newNode = NodeFactory.newComponent_UnTyped((TLLibraryMember) source.cloneTLObj());
+		Node newNode = NodeFactory.newComponent_UnTyped((LibraryMember) source.cloneTLObj());
 
 		// Node newNode = source.clone(this, null);
 		if (newNode == null) {
@@ -457,45 +459,14 @@ public class LibraryNode extends Node implements LibraryInterface {
 
 		assert getTLLibrary().getContexts().size() == 1;
 
-		// TLLibrary sourceTLLib = null;
-		// if (source.getTLModelObject() instanceof LibraryElement)
-		// sourceTLLib = (TLLibrary) ((LibraryElement)source.getTLModelObject()).getOwningLibrary();
-
-		// // Don't use ContextUtils because may create new contexts in the target library
-		// if (newNode.getTLModelObject() instanceof LibraryElement )
-		// ContextUtils.translateContextIdReferences((LibraryElement)newNode.getTLModelObject(), sourceTLLib,
-		// getTLLibrary());
-
-		// // FIXME - rip out all this context handling and just use this library's context
-		// //
-		// // Re-map context ID's in the cloned object and copy over any contexts for the target
-		// // library that
-		// // do not already exist
-		// Object sourceTLObj = source.getModelObject().getTLModelObj();
-		// Object newTLObj = newNode.getModelObject().getTLModelObj();
-		// AbstractLibrary targetLib = getTLaLib();
-		//
-		// if ((newTLObj instanceof LibraryElement) && (targetLib instanceof TLLibrary)) {
-		// LibraryElement sourceLibElement = (LibraryElement) sourceTLObj;
-		// TLLibrary targetLibrary = (TLLibrary) getTLaLib();
-		//
-		// if (sourceLibElement.getOwningLibrary() instanceof TLLibrary) {
-		// ContextUtils.translateContextIdReferences((LibraryElement) newTLObj,
-		// (TLLibrary) sourceLibElement.getOwningLibrary(), targetLibrary);
-		// // Patch - translate can create context with empty ID. this patch is a work around.
-		// // TODO - still need to prevent it.
-		// for (TLContext ctx : targetLibrary.getContexts()) {
-		// if (ctx.getContextId().isEmpty())
-		// ctx.setContextId("Imported");
-		// if (ctx.getContextId().equals(ctx.getApplicationContext())) {
-		// // LOGGER.error("Context id is equal to application context" + ctx.getContextId());
-		// // TODO - this only creates duplicate contexts with multiple id values which are later
-		// // automatically appended with a number to be unique
-		// ctx.setContextId("Imported");
-		// }
-		// }
-		// }
-		// }
+		if (newNode instanceof ContextualFacetOwnerInterface)
+			// Import the contextual facets also
+			for (ContextualFacetNode cf : ((ContextualFacetOwnerInterface) newNode).getContextualFacets()) {
+				// remove from current library
+				cf.getLibrary().removeMember(cf);
+				// add to this library
+				addMember(cf);
+			}
 		addMember(newNode);
 
 		if (!(newNode instanceof EnumerationClosedNode))
@@ -512,7 +483,8 @@ public class LibraryNode extends Node implements LibraryInterface {
 			// LOGGER.error("Tried to import source node to non-TL library: " + this.getName());
 			return false;
 		}
-		if ((source.getTLModelObject() == null) || !(source.getTLModelObject() instanceof TLLibraryMember)) {
+		// if ((source.getTLModelObject() == null) || !(source.getTLModelObject() instanceof TLLibraryMember)) {
+		if ((source.getTLModelObject() == null) || !(source.getTLModelObject() instanceof LibraryMember)) {
 			// LOGGER.error("Exit - not a TLLibraryMember: " + source.getName());
 			return false;
 		}
@@ -814,7 +786,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	}
 
 	private void generateLibrary(final TLLibrary tlLib) {
-		// LOGGER.debug("Gererating Library: " + tlLib.getName());
+		// LOGGER.debug("Generating Library: " + tlLib.getName());
 
 		// When contextual facets can be library members (version 1.6 and later, model them first
 		// Contextual facets will be processed twice. Once here to create library member and once in addMOChildren()
@@ -836,28 +808,34 @@ public class LibraryNode extends Node implements LibraryInterface {
 				continue; // Model in its own library.
 
 			// LOGGER.debug("Generating named member: " + mbr.getLocalName());
-			ComponentNode n = (ComponentNode) GetNode(mbr);
+			ComponentNode existingNode = (ComponentNode) GetNode(mbr);
 			if (mbr instanceof TLService) {
-				if (n instanceof ServiceNode)
-					((ServiceNode) n).link((TLService) mbr, this);
+				if (existingNode instanceof ServiceNode)
+					((ServiceNode) existingNode).link((TLService) mbr, this);
 				else
 					new ServiceNode((TLService) mbr, this);
 			} else if (mbr instanceof TLResource)
-				if (n instanceof ResourceNode) {
-					n.getLibrary().remove(n);
-					this.linkMember(n);
+				if (existingNode instanceof ResourceNode) {
+					existingNode.getLibrary().remove(existingNode);
+					this.linkMember(existingNode);
 				} else
 					new ResourceNode((TLResource) mbr, this);
 			else {
 				// If the tlLib already has nodes associated, use those nodes; Otherwise create new ones.
-				if (n == null)
-					n = NodeFactory.newObjectNode((LibraryMember) mbr, this);
-				// if (n != null) {
-				// linkMember(n);
-				// assert (getDescendants_LibraryMembers().contains(n));
-				// }
+				if (existingNode == null)
+					existingNode = NodeFactory.newObjectNode((LibraryMember) mbr, this);
 			}
 		}
+		assert checkListeners();
+	}
+
+	/**
+	 * Test method - assert all members have correct identity listener
+	 */
+	private boolean checkListeners() {
+		for (Node n : getDescendants_LibraryMembers())
+			assert n == Node.GetNode(n.getTLModelObject()) : "Missing or incorrect identity listener assigned to " + n;
+		return true;
 	}
 
 	public void checkExtension(Node n) {
@@ -876,7 +854,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 				}
 				// Has base, if a version base then make sure version node is set
 				if (base.getName().equals(n.getName()) && !(n instanceof Enumeration)) {
-					if (!n.getVersionNode().getChildren().contains(base))
+					if (!n.getVersionNode().contains(base))
 						LOGGER.error("Version node for " + n + " MUST have base in it's children.");
 					if (n.getVersionNode().getPreviousVersion() == null)
 						LOGGER.error(n + " MUST have previous version.");
@@ -934,6 +912,9 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 * Add to tlLibrary.addNamedMember() <br>
 	 * linkMember() <br>
 	 * getChain.add()
+	 * 
+	 * @param n
+	 *            node to add to this library
 	 */
 	public void addMember(final Node n) {
 		if (!isEditable()) {
@@ -944,7 +925,6 @@ public class LibraryNode extends Node implements LibraryInterface {
 			// LOGGER.warn("Tried to addMember() a null member: " + n);
 			return;
 		}
-		// if (!(n.getTLModelObject() instanceof TLLibraryMember)) {
 		if (!(n.getTLModelObject() instanceof LibraryMember)) {
 			// LOGGER.warn("Tried to addMember() a non-library member: " + n);
 			return;
@@ -984,15 +964,6 @@ public class LibraryNode extends Node implements LibraryInterface {
 			if (isInChain())
 				getChain().add((ComponentNode) n);
 		}
-
-		// Fail if in the list more than once.
-		Node trueChild = n;
-		if (getParent() instanceof VersionNode)
-			trueChild = n.getParent();
-		// if (trueChild.getParent().getChildren().indexOf(n) != trueChild.getParent().getChildren().lastIndexOf(n))
-		// LOGGER.error(n + " is in list more than once.");
-		// assert (n.getParent().getChildren().indexOf(n) == n.getParent().getChildren().lastIndexOf(n));
-
 	}
 
 	public boolean isInChain() {
@@ -1142,11 +1113,13 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 */
 
 	/**
-	 * Remove the node from its library. Remove from the library node and from the underlying tl library. Navigation and
-	 * family nodes are NOT deleted. Does NOT delete the node or its TL Object contents. TL type assignments are assured
-	 * to match the assignments in TypeNode.
-	 * 
-	 * NOTE - does not replace this node with an earlier version in a version chain.
+	 * Remove the node from its library. Remove from the library node and from the underlying tl library. Navigation
+	 * nodes are NOT deleted.
+	 * <p>
+	 * Does <b>not</b> delete the node or its TL Object contents. TL type assignments are assured to match the
+	 * assignments in TypeNode.
+	 * <p>
+	 * NOTE: does not replace this node with an earlier version in a version chain.
 	 * 
 	 */
 	public void removeMember(final Node n) {
@@ -1367,7 +1340,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	public String getLabel() {
 		String prefix = "";
 		if (!getPrefix().isEmpty())
-			prefix = getPrefix() + ":";
+			prefix = getPrefix() + " : ";
 		return prefix + getName();
 	}
 
@@ -1448,7 +1421,8 @@ public class LibraryNode extends Node implements LibraryInterface {
 	}
 
 	/**
-	 * NOTE - a library can many project parents as it can belong to multiple projects. It can also be a library chain.
+	 * NOTE - a library can have many project parents as it can belong to multiple projects. It can also be a library
+	 * chain.
 	 */
 	@Override
 	public Node getParent() {
@@ -1813,6 +1787,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 * 
 	 * @return true only if this library is a minor version
 	 */
+	// FIXME - broken
 	public boolean isMinorVersion() {
 		return !nsHandler.getNS_Minor(getNamespace()).equals("0") && nsHandler.getNS_Patch(getNamespace()).equals("0");
 	}

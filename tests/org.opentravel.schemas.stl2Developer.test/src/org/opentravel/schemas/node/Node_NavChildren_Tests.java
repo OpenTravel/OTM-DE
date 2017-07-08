@@ -113,6 +113,10 @@ public class Node_NavChildren_Tests {
 			// if (n instanceof FacetNode) {
 			// List<Node> tk = n.getTreeChildren(false);
 			// List<Node> nk = n.getNavChildren(false);
+			// if (n.hasTreeChildren(false) && tk.isEmpty()) {
+			// LOGGER.debug("Trouble - " + n);
+			// tk = n.getTreeChildren(false);
+			// }
 			// boolean tc = n.hasTreeChildren(false);
 			// boolean nc = n.hasNavChildren(false);
 			// System.out.println("HELPME");

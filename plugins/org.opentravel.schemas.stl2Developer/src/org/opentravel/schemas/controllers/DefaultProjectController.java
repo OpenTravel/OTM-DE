@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -521,6 +522,8 @@ public class DefaultProjectController implements ProjectController {
 		} catch (IllegalArgumentException e) {
 			resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
 			project = null;
+		} catch (NullPointerException e) {
+			LOGGER.debug("NPE from project manager load project.");
 		} catch (Throwable e) {
 			resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
 			project = null;
@@ -696,8 +699,22 @@ public class DefaultProjectController implements ProjectController {
 			pn.closeAll();
 		else {
 			save(pn);
-			pn.getTLProject().getProjectManager().closeProject(pn.getTLProject());
-			pn.close();
+			// FIXME - surround with try to catch java.util.ConcurrentModificationException
+			try {
+				pn.getTLProject().getProjectManager().closeProject(pn.getTLProject());
+				pn.close();
+			} catch (ConcurrentModificationException e) {
+				LOGGER.error("ConcurrentModification error closing project - trying again.");
+				// Try again
+				try {
+					pn.getTLProject().getProjectManager().closeProject(pn.getTLProject());
+					pn.close();
+				} catch (Exception ie) {
+					LOGGER.error("Error closing project: " + ie.getLocalizedMessage());
+				}
+			} catch (Exception e) {
+				LOGGER.error("Error closing project: " + e.getLocalizedMessage());
+			}
 		}
 		if (Display.getCurrent() != null)
 			mc.refresh();

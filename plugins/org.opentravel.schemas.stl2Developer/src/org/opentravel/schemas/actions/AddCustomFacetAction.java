@@ -120,7 +120,7 @@ public class AddCustomFacetAction extends OtmAbstractAction {
 		// return;
 
 		final BusinessObjectNode bo = (BusinessObjectNode) current;
-		final ComponentNode propertyOwner = (ComponentNode) current.getDetailFacet();
+		final ComponentNode propertyOwner = (ComponentNode) current.getFacet_Detail();
 
 		// Set up and run the wizard
 		String defaultContext = current.getLibrary().getDefaultContextId();

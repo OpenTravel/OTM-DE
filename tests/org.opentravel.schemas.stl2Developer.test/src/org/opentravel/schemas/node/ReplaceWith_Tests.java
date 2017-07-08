@@ -76,10 +76,10 @@ public class ReplaceWith_Tests {
 		CoreObjectNode core = ml.addCoreObjectToLibrary_Empty(ln, "Test");
 		int i = 1;
 		ElementNode e = null;
-		e = new ElementNode(bo.getSummaryFacet(), "n" + i++);
+		e = new ElementNode(bo.getFacet_Summary(), "n" + i++);
 		e.setAssignedType(core);
 		for (TypeProvider d : core.getDescendants_TypeProviders()) {
-			e = new ElementNode(bo.getSummaryFacet(), "n" + i++);
+			e = new ElementNode(bo.getFacet_Summary(), "n" + i++);
 			e.setAssignedType(d);
 		}
 		// Then - all core type providers must be assigned
@@ -97,7 +97,7 @@ public class ReplaceWith_Tests {
 		((TypeProvider) core).getWhereAssignedHandler().replaceAll(replacement);
 
 		// Then - all property types should be from replacement lib
-		for (Node p : bo.getSummaryFacet().getChildren()) {
+		for (Node p : bo.getFacet_Summary().getChildren()) {
 			TypeProvider type = ((TypeUser) p).getAssignedType();
 			assertTrue("Must be in ln2 library.", type.getLibrary() == ln2);
 			assertTrue("Must have ln2 namespace", ((Node) type).getNamespace().equals(ln2.getNamespace()));
@@ -198,58 +198,52 @@ public class ReplaceWith_Tests {
 	// Use purpose built objects to test specific behaviors.
 	@Test
 	public void ReplaceTypesTest() throws Exception {
+		// Given - controllers, project and unmanaged library
 		DefaultProjectController pc;
 		MainController mc = new MainController();
 		pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
-		NewComponent_Tests nc = new NewComponent_Tests();
+		// NewComponent_Tests nc = new NewComponent_Tests();
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		ml.addOneOfEach(ln, "RTT");
 
+		// Given - one of each object type
+		ml.addOneOfEach(ln, "RTT");
+		ml.checkObject(ln);
 		tt.visitAllNodes(ln);
 
+		// Given - local variables for different object types
 		SimpleTypeNode simple = null;
-		EnumerationClosedNode closed = null;
 		VWA_Node vwa = null;
 		CoreObjectNode core = null, core2 = null;
-		EnumerationOpenNode open = null;
 		BusinessObjectNode bo = null, bo2 = null;
-		ServiceNode svc = null;
-		// ExtensionPointNode ex = null;
 		for (Node n : ln.getDescendants_LibraryMembers()) {
 			if (n instanceof SimpleTypeNode)
 				simple = (SimpleTypeNode) n;
-			if (n instanceof EnumerationClosedNode)
-				closed = (EnumerationClosedNode) n;
-			if (n instanceof EnumerationOpenNode)
-				open = (EnumerationOpenNode) n;
-			if (n instanceof VWA_Node)
+			else if (n instanceof VWA_Node)
 				vwa = (VWA_Node) n;
-			if (n instanceof CoreObjectNode)
+			else if (n instanceof CoreObjectNode)
 				core = (CoreObjectNode) n;
-			if (n instanceof BusinessObjectNode)
+			else if (n instanceof BusinessObjectNode)
 				bo = (BusinessObjectNode) n;
-			if (n instanceof ServiceNode)
-				svc = (ServiceNode) n;
 		}
 		assertNotNull(core);
 		assertNotNull(bo);
 		assertNotNull(simple);
-		// assertNotNull(svc);
 		assertNotNull(vwa);
 
+		// Given - clone made of core
 		core2 = (CoreObjectNode) core.clone();
 		core2.setName("core2");
-		// FIXME - move to extension tests
-		// core.setExtension(core2);
+		ml.checkObject(core2);
+
+		// Given - clone made of bo
 		bo2 = (BusinessObjectNode) bo.clone();
 		bo2.setName("bo2");
-		// bo2.setExtension(bo);
+		ml.checkObject(bo2);
 
 		replaceProperties(bo, core2, core);
 		replaceProperties(bo2, core, core2);
 
-		// replaceProperties(svc, simple, core);
 		replaceProperties(bo, simple, core);
 		replaceProperties(core, simple, core2);
 		replaceProperties(vwa, simple, core);

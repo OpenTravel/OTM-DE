@@ -54,6 +54,8 @@ public class RCPUtils {
 	public static boolean executeCommand(String id, Event event, IWorkbenchPartSite site) throws ExecutionException {
 		ICommandService cmdService = (ICommandService) site.getService(ICommandService.class);
 		Command cmd = cmdService.getCommand(id);
+		// Defined in plugin.xml, isHandled is true if handler can be loaded.
+		// Enabled defined in plugin.xml handler definition
 		if (cmd.isDefined() && cmd.isHandled() && cmd.isEnabled()) {
 			IHandlerService handlerService = (IHandlerService) site.getService(IHandlerService.class);
 			try {

@@ -224,9 +224,10 @@ public class ResourceObjectTests {
 				bo = (BusinessObjectNode) n;
 				break;
 			}
-		bo.setName("SubResource");
+		bo.setName("InnerObject");
 		ResourceNode resource = ml.addResource(bo);
 		assertTrue("Resource was created.", resource != null);
+		ml.checkObject(ln);
 
 		// Given a second resource
 		BusinessObjectNode parentBO = ml.addBusinessObjectToLibrary(ln, "ParentBO");

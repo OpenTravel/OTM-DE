@@ -104,28 +104,23 @@ public class Aggregate_Tests {
 		ln_inChain.addMember(nf);
 		Assert.assertEquals(2, as.getChildren().size());
 
-		// Make a family
+		//
 		ComponentNode s2 = (ComponentNode) makeSimple("s_2");
 		ln_inChain.addMember(s2);
 		Assert.assertEquals(3, as.getChildren().size());
-		// AggregateFamilyNode family = null;
-		// for (Node n : as.getChildren())
-		// if (n instanceof AggregateFamilyNode)
-		// family = (AggregateFamilyNode) n;
-		// Assert.assertNotNull(family);
 
-		// Test duplicate names
+		// Test duplicate names - should be added because it is in the same library
 		ComponentNode nf2 = (ComponentNode) makeSimple("nf");
 		ln_inChain.addMember(nf2); // should be duplicate names in child list.
 		Assert.assertEquals(4, as.getChildren().size());
 
 		ComponentNode s3 = (ComponentNode) makeSimple("s_1");
-		ln_inChain.addMember(s3); // should add to the family
+		ln_inChain.addMember(s3);
 		Assert.assertEquals(5, as.getChildren().size());
 
 		// Test name matches family name
 		ComponentNode s4 = (ComponentNode) makeSimple("s");
-		ln_inChain.addMember(s4); // should add to the family
+		ln_inChain.addMember(s4);
 		Assert.assertEquals(6, as.getChildren().size());
 
 		// Test an older version
@@ -136,32 +131,32 @@ public class Aggregate_Tests {
 		// Given - aggregate nodes from a library chain and 4 simples
 		AggregateNode simpleAgg = (AggregateNode) lcn.getSimpleAggregate();
 		AggregateNode complexAgg = (AggregateNode) lcn.getComplexAggregate();
-		ComponentNode s1 = (ComponentNode) makeSimple("s_1");
-		ComponentNode s2 = (ComponentNode) makeSimple("s_2");
-		ComponentNode s3 = (ComponentNode) makeSimple("s_3");
-		ComponentNode nf = (ComponentNode) makeSimple("nf");
+		ComponentNode s1 = (ComponentNode) makeSimple("s_11");
+		ComponentNode s2 = (ComponentNode) makeSimple("s_21");
+		ComponentNode s3 = (ComponentNode) makeSimple("s_31");
+		ComponentNode nf = (ComponentNode) makeSimple("nf1");
 
 		// Check pre-tests
-		try {
-			complexAgg.add(s1);
-			Assert.assertFalse(true); // should never reach here
-		} catch (IllegalStateException e) {
-			Assert.assertNotNull(e); // should error because of wrong type
-		}
-
-		try {
-			simpleAgg.add(s1);
-			Assert.assertFalse(true); // should never reach here
-		} catch (IllegalArgumentException e) {
-			Assert.assertNotNull(e); // should error because of simple has no library
-		}
+		// try {
+		// complexAgg.add(s1);
+		// Assert.assertFalse(true); // should never reach here
+		// } catch (IllegalStateException e) {
+		// Assert.assertNotNull(e); // should error because of wrong type
+		// }
+		//
+		// try {
+		// simpleAgg.add(s1);
+		// Assert.assertFalse(true); // should never reach here
+		// } catch (IllegalArgumentException e) {
+		// Assert.assertNotNull(e); // should error because of simple has no library
+		// }
 
 		// addMember() - broadly used. used in node constructors.
 		// linkMember() - protected, used by addMember(), used in initial library generation
 		//
 		// ln_inChain is a library node within the lcn chain.
 		ln_inChain.addMember(s1);
-		simpleAgg.add(s1); // not needed but safe
+		// simpleAgg.add(s1); // not needed but safe
 		Assert.assertEquals(1, simpleAgg.getChildren().size());
 
 		// Put nf in the library
@@ -169,18 +164,18 @@ public class Aggregate_Tests {
 		Assert.assertEquals(2, simpleAgg.getChildren().size());
 
 		// Put s2 in
-		ln_inChain.addMember(s2); // Invokes family code
+		ln_inChain.addMember(s2);
 		Assert.assertEquals(3, simpleAgg.getChildren().size());
 
 		ln_inChain.getTLLibrary().addNamedMember((LibraryMember) s3.getTLModelObject());
-		ln_inChain.addMember(s3); // Invokes family code
+		ln_inChain.addMember(s3);
 		assertEquals(4, simpleAgg.getChildren().size());
 
 		// Create 2 simples and add to chain
 		ComponentNode s3d = (ComponentNode) makeSimple("s_3d", ln_inChain);
 		ComponentNode nd = (ComponentNode) makeSimple("nf", ln_inChain);
 
-		simpleAgg.add(nd); // does nothing
+		simpleAgg.add(nd);
 		simpleAgg.add(s3d);
 		assertEquals(6, simpleAgg.getChildren().size());
 

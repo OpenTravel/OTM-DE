@@ -118,8 +118,8 @@ public class EnumerationOpenNode extends TypeProviderBase implements ComplexComp
 	}
 
 	@Override
-	public PropertyOwnerInterface getDefaultFacet() {
-		return null;
+	public PropertyOwnerInterface getFacet_Default() {
+		return (PropertyOwnerInterface) this;
 	}
 
 	// @Override
@@ -208,7 +208,7 @@ public class EnumerationOpenNode extends TypeProviderBase implements ComplexComp
 	}
 
 	@Override
-	public SimpleFacetNode getSimpleFacet() {
+	public SimpleFacetNode getFacet_Simple() {
 		return null;
 	}
 

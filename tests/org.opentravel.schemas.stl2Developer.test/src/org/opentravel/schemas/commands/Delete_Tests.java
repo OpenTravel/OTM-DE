@@ -32,6 +32,7 @@ import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.ModelNode;
+import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.NodeFinders;
@@ -151,7 +152,7 @@ public class Delete_Tests extends BaseProjectTest {
 		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
 		bo.setName("TestBO");
 		ln.addMember(bo);
-		FacetNode facet = bo.getSummaryFacet();
+		FacetNode facet = bo.getFacet_Summary();
 		Assert.assertNotNull(facet);
 		TypeProvider aType = ml.getSimpleTypeProvider();
 
@@ -251,7 +252,7 @@ public class Delete_Tests extends BaseProjectTest {
 		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
 		bo.setName("TestBO");
 		ln.addMember(bo);
-		FacetNode facet = bo.getSummaryFacet();
+		FacetNode facet = bo.getFacet_Summary();
 		Assert.assertNotNull(facet);
 		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		int whereAssignedCount = aType.getWhereAssignedCount();
@@ -276,7 +277,7 @@ public class Delete_Tests extends BaseProjectTest {
 		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
 		bo.setName("TestBO");
 		ln.addMember(bo);
-		FacetNode facet = bo.getSummaryFacet();
+		FacetNode facet = bo.getFacet_Summary();
 		Assert.assertNotNull(facet);
 		ElementNode ele = new ElementNode(facet, "e1");
 		AttributeNode attr = new AttributeNode(facet, "att1");
@@ -407,7 +408,8 @@ public class Delete_Tests extends BaseProjectTest {
 			Assert.assertNotNull(n);
 			Assert.assertNotNull(ln.getChain().findNodeByName(fixedName));
 			Assert.assertNotNull(ln.findNodeByName(fixedName));
-			Assert.assertTrue(n.getParent() instanceof VersionNode);
+			Assert.assertTrue(n.getParent() instanceof NavNode);
+			Assert.assertTrue(n.getVersionNode() instanceof VersionNode);
 			Assert.assertEquals(count, ln.getDescendants_LibraryMembers().size());
 			Assert.assertEquals(count, ln.getChain().getDescendants_LibraryMembers().size());
 			break;

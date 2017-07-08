@@ -30,6 +30,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
 import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
+import org.opentravel.schemacompiler.model.LibraryElement;
+import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
@@ -184,7 +186,7 @@ public class ChoiceObjectTests {
 		assertTrue("Ch3 must have 3 ghosts.", inf3.size() == 3);
 
 		// When - the inherited children are initialized
-		ch2.initInheritedChildren();
+		ch2.initInheritedChildren(); // not needed - inherited children are initialized on get()
 		ch3.initInheritedChildren();
 		// Then - children remain unchanged.
 		assertTrue("Ch2 must have 2 children.", ch2.getChildren().size() == 2);
@@ -227,6 +229,58 @@ public class ChoiceObjectTests {
 		ch3Count--;
 		assertTrue("Ch3 must have 1 less inherited child.", ch3.getInheritedChildren().size() == ch3Count);
 
+	}
+
+	@Test
+	public void CH_ImportAndCopyTests() {
+		OTM16Upgrade.otm16Enabled = true;
+
+		// Given - 2 versioned libraries
+		LibraryChainNode srcLCN = mockLibrary.createNewManagedLibrary_Empty(defaultProject.getNSRoot(), "SrcLib",
+				defaultProject);
+		LibraryNode srcLib = srcLCN.getHead();
+		LibraryChainNode destLCN = mockLibrary.createNewManagedLibrary_Empty(defaultProject.getNSRoot() + "/Dest",
+				"DestLib", defaultProject);
+		LibraryNode destLib = destLCN.getHead();
+		assertTrue(destLib != srcLib);
+		assertTrue(destLib.isEditable());
+
+		// Given 4 choice groups
+		ChoiceObjectNode ch0 = mockLibrary.addChoice(srcLib, "Ch0");
+		ChoiceObjectNode ch1 = mockLibrary.addChoice(srcLib, "Ch1");
+		int baseCount = ch1.getChoiceFacets().size();
+		ChoiceObjectNode ch2 = new ChoiceObjectNode(new TLChoiceObject());
+		ch2.setName("Ch2");
+		srcLib.addMember(ch2);
+		ch2.addFacet("Ch2CF1");
+		ChoiceObjectNode ch3 = new ChoiceObjectNode(new TLChoiceObject());
+		ch3.setName("Ch3");
+		srcLib.addMember(ch3);
+		ChoiceObjectNode ch4 = mockLibrary.addChoice(srcLib, "Ch4");
+		mockLibrary.checkObject(srcLib);
+
+		List<Node> case1 = new ArrayList<Node>();
+		case1.add(ch1);
+
+		// When - as used in LibraryNode.importNode()
+		mockLibrary.checkObject(ch0);
+		LibraryElement tlResult = ch0.cloneTLObj();
+		ChoiceObjectNode newNode = (ChoiceObjectNode) NodeFactory.newComponent_UnTyped((LibraryMember) tlResult);
+		// Then - result must not be null
+		mockLibrary.checkObject(newNode);
+		// Then - there must be contributed facets
+		assertTrue(ch0.getChoiceFacets().size() == newNode.getChoiceFacets().size());
+
+		// When - LibraryNode usage
+		newNode = (ChoiceObjectNode) destLib.importNode(ch4);
+
+		// When - ImportObjectToLibraryAction - case 1
+		destLib.importNodes(case1);
+		// When - ImportObjectToLibraryAction - case 2
+		// When - ImportObjectToLibraryAction - case 3
+		mockLibrary.checkObject(destLib);
+
+		OTM16Upgrade.otm16Enabled = false;
 	}
 
 	private List<ContextualFacetNode> getContextualFacets(Node container) {

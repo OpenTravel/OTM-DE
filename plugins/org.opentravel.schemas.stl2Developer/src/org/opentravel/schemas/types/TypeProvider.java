@@ -60,11 +60,14 @@ public interface TypeProvider {
 	public Collection<TypeUser> getWhereAssigned();
 
 	/**
-	 * @return (where used count) the number of type users which are nodes that use this as a type definition or base
-	 *         type
+	 * @return where used count for all versions in this versioned object chain
 	 */
 	public int getWhereAssignedCount();
 
+	/**
+	 * @return (where used count) the number of type users which are nodes that use this as a type definition or base
+	 *         type
+	 */
 	public WhereAssignedHandler getWhereAssignedHandler();
 
 	/**
@@ -138,5 +141,7 @@ public interface TypeProvider {
 	public Node getOwningComponent();
 
 	public Node getParent();
+
+	int getWhereUsedCount();
 
 }

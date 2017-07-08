@@ -120,6 +120,8 @@ public class LifeCycleAction extends OtmAbstractAction {
 		if (!ln.isInProjectNS())
 			return false;
 		// Make sure the library is ready for the next status state
+		if (ln.getProjectItem().getStatus() == null || ln.getProjectItem().getStatus().nextStatus() == null)
+			return false;
 		if (!ln.getProjectItem().getStatus().nextStatus().equals(targetStatus))
 			return false;
 

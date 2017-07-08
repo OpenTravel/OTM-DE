@@ -88,9 +88,9 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 		bo.getLibrary().addMember(this);
 		setDocumentation(bo.getDocumentation());
 
-		((FacetNode) getSummaryFacet()).copyFacet((FacetNode) bo.getIDFacet());
-		((FacetNode) getSummaryFacet()).copyFacet(bo.getSummaryFacet());
-		((FacetNode) getDetailFacet()).copyFacet((FacetNode) bo.getDetailFacet());
+		((FacetNode) getFacet_Summary()).copyFacet((FacetNode) bo.getIDFacet());
+		((FacetNode) getFacet_Summary()).copyFacet(bo.getFacet_Summary());
+		((FacetNode) getFacet_Detail()).copyFacet((FacetNode) bo.getFacet_Detail());
 		setSimpleType((TypeProvider) ModelNode.getEmptyNode());
 	}
 
@@ -106,11 +106,11 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 		vwa.getLibrary().addMember(this);
 		setDocumentation(vwa.getDocumentation());
 
-		getSummaryFacet().copyFacet(vwa.getAttributeFacet());
+		getFacet_Summary().copyFacet(vwa.getAttributeFacet());
 		setSimpleType(vwa.getSimpleType());
 
 		// User assist - create an attribute for the VWA base type
-		AttributeNode attr = new AttributeNode(new TLAttribute(), getSummaryFacet());
+		AttributeNode attr = new AttributeNode(new TLAttribute(), getFacet_Summary());
 		attr.setName(vwa.getName());
 		attr.setAssignedType(vwa.getSimpleType());
 	}
@@ -169,8 +169,8 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	public List<Node> getChildren_TypeUsers() {
 		ArrayList<Node> users = new ArrayList<Node>();
 		users.add((Node) getSimpleType());
-		users.addAll(getSummaryFacet().getChildren());
-		users.addAll(getDetailFacet().getChildren());
+		users.addAll(getFacet_Summary().getChildren());
+		users.addAll(getFacet_Detail().getChildren());
 		return users;
 	}
 
@@ -195,11 +195,11 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 
 	@Override
 	public SimpleAttributeNode getSimpleAttribute() {
-		return getSimpleFacet().getSimpleAttribute();
+		return getFacet_Simple().getSimpleAttribute();
 	}
 
 	@Override
-	public SimpleFacetNode getSimpleFacet() {
+	public SimpleFacetNode getFacet_Simple() {
 		for (INode f : getChildren())
 			if (f instanceof SimpleFacetNode)
 				return (SimpleFacetNode) f;
@@ -208,11 +208,11 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 
 	@Override
 	public Node getSimpleProperty() {
-		return getSimpleFacet().getChildren().get(0);
+		return getFacet_Simple().getChildren().get(0);
 	}
 
 	@Override
-	public FacetNode getSummaryFacet() {
+	public FacetNode getFacet_Summary() {
 		for (INode f : getChildren())
 			if (f instanceof FacetNode && ((FacetNode) f).isSummaryFacet())
 				return (FacetNode) f;
@@ -220,12 +220,12 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 	}
 
 	@Override
-	public PropertyOwnerInterface getDefaultFacet() {
-		return getSummaryFacet();
+	public PropertyOwnerInterface getFacet_Default() {
+		return getFacet_Summary();
 	}
 
 	@Override
-	public FacetNode getDetailFacet() {
+	public FacetNode getFacet_Detail() {
 		for (INode f : getChildren())
 			if (f instanceof FacetNode && ((FacetNode) f).isDetailFacet())
 				return (FacetNode) f;
@@ -311,8 +311,8 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 
 	@Override
 	public void sort() {
-		((FacetNode) getSummaryFacet()).sort();
-		((FacetNode) getDetailFacet()).sort();
+		((FacetNode) getFacet_Summary()).sort();
+		((FacetNode) getFacet_Detail()).sort();
 	}
 
 	@Override
@@ -321,8 +321,8 @@ public class CoreObjectNode extends TypeProviderBase implements ComplexComponent
 			throw new IllegalStateException("Can only merge objects with the same type");
 		}
 		CoreObjectNode core = (CoreObjectNode) source;
-		getSummaryFacet().addProperties(core.getSummaryFacet().getChildren(), true);
-		getDetailFacet().addProperties(core.getDetailFacet().getChildren(), true);
+		getFacet_Summary().addProperties(core.getFacet_Summary().getChildren(), true);
+		getFacet_Detail().addProperties(core.getFacet_Detail().getChildren(), true);
 		getRoleFacet().addProperties(core.getRoleFacet().getChildren(), true);
 	}
 

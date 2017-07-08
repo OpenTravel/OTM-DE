@@ -17,9 +17,16 @@ package org.opentravel.schemas.node;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
+import org.opentravel.schemacompiler.model.LibraryElement;
+import org.opentravel.schemacompiler.model.TLChoiceObject;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.facets.ContributedFacetNode;
+import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
@@ -52,13 +59,57 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 	public List<Node> getTreeChildren(boolean deep) {
 		List<Node> navChildren = getNavChildren(deep);
 		navChildren.addAll(getInheritedChildren());
-		navChildren.add(getWhereUsedNode());
+		if (getWhereUsedCount() > 0)
+			navChildren.add(getWhereUsedNode());
 		return navChildren;
 	}
 
 	@Override
 	public boolean hasTreeChildren(boolean deep) {
-		return true; // allow where used nodes
+		if (getNavChildren(deep).isEmpty() && getInheritedChildren().isEmpty() && getWhereUsedCount() < 1)
+			return false; // allow where used nodes
+		return true;
+	}
+
+	@Override
+	public LibraryElement cloneTLObj() {
+		LibraryElement clone = super.cloneTLObj();
+		if (clone instanceof TLChoiceObject) {
+			List<TLContextualFacet> tlCFs = ((TLChoiceObject) clone).getChoiceFacets();
+			ComponentNode n;
+			for (TLContextualFacet tlcf : tlCFs) {
+				n = NodeFactory.newComponent_UnTyped(tlcf);
+				getLibrary().addMember(n);
+			}
+		}
+		return clone;
+	}
+
+	/**
+	 * @return list of contextual facets identified by the contributed facets in this object
+	 */
+	public List<ContextualFacetNode> getContextualFacets() {
+		if (!(this instanceof ContextualFacetOwnerInterface))
+			return Collections.emptyList();
+
+		ArrayList<ContextualFacetNode> facets = new ArrayList<ContextualFacetNode>();
+		for (ContributedFacetNode n : getContributedFacets())
+			facets.add(n.getContributor());
+		return facets;
+	}
+
+	/**
+	 * @return list of contributed facet children of this object
+	 */
+	public List<ContributedFacetNode> getContributedFacets() {
+		if (!(this instanceof ContextualFacetOwnerInterface))
+			return Collections.emptyList();
+
+		ArrayList<ContributedFacetNode> facets = new ArrayList<ContributedFacetNode>();
+		for (Node n : getChildren())
+			if (n instanceof ContributedFacetNode)
+				facets.add((ContributedFacetNode) n);
+		return facets;
 	}
 
 	@Override
@@ -69,6 +120,14 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 	@Override
 	public Collection<TypeUser> getWhereAssigned() {
 		return whereAssignedHandler.getWhereAssigned();
+	}
+
+	/**
+	 * @return where used count for all versions in this versioned object chain
+	 */
+	@Override
+	public int getWhereUsedCount() {
+		return getWhereUsedNode().getWhereUsedCount();
 	}
 
 	/**

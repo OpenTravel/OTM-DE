@@ -17,6 +17,7 @@ package org.opentravel.schemas.node.resources;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.TLDocumentation;
@@ -99,6 +100,11 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 	}
 
 	public void addListeners() {
+	}
+
+	@Override
+	public List<Node> getNavChildren(boolean deep) {
+		return getChildren();
 	}
 
 	/**

@@ -37,11 +37,6 @@ public class CopyNodeAction extends OtmAbstractAction {
 		super(mainWindow, props);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.Action#run()
-	 */
 	@Override
 	public void run() {
 		copySelectedNodes(mc.getSelectedNodes_NavigatorView());

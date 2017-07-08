@@ -22,12 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemas.node.facets.OperationNode;
-import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
-import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,12 +57,10 @@ public class AggregateNode extends NavNode {
 		}
 	}
 
-	public AggregateNode(AggregateType type, Node parent) {
+	public AggregateNode(AggregateType type, LibraryChainNode parent) {
 		super(type.label(), parent);
 		this.aggType = type;
 		setLibrary(parent.getLibrary());
-
-		assert (parent instanceof LibraryChainNode) : "Invalid argument.";
 	}
 
 	/**
@@ -76,154 +71,71 @@ public class AggregateNode extends NavNode {
 	 * @return
 	 */
 	public void add(ComponentNode nodeToAdd) {
-		addPreTests(nodeToAdd); // Type safety
+		// addPreTests(nodeToAdd); // Type safety
 		// LOGGER.debug("Adding " + nodeToAdd + " to aggregate of" + getLibrary());
 
 		// If this is a service then just add to the service root as services are not versioned objects
 		if (nodeToAdd instanceof ServiceNode) {
 			getChildren().add(nodeToAdd);
 			return;
-		} else if (nodeToAdd instanceof ResourceNode) {
-			if (!getChildren().contains(nodeToAdd))
-				getChildren().add(nodeToAdd);
+		}
+
+		VersionNode vn = null;
+
+		// If already in aggregate, just exit.
+		if (nodeToAdd.getVersionNode() != null)
+			if (getChildren().contains(nodeToAdd.getVersionNode()))
+				return;
+
+		// contextual facets are not versioned but are displayed in aggregate.
+		// Add a version node to make the handling consistent.
+		if (nodeToAdd instanceof ContextualFacetNode) {
+			vn = new VersionNode(this, nodeToAdd);
 			return;
 		}
 
-		// If the nodeToAdd name is already in the chain then we need to handle the version logic.
-		final List<Node> duplicates = findExactMatches(getChildren(), nodeToAdd.getName());
-		if (!duplicates.isEmpty())
-			addVersionedNode(nodeToAdd, duplicates);
+		// Get a list of children with the same name as nodeToAdd
+		final List<Node> duplicates = findExactMatches(getChildren(), nodeToAdd);
+
+		// Get the version node for this resource chain if it exists
+		if (duplicates.isEmpty())
+			// Add a version node to this aggregates children
+			vn = new VersionNode(this);
 		else
-			getChildren().add(nodeToAdd); // simply add the node
-	}
+			vn = duplicates.get(0).getVersionNode();
 
-	// Try to replace the existing name matching node
-	private void addVersionedNode(ComponentNode nodeToAdd, List<Node> duplicates) {
-		// If the duplicate is in the same library then the user made a mistake.
-		// Leave the node in the aggregate so the user can fix the problem.
-		Node parent = this;
-		for (Node dup : duplicates) {
-			parent = this;
+		// Add this node to the version chain
+		vn.add(nodeToAdd);
 
-			if (nodeToAdd.getLibrary() == dup.getLibrary()) {
-				// same library means not different version so add the duplicate and let user fix the error
-				if (!getChildren().contains(nodeToAdd)) {
-					getChildren().add(nodeToAdd);
-				}
-			} else {
-				// Get existing version node or create one
-				VersionNode vn = dup.getVersionNode();
-				if (vn == null)
-					vn = nodeToAdd.getVersionNode();
-				if (vn == null)
-					vn = new VersionNode((ComponentNode) dup);
-
-				if (nodeToAdd.isLaterVersion(dup)) {
-					// Replace older object(dup) with same name with the node to be added
-					getChildren().remove(dup);
-					insertPreviousVersion(nodeToAdd, (ComponentNode) dup);
-					if (!getChildren().contains(nodeToAdd))
-						getChildren().add(nodeToAdd);
-				} else {
-					// 4/8/2017 - added linking in older versions. (dup is newer)
-					vn.setPreviousVersion(nodeToAdd);
-					if (((ComponentNode) dup).isLaterVersion(nodeToAdd.getVersionNode().getHead()))
-						dup.getVersionNode().setNewestVersion((ComponentNode) dup);
-					if (!dup.getVersionNode().getChildren().contains(nodeToAdd))
-						dup.getVersionNode().getChildren().add(nodeToAdd);
-				}
-			}
-		}
+		// LOGGER.debug("Added " + nodeToAdd.getNameWithPrefix() + " to version chain.");
+		return;
 	}
 
 	/**
-	 * Make sure node to add's component type matches aggregate type
-	 * 
-	 * @param nodeToAdd
+	 * Examine all children for exact name match and object type. Match must be of the same object type and in a
+	 * different library.
 	 */
-	private void addPreTests(ComponentNode nodeToAdd) {
-		// Type safety
-		switch (aggType) {
-		case ComplexTypes:
-			if (!(nodeToAdd instanceof ComplexComponentInterface))
-				throw new IllegalStateException("Can't add to complex aggregate.");
-			break;
-		case SimpleTypes:
-			if (!(nodeToAdd instanceof SimpleComponentInterface))
-				throw new IllegalStateException("Can't add to simple aggregate.");
-			break;
-		case Service:
-			if (!(nodeToAdd instanceof ServiceNode || (nodeToAdd instanceof OperationNode)))
-				throw new IllegalStateException("Can't add to service aggregate.");
-			break;
-		case RESOURCES:
-			if (!(nodeToAdd instanceof ResourceNode))
-				throw new IllegalStateException("Can't add to resource aggregate.");
-			break;
-		default:
-			throw new IllegalStateException("Unknown object type: " + nodeToAdd.getClass().getSimpleName());
-		}
-		if (nodeToAdd.getLibrary() == null)
-			throw new IllegalArgumentException("Tried to add node with null library. " + nodeToAdd);
-	}
-
-	/**
-	 * examine all children for exact name match
-	 */
-	private List<Node> findExactMatches(List<Node> children, String matchName) {
+	private List<Node> findExactMatches(List<Node> versionNodes, Node match) {
+		String matchName = match.getName();
 		List<Node> ret = new ArrayList<Node>();
-		for (Node c : children) {
+		for (Node c : versionNodes) {
+			assert c instanceof VersionNode;
 			if (c.getName().equals(matchName))
-				ret.add(c);
+				if (((VersionNode) c).get().getClass() == match.getClass())
+					if (((VersionNode) c).get().getLibrary() != match.getLibrary())
+						ret.add(c);
 		}
 		return ret;
 	}
 
 	/**
-	 * Insert node in versions list. Update all the newest object links.
-	 * 
-	 * @param newest
-	 * @param toBePlaced
+	 * Remove the version node or version node associated with the passed node from the aggregate child list.
 	 */
-	private void insertPreviousVersion(ComponentNode newest, ComponentNode toBePlaced) {
-		toBePlaced.getVersionNode().setNewestVersion(newest);
-		if (toBePlaced.getVersionNode().getPreviousVersion() == null) {
-			newest.getVersionNode().setPreviousVersion(toBePlaced);
-			return;
-		}
-
-		toBePlaced.getVersionNode().setNewestVersion(newest);
-		VersionNode toBePlacedVN = toBePlaced.getVersionNode();
-		ComponentNode n = toBePlacedVN.getPreviousVersion();
-		while (n != null) {
-			n.getVersionNode().setNewestVersion(newest);
-			if (toBePlaced.isLaterVersion(n)) {
-				// if (toBePlaced.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib())) {
-				n.getVersionNode().setPreviousVersion(toBePlaced);
-				toBePlacedVN.setPreviousVersion(n.getVersionNode().getPreviousVersion());
-				n = toBePlaced;
-			}
-			if (n == n.getVersionNode().getPreviousVersion())
-				n = null;
-			else
-				n = n.getVersionNode().getPreviousVersion();
-		}
-	}
-
 	public void remove(Node node) {
-		if (!getChildren().remove(node)) {
-			// if it was not found, it may be in a family node
-			ArrayList<Node> kids = new ArrayList<Node>(getChildren());
-			for (Node n : kids) {
-				if (n instanceof AggregateFamilyNode)
-					((AggregateFamilyNode) n).remove(node);
-				// if ((n instanceof AggregateFamilyNode) && (n.family.equals(node.family))) {
-				// ((AggregateFamilyNode) n).remove(node);
-				// if (n.getChildren().isEmpty())
-				// getChildren().remove(n);
-				// }
-			}
-		}
+		if (!(node instanceof VersionNode))
+			node = node.getVersionNode();
+		if (!getChildren().remove(node))
+			LOGGER.warn(node + " was not found to remove from aggregate node.");
 	}
 
 	@Override
@@ -236,6 +148,11 @@ public class AggregateNode extends NavNode {
 		deleted = true;
 	}
 
+	/**
+	 * Does the child list contain the passed node.
+	 * <p>
+	 * Does <b>not</b> get the version node if an object is passed.
+	 */
 	public boolean contains(Node node) {
 		return getChildren().contains(node);
 	}
@@ -245,36 +162,13 @@ public class AggregateNode extends NavNode {
 		return Images.getImageRegistry().get("aggregateFolder");
 	}
 
-	/*
-	 * (non-Javadoc) // * @see org.opentravel.schemas.node.Node#getLibrary() //
+	/**
+	 * @return library at the head of the parent library chain
 	 */
 	@Override
 	public LibraryNode getLibrary() {
 		return parent != null ? parent.getLibrary() : null;
 	}
-
-	/*
-	 * For the non-version aggregates, skip over the version node These are used in the navigator menul.
-	 */
-	// 3/11/2015 - this should go away...just return children via super type
-	// @Override
-	// public List<Node> getNavChildren() {
-	// ArrayList<Node> kids = new ArrayList<Node>();
-	// for (Node child : getChildren()) {
-	// if (child instanceof AggregateFamilyNode) {
-	// kids.add(child);
-	// } else if (child.getParent() instanceof VersionNode)
-	// kids.add(((VersionNode) child.getParent()).getNewestVersion());
-	// else if (child.getParent().getParent() instanceof FamilyNode)
-	// LOGGER.error("Aggregate children contain a family node.");
-	// // // Only put families in once
-	// // if (!kids.contains(child.getParent().getParent()))
-	// // kids.add(child.getParent().getParent());
-	// else
-	// LOGGER.warn("Unknown child in aggregate node: " + child.getClass().getSimpleName());
-	// }
-	// return kids;
-	// }
 
 	/**
 	 * To get all providers, we only want to get type providers from their original libraries. If we used the other
@@ -286,11 +180,6 @@ public class AggregateNode extends NavNode {
 		return aggType.equals(AggregateType.Versions) && getChildren().size() > 0 ? true : false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isEditable()
-	 */
 	@Override
 	public boolean isEditable() {
 		if (getParent() != null)
@@ -298,21 +187,11 @@ public class AggregateNode extends NavNode {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#isInTLLibrary()
-	 */
 	@Override
 	public boolean isInTLLibrary() {
 		return parent != null ? parent.isInTLLibrary() : false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.NavNode#isLibraryContainer()
-	 */
 	@Override
 	public boolean isLibraryContainer() {
 		return aggType == AggregateType.Versions ? true : false;

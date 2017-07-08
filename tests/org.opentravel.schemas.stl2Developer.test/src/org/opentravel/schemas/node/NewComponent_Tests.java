@@ -288,8 +288,8 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 		ln.addMember(core);
 		assert hasOneNamedTypeListener(core);
 		assert core.getNode(core.getTLModelObject().getListeners()) == core;
-		assert core.getNode(((Node) core.getSummaryFacet()).getTLModelObject().getListeners()) == core
-				.getSummaryFacet();
+		assert core.getNode(((Node) core.getFacet_Summary()).getTLModelObject().getListeners()) == core
+				.getFacet_Summary();
 
 		VWA_Node vwa = (VWA_Node) NodeFactory.newComponent(new TLValueWithAttributes());
 		assert hasOneNamedTypeListener(vwa);
@@ -444,14 +444,14 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 	// }
 
 	private void addProperties(ComponentNode n) {
-		Assert.assertNotNull(n.getSummaryFacet());
-		PropertyOwnerInterface po = (PropertyOwnerInterface) n.getSummaryFacet();
+		Assert.assertNotNull(n.getFacet_Summary());
+		PropertyOwnerInterface po = (PropertyOwnerInterface) n.getFacet_Summary();
 
 		PropertyNode pne = new ElementNode(po, "Property");
 		PropertyNode pna = new AttributeNode(po, "Attribute");
 		PropertyNode pni = new IndicatorNode(po, "Indicator");
 		PropertyNode pner = new ElementReferenceNode(po, "EleRef");
-		Assert.assertEquals(4, n.getSummaryFacet().getChildren().size());
+		Assert.assertEquals(4, n.getFacet_Summary().getChildren().size());
 	}
 
 	private void addRoles(CoreObjectNode n) {

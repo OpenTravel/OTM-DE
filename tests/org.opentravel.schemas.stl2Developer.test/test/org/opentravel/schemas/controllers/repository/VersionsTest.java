@@ -459,12 +459,12 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		assertTrue(minorLibrary.getDescendants_LibraryMembers().contains(boInMinor));
 
 		// change a pre-existing old property
-		PropertyNode oldProperty = (PropertyNode) bo.getSummaryFacet().getChildren().get(0);
+		PropertyNode oldProperty = (PropertyNode) bo.getFacet_Summary().getChildren().get(0);
 		assertTrue(oldProperty != null);
 		addAndRemoveDoc(oldProperty);
 
 		// Add a new property
-		ElementNode newProperty = new ElementNode(boInMinor.getSummaryFacet(), "testProp");
+		ElementNode newProperty = new ElementNode(boInMinor.getFacet_Summary(), "testProp");
 		assertTrue(newProperty != null);
 		assertTrue(newProperty.isEditable_newToChain());
 		addAndRemoveDoc(newProperty);
@@ -758,9 +758,9 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	private CoreObjectNode createCoreInMinor() {
 		CoreObjectNode nco = (CoreObjectNode) co.createMinorVersionComponent();
 		TypeProvider type = ((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
-		PropertyNode newProp = new ElementNode(nco.getSummaryFacet(), "te2", type);
+		PropertyNode newProp = new ElementNode(nco.getFacet_Summary(), "te2", type);
 
-		Assert.assertEquals(1, co.getSummaryFacet().getChildren().size());
+		Assert.assertEquals(1, co.getFacet_Summary().getChildren().size());
 		TotalDescendents += 1;
 		MinorComplex += 1;
 
@@ -776,7 +776,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 			Assert.assertEquals(nco.getVersionNode().getPreviousVersion(), co);
 		}
 		Assert.assertFalse(co.isEditable_newToChain());
-		Assert.assertEquals(1, nco.getSummaryFacet().getChildren().size());
+		Assert.assertEquals(1, nco.getFacet_Summary().getChildren().size());
 		Assert.assertTrue(chain.getDescendants_LibraryMembers().contains(nco));
 		Assert.assertTrue(minorLibrary.getDescendants_LibraryMembers().contains(nco));
 		Assert.assertFalse(majorLibrary.getDescendants_LibraryMembers().contains(nco));
@@ -787,15 +787,15 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	private BusinessObjectNode createBO_InMinor() {
 		BusinessObjectNode nbo = (BusinessObjectNode) bo.createMinorVersionComponent();
 		TypeProvider type = ((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
-		PropertyNode newProp = new ElementNode(nbo.getSummaryFacet(), "te2", type);
-		Assert.assertEquals(1, bo.getSummaryFacet().getChildren().size());
+		PropertyNode newProp = new ElementNode(nbo.getFacet_Summary(), "te2", type);
+		Assert.assertEquals(1, bo.getFacet_Summary().getChildren().size());
 		TotalDescendents += 1;
 		MinorComplex += 1;
 
 		// Make sure a new CO was created in the newMinor library.
 		Assert.assertNotNull(nbo);
 		Assert.assertNotNull(nbo.getVersionNode().getPreviousVersion());
-		Assert.assertEquals(1, nbo.getSummaryFacet().getChildren().size());
+		Assert.assertEquals(1, nbo.getFacet_Summary().getChildren().size());
 		Assert.assertTrue(chain.getDescendants_LibraryMembers().contains(nbo));
 		Assert.assertTrue(minorLibrary.getDescendants_LibraryMembers().contains(nbo));
 		Assert.assertFalse(majorLibrary.getDescendants_LibraryMembers().contains(nbo));
@@ -808,7 +808,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		Assert.assertNotNull(nVwa);
 		PropertyNode newProp = new AttributeNode(nVwa.getAttributeFacet(), "te2");
 		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
-		Assert.assertEquals(1, bo.getSummaryFacet().getChildren().size());
+		Assert.assertEquals(1, bo.getFacet_Summary().getChildren().size());
 		TotalDescendents += 1;
 		MinorComplex += 1;
 
@@ -970,7 +970,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// TEST - Extension points, valid and invalid
 		ePatch = new ExtensionPointNode(new TLExtensionPointFacet());
 		patchLibrary.addMember(ePatch);
-		((ExtensionOwner) ePatch).setExtension((Node) co.getSummaryFacet());
+		((ExtensionOwner) ePatch).setExtension((Node) co.getFacet_Summary());
 		ePatch.addProperty(new IndicatorNode(ePatch, "patchInd"));
 
 		addAndRemoveDoc((PropertyNode) ePatch.getChildren().get(0));

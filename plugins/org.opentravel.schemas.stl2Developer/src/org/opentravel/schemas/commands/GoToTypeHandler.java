@@ -24,6 +24,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -88,11 +89,15 @@ public class GoToTypeHandler extends AbstractHandler {
 	}
 
 	private Node getTypeNode(Node node) {
-		if (node instanceof WhereUsedNode) {
+		if (node instanceof WhereUsedNode)
 			return node.getParent();
-		}
+
 		if (node instanceof TypeUser)
 			return (Node) ((TypeUser) node).getAssignedType();
+
+		if (node instanceof ContributedFacetNode)
+			return ((ContributedFacetNode) node).getContributor();
+
 		return node;
 
 		// return (Node) node.getTypeClass().getTypeNode();

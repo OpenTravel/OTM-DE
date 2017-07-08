@@ -17,6 +17,8 @@ package org.opentravel.schemas.node.interfaces;
 
 import java.util.List;
 
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
+
 public interface Enumeration {
 	/**
 	 * Add the passed literal to the open or closed enumeration.
@@ -27,6 +29,8 @@ public interface Enumeration {
 	 * Get a list of the enumeration values
 	 */
 	public List<String> getLiterals();
+
+	public PropertyOwnerInterface getFacet_Default();
 
 	public void setName(String name);
 }

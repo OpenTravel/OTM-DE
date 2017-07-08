@@ -28,6 +28,11 @@ import org.opentravel.schemas.node.SubType;
 import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
 
 /**
+ * Change Wizard. Change owning library, object type or property facet parent. Keep a history of changes to allow
+ * reverting changes.
+ * <p>
+ * Wizard is constructed with the node to be changed.
+ * 
  * @author Agnieszka Janowska
  * 
  */
@@ -56,8 +61,11 @@ public class ChangeWizard extends ValidatingWizard implements Cancelable {
 	 * After adding this type to TLFacetType this enum can be deleted.
 	 */
 	enum ExtentedTLFacetType {
-		ID(TLFacetType.ID), SUMMARY(TLFacetType.SUMMARY), DETAIL(TLFacetType.DETAIL), SIMPLE(TLFacetType.SIMPLE), VWA_ATTRIBUTES(
-				ValueWithAttributesAttributeFacetMO.DISPLAY_NAME);
+		ID(TLFacetType.ID),
+		SUMMARY(TLFacetType.SUMMARY),
+		DETAIL(TLFacetType.DETAIL),
+		SIMPLE(TLFacetType.SIMPLE),
+		VWA_ATTRIBUTES(ValueWithAttributesAttributeFacetMO.DISPLAY_NAME);
 
 		private TLFacetType tlType;
 		private String identityName;

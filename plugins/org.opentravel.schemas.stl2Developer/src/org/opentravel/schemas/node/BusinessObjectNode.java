@@ -88,8 +88,8 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 		core.getLibrary().addMember(this); // version managed library safe add
 		setDocumentation(core.getDocumentation());
 
-		getSummaryFacet().copyFacet((FacetNode) core.getSummaryFacet());
-		((FacetNode) getDetailFacet()).copyFacet((FacetNode) core.getDetailFacet());
+		getFacet_Summary().copyFacet((FacetNode) core.getFacet_Summary());
+		((FacetNode) getFacet_Detail()).copyFacet((FacetNode) core.getFacet_Detail());
 	}
 
 	public BusinessObjectNode(VWA_Node vwa) {
@@ -99,7 +99,7 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 		vwa.getLibrary().addMember(this);
 		setDocumentation(vwa.getDocumentation());
 
-		getSummaryFacet().copyFacet((PropertyOwnerNode) vwa.getAttributeFacet());
+		getFacet_Summary().copyFacet((PropertyOwnerNode) vwa.getAttributeFacet());
 	}
 
 	@Override
@@ -149,8 +149,8 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	public List<Node> getChildren_TypeUsers() {
 		ArrayList<Node> users = new ArrayList<Node>();
 		users.addAll(getIDFacet().getChildren());
-		users.addAll(getSummaryFacet().getChildren());
-		users.addAll(getDetailFacet().getChildren());
+		users.addAll(getFacet_Summary().getChildren());
+		users.addAll(getFacet_Detail().getChildren());
 		for (INode facet : getCustomFacets())
 			users.addAll(facet.getChildren());
 		for (INode facet : getQueryFacets())
@@ -164,12 +164,12 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	}
 
 	@Override
-	public SimpleFacetNode getSimpleFacet() {
+	public SimpleFacetNode getFacet_Simple() {
 		return null;
 	}
 
 	@Override
-	public FacetNode getSummaryFacet() {
+	public FacetNode getFacet_Summary() {
 		for (INode f : getChildren())
 			if ((f instanceof FacetNode && ((FacetNode) f).isSummaryFacet()))
 				return (FacetNode) f;
@@ -177,7 +177,7 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	}
 
 	@Override
-	public PropertyOwnerNode getDetailFacet() {
+	public PropertyOwnerNode getFacet_Detail() {
 		for (INode f : getChildren())
 			if ((f instanceof FacetNode) && ((FacetNode) f).isDetailFacet())
 				return (PropertyOwnerNode) f;
@@ -193,8 +193,8 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 	}
 
 	@Override
-	public PropertyOwnerInterface getDefaultFacet() {
-		return getSummaryFacet();
+	public PropertyOwnerInterface getFacet_Default() {
+		return getFacet_Summary();
 	}
 
 	@Override
@@ -414,8 +414,8 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 
 	@Override
 	public void sort() {
-		getSummaryFacet().sort();
-		((FacetNode) getDetailFacet()).sort();
+		getFacet_Summary().sort();
+		((FacetNode) getFacet_Detail()).sort();
 		for (ComponentNode f : getCustomFacets())
 			((FacetNode) f).sort();
 		for (ComponentNode f : getQueryFacets())
@@ -429,8 +429,8 @@ public class BusinessObjectNode extends TypeProviderBase implements ComplexCompo
 		}
 		BusinessObjectNode business = (BusinessObjectNode) source;
 		getIDFacet().addProperties(business.getIDFacet().getChildren(), true);
-		getSummaryFacet().addProperties(business.getSummaryFacet().getChildren(), true);
-		getDetailFacet().addProperties(business.getDetailFacet().getChildren(), true);
+		getFacet_Summary().addProperties(business.getFacet_Summary().getChildren(), true);
+		getFacet_Detail().addProperties(business.getFacet_Detail().getChildren(), true);
 
 		List<ComponentNode> customs = new ArrayList<ComponentNode>();
 		customs.addAll(business.getCustomFacets());

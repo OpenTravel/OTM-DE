@@ -23,6 +23,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Event;
+import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -64,6 +65,16 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 		return mc.getGloballySelectNode();
 	}
 
+	@Override
+	public boolean isEnabled() {
+		// IWorkbenchWindow ww;
+		// ww = UIPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
+		// IWorkbenchPage wp = ww.getActivePage();
+		Node n = mc.getGloballySelectNode();
+		Node rn = mc.getCurrentNode_ResourceView();
+		return true;
+	}
+
 	// Used by Actions
 	public void execute(Event event) {
 		if (event.data instanceof CommandType) {
@@ -71,16 +82,7 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 			runCommand((CommandType) event.data);
 		}
 		return;
-		// mc.postStatus("Resource Handler.");
 	}
-
-	// Used by buttons
-	// public void execute(SelectionEvent event) {
-	// view = OtmRegistry.getResourceView();
-	// selectedNode = (Node) view.getCurrentNode();
-	// runCommand(ResourceCommandHandler.CommandType.RESOURCE);
-	// // mc.postStatus("Resource Handler.");
-	// }
 
 	// Entry point from command execution
 	@Override
@@ -147,12 +149,14 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 
 	private void runCommand(CommandType type) {
 		ResourceNode rn = null;
+		if (selectedNode == null)
+			return;
+
 		if (selectedNode.getOwningComponent() instanceof ResourceNode)
 			rn = (ResourceNode) selectedNode.getOwningComponent();
-
-		if (selectedNode == null) {
-			return;
-		}
+		// Make sure we have the latest version of the resource
+		if (rn.getVersionNode() != null)
+			rn = (ResourceNode) rn.getVersionNode().get();
 
 		switch (type) {
 		case DELETE:
@@ -170,18 +174,14 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 			// Try to get an editable library
 			LibraryNode effectiveLib = getEffectiveLibrary(selectedNode);
 			if (effectiveLib != null) {
-				ResourceNode newR = new ResourceNode(effectiveLib, predicate); // create named empty resource
-
 				// Use the preselected BO or run wizard.
 				if (predicate == null)
-					predicate = getBusinessObject(newR);
-
+					predicate = getBusinessObject();
 				if (predicate == null)
-					// 3/2/2017 dmh - make cancel exit with no resource created.
-					// newR.setAbstract(true);
-					newR.delete();
-				else
-					new ResourceBuilder().build(newR, predicate);
+					return;
+				ResourceNode newR = new ResourceNode(effectiveLib, predicate); // create named empty resource
+				new ResourceBuilder().build(newR, predicate);
+
 				if (view != null) {
 					view.select(newR);
 					view.refresh(newR);
@@ -191,33 +191,58 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 				postWarning(type);
 			break;
 		case ACTION:
-			if (rn != null)
+			if (rn != null) {
+				// If in a chain and not in head, create a new version
+				if (!rn.isEditable_newToChain())
+					rn = (ResourceNode) createVersionExtension(rn);
+				if (rn == null)
+					return;
 				view.refresh(new ActionNode(rn));
-			else
+			} else
 				postWarning(type);
 			break;
 		case ACTIONFACET:
-			if (rn != null)
+			if (rn != null) {
+				// If in a chain and not in head, create a new version
+				if (!rn.isEditable_newToChain())
+					rn = (ResourceNode) createVersionExtension(rn);
+				if (rn == null)
+					return;
 				view.refresh(new ActionFacet(rn));
-			else
+			} else
 				postWarning(type);
 			break;
 		case PARAMGROUP:
-			if (rn != null)
+			if (rn != null) {
+				// If in a chain and not in head, create a new version
+				if (!rn.isEditable_newToChain())
+					rn = (ResourceNode) createVersionExtension(rn);
+				if (rn == null)
+					return;
 				view.refresh(new ParamGroup(rn));
-			else
+			} else
 				postWarning(type);
 			break;
 		case ACTIONRESPONSE:
-			if (selectedNode instanceof ActionNode)
+			if (selectedNode instanceof ActionNode) {
+				// If in a chain and not in head, create a new version
+				if (!rn.isEditable_newToChain())
+					rn = (ResourceNode) createVersionExtension(rn);
+				if (rn == null)
+					return;
 				view.refresh(new ActionResponse((ActionNode) selectedNode));
-			else
+			} else
 				postWarning(type);
 			break;
 		case PARENTREF:
-			if (selectedNode instanceof ResourceNode)
+			if (selectedNode instanceof ResourceNode) {
+				// If in a chain and not in head, create a new version
+				if (!rn.isEditable_newToChain())
+					rn = (ResourceNode) createVersionExtension(rn);
+				if (rn == null)
+					return;
 				view.refresh(new ParentRef((ResourceNode) selectedNode));
-			else
+			} else
 				postWarning(type);
 			break;
 		case NONE:
@@ -249,16 +274,18 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 	 * @param rn
 	 * @return business object or null.
 	 */
-	private BusinessObjectNode getBusinessObject(ResourceNode rn) {
-		// post a business object only Type Selection then pass the selected node.
+	private BusinessObjectNode getBusinessObject() {
 		if (mc.getCurrentNode_NavigatorView() instanceof BusinessObjectNode)
 			return (BusinessObjectNode) mc.getCurrentNode_NavigatorView();
 
+		// post a business object only Type Selection then pass the selected node.
 		Node subject = null;
+		ResourceNode rn = new ResourceNode(new TLResource());
 		final TypeSelectionWizard wizard = new TypeSelectionWizard(rn);
 		if (wizard.run(OtmRegistry.getActiveShell())) {
 			subject = wizard.getSelection();
 		}
+		rn.delete();
 		return (BusinessObjectNode) (subject instanceof BusinessObjectNode ? subject : null);
 	}
 

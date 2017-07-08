@@ -482,12 +482,13 @@ public class LibraryTests {
 		ComponentNode s2 = (ComponentNode) makeSimple("s_2");
 		ComponentNode sv1 = (ComponentNode) makeSimple("sv_1");
 		ComponentNode sv2 = (ComponentNode) makeSimple("sv_2");
-
-		// Link first member
 		// Library already has InitialBO
+
+		// Link first member - add to TL Library then link to chain
 		ln_inChain.getTLLibrary().addNamedMember((LibraryMember) s1.getTLModelObject());
 		ln_inChain.linkMember(s1);
 		Assert.assertEquals(2, ln_inChain.getDescendants_LibraryMembers().size());
+		assertTrue("Must contain s1", ln_inChain.contains(s1));
 
 		//
 		// Now test with a family member
@@ -502,7 +503,8 @@ public class LibraryTests {
 		//
 		ln_inChain.getTLLibrary().addNamedMember((LibraryMember) sv1.getTLModelObject());
 		ln_inChain.linkMember(sv1);
-		new VersionNode(sv1);
+		// FIXME - create version w/ aggregate node
+		// new VersionNode(sv1);
 		Assert.assertEquals(3, ln_inChain.getSimpleRoot().getChildren().size());
 
 		ln_inChain.getTLLibrary().addNamedMember((LibraryMember) sv2.getTLModelObject());
@@ -512,6 +514,12 @@ public class LibraryTests {
 		// Assert.assertTrue(n instanceof FamilyNode);
 	}
 
+	/**
+	 * Use simpleTypeNode constructor to create a simple type node with a name and assigned type.
+	 * 
+	 * @param name
+	 * @return
+	 */
 	private Node makeSimple(String name) {
 		Node n = new SimpleTypeNode(new TLSimple());
 		n.setName(name);

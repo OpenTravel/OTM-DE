@@ -23,8 +23,10 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.resources.ResourceNode;
 
 /**
  * Tree content provider for the REST Resource View.
@@ -38,7 +40,7 @@ public class RestTreeContentProvider implements ITreeContentProvider {
 	public Object[] getElements(final Object element) {
 		List<Node> kids = new ArrayList<Node>();
 		if (element instanceof LibraryChainNode)
-			kids = ((LibraryChainNode) element).getResrouceAggregate().getChildren();
+			kids = ((LibraryChainNode) element).getResourceAggregate().getTreeChildren(false);
 		else if (element instanceof NavNode && ((NavNode) element).isResourceRoot())
 			kids = ((Node) element).getChildren();
 		return kids.toArray();
@@ -47,22 +49,41 @@ public class RestTreeContentProvider implements ITreeContentProvider {
 	@Override
 	public Object[] getChildren(final Object element) {
 		List<Node> navChildren = null;
-		if (element instanceof ResourceMemberInterface)
-			navChildren = ((Node) element).getChildren();
+		Node node = null;
+		if (element instanceof Node)
+			node = (Node) element;
+		if (element instanceof VersionNode)
+			node = ((VersionNode) element).get();
+		if (node instanceof ResourceNode)
+			navChildren = ((Node) node).getChildren(); // no nav children for navigator menu
+		else if (node instanceof ResourceMemberInterface)
+			navChildren = ((Node) node).getNavChildren(true);
+
 		return navChildren != null ? navChildren.toArray() : Collections.EMPTY_LIST.toArray();
 	}
 
 	@Override
 	public boolean hasChildren(final Object element) {
-		if (element instanceof ResourceMemberInterface)
-			return !((Node) element).getChildren().isEmpty();
+		Node node = null;
+		if (element instanceof VersionNode)
+			node = ((VersionNode) element).get();
+		else if (element instanceof Node)
+			node = (Node) element;
+
+		if (node instanceof ResourceNode)
+			return !((Node) node).getChildren().isEmpty();
+		if (node instanceof ResourceMemberInterface)
+			return !((Node) node).getNavChildren(true).isEmpty();
 		return false;
 	}
 
 	@Override
 	public Object getParent(final Object element) {
-		if (element instanceof ResourceMemberInterface)
-			return ((Node) element).getParent();
+		Node node = null;
+		if (element instanceof VersionNode)
+			node = ((VersionNode) element).get();
+		if (node instanceof ResourceMemberInterface)
+			return ((Node) node).getParent();
 		return null;
 	}
 

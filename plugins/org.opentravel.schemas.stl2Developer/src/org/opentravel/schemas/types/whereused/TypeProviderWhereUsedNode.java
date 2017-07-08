@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.types.TypeProvider;
@@ -65,14 +64,14 @@ public class TypeProviderWhereUsedNode extends WhereUsedNode<TypeProvider> imple
 
 	/**
 	 * 
-	 * @return count of where all minor versions of this provider is use as type or extension
+	 * @return count of where all minor versions of this provider is used as type or extension
 	 */
 	public int getWhereUsedCount() {
 		int count = 0;
 		for (Node v : getAllVersions())
 			count += ((TypeProvider) v).getWhereUsedAndDescendantsCount();
 		// versioned objects will include themselves so decrement count.
-		if (owner.getParent() instanceof VersionNode)
+		if (((Node) owner).getVersionNode() != null)
 			if (((Node) owner).getVersionNode().getPreviousVersion() != null)
 				count--;
 		return count;
@@ -119,14 +118,14 @@ public class TypeProviderWhereUsedNode extends WhereUsedNode<TypeProvider> imple
 	}
 
 	/**
-	 * Get users of all versions of this object
+	 * @return live list of all versions of this object or list with just this object
 	 */
 	public List<Node> getAllVersions() {
+		if (((Node) owner).getVersionNode() != null)
+			return ((Node) owner).getVersionNode().getAllVersions();
+
 		List<Node> versions = new ArrayList<Node>();
-		if (owner.getParent() instanceof VersionNode)
-			versions.addAll(((Node) owner).getVersionNode().getAllVersions());
-		else
-			versions.add((Node) owner);
+		versions.add((Node) owner);
 		return versions;
 	}
 

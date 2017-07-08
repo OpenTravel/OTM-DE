@@ -171,6 +171,12 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 	}
 
 	@Override
+	public boolean isInherited() {
+		// Inherited tlObj will still have true owners
+		return Node.GetNode(tlObj.getOwner().getOwner()) != getOwningComponent();
+	}
+
+	@Override
 	public boolean isNameEditable() {
 		return false;
 	}
@@ -245,9 +251,9 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 		int i = 0;
 		data[i++] = ResourceField.NONE;
 		for (Node n : nodes)
-			if (n.getOwningComponent() == this.getOwningComponent())
-				data[i++] = n.getLabel();
-		// Do NOT include facets from base types
+			// if (n.getOwningComponent() == this.getOwningComponent())
+			data[i++] = n.getLabel();
+		// // Do NOT include facets from base types
 		// else
 		// data[i++] = n.getParent().getName() + ":" + n.getLabel();
 		return data;

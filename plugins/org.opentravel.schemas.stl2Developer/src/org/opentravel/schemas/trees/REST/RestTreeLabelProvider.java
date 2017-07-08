@@ -28,7 +28,7 @@ import org.opentravel.schemas.properties.Fonts;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 
 /**
- * 
+ * @see RestTreeStyledLabelProvider
  * 
  */
 public class RestTreeLabelProvider extends LabelProvider implements IFontProvider, IColorProvider {
@@ -53,9 +53,10 @@ public class RestTreeLabelProvider extends LabelProvider implements IFontProvide
 		if (element instanceof Node) {
 			Node node = (Node) element;
 			if (!node.isEditable())
-				// return Fonts.getFontRegistry().get(Fonts.defaultContext); // BOLD
-				// else
 				return Fonts.getFontRegistry().get(Fonts.readOnlyItem);
+			else if (node.isInherited())
+				return Fonts.getFontRegistry().get(Fonts.inheritedItem);
+			// return Fonts.getFontRegistry().get(Fonts.defaultContext); // BOLD
 		}
 		return null;
 	}

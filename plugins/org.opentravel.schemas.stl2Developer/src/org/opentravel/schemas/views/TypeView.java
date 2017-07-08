@@ -27,6 +27,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.opentravel.schemas.navigation.DoubleClickSelection;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 
@@ -90,6 +91,9 @@ public class TypeView extends OtmAbstractView implements ISelectionListener {
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 		if (NavigatorView.VIEW_ID.equals(part.getSite().getId()) && !selection.isEmpty()) {
 			INode node = extractFirstNode(selection);
+			if (node instanceof VersionNode)
+				node = ((VersionNode) node).get();
+
 			if (selection instanceof DoubleClickSelection) {
 				// force view refresh event if not listen
 				setCurrentNode(node, true);

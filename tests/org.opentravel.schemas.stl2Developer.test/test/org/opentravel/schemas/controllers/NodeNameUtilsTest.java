@@ -129,7 +129,7 @@ public class NodeNameUtilsTest {
 		// Given an element on a core summary facet
 		CoreObjectNode core = new CoreObjectNode(new TLCoreObject());
 		// When NodeNameUtils fix the name in the constructor
-		ElementNode element = new ElementNode(core.getSummaryFacet(), typeName);
+		ElementNode element = new ElementNode(core.getFacet_Summary(), typeName);
 		// Then the name is as expected.
 		assertTrue("When unassigned, name is as set.", element.getName().equals(expected));
 

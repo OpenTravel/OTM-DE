@@ -419,7 +419,7 @@ public class TypeSelectionPage extends WizardPage {
 	 */
 	protected void checkCore(Node curNode) {
 		if (curNode instanceof CoreObjectNode) {
-			FacetNode sum = (FacetNode) ((CoreObjectNode) curNode).getSummaryFacet();
+			FacetNode sum = (FacetNode) ((CoreObjectNode) curNode).getFacet_Summary();
 			// check assigned types and assure they have parents
 			for (Node n : sum.getChildren()) {
 				if (n instanceof TypeUser) {

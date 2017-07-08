@@ -15,14 +15,13 @@
  */
 package org.opentravel.schemas.node;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
-import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,80 +34,61 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-//
-// TODO - make the subject a LibraryMemberInterface
-// TODO - try to convert this to a handler
-// TODO - do NOT keep model object - return head.gettlmodelobject()
-//
 public class VersionNode extends ComponentNode implements FacadeInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(VersionNode.class);
 
-	protected ComponentNode head; // link to the latest/newest version of this object
-	protected ComponentNode prevVersion; // link to the preceding version. If null, it is new to the
-											// chain.
+	protected VersionManager vm = null;
 
 	/**
-	 * Creates the version node and inserts into the library before the passed node. This does NOT place this node into
-	 * the Aggregates. Set previous version to null (new to chain).
+	 * Create an empty version node linked to its parent.
 	 */
-	public VersionNode(ComponentNode node) {
-		super(node.getTLModelObject()); // creates 2nd listener
-		if (node.getParent() == null)
-			throw new IllegalStateException("Version node - " + node + " parent is null.");
-		if (node.getLibrary() == null)
-			throw new IllegalStateException("Version Head library is null.");
-		// added 4/10/2017 dmh
-		if (node.getVersionNode() != null)
-			// throw new IllegalStateException(node + " is already wrapped by a version node.");
-			LOGGER.debug(node + " is already wrapped by a version node.");
-
-		// Fail if in the list more than once.
-		assert (node.getParent().getChildren().indexOf(node) == node.getParent().getChildren().lastIndexOf(node));
-
-		getChildren().add(node);
-		head = node;
-		prevVersion = null;
-		node.setVersionNode(this);
-		setLibrary(node.getLibrary());
-
-		// Insert this between parent and node.
-		setParent(node.getParent());
-		node.getParent().getChildren().remove(node);
-		node.getParent().getChildren().add(this);
-		node.setParent(this);
-
-		// Replace listener on the head node's tl Model Element
-		// ListenerFactory.setListner(head); // creates 3rd listener
-		assert GetNode(getTLModelObject()) == head; // make sure listener is correct.
-		assert (getParent() != null);
-		assert (!getParent().getChildren().contains(node)) : "Parent still contains node.";
-		assert (getChildren().contains(node)) : "Version node does not contain node.";
-		assert (node.getParent() == this) : "Node is not linked to version node.";
+	public VersionNode(AggregateNode parent) {
+		vm = new VersionManager();
+		setLibrary(parent.getLibrary());
+		setParent(parent);
+		parent.getChildren().add(this);
+		versionNode = this; // make getVersionNode() tests simpler
 	}
 
-	// TODO - TEST/FIX ME
-	// this creates a model object with the initial TLModelElement. Why?
-	// Does getTLModelElement need to be trapped here? Get ModelObject?
+	/**
+	 * Create a new version node and add the node.
+	 * 
+	 * @param parent
+	 * @param nodeToAdd
+	 */
+	public VersionNode(AggregateNode parent, ComponentNode nodeToAdd) {
+		this(parent);
+		add(nodeToAdd);
+	}
 
 	/**
-	 * Return the actual node wrapped by this version node.
+	 * Add the passed node to the versioned object chain and set this as the versionNode in the nodeToAdd
+	 */
+	public void add(Node nodeToAdd) {
+		vm.add(nodeToAdd);
+		nodeToAdd.setVersionNode(this);
+	}
+
+	/**
+	 * Return the head (newest) node of the chain represented by this version node.
 	 * 
 	 * @return node or null
 	 */
 	public Node get() {
-		// Older versions will have head set to the latest version.
-		return getChildren().isEmpty() ? null : getChildren().get(0);
-		// return head;
+		return vm.get();
+		// TODO - why are some children empty?
+		// return getChildren().isEmpty() ? vm.get() : getChildren().get(0);
+		// return vm.get();
+	}
+
+	@Override
+	public String getDecoration() {
+		return vm.get().getDecoration();
 	}
 
 	@Override
 	public TLModelElement getTLModelObject() {
-		if (head != null)
-			return head.getTLModelObject();
-		// Head is not set until after needed in super() constructor
-		if (getModelObject() == null)
-			assert false;
-		return (TLModelElement) getModelObject().getTLModelObj();
+		return vm != null && vm.get() != null ? vm.get().getTLModelObject() : null;
 	}
 
 	@Override
@@ -117,43 +97,41 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 	}
 
 	public List<Node> getAllVersions() {
-		List<Node> versions = new ArrayList<Node>();
-		Node v = head;
-		do {
-			versions.add(v);
-			v = v.getVersionNode().getPreviousVersion();
-		} while (v != null);
-		return versions;
+		return vm.getAll();
 	}
 
 	@Override
 	public String getComponentType() {
-		if (getNewestVersion() == null || getNewestVersion().getComponentNodeType() == null)
-			return "";
-		return getNewestVersion().getComponentNodeType().getDescription();
+		return vm.get() != null ? vm.get().getComponentNodeType().getDescription() : "";
 	}
 
 	@Override
 	public Image getImage() {
-		return Images.getImageRegistry().get(Images.libraryChain);
-		// return head.getImage();
+		return vm.get().getImage();
+		// return Images.getImageRegistry().get(Images.libraryChain);
 	}
 
 	@Override
 	public boolean hasChildren_TypeProviders() {
 		// Type providers are delivered from their version nodes.
-		return head != null;
+		return vm.get() != null;
 	}
 
 	@Override
 	public List<Node> getNavChildren(boolean deep) {
 		// this simplifies links from validation, user experience and showing families in the other aggregates.
-		return getNewestVersion().getNavChildren(deep);
+		return vm.get() != null ? vm.get().getNavChildren(deep) : Collections.EMPTY_LIST;
+	}
+
+	@Override
+	public List<Node> getTreeChildren(boolean deep) {
+		// this simplifies links from validation, user experience and showing families in the other aggregates.
+		return vm.get() != null ? vm.get().getTreeChildren(deep) : Collections.EMPTY_LIST;
 	}
 
 	@Override
 	public boolean hasNavChildren(boolean deep) {
-		return getNewestVersion().hasNavChildren(deep);
+		return vm.get() != null ? vm.get().hasNavChildren(deep) : false;
 	}
 
 	/**
@@ -163,47 +141,12 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 	 *            is node not in version list to be inserted
 	 */
 	public void insert(ComponentNode newNode) {
-		boolean isHead = false;
-		// Find out if it is the head version
-		for (Node n : getChildren())
-			if (!newNode.isLaterVersion(n)) {
-				isHead = false; // It is not head, so just add to list
-				break;
-			}
-
-		getChildren().add(newNode);
-		if (isHead) {
-			// Make head
-			setPreviousVersion(head);
-			setNewestVersion(newNode);
-			// } else {
-			// // Just add to children
-		}
-		// if (newNode.isLaterVersion(newest))
-		// toBePlaced.getVersionNode().setNewestVersion(newest);
-		// if (toBePlaced.getVersionNode().getPreviousVersion() == null) {
-		// newest.getVersionNode().setPreviousVersion(toBePlaced);
-		// return;
-		// }
-
-		// toBePlaced.getVersionNode().setNewestVersion(newest);
-		// VersionNode toBePlacedVN = toBePlaced.getVersionNode();
-		// ComponentNode n = toBePlacedVN.getPreviousVersion();
-		// while (n != null) {
-		// n.getVersionNode().setNewestVersion(newest);
-		// if (toBePlaced.isLaterVersion(n)) {
-		// // if (toBePlaced.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib())) {
-		// n.getVersionNode().setPreviousVersion(toBePlaced);
-		// toBePlacedVN.setPreviousVersion(n.getVersionNode().getPreviousVersion());
-		// n = toBePlaced;
-		// }
-		// n = n.getVersionNode().getPreviousVersion();
-		// }
+		vm.add(newNode);
 	}
 
 	@Override
 	public boolean isNavChild(boolean deep) {
-		return getNewestVersion().isNavChild(deep);
+		return vm.get() != null ? vm.get().isNavChild(deep) : false;
 	}
 
 	@Override
@@ -211,15 +154,11 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 		return false;
 	}
 
-	public boolean isHead(Node candidate) {
-		return candidate == head;
-	}
-
 	/**
 	 * @return true if this is new to the chain (prevNode == null). Fast and efficient.
 	 */
 	public boolean isNewToChain() {
-		return prevVersion == null ? true : false;
+		return vm.getPreviousVersion() == null ? true : false;
 	}
 
 	@Override
@@ -232,83 +171,78 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 	 */
 	@Override
 	public Node getOwningComponent() {
-		return head != null ? head.getOwningComponent() : null;
+		return vm.get() != null ? vm.get().getOwningComponent() : null;
 	}
 
 	/**
 	 * @return the oldest version of this object in the chain
 	 */
 	public Node getOldestVersion() {
-		VersionNode vn = this;
-		while (!vn.isNewToChain())
-			if (vn == vn.getPreviousVersion().getVersionNode())
-				return vn.get(); // FIXME - bad version chain
-			else
-				vn = vn.getPreviousVersion().getVersionNode();
-		// vn = prevVersion.getVersionNode();
-		return vn.get();
+		return vm.getOldestVersion();
 	}
 
 	/**
-	 * Simple getter of the head field.
-	 * 
 	 * @return the newest version of the object (version head).
 	 */
 	public Node getNewestVersion() {
-		return head;
+		return vm.get();
 	}
 
 	/**
-	 * Simple getter of the head field.
+	 * Deprecated - let version manager figure out newest/oldest
 	 * 
-	 * @return the newest version of the object (version head).
-	 */
-	public Node getHead() {
-		return head;
-	}
-
-	public void setNewestVersion(ComponentNode head) {
-		this.head = head;
-	}
-
-	/**
-	 * @return the previous version of the object (if any).
+	 * @param head
 	 */
 	public ComponentNode getPreviousVersion() {
-		return prevVersion;
+		return (ComponentNode) vm.getPreviousVersion();
 	}
 
 	public void setPreviousVersion(ComponentNode previous) {
-		this.prevVersion = previous;
+		vm.add(previous);
 	}
 
 	/**
-	 * Remove passed child from this version node's children list AND aggregate.
+	 * Remove passed child from this version node's version list. If there are no objects remaining in the version list,
+	 * the version node is removed from the aggregate parent.
 	 */
 	@Override
 	protected void remove(final Node node) {
 		assert node != null;
-		assert getChildren() != null;
 		assert getChain() != null;
 		assert (node.getLibrary().getChain() == getChain());
 
-		// Remove from this version node
-		if (getChildren().contains(node))
-			getChildren().remove(node);
-		head = getPreviousVersion(); // will be null if there is no previous version
+		vm.remove(node);
 
-		// Remove from the library
-		if (head == null)
-			if (getParent() != null)
+		// If no more versions, then remove version node
+		if (vm.get() == null)
+			if (getParent() != null) {
 				getParent().remove(this);
-
-		// delete copy in the version aggregate
-		getChain().removeAggregate((ComponentNode) node);
+				node.setVersionNode(null);
+			}
 	}
 
 	@Override
 	public String getName() {
-		return head != null ? head.getName() + " (v)" : "";
+		return vm.get() != null ? vm.get().getName() : "";
+	}
+
+	public VersionManager getVersionManager() {
+		return vm;
+	}
+
+	public List<Node> getOlderVersions() {
+		return vm.getOlderVersions(get());
+	}
+
+	/**
+	 * @return true if this version object chain contains the passed node
+	 */
+	public boolean contains(Node node) {
+		return vm.contains(node);
+	}
+
+	public boolean hasOlder() {
+		return vm.getAll().size() > 1;
 	}
 
 }

@@ -127,7 +127,7 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 		}
 
 		public CoreNodeBuilder addToSummaryFacet(PropertyNode property) {
-			componentObject.getSummaryFacet().addProperty(property);
+			componentObject.getFacet_Summary().addProperty(property);
 			return this;
 		}
 
@@ -145,7 +145,7 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 		}
 
 		public ChoiceNodeBuilder addToSummaryFacet(PropertyNode property) {
-			componentObject.getSummaryFacet().addProperty(property);
+			componentObject.getFacet_Summary().addProperty(property);
 			return this;
 		}
 
@@ -219,7 +219,7 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 		CoreObjectNode newNode = (CoreObjectNode) NodeFactory.newComponent(new TLCoreObject());
 		newNode.setName(name);
 		newNode.setSimpleType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
-		PropertyNode newProp = new ElementNode(newNode.getSummaryFacet(), "Property",
+		PropertyNode newProp = new ElementNode(newNode.getFacet_Summary(), "Property",
 				((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE)));
 		return new ComponentNodeBuilder<ComponentNode>(newNode);
 	}
@@ -294,7 +294,7 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 
 	public ComponentNodeBuilder<T> addProperty(String name) {
 		TypeProvider type = ((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
-		PropertyNode newProp = new ElementNode(componentObject.getSummaryFacet(), name, type);
+		PropertyNode newProp = new ElementNode(componentObject.getFacet_Summary(), name, type);
 		return this;
 	}
 

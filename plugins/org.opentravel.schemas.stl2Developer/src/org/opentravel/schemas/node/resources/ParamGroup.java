@@ -90,11 +90,11 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 
 	public ParamGroup(ResourceNode rn, ComponentNode fn, boolean idGroup) {
 		this(rn);
-		if (fn != null) {
+		setIdGroup(idGroup); // do before adding facet and it's parameters
+		if (fn != null && fn instanceof FacetNode) {
 			setName(fn.getLabel());
-			setReferenceFacet(fn.getLabel());
+			setReferenceFacet((FacetNode) fn);
 		}
-		setIdGroup(idGroup);
 	}
 
 	@Override
@@ -286,13 +286,9 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	 */
 	public List<String> getPathTemplates() {
 		ArrayList<String> contributions = new ArrayList<String>();
-		boolean firstParam = true;
 		for (Node param : getChildren()) {
 			if (((ResourceParameter) param).isPathParam())
-				if (firstParam)
-					contributions.add("{" + param.getName() + "}");
-				else
-					contributions.add("/{" + param.getName() + "}");
+				contributions.add("{" + param.getName() + "}");
 		}
 		return contributions;
 	}
@@ -304,8 +300,6 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		String path = "";
 		for (String pt : getPathTemplates())
 			path += "/" + pt;
-		if (path.isEmpty())
-			path = "/"; // must at least have a slash
 		// LOGGER.debug("Get path template: " + path);
 		return path;
 	}
@@ -355,10 +349,6 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		List<Node> params = new ArrayList<Node>(getChildren());
 		for (Node p : params)
 			p.delete();
-		// List<TLParameter> parameters = new ArrayList<TLParameter>(tlObj.getParameters());
-		// for (TLParameter p : parameters)
-		// tlObj.removeParameter(p);
-		// getChildren().clear();
 	}
 
 	public void upDateParameters() {
@@ -383,16 +373,26 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		for (Node n : getOwningComponent().getSubject().getChildren()) {
 			String facetName = ResourceCodegenUtils.getActionFacetReferenceName((TLFacet) n.getTLModelObject());
 
-			if ((facetName != null) && facetName.equals(name)) {
-				tlObj.setFacetRef((TLFacet) n.getTLModelObject());
-				upDateParameters();
-				if (tlObj.getName().isEmpty())
-					tlObj.setName(name);
-				// LOGGER.debug("Set reference facet to: " + tlObj.getFacetRefName());
+			if ((facetName != null) && facetName.equals(name) && n instanceof FacetNode) {
+				setReferenceFacet((FacetNode) n);
 				return true; // denote change
 			}
 		}
 		LOGGER.debug("Could not find reference facet named: " + name);
 		return false;
+	}
+
+	/**
+	 * Sets the reference facet then updates the parameters.
+	 * 
+	 * @param n
+	 */
+	public void setReferenceFacet(FacetNode n) {
+		tlObj.setFacetRef((TLFacet) n.getTLModelObject());
+		upDateParameters();
+		if (tlObj.getName().isEmpty())
+			tlObj.setName(n.getName());
+		// LOGGER.debug("Set reference facet to: " + tlObj.getFacetRefName());
+
 	}
 }

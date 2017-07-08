@@ -49,7 +49,7 @@ public class ProjectNodeTest extends BaseProjectTest {
 				new Version(1, 0, 0)).build(testProject, pc);
 		CoreObjectNode usingCO = ComponentNodeBuilder.createCoreObject("UsingCO").get(libUsingBase);
 		PropertyNode attrWithSO = PropertyNodeBuilder.create(PropertyNodeType.ATTRIBUTE)
-				.addToComponent((ComponentNode) usingCO.getSummaryFacet()).assign(baseSimpleObject).build();
+				.addToComponent((ComponentNode) usingCO.getFacet_Summary()).assign(baseSimpleObject).build();
 
 		// save name and namespace before closing, used later to find it from reloaded object
 		String baseSimpleObjectName = baseSimpleObject.getName();
@@ -85,7 +85,7 @@ public class ProjectNodeTest extends BaseProjectTest {
 				testProject.getNamespace() + "/close", "o1", new Version(1, 0, 0)).build(testProject, pc);
 		CoreObjectNode usingCO = ComponentNodeBuilder.createCoreObject("UsingCO").get(libUsingAssignedType);
 		PropertyNode eleAssignedSO = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT)
-				.addToComponent((ComponentNode) usingCO.getSummaryFacet()).assign(srcSimpleObject).build();
+				.addToComponent((ComponentNode) usingCO.getFacet_Summary()).assign(srcSimpleObject).build();
 
 		// save name and namespace before closing, used later to find it from reloaded object
 		String srcSimpleObjectName = srcSimpleObject.getName();

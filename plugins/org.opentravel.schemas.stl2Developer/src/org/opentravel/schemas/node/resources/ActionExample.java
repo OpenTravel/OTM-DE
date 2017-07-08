@@ -46,13 +46,9 @@ public class ActionExample {
 	public String getURL() {
 		if (getMethod().isEmpty())
 			return "";
-		String url = getMethod() + " " + resourceBaseURL;
-		url += action.getParentContribution();
-		if (action.getParentContribution().isEmpty())
-			url += action.getRequest().getPathTemplate() + getQueryTemplate();
-		url += getPayloadExample();
-		// LOGGER.debug(url);
-		return url;
+		if (action == null || action.getRequest() == null)
+			return "";
+		return action.getRequest().getURL();
 	}
 
 	private String getResourceBaseURL() {
@@ -68,18 +64,9 @@ public class ActionExample {
 				: "";
 	}
 
-	private String getQueryTemplate() {
-		return action.getQueryTemplate();
-	}
-
-	private String getPayloadExample() {
-		String payload = "";
-		if (action.tlObj.getRequest() != null)
-			payload = action.tlObj.getRequest().getPayloadTypeName();
-		if (payload == null)
-			payload = "";
-		return !payload.isEmpty() ? " <" + payload + ">...</" + payload + ">" : "";
-	}
+	// private String getQueryTemplate() {
+	// return action.getQueryTemplate();
+	// }
 
 	public String getLabel() {
 		return action.tlObj.getActionId();

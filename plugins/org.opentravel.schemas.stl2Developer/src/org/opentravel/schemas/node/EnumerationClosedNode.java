@@ -31,6 +31,7 @@ import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.ExtensionHandler;
 import org.opentravel.schemas.types.TypeProvider;
@@ -137,6 +138,11 @@ public class EnumerationClosedNode extends SimpleComponentNode implements Enumer
 		for (TLEnumValue v : ((TLClosedEnumeration) getTLModelObject()).getValues())
 			literals.add(v.getLiteral());
 		return literals;
+	}
+
+	@Override
+	public PropertyOwnerInterface getFacet_Default() {
+		return (PropertyOwnerInterface) this;
 	}
 
 	// Enumerations do not have equivalents

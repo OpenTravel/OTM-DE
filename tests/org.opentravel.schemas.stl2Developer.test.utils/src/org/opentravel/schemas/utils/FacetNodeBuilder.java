@@ -116,7 +116,7 @@ public class FacetNodeBuilder {
 			bo = new BusinessObjectNode(new TLBusinessObject());
 			bo.setName("buildFacetParent");
 			ln.addMember(bo);
-			facet = bo.getSummaryFacet();
+			facet = bo.getFacet_Summary();
 		}
 
 	}

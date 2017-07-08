@@ -54,7 +54,7 @@ public class ResourceDependencyListener extends BaseNodeListener implements INod
 		if (event.getSource() instanceof TLResource) {
 			switch (event.getType()) {
 			case BASE_PATH_MODIFIED:
-				((ActionRequest) thisNode).createPathTemplate();
+				// ((ActionRequest) thisNode).updateBasePath();
 				break;
 			default:
 			}
@@ -62,7 +62,7 @@ public class ResourceDependencyListener extends BaseNodeListener implements INod
 		if (event.getSource() instanceof TLParameter) {
 			switch (event.getType()) {
 			case LOCATION_MODIFIED: // path/query/header value change
-				((ActionRequest) thisNode).createPathTemplate();
+				((ActionRequest) thisNode).setPathTemplate();
 				break;
 			default:
 			}
@@ -73,7 +73,8 @@ public class ResourceDependencyListener extends BaseNodeListener implements INod
 			case PARAM_GROUP_REMOVED:
 			case LOCATION_MODIFIED: // path/query/header value change
 			case PAYLOAD_TYPE_MODIFIED:
-				((ActionRequest) thisNode).createPathTemplate();
+				((ActionRequest) thisNode).setPathTemplate();
+				;
 				break;
 			default:
 			}

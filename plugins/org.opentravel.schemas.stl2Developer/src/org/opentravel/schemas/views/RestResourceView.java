@@ -65,6 +65,7 @@ import org.opentravel.schemacompiler.validate.ValidationFinding;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.node.ContextNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -471,9 +472,13 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 			return;
 
 		ignoreListener = true;
-		setCurrentNode((Node) object);
-		if (object instanceof ResourceMemberInterface)
-			updateFields((ResourceMemberInterface) object);
+		Node node = (Node) object;
+		if (node instanceof VersionNode)
+			node = ((VersionNode) node).get();
+
+		setCurrentNode(node);
+		if (node instanceof ResourceMemberInterface)
+			updateFields((ResourceMemberInterface) node);
 		else
 			updateFields(null);
 		ignoreListener = false;
@@ -710,7 +715,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				pf.combo = new Combo(objectPropertyGroup, SWT.NULL);
 				pf.combo.setToolTipText(Messages.getString(field.getKey() + ".tooltip"));
 				post(pf.combo, (String[]) field.getData(), field.getValue());
-				pf.combo.setEnabled(enabled);
+				pf.combo.setEnabled(enabled && field.isEnabled());
 				if (field.getListener() != null)
 					pf.combo.addSelectionListener(new ComboListener());
 				pf.combo.setData(field);

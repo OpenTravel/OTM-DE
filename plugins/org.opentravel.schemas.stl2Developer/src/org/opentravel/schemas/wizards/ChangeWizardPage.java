@@ -56,7 +56,6 @@ import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.stl2developer.ColorProvider;
-import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
@@ -207,7 +206,8 @@ public class ChangeWizardPage extends WizardPage {
 		// int index = 0;
 		libraryNameMap = new HashMap<String, LibraryNode>();
 		for (final Node lib : Node.getAllLibraries()) {
-			if (lib.isTLLibrary()) {
+			// 6/2017 - added isEditable() filter on list
+			if (lib.isTLLibrary() && lib.isEditable()) {
 				final LibraryNode library = (LibraryNode) lib;
 				final String libDisplayName = getLibraryString(library);
 				libraryNameMap.put(libDisplayName, library);
@@ -283,19 +283,19 @@ public class ChangeWizardPage extends WizardPage {
 	private void setObjectType(final SubType st) {
 		final HistoryItem item = new HistoryItem(OpType.OBJECT_TYPE_CHANGE, editedNode, null);
 		historyPush(item);
-		try {
-			editedNode = editedNode.changeObject(st);
-			tablePoster.postTable(editedNode);
-			updateFacetTypeButtons();
-		} catch (Exception ex) {
-			undoLastOp();
-			LOGGER.warn("Error on chaning type to: " + st.toString());
-			DialogUserNotifier.openError("Error", "Operation finished with error. Check logs for more information.");
-		}
+		// try {
+		editedNode = editedNode.changeObject(st);
+		tablePoster.postTable(editedNode);
+		updateFacetTypeButtons();
+		// } catch (Exception ex) {
+		// undoLastOp();
+		// LOGGER.warn("Error on chaning type to: " + st.toString());
+		// DialogUserNotifier.openError("Error", "Operation finished with error. Check logs for more information.");
+		// }
 	}
 
 	private String getLibraryString(final LibraryNode library) {
-		return library.getPrefix() + ":" + library.getName();
+		return library != null ? library.getPrefix() + ":" + library.getName() : "";
 	}
 
 	public void undoAllOperation() {
@@ -325,7 +325,7 @@ public class ChangeWizardPage extends WizardPage {
 				// Reinstate the newNode on the previous node facet from where it came
 				((FacetNode) item.previousNode).addProperty((Node) item.newNode);
 				// Restore the simple node from the tempNode
-				ComponentNode simpleFacet = ((ComponentNode) item.previousNode.getParent()).getSimpleFacet();
+				ComponentNode simpleFacet = ((ComponentNode) item.previousNode.getParent()).getFacet_Simple();
 				simpleFacet.removeProperty(simpleFacet.getChildren().get(0));
 				simpleFacet.addProperty((Node) item.tempNode); // TEST
 				break;
@@ -497,7 +497,7 @@ public class ChangeWizardPage extends WizardPage {
 
 			if (TLFacetType.SIMPLE.equals(st.toTLFacetType())) {
 				// special case - Simple Facet in CO and VWA
-				changeToSimple(property, owningFacet, editedNode.getSimpleFacet());
+				changeToSimple(property, owningFacet, editedNode.getFacet_Simple());
 				continue;
 			}
 			if (owningFacet.getFacetType() == null || owningFacet.getFacetType().equals(st.toTLFacetType())) {
@@ -512,13 +512,13 @@ public class ChangeWizardPage extends WizardPage {
 				facet = (ComponentNode) editedNode.getIDFacet();
 				break;
 			case SUMMARY:
-				facet = (ComponentNode) editedNode.getSummaryFacet();
+				facet = (ComponentNode) editedNode.getFacet_Summary();
 				break;
 			case DETAIL:
-				facet = (ComponentNode) editedNode.getDetailFacet();
+				facet = (ComponentNode) editedNode.getFacet_Detail();
 				break;
 			case SIMPLE:
-				facet = editedNode.getSimpleFacet();
+				facet = editedNode.getFacet_Simple();
 				break;
 			case VWA_ATTRIBUTES:
 				if (editedNode instanceof ComplexComponentInterface) {

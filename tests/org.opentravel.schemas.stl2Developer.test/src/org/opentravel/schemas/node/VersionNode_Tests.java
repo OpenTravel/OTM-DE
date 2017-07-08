@@ -22,10 +22,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -70,67 +68,51 @@ public class VersionNode_Tests {
 
 	@Test
 	public void constructor() {
-		ComponentNode s1 = (ComponentNode) ml.createSimple("s_1");
-		ComponentNode s2 = (ComponentNode) ml.createSimple("s_2");
-		ComponentNode s3 = (ComponentNode) ml.createSimple("s_3");
-		VersionNode v = null;
+		VersionNode vc = new VersionNode(ln_inChain.getChain().getComplexAggregate());
+		VersionNode vs = new VersionNode(ln_inChain.getChain().getSimpleAggregate());
 
-		// When - illegal state
-		assertTrue("S1 must not have library.", s1.getLibrary() == null);
-		try {
-			v = new VersionNode(s1); // no library
-			Assert.assertFalse(true); // should never reach here
-		} catch (IllegalStateException e) {
-			Assert.assertNotNull(e);
-			assertTrue(v == null);
-		}
+		assertTrue("Version node must be empty.", vc.get() == null);
+		assertTrue("Version node must have library.", vc.getLibrary() != null);
+		assertTrue("Version node must have parent.", vc.getParent() != null);
 
-		// When - illegal state
-		try {
-			v = new VersionNode(s1); // should fail because it already is wrapped.
-			Assert.assertFalse(true); // should never reach here
-		} catch (IllegalStateException e) {
-			Assert.assertNotNull(e);
-		}
+		assertTrue("Version node must be empty.", vs.get() == null);
+		assertTrue("Version node must have library.", vs.getLibrary() != null);
+		assertTrue("Version node must have parent.", vs.getParent() != null);
+	}
 
-		// When added to library chain - creates Version Node, sets library
-		ln_inChain.getTLLibrary().addNamedMember((LibraryMember) s1.getTLModelObject());
+	@Test
+	public void versionNode_AddTests() {
+		// Given - 3 simple objects
+		ComponentNode s1 = ml.addSimpleTypeToLibrary(ln, "s_1");
+		ComponentNode s2 = ml.addSimpleTypeToLibrary(ln, "s_2");
+		ComponentNode s3 = ml.addSimpleTypeToLibrary(ln, "s_3");
+		assertTrue("S1 must  have library.", s1.getLibrary() != null);
+
+		// When - added to empty version node
+		VersionNode v = new VersionNode(ln_inChain.getChain().getSimpleAggregate());
+		v.add(s1);
 		// Then
-		assertTrue("Must have version node.", s1.getVersionNode() != null);
-		assertTrue("Must have library.", s1.getLibrary() == ln_inChain);
+		assertTrue(s1.getVersionNode() == v);
+		assertTrue(v.getAllVersions().contains(s1));
 
-		// When - added to a chain as is done when opening chains
-		try {
-			lcn.add(s2); // must be in a library
-			Assert.assertFalse(true); // should never reach here
-		} catch (IllegalArgumentException e) {
-			Assert.assertNotNull(e);
-		}
+		// When - added to aggregate
+		ln_inChain.getChain().getSimpleAggregate().add(s2);
+		// Then - version node created containing s2
+		assertTrue(s2.getVersionNode() != null);
+		assertTrue(s2.getVersionNode().getAllVersions().contains(s2));
 
-		// When - add to library uses constructor to add to aggregate
-		ln_inChain.setEditable(true);
-		assertTrue(ln_inChain.isEditable());
-		ln_inChain.addMember(s2);
-		ln_inChain.addMember(s3);
-		// Then -
-		assertTrue("S2 must be added to aggregate.", lcn.getSimpleAggregate().contains(s2));
-		assertTrue("Must have version node.", s2.getVersionNode() != null);
-		assertTrue("S3 must be added to aggregate.", lcn.getSimpleAggregate().contains(s3));
-		assertTrue("Must have version node.", s3.getVersionNode() != null);
-
-		// then
-		v = s1.getVersionNode();
-		Assert.assertNotNull(v.getLibrary());
-		Assert.assertEquals(v, s1.getParent());
-		Assert.assertEquals(s1, v.getNewestVersion());
-		Assert.assertNull(v.getPreviousVersion());
+		// When - added to library chain node
+		ln_inChain.getChain().add(s3);
+		// Then - version node created containing s3
+		assertTrue(s3.getVersionNode() != null);
+		assertTrue(s3.getVersionNode().getAllVersions().contains(s3));
 	}
 
 	@Test
 	public void projectLoadTest() {
 		ProjectNode pn = lf.loadVersionTestProject(pc);
 		assertTrue(pn != null);
-
+		// FIXME - Something in versions test is hitting the opentravel repo
 		// Pre-check assertions
 		List<LibraryNode> libs = pn.getLibraries();
 		assertTrue(libs.size() == 3);
@@ -146,25 +128,28 @@ public class VersionNode_Tests {
 
 		// Find the business object
 		BusinessObjectNode bo = null;
-		for (Node n : ca.getChildren())
-			if (n instanceof BusinessObjectNode)
-				bo = (BusinessObjectNode) n;
+		for (Node n : ca.getChildren()) {
+			assertTrue("Aggregate children must be version nodes.", n instanceof VersionNode);
+			if (((VersionNode) n).get() instanceof BusinessObjectNode)
+				bo = (BusinessObjectNode) ((VersionNode) n).get();
+		}
 		assertTrue(bo != null);
 
 		// Check version node
 		VersionNode vn = bo.getVersionNode();
 		assertTrue("BO must have a version node.", vn != null);
-		assertTrue("BO parent must be a version node.", bo.getParent() == vn);
-		assertTrue("BO must be a child of version node.", vn.getChildren().contains(bo));
-		assertTrue("BO must be Version Node head.", vn.getHead() == bo);
+		assertTrue("BO parent must be a nav node.", bo.getParent() instanceof NavNode);
+		assertTrue("BO must be version list.", vn.getAllVersions().contains(bo));
+		assertTrue("BO must be at head of version chain.", vn.get() == bo);
+		assertTrue("There must be a previous version.", vn.getPreviousVersion() != null);
 		assertTrue("Version node previous must NOT be bo.", vn.getPreviousVersion() != bo);
-		assertTrue("Version node previous must be a child of vn.", vn.getChildren().contains(vn.getPreviousVersion()));
-		// These will not work until converted over to single VN for all versions of same object.
-		// for (Node c : vn.getChildren()) {
-		// assertTrue("VN Child head must be bo.", c.getVersionNode().getHead() == bo);
-		// assertTrue("VN Child must share version node.", c.getVersionNode() == vn);
-		// }
+		assertTrue("Version node previous must be a child of vn.", vn.getAllVersions()
+				.contains(vn.getPreviousVersion()));
+		// Single VN for all versions of same object.
+		for (Node c : vn.getAllVersions()) {
+			assertTrue("VN Child head must be bo.", c.getVersionNode().get() == bo);
+			assertTrue("VN Child must share version node.", c.getVersionNode() == vn);
+		}
 
 	}
-
 }

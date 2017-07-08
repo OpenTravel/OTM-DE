@@ -122,14 +122,14 @@ public class TestTypes extends BaseProjectTest {
 		assert vwa.getWhereUsedAndDescendantsCount() == 0;
 
 		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
-		ElementNode e1 = new ElementNode(bo.getSummaryFacet(), "E1");
+		ElementNode e1 = new ElementNode(bo.getFacet_Summary(), "E1");
 		wuc = unAssigned.getWhereUsedAndDescendantsCount();
 		int listeners = e1.getTLModelObject().getListeners().size();
 		e1.setAssignedType(vwa);
 		assert vwa.getWhereUsedAndDescendantsCount() == 1;
 		assert listeners == e1.getTLModelObject().getListeners().size(); // should be equal
 
-		ElementNode e2 = new ElementNode(bo.getSummaryFacet(), "E2");
+		ElementNode e2 = new ElementNode(bo.getFacet_Summary(), "E2");
 		e2.setAssignedType(vwa);
 		assert vwa.getWhereUsedAndDescendantsCount() == 2;
 		int afterWuc = unAssigned.getWhereUsedAndDescendantsCount();
@@ -149,18 +149,18 @@ public class TestTypes extends BaseProjectTest {
 		int aTypeCount = aType.getWhereUsedAndDescendantsCount();
 		checkListeners(aType);
 
-		AttributeNode a1 = new AttributeNode(bo.getSummaryFacet(), "a1");
+		AttributeNode a1 = new AttributeNode(bo.getFacet_Summary(), "a1");
 		a1.setAssignedType(aType);
 		Assert.assertEquals(aType, a1.getAssignedType());
 		Assert.assertEquals(aTypeCount + 1, aType.getWhereUsedAndDescendantsCount());
 		checkListeners(aType);
 
 		// Setting simple types
-		vwa.getSimpleFacet().getSimpleAttribute().setAssignedType(bType);
-		TypeProvider b = vwa.getSimpleFacet().getSimpleAttribute().getAssignedType();
+		vwa.getFacet_Simple().getSimpleAttribute().setAssignedType(bType);
+		TypeProvider b = vwa.getFacet_Simple().getSimpleAttribute().getAssignedType();
 		Assert.assertEquals("VWA Assignment via simple", bType, b);
 		checkListeners(bType);
-		assert bType.getWhereAssigned().contains(vwa.getSimpleFacet().getSimpleAttribute());
+		assert bType.getWhereAssigned().contains(vwa.getFacet_Simple().getSimpleAttribute());
 
 		vwa.setSimpleType(aType);
 		TypeProvider a = vwa.getSimpleType();
@@ -281,16 +281,16 @@ public class TestTypes extends BaseProjectTest {
 		// Given - a VWA to assign types to
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "Vwa1");
 		// When - Simple facet assigned type
-		vwa.getSimpleFacet().getSimpleAttribute().setAssignedType(type1);
+		vwa.getFacet_Simple().getSimpleAttribute().setAssignedType(type1);
 		// Then - assignment worked
-		TypeProvider at = vwa.getSimpleFacet().getSimpleAttribute().getAssignedType();
+		TypeProvider at = vwa.getFacet_Simple().getSimpleAttribute().getAssignedType();
 		assertEquals(type1, at);
 		// When - simple facet assigned a different type
-		vwa.getSimpleFacet().getSimpleAttribute().setAssignedType(type2);
+		vwa.getFacet_Simple().getSimpleAttribute().setAssignedType(type2);
 		// Then - assignment worked
-		assertEquals(type2, vwa.getSimpleFacet().getSimpleAttribute().getAssignedType());
+		assertEquals(type2, vwa.getFacet_Simple().getSimpleAttribute().getAssignedType());
 		assertEquals(1, getIdentityListenerCount(vwa));
-		assertEquals(1, getIdentityListenerCount(vwa.getSimpleFacet()));
+		assertEquals(1, getIdentityListenerCount(vwa.getFacet_Simple()));
 		// Given - an attribute of the vwa
 		AttributeNode attr = (AttributeNode) vwa.getAttributeFacet().getChildren().get(0);
 		assertNotNull(attr);
@@ -305,15 +305,15 @@ public class TestTypes extends BaseProjectTest {
 		assertNotNull(core);
 		assertEquals(1, getIdentityListenerCount(core));
 		// When - type assigned to simple facet of a core object
-		core.getSimpleFacet().getSimpleAttribute().setAssignedType(s1);
+		core.getFacet_Simple().getSimpleAttribute().setAssignedType(s1);
 		// Then - assignment worked
 		assertEquals(s1, core.getSimpleType());
 		core.setSimpleType(s2);
 		// Then - assignment worked
 		assertEquals(s2, core.getSimpleType());
-		assertEquals(1, getIdentityListenerCount(core.getSimpleFacet()));
+		assertEquals(1, getIdentityListenerCount(core.getFacet_Simple()));
 		// When - type assigned to a property of the core summary facet
-		PropertyNode p1 = (PropertyNode) core.getSummaryFacet().getChildren().get(0);
+		PropertyNode p1 = (PropertyNode) core.getFacet_Summary().getChildren().get(0);
 		p1.setAssignedType(s1);
 		// Then - assignment worked
 		assertEquals(s1, p1.getAssignedType());
@@ -324,7 +324,7 @@ public class TestTypes extends BaseProjectTest {
 		// Test with both property and type in versioned libraries.
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln_inChain, "Bo1");
 		p1 = null;
-		for (Node t : bo.getSummaryFacet().getChildren())
+		for (Node t : bo.getFacet_Summary().getChildren())
 			if (t instanceof ElementNode) {
 				p1 = (PropertyNode) t;
 			}
@@ -339,7 +339,7 @@ public class TestTypes extends BaseProjectTest {
 		p1.setAssignedType(a1);
 		assertEquals(a1, p1.getAssignedType());
 
-		ElementReferenceNode newProp = new ElementReferenceNode(bo.getSummaryFacet(), "TestSum");
+		ElementReferenceNode newProp = new ElementReferenceNode(bo.getFacet_Summary(), "TestSum");
 		newProp.setAssignedType(bo);
 
 		// TODO - add Tests known bad assignments
@@ -432,8 +432,8 @@ public class TestTypes extends BaseProjectTest {
 		CoreObjectNode coExt = ComponentNodeBuilder.createCoreObject("COExt").extend(coBase).get(moveFrom);
 		assertTrue(coExt.isInstanceOf(coBase));
 		coBase.setSimpleType(simple);
-		ElementNode e1 = new ElementNode(coBase.getSummaryFacet(), "E1", simple);
-		ElementNode e2 = new ElementNode(coExt.getSummaryFacet(), "E2", simple);
+		ElementNode e1 = new ElementNode(coBase.getFacet_Summary(), "E1", simple);
+		ElementNode e2 = new ElementNode(coExt.getFacet_Summary(), "E2", simple);
 		assertTrue(simple.getWhereAssignedCount() == 3);
 		assertTrue("Core object must be extension owner.", coExt instanceof ExtensionOwner);
 

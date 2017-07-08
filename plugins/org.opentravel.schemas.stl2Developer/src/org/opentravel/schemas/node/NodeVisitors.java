@@ -120,6 +120,10 @@ public class NodeVisitors {
 			if (n instanceof LibraryNode)
 				((LibraryNode) n).delete(false); // just the library, not its members
 
+			// Remove from version aggregate
+			if (node.getVersionNode() != null)
+				node.getVersionNode().remove(node);
+
 			// Unlink from tree
 			node.deleted = true;
 			if (node.getParent() != null)

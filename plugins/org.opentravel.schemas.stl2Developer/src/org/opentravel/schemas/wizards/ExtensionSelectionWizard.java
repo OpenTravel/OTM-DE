@@ -54,8 +54,13 @@ public class ExtensionSelectionWizard extends Wizard implements IDoubleClickList
 	@Override
 	public void addPages() {
 		// LOGGER.debug("add page - curNode is: "+curNode);
-		selectionPage = new TypeSelectionPage("Extension Selection", "Select Extension",
-				"Select an entity from which the selected type will extend.", null, curNode);
+		if (curNode instanceof ExtensionPointNode)
+			selectionPage = new TypeSelectionPage("Extension Point Selection", "Select Facet to Extend",
+					"Select a facet from a different namespace that this extension point will extend.", null, curNode);
+		else
+			selectionPage = new TypeSelectionPage("Extension Selection", "Select Extension",
+					"Select an entity from which the selected type will extend.", null, curNode);
+
 		selectionPage.addDoubleClickListener(this);
 		selectionPage.setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(curNode.getModelObject()));
 		selectionPage.setTypeTreeContentProvider(new ExtensionTreeContentProvider());

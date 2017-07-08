@@ -52,6 +52,7 @@ import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.FacetsTests;
+import org.opentravel.schemas.node.LibraryNodeTest;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
@@ -319,10 +320,10 @@ public class MockLibrary {
 		new ElementNode(newNode.getIDFacet(), "TestEleInID" + name, string);
 		IdNode idNode = new IdNode(newNode.getIDFacet(), "TestId" + name);
 
-		new ElementNode(newNode.getSummaryFacet(), "TestEle" + name, string);
-		new AttributeNode(newNode.getSummaryFacet(), "TestAttribute" + name, string);
-		new IndicatorElementNode(newNode.getSummaryFacet(), "TestIndicatorEle" + name);
-		new IndicatorNode(newNode.getSummaryFacet(), "TestIndicator" + name);
+		new ElementNode(newNode.getFacet_Summary(), "TestEle" + name, string);
+		new AttributeNode(newNode.getFacet_Summary(), "TestAttribute" + name, string);
+		new IndicatorElementNode(newNode.getFacet_Summary(), "TestIndicatorEle" + name);
+		new IndicatorNode(newNode.getFacet_Summary(), "TestIndicator" + name);
 
 		// Add facets
 		new ElementReferenceNode(newNode.addFacet("c1" + name, TLFacetType.CUSTOM), "TestEleRef" + name, newNode);
@@ -421,23 +422,23 @@ public class MockLibrary {
 		n2.setName("N2");
 		ln.addMember(n2);
 		n2.setSimpleType((TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE));
-		PropertyNode n2Prop = new ElementNode(n2.getSummaryFacet(), n1.getName(), n1);
+		PropertyNode n2Prop = new ElementNode(n2.getFacet_Summary(), n1.getName(), n1);
 
 		CoreObjectNode n3 = (CoreObjectNode) NodeFactory.newComponent(new TLCoreObject());
 		n3.setName("N3");
 		ln.addMember(n3);
 		n3.setSimpleType((TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE));
-		TypeUser n3PropA = new ElementNode(n3.getSummaryFacet(), n1.getName());
+		TypeUser n3PropA = new ElementNode(n3.getFacet_Summary(), n1.getName());
 		n3PropA.setAssignedType(n1);
-		PropertyNode n3PropB = new ElementNode(n3.getSummaryFacet(), n2.getName());
-		n3PropB.setAssignedType((TypeProvider) n2.getSummaryFacet());
+		PropertyNode n3PropB = new ElementNode(n3.getFacet_Summary(), n2.getName());
+		n3PropB.setAssignedType((TypeProvider) n2.getFacet_Summary());
 
 		TypeUser newProp = new ElementNode(n1.getIDFacet(), "TestID");
 		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
-		newProp = new ElementNode(n1.getSummaryFacet(), n2.getName());
+		newProp = new ElementNode(n1.getFacet_Summary(), n2.getName());
 		newProp.setAssignedType(n2);
-		newProp = new ElementNode(n1.getSummaryFacet(), "TestSumB");
-		newProp.setAssignedType(n3.getSimpleFacet());
+		newProp = new ElementNode(n1.getFacet_Summary(), "TestSumB");
+		newProp.setAssignedType(n3.getFacet_Simple());
 		return n1;
 	}
 
@@ -454,7 +455,7 @@ public class MockLibrary {
 	public CoreObjectNode addCoreObjectToLibrary(LibraryNode ln, String name) {
 		TypeProvider type = ((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
 		CoreObjectNode newNode = addCoreObjectToLibrary_Empty(ln, name);
-		TypeUser newProp = new ElementNode(newNode.getSummaryFacet(), "TestElement" + name, type);
+		TypeUser newProp = new ElementNode(newNode.getFacet_Summary(), "TestElement" + name, type);
 		newNode.getRoleFacet().addRole(name + "Role");
 		return newNode;
 	}
@@ -522,12 +523,12 @@ public class MockLibrary {
 	}
 
 	/**
-	 * Create a complex type with property assigned to simple type (date)
+	 * Create a complex type (core object) with property assigned to simple type (date)
 	 */
 	public ComplexComponentInterface createComplex(String name) {
 		CoreObjectNode n2 = new CoreObjectNode(new TLCoreObject());
 		n2.setName(name);
-		PropertyNode child = new ElementNode(n2.getSummaryFacet(), name + "Property", getSimpleTypeProvider());
+		PropertyNode child = new ElementNode(n2.getFacet_Summary(), name + "Property", getSimpleTypeProvider());
 		return n2;
 	}
 
@@ -549,7 +550,7 @@ public class MockLibrary {
 		FacetNode facet = null;
 		for (Node d : eln.getDescendants_LibraryMembers())
 			if (d instanceof BusinessObjectNode)
-				facet = ((BusinessObjectNode) d).getSummaryFacet();
+				facet = ((BusinessObjectNode) d).getFacet_Summary();
 		return addExtensionPoint(ln, facet);
 	}
 
@@ -584,12 +585,19 @@ public class MockLibrary {
 			LOGGER.debug(finding.getFormattedMessage(FindingMessageFormat.DEFAULT));
 	}
 
+	/**
+	 * Run object specific check() tests then validates object.
+	 * 
+	 * @param node
+	 */
 	public void checkObject(Node node) {
 		assertTrue(node != null);
 		// FIXME - contributed facet node identity should be handled elsewhere
 		if (!(node instanceof ContributedFacetNode))
 			assertTrue("Must have identity listener.", Node.GetNode(node.getTLModelObject()) == node);
-		if (node instanceof BusinessObjectNode)
+		if (node instanceof LibraryNode)
+			new LibraryNodeTest().check((LibraryNode) node);
+		else if (node instanceof BusinessObjectNode)
 			new BusinessObjectTests().checkBusinessObject((BusinessObjectNode) node);
 		else if (node instanceof CoreObjectNode)
 			new CoreObjectTests().checkCore((CoreObjectNode) node);
@@ -601,6 +609,8 @@ public class MockLibrary {
 			new ServiceTests().check((ServiceNode) node);
 		else if (node instanceof OperationNode)
 			new OperationTests().check((OperationNode) node);
+		else
+			LOGGER.debug("TODO - add tests for " + node.getClass().getSimpleName() + " object type.");
 
 		if (!node.isValid()) {
 			printValidationFindings(node.getOwningComponent());

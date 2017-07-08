@@ -18,7 +18,6 @@
  */
 package org.opentravel.schemas.commands;
 
-
 /**
  * @author Dave Hollander
  * 

@@ -48,6 +48,7 @@ import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.NodeVisitors;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -408,6 +409,8 @@ public class MainController {
 	public Node getSelectedNode_NavigatorView() {
 		final List<Node> selected = getSelectedNodes_NavigatorView();
 		if (selected.size() > 0) {
+			if (selected.get(0) instanceof VersionNode)
+				return ((VersionNode) selected.get(0)).get();
 			return selected.get(0);
 		}
 		return null;

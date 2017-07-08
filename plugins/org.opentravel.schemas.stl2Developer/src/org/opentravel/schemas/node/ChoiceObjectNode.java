@@ -98,7 +98,7 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 	}
 
 	@Override
-	public PropertyOwnerInterface getDefaultFacet() {
+	public PropertyOwnerInterface getFacet_Default() {
 		return getSharedFacet();
 	}
 
@@ -334,7 +334,7 @@ public class ChoiceObjectNode extends TypeProviderBase implements ComplexCompone
 	 * Only needed for type hierarchy
 	 */
 	@Override
-	public SimpleFacetNode getSimpleFacet() {
+	public SimpleFacetNode getFacet_Simple() {
 		return null;
 	}
 

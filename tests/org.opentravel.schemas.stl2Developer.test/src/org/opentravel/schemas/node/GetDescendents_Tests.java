@@ -75,11 +75,11 @@ public class GetDescendents_Tests {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "");
 		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "");
 
-		assertTrue("Core simple is assigned type.", co.getSimpleFacet().getSimpleAttribute().getAssignedType() != null);
+		assertTrue("Core simple is assigned type.", co.getFacet_Simple().getSimpleAttribute().getAssignedType() != null);
 		co.visitAllTypeUsers(nt.new TestNode());
 		// MOVE Assert.assertEquals(2, co.getDescendants_TypeUsers().size());
 
-		assertTrue("VWA simple is assigned type.", vwa.getSimpleFacet().getSimpleAttribute().getAssignedType() != null);
+		assertTrue("VWA simple is assigned type.", vwa.getFacet_Simple().getSimpleAttribute().getAssignedType() != null);
 		vwa.visitAllTypeUsers(nt.new TestNode());
 		// MOVE Assert.assertEquals(2, vwa.getDescendants_TypeUsers().size());
 
@@ -99,10 +99,10 @@ public class GetDescendents_Tests {
 
 		// Then - spot check descendant lists
 		assertTrue("Library must contain core.", ln.getDescendants().contains(co));
-		assertTrue("Library must contain core summary.", ln.getDescendants().contains(co.getSummaryFacet()));
+		assertTrue("Library must contain core summary.", ln.getDescendants().contains(co.getFacet_Summary()));
 		assertTrue("Library must contain core roles.", ln.getDescendants_TypeProviders().contains(co.getRoleFacet()));
 		assertTrue("Library must contain core element.",
-				ln.getDescendants_TypeUsers().contains(co.getSummaryFacet().getChildren().get(0)));
+				ln.getDescendants_TypeUsers().contains(co.getFacet_Summary().getChildren().get(0)));
 		assertTrue("Library must contain vwa.", ln.getDescendants().contains(vwa));
 		assertTrue("Library must contain open enum.", ln.getDescendants_LibraryMembers().contains(oe));
 		assertTrue("Library must contain closed enum.", ln.getDescendants_LibraryMembers().contains(ce));

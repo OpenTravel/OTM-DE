@@ -179,14 +179,14 @@ public class CoreObjectTests {
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "vwa");
 		// Given - an element to assign types to
 		BusinessObjectNode typeUser = ml.addBusinessObjectToLibrary(ln, "userBO");
-		ElementNode ele = new ElementNode(typeUser.getSummaryFacet(), "EleUser");
+		ElementNode ele = new ElementNode(typeUser.getFacet_Summary(), "EleUser");
 		// Given - the number of library members in library (must not change)
 		int typeCount = ln.getDescendants_LibraryMembers().size();
 
 		// Given - an element assigned the bo as a type
 		ele.setAssignedType(bo);
 		// When - changed to core
-		tco = (CoreObjectNode) bo.changeToCoreObject();
+		tco = (CoreObjectNode) bo.changeObject(SubType.CORE_OBJECT);
 		// Then - the core is valid and element is assigned the core
 		checkCore(tco);
 		assertTrue(bo.getLibrary() != ln);
@@ -195,7 +195,7 @@ public class CoreObjectTests {
 
 		// Repeat with VWA
 		ele.setAssignedType(vwa);
-		tco = (CoreObjectNode) vwa.changeToCoreObject();
+		tco = (CoreObjectNode) vwa.changeObject(SubType.CORE_OBJECT);
 		checkCore(tco);
 		assertTrue(vwa.getLibrary() != ln);
 		assertTrue("Type assignment must be to the new core.", ele.getAssignedType() == tco);
@@ -214,7 +214,7 @@ public class CoreObjectTests {
 		CoreObjectNode core = ml.addCoreObjectToLibrary_Empty(ln, coreName);
 		AliasNode alias1 = core.addAlias("coreAlias");
 		AliasNode aliasSummary = null;
-		for (Node n : core.getSummaryFacet().getChildren())
+		for (Node n : core.getFacet_Summary().getChildren())
 			if (n instanceof AliasNode)
 				aliasSummary = (AliasNode) n;
 		// Then the alias must exist on the core and it's facet
@@ -223,17 +223,17 @@ public class CoreObjectTests {
 
 		// When - a core is created that has elements that use the core and aliases as properties
 		CoreObjectNode elements = ml.addCoreObjectToLibrary(ln, "user");
-		PropertyNode pcore = new ElementNode(elements.getSummaryFacet(), "p1", core);
-		PropertyNode pAlias1 = new ElementNode(elements.getSummaryFacet(), "p2", alias1);
-		PropertyNode pcoreSummary = new ElementNode(elements.getSummaryFacet(), "p3", core.getSummaryFacet());
-		PropertyNode pcoreSumAlias = new ElementNode(elements.getSummaryFacet(), "p4", aliasSummary);
+		PropertyNode pcore = new ElementNode(elements.getFacet_Summary(), "p1", core);
+		PropertyNode pAlias1 = new ElementNode(elements.getFacet_Summary(), "p2", alias1);
+		PropertyNode pcoreSummary = new ElementNode(elements.getFacet_Summary(), "p3", core.getFacet_Summary());
+		PropertyNode pcoreSumAlias = new ElementNode(elements.getFacet_Summary(), "p4", aliasSummary);
 
 		// Then - the facet alias has where used
 		assertTrue("Facet alias must be assigned as type.", !aliasSummary.getWhereAssigned().isEmpty());
 		// Then - the elements are named after their type
 		assertTrue("Element name must be the core name.", pcore.getName().equals(core.getName()));
 		assertTrue("Element name must be alias name.", pAlias1.getName().contains(alias1.getName()));
-		assertTrue("Element name must be facet name.", pcoreSummary.getName().equals(core.getSummaryFacet().getName()));
+		assertTrue("Element name must be facet name.", pcoreSummary.getName().equals(core.getFacet_Summary().getName()));
 		assertTrue("Element name must start with core name.", pcoreSummary.getName().startsWith(core.getName()));
 		assertTrue("Element name must start with alias name.", pcoreSumAlias.getName().startsWith(alias1.getName()));
 
@@ -300,9 +300,9 @@ public class CoreObjectTests {
 		assertTrue("Core must have at least 6 children.", core.getChildren().size() >= 6);
 
 		// Facets
-		ml.checkObject(core.getSimpleFacet());
-		ml.checkObject(core.getSummaryFacet());
-		ml.checkObject(core.getDetailFacet());
+		ml.checkObject(core.getFacet_Simple());
+		ml.checkObject(core.getFacet_Summary());
+		ml.checkObject(core.getFacet_Detail());
 		ml.checkObject(core.getSimpleListFacet());
 		ml.checkObject(core.getDetailListFacet());
 		ml.checkObject(core.getRoleFacet());

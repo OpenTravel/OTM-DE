@@ -143,8 +143,7 @@ public abstract class ComponentNode extends Node {
 	 */
 	// FIXME - move/remove/refactor - then remove addToTLParent() in MO
 	public void addProperty(final Node property, int index) {
-		if (!(this instanceof PropertyOwnerInterface) && !(this instanceof Enumeration)
-				&& !(this instanceof ExtensionPointNode)) {
+		if (!(this instanceof PropertyOwnerInterface) && !(this instanceof Enumeration)) {
 			// LOGGER.error("ERROR - Exit - Tried to add property to a non-FacetNode or enumeration " + this);
 			return;
 		}
@@ -179,99 +178,46 @@ public abstract class ComponentNode extends Node {
 	 * @return - new object created by changing this object
 	 */
 	public ComponentNode changeObject(SubType st) {
+		if (getLibrary() == null)
+			return null;
+		if (this instanceof FacetNode)
+			return ((ComponentNode) getParent()).changeObject(st);
+
+		// TODO - add choice object type
+		// ToDO - add custom facet type
+		ComponentNode newNode = null;
 		switch (st) {
 		case BUSINESS_OBJECT:
-			return changeToBusinessObject();
+			if (this instanceof BusinessObjectNode)
+				return this;
+			if (this instanceof CoreObjectNode)
+				newNode = new BusinessObjectNode((CoreObjectNode) this);
+			else if (this instanceof VWA_Node)
+				newNode = new BusinessObjectNode(((VWA_Node) this));
+			break;
 		case CORE_OBJECT:
-			return changeToCoreObject();
+			if (this instanceof CoreObjectNode)
+				return this;
+			if (this instanceof BusinessObjectNode)
+				newNode = new CoreObjectNode((BusinessObjectNode) this);
+			else if (this instanceof VWA_Node)
+				newNode = new CoreObjectNode((VWA_Node) this);
+			break;
 		case VALUE_WITH_ATTRS:
-			return changeToVWA();
+			if (this instanceof VWA_Node)
+				return this;
+			if (this instanceof BusinessObjectNode)
+				newNode = new VWA_Node((BusinessObjectNode) this);
+			else if (this instanceof CoreObjectNode)
+				newNode = new VWA_Node((CoreObjectNode) this);
+			break;
 		default:
-			throw new IllegalArgumentException("SubType: " + st.toString() + " is not supporeted.");
+			throw new IllegalArgumentException("Change to SubType: " + st.toString() + " is not supporeted.");
 		}
-	}
-
-	/**
-	 * Replace this node with a newly created business object. Anywhere this node is used as a type is changed to use
-	 * the new node. This node is removed from its library and the new business object is added. Used by changeObject
-	 * wizard.
-	 * 
-	 * NOTE - this does not remove this node.
-	 * 
-	 * @return
-	 */
-	public ComponentNode changeToBusinessObject() {
-		if (this instanceof BusinessObjectNode) {
-			return this;
-		}
-		if (this instanceof FacetNode) {
-			return ((ComponentNode) getParent()).changeToBusinessObject();
-		}
-		if (getLibrary() == null) {
-			return null;
-		}
-
-		ComponentNode newNode = null;
-		if (this instanceof CoreObjectNode)
-			newNode = new BusinessObjectNode((CoreObjectNode) this);
-		else if (this instanceof VWA_Node)
-			newNode = new BusinessObjectNode(((VWA_Node) this));
 
 		if (newNode != null)
 			swap(newNode);
 		return newNode;
-
-	}
-
-	/**
-	 * Create a core object and replace this object in the library and changes all type assignments to the new core.
-	 * 
-	 * @return
-	 */
-	public CoreObjectNode changeToCoreObject() {
-		if (this instanceof CoreObjectNode)
-			return (CoreObjectNode) this;
-
-		if (this instanceof FacetNode)
-			return ((ComponentNode) getParent()).changeToCoreObject();
-
-		// LOGGER.debug("Generating Core Object out of " + this.getName());
-
-		CoreObjectNode newCN = null;
-		if (this instanceof BusinessObjectNode)
-			newCN = new CoreObjectNode((BusinessObjectNode) this);
-		else if (this instanceof VWA_Node)
-			newCN = new CoreObjectNode((VWA_Node) this);
-
-		if (newCN != null)
-			swap(newCN);
-		return newCN;
-	}
-
-	/**
-	 * Change Node to VWA_Node using properties of this node as templates. Create new node and assign type users.
-	 * Replace this node in the library. Removes type users from old node and its children. NOTES: 1) Does <b>not</b>
-	 * delete this node.
-	 * 
-	 */
-	public ComponentNode changeToVWA() {
-		if (this instanceof VWA_Node) {
-			return this;
-		}
-		if (this instanceof FacetNode) {
-			return ((ComponentNode) getParent()).changeToVWA();
-		}
-
-		// LOGGER.debug("Generating Value With Attributes out of " + this.getName());
-
-		VWA_Node newCN = null;
-		if (this instanceof BusinessObjectNode)
-			newCN = new VWA_Node((BusinessObjectNode) this);
-		else if (this instanceof CoreObjectNode)
-			newCN = new VWA_Node((CoreObjectNode) this);
-		if (newCN != null)
-			swap(newCN);
-		return newCN;
 	}
 
 	/**
@@ -327,9 +273,9 @@ public abstract class ComponentNode extends Node {
 		else if (this instanceof PropertyNode)
 			newNode.setExtension(getParent());
 		else if (this instanceof CoreObjectNode)
-			newNode.setExtension((Node) getSummaryFacet());
+			newNode.setExtension((Node) getFacet_Summary());
 		else if (this instanceof BusinessObjectNode)
-			newNode.setExtension((Node) getSummaryFacet());
+			newNode.setExtension((Node) getFacet_Summary());
 		// else
 		// LOGGER.error("Can't add a property to this: " + this);
 		// If there already is an EP, then return that.
@@ -379,10 +325,8 @@ public abstract class ComponentNode extends Node {
 		return constraintHandler;
 	}
 
-	public PropertyOwnerInterface getDefaultFacet() {
-		if (this instanceof Enumeration || this instanceof ExtensionPointNode) {
-			return (PropertyOwnerInterface) this;
-		}
+	public PropertyOwnerInterface getFacet_Default() {
+		// should be overridden
 		for (final INode n : getChildren()) {
 			if (((Node) n).isDefaultFacet()) {
 				return (PropertyOwnerInterface) n;
@@ -394,7 +338,7 @@ public abstract class ComponentNode extends Node {
 	/**
 	 * @return - Node for ID facet if it exists, null otherwise.
 	 */
-	public PropertyOwnerNode getDetailFacet() {
+	public PropertyOwnerNode getFacet_Detail() {
 		return (PropertyOwnerNode) getFacetOfType(TLFacetType.DETAIL);
 	}
 
@@ -469,7 +413,20 @@ public abstract class ComponentNode extends Node {
 		return "";
 	}
 
-	public ComponentNode getSimpleFacet() {
+	private ComponentNode getFacetOfType(final TLFacetType facetType) {
+		for (final INode n : getChildren()) {
+			if (n instanceof FacetNode) {
+				final ComponentNode facet = (ComponentNode) n;
+				final TLFacetType ft = facet.getFacetType();
+				if (ft != null && ft.equals(facetType)) {
+					return facet;
+				}
+			}
+		}
+		return null;
+	}
+
+	public ComponentNode getFacet_Simple() {
 		return getFacetOfType(TLFacetType.SIMPLE);
 	}
 
@@ -481,7 +438,7 @@ public abstract class ComponentNode extends Node {
 	/**
 	 * @return - Node for SUMMARY facet if it exists, null otherwise.
 	 */
-	public PropertyOwnerNode getSummaryFacet() {
+	public PropertyOwnerNode getFacet_Summary() {
 		return (PropertyOwnerNode) getFacetOfType(TLFacetType.SUMMARY);
 	}
 
@@ -699,7 +656,7 @@ public abstract class ComponentNode extends Node {
 	// newNode is the node constructed from the TL object returned from createMinorTLVersion()
 	protected ComponentNode createMinorVersionComponent(ComponentNode newNode) {
 		assert !getOwningComponent().isInHead();
-		assert newNode instanceof ExtensionOwner;
+		// assert newNode instanceof ExtensionOwner;
 		// TODO - should resource be an extension owner? Is it versioned that way?
 		// 3/2/2017 - resources are not versioned via gui
 		if (newNode.getModelObject() instanceof EmptyMO) {
@@ -726,19 +683,6 @@ public abstract class ComponentNode extends Node {
 		owner.getLibrary().checkExtension(owner);
 		// TODO - should old properties be set to inherited?
 		return newNode;
-	}
-
-	private ComponentNode getFacetOfType(final TLFacetType facetType) {
-		for (final INode n : getChildren()) {
-			if (n instanceof FacetNode) {
-				final ComponentNode facet = (ComponentNode) n;
-				final TLFacetType ft = facet.getFacetType();
-				if (ft != null && ft.equals(facetType)) {
-					return facet;
-				}
-			}
-		}
-		return null;
 	}
 
 	private void setListner() {

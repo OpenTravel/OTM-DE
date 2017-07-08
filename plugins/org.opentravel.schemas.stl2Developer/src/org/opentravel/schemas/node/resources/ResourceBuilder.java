@@ -63,7 +63,12 @@ public class ResourceBuilder {
 		// rnTL.setBusinessObjectRef((TLBusinessObject) bo.getTLModelObject());
 		rn.setSubject(bo);
 		rn.setName(bo.getName() + "Resource");
-		rn.setBasePath("/" + bo.getName() + "s");
+
+		// Do not repeat the object name in the base path.
+		// It will be added to request paths. This is required for when a resource is used as a parent resource since
+		// the base path can not have parameters.
+		rn.setBasePath("");
+		// rn.setBasePath("/" + bo.getName() + "s");
 		rnTL.setAbstract(false);
 		rnTL.setFirstClass(true);
 
@@ -114,6 +119,7 @@ public class ResourceBuilder {
 		}
 		rq.setHttpMethod(method.toString());
 		rq.setParamGroup(pg.getName()); // do here to set path template
+		rq.setPathTemplate(); // load tlObject from path template object
 		return an;
 	}
 

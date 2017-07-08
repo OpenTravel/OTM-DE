@@ -18,8 +18,6 @@ package org.opentravel.schemas.testers;
 import org.eclipse.core.expressions.PropertyTester;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.controllers.NodeUtils;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.types.TypeUser;
 
 public class NodeTester extends PropertyTester {
@@ -42,7 +40,8 @@ public class NodeTester extends PropertyTester {
 		// LOGGER.debug("Testing " + property + " of " + node + " " + isOwnerLibraryEditable(node));
 
 		if (IS_DELETEABLE.equals(property)) {
-			return canDelete(node);
+			return node.isDeleteable();
+			// return canDelete(node);
 		} else if (HAS_TYPE.equals(property)) {
 			return hasType(node);
 		} else if (IS_IN_TLLIBRARY.equals(property)) {
@@ -59,13 +58,12 @@ public class NodeTester extends PropertyTester {
 	}
 
 	private boolean canDelete(Node node) {
-		// we can not use isDeleteable in RenambleFacet because it prevents delete from code. Check
-		// deleteVisitor.
-		if (node instanceof ContextualFacetNode) {
-			return !NodeUtils.checker(node).isInheritedFacet().get();
-		} else {
-			return node.isDeleteable();
-		}
+		// if (node instanceof ContextualFacetNode) {
+		// return !node.isInherited();
+		// // return !NodeUtils.checker(node).isInheritedFacet().get();
+		// } else {
+		return node.isDeleteable();
+		// }
 	}
 
 	private boolean isOwnerLibraryEditable(Node node) {

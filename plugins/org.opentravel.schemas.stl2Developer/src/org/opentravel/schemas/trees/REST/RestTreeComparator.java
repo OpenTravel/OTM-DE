@@ -21,6 +21,7 @@ import org.opentravel.schemas.node.resources.ActionFacet;
 import org.opentravel.schemas.node.resources.ActionNode;
 import org.opentravel.schemas.node.resources.ActionRequest;
 import org.opentravel.schemas.node.resources.ActionResponse;
+import org.opentravel.schemas.node.resources.InheritedResourceMember;
 import org.opentravel.schemas.node.resources.ParamGroup;
 
 /**
@@ -43,6 +44,8 @@ public class RestTreeComparator extends ViewerComparator {
 			return 40;
 		else if (element instanceof ActionResponse)
 			return 50;
+		else if (element instanceof InheritedResourceMember)
+			return category(((InheritedResourceMember) element).get()) + 2;
 		return super.category(element);
 	}
 

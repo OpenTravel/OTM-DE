@@ -456,7 +456,7 @@ public abstract class Node implements INode {
 
 		LibraryElement newLE = null;
 		try {
-			newLE = getTLModelObject().cloneElement(getLibrary().getTLaLib());
+			newLE = getTLModelObject().cloneElement(getLibrary().getTLModelObject());
 		} catch (IllegalArgumentException e) {
 			LOGGER.warn("Can not clone " + this + ". Exception: " + e.getLocalizedMessage());
 			return null;
@@ -711,14 +711,12 @@ public abstract class Node implements INode {
 
 		// The number of users for this type provider
 		if (this instanceof TypeProvider && !(this instanceof ImpliedNode))
-			// if (((TypeProvider) this).getWhereUsedNode() != null)
-			decoration += " (" + ((TypeProvider) this).getWhereUsedNode().getWhereUsedCount() + " users)";
-		// else
-		// decoration += " (0 users)";
-		// ((TypeProvider) this).getWhereUsedAndDescendantsCount()
+			decoration += " (" + ((TypeProvider) this).getWhereUsedCount() + " users)";
 
-		if (isDeleted())
-			decoration += " (*) ";
+		if (isDeleted()) {
+			decoration += " (Deleted) ";
+			return decoration;
+		}
 
 		if (isDeprecated())
 			decoration += " (Deprecated)";
@@ -777,8 +775,8 @@ public abstract class Node implements INode {
 		return "";
 	}
 
-	public PropertyOwnerInterface getDefaultFacet() {
-		return this instanceof ComplexComponentInterface ? ((ComplexComponentInterface) this).getDefaultFacet() : null;
+	public PropertyOwnerInterface getFacet_Default() {
+		return this instanceof ComplexComponentInterface ? ((ComplexComponentInterface) this).getFacet_Default() : null;
 	}
 
 	/**
@@ -1075,7 +1073,7 @@ public abstract class Node implements INode {
 	public boolean isLaterVersion(Node other) {
 		if (getLibrary() == null || other.getLibrary() == null)
 			return false;
-		return getLibrary().getTLaLib().isLaterVersion(other.getLibrary().getTLaLib());
+		return getLibrary().getTLModelObject().isLaterVersion(other.getLibrary().getTLModelObject());
 	}
 
 	/**
@@ -1153,8 +1151,7 @@ public abstract class Node implements INode {
 		return getLibrary() == null ? "" : getLibrary().getNamespaceWithPrefix();
 	}
 
-	@Override
-	public String getNameWithPrefix() {
+	public String getNameWithPrefix(String padding) {
 		String prefix = "";
 		if (getLibrary() == null) {
 			// owning library might have been closed
@@ -1163,7 +1160,12 @@ public abstract class Node implements INode {
 				prefix = ((NamedEntity) getTLModelObject()).getOwningLibrary().getPrefix();
 		} else
 			prefix = getLibrary().getPrefix();
-		return prefix + ":" + getName();
+		return prefix + padding + ":" + padding + getName();
+	}
+
+	@Override
+	public String getNameWithPrefix() {
+		return getNameWithPrefix(" ");
 	}
 
 	/**
@@ -1478,7 +1480,7 @@ public abstract class Node implements INode {
 	/**
 	 * Implied nodes and nodes without libraries are always editable. Nodes in chains return if chain is editable.
 	 * 
-	 * @return true if the node's library is editable and is not inherited.
+	 * @return true if the node's library or chain is editable and it is not inherited.
 	 * @see Node#isInherited()
 	 */
 	@Override
@@ -1679,6 +1681,7 @@ public abstract class Node implements INode {
 		if (isInService())
 			return getLibrary().getChain().getHead() == getLibrary();
 
+		// FIXME - this should be tested differently
 		if (getOwningComponent().getVersionNode() == null)
 			return true; // will be true for service descendants, editable, and not in a chain (duplicate logic?)
 
@@ -1711,15 +1714,6 @@ public abstract class Node implements INode {
 		if (library == null || parent == null || !isEditable() || isDeleted())
 			return false;
 
-		// service, operation, message or message property
-		// Adding to service will automatically create correct service operation to add to.
-		// overridden
-		// if (this instanceof ServiceNode)
-		// if (!getLibrary().isInChain())
-		// return true;
-		// else
-		// return !getLibrary().getChain().getHead().getEditStatus().equals(NodeEditStatus.PATCH);
-		// else
 		if (isEditable_inService() && getLibrary().getChain() != null
 				&& getLibrary().getChain().getHead() == getLibrary())
 			// Only add properties to service in the head library.
@@ -1730,27 +1724,8 @@ public abstract class Node implements INode {
 			return isEditable_isNewOrAsMinor();
 
 		// Enumeration is a versionedObjectInterface implementer
-		// if (this instanceof Enumeration)
-		// return isEditable_isNewOrAsMinor();
-
-		// delegated
-		// if (this instanceof ExtensionPointNode)
-		// return isEditable_newToChain();
-		// if (this instanceof ContextualFacetNode)
-		// return isEditable_newToChain();
-		// if (this instanceof SimpleAttributeNode)
-		// return false;
-		// if (this instanceof SimpleFacetNode || this instanceof ListFacetNode)
-		// return false;
-		// Properties and Facets - same as parent unless a simple or list
-		// if (this instanceof FacetNode)
-		// return getOwningComponent().isEnabled_AddProperties();
-		// if (this instanceof VWA_AttributeFacetNode)
-		// return getOwningComponent().isEnabled_AddProperties();
-		// if (this instanceof RoleFacetNode)
-		// return getOwningComponent().isEnabled_AddProperties();
-		// if (this instanceof PropertyNode)
-		// return this != getOwningComponent() ? getOwningComponent().isEnabled_AddProperties() : false;
+		// delegated: ServiceNode, Enumeration, ExtensionPointNode, ContextualFacetNode, SimpleAttributeNode,
+		// SimpleFacetNode, ListFacetNode, VWA_AttributeFacetNode, RoleFacetNode, PropertyNode
 
 		return false;
 	}
@@ -2292,7 +2267,7 @@ public abstract class Node implements INode {
 	/**
 	 * Replace nodes, assigned types and library tree structures. Replaces node in the library then uses
 	 * {@link #replaceWith(Node)} to replace assignments.
-	 * 
+	 * <p>
 	 * Does <b>not</b> delete this node. <i>Does</i> remove parent and library links. <i>Does</i> remove type usage
 	 * links to this node.
 	 * 
@@ -2401,6 +2376,8 @@ public abstract class Node implements INode {
 	}
 
 	/**
+	 * Simple setter of the versionNode field.
+	 * 
 	 * @param versionNode
 	 *            to represent this node in a specific library in a chain.
 	 */
@@ -2429,7 +2406,7 @@ public abstract class Node implements INode {
 	 *            - should be in library, named and with all properties.
 	 * 
 	 */
-	public void swap(Node replacement) {
+	protected void swap(Node replacement) {
 		assert (replacement != null) : "Null replacement node.";
 		assert (getLibrary() != null) : "Null library.";
 		assert (parent != null) : "Null parent";
@@ -2437,14 +2414,17 @@ public abstract class Node implements INode {
 		assert (replacement.isTLLibraryMember()) : "TL Object is not library member.";
 		assert (this instanceof LibraryMemberInterface);
 
-		final Node thisParent = parent;
+		// TODO - add junit tests
+
+		// final Node thisParent = parent;
 
 		// Add replacement to the parent if not already there.
-		parent.linkChild(replacement); // ignored if already linked, skip family processing
+		parent.linkChild(replacement); // ignored if already linked
 
 		// Fail if in the list more than once.
 		assert (replacement.getParent().getChildren().indexOf(replacement) == replacement.getParent().getChildren()
 				.lastIndexOf(replacement));
+
 		// Force the replacement model object to be in the same library as this node.
 		AbstractLibrary thisTlLibrary = ((LibraryMember) this.getTLModelObject()).getOwningLibrary();
 		AbstractLibrary replacementTlLibrary = ((LibraryMember) replacement.getTLModelObject()).getOwningLibrary();
@@ -2456,9 +2436,11 @@ public abstract class Node implements INode {
 		replacement.setLibrary(this.getLibrary());
 		replaceWith(replacement); // Removes this from library
 
+		// TODO - what should swap do with chain aggregate nodes?
+
 		// Post-checks
-		assert (this.library == null) : "This library should be null.";
-		assert (this.parent == null) : "This parent should be null.";
+		assert (this.library == null) : "Swap must leave with null library.";
+		assert (this.parent == null) : "Swap must leave with null parent.";
 	}
 
 	@Override
@@ -2467,8 +2449,10 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Unlink this node from its parent. If this is a versioned object, it unlinks the verionNode as well. Does not
-	 * change the TL model. Does not delete the node; caller is responsible to free resources.
+	 * Unlink this node from its parent. If this is a versioned object, is also removed from the version manager. If the
+	 * version node is empty, it is removed.
+	 * <p>
+	 * Does <b>not</b> change the TL model. Does <b>not</b> delete the node; caller is responsible to free resources.
 	 * 
 	 */
 	public void unlinkNode() {
@@ -2477,22 +2461,29 @@ public abstract class Node implements INode {
 				LOGGER.error("unlinkNode ERROR - null parent or no children. EXIT");
 			return;
 		}
-		VersionNode vn = null;
-		if (parent instanceof VersionNode)
-			vn = (VersionNode) parent;
+		// If versioned, remove from version node's version manager
+		if (getVersionNode() != null) {
+			getVersionNode().remove(this);
+			// if (getVersionNode().get() == null)
+			// setVersionNode(null);
+		}
+		// VersionNode vn = null;
+		// if (parent instanceof VersionNode)
+		// vn = (VersionNode) parent;
+
 		if (!parent.children.remove(this))
 			LOGGER.debug("unlinkNode Error - child " + getName() + " was not in parent's " + parent.getName()
 					+ " child list.");
 		parent = null;
 		// recurse to remove version parent as well.
-		if (vn != null) {
-			// unlink from the chain aggregate node
-			if (this instanceof ComponentNode && getChain() != null)
-				getChain().removeAggregate((ComponentNode) this);
-			// unlink the version node it self
-			if (vn.getParent() != null)
-				vn.unlinkNode();
-		}
+		// if (vn != null) {
+		// // unlink from the chain aggregate node
+		// if (this instanceof ComponentNode && getChain() != null)
+		// getChain().removeAggregate((ComponentNode) this);
+		// // unlink the version node it self
+		// if (vn.getParent() != null)
+		// vn.unlinkNode();
+		// }
 	}
 
 	/**

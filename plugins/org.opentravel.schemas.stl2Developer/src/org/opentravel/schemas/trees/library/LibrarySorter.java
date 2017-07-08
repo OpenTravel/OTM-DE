@@ -25,6 +25,7 @@ import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
@@ -95,7 +96,9 @@ public class LibrarySorter extends ViewerSorter {
 
 	@Override
 	public int category(final Object element) {
-		final Node n = (Node) element;
+		Node n = (Node) element;
+		if (n instanceof VersionNode)
+			n = ((VersionNode) n).get();
 
 		if (n == null || n.getModelObject() == null)
 			return 0;

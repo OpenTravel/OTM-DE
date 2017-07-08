@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class BusinessObjectTests {
-	static final Logger LOGGER = LoggerFactory.getLogger(MockLibrary.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectTests.class);
 
 	ModelNode model = null;
 	MockLibrary ml = new MockLibrary();
@@ -296,13 +296,13 @@ public class BusinessObjectTests {
 		assertTrue("ID Facet parent must be bo.", ((Node) bo.getIDFacet()).getParent() == bo);
 		assertTrue("TL Facet must report this is ID facet.", bo.getIDFacet().isIDFacet());
 
-		assertTrue("Must have summary facet.", bo.getSummaryFacet() != null);
-		assertTrue("Summary Facet parent must be bo.", ((Node) bo.getSummaryFacet()).getParent() == bo);
-		assertTrue("TL Facet must report this is Summary facet.", bo.getSummaryFacet().isSummaryFacet());
+		assertTrue("Must have summary facet.", bo.getFacet_Summary() != null);
+		assertTrue("Summary Facet parent must be bo.", ((Node) bo.getFacet_Summary()).getParent() == bo);
+		assertTrue("TL Facet must report this is Summary facet.", bo.getFacet_Summary().isSummaryFacet());
 
-		assertTrue("Must have detail facet.", bo.getDetailFacet() != null);
-		assertTrue("Facet parent must be bo.", ((Node) bo.getDetailFacet()).getParent() == bo);
-		assertTrue("TL Facet must report this is Detail facet.", bo.getDetailFacet().isDetailFacet());
+		assertTrue("Must have detail facet.", bo.getFacet_Detail() != null);
+		assertTrue("Facet parent must be bo.", ((Node) bo.getFacet_Detail()).getParent() == bo);
+		assertTrue("TL Facet must report this is Detail facet.", bo.getFacet_Detail().isDetailFacet());
 		assertTrue(bo.getAttributeFacet() == null); // It does not have one.
 		assertTrue("Must have TL Busness Object.", bo.getTLModelObject() instanceof TLBusinessObject);
 
@@ -396,11 +396,11 @@ public class BusinessObjectTests {
 		ml.addBusinessObjectToLibrary(ln, "bo");
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "vwa");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "co");
-		new ElementNode(core.getSummaryFacet(), "TE2", vwa);
+		new ElementNode(core.getFacet_Summary(), "TE2", vwa);
 
 		// When VWA and Core are changed
-		BusinessObjectNode tboCore = (BusinessObjectNode) core.changeToBusinessObject();
-		BusinessObjectNode tboVwa = (BusinessObjectNode) vwa.changeToBusinessObject();
+		BusinessObjectNode tboCore = (BusinessObjectNode) core.changeObject(SubType.BUSINESS_OBJECT);
+		BusinessObjectNode tboVwa = (BusinessObjectNode) vwa.changeObject(SubType.BUSINESS_OBJECT);
 		// Given - an id facet property to make the bo valid
 		new ElementNode(tboCore.getIDFacet(), "TestEleInID" + tboCore.getName(), string);
 		new ElementNode(tboVwa.getIDFacet(), "TestEleInID" + tboVwa.getName(), string);
@@ -413,10 +413,10 @@ public class BusinessObjectTests {
 		LibraryChainNode lcn = new LibraryChainNode(ln); // make sure is version safe
 		core = ml.addCoreObjectToLibrary(ln, "co2");
 		vwa = ml.addVWA_ToLibrary(ln, "vwa2");
-		new ElementNode(core.getSummaryFacet(), "TestElement").setAssignedType(vwa);
+		new ElementNode(core.getFacet_Summary(), "TestElement").setAssignedType(vwa);
 
-		tboCore = (BusinessObjectNode) core.changeToBusinessObject();
-		tboVwa = (BusinessObjectNode) vwa.changeToBusinessObject();
+		tboCore = (BusinessObjectNode) core.changeObject(SubType.BUSINESS_OBJECT);
+		tboVwa = (BusinessObjectNode) vwa.changeObject(SubType.BUSINESS_OBJECT);
 		new ElementNode(tboCore.getIDFacet(), "TestEleInID" + tboCore.getName(), string);
 		new ElementNode(tboVwa.getIDFacet(), "TestEleInID" + tboVwa.getName(), string);
 		checkBusinessObject(tboCore);
@@ -485,7 +485,7 @@ public class BusinessObjectTests {
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, boName);
 		AliasNode alias1 = bo.addAlias("boAlias");
 		AliasNode aliasSummary = null;
-		for (Node n : bo.getSummaryFacet().getChildren())
+		for (Node n : bo.getFacet_Summary().getChildren())
 			if (n instanceof AliasNode)
 				aliasSummary = (AliasNode) n;
 		// Then the alias must exist on the bo and it's facet
@@ -494,20 +494,21 @@ public class BusinessObjectTests {
 
 		// When - a core is created that has elements that use the BO and aliases as properties
 		CoreObjectNode co = ml.addCoreObjectToLibrary(ln, "user");
-		PropertyNode pBO = new ElementNode(co.getSummaryFacet(), "p1", bo);
-		PropertyNode pAlias1 = new ElementNode(co.getSummaryFacet(), "p2", alias1);
-		PropertyNode pBOSummary = new ElementNode(co.getSummaryFacet(), "p3", bo.getSummaryFacet());
-		PropertyNode pBOSumAlias = new ElementNode(co.getSummaryFacet(), "p4", aliasSummary);
+		PropertyNode pBO = new ElementNode(co.getFacet_Summary(), "p1", bo);
+		PropertyNode pAlias1 = new ElementNode(co.getFacet_Summary(), "p2", alias1);
+		PropertyNode pBOSummary = new ElementNode(co.getFacet_Summary(), "p3", bo.getFacet_Summary());
+		PropertyNode pBOSumAlias = new ElementNode(co.getFacet_Summary(), "p4", aliasSummary);
 		// Then - the facet alias has where used
 		assertTrue("Facet alias must be assigned as type.", !aliasSummary.getWhereAssigned().isEmpty());
 		// Then - the elements are named after their type
 		assertTrue("Element name must be the BO name.", pBO.getName().equals(bo.getName()));
 		assertTrue("Element name must be alias name.", pAlias1.getName().contains(alias1.getName()));
-		assertTrue("Element name must NOT be facet name.", !pBOSummary.getName().equals(bo.getSummaryFacet().getName()));
+		assertTrue("Element name must NOT be facet name.", !pBOSummary.getName()
+				.equals(bo.getFacet_Summary().getName()));
 		// Then - assigned facet name will be constructed by compiler using owning object and facet type.
 		assertTrue("Element name must start with BO name.", pBOSummary.getName().startsWith(bo.getName()));
 		assertTrue("Element name must contain facet name.",
-				pBOSummary.getName().contains(bo.getSummaryFacet().getName()));
+				pBOSummary.getName().contains(bo.getFacet_Summary().getName()));
 		assertTrue("Element name must start with alias name.", pBOSumAlias.getName().startsWith(alias1.getName()));
 
 		// When - Change the BO name
@@ -524,7 +525,7 @@ public class BusinessObjectTests {
 		// Then - the elements are named after their type
 		assertTrue("Element name must be the BO name.", pBO.getName().equals(changedName));
 		assertTrue("Element name must contain facet name.",
-				pBOSummary.getName().contains(bo.getSummaryFacet().getName()));
+				pBOSummary.getName().contains(bo.getFacet_Summary().getName()));
 		assertTrue("Element name must start with BO name.", pBOSummary.getName().startsWith(changedName));
 		assertTrue("Element name must start with alias name.", pBOSumAlias.getName().startsWith(alias1.getName()));
 		assertTrue("Element name must start with alias name.", pAlias1.getName().startsWith(alias1.getName()));

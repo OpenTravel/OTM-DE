@@ -23,11 +23,8 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.opentravel.schemas.node.AliasNode;
-import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VWA_Node;
-import org.opentravel.schemas.node.facets.CustomFacetNode;
-import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -86,12 +83,12 @@ public class NewPropertiesWizard2 extends ValidatingWizard implements Cancelable
 	private void getActOnNode(Node selectedNode) {
 		if (selectedNode instanceof PropertyOwnerInterface) {
 			if (selectedNode instanceof SimpleFacetNode)
-				actOnNode = (PropertyOwnerInterface) selectedNode.getOwningComponent().getDefaultFacet();
+				actOnNode = (PropertyOwnerInterface) selectedNode.getOwningComponent().getFacet_Default();
 			else
 				actOnNode = (PropertyOwnerInterface) selectedNode;
 		} else {
 			if (selectedNode instanceof ComplexComponentInterface)
-				actOnNode = (PropertyOwnerInterface) ((ComplexComponentInterface) selectedNode).getDefaultFacet();
+				actOnNode = (PropertyOwnerInterface) ((ComplexComponentInterface) selectedNode).getFacet_Default();
 			else if (selectedNode instanceof PropertyNode)
 				actOnNode = (PropertyOwnerInterface) selectedNode.getParent();
 		}
@@ -99,10 +96,11 @@ public class NewPropertiesWizard2 extends ValidatingWizard implements Cancelable
 
 	private void getScopeNode(Node selectedNode) {
 		scopeNode = OtmRegistry.getMainController().getModelNode();
-		if (selectedNode instanceof QueryFacetNode)
-			scopeNode = selectedNode.getOwningComponent();
-		else if (selectedNode instanceof CustomFacetNode)
-			scopeNode = (Node) ((BusinessObjectNode) selectedNode.getOwningComponent()).getDetailFacet();
+		// if (selectedNode instanceof QueryFacetNode)
+		// scopeNode = selectedNode.getOwningComponent();
+		// else if (selectedNode instanceof CustomFacetNode)
+		// scopeNode = selectedNode.getOwningComponent();
+		// scopeNode = (Node) ((BusinessObjectNode) selectedNode.getOwningComponent()).getFacet_Detail();
 
 	}
 

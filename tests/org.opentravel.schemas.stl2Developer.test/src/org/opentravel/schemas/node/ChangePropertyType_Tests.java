@@ -117,9 +117,9 @@ public class ChangePropertyType_Tests {
 	@Test
 	public void changePropertyRoleTypeAssignment_Tests() {
 		TypeProvider core = ml.addCoreObjectToLibrary(ln, "Core1");
-		TypeProvider coreSummary = (TypeProvider) ((CoreObjectNode) core).getSummaryFacet();
+		TypeProvider coreSummary = (TypeProvider) ((CoreObjectNode) core).getFacet_Summary();
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary_Empty(ln, "BOTest");
-		PropertyOwnerInterface facet = bo.getSummaryFacet();
+		PropertyOwnerInterface facet = bo.getFacet_Summary();
 		PropertyNode pn = new ElementNode(facet, "P1");
 		pn.setAssignedType(core);
 		assertEquals("Assigned to core.", core, pn.getAssignedType());

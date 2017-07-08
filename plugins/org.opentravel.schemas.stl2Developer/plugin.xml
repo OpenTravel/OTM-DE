@@ -418,11 +418,9 @@
 			<command commandId="org.opentravel.schemas.commands.newResource"
         		 icon="icons/add_att.gif" label="New Resource" style="push"/>
 			<command commandId="org.opentravel.schemas.commands.newResource.ACTION"
-    	     	icon="icons/add_att.gif" label="New Action" style="push">
-			</command>
+    	     	icon="icons/add_att.gif" label="New Action" style="push"/>
 			<command commandId="org.opentravel.schemas.commands.newResource.ACTIONFACET"
-        		 icon="icons/add_att.gif" label="New Action Facet" style="push">
-			</command>
+        		 icon="icons/add_att.gif" label="New Action Facet" style="push"/>
 			<command commandId="org.opentravel.schemas.commands.newResource.PARAMGROUP"
         		 icon="icons/add_att.gif" label="New Parameter Group" style="push"/>
 			<command commandId="org.opentravel.schemas.commands.newResource.PARENTREF"
@@ -834,6 +832,8 @@
 								</test>
 								<instanceof value="org.opentravel.schemas.types.whereused.WhereUsedNode">
 								</instanceof>
+								<instanceof value="org.opentravel.schemas.node.facets.ContributedFacetNode">
+								</instanceof>
 							</or>
 						</iterate>
 					</with>
@@ -974,15 +974,15 @@
 		-->
 		<handler class="org.opentravel.schemas.commands.ResourceCommandHandler"
 			commandId="org.opentravel.schemas.commands.newResource">
-			<enabledWhen>
+			<!-- enabledWhen>
 			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
-			</enabledWhen>
+			</enabledWhen -->
 		</handler>
 		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
 			commandId="org.opentravel.schemas.commands.newResource">
-			<enabledWhen>
+			<!-- enabledWhen>
 			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
-			</enabledWhen>
+			</enabledWhen -->
 			<activeWhen>
 				<with variable="activeMenu">
 					<iterate ifEmpty="false" operator="or">
@@ -994,14 +994,14 @@
 		</handler>
 		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
 			commandId="org.opentravel.schemas.commands.newResource.DELETE">
-			<enabledWhen>
+			<!-- enabledWhen>
 				<with variable="org.opentravel.schemas.selection.nodes">
 					<iterate ifEmpty="false" operator="or">
 						<test property="stl2Developer.selection.newToChain">
 						</test>
 					</iterate>
 				</with>
-			</enabledWhen>
+			</enabledWhen -->
 			<activeWhen>
 				<with variable="activeMenu">
 					<iterate ifEmpty="false" operator="or">
@@ -1013,14 +1013,14 @@
 		</handler>
 		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
 			commandId="org.opentravel.schemas.commands.newResource.ACTION">
-			<enabledWhen>
+			<!-- enabledWhen>
 				<with variable="org.opentravel.schemas.selection.nodes">
 					<iterate ifEmpty="false" operator="or">
-						<test property="stl2Developer.selection.newToChain">
+						<test property="stl2Developer.selection.canAdd">
 						</test>
 					</iterate>
 				</with>
-			</enabledWhen>
+			</enabledWhen -->
 			<activeWhen>
 				<with variable="activeMenu">
 					<iterate ifEmpty="false" operator="or">
@@ -1032,14 +1032,14 @@
 		</handler>
 		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
 			commandId="org.opentravel.schemas.commands.newResource.ACTIONFACET">
-			<enabledWhen>
+			<!-- enabledWhen>
 				<with variable="org.opentravel.schemas.selection.nodes">
 					<iterate ifEmpty="false" operator="or">
-						<test property="stl2Developer.selection.newToChain">
+						<test property="stl2Developer.selection.canAdd">
 						</test>
 					</iterate>
 				</with>
-			</enabledWhen>
+			</enabledWhen -->
 			<activeWhen>
 				<with variable="activeMenu">
 					<iterate ifEmpty="false" operator="or">
@@ -1052,16 +1052,13 @@
 		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
 			commandId="org.opentravel.schemas.commands.newResource.ACTIONRESPONSE">
 			<!-- enabledWhen>
-			    <reference definitionId="org.opentravel.schemas.definitions.libraryEditable"/>
-			</enabledWhen -->
-			<enabledWhen>
 				<with variable="org.opentravel.schemas.selection.nodes">
 					<iterate ifEmpty="false" operator="or">
-						<test property="stl2Developer.selection.newToChain">
+						<test property="stl2Developer.selection.canAdd">
 						</test>
 					</iterate>
 				</with>
-			</enabledWhen>
+			</enabledWhen -->
 			<activeWhen>
 				<with variable="activeMenu">
 					<iterate ifEmpty="false" operator="or">
@@ -1073,14 +1070,14 @@
 		</handler>
 		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
 			commandId="org.opentravel.schemas.commands.newResource.PARAMGROUP">
-			<enabledWhen>
+			<!-- enabledWhen>
 				<with variable="org.opentravel.schemas.selection.nodes">
 					<iterate ifEmpty="false" operator="or">
-						<test property="stl2Developer.selection.newToChain">
+						<test property="stl2Developer.selection.canAdd">
 						</test>
 					</iterate>
 				</with>
-			</enabledWhen>
+			</enabledWhen -->
 			<activeWhen>
 				<with variable="activeMenu">
 					<iterate ifEmpty="false" operator="or">
@@ -1092,14 +1089,14 @@
 		</handler>
 		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
 			commandId="org.opentravel.schemas.commands.newResource.PARENTREF">
-			<enabledWhen>
+			<!-- enabledWhen>
 				<with variable="org.opentravel.schemas.selection.nodes">
 					<iterate ifEmpty="false" operator="or">
-						<test property="stl2Developer.selection.newToChain">
+						<test property="stl2Developer.selection.canAdd">
 						</test>
 					</iterate>
 				</with>
-			</enabledWhen>
+			</enabledWhen -->
 			<activeWhen>
 				<with variable="activeMenu">
 					<iterate ifEmpty="false" operator="or">

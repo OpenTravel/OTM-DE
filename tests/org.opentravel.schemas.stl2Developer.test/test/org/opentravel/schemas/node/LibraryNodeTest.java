@@ -44,10 +44,20 @@ import org.opentravel.schemas.utils.PropertyNodeBuilder;
 import org.osgi.framework.Version;
 
 /**
- * @author Pawel Jedruch
+ * @author Pawel Jedruch / Dave Hollander
  * 
  */
 public class LibraryNodeTest extends BaseProjectTest {
+
+	public void check(LibraryNode ln) {
+		MockLibrary ml = new MockLibrary();
+
+		assertTrue(ln.getParent() != null);
+
+		// check all members
+		for (Node n : ln.getDescendants_LibraryMembers())
+			ml.checkObject(n);
+	}
 
 	@Test
 	public void libraryConstructorsTests() {
@@ -195,7 +205,7 @@ public class LibraryNodeTest extends BaseProjectTest {
 
 		PropertyNode withAssignedType = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).assign(moved).build();
 		BusinessObjectNode bo = ComponentNodeBuilder.createBusinessObject("BO").get();
-		bo.getSummaryFacet().addProperty(withAssignedType);
+		bo.getFacet_Summary().addProperty(withAssignedType);
 		moveFrom.addMember(bo);
 
 		LibraryNode moveTo = LibraryNodeBuilder.create("MoveTo", testProject.getNamespace() + "/Test/TO", "to",
@@ -328,7 +338,7 @@ public class LibraryNodeTest extends BaseProjectTest {
 		LibraryNode moveFrom = LibraryNodeBuilder.create("MoveFrom", testProject.getNamespace() + "/Test/One", "o1",
 				new Version(1, 0, 0)).build(testProject, pc);
 		CoreObjectNode coBase = ComponentNodeBuilder.createCoreObject("COBase").get(moveFrom);
-		ElementNode e1 = new ElementNode(new TLProperty(), coBase.getSummaryFacet());
+		ElementNode e1 = new ElementNode(new TLProperty(), coBase.getFacet_Summary());
 		e1.setAssignedType(ml.getSimpleTypeProvider());
 		coBase.addProperty(e1);
 		CoreObjectNode coExt = ComponentNodeBuilder.createCoreObject("COExt").extend(coBase).get(moveFrom);

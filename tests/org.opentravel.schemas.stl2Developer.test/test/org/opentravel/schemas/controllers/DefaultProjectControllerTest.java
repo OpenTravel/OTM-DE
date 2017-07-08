@@ -115,7 +115,7 @@ public class DefaultProjectControllerTest extends BaseProjectTest {
 		// .build();
 		CoreObjectNode co = new CoreObjectNode(new TLCoreObject());
 		co.setName("CO");
-		PropertyNode property = new ElementNode(co.getSummaryFacet(), "e1", so);
+		PropertyNode property = new ElementNode(co.getFacet_Summary(), "e1", so);
 		// CoreObjectNode co = ComponentNodeBuilder.createCoreObject("CO").addToSummaryFacet(property).get();
 		local2.addMember(co);
 		assertTrue("Property must be assigned so as type.", property.getAssignedType() == so);

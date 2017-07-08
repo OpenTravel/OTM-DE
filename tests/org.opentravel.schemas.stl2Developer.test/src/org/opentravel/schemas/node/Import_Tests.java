@@ -158,7 +158,7 @@ public class Import_Tests {
 		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "testBO");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "testCore");
-		FacetNode summary = bo.getSummaryFacet();
+		FacetNode summary = bo.getFacet_Summary();
 		int coreKids = core.getChildren().size();
 		int startingCount = summary.getChildren().size();
 

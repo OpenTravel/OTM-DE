@@ -364,11 +364,16 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 
 		if (iss.getFirstElement() instanceof Node)
 			curNode = (Node) iss.getFirstElement();
+		if (curNode instanceof VersionNode)
+			curNode = ((VersionNode) curNode).get();
 
 		selectedNodes.clear();
 		for (final Object o : iss.toList()) {
 			if (o instanceof Node) {
-				selectedNodes.add((Node) o);
+				if (o instanceof VersionNode)
+					selectedNodes.add(((VersionNode) o).get());
+				else
+					selectedNodes.add((Node) o);
 				if (((Node) o).getLibrary() != null)
 					mc.postStatus(((Node) o).getEditStatusMsg());
 			}

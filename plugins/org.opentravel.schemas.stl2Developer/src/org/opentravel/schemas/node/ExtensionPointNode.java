@@ -95,7 +95,7 @@ public class ExtensionPointNode extends PropertyOwnerNode implements ComplexComp
 	 * @return null or the default facet for the complex object
 	 */
 	@Override
-	public PropertyOwnerInterface getDefaultFacet() {
+	public PropertyOwnerInterface getFacet_Default() {
 		return this;
 	}
 
@@ -132,8 +132,8 @@ public class ExtensionPointNode extends PropertyOwnerNode implements ComplexComp
 	}
 
 	@Override
-	public SimpleFacetNode getSimpleFacet() {
-		return (SimpleFacetNode) super.getSimpleFacet();
+	public SimpleFacetNode getFacet_Simple() {
+		return (SimpleFacetNode) super.getFacet_Simple();
 	}
 
 	@Override
@@ -145,6 +145,13 @@ public class ExtensionPointNode extends PropertyOwnerNode implements ComplexComp
 	// public boolean isNamedType() {
 	// return true;
 	// }
+
+	@Override
+	public boolean isDeleteable() {
+		if (isInherited())
+			return false; // I don't think it can be inherited
+		return getLibrary() != null ? getLibrary().isEditable() && isInHead2() : false;
+	}
 
 	// Gets name from where it extends
 	@Override

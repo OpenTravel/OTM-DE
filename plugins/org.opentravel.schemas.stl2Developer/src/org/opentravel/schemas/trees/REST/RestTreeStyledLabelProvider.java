@@ -22,8 +22,10 @@ import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.controllers.NodeUtils;
+import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
+import org.opentravel.schemas.node.resources.InheritedResourceMember;
+import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Fonts;
 
 /**
@@ -33,16 +35,26 @@ public class RestTreeStyledLabelProvider extends LabelProvider implements IStyle
 
 	@Override
 	public String getText(final Object element) {
-		if (element instanceof ResourceMemberInterface) {
-			return ((ResourceMemberInterface) element).getName();
+		Node node = null;
+		if (element instanceof Node)
+			node = (Node) element;
+		if (node instanceof VersionNode)
+			node = ((VersionNode) element).get();
+		if (node instanceof ResourceMemberInterface) {
+			return ((ResourceMemberInterface) node).getName();
 		}
 		return "Unknown object type: " + element.getClass().getSimpleName();
 	}
 
 	@Override
 	public Image getImage(final Object element) {
-		if (element instanceof ResourceMemberInterface) {
-			return ((ResourceMemberInterface) element).getImage();
+		Node node = null;
+		if (element instanceof Node)
+			node = (Node) element;
+		if (node instanceof VersionNode)
+			node = ((VersionNode) element).get();
+		if (node instanceof ResourceMemberInterface) {
+			return ((ResourceMemberInterface) node).getImage();
 		}
 		return null;
 	}
@@ -56,16 +68,17 @@ public class RestTreeStyledLabelProvider extends LabelProvider implements IStyle
 	public Font getFont(Object element) {
 		Font font = null;
 		if (element instanceof Node) {
-			final Node n = (Node) element;
-			if (!n.isEditable())
+			Node n = (Node) element;
+			if (n instanceof VersionNode)
+				n = ((VersionNode) n).get();
+
+			if (n instanceof ResourceNode && !n.isEditable_isNewOrAsMinor())
 				font = Fonts.getFontRegistry().get(Fonts.readOnlyItem);
-			else if (n.isInherited() || NodeUtils.checker(n).isInheritedFacet().get())
+			else if (n instanceof InheritedResourceMember)
 				font = Fonts.getFontRegistry().get(Fonts.inheritedItem);
-			// is this inherited from an earlier version?
-			else if (n.getChain() != null && n.getLibrary() != n.getChain().getHead())
-				font = Fonts.getFontRegistry().get(Fonts.inheritedItem);
+			else if (!n.isEditable())
+				font = Fonts.getFontRegistry().get(Fonts.readOnlyItem);
 		}
 		return font;
 	}
-
 }

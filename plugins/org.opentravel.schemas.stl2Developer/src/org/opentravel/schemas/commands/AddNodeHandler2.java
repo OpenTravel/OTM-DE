@@ -126,7 +126,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 
 			// Find same facet in new object as they dropped onto
 			if (targetNode == targetNode.getOwningComponent())
-				newNode = (ComponentNode) newNode.getDefaultFacet();
+				newNode = (ComponentNode) newNode.getFacet_Default();
 			else {
 				// if dropped on property, match owning facet
 				if (targetNode instanceof PropertyNode)

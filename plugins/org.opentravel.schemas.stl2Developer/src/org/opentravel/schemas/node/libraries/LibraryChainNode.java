@@ -33,12 +33,10 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VersionAggregateNode;
-import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
-import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.resources.ResourceNode;
@@ -152,7 +150,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 			add(item);
 
 		// Now that we know what is the head library, set that in the aggregates
-		// setAggregateLibrary(getHead());
+		setAggregateLibrary(getHead());
 	}
 
 	/**
@@ -171,7 +169,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 			versions.add(newLib); // simply add this library to library list.
 			newLib.updateLibraryStatus();
 		}
-		if (getHead() == null || newLib.getTLaLib().isLaterVersion(getHead().getTLaLib()))
+		if (getHead() == null || newLib.getTLModelObject().isLaterVersion(getHead().getTLModelObject()))
 			setHead(newLib);
 
 		return newLib;
@@ -206,17 +204,17 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 		// super.setLibrary(ln); // sets the library in all the children.
 	}
 
-	// /**
-	// * Sets the library in all the aggregate nodes.
-	// */
-	// private void setAggregateLibrary(LibraryNode ln) {
-	// LOGGER.debug("Setting library in chain to " + ln.getNameWithPrefix());
-	// // versions.setLibrary(ln);
-	// complexRoot.setLibrary(ln);
-	// simpleRoot.setLibrary(ln);
-	// serviceRoot.setLibrary(ln);
-	// resourceRoot.setLibrary(ln);
-	// }
+	/**
+	 * Sets the library in all the aggregate nodes.
+	 */
+	private void setAggregateLibrary(LibraryNode ln) {
+		LOGGER.debug("Setting library in chain to " + ln.getNameWithPrefix());
+		// versions.setLibrary(ln);
+		complexRoot.setLibrary(ln);
+		simpleRoot.setLibrary(ln);
+		serviceRoot.setLibrary(ln);
+		resourceRoot.setLibrary(ln);
+	}
 
 	/**
 	 * Return true if 1st node is from a later version that node2. For example: (v01:flight, v00:flight) returns true.
@@ -225,7 +223,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 	 * @param node2
 	 */
 	public boolean isLaterVersion(Node node1, Node node2) {
-		return node1.getLibrary().getTLaLib().isLaterVersion(node2.getLibrary().getTLaLib());
+		return node1.getLibrary().getTLModelObject().isLaterVersion(node2.getLibrary().getTLModelObject());
 	}
 
 	/**
@@ -250,19 +248,13 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 
 		// LOGGER.debug("Adding " + node + " to library chain.");
 
+		// Add to chain object aggregates.
 		// For services and resource, just add to the appropriate root.
 		if (node instanceof ServiceNode)
 			serviceRoot.add(node);
 		else if (node instanceof ResourceNode)
 			resourceRoot.add(node);
-
-		// TODO - move VN creation to AggregateNode
-		// Otherwise add version wrapper if not already wrapped
-		else if (!(node.getParent() instanceof VersionNode))
-			new VersionNode(node);
-
-		// Add to chain object aggregates.
-		if (node instanceof ComplexComponentInterface)
+		else if (node instanceof ComplexComponentInterface)
 			complexRoot.add(node);
 		else if (node instanceof SimpleComponentInterface)
 			simpleRoot.add(node);
@@ -497,7 +489,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 		return getHead().isMajorVersion();
 	}
 
-	public INode getResrouceAggregate() {
+	public AggregateNode getResourceAggregate() {
 		return resourceRoot;
 	}
 

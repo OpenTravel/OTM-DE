@@ -112,6 +112,10 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	@Override
 	public Node clone(Node parent, String nameSuffix) {
 		Node newNode = super.clone(parent, nameSuffix);
+		if (newNode == null) {
+			LOGGER.debug("Failed to clone " + this);
+			return null;
+		}
 		// Now, add the owner
 		if (parent != null && parent.getLibrary() != null)
 			parent.getLibrary().addMember(newNode);
@@ -135,8 +139,10 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 		super.delete();
 		if (OTM16Upgrade.otm16Enabled) {
 			// May be null when contributed facet is deleted
-			if (getTLModelObject() != null && getTLModelObject().getOwningLibrary() != null)
+			if (getTLModelObject() != null && getTLModelObject().getOwningLibrary() != null) {
 				getTLModelObject().getOwningLibrary().removeNamedMember(getTLModelObject());
+				getTLModelObject().setOwningLibrary(null); // not done automatically
+			}
 			if (whereContributed != null)
 				whereContributed.delete();
 		} else {
@@ -255,7 +261,7 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	}
 
 	@Override
-	public SimpleFacetNode getSimpleFacet() {
+	public SimpleFacetNode getFacet_Simple() {
 		// TODO Auto-generated method stub
 		return null;
 	}

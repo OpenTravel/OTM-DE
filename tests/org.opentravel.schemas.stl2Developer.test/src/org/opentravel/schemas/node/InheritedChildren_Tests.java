@@ -87,10 +87,10 @@ public class InheritedChildren_Tests {
 		setUpExtendedBO();
 
 		// Then - inherited children
-		List<Node> inherited = extensionBO.getSummaryFacet().getInheritedChildren();
+		List<Node> inherited = extensionBO.getFacet_Summary().getInheritedChildren();
 		Assert.assertFalse(inherited.isEmpty());
 		assertTrue("All base properties must be inherited.",
-				baseBO.getSummaryFacet().getChildren().size() == inherited.size());
+				baseBO.getFacet_Summary().getChildren().size() == inherited.size());
 		Assert.assertTrue(inherited.get(0).isInherited());
 
 		baseBO.addFacet("C2", TLFacetType.CUSTOM);
@@ -108,10 +108,10 @@ public class InheritedChildren_Tests {
 		setUpExtendedBO();
 		assertTrue("Library must be valid.", ln.isValid()); // validates TL library
 		BusinessObjectNode bo2 = ml.addBusinessObjectToLibrary_Empty(ln, "Bo2");
-		FacetNode sf = bo2.getSummaryFacet();
+		FacetNode sf = bo2.getFacet_Summary();
 		List<?> children = sf.getChildren();
 		bo2.setExtension(baseBO);
-		Assert.assertEquals(sf, bo2.getSummaryFacet());
+		Assert.assertEquals(sf, bo2.getFacet_Summary());
 		List<?> inherited = sf.getInheritedChildren();
 		LOGGER.debug("Done");
 	}

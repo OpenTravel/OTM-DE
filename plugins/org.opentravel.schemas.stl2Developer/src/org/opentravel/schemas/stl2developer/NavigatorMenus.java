@@ -49,8 +49,8 @@ import org.opentravel.schemas.actions.AddQueryFacetAction;
 import org.opentravel.schemas.actions.AddRoleAction;
 import org.opentravel.schemas.actions.AssignTypeAction;
 import org.opentravel.schemas.actions.ChangeAction;
-import org.opentravel.schemas.actions.CopyNodeAction;
 import org.opentravel.schemas.actions.CommitLibraryAction;
+import org.opentravel.schemas.actions.CopyNodeAction;
 import org.opentravel.schemas.actions.FinalizeLibraryAction;
 import org.opentravel.schemas.actions.ImportObjectToLibraryAction;
 import org.opentravel.schemas.actions.LifeCycleAction;
@@ -88,6 +88,7 @@ import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.SimpleComponentNode;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
@@ -396,7 +397,9 @@ public class NavigatorMenus extends TreeViewer {
 					if (!(selected instanceof Node)) {
 						return;
 					}
-					final Node node = (Node) selected;
+					Node node = (Node) selected;
+					if (node instanceof VersionNode)
+						node = ((VersionNode) node).get();
 
 					// Prepare the dynamic list menus
 					copyMenu.removeAll();

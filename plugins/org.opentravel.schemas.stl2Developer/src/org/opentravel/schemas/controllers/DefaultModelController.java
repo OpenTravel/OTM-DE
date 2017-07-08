@@ -496,7 +496,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 			return false;
 
 		ComplexComponentInterface ci = (ComplexComponentInterface) owner;
-		Node simpleProp = ci.getSimpleFacet().getSimpleAttribute();
+		Node simpleProp = ci.getFacet_Simple().getSimpleAttribute();
 		((TypeUser) simpleProp).setAssignedType((TypeProvider) p.getType());
 		copyDocumentation(p, simpleProp);
 		// TODO also copy the examples and equivalents

@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 public class ActionRequest extends ResourceBase<TLActionRequest> implements ResourceMemberInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ActionRequest.class);
 	private String MSGKEY = "rest.ActionRequest";
+	private ActionRequestPathTemplate pathTemplate;
 
 	class HttpMethodListener implements ResourceFieldListener {
 		@Override
@@ -86,21 +87,26 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	 */
 	public ActionRequest(TLActionRequest tlActionRequest) {
 		super(tlActionRequest);
+		pathTemplate = new ActionRequestPathTemplate(this);
 	}
 
 	public ActionRequest(ActionNode parent) {
 		super(new TLActionRequest(), parent);
+		pathTemplate = new ActionRequestPathTemplate(this);
 
 		if (parent.getRequest() != null)
 			parent.getRequest().delete();
 		((TLAction) parent.getTLModelObject()).setRequest(tlObj);
+
+		setPathTemplate();
 	}
 
 	@Override
 	public void addListeners() {
 		// set listeners onto Param Groups and params to change path template
 		if (tlObj != null && tlObj.getParamGroup() != null)
-			((ParamGroup) getNode(tlObj.getParamGroup().getListeners())).addListeners(this);
+			tlObj.getParamGroup().addListener(new ResourceDependencyListener(this));
+		// ((ParamGroup) getNode(tlObj.getParamGroup().getListeners())).addListeners(this);
 
 		if (tlObj.getPayloadType() != null)
 			tlObj.getPayloadType().addListener(new ResourceDependencyListener(this));
@@ -109,31 +115,13 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 		getOwningComponent().getTLModelObject().addListener(new ResourceDependencyListener(this));
 	}
 
-	/**
-	 * Set the path to have all the parameters from the parameter group that are PATH, null or empty.
-	 * 
-	 * @param tlParamGroup
-	 */
-	public void createPathTemplate() {
-		String path = getOwningComponent().getBasePath();
-		if (tlObj.getParamGroup() != null)
-			path += getParamGroup().getPathTemplate();
-		// path += ((ParamGroup) getNode(tlObj.getParamGroup().getListeners())).getPathTemplate();
-
-		// setPathTemplate(getInheritedPath() + path);
-		setPathTemplate(path);
-		LOGGER.debug("Created path template: " + tlObj.getPathTemplate());
+	public void updateBasePath(String basePath) {
+		// Is this needed? I don't think so!
 	}
 
 	public String getInheritedPath() {
 		String template = "";
-
-		// Find out if there is a parent resource and if so get its path contribution
-		// ResourceNode parentResource = getOwningComponent().getExtendsType();
-		// if (parentResource != null)
-		// // parent is always get template with ID
 		template += getOwningComponent().getPathContribution(getParamGroup());
-		//
 		return template;
 	}
 
@@ -235,8 +223,8 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 			setParameterGroup(null);
 		else if (dependent instanceof ActionFacet)
 			setPayload(null);
-		else if (dependent instanceof ResourceParameter)
-			createPathTemplate();
+		// else if (dependent instanceof ResourceParameter)
+		// createPathTemplate();
 	}
 
 	public void setHttpMethod(String method) {
@@ -265,16 +253,19 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	public boolean setParamGroup(String groupName) {
 		if (groupName == null || groupName.equals(ResourceField.NONE)) {
 			tlObj.setParamGroup(null);
-			// LOGGER.debug("Set parameter group to null. " + groupName);
+			LOGGER.debug("Set parameter group to null. " + groupName);
 		} else if (tlObj.getParamGroupName() != null && tlObj.getParamGroupName().equals(groupName)) {
 			LOGGER.debug("No change because names are the same. " + groupName);
+			return false;
 		} else
 			// find the param group with this name then set it
 			for (ParamGroup node : getOwningComponent().getParameterGroups(false))
 				if (node.getName().equals(groupName))
 					setParameterGroup(node);
-		createPathTemplate();
 		// LOGGER.debug("Set parameter group to " + groupName + " : " + tlObj.getParamGroupName());
+
+		pathTemplate.setParameters();
+		setPathTemplate();
 		return true;
 	}
 
@@ -287,21 +278,48 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 		if (group != null) {
 			tlObj.setParamGroup(group.tlObj);
 			group.addListeners(this);
-		} else
+		} else {
 			tlObj.setParamGroup(null);
+		}
+		pathTemplate.setParameters();
 		// LOGGER.debug("Set param group to " + group);
 		return false;
 	}
 
+	/**
+	 * Path Template
+	 * <p>
+	 * Starts with /
+	 * <p>
+	 * Must / Must Not have query parameters
+	 * <p>
+	 * Must Not have resource base path
+	 * 
+	 * @return
+	 */
 	public String getPathTemplate() {
+		tlObj.setPathTemplate(pathTemplate.get());
 		return tlObj.getPathTemplate();
 	}
 
+	public String getURL() {
+		return pathTemplate.getURL();
+	}
+
+	/**
+	 * Used by listener.
+	 * 
+	 * @param path
+	 */
 	public void setPathTemplate(String path) {
-		if (path == null || path.isEmpty())
-			path = "/";
-		tlObj.setPathTemplate(path);
-		// LOGGER.debug("Set Path template to " + path + ": " + tlObj.getPathTemplate());
+		pathTemplate.override(path);
+		setPathTemplate();
+	}
+
+	public void setPathTemplate() {
+		assert pathTemplate != null;
+		tlObj.setPathTemplate(pathTemplate.get());
+		LOGGER.debug("Set Path template to " + tlObj.getPathTemplate());
 	}
 
 	/**
