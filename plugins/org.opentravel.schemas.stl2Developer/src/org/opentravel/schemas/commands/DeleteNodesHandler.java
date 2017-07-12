@@ -58,7 +58,7 @@ public class DeleteNodesHandler extends OtmAbstractHandler {
 	 * 
 	 * @param deleteList
 	 */
-	public void deleteNodes(final List<Node> deleteList) {
+	protected void deleteNodes(final List<Node> deleteList) {
 		if (deleteList == null || deleteList.isEmpty())
 			return;
 

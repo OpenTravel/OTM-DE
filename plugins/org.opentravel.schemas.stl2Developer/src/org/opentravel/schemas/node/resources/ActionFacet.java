@@ -133,7 +133,8 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 
 	@Override
 	public void delete() {
-		tlObj.getOwningResource().removeActionFacet(tlObj);
+		if (tlObj != null && tlObj.getOwningResource() != null)
+			tlObj.getOwningResource().removeActionFacet(tlObj);
 		super.delete();
 	}
 

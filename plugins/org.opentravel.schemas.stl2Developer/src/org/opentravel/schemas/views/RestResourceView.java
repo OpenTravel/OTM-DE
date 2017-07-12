@@ -340,8 +340,12 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		List<Node> selected = new ArrayList<Node>();
 		StructuredSelection selection = (StructuredSelection) viewer.getSelection();
 		for (Object e : selection.toList()) {
-			if (e != null && e instanceof ResourceMemberInterface)
-				selected.add((Node) e);
+			if (e != null) {
+				if (e instanceof VersionNode)
+					e = ((VersionNode) e).get();
+				if (e instanceof ResourceMemberInterface)
+					selected.add((Node) e);
+			}
 		}
 		// LOGGER.debug("getSelectedNodes is returning " + selected.size() + " nodes.");
 		return selected;

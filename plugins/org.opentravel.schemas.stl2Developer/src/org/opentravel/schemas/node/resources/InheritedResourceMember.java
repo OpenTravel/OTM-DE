@@ -66,7 +66,8 @@ public class InheritedResourceMember extends Node implements ResourceMemberInter
 	public void delete() {
 		get().delete();
 		// clearListeners();
-		parent.getChildren().remove(this);
+		if (parent != null && parent.getChildren() != null)
+			parent.getChildren().remove(this);
 		deleted = true;
 	}
 

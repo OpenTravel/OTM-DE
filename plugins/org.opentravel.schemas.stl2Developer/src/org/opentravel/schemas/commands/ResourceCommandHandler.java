@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.commands;
 
+import java.util.List;
+
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -161,11 +163,14 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 		switch (type) {
 		case DELETE:
 			Node owner = selectedNode.getOwningComponent();
-			for (Node n : view.getSelectedNodes())
-				if (owner.isEditable() && n.isDeleteable())
-					n.delete();
-				else
-					postWarning(type, n);
+			List<Node> nodes = view.getSelectedNodes();
+			new DeleteNodesHandler().deleteNodes(nodes);
+
+			// for (Node n : view.getSelectedNodes())
+			// if (owner.isEditable() && n.isDeleteable())
+			// n.delete();
+			// else
+			// postWarning(type, n);
 			view.refresh(owner);
 			if (owner instanceof ResourceNode)
 				OtmRegistry.getNavigatorView().refresh(); // refresh entire navigator view tree because content changed
