@@ -157,7 +157,7 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 		if (selectedNode.getOwningComponent() instanceof ResourceNode)
 			rn = (ResourceNode) selectedNode.getOwningComponent();
 		// Make sure we have the latest version of the resource
-		if (rn.getVersionNode() != null)
+		if (rn != null && rn.getVersionNode() != null)
 			rn = (ResourceNode) rn.getVersionNode().get();
 
 		switch (type) {
