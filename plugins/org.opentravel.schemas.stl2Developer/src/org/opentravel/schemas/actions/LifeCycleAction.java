@@ -82,7 +82,7 @@ public class LifeCycleAction extends OtmAbstractAction {
 				continue;
 			}
 			LibraryNode ln = node.getLibrary();
-			if (ln.getTLaLib().getOwningModel() == null) {
+			if (ln.getTLModelObject().getOwningModel() == null) {
 				DialogUserNotifier.openWarning("Error", "Internal error - no owning model.");
 				continue;
 			}
@@ -114,7 +114,8 @@ public class LifeCycleAction extends OtmAbstractAction {
 
 		RepositoryItemState state = ln.getProjectItem().getState();
 		TLLibraryStatus status = ln.getProjectItem().getStatus();
-		LOGGER.debug(ln + " status = " + status + "   state = " + state + "   next = " + ln.getStatus().nextStatus());
+		// LOGGER.debug(ln + " status = " + status + "   state = " + state + "   next = " +
+		// ln.getStatus().nextStatus());
 
 		// Don't allow lock unless library is in a project with managing namespace
 		if (!ln.isInProjectNS())

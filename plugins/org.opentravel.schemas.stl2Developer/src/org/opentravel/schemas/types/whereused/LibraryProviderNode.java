@@ -26,8 +26,9 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.types.TypeUser;
 
 /**
- * Describes a library that is depended on to provide types to the user library. Children are other LibraryProviderNodes
- * and Type/Extension UserNodes.
+ * Describes a library that is depended upon to provide types to the user library.
+ * <p>
+ * Children are other LibraryProviderNodes and Type/Extension UserNodes.
  * 
  * @author Dave Hollander
  * 
@@ -41,10 +42,10 @@ public class LibraryProviderNode extends WhereUsedNode<LibraryNode> implements W
 	 * @param providerLib
 	 *            is the library providing types (owner)
 	 * @param userLib
-	 *            is the library that depends on the provided types (parent)
+	 *            is the library that depends on the provided types (parent/userLib)
 	 */
 	public LibraryProviderNode(LibraryNode providerLib, LibraryNode userLib) {
-		super(providerLib, userLib); // sets owner
+		super(providerLib, userLib); // sets owner and parent
 		// parent = userLib;
 		labelProvider = simpleLabelProvider(providerLib.getName());
 		imageProvider = nodeImageProvider(providerLib.getOwningComponent());
@@ -75,8 +76,9 @@ public class LibraryProviderNode extends WhereUsedNode<LibraryNode> implements W
 			return Collections.emptyList();
 
 		List<Node> providerLibs = new ArrayList<Node>();
-		for (LibraryNode l : owner.getAssignedLibraries(false))
-			providerLibs.add(new LibraryProviderNode(l, owner));
+		// Get libraries assigning types to owner
+		// for (LibraryNode l : owner.getAssignedLibraries(false))
+		// providerLibs.add(new LibraryProviderNode(l, owner));
 
 		// Get the types in the owner lib that are used in the parent's chain
 		for (Node user : owner.getWhereUsedHandler().getUsersOfTypesFromOwnerLibrary((LibraryNode) parent, true))

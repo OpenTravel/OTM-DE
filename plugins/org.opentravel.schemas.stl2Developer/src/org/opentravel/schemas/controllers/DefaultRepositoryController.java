@@ -521,29 +521,89 @@ public class DefaultRepositoryController implements RepositoryController {
 		return rootNSs;
 	}
 
+	public LibraryNode getLatestVersion(LibraryNode lib, boolean includeDrafts) throws RepositoryException {
+		LibraryNode replacement = null;
+		ProjectItem projItem = lib.getProjectItem();
+		Repository lRepo = lib.getProjectItem().getRepository();
+		String baseNS = projItem.getBaseNamespace();
+		if (projItem == null || lRepo == null || baseNS.isEmpty())
+			return null;
+
+		// Get the latest from the Repository.
+		// Assume chronologically draft, then Under_Review then final.
+		List<RepositoryItem> ll;
+		RepositoryItem replacementRI = null;
+		String targetName = projItem.getContent().getName();
+		if (includeDrafts)
+			replacementRI = getLatestRepoItem(lRepo, baseNS, TLLibraryStatus.DRAFT, targetName);
+		else
+			replacementRI = getLatestRepoItem(lRepo, baseNS, TLLibraryStatus.UNDER_REVIEW, targetName);
+		if (replacementRI == null)
+			replacementRI = getLatestRepoItem(lRepo, baseNS, TLLibraryStatus.FINAL, targetName);
+
+		// Nothing found
+		if (replacementRI == null)
+			return replacement;
+
+		// Look up the Repository Item to get the library if open in the GUI
+		replacement = Node.getLibraryModelManager().get(replacementRI.getNamespace(), replacementRI.getLibraryName());
+
+		if (replacement == null) {
+			// Library is not open in GUI, so open it.
+			String message = "Opening " + replacementRI.getNamespace() + " - " + replacementRI.getLibraryName();
+			mc.postStatus(message);
+
+			ProjectItem newPI = mc.getProjectController().add(lib.getProject(), replacementRI);
+
+			// could open a lot of dependent libraries, find the right one
+			replacement = Node.getLibraryModelManager().get(replacementRI.getNamespace(),
+					replacementRI.getLibraryName());
+		}
+		// LOGGER.debug("getLatestVersion found " + replacement.getNamespace() + " " + replacement.getName());
+
+		return replacement;
+	}
+
+	private RepositoryItem getLatestRepoItem(Repository lRepo, String baseNS, TLLibraryStatus status, String name)
+			throws RepositoryException {
+		List<RepositoryItem> ll;
+		ll = lRepo.listItems(baseNS, status, true);
+		// Resulting list may have other libraries from same namespace
+		for (RepositoryItem ri : ll)
+			if (ri.getLibraryName().equals(name))
+				return ri;
+		return null;
+	}
+
 	/**
-	 * For each passed library find the latest version.
+	 * For each passed library find the latest version from the same repository.
 	 * 
-	 * If different, add library and latest version to returned map.
+	 * If different, add the passed library and latest version in the returned map.
 	 * 
 	 * WARNING: each library will invoke a slow process on the repository
 	 * 
 	 * @param usedLibs
-	 * 
-	 * @param usedLibs
+	 * @param includeDrafts
+	 *            if true, draft libraries will be included as replacement candidate
 	 * @return maps of libraries, key is passed library and value is later version of library.
 	 * @throws RepositoryException
 	 */
-	public HashMap<LibraryNode, LibraryNode> getVersionUpdateMap(List<LibraryNode> usedLibs) throws RepositoryException {
-		return getVersionUpdateMap(usedLibs, true);
-	}
-
+	// public HashMap<LibraryNode, LibraryNode> getVersionUpdateMap(List<LibraryNode> usedLibs) throws
+	// RepositoryException {
+	// return getVersionUpdateMap(usedLibs, true);
+	// }
+	//
+	@Deprecated
 	public HashMap<LibraryNode, LibraryNode> getVersionUpdateMap(List<LibraryNode> usedLibs, boolean includeDrafts)
 			throws RepositoryException {
+		// Map to return
 		HashMap<LibraryNode, LibraryNode> replacementMap = new HashMap<>();
 
 		HashMap<LibraryNode, RepositoryItem> itemMap = new HashMap<>();
 		List<RepositoryItem> ll;
+		// List<RepositoryItem> ll = new ArrayList<RepositoryItem>();
+
+		// For each of the passed libraries
 		for (LibraryNode lib : usedLibs) {
 			ProjectItem projItem = lib.getProjectItem();
 			Repository lRepo = lib.getProjectItem().getRepository();
@@ -553,6 +613,16 @@ public class DefaultRepositoryController implements RepositoryController {
 
 			// For each used library, lookup the latest version.
 			// TODO - update listItems call to use libraryStatus
+			// baseNamespace the base namespace that does not include the trailing version component of the URI path
+			// includeStatus indicates the latest library status to include in the results (null = all statuses)
+			// latestVersionsOnly flag indicating whether the results should include all matching versions or just the
+			// latest version of each library
+			// ll.addAll(lRepo.listItems(baseNS, TLLibraryStatus.UNDER_REVIEW, true));
+			// ll.addAll(lRepo.listItems(baseNS, TLLibraryStatus.FINAL, true));
+			// if (includeDrafts)
+			// ll = lRepo.listItems(baseNS, TLLibraryStatus.DRAFT, true);
+			// // Now - how to find the latest?
+
 			ll = lRepo.listItems(baseNS, true, includeDrafts);
 			// list contains all library chains in that namespace
 			if (ll.size() > 0) {
@@ -594,8 +664,8 @@ public class DefaultRepositoryController implements RepositoryController {
 		}
 
 		// Print out replacement map
-		// for (Entry<LibraryNode, LibraryNode> entry : replacementMap.entrySet())
-		// LOGGER.debug("ReplacementMap Entry: " + entry.getKey() + " value = " + entry.getValue());
+		for (Entry<LibraryNode, LibraryNode> entry : replacementMap.entrySet())
+			LOGGER.debug("ReplacementMap Entry: " + entry.getKey() + " value = " + entry.getValue());
 
 		return replacementMap;
 	}

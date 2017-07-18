@@ -1804,12 +1804,39 @@ public class LibraryNode extends Node implements LibraryInterface {
 		return getLabel();
 	}
 
+	public void replaceAllExtensions(List<ExtensionOwner> extensionsToUpdate) {
+		// Create a map of all type providers in this library keyed by name
+		Map<String, ExtensionOwner> candidates = new HashMap<String, ExtensionOwner>();
+		for (ExtensionOwner p : this.getDescendants_ExtensionOwners())
+			candidates.put(((Node) p).getName(), p);
+
+		for (ExtensionOwner e : extensionsToUpdate) {
+			e.setExtension((Node) candidates.get(e.getExtendsTypeName()));
+		}
+	}
+
+	/**
+	 * Replace assignments to all users in the list with a type from this library with the same name.
+	 */
+	public void replaceAllUsers(List<TypeUser> users) {
+		// Create a map of all type providers in this library keyed by name
+		Map<String, TypeProvider> candidates = new HashMap<String, TypeProvider>();
+		for (TypeProvider p : this.getDescendants_TypeProviders())
+			candidates.put(p.getName(), p);
+
+		for (TypeUser user : users) {
+			user.setAssignedType(candidates.get(user.getAssignedType().getName()));
+			// String target = user.getAssignedType().getName();
+			// LOGGER.debug("assigned type " + target + " to " + user.getOwningComponent().getName());
+		}
+	}
+
 	/**
 	 * Replace assignments to all extension owners and type users in this library using the passed map. The map must
 	 * contain key/value pairs of library nodes where the currently used library is the key. No action taken on types in
 	 * libraries not in the map.
 	 */
-
+	@Deprecated
 	public void replaceAllUsers(HashMap<LibraryNode, LibraryNode> replacementMap) {
 		replaceTypeUsers(replacementMap);
 		replaceExtensionUsers(replacementMap);
@@ -1819,6 +1846,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 * Replace all type users in this library using the passed map. The map must contain key/value pairs of library
 	 * nodes where the currently used library is the key. No action taken on types in libraries not in the map.
 	 */
+	@Deprecated
 	public void replaceTypeUsers(HashMap<LibraryNode, LibraryNode> replacementMap) {
 		TypeProvider provider = null;
 		for (TypeUser user : getDescendants_TypeUsers()) {
@@ -1838,6 +1866,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 * Replace all Extension users in this library using the passed map. The map must contain key/value pairs of library
 	 * nodes where the currently used library is the key. No action taken on types in libraries not in the map.
 	 */
+	@Deprecated
 	public void replaceExtensionUsers(HashMap<LibraryNode, LibraryNode> replacementMap) {
 		Node provider = null;
 		for (ExtensionOwner owner : getDescendants_ExtensionOwners()) {

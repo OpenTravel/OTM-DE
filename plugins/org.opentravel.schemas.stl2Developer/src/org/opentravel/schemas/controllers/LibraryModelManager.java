@@ -324,4 +324,21 @@ public class LibraryModelManager {
 		return new ArrayList<LibraryInterface>(libraries);
 	}
 
+	/**
+	 * Return the library with the name and namespace
+	 * 
+	 * @param namespace
+	 * @param libraryName
+	 * @return libraryNode or null if not found
+	 */
+	public LibraryNode get(String namespace, String libraryName) {
+		for (LibraryNode lib : getUserLibraries()) {
+			// LOGGER.debug(" test " + lib.getNamespace() + " " + lib.getName());
+			if (lib.getName().equals(libraryName))
+				if (lib.getNamespace().equals(namespace))
+					return (LibraryNode) lib;
+		}
+		return null;
+	}
+
 }

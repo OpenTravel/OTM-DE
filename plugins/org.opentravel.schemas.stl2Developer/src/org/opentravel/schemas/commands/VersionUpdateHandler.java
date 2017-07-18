@@ -16,18 +16,17 @@
 package org.opentravel.schemas.commands;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.List;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
+import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.whereused.ExtensionUserNode;
 import org.opentravel.schemas.types.whereused.LibraryProviderNode;
 import org.opentravel.schemas.types.whereused.TypeUserNode;
@@ -63,60 +62,133 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 	public boolean isEnabled() {
 		Node n = mc.getSelectedNode_NavigatorView();
 		if (n instanceof LibraryProviderNode)
-			return true;
+			return ((LibraryProviderNode) n).getParent().isEditable();
 		return n != null && n.isEditable() ? n instanceof TypeUserNode : false;
 	}
 
+	/**
+	 * Update all the type users (children) to the latest version of the parent library. Also update extension owners.
+	 * <p>
+	 * Library Provider node lists all of the parent's type users that are assigned types from the owner library.
+	 * 
+	 * @param providerLibNode
+	 */
 	private void updateLibrary(LibraryProviderNode providerLibNode) {
 		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
 		LibraryNode libToUpdate = (LibraryNode) providerLibNode.getParent();
 
-		// Get a list of extensionOwners and TypeUsers from libToUpdate
-		Set<LibraryNode> usedLibs = new HashSet<LibraryNode>();
-		for (Node n : providerLibNode.getChildren())
-			if (n instanceof TypeUserNode)
-				usedLibs.add(((TypeUserNode) n).getOwner().getAssignedType().getLibrary());
-			else if (n instanceof ExtensionUserNode)
-				usedLibs.add(((ExtensionUserNode) n).getOwner().getExtensionBase().getLibrary());
+		// Get the type and extension users to update
+		List<TypeUser> usersToUpdate = new ArrayList<TypeUser>();
+		List<ExtensionOwner> extensionsToUpdate = new ArrayList<ExtensionOwner>();
+
+		for (Node user : providerLibNode.getChildren())
+			if (user instanceof TypeUser) {
+				if (!usersToUpdate.contains(((TypeUserNode) user).getOwner()))
+					usersToUpdate.add(((TypeUserNode) user).getOwner());
+			} else if (user instanceof ExtensionUserNode)
+				if (!extensionsToUpdate.contains(((ExtensionUserNode) user).getOwner()))
+					extensionsToUpdate.add(((ExtensionUserNode) user).getOwner());
 
 		// Ask the user if they want Draft versions?
-		String question = "Update to latest Draft version? Answer Yes to include draft or No for only Final versions.";
+		String question = "Update to latest Draft version? Answer Yes to include draft or No for only Review or Final versions.";
 		String[] buttons = { "Yes", "No", "Cancel" };
 		int result = DialogUserNotifier.openQuestionWithButtons("Update to Latest Version", question, buttons);
 		boolean includeDrafts = false;
 		if (result == 0)
 			includeDrafts = true;
 		else if (result == 2)
-			return;
+			return; // Exit on cancel
 
-		// Create replacement map
-		HashMap<LibraryNode, LibraryNode> replacementMap;
+		// Get the latest version of parent library. It may not be open yet.
+		LibraryNode replacement = null;
 		try {
-			replacementMap = rc.getVersionUpdateMap(new ArrayList<LibraryNode>(usedLibs), includeDrafts);
+			replacement = rc.getLatestVersion((LibraryNode) providerLibNode.getOwner(), includeDrafts);
 		} catch (RepositoryException e1) {
-			DialogUserNotifier.openWarning("Version Update Warning", e1.getLocalizedMessage());
+			if (replacement == null)
+				try {
+					// retry
+					replacement = rc.getLatestVersion((LibraryNode) providerLibNode.getParent(), includeDrafts);
+				} catch (RepositoryException e) {
+					DialogUserNotifier.openWarning("Version Update Warning", e1.getLocalizedMessage());
+					return;
+				}
+		}
+
+		// Later version could not be found so just exit.
+		// If the replacement is the same as the owner then inform the user and return
+		if (replacement == null || replacement == providerLibNode.getOwner()) {
+			DialogUserNotifier.openWarning("Version Update Warning", "Could not find a later version.");
 			return;
 		}
 
-		LibraryNode targetLib = null;
-		LibraryNode oldLib = null;
-		for (Entry<LibraryNode, LibraryNode> e : replacementMap.entrySet()) {
-			targetLib = e.getValue();
-			oldLib = e.getKey();
-		}
-		if (targetLib == null) {
-			DialogUserNotifier.openWarning("Update to Latest Version", "Did not find a later version.");
-			return;
-		}
-
-		question = "Do you want to update " + oldLib.getNameWithPrefix() + " with " + targetLib.getNameWithPrefix()
-				+ "?";
-		if (DialogUserNotifier.openQuestion("Update to Latest Version", question))
+		// Confirm user wants to do the update
+		question = "Do you want to update " + providerLibNode.getOwner().getNameWithPrefix() + " with "
+				+ replacement.getNameWithPrefix() + "?";
+		if (DialogUserNotifier.openQuestion("Update to Latest Version", question)) {
 			// replace type users using the replacement map
-			libToUpdate.replaceAllUsers(replacementMap);
+			replacement.replaceAllUsers(usersToUpdate);
+			replacement.replaceAllExtensions(extensionsToUpdate);
+		}
 
 		// How to clear the TypeUserNode?
 		libToUpdate.getWhereUsedHandler().refreshUsedByNode();
 		mc.refresh(libToUpdate);
 	}
+
+	// private void updateLibraryOLD(LibraryProviderNode providerLibNode) {
+	// DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
+	// LibraryNode libToUpdate = (LibraryNode) providerLibNode.getParent();
+	// List<TypeUser> usersToUpdate = new ArrayList<TypeUser>();
+	// for (Node typeUserNode : providerLibNode.getChildren())
+	// if (!usersToUpdate.contains(((TypeUserNode) typeUserNode).getOwner()))
+	// usersToUpdate.add(((TypeUserNode) typeUserNode).getOwner());
+	//
+	// // Ask the user if they want Draft versions?
+	// String question = "Update to latest Draft version? Answer Yes to include draft or No for only Final versions.";
+	// String[] buttons = { "Yes", "No", "Cancel" };
+	// int result = DialogUserNotifier.openQuestionWithButtons("Update to Latest Version", question, buttons);
+	// boolean includeDrafts = false;
+	// if (result == 0)
+	// includeDrafts = true;
+	// else if (result == 2)
+	// return; // Exit on cancel
+	//
+	// // Get a list of extensionOwners and TypeUsers from libToUpdate
+	// Set<LibraryNode> usedLibs = new HashSet<LibraryNode>();
+	// for (Node n : providerLibNode.getChildren())
+	// if (n instanceof TypeUserNode)
+	// usedLibs.add(((TypeUserNode) n).getOwner().getAssignedType().getLibrary());
+	// else if (n instanceof ExtensionUserNode)
+	// usedLibs.add(((ExtensionUserNode) n).getOwner().getExtensionBase().getLibrary());
+	//
+	// // Create replacement map
+	// HashMap<LibraryNode, LibraryNode> replacementMap;
+	// try {
+	// replacementMap = rc.getVersionUpdateMap(new ArrayList<LibraryNode>(usedLibs), includeDrafts);
+	// } catch (RepositoryException e1) {
+	// DialogUserNotifier.openWarning("Version Update Warning", e1.getLocalizedMessage());
+	// return;
+	// }
+	//
+	// LibraryNode targetLib = null;
+	// LibraryNode oldLib = null;
+	// for (Entry<LibraryNode, LibraryNode> e : replacementMap.entrySet()) {
+	// targetLib = e.getValue();
+	// oldLib = e.getKey();
+	// }
+	// if (targetLib == null) {
+	// DialogUserNotifier.openWarning("Update to Latest Version", "Did not find a later version.");
+	// return;
+	// }
+	//
+	// question = "Do you want to update " + oldLib.getNameWithPrefix() + " with " + targetLib.getNameWithPrefix()
+	// + "?";
+	// if (DialogUserNotifier.openQuestion("Update to Latest Version", question))
+	// // replace type users using the replacement map
+	// libToUpdate.replaceAllUsers(replacementMap);
+	//
+	// // How to clear the TypeUserNode?
+	// libToUpdate.getWhereUsedHandler().refreshUsedByNode();
+	// mc.refresh(libToUpdate);
+	// }
 }

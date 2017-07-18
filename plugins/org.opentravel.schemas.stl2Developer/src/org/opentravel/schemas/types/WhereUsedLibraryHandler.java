@@ -190,13 +190,20 @@ public class WhereUsedLibraryHandler {
 		return getUsersOfTypesFromOwnerLibrary(ownerLib, false);
 	}
 
+	/**
+	 * Find all type providers in a library that have types assigned to owner library.
+	 * 
+	 * @param deep
+	 *            If deep, examine all owner libraries in the chain and all type users in the owners chain.
+	 * @return unmodifiable list of type users and extension owners
+	 */
 	public Collection<Node> getUsersOfTypesFromOwnerLibrary(LibraryNode ownerLib, boolean deep) {
 		Set<Node> userSet = new HashSet<Node>();
 		if (ownerLib == null)
 			return Collections.unmodifiableCollection(userSet);
 
 		// TODO - should the deep function should be done by chainNode
-		// Get the libraries to examine
+		// Get the libraries to examine. If deep, get all libraries in the chain.
 		List<LibraryNode> ownerLibs = new ArrayList<LibraryNode>();
 		if (deep && ownerLib.getChain() != null)
 			ownerLibs.addAll(ownerLib.getChain().getLibraries());
