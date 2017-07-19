@@ -529,6 +529,12 @@ public class DefaultRepositoryController implements RepositoryController {
 		if (projItem == null || lRepo == null || baseNS.isEmpty())
 			return null;
 
+		String message = "Checking repository for the latest version of " + lib;
+		mc.postStatus(message);
+		mc.showBusy(true);
+		mc.refresh();
+		LOGGER.debug(message);
+
 		// Get the latest from the Repository.
 		// Assume chronologically draft, then Under_Review then final.
 		List<RepositoryItem> ll;
@@ -542,15 +548,18 @@ public class DefaultRepositoryController implements RepositoryController {
 			replacementRI = getLatestRepoItem(lRepo, baseNS, TLLibraryStatus.FINAL, targetName);
 
 		// Nothing found
-		if (replacementRI == null)
+		if (replacementRI == null) {
+			mc.postStatus("");
+			mc.showBusy(false);
 			return replacement;
+		}
 
 		// Look up the Repository Item to get the library if open in the GUI
 		replacement = Node.getLibraryModelManager().get(replacementRI.getNamespace(), replacementRI.getLibraryName());
 
 		if (replacement == null) {
 			// Library is not open in GUI, so open it.
-			String message = "Opening " + replacementRI.getNamespace() + " - " + replacementRI.getLibraryName();
+			message = "Opening " + replacementRI.getNamespace() + " - " + replacementRI.getLibraryName();
 			mc.postStatus(message);
 
 			ProjectItem newPI = mc.getProjectController().add(lib.getProject(), replacementRI);
@@ -560,7 +569,8 @@ public class DefaultRepositoryController implements RepositoryController {
 					replacementRI.getLibraryName());
 		}
 		// LOGGER.debug("getLatestVersion found " + replacement.getNamespace() + " " + replacement.getName());
-
+		mc.postStatus("");
+		mc.showBusy(false);
 		return replacement;
 	}
 

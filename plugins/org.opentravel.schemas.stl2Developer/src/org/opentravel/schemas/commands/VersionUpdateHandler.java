@@ -30,6 +30,8 @@ import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.whereused.ExtensionUserNode;
 import org.opentravel.schemas.types.whereused.LibraryProviderNode;
 import org.opentravel.schemas.types.whereused.TypeUserNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Update type assignments to later versions.
@@ -39,6 +41,7 @@ import org.opentravel.schemas.types.whereused.TypeUserNode;
  */
 
 public class VersionUpdateHandler extends OtmAbstractHandler {
+	private static final Logger LOGGER = LoggerFactory.getLogger(VersionUpdateHandler.class);
 
 	public static String COMMAND_ID = "org.opentravel.schemas.commands.VersionUpdate";
 
@@ -76,18 +79,22 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 	private void updateLibrary(LibraryProviderNode providerLibNode) {
 		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
 		LibraryNode libToUpdate = (LibraryNode) providerLibNode.getParent();
+		LibraryNode libProvidingTypes = (LibraryNode) providerLibNode.getOwner();
 
 		// Get the type and extension users to update
 		List<TypeUser> usersToUpdate = new ArrayList<TypeUser>();
 		List<ExtensionOwner> extensionsToUpdate = new ArrayList<ExtensionOwner>();
-
 		for (Node user : providerLibNode.getChildren())
-			if (user instanceof TypeUser) {
+			if (user instanceof TypeUserNode) {
 				if (!usersToUpdate.contains(((TypeUserNode) user).getOwner()))
 					usersToUpdate.add(((TypeUserNode) user).getOwner());
 			} else if (user instanceof ExtensionUserNode)
 				if (!extensionsToUpdate.contains(((ExtensionUserNode) user).getOwner()))
 					extensionsToUpdate.add(((ExtensionUserNode) user).getOwner());
+		if (usersToUpdate.isEmpty() && extensionsToUpdate.isEmpty()) {
+			DialogUserNotifier.openWarning("Version Update Warning", "Could not find objects to update.");
+			return;
+		}
 
 		// Ask the user if they want Draft versions?
 		String question = "Update to latest Draft version? Answer Yes to include draft or No for only Review or Final versions.";
@@ -102,27 +109,27 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 		// Get the latest version of parent library. It may not be open yet.
 		LibraryNode replacement = null;
 		try {
-			replacement = rc.getLatestVersion((LibraryNode) providerLibNode.getOwner(), includeDrafts);
+			replacement = rc.getLatestVersion(libProvidingTypes, includeDrafts);
 		} catch (RepositoryException e1) {
 			if (replacement == null)
 				try {
 					// retry
-					replacement = rc.getLatestVersion((LibraryNode) providerLibNode.getParent(), includeDrafts);
+					replacement = rc.getLatestVersion(libProvidingTypes, includeDrafts);
 				} catch (RepositoryException e) {
-					DialogUserNotifier.openWarning("Version Update Warning", e1.getLocalizedMessage());
+					DialogUserNotifier.openWarning("Version Update Warning", e.getLocalizedMessage());
 					return;
 				}
 		}
 
 		// Later version could not be found so just exit.
 		// If the replacement is the same as the owner then inform the user and return
-		if (replacement == null || replacement == providerLibNode.getOwner()) {
+		if (replacement == null || replacement == libProvidingTypes) {
 			DialogUserNotifier.openWarning("Version Update Warning", "Could not find a later version.");
 			return;
 		}
 
 		// Confirm user wants to do the update
-		question = "Do you want to update " + providerLibNode.getOwner().getNameWithPrefix() + " with "
+		question = "Do you want to update " + libProvidingTypes.getNameWithPrefix() + " with "
 				+ replacement.getNameWithPrefix() + "?";
 		if (DialogUserNotifier.openQuestion("Update to Latest Version", question)) {
 			// replace type users using the replacement map

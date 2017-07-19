@@ -1819,6 +1819,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 * Replace assignments to all users in the list with a type from this library with the same name.
 	 */
 	public void replaceAllUsers(List<TypeUser> users) {
+		LOGGER.debug("Replacing type users to use types from " + this + " library.");
 		// Create a map of all type providers in this library keyed by name
 		Map<String, TypeProvider> candidates = new HashMap<String, TypeProvider>();
 		for (TypeProvider p : this.getDescendants_TypeProviders())
@@ -1826,8 +1827,8 @@ public class LibraryNode extends Node implements LibraryInterface {
 
 		for (TypeUser user : users) {
 			user.setAssignedType(candidates.get(user.getAssignedType().getName()));
-			// String target = user.getAssignedType().getName();
-			// LOGGER.debug("assigned type " + target + " to " + user.getOwningComponent().getName());
+			LOGGER.debug("assigned type " + user.getAssignedType().getName() + " to "
+					+ user.getOwningComponent().getName());
 		}
 	}
 

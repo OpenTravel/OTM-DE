@@ -72,7 +72,7 @@ public class LibraryWhereUsedNode extends WhereUsedNode<LibraryNode> implements 
 			return Collections.emptyList();
 
 		for (Node l : owner.getWhereUsedHandler().getWhereUsed(true))
-			if (l instanceof LibraryNode)
+			if (l instanceof LibraryNode && !l.isDeleted())
 				users.add(new LibraryUserNode((LibraryNode) l, owner));
 		return new ArrayList<Node>(users);
 	}
