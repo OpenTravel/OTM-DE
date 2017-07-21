@@ -2125,7 +2125,8 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Add the <i>child</i> node parameter to <i>this</i> node. Sets parentNode link of child.
+	 * Add the <i>child</i> node parameter to <i>this</i> node. Sets parentNode link of child. Does <b>not</b> change TL
+	 * Model.
 	 * 
 	 * @param child
 	 *            - node to be added

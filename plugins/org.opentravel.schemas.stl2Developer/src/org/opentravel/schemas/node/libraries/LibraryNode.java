@@ -459,7 +459,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 
 		assert getTLLibrary().getContexts().size() == 1;
 
-		if (newNode instanceof ContextualFacetOwnerInterface)
+		if (newNode instanceof ContextualFacetOwnerInterface) {
 			// Import the contextual facets also
 			for (ContextualFacetNode cf : ((ContextualFacetOwnerInterface) newNode).getContextualFacets()) {
 				// remove from current library
@@ -467,6 +467,16 @@ public class LibraryNode extends Node implements LibraryInterface {
 				// add to this library
 				addMember(cf);
 			}
+			// If it is a contextual facet, set its where contributed.
+			ContextualFacetOwnerInterface owner = null;
+			if (newNode instanceof ContextualFacetNode && source instanceof ContextualFacetNode) {
+				ContributedFacetNode cf = ((ContextualFacetNode) source).getWhereContributed();
+				if (cf != null && cf.getOwningComponent() instanceof ContextualFacetOwnerInterface)
+					owner = (ContextualFacetOwnerInterface) cf.getOwningComponent();
+				if (owner != null)
+					((ContextualFacetNode) newNode).setOwner(owner);
+			}
+		}
 		addMember(newNode);
 
 		if (!(newNode instanceof EnumerationClosedNode))

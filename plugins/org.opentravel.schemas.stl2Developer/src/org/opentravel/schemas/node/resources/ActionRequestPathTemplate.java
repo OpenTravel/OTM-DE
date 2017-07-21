@@ -85,6 +85,8 @@ class ActionRequestPathTemplate {
 		String tmp = collection;
 		if (!pathParam.isEmpty())
 			tmp += pathParam;
+		if (tmp.contains("//"))
+			tmp = tmp.replaceAll("//", "/");
 		return tmp;
 	}
 
@@ -92,7 +94,7 @@ class ActionRequestPathTemplate {
 		String url = getMethod() + " " + getResourceBaseURL();
 		String parentPart = owner.getParent().getParentContribution();
 		String thisPart = get();
-		if (!parentPart.isEmpty())
+		if (parentPart != null && !parentPart.isEmpty())
 			url += parentPart;
 		if (!(url.endsWith("/") || thisPart.startsWith("/")))
 			url += "/";
@@ -102,6 +104,7 @@ class ActionRequestPathTemplate {
 		if (!query.isEmpty())
 			url += query;
 		url += getPayloadExample();
+		url = url.replaceAll("//", "/");
 		return url;
 	}
 

@@ -256,10 +256,10 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 
 	/**
 	 * @param name
-	 *            of the business object facet
+	 *            of the business object facet. SUBGRP or NONE will clear (save null).
 	 */
 	public void setReferenceFacetName(String name) {
-		if (name.equals(ResourceField.SUBGRP))
+		if (name.equals(ResourceField.SUBGRP) || name.equals(ResourceField.NONE))
 			tlObj.setReferenceFacetName(null);
 		else
 			tlObj.setReferenceFacetName(name);

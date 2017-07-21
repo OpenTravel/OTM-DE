@@ -280,10 +280,13 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		return false;
 	}
 
+	// TODO - should use Library manager
 	private Set<TLLibrary> getEditableUsersLibraraies(List<LibraryNode> libraries) {
 		final Set<TLLibrary> saveSet = new HashSet<TLLibrary>();
 		// final List<TLLibrary> toSave = new ArrayList<TLLibrary>();
 		for (final LibraryNode lib : libraries) {
+			if (lib == null)
+				continue;
 			final AbstractLibrary tlLib = lib.getTLaLib();
 			if (lib.isEditable() && tlLib instanceof TLLibrary) {
 				saveSet.add((TLLibrary) tlLib);

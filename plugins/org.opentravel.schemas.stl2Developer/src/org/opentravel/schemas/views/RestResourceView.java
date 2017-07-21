@@ -76,6 +76,7 @@ import org.opentravel.schemas.node.resources.ResourceField;
 import org.opentravel.schemas.node.resources.ResourceMenus;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Messages;
+import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.widgets.WidgetFactory;
 import org.opentravel.schemas.wizards.TypeSelectionWizard;
@@ -786,13 +787,10 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				post(pf.button, field.getValue(), field);
 				pf.button.setEnabled(enabled);
 				pf.button.addSelectionListener(new ObjectSelectionListener());
+				Button linkedButton = pf.button;
 				// Clear button
-				// pf = new PostedField();
-				// postedFields.add(pf);
-				// pf.label = toolkit.createLabel(objectPropertyGroup, "Remove Object", SWT.NONE);
-				// pf.label.setBackground(objectPropertyGroup.getBackground());
 				pf.clear = new Button(objectPropertyGroup, SWT.PUSH);
-				pf.clear.addSelectionListener(new ObjectClearListener());
+				pf.clear.addSelectionListener(new ObjectClearListener(linkedButton));
 				post(pf.clear, "-Remove-", field);
 				pf.clear.setEnabled(!field.getValue().equals("None")); // TODO - make this more robust
 				break;
@@ -934,6 +932,18 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 	}
 
 	class ObjectClearListener implements SelectionListener {
+		Button linkedButton; // Button to set the value into
+
+		/**
+		 * Clear the subject object field. Must pass the button used to display the subject for it to change when
+		 * cleared.
+		 * 
+		 * @param button
+		 */
+		public ObjectClearListener(Button button) {
+			this.linkedButton = button;
+		}
+
 		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
 		}
@@ -948,6 +958,8 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				return;
 			ResourceField field = (ResourceField) button.getData();
 			field.getListener().set(null);
+			linkedButton.setText(ResourceField.NONE);
+			field.setValue(ResourceField.NONE);
 			refresh();
 		}
 
@@ -971,13 +983,19 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 			// Run the object selection wizard.
 			ResourceField field = (ResourceField) button.getData();
 			final TypeSelectionWizard wizard = new TypeSelectionWizard((Node) field.getData());
+			Node subject = null;
 			if (wizard.run(OtmRegistry.getActiveShell())) {
-				Node subject = wizard.getSelection();
+				subject = wizard.getSelection();
 				if (field.getListener() != null)
 					if (field.getListener() instanceof ActionFacet.BasePayloadListener)
 						((ActionFacet.BasePayloadListener) field.getListener()).set(subject);
 					else if (field.getListener() instanceof ResourceNode.SubjectListener)
 						((ResourceNode.SubjectListener) field.getListener()).set(subject);
+			}
+			if (subject != null) {
+				field.setData(subject);
+				field.setValue(subject.getName());
+				button.setText(field.getValue());
 			}
 			refresh();
 		}
@@ -1000,9 +1018,17 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				return;
 			ResourceField field = (ResourceField) button.getData();
 			// LOGGER.debug("Button selected? " + button.getSelection());
-			if (field.getListener() != null)
-				field.getListener().set(Boolean.toString(button.getSelection()));
-			refresh();
+
+			if (field.getListener() != null) {
+				// Issue a warning dialog if this is setting a resource to abstract
+				if (button.getSelection() && field.getListener() instanceof ResourceNode.AbstractListener)
+					if (DialogUserNotifier.openConfirm(Messages.getString("rest.ResourceNode.dialog.abstract.title"),
+							Messages.getString("rest.ResourceNode.dialog.abstract.text")))
+						field.getListener().set(Boolean.toString(button.getSelection()));
+					else
+						button.setSelection(false);
+				refresh();
+			}
 		}
 	}
 

@@ -253,12 +253,14 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 				setParamGroup(candidates[0]);
 		}
 
-		LOGGER.debug("Set Parent resource to " + name + ": " + tlObj.getParentResourceName());
+		// LOGGER.debug("Set Parent resource to " + name + ": " + tlObj.getParentResourceName());
 	}
 
 	public void setPathTemplate(String path) {
+		if (path != null)
+			path = path.replaceAll("//", "/");
 		tlObj.setPathTemplate(path);
-		LOGGER.debug("Set Path template to " + path + ": " + tlObj.getPathTemplate());
+		// LOGGER.debug("Set Path template to " + path + ": " + tlObj.getPathTemplate());
 	}
 
 }

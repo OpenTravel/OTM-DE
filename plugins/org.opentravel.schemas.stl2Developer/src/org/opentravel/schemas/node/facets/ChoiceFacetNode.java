@@ -69,7 +69,8 @@ public class ChoiceFacetNode extends ContextualFacetNode {
 	public void setOwner(ContextualFacetOwnerInterface owner) {
 		TLContextualFacet tlFacet = getTLModelObject();
 		tlFacet.setOwningEntity(owner.getTLModelObject());
-		tlFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
+		// Do NOT set Owning library because it is owner of the facet not the facet owner.
+		// tlFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
 		if (owner.getTLModelObject() instanceof TLChoiceObject)
 			((TLChoiceObject) owner.getTLModelObject()).addChoiceFacet(tlFacet);
 

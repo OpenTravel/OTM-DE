@@ -86,6 +86,7 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 		parent.getChildren().remove(this); // must be done first to force the correct path template
 		if (tlObj.getOwner() != null)
 			tlObj.getOwner().removeParameter(tlObj);
+		getParent().notifyActionRequests(); // delegate updating actions to the param group
 		super.delete();
 	}
 
@@ -115,6 +116,11 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 	@Override
 	public String getName() {
 		return tlObj.getFieldRefName() != null ? tlObj.getFieldRefName() : "";
+	}
+
+	@Override
+	public ParamGroup getParent() {
+		return (ParamGroup) parent;
 	}
 
 	@Override

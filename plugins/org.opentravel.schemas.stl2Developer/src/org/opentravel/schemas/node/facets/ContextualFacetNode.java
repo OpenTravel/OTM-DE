@@ -220,7 +220,6 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	public String getLocalName() {
 		if (getTLModelObject() == null)
 			return "";
-		// // see also get LocalName - has parentage in name
 		return getTLModelObject().getLocalName() == null ? "" : getTLModelObject().getLocalName();
 	}
 
@@ -238,9 +237,10 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	@Override
 	public String getName() {
 		// // see also get LocalName - has parentage in name
-		if (getTLModelObject() == null)
-			return "";
-		return getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
+		return getLocalName();
+		// if (getTLModelObject() == null)
+		// return "";
+		// return getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
 	}
 
 	@Override
@@ -290,6 +290,11 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 			return getLibrary().isEditable() && isInHead2();
 		}
 		return super.isDeleteable(true) && !isInherited();
+	}
+
+	@Override
+	public boolean isEditable() {
+		return isInHead() || getChain() == null;
 	}
 
 	@Override
@@ -389,7 +394,12 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	 */
 	public abstract void setOwner(ContextualFacetOwnerInterface owner);
 
-	public void setWhereContributed(ContributedFacetNode contributedFacetNode) {
+	/**
+	 * Simple setter of whereContributed field.
+	 * 
+	 * @param contributedFacetNode
+	 */
+	protected void setWhereContributed(ContributedFacetNode contributedFacetNode) {
 		whereContributed = contributedFacetNode;
 	}
 

@@ -65,7 +65,7 @@ public class UpdateFacetNode extends ContextualFacetNode {
 	public void setOwner(ContextualFacetOwnerInterface owner) {
 		TLContextualFacet newFacet = getTLModelObject();
 		newFacet.setOwningEntity(owner.getTLModelObject());
-		newFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
+		// newFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
 		if (owner.getTLModelObject() instanceof TLBusinessObject)
 			((TLBusinessObject) owner.getTLModelObject()).addUpdateFacet(newFacet);
 

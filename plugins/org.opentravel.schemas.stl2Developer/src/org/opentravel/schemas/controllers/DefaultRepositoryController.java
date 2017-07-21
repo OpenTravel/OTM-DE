@@ -127,6 +127,7 @@ public class DefaultRepositoryController implements RepositoryController {
 			LOGGER.error(msg);
 			DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg);
 		}
+		LOGGER.debug("Updated repository node  " + node);
 		refreshView(node);
 	}
 

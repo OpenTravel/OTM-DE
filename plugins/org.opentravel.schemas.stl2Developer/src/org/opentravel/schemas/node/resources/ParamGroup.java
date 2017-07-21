@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.util.ResourceCodegenUtils;
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.TLExample;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLMemberField;
@@ -351,6 +352,22 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 			p.delete();
 	}
 
+	/**
+	 * Notify all listening ActionRequest dependents to update their template parameters.
+	 * <p>
+	 * Instead of keeping lots of listeners for each parameter and each action, delegate to the param group
+	 */
+	public void notifyActionRequests() {
+		Node subject;
+		for (ModelElementListener listener : tlObj.getListeners()) {
+			if (listener instanceof ResourceDependencyListener) {
+				subject = ((ResourceDependencyListener) listener).getNode();
+				if (subject instanceof ActionRequest)
+					((ActionRequest) subject).setPathTemplate();
+			}
+		}
+	}
+
 	public void upDateParameters() {
 		clearParameters();
 		for (Node n : getPossibleFields()) {
@@ -392,7 +409,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		upDateParameters();
 		if (tlObj.getName().isEmpty())
 			tlObj.setName(n.getName());
-		// LOGGER.debug("Set reference facet to: " + tlObj.getFacetRefName());
+		LOGGER.debug("Set reference facet to: " + tlObj.getFacetRefName());
 
 	}
 }

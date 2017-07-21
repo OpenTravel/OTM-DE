@@ -25,6 +25,8 @@ import org.opentravel.schemas.stl2developer.MainWindow;
 /**
  * Implements the "Copy" menu action.
  * 
+ * {@link ImportObjectToLibraryAction}
+ * 
  * @author Dave Hollander
  * 
  */

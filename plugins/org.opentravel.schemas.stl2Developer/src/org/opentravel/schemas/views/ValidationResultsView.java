@@ -423,6 +423,16 @@ public class ValidationResultsView extends OtmAbstractView {
 
 	}
 
+	private ValidationFindings validate(Node n) {
+		try {
+			return TLModelCompileValidator.validateModelElement(n.getTLModelObject());
+		} catch (Exception e) {
+			LOGGER.debug("Validation Exception on " + n + " " + e.getLocalizedMessage());
+		}
+		mc.postStatus("Validated " + n.getLabel());
+		return null;
+	}
+
 	public void validateNode(Node node) {
 		// LOGGER.debug("Validating node " + node);
 		if (node == null)
@@ -433,35 +443,32 @@ public class ValidationResultsView extends OtmAbstractView {
 			node = node.getChain();
 
 		if (node instanceof ModelNode)
-			findings = TLModelCompileValidator.validateModel(Node.getModelNode().getTLModel());
+			findings = validate(Node.getModelNode());
 		else if (node instanceof LibraryChainNode) {
 			for (LibraryNode ln : node.getLibraries()) {
 				if (findings == null)
-					findings = TLModelCompileValidator.validateModelElement(ln.getTLaLib());
+					findings = validate(ln);
 				else
-					findings.addAll(TLModelCompileValidator.validateModelElement(ln.getTLaLib()));
-				mc.postStatus("Validated " + ln.getLabel());
-				// LOGGER.debug("Validated " + ln.getLabel());
+					findings.addAll(validate(ln));
 			}
 		} else if (node instanceof ProjectNode) {
 			for (LibraryNode ln : node.getLibraries()) {
 				if (findings == null)
-					findings = TLModelCompileValidator.validateModelElement(ln.getTLaLib());
+					findings = validate(ln);
 				else
-					findings.addAll(TLModelCompileValidator.validateModelElement(ln.getTLaLib()));
-				mc.postStatus("Validated " + ln.getLabel());
+					findings.addAll(validate(ln));
 			}
 		} else if (node.isTLLibrary())
-			findings = TLModelCompileValidator.validateModelElement(((LibraryNode) node).getTLaLib());
+			findings = validate(node);
 		else if (node.isNavigation()) {
 			for (Node n : node.getDescendants_LibraryMembers()) {
 				if (findings == null)
-					findings = TLModelCompileValidator.validateModelElement(n.getTLModelObject());
+					findings = validate(n);
 				else
-					findings.addAll(TLModelCompileValidator.validateModelElement(n.getTLModelObject()));
+					findings.addAll(validate(n));
 			}
 		} else
-			findings = TLModelCompileValidator.validateModelElement(node.getTLModelObject());
+			findings = validate(node);
 
 		int findingsCount = 0;
 		if (findings != null)

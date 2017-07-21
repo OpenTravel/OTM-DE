@@ -319,7 +319,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	public void setPathTemplate() {
 		assert pathTemplate != null;
 		tlObj.setPathTemplate(pathTemplate.get());
-		LOGGER.debug("Set Path template to " + tlObj.getPathTemplate());
+		// LOGGER.debug("Set Path template to " + tlObj.getPathTemplate());
 	}
 
 	/**

@@ -179,9 +179,8 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 			// Try to get an editable library
 			LibraryNode effectiveLib = getEffectiveLibrary(selectedNode);
 			if (effectiveLib != null) {
-				// Use the preselected BO or run wizard.
-				if (predicate == null)
-					predicate = getBusinessObject();
+				// run wizard
+				predicate = getBusinessObject();
 				if (predicate == null)
 					return;
 				ResourceNode newR = new ResourceNode(effectiveLib, predicate); // create named empty resource

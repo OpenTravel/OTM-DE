@@ -447,7 +447,6 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		List<ResourceField> fields = new ArrayList<ResourceField>();
 
 		// Extensions - User can only extend Major version libraries.
-		String ex = getExtendsEntityName();
 		new ResourceField(fields, getExtendsEntityName(), MSGKEY + ".fields.extension", ResourceFieldType.Enum,
 				isEditable_newToChain(), new ExtensionListener(), getPeerNames());
 
@@ -466,11 +465,6 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		// First Class - yes/no button
 		new ResourceField(fields, Boolean.toString(tlObj.isFirstClass()), MSGKEY + ".fields.firstClass",
 				ResourceFieldType.CheckButton, !isAbstract(), new FirstClassListener());
-
-		// boolean w = getChain() != null && getLibrary() != getChain().getHead();
-		// boolean x = isEditable_isNewOrAsMinor();
-		// boolean y = isEditable_newToChain();
-		// boolean z = isEditable();
 
 		return fields;
 
@@ -709,9 +703,21 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return tlObj.isAbstract();
 	}
 
+	/**
+	 * When set to abstract = true then clear base path, remove subject, remove parameter groups,
+	 */
 	public void setAbstract(boolean flag) {
 		tlObj.setAbstract(flag);
+
+		setBasePath("");
+		setSubject(ResourceField.NONE);
+		for (Node n : getParameterGroups(false))
+			if (n instanceof ParamGroup)
+				n.delete();
 		// LOGGER.debug("Set abstract to: " + tlObj.isAbstract());
+		// Also, remove reference facets from action facets
+		for (ActionFacet af : getActionFacets())
+			af.setReferenceFacetName(ResourceField.NONE);
 	}
 
 	@Override
