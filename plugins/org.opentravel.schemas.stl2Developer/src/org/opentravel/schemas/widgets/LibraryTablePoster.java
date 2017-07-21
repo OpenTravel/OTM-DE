@@ -53,15 +53,16 @@ import org.opentravel.schemas.trees.library.LibrarySorter;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.whereused.TypeUserNode;
 import org.opentravel.schemas.types.whereused.WhereUsedNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * 
+ * Controls table posted in facet view.
  */
-// TODO: replace this with JfaceTable (content provider, sorter, and label
-// provider)
+// TODO: replace this with JfaceTable (content provider, sorter, and label provider)
 public class LibraryTablePoster {
 	@SuppressWarnings("unused")
-	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTablePoster.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTablePoster.class);
 	private final Table table;
 	private final ColorProvider colorProvider;
 
@@ -292,8 +293,13 @@ public class LibraryTablePoster {
 				decorateContributedItem(item);
 			else if (n.isInherited() || NodeUtils.checker(n).isInheritedFacet().get())
 				decorateInheritedItem(item);
-			else if (!n.isEditable() || !n.isInHead2())
+			else if (!n.isEditable() || !n.isInHead2()) {
 				decorateReadonlyItem(item);
+				if (n.getLibrary() != n.getParent().getLibrary())
+					LOGGER.debug(n + "library does not match parents. " + n.getParent().getLibrary());
+				n.isEditable();
+				n.isInHead2();
+			}
 
 			item.setText(0, n.getName());
 			item.setText(1, cn.getPropertyRole());

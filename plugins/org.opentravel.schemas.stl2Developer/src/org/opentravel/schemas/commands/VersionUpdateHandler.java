@@ -23,10 +23,12 @@ import org.eclipse.core.commands.ExecutionException;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.types.TypeUser;
+import org.opentravel.schemas.types.whereused.ContextualFacetUserNode;
 import org.opentravel.schemas.types.whereused.ExtensionUserNode;
 import org.opentravel.schemas.types.whereused.LibraryProviderNode;
 import org.opentravel.schemas.types.whereused.TypeUserNode;
@@ -84,14 +86,19 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 		// Get the type and extension users to update
 		List<TypeUser> usersToUpdate = new ArrayList<TypeUser>();
 		List<ExtensionOwner> extensionsToUpdate = new ArrayList<ExtensionOwner>();
-		for (Node user : providerLibNode.getChildren())
+		List<ContextualFacetNode> facetsToUpdate = new ArrayList<ContextualFacetNode>();
+		for (Node user : providerLibNode.getChildren(false))
 			if (user instanceof TypeUserNode) {
 				if (!usersToUpdate.contains(((TypeUserNode) user).getOwner()))
 					usersToUpdate.add(((TypeUserNode) user).getOwner());
-			} else if (user instanceof ExtensionUserNode)
+			} else if (user instanceof ExtensionUserNode) {
 				if (!extensionsToUpdate.contains(((ExtensionUserNode) user).getOwner()))
 					extensionsToUpdate.add(((ExtensionUserNode) user).getOwner());
-		if (usersToUpdate.isEmpty() && extensionsToUpdate.isEmpty()) {
+			} else if (user instanceof ContextualFacetUserNode) {
+				if (!facetsToUpdate.contains(((ContextualFacetUserNode) user).getOwner()))
+					facetsToUpdate.add(((ContextualFacetUserNode) user).getOwner());
+			}
+		if (usersToUpdate.isEmpty() && extensionsToUpdate.isEmpty() && facetsToUpdate.isEmpty()) {
 			DialogUserNotifier.openWarning("Version Update Warning", "Could not find objects to update.");
 			return;
 		}
@@ -135,13 +142,13 @@ public class VersionUpdateHandler extends OtmAbstractHandler {
 			// replace type users using the replacement map
 			replacement.replaceAllUsers(usersToUpdate);
 			replacement.replaceAllExtensions(extensionsToUpdate);
+			replacement.replaceAllContributors(facetsToUpdate);
 		}
 
 		// How to clear the TypeUserNode?
 		libToUpdate.getWhereUsedHandler().refreshUsedByNode();
 		mc.refresh(libToUpdate);
 	}
-
 	// private void updateLibraryOLD(LibraryProviderNode providerLibNode) {
 	// DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
 	// LibraryNode libToUpdate = (LibraryNode) providerLibNode.getParent();

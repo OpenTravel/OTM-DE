@@ -17,9 +17,12 @@ package org.opentravel.schemas.types.whereused;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -69,21 +72,53 @@ public class LibraryUserNode extends WhereUsedNode<LibraryNode> implements Where
 	}
 
 	/**
-	 * Get all of the components that use any any types from of the owning library or chain.
+	 * Get all of the components that use any any types from of the owning library or chain. TODO - see de-dup handling
 	 * 
 	 * @return new list of children
 	 */
+	// TEST - see de-dup handling
+	// TEST - add contextual facets as dependents
 	@Override
 	public List<Node> getChildren() {
-		List<Node> users = new ArrayList<Node>();
+		return getChildren(true);
+	}
+
+	/**
+	 * Get type users.
+	 * 
+	 * @param deDuped
+	 *            when true use owing object - type as unique key {@link LibraryProviderNode#getChildren(boolean)}
+	 * @return
+	 */
+	public List<Node> getChildren(boolean deDuped) {
 		if (owner == null)
 			return Collections.emptyList();
-		for (Node l : ((LibraryNode) parent).getWhereUsedHandler().getUsersOfTypesFromOwnerLibrary(owner, true))
-			if (l instanceof TypeUser)
-				users.add(new TypeUserNode((TypeUser) l));
-			else if (l instanceof ExtensionOwner)
-				users.add(new ExtensionUserNode((ExtensionOwner) l));
-		return users;
+
+		// Use hash map with Owner-Type names as key to limit the entries to 1 per owner per type provider
+		Map<String, WhereUsedNode<?>> providerMap = new HashMap<String, WhereUsedNode<?>>();
+		String key = "";
+		int i = 0;
+
+		for (Node l : ((LibraryNode) parent).getWhereUsedHandler().getUsersOfTypesFromOwnerLibrary(owner, true)) {
+			key = String.valueOf(++i);
+			if (deDuped)
+				key = l.getOwningComponent().getName();
+
+			if (l instanceof TypeUser) {
+				if (deDuped)
+					key += ((TypeUser) l).getAssignedType().getName();
+				providerMap.put(key, new TypeUserNode((TypeUser) l));
+			} else if (l instanceof ExtensionOwner) {
+				if (deDuped)
+					key += ((ExtensionOwner) l).getExtensionBase();
+				providerMap.put(key, new ExtensionUserNode((ExtensionOwner) l));
+			} else if (l instanceof ContextualFacetNode) {
+				if (deDuped)
+					key += ((ContextualFacetNode) l).getWhereContributed().getOwningComponent();
+				providerMap.put(key, new ContextualFacetUserNode((ContextualFacetNode) l));
+			}
+		}
+		return new ArrayList<Node>(providerMap.values());
 	}
 
 	@Override

@@ -475,6 +475,9 @@ public class LibraryNode extends Node implements LibraryInterface {
 					owner = (ContextualFacetOwnerInterface) cf.getOwningComponent();
 				if (owner != null)
 					((ContextualFacetNode) newNode).setOwner(owner);
+				// Also set the library for all children (bug patch)
+				for (Node child : newNode.getChildren())
+					child.setLibrary(newNode.getLibrary());
 			}
 		}
 		addMember(newNode);
@@ -1686,8 +1689,13 @@ public class LibraryNode extends Node implements LibraryInterface {
 		// Walk selected library type users and collect all used libraries
 		for (TypeUser user : getDescendants_TypeUsers()) {
 			TypeProvider provider = user.getAssignedType();
-			if (provider != null && provider.getLibrary() != null && !provider.getLibrary().isBuiltIn())
+			if (provider != null && provider.getLibrary() != null && !provider.getLibrary().isBuiltIn()) {
+				// if (!usedLibs.contains(provider.getLibrary().getHead())) {
+				// LOGGER.debug("Added " + provider + " in " + provider.getLibrary().getHead());
+				// LibraryNode lib = provider.getLibrary();
+				// }
 				usedLibs.add(provider.getLibrary().getHead());// returns lib if unmanaged
+			}
 		}
 		// Walk selected library extension owner and collect all used libraries
 		for (ExtensionOwner owner : getDescendants_ExtensionOwners()) {
@@ -1695,6 +1703,15 @@ public class LibraryNode extends Node implements LibraryInterface {
 			if (base != null && base.getLibrary() != null && !base.getLibrary().isBuiltIn())
 				usedLibs.add(base.getLibrary().getHead());// returns lib if unmanaged
 		}
+		// Walk selected library contextual facets and collect all used libraries
+		for (ContextualFacetNode cf : getDescendants_ContextualFacets()) {
+			if (cf == null || cf.getWhereContributed() == null || cf instanceof ContributedFacetNode)
+				continue;
+			Node provider = cf.getWhereContributed().getOwningComponent();
+			if (provider != null && provider.getLibrary() != null && !provider.getLibrary().isBuiltIn())
+				usedLibs.add(provider.getLibrary().getHead());// returns lib if unmanaged
+		}
+
 		// Don't match any library in this chain.
 		if (this.getChain() != null)
 			usedLibs.removeAll(this.getChain().getLibraries());
@@ -1814,7 +1831,13 @@ public class LibraryNode extends Node implements LibraryInterface {
 		return getLabel();
 	}
 
+	/**
+	 * Replace assignments to all extension owners in the list with a type from this library with the same name.
+	 */
 	public void replaceAllExtensions(List<ExtensionOwner> extensionsToUpdate) {
+		if (extensionsToUpdate == null || extensionsToUpdate.isEmpty())
+			return;
+
 		// Create a map of all type providers in this library keyed by name
 		Map<String, ExtensionOwner> candidates = new HashMap<String, ExtensionOwner>();
 		for (ExtensionOwner p : this.getDescendants_ExtensionOwners())
@@ -1829,6 +1852,9 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 * Replace assignments to all users in the list with a type from this library with the same name.
 	 */
 	public void replaceAllUsers(List<TypeUser> users) {
+		if (users == null || users.isEmpty())
+			return;
+
 		LOGGER.debug("Replacing type users to use types from " + this + " library.");
 		// Create a map of all type providers in this library keyed by name
 		Map<String, TypeProvider> candidates = new HashMap<String, TypeProvider>();
@@ -1839,6 +1865,25 @@ public class LibraryNode extends Node implements LibraryInterface {
 			user.setAssignedType(candidates.get(user.getAssignedType().getName()));
 			LOGGER.debug("assigned type " + user.getAssignedType().getName() + " to "
 					+ user.getOwningComponent().getName());
+		}
+	}
+
+	/**
+	 * Replace contextual facet contribution assignments to all contextual facets in the list with an owner from this
+	 * library with the same name.
+	 */
+	public void replaceAllContributors(List<ContextualFacetNode> cfs) {
+		if (cfs == null || cfs.isEmpty())
+			return;
+		LOGGER.debug("Replacing contextual facet to contribute to owners from " + this + " library.");
+		// Create a map of all type providers in this library keyed by name
+		Map<String, ContextualFacetOwnerInterface> candidates = new HashMap<String, ContextualFacetOwnerInterface>();
+		for (ContextualFacetOwnerInterface p : this.getDescendants_ContextualFacetOwners())
+			candidates.put(((Node) p).getName(), p);
+
+		for (ContextualFacetNode cf : cfs) {
+			cf.setOwner(candidates.get(cf.getWhereContributed().getOwningComponent().getName()));
+			LOGGER.debug("Set owner of " + cf + " to " + cf.getWhereContributed().getOwningComponent());
 		}
 	}
 

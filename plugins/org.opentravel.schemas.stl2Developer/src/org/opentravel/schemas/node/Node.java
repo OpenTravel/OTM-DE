@@ -73,6 +73,7 @@ import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -825,6 +826,14 @@ public abstract class Node implements INode {
 		return ret;
 	}
 
+	public List<ContextualFacetOwnerInterface> getDescendants_ContextualFacetOwners() {
+		final ArrayList<ContextualFacetOwnerInterface> ret = new ArrayList<ContextualFacetOwnerInterface>();
+		for (final Node n : getDescendants())
+			if (n instanceof ContextualFacetOwnerInterface)
+				ret.add((ContextualFacetOwnerInterface) n);
+		return ret;
+	}
+
 	public List<ContributedFacetNode> getDescendants_ContributedFacets() {
 		final ArrayList<ContributedFacetNode> ret = new ArrayList<ContributedFacetNode>();
 		for (final Node n : getChildren()) {
@@ -836,7 +845,6 @@ public abstract class Node implements INode {
 				ret.addAll(n.getDescendants_ContributedFacets());
 		}
 		return ret;
-
 	}
 
 	/**
@@ -936,6 +944,9 @@ public abstract class Node implements INode {
 
 			// Do not traverse UserNodes
 			if (n instanceof WhereUsedNodeInterface)
+				continue;
+			// Do not traverse contributed facets, the contributor will be found
+			if (OTM16Upgrade.otm16Enabled && n instanceof ContributedFacetNode)
 				continue;
 
 			// Some type users may also have children

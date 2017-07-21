@@ -27,6 +27,8 @@ import java.util.Set;
 
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
@@ -198,11 +200,13 @@ public class WhereUsedLibraryHandler {
 	 * @return unmodifiable list of type users and extension owners
 	 */
 	public Collection<Node> getUsersOfTypesFromOwnerLibrary(LibraryNode ownerLib, boolean deep) {
+		// user set is the collection to return
 		Set<Node> userSet = new HashSet<Node>();
 		if (ownerLib == null)
 			return Collections.unmodifiableCollection(userSet);
 
 		// TODO - should the deep function should be done by chainNode
+
 		// Get the libraries to examine. If deep, get all libraries in the chain.
 		List<LibraryNode> ownerLibs = new ArrayList<LibraryNode>();
 		if (deep && ownerLib.getChain() != null)
@@ -233,6 +237,16 @@ public class WhereUsedLibraryHandler {
 				if (extensionBase != null && theseOwners.contains(extensionBase.getLibrary())) {
 					userSet.add((Node) eo);
 				}
+			}
+			// Get contextual facets that contribute these owners
+			for (ContextualFacetNode cf : ol.getDescendants_ContextualFacets()) {
+				ContextualFacetOwnerInterface cfOwner = null;
+				if (cf == null || cf.getWhereContributed() == null)
+					continue;
+				if (cf.getWhereContributed().getOwningComponent() instanceof ContextualFacetOwnerInterface)
+					cfOwner = (ContextualFacetOwnerInterface) cf.getWhereContributed().getOwningComponent();
+				if (cfOwner != null && theseOwners.contains(cfOwner.getLibrary()))
+					userSet.add((Node) cf);
 			}
 		}
 		return Collections.unmodifiableCollection(userSet);

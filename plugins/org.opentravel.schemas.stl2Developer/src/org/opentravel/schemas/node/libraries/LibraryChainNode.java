@@ -208,7 +208,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 	 * Sets the library in all the aggregate nodes.
 	 */
 	private void setAggregateLibrary(LibraryNode ln) {
-		LOGGER.debug("Setting library in chain to " + ln.getNameWithPrefix());
+		// LOGGER.debug("Setting library in chain to " + ln.getNameWithPrefix());
 		// versions.setLibrary(ln);
 		complexRoot.setLibrary(ln);
 		simpleRoot.setLibrary(ln);

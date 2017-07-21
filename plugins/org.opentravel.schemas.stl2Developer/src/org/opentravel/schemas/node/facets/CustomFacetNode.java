@@ -59,7 +59,7 @@ public class CustomFacetNode extends ContextualFacetNode {
 	public void setOwner(ContextualFacetOwnerInterface owner) {
 		// Add to TL Object
 		TLContextualFacet tlFacet = getTLModelObject();
-		tlFacet.setOwningEntity(owner.getTLModelObject());
+		// tlFacet.setOwningEntity(owner.getTLModelObject());
 		// tlFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
 		// v1.5 and earlier throws ignored library member added event - NodeModelEventListener.
 		if (owner.getTLModelObject() instanceof TLBusinessObject)

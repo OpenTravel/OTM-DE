@@ -294,7 +294,12 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 
 	@Override
 	public boolean isEditable() {
-		return isInHead() || getChain() == null;
+		if (getChain() == null)
+			return getLibrary().isEditable();
+		if (isInHead())
+			return getLibrary().isEditable();
+		return false;
+		// return isInHead() || getChain() == null ;
 	}
 
 	@Override

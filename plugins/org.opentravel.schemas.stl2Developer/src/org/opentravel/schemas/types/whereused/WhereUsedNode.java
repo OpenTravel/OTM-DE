@@ -23,6 +23,7 @@ import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.controllers.NodeImageProvider;
 import org.opentravel.schemas.node.controllers.NodeLabelProvider;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -58,6 +59,10 @@ public abstract class WhereUsedNode<O> extends Node implements WhereUsedNodeInte
 
 	public WhereUsedNode(final TypeProvider provider) {
 		this.owner = (O) provider;
+	}
+
+	public WhereUsedNode(final ContextualFacetNode owner) {
+		this.owner = (O) owner;
 	}
 
 	public WhereUsedNode(final ExtensionOwner owner) {

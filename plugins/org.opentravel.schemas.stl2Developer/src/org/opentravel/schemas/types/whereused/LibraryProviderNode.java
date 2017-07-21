@@ -17,13 +17,18 @@ package org.opentravel.schemas.types.whereused;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.types.TypeUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Describes a library that is depended upon to provide types to the user library.
@@ -34,7 +39,7 @@ import org.opentravel.schemas.types.TypeUser;
  * 
  */
 public class LibraryProviderNode extends WhereUsedNode<LibraryNode> implements WhereUsedNodeInterface {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(LibraryDependedOnNode.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryProviderNode.class);
 
 	/**
 	 * Create a node to represent the provider library.
@@ -66,7 +71,7 @@ public class LibraryProviderNode extends WhereUsedNode<LibraryNode> implements W
 	}
 
 	/**
-	 * If this is the owner library, get all of the libraries containing type providers.
+	 * If this is the owner library, get whereUsedNodes for all type users, extension owners and contextual facets.
 	 * 
 	 * @return
 	 */
@@ -74,20 +79,45 @@ public class LibraryProviderNode extends WhereUsedNode<LibraryNode> implements W
 	public List<Node> getChildren() {
 		if (owner == null)
 			return Collections.emptyList();
+		return getChildren(true);
+	}
 
-		List<Node> providerLibs = new ArrayList<Node>();
-		// Get libraries assigning types to owner
-		// for (LibraryNode l : owner.getAssignedLibraries(false))
-		// providerLibs.add(new LibraryProviderNode(l, owner));
+	/**
+	 * If this is the owner library, get whereUsedNodes for all type users, extension owners and contextual facets.
+	 * 
+	 * @param deDuped
+	 *            if True, the owner name and assigned object name are used as keys to de-duplicate the list
+	 * 
+	 * @return
+	 */
+	public List<Node> getChildren(boolean deDuped) {
+
+		// Use hash map with Owner-Type names as key to limit the entries to 1 per owner per type provider
+		Map<String, WhereUsedNode<?>> providerMap = new HashMap<String, WhereUsedNode<?>>();
+		String key = "";
 
 		// Get the types in the owner lib that are used in the parent's chain
-		for (Node user : owner.getWhereUsedHandler().getUsersOfTypesFromOwnerLibrary((LibraryNode) parent, true))
-			if (user instanceof TypeUser)
-				providerLibs.add(new TypeUserNode((TypeUser) user));
-			else if (user instanceof ExtensionOwner)
-				providerLibs.add(new ExtensionUserNode((ExtensionOwner) user));
-
-		return providerLibs;
+		int i = 0;
+		for (Node user : owner.getWhereUsedHandler().getUsersOfTypesFromOwnerLibrary((LibraryNode) parent, true)) {
+			key = String.valueOf(++i);
+			if (deDuped)
+				key = user.getOwningComponent().getName();
+			if (user instanceof TypeUser) {
+				if (deDuped)
+					key += ((TypeUser) user).getAssignedType().getName();
+				providerMap.put(key, new TypeUserNode((TypeUser) user));
+			} else if (user instanceof ExtensionOwner) {
+				if (deDuped)
+					key += ((ExtensionOwner) user).getExtensionBase();
+				providerMap.put(key, new ExtensionUserNode((ExtensionOwner) user));
+			} else if (user instanceof ContextualFacetNode) {
+				if (deDuped)
+					key += ((ContextualFacetNode) user).getWhereContributed().getOwningComponent();
+				providerMap.put(key, new ContextualFacetUserNode((ContextualFacetNode) user));
+			}
+		}
+		ArrayList<Node> x = new ArrayList<Node>(providerMap.values());
+		return new ArrayList<Node>(providerMap.values());
 	}
 
 	@Override

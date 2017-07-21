@@ -32,7 +32,7 @@ import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 
 /**
- * TODO - move up/down business logic out. -- finish clean up of current and previous nodes
+ * Master view containing {@link FacetView} and {@link PropertiesView}
  * 
  * @author Dave Hollander
  * 
@@ -56,9 +56,7 @@ public class TypeView extends OtmAbstractView implements ISelectionListener {
 	@Override
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
-		// facetView = new FacetView();
 		facetView.init(site);
-		// propertiesView = new PropertiesView();
 		propertiesView.init(site);
 	}
 
@@ -136,39 +134,9 @@ public class TypeView extends OtmAbstractView implements ISelectionListener {
 		return listening;
 	}
 
-	// public void moveDown() {
-	// boolean ret = true;
-	//
-	// for (final Node n : getSelectedNodes()) {
-	// if (!n.moveProperty(PropertyNode.DOWN) || ret == false) {
-	// ret = false;
-	// }
-	// }
-	// if (ret) {
-	// facetView.setFocus(1);
-	// } else {
-	// DialogUserNotifier.openInformation("WARNING", Messages.getString("action.move.warning"));
-	// }
-	// }
-
 	public void setFacetViewFocus(int i) {
 		facetView.setFocus(i);
 	}
-
-	// public void moveUp() {
-	// boolean ret = true;
-	//
-	// for (final Node n : getSelectedNodes()) {
-	// if (!n.moveProperty(PropertyNode.UP) || ret == false) {
-	// ret = false;
-	// }
-	// }
-	// if (ret) {
-	// facetView.setFocus(-1);
-	// } else {
-	// DialogUserNotifier.openInformation("WARNING", Messages.getString("action.move.warning"));
-	// }
-	// }
 
 	@Override
 	public void refresh() {
