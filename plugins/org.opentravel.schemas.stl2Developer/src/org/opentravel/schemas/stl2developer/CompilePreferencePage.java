@@ -55,6 +55,7 @@ public class CompilePreferencePage extends PreferencePage implements IWorkbenchP
     private Button compileHtmlCheckbox;
     private Text serviceEndpointUrlText;
     private Text resourceBaseUrlText;
+    private Button suppressOtmExtensionsCheckbox;
     private Button generateExamplesCheckbox;
     private Button examplesMaxDetailsCheckbox;
     private Spinner exampleMaxRepeatSpinner;
@@ -128,6 +129,10 @@ public class CompilePreferencePage extends PreferencePage implements IWorkbenchP
         resourceBaseUrlText.setText((resourceBaseUrl == null) ? "" : resourceBaseUrl);
         gData.widthHint = 200;
 
+        new Label(composite, SWT.LEFT).setText("Suppress OTM Extensions:");
+        suppressOtmExtensionsCheckbox = new Button(composite, SWT.CHECK);
+        suppressOtmExtensionsCheckbox.setSelection(compilerPreferences.isSuppressOtmExtensions());
+
         new Label(composite, SWT.LEFT).setLayoutData(gData = new GridData(
                 GridData.HORIZONTAL_ALIGN_FILL));
         gData.horizontalSpan = 2;
@@ -191,6 +196,7 @@ public class CompilePreferencePage extends PreferencePage implements IWorkbenchP
         compilerPreferences.setCompileHtml(compileHtmlCheckbox.getSelection());
         compilerPreferences.setServiceEndpointUrl(serviceEndpointUrlText.getText());
         compilerPreferences.setResourceBaseUrl(resourceBaseUrlText.getText());
+        compilerPreferences.setSuppressOtmExtensions(suppressOtmExtensionsCheckbox.getSelection());
         compilerPreferences.setGenerateExamples(generateExamplesCheckbox.getSelection());
         compilerPreferences.setGenerateMaxDetailsForExamples(examplesMaxDetailsCheckbox.getSelection());
         compilerPreferences.setExampleMaxRepeat(exampleMaxRepeatSpinner.getSelection());

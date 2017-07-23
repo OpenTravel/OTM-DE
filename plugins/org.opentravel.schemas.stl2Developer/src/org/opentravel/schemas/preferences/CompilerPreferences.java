@@ -41,6 +41,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     private static final String PREF_COMPILE_HTML = PREFERENCE_PREFIX + "compileHtml";
     private static final String PREF_SERVICE_ENDPOINT_URL = PREFERENCE_PREFIX + "serviceEndpointUrl";
     private static final String PREF_RESOURCE_BASE_URL = PREFERENCE_PREFIX + "resourceBaseUrl";
+    private static final String PREF_SUPPRESS_OTM_EXTENSIONS = PREFERENCE_PREFIX + "suppressOtmExtensions";
     private static final String PREF_GENERATE_EXAMPLES = PREFERENCE_PREFIX + "generateExamples";
     private static final String PREF_EXAMPLE_MAX_DETAILS = PREFERENCE_PREFIX + "generateMaxDetailsForExamples";
     private static final String PREF_EXAMPLE_MAX_REPEAT = PREFERENCE_PREFIX + "exampleMaxRepeat";
@@ -54,6 +55,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     private boolean compileHtml = true;
     private String serviceEndpointUrl = null;
     private String resourceBaseUrl = null;
+    private boolean suppressOtmExtensions = false;
     private boolean generateExamples = true;
     private boolean generateMaxDetailsForExamples = true;
     private int exampleMaxRepeat = 3;
@@ -110,6 +112,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
         compileHtml = preferenceStore.getBoolean(PREF_COMPILE_HTML);
         serviceEndpointUrl = preferenceStore.getString(PREF_SERVICE_ENDPOINT_URL);
         resourceBaseUrl = preferenceStore.getString(PREF_RESOURCE_BASE_URL);
+        suppressOtmExtensions = preferenceStore.getBoolean(PREF_SUPPRESS_OTM_EXTENSIONS);
         generateExamples = preferenceStore.getBoolean(PREF_GENERATE_EXAMPLES);
         generateMaxDetailsForExamples = preferenceStore.getBoolean(PREF_EXAMPLE_MAX_DETAILS);
         exampleMaxRepeat = preferenceStore.getInt(PREF_EXAMPLE_MAX_REPEAT);
@@ -131,6 +134,7 @@ public class CompilerPreferences implements CompileAllTaskOptions {
         preferenceStore.setValue(PREF_COMPILE_HTML, compileHtml);
         preferenceStore.setValue(PREF_SERVICE_ENDPOINT_URL, (serviceEndpointUrl == null) ? "" : serviceEndpointUrl);
         preferenceStore.setValue(PREF_RESOURCE_BASE_URL, (resourceBaseUrl == null) ? "" : resourceBaseUrl);
+        preferenceStore.setValue(PREF_SUPPRESS_OTM_EXTENSIONS, suppressOtmExtensions);
         preferenceStore.setValue(PREF_GENERATE_EXAMPLES, generateExamples);
         preferenceStore.setValue(PREF_EXAMPLE_MAX_DETAILS, generateMaxDetailsForExamples);
         preferenceStore.setValue(PREF_EXAMPLE_MAX_REPEAT, exampleMaxRepeat);
@@ -303,6 +307,25 @@ public class CompilerPreferences implements CompileAllTaskOptions {
      */
     public void setResourceBaseUrl(final String resourceBaseUrl) {
         this.resourceBaseUrl = resourceBaseUrl;
+    }
+
+	/**
+	 * @see org.opentravel.schemacompiler.task.ResourceCompilerTaskOptions#isSuppressOtmExtensions()
+	 */
+	@Override
+	public boolean isSuppressOtmExtensions() {
+		return suppressOtmExtensions;
+	}
+
+    /**
+     * Assigns the option flag indicating that all 'x-otm-' extensions should be
+     * suppressed in the generated swagger document(s)
+     * 
+     * @param suppressOtmExtensions
+     *            the task option value to assign
+     */
+    public void setSuppressOtmExtensions(boolean suppressOtmExtensions) {
+        this.suppressOtmExtensions = suppressOtmExtensions;
     }
 
     /**
