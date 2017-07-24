@@ -1021,12 +1021,14 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 
 			if (field.getListener() != null) {
 				// Issue a warning dialog if this is setting a resource to abstract
-				if (button.getSelection() && field.getListener() instanceof ResourceNode.AbstractListener)
+				if (button.getSelection() && field.getListener() instanceof ResourceNode.AbstractListener) {
 					if (DialogUserNotifier.openConfirm(Messages.getString("rest.ResourceNode.dialog.abstract.title"),
 							Messages.getString("rest.ResourceNode.dialog.abstract.text")))
 						field.getListener().set(Boolean.toString(button.getSelection()));
 					else
 						button.setSelection(false);
+				} else
+					field.getListener().set(Boolean.toString(button.getSelection()));
 				refresh();
 			}
 		}
