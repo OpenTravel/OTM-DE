@@ -18,6 +18,7 @@ package org.opentravel.schemas.views;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.ISelection;
@@ -566,9 +567,14 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 
 	private void post(Combo combo, String[] strings, String value) {
 		int i = 0;
+		// assure each value is unique - if there are duplicates the combo just flashes
+		TreeSet<String> uniqueSet = new TreeSet<String>(); // sorts and de-dupes
+		for (String s : strings)
+			uniqueSet.add(s);
+
 		if (value == null || value.isEmpty())
 			value = ResourceField.NONE;
-		for (String s : strings) {
+		for (String s : uniqueSet) {
 			if (s == null || s.isEmpty())
 				s = ResourceField.NONE;
 			combo.add(s);
