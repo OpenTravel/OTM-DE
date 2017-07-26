@@ -76,6 +76,7 @@ import org.opentravel.schemas.stl2developer.FileDialogs;
 import org.opentravel.schemas.stl2developer.FindingsDialog;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.TypeResolver;
+import org.opentravel.schemas.views.ValidationResultsView;
 import org.opentravel.schemas.wizards.NewProjectWizard;
 import org.opentravel.schemas.wizards.validators.NewProjectValidator;
 import org.slf4j.Logger;
@@ -164,13 +165,13 @@ public class DefaultProjectController implements ProjectController {
 			}
 		} catch (RepositoryException e) {
 			// LOGGER.error("Could not add library file to project.");
-			DialogUserNotifier.openError("Project Error", "Could not add to project.");
+			DialogUserNotifier.openError("Add Project Error", "Could not add to project.");
 		} catch (LibraryLoaderException e) {
 			// LOGGER.error("Could not add library file to project.");
-			DialogUserNotifier.openError("Project Error", "Could not add to project.");
+			DialogUserNotifier.openError("Add Project Error", "Could not add to project.");
 		} catch (Throwable e) {
 			// LOGGER.error("Error when adding to project", e);
-			DialogUserNotifier.openError("Project Error", "Could not add to project.");
+			DialogUserNotifier.openError("Add Project Error", "Could not add to project.");
 		}
 		// LOGGER.debug("Added libraries to " + project.getName());
 		return newItems;
@@ -220,10 +221,10 @@ public class DefaultProjectController implements ProjectController {
 			}
 		} catch (RepositoryException e) {
 			// LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
-			DialogUserNotifier.openError("Project Error", e.getLocalizedMessage());
+			DialogUserNotifier.openError("Add Project Error", e.getLocalizedMessage());
 		} catch (IllegalArgumentException ex) {
 			// LOGGER.error("Could not add repository item to project. " + ex.getLocalizedMessage());
-			DialogUserNotifier.openError("Project Error", ex.getLocalizedMessage());
+			DialogUserNotifier.openError("Add Project Error", ex.getLocalizedMessage());
 		}
 		return lnn;
 	}
@@ -243,7 +244,7 @@ public class DefaultProjectController implements ProjectController {
 			pi = pn.getTLProject().getProjectManager().addUnmanagedProjectItem(tlLib, pn.getTLProject());
 		} catch (RepositoryException e) {
 			// LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
-			DialogUserNotifier.openError("Project Error", e.getLocalizedMessage());
+			DialogUserNotifier.openError("Add Project Error", e.getLocalizedMessage());
 		}
 		if (pi != null)
 			ln = new LibraryNode(pi, ln.getChain());
@@ -304,11 +305,11 @@ public class DefaultProjectController implements ProjectController {
 			}
 		} catch (LibraryLoaderException e) {
 			// LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
-			DialogUserNotifier.openError("Project Error", e.getLocalizedMessage());
+			DialogUserNotifier.openError("Add Project Error", e.getLocalizedMessage());
 
 		} catch (RepositoryException e) {
 			// LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
-			DialogUserNotifier.openError("Project Error", e.getLocalizedMessage());
+			DialogUserNotifier.openError("Add Project Error", e.getLocalizedMessage());
 		}
 
 		// piList now has all of the project items for this chain.
@@ -472,6 +473,7 @@ public class DefaultProjectController implements ProjectController {
 					monitor.worked(1);
 					OpenedProject op = open(fn, monitor);
 					monitor.worked(1);
+					monitor.subTask("Resolving types");
 					new TypeResolver().resolveTypes();
 
 					monitor.done();
@@ -536,7 +538,7 @@ public class DefaultProjectController implements ProjectController {
 			if (project.getProjectItems().isEmpty()) {
 				resultMsg = "Could not load project. Project could not read libraries.";
 				if (Display.getCurrent() != null)
-					DialogUserNotifier.openError("Project Error", resultMsg);
+					DialogUserNotifier.openError("Open Project Error", resultMsg);
 			} else
 				resultMsg = project.getProjectItems().size() + " project items read.";
 			// LOGGER.debug("Read " + project.getProjectItems().size() + " items from project: " + fileName);
@@ -585,12 +587,15 @@ public class DefaultProjectController implements ProjectController {
 			return op;
 		}
 		for (String fileName : projectFiles) {
-			if (monitor != null)
-				monitor.subTask("Opening " + fileName);
+			if (monitor != null) {
+				monitor.subTask("Opening file " + fileName);
+			}
 			op = openTLProject(fileName);
-			if (monitor != null)
+			if (monitor != null) {
 				monitor.worked(1);
-			op.project = loadProject(op.tlProject);
+				monitor.subTask("Creating model");
+			}
+			op.project = loadProject(op.tlProject); // null param safe
 
 			// If project is null and monitor is not null then an error occurred in background
 			if (monitor != null) {
@@ -691,34 +696,43 @@ public class DefaultProjectController implements ProjectController {
 	}
 
 	@Override
-	public void close(ProjectNode pn) {
+	public boolean close(ProjectNode pn) {
+		boolean result = true;
 		if (pn == null || pn.isBuiltIn()) {
-			return;
+			return result;
 		}
 		if (pn == getDefaultProject())
 			pn.closeAll();
 		else {
 			save(pn);
-			// FIXME - surround with try to catch java.util.ConcurrentModificationException
-			try {
-				pn.getTLProject().getProjectManager().closeProject(pn.getTLProject());
+			result = closeTL(pn.getTLProject().getProjectManager(), pn.getTLProject());
+			if (result)
 				pn.close();
+
+			if (Display.getCurrent() != null)
+				mc.refresh();
+		}
+		return result;
+		// LOGGER.debug("Closed project: " + pn);
+	}
+
+	// for some reason closing project is not reliable. Try multiple times
+	private boolean closeTL(ProjectManager pm, Project tlProject) {
+		int tryCount = 0;
+		int maxTries = 5;
+		while (tryCount < maxTries) {
+			try {
+				pm.closeProject(tlProject);
+				return true;
 			} catch (ConcurrentModificationException e) {
-				LOGGER.error("ConcurrentModification error closing project - trying again.");
-				// Try again
-				try {
-					pn.getTLProject().getProjectManager().closeProject(pn.getTLProject());
-					pn.close();
-				} catch (Exception ie) {
-					LOGGER.error("Error closing project: " + ie.getLocalizedMessage());
-				}
-			} catch (Exception e) {
-				LOGGER.error("Error closing project: " + e.getLocalizedMessage());
+				LOGGER.error("ConcurrentModification error closing project - trying again " + tryCount);
+				tryCount++;
+			} catch (Exception ie) {
+				LOGGER.error("Error on retry closing project: " + ie.getLocalizedMessage());
+				tryCount++;
 			}
 		}
-		if (Display.getCurrent() != null)
-			mc.refresh();
-		// LOGGER.debug("Closed project: " + pn);
+		return false;
 	}
 
 	@Override
@@ -740,6 +754,11 @@ public class DefaultProjectController implements ProjectController {
 		ArrayList<String> projectFiles = new ArrayList<>();
 		LOGGER.debug("Master Refresh Starting.");
 
+		// FIXME - clear validation view
+		final ValidationResultsView vView = OtmRegistry.getValidationResultsView();
+		if (vView != null)
+			vView.setFindings(null, Node.getModelNode());
+
 		// Close all project nodes
 		for (ProjectNode p : ModelNode.getAllProjects()) {
 			if (p == getBuiltInProject() || p == getDefaultProject())
@@ -747,7 +766,7 @@ public class DefaultProjectController implements ProjectController {
 			if (p.getTLProject().getProjectFile() != null)
 				projectFiles.add(p.getTLProject().getProjectFile().getAbsolutePath());
 			if (Display.getCurrent() == null)
-				close(p);
+				close(p); // Not in UI thread (debugging)
 		}
 
 		/**
@@ -760,7 +779,7 @@ public class DefaultProjectController implements ProjectController {
 			return;
 		}
 
-		final int jobcount = projectFiles.size() * 2;
+		final int jobcount = projectFiles.size() * 2 + 1;
 		final ArrayList<String> projects = new ArrayList<String>(projectFiles);
 		mc.postStatus("Opening Projects");
 		// run in a background job
@@ -774,7 +793,11 @@ public class DefaultProjectController implements ProjectController {
 				for (ProjectNode p : ModelNode.getAllProjects()) {
 					if (p == getBuiltInProject() || p == getDefaultProject())
 						continue;
-					close(p);
+					if (!close(p)) {
+						DialogUserNotifier.syncErrorWithUi("Error - could not close proejcts. Please restart.");
+						monitor.done();
+						return Status.CANCEL_STATUS;
+					}
 				}
 				// Refresh the navigator view in UI thread
 				DialogUserNotifier.syncWithUi("Projects closed.");
@@ -823,7 +846,7 @@ public class DefaultProjectController implements ProjectController {
 			// e.printStackTrace();
 			mc.showBusy(false);
 			// LOGGER.error("Could not save project");
-			DialogUserNotifier.openError("Project Error", "Could not save project. \n" + e.getLocalizedMessage());
+			DialogUserNotifier.openError("Save Project Error", "Could not save project. \n" + e.getLocalizedMessage());
 		}
 		mc.showBusy(false);
 	}

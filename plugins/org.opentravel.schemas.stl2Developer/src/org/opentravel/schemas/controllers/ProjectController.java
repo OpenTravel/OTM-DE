@@ -124,9 +124,11 @@ public interface ProjectController {
 	/**
 	 * Save and close the project. If it is the default project all children are closed without saving.
 	 * 
+	 * @return
+	 * 
 	 * @see {@link org.opentravel.schemas.commands.CloseProjectHandler#execute(ExecutionEvent)}
 	 */
-	void close(ProjectNode project);
+	boolean close(ProjectNode project);
 
 	/**
 	 * Saves, closes and removes all projects from the model
