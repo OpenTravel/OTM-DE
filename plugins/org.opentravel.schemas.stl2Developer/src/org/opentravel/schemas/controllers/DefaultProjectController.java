@@ -754,7 +754,7 @@ public class DefaultProjectController implements ProjectController {
 		ArrayList<String> projectFiles = new ArrayList<>();
 		LOGGER.debug("Master Refresh Starting.");
 
-		// FIXME - clear validation view
+		// Clear validation view
 		final ValidationResultsView vView = OtmRegistry.getValidationResultsView();
 		if (vView != null)
 			vView.setFindings(null, Node.getModelNode());

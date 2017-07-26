@@ -512,6 +512,21 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return Collections.emptyList();
 	}
 
+	/**
+	 * Children with any inherited actions removed
+	 * 
+	 * @return
+	 */
+	public List<Node> getTreeChildren() {
+		List<Node> treeChildren = new ArrayList<Node>();
+		// Remove any inherited Actions
+		for (Node child : getChildren())
+			if (child instanceof InheritedResourceMember)
+				if (!(((InheritedResourceMember) child).get() instanceof ActionNode))
+					treeChildren.add(child);
+		return treeChildren;
+	}
+
 	public List<ParamGroup> getParameterGroups(boolean idGroupsOnly) {
 		ArrayList<ParamGroup> pgroups = new ArrayList<ParamGroup>();
 		for (Node child : getChildren()) {

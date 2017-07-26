@@ -1058,11 +1058,12 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 			ResourceField field = (ResourceField) combo.getData();
 			if (field.getListener() == null)
 				return;
+			String txt = combo.getText();
 
-			int index = combo.getSelectionIndex();
-			String[] valueSet = (String[]) field.getData();
-			String value = valueSet[index];
-			field.getListener().set(value);
+			// int index = combo.getSelectionIndex();
+			// String[] valueSet = (String[]) field.getData();
+			// String value = valueSet[index];
+			field.getListener().set(txt);
 			refresh(); // display changes to other fields and tree
 		}
 	}

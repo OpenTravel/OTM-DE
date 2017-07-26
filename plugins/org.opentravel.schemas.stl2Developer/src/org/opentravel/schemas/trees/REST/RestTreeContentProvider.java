@@ -54,8 +54,9 @@ public class RestTreeContentProvider implements ITreeContentProvider {
 			node = (Node) element;
 		if (element instanceof VersionNode)
 			node = ((VersionNode) element).get();
+
 		if (node instanceof ResourceNode)
-			navChildren = ((Node) node).getChildren(); // no nav children for navigator menu
+			navChildren = ((ResourceNode) node).getTreeChildren(); // no nav children for navigator menu
 		else if (node instanceof ResourceMemberInterface)
 			navChildren = ((Node) node).getNavChildren(true);
 
