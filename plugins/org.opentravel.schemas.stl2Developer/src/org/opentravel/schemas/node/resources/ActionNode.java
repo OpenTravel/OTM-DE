@@ -124,7 +124,7 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 				if (!getChildren().contains(Node.GetNode(tlAR)))
 					inheritedResponses.add(new InheritedResourceMember(tlAR));
 		// inheritedResponses.add(new InheritedResourceMember((ActionResponse) Node.GetNode(tlAR)));
-		LOGGER.debug("Handle inherited responses.");
+		// LOGGER.debug("Handle inherited responses.");
 	}
 
 	public void addResponse(ActionResponse actionResponse) {

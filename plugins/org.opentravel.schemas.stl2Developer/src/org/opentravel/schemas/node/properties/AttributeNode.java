@@ -65,6 +65,8 @@ public class AttributeNode extends PropertyNode {
 	public AttributeNode(TLAttribute tlObj, PropertyOwnerInterface parent) {
 		super(tlObj, (INode) parent, PropertyNodeType.ATTRIBUTE);
 
+		// // fix context - assure example is in this context
+		// fixContext();
 		assert (modelObject instanceof AttributeMO);
 	}
 

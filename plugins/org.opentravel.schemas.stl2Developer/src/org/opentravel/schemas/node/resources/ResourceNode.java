@@ -520,10 +520,13 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	public List<Node> getTreeChildren() {
 		List<Node> treeChildren = new ArrayList<Node>();
 		// Remove any inherited Actions
-		for (Node child : getChildren())
+		for (Node child : getChildren()) {
 			if (child instanceof InheritedResourceMember)
-				if (!(((InheritedResourceMember) child).get() instanceof ActionNode))
-					treeChildren.add(child);
+				if (((InheritedResourceMember) child).get() instanceof ActionNode)
+					continue;
+			treeChildren.add(child);
+		}
+
 		return treeChildren;
 	}
 

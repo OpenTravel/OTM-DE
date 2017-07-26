@@ -199,6 +199,9 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 
 		if (getRequiredType() != null)
 			typeHandler.set(this.getRequiredType());
+
+		// fix context - assure example and equivalent are in this context
+		fixContext();
 	}
 
 	/**
@@ -367,6 +370,19 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	 */
 	public IValueWithContextHandler getExampleHandler() {
 		return exampleHandler;
+	}
+
+	/**
+	 * Set the context to the owning library's defaultContextId.
+	 */
+	public void fixContext() {
+		if (getLibrary() == null)
+			return;
+		String contextID = getLibrary().getDefaultContextId();
+		if (getExampleHandler() != null)
+			exampleHandler.set(exampleHandler.get(null), contextID);
+		if (getEquivalentHandler() != null)
+			equivalentHandler.set(equivalentHandler.get(null), contextID);
 	}
 
 	/**

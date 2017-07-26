@@ -263,10 +263,10 @@ public class NodeFactory {
 		if (type != null && type.getNamespace() != null && type.getNamespace().equals(ModelNode.XSD_NAMESPACE)
 				&& type.getLocalName().equals("ID"))
 			nn = new IdNode((TLModelElement) tlObj, parent);
-		else if (tlObj.isReference())
-			nn = new AttributeNode(tlObj, parent);
-		else
-			nn = new AttributeNode(tlObj, parent);
+		// else if (tlObj.isReference())
+		// nn = new AttributeNode(tlObj, parent);
+		// else
+		nn = new AttributeNode(tlObj, parent);
 		return nn;
 	}
 
