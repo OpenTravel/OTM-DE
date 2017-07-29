@@ -359,6 +359,9 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return versionNode != null;
 	}
 
+	/**
+	 * @return non-empty string
+	 */
 	@Override
 	public String getDecoration() {
 		String decoration = "";
@@ -386,7 +389,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		else
 			extensionTxt += "Version: " + getTlVersion();
 		decoration += surround(extensionTxt);
-		return decoration;
+		return decoration.isEmpty() ? " " : decoration;
 	}
 
 	@Override

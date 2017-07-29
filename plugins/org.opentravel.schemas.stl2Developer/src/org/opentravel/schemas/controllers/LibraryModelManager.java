@@ -58,7 +58,7 @@ public class LibraryModelManager {
 	public List<LibraryNode> getUserLibraries() {
 		List<LibraryNode> libList = new ArrayList<LibraryNode>();
 		for (LibraryInterface lib : libraries)
-			if (lib instanceof LibraryNode && ((LibraryNode) lib).getTLaLib() instanceof TLLibrary)
+			if (lib instanceof LibraryNode && ((LibraryNode) lib).getTLModelObject() instanceof TLLibrary)
 				libList.add(((LibraryNode) lib));
 			else if (lib instanceof LibraryChainNode)
 				libList.addAll(((LibraryChainNode) lib).getLibraries());
@@ -100,14 +100,18 @@ public class LibraryModelManager {
 			assert (!((Node) li).isDeleted());
 
 		// All Done - the library or chain is in the project.
-		if (li != null && project.getLibraries().contains(li)) {
-			// TODO - do NOT do this. TODO - have caller handle null or return error condition
-			// If they are trying to open an version, the expose the version directly.
-			// if (li.getParent() instanceof VersionAggregateNode)
-			// newLNN = (LibraryNavNode) new LibraryChainNode(pi, project).getParent();
-			// LOGGER.debug("Skipping adding " + li + " to libraryModelManager.");
+		if (project.contains(li)) {
+			LOGGER.debug("Did not add project item " + li + " because it was already in project.");
 			return null;
 		}
+		// if (li != null && project.getLibraries().contains(li)) {
+		// // - do NOT do this - have caller handle null or return error condition
+		// // If they are trying to open an version, the expose the version directly.
+		// // if (li.getParent() instanceof VersionAggregateNode)
+		// // newLNN = (LibraryNavNode) new LibraryChainNode(pi, project).getParent();
+		// // LOGGER.debug("Skipping adding " + li + " to libraryModelManager.");
+		// return null;
+		// }
 
 		if (li == null) {
 			// First time this library has been modeled.

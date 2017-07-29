@@ -45,6 +45,8 @@ public class TypeUserNode extends WhereUsedNode<TypeUser> implements WhereUsedNo
 
 	@Override
 	public boolean isEditable() {
+		if (owner == null || owner.getLibrary() == null)
+			return false;
 		if (owner.getLibrary().isFinal())
 			return false;
 		if (!owner.getLibrary().isEditable())

@@ -66,6 +66,11 @@ public class NavNode extends Node {
 	}
 
 	@Override
+	public String getDecoration() {
+		return "  (" + getChildren().size() + " Objects)";
+	}
+
+	@Override
 	public Image getImage() {
 		if (isResourceRoot())
 			return Images.getImageRegistry().get(Images.Resources);

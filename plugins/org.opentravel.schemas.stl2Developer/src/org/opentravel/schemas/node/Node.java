@@ -49,15 +49,14 @@ import org.opentravel.schemacompiler.model.TLExampleOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
-import org.opentravel.schemacompiler.validate.FindingType;
 import org.opentravel.schemacompiler.validate.Validatable;
 import org.opentravel.schemacompiler.validate.ValidationException;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
-import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.opentravel.schemacompiler.version.MinorVersionHelper;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
 import org.opentravel.schemacompiler.version.Versioned;
 import org.opentravel.schemas.controllers.LibraryModelManager;
+import org.opentravel.schemas.controllers.ValidationManager;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.modelObject.ModelObjectFactory;
 import org.opentravel.schemas.modelObject.TLEmpty;
@@ -706,6 +705,10 @@ public abstract class Node implements INode {
 		return getComponentNodeType() == null ? "" : getComponentNodeType().getDescription();
 	}
 
+	/**
+	 * 
+	 * @return non-empty string
+	 */
 	public String getDecoration() {
 		// if it is a named entity in a versioned library get version.
 		String decoration = " ";
@@ -766,7 +769,7 @@ public abstract class Node implements INode {
 			}
 			decoration += surround(extensionTxt);
 		}
-		return decoration;
+		return decoration.isEmpty() ? " " : decoration;
 	}
 
 	public String surround(String txt) {
@@ -2082,12 +2085,11 @@ public abstract class Node implements INode {
 	 * @return true if no errors.
 	 */
 	public boolean isValid() {
-		if (isBuiltIn())
-			return true; // skip built in libraries and their content
-		ValidationFindings findings = validate();
-		// if (findings.count(FindingType.ERROR) > 0)
-		// LOGGER.debug("Validation found errors.");
-		return findings != null && findings.count(FindingType.ERROR) == 0 ? true : false;
+		return ValidationManager.isValid(this);
+	}
+
+	public boolean isValid_NoWarnings() {
+		return ValidationManager.isValidNoWarnings(this);
 	}
 
 	/**
@@ -2502,15 +2504,7 @@ public abstract class Node implements INode {
 	 * Use the compiler to validate a node.
 	 */
 	public ValidationFindings validate() {
-		// Only do deep dependencies validation on libraries.
-		if (this.isDeleted())
-			return null;
-		ValidationFindings findings = TLModelCompileValidator.validateModelElement(this.getTLModelObject(),
-				this instanceof LibraryNode);
-		// for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
-		// LOGGER.debug("Finding: " + f);
-
-		return findings;
+		return ValidationManager.validate(this);
 	}
 
 	/**

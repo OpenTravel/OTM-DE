@@ -782,6 +782,7 @@ public class DefaultProjectController implements ProjectController {
 		final int jobcount = projectFiles.size() * 2 + 1;
 		final ArrayList<String> projects = new ArrayList<String>(projectFiles);
 		mc.postStatus("Opening Projects");
+
 		// run in a background job
 		Job job = new Job("Refreshing Projects") {
 			@Override
@@ -790,14 +791,18 @@ public class DefaultProjectController implements ProjectController {
 
 				// Close all projects
 				monitor.subTask("Closing Projects ");
+				ValidationManager.block(); // MUST RELEASE
+
 				for (ProjectNode p : ModelNode.getAllProjects()) {
 					if (p == getBuiltInProject() || p == getDefaultProject())
 						continue;
 					if (!close(p)) {
 						DialogUserNotifier.syncErrorWithUi("Error - could not close proejcts. Please restart.");
 						monitor.done();
+						ValidationManager.unblock(); // RELEASE
 						return Status.CANCEL_STATUS;
 					}
+					ValidationManager.unblock(); // RELEASE
 				}
 				// Refresh the navigator view in UI thread
 				DialogUserNotifier.syncWithUi("Projects closed.");

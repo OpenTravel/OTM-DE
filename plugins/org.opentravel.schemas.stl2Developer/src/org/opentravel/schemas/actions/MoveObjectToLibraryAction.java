@@ -95,6 +95,9 @@ public class MoveObjectToLibraryAction extends OtmAbstractAction {
 			DialogUserNotifier.openInformation("WARNING", "You can not move object to a built-in or XSD library.");
 			return;
 		}
+		// TODO - use this instead:
+		if (source.getChain().contains(destination))
+			LOGGER.debug("Source chain contains destination.");
 		if (source.getChain() != null && source.getChain() == destination.getChain()) {
 			DialogUserNotifier.openInformation("WARNING",
 					"You can not move object within the same library version chain.");
@@ -115,7 +118,7 @@ public class MoveObjectToLibraryAction extends OtmAbstractAction {
 			DialogUserNotifier.openError("Move Error", e.getLocalizedMessage());
 			return;
 		}
-		LOGGER.info("Moved node " + source.getName() + " to node " + destination.getName());
+		// LOGGER.info("Moved " + source + " to " + destination);
 	}
 
 }

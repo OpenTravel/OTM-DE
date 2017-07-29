@@ -453,6 +453,8 @@ public class ProjectNode extends Node implements INode {
 	 * @return true if this project contains the library or chain, false otherwise
 	 */
 	public boolean contains(LibraryInterface li) {
+		if (li == null)
+			return false;
 		for (Node n : getChildren())
 			if (n instanceof LibraryNavNode)
 				if (((LibraryNavNode) n).contains(li))

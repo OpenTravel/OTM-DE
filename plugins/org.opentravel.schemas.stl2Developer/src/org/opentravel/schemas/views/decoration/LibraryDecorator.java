@@ -83,65 +83,56 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 
 		if (node instanceof LibraryNode) {
 			decoration.addSuffix(getLibraryDecoration((LibraryNode) node));
-			if (!((LibraryNode) node).isValid())
-				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
-
+			addOverlay(node, decoration);
 		} else if (node instanceof LibraryChainNode) {
-			LibraryNode head = ((LibraryChainNode) node).getHead();
-			if (head != null) {
-				if (!((LibraryChainNode) node).isValid())
-					decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
-				decoration.addSuffix(getLibraryDecoration(head));
-			}
+			decoration.addSuffix(getLibraryDecoration(((LibraryChainNode) node).getHead()));
+			addOverlay(node, decoration);
 
-		} else if (node instanceof RepositoryInstanceNode) {
+		} else if (node instanceof RepositoryInstanceNode)
 			decoration.addSuffix(getRepositoryNameDecoration((RepositoryInstanceNode) node));
-
-		} else if (node instanceof RepositoryChainNode) {
-			RepositoryChainNode rn = (RepositoryChainNode) node;
-			decoration.addSuffix(getNamespaceDecoration(rn));
-
-		} else if (node instanceof RepositoryItemNode) {
-			RepositoryItemNode ri = (RepositoryItemNode) node;
-			decoration.addSuffix(getRepositoryItemDecoration(ri.getItem()));
-
-		} else if (node instanceof RepositoryRootNsNode) {
+		else if (node instanceof RepositoryChainNode)
+			decoration.addSuffix(getNamespaceDecoration((RepositoryChainNode) node));
+		else if (node instanceof RepositoryItemNode)
+			decoration.addSuffix(getRepositoryItemDecoration(((RepositoryItemNode) node).getItem()));
+		else if (node instanceof RepositoryRootNsNode) {
 			decoration.addSuffix(getNamespaceDecoration((RepositoryRootNsNode) node));
 
 		} else if (node instanceof ResourceNode) {
-			String txt = ((ResourceNode) node).getDecoration();
-			if (!txt.isEmpty())
-				decoration.addSuffix(txt);
-			if (!((ResourceMemberInterface) node).isValid())
-				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
+			decoration.addSuffix(((ResourceNode) node).getDecoration());
+			addOverlay(node, decoration);
 
 		} else if (node instanceof ResourceMemberInterface) {
-			String txt = node.getDecoration();
-			if (!txt.isEmpty())
-				decoration.addSuffix(txt);
-			if (!((ResourceMemberInterface) node).isValid())
-				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
-			else if (!((ResourceMemberInterface) node).isValid_NoWarnings())
-				decoration.addOverlay(warningDesc(), IDecoration.BOTTOM_LEFT);
+			decoration.addSuffix(node.getDecoration());
+			addOverlay(node, decoration);
+			// if (!node.isValid())
+			// decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
+			// else if (!node.isValid_NoWarnings())
+			// decoration.addOverlay(warningDesc(), IDecoration.BOTTOM_LEFT);
 
 		} else if (node instanceof WhereUsedNode) {
 			decoration.addSuffix(node.getDecoration());
 
 		} else if (node instanceof NavNode) {
-			decoration.addSuffix("  (" + (((NavNode) node).getChildren().size() + " Objects)"));
+			decoration.addSuffix(node.getDecoration());
 
 		} else if (node instanceof LibraryMemberInterface) {
-			String nodeTxt = ((Node) node).getDecoration();
-			if (!nodeTxt.isEmpty())
-				decoration.addSuffix(nodeTxt);
-			if (!((LibraryMemberInterface) node).isValid())
-				decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
+			decoration.addSuffix(node.getDecoration());
+			addOverlay(node, decoration);
 
 		} else if (node instanceof ContextualFacetNode) {
-			String nodeTxt = ((ContextualFacetNode) node).getDecoration();
-			if (!nodeTxt.isEmpty())
-				decoration.addSuffix(nodeTxt);
+			decoration.addSuffix(node.getDecoration());
+			addOverlay(node, decoration);
 		}
+	}
+
+	private void addOverlay(Node node, IDecoration decoration) {
+		// if (!node.isValid())
+		// decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
+		if (!node.isValid())
+			decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
+		else if (!node.isValid_NoWarnings())
+			decoration.addOverlay(warningDesc(), IDecoration.BOTTOM_LEFT);
+
 	}
 
 	private String getRepositoryNameDecoration(RepositoryInstanceNode element) {
@@ -235,6 +226,8 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 	}
 
 	private String getLibraryDecoration(LibraryNode lib) {
+		if (lib == null)
+			return " ";
 		return "  " + getDecoration(getLibraryVersion(lib), getLibraryStatus(lib));
 	}
 

@@ -186,7 +186,7 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 				decoration += " Not Editable";
 			decoration += ")";
 		}
-		return decoration;
+		return decoration.isEmpty() ? " " : decoration;
 	}
 
 	@Override

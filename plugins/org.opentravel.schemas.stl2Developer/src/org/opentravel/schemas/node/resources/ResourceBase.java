@@ -29,7 +29,7 @@ import org.opentravel.schemacompiler.model.TLReferenceType;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.FindingType;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
-import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
+import org.opentravel.schemas.controllers.ValidationManager;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.listeners.INodeListener;
@@ -195,13 +195,13 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 
 	@Override
 	public ValidationFindings getValidationFindings() {
-		return TLModelCompileValidator.validateModelElement((TLModelElement) tlObj);
+		return ValidationManager.validate(getTLModelObject(), false);
 	}
 
 	@Override
 	public Collection<String> getValidationMessages() {
-		ValidationFindings findings = TLModelCompileValidator.validateModelElement((TLModelElement) tlObj, false);
 		ArrayList<String> msgs = new ArrayList<String>();
+		ValidationFindings findings = ValidationManager.validate(getTLModelObject(), false);
 		for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
 			msgs.add(f);
 		for (String f : findings.getValidationMessages(FindingType.WARNING, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
@@ -233,14 +233,33 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 	@Override
 	public boolean isValid() {
 		// Set false when checking ONLY this object and its children
-		return !isDeleted() ? TLModelCompileValidator.validateModelElement((TLModelElement) tlObj, false).count(
-				FindingType.ERROR) == 0 : false;
+		return ValidationManager.isValid(this);
+		// ValidationFindings findings = ValidationManager.validate(getTLModelObject(), false);
+		// try {
+		// findings = TLModelCompileValidator.validateModelElement((TLModelElement) tlObj, false);
+		// } catch (Exception e) {
+		// // LOGGER.debug("Validation threw error: " + e.getLocalizedMessage());
+		// return false;
+		// }
+		// return !isDeleted() && findings != null ? findings.count(FindingType.ERROR) == 0 : false;
+
+		// return !isDeleted() ? TLModelCompileValidator.validateModelElement((TLModelElement) tlObj, false).count(
+		// FindingType.ERROR) == 0 : false;
 	}
 
 	@Override
 	public boolean isValid_NoWarnings() {
-		return !isDeleted() ? TLModelCompileValidator.validateModelElement((TLModelElement) tlObj, false).count(
-				FindingType.WARNING) == 0 : false;
+		return ValidationManager.isValidNoWarnings(this);
+		// ValidationFindings findings = ValidationManager.validate(getTLModelObject(), false);
+		// try {
+		// findings = TLModelCompileValidator.validateModelElement((TLModelElement) tlObj, false);
+		// } catch (Exception e) {
+		// // LOGGER.debug("Validation threw error: " + e.getLocalizedMessage());
+		// return false;
+		// }
+		// return !isDeleted() && findings != null ? findings.count(FindingType.WARNING) == 0 : false;
+		// return !isDeleted() ? TLModelCompileValidator.validateModelElement((TLModelElement) tlObj, false).count(
+		// FindingType.WARNING) == 0 : false;
 	}
 
 	/**

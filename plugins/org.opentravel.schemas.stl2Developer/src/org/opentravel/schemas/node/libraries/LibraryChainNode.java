@@ -22,8 +22,8 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
-import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
+import org.opentravel.schemas.controllers.ValidationManager;
 import org.opentravel.schemas.node.AggregateNode;
 import org.opentravel.schemas.node.AggregateNode.AggregateType;
 import org.opentravel.schemas.node.ComponentNode;
@@ -532,15 +532,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 
 	@Override
 	public ValidationFindings validate() {
-		ValidationFindings findings = new ValidationFindings();
-
-		try {
-			for (LibraryNode ln : getLibraries())
-				findings.addAll(TLModelCompileValidator.validateModelElement(ln.getTLModelObject(), true));
-		} catch (Exception e) {
-			LOGGER.debug("Validation execption: " + e.getLocalizedMessage());
-		}
-		return findings;
+		return ValidationManager.validate(this);
 	}
 
 	/**
