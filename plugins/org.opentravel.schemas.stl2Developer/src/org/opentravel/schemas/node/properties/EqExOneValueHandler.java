@@ -204,6 +204,7 @@ public class EqExOneValueHandler implements IValueWithContextHandler, ModelEleme
 	// }
 
 	/**
+	 * Fix all the examples or equivalents on this property. Assures there is only one and it has the correct context.
 	 * Set the context to the passed context IF and ONLY IF that context is in the TL Library AND context controller.
 	 * Uses default context otherwise.
 	 */

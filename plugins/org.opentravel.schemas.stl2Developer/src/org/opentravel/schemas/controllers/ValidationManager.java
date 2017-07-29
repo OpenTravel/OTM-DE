@@ -26,6 +26,7 @@ import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,7 @@ public class ValidationManager {
 			LOGGER.error("Exception obtaining semaphore: ", e.getLocalizedMessage());
 			e.printStackTrace();
 		}
-		LOGGER.debug("Validation blocked.");
+		// LOGGER.debug("Validation blocked.");
 	}
 
 	/**
@@ -64,7 +65,19 @@ public class ValidationManager {
 	 */
 	public static void unblock() {
 		semaphore.release();
-		LOGGER.debug("Validation unblocked.");
+		// LOGGER.debug("Validation unblocked.");
+	}
+
+	/**
+	 * Examine findings and return if errors/warnings were found. Allows error and warning tests on same set of
+	 * findings.
+	 * 
+	 * @param findings
+	 * @param type
+	 * @return
+	 */
+	public static boolean isValid(ValidationFindings findings, FindingType type) {
+		return findings != null && findings.count(type) == 0 ? true : false;
 	}
 
 	/**
@@ -107,12 +120,15 @@ public class ValidationManager {
 	 */
 	public static ValidationFindings validate(Node node) {
 		ValidationFindings findings = null;
-		if (node == null || node.getLibrary() == null || node.isDeleted())
+		if (node == null || node.getLibrary() == null || node.isDeleted() || node instanceof ImpliedNode)
 			return findings;
+		if (node instanceof LibraryNavNode)
+			node = ((LibraryNavNode) node).getLibrary();
 		if (node instanceof LibraryChainNode)
 			node = ((LibraryChainNode) node).getHead();
+		// findings = validate(node.getTLModelObject(), true);
 		findings = validate(node.getTLModelObject(), node instanceof LibraryNode);
-		LOGGER.debug("Validate ran on " + node + " " + node.getClass().getSimpleName() + " " + findings.count());
+		// LOGGER.debug("Validate ran on " + node + " " + node.getClass().getSimpleName() + " " + findings.count());
 		return findings;
 	}
 

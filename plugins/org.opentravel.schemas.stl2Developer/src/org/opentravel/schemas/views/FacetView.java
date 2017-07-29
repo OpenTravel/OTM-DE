@@ -420,6 +420,7 @@ public class FacetView extends OtmAbstractView {
 			// LOGGER.warn("Posted deleted node: " + target);
 			return;
 		}
+
 		// LOGGER.debug("Posting facet table for node: " + target);
 		OtmHandlers.suspendHandlers();
 		Node node = target;
@@ -445,6 +446,7 @@ public class FacetView extends OtmAbstractView {
 			OtmHandlers.enableHandlers();
 			select(target); // select the row that was passed in.
 		}
+
 		// LOGGER.debug("Tree Selection is: "+OtmRegistry.getModelNavigatorView().getSelectedNodes());
 	}
 

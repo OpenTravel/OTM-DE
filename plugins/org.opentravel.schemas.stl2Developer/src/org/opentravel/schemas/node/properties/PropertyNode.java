@@ -380,9 +380,13 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 			return;
 		String contextID = getLibrary().getDefaultContextId();
 		if (getExampleHandler() != null)
-			exampleHandler.set(exampleHandler.get(null), contextID);
+			exampleHandler.fix(null);
 		if (getEquivalentHandler() != null)
-			equivalentHandler.set(equivalentHandler.get(null), contextID);
+			equivalentHandler.fix(null);
+		// if (getExampleHandler() != null)
+		// exampleHandler.set(exampleHandler.get(null), contextID);
+		// if (getEquivalentHandler() != null)
+		// equivalentHandler.set(equivalentHandler.get(null), contextID);
 	}
 
 	/**

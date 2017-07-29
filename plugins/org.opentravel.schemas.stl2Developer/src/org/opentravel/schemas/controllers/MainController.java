@@ -59,6 +59,7 @@ import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.views.NavigatorView;
 import org.opentravel.schemas.views.OtmView;
+import org.opentravel.schemas.views.ValidationResultsView;
 import org.opentravel.schemas.widgets.ErrorWithExceptionDialog;
 import org.opentravel.schemas.widgets.OtmHandlers;
 import org.opentravel.schemas.widgets.OtmSections;
@@ -262,6 +263,10 @@ public class MainController {
 	 */
 	public OtmView getDefaultView() {
 		return defaultView;
+	}
+
+	public ValidationResultsView getView_Validation() {
+		return OtmRegistry.getValidationResultsView();
 	}
 
 	/** ************************ Current Item Access ***************************** **/

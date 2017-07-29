@@ -33,6 +33,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.opentravel.schemas.controllers.OtmActions;
+import org.opentravel.schemas.controllers.ValidationManager;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
@@ -378,13 +379,22 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 					mc.postStatus(((Node) o).getEditStatusMsg());
 			}
 		}
+
+		// It this node has warnings or errors, post the findings
+		if (!ValidationManager.isValidNoWarnings(curNode)) {
+			ValidationResultsView view = mc.getView_Validation();
+			if (view != null)
+				view.setFindings(ValidationManager.validate(curNode), curNode);
+		}
+
 	}
 
 	@Override
 	public void setCurrentNode(final INode n) {
 		prevNode = curNode;
 		curNode = (Node) n;
-		// LOGGER.debug("Navigator view cur node set to: " + curNode + " and prev = " + prevNode);
+		LOGGER.debug("Navigator view cur node set to: " + curNode + " and prev = " + prevNode);
+
 	}
 
 	/**

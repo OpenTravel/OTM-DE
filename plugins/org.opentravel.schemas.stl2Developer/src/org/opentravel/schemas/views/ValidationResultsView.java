@@ -50,9 +50,9 @@ import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.Validatable;
 import org.opentravel.schemacompiler.validate.ValidationFinding;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
-import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.opentravel.schemacompiler.validate.impl.TLValidationBuilder;
 import org.opentravel.schemas.controllers.OtmActions;
+import org.opentravel.schemas.controllers.ValidationManager;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
@@ -179,6 +179,12 @@ public class ValidationResultsView extends OtmAbstractView {
 		return findings;
 	}
 
+	/**
+	 * Set the view global findings then post them.
+	 * 
+	 * @param findings
+	 * @param node
+	 */
 	// TODO - make this a controller method not view.
 	public void setFindings(final ValidationFindings findings, final INode node) {
 		this.findings = findings;
@@ -424,13 +430,14 @@ public class ValidationResultsView extends OtmAbstractView {
 	}
 
 	private ValidationFindings validate(Node n) {
-		try {
-			return TLModelCompileValidator.validateModelElement(n.getTLModelObject());
-		} catch (Exception e) {
-			LOGGER.debug("Validation Exception on " + n + " " + e.getLocalizedMessage());
-		}
+		findings = ValidationManager.validate(n);
+		// try {
+		// return TLModelCompileValidator.validateModelElement(n.getTLModelObject());
+		// } catch (Exception e) {
+		// LOGGER.debug("Validation Exception on " + n + " " + e.getLocalizedMessage());
+		// }
 		mc.postStatus("Validated " + n.getLabel());
-		return null;
+		return findings;
 	}
 
 	public void validateNode(Node node) {

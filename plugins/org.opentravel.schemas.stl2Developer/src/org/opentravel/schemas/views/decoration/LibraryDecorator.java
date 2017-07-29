@@ -24,7 +24,10 @@ import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
+import org.opentravel.schemacompiler.validate.FindingType;
+import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.controllers.MainController.IRefreshListener;
+import org.opentravel.schemas.controllers.ValidationManager;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
@@ -57,14 +60,6 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 			return true;
 		}
 		return false;
-	}
-
-	public static ImageDescriptor errorDesc() {
-		return Images.getImageRegistry().getDescriptor(Images.ErrorDecoration);
-	}
-
-	public static ImageDescriptor warningDesc() {
-		return Images.getImageRegistry().getDescriptor(Images.WarningDecoration);
 	}
 
 	@Override
@@ -125,14 +120,16 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 		}
 	}
 
-	private void addOverlay(Node node, IDecoration decoration) {
-		// if (!node.isValid())
-		// decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
-		if (!node.isValid())
-			decoration.addOverlay(errorDesc(), IDecoration.BOTTOM_LEFT);
-		else if (!node.isValid_NoWarnings())
-			decoration.addOverlay(warningDesc(), IDecoration.BOTTOM_LEFT);
+	private static ImageDescriptor errorDesc = Images.getImageRegistry().getDescriptor(Images.ErrorDecoration);
+	private static ImageDescriptor warningDesc = Images.getImageRegistry().getDescriptor(Images.WarningDecoration);
 
+	private void addOverlay(Node node, IDecoration decoration) {
+		ValidationFindings findings = ValidationManager.validate(node);
+		if (findings != null)
+			if (!ValidationManager.isValid(findings, FindingType.ERROR))
+				decoration.addOverlay(errorDesc, IDecoration.BOTTOM_LEFT);
+			else if (!ValidationManager.isValid(findings, FindingType.WARNING))
+				decoration.addOverlay(warningDesc, IDecoration.BOTTOM_LEFT);
 	}
 
 	private String getRepositoryNameDecoration(RepositoryInstanceNode element) {
