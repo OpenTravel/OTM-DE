@@ -64,6 +64,7 @@ import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
+import org.opentravel.schemas.node.properties.AttributeReferenceNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
@@ -263,10 +264,10 @@ public class NodeFactory {
 		if (type != null && type.getNamespace() != null && type.getNamespace().equals(ModelNode.XSD_NAMESPACE)
 				&& type.getLocalName().equals("ID"))
 			nn = new IdNode((TLModelElement) tlObj, parent);
-		// else if (tlObj.isReference())
-		// nn = new AttributeNode(tlObj, parent);
-		// else
-		nn = new AttributeNode(tlObj, parent);
+		else if (tlObj.isReference())
+			nn = new AttributeReferenceNode(tlObj, parent);
+		else
+			nn = new AttributeNode(tlObj, parent);
 		return nn;
 	}
 

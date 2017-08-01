@@ -17,7 +17,6 @@ package org.opentravel.schemas.node.properties;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLAttribute;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.modelObject.AttributeMO;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
@@ -71,13 +70,13 @@ public class AttributeReferenceNode extends PropertyNode {
 		assert (modelObject instanceof AttributeMO);
 	}
 
-	/*
-	 * used for sub-types
-	 */
-	public AttributeReferenceNode(TLModelElement tlObj, PropertyOwnerInterface parent, PropertyNodeType type) {
-		super(tlObj, (INode) parent, type);
-		getTLModelObject().setReference(true);
-	}
+	// /*
+	// * used for sub-types
+	// */
+	// public AttributeReferenceNode(TLModelElement tlObj, PropertyOwnerInterface parent, PropertyNodeType type) {
+	// super(tlObj, (INode) parent, type);
+	// getTLModelObject().setReference(true);
+	// }
 
 	@Override
 	public boolean canAssign(Node type) {
