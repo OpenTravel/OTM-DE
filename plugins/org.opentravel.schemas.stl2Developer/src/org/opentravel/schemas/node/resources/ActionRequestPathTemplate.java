@@ -32,6 +32,7 @@ class ActionRequestPathTemplate {
 	private String query = "";
 	private String pathParam = "";
 	private ActionRequest owner;
+	private final static String SYSTEM = "http://example.com";
 
 	public ActionRequestPathTemplate(ActionRequest request) {
 		owner = request;
@@ -91,7 +92,7 @@ class ActionRequestPathTemplate {
 	}
 
 	public String getURL() {
-		String url = getMethod() + " " + getResourceBaseURL();
+		String url = "";
 		String parentPart = owner.getParent().getParentContribution();
 		String thisPart = get();
 		if (parentPart != null && !parentPart.isEmpty())
@@ -105,13 +106,20 @@ class ActionRequestPathTemplate {
 			url += query;
 		url += getPayloadExample();
 		url = url.replaceAll("//", "/");
+		// allow // before system name
+		url = getMethod() + " " + getResourceBaseURL() + url;
 		return url;
 	}
 
 	private String getResourceBaseURL() {
+		String resourceBaseURL;
 		final CompilerPreferences compilePreferences = new CompilerPreferences(
 				CompilerPreferences.loadPreferenceStore());
-		return compilePreferences.getResourceBaseUrl();
+		resourceBaseURL = compilePreferences.getResourceBaseUrl();
+		// In junits the resource base URL will be empty
+		if (resourceBaseURL.isEmpty())
+			resourceBaseURL = SYSTEM;
+		return resourceBaseURL;
 	}
 
 	private String getMethod() {

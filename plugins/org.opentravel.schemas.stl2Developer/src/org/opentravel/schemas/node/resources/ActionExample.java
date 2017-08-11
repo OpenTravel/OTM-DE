@@ -15,9 +15,6 @@
  */
 package org.opentravel.schemas.node.resources;
 
-import org.opentravel.schemas.preferences.CompilerPreferences;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Manages access to data for the Action Example URLs.
@@ -27,54 +24,68 @@ import org.slf4j.LoggerFactory;
  * @author Dave
  *
  */
+//
+// Aug 11, 2017 - removed all usage of this class. Examples are now from requestNode.
+//
+@Deprecated
 public class ActionExample {
-	@SuppressWarnings("unused")
-	private static final Logger LOGGER = LoggerFactory.getLogger(ActionExample.class);
+	// @SuppressWarnings("unused")
+	// private static final Logger LOGGER = LoggerFactory.getLogger(ActionExample.class);
+	//
+	// // private final static String SYSTEM = "http://example.com";
+	// private ActionNode action;
+	// // private String resourceBaseURL;
+	//
+	// public ActionExample(ActionNode action) {
+	// this.action = action;
+	// // if (getResourceBaseURL().isEmpty())
+	// // resourceBaseURL = SYSTEM;
+	// // else
+	// // resourceBaseURL = getResourceBaseURL();
+	// }
 
-	private final static String SYSTEM = "http://example.com";
-	private ActionNode action;
-	private String resourceBaseURL;
+	// /**
+	// * Use action.getRequest().getURL();
+	// * @return
+	// */
+	// @Deprecated
+	// public String getURL() {
+	// // if (getMethod().isEmpty())
+	// // return "";
+	// if (action == null || action.getRequest() == null)
+	// return "";
+	// return action.getRequest().getURL();
+	// }
 
-	public ActionExample(ActionNode action) {
-		this.action = action;
-		if (getResourceBaseURL().isEmpty())
-			resourceBaseURL = SYSTEM;
-		else
-			resourceBaseURL = getResourceBaseURL();
-	}
+	// private String getResourceBaseURL() {
+	// final CompilerPreferences compilePreferences = new CompilerPreferences(
+	// CompilerPreferences.loadPreferenceStore());
+	// return compilePreferences.getResourceBaseUrl();
+	// }
 
-	public String getURL() {
-		if (getMethod().isEmpty())
-			return "";
-		if (action == null || action.getRequest() == null)
-			return "";
-		return action.getRequest().getURL();
-	}
-
-	private String getResourceBaseURL() {
-		final CompilerPreferences compilePreferences = new CompilerPreferences(
-				CompilerPreferences.loadPreferenceStore());
-		return compilePreferences.getResourceBaseUrl();
-	}
-
-	private String getMethod() {
-		if (action.tlObj.getRequest() == null)
-			return "";
-		return action.tlObj.getRequest().getHttpMethod() != null ? action.tlObj.getRequest().getHttpMethod().toString()
-				: "";
-	}
+	// private String getMethod() {
+	// if (action.tlObj.getRequest() == null)
+	// return "";
+	// return action.tlObj.getRequest().getHttpMethod() != null ? action.tlObj.getRequest().getHttpMethod().toString()
+	// : "";
+	// }
 
 	// private String getQueryTemplate() {
 	// return action.getQueryTemplate();
 	// }
 
-	public String getLabel() {
-		return action.tlObj.getActionId();
-	}
-
-	@Override
-	public String toString() {
-		return getLabel() + ": " + getURL();
-	}
+	// /**
+	// * Use action.tlObj.getActionId();
+	// * @return
+	// */
+	// @Deprecated
+	// public String getLabel() {
+	// return action.tlObj.getActionId();
+	// }
+	//
+	// @Override
+	// public String toString() {
+	// return getLabel() + ": " + getURL();
+	// }
 
 }

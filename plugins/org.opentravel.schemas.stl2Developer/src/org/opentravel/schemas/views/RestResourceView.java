@@ -70,7 +70,6 @@ import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.node.resources.ActionExample;
 import org.opentravel.schemas.node.resources.ActionFacet;
 import org.opentravel.schemas.node.resources.ActionNode;
 import org.opentravel.schemas.node.resources.ResourceField;
@@ -584,13 +583,13 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		}
 	}
 
-	private void post(Group grp, ActionExample example) {
+	private void post(Group grp, ActionNode action) {
 		Color bgColor = grp.getBackground();
-		Label label = toolkit.createLabel(grp, example.getLabel(), SWT.TRAIL);
+		Label label = toolkit.createLabel(grp, action.getTLModelObject().getActionId(), SWT.TRAIL);
 		label.setBackground(bgColor);
 
 		// labels will not display & ("\u0026\u0026")
-		Text field = toolkit.createText(grp, example.getURL(), SWT.READ_ONLY);
+		Text field = toolkit.createText(grp, action.getRequest().getURL(), SWT.READ_ONLY);
 		GridData gd = new GridData();
 		gd.grabExcessHorizontalSpace = true;
 		gd.horizontalAlignment = SWT.FILL;
@@ -701,7 +700,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		for (Control kid : examplesGroup.getChildren())
 			kid.dispose();
 		for (ActionNode action : ((ResourceNode) node.getOwningComponent()).getActions()) {
-			post(examplesGroup, action.getExample());
+			post(examplesGroup, action);
 		}
 
 		// Clear then post validation

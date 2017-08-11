@@ -76,7 +76,7 @@ public class ResourceBuilder {
 		ActionFacet subAF = new ActionFacet(rn, null); // substitution group
 		ActionFacet idAF = new ActionFacet(rn, TLFacetType.ID);
 		ActionFacet summaryAF = new ActionFacet(rn, TLFacetType.SUMMARY);
-
+		// TODO - add action facets for custom facets.
 		// Parameters - ID, Query(s)
 		ParamGroup idPG = new ParamGroup(rn, (ComponentNode) bo.getIDFacet(), true);
 		for (ComponentNode fn : bo.getQueryFacets()) {

@@ -261,9 +261,10 @@ public class NodeNameUtils {
 		return value;
 	}
 
-	// public static String fixFacetName(String name) {
-	// return toInitialCap((stripTypeSuffix(name)));
-	// }
+	/**
+	 * initial cap and strip the facet prefix
+	 * 
+	 */
 	public static String fixContextualFacetName(ContextualFacetNode cfn, String name) {
 		return toInitialCap(stripFacetPrefix(cfn, name));
 		// String gtn = XsdCodegenUtils.getGlobalTypeName(fn.getTLModelObject());

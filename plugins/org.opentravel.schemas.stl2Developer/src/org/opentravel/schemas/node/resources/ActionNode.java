@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 public class ActionNode extends ResourceBase<TLAction> implements ResourceMemberInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ActionNode.class);
 	private String MSGKEY = "rest.ActionNode";
-	private ActionExample example = null;
 	private List<InheritedResourceMember> inheritedResponses;
 
 	public class CommonListener implements ResourceFieldListener {
@@ -160,12 +159,6 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 		return "Action";
 	}
 
-	public ActionExample getExample() {
-		if (example == null)
-			example = new ActionExample(this);
-		return example;
-	}
-
 	@Override
 	public List<ResourceField> getFields() {
 		List<ResourceField> fields = new ArrayList<ResourceField>();
@@ -180,6 +173,9 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 
 	}
 
+	/**
+	 * Return the actionId from the tl action object
+	 */
 	@Override
 	public String getName() {
 		return tlObj.getActionId() != null ? tlObj.getActionId() : "";
