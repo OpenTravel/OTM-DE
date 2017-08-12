@@ -589,7 +589,10 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		label.setBackground(bgColor);
 
 		// labels will not display & ("\u0026\u0026")
-		Text field = toolkit.createText(grp, action.getRequest().getURL(), SWT.READ_ONLY);
+		String url = "";
+		if (action.getRequest() != null)
+			url = action.getRequest().getURL();
+		Text field = toolkit.createText(grp, url, SWT.READ_ONLY);
 		GridData gd = new GridData();
 		gd.grabExcessHorizontalSpace = true;
 		gd.horizontalAlignment = SWT.FILL;

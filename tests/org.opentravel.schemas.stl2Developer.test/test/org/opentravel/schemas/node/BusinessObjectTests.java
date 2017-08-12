@@ -104,7 +104,7 @@ public class BusinessObjectTests {
 		new ElementNode(bo.getIDFacet(), "TestEleInID" + bo.getName(), string);
 		//
 		int count = ln.getDescendants_LibraryMembers().size();
-		checkBusinessObject(bo);
+		check(bo);
 
 		// When - using addFacet to add a custom facet
 		ContextualFacetNode cf = bo.addFacet("Custom1", TLFacetType.CUSTOM);
@@ -134,7 +134,7 @@ public class BusinessObjectTests {
 		assertTrue(ln.getComplexRoot().getChildren().size() == 1);
 
 		// Then
-		checkBusinessObject(bo);
+		check(bo);
 
 		// When - version the library
 		LibraryChainNode lcn = new LibraryChainNode(ln);
@@ -159,7 +159,7 @@ public class BusinessObjectTests {
 		new ElementNode(bo.getIDFacet(), "TestEleInID" + bo.getName(), string);
 		//
 		int count = ln.getDescendants_LibraryMembers().size();
-		checkBusinessObject(bo);
+		check(bo);
 
 		// When - addFacet() used to add a custom facet
 		ContextualFacetNode cf = bo.addFacet("Custom1", TLFacetType.CUSTOM);
@@ -208,7 +208,7 @@ public class BusinessObjectTests {
 		bo.addFacet("u1", TLFacetType.UPDATE);
 
 		// Then
-		checkBusinessObject(bo);
+		check(bo);
 
 		// Then - assure contextual facets are NOT wrapped in version nodes
 		for (Node n : bo.getChildren())
@@ -224,7 +224,7 @@ public class BusinessObjectTests {
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "bo");
 
 		// Assure the mock library created a valid BO
-		checkBusinessObject(bo);
+		check(bo);
 	}
 
 	// load from library tests
@@ -236,7 +236,7 @@ public class BusinessObjectTests {
 		for (LibraryNode lib : libs) {
 			for (Node bo : lib.getDescendants_LibraryMembers()) {
 				if (bo instanceof BusinessObjectNode)
-					checkBusinessObject((BusinessObjectNode) bo);
+					check((BusinessObjectNode) bo);
 			}
 			if (lib.isInChain())
 				continue;
@@ -244,7 +244,7 @@ public class BusinessObjectTests {
 			LibraryChainNode lcn = new LibraryChainNode(lib);
 			for (Node bo : lcn.getDescendants_LibraryMembers()) {
 				if (bo instanceof BusinessObjectNode)
-					checkBusinessObject((BusinessObjectNode) bo);
+					check((BusinessObjectNode) bo);
 			}
 		}
 	}
@@ -267,19 +267,19 @@ public class BusinessObjectTests {
 			else
 				assertTrue(cf.getWhereContributed() != null);
 			assertTrue(cf.getParent() != null);
-			ml.checkObject(cf);
+			ml.check(cf);
 		}
 
 		for (Node bo : lib.getDescendants_LibraryMembers()) {
 			if (bo instanceof BusinessObjectNode)
-				checkBusinessObject((BusinessObjectNode) bo);
+				check((BusinessObjectNode) bo);
 		}
 
 		// Repeat test with library in a chain
 		LibraryChainNode lcn = new LibraryChainNode(lib);
 		for (Node bo : lcn.getDescendants_LibraryMembers()) {
 			if (bo instanceof BusinessObjectNode)
-				checkBusinessObject((BusinessObjectNode) bo);
+				check((BusinessObjectNode) bo);
 		}
 
 		OTM16Upgrade.otm16Enabled = false;
@@ -288,7 +288,7 @@ public class BusinessObjectTests {
 	/**
 	 * all tests to be used in these tests and by other junits
 	 */
-	public boolean checkBusinessObject(BusinessObjectNode bo) {
+	public boolean check(BusinessObjectNode bo) {
 
 		// Check fixed structure
 		assertTrue("Must have identity listener.", Node.GetNode(bo.getTLModelObject()) == bo);
@@ -346,7 +346,7 @@ public class BusinessObjectTests {
 
 		// Check all the children
 		for (Node n : bo.getChildren()) {
-			ml.checkObject(n);
+			ml.check(n);
 			assertTrue(!(n instanceof VersionNode));
 			if (!OTM16Upgrade.otm16Enabled)
 				assertTrue("Contributed facets are only supported in version 1.6 and later.",
@@ -378,8 +378,8 @@ public class BusinessObjectTests {
 		for (Node n : ln.getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode && n != extendedBO) {
 				extendedBO.setExtension(n);
-				checkBusinessObject((BusinessObjectNode) n);
-				checkBusinessObject(extendedBO);
+				check((BusinessObjectNode) n);
+				check(extendedBO);
 			}
 		// see also org.opentravel.schemas.node.InheritedChildren_Tests
 	}
@@ -406,8 +406,8 @@ public class BusinessObjectTests {
 		new ElementNode(tboVwa.getIDFacet(), "TestEleInID" + tboVwa.getName(), string);
 
 		// Then
-		checkBusinessObject(tboCore);
-		checkBusinessObject(tboVwa);
+		check(tboCore);
+		check(tboVwa);
 
 		// Same test, but as part of a chain
 		LibraryChainNode lcn = new LibraryChainNode(ln); // make sure is version safe
@@ -419,8 +419,8 @@ public class BusinessObjectTests {
 		tboVwa = (BusinessObjectNode) vwa.changeObject(SubType.BUSINESS_OBJECT);
 		new ElementNode(tboCore.getIDFacet(), "TestEleInID" + tboCore.getName(), string);
 		new ElementNode(tboVwa.getIDFacet(), "TestEleInID" + tboVwa.getName(), string);
-		checkBusinessObject(tboCore);
-		checkBusinessObject(tboVwa);
+		check(tboCore);
+		check(tboVwa);
 
 		// TODO - validate where assigned was changed
 	}

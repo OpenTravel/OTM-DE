@@ -148,17 +148,18 @@ public class ResourceObjectTests {
 				break;
 			}
 		ResourceNode resource = ml.addResource(bo);
-		assertTrue("Resource was created.", resource != null);
+		assertTrue("Resource created must not be null.", resource != null);
 
 		// When
 		// Then - examples are created
 		for (ActionNode action : resource.getActions()) {
-			String url = action.getExample().getURL();
+			String url = action.getRequest().getURL();
 			LOGGER.debug("Example: " + url + ".");
 			assertTrue("Action has example.", !url.isEmpty());
-			if (url.startsWith("GET"))
-				assertTrue("Get example must be correct.",
-						url.startsWith("GET http://example.com/ResourceTestLibInitialBOs/{TestID}"));
+			if (action.getName().startsWith("Get"))
+				assertTrue(
+						"Get example must be correct.",
+						url.startsWith("GET http://example.com/ResourceTestLibInitialBOs/{testIdResourceTestLibInitialBO}/{TestEleInIDResourceTestLibInitialBO}"));
 		}
 	}
 
@@ -178,6 +179,7 @@ public class ResourceObjectTests {
 		// Given a second resource
 		BusinessObjectNode parentBO = ml.addBusinessObjectToLibrary(ln, "BaseBO");
 		ResourceNode parentResource = ml.addResource(parentBO);
+		assertTrue("Resource was created.", parentResource != null);
 
 		// When - parent resource is set on resource
 		resource.toggleParent(parentResource.getName());
@@ -190,23 +192,27 @@ public class ResourceObjectTests {
 		assertTrue("Parent has URL path contribution.", !resource.getParentRef().getUrlContribution().isEmpty());
 
 		for (ActionNode action : resource.getActions()) {
-			String url = action.getExample().getURL();
-			LOGGER.debug("Example: " + url + ".");
+			String url = action.getRequest().getURL();
+			LOGGER.debug("Parent contribution: " + action.getParentContribution());
+			LOGGER.debug(parentBO.getName() + " Example: " + url + ".");
 			assertTrue("Action has example.", !url.isEmpty());
-			assertTrue("Example contains parent name", url.contains(parentBO.getName()));
+			assertTrue("Example must contain parent name", url.contains(parentBO.getName()));
 		}
 
 		// Given a grandparent resource
 		BusinessObjectNode grandParentBO = ml.addBusinessObjectToLibrary(ln, "GrandParent");
 		ResourceNode grandParentR = ml.addResource(grandParentBO);
+		grandParentR.setBasePath(grandParentBO.getName()); // base path is empty until set
+		assertTrue("Resource was created.", grandParentR != null);
 
 		// When - parent resource is set on parent resource
 		parentRef = parentResource.setParentRef(grandParentR.getName(), "ID");
 
 		// Then - examples include grandparent
 		for (ActionNode action : resource.getActions()) {
-			String url = action.getExample().getURL();
-			LOGGER.debug("Example: " + url + ".");
+			String url = action.getRequest().getURL();
+			LOGGER.debug("Grand parent contribution: " + action.getParentContribution());
+			LOGGER.debug(grandParentBO.getName() + " GP Example: " + url + ".");
 			assertTrue("Action must have example URL.", !url.isEmpty());
 			assertTrue("Example must contain grand parent name", url.contains(grandParentBO.getName()));
 		}
@@ -227,7 +233,7 @@ public class ResourceObjectTests {
 		bo.setName("InnerObject");
 		ResourceNode resource = ml.addResource(bo);
 		assertTrue("Resource was created.", resource != null);
-		ml.checkObject(ln);
+		ml.check(ln);
 
 		// Given a second resource
 		BusinessObjectNode parentBO = ml.addBusinessObjectToLibrary(ln, "ParentBO");

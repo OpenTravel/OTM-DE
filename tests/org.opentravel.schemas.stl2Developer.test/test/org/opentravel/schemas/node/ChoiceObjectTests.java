@@ -57,7 +57,7 @@ import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
  */
 public class ChoiceObjectTests {
 	ModelNode model = null;
-	MockLibrary mockLibrary = null;
+	MockLibrary ml = new MockLibrary(); // define here to allow other classes to check objects
 	LibraryNode ln = null;
 	MainController mc;
 	DefaultProjectController pc;
@@ -67,23 +67,22 @@ public class ChoiceObjectTests {
 	@Before
 	public void beforeEachTest() {
 		mc = new MainController();
-		mockLibrary = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
 	}
 
 	@Test
 	public void CH_ConstructorTests() {
-		LibraryNode ln = mockLibrary.createNewLibrary("http://example.com/choice", "CT", pc.getDefaultProject());
-		ChoiceObjectNode cn = mockLibrary.addChoice(ln, "ChoiceTest1");
+		LibraryNode ln = ml.createNewLibrary("http://example.com/choice", "CT", pc.getDefaultProject());
+		ChoiceObjectNode cn = ml.addChoice(ln, "ChoiceTest1");
 
-		checkChoice(cn);
+		check(cn, true);
 	}
 
 	@Test
 	public void CH_GetFacetsTests() {
-		LibraryNode ln2 = mockLibrary.createNewLibrary("http://example.com/choice", "CT", pc.getDefaultProject());
-		ChoiceObjectNode c1 = mockLibrary.addChoice(ln2, "Choice");
+		LibraryNode ln2 = ml.createNewLibrary("http://example.com/choice", "CT", pc.getDefaultProject());
+		ChoiceObjectNode c1 = ml.addChoice(ln2, "Choice");
 
 		assertTrue("Must have shared facet.", c1.getSharedFacet() != null);
 
@@ -96,18 +95,18 @@ public class ChoiceObjectTests {
 	@Test
 	public void CH_FileReadTest() throws Exception {
 		LibraryNode testLib = new LoadFiles().loadFile6(mc);
-		LibraryNode ln2 = mockLibrary.createNewLibrary("http://example.com/choice", "CT", pc.getDefaultProject());
-		ChoiceObjectNode extendedChoice = mockLibrary.addChoice(ln2, "ExtendedChoice");
+		LibraryNode ln2 = ml.createNewLibrary("http://example.com/choice", "CT", pc.getDefaultProject());
+		ChoiceObjectNode extendedChoice = ml.addChoice(ln2, "ExtendedChoice");
 
 		new LibraryChainNode(testLib); // Test in a chain
 
 		for (Node choice : testLib.getDescendants_LibraryMembers()) {
 			if (choice instanceof ChoiceObjectNode) {
-				checkChoice((ChoiceObjectNode) choice);
+				check((ChoiceObjectNode) choice, true);
 
 				extendedChoice.setExtension(choice);
-				checkChoice((ChoiceObjectNode) choice);
-				checkChoice(extendedChoice);
+				check((ChoiceObjectNode) choice, true);
+				check(extendedChoice, true);
 			}
 		}
 	}
@@ -152,11 +151,11 @@ public class ChoiceObjectTests {
 
 	@Test
 	public void ChoiceFacetsTests() {
-		ln = mockLibrary.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 		// new LibraryChainNode(ln); // Test in a chain
 
 		// Given 3 choice groups
-		ChoiceObjectNode ch1 = mockLibrary.addChoice(ln, "Ch1");
+		ChoiceObjectNode ch1 = ml.addChoice(ln, "Ch1");
 		int baseCount = ch1.getChoiceFacets().size();
 		ChoiceObjectNode ch2 = new ChoiceObjectNode(new TLChoiceObject());
 		ch2.setName("Ch2");
@@ -233,52 +232,105 @@ public class ChoiceObjectTests {
 
 	@Test
 	public void CH_ImportAndCopyTests() {
-		OTM16Upgrade.otm16Enabled = true;
 
-		// Given - 2 versioned libraries
-		LibraryChainNode srcLCN = mockLibrary.createNewManagedLibrary_Empty(defaultProject.getNSRoot(), "SrcLib",
+		// Given - 2 versioned libraries in different namespaces
+		OTM16Upgrade.otm16Enabled = true;
+		LibraryChainNode srcLCN = ml.createNewManagedLibrary_Empty(defaultProject.getNSRoot() + "src", "SrcLib",
 				defaultProject);
 		LibraryNode srcLib = srcLCN.getHead();
-		LibraryChainNode destLCN = mockLibrary.createNewManagedLibrary_Empty(defaultProject.getNSRoot() + "/Dest",
+		LibraryChainNode destLCN = ml.createNewManagedLibrary_Empty(defaultProject.getNSRoot() + "dest" + "/Dest",
 				"DestLib", defaultProject);
 		LibraryNode destLib = destLCN.getHead();
 		assertTrue(destLib != srcLib);
 		assertTrue(destLib.isEditable());
 
-		// Given 4 choice groups
-		ChoiceObjectNode ch0 = mockLibrary.addChoice(srcLib, "Ch0");
-		ChoiceObjectNode ch1 = mockLibrary.addChoice(srcLib, "Ch1");
-		int baseCount = ch1.getChoiceFacets().size();
-		ChoiceObjectNode ch2 = new ChoiceObjectNode(new TLChoiceObject());
-		ch2.setName("Ch2");
-		srcLib.addMember(ch2);
-		ch2.addFacet("Ch2CF1");
-		ChoiceObjectNode ch3 = new ChoiceObjectNode(new TLChoiceObject());
-		ch3.setName("Ch3");
-		srcLib.addMember(ch3);
-		ChoiceObjectNode ch4 = mockLibrary.addChoice(srcLib, "Ch4");
-		mockLibrary.checkObject(srcLib);
+		// Given choice objects
+		ChoiceObjectNode ch0 = ml.addChoice(srcLib, "Ch0");
+		ChoiceObjectNode ch1 = ml.addChoice(srcLib, "Ch1");
+		ChoiceObjectNode ch2 = ml.addChoice(srcLib, "Ch2");
+		ch2.addFacet("Ch2CF3");
+		ChoiceObjectNode ch3 = ml.addChoice(srcLib, "Ch3");
+		ChoiceObjectNode ch4 = ml.addChoice(srcLib, "Ch4");
+		ChoiceObjectNode ch5 = ml.addChoice(srcLib, "Ch5");
+		// ChoiceObjectNode ch2 = new ChoiceObjectNode(new TLChoiceObject());
+		// ch2.setName("Ch2");
+		// srcLib.addMember(ch2);
+		// ch2.addFacet("Ch2CF1");
+		// ChoiceObjectNode ch3 = new ChoiceObjectNode(new TLChoiceObject());
+		// ch3.setName("Ch3");
+		// srcLib.addMember(ch3);
+		// ChoiceObjectNode ch4 = ml.addChoice(srcLib, "Ch4");
+		ml.check(ch0);
+		ml.check(srcLib); // checks all members
 
-		List<Node> case1 = new ArrayList<Node>();
-		case1.add(ch1);
+		// LibraryNode.importNode() function tests
+		// TODO - test case when in same namespace?
+		// TODO - test case for just importing contextual facets
 
-		// When - as used in LibraryNode.importNode()
-		mockLibrary.checkObject(ch0);
+		// When - just cloned as used in LibraryNode.importNode()
 		LibraryElement tlResult = ch0.cloneTLObj();
 		ChoiceObjectNode newNode = (ChoiceObjectNode) NodeFactory.newComponent_UnTyped((LibraryMember) tlResult);
-		// Then - result must not be null
-		mockLibrary.checkObject(newNode);
-		// Then - there must be contributed facets
+		destLib.addMember(newNode);
+
+		// Then - there must be same number of contributed facets
 		assertTrue(ch0.getChoiceFacets().size() == newNode.getChoiceFacets().size());
 
-		// When - LibraryNode usage
+		// Then - result will not validate due to duplicate contextual facets
+		ml.check(newNode, false);
+		// Then - the contextual facets must be in the source library - importNode will move them
+		for (ContextualFacetNode cf : newNode.getContextualFacets()) {
+			assertTrue("Facet must NOT be in destLib.", !destLib.contains(cf));
+			assertTrue("Facet must be in srcLib.", srcLib.contains(cf));
+			assertTrue("Facet must NOT be in source choice.", !ch0.getContextualFacets().contains(cf));
+
+			// Then - move facet to keep destLib valid
+			cf.getLibrary().removeMember(cf);
+			destLib.addMember(cf);
+		}
+
+		// Then - result will validate
+		ml.check(destLib, true);
+
+		//
+		// When - LibraryNode.importNode() is run
 		newNode = (ChoiceObjectNode) destLib.importNode(ch4);
 
+		// Then - there must be same number of contributed facets
+		assertTrue(ch4.getChoiceFacets().size() == newNode.getChoiceFacets().size());
+
+		// Then - the contextual facets must be in the source library - importNode will move them
+		for (ContextualFacetNode cf : newNode.getContextualFacets()) {
+			assertTrue("Facet must be in destLib.", destLib.contains(cf));
+			assertTrue("Facet must be in destination choice.", newNode.getContextualFacets().contains(cf));
+			assertTrue("Facet must NOT be in srcLib.", !srcLib.contains(cf));
+			assertTrue("Facet must NOT be in source choice.", !ch4.getContextualFacets().contains(cf));
+		}
+		// Then - result will validate
+		ml.check(newNode, true);
+
+		// When - imported but the source lib is not editable
+		srcLib.setEditable(false);
+		newNode = (ChoiceObjectNode) destLib.importNode(ch5);
+		// Then - imported choice valid
+		check(newNode, true);
+		ml.check(srcLib);
+
+		List<Node> nodeList = new ArrayList<Node>();
+
 		// When - ImportObjectToLibraryAction - case 1
-		destLib.importNodes(case1);
+		nodeList.add(ch1);
+		destLib.importNodes(nodeList);
 		// When - ImportObjectToLibraryAction - case 2
+		nodeList.clear();
+		nodeList.add(ch2);
+		destLib.importNodes(nodeList, true);
 		// When - ImportObjectToLibraryAction - case 3
-		mockLibrary.checkObject(destLib);
+		nodeList.clear();
+		nodeList.add(ch3);
+		destLib.importNodes(nodeList, false);
+
+		ml.check(destLib);
+		ml.check(srcLib);
 
 		OTM16Upgrade.otm16Enabled = false;
 	}
@@ -291,8 +343,8 @@ public class ChoiceObjectTests {
 		return facets;
 	}
 
-	public void checkChoice(ChoiceObjectNode choice) {
-		Assert.assertTrue(choice instanceof ChoiceObjectNode);
+	public void check(ChoiceObjectNode choice, boolean validate) {
+		assertTrue(choice instanceof ChoiceObjectNode);
 
 		// Validate model and tl object
 		assertTrue(choice.getTLModelObject() instanceof TLChoiceObject);
@@ -349,7 +401,7 @@ public class ChoiceObjectTests {
 
 		// Check all the children
 		for (Node n : choice.getChildren()) {
-			mockLibrary.checkObject(n);
+			ml.check(n, validate);
 			assertTrue(!(n instanceof VersionNode));
 			if (!OTM16Upgrade.otm16Enabled)
 				assertTrue("Contributed facets are only supported in version 1.6 and later.",

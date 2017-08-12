@@ -74,6 +74,7 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 	@Override
 	public LibraryElement cloneTLObj() {
 		LibraryElement clone = super.cloneTLObj();
+		// TODO - why is choice done here? Why not BO and CFs also?
 		if (clone instanceof TLChoiceObject) {
 			List<TLContextualFacet> tlCFs = ((TLChoiceObject) clone).getChoiceFacets();
 			ComponentNode n;

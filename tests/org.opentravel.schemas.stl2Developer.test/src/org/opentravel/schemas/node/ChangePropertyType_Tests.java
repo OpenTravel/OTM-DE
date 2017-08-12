@@ -254,9 +254,15 @@ public class ChangePropertyType_Tests {
 					p = p.changePropertyRole(t);
 					nt.visit(p);
 					break;
+				case ALIAS:
+				case ENUM_LITERAL:
+				case ID:
+				case ID_ATTR_REF:
+				case ROLE:
+				case SIMPLE:
+				case UNKNOWN:
 				default:
-					LOGGER.debug("unknown property type " + p.getPropertyType() + " " + n.getNameWithPrefix() + " to "
-							+ t);
+					LOGGER.debug("UnTested changePropertyRole type " + t);
 					break;
 				}
 				p.getOwningComponent().visitAllNodes(nt);

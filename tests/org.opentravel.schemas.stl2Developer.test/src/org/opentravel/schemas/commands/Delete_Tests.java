@@ -213,7 +213,7 @@ public class Delete_Tests extends BaseProjectTest {
 		assertTrue("Must have five children", co.getChildren().size() == facetCount + 2);
 		assertTrue("Choice 1 facet is NOT deleted.", !c1.isDeleted());
 		assertTrue("Choice 2 facet is NOT deleted.", !c2.isDeleted());
-		ml.checkObject(co);
+		ml.check(co);
 		// tests.checkChoice(co);
 
 		// When the facets are deleted
@@ -232,7 +232,7 @@ public class Delete_Tests extends BaseProjectTest {
 			((FacetNode) f).delete();
 
 		// Then the object is still valid
-		ml.checkObject(co);
+		ml.check(co);
 		// tests.checkChoice(co);
 	}
 

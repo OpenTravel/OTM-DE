@@ -442,11 +442,10 @@ public class LibraryNode extends Node implements LibraryInterface {
 		if (!importNodeCheck(source))
 			return null;
 
-		// Don't use ContextUtils because may create new contexts in the target library
-		// ContextUtils.resolveApplicationContexts((TLLibraryMember) source.getModelObject().getTLModelObj());
-		Node newNode = NodeFactory.newComponent_UnTyped((LibraryMember) source.cloneTLObj());
+		LibraryNode oldLib = source.getLibrary();
 
-		// Node newNode = source.clone(this, null);
+		// Don't use ContextUtils because may create new contexts in the target library
+		Node newNode = NodeFactory.newComponent_UnTyped((LibraryMember) source.cloneTLObj());
 		if (newNode == null) {
 			// LOGGER.warn("Could not clone " + source + " a " + source.getClass().getSimpleName());
 			return null;
@@ -456,16 +455,21 @@ public class LibraryNode extends Node implements LibraryInterface {
 		for (Node child : newNode.getDescendants())
 			if (child.getTLModelObject() instanceof TLContextReferrer)
 				((TLContextReferrer) child.getTLModelObject()).setContext(getDefaultContextId());
-
 		assert getTLLibrary().getContexts().size() == 1;
 
+		// Clone will duplicate the contextual facets so also import them.
+		// Test coverage: ChoiceObjectTests.CH_ImportAndCopyTests()
 		if (newNode instanceof ContextualFacetOwnerInterface) {
-			// Import the contextual facets also
+			// Move the new facets
 			for (ContextualFacetNode cf : ((ContextualFacetOwnerInterface) newNode).getContextualFacets()) {
+				LibraryNode oldCfLib = cf.getLibrary();
+				LOGGER.debug("Moving " + cf + " from library " + oldCfLib + " to " + this);
 				// remove from current library
 				cf.getLibrary().removeMember(cf);
 				// add to this library
 				addMember(cf);
+				assert this.contains(cf);
+				assert !oldCfLib.contains(cf);
 			}
 			// If it is a contextual facet, set its where contributed.
 			ContextualFacetOwnerInterface owner = null;
@@ -944,16 +948,18 @@ public class LibraryNode extends Node implements LibraryInterface {
 		}
 
 		// This code is only needed because of defect in XSD importer.
-		if (n.getParent() != null && n.getParent().getChildren().contains(n)) {
-			// LOGGER.warn(n + " is already a child of its parent.");
-			return;
-		} else if ((n instanceof SimpleComponentInterface) && getSimpleRoot().getChildren().contains(n)) {
-			// LOGGER.warn(n + " is already a child of its parent.");
-			return;
-		} else if ((n instanceof ComplexComponentInterface) && getComplexRoot().getChildren().contains(n)) {
-			// LOGGER.warn(n + " is already a child of its parent.");
-			return;
-		}
+		// Contextual facets may be in their parent but are not used by xsd importer.
+		if (!(n instanceof ContextualFacetNode))
+			if (n.getParent() != null && n.getParent().getChildren().contains(n)) {
+				// LOGGER.warn(n + " is already a child of its parent.");
+				return;
+			} else if ((n instanceof SimpleComponentInterface) && getSimpleRoot().getChildren().contains(n)) {
+				// LOGGER.warn(n + " is already a child of its parent.");
+				return;
+			} else if ((n instanceof ComplexComponentInterface) && getComplexRoot().getChildren().contains(n)) {
+				// LOGGER.warn(n + " is already a child of its parent.");
+				return;
+			}
 
 		// If it is in a different library, remove it from that one.
 		// FIXME - dead code - if in a library then will fail the parent test above

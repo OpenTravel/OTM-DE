@@ -56,7 +56,7 @@ public class LibraryNodeTest extends BaseProjectTest {
 
 		// check all members
 		for (Node n : ln.getDescendants_LibraryMembers())
-			ml.checkObject(n);
+			ml.check(n);
 	}
 
 	@Test

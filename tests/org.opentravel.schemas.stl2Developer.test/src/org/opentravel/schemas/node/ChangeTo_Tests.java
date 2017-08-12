@@ -112,7 +112,7 @@ public class ChangeTo_Tests {
 		tn.visit(vwa);
 		assertEquals(boWhereAssignedCount, vwa.getWhereUsedAndDescendantsCount());
 		assertEquals(vwa, p1.getAssignedType());
-		ml.checkObject(vwa);
+		ml.check(vwa);
 
 		//
 		// When - a new VWA is created from Core
@@ -128,7 +128,7 @@ public class ChangeTo_Tests {
 		core.swap(vwa);
 		tn.visit(vwa);
 		// Then
-		ml.checkObject(vwa);
+		ml.check(vwa);
 		assertEquals(coreWhereAssignedCount, vwa.getWhereUsedAndDescendantsCount());
 		assertEquals(vwa, p2.getAssignedType());
 		assertEquals(vwa, p3.getAssignedType());

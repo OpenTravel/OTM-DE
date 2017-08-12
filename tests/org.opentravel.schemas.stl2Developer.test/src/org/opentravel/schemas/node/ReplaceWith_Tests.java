@@ -208,7 +208,7 @@ public class ReplaceWith_Tests {
 
 		// Given - one of each object type
 		ml.addOneOfEach(ln, "RTT");
-		ml.checkObject(ln);
+		ml.check(ln);
 		tt.visitAllNodes(ln);
 
 		// Given - local variables for different object types
@@ -234,12 +234,12 @@ public class ReplaceWith_Tests {
 		// Given - clone made of core
 		core2 = (CoreObjectNode) core.clone();
 		core2.setName("core2");
-		ml.checkObject(core2);
+		ml.check(core2);
 
 		// Given - clone made of bo
 		bo2 = (BusinessObjectNode) bo.clone();
 		bo2.setName("bo2");
-		ml.checkObject(bo2);
+		ml.check(bo2);
 
 		replaceProperties(bo, core2, core);
 		replaceProperties(bo2, core, core2);
@@ -258,18 +258,18 @@ public class ReplaceWith_Tests {
 	 * @param p2
 	 */
 	private void replaceProperties(Node owner, TypeProvider p1, Node p2) {
-		ml.checkObject(owner);
+		ml.check(owner);
 		for (TypeUser n : owner.getDescendants_TypeUsers())
 			// Only do one so the owner remains valid
 			if (n.setAssignedType(p1))
 				break;
 
-		ml.checkObject(owner);
+		ml.check(owner);
 
 		((Node) p1).replaceTypesWith(p2, owner.getLibrary());
 
 		// Then - check object
-		ml.checkObject(owner);
+		ml.check(owner);
 	}
 
 	@Test

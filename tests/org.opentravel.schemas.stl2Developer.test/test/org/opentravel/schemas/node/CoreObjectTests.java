@@ -300,11 +300,11 @@ public class CoreObjectTests {
 		assertTrue("Core must have at least 6 children.", core.getChildren().size() >= 6);
 
 		// Facets
-		ml.checkObject(core.getFacet_Simple());
-		ml.checkObject(core.getFacet_Summary());
-		ml.checkObject(core.getFacet_Detail());
-		ml.checkObject(core.getSimpleListFacet());
-		ml.checkObject(core.getDetailListFacet());
-		ml.checkObject(core.getRoleFacet());
+		ml.check(core.getFacet_Simple());
+		ml.check(core.getFacet_Summary());
+		ml.check(core.getFacet_Detail());
+		ml.check(core.getSimpleListFacet());
+		ml.check(core.getDetailListFacet());
+		ml.check(core.getRoleFacet());
 	}
 }

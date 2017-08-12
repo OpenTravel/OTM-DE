@@ -248,8 +248,10 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 		List<TLResourceParentRef> list = ResourceCodegenUtils.getInheritedParentRefs(getOwningComponent()
 				.getTLModelObject());
 		for (TLResourceParentRef tlRef : list) {
-			contribution += tlRef.getPathTemplate();
+			contribution = tlRef.getPathTemplate() + contribution;
 		}
+		// FIXME - it is only getting oldest ancestor...either fix the codegen utils or walk ancestor vector
+		// LOGGER.debug("Parent contribution: " + contribution);
 		return contribution;
 	}
 }

@@ -46,6 +46,7 @@ import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.BusinessObjectTests;
 import org.opentravel.schemas.node.ChoiceObjectNode;
+import org.opentravel.schemas.node.ChoiceObjectTests;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.CoreObjectTests;
 import org.opentravel.schemas.node.EnumerationClosedNode;
@@ -581,24 +582,40 @@ public class MockLibrary {
 
 	public void printValidationFindings(Node n) {
 		ValidationFindings findings = n.validate();
+		if (findings == null)
+			return;
 		for (ValidationFinding finding : findings.getAllFindingsAsList())
 			LOGGER.debug(finding.getFormattedMessage(FindingMessageFormat.DEFAULT));
 	}
 
 	/**
-	 * Run object specific check() tests then validates object.
+	 * Run node object specific tests then validate.
 	 * 
 	 * @param node
 	 */
-	public void checkObject(Node node) {
+	public void check(Node node) {
+		check(node, true);
+	}
+
+	/**
+	 * Run node object specific tests.
+	 * 
+	 * @param node
+	 * @param validate
+	 *            if true run validation
+	 */
+	public void check(Node node, boolean validate) {
 		assertTrue(node != null);
 		// FIXME - contributed facet node identity should be handled elsewhere
+		// TODO - propagate the validate flag to all object check() methods.
 		if (!(node instanceof ContributedFacetNode))
 			assertTrue("Must have identity listener.", Node.GetNode(node.getTLModelObject()) == node);
 		if (node instanceof LibraryNode)
 			new LibraryNodeTest().check((LibraryNode) node);
 		else if (node instanceof BusinessObjectNode)
-			new BusinessObjectTests().checkBusinessObject((BusinessObjectNode) node);
+			new BusinessObjectTests().check((BusinessObjectNode) node);
+		else if (node instanceof ChoiceObjectNode)
+			new ChoiceObjectTests().check((ChoiceObjectNode) node, validate);
 		else if (node instanceof CoreObjectNode)
 			new CoreObjectTests().checkCore((CoreObjectNode) node);
 		else if (node instanceof VWA_Node)
@@ -612,10 +629,15 @@ public class MockLibrary {
 		else
 			LOGGER.debug("TODO - add tests for " + node.getClass().getSimpleName() + " object type.");
 
-		if (!node.isValid()) {
-			printValidationFindings(node.getOwningComponent());
-			assertTrue("Node must be valid.", node.isValid());
-		}
+		if (validate)
+			if (!node.isValid()) {
+				ValidationFindings findings = node.validate();
+				if (findings == null || findings.isEmpty())
+					LOGGER.debug(node + " is not valid but has no findings.");
+				printValidationFindings(node.getOwningComponent());
+				printValidationFindings(node);
+				assertTrue("Node must be valid.", node.isValid());
+			}
 
 	}
 }

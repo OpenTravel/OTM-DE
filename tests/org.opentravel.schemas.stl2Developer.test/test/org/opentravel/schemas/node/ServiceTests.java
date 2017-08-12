@@ -118,7 +118,7 @@ public class ServiceTests {
 		for (Node on : svc.getChildren()) {
 			assertTrue(on instanceof OperationNode);
 			assertTrue(on.getChildren().size() == 3);
-			ml.checkObject(on);
+			ml.check(on);
 		}
 	}
 
