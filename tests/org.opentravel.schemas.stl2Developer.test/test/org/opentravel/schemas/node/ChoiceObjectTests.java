@@ -252,22 +252,13 @@ public class ChoiceObjectTests {
 		ChoiceObjectNode ch3 = ml.addChoice(srcLib, "Ch3");
 		ChoiceObjectNode ch4 = ml.addChoice(srcLib, "Ch4");
 		ChoiceObjectNode ch5 = ml.addChoice(srcLib, "Ch5");
-		// ChoiceObjectNode ch2 = new ChoiceObjectNode(new TLChoiceObject());
-		// ch2.setName("Ch2");
-		// srcLib.addMember(ch2);
-		// ch2.addFacet("Ch2CF1");
-		// ChoiceObjectNode ch3 = new ChoiceObjectNode(new TLChoiceObject());
-		// ch3.setName("Ch3");
-		// srcLib.addMember(ch3);
-		// ChoiceObjectNode ch4 = ml.addChoice(srcLib, "Ch4");
 		ml.check(ch0);
 		ml.check(srcLib); // checks all members
 
-		// LibraryNode.importNode() function tests
-		// TODO - test case when in same namespace?
 		// TODO - test case for just importing contextual facets
 
-		// When - just cloned as used in LibraryNode.importNode()
+		//
+		// When - cloned as used within LibraryNode.importNode()
 		LibraryElement tlResult = ch0.cloneTLObj();
 		ChoiceObjectNode newNode = (ChoiceObjectNode) NodeFactory.newComponent_UnTyped((LibraryMember) tlResult);
 		destLib.addMember(newNode);
@@ -372,7 +363,8 @@ public class ChoiceObjectTests {
 			assertFalse(name.isEmpty());
 			String label = f.getLabel();
 			assertFalse(f.getLabel().isEmpty());
-			assertTrue(((Node) poi).getParent() == choice);
+			if (poi instanceof ContributedFacetNode)
+				assertTrue(((Node) poi).getParent() == choice);
 		}
 
 		// Does this extend another choice? If so, examine inherited children

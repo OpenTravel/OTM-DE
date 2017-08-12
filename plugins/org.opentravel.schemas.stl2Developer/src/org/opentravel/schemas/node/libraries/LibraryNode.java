@@ -401,7 +401,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 
 		// Create aliases if the source has multiple properties which use the same complex type.
 		// Must be done before imports to assure all referenced types have the aliases added.
-		for (final Node source : sourceList) {
+		for (final Node source : sourceList) { // FIXME - choice can be alias owner
 			if (source instanceof CoreObjectNode || source instanceof BusinessObjectNode)
 				((ComponentNode) source).createAliasesForProperties();
 		}
@@ -462,14 +462,13 @@ public class LibraryNode extends Node implements LibraryInterface {
 		if (newNode instanceof ContextualFacetOwnerInterface) {
 			// Move the new facets
 			for (ContextualFacetNode cf : ((ContextualFacetOwnerInterface) newNode).getContextualFacets()) {
-				LibraryNode oldCfLib = cf.getLibrary();
-				LOGGER.debug("Moving " + cf + " from library " + oldCfLib + " to " + this);
+				LOGGER.debug("Moving " + cf + " from library " + cf.getLibrary() + " to " + this);
 				// remove from current library
-				cf.getLibrary().removeMember(cf);
+				if (cf.getLibrary() != null)
+					cf.getLibrary().removeMember(cf);
 				// add to this library
 				addMember(cf);
 				assert this.contains(cf);
-				assert !oldCfLib.contains(cf);
 			}
 			// If it is a contextual facet, set its where contributed.
 			ContextualFacetOwnerInterface owner = null;

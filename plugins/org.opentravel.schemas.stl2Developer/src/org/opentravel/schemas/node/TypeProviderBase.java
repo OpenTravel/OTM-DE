@@ -94,8 +94,15 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 			return Collections.emptyList();
 
 		ArrayList<ContextualFacetNode> facets = new ArrayList<ContextualFacetNode>();
-		for (ContributedFacetNode n : getContributedFacets())
-			facets.add(n.getContributor());
+		// Aug 12, 2017 - changed to include directly owned and contributed.
+		// for (ContributedFacetNode n : getContributedFacets())
+		// facets.add(n.getContributor());
+		for (Node n : getChildren())
+			if (n instanceof ContributedFacetNode)
+				facets.add(((ContributedFacetNode) n).getContributor());
+			else if (n instanceof ContextualFacetNode)
+				facets.add((ContextualFacetNode) n);
+
 		return facets;
 	}
 

@@ -136,6 +136,7 @@ public class AggregateNode extends NavNode {
 			node = node.getVersionNode();
 		if (!getChildren().remove(node))
 			LOGGER.warn(node + " was not found to remove from aggregate node.");
+		// NOTE - this warning happens when importing contextual facets and i don't know why
 	}
 
 	@Override
