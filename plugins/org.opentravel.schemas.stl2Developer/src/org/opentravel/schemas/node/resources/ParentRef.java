@@ -159,6 +159,10 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 		return contribution;
 	}
 
+	public String getPathTemplate() {
+		return tlObj.getPathTemplate();
+	}
+
 	@Override
 	public ResourceNode getParent() {
 		return (ResourceNode) parent;

@@ -53,6 +53,10 @@ class ActionRequestPathTemplate {
 		}
 	}
 
+	public String getCollection() {
+		return collection;
+	}
+
 	public void setCollection(String base) {
 		this.collection = base;
 		assert (!base.contains("?"));
@@ -81,6 +85,9 @@ class ActionRequestPathTemplate {
 		collection = value;
 	}
 
+	/**
+	 * @return the collection name if any and path parameters
+	 */
 	public String get() {
 		setParameters();
 		String tmp = collection;

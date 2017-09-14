@@ -462,7 +462,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 		if (newNode instanceof ContextualFacetOwnerInterface) {
 			// Move the new facets
 			for (ContextualFacetNode cf : ((ContextualFacetOwnerInterface) newNode).getContextualFacets()) {
-				LOGGER.debug("Moving " + cf + " from library " + cf.getLibrary() + " to " + this);
+				// LOGGER.debug("Moving " + cf + " from library " + cf.getLibrary() + " to " + this);
 				// remove from current library
 				if (cf.getLibrary() != null)
 					cf.getLibrary().removeMember(cf);

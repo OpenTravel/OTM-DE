@@ -485,7 +485,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 			if (child instanceof ParentRef) {
 				contribution = ((ParentRef) child).getUrlContribution();
 			}
-		LOGGER.debug("Path contribution from " + this + " is " + contribution);
+		// LOGGER.debug("Path contribution from " + this + " is " + contribution);
 		return contribution;
 	}
 

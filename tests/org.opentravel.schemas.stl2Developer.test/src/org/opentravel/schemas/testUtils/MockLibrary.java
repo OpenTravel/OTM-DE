@@ -306,6 +306,35 @@ public class MockLibrary {
 
 	}
 
+	public BusinessObjectNode addBusinessObject_ResourceSubject(LibraryNode ln, String name) {
+		for (Node n : ln.getDescendants_LibraryMembers())
+			if (n.getName().equals(name)) {
+				LOGGER.warn("Tried to create a business object with duplicate name: " + name);
+				return (BusinessObjectNode) n;
+			}
+		BusinessObjectNode newNode = addBusinessObjectToLibrary_Empty(ln, name);
+		if (newNode == null)
+			return null;
+
+		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
+
+		new IdNode(newNode.getIDFacet(), name + "Id");
+		new ElementNode(newNode.getFacet_Summary(), "TestEle" + name, string);
+		new AttributeNode(newNode.getFacet_Summary(), "TestAttribute" + name, string);
+
+		// Add facets
+		new ElementReferenceNode(newNode.addFacet("c1" + name, TLFacetType.CUSTOM), "TestEleRef" + name, newNode);
+		new AttributeNode(newNode.addFacet("q1" + name, TLFacetType.QUERY), "TestAttribute2" + name, string);
+
+		if (!ln.isValid()) {
+			printValidationFindings(ln);
+			assertTrue("Library must be valid with new BO.", ln.isValid()); // validates TL library
+		}
+
+		LOGGER.debug("Created business object " + name);
+		return ln.isEditable() ? newNode : null;
+	}
+
 	public BusinessObjectNode addBusinessObjectToLibrary(LibraryNode ln, String name, boolean addID) {
 		for (Node n : ln.getDescendants_LibraryMembers())
 			if (n.getName().equals(name)) {
@@ -318,7 +347,7 @@ public class MockLibrary {
 
 		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
 
-		new ElementNode(newNode.getIDFacet(), "TestEleInID" + name, string);
+		new ElementNode(newNode.getIDFacet(), name + "ID", string);
 		IdNode idNode = new IdNode(newNode.getIDFacet(), "TestId" + name);
 
 		new ElementNode(newNode.getFacet_Summary(), "TestEle" + name, string);
@@ -572,7 +601,7 @@ public class MockLibrary {
 	}
 
 	/**
-	 * Create a new resource using the passed BO.
+	 * Create a new resource using the passed BO in the BO's library.
 	 */
 	public ResourceNode addResource(BusinessObjectNode bo) {
 		ResourceNode resource = new ResourceNode(bo.getLibrary(), bo);

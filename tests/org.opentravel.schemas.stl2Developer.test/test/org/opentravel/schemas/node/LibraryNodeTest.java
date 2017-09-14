@@ -375,4 +375,19 @@ public class LibraryNodeTest extends BaseProjectTest {
 		// Then - imported node must also have custom and query facets
 		assertTrue("Business object must have custom facet.", !movedBO.getCustomFacets().isEmpty());
 	}
+
+	@Test
+	public void libraryDocumentationTests() throws LibrarySaveException {
+		String string1 = "This is a test.";
+		MockLibrary ml = new MockLibrary();
+		LibraryNode ln = ml.createNewLibrary(pc, "DocTest");
+
+		// When description added
+		ln.addDescription(string1);
+		// then it can be read
+		String s = ln.getDescription();
+		assertTrue(s.equals(string1));
+
+		// TODO - save, close, open and read
+	}
 }

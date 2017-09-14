@@ -58,6 +58,7 @@ import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.facets.UpdateFacetNode;
 import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
@@ -268,6 +269,68 @@ public class FacetsTests {
 			else if (n instanceof FacetNode)
 				checkBaseFacet((FacetNode) n);
 		}
+	}
+
+	@Test
+	public void Facets_editableTests_v15() {
+		OTM16Upgrade.otm16Enabled = false;
+		LibraryNode ln = lf.loadFile2(defaultProject);
+		ln.setEditable(true);
+		BusinessObjectNode bo = null;
+
+		// Find a business object
+		for (LibraryMemberInterface n : ln.get_LibraryMembers())
+			if (n instanceof BusinessObjectNode)
+				bo = (BusinessObjectNode) n;
+		ml.check(bo);
+
+		ContextualFacetNode cf = bo.addFacet("F1", TLFacetType.QUERY);
+		assertTrue(cf.isEditable());
+		assertTrue(!(cf instanceof ContributedFacetNode));
+	}
+
+	@Test
+	public void Facets_editableTests_v16() {
+		OTM16Upgrade.otm16Enabled = true;
+
+		// Given libraries loaded from file that contain contextual facets
+		// NOTE: Only version 1.6 and later.
+		// Note: load order is important if the compiler is to resolve contributors
+		// Lib1 has two of each contextual facet type, one contributing to base lib objects
+		LibraryNode lib1 = lf.loadFile_Facets1(defaultProject);
+		LibraryNode lib2 = lf.loadFile_Facets2(defaultProject); // one of each
+		LibraryNode baseLib = lf.loadFile_FacetBase(defaultProject);
+		lib1.setEditable(false);
+		lib2.setEditable(false);
+		baseLib.setEditable(true);
+
+		// When - a contextual facet is in editable base library
+		for (Node n : baseLib.getDescendants_ContextualFacets())
+			// Then contextual not contributed facets must be editable
+			if (n instanceof ContributedFacetNode)
+				assertTrue(!n.isEditable()); // never edit contributed facets
+			else
+				assertTrue(n.isEditable());
+
+		// When - a contextual facet is in non-editable library 1
+		// Then - contextual not contributed facets must NOT be editable
+		for (Node n : lib1.getDescendants_ContextualFacets())
+			if (n instanceof ContributedFacetNode)
+				assertTrue(!n.isEditable()); // never edit contextual facets
+			else
+				assertTrue("Must not be editable.", !n.isEditable());
+
+		// When - a contextual facet is in editable library 1
+		lib1.setEditable(true);
+		baseLib.setEditable(false);
+		// Then - contextual facets must be editable
+		for (Node n : lib1.getDescendants_ContextualFacets())
+			if (n instanceof ContributedFacetNode)
+				assertTrue(!n.isEditable()); // never edit contextual facets
+			else
+				assertTrue("Must be editable.", n.isEditable());
+
+		OTM16Upgrade.otm16Enabled = false;
 	}
 
 	@Test

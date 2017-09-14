@@ -36,16 +36,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Used for custom, choice, query and update facets.
+ * Used in OTM Version 1.6 and later for custom, choice, query and update facets.
  * 
- * Contextual facets can be either in the library or in a different library from the object they contextualize.
+ * Contributed facets are a facade for contextual facets. Contributed facets are children of the object being
+ * contributed to. The contributed facet is a child of the object being injected and the contributed facet's contributor
+ * field identifies the contextual facet.
+ * <p>
+ * In version 1.6 and later, contextual facets can be either in the library or in a different library from the object
+ * they contextualize.
  * 
- * contextual facets collaborate with their owning object. They add facets without having dependacies between the
- * object's library to the facet's library.
- * 
- * Contextual facets enable OTM to have dependency injection or Inversion of Control.
- * 
- * NOTE: because the TLModelObject comes from the contributor, the identity from GetNode() will be the contributor.
+ * Contextual facets enable OTM to have dependency injection or Inversion of Control. NOTE: because the TLModelObject
+ * comes from the contributor, the identity from GetNode() will be the contributor.
  * 
  * @author Dave Hollander
  * 
@@ -202,6 +203,14 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 	@Override
 	public TLContextualFacet getTLModelObject() {
 		return getContributor() == null ? tlContributor : getContributor().getTLModelObject();
+	}
+
+	/**
+	 * Contributed facets are never edited. Editing happens on the contextual facet only.
+	 */
+	@Override
+	public boolean isEditable() {
+		return false;
 	}
 
 	@Override

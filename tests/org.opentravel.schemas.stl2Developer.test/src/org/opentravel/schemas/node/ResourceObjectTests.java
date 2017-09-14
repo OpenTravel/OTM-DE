@@ -163,58 +163,120 @@ public class ResourceObjectTests {
 		}
 	}
 
+	/**
+	 * Emulate Resource model to implement <br>
+	 * /Reservations/{ResID}/Orders/{OrderID}/Products/{ProductID}
+	 */
 	@Test
 	public void actionExampleWithBaseResource_Tests() {
 
 		// Given - a valid resource using mock library provided business object
 		LibraryNode ln = ml.createNewLibrary(pc, "ResourceTestLib");
-		BusinessObjectNode bo = null;
-		for (Node n : ln.getDescendants_LibraryMembers())
-			if (n instanceof BusinessObjectNode) {
-				bo = (BusinessObjectNode) n;
-				break;
-			}
-		ResourceNode resource = ml.addResource(bo);
-		assertTrue("Resource was created.", resource != null);
-		// Given a second resource
-		BusinessObjectNode parentBO = ml.addBusinessObjectToLibrary(ln, "BaseBO");
-		ResourceNode parentResource = ml.addResource(parentBO);
-		assertTrue("Resource was created.", parentResource != null);
+		BusinessObjectNode resBO = ml.addBusinessObject_ResourceSubject(ln, "Reservations");
+		BusinessObjectNode orderBO = ml.addBusinessObject_ResourceSubject(ln, "Orders");
+		BusinessObjectNode productBO = ml.addBusinessObject_ResourceSubject(ln, "Products");
+		BusinessObjectNode descBO = ml.addBusinessObject_ResourceSubject(ln, "Descriptions");
 
-		// When - parent resource is set on resource
-		resource.toggleParent(parentResource.getName());
-		ParentRef parentRef = resource.getParentRef();
+		ResourceNode resR = ml.addResource(resBO);
+		ResourceNode orderR = ml.addResource(orderBO);
+		ResourceNode productR = ml.addResource(productBO);
+		ResourceNode descR = ml.addResource(descBO);
+		// Given tests
+		assertTrue("Resource was created.", productR != null);
+		assertTrue("Resource was created.", orderR != null);
+		assertTrue("Resource was created.", resR != null);
+		ml.check(ln);
+
+		checkActionURLs(resR, "Reservation");
+
+		// NOTE - library will be invalid because the parent params are not correct.
+		// When - reservation is set as parent on Order as done in the GUI
+		orderR.toggleParent(resR.getName());
+		ParentRef parentRef = orderR.getParentRef();
 		parentRef.setParamGroup("ID");
+		parentRef.setPathTemplate("/Reservations/{reservationId}");
 
-		// Then - extension is OK and examples are created
-		// TODO - how to test to assure that changes were made?
-		assertTrue("Parent reference is OK.", resource.getParentRef().getParentResource() == parentResource);
-		assertTrue("Parent has URL path contribution.", !resource.getParentRef().getUrlContribution().isEmpty());
+		// Then - orders has reservation as parent
+		assertTrue("Parent reference is OK.", orderR.getParentRef().getParentResource() == resR);
+		String resContribution = orderR.getParentRef().getUrlContribution();
+		assertTrue("Parent has URL path contribution.", !resContribution.isEmpty());
+		checkActionURLs(orderR, "Reservation");
 
-		for (ActionNode action : resource.getActions()) {
+		// When - order is set as parent to product
+		productR.setParentRef(orderR.getName(), "ID");
+		productR.getParentRef().setPathTemplate("/Orders/{orderId}");
+
+		// Then - product has orders as parent
+		assertTrue("Parent reference is OK.", productR.getParentRef().getParentResource() == orderR);
+		String orderContribution = productR.getParentRef().getUrlContribution();
+		assertTrue("Parent has URL path contribution.", !orderContribution.isEmpty());
+		checkActionURLs(productR, "Reservation");
+
+		// When - product is set as parent to description
+		descR.setParentRef(productR.getName(), "ID");
+		descR.getParentRef().setPathTemplate("/Products/{productId}");
+
+		// Then - description has product as parent
+		assertTrue("Parent reference is OK.", descR.getParentRef().getParentResource() == productR);
+		checkActionURLs(descR, "Reservation");
+	}
+
+	/**
+	 * Emulate Resource model to implement <br>
+	 * /Reservations/{ResID}/Orders/{OrderID}/ /Archive/{ArchiveID}/Reservations/{ResID}/Orders/{OrderID}/
+	 * /Interactions/(InteractionID}/Reservations/{ResID}/Orders/{OrderID}/
+	 */
+	@Test
+	public void actionExampleWithMultipleParents_Tests() {
+
+		// Given - a valid resource using mock library provided business object
+		LibraryNode ln = ml.createNewLibrary(pc, "ResourceTestLib");
+		BusinessObjectNode resBO = ml.addBusinessObject_ResourceSubject(ln, "Reservations");
+		BusinessObjectNode orderBO = ml.addBusinessObject_ResourceSubject(ln, "Orders");
+		BusinessObjectNode interactionBO = ml.addBusinessObject_ResourceSubject(ln, "Interactions");
+		BusinessObjectNode archiveBO = ml.addBusinessObject_ResourceSubject(ln, "Archives");
+
+		ResourceNode resR = ml.addResource(resBO);
+		ResourceNode orderR = ml.addResource(orderBO);
+		ResourceNode interactionR = ml.addResource(interactionBO);
+		ResourceNode archiveR = ml.addResource(archiveBO);
+
+		orderR.setParentRef(resR.getName(), "ID");
+		orderR.getParentRef().setPathTemplate("/Reservations/{resId}");
+		resR.setParentRef(interactionR.getName(), "ID");
+		resR.getParentRef().setPathTemplate("/Interactions/{interactionId}");
+		resR.setParentRef(archiveR.getName(), "ID");
+		resR.getParentRef().setPathTemplate("/Archives/{archiveId}");
+
+		// FIXME
+		checkActionURLs(orderR, "Reservation");
+
+	}
+
+	/**
+	 * Assure each action has an URL. If the resource has a parent, assure it contributes to the URL.
+	 * 
+	 * @param rn
+	 */
+	private void checkActionURLs(ResourceNode rn, String stringToFind) {
+		// LOGGER.debug("");
+		LOGGER.debug("Printing action URLs for " + rn);
+		for (ActionNode action : rn.getActions()) {
+			// Action request uses private pathTemplate for URLs
+			assert (action.getRequest() != null);
+			assert (action.getPathTemplate() != null); // pass thorugh to request
+			if (rn.getParentRef() != null)
+				assert (!action.getParentContribution().isEmpty());
+
+			// URL combines parent contribution with template params and payload
 			String url = action.getRequest().getURL();
-			LOGGER.debug("Parent contribution: " + action.getParentContribution());
-			LOGGER.debug(parentBO.getName() + " Example: " + url + ".");
-			assertTrue("Action has example.", !url.isEmpty());
-			assertTrue("Example must contain parent name", url.contains(parentBO.getName()));
-		}
+			// LOGGER.debug("Parent contribution: " + action.getParentContribution());
+			LOGGER.debug("Action URL: " + url);
+			assertTrue("Action has an URL.", !url.isEmpty());
 
-		// Given a grandparent resource
-		BusinessObjectNode grandParentBO = ml.addBusinessObjectToLibrary(ln, "GrandParent");
-		ResourceNode grandParentR = ml.addResource(grandParentBO);
-		grandParentR.setBasePath(grandParentBO.getName()); // base path is empty until set
-		assertTrue("Resource was created.", grandParentR != null);
+			if (stringToFind != null)
+				assertTrue("Example must contain " + stringToFind, url.contains(stringToFind));
 
-		// When - parent resource is set on parent resource
-		parentRef = parentResource.setParentRef(grandParentR.getName(), "ID");
-
-		// Then - examples include grandparent
-		for (ActionNode action : resource.getActions()) {
-			String url = action.getRequest().getURL();
-			LOGGER.debug("Grand parent contribution: " + action.getParentContribution());
-			LOGGER.debug(grandParentBO.getName() + " GP Example: " + url + ".");
-			assertTrue("Action must have example URL.", !url.isEmpty());
-			assertTrue("Example must contain grand parent name", url.contains(grandParentBO.getName()));
 		}
 
 	}

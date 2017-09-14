@@ -191,6 +191,7 @@ public class LoadFiles {
 	 * @return library node containing model created from the OTM file.
 	 */
 	public LibraryNode loadFile(MainController thisModel, String path) {
+		assertTrue(thisModel.getProjectController().getDefaultProject() != null);
 		ProjectNode project = thisModel.getProjectController().getDefaultProject();
 		LibraryNode ln = loadFile(project, path);
 		if (ln == null) {
