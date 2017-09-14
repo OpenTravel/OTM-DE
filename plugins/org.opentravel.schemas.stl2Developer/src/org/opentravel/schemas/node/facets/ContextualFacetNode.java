@@ -294,6 +294,8 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 
 	@Override
 	public boolean isEditable() {
+		if (getLibrary() == null)
+			return false;
 		if (getChain() == null)
 			return getLibrary().isEditable();
 		if (isInHead())
@@ -304,7 +306,7 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 
 	@Override
 	public boolean isEnabled_AddProperties() {
-		if (getLibrary() == null || isDeleted() || !isEditable())
+		if (isDeleted() || !isEditable())
 			return false; // not editable
 		if (getChain() == null)
 			return true; // editable and not in a chain
