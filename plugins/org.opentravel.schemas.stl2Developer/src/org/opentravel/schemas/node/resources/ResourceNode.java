@@ -76,7 +76,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		LibraryMemberInterface, ExtensionOwner {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceNode.class);
 
-	private Node subject = null;
+	// private Node subject = null;
 	private TLResource tlObj = null;
 	private String MSGKEY = "rest.ResourceNode";
 	private ExtensionHandler extensionHandler = null; // Lazy construction - created when accessed
@@ -365,8 +365,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	@Override
 	public String getDecoration() {
 		String decoration = "";
+		if (isAbstract())
+			decoration += " Abstract";
 		if (getSubject() != null)
 			decoration += "  (Exposes: " + getSubject().getNameWithPrefix() + ") - ";
+
 		String extensionTxt = " ";
 		// Is it an extension
 		if (this.isVersioned()) {
@@ -642,6 +645,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	public BusinessObjectNode getSubject() {
+		Node subject = null;
 		if (tlObj != null && tlObj.getBusinessObjectRef() != null) {
 			subject = this.getNode(tlObj.getBusinessObjectRef().getListeners());
 			// assert subject != null : "Missing listener on referenced business object.";
@@ -681,7 +685,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		if (getSubject() == null)
 			return new String[0];
 		List<FacetNode> facets = new ArrayList<FacetNode>();
-		for (Node facet : subject.getChildren())
+		for (Node facet : getSubject().getChildren())
 			if (facet instanceof FacetNode)
 				facets.add((FacetNode) facet);
 		int size = facets.size();
@@ -692,7 +696,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		int i = 0;
 		if (includeSubGrp)
 			fs[i++] = ResourceField.SUBGRP;
-		for (Node facet : subject.getChildren())
+		for (Node facet : getSubject().getChildren())
 			if (facet instanceof FacetNode)
 				fs[i++] = ResourceCodegenUtils.getActionFacetReferenceName((TLFacet) facet.getTLModelObject());
 		return fs;
@@ -832,13 +836,13 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		if (name == null || name.equals(ResourceField.NONE)) {
 			tlObj.setBusinessObjectRef(null);
 			tlObj.setBusinessObjectRefName("");
-			// LOGGER.debug("Set subject to null.");
-		}
-		for (Node n : getLibrary().getDescendants_LibraryMembers())
-			if (n instanceof BusinessObjectNode && n.getName().equals(name)) {
-				tlObj.setBusinessObjectRef((TLBusinessObject) n.getTLModelObject());
-				// LOGGER.debug("Set subect to " + name + ": " + tlObj.getBusinessObjectRefName());
-			}
+			LOGGER.debug("Set subject to null.");
+		} else
+			for (Node n : getLibrary().getDescendants_LibraryMembers())
+				if (n instanceof BusinessObjectNode && n.getName().equals(name)) {
+					tlObj.setBusinessObjectRef((TLBusinessObject) n.getTLModelObject());
+					LOGGER.debug("Set subect to " + name + ": " + tlObj.getBusinessObjectRefName());
+				}
 	}
 
 	public void setSubject(Node subject) {
@@ -979,7 +983,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	 */
 	@Override
 	public TypeProvider getRequiredType() {
-		return subject != null ? null : ModelNode.getUndefinedNode();
+		return getSubject() != null ? null : ModelNode.getUndefinedNode();
 	}
 
 	/**** Extension Owner Methods ****/

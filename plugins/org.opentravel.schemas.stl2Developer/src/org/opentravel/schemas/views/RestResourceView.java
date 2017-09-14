@@ -793,7 +793,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 
 				pf.button = new Button(objectPropertyGroup, SWT.PUSH);
 				post(pf.button, field.getValue(), field);
-				pf.button.setEnabled(enabled);
+				pf.button.setEnabled(enabled && field.isEnabled());
 				pf.button.addSelectionListener(new ObjectSelectionListener());
 				Button linkedButton = pf.button;
 				// Clear button

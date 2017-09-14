@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.codegen.impl.QualifiedAction;
 import org.opentravel.schemacompiler.codegen.util.ResourceCodegenUtils;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionRequest;
@@ -246,9 +245,11 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	 */
 	public String getParentContribution() {
 		String contribution = getOwningComponent().getTLModelObject().getBasePath();
-		List<QualifiedAction> qa = ResourceCodegenUtils.getQualifiedActions(getTLModelObject());
-		// Pick any one of these
-		String template = qa.get(0).getPathTemplate();
+
+		// // Pick any one of these
+		// List<QualifiedAction> qa = ResourceCodegenUtils.getQualifiedActions(getTLModelObject());
+		// if (qa.isEmpty()) return contribution;
+		// String template = qa.get(0).getPathTemplate();
 
 		List<TLResourceParentRef> list = ResourceCodegenUtils.getInheritedParentRefs(getOwningComponent()
 				.getTLModelObject());
