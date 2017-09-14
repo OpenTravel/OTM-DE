@@ -46,7 +46,7 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 
 		switch (event.getType()) {
 		case MEMBER_ADDED:
-			// LOGGER.debug("Member added Ownership change event: added " + affectedNode + " to " + thisNode);
+			LOGGER.debug("Member adding Ownership change event: added " + affectedNode + " to " + thisNode);
 			// No listener on TLObject - do nothing
 			if (affectedNode == null)
 				return;
@@ -70,7 +70,7 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 			break;
 
 		case MEMBER_REMOVED:
-			// LOGGER.debug("Ownership change event: removed " + affectedNode + " from " + thisNode);
+			LOGGER.debug("Ownership change event: removing " + affectedNode + " from " + thisNode);
 			// Remove affected from this library
 			if (affectedNode == null || affectedNode.getParent() == null)
 				return; // happens during deletes

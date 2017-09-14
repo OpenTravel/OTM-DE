@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ContributionManager;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuListener2;
 import org.eclipse.jface.action.IMenuManager;
@@ -51,7 +52,6 @@ import org.opentravel.schemas.actions.AssignTypeAction;
 import org.opentravel.schemas.actions.ChangeAction;
 import org.opentravel.schemas.actions.CommitLibraryAction;
 import org.opentravel.schemas.actions.CopyNodeAction;
-import org.opentravel.schemas.actions.FinalizeLibraryAction;
 import org.opentravel.schemas.actions.ImportObjectToLibraryAction;
 import org.opentravel.schemas.actions.LifeCycleAction;
 import org.opentravel.schemas.actions.LockLibraryAction;
@@ -101,6 +101,7 @@ import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
+import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.DefaultStringProperties;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.Messages;
@@ -152,7 +153,7 @@ public class NavigatorMenus extends TreeViewer {
 		final MenuManager roleObjectMenu = new MenuManager("Object", "Role_ID");
 
 		final MenuManager basicObjectMenu = new MenuManager("Object", "Basic_Object_ID");
-		final MenuManager basicWithCopyDeleteMoveMenu = new MenuManager("Object", "Basic_With_CopyDeleteMove_ID");
+		final MenuManager deleteMoveMenu = new MenuManager("Object", "Basic_With_CopyDeleteMove_ID");
 
 		final MenuManager xpFacetObjectMenu = new MenuManager("Object", "ExtPointFacet_Object_ID");
 		final MenuManager simpleObjectMenu = new MenuManager("Object", "Simple_Object_ID");
@@ -169,11 +170,13 @@ public class NavigatorMenus extends TreeViewer {
 				"Copy_ID", Messages.getString("action.menu.navigation.copy.tooltip"));
 		final MenuManager moveMenu = new DisableIfEmptyMenu(Messages.getString("action.menu.navigation.move"),
 				"Move_ID", Messages.getString("action.menu.navigation.move.tooltip"));
+		final MenuManager versionMenu = new MenuManager("Version...", "VersionMenuID");
 
+		// Define the Actions
 		final Action newLibraryAction = new NewLibraryAction(mainWindow, new ExternalizedStringProperties("action.new"));
 		final Action openLibraryAction = new OpenLibraryAction();
 		final Action commitLibraryAction = new CommitLibraryAction();
-		final Action finalizeLibraryAction = new FinalizeLibraryAction();
+		// final Action finalizeLibraryAction = new FinalizeLibraryAction();
 		final Action lockLibraryAction = new LockLibraryAction();
 		final Action unlockLibraryAction = new UnlockLibraryAction();
 
@@ -181,61 +184,57 @@ public class NavigatorMenus extends TreeViewer {
 		final Action lifeCycle_review = new LifeCycleAction(TLLibraryStatus.UNDER_REVIEW);
 		final Action lifeCycle_obsolete = new LifeCycleAction(TLLibraryStatus.OBSOLETE);
 
-		final IContributionItem validateAction = RCPUtils.createCommandContributionItem(site,
-				ValidateHandler.COMMAND_ID, null, null, ValidateHandler.getIcon());
-
-		// Project Menu Items
-		final IContributionItem closeProjectAction = RCPUtils.createCommandContributionItem(site,
-				CloseProjectHandler.COMMAND_ID, null, null, null);
-		final IContributionItem openProjectAction = RCPUtils.createCommandContributionItem(site,
-				OpenProjectHandler.COMMAND_ID, null, null, null);
-		final Action newProjectAction = new NewProjectAction();
-		final IContributionItem compileAction = RCPUtils.createCommandContributionItem(site, CompileHandler.COMMAND_ID,
-				null, null, null);
-		final IContributionItem versionUpdateAction = RCPUtils.createCommandContributionItem(site,
-				VersionUpdateHandler.COMMAND_ID, null, null, null);
-
-		final IContributionItem saveAllLibrariesAction = RCPUtils.createCommandContributionItem(site,
-				SaveLibrariesHandler.COMMAND_ID, null, null, SaveLibrariesHandler.getIcon());
-		final IContributionItem saveSelectedLibrariesAction = RCPUtils.createCommandContributionItem(site,
-				SaveLibraryHandler.COMMAND_ID, null, null, SaveLibraryHandler.getIcon());
-		final IContributionItem closeLibraries = RCPUtils.createCommandContributionItem(site,
-				CloseLibrariesHandler.COMMAND_ID, null, null, null);
-
-		final Action cloneObjectAction = new CopyNodeAction(mainWindow, new ExternalizedStringProperties(
-				"action.cloneObject"));
-
-		final Action changeObjectAction = new ChangeAction(mainWindow);
-
 		final Action addCrudqOperationsAction = new AddCRUDQOperationsAction(mainWindow,
 				new ExternalizedStringProperties("action.addCRUDQOperations"));
-
+		final Action cloneObjectAction = new CopyNodeAction(mainWindow, new ExternalizedStringProperties(
+				"action.cloneObject"));
 		// This is the go-to approach - let the actions have default properties
+		final Action changeObjectAction = new ChangeAction(mainWindow);
 		final Action addAliasAction = new AddAliasAction(mainWindow);
 		final Action addCustomFacetAction = new AddCustomFacetAction();
 		final Action addChoiceFacetAction = new AddChoiceFacetAction();
 		final Action addEnumValueAction = new AddEnumValueAction(mainWindow);
 		final Action addOperationAction = new AddOperationAction();
+		final Action addQueryFacetAction = new AddQueryFacetAction(mainWindow);
+		final Action addRoleAction = new AddRoleAction(mainWindow);
+		final Action replaceAction = new AssignTypeAction(mainWindow);
 
-		final IContributionItem newComplexAction = RCPUtils.createCommandContributionItem(site,
+		final IContributionItem validateCommand = RCPUtils.createCommandContributionItem(site,
+				ValidateHandler.COMMAND_ID, null, null, ValidateHandler.getIcon());
+
+		// Contribution Items - used for command handlers
+		final IContributionItem closeProjectCommand = RCPUtils.createCommandContributionItem(site,
+				CloseProjectHandler.COMMAND_ID, null, null, null);
+		final IContributionItem openProjectCommand = RCPUtils.createCommandContributionItem(site,
+				OpenProjectHandler.COMMAND_ID, null, null, null);
+		final Action newProjectAction = new NewProjectAction();
+		final IContributionItem compileCommand = RCPUtils.createCommandContributionItem(site,
+				CompileHandler.COMMAND_ID, null, null, null);
+		final IContributionItem versionUpdateCommand = RCPUtils.createCommandContributionItem(site,
+				VersionUpdateHandler.COMMAND_ID, null, null, null);
+
+		final IContributionItem saveAllLibrariesCommand = RCPUtils.createCommandContributionItem(site,
+				SaveLibrariesHandler.COMMAND_ID, null, null, SaveLibrariesHandler.getIcon());
+		final IContributionItem saveSelectedLibrariesCommand = RCPUtils.createCommandContributionItem(site,
+				SaveLibraryHandler.COMMAND_ID, null, null, SaveLibraryHandler.getIcon());
+		final IContributionItem closeLibrariesCommand = RCPUtils.createCommandContributionItem(site,
+				CloseLibrariesHandler.COMMAND_ID, null, null, null);
+
+		final IContributionItem newComplexCommand = RCPUtils.createCommandContributionItem(site,
 				NewComponentHandler.COMMAND_ID, Messages.getString("action.newComplex.text"), null, null);
-		final IContributionItem addPropertiesAction = RCPUtils.createCommandContributionItem(site,
+		final IContributionItem addPropertiesCommand = RCPUtils.createCommandContributionItem(site,
 				AddNodeHandler2.COMMAND_ID, Messages.getString("action.addProperty.text"), null,
 				AddNodeHandler2.getIcon());
 
-		final Action addQueryFacetAction = new AddQueryFacetAction(mainWindow);
-		final Action addRoleAction = new AddRoleAction(mainWindow);
-
-		final IContributionItem deleteObjectAction = RCPUtils.createCommandContributionItem(site,
+		final IContributionItem deleteObjectCommand = RCPUtils.createCommandContributionItem(site,
 				DeleteNodesHandler.COMMAND_ID, null, null, null);
-		final Action replaceAction = new AssignTypeAction(mainWindow);
 
 		// Expose Business Object as Resource Service action
-		final IContributionItem newResourceAction = RCPUtils.createCommandContributionItem(site,
+		final IContributionItem newResourceCommand = RCPUtils.createCommandContributionItem(site,
 				ResourceCommandHandler.COMMAND_ID, "New Resource", null, ResourceCommandHandler.getIcon());
 
-		final MenuManager versionMenu = new MenuManager("Version...", "VersionMenuID");
-
+		// Site registered top menu
+		//
 		final MenuManager menuManager = new MenuManager();
 		final Menu menu = menuManager.createContextMenu(this.getControl());
 		site.registerContextMenu(menuManager, this);
@@ -243,13 +242,12 @@ public class NavigatorMenus extends TreeViewer {
 		menuManager.addMenuListener(new IMenuListener2() {
 
 			private void createMenu() {
-				libraryChainMenu.removeAll();
-				libraryChainMenu.add(closeLibraries);
+				addToMenu(libraryChainMenu, closeLibrariesCommand);
 
 				libraryMenu.removeAll();
 				libraryMenu.add(newLibraryAction);
 				libraryMenu.add(openLibraryAction);
-				libraryMenu.add(validateAction);
+				libraryMenu.add(validateCommand);
 				libraryMenu.add(new Separator());
 				libraryMenu.add(manageInMenu);
 				libraryMenu.add(versionMenu);
@@ -261,30 +259,29 @@ public class NavigatorMenus extends TreeViewer {
 				libraryMenu.add(lifeCycle_finalize);
 				libraryMenu.add(lifeCycle_obsolete);
 				libraryMenu.add(new Separator());
-				libraryMenu.add(saveSelectedLibrariesAction);
-				libraryMenu.add(saveAllLibrariesAction);
+				libraryMenu.add(saveSelectedLibrariesCommand);
+				libraryMenu.add(saveAllLibrariesCommand);
 				libraryMenu.add(new Separator());
-				libraryMenu.add(closeLibraries);
+				libraryMenu.add(closeLibrariesCommand);
 
-				versionUpdateMenu.add(versionUpdateAction);
+				versionUpdateMenu.add(versionUpdateCommand);
+
 				projectMenu.removeAll();
-				projectMenu.add(closeProjectAction);
+				projectMenu.add(closeProjectCommand);
 				projectMenu.add(newProjectAction);
-				projectMenu.add(openProjectAction);
-				projectMenu.add(compileAction);
+				projectMenu.add(openProjectCommand);
+				projectMenu.add(compileCommand);
 
 				whereUsedMenu.removeAll();
 				whereUsedMenu.add(replaceAction);
 
-				navigationMenu.removeAll();
-				navigationMenu.add(newComplexAction);
-				navigationMenu.add(newResourceAction);
+				addToMenu(navigationMenu, newComplexCommand, newResourceCommand);
 
 				componentMenu.removeAll();
 				componentMenu.add(addAliasAction);
-				componentMenu.add(addPropertiesAction);
+				componentMenu.add(addPropertiesCommand);
 
-				componentMenu.add(addPropertiesAction);
+				componentMenu.add(addPropertiesCommand);
 				componentMenu.add(new Separator());
 				componentMenu.add(addCustomFacetAction);
 				componentMenu.add(addQueryFacetAction);
@@ -294,94 +291,77 @@ public class NavigatorMenus extends TreeViewer {
 				componentMenu.add(new Separator());
 				componentMenu.add(changeObjectAction);
 				componentMenu.add(cloneObjectAction);
-				componentMenu.add(deleteObjectAction);
+				componentMenu.add(deleteObjectCommand);
 				componentMenu.add(copyMenu);
 				componentMenu.add(moveMenu);
-				componentMenu.add(validateAction);
+				componentMenu.add(validateCommand);
 				componentMenu.add(new Separator());
-				componentMenu.add(newComplexAction);
-				componentMenu.add(newResourceAction);
+				componentMenu.add(newComplexCommand);
+				componentMenu.add(newResourceCommand);
 
 				facetMenu.removeAll();
-				facetMenu.add(addPropertiesAction);
+				facetMenu.add(addPropertiesCommand);
 				facetMenu.add(addRoleAction);
 				facetMenu.add(addEnumValueAction);
 				facetMenu.add(new Separator());
 				facetMenu.add(changeObjectAction);
-				facetMenu.add(deleteObjectAction);
+				facetMenu.add(deleteObjectCommand);
 				facetMenu.add(addCustomFacetAction);
 				facetMenu.add(addQueryFacetAction);
 				facetMenu.add(addChoiceFacetAction);
 				facetMenu.add(new Separator());
-				facetMenu.add(newComplexAction);
+				facetMenu.add(newComplexCommand);
 
 				propertyMenu.removeAll();
-				propertyMenu.add(addPropertiesAction);
-				propertyMenu.add(deleteObjectAction);
+				propertyMenu.add(addPropertiesCommand);
+				propertyMenu.add(deleteObjectCommand);
 				propertyMenu.add(addRoleAction);
 				propertyMenu.add(addEnumValueAction);
 				propertyMenu.add(new Separator());
-				propertyMenu.add(newComplexAction);
+				propertyMenu.add(newComplexCommand);
 
-				basicObjectMenu.removeAll();
-				basicObjectMenu.add(newComplexAction);
-				basicObjectMenu.add(copyMenu);
+				addToMenu(basicObjectMenu, newComplexCommand, copyMenu);
 
 				roleObjectMenu.removeAll();
 				roleObjectMenu.add(addRoleAction);
 				roleObjectMenu.add(new Separator());
-				roleObjectMenu.add(newComplexAction);
+				roleObjectMenu.add(newComplexCommand);
 
-				basicWithCopyDeleteMoveMenu.removeAll();
-				basicWithCopyDeleteMoveMenu.add(copyMenu);
-				basicWithCopyDeleteMoveMenu.add(deleteObjectAction);
-				basicWithCopyDeleteMoveMenu.add(moveMenu);
-				basicWithCopyDeleteMoveMenu.add(new Separator());
-				basicWithCopyDeleteMoveMenu.add(newComplexAction);
+				addToMenu(deleteMoveMenu, deleteObjectCommand, moveMenu);
 
 				simpleObjectMenu.removeAll();
 				simpleObjectMenu.add(cloneObjectAction);
-				simpleObjectMenu.add(deleteObjectAction);
+				simpleObjectMenu.add(deleteObjectCommand);
 				simpleObjectMenu.add(moveMenu);
 				simpleObjectMenu.add(copyMenu);
 				simpleObjectMenu.add(new Separator());
-				simpleObjectMenu.add(newComplexAction);
+				simpleObjectMenu.add(newComplexCommand);
 
 				enumObjectMenu.removeAll();
-				enumObjectMenu.add(addPropertiesAction);
+				enumObjectMenu.add(addPropertiesCommand);
 				enumObjectMenu.add(addEnumValueAction);
 				enumObjectMenu.add(new Separator());
 				enumObjectMenu.add(changeObjectAction);
 				enumObjectMenu.add(cloneObjectAction);
 				enumObjectMenu.add(moveMenu);
 				enumObjectMenu.add(copyMenu);
-				enumObjectMenu.add(deleteObjectAction);
+				enumObjectMenu.add(deleteObjectCommand);
 				enumObjectMenu.add(new Separator());
-				enumObjectMenu.add(newComplexAction);
+				enumObjectMenu.add(newComplexCommand);
 
-				operationObjectMenu.removeAll();
-				operationObjectMenu.add(addPropertiesAction);
-				operationObjectMenu.add(new Separator());
-				operationObjectMenu.add(deleteObjectAction);
-				operationObjectMenu.add(new Separator());
-				operationObjectMenu.add(newComplexAction);
+				addToMenu(operationObjectMenu, addPropertiesCommand, new Separator(), deleteObjectCommand,
+						new Separator(), newComplexCommand);
 
-				xpFacetObjectMenu.removeAll();
-				xpFacetObjectMenu.add(addPropertiesAction);
-				xpFacetObjectMenu.add(new Separator());
-				xpFacetObjectMenu.add(moveMenu);
-				xpFacetObjectMenu.add(copyMenu);
-				xpFacetObjectMenu.add(deleteObjectAction);
-				xpFacetObjectMenu.add(new Separator());
-				xpFacetObjectMenu.add(newComplexAction);
+				addToMenu(xpFacetObjectMenu, addPropertiesCommand, new Separator(), moveMenu, copyMenu,
+						deleteObjectCommand, new Separator(), newComplexCommand);
 
 				serviceObjectMenu.removeAll();
 				serviceObjectMenu.add(addOperationAction);
 				serviceObjectMenu.add(addCrudqOperationsAction);
 				serviceObjectMenu.add(new Separator());
-				serviceObjectMenu.add(deleteObjectAction);
+				serviceObjectMenu.add(deleteObjectCommand);
 				serviceObjectMenu.add(new Separator());
-				serviceObjectMenu.add(newComplexAction);
+				serviceObjectMenu.add(newComplexCommand);
 
 			}
 
@@ -431,7 +411,7 @@ public class NavigatorMenus extends TreeViewer {
 					} else if (node instanceof TypeProviderWhereUsedNode) {
 						manager.add(whereUsedMenu);
 					} else if (node instanceof LibraryProviderNode) {
-						manager.add(versionUpdateAction);
+						manager.add(versionUpdateCommand);
 					} else if (node instanceof ProjectNode || node instanceof LibraryNode
 							|| node instanceof LibraryNavNode || node instanceof LibraryChainNode
 							|| node instanceof NavNode) {
@@ -448,6 +428,8 @@ public class NavigatorMenus extends TreeViewer {
 								manager.add(serviceObjectMenu);
 							} else if (node instanceof OperationNode) {
 								manager.add(operationObjectMenu);
+							} else if (node instanceof ResourceNode) {
+								manager.add(deleteMoveMenu);
 								//
 							} else if (node instanceof BusinessObjectNode) {
 								manager.add(componentMenu);
@@ -552,6 +534,18 @@ public class NavigatorMenus extends TreeViewer {
 		});
 		menuManager.setRemoveAllWhenShown(true);
 		getControl().setMenu(menu);
+	}
+
+	/**
+	 * Clear the menu then add the items in the array
+	 * 
+	 * @param menu
+	 * @param contributionItems
+	 */
+	protected void addToMenu(ContributionManager menu, IContributionItem... contributionItems) {
+		menu.removeAll();
+		for (IContributionItem item : contributionItems)
+			menu.add(item);
 	}
 
 	public static List<Action> createRepositoryActionsForLibraries(final Node lib) {
