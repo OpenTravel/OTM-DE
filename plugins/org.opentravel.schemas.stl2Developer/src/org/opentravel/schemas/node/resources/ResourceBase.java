@@ -67,9 +67,9 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 
 			assert parent != null;
 			assert parent instanceof ResourceMemberInterface;
-			assert parent.getLibrary() != null;
-
-			setLibrary(parent.getLibrary());
+			// assert parent.getLibrary() != null;
+			//
+			// setLibrary(parent.getLibrary());
 			((ResourceMemberInterface) getParent()).addChild(this);
 			addChildren(); // can't add children unless parent known.
 			addListeners();
@@ -227,7 +227,7 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 
 	@Override
 	public boolean isEditable() {
-		return getLibrary().isEditable();
+		return getLibrary() == null ? false : getLibrary().isEditable();
 	}
 
 	@Override
