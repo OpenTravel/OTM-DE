@@ -780,7 +780,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				pf.spinner.setToolTipText(Messages.getString(field.getKey() + ".tooltip"));
 				pf.spinner.setToolTipText(Messages.getString(field.getKey() + ".tooltip"));
 				// pf.spinner.setBackground(objectPropertyGroup.getBackground());
-				pf.spinner.setValues(Integer.parseInt(field.getValue()), 1, 1000, 0, 1, 100);
+				pf.spinner.setValues(Integer.parseInt(field.getValue()), 1, 10000, 0, 1, 100);
 				pf.spinner.addSelectionListener(new SpinnerListener());
 				pf.spinner.setData(field);
 				pf.spinner.setEnabled(enabled);
