@@ -41,6 +41,7 @@ import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
 import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLContextReferrer;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationItem;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
@@ -615,6 +616,21 @@ public abstract class Node implements INode {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Assure this node and all its descendants use the default context id.
+	 */
+	public void fixContexts() {
+		// 3/23/2017 - simplified context handling to just set to new library default.
+		if (getLibrary() == null)
+			return;
+		String ctx = getLibrary().getDefaultContextId();
+		for (Node child : getDescendants())
+			if (child.getTLModelObject() instanceof TLContextReferrer)
+				((TLContextReferrer) child.getTLModelObject()).setContext(ctx);
+
+		assert getLibrary().getTLLibrary().getContexts().size() == 1;
 	}
 
 	@Override

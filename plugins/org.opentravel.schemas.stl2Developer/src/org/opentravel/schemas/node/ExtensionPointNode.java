@@ -22,7 +22,6 @@ import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.modelObject.ExtensionPointFacetMO;
-import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
@@ -43,7 +42,7 @@ import org.opentravel.schemas.types.TypeUser;
  * @author Dave Hollander
  * 
  */
-public class ExtensionPointNode extends PropertyOwnerNode implements ComplexComponentInterface, ExtensionOwner,
+public class ExtensionPointNode extends LibraryMemberBase implements ComplexComponentInterface, ExtensionOwner,
 		PropertyOwnerInterface, LibraryMemberInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionPointNode.class);
 	private ExtensionHandler extensionHandler = null;
@@ -113,6 +112,11 @@ public class ExtensionPointNode extends PropertyOwnerNode implements ComplexComp
 	public String getName() {
 		return getTLModelObject() == null || getTLModelObject().getLocalName() == null
 				|| getTLModelObject().getLocalName().isEmpty() ? "-not assigned-" : getTLModelObject().getLocalName();
+	}
+
+	@Override
+	public Node getOwningComponent() {
+		return this;
 	}
 
 	@Override

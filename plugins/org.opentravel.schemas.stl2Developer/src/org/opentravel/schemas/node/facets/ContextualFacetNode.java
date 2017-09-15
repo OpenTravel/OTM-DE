@@ -16,6 +16,8 @@
 package org.opentravel.schemas.node.facets;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.LibraryElement;
+import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
@@ -23,6 +25,7 @@ import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
@@ -123,6 +126,49 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 			((ContextualFacetNode) newNode).setOwner((ContextualFacetOwnerInterface) getOwningComponent());
 		((TLContextualFacet) newNode.getTLModelObject()).setOwningLibrary(parent.getLibrary().getTLModelObject());
 		return newNode;
+	}
+
+	@Override
+	public ContextualFacetNode copy(LibraryNode destLib) throws IllegalArgumentException {
+		if (destLib == null)
+			destLib = getLibrary();
+
+		// Clone the TL object
+		LibraryMember tlCopy = cloneTL();
+
+		// Create contextual facet from the copy
+		Node copy = NodeFactory.newComponent_UnTyped(tlCopy);
+		if (!(copy instanceof ContextualFacetNode))
+			throw new IllegalArgumentException("Unable to copy " + this);
+		ContextualFacetNode cf = (ContextualFacetNode) copy;
+
+		// Fix any contexts
+		cf.fixContexts();
+
+		// Set where contributed
+		ContextualFacetOwnerInterface owner = null;
+		ContributedFacetNode contributed = getWhereContributed();
+		if (contributed != null && contributed.getOwningComponent() instanceof ContextualFacetOwnerInterface)
+			owner = (ContextualFacetOwnerInterface) cf.getOwningComponent();
+		if (owner != null)
+			cf.setOwner(owner);
+
+		// Set the library for all children (bug patch)
+		for (Node child : cf.getDescendants())
+			child.setLibrary(cf.getLibrary());
+
+		destLib.addMember(cf);
+		return cf;
+	}
+
+	public LibraryMember cloneTL() throws IllegalArgumentException {
+		if (getLibrary() == null)
+			throw new IllegalArgumentException("Can not clone without having a library.");
+
+		// Create the clone, throws exception
+		LibraryElement newLE = getTLModelObject().cloneElement(getLibrary().getTLModelObject());
+
+		return (LibraryMember) newLE;
 	}
 
 	@Override
@@ -271,6 +317,9 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 		return (TLContextualFacet) modelObject.getTLModelObj();
 	}
 
+	/**
+	 * @return the whereContributed field identifying the contributedNode on the injected object.
+	 */
 	public ContributedFacetNode getWhereContributed() {
 		return whereContributed;
 	}

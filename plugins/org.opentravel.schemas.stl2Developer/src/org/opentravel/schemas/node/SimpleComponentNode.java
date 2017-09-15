@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public abstract class SimpleComponentNode extends TypeProviderBase implements SimpleComponentInterface, TypeUser,
+public abstract class SimpleComponentNode extends LibraryMemberBase implements SimpleComponentInterface, TypeUser,
 		LibraryMemberInterface, TypeProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleComponentNode.class);
 

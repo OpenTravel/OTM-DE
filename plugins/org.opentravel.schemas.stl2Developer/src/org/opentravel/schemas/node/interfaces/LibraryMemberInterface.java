@@ -15,6 +15,8 @@
  */
 package org.opentravel.schemas.node.interfaces;
 
+import org.opentravel.schemas.node.libraries.LibraryNode;
+
 /**
  * Implementors are objects that are first class, named members of the library.
  * 
@@ -34,5 +36,14 @@ public interface LibraryMemberInterface extends INode {
 	public String getNameWithPrefix();
 
 	public boolean isValid();
+
+	/**
+	 * Create a copy of this node in destination library
+	 * 
+	 * @param destLib
+	 *            library to add copy to. This library used if null.
+	 * @return the copied node
+	 */
+	public LibraryMemberInterface copy(LibraryNode destLib) throws IllegalArgumentException;
 
 }

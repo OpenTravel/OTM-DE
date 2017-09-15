@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class CoreObjectNode extends TypeProviderBase implements ComplexComponentInterface, ExtensionOwner,
+public class CoreObjectNode extends LibraryMemberBase implements ComplexComponentInterface, ExtensionOwner,
 		VersionedObjectInterface, LibraryMemberInterface, TypeProvider, SimpleAttributeOwner {
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = LoggerFactory.getLogger(CoreObjectNode.class);

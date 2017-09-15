@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class ChoiceObjectNode extends TypeProviderBase implements ComplexComponentInterface, ExtensionOwner,
+public class ChoiceObjectNode extends LibraryMemberBase implements ComplexComponentInterface, ExtensionOwner,
 		ContextualFacetOwnerInterface, VersionedObjectInterface, LibraryMemberInterface, TypeProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
 

@@ -49,7 +49,7 @@ import org.opentravel.schemas.types.TypeProvider;
  * @author Dave Hollander
  * 
  */
-public class VWA_Node extends TypeProviderBase implements ComplexComponentInterface, ExtensionOwner,
+public class VWA_Node extends LibraryMemberBase implements ComplexComponentInterface, ExtensionOwner,
 		VersionedObjectInterface, LibraryMemberInterface, SimpleAttributeOwner {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(VWA_Node.class);
 	private ExtensionHandler extensionHandler = null;

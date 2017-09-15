@@ -40,7 +40,7 @@ import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.ExtensionHandler;
 import org.opentravel.schemas.types.TypeProvider;
 
-public class EnumerationOpenNode extends TypeProviderBase implements ComplexComponentInterface, Enumeration,
+public class EnumerationOpenNode extends LibraryMemberBase implements ComplexComponentInterface, Enumeration,
 		ExtensionOwner, VersionedObjectInterface, LibraryMemberInterface, TypeProvider {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(EnumerationOpenNode.class);
 	private ExtensionHandler extensionHandler = null;

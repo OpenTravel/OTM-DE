@@ -21,7 +21,9 @@ package org.opentravel.schemas.node.resources;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.util.ResourceCodegenUtils;
@@ -30,12 +32,14 @@ import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionFacet;
+import org.opentravel.schemacompiler.model.TLActionResponse;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLParamGroup;
+import org.opentravel.schemacompiler.model.TLParameter;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemacompiler.model.TLResourceParentRef;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
@@ -49,6 +53,7 @@ import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
@@ -218,12 +223,84 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 			getChildren().add((Node) child);
 	}
 
-	@Override
-	public TLResource cloneTLObj() {
+	public TLResource cloneTL() {
 		TLResource newTL = (TLResource) super.cloneTLObj();
-		// Put the newTL in a library because it's node can't be built otherwise
-		getTLModelObject().getOwningLibrary().addNamedMember(newTL);
+
+		// Clone has a bo ref name but not a bo ref
+		newTL.setBusinessObjectRef(getTLModelObject().getBusinessObjectRef());
+
+		// Parameter group facet references are not set
+		for (TLParamGroup pg : getTLModelObject().getParamGroups())
+			// Find matching param group and set facet ref
+			for (TLParamGroup npg : newTL.getParamGroups())
+				if (npg.getName().equals(pg.getName())) {
+					npg.setFacetRef(pg.getFacetRef());
+					// Each parameter must have its field set
+					for (TLParameter p : pg.getParameters())
+						for (TLParameter np : npg.getParameters())
+							if (np.getFieldRefName().equals(p.getFieldRefName()))
+								np.setFieldRef(p.getFieldRef());
+				}
+
+		// This could be simplified by using the names as keys, but it is working so i didn't do that.
+		// Create Action Facet mapping for use in response payload type
+		Map<TLActionFacet, TLActionFacet> facets = new HashMap<TLActionFacet, TLActionFacet>();
+		for (TLActionFacet af : getTLModelObject().getActionFacets())
+			for (TLActionFacet naf : newTL.getActionFacets())
+				if (naf.getName().equals(af.getName()))
+					facets.put(af, naf);
+		// Create parameter group map for use in requests
+		Map<TLParamGroup, TLParamGroup> groups = new HashMap<TLParamGroup, TLParamGroup>();
+		for (TLParamGroup pg : getTLModelObject().getParamGroups())
+			for (TLParamGroup npg : newTL.getParamGroups())
+				if (npg.getName().equals(pg.getName()))
+					groups.put(pg, npg);
+
+		// Action request parameter group
+		for (TLAction a : getTLModelObject().getActions())
+			for (TLAction na : newTL.getActions())
+				if (na.getActionId().equals(a.getActionId())) {
+					// Set request parameter group and payload type
+					if (na.getRequest() != null) {
+						na.getRequest().setParamGroup(groups.get(a.getRequest().getParamGroup()));
+						if (na.getRequest().getPayloadTypeName() != null
+								&& na.getRequest().getPayloadTypeName().equals(a.getRequest().getPayloadTypeName()))
+							na.getRequest().setPayloadType(facets.get(a.getRequest().getPayloadType()));
+					}
+					// Set responses payload types
+					for (TLActionResponse r : a.getResponses())
+						for (TLActionResponse nr : na.getResponses())
+							if (nr.getPayloadTypeName() != null
+									&& nr.getPayloadTypeName().equals(r.getPayloadTypeName()))
+								nr.setPayloadType(facets.get(r.getPayloadType()));
+				}
+
+		// ValidationFindings findings = TLModelCompileValidator.validateModelElement((TLModelElement) newTL, true);
+		// assert findings.isEmpty();
+
 		return newTL;
+	}
+
+	@Override
+	public ResourceNode copy(LibraryNode destLib) throws IllegalArgumentException {
+		if (destLib == null)
+			destLib = getLibrary();
+
+		// Clone the TL object
+		TLResource tlCopy = cloneTL();
+
+		// Create contextual facet from the copy
+		Node copy = NodeFactory.newComponent_UnTyped(tlCopy);
+		if (!(copy instanceof ResourceNode))
+			throw new IllegalArgumentException("Unable to copy " + this);
+		ResourceNode resource = (ResourceNode) copy;
+
+		// Fix any contexts
+		resource.fixContexts();
+
+		destLib.addMember(resource);
+
+		return resource;
 	}
 
 	/**

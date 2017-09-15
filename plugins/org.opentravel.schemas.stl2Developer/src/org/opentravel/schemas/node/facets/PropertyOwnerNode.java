@@ -26,7 +26,6 @@ import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.node.CoreObjectNode;
-import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.TypeProviderBase;
@@ -166,7 +165,7 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 
 	@Override
 	public Node getOwningComponent() {
-		return this instanceof ExtensionPointNode ? this : getParent();
+		return getParent();
 	}
 
 	/**

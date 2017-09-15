@@ -227,7 +227,8 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 
 	@Override
 	public boolean isEditable() {
-		return getLibrary() == null ? false : getLibrary().isEditable();
+		return getOwningComponent() == null && getOwningComponent().getLibrary() != null ? false : getOwningComponent()
+				.getLibrary().isEditable();
 	}
 
 	@Override

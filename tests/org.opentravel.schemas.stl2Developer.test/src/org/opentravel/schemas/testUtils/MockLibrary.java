@@ -60,6 +60,7 @@ import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.OperationTests;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.ResourceObjectTests;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.ServiceTests;
 import org.opentravel.schemas.node.SimpleTypeNode;
@@ -655,6 +656,8 @@ public class MockLibrary {
 			new ServiceTests().check((ServiceNode) node);
 		else if (node instanceof OperationNode)
 			new OperationTests().check((OperationNode) node);
+		else if (node instanceof ResourceNode)
+			new ResourceObjectTests().check((ResourceNode) node);
 		else
 			LOGGER.debug("TODO - add tests for " + node.getClass().getSimpleName() + " object type.");
 

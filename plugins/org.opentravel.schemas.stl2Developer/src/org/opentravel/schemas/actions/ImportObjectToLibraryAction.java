@@ -22,6 +22,7 @@ import java.util.List;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -100,6 +101,18 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 			else if (!(n.getLibrary()).equals(destination))
 				eligibleForImporting.add(n);
 		}
+		// Resources use the simpler library.copyMember(object) method, do them now.
+		LibraryNode done = null;
+		for (Node n : sourceNodes)
+			if (n instanceof ResourceNode) {
+				destination.copyMember((ResourceNode) n);
+				done = n.getLibrary();
+			}
+		if (done != null) {
+			mc.refresh(done); // refresh everything.
+			return;
+		}
+
 		// check to see if a service is being imported and is legal to do so
 		if (destination.hasService()) {
 			for (Node n : eligibleForImporting)

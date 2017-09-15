@@ -1077,6 +1077,22 @@ public class LibraryNode extends Node implements LibraryInterface {
 	}
 
 	/**
+	 * Copy a member into this library.
+	 * 
+	 * @param source
+	 * @return cloned source object added to this library
+	 * @throws IllegalArgumentException
+	 */
+	public LibraryMemberInterface copyMember(final LibraryMemberInterface source) throws IllegalArgumentException {
+		if (source == null || ((Node) source).getTLModelObject() == null)
+			throw new IllegalArgumentException("Null in copy source model.");
+		if (!(getTLModelObject() instanceof TLLibrary))
+			throw new IllegalArgumentException("Copy destination library is not a TLLibrary.");
+
+		return source.copy(this);
+	}
+
+	/**
 	 * Move a node from its library to a different library. Moves the node and underlying TL object.
 	 * 
 	 * @param source

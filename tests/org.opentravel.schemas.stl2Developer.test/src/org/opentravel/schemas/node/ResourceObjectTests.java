@@ -96,10 +96,10 @@ public class ResourceObjectTests {
 		new ResourceBuilder().build(rn4, bo);
 
 		// Then - must be complete
-		checkResource(rn1);
-		checkResource(rn2);
-		checkResource(rn3);
-		checkResource(rn4);
+		check(rn1);
+		check(rn2);
+		check(rn3);
+		check(rn4);
 	}
 
 	@Test
@@ -109,7 +109,7 @@ public class ResourceObjectTests {
 
 		for (Node n : testLib.getDescendants_LibraryMembers()) {
 			if (n instanceof ResourceNode)
-				checkResource((ResourceNode) n);
+				check((ResourceNode) n);
 		}
 	}
 
@@ -119,7 +119,7 @@ public class ResourceObjectTests {
 		LibraryNode ln = ml.createNewLibrary("http://example.com/resource", "RT", pc.getDefaultProject());
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "MyBo");
 		ResourceNode rn = ml.addResource(bo);
-		checkResource(rn);
+		check(rn);
 
 		// Given
 		Collection<TypeUser> l1 = bo.getWhereAssigned();
@@ -134,6 +134,68 @@ public class ResourceObjectTests {
 		// Then
 		assertTrue("Resource must be deleted.", rn.isDeleted());
 		assertTrue("Resource must NOT be in subject's where-used list.", !bo.getWhereUsedAndDescendants().contains(rn));
+	}
+
+	@Test
+	public void resource_CopyTests() {
+
+		// Given - a destination library in a different namespace from the source
+		LibraryNode destLib = ml.createNewLibrary_Empty("http://opentravel.org/Test/tx", "TL2", pc.getDefaultProject());
+		// Given - a valid resource using mock library provided business object
+		LibraryNode srcLib = ml.createNewLibrary(pc, "ResourceTestLib");
+		BusinessObjectNode bo = null;
+		for (Node n : srcLib.getDescendants_LibraryMembers())
+			if (n instanceof BusinessObjectNode) {
+				bo = (BusinessObjectNode) n;
+				break;
+			}
+		ResourceNode resource = ml.addResource(bo);
+		assertTrue("Resource created must not be null.", resource != null);
+		ml.check(resource);
+		ml.check(srcLib);
+
+		// When - copied to destination library
+		destLib.copyMember(resource);
+		// Then - source lib is not changed
+		assertTrue(srcLib.contains(resource));
+		ml.check(srcLib);
+		ml.check(resource);
+		// Then - it is copied and is valid
+		ResourceNode newResource = null;
+		for (Node r : destLib.getDescendants_LibraryMembers())
+			if (r.getName().equals(resource.getName()))
+				newResource = (ResourceNode) r;
+		assertTrue(destLib.contains(newResource));
+		BusinessObjectNode subject = newResource.getSubject();
+		ml.check(newResource);
+		ml.check(destLib);
+	}
+
+	@Test
+	public void resource_MoveTests() {
+
+		// Given - a valid resource using mock library provided business object
+		LibraryNode srcLib = ml.createNewLibrary(pc, "ResourceTestLib");
+		LibraryNode destLib = ml.createNewLibrary(pc, "ResourceTestLib2");
+		BusinessObjectNode bo = null;
+		for (Node n : srcLib.getDescendants_LibraryMembers())
+			if (n instanceof BusinessObjectNode) {
+				bo = (BusinessObjectNode) n;
+				break;
+			}
+		ResourceNode resource = ml.addResource(bo);
+		assertTrue("Resource created must not be null.", resource != null);
+		ml.check(resource);
+		ml.check(srcLib);
+
+		// When - moved to destination library
+		srcLib.moveMember(resource, destLib);
+		// Then - it is moved and is valid
+		assertTrue(!srcLib.contains(resource));
+		assertTrue(destLib.contains(resource));
+		ml.check(resource);
+		ml.check(srcLib);
+		ml.check(destLib);
 	}
 
 	@Test
@@ -159,7 +221,7 @@ public class ResourceObjectTests {
 			if (action.getName().startsWith("Get"))
 				assertTrue(
 						"Get example must be correct.",
-						url.startsWith("GET http://example.com/ResourceTestLibInitialBOs/{testIdResourceTestLibInitialBO}/{TestEleInIDResourceTestLibInitialBO}"));
+						url.startsWith("GET http://example.com/ResourceTestLibInitialBOs/{testIdResourceTestLibInitialBO}/{ResourceTestLibInitialBOID}"));
 		}
 	}
 
@@ -316,7 +378,7 @@ public class ResourceObjectTests {
 		assertTrue("Resource does not have ParentRef child.", !resource.getChildren().contains(parentRef));
 	}
 
-	private void checkResource(ResourceNode resource) {
+	private void check(ResourceNode resource) {
 		LOGGER.debug("Checking resource: " + resource);
 
 		Assert.assertTrue(resource instanceof ResourceNode);
@@ -342,16 +404,16 @@ public class ResourceObjectTests {
 
 		Object o;
 		for (ResourceMemberInterface rmi : resource.getActionFacets())
-			checkResource(rmi);
+			check(rmi);
 		for (ResourceMemberInterface rmi : resource.getActions()) {
-			checkResource(rmi);
+			check(rmi);
 			for (Node child : rmi.getChildren())
-				checkResource((ResourceMemberInterface) child);
+				check((ResourceMemberInterface) child);
 		}
 		for (ResourceMemberInterface rmi : resource.getParameterGroups(false)) {
-			checkResource(rmi);
+			check(rmi);
 			for (Node child : rmi.getChildren())
-				checkResource((ResourceMemberInterface) child);
+				check((ResourceMemberInterface) child);
 		}
 
 		o = tlr.getBusinessObjectRef();
@@ -368,7 +430,7 @@ public class ResourceObjectTests {
 
 	}
 
-	public void checkResource(ResourceMemberInterface resource) {
+	public void check(ResourceMemberInterface resource) {
 		// LOGGER.debug("Checking " + resource + " " + resource.getClass().getSimpleName());
 		assert resource.getParent() != null;
 		assert resource.getName() != null;

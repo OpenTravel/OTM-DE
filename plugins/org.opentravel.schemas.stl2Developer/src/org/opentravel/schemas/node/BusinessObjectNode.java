@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class BusinessObjectNode extends TypeProviderBase implements ComplexComponentInterface, ExtensionOwner,
+public class BusinessObjectNode extends LibraryMemberBase implements ComplexComponentInterface, ExtensionOwner,
 		ContextualFacetOwnerInterface, VersionedObjectInterface, LibraryMemberInterface, TypeProvider {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
