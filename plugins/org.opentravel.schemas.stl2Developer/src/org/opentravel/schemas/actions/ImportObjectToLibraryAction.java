@@ -33,6 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Copies or import objects into a library.
+ * 
  * @author Agnieszka Janowska / Dave Hollander
  * 
  */

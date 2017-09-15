@@ -327,6 +327,7 @@ public class NavigatorMenus extends TreeViewer {
 				roleObjectMenu.add(new Separator());
 				roleObjectMenu.add(newComplexCommand);
 
+				// addToMenu(deleteMoveMenu, deleteObjectCommand, copyMenu, moveMenu);
 				addToMenu(deleteMoveMenu, deleteObjectCommand, moveMenu);
 
 				simpleObjectMenu.removeAll();

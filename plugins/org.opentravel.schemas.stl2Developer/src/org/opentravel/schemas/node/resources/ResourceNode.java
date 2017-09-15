@@ -218,6 +218,14 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 			getChildren().add((Node) child);
 	}
 
+	@Override
+	public TLResource cloneTLObj() {
+		TLResource newTL = (TLResource) super.cloneTLObj();
+		// Put the newTL in a library because it's node can't be built otherwise
+		getTLModelObject().getOwningLibrary().addNamedMember(newTL);
+		return newTL;
+	}
+
 	/**
 	 * Do Nothing.
 	 */
