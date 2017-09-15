@@ -234,6 +234,40 @@ public class FacetsTests {
 		assertTrue("Attribute facet must have 9 properties.", an.getChildren().size() == 9);
 	}
 
+	@Test
+	public void Facets_copyContextualFacet_Tests() {
+		OTM16Upgrade.otm16Enabled = true;
+
+		// Given libraries loaded from file that contain contextual facets
+		// NOTE: Only version 1.6 and later.
+		// Note: load order is important if the compiler is to resolve contributors
+		// Lib1 has two of each contextual facet type, one contributing to base lib objects
+		LibraryNode lib1 = lf.loadFile_Facets1(defaultProject);
+		LibraryNode lib2 = lf.loadFile_Facets2(defaultProject); // one of each
+		LibraryNode baseLib = lf.loadFile_FacetBase(defaultProject);
+		lib1.setEditable(false);
+		lib2.setEditable(false);
+		baseLib.setEditable(true);
+
+		// Given - a destination library
+		LibraryNode destLib = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
+		// int destCF_Count = destLib.getDescendants_ContextualFacets().size();
+
+		// When - facets copied from non-editable library
+		// Then - destination library should contain a facet with that name
+		boolean found = false;
+		for (ContextualFacetNode cf : lib1.getDescendants_ContextualFacets()) {
+			destLib.copyMember(cf);
+			for (ContextualFacetNode candidate : destLib.getDescendants_ContextualFacets())
+				if (candidate.getName().equals(cf.getName()))
+					found = true;
+			assert found == true;
+			found = false;
+		}
+
+		OTM16Upgrade.otm16Enabled = false;
+	}
+
 	// TODO
 	// createPropertyTests()
 	// getComponentType

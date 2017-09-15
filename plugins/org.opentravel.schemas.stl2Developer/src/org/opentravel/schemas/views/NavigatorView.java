@@ -37,6 +37,7 @@ import org.opentravel.schemas.controllers.ValidationManager;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.RoleNode;
@@ -213,6 +214,8 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 			n = (((VersionNode) node).getNewestVersion());
 		else
 			n = node;
+		if (n instanceof ContextualFacetNode)
+			n = (((ContextualFacetNode) n).getWhereContributed().getOwningComponent());
 
 		if (n != null) {
 			setCurrentNode(n);
