@@ -423,14 +423,15 @@ public class NavigatorMenus extends TreeViewer {
 						manager.add(projectMenu);
 					} else if (node instanceof ComponentNode) {
 						if (node.isInModel()) {
-							if (!node.isEditable()) {
+							// TODO - after resources can be copied move this to after OperationNode
+							if (node instanceof ResourceNode) {
+								manager.add(deleteMoveMenu);
+							} else if (!node.isEditable()) {
 								manager.add(basicObjectMenu);
 							} else if (node instanceof ServiceNode) {
 								manager.add(serviceObjectMenu);
 							} else if (node instanceof OperationNode) {
 								manager.add(operationObjectMenu);
-							} else if (node instanceof ResourceNode) {
-								manager.add(deleteMoveMenu);
 								//
 							} else if (node instanceof BusinessObjectNode) {
 								manager.add(componentMenu);
