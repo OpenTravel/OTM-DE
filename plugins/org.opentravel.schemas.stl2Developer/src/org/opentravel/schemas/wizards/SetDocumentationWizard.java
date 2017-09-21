@@ -20,7 +20,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Shell;
-import org.opentravel.schemas.node.Node.DocTypes;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
@@ -30,6 +29,10 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
  * 
  */
 public class SetDocumentationWizard extends ValidatingWizard implements ModifyListener, Cancelable {
+
+	public static enum DocTypes {
+		Description, Deprecation, MoreInformation, Implementer, ReferenceLink
+	}
 
 	private SetDocumentationWizardPage page;
 	private boolean canceled;
@@ -44,6 +47,7 @@ public class SetDocumentationWizard extends ValidatingWizard implements ModifyLi
 	 * Wizard to enter documentation text.
 	 */
 	public SetDocumentationWizard() {
+		props = docProps;
 	}
 
 	/**

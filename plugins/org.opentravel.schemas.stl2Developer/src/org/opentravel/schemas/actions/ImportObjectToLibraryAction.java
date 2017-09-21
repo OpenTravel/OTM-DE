@@ -21,6 +21,8 @@ import java.util.List;
 
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.Messages;
@@ -101,13 +103,16 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 			else if (!(n.getLibrary()).equals(destination))
 				eligibleForImporting.add(n);
 		}
+
+		//
 		// Resources use the simpler library.copyMember(object) method, do them now.
-		LibraryNode done = null;
+		Node done = null;
 		for (Node n : sourceNodes)
 			if (n instanceof ResourceNode) {
-				destination.copyMember((ResourceNode) n);
+				destination.copyMember((LibraryMemberInterface) n);
 				done = n.getLibrary();
-			}
+			} else if (n instanceof ContextualFacetNode)
+				done = (Node) destination.copyMember((LibraryMemberInterface) n);
 		if (done != null) {
 			mc.refresh(done); // refresh everything.
 			return;

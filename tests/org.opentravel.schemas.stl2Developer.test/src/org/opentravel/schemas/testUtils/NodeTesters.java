@@ -146,8 +146,11 @@ public class NodeTesters {
 		Assert.assertFalse(n.getNodeID().isEmpty()); // used in drag-n-drop
 		Assert.assertNotNull(n.getParent());
 
-		if (!n.isLibraryContainer())
+		if (!n.isLibraryContainer()) {
+			if (n instanceof SimpleFacetNode)
+				LOGGER.debug(n + " getting library: " + n.getLibrary());
 			Assert.assertNotNull("Missing library on " + n, n.getLibrary());
+		}
 		Assert.assertNotNull(n.getLibraries());
 		Assert.assertNotNull(n.getUserLibraries());
 

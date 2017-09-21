@@ -84,7 +84,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Create and maintain the facet table panel. Posts content into the table. Maintains a current and previous node
- * cursor. Maintains enabled/disabled state on the buttons. See {@link LibraryTablePoster}
+ * cursor. Maintains enabled/disabled state on the buttons. See {@link LibraryTablePosterWithButtons}
  * 
  * @author Dave Hollander
  */

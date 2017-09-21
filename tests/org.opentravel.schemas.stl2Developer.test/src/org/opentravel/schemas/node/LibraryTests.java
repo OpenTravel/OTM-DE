@@ -393,7 +393,7 @@ public class LibraryTests {
 			if (ln != toLib && ln != fromLib) {
 				// if (!ln.isInChain())
 				// new LibraryChainNode(ln);
-
+				ln.setEditable(true);
 				int libCount = ln.getDescendants_LibraryMembers().size();
 				assertTrue(Node.GetNode(ln.getTLLibrary()) == ln);
 
@@ -401,32 +401,37 @@ public class LibraryTests {
 					if (n instanceof ServiceNode)
 						continue;
 
-					// Custom Facet test case
-					// if (n instanceof BusinessObjectNode && !((BusinessObjectNode) n).getCustomFacets().isEmpty())
-					// LOGGER.debug("Business Object with custom facets.");
 					LOGGER.debug("Moving " + n + " from " + n.getLibrary() + " to " + toLib);
 					assertTrue(n.getLibrary() == ln);
+					assertTrue(n.getLibrary().isEditable());
+					assertTrue(toLib.isEditable());
+					try {
+						if (n.getLibrary().moveMember(n, toLib))
+							count++;
+						assertTrue("To Lib must contain moved member.",
+								toLib.getDescendants_LibraryMembers().contains(n));
 
-					if (n.getLibrary().moveMember(n, toLib))
-						count++;
-					assertTrue("To Lib must contain moved member.", toLib.getDescendants_LibraryMembers().contains(n));
+						// Make sure the node is removed.
+						if (libCount - 1 != ln.getDescendants_LibraryMembers().size()) {
+							List<Node> dl = ln.getDescendants_LibraryMembers();
+							LOGGER.debug("Bad Counts: " + dl.size());
+						}
+						// Assert.assertEquals(--libCount, ln.getDescendants_LibraryMembers().size());
 
-					// Make sure the node is removed.
-					if (libCount - 1 != ln.getDescendants_LibraryMembers().size()) {
-						List<Node> dl = ln.getDescendants_LibraryMembers();
-						LOGGER.debug("Bad Counts: " + dl.size());
-					}
-					// Assert.assertEquals(--libCount, ln.getDescendants_LibraryMembers().size());
-
-					// Track toLib count growth - use to breakpoint when debugging
-					int toCount = toLib.getDescendants_LibraryMembers().size();
-					if (count != toCount) {
-						LOGGER.debug("Problem with " + n);
+						// Track toLib count growth - use to breakpoint when debugging
+						int toCount = toLib.getDescendants_LibraryMembers().size();
+						if (count != toCount)
+							LOGGER.debug("Problem with " + n);
 						// count = toCount; // fix the count so the loop can continue
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						LOGGER.debug("Failed to move " + n + " because " + e.getLocalizedMessage());
 					}
 				}
 			}
+
 		}
+
 		Assert.assertEquals(1, toLibContexts.size());
 		Assert.assertEquals(count, toLib.getDescendants_LibraryMembers().size());
 

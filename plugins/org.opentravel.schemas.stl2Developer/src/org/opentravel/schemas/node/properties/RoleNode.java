@@ -68,7 +68,7 @@ public class RoleNode extends PropertyNode {
 
 		getParent().getChildren().add(index, n);
 		n.setParent(getParent());
-		setLibrary(getParent().getLibrary());
+		// setLibrary(getParent().getLibrary());
 		n.setName(type.getName());
 		n.setDescription(type.getDescription());
 		return n;

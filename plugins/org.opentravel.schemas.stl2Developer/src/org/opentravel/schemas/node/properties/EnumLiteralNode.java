@@ -71,7 +71,7 @@ public class EnumLiteralNode extends PropertyNode {
 		EnumLiteralNode n = new EnumLiteralNode(tlObj, null);
 		getParent().getChildren().add(index, n);
 		n.setParent(getParent());
-		n.setLibrary(getLibrary());
+		// n.setLibrary(getLibrary());
 		n.setName(type.getName());
 		return n;
 	}

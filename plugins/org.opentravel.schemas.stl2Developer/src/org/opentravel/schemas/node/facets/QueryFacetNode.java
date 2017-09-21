@@ -66,6 +66,8 @@ public class QueryFacetNode extends ContextualFacetNode {
 		// newFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
 		if (owner.getTLModelObject() instanceof TLBusinessObject)
 			((TLBusinessObject) owner.getTLModelObject()).addQueryFacet(newFacet);
+		else if (owner.getTLModelObject() instanceof TLContextualFacet)
+			((TLContextualFacet) owner.getTLModelObject()).addChildFacet(newFacet);
 
 		super.add(owner, newFacet);
 	}

@@ -28,6 +28,7 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.SimpleFacetNodeListener;
 import org.opentravel.schemas.node.properties.SimpleAttributeNode;
@@ -56,7 +57,6 @@ public class SimpleFacetNode extends PropertyOwnerNode implements TypeProvider, 
 
 	public SimpleFacetNode(TLSimpleFacet obj) {
 		super(obj);
-
 		assert (modelObject instanceof SimpleFacetMO);
 		// TLSimpleFacet - SimpleFacetMO
 		// parent = Core Object Node, VWA
@@ -83,6 +83,13 @@ public class SimpleFacetNode extends PropertyOwnerNode implements TypeProvider, 
 	@Override
 	public Node getAssignable() {
 		return getChildren().get(0);
+	}
+
+	@Override
+	public LibraryNode getLibrary() {
+		if (getOwningComponent() == null || getOwningComponent() == this)
+			return null;
+		return getOwningComponent().getLibrary();
 	}
 
 	@Override

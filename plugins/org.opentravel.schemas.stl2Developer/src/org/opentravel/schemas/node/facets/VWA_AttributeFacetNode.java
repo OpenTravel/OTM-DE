@@ -22,6 +22,7 @@ import org.opentravel.schemas.modelObject.TLnValueWithAttributesFacet;
 import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
 
 /**
@@ -36,6 +37,13 @@ public class VWA_AttributeFacetNode extends PropertyOwnerNode {
 		super(tlObj);
 
 		assert (modelObject instanceof ValueWithAttributesAttributeFacetMO);
+	}
+
+	@Override
+	public LibraryNode getLibrary() {
+		if (getOwningComponent() == null || getOwningComponent() == this)
+			return null;
+		return getOwningComponent().getLibrary();
 	}
 
 	@Override

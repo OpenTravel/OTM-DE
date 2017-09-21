@@ -47,6 +47,7 @@ import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
@@ -554,7 +555,8 @@ public abstract class ComponentNode extends Node {
 			inheritedChildren.add(child);
 			child.setParent(this);
 			child.inherited = true;
-			child.setLibrary(getLibrary());
+			if (child instanceof LibraryMemberInterface)
+				child.setLibrary(getLibrary());
 		}
 		// LOGGER.debug("Linked inherited child " + child + " to parent " + this);
 		return true;

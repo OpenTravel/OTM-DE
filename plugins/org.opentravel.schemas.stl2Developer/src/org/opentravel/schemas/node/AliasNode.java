@@ -26,6 +26,7 @@ import org.opentravel.schemas.modelObject.AliasMO;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
@@ -110,6 +111,13 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 			if (n instanceof FacetNode)
 				((FacetNode) n).updateAliasNodes();
 		}
+	}
+
+	@Override
+	public LibraryNode getLibrary() {
+		if (getOwningComponent() == null || getOwningComponent() == this)
+			return null;
+		return getOwningComponent().getLibrary();
 	}
 
 	@Override

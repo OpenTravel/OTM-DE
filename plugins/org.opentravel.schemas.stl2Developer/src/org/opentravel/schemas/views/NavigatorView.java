@@ -396,7 +396,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	public void setCurrentNode(final INode n) {
 		prevNode = curNode;
 		curNode = (Node) n;
-		LOGGER.debug("Navigator view cur node set to: " + curNode + " and prev = " + prevNode);
+		// LOGGER.debug("Navigator view cur node set to: " + curNode + " and prev = " + prevNode);
 
 	}
 

@@ -43,6 +43,8 @@ import org.opentravel.schemacompiler.validate.FindingType;
 import org.opentravel.schemacompiler.validate.ValidationFinding;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.controllers.ProjectController;
+import org.opentravel.schemas.node.AliasNode;
+import org.opentravel.schemas.node.AliasTests;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.BusinessObjectTests;
 import org.opentravel.schemas.node.ChoiceObjectNode;
@@ -658,6 +660,8 @@ public class MockLibrary {
 			new OperationTests().check((OperationNode) node);
 		else if (node instanceof ResourceNode)
 			new ResourceObjectTests().check((ResourceNode) node);
+		else if (node instanceof AliasNode)
+			new AliasTests().check((AliasNode) node);
 		else
 			LOGGER.debug("TODO - add tests for " + node.getClass().getSimpleName() + " object type.");
 
@@ -668,6 +672,7 @@ public class MockLibrary {
 					LOGGER.debug(node + " is not valid but has no findings.");
 				printValidationFindings(node.getOwningComponent());
 				printValidationFindings(node);
+				LibraryNode l = node.getLibrary();
 				assertTrue("Node must be valid.", node.isValid());
 			}
 

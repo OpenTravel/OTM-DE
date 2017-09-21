@@ -114,10 +114,15 @@ import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.types.whereused.LibraryProviderNode;
 import org.opentravel.schemas.types.whereused.TypeProviderWhereUsedNode;
 import org.opentravel.schemas.utils.RCPUtils;
+import org.opentravel.schemas.views.decoration.LibraryDecorator;
 
 /**
  * Extend the treeViewer with menus and refresh behavior. Define menu managers and sets of menus. Define and instantiate
  * actions. Define members of the menus. Implement the menu listener
+ * 
+ * {@link LibraryTreeContentProvider} <br>
+ * {@link LibraryTreeLabelProvider} <br>
+ * {@link LibraryDecorator}
  * 
  * @author Dave Hollander
  * 

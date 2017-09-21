@@ -64,6 +64,8 @@ public class CustomFacetNode extends ContextualFacetNode {
 		// v1.5 and earlier throws ignored library member added event - NodeModelEventListener.
 		if (owner.getTLModelObject() instanceof TLBusinessObject)
 			((TLBusinessObject) owner.getTLModelObject()).addCustomFacet(tlFacet);
+		else if (owner.getTLModelObject() instanceof TLContextualFacet)
+			((TLContextualFacet) owner.getTLModelObject()).addChildFacet(tlFacet);
 		super.add(owner, tlFacet);
 	}
 

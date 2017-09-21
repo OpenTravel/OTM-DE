@@ -81,6 +81,9 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 		super(tlObj);
 		setContext();
 
+		// On initial construction,
+		// All properties created, parent is this node
+		// library listener is not set so all library links are not set
 		Node n = GetNode(tlObj.getOwningLibrary());
 		if (n instanceof LibraryNode)
 			setLibrary((LibraryNode) n);
@@ -142,22 +145,22 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 			throw new IllegalArgumentException("Unable to copy " + this);
 		ContextualFacetNode cf = (ContextualFacetNode) copy;
 
-		// Fix any contexts
-		cf.fixContexts();
-
 		// Set where contributed
 		ContextualFacetOwnerInterface owner = null;
 		ContributedFacetNode contributed = getWhereContributed();
 		if (contributed != null && contributed.getOwningComponent() instanceof ContextualFacetOwnerInterface)
-			owner = (ContextualFacetOwnerInterface) cf.getOwningComponent();
+			owner = (ContextualFacetOwnerInterface) contributed.getOwningComponent();
 		if (owner != null)
-			cf.setOwner(owner);
+			cf.setOwner(owner); // puts in owner's library
 
-		// Set the library for all children (bug patch)
-		for (Node child : cf.getDescendants())
-			child.setLibrary(cf.getLibrary());
+		destLib.addMember(cf); // removed from current library then add to destLib
 
-		destLib.addMember(cf);
+		// // Set the library for all children (bug patch)
+		// for (Node child : cf.getDescendants())
+		// child.setLibrary(cf.getLibrary());
+
+		// Fix any contexts
+		cf.fixContexts();
 		return cf;
 	}
 
@@ -168,6 +171,8 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 		// Create the clone, throws exception
 		LibraryElement newLE = getTLModelObject().cloneElement(getLibrary().getTLModelObject());
 
+		// Owning library is null
+		// OwningEntity is null, but does have owning entity name
 		return (LibraryMember) newLE;
 	}
 
@@ -260,6 +265,18 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	}
 
 	/**
+	 * Version 1.6 and later is a library member so return library field.
+	 * <p>
+	 * Version 1.5 and older return owning component's library.
+	 */
+	@Override
+	public LibraryNode getLibrary() {
+		if (canBeLibraryMember())
+			return library;
+		return getOwningComponent() != null && getOwningComponent() != this ? getOwningComponent().getLibrary() : null;
+	}
+
+	/**
 	 * Get the full name of this contextual (custom or query) facet. Name is the facet name plus its parent(s) names to
 	 * create global type name.
 	 */
@@ -299,10 +316,12 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	 */
 	@Override
 	public Node getOwningComponent() {
-		if (getTLModelObject() == null)
-			return null;
-		if (getTLModelObject().getOwningEntity() == null)
+		// 9/18/2017 - for version 1.6, contextual facets are their own owners
+		if (canBeLibraryMember())
 			return this;
+
+		if (getTLModelObject() == null || getTLModelObject().getOwningEntity() == null)
+			return null;
 		return Node.GetNode(getTLModelObject().getOwningEntity());
 	}
 

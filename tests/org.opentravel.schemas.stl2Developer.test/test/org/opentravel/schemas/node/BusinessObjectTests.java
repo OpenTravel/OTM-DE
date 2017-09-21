@@ -170,7 +170,8 @@ public class BusinessObjectTests {
 		assertTrue(ln.contains(cf));
 		// Only true if non-versioned library - assertTrue("Contextual Facet parent must be nav node", cf.getParent() ==
 		// bo.getParent());
-		assertTrue(cf.getOwningComponent() == bo);
+		assertTrue(cf.getWhereContributed().getOwningComponent() == bo);
+		// Not true - assertTrue(cf.getOwningComponent() == bo);
 		assertTrue("Identity listener must be set.", Node.GetNode(((CustomFacetNode) cf).getTLModelObject()) == cf);
 
 		// When - adding elements and attributes to contextual facet

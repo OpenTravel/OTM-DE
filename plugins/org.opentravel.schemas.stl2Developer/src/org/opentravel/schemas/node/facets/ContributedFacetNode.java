@@ -200,6 +200,15 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 		return getContributor() == null ? null : getContributor().getModelObject();
 	}
 
+	/**
+	 * @return the owning entity as the object being contributed to
+	 */
+	@Override
+	public Node getOwningComponent() {
+		// 9/18/2017 - for version 1.6, contributed facets are owned by object contributed to
+		return getParent();
+	}
+
 	@Override
 	public TLContextualFacet getTLModelObject() {
 		return getContributor() == null ? tlContributor : getContributor().getTLModelObject();

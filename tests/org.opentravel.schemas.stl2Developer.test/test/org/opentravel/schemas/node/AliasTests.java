@@ -26,6 +26,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLAlias;
+import org.opentravel.schemacompiler.model.TLAliasOwner;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemas.controllers.DefaultProjectController;
@@ -131,5 +132,13 @@ public class AliasTests {
 			}
 			assertTrue("Facets must have an alias as child node.", found == true);
 		}
+	}
+
+	public boolean check(AliasNode alias) {
+		assertTrue("Alias must have parent.", alias.getParent() != null);
+		assertTrue("Alias TL Object must be present.", alias.getTLModelObject() instanceof TLAlias);
+		assertTrue("Parent TLObject must have alias.", !((TLAliasOwner) alias.getParent().getTLModelObject())
+				.getAliases().isEmpty());
+		return true;
 	}
 }

@@ -28,8 +28,6 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.Node.DocTypes;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.widgets.WidgetFactory;
 import org.opentravel.schemas.wizards.validators.FormValidator;
@@ -49,6 +47,23 @@ public class SetDocumentationWizardPage extends WizardPage implements ModifyList
 	private final FormValidator formValidator;
 	private final List<ModifyListener> modifyListeners;
 	private Combo docType;
+
+	public static String[] docTypeStrings = { "Description", "Deprecation", "MoreInformation", "Implementer",
+			"ReferenceLink" };
+
+	public static SetDocumentationWizard.DocTypes docTypeFromString(String type) {
+		if (type.equals(docTypeStrings[0]))
+			return SetDocumentationWizard.DocTypes.Description;
+		if (type.equals(docTypeStrings[1]))
+			return SetDocumentationWizard.DocTypes.Deprecation;
+		if (type.equals(docTypeStrings[2]))
+			return SetDocumentationWizard.DocTypes.MoreInformation;
+		if (type.equals(docTypeStrings[3]))
+			return SetDocumentationWizard.DocTypes.Implementer;
+		if (type.equals(docTypeStrings[4]))
+			return SetDocumentationWizard.DocTypes.ReferenceLink;
+		return null;
+	}
 
 	protected SetDocumentationWizardPage(final String props) {
 		super(Messages.getString(props + ".pageName"), Messages.getString(props + ".pageTitle"), null);
@@ -75,7 +90,8 @@ public class SetDocumentationWizardPage extends WizardPage implements ModifyList
 		docText.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		docType = WidgetFactory.createCombo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
-		docType.setItems(Node.docTypeStrings);
+		docType.setItems(docTypeStrings);
+		// docType.setItems(Node.docTypeStrings);
 		docType.select(1);
 		// Hide combo widget unless correct msgKey
 		docType.setVisible(msgKey.equals(SetDocumentationWizard.docProps));
@@ -95,8 +111,9 @@ public class SetDocumentationWizardPage extends WizardPage implements ModifyList
 	/**
 	 * @return the type of documentation text
 	 */
-	protected DocTypes getDocType() {
-		return Node.docTypeFromString(docType.getText());
+	protected SetDocumentationWizard.DocTypes getDocType() {
+		return docTypeFromString(docType.getText());
+		// return Node.docTypeFromString(docType.getText());
 	}
 
 	@Override

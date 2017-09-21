@@ -57,6 +57,7 @@ import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.facets.UpdateFacetNode;
 import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
+import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -255,14 +256,18 @@ public class FacetsTests {
 
 		// When - facets copied from non-editable library
 		// Then - destination library should contain a facet with that name
-		boolean found = false;
+		ContextualFacetNode found = null;
 		for (ContextualFacetNode cf : lib1.getDescendants_ContextualFacets()) {
+			if (cf instanceof ContributedFacetNode)
+				continue;
 			destLib.copyMember(cf);
 			for (ContextualFacetNode candidate : destLib.getDescendants_ContextualFacets())
 				if (candidate.getName().equals(cf.getName()))
-					found = true;
-			assert found == true;
-			found = false;
+					found = candidate;
+			assert found != null;
+			// Then the copy must be Ok
+			checkFacet(found);
+			found = null;
 		}
 
 		OTM16Upgrade.otm16Enabled = false;
@@ -309,6 +314,7 @@ public class FacetsTests {
 	public void Facets_editableTests_v15() {
 		OTM16Upgrade.otm16Enabled = false;
 		LibraryNode ln = lf.loadFile2(defaultProject);
+		assertTrue(ln != null);
 		ln.setEditable(true);
 		BusinessObjectNode bo = null;
 
@@ -361,9 +367,17 @@ public class FacetsTests {
 		for (Node n : lib1.getDescendants_ContextualFacets())
 			if (n instanceof ContributedFacetNode)
 				assertTrue(!n.isEditable()); // never edit contextual facets
-			else
+			else {
 				assertTrue("Must be editable.", n.isEditable());
-
+				assertTrue("Must be in Lib1", n.getLibrary() == lib1);
+				// Then - children must also be editable
+				for (Node child : n.getChildren()) {
+					if (!(child instanceof ContributedFacetNode)) {
+						assertTrue("Child must be in facet's library.", child.getLibrary() == n.getLibrary());
+						assertTrue("Child must be editable.", child.isEditable());
+					}
+				}
+			}
 		OTM16Upgrade.otm16Enabled = false;
 	}
 
@@ -746,59 +760,70 @@ public class FacetsTests {
 			assertTrue("Must be delete-able.", qn.isDeleteable());
 	}
 
-	public void checkFacet(ContextualFacetNode rf) {
+	public void checkFacet(ContextualFacetNode cf) {
 		// LOGGER.debug("Checking Contextual Facet: " + rf);
-		checkBaseFacet(rf);
+		checkBaseFacet(cf);
 
 		// setName()
 		//
 		final String NEWNAME = "myName";
-		final String oldName = rf.getName();
-		assertTrue("Must be renamable.", rf.isRenameable());
-		rf.setName(NEWNAME);
-		String n = rf.getName();
+		final String oldName = cf.getName();
+		assertTrue("Must be renamable.", cf.isRenameable());
+		cf.setName(NEWNAME);
+		String n = cf.getName();
 		assertTrue("Facet must contain new name.",
-				rf.getName().contains(NodeNameUtils.fixContextualFacetName(rf, NEWNAME)));
-		rf.setName(oldName);
+				cf.getName().contains(NodeNameUtils.fixContextualFacetName(cf, NEWNAME)));
+		cf.setName(oldName);
 
 		// Inherited statements
 		//
-		assertTrue("Must be assignable.", rf.isAssignable());
-		assertTrue("Must be assignable to complex.", rf.isComplexAssignable());
-		assertTrue("Must be valid parent to attributes.", rf.isValidParentOf(PropertyNodeType.ATTRIBUTE));
-		assertTrue("Must be valid parent to elements.", rf.isValidParentOf(PropertyNodeType.ELEMENT));
+		assertTrue("Must be assignable.", cf.isAssignable());
+		assertTrue("Must be assignable to complex.", cf.isComplexAssignable());
+		assertTrue("Must be valid parent to attributes.", cf.isValidParentOf(PropertyNodeType.ATTRIBUTE));
+		assertTrue("Must be valid parent to elements.", cf.isValidParentOf(PropertyNodeType.ELEMENT));
 		if (OTM16Upgrade.otm16Enabled)
-			assertTrue("Must be named entity.", rf.isNamedEntity());
+			assertTrue("Must be named entity.", cf.isNamedEntity());
 		else
-			assertFalse("Must NOT be named entity.", rf.isNamedEntity());
+			assertFalse("Must NOT be named entity.", cf.isNamedEntity());
 
-		assertFalse("Must NOT be assignable to element ref", rf.isAssignableToElementRef());
-		assertFalse("Must NOT be assignable to simple.", rf.isAssignableToSimple());
-		assertFalse("Must NOT be assignable to simple.", rf.isSimpleAssignable());
-		assertFalse("Must NOT be assignable to VWA.", rf.isAssignableToVWA());
-		assertFalse("Must NOT be default facet.", rf.isDefaultFacet());
-		assertFalse("Must NOT be named type.", rf.isNamedEntity());
+		assertFalse("Must NOT be assignable to element ref", cf.isAssignableToElementRef());
+		assertFalse("Must NOT be assignable to simple.", cf.isAssignableToSimple());
+		assertFalse("Must NOT be assignable to simple.", cf.isSimpleAssignable());
+		assertFalse("Must NOT be assignable to VWA.", cf.isAssignableToVWA());
+		assertFalse("Must NOT be default facet.", cf.isDefaultFacet());
+		if (OTM16Upgrade.otm16Enabled == false)
+			assertFalse("Must NOT be named type.", cf.isNamedEntity());
 
 		// Behaviors
 		//
-		AttributeNode attr = new AttributeNode(rf, "att1");
-		ElementNode ele = new ElementNode(rf, "ele1");
-		assertTrue("Must be able to add attributes.", attr.getParent() == rf);
-		assertTrue("Must be able to add elements.", ele.getParent() == rf);
-		assertTrue(rf.getChildren().contains(ele));
+		AttributeNode attr = new AttributeNode(cf, "att1");
+		ElementNode ele = new ElementNode(cf, "ele1");
+		assertTrue("Must be able to add attributes.", attr.getParent() == cf);
+		assertTrue("Must be able to add elements.", ele.getParent() == cf);
+		assertTrue(cf.getChildren().contains(ele));
 		attr.delete();
 		ele.delete();
-		assertFalse(rf.getChildren().contains(attr));
-		assertFalse(rf.getChildren().contains(ele));
+		assertFalse(cf.getChildren().contains(attr));
+		assertFalse(cf.getChildren().contains(ele));
 
-		if (rf instanceof QueryFacetNode)
-			checkFacet((QueryFacetNode) rf);
-		else if (rf instanceof CustomFacetNode)
-			checkFacet((CustomFacetNode) rf);
-		else if (rf instanceof UpdateFacetNode)
-			checkFacet((UpdateFacetNode) rf);
-		else if (rf instanceof ChoiceFacetNode)
-			checkFacet((ChoiceFacetNode) rf);
+		// relationships
+		//
+		if (OTM16Upgrade.otm16Enabled) {
+			// Contributed/contextual relationship
+			ContributedFacetNode contrib = cf.getWhereContributed();
+			assertTrue(contrib.getContributor() == cf);
+			assertTrue(contrib.getOwningComponent() instanceof ContextualFacetOwnerInterface);
+			assertTrue(contrib.getOwningComponent().getChildren().contains(contrib));
+		}
+
+		if (cf instanceof QueryFacetNode)
+			checkFacet((QueryFacetNode) cf);
+		else if (cf instanceof CustomFacetNode)
+			checkFacet((CustomFacetNode) cf);
+		else if (cf instanceof UpdateFacetNode)
+			checkFacet((UpdateFacetNode) cf);
+		else if (cf instanceof ChoiceFacetNode)
+			checkFacet((ChoiceFacetNode) cf);
 	}
 
 	public void checkFacet(UpdateFacetNode qn) {

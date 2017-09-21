@@ -73,8 +73,10 @@ public class ChoiceFacetNode extends ContextualFacetNode {
 		// tlFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
 		if (owner.getTLModelObject() instanceof TLChoiceObject)
 			((TLChoiceObject) owner.getTLModelObject()).addChoiceFacet(tlFacet);
+		else if (owner.getTLModelObject() instanceof TLContextualFacet)
+			((TLContextualFacet) owner.getTLModelObject()).addChildFacet(tlFacet);
 
-		super.add(owner, tlFacet);
+		super.add(owner, tlFacet); // Adds to owning object's library!
 	}
 
 	@Override

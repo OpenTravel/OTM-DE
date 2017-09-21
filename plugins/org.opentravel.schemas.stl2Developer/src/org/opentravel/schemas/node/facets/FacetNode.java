@@ -28,6 +28,7 @@ import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
@@ -75,6 +76,13 @@ public class FacetNode extends PropertyOwnerNode implements PropertyOwnerInterfa
 	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.Facet);
+	}
+
+	@Override
+	public LibraryNode getLibrary() {
+		if (getOwningComponent() == null || getOwningComponent() == this)
+			return null;
+		return getOwningComponent().getLibrary();
 	}
 
 	@Override

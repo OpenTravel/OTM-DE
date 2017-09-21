@@ -20,6 +20,7 @@ import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.AttributeNode;
@@ -132,7 +133,8 @@ public class NodeVisitors {
 			// LOGGER.warn("Warning, tried to delete " + node + " with no parent--skipped remove().");
 
 			node.setParent(null);
-			node.setLibrary(null);
+			if (node instanceof LibraryMemberInterface)
+				node.setLibrary(null);
 
 			// Remove the TL entity from the TL Model.
 			if (node.modelObject != null) {

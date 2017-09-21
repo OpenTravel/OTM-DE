@@ -1133,7 +1133,15 @@ public class LibraryNode extends Node implements LibraryInterface {
 				getTLLibrary().moveNamedMember((TLLibraryMember) source.getTLModelObject(), destination.getTLLibrary());
 			} catch (Exception e) {
 				// Failed to move.
-				destination = this;
+				// LibraryNode sl = source.getLibrary();
+				// boolean slRO = sl.getTLModelObject().isReadOnly();
+				// sl.getTLModelObject().addNamedMember(new TLBusinessObject());
+				// LibraryNode dl = destination;
+				// dl.getTLModelObject().addNamedMember(new TLBusinessObject());
+				// boolean dlRO = dl.getTLModelObject().isReadOnly();
+				// destination = this;
+				// getTLLibrary().moveNamedMember((TLLibraryMember) source.getTLModelObject(),
+				// destination.getTLLibrary());
 				throw new IllegalArgumentException("Internal Error - " + e.getLocalizedMessage());
 			}
 

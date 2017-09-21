@@ -39,11 +39,14 @@ import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.OperationFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.TypeUserListener;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.TypeUserHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Property nodes control element (property), attribute and indicator property model objects Simple Attributes and
@@ -56,7 +59,7 @@ import org.opentravel.schemas.types.TypeUserHandler;
  * 
  */
 public class PropertyNode extends ComponentNode implements TypeUser {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(PropertyNode.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(PropertyNode.class);
 
 	/**
 	 * A property within a facet can change roles. This class keeps track of the various implementations that may be
@@ -192,7 +195,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		if (parent != null) {
 			parent.getModelObject().addChild(tlObj); // link to TL model
 			((Node) parent).linkChild(this); // link to node model
-			setLibrary(parent.getLibrary());
+			// setLibrary(null);
 		}
 
 		typeHandler = new TypeUserHandler(this);
@@ -398,6 +401,18 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	public String getLabel() {
 		return getName();
 		// return modelObject.getLabel() == null ? "" : modelObject.getLabel();
+	}
+
+	/**
+	 * Properties are always in the library of their owning component.
+	 * 
+	 * @return library of the owning component
+	 */
+	@Override
+	public LibraryNode getLibrary() {
+		if (getOwningComponent() == null || getOwningComponent() == this)
+			return null;
+		return getOwningComponent().getLibrary() != null ? getOwningComponent().getLibrary() : null;
 	}
 
 	@Override
@@ -670,6 +685,11 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 
 	public IValueWithContextHandler setExample(String example) {
 		return null;
+	}
+
+	@Override
+	public void setLibrary(LibraryNode lib) {
+		LOGGER.debug("Obsolete - property set library - library is always from owner");
 	}
 
 	@Override

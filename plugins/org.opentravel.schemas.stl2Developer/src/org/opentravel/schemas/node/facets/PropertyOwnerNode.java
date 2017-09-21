@@ -31,6 +31,8 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.TypeProviderBase;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -148,6 +150,17 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.Facet);
+	}
+
+	@Override
+	public LibraryNode getLibrary() {
+		// contextual facets are property owners but are also library members in version 1.6
+		if (this instanceof LibraryMemberInterface)
+			return library;
+
+		if (getOwningComponent() == null || getOwningComponent() == this)
+			return null;
+		return getOwningComponent().getLibrary();
 	}
 
 	@Override

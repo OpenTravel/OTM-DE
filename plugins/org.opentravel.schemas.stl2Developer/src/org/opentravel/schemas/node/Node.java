@@ -117,9 +117,9 @@ public abstract class Node implements INode {
 	 * TODO - reconcile with the documentation view use of the documentation nodeManager. TODO - do the enum/string[]
 	 * right
 	 */
-	public static enum DocTypes {
-		Description, Deprecation, MoreInformation, Implementer, ReferenceLink
-	}
+	// public static enum DocTypes {
+	// Description, Deprecation, MoreInformation, Implementer, ReferenceLink
+	// }
 
 	/**
 	 * Public class for comparing nodes. Use: Collection.sort(list, node.new NodeComparable()) Uses node name and prefix
@@ -159,22 +159,23 @@ public abstract class Node implements INode {
 	protected static ModelNode root; // The root of the library catalog.
 
 	protected static int nodeCount = 1; // used to assign nodeID
-	public static String[] docTypeStrings = { "Description", "Deprecation", "MoreInformation", "Implementer",
-			"ReferenceLink" };
 
-	public static DocTypes docTypeFromString(String type) {
-		if (type.equals(docTypeStrings[0]))
-			return DocTypes.Description;
-		if (type.equals(docTypeStrings[1]))
-			return DocTypes.Deprecation;
-		if (type.equals(docTypeStrings[2]))
-			return DocTypes.MoreInformation;
-		if (type.equals(docTypeStrings[3]))
-			return DocTypes.Implementer;
-		if (type.equals(docTypeStrings[4]))
-			return DocTypes.ReferenceLink;
-		return null;
-	}
+	// public static String[] docTypeStrings = { "Description", "Deprecation", "MoreInformation", "Implementer",
+	// "ReferenceLink" };
+	//
+	// public static DocTypes docTypeFromString(String type) {
+	// if (type.equals(docTypeStrings[0]))
+	// return DocTypes.Description;
+	// if (type.equals(docTypeStrings[1]))
+	// return DocTypes.Deprecation;
+	// if (type.equals(docTypeStrings[2]))
+	// return DocTypes.MoreInformation;
+	// if (type.equals(docTypeStrings[3]))
+	// return DocTypes.Implementer;
+	// if (type.equals(docTypeStrings[4]))
+	// return DocTypes.ReferenceLink;
+	// return null;
+	// }
 
 	/**
 	 * Static method to return all libraries in the model.
@@ -284,7 +285,7 @@ public abstract class Node implements INode {
 		parent = null;
 		children = new ArrayList<Node>();
 		nodeID = Integer.toString(nodeCount++);
-		setLibrary(null);
+		library = null;
 		modelObject = newModelObject(new TLEmpty());
 		versionNode = null;
 	}
@@ -2191,7 +2192,7 @@ public abstract class Node implements INode {
 			getChildren().add(index, child);
 
 		child.setParent(this);
-		if (!(child instanceof LibraryNode))
+		if (child instanceof LibraryMemberInterface)
 			child.setLibrary(getLibrary());
 
 		// LOGGER.debug("Linked child " + child + " to parent " + this);
@@ -2354,12 +2355,17 @@ public abstract class Node implements INode {
 	 * 
 	 */
 	public void setKidsLibrary() {
-		for (final Node n : this.getChildren()) {
-			n.setLibrary(library);
-			if (n.getChildren() != null) {
-				n.setKidsLibrary();
-			}
-		}
+		if (library != null)
+			for (final Node n : getDescendants())
+				if (n instanceof LibraryMemberInterface)
+					((LibraryMemberInterface) n).setLibrary(library);
+
+		// for (final Node n : this.getChildren()) {
+		// if (n instanceof LibraryMemberInterface)
+		// ((LibraryMemberInterface) n).setLibrary(library);
+		// if (n.getChildren() != null && !n.getChildren().isEmpty())
+		// n.setKidsLibrary();
+		// }
 	}
 
 	/**

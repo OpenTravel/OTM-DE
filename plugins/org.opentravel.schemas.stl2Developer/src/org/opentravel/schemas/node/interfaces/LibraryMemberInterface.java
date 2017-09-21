@@ -23,11 +23,16 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
  * @author Dave
  *
  */
+
 public interface LibraryMemberInterface extends INode {
 
 	public String getName();
 
 	public String getLabel();
+
+	public LibraryNode getLibrary();
+
+	public void setLibrary(LibraryNode library);
 
 	public String getPrefix();
 

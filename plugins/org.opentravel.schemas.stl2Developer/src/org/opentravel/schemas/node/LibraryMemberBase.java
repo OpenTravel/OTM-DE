@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Base class for all Library Members.
+ * Base class for most Library Members. Contextual facets extend facets not this.
  * 
  * @author Dave Hollander
  * 
@@ -79,4 +79,13 @@ public abstract class LibraryMemberBase extends TypeProviderBase implements Libr
 		return lm;
 	}
 
+	@Override
+	public LibraryNode getLibrary() {
+		return library;
+	}
+
+	@Override
+	public void setLibrary(LibraryNode library) {
+		this.library = library;
+	}
 }
