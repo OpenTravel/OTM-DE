@@ -29,8 +29,6 @@ import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Command Handler for deleting nodes from the model.
@@ -44,7 +42,8 @@ import org.slf4j.LoggerFactory;
 public class DeleteNodesHandler extends OtmAbstractHandler {
 
 	public static final String COMMAND_ID = ActionFactory.DELETE.getCommandId();
-	private final static Logger LOGGER = LoggerFactory.getLogger(DeleteNodesHandler.class);
+
+	// private final static Logger LOGGER = LoggerFactory.getLogger(DeleteNodesHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
