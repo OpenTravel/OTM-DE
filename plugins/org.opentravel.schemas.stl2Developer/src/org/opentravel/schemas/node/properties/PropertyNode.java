@@ -689,7 +689,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 
 	@Override
 	public void setLibrary(LibraryNode lib) {
-		LOGGER.debug("Obsolete - property set library - library is always from owner");
+		// LOGGER.debug("Obsolete - property set library - library is always from owner");
 	}
 
 	@Override

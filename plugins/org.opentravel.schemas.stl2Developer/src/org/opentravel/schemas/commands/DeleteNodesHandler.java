@@ -33,9 +33,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Command Handler for deleting nodes from the model. Enabled by
- * {@link org.opentravel.schemas.testers.NodeTester#canDelete()} IS_DELETEABLE which simply invokes isDeletable() on
- * each node.
+ * Command Handler for deleting nodes from the model.
+ * 
+ * Enabled by {@link org.opentravel.schemas.testers.NodeTester#canDelete()} IS_DELETEABLE which simply invokes
+ * isDeletable() on each node.
  * 
  * @author Dave Hollander
  * 

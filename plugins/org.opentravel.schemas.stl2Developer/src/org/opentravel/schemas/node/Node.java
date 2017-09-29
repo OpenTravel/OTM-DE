@@ -110,6 +110,13 @@ import org.w3c.dom.Document;
  * 
  */
 public abstract class Node implements INode {
+	private static final Logger LOGGER = LoggerFactory.getLogger(Node.class);
+	// See ImpliedNodeType
+	public static final String UNDEFINED_PROPERTY_TXT = "Missing";
+	// TO DO - eliminate root from node. It should be maintained by the model controller.
+	protected static ModelNode root; // The root of the library catalog.
+
+	protected static int nodeCount = 1; // used to assign nodeID
 
 	/**
 	 * ************************ Documentation ****************************
@@ -146,19 +153,11 @@ public abstract class Node implements INode {
 		public void visit(INode n);
 	}
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(Node.class);
-	// See ImpliedNodeType
-	public static final String UNDEFINED_PROPERTY_TXT = "Missing";
-
 	/**
 	 * Within the node classes, public adders and setters are responsible for keeping the nodes and underlying library
 	 * model in sync.
 	 * 
 	 */
-	// TO DO - eliminate root from node. It should be maintained by the model controller.
-	protected static ModelNode root; // The root of the library catalog.
-
-	protected static int nodeCount = 1; // used to assign nodeID
 
 	// public static String[] docTypeStrings = { "Description", "Deprecation", "MoreInformation", "Implementer",
 	// "ReferenceLink" };

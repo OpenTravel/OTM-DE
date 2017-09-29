@@ -32,6 +32,7 @@ import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.controllers.ValidationManager;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.INodeListener;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.listeners.ResourceDependencyListener;
@@ -178,6 +179,11 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 	@Override
 	public String getLabel() {
 		return getName();
+	}
+
+	@Override
+	public LibraryNode getLibrary() {
+		return getOwningComponent().getLibrary();
 	}
 
 	@Override
