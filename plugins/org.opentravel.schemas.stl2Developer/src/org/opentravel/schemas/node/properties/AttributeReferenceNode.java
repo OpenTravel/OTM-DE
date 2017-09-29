@@ -132,10 +132,10 @@ public class AttributeReferenceNode extends PropertyNode {
 		return getTLModelObject().getOwner().getAttributes().indexOf(getTLModelObject());
 	}
 
-	// @Override
-	// public boolean isMandatory() {
-	// return getTLModelObject().isMandatory();
-	// }
+	@Override
+	public boolean isMandatory() {
+		return getTLModelObject().isMandatory();
+	}
 
 	@Override
 	public boolean isRenameable() {
@@ -166,6 +166,15 @@ public class AttributeReferenceNode extends PropertyNode {
 	public void setName(String name) {
 		getTLModelObject().setName(NodeNameUtils.fixAttributeRefName(getTypeName()));
 		// getTLModelObject().setName(NodeNameUtils.fixAttributeName(name));
+	}
+
+	/**
+	 * Allowed in major versions and on objects new in a minor.
+	 */
+	public void setMandatory(final boolean selection) {
+		if (isEditable_newToChain())
+			if (getOwningComponent().isNewToChain() || !getLibrary().isInChain())
+				getTLModelObject().setMandatory(selection);
 	}
 
 }

@@ -135,6 +135,11 @@ public class ElementReferenceNode extends PropertyNode {
 		return false; // name must come from assigned object
 	}
 
+	@Override
+	public boolean isMandatory() {
+		return getTLModelObject().isMandatory();
+	}
+
 	// FIXME
 	@Override
 	public void setName(String name) {
@@ -144,6 +149,15 @@ public class ElementReferenceNode extends PropertyNode {
 		else {
 			getTLModelObject().setName(ln.getLocalPart());
 		}
+	}
+
+	/**
+	 * Allowed in major versions and on objects new in a minor.
+	 */
+	public void setMandatory(final boolean selection) {
+		if (isEditable_newToChain())
+			if (getOwningComponent().isNewToChain() || !getLibrary().isInChain())
+				getTLModelObject().setMandatory(selection);
 	}
 
 }
