@@ -16,15 +16,15 @@
 package org.opentravel.schemas.node.controllers;
 
 /**
- * Provides value representation of Node
+ * Provides value representation of Node (string value of documentation nodes).
  * 
  * @author Agnieszka Janowska
  * 
  */
 public interface NodeValueController {
 
-    String getValue();
+	String getValue();
 
-    void setValue(String value);
+	void setValue(String value);
 
 }

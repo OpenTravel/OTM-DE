@@ -93,21 +93,21 @@ public class XSDComplexMO extends ModelObject<XSDComplexType> {
 		return srcObj;
 	}
 
-	@Override
-	public boolean setName(final String name) {
-		return false;
-	}
+	// @Override
+	// public boolean setName(final String name) {
+	// return false;
+	// }
 
-	@Override
-	public void setDeveloperDoc(final String string, final int index) {
-	}
-
-	@Override
-	public void setReferenceDoc(final String string, final int index) {
-	}
-
-	@Override
-	public void setMoreInfo(final String string, final int index) {
-	}
+	// @Override
+	// public void setDeveloperDoc(final String string, final int index) {
+	// }
+	//
+	// @Override
+	// public void setReferenceDoc(final String string, final int index) {
+	// }
+	//
+	// @Override
+	// public void setMoreInfo(final String string, final int index) {
+	// }
 
 }

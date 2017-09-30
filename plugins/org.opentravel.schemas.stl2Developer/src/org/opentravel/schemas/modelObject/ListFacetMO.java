@@ -73,10 +73,10 @@ public class ListFacetMO extends ModelObject<TLListFacet> {
 		return srcObj;
 	}
 
-	@Override
-	public boolean setName(final String name) {
-		return false;
-	}
+	// @Override
+	// public boolean setName(final String name) {
+	// return false;
+	// }
 
 	// @Override
 	// public AbstractLibrary getOwningLibrary() {

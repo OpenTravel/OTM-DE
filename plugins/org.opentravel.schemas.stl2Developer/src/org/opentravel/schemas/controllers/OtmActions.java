@@ -607,17 +607,6 @@ public class OtmActions {
 		DialogUserNotifier.openInformation("WARNING", Messages.getString("dnd.drop.invalid.object"));
 	}
 
-	// /**
-	// * In case of assigning type to a message, we should get service instead of message
-	// */
-	// private Node getOwningNodeForDrop(Node node) {
-	// Node ownNode = node.getOwningComponent();
-	// if (ownNode instanceof FacetNode && !(ownNode instanceof ExtensionPointNode)) {
-	// ownNode = getOwningNodeForDrop(ownNode);
-	// }
-	// return ownNode;
-	// }
-
 	/**
 	 * Set the assigned type of the current property posted in the properties view. Event data (in ed.text) is used as
 	 * the NodeID of the type source node.

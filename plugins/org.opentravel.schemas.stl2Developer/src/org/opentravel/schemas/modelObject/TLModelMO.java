@@ -61,26 +61,26 @@ public class TLModelMO extends ModelObject<TLModel> {
 	// return null;
 	// }
 
-	@Override
-	public boolean setName(final String name) {
-		return false;
-	}
+	// @Override
+	// public boolean setName(final String name) {
+	// return false;
+	// }
 
 	// @Override
 	// public void setDeprecatedDoc(final String string, final int i) {
 	// }
 
-	@Override
-	public void setDeveloperDoc(final String string, final int index) {
-	}
-
-	@Override
-	public void setReferenceDoc(final String string, final int index) {
-	}
-
-	@Override
-	public void setMoreInfo(final String string, final int index) {
-	}
+	// @Override
+	// public void setDeveloperDoc(final String string, final int index) {
+	// }
+	//
+	// @Override
+	// public void setReferenceDoc(final String string, final int index) {
+	// }
+	//
+	// @Override
+	// public void setMoreInfo(final String string, final int index) {
+	// }
 
 	@Override
 	public TLModel getTLModelObj() {

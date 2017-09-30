@@ -70,9 +70,9 @@ public class SimpleFacetMO extends ModelObject<TLSimpleFacet> {
 		return true;
 	}
 
-	@Override
-	public boolean setName(final String name) {
-		return false;
-	}
+	// @Override
+	// public boolean setName(final String name) {
+	// return false;
+	// }
 
 }

@@ -508,7 +508,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 	private void copyDocumentation(Node from, Node to) {
 		TLDocumentation fromDoc = from.getDocumentation();
 		if (fromDoc != null) {
-			to.getModelObject().setDocumentation((TLDocumentation) fromDoc.cloneElement());
+			((TLDocumentationOwner) to.getTLModelObject()).setDocumentation((TLDocumentation) fromDoc.cloneElement());
 		}
 		if (from instanceof TLDocumentationOwner && to instanceof TLDocumentationOwner) {
 			TLDocumentationOwner toO = (TLDocumentationOwner) to;

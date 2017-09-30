@@ -78,15 +78,15 @@ public class RoleEnumerationMO extends ModelObject<TLRoleEnumeration> {
 	// return getTLModelObj().getLocalName();
 	// }
 
-	/**
-	 * Set the name on a role - can't be done. Model objects do not know who their parentNode is. There is no
-	 * TLModelElement for roles. The caller must use the parentNode core object setRole method instead OR use the
-	 * setName method on the Property Node.
-	 */
-	@Override
-	public boolean setName(final String name) {
-		return false;
-	}
+	// /**
+	// * Set the name on a role - can't be done. Model objects do not know who their parentNode is. There is no
+	// * TLModelElement for roles. The caller must use the parentNode core object setRole method instead OR use the
+	// * setName method on the Property Node.
+	// */
+	// @Override
+	// public boolean setName(final String name) {
+	// return false;
+	// }
 
 	@Override
 	public List<?> getChildren() {

@@ -302,7 +302,11 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 				fullNewName = newName;
 				if (remainder.length() > 0)
 					fullNewName = newName + remainder;
-				n.getModelObject().setName(fullNewName);
+				if (n instanceof AliasNode)
+					((AliasNode) n).getTLModelObject().setName(fullNewName); // don't loop
+				else
+					n.setName(fullNewName);
+				// n.getModelObject().setName(fullNewName);
 			}
 			if (n instanceof TypeProvider)
 				for (TypeUser user : ((TypeProvider) n).getWhereAssigned())

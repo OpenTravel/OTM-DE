@@ -225,7 +225,7 @@ public class DefaultModelControllerTest {
 		VWA_Node co = ComponentNodeBuilder.createVWA("VWA").get();
 		SimpleAttributeNode san = (SimpleAttributeNode) co.getFacet_Simple().getSimpleAttribute();
 		TLDocumentation doc = createSampleDoc();
-		san.getModelObject().setDocumentation(doc);
+		san.getTLModelObject().setDocumentation(doc);
 		san.setAssignedType(vwaType);
 
 		ComponentNode newProperty = dc.moveSimpleToFacet(co.getFacet_Simple().getSimpleAttribute(),

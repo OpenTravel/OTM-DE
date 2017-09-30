@@ -31,14 +31,14 @@ public class RolePropertyMO extends ModelObject<TLRole> {
 	// return "Role";
 	// }
 
-	@Override
-	public boolean setName(final String name) {
-		if (getTLModelObj() == null) {
-			return false;
-		}
-		getTLModelObj().setName(name);
-		return true;
-	}
+	// @Override
+	// public boolean setName(final String name) {
+	// if (getTLModelObj() == null) {
+	// return false;
+	// }
+	// getTLModelObj().setName(name);
+	// return true;
+	// }
 
 	// @Override
 	// protected AbstractLibrary getLibrary(final TLRole obj) {

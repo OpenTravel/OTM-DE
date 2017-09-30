@@ -45,8 +45,6 @@ import org.opentravel.schemas.node.listeners.TypeUserListener;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.TypeUserHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Property nodes control element (property), attribute and indicator property model objects Simple Attributes and
@@ -59,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class PropertyNode extends ComponentNode implements TypeUser {
-	private static final Logger LOGGER = LoggerFactory.getLogger(PropertyNode.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(PropertyNode.class);
 
 	/**
 	 * A property within a facet can change roles. This class keeps track of the various implementations that may be
@@ -173,7 +171,6 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	 */
 	public static final int UP = 1;
 	public static final int DOWN = 2;
-	protected PropertyNodeType propertyType;
 	protected AlternateRoles alternateRoles;
 
 	protected IValueWithContextHandler equivalentHandler = null;
@@ -188,14 +185,12 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	 */
 	protected PropertyNode(final TLModelElement tlObj, INode parent, final PropertyNodeType propertyType) {
 		super(tlObj);
-		this.propertyType = propertyType;
 		this.alternateRoles = new AlternateRoles(this);
 		if (parent instanceof ContributedFacetNode)
 			parent = ((ContributedFacetNode) parent).getContributor();
 		if (parent != null) {
 			parent.getModelObject().addChild(tlObj); // link to TL model
 			((Node) parent).linkChild(this); // link to node model
-			// setLibrary(null);
 		}
 
 		typeHandler = new TypeUserHandler(this);
@@ -203,7 +198,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		if (getRequiredType() != null)
 			typeHandler.set(this.getRequiredType());
 
-		// fix context - assure example and equivalent are in this context
+		// fix context assures example and equivalent are in this context
 		fixContext();
 	}
 
@@ -400,7 +395,6 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	@Override
 	public String getLabel() {
 		return getName();
-		// return modelObject.getLabel() == null ? "" : modelObject.getLabel();
 	}
 
 	/**
@@ -472,14 +466,16 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	 */
 	@Override
 	public String getPropertyRole() {
-		return propertyType.getName();
+		return getPropertyType().getName();
 	}
 
 	/**
-	 * @return the propertyType
+	 * @return the propertyType - an enumeration based on node class
 	 */
+	// TODO - add function to PropertyNodeType class to accept a node and return type
 	public PropertyNodeType getPropertyType() {
-		return propertyType;
+		return PropertyNodeType.getPropertyType(this);
+		// return propertyType;
 	}
 
 	@Override

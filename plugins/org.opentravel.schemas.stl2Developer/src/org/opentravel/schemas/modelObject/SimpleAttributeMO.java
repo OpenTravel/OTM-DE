@@ -56,10 +56,10 @@ public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
 		return false;
 	}
 
-	@Override
-	public boolean setName(final String name) {
-		return false;
-	}
+	// @Override
+	// public boolean setName(final String name) {
+	// return false;
+	// }
 
 	@Override
 	public void setTLType(final NamedEntity tlObj) {

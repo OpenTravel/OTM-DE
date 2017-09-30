@@ -46,19 +46,19 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 		return kids;
 	}
 
-	@Override
-	public String getExtendsType() {
-		TLExtension tlExtension = getTLModelObj().getExtension();
-		String extendsTypeName = "";
-
-		if (tlExtension != null) {
-			if (tlExtension.getExtendsEntity() != null)
-				extendsTypeName = tlExtension.getExtendsEntity().getLocalName();
-			else
-				extendsTypeName = "--base type can not be found--";
-		}
-		return extendsTypeName;
-	}
+	// @Override
+	// public String getExtendsType() {
+	// TLExtension tlExtension = getTLModelObj().getExtension();
+	// String extendsTypeName = "";
+	//
+	// if (tlExtension != null) {
+	// if (tlExtension.getExtendsEntity() != null)
+	// extendsTypeName = tlExtension.getExtendsEntity().getLocalName();
+	// else
+	// extendsTypeName = "--base type can not be found--";
+	// }
+	// return extendsTypeName;
+	// }
 
 	@Override
 	public String getExtendsTypeNS() {
@@ -83,22 +83,22 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 		return srcObj;
 	}
 
-	/**
-	 * Is this Choice extended by <i>extension</i>?
-	 */
-	@Override
-	public boolean isExtendedBy(NamedEntity extension) {
-		if (extension == null || !(extension instanceof TLChoiceObject))
-			return false;
-		if (extension.getValidationIdentity() == null)
-			return false;
-
-		if (getTLModelObj() != null)
-			if (getTLModelObj().getExtension() != null)
-				if (getTLModelObj().getExtension().getValidationIdentity() != null)
-					return getTLModelObj().getExtension().getExtendsEntity() == extension;
-		return false;
-	}
+	// /**
+	// * Is this Choice extended by <i>extension</i>?
+	// */
+	// @Override
+	// public boolean isExtendedBy(NamedEntity extension) {
+	// if (extension == null || !(extension instanceof TLChoiceObject))
+	// return false;
+	// if (extension.getValidationIdentity() == null)
+	// return false;
+	//
+	// if (getTLModelObj() != null)
+	// if (getTLModelObj().getExtension() != null)
+	// if (getTLModelObj().getExtension().getValidationIdentity() != null)
+	// return getTLModelObj().getExtension().getExtendsEntity() == extension;
+	// return false;
+	// }
 
 	/**
 	 * @see org.opentravel.schemas.modelObject.ModelObject#setExtendsType(org.opentravel.schemas.modelObject.ModelObject)
@@ -117,10 +117,10 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 		}
 	}
 
-	@Override
-	public boolean setName(final String name) {
-		getTLModelObj().setName(name);
-		return true;
-	}
+	// @Override
+	// public boolean setName(final String name) {
+	// getTLModelObj().setName(name);
+	// return true;
+	// }
 
 }

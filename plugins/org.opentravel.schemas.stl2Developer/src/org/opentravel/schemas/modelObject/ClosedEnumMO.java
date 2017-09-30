@@ -67,22 +67,22 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 		return ce.getExtension() != null ? ce = (TLAbstractEnumeration) ce.getExtension().getExtendsEntity() : null;
 	}
 
-	/**
-	 * @see org.opentravel.schemas.modelObject.ModelObject#getExtendsType()
-	 */
-	@Override
-	public String getExtendsType() {
-		TLExtension tlExtension = getTLModelObj().getExtension();
-		String extendsTypeName = "";
-
-		if (tlExtension != null) {
-			if (tlExtension.getExtendsEntity() != null)
-				extendsTypeName = tlExtension.getExtendsEntity().getLocalName();
-			else
-				extendsTypeName = "--base type can not be found--";
-		}
-		return extendsTypeName;
-	}
+	// /**
+	// * @see org.opentravel.schemas.modelObject.ModelObject#getExtendsType()
+	// */
+	// @Override
+	// public String getExtendsType() {
+	// TLExtension tlExtension = getTLModelObj().getExtension();
+	// String extendsTypeName = "";
+	//
+	// if (tlExtension != null) {
+	// if (tlExtension.getExtendsEntity() != null)
+	// extendsTypeName = tlExtension.getExtendsEntity().getLocalName();
+	// else
+	// extendsTypeName = "--base type can not be found--";
+	// }
+	// return extendsTypeName;
+	// }
 
 	@Override
 	public String getExtendsTypeNS() {
@@ -130,22 +130,22 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 		return srcObj.getExtension() != null ? srcObj.getExtension().getExtendsEntity() : null;
 	}
 
-	/**
-	 * Is this Enum extended by <i>extension</i>? VWA does not use an TL extension handler. Use the parentType
-	 */
-	@Override
-	public boolean isExtendedBy(NamedEntity extension) {
-		if (extension == null || !(extension instanceof TLClosedEnumeration))
-			return false;
-		if (extension.getValidationIdentity() == null)
-			return false;
-
-		if (getTLModelObj() != null)
-			if (getTLModelObj().getExtension() != null)
-				if (getTLModelObj().getExtension().getValidationIdentity() != null)
-					return getTLModelObj().getExtension().getExtendsEntity() == extension;
-		return false;
-	}
+	// /**
+	// * Is this Enum extended by <i>extension</i>? VWA does not use an TL extension handler. Use the parentType
+	// */
+	// @Override
+	// public boolean isExtendedBy(NamedEntity extension) {
+	// if (extension == null || !(extension instanceof TLClosedEnumeration))
+	// return false;
+	// if (extension.getValidationIdentity() == null)
+	// return false;
+	//
+	// if (getTLModelObj() != null)
+	// if (getTLModelObj().getExtension() != null)
+	// if (getTLModelObj().getExtension().getValidationIdentity() != null)
+	// return getTLModelObj().getExtension().getExtendsEntity() == extension;
+	// return false;
+	// }
 
 	@Override
 	public boolean isSimpleAssignable() {
@@ -171,11 +171,11 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 		}
 	}
 
-	@Override
-	public boolean setName(final String name) {
-		getTLModelObj().setName(name);
-		return true;
-	}
+	// @Override
+	// public boolean setName(final String name) {
+	// getTLModelObj().setName(name);
+	// return true;
+	// }
 
 	@Override
 	public void sort() {

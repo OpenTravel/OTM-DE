@@ -46,8 +46,6 @@ public class ElementNode extends PropertyNode {
 	 */
 	public ElementNode(PropertyOwnerInterface parent, String name) {
 		this(parent, name, null);
-		// super(new TLProperty(), (Node) parent, name, PropertyNodeType.ELEMENT);
-		// setAssignedType((TypeProvider) ModelNode.getUnassignedNode());
 	}
 
 	/**
@@ -103,8 +101,60 @@ public class ElementNode extends PropertyNode {
 		return n;
 	}
 
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.ELEMENT;
+	}
+
+	@Override
+	public String getEquivalent(String context) {
+		return getEquivalentHandler().get(context);
+	}
+
+	@Override
+	public IValueWithContextHandler getEquivalentHandler() {
+		if (equivalentHandler == null)
+			equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
+		return equivalentHandler;
+	}
+
+	@Override
+	public String getExample(String context) {
+		return getExampleHandler().get(context);
+	}
+
+	@Override
+	public IValueWithContextHandler getExampleHandler() {
+		if (exampleHandler == null)
+			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
+		return exampleHandler;
+	}
+
+	@Override
+	public Image getImage() {
+		return Images.getImageRegistry().get(Images.XSDElement);
+	}
+
+	@Override
+	public String getLabel() {
+		String label = getName();
+		if (getType() != null)
+			label += " [" + getTypeNameWithPrefix() + "]";
+		return label;
+	}
+
+	@Override
+	public String getName() {
+		return emptyIfNull(getTLModelObject().getName());
+	}
+
 	public int getRepeat() {
 		return getTLModelObject().getRepeat();
+	}
+
+	@Override
+	public TLProperty getTLModelObject() {
+		return (TLProperty) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	/**
@@ -121,70 +171,15 @@ public class ElementNode extends PropertyNode {
 	}
 
 	@Override
-	public Image getImage() {
-		return Images.getImageRegistry().get(Images.XSDElement);
-	}
-
-	@Override
-	public ComponentNodeType getComponentNodeType() {
-		return ComponentNodeType.ELEMENT;
-	}
-
-	@Override
-	public IValueWithContextHandler getEquivalentHandler() {
-		if (equivalentHandler == null)
-			equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
-		return equivalentHandler;
-	}
-
-	@Override
-	public String getEquivalent(String context) {
-		return getEquivalentHandler().get(context);
-	}
-
-	@Override
 	public IValueWithContextHandler setEquivalent(String example) {
 		getEquivalentHandler().set(example, null);
 		return equivalentHandler;
 	}
 
 	@Override
-	public IValueWithContextHandler getExampleHandler() {
-		if (exampleHandler == null)
-			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
-		return exampleHandler;
-	}
-
-	@Override
-	public String getExample(String context) {
-		return getExampleHandler().get(context);
-	}
-
-	@Override
 	public IValueWithContextHandler setExample(String example) {
 		getExampleHandler().set(example, null);
 		return exampleHandler;
-	}
-
-	@Override
-	public String getLabel() {
-		String label = getName();
-		if (getType() != null)
-			label += " [" + getTypeNameWithPrefix() + "]";
-		return label;
-	}
-
-	@Override
-	public String getName() {
-		return emptyIfNull(getTLModelObject().getName());
-
-		// return getTLModelObject() == null || getTLModelObject().getName() == null
-		// || getTLModelObject().getName().isEmpty() ? "" : getTLModelObject().getName();
-	}
-
-	@Override
-	public TLProperty getTLModelObject() {
-		return (TLProperty) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	/**
@@ -209,10 +204,5 @@ public class ElementNode extends PropertyNode {
 			getTLModelObject().setRepeat(i);
 		return;
 	}
-
-	// @Override
-	// public void setName(String name, boolean doFamily) {
-	// setName(name);
-	// }
 
 }

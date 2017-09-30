@@ -92,10 +92,10 @@ public class ValueWithAttributesAttributeFacetMO extends ModelObject<TLnValueWit
 	// return null;
 	// }
 
-	@Override
-	public boolean setName(final String name) {
-		return false;
-	}
+	// @Override
+	// public boolean setName(final String name) {
+	// return false;
+	// }
 
 	@Override
 	public void delete() {

@@ -79,4 +79,28 @@ public enum PropertyNodeType {
 		return null;
 	}
 
+	public static PropertyNodeType getPropertyType(PropertyNode pn) {
+		if (pn instanceof AttributeReferenceNode)
+			return ID_ATTR_REF;
+		if (pn instanceof IdNode)
+			return ID;
+		if (pn instanceof AttributeNode)
+			return ATTRIBUTE;
+		if (pn instanceof ElementReferenceNode)
+			return ID_REFERENCE;
+		if (pn instanceof ElementNode)
+			return ELEMENT;
+		if (pn instanceof EnumLiteralNode)
+			return ENUM_LITERAL;
+		if (pn instanceof IndicatorElementNode)
+			return INDICATOR_ELEMENT;
+		if (pn instanceof IndicatorNode)
+			return INDICATOR;
+		if (pn instanceof RoleNode)
+			return ROLE;
+		if (pn instanceof SimpleAttributeNode)
+			return SIMPLE;
+
+		return null;
+	}
 }

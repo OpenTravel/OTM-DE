@@ -18,7 +18,6 @@ package org.opentravel.schemas.node.properties;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemas.modelObject.AttributeMO;
-import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.CoreObjectNode;
@@ -37,21 +36,20 @@ import org.opentravel.schemas.types.TypeProvider;
  * @author Dave Hollander
  * 
  */
-public class AttributeReferenceNode extends PropertyNode {
+public class AttributeReferenceNode extends AttributeNode {
 
 	public AttributeReferenceNode(PropertyOwnerInterface parent, String name) {
 		this(parent, name, ModelNode.getUnassignedNode());
 	}
 
-	// TODO - refactor to property node
 	public AttributeReferenceNode(PropertyOwnerInterface parent, String name, PropertyNodeType type) {
-		super(new TLAttribute(), (Node) parent, name, type);
+		super(parent, name);
 		getTLModelObject().setReference(true);
 		setAssignedType((TypeProvider) ModelNode.getUnassignedNode());
 	}
 
 	public AttributeReferenceNode(PropertyOwnerInterface facet, String name, TypeProvider reference) {
-		super(new TLAttribute(), (Node) facet, name, PropertyNodeType.ID_ATTR_REF);
+		super(facet, name, reference);
 		getTLModelObject().setReference(true);
 		setAssignedType(reference);
 	}
@@ -64,19 +62,11 @@ public class AttributeReferenceNode extends PropertyNode {
 	 *            can be null
 	 */
 	public AttributeReferenceNode(TLAttribute tlObj, PropertyOwnerInterface parent) {
-		super(tlObj, (INode) parent, PropertyNodeType.ID_ATTR_REF);
+		super(tlObj, parent);
 		getTLModelObject().setReference(true);
 
 		assert (modelObject instanceof AttributeMO);
 	}
-
-	// /*
-	// * used for sub-types
-	// */
-	// public AttributeReferenceNode(TLModelElement tlObj, PropertyOwnerInterface parent, PropertyNodeType type) {
-	// super(tlObj, (INode) parent, type);
-	// getTLModelObject().setReference(true);
-	// }
 
 	@Override
 	public boolean canAssign(Node type) {
@@ -118,63 +108,13 @@ public class AttributeReferenceNode extends PropertyNode {
 	}
 
 	@Override
-	public String getName() {
-		return emptyIfNull(getTLModelObject().getName());
-	}
-
-	@Override
-	public TLAttribute getTLModelObject() {
-		return (TLAttribute) (modelObject != null ? modelObject.getTLModelObj() : null);
-	}
-
-	@Override
-	public int indexOfTLProperty() {
-		return getTLModelObject().getOwner().getAttributes().indexOf(getTLModelObject());
-	}
-
-	@Override
-	public boolean isMandatory() {
-		return getTLModelObject().isMandatory();
-	}
-
-	@Override
 	public boolean isRenameable() {
 		return false;
 	}
 
-	/**
-	 * Override to provide GUI assist: Since attributes can be renamed, there is no need to use the alias. Aliases are
-	 * not TLAttributeType members so the GUI assist must convert before assignment.
-	 */
-	@Override
-	public boolean setAssignedType(TypeProvider provider) {
-		if (provider instanceof AliasNode)
-			provider = (TypeProvider) ((Node) provider).getOwningComponent();
-		return typeHandler.set(provider);
-	}
-
-	// /**
-	// * Allowed in major versions and on objects new in a minor.
-	// */
-	// public void setMandatory(final boolean selection) {
-	// if (isEditable_newToChain())
-	// if (getOwningComponent().isNewToChain() || !getLibrary().isInChain())
-	// getTLModelObject().setMandatory(selection);
-	// }
-
 	@Override
 	public void setName(String name) {
 		getTLModelObject().setName(NodeNameUtils.fixAttributeRefName(getTypeName()));
-		// getTLModelObject().setName(NodeNameUtils.fixAttributeName(name));
-	}
-
-	/**
-	 * Allowed in major versions and on objects new in a minor.
-	 */
-	public void setMandatory(final boolean selection) {
-		if (isEditable_newToChain())
-			if (getOwningComponent().isNewToChain() || !getLibrary().isInChain())
-				getTLModelObject().setMandatory(selection);
 	}
 
 }

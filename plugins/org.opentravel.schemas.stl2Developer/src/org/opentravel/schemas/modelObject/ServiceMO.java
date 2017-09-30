@@ -69,10 +69,10 @@ public class ServiceMO extends ModelObject<TLService> {
 	// return obj.getOwningLibrary();
 	// }
 
-	@Override
-	public boolean setName(final String name) {
-		getTLModelObj().setName(name);
-		return true;
-	}
+	// @Override
+	// public boolean setName(final String name) {
+	// getTLModelObj().setName(name);
+	// return true;
+	// }
 
 }

@@ -100,26 +100,26 @@ public class XSDElementMO extends ModelObject<XSDElement> {
 		return srcObj;
 	}
 
-	@Override
-	public boolean setName(final String name) {
-		return false;
-	}
+	// @Override
+	// public boolean setName(final String name) {
+	// return false;
+	// }
 
 	// @Override
 	// public void setDeprecatedDoc(final String string, final int i) {
 	// }
 
-	@Override
-	public void setDeveloperDoc(final String string, final int index) {
-	}
-
-	@Override
-	public void setReferenceDoc(final String string, final int index) {
-	}
-
-	@Override
-	public void setMoreInfo(final String string, final int index) {
-	}
+	// @Override
+	// public void setDeveloperDoc(final String string, final int index) {
+	// }
+	//
+	// @Override
+	// public void setReferenceDoc(final String string, final int index) {
+	// }
+	//
+	// @Override
+	// public void setMoreInfo(final String string, final int index) {
+	// }
 
 	// @Override
 	// public void setOtherDoc(final String string, final String context) {
@@ -136,7 +136,6 @@ public class XSDElementMO extends ModelObject<XSDElement> {
 	// return typeName != null ? typeName.getLocalPart() : "";
 	// }
 
-	@Override
 	public String getAssignedPrefix() {
 		QName typeName = srcObj.getJaxbElement().getType();
 		return typeName != null ? typeName.getPrefix() : "";

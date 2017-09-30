@@ -44,12 +44,12 @@ public class AliasMO extends ModelObject<TLAlias> {
 		return srcObj;
 	}
 
-	// Used in rename visitor - FIXME
-	@Deprecated
-	@Override
-	public boolean setName(final String name) {
-		getTLModelObj().setName(name);
-		return true;
-	}
+	// // Used in rename visitor - FIXME
+	// @Deprecated
+	// @Override
+	// public boolean setName(final String name) {
+	// getTLModelObj().setName(name);
+	// return true;
+	// }
 
 }

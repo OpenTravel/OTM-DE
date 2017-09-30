@@ -37,24 +37,18 @@ public class IdNode extends AttributeNode {
 
 	public IdNode(PropertyOwnerInterface parent, String name) {
 		super(parent, name, PropertyNodeType.ID);
-		// setName("id");
 		if (name == null || name.isEmpty())
 			name = "id";
 		setName(name);
 		idType = (TypeProvider) NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
 		// does nothing because there is a required type. - setAssignedType(idType);
-		((TLAttribute) getTLModelObject()).setType((TLAttributeType) idType.getTLModelObject());
-		// setIdentity("xml_ID on " + parent.getOwningComponent());
-		propertyType = PropertyNodeType.ID;
+		getTLModelObject().setType((TLAttributeType) idType.getTLModelObject());
 	}
 
 	public IdNode(TLModelElement tlObj, PropertyOwnerInterface parent) {
 		super(tlObj, parent, PropertyNodeType.ID);
 		idType = (TypeProvider) NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
-		// setAssignedType(idType);
 		((TLAttribute) getTLModelObject()).setType((TLAttributeType) idType.getTLModelObject());
-		// setIdentity("xml_ID on " + getOwningComponent());
-		propertyType = PropertyNodeType.ID;
 
 		assert (modelObject instanceof AttributeMO);
 		assert (tlObj instanceof TLAttribute);

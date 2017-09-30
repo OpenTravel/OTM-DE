@@ -73,11 +73,11 @@ public class ResourceMO extends ModelObject<TLResource> {
 		return srcObj;
 	}
 
-	@Override
-	public boolean setName(final String name) {
-		getTLModelObj().setName(name);
-		return true;
-	}
+	// @Override
+	// public boolean setName(final String name) {
+	// getTLModelObj().setName(name);
+	// return true;
+	// }
 
 	// @Override
 	// protected AbstractLibrary getLibrary(final TLResource obj) {

@@ -65,7 +65,8 @@ public class TypeTreeExtensionSelectionFilter extends TypeSelectionFilter {
 		// Do same as commented out below using Nodes not MO
 		// 11/10/2016 dmh
 		if (n != null) {
-			INode thisNode = this.modelObject.getNode();
+			INode thisNode = n;
+			// INode thisNode = this.modelObject.getNode();
 			if ((extensionType == null) || extensionType.equals(n.getModelObject().getClass())) {
 				if (thisNode instanceof ExtensionPointNode)
 					// XP Facets must select extensions in a different namespace

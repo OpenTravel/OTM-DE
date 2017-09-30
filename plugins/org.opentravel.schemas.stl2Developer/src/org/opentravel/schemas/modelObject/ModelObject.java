@@ -26,8 +26,6 @@ import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLContext;
-import org.opentravel.schemacompiler.model.TLDocumentation;
-import org.opentravel.schemacompiler.model.TLDocumentationItem;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 import org.opentravel.schemacompiler.model.TLEquivalent;
 import org.opentravel.schemacompiler.model.TLEquivalentOwner;
@@ -35,12 +33,9 @@ import org.opentravel.schemacompiler.model.TLExample;
 import org.opentravel.schemacompiler.model.TLExampleOwner;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLLibrary;
-import org.opentravel.schemacompiler.model.TLListFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.controllers.DocumentationNodeModelManager;
-import org.opentravel.schemas.node.interfaces.ExtensionOwner;
-import org.opentravel.schemas.node.interfaces.INode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +70,7 @@ public abstract class ModelObject<TL> {
 	protected TL srcObj;
 
 	// FIXME - remove node
-	protected INode node;
+	// protected INode node;
 
 	public ModelObject() {
 		srcObj = null;
@@ -85,31 +80,31 @@ public abstract class ModelObject<TL> {
 		srcObj = obj;
 	}
 
-	/**
-	 * Node allows MO level assignments to be reflected back into the node model. Use for type assignments. Allows
-	 * business logic and use constraints to be implemented in node classes to help keep this layer thin.
-	 * 
-	 * @return node associated with this model object.
-	 */
-	public INode getNode() {
-		return node;
-	}
+	// /**
+	// * Node allows MO level assignments to be reflected back into the node model. Use for type assignments. Allows
+	// * business logic and use constraints to be implemented in node classes to help keep this layer thin.
+	// *
+	// * @return node associated with this model object.
+	// */
+	// public INode getNode() {
+	// return node;
+	// }
 
 	// public void setNode(final INode node) {
 	// this.node = node;
 	// }
 
-	public String getAssignedPrefix() {
-		final NamedEntity type = getTLType();
-		if (type == null)
-			return "";
-
-		if (type.getOwningLibrary() == null) {
-			// LOGGER.debug("Providing assigned prefix of xsd.");
-			return "xsd";
-		}
-		return type.getOwningLibrary().getPrefix();
-	}
+	// public String getAssignedPrefix() {
+	// final NamedEntity type = getTLType();
+	// if (type == null)
+	// return "";
+	//
+	// if (type.getOwningLibrary() == null) {
+	// // LOGGER.debug("Providing assigned prefix of xsd.");
+	// return "xsd";
+	// }
+	// return type.getOwningLibrary().getPrefix();
+	// }
 
 	/**
 	 * List all children in default display order. Returns empty list if no children.
@@ -125,37 +120,38 @@ public abstract class ModelObject<TL> {
 	 * 
 	 * @return
 	 */
+	@Deprecated
 	public List<?> getInheritedChildren() {
 		return Collections.emptyList();
 	}
 
-	public TLDocumentation getDocumentation() {
-		TLDocumentation tld = null;
-		if (this.isDocumentationOwner()) {
-			final TLDocumentationOwner docOwner = (TLDocumentationOwner) srcObj;
-			tld = docOwner.getDocumentation();
-			if (tld == null) {
-				tld = createDocumentation();
-			}
-		}
-		return tld;
-	}
+	// public TLDocumentation getDocumentation() {
+	// TLDocumentation tld = null;
+	// if (this.isDocumentationOwner()) {
+	// final TLDocumentationOwner docOwner = (TLDocumentationOwner) srcObj;
+	// tld = docOwner.getDocumentation();
+	// if (tld == null) {
+	// tld = createDocumentation();
+	// }
+	// }
+	// return tld;
+	// }
 
-	public TLDocumentation createDocumentation() {
-		final TLDocumentation tld = new TLDocumentation();
-		if (this.isDocumentationOwner()) {
-			final TLDocumentationOwner docOwner = (TLDocumentationOwner) srcObj;
-			docOwner.setDocumentation(tld);
-		}
-		return tld;
-	}
+	// public TLDocumentation createDocumentation() {
+	// final TLDocumentation tld = new TLDocumentation();
+	// if (this.isDocumentationOwner()) {
+	// final TLDocumentationOwner docOwner = (TLDocumentationOwner) srcObj;
+	// docOwner.setDocumentation(tld);
+	// }
+	// return tld;
+	// }
 
-	public void setDocumentation(TLDocumentation documentation) {
-		if (this.isDocumentationOwner()) {
-			TLDocumentationOwner docOwner = (TLDocumentationOwner) srcObj;
-			docOwner.setDocumentation(documentation);
-		}
-	}
+	// public void setDocumentation(TLDocumentation documentation) {
+	// if (this.isDocumentationOwner()) {
+	// TLDocumentationOwner docOwner = (TLDocumentationOwner) srcObj;
+	// docOwner.setDocumentation(documentation);
+	// }
+	// }
 
 	/**
 	 * Get the local name of the extension type.
@@ -170,18 +166,18 @@ public abstract class ModelObject<TL> {
 		return "";
 	}
 
-	/**
-	 * Return true if this is extended by the passed MO
-	 * 
-	 * @return
-	 */
-	public boolean isExtendedBy(NamedEntity extension) {
-		// LOGGER.debug("model object supertype used to answer is extended.");
-		if (node instanceof ExtensionOwner)
-			LOGGER.debug("isExtended should be overridden for " + node.getClass().getSimpleName());
-		// throw new IllegalStateException("isExtended should be overridden for " + node.getClass().getSimpleName());
-		return true;
-	}
+	// /**
+	// * Return true if this is extended by the passed MO
+	// *
+	// * @return
+	// */
+	// public boolean isExtendedBy(NamedEntity extension) {
+	// // LOGGER.debug("model object supertype used to answer is extended.");
+	// if (node instanceof ExtensionOwner)
+	// LOGGER.debug("isExtended should be overridden for " + node.getClass().getSimpleName());
+	// // throw new IllegalStateException("isExtended should be overridden for " + node.getClass().getSimpleName());
+	// return true;
+	// }
 
 	public abstract TL getTLModelObj();
 
@@ -192,7 +188,7 @@ public abstract class ModelObject<TL> {
 		return false;
 	}
 
-	public abstract boolean setName(String name);
+	// public abstract boolean setName(String name);
 
 	public boolean setRepeat(final int count) {
 		return false;
@@ -215,34 +211,34 @@ public abstract class ModelObject<TL> {
 	 */
 	public abstract void delete();
 
-	public boolean isDocumentationOwner() {
-		return srcObj instanceof TLDocumentationOwner && !(srcObj instanceof TLListFacet);
-	}
+	// public boolean isDocumentationOwner() {
+	// return srcObj instanceof TLDocumentationOwner && !(srcObj instanceof TLListFacet);
+	// }
 
-	/**
-	 * @return 1st deprecation string or null
-	 */
-	public String getDeprecation() {
-		final TLDocumentation tld = getDocumentation();
-		if (tld == null || tld.getDeprecations() == null || tld.getDeprecations().isEmpty())
-			return null;
-		return tld.getDeprecations().get(0).getText().isEmpty() ? null : tld.getDeprecations().get(0).getText();
-	}
+	// /**
+	// * @return 1st deprecation string or null
+	// */
+	// public String getDeprecation() {
+	// final TLDocumentation tld = getDocumentation();
+	// if (tld == null || tld.getDeprecations() == null || tld.getDeprecations().isEmpty())
+	// return null;
+	// return tld.getDeprecations().get(0).getText().isEmpty() ? null : tld.getDeprecations().get(0).getText();
+	// }
 
-	public String getDescriptionDoc() {
-		final TLDocumentation tld = getDocumentation();
-		return (tld == null || tld.getDescription() == null) ? "" : tld.getDescription();
-	}
+	// public String getDescriptionDoc() {
+	// final TLDocumentation tld = getDocumentation();
+	// return (tld == null || tld.getDescription() == null) ? "" : tld.getDescription();
+	// }
 
-	public List<TLDocumentationItem> getDeveloperDoc() {
-		return getDocumentation() != null ? (getDocumentation().getImplementers()) : null;
-	}
+	// public List<TLDocumentationItem> getDeveloperDoc() {
+	// return getDocumentation() != null ? (getDocumentation().getImplementers()) : null;
+	// }
 
-	public String getDeveloperDoc(final int i) {
-		final TLDocumentation tld = getDocumentation();
-		return (tld == null || tld.getImplementers() == null || tld.getImplementers().size() <= i) ? "" : tld
-				.getImplementers().get(i).getText();
-	}
+	// public String getDeveloperDoc(final int i) {
+	// final TLDocumentation tld = getDocumentation();
+	// return (tld == null || tld.getImplementers() == null || tld.getImplementers().size() <= i) ? "" : tld
+	// .getImplementers().get(i).getText();
+	// }
 
 	/**
 	 * ************************************* Documentation *************************************
@@ -255,109 +251,109 @@ public abstract class ModelObject<TL> {
 	 * @see DocumentationNodeModelManager
 	 */
 
-	public void addDeprecation(String string) {
-		TLDocumentation tld = getDocumentation();
-		if (tld == null) {
-			tld = createDocumentation();
-		}
-		TLDocumentationItem deprecation = new TLDocumentationItem();
-		deprecation.setText(string);
-		tld.addDeprecation(deprecation);
-	}
+	// public void addDeprecation(String string) {
+	// TLDocumentation tld = getDocumentation();
+	// if (tld == null) {
+	// tld = createDocumentation();
+	// }
+	// TLDocumentationItem deprecation = new TLDocumentationItem();
+	// deprecation.setText(string);
+	// tld.addDeprecation(deprecation);
+	// }
 
-	public void addDescription(String string) {
-		TLDocumentation tld = getDocumentation();
-		if (tld == null) {
-			tld = createDocumentation();
-		}
-		if (tld.getDescription() == null || tld.getDescription().isEmpty())
-			tld.setDescription(string);
-		else
-			tld.setDescription(tld.getDescription() + " " + string);
-	}
+	// public void addDescription(String string) {
+	// TLDocumentation tld = getDocumentation();
+	// if (tld == null) {
+	// tld = createDocumentation();
+	// }
+	// if (tld.getDescription() == null || tld.getDescription().isEmpty())
+	// tld.setDescription(string);
+	// else
+	// tld.setDescription(tld.getDescription() + " " + string);
+	// }
 
-	public void setDescriptionDoc(final String string) {
-		TLDocumentation tld = getDocumentation();
-		if (tld == null) {
-			tld = createDocumentation();
-		}
-		tld.setDescription(string);
-	}
+	// public void setDescriptionDoc(final String string) {
+	// TLDocumentation tld = getDocumentation();
+	// if (tld == null) {
+	// tld = createDocumentation();
+	// }
+	// tld.setDescription(string);
+	// }
 
-	public void addImplementer(String string) {
-		TLDocumentation tld = getDocumentation();
-		if (tld == null) {
-			tld = createDocumentation();
-		}
-		TLDocumentationItem implementer = new TLDocumentationItem();
-		implementer.setText(string);
-		tld.addImplementer(implementer);
-	}
+	// public void addImplementer(String string) {
+	// TLDocumentation tld = getDocumentation();
+	// if (tld == null) {
+	// tld = createDocumentation();
+	// }
+	// TLDocumentationItem implementer = new TLDocumentationItem();
+	// implementer.setText(string);
+	// tld.addImplementer(implementer);
+	// }
 
-	public void setDeveloperDoc(final String string, final int index) {
-		TLDocumentation tld = getDocumentation();
-		if (tld == null) {
-			tld = createDocumentation();
-		}
-		TLDocumentationItem devDoc = null;
-		if (tld.getImplementers().isEmpty()) {
-			devDoc = new TLDocumentationItem();
-			tld.addImplementer(devDoc);
-		} else {
-			devDoc = tld.getImplementers().get(index);
-		}
-		devDoc.setText(string);
-	}
+	// public void setDeveloperDoc(final String string, final int index) {
+	// TLDocumentation tld = getDocumentation();
+	// if (tld == null) {
+	// tld = createDocumentation();
+	// }
+	// TLDocumentationItem devDoc = null;
+	// if (tld.getImplementers().isEmpty()) {
+	// devDoc = new TLDocumentationItem();
+	// tld.addImplementer(devDoc);
+	// } else {
+	// devDoc = tld.getImplementers().get(index);
+	// }
+	// devDoc.setText(string);
+	// }
 
-	public void addReference(String string) {
-		TLDocumentation tld = getDocumentation();
-		if (tld == null) {
-			tld = createDocumentation();
-		}
-		TLDocumentationItem ref = new TLDocumentationItem();
-		ref.setText(string);
-		tld.addReference(ref);
-	}
+	// public void addReference(String string) {
+	// TLDocumentation tld = getDocumentation();
+	// if (tld == null) {
+	// tld = createDocumentation();
+	// }
+	// TLDocumentationItem ref = new TLDocumentationItem();
+	// ref.setText(string);
+	// tld.addReference(ref);
+	// }
 
-	public void setReferenceDoc(final String string, final int index) {
-		TLDocumentation tld = getDocumentation();
-		if (tld == null) {
-			tld = createDocumentation();
-		}
-		TLDocumentationItem refDoc = null;
-		if (tld.getReferences().isEmpty()) {
-			refDoc = new TLDocumentationItem();
-			tld.addReference(refDoc);
-		} else {
-			refDoc = tld.getReferences().get(index);
-		}
-		refDoc.setText(string);
-	}
+	// public void setReferenceDoc(final String string, final int index) {
+	// TLDocumentation tld = getDocumentation();
+	// if (tld == null) {
+	// tld = createDocumentation();
+	// }
+	// TLDocumentationItem refDoc = null;
+	// if (tld.getReferences().isEmpty()) {
+	// refDoc = new TLDocumentationItem();
+	// tld.addReference(refDoc);
+	// } else {
+	// refDoc = tld.getReferences().get(index);
+	// }
+	// refDoc.setText(string);
+	// }
 
-	public void addMoreInfo(String string) {
-		TLDocumentation tld = getDocumentation();
-		if (tld == null) {
-			tld = createDocumentation();
-		}
-		TLDocumentationItem mi = new TLDocumentationItem();
-		mi.setText(string);
-		tld.addMoreInfo(mi);
-	}
+	// public void addMoreInfo(String string) {
+	// TLDocumentation tld = getDocumentation();
+	// if (tld == null) {
+	// tld = createDocumentation();
+	// }
+	// TLDocumentationItem mi = new TLDocumentationItem();
+	// mi.setText(string);
+	// tld.addMoreInfo(mi);
+	// }
 
-	public void setMoreInfo(final String string, final int index) {
-		TLDocumentation tld = getDocumentation();
-		if (tld == null) {
-			tld = createDocumentation();
-		}
-		TLDocumentationItem infoDoc = null;
-		if (tld.getMoreInfos().isEmpty()) {
-			infoDoc = new TLDocumentationItem();
-			tld.addMoreInfo(infoDoc);
-		} else {
-			infoDoc = tld.getMoreInfos().get(index);
-		}
-		infoDoc.setText(string);
-	}
+	// public void setMoreInfo(final String string, final int index) {
+	// TLDocumentation tld = getDocumentation();
+	// if (tld == null) {
+	// tld = createDocumentation();
+	// }
+	// TLDocumentationItem infoDoc = null;
+	// if (tld.getMoreInfos().isEmpty()) {
+	// infoDoc = new TLDocumentationItem();
+	// tld.addMoreInfo(infoDoc);
+	// } else {
+	// infoDoc = tld.getMoreInfos().get(index);
+	// }
+	// infoDoc.setText(string);
+	// }
 
 	public void addToLibrary(AbstractLibrary tlLibrary) {
 		if (srcObj instanceof LibraryMember && tlLibrary instanceof TLLibrary) {
@@ -383,16 +379,17 @@ public abstract class ModelObject<TL> {
 	public void removeFromTLParent() {
 	}
 
+	// TODO - put in attribute and element node
 	public void addToTLParent(final ModelObject<?> mo, int index) {
 	}
 
 	public void addToTLParent(final ModelObject<?> mo) {
 	}
 
-	// Override in model objects that have assigned types.
-	public void clearTLType() {
-		// LOGGER.error("clear not needed for a "+this.getClass().getSimpleName());
-	}
+	// // Override in model objects that have assigned types.
+	// public void clearTLType() {
+	// // LOGGER.error("clear not needed for a "+this.getClass().getSimpleName());
+	// }
 
 	/**
 	 * Only a few objects have model object types. The ones that do return the assigned type.
@@ -491,8 +488,8 @@ public abstract class ModelObject<TL> {
 		return false;
 	}
 
-	protected static String emptyIfNull(final String string) {
-		return string == null ? "" : string;
-	}
+	// protected static String emptyIfNull(final String string) {
+	// return string == null ? "" : string;
+	// }
 
 }

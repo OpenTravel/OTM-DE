@@ -18,25 +18,26 @@ package org.opentravel.schemas.node.controllers;
 import java.util.List;
 
 /**
- * Controls underlaying model on behalf of Node
+ * Controls structure (create, move, delete) of documentation underlying model on behalf of Node. Does NOT access
+ * values. Values are access using {@link NodeValueController}.
  * 
  * @author Agnieszka Janowska
  * 
  */
 public interface NodeModelController<T> {
 
-    T createChild();
+	T createChild();
 
-    void removeChild(T child);
+	void removeChild(T child);
 
-    List<T> getChildren();
+	List<T> getChildren();
 
-    T getChild(int index);
+	T getChild(int index);
 
-    T getChild(Object key);
+	T getChild(Object key);
 
-    void moveChildUp(T child);
+	void moveChildUp(T child);
 
-    void moveChildDown(T child);
+	void moveChildDown(T child);
 
 }

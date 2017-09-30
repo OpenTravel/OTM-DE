@@ -207,17 +207,18 @@ public class FacetMO extends ModelObject<TLFacet> {
 		return srcObj;
 	}
 
-	// FIXME - used by aliasNode rename visitor. Is that needed anymore???
-	@Deprecated
-	@Override
-	public boolean setName(final String name) {
-		// Only custom and query facets can be named.
-		if (getTLModelObj().getFacetType() == TLFacetType.CUSTOM || getTLModelObj().getFacetType() == TLFacetType.QUERY) {
-			getTLModelObj().setLabel(name);
-			return true;
-		}
-		return false;
-	}
+	// // FIXME - used by aliasNode rename visitor. Is that needed anymore???
+	// @Deprecated
+	// @Override
+	// public boolean setName(final String name) {
+	// // Only custom and query facets can be named.
+	// if (getTLModelObj().getFacetType() == TLFacetType.CUSTOM || getTLModelObj().getFacetType() == TLFacetType.QUERY)
+	// {
+	// getTLModelObj().setLabel(name);
+	// return true;
+	// }
+	// return false;
+	// }
 
 	@Override
 	public void sort() {

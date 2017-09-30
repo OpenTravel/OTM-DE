@@ -83,15 +83,15 @@ public class ElementPropertyMO extends ModelObject<TLProperty> {
 		return thisProp.getOwner().getElements().indexOf(thisProp);
 	}
 
-	/**
-	 * Business logic about correct name done at node level.
-	 */
-	@Override
-	public boolean setName(final String name) {
-		getTLModelObj().setName(name);
-		// LOGGER.debug("Set name to " + name);
-		return true;
-	}
+	// /**
+	// * Business logic about correct name done at node level.
+	// */
+	// @Override
+	// public boolean setName(final String name) {
+	// getTLModelObj().setName(name);
+	// // LOGGER.debug("Set name to " + name);
+	// return true;
+	// }
 
 	/**
 	 * Move if you can, return false if you can not.

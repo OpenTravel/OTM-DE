@@ -98,11 +98,11 @@ public class AttributeMO extends ModelObject<TLAttribute> {
 		return false;
 	}
 
-	@Override
-	public boolean setName(final String name) {
-		getTLModelObj().setName(name);
-		return true;
-	}
+	// @Override
+	// public boolean setName(final String name) {
+	// getTLModelObj().setName(name);
+	// return true;
+	// }
 
 	@Override
 	public void setTLType(final NamedEntity tlObj) {

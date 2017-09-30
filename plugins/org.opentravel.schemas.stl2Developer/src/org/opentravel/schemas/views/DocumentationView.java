@@ -59,7 +59,6 @@ import org.opentravel.schemas.actions.PrevDocItemAction;
 import org.opentravel.schemas.actions.UpDocItemAction;
 import org.opentravel.schemas.controllers.DefaultDocumentationController;
 import org.opentravel.schemas.controllers.DocumentationController;
-import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.navigation.DoubleClickSelection;
 import org.opentravel.schemas.node.DocumentationNode;
 import org.opentravel.schemas.node.Node;
@@ -461,11 +460,15 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 		if (node == null) {
 			return null;
 		}
+		Node n = (Node) node;
 		DocumentationNode root = null;
-		ModelObject<?> model = node.getModelObject();
-		if (model != null && model.isDocumentationOwner()) {
-			root = new DocumentationNodeModelManager().createDocumentationTreeRoot(model.getDocumentation());
-		}
+		if (n.isDocumentationOwner())
+			root = new DocumentationNodeModelManager().createDocumentationTreeRoot(n.getDocumentation());
+
+		// ModelObject<?> model = node.getModelObject();
+		// if (model != null && model.isDocumentationOwner()) {
+		// root = new DocumentationNodeModelManager().createDocumentationTreeRoot(model.getDocumentation());
+		// }
 		return root;
 	}
 

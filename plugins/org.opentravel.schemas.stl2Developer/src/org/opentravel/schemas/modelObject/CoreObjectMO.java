@@ -124,22 +124,22 @@ public class CoreObjectMO extends ModelObject<TLCoreObject> {
 	// getTLModelObj().setNotExtendable(!state);
 	// }
 
-	/**
-	 * @see org.opentravel.schemas.modelObject.ModelObject#getExtendsType()
-	 */
-	@Override
-	public String getExtendsType() {
-		TLExtension tlExtension = getTLModelObj().getExtension();
-		String extendsTypeName = "";
-
-		if (tlExtension != null) {
-			if (tlExtension.getExtendsEntity() != null)
-				extendsTypeName = tlExtension.getExtendsEntity().getLocalName();
-			else
-				extendsTypeName = "--base type can not be found--";
-		}
-		return extendsTypeName;
-	}
+	// /**
+	// * @see org.opentravel.schemas.modelObject.ModelObject#getExtendsType()
+	// */
+	// @Override
+	// public String getExtendsType() {
+	// TLExtension tlExtension = getTLModelObj().getExtension();
+	// String extendsTypeName = "";
+	//
+	// if (tlExtension != null) {
+	// if (tlExtension.getExtendsEntity() != null)
+	// extendsTypeName = tlExtension.getExtendsEntity().getLocalName();
+	// else
+	// extendsTypeName = "--base type can not be found--";
+	// }
+	// return extendsTypeName;
+	// }
 
 	@Override
 	public String getExtendsTypeNS() {
@@ -148,25 +148,26 @@ public class CoreObjectMO extends ModelObject<TLCoreObject> {
 				.getNamespace();
 	}
 
-	@Override
-	public boolean isExtendedBy(NamedEntity extension) {
-		// LOGGER.debug("is Extension?");
-		if (this.getTLModelObj() == null)
-			return false;
-		if (this.getTLModelObj().getExtension() == null)
-			return false;
-		if (this.getTLModelObj().getExtension().getValidationIdentity() == null)
-			return false;
-		if (extension == null)
-			return false;
-		if (extension.getValidationIdentity() == null)
-			return false;
-
-		// LOGGER.debug("  is "+this.getTLModelObj().getExtension().getValidationIdentity()+" Extended by? "+extension.getValidationIdentity());
-		if (this.getTLModelObj().getExtension().getExtendsEntity() == extension)
-			return true;
-		return false;
-	}
+	// @Override
+	// public boolean isExtendedBy(NamedEntity extension) {
+	// // LOGGER.debug("is Extension?");
+	// if (this.getTLModelObj() == null)
+	// return false;
+	// if (this.getTLModelObj().getExtension() == null)
+	// return false;
+	// if (this.getTLModelObj().getExtension().getValidationIdentity() == null)
+	// return false;
+	// if (extension == null)
+	// return false;
+	// if (extension.getValidationIdentity() == null)
+	// return false;
+	//
+	// //
+	// LOGGER.debug("  is "+this.getTLModelObj().getExtension().getValidationIdentity()+" Extended by? "+extension.getValidationIdentity());
+	// if (this.getTLModelObj().getExtension().getExtendsEntity() == extension)
+	// return true;
+	// return false;
+	// }
 
 	/**
 	 * @see org.opentravel.schemas.modelObject.ModelObject#setExtendsType(org.opentravel.schemas.modelObject.ModelObject)
@@ -186,11 +187,11 @@ public class CoreObjectMO extends ModelObject<TLCoreObject> {
 		}
 	}
 
-	@Override
-	public boolean setName(final String name) {
-		getTLModelObj().setName(name);
-		return true;
-	}
+	// @Override
+	// public boolean setName(final String name) {
+	// getTLModelObj().setName(name);
+	// return true;
+	// }
 
 	// @Override
 	// public void addAlias(final TLAlias tla) {

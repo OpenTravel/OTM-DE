@@ -87,34 +87,34 @@ public class ValueWithAttributesMO extends ModelObject<TLValueWithAttributes> {
 		return srcObj.getParentType();
 	}
 
-	/**
-	 * Is this VWA extended by <i>extension</i>? VWA does not use an TL extension handler. Use the parentType
-	 */
-	@Override
-	public boolean isExtendedBy(NamedEntity extension) {
-		if (extension == null || !(extension instanceof TLValueWithAttributes))
-			return false;
-		if (extension.getValidationIdentity() == null)
-			return false;
-		if (getTLModelObj() == null || getTLModelObj().getParentType() == null)
-			return false;
-		if (getTLModelObj().getParentType().getValidationIdentity() == null)
-			return false;
-
-		return getTLModelObj().getParentType() == extension;
-	}
+	// /**
+	// * Is this VWA extended by <i>extension</i>? VWA does not use an TL extension handler. Use the parentType
+	// */
+	// @Override
+	// public boolean isExtendedBy(NamedEntity extension) {
+	// if (extension == null || !(extension instanceof TLValueWithAttributes))
+	// return false;
+	// if (extension.getValidationIdentity() == null)
+	// return false;
+	// if (getTLModelObj() == null || getTLModelObj().getParentType() == null)
+	// return false;
+	// if (getTLModelObj().getParentType().getValidationIdentity() == null)
+	// return false;
+	//
+	// return getTLModelObj().getParentType() == extension;
+	// }
 
 	@Override
 	public boolean isSimpleAssignable() {
 		return true;
 	}
 
-	@Override
-	public boolean setName(final String name) {
-		getTLModelObj().setName(name);
-		return true;
-	}
-
+	// @Override
+	// public boolean setName(final String name) {
+	// getTLModelObj().setName(name);
+	// return true;
+	// }
+	//
 	@Override
 	public NamedEntity getTLBase() {
 		return srcObj.getParentType();

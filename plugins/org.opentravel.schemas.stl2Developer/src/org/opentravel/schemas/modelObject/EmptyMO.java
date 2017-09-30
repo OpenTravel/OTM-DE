@@ -15,7 +15,6 @@
  */
 package org.opentravel.schemas.modelObject;
 
-
 /**
  * Class to use when there is no TL model object.
  * 
@@ -62,10 +61,10 @@ public class EmptyMO extends ModelObject<TLEmpty> {
 		return srcObj;
 	}
 
-	@Override
-	public boolean setName(final String name) {
-		return false;
-	}
+	// @Override
+	// public boolean setName(final String name) {
+	// return false;
+	// }
 
 	@Override
 	public void delete() {

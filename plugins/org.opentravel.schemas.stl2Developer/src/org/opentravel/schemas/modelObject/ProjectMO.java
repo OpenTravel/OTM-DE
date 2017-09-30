@@ -89,11 +89,11 @@ public class ProjectMO extends ModelObject<TLProject> {
 		return srcObj;
 	}
 
-	@Override
-	public boolean setName(String name) {
-		getTLModelObj().setName(name);
-		return true;
-	}
+	// @Override
+	// public boolean setName(String name) {
+	// getTLModelObj().setName(name);
+	// return true;
+	// }
 
 	@Override
 	public void delete() {

@@ -100,39 +100,39 @@ public class ExtensionPointFacetMO extends ModelObject<TLExtensionPointFacet> {
 		return false;
 	}
 
-	/**
-	 * Is this extension point extended by <i>extension</i>?
-	 */
-	@Override
-	public boolean isExtendedBy(NamedEntity extension) {
-		if (extension == null)
-			return false;
-		if (extension.getValidationIdentity() == null)
-			return false;
+	// /**
+	// * Is this extension point extended by <i>extension</i>?
+	// */
+	// @Override
+	// public boolean isExtendedBy(NamedEntity extension) {
+	// if (extension == null)
+	// return false;
+	// if (extension.getValidationIdentity() == null)
+	// return false;
+	//
+	// if (getTLModelObj() != null)
+	// if (getTLModelObj().getExtension() != null)
+	// if (getTLModelObj().getExtension().getValidationIdentity() != null)
+	// return getTLModelObj().getExtension().getExtendsEntity() == extension;
+	// return false;
+	// }
 
-		if (getTLModelObj() != null)
-			if (getTLModelObj().getExtension() != null)
-				if (getTLModelObj().getExtension().getValidationIdentity() != null)
-					return getTLModelObj().getExtension().getExtendsEntity() == extension;
-		return false;
-	}
-
-	/**
-	 * @see org.opentravel.schemas.modelObject.ModelObject#getExtendsType()
-	 */
-	@Override
-	public String getExtendsType() {
-		TLExtension tlExtension = getTLModelObj().getExtension();
-		String extendsTypeName = "";
-
-		if (tlExtension != null) {
-			if (tlExtension.getExtendsEntity() != null)
-				extendsTypeName = tlExtension.getExtendsEntity().getLocalName();
-			else
-				extendsTypeName = "--base type can not be found--";
-		}
-		return extendsTypeName;
-	}
+	// /**
+	// * @see org.opentravel.schemas.modelObject.ModelObject#getExtendsType()
+	// */
+	// @Override
+	// public String getExtendsType() {
+	// TLExtension tlExtension = getTLModelObj().getExtension();
+	// String extendsTypeName = "";
+	//
+	// if (tlExtension != null) {
+	// if (tlExtension.getExtendsEntity() != null)
+	// extendsTypeName = tlExtension.getExtendsEntity().getLocalName();
+	// else
+	// extendsTypeName = "--base type can not be found--";
+	// }
+	// return extendsTypeName;
+	// }
 
 	@Override
 	public String getExtendsTypeNS() {
@@ -166,11 +166,11 @@ public class ExtensionPointFacetMO extends ModelObject<TLExtensionPointFacet> {
 	// return null;
 	// }
 
-	@Override
-	public boolean setName(String name) {
-		// TODO Auto-generated method stub
-		return true;
-	}
+	// @Override
+	// public boolean setName(String name) {
+	// // TODO Auto-generated method stub
+	// return true;
+	// }
 
 	@Override
 	public boolean addChild(TLModelElement child) {

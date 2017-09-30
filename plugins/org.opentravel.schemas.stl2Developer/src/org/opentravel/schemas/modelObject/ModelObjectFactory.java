@@ -130,7 +130,7 @@ public class ModelObjectFactory {
 			ret = (ModelObject<TL>) new EmptyMO(new TLEmpty());
 			LOGGER.error("ModelObjectFactory - EmptyMO assigned to unknown TL type: " + obj.getClass().getSimpleName());
 		}
-		ret.node = node;
+		// ret.node = node;
 
 		return ret;
 	}

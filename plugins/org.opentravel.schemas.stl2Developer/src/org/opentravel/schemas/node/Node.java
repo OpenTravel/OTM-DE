@@ -47,6 +47,7 @@ import org.opentravel.schemacompiler.model.TLDocumentationItem;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 import org.opentravel.schemacompiler.model.TLEquivalentOwner;
 import org.opentravel.schemacompiler.model.TLExampleOwner;
+import org.opentravel.schemacompiler.model.TLListFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
@@ -117,16 +118,27 @@ public abstract class Node implements INode {
 	protected static ModelNode root; // The root of the library catalog.
 
 	protected static int nodeCount = 1; // used to assign nodeID
+	protected String nodeID; // unique ID assigned to each node automatically
 
-	/**
-	 * ************************ Documentation ****************************
-	 * 
-	 * TODO - reconcile with the documentation view use of the documentation nodeManager. TODO - do the enum/string[]
-	 * right
-	 */
-	// public static enum DocTypes {
-	// Description, Deprecation, MoreInformation, Implementer, ReferenceLink
-	// }
+	// Facets and library members can be extended by an extension owner.
+	protected WhereExtendedHandler whereExtendedHandler = null;
+
+	// Any node that uses TLDocumentation will get a handler
+	protected DocumentationHandler docHandler = null;
+
+	// Ancestry
+	protected LibraryNode library; // link to the library node to which this node belongs
+	protected Node parent; // link to the parentNode node
+	private final ArrayList<Node> children; // links to the children
+	protected VersionNode versionNode; // Link to the version node representing this node in a chain
+
+	public ModelObject<?> modelObject; // Generic interface to TL Model objects.
+	protected boolean deleted = false;
+	public boolean local = false; // Local nodes are not named nodes and are not to made visible in type assignment
+	// lists.
+	public XsdNode xsdNode = null; // Link to node containing imported XSD representation
+	public boolean xsdType = false; // True if this node represents an object that was created by
+									// the XSD utilities but has not be imported.
 
 	/**
 	 * Public class for comparing nodes. Use: Collection.sort(list, node.new NodeComparable()) Uses node name and prefix
@@ -158,23 +170,6 @@ public abstract class Node implements INode {
 	 * model in sync.
 	 * 
 	 */
-
-	// public static String[] docTypeStrings = { "Description", "Deprecation", "MoreInformation", "Implementer",
-	// "ReferenceLink" };
-	//
-	// public static DocTypes docTypeFromString(String type) {
-	// if (type.equals(docTypeStrings[0]))
-	// return DocTypes.Description;
-	// if (type.equals(docTypeStrings[1]))
-	// return DocTypes.Deprecation;
-	// if (type.equals(docTypeStrings[2]))
-	// return DocTypes.MoreInformation;
-	// if (type.equals(docTypeStrings[3]))
-	// return DocTypes.Implementer;
-	// if (type.equals(docTypeStrings[4]))
-	// return DocTypes.ReferenceLink;
-	// return null;
-	// }
 
 	/**
 	 * Static method to return all libraries in the model.
@@ -261,25 +256,6 @@ public abstract class Node implements INode {
 		return n;
 	}
 
-	protected String nodeID; // unique ID assigned to each node automatically
-
-	// Facets and library members can be extended by an extension owner.
-	protected WhereExtendedHandler whereExtendedHandler = null;
-
-	// Ancestry
-	protected LibraryNode library; // link to the library node to which this node belongs
-	protected Node parent; // link to the parentNode node
-	private final ArrayList<Node> children; // links to the children
-	protected VersionNode versionNode; // Link to the version node representing this node in a chain
-
-	public ModelObject<?> modelObject; // Generic interface to TL Model objects.
-	protected boolean deleted = false;
-	public boolean local = false; // Local nodes are not named nodes and are not to made visible in type assignment
-	// lists.
-	public XsdNode xsdNode = null; // Link to node containing imported XSD representation
-	public boolean xsdType = false; // True if this node represents an object that was created by
-									// the XSD utilities but has not be imported.
-
 	public Node() {
 		parent = null;
 		children = new ArrayList<Node>();
@@ -305,31 +281,34 @@ public abstract class Node implements INode {
 
 		modelObject.delete();
 		modelObject = newModelObject(tlModelObject);
+		if (isDocumentationOwner())
+			docHandler = new DocumentationHandler(this);
 	}
 
 	public void addDeprecated(String text) {
 		if (isEditable())
-			modelObject.addDeprecation(text);
+			docHandler.addDeprecation(text);
+		// modelObject.addDeprecation(text);
 	}
 
 	public void addDescription(String text) {
-		if (isEditable())
-			modelObject.addDescription(text);
+		if (isEditable() && docHandler != null)
+			docHandler.addDescription(text);
 	}
 
 	public void addImplementer(String text) {
-		if (isEditable())
-			modelObject.addImplementer(text);
+		if (isEditable() && docHandler != null)
+			docHandler.addImplementer(text);
 	}
 
 	public void addMoreInfo(String text) {
-		if (isEditable())
-			modelObject.addMoreInfo(text);
+		if (isEditable() && docHandler != null)
+			docHandler.addMoreInfo(text);
 	}
 
 	public void addReference(String text) {
-		if (isEditable())
-			modelObject.addReference(text);
+		if (isEditable() && docHandler != null)
+			docHandler.addReference(text);
 	}
 
 	/**
@@ -976,15 +955,22 @@ public abstract class Node implements INode {
 	}
 
 	public String getDescription() {
-		return modelObject != null ? modelObject.getDescriptionDoc() : "";
+		return docHandler != null ? docHandler.getDescription() : "";
+		// return modelObject != null ? modelObject.getDescriptionDoc() : "";
 	}
 
 	public List<TLDocumentationItem> getDevelopers() {
-		return modelObject != null ? modelObject.getDeveloperDoc() : null;
+		return docHandler != null ? docHandler.getImplementers() : null;
+		// return modelObject != null ? modelObject.getDeveloperDoc() : null;
+	}
+
+	public DocumentationHandler getDocHander() {
+		return docHandler;
 	}
 
 	public TLDocumentation getDocumentation() {
-		return modelObject == null ? new TLDocumentation() : modelObject.getDocumentation();
+		return docHandler != null ? docHandler.getOrNewTL() : null;
+		// return modelObject == null ? new TLDocumentation() : modelObject.getDocumentation();
 	}
 
 	/**
@@ -1500,12 +1486,17 @@ public abstract class Node implements INode {
 
 	@Override
 	public boolean isDeprecated() {
-		return modelObject != null && modelObject.getDeprecation() != null ? true : false;
+		return docHandler != null && docHandler.getDeprecation(0) != null ? true : false;
+		// return modelObject != null && modelObject.getDeprecation() != null ? true : false;
 	}
 
 	public boolean isDocumentationOwner() {
-		return modelObject != null ? modelObject.isDocumentationOwner() : false;
+		return getTLModelObject() instanceof TLDocumentationOwner && !(getTLModelObject() instanceof TLListFacet);
 	}
+
+	// public boolean isDocumentationOwner() {
+	// return modelObject != null ? modelObject.isDocumentationOwner() : false;
+	// }
 
 	/**
 	 * Implied nodes and nodes without libraries are always editable. Nodes in chains return if chain is editable.
@@ -1785,7 +1776,8 @@ public abstract class Node implements INode {
 	 */
 	public boolean isExtendedBy(Node base) {
 		if (this instanceof ExtensionOwner)
-			return modelObject.isExtendedBy((NamedEntity) base.getTLModelObject());
+			return ((ExtensionOwner) this).getExtensionBase() == base;
+		// return modelObject.isExtendedBy((NamedEntity) base.getTLModelObject());
 		return false;
 	}
 
@@ -2025,6 +2017,7 @@ public abstract class Node implements INode {
 	 * @return true if this object can be assigned as a simple type (not by reference).
 	 */
 	public boolean isSimpleAssignable() {
+		// TODO - ask Node not ModelObject
 		return modelObject.isSimpleAssignable();
 	}
 
@@ -2330,13 +2323,15 @@ public abstract class Node implements INode {
 	}
 
 	public void setDescription(final String string) {
-		if (modelObject != null)
-			modelObject.setDescriptionDoc(string);
+		if (docHandler != null)
+			docHandler.setDescription(string);
 	}
 
 	public void setDevelopers(String doc, int index) {
-		if (modelObject != null && isEditable())
-			modelObject.setDeveloperDoc(doc, index);
+		if (docHandler != null)
+			docHandler.setImplementer(doc, index);
+		// if (modelObject != null && isEditable())
+		// modelObject.setDeveloperDoc(doc, index);
 	}
 
 	/**
@@ -2380,8 +2375,8 @@ public abstract class Node implements INode {
 	}
 
 	public void setMoreInfo(String info, int index) {
-		if (modelObject != null && isEditable())
-			modelObject.setMoreInfo(info, index);
+		if (docHandler != null && isEditable())
+			docHandler.setMoreInfo(info, index);
 	}
 
 	/**
@@ -2406,8 +2401,8 @@ public abstract class Node implements INode {
 
 	//
 	public void setReferenceLink(String link, int index) {
-		if (modelObject != null && isEditable())
-			modelObject.setReferenceDoc(link, index);
+		if (docHandler != null && isEditable())
+			docHandler.setReference(link, index);
 	}
 
 	/**

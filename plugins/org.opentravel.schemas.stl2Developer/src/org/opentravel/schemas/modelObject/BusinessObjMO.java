@@ -63,22 +63,22 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 		return srcObj;
 	}
 
-	/**
-	 * @see org.opentravel.schemas.modelObject.ModelObject#getExtendsType()
-	 */
-	@Override
-	public String getExtendsType() {
-		TLExtension tlExtension = getTLModelObj().getExtension();
-		String extendsTypeName = "";
-
-		if (tlExtension != null) {
-			if (tlExtension.getExtendsEntity() != null)
-				extendsTypeName = tlExtension.getExtendsEntity().getLocalName();
-			else
-				extendsTypeName = "--base type can not be found--";
-		}
-		return extendsTypeName;
-	}
+	// /**
+	// * @see org.opentravel.schemas.modelObject.ModelObject#getExtendsType()
+	// */
+	// @Override
+	// public String getExtendsType() {
+	// TLExtension tlExtension = getTLModelObj().getExtension();
+	// String extendsTypeName = "";
+	//
+	// if (tlExtension != null) {
+	// if (tlExtension.getExtendsEntity() != null)
+	// extendsTypeName = tlExtension.getExtendsEntity().getLocalName();
+	// else
+	// extendsTypeName = "--base type can not be found--";
+	// }
+	// return extendsTypeName;
+	// }
 
 	@Override
 	public String getExtendsTypeNS() {
@@ -93,19 +93,19 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 		return extendsNS;
 	}
 
-	@Override
-	public boolean isExtendedBy(NamedEntity extension) {
-		if (extension == null || !(extension instanceof TLBusinessObject))
-			return false;
-		if (extension.getValidationIdentity() == null)
-			return false;
-
-		if (getTLModelObj() != null)
-			if (getTLModelObj().getExtension() != null)
-				if (getTLModelObj().getExtension().getValidationIdentity() != null)
-					return getTLModelObj().getExtension().getExtendsEntity() == extension;
-		return false;
-	}
+	// @Override
+	// public boolean isExtendedBy(NamedEntity extension) {
+	// if (extension == null || !(extension instanceof TLBusinessObject))
+	// return false;
+	// if (extension.getValidationIdentity() == null)
+	// return false;
+	//
+	// if (getTLModelObj() != null)
+	// if (getTLModelObj().getExtension() != null)
+	// if (getTLModelObj().getExtension().getValidationIdentity() != null)
+	// return getTLModelObj().getExtension().getExtendsEntity() == extension;
+	// return false;
+	// }
 
 	/**
 	 * @see org.opentravel.schemas.modelObject.ModelObject#setExtendsType(org.opentravel.schemas.modelObject.ModelObject)
@@ -125,9 +125,9 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 		}
 	}
 
-	@Override
-	public boolean setName(final String name) {
-		getTLModelObj().setName(name);
-		return true;
-	}
+	// @Override
+	// public boolean setName(final String name) {
+	// getTLModelObj().setName(name);
+	// return true;
+	// }
 }

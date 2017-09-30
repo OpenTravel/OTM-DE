@@ -21,8 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.ModelElement;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
@@ -38,6 +40,7 @@ import org.opentravel.schemacompiler.version.Versioned;
 import org.opentravel.schemas.modelObject.EmptyMO;
 import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.modelObject.ModelObject;
+import org.opentravel.schemas.modelObject.XSDElementMO;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
@@ -308,7 +311,18 @@ public abstract class ComponentNode extends Node {
 	 * @return the assigned namespace prefix from the model object.
 	 */
 	public String getAssignedPrefix() {
-		return getModelObject().getAssignedPrefix();
+		TLModelElement tlType = null;
+		AbstractLibrary tlLib = null;
+		if (modelObject instanceof XSDElementMO)
+			return ((XSDElementMO) modelObject).getAssignedPrefix();
+		if (this instanceof TypeUser)
+			tlType = ((TypeUser) this).getAssignedTLObject();
+		if (tlType == null)
+			return "";
+		if (tlType instanceof NamedEntity)
+			tlLib = ((NamedEntity) tlType).getOwningLibrary();
+		return tlLib == null ? "xsd" : tlLib.getPrefix();
+		// return getModelObject().getAssignedPrefix();
 	}
 
 	@Override
@@ -587,7 +601,8 @@ public abstract class ComponentNode extends Node {
 	 */
 	public boolean setDocumentation(TLDocumentation documentation) {
 		if (getTLModelObject() instanceof TLDocumentationOwner)
-			getModelObject().setDocumentation(documentation);
+			((TLDocumentationOwner) getTLModelObject()).setDocumentation(documentation);
+		// getModelObject().setDocumentation(documentation);
 		else
 			return false;
 		return true;

@@ -22,7 +22,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
+import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.LibraryController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
@@ -43,6 +46,112 @@ import org.opentravel.schemas.testUtils.NodeTesters;
 public class DocumentationNode_Tests {
 	ModelNode model = null;
 	NodeTesters nt = new NodeTesters();
+
+	MockLibrary ml = new MockLibrary();
+	LibraryNode ln = null;
+	MainController mc;
+	DefaultProjectController pc;
+	ProjectNode defaultProject;
+	LoadFiles lf = null;
+
+	@Before
+	public void beforeEachTest() {
+		mc = new MainController();
+		pc = (DefaultProjectController) mc.getProjectController();
+		defaultProject = pc.getDefaultProject();
+		lf = new LoadFiles();
+	}
+
+	/**
+	 * documentation handler is assigned to each node that has documentation.
+	 */
+	@Test
+	public void docHandlerTest() {
+		OTM16Upgrade.otm16Enabled = true;
+
+		// Given an editable business object in a library
+		LibraryNode ln = ml.createNewLibrary_Empty("http://example.com", "TestLib1", defaultProject);
+		ln.setEditable(true);
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TestBO");
+		String context = ln.getDefaultContextId();
+
+		// Given 3 test strings
+		final String s1 = "String1 test documentation.";
+		final String s2 = "String2 test documentation.";
+		final String s3 = "String3 test documentation.";
+
+		// Given the doc handler from the BO
+		DocumentationHandler dh = bo.getDocHander();
+		// Given a new documentation handler for the BO
+		// DocumentationHandler dh = new DocumentationHandler(bo);
+
+		// When/Then - no errors getting empty documentation
+		assertTrue(dh.getDescription().isEmpty());
+		assertTrue(dh.getOther() == null);
+		assertTrue(dh.getDeprecation(0) == null);
+		assertTrue(dh.getImplementer(0) == null);
+		assertTrue(dh.getMoreInfo(0) == null);
+		assertTrue(dh.getReference(0) == null);
+
+		// When - setting to string s1
+		dh.addDescription(s1);
+		dh.addOther(s1);
+		dh.addDeprecation(s1);
+		dh.addImplementer(s1);
+		dh.addMoreInfo(s1);
+		dh.addReference(s1);
+		// Then - get returns s1
+		String d = dh.getDescription();
+		assertTrue(dh.getDescription().equals(s1));
+		assertTrue(dh.getOther().equals(s1));
+		assertTrue(dh.getDeprecation(0).equals(s1));
+		assertTrue(dh.getImplementer(0).equals(s1));
+		assertTrue(dh.getMoreInfo(0).equals(s1));
+		assertTrue(dh.getReference(0).equals(s1));
+
+		// When - setting new value
+		dh.setDescription(s2);
+		dh.setOther(s2);
+		dh.setDeprecation(s2, 0);
+		dh.setImplementer(s2, 0);
+		dh.setMoreInfo(s2, 0);
+		dh.setReference(s2, 0);
+		// Then - get returns s2
+		assertTrue(dh.getDescription().equals(s2));
+		assertTrue(dh.getOther().equals(s2));
+		assertTrue(dh.getDeprecation(0).equals(s2));
+		assertTrue(dh.getImplementer(0).equals(s2));
+		assertTrue(dh.getMoreInfo(0).equals(s2));
+		assertTrue(dh.getReference(0).equals(s2));
+		// Then - get on index 1 is null
+		assertTrue(dh.getDeprecation(1) == null);
+		assertTrue(dh.getImplementer(1) == null);
+		assertTrue(dh.getMoreInfo(1) == null);
+		assertTrue(dh.getReference(1) == null);
+
+		// When - add new value
+		dh.addDescription(s3);
+		dh.addOther(s3);
+		dh.addDeprecation(s3);
+		dh.addImplementer(s3);
+		dh.addMoreInfo(s3);
+		dh.addReference(s3);
+		// Then - get returns s3
+		assertTrue(dh.getDescription().endsWith(s3));
+		assertTrue(dh.getOther().endsWith(s3));
+		// Then - get on index 0 is unchanged (s2)
+		assertTrue(dh.getDeprecation(0).equals(s2));
+		assertTrue(dh.getImplementer(0).equals(s2));
+		assertTrue(dh.getMoreInfo(0).equals(s2));
+		assertTrue(dh.getReference(0).equals(s2));
+		// Then - get on index 1 is s3
+		assertTrue(dh.getDeprecation(1).equals(s3));
+		assertTrue(dh.getImplementer(1).equals(s3));
+		assertTrue(dh.getMoreInfo(1).equals(s3));
+		assertTrue(dh.getReference(1).equals(s3));
+
+		OTM16Upgrade.otm16Enabled = true;
+	}
 
 	@Test
 	public void coreDescriptionTest() {

@@ -71,11 +71,11 @@ public class EnumLiteralMO extends ModelObject<TLEnumValue> {
 	// return false;
 	// }
 	//
-	@Override
-	public boolean setName(final String name) {
-		getTLModelObj().setLiteral(name);
-		return true;
-	}
+	// @Override
+	// public boolean setName(final String name) {
+	// getTLModelObj().setLiteral(name);
+	// return true;
+	// }
 
 	@Override
 	public void addToTLParent(final ModelObject<?> parentMO, int index) {

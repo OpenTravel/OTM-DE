@@ -41,11 +41,6 @@ import org.opentravel.schemas.types.TypeUser;
  */
 public class AttributeNode extends PropertyNode {
 
-	public AttributeNode(PropertyOwnerInterface facet, String name, TypeProvider type) {
-		super(new TLAttribute(), (Node) facet, name, PropertyNodeType.ATTRIBUTE);
-		setAssignedType(type);
-	}
-
 	public AttributeNode(PropertyOwnerInterface parent, String name) {
 		this(parent, name, ModelNode.getUnassignedNode());
 	}
@@ -53,6 +48,11 @@ public class AttributeNode extends PropertyNode {
 	public AttributeNode(PropertyOwnerInterface parent, String name, PropertyNodeType type) {
 		super(new TLAttribute(), (Node) parent, name, type);
 		setAssignedType((TypeProvider) ModelNode.getUnassignedNode());
+	}
+
+	public AttributeNode(PropertyOwnerInterface facet, String name, TypeProvider type) {
+		super(new TLAttribute(), (Node) facet, name, PropertyNodeType.ATTRIBUTE);
+		setAssignedType(type);
 	}
 
 	/**
@@ -111,20 +111,14 @@ public class AttributeNode extends PropertyNode {
 		return n;
 	}
 
-	/**
-	 * Override to provide GUI assist: Since attributes can be renamed, there is no need to use the alias. Aliases are
-	 * not TLAttributeType members so the GUI assist must convert before assignment.
-	 */
-	@Override
-	public boolean setAssignedType(TypeProvider provider) {
-		if (provider instanceof AliasNode)
-			provider = (TypeProvider) ((Node) provider).getOwningComponent();
-		return typeHandler.set(provider);
-	}
-
 	@Override
 	public ComponentNodeType getComponentNodeType() {
 		return ComponentNodeType.ATTRIBUTE;
+	}
+
+	@Override
+	public String getEquivalent(String context) {
+		return getEquivalentHandler().get(context);
 	}
 
 	@Override
@@ -135,31 +129,14 @@ public class AttributeNode extends PropertyNode {
 	}
 
 	@Override
-	public String getEquivalent(String context) {
-		return getEquivalentHandler().get(context);
-	}
-
-	@Override
-	public IValueWithContextHandler setEquivalent(String example) {
-		getEquivalentHandler().set(example, null);
-		return equivalentHandler;
+	public String getExample(String context) {
+		return getExampleHandler().get(context);
 	}
 
 	@Override
 	public IValueWithContextHandler getExampleHandler() {
 		if (exampleHandler == null)
 			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
-		return exampleHandler;
-	}
-
-	@Override
-	public String getExample(String context) {
-		return getExampleHandler().get(context);
-	}
-
-	@Override
-	public IValueWithContextHandler setExample(String example) {
-		getExampleHandler().set(example, null);
 		return exampleHandler;
 	}
 
@@ -207,9 +184,27 @@ public class AttributeNode extends PropertyNode {
 		return isEditable() && !inherited;
 	}
 
+	/**
+	 * Override to provide GUI assist: Since attributes can be renamed, there is no need to use the alias. Aliases are
+	 * not TLAttributeType members so the GUI assist must convert before assignment.
+	 */
 	@Override
-	public void setName(String name) {
-		getTLModelObject().setName(NodeNameUtils.fixAttributeName(name));
+	public boolean setAssignedType(TypeProvider provider) {
+		if (provider instanceof AliasNode)
+			provider = (TypeProvider) ((Node) provider).getOwningComponent();
+		return typeHandler.set(provider);
+	}
+
+	@Override
+	public IValueWithContextHandler setEquivalent(String example) {
+		getEquivalentHandler().set(example, null);
+		return equivalentHandler;
+	}
+
+	@Override
+	public IValueWithContextHandler setExample(String example) {
+		getExampleHandler().set(example, null);
+		return exampleHandler;
 	}
 
 	/**
@@ -219,6 +214,11 @@ public class AttributeNode extends PropertyNode {
 		if (isEditable_newToChain())
 			if (getOwningComponent().isNewToChain() || !getLibrary().isInChain())
 				getTLModelObject().setMandatory(selection);
+	}
+
+	@Override
+	public void setName(String name) {
+		getTLModelObject().setName(NodeNameUtils.fixAttributeName(name));
 	}
 
 }
