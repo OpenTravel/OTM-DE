@@ -52,72 +52,10 @@ public class RoleEnumerationMO extends ModelObject<TLRoleEnumeration> {
 		getTLModelObj().addRole(index, tlModelObj);
 	}
 
-	// @Override
-	// public boolean isRole() {
-	// return true;
-	// }
-
-	// @Override
-	// public boolean isRoleFacet() {
-	// return true;
-	// }
-	//
-	// @Override
-	// public boolean isRoleProperty() {
-	// return false;
-	// }
-
-	// @Override
-	// public boolean isComplexAssignable() {
-	// return true;
-	// }
-	//
-	// @Deprecated
-	// @Override
-	// public String getComponentType() {
-	// return getTLModelObj().getLocalName();
-	// }
-
-	// /**
-	// * Set the name on a role - can't be done. Model objects do not know who their parentNode is. There is no
-	// * TLModelElement for roles. The caller must use the parentNode core object setRole method instead OR use the
-	// * setName method on the Property Node.
-	// */
-	// @Override
-	// public boolean setName(final String name) {
-	// return false;
-	// }
-
 	@Override
 	public List<?> getChildren() {
 		return getTLModelObj().getRoles();
 	}
-
-	// @Override
-	// public String getLabel() {
-	// return "Roles";
-	// }
-
-	// @Override
-	// protected AbstractLibrary getLibrary(final TLRoleEnumeration obj) {
-	// return getTLModelObj().getOwningLibrary();
-	// }
-
-	// @Deprecated
-	// @Override
-	// public String getName() {
-	// return getTLModelObj().getLocalName();
-	// }
-	//
-	// @Override
-	// public String getNamePrefix() {
-	// return "";
-	// }
-	//
-	// @Override
-	// public String getNamespace() {
-	// return getTLModelObj().getNamespace();
-	// }
 
 	@Override
 	public TLRoleEnumeration getTLModelObj() {

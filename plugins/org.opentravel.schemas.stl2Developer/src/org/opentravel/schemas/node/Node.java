@@ -43,7 +43,6 @@ import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLContextReferrer;
 import org.opentravel.schemacompiler.model.TLDocumentation;
-import org.opentravel.schemacompiler.model.TLDocumentationItem;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 import org.opentravel.schemacompiler.model.TLEquivalentOwner;
 import org.opentravel.schemacompiler.model.TLExampleOwner;
@@ -256,6 +255,9 @@ public abstract class Node implements INode {
 		return n;
 	}
 
+	/**
+	 * ******************************************************** Abstract Node Constructor
+	 */
 	public Node() {
 		parent = null;
 		children = new ArrayList<Node>();
@@ -285,31 +287,31 @@ public abstract class Node implements INode {
 			docHandler = new DocumentationHandler(this);
 	}
 
-	public void addDeprecated(String text) {
-		if (isEditable())
-			docHandler.addDeprecation(text);
-		// modelObject.addDeprecation(text);
-	}
+	// public void addDeprecated(String text) {
+	// if (isEditable())
+	// docHandler.addDeprecation(text);
+	// // modelObject.addDeprecation(text);
+	// }
 
-	public void addDescription(String text) {
-		if (isEditable() && docHandler != null)
-			docHandler.addDescription(text);
-	}
+	// public void addDescription(String text) {
+	// if (isEditable() && docHandler != null)
+	// docHandler.addDescription(text);
+	// }
 
-	public void addImplementer(String text) {
-		if (isEditable() && docHandler != null)
-			docHandler.addImplementer(text);
-	}
+	// public void addImplementer(String text) {
+	// if (isEditable() && docHandler != null)
+	// docHandler.addImplementer(text);
+	// }
 
-	public void addMoreInfo(String text) {
-		if (isEditable() && docHandler != null)
-			docHandler.addMoreInfo(text);
-	}
+	// public void addMoreInfo(String text) {
+	// if (isEditable() && docHandler != null)
+	// docHandler.addMoreInfo(text);
+	// }
 
-	public void addReference(String text) {
-		if (isEditable() && docHandler != null)
-			docHandler.addReference(text);
-	}
+	// public void addReference(String text) {
+	// if (isEditable() && docHandler != null)
+	// docHandler.addReference(text);
+	// }
 
 	/**
 	 * Can Assign - can the type be assigned to node?
@@ -959,17 +961,19 @@ public abstract class Node implements INode {
 		// return modelObject != null ? modelObject.getDescriptionDoc() : "";
 	}
 
-	public List<TLDocumentationItem> getDevelopers() {
-		return docHandler != null ? docHandler.getImplementers() : null;
-		// return modelObject != null ? modelObject.getDeveloperDoc() : null;
-	}
+	// public List<TLDocumentationItem> getDevelopers() {
+	// return docHandler != null ? docHandler.getImplementers() : null;
+	// // return modelObject != null ? modelObject.getDeveloperDoc() : null;
+	// }
 
 	public DocumentationHandler getDocHander() {
+		if (docHandler == null && isDocumentationOwner())
+			docHandler = new DocumentationHandler(this);
 		return docHandler;
 	}
 
 	public TLDocumentation getDocumentation() {
-		return docHandler != null ? docHandler.getOrNewTL() : null;
+		return getDocHander() != null ? docHandler.getOrNewTL() : null;
 		// return modelObject == null ? new TLDocumentation() : modelObject.getDocumentation();
 	}
 
@@ -1491,6 +1495,8 @@ public abstract class Node implements INode {
 	}
 
 	public boolean isDocumentationOwner() {
+		if (getTLModelObject() instanceof TLEmpty)
+			return false;
 		return getTLModelObject() instanceof TLDocumentationOwner && !(getTLModelObject() instanceof TLListFacet);
 	}
 
@@ -2239,7 +2245,7 @@ public abstract class Node implements INode {
 				if (targetOD == null)
 					od.setContext(targetId);
 				else
-					addImplementer("Other doc: " + od.getContext() + " = " + od.getText());
+					getDocHander().addImplementer("Other doc: " + od.getContext() + " = " + od.getText());
 			}
 		}
 
@@ -2327,12 +2333,12 @@ public abstract class Node implements INode {
 			docHandler.setDescription(string);
 	}
 
-	public void setDevelopers(String doc, int index) {
-		if (docHandler != null)
-			docHandler.setImplementer(doc, index);
-		// if (modelObject != null && isEditable())
-		// modelObject.setDeveloperDoc(doc, index);
-	}
+	// public void setDevelopers(String doc, int index) {
+	// if (docHandler != null)
+	// docHandler.setImplementer(doc, index);
+	// // if (modelObject != null && isEditable())
+	// // modelObject.setDeveloperDoc(doc, index);
+	// }
 
 	/**
 	 * Enable the extend-able property for this object. For faceted objects, this instructs compiler to create extension
@@ -2374,10 +2380,10 @@ public abstract class Node implements INode {
 		setKidsLibrary();
 	}
 
-	public void setMoreInfo(String info, int index) {
-		if (docHandler != null && isEditable())
-			docHandler.setMoreInfo(info, index);
-	}
+	// public void setMoreInfo(String info, int index) {
+	// if (docHandler != null && isEditable())
+	// docHandler.setMoreInfo(info, index);
+	// }
 
 	/**
 	 * Set the name in the node and underlying TL model object for <i>this</i> node. Complex types propagate name change
@@ -2400,10 +2406,10 @@ public abstract class Node implements INode {
 	}
 
 	//
-	public void setReferenceLink(String link, int index) {
-		if (docHandler != null && isEditable())
-			docHandler.setReference(link, index);
-	}
+	// public void setReferenceLink(String link, int index) {
+	// if (docHandler != null && isEditable())
+	// docHandler.setReference(link, index);
+	// }
 
 	/**
 	 * Simple setter of the versionNode field.

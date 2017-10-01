@@ -26,40 +26,6 @@ public class RolePropertyMO extends ModelObject<TLRole> {
 	public RolePropertyMO() {
 	}
 
-	// @Override
-	// public String getComponentType() {
-	// return "Role";
-	// }
-
-	// @Override
-	// public boolean setName(final String name) {
-	// if (getTLModelObj() == null) {
-	// return false;
-	// }
-	// getTLModelObj().setName(name);
-	// return true;
-	// }
-
-	// @Override
-	// protected AbstractLibrary getLibrary(final TLRole obj) {
-	// return null;
-	// }
-
-	// @Override
-	// public String getName() {
-	// return getTLModelObj() != null ? getTLModelObj().getName() : "";
-	// }
-	//
-	// @Override
-	// public String getNamePrefix() {
-	// return null;
-	// }
-	//
-	// @Override
-	// public String getNamespace() {
-	// return "";
-	// }
-
 	@Override
 	public TLRole getTLModelObj() {
 		return srcObj;

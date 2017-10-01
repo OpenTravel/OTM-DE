@@ -162,6 +162,12 @@ public abstract class ComponentNode extends Node {
 				linkChild(property, index);
 			else
 				linkChild(property);
+
+			// FIXME - use the POI instead of MO the eliminate MO methods
+			// FIXME - linkage to parent should be in POI method
+			// if (this instanceof PropertyOwnerInterface && property instanceof PropertyNode) {
+			// ((PropertyOwnerInterface)this).addProperty((PropertyNode) property, index);
+			// }
 			final ModelObject<?> propMO = property.getModelObject();
 			final ModelObject<?> mo = getModelObject();
 			if (propMO != null && mo != null) {

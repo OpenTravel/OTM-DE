@@ -264,20 +264,12 @@ public class EqExOneValueHandler implements IValueWithContextHandler, ModelEleme
 	 * Add the equivalent value to the documentation.
 	 */
 	private void convertToDoc(TLExample tle) {
-		owner.addImplementer("Example value: " + tle.getContext() + " = " + get(tle.getContext()));
+		owner.getDocHander().addImplementer("Example value: " + tle.getContext() + " = " + get(tle.getContext()));
 	}
 
 	private void convertToDoc(TLEquivalent tle) {
-		owner.addImplementer("Equivalent value: " + tle.getContext() + " = " + get(tle.getContext()));
+		owner.getDocHander().addImplementer("Equivalent value: " + tle.getContext() + " = " + get(tle.getContext()));
 	}
-
-	// @Override
-	// public boolean areValid() {
-	// for (TLExample tle : tlOwner.getExamples())
-	// if (!confirmContextExists(tle.getContext()))
-	// return false;
-	// return true;
-	// }
 
 	private TLLibrary getOwnerLibrary() {
 		AbstractLibrary tlLib = null;

@@ -242,33 +242,28 @@ public class DocumentationNode_Tests {
 	}
 
 	private void getDocs(LibraryNode ln) {
-		// //for (Node n : ln.getChildren_NamedTypes()) {
 		for (Node n : ln.getDescendants()) {
 			if (!n.isDocumentationOwner())
 				continue;
 
 			final String doc = "ABCdef124 now is the time for all good...you know";
-			String s;
 			int index = 0;
+			// use docHandler
+			DocumentationHandler dh = n.getDocHander();
 
-			// TODO - use documentation controller/class not node directly.
 			assertTrue(n.getDescription() != null);
-			assertTrue(n.getDevelopers() != null);
-			// Assert.assertNotNull(n.getMoreInfo(index));
-			// Assert.assertNotNull(n.getDeprecated(index));
-			// Assert.assertNotNull(n.getReferenceLink(index));
 
-			n.setDescription(doc);
-			n.setDevelopers(doc, index);
-			n.setMoreInfo(doc, index);
-			// n.setDeprecated(doc, index);
-			n.setReferenceLink(doc, index);
+			dh.setDescription(doc);
+			dh.setImplementer(doc, index);
+			dh.setMoreInfo(doc, index);
+			dh.setDeprecation(doc, index);
+			dh.setReference(doc, index);
 
-			assertEquals(doc, n.getDescription());
-			// Assert.assertEquals(doc, n.getDevelopers(index));
-			// Assert.assertEquals(doc, n.getMoreInfo(index));
-			// Assert.assertEquals(doc, n.getDeprecated(index));
-			// Assert.assertEquals(doc, n.getReferenceLink(index));
+			assertEquals(doc, dh.getDescription());
+			assertEquals(doc, dh.getImplementer(index));
+			assertEquals(doc, dh.getMoreInfo(index));
+			assertEquals(doc, dh.getDeprecation(index));
+			assertEquals(doc, dh.getReference(index));
 		}
 
 	}

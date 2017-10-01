@@ -915,7 +915,7 @@ public class XsdModelingUtils {
 	public static QName getAssignedXsdType(Node xn) {
 		if (xn == null)
 			return null;
-		final List<TLDocumentationItem> items = xn.getDevelopers();
+		final List<TLDocumentationItem> items = xn.getDocHander().getImplementers();
 		if (items == null)
 			return null;
 
@@ -930,7 +930,7 @@ public class XsdModelingUtils {
 	public static String getAssignedXsdUnion(Node xn) {
 		if (xn == null)
 			return null;
-		final List<TLDocumentationItem> items = xn.getDevelopers();
+		final List<TLDocumentationItem> items = xn.getDocHander().getImplementers();
 		if (items == null)
 			return null;
 

@@ -35,67 +35,14 @@ public class ListFacetMO extends ModelObject<TLListFacet> {
 		return getTLModelObj().getAliases();
 	}
 
-	// @Override
-	// public String getComponentType() {
-	// return getTLModelObj().getLocalName();
-	// }
-
-	// @Override
-	// public String getLabel() {
-	// // Simple and Detail lists
-	// String label = srcObj.getFacetType() == null ? "" : FacetMO.getDisplayName(srcObj.getFacetType());
-	// label = "List_" + label;
-	// return label;
-	// }
-
-	// @Override
-	// protected AbstractLibrary getLibrary(final TLListFacet obj) {
-	// return null;
-	// }
-
-	// @Override
-	// public String getName() {
-	// return getTLModelObj().getLocalName() == null ? "" : getTLModelObj().getLocalName();
-	// }
-
-	// @Override
-	// public String getNamePrefix() {
-	// return "";
-	// }
-	//
-	// @Override
-	// public String getNamespace() {
-	// return getTLModelObj().getNamespace();
-	// }
-
 	@Override
 	public TLListFacet getTLModelObj() {
 		return srcObj;
 	}
 
-	// @Override
-	// public boolean setName(final String name) {
-	// return false;
-	// }
-
-	// @Override
-	// public AbstractLibrary getOwningLibrary() {
-	// return srcObj != null ? srcObj.getItemFacet().getOwningEntity().getOwningLibrary() : null;
-	// }
-
-	// @Override
-	// public boolean isFacet() {
-	// return true;
-	// }
-
 	@Override
 	public void delete() {
 	}
-
-	// @Override
-	// public boolean isSimpleList() {
-	// return (getTLModelObj().getItemFacet() instanceof TLSimpleFacet);
-	// }
 
 	public boolean isDetailList() {
 		return (getTLModelObj().getItemFacet() instanceof TLFacet);

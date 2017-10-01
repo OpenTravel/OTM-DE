@@ -383,7 +383,7 @@ public class LibraryNodeTest extends BaseProjectTest {
 		LibraryNode ln = ml.createNewLibrary(pc, "DocTest");
 
 		// When description added
-		ln.addDescription(string1);
+		ln.getDocHander().addDescription(string1);
 		// then it can be read
 		String s = ln.getDescription();
 		assertTrue(s.equals(string1));

@@ -91,12 +91,6 @@ public class IndicatorMO extends ModelObject<TLIndicator> {
 		return false;
 	}
 
-	// @Override
-	// public boolean setName(final String name) {
-	// getTLModelObj().setName(name);
-	// return true;
-	// }
-
 	public void setToElement(boolean state) {
 		srcObj.setPublishAsElement(state);
 	}
