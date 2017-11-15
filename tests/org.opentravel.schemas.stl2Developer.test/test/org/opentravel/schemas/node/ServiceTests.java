@@ -27,13 +27,14 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOperation;
 import org.opentravel.schemacompiler.model.TLService;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.facets.OperationNode;
-import org.opentravel.schemas.node.facets.OperationNode.ResourceOperationTypes;
+import org.opentravel.schemas.node.facets.OperationNode.ServiceOperationTypes;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
@@ -42,6 +43,7 @@ import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.types.TypeUser;
+import org.opentravel.schemas.utils.BaseProjectTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,18 +51,17 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class ServiceTests {
+public class ServiceTests extends BaseProjectTest {
 	// public class ServiceTests extends RepositoryIntegrationTestBase {
 	private final static Logger LOGGER = LoggerFactory.getLogger(ServiceTests.class);
 
 	ModelNode model = null;
 	TestNode tn = new NodeTesters().new TestNode();
 	LoadFiles lf = new LoadFiles();
-	LibraryTests lt = new LibraryTests();
+	Library_FunctionTests lt = new Library_FunctionTests();
 
 	MockLibrary ml = new MockLibrary();
 	LibraryNode ln = null;
-	BusinessObjectNode bo = null;
 	MainController mc;
 	DefaultProjectController pc;
 	ProjectNode defaultProject;
@@ -71,34 +72,34 @@ public class ServiceTests {
 	private LibraryChainNode chain = null;
 
 	@Before
-	public void beforeEachTest() {
-		// should be done in base class
-		if (mc == null)
-			mc = new MainController();
-		if (pc == null)
-			pc = (DefaultProjectController) mc.getProjectController();
-		if (defaultProject == null)
-			defaultProject = pc.getDefaultProject();
+	public void beforeEachTest() throws Exception {
+		LOGGER.debug("***Before Service Object Tests ----------------------");
+		callBeforeEachTest();
+		defaultProject = testProject;
+		ln = ml.createNewLibrary("http://test.com", "CoreTest", defaultProject);
+		ln.setEditable(true);
 
-		ln = ml.createNewLibrary("http://example.com", "isTests", defaultProject);
-		new LibraryChainNode(ln); // test in a chain
+		// new LibraryChainNode(ln); // test in a chain
 		ln.setEditable(true);
 		assertTrue(ln.isEditable());
 
-		bo = ml.addBusinessObjectToLibrary(ln, "TestSubjectBO");
-		assertNotNull(bo);
 	}
 
 	public void check(ServiceNode svc) {
 		assertTrue(svc.getParent() instanceof LibraryNode);
+		assertTrue(svc.getTLModelObject() instanceof TLService);
+		assertTrue(svc == Node.GetNode(svc.getTLModelObject()));
+		assertTrue("TL Service must be this service.", svc.getTLModelObject() == ((TLLibrary) svc.getLibrary()
+				.getTLModelObject()).getService());
+
 		for (Node n : svc.getChildren())
 			assertTrue(n instanceof OperationNode);
 	}
 
 	@Test
-	public void constructorFromCore_Test() {
+	public void constructorFromMockLibrary_Test() {
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "TestCore");
-		ServiceNode svc = new ServiceNode(core);
+		ServiceNode svc = ml.addService(ln, "TestService");
 		assertTrue(svc.getChildren().size() == 0);
 	}
 
@@ -110,8 +111,12 @@ public class ServiceTests {
 
 	@Test
 	public void constructorFromBO_Test() {
+		BusinessObjectNode bo = null;
+		bo = ml.addBusinessObjectToLibrary(ln, "TestSubjectBO");
+		assertNotNull(bo);
+
 		ServiceNode svc = new ServiceNode(bo);
-		int OperationCount = ResourceOperationTypes.values().length - 1; // Not including queries
+		int OperationCount = ServiceOperationTypes.values().length - 1; // Not including queries
 
 		assertTrue(svc.getName().equals(bo.getName()));
 		assertTrue(svc.getChildren().size() >= OperationCount);
@@ -120,6 +125,8 @@ public class ServiceTests {
 			assertTrue(on.getChildren().size() == 3);
 			ml.check(on);
 		}
+
+		ml.check(ln);
 	}
 
 	@Test
@@ -129,8 +136,15 @@ public class ServiceTests {
 
 	@Test
 	public void constructorFromTL_Tests() {
+		// Given - a tl service in a library
 		TLService tlSvc = new TLService();
+		((TLLibrary) ln.getTLModelObject()).setService(tlSvc);
+
+		// When - constructor called
 		ServiceNode svc = new ServiceNode(tlSvc, ln);
+		// Then - service node is OK
+		assertTrue(svc != null);
+		check(svc);
 	}
 
 	// FIXME
@@ -190,12 +204,12 @@ public class ServiceTests {
 		ln.visitAllNodes(tn);
 
 		// Make sure services created from GUI can be resolved.
-		svc = new ServiceNode((Node) bo.getFacet_Detail());
-		tr = new TypeResolver();
-		tr.resolveTypes(ln);
-		ln.visitAllNodes(tn);
+		// svc = new ServiceNode((Node) bo.getFacet_Detail());
+		// tr = new TypeResolver();
+		// tr.resolveTypes(ln);
+		// ln.visitAllNodes(tn);
 
-		OperationNode op = new OperationNode(svc, "happy", ResourceOperationTypes.QUERY, bo);
+		OperationNode op = new OperationNode(svc, "happy", ServiceOperationTypes.QUERY, bo);
 		svc.visitAllNodes(tn);
 	}
 

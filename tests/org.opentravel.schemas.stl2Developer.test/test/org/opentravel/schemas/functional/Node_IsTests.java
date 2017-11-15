@@ -16,7 +16,7 @@
 /**
  * 
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.functional;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -25,6 +25,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.node.Library_FunctionTests;
+import org.opentravel.schemas.node.ModelNode;
+import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
@@ -48,7 +54,7 @@ public class Node_IsTests {
 
 	NodeTesters nt = new NodeTesters();
 	LoadFiles lf = new LoadFiles();
-	LibraryTests lt = new LibraryTests();
+	Library_FunctionTests lt = new Library_FunctionTests();
 	MockLibrary ml = null;
 	LibraryNode ln = null;
 	MainController mc;

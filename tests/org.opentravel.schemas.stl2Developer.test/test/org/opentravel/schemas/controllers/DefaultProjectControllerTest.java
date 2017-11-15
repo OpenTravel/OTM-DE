@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.controllers;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -68,7 +69,7 @@ public class DefaultProjectControllerTest extends BaseProjectTest {
 	public void closeAllShouldRemoveProject() throws LibrarySaveException {
 		ProjectNode toCloseProject = createProject("ToClose", rc.getLocalRepository(), "close");
 		pc.closeAll();
-		Assert.assertFalse(Node.getModelNode().getChildren().contains(toCloseProject));
+		assertFalse(Node.getModelNode().getChildren().contains(toCloseProject));
 	}
 
 	@Test

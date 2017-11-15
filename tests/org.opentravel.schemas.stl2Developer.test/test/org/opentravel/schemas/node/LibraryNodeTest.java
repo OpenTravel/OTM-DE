@@ -15,73 +15,110 @@
  */
 package org.opentravel.schemas.node;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+
+import java.io.File;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
-import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
-import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.node.listeners.ListenerFactory;
-import org.opentravel.schemas.node.properties.ElementNode;
-import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.utils.BaseProjectTest;
-import org.opentravel.schemas.utils.ComponentNodeBuilder;
-import org.opentravel.schemas.utils.LibraryNodeBuilder;
-import org.opentravel.schemas.utils.PropertyNodeBuilder;
-import org.osgi.framework.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @author Pawel Jedruch / Dave Hollander
+ * @author Dave Hollander
  * 
  */
 public class LibraryNodeTest extends BaseProjectTest {
+	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryNodeTest.class);
+
+	MockLibrary ml = new MockLibrary();
 
 	public void check(LibraryNode ln) {
+		check(ln, true);
+	}
+
+	public void check(LibraryNode ln, boolean validate) {
 		MockLibrary ml = new MockLibrary();
 
 		assertTrue(ln.getParent() != null);
 
 		// check all members
 		for (Node n : ln.getDescendants_LibraryMembers())
-			ml.check(n);
+			ml.check(n, validate);
 	}
 
 	@Test
 	public void libraryConstructorsTests() {
-		MockLibrary ml = new MockLibrary();
+		// Given - a project
 		ProjectNode project1 = createProject("Project1", rc.getLocalRepository(), "IT1");
 		String ns = "http://example.com/ns1";
 
 		// When - Simple constructor (see notes on constructor)
 		LibraryNode fromProj = new LibraryNode(project1);
 		assertTrue(fromProj != null);
-		ListenerFactory.setListner(fromProj);
-		assertTrue(Node.GetNode(fromProj.getTLLibrary()) == fromProj);
+		// Then - listener works
+		LN_isEditableTests(fromProj);
+		assertTrue(Node.GetNode(fromProj.getTLModelObject()) == fromProj);
 
 		// When - constructed from tl library
 		LibraryNode fromTL = new LibraryNode(createTL("FTL", ns), project1);
+		// Then - node with listener is correct
 		assertTrue(fromTL != null);
-		assertTrue(Node.GetNode(fromTL.getTLLibrary()) == fromTL);
-
-		// public LibraryNode(final AbstractLibrary alib, final VersionAggregateNode parent) {
+		assertTrue(Node.GetNode(fromTL.getTLModelObject()) == fromTL);
 
 		// When - mock library used
 		LibraryNode fromML = ml.createNewLibrary_Empty(ns, "FML", project1);
 		assertTrue(fromML != null);
-		assertTrue(Node.GetNode(fromML.getTLLibrary()) == fromML);
+		assertTrue(Node.GetNode(fromML.getTLModelObject()) == fromML);
+		boolean ans = fromML.isEditable();
+
+		LibraryChainNode lcn = new LibraryChainNode(fromML);
+		LN_isEditableTests(fromML);
+		assertTrue(lcn != null);
+		assertTrue(fromML.isInChain());
+		assertTrue("Must not be editable, wrong namespace.", !fromML.isEditable());
+
+		// When - new library in project's namespace is managed
+		LibraryNode projNS = ml.createNewLibrary_Empty(project1.getNamespace(), "FMP", project1);
+		new LibraryChainNode(projNS);
+		assertTrue("Must be editable.", projNS.isEditable());
+
+		// TODO
+		// new LibraryNode(createTL("FVL", ns), VersionAggregate);
+		// new LibraryNode(projectItem, ns), lcn);
+
+	}
+
+	@Test
+	public void checkBuiltIns() {
+		for (Node n : Node.getAllLibraries()) {
+			Assert.assertTrue(n instanceof LibraryNode);
+			ml.check(n);
+		}
+	}
+
+	private void LN_isEditableTests(LibraryNode ln) {
+		boolean ans = false;
+		ans = ln.isAbsLibEditable();
+		ans = ln.isEditable();
+		ans = ln.isEditable_description();
+		ans = ln.isEditable_equivalent();
+		ans = ln.isEditable_example();
+		ans = ln.isEditable_ifMinorCreated();
+		ans = ln.isEditable_inMinor();
+		ans = ln.isEditable_inService();
+		ans = ln.isEditable_isNewOrAsMinor();
+		ans = ln.isEditable_newToChain();
 	}
 
 	public TLLibrary createTL(String name, String ns) {
@@ -169,225 +206,76 @@ public class LibraryNodeTest extends BaseProjectTest {
 	}
 
 	@Test
-	public void shouldNotDuplicatedContextOnImport() throws LibrarySaveException {
-		LibraryNode importFrom = LibraryNodeBuilder.create("ImportFrom", testProject.getNamespace() + "/Test/One",
-				"o1", new Version(1, 0, 0)).build(testProject, pc);
+	public void Library_LoadTests() throws Exception {
+		LoadFiles lf = new LoadFiles();
+		LibraryNode l1 = lf.loadFile1(mc);
+		ml.check(l1);
 
-		TLContext c = new TLContext();
-		c.setContextId("ContextID");
-		c.setApplicationContext("newContext");
-		importFrom.getTLLibrary().addContext(c);
-		importFrom.addContexts();
-		BusinessObjectNode bo = ComponentNodeBuilder.createBusinessObject("BO").addCustomFacet("name")
-				.addCustomFacet("name2").get(); // 9/2016 - custom facets no longer have context
-		importFrom.addMember(bo);
+		lf.loadFile2(mc);
+		lf.loadFile3(mc);
+		lf.loadFile4(mc);
+		lf.loadFile5Clean(mc);
 
-		LibraryNode importTo = LibraryNodeBuilder.create("ImportTo", testProject.getNamespace() + "/Test/TO", "to",
-				new Version(1, 0, 0)).build(testProject, pc);
+		for (LibraryNode ln : Node.getAllLibraries())
+			ml.check(ln, false);
 
-		// List<String> beforeImport = importTo.getContextIds();
-		// List<String> fromContexts = importFrom.getContextIds();
-		importTo.importNode(bo);
-		// List<String> afterImport = importTo.getContextIds();
+		// If not editable,most of the other tests will fail.
+		for (LibraryNode ln : Node.getAllUserLibraries()) {
+			ln.setEditable(true);
+			assertTrue(ln.isEditable());
+			assertFalse(ln.getPath().isEmpty());
+			assertTrue(ln.getNamespace().equals(ln.getTLModelObject().getNamespace()));
+			assertTrue(ln.getPrefix().equals(ln.getTLModelObject().getPrefix()));
+		}
 
-		// FIXME - Assert.assertEquals(2, importTo.getContextIds().size());
-		assertTrue("Context must not be imported.", importTo.getTLLibrary().getContext(c.getContextId()) == null);
+		// Make sure we can create new empty libraries as used by wizard
+		LibraryNode newLib = new LibraryNode(l1.getProject());
+		assertTrue(newLib != null);
+
+		for (LibraryNode ln : Node.getAllUserLibraries()) {
+			// removeAllMembers(ln);
+			for (Node n : ln.getDescendants_LibraryMembers())
+				ln.removeMember(n); // May change type assignments!
+			Assert.assertTrue(ln.getDescendants_LibraryMembers().size() < 1);
+		}
 	}
 
 	@Test
-	public void moveNodeFromOneToOther() throws LibrarySaveException {
-		LibraryNode moveFrom = LibraryNodeBuilder.create("MoveFrom", testProject.getNamespace() + "/Test/One", "o1",
-				new Version(1, 0, 0)).build(testProject, pc);
+	public void NT_governedLibEditable() throws Exception {
+		// NodeTesters nt = new NodeTesters();
+		LoadFiles lf = new LoadFiles();
 
-		SimpleTypeNode moved = ComponentNodeBuilder.createSimpleObject("MyString")
-				.assignType(NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE)).get();
-		moveFrom.addMember(moved);
+		LibraryNode sourceLib = lf.loadFile5Clean(mc); // load into default project
+		LibraryNode destLib = lf.loadFile1(mc);
+		LibraryChainNode lcn = new LibraryChainNode(destLib);
+		lcn.add(sourceLib.getProjectItem());
 
-		PropertyNode withAssignedType = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).assign(moved).build();
-		BusinessObjectNode bo = ComponentNodeBuilder.createBusinessObject("BO").get();
-		bo.getFacet_Summary().addProperty(withAssignedType);
-		moveFrom.addMember(bo);
+		// Make sure they loaded OK.
+		// sourceLib.visitAllNodes(nt.new TestNode());
+		// destLib.visitAllNodes(nt.new TestNode());
+		ml.check(sourceLib);
+		ml.check(destLib);
 
-		LibraryNode moveTo = LibraryNodeBuilder.create("MoveTo", testProject.getNamespace() + "/Test/TO", "to",
-				new Version(1, 0, 0)).build(testProject, pc);
+		// LOGGER.debug("\n");
+		LOGGER.debug("Start Import ***************************");
+		// TODO - what has this to do with IMPORT???
+		// make sure that destLib is editable
+		String projectFile = MockLibrary.createTempFile("TempProject", ".otp");
+		ProjectNode project = pc.create(new File(projectFile), destLib.getNamespace(), "Name", "");
+		assertTrue("Project must have same namespace as destLib.", project.getNamespace()
+				.equals(destLib.getNamespace()));
 
-		moveFrom.moveMember(moved, moveTo);
+		// When - a library is added to a project that governs it's namespace
+		destLib = pc.add(project, destLib.getTLModelObject()).getLibrary();
 
-		Assert.assertSame(moveTo, moved.getLibrary());
-		assertTypeAssigments(moved, withAssignedType);
+		// Then - the library must be editable.
+		// Will only be true if library is Read-Write in file system.
+		// assertTrue(destLib.isEditable());
+
+		// Make sure still OK
+		ml.check(sourceLib);
+		ml.check(destLib);
+
 	}
 
-	private void assertTypeAssigments(Node moved, PropertyNode withAssignedType) {
-		// make sure that after move assigned pointing to the same node
-		Assert.assertSame(moved, withAssignedType.getType());
-		// make sure that after move TLObjects are pointing to the same TLType
-		Assert.assertSame(moved.getModelObject().getTLModelObj(), withAssignedType.getAssignedTLObject());
-	}
-
-	@Test
-	public void moveBOToOther() throws LibrarySaveException {
-		LibraryNode moveFrom = LibraryNodeBuilder.create("MoveFrom", testProject.getNamespace() + "/Test/One", "o1",
-				new Version(1, 0, 0)).build(testProject, pc);
-		// Create CO
-		CoreObjectNode co = ComponentNodeBuilder.createCoreObject("CO").get(moveFrom);
-		// Create attribute assigned to CO detail
-		PropertyNode withAssignedType = PropertyNodeBuilder.create(PropertyNodeType.ATTRIBUTE).build();
-		// CreateVWA
-		VWA_Node vwa = ComponentNodeBuilder.createVWA("VWA").addAttribute(withAssignedType).get();
-		moveFrom.addMember(vwa);
-		withAssignedType.setAssignedType(co);
-
-		LibraryNode moveTo = LibraryNodeBuilder.create("MoveTo", testProject.getNamespace() + "/Test/TO", "to",
-				new Version(1, 0, 0)).build(testProject, pc);
-
-		moveFrom.moveMember(co, moveTo);
-
-		assertTypeAssigments(co, withAssignedType);
-	}
-
-	/**
-	 * @throws LibrarySaveException
-	 */
-	@Test
-	public void importNodesLocallyShouldReplaceTypesInDestination() throws LibrarySaveException {
-		// given
-		LibraryNode moveFrom = LibraryNodeBuilder.create("MoveFrom", testProject.getNamespace() + "/Test/One", "o1",
-				new Version(1, 0, 0)).build(testProject, pc);
-		CoreObjectNode coBase = ComponentNodeBuilder.createCoreObject("COBase").get(moveFrom);
-		PropertyNode element = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).assign(coBase)
-				.setName(coBase.getName()).build();
-		CoreObjectNode coExt = ComponentNodeBuilder.createCoreObject("COExt").addToSummaryFacet(element).get(moveFrom);
-
-		LibraryNode moveTo = LibraryNodeBuilder.create("MoveTo", testProject.getNamespace() + "/Test/TO", "to",
-				new Version(1, 0, 0)).build(testProject, pc);
-
-		// when
-		moveTo.importNodes(moveFrom.getDescendants_LibraryMembers(), false);
-
-		// then
-		assertSame(coBase, element.getAssignedType());
-		Node movedBase = moveTo.findNodeByName("COBase");
-		Node movedExt = moveTo.findNodeByName("COExt");
-		// FIXME
-		// assertSame(movedBase, movedExt.findNode(movedBase.getName(), movedExt.getNamespace()).getAssignedType());
-	}
-
-	@Test
-	public void importNodesGloballyShouldReplaceBaseTypes() throws LibrarySaveException {
-		// given
-		LibraryNode moveFrom = LibraryNodeBuilder.create("MoveFrom", testProject.getNamespace() + "/Test/One", "o1",
-				new Version(1, 0, 0)).build(testProject, pc);
-		CoreObjectNode coBase = ComponentNodeBuilder.createCoreObject("COBase").get(moveFrom);
-		CoreObjectNode coExt = ComponentNodeBuilder.createCoreObject("COExt").extend(coBase).get(moveFrom);
-		assertTrue(coExt.isInstanceOf(coBase));
-
-		LibraryNode importTo = LibraryNodeBuilder.create("MoveTo", testProject.getNamespace() + "/Test/TO", "to",
-				new Version(1, 0, 0)).build(testProject, pc);
-		assertTrue("Import to library must be editable.", importTo.isEditable());
-
-		// when - global import
-		importTo.importNodes(moveFrom.getDescendants_LibraryMembers(), true);
-
-		// then
-		assertEquals(2, importTo.getDescendants_LibraryMembers().size());
-		Node newBase = importTo.findNodeByName("COBase");
-		Node newExt = importTo.findNodeByName("COExt");
-		boolean x = newExt.isInstanceOf(newBase);
-		boolean y = newBase.isInstanceOf(newExt);
-		boolean z = coExt.isInstanceOf(newBase); // true for global
-
-		assertFalse("New extension must NOT be to old base.", newExt.isInstanceOf(coBase));
-		assertTrue("New extension must be to new base.", newExt.isInstanceOf(newBase));
-		assertTrue("Global import must change base type.", coExt.isInstanceOf(newBase));
-	}
-
-	@Test
-	public void importNodesLocallyShouldReplaceBaseTypes() throws LibrarySaveException {
-		// given
-		LibraryNode moveFrom = LibraryNodeBuilder.create("MoveFrom", testProject.getNamespace() + "/Test/One", "o1",
-				new Version(1, 0, 0)).build(testProject, pc);
-		CoreObjectNode coBase = ComponentNodeBuilder.createCoreObject("COBase").get(moveFrom);
-		CoreObjectNode coExt = ComponentNodeBuilder.createCoreObject("COExt").extend(coBase).get(moveFrom);
-		assertTrue(coExt.isInstanceOf(coBase));
-
-		LibraryNode importTo = LibraryNodeBuilder.create("MoveTo", testProject.getNamespace() + "/Test/TO", "to",
-				new Version(1, 0, 0)).build(testProject, pc);
-
-		// when
-		importTo.importNodes(moveFrom.getDescendants_LibraryMembers(), false);
-
-		// then
-		assertEquals(2, importTo.getDescendants_LibraryMembers().size());
-		Node newBase = importTo.findNodeByName("COBase");
-		Node newExt = importTo.findNodeByName("COExt");
-		assertTrue("Original extension must extend original base.", coExt.isInstanceOf(coBase));
-		assertTrue("Imported extension must extend imported base.", newExt.isInstanceOf(newBase));
-		assertTrue("Imported must have new base.", ((ExtensionOwner) newExt).getExtensionBase() == newBase);
-	}
-
-	/**
-	 * ImportNodes uses importNode(source). This test focuses just on the clone and library add function of
-	 * importNode().
-	 * 
-	 * @throws LibrarySaveException
-	 */
-	@Test
-	public void importNode_Tests() throws LibrarySaveException {
-		// given
-		MockLibrary ml = new MockLibrary();
-		LibraryNode moveFrom = LibraryNodeBuilder.create("MoveFrom", testProject.getNamespace() + "/Test/One", "o1",
-				new Version(1, 0, 0)).build(testProject, pc);
-		CoreObjectNode coBase = ComponentNodeBuilder.createCoreObject("COBase").get(moveFrom);
-		ElementNode e1 = new ElementNode(new TLProperty(), coBase.getFacet_Summary());
-		e1.setAssignedType(ml.getSimpleTypeProvider());
-		coBase.addProperty(e1);
-		CoreObjectNode coExt = ComponentNodeBuilder.createCoreObject("COExt").extend(coBase).get(moveFrom);
-		assertTrue(coExt.isInstanceOf(coBase));
-
-		LibraryNode moveTo = LibraryNodeBuilder.create("MoveTo", testProject.getNamespace() + "/Test/TO", "to",
-				new Version(1, 0, 0)).build(testProject, pc);
-		assertTrue("Move to library must be editable.", moveTo.isEditable());
-
-		// when
-		Node newNode = moveTo.importNode(coBase);
-
-		// then - cloned node must be in target library
-		assertTrue("Imported noded must not be null.", newNode != null);
-		assertTrue(moveTo.getDescendants_LibraryMembers().contains(newNode));
-
-		// when
-		newNode = moveTo.importNode(coExt);
-
-		// then - cloned node must be in target library
-		assertTrue(newNode != null);
-		assertTrue(moveTo.getDescendants_LibraryMembers().contains(newNode));
-		assertTrue(newNode.isInstanceOf(coBase)); // should have cloned extension
-		// NOTE - no type resolution has happened yet so where extended will not be set.
-
-		// TODO - check contexts
-
-		// Given - business object with custom and query facets
-		BusinessObjectNode bo1 = ml.addBusinessObjectToLibrary(moveFrom, "MoveThisBO");
-		assertTrue("Business object must have custom facet.", !bo1.getCustomFacets().isEmpty());
-		// When - imported
-		BusinessObjectNode movedBO = (BusinessObjectNode) moveTo.importNode(bo1);
-
-		// Then - imported node must also have custom and query facets
-		assertTrue("Business object must have custom facet.", !movedBO.getCustomFacets().isEmpty());
-	}
-
-	@Test
-	public void libraryDocumentationTests() throws LibrarySaveException {
-		String string1 = "This is a test.";
-		MockLibrary ml = new MockLibrary();
-		LibraryNode ln = ml.createNewLibrary(pc, "DocTest");
-
-		// When description added
-		ln.getDocHander().addDescription(string1);
-		// then it can be read
-		String s = ln.getDescription();
-		assertTrue(s.equals(string1));
-
-		// TODO - save, close, open and read
-	}
 }

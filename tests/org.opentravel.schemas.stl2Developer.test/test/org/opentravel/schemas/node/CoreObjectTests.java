@@ -29,38 +29,35 @@ import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLPropertyType;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
-import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
-import org.opentravel.schemas.testUtils.NodeTesters;
-import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
+import org.opentravel.schemas.utils.BaseProjectTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Dave Hollander
  * 
  */
-public class CoreObjectTests {
-	ModelNode model = null;
-	MainController mc;
-	DefaultProjectController pc;
+public class CoreObjectTests extends BaseProjectTest {
+	private static final Logger LOGGER = LoggerFactory.getLogger(CoreObjectTests.class);
+
 	ProjectNode defaultProject;
-	TestNode tn = new NodeTesters().new TestNode();
 	LoadFiles lf = new LoadFiles();
 	MockLibrary ml = new MockLibrary();
 	LibraryChainNode lcn = null;
 	LibraryNode ln = null;
 
 	@Before
-	public void beforeEachTest() {
-		mc = new MainController();
-		// ml = new MockLibrary();
-		pc = (DefaultProjectController) mc.getProjectController();
+	public void beforeEachTest() throws Exception {
+		LOGGER.debug("***Before Core Object Tests ----------------------");
+		// callBeforeEachTest();
 		defaultProject = pc.getDefaultProject();
 		ln = ml.createNewLibrary("http://test.com", "CoreTest", defaultProject);
 		ln.setEditable(true);
@@ -68,42 +65,50 @@ public class CoreObjectTests {
 
 	/**
 	 * constructor tests
+	 * 
+	 * @throws Exception
 	 */
 	@Test
-	public void Core_ConstructorTests() {
+	public void CO_ConstructorTests() throws Exception {
+		if (ln == null)
+			beforeEachTest();
+
 		// Given - tl core object
 		TLCoreObject tlc = buildTLCoreObject("TestCore1");
+		// When - constructed
 		CoreObjectNode core1 = new CoreObjectNode(tlc);
+		// Then - pass check tests
 		ln.addMember(core1);
-		checkCore(core1);
+		check(core1, false);
 		if (!core1.isValid())
 			ml.printValidationFindings(core1);
+		assertTrue(core1.isValid()); // you cant build bo unless valid
 
 		// Given - business object
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TestBO2");
 		CoreObjectNode core2 = new CoreObjectNode(bo);
-		bo.removeFromLibrary();
-		checkCore(core2);
+		ln.removeMember(bo);
+		check(core2);
 
 		// Given - vwa
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "TestVWA");
 		CoreObjectNode core3 = new CoreObjectNode(vwa);
-		vwa.removeFromLibrary();
-		checkCore(core3);
+		ln.removeMember(vwa);
+		check(core3);
 
 		// check mock library
 		CoreObjectNode core4 = ml.addCoreObjectToLibrary(ln, "Tc");
-		checkCore(core4);
+		check(core4);
 	}
 
 	/**
 	 * factory tests
 	 */
 	@Test
-	public void Core_FactoryTests() {
-		CoreObjectNode newNode = (CoreObjectNode) NodeFactory.newComponent(buildTLCoreObject("test2"));
+	public void CO_FactoryTests() {
+		CoreObjectNode newNode = (CoreObjectNode) NodeFactory.newLibraryMember(buildTLCoreObject("test2"));
 		ln.addMember(newNode);
-		checkCore(newNode);
+		check(newNode);
 	}
 
 	/**
@@ -112,39 +117,55 @@ public class CoreObjectTests {
 	 * @throws Exception
 	 */
 	@Test
-	public void Core_FileLoadTests() throws Exception {
+	public void CO_FileLoadTests() throws Exception {
 		lf.loadTestGroupA(mc);
 		mc.getModelNode();
 		for (LibraryNode lib : Node.getAllUserLibraries())
 			for (Node n : lib.getDescendants_LibraryMembers())
 				if (n instanceof CoreObjectNode)
-					checkCore((CoreObjectNode) n);
+					check((CoreObjectNode) n, false);
+	}
+
+	@Test
+	public void CO_FileLoadTests2() throws Exception {
+		lf.loadTestGroupAc(mc);
+		mc.getModelNode();
+		for (LibraryNode lib : Node.getAllUserLibraries())
+			for (Node n : lib.getDescendants_LibraryMembers())
+				if (n instanceof CoreObjectNode)
+					check((CoreObjectNode) n, true);
+		// FIXME
+		// Passes when run alone.
+		// When run alone, 3 libs before loading test group then after
+		// there are 9 libraries, including testFile5.otm
+		// Fails validation when run with other tests.
+		// When run with other tests, there are 9 libraries, including testFile5.otm
 	}
 
 	/**
 	 * assigned type tests
 	 */
 	@Test
-	public void Core_TypeAssignmentTests() {
+	public void CO_TypeAssignmentTests() {
 		// Given - a core object
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "CoreTest");
 		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
-		TypeProvider bType = core.getSimpleType(); // string from mock library
+		TypeProvider bType = core.getAssignedType(); // string from mock library
 
 		// Then
 		assertTrue("Type must be same from Core and simple attribute methods.",
-				core.getSimpleAttribute().getType() == core.getSimpleType());
+				core.getSimpleAttribute().getType() == core.getAssignedType());
 
 		// When - set with simple attribute
 		assertTrue("Assigning type must return true. ", core.getSimpleAttribute().setAssignedType(aType));
-		assertTrue("Type must be as assigned.", core.getSimpleType() == aType);
+		assertTrue("Type must be as assigned.", core.getAssignedType() == aType);
 		// When - set with core method
-		Assert.assertTrue(core.setSimpleType(bType));
-		Assert.assertTrue("Type must be as assigned.", core.getSimpleType() == bType);
+		Assert.assertTrue(core.setAssignedType(bType));
+		Assert.assertTrue("Type must be as assigned.", core.getAssignedType() == bType);
 	}
 
 	@Test
-	public void Core_ExtensionTests() {
+	public void CO_ExtensionTests() {
 		ProjectNode proj = mc.getProjectController().getDefaultProject();
 		assertNotNull("Null project", proj);
 		ln = lf.loadFile4(mc);
@@ -161,14 +182,14 @@ public class CoreObjectTests {
 		for (Node n : ln.getDescendants_LibraryMembers())
 			if (n instanceof CoreObjectNode && n != extendedCO) {
 				extendedCO.setExtension(n);
-				checkCore((CoreObjectNode) n);
-				checkCore(extendedCO);
+				check((CoreObjectNode) n);
+				check(extendedCO);
 			}
 
 	}
 
 	@Test
-	public void Core_ChangeToTests() {
+	public void CO_ChangeToTests() {
 		// The change to method adds swap() to the constructor generated core.
 		//
 		CoreObjectNode tco = null;
@@ -188,7 +209,7 @@ public class CoreObjectTests {
 		// When - changed to core
 		tco = (CoreObjectNode) bo.changeObject(SubType.CORE_OBJECT);
 		// Then - the core is valid and element is assigned the core
-		checkCore(tco);
+		check(tco);
 		assertTrue(bo.getLibrary() != ln);
 		assertTrue("Type assignment must be to the new core.", ele.getAssignedType() == tco);
 		assertTrue("New core must have element in where used list.", tco.getWhereAssigned().contains(ele));
@@ -196,17 +217,17 @@ public class CoreObjectTests {
 		// Repeat with VWA
 		ele.setAssignedType(vwa);
 		tco = (CoreObjectNode) vwa.changeObject(SubType.CORE_OBJECT);
-		checkCore(tco);
+		check(tco);
 		assertTrue(vwa.getLibrary() != ln);
 		assertTrue("Type assignment must be to the new core.", ele.getAssignedType() == tco);
 
-		tn.visit(ln);
+		// tn.visit(ln);
 		assertTrue("Number of library members must be same as before changes.", typeCount == ln
 				.getDescendants_LibraryMembers().size());
 	}
 
 	@Test
-	public void Core_NameChangeTests() {
+	public void CO_NameChangeTests() {
 		// On name change, all users of the BO and its aliases and facets also need to change.
 
 		// Given - a Core Object with alias
@@ -217,56 +238,80 @@ public class CoreObjectTests {
 		for (Node n : core.getFacet_Summary().getChildren())
 			if (n instanceof AliasNode)
 				aliasSummary = (AliasNode) n;
-		// Then the alias must exist on the core and it's facet
+		// Then - the alias must exist on the core and it's facet
 		assertNotNull(alias1);
 		assertNotNull(aliasSummary);
 
 		// When - a core is created that has elements that use the core and aliases as properties
 		CoreObjectNode elements = ml.addCoreObjectToLibrary(ln, "user");
-		PropertyNode pcore = new ElementNode(elements.getFacet_Summary(), "p1", core);
-		PropertyNode pAlias1 = new ElementNode(elements.getFacet_Summary(), "p2", alias1);
-		PropertyNode pcoreSummary = new ElementNode(elements.getFacet_Summary(), "p3", core.getFacet_Summary());
-		PropertyNode pcoreSumAlias = new ElementNode(elements.getFacet_Summary(), "p4", aliasSummary);
+		FacetNode eleOwner = elements.getFacet_Summary();
 
-		// Then - the facet alias has where used
-		assertTrue("Facet alias must be assigned as type.", !aliasSummary.getWhereAssigned().isEmpty());
-		// Then - the elements are named after their type
-		assertTrue("Element name must be the core name.", pcore.getName().equals(core.getName()));
-		assertTrue("Element name must be alias name.", pAlias1.getName().contains(alias1.getName()));
-		assertTrue("Element name must be facet name.", pcoreSummary.getName().equals(core.getFacet_Summary().getName()));
-		assertTrue("Element name must start with core name.", pcoreSummary.getName().startsWith(core.getName()));
-		assertTrue("Element name must start with alias name.", pcoreSumAlias.getName().startsWith(alias1.getName()));
+		// When - assigned core as type
+		ElementNode e1 = new ElementNode(eleOwner, "p1", core);
+		assertTrue("Element name must be the core name.", e1.getName().equals(core.getName()));
+		assertTrue("Core must be assigned as type.", core.getWhereAssigned().contains(e1));
+
+		// When - assigned alias as type
+		e1 = new ElementNode(eleOwner, "p2", alias1);
+		assertTrue("Element name must be alias name.", e1.getName().equals(alias1.getName()));
+		assertTrue("Facet alias must be assigned as type.", alias1.getWhereAssigned().contains(e1));
+
+		// When - assigned summary facet as type
+		e1 = new ElementNode(eleOwner, "p3", core.getFacet_Summary());
+		assertTrue("Element name must be facet name.", e1.getName().equals(core.getFacet_Summary().getName()));
+		assertTrue("Element name must start with core name.", e1.getName().startsWith(core.getName()));
+		assertTrue("Summary Facet must be assigned as type.", core.getFacet_Summary().getWhereAssigned().contains(e1));
+
+		// When - assigned alias from summary facet
+		e1 = new ElementNode(eleOwner, "p4", aliasSummary);
+		assertTrue("Element name must start with alias name.", e1.getName().startsWith(alias1.getName()));
+		assertTrue("Summary Facet alias must be assigned as type.", aliasSummary.getWhereAssigned().contains(e1));
 
 		// When - Change the core name
 		String changedName = "changedName";
 		core.setName(changedName);
 		changedName = NodeNameUtils.fixCoreObjectName(changedName); // get the "fixed" name
+		assertTrue(changedName.equals(core.getName()));
 
-		// Then - the business object name and facets must change.
-		assertTrue("Core Object name must be fixed name.", pcore.getName().equals(changedName));
-		assertTrue("Alias name must be unchanged.", pAlias1.getName().equals(alias1.getName()));
-		assertTrue("Facet name must start with core name.", pcoreSummary.getName().startsWith(changedName));
-		// Then - the facet alias has where used
-		assertTrue("Facet alias must be assigned as type.", !aliasSummary.getWhereAssigned().isEmpty());
-		// Then - the elements are named after their type
-		assertTrue("Element name must be the core name.", pcore.getName().equals(changedName));
-		assertTrue("Element name must contain new core name.", pcoreSummary.getName().contains(changedName));
-		assertTrue("Element name must start with core name.", pcoreSummary.getName().startsWith(changedName));
-		assertTrue("Element name must start with alias name.", pcoreSumAlias.getName().startsWith(alias1.getName()));
-		assertTrue("Element name must start with alias name.", pAlias1.getName().startsWith(alias1.getName()));
+		// Then - the elements and facets name must change.
+		for (Node n : eleOwner.getChildren()) {
+			TypeUser tn = (TypeUser) n;
+			if (tn.getAssignedType() == core)
+				assertTrue(tn.getName().equals(changedName));
+			else if (tn.getAssignedType() == alias1)
+				assertTrue(tn.getName().equals(alias1.getName()));
+			else if (tn.getAssignedType() == core.getFacet_Summary())
+				assertTrue(tn.getName().equals(changedName));
+			else if (tn.getAssignedType() == aliasSummary)
+				assertTrue(tn.getName().startsWith(alias1.getName()));
+			else
+				assert true; // no-op - created by Mock Library to make core valid
+		}
+		// NOTE - not valid!
 
 		// When - alias name changed
 		String aliasName2 = "aliasName2";
 		alias1.setName(aliasName2);
 		aliasName2 = alias1.getName(); // get the "fixed" name
-
 		// Then - all aliases on core must change name
-		assertTrue("Alias Name must change.", pAlias1.getName().equals(aliasName2));
+		assertTrue("Alias Name must change.", alias1.getName().equals(aliasName2));
 		assertTrue("Alias on summary facet must change.", aliasSummary.getName().startsWith(aliasName2));
 
-		// Then - all type users of those aliases must change name
-		assertTrue("Element name must start with changed alias name.", pcoreSumAlias.getName().startsWith(aliasName2));
-		assertTrue("Element name must start with changed alias name.", pAlias1.getName().startsWith(aliasName2));
+		// Then - must find an element with the alias name
+		int found = 0;
+		for (Node n : eleOwner.getChildren()) {
+			TypeUser tn = (TypeUser) n;
+			if (tn.getAssignedType() == core)
+				assertTrue(tn.getName().equals(changedName));
+			else if (tn.getAssignedType() == alias1)
+				assertTrue(tn.getName().equals(aliasName2));
+			else if (tn.getAssignedType() == core.getFacet_Summary())
+				assertTrue(tn.getName().equals(changedName));
+			else if (tn.getAssignedType() == aliasSummary)
+				assertTrue(tn.getName().startsWith(aliasName2));
+			else
+				assert true; // no-op - created by Mock Library to make core valid
+		}
 	}
 
 	public TLCoreObject buildTLCoreObject(String name) {
@@ -294,17 +339,31 @@ public class CoreObjectTests {
 	/**
 	 * checkCore - all tests to be used in these tests and by other junits
 	 */
-	public void checkCore(CoreObjectNode core) {
+	public void check(CoreObjectNode core) {
+		check(core, true);
+	}
+
+	public void check(CoreObjectNode core, boolean validate) {
 		assertTrue(core.getLibrary() != null);
 
-		assertTrue("Core must have at least 6 children.", core.getChildren().size() >= 6);
+		// Core must only have 6 children + aliases
+		int cSize = 6 + core.getAliases().size();
+		assertTrue("Core children count must be " + cSize, core.getChildren().size() == cSize);
 
 		// Facets
-		ml.check(core.getFacet_Simple());
-		ml.check(core.getFacet_Summary());
-		ml.check(core.getFacet_Detail());
-		ml.check(core.getSimpleListFacet());
-		ml.check(core.getDetailListFacet());
-		ml.check(core.getRoleFacet());
+		for (Node child : core.getChildren()) {
+			ml.check(child, validate);
+		}
+		assertTrue(core.getFacet_Simple() != null);
+		assertTrue(core.getFacet_Default() != null);
+		assertTrue(core.getFacet_Summary() != null);
+		assertTrue(core.getFacet_Detail() != null);
+		assertTrue(core.getFacet_Role() != null);
+		assertTrue(core.getSimpleAttribute() != null);
+		assertTrue(core.getType() == null);
+
+		if (validate)
+			assertTrue(core.isValid());
+
 	}
 }

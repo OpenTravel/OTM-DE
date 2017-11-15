@@ -27,22 +27,23 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.TLAbstractFacet;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLListFacet;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.modelObject.FacetMO;
-import org.opentravel.schemas.modelObject.SimpleAttributeMO;
-import org.opentravel.schemas.modelObject.SimpleFacetMO;
 import org.opentravel.schemas.modelObject.TLnValueWithAttributesFacet;
+import org.opentravel.schemas.node.facets.AttributeFacetNode;
 import org.opentravel.schemas.node.facets.ChoiceFacetNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
@@ -54,19 +55,22 @@ import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
+import org.opentravel.schemas.node.facets.SimpleFacetFacadeNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.facets.UpdateFacetNode;
-import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.listeners.InheritanceDependencyListener;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
+import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.RoleNode;
+import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -90,7 +94,7 @@ public class FacetsTests {
 
 	NodeTesters nt = new NodeTesters();
 	LoadFiles lf = new LoadFiles();
-	LibraryTests lt = new LibraryTests();
+	Library_FunctionTests lt = new Library_FunctionTests();
 	MockLibrary ml = new MockLibrary();
 	LibraryNode ln = null;
 	MainController mc;
@@ -155,43 +159,205 @@ public class FacetsTests {
 		BusinessObjectNode baseBO = ml.addBusinessObjectToLibrary(ln, "BaseBO");
 		CustomFacetNode c1 = (CustomFacetNode) baseBO.addFacet("BaseC1", TLFacetType.CUSTOM);
 		AttributeNode a1 = new AttributeNode(c1, "cAttr1");
+		// Then - finding c1 facet must work because it is used in children handler
+		assertTrue("Must be able to find c1 by name.", baseBO.findChildByName(c1.getName()) == c1);
+		// Then - c1 must have children to be inherited.
+		assertTrue("Summary must have children.", !baseBO.getFacet_Summary().getChildren().isEmpty());
+		assertTrue("Summary must not have inherited children.", baseBO.getFacet_Summary().getInheritedChildren()
+				.isEmpty());
+
 		// Given - a second, empty BO to be extended
 		BusinessObjectNode extendedBO = ml.addBusinessObjectToLibrary_Empty(ln, "ExBO");
 		new ElementNode(extendedBO.getFacet_Summary(), "ExEle");
 
+		//
 		// When - objects are extended
 		extendedBO.setExtension(baseBO);
 		assertTrue("ExtendedBO extends BaseBO.", extendedBO.isExtendedBy(baseBO));
 
-		// Then - there should be an inherited facet.
+		// Then - there must be an inherited facet.
+		//
 		assertTrue("Must have inherited child.", !extendedBO.getInheritedChildren().isEmpty());
 		CustomFacetNode inheritedCustom = null;
-		for (CustomFacetNode cf : extendedBO.getCustomFacets(true)) {
-			if (cf.getInheritsFrom() == c1)
+		List<CustomFacetNode> customFacets = extendedBO.getCustomFacets(true);
+		for (CustomFacetNode cf : customFacets) {
+			if (c1.getName().equals(cf.getName()))
 				inheritedCustom = cf;
 		}
 		assertTrue("Must have inherited c1 custom facet.", inheritedCustom != null);
+		assertTrue("InheritedFrom must be the c1 custom facet.", inheritedCustom.getInheritedFrom() == c1);
+		// Then - verify listeners are correct
+		for (ModelElementListener l : c1.getTLModelObject().getListeners())
+			if (l instanceof InheritanceDependencyListener) {
+				assertTrue(((InheritanceDependencyListener) l).getNode() == inheritedCustom);
+				assertTrue(((InheritanceDependencyListener) l).getHandler() == inheritedCustom.getParent()
+						.getChildrenHandler());
+			}
 
-		// Then - there should be inherited children in the facets.
+		// Then - there must be inherited children in the facets.
+		//
+		List<Node> baseKids = baseBO.getFacet_Summary().getChildren();
+		assertTrue("Base BO summary must have properties.", !baseKids.isEmpty());
+		List<Node> exKids = extendedBO.getFacet_Summary().getChildren();
+		assertTrue("Extended BO summary must have properties.", !exKids.isEmpty());
 		List<Node> inheritedKids = extendedBO.getFacet_Summary().getInheritedChildren();
-		List<Node> kids = extendedBO.getFacet_Summary().getChildren();
-		assertTrue("Extended BO summary must have properties.", !kids.isEmpty());
 		assertTrue("Extended BO summary must have inherited properties.", !inheritedKids.isEmpty());
+		// Then - verify listeners are correct
+		for (Node i : inheritedKids) {
+			ComponentNode ci = (ComponentNode) i;
+			assertTrue(baseBO.getFacet_Summary().contains(ci.getInheritedFrom()));
+			for (ModelElementListener l : ci.getInheritedFrom().getTLModelObject().getListeners())
+				if (l instanceof InheritanceDependencyListener) {
+					assertTrue(((InheritanceDependencyListener) l).getNode() == i);
+					assertTrue(((InheritanceDependencyListener) l).getHandler() == i.getParent().getChildrenHandler());
+				}
+		}
 
-		// When - custom facet name change
+		//
+		// Tests to assure changes to objects are synchronized with the inherited "ghosts".
+		//
+		// When - custom facet name changes to include owner and newName
 		String newName = "ChangedName";
 		String startingName = inheritedCustom.getName();
 		c1.setName(newName);
-		// Then - name must change on inherited facet
 		assertTrue(c1.getName().contains(newName));
+
+		// Then - listener wont be removed until inherited children retrieved from exBO
+		for (ModelElementListener l : c1.getTLModelObject().getListeners())
+			if (l instanceof InheritanceDependencyListener)
+				assertTrue(((InheritanceDependencyListener) l).getNode() == inheritedCustom);
+
+		// Then - the old inherited custom node is no longer valid.
+		assertTrue(inheritedCustom.isDeleted());
+		// Then - check the new inherited custom.
+		for (CustomFacetNode cf : extendedBO.getCustomFacets(true))
+			if (c1.getName().equals(cf.getName()))
+				inheritedCustom = cf;
 		assertTrue(!inheritedCustom.getName().equals(startingName));
+		assertTrue(inheritedCustom.getName().contains(newName));
+		// Then - listener will only be to new custom
+		for (ModelElementListener l : c1.getTLModelObject().getListeners())
+			if (l instanceof InheritanceDependencyListener)
+				assertTrue(((InheritanceDependencyListener) l).getNode() == inheritedCustom);
+
+		// When - add an attribute
+		AttributeNode a2 = new AttributeNode(c1, "cAttr2");
+		// Then - inherited custom must NOT have that attr in its children
+		Node ia2 = inheritedCustom.findChildByName(a2.getName());
+		assertTrue("Must not find attribute.", inheritedCustom.findChildByName(a2.getName()) == null);
+		for (Node n : inheritedCustom.getInheritedChildren())
+			if (n.getName().equals(a2.getName()))
+				ia2 = n;
+		assertTrue("Must find ghost node with a2's name.", ia2 != null);
 
 		// When - delete the attribute in c1 (base custom)
-		inheritedKids = inheritedCustom.getInheritedChildren();
-		kids = inheritedCustom.getChildren();
-		c1.remove(a1);
-		inheritedCustom.getChildren();
-		// TODO - finish test
+		a1.delete();
+		// Then - node with name of a1 must not be in inherited children
+		assertTrue("Must not find a1 by name.", inheritedCustom.findChildByName(a1.getName()) == null);
+	}
+
+	@Test
+	public void Facets_SortTests() {
+		// Given - a BO in a library that has one of each type of property
+		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
+		BusinessObjectNode baseBO = ml.addBusinessObjectToLibrary(ln, "BaseBO");
+		assertTrue(baseBO != null);
+		assertTrue(baseBO.getFacet_Summary() != null);
+
+		// Given - 3 of each property type in summary facet
+		ml.addAllProperties(baseBO.getFacet_Summary());
+		assertTrue(baseBO.getFacet_Summary().getTLModelObject() != null);
+		IndicatorNode i1 = checkIndicatorOrder(baseBO.getFacet_Summary());
+		int i1Index = baseBO.getFacet_Summary().getTLModelObject().getIndicators().indexOf(i1.getTLModelObject());
+		// ElementNode e1 = checkElementOrder(baseBO.getFacet_Summary());
+		// AttributeNode a1 = checkAttributeOrder(baseBO.getFacet_Summary());
+
+		// When moved down
+		i1.moveDown();
+		i1.moveDown();
+		assertTrue(baseBO.getFacet_Summary().getTLModelObject().getIndicators().indexOf(i1.getTLModelObject()) != i1Index);
+		// e1.moveDown();
+		// a1.moveDown();
+
+		// When sorted
+		baseBO.getFacet_Summary().sort();
+		// Then order is synchronized (order checked by manual inspection)
+		checkOrder(baseBO.getFacet_Summary());
+	}
+
+	/**
+	 * Assure the order of element, attribute and indicator nodes matches TL order
+	 * 
+	 * @param facet
+	 */
+	public void checkOrder(FacetNode facet) {
+		checkElementOrder(facet);
+		checkAttributeOrder(facet);
+		checkIndicatorOrder(facet);
+	}
+
+	/**
+	 * Assure the order of indicator nodes matches TLIndicator order
+	 * 
+	 * @param facet
+	 */
+	public IndicatorNode checkIndicatorOrder(FacetNode facet) {
+		ArrayList<IndicatorNode> properties = new ArrayList<IndicatorNode>();
+		List<TLIndicator> tlProperties = facet.getTLModelObject().getIndicators();
+
+		for (Node n : facet.getChildren())
+			if (n instanceof IndicatorNode)
+				properties.add((IndicatorNode) n);
+		assertTrue(properties.size() == tlProperties.size());
+
+		for (int i = 0; i < properties.size(); i++)
+			assertTrue(properties.get(i).getName().equals(tlProperties.get(i).getName()));
+
+		return properties.get(0);
+	}
+
+	// Test not needed since facet uses caching children handler.
+	// Test became a property name test
+	// /**
+	// * Assure the order of element nodes matches TLProperty order
+	// *
+	// * @param facet
+	// */
+	public ElementNode checkElementOrder(FacetNode facet) {
+		// ArrayList<ElementNode> properties = new ArrayList<ElementNode>();
+		// List<TLProperty> tlProperties = facet.getTLModelObject().getElements();
+		//
+		// for (Node n : facet.getChildren())
+		// if (n instanceof ElementNode)
+		// properties.add((ElementNode) n);
+		// assertTrue(properties.size() == tlProperties.size());
+		//
+		// for (int i = 0; i < properties.size(); i++)
+		// assertTrue(properties.get(i).getName().equals(tlProperties.get(i).getName()));
+		//
+		// return properties.get(0);
+		return null;
+	}
+
+	/**
+	 * Assure the order of element nodes matches TLAttribute order
+	 * 
+	 * @param facet
+	 */
+	public AttributeNode checkAttributeOrder(FacetNode facet) {
+		// ArrayList<AttributeNode> properties = new ArrayList<AttributeNode>();
+		// List<TLAttribute> tlProperties = facet.getTLModelObject().getAttributes();
+		//
+		// for (Node n : facet.getChildren())
+		// if (n instanceof AttributeNode)
+		// properties.add((AttributeNode) n);
+		// assertTrue(properties.size() == tlProperties.size());
+		//
+		// for (int i = 0; i < properties.size(); i++)
+		// assertTrue(properties.get(i).getName().equals(tlProperties.get(i).getName()));
+		//
+		// return properties.get(0);
+		return null;
 	}
 
 	@Test
@@ -222,9 +388,9 @@ public class FacetsTests {
 		// Given an standard facet and a VWA Attribute facet
 		TLFacet tlf = new TLFacet();
 		tlf.setFacetType(TLFacetType.SUMMARY);
-		FacetNode fn = (FacetNode) NodeFactory.newMember(null, tlf);
+		FacetNode fn = (FacetNode) NodeFactory.newChild(null, tlf);
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "myVWA"); // vwa with one attr
-		VWA_AttributeFacetNode an = (VWA_AttributeFacetNode) vwa.getAttributeFacet();
+		AttributeFacetNode an = (AttributeFacetNode) vwa.getFacet_Attributes();
 
 		// When copied
 		fn.copyFacet(facetNode1); // FIXME - very slow
@@ -291,22 +457,8 @@ public class FacetsTests {
 	public void checkAllFacetsInLibrary(LibraryNode lib) {
 		// LOGGER.debug("Checking all facets in " + lib);
 		for (Node n : lib.getDescendants()) {
-			if (n instanceof ContextualFacetNode)
-				checkFacet((ContextualFacetNode) n);
-			else if (n instanceof SimpleFacetNode)
-				checkFacet((SimpleFacetNode) n);
-			else if (n instanceof OperationFacetNode)
-				checkFacet((OperationFacetNode) n);
-			else if (n instanceof ListFacetNode)
-				checkFacet((ListFacetNode) n);
-			else if (n instanceof OperationNode)
-				checkFacet((OperationNode) n);
-			else if (n instanceof VWA_AttributeFacetNode)
-				checkFacet((VWA_AttributeFacetNode) n);
-			else if (n instanceof RoleFacetNode)
-				checkFacet((RoleFacetNode) n);
-			else if (n instanceof FacetNode)
-				checkBaseFacet((FacetNode) n);
+			if (n instanceof FacetNode)
+				check((FacetNode) n);
 		}
 	}
 
@@ -381,6 +533,154 @@ public class FacetsTests {
 		OTM16Upgrade.otm16Enabled = false;
 	}
 
+	/**
+	 * Construct a custom facet and its contributor and verify their relationships.
+	 */
+	@Test
+	public void Facets_BuildContributed_v16() {
+		OTM16Upgrade.otm16Enabled = true;
+
+		// Given - two libraries
+		ln = ml.createNewLibrary(pc, "bc");
+		assertTrue(ln.isEditable());
+		LibraryNode ln2 = ml.createNewLibrary_Empty(ln.getNamespace(), "bc2", pc.getDefaultProject());
+		assertTrue(ln2.isEditable());
+
+		// Given - a business object in the first library
+		BusinessObjectNode bo = null;
+		for (LibraryMemberInterface n : ln.get_LibraryMembers())
+			if (n instanceof BusinessObjectNode)
+				bo = (BusinessObjectNode) n;
+		bo.getChildrenHandler().clear();
+
+		// Given - a tlContextualFacet contributing to the bo in lib2
+		TLContextualFacet tlc = new TLContextualFacet();
+		tlc.setFacetType(TLFacetType.CUSTOM);
+		tlc.setName("Custom1");
+
+		// When - new custom facet node created without TLOwner or TLLibrary set
+		CustomFacetNode cf = new CustomFacetNode(tlc);
+		// Then -
+		assertTrue(cf.getTLModelObject() == tlc);
+		assertTrue("Listener is correct.", Node.GetNode(tlc) == cf);
+		assertTrue("No where contributed location.", cf.getWhereContributed() == null);
+
+		// When - Add member to library
+		ln2.addMember(cf);
+		// Then -
+		assertTrue(ln2.getDescendants_ContextualFacets().contains(cf));
+		assertTrue(cf.getParent() instanceof NavNode);
+		assertTrue(cf.canBeLibraryMember());
+		assertTrue(cf.getLibrary() == ln2);
+		assertTrue("No where contributed location.", cf.getWhereContributed() == null);
+
+		// When - owner set on CF
+		cf.setOwner(bo);
+		// Then -
+		assertTrue(cf.getWhereContributed() != null);
+		assertTrue(cf.getTLModelObject() == tlc);
+		assertTrue(tlc.getOwningEntity() == bo.getTLModelObject());
+		assertTrue("tlc identity listener must be the contextual facet.", Node.GetNode(tlc) == cf);
+		// Then - contributed component must be correct
+		ContributedFacetNode contributed = cf.getWhereContributed();
+		LibraryNode ll = contributed.getLibrary(); // ln2
+		assertTrue("Contributor must be set.", contributed.getContributor() == cf);
+		assertTrue("Must return TlContextualFacet", contributed.getTLModelObject() == tlc);
+		assertTrue("Business Object must find contributed facet.", bo.getContributedFacet(tlc) == contributed);
+		assertTrue("Contributed must have an owning component", contributed.getOwningComponent() == bo);
+		assertTrue("Owner must be parent.", contributed.getParent() == contributed.getOwningComponent());
+
+		// When - a contextual facet is contributed to a contextual facet
+		//
+		TLContextualFacet tlc2 = new TLContextualFacet();
+		tlc2.setFacetType(TLFacetType.CUSTOM);
+		tlc2.setName("Custom2");
+		CustomFacetNode cf2 = new CustomFacetNode(tlc2);
+		ln2.addMember(cf2);
+		cf2.setOwner(cf);
+		// Then - base custom has new custom as child
+		assertTrue("TLC2 must be child of tlc.", cf.getChildrenHandler().getChildren_TL().contains(tlc2));
+		// Then - custom facet is correct
+		assertTrue(ln2.getDescendants_ContextualFacets().contains(cf2));
+		assertTrue(cf2.getParent() instanceof NavNode);
+		assertTrue(cf2.canBeLibraryMember());
+		assertTrue(cf2.getLibrary() == ln2);
+		assertTrue("Must have contributed location.", cf.getWhereContributed() != null);
+		// Then - contributed node is correct
+		ContributedFacetNode contrib2 = cf2.getWhereContributed();
+		assertTrue("Cf2 must have where contributed.", contrib2 != null);
+		assertTrue("Contrib2 must be child of cf.", cf.getChildren().contains(contrib2));
+		assertTrue("Custom Facet must find contributed facet.", cf.getContributedFacet(tlc2) == contrib2);
+		assertTrue("Contributed must have an owning component", contrib2.getOwningComponent() == cf);
+		assertTrue("Owner must be parent.", contrib2.getParent() == contrib2.getOwningComponent());
+
+		//
+		// Final check - make sure contributed is reported as a child of the bo
+		//
+		List<Node> kids = bo.getChildren();
+		assertTrue("Business object must have contributed child.", kids.contains(contributed));
+		LOGGER.debug("Done");
+
+		OTM16Upgrade.otm16Enabled = false;
+	}
+
+	@Test
+	public void Facets_BuildContextual_v16() {
+		OTM16Upgrade.otm16Enabled = true;
+
+		// Given - two libraries
+		ln = ml.createNewLibrary(pc, "bc");
+		assertTrue(ln.isEditable());
+		LibraryNode ln2 = ml.createNewLibrary_Empty(ln.getNamespace(), "bc2", pc.getDefaultProject());
+		assertTrue(ln2.isEditable());
+
+		// Given - a business object in the first library
+		BusinessObjectNode bo = null;
+		for (LibraryMemberInterface n : ln.get_LibraryMembers())
+			if (n instanceof BusinessObjectNode)
+				bo = (BusinessObjectNode) n;
+		bo.getChildrenHandler().clear();
+
+		// Given - a tlContextualFacet contributing to the bo in lib2
+		TLContextualFacet tlc = new TLContextualFacet();
+		tlc.setFacetType(TLFacetType.CUSTOM);
+		tlc.setName("Custom1");
+		CustomFacetNode cf = new CustomFacetNode(tlc);
+		ln2.addMember(cf);
+		cf.setOwner(bo);
+		bo.addFacet("Q1", TLFacetType.QUERY);
+		bo.getTLModelObject().addCustomFacet(tlc);
+		// ln2.getTLModelObject().addNamedMember(tlc);
+		assertTrue(tlc.getName().contains("Custom1"));
+
+		// When - modeled by getting the children of BO
+		//
+		List<Node> kids = bo.getChildren();
+		// Then - contributed node is correct
+		ContributedFacetNode contributed = null;
+		for (Node n : bo.getChildren())
+			if (n instanceof ContributedFacetNode)
+				if (n.getName().contains("Custom1"))
+					contributed = (ContributedFacetNode) n;
+		assertTrue(contributed != null);
+		assertTrue(contributed.getLibrary() == ln2);
+		// Then ???
+		TLModelElement tl1 = contributed.getTLModelObject();
+		Node tln = Node.GetNode(contributed.getTLModelObject());
+
+		// Then - contributor is in different library
+		assertTrue(contributed.getContributor() != null);
+		CustomFacetNode custom = (CustomFacetNode) contributed.getContributor();
+		assertTrue(custom.getLibrary() == ln2);
+		// Then ???
+		TLModelElement tl2 = custom.getTLModelObject();
+		Node tlcu = Node.GetNode(custom.getTLModelObject());
+
+		LOGGER.debug("TODO");
+		// When - contributor is contributed to
+		//
+	}
+
 	@Test
 	public void Facets_OTM16EnabledTests() {
 		OTM16Upgrade.otm16Enabled = true;
@@ -424,10 +724,11 @@ public class FacetsTests {
 					// Contextual facets should all have inherited properties
 					for (Node cf : n.getChildren())
 						if (cf instanceof ContextualFacetNode) {
-							List<?> moKids = ((FacetMO) cf.getModelObject()).getInheritedChildren();
+							// List<?> moKids = ((FacetMO) cf.getModelObject()).getInheritedChildren();
 							List<Node> iKids = cf.getInheritedChildren();
-							LOGGER.debug(cf + " has " + moKids.size() + " inherited model kids and " + iKids.size()
-									+ " inherited kids.");
+							// LOGGER.debug(cf + " has " + moKids.size() + " inherited model kids and " + iKids.size()
+							// + " inherited kids.");
+							assertTrue(!iKids.isEmpty());
 							// assertTrue("Must have inherited children.", !cf.getInheritedChildren().isEmpty());
 						}
 				}
@@ -479,42 +780,92 @@ public class FacetsTests {
 		OTM16Upgrade.otm16Enabled = true;
 		// Given a versioned library
 		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
-		LibraryNode ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
-		new LibraryChainNode(ln_inChain);
-		ln_inChain.setEditable(true);
-		assertTrue("Library must exist.", ln != null);
-		assertTrue("Library must exist.", ln_inChain != null);
+		// LibraryNode ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
+		// new LibraryChainNode(ln_inChain);
+		// ln_inChain.setEditable(true);
+		// assertTrue("Library must exist.", ln_inChain != null);
 
-		// Create each of the contextual facets
+		BusinessObjectNode bo = null;
+		assertTrue("Library must exist.", ln != null);
+		for (LibraryMemberInterface n : ln.get_LibraryMembers())
+			if (n instanceof BusinessObjectNode)
+				bo = (BusinessObjectNode) n;
+		assertTrue("Business Object must exist.", bo != null);
+
+		// Given - a TLContextual facet used to create each of the contextual facets
 		TLContextualFacet tlObj = new TLContextualFacet();
 		ContextualFacetNode cf = null;
 		ContextualFacetNode cfFactory = null;
 
+		// When - created from constructor and factory
 		tlObj.setFacetType(TLFacetType.CUSTOM);
 		cf = new CustomFacetNode(tlObj);
-		cfFactory = NodeFactory.createFacet(tlObj);
+		cfFactory = (ContextualFacetNode) NodeFactory.newLibraryMember(tlObj);
+		// Then - objects exist.
 		assertTrue("Must not be null.", cf != null);
+		assertTrue(Node.GetNode(tlObj) == cf);
 		assertTrue("Must not be null.", cfFactory != null);
 
-		tlObj.setFacetType(TLFacetType.QUERY);
+		// Given - Set TLContextualFacet library and owning entity to fully exercise constructor
+
+		// When - created from constructor and factory
+		tlObj = buildTL(bo, TLFacetType.CUSTOM);
+		cf = new CustomFacetNode(tlObj);
+		cfFactory = (ContextualFacetNode) NodeFactory.newLibraryMember(tlObj);
+		// Then - objects exist.
+		assertTrue("Must not be null.", cf != null);
+		assertTrue(Node.GetNode(tlObj) == cf);
+		assertTrue("Must not be null.", cfFactory != null);
+		assertTrue("Must know where contributed.", cf.getWhereContributed() != null);
+
+		tlObj = buildTL(bo, TLFacetType.QUERY);
 		cf = new QueryFacetNode(tlObj);
-		cfFactory = NodeFactory.createFacet(tlObj);
+		cfFactory = (ContextualFacetNode) NodeFactory.newLibraryMember(tlObj);
+		assertTrue(Node.GetNode(tlObj) == cf);
 		assertTrue("Must not be null.", cf != null);
 		assertTrue("Must not be null.", cfFactory != null);
 
+		tlObj = new TLContextualFacet();
 		tlObj.setFacetType(TLFacetType.CHOICE);
 		cf = new ChoiceFacetNode(tlObj);
-		cfFactory = NodeFactory.createFacet(tlObj);
+		cfFactory = (ContextualFacetNode) NodeFactory.newLibraryMember(tlObj);
 		assertTrue("Must not be null.", cf != null);
 		assertTrue("Must not be null.", cfFactory != null);
 
-		tlObj.setFacetType(TLFacetType.UPDATE);
+		tlObj = buildTL(bo, TLFacetType.UPDATE);
 		cf = new UpdateFacetNode(tlObj);
-		cfFactory = NodeFactory.createFacet(tlObj);
+		cfFactory = (ContextualFacetNode) NodeFactory.newLibraryMember(tlObj);
 		assertTrue("Must not be null.", cf != null);
 		assertTrue("Must not be null.", cfFactory != null);
+
+		List<Node> kids = bo.getChildren();
+		assertTrue(!kids.isEmpty());
 
 		OTM16Upgrade.otm16Enabled = false;
+	}
+
+	private TLContextualFacet buildTL(BusinessObjectNode owner, TLFacetType type) {
+		TLContextualFacet tlObj = new TLContextualFacet();
+		tlObj.setFacetType(type);
+		switch (type) {
+		case CUSTOM:
+			owner.getTLModelObject().addCustomFacet(tlObj);
+			break;
+		case QUERY:
+			owner.getTLModelObject().addQueryFacet(tlObj);
+			break;
+		case UPDATE:
+			owner.getTLModelObject().addUpdateFacet(tlObj);
+			break;
+		default:
+			break;
+
+		}
+		// tlObj.setOwningEntity(owner.getTLModelObject());
+		tlObj.setOwningLibrary(ln.getTLModelObject());
+		assertTrue(tlObj.getOwningLibrary() != null);
+		assertTrue(tlObj.getOwningEntity() != null);
+		return tlObj;
 	}
 
 	@Test
@@ -526,8 +877,8 @@ public class FacetsTests {
 		assertTrue("Library is minor version.", ln.isMinorVersion());
 
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "Core1");
-		checkFacet(core.getRoleFacet());
-		List<Node> inheritedKids = core.getRoleFacet().getInheritedChildren();
+		checkFacet(core.getFacet_Role());
+		List<Node> inheritedKids = core.getFacet_Role().getInheritedChildren();
 		// TODO - make sure minor version has inherited children
 	}
 
@@ -584,11 +935,12 @@ public class FacetsTests {
 		assertFalse("Must NOT be valid parent.", lf.isValidParentOf(PropertyNodeType.INDICATOR));
 	}
 
+	@Deprecated
 	public void checkFacet(SimpleFacetNode sf) {
 		// LOGGER.debug("Checking Simple Facet Node: " + sf);
 		assertFalse("Must NOT be delete-able.", sf.isDeleteable());
 
-		assertTrue(sf.getModelObject() instanceof SimpleFacetMO);
+		// assertTrue(sf.getModelObject() instanceof SimpleFacetMO);
 		assertTrue(sf.getTLModelObject() instanceof TLSimpleFacet);
 		assertTrue(sf.getLibrary() == sf.getParent().getLibrary());
 
@@ -596,14 +948,27 @@ public class FacetsTests {
 			assertTrue("Simple facet must have 1 child.", sf.getChildren().size() == 1);
 			Node sp = sf.getChildren().get(0);
 			assertTrue(sp instanceof PropertyNode);
-			assertTrue(sp.getModelObject() instanceof SimpleAttributeMO);
+			// assertTrue(sp.getModelObject() instanceof SimpleAttributeMO);
 			assertTrue(sp.getType() != null);
 			assertTrue(!sp.getType().getName().isEmpty());
 			assertTrue(sp.getLibrary() == sf.getLibrary());
 		}
 	}
 
-	public void checkFacet(VWA_AttributeFacetNode vf) {
+	public void checkFacet(SimpleFacetFacadeNode sf) {
+		// LOGGER.debug("Checking Simple Facet Facade Node: " + sf);
+		assertFalse("Must NOT be delete-able.", sf.isDeleteable());
+
+		assertTrue(sf.getTLModelObject() != null);
+		assertTrue(sf.getLibrary() == sf.getParent().getLibrary());
+
+		assertTrue(sf.getSimpleAttribute() instanceof SimpleAttributeFacadeNode);
+		if (sf.getSimpleAttribute().getAssignedType() == null)
+			LOGGER.debug("ERROR " + sf.getSimpleAttribute().getAssignedType());
+		assertTrue(sf.getSimpleAttribute().getAssignedType() != null); // could be empty
+	}
+
+	public void checkFacet(AttributeFacetNode vf) {
 		// LOGGER.debug("Checking VWA Attribute Facet Node: " + vf);
 
 		assertTrue("Must be valid parent of attribute.", vf.isValidParentOf(PropertyNodeType.ATTRIBUTE));
@@ -637,7 +1002,7 @@ public class FacetsTests {
 	 * 
 	 * @param rf
 	 */
-	public void checkFacet(PropertyOwnerNode rf) {
+	public void check(PropertyOwnerNode rf) {
 		if (rf instanceof ChoiceFacetNode)
 			checkFacet((ChoiceFacetNode) rf);
 		else if (rf instanceof CustomFacetNode)
@@ -656,10 +1021,12 @@ public class FacetsTests {
 			checkFacet((RoleFacetNode) rf);
 		else if (rf instanceof SimpleFacetNode)
 			checkFacet((SimpleFacetNode) rf);
+		else if (rf instanceof SimpleFacetFacadeNode)
+			checkFacet((SimpleFacetFacadeNode) rf);
 		else if (rf instanceof UpdateFacetNode)
 			checkFacet((UpdateFacetNode) rf);
-		else if (rf instanceof VWA_AttributeFacetNode)
-			checkFacet((VWA_AttributeFacetNode) rf);
+		else if (rf instanceof AttributeFacetNode)
+			checkFacet((AttributeFacetNode) rf);
 		else
 			checkBaseFacet(rf);
 	}
@@ -678,17 +1045,10 @@ public class FacetsTests {
 	}
 
 	public void checkBaseFacet(PropertyOwnerNode fn) {
-		// if (fn.isIDFacet())
-		// LOGGER.debug("Checking Id Facet:      " + fn);
-		// else if (fn.isSummaryFacet())
-		// LOGGER.debug("Checking Summary Facet: " + fn);
-		// else if (fn.isDetailFacet())
-		// LOGGER.debug("Checking Detail Facet:  " + fn);
-		// else
-		// LOGGER.debug("Checking Facet:         " + fn + " of type " + fn.getFacetType());
 
 		// Check children
 		for (Node property : fn.getChildren()) {
+			PropertyNodeTest pnTests = new PropertyNodeTest();
 			if (fn instanceof ContributedFacetNode) {
 				assertTrue(OTM16Upgrade.otm16Enabled);
 				assertTrue(property.getParent() == ((ContributedFacetNode) fn).getContributor());
@@ -704,7 +1064,7 @@ public class FacetsTests {
 			}
 			if (property instanceof PropertyNode) {
 				assertTrue(property.getParent() == fn);
-				assertTrue(property.getType() != null);
+				pnTests.check((PropertyNode) property);
 			} else {
 				LOGGER.debug("ERROR - invalid property type: " + property + " " + property.getClass().getSimpleName());
 				assertTrue(false);
@@ -717,39 +1077,46 @@ public class FacetsTests {
 		if (fn.isIDFacet() || fn.isDetailFacet() || fn.isSummaryFacet())
 			assertFalse("Must NOT be delete-able.", fn.isDeleteable());
 
+		// TODO - property order between node children and TL
+		//
+
 		// Behaviors
 		if (fn.getOwningComponent().isEditable()) {
-			AttributeNode attr = new AttributeNode(fn, "att1x");
-			ElementNode ele = new ElementNode(fn, "ele1x");
-			if (fn instanceof ContributedFacetNode) {
-				assertTrue("Must be able to add attributes.",
-						attr.getParent() == ((ContributedFacetNode) fn).getContributor());
-				assertTrue("Must be able to add elements.",
-						ele.getParent() == ((ContributedFacetNode) fn).getContributor());
-			} else {
-				assertTrue("Must be able to add attributes.", attr.getParent() == fn);
-				assertTrue("Must be able to add elements.", ele.getParent() == fn);
+			// Cached children are removed often. Use string at end of name to identify
+			final String locatingSuffix = "ZZZXCXZ1234554321VCXZZXCV";
+			final int StartingCount = fn.getChildren().size();
 
-			}
+			new AttributeNode(fn, "att1x" + locatingSuffix);
+			assertTrue("Must be plus 1 size.", fn.getChildren().size() == StartingCount + 1);
+			new ElementNode(fn, "ele1x" + locatingSuffix);
+
 			// Create array of attribute and element properties to add
 			List<Node> properties = new ArrayList<Node>();
 			AttributeNode attr2 = new AttributeNode(new TLAttribute(), null);
 			ElementNode ele2 = new ElementNode(new TLProperty(), null);
-			attr2.setName("att2x");
-			ele2.setName("ele2x");
+			attr2.setName("att2x" + locatingSuffix);
+			ele2.setName("ele2x" + locatingSuffix);
 			properties.add(attr2);
 			properties.add(ele2);
-
-			// Then add using facet method
+			// When - add using facet method with array param
 			fn.addProperties(properties, false);
-			assertTrue("Must have new property as child.", fn.getChildren().contains(attr2));
-			assertTrue("Must have new property as child.", fn.getChildren().contains(ele2));
 
-			// Then remove them
-			attr.delete();
-			ele.delete();
-			attr2.delete();
-			ele2.delete();
+			// Then - get all children and make sure they exist
+			// Then remove them - Note - delete will clear fn's children
+			int found = 0;
+			for (Node child : fn.getChildren_New()) {
+				if (child.getName().endsWith(locatingSuffix)) {
+					found++;
+					child.delete();
+					if (fn.contains(child))
+						child.delete();
+					assertTrue("Must be able to delete added child.", !fn.contains(child));
+				}
+			}
+			assert found == 4;
+
+			fn.getChildren();
+			assertTrue("Must be same size as when starting.", fn.getChildren().size() == StartingCount);
 		}
 	}
 
@@ -827,8 +1194,9 @@ public class FacetsTests {
 	}
 
 	public void checkFacet(UpdateFacetNode qn) {
-		// LOGGER.debug("Checking Update Contextual Facet: " + qn);
-		assertTrue("Must be delete-able.", qn.isDeleteable());
+		LOGGER.debug("Checking Update Contextual Facet: " + qn);
+		if (qn.getOwningComponent().isEditable())
+			assertTrue("Must be delete-able.", qn.isDeleteable());
 	}
 
 	public void checkFacet(CustomFacetNode qn) {

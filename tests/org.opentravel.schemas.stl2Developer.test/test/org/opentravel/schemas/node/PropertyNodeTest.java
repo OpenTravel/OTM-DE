@@ -15,123 +15,245 @@
  */
 package org.opentravel.schemas.node;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.opentravel.schemacompiler.model.TLAlias;
-import org.opentravel.schemacompiler.model.TLAttribute;
-import org.opentravel.schemacompiler.model.TLIndicator;
+import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.PropertyOwnerNode;
+import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.properties.AttributeNode;
+import org.opentravel.schemas.node.properties.AttributeReferenceNode;
+import org.opentravel.schemas.node.properties.ElementNode;
+import org.opentravel.schemas.node.properties.ElementReferenceNode;
+import org.opentravel.schemas.node.properties.IdNode;
+import org.opentravel.schemas.node.properties.IndicatorElementNode;
+import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
+import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.testUtils.MockLibrary;
-import org.opentravel.schemas.utils.FacetNodeBuilder;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
+import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PropertyNodeTest {
+	private static final Logger LOGGER = LoggerFactory.getLogger(PropertyNodeTest.class);
 
 	private LibraryNode ln = null;
 	MainController mc;
-	MockLibrary mockLibrary;
+	MockLibrary ml;
+	DefaultProjectController pc;
+	ProjectNode defaultProject;
+	TypeProvider emptyNode = null;
+	TypeProvider sType = null;
 
 	@Before
 	public void beforeEachTest() {
 		mc = new MainController();
-		mockLibrary = new MockLibrary();
+		ml = new MockLibrary();
+		pc = (DefaultProjectController) mc.getProjectController();
+		defaultProject = pc.getDefaultProject();
+		ln = ml.createNewLibrary_Empty("http://example.com/test", "test", defaultProject);
+
+		emptyNode = (TypeProvider) ModelNode.getEmptyNode();
+		sType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
+
+		// For some reason, the built-iin library is empty on second test
+		TypeProvider idType = (TypeProvider) NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
+		assertTrue("Test Setup Error - no idType.", idType != null);
+	}
+
+	@After
+	public void afterAllTests() {
+		OTM16Upgrade.otm16Enabled = false;
+	}
+
+	@Test
+	public void PN_Constructor_Elements() {
+
+		// Given - a facet parent and a simple type to assign
+		CoreObjectNode core = new CoreObjectNode(new TLCoreObject());
+		core.setName("TC");
+		ln.addMember(core);
+		FacetNode facet = core.getFacet_Summary();
+		assertTrue(facet != null);
+		TypeProvider simple1 = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
+
+		ElementNode e1 = new ElementNode(facet, "E1");
+		ElementNode e2 = new ElementNode(new TLProperty(), facet);
+		ElementNode e3 = new ElementNode(facet, "E3", simple1);
+		check(e1);
+		check(e2);
+		check(e3);
+		List<Node> kids = facet.getChildren();
+		assertTrue("Facet must have children.", !facet.getChildren().isEmpty());
+
+		// When - add type assignments to make the facet valid
+		e2.setAssignedType(simple1);
+		e1.setAssignedType(simple1);
+		// Then - facet must be valid
+		ml.check(facet);
+	}
+
+	private List<PropertyNode> oneOfEach(PropertyOwnerInterface owner) {
+		List<PropertyNode> properties = new ArrayList<PropertyNode>();
+		properties.add(new ElementNode(owner, "e1"));
+		properties.add(new ElementReferenceNode(owner));
+
+		properties.add(new IndicatorNode(owner, "i1"));
+		properties.add(new IndicatorElementNode(owner, "ie1"));
+
+		properties.add(new AttributeNode(owner, "a1"));
+		properties.add(new AttributeReferenceNode(owner));
+		properties.add(new IdNode(owner, "id1"));
+		return properties;
+	}
+
+	@Test
+	public void PN_ConstructorsWithOutTLObj() {
 		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
-		ln = mockLibrary.createNewLibrary("http://example.com/test", "test", defaultProject);
+		ln = ml.createNewLibrary_Empty("http://example.com/test", "test", defaultProject);
+
+		// When - one of each is created
+		PropertyOwnerNode owner = null;
+		oneOfEach(owner); // make sure no parent does not NPE
+
+		// Check these that are not owned by PropertyOwner
+		RoleNode rn = new RoleNode(null, "r1");
+		// SimpleAttributeFacadeNode must have parent - See VWA and core object tests
+
+		// Given - a facet parent and a simple type to assign
+		CoreObjectNode core = new CoreObjectNode(new TLCoreObject());
+		core.setName("TC");
+		ln.addMember(core);
+		FacetNode facet = core.getFacet_Summary();
+		assertTrue(facet != null);
+		// Then - create and check
+		for (PropertyNode pn : oneOfEach(facet))
+			check(pn);
 	}
 
 	@Test
-	public void shouldMoveUp() {
-		FacetNode facetNode = FacetNodeBuilder.create().addElements("E1", "E2", "E3").build();
-		((PropertyNode) findChild(facetNode, "E2")).moveProperty(PropertyNode.UP);
-		assertOrderOfNodeAndMO(facetNode);
-		assertFacetOrder(facetNode.getChildren(), "E2", "E1", "E3");
+	public void PN_ConstructorsInOwner() {
+
+		// Given - a facet parent and a simple type to assign
+		CoreObjectNode core = new CoreObjectNode(new TLCoreObject());
+		core.setName("TC");
+		ln.addMember(core);
+		FacetNode facet = core.getFacet_Summary();
+		assertTrue(facet != null);
+		TypeProvider simple1 = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
+		// When - one element added to make core valid - need to create BO
+		ElementNode e1 = new ElementNode(facet, "E1", simple1);
+
+		// Given - a business object with valid id facet to use as reference target
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TBO");
+		assertTrue(bo != null);
+		ml.check(ln);
+
+		// When - one of each is created
+		ElementNode er1 = new ElementReferenceNode(facet, bo);
+		AttributeNode a1 = new AttributeNode(facet, "a1", simple1);
+		AttributeNode ar2 = new AttributeReferenceNode(facet, bo);
+		AttributeNode id3 = new IdNode(facet, "id1");
+		IndicatorNode i1 = new IndicatorNode(facet, "i1");
+		IndicatorNode ie1 = new IndicatorElementNode(facet, "ie1");
+
+		// SimpleAttributeNode tested elsewhere
+		// EnumLiteral - tested elsewhere
+
+		// Then - core must be valid
+		List<Node> kids = facet.getChildren();
+		assertTrue("Facet must have children.", !facet.getChildren().isEmpty());
+		ml.check(core);
 	}
 
 	@Test
-	public void shouldMoveDown() {
-		FacetNode facetNode = FacetNodeBuilder.create().addElements("E1", "E2", "E3").build();
-		findChild(facetNode, "E2").moveProperty(PropertyNode.DOWN);
-		assertOrderOfNodeAndMO(facetNode);
-		assertFacetOrder(facetNode.getChildren(), "E1", "E3", "E2");
+	public void PN_AttrAssignmentTests() {
+		// Given - types to assign
+		SimpleTypeNode simple = ml.addSimpleTypeToLibrary(ln, "Simple");
+		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
+		assertTrue(string != null);
+
+		// Given - a VWA with 3 new attributes
+		VWA_Node pVwa = ml.addVWA_ToLibrary(ln, "P_VWA");
+		new AttributeNode(pVwa.getFacet_Attributes(), "a1");
+		new AttributeNode(pVwa.getFacet_Attributes(), "a2");
+		new AttributeNode(pVwa.getFacet_Attributes(), "a3");
+
+		for (Node n : pVwa.getFacet_Attributes().getChildren()) {
+			if (n instanceof TypeUser) {
+				TypeUser attr = (AttributeNode) n;
+
+				// When - cleared
+				attr.setAssignedType();
+				// Then - verify the assignment
+				assertTrue(attr.getAssignedType() == ModelNode.getUnassignedNode());
+
+				// When - assigned type
+				attr.setAssignedType(simple);
+				// Then - verify the assignment
+				assertTrue(attr.getAssignedType() == simple);
+				assertTrue(simple.getWhereAssigned().contains(attr));
+			}
+		}
+
+		// Then - check will test assignments and where assigned
+		ml.check(ln);
 	}
 
 	@Test
-	public void shouldMoveUpWithMixedTypes() {
-		FacetNode facetNode = FacetNodeBuilder.create(ln).addElements("A1").addAttributes("E1", "E2").addElements("A2")
-				.build();
-		findChild(facetNode, "A2").moveProperty(PropertyNode.UP);
-		assertOrderOfNodeAndMO(facetNode);
-		assertFacetOrder(facetNode.getChildren(), "E1", "E2", "A2", "A1");
-	}
+	public void PN_assignmentTests() {
+		// Given - types to assign
+		SimpleTypeNode simple = ml.addSimpleTypeToLibrary(ln, "Simple");
+		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
+		assertTrue(string != null);
 
-	@Test
-	public void shouldMoveDownWithMixedTypes() {
-		FacetNode facetNode = FacetNodeBuilder.create(ln).addElements("E1").addAttributes("A1", "A2").addElements("E2")
-				.build();
-		findChild(facetNode, "E1").moveProperty(PropertyNode.DOWN);
-		assertTrue(facetNode.isEditable_newToChain());
-		assertOrderOfNodeAndMO(facetNode);
-		assertFacetOrder(facetNode.getChildren(), "A1", "A2", "E2", "E1");
-	}
+		// Given - a Core with new properties
+		CoreObjectNode pCore = ml.addCoreObjectToLibrary(ln, "PCore");
+		new AttributeNode(pCore.getFacet_Summary(), "aa1");
+		oneOfEach(pCore.getFacet_Summary());
 
-	// TODO - why are only indicators renamed? Should attributes be also?
-	@Test
-	public void shouldDoNothingWithOneType() {
-		final String i1Name = NodeNameUtils.fixIndicatorName("I1");
+		for (Node n : pCore.getFacet_Summary().getChildren()) {
+			if (n instanceof TypeUser) {
+				TypeUser user = (TypeUser) n;
 
-		FacetNode facetNode = FacetNodeBuilder.create(ln).addAttributes("A1").addIndicators("I1").addElements("E1")
-				.build();
-		findChild(facetNode, i1Name).moveProperty(PropertyNode.DOWN);
-		assertOrderOfNodeAndMO(facetNode);
-		assertFacetOrder(facetNode.getChildren(), "A1", i1Name, "E1");
-	}
+				// When - successfully cleared
+				if (user.setAssignedType())
+					// Then - verify the assignment
+					assertTrue(user.getAssignedType() == ModelNode.getUnassignedNode());
 
-	@Test
-	public void shouldDoNothingWithElementOnBottom() {
-		final String i0Name = NodeNameUtils.fixIndicatorName("I0");
-		final String i1Name = NodeNameUtils.fixIndicatorName("I1");
+				// When - successfully assigned a type
+				if (user.setAssignedType(simple)) {
+					// Then - verify the assignment
+					assertTrue(user.getAssignedType() == simple);
+					assertTrue(simple.getWhereAssigned().contains(user));
+				}
+			}
+		}
 
-		FacetNode facetNode = FacetNodeBuilder.create(ln).addAttributes("A1").addIndicators("I0", "I1")
-				.addElements("E1").build();
-		findChild(facetNode, i1Name).moveProperty(PropertyNode.DOWN);
-		assertOrderOfNodeAndMO(facetNode);
-		assertFacetOrder(facetNode.getChildren(), "A1", i0Name, i1Name, "E1");
-	}
-
-	@Test
-	public void shouldDoNothingWithElementOnTop() {
-		final String i0Name = NodeNameUtils.fixIndicatorName("I0");
-		final String i1Name = NodeNameUtils.fixIndicatorName("I1");
-		final String a1Name = NodeNameUtils.fixIndicatorName("A1");
-
-		FacetNode facetNode = FacetNodeBuilder.create(ln).addAttributes("A1").addIndicators("I0", "I1")
-				.addElements("E1").build();
-		assertNotNull(facetNode);
-		((PropertyNode) findChild(facetNode, i0Name)).moveProperty(PropertyNode.UP);
-		assertOrderOfNodeAndMO(facetNode);
-		assertFacetOrder(facetNode.getChildren(), "A1", i0Name, i1Name, "E1");
+		// Then - check will test assignments and where assigned
+		ml.check(ln, false); // Will not be valid
 	}
 
 	@Test
 	public void isRenameableTests() {
 		// Given - library with one of each object type
-		mockLibrary.addOneOfEach(ln, "Rn");
+		ml.addOneOfEach(ln, "Rn");
 		BusinessObjectNode bo = null;
 		VWA_Node vwa = null;
 		CoreObjectNode core = null;
@@ -146,13 +268,13 @@ public class PropertyNodeTest {
 			else if (n instanceof EnumerationOpenNode)
 				eo = (EnumerationOpenNode) n;
 		// Given - the business object extends another one
-		BusinessObjectNode boBase = mockLibrary.addBusinessObjectToLibrary(ln, "Rn2");
+		BusinessObjectNode boBase = ml.addBusinessObjectToLibrary(ln, "Rn2");
 		bo.setExtension(boBase);
 		assertTrue("BO extends BO Base", bo.getExtensionBase() == boBase);
 
 		// Then - each property type should report renameable correct.
 		assertTrue("Enum Literals must be renameable.", eo.getChildren().get(0).isRenameable());
-		assertTrue("Role nodes must be renameable.", core.getRoleFacet().getChildren().get(0).isRenameable());
+		assertTrue("Role nodes must be renameable.", core.getFacet_Role().getChildren().get(0).isRenameable());
 
 		// Then - properties that must not be reassigned
 		assertTrue("Simple attributes must NOT be renameable.", !core.getSimpleAttribute().isRenameable());
@@ -183,53 +305,22 @@ public class PropertyNodeTest {
 			assertTrue("Property must be renameable.", pn.isRenameable());
 	}
 
-	private void assertOrderOfNodeAndMO(FacetNode facetNode) {
-		List<String> names = toNames(facetNode.getChildren());
-		List<String> tlNames = tlToNames(facetNode.getModelObject().getChildren());
-		Assert.assertEquals(tlNames, names);
+	public void check(PropertyNode pn) {
+		TypeProvider at = pn.getAssignedType(); // type from tl model
+		if (at != null)
+			if (!at.getWhereAssigned().contains(pn))
+				LOGGER.debug("Property must be in where assigned list. " + pn + " " + at);
+		// else
+		// LOGGER.debug("OK - Property assigned list. " + pn + " " + nt);
+
+		// assertTrue("Property must be in where assigned list.", nt.getWhereAssigned().contains(pn));
+		assertTrue("Property must have tlObj.", pn.getTLModelObject() != null);
+		// If it is not a facade, it must have correct listener.
+		if (!(pn instanceof FacadeInterface))
+			assertTrue("Property listener must point to proeprty.", Node.GetNode(pn.getTLModelObject()) == pn);
+		assertTrue("Property must have parent.", pn.getParent() != null);
+		assertTrue("Property must have library.", pn.getLibrary() != null);
+		assertTrue("Property must have name.", pn.getName() != null);
+		assertTrue("Property must have label.", pn.getLabel() != null);
 	}
-
-	private List<String> tlToNames(List<?> list) {
-		return Lists.transform(list, new Function<Object, String>() {
-
-			@Override
-			public String apply(Object obj) {
-				if (obj instanceof TLProperty) {
-					return ((TLProperty) obj).getName();
-				} else if (obj instanceof TLAttribute) {
-					return ((TLAttribute) obj).getName();
-				} else if (obj instanceof TLIndicator) {
-					return ((TLIndicator) obj).getName();
-				} else if (obj instanceof TLAlias) {
-					return ((TLAlias) obj).getName();
-				}
-				throw new IllegalStateException("Do not support this Tl object: " + obj);
-			}
-		});
-
-	}
-
-	private List<String> toNames(List<Node> children) {
-		return Lists.transform(children, new Function<Node, String>() {
-
-			@Override
-			public String apply(Node node) {
-				return node.getName();
-			}
-		});
-	}
-
-	private void assertFacetOrder(List<Node> children, String... string) {
-		Assert.assertEquals(Arrays.asList(string), toNames(children));
-	}
-
-	private PropertyNode findChild(Node parent, String name) {
-		for (Node n : parent.getChildren()) {
-			if (n instanceof PropertyNode && name.equals(n.getName()))
-				return (PropertyNode) n;
-		}
-		Assert.assertTrue("findChild did not find: " + name, 1 == 2);
-		return null;
-	}
-
 }

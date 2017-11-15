@@ -243,7 +243,7 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		// When - create major version of library baseLib containing the base types
 		LibraryNode versionedbaseLib = rc.createMajorVersion(baseLib);
 		// After major version, the baseLib is no longer in the tlModel or LibraryModelManager
-		uploadProject.add(tlLib);
+		uploadProject.addToTL(tlLib);
 
 		// Then -
 		assertTrue("Must have major version of library 2.", versionedbaseLib != null);

@@ -15,36 +15,31 @@
  */
 package org.opentravel.schemas.node;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.List;
-
 import org.junit.Test;
-import org.opentravel.schemacompiler.repository.ProjectItem;
-import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.utils.BaseProjectTest;
 
 /**
  * @author Pawel Jedruch
  * 
  */
+@Deprecated
 public class XsdNodeTest extends BaseProjectTest {
 
+	@Deprecated
 	@Test
 	public void shouldCreateCorrectVWA() {
-		List<ProjectItem> items = pc.addLibrariesToTLProject(testProject.getTLProject(),
-				Collections.singletonList(new File("Resources/CreateVWAFromExtened.xsd")));
-		ProjectItem pi = items.get(0);
-		LibraryNode libNode = new LibraryNode(pi.getContent(), testProject);
-		TypeResolver tr = new TypeResolver();
-		tr.resolveTypes(libNode);
-		for (Node n : libNode.getDescendentsNamedTypes()) {
-			if (n instanceof VWA_Node) {
-				VWA_Node vwa = (VWA_Node) n;
-				// Assert.assertTrue(vwa.getSimpleFacet().getSimpleAttribute().getTypeClass()
-				// .verifyAssignment());
-			}
-		}
+		// List<ProjectItem> items = pc.addLibrariesToTLProject(testProject.getTLProject(),
+		// Collections.singletonList(new File("Resources/CreateVWAFromExtened.xsd")));
+		// ProjectItem pi = items.get(0);
+		// LibraryNode libNode = new LibraryNode(pi.getContent(), testProject);
+		// TypeResolver tr = new TypeResolver();
+		// tr.resolveTypes(libNode);
+		// for (Node n : libNode.getDescendentsNamedTypes()) {
+		// if (n instanceof VWA_Node) {
+		// VWA_Node vwa = (VWA_Node) n;
+		// // Assert.assertTrue(vwa.getSimpleFacet().getSimpleAttribute().getTypeClass()
+		// // .verifyAssignment());
+		// }
+		// }
 	}
 }

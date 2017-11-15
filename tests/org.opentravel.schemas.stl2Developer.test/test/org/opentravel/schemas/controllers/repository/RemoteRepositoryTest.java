@@ -26,6 +26,7 @@ import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
@@ -56,7 +57,7 @@ public class RemoteRepositoryTest extends RepositoryControllerTest {
 		LibraryNode testLibary = LibraryNodeBuilder.create("TestLibrary",
 				getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0)).build(uploadProject,
 				pc);
-		testLibary.addMember(ComponentNodeBuilder.createSimpleCore("test").get());
+		testLibary.addMember((LibraryMemberInterface) ComponentNodeBuilder.createSimpleCore("test").get());
 		rc.manage(getRepositoryForTest(), Collections.singletonList(testLibary));
 		List<RepositoryItem> results = rc.search("tes*");
 		Assert.assertEquals(1, results.size());
@@ -72,7 +73,7 @@ public class RemoteRepositoryTest extends RepositoryControllerTest {
 		LibraryNode testLibary = LibraryNodeBuilder
 				.create("TestLibrary", getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0))
 				.makeFinal().build(uploadProject, pc);
-		testLibary.addMember(ComponentNodeBuilder.createSimpleCore("test").get());
+		testLibary.addMember((LibraryMemberInterface) ComponentNodeBuilder.createSimpleCore("test").get());
 		rc.manage(getRepositoryForTest(), Collections.singletonList(testLibary));
 		List<RepositoryItem> results = rc.search("tes*");
 		Assert.assertEquals(1, results.size());
@@ -87,7 +88,7 @@ public class RemoteRepositoryTest extends RepositoryControllerTest {
 		LibraryNode testLibary = LibraryNodeBuilder
 				.create("TestLibrary", getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0))
 				.makeFinal().build(uploadProject, pc);
-		testLibary.addMember(ComponentNodeBuilder.createSimpleCore("test").get());
+		testLibary.addMember((LibraryMemberInterface) ComponentNodeBuilder.createSimpleCore("test").get());
 		LibraryChainNode chain = rc.manage(getRepositoryForTest(), Collections.singletonList(testLibary)).get(0);
 		LibraryNode newMajor = rc.createMajorVersion(chain.getHead());
 		List<RepositoryItem> results = rc.search("tes*");

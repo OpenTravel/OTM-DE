@@ -21,6 +21,9 @@ import java.util.Collections;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.repository.Project;
+import org.opentravel.schemacompiler.repository.ProjectManager;
 import org.opentravel.schemacompiler.saver.LibraryModelSaver;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.util.URLUtils;
@@ -28,6 +31,7 @@ import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
+import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.utils.BaseProjectTest;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
@@ -36,6 +40,28 @@ import org.opentravel.schemas.utils.PropertyNodeBuilder;
 import org.osgi.framework.Version;
 
 public class ProjectNodeTest extends BaseProjectTest {
+
+	@Test
+	public void project_constructorTests() {
+		// Given - a library
+		MockLibrary ml = new MockLibrary();
+		TLLibrary tlLib = ml.createTLLibrary("testProject", pc.getDefaultUnmanagedNS());
+
+		// When - a project is created
+		ProjectNode pn = new ProjectNode();
+		assertTrue(pn.getParent() == Node.getModelNode());
+
+		pn.addToTL(tlLib);
+
+	}
+
+	@Test
+	public void project_constructorTL_Tests() {
+		ProjectManager pm = pc.getDefaultProject().getTLProject().getProjectManager();
+		Project tlp = new Project(pm);
+		ProjectNode pn2 = new ProjectNode(tlp);
+
+	}
 
 	@Test
 	public void loadShouldResolveDependencyForAllLibrariesInProject() throws LibrarySaveException {

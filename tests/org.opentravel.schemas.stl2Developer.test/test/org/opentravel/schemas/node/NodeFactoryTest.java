@@ -15,51 +15,140 @@
  */
 package org.opentravel.schemas.node;
 
-import org.junit.Assert;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Before;
 import org.junit.Test;
-import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLChoiceObject;
+import org.opentravel.schemacompiler.model.TLClosedEnumeration;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
+import org.opentravel.schemacompiler.model.TLCoreObject;
+import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
+import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLOpenEnumeration;
+import org.opentravel.schemacompiler.model.TLResource;
+import org.opentravel.schemacompiler.model.TLService;
 import org.opentravel.schemacompiler.model.TLSimple;
-import org.opentravel.schemacompiler.model.XSDSimpleType;
-import org.opentravel.schemas.node.properties.ElementNode;
-import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemacompiler.model.TLValueWithAttributes;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
+import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.testUtils.LoadFiles;
+import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.types.TestTypes;
+import org.opentravel.schemas.utils.BaseProjectTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @author Pawel Jedruch
+ * @author Dave
  * 
  */
-@Deprecated
-public class NodeFactoryTest {
+public class NodeFactoryTest extends BaseProjectTest {
+	private static final Logger LOGGER = LoggerFactory.getLogger(TestTypes.class);
+
+	LoadFiles lf = new LoadFiles();
+	MockLibrary ml = new MockLibrary();
+	String NS = "http://example.com/test";
+	LibraryNode ln = null;
+	ProjectNode defaultProject;
+	int nodeCount;
+
+	// From baseProjecTest
+	// rc, mc, pc, testProject
+	// MainController mc;
+	// DefaultProjectController pc;
+
+	@Before
+	public void beforeAllTests() throws Exception {
+		LOGGER.debug("Initializing Test Setup.");
+		defaultProject = pc.getDefaultProject();
+	}
 
 	@Test
-	public void createElementNodeShouldPersistType() {
-		TLProperty tl = new TLProperty();
-		XSDSimpleType simpleType = new XSDSimpleType("string", null);
-		tl.setType(simpleType);
-		ElementNode element = (ElementNode) NodeFactory.newMember(null, tl);
-		TLProperty afterCreate = (TLProperty) element.getModelObject().getTLModelObj();
-		Assert.assertSame(simpleType, afterCreate.getType());
+	public void NF_CreateLibraryMemberTests() {
+		ln = ml.createNewLibrary_Empty(NS, "T", defaultProject);
+
+		// When - each member type added to the library
+		for (LibraryMember mbr : createAllTLLibraryMembers()) {
+			ln.addMember(NodeFactory.newLibraryMember(mbr));
+		}
+		// Then - the library is well formed but not valid
+		ml.check(ln, false);
+	}
+
+	public List<LibraryMember> createAllTLLibraryMembers() {
+		ArrayList<LibraryMember> mbrs = new ArrayList<LibraryMember>();
+		mbrs.add(new TLValueWithAttributes());
+		TLBusinessObject tlb = new TLBusinessObject();
+		tlb.setName("BOName");
+		mbrs.add(tlb);
+		TLCoreObject tlcr = new TLCoreObject();
+		tlcr.setName("CoreName");
+		mbrs.add(tlcr);
+		TLChoiceObject tlch = new TLChoiceObject();
+		tlch.setName("ChoiceName");
+		mbrs.add(tlch);
+		TLOpenEnumeration tleo = new TLOpenEnumeration();
+		tleo.setName("OpenName");
+		mbrs.add(tleo);
+		TLClosedEnumeration tlec = new TLClosedEnumeration();
+		tlec.setName("ClosedName");
+		mbrs.add(tlec);
+		mbrs.add(new TLExtensionPointFacet());
+		TLResource tlr = new TLResource();
+		tlr.setName("ResourceName");
+		mbrs.add(tlr);
+		TLService tlsv = new TLService();
+		tlsv.setName("ServiceName");
+		mbrs.add(tlsv);
+		TLSimple tls = new TLSimple();
+		tls.setName("SimpleName");
+		mbrs.add(tls);
+		//
+		if (OTM16Upgrade.otm16Enabled) {
+			TLContextualFacet tlcf = new TLContextualFacet();
+			tlcf.setFacetType(TLFacetType.CUSTOM);
+			tlcf.setName("CustomName");
+			mbrs.add(tlcf);
+			tlcf = new TLContextualFacet();
+			tlcf.setFacetType(TLFacetType.QUERY);
+			tlcf.setName("QueryName");
+			mbrs.add(tlcf);
+			tlcf = new TLContextualFacet();
+			tlcf.setFacetType(TLFacetType.CHOICE);
+			tlcf.setName("ChoiceFacetName");
+			mbrs.add(tlcf);
+			tlcf = new TLContextualFacet();
+			tlcf.setFacetType(TLFacetType.UPDATE);
+			tlcf.setName("UpdateName");
+			mbrs.add(tlcf);
+		}
+		return mbrs;
 	}
 
 	@Test
 	public void guiTypeAccess() {
-		TLProperty tl = new TLProperty();
-		TLSimple tlSimple = new TLSimple();
-		XSDSimpleType xsdSimple = new XSDSimpleType("string", null);
-		tlSimple.setParentType(xsdSimple);
-		tl.setType(tlSimple);
-		Assert.assertSame(tlSimple, tl.getType());
-
-		ElementNode element = (ElementNode) NodeFactory.newMember(null, tl);
-		TLProperty afterCreate = (TLProperty) element.getModelObject().getTLModelObj();
-		Assert.assertSame(tlSimple, afterCreate.getType());
-
-		// 3/7/2016 dmh - new typehandler will not try to assign name.
-		String s = element.getTypeName();
-		s = element.getTypeNameWithPrefix();
-		TypeProvider n = element.getAssignedType();
-		Assert.assertTrue(element.getTypeName().isEmpty()); // properties view
-		Assert.assertTrue(element.getTypeNameWithPrefix().isEmpty()); // facet view
-		Assert.assertNull(element.getAssignedType());
+		// TLProperty tl = new TLProperty();
+		// TLSimple tlSimple = new TLSimple();
+		// XSDSimpleType xsdSimple = new XSDSimpleType("string", null);
+		// tlSimple.setParentType(xsdSimple);
+		// tl.setType(tlSimple);
+		// Assert.assertSame(tlSimple, tl.getType());
+		//
+		// ElementNode element = (ElementNode) NodeFactory.newMemberOLD(null, tl);
+		// TLProperty afterCreate = (TLProperty) element.getTLModelObject();
+		// Assert.assertSame(tlSimple, afterCreate.getType());
+		//
+		// // 3/7/2016 dmh - new typehandler will not try to assign name.
+		// String s = element.getTypeName();
+		// s = element.getTypeNameWithPrefix();
+		// TypeProvider n = element.getAssignedType();
+		// Assert.assertTrue(element.getTypeName().isEmpty()); // properties view
+		// Assert.assertTrue(element.getTypeNameWithPrefix().isEmpty()); // facet view
+		// Assert.assertNull(element.getAssignedType());
 
 		// // These will all return UNASSIGNED since resolver has not run.
 		// // getTypeName tries to fix the Type node resulting in a unassigned node.

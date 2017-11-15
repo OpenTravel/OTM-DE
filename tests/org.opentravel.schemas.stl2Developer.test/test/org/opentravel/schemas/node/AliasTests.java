@@ -27,8 +27,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAliasOwner;
-import org.opentravel.schemacompiler.model.TLBusinessObject;
-import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.facets.FacetNode;
@@ -38,6 +36,7 @@ import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.types.TestTypes;
+import org.opentravel.schemas.types.TypeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +53,7 @@ public class AliasTests {
 
 	NodeTesters nt = new NodeTesters();
 	LoadFiles lf = new LoadFiles();
-	LibraryTests lt = new LibraryTests();
+	Library_FunctionTests lt = new Library_FunctionTests();
 	MockLibrary ml = null;
 	LibraryNode ln = null;
 	MainController mc;
@@ -86,59 +85,110 @@ public class AliasTests {
 
 	@Test
 	public void aliasMethods() {
+		// Given - a business object with an alias
+		String name = "a1";
+		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
+		BusinessObjectNode parent1 = ml.addBusinessObjectToLibrary(ln, "bo2");
+		AliasNode a1 = new AliasNode(parent1, name);
+		for (Node n : parent1.getDescendants())
+			if (n instanceof AliasNode)
+				assertTrue(n.getName().contains(name));
+
+		// When - Set Name
+		name = "SomeNewName543321";
+		a1.setName(name);
+		// Then - assure all aliases get renamed
+		for (Node n : parent1.getDescendants())
+			if (n instanceof AliasNode)
+				assertTrue(n.getName().contains(name));
+
+		// When - deleted
+		for (Node n : parent1.getChildren())
+			if (n instanceof AliasNode)
+				n.delete();
+		// Then - assure all aliases get removed
+		boolean found = false;
+		for (Node n : parent1.getDescendants())
+			if (n instanceof AliasNode)
+				found = true;
+		assertTrue(found == false);
+
 		// TODO
 	}
 
 	private void testConstructors(LibraryNode ln) {
 		// Given - objects used in constructors
+		final String a2Name = "Co1Alias1";
 		TLAlias tlAlias = new TLAlias();
-		tlAlias.setName("Co1Alias1");
+		tlAlias.setName(a2Name);
 		BusinessObjectNode parent1 = ml.addBusinessObjectToLibrary(ln, "bo2");
 		CoreObjectNode parent2 = ml.addCoreObjectToLibrary(ln, "co1");
 		List<Node> navChildren = new ArrayList<Node>();
+		assertTrue(!parent1.getChildren().isEmpty());
+		assertTrue(!parent2.getChildren().isEmpty());
 
 		// When - Aliases created using each constructor
 		AliasNode a1 = new AliasNode(parent1, "a1");
 		AliasNode a2 = new AliasNode(parent2, tlAlias);
 
 		// Then - alias 1
+		assertTrue(a1.getName().equals("a1"));
 		assertTrue("Alias 1 must have parent.", a1.getParent() == parent1);
 		assertTrue("Alias TL Object must be present.", a1.getTLModelObject() instanceof TLAlias);
-		assertTrue("Parent TLObject must have alias.", !((TLBusinessObject) parent1.getTLModelObject()).getAliases()
-				.isEmpty());
+		assertTrue("Parent TLObject must have alias.", !parent1.getTLModelObject().getAliases().isEmpty());
 		// Then - must not NPE as accessed in library tree content providers
+		assertTrue(parent1.getChildren().contains(a1));
+		List<Node> sKids = parent1.getFacet_Summary().getChildren();
+		boolean found = false;
+		for (Node n : sKids)
+			if (n instanceof AliasNode)
+				found = true;
+		assertTrue(found);
 		navChildren.addAll(a1.getNavChildren(false)); // must not NPE
 		assertTrue("Must not be null.", a1.getNavChildren(false) != null);
+		check(a1);
 
 		// Then - alias 2
-		assertTrue("Alias 2 must have parent.", a2.getParent() == parent2);
+		assertTrue(a2.getName().equals(a2Name));
 		assertTrue("Alias TL Object must be present.", a2.getTLModelObject() instanceof TLAlias);
-		assertTrue("Parent TLObject must have alias.", !((TLCoreObject) parent2.getTLModelObject()).getAliases()
-				.isEmpty());
+		assertTrue("Alias 2 must have parent.", a2.getParent() == parent2);
+		List<Node> cKids = parent2.getChildren();
+		assertTrue("Core must have alias2.", parent2.getChildren().contains(a2));
+		assertTrue("Parent TLObject must have alias.", !parent2.getTLModelObject().getAliases().isEmpty());
 		assertTrue("Must not be null.", a2.getNavChildren(false) != null);
-
+		check(a2);
 		// Then - Children aliases are created
 		for (Node facet : parent1.getChildren()) {
 			if (!(facet instanceof FacetNode))
 				continue;
-			boolean found = false;
+			AliasNode fa = null;
 			for (Node child : facet.getChildren()) {
-				assertTrue("Child's owning component must be parent.", child.getOwningComponent() == parent1);
-				assertTrue("Child's parent must be facet.", child.getParent() == facet);
 				if (child instanceof AliasNode) {
+					assertTrue("Child's owning component must be parent.", child.getOwningComponent() == parent1);
+					assertTrue("Child's parent must be facet.", child.getParent() == facet);
 					assertTrue("Must not be null.", child.getNavChildren(false) != null);
-					found = true;
+					fa = (AliasNode) child;
 				}
 			}
-			assertTrue("Facets must have an alias as child node.", found == true);
+			// Aliases are not produced for empty facets
+			if (!facet.getChildren().isEmpty())
+				assertTrue("Facets must have an alias as child node.", fa != null);
+			check(fa);
 		}
 	}
 
 	public boolean check(AliasNode alias) {
+		if (alias == null)
+			return false;
 		assertTrue("Alias must have parent.", alias.getParent() != null);
 		assertTrue("Alias TL Object must be present.", alias.getTLModelObject() instanceof TLAlias);
 		assertTrue("Parent TLObject must have alias.", !((TLAliasOwner) alias.getParent().getTLModelObject())
 				.getAliases().isEmpty());
+
+		assertTrue("Alias must have owning component.", alias.getOwningComponent() != null);
+		assertTrue(alias.getOwningComponent() instanceof TypeProvider);
+		assertTrue("Owing component test must run.",
+				!((TypeProvider) alias.getOwningComponent()).isRenameableWhereUsed());
 		return true;
 	}
 }

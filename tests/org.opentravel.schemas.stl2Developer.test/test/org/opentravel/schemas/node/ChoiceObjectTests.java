@@ -48,8 +48,6 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
-import org.opentravel.schemas.testUtils.NodeTesters;
-import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 
 /**
  * @author Dave Hollander
@@ -62,7 +60,6 @@ public class ChoiceObjectTests {
 	MainController mc;
 	DefaultProjectController pc;
 	ProjectNode defaultProject;
-	TestNode tn = new NodeTesters().new TestNode();
 
 	@Before
 	public void beforeEachTest() {
@@ -74,6 +71,7 @@ public class ChoiceObjectTests {
 	@Test
 	public void CH_ConstructorTests() {
 		LibraryNode ln = ml.createNewLibrary("http://example.com/choice", "CT", pc.getDefaultProject());
+
 		ChoiceObjectNode cn = ml.addChoice(ln, "ChoiceTest1");
 
 		check(cn, true);
@@ -89,6 +87,7 @@ public class ChoiceObjectTests {
 		int cfCnt = c1.getChoiceFacets().size();
 		c1.addFacet("cf1");
 		c1.addFacet("cf2");
+		int cfCnt2 = c1.getChoiceFacets().size();
 		assertTrue("Must have two more choice facets.", c1.getChoiceFacets().size() == cfCnt + 2);
 	}
 
@@ -116,7 +115,9 @@ public class ChoiceObjectTests {
 		// Given the choice test file with 2 choice objects
 		LibraryNode ln = new LoadFiles().loadFile_Choice(defaultProject);
 		// new LibraryChainNode(ln); // Test in a chain
+		ml.check(ln);
 
+		// Given - find each choice object, one exends the other
 		ChoiceObjectNode choice = null;
 		ChoiceObjectNode extChoice = null;
 		for (Node n : ln.getDescendants_LibraryMembers())
@@ -184,9 +185,10 @@ public class ChoiceObjectTests {
 		assertTrue("Ch2 must have 2 ghosts.", inf2.size() == 2);
 		assertTrue("Ch3 must have 3 ghosts.", inf3.size() == 3);
 
+		// FIXME
 		// When - the inherited children are initialized
-		ch2.initInheritedChildren(); // not needed - inherited children are initialized on get()
-		ch3.initInheritedChildren();
+		// ch2.initInheritedChildren(); // not needed - inherited children are initialized on get()
+		// ch3.initInheritedChildren();
 		// Then - children remain unchanged.
 		assertTrue("Ch2 must have 2 children.", ch2.getChildren().size() == 2);
 		assertTrue("Ch3 must have 1 child.", ch3.getChildren().size() == 1);
@@ -233,11 +235,13 @@ public class ChoiceObjectTests {
 	@Test
 	public void CH_ImportAndCopyTests() {
 
-		// Given - 2 versioned libraries in different namespaces
+		// Given - an editable, versioned source library
 		OTM16Upgrade.otm16Enabled = true;
 		LibraryChainNode srcLCN = ml.createNewManagedLibrary_Empty(defaultProject.getNSRoot() + "src", "SrcLib",
 				defaultProject);
 		LibraryNode srcLib = srcLCN.getHead();
+		assertTrue(srcLib.isEditable());
+		// Given - an editable, versioned destination library in different namespace
 		LibraryChainNode destLCN = ml.createNewManagedLibrary_Empty(defaultProject.getNSRoot() + "dest" + "/Dest",
 				"DestLib", defaultProject);
 		LibraryNode destLib = destLCN.getHead();
@@ -246,13 +250,13 @@ public class ChoiceObjectTests {
 
 		// Given choice objects
 		ChoiceObjectNode ch0 = ml.addChoice(srcLib, "Ch0");
+		ml.check(ch0);
 		ChoiceObjectNode ch1 = ml.addChoice(srcLib, "Ch1");
 		ChoiceObjectNode ch2 = ml.addChoice(srcLib, "Ch2");
 		ch2.addFacet("Ch2CF3");
 		ChoiceObjectNode ch3 = ml.addChoice(srcLib, "Ch3");
 		ChoiceObjectNode ch4 = ml.addChoice(srcLib, "Ch4");
 		ChoiceObjectNode ch5 = ml.addChoice(srcLib, "Ch5");
-		ml.check(ch0);
 		ml.check(srcLib); // checks all members
 
 		// TODO - test case for just importing contextual facets
@@ -260,7 +264,7 @@ public class ChoiceObjectTests {
 		//
 		// When - cloned as used within LibraryNode.importNode()
 		LibraryElement tlResult = ch0.cloneTLObj();
-		ChoiceObjectNode newNode = (ChoiceObjectNode) NodeFactory.newComponent_UnTyped((LibraryMember) tlResult);
+		ChoiceObjectNode newNode = (ChoiceObjectNode) NodeFactory.newLibraryMember((LibraryMember) tlResult);
 		destLib.addMember(newNode);
 
 		// Then - there must be same number of contributed facets

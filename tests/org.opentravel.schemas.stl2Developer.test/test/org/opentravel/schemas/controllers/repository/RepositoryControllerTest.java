@@ -173,8 +173,8 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 		LibraryNode testLibary = LibraryNodeBuilder
 				.create("TestLibrary", getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0))
 				.makeFinal().build(uploadProject, pc);
-		testLibary.addMember(ComponentNodeBuilder.createCoreObject("test").addProperty("TestProperty").setSimpleType()
-				.get());
+		testLibary.addMember(ComponentNodeBuilder.createCoreObject("test").addProperty("TestProperty")
+				.setAssignedType().get());
 		LibraryChainNode chain = rc.manage(getRepositoryForTest(), Collections.singletonList(testLibary)).get(0);
 		LibraryNode newMajor = rc.createMajorVersion(chain.getHead());
 		ValidationFindings findings = newMajor.validate();
@@ -240,7 +240,7 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 
 		library.getHead().lock();
 		library.getHead().addMember(
-				ComponentNodeBuilder.createCoreObject("test").addProperty("TestProperty").setSimpleType().get());
+				ComponentNodeBuilder.createCoreObject("test").addProperty("TestProperty").setAssignedType().get());
 		Assert.assertEquals(1, library.getDescendants_LibraryMembers().size());
 
 		String libraryName = library.getName();
@@ -274,7 +274,7 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 
 		library.getHead().lock();
 		library.getHead().addMember(
-				ComponentNodeBuilder.createCoreObject("test").addProperty("TestProperty").setSimpleType().get());
+				ComponentNodeBuilder.createCoreObject("test").addProperty("TestProperty").setAssignedType().get());
 		List<Node> descendants = library.getDescendants_LibraryMembers();
 		Assert.assertEquals(1, library.getDescendants_LibraryMembers().size());
 		Assert.assertEquals(1, descendants.size());
@@ -311,10 +311,9 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 
 		library.getHead().lock();
 		String coreObjectName = "NewCoreObject";
-		library.getHead()
-				.addMember(
-						ComponentNodeBuilder.createCoreObject(coreObjectName).addProperty("TestProperty")
-								.setSimpleType().get());
+		library.getHead().addMember(
+				ComponentNodeBuilder.createCoreObject(coreObjectName).addProperty("TestProperty").setAssignedType()
+						.get());
 
 		Assert.assertTrue(library.isEditable());
 		mc.getRepositoryController().unlock(library.getHead());
@@ -334,10 +333,9 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 
 		lcn.getHead().lock();
 		String coreObjectName = "NewCoreObject";
-		lcn.getHead()
-				.addMember(
-						ComponentNodeBuilder.createCoreObject(coreObjectName).addProperty("TestProperty")
-								.setSimpleType().get());
+		lcn.getHead().addMember(
+				ComponentNodeBuilder.createCoreObject(coreObjectName).addProperty("TestProperty").setAssignedType()
+						.get());
 
 		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
 		rc.unlock(lcn.getHead());

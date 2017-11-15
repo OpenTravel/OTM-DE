@@ -28,18 +28,15 @@ import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
-import org.opentravel.schemas.node.AggregateFamilyNode;
 import org.opentravel.schemas.node.AggregateNode;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.ConstraintHandler;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.ExtensionPointNode;
-import org.opentravel.schemas.node.FamilyNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
@@ -52,7 +49,7 @@ import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
-import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
+import org.opentravel.schemas.node.handlers.ConstraintHandler;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
@@ -474,7 +471,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		BusinessObjectNode newBO = new BusinessObjectNode(new TLBusinessObject());
 		newBO.setName(newBoName);
 		minorLibrary.addMember(newBO);
-		ElementNode idProperty = new ElementNode(newBO.getIDFacet(), "id");
+		ElementNode idProperty = new ElementNode(newBO.getFacet_ID(), "id");
 		TotalDescendents++;
 		AggregateComplex++;
 
@@ -573,11 +570,9 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// Check the aggregates
 		Node complexAgg = (Node) chain.getComplexAggregate();
 		Assert.assertTrue(complexAgg.getParent() == chain);
-		checkChildrenClassType(complexAgg, ComplexComponentInterface.class, AggregateFamilyNode.class);
+		// checkChildrenClassType(complexAgg, ComplexComponentInterface.class, AggregateFamilyNode.class);
 		for (Node n : complexAgg.getChildren()) {
-			if (!(n instanceof AggregateFamilyNode)) {
-				Assert.assertTrue(n.getParent() != complexAgg);
-			}
+			Assert.assertTrue(n.getParent() != complexAgg);
 		}
 
 		Node simpleAgg = (Node) chain.getSimpleAggregate();
@@ -657,8 +652,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 
 		// Aggregates should have Active Simple, Active Complex and Service.
 		// This checks both children and then navChildren.
-		checkChildrenClassType(((Node) chain.getComplexAggregate()), ComplexComponentInterface.class,
-				AggregateFamilyNode.class);
+		// checkChildrenClassType(((Node) chain.getComplexAggregate()), ComplexComponentInterface.class,
+		// AggregateFamilyNode.class);
 		for (Node nc : ((Node) chain.getComplexAggregate()).getNavChildren(false)) {
 			Assert.assertTrue(nc instanceof ComplexComponentInterface);
 		}
@@ -730,23 +725,23 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 
 	// Adds the removed properties from the facet.
 	// Emulate AddNodeHandler and newPropertiesWizard
-	private void testAddingPropertiesToFacet(ComponentNode propOwner) {
-		int cnt = propOwner.getChildren().size();
-		PropertyNode newProp = null;
-		if (!(propOwner instanceof VWA_AttributeFacetNode)) {
-			newProp = new ElementNode(new FacetNode(), "np" + cnt++);
-			propOwner.addProperty(newProp); // Needed???
-			newProp.setAssignedType((TypeProvider) xsdStringNode);
-			Assert.assertTrue(newProp.getLibrary() != null);
-			Assert.assertTrue(newProp.isDeleteable());
-			newProp.delete();
-			Assert.assertEquals(--cnt, propOwner.getChildren().size());
-		}
-		PropertyNode newAttr = new AttributeNode(new FacetNode(), "np" + cnt++);
-		propOwner.addProperty(newAttr);
-		newAttr.setAssignedType((TypeProvider) xsdStringNode);
-		Assert.assertEquals(cnt, propOwner.getChildren().size());
-	}
+	// private void testAddingPropertiesToFacet(ComponentNode propOwner) {
+	// int cnt = propOwner.getChildren().size();
+	// PropertyNode newProp = null;
+	// if (!(propOwner instanceof AttributeFacetNode)) {
+	// newProp = new ElementNode(new FacetNode(), "np" + cnt++);
+	// propOwner.addProperty(newProp); // Needed???
+	// newProp.setAssignedType((TypeProvider) xsdStringNode);
+	// Assert.assertTrue(newProp.getLibrary() != null);
+	// Assert.assertTrue(newProp.isDeleteable());
+	// newProp.delete();
+	// Assert.assertEquals(--cnt, propOwner.getChildren().size());
+	// }
+	// PropertyNode newAttr = new AttributeNode(new FacetNode(), "np" + cnt++);
+	// propOwner.addProperty(newAttr);
+	// newAttr.setAssignedType((TypeProvider) xsdStringNode);
+	// Assert.assertEquals(cnt, propOwner.getChildren().size());
+	// }
 
 	/**
 	 * Create a new minor version of core: co. Add a property "te2".
@@ -768,13 +763,13 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		Assert.assertNotNull(nco);
 
 		// TODO - why does creating a second version end up as not versioned?
-		if (nco.getVersionNode().getParent() instanceof FamilyNode)
-			assertTrue(nco.isEditable_newToChain()); // Why?
-		else {
-			Assert.assertFalse(nco.isEditable_newToChain()); // not new because it's base type exists in previous chain
-			Assert.assertNotNull(nco.getVersionNode().getPreviousVersion());
-			Assert.assertEquals(nco.getVersionNode().getPreviousVersion(), co);
-		}
+		// if (nco.getVersionNode().getParent() instanceof FamilyNode)
+		// assertTrue(nco.isEditable_newToChain()); // Why?
+		// else {
+		Assert.assertFalse(nco.isEditable_newToChain()); // not new because it's base type exists in previous chain
+		Assert.assertNotNull(nco.getVersionNode().getPreviousVersion());
+		Assert.assertEquals(nco.getVersionNode().getPreviousVersion(), co);
+		// }
 		Assert.assertFalse(co.isEditable_newToChain());
 		Assert.assertEquals(1, nco.getFacet_Summary().getChildren().size());
 		Assert.assertTrue(chain.getDescendants_LibraryMembers().contains(nco));
@@ -806,7 +801,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	private VWA_Node createVWA_InMinor() {
 		VWA_Node nVwa = (VWA_Node) vwa.createMinorVersionComponent();
 		Assert.assertNotNull(nVwa);
-		PropertyNode newProp = new AttributeNode(nVwa.getAttributeFacet(), "te2");
+		PropertyNode newProp = new AttributeNode(nVwa.getFacet_Attributes(), "te2");
 		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
 		Assert.assertEquals(1, bo.getFacet_Summary().getChildren().size());
 		TotalDescendents += 1;
@@ -814,7 +809,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 
 		// Make sure a new was created in the newMinor library.
 		Assert.assertNotNull(nVwa);
-		Assert.assertEquals(1, nVwa.getAttributeFacet().getChildren().size());
+		Assert.assertEquals(1, nVwa.getFacet_Attributes().getChildren().size());
 		Assert.assertTrue(chain.getDescendants_LibraryMembers().contains(nVwa));
 		Assert.assertTrue(minorLibrary.getDescendants_LibraryMembers().contains(nVwa));
 		Assert.assertFalse(majorLibrary.getDescendants_LibraryMembers().contains(nVwa));
@@ -994,7 +989,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		assertTrue(exception);
 
 		((FacetNode) bo.getCustomFacets().get(0)).setContext(bo.getLibrary().getDefaultContextId());
-		assertTrue(co.getRoleFacet().addRole("patchRole") == null);
+		assertTrue(co.getFacet_Role().addRole("patchRole") == null);
 
 		oEnum.addLiteral("patchLiteral");
 		assertTrue(!oEnum.getLiterals().contains("patchLiteral"));
