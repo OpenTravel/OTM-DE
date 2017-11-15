@@ -15,19 +15,10 @@
  */
 package org.opentravel.schemas.node;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.opentravel.schemacompiler.event.ModelElementListener;
-import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemas.modelObject.TLEmpty;
-import org.opentravel.schemas.modelObject.XSDElementMO;
-import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.node.listeners.NamedTypeListener;
-import org.opentravel.schemas.node.listeners.NodeIdentityListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,36 +34,46 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(XsdNode.class);
 	public ComponentNode otmModel = null; // a pointer to a node/model object and tlObj
 											// representing the xsd type
+	LibraryNode lib = null;
 
 	/**
-	 * Create an XsdNode to represent and XSD Simple or Complex type. Creates an XsdNode with model object, sets name
-	 * and description, links TL library member to MO
-	 * 
-	 * @param obj
-	 *            - the TL XSDComplexType or XSDSimpleType
+	 * Temporary Patch just until handler working
 	 */
-	public XsdNode(final TLLibraryMember obj, LibraryNode lib) {
-		super(obj); //
-		this.setLibrary(lib);
-		// Build all of the tl models now so they and their local types get rendered in the tree
-		this.createTLModelChild();
-
-		// fix listener to point to otmModel instead the this
-		Collection<ModelElementListener> toRemove = new ArrayList<ModelElementListener>();
-		for (ModelElementListener l : getTLModelObject().getListeners())
-			if (l instanceof NodeIdentityListener)
-				toRemove.add(l);
-		for (ModelElementListener l : toRemove)
-			getTLModelObject().removeListener(l);
-		NamedTypeListener listener = new NamedTypeListener(getOtmModel());
-		getTLModelObject().addListener(listener);
+	public XsdNode(LibraryNode lib) {
+		this.lib = lib;
 	}
+
+	// /**
+	// * Create an XsdNode to represent and XSD Simple or Complex type. Creates an XsdNode with model object, sets name
+	// * and description, links TL library member to MO
+	// *
+	// * @param obj
+	// * - the TL XSDComplexType or XSDSimpleType
+	// */
+	// @Deprecated
+	// public XsdNode(final TLLibraryMember obj, LibraryNode lib) {
+	// super(obj); //
+	// this.setLibrary(lib);
+	// // Build all of the tl models now so they and their local types get rendered in the tree
+	// this.createTLModelChild();
+	//
+	// // fix listener to point to otmModel instead the this
+	// Collection<ModelElementListener> toRemove = new ArrayList<ModelElementListener>();
+	// for (ModelElementListener l : getTLModelObject().getListeners())
+	// if (l instanceof NodeIdentityListener)
+	// toRemove.add(l);
+	// for (ModelElementListener l : toRemove)
+	// getTLModelObject().removeListener(l);
+	// NamedTypeListener listener = new NamedTypeListener(getOtmModel());
+	// getTLModelObject().addListener(listener);
+	// }
 
 	/**
 	 * Utility function - use getOtmModelChild() which will create one if it did not exist.
 	 * 
 	 * @return
 	 */
+	@Deprecated
 	protected boolean hasOtmModelChild() {
 		return otmModel == null ? false : true;
 	}
@@ -81,6 +82,7 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 	 * 
 	 * @return the otmModel node that represents this xsd node
 	 */
+	@Deprecated
 	public ComponentNode getOtmModel() {
 		return otmModel == null ? createTLModelChild() : otmModel;
 	}
@@ -92,6 +94,7 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 	 * 
 	 * @return
 	 */
+	@Deprecated
 	private ComponentNode createTLModelChild() {
 		// LOGGER.debug("Creating TLModel Child for node " +
 		// this.getNameWithPrefix()+" in namespace "+ this.getNamespace());
@@ -99,7 +102,8 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 			LOGGER.error("Can not create a TL Model child without a library!. " + this.getName());
 
 		// Use this model object to build a TL_Object and use that to create a node.
-		ComponentNode cn = NodeFactory.newComponent_UnTyped((TLLibraryMember) modelObject.buildTLModel(this));
+		ComponentNode cn = (ComponentNode) NodeFactory.newLibraryMember((TLLibraryMember) modelObject
+				.buildTLModel(this));
 		if (cn != null) {
 			cn.xsdNode = this;
 			otmModel = cn;
@@ -110,6 +114,7 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 		return cn;
 	}
 
+	@Deprecated
 	private void setXsdTypeOnChildren(Node n) {
 		n.xsdType = true;
 		for (Node c : n.getChildren())
@@ -117,70 +122,78 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 	}
 
 	@Override
+	public LibraryNode getLibrary() {
+		return lib;
+	}
+
+	@Deprecated
+	@Override
 	public String getName() {
 		return "";
 		// return modelObject.getName();
 	}
 
+	@Deprecated
 	@Override
 	public boolean isImportable() {
 		if ((isInXSDSchema() || isInBuiltIn()) && getOtmModel() != null
-				&& !(getOtmModel().getModelObject().getTLModelObj() instanceof TLEmpty)) {
+				&& !(getOtmModel().getTLModelObject() instanceof TLEmpty)) {
 			return true;
 		}
 		return false;
 	}
 
+	@Deprecated
 	@Override
 	public boolean isDeleteable() {
 		return false;
 	}
 
-	@Override
-	public boolean isMissingAssignedType() {
-		// LOGGER.debug("check xsdNode "+getName()+" for missing type");
-		return getOtmModel().isMissingAssignedType();
-	}
+	// @Override
+	// public boolean isMissingAssignedType() {
+	// // LOGGER.debug("check xsdNode "+getName()+" for missing type");
+	// return getOtmModel().isMissingAssignedType();
+	// }
 
-	public boolean isXsdElement() {
-		return (modelObject instanceof XSDElementMO) ? true : false;
-	}
+	// public boolean isXsdElement() {
+	// return (modelObject instanceof XSDElementMO) ? true : false;
+	// }
+
+	// // @Override
+	// public boolean isCoreObject() {
+	// return otmModel instanceof CoreObjectNode;
+	// }
 
 	// @Override
-	public boolean isCoreObject() {
-		return otmModel instanceof CoreObjectNode;
-	}
+	// public boolean isSimpleType() {
+	// assert (false);
+	// return otmModel.isSimpleType();
+	// // If this is never reached then this Node method can become instanceof test
+	// }
 
-	@Override
-	public boolean isSimpleType() {
-		assert (false);
-		return otmModel.isSimpleType();
-		// If this is never reached then this Node method can become instanceof test
-	}
+	// // @Override
+	// public boolean isBusinessObject() {
+	// return otmModel instanceof BusinessObjectNode;
+	// }
+	//
+	// // @Override
+	// public boolean isValueWithAttributes() {
+	// return otmModel instanceof VWA_Node;
+	// }
 
 	// @Override
-	public boolean isBusinessObject() {
-		return otmModel instanceof BusinessObjectNode;
-	}
+	// public boolean isSimpleTypeProvider() {
+	// return otmModel instanceof SimpleComponentInterface;
+	// }
 
 	// @Override
-	public boolean isValueWithAttributes() {
-		return otmModel instanceof VWA_Node;
-	}
+	// public INode getBaseType() {
+	// throw new IllegalAccessError("xsd node getBaseType() is not implemented.");
+	// }
 
-	@Override
-	public boolean isSimpleTypeProvider() {
-		return otmModel instanceof SimpleComponentInterface;
-	}
-
-	@Override
-	public INode getBaseType() {
-		throw new IllegalAccessError("xsd node getBaseType() is not implemented.");
-	}
-
-	@Override
-	public NamedEntity getTLOjbect() {
-		return otmModel.getTLModelObject() instanceof NamedEntity ? (NamedEntity) otmModel.getTLModelObject() : null;
-	}
+	// @Override
+	// public NamedEntity getTLOjbect() {
+	// return otmModel.getTLModelObject() instanceof NamedEntity ? (NamedEntity) otmModel.getTLModelObject() : null;
+	// }
 
 }

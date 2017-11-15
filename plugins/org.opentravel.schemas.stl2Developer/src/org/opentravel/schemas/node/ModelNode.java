@@ -25,9 +25,12 @@ import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.controllers.LibraryModelManager;
+import org.opentravel.schemas.node.handlers.children.ModelNodeChildrenHandler;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.listeners.BaseNodeListener;
+import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.listeners.NodeModelEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +74,6 @@ public class ModelNode extends Node {
 
 	// These nodes are not in the TL model but used within the node model.
 	// They allow all nodes to have a type and related properties.
-	// private static TLLibrary impliedTLLib = makeImpliedLibrary();
 	protected static ImpliedNode undefinedNode = new ImpliedNode(ImpliedNode.Undefined);
 	protected static ImpliedNode indicatorNode = new ImpliedNode(ImpliedNodeType.Indicator);
 	protected static ImpliedNode unassignedNode = new ImpliedNode(ImpliedNodeType.UnassignedType);
@@ -106,7 +108,9 @@ public class ModelNode extends Node {
 		tlModel = model;
 		libMgr = new LibraryModelManager(this);
 
-		addListeners();
+		ListenerFactory.setIdentityListner(this);
+		childrenHandler = new ModelNodeChildrenHandler(this);
+		getChildrenHandler().add(unassignedNode);
 
 		// LOGGER.debug("ModelNode(TLModel) done.");
 	}
@@ -123,34 +127,58 @@ public class ModelNode extends Node {
 		return libMgr;
 	}
 
+	@Override
+	public ModelNodeChildrenHandler getChildrenHandler() {
+		return (ModelNodeChildrenHandler) childrenHandler;
+	}
+
 	public void addProject(final ProjectNode project) {
-		getChildren().add(project);
+		getChildrenHandler().add(project);
 		project.setParent(this);
+	}
+
+	public void removeProject(final ProjectNode project) {
+		getChildrenHandler().remove(project);
+		project.setParent(null);
 	}
 
 	@Override
 	public void close() {
-		List<Node> kids = new ArrayList<Node>(getChildren());
-		for (Node n : kids)
-			n.close();
-		libMgr = new LibraryModelManager(this);
+		// List<Node> kids = new ArrayList<Node>(getChildren());
+		// for (Node n : kids)
+		// n.close();
+		// libMgr = new LibraryModelManager(this);
+		List<ProjectNode> projects = getUserProjects();
+		for (ProjectNode project : projects)
+			project.close();
+		libMgr.clear(false); // leave built-ins
 		undefinedNode.initialize(this);
 		indicatorNode.initialize(this);
 		unassignedNode.initialize(this);
 		defaultStringNode.initialize(this);
+		// FIXME - does this leave where used on built-ins?
 	}
 
-	@Override
-	public List<Node> getChildren() {
-		if (!super.getChildren().contains(ModelNode.getUnassignedNode())) {
-			super.getChildren().add(ModelNode.getUnassignedNode());
-			// Enhancement - enable duplicate display. Needs controls to keep it up to
-			// date with changes throughout the model before enabling.
-			//
-			// navChildren.add(ModelNode.getDuplicateTypesNode());
+	public List<ProjectNode> getUserProjects() {
+		ArrayList<ProjectNode> libs = new ArrayList<ProjectNode>();
+		for (Node n : getChildren()) {
+			if (n instanceof ProjectNode && !n.isBuiltIn())
+				libs.add((ProjectNode) n);
 		}
-		return super.getChildren();
+		return libs;
 	}
+
+	// @Override
+	// public List<Node> getChildren() {
+	// if (!super.getChildren().contains(ModelNode.getUnassignedNode())) {
+	// super.getChildren().add(ModelNode.getUnassignedNode());
+	// // Enhancement - enable duplicate display. Needs controls to keep it up to
+	// // date with changes throughout the model before enabling.
+	// //
+	// // navChildren.add(ModelNode.getDuplicateTypesNode());
+	// }
+	// return super.getChildren();
+	// }
 
 	@Override
 	public String getComponentType() {
@@ -161,9 +189,9 @@ public class ModelNode extends Node {
 		return tlModel;
 	}
 
-	public void addListeners() {
-		tlModel.addListener(new NodeModelEventListener());
-	}
+	// public void addListeners() {
+	// tlModel.addListener(new NodeModelEventListener());
+	// }
 
 	@Override
 	public TLModelElement getTLModelObject() {
@@ -179,10 +207,10 @@ public class ModelNode extends Node {
 		return null; // top of the tree
 	}
 
-	@Override
-	public boolean hasChildren_TypeProviders() {
-		return getChildren().size() > 0 ? true : false;
-	}
+	// @Override
+	// public boolean hasChildren_TypeProviders() {
+	// return getChildren().size() > 0 ? true : false;
+	// }
 
 	/**
 	 * @return true if namespace is managed by any of the child projects
@@ -203,6 +231,11 @@ public class ModelNode extends Node {
 	@Override
 	public boolean isUnique(final INode testNode) {
 		return true;
+	}
+
+	@Override
+	public BaseNodeListener getNewListener() {
+		return new NodeModelEventListener(this);
 	}
 
 	@Override

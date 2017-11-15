@@ -40,10 +40,10 @@ public class ListFacetMO extends ModelObject<TLListFacet> {
 		return srcObj;
 	}
 
-	@Override
-	public void delete() {
-	}
-
+	// @Override
+	// public void delete() {
+	// }
+	//
 	public boolean isDetailList() {
 		return (getTLModelObj().getItemFacet() instanceof TLFacet);
 	}

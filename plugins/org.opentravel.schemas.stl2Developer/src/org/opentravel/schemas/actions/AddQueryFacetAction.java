@@ -16,6 +16,7 @@
 package org.opentravel.schemas.actions;
 
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.commands.ContextualFacetHandler;
 import org.opentravel.schemas.node.BusinessObjectNode;
@@ -114,7 +115,7 @@ public class AddQueryFacetAction extends OtmAbstractAction {
 		if (!wizard.wasCanceled()) {
 			FacetNode newFacet = bo.addFacet(wizard.getName(), facetType);
 			for (final PropertyNode n : wizard.getSelectedProperties()) {
-				NodeFactory.newMember(newFacet, n.cloneTLObj());
+				NodeFactory.newChild(newFacet, (TLModelElement) n.cloneTLObj());
 			}
 		}
 		mc.refresh(bo);

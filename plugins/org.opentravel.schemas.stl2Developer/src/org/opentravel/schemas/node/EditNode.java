@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.node;
 
+import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
@@ -179,10 +180,13 @@ public class EditNode extends ComponentNode {
 		return propertyType;
 	}
 
+	@Deprecated
 	public void setRepeat(final int cnt) {
-		if (modelObject != null) {
-			modelObject.setRepeat(cnt);
-		}
+		if (getTLModelObject() instanceof TLProperty)
+			((TLProperty) getTLModelObject()).setRepeat(cnt);
+		// if (modelObject != null) {
+		// modelObject.setRepeat(cnt);
+		// }
 	}
 
 	public void setUseType(final String use) {

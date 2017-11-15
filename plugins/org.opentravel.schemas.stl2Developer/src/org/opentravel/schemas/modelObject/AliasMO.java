@@ -16,9 +16,6 @@
 package org.opentravel.schemas.modelObject;
 
 import org.opentravel.schemacompiler.model.TLAlias;
-import org.opentravel.schemacompiler.model.TLAliasOwner;
-import org.opentravel.schemacompiler.model.TLFacet;
-import org.opentravel.schemacompiler.model.TLListFacet;
 
 /**
  * @author Dave Hollander
@@ -30,14 +27,14 @@ public class AliasMO extends ModelObject<TLAlias> {
 		super(obj);
 	}
 
-	@Override
-	public void delete() {
-		final TLAliasOwner owningEntity = getTLModelObj().getOwningEntity();
-		if (owningEntity != null && !(owningEntity instanceof TLFacet) && !(owningEntity instanceof TLListFacet)) {
-			owningEntity.removeAlias(getTLModelObj());
-		}
-		srcObj = null;
-	}
+	// @Override
+	// public void delete() {
+	// final TLAliasOwner owningEntity = getTLModelObj().getOwningEntity();
+	// if (owningEntity != null && !(owningEntity instanceof TLFacet) && !(owningEntity instanceof TLListFacet)) {
+	// owningEntity.removeAlias(getTLModelObj());
+	// }
+	// srcObj = null;
+	// }
 
 	@Override
 	public TLAlias getTLModelObj() {

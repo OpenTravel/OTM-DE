@@ -25,7 +25,7 @@ import java.util.Set;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.opentravel.schemacompiler.repository.RepositoryItemCommit;
-import org.opentravel.schemas.node.NamespaceHandler;
+import org.opentravel.schemas.node.handlers.NamespaceHandler;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.preferences.GeneralPreferencePage;
 import org.opentravel.schemas.properties.Messages;

@@ -19,16 +19,15 @@
 package org.opentravel.schemas.node;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.modelObject.BusinessObjMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.controllers.NodeUtils;
@@ -36,18 +35,20 @@ import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.facets.UpdateFacetNode;
+import org.opentravel.schemas.node.handlers.children.BusinessObjectChildrenHandler;
+import org.opentravel.schemas.node.interfaces.AliasOwner;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.interfaces.Sortable;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
-import org.opentravel.schemas.node.listeners.BusinessObjectNodeListener;
+import org.opentravel.schemas.node.listeners.TypeProviderListener;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.ExtensionHandler;
@@ -60,18 +61,17 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class BusinessObjectNode extends LibraryMemberBase implements ComplexComponentInterface, ExtensionOwner,
-		ContextualFacetOwnerInterface, VersionedObjectInterface, LibraryMemberInterface, TypeProvider {
+		AliasOwner, Sortable, ContextualFacetOwnerInterface, VersionedObjectInterface, LibraryMemberInterface,
+		TypeProvider {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
 	private ExtensionHandler extensionHandler = null;
 
 	public BusinessObjectNode(TLBusinessObject mbr) {
 		super(mbr);
-		addMOChildren();
 
+		childrenHandler = new BusinessObjectChildrenHandler(this);
 		extensionHandler = new ExtensionHandler(this);
-
-		assert getModelObject() != null;
 	}
 
 	/**
@@ -82,14 +82,14 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 	public BusinessObjectNode(CoreObjectNode core) {
 		this(new TLBusinessObject());
 
-		addAliases(core.getAliases());
+		cloneAliases(core.getAliases());
 
 		setName(core.getName());
 		core.getLibrary().addMember(this); // version managed library safe add
 		setDocumentation(core.getDocumentation());
 
-		getFacet_Summary().copyFacet((FacetNode) core.getFacet_Summary());
-		((FacetNode) getFacet_Detail()).copyFacet((FacetNode) core.getFacet_Detail());
+		getFacet_Summary().copyFacet(core.getFacet_Summary());
+		getFacet_Detail().copyFacet(core.getFacet_Detail());
 	}
 
 	public BusinessObjectNode(VWA_Node vwa) {
@@ -99,23 +99,18 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 		vwa.getLibrary().addMember(this);
 		setDocumentation(vwa.getDocumentation());
 
-		getFacet_Summary().copyFacet((PropertyOwnerNode) vwa.getAttributeFacet());
+		getFacet_Summary().copyFacet(vwa.getFacet_Attributes());
 	}
 
 	@Override
 	public String getName() {
-		return getTLModelObject().getName();
+		return emptyIfNull(getTLModelObject().getName());
 	}
 
 	@Override
 	public TLBusinessObject getTLModelObject() {
-		return (TLBusinessObject) (modelObject != null ? modelObject.getTLModelObj() : null);
+		return (TLBusinessObject) tlObj;
 	}
-
-	// @Override
-	// public boolean isExtensible() {
-	// return getTLModelObject() != null ? !((TLComplexTypeBase) getTLModelObject()).isNotExtendable() : false;
-	// }
 
 	@Override
 	public boolean isExtensibleObject() {
@@ -135,28 +130,24 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 		return isXsdType() ? false : true;
 	}
 
-	// @Override
-	// public boolean isNamedType() {
-	// return true;
-	// }
-
 	@Override
 	public boolean isAssignedByReference() {
 		return true;
 	}
 
-	@Override
-	public List<Node> getChildren_TypeUsers() {
-		ArrayList<Node> users = new ArrayList<Node>();
-		users.addAll(getIDFacet().getChildren());
-		users.addAll(getFacet_Summary().getChildren());
-		users.addAll(getFacet_Detail().getChildren());
-		for (INode facet : getCustomFacets())
-			users.addAll(facet.getChildren());
-		for (INode facet : getQueryFacets())
-			users.addAll(facet.getChildren());
-		return users;
-	}
+	// @Override
+	// public List<Node> getChildren_TypeUsers() {
+	// return childrenHandler.getChildren_TypeUsers();
+	// // ArrayList<Node> users = new ArrayList<Node>();
+	// // users.addAll(getIDFacet().getChildren());
+	// // users.addAll(getFacet_Summary().getChildren());
+	// // users.addAll(getFacet_Detail().getChildren());
+	// // for (INode facet : getCustomFacets())
+	// // users.addAll(facet.getChildren());
+	// // for (INode facet : getQueryFacets())
+	// // users.addAll(facet.getChildren());
+	// // return users;
+	// }
 
 	@Override
 	public ComponentNodeType getComponentNodeType() {
@@ -177,80 +168,95 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 	}
 
 	@Override
-	public PropertyOwnerNode getFacet_Detail() {
+	public FacetNode getFacet_ID() {
+		for (INode f : getChildren())
+			if ((f instanceof FacetNode && ((FacetNode) f).isIDFacet()))
+				return (FacetNode) f;
+		return null;
+	}
+
+	@Override
+	public FacetNode getFacet_Detail() {
 		for (INode f : getChildren())
 			if ((f instanceof FacetNode) && ((FacetNode) f).isDetailFacet())
-				return (PropertyOwnerNode) f;
+				return (FacetNode) f;
 		return null;
 	}
 
 	@Override
-	public ContributedFacetNode getContributedFacet(TLContextualFacet tlObj) {
-		for (Node child : getChildren())
-			if (child instanceof ContributedFacetNode && child.getTLModelObject() == tlObj)
-				return (ContributedFacetNode) child;
-		return null;
+	public ContributedFacetNode getContributedFacet(TLContextualFacet tlcf) {
+		ContributedFacetNode cfn = null;
+		for (TLModelElement tlo : getChildrenHandler().getChildren_TL())
+			if (tlo == tlcf)
+				if (Node.GetNode(tlo) instanceof ContextualFacetNode) {
+					ContextualFacetNode cxn = (ContextualFacetNode) Node.GetNode(tlo);
+					if (cxn != null) {
+						cfn = cxn.getWhereContributed();
+						break;
+					}
+				}
+		return cfn;
 	}
 
 	@Override
-	public PropertyOwnerInterface getFacet_Default() {
+	public FacetNode getFacet_Default() {
 		return getFacet_Summary();
 	}
 
-	@Override
-	public List<Node> getInheritedChildren() {
-		initInheritedChildren();
-		if (inheritedChildren == null)
-			inheritedChildren = Collections.emptyList();
-		return inheritedChildren;
-	}
+	// @Override
+	// public List<Node> getInheritedChildren() {
+	// initInheritedChildren();
+	// if (inheritedChildren == null)
+	// inheritedChildren = Collections.emptyList();
+	// return inheritedChildren;
+	// }
 
 	// 11/8/2016 - rework of initInheritedChildren()
-	/**
-	 * Get the ghost facets from the TL Model. Model all of them.
-	 */
-	@Override
-	public void initInheritedChildren() {
-		inheritedChildren = Collections.emptyList();
-		// Model each facet returned in the list of new TLFacets from the TL Model
-		List<TLContextualFacet> tlCfs = new ArrayList<TLContextualFacet>();
-		tlCfs.addAll(FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.CUSTOM));
-		tlCfs.addAll(FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.QUERY));
-		tlCfs.addAll(FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.UPDATE));
-		// TODO - why is this called so often?
-		List<TLContextualFacet> allTLCfs = new ArrayList<TLContextualFacet>();
-		for (ContextualFacetNode cfn : getModelNode().getDescendants_ContextualFacets())
-			allTLCfs.add(cfn.getTLModelObject());
+	// /**
+	// * Get the ghost facets from the TL Model. Model all of them.
+	// */
+	// @Deprecated
+	// public void initInheritedChildren() {
+	// inheritedChildren = Collections.emptyList();
+	// // Model each facet returned in the list of new TLFacets from the TL Model
+	// List<TLContextualFacet> tlCfs = new ArrayList<TLContextualFacet>();
+	// tlCfs.addAll(FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.CUSTOM));
+	// tlCfs.addAll(FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.QUERY));
+	// tlCfs.addAll(FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.UPDATE));
+	// // TODO - why is this called so often?
+	// List<TLContextualFacet> allTLCfs = new ArrayList<TLContextualFacet>();
+	// for (ContextualFacetNode cfn : getModelNode().getDescendants_ContextualFacets())
+	// allTLCfs.add(cfn.getTLModelObject());
+	//
+	// // Some (all?) of the facets will be new without identity listener
+	// // Match on facetType, Name, OwningLibrary and Owning Entity
+	// for (TLContextualFacet cf : tlCfs) {
+	// if (GetNode(cf) == null)
+	// cf = find(allTLCfs, cf);
+	// if (GetNode(cf) != null)
+	// linkInheritedChild(NodeFactory.newMemberOLD(null, cf));
+	// else
+	// LOGGER.debug("Failed to find matching Contextual Facet Node: ");
+	// }
+	// // for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.CUSTOM))
+	// // linkInheritedChild(NodeFactory.newComponentMember(null, cf));
+	// // for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.QUERY))
+	// // linkInheritedChild(NodeFactory.newComponentMember(null, cf));
+	// // for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.UPDATE))
+	// // linkInheritedChild(NodeFactory.newComponentMember(null, cf));
+	//
+	// }
 
-		// Some (all?) of the facets will be new without identity listener
-		// Match on facetType, Name, OwningLibrary and Owning Entity
-		for (TLContextualFacet cf : tlCfs) {
-			if (GetNode(cf) == null)
-				cf = find(allTLCfs, cf);
-			if (GetNode(cf) != null)
-				linkInheritedChild(NodeFactory.newMember(null, cf));
-			else
-				LOGGER.debug("Failed to find matching Contextual Facet Node: ");
-		}
-		// for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.CUSTOM))
-		// linkInheritedChild(NodeFactory.newComponentMember(null, cf));
-		// for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.QUERY))
-		// linkInheritedChild(NodeFactory.newComponentMember(null, cf));
-		// for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.UPDATE))
-		// linkInheritedChild(NodeFactory.newComponentMember(null, cf));
-
-	}
-
-	private TLContextualFacet find(List<TLContextualFacet> allTLCfs, TLContextualFacet ghostCF) {
-		// LOGGER.debug("Find: " + ghostCF.getName());
-		for (TLContextualFacet tlCf : allTLCfs)
-			if (tlCf.getName().equals(ghostCF.getName()))
-				// if (tlCf.getOwningEntity() == ghostCF.getOwningEntity())
-				if (tlCf.getFacetType() == ghostCF.getFacetType())
-					if (tlCf.getOwningLibrary() == ghostCF.getOwningLibrary())
-						return tlCf;
-		return null;
-	}
+	// private TLContextualFacet find(List<TLContextualFacet> allTLCfs, TLContextualFacet ghostCF) {
+	// // LOGGER.debug("Find: " + ghostCF.getName());
+	// for (TLContextualFacet tlCf : allTLCfs)
+	// if (tlCf.getName().equals(ghostCF.getName()))
+	// // if (tlCf.getOwningEntity() == ghostCF.getOwningEntity())
+	// if (tlCf.getFacetType() == ghostCF.getFacetType())
+	// if (tlCf.getOwningLibrary() == ghostCF.getOwningLibrary())
+	// return tlCf;
+	// return null;
+	// }
 
 	@Override
 	public Image getImage() {
@@ -259,9 +265,23 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 
 	@Override
 	public BaseNodeListener getNewListener() {
-		return new BusinessObjectNodeListener(this);
+		return new TypeProviderListener(this);
 	}
 
+	@Override
+	public void remove(AliasNode alias) {
+		getTLModelObject().removeAlias(alias.getTLModelObject());
+		clearAllAliasOwners();
+	}
+
+	@Override
+	public void addAlias(AliasNode alias) {
+		if (!getTLModelObject().getAliases().contains(alias.getTLModelObject()))
+			getTLModelObject().addAlias(alias.getTLModelObject());
+		clearAllAliasOwners();
+	}
+
+	@Override
 	public AliasNode addAlias(String name) {
 		AliasNode alias = null;
 		if (this.isEditable_newToChain())
@@ -269,10 +289,17 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 		return alias;
 	}
 
-	public void addAliases(List<AliasNode> aliases) {
-		for (AliasNode a : aliases) {
+	@Override
+	public void cloneAliases(List<AliasNode> aliases) {
+		for (AliasNode a : aliases)
 			addAlias(a.getName());
-		}
+	}
+
+	private void clearAllAliasOwners() {
+		for (Node child : getChildren())
+			if (child instanceof AliasOwner && child.getChildrenHandler() != null)
+				child.getChildrenHandler().clear();
+		getChildrenHandler().clear();
 	}
 
 	/**
@@ -285,9 +312,10 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 	 */
 	// TODO - consider allowing them in minor and use createMinorVersionOfComponent()
 	public ContextualFacetNode addFacet(String name, TLFacetType type) {
-		if (!isEditable_newToChain())
-			throw new IllegalArgumentException("Can not add facet to " + this);
-
+		if (!isEditable_newToChain()) {
+			isEditable_newToChain();
+			throw new IllegalArgumentException("Not editable - Can not add facet to " + this);
+		}
 		TLContextualFacet tlCf = ContextualFacetNode.createTL(name, type);
 		ContextualFacetNode cf = null;
 		if (TLFacetType.CUSTOM.equals(type))
@@ -333,6 +361,7 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 	}
 
 	@Override
+	@Deprecated
 	public BusinessObjMO getModelObject() {
 		ModelObject<?> obj = super.getModelObject();
 		return (BusinessObjMO) (obj instanceof BusinessObjMO ? obj : null);
@@ -402,7 +431,7 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 	}
 
 	@Override
-	public PropertyOwnerInterface getAttributeFacet() {
+	public PropertyOwnerInterface getFacet_Attributes() {
 		return null;
 	}
 
@@ -428,7 +457,7 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 			throw new IllegalStateException("Can only merge objects with the same type");
 		}
 		BusinessObjectNode business = (BusinessObjectNode) source;
-		getIDFacet().addProperties(business.getIDFacet().getChildren(), true);
+		getFacet_ID().addProperties(business.getFacet_ID().getChildren(), true);
 		getFacet_Summary().addProperties(business.getFacet_Summary().getChildren(), true);
 		getFacet_Detail().addProperties(business.getFacet_Detail().getChildren(), true);
 
@@ -436,6 +465,7 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 		customs.addAll(business.getCustomFacets());
 		copyFacet(customs);
 		copyFacet(business.getQueryFacets());
+		getChildrenHandler().clear();
 	}
 
 	private void copyFacet(List<ComponentNode> facets) {
@@ -486,8 +516,9 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 		return extensionHandler != null ? extensionHandler.get() : null;
 	}
 
+	@Override
 	public String getExtendsTypeNS() {
-		return modelObject.getExtendsTypeNS();
+		return getExtensionBase() != null ? getExtensionBase().getNamespace() : "";
 	}
 
 	@Override

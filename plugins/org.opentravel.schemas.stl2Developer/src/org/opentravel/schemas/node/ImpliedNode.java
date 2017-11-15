@@ -21,6 +21,7 @@ package org.opentravel.schemas.node;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
@@ -96,6 +97,7 @@ public class ImpliedNode extends SimpleComponentNode implements TypeProvider {
 
 	public void initialize(Node parent) {
 		setParent(parent);
+		getWhereAssignedHandler().clear();
 	}
 
 	protected static TLSimple XSD_Atomic = new TLSimple() {
@@ -181,10 +183,10 @@ public class ImpliedNode extends SimpleComponentNode implements TypeProvider {
 	// return true;
 	// }
 
-	@Override
-	public boolean isSimpleTypeProvider() {
-		return true;
-	}
+	// @Override
+	// public boolean isSimpleTypeProvider() {
+	// return true;
+	// }
 
 	@Override
 	public boolean isNamedEntity() {
@@ -201,16 +203,18 @@ public class ImpliedNode extends SimpleComponentNode implements TypeProvider {
 		return Images.getImageRegistry().get(Images.XSDSimpleType);
 	}
 
-	@Override
-	public NamedEntity getTLOjbect() {
-		// return getImpliedType().getTlObject();
-		return (NamedEntity) modelObject.getTLModelObj();
-		// return ImpliedNodeType.Empty.getTlObject();
-	}
+	// @Override
+	// public NamedEntity getTLOjbect() {
+	// // return getImpliedType().getTlObject();
+	// return (NamedEntity) modelObject.getTLModelObj();
+	// // return ImpliedNodeType.Empty.getTlObject();
+	// }
 
 	@Override
 	public TLLibraryMember getTLModelObject() {
-		return (TLLibraryMember) getTLOjbect();
+		return (TLLibraryMember) tlObj;
+		// NamedEntity ne = (NamedEntity) modelObject.getTLModelObj();
+		// return (TLLibraryMember) ne;
 	}
 
 	@Override
@@ -221,6 +225,16 @@ public class ImpliedNode extends SimpleComponentNode implements TypeProvider {
 	@Override
 	public void setName(String name) {
 		// DO NOTHING
+	}
+
+	@Override
+	public NamedEntity getAssignedTLNamedEntity() {
+		return null;
+	}
+
+	@Override
+	public boolean setAssignedType(TLModelElement tlProvider) {
+		return false;
 	}
 
 }

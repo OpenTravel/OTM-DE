@@ -16,7 +16,6 @@
 package org.opentravel.schemas.modelObject;
 
 import org.opentravel.schemacompiler.model.TLIndicator;
-import org.opentravel.schemacompiler.model.TLIndicatorOwner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,69 +26,69 @@ public class IndicatorMO extends ModelObject<TLIndicator> {
 		super(obj);
 	}
 
-	@Override
-	public void delete() {
-		if (getTLModelObj().getOwner() != null) {
-			getTLModelObj().getOwner().removeIndicator(getTLModelObj());
-		}
-	}
+	// @Override
+	// public void delete() {
+	// if (getTLModelObj().getOwner() != null) {
+	// getTLModelObj().getOwner().removeIndicator(getTLModelObj());
+	// }
+	// }
 
-	@Override
-	public void addToTLParent(ModelObject<?> parentMO, int index) {
-		if (parentMO.getTLModelObj() instanceof TLIndicatorOwner) {
-			((TLIndicatorOwner) parentMO.getTLModelObj()).addIndicator(index, getTLModelObj());
-		}
-	}
+	// @Override
+	// public void addToTLParent(ModelObject<?> parentMO, int index) {
+	// if (parentMO.getTLModelObj() instanceof TLIndicatorOwner) {
+	// ((TLIndicatorOwner) parentMO.getTLModelObj()).addIndicator(index, getTLModelObj());
+	// }
+	// }
+	//
+	// @Override
+	// public void addToTLParent(final ModelObject<?> parentMO) {
+	// if (parentMO.getTLModelObj() instanceof TLIndicatorOwner) {
+	// ((TLIndicatorOwner) parentMO.getTLModelObj()).addIndicator(getTLModelObj());
+	// }
+	// }
 
-	@Override
-	public void addToTLParent(final ModelObject<?> parentMO) {
-		if (parentMO.getTLModelObj() instanceof TLIndicatorOwner) {
-			((TLIndicatorOwner) parentMO.getTLModelObj()).addIndicator(getTLModelObj());
-		}
-	}
-
-	@Override
-	public void removeFromTLParent() {
-		if (getTLModelObj().getOwner() != null) {
-			getTLModelObj().getOwner().removeIndicator(getTLModelObj());
-		}
-	}
+	// @Override
+	// public void removeFromTLParent() {
+	// if (getTLModelObj().getOwner() != null) {
+	// getTLModelObj().getOwner().removeIndicator(getTLModelObj());
+	// }
+	// }
 
 	@Override
 	public TLIndicator getTLModelObj() {
 		return srcObj;
 	}
 
-	/**
-	 * NOTE: as of 5/9/2012 this count includes inherited properties!
-	 */
-	protected int indexOf() {
-		final TLIndicator thisProp = getTLModelObj();
-		return thisProp.getOwner().getIndicators().indexOf(thisProp);
-	}
-
-	/**
-	 * Move if you can, return false if you can not.
-	 * 
-	 * @return
-	 */
-	@Override
-	public boolean moveUp() {
-		if (indexOf() > 0) {
-			getTLModelObj().moveUp();
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public boolean moveDown() {
-		if (indexOf() + 1 < getTLModelObj().getOwner().getIndicators().size()) {
-			getTLModelObj().moveDown();
-			return true;
-		}
-		return false;
-	}
+	// /**
+	// * NOTE: as of 5/9/2012 this count includes inherited properties!
+	// */
+	// protected int indexOf() {
+	// final TLIndicator thisProp = getTLModelObj();
+	// return thisProp.getOwner().getIndicators().indexOf(thisProp);
+	// }
+	//
+	// /**
+	// * Move if you can, return false if you can not.
+	// *
+	// * @return
+	// */
+	// @Override
+	// public boolean moveUp() {
+	// if (indexOf() > 0) {
+	// getTLModelObj().moveUp();
+	// return true;
+	// }
+	// return false;
+	// }
+	//
+	// @Override
+	// public boolean moveDown() {
+	// if (indexOf() + 1 < getTLModelObj().getOwner().getIndicators().size()) {
+	// getTLModelObj().moveDown();
+	// return true;
+	// }
+	// return false;
+	// }
 
 	public void setToElement(boolean state) {
 		srcObj.setPublishAsElement(state);

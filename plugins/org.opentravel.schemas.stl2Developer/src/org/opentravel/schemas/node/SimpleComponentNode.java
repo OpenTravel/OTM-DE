@@ -49,7 +49,6 @@ public abstract class SimpleComponentNode extends LibraryMemberBase implements S
 
 	public SimpleComponentNode(TLLibraryMember mbr) {
 		super(mbr);
-		assert (getTLModelObject() != null);
 		typeHandler = new TypeUserHandler(this);
 	}
 
@@ -117,18 +116,18 @@ public abstract class SimpleComponentNode extends LibraryMemberBase implements S
 		return true;
 	}
 
-	@Override
-	public Node getBaseType() {
-		// Base type is the assigned type
-		return (Node) typeHandler.get();
-		// FIXME - since this is base type, should this be type user?
-
-		// if (getTypeClass().getTypeNode() == null) {
-		// if (getTLModelObject() instanceof TLSimple)
-		// getTypeClass().setTypeNode(ModelNode.getUnassignedNode());
-		// }
-		// return (Node) getTypeClass().getTypeNode();
-	}
+	// @Override
+	// public Node getBaseType() {
+	// // Base type is the assigned type
+	// return (Node) typeHandler.get();
+	// // FIXME - since this is base type, should this be type user?
+	//
+	// // if (getTypeClass().getTypeNode() == null) {
+	// // if (getTLModelObject() instanceof TLSimple)
+	// // getTypeClass().setTypeNode(ModelNode.getUnassignedNode());
+	// // }
+	// // return (Node) getTypeClass().getTypeNode();
+	// }
 
 	@Override
 	public abstract Image getImage();
@@ -143,8 +142,8 @@ public abstract class SimpleComponentNode extends LibraryMemberBase implements S
 	// return typeHandler.getTLNamedEntity();
 	// }
 
-	@Override
-	public abstract NamedEntity getTLOjbect();
+	// @Override
+	// public abstract NamedEntity getTLOjbect();
 
 	@Override
 	public abstract String getName();
@@ -176,19 +175,21 @@ public abstract class SimpleComponentNode extends LibraryMemberBase implements S
 		return typeHandler.set(provider);
 	}
 
+	// Refactor into sub-types and do not use typeHandler
 	@Override
-	public boolean setAssignedType(TLModelElement tlProvider) {
-		return typeHandler.set(tlProvider);
-	}
+	// @Deprecated
+	public abstract boolean setAssignedType(TLModelElement tlProvider);
+
+	// {
+	// if (typeHandler != null)
+	// typeHandler.set(tlProvider);
+	// }
 
 	@Override
 	public boolean setAssignedType() {
-		return typeHandler.set();
-	}
-
-	@Override
-	public boolean isSimpleTypeProvider() {
-		return true;
+		if (typeHandler != null)
+			return typeHandler.set();
+		return false;
 	}
 
 	@Override
@@ -201,22 +202,20 @@ public abstract class SimpleComponentNode extends LibraryMemberBase implements S
 
 	@Override
 	public TypeProvider getAssignedType() {
-		return typeHandler.get();
+		return typeHandler != null ? typeHandler.get() : ModelNode.getUndefinedNode();
 	}
 
 	@Override
-	public NamedEntity getAssignedTLNamedEntity() {
-		return typeHandler.getTLNamedEntity();
-	}
+	public abstract NamedEntity getAssignedTLNamedEntity();
 
 	@Override
 	public TLModelElement getAssignedTLObject() {
-		return typeHandler.getTLModelElement();
+		return typeHandler != null ? typeHandler.getAssignedTLModelElement() : null;
 	}
 
 	@Override
 	public TypeProvider getRequiredType() {
-		return null;
+		return getXsdObjectHandler() != null ? getXsdObjectHandler().getRequiredType() : null;
 	}
 
 }

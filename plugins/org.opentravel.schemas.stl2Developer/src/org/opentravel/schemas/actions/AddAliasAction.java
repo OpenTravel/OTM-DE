@@ -18,6 +18,7 @@ package org.opentravel.schemas.actions;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.AliasOwner;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.properties.StringProperties;
@@ -59,13 +60,13 @@ public class AddAliasAction extends OtmAbstractAction {
 	public void addAlias() {
 		Node current = mc.getCurrentNode_NavigatorView();
 		current = current.getOwningComponent();
-		if (current != null && current.isAliasable()) {
+		if (current instanceof AliasOwner) {
 			final SimpleNameWizard wizard = new SimpleNameWizard(new ExternalizedStringProperties("wizard.aliasName"));
 			final ComponentNode cn = (ComponentNode) current;
 			wizard.setValidator(new NewNodeNameValidator(cn, wizard, Messages.getString("error.aliasName")));
 			wizard.run(OtmRegistry.getActiveShell());
 			if (!wizard.wasCanceled()) {
-				new AliasNode(current, wizard.getText());
+				new AliasNode((AliasOwner) current, wizard.getText());
 				mc.refresh(current);
 			}
 		} else {

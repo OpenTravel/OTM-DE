@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemas.node.handlers.children.NavNodeChildrenHandler;
+import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Images;
@@ -35,35 +38,49 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class NavNode extends Node {
+public class NavNode extends Node implements FacadeInterface {
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = LoggerFactory.getLogger(NavNode.class);
 
 	private String name = "";
 
 	/**
-	 * Create a navigation node, get ns and prefix from parentNode node. link to parentNode node.
+	 * Create a navigation node.
 	 * 
 	 * @param name
 	 * @param parent
+	 *            owning library
 	 */
 	public NavNode(final String name, final Node parent) {
 		super();
-		assert (parent != null) : "Parent is null.";
 		setName(name);
-		setLibrary(parent.getLibrary());
-		// Don't break version node-component node bond.
-		// if (parent instanceof VersionNode)
-		// parent.getParent().linkChild(this);
-		// else
-		parent.linkChild(this); // link without doing family tests.
+		childrenHandler = new NavNodeChildrenHandler(this);
+		this.parent = parent;
 	}
 
-	@Override
-	public void linkLibrary(LibraryNode lib) {
-		if (lib != null && !getChildren().contains(lib))
-			getChildren().add(lib);
+	// TODO - make the handler C be LibraryMemberInterface
+	public void add(LibraryMemberInterface lm) {
+		if (childrenHandler instanceof NavNodeChildrenHandler)
+			getChildrenHandler().add((Node) lm);
 	}
+
+	// FIXME - rename after remove fixed in Node
+	public void removeLM(LibraryMemberInterface lm) {
+		if (childrenHandler instanceof NavNodeChildrenHandler)
+			getChildrenHandler().remove((Node) lm);
+	}
+
+	public NavNodeChildrenHandler getChildrenHandler() {
+		return (NavNodeChildrenHandler) childrenHandler;
+	}
+
+	// @Override
+	// @Deprecated
+	// public void linkLibrary(LibraryNode lib) {
+	// // FIXME
+	// if (lib != null && !getChildren().contains(lib))
+	// getChildren().add(lib);
+	// }
 
 	@Override
 	public String getDecoration() {
@@ -75,6 +92,14 @@ public class NavNode extends Node {
 		if (isResourceRoot())
 			return Images.getImageRegistry().get(Images.Resources);
 		return Images.getImageRegistry().get(Images.Folder);
+	}
+
+	/**
+	 * @return parent's library
+	 */
+	@Override
+	public LibraryNode getLibrary() {
+		return parent != null ? parent.getLibrary() : null;
 	}
 
 	@Override
@@ -140,10 +165,10 @@ public class NavNode extends Node {
 		return members;
 	}
 
-	@Override
-	public boolean hasChildren_TypeProviders() {
-		return getChildren().size() > 0;
-	}
+	// @Override
+	// public boolean hasChildren_TypeProviders() {
+	// return getChildren().size() > 0;
+	// }
 
 	@Override
 	public void setName(final String name) {
@@ -176,9 +201,22 @@ public class NavNode extends Node {
 	 * @return true if this member is a child or if it has a version node that is a child.
 	 */
 	public boolean contains(Node member) {
-		// Node thisNode = member;
-		// if (member.getVersionNode() != null)
-		// thisNode = member.getVersionNode();
-		return getChildren().contains(member);
+		return getChildrenHandler().contains(member);
+	}
+
+	/**
+	 * Provides a facade for portions of the library.
+	 */
+	@Override
+	public LibraryNode get() {
+		return getLibrary();
+	}
+
+	/**
+	 * Provides a facade for portions of the library.
+	 */
+	@Override
+	public AbstractLibrary getTLModelObject() {
+		return get() != null ? get().getTLModelObject() : null;
 	}
 }

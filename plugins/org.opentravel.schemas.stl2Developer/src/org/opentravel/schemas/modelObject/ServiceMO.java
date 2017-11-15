@@ -26,11 +26,11 @@ public class ServiceMO extends ModelObject<TLService> {
 		super(obj);
 	}
 
-	@Override
-	public void delete() {
-		if (srcObj.getOwningLibrary() != null)
-			srcObj.getOwningLibrary().removeNamedMember(srcObj);
-	}
+	// @Override
+	// public void delete() {
+	// if (srcObj.getOwningLibrary() != null)
+	// srcObj.getOwningLibrary().removeNamedMember(srcObj);
+	// }
 
 	@Override
 	public List<TLOperation> getChildren() {

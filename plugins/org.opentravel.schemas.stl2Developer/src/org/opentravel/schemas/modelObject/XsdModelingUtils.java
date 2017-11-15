@@ -56,6 +56,7 @@ import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3._2001.xmlschema.Annotated;
@@ -132,7 +133,7 @@ public class XsdModelingUtils {
 	 *            - parent of the created core.
 	 * @return
 	 */
-	protected static TLLibraryMember buildCoreObject(final ComplexType complexType, String name, XsdNode xsdNode) {
+	public static TLLibraryMember buildCoreObject(final ComplexType complexType, String name, XsdNode xsdNode) {
 		// LOGGER.debug("BuildCoreObject " + name + " for an xsd complex type.");
 
 		ExplicitGroup xsdSequence = null;
@@ -445,25 +446,25 @@ public class XsdModelingUtils {
 			// LOGGER.warn("Using create complex type on a Top Level type - error. Name: " + name);
 		}
 		TLLibraryMember newLM = buildCoreObject(ct, name, xsdNode);
-		ComponentNode cn = NodeFactory.newComponent_UnTyped(newLM);
-		xsdNode.getLibrary().addLocalMember(xsdNode, cn);
+		LibraryMemberInterface cn = NodeFactory.newLibraryMember(newLM);
+		xsdNode.getLibrary().addLocalMember(xsdNode, (ComponentNode) cn);
 		cn.setLibrary(xsdNode.getLibrary()); // links to LibraryNode and
 												// TLLibrary
 		// //
 		// LOGGER.debug("createComplexType() - new node named: "+n.getName()+" added to complex root of lib: "+xsdNode.getLibrary().getName());
-		return cn;
+		return (Node) cn;
 	}
 
 	protected static Node createLocalChoiceGroup(ExplicitGroup ct, String name, XsdNode xsdNode) {
 
 		TLLibraryMember newLM = buildCoreObjectCG(ct, name, xsdNode);
-		ComponentNode cn = NodeFactory.newComponent_UnTyped(newLM);
-		xsdNode.getLibrary().addLocalMember(xsdNode, cn);
+		LibraryMemberInterface cn = NodeFactory.newLibraryMember(newLM);
+		xsdNode.getLibrary().addLocalMember(xsdNode, (ComponentNode) cn);
 		// links to LibraryNode and TLLibrary
 		cn.setLibrary(xsdNode.getLibrary());
 		// // LOGGER.debug("createLocalChoiceGroup() - new core object " + cn + " added to library "
 		// + xsdNode.getLibrary());
-		return cn;
+		return (Node) cn;
 	}
 
 	/**
@@ -476,9 +477,9 @@ public class XsdModelingUtils {
 	 */
 	private static Node createLocalSimpleType(LocalSimpleType simpleType, String name, XsdNode xsdNode) {
 		TLLibraryMember newLM = buildSimpleObject(simpleType, name, xsdNode);
-		ComponentNode n = NodeFactory.newComponent_UnTyped(newLM);
-		xsdNode.getLibrary().addLocalMember(xsdNode, n);
-		return n;
+		LibraryMemberInterface n = NodeFactory.newLibraryMember(newLM);
+		xsdNode.getLibrary().addLocalMember(xsdNode, (ComponentNode) n);
+		return (Node) n;
 	}
 
 	protected static void makeAttrGrp(final AttributeGroupRef agr, XsdNode xsdNode, TLAttributeOwner owner) {
@@ -527,8 +528,8 @@ public class XsdModelingUtils {
 			String propName = xsdNode.getName() + "_" + attr.getName();
 			if (attr.getSimpleType().getRestriction() != null) {
 				Node typeNode = createLocalSimpleType(attr.getSimpleType(), propName, xsdNode);
-				if (typeNode != null && (typeNode.getModelObject().getTLModelObj() instanceof TLAttributeType)) {
-					tla.setType((TLAttributeType) typeNode.getModelObject().getTLModelObj());
+				if (typeNode != null && (typeNode.getTLModelObject() instanceof TLAttributeType)) {
+					tla.setType((TLAttributeType) typeNode.getTLModelObject());
 					saveAssignedXsdType(LocalAnonymousTypePrefix, tla, typeNode.getName());
 				} else
 					saveAssignedXsdType(LocalAnonymousTypePrefix, tla, propName);
@@ -594,7 +595,7 @@ public class XsdModelingUtils {
 			// FIXME - 2. add processing of Extension to type resolver.
 			return false;
 		} else {
-			if (type.getModelObject().getTLModelObj() instanceof TLPropertyType)
+			if (type.getTLModelObject() instanceof TLPropertyType)
 				tlEx.setExtendsEntity((TLPropertyType) type.getTLModelObject());
 			tlObj.setExtension(tlEx);
 			// LOGGER.debug("Extended " + tlObj.getName() + " with extension base " + tlEx.getExtendsEntityName());
@@ -741,7 +742,7 @@ public class XsdModelingUtils {
 				typeQName = le.getSimpleType().getRestriction().getBase();
 				typeNode = createLocalSimpleType(le.getSimpleType(), propName, xsdNode);
 				// ModelNode.getTempLibrary().addMember(typeNode);
-				xsdNode.getLibrary().addMember(typeNode);
+				xsdNode.getLibrary().addMember((LibraryMemberInterface) typeNode);
 				// LOGGER.debug("Made a simple type "+typeNode.getNameWithPrefix());
 			}
 			// else
@@ -953,7 +954,7 @@ public class XsdModelingUtils {
 	 * @return - true if set OK, false on error
 	 */
 	private static boolean setPropertyType(TLProperty tlp, INode typeNode) {
-		if (typeNode == null || typeNode.getModelObject() == null || typeNode.getModelObject().getTLModelObj() == null) {
+		if (typeNode == null || typeNode.getTLModelObject() == null) {
 			LOGGER.warn("Assert Error - set property type does not have MO or mo/tlMO.");
 			return false;
 		}

@@ -684,7 +684,7 @@ public class DefaultProjectController implements ProjectController {
 		for (LibraryNavNode lnn : list) {
 			ProjectNode pn = lnn.getProject();
 			impactedProjects.add(pn);
-			pn.getTLProject().remove(lnn.getLibrary().getTLaLib());
+			pn.getTLProject().remove(lnn.getLibrary().getTLModelObject());
 			lnn.close();
 			assert (!pn.getChildren().contains(lnn));
 		}
@@ -706,9 +706,10 @@ public class DefaultProjectController implements ProjectController {
 		else {
 			save(pn);
 			result = closeTL(pn.getTLProject().getProjectManager(), pn.getTLProject());
-			if (result)
+			if (result) {
 				pn.close();
-
+				Node.getModelNode().removeProject(pn);
+			}
 			if (Display.getCurrent() != null)
 				mc.refresh();
 		}

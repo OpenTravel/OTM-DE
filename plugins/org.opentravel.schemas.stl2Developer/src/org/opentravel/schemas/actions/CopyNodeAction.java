@@ -18,6 +18,7 @@ package org.opentravel.schemas.actions;
 import java.util.List;
 
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.MainWindow;
@@ -70,11 +71,13 @@ public class CopyNodeAction extends OtmAbstractAction {
 
 		Node clone = null;
 		for (Node n : nodes) {
-			clone = n.clone(targetLibrary, CopyNameSuffix);
-			if (clone != null) {
-				if (targetLibrary != null)
-					targetLibrary.addMember(clone);
-				lastCloned = clone;
+			if (n instanceof LibraryMemberInterface) {
+				clone = n.clone(targetLibrary, CopyNameSuffix);
+				if (clone != null) {
+					if (targetLibrary != null)
+						targetLibrary.addMember((LibraryMemberInterface) clone);
+					lastCloned = clone;
+				}
 			}
 		}
 		if (lastCloned != null) {

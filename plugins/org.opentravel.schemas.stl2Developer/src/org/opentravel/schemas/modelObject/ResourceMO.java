@@ -30,12 +30,12 @@ public class ResourceMO extends ModelObject<TLResource> {
 		super(obj);
 	}
 
-	// It may already have been taken out of the library, but if not do so.
-	@Override
-	public void delete() {
-		if (getTLModelObj().getOwningLibrary() != null)
-			getTLModelObj().getOwningLibrary().removeNamedMember(getTLModelObj());
-	}
+	// // It may already have been taken out of the library, but if not do so.
+	// @Override
+	// public void delete() {
+	// if (getTLModelObj().getOwningLibrary() != null)
+	// getTLModelObj().getOwningLibrary().removeNamedMember(getTLModelObj());
+	// }
 
 	/**
 	 * Return an empty list - model object not used for resources.

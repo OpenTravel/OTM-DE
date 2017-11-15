@@ -46,7 +46,7 @@ public class ChangeFacetContextAction extends OtmAbstractAction {
 		final ContextsView view = OtmRegistry.getContextsView();
 		final Node selected = getMainController().getCurrentNode_NavigatorView();
 		if (selected != null && selected instanceof FacetNode) {
-			final Object model = selected.getModelObject().getTLModelObj();
+			final Object model = selected.getTLModelObject();
 			if (model instanceof TLContextReferrer) {
 				view.getContextController().changeContext((TLContextReferrer) model);
 			}

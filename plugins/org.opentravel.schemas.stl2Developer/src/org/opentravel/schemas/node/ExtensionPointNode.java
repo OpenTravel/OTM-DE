@@ -18,22 +18,25 @@ package org.opentravel.schemas.node;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLProperty;
-import org.opentravel.schemas.modelObject.ExtensionPointFacetMO;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
+import org.opentravel.schemas.node.handlers.children.ExtensionPointChildrenHandler;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
+import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.ExtensionHandler;
 import org.opentravel.schemas.types.TypeProvider;
-import org.opentravel.schemas.types.TypeUser;
 
 /**
  * Extension points are used to add properties to facets in business or core objects. They have a facet structure but
@@ -49,15 +52,37 @@ public class ExtensionPointNode extends LibraryMemberBase implements ComplexComp
 
 	public ExtensionPointNode(TLExtensionPointFacet mbr) {
 		super(mbr);
-		addMOChildren();
-		extensionHandler = new ExtensionHandler(this);
 
-		assert (modelObject instanceof ExtensionPointFacetMO);
+		childrenHandler = new ExtensionPointChildrenHandler(this);
+
+		// addMOChildren();
+		extensionHandler = new ExtensionHandler(this);
 	}
 
 	@Override
-	public void addProperty(PropertyNode property) {
-		super.addProperty(property);
+	public void addProperty(PropertyNode pn) {
+
+		pn.setParent(this);
+
+		// Add to the tl model
+		addToTL(pn);
+
+		// Events are not being thrown (10/14/2017) so force their result
+		childrenHandler.clear();
+	}
+
+	public void addToTL(PropertyNode pn) {
+		if (pn instanceof ElementNode)
+			getTLModelObject().addElement((TLProperty) pn.getTLModelObject());
+		else if (pn instanceof AttributeNode)
+			getTLModelObject().addAttribute((TLAttribute) pn.getTLModelObject());
+		else if (pn instanceof IndicatorNode)
+			getTLModelObject().addIndicator((TLIndicator) pn.getTLModelObject());
+	}
+
+	@Override
+	public void add(PropertyNode property, int i) {
+		addProperty(property);
 	}
 
 	@Override
@@ -67,11 +92,10 @@ public class ExtensionPointNode extends LibraryMemberBase implements ComplexComp
 
 	@Override
 	public INode createProperty(final Node type) {
-		Node n = new ElementNode(this, type.getName());
+		ElementNode n = new ElementNode(this, type.getName());
 		n.setDescription(type.getDescription());
-		// linkChild(n, nodeIndexOf());
-		if (n instanceof TypeUser && type instanceof TypeProvider)
-			((TypeUser) n).setAssignedType((TypeProvider) type);
+		if (type instanceof TypeProvider)
+			n.setAssignedType((TypeProvider) type);
 		return n;
 	}
 
@@ -81,7 +105,7 @@ public class ExtensionPointNode extends LibraryMemberBase implements ComplexComp
 	}
 
 	@Override
-	public PropertyOwnerInterface getAttributeFacet() {
+	public PropertyOwnerInterface getFacet_Attributes() {
 		return null;
 	}
 
@@ -121,7 +145,8 @@ public class ExtensionPointNode extends LibraryMemberBase implements ComplexComp
 
 	@Override
 	public TLExtensionPointFacet getTLModelObject() {
-		return (TLExtensionPointFacet) (modelObject != null ? modelObject.getTLModelObj() : null);
+		return (TLExtensionPointFacet) tlObj;
+		// return (TLExtensionPointFacet) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	// added 9/7/2015 - was not removing properties from newPropertyWizard
@@ -172,10 +197,15 @@ public class ExtensionPointNode extends LibraryMemberBase implements ComplexComp
 		return extensionHandler != null ? extensionHandler.get() : null;
 	}
 
+	@Override
 	public String getExtendsTypeNS() {
-		return modelObject.getExtendsTypeNS();
+		return getExtensionBase() != null ? getExtensionBase().getNamespace() : "";
 	}
 
+	/**
+	 * Validation constraint: The extension point facet MUST be assigned to a different namespace than the extended term
+	 * or named entity
+	 */
 	@Override
 	public void setExtension(final Node base) {
 		assert getLibrary() != null;

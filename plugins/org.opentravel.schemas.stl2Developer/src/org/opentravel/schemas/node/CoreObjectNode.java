@@ -22,23 +22,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLCoreObject;
-import org.opentravel.schemas.modelObject.CoreObjectMO;
-import org.opentravel.schemas.modelObject.ListFacetMO;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
-import org.opentravel.schemas.node.facets.SimpleFacetNode;
+import org.opentravel.schemas.node.facets.SimpleFacetFacadeNode;
+import org.opentravel.schemas.node.handlers.children.CoreObjectChildrenHandler;
+import org.opentravel.schemas.node.interfaces.AliasOwner;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.interfaces.Sortable;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
-import org.opentravel.schemas.node.properties.SimpleAttributeNode;
+import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.ExtensionHandler;
 import org.opentravel.schemas.types.SimpleAttributeOwner;
@@ -53,22 +55,17 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class CoreObjectNode extends LibraryMemberBase implements ComplexComponentInterface, ExtensionOwner,
-		VersionedObjectInterface, LibraryMemberInterface, TypeProvider, SimpleAttributeOwner {
+public class CoreObjectNode extends LibraryMemberBase implements ComplexComponentInterface, ExtensionOwner, Sortable,
+		AliasOwner, VersionedObjectInterface, LibraryMemberInterface, TypeProvider, SimpleAttributeOwner {
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = LoggerFactory.getLogger(CoreObjectNode.class);
 	private ExtensionHandler extensionHandler = null;
 
 	public CoreObjectNode(TLCoreObject mbr) {
 		super(mbr);
-		addMOChildren();
+
+		childrenHandler = new CoreObjectChildrenHandler(this);
 		extensionHandler = new ExtensionHandler(this);
-
-		assert (modelObject instanceof CoreObjectMO);
-		// If the mbr was not null but simple type is, set the simple type
-		if (getTLModelObject().getSimpleFacet().getSimpleType() == null)
-			setSimpleType((TypeProvider) ModelNode.getEmptyNode());
-
 	}
 
 	/**
@@ -88,10 +85,11 @@ public class CoreObjectNode extends LibraryMemberBase implements ComplexComponen
 		bo.getLibrary().addMember(this);
 		setDocumentation(bo.getDocumentation());
 
-		((FacetNode) getFacet_Summary()).copyFacet((FacetNode) bo.getIDFacet());
-		((FacetNode) getFacet_Summary()).copyFacet(bo.getFacet_Summary());
-		((FacetNode) getFacet_Detail()).copyFacet((FacetNode) bo.getFacet_Detail());
-		setSimpleType((TypeProvider) ModelNode.getEmptyNode());
+		getFacet_Summary().copyFacet(bo.getFacet_ID());
+		getFacet_Summary().copyFacet(bo.getFacet_Summary());
+		getFacet_Detail().copyFacet(bo.getFacet_Detail());
+
+		setAssignedType((TypeProvider) ModelNode.getEmptyNode());
 	}
 
 	/**
@@ -106,23 +104,62 @@ public class CoreObjectNode extends LibraryMemberBase implements ComplexComponen
 		vwa.getLibrary().addMember(this);
 		setDocumentation(vwa.getDocumentation());
 
-		getFacet_Summary().copyFacet(vwa.getAttributeFacet());
-		setSimpleType(vwa.getSimpleType());
+		getFacet_Summary().copyFacet(vwa.getFacet_Attributes());
+		setAssignedType(vwa.getAssignedType());
 
 		// User assist - create an attribute for the VWA base type
 		AttributeNode attr = new AttributeNode(new TLAttribute(), getFacet_Summary());
 		attr.setName(vwa.getName());
-		attr.setAssignedType(vwa.getSimpleType());
+		attr.setAssignedType(vwa.getAssignedType());
 	}
 
+	@Override
+	public void remove(AliasNode alias) {
+		getTLModelObject().removeAlias(alias.getTLModelObject());
+		getChildrenHandler().remove(alias);
+		clearAllAliasOwners();
+	}
+
+	@Override
+	public void addAlias(AliasNode alias) {
+		if (alias == null)
+			return;
+		List<TLAlias> tlAliases = getTLModelObject().getAliases();
+		if (tlAliases != null && !tlAliases.contains(alias.getTLModelObject()))
+			getTLModelObject().addAlias(alias.getTLModelObject());
+		// Could be during child handler initialization
+		if (getChildrenHandler() != null)
+			getChildrenHandler().add(alias);
+		clearAllAliasOwners();
+	}
+
+	@Override
 	public AliasNode addAlias(String name) {
 		AliasNode alias = null;
 		if (this.isEditable_newToChain())
 			alias = new AliasNode(this, NodeNameUtils.fixCoreObjectName(name));
+		addAlias(alias);
 		return alias;
 	}
 
-	public void addAliases(List<AliasNode> aliases) {
+	// Should this be handled by Listeners?
+	private void clearAllAliasOwners() {
+		for (Node child : getChildren())
+			if (child instanceof AliasOwner && child.getChildrenHandler() != null)
+				child.getChildrenHandler().clear();
+	}
+
+	@Override
+	public void cloneAliases(List<AliasNode> aliases) {
+		for (AliasNode a : aliases)
+			addAlias(a.getName());
+	}
+
+	public CoreObjectChildrenHandler getChildrenHandler() {
+		return (CoreObjectChildrenHandler) childrenHandler;
+	}
+
+	private void addAliases(List<AliasNode> aliases) {
 		for (AliasNode a : aliases)
 			addAlias(a.getName());
 	}
@@ -131,11 +168,6 @@ public class CoreObjectNode extends LibraryMemberBase implements ComplexComponen
 	public ComponentNode createMinorVersionComponent() {
 		return super.createMinorVersionComponent(new CoreObjectNode((TLCoreObject) createMinorTLVersion(this)));
 	}
-
-	// @Override
-	// public boolean isExtensible() {
-	// return getTLModelObject() != null ? !((TLComplexTypeBase) getTLModelObject()).isNotExtendable() : false;
-	// }
 
 	@Override
 	public boolean isExtensibleObject() {
@@ -157,22 +189,19 @@ public class CoreObjectNode extends LibraryMemberBase implements ComplexComponen
 
 	@Override
 	public TLCoreObject getTLModelObject() {
-		return (TLCoreObject) (modelObject != null ? modelObject.getTLModelObj() : null);
+		return (TLCoreObject) tlObj;
 	}
 
 	// @Override
-	// public boolean isNamedType() {
-	// return true;
+	// public List<Node> getChildren_TypeUsers() {
+	// return (childrenHandler.getChildren_TypeUsers());
+	//
+	// // ArrayList<Node> users = new ArrayList<Node>();
+	// // users.add((Node) getSimpleType());
+	// // users.addAll(getFacet_Summary().getChildren());
+	// // users.addAll(getFacet_Detail().getChildren());
+	// // return users;
 	// }
-
-	@Override
-	public List<Node> getChildren_TypeUsers() {
-		ArrayList<Node> users = new ArrayList<Node>();
-		users.add((Node) getSimpleType());
-		users.addAll(getFacet_Summary().getChildren());
-		users.addAll(getFacet_Detail().getChildren());
-		return users;
-	}
 
 	@Override
 	public ComponentNodeType getComponentNodeType() {
@@ -184,31 +213,31 @@ public class CoreObjectNode extends LibraryMemberBase implements ComplexComponen
 	// Simple Attribute Owner implementations
 	//
 	@Override
-	public TypeProvider getSimpleType() {
+	public TypeProvider getAssignedType() {
 		return getSimpleAttribute().getAssignedType();
 	}
 
 	@Override
-	public boolean setSimpleType(TypeProvider type) {
+	public boolean setAssignedType(TypeProvider type) {
 		return getSimpleAttribute().setAssignedType(type);
 	}
 
 	@Override
-	public SimpleAttributeNode getSimpleAttribute() {
-		return getFacet_Simple().getSimpleAttribute();
+	public SimpleAttributeFacadeNode getSimpleAttribute() {
+		return (SimpleAttributeFacadeNode) getFacet_Simple().getSimpleAttribute();
 	}
 
 	@Override
-	public SimpleFacetNode getFacet_Simple() {
+	public SimpleFacetFacadeNode getFacet_Simple() {
 		for (INode f : getChildren())
-			if (f instanceof SimpleFacetNode)
-				return (SimpleFacetNode) f;
+			if (f instanceof SimpleFacetFacadeNode)
+				return (SimpleFacetFacadeNode) f;
 		return null;
 	}
 
 	@Override
 	public Node getSimpleProperty() {
-		return getFacet_Simple().getChildren().get(0);
+		return getSimpleAttribute();
 	}
 
 	@Override
@@ -232,9 +261,7 @@ public class CoreObjectNode extends LibraryMemberBase implements ComplexComponen
 		return null;
 	}
 
-	// Role w/model object RoleEnumerationMO
-	// @Override
-	public RoleFacetNode getRoleFacet() {
+	public RoleFacetNode getFacet_Role() {
 		for (Node f : getChildren())
 			if (f instanceof RoleFacetNode)
 				return (RoleFacetNode) f;
@@ -242,6 +269,7 @@ public class CoreObjectNode extends LibraryMemberBase implements ComplexComponen
 	}
 
 	// List w/model object ListFacetMO - Simple_List
+	@Deprecated
 	public ComponentNode getSimpleListFacet() {
 		for (Node f : getChildren())
 			if (f instanceof ListFacetNode && ((ListFacetNode) f).isSimpleListFacet())
@@ -249,13 +277,12 @@ public class CoreObjectNode extends LibraryMemberBase implements ComplexComponen
 		return null;
 	}
 
-	// List w/model object ListFacetMO - Detail_List
+	// TODO - remove - Only used in 1 test
+	@Deprecated
 	public ComponentNode getDetailListFacet() {
 		for (Node f : getChildren())
-			if (f.modelObject instanceof ListFacetMO)
-				if (((ListFacetMO) f.modelObject).isDetailList())
-					return (ComponentNode) f;
-
+			if (f instanceof ListFacetNode && ((ListFacetNode) f).isDetailListFacet())
+				return (ComponentNode) f;
 		return null;
 	}
 
@@ -278,14 +305,14 @@ public class CoreObjectNode extends LibraryMemberBase implements ComplexComponen
 	}
 
 	@Override
-	public PropertyOwnerInterface getAttributeFacet() {
+	public PropertyOwnerInterface getFacet_Attributes() {
 		return null;
 	}
 
-	@Override
-	public boolean hasChildren_TypeProviders() {
-		return isXsdType() ? false : true;
-	}
+	// @Override
+	// public boolean hasChildren_TypeProviders() {
+	// return isXsdType() ? false : true;
+	// }
 
 	@Override
 	public boolean isAssignableToSimple() {
@@ -323,11 +350,17 @@ public class CoreObjectNode extends LibraryMemberBase implements ComplexComponen
 		CoreObjectNode core = (CoreObjectNode) source;
 		getFacet_Summary().addProperties(core.getFacet_Summary().getChildren(), true);
 		getFacet_Detail().addProperties(core.getFacet_Detail().getChildren(), true);
-		getRoleFacet().addProperties(core.getRoleFacet().getChildren(), true);
+		getFacet_Role().addProperties(core.getFacet_Role().getChildren(), true);
+		// getChildrenHandler().clear();
 	}
 
 	@Override
 	public boolean isMergeSupported() {
+		return true;
+	}
+
+	@Override
+	public boolean isSimpleAssignable() {
 		return true;
 	}
 
@@ -350,8 +383,9 @@ public class CoreObjectNode extends LibraryMemberBase implements ComplexComponen
 		return extensionHandler != null ? extensionHandler.get() : null;
 	}
 
+	@Override
 	public String getExtendsTypeNS() {
-		return modelObject.getExtendsTypeNS();
+		return getExtensionBase() != null ? getExtensionBase().getNamespace() : "";
 	}
 
 	@Override

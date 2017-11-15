@@ -15,73 +15,69 @@
  */
 package org.opentravel.schemas.modelObject;
 
-import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
-import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLProperty;
-import org.opentravel.schemacompiler.model.TLPropertyType;
 
 public class ElementPropertyMO extends ModelObject<TLProperty> {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(ElementPropertyMO.class);
 
 	public ElementPropertyMO(final TLProperty obj) {
 		super(obj);
-		if (obj.getType() != null) {
-			super.setTLType(obj.getType());
-		}
+		// if (obj.getType() != null) {
+		// super.setTLType(obj.getType());
+		// }
 	}
 
-	@Override
-	public void delete() {
-		if (getTLModelObj().getOwner() != null) {
-			(getTLModelObj().getOwner()).removeProperty(getTLModelObj());
-		}
-	}
+	// @Override
+	// public void delete() {
+	// if (getTLModelObj().getOwner() != null) {
+	// (getTLModelObj().getOwner()).removeProperty(getTLModelObj());
+	// }
+	// }
 
-	@Override
-	public void addToTLParent(final ModelObject<?> parentMO, int index) {
-		if (parentMO.getTLModelObj() instanceof TLFacet) {
-			index = index > ((TLFacet) parentMO.getTLModelObj()).getElements().size() ? ((TLFacet) parentMO
-					.getTLModelObj()).getElements().size() : index;
-			((TLFacet) parentMO.getTLModelObj()).addElement(index, getTLModelObj());
-		} else if (parentMO.getTLModelObj() instanceof TLExtensionPointFacet) {
-			((TLExtensionPointFacet) parentMO.getTLModelObj()).addElement(index, getTLModelObj());
-		}
-	}
+	// @Override
+	// public void addToTLParent(final ModelObject<?> parentMO, int index) {
+	// if (parentMO.getTLModelObj() instanceof TLFacet) {
+	// index = index > ((TLFacet) parentMO.getTLModelObj()).getElements().size() ? ((TLFacet) parentMO
+	// .getTLModelObj()).getElements().size() : index;
+	// ((TLFacet) parentMO.getTLModelObj()).addElement(index, getTLModelObj());
+	// } else if (parentMO.getTLModelObj() instanceof TLExtensionPointFacet) {
+	// ((TLExtensionPointFacet) parentMO.getTLModelObj()).addElement(index, getTLModelObj());
+	// }
+	// }
+	//
+	// @Override
+	// public void addToTLParent(final ModelObject<?> parentMO) {
+	// if (parentMO.getTLModelObj() instanceof TLFacet) {
+	// ((TLFacet) parentMO.getTLModelObj()).addElement(getTLModelObj());
+	// } else if (parentMO.getTLModelObj() instanceof TLExtensionPointFacet) {
+	// ((TLExtensionPointFacet) parentMO.getTLModelObj()).addElement(getTLModelObj());
+	// }
+	// }
 
-	@Override
-	public void addToTLParent(final ModelObject<?> parentMO) {
-		if (parentMO.getTLModelObj() instanceof TLFacet) {
-			((TLFacet) parentMO.getTLModelObj()).addElement(getTLModelObj());
-		} else if (parentMO.getTLModelObj() instanceof TLExtensionPointFacet) {
-			((TLExtensionPointFacet) parentMO.getTLModelObj()).addElement(getTLModelObj());
-		}
-	}
-
-	@Override
-	public void removeFromTLParent() {
-		if (getTLModelObj().getOwner() != null) {
-			getTLModelObj().getOwner().removeProperty(getTLModelObj());
-		}
-	}
+	// @Override
+	// public void removeFromTLParent() {
+	// if (getTLModelObj().getOwner() != null) {
+	// getTLModelObj().getOwner().removeProperty(getTLModelObj());
+	// }
+	// }
 
 	@Override
 	public TLProperty getTLModelObj() {
 		return srcObj;
 	}
 
-	@Override
-	public NamedEntity getTLType() {
-		return srcObj.getType();
-	}
+	// @Override
+	// public NamedEntity getTLType() {
+	// return srcObj.getType();
+	// }
 
-	/**
-	 * Get the index (0..sizeof()) of this property in the facet list. Use Node.indexTLProperty().
-	 */
-	protected int indexOf() {
-		final TLProperty thisProp = getTLModelObj();
-		return thisProp.getOwner().getElements().indexOf(thisProp);
-	}
+	// /**
+	// * Get the index (0..sizeof()) of this property in the facet list. Use Node.indexTLProperty().
+	// */
+	// protected int indexOf() {
+	// final TLProperty thisProp = getTLModelObj();
+	// return thisProp.getOwner().getElements().indexOf(thisProp);
+	// }
 
 	// /**
 	// * Business logic about correct name done at node level.
@@ -93,37 +89,37 @@ public class ElementPropertyMO extends ModelObject<TLProperty> {
 	// return true;
 	// }
 
-	/**
-	 * Move if you can, return false if you can not.
-	 * 
-	 * @return
-	 */
-	@Override
-	public boolean moveUp() {
-		if (indexOf() > 0) {
-			getTLModelObj().moveUp();
-			return true;
-		}
-		return false;
-	}
+	// /**
+	// * Move if you can, return false if you can not.
+	// *
+	// * @return
+	// */
+	// @Override
+	// public boolean moveUp() {
+	// if (indexOf() > 0) {
+	// getTLModelObj().moveUp();
+	// return true;
+	// }
+	// return false;
+	// }
+	//
+	// @Override
+	// public boolean moveDown() {
+	// if (indexOf() + 1 < getTLModelObj().getOwner().getElements().size()) {
+	// getTLModelObj().moveDown();
+	// return true;
+	// }
+	// return false;
+	// }
 
-	@Override
-	public boolean moveDown() {
-		if (indexOf() + 1 < getTLModelObj().getOwner().getElements().size()) {
-			getTLModelObj().moveDown();
-			return true;
-		}
-		return false;
-	}
+	// @Override
+	// public void setTLType(final NamedEntity tlObj) {
+	// getTLModelObj().setType((TLPropertyType) tlObj);
+	// }
 
-	@Override
-	public void setTLType(final NamedEntity tlObj) {
-		getTLModelObj().setType((TLPropertyType) tlObj);
-	}
-
-	@Override
-	public boolean setRepeat(final int cnt) {
-		getTLModelObj().setRepeat(cnt);
-		return true;
-	}
+	// @Override
+	// public boolean setRepeat(final int cnt) {
+	// getTLModelObj().setRepeat(cnt);
+	// return true;
+	// }
 }

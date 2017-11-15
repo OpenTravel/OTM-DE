@@ -100,7 +100,7 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.RoleNode;
-import org.opentravel.schemas.node.properties.SimpleAttributeNode;
+import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.properties.DefaultStringProperties;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
@@ -394,7 +394,7 @@ public class NavigatorMenus extends TreeViewer {
 
 					// Set up cascade menus
 					versionMenu.removeAll();
-					if (node.getLibrary() != null && node.getLibrary().isManaged())
+					if (node != null && node.getLibrary() != null && node.getLibrary().isManaged())
 						versionMenu.setVisible(true);
 					for (final Action action : createVersionActions(node))
 						versionMenu.add(action);
@@ -460,7 +460,7 @@ public class NavigatorMenus extends TreeViewer {
 								manager.add(xpFacetObjectMenu);
 							} else if (node instanceof SimpleComponentNode) {
 								manager.add(simpleObjectMenu);
-							} else if (node instanceof SimpleAttributeNode) {
+							} else if (node instanceof SimpleAttributeFacadeNode) {
 							} else if (node instanceof RoleNode) {
 								manager.add(roleObjectMenu);
 							} else if (node instanceof EnumLiteralNode) {

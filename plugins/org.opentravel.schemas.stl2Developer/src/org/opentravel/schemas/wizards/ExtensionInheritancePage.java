@@ -391,7 +391,7 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 				inheritanceOptions = new ArrayList<ComponentNode>();
 
 				for (NamedEntity tlOption : tlHierarchyOptions) {
-					inheritanceOptions.add(NodeFactory.newMember(null, tlOption));
+					inheritanceOptions.add(NodeFactory.newChild(null, (TLModelElement) tlOption));
 					// inheritanceOptions.add(new ComponentNode((TLModelElement) tlOption));
 				}
 			}
@@ -504,13 +504,13 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 	 */
 	private void initTreeNode() {
 		if (curNode != null) {
-			ModelObject<?> modelObject = curNode.getModelObject();
+			// ModelObject<?> modelObject = curNode.getModelObject();
 
-			if (modelObject.getTLModelObj() instanceof TLModelElement) {
+			if (curNode.getTLModelObject() instanceof TLModelElement) {
 				// 3/26/13 - may need to be changed to fix the 2nd extension wizard page.
 				// treeNode = new ComponentNode((TLModelElement) modelObject.getTLModelObj());
 				if (curNode.getTLModelObject() instanceof TLLibraryMember) {
-					treeNode = NodeFactory.newComponent((TLLibraryMember) curNode.cloneTLObj());
+					treeNode = (ComponentNode) NodeFactory.newLibraryMember((TLLibraryMember) curNode.cloneTLObj());
 					createTreeNodeChildren(treeNode);
 				}
 			}
@@ -537,17 +537,17 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 			// Start by adding the declared and inherited attributes &
 			// indicators (no special inheritance rules)
 			for (TLAttribute attribute : facet.getAttributes()) {
-				NodeFactory.newMember(node, attribute);
+				NodeFactory.newChild(node, attribute);
 			}
 			for (TLIndicator indicator : facet.getIndicators()) {
-				NodeFactory.newMember(node, indicator);
+				NodeFactory.newChild(node, indicator);
 			}
 			if (baseFacet != null) {
 				for (TLAttribute attribute : PropertyCodegenUtils.getInheritedFacetAttributes(baseFacet)) {
-					NodeFactory.newMember(node, attribute);
+					NodeFactory.newChild(node, attribute);
 				}
 				for (TLIndicator indicator : PropertyCodegenUtils.getInheritedFacetIndicators(baseFacet)) {
-					NodeFactory.newMember(node, indicator);
+					NodeFactory.newChild(node, indicator);
 				}
 			}
 
@@ -568,16 +568,16 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 					// user selection
 					if (userSelection != null) {
 						if (userSelection == propertyType) {
-							node.linkChild(NodeFactory.newMember(node, property));
+							node.linkChild(NodeFactory.newChild(node, property));
 						} else {
 							newTreePropertyNode(userSelection, node);
 						}
 						inheritanceHierarchies.add(inheritanceHierarchy);
 					} else {
-						node.linkChild(NodeFactory.newMember(node, property));
+						node.linkChild(NodeFactory.newChild(node, property));
 					}
 				} else {
-					node.linkChild(NodeFactory.newMember(node, property));
+					node.linkChild(NodeFactory.newChild(node, property));
 				}
 			}
 			if (baseFacet != null) {
@@ -592,11 +592,11 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 							if (userSelection != null) {
 								newTreePropertyNode(userSelection, node);
 							} else {
-								node.linkChild(NodeFactory.newMember(node, property));
+								node.linkChild(NodeFactory.newChild(node, property));
 							}
 							inheritanceHierarchies.add(inheritanceHierarchy);
 						} else {
-							node.linkChild(NodeFactory.newMember(node, property));
+							node.linkChild(NodeFactory.newChild(node, property));
 						}
 					}
 				}
@@ -608,7 +608,7 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 
 			if (modelObject.getChildren() != null) {
 				for (Object childTLObj : modelObject.getChildren()) {
-					ComponentNode childNode = NodeFactory.newMember(node, childTLObj);
+					ComponentNode childNode = NodeFactory.newChild(node, (TLModelElement) childTLObj);
 
 					node.linkChild(childNode);
 					createTreeNodeChildren(childNode);
@@ -644,8 +644,8 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 
 		tlProperty.setName(propertyType.getLocalName());
 		tlProperty.setType(propertyType);
-		propertyNode = (PropertyNode) NodeFactory.newMember(parentNode, tlProperty);
-		propertyTypeNode = NodeFactory.newMember(parentNode, propertyType);
+		propertyNode = (PropertyNode) NodeFactory.newChild(parentNode, tlProperty);
+		propertyTypeNode = NodeFactory.newChild(parentNode, (TLModelElement) propertyType);
 		// parentNode.linkChild(propertyNode, false);
 		propertyNode.linkChild(propertyTypeNode);
 		return propertyNode;
@@ -819,11 +819,12 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 
 				if (node instanceof PropertyNode) {
 					final PropertyNode prop = (PropertyNode) node;
-					final NamedEntity elem = prop.getModelObject().getTLType();
+					final NamedEntity elem = prop.getAssignedTLNamedEntity();
+					// final NamedEntity elem = prop.getModelObject().getTLType();
 
 					if (elem != null) {
 						if (elem instanceof TLLibraryMember) {
-							return new Object[] { NodeFactory.newComponent_UnTyped((TLLibraryMember) elem) };
+							return new Object[] { NodeFactory.newLibraryMember((TLLibraryMember) elem) };
 							// return new Object[] { ComponentNode.newCN((LibraryMember) elem) };
 						}
 						if (elem instanceof TLFacet) {

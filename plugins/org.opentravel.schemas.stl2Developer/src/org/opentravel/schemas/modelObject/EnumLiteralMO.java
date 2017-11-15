@@ -25,10 +25,10 @@ public class EnumLiteralMO extends ModelObject<TLEnumValue> {
 		super(obj);
 	}
 
-	@Override
-	public void delete() {
-		getTLModelObj().getOwningEnum().removeValue(this.getTLModelObj());
-	}
+	// @Override
+	// public void delete() {
+	// getTLModelObj().getOwningEnum().removeValue(this.getTLModelObj());
+	// }
 
 	// @Override
 	// protected AbstractLibrary getLibrary(final TLEnumValue obj) {
@@ -77,46 +77,46 @@ public class EnumLiteralMO extends ModelObject<TLEnumValue> {
 	// return true;
 	// }
 
-	@Override
-	public void addToTLParent(final ModelObject<?> parentMO, int index) {
-		if (parentMO instanceof OpenEnumMO) {
-			((OpenEnumMO) parentMO).addLiteral(getTLModelObj(), index);
-		}
-		if (parentMO instanceof ClosedEnumMO) {
-			((ClosedEnumMO) parentMO).addLiteral(getTLModelObj(), index);
-		}
-	}
+	// @Override
+	// public void addToTLParent(final ModelObject<?> parentMO, int index) {
+	// if (parentMO instanceof OpenEnumMO) {
+	// ((OpenEnumMO) parentMO).addLiteral(getTLModelObj(), index);
+	// }
+	// if (parentMO instanceof ClosedEnumMO) {
+	// ((ClosedEnumMO) parentMO).addLiteral(getTLModelObj(), index);
+	// }
+	// }
+	//
+	// @Override
+	// public void addToTLParent(final ModelObject<?> parentMO) {
+	// if (parentMO instanceof OpenEnumMO) {
+	// ((OpenEnumMO) parentMO).addLiteral(getTLModelObj());
+	// }
+	// if (parentMO instanceof ClosedEnumMO) {
+	// ((ClosedEnumMO) parentMO).addLiteral(getTLModelObj());
+	// }
+	// }
 
-	@Override
-	public void addToTLParent(final ModelObject<?> parentMO) {
-		if (parentMO instanceof OpenEnumMO) {
-			((OpenEnumMO) parentMO).addLiteral(getTLModelObj());
-		}
-		if (parentMO instanceof ClosedEnumMO) {
-			((ClosedEnumMO) parentMO).addLiteral(getTLModelObj());
-		}
-	}
-
-	@Override
-	public boolean moveUp() {
-		if (indexOf() > 0) {
-			getTLModelObj().moveUp();
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public boolean moveDown() {
-		if (indexOf() + 1 < getTLModelObj().getOwningEnum().getValues().size()) {
-			getTLModelObj().moveDown();
-			return true;
-		}
-		return false;
-	}
-
-	protected int indexOf() {
-		return getTLModelObj().getOwningEnum().getValues().indexOf(getTLModelObj());
-	}
+	// @Override
+	// public boolean moveUp() {
+	// if (indexOf() > 0) {
+	// getTLModelObj().moveUp();
+	// return true;
+	// }
+	// return false;
+	// }
+	//
+	// @Override
+	// public boolean moveDown() {
+	// if (indexOf() + 1 < getTLModelObj().getOwningEnum().getValues().size()) {
+	// getTLModelObj().moveDown();
+	// return true;
+	// }
+	// return false;
+	// }
+	//
+	// protected int indexOf() {
+	// return getTLModelObj().getOwningEnum().getValues().indexOf(getTLModelObj());
+	// }
 
 }

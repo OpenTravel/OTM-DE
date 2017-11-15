@@ -26,7 +26,11 @@ import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
+import org.opentravel.schemas.node.handlers.XsdObjectHandler;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.listeners.BaseNodeListener;
+import org.opentravel.schemas.node.listeners.TypeProviderListener;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
@@ -43,16 +47,25 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class TypeProviderBase extends ComponentNode implements TypeProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TypeProviderBase.class);
+
 	private WhereAssignedHandler whereAssignedHandler = null;
+	private XsdObjectHandler xsdObjectHandler;
 
 	public TypeProviderBase() {
-		// FIXME - why does facetNode need this constructor?
+		// For types that have no TL
 		whereAssignedHandler = new WhereAssignedHandler(this);
 	}
 
 	public TypeProviderBase(final TLModelElement obj) {
 		super(obj);
 		whereAssignedHandler = new WhereAssignedHandler(this);
+		if (!isInherited())
+			assert Node.GetNode(getTLModelObject()) == this;
+	}
+
+	@Override
+	public BaseNodeListener getNewListener() {
+		return new TypeProviderListener(this);
 	}
 
 	@Override
@@ -77,13 +90,21 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 		// TODO - why is choice done here? Why not BO and CFs also?
 		if (clone instanceof TLChoiceObject) {
 			List<TLContextualFacet> tlCFs = ((TLChoiceObject) clone).getChoiceFacets();
-			ComponentNode n;
+			LibraryMemberInterface n;
 			for (TLContextualFacet tlcf : tlCFs) {
-				n = NodeFactory.newComponent_UnTyped(tlcf);
+				n = NodeFactory.newLibraryMember(tlcf);
 				getLibrary().addMember(n);
 			}
 		}
 		return clone;
+	}
+
+	public void setXsdHandler(XsdObjectHandler xsdObjectHandler) {
+		this.xsdObjectHandler = xsdObjectHandler;
+	}
+
+	public XsdObjectHandler getXsdObjectHandler() {
+		return xsdObjectHandler;
 	}
 
 	/**
@@ -120,6 +141,15 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 		return facets;
 	}
 
+	@Override
+	public void addTypeUser(TypeUser user) {
+		whereAssignedHandler.add(user);
+		whereAssignedHandler.setListener(user);
+	}
+
+	/**
+	 * {@link #addTypeUser(TypeUser)}
+	 */
 	@Override
 	public void addWhereUsed(TypeUser user) {
 		whereAssignedHandler.add(user);
@@ -224,6 +254,9 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 			removeTypeUser(user);
 	}
 
+	/**
+	 * {@link #removeTypeUser(TypeUser)}
+	 */
 	@Override
 	public void removeListener(TypeUser user) {
 		whereAssignedHandler.removeListener(user);
@@ -235,9 +268,22 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 		whereAssignedHandler.remove(user);
 	}
 
+	/**
+	 * {@link #addTypeUser(TypeUser)}
+	 */
 	@Override
 	public void setListener(TypeUser user) {
 		whereAssignedHandler.setListener(user);
+	}
+
+	/**
+	 * Set name to type users where this alias is assigned. Only if the parent is type that requires assigned users to
+	 * use the owner's name
+	 */
+	public void setNameOnWhereAssigned(String n) {
+		if (!isRenameableWhereUsed())
+			for (TypeUser u : getWhereAssigned())
+				u.setName(n);
 	}
 
 	/**

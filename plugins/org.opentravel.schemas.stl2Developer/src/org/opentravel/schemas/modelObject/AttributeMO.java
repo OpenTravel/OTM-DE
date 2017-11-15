@@ -15,10 +15,7 @@
  */
 package org.opentravel.schemas.modelObject;
 
-import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAttribute;
-import org.opentravel.schemacompiler.model.TLAttributeOwner;
-import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,84 +24,83 @@ public class AttributeMO extends ModelObject<TLAttribute> {
 
 	public AttributeMO(final TLAttribute obj) {
 		super(obj);
-		if (obj.getType() != null) {
-			setTLType(obj.getType());
-		}
+		// if (obj.getType() != null) {
+		// setTLType(obj.getType());
+		// }
 	}
 
-	@Override
-	public void delete() {
-		removeFromTLParent();
-	}
+	// @Override
+	// public void delete() {
+	// }
 
-	@Override
-	public void addToTLParent(final ModelObject<?> parentMO, int index) {
-		if (parentMO.getTLModelObj() instanceof TLAttributeOwner) {
-			((TLAttributeOwner) parentMO.getTLModelObj()).addAttribute(index, getTLModelObj());
-		}
-	}
+	// @Override
+	// public void addToTLParent(final ModelObject<?> parentMO, int index) {
+	// if (parentMO.getTLModelObj() instanceof TLAttributeOwner) {
+	// ((TLAttributeOwner) parentMO.getTLModelObj()).addAttribute(index, getTLModelObj());
+	// }
+	// }
+	//
+	// @Override
+	// public void addToTLParent(final ModelObject<?> parentMO) {
+	// if (parentMO.getTLModelObj() instanceof TLAttributeOwner) {
+	// ((TLAttributeOwner) parentMO.getTLModelObj()).addAttribute(getTLModelObj());
+	// }
+	// }
 
-	@Override
-	public void addToTLParent(final ModelObject<?> parentMO) {
-		if (parentMO.getTLModelObj() instanceof TLAttributeOwner) {
-			((TLAttributeOwner) parentMO.getTLModelObj()).addAttribute(getTLModelObj());
-		}
-	}
-
-	@Override
-	public void removeFromTLParent() {
-		final TLAttributeOwner attributeOwner = getTLModelObj().getOwner();
-		if (attributeOwner != null) {
-			attributeOwner.removeAttribute(getTLModelObj());
-		}
-	}
+	// @Override
+	// public void removeFromTLParent() {
+	// final TLAttributeOwner attributeOwner = getTLModelObj().getOwner();
+	// if (attributeOwner != null) {
+	// attributeOwner.removeAttribute(getTLModelObj());
+	// }
+	// }
 
 	@Override
 	public TLAttribute getTLModelObj() {
 		return srcObj;
 	}
 
-	@Override
-	public NamedEntity getTLType() {
-		return srcObj.getType();
-	}
+	// @Override
+	// public NamedEntity getTLType() {
+	// return srcObj.getType();
+	// }
 
-	protected int indexOf() {
-		final TLAttribute thisProp = getTLModelObj();
-		return thisProp.getOwner().getAttributes().indexOf(thisProp);
-	}
+	// protected int indexOf() {
+	// final TLAttribute thisProp = getTLModelObj();
+	// return thisProp.getOwner().getAttributes().indexOf(thisProp);
+	// }
+	//
+	// /**
+	// * Move if you can, return false if you can not.
+	// *
+	// * @return
+	// */
+	// @Override
+	// public boolean moveUp() {
+	// if (indexOf() > 0) {
+	// getTLModelObj().moveUp();
+	// return true;
+	// }
+	// return false;
+	// }
+	//
+	// @Override
+	// public boolean moveDown() {
+	// // only count attributes, not elements or indicators
+	// if (indexOf() + 1 < getTLModelObj().getOwner().getAttributes().size()) {
+	// getTLModelObj().moveDown();
+	// return true;
+	// }
+	// return false;
+	// }
 
-	/**
-	 * Move if you can, return false if you can not.
-	 * 
-	 * @return
-	 */
-	@Override
-	public boolean moveUp() {
-		if (indexOf() > 0) {
-			getTLModelObj().moveUp();
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public boolean moveDown() {
-		// only count attributes, not elements or indicators
-		if (indexOf() + 1 < getTLModelObj().getOwner().getAttributes().size()) {
-			getTLModelObj().moveDown();
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public void setTLType(final NamedEntity tlObj) {
-		if (tlObj instanceof TLAttributeType)
-			getTLModelObj().setType((TLAttributeType) tlObj);
-		else
-			LOGGER.debug("Tried to set tlAttribute with " + tlObj.getLocalName() + " of class "
-					+ tlObj.getClass().getSimpleName());
-	}
+	// @Override
+	// public void setTLType(final NamedEntity tlObj) {
+	// if (tlObj instanceof TLAttributeType)
+	// getTLModelObj().setType((TLAttributeType) tlObj);
+	// else
+	// LOGGER.debug("Tried to set tlAttribute with " + tlObj.getLocalName() + " of class "
+	// + tlObj.getClass().getSimpleName());
+	// }
 
 }

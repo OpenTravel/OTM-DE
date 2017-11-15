@@ -39,7 +39,6 @@ import org.opentravel.schemas.controllers.DefaultModelController;
 import org.opentravel.schemas.modelObject.events.OwnershipEventListener;
 import org.opentravel.schemas.modelObject.events.ValueChangeEventListener;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.utils.StringComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,33 +135,33 @@ public class FacetMO extends ModelObject<TLFacet> {
 		return listener;
 	}
 
-	@Override
-	public boolean addChild(final TLModelElement child) {
-		if (child instanceof TLProperty) {
-			getTLModelObj().addElement((TLProperty) child);
-		} else if (child instanceof TLAttribute) {
-			getTLModelObj().addAttribute((TLAttribute) child);
-		} else if (child instanceof TLIndicator) {
-			getTLModelObj().addIndicator((TLIndicator) child);
-		} else
-			return false;
-		return true;
-	}
+	// @Override
+	// public boolean addChild(final TLModelElement child) {
+	// if (child instanceof TLProperty) {
+	// getTLModelObj().addElement((TLProperty) child);
+	// } else if (child instanceof TLAttribute) {
+	// getTLModelObj().addAttribute((TLAttribute) child);
+	// } else if (child instanceof TLIndicator) {
+	// getTLModelObj().addIndicator((TLIndicator) child);
+	// } else
+	// return false;
+	// return true;
+	// }
 
-	@Override
-	public void delete() {
-		removeBaseListener();
-
-		// Contextual facets handled in ContextualFacetNode
-		if (getTLModelObj() instanceof TLContextualFacet)
-			return;
-
-		if (getTLModelObj().getOwningEntity() == null) {
-			LOGGER.error("Tried to delete a facet MO with no ownining entity.");
-			return;
-		}
-		getTLModelObj().clearFacet();
-	}
+	// @Override
+	// public void delete() {
+	// removeBaseListener();
+	//
+	// // Contextual facets handled in ContextualFacetNode
+	// if (getTLModelObj() instanceof TLContextualFacet)
+	// return;
+	//
+	// if (getTLModelObj().getOwningEntity() == null) {
+	// LOGGER.error("Tried to delete a facet MO with no ownining entity.");
+	// return;
+	// }
+	// getTLModelObj().clearFacet();
+	// }
 
 	@Override
 	public List<?> getChildren() {
@@ -220,37 +219,37 @@ public class FacetMO extends ModelObject<TLFacet> {
 	// return false;
 	// }
 
-	@Override
-	public void sort() {
-		TLFacet f = getTLModelObj();
-		f.sortElements(new StringComparator<TLProperty>() {
-
-			@Override
-			protected String getString(TLProperty object) {
-				return object.getName();
-			}
-		});
-		f.sortAttributes(new StringComparator<TLAttribute>() {
-
-			@Override
-			protected String getString(TLAttribute object) {
-				return object.getName();
-			}
-		});
-		f.sortIndicators(new StringComparator<TLIndicator>() {
-
-			@Override
-			protected String getString(TLIndicator object) {
-				return object.getName();
-			}
-		});
-		// f.sortAliases(new StringComparator<TLAlias>() {
-		// @Override
-		// protected String getString(TLAlias object) {
-		// return object.getName();
-		// }
-		// });
-	}
+	// @Override
+	// public void sort() {
+	// TLFacet f = getTLModelObj();
+	// f.sortElements(new StringComparator<TLProperty>() {
+	//
+	// @Override
+	// protected String getString(TLProperty object) {
+	// return object.getName();
+	// }
+	// });
+	// f.sortAttributes(new StringComparator<TLAttribute>() {
+	//
+	// @Override
+	// protected String getString(TLAttribute object) {
+	// return object.getName();
+	// }
+	// });
+	// f.sortIndicators(new StringComparator<TLIndicator>() {
+	//
+	// @Override
+	// protected String getString(TLIndicator object) {
+	// return object.getName();
+	// }
+	// });
+	// f.sortAliases(new StringComparator<TLAlias>() {
+	// @Override
+	// protected String getString(TLAlias object) {
+	// return object.getName();
+	// }
+	// });
+	// }
 
 	// TODO - remove when removing listeners
 	@Deprecated

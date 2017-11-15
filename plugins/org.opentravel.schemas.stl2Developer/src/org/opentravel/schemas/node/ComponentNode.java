@@ -16,16 +16,13 @@
 package org.opentravel.schemas.node;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
-import org.opentravel.schemacompiler.model.ModelElement;
 import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
@@ -37,17 +34,11 @@ import org.opentravel.schemacompiler.validate.ValidationException;
 import org.opentravel.schemacompiler.version.MinorVersionHelper;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
 import org.opentravel.schemacompiler.version.Versioned;
-import org.opentravel.schemas.modelObject.EmptyMO;
-import org.opentravel.schemas.modelObject.FacetMO;
-import org.opentravel.schemas.modelObject.ModelObject;
-import org.opentravel.schemas.modelObject.XSDElementMO;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
-import org.opentravel.schemas.node.facets.ContributedFacetNode;
+import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.PropertyOwnerNode;
-import org.opentravel.schemas.node.facets.SimpleFacetNode;
-import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
-import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.handlers.ConstraintHandler;
+import org.opentravel.schemas.node.interfaces.AliasOwner;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -79,28 +70,35 @@ public abstract class ComponentNode extends Node {
 	 * The list of inherited children for this node. Inherited nodes are not assigned a type class. If they were the
 	 * where-used count would be wrong.
 	 */
+	@Deprecated
 	protected List<Node> inheritedChildren;
 
 	/**
 	 * Actual node where the inherited child is declared.
 	 */
-	protected Node inheritsFrom = null;
+	protected Node inheritedFrom = null;
 
-	/**
-	 * Indicates whether the underlying model object was declared or inherited by its parent.
-	 */
-	protected boolean inherited = false;
-	private boolean childrenInitialized = false;
+	// /**
+	// * Indicates whether the underlying model object was declared or inherited by its parent.
+	// */
+	// @Deprecated
+	// protected boolean inherited = false;
+
+	// TODO - move down in the class hierarchy
 	public ConstraintHandler constraintHandler = null;
 
+	// /**
+	// *
+	// */
+	// @Deprecated
+	// private boolean childrenInitialized = false;
+
 	/**
-	 * ComponentNode constructor.
-	 * 
-	 * @see ComponentNode(library), ComponentNode(JaxB element), ComponentNode (name, getNamespace)
+	 * ComponentNode constructor for nodes with no tlObj. Node Identity Listener can not be set.
 	 */
 	public ComponentNode() {
-		super();
-		setListner();
+		// super();
+		// ListenerFactory.setIdentityListner(this);
 	}
 
 	/**
@@ -114,10 +112,10 @@ public abstract class ComponentNode extends Node {
 		super(tlModelObject);
 		// sub-types must render their children into nodes. See addMOChildren();
 		// LOGGER.debug("New component node for "+tlModelObject.getLocalName());
-		if (modelObject instanceof FacetMO)
-			throw new IllegalStateException("Unexpected model object in cn construction.");
+		// if (modelObject instanceof FacetMO)
+		// throw new IllegalStateException("Unexpected model object in cn construction.");
 
-		setListner();
+		ListenerFactory.setIdentityListner(this);
 	}
 
 	/**
@@ -128,63 +126,68 @@ public abstract class ComponentNode extends Node {
 	 */
 	public ComponentNode(final TLModelElement obj) {
 		super(obj);
-		setListner();
+		ListenerFactory.setIdentityListner(this);
+		if (!isInherited())
+			assert Node.GetNode(getTLModelObject()) == this;
 	}
 
 	public void addProperty(final Node property) {
-		if (property == null)
+		if (property == null || !(property instanceof PropertyNode))
 			return;
-		addProperty(property, -1);
+		if (!(this instanceof PropertyOwnerInterface))
+			return;
+		((PropertyOwnerInterface) this).add((PropertyNode) property, -1);
 	}
 
-	/**
-	 * Add a new property to <i>this</i>facet.
-	 * 
-	 * @param property
-	 *            node representing a TLProperty, TLIndicator, etc
-	 * @param index
-	 *            where to add the property in the child list.
-	 */
-	// FIXME - move/remove/refactor - then remove addToTLParent() in MO
-	public void addProperty(final Node property, int index) {
-		if (!(this instanceof PropertyOwnerInterface) && !(this instanceof Enumeration)) {
-			// LOGGER.error("ERROR - Exit - Tried to add property to a non-FacetNode or enumeration " + this);
-			return;
-		}
-		if (this instanceof SimpleFacetNode) {
-			if (property instanceof PropertyNode)
-				((TypeUser) getChildren().get(0)).setAssignedType(((TypeUser) property).getAssignedType());
-			else
-				((TypeUser) getChildren().get(0)).setAssignedType((TypeProvider) property);
-		} else {
-			property.setParent(this);
-			if (index >= 0)
-				linkChild(property, index);
-			else
-				linkChild(property);
+	// /**
+	// * Add a new property to <i>this</i>facet.
+	// *
+	// * @param property
+	// * node representing a TLProperty, TLIndicator, etc
+	// * @param index
+	// * where to add the property in the child list.
+	// */
+	// // FIXME - move/remove/refactor - then remove addToTLParent() in MO
+	// public void addProperty(final Node property, int index) {
+	// if (!(this instanceof PropertyOwnerInterface) && !(this instanceof Enumeration)) {
+	// // LOGGER.error("ERROR - Exit - Tried to add property to a non-FacetNode or enumeration " + this);
+	// return;
+	// }
+	// // if (this instanceof SimpleFacetNode) {
+	// // if (property instanceof PropertyNode)
+	// // ((TypeUser) getChildren().get(0)).setAssignedType(((TypeUser) property).getAssignedType());
+	// // else
+	// // ((TypeUser) getChildren().get(0)).setAssignedType((TypeProvider) property);
+	// // } else {
+	// // property.setParent(this);
+	// // if (index >= 0)
+	// // linkChild(property, index);
+	// // else
+	// // linkChild(property);
+	// //
+	// // // FIXME - linkage to parent should be in POI method
+	// // // if (this instanceof PropertyOwnerInterface && property instanceof PropertyNode) {
+	// // // ((PropertyOwnerInterface)this).addProperty((PropertyNode) property, index);
+	// // // }
+	// // // FIXME - use the POI instead of MO the eliminate MO methods
+	// //
+	// // final ModelObject<?> propMO = property.getModelObject();
+	// // final ModelObject<?> mo = getModelObject();
+	// // if (propMO != null && mo != null) {
+	// // // index is < 0 when adding to end, and is hard to calculate the last index.
+	// // if (index < 0) {
+	// // propMO.addToTLParent(mo);
+	// // } else {
+	// // propMO.addToTLParent(mo, index);
+	// // }
+	// // }
+	// // }
+	// }
 
-			// FIXME - use the POI instead of MO the eliminate MO methods
-			// FIXME - linkage to parent should be in POI method
-			// if (this instanceof PropertyOwnerInterface && property instanceof PropertyNode) {
-			// ((PropertyOwnerInterface)this).addProperty((PropertyNode) property, index);
-			// }
-			final ModelObject<?> propMO = property.getModelObject();
-			final ModelObject<?> mo = getModelObject();
-			if (propMO != null && mo != null) {
-				// index is < 0 when adding to end, and is hard to calculate the last index.
-				if (index < 0) {
-					propMO.addToTLParent(mo);
-				} else {
-					propMO.addToTLParent(mo, index);
-				}
-			}
-		}
-	}
-
 	/**
+	 * Change the object to the type defined by the parameter. Used in Change Wizard.
 	 * 
 	 * @param SubType
-	 *            to change to
 	 * @return - new object created by changing this object
 	 */
 	public ComponentNode changeObject(SubType st) {
@@ -195,7 +198,7 @@ public abstract class ComponentNode extends Node {
 
 		// TODO - add choice object type
 		// ToDO - add custom facet type
-		ComponentNode newNode = null;
+		LibraryMemberInterface newNode = null;
 		switch (st) {
 		case BUSINESS_OBJECT:
 			if (this instanceof BusinessObjectNode)
@@ -225,9 +228,10 @@ public abstract class ComponentNode extends Node {
 			throw new IllegalArgumentException("Change to SubType: " + st.toString() + " is not supporeted.");
 		}
 
-		if (newNode != null)
-			swap(newNode);
-		return newNode;
+		replaceWith(newNode); // replace this node with the new one
+		// if (newNode != null)
+		// swap(newNode);
+		return (ComponentNode) newNode;
 	}
 
 	/**
@@ -258,7 +262,7 @@ public abstract class ComponentNode extends Node {
 			if (list.size() > 1) {
 				for (Node property : list) {
 					String aliasName = property.getName() + "_" + type.getName();
-					((TypeUser) property).setAssignedType((TypeProvider) new AliasNode(type, aliasName));
+					((TypeUser) property).setAssignedType((TypeProvider) new AliasNode((AliasOwner) type, aliasName));
 					property.setName(aliasName);
 				}
 			}
@@ -290,7 +294,7 @@ public abstract class ComponentNode extends Node {
 		// LOGGER.error("Can't add a property to this: " + this);
 		// If there already is an EP, then return that.
 		LibraryChainNode chain = getChain();
-		Node existing = ((Node) chain.getComplexAggregate()).findNodeByName(newNode.getName());
+		Node existing = ((Node) chain.getComplexAggregate()).findLibraryMemberByName(newNode.getName());
 		if (existing != null && (existing instanceof ExtensionPointNode))
 			newNode = (ExtensionPointNode) existing;
 		else
@@ -308,7 +312,9 @@ public abstract class ComponentNode extends Node {
 	}
 
 	// overridden where a simple type exists.
+	// Only used in validation view
 	@Override
+	@Deprecated
 	public Node getAssignable() {
 		return getSimpleProperty();
 	}
@@ -319,8 +325,9 @@ public abstract class ComponentNode extends Node {
 	public String getAssignedPrefix() {
 		TLModelElement tlType = null;
 		AbstractLibrary tlLib = null;
-		if (modelObject instanceof XSDElementMO)
-			return ((XSDElementMO) modelObject).getAssignedPrefix();
+		// if (modelObject instanceof XSDElementMO)
+		// return ((XSDElementMO) modelObject).getAssignedPrefix();
+		// FIXME - delegate
 		if (this instanceof TypeUser)
 			tlType = ((TypeUser) this).getAssignedTLObject();
 		if (tlType == null)
@@ -331,15 +338,15 @@ public abstract class ComponentNode extends Node {
 		// return getModelObject().getAssignedPrefix();
 	}
 
-	@Override
-	public List<Node> getChildren_TypeUsers() {
-		ArrayList<Node> kids = new ArrayList<Node>();
-		for (Node child : getChildren()) {
-			if (child instanceof TypeUser)
-				kids.add(child);
-		}
-		return kids;
-	}
+	// @Override
+	// public List<Node> getChildren_TypeUsers() {
+	// ArrayList<Node> kids = new ArrayList<Node>();
+	// for (Node child : getChildren()) {
+	// if (child instanceof TypeUser)
+	// kids.add(child);
+	// }
+	// return kids;
+	// }
 
 	// TOOD - let the view code actually use the handler
 	public ConstraintHandler getConstraintHandler() {
@@ -380,31 +387,43 @@ public abstract class ComponentNode extends Node {
 	/**
 	 * @return - Node for ID facet if it exists, null otherwise.
 	 */
-	public PropertyOwnerNode getIDFacet() {
+	public PropertyOwnerNode getFacet_ID() {
 		return (PropertyOwnerNode) getFacetOfType(TLFacetType.ID);
 	}
 
-	@Override
-	public List<Node> getInheritedChildren() {
-		synchronized (this) {
-			if (inheritedChildren != null)
-				inheritedChildren.clear();
-			// Do not keep a local copy until adding to the base forces update of all extensions.
-			initInheritedChildren();
-		}
-		if (inheritedChildren == null)
-			inheritedChildren = Collections.emptyList();
-		return inheritedChildren;
-	}
+	// @Override
+	// public List<Node> getInheritedChildren() {
+	// if (childrenHandler != null)
+	// return childrenHandler.getInheritedChildren();
+	// else {
+	// synchronized (this) {
+	// if (inheritedChildren != null)
+	// inheritedChildren.clear();
+	// // Do not keep a local copy until adding to the base forces update of all extensions.
+	// initInheritedChildren();
+	// }
+	// if (inheritedChildren == null)
+	// inheritedChildren = Collections.emptyList();
+	// return inheritedChildren;
+	// }
+	// }
 
 	/**
-	 * Actual node where the inherited child is declared.
+	 * Simple getter of the actual node where the inherited child is declared.
 	 * 
 	 * @return type inherited from or null if no inheritance. Note, Open Enumerations have an inherited attribute but
 	 *         null for inherits from.
 	 */
-	public Node getInheritsFrom() {
-		return inheritsFrom;
+	@Override
+	public Node getInheritedFrom() {
+		return inheritedFrom;
+	}
+
+	/**
+	 * Simple Setter
+	 */
+	public void setInheritedFrom(Node owner) {
+		inheritedFrom = owner;
 	}
 
 	@Override
@@ -463,26 +482,33 @@ public abstract class ComponentNode extends Node {
 		return (PropertyOwnerNode) getFacetOfType(TLFacetType.SUMMARY);
 	}
 
-	/** Lazy initialization of the inherited children list. */
-	public void initInheritedChildren() {
-		List<?> inheritedMOChildren = modelObject.getInheritedChildren();
-		if ((inheritedMOChildren == null) || inheritedMOChildren.isEmpty()) {
-			inheritedChildren = Collections.emptyList();
-		} else {
-			for (final Object obj : inheritedMOChildren) {
-				// null parent allows us to control linkage.
-				ComponentNode nn = NodeFactory.newMember(null, obj);
-				if (nn != null) {
-					linkInheritedChild(nn);
-					nn.addMOChildren();
-				}
-			}
-		}
-	}
+	// /** Lazy initialization of the inherited children list. */
+	// @Deprecated
+	// private void initInheritedChildren() {
+	// List<?> inheritedMOChildren;
+	// if (childrenHandler != null)
+	// inheritedMOChildren = childrenHandler.getInheritedChildren_TL();
+	// else {
+	// inheritedMOChildren = modelObject.getInheritedChildren();
+	//
+	// if ((inheritedMOChildren == null) || inheritedMOChildren.isEmpty()) {
+	// inheritedChildren = Collections.emptyList();
+	// } else {
+	// for (final Object obj : inheritedMOChildren) {
+	// // null parent allows us to control linkage.
+	// ComponentNode nn = NodeFactory.newMemberOLD(null, obj);
+	// if (nn != null) {
+	// linkInheritedChild(nn);
+	// nn.addMOChildren();
+	// }
+	// }
+	// }
+	// }
+	// }
 
 	@Override
 	public boolean isInherited() {
-		return inherited;
+		return getInheritedFrom() != null;
 	}
 
 	// /**
@@ -511,11 +537,11 @@ public abstract class ComponentNode extends Node {
 		return false;
 	}
 
-	public boolean isMissingAssignedType() {
-		if (modelObject.getTLType() == null)
-			return true;
-		return false;
-	}
+	// public boolean isMissingAssignedType() {
+	// if (modelObject.getTLType() == null)
+	// return true;
+	// return false;
+	// }
 
 	// @Override
 	// public boolean isNamedType() {
@@ -550,43 +576,45 @@ public abstract class ComponentNode extends Node {
 		return local ? true : xsdType;
 	}
 
-	/**
-	 * Adds passed child node to inheritedChildren array. Sets where inherited from using the listener on the child's
-	 * TLObject. Set parent, library and inherited flag.
-	 * 
-	 * @param child
-	 * @return
-	 */
-	public boolean linkInheritedChild(final ComponentNode child) {
-		if (child == null) {
-			return false;
-		}
-		if ((inheritedChildren == null) || inheritedChildren.isEmpty()) {
-			inheritedChildren = new ArrayList<Node>();
-		}
-		child.inheritsFrom = Node.GetNode(child.getTLModelObject());
-		if (child instanceof PropertyNode && child.inheritsFrom == child) {
-			if (!(this instanceof EnumerationOpenNode))
-				LOGGER.debug("ERROR - child inherits from itself: " + child);
-			child.inheritsFrom = null;
-			child.inherited = false;
-			// assert child.inheritsFrom != child; // Only prop nodes?
-		} else {
-			inheritedChildren.add(child);
-			child.setParent(this);
-			child.inherited = true;
-			if (child instanceof LibraryMemberInterface)
-				child.setLibrary(getLibrary());
-		}
-		// LOGGER.debug("Linked inherited child " + child + " to parent " + this);
-		return true;
-	}
+	// /**
+	// * Adds passed child node to inheritedChildren array. Sets where inherited from using the listener on the child's
+	// * TLObject. Set parent, library and inherited flag.
+	// *
+	// * @param child
+	// * @return
+	// */
+	// @Deprecated
+	// public boolean linkInheritedChild(final ComponentNode child) {
+	// if (child == null) {
+	// return false;
+	// }
+	// if ((inheritedChildren == null) || inheritedChildren.isEmpty()) {
+	// inheritedChildren = new ArrayList<Node>();
+	// }
+	// child.inheritedFrom = Node.GetNode(child.getTLModelObject());
+	// if (child instanceof PropertyNode && child.inheritedFrom == child) {
+	// if (!(this instanceof EnumerationOpenNode))
+	// LOGGER.debug("ERROR - child inherits from itself: " + child);
+	// child.inheritedFrom = null;
+	// child.inherited = false;
+	// // assert child.inheritsFrom != child; // Only prop nodes?
+	// } else {
+	// inheritedChildren.add(child);
+	// child.setParent(this);
+	// child.inherited = true;
+	// if (child instanceof LibraryMemberInterface)
+	// child.setLibrary(getLibrary());
+	// }
+	// // LOGGER.debug("Linked inherited child " + child + " to parent " + this);
+	// return true;
+	// }
 
 	public void removeProperty(final Node property) {
 		// throw new IllegalStateException("Remove property in component node should never run.");
 	}
 
 	@Override
+	@Deprecated
 	public void resetInheritedChildren() {
 		// Recursively reset the inherited children of all child nodes
 		for (final Node n : getChildren()) {
@@ -629,38 +657,40 @@ public abstract class ComponentNode extends Node {
 
 	/** TYPE Interfaces **/
 
-	@Override
-	public void sort() {
-		getModelObject().sort();
-	}
+	// @Override
+	// public void sort() {
+	// getModelObject().sort();
+	// }
 
-	/**
-	 * Create nodes for all of the children of the model object in this node. Also creates nodes for GUI only synthetic
-	 * children such as roles and aliases.
-	 * 
-	 */
-	protected void addMOChildren() {
-		if (childrenInitialized || (modelObject.getChildren() == null)) {
-			return; // All Done.
-		}
-		childrenInitialized = true;
-
-		// Build list of direct children of the model object
-		ComponentNode nn = null;
-		for (final Object obj : modelObject.getChildren()) {
-			nn = (ComponentNode) GetNode((ModelElement) obj);
-			if (nn != null) {
-				if (nn instanceof ContextualFacetNode && ((ContextualFacetNode) nn).isNamedEntity())
-					new ContributedFacetNode((TLContextualFacet) obj, (ContextualFacetOwnerInterface) this);
-				else
-					// Just link it in
-					linkChild(nn);
-			} else
-				nn = NodeFactory.newMember(this, obj);
-			if (nn != null)
-				nn.addMOChildren();
-		}
-	}
+	// /**
+	// * Create nodes for all of the children of the model object in this node. Also creates nodes for GUI only
+	// synthetic
+	// * children such as roles and aliases.
+	// *
+	// */
+	// @Deprecated
+	// protected void addMOChildren() {
+	// if (childrenInitialized || (modelObject.getChildren() == null)) {
+	// return; // All Done.
+	// }
+	// childrenInitialized = true;
+	//
+	// // Build list of direct children of the model object
+	// ComponentNode nn = null;
+	// for (final Object obj : modelObject.getChildren()) {
+	// nn = (ComponentNode) GetNode((ModelElement) obj);
+	// if (nn != null) {
+	// if (nn instanceof ContextualFacetNode && ((ContextualFacetNode) nn).isNamedEntity())
+	// new ContributedFacetNode((TLContextualFacet) obj, (ContextualFacetOwnerInterface) this);
+	// else
+	// // Just link it in
+	// linkChild(nn);
+	// } else
+	// nn = NodeFactory.newMemberOLD(this, obj);
+	// if (nn != null)
+	// nn.addMOChildren();
+	// }
+	// }
 
 	protected LibraryMember createMinorTLVersion(VersionedObjectInterface node) {
 		MinorVersionHelper helper = new MinorVersionHelper();
@@ -682,7 +712,7 @@ public abstract class ComponentNode extends Node {
 		// assert newNode instanceof ExtensionOwner;
 		// TODO - should resource be an extension owner? Is it versioned that way?
 		// 3/2/2017 - resources are not versioned via gui
-		if (newNode.getModelObject() instanceof EmptyMO) {
+		if (newNode.getTLModelObject() instanceof TLEmpty) {
 			LOGGER.debug("Empty minor version created");
 			return null;
 		}
@@ -700,16 +730,13 @@ public abstract class ComponentNode extends Node {
 
 		// Add the new node to the library at the head of the chain
 		LibraryChainNode chain = owner.getChain();
-		chain.getHead().addMember(newNode);
+		if (newNode instanceof LibraryMemberInterface)
+			chain.getHead().addMember((LibraryMemberInterface) newNode);
 		chain.getComplexAggregate().getChildren().remove(owner);
 
 		owner.getLibrary().checkExtension(owner);
 		// TODO - should old properties be set to inherited?
 		return newNode;
-	}
-
-	private void setListner() {
-		ListenerFactory.setListner(this);
 	}
 
 }

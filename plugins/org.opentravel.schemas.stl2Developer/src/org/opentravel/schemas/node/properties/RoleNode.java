@@ -19,8 +19,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLRole;
-import org.opentravel.schemas.modelObject.RolePropertyMO;
+import org.opentravel.schemacompiler.model.TLRoleEnumeration;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ModelNode;
@@ -33,25 +34,32 @@ import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * A property node that represents a role enumeration value in a core object. See
- * {@link NodeFactory#newMember(INode, Object)}
+ * {@link NodeFactory#newMemberOLD(INode, Object)}
  * 
  * @author Dave Hollander
  * 
  */
-
+// TODO - delegate to PropertyNode when possible
 public class RoleNode extends PropertyNode {
 
 	public RoleNode(RoleFacetNode parent, String name) {
-		super(new TLRole(), parent, name, PropertyNodeType.ROLE);
+		super(new TLRole(), parent, name);
 		setAssignedType(getRequiredType());
 	}
 
 	public RoleNode(TLRole tlObj, RoleFacetNode parent) {
-		super(tlObj, parent, PropertyNodeType.ROLE);
+		super(tlObj, parent);
 		setAssignedType(getRequiredType());
+	}
 
-		assert (modelObject instanceof RolePropertyMO);
-		// assert (tlObj instanceof TLRole);
+	@Override
+	public void addToTL(final PropertyOwnerInterface owner, final int index) {
+		if (owner.getTLModelObject() instanceof TLRoleEnumeration)
+			try {
+				((TLRoleEnumeration) owner.getTLModelObject()).addRole(index, getTLModelObject());
+			} catch (IndexOutOfBoundsException e) {
+				((TLRoleEnumeration) owner.getTLModelObject()).addRole(getTLModelObject());
+			}
 	}
 
 	@Override
@@ -61,17 +69,10 @@ public class RoleNode extends PropertyNode {
 
 	@Override
 	public INode createProperty(Node type) {
-		TLRole tlObj = (TLRole) cloneTLObj();
-		int index = indexOfNode();
-		((TLRole) getTLModelObject()).getRoleEnumeration().addRole(index, tlObj);
-		RoleNode n = new RoleNode(tlObj, null);
-
-		getParent().getChildren().add(index, n);
-		n.setParent(getParent());
-		// setLibrary(getParent().getLibrary());
-		n.setName(type.getName());
-		n.setDescription(type.getDescription());
-		return n;
+		// Clone this TL Object
+		TLRole tlClone = (TLRole) cloneTLObj();
+		PropertyNode n = new RoleNode(tlClone, null);
+		return super.createProperty(n, type);
 	}
 
 	@Override
@@ -82,36 +83,6 @@ public class RoleNode extends PropertyNode {
 	@Override
 	public TypeProvider getAssignedType() {
 		return getRequiredType();
-	}
-
-	@Override
-	public ImpliedNode getRequiredType() {
-		return ModelNode.getUndefinedNode();
-	}
-
-	@Override
-	public String getName() {
-		return emptyIfNull(getTLModelObject().getName());
-	}
-
-	@Override
-	public TLRole getTLModelObject() {
-		return (TLRole) (modelObject != null ? modelObject.getTLModelObj() : null);
-	}
-
-	@Override
-	public List<Node> getTreeChildren(boolean deep) {
-		return Collections.emptyList();
-	}
-
-	@Override
-	public List<Node> getNavChildren(boolean deep) {
-		return Collections.emptyList();
-	}
-
-	@Override
-	public boolean hasNavChildren(boolean deep) {
-		return false;
 	}
 
 	@Override
@@ -127,12 +98,44 @@ public class RoleNode extends PropertyNode {
 	@Override
 	public String getLabel() {
 		return getName();
-		// return modelObject.getLabel() == null ? "" : modelObject.getLabel();
+	}
+
+	@Override
+	public String getName() {
+		return emptyIfNull(getTLModelObject().getName());
+	}
+
+	@Override
+	public List<Node> getNavChildren(boolean deep) {
+		return Collections.emptyList();
 	}
 
 	@Override
 	public RoleFacetNode getParent() {
+		if ((parent == null || parent.isDeleted()) && getTLModelObject() != null)
+			// The parent may have failed to rebuild children
+			parent = Node.GetNode(getTLModelObject().getRoleEnumeration());
 		return (RoleFacetNode) parent;
+	}
+
+	@Override
+	public ImpliedNode getRequiredType() {
+		return ModelNode.getUndefinedNode();
+	}
+
+	@Override
+	public TLRole getTLModelObject() {
+		return (TLRole) tlObj;
+	}
+
+	@Override
+	public List<Node> getTreeChildren(boolean deep) {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public boolean hasNavChildren(boolean deep) {
+		return false;
 	}
 
 	@Override
@@ -142,12 +145,36 @@ public class RoleNode extends PropertyNode {
 
 	@Override
 	public boolean isRenameable() {
-		return isEditable() && !inherited;
+		return isEditable() && !isInherited();
 	}
 
 	@Override
 	public void setName(String name) {
-		getTLModelObject().setName(name);
+		if (getTLModelObject() != null)
+			getTLModelObject().setName(name);
+	}
+
+	@Override
+	protected void moveDownTL() {
+		if (getTLModelObject() != null)
+			getTLModelObject().moveDown();
+	}
+
+	@Override
+	protected void moveUpTL() {
+		if (getTLModelObject() != null)
+			getTLModelObject().moveUp();
+	}
+
+	@Override
+	protected void removeFromTL() {
+		if (getParent() != null && getParent().getTLModelObject() instanceof TLRoleEnumeration)
+			((TLRoleEnumeration) getParent().getTLModelObject()).removeRole(getTLModelObject());
+	}
+
+	@Override
+	public boolean setAssignedType(TLModelElement tlProvider) {
+		return false;
 	}
 
 }

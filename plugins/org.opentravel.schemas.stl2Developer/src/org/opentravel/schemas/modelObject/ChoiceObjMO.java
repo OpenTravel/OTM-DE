@@ -18,9 +18,7 @@ package org.opentravel.schemas.modelObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
-import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLModelElement;
 
 public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
@@ -30,12 +28,12 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 		super(obj);
 	}
 
-	// It may already have been taken out of the library, but if not do so.
-	@Override
-	public void delete() {
-		if (getTLModelObj().getOwningLibrary() != null)
-			getTLModelObj().getOwningLibrary().removeNamedMember(getTLModelObj());
-	}
+	// // It may already have been taken out of the library, but if not do so.
+	// @Override
+	// public void delete() {
+	// if (getTLModelObj().getOwningLibrary() != null)
+	// getTLModelObj().getOwningLibrary().removeNamedMember(getTLModelObj());
+	// }
 
 	@Override
 	public List<?> getChildren() {
@@ -60,23 +58,23 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 	// return extendsTypeName;
 	// }
 
-	@Override
-	public String getExtendsTypeNS() {
-		TLExtension tlExtension = getTLModelObj().getExtension();
-		String extendsNS;
+	// @Override
+	// public String getExtendsTypeNS() {
+	// TLExtension tlExtension = getTLModelObj().getExtension();
+	// String extendsNS;
+	//
+	// if ((tlExtension != null) && (tlExtension.getExtendsEntity() != null)) {
+	// extendsNS = tlExtension.getExtendsEntity().getNamespace();
+	// } else {
+	// extendsNS = "";
+	// }
+	// return extendsNS;
+	// }
 
-		if ((tlExtension != null) && (tlExtension.getExtendsEntity() != null)) {
-			extendsNS = tlExtension.getExtendsEntity().getNamespace();
-		} else {
-			extendsNS = "";
-		}
-		return extendsNS;
-	}
-
-	@Override
-	public NamedEntity getTLBase() {
-		return srcObj.getExtension() != null ? srcObj.getExtension().getExtendsEntity() : null;
-	}
+	// @Override
+	// public NamedEntity getTLBase() {
+	// return srcObj.getExtension() != null ? srcObj.getExtension().getExtendsEntity() : null;
+	// }
 
 	@Override
 	public TLChoiceObject getTLModelObj() {
@@ -100,22 +98,23 @@ public class ChoiceObjMO extends ModelObject<TLChoiceObject> {
 	// return false;
 	// }
 
-	/**
-	 * @see org.opentravel.schemas.modelObject.ModelObject#setExtendsType(org.opentravel.schemas.modelObject.ModelObject)
-	 */
-	@Override
-	public void setExtendsType(ModelObject<?> mo) {
-		if (mo == null) {
-			getTLModelObj().setExtension(null);
-		} else {
-			TLExtension tlExtension = getTLModelObj().getExtension();
-			if (tlExtension == null) {
-				tlExtension = new TLExtension();
-				getTLModelObj().setExtension(tlExtension);
-			}
-			tlExtension.setExtendsEntity((NamedEntity) mo.getTLModelObj());
-		}
-	}
+	// /**
+	// * @see
+	// org.opentravel.schemas.modelObject.ModelObject#setExtendsType(org.opentravel.schemas.modelObject.ModelObject)
+	// */
+	// @Override
+	// public void setExtendsType(ModelObject<?> mo) {
+	// if (mo == null) {
+	// getTLModelObj().setExtension(null);
+	// } else {
+	// TLExtension tlExtension = getTLModelObj().getExtension();
+	// if (tlExtension == null) {
+	// tlExtension = new TLExtension();
+	// getTLModelObj().setExtension(tlExtension);
+	// }
+	// tlExtension.setExtendsEntity((NamedEntity) mo.getTLModelObj());
+	// }
+	// }
 
 	// @Override
 	// public boolean setName(final String name) {

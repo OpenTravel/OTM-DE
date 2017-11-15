@@ -15,23 +15,26 @@
  */
 package org.opentravel.schemas.node.facets;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.util.XsdCodegenUtils;
-import org.opentravel.schemacompiler.model.TLAlias;
+import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemas.modelObject.FacetMO;
+import org.opentravel.schemacompiler.model.TLIndicator;
+import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.handlers.children.FacetChildrenHandler;
+import org.opentravel.schemas.node.interfaces.AliasOwner;
+import org.opentravel.schemas.node.interfaces.Sortable;
 import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
+import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.utils.StringComparator;
 
 /**
@@ -42,17 +45,48 @@ import org.opentravel.schemas.utils.StringComparator;
  * @author Dave Hollander
  * 
  */
-public class FacetNode extends PropertyOwnerNode implements PropertyOwnerInterface, TypeProvider {
+public class FacetNode extends PropertyOwnerNode implements TypeProvider, Sortable, AliasOwner {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(FacetNode.class);
 
 	public FacetNode() {
+		// this(new TLFacet());
 	}
 
 	public FacetNode(final TLFacet obj) {
 		super(obj);
-		addMOChildren();
 
-		assert (modelObject instanceof FacetMO);
+		childrenHandler = new FacetChildrenHandler(this);
+		if (!isInherited())
+			assert Node.GetNode(getTLModelObject()) == this;
+	}
+
+	@Override
+	public void addAlias(AliasNode alias) {
+		// if (!getTLModelObject().getAliases().contains(alias.getTLModelObject()))
+		// getTLModelObject().addAlias(alias.getTLModelObject());
+		getChildrenHandler().clear();
+	}
+
+	@Override
+	public void remove(AliasNode alias) {
+		// Not sure how-to or if i need-to associate this alias with owning compnent's
+		getChildrenHandler().clear();
+	}
+
+	@Override
+	public AliasNode addAlias(String name) {
+		// NO-OP
+		return null;
+	}
+
+	@Override
+	public void cloneAliases(List<AliasNode> aliases) {
+		// NO-OP
+	}
+
+	@Override
+	public void deleteTL() {
+		getTLModelObject().clearFacet();
 	}
 
 	@Override
@@ -65,12 +99,13 @@ public class FacetNode extends PropertyOwnerNode implements PropertyOwnerInterfa
 
 	@Override
 	public TLFacet getTLModelObject() {
-		return (TLFacet) modelObject.getTLModelObj();
+		return (TLFacet) tlObj;
+		// return (TLFacet) modelObject.getTLModelObj();
 	}
 
 	@Override
 	public TLFacetType getFacetType() {
-		return getTLModelObject().getFacetType();
+		return getTLModelObject() != null ? getTLModelObject().getFacetType() : null;
 	}
 
 	@Override
@@ -92,7 +127,7 @@ public class FacetNode extends PropertyOwnerNode implements PropertyOwnerInterfa
 
 	@Override
 	public String getLabel() {
-		if (inherited)
+		if (isInherited())
 			return getComponentType() + " (Inherited)";
 		return getComponentType();
 	}
@@ -106,7 +141,8 @@ public class FacetNode extends PropertyOwnerNode implements PropertyOwnerInterfa
 	public boolean isDefaultFacet() {
 		// FIXME - should never be VWA
 		if (getOwningComponent() instanceof VWA_Node)
-			return true;
+			assert false;
+		// return true;
 		return getTLModelObject().getFacetType() == TLFacetType.SUMMARY;
 	}
 
@@ -145,38 +181,83 @@ public class FacetNode extends PropertyOwnerNode implements PropertyOwnerInterfa
 		return getFacetType() != null ? getFacetType().equals(TLFacetType.SUMMARY) : false;
 	}
 
+	/**
+	 * Set name to type users where this alias is assigned. Only if the parent is type that requires assigned users to
+	 * use the owner's name
+	 */
+	@Override
+	public void setNameOnWhereAssigned(String n) {
+		if (getParent() instanceof TypeProvider && !((TypeProvider) getParent()).isRenameableWhereUsed())
+			for (TypeUser u : getWhereAssigned())
+				u.setName(n);
+	}
+
 	@Override
 	public void sort() {
-		Collections.sort(getChildren(), new StringComparator<Node>() {
+		// Collections.sort(getChildren(), new StringComparator<Node>() {
+		// @Override
+		// protected String getString(Node object) {
+		// return object.getName();
+		// }
+		// });
 
+		// Now sort the TL lists
+		getTLModelObject().sortIndicators(new StringComparator<TLIndicator>() {
 			@Override
-			protected String getString(Node object) {
+			protected String getString(TLIndicator object) {
 				return object.getName();
 			}
 		});
-		modelObject.sort();
+		getTLModelObject().sortAttributes(new StringComparator<TLAttribute>() {
+			@Override
+			protected String getString(TLAttribute object) {
+				return object.getName();
+			}
+		});
+		getTLModelObject().sortElements(new StringComparator<TLProperty>() {
+			@Override
+			protected String getString(TLProperty object) {
+				return object.getName();
+			}
+		});
+
+		getChildrenHandler().clear();
+		// modelObject.sort();
 	}
 
+	// /**
+	// * Add nodes for all TLAliases that do not have nodes. This ONLY adds a node for an existing TLFacet. It does not
+	// * create a TLFacet.
+	// *
+	// * @param name
+	// */
+	// public void updateAliasNodes() {
+	// List<String> knownAliases = new ArrayList<String>();
+	// for (Node n : getChildren()) {
+	// if (n instanceof AliasNode)
+	// knownAliases.add(n.getName());
+	// }
+	// // model object can be null for contributed facets
+	// if (getTLModelObject() != null)
+	// for (TLAlias tla : getTLModelObject().getAliases()) {
+	// if (!knownAliases.contains(tla.getName())) {
+	// new AliasNode(this, tla);
+	// knownAliases.add(tla.getName());
+	// }
+	// }
+	// }
+
 	/**
-	 * Add nodes for all TLAliases that do not have nodes. This ONLY adds a node for an existing TLFacet. It does not
-	 * create a TLFacet.
+	 * Get the property with the passed name or null.
 	 * 
-	 * @param name
+	 * @param string
+	 * @return
 	 */
-	public void updateAliasNodes() {
-		List<String> knownAliases = new ArrayList<String>();
-		for (Node n : getChildren()) {
-			if (n instanceof AliasNode)
-				knownAliases.add(n.getName());
-		}
-		// model object can be null for contributed facets
-		if (getTLModelObject() != null)
-			for (TLAlias tla : getTLModelObject().getAliases()) {
-				if (!knownAliases.contains(tla.getName())) {
-					new AliasNode(this, tla);
-					knownAliases.add(tla.getName());
-				}
-			}
+	public PropertyNode get(String name) {
+		for (Node n : getChildren())
+			if (n.getName().equals(name))
+				return (PropertyNode) n;
+		return null;
 	}
 
 }

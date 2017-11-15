@@ -18,7 +18,6 @@
  */
 package org.opentravel.schemas.node.interfaces;
 
-import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 
 /**
@@ -38,9 +37,9 @@ public interface ComplexComponentInterface {
 	/**
 	 * @return the simple facet or null if none.
 	 */
-	public SimpleFacetNode getFacet_Simple();
+	// public SimpleFacetFacadeNode getFacet_Simple();
 
-	public PropertyOwnerInterface getAttributeFacet(); // VWA only
+	public PropertyOwnerInterface getFacet_Attributes(); // VWA only
 
 	public PropertyOwnerInterface getFacet_Summary();
 

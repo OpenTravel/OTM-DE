@@ -823,6 +823,7 @@ public class DefaultRepositoryController implements RepositoryController {
 		RepositoryNode rn = find(library.getProjectItem().getRepository());
 		// LibraryModelManager libMrg = Node.getModelNode().getLibraryManager();
 		MajorVersionHelper mvh = new MajorVersionHelper(library.getProject().getTLProject());
+
 		TLLibrary tlMajor = null;
 		LibraryNode newLib = null;
 		LibraryChainNode lcn = null;

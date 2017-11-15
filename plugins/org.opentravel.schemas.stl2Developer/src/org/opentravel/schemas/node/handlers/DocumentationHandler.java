@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.node.handlers;
 
 import java.util.List;
 
@@ -21,6 +21,7 @@ import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationItem;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
+import org.opentravel.schemas.node.Node;
 
 /**
  * Handles access to the values in a {@TLDocumentation} object.
@@ -169,21 +170,27 @@ public class DocumentationHandler {
 	 * Set value if it exists, create new one if it does not.
 	 */
 	public void setImplementer(final String string, final int index) {
-		setDocItem(getOrNewTL().getImplementers(), string, index);
+		TLDocumentationItem di = setDocItem(getOrNewTL().getImplementers(), string, index);
+		if (di != null)
+			getTL().addImplementer(di);
 	}
 
 	/**
 	 * Set value if it exists, create new one if it does not.
 	 */
 	public void setDeprecation(final String string, final int index) {
-		setDocItem(getOrNewTL().getDeprecations(), string, index);
+		TLDocumentationItem di = setDocItem(getOrNewTL().getDeprecations(), string, index);
+		if (di != null)
+			getTL().addDeprecation(di);
 	}
 
 	/**
 	 * Set value if it exists, create new one if it does not.
 	 */
 	public void setMoreInfo(final String string, final int index) {
-		setDocItem(getOrNewTL().getMoreInfos(), string, index);
+		TLDocumentationItem di = setDocItem(getOrNewTL().getMoreInfos(), string, index);
+		if (di != null)
+			getTL().addMoreInfo(di);
 	}
 
 	/**
@@ -201,7 +208,9 @@ public class DocumentationHandler {
 	 * Set value if it exists, create new one if it does not.
 	 */
 	public void setReference(final String string, final int index) {
-		setDocItem(getOrNewTL().getReferences(), string, index);
+		TLDocumentationItem di = setDocItem(getOrNewTL().getReferences(), string, index);
+		if (di != null)
+			getTL().addReference(di);
 	}
 
 	/**
@@ -215,7 +224,7 @@ public class DocumentationHandler {
 	 * 
 	 * @return new or pre-existing TLDocumentation object
 	 */
-	protected TLDocumentation getOrNewTL() {
+	public TLDocumentation getOrNewTL() {
 		TLDocumentation tld = getTL();
 		if (getTL() == null) {
 			tld = new TLDocumentation();
@@ -254,11 +263,12 @@ public class DocumentationHandler {
 		return di;
 	}
 
-	private void setDocItem(List<TLDocumentationItem> docs, final String string, final int index) {
+	private TLDocumentationItem setDocItem(List<TLDocumentationItem> docs, final String string, final int index) {
 		if (docs == null || docs.size() <= index)
-			docs.add(index, newDI(string));
+			return newDI(string);
 		else
 			docs.get(index).setText(string);
+		return null;
 	}
 
 }

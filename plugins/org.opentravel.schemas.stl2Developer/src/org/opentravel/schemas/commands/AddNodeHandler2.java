@@ -197,7 +197,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 	public void addRoleToNode() {
 		if (actOnNode == null || !(actOnNode instanceof CoreObjectNode))
 			return; // should this post status or dialog?
-		RoleFacetNode roleFacet = ((CoreObjectNode) actOnNode).getRoleFacet();
+		RoleFacetNode roleFacet = ((CoreObjectNode) actOnNode).getFacet_Role();
 		if (roleFacet == null)
 			return;
 
@@ -206,7 +206,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 			actOnNode = createVersionExtension(actOnNode);
 			if (actOnNode == null)
 				return; // should this post status or dialog?
-			roleFacet = ((CoreObjectNode) actOnNode).getRoleFacet();
+			roleFacet = ((CoreObjectNode) actOnNode).getFacet_Role();
 		}
 
 		final SimpleNameWizard wizard = new SimpleNameWizard(new ExternalizedStringProperties("action.addRole"), 10);

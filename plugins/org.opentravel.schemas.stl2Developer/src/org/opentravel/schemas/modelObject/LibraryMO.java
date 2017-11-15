@@ -52,9 +52,9 @@ public class LibraryMO extends ModelObject<AbstractLibrary> {
 	// return true;
 	// }
 
-	@Override
-	public void delete() {
-		// LOGGER.debug("Not Implemented - library delete");
-	}
+	// @Override
+	// public void delete() {
+	// // LOGGER.debug("Not Implemented - library delete");
+	// }
 
 }

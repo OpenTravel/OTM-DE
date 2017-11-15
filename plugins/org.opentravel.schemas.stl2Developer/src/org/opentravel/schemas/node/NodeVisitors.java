@@ -15,14 +15,12 @@
  */
 package org.opentravel.schemas.node;
 
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
@@ -31,6 +29,8 @@ import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Node visitors for generic, commonly used functions.
@@ -41,7 +41,7 @@ import org.opentravel.schemas.types.TypeUser;
  * 
  */
 public class NodeVisitors {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(NodeVisitors.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(NodeVisitors.class);
 
 	/**
 	 * Close this node. Do not change the model. Does delete type assignments. Does not delete children nor change view
@@ -56,7 +56,7 @@ public class NodeVisitors {
 
 		@Override
 		public void visit(INode n) {
-			// LOGGER.debug("CloseVisitor: closing " + n);
+			LOGGER.debug("CloseVisitor: closing " + n);
 			Node node = (Node) n;
 
 			// Use override behavior because Library nodes must clear out context.
@@ -65,19 +65,19 @@ public class NodeVisitors {
 
 			if (node instanceof ContextualFacetNode)
 				((ContextualFacetNode) node).close();
-			// LOGGER.debug("Closing contextual facet: " + node);
+
+			if (node instanceof VersionNode)
+				((VersionNode) node).close();
 
 			// Unlink from tree
 			node.deleted = true;
-			if (node.getParent() != null && node.getParent().getChildren() != null)
-				node.getParent().getChildren().remove(node);
-			// else
-			// LOGGER.debug("Could not remove " + node + " from parent.");
+			if (node.getParent() != null && node.getParent().getChildrenHandler() != null)
+				node.getParent().getChildrenHandler().clear();
 
 			node.setParent(null);
-			node.setLibrary(null);
+			// node.setLibrary(null);
 
-			// LOGGER.debug("CloseVisitor: closed  " + n);
+			LOGGER.debug("CloseVisitor: closed  " + n);
 		}
 	}
 
@@ -92,7 +92,7 @@ public class NodeVisitors {
 
 		@Override
 		public void visit(INode n) {
-			// LOGGER.debug("DeleteVisitor: deleting " + n);
+			LOGGER.debug("DeleteVisitor: deleting " + n);
 			Node node = (Node) n;
 			String nodeName = n.getName();
 
@@ -127,24 +127,29 @@ public class NodeVisitors {
 
 			// Unlink from tree
 			node.deleted = true;
-			if (node.getParent() != null)
-				node.getParent().remove(node);
+			if (node.getParent() != null && node.getParent().getChildrenHandler() != null)
+				node.getParent().getChildrenHandler().clear();
+			// node.getParent().remove(node); // FIXME - use childrenHandler.clear()
 			// else
 			// LOGGER.warn("Warning, tried to delete " + node + " with no parent--skipped remove().");
 
+			// Remove the TL entity from the TL Model.
+			node.deleteTL();
+
 			node.setParent(null);
 			if (node instanceof LibraryMemberInterface)
-				node.setLibrary(null);
+				((LibraryMemberInterface) node).setLibrary(null);
 
-			// Remove the TL entity from the TL Model.
-			if (node.modelObject != null) {
-				TLModelElement tlObj = node.getTLModelObject();
-				node.modelObject.delete();
-				ListenerFactory.clearListners(tlObj); // remove any listeners
-				// LOGGER.debug("DeleteVisitor: deleted tl object " + node);
-			}
+			// // Remove the TL entity from the TL Model.
+			// if (node.modelObject != null) {
+			// TLModelElement tlObj = node.getTLModelObject();
+			// node.deleteTL();
+			// // node.modelObject.delete();
+			// ListenerFactory.clearListners(tlObj); // remove any listeners
+			// // LOGGER.debug("DeleteVisitor: deleted tl object " + node);
+			// }
 
-			// LOGGER.debug("DeleteVisitor: deleted  " + nodeName);
+			LOGGER.debug("DeleteVisitor: deleted  " + nodeName);
 		}
 	}
 

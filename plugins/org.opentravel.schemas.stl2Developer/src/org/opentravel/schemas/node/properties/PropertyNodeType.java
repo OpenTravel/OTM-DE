@@ -98,7 +98,7 @@ public enum PropertyNodeType {
 			return INDICATOR;
 		if (pn instanceof RoleNode)
 			return ROLE;
-		if (pn instanceof SimpleAttributeNode)
+		if (pn instanceof SimpleAttributeFacadeNode)
 			return SIMPLE;
 
 		return null;

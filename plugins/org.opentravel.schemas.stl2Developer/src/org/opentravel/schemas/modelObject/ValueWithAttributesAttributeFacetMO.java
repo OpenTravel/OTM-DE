@@ -32,9 +32,9 @@ public class ValueWithAttributesAttributeFacetMO extends ModelObject<TLnValueWit
 		super(obj);
 	}
 
-	public void addAttribute(final TLAttribute attribute, int index) {
-		getTLModelObj().addAttribute(index, attribute);
-	}
+	// public void addAttribute(final TLAttribute attribute, int index) {
+	// getTLModelObj().addAttribute(index, attribute);
+	// }
 
 	@Override
 	public List<?> getChildren() {
@@ -97,23 +97,23 @@ public class ValueWithAttributesAttributeFacetMO extends ModelObject<TLnValueWit
 	// return false;
 	// }
 
-	@Override
-	public void delete() {
-	}
+	// @Override
+	// public void delete() {
+	// }
 
-	@Override
-	public boolean addChild(final TLModelElement child) {
-		if (child instanceof TLAttribute) {
-			getTLModelObj().addAttribute((TLAttribute) child);
-		} else if (child instanceof TLIndicator) {
-			getTLModelObj().addIndicator((TLIndicator) child);
-		} else {
-			return false;
-			// throw new IllegalArgumentException("Property of type "
-			// + child.getClass().getSimpleName() + " not supported for VWA Facet");
-		}
-		return true;
-	}
+	// @Override
+	// public boolean addChild(final TLModelElement child) {
+	// if (child instanceof TLAttribute) {
+	// getTLModelObj().addAttribute((TLAttribute) child);
+	// } else if (child instanceof TLIndicator) {
+	// getTLModelObj().addIndicator((TLIndicator) child);
+	// } else {
+	// return false;
+	// // throw new IllegalArgumentException("Property of type "
+	// // + child.getClass().getSimpleName() + " not supported for VWA Facet");
+	// }
+	// return true;
+	// }
 
 	@Override
 	public TLnValueWithAttributesFacet getTLModelObj() {

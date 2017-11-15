@@ -18,13 +18,10 @@ package org.opentravel.schemas.modelObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
-import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.utils.StringComparator;
 
 public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 
@@ -32,14 +29,14 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 		super(obj);
 	}
 
-	@Override
-	public boolean addChild(TLModelElement value) {
-		if (value instanceof TLEnumValue)
-			addLiteral((TLEnumValue) value);
-		else
-			return false;
-		return true;
-	}
+	// @Override
+	// public boolean addChild(TLModelElement value) {
+	// if (value instanceof TLEnumValue)
+	// addLiteral((TLEnumValue) value);
+	// else
+	// return false;
+	// return true;
+	// }
 
 	public void addLiteral(final TLEnumValue value) {
 		getTLModelObj().addValue(value);
@@ -49,11 +46,11 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 		getTLModelObj().addValue(index, value);
 	}
 
-	@Override
-	public void delete() {
-		if (srcObj.getOwningLibrary() != null)
-			srcObj.getOwningLibrary().removeNamedMember(srcObj);
-	}
+	// @Override
+	// public void delete() {
+	// if (srcObj.getOwningLibrary() != null)
+	// srcObj.getOwningLibrary().removeNamedMember(srcObj);
+	// }
 
 	@Override
 	public List<TLEnumValue> getChildren() {
@@ -84,12 +81,12 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 	// return extendsTypeName;
 	// }
 
-	@Override
-	public String getExtendsTypeNS() {
-		TLExtension tlExtension = getTLModelObj().getExtension();
-		return tlExtension == null || tlExtension.getExtendsEntity() == null ? "" : tlExtension.getExtendsEntity()
-				.getNamespace();
-	}
+	// @Override
+	// public String getExtendsTypeNS() {
+	// TLExtension tlExtension = getTLModelObj().getExtension();
+	// return tlExtension == null || tlExtension.getExtendsEntity() == null ? "" : tlExtension.getExtendsEntity()
+	// .getNamespace();
+	// }
 
 	/**
 	 * @see org.opentravel.schemas.modelObject.ModelObject#getInheritedChildren()
@@ -125,10 +122,10 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 		return srcObj;
 	}
 
-	@Override
-	public NamedEntity getTLBase() {
-		return srcObj.getExtension() != null ? srcObj.getExtension().getExtendsEntity() : null;
-	}
+	// @Override
+	// public NamedEntity getTLBase() {
+	// return srcObj.getExtension() != null ? srcObj.getExtension().getExtendsEntity() : null;
+	// }
 
 	// /**
 	// * Is this Enum extended by <i>extension</i>? VWA does not use an TL extension handler. Use the parentType
@@ -147,29 +144,30 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 	// return false;
 	// }
 
-	@Override
-	public boolean isSimpleAssignable() {
-		return true;
-	}
+	// @Override
+	// public boolean isSimpleAssignable() {
+	// return true;
+	// }
 
-	/**
-	 * @see org.opentravel.schemas.modelObject.ModelObject#setExtendsType(org.opentravel.schemas.modelObject.ModelObject)
-	 */
-	@Override
-	public void setExtendsType(ModelObject<?> mo) {
-		if (mo == null) {
-			getTLModelObj().setExtension(null);
-
-		} else {
-			TLExtension tlExtension = getTLModelObj().getExtension();
-
-			if (tlExtension == null) {
-				tlExtension = new TLExtension();
-				getTLModelObj().setExtension(tlExtension);
-			}
-			tlExtension.setExtendsEntity((NamedEntity) mo.getTLModelObj());
-		}
-	}
+	// /**
+	// * @see
+	// org.opentravel.schemas.modelObject.ModelObject#setExtendsType(org.opentravel.schemas.modelObject.ModelObject)
+	// */
+	// @Override
+	// public void setExtendsType(ModelObject<?> mo) {
+	// if (mo == null) {
+	// getTLModelObj().setExtension(null);
+	//
+	// } else {
+	// TLExtension tlExtension = getTLModelObj().getExtension();
+	//
+	// if (tlExtension == null) {
+	// tlExtension = new TLExtension();
+	// getTLModelObj().setExtension(tlExtension);
+	// }
+	// tlExtension.setExtendsEntity((NamedEntity) mo.getTLModelObj());
+	// }
+	// }
 
 	// @Override
 	// public boolean setName(final String name) {
@@ -177,16 +175,16 @@ public class ClosedEnumMO extends ModelObject<TLClosedEnumeration> {
 	// return true;
 	// }
 
-	@Override
-	public void sort() {
-		TLClosedEnumeration eClosed = getTLModelObj();
-		eClosed.sortValues(new StringComparator<TLEnumValue>() {
-
-			@Override
-			protected String getString(TLEnumValue object) {
-				return object.getLiteral();
-			}
-		});
-	}
+	// @Override
+	// public void sort() {
+	// TLClosedEnumeration eClosed = getTLModelObj();
+	// eClosed.sortValues(new StringComparator<TLEnumValue>() {
+	//
+	// @Override
+	// protected String getString(TLEnumValue object) {
+	// return object.getLiteral();
+	// }
+	// });
+	// }
 
 }

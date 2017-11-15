@@ -15,12 +15,15 @@
  */
 package org.opentravel.schemas.node;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryElement;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
+import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -28,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Base class for most Library Members. Contextual facets extend facets not this.
+ * Base class for <b>most</b> Library Members. Contextual facets extend facets not this.
  * 
  * @author Dave Hollander
  * 
@@ -36,11 +39,42 @@ import org.slf4j.LoggerFactory;
 public abstract class LibraryMemberBase extends TypeProviderBase implements LibraryMemberInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryMemberBase.class);
 
+	protected LibraryNode owningLibrary = null;
+
 	// public LibraryMemberBase() {
 	// }
 	//
-	public LibraryMemberBase(final TLModelElement obj) {
-		super(obj);
+	public LibraryMemberBase(final LibraryMember obj) {
+		super((TLModelElement) obj);
+		owningLibrary = (LibraryNode) Node.GetNode(obj.getOwningLibrary());
+
+		// while it is true that if it is a library member it must have library, sometimes the library is added after
+		// the node is created.
+		// if (owningLibrary == null)
+		// assert this instanceof ImpliedNode;
+	}
+
+	@Override
+	public Node clone(Node parent, String nameSuffix) {
+		if (getLibrary() == null || !getLibrary().isEditable()) {
+			LOGGER.warn("Could not clone node because library " + getLibrary() + " it is not editable.");
+			return null;
+		}
+
+		LibraryMemberInterface clone = null;
+
+		// Use the compiler to create a new TL src object.
+		// FIXME - this looks right, but cloneTLObj() doesn't
+		TLModelElement newLM = (TLModelElement) cloneTLObj();
+		if (newLM != null) {
+			clone = NodeFactory.newLibraryMember((LibraryMember) newLM);
+			if (nameSuffix != null)
+				clone.setName(clone.getName() + nameSuffix);
+			for (AliasNode alias : clone.getAliases())
+				alias.setName(alias.getName() + nameSuffix);
+			getLibrary().addMember(clone);
+		}
+		return (Node) clone;
 	}
 
 	public LibraryMember cloneTL() {
@@ -48,9 +82,9 @@ public abstract class LibraryMemberBase extends TypeProviderBase implements Libr
 		// TODO - why is choice done here? Why not BO and CFs also?
 		if (clone instanceof TLChoiceObject) {
 			List<TLContextualFacet> tlCFs = ((TLChoiceObject) clone).getChoiceFacets();
-			ComponentNode n;
+			LibraryMemberInterface n;
 			for (TLContextualFacet tlcf : tlCFs) {
-				n = NodeFactory.newComponent_UnTyped(tlcf);
+				n = NodeFactory.newLibraryMember(tlcf);
 				getLibrary().addMember(n);
 			}
 		}
@@ -67,7 +101,7 @@ public abstract class LibraryMemberBase extends TypeProviderBase implements Libr
 		LibraryMember tlCopy = cloneTL();
 
 		// Create contextual facet from the copy
-		Node copy = NodeFactory.newComponent_UnTyped(tlCopy);
+		LibraryMemberInterface copy = NodeFactory.newLibraryMember(tlCopy);
 		if (!(copy instanceof LibraryMemberInterface))
 			throw new IllegalArgumentException("Unable to copy " + this);
 		LibraryMemberInterface lm = (LibraryMemberInterface) copy;
@@ -75,17 +109,35 @@ public abstract class LibraryMemberBase extends TypeProviderBase implements Libr
 		// Fix any contexts
 		((Node) lm).fixContexts();
 
-		destLib.addMember((Node) lm);
+		destLib.addMember(lm);
 		return lm;
 	}
 
 	@Override
+	public void deleteTL() {
+		AbstractLibrary owningLib = null;
+		if (getTLModelObject() instanceof TLLibraryMember)
+			owningLib = ((TLLibraryMember) getTLModelObject()).getOwningLibrary();
+		if (owningLib != null)
+			owningLib.removeNamedMember((LibraryMember) getTLModelObject());
+	}
+
+	@Override
+	public List<AliasNode> getAliases() {
+		List<AliasNode> aliases = new ArrayList<AliasNode>();
+		for (Node n : getChildren())
+			if (n instanceof AliasNode)
+				aliases.add((AliasNode) n);
+		return aliases;
+	}
+
+	@Override
 	public LibraryNode getLibrary() {
-		return library;
+		return owningLibrary;
 	}
 
 	@Override
 	public void setLibrary(LibraryNode library) {
-		this.library = library;
+		owningLibrary = library;
 	}
 }

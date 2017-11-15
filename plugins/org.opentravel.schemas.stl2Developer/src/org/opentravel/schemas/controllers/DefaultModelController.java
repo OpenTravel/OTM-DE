@@ -56,10 +56,11 @@ import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.facets.SimpleFacetFacadeNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.node.properties.SimpleAttributeNode;
+import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
 import org.opentravel.schemas.preferences.CompilerPreferences;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -473,8 +474,9 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 	}
 
 	@Override
+	@Deprecated
 	public boolean changeToSimple(PropertyNode p) {
-		if (p instanceof SimpleAttributeNode)
+		if (p instanceof SimpleAttributeFacadeNode)
 			return false;
 		if (!p.getType().isSimpleAssignable())
 			return false;
@@ -495,13 +497,15 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 		else
 			return false;
 
-		ComplexComponentInterface ci = (ComplexComponentInterface) owner;
-		Node simpleProp = ci.getFacet_Simple().getSimpleAttribute();
+		ComponentNode ci = (ComponentNode) owner;
+		Node simpleProp = ((SimpleFacetFacadeNode) ci.getFacet_Simple()).getSimpleAttribute();
 		((TypeUser) simpleProp).setAssignedType((TypeProvider) p.getType());
 		copyDocumentation(p, simpleProp);
 		// TODO also copy the examples and equivalents
-		p.unlinkNode();
 
+		p.getParent().getChildrenHandler().clear();
+		// p.unlinkNode();
+		// TEST - FIXME
 		return true;
 	}
 
@@ -518,7 +522,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 
 	@Override
 	public ComponentNode moveSimpleToFacet(Node simpleAttribute, ComponentNode targetFacet) {
-		if (!(simpleAttribute instanceof SimpleAttributeNode))
+		if (!(simpleAttribute instanceof SimpleAttributeFacadeNode))
 			return null;
 
 		ComponentNode cn = (ComponentNode) simpleAttribute.getOwningComponent();
@@ -535,7 +539,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 			String name = NodeNameUtils.stipSimpleSuffix(simpleAttribute.getName());
 			tlModel = createTLProperty(name);
 		}
-		ComponentNode newProperty = NodeFactory.newMember(targetFacet, tlModel);
+		ComponentNode newProperty = NodeFactory.newChild(targetFacet, tlModel);
 		NodeNameUtils.fixName(newProperty);
 		((TypeUser) newProperty).setAssignedType((TypeProvider) simpleAttribute.getType());
 		((TypeUser) simpleAttribute).setAssignedType((TypeProvider) ModelNode.getEmptyNode());

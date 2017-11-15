@@ -19,7 +19,6 @@ import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 
 /**
  * Used for Custom Facets.
@@ -56,18 +55,15 @@ public class CustomFacetNode extends ContextualFacetNode {
 		}
 	}
 
-	public void setOwner(ContextualFacetOwnerInterface owner) {
-		// Add to TL Object
-		TLContextualFacet tlFacet = getTLModelObject();
-		// tlFacet.setOwningEntity(owner.getTLModelObject());
-		// tlFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
-		// v1.5 and earlier throws ignored library member added event - NodeModelEventListener.
-		if (owner.getTLModelObject() instanceof TLBusinessObject)
-			((TLBusinessObject) owner.getTLModelObject()).addCustomFacet(tlFacet);
-		else if (owner.getTLModelObject() instanceof TLContextualFacet)
-			((TLContextualFacet) owner.getTLModelObject()).addChildFacet(tlFacet);
-		super.add(owner, tlFacet);
-	}
+	/**
+	 * Add this facet to the owner's TL facet owner. Then add to library or owner. Create contributed facet if
+	 * canBeLibrarymember (v1.6)
+	 */
+	// public void setOwner(ContextualFacetOwnerInterface owner) {
+	// // Add to TL Object
+	// addToTLParent(owner.getTLModelObject());
+	// super.add(owner, getTLModelObject());
+	// }
 
 	@Override
 	protected void addToTLParent(TLFacetOwner tlOwner) {

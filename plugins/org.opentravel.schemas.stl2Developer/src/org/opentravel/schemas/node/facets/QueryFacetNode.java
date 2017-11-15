@@ -19,7 +19,6 @@ import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 
 /**
  * Used for Query Facets.
@@ -56,21 +55,25 @@ public class QueryFacetNode extends ContextualFacetNode {
 		}
 	}
 
-	public void setOwner(ContextualFacetOwnerInterface owner) {
-		TLContextualFacet newFacet = getTLModelObject();
-		// newFacet.setOwningEntity(owner.getTLModelObject());
-		// If this facet is not already in a library add it to owner's library
-		// if (getLibrary() != null)
-		// newFacet.setOwningLibrary(getLibrary().getTLLibrary());
-		// else
-		// newFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
-		if (owner.getTLModelObject() instanceof TLBusinessObject)
-			((TLBusinessObject) owner.getTLModelObject()).addQueryFacet(newFacet);
-		else if (owner.getTLModelObject() instanceof TLContextualFacet)
-			((TLContextualFacet) owner.getTLModelObject()).addChildFacet(newFacet);
-
-		super.add(owner, newFacet);
-	}
+	// public void setOwner(ContextualFacetOwnerInterface owner) {
+	//
+	// // FIXME - this behavior can be moved up into super type.
+	// //
+	// // TLContextualFacet newFacet = getTLModelObject();
+	// // // newFacet.setOwningEntity(owner.getTLModelObject());
+	// // // If this facet is not already in a library add it to owner's library
+	// // // if (getLibrary() != null)
+	// // // newFacet.setOwningLibrary(getLibrary().getTLLibrary());
+	// // // else
+	// // // newFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
+	// // if (owner.getTLModelObject() instanceof TLBusinessObject)
+	// // ((TLBusinessObject) owner.getTLModelObject()).addQueryFacet(newFacet);
+	// // else if (owner.getTLModelObject() instanceof TLContextualFacet)
+	// // ((TLContextualFacet) owner.getTLModelObject()).addChildFacet(newFacet);
+	//
+	// addToTLParent(owner.getTLModelObject());
+	// super.add(owner, getTLModelObject());
+	// }
 
 	@Override
 	protected void addToTLParent(TLFacetOwner tlOwner) {

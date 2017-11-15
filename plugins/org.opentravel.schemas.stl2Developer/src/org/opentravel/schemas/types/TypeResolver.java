@@ -78,7 +78,7 @@ public class TypeResolver {
 		boolean wasEditable = false;
 		for (LibraryNode lib : newLibs) {
 			wasEditable = lib.isEditable(); // Resolve all libraries, not just editable ones
-			// LOGGER.debug("Resolving Types in " + lib);
+			LOGGER.debug("Resolving Types in " + lib);
 			lib.setEditable(true);
 
 			// Resolve all un-linked contributed facets FIRST since that impacts children
@@ -139,14 +139,15 @@ public class TypeResolver {
 	 */
 	// Used in graphical editor
 	public static Node getNodeType(Node n) {
-		Node type = n.getType();
+		Node type = n.getType(); // FIXME - should use assignedType but it returns unused
 		if (type == null)
 			return null;
 
 		if (type instanceof SimpleFacetNode) {
+			assert false; // FIXME
 			ComplexComponentInterface owner = (ComplexComponentInterface) type.getOwningComponent();
 			if (owner instanceof SimpleAttributeOwner)
-				return (Node) ((SimpleAttributeOwner) owner).getSimpleType();
+				return (Node) ((SimpleAttributeOwner) owner).getAssignedType();
 			else
 				return (Node) owner;
 		} else if (type instanceof AliasNode) {

@@ -32,20 +32,24 @@ import org.opentravel.schemacompiler.codegen.example.ExampleBuilder;
 import org.opentravel.schemacompiler.codegen.example.ExampleDocumentBuilder;
 import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions;
 import org.opentravel.schemacompiler.event.ModelElementListener;
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryElement;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.ModelElement;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
 import org.opentravel.schemacompiler.model.TLAttributeType;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLContextReferrer;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
+import org.opentravel.schemacompiler.model.TLEquivalent;
 import org.opentravel.schemacompiler.model.TLEquivalentOwner;
+import org.opentravel.schemacompiler.model.TLExample;
 import org.opentravel.schemacompiler.model.TLExampleOwner;
+import org.opentravel.schemacompiler.model.TLFacet;
+import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLListFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
@@ -59,7 +63,6 @@ import org.opentravel.schemacompiler.version.Versioned;
 import org.opentravel.schemas.controllers.LibraryModelManager;
 import org.opentravel.schemas.controllers.ValidationManager;
 import org.opentravel.schemas.modelObject.ModelObject;
-import org.opentravel.schemas.modelObject.ModelObjectFactory;
 import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.modelObject.XSDComplexMO;
 import org.opentravel.schemas.modelObject.XSDElementMO;
@@ -70,8 +73,12 @@ import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.OperationFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
+import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
+import org.opentravel.schemas.node.handlers.DocumentationHandler;
+import org.opentravel.schemas.node.handlers.children.ChildrenHandlerI;
+import org.opentravel.schemas.node.interfaces.AliasOwner;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
@@ -84,13 +91,12 @@ import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.INodeListener;
-import org.opentravel.schemas.node.listeners.NamedTypeListener;
 import org.opentravel.schemas.node.listeners.NodeIdentityListener;
 import org.opentravel.schemas.node.properties.IValueWithContextHandler;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
-import org.opentravel.schemas.node.properties.SimpleAttributeNode;
+import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.types.ExtensionHandler;
@@ -125,19 +131,31 @@ public abstract class Node implements INode {
 	// Any node that uses TLDocumentation will get a handler
 	protected DocumentationHandler docHandler = null;
 
+	// Children
+	protected ChildrenHandlerI<?> childrenHandler = null;
+	protected TLModelElement tlObj = null;
+
 	// Ancestry
-	protected LibraryNode library; // link to the library node to which this node belongs
 	protected Node parent; // link to the parentNode node
-	private final ArrayList<Node> children; // links to the children
 	protected VersionNode versionNode; // Link to the version node representing this node in a chain
 
-	public ModelObject<?> modelObject; // Generic interface to TL Model objects.
 	protected boolean deleted = false;
-	public boolean local = false; // Local nodes are not named nodes and are not to made visible in type assignment
-	// lists.
+
+	// DEPRECATED - make these go away
+	@Deprecated
+	protected LibraryNode library; // link to the library node to which this node belongs
+	// @Deprecated
+	// private final ArrayList<Node> children; // links to the children
+	@Deprecated
+	public ModelObject<?> modelObject; // Generic interface to TL Model objects.
+	@Deprecated
 	public XsdNode xsdNode = null; // Link to node containing imported XSD representation
+	@Deprecated
 	public boolean xsdType = false; // True if this node represents an object that was created by
 									// the XSD utilities but has not be imported.
+	public boolean local = false; // Local nodes are not named nodes and are not to made visible in type assignment
+
+	// lists.
 
 	/**
 	 * Public class for comparing nodes. Use: Collection.sort(list, node.new NodeComparable()) Uses node name and prefix
@@ -260,10 +278,10 @@ public abstract class Node implements INode {
 	 */
 	public Node() {
 		parent = null;
-		children = new ArrayList<Node>();
+		// children = new ArrayList<Node>();
 		nodeID = Integer.toString(nodeCount++);
 		library = null;
-		modelObject = newModelObject(new TLEmpty());
+		// modelObject = newModelObject(new TLEmpty());
 		versionNode = null;
 	}
 
@@ -281,8 +299,10 @@ public abstract class Node implements INode {
 	public Node(final TLModelElement tlModelObject) {
 		this();
 
-		modelObject.delete();
-		modelObject = newModelObject(tlModelObject);
+		tlObj = tlModelObject;
+		// FIXME - remove model object
+		// modelObject = newModelObject(tlModelObject);
+
 		if (isDocumentationOwner())
 			docHandler = new DocumentationHandler(this);
 	}
@@ -355,6 +375,7 @@ public abstract class Node implements INode {
 	 * @param nameSuffix
 	 * @return null if error
 	 */
+	// TODO - refactor to classes that implement cloneTLObj()
 	public Node clone(Node parent, String nameSuffix) {
 		LibraryNode lib = this.getLibrary();
 		if (parent != null)
@@ -375,23 +396,23 @@ public abstract class Node implements INode {
 
 		// Use the node factory to create the gui representation.
 		if (this instanceof PropertyNode) {
-			newNode = NodeFactory.newMember(null, newLM);
+			newNode = NodeFactory.newChild(null, newLM);
 			if (nameSuffix != null)
 				newNode.setName(newNode.getName() + nameSuffix);
-			if (parent instanceof ComponentNode) {
-				((ComponentNode) parent).addProperty(newNode, ((PropertyNode) this).indexOfTLProperty());
+			if (parent instanceof PropertyOwnerNode) {
+				((PropertyOwnerNode) parent).add((PropertyNode) newNode, ((PropertyNode) this).indexOfTLProperty());
 			}
 			// set assigned type using the type on the cloned tl object
 			((TypeUser) newNode).setAssignedType(((TypeUser) newNode).getAssignedTLObject());
 
 		} else if (newLM instanceof LibraryMember) {
-			newNode = NodeFactory.newComponent_UnTyped((LibraryMember) newLM);
-			if (nameSuffix != null)
-				newNode.setName(newNode.getName() + nameSuffix);
-			// 4/26/2017 - must used passed library if not null
-			// if (getLibrary() != null)
-			// getLibrary().addMember(newNode);
-			lib.addMember(newNode);
+			// newNode = NodeFactory.newComponent_UnTyped((LibraryMember) newLM);
+			// if (nameSuffix != null)
+			// newNode.setName(newNode.getName() + nameSuffix);
+			// // 4/26/2017 - must used passed library if not null
+			// // if (getLibrary() != null)
+			// // getLibrary().addMember(newNode);
+			// lib.addMember(newNode);
 		} else {
 			LOGGER.warn("clone not supported for this node: " + this);
 			return null;
@@ -406,23 +427,25 @@ public abstract class Node implements INode {
 	public Node clone(String nameSuffix) {
 		if (!(this instanceof ComponentNode))
 			return null;
-
-		// If this is a version chain, then set the library to the latest in the chain.
-		if (getLibrary().isInChain()) {
-			// Can't use library because of clone behavior.
-			// Clone is always in -this- library. remove this then and it back library.
-			LibraryNode thisLib = this.getLibrary();
-			LibraryNode targetLib = this.getLibrary().getChain().getHead();
-			this.removeFromLibrary();
-			targetLib.addMember(this);
-
-			Node clone = clone(this, nameSuffix);
-
-			this.removeFromLibrary();
-			thisLib.addMember(this);
-			return clone;
-		} else
-			return clone(this.getLibrary(), nameSuffix);
+		assert false;
+		return null;
+		// FIXME - i can figure out what this is doing.
+		// // If this is a version chain, then set the library to the latest in the chain.
+		// if (getLibrary().isInChain()) {
+		// // Can't use library because of clone behavior.
+		// // Clone is always in -this- library. remove this then and it back library.
+		// LibraryNode thisLib = this.getLibrary();
+		// LibraryNode targetLib = this.getLibrary().getChain().getHead();
+		// this.removeFromLibrary();
+		// targetLib.addMember(this);
+		//
+		// Node clone = clone(this, nameSuffix);
+		//
+		// this.removeFromLibrary();
+		// thisLib.addMember(this);
+		// return clone;
+		// } else
+		// return clone(this.getLibrary(), nameSuffix);
 	}
 
 	/**
@@ -488,6 +511,10 @@ public abstract class Node implements INode {
 		return xml;
 	}
 
+	public boolean contains(Node candidate) {
+		return getChildren() != null ? getChildren().contains(candidate) : false;
+	}
+
 	@Override
 	public void delete() {
 		// If a version-ed library, then also remove from aggregate
@@ -533,8 +560,7 @@ public abstract class Node implements INode {
 	 * find a named node starting from <i>this</i> node.
 	 */
 	public Node findNode(final String name, String ns) {
-		// LOGGER.debug("findNode() - Testing: " + this.getNamespace() + " : " +
-		// this);
+		// LOGGER.debug("findNode() - Testing: " + this.getNamespace() + " : " + this);
 		if (name == null || name.isEmpty())
 			return null;
 		if (ns == null || ns.isEmpty())
@@ -573,8 +599,27 @@ public abstract class Node implements INode {
 	 * @param name
 	 * @return node found or null
 	 */
-	public Node findNodeByName(String name) {
+	public Node findLibraryMemberByName(String name) {
 		for (Node n : getDescendants_LibraryMembers()) {
+			if (n.getName().equals(name))
+				return n;
+		}
+		return null;
+	}
+
+	/**
+	 * Find the first child of this node with the given name. The order searched is not guaranteed.
+	 * <p>
+	 * Contextual facets have prefix from owner, so this method matches contextual facets that end in name.
+	 * 
+	 * @param name
+	 * @return node found or null
+	 */
+	public Node findChildByName(String name) {
+		for (Node n : getChildren()) {
+			if (n instanceof ContextualFacetNode)
+				if (n.getName().endsWith(name))
+					return n;
 			if (n.getName().equals(name))
 				return n;
 		}
@@ -646,46 +691,6 @@ public abstract class Node implements INode {
 	 */
 	public LibraryChainNode getChain() {
 		return getLibrary() != null ? getLibrary().getChain() : null;
-	}
-
-	@Override
-	public List<Node> getChildren() {
-		return children;
-	}
-
-	/**
-	 * @return a new ArrayList containing the children
-	 */
-	public List<Node> getChildren_New() {
-		return new ArrayList<Node>(children);
-	}
-
-	/*
-	 * @see org.opentravel.schemas.node.Node#getChildren_TypeProviders()
-	 */
-	// FIXME - why is this using isTypeProvider() ? Should instanceof test.
-	@Override
-	public List<Node> getChildren_TypeProviders() {
-		final ArrayList<Node> kids = new ArrayList<Node>();
-		for (final Node n : getChildren()) {
-			if (n.isNamedEntity() || n.hasChildren_TypeProviders()) {
-				if (n instanceof VersionNode && ((VersionNode) n).get() != null)
-					kids.add(((VersionNode) n).get());
-				else
-					kids.add(n);
-			}
-		}
-		return kids;
-	}
-
-	/**
-	 * Gets the children that are type users (can be assigned a type). Does not return navigation nodes.
-	 * {@link #getDescendants_TypeUsers() Use getDescendants_TypeUsers() for all children.}
-	 * 
-	 * @return all immediate children that can be assigned a type.
-	 */
-	public List<Node> getChildren_TypeUsers() {
-		return new ArrayList<Node>();
 	}
 
 	/**
@@ -1022,9 +1027,9 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Return the actual extension object. Will not return objects that are using extension for version relationships.
-	 * This method will examine the whole chain to find the oldest version of the object and return its base type if
-	 * any.
+	 * Return the actual extension base object. Will not return objects that are using extension for version
+	 * relationships. This method will examine the whole chain to find the oldest version of the object and return its
+	 * base type if any.
 	 * 
 	 * @see ExtensionOwner#getExtensionBase()
 	 */
@@ -1057,7 +1062,13 @@ public abstract class Node implements INode {
 	}
 
 	public List<Node> getInheritedChildren() {
+		if (getChildrenHandler() != null)
+			return genericToNode(getChildrenHandler().getInheritedChildren());
 		return Collections.emptyList();
+	}
+
+	public Node getInheritedFrom() {
+		return null;
 	}
 
 	@Override
@@ -1135,7 +1146,10 @@ public abstract class Node implements INode {
 	@Override
 	public List<LibraryNode> getLibraries() {
 		ArrayList<LibraryNode> libs = new ArrayList<LibraryNode>();
-		for (Node n : getChildren()) {
+		if (getChildrenHandler() == null)
+			return libs;
+
+		for (Node n : getChildrenHandler().get()) {
 			if (n instanceof LibraryNode)
 				libs.add((LibraryNode) n);
 			else if (n.isLibraryContainer())
@@ -1144,12 +1158,14 @@ public abstract class Node implements INode {
 		return libs;
 	}
 
+	// FIXME - only selected nodes have library
 	@Override
 	public LibraryNode getLibrary() {
 		return library;
 	}
 
 	@Override
+	@Deprecated
 	public ModelObject<?> getModelObject() {
 		return modelObject;
 	}
@@ -1189,25 +1205,6 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Get a new list of child nodes that are to be displayed in navigator trees.
-	 * 
-	 * @param deep
-	 *            when true some nodes will return more children such as properties
-	 * 
-	 * @see {@link #isNavChild()}
-	 * @see {@link org.opentravel.schemas.node.Node_NavChildren_Tests#getNavChildrenTests()}
-	 * 
-	 * @return new list of children to be used for navigation purposes.
-	 */
-	public List<Node> getNavChildren(boolean deep) {
-		ArrayList<Node> kids = new ArrayList<Node>();
-		for (Node c : getChildren())
-			if (c.isNavChild(deep))
-				kids.add(c);
-		return kids;
-	}
-
-	/**
 	 * The string to present in the navigator tree and other library trees. Is label unless overridden.
 	 * 
 	 * @return
@@ -1222,7 +1219,7 @@ public abstract class Node implements INode {
 	 * @return
 	 */
 	public BaseNodeListener getNewListener() {
-		return new NamedTypeListener(this);
+		return new NodeIdentityListener(this);
 	}
 
 	/**
@@ -1276,23 +1273,10 @@ public abstract class Node implements INode {
 	 * 
 	 * @return
 	 */
+	// FIXME - make abstract
 	public TLModelElement getTLModelObject() {
-		return (TLModelElement) (modelObject != null ? modelObject.getTLModelObj() : null);
-	}
-
-	/**
-	 * Get all immediate navChildren that are to be presented in the OTM Object Tree. Includes where used nodes.
-	 * Overridden on nodes that add nodes such as where used to the tree view.
-	 * 
-	 * @see {@link #getNavChildren()}
-	 * 
-	 * @param deep
-	 *            - include properties
-	 * 
-	 * @return new list
-	 */
-	public List<Node> getTreeChildren(boolean deep) {
-		return getNavChildren(deep);
+		return tlObj;
+		// return (TLModelElement) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	/**
@@ -1316,6 +1300,7 @@ public abstract class Node implements INode {
 	/**
 	 * @return - list of unique TLContexts used by any child of this node. Empty list if none.
 	 */
+	@Deprecated
 	public List<TLContext> getUsedContexts() {
 		final Map<String, TLContext> ctxMap = new LinkedHashMap<String, TLContext>();
 		ArrayList<TLContext> ret = new ArrayList<TLContext>();
@@ -1357,6 +1342,7 @@ public abstract class Node implements INode {
 		return whereExtendedHandler;
 	}
 
+	@Deprecated
 	public XsdNode getXsdNode() {
 		return xsdNode;
 	}
@@ -1368,6 +1354,9 @@ public abstract class Node implements INode {
 
 	@Override
 	public boolean hasChildren_TypeProviders() {
+		if (getChildrenHandler() != null)
+			return getChildrenHandler().hasChildren_TypeProviders();
+
 		return false;
 	}
 
@@ -1376,31 +1365,14 @@ public abstract class Node implements INode {
 		return (inheritedChildren != null) && !inheritedChildren.isEmpty();
 	}
 
-	/**
-	 * Fast (no array creation) method to determine if there are navChildren that should be displayed in navigator
-	 * trees.
-	 * 
-	 * @param deep
-	 *            enable the "deep" property mode
-	 */
-	public boolean hasNavChildren(boolean deep) {
-		for (final Node n : getChildren())
-			if (n.isNavChild(deep))
-				return true;
-		return false;
-	}
-
-	// Override on classes that add to getNavChildren()
-	public boolean hasTreeChildren(boolean deep) {
-		return hasNavChildren(deep);
-	}
-
 	// TODO - move to add alias action
+	@Deprecated
 	@Override
 	public boolean isAliasable() {
 		// overloaded on aliasable owning components.
-		return getOwningComponent() != null && this != getOwningComponent() ? getOwningComponent().isAliasable()
-				: false;
+		return getOwningComponent() instanceof AliasOwner;
+		// return getOwningComponent() != null && this != getOwningComponent() ? getOwningComponent().isAliasable()
+		// : false;
 	}
 
 	public boolean isAssignable() {
@@ -1483,7 +1455,8 @@ public abstract class Node implements INode {
 
 	@Override
 	public boolean isDeleted() {
-		if ((modelObject == null) || (modelObject.getTLModelObj() == null))
+		if (getTLModelObject() == null)
+			// if ((modelObject == null) || (modelObject.getTLModelObj() == null))
 			deleted = true;
 		return deleted;
 	}
@@ -1723,6 +1696,7 @@ public abstract class Node implements INode {
 		// return getOwningComponent().getVersionNode().getPreviousVersion() == null;
 	}
 
+	@Deprecated
 	protected boolean isElementAssignable() {
 		return modelObject instanceof XSDElementMO;
 	}
@@ -1768,7 +1742,7 @@ public abstract class Node implements INode {
 				enabled = true; // Unmanaged or major - allow editing.
 			else if (getChain().isPatch())
 				enabled = false; // no changes in a patch
-			else if (this instanceof SimpleAttributeNode)
+			else if (this instanceof SimpleAttributeFacadeNode)
 				enabled = isNewToChain(); // only allow editing if owner is new to the minor
 			else if (isInHead2() && !isInherited())
 				enabled = true; // Allow unless this property also exists in prev version
@@ -1905,10 +1879,18 @@ public abstract class Node implements INode {
 						+ this.getNameWithPrefix() + " in its where extended list. ");
 			return true;
 		} else {
-			Node baseNode = Node.GetNode((TLModelElement) modelObject.getTLBase());
-			if (baseNode == null)
-				return false;
-			return baseNode.isInstanceOf(node);
+			Node base = null;
+			if (this instanceof ExtensionOwner) {
+				base = ((ExtensionOwner) this).getExtensionBase();
+			}
+			return base == null ? false : base.isInstanceOf(node);
+			// TOOD - what does this else clause do? Only seems to be used for Business Objects in NodeExtensionTest
+
+			// removed when refactoring Model Object out
+			// Node baseNode = Node.GetNode((TLModelElement) modelObject.getTLBase());
+			// if (baseNode == null)
+			// return false;
+			// return baseNode.isInstanceOf(node);
 		}
 	}
 
@@ -1922,6 +1904,7 @@ public abstract class Node implements INode {
 	 * 
 	 * @return true if the model object one of the XSD model objects
 	 */
+	@Deprecated
 	public boolean isInXSDSchema() {
 		return modelObject instanceof XSDElementMO || modelObject instanceof XSDComplexMO
 				|| modelObject instanceof XSDSimpleMO;
@@ -2023,8 +2006,8 @@ public abstract class Node implements INode {
 	 * @return true if this object can be assigned as a simple type (not by reference).
 	 */
 	public boolean isSimpleAssignable() {
-		// TODO - ask Node not ModelObject
-		return modelObject.isSimpleAssignable();
+		return false;
+		// Override - closed, core, Open???, simple facet, vwa, xsd simple
 	}
 
 	/**
@@ -2113,7 +2096,18 @@ public abstract class Node implements INode {
 	 * @param type
 	 * @return
 	 */
+	@Deprecated
 	public boolean isValidParentOf(PropertyNodeType type) {
+		return false;
+	}
+
+	/**
+	 * Can this object contain properties of the specified type? Only FacetNodes can be containers.
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public boolean isValidParentOf(PropertyNode property) {
 		return false;
 	}
 
@@ -2136,6 +2130,7 @@ public abstract class Node implements INode {
 	/**
 	 * @return true if in an XSD type and element assignable.
 	 */
+	@Deprecated
 	public boolean isXsdElementAssignable() {
 		return xsdType ? xsdNode.isElementAssignable() : false;
 	}
@@ -2160,6 +2155,7 @@ public abstract class Node implements INode {
 	 *            - node to be added
 	 * @return false if child could not be linked.
 	 */
+	@Deprecated
 	public boolean linkChild(final Node child) {
 		return linkChild(child, -1);
 	}
@@ -2173,6 +2169,7 @@ public abstract class Node implements INode {
 	 * @param index
 	 *            - integer ordinal value where to add the child if in range. If out of range, added to end.
 	 */
+	@Deprecated
 	public boolean linkChild(final Node child, final int index) {
 		if (child == null)
 			return false;
@@ -2197,13 +2194,13 @@ public abstract class Node implements INode {
 		return true;
 	}
 
-	/**
-	 * 
-	 * @param libraryNode
-	 */
-	public void linkLibrary(LibraryNode libraryNode) {
-		LOGGER.error("addLibrary not Implmented for this class." + this.getClass());
-	}
+	// /**
+	// *
+	// * @param libraryNode
+	// */
+	// public void linkLibrary(LibraryNode libraryNode) {
+	// LOGGER.error("addLibrary not Implmented for this class." + this.getClass());
+	// }
 
 	/** ******************** Library access methods ******************/
 
@@ -2256,10 +2253,13 @@ public abstract class Node implements INode {
 
 	/**
 	 * calls LibraryNode.removeMember()
+	 * <p>
+	 * Use: library.remove(n);
 	 * 
 	 * @see LibraryNode
 	 */
 	@Override
+	@Deprecated
 	public void removeFromLibrary() {
 		if (getLibrary() != null)
 			getLibrary().removeMember(this);
@@ -2294,33 +2294,31 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Replace nodes, assigned types and library tree structures. Replaces node in the library then uses
-	 * {@link #replaceWith(Node)} to replace assignments.
+	 * Replace this node with the replacement. The replacement is added to this node's library. All type assignments to
+	 * this node are replaced with the replacement {@link #replaceWith(Node)}. This node is removed from its library.
 	 * <p>
-	 * Does <b>not</b> delete this node. <i>Does</i> remove parent and library links. <i>Does</i> remove type usage
-	 * links to this node.
+	 * Does <b>not</b> delete this node. <br>
+	 * <i>Does</i> remove parent and library links. <br>
+	 * <i>Does</i> remove type usage links to this node.
 	 * 
-	 * @param replacement
+	 * @param newNode
+	 *            node to replace this node with
 	 */
-	public void replaceWith(Node replacement) {
-		if (replacement == null) {
-			LOGGER.debug("Tried to replace " + this.getNameWithPrefix() + " with null replacement.");
+	public void replaceWith(LibraryMemberInterface newNode) {
+		if (newNode == null)
 			return;
-		}
 
-		// Hold onto library node because it will be cleared by removeMember.
 		if (getLibrary() == null) {
 			LOGGER.error("The node being replaced is not in a library. " + this);
 			return;
 		}
 
-		if (!getLibrary().contains(replacement))
-			getLibrary().addMember(replacement); // does nothing in swap because replacement lib is already set to
-													// this.getLibrary()
+		// Add newNode if it is not already a member
+		getLibrary().addMember((LibraryMemberInterface) newNode);
 
-		replaceTypesWith(replacement, null);
+		replaceTypesWith((Node) newNode, null);
 
-		// 9/28/2015 dmh - moved to end to preserve linkages. Listeners will remove the whereUsed links.
+		// must be done after replaceTypesWith. Listeners will remove the whereUsed links.
 		getLibrary().removeMember(this);
 	}
 
@@ -2369,15 +2367,18 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Sets the library field in this node and all of its kids.
+	 * Deprecated - only set on LibraryMembers Set the library field in this node and all of its children. Does
+	 * <b>NOT</b> change the underlying TL library.
 	 * 
 	 * @param ln
 	 */
+	@Deprecated
 	public void setLibrary(final LibraryNode ln) {
-		library = ln;
-		// Library chains use the library node to point to the head library.
-		// if (!(this instanceof LibraryChainNode))
-		setKidsLibrary();
+		// Overriden in LibraryMemberBase
+		// library = ln;
+		// // Library chains use the library node to point to the head library.
+		// // if (!(this instanceof LibraryChainNode))
+		// setKidsLibrary();
 	}
 
 	// public void setMoreInfo(String info, int index) {
@@ -2429,98 +2430,104 @@ public abstract class Node implements INode {
 		this.xsdType = xsdType;
 	}
 
-	public void sort() {
-	}
+	// public void sort() {
+	// }
 
-	/**
-	 * Swap the replacement for this node. This node is replaced via {@link #replaceWith()} and removed from parent.
-	 * Replacement is added to parent.
-	 * 
-	 * Note: this node's library is null on return. It can not be deleted.
-	 * 
-	 * @param replacement
-	 *            - should be in library, named and with all properties.
-	 * 
-	 */
-	protected void swap(Node replacement) {
-		assert (replacement != null) : "Null replacement node.";
-		assert (getLibrary() != null) : "Null library.";
-		assert (parent != null) : "Null parent";
-		assert (isTLLibraryMember()) : "TL Object is not library member.";
-		assert (replacement.isTLLibraryMember()) : "TL Object is not library member.";
-		assert (this instanceof LibraryMemberInterface);
-
-		// TODO - add junit tests
-
-		// final Node thisParent = parent;
-
-		// Add replacement to the parent if not already there.
-		parent.linkChild(replacement); // ignored if already linked
-
-		// Fail if in the list more than once.
-		assert (replacement.getParent().getChildren().indexOf(replacement) == replacement.getParent().getChildren()
-				.lastIndexOf(replacement));
-
-		// Force the replacement model object to be in the same library as this node.
-		AbstractLibrary thisTlLibrary = ((LibraryMember) this.getTLModelObject()).getOwningLibrary();
-		AbstractLibrary replacementTlLibrary = ((LibraryMember) replacement.getTLModelObject()).getOwningLibrary();
-		if (thisTlLibrary != replacementTlLibrary) {
-			// LOGGER.debug("swap(): replacement TL object was not in same library.");
-			replacement.getModelObject().addToLibrary(((LibraryMember) this.getTLModelObject()).getOwningLibrary());
-		}
-
-		replacement.setLibrary(this.getLibrary());
-		replaceWith(replacement); // Removes this from library
-
-		// TODO - what should swap do with chain aggregate nodes?
-
-		// Post-checks
-		assert (this.library == null) : "Swap must leave with null library.";
-		assert (this.parent == null) : "Swap must leave with null parent.";
-	}
+	// /**
+	// * Swap the replacement for this node. This node is replaced via {@link #replaceWith()} and removed from parent.
+	// * Replacement is added to parent.
+	// *
+	// * Note: this node's library is null on return. It can not be deleted.
+	// *
+	// * @param replacement
+	// * - should be in library, named and with all properties.
+	// *
+	// */
+	// @Deprecated
+	// protected void swap(Node replacement) {
+	// assert (replacement != null) : "Null replacement node.";
+	// assert (getLibrary() != null) : "Null library.";
+	// assert (parent != null) : "Null parent";
+	// assert (isTLLibraryMember()) : "TL Object is not library member.";
+	// assert (replacement.isTLLibraryMember()) : "TL Object is not library member.";
+	// assert (this instanceof LibraryMemberInterface);
+	//
+	// // LibraryNode replacementLib = replacement.getLibrary();
+	// // getLibrary().addMember(replacement);
+	// // replacementLib.addMember(this);
+	//
+	// // TODO - add junit tests
+	//
+	// // final Node thisParent = parent;
+	//
+	// // Add replacement to the parent if not already there.
+	// parent.linkChild(replacement); // ignored if already linked
+	//
+	// // Fail if in the list more than once.
+	// assert (replacement.getParent().getChildren().indexOf(replacement) == replacement.getParent().getChildren()
+	// .lastIndexOf(replacement));
+	//
+	// // Force the replacement model object to be in the same library as this node.
+	// AbstractLibrary thisTlLibrary = ((LibraryMember) this.getTLModelObject()).getOwningLibrary();
+	// AbstractLibrary replacementTlLibrary = ((LibraryMember) replacement.getTLModelObject()).getOwningLibrary();
+	// if (thisTlLibrary != replacementTlLibrary) {
+	// // LOGGER.debug("swap(): replacement TL object was not in same library.");
+	// replacement.getModelObject().addToLibrary(((LibraryMember) this.getTLModelObject()).getOwningLibrary());
+	// }
+	// replacement.setLibrary(this.getLibrary());
+	// replaceWith(replacement); // Removes this from library
+	//
+	// // TODO - what should swap do with chain aggregate nodes?
+	//
+	// // Post-checks
+	// assert (this.library == null) : "Swap must leave with null library.";
+	// assert (this.parent == null) : "Swap must leave with null parent.";
+	// }
 
 	@Override
 	public String toString() {
 		return getName();
 	}
 
-	/**
-	 * Unlink this node from its parent. If this is a versioned object, is also removed from the version manager. If the
-	 * version node is empty, it is removed.
-	 * <p>
-	 * Does <b>not</b> change the TL model. Does <b>not</b> delete the node; caller is responsible to free resources.
-	 * 
-	 */
-	public void unlinkNode() {
-		if (parent == null) {
-			if (!getChildren().isEmpty())
-				LOGGER.error("unlinkNode ERROR - null parent or no children. EXIT");
-			return;
-		}
-		// If versioned, remove from version node's version manager
-		if (getVersionNode() != null) {
-			getVersionNode().remove(this);
-			// if (getVersionNode().get() == null)
-			// setVersionNode(null);
-		}
-		// VersionNode vn = null;
-		// if (parent instanceof VersionNode)
-		// vn = (VersionNode) parent;
-
-		if (!parent.children.remove(this))
-			LOGGER.debug("unlinkNode Error - child " + getName() + " was not in parent's " + parent.getName()
-					+ " child list.");
-		parent = null;
-		// recurse to remove version parent as well.
-		// if (vn != null) {
-		// // unlink from the chain aggregate node
-		// if (this instanceof ComponentNode && getChain() != null)
-		// getChain().removeAggregate((ComponentNode) this);
-		// // unlink the version node it self
-		// if (vn.getParent() != null)
-		// vn.unlinkNode();
-		// }
-	}
+	// /**
+	// * Unlink this node from its parent. If this is a versioned object, is also removed from the version manager. If
+	// the
+	// * version node is empty, it is removed.
+	// * <p>
+	// * Does <b>not</b> change the TL model. Does <b>not</b> delete the node; caller is responsible to free resources.
+	// *
+	// */
+	// @Deprecated
+	// public void unlinkNode() {
+	// if (parent == null) {
+	// if (!getChildren().isEmpty())
+	// LOGGER.error("unlinkNode ERROR - null parent or no children. EXIT");
+	// return;
+	// }
+	// // If versioned, remove from version node's version manager
+	// if (getVersionNode() != null) {
+	// getVersionNode().remove(this);
+	// // if (getVersionNode().get() == null)
+	// // setVersionNode(null);
+	// }
+	// // VersionNode vn = null;
+	// // if (parent instanceof VersionNode)
+	// // vn = (VersionNode) parent;
+	//
+	// if (!parent.children.remove(this))
+	// LOGGER.debug("unlinkNode Error - child " + getName() + " was not in parent's " + parent.getName()
+	// + " child list.");
+	// parent = null;
+	// // recurse to remove version parent as well.
+	// // if (vn != null) {
+	// // // unlink from the chain aggregate node
+	// // if (this instanceof ComponentNode && getChain() != null)
+	// // getChain().removeAggregate((ComponentNode) this);
+	// // // unlink the version node it self
+	// // if (vn.getParent() != null)
+	// // vn.unlinkNode();
+	// // }
+	// }
 
 	/**
 	 * Use the compiler to validate a node.
@@ -2619,33 +2626,41 @@ public abstract class Node implements INode {
 		return true;
 	}
 
-	/**
-	 * Create a model object for the passed TLModel element and back link from the modelObject to this node.
-	 * 
-	 * @param obj
-	 * @return the created model object.
-	 */
-	@SuppressWarnings("unchecked")
-	protected <TL> ModelObject<TL> newModelObject(final TLModelElement obj) {
-		return (ModelObject<TL>) ModelObjectFactory.newModelObject(obj, this);
-	}
+	// /**
+	// * Create a model object for the passed TLModel element and back link from the modelObject to this node.
+	// *
+	// * @param obj
+	// * @return the created model object.
+	// */
+	// @SuppressWarnings("unchecked")
+	// @Deprecated
+	// protected <TL> ModelObject<TL> newModelObject(final TLModelElement obj) {
+	// return (ModelObject<TL>) ModelObjectFactory.newModelObject(obj, this);
+	// }
 
-	/**
-	 * Only remove the node from this children list. Not family or version aware. Does not delete the node.
-	 */
-	// Note - used in model creation to unlink nodes to add them to a family nav node.
-	protected void remove(final Node n) {
-		if (n == null)
-			return;
-		if (!children.remove(n)) {
-			LOGGER.warn("Attempting to delete a child " + n + " that is not in children list of parent " + this);
-		}
-	}
+	// /**
+	// * Only remove the node from this children list. Not family or version aware. Does not delete the node.
+	// */
+	// // Note - used in model creation to unlink nodes to add them to a family nav node.
+	// @Deprecated
+	// protected void remove(final Node n) {
+	// if (n == null)
+	// return;
+	// if (getChildrenHandler() != null)
+	// getChildrenHandler().clear();
+	// else {
+	// assert false;
+	// if (!children.remove(n)) {
+	// LOGGER.warn("Attempting to delete a child " + n + " that is not in children list of parent " + this);
+	// }
+	// }
+	// }
 
+	@Deprecated
 	private List<TLContext> getCtxList() {
 		ArrayList<TLContext> list = new ArrayList<TLContext>();
 		if (getModelObject() != null) {
-			List<TLContext> cList = getModelObject().getContexts();
+			List<TLContext> cList = getContexts();
 			if (cList.size() > 0) {
 				list.addAll(cList);
 			}
@@ -2654,6 +2669,66 @@ public abstract class Node implements INode {
 			list.addAll(child.getCtxList());
 		}
 		// LOGGER.debug("Found "+list.size()+" contexts in "+this.getName());
+		return list;
+	}
+
+	/**
+	 * @return - list of TLContexts or else empty list Contexts are used in OtherDocs, facets, examples and equivalents.
+	 *         Overridden for attributes/elements/indicators that have examples and equivalents
+	 */
+	@Deprecated
+	public List<TLContext> getContexts() {
+		if (!(getTLModelObject() instanceof LibraryMember))
+			return Collections.emptyList();
+		if (!(((LibraryMember) getTLModelObject()).getOwningLibrary() instanceof TLLibrary))
+			return Collections.emptyList();
+
+		ArrayList<TLContext> list = new ArrayList<TLContext>();
+		HashSet<String> ids = new HashSet<String>();
+		if (!(getTLModelObject() instanceof LibraryMember))
+			return list;
+
+		if (getTLModelObject() instanceof TLBusinessObject) {
+			TLBusinessObject tlBO = (TLBusinessObject) getTLModelObject();
+			if (tlBO.getCustomFacets() != null) {
+				for (TLFacet f : tlBO.getCustomFacets()) {
+					ids.add(f.getContext());
+				}
+			}
+			if (tlBO.getQueryFacets() != null) {
+				for (TLFacet f : tlBO.getQueryFacets()) {
+					ids.add(f.getContext());
+				}
+			}
+		}
+		if (getTLModelObject() instanceof TLEquivalentOwner) {
+			TLEquivalentOwner tle = (TLEquivalentOwner) getTLModelObject();
+			for (TLEquivalent e : tle.getEquivalents())
+				ids.add(e.getContext());
+		}
+		if (getTLModelObject() instanceof TLExampleOwner) {
+			TLExampleOwner tle = (TLExampleOwner) getTLModelObject();
+			for (TLExample e : tle.getExamples())
+				ids.add(e.getContext());
+		}
+
+		if (getTLModelObject() instanceof TLDocumentationOwner) {
+			TLDocumentationOwner tld = (TLDocumentationOwner) getTLModelObject();
+
+			if (tld.getDocumentation() != null) {
+				for (TLAdditionalDocumentationItem doc : tld.getDocumentation().getOtherDocs()) {
+					ids.add(doc.getContext());
+				}
+			}
+		}
+
+		// now use the unique ids in the hash to extract the contexts from the TL Library.
+		TLLibrary tlLib = (TLLibrary) ((LibraryMember) getTLModelObject()).getOwningLibrary();
+		for (String id : ids) {
+			TLContext tlc = tlLib.getContext(id);
+			if (tlc != null)
+				list.add(tlLib.getContext(id));
+		}
 		return list;
 	}
 
@@ -2671,4 +2746,169 @@ public abstract class Node implements INode {
 		}
 		return foundTypes;
 	}
+
+	public void deleteTL() {
+		// Override where useful.
+	}
+
+	/** ************** Children Handler Facades *******************************/
+	@Override
+	public List<Node> getChildren() {
+		if (getChildrenHandler() != null)
+			return genericToNode(getChildrenHandler().get());
+		// if (children == null)
+		// return new ArrayList<Node>();
+		return Collections.emptyList();
+	}
+
+	/**
+	 * Simple getter for parameterized children handler
+	 */
+	public ChildrenHandlerI<?> getChildrenHandler() {
+		return childrenHandler;
+	}
+
+	/**
+	 * @return a new ArrayList containing the children
+	 */
+	public List<Node> getChildren_New() {
+		if (getChildrenHandler() != null)
+			return genericToNode(getChildrenHandler().getChildren_New());
+		return new ArrayList<Node>();
+	}
+
+	/**
+	 * Get all immediate navChildren that are to be presented in the OTM Object Tree. Includes where used nodes.
+	 * Overridden on nodes that add nodes such as where used to the tree view.
+	 * 
+	 * @see {@link #getNavChildren()}
+	 * 
+	 * @param deep
+	 *            - include properties
+	 * 
+	 * @return new list
+	 */
+	public List<Node> getTreeChildren(boolean deep) {
+		if (getChildrenHandler() != null)
+			return genericToNode(getChildrenHandler().getTreeChildren(deep));
+		return getNavChildren(deep);
+	}
+
+	/*
+	 * @see org.opentravel.schemas.node.Node#getChildren_TypeProviders()
+	 */
+	// FIXME - why is this using isTypeProvider() ? Should instanceof test.
+	@Override
+	public List<Node> getChildren_TypeProviders() {
+		if (getChildrenHandler() != null)
+			return genericToNode(getChildrenHandler().getChildren_TypeProviders());
+		return Collections.emptyList();
+		// final ArrayList<Node> kids = new ArrayList<Node>();
+		// for (final Node n : getChildren()) {
+		// if (n.isNamedEntity() || n.hasChildren_TypeProviders()) {
+		// if (n instanceof VersionNode && ((VersionNode) n).get() != null)
+		// kids.add(((VersionNode) n).get());
+		// else
+		// kids.add(n);
+		// }
+		// }
+		// return kids;
+	}
+
+	/**
+	 * Gets the children that are type users (can be assigned a type). Does not return navigation nodes.
+	 * {@link #getDescendants_TypeUsers() Use getDescendants_TypeUsers() for all children.}
+	 * 
+	 * @return all immediate children that can be assigned a type.
+	 */
+	public List<Node> getChildren_TypeUsers() {
+		if (getChildrenHandler() != null)
+			return genericToNode(getChildrenHandler().getChildren_TypeUsers());
+		return Collections.emptyList();
+	}
+
+	// Work around until all children getters are safe
+	@Deprecated
+	private List<Node> genericToNode(List<?> gList) {
+		List<Node> list = new ArrayList<Node>();
+		for (Object g : gList)
+			if (g instanceof Node)
+				list.add((Node) g);
+		return list;
+	}
+
+	/**
+	 * Get a new list of child nodes that are to be displayed in navigator trees.
+	 * 
+	 * @param deep
+	 *            when true some nodes will return more children such as properties
+	 * 
+	 * @see {@link #isNavChild()}
+	 * @see {@link org.opentravel.schemas.node.Node_NavChildren_Tests#getNavChildrenTests()}
+	 * 
+	 * @return new list of children to be used for navigation purposes.
+	 */
+	public List<Node> getNavChildren(boolean deep) {
+		if (getChildrenHandler() != null)
+			return genericToNode(getChildrenHandler().getNavChildren(deep));
+		return Collections.emptyList();
+		// ArrayList<Node> kids = new ArrayList<Node>();
+		// for (Node c : getChildren())
+		// if (c.isNavChild(deep))
+		// kids.add(c);
+		// return kids;
+	}
+
+	/**
+	 * Fast (no array creation) method to determine if there are navChildren that should be displayed in navigator
+	 * trees.
+	 * 
+	 * @param deep
+	 *            enable the "deep" property mode
+	 */
+	public boolean hasNavChildren(boolean deep) {
+		if (getChildrenHandler() != null)
+			return getChildrenHandler().hasNavChildren(deep);
+
+		for (final Node n : getChildren())
+			if (n.isNavChild(deep))
+				return true;
+		return false;
+	}
+
+	// Override on classes that add to getNavChildren()
+	public boolean hasTreeChildren(boolean deep) {
+		if (getChildrenHandler() != null)
+			return getChildrenHandler().hasTreeChildren(deep);
+
+		return hasNavChildren(deep);
+	}
+
+	/**
+	 * Simple setter to the tlObj field.
+	 * <p>
+	 * Setting to null in effect deletes this node. Does NOT actively delete anything, just sets deleted flag and clears
+	 * node identity listener for this node.
+	 * 
+	 * @param object
+	 *            or null to signal the node is deleted
+	 */
+	public void setTlModelObject(TLModelElement object) {
+		if (object == null) {
+			if (getTLModelObject() != null) {
+				// Remove this named type listener so this node is not associated with the tl object.
+				Collection<ModelElementListener> listeners = new ArrayList<ModelElementListener>(getTLModelObject()
+						.getListeners());
+				for (ModelElementListener l : listeners)
+					if (l instanceof NodeIdentityListener)
+						if (((NodeIdentityListener) l).getNode() == this) {
+							getTLModelObject().removeListener(l);
+							LOGGER.debug("Removing listner from: " + this);
+						}
+			}
+			deleted = true;
+		}
+		tlObj = object;
+	}
+
 }

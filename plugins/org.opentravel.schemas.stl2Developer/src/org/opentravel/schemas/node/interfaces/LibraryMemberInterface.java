@@ -15,6 +15,9 @@
  */
 package org.opentravel.schemas.node.interfaces;
 
+import java.util.List;
+
+import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
@@ -26,22 +29,6 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
 
 public interface LibraryMemberInterface extends INode {
 
-	public String getName();
-
-	public String getLabel();
-
-	public LibraryNode getLibrary();
-
-	public void setLibrary(LibraryNode library);
-
-	public String getPrefix();
-
-	public String getNamespace();
-
-	public String getNameWithPrefix();
-
-	public boolean isValid();
-
 	/**
 	 * Create a copy of this node in destination library
 	 * 
@@ -50,5 +37,23 @@ public interface LibraryMemberInterface extends INode {
 	 * @return the copied node
 	 */
 	public LibraryMemberInterface copy(LibraryNode destLib) throws IllegalArgumentException;
+
+	public List<AliasNode> getAliases();
+
+	public String getLabel();
+
+	public LibraryNode getLibrary();
+
+	public String getName();
+
+	public String getNamespace();
+
+	public String getNameWithPrefix();
+
+	public String getPrefix();
+
+	public boolean isValid();
+
+	public void setLibrary(LibraryNode library);
 
 }

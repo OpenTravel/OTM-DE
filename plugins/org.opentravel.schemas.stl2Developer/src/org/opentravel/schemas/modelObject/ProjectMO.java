@@ -95,10 +95,10 @@ public class ProjectMO extends ModelObject<TLProject> {
 	// return true;
 	// }
 
-	@Override
-	public void delete() {
-		LOGGER.debug("Not Implemented - library delete");
-	}
+	// @Override
+	// public void delete() {
+	// LOGGER.debug("Not Implemented - library delete");
+	// }
 
 	public void createItem(String string) {
 		// getTLModelObj().add(item);

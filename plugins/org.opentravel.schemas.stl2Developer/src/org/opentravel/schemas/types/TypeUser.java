@@ -36,7 +36,7 @@ public interface TypeUser {
 	public boolean canAssign(Node type);
 
 	/**
-	 * @return the type assigned tl named entity reported by modelObject<?>.getTLType() which may be null
+	 * @return the type assigned tl named entity reported by getTLModelObject().get*() which may be null
 	 */
 	public NamedEntity getAssignedTLNamedEntity();
 
@@ -50,6 +50,10 @@ public interface TypeUser {
 	 */
 	public TypeProvider getAssignedType();
 
+	public LibraryNode getLibrary();
+
+	public Node getOwningComponent();
+
 	/**
 	 * @return null if the assigned type can be any type provider otherwise the fixed type to assign
 	 */
@@ -61,10 +65,10 @@ public interface TypeUser {
 
 	public boolean isEditable();
 
-	public Node getOwningComponent();
-
 	/**
-	 * Set Assigned Type. Sets the where assigned on the associated type provider.
+	 * Set Assigned Type. Sets the where assigned on the associated tl model object provider.
+	 * 
+	 * @return true if state of owner changed, false otherwise
 	 */
 	public boolean setAssignedType(TLModelElement tlProvider);
 
@@ -72,16 +76,19 @@ public interface TypeUser {
 	 * Set Assigned Type. Sets the Assigned type node and add this owner to that user list. This method assures their is
 	 * a target and that the owner is editable. Sets the type class properties as well as the TLModel type
 	 * 
-	 * @return true if assignment could be made, false otherwise
+	 * @return true if state of owner changed, false otherwise
 	 */
 	public boolean setAssignedType(TypeProvider provider);
 
 	/**
 	 * Clear the assigned type by setting it to undefined.
+	 *
+	 * @return true if state of owner changed, false otherwise
 	 */
-	boolean setAssignedType();
+	public boolean setAssignedType();
 
 	public void setName(String name);
 
-	public LibraryNode getLibrary();
+	public String getName();
+
 }

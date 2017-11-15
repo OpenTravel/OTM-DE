@@ -15,7 +15,6 @@
  */
 package org.opentravel.schemas.modelObject;
 
-import org.opentravel.schemacompiler.model.NamedEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,43 +26,43 @@ public class SimpleAttributeMO extends ModelObject<TLnSimpleAttribute> {
 		super(obj);
 	}
 
-	@Override
-	public void delete() {
-	}
+	// @Override
+	// public void delete() {
+	// }
 
 	@Override
 	public TLnSimpleAttribute getTLModelObj() {
 		return srcObj;
 	}
 
-	@Override
-	public NamedEntity getTLType() {
-		return srcObj.getType();
-	}
+	// @Override
+	// public NamedEntity getTLType() {
+	// return srcObj.getType();
+	// }
 
-	@Override
-	public boolean moveDown() {
-		return false;
-	}
-
-	/**
-	 * Move if you can, return false if you can not.
-	 * 
-	 * @return
-	 */
-	@Override
-	public boolean moveUp() {
-		return false;
-	}
+	// @Override
+	// public boolean moveDown() {
+	// return false;
+	// }
+	//
+	// /**
+	// * Move if you can, return false if you can not.
+	// *
+	// * @return
+	// */
+	// @Override
+	// public boolean moveUp() {
+	// return false;
+	// }
 
 	// @Override
 	// public boolean setName(final String name) {
 	// return false;
 	// }
 
-	@Override
-	public void setTLType(final NamedEntity tlObj) {
-		getTLModelObj().setType(tlObj);
-	}
+	// @Override
+	// public void setTLType(final NamedEntity tlObj) {
+	// getTLModelObj().setType(tlObj);
+	// }
 
 }

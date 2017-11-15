@@ -24,7 +24,6 @@ import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.node.properties.SimpleAttributeNode;
 
 /**
  * Centralizes all the model related actions. When created, creates and saves a model node and TLModel. It operates on

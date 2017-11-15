@@ -90,10 +90,10 @@ public class XSDSimpleMO extends ModelObject<XSDSimpleType> {
 	//
 	// }
 
-	@Override
-	public void delete() {
-		LOGGER.debug("ModelObject - delete - TODO");
-	}
+	// @Override
+	// public void delete() {
+	// LOGGER.debug("ModelObject - delete - TODO");
+	// }
 
 	// @Override
 	// public List<?> getChildren() {
@@ -132,10 +132,10 @@ public class XSDSimpleMO extends ModelObject<XSDSimpleType> {
 	// return ((tlObj != null) && (tlObj instanceof TLSimple)) ? ((TLSimple) tlObj).getPattern() : "";
 	// }
 
-	@Override
-	public boolean isSimpleAssignable() {
-		return true;
-	}
+	// @Override
+	// public boolean isSimpleAssignable() {
+	// return true;
+	// }
 
 	// @Override
 	// public boolean setName(final String name) {

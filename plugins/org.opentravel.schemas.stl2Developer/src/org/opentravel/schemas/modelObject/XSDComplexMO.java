@@ -41,10 +41,10 @@ public class XSDComplexMO extends ModelObject<XSDComplexType> {
 	protected XSDComplexMO() {
 	}
 
-	@Override
-	public void delete() {
-		LOGGER.debug("ModelObject - delete - TODO");
-	}
+	// @Override
+	// public void delete() {
+	// LOGGER.debug("ModelObject - delete - TODO");
+	// }
 
 	/**
 	 * Complex XSD types have children taken from the jaxb object.

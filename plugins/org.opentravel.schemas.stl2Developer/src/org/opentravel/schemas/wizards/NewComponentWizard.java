@@ -21,7 +21,6 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.opentravel.schemacompiler.model.TLAliasOwner;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
@@ -36,7 +35,6 @@ import org.opentravel.schemas.modelObject.BusinessObjMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ChoiceObjectNode;
-import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.EditNode;
 import org.opentravel.schemas.node.Node;
@@ -46,7 +44,9 @@ import org.opentravel.schemas.node.facets.ChoiceFacetNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
+import org.opentravel.schemas.node.interfaces.AliasOwner;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
@@ -179,7 +179,7 @@ public class NewComponentWizard extends Wizard implements IDoubleClickListener {
 			svc.addCRUDQ_Operations(subject);
 			return svc;
 		case ALIAS:
-			return parent.getTLModelObject() instanceof TLAliasOwner ? new AliasNode(parent, name) : null;
+			return parent instanceof AliasOwner ? new AliasNode((AliasOwner) parent, name) : null;
 		case BUSINESS:
 			cn = linkNewNode(new TLBusinessObject(), lib, name, description);
 			break;
@@ -229,19 +229,19 @@ public class NewComponentWizard extends Wizard implements IDoubleClickListener {
 	}
 
 	private Node linkNewNode(TLLibraryMember tlObj, final LibraryNode lib, final String name, final String description) {
-		ComponentNode cn = NodeFactory.newComponent(tlObj);
+		LibraryMemberInterface cn = NodeFactory.newLibraryMember(tlObj);
 
 		if (cn != null) {
-			cn.setExtensible(true);
+			((Node) cn).setExtensible(true);
 			cn.setName(name);
-			cn.setDescription(description);
+			((Node) cn).setDescription(description);
 			lib.addMember(cn);
 			if (cn instanceof ChoiceObjectNode) {
 				((ChoiceObjectNode) cn).addFacet("A");
 				((ChoiceObjectNode) cn).addFacet("B");
 			}
 		}
-		return cn;
+		return (Node) cn;
 	}
 
 	// private static Node newComponent(ComponentNodeType type) {

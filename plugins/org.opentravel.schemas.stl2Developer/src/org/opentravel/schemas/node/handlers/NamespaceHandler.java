@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.node;
+package org.opentravel.schemas.node.handlers;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,6 +26,8 @@ import java.util.Set;
 import org.opentravel.schemacompiler.version.VersionScheme;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
 import org.opentravel.schemacompiler.version.VersionSchemeFactory;
+import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.preferences.GeneralPreferencePage;
 import org.opentravel.schemas.properties.Messages;

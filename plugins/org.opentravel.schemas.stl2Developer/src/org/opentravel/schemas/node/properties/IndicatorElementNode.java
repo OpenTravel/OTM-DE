@@ -17,10 +17,7 @@ package org.opentravel.schemas.node.properties;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLIndicator;
-import org.opentravel.schemas.modelObject.IndicatorMO;
 import org.opentravel.schemas.node.ComponentNodeType;
-import org.opentravel.schemas.node.ImpliedNode;
-import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
@@ -29,62 +26,29 @@ import org.opentravel.schemas.properties.Images;
 
 /**
  * A property node that represents a boolean XML element with the semantics of "False unless present and true". See
- * {@link NodeFactory#newMember(INode, Object)}
+ * {@link NodeFactory#newMemberOLD(INode, Object)}
  * 
  * @author Dave Hollander
  * 
  */
 
-public class IndicatorElementNode extends PropertyNode {
+public class IndicatorElementNode extends IndicatorNode {
 
 	public IndicatorElementNode(PropertyOwnerInterface parent, String name) {
-		super(new TLIndicator(), (Node) parent, name, PropertyNodeType.INDICATOR_ELEMENT);
+		super(parent, name);
 		((TLIndicator) getTLModelObject()).setPublishAsElement(true);
 	}
 
 	public IndicatorElementNode(TLIndicator tlObj, PropertyOwnerInterface parent) {
-		super(tlObj, (INode) parent, PropertyNodeType.INDICATOR_ELEMENT);
+		super(tlObj, parent);
 		((TLIndicator) tlObj).setPublishAsElement(true);
-
-		assert (modelObject instanceof IndicatorMO);
 	}
 
-	@Override
-	public boolean canAssign(Node type) {
-		return (type == ModelNode.getIndicatorNode() || type == ModelNode.getUndefinedNode());
-	}
-
-	@Override
-	public boolean isNavChild(boolean deep) {
-		return false;
-	}
-
-	@Override
-	public boolean isRenameable() {
-		return isEditable() && !inherited;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.PropertyNode#createProperty(org.opentravel.schemas.node.Node)
-	 */
 	@Override
 	public INode createProperty(Node type) {
 		TLIndicator tlObj = (TLIndicator) cloneTLObj();
-		int index = indexOfNode();
-		((TLIndicator) getTLModelObject()).getOwner().addIndicator(index, tlObj);
 		IndicatorElementNode n = new IndicatorElementNode(tlObj, null);
-		n.setName(type.getName());
-		getParent().linkChild(n, indexOfNode());
-		((TLIndicator) getTLModelObject()).getOwner().addIndicator(index, tlObj);
-		n.setDescription(type.getDescription());
-		return n;
-	}
-
-	@Override
-	public ImpliedNode getRequiredType() {
-		return ModelNode.getIndicatorNode();
+		return super.createProperty(n, type);
 	}
 
 	@Override
@@ -93,40 +57,13 @@ public class IndicatorElementNode extends PropertyNode {
 	}
 
 	@Override
-	public TLIndicator getTLModelObject() {
-		return (TLIndicator) getModelObject().getTLModelObj();
-	}
-
-	@Override
-	public String getName() {
-		return emptyIfNull(getTLModelObject().getName());
-	}
-
-	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.IndicatorElement);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.INode#getLabel()
-	 */
 	@Override
-	public String getLabel() {
-		return getName();
-		// return modelObject.getLabel() == null ? "" : modelObject.getLabel();
-	}
-
-	@Override
-	public int indexOfTLProperty() {
-		final TLIndicator thisProp = (TLIndicator) getTLModelObject();
-		return thisProp.getOwner().getIndicators().indexOf(thisProp);
-	}
-
-	@Override
-	public boolean isIndicator() {
-		return true;
+	public boolean isNavChild(boolean deep) {
+		return false;
 	}
 
 	@Override

@@ -56,14 +56,11 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 		this.tlObj = obj;
 		assert tlObj instanceof TLModelElement;
 		if (GetNode((TLModelElement) tlObj) == null)
-			// if (((TLModelElement) tlObj).getListeners().isEmpty())
-			ListenerFactory.setListner(this);
-		else
-			LOGGER.debug(this + " already had identity listener.");
+			ListenerFactory.setIdentityListner(this);
 
 		// Sometimes the constructor will need to be invoked super on a newly constructed tl object (for example:
 		// ResourceParameter)
-		if (getTLOwner() instanceof TLModelElement && getTLOwner() != null) {
+		if (getTLOwner() instanceof TLModelElement) {
 			parent = this.getNode(((TLModelElement) getTLOwner()).getListeners());
 
 			assert parent != null;
@@ -85,7 +82,7 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 	public ResourceBase(TL obj, ResourceMemberInterface parent) {
 		this.tlObj = obj;
 		if (tlObj instanceof TLModelElement)
-			ListenerFactory.setListner(this);
+			ListenerFactory.setIdentityListner(this);
 		this.parent = (Node) parent;
 
 		setLibrary(((Node) parent).getLibrary());

@@ -31,50 +31,50 @@ public class RolePropertyMO extends ModelObject<TLRole> {
 		return srcObj;
 	}
 
-	@Override
-	public void delete() {
-		final TLRole tlModel = getTLModelObj();
-		if (tlModel != null && tlModel.getRoleEnumeration() != null) {
-			tlModel.getRoleEnumeration().removeRole(tlModel);
-		}
-	}
+	// @Override
+	// public void delete() {
+	// final TLRole tlModel = getTLModelObj();
+	// if (tlModel != null && tlModel.getRoleEnumeration() != null) {
+	// tlModel.getRoleEnumeration().removeRole(tlModel);
+	// }
+	// }
 
-	@Override
-	public void addToTLParent(final ModelObject<?> parentMO, int index) {
-		if (parentMO instanceof RoleEnumerationMO) {
-			((RoleEnumerationMO) parentMO).addRole(index, getTLModelObj());
-		}
-	}
+	// @Override
+	// public void addToTLParent(final ModelObject<?> parentMO, int index) {
+	// if (parentMO instanceof RoleEnumerationMO) {
+	// ((RoleEnumerationMO) parentMO).addRole(index, getTLModelObj());
+	// }
+	// }
+	//
+	// @Override
+	// public void addToTLParent(final ModelObject<?> parentMO) {
+	// if (parentMO instanceof RoleEnumerationMO) {
+	// ((RoleEnumerationMO) parentMO).addRole(getTLModelObj());
+	// }
+	// }
 
-	@Override
-	public void addToTLParent(final ModelObject<?> parentMO) {
-		if (parentMO instanceof RoleEnumerationMO) {
-			((RoleEnumerationMO) parentMO).addRole(getTLModelObj());
-		}
-	}
-
-	private int indexOf() {
-		final TLRole thisProp = getTLModelObj();
-		return getTLModelObj().getRoleEnumeration().getRoles().indexOf(thisProp);
-	}
-
-	@Override
-	public boolean moveUp() {
-		if (indexOf() > 0) {
-			getTLModelObj().moveUp();
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public boolean moveDown() {
-		// only count attributes, not elements or indicators
-		if (indexOf() + 1 < getTLModelObj().getRoleEnumeration().getRoles().size()) {
-			getTLModelObj().moveDown();
-			return true;
-		}
-		return false;
-	}
+	// private int indexOf() {
+	// final TLRole thisProp = getTLModelObj();
+	// return getTLModelObj().getRoleEnumeration().getRoles().indexOf(thisProp);
+	// }
+	//
+	// @Override
+	// public boolean moveUp() {
+	// if (indexOf() > 0) {
+	// getTLModelObj().moveUp();
+	// return true;
+	// }
+	// return false;
+	// }
+	//
+	// @Override
+	// public boolean moveDown() {
+	// // only count attributes, not elements or indicators
+	// if (indexOf() + 1 < getTLModelObj().getRoleEnumeration().getRoles().size()) {
+	// getTLModelObj().moveDown();
+	// return true;
+	// }
+	// return false;
+	// }
 
 }

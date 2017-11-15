@@ -18,8 +18,6 @@
  */
 package org.opentravel.schemas.node.interfaces;
 
-import org.opentravel.schemas.modelObject.ModelObject;
-import org.opentravel.schemacompiler.model.NamedEntity;
 
 /**
  * @author Dave Hollander
@@ -27,20 +25,20 @@ import org.opentravel.schemacompiler.model.NamedEntity;
  */
 public interface SimpleComponentInterface {
 
-    public boolean isSimpleTypeProvider();
+	// public boolean isSimpleTypeProvider();
 
-    /**
-     * @return the node representing the base type.
-     */
-    public INode getBaseType();
+	// /**
+	// * @return the node representing the base type.
+	// */
+	// public INode getBaseType();
 
-    /**
-     * @return the model object underlying this node.
-     */
-    public ModelObject<?> getModelObject(); // The Model Object
+	// /**
+	// * @return the model object underlying this node.
+	// */
+	// public ModelObject<?> getModelObject(); // The Model Object
 
-    /**
-     * @return the TL Object underlying this node's model object
-     */
-    public NamedEntity getTLOjbect();
+	// /**
+	// * @return the TL Object underlying this node's model object
+	// */
+	// public NamedEntity getTLOjbect();
 }

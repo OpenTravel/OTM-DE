@@ -19,6 +19,7 @@ import java.util.Collection;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.handlers.XsdObjectHandler;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.types.whereused.TypeProviderWhereUsedNode;
 
@@ -36,6 +37,13 @@ import org.opentravel.schemas.types.whereused.TypeProviderWhereUsedNode;
 public interface TypeProvider {
 
 	/**
+	 * Add to where assigned and set listener
+	 * 
+	 * @param user
+	 */
+	public void addTypeUser(TypeUser user);
+
+	/**
 	 * @param user
 	 *            to add to the where used list
 	 */
@@ -47,12 +55,16 @@ public interface TypeProvider {
 
 	public String getName();
 
-	public TLModelElement getTLModelObject();
-
 	// /**
 	// * @return the component node used to represent users of this type.
 	// */
 	// public INode getTypeNode();
+
+	public Node getOwningComponent();
+
+	public Node getParent();
+
+	public TLModelElement getTLModelObject();
 
 	/**
 	 * @return a unmodifiable collection of type users that use this as a type definition or base type
@@ -86,6 +98,8 @@ public interface TypeProvider {
 	 */
 	public TypeProviderWhereUsedNode getWhereUsedNode();
 
+	public XsdObjectHandler getXsdObjectHandler();
+
 	/**
 	 * @return true if this node can be assigned to an element reference
 	 */
@@ -109,6 +123,15 @@ public interface TypeProvider {
 	public boolean isNamedEntity();
 
 	/**
+	 * OTM Enforces properties to have the same name as their assigned type except for VWA and Open Enum. Exceptions
+	 * must override this method. This method does <b>not</b> account for edit-ability or inheritance as those are
+	 * characteristics of the property not assigned type.
+	 * 
+	 * @return true if a property assigned this type can be renamed.
+	 */
+	public boolean isRenameableWhereUsed();
+
+	/**
 	 * Remove provider as type for all users.
 	 */
 	public void removeAll();
@@ -129,18 +152,7 @@ public interface TypeProvider {
 
 	public void setListener(TypeUser typeUser);
 
-	/**
-	 * OTM Enforces properties to have the same name as their assigned type except for VWA and Open Enum. Exceptions
-	 * must override this method. This method does <b>not</b> account for edit-ability or inheritance as those are
-	 * characteristics of the property not assigned type.
-	 * 
-	 * @return true if a property assigned this type can be renamed.
-	 */
-	public boolean isRenameableWhereUsed();
-
-	public Node getOwningComponent();
-
-	public Node getParent();
+	public void setXsdHandler(XsdObjectHandler xsdObjectHandler);
 
 	int getWhereUsedCount();
 

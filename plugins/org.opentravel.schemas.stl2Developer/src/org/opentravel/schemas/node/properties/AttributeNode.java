@@ -16,9 +16,11 @@
 package org.opentravel.schemas.node.properties;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAttribute;
+import org.opentravel.schemacompiler.model.TLAttributeOwner;
+import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.modelObject.AttributeMO;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.ModelNode;
@@ -26,15 +28,13 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.VWA_Node;
-import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
+import org.opentravel.schemas.node.facets.AttributeFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.node.properties.EqExOneValueHandler.ValueWithContextType;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
-import org.opentravel.schemas.types.TypeUser;
 
 /**
- * A property node that represents an XML attribute. See {@link NodeFactory#newMember(INode, Object)}
+ * A property node that represents an XML attribute. See {@link NodeFactory#newMemberOLD(INode, Object)}
  * 
  * @author Dave Hollander
  * 
@@ -45,36 +45,32 @@ public class AttributeNode extends PropertyNode {
 		this(parent, name, ModelNode.getUnassignedNode());
 	}
 
-	public AttributeNode(PropertyOwnerInterface parent, String name, PropertyNodeType type) {
-		super(new TLAttribute(), (Node) parent, name, type);
-		setAssignedType((TypeProvider) ModelNode.getUnassignedNode());
-	}
-
+	/**
+	 * Create a new Attribute Node property and add to the facet.
+	 * 
+	 * @param parent
+	 *            facet node to attach to
+	 * @param name
+	 *            to give the property
+	 */
 	public AttributeNode(PropertyOwnerInterface facet, String name, TypeProvider type) {
-		super(new TLAttribute(), (Node) facet, name, PropertyNodeType.ATTRIBUTE);
+		super(new TLAttribute(), facet, name);
 		setAssignedType(type);
 	}
 
-	/**
-	 * 
-	 * @param tlObj
-	 *            TLAttribute
-	 * @param parent
-	 *            can be null
-	 */
 	public AttributeNode(TLAttribute tlObj, PropertyOwnerInterface parent) {
-		super(tlObj, (INode) parent, PropertyNodeType.ATTRIBUTE);
-
-		// // fix context - assure example is in this context
-		// fixContext();
-		assert (modelObject instanceof AttributeMO);
+		super(tlObj, parent);
 	}
 
-	/*
-	 * used for sub-types
-	 */
-	public AttributeNode(TLModelElement tlObj, PropertyOwnerInterface parent, PropertyNodeType type) {
-		super(tlObj, (INode) parent, type);
+	@Override
+	public void addToTL(PropertyOwnerInterface owner, final int index) {
+		if (owner != null)
+			if (owner.getTLModelObject() instanceof TLAttributeOwner)
+				try {
+					((TLAttributeOwner) owner.getTLModelObject()).addAttribute(index, getTLModelObject());
+				} catch (IndexOutOfBoundsException e) {
+					((TLAttributeOwner) owner.getTLModelObject()).addAttribute(getTLModelObject());
+				}
 	}
 
 	@Override
@@ -96,19 +92,15 @@ public class AttributeNode extends PropertyNode {
 
 	@Override
 	public INode createProperty(Node type) {
-		if (!(getTLModelObject() instanceof TLAttribute))
-			throw new IllegalArgumentException("Invalid object for an attribute.");
+		// Clone this TL Object
+		TLAttribute tlClone = (TLAttribute) cloneTLObj();
+		AttributeNode n = new AttributeNode(tlClone, null);
+		return super.createProperty(n, type);
+	}
 
-		TLAttribute tlObj = (TLAttribute) cloneTLObj();
-		int index = indexOfNode();
-		Node n = new AttributeNode(tlObj, null);
-		((TLAttribute) getTLModelObject()).getOwner().addAttribute(index, tlObj);
-		n.setName(type.getName());
-		getParent().linkChild(n, index);
-		n.setDescription(type.getDescription());
-		if (type instanceof TypeProvider)
-			((TypeUser) n).setAssignedType((TypeProvider) type);
-		return n;
+	@Override
+	public NamedEntity getAssignedTLNamedEntity() {
+		return getTLModelObject() != null ? getTLModelObject().getType() : null;
 	}
 
 	@Override
@@ -116,29 +108,19 @@ public class AttributeNode extends PropertyNode {
 		return ComponentNodeType.ATTRIBUTE;
 	}
 
-	@Override
-	public String getEquivalent(String context) {
-		return getEquivalentHandler().get(context);
-	}
-
-	@Override
-	public IValueWithContextHandler getEquivalentHandler() {
-		if (equivalentHandler == null)
-			equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
-		return equivalentHandler;
-	}
-
-	@Override
-	public String getExample(String context) {
-		return getExampleHandler().get(context);
-	}
-
-	@Override
-	public IValueWithContextHandler getExampleHandler() {
-		if (exampleHandler == null)
-			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
-		return exampleHandler;
-	}
+	// @Override
+	// public IValueWithContextHandler getEquivalentHandler() {
+	// if (equivalentHandler == null)
+	// equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
+	// return equivalentHandler;
+	// }
+	//
+	// @Override
+	// public IValueWithContextHandler getExampleHandler() {
+	// if (exampleHandler == null)
+	// exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
+	// return exampleHandler;
+	// }
 
 	@Override
 	public Image getImage() {
@@ -148,40 +130,51 @@ public class AttributeNode extends PropertyNode {
 	@Override
 	public String getLabel() {
 		String label = getName();
-		if (getType() != null)
+		if (getAssignedType() != null)
 			label += " [" + getTypeNameWithPrefix() + "]";
 		return label;
 	}
 
 	@Override
 	public String getName() {
+		if (getTLModelObject() == null)
+			return "";
 		return emptyIfNull(getTLModelObject().getName());
 	}
 
 	@Override
+	public Node getParent() {
+		if ((parent == null || parent.isDeleted()) && getTLModelObject() != null)
+			// The parent may have failed to rebuild children
+			parent = Node.GetNode(getTLModelObject().getOwner());
+		return parent;
+	}
+
+	@Override
 	public TLAttribute getTLModelObject() {
-		return (TLAttribute) (modelObject != null ? modelObject.getTLModelObj() : null);
+		return (TLAttribute) tlObj;
 	}
 
 	@Override
 	public int indexOfTLProperty() {
-		return getTLModelObject().getOwner().getAttributes().indexOf(getTLModelObject());
+		return getTLModelObject() != null ? getTLModelObject().getOwner().getAttributes().indexOf(getTLModelObject())
+				: 0;
 	}
 
 	@Override
 	public boolean isMandatory() {
-		return getTLModelObject().isMandatory();
+		return getTLModelObject() != null ? getTLModelObject().isMandatory() : false;
 	}
 
 	@Override
 	public boolean isOnlySimpleTypeUser() {
 		// allow VWAs to be assigned to VWA Attributes.
-		return parent != null && parent instanceof VWA_AttributeFacetNode ? false : true;
+		return parent != null && parent instanceof AttributeFacetNode ? false : true;
 	}
 
 	@Override
 	public boolean isRenameable() {
-		return isEditable() && !inherited;
+		return isEditable() && !isInherited();
 	}
 
 	/**
@@ -211,14 +204,43 @@ public class AttributeNode extends PropertyNode {
 	 * Allowed in major versions and on objects new in a minor.
 	 */
 	public void setMandatory(final boolean selection) {
-		if (isEditable_newToChain())
-			if (getOwningComponent().isNewToChain() || !getLibrary().isInChain())
-				getTLModelObject().setMandatory(selection);
+		if (getTLModelObject() != null)
+			if (isEditable_newToChain())
+				if (getOwningComponent().isNewToChain() || !getLibrary().isInChain())
+					getTLModelObject().setMandatory(selection);
 	}
 
 	@Override
 	public void setName(String name) {
-		getTLModelObject().setName(NodeNameUtils.fixAttributeName(name));
+		if (getTLModelObject() != null)
+			getTLModelObject().setName(NodeNameUtils.fixAttributeName(name));
+	}
+
+	@Override
+	protected void moveDownTL() {
+		if (getTLModelObject() != null)
+			getTLModelObject().moveDown();
+	}
+
+	@Override
+	protected void moveUpTL() {
+		if (getTLModelObject() != null)
+			getTLModelObject().moveUp();
+	}
+
+	@Override
+	protected void removeFromTL() {
+		if (getParent() != null && getParent().getTLModelObject() instanceof TLAttributeOwner)
+			((TLAttributeOwner) getParent().getTLModelObject()).removeAttribute(getTLModelObject());
+	}
+
+	@Override
+	public boolean setAssignedType(TLModelElement tla) {
+		if (tla == getTLModelObject().getType())
+			return false;
+		if (tla instanceof TLAttributeType)
+			getTLModelObject().setType((TLAttributeType) tla);
+		return getTLModelObject().getType() == tla;
 	}
 
 }

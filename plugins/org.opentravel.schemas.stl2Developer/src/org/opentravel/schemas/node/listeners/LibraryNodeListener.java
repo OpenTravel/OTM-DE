@@ -16,10 +16,7 @@
 package org.opentravel.schemas.node.listeners;
 
 import org.opentravel.schemacompiler.event.OwnershipEvent;
-import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.VersionNode;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,44 +48,54 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 			if (affectedNode == null)
 				return;
 
-			// Add the affected node to this library
-			if (affectedNode instanceof ContextualFacetNode) {
-				if (affectedNode.getParent() != null)
-					break; // do nothing
-				if (!((ContextualFacetNode) affectedNode).canBeLibraryMember())
-					break; // do nothing
-				// else
-				// LOGGER.debug("Contextual facet with no parent.");
-			}
-			if (affectedNode instanceof VersionNode)
-				ln.linkMember(((VersionNode) affectedNode).getNewestVersion());
-			else
-				ln.linkMember(affectedNode);
-			if (ln.isInChain()) {
-				ln.getChain().add((ComponentNode) affectedNode);
-			}
+			ln.getChildrenHandler().add(affectedNode);
+			// TODO - versions, aggregates and where used
 			break;
+
+		// // Add the affected node to this library
+		// if (affectedNode instanceof ContextualFacetNode) {
+		// if (affectedNode.getParent() != null)
+		// break; // do nothing
+		// if (!((ContextualFacetNode) affectedNode).canBeLibraryMember())
+		// break; // do nothing
+		// // else
+		// // LOGGER.debug("Contextual facet with no parent.");
+		// }
+		// if (affectedNode instanceof VersionNode)
+		// ln.linkMember(((VersionNode) affectedNode).getNewestVersion());
+		// else
+		// ln.linkMember(affectedNode);
+		// if (ln.isInChain()) {
+		// ln.getChain().add((ComponentNode) affectedNode);
+		// }
+		// break;
 
 		case MEMBER_REMOVED:
 			LOGGER.debug("Ownership change event: removing " + affectedNode + " from " + thisNode);
 			// Remove affected from this library
 			if (affectedNode == null || affectedNode.getParent() == null)
 				return; // happens during deletes
-			// LOGGER.debug("ERROR -- null parent.");
-			Node parent = affectedNode.getParent();
 
-			if (parent instanceof VersionNode)
-				parent = parent.getParent();
-			if (parent == null || parent instanceof ComponentNode) {
-				// LOGGER.debug("Library is not the parent for " + affectedNode);
-				// This must be a ContextualFacet (or similar) and will be removed with parent
-				break; // do nothing
-			}
-			if (ln.getChain() != null)
-				ln.getChain().removeAggregate((ComponentNode) affectedNode);
+			ln.getChildrenHandler().remove(affectedNode);
 
-			affectedNode.unlinkNode();
+			// TODO - versions, aggregates and where used
 			break;
+
+		// LOGGER.debug("ERROR -- null parent.");
+		// Node parent = affectedNode.getParent();
+		//
+		// if (parent instanceof VersionNode)
+		// parent = parent.getParent();
+		// if (parent == null || parent instanceof ComponentNode) {
+		// // LOGGER.debug("Library is not the parent for " + affectedNode);
+		// // This must be a ContextualFacet (or similar) and will be removed with parent
+		// break; // do nothing
+		// }
+		// if (ln.getChain() != null)
+		// ln.getChain().removeAggregate((ComponentNode) affectedNode);
+		//
+		// affectedNode.unlinkNode();
+		// break;
 
 		default:
 			// LOGGER.debug("Unhandled Ownership event: " + event.getType() + " this = " + thisNode + " affected = "

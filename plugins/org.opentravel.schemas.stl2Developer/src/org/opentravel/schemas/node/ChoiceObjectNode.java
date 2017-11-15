@@ -19,15 +19,14 @@
 package org.opentravel.schemas.node;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.modelObject.ChoiceObjMO;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.facets.ChoiceFacetNode;
@@ -35,11 +34,14 @@ import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
+import org.opentravel.schemas.node.handlers.children.ChoiceObjectChildrenHandler;
+import org.opentravel.schemas.node.interfaces.AliasOwner;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.interfaces.Sortable;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
@@ -54,68 +56,53 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class ChoiceObjectNode extends LibraryMemberBase implements ComplexComponentInterface, ExtensionOwner,
-		ContextualFacetOwnerInterface, VersionedObjectInterface, LibraryMemberInterface, TypeProvider {
+public class ChoiceObjectNode extends LibraryMemberBase implements ComplexComponentInterface, ExtensionOwner, Sortable,
+		AliasOwner, ContextualFacetOwnerInterface, VersionedObjectInterface, LibraryMemberInterface, TypeProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
 
 	private ExtensionHandler extensionHandler = null;
 
 	public ChoiceObjectNode(TLChoiceObject mbr) {
 		super(mbr);
-		addMOChildren();
+		childrenHandler = new ChoiceObjectChildrenHandler(this);
 		extensionHandler = new ExtensionHandler(this);
-		inheritedChildren = Collections.emptyList();
 
 		assert (getSharedFacet() instanceof FacetNode);
-		assert (getTLModelObject() instanceof TLChoiceObject);
-		assert (modelObject instanceof ChoiceObjMO);
 	}
 
 	@Override
-	public Node setExtensible(boolean extensible) {
-		if (isEditable_newToChain())
-			if (getTLModelObject() instanceof TLComplexTypeBase)
-				((TLComplexTypeBase) getTLModelObject()).setNotExtendable(!extensible);
-		return this;
+	public void remove(AliasNode alias) {
+		getTLModelObject().removeAlias(alias.getTLModelObject());
+		clearAllAliasOwners();
 	}
 
-	// @Override
-	// public boolean isNamedType() {
-	// return true;
-	// }
-
-	@Override
-	public boolean isAssignedByReference() {
-		return true;
-	}
-
-	@Override
-	public ContributedFacetNode getContributedFacet(TLContextualFacet tlObj) {
+	private void clearAllAliasOwners() {
 		for (Node child : getChildren())
-			if (child instanceof ContributedFacetNode && child.getTLModelObject() == tlObj)
-				return (ContributedFacetNode) child;
-		return null;
+			if (child instanceof AliasOwner && child.getChildrenHandler() != null)
+				child.getChildrenHandler().clear();
+		getChildrenHandler().clear();
 	}
 
 	@Override
-	public PropertyOwnerInterface getFacet_Default() {
-		return getSharedFacet();
+	public void addAlias(AliasNode alias) {
+		if (!getTLModelObject().getAliases().contains(alias.getTLModelObject()))
+			getTLModelObject().addAlias(alias.getTLModelObject());
+		clearAllAliasOwners();
 	}
 
 	@Override
-	public Image getImage() {
-		return Images.getImageRegistry().get(Images.ChoiceObject);
-	}
-
-	public void addAlias(String name) {
+	public AliasNode addAlias(String name) {
+		AliasNode alias = null;
 		if (this.isEditable_newToChain())
-			new AliasNode(this, name);
+			alias = new AliasNode(this, name);
+		addAlias(alias);
+		return alias;
 	}
 
-	public void addAliases(List<AliasNode> aliases) {
-		for (AliasNode a : aliases) {
+	@Override
+	public void cloneAliases(List<AliasNode> aliases) {
+		for (AliasNode a : aliases)
 			addAlias(a.getName());
-		}
 	}
 
 	/**
@@ -136,9 +123,10 @@ public class ChoiceObjectNode extends LibraryMemberBase implements ComplexCompon
 
 	@Override
 	public boolean canOwn(ContextualFacetNode targetCF) {
-		if (targetCF instanceof ChoiceFacetNode)
-			return true;
-		return false;
+		return canOwn(targetCF.getTLModelObject().getFacetType());
+		// if (targetCF instanceof ChoiceFacetNode)
+		// return true;
+		// return false;
 	}
 
 	@Override
@@ -155,43 +143,6 @@ public class ChoiceObjectNode extends LibraryMemberBase implements ComplexCompon
 	@Override
 	public ComponentNode createMinorVersionComponent() {
 		return super.createMinorVersionComponent(new ChoiceObjectNode((TLChoiceObject) createMinorTLVersion(this)));
-	}
-
-	@Override
-	public ChoiceObjMO getModelObject() {
-		ModelObject<?> obj = super.getModelObject();
-		return (ChoiceObjMO) (obj instanceof ChoiceObjMO ? obj : null);
-	}
-
-	@Override
-	public String getName() {
-		return getTLModelObject().getName();
-	}
-
-	@Override
-	public TLChoiceObject getTLModelObject() {
-		return (TLChoiceObject) (modelObject != null ? modelObject.getTLModelObj() : null);
-	}
-
-	@Override
-	public List<Node> getInheritedChildren() {
-		initInheritedChildren();
-		if (inheritedChildren == null)
-			inheritedChildren = Collections.emptyList();
-		return inheritedChildren;
-	}
-
-	// 11/8/2016 - rework of initInheritedChildren()
-	/**
-	 * Get the ghost facets from the TL Model. Model all of them.
-	 */
-	@Override
-	public void initInheritedChildren() {
-		inheritedChildren = Collections.emptyList();
-		// Model each facet returned in the list of new TLFacets from the TL Model
-		for (TLContextualFacet cf : FacetCodegenUtils.findGhostFacets(getTLModelObject(), TLFacetType.CHOICE)) {
-			linkInheritedChild(NodeFactory.newMember(null, cf));
-		}
 	}
 
 	@Override
@@ -216,9 +167,155 @@ public class ChoiceObjectNode extends LibraryMemberBase implements ComplexCompon
 		return aliases;
 	}
 
+	public List<PropertyOwnerInterface> getChoiceFacets() {
+		List<PropertyOwnerInterface> facets = new ArrayList<PropertyOwnerInterface>();
+		for (Node n : getChildren())
+			if (n instanceof ChoiceFacetNode)
+				facets.add((FacetNode) n);
+		return facets;
+	}
+
 	@Override
-	public PropertyOwnerInterface getAttributeFacet() {
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.CHOICE;
+	}
+
+	@Override
+	public ContributedFacetNode getContributedFacet(TLContextualFacet tlcf) {
+		ContributedFacetNode cfn = null;
+		for (TLModelElement tlo : getChildrenHandler().getChildren_TL())
+			if (tlo == tlcf)
+				if (Node.GetNode(tlo) instanceof ContextualFacetNode) {
+					ContextualFacetNode cxn = (ContextualFacetNode) Node.GetNode(tlo);
+					if (cxn != null) {
+						cfn = cxn.getWhereContributed();
+						break;
+					}
+				}
+
+		return cfn;
+	}
+
+	@Override
+	public String getExtendsTypeNS() {
+		return getExtensionBase() != null ? getExtensionBase().getNamespace() : "";
+	}
+
+	// /////////////////////////////////////////////////////////////////
+	//
+	// Extension Owner implementations
+	//
+	@Override
+	public Node getExtensionBase() {
+		return extensionHandler != null ? extensionHandler.get() : null;
+	}
+
+	@Override
+	public ExtensionHandler getExtensionHandler() {
+		return extensionHandler;
+	}
+
+	@Override
+	public PropertyOwnerInterface getFacet_Attributes() {
 		return null;
+	}
+
+	@Override
+	public PropertyOwnerInterface getFacet_Default() {
+		return getSharedFacet();
+	}
+
+	@Override
+	public SimpleFacetNode getFacet_Simple() {
+		return null;
+	}
+
+	@Override
+	public Image getImage() {
+		return Images.getImageRegistry().get(Images.ChoiceObject);
+	}
+
+	@Override
+	@Deprecated
+	public ChoiceObjMO getModelObject() {
+		ModelObject<?> obj = super.getModelObject();
+		return (ChoiceObjMO) (obj instanceof ChoiceObjMO ? obj : null);
+	}
+
+	@Override
+	public String getName() {
+		return getTLModelObject().getName();
+	}
+
+	public PropertyOwnerInterface getSharedFacet() {
+		for (Node n : getChildren()) {
+			if (n instanceof FacetNode)
+				if (((FacetNode) n).getFacetType().equals(TLFacetType.SHARED))
+					return (FacetNode) n;
+		}
+		return null;
+	}
+
+	@Override
+	public TLChoiceObject getTLModelObject() {
+		return (TLChoiceObject) tlObj;
+	}
+
+	@Override
+	public boolean isAliasable() {
+		return isEditable_newToChain();
+	}
+
+	@Override
+	public boolean isAssignableToElementRef() {
+		return false;
+	}
+
+	@Override
+	public boolean isAssignableToSimple() {
+		return false;
+	}
+
+	@Override
+	public boolean isAssignableToVWA() {
+		return false;
+	}
+
+	@Override
+	public boolean isAssignedByReference() {
+		return true;
+	}
+
+	@Override
+	public boolean isExtensibleObject() {
+		return true;
+	}
+
+	@Override
+	public boolean isMergeSupported() {
+		return false;
+	}
+
+	@Override
+	public void merge(Node source) {
+		if (!(source instanceof ChoiceObjectNode)) {
+			throw new IllegalStateException("Can not merge choice objects.");
+		}
+	}
+
+	@Override
+	public Node setExtensible(boolean extensible) {
+		if (isEditable_newToChain())
+			if (getTLModelObject() instanceof TLComplexTypeBase)
+				((TLComplexTypeBase) getTLModelObject()).setNotExtendable(!extensible);
+		return this;
+	}
+
+	@Override
+	public void setExtension(final Node base) {
+		if (extensionHandler == null)
+			extensionHandler = new ExtensionHandler(this);
+		extensionHandler.set(base);
 	}
 
 	@Override
@@ -237,105 +334,9 @@ public class ChoiceObjectNode extends LibraryMemberBase implements ComplexCompon
 
 	@Override
 	public void sort() {
-		// FIXME
-		// getSummaryFacet().sort();
-		// ((FacetNode) getDetailFacet()).sort();
-		// for (ComponentNode f : getCustomFacets())
-		// ((FacetNode) f).sort();
-		// for (ComponentNode f : getQueryFacets())
-		// ((FacetNode) f).sort();
-	}
-
-	@Override
-	public void merge(Node source) {
-		if (!(source instanceof ChoiceObjectNode)) {
-			throw new IllegalStateException("Can not merge choice objects.");
-		}
-	}
-
-	@Override
-	public boolean isExtensibleObject() {
-		return true;
-	}
-
-	@Override
-	public boolean isMergeSupported() {
-		return false;
-	}
-
-	public PropertyOwnerInterface getSharedFacet() {
-		for (Node n : getChildren()) {
-			if (n instanceof FacetNode)
-				if (((FacetNode) n).getFacetType().equals(TLFacetType.SHARED))
-					return (FacetNode) n;
-		}
-		return null;
-	}
-
-	public List<PropertyOwnerInterface> getChoiceFacets() {
-		List<PropertyOwnerInterface> facets = new ArrayList<PropertyOwnerInterface>();
-		for (Node n : getChildren())
-			if (n instanceof ChoiceFacetNode)
-				facets.add((FacetNode) n);
-		return facets;
-	}
-
-	@Override
-	public ComponentNodeType getComponentNodeType() {
-		return ComponentNodeType.CHOICE;
-	}
-
-	@Override
-	public boolean isAssignableToSimple() {
-		return false;
-	}
-
-	@Override
-	public boolean isAssignableToVWA() {
-		return false;
-	}
-
-	@Override
-	public boolean isAliasable() {
-		return isEditable_newToChain();
-	}
-
-	@Override
-	public boolean isAssignableToElementRef() {
-		return false;
-	}
-
-	// /////////////////////////////////////////////////////////////////
-	//
-	// Extension Owner implementations
-	//
-	@Override
-	public Node getExtensionBase() {
-		return extensionHandler != null ? extensionHandler.get() : null;
-	}
-
-	public String getExtendsTypeNS() {
-		return modelObject.getExtendsTypeNS();
-	}
-
-	@Override
-	public void setExtension(final Node base) {
-		if (extensionHandler == null)
-			extensionHandler = new ExtensionHandler(this);
-		extensionHandler.set(base);
-	}
-
-	@Override
-	public ExtensionHandler getExtensionHandler() {
-		return extensionHandler;
-	}
-
-	/* ****************************************************
-	 * Only needed for type hierarchy
-	 */
-	@Override
-	public SimpleFacetNode getFacet_Simple() {
-		return null;
+		((FacetNode) getSharedFacet()).sort();
+		for (PropertyOwnerInterface f : getChoiceFacets())
+			((Sortable) f).sort();
 	}
 
 }

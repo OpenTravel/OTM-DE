@@ -18,9 +18,7 @@ package org.opentravel.schemas.modelObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
-import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,12 +31,12 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 		super(obj);
 	}
 
-	// It may already have been taken out of the library, but if not do so.
-	@Override
-	public void delete() {
-		if (getTLModelObj().getOwningLibrary() != null)
-			getTLModelObj().getOwningLibrary().removeNamedMember(getTLModelObj());
-	}
+	// // It may already have been taken out of the library, but if not do so.
+	// @Override
+	// public void delete() {
+	// if (getTLModelObj().getOwningLibrary() != null)
+	// getTLModelObj().getOwningLibrary().removeNamedMember(getTLModelObj());
+	// }
 
 	@Override
 	public List<?> getChildren() {
@@ -53,10 +51,10 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 		return kids;
 	}
 
-	@Override
-	public NamedEntity getTLBase() {
-		return srcObj.getExtension() != null ? srcObj.getExtension().getExtendsEntity() : null;
-	}
+	// @Override
+	// public NamedEntity getTLBase() {
+	// return srcObj.getExtension() != null ? srcObj.getExtension().getExtendsEntity() : null;
+	// }
 
 	@Override
 	public TLBusinessObject getTLModelObj() {
@@ -80,18 +78,18 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 	// return extendsTypeName;
 	// }
 
-	@Override
-	public String getExtendsTypeNS() {
-		TLExtension tlExtension = getTLModelObj().getExtension();
-		String extendsNS;
-
-		if ((tlExtension != null) && (tlExtension.getExtendsEntity() != null)) {
-			extendsNS = tlExtension.getExtendsEntity().getNamespace();
-		} else {
-			extendsNS = "";
-		}
-		return extendsNS;
-	}
+	// @Override
+	// public String getExtendsTypeNS() {
+	// TLExtension tlExtension = getTLModelObj().getExtension();
+	// String extendsNS;
+	//
+	// if ((tlExtension != null) && (tlExtension.getExtendsEntity() != null)) {
+	// extendsNS = tlExtension.getExtendsEntity().getNamespace();
+	// } else {
+	// extendsNS = "";
+	// }
+	// return extendsNS;
+	// }
 
 	// @Override
 	// public boolean isExtendedBy(NamedEntity extension) {
@@ -107,23 +105,24 @@ public class BusinessObjMO extends ModelObject<TLBusinessObject> {
 	// return false;
 	// }
 
-	/**
-	 * @see org.opentravel.schemas.modelObject.ModelObject#setExtendsType(org.opentravel.schemas.modelObject.ModelObject)
-	 */
-	@Override
-	public void setExtendsType(ModelObject<?> mo) {
-		// Throw an extension ownership event for the removal before setting
-		if (mo == null)
-			getTLModelObj().setExtension(null);
-		else {
-			TLExtension tlExtension = getTLModelObj().getExtension();
-			if (tlExtension == null) {
-				tlExtension = new TLExtension();
-				getTLModelObj().setExtension(tlExtension);
-			}
-			tlExtension.setExtendsEntity((NamedEntity) mo.getTLModelObj());
-		}
-	}
+	// /**
+	// * @see
+	// org.opentravel.schemas.modelObject.ModelObject#setExtendsType(org.opentravel.schemas.modelObject.ModelObject)
+	// */
+	// @Override
+	// public void setExtendsType(ModelObject<?> mo) {
+	// // Throw an extension ownership event for the removal before setting
+	// if (mo == null)
+	// getTLModelObj().setExtension(null);
+	// else {
+	// TLExtension tlExtension = getTLModelObj().getExtension();
+	// if (tlExtension == null) {
+	// tlExtension = new TLExtension();
+	// getTLModelObj().setExtension(tlExtension);
+	// }
+	// tlExtension.setExtendsEntity((NamedEntity) mo.getTLModelObj());
+	// }
+	// }
 
 	// @Override
 	// public boolean setName(final String name) {

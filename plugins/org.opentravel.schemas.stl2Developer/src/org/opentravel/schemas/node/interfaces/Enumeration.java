@@ -17,6 +17,7 @@ package org.opentravel.schemas.node.interfaces;
 
 import java.util.List;
 
+import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 
 public interface Enumeration {
@@ -25,12 +26,14 @@ public interface Enumeration {
 	 */
 	public void addLiteral(String literal);
 
+	public void addProperty(EnumLiteralNode eln);
+
+	public PropertyOwnerInterface getFacet_Default();
+
 	/**
 	 * Get a list of the enumeration values
 	 */
 	public List<String> getLiterals();
-
-	public PropertyOwnerInterface getFacet_Default();
 
 	public void setName(String name);
 }

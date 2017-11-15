@@ -40,7 +40,7 @@ import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
-import org.opentravel.schemas.node.properties.SimpleAttributeNode;
+import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 
 /**
@@ -270,7 +270,7 @@ public class NodeUtils {
 				public boolean match() {
 					if (node.getLibrary().isInChain()) {
 						// Simple attributes will exist on all versions of the object
-						if (node instanceof SimpleAttributeNode)
+						if (node instanceof SimpleAttributeFacadeNode)
 							return true;
 						// Other nodes will have existed if they are not in the head of the chain
 						LibraryNode head = node.getLibrary().getChain().getHead();
@@ -298,7 +298,7 @@ public class NodeUtils {
 
 					if (node.getLibrary().isInChain()) {
 						// Simple attributes will exist on all versions of the object
-						if (node instanceof SimpleAttributeNode)
+						if (node instanceof SimpleAttributeFacadeNode)
 							return false;
 						// Other nodes will have existed if they are not in the head of the chain
 						return node.getChain().getHead() == node.getLibrary();

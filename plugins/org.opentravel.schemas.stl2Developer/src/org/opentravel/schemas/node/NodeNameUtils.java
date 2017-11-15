@@ -181,36 +181,37 @@ public class NodeNameUtils {
 
 	@Deprecated
 	private static String fixElementNameOLD(Node n) {
-		String name = n.getName();
-		QName qName = null;
-
-		// Get the name from the assigned type and codegen utils.
-		if (((TypeUser) n).getAssignedTLObject() != null) {
-			// Type by reference to XML elements must use element name.
-			NamedEntity tlObj = ((TypeUser) n).getAssignedTLNamedEntity();
-			qName = PropertyCodegenUtils.getDefaultXmlElementName(tlObj, n instanceof ElementReferenceNode);
-			if (qName != null)
-				name = qName.getLocalPart();
-		}
-		// When does fix name insist on using the name of the object?
-		TypeProvider assignedType = ((TypeUser) n).getAssignedType();
-
-		// Create or modify name based on type of node
-		if (qName == null && name.isEmpty() && assignedType != null)
-			name = assignedType.getName();
-
-		if (assignedType != null && assignedType instanceof ListFacetNode
-				&& ((ListFacetNode) assignedType).isSimpleListFacet())
-			name = makePlural(stripUnderScore(stripSuffix(assignedType.getName(), SIMPLE_LIST_SUFFIX)));
-
-		if (n instanceof ElementReferenceNode)
-			if (assignedType != null)
-				name = assignedType.getName() + ID_RERFERENCE_SUFFIX;
-			else
-				name = ID_RERFERENCE_SUFFIX;
-
-		name = adjustCaseOfName(PropertyNodeType.ELEMENT, name);
-		return name != null && !name.isEmpty() ? name : UNASIGNED_NAME;
+		// String name = n.getName();
+		// QName qName = null;
+		//
+		// // Get the name from the assigned type and codegen utils.
+		// if (((TypeUser) n).getAssignedTLObject() != null) {
+		// // Type by reference to XML elements must use element name.
+		// NamedEntity tlObj = ((TypeUser) n).getAssignedTLNamedEntity();
+		// qName = PropertyCodegenUtils.getDefaultXmlElementName(tlObj, n instanceof ElementReferenceNode);
+		// if (qName != null)
+		// name = qName.getLocalPart();
+		// }
+		// // When does fix name insist on using the name of the object?
+		// TypeProvider assignedType = ((TypeUser) n).getAssignedType();
+		//
+		// // Create or modify name based on type of node
+		// if (qName == null && name.isEmpty() && assignedType != null)
+		// name = assignedType.getName();
+		//
+		// if (assignedType != null && assignedType instanceof ListFacetNode
+		// && ((ListFacetNode) assignedType).isSimpleListFacet())
+		// name = makePlural(stripUnderScore(stripSuffix(assignedType.getName(), SIMPLE_LIST_SUFFIX)));
+		//
+		// if (n instanceof ElementReferenceNode)
+		// if (assignedType != null)
+		// name = assignedType.getName() + ID_RERFERENCE_SUFFIX;
+		// else
+		// name = ID_RERFERENCE_SUFFIX;
+		//
+		// name = adjustCaseOfName(PropertyNodeType.ELEMENT, name);
+		// return name != null && !name.isEmpty() ? name : UNASIGNED_NAME;
+		return "";
 	}
 
 	/**
@@ -228,21 +229,24 @@ public class NodeNameUtils {
 		return name;
 	}
 
+	@Deprecated
 	public static String fixAttributeRefName(String name) {
-		if (name == null || name.isEmpty())
-			name = UNASIGNED_NAME;
-		if (!name.endsWith(ID_RERFERENCE_SUFFIX))
-			name = name + ID_RERFERENCE_SUFFIX;
-		name = adjustCaseOfName(PropertyNodeType.ATTRIBUTE, name);
+		// if (name == null || name.isEmpty())
+		// name = UNASIGNED_NAME;
+		// if (!name.endsWith(ID_RERFERENCE_SUFFIX))
+		// name = name + ID_RERFERENCE_SUFFIX;
+		// name = adjustCaseOfName(PropertyNodeType.ATTRIBUTE, name);
 		return name;
 	}
 
+	// Element reference names are controlled by property codegen utils
+	@Deprecated
 	public static String fixElementRefName(String name) {
-		if (name == null || name.isEmpty())
-			name = UNASIGNED_NAME;
-		if (!name.endsWith(ID_RERFERENCE_SUFFIX))
-			name = name + ID_RERFERENCE_SUFFIX;
-		name = adjustCaseOfName(PropertyNodeType.ELEMENT, name);
+		// if (name == null || name.isEmpty())
+		// name = UNASIGNED_NAME;
+		// if (!name.endsWith(ID_RERFERENCE_SUFFIX))
+		// name = name + ID_RERFERENCE_SUFFIX;
+		// name = adjustCaseOfName(PropertyNodeType.ELEMENT, name);
 		return name;
 	}
 

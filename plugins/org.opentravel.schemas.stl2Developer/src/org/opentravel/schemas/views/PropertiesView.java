@@ -37,7 +37,6 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.opentravel.schemas.controllers.OtmActions;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.ConstraintHandler;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.SimpleComponentNode;
 import org.opentravel.schemas.node.SimpleTypeNode;
@@ -45,13 +44,15 @@ import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
+import org.opentravel.schemas.node.handlers.ConstraintHandler;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
+import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.RoleNode;
-import org.opentravel.schemas.node.properties.SimpleAttributeNode;
+import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -430,7 +431,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 		}
 		// LOGGER.debug("Posting component node properties.");
 
-		if (n.getParent() == null || n.getModelObject() == null || n.getTLModelObject() == null) {
+		if (n.getParent() == null || n.getTLModelObject() == null) {
 			LOGGER.warn("Error with object: " + n.getNameWithPrefix());
 		} else if (n.getParent() instanceof VWA_Node && n instanceof FacetNode) {
 			// for VWA - Facets should not have name and description editable
@@ -440,7 +441,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 		} else if (cn instanceof SimpleComponentNode) {
 			updateType(cn);
 			updateConstraints(cn);
-		} else if (cn instanceof SimpleAttributeNode) {
+		} else if (cn instanceof SimpleAttributeFacadeNode) {
 			updateType(cn);
 		} else if (n instanceof EnumLiteralNode || n instanceof RoleNode) {
 			// Nothing to do.
@@ -461,7 +462,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 					widgets.postSpinner(repeatSpinner, ((ElementNode) cn).getRepeat(), cn.isEditable());
 				}
 			}
-			if (!((PropertyNode) cn).isIndicator())
+			if (!(cn instanceof IndicatorNode))
 				postMandatoryButton(cn);
 			// in this case fixNames should set type
 			if (((PropertyNode) cn).isAssignedComplexType())

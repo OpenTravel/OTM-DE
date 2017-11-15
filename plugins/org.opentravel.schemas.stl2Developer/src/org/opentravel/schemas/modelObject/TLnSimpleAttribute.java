@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
  * The TL Model does not have attributes on simple facets or value with attributes while the GUI model does. This class
  * simulates a TL Model element for use with simple facets.
  */
+@Deprecated
 public class TLnSimpleAttribute extends TLModelElement implements TLEquivalentOwner, TLDocumentationOwner,
 		TLExampleOwner {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TLnSimpleAttribute.class);

@@ -174,10 +174,10 @@ public abstract class WhereUsedNode<O> extends Node implements WhereUsedNodeInte
 		return owner != null ? ((Node) owner).isEditable() : false;
 	}
 
-	@Override
-	public void sort() {
-		getParent().sort();
-	}
+	// @Override
+	// public void sort() {
+	// getParent().sort();
+	// }
 
 	@Override
 	public boolean isLibraryMemberContainer() {

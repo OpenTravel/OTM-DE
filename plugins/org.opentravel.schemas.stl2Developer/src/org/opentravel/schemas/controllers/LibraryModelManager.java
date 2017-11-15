@@ -53,12 +53,36 @@ public class LibraryModelManager {
 	}
 
 	/**
-	 * @return new list of all library nodes in the model, including those in a chain
+	 * @return new list of all TLLibrary (user) library nodes in the model, including those in a chain
 	 */
 	public List<LibraryNode> getUserLibraries() {
 		List<LibraryNode> libList = new ArrayList<LibraryNode>();
 		for (LibraryInterface lib : libraries)
 			if (lib instanceof LibraryNode && ((LibraryNode) lib).getTLModelObject() instanceof TLLibrary)
+				libList.add(((LibraryNode) lib));
+			else if (lib instanceof LibraryChainNode)
+				libList.addAll(((LibraryChainNode) lib).getLibraries());
+		return libList;
+	}
+
+	/**
+	 * @return new list of all TLLibrary (user) library nodes in the model, including those in a chain
+	 */
+	public List<LibraryChainNode> getUserChains() {
+		List<LibraryChainNode> chains = new ArrayList<LibraryChainNode>();
+		for (LibraryInterface lib : libraries)
+			if (lib instanceof LibraryChainNode)
+				chains.add(((LibraryChainNode) lib));
+		return chains;
+	}
+
+	/**
+	 * @return new list of all library nodes in the model, including those in a chain
+	 */
+	public List<LibraryNode> getAllLibraries() {
+		List<LibraryNode> libList = new ArrayList<LibraryNode>();
+		for (LibraryInterface lib : libraries)
+			if (lib instanceof LibraryNode)
 				libList.add(((LibraryNode) lib));
 			else if (lib instanceof LibraryChainNode)
 				libList.addAll(((LibraryChainNode) lib).getLibraries());
@@ -222,7 +246,7 @@ public class LibraryModelManager {
 		if (li == null || li.getParent() == null) {
 			LOGGER.warn("Failed to create valid library chain.");
 			li = null;
-		}
+		} // FIXME - should the chain's LNN be in project?
 		return li;
 	}
 
@@ -343,6 +367,33 @@ public class LibraryModelManager {
 					return (LibraryNode) lib;
 		}
 		return null;
+	}
+
+	/**
+	 * Force removal of all libraries. Removes TLLibrary from model and closes the library.
+	 * 
+	 * @param builtIns
+	 *            do built in libraries if true
+	 */
+	public void clear(boolean builtIns) {
+		// Close the chains first then any libraries left over.
+		List<LibraryChainNode> lcns = getUserChains();
+		for (LibraryChainNode lcn : lcns)
+			lcn.close();
+
+		List<LibraryNode> libs;
+		if (builtIns)
+			libs = getAllLibraries();
+		else
+			libs = getUserLibraries();
+		for (LibraryNode lib : libs) {
+			if (lib != null) {
+				if (lib.getTLModelObject() != null)
+					if (lib.getTLModelObject().getOwningModel() != null)
+						lib.getTLModelObject().getOwningModel().removeLibrary(lib.getTLModelObject());
+				lib.close();
+			}
+		}
 	}
 
 }

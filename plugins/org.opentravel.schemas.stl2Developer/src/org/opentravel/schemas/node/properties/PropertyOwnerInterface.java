@@ -20,6 +20,7 @@ package org.opentravel.schemas.node.properties;
 
 import java.util.List;
 
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
 
@@ -32,6 +33,13 @@ import org.opentravel.schemas.node.interfaces.INode;
 public interface PropertyOwnerInterface {
 
 	/**
+	 * Add property to TL model object then clear children handler cache.
+	 * 
+	 * @param property
+	 */
+	public void addProperty(PropertyNode property);
+
+	/**
 	 * Add list of properties to a facet.
 	 * 
 	 * @param properties
@@ -39,6 +47,8 @@ public interface PropertyOwnerInterface {
 	 *            - if true, the properties are cloned before adding.
 	 */
 	public void addProperties(List<Node> properties, boolean clone);
+
+	public void add(PropertyNode property, int i);
 
 	/**
 	 * Drag-n-drop behavior. Assign type if unassigned or clone property and assign type
@@ -49,21 +59,21 @@ public interface PropertyOwnerInterface {
 	 */
 	public INode createProperty(final Node type);
 
+	public List<Node> getChildren();
+
+	public List<Node> getChildren_TypeUsers();
+
+	public INode getOwningComponent();
+
+	public TLModelElement getTLModelObject();
+
+	public boolean isEditable();
+
 	/**
 	 * Remove the property this node and underlying tl model object. Use to move the property to a different facet.
 	 * 
 	 * @param property
 	 */
 	public void removeProperty(final Node property);
-
-	public List<Node> getChildren();
-
-	public INode getOwningComponent();
-
-	public boolean isEditable();
-
-	public void addProperty(PropertyNode property);
-
-	public List<Node> getChildren_TypeUsers();
 
 }

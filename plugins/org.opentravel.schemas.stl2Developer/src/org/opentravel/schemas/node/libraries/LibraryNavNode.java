@@ -15,11 +15,13 @@
  */
 package org.opentravel.schemas.node.libraries;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.handlers.children.LibraryNavChildrenHandler;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +41,8 @@ public class LibraryNavNode extends Node {
 
 	protected static final String DEFAULT_LIBRARY_TYPE = "Library Nav";
 
+	// LibraryInterface childLibrary = null;
+
 	/**
 	 */
 	public LibraryNavNode(LibraryNode library, ProjectNode project) {
@@ -46,18 +50,27 @@ public class LibraryNavNode extends Node {
 		assert (project != null);
 
 		// Save the project and child chain relationship
-		getChildren().add(library);
+		// childLibrary = library;
+		childrenHandler = new LibraryNavChildrenHandler(this);
+		getChildrenHandler().add(library);
+
+		// getChildren().add(library);
 		parent = project;
 
 		// Make sure the library is not in project's children list.
 		if (library.getParent() != null && library.getParent() instanceof ProjectNode)
-			library.getParent().getChildren().remove(library);
+			((ProjectNode) library.getParent()).remove(library);
 
 		// Insert between library and project
 		library.setParent(this);
-		project.getChildren().add(this);
+		project.add(this);
 
 		// LOGGER.debug("Created library nav node for library " + library + " in project " + project);
+	}
+
+	@Override
+	public LibraryNavChildrenHandler getChildrenHandler() {
+		return (LibraryNavChildrenHandler) childrenHandler;
 	}
 
 	/**
@@ -73,7 +86,11 @@ public class LibraryNavNode extends Node {
 		assert (project != null);
 
 		// Save the project and child chain relationship
-		getChildren().add(chain);
+		// childLibrary = chain;
+		childrenHandler = new LibraryNavChildrenHandler(this);
+		getChildrenHandler().add(chain);
+
+		// getChildren().add(chain);
 		parent = project;
 
 		// Make sure the chain is not in project children list.
@@ -88,9 +105,10 @@ public class LibraryNavNode extends Node {
 	}
 
 	public LibraryInterface getThisLib() {
-		if (getChildren().isEmpty())
-			return null;
-		return (LibraryInterface) getChildren().get(0);
+		return getChildrenHandler().getThisLibI();
+		// if (getChildren().isEmpty())
+		// return null;
+		// return (LibraryInterface) getChildren().get(0);
 	}
 
 	@Override
@@ -139,9 +157,12 @@ public class LibraryNavNode extends Node {
 	@Override
 	public void close() {
 		getModelNode().getLibraryManager().close(getThisLib(), getProject());
-		unlinkNode();
+		if (getProject() != null)
+			getProject().remove(this);
 		deleted = true;
-		getChildren().clear();
+		// getChildrenHandler().remove((Node) getThisLib());
+		// childLibrary = null;
+		// setParent(null);
 	}
 
 	@Override
@@ -150,43 +171,57 @@ public class LibraryNavNode extends Node {
 	}
 
 	@Override
+	public List<LibraryNode> getLibraries() {
+		List<LibraryNode> libs = new ArrayList<LibraryNode>();
+		if (getThisLib() instanceof LibraryNode)
+			libs.add((LibraryNode) getThisLib());
+		if (getThisLib() instanceof LibraryChainNode)
+			libs.addAll(((LibraryChainNode) getThisLib()).getLibraries());
+		return libs;
+		// TODO - what if this is a chain
+		// return getThisLib() != null ? getThisLib().getLibrary() : null;
+	}
+
+	@Override
 	public boolean isNavChild(boolean deep) {
 		return true;
 	}
 
-	@Override
-	public boolean hasNavChildren(boolean deep) {
-		return getThisLib() != null ? getThisLib().hasNavChildren(deep) : false;
-	}
-
-	@Override
-	public List<Node> getNavChildren(boolean deep) {
-		return getThisLib() != null ? getThisLib().getNavChildren(deep) : null;
-	}
-
-	@Override
-	public boolean hasTreeChildren(boolean deep) {
-		return getThisLib() != null ? getThisLib().hasTreeChildren(deep) : false;
-	}
-
-	@Override
-	public boolean hasChildren_TypeProviders() {
-		return getThisLib() != null ? ((Node) getThisLib()).hasChildren_TypeProviders() : false;
-	}
-
-	@Override
-	public List<Node> getChildren_TypeProviders() {
-		return getThisLib() != null ? ((Node) getThisLib()).getChildren_TypeProviders() : null;
-	}
-
-	@Override
-	public List<Node> getTreeChildren(boolean deep) {
-		return getThisLib() != null ? getThisLib().getTreeChildren(deep) : null;
-	}
+	// @Override
+	// public boolean hasNavChildren(boolean deep) {
+	// return getThisLib() != null ? getThisLib().hasNavChildren(deep) : false;
+	// }
+	//
+	// @Override
+	// public List<Node> getNavChildren(boolean deep) {
+	// return getThisLib() != null ? getThisLib().getNavChildren(deep) : null;
+	// }
+	//
+	// @Override
+	// public boolean hasTreeChildren(boolean deep) {
+	// return getThisLib() != null ? getThisLib().hasTreeChildren(deep) : false;
+	// }
+	//
+	// @Override
+	// public boolean hasChildren_TypeProviders() {
+	// return getThisLib() != null ? ((Node) getThisLib()).hasChildren_TypeProviders() : false;
+	// }
+	//
+	// @Override
+	// public List<Node> getChildren_TypeProviders() {
+	// return getThisLib() != null ? ((Node) getThisLib()).getChildren_TypeProviders() : null;
+	// }
+	//
+	// @Override
+	// public List<Node> getTreeChildren(boolean deep) {
+	// return getThisLib() != null ? getThisLib().getTreeChildren(deep) : null;
+	// }
 
 	public void setThisLib(LibraryInterface library) {
-		getChildren().clear();
-		getChildren().add((Node) library);
+		getChildrenHandler().add((Node) library);
+		// childLibrary = library;
+		// getChildren().clear();
+		// getChildren().add((Node) library);
 	}
 
 	/**
@@ -194,13 +229,14 @@ public class LibraryNavNode extends Node {
 	 * required.
 	 */
 	public boolean contains(LibraryInterface li) {
-		if (getThisLib() == null)
-			return false;
-		if (getThisLib() == li)
-			return true;
-		if (li instanceof LibraryNode && getThisLib() instanceof LibraryChainNode)
-			return ((LibraryChainNode) getThisLib()).contains((Node) li);
-		return false;
+		return getChildrenHandler().contains((Node) li);
+		// if (getThisLib() == null)
+		// return false;
+		// if (getThisLib() == li)
+		// return true;
+		// if (li instanceof LibraryNode && getThisLib() instanceof LibraryChainNode)
+		// return ((LibraryChainNode) getThisLib()).contains((Node) li);
+		// return false;
 	}
 
 	@Override

@@ -17,7 +17,7 @@ package org.opentravel.schemas.node.listeners;
 
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
-import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.TypeProviderBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,13 +25,14 @@ import org.slf4j.LoggerFactory;
  * @author Dave
  *
  */
-public class BusinessObjectNodeListener extends NamedTypeListener implements INodeListener {
+@Deprecated
+public class BusinessObjectNodeListener extends TypeProviderListener implements INodeListener {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNodeListener.class);
 
 	/**
 	 * 
 	 */
-	public BusinessObjectNodeListener(Node node) {
+	public BusinessObjectNodeListener(TypeProviderBase node) {
 		super(node);
 	}
 

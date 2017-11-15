@@ -18,7 +18,6 @@ package org.opentravel.schemas.modelObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +41,9 @@ public class SimpleFacetMO extends ModelObject<TLSimpleFacet> {
 		simpleProperty = new TLnSimpleAttribute(obj);
 	}
 
-	@Override
-	public void delete() {
-	}
+	// @Override
+	// public void delete() {
+	// }
 
 	@Override
 	public List<?> getChildren() {
@@ -54,21 +53,21 @@ public class SimpleFacetMO extends ModelObject<TLSimpleFacet> {
 
 	}
 
-	// 10/5/2015 - dmh - added override to return simple type
-	@Override
-	public NamedEntity getTLType() {
-		return srcObj.getSimpleType();
-	}
+	// // 10/5/2015 - dmh - added override to return simple type
+	// @Override
+	// public NamedEntity getTLType() {
+	// return srcObj.getSimpleType();
+	// }
 
 	@Override
 	public TLSimpleFacet getTLModelObj() {
 		return srcObj;
 	}
 
-	@Override
-	public boolean isSimpleAssignable() {
-		return true;
-	}
+	// @Override
+	// public boolean isSimpleAssignable() {
+	// return true;
+	// }
 
 	// @Override
 	// public boolean setName(final String name) {

@@ -48,6 +48,7 @@ import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.modelObject.ResourceMO;
+import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ComponentNodeType;
@@ -82,9 +83,10 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceNode.class);
 
 	// private Node subject = null;
-	private TLResource tlObj = null;
+	private TLResource tlResource = null;
 	private String MSGKEY = "rest.ResourceNode";
 	private ExtensionHandler extensionHandler = null; // Lazy construction - created when accessed
+	protected LibraryNode owningLibrary = null;
 
 	public class AbstractListener implements ResourceFieldListener {
 		@Override
@@ -105,7 +107,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	public class FirstClassListener implements ResourceFieldListener {
 		@Override
 		public boolean set(String value) {
-			tlObj.setFirstClass(Boolean.valueOf(value));
+			tlResource.setFirstClass(Boolean.valueOf(value));
 			// LOGGER.debug("Set first class to: " + tlObj.isFirstClass());
 			return false;
 		}
@@ -150,12 +152,14 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	public ResourceNode(TLLibraryMember mbr) {
 		super(mbr);
-		ListenerFactory.setListner(this);
+		assert mbr instanceof TLResource;
+		tlResource = (TLResource) mbr;
+		ListenerFactory.setIdentityListner(this);
+		owningLibrary = (LibraryNode) Node.GetNode(mbr.getOwningLibrary());
 
-		assert (getModelObject() != null);
-		tlObj = getTLModelObject();
+		// assert (getModelObject() != null);
 
-		addMOChildren(); // NOTE - this will fail if no library
+		// addMOChildren(); // NOTE - this will fail if no library
 
 		if (getSubject() == null)
 			LOGGER.debug("No subject assigned: " + this);
@@ -168,13 +172,17 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	public ResourceNode(TLResource mbr, LibraryNode lib) {
 		super(mbr);
-		if (GetNode(mbr) == null)
-			ListenerFactory.setListner(this);
+		assert mbr instanceof TLResource;
+		tlResource = mbr;
 
-		assert (getModelObject() != null);
-		tlObj = getTLModelObject();
-		lib.addMember(this);
-		addMOChildren();
+		if (GetNode(mbr) == null)
+			ListenerFactory.setIdentityListner(this);
+		assert (GetNode(mbr) == this);
+
+		// assert (getModelObject() != null);
+		if (lib != null)
+			lib.addMember(this);
+		// addMOChildren();
 
 		// NOTE - subject may not have a node assigned yet!
 		// FIXME - how to add where used in these cases?
@@ -195,11 +203,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	 */
 	public ResourceNode(LibraryNode ln, BusinessObjectNode bo) {
 		super(new TLResource());
-		tlObj = getTLModelObject();
+		tlResource = (TLResource) tlObj;
 		if (bo == null)
-			tlObj.setName("NewResource"); // must be named to add to library
+			tlResource.setName("NewResource"); // must be named to add to library
 		else
-			tlObj.setName(bo.getName() + "Resource");
+			tlResource.setName(bo.getName() + "Resource");
 
 		if (ln != null && ln.isEditable()) {
 			ln.addMember(this);
@@ -290,7 +298,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		TLResource tlCopy = cloneTL();
 
 		// Create contextual facet from the copy
-		Node copy = NodeFactory.newComponent_UnTyped(tlCopy);
+		Node copy = (Node) NodeFactory.newLibraryMember(tlCopy);
 		if (!(copy instanceof ResourceNode))
 			throw new IllegalArgumentException("Unable to copy " + this);
 		ResourceNode resource = (ResourceNode) copy;
@@ -301,6 +309,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		destLib.addMember(resource);
 
 		return resource;
+	}
+
+	@Override
+	public void deleteTL() {
+		getTLModelObject().getOwningLibrary().removeNamedMember(getTLModelObject());
 	}
 
 	/**
@@ -319,12 +332,14 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	public boolean setAssignedType(TLModelElement tlProvier) {
-		throw new IllegalAccessError("Not Implemented.");
+		return false;
+		// throw new IllegalAccessError("Not Implemented.");
 	}
 
 	@Override
 	public boolean setAssignedType() {
-		throw new IllegalAccessError("Not Implemented.");
+		return false;
+		// throw new IllegalAccessError("Not Implemented.");
 	}
 
 	public String getMsgKey() {
@@ -362,8 +377,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		deleted = true;
 
 		// LOGGER.debug("Deleting rest resource: " + this);
-		if (tlObj.getOwningLibrary() != null)
-			tlObj.getOwningLibrary().removeNamedMember(tlObj);
+		if (tlResource.getOwningLibrary() != null)
+			tlResource.getOwningLibrary().removeNamedMember(tlResource);
 		// LOGGER.debug("Deleted rest resource: " + this);
 	}
 
@@ -502,8 +517,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	public ResourceNode getExtendsType() {
 		Node base = null;
 		NamedEntity tl = null;
-		if (tlObj.getExtension() != null)
-			tl = tlObj.getExtension().getExtendsEntity();
+		if (tlResource.getExtension() != null)
+			tl = tlResource.getExtension().getExtendsEntity();
 		if (tl instanceof TLResource)
 			base = Node.GetNode((TLResource) tl);
 
@@ -526,8 +541,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	 * 
 	 */
 	public String getExtendsEntityName() {
-		if (tlObj.getExtension() != null) {
-			ResourceNode rn = (ResourceNode) Node.GetNode(tlObj.getExtension().getExtendsEntity());
+		if (tlResource.getExtension() != null) {
+			ResourceNode rn = (ResourceNode) Node.GetNode(tlResource.getExtension().getExtendsEntity());
 			return getPeerName(rn);
 		}
 		return "";
@@ -546,15 +561,15 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 				!isAbstract(), new SubjectListener(), this);
 
 		// Base Path
-		new ResourceField(fields, tlObj.getBasePath(), MSGKEY + ".fields.basePath", ResourceFieldType.String,
+		new ResourceField(fields, tlResource.getBasePath(), MSGKEY + ".fields.basePath", ResourceFieldType.String,
 				!isAbstract(), new BasePathListener());
 
 		// Abstract - yes/no button
-		new ResourceField(fields, Boolean.toString(tlObj.isAbstract()), MSGKEY + ".fields.abstract",
+		new ResourceField(fields, Boolean.toString(tlResource.isAbstract()), MSGKEY + ".fields.abstract",
 				ResourceFieldType.CheckButton, new AbstractListener());
 
 		// First Class - yes/no button
-		new ResourceField(fields, Boolean.toString(tlObj.isFirstClass()), MSGKEY + ".fields.firstClass",
+		new ResourceField(fields, Boolean.toString(tlResource.isFirstClass()), MSGKEY + ".fields.firstClass",
 				ResourceFieldType.CheckButton, !isAbstract(), new FirstClassListener());
 
 		return fields;
@@ -588,6 +603,12 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	@Override
+	public LibraryNode getLibrary() {
+		return owningLibrary;
+	}
+
+	@Override
+	@Deprecated
 	public ResourceMO getModelObject() {
 		ModelObject<?> obj = super.getModelObject();
 		return (ResourceMO) (obj instanceof ResourceMO ? obj : null);
@@ -595,7 +616,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	public AbstractLibrary getTLOwner() {
-		return tlObj.getOwningLibrary();
+		return tlResource.getOwningLibrary();
 	}
 
 	@Override
@@ -674,9 +695,9 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	 * @return a string array of parent resource references by name
 	 */
 	public String[] getParentRefNames() {
-		String[] parents = new String[tlObj.getParentRefs().size()];
+		String[] parents = new String[tlResource.getParentRefs().size()];
 		int i = 0;
-		for (TLResourceParentRef parent : tlObj.getParentRefs())
+		for (TLResourceParentRef parent : tlResource.getParentRefs())
 			if (parent.getParentResourceName() != null)
 				parents[i++] = parent.getParentResourceName();
 		return parents;
@@ -731,15 +752,15 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	public BusinessObjectNode getSubject() {
 		Node subject = null;
-		if (tlObj != null && tlObj.getBusinessObjectRef() != null) {
-			subject = this.getNode(tlObj.getBusinessObjectRef().getListeners());
+		if (tlResource != null && tlResource.getBusinessObjectRef() != null) {
+			subject = this.getNode(tlResource.getBusinessObjectRef().getListeners());
 			// assert subject != null : "Missing listener on referenced business object.";
 		}
 		return (BusinessObjectNode) subject;
 	}
 
 	public String getSubjectName() {
-		return tlObj.getBusinessObjectRef() != null ? tlObj.getBusinessObjectRef().getLocalName() : "None";
+		return tlResource.getBusinessObjectRef() != null ? tlResource.getBusinessObjectRef().getLocalName() : "None";
 	}
 
 	/**
@@ -799,9 +820,9 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	public TLResource getTLModelObject() {
-		if (tlObj == null && modelObject != null && modelObject.getTLModelObj() instanceof TLResource)
-			tlObj = (TLResource) modelObject.getTLModelObj();
-		return tlObj;
+		// if (tlObj == null && getTLModelObject() instanceof TLResource)
+		// tlObj = (TLResource) getTLModelObject();
+		return tlResource;
 	};
 
 	@Override
@@ -810,14 +831,14 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	public boolean isAbstract() {
-		return tlObj.isAbstract();
+		return tlResource.isAbstract();
 	}
 
 	/**
 	 * When set to abstract = true then clear base path, remove subject, remove parameter groups,
 	 */
 	public void setAbstract(boolean flag) {
-		tlObj.setAbstract(flag);
+		tlResource.setAbstract(flag);
 
 		setBasePath("");
 		setSubject(ResourceField.NONE);
@@ -878,7 +899,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	public String getBasePath() {
-		return tlObj.getBasePath();
+		return tlResource.getBasePath();
 	}
 
 	/**
@@ -893,15 +914,20 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	public void setBasePath(String path) {
 		if (!isAbstract() && path.isEmpty())
 			path = "/";
-		tlObj.setBasePath(path);
+		tlResource.setBasePath(path);
 		assert (!path.contains("{"));
 		// LOGGER.debug("Set base path to " + path + ": " + tlObj.getBasePath());
 	}
 
 	@Override
+	public void setLibrary(LibraryNode ln) {
+		owningLibrary = ln;
+	}
+
+	@Override
 	public void setName(String n) {
 		// this.setName(n, false);
-		tlObj.setName(n);
+		tlResource.setName(n);
 	}
 
 	public boolean setExtension(String name) {
@@ -909,9 +935,9 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		if (peer != null) {
 			// TODO - use extension handler
 			setExtension(peer);
-			assert (tlObj.getExtension().getExtendsEntity() == peer.getTLModelObject());
+			assert (tlResource.getExtension().getExtendsEntity() == peer.getTLModelObject());
 		} else {
-			tlObj.setExtension(null);
+			tlResource.setExtension(null);
 			// LOGGER.debug("Set extension to null:" + tlObj.getExtension());
 		}
 		return false;
@@ -919,21 +945,21 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	public void setSubject(String name) {
 		if (name == null || name.equals(ResourceField.NONE)) {
-			tlObj.setBusinessObjectRef(null);
-			tlObj.setBusinessObjectRefName("");
+			tlResource.setBusinessObjectRef(null);
+			tlResource.setBusinessObjectRefName("");
 			LOGGER.debug("Set subject to null.");
 		} else
 			for (Node n : getLibrary().getDescendants_LibraryMembers())
 				if (n instanceof BusinessObjectNode && n.getName().equals(name)) {
-					tlObj.setBusinessObjectRef((TLBusinessObject) n.getTLModelObject());
-					LOGGER.debug("Set subect to " + name + ": " + tlObj.getBusinessObjectRefName());
+					tlResource.setBusinessObjectRef((TLBusinessObject) n.getTLModelObject());
+					LOGGER.debug("Set subect to " + name + ": " + tlResource.getBusinessObjectRefName());
 				}
 	}
 
 	public void setSubject(Node subject) {
 		if (subject != null && subject.getTLModelObject() != null
 				&& subject.getTLModelObject() instanceof TLBusinessObject) {
-			tlObj.setBusinessObjectRef((TLBusinessObject) subject.getTLModelObject());
+			tlResource.setBusinessObjectRef((TLBusinessObject) subject.getTLModelObject());
 			// Set where used on BO
 			if (subject instanceof TypeProvider)
 				((TypeProvider) subject).addWhereUsed(this);
@@ -947,13 +973,13 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	 */
 	public void toggleParent(String name) {
 		if (name.equals("NONE")) {
-			List<TLResourceParentRef> parents = new ArrayList<TLResourceParentRef>(tlObj.getParentRefs());
+			List<TLResourceParentRef> parents = new ArrayList<TLResourceParentRef>(tlResource.getParentRefs());
 			for (TLResourceParentRef ref : parents)
-				tlObj.removeParentRef(ref);
+				tlResource.removeParentRef(ref);
 			return;
 		}
 		TLResourceParentRef toRemove = null;
-		for (TLResourceParentRef ref : tlObj.getParentRefs()) {
+		for (TLResourceParentRef ref : tlResource.getParentRefs()) {
 			if (ref.getParentResourceName() != null) {
 				String rn = ref.getParentResourceName();
 				if (ref.getParentResourceName().equals(name))
@@ -961,7 +987,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 			}
 		}
 		if (toRemove != null) {
-			tlObj.removeParentRef(toRemove);
+			tlResource.removeParentRef(toRemove);
 			// LOGGER.debug("Removed parent : " + toRemove.getParentResourceName());
 		} else {
 			setParentRef(name);
@@ -995,16 +1021,15 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return pr;
 	}
 
-	@Override
 	protected void addMOChildren() {
-		if (tlObj != null) {
-			for (TLResourceParentRef parent : tlObj.getParentRefs())
+		if (tlResource != null) {
+			for (TLResourceParentRef parent : tlResource.getParentRefs())
 				new ParentRef(parent);
-			for (TLParamGroup tlp : tlObj.getParamGroups())
+			for (TLParamGroup tlp : tlResource.getParamGroups())
 				new ParamGroup(tlp);
-			for (TLAction action : tlObj.getActions())
+			for (TLAction action : tlResource.getActions())
 				new ActionNode(action);
-			for (TLActionFacet af : tlObj.getActionFacets())
+			for (TLActionFacet af : tlResource.getActionFacets())
 				new ActionFacet(af);
 			// On construction of the library, the base resource may not have node identity listeners.
 			initInherited();
@@ -1012,8 +1037,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	private void initInherited() {
-		if (tlObj.getExtension() != null) {
-			NamedEntity base = tlObj.getExtension().getExtendsEntity();
+		if (tlResource.getExtension() != null) {
+			NamedEntity base = tlResource.getExtension().getExtendsEntity();
 			if (base instanceof TLResource) {
 				for (TLParamGroup tlInherited : ((TLResource) base).getParamGroups())
 					getChildren().add(new InheritedResourceMember(tlInherited));
@@ -1027,7 +1052,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	public Collection<String> getValidationMessages() {
-		ValidationFindings findings = TLModelCompileValidator.validateModelElement((TLModelElement) tlObj);
+		ValidationFindings findings = TLModelCompileValidator.validateModelElement((TLModelElement) tlResource);
 		ArrayList<String> msgs = new ArrayList<String>();
 		for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
 			msgs.add(f);
@@ -1038,17 +1063,22 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	public ValidationFindings getValidationFindings() {
-		return TLModelCompileValidator.validateModelElement((TLModelElement) tlObj);
+		return TLModelCompileValidator.validateModelElement((TLModelElement) tlResource);
 	}
 
 	@Override
 	public boolean isValid() {
-		return TLModelCompileValidator.validateModelElement(tlObj).count(FindingType.ERROR) == 0;
+		return TLModelCompileValidator.validateModelElement(tlResource).count(FindingType.ERROR) == 0;
 	}
 
 	@Override
 	public boolean isValid_NoWarnings() {
-		return TLModelCompileValidator.validateModelElement((TLModelElement) tlObj).count(FindingType.WARNING) == 0;
+		return TLModelCompileValidator.validateModelElement((TLModelElement) tlResource).count(FindingType.WARNING) == 0;
+	}
+
+	@Override
+	public List<AliasNode> getAliases() {
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -1093,9 +1123,9 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	public void setExtension(Node base) {
 		assert (base instanceof ResourceNode);
 		TLExtension ext = new TLExtension();
-		tlObj.setExtension(ext);
+		tlResource.setExtension(ext);
 		ext.setExtendsEntity(((ResourceNode) base).getTLModelObject());
-		LOGGER.debug("Set extension to " + base + ": " + tlObj.getExtension().getExtendsEntityName());
+		LOGGER.debug("Set extension to " + base + ": " + tlResource.getExtension().getExtendsEntityName());
 
 		// update inherited children
 		ArrayList<InheritedResourceMember> inherited = new ArrayList<InheritedResourceMember>();

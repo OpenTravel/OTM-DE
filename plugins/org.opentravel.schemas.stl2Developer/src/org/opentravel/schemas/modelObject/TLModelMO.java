@@ -25,10 +25,10 @@ public class TLModelMO extends ModelObject<TLModel> {
 		super(obj);
 	}
 
-	@Override
-	public void delete() {
-		System.out.println("ModelObject - delete - TODO");
-	}
+	// @Override
+	// public void delete() {
+	// System.out.println("ModelObject - delete - TODO");
+	// }
 
 	@Override
 	public List<?> getChildren() {

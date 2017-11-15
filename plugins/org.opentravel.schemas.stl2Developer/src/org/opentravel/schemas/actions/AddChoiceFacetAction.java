@@ -90,7 +90,7 @@ public class AddChoiceFacetAction extends OtmAbstractAction {
 		co.getTLModelObject().addChoiceFacet(cf.getTLModelObject());
 
 		// Create contributed facet
-		NodeFactory.newMember(co, cf.getTLModelObject());
+		NodeFactory.newChild(co, cf.getTLModelObject());
 		mc.refresh(co);
 	}
 

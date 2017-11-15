@@ -18,7 +18,6 @@ package org.opentravel.schemas.modelObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
@@ -46,18 +45,18 @@ public class ValueWithAttributesMO extends ModelObject<TLValueWithAttributes> {
 		valueFacet.setFacetType(TLFacetType.SIMPLE);
 
 		attributeFacet = new TLnValueWithAttributesFacet(obj);
-		if (obj.getParentType() != null) {
-			setTLType(obj.getParentType());
-		}
+		// if (obj.getParentType() != null) {
+		// setTLType(obj.getParentType());
+		// }
 	}
 
-	@Override
-	public void delete() {
-		if (getTLModelObj() == null || getTLModelObj().getOwningLibrary() == null) {
-			return;
-		}
-		getTLModelObj().getOwningLibrary().removeNamedMember(getTLModelObj());
-	}
+	// @Override
+	// public void delete() {
+	// if (getTLModelObj() == null || getTLModelObj().getOwningLibrary() == null) {
+	// return;
+	// }
+	// getTLModelObj().getOwningLibrary().removeNamedMember(getTLModelObj());
+	// }
 
 	@Override
 	public List<Object> getChildren() {
@@ -74,18 +73,18 @@ public class ValueWithAttributesMO extends ModelObject<TLValueWithAttributes> {
 	// this.srcObj.setParentType(null);
 	// }
 
-	@Override
-	public void setExtendsType(ModelObject<?> mo) {
-		if (mo != null) {
-			if (mo.getTLModelObj() instanceof TLValueWithAttributes)
-				getTLModelObj().setParentType((TLValueWithAttributes) mo.getTLModelObj());
-		} else
-			getTLModelObj().setParentType(null); // clear value
-	}
+	// @Override
+	// public void setExtendsType(ModelObject<?> mo) {
+	// if (mo != null) {
+	// if (mo.getTLModelObj() instanceof TLValueWithAttributes)
+	// getTLModelObj().setParentType((TLValueWithAttributes) mo.getTLModelObj());
+	// } else
+	// getTLModelObj().setParentType(null); // clear value
+	// }
 
-	public NamedEntity getSimpleValueType() {
-		return srcObj.getParentType();
-	}
+	// public NamedEntity getSimpleValueType() {
+	// return srcObj.getParentType();
+	// }
 
 	// /**
 	// * Is this VWA extended by <i>extension</i>? VWA does not use an TL extension handler. Use the parentType
@@ -104,10 +103,10 @@ public class ValueWithAttributesMO extends ModelObject<TLValueWithAttributes> {
 	// return getTLModelObj().getParentType() == extension;
 	// }
 
-	@Override
-	public boolean isSimpleAssignable() {
-		return true;
-	}
+	// @Override
+	// public boolean isSimpleAssignable() {
+	// return true;
+	// }
 
 	// @Override
 	// public boolean setName(final String name) {
@@ -115,10 +114,10 @@ public class ValueWithAttributesMO extends ModelObject<TLValueWithAttributes> {
 	// return true;
 	// }
 	//
-	@Override
-	public NamedEntity getTLBase() {
-		return srcObj.getParentType();
-	}
+	// @Override
+	// public NamedEntity getTLBase() {
+	// return srcObj.getParentType();
+	// }
 
 	@Override
 	public TLValueWithAttributes getTLModelObj() {

@@ -20,18 +20,22 @@ import javax.xml.namespace.QName;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.model.TLPropertyType;
+import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNodeType;
+import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ModelNode;
+import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
-import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 
 /**
- * A property node that represents an XML element. See {@link NodeFactory#newMember(INode, Object)}
+ * A property node that represents an XML element. See {@link NodeFactory#newMemberOLD(INode, Object)}
  * 
  * @author Dave Hollander
  * 
@@ -45,12 +49,12 @@ public class ElementReferenceNode extends ElementNode {
 	 *            - if null, the caller must link the node and add to TL Model parent
 	 * @param name
 	 */
-	public ElementReferenceNode(PropertyOwnerInterface parent, String name) {
-		this(parent, name, ModelNode.getUnassignedNode());
+	public ElementReferenceNode(PropertyOwnerInterface parent) {
+		this(parent, ModelNode.getUnassignedNode());
 	}
 
-	public ElementReferenceNode(PropertyOwnerInterface parent, String name, TypeProvider reference) {
-		super(parent, name, reference);
+	public ElementReferenceNode(PropertyOwnerInterface parent, TypeProvider reference) {
+		super(parent, "", reference);
 
 		getTLModelObject().setReference(true);
 		setAssignedType(reference);
@@ -66,7 +70,18 @@ public class ElementReferenceNode extends ElementNode {
 	 */
 	public ElementReferenceNode(TLProperty tlObj, PropertyOwnerInterface parent) {
 		super(tlObj, parent);
-		getTLModelObject().setReference(true);
+		assert getTLModelObject().isReference();
+	}
+
+	@Override
+	public boolean canAssign(Node type) {
+		if (type instanceof BusinessObjectNode)
+			return true;
+		if (type instanceof CoreObjectNode)
+			return true;
+		if (type instanceof ImpliedNode)
+			return true;
+		return false;
 	}
 
 	@Override
@@ -85,17 +100,51 @@ public class ElementReferenceNode extends ElementNode {
 	}
 
 	@Override
+	public String getName() {
+		if (getAssignedType() == null)
+			setAssignedType(ModelNode.getEmptyNode().getTLModelObject());
+		String name = getTLModelObject().getName();
+		if (name == null || name.isEmpty())
+			initName();
+		if (getAssignedType() instanceof ImpliedNode)
+			return getAssignedType().getName();
+		return name;
+	}
+
+	@Override
 	public boolean isRenameable() {
 		return false; // name must come from assigned object
 	}
 
 	@Override
+	public boolean setAssignedType(TypeProvider provider) {
+		boolean result = typeHandler.set(provider);
+		initName();
+		return result;
+	}
+
+	@Override
+	public boolean setAssignedType(TLModelElement tla) {
+		if (tla == getTLModelObject().getType())
+			return false;
+		if (canAssign(GetNode(tla)))
+			if (tla instanceof TLPropertyType)
+				getTLModelObject().setType((TLPropertyType) tla);
+		return getTLModelObject().getType() == tla;
+	}
+
+	@Override
 	public void setName(String name) {
-		QName ln = PropertyCodegenUtils.getDefaultSchemaElementName((NamedEntity) getAssignedTLObject(), true);
-		if (ln == null || getType() == null || (getType() instanceof ImpliedNode))
-			getTLModelObject().setName(NodeNameUtils.fixElementRefName(name));
+		// NO-OP
+	}
+
+	// If the name is not set on the tlObj, set it.
+	private void initName() {
+		QName qn = PropertyCodegenUtils.getDefaultSchemaElementName((NamedEntity) getAssignedTLObject(), true);
+		if (qn == null)
+			getTLModelObject().setName("Missing");
 		else {
-			getTLModelObject().setName(ln.getLocalPart());
+			getTLModelObject().setName(qn.getLocalPart());
 		}
 	}
 

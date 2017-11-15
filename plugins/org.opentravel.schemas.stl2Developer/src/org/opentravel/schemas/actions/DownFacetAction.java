@@ -17,9 +17,7 @@ package org.opentravel.schemas.actions;
 
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.properties.StringProperties;
-import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.views.TypeView;
@@ -38,14 +36,10 @@ public class DownFacetAction extends OtmAbstractAction {
 	public void run() {
 		final TypeView view = OtmRegistry.getTypeView();
 		if (view != null) {
-			boolean ret = false;
 			for (final Node n : view.getSelectedNodes())
 				if (n instanceof PropertyNode)
-					ret = ((PropertyNode) n).moveProperty(PropertyNode.DOWN);
-			if (ret)
-				view.setFacetViewFocus(1);
-			else
-				DialogUserNotifier.openInformation("WARNING", Messages.getString("action.move.warning"));
+					((PropertyNode) n).moveDown();
+			view.setFacetViewFocus(1);
 		}
 	}
 

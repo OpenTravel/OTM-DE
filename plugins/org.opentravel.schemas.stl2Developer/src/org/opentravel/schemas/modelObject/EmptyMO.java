@@ -66,13 +66,13 @@ public class EmptyMO extends ModelObject<TLEmpty> {
 	// return false;
 	// }
 
-	@Override
-	public void delete() {
-		if (srcObj == null)
-			return;
-		srcObj.delete();
-		srcObj = null;
-	}
+	// @Override
+	// public void delete() {
+	// if (srcObj == null)
+	// return;
+	// srcObj.delete();
+	// srcObj = null;
+	// }
 
 	// @Override
 	// protected AbstractLibrary getLibrary(final TLEmpty obj) {

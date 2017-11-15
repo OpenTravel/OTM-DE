@@ -20,9 +20,9 @@ package org.opentravel.schemas.node.facets;
 
 import java.util.List;
 
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
-import org.opentravel.schemas.modelObject.SimpleFacetMO;
 import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
@@ -31,7 +31,8 @@ import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.SimpleFacetNodeListener;
-import org.opentravel.schemas.node.properties.SimpleAttributeNode;
+import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
 import org.opentravel.schemas.types.SimpleAttributeOwner;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
@@ -51,15 +52,33 @@ import org.slf4j.LoggerFactory;
 //
 
 // In VWA it has a simple attribute node child
-
+@Deprecated
 public class SimpleFacetNode extends PropertyOwnerNode implements TypeProvider, SimpleAttributeOwner {
 	private static final Logger LOGGER = LoggerFactory.getLogger(FacetNode.class);
 
+	@Deprecated
 	public SimpleFacetNode(TLSimpleFacet obj) {
 		super(obj);
-		assert (modelObject instanceof SimpleFacetMO);
+		assert false;
+		// childrenHandler = new SimpleFacetFacadeChildrenHandler(this);
+
+		// assert (modelObject instanceof SimpleFacetMO);
 		// TLSimpleFacet - SimpleFacetMO
 		// parent = Core Object Node, VWA
+	}
+
+	/**
+	 * Set the type.
+	 * 
+	 * @param property
+	 *            if a type provider it is assigned, if a property that property's type is assigned
+	 * @param index
+	 */
+	public void addProperty(final Node property, int index) {
+		if (property instanceof PropertyNode)
+			((TypeUser) getChildren().get(0)).setAssignedType(((TypeUser) property).getAssignedType());
+		else
+			((TypeUser) getChildren().get(0)).setAssignedType((TypeProvider) property);
 	}
 
 	/**
@@ -137,7 +156,7 @@ public class SimpleFacetNode extends PropertyOwnerNode implements TypeProvider, 
 	public boolean isAssignableToSimple() {
 		Node owner = getOwningComponent();
 		if (owner instanceof CoreObjectNode)
-			return !((CoreObjectNode) owner).getSimpleType().equals(ModelNode.getEmptyNode());
+			return !((CoreObjectNode) owner).getAssignedType().equals(ModelNode.getEmptyNode());
 		return true;
 	}
 
@@ -146,17 +165,24 @@ public class SimpleFacetNode extends PropertyOwnerNode implements TypeProvider, 
 		return true;
 	}
 
-	public SimpleAttributeNode getSimpleAttribute() {
-		return getChildren().isEmpty() ? null : (SimpleAttributeNode) getChildren().get(0);
+	// TODO - where should this method be declared? higher than propertyNode
+	// @Override
+	public NamedEntity getAssignedTLNamedEntity() {
+		return getTLModelObject() != null ? getTLModelObject().getSimpleType() : null;
+	}
+
+	public SimpleAttributeFacadeNode getSimpleAttribute() {
+		return null;
+		// return getChildren().isEmpty() ? null : (SimpleAttributeNode) getChildren().get(0);
 	}
 
 	@Override
-	public boolean setSimpleType(TypeProvider provider) {
+	public boolean setAssignedType(TypeProvider provider) {
 		return getSimpleAttribute().setAssignedType(provider);
 	}
 
 	@Override
-	public TypeProvider getSimpleType() {
+	public TypeProvider getAssignedType() {
 		return getSimpleAttribute().getAssignedType();
 	}
 
@@ -194,7 +220,8 @@ public class SimpleFacetNode extends PropertyOwnerNode implements TypeProvider, 
 
 	@Override
 	public TLSimpleFacet getTLModelObject() {
-		return (TLSimpleFacet) (modelObject != null ? modelObject.getTLModelObj() : null);
+		return (TLSimpleFacet) tlObj;
+		// return (TLSimpleFacet) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
 
 	@Override

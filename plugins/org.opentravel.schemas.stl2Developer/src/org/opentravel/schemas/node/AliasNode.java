@@ -15,17 +15,13 @@
  */
 package org.opentravel.schemas.node;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLAbstractFacet;
 import org.opentravel.schemacompiler.model.TLAlias;
-import org.opentravel.schemacompiler.model.TLAliasOwner;
-import org.opentravel.schemas.modelObject.AliasMO;
-import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.PropertyOwnerNode;
-import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.AliasOwner;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
@@ -45,84 +41,100 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AliasNode.class);
 
 	/**
-	 * Add a new alias to a core or business object parent.
-	 * 
-	 * @param parent
-	 * @param tlObj
-	 */
-	public AliasNode(final Node parent, final TLAlias tlObj) {
-		super(tlObj);
-		addAlias(parent, tlObj);
-		// Prevent NPE in code gen utils and assure the name is not null.
-		if (tlObj.getName() == null)
-			tlObj.setName("");
-
-		assert (modelObject instanceof AliasMO);
-		assert (getTLModelObject() != null);
-	}
-
-	/**
 	 * Create a new alias complete with new TL model and link to parentNode
 	 * 
 	 * @param parentNode
 	 * @param en
 	 */
-	public AliasNode(final Node parent, String name) {
-		// Do not use the parent form of this constructor. The alias must be named before children are created.
-		super(new TLAlias());
-		getTLModelObject().setName(name == null ? "" : name);
-		addAlias(parent, getTLModelObject());
-
-		assert (modelObject instanceof AliasMO);
-		assert (getTLModelObject() != null);
+	public AliasNode(final AliasOwner parent, String name) {
+		this(parent, new TLAlias());
+		setName(name);
 	}
 
-	// Constructor utility
-	private void addAlias(Node parent, final TLAlias tlObj) {
-		if (parent != null) {
-			parent.linkChild(this);
-			setLibrary(parent.getLibrary());
-			//
-			if (parent.getTLModelObject() instanceof TLAliasOwner)
-				if (!(parent instanceof PropertyOwnerNode)) {
-					((TLAliasOwner) parent.getTLModelObject()).addAlias(tlObj);
-					createChildrenAliases(parent, tlObj);
-				}
-		}
+	/**
+	 * Add a new alias to a core or business object parent.
+	 * 
+	 * @param parent
+	 * @param tlObj
+	 */
+	public AliasNode(final AliasOwner parent, final TLAlias tlObj) {
+		super(tlObj);
+		// assure the name is not null to prevent NPE in code gen utils
+		if (tlObj.getName() == null)
+			tlObj.setName("");
+
+		this.parent = (Node) parent;
+		if (parent != null)
+			parent.addAlias(this);
+
+		// if (parent.getTLModelObject() instanceof TLAliasOwner)
+		// if (!((TLAliasOwner) parent.getTLModelObject()).getAliases().contains(tlObj)) {
+		// // Add this tlobject to the parent
+		// ((TLAliasOwner) parent.getTLModelObject()).addAlias(getTLModelObject());
+		// // Update children
+		// clearChildrenCaches();
+		// // Undo what clearing children will do to this node
+		// this.tlObj = tlObj;
+		// tlObj.addListener(new NodeIdentityListener(this));
+		// deleted = false;
+		// }
+
+		assert (getTLModelObject() != null);
+		assert (Node.GetNode(getTLModelObject()) == this);
 	}
 
 	@Override
 	public void delete() {
-		deleteAliasList visitor = new deleteAliasList();
-		touchSiblingAliases(visitor);
-		for (AliasNode n : visitor.getToBeDeleted())
-			n.superDelete();
+		if (parent instanceof AliasOwner)
+			((AliasOwner) parent).remove(this);
 	}
 
-	private void superDelete() {
-		super.delete();
+	@Override
+	public void deleteTL() {
+		// final TLAliasOwner owningEntity = getTLModelObject().getOwningEntity();
+		// if (owningEntity != null && !(owningEntity instanceof TLFacet) &&
+		// !(owningEntity instanceof TLListFacet)) {
+		// owningEntity.removeAlias(getTLModelObject());
+		// }
 	}
 
-	private void createChildrenAliases(Node owner, TLAlias tla) {
-		if (owner == null)
-			return;
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.ALIAS;
+	}
 
-		for (Node n : owner.getChildren()) {
-			if (n instanceof FacetNode)
-				((FacetNode) n).updateAliasNodes();
-		}
+	@Override
+	public String getComponentType() {
+		return "Alias: " + getName();
+	}
+
+	@Override
+	public Image getImage() {
+		return Images.getImageRegistry().get(Images.Alias);
 	}
 
 	@Override
 	public LibraryNode getLibrary() {
-		if (getOwningComponent() == null || getOwningComponent() == this)
+		if (getOwningComponent() == null)
 			return null;
 		return getOwningComponent().getLibrary();
 	}
 
 	@Override
+	public String getName() {
+		if (getTLModelObject() == null)
+			LOGGER.warn("Missing TLModelObject.");
+		return getTLModelObject().getName();
+	}
+
+	@Override
+	public List<Node> getNavChildren(boolean deep) {
+		return Collections.emptyList();
+	}
+
+	@Override
 	public Node getOwningComponent() {
-		return getParent() != null ? getParent().getOwningComponent() : this;
+		return getParent() != null ? getParent().getOwningComponent() : null;
 	}
 
 	@Override
@@ -132,22 +144,12 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 
 	@Override
 	public TLAlias getTLModelObject() {
-		return (TLAlias) modelObject.getTLModelObj();
+		return (TLAlias) tlObj;
 	}
 
 	@Override
-	public String getName() {
-		return getTLModelObject().getName();
-	}
-
-	@Override
-	public Image getImage() {
-		return Images.getImageRegistry().get(Images.Alias);
-	}
-
-	@Override
-	public boolean isFacetAlias() {
-		return getTLModelObject().getOwningEntity() instanceof TLAbstractFacet;
+	public boolean hasNavChildren(boolean deep) {
+		return false;
 	}
 
 	@Override
@@ -158,6 +160,11 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 	@Override
 	public boolean isAssignedByReference() {
 		return getParent() != null ? getParent().isAssignedByReference() : false;
+	}
+
+	@Override
+	public boolean isFacetAlias() {
+		return getTLModelObject().getOwningEntity() instanceof TLAbstractFacet;
 	}
 
 	@Override
@@ -175,158 +182,32 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 		return getParent() != null ? getParent().isSimpleAssignable() : false;
 	}
 
+	// change propagates to all tl children
 	@Override
-	public String getComponentType() {
-		return "Alias: " + getName();
-	}
-
-	@Override
-	public ComponentNodeType getComponentNodeType() {
-		return ComponentNodeType.ALIAS;
-	}
-
-	@Override
-	public List<Node> getNavChildren(boolean deep) {
-		return new ArrayList<Node>();
-	}
-
-	@Override
-	public boolean hasNavChildren(boolean deep) {
-		return false;
-	}
-
-	@Override
-	public void setName(String n) {
-		if (getParent() == null)
-			return; // happens during initial node creation
-		if (!(getParent() instanceof ComplexComponentInterface)) {
-			// LOGGER.warn("Can't set name unless the parent is the component, not a facet. " + getName());
-			return;
-		}
-		n = NodeNameUtils.fixComplexTypeName(n);
-		touchSiblingAliases(new renameAlias(this, n));
-	}
-
-	// Why is this here? I think it will always give same result as getOwningComponent(). Only used
-	// for delete and setName.
-	private ComponentNode findOwningComponent() {
-		ComponentNode component = (ComponentNode) getParent();
-		if (component instanceof ComplexComponentInterface)
-			return component;
-
-		component = (ComponentNode) getParent().getParent();
-		if (component instanceof ComplexComponentInterface)
-			return component;
-		else
-			return null;
+	public void setName(String name) {
+		if (getTLModelObject() != null)
+			getTLModelObject().setName(name == null ? "" : name);
 	}
 
 	/**
-	 * Execute visitor on this node and all others with the same name root under the parent component.
-	 * 
-	 * @param visitor
-	 * @param a
+	 * Set name to type users where this alias is assigned. Only if the parent is type that requires assigned users to
+	 * use the owner's name
 	 */
-	private void touchSiblingAliases(Visitor visitor) {
-		// find parent component.
-		String thisAlias = getName();
-		List<Node> peers = findOwningComponent().getDescendants();
-		String rootAlias = "";
-		for (Node node : peers) {
-			if (node instanceof AliasNode && node.getParent() == findOwningComponent()) {
-				if (thisAlias.startsWith(node.getName())) {
-					rootAlias = node.getName();
-				}
-			}
-		}
-
-		// TL model will change name of all related aliases.
-		// Prune the list now to use to update whereAssigned properties
-		List<AliasNode> related = new ArrayList<AliasNode>();
-		for (Node peer : peers)
-			if (peer instanceof AliasNode && peer.getName().startsWith(rootAlias))
-				if (peer != this)
-					related.add((AliasNode) peer);
-
-		visitor.visit(this);
-		for (AliasNode peer : related)
-			visitor.visit(peer);
-	}
-
-	private interface Visitor {
-		public void visit(Node n);
-	}
-
-	/**
-	 * Visitor class that creates list of aliases.
-	 * 
-	 * @author Dave Hollander
-	 * 
-	 */
-	private class deleteAliasList implements Visitor {
-		List<AliasNode> toBeDeleted = new ArrayList<AliasNode>();
-
-		/**
-		 * @return the toBeDeleted
-		 */
-		public List<AliasNode> getToBeDeleted() {
-			return toBeDeleted;
-		}
-
-		@Override
-		public void visit(Node n) {
-			if (n instanceof AliasNode)
-				toBeDeleted.add((AliasNode) n);
-		}
-
-	}
-
-	private class renameAlias implements Visitor {
-		String newName = "";
-		String aliasName = "";
-
-		public renameAlias(AliasNode leadAlias, String newName) {
-			this.newName = newName;
-			this.aliasName = leadAlias.getName();
-		}
-
-		@Override
-		public void visit(Node n) {
-			if (n.getModelObject() == null)
-				throw new IllegalStateException("Model Object on " + getName() + " is null.");
-
-			// The name may already have been changed. If so, leave it alone.
-			String fullNewName = n.getName();
-			if (!n.getName().startsWith(newName)) {
-				String remainder = n.getName().substring(aliasName.length());
-				fullNewName = newName;
-				if (remainder.length() > 0)
-					fullNewName = newName + remainder;
-				if (n instanceof AliasNode)
-					((AliasNode) n).getTLModelObject().setName(fullNewName); // don't loop
-				else
-					n.setName(fullNewName);
-				// n.getModelObject().setName(fullNewName);
-			}
-			if (n instanceof TypeProvider)
-				for (TypeUser user : ((TypeProvider) n).getWhereAssigned())
-					user.setName(fullNewName);
-		}
-	}
-
 	@Override
-	public boolean isAssignableToSimple() {
-		return false;
+	public void setNameOnWhereAssigned(String n) {
+		if (getOwningComponent() instanceof TypeProvider
+				&& !((TypeProvider) getOwningComponent()).isRenameableWhereUsed())
+			for (TypeUser u : getWhereAssigned())
+				u.setName(n);
 	}
 
-	@Override
-	public boolean isAssignableToVWA() {
-		return false;
-	}
-
-	@Override
-	public boolean isAssignableToElementRef() {
-		return false;
+	private void clearChildrenCaches() {
+		// Clear the children cache
+		for (Node c : getParent().getChildren())
+			if (c.getChildrenHandler() != null)
+				c.getChildrenHandler().clear();
+		if (getParent() != null)
+			getParent().getChildrenHandler().clear();
 	}
 
 }

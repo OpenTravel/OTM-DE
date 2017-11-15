@@ -59,7 +59,7 @@ public interface ProjectController {
 	 * 
 	 * Does NOT add them to the Node project model.
 	 * 
-	 * @see {@link ProjectNode#add(FileList)}
+	 * @see {@link ProjectNode#addToTL(FileList)}
 	 */
 	public List<ProjectItem> addLibrariesToTLProject(Project project, List<File> libraryFiles);
 

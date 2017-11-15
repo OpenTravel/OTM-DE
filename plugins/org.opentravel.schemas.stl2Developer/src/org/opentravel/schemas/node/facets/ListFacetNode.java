@@ -15,10 +15,15 @@
  */
 package org.opentravel.schemas.node.facets;
 
+import java.util.List;
+
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLListFacet;
-import org.opentravel.schemas.modelObject.ListFacetMO;
+import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNodeType;
+import org.opentravel.schemas.node.handlers.children.ListFacetChildrenHandler;
+import org.opentravel.schemas.node.interfaces.AliasOwner;
+import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
 
 /**
@@ -27,12 +32,36 @@ import org.opentravel.schemas.node.properties.PropertyNodeType;
  * @author Dave Hollander
  * 
  */
-public class ListFacetNode extends PropertyOwnerNode {
+public class ListFacetNode extends PropertyOwnerNode implements AliasOwner {
 
 	public ListFacetNode(TLListFacet tlObj) {
 		super(tlObj);
 
-		assert (modelObject instanceof ListFacetMO);
+		childrenHandler = new ListFacetChildrenHandler(this);
+	}
+
+	@Override
+	public void addAlias(AliasNode alias) {
+		// if (!getTLModelObject().getAliases().contains(alias.getTLModelObject()))
+		// getTLModelObject().addAlias(alias.getTLModelObject());
+		getChildrenHandler().clear();
+	}
+
+	@Override
+	public void remove(AliasNode alias) {
+		// Not sure how-to or if i need-to associate this alias with owning compnent's
+		getChildrenHandler().clear();
+	}
+
+	@Override
+	public AliasNode addAlias(String name) {
+		// NO-OP
+		return null;
+	}
+
+	@Override
+	public void cloneAliases(List<AliasNode> aliases) {
+		// NO-OP
 	}
 
 	@Override
@@ -50,7 +79,13 @@ public class ListFacetNode extends PropertyOwnerNode {
 	}
 
 	@Override
+	@Deprecated
 	public boolean isValidParentOf(PropertyNodeType type) {
+		return false;
+	}
+
+	@Override
+	public boolean isValidParentOf(PropertyNode pn) {
 		return false;
 	}
 
@@ -61,7 +96,8 @@ public class ListFacetNode extends PropertyOwnerNode {
 
 	@Override
 	public TLListFacet getTLModelObject() {
-		return (TLListFacet) (getModelObject() != null ? getModelObject().getTLModelObj() : null);
+		return (TLListFacet) tlObj;
+		// return (TLListFacet) (getModelObject() != null ? getModelObject().getTLModelObj() : null);
 
 	}
 

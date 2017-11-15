@@ -17,6 +17,7 @@ package org.opentravel.schemas.node.properties;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLIndicator;
+import org.opentravel.schemacompiler.model.TLIndicatorOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.ImpliedNode;
@@ -30,7 +31,7 @@ import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * A property node that represents a boolean XML attribute with the semantics of "False unless present and true". See
- * {@link NodeFactory#newMember(INode, Object)}
+ * {@link NodeFactory#newMemberOLD(INode, Object)}
  * 
  * @author Dave Hollander
  * 
@@ -39,47 +40,33 @@ import org.opentravel.schemas.types.TypeProvider;
 public class IndicatorNode extends PropertyNode {
 
 	public IndicatorNode(PropertyOwnerInterface parent, String name) {
-		super(new TLIndicator(), (Node) parent, name, PropertyNodeType.INDICATOR);
-		// setIdentity(name);
-
-		assert (!getTLModelObject().getListeners().isEmpty());
+		super(new TLIndicator(), parent, name);
 	}
 
-	/**
-	 * 
-	 * @param tlObj
-	 * @param parent
-	 *            either a facet or extension point facet
-	 */
-	public IndicatorNode(TLModelElement tlObj, PropertyOwnerInterface parent) {
-		super(tlObj, (INode) parent, PropertyNodeType.INDICATOR);
+	public IndicatorNode(TLIndicator tlObj, PropertyOwnerInterface parent) {
+		super(tlObj, parent);
+	}
 
-		if (!(tlObj instanceof TLIndicator))
-			throw new IllegalArgumentException("Invalid object for an indicator.");
-		assert (!getTLModelObject().getListeners().isEmpty());
+	@Override
+	public void addToTL(final PropertyOwnerInterface owner, final int index) {
+		if (owner.getTLModelObject() instanceof TLIndicatorOwner)
+			try {
+				((TLIndicatorOwner) owner.getTLModelObject()).addIndicator(index, getTLModelObject());
+			} catch (IndexOutOfBoundsException e) {
+				((TLIndicatorOwner) owner.getTLModelObject()).addIndicator(getTLModelObject());
+			}
 	}
 
 	@Override
 	public boolean canAssign(Node type) {
-		return (type == ModelNode.getIndicatorNode() || type == ModelNode.getUndefinedNode());
+		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.PropertyNode#createProperty(org.opentravel.schemas.node.Node)
-	 */
 	@Override
 	public INode createProperty(Node type) {
-		TLIndicator tlObj = (TLIndicator) cloneTLObj();
-		int index = indexOfNode();
-		((TLIndicator) getTLModelObject()).getOwner().addIndicator(index, tlObj);
-		IndicatorElementNode n = new IndicatorElementNode(tlObj, null);
-		n.setName(type.getName());
-		getParent().linkChild(n, indexOfNode());
-		((TLIndicator) getTLModelObject()).getOwner().addIndicator(index, tlObj);
-		n.setDescription(type.getDescription());
-		return n;
+		TLIndicator tlClone = (TLIndicator) cloneTLObj();
+		IndicatorNode n = new IndicatorNode(tlClone, null);
+		return super.createProperty(n, type);
 	}
 
 	@Override
@@ -88,19 +75,33 @@ public class IndicatorNode extends PropertyNode {
 	}
 
 	@Override
-	public ImpliedNode getRequiredType() {
-		return ModelNode.getIndicatorNode();
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.INDICATOR;
 	}
 
-	@Override
-	public String getName() {
-		return emptyIfNull(getTLModelObject().getName());
-	}
-
-	@Override
-	public TLIndicator getTLModelObject() {
-		return (TLIndicator) (modelObject != null ? modelObject.getTLModelObj() : null);
-	}
+	// @Override
+	// public String getEquivalent(String context) {
+	// return getEquivalentHandler().get(context);
+	// }
+	//
+	// @Override
+	// public IValueWithContextHandler getEquivalentHandler() {
+	// if (equivalentHandler == null)
+	// equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
+	// return equivalentHandler;
+	// }
+	//
+	// @Override
+	// public String getExample(String context) {
+	// return getExampleHandler().get(context);
+	// }
+	//
+	// @Override
+	// public IValueWithContextHandler getExampleHandler() {
+	// if (exampleHandler == null)
+	// exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
+	// return exampleHandler;
+	// }
 
 	@Override
 	public Image getImage() {
@@ -108,26 +109,32 @@ public class IndicatorNode extends PropertyNode {
 	}
 
 	@Override
-	public ComponentNodeType getComponentNodeType() {
-		return ComponentNodeType.INDICATOR;
+	public String getName() {
+		return getTLModelObject() != null ? emptyIfNull(getTLModelObject().getName()) : "";
 	}
 
 	@Override
-	public boolean isNavChild(boolean deep) {
-		return deep;
-		// return false;
+	public Node getParent() {
+		if ((parent == null || parent.isDeleted()) && getTLModelObject() != null)
+			// The parent may have failed to rebuild children
+			parent = Node.GetNode(getTLModelObject().getOwner());
+		return parent;
 	}
 
 	@Override
-	public String getLabel() {
-		return getName();
-		// return modelObject.getLabel() == null ? "" : modelObject.getLabel();
+	public ImpliedNode getRequiredType() {
+		return ModelNode.getIndicatorNode();
+	}
+
+	@Override
+	public TLIndicator getTLModelObject() {
+		return (TLIndicator) tlObj;
 	}
 
 	@Override
 	public int indexOfTLProperty() {
-		final TLIndicator thisProp = (TLIndicator) getTLModelObject();
-		return thisProp.getOwner().getIndicators().indexOf(thisProp);
+		return getTLModelObject() != null ? getTLModelObject().getOwner().getIndicators().indexOf(getTLModelObject())
+				: 0;
 	}
 
 	@Override
@@ -136,18 +143,37 @@ public class IndicatorNode extends PropertyNode {
 	}
 
 	@Override
-	public boolean isIndicator() {
-		return true;
-	}
-
-	@Override
 	public boolean isRenameable() {
-		return isEditable() && !inherited;
+		return isEditable() && !isInherited();
 	}
 
 	@Override
 	public void setName(String name) {
-		getTLModelObject().setName(NodeNameUtils.fixIndicatorName(name));
+		if (getTLModelObject() != null)
+			getTLModelObject().setName(NodeNameUtils.fixIndicatorName(name));
+	}
+
+	@Override
+	protected void moveDownTL() {
+		if (getTLModelObject() != null)
+			getTLModelObject().moveDown();
+	}
+
+	@Override
+	protected void moveUpTL() {
+		if (getTLModelObject() != null)
+			getTLModelObject().moveUp();
+	}
+
+	@Override
+	protected void removeFromTL() {
+		if (getTLModelObject() != null)
+			getTLModelObject().getOwner().removeIndicator(getTLModelObject());
+	}
+
+	@Override
+	public boolean setAssignedType(TLModelElement tlProvider) {
+		return false;
 	}
 
 }

@@ -82,7 +82,7 @@ public class ContextualFacetHandler extends OtmAbstractHandler {
 		bo.getLibrary().addMember(cf);
 
 		// Create contributed facet
-		NodeFactory.newMember(bo, cf.getTLModelObject());
+		NodeFactory.newChild(bo, cf.getTLModelObject());
 		mc.refresh(bo);
 	}
 
@@ -103,7 +103,7 @@ public class ContextualFacetHandler extends OtmAbstractHandler {
 		co.getTLModelObject().addChoiceFacet(cf.getTLModelObject());
 
 		// Create contributed facet
-		NodeFactory.newMember(co, cf.getTLModelObject());
+		NodeFactory.newChild(co, cf.getTLModelObject());
 		mc.refresh(co);
 	}
 

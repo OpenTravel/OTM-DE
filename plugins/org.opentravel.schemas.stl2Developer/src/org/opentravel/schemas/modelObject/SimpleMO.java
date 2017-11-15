@@ -18,8 +18,6 @@ package org.opentravel.schemas.modelObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLSimple;
 
 /**
@@ -32,17 +30,17 @@ public class SimpleMO extends ModelObject<TLSimple> {
 
 	public SimpleMO(final TLSimple obj) {
 		super(obj);
-		if (obj.getParentType() != null) {
-			setTLType(obj.getParentType());
-		}
+		// if (obj.getParentType() != null) {
+		// setTLType(obj.getParentType());
+		// }
 	}
 
-	@Override
-	public void delete() {
-		if (getTLModelObj().getOwningLibrary() != null) {
-			getTLModelObj().getOwningLibrary().removeNamedMember(getTLModelObj());
-		}
-	}
+	// @Override
+	// public void delete() {
+	// if (getTLModelObj().getOwningLibrary() != null) {
+	// getTLModelObj().getOwningLibrary().removeNamedMember(getTLModelObj());
+	// }
+	// }
 
 	@Override
 	public List<Object> getChildren() {
@@ -54,19 +52,19 @@ public class SimpleMO extends ModelObject<TLSimple> {
 		return srcObj;
 	}
 
-	@Override
-	public NamedEntity getTLType() {
-		return srcObj.getParentType();
-	}
+	// @Override
+	// public NamedEntity getTLType() {
+	// return srcObj.getParentType();
+	// }
 
-	@Override
-	public boolean isSimpleAssignable() {
-		return true;
-	}
+	// @Override
+	// public boolean isSimpleAssignable() {
+	// return true;
+	// }
 
-	@Override
-	public void setTLType(final NamedEntity tlObj) {
-		getTLModelObj().setParentType((TLAttributeType) tlObj);
-	}
+	// @Override
+	// public void setTLType(final NamedEntity tlObj) {
+	// getTLModelObj().setParentType((TLAttributeType) tlObj);
+	// }
 
 }

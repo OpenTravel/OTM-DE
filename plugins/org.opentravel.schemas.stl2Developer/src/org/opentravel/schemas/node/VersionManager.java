@@ -111,4 +111,10 @@ public class VersionManager {
 	public boolean contains(Node node) {
 		return versions.contains(node);
 	}
+
+	public void close() {
+		for (Node n : versions)
+			n.close();
+		versions.clear();
+	}
 }

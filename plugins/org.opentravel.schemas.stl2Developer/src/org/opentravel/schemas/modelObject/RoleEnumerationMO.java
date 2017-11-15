@@ -17,7 +17,6 @@ package org.opentravel.schemas.modelObject;
 
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLRole;
 import org.opentravel.schemacompiler.model.TLRoleEnumeration;
 
@@ -35,15 +34,15 @@ public class RoleEnumerationMO extends ModelObject<TLRoleEnumeration> {
 		super(obj);
 	}
 
-	@Override
-	public boolean addChild(final TLModelElement role) {
-		if (role instanceof TLRole)
-			addRole((TLRole) role);
-		else
-			return false;
-		return true;
-	}
-
+	// @Override
+	// public boolean addChild(final TLModelElement role) {
+	// if (role instanceof TLRole)
+	// addRole((TLRole) role);
+	// else
+	// return false;
+	// return true;
+	// }
+	//
 	public void addRole(final TLRole role) {
 		getTLModelObj().addRole(role);
 	}
@@ -62,8 +61,8 @@ public class RoleEnumerationMO extends ModelObject<TLRoleEnumeration> {
 		return srcObj;
 	}
 
-	@Override
-	public void delete() {
-	}
+	// @Override
+	// public void delete() {
+	// }
 
 }

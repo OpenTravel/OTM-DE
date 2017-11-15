@@ -78,7 +78,7 @@ public class ResourceBuilder {
 		ActionFacet summaryAF = new ActionFacet(rn, TLFacetType.SUMMARY);
 		// TODO - add action facets for custom facets.
 		// Parameters - ID, Query(s)
-		ParamGroup idPG = new ParamGroup(rn, (ComponentNode) bo.getIDFacet(), true);
+		ParamGroup idPG = new ParamGroup(rn, (ComponentNode) bo.getFacet_ID(), true);
 		for (ComponentNode fn : bo.getQueryFacets()) {
 			ParamGroup qpg = new ParamGroup(rn, fn, false);
 			ActionNode action = buildAction(rn, idAF, qpg, TLHttpMethod.GET); // Query

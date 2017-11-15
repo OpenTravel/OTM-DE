@@ -53,6 +53,7 @@ import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.stl2developer.ColorProvider;
@@ -284,6 +285,7 @@ public class ChangeWizardPage extends WizardPage {
 		final HistoryItem item = new HistoryItem(OpType.OBJECT_TYPE_CHANGE, editedNode, null);
 		historyPush(item);
 		// try {
+		// Change object type then Remove edited node from the library and add new node to the library
 		editedNode = editedNode.changeObject(st);
 		tablePoster.postTable(editedNode);
 		updateFacetTypeButtons();
@@ -312,7 +314,7 @@ public class ChangeWizardPage extends WizardPage {
 				editedNode.setLibrary((LibraryNode) item.previousNode);
 				break;
 			case OBJECT_TYPE_CHANGE:
-				editedNode.replaceWith(item.previousNode);
+				editedNode.replaceWith((LibraryMemberInterface) item.previousNode);
 				editedNode = (ComponentNode) item.previousNode;
 				break;
 			case OWNING_FACET_CHANGE:
@@ -444,7 +446,8 @@ public class ChangeWizardPage extends WizardPage {
 		if (!editedNode.getLibrary().equals(selectedLib)) {
 			final HistoryItem item = new HistoryItem(OpType.LIB_CHANGE, editedNode.getLibrary(), selectedLib);
 			historyPush(item);
-			editedNode.setLibrary(selectedLib);
+			// editedNode.setLibrary(selectedLib);
+			selectedLib.addMember((LibraryMemberInterface) editedNode);
 		}
 	}
 
@@ -509,7 +512,7 @@ public class ChangeWizardPage extends WizardPage {
 			ComponentNode facet = null;
 			switch (st) {
 			case ID:
-				facet = (ComponentNode) editedNode.getIDFacet();
+				facet = (ComponentNode) editedNode.getFacet_ID();
 				break;
 			case SUMMARY:
 				facet = (ComponentNode) editedNode.getFacet_Summary();
@@ -522,7 +525,7 @@ public class ChangeWizardPage extends WizardPage {
 				break;
 			case VWA_ATTRIBUTES:
 				if (editedNode instanceof ComplexComponentInterface) {
-					facet = (ComponentNode) ((ComplexComponentInterface) editedNode).getAttributeFacet();
+					facet = (ComponentNode) ((ComplexComponentInterface) editedNode).getFacet_Attributes();
 				}
 				break;
 			default:
@@ -558,14 +561,15 @@ public class ChangeWizardPage extends WizardPage {
 		if (newFacet != null) {
 			final HistoryItem item = new HistoryItem(OpType.OWNING_FACET_CHANGE, oldFacet, property);
 			historyPush(item);
-			if (newFacet instanceof FacetNode) {
+			if (newFacet instanceof FacetNode)
 				property.moveProperty((FacetNode) newFacet);
-			} else {
-				oldFacet.removeProperty(property);
-				newFacet.addProperty(property);
-				// FIXME - this should be dead code!
-				LOGGER.error("ChangeFacet without facet? UNDOING the OLD way.");
-			}
+			// 10/4/2017 - dmh - removed this old code
+			// } else {
+			// oldFacet.removeProperty(property);
+			// newFacet.addProperty(property);
+			// // FIXME - this should be dead code!
+			// LOGGER.error("ChangeFacet without facet? UNDOING the OLD way.");
+			// }
 		}
 	}
 

@@ -18,6 +18,7 @@ package org.opentravel.schemas.node.interfaces;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
@@ -271,5 +272,7 @@ public interface INode {
 	void visitAllTypeUsers(NodeVisitor visitor);
 
 	public LibraryNode getLibrary();
+
+	public TLModelElement getTLModelObject();
 
 }

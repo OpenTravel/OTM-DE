@@ -17,8 +17,6 @@ package org.opentravel.schemas.node.properties;
 
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLAttributeType;
-import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.modelObject.AttributeMO;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
@@ -27,7 +25,7 @@ import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.types.TypeProvider;
 
 /**
- * A property node that represents an XML ID. See {@link NodeFactory#newMember(INode, Object)}
+ * A property node that represents an XML ID. See {@link NodeFactory#newMemberOLD(INode, Object)}
  * 
  * @author Dave Hollander
  * 
@@ -36,22 +34,22 @@ public class IdNode extends AttributeNode {
 	TypeProvider idType = null;
 
 	public IdNode(PropertyOwnerInterface parent, String name) {
-		super(parent, name, PropertyNodeType.ID);
+		super(parent, name);
 		if (name == null || name.isEmpty())
 			name = "id";
 		setName(name);
 		idType = (TypeProvider) NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
-		// does nothing because there is a required type. - setAssignedType(idType);
+		Node x;
+		if (idType == null)
+			x = NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
+		assert idType != null;
 		getTLModelObject().setType((TLAttributeType) idType.getTLModelObject());
 	}
 
-	public IdNode(TLModelElement tlObj, PropertyOwnerInterface parent) {
-		super(tlObj, parent, PropertyNodeType.ID);
+	public IdNode(TLAttribute tlObj, PropertyOwnerInterface parent) {
+		super(tlObj, parent);
 		idType = (TypeProvider) NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
-		((TLAttribute) getTLModelObject()).setType((TLAttributeType) idType.getTLModelObject());
-
-		assert (modelObject instanceof AttributeMO);
-		assert (tlObj instanceof TLAttribute);
+		getTLModelObject().setType((TLAttributeType) idType.getTLModelObject());
 	}
 
 	@Override
@@ -63,4 +61,8 @@ public class IdNode extends AttributeNode {
 	public TypeProvider getRequiredType() {
 		return idType;
 	}
+	// @Override
+	// public boolean setAssignedType(TLModelElement tla) {
+	// return false; // You can't assign to ID
+	// }
 }

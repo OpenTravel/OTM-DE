@@ -18,29 +18,21 @@
  */
 package org.opentravel.schemas.node.facets;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOperation;
-import org.opentravel.schemas.modelObject.OperationMO;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
-import org.opentravel.schemas.node.NodeVisitors;
 import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.handlers.children.OperationChildrenHandler;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
-import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.types.TypeProvider;
 
 /**
- * Service Operations.
+ * Service Operations. Operations own 3 facets: Request, Response and Notification
  * 
  * @author Dave Hollander
  * 
@@ -51,27 +43,14 @@ public class OperationNode extends PropertyOwnerNode implements VersionedObjectI
 	/**
 	 * List of operations used in CRUD resource services.
 	 */
-	public enum ResourceOperationTypes {
+	public enum ServiceOperationTypes {
 		CREATE("Create"), DELETE("Delete"), QUERY("Query"), READ("Read"), UPDATE("Update");
 
 		public String displayName;
 
-		private ResourceOperationTypes(String displayName) {
+		private ServiceOperationTypes(String displayName) {
 			this.displayName = displayName;
 		}
-	}
-
-	/**
-	 * Model the TLOperation and all of its children. Does <b>not</b> set parent or library. Use node factory to model
-	 * with parent and library.
-	 * 
-	 * @param tlObj
-	 */
-	public OperationNode(TLOperation tlObj) {
-		super(tlObj);
-		addMOChildren();
-
-		assert (modelObject instanceof OperationMO);
 	}
 
 	/**
@@ -82,40 +61,32 @@ public class OperationNode extends PropertyOwnerNode implements VersionedObjectI
 	 *            of the operation
 	 */
 	public OperationNode(ServiceNode svc, String name) {
-		super(new TLOperation()); // creates model object
+		this(new TLOperation());
 
-		String svcName = svc.getName();
-		// TODO - why is this creating services?
-		LibraryNode head = null;
-		if (svc.getLibrary() != null && svc.getLibrary().getChain() != null)
-			head = svc.getLibrary().getChain().getHead();
-
-		// If there is no service in the head library then create one.
-		if (head != null && svc.getLibrary().isManaged()) {
-			// LOGGER.debug("Managed service is not in version head library! " + svc.isInHead());
-			if (head.getServiceRoot() == null) {
-				svc = new ServiceNode(head);
-				svc.setName(svcName); // return;
-			} else
-				svc = (ServiceNode) head.getServiceRoot();
-		}
-
-		svc.getTLModelObject().addOperation(getTLModelObject());
 		this.setName(name);
 		setExtensible(true);
-		svc.linkChild(this);
+		svc.getTLModelObject().addOperation(getTLModelObject());
+		svc.add(this); // Add to children handler
+		parent = svc;
 
-		// Create Messages from those in the new TLOperation
-		for (final Object msg : modelObject.getChildren()) {
-			if (msg instanceof TLFacet) {
-				// final FacetNode fn = new FacetNode((TLFacet) msg);
-				FacetNode fn = (FacetNode) NodeFactory.newMember(this, msg);
-				// this.linkChild(fn);
-				new ElementNode(fn, "");
-			}
-		}
+		// FIXME - Something to do with new minor libraries adding operations.
+		if (!svc.getLibrary().isEditable())
+			assert false;
+		// TODO - why is this creating services?
+		// LibraryNode head = null;
+		// if (svc.getLibrary() != null && svc.getLibrary().getChain() != null)
+		// head = svc.getLibrary().getChain().getHead();
+		//
+		// // If there is no service in the head library then create one.
+		// if (head != null && svc.getLibrary().isManaged()) {
+		// // LOGGER.debug("Managed service is not in version head library! " + svc.isInHead());
+		// if (head.getServiceRoot() == null) {
+		// svc = new ServiceNode(head);
+		// svc.setName(svcName); // return;
+		// } else
+		// svc = (ServiceNode) head.getServiceRoot();
+		// }
 
-		assert (modelObject instanceof OperationMO);
 		assert (getTLModelObject() instanceof TLOperation);
 	}
 
@@ -130,77 +101,87 @@ public class OperationNode extends PropertyOwnerNode implements VersionedObjectI
 	 * @param businessObject
 	 *            the business object to assign to the messages
 	 */
-	public OperationNode(final ServiceNode service, String name, ResourceOperationTypes type,
+	public OperationNode(final ServiceNode service, String name, ServiceOperationTypes type,
 			BusinessObjectNode businessObject) {
-		this(new TLOperation());
+		this(service, name);
 		if (businessObject == null)
 			return;
 
-		final TLOperation tlo = getTLModelObject(); // has RQ, RS and Notif facets
-		service.getTLModelObject().addOperation(tlo);
-		tlo.setOwningService(service.getTLModelObject());
-		this.setName(name);
-		setExtensible(true);
-		service.linkChild(this);
-
-		for (final Object msg : modelObject.getChildren()) {
-			if (!(msg instanceof TLFacet))
-				continue;
-
-			// final FacetNode fn = new FacetNode((TLFacet) msg);
-			// final FacetNode fn = (FacetNode) NodeFactory.newMember(this, msg);
-			final FacetNode fn = (FacetNode) Node.GetNode((TLModelElement) msg);
-			// this.linkChild(fn);
-			final ElementNode np = new ElementNode(fn, businessObject.getName());
-			TLFacet tlf = (TLFacet) np.getTLModelObject().getOwner();
+		// For each of operations, the RQ, RS and Notif children, create elements for each CRUD+Q message.
+		for (Node n : getChildren()) {
+			assert n instanceof FacetNode;
+			FacetNode fn = (FacetNode) n;
+			ElementNode newEle = new ElementNode(fn, businessObject.getName());
+			assert fn.contains(newEle);
 			switch (type) {
 			case CREATE:
-				set(np, tlf.getFacetType(), businessObject, businessObject, businessObject.getIDFacet());
+				set(newEle, fn.getTLModelObject().getFacetType(), businessObject, businessObject,
+						businessObject.getFacet_ID());
 				break;
 			case DELETE:
-				set(np, tlf.getFacetType(), businessObject, businessObject.getIDFacet(), businessObject);
+				set(newEle, fn.getTLModelObject().getFacetType(), businessObject, businessObject.getFacet_ID(),
+						businessObject);
+				break;
+			case READ:
+				set(newEle, fn.getTLModelObject().getFacetType(), businessObject.getFacet_ID(), businessObject,
+						businessObject);
+				break;
+			case UPDATE:
+				set(newEle, fn.getTLModelObject().getFacetType(), businessObject, businessObject.getFacet_ID(),
+						businessObject);
 				break;
 			case QUERY:
-				PropertyOwnerNode query = null;
+				PropertyOwnerNode queryRq = null;
 				if (businessObject.getQueryFacets().size() > 0) {
 					// Find the query facet that matches the name parameter
 					for (Node qf : businessObject.getQueryFacets())
 						if (qf.getLabel().equals(name))
-							query = (PropertyOwnerNode) qf;
+							queryRq = (PropertyOwnerNode) qf;
+					set(newEle, fn.getTLModelObject().getFacetType(), queryRq, businessObject,
+							businessObject.getFacet_ID());
 				}
-				set(np, tlf.getFacetType(), query, businessObject, businessObject.getIDFacet());
-				break;
-			case READ:
-				set(np, tlf.getFacetType(), businessObject.getIDFacet(), businessObject, businessObject);
-				break;
-			case UPDATE:
-				set(np, tlf.getFacetType(), businessObject, businessObject.getIDFacet(), businessObject);
 				break;
 			}
-			((Node) np).visitAllNodes(new NodeVisitors().new FixNames());
 		}
-
-		assert (getChildren().size() == 3);
-		assert (modelObject instanceof OperationMO);
-		assert (getTLModelObject() instanceof TLOperation);
 	}
 
 	/**
-	 * Set the node type based on what type of facet is passed.
+	 * Model the TLOperation and all of its children. Does <b>not</b> set parent or library. Use node factory to model
+	 * with parent and library.
+	 * 
+	 * @param tlObj
 	 */
-	private void set(ElementNode np, TLFacetType type, TypeProvider rq, TypeProvider rs, TypeProvider notif) {
-		if (type.equals(TLFacetType.REQUEST))
-			np.setAssignedType(rq);
-		else if (type.equals(TLFacetType.RESPONSE))
-			np.setAssignedType(rs);
-		else if (type.equals(TLFacetType.NOTIFICATION))
-			np.setAssignedType(notif);
+	public OperationNode(TLOperation tlObj) {
+		super(tlObj);
+		childrenHandler = new OperationChildrenHandler(this);
+	}
 
+	public void add(OperationFacetNode fn) {
+		getChildrenHandler().add(fn);
+	}
+
+	public void remove(OperationFacetNode fn) {
+		getChildrenHandler().remove(fn);
 	}
 
 	@Override
-	public TLFacetType getFacetType() {
-		return null;
+	public ComponentNode createMinorVersionComponent() {
+		return super.createMinorVersionComponent(new OperationNode(new TLOperation()));
+	}
+
+	@Override
+	public void deleteTL() {
+		getTLModelObject().getOwningService().removeOperation(getTLModelObject());
+	}
+
+	@Override
+	public OperationChildrenHandler getChildrenHandler() {
+		return (OperationChildrenHandler) childrenHandler;
+	}
+
+	@Override
+	public ComponentNodeType getComponentNodeType() {
+		return ComponentNodeType.OPERATION;
 	}
 
 	@Override
@@ -210,23 +191,23 @@ public class OperationNode extends PropertyOwnerNode implements VersionedObjectI
 	}
 
 	@Override
+	public TLFacetType getFacetType() {
+		return null;
+	}
+
+	@Override
+	public String getLabel() {
+		return NodeNameUtils.OPERATION_PREFIX + getName();
+	}
+
+	@Override
 	public String getName() {
 		return getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
 	}
 
 	@Override
 	public TLOperation getTLModelObject() {
-		return (TLOperation) modelObject.getTLModelObj();
-	}
-
-	@Override
-	public ComponentNodeType getComponentNodeType() {
-		return ComponentNodeType.OPERATION;
-	}
-
-	@Override
-	public ComponentNode createMinorVersionComponent() {
-		return super.createMinorVersionComponent(new OperationNode(new TLOperation()));
+		return (TLOperation) tlObj;
 	}
 
 	@Override
@@ -240,18 +221,13 @@ public class OperationNode extends PropertyOwnerNode implements VersionedObjectI
 	}
 
 	@Override
-	public boolean isRenameable() {
-		return true;
-	}
-
-	// @Override
-	// public boolean isExtensibleObject() {
-	// return true;
-	// }
-
-	@Override
 	public boolean isNamedEntity() {
 		return false;
+	}
+
+	@Override
+	public boolean isRenameable() {
+		return true;
 	}
 
 	@Override
@@ -262,22 +238,21 @@ public class OperationNode extends PropertyOwnerNode implements VersionedObjectI
 	}
 
 	@Override
-	public String getLabel() {
-		return NodeNameUtils.OPERATION_PREFIX + getName();
-	}
-
-	@Override
 	public void setName(String name) {
 		getTLModelObject().setName(NodeNameUtils.fixOperationName(name));
 	}
 
-	@Override
-	public List<Node> getChildren_TypeUsers() {
-		ArrayList<Node> users = new ArrayList<Node>();
-		for (Node facet : getChildren()) {
-			users.addAll(facet.getChildren_TypeUsers());
-		}
-		return users;
+	/**
+	 * Set the node type based on what type of facet is passed.
+	 */
+	private void set(ElementNode np, TLFacetType type, TypeProvider rq, TypeProvider rs, TypeProvider notif) {
+		if (type.equals(TLFacetType.REQUEST))
+			np.setAssignedType(rq);
+		else if (type.equals(TLFacetType.RESPONSE))
+			np.setAssignedType(rs);
+		else if (type.equals(TLFacetType.NOTIFICATION))
+			np.setAssignedType(notif);
+
 	}
 
 }

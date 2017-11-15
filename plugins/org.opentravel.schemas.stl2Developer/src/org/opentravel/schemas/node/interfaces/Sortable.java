@@ -13,33 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opentravel.schemas.types;
-
-import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
+package org.opentravel.schemas.node.interfaces;
 
 /**
- * Implementations have a simple attribute as a member of the object. Includes VWA and Core.
+ * Implementers of this interface can sort their members.
  * 
  * @author Dave
  *
  */
-public interface SimpleAttributeOwner {
-
-	public SimpleAttributeFacadeNode getSimpleAttribute();
-
-	// @Deprecated
-	// public boolean setSimpleType(TypeProvider provider);
-	//
-	// @Deprecated
-	// public TypeProvider getSimpleType();
-
-	public TypeProvider getAssignedType();
-
+public interface Sortable {
 	/**
-	 * Attempt to set the type assigned to the simple attribute.
-	 * 
-	 * @param type
-	 * @return true if the state of the simple type changed.
+	 * Sort the members by name.
 	 */
-	public boolean setAssignedType(TypeProvider type);
+	public void sort();
+
 }

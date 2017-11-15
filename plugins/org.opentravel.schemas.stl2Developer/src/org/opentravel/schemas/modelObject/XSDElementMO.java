@@ -60,10 +60,10 @@ public class XSDElementMO extends ModelObject<XSDElement> {
 		return tlObj;
 	}
 
-	@Override
-	public void delete() {
-		System.out.println("ModelObject - delete - TODO");
-	}
+	// @Override
+	// public void delete() {
+	// System.out.println("ModelObject - delete - TODO");
+	// }
 
 	// @Override
 	// public List<?> getChildren() {

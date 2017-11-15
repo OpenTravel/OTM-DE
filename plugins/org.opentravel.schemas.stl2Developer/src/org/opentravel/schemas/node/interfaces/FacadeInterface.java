@@ -30,7 +30,10 @@ import org.opentravel.schemas.node.Node;
  */
 public interface FacadeInterface {
 	/**
-	 * @return the node this is facade wraps
+	 * Facades may wrap other nodes; version nodes wrap the library member, contributed facets wrap the contributor.
+	 * 
+	 * @return the node this is facade wraps if any.
+	 * 
 	 */
 	public Node get();
 

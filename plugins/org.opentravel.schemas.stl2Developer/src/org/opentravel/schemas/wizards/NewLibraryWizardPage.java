@@ -30,7 +30,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.opentravel.schemas.node.NamespaceHandler;
+import org.opentravel.schemas.node.handlers.NamespaceHandler;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.preferences.GeneralPreferencePage;
 import org.opentravel.schemas.properties.Messages;

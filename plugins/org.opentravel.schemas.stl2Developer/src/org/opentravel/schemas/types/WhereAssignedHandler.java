@@ -113,6 +113,9 @@ public class WhereAssignedHandler {
 	}
 
 	/**
+	 * Add the passed user to the provider's where used list. Also add the user's library to the owner's library where
+	 * used list.
+	 * 
 	 * @param user
 	 *            type user to add if not already in list
 	 */
@@ -124,6 +127,10 @@ public class WhereAssignedHandler {
 			users.add((Node) user);
 			// LOGGER.debug("Added " + user + " to " + owner + " where assigned list.");
 		}
+
+		// Also add to library where used
+		if (owner.getLibrary() != null)
+			owner.getLibrary().getWhereUsedHandler().add(user);
 	}
 
 	/**
@@ -133,6 +140,8 @@ public class WhereAssignedHandler {
 	 * @param user
 	 */
 	public void setListener(TypeUser user) {
+		if (user.getTLModelObject() == null)
+			return;
 		for (ModelElementListener l : user.getTLModelObject().getListeners())
 			if (l instanceof WhereAssignedListener && ((BaseNodeListener) l).getNode() == owner) {
 				// FIXME - study startup and see why duplicates are trying to be created.
@@ -264,8 +273,10 @@ public class WhereAssignedHandler {
 		for (TypeUser n : users)
 			if (n.isEditable())
 				if (scopeLibrary == null || ((Node) n).getLibrary().equals(scopeLibrary)) {
-					((TypeUser) n).setAssignedType(replacement);
-					LOGGER.debug("replace " + n + " with " + replacement);
+					if (((TypeUser) n).setAssignedType(replacement))
+						LOGGER.debug("replace " + n + " with " + replacement);
+					else
+						LOGGER.debug("Failed to replace " + n + " with " + replacement);
 				}
 	}
 
@@ -334,6 +345,11 @@ public class WhereAssignedHandler {
 			return false;
 		users.remove(typeUser);
 		return true;
+	}
+
+	public void clear() {
+		users.clear();
+		whereUsedNode = null;
 	}
 
 }

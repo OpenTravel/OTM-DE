@@ -19,9 +19,6 @@ import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Contextual Facets.
@@ -34,11 +31,12 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class UpdateFacetNode extends ContextualFacetNode {
-	private static final Logger LOGGER = LoggerFactory.getLogger(UpdateFacetNode.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(UpdateFacetNode.class);
 
 	// Testing constructor
 	public UpdateFacetNode() {
 		super(new TLContextualFacet());
+		getTLModelObject().setFacetType(TLFacetType.UPDATE);
 	}
 
 	public UpdateFacetNode(TLContextualFacet tlObj) {
@@ -60,18 +58,6 @@ public class UpdateFacetNode extends ContextualFacetNode {
 		default:
 			return false;
 		}
-	}
-
-	public void setOwner(ContextualFacetOwnerInterface owner) {
-		TLContextualFacet newFacet = getTLModelObject();
-		// newFacet.setOwningEntity(owner.getTLModelObject());
-		// newFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
-		if (owner.getTLModelObject() instanceof TLBusinessObject)
-			((TLBusinessObject) owner.getTLModelObject()).addUpdateFacet(newFacet);
-		else if (owner.getTLModelObject() instanceof TLContextualFacet)
-			((TLContextualFacet) owner.getTLModelObject()).addChildFacet(newFacet);
-
-		super.add(owner, newFacet);
 	}
 
 	@Override

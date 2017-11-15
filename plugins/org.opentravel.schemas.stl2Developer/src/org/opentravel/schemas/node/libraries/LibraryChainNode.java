@@ -27,7 +27,6 @@ import org.opentravel.schemas.controllers.ValidationManager;
 import org.opentravel.schemas.node.AggregateNode;
 import org.opentravel.schemas.node.AggregateNode.AggregateType;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.NamespaceHandler;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
@@ -36,6 +35,8 @@ import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
+import org.opentravel.schemas.node.handlers.NamespaceHandler;
+import org.opentravel.schemas.node.handlers.children.NavNodeChildrenHandler;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
@@ -46,6 +47,19 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Library chains are all libraries based on the same major release. Their content is aggregated in this node.
+ * 
+ *
+ * <p>
+ * Get Child handler returns the versions aggregate.
+ * <p>
+ * GetTreeChildren returns version node children plus the where used.
+ * <p>
+ * Roots are direct local variables. LCN has no Children.
+ * <p>
+ * TODO - should this have its own children handler? Why not?
+ * <p>
+ * TODO - how does navigator get the aggregates?
+ * <p>
  * 
  * @author Dave Hollander
  * 
@@ -69,7 +83,8 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 
 	/**
 	 * Create a new chain and move the passed library from its parent to the chain. The library parent will be used as
-	 * the chain's parent. Children are the 4 aggregate nodes linked by their constructors.
+	 * the chain's parent.
+	 * 
 	 * 
 	 * {@link org.opentravel.schemas.controllers.DefaultRepositoryController#convertToChains(Collection<LibraryNode>)}
 	 * 
@@ -93,8 +108,8 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 
 		parent = ln.getParent();
 		setHead(ln);
-		createAggregates();
-		versions.add(ln); // add to children and set parent
+		createAggregates();// add aggregates and set parent
+		versions.add(ln); // put library into versions aggregates
 
 		aggregateChildren(ln);
 		ln.updateLibraryStatus();
@@ -151,6 +166,11 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 
 		// Now that we know what is the head library, set that in the aggregates
 		setAggregateLibrary(getHead());
+	}
+
+	@Override
+	public NavNodeChildrenHandler getChildrenHandler() {
+		return versions.getChildrenHandler();
 	}
 
 	/**
@@ -236,7 +256,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 	 */
 	public void add(ComponentNode node) {
 		if (node == null)
-			return;
+			return; // happens when new library from PI has no service
 		if (node.getLibrary() == null)
 			throw new IllegalArgumentException("Tried to add node with null library. " + node);
 
@@ -287,7 +307,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 	 * @return true if this chain contains the node's library
 	 */
 	public boolean contains(Node node) {
-		return versions.getChildren().contains(node.getLibrary());
+		return versions != null ? versions.getChildren().contains(node.getLibrary()) : false;
 	}
 
 	/**
@@ -336,20 +356,38 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 	@Override
 	public void close() {
 		// LOGGER.debug("Closing " + getNameWithPrefix());
-		if (getParent() instanceof LibraryNavNode) {
-			((LibraryNavNode) getParent()).close();
-		} else {
-			// Take kids out of chain then close them
-			for (Node n : getChildren_New()) {
-				n.setParent(null);
-				n.close();
-			}
-			deleted = true;
-			setParent(null);
-			setLibrary(null);
-		}
+		// if (getParent() instanceof LibraryNavNode) {
+		// ((LibraryNavNode) getParent()).close();
+		// } else {
+		// Take kids out of chain then close them
+		// for (Node n : getVersions().getChildren_New()) {
+		// n.setParent(null);
+		// n.close();
+		// getVersions().remove(n);
+		// }
+		closeAggregates();
+		deleted = true;
+		setParent(null);
+		setLibrary(null);
+		// }
 		assert (isEmpty());
 		assert (getHead() == null);
+	}
+
+	/**
+	 * Sets the library in all the aggregate nodes.
+	 */
+	private void closeAggregates() {
+		versions.close();
+		complexRoot.close();
+		simpleRoot.close();
+		serviceRoot.close();
+		resourceRoot.close();
+		// versions = null;
+		// complexRoot = null;
+		// simpleRoot = null;
+		// serviceRoot = null;
+		// resourceRoot = null;
 	}
 
 	@Override
@@ -461,7 +499,9 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 
 	@Override
 	public List<Node> getTreeChildren(boolean deep) {
-		List<Node> treeKids = getNavChildren(deep);
+		List<Node> treeKids = versions.getNavChildren(deep);
+		if (treeKids.isEmpty())
+			treeKids = new ArrayList<Node>();
 		if (!treeKids.contains(getHead().getWhereUsedHandler().getWhereUsedNode()))
 			treeKids.add(getHead().getWhereUsedHandler().getWhereUsedNode());
 		if (!treeKids.contains(getHead().getWhereUsedHandler().getUsedByNode()))

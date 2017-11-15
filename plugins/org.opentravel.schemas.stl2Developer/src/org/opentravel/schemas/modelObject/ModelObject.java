@@ -15,27 +15,11 @@
  */
 package org.opentravel.schemas.modelObject;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
-import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
-import org.opentravel.schemacompiler.model.TLBusinessObject;
-import org.opentravel.schemacompiler.model.TLContext;
-import org.opentravel.schemacompiler.model.TLDocumentationOwner;
-import org.opentravel.schemacompiler.model.TLEquivalent;
-import org.opentravel.schemacompiler.model.TLEquivalentOwner;
-import org.opentravel.schemacompiler.model.TLExample;
-import org.opentravel.schemacompiler.model.TLExampleOwner;
-import org.opentravel.schemacompiler.model.TLFacet;
-import org.opentravel.schemacompiler.model.TLLibrary;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.XsdNode;
-import org.opentravel.schemas.node.controllers.DocumentationNodeModelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,18 +137,18 @@ public abstract class ModelObject<TL> {
 	// }
 	// }
 
-	/**
-	 * Get the local name of the extension type.
-	 * 
-	 * @return
-	 */
-	public String getExtendsType() {
-		return "";
-	}
+	// /**
+	// * Get the local name of the extension type.
+	// *
+	// * @return
+	// */
+	// public String getExtendsType() {
+	// return "";
+	// }
 
-	public String getExtendsTypeNS() {
-		return "";
-	}
+	// public String getExtendsTypeNS() {
+	// return "";
+	// }
 
 	// /**
 	// * Return true if this is extended by the passed MO
@@ -181,35 +165,36 @@ public abstract class ModelObject<TL> {
 
 	public abstract TL getTLModelObj();
 
-	// 6/30 - seems broken. did not find AttributeMO
-	// USED ALOT
-	// Assert.assertTrue(ap.getModelObject().isSimpleAssignable());
-	public boolean isSimpleAssignable() {
-		return false;
-	}
+	// // 6/30 - seems broken. did not find AttributeMO
+	// // USED ALOT
+	// // Assert.assertTrue(ap.getModelObject().isSimpleAssignable());
+	// public boolean isSimpleAssignable() {
+	// return false;
+	// }
 
 	// public abstract boolean setName(String name);
 
-	public boolean setRepeat(final int count) {
-		return false;
-	}
+	// public boolean setRepeat(final int count) {
+	// return false;
+	// }
 
-	/**
-	 * This should only be used by sub-types. The sub-types set the TL model objects.
-	 * 
-	 * @param tlObj
-	 */
-	public void setTLType(NamedEntity attributeType) {
-	}
+	// /**
+	// * This should only be used by sub-types. The sub-types set the TL model objects.
+	// *
+	// * @param tlObj
+	// */
+	// public void setTLType(NamedEntity attributeType) {
+	// }
 
-	public void setExtendsType(final ModelObject<?> mo) {
-		// LOGGER.debug("Set extends type not implemented for: " + this.getClass().getSimpleName());
-	}
+	// public void setExtendsType(final ModelObject<?> mo) {
+	// // LOGGER.debug("Set extends type not implemented for: " + this.getClass().getSimpleName());
+	// }
 
-	/**
-	 * Remove the TL object from the TL model. Does <b>not</b> delete the modelObject.
-	 */
-	public abstract void delete();
+	// /**
+	// * Remove the TL object from the TL model. Does <b>not</b> delete the modelObject.
+	// */
+	// public void delete() {
+	// }
 
 	// public boolean isDocumentationOwner() {
 	// return srcObj instanceof TLDocumentationOwner && !(srcObj instanceof TLListFacet);
@@ -355,55 +340,57 @@ public abstract class ModelObject<TL> {
 	// infoDoc.setText(string);
 	// }
 
-	public void addToLibrary(AbstractLibrary tlLibrary) {
-		if (srcObj instanceof LibraryMember && tlLibrary instanceof TLLibrary) {
-			LibraryMember lm = (LibraryMember) srcObj;
-			if (lm.getOwningLibrary() != tlLibrary) {
-				// lm.setOwningLibrary(tlLibrary); // just sets library field--don't use
-				tlLibrary.addNamedMember(lm);
-				// Question - do we need to move if already in a different lib?
-			}
-		}
-	}
+	// public void addToLibrary(AbstractLibrary tlLibrary) {
+	// if (srcObj instanceof LibraryMember && tlLibrary instanceof TLLibrary) {
+	// LibraryMember lm = (LibraryMember) srcObj;
+	// if (lm.getOwningLibrary() != tlLibrary) {
+	// // lm.setOwningLibrary(tlLibrary); // just sets library field--don't use
+	// tlLibrary.addNamedMember(lm);
+	// // Question - do we need to move if already in a different lib?
+	// }
+	// }
+	// }
 
-	public boolean moveUp() {
-		// LOGGER.debug("ModelObject:moveUp() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
-		return false;
-	}
+	// public boolean moveUp() {
+	// // LOGGER.debug("ModelObject:moveUp() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
+	// return false;
+	// }
+	//
+	// public boolean moveDown() {
+	// // LOGGER.debug("ModelObject:moveDpwn() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
+	// return false;
+	// }
 
-	public boolean moveDown() {
-		// LOGGER.debug("ModelObject:moveDpwn() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
-		return false;
-	}
+	// public void removeFromTLParent() {
+	// }
 
-	public void removeFromTLParent() {
-	}
-
-	// TODO - put in attribute and element node
-	public void addToTLParent(final ModelObject<?> mo, int index) {
-	}
-
-	public void addToTLParent(final ModelObject<?> mo) {
-	}
+	// // TODO - put in attribute and element node
+	// public void addToTLParent(final ModelObject<?> mo, int index) {
+	// }
+	//
+	// public void addToTLParent(final ModelObject<?> mo) {
+	// }
 
 	// // Override in model objects that have assigned types.
 	// public void clearTLType() {
 	// // LOGGER.error("clear not needed for a "+this.getClass().getSimpleName());
 	// }
 
-	/**
-	 * Only a few objects have model object types. The ones that do return the assigned type.
-	 * 
-	 * @return the type assigned or null
-	 */
-	public NamedEntity getTLType() {
-		// return type;
-		return null;
-	}
+	// /**
+	// * Only a few objects have model object types. The ones that do return the assigned type.
+	// *
+	// * @return the type assigned or null
+	// */
+	// public NamedEntity getTLType() {
+	// // return type;
+	// return null;
+	// }
 
-	public NamedEntity getTLBase() {
-		return null;
-	}
+	// public NamedEntity getTLBase() {
+	// if (srcObj instanceof TLExtensionOwner)
+	// ((TLExtensionOwner) srcObj).getExtension().getExtendsEntity();
+	// return null;
+	// }
 
 	/**
 	 * Create the tl model representation of a jaxB element attached to the xsd Node.
@@ -411,82 +398,84 @@ public abstract class ModelObject<TL> {
 	 * @param xsdNode
 	 * @return null (always!)
 	 */
+	// Only used in XSD Node
 	public LibraryMember buildTLModel(XsdNode xsdNode) {
 		return null;
 	}
 
-	/**
-	 * @return - list of TLContexts or else empty list Contexts are used in OtherDocs, facets, examples and equivalents.
-	 *         Overridden for attributes/elements/indicators that have examples and equivalents
-	 */
-	@Deprecated
-	public List<TLContext> getContexts() {
-		if (!(getTLModelObj() instanceof LibraryMember))
-			return Collections.emptyList();
-		if (!(((LibraryMember) getTLModelObj()).getOwningLibrary() instanceof TLLibrary))
-			return Collections.emptyList();
+	// /**
+	// * @return - list of TLContexts or else empty list Contexts are used in OtherDocs, facets, examples and
+	// equivalents.
+	// * Overridden for attributes/elements/indicators that have examples and equivalents
+	// */
+	// @Deprecated
+	// public List<TLContext> getContexts() {
+	// if (!(getTLModelObj() instanceof LibraryMember))
+	// return Collections.emptyList();
+	// if (!(((LibraryMember) getTLModelObj()).getOwningLibrary() instanceof TLLibrary))
+	// return Collections.emptyList();
+	//
+	// ArrayList<TLContext> list = new ArrayList<TLContext>();
+	// HashSet<String> ids = new HashSet<String>();
+	// if (!(getTLModelObj() instanceof LibraryMember))
+	// return list;
+	//
+	// if (getTLModelObj() instanceof TLBusinessObject) {
+	// TLBusinessObject tlBO = (TLBusinessObject) getTLModelObj();
+	// if (tlBO.getCustomFacets() != null) {
+	// for (TLFacet f : tlBO.getCustomFacets()) {
+	// ids.add(f.getContext());
+	// }
+	// }
+	// if (tlBO.getQueryFacets() != null) {
+	// for (TLFacet f : tlBO.getQueryFacets()) {
+	// ids.add(f.getContext());
+	// }
+	// }
+	// }
+	// if (getTLModelObj() instanceof TLEquivalentOwner) {
+	// TLEquivalentOwner tle = (TLEquivalentOwner) getTLModelObj();
+	// for (TLEquivalent e : tle.getEquivalents())
+	// ids.add(e.getContext());
+	// }
+	// if (getTLModelObj() instanceof TLExampleOwner) {
+	// TLExampleOwner tle = (TLExampleOwner) getTLModelObj();
+	// for (TLExample e : tle.getExamples())
+	// ids.add(e.getContext());
+	// }
+	//
+	// if (getTLModelObj() instanceof TLDocumentationOwner) {
+	// TLDocumentationOwner tld = (TLDocumentationOwner) getTLModelObj();
+	//
+	// if (tld.getDocumentation() != null) {
+	// for (TLAdditionalDocumentationItem doc : tld.getDocumentation().getOtherDocs()) {
+	// ids.add(doc.getContext());
+	// }
+	// }
+	// }
+	//
+	// // now use the unique ids in the hash to extract the contexts from the TL Library.
+	// TLLibrary tlLib = (TLLibrary) ((LibraryMember) getTLModelObj()).getOwningLibrary();
+	// for (String id : ids) {
+	// TLContext tlc = tlLib.getContext(id);
+	// if (tlc != null)
+	// list.add(tlLib.getContext(id));
+	// }
+	// return list;
+	// }
 
-		ArrayList<TLContext> list = new ArrayList<TLContext>();
-		HashSet<String> ids = new HashSet<String>();
-		if (!(getTLModelObj() instanceof LibraryMember))
-			return list;
+	// public void sort() {
+	// // LOGGER.debug("ModelObject:sort() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
+	// }
 
-		if (getTLModelObj() instanceof TLBusinessObject) {
-			TLBusinessObject tlBO = (TLBusinessObject) getTLModelObj();
-			if (tlBO.getCustomFacets() != null) {
-				for (TLFacet f : tlBO.getCustomFacets()) {
-					ids.add(f.getContext());
-				}
-			}
-			if (tlBO.getQueryFacets() != null) {
-				for (TLFacet f : tlBO.getQueryFacets()) {
-					ids.add(f.getContext());
-				}
-			}
-		}
-		if (getTLModelObj() instanceof TLEquivalentOwner) {
-			TLEquivalentOwner tle = (TLEquivalentOwner) getTLModelObj();
-			for (TLEquivalent e : tle.getEquivalents())
-				ids.add(e.getContext());
-		}
-		if (getTLModelObj() instanceof TLExampleOwner) {
-			TLExampleOwner tle = (TLExampleOwner) getTLModelObj();
-			for (TLExample e : tle.getExamples())
-				ids.add(e.getContext());
-		}
-
-		if (getTLModelObj() instanceof TLDocumentationOwner) {
-			TLDocumentationOwner tld = (TLDocumentationOwner) getTLModelObj();
-
-			if (tld.getDocumentation() != null) {
-				for (TLAdditionalDocumentationItem doc : tld.getDocumentation().getOtherDocs()) {
-					ids.add(doc.getContext());
-				}
-			}
-		}
-
-		// now use the unique ids in the hash to extract the contexts from the TL Library.
-		TLLibrary tlLib = (TLLibrary) ((LibraryMember) getTLModelObj()).getOwningLibrary();
-		for (String id : ids) {
-			TLContext tlc = tlLib.getContext(id);
-			if (tlc != null)
-				list.add(tlLib.getContext(id));
-		}
-		return list;
-	}
-
-	public void sort() {
-		// LOGGER.debug("ModelObject:sort() NOT IMPLEMENTED for object class " + getClass().getSimpleName());
-	}
-
-	/**
-	 * Attempt to add a child to this object.
-	 * 
-	 * @return false if the child could not be added.
-	 */
-	public boolean addChild(TLModelElement child) {
-		return false;
-	}
+	// /**
+	// * Attempt to add a child to this object.
+	// *
+	// * @return false if the child could not be added.
+	// */
+	// public boolean addChild(TLModelElement child) {
+	// return false;
+	// }
 
 	// protected static String emptyIfNull(final String string) {
 	// return string == null ? "" : string;

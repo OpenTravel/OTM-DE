@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.LibraryElement;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
@@ -27,24 +28,29 @@ import org.opentravel.schemacompiler.model.TLEquivalentOwner;
 import org.opentravel.schemacompiler.model.TLExample;
 import org.opentravel.schemacompiler.model.TLExampleOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
-import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.OperationFacetNode;
+import org.opentravel.schemas.node.facets.PropertyOwnerNode;
+import org.opentravel.schemas.node.handlers.EqExOneValueHandler;
+import org.opentravel.schemas.node.handlers.EqExOneValueHandler.ValueWithContextType;
+import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
+import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.listeners.TypeUserListener;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.TypeUserHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Property nodes control element (property), attribute and indicator property model objects Simple Attributes and
@@ -56,8 +62,8 @@ import org.opentravel.schemas.types.TypeUserHandler;
  * @author Dave Hollander
  * 
  */
-public class PropertyNode extends ComponentNode implements TypeUser {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(PropertyNode.class);
+public abstract class PropertyNode extends ComponentNode implements TypeUser {
+	private static final Logger LOGGER = LoggerFactory.getLogger(PropertyNode.class);
 
 	/**
 	 * A property within a facet can change roles. This class keeps track of the various implementations that may be
@@ -129,11 +135,11 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 				oldEleN = (ElementNode) pn;
 				break;
 			case ID_REFERENCE:
-				pn = oldEleRefN != null ? oldEleRefN : new ElementReferenceNode(parent, getName());
+				pn = oldEleRefN != null ? oldEleRefN : new ElementReferenceNode(parent);
 				oldEleRefN = (ElementReferenceNode) pn;
 				break;
 			case ID_ATTR_REF:
-				pn = oldAttrRefN != null ? oldAttrRefN : new AttributeReferenceNode(parent, getName());
+				pn = oldAttrRefN != null ? oldAttrRefN : new AttributeReferenceNode(parent);
 				oldAttrRefN = (AttributeReferenceNode) pn;
 				break;
 			case ATTRIBUTE:
@@ -178,28 +184,31 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	protected TypeUserHandler typeHandler = null;
 
 	/**
+	 * Only used for facade properties that have no TL Model Object.
+	 */
+	public PropertyNode() {
+	}
+
+	/**
 	 * Create a property node to represent the passed TL Model object.
 	 * 
 	 * @param obj
-	 * @param propertyType
 	 */
-	protected PropertyNode(final TLModelElement tlObj, INode parent, final PropertyNodeType propertyType) {
+	protected PropertyNode(final TLModelElement tlObj, PropertyOwnerInterface parent) {
 		super(tlObj);
 		this.alternateRoles = new AlternateRoles(this);
-		if (parent instanceof ContributedFacetNode)
-			parent = ((ContributedFacetNode) parent).getContributor();
-		if (parent != null) {
-			parent.getModelObject().addChild(tlObj); // link to TL model
-			((Node) parent).linkChild(this); // link to node model
-		}
+
+		if (parent != null)
+			parent.addProperty(this);
 
 		typeHandler = new TypeUserHandler(this);
 
-		if (getRequiredType() != null)
-			typeHandler.set(this.getRequiredType());
+		// Sub-types should set assigned types if needed
 
-		// fix context assures example and equivalent are in this context
-		fixContext();
+		// TODO - migrate into equivalent and example handler constructors
+		// if (getName().equals("stopOverInd"))
+		// LOGGER.debug("HERE");
+		fixContext(); // fix context assures example and equivalent are in this context
 	}
 
 	/**
@@ -210,14 +219,34 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	 * @param name
 	 *            to give the property
 	 */
-	protected PropertyNode(final TLModelElement tlObj, final Node parent, final String name, final PropertyNodeType type) {
-		this(tlObj, parent, type);
+	protected PropertyNode(final TLModelElement tlObj, final PropertyOwnerInterface parent, final String name) {
+		this(tlObj, parent);
 		setName(name);
 
 		// Properties added to minor versions must be optional
-		if (getLibrary() != null && getLibrary().isMinorVersion() && !inherited)
+		if (getLibrary() != null && getLibrary().isMinorVersion() && !isInherited())
 			setMandatory(false);
 	}
+
+	/**
+	 * Add this TLModelObject to the passed owner.
+	 * 
+	 * @param owner
+	 *            - property owner (facet) to add this to
+	 */
+	public void addToTL(PropertyOwnerNode owner) {
+		addToTL(owner, -1);
+	}
+
+	/**
+	 * Add this TLModelObject to the passed owner.
+	 * 
+	 * @param owner
+	 *            - property owner (facet) to add this to
+	 * @param index
+	 *            - index into child array to set order or -1
+	 */
+	public abstract void addToTL(final PropertyOwnerInterface owner, final int index);
 
 	@Override
 	public boolean canAssign(Node type) {
@@ -262,6 +291,21 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 			}
 		}
 		return newProperty == null ? this : newProperty;
+	}
+
+	@Override
+	public PropertyNode clone(Node parent, String nameSuffix) {
+		PropertyNode clone = null;
+		if (parent instanceof PropertyOwnerInterface) {
+			LibraryElement clonedTL = getTLModelObject().cloneElement();
+			if (clonedTL instanceof TLModelElement) {
+				clone = (PropertyNode) NodeFactory.newChild(parent, (TLModelElement) clonedTL);
+				assert clone instanceof PropertyNode;
+				if (nameSuffix != null)
+					clone.setName(clone.getName() + nameSuffix);
+			}
+		}
+		return clone;
 	}
 
 	/**
@@ -309,6 +353,51 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		return n;
 	}
 
+	protected INode createProperty(final PropertyNode clone, final Node type) {
+		// sub-type use this after making clone
+		clone.addToTL((PropertyOwnerInterface) getParent(), indexOfNode());
+		clone.setName(type.getName());
+		clone.setDescription(type.getDescription());
+
+		// Tell the parent to clear its children cache because it has a new child
+		getParent().getChildrenHandler().clear();
+		return clone;
+	}
+
+	/**
+	 * Remove from TL owner and clear where assigned and parent's children handler.
+	 */
+	@Override
+	public void delete() {
+		if (isDeleted() || getParent() == null)
+			return;
+		setAssignedType();
+		deleteTL();
+		getParent().getChildrenHandler().clear(); // Must be last
+	}
+
+	@Override
+	public void deleteTL() {
+		if (getTLModelObject() != null) {
+			removeFromTL();
+			ListenerFactory.clearListners(getTLModelObject()); // remove any listeners
+		}
+	}
+
+	/**
+	 * Set the context to the owning library's defaultContextId.
+	 */
+	public void fixContext() {
+		if (getLibrary() == null)
+			return;
+		// if (isEditable()) {
+		if (getExampleHandler() != null)
+			exampleHandler.fix(null);
+		if (getEquivalentHandler() != null)
+			equivalentHandler.fix(null);
+		// }
+	}
+
 	@Override
 	public INode.CommandType getAddCommand() {
 		return INode.CommandType.PROPERTY;
@@ -316,12 +405,12 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 
 	@Override
 	public NamedEntity getAssignedTLNamedEntity() {
-		return (modelObject != null ? modelObject.getTLType() : null);
+		return null; // overriden in element and attribute nodes
 	}
 
 	@Override
 	public TLModelElement getAssignedTLObject() {
-		return typeHandler.getTLModelElement();
+		return typeHandler.getAssignedTLModelElement();
 	}
 
 	/**
@@ -333,9 +422,9 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	public TypeProvider getAssignedType() {
 		if (isInherited()) {
 			// Inherited nodes are not assigned a type class. If they were the where-used count would be wrong.
-			assert getInheritsFrom() != this;
-			if (getInheritsFrom() != null) {
-				return ((TypeUser) getInheritsFrom()).getAssignedType();
+			assert getInheritedFrom() != this;
+			if (getInheritedFrom() != null) {
+				return ((TypeUser) getInheritedFrom()).getAssignedType();
 			}
 			return null;
 		}
@@ -344,7 +433,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 
 	@Override
 	public String getEquivalent(String context) {
-		return equivalentHandler != null ? equivalentHandler.get(context) : "";
+		return getEquivalentHandler() != null ? equivalentHandler.get(context) : "";
 	}
 
 	/**
@@ -352,6 +441,9 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	 */
 	@Override
 	public IValueWithContextHandler getEquivalentHandler() {
+		if (getTLModelObject() instanceof TLEquivalentOwner)
+			if (equivalentHandler == null)
+				equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
 		return equivalentHandler;
 	}
 
@@ -360,42 +452,32 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	 */
 	@Override
 	public String getExample(String context) {
-		return exampleHandler != null ? exampleHandler.get(context) : "";
+		return getExampleHandler() != null ? exampleHandler.get(context) : "";
 	}
 
 	/**
 	 * @return equivalent handler if property has equivalents, null otherwise
 	 */
 	public IValueWithContextHandler getExampleHandler() {
+		if (getTLModelObject() instanceof TLExampleOwner)
+			if (exampleHandler == null)
+				exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
 		return exampleHandler;
-	}
-
-	/**
-	 * Set the context to the owning library's defaultContextId.
-	 */
-	public void fixContext() {
-		if (getLibrary() == null)
-			return;
-		if (isEditable()) {
-			if (getExampleHandler() != null)
-				exampleHandler.fix(null);
-			if (getEquivalentHandler() != null)
-				equivalentHandler.fix(null);
-		}
 	}
 
 	/**
 	 * Return images for properties.
 	 */
 	@Override
-	public Image getImage() {
-		throw new IllegalAccessError("Tried to get image from abstract property.");
-	}
+	public abstract Image getImage();
 
 	@Override
 	public String getLabel() {
 		return getName();
 	}
+
+	@Override
+	public abstract String getName();
 
 	/**
 	 * Properties are always in the library of their owning component.
@@ -407,19 +489,6 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		if (getOwningComponent() == null || getOwningComponent() == this)
 			return null;
 		return getOwningComponent().getLibrary() != null ? getOwningComponent().getLibrary() : null;
-	}
-
-	@Override
-	public BaseNodeListener getNewListener() {
-		return new TypeUserListener(this);
-	}
-
-	/**
-	 * Overridden to provide assigned type and aliases if deep is set.
-	 */
-	@Override
-	public List<Node> getTreeChildren(boolean deep) {
-		return getNavChildren(deep);
 	}
 
 	/**
@@ -439,24 +508,41 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	}
 
 	@Override
-	public Node getOwningComponent() {
-		if (getParent() == null || getParent().getParent() == null)
-			return this;
-		if (getParent() instanceof OperationFacetNode)
-			return getParent();
-		if (getParent() instanceof ExtensionPointNode)
-			return getParent();
-		// EnumLiterals are overridden.
-		// If version 1.6 or later return the parent contextual facet
-		if (getParent() instanceof ContextualFacetNode)
-			// return getParent().getOwningComponent();
-			return ((ContextualFacetNode) getParent()).canBeLibraryMember() ? getParent() : getParent()
-					.getOwningComponent();
-
-		// Otherwise Properties are always owned by a facet.
-		// TODO - delegate as is done with contextual facets
-		return getParent().getParent().isNamedEntity() ? getParent().getParent() : this;
+	public BaseNodeListener getNewListener() {
+		return new TypeUserListener(this);
 	}
+
+	@Override
+	public Node getOwningComponent() {
+		if (getParent() == null)
+			return null;
+		if (getParent() instanceof ContextualFacetNode)
+			return ((ContextualFacetNode) getParent()).getOwningComponent();
+		// return ((ContextualFacetNode) getParent()).canBeLibraryMember() ? getParent() : getParent()
+		// .getOwningComponent();
+
+		if (getParent() instanceof LibraryMemberInterface)
+			return getParent();
+
+		return getParent().getOwningComponent();
+
+		// if (getParent().getParent() != null && getParent().getParent() instanceof LibraryMemberInterface)
+		// return getParent().getParent();
+		//
+		// if (getParent() instanceof OperationFacetNode)
+		// return getParent();
+		// // If version 1.6 or later return the parent contextual facet
+		//
+		// if (getParent().getParent() == null)
+		// return null;
+		// // Otherwise Properties are always owned by a facet.
+		// // TODO - delegate as is done with contextual facets
+		// return getParent().getParent().isNamedEntity() ? getParent().getParent() : this;
+	}
+
+	// Must override
+	@Override
+	public abstract Node getParent();
 
 	/**
 	 * Property Roles are displayed in the facet table and describe what role the item can play in constructing
@@ -483,7 +569,16 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		return null; // override for properties with fixed types
 	}
 
+	/**
+	 * Overridden to provide assigned type and aliases if deep is set.
+	 */
 	@Override
+	public List<Node> getTreeChildren(boolean deep) {
+		return getNavChildren(deep);
+	}
+
+	@Override
+	@Deprecated
 	public Node getType() {
 		return (Node) getAssignedType();
 	}
@@ -520,7 +615,11 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	 * 
 	 * @return
 	 */
+	// FIXME - one of these has to become private
+	@Deprecated
 	public int indexOfNode() {
+		if (getParent() == null || getParent().getChildren() == null)
+			return 0;
 		int index = getParent().getChildren().indexOf(this) + 1;
 		return ((index < 1) || (index > getParent().getChildren().size())) ? index = getParent().getChildren().size()
 				: index;
@@ -532,6 +631,8 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	 * 
 	 * @return - index between 0 and size() of the array containing like properties.
 	 */
+	// FIXME - one of these has to become private
+	@Deprecated
 	public int indexOfTLProperty() {
 		return 0;
 	}
@@ -543,36 +644,23 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	}
 
 	@Override
-	public boolean isEnabled_AddProperties() {
-		return this != getOwningComponent() ? getOwningComponent().isEnabled_AddProperties() : false;
-	}
-
-	/**
-	 * @return true if indicator element or attribute.
-	 */
-	public boolean isIndicator() {
-		return false;
-	}
-
-	@Override
 	public boolean isDeleteable() {
-		if (modelObject == null)
+		if (getTLModelObject() == null)
 			return false;
-		if (getModelObject().getTLModelObj() instanceof TLnSimpleAttribute)
+		if (this instanceof FacadeInterface)
 			return false;
+		// if (modelObject == null)
+		// return false;
+		// if (getModelObject().getTLModelObj() instanceof TLnSimpleAttribute)
+		// return false;
 		if (isInherited())
 			return false;
 		return super.isDeleteable();
 	}
 
 	@Override
-	public boolean isMissingAssignedType() {
-		// LOGGER.debug("check property node "+getName()+" for missing type. "+modelObject);
-		if (modelObject == null || modelObject.getTLModelObj() == null)
-			return true;
-		if (modelObject.getTLType() == null)
-			return true;
-		return false;
+	public boolean isEnabled_AddProperties() {
+		return this != getOwningComponent() ? getOwningComponent().isEnabled_AddProperties() : false;
 	}
 
 	/**
@@ -586,7 +674,7 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	// Override if not re-nameable.
 	@Override
 	public boolean isRenameable() {
-		return isEditable() && !inherited && getAssignedType().isRenameableWhereUsed();
+		return isEditable() && !isInherited() && getAssignedType().isRenameableWhereUsed();
 	}
 
 	/**
@@ -595,6 +683,54 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	public boolean isVWA_Attribute() {
 		return getOwningComponent() instanceof VWA_Node;
 	}
+
+	public void moveDown() {
+		if (!isEditable_newToChain())
+			return;
+		int index = parent.getChildren().indexOf(this);
+		if (index < parent.getChildren().size() - 1) {
+			// parent.getChildren().remove(index++);
+			// parent.getChildren().add(index, this);
+			moveDownTL();
+			parent.getChildrenHandler().clear();
+		}
+	}
+
+	// /**
+	// * Move the node and TL properties (attributes, elements, etc)
+	// *
+	// * @param direction
+	// * @return true if moved, false otherwise
+	// */
+	// public void moveProperty(final int direction) {
+	// if (!isEditable_newToChain())
+	// return;
+	// int index = parent.getChildren().indexOf(this);
+	// switch (direction) {
+	// case DOWN:
+	// moveDown();
+	// break;
+	// case UP:
+	// moveUp();
+	// break;
+	// default:
+	// // LOGGER.debug("Which way do you want to move?");
+	// }
+	// return;
+	//
+	// // we don't have to sort children since their are always sorted
+	// // if (direction == UP) {
+	// // ret = modelObject.moveUp(); // move the actual TL Property.
+	// // if (ret)
+	// // moveUp();
+	// // } else if (direction == DOWN) {
+	// // ret = modelObject.moveDown(); // move the actual TL Property.
+	// // if (ret)
+	// // moveDown();
+	// // }
+	// // LOGGER.warn("Do not understand direction: " + direction);
+	// // return ret;
+	// }
 
 	/**
 	 * Move this property from its current node to the new facet. Tested with Move_Tests.
@@ -606,42 +742,15 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		newFacet.addProperty(this);
 	}
 
-	/**
-	 * 
-	 * @param direction
-	 * @return true if moved, false otherwise
-	 */
-	public boolean moveProperty(final int direction) {
+	public void moveUp() {
 		if (!isEditable_newToChain())
-			return false;
-		boolean ret = false;
-		// we don't have to sort children since their are always sorted
-		if (direction == UP) {
-			ret = modelObject.moveUp(); // move the actual TL Property.
-			if (ret)
-				moveUp();
-		} else if (direction == DOWN) {
-			ret = modelObject.moveDown(); // move the actual TL Property.
-			if (ret)
-				moveDown();
-		}
-		// LOGGER.warn("Do not understand direction: " + direction);
-		return ret;
-	}
-
-	private void moveDown() {
-		int index = parent.getChildren().indexOf(this);
-		if (index < parent.getChildren().size() - 1) {
-			parent.getChildren().remove(index++);
-			parent.getChildren().add(index, this);
-		}
-	}
-
-	private void moveUp() {
+			return;
 		int index = parent.getChildren().indexOf(this);
 		if (index > 0) {
-			parent.getChildren().remove(index--);
-			parent.getChildren().add(index, this);
+			// parent.getChildren().remove(index--);
+			// parent.getChildren().add(index, this);
+			moveUpTL();
+			parent.getChildrenHandler().clear();
 		}
 	}
 
@@ -649,8 +758,9 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	 * Remove this property from its parent facet and its TL Object from its TL Parent
 	 */
 	public void removeProperty() {
-		this.unlinkNode();
-		this.getModelObject().removeFromTLParent();
+		removeFromTL();
+		if (getParent() != null)
+			getParent().getChildrenHandler().clear();
 	}
 
 	@Override
@@ -658,10 +768,14 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 		return typeHandler.set();
 	}
 
+	// Should be abstract or NO-OP
 	@Override
-	public boolean setAssignedType(TLModelElement tlProvider) {
-		return typeHandler.set(tlProvider);
-	}
+	public abstract boolean setAssignedType(TLModelElement tlProvider);
+
+	// {
+	// assert false;
+	// typeHandler.set(tlProvider);
+	// }
 
 	@Override
 	public boolean setAssignedType(TypeProvider provider) {
@@ -684,36 +798,47 @@ public class PropertyNode extends ComponentNode implements TypeUser {
 	}
 
 	@Override
+	@Deprecated
 	public void setLibrary(LibraryNode lib) {
+		// getOwningComponent().setLibrary(lib);
 		// LOGGER.debug("Obsolete - property set library - library is always from owner");
 	}
 
 	@Override
-	public void setName(final String name) {
-		setName(name);
-	}
-
-	@Override
-	public void sort() {
-		getParent().sort();
-	}
+	public abstract void setName(final String name);
 
 	/**
 	 * Remove <i>this</i> property from the parent and add the <i>newProperty</i> in its place.
 	 */
+	// TODO - add junit tests to PropertyTests
 	public void swap(PropertyNode newProperty) {
-		// Link new property to the parent node.
-		getParent().linkChild(newProperty); // no family processing needed
-		// Add the new property TL element to its TL Parent
-		newProperty.modelObject.addChild(newProperty.getTLModelObject());
-		// Remove this TL element from its TL parent.
-		modelObject.removeFromTLParent();
-		// Remove this property from its parent
-		getParent().getChildren().remove(this);
+		if (getParent() instanceof PropertyOwnerNode)
+			newProperty.addToTL((PropertyOwnerNode) getParent());
+		removeFromTL();
+		getParent().getChildrenHandler().clear();
 
-		// Remove from current TL parent and add to new. Model object will ignore if no parent.
-		modelObject.removeFromTLParent();
-		getParent().getModelObject().addChild(newProperty.getTLModelObject());
+		// // Link new property to the parent node.
+		// getParent().linkChild(newProperty); // no family processing needed
+		// // Add the new property TL element to its TL Parent
+		// if (getParent() instanceof PropertyOwnerNode)
+		// newProperty.addToTL((PropertyOwnerNode) getParent());
+		// // newProperty.modelObject.addChild(newProperty.getTLModelObject());
+		//
+		// // Remove this TL element from its TL parent.
+		// removeFromTL();
+		// // modelObject.removeFromTLParent();
+		// // Remove this property from its parent
+		// getParent().getChildren().remove(this);
+		//
+		// // Remove from current TL parent
+		// // modelObject.removeFromTLParent();
+		// // getParent().getModelObject().addChild(newProperty.getTLModelObject());
 	}
+
+	protected abstract void moveDownTL();
+
+	protected abstract void moveUpTL();
+
+	protected abstract void removeFromTL();
 
 }

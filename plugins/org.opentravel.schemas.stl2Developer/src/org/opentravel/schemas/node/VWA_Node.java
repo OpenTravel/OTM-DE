@@ -18,23 +18,21 @@
  */
 package org.opentravel.schemas.node;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
-import org.opentravel.schemas.modelObject.ValueWithAttributesMO;
+import org.opentravel.schemas.node.facets.AttributeFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.PropertyOwnerNode;
-import org.opentravel.schemas.node.facets.SimpleFacetNode;
-import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
+import org.opentravel.schemas.node.facets.SimpleFacetFacadeNode;
+import org.opentravel.schemas.node.handlers.children.ValueWithAttributesChildrenHandler;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.interfaces.Sortable;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.properties.IValueWithContextHandler;
-import org.opentravel.schemas.node.properties.SimpleAttributeNode;
+import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.ExtensionHandler;
 import org.opentravel.schemas.types.SimpleAttributeOwner;
@@ -49,29 +47,20 @@ import org.opentravel.schemas.types.TypeProvider;
  * @author Dave Hollander
  * 
  */
-public class VWA_Node extends LibraryMemberBase implements ComplexComponentInterface, ExtensionOwner,
+public class VWA_Node extends LibraryMemberBase implements ComplexComponentInterface, ExtensionOwner, Sortable,
 		VersionedObjectInterface, LibraryMemberInterface, SimpleAttributeOwner {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(VWA_Node.class);
+
 	private ExtensionHandler extensionHandler = null;
 
 	public VWA_Node(TLValueWithAttributes mbr) {
 		super(mbr);
-		addMOChildren();
-
-		// Make the parent of the simple attribute this tl object.
-		// Parent is needed for parent type and eq/ex
-		getSimpleAttribute().getTLModelObject().setParentObject(mbr);
-
-		// ParentType is be type assigned to the value facet
-		if (getTLModelObject().getParentType() == null)
-			setSimpleType((TypeProvider) ModelNode.getEmptyNode());
-
-		assert (modelObject instanceof ValueWithAttributesMO);
+		childrenHandler = new ValueWithAttributesChildrenHandler(this);
 	}
 
 	/**
-	 * Create a new VWA named the BO name. Copy all documentation. Make an attribute property from each property in the
-	 * ID, Summary and Detail facets.
+	 * Create a new VWA named the BO name and add to BO's library. Copy all documentation. Make an attribute property
+	 * from each property in the ID, Summary and Detail facets.
 	 * 
 	 * @param bo
 	 *            is the BusinessObject to copy from
@@ -83,10 +72,10 @@ public class VWA_Node extends LibraryMemberBase implements ComplexComponentInter
 		bo.getLibrary().addMember(this);
 		setDocumentation(bo.getDocumentation());
 
-		getAttributeFacet().copyFacet(bo.getIDFacet());
-		getAttributeFacet().copyFacet(bo.getFacet_Summary());
-		getAttributeFacet().copyFacet(bo.getFacet_Detail());
-		setSimpleType((TypeProvider) ModelNode.getEmptyNode());
+		getFacet_Attributes().copyFacet(bo.getFacet_ID());
+		getFacet_Attributes().copyFacet(bo.getFacet_Summary());
+		getFacet_Attributes().copyFacet(bo.getFacet_Detail());
+		setAssignedType((TypeProvider) ModelNode.getEmptyNode());
 	}
 
 	/**
@@ -103,23 +92,15 @@ public class VWA_Node extends LibraryMemberBase implements ComplexComponentInter
 		core.getLibrary().addMember(this);
 		setDocumentation(core.getDocumentation());
 
-		getAttributeFacet().copyFacet(core.getFacet_Summary());
-		getAttributeFacet().copyFacet(core.getFacet_Detail());
-		setSimpleType(core.getSimpleType());
+		getFacet_Attributes().copyFacet(core.getFacet_Summary());
+		getFacet_Attributes().copyFacet(core.getFacet_Detail());
+		setAssignedType(core.getAssignedType());
 	}
 
 	@Override
 	public ComponentNode createMinorVersionComponent() {
 		return super.createMinorVersionComponent(new VWA_Node((TLValueWithAttributes) createMinorTLVersion(this)));
 	}
-
-	// /**
-	// * Return the parent type.
-	// */
-	// @Override
-	// public NamedEntity getTLTypeObject() {
-	// return getTLModelObject().getParentType();
-	// }
 
 	@Override
 	public String getName() {
@@ -128,16 +109,16 @@ public class VWA_Node extends LibraryMemberBase implements ComplexComponentInter
 
 	@Override
 	public TLValueWithAttributes getTLModelObject() {
-		return (TLValueWithAttributes) modelObject.getTLModelObj();
+		return (TLValueWithAttributes) tlObj;
 	}
-
-	// @Override
-	// public boolean isNamedType() {
-	// return true;
-	// }
 
 	@Override
 	public boolean isNamedEntity() {
+		return true;
+	}
+
+	@Override
+	public boolean isSimpleAssignable() {
 		return true;
 	}
 
@@ -147,31 +128,15 @@ public class VWA_Node extends LibraryMemberBase implements ComplexComponentInter
 	}
 
 	@Override
-	public List<Node> getChildren_TypeUsers() {
-		ArrayList<Node> users = new ArrayList<Node>();
-		users.add(getFacet_Simple().getSimpleAttribute());
-		users.addAll(getAttributeFacet().getChildren());
-		return users;
-	}
-
-	// @Override
-	// public String getLabel() {
-	// if (isVersioned())
-	// return super.getLabel() + " (Extends version:  " + getExtensionBase().getLibrary().getVersion() + ")";
-	// else
-	// return super.getLabel();
-	// }
-
-	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.ValueWithAttr);
 	}
 
 	@Override
-	public SimpleFacetNode getFacet_Simple() {
+	public SimpleFacetFacadeNode getFacet_Simple() {
 		for (INode f : getChildren()) {
-			if (f instanceof SimpleFacetNode)
-				return (SimpleFacetNode) f;
+			if (f instanceof SimpleFacetFacadeNode)
+				return (SimpleFacetFacadeNode) f;
 		}
 		return null;
 	}
@@ -188,7 +153,7 @@ public class VWA_Node extends LibraryMemberBase implements ComplexComponentInter
 
 	@Override
 	public PropertyOwnerNode getFacet_Default() {
-		return (PropertyOwnerNode) getAttributeFacet();
+		return (PropertyOwnerNode) getFacet_Attributes();
 	}
 
 	@Override
@@ -196,10 +161,11 @@ public class VWA_Node extends LibraryMemberBase implements ComplexComponentInter
 		return INode.CommandType.PROPERTY;
 	}
 
+	// FIXME - return AttributeFacetNode
 	@Override
-	public PropertyOwnerNode getAttributeFacet() {
-		for (INode f : getChildren())
-			if (f instanceof VWA_AttributeFacetNode)
+	public PropertyOwnerNode getFacet_Attributes() {
+		for (Node f : getChildren())
+			if (f instanceof AttributeFacetNode)
 				return (PropertyOwnerNode) f;
 		return null;
 	}
@@ -215,32 +181,21 @@ public class VWA_Node extends LibraryMemberBase implements ComplexComponentInter
 		getTLModelObject().setName(NodeNameUtils.fixVWAName(name));
 	}
 
-	// /////////////////////////////////////////////////////////////////
-	//
-	// Simple Attribute Owner implementations
-	//
-	@Override
-	public TypeProvider getSimpleType() {
-		return getSimpleAttribute().getAssignedType();
-	}
-
-	@Override
-	public boolean setSimpleType(TypeProvider provider) {
+	/**
+	 * Set the type assigned to the simple attribute in the simple facet.
+	 */
+	public boolean setAssignedType(TypeProvider provider) {
 		return getSimpleAttribute().setAssignedType(provider);
 	}
 
 	@Override
-	public SimpleAttributeNode getSimpleAttribute() {
-		return getFacet_Simple().getSimpleAttribute();
+	public SimpleAttributeFacadeNode getSimpleAttribute() {
+		return ((SimpleFacetFacadeNode) getFacet_Simple()).getSimpleAttribute();
 	}
 
-	// // 10/5/2015 - was commented out
-	// /**
-	// * Override to provide type from simple facet.
-	// */
 	@Override
 	public void sort() {
-		((FacetNode) getAttributeFacet()).sort();
+		((FacetNode) getFacet_Attributes()).sort();
 	}
 
 	@Override
@@ -249,7 +204,8 @@ public class VWA_Node extends LibraryMemberBase implements ComplexComponentInter
 			throw new IllegalStateException("Can only merge objects with the same type");
 		}
 		VWA_Node vwa = (VWA_Node) source;
-		getAttributeFacet().addProperties(vwa.getAttributeFacet().getChildren(), true);
+		getFacet_Attributes().addProperties(vwa.getFacet_Attributes().getChildren(), true);
+		getChildrenHandler().clear();
 	}
 
 	@Override
@@ -316,8 +272,9 @@ public class VWA_Node extends LibraryMemberBase implements ComplexComponentInter
 		return extensionHandler != null ? extensionHandler.get() : null;
 	}
 
+	@Override
 	public String getExtendsTypeNS() {
-		return modelObject.getExtendsTypeNS();
+		return getExtensionBase() != null ? getExtensionBase().getNamespace() : "";
 	}
 
 	@Override
@@ -330,6 +287,11 @@ public class VWA_Node extends LibraryMemberBase implements ComplexComponentInter
 	@Override
 	public ExtensionHandler getExtensionHandler() {
 		return extensionHandler;
+	}
+
+	@Override
+	public TypeProvider getAssignedType() {
+		return getSimpleAttribute().getAssignedType();
 	}
 
 }

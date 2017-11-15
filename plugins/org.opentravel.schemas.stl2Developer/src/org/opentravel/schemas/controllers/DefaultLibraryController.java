@@ -383,7 +383,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 	@Override
 	public String getLibraryStatus(LibraryNode library) {
 		// TODO: use i18n for text
-		if (library == null || library.getModelObject() == null)
+		if (library == null || library.getTLModelObject() == null)
 			return "NULL Status";
 
 		if (library.getTLModelObject() instanceof XSDLibrary)

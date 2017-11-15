@@ -50,7 +50,6 @@ import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.validate.ValidationException;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
-import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
@@ -516,12 +515,12 @@ public class ExampleView extends OtmAbstractView {
 	}
 
 	private NamedEntity getNamedEntity(Node node) {
-		ModelObject<?> mo = node.getModelObject();
-		if (mo != null) {
-			Object object = mo.getTLModelObj();
-			if (object instanceof NamedEntity)
-				return (NamedEntity) object;
-		}
+		// ModelObject<?> mo = node.getModelObject();
+		// if (mo != null) {
+		Object object = node.getTLModelObject();
+		if (object instanceof NamedEntity)
+			return (NamedEntity) object;
+		// }
 		return null;
 	}
 

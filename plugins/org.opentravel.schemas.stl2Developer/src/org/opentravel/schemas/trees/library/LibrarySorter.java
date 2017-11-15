@@ -26,12 +26,12 @@ import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.VersionNode;
+import org.opentravel.schemas.node.facets.AttributeFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
-import org.opentravel.schemas.node.facets.VWA_AttributeFacetNode;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -100,7 +100,7 @@ public class LibrarySorter extends ViewerSorter {
 		if (n instanceof VersionNode)
 			n = ((VersionNode) n).get();
 
-		if (n == null || n.getModelObject() == null)
+		if (n == null)
 			return 0;
 
 		if (n instanceof LibraryUsesNode)
@@ -187,7 +187,7 @@ public class LibrarySorter extends ViewerSorter {
 		if (n instanceof PropertyOwnerInterface) {
 			if (n instanceof SimpleFacetNode)
 				return 1;
-			if (n instanceof VWA_AttributeFacetNode)
+			if (n instanceof AttributeFacetNode)
 				return 2;
 			if (n instanceof RoleFacetNode)
 				return 61;

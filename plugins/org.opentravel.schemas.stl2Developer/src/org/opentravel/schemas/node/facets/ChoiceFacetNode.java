@@ -19,8 +19,6 @@ import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemas.modelObject.FacetMO;
-import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 
 /**
  * Used for Choice Facets.
@@ -40,7 +38,6 @@ public class ChoiceFacetNode extends ContextualFacetNode {
 
 	public ChoiceFacetNode(TLContextualFacet tlObj) {
 		super(tlObj);
-		assert (modelObject instanceof FacetMO);
 	}
 
 	@Override
@@ -62,27 +59,19 @@ public class ChoiceFacetNode extends ContextualFacetNode {
 
 	@Override
 	public TLContextualFacet getTLModelObject() {
-		return (TLContextualFacet) modelObject.getTLModelObj();
+		return (TLContextualFacet) tlObj;
 	}
 
-	@Override
-	public void setOwner(ContextualFacetOwnerInterface owner) {
-		TLContextualFacet tlFacet = getTLModelObject();
-		tlFacet.setOwningEntity(owner.getTLModelObject());
-		// Do NOT set Owning library because that the is owner of the facet not the library of the facet owner.
-		// tlFacet.setOwningLibrary(owner.getLibrary().getTLLibrary());
-		if (owner.getTLModelObject() instanceof TLChoiceObject)
-			((TLChoiceObject) owner.getTLModelObject()).addChoiceFacet(tlFacet);
-		else if (owner.getTLModelObject() instanceof TLContextualFacet)
-			((TLContextualFacet) owner.getTLModelObject()).addChildFacet(tlFacet);
-
-		super.add(owner, tlFacet); // Adds to owning object's library!
-	}
+	// @Override
+	// public void setOwner(ContextualFacetOwnerInterface owner) {
+	// addToTLParent(owner.getTLModelObject());
+	// super.add(owner, getTLModelObject()); // Adds to owning object's library!
+	// }
 
 	@Override
 	protected void addToTLParent(TLFacetOwner tlOwner) {
 		if (tlOwner instanceof TLChoiceObject)
-			((TLChoiceObject) tlOwner).addChoiceFacet(getTLModelObject());
+			((TLChoiceObject) tlOwner).addChoiceFacet(getTLModelObject()); // will ignore duplicates
 		else if (tlOwner instanceof TLContextualFacet)
 			((TLContextualFacet) tlOwner).addChildFacet(getTLModelObject());
 	}

@@ -30,10 +30,14 @@ import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.types.whereused.WhereUsedNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Manages lists of where extension owners are assigned to this object. The where extended handler is on the extension
- * base.
+ * Manages lists of where extension owners are assigned to this object.
+ * <p>
+ * The WhereExtended handler is on the extension base. WhereExtendedListeners are placed on TL objects that extend this
+ * owner.
  * 
  * Extension handler <b>must</b> add and remove listeners to the extensions via set and remove listener methods.
  * 
@@ -41,7 +45,7 @@ import org.opentravel.schemas.types.whereused.WhereUsedNode;
  * 
  */
 public class WhereExtendedHandler {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(WhereExtendedHandler.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(WhereExtendedHandler.class);
 
 	// nodes that use this node as a base/extension type.
 	protected ArrayList<ExtensionOwner> users = new ArrayList<ExtensionOwner>();
@@ -64,7 +68,8 @@ public class WhereExtendedHandler {
 
 		public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
 			Node source = getSource(event);
-			// LOGGER.debug("WhereExtends: " + event.getType() + " handler = " + handler.owner + " source = " + source);
+			LOGGER.debug("WhereExtendedListener: " + event.getType() + " handler = " + handler.owner + " source = "
+					+ source);
 
 			switch (event.getType()) {
 			case EXTENDS_ADDED:
@@ -73,7 +78,7 @@ public class WhereExtendedHandler {
 				break;
 			case EXTENDS_REMOVED:
 				if (source instanceof ExtensionOwner) {
-					handler.remove(source); // remove source from owner's where extended list
+					handler.removeUser(source); // remove source from owner's where extended list
 					// ((ExtensionOwner) source).getExtensionHandler().removeListener();
 				}
 				break;
@@ -97,7 +102,7 @@ public class WhereExtendedHandler {
 			switch (event.getType()) {
 			case TYPE_ASSIGNMENT_MODIFIED:
 				if (getNewValue(event) == null)
-					handler.remove(source);
+					handler.removeUser(source);
 				else if (source != getNode() && source instanceof ExtensionOwner)
 					handler.add((ExtensionOwner) source);
 				break;
@@ -145,6 +150,11 @@ public class WhereExtendedHandler {
 		// LOGGER.debug("Added listener for provider " + owner + " to extension " + extension);
 	}
 
+	/**
+	 * Remove WhereExtendedListener from user if it exists.
+	 * 
+	 * @param user
+	 */
 	public void removeListener(ExtensionOwner user) {
 		ModelElementListener listener = null;
 		for (ModelElementListener l : ((Node) user).getTLModelObject().getListeners())
@@ -180,11 +190,24 @@ public class WhereExtendedHandler {
 	 *            - type user to remove from list
 	 * @return true if removed, false if not in list
 	 */
-	protected boolean remove(Node user) {
+	protected boolean removeUser(Node user) {
 		if (!users.contains(user))
 			return false;
 		users.remove(user);
 		return true;
+	}
+
+	/**
+	 * Remove user from where used list and remove WhereExtended listener
+	 * 
+	 * @param user
+	 * @return
+	 */
+	public boolean remove(ExtensionOwner user) {
+		boolean result = removeUser((Node) user);
+		if (result && user instanceof ExtensionOwner)
+			removeListener(user);
+		return result;
 	}
 
 	/**

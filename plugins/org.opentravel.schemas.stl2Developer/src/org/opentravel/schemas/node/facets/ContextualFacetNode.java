@@ -15,19 +15,25 @@
  */
 package org.opentravel.schemas.node.facets;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryElement;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.modelObject.FacetMO;
+import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.VersionNode;
+import org.opentravel.schemas.node.handlers.children.FacetChildrenHandler;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -56,6 +62,9 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 		ComplexComponentInterface, ContextualFacetOwnerInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ContextualFacetNode.class);
 
+	protected LibraryNode owningLibrary = null;
+	private ContributedFacetNode whereContributed = null;
+
 	/**
 	 * Create a TLContextualFacet. Not added to object or library.
 	 * 
@@ -70,8 +79,6 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 		return newFacet;
 	}
 
-	private ContributedFacetNode whereContributed = null;
-
 	public ContextualFacetNode() {
 		// super();
 		// Contributed facets do not have MO or TL objects.
@@ -79,7 +86,7 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 
 	public ContextualFacetNode(TLContextualFacet tlObj) {
 		super(tlObj);
-		setContext();
+		// setContext();
 
 		// On initial construction,
 		// All properties created, parent is this node
@@ -99,10 +106,19 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 					contrib = new ContributedFacetNode(tlObj, cOwner);
 				setWhereContributed(contrib);
 			}
+			// if (getLibrary() == null)
+			// LOGGER.debug("HERE");
 		}
+		if (!isInherited())
+			assert Node.GetNode(getTLModelObject()) == this;
 
 		// assert GetNode(tlObj) == this; // Not true when creating inherited facets
 		// assert getLibrary() != null; // Not true if the tlObj is newly created
+	}
+
+	@Override
+	public FacetChildrenHandler getChildrenHandler() {
+		return (FacetChildrenHandler) childrenHandler;
 	}
 
 	/**
@@ -117,7 +133,7 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 
 	@Override
 	public Node clone(Node parent, String nameSuffix) {
-		Node newNode = super.clone(parent, nameSuffix);
+		ContextualFacetNode newNode = (ContextualFacetNode) super.clone(parent, nameSuffix);
 		if (newNode == null) {
 			LOGGER.debug("Failed to clone " + this);
 			return null;
@@ -140,7 +156,7 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 		LibraryMember tlCopy = cloneTL();
 
 		// Create contextual facet from the copy
-		Node copy = NodeFactory.newComponent_UnTyped(tlCopy);
+		Node copy = (Node) NodeFactory.newLibraryMember(tlCopy);
 		if (!(copy instanceof ContextualFacetNode))
 			throw new IllegalArgumentException("Unable to copy " + this);
 		ContextualFacetNode cf = (ContextualFacetNode) copy;
@@ -180,8 +196,9 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	public void close() {
 		// super.close();
 		removeFromTLParent();
-		if (whereContributed != null)
-			whereContributed.unlinkNode();
+		if (whereContributed != null) {
+			whereContributed.clear();
+		}
 	}
 
 	@Override
@@ -208,17 +225,35 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	}
 
 	@Override
-	public PropertyOwnerInterface getAttributeFacet() {
+	public List<AliasNode> getAliases() {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public PropertyOwnerInterface getFacet_Attributes() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ContributedFacetNode getContributedFacet(TLContextualFacet tlCf) {
-		for (Node child : getChildren())
-			if (child instanceof ContributedFacetNode && child.getTLModelObject() == tlCf)
-				return (ContributedFacetNode) child;
-		return null;
+		// Get the TL children and return the found facet.
+		ContributedFacetNode cfn = null;
+		for (TLModelElement tlo : getChildrenHandler().getChildren_TL())
+			if (tlo == tlCf)
+				if (Node.GetNode(tlo) instanceof ContextualFacetNode) {
+					// getNode will return the contextual facet so use its where contributed.
+					ContextualFacetNode cxn = (ContextualFacetNode) Node.GetNode(tlo);
+					if (cxn != null) {
+						cfn = cxn.getWhereContributed();
+						break;
+					}
+				}
+		return cfn;
+		// for (Node child : getChildren())
+		// if (child instanceof ContributedFacetNode && child.getTLModelObject() == tlCf)
+		// return (ContributedFacetNode) child;
+		// return null;
 	}
 
 	@Override
@@ -259,7 +294,7 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 
 	@Override
 	public String getLabel() {
-		if (inherited)
+		if (isInherited())
 			return getTLModelObject() != null ? getFacetType().getIdentityName() + " (Inherited)" : "";
 		return getTLModelObject() != null ? getFacetType().getIdentityName() : "";
 	}
@@ -272,8 +307,8 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	@Override
 	public LibraryNode getLibrary() {
 		if (canBeLibraryMember())
-			return library;
-		return getOwningComponent() != null && getOwningComponent() != this ? getOwningComponent().getLibrary() : null;
+			return owningLibrary;
+		return getOwningComponent() != null ? getOwningComponent().getLibrary() : null;
 	}
 
 	/**
@@ -287,6 +322,7 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	}
 
 	@Override
+	@Deprecated
 	public FacetMO getModelObject() {
 		return (FacetMO) modelObject;
 	}
@@ -316,13 +352,14 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	 */
 	@Override
 	public Node getOwningComponent() {
-		// 9/18/2017 - for version 1.6, contextual facets are their own owners
+		// For version 1.6, contextual facets are their own owners
 		if (canBeLibraryMember())
 			return this;
-
-		if (getTLModelObject() == null || getTLModelObject().getOwningEntity() == null)
-			return null;
-		return Node.GetNode(getTLModelObject().getOwningEntity());
+		// Version 1.5 - parent is the owner. Make sure parent is set.
+		if (parent == null)
+			if (getTLModelObject() != null && getTLModelObject().getOwningEntity() != null)
+				parent = Node.GetNode(getTLModelObject().getOwningEntity());
+		return parent;
 	}
 
 	@Override
@@ -333,7 +370,8 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 
 	@Override
 	public TLContextualFacet getTLModelObject() {
-		return (TLContextualFacet) modelObject.getTLModelObj();
+		return (TLContextualFacet) tlObj;
+		// return (TLContextualFacet) modelObject.getTLModelObj();
 	}
 
 	/**
@@ -414,7 +452,7 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 
 	@Override
 	public boolean isRenameable() {
-		return isEditable() && !inherited;
+		return isEditable() && !isInherited();
 	}
 
 	public void print() {
@@ -429,6 +467,7 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	}
 
 	@Override
+	@Deprecated
 	public void setContext() {
 		if (getLibrary() != null)
 			getTLModelObject().setContext(getLibrary().getDefaultContextId());
@@ -443,8 +482,9 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	 * @param context
 	 *            is IGNORED. Context is not used on facets in version 1.6 and later.
 	 */
+	@Deprecated
 	public void setContext(String context) {
-		setContext();
+		// setContext();
 	}
 
 	/**
@@ -463,11 +503,22 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	}
 
 	/**
-	 * Add this facet to passed contextual facet owner.
+	 * Add this facet to the owner's TL facet owner. Then add to library or owner. Create contributed facet if
+	 * canBeLibrarymember (v1.6)
 	 * 
 	 * @param owner
 	 */
-	public abstract void setOwner(ContextualFacetOwnerInterface owner);
+	public void setOwner(ContextualFacetOwnerInterface owner) {
+		// Done by all but contrib
+		addToTLParent(owner.getTLModelObject());
+		add(owner, getTLModelObject()); // Adds to owning object's library!
+	}
+
+	@Override
+	public void setLibrary(LibraryNode library) {
+		if (canBeLibraryMember())
+			owningLibrary = library;
+	}
 
 	/**
 	 * Simple setter of whereContributed field.
@@ -485,7 +536,10 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	}
 
 	/**
-	 * Add this contextual facet to the owner. Removes existing contributed facet if needed.
+	 * Add this contextual facet to the owner.
+	 * <p>
+	 * if it can be a library member (v1.6 and later) then create contributed facet. Removes existing contributed facet
+	 * if needed.
 	 * 
 	 * @param owner
 	 * @param newFacet
@@ -493,21 +547,33 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	protected void add(ContextualFacetOwnerInterface owner, TLContextualFacet newFacet) {
 		// if already contributed, remove the contributed facet.
 		if (getWhereContributed() != null)
-			getWhereContributed().unlinkNode();
+			getWhereContributed().getParent().getChildrenHandler().clear();
+		// getWhereContributed().unlinkNode();
 
-		// Add this node to owner
-		// done by linkChild() - setLibrary(owner.getLibrary());
-		if (OTM16Upgrade.otm16Enabled) {
-			// Adding member takes care of version nodes
+		if (canBeLibraryMember()) {
 			if (getLibrary() == null)
 				owner.getLibrary().addMember(this);
-			// Create contributed facet and link to owner
-			ContributedFacetNode contrib = new ContributedFacetNode(newFacet);
-			((Node) owner).linkChild(contrib);
-		} else {
-			// Just link it to the owner
-			((Node) owner).linkChild(this);
-		}
+			new ContributedFacetNode(newFacet);
+		} else
+			parent = (Node) owner;
+
+		((Node) owner).getChildrenHandler().clear();
+
+		// // Add this node to owner
+		// // done by linkChild() - setLibrary(owner.getLibrary());
+		// if (OTM16Upgrade.otm16Enabled) {
+		// // Adding member takes care of version nodes
+		// if (getLibrary() == null)
+		// owner.getLibrary().addMember(this);
+		// // Create contributed facet and link to owner
+		// ContributedFacetNode contrib = new ContributedFacetNode(newFacet);
+		// ((Node) owner).getChildrenHandler().clear();
+		// // ((Node) owner).linkChild(contrib);
+		// } else {
+		// ((Node) owner).getChildrenHandler().clear();
+		// // Just link it to the owner
+		// // ((Node) owner).linkChild(this);
+		// }
 	}
 
 	/**

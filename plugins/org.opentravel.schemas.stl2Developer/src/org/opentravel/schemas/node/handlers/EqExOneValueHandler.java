@@ -16,7 +16,7 @@
 /**
  * 
  */
-package org.opentravel.schemas.node.properties;
+package org.opentravel.schemas.node.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +35,8 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.controllers.ContextController;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.SimpleTypeNode;
+import org.opentravel.schemas.node.properties.IValueWithContextHandler;
+import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,9 +62,7 @@ public class EqExOneValueHandler implements IValueWithContextHandler, ModelEleme
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
 		// Do NOT set the value. There is no value stored in this handler, it is read from the tl model.
-		// if (event.getNewValue() instanceof String)
-		// set(((String) event.getNewValue()), null); // save value using default context
-		LOGGER.debug("change event: " + event.getNewValue());
+		// LOGGER.debug("change event: " + event.getNewValue());
 	}
 
 	public enum ValueWithContextType {
@@ -79,7 +79,8 @@ public class EqExOneValueHandler implements IValueWithContextHandler, ModelEleme
 	public EqExOneValueHandler(PropertyNode owner, ValueWithContextType type) {
 		assert (owner != null);
 		assert (owner.getTLModelObject() != null);
-		assert (owner.getTLModelObject() instanceof TLExampleOwner);
+		// Not all equ owners are example owners
+		// assert (owner.getTLModelObject() instanceof TLExampleOwner);
 
 		this.owner = owner;
 		this.type = type;
@@ -130,8 +131,12 @@ public class EqExOneValueHandler implements IValueWithContextHandler, ModelEleme
 
 	@Override
 	public void set(String value, String context) {
-		if (!owner.isEditable() || owner.getLibrary() == null) {
+		if (owner.getLibrary() == null) {
 			LOGGER.warn("Must have owner library to set example and equivalent values.");
+			return;
+		}
+		if (!owner.isEditable()) {
+			LOGGER.warn("Owner must be editable to set example and equivalent values.");
 			return;
 		}
 		if (context == null && !confirmContextExists(context))

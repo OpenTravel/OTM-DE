@@ -20,10 +20,11 @@ package org.opentravel.schemas.node.facets;
 
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLRoleEnumeration;
-import org.opentravel.schemas.modelObject.RoleEnumerationMO;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.handlers.children.RoleEnumerationChildrenHandler;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.RoleNode;
 
@@ -37,7 +38,9 @@ public class RoleFacetNode extends PropertyOwnerNode {
 	public RoleFacetNode(TLRoleEnumeration tlObj) {
 		super(tlObj);
 
-		assert (modelObject instanceof RoleEnumerationMO);
+		childrenHandler = new RoleEnumerationChildrenHandler(this);
+
+		// assert (modelObject instanceof RoleEnumerationMO);
 	}
 
 	/**
@@ -49,6 +52,7 @@ public class RoleFacetNode extends PropertyOwnerNode {
 	public RoleNode addRole(String name) {
 		if (isEditable_inMinor())
 			return new RoleNode(this, name);
+		childrenHandler.clear();
 		return null;
 	}
 
@@ -65,6 +69,7 @@ public class RoleFacetNode extends PropertyOwnerNode {
 
 	@Override
 	public INode createProperty(final Node type) {
+		childrenHandler.clear();
 		return new RoleNode(this, type.getName());
 	}
 
@@ -93,13 +98,20 @@ public class RoleFacetNode extends PropertyOwnerNode {
 	}
 
 	@Override
+	@Deprecated
 	public boolean isValidParentOf(PropertyNodeType type) {
 		return type.equals(PropertyNodeType.ROLE);
 	}
 
 	@Override
+	public boolean isValidParentOf(PropertyNode pn) {
+		return pn instanceof RoleNode;
+	}
+
+	@Override
 	public TLRoleEnumeration getTLModelObject() {
-		return (TLRoleEnumeration) (getModelObject() != null ? getModelObject().getTLModelObj() : null);
+		return (TLRoleEnumeration) tlObj;
+		// return (TLRoleEnumeration) (getModelObject() != null ? getModelObject().getTLModelObj() : null);
 
 	}
 

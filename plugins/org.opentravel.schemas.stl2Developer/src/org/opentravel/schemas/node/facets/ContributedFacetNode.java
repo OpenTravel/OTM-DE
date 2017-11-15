@@ -25,6 +25,7 @@ import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.handlers.children.FacetChildrenHandler;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.INode;
@@ -60,7 +61,13 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 	public ContributedFacetNode(TLContextualFacet tlCF) {
 		// Hold on to the contextual facet for resolution by type resolver
 		setContributor(tlCF);
-		// LOGGER.debug("Contributed Facet Created: " + tlCF.getLocalName());
+		childrenHandler = null; // contributor owns the children not this
+		LOGGER.debug("Contributed Facet Created: " + tlCF.getLocalName());
+	}
+
+	@Override
+	public FacetChildrenHandler getChildrenHandler() {
+		return contributor.getChildrenHandler();
 	}
 
 	/**
@@ -73,17 +80,22 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 		this(tlCF);
 		// Make sure this contextual facet is owned by the owning tlObject
 		addToTLParent(owner.getTLModelObject());
-		((Node) owner).linkChild(this);
+		// Clear parent children cache so they rebuild on next getChildren() call
+		((Node) owner).getChildrenHandler().clear();
+		parent = (Node) owner;
+		// ((Node) owner).linkChild(this);
 	}
 
 	@Override
 	public void addProperties(List<Node> properties, boolean clone) {
-		getContributor().addProperties(properties, clone);
+		if (getContributor() != null)
+			getContributor().addProperties(properties, clone);
 	}
 
 	@Override
 	public void addProperty(PropertyNode property) {
-		getContributor().addProperty(property);
+		if (getContributor() != null)
+			getContributor().addProperty(property);
 	}
 
 	@Override
@@ -98,18 +110,21 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 
 	@Override
 	public void copyFacet(PropertyOwnerNode sourceFacet) {
-		getContributor().copyFacet(sourceFacet);
+		if (getContributor() != null)
+			getContributor().copyFacet(sourceFacet);
 	}
 
 	@Override
 	public INode createProperty(final Node type) {
+		if (getContributor() != null)
+			return null;
 		return getContributor().createProperty(type);
 	}
 
 	@Override
 	public void delete() {
 		Node oldParent = getParent();
-		assert oldParent.getChildren().contains(this);
+		assert oldParent.contains(this);
 
 		// Remove where contributed and delete from TL Model then normal delete
 		tlContributor = null; // used by getContributor for lazy evaluation
@@ -117,9 +132,10 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 			getContributor().removeFromTLParent();
 			getContributor().setWhereContributed(null);
 		}
-		if (!inherited) {
+		if (!isInherited()) {
 			((TypeProvider) this).removeAll();
-			unlinkNode();
+			getParent().getChildrenHandler().clear();
+			// unlinkNode();
 			deleted = true;
 			setLibrary(null);
 			// super.delete(); // Delete will remove children.
@@ -162,12 +178,12 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 	public String getDecoration() {
 		String decoration = "";
 		// decoration += " :CF " + nodeID;
-		if (inherited)
+		if (isInherited())
 			decoration += " : Inherited ";
 		if (getContributor() != null) {
 			decoration += "   : " + getContributor().getLabel();
 			// contributedFacetNode overloads getLibrary
-			if (getContributor().getLibrary() != this.library)
+			if (getContributor().getLibrary() != this.getLibrary())
 				decoration += " contributed from " + getLibrary();
 			else
 				decoration += " contributed from this library";
@@ -186,6 +202,9 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 		return super.getLabel() + " (Contributed)";
 	}
 
+	/**
+	 * The library where the contributor facet is a library member. NOT the parent object.
+	 */
 	@Override
 	public LibraryNode getLibrary() {
 		return getContributor() == null ? null : getContributor().getLibrary();
@@ -196,6 +215,7 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 	}
 
 	@Override
+	@Deprecated
 	public FacetMO getModelObject() {
 		return getContributor() == null ? null : getContributor().getModelObject();
 	}
@@ -206,6 +226,8 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 	@Override
 	public Node getOwningComponent() {
 		// 9/18/2017 - for version 1.6, contributed facets are owned by object contributed to
+		if (parent == null)
+			parent = Node.GetNode(getTLModelObject().getOwningEntity());
 		return getParent();
 	}
 
@@ -247,16 +269,17 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 	 */
 	public void setContributor(TLContextualFacet tlCF) {
 		if (tlCF != null)
-			tlContributor = tlCF;
+			tlContributor = tlCF; // override value set on construction
 		Node n = GetNode(tlContributor);
 		if (n instanceof ContextualFacetNode)
 			contributor = (ContextualFacetNode) n;
 		if (contributor != null)
 			contributor.setWhereContributed(this);
-		// else
-		// LOGGER.warn("Could not set contributor on : " + this);
+		else
+			LOGGER.warn("Could not set contributor");
 	}
 
+	@Override
 	public void setOwner(ContextualFacetOwnerInterface owner) {
 	}
 
@@ -270,6 +293,11 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 	protected void removeFromTLParent() {
 		if (contributor != null)
 			contributor.removeFromTLParent();
+	}
+
+	public void clear() {
+		if (getChildrenHandler() != null)
+			getChildrenHandler().clear();
 	}
 
 }

@@ -15,36 +15,34 @@
  */
 package org.opentravel.schemas.node.facets;
 
-import java.util.List;
-
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemas.modelObject.TLnValueWithAttributesFacet;
+import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.node.ComponentNodeType;
-import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.handlers.children.AttributeFacetChildrenHandler;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
 
 /**
- * Used for Request, Response and Notification Facets.
+ * Property owner that can contain only attributes and indicators. It is a facade because there is no TLfacet underlying
+ * it, just the parent's tlModelObject.
  * 
  * @author Dave Hollander
  * 
  */
-@Deprecated
-public class VWA_AttributeFacetNode extends PropertyOwnerNode {
+public class AttributeFacetNode extends PropertyOwnerNode {
 
-	public VWA_AttributeFacetNode(TLnValueWithAttributesFacet tlObj) {
-		super(tlObj);
-
-		// assert (modelObject instanceof ValueWithAttributesAttributeFacetMO);
+	public AttributeFacetNode(VWA_Node owner) {
+		super();
+		parent = owner;
+		tlObj = owner.getTLModelObject();
+		childrenHandler = new AttributeFacetChildrenHandler(this);
 	}
 
 	@Override
 	public LibraryNode getLibrary() {
-		if (getOwningComponent() == null || getOwningComponent() == this)
-			return null;
-		return getOwningComponent().getLibrary();
+		return getParent().getLibrary();
 	}
 
 	@Override
@@ -63,6 +61,7 @@ public class VWA_AttributeFacetNode extends PropertyOwnerNode {
 	}
 
 	@Override
+	@Deprecated
 	public boolean isValidParentOf(PropertyNodeType type) {
 		return PropertyNodeType.getVWA_PropertyTypes().contains(type);
 	}
@@ -73,21 +72,6 @@ public class VWA_AttributeFacetNode extends PropertyOwnerNode {
 	}
 
 	@Override
-	public List<Node> getTreeChildren(boolean deep) {
-		return getNavChildren(deep);
-	}
-
-	@Override
-	public boolean hasTreeChildren(boolean deep) {
-		return hasNavChildren(deep); // override facet
-	}
-
-	@Override
-	public boolean isNavChild(boolean deep) {
-		return deep;
-	}
-
-	@Override
 	public String getNavigatorName() {
 		return getFacetType().getIdentityName();
 	}
@@ -95,14 +79,11 @@ public class VWA_AttributeFacetNode extends PropertyOwnerNode {
 	@Override
 	public String getName() {
 		return "Attributes";
-		// return getParent().getName();
-		// return emptyIfNull(getTLModelObject().getLocalName());
-		// return getComponentType();
 	}
 
 	@Override
-	public TLnValueWithAttributesFacet getTLModelObject() {
-		return (TLnValueWithAttributesFacet) getTLModelObject();
+	public TLValueWithAttributes getTLModelObject() {
+		return (TLValueWithAttributes) tlObj;
 	}
 
 	@Override

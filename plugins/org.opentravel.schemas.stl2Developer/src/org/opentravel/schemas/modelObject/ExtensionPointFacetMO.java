@@ -18,14 +18,8 @@ package org.opentravel.schemas.modelObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
-import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLAttribute;
-import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
-import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemacompiler.model.TLProperty;
 
 public class ExtensionPointFacetMO extends ModelObject<TLExtensionPointFacet> {
 	// final static Logger LOGGER = LoggerFactory.getLogger(ExtensionPointFacetMO.class);
@@ -34,13 +28,13 @@ public class ExtensionPointFacetMO extends ModelObject<TLExtensionPointFacet> {
 		super(obj);
 	}
 
-	@Override
-	public void delete() {
-		final AbstractLibrary owningLibrary = getTLModelObj().getOwningLibrary();
-		if (owningLibrary != null) {
-			owningLibrary.removeNamedMember(getTLModelObj());
-		}
-	}
+	// @Override
+	// public void delete() {
+	// final AbstractLibrary owningLibrary = getTLModelObj().getOwningLibrary();
+	// if (owningLibrary != null) {
+	// owningLibrary.removeNamedMember(getTLModelObj());
+	// }
+	// }
 
 	@Override
 	public List<?> getChildren() {
@@ -81,10 +75,10 @@ public class ExtensionPointFacetMO extends ModelObject<TLExtensionPointFacet> {
 		return srcObj;
 	}
 
-	@Override
-	public NamedEntity getTLBase() {
-		return srcObj.getExtension() != null ? srcObj.getExtension().getExtendsEntity() : null;
-	}
+	// @Override
+	// public NamedEntity getTLBase() {
+	// return srcObj.getExtension() != null ? srcObj.getExtension().getExtendsEntity() : null;
+	// }
 
 	// @Override
 	// public boolean isComplexAssignable() {
@@ -92,13 +86,13 @@ public class ExtensionPointFacetMO extends ModelObject<TLExtensionPointFacet> {
 	// }
 
 	/**
-	 * Model will force a core used as page1 to use the page1 facet.
+	 * // * Model will force a core used as page1 to use the page1 facet. //
 	 */
-	// FIXME - prevents inclusion in tree view but need to understand why first.
-	@Override
-	public boolean isSimpleAssignable() {
-		return false;
-	}
+	// // FIXME - prevents inclusion in tree view but need to understand why first.
+	// @Override
+	// public boolean isSimpleAssignable() {
+	// return false;
+	// }
 
 	// /**
 	// * Is this extension point extended by <i>extension</i>?
@@ -134,31 +128,32 @@ public class ExtensionPointFacetMO extends ModelObject<TLExtensionPointFacet> {
 	// return extendsTypeName;
 	// }
 
-	@Override
-	public String getExtendsTypeNS() {
-		TLExtension tlExtension = getTLModelObj().getExtension();
-		// for EPF not extending anything tlExtension.getExtendsEntity() is null.
-		return tlExtension != null && tlExtension.getExtendsEntity() != null ? tlExtension.getExtendsEntity()
-				.getNamespace() : "";
-	}
+	// @Override
+	// public String getExtendsTypeNS() {
+	// TLExtension tlExtension = getTLModelObj().getExtension();
+	// // for EPF not extending anything tlExtension.getExtendsEntity() is null.
+	// return tlExtension != null && tlExtension.getExtendsEntity() != null ? tlExtension.getExtendsEntity()
+	// .getNamespace() : "";
+	// }
 
-	/**
-	 * @see org.opentravel.schemas.modelObject.ModelObject#setExtendsType(org.opentravel.schemas.modelObject.ModelObject)
-	 */
-	@Override
-	public void setExtendsType(ModelObject<?> mo) {
-		if (mo == null) {
-			getTLModelObj().setExtension(null);
-		} else {
-			TLExtension tlExtension = getTLModelObj().getExtension();
-
-			if (tlExtension == null) {
-				tlExtension = new TLExtension();
-				getTLModelObj().setExtension(tlExtension);
-			}
-			tlExtension.setExtendsEntity((NamedEntity) mo.getTLModelObj());
-		}
-	}
+	// /**
+	// * @see
+	// org.opentravel.schemas.modelObject.ModelObject#setExtendsType(org.opentravel.schemas.modelObject.ModelObject)
+	// */
+	// @Override
+	// public void setExtendsType(ModelObject<?> mo) {
+	// if (mo == null) {
+	// getTLModelObj().setExtension(null);
+	// } else {
+	// TLExtension tlExtension = getTLModelObj().getExtension();
+	//
+	// if (tlExtension == null) {
+	// tlExtension = new TLExtension();
+	// getTLModelObj().setExtension(tlExtension);
+	// }
+	// tlExtension.setExtendsEntity((NamedEntity) mo.getTLModelObj());
+	// }
+	// }
 
 	// @Override
 	// protected AbstractLibrary getLibrary(TLExtensionPointFacet obj) {
@@ -172,17 +167,17 @@ public class ExtensionPointFacetMO extends ModelObject<TLExtensionPointFacet> {
 	// return true;
 	// }
 
-	@Override
-	public boolean addChild(TLModelElement child) {
-		if (child instanceof TLProperty) {
-			getTLModelObj().addElement((TLProperty) child);
-		} else if (child instanceof TLAttribute) {
-			getTLModelObj().addAttribute((TLAttribute) child);
-		} else if (child instanceof TLIndicator) {
-			getTLModelObj().addIndicator((TLIndicator) child);
-		} else
-			return false;
-		return true;
-	}
+	// @Override
+	// public boolean addChild(TLModelElement child) {
+	// if (child instanceof TLProperty) {
+	// getTLModelObj().addElement((TLProperty) child);
+	// } else if (child instanceof TLAttribute) {
+	// getTLModelObj().addAttribute((TLAttribute) child);
+	// } else if (child instanceof TLIndicator) {
+	// getTLModelObj().addIndicator((TLIndicator) child);
+	// } else
+	// return false;
+	// return true;
+	// }
 
 }

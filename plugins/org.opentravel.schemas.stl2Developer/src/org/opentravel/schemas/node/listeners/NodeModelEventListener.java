@@ -36,9 +36,13 @@ import org.opentravel.schemas.types.TypeUser;
  * @author Dave Hollander
  *
  */
-public class NodeModelEventListener implements
+public class NodeModelEventListener extends BaseNodeListener implements
 		ModelEventListener<OwnershipEvent<TLResource, TLModelElement>, TLResource> {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(NodeModelEventListener.class);
+
+	public NodeModelEventListener(Node node) {
+		super(node);
+	}
 
 	@Override
 	public void processModelEvent(OwnershipEvent<TLResource, TLModelElement> event) {
@@ -88,10 +92,12 @@ public class NodeModelEventListener implements
 			// Triggered by NodeVisitor.DeleteVisitor()
 			// Remove the property type user from its assigned type where assigned list and handlers.
 			TypeUser user = getTypeUserFromEvent(event.getAffectedItem());
-			TypeProvider type = user.getAssignedType();
-			if (type != null) {
-				type.removeTypeUser(user);
-				// LOGGER.debug("Property Removed type assignment: " + type + " from " + user);
+			if (user != null) {
+				TypeProvider type = user.getAssignedType();
+				if (type != null) {
+					type.removeTypeUser(user);
+					// LOGGER.debug("Property Removed type assignment: " + type + " from " + user);
+				}
 			}
 			break;
 		case CONTEXT_ADDED:

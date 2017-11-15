@@ -15,12 +15,6 @@
  */
 package org.opentravel.schemas.modelObject;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLExtension;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,20 +31,20 @@ public class OperationMO extends ModelObject<TLOperation> {
 		super(obj);
 	}
 
-	@Override
-	public void delete() {
-		if (getTLModelObj().getOwningService() != null)
-			getTLModelObj().getOwningService().removeOperation(this.getTLModelObj());
-	}
+	// @Override
+	// public void delete() {
+	// if (getTLModelObj().getOwningService() != null)
+	// getTLModelObj().getOwningService().removeOperation(this.getTLModelObj());
+	// }
 
-	@Override
-	public List<?> getChildren() {
-		final List<TLModelElement> kids = new ArrayList<TLModelElement>();
-		kids.add(getTLModelObj().getRequest());
-		kids.add(getTLModelObj().getResponse());
-		kids.add(getTLModelObj().getNotification());
-		return kids;
-	}
+	// @Override
+	// public List<?> getChildren() {
+	// final List<TLModelElement> kids = new ArrayList<TLModelElement>();
+	// kids.add(getTLModelObj().getRequest());
+	// kids.add(getTLModelObj().getResponse());
+	// kids.add(getTLModelObj().getNotification());
+	// return kids;
+	// }
 
 	// @Override
 	// public String getComponentType() {
@@ -109,29 +103,30 @@ public class OperationMO extends ModelObject<TLOperation> {
 	// return extendsTypeName;
 	// }
 
-	@Override
-	public String getExtendsTypeNS() {
-		TLExtension tlExtension = getTLModelObj().getExtension();
-		return tlExtension != null ? tlExtension.getExtendsEntity().getNamespace() : "";
-	}
+	// @Override
+	// public String getExtendsTypeNS() {
+	// TLExtension tlExtension = getTLModelObj().getExtension();
+	// return tlExtension != null ? tlExtension.getExtendsEntity().getNamespace() : "";
+	// }
 
-	/**
-	 * @see org.opentravel.schemas.modelObject.ModelObject#setExtendsType(org.opentravel.schemas.modelObject.ModelObject)
-	 */
-	@Override
-	public void setExtendsType(ModelObject<?> mo) {
-		if (mo == null) {
-			getTLModelObj().setExtension(null);
-
-		} else {
-			TLExtension tlExtension = getTLModelObj().getExtension();
-
-			if (tlExtension == null) {
-				tlExtension = new TLExtension();
-				getTLModelObj().setExtension(tlExtension);
-			}
-			tlExtension.setExtendsEntity((NamedEntity) mo.getTLModelObj());
-		}
-	}
+	// /**
+	// * @see
+	// org.opentravel.schemas.modelObject.ModelObject#setExtendsType(org.opentravel.schemas.modelObject.ModelObject)
+	// */
+	// @Override
+	// public void setExtendsType(ModelObject<?> mo) {
+	// if (mo == null) {
+	// getTLModelObj().setExtension(null);
+	//
+	// } else {
+	// TLExtension tlExtension = getTLModelObj().getExtension();
+	//
+	// if (tlExtension == null) {
+	// tlExtension = new TLExtension();
+	// getTLModelObj().setExtension(tlExtension);
+	// }
+	// tlExtension.setExtendsEntity((NamedEntity) mo.getTLModelObj());
+	// }
+	// }
 
 }

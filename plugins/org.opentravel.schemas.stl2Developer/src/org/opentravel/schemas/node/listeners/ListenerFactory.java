@@ -20,7 +20,6 @@ import java.util.Collection;
 
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
@@ -45,22 +44,20 @@ public class ListenerFactory {
 	 * @param node
 	 *            - node to identify
 	 */
-	public static void setListner(Node node) {
-		// clearListners(node);
+	public static void setIdentityListner(Node node) {
+		setIdentityListner(node, node.getTLModelObject());
+	}
 
-		if (node.getTLModelObject() == null)
+	public static void setIdentityListner(Node node, TLModelElement tlObj) {
+		if (node == null || tlObj == null)
 			return;
-		if (node instanceof ModelNode) {
-			((ModelNode) node).addListeners();
-			return;
-		}
 
 		// Get listener from node delegated methods.
 		BaseNodeListener listener = node.getNewListener();
 
 		// Assign if there is not already one assigned
-		if (listener != null && Node.GetNode(node.getTLModelObject()) == null)
-			node.getTLModelObject().addListener(listener);
+		if (listener != null && Node.GetNode(tlObj) == null)
+			tlObj.addListener(listener);
 	}
 
 	/**

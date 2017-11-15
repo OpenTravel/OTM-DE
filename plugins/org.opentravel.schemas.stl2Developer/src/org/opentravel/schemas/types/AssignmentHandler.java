@@ -27,9 +27,9 @@ import org.opentravel.schemas.node.Node;
  */
 public interface AssignmentHandler<T> {
 
-	public TLModelElement getTLModelElement();
+	public TLModelElement getAssignedTLModelElement();
 
-	public NamedEntity getTLNamedEntity();
+	public NamedEntity getTLAssignedNamedEntity();
 
 	public T get();
 

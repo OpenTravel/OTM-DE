@@ -20,12 +20,14 @@ package org.opentravel.schemas.node;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLAttributeType;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLSimple;
-import org.opentravel.schemas.modelObject.SimpleMO;
+import org.opentravel.schemas.node.handlers.ConstraintHandler;
+import org.opentravel.schemas.node.handlers.EqExOneValueHandler;
+import org.opentravel.schemas.node.handlers.EqExOneValueHandler.ValueWithContextType;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
-import org.opentravel.schemas.node.properties.EqExOneValueHandler;
-import org.opentravel.schemas.node.properties.EqExOneValueHandler.ValueWithContextType;
 import org.opentravel.schemas.node.properties.IValueWithContextHandler;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
@@ -35,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Handles simple types and is extended by closed enumerations.
+ * Handles simple types (TLSimple).
  * 
  * @author Dave Hollander
  * 
@@ -52,57 +54,16 @@ public class SimpleTypeNode extends SimpleComponentNode implements SimpleCompone
 		super(mbr);
 		typeHandler = new TypeUserHandler(this);
 		constraintHandler = new ConstraintHandler((TLSimple) getTLModelObject(), this);
+		// this.tlObj = mbr;
+		// ListenerFactory.setListner(this);
 
 		assert (getTLModelObject() != null);
-		assert (modelObject instanceof SimpleMO);
-	}
-
-	public boolean isSimpleList() {
-		return getTLModelObject().isListTypeInd();
-	}
-
-	public void setList(final boolean selected) {
-		getTLModelObject().setPattern("");
-		getTLModelObject().setListTypeInd(selected);
-	}
-
-	// // Do not show implied types in tree views
-	// private Node getNavType() {
-	// Node type = getTypeNode();
-	// return type instanceof ImpliedNode ? null : type;
-	// }
-
-	@Override
-	public Image getImage() {
-		return Images.getImageRegistry().get(Images.XSDSimpleType);
+		// assert (modelObject instanceof SimpleMO);
 	}
 
 	@Override
-	public NamedEntity getTLOjbect() {
-		return (NamedEntity) modelObject.getTLModelObj();
-	}
-
-	@Override
-	public String getName() {
-		return getTLModelObject() == null || getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
-	}
-
-	@Override
-	public void setName(String name) {
-		getTLModelObject().setName(NodeNameUtils.fixSimpleTypeName(this, name));
-	}
-
-	// Type User handler will resolve to xsd node as needed.
-	@Override
-	public TLSimple getTLModelObject() {
-		return (TLSimple) (modelObject != null ? modelObject.getTLModelObj() : null);
-	}
-
-	/**
-	 * @return equivalent handler if property has equivalents, null otherwise
-	 */
-	public IValueWithContextHandler getEquivalentHandler() {
-		return equivalentHandler;
+	public NamedEntity getAssignedTLNamedEntity() {
+		return getTLModelObject() != null ? getTLModelObject().getParentType() : null;
 	}
 
 	@Override
@@ -117,11 +78,34 @@ public class SimpleTypeNode extends SimpleComponentNode implements SimpleCompone
 		return equivalentHandler != null ? equivalentHandler.get(context) : "";
 	}
 
-	public IValueWithContextHandler setEquivalent(String equivalent) {
-		if (equivalentHandler == null)
-			equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
-		equivalentHandler.set(equivalent, null);
+	// // Do not show implied types in tree views
+	// private Node getNavType() {
+	// Node type = getTypeNode();
+	// return type instanceof ImpliedNode ? null : type;
+	// }
+
+	/**
+	 * @return equivalent handler if property has equivalents, null otherwise
+	 */
+	public IValueWithContextHandler getEquivalentHandler() {
 		return equivalentHandler;
+	}
+
+	// @Override
+	// public NamedEntity getTLOjbect() {
+	// return (NamedEntity) modelObject.getTLModelObj();
+	// }
+
+	@Override
+	public String getAssignedPrefix() {
+		return getXsdObjectHandler() != null ? getXsdObjectHandler().getAssignedPrefix() : getLibrary().getPrefix();
+	}
+
+	@Override
+	public String getExample(String context) {
+		if (exampleHandler == null)
+			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
+		return exampleHandler != null ? exampleHandler.get(context) : "";
 	}
 
 	/**
@@ -132,10 +116,37 @@ public class SimpleTypeNode extends SimpleComponentNode implements SimpleCompone
 	}
 
 	@Override
-	public String getExample(String context) {
-		if (exampleHandler == null)
-			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
-		return exampleHandler != null ? exampleHandler.get(context) : "";
+	public Image getImage() {
+		return Images.getImageRegistry().get(Images.XSDSimpleType);
+	}
+
+	@Override
+	public String getName() {
+		return getTLModelObject() == null || getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
+	}
+
+	// Type User handler will resolve to xsd node as needed.
+	@Override
+	public TLSimple getTLModelObject() {
+
+		return (TLSimple) tlObj;
+		// return (TLSimple) (modelObject != null ? modelObject.getTLModelObj() : null);
+	}
+
+	@Override
+	public boolean isSimpleAssignable() {
+		return true;
+	}
+
+	public boolean isSimpleList() {
+		return getTLModelObject().isListTypeInd();
+	}
+
+	public IValueWithContextHandler setEquivalent(String equivalent) {
+		if (equivalentHandler == null)
+			equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
+		equivalentHandler.set(equivalent, null);
+		return equivalentHandler;
 	}
 
 	public IValueWithContextHandler setExample(String example) {
@@ -143,6 +154,25 @@ public class SimpleTypeNode extends SimpleComponentNode implements SimpleCompone
 			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
 		exampleHandler.set(example, null);
 		return exampleHandler;
+	}
+
+	public void setList(final boolean selected) {
+		getTLModelObject().setPattern("");
+		getTLModelObject().setListTypeInd(selected);
+	}
+
+	@Override
+	public boolean setAssignedType(TLModelElement tla) {
+		if (tla == getTLModelObject().getParentType())
+			return false;
+		if (tla instanceof TLAttributeType)
+			getTLModelObject().setParentType((TLAttributeType) tla);
+		return getTLModelObject().getParentType() == tla;
+	}
+
+	@Override
+	public void setName(String name) {
+		getTLModelObject().setName(NodeNameUtils.fixSimpleTypeName(this, name));
 	}
 
 }

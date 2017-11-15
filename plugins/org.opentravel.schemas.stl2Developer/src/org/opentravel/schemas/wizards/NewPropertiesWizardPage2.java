@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.opentravel.schemas.modelObject.ModelObject;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
@@ -267,7 +267,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 				if (index > 0) {
 					getNewProperties().remove(index--);
 					getNewProperties().add(index, selected);
-					selected.moveProperty(PropertyNode.UP);
+					selected.moveUp();
 					propertyTree.refresh();
 					selectInList(selected);
 				}
@@ -281,7 +281,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 				if (index < getNewProperties().size() - 1) {
 					getNewProperties().remove(index++);
 					getNewProperties().add(index, selected);
-					selected.moveProperty(PropertyNode.DOWN);
+					selected.moveDown();
 					propertyTree.refresh();
 					selectInList(selected);
 				}
@@ -386,7 +386,8 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 			setMessage(o.getPropertyType().getName() + "s are not allowed for this object", WARNING);
 			return null;
 		}
-		final PropertyNode copy = (PropertyNode) NodeFactory.newMember((INode) owningFacet, o.cloneTLObj());
+		final PropertyNode copy = (PropertyNode) NodeFactory.newChild((INode) owningFacet,
+				(TLModelElement) o.cloneTLObj());
 		copy.setAssignedType((TypeProvider) o.getType());
 		getNewProperties().add(copy);
 		return copy;
@@ -517,9 +518,13 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 		final PropertyNode selectedNode = getSelectedNode();
 		if (selectedNode != null) {
 			nameText.setText(selectedNode.getName());
-			final ModelObject<?> modelObject = selectedNode.getModelObject();
-			typeText.setText(modelObject == null || modelObject.getTLType() == null ? "" : modelObject.getTLType()
-					.getLocalName());
+
+			if (selectedNode.getAssignedTLNamedEntity() != null)
+				typeText.setText(selectedNode.getAssignedTLNamedEntity().getLocalName());
+			// final ModelObject<?> modelObject = selectedNode.getModelObject();
+			// typeText.setText(modelObject == null || modelObject.getTLType() == null ? "" : modelObject.getTLType()
+			// .getLocalName());
+
 			descriptionText.setText(selectedNode.getDescription());
 			final int index = enabledPropertyTypes.indexOf(selectedNode.getPropertyType());
 			if (index >= 0) {
