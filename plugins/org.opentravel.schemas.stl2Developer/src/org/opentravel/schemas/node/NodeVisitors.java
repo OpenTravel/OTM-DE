@@ -17,6 +17,9 @@ package org.opentravel.schemas.node;
 
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.handlers.children.CachingChildrenHandler;
+import org.opentravel.schemas.node.handlers.children.ChildrenHandlerI;
+import org.opentravel.schemas.node.handlers.children.StaticChildrenHandler;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -127,8 +130,15 @@ public class NodeVisitors {
 
 			// Unlink from tree
 			node.deleted = true;
-			if (node.getParent() != null && node.getParent().getChildrenHandler() != null)
-				node.getParent().getChildrenHandler().clear();
+			ChildrenHandlerI<?> handler;
+			if (node.getParent() != null && node.getParent().getChildrenHandler() != null) {
+				// FIXME - delegate so all handlers have method for this purpose
+				handler = node.getParent().getChildrenHandler();
+				if (handler instanceof CachingChildrenHandler<?, ?>)
+					handler.clear();
+				else if (handler instanceof StaticChildrenHandler<?, ?>)
+					((StaticChildrenHandler<Node, ?>) handler).remove(node);
+			}
 			// node.getParent().remove(node); // FIXME - use childrenHandler.clear()
 			// else
 			// LOGGER.warn("Warning, tried to delete " + node + " with no parent--skipped remove().");

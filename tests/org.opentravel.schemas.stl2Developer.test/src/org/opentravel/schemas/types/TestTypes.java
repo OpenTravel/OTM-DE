@@ -31,6 +31,7 @@ import org.opentravel.schemacompiler.codegen.example.ExampleBuilder;
 import org.opentravel.schemacompiler.codegen.example.ExampleDocumentBuilder;
 import org.opentravel.schemacompiler.codegen.example.ExampleGeneratorOptions;
 import org.opentravel.schemacompiler.event.ModelElementListener;
+import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLCoreObject;
@@ -40,12 +41,10 @@ import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.validate.FindingType;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
-import org.opentravel.schemas.modelObject.ListFacetMO;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
-import org.opentravel.schemas.node.LibraryTests;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
@@ -55,12 +54,14 @@ import org.opentravel.schemas.node.SimpleComponentNode;
 import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.NodeIdentityListener;
 import org.opentravel.schemas.node.properties.AttributeNode;
+import org.opentravel.schemas.node.properties.AttributeReferenceNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -83,10 +84,11 @@ import org.w3c.dom.Document;
 public class TestTypes extends BaseProjectTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TestTypes.class);
 
-	NodeTesters nt = new NodeTesters();
+	// NodeTesters nt = new NodeTesters();
+	// Library_FunctionTests lt = new Library_FunctionTests();
 	LoadFiles lf = new LoadFiles();
-	LibraryTests lt = new LibraryTests();
-	MockLibrary ml = null;
+	MockLibrary ml = new MockLibrary();
+	String NS = "http://example.com/test";
 	LibraryNode ln = null;
 	ProjectNode defaultProject;
 	int nodeCount;
@@ -97,12 +99,47 @@ public class TestTypes extends BaseProjectTest {
 	// DefaultProjectController pc;
 
 	@Before
-	public void beforeAllTests() {
+	public void beforeAllTests() throws Exception {
 		LOGGER.debug("Initializing Test Setup.");
-		// mc = new MainController();
-		ml = new MockLibrary();
-		// pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
+	}
+
+	@Test
+	public void TT_referencePropertiesTests() {
+		// Given - a library and 2 business objects
+		ln = ml.createNewLibrary("http://opentravel.org/test", "test", defaultProject);
+		ln.setEditable(true);
+		BusinessObjectNode bor = new BusinessObjectNode(new TLBusinessObject());
+		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
+		assertTrue(ln != null);
+		assertTrue(bo != null);
+		assertTrue(bor != null);
+
+		// When - create attribute reference to the BO
+		AttributeReferenceNode arn = new AttributeReferenceNode(bo.getFacet_Summary(), bor);
+		// Then
+		assertTrue(arn.getAssignedType() == bor);
+
+		// When - create element reference to the BO
+		ElementReferenceNode ern = new ElementReferenceNode(bo.getFacet_Summary(), bor);
+		assertTrue(ern.getAssignedType() == bor);
+
+		// When - assigned to a core object
+		CoreObjectNode co = ml.addCoreObjectToLibrary(ln, "Tc");
+		arn.setAssignedType(co);
+		ern.setAssignedType(co);
+		// The - assignment worked
+		assertTrue(arn.getAssignedType() == co);
+		assertTrue(ern.getAssignedType() == co);
+
+		ml.check(ln);
+
+		// When - references cleared
+		arn.setAssignedType();
+		ern.setAssignedType();
+		// The - assignment worked
+		assertTrue(arn.getAssignedType() == ModelNode.getUnassignedNode());
+		assertTrue(ern.getAssignedType() == ModelNode.getUnassignedNode());
 	}
 
 	/**
@@ -117,6 +154,7 @@ public class TestTypes extends BaseProjectTest {
 		TypeProvider unAssigned = ModelNode.getUnassignedNode();
 		int wuc = unAssigned.getWhereUsedAndDescendantsCount();
 
+		// Given - an unused, new VWA
 		VWA_Node vwa = new VWA_Node(new TLValueWithAttributes());
 		vwa.setName("Vwa_Provider1");
 		assert vwa.getWhereUsedAndDescendantsCount() == 0;
@@ -125,15 +163,19 @@ public class TestTypes extends BaseProjectTest {
 		ElementNode e1 = new ElementNode(bo.getFacet_Summary(), "E1");
 		wuc = unAssigned.getWhereUsedAndDescendantsCount();
 		int listeners = e1.getTLModelObject().getListeners().size();
+		// When - vwa assigned as type
 		e1.setAssignedType(vwa);
-		assert vwa.getWhereUsedAndDescendantsCount() == 1;
-		assert listeners == e1.getTLModelObject().getListeners().size(); // should be equal
+		// Then
+		assertTrue("VWA where used count must = 1", vwa.getWhereUsedAndDescendantsCount() == 1);
+		// Then - the where assigned listener existed for "unassigned".
+		assertTrue("Element must not have new listener.", listeners == e1.getTLModelObject().getListeners().size()); // should
+																														// be
+		// TODO - test library where used (must add vwa and bo to lib first.
 
-		ElementNode e2 = new ElementNode(bo.getFacet_Summary(), "E2");
-		e2.setAssignedType(vwa);
+		ElementNode e2 = new ElementNode(bo.getFacet_Summary(), "E2", vwa);
 		assert vwa.getWhereUsedAndDescendantsCount() == 2;
 		int afterWuc = unAssigned.getWhereUsedAndDescendantsCount();
-		// wuc inlcudes e1, after should not inlcude either e1 or e2
+		// wuc includes e1, after should not include either e1 or e2
 		assert wuc - 1 == afterWuc; // make sure the 2 new properties were removed from unused count
 
 		// Make sure the listeners are added and removed
@@ -149,6 +191,11 @@ public class TestTypes extends BaseProjectTest {
 		int aTypeCount = aType.getWhereUsedAndDescendantsCount();
 		checkListeners(aType);
 
+		// FIXME - when run alone the count is 0. But when tracing there seemed be elements assigned.
+		// When run as a group, the count is 9 and test fails
+		if (aTypeCount > 1)
+			LOGGER.debug("FIXME: " + aType.getWhereUsedAndDescendantsCount());
+
 		AttributeNode a1 = new AttributeNode(bo.getFacet_Summary(), "a1");
 		a1.setAssignedType(aType);
 		Assert.assertEquals(aType, a1.getAssignedType());
@@ -162,16 +209,16 @@ public class TestTypes extends BaseProjectTest {
 		checkListeners(bType);
 		assert bType.getWhereAssigned().contains(vwa.getFacet_Simple().getSimpleAttribute());
 
-		vwa.setSimpleType(aType);
-		TypeProvider a = vwa.getSimpleType();
+		vwa.setAssignedType(aType);
+		TypeProvider a = vwa.getAssignedType();
 		Assert.assertEquals("VWA Assignment via simple", aType, a);
 		checkListeners(aType);
 		assert aType.getWhereAssigned().contains(vwa.getSimpleAttribute());
 
 		CoreObjectNode core = new CoreObjectNode(new TLCoreObject());
 		core.setName("Core1");
-		core.setSimpleType(aType);
-		assert core.getSimpleType() == aType;
+		core.setAssignedType(aType);
+		assert core.getAssignedType() == aType;
 		checkListeners(aType);
 		assert aType.getWhereAssigned().contains(core.getSimpleAttribute());
 
@@ -231,6 +278,11 @@ public class TestTypes extends BaseProjectTest {
 	 */
 	@Test
 	public void listenerTest() {
+		// Assure Built-in library is modeled correctly.
+		LibraryNode builtIn = ml.getBuiltInLibrary(true);
+		assertTrue(builtIn != null);
+		assertTrue(builtIn == Node.GetNode(builtIn.getTLModelObject()));
+
 		// Given - 2 libraries - one not in a chain and an editable library chain
 		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
 		LibraryNode ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
@@ -243,6 +295,8 @@ public class TestTypes extends BaseProjectTest {
 		TLModelElement tlType1 = type1.getTLModelObject();
 		assertNotNull(tlType1);
 		assertTrue(tlType1 instanceof TLAttributeType);
+		assertTrue(type1 == Node.GetNode(tlType1));
+
 		TypeProvider type2 = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		Node type3 = NodeFinders.findNodeByName("decimal", ModelNode.XSD_NAMESPACE);
 		assertNotNull(type2);
@@ -256,7 +310,8 @@ public class TestTypes extends BaseProjectTest {
 		// Given - simple type in library chain
 		SimpleTypeNode v2 = ml.addSimpleTypeToLibrary(ln_inChain, "s2");
 		assertNotNull(v2);
-		// Then - make sure the have one and only one identity listener
+
+		// Then - make sure they have one and only one identity listener
 		assertEquals(1, getIdentityListenerCount(s2));
 		assertEquals(1, getIdentityListenerCount(s1));
 		assertEquals(1, getIdentityListenerCount(v2));
@@ -271,6 +326,8 @@ public class TestTypes extends BaseProjectTest {
 		// When - type assigned
 		s2.setAssignedType(type1);
 		// Then - assignment worked
+		NamedEntity tlAt2 = s2.getAssignedTLNamedEntity();
+		TypeProvider at2 = s2.getAssignedType();
 		assertEquals(type1, s2.getAssignedType());
 
 		// When - type assigned
@@ -292,7 +349,7 @@ public class TestTypes extends BaseProjectTest {
 		assertEquals(1, getIdentityListenerCount(vwa));
 		assertEquals(1, getIdentityListenerCount(vwa.getFacet_Simple()));
 		// Given - an attribute of the vwa
-		AttributeNode attr = (AttributeNode) vwa.getAttributeFacet().getChildren().get(0);
+		AttributeNode attr = (AttributeNode) vwa.getFacet_Attributes().getChildren().get(0);
 		assertNotNull(attr);
 		assertEquals(1, getIdentityListenerCount(attr));
 		// When - attribute assigned a type
@@ -307,10 +364,10 @@ public class TestTypes extends BaseProjectTest {
 		// When - type assigned to simple facet of a core object
 		core.getFacet_Simple().getSimpleAttribute().setAssignedType(s1);
 		// Then - assignment worked
-		assertEquals(s1, core.getSimpleType());
-		core.setSimpleType(s2);
+		assertEquals(s1, core.getAssignedType());
+		core.setAssignedType(s2);
 		// Then - assignment worked
-		assertEquals(s2, core.getSimpleType());
+		assertEquals(s2, core.getAssignedType());
 		assertEquals(1, getIdentityListenerCount(core.getFacet_Simple()));
 		// When - type assigned to a property of the core summary facet
 		PropertyNode p1 = (PropertyNode) core.getFacet_Summary().getChildren().get(0);
@@ -339,7 +396,7 @@ public class TestTypes extends BaseProjectTest {
 		p1.setAssignedType(a1);
 		assertEquals(a1, p1.getAssignedType());
 
-		ElementReferenceNode newProp = new ElementReferenceNode(bo.getFacet_Summary(), "TestSum");
+		ElementReferenceNode newProp = new ElementReferenceNode(bo.getFacet_Summary());
 		newProp.setAssignedType(bo);
 
 		// TODO - add Tests known bad assignments
@@ -349,15 +406,11 @@ public class TestTypes extends BaseProjectTest {
 	}
 
 	@Test
-	public void checkTypes() throws Exception {
-		// String NS = "http://opentravel.org/local/dave";
-		// defaultProject.setNamespace(NS);
+	public void checkTypes_loadedFiles() throws Exception {
 
-		// lf.loadFile2(mc);
-		// lf.loadFile4(mc);
-
-		ln = lf.loadFile5(mc);
+		ln = lf.loadFile5Clean(mc);
 		lf.loadFile1(mc);
+		ml.check(ln);
 
 		for (Node n : Node.getAllUserLibraries()) {
 			visitAllNodes(n);
@@ -372,18 +425,18 @@ public class TestTypes extends BaseProjectTest {
 
 		for (Node n : Node.getAllLibraries()) {
 			visitAllNodes(n);
+			ml.check(n, false);
 		}
 		LOGGER.debug("End checkTypes test.");
 	}
 
 	@Test
 	public void testsetAssignedTypeForThisNode() {
-		String ns = "http://example.com/test";
 		boolean ret = false;
 		Node prop;
 		LOGGER.debug("TEST being run -- testsetAssignedTypeForThisNode");
 
-		ln = ml.createNewLibrary(ns, "LIB", pc.getDefaultProject());
+		ln = ml.createNewLibrary(NS, "LIB", pc.getDefaultProject());
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "BO");
 
 		// FIXME
@@ -417,7 +470,7 @@ public class TestTypes extends BaseProjectTest {
 	}
 
 	// FIXME
-	// @Test
+	@Test
 	public void typeResolver_ImportUseCase() throws LibrarySaveException {
 		// Import clones TL objects into a new library then runs the resolver.
 
@@ -426,12 +479,14 @@ public class TestTypes extends BaseProjectTest {
 				new Version(1, 0, 0)).build(defaultProject, pc);
 		TypeProvider type1 = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
 		assertNotNull(type1);
-		SimpleTypeNode simple = ComponentNodeBuilder.createSimpleObject("simple").assignType((Node) type1)
-				.get(moveFrom);
+		SimpleTypeNode simple = ml.addSimpleTypeToLibrary(moveFrom, "simple1");
+		simple.setAssignedType(type1);
 		CoreObjectNode coBase = ComponentNodeBuilder.createCoreObject("COBase").get(moveFrom);
 		CoreObjectNode coExt = ComponentNodeBuilder.createCoreObject("COExt").extend(coBase).get(moveFrom);
 		assertTrue(coExt.isInstanceOf(coBase));
-		coBase.setSimpleType(simple);
+		// Given - Set type on base core and 2 properties on summary facet
+		coBase.setAssignedType(simple);
+		assertTrue(coBase.getAssignedType() == simple);
 		ElementNode e1 = new ElementNode(coBase.getFacet_Summary(), "E1", simple);
 		ElementNode e2 = new ElementNode(coExt.getFacet_Summary(), "E2", simple);
 		assertTrue(simple.getWhereAssignedCount() == 3);
@@ -643,7 +698,7 @@ public class TestTypes extends BaseProjectTest {
 				Assert.assertFalse(type.getName().isEmpty());
 				if (((Node) type).getNamespace().isEmpty())
 					LOGGER.warn("Namespace is empty for " + type + " assigned to " + cn);
-				if (!(((Node) type).getModelObject() instanceof ListFacetMO))
+				if (!(type instanceof ListFacetNode))
 					Assert.assertFalse(cn.getType().getNamespace().isEmpty());
 			}
 		}

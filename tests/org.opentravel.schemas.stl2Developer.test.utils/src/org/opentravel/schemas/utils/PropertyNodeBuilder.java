@@ -18,6 +18,7 @@ package org.opentravel.schemas.utils;
 import org.opentravel.schemacompiler.ic.TypeNameIntegrityChecker;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLDocumentation;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
@@ -44,7 +45,7 @@ public class PropertyNodeBuilder {
 
 	public static PropertyNodeBuilder create(PropertyNodeType elementType) {
 		Object tlObject = creatTLObject(elementType);
-		ComponentNode newComponentMember = NodeFactory.newMember(null, tlObject);
+		ComponentNode newComponentMember = NodeFactory.newChild(null, (TLModelElement) tlObject);
 		if (newComponentMember instanceof PropertyNode) {
 			return new PropertyNodeBuilder((PropertyNode) newComponentMember);
 		} else {

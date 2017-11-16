@@ -5,9 +5,9 @@
     
     <VersionScheme>OTA2</VersionScheme>
     <Status>Draft</Status>
-    <Namespace>http://www.sabre.com/ns/OTA2/Demo/Profile5/v1_0</Namespace>
+    <Namespace>http://www.opentravel.org/ns/OTA2/Demo/Profile5/v1_0</Namespace>
     <Prefix>t5</Prefix>
-    <Name>Test5</Name>
+    <Name>Test5c</Name>
     <Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
     <Import fileHints="otm://Opentravel/OTA_SimpleTypes_0_0_0.otm"
         namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
@@ -49,7 +49,7 @@
     
     <ValueWithAttrs name="Amount" type="xsd:integer">
         <Example context="Profile">2345.56</Example>
-        <Attribute name="currencyCode" type="ota2:Code_ISO_Currency">
+        <Attribute name="currencyCode" type="xsd:string">
             <Documentation>
                 <Description>soo</Description>
             </Documentation>
@@ -190,7 +190,7 @@
             <Description>Amount of the payment.</Description>
         </Documentation>
         <Example context="Profile">23.56</Example>
-        <Attribute name="tax" type="ota2:Money">
+        <Attribute name="tax" type="xsd:decimal">
             <Documentation>
                 <Description>Tax portion of the payment amount.</Description>
             </Documentation>
@@ -224,14 +224,14 @@
             <Element mandatory="true" name="CityCode" repeat="0" type="String_Short">
                 <Example context="Profile">555</Example>
             </Element>
-            <Element mandatory="true" name="Exchange" repeat="0" type="ota2:String_Short">
+            <Element mandatory="true" name="Exchange" repeat="0" type="String_Short">
                 <Example context="Profile">1212</Example>
             </Element>
         </Summary>
         <Detail>
             <Element name="Usage" repeat="0" type="Usage"/>
             <Element name="ServiceLoc" repeat="0" type="Location"/>
-            <Element mandatory="true" name="Remarks" repeat="5" type="ota2:String_Long">
+            <Element mandatory="true" name="Remarks" repeat="5" type="xsd:string">
                 <Example context="Profile">Do not call after 5pm Pacific</Example>
             </Element>
         </Detail>
@@ -295,15 +295,15 @@
         </Documentation>
         <Equivalent context="Profile">Location.POS</Equivalent>
         <Example context="Profile">Example of VWA Value</Example>
-        <Attribute name="country" type="ota2:Code_ISO_Country">
+        <Attribute name="country" type="xsd:string">
             <Equivalent context="Profile">country</Equivalent>
             <Example context="Profile">USA</Example>
         </Attribute>
-        <Attribute name="province" type="ota2:Code_State">
+        <Attribute name="province" type="xsd:string">
             <Equivalent context="Profile">province</Equivalent>
             <Example context="Profile">CA</Example>
         </Attribute>
-        <Attribute name="city" type="ota2:Code_IATA_City">
+        <Attribute name="city" type="xsd:string">
             <Example context="Profile">Den</Example>
         </Attribute>
         <Attribute name="number" type="xsd:int">
@@ -321,7 +321,7 @@
         </Documentation>
         <Aliases/>
         <ID>
-            <Attribute name="pcc" type="ota2:Code_PseudoCity">
+            <Attribute name="pcc" type="xsd:string">
                 <Documentation>
                     <Description>Psuedo is either Agency PCC or Agent AAA. Required for most sources, unless MultiHost code is provided.</Description>
                 </Documentation>
@@ -330,7 +330,7 @@
             </Attribute>
         </ID>
         <Summary>
-            <Attribute name="company" type="ota2:String_Tiny">
+            <Attribute name="company" type="xsd:string">
                 <Documentation>
                     <Description>The IATA assigned code for the Agency or Airine</Description>
                 </Documentation>
@@ -339,7 +339,7 @@
             </Attribute>
         </Summary>
         <Detail>
-            <Attribute name="duty" type="ota2:Code_AgentDuty">
+            <Attribute name="duty" type="xsd:string">
                 <Documentation>
                     <Description>An authority code assigned to a requestor.</Description>
                 </Documentation>
@@ -360,7 +360,7 @@
                 <Equivalent context="Profile">Sine</Equivalent>
                 <Example context="Profile">555</Example>
             </Attribute>
-            <Attribute name="multiHost" type="ota2:Code_IATA_AirlineID">
+            <Attribute name="multiHost" type="xsd:string">
                 <Documentation>
                     <Description>Airline partition for multi-host source locations.</Description>
                 </Documentation>
@@ -422,31 +422,6 @@
         </Detail>
     </BusinessObject>
     
-    <ExtensionPointFacet>
-        <Attribute name="Employment" type="Employment"/>
-        <Attribute name="flight" type="String_Long"/>
-        <Element name="Location" repeat="0" type="Location">
-            <Documentation>
-                <Description>On location VWA</Description>
-            </Documentation>
-        </Element>
-        <Element name="Phone" repeat="0" type="Phone"/>
-        <Element name="Profile" repeat="0" type="Profile"/>
-        <Element name="Tax" repeat="0" type="Tax"/>
-        <Element name="Payment" repeat="0" type="Payment">
-            <Documentation>
-                <Description>Amount of the payment.</Description>
-            </Documentation>
-        </Element>
-        <Element name="Amount" repeat="0" type="Amount"/>
-        <Element name="PaymentCard" repeat="0" type="PaymentCard"/>
-        <Indicator name="Date_MMYYInd" publishAsElement="true">
-            <Documentation>
-                <Description>Added this description and the a-z regex</Description>
-            </Documentation>
-        </Indicator>
-        <Extension extends="ota2:DataPolicy_Detail"/>
-    </ExtensionPointFacet>
     
     <CoreObject name="Flight" notExtendable="true">
         <Aliases/>
@@ -465,7 +440,7 @@
                 </Documentation>
                 <Equivalent context="Profile">DepartureDate</Equivalent>
             </Element>
-            <Element mandatory="true" name="Carrier" repeat="0" type="ota2:Code_IATA_AirlineID">
+            <Element mandatory="true" name="Carrier" repeat="0" type="xsd:string">
                 <Documentation>
                     <Description>The carrier code of the flight associated to the service.  Mapped to: 
                         SR05_42_CXRC</Description>
@@ -473,7 +448,7 @@
                 <Equivalent context="Profile">CarrierCode</Equivalent>
                 <Example context="Profile">WW</Example>
             </Element>
-            <Element mandatory="true" name="ClassOfService" repeat="0" type="ota2:String_Tiny">
+            <Element mandatory="true" name="ClassOfService" repeat="0" type="xsd:string">
                 <Documentation>
                     <Description>The flight class of service associated to the ancillary service.  Mapped to:
                         SR05_42_CLSV</Description>
@@ -481,7 +456,7 @@
                 <Equivalent context="Profile">ClassOfService</Equivalent>
                 <Example context="Profile">F00</Example>
             </Element>
-            <Element mandatory="true" name="DepartureCity" repeat="0" type="ota2:Code_IATA_City">
+            <Element mandatory="true" name="DepartureCity" repeat="0" type="xsd:string">
                 <Documentation>
                     <Description>The origin or depature city code of the flight associated to the service.   Mapped to:
                         SR05_42_DCTY</Description>
@@ -489,7 +464,7 @@
                 <Equivalent context="Profile">DepartureCity</Equivalent>
                 <Example context="Profile">LGA</Example>
             </Element>
-            <Element mandatory="true" name="ArrivalCity" repeat="0" type="ota2:Code_IATA_City">
+            <Element mandatory="true" name="ArrivalCity" repeat="0" type="xsd:string">
                 <Documentation>
                     <Description>The destination or arrival city of the flight associated to the service.   Mapped to:
                         SR05_42_ACTY</Description>

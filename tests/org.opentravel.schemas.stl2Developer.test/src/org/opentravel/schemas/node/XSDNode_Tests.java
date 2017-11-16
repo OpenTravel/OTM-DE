@@ -18,16 +18,20 @@
  */
 package org.opentravel.schemas.node;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.junit.Assert.assertTrue;
 
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
-import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.controllers.ProjectController;
-import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLSimple;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.properties.AttributeNode;
+import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
+import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.types.TypeUser;
+import org.opentravel.schemas.utils.BaseProjectTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,125 +39,152 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class XSDNode_Tests {
+public class XSDNode_Tests extends BaseProjectTest {
 	private final static Logger LOGGER = LoggerFactory.getLogger(XSDNode_Tests.class);
 
-	// Lets make sure they are all unique
-	// private Map<String, Node> providerMap = new HashMap<String, Node>(Node.getNodeCount());
-	int dups = 0;
-	int counter = 0;
+	LoadFiles lf = new LoadFiles();
+	MockLibrary ml = null;
+	LibraryNode ln = null;
+	ProjectNode defaultProject;
+
+	AttributeNode attr = null;
+	ElementNode ele = null;
+	SimpleTypeNode simple = null;
+
+	// From baseProjecTest
+	// rc, mc, pc, testProject
+	// MainController mc;
+	// DefaultProjectController pc;
+
+	@Before
+	public void beforeAllTests() {
+		LOGGER.debug("Initializing Test Setup.");
+		ml = new MockLibrary();
+		defaultProject = pc.getDefaultProject();
+	}
 
 	@Test
-	public void checkXsdNodes() throws Exception {
-		MainController mc = new MainController();
-		ProjectController pc = mc.getProjectController();
-		ProjectNode pn = pc.getDefaultProject();
-		LoadFiles lf = new LoadFiles();
+	public void XSD_BuiltInTests() {
+		// Given - the built-in libraries loaded into the model
+		LibraryNode builtIn = ml.getBuiltInLibrary(false); // this is the ota2 builtin
 
-		int libCnt = 0; // from init
-		int locals = 0; // locally defined nodes in the library
-		for (LibraryNode ln : Node.getAllLibraries()) {
-			// providerMap.clear();
-			checkCounts(ln);
-			if (ln.isXSDSchema()) {
-				visitXsdNodes(ln);
-			}
-			libCnt++;
-		}
-		Assert.assertEquals(2, libCnt); // the default built-in libraries
-
-		for (LibraryNode ln : Node.getAllLibraries()) {
-			// providerMap.clear();
-			checkCounts(ln);
-			if (ln.isXSDSchema()) {
-				visitXsdNodes(ln);
-			}
-			visitSimpleTypes(ln);
-			libCnt++;
+		LOGGER.debug("Checking builtin library: " + builtIn);
+		ml.check(builtIn);
+		for (LibraryMember nm : builtIn.getTLModelObject().getNamedMembers()) {
+			// Assure they have identity listener
+			assertTrue(Node.GetNode(nm) != null);
 		}
 
-	}
+		for (LibraryMemberInterface n : builtIn.get_LibraryMembers())
+			if (n instanceof SimpleTypeNode) {
+				SimpleTypeNode st = (SimpleTypeNode) n;
+				assertTrue(st.getXsdObjectHandler() != null);
+				assertTrue(st.getXsdObjectHandler().getOwner() == st);
 
-	private void checkCounts(LibraryNode lib) {
-		int simpleCnt = 0;
-		for (Node type : lib.getDescendants_LibraryMembers()) {
-			if (type.isSimpleType()) {
-				simpleCnt++;
-			}
-		}
-		String libName = lib.getName();
-		int libCnt = getDescendentsSimpleComponents(lib).size();
-		Assert.assertEquals(simpleCnt, getDescendentsSimpleComponents(lib).size());
-	}
+				assertTrue(st.getXsdObjectHandler().getTLLibraryMember() != null);
+				assertTrue("Src TLSimle must have correct identity listener.",
+						st == Node.GetNode(st.getXsdObjectHandler().getTLLibraryMember()));
+				// Will be the builtTL not srcTL
+				// assertTrue(st.getTLModelObject() == st.getXsdObjectHandler().getTLLibraryMember());
 
-	private void visitXsdNodes(INode node) {
-		for (Node n : node.getChildren()) {
-			if (n.isNavigation()) {
-				visitXsdNodes(n);
+				assertTrue(st.getRequiredType() == ModelNode.getUndefinedNode());
+				assertTrue(st.getAssignedType() == ModelNode.getUndefinedNode());
+				assertTrue(st.getAssignedTLObject() == null);
+				assertTrue(st.getAssignedTLNamedEntity() == null);
+				assertTrue(st.getAssignable() == null);
+
+				assertTrue(st.getNamespace().equals("http://www.opentravel.org/OTM/Common/v0"));
+				assertTrue(st.getPrefix().equals("ota2"));
+				// assertTrue("Must be assigned an XSD type.", st.getAssignedPrefix().equals("xsd"));
+
+				assertTrue(st.getDecoration().contains("users"));
+				assertTrue(!st.getName().isEmpty());
+
+				Node at8 = st.getExtendsType(); // ?? null
+				// LOGGER.debug("Built-In: " + st);
 			} else {
-				checkName(n);
-				if (n instanceof XsdNode) {
-					visitXsdNode((XsdNode) n);
-				} else {
-					if (!n.isXsdType())
-						Assert.assertFalse(n.isXsdType());
+				LOGGER.debug("TODO - test non-simple built-in: " + n);
+				// expect a core object for extension point
+			}
+	}
+
+	@Test
+	public void XSD_AssignToTests() {
+		createTypeUsers();
+
+		// Given - the built-in libraries loaded into the model
+		LibraryNode builtIn = ml.getBuiltInLibrary(false); // this is the ota2 built-in
+		ml.check(builtIn);
+		checkAssignments(builtIn, ele, attr, simple);
+
+		builtIn = ml.getBuiltInLibrary(true); // this is the xsd built-in
+		ml.check(builtIn);
+		checkAssignments(builtIn, ele, attr, simple);
+	}
+
+	/**
+	 * Assign all simple type nodes in the passed library to all type users passed as arguments.
+	 */
+	private void checkAssignments(LibraryNode ln, TypeUser... users) {
+		for (LibraryMemberInterface n : ln.get_LibraryMembers())
+			if (n instanceof SimpleTypeNode) {
+				SimpleTypeNode st = (SimpleTypeNode) n;
+				for (TypeUser user : users) {
+					// When - assign type is successful
+					if (user.setAssignedType(st)) {
+						// Then
+						assertTrue(st == user.getAssignedType());
+						assertTrue(st.getWhereAssigned().contains(user));
+					} else
+						LOGGER.debug("Could not assign " + st + " to " + user);
 				}
 			}
+	}
+
+	/**
+	 * Create a library and
+	 */
+	private void createTypeUsers() {
+		// Given - a library for the types to assign to
+		ln = ml.createNewLibrary(pc, "test");
+		for (LibraryMemberInterface n : ln.get_LibraryMembers())
+			if (n instanceof BusinessObjectNode)
+				for (Node p : ((BusinessObjectNode) n).getFacet_Summary().getChildren())
+					if (p instanceof AttributeNode)
+						attr = (AttributeNode) p;
+					else if (p instanceof ElementNode)
+						ele = (ElementNode) p;
+
+		// Given - a simple type to assign to
+		simple = new SimpleTypeNode(new TLSimple());
+		simple.setName("starget");
+		simple.setAssignedType(ml.getSimpleTypeProvider());
+		ln.addMember(simple);
+
+	}
+
+	@Test
+	public void XSD_LoadXSDFileTests() {
+		// Given - 3 global type users in a library
+		createTypeUsers();
+
+		// Given - the 3 xsd files loaded into the model
+		lf.loadFileXsd1(pc.getDefaultProject());
+		lf.loadFileXsd2(pc.getDefaultProject());
+		lf.loadFileXsd3(pc.getDefaultProject());
+
+		// XSD Libraries are NOT considered user libraries.
+		for (LibraryNode ln : Node.getModelNode().getLibraries()) {
+			LOGGER.debug("Checking library: " + ln);
+			ml.check(ln, false); // May not be valid
+			checkAssignments(ln, ele, attr, simple);
 		}
 	}
 
-	private List<SimpleComponentNode> getDescendentsSimpleComponents(LibraryNode ln) {
-		List<SimpleComponentNode> kids = new ArrayList<SimpleComponentNode>();
-		for (Node n : ln.getSimpleRoot().getChildren())
-			if (n instanceof SimpleComponentNode)
-				kids.add((SimpleComponentNode) n);
-		return kids;
-	}
-
-	private void checkName(Node n) {
-		if (!(n.isNamedEntity()))
-			return;
-
-		// if (providerMap.put(n.getName(), n) != null)
-		// dups++;
-		// THERE is a bug in family processing that leaves two duplicates.
-		// if (peerCount+1 != providerMap.size()) {
-		// dups++;
-		// }
-		// Assert.assertEquals(0, dups);
-
-	}
-
-	private void visitXsdNode(XsdNode xn) {
-		Assert.assertTrue(xn.isXsdType());
-		Assert.assertTrue(xn.hasOtmModelChild());
-		counter++;
-	}
-
-	private void visitSimpleTypes(LibraryNode ln) {
-		for (SimpleComponentNode st : getDescendentsSimpleComponents(ln)) {
-			Assert.assertNotNull(st.getLibrary());
-			Assert.assertNotNull(st.getBaseType());
-
-			// Check names
-			Assert.assertFalse(st.getName().isEmpty());
-
-			// Type Names
-			String an = st.getTypeName();
-			if (an.isEmpty())
-				an = "Empty";
-			// st.getAssignedType().getName();
-			// String tn = st.getTypeClass().getTypeNode().getName();
-			// if (!(st.getTypeClass().getTypeNode() instanceof ImpliedNode))
-			// Assert.assertEquals(tn, an);
-			// Assert.assertFalse(an.isEmpty());
-			// // Check type namespace
-			// String anp = st.getAssignedPrefix();
-			// String tnp = st.getTypeClass().getTypeNode().getNamePrefix();
-			// if (!(st.getTypeClass().getTypeNode() instanceof ImpliedNode))
-			// Assert.assertEquals(tnp, anp);
-			// Prefixes can be empty
-		}
-	}
+	// Not needed - check library would fail if not unique
+	// @Test
+	// public void XSD_UniqueTests() {
+	//
+	// }
 
 }

@@ -19,6 +19,7 @@ import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLIndicator;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.NodeFactory;
@@ -49,7 +50,7 @@ public class FacetNodeBuilder {
 		buildFacet();
 		for (String n : names) {
 			Object obj = tlCreator.create(n);
-			NodeFactory.newMember(facet, obj);
+			NodeFactory.newChild(facet, (TLModelElement) obj);
 		}
 		return this;
 	}

@@ -145,6 +145,7 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 	public void addTypeUser(TypeUser user) {
 		whereAssignedHandler.add(user);
 		whereAssignedHandler.setListener(user);
+		// FIXME - should also do library whereused
 	}
 
 	/**

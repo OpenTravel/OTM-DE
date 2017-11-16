@@ -53,6 +53,7 @@ public class LibraryNodeBuilder {
 				.getName() + ".otm"));
 		tlLib.setLibraryUrl(libURL);
 		new LibraryModelSaver().saveLibrary(tlLib);
+		assert testProject.getParent() != null; // needed by ProjectNode to load library into manager
 		return pc.add(testProject, tlLib).getLibrary();
 	}
 

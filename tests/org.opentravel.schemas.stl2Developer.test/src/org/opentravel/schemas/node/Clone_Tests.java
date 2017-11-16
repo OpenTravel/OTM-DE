@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,17 +58,17 @@ public class Clone_Tests {
 	SimpleTypeNode builtin = null;
 	private LibraryNode ln = null;
 	MainController mc = null;
-	MockLibrary mockLibrary = null;
+	MockLibrary ml = null;
 	DefaultProjectController pc = null;
 	ProjectNode defaultProject = null;
 
 	@Before
 	public void beforeEachTest() {
 		mc = new MainController();
-		mockLibrary = new MockLibrary();
+		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
-		ln = mockLibrary.createNewLibrary("http://example.com/test", "test", defaultProject);
+		ln = ml.createNewLibrary("http://example.com/test", "test", defaultProject);
 		ln.setEditable(true);
 		builtin = (SimpleTypeNode) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 	}
@@ -77,7 +79,7 @@ public class Clone_Tests {
 		FacetNode facet = FacetNodeBuilder.create(ln).addElements("E1").addAttributes("A1").addIndicators("I1").build();
 		// TODO - Add these to FacetNodeBuilder
 		new IdNode(facet, "Id");
-		new ElementReferenceNode(facet, "elementRef");
+		new ElementReferenceNode(facet);
 		new IndicatorElementNode(facet, "indicatorElement");
 		assert facet.getChildren().size() == 6;
 
@@ -157,7 +159,7 @@ public class Clone_Tests {
 		FacetNode facet = FacetNodeBuilder.create(ln).addElements("E1").addAttributes("A1").addIndicators("I1").build();
 		// TODO - Add these to FacetNodeBuilder
 		new IdNode(facet, "Id");
-		new ElementReferenceNode(facet, "elementRef");
+		new ElementReferenceNode(facet);
 		new IndicatorElementNode(facet, "indicatorElement");
 		assert facet.getChildren().size() == 6;
 
@@ -184,45 +186,79 @@ public class Clone_Tests {
 		LoadFiles lf = new LoadFiles();
 		model = mc.getModelNode();
 
-		// Test cloning to the same library.
-		//
-		LibraryNode source = lf.loadFile5Clean(mc);
-		new LibraryChainNode(source); // Test in a chain
-		// test cloning within library.
-		source.setEditable(true);
-		Node.getModelNode().visitAllNodes(tt.new TestNode());
-		cloneMembers(source, source);
+		// Given - Test File 5 (clean) in a chain
+		// LibraryNode srcLib = lf.loadFile5Clean(mc); // not valid
+		LibraryNode srcLib = lf.loadFile1(mc);
+		new LibraryChainNode(srcLib);
+		srcLib.setEditable(true);
+		assertTrue(srcLib.isEditable());
+		ml.check(srcLib);
 
-		LOGGER.debug("Testing cloning properties.");
-		for (Node ne : source.getDescendants_LibraryMembers())
-			cloneProperties(ne);
-		tt.visitAllNodes(source);
-		Node.getModelNode().visitAllNodes(tt.new TestNode());
-
-		// Test cloning to a different library
-		//
-		// commented some libs out to keep the total time down
-		LibraryNode target = lf.loadFile1(mc);
-		new LibraryChainNode(target); // Test in a chain
-		Node.getModelNode().visitAllNodes(tt.new TestNode());
-		lf.loadTestGroupA(mc);
-
-		lf.cleanModel();
-		Node.getModelNode().visitAllNodes(tt.new TestNode());
-
-		LOGGER.debug("\n");
-		LOGGER.debug("Testing cloning to new library.");
-		for (LibraryNode ln : Node.getAllLibraries()) {
-			if (ln.getNamespace().equals(target.getNamespace()))
-				continue;
-			if (ln.isBuiltIn())
-				continue; // these have errors
-			ln.setEditable(true);
-			cloneMembers(ln, target);
-			LOGGER.debug("Cloned members of " + ln);
+		// When - all library members are cloned into this library
+		for (Node ne : srcLib.getDescendants_LibraryMembers()) {
+			Node clone = ne.clone("c");
+			// Objects that can't be cloned return null.
+			if (clone != null)
+				ml.check(clone);
 		}
-		LOGGER.debug("Done cloning - starting final check.");
-		Node.getModelNode().visitAllNodes(tt.new TestNode());
+
+		// Then - library is still valid
+		ml.check(srcLib);
+
+		// Given - a different library also in a chain
+		LibraryNode destLib = ml.createNewLibrary(pc, "DestLib");
+		new LibraryChainNode(destLib);
+		destLib.setEditable(true);
+		assertTrue(destLib.isEditable());
+
+		// When - all library members are cloned into dest lib
+		for (Node ne : srcLib.getDescendants_LibraryMembers())
+			ne.clone(destLib, "c");
+
+		// Then - both libraries are valid
+		ml.check(destLib);
+		ml.check(srcLib);
+
+		// //------------------------------------------
+		// // Test cloning to the same library.
+		// //
+		// LibraryNode source = lf.loadFile5Clean(mc);
+		// new LibraryChainNode(source); // Test in a chain
+		// // test cloning within library.
+		// source.setEditable(true);
+		// Node.getModelNode().visitAllNodes(tt.new TestNode());
+		// cloneMembers(source, source);
+		//
+		// LOGGER.debug("Testing cloning properties.");
+		// for (Node ne : source.getDescendants_LibraryMembers())
+		// cloneProperties(ne);
+		// tt.visitAllNodes(source);
+		// Node.getModelNode().visitAllNodes(tt.new TestNode());
+		//
+		// // Test cloning to a different library
+		// //
+		// // commented some libs out to keep the total time down
+		// LibraryNode target = lf.loadFile1(mc);
+		// new LibraryChainNode(target); // Test in a chain
+		// Node.getModelNode().visitAllNodes(tt.new TestNode());
+		// lf.loadTestGroupA(mc);
+		//
+		// lf.cleanModel();
+		// Node.getModelNode().visitAllNodes(tt.new TestNode());
+		//
+		// LOGGER.debug("\n");
+		// LOGGER.debug("Testing cloning to new library.");
+		// for (LibraryNode ln : Node.getAllLibraries()) {
+		// if (ln.getNamespace().equals(target.getNamespace()))
+		// continue;
+		// if (ln.isBuiltIn())
+		// continue; // these have errors
+		// ln.setEditable(true);
+		// cloneMembers(ln, target);
+		// LOGGER.debug("Cloned members of " + ln);
+		// }
+		// LOGGER.debug("Done cloning - starting final check.");
+		// Node.getModelNode().visitAllNodes(tt.new TestNode());
 	}
 
 	private int cloneMembers(LibraryNode ln, LibraryNode target) {

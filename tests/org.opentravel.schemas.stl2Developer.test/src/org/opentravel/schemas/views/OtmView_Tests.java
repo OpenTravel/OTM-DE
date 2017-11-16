@@ -22,7 +22,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.LibraryTests;
+import org.opentravel.schemas.node.Library_FunctionTests;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeModelTestUtils;
@@ -47,7 +47,7 @@ public class OtmView_Tests {
     ModelNode model = null;
     NodeTesters nt = new NodeTesters();
     LoadFiles lf = new LoadFiles();
-    LibraryTests lt = new LibraryTests();
+    Library_FunctionTests lt = new Library_FunctionTests();
 
     protected NavigatorView nv;
 

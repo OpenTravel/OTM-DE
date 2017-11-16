@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -44,7 +45,7 @@ public class VersionNode_Tests {
 
 	NodeTesters nt = new NodeTesters();
 	LoadFiles lf = new LoadFiles();
-	LibraryTests lt = new LibraryTests();
+	Library_FunctionTests lt = new Library_FunctionTests();
 	MockLibrary ml = null;
 	LibraryNode ln = null;
 	MainController mc;
@@ -68,16 +69,15 @@ public class VersionNode_Tests {
 
 	@Test
 	public void constructor() {
-		VersionNode vc = new VersionNode(ln_inChain.getChain().getComplexAggregate());
-		VersionNode vs = new VersionNode(ln_inChain.getChain().getSimpleAggregate());
+		SimpleTypeNode simple = new SimpleTypeNode(new TLSimple());
+		simple.setName("Barney");
 
-		assertTrue("Version node must be empty.", vc.get() == null);
-		assertTrue("Version node must have library.", vc.getLibrary() != null);
+		VersionNode ve = new VersionNode(null);
+		VersionNode vc = new VersionNode(simple);
+
+		assertTrue("Version node must not be empty.", vc.get() != null);
+		// assertTrue("Version node must have library.", vc.getLibrary() != null);
 		assertTrue("Version node must have parent.", vc.getParent() != null);
-
-		assertTrue("Version node must be empty.", vs.get() == null);
-		assertTrue("Version node must have library.", vs.getLibrary() != null);
-		assertTrue("Version node must have parent.", vs.getParent() != null);
 	}
 
 	@Test
@@ -89,8 +89,8 @@ public class VersionNode_Tests {
 		assertTrue("S1 must  have library.", s1.getLibrary() != null);
 
 		// When - added to empty version node
-		VersionNode v = new VersionNode(ln_inChain.getChain().getSimpleAggregate());
-		v.add(s1);
+		VersionNode v = new VersionNode(s1);
+		// v.add(s1);
 		// Then
 		assertTrue(s1.getVersionNode() == v);
 		assertTrue(v.getAllVersions().contains(s1));
@@ -110,13 +110,12 @@ public class VersionNode_Tests {
 
 	@Test
 	public void projectLoadTest() {
-		ProjectNode pn = lf.loadVersionTestProject(pc);
+		ProjectNode pn = lf.loadVersionTestProject(pc); // hits the opentravel repo
 		assertTrue(pn != null);
-		// FIXME - Something in versions test is hitting the opentravel repo
+
 		// Pre-check assertions
 		List<LibraryNode> libs = pn.getLibraries();
-		assertTrue(libs.size() == 3);
-		assertTrue("Project has one library.", pn.getChildren().size() == 1);
+		assertTrue(libs.size() > 3);
 		LibraryNavNode lnn = (LibraryNavNode) pn.getChildren().get(0);
 		assertTrue(lnn != null);
 		LibraryChainNode lcn = (LibraryChainNode) lnn.getChildren().get(0);

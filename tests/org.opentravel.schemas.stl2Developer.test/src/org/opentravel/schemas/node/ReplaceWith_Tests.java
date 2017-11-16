@@ -308,9 +308,13 @@ public class ReplaceWith_Tests {
 		l1.setEditable(true);
 		tt.visitAllNodes(l1);
 		tt.visitAllNodes(l5);
+		ml.check(l1);
+		ml.check(l5);
 
 		swap(l1, l5);
 
+		ml.check(l1);
+		ml.check(l5);
 		tt.visitAllNodes(l1);
 		tt.visitAllNodes(l5);
 	}
@@ -392,8 +396,13 @@ public class ReplaceWith_Tests {
 				continue;
 			Node lsNode = sources.get(n.getName());
 			if (lsNode != null) {
-				n.swap(lsNode);
+				ml.check(lsNode);
+				ml.check(n);
+				n.replaceTypesWith(lsNode, null);
+				// n.swap(lsNode);
 				tt.visitTypeNode(lsNode);
+				ml.check(lsNode);
+				ml.check(n);
 			} else
 				LOGGER.debug(n + " was not found in source library.");
 		}

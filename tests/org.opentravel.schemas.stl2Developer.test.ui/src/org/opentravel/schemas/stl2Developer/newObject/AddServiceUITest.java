@@ -35,7 +35,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.facets.OperationNode.ResourceOperationTypes;
+import org.opentravel.schemas.node.facets.OperationNode.ServiceOperationTypes;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.stl2Developer.ui.MenuHelper;
 import org.opentravel.schemas.stl2Developer.ui.helper.NavigatorViewHelper;
@@ -86,16 +86,16 @@ public class AddServiceUITest {
 		}
 
 		assertEquals("Missing operation. Should create all opeartion except QUERY.",
-				ResourceOperationTypes.values().length - 1, operationTypes.size());
+				ServiceOperationTypes.values().length - 1, operationTypes.size());
 	}
 
 	private void assertIsValidOperationType(String type) {
-		for (ResourceOperationTypes op : ResourceOperationTypes.values()) {
+		for (ServiceOperationTypes op : ServiceOperationTypes.values()) {
 			if (op.displayName.equals(type)) {
 				return;
 			}
 		}
-		fail(type + ": is incorrect. Valid types: " + Arrays.asList(ResourceOperationTypes.values()));
+		fail(type + ": is incorrect. Valid types: " + Arrays.asList(ServiceOperationTypes.values()));
 	}
 
 	private ServiceNode getService(LibraryNode l) {

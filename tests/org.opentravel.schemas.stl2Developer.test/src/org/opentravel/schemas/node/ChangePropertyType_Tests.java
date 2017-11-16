@@ -57,7 +57,7 @@ public class ChangePropertyType_Tests {
 	ModelNode model = null;
 	TestNode nt = new NodeTesters().new TestNode();
 	LoadFiles lf = new LoadFiles();
-	LibraryTests lt = new LibraryTests();
+	Library_FunctionTests lt = new Library_FunctionTests();
 
 	private MainController mc;
 	private MockLibrary ml;
@@ -90,7 +90,7 @@ public class ChangePropertyType_Tests {
 
 		// Indicator on VWA
 		VWA_Node vwa = new VWA_Node(new TLValueWithAttributes());
-		parent = (Node) vwa.getAttributeFacet();
+		parent = (Node) vwa.getFacet_Attributes();
 		// property = new IndicatorNode((PropertyOwnerInterface) parent, "ind");
 
 		// These all should fail
@@ -171,7 +171,7 @@ public class ChangePropertyType_Tests {
 		VWA_Node vwa = new VWA_Node(new TLValueWithAttributes());
 		vwa.setName("Vwa");
 		ln.addMember(vwa);
-		parent = vwa.getAttributeFacet();
+		parent = vwa.getFacet_Attributes();
 		property = new IndicatorNode(parent, "ind");
 
 		// These all should fail and return the property

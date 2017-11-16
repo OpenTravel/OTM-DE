@@ -43,7 +43,7 @@ public class Family_Tests {
 
 	NodeTesters nt = new NodeTesters();
 	LoadFiles lf = new LoadFiles();
-	LibraryTests lt = new LibraryTests();
+	Library_FunctionTests lt = new Library_FunctionTests();
 	MockLibrary ml = null;
 	LibraryNode ln = null;
 	MainController mc;

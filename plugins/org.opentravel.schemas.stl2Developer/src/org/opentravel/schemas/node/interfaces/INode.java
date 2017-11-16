@@ -249,10 +249,10 @@ public interface INode {
 
 	public boolean isAliasable();
 
-	/**
-	 * Remove this node from its library.
-	 */
-	public void removeFromLibrary();
+	// /**
+	// * Remove this node from its library.
+	// */
+	// public void removeFromLibrary();
 
 	public void setName(String string);
 

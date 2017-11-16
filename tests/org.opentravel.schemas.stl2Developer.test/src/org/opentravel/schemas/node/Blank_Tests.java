@@ -37,7 +37,7 @@ public class Blank_Tests {
 	ModelNode model = null;
 	TestNode tn = new NodeTesters().new TestNode();
 	LoadFiles lf = new LoadFiles();
-	LibraryTests lt = new LibraryTests();
+	Library_FunctionTests lt = new Library_FunctionTests();
 	MockLibrary ml = null;
 	LibraryNode ln = null;
 	MainController mc;

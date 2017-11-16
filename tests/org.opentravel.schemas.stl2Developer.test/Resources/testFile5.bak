@@ -1,0 +1,1451 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:Library
+    xmlns:ns2="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06 OTA2_LibraryModel_v1.6.0.xsd">
+    
+    <ns2:VersionScheme>OTA2</ns2:VersionScheme>
+    <ns2:Status>Draft</ns2:Status>
+    <ns2:Namespace>http://opentravel.org/local/dave/t4</ns2:Namespace>
+    <ns2:Prefix>t2</ns2:Prefix>
+    <ns2:Name>Test5</ns2:Name>
+    <ns2:Includes>testFile1.otm</ns2:Includes>
+    <ns2:Includes>testFile4.otm</ns2:Includes>
+    <ns2:Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
+    <ns2:Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
+    <ns2:Context
+        applicationContext="http://www.opentravel.org/ns/OTA2/Demo/Profile/v01" context="Common"/>
+    
+    <ns2:Simple name="String_PersonName" type="String_Short">
+        <ns2:Example context="Common">Sally Smythe</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple name="Flight_Number" pattern="[0-9]{1,4}[A-Z]?" type="xsd:string">
+        <ns2:Equivalent context="Common">FlightNumber</ns2:Equivalent>
+        <ns2:Example context="Common">1234A</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple name="Lniata" pattern="[A-F0-9]+" type="xsd:string">
+        <ns2:Equivalent context="Common">Lniata</ns2:Equivalent>
+        <ns2:Example context="Common">ABC123</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple maxLength="16" minLength="1" name="AgentSine" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>Identifies the agent or party within a business entity.</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Equivalent context="Common">AgentSine</ns2:Equivalent>
+        <ns2:Example context="Common">2345AB</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple name="Date_MMYY" pattern="(0[1-9]|1[0-2])[0-9][0-9]" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>Added this description and the a-z regex</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Equivalent context="Common">TEST</ns2:Equivalent>
+        <ns2:Example context="Common">0711</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:ValueWithAttrs name="Amount" type="xsd:integer">
+        <ns2:Example context="Common">2345.56</ns2:Example>
+        <ns2:Attribute name="currencyCode" referenceRepeat="0" type="Currency_Code">
+            <ns2:Documentation>
+                <ns2:Description>soo</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Example context="Common">USD</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="decimalPlaces" referenceRepeat="0" type="xsd:decimal">
+            <ns2:Example context="Common">2</ns2:Example>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:Simple maxLength="128" name="String_Short" type="xsd:string"/>
+    
+    <ns2:Simple maxLength="512" name="String_Medium" type="xsd:string">
+        <ns2:Equivalent context="Common"/>
+    </ns2:Simple>
+    
+    <ns2:Simple maxLength="4096" name="String_Long" type="xsd:string"/>
+    
+    <ns2:Simple name="PositiveValueUnder1M" type="xsd:positiveInteger"/>
+    
+    <ns2:Simple name="PaymentCard_Issuer" type="String_Short">
+        <ns2:Example context="Common">First Bank of Travel</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple name="PaymentCard_MagneticStrip" pattern="[0-9\-]{1,65}" type="String_Short">
+        <ns2:Documentation>
+            <ns2:Description>Payment card stripe.</ns2:Description>
+            <ns2:Implementer>MICR characters are printed in the form of either an E-13B or CMC-7 Font.</ns2:Implementer>
+            <ns2:MoreInfo>http://www4.infoprintsolutionscompany.com/help/index.jsp?topic=%2Fcom.ibm.printers.plngcfgguide%2Fav1i0mst105.htm</ns2:MoreInfo>
+        </ns2:Documentation>
+        <ns2:Example context="Common">111-111-111-111</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple name="Check_MICR" pattern="[0-9,: = ?]{1,38}" type="String_Short">
+        <ns2:Documentation>
+            <ns2:Description>Check MICR magnetic stripe.</ns2:Description>
+            <ns2:Implementer>MICR characters are printed in the form of either an E-13B or CMC-7 Font.</ns2:Implementer>
+            <ns2:MoreInfo>http://www4.infoprintsolutionscompany.com/help/index.jsp?topic=%2Fcom.ibm.printers.plngcfgguide%2Fav1i0mst105.htm</ns2:MoreInfo>
+        </ns2:Documentation>
+        <ns2:Example context="Common">00=344:333443445</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple name="PaymentCard_Type" type="String_Short">
+        <ns2:Example context="Common">VVV</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple name="Usage" type="String_Short">
+        <ns2:Example context="Common">usage</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple name="warning" type="String_Short">
+        <ns2:Example context="Common">warning</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:ValueWithAttrs name="Tax" type="xsd:positiveInteger">
+        <ns2:Attribute name="amount" referenceRepeat="0" type="PositiveValueUnder1M"/>
+        <ns2:Attribute name="taxCode" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Attribute name="taxName" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Attribute mandatory="true" name="ticketingCode"
+            referenceRepeat="0" type="xsd:string">
+            <ns2:Documentation>
+                <ns2:Description>Required tax code used by ticketing</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Common">xxx33</ns2:Equivalent>
+            <ns2:Example context="Common">R33</ns2:Example>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:ValueWithAttrs name="Location" type="String_Short">
+        <ns2:Documentation>
+            <ns2:Description>On location VWA</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Example context="Common">DEN</ns2:Example>
+        <ns2:Attribute name="codeContext" referenceRepeat="0" type="xsd:string">
+            <ns2:Documentation>
+                <ns2:Description>Whose code type</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Example context="Common">IATA</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Indicator name="multiAirportInd" publishAsElement="false">
+            <ns2:Documentation>
+                <ns2:Description>are there more than one airports served?</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Indicator>
+        <ns2:Indicator name="alternateLocationInd" publishAsElement="false">
+            <ns2:Documentation>
+                <ns2:Description>are others OK?</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Indicator>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:CoreObject name="Employment" notExtendable="false">
+        <ns2:Aliases/>
+        <ns2:Simple type="String_Medium"/>
+        <ns2:Summary>
+            <ns2:Attribute name="number" referenceRepeat="0" type="String_Short">
+                <ns2:Example context="Common">332258</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="title" referenceRepeat="0" type="String_Short">
+                <ns2:Example context="Common">Geek-N-Nerd</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="level" referenceRepeat="0" type="String_Short">
+                <ns2:Example context="Common">Director</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="status" referenceRepeat="0" type="Status_Employment">
+                <ns2:Example context="Common">Active</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Element name="Company" repeat="0" type="String_Short">
+                <ns2:Example context="Common">Sabre, Inc.</ns2:Example>
+            </ns2:Element>
+            <ns2:Element name="Phones" repeat="0" type="Phones"/>
+        </ns2:Summary>
+        <ns2:Detail/>
+        <ns2:Roles>
+            <ns2:Role value="Current"/>
+            <ns2:Role value="Previous"/>
+        </ns2:Roles>
+    </ns2:CoreObject>
+    
+    <ns2:Simple name="Status_Employment" type="String_Long">
+        <ns2:Example context="Common">World Wide Air</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple name="PaymentCard_Number" pattern="[0-9]{1,19}" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description/>
+            <ns2:Reference>http://en.wikipedia.org/wiki/Credit_card_number</ns2:Reference>
+        </ns2:Documentation>
+        <ns2:Example context="Common">11111111111111</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Enumeration_Open name="HotelTypes">
+        <ns2:Value label="" literal="motel"/>
+        <ns2:Value label="" literal="hotel"/>
+    </ns2:Enumeration_Open>
+    
+    <ns2:ValueWithAttrs name="Payment" type="ota2:Empty">
+        <ns2:Documentation>
+            <ns2:Description>Amount of the payment.</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Example context="Common">23.56</ns2:Example>
+        <ns2:Attribute name="tax" referenceRepeat="0" type="Money">
+            <ns2:Documentation>
+                <ns2:Description>Tax portion of the payment amount.</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Example context="Common">0.67</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="PaymentCard_Simple" referenceRepeat="0" type="xsd:string">
+            <ns2:Documentation>
+                <ns2:Description>Payment card used to make payment.</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Example context="Common">11136982222</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Indicator name="idCheckedInd" publishAsElement="false">
+            <ns2:Documentation>
+                <ns2:Description>True if identification was checked prior to accepting payment.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Indicator>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:BusinessObject name="Profile" notExtendable="false">
+        <ns2:Aliases>TravelerProfile</ns2:Aliases>
+        <ns2:ID>
+            <ns2:Attribute mandatory="true" name="authority"
+                referenceRepeat="0" type="xsd:string">
+                <ns2:Equivalent context="Common"/>
+                <ns2:Example context="Common">Auth1</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Element mandatory="true" name="ProfileID" repeat="0" type="xsd:string">
+                <ns2:Equivalent context="Common"/>
+                <ns2:Example context="Common">Profile123</ns2:Example>
+            </ns2:Element>
+        </ns2:ID>
+        <ns2:Summary>
+            <ns2:Element name="Name" repeat="0" type="String_PersonName"/>
+            <ns2:Element name="Employment" repeat="0" type="Employment"/>
+            <ns2:Element name="PaymentCardDetail" repeat="0" type="PaymentCard_Detail"/>
+            <ns2:Element name="HomePhone" repeat="0" type="HomePhone"/>
+            <ns2:Element name="Phone" repeat="0" type="Phone"/>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Element name="Remarks" repeat="0" type="String_Long"/>
+            <ns2:Indicator name="shareInd" publishAsElement="false"/>
+            <ns2:Indicator name="syncInd" publishAsElement="false"/>
+            <ns2:Indicator name="holdInd" publishAsElement="false"/>
+        </ns2:Detail>
+    </ns2:BusinessObject>
+    
+    <ns2:ValueWithAttrs name="Age" type="xsd:integer">
+        <ns2:Equivalent context="Common">Age</ns2:Equivalent>
+        <ns2:Example context="Common">25</ns2:Example>
+        <ns2:Attribute name="birthDate" referenceRepeat="0" type="xsd:date">
+            <ns2:Equivalent context="Common">birthDate</ns2:Equivalent>
+            <ns2:Example context="Common">1987-05-22</ns2:Example>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:ValueWithAttrs name="POS_Location" type="ota2:Empty">
+        <ns2:Documentation>
+            <ns2:Description>A location for an airline or agency agent. Can be used to describe the actual, pseudo or home
+                location.</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Equivalent context="Common">Location.POS</ns2:Equivalent>
+        <ns2:Example context="Common">Example of VWA Value</ns2:Example>
+        <ns2:Attribute name="country" referenceRepeat="0" type="String_Short">
+            <ns2:Equivalent context="Common">country</ns2:Equivalent>
+            <ns2:Example context="Common">USA</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="province" referenceRepeat="0" type="String_Short">
+            <ns2:Equivalent context="Common">province</ns2:Equivalent>
+            <ns2:Example context="Common">CA</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="city" referenceRepeat="0" type="String_Short">
+            <ns2:Example context="Common">Den</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="number" referenceRepeat="0" type="xsd:int">
+            <ns2:Documentation>
+                <ns2:Description>agent station number or agency iata number</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Common">number</ns2:Equivalent>
+            <ns2:Example context="Common">3</ns2:Example>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:BusinessObject name="POS" notExtendable="true">
+        <ns2:Documentation>
+            <ns2:Description>Locations: Psuedo - Agency PCC or Agent AAA Actual ? where the transaction is initiated Home ? assigned to the agent account</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Aliases/>
+        <ns2:ID>
+            <ns2:Attribute name="pcc" referenceRepeat="0" type="String_Short">
+                <ns2:Documentation>
+                    <ns2:Description>Psuedo is either Agency PCC or Agent AAA. Required for most sources, unless MultiHost code is provided.</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">Pseudo</ns2:Equivalent>
+                <ns2:Example context="Common">333</ns2:Example>
+            </ns2:Attribute>
+        </ns2:ID>
+        <ns2:Summary>
+            <ns2:Attribute name="company" referenceRepeat="0" type="String_Long">
+                <ns2:Documentation>
+                    <ns2:Description>The IATA assigned code for the Agency or Airine</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">Company</ns2:Equivalent>
+                <ns2:Example context="Common">WWA</ns2:Example>
+            </ns2:Attribute>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Attribute name="duty" referenceRepeat="0" type="String_Short">
+                <ns2:Documentation>
+                    <ns2:Description>An authority code assigned to a requestor.</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">DutyCode</ns2:Equivalent>
+                <ns2:Example context="Common">ddd</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="lniata" referenceRepeat="0" type="Lniata">
+                <ns2:Documentation>
+                    <ns2:Description>LNIATA of the Console the agent signed into.</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">Lniata</ns2:Equivalent>
+                <ns2:Example context="Common">156354</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="sine" referenceRepeat="0" type="AgentSine">
+                <ns2:Documentation>
+                    <ns2:Description>Identifies the agent or party within the requesting entity.</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">Sine</ns2:Equivalent>
+                <ns2:Example context="Common">555</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="multiHost" referenceRepeat="0" type="String_Short">
+                <ns2:Documentation>
+                    <ns2:Description>Airline partition for multi-host source locations.</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">MultiHost</ns2:Equivalent>
+                <ns2:Example context="Common">WW</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Element name="Actual" repeat="0" type="POS_Location">
+                <ns2:Documentation>
+                    <ns2:Description>Actual is where the transaction is initiated.</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">Actual</ns2:Equivalent>
+            </ns2:Element>
+            <ns2:Element name="Home" repeat="100000" type="POS_Location">
+                <ns2:Documentation>
+                    <ns2:Description>Home is assigned to the agent account.</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">Home</ns2:Equivalent>
+            </ns2:Element>
+        </ns2:Detail>
+    </ns2:BusinessObject>
+    
+    <ns2:BusinessObject name="Phones" notExtendable="false">
+        <ns2:Aliases/>
+        <ns2:ID>
+            <ns2:Element name="Phone_Simple" repeat="0" type="Phone_Simple"/>
+        </ns2:ID>
+        <ns2:Summary>
+            <ns2:Element name="HomePhone" repeat="0" type="HomePhone"/>
+            <ns2:Element name="PhoneDetail" repeat="0" type="Phone_Detail_List"/>
+            <ns2:Element name="Phone" repeat="0" type="Phone"/>
+        </ns2:Summary>
+        <ns2:Detail/>
+    </ns2:BusinessObject>
+    
+    <ns2:BusinessObject name="PaymentCard" notExtendable="false">
+        <ns2:Aliases>Card CreditCard</ns2:Aliases>
+        <ns2:ID>
+            <ns2:Attribute name="property1" referenceRepeat="0" type="xsd:ID"/>
+        </ns2:ID>
+        <ns2:Summary>
+            <ns2:Attribute name="expire" referenceRepeat="0" type="xsd:date">
+                <ns2:Example context="Common">0714</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="holder" referenceRepeat="0" type="xsd:string">
+                <ns2:Example context="Common">Joe E Smith</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Element name="PaymentCard_Simple" repeat="0" type="xsd:string"/>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Attribute name="type" referenceRepeat="0" type="xsd:string">
+                <ns2:Example context="Common">Visa</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="effective" referenceRepeat="0" type="ota2:UTCDate"/>
+            <ns2:Element name="Issuer" repeat="0" type="xsd:string">
+                <ns2:Example context="Common">First Bank of Travel</ns2:Example>
+            </ns2:Element>
+            <ns2:Element name="MagneticStrip" repeat="0" type="xsd:string"/>
+            <ns2:Indicator name="signatureOnFileInd" publishAsElement="false"/>
+            <ns2:Indicator name="validInd" publishAsElement="false"/>
+        </ns2:Detail>
+    </ns2:BusinessObject>
+    
+    <ns2:ExtensionPointFacet>
+        <ns2:Attribute name="Employment" referenceRepeat="0" type="Employment"/>
+        <ns2:Attribute name="flight" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Element name="Location" repeat="0" type="Location">
+            <ns2:Documentation>
+                <ns2:Description>On location VWA</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Element>
+        <ns2:Element name="Phone" repeat="0" type="Phone"/>
+        <ns2:Element name="Profile" repeat="0" type="Profile"/>
+        <ns2:Element name="Tax" repeat="0" type="Tax"/>
+        <ns2:Element name="Payment" repeat="0" type="Payment">
+            <ns2:Documentation>
+                <ns2:Description>Amount of the payment.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Element>
+        <ns2:Element name="Amount" repeat="0" type="Amount"/>
+        <ns2:Element name="PaymentCard" repeat="0" type="PaymentCard"/>
+        <ns2:Indicator name="Date_MMYYInd" publishAsElement="true">
+            <ns2:Documentation>
+                <ns2:Description>Added this description and the a-z regex</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Indicator>
+        <ns2:Extension extends="DetailCoreProperty_Detail"/>
+    </ns2:ExtensionPointFacet>
+    
+    <ns2:CoreObject name="Flight" notExtendable="true">
+        <ns2:Aliases/>
+        <ns2:Simple type="ota2:Empty"/>
+        <ns2:Summary>
+            <ns2:Element mandatory="true" name="FlightNumber" repeat="0" type="Flight_Number">
+                <ns2:Documentation>
+                    <ns2:Description>The flight number associated to the service.   Mapped to: SR05_42_FLTN</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">FlightNumber</ns2:Equivalent>
+            </ns2:Element>
+            <ns2:Element mandatory="true" name="DepartureDate"
+                repeat="0" type="xsd:date">
+                <ns2:Documentation>
+                    <ns2:Description>The departure date of the flight associated to the service.  Mapped to:
+                        SR05_42_CDTE</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">DepartureDate</ns2:Equivalent>
+            </ns2:Element>
+            <ns2:Element mandatory="true" name="Carrier" repeat="0" type="Code_Airline_IATA">
+                <ns2:Documentation>
+                    <ns2:Description>The carrier code of the flight associated to the service.  Mapped to: 
+                        SR05_42_CXRC</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">CarrierCode</ns2:Equivalent>
+                <ns2:Example context="Common">WW</ns2:Example>
+            </ns2:Element>
+            <ns2:Element mandatory="true" name="ClassOfService"
+                repeat="0" type="String_Short">
+                <ns2:Documentation>
+                    <ns2:Description>The flight class of service associated to the ancillary service.  Mapped to:
+                        SR05_42_CLSV</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">ClassOfService</ns2:Equivalent>
+                <ns2:Example context="Common">F00</ns2:Example>
+            </ns2:Element>
+            <ns2:Element mandatory="true" name="DepartureCity"
+                repeat="0" type="Code_City">
+                <ns2:Documentation>
+                    <ns2:Description>The origin or depature city code of the flight associated to the service.   Mapped to:
+                        SR05_42_DCTY</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">DepartureCity</ns2:Equivalent>
+                <ns2:Example context="Common">LGA</ns2:Example>
+            </ns2:Element>
+            <ns2:Element mandatory="true" name="ArrivalCity" repeat="0" type="Code_City">
+                <ns2:Documentation>
+                    <ns2:Description>The destination or arrival city of the flight associated to the service.   Mapped to:
+                        SR05_42_ACTY</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">ArrivalCity</ns2:Equivalent>
+                <ns2:Example context="Common">MIA</ns2:Example>
+            </ns2:Element>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Indicator name="stopOverInd" publishAsElement="false">
+                <ns2:Documentation>
+                    <ns2:Description>A code that applies to whether the flight is a stop over or not (X, O).   Mapped to:
+                        SR05_42_STOV</ns2:Description>
+                </ns2:Documentation>
+            </ns2:Indicator>
+        </ns2:Detail>
+    </ns2:CoreObject>
+    
+    <ns2:ValueWithAttrs name="Currency_Code" type="Currency_Code_ISO4217">
+        <ns2:Documentation>
+            <ns2:Description>An ISO 4217 (3) alpha character code that specifies a monetary unit.</ns2:Description>
+            <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}AlphaLength3</ns2:Implementer>
+        </ns2:Documentation>
+        <ns2:Equivalent context="Common">CurrencyCodeGroup</ns2:Equivalent>
+        <ns2:Example context="Common">USD</ns2:Example>
+        <ns2:Attribute name="DecimalPlaces" referenceRepeat="0" type="xsd:string">
+            <ns2:Documentation>
+                <ns2:Description>The ISO 4217 standard "minor unit" is typically used when the amount provided includes the minor unit of currency without a decimal point (e.g., USD 8500 needs DecimalPlaces="2" to represent $85).</ns2:Description>
+                <ns2:Implementer>Changed type from {http://www.w3.org/2001/XMLSchema}nonNegativeInteger.</ns2:Implementer>
+                <ns2:Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</ns2:Implementer>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Common">DecimalPlaces</ns2:Equivalent>
+            <ns2:Example context="Common">2</ns2:Example>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:Simple name="Currency_Code_ISO4217" pattern="[a-zA-Z]{3}" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>An ISO 4217 (3) alpha character code that specifies a monetary unit.</ns2:Description>
+            <ns2:Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</ns2:Implementer>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:BusinessObject name="Company" notExtendable="false">
+        <ns2:Aliases>Employer</ns2:Aliases>
+        <ns2:ID>
+            <ns2:Attribute name="id" referenceRepeat="0" type="xsd:ID"/>
+            <ns2:Element name="Identifier" repeat="0" type="Identifier">
+                <ns2:Documentation>
+                    <ns2:Description>Identifier provides the ability to create a globally unique identifier. For the identifier to be globally unique it must have a system provided identifier and the system must be identified using a global naming authority. System identification uses the domain naming system (DNS) to assure they are globally unique and should be an URL. The system provided ID will typically be a primary or surrogate key in a database.
+
+The URL, system and company attributes can be omitted only when the system context can be implied by a parent or ancestor element.</ns2:Description>
+                </ns2:Documentation>
+            </ns2:Element>
+        </ns2:ID>
+        <ns2:Summary>
+            <ns2:Element mandatory="true" name="Name" repeat="20" type="CompanyName">
+                <ns2:Documentation>
+                    <ns2:Description>Detailed name information for the company.</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}CompanyNameType</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">CompanyName</ns2:Equivalent>
+            </ns2:Element>
+            <ns2:Element name="Address" repeat="100" type="Address">
+                <ns2:Documentation>
+                    <ns2:Description>A jurisdiction in which a company is authorized to do business. Uses the Address entity to indicate the location of business using any of the components of the address (e.g., city, state, zip code, country).</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}AddressType</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">BusinessLocale</ns2:Equivalent>
+            </ns2:Element>
+            <ns2:Element name="Phone" repeat="100" type="Phone">
+                <ns2:Documentation>
+                    <ns2:Description>Information about a telephone number, including the actual number and its usage.</ns2:Description>
+                </ns2:Documentation>
+            </ns2:Element>
+            <ns2:Element name="Email" repeat="100" type="Email">
+                <ns2:Documentation>
+                    <ns2:Description>Electronic email addresses, in IETF specified format.</ns2:Description>
+                </ns2:Documentation>
+            </ns2:Element>
+            <ns2:Element name="URL" repeat="100" type="URL">
+                <ns2:Documentation>
+                    <ns2:Description>Information on a URL for the company.</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}URL_Type</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">URL</ns2:Equivalent>
+            </ns2:Element>
+        </ns2:Summary>
+        <ns2:Detail/>
+    </ns2:BusinessObject>
+    
+    <ns2:Simple name="RuralRouteNumber" pattern="[0-9]{1,5}" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description/>
+            <ns2:Implementer>Example value: Imported5 = 2564</ns2:Implementer>
+            <ns2:Implementer>Example value: Imported4 = 2564</ns2:Implementer>
+            <ns2:Implementer>Example value: Imported2 = 2564</ns2:Implementer>
+            <ns2:Implementer>Example value: Imported67 = 2564</ns2:Implementer>
+            <ns2:Implementer>Example value: Imported123 = 2564</ns2:Implementer>
+            <ns2:Implementer>Example value: Imported34 = 2564</ns2:Implementer>
+            <ns2:Implementer>Example value: ca1 = 25645</ns2:Implementer>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:Simple maxLength="8" minLength="2" name="StateProv_Code" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>The standard code or abbreviation for the state, province, or region.</ns2:Description>
+            <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to8</ns2:Implementer>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:Simple name="Telephone_Number" pattern="[0-9]{7,20}" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>Central office and subscriber number.</ns2:Description>
+            <ns2:Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</ns2:Implementer>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:Simple name="Telephone_AreaCityCode" pattern="[0-9]{1,8}" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>Code assigned for telephones in a specific region, city, or area.</ns2:Description>
+            <ns2:Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</ns2:Implementer>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:ValueWithAttrs name="StateProv" type="StateProv_Code">
+        <ns2:Documentation>
+            <ns2:Description>The standard code or abbreviation for the state, province, or region.</ns2:Description>
+            <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StateProvCodeType</ns2:Implementer>
+        </ns2:Documentation>
+        <ns2:Equivalent context="Common">StateProvType</ns2:Equivalent>
+        <ns2:Example context="Common">TX</ns2:Example>
+        <ns2:Attribute name="name" referenceRepeat="0" type="xsd:string">
+            <ns2:Documentation>
+                <ns2:Description>State, province, or region name or code needed to identify location.</ns2:Description>
+                <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength0to64</ns2:Implementer>
+            </ns2:Documentation>
+            <ns2:Example context="Common">Texas</ns2:Example>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:ValueWithAttrs name="Email" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>Electronic email addresses, in IETF specified format.</ns2:Description>
+            <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to128</ns2:Implementer>
+        </ns2:Documentation>
+        <ns2:Equivalent context="Common">EmailType</ns2:Equivalent>
+        <ns2:Attribute name="emailType" referenceRepeat="0" type="Code_OTA">
+            <ns2:Documentation>
+                <ns2:Description>Defines the purpose of the e-mail address (e.g. personal, business, listserve). Refer to OpenTravel Code List Email Address Type (EAT).</ns2:Description>
+                <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}OTA_CodeType</ns2:Implementer>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Common">EmailType</ns2:Equivalent>
+        </ns2:Attribute>
+        <ns2:Attribute name="remark" referenceRepeat="0" type="String_Text">
+            <ns2:Documentation>
+                <ns2:Description>A remark associated with the e-mail address.</ns2:Description>
+                <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to128</ns2:Implementer>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Common">Remark</ns2:Equivalent>
+        </ns2:Attribute>
+        <ns2:Attribute name="textFormat" referenceRepeat="0" type="xsd:string">
+            <ns2:Documentation>
+                <ns2:Description>Example: text/plain</ns2:Description>
+                <ns2:Implementer>LocalAnonymousType: EmailType_TextFormat</ns2:Implementer>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Common">TextFormat</ns2:Equivalent>
+        </ns2:Attribute>
+        <ns2:Attribute name="privacy" referenceRepeat="0" type="Privacy"/>
+        <ns2:Indicator name="validInd" publishAsElement="false">
+            <ns2:Documentation>
+                <ns2:Description>If true, this is a valid email address that has been system verified via a successful email transmission.</ns2:Description>
+                <ns2:Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}boolean</ns2:Implementer>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Common">ValidInd</ns2:Equivalent>
+        </ns2:Indicator>
+        <ns2:Indicator name="defaultInd" publishAsElement="false">
+            <ns2:Documentation>
+                <ns2:Description>If true, this identifies this is the default email address.</ns2:Description>
+                <ns2:Implementer>AttributeGroup: DefaultIndGroup</ns2:Implementer>
+            </ns2:Documentation>
+        </ns2:Indicator>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:ValueWithAttrs name="Identifier" type="GUID">
+        <ns2:Documentation>
+            <ns2:Description>Identifier provides the ability to create a globally unique identifier. For the identifier to be globally unique it must have a system provided identifier and the system must be identified using a global naming authority. System identification uses the domain naming system (DNS) to assure they are globally unique and should be an URL. The system provided ID will typically be a primary or surrogate key in a database.
+
+The URL, system and company attributes can be omitted only when the system context can be implied by a parent or ancestor element.</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Example context="Common">guid12345</ns2:Example>
+        <ns2:Attribute name="url" referenceRepeat="0" type="xsd:anyURI">
+            <ns2:Documentation>
+                <ns2:Description>Uri of the creating system. The URI should be an URL and be globally unique. Should only be omitted when the context is clearly implied for the containing document.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+        <ns2:Attribute name="system" referenceRepeat="0" type="xsd:string">
+            <ns2:Documentation>
+                <ns2:Description>Name or identifier for the creating system.</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Example context="Common">sysABC3344</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="company" referenceRepeat="0" type="xsd:string">
+            <ns2:Documentation>
+                <ns2:Description>Name of the company that manages the reference system.</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Example context="Common">Acme</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="instance" referenceRepeat="0" type="GUID">
+            <ns2:Documentation>
+                <ns2:Description>The identification of a record as it exists at a point in time. An instance is used in update messages where the sender must assure the server that the update sent refers to the most recent modification level of the object being updated.</ns2:Description>
+                <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to32</ns2:Implementer>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Common">Instance</ns2:Equivalent>
+            <ns2:Example context="Common">i0987654321</ns2:Example>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:ValueWithAttrs name="Privacy" type="ota2:Empty">
+        <ns2:Documentation>
+            <ns2:Description>Allows for control of the sharing of data between parties.</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Attribute name="shareMarketInd" referenceRepeat="0" type="YesNoInherit_Enum">
+            <ns2:Documentation>
+                <ns2:Description>Permission for sharing data for marketing purposes.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+        <ns2:Attribute name="shareSyncInd" referenceRepeat="0" type="YesNoInherit_Enum">
+            <ns2:Documentation>
+                <ns2:Description>Permission for sharing data for synchronization of information held by other travel service providers.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+        <ns2:Attribute name="optInStatus" referenceRepeat="0" type="OptInStatus_Enum">
+            <ns2:Documentation>
+                <ns2:Description>If present and set to opt out, a customer has explicitly opted out of marketing communication. When set to opt out it overrides the ShareMarketInd.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+        <ns2:Attribute name="optInDate" referenceRepeat="0" type="ota2:UTCDate">
+            <ns2:Documentation>
+                <ns2:Description>The date and time of opt in.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+        <ns2:Attribute name="optOutDate" referenceRepeat="0" type="ota2:UTCDate">
+            <ns2:Documentation>
+                <ns2:Description>The date and time of opt out.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:ValueWithAttrs name="Code" type="String_Tiny">
+        <ns2:Documentation>
+            <ns2:Description>Any code used to specify an item, for example, type of traveler, service code, room amenity, etc.</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Attribute name="codeContext" referenceRepeat="0" type="String_Tiny">
+            <ns2:Documentation>
+                <ns2:Description>Identifies the source authority for the code.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:Simple name="Telephone_Extension" pattern="[0-9]{1,5}" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>Extension to reach a specific party at the phone number</ns2:Description>
+            <ns2:Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</ns2:Implementer>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:ValueWithAttrs name="Address_StreetNumber" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description/>
+            <ns2:Implementer>Extension: StreetNmbrType</ns2:Implementer>
+        </ns2:Documentation>
+        <ns2:Example context="Common">563</ns2:Example>
+        <ns2:Attribute name="streetNmbrSuffix" referenceRepeat="0" type="String_Tiny">
+            <ns2:Documentation>
+                <ns2:Description>Usually a letter right after the street number (A in 66-A, B in 123-B etc).</ns2:Description>
+                <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to8</ns2:Implementer>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Common">StreetNmbrSuffix</ns2:Equivalent>
+            <ns2:Example context="Common">B</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="streetDirection" referenceRepeat="0" type="String_Tiny">
+            <ns2:Documentation>
+                <ns2:Description>Street direction of an address (e.g., N, E, S, NW, SW).</ns2:Description>
+                <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to8</ns2:Implementer>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Common">StreetDirection</ns2:Equivalent>
+            <ns2:Example context="Common">NNW</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="ruralRouteNmbr" referenceRepeat="0" type="RuralRouteNumber">
+            <ns2:Documentation>
+                <ns2:Description>Numerical equivalent of a rural township as defined within a given area (e.g., 12, 99).</ns2:Description>
+                <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}NumericStringLength1to5</ns2:Implementer>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Common">RuralRouteNmbr</ns2:Equivalent>
+            <ns2:Example context="Common">88</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="pO_Box" referenceRepeat="0" type="xsd:string">
+            <ns2:Documentation>
+                <ns2:Description>Defines a Post Office Box number.</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Example context="Common">98567499</ns2:Example>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:Simple name="Telephone_CountryAccessCode" pattern="[0-9]{1,3}" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>Used for Numeric Strings length 1 to 3.</ns2:Description>
+            <ns2:Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</ns2:Implementer>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:Enumeration_Closed name="YesNoInherit_Enum">
+        <ns2:Value label="" literal="Yes"/>
+        <ns2:Value label="" literal="No"/>
+        <ns2:Value label="" literal="Inherit">
+            <ns2:Documentation>
+                <ns2:Description>Value to be inherited from closest set ancestor.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+    </ns2:Enumeration_Closed>
+    
+    <ns2:ValueWithAttrs name="Country" type="Country_Code_ISO3166">
+        <ns2:Documentation>
+            <ns2:Description>ISO 3166 code for a country.</ns2:Description>
+            <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}ISO3166</ns2:Implementer>
+        </ns2:Documentation>
+        <ns2:Equivalent context="Common">CountryNameType</ns2:Equivalent>
+        <ns2:Example context="Common">IR</ns2:Example>
+        <ns2:Attribute name="name" referenceRepeat="0" type="xsd:string">
+            <ns2:Documentation>
+                <ns2:Description>The name or code of a country (e.g. as used in an address or to specify citizenship of a traveller).</ns2:Description>
+                <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength0to64</ns2:Implementer>
+            </ns2:Documentation>
+            <ns2:Example context="Common">Ireland</ns2:Example>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:Simple name="Code_OTA"
+        pattern="[0-9A-Z]{1,4}(\.[A-Z]{3}(\.X){0,1}){0,1}" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>Used for codes in the OpenTravel Code tables. Possible values of this pattern are 1, 101, 1001, 101.EQP, 1001.EQP or 1001.EQP.X.</ns2:Description>
+            <ns2:Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</ns2:Implementer>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:Simple name="Country_Code_ISO3166" pattern="[a-zA-Z]{2}" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>Specifies a 2 character country code as defined in ISO3166.</ns2:Description>
+            <ns2:Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}string</ns2:Implementer>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:ValueWithAttrs name="CompanyName" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>Identifies a company by name.</ns2:Description>
+            <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength0to128</ns2:Implementer>
+        </ns2:Documentation>
+        <ns2:Equivalent context="Common">CompanyNameType</ns2:Equivalent>
+        <ns2:Example context="Common">Travel Adventure Partners Incorporated</ns2:Example>
+        <ns2:Attribute name="division" referenceRepeat="0" type="xsd:string">
+            <ns2:Documentation>
+                <ns2:Description>The division name or ID with which the contact is associated.</ns2:Description>
+                <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to32</ns2:Implementer>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Common">Division</ns2:Equivalent>
+            <ns2:Example context="Common">Travel Division</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="department" referenceRepeat="0" type="xsd:string">
+            <ns2:Documentation>
+                <ns2:Description>The department name or ID with which the contact is associated.</ns2:Description>
+                <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to32</ns2:Implementer>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Common">Department</ns2:Equivalent>
+            <ns2:Example context="Common">Adventure department</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="shortName" referenceRepeat="0" type="xsd:string">
+            <ns2:Documentation>
+                <ns2:Description>Used to provide the company common name.</ns2:Description>
+                <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to32</ns2:Implementer>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Common">CompanyShortName</ns2:Equivalent>
+            <ns2:Example context="Common">Adventure Inc</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="code" referenceRepeat="0" type="Code">
+            <ns2:Documentation>
+                <ns2:Description>Identifies a company by the company code.</ns2:Description>
+                <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to16</ns2:Implementer>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Common">Code</ns2:Equivalent>
+            <ns2:Example context="Common">AI</ns2:Example>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:CoreObject name="Address" notExtendable="false">
+        <ns2:Documentation>
+            <ns2:Description>Provides address information. Unformatted addresses are captured using the simple facet.</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Aliases/>
+        <ns2:Simple type="String_Long2">
+            <ns2:Documentation>
+                <ns2:Description>When the address is unformatted (FormattedInd="false") these lines will contain free form address details. When the address is formatted and street number and street name must be sent independently, the street number will be sent using StreetNmbr, and the street name will be sent in the first AddressLine occurrence.</ns2:Description>
+                <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to255</ns2:Implementer>
+            </ns2:Documentation>
+        </ns2:Simple>
+        <ns2:Summary>
+            <ns2:Element name="AddressLine" repeat="4" type="xsd:string">
+                <ns2:Documentation>
+                    <ns2:Description>Address in an unstructured format.</ns2:Description>
+                </ns2:Documentation>
+            </ns2:Element>
+            <ns2:Element name="BldgRoom" repeat="2" type="Address_BldgRoom">
+                <ns2:Documentation>
+                    <ns2:Description>Building name, room, apartment, or suite number.</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}BldgRoom</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">BldgRoom</ns2:Equivalent>
+            </ns2:Element>
+            <ns2:Element name="Number" repeat="1" type="Address_StreetNumber">
+                <ns2:Documentation>
+                    <ns2:Description>May contain the street number and optionally the street name.</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StreetNmbr</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">StreetNmbr</ns2:Equivalent>
+                <ns2:Example context="Common">111</ns2:Example>
+            </ns2:Element>
+            <ns2:Element name="Street" repeat="1" type="xsd:string">
+                <ns2:Documentation>
+                    <ns2:Description>May contain the street number when the Street number element is missing.</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to255</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">AddressLine</ns2:Equivalent>
+                <ns2:Example context="Common">Travers Street</ns2:Example>
+            </ns2:Element>
+            <ns2:Element name="City" repeat="1" type="xsd:string">
+                <ns2:Documentation>
+                    <ns2:Description>City (e.g., Dublin), town, or postal station (i.e., a postal service territory, often used in a military address).</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to64</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">CityName</ns2:Equivalent>
+                <ns2:Example context="Common">Dublin</ns2:Example>
+            </ns2:Element>
+            <ns2:Element name="County" repeat="1" type="xsd:string">
+                <ns2:Documentation>
+                    <ns2:Description>County or Region Name (e.g., Fairfax).</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to32</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">County</ns2:Equivalent>
+                <ns2:Example context="Common">Fairfax</ns2:Example>
+            </ns2:Element>
+            <ns2:Element name="StateProv" repeat="1" type="StateProv">
+                <ns2:Documentation>
+                    <ns2:Description>State or Province name (e.g., Texas).</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StateProvType</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">StateProv</ns2:Equivalent>
+                <ns2:Example context="Common">Texas</ns2:Example>
+            </ns2:Element>
+            <ns2:Element name="Country" repeat="1" type="Country">
+                <ns2:Documentation>
+                    <ns2:Description>Country name (e.g., Ireland).</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}CountryNameType</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">CountryName</ns2:Equivalent>
+                <ns2:Example context="Common">IE</ns2:Example>
+            </ns2:Element>
+            <ns2:Element name="PostalCode" repeat="1" type="xsd:string">
+                <ns2:Documentation>
+                    <ns2:Description>Post Office Code number.</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to16</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">PostalCode</ns2:Equivalent>
+                <ns2:Example context="Common">32165-9999</ns2:Example>
+            </ns2:Element>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Attribute name="language" referenceRepeat="0" type="xsd:language">
+                <ns2:Documentation>
+                    <ns2:Description>Example: en</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}language</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">Language</ns2:Equivalent>
+                <ns2:Example context="Common">en</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="type" referenceRepeat="0" type="Code_OTA">
+                <ns2:Documentation>
+                    <ns2:Description>Defines the type of address (e.g. home, business, other). Refer to OpenTravel Code List Communication Location Type (CLT).</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}OTA_CodeType</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">Type</ns2:Equivalent>
+                <ns2:Example context="Common">CLT</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="use" referenceRepeat="0" type="Code_OTA">
+                <ns2:Documentation>
+                    <ns2:Description>Describes the use of the address (e.g. mailing, delivery, billing, etc.). Refer to OpenTravel Code List Address Use Type (AUT).</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Example context="Common">AUT</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Element name="Remark" repeat="0" type="String_Text">
+                <ns2:Documentation>
+                    <ns2:Description>A remark associated with this address.</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to128</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">Remark</ns2:Equivalent>
+                <ns2:Example context="Common">This address should be used for all official correspondences.</ns2:Example>
+            </ns2:Element>
+            <ns2:Element name="Privacy" repeat="0" type="Privacy">
+                <ns2:Documentation>
+                    <ns2:Description>Allows for control of the sharing of address information between parties.</ns2:Description>
+                    <ns2:Implementer>AttributeGroup: PrivacyGroup</ns2:Implementer>
+                </ns2:Documentation>
+            </ns2:Element>
+            <ns2:Indicator name="validInd" publishAsElement="false">
+                <ns2:Documentation>
+                    <ns2:Description>If true, this is a valid and complete mailing address that has been verified through an address verification service or previously mailed materials have not been returned.</ns2:Description>
+                </ns2:Documentation>
+            </ns2:Indicator>
+        </ns2:Detail>
+        <ns2:Roles>
+            <ns2:Role value="Home"/>
+            <ns2:Role value="Business"/>
+            <ns2:Role value="Destination"/>
+            <ns2:Role value="Other"/>
+        </ns2:Roles>
+    </ns2:CoreObject>
+    
+    <ns2:ValueWithAttrs name="Address_BldgRoom" type="xsd:string">
+        <ns2:Example context="Common">Bldg H</ns2:Example>
+        <ns2:Indicator name="buldingInd" publishAsElement="false">
+            <ns2:Documentation>
+                <ns2:Description>When true, the information is a building name.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Indicator>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:Simple name="GUID" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>A globally unique ID for an object. Objects will typically use the full identifier which includes system context information. This form should only be used when the system that recognizes the GUID is easily determined.</ns2:Description>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:ValueWithAttrs name="URL" type="xsd:anyURI">
+        <ns2:Documentation>
+            <ns2:Description>Web site address, in IETF specified format.</ns2:Description>
+            <ns2:Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}anyURI</ns2:Implementer>
+        </ns2:Documentation>
+        <ns2:Equivalent context="Common">URL_Type</ns2:Equivalent>
+        <ns2:Attribute name="type" referenceRepeat="0" type="xsd:string">
+            <ns2:Documentation>
+                <ns2:Description>Defines the purpose of the URL address, such as personal, business, public, etc.</ns2:Description>
+                <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to16</ns2:Implementer>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Common">Type</ns2:Equivalent>
+        </ns2:Attribute>
+        <ns2:Indicator name="defaultInd" publishAsElement="false">
+            <ns2:Documentation>
+                <ns2:Description>Indicates whether or not this is the default URL.</ns2:Description>
+                <ns2:Implementer>AttributeGroup: DefaultIndGroup</ns2:Implementer>
+            </ns2:Documentation>
+        </ns2:Indicator>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:Enumeration_Closed name="OptInStatus_Enum">
+        <ns2:Value label="" literal="OptedIn">
+            <ns2:Documentation>
+                <ns2:Description>Opted in.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="OptedOut">
+            <ns2:Documentation>
+                <ns2:Description>Opted out.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="Unknown">
+            <ns2:Documentation>
+                <ns2:Description>Opt in status is unknown.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+    </ns2:Enumeration_Closed>
+    
+    <ns2:Simple name="Code_Airline_IATA" pattern="([a-zA-Z0-9]{2})?" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>IATA defined 2 character airline designator codes, (IATA Airline Coding Directory, Section 3)
+This type will not support  IATA 3 char airline designator codes. There are no IATA 3 char airline codes assigned at this time.</ns2:Description>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:Simple maxLength="1" name="FlightNumber_Suffix"
+        pattern="([A-Z])?" type="String_Character_One">
+        <ns2:Documentation>
+            <ns2:Description>Single upper case letter used to distinguish multiple flights of the same number originating on the same date.</ns2:Description>
+            <ns2:Implementer>Assigned XSD Type:
+				{http://www.w3.org/2001/XMLSchema}string</ns2:Implementer>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:Simple name="FlightNumber_With_Suffix"
+        pattern="([0-9]{1,4}[A-Z]{1})?" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>a 1-4 numeric flight number with an alpha suffix</ns2:Description>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:Enumeration_Open name="MealType_Enum">
+        <ns2:Documentation>
+            <ns2:Description>OTA Code List Airline meal types.</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Value label="" literal="RGML">
+            <ns2:Documentation>
+                <ns2:Description>Designates a regular meal.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="VLML">
+            <ns2:Documentation>
+                <ns2:Description>VLML - Vegetarian/Milk/Eggs</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="VGML">
+            <ns2:Documentation>
+                <ns2:Description>VGML - Vegetarian/Non Dairy</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="SPML">
+            <ns2:Documentation>
+                <ns2:Description>SPML - Special/Specify</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="SFML">
+            <ns2:Documentation>
+                <ns2:Description>SFML - Seafood</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="RVML">
+            <ns2:Documentation>
+                <ns2:Description>RVML - Raw Vegetarian</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="PRML">
+            <ns2:Documentation>
+                <ns2:Description>PRML - Low Purin</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="ORML">
+            <ns2:Documentation>
+                <ns2:Description>ORML - Oriental</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="NLML">
+            <ns2:Documentation>
+                <ns2:Description>NLML - Non-Lactose</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="MOML">
+            <ns2:Documentation>
+                <ns2:Description>MOML - Moslem</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="LSML">
+            <ns2:Documentation>
+                <ns2:Description>LSML - Low Sodium/No Salt</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="LPML">
+            <ns2:Documentation>
+                <ns2:Description>LPML - Low Protein</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="LFML">
+            <ns2:Documentation>
+                <ns2:Description>LFML - Low Cholesterol</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="LCML">
+            <ns2:Documentation>
+                <ns2:Description>LCML - Low Calorie</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="KSML">
+            <ns2:Documentation>
+                <ns2:Description>KSML - Kosher</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="HNML">
+            <ns2:Documentation>
+                <ns2:Description>HNML - Hindu Meal</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="HFML">
+            <ns2:Documentation>
+                <ns2:Description>HFML - High Fiber</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="GFML">
+            <ns2:Documentation>
+                <ns2:Description>GFML - Gluten Free</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="FPML">
+            <ns2:Documentation>
+                <ns2:Description>FPML - Fruit Meal</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="DBML">
+            <ns2:Documentation>
+                <ns2:Description>DBML - Diabetic</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="CHML">
+            <ns2:Documentation>
+                <ns2:Description>CHML - Child Meal</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="BLML">
+            <ns2:Documentation>
+                <ns2:Description>BLML - Bland Meal</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="BBML">
+            <ns2:Documentation>
+                <ns2:Description>BBML - Baby/Infant Food</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="AVML">
+            <ns2:Documentation>
+                <ns2:Description>AVML - Asian Veg</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+    </ns2:Enumeration_Open>
+    
+    <ns2:CoreObject name="Phone" notExtendable="false">
+        <ns2:Documentation>
+            <ns2:Description>Information about a telephone number, including the actual number and its usage.</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Aliases>HomePhone</ns2:Aliases>
+        <ns2:Simple type="xsd:string"/>
+        <ns2:Summary>
+            <ns2:Attribute name="countryAccessCode" referenceRepeat="0" type="Telephone_CountryAccessCode">
+                <ns2:Documentation>
+                    <ns2:Description>Code assigned by telecommunications authorities for international country access identifier.</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}NumericStringLength1to3</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">CountryAccessCode</ns2:Equivalent>
+            </ns2:Attribute>
+            <ns2:Attribute name="areaCityCode" referenceRepeat="0" type="Telephone_AreaCityCode">
+                <ns2:Documentation>
+                    <ns2:Description>Code assigned for telephones in a specific region, city, or area.</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}NumericStringLength1to8</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">AreaCityCode</ns2:Equivalent>
+            </ns2:Attribute>
+            <ns2:Attribute mandatory="true" name="phoneNumber"
+                referenceRepeat="0" type="Telephone_Number">
+                <ns2:Documentation>
+                    <ns2:Description>Telephone number assigned to a single location.</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to32</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">PhoneNumber</ns2:Equivalent>
+            </ns2:Attribute>
+            <ns2:Attribute name="extension" referenceRepeat="0" type="Telephone_Extension">
+                <ns2:Documentation>
+                    <ns2:Description>Extension to reach a specific party at the phone number.</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}NumericStringLength1to5</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">Extension</ns2:Equivalent>
+            </ns2:Attribute>
+            <ns2:Attribute name="id" referenceRepeat="0" type="xsd:ID">
+                <ns2:Documentation>
+                    <ns2:Description>Used elsewhere in the message to reference a specific telephone number (including faxes).</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}RPH_Type</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">RPH</ns2:Equivalent>
+            </ns2:Attribute>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Attribute name="pIN" referenceRepeat="0" type="String_Tiny">
+                <ns2:Documentation>
+                    <ns2:Description>Additional codes used for pager or telephone access rights.</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to8</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">PIN</ns2:Equivalent>
+            </ns2:Attribute>
+            <ns2:Attribute name="remark" referenceRepeat="0" type="String_Text">
+                <ns2:Documentation>
+                    <ns2:Description>A remark associated with the telephone number.</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}StringLength1to128</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">Remark</ns2:Equivalent>
+            </ns2:Attribute>
+            <ns2:Element name="Privacy" repeat="0" type="Privacy"/>
+            <ns2:Element name="PhoneLocationType" repeat="0" type="PhoneLocation_Enum">
+                <ns2:Documentation>
+                    <ns2:Description>Describes the location of the phone, such as Home, Office, Property Reservation Office, etc.</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}OTA_CodeType</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">PhoneLocationType</ns2:Equivalent>
+            </ns2:Element>
+            <ns2:Element name="PhoneTechType" repeat="0" type="PhoneTechType_Enum">
+                <ns2:Documentation>
+                    <ns2:Description>Indicates type of technology associated with this telephone number, such as Voice, Data, Fax, Pager, Mobile, TTY, etc.</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}OTA_CodeType</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">PhoneTechType</ns2:Equivalent>
+            </ns2:Element>
+            <ns2:Element name="PhoneUseType" repeat="0" type="PhoneUseType_Enum">
+                <ns2:Documentation>
+                    <ns2:Description>Describes the type of telephone number, in the context of its general use (e.g. Home, Business, Emergency Contact, Travel Arranger, Day, Evening). Refer to OpenTravel Code List Phone Use Type (PUT).</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://chameleon.anonymous/ns}OTA_CodeType</ns2:Implementer>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Common">PhoneUseType</ns2:Equivalent>
+            </ns2:Element>
+            <ns2:Indicator name="defaultInd" publishAsElement="false">
+                <ns2:Documentation>
+                    <ns2:Description>When true, indicates a default value should be used.</ns2:Description>
+                    <ns2:Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}boolean</ns2:Implementer>
+                </ns2:Documentation>
+            </ns2:Indicator>
+        </ns2:Detail>
+        <ns2:Roles>
+            <ns2:Role value="Home"/>
+            <ns2:Role value="Office"/>
+            <ns2:Role value="Mobile"/>
+            <ns2:Role value="Other"/>
+        </ns2:Roles>
+    </ns2:CoreObject>
+    
+    <ns2:Enumeration_Open name="ProfileType_Enum">
+        <ns2:Documentation>
+            <ns2:Description>Specifies the type of profile.</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Value label="" literal="Airline"/>
+        <ns2:Value label="" literal="Arranger"/>
+        <ns2:Value label="" literal="Association"/>
+        <ns2:Value label="" literal="Authorized signer"/>
+        <ns2:Value label="" literal="Billing contact"/>
+        <ns2:Value label="" literal="Car rental"/>
+        <ns2:Value label="" literal="Corporation"/>
+        <ns2:Value label="" literal="CRO"/>
+        <ns2:Value label="" literal="Cruise line"/>
+        <ns2:Value label="" literal="Customer"/>
+        <ns2:Value label="" literal="Employee"/>
+        <ns2:Value label="" literal="Event host"/>
+        <ns2:Value label="" literal="GDS"/>
+        <ns2:Value label="" literal="General service contractor"/>
+        <ns2:Value label="" literal="Group"/>
+        <ns2:Value label="" literal="Hotel"/>
+        <ns2:Value label="" literal="Internet broker"/>
+        <ns2:Value label="" literal="Representation company"/>
+        <ns2:Value label="" literal="Supplier partner"/>
+        <ns2:Value label="" literal="Tour operator"/>
+        <ns2:Value label="" literal="Travel agency"/>
+        <ns2:Value label="" literal="Travel agent"/>
+        <ns2:Value label="" literal="Wholesaler"/>
+    </ns2:Enumeration_Open>
+    
+    <ns2:Simple fractionDigits="3" name="Money" type="xsd:decimal">
+        <ns2:Documentation>
+            <ns2:Description>Specifies an amount, max 3 decimals.</ns2:Description>
+            <ns2:Implementer>Assigned XSD Type: {http://www.w3.org/2001/XMLSchema}decimal</ns2:Implementer>
+        </ns2:Documentation>
+        <ns2:Equivalent context="Common">Money</ns2:Equivalent>
+    </ns2:Simple>
+    
+    <ns2:Simple maxLength="4096" name="String_Text" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>A string intended for free text 
+Minimum length of 0 and maximum length of 4096</ns2:Description>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:Simple maxLength="32" name="String_Tiny" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>A tiny string  
+Minimum length of 0 and a maximum length of 32</ns2:Description>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:Simple maxLength="4096" name="String_Long2" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>A long string  
+Minimum length of 0 and a maximum length of 4096</ns2:Description>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:Simple maxLength="1" name="String_Character_One" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>Single  character string
+Minimum length of 0 and a maximum length of 1</ns2:Description>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:Enumeration_Open name="PhoneLocation_Enum">
+        <ns2:Documentation>
+            <ns2:Description>Where the phone is located.</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Value label="" literal="Brand reservations office"/>
+        <ns2:Value label="" literal="Central reservations office"/>
+        <ns2:Value label="" literal="Home"/>
+        <ns2:Value label="" literal="Managing company"/>
+        <ns2:Value label="" literal="Mobile"/>
+        <ns2:Value label="" literal="Office"/>
+        <ns2:Value label="" literal="Property direct"/>
+        <ns2:Value label="" literal="Property reservation Office"/>
+        <ns2:Value label="" literal="Sales office"/>
+    </ns2:Enumeration_Open>
+    
+    <ns2:Enumeration_Open name="PhoneTechType_Enum">
+        <ns2:Documentation>
+            <ns2:Description>Defines the technology associated with this phone number.</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Value label="" literal="Voice"/>
+        <ns2:Value label="" literal="Fax"/>
+        <ns2:Value label="" literal="Pager"/>
+        <ns2:Value label="" literal="TTY"/>
+    </ns2:Enumeration_Open>
+    
+    <ns2:Enumeration_Open name="PhoneUseType_Enum">
+        <ns2:Value label="" literal="Contact"/>
+        <ns2:Value label="" literal="Daytime contact"/>
+        <ns2:Value label="" literal="Emergency contact"/>
+        <ns2:Value label="" literal="Evening contact"/>
+        <ns2:Value label="" literal="Guest use"/>
+        <ns2:Value label="" literal="Mobile"/>
+        <ns2:Value label="" literal="Pickup contact"/>
+        <ns2:Value label="" literal="Toll free number"/>
+        <ns2:Value label="" literal="Travel arranger"/>
+    </ns2:Enumeration_Open>
+    <ns2:ContextualFacet facetNamespace="" facetOwner="Profile"
+        name="Legacy" notExtendable="false" type="Custom">
+        <ns2:Element name="Remarks" repeat="0" type="String_Long">
+            <ns2:Example context="Common">Remarks</ns2:Example>
+        </ns2:Element>
+        <ns2:Indicator name="shareInd" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetNamespace="" facetOwner="Profile"
+        name="Profile" notExtendable="true" type="Query">
+        <ns2:Element name="PhoneDetail" repeat="0" type="Phone_Detail_List"/>
+    </ns2:ContextualFacet>
+    
+    <ns2:Service name="ProfileService">
+        <ns2:Operation Name="Create" notExtendable="false">
+            <ns2:Request>
+                <ns2:Element name="ProfileDetail" repeat="0" type="Profile_Detail"/>
+            </ns2:Request>
+            <ns2:Response>
+                <ns2:Element name="ProfileIdentifier" repeat="0" type="Profile_ID"/>
+            </ns2:Response>
+            <ns2:Notification>
+                <ns2:Element name="ProfileSummary" repeat="0" type="Profile_Summary"/>
+            </ns2:Notification>
+        </ns2:Operation>
+        <ns2:Operation Name="Read" notExtendable="true">
+            <ns2:Request>
+                <ns2:Element name="ProfileIdentifier" repeat="0" type="Profile_ID"/>
+            </ns2:Request>
+            <ns2:Response>
+                <ns2:Element name="TravelerProfile" repeat="0" type="TravelerProfile"/>
+            </ns2:Response>
+            <ns2:Notification>
+                <ns2:Element name="TravelerProfile" repeat="0" type="TravelerProfile"/>
+            </ns2:Notification>
+        </ns2:Operation>
+        <ns2:Operation Name="Update" notExtendable="true">
+            <ns2:Request>
+                <ns2:Element name="ProfileDetail" repeat="0" type="Profile_Detail"/>
+            </ns2:Request>
+            <ns2:Response>
+                <ns2:Element name="ProfileIdentifier" repeat="0" type="Profile_ID"/>
+            </ns2:Response>
+            <ns2:Notification>
+                <ns2:Element name="ProfileSummary" repeat="0" type="Profile_Summary"/>
+            </ns2:Notification>
+        </ns2:Operation>
+        <ns2:Operation Name="Delete" notExtendable="true">
+            <ns2:Request>
+                <ns2:Element name="TravelerProfile" repeat="0" type="TravelerProfile"/>
+            </ns2:Request>
+            <ns2:Response>
+                <ns2:Element name="ProfileIdentifier" repeat="0" type="Profile_ID"/>
+            </ns2:Response>
+            <ns2:Notification>
+                <ns2:Element name="ProfileSummary" repeat="0" type="Profile_Summary"/>
+            </ns2:Notification>
+        </ns2:Operation>
+        <ns2:Operation Name="Query" notExtendable="true">
+            <ns2:Request>
+                <ns2:Element name="TravelerProfile" repeat="0" type="TravelerProfile"/>
+            </ns2:Request>
+            <ns2:Response>
+                <ns2:Element name="ProfileSummary" repeat="0" type="Profile_Summary"/>
+            </ns2:Response>
+            <ns2:Notification>
+                <ns2:Element name="ProfileIdentifier" repeat="0" type="Profile_ID"/>
+            </ns2:Notification>
+        </ns2:Operation>
+    </ns2:Service>
+    
+</ns2:Library>

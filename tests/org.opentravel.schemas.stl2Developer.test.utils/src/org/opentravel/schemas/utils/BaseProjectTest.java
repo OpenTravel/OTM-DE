@@ -38,6 +38,8 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.stl2Developer.reposvc.RepositoryTestUtils;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.osgi.framework.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract base class that defines common methods used during live repository testing.
@@ -45,6 +47,7 @@ import org.osgi.framework.Version;
  * @author Pawel Jedruch
  */
 public abstract class BaseProjectTest {
+	private static final Logger LOGGER = LoggerFactory.getLogger(BaseProjectTest.class);
 
 	protected static File tmpWorkspace;
 	protected static DefaultRepositoryController rc;
@@ -53,44 +56,60 @@ public abstract class BaseProjectTest {
 	protected static ProjectNode testProject;
 	private static List<ProjectNode> projectsToClean = new ArrayList<ProjectNode>();
 
+	// Takes about 40-60 seconds
 	@BeforeClass
-	public final static void beforeTests() throws Exception {
+	public static void beforeTests() throws Exception {
+		LOGGER.debug("Before class tests");
 		tmpWorkspace = new File(System.getProperty("user.dir"), "/target/test-workspace/");
 		RepositoryTestUtils.deleteContents(tmpWorkspace);
 		tmpWorkspace.deleteOnExit();
-		mc = new MainController();
+		mc = new MainController(); // Loads the built-in libraries.
 		rc = (DefaultRepositoryController) mc.getRepositoryController();
 		pc = mc.getProjectController();
 	}
 
 	@Before
 	public void beforeEachTest() throws Exception {
-		testProject = createProject("Otm-Test-TestProject", rc.getLocalRepository(), "IT");
 		callBeforeEachTest();
 	}
 
+	// Use super.beforeEachTest();
+	@Deprecated
 	protected void callBeforeEachTest() throws Exception {
-		// Do nothing
+		LOGGER.debug("Before tests");
+		testProject = createProject("Otm-Test-TestProject", rc.getLocalRepository(), "IT");
+		assertTrue(testProject != null);
+		// Give access to the sub-classes
 	}
 
 	@After
 	public void afterEachTest() throws RepositoryException, IOException {
+		LOGGER.debug("After Each Test");
 		LibraryModelManager mgr = Node.getLibraryModelManager();
-		int userLibCount = mgr.getUserLibraries().size();
-		List<LibraryNode> userLibs = mgr.getUserLibraries();
+		// int userLibCount = mgr.getUserLibraries().size();
+		// List<LibraryNode> userLibs = mgr.getUserLibraries();
 
 		pc.getDefaultProject().removeAllFromTLProject();
+		pc.getDefaultProject().closeAll();
 		pc.closeAll();
 
 		for (ProjectNode pn : projectsToClean) {
+			assert pn.getTLProject() != null;
+			assert pn.getTLProject().getProjectFile() != null;
 			File projFile = pn.getTLProject().getProjectFile().getParentFile();
 			System.out.println("Cleaning project: " + pn + "  file = " + projFile.toString());
 			RepositoryTestUtils.deleteContents(projFile);
 		}
 		projectsToClean.clear();
 
+		Node.getModelNode().close();
+		// mgr.clear(false);
+
 		// The built in project will continue to have libraries in them.
+		if (Node.getModelNode().getManagedLibraries().size() != pc.getBuiltInProject().getChildren().size())
+			System.out.println("Error in after test method.");
 		assert (Node.getModelNode().getManagedLibraries().size() == pc.getBuiltInProject().getChildren().size());
+		LOGGER.debug("After Each Test Complete");
 	}
 
 	// TODO - convert to not using builder
@@ -141,4 +160,7 @@ public abstract class BaseProjectTest {
 		return file;
 	}
 
+	// FIXME - add these in
+	// public abstract TLModelElement createTL();
+	// public abstract void check();
 }

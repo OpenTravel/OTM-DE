@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Library xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06 OTA2_LibraryModel_v1.6.0.xsd">
+    
+    <VersionScheme>OTA2</VersionScheme>
+    <Status>Draft</Status>
+    <Namespace>http://www.opentravel.org/ns/OTA2/Demo/Profile5/v2_0</Namespace>
+    <Prefix>ep2</Prefix>
+    <Name>ExtensionPointTest2</Name>
+    <Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
+    <Import fileHints="otm://Opentravel/OTA_SimpleTypes_0_0_0.otm"
+        namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
+   <Import fileHints="testFile-ExtensionPoints.otm"
+        namespace="http://www.opentravel.org/ns/OTA2/Demo/EP/v1_0" prefix="ep5"/>
+    <Context
+        applicationContext="http://www.opentravel.org/ns/OTA2/Demo/Profile/v01" context="Profile"/>
+    
+	    <ExtensionPointFacet>
+        <Attribute name="Employment" type="ep5:Employment"/>
+        <Element name="Location" repeat="0" type="ep5:Location">
+            <Documentation>
+                <Description>On location VWA</Description>
+            </Documentation>
+        </Element>
+        <Element name="Payment" repeat="0" type="ep5:Payment">
+            <Documentation>
+                <Description>Amount of the payment.</Description>
+            </Documentation>
+        </Element>
+        <Element name="Amount" repeat="0" type="ep5:Amount"/>
+        <Indicator name="Date_MMYYInd" publishAsElement="true">
+            <Documentation>
+                <Description>Added this description and the a-z regex</Description>
+            </Documentation>
+        </Indicator>
+        <Extension extends="ep5:PaymentCard_Detail"/>
+    </ExtensionPointFacet>
+
+	    <ExtensionPointFacet>
+        <Attribute name="Employment" type="ep5:Employment"/>
+        <Element name="Location" repeat="0" type="ep5:Location">
+            <Documentation>
+                <Description>On location VWA</Description>
+            </Documentation>
+        </Element>
+        <Element name="Payment" repeat="0" type="ep5:Payment">
+            <Documentation>
+                <Description>Amount of the payment.</Description>
+            </Documentation>
+        </Element>
+        <Element name="Amount" repeat="0" type="ep5:Amount"/>
+        <Indicator name="Date_MMYYInd" publishAsElement="true">
+            <Documentation>
+                <Description>Added this description and the a-z regex</Description>
+            </Documentation>
+        </Indicator>
+        <Extension extends="ep5:CoreTestInitialBO_Detail"/>
+    </ExtensionPointFacet>
+	
+    
+</Library>

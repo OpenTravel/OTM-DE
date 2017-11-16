@@ -39,8 +39,6 @@ import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
-import org.opentravel.schemacompiler.validate.FindingMessageFormat;
-import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.repository.RepositoryIntegrationTestBase;
@@ -81,7 +79,7 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 	ModelNode model = null;
 	TestNode tn = new NodeTesters().new TestNode();
 	LoadFiles lf = new LoadFiles();
-	LibraryTests lt = new LibraryTests();
+	Library_FunctionTests lt = new Library_FunctionTests();
 	MockLibrary ml = null;
 	LibraryNode ln = null;
 	MainController mc;
@@ -159,7 +157,7 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 		ml.addEP(ln, eln); // add ep to ln referencing BO in eln
 		// Then - must be valid extension
 		testExtension(ln, eln);
-		checkValid(chain);
+		ml.check(chain);
 
 		String ns1 = ln.getNamespace();
 		String ns2 = majorLibrary.getNamespace();
@@ -171,7 +169,7 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 		ml.addEP(majorLibrary, eln);
 		// Then - must be valid extension
 		testExtension(majorLibrary, eln);
-		checkValid(chain);
+		ml.check(chain);
 
 		// FIXME
 		// The library must be managed to be promoted or versioned.
@@ -194,16 +192,16 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 		// checkValid(chain);
 	}
 
-	private void checkValid(Node chain) {
-		LibraryChainNode cn = chain.getChain();
-		if (cn.isValid())
-			return;
-		ValidationFindings findings = cn.validate();
-		for (String f : findings.getAllValidationMessages(FindingMessageFormat.IDENTIFIED_FORMAT)) {
-			LOGGER.debug("Finding: " + f);
-		}
-		Assert.assertTrue(cn.isValid());
-	}
+	// private void checkValid(Node chain) {
+	// LibraryChainNode cn = chain.getChain();
+	// if (cn.isValid())
+	// return;
+	// ValidationFindings findings = cn.validate();
+	// for (String f : findings.getAllValidationMessages(FindingMessageFormat.IDENTIFIED_FORMAT)) {
+	// LOGGER.debug("Finding: " + f);
+	// }
+	// Assert.assertTrue(cn.isValid());
+	// }
 
 	@Override
 	public RepositoryNode getRepositoryForTest() {
@@ -274,15 +272,15 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 		assert string.getNode(string.getTLModelObject().getListeners()) == string;
 
 		// Check to assure one and only one listener is created with each node
-		BusinessObjectNode bo = (BusinessObjectNode) NodeFactory.newComponent(new TLBusinessObject());
+		BusinessObjectNode bo = (BusinessObjectNode) NodeFactory.newLibraryMember(new TLBusinessObject());
 		assert hasOneNamedTypeListener(bo);
 		bo.setName("BO");
 		ln.addMember(bo);
 		assert hasOneNamedTypeListener(bo);
 		assert bo.getNode(bo.getTLModelObject().getListeners()) == bo;
-		assert bo.getNode(((Node) bo.getIDFacet()).getTLModelObject().getListeners()) == bo.getIDFacet();
+		assert bo.getNode(((Node) bo.getFacet_ID()).getTLModelObject().getListeners()) == bo.getFacet_ID();
 
-		CoreObjectNode core = (CoreObjectNode) NodeFactory.newComponent(new TLCoreObject());
+		CoreObjectNode core = (CoreObjectNode) NodeFactory.newLibraryMember(new TLCoreObject());
 		assert hasOneNamedTypeListener(core);
 		core.setName("CO");
 		ln.addMember(core);
@@ -291,35 +289,35 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 		assert core.getNode(((Node) core.getFacet_Summary()).getTLModelObject().getListeners()) == core
 				.getFacet_Summary();
 
-		VWA_Node vwa = (VWA_Node) NodeFactory.newComponent(new TLValueWithAttributes());
+		VWA_Node vwa = (VWA_Node) NodeFactory.newLibraryMember(new TLValueWithAttributes());
 		assert hasOneNamedTypeListener(vwa);
 		vwa.setName("VWA");
 		ln.addMember(vwa);
 		assert hasOneNamedTypeListener(vwa);
 		assert vwa.getNode(vwa.getTLModelObject().getListeners()) == vwa;
 
-		ChoiceObjectNode choice = (ChoiceObjectNode) NodeFactory.newComponent(new TLChoiceObject());
+		ChoiceObjectNode choice = (ChoiceObjectNode) NodeFactory.newLibraryMember(new TLChoiceObject());
 		assert hasOneNamedTypeListener(choice);
 		choice.setName("Choice");
 		ln.addMember(choice);
 		assert hasOneNamedTypeListener(choice);
 		assert choice.getNode(choice.getTLModelObject().getListeners()) == choice;
 
-		SimpleTypeNode simple = (SimpleTypeNode) NodeFactory.newComponent(new TLSimple());
+		SimpleTypeNode simple = (SimpleTypeNode) NodeFactory.newLibraryMember(new TLSimple());
 		assert hasOneNamedTypeListener(simple);
 		simple.setName("Simple");
 		ln.addMember(simple);
 		assert hasOneNamedTypeListener(simple);
 		assert simple.getNode(simple.getTLModelObject().getListeners()) == simple;
 
-		EnumerationClosedNode ec = (EnumerationClosedNode) NodeFactory.newComponent(new TLClosedEnumeration());
+		EnumerationClosedNode ec = (EnumerationClosedNode) NodeFactory.newLibraryMember(new TLClosedEnumeration());
 		assert hasOneNamedTypeListener(ec);
 		ec.setName("ec");
 		ln.addMember(ec);
 		assert hasOneNamedTypeListener(ec);
 		assert ec.getNode(ec.getTLModelObject().getListeners()) == ec;
 
-		EnumerationOpenNode eo = (EnumerationOpenNode) NodeFactory.newComponent(new TLOpenEnumeration());
+		EnumerationOpenNode eo = (EnumerationOpenNode) NodeFactory.newLibraryMember(new TLOpenEnumeration());
 		assert hasOneNamedTypeListener(eo);
 		eo.setName("eo");
 		ln.addMember(eo);
@@ -327,7 +325,7 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 		assert eo.getNode(eo.getTLModelObject().getListeners()) == eo;
 
 		// TODO - other property types
-		PropertyNode p1 = new ElementNode(bo.getIDFacet(), "i1");
+		PropertyNode p1 = new ElementNode(bo.getFacet_ID(), "i1");
 		assert hasOneNamedTypeListener(p1);
 		assert p1.getNode(p1.getTLModelObject().getListeners()) == p1;
 	}
@@ -450,17 +448,17 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 		PropertyNode pne = new ElementNode(po, "Property");
 		PropertyNode pna = new AttributeNode(po, "Attribute");
 		PropertyNode pni = new IndicatorNode(po, "Indicator");
-		PropertyNode pner = new ElementReferenceNode(po, "EleRef");
+		PropertyNode pner = new ElementReferenceNode(po);
 		Assert.assertEquals(4, n.getFacet_Summary().getChildren().size());
 	}
 
 	private void addRoles(CoreObjectNode n) {
-		RoleFacetNode rf = n.getRoleFacet();
+		RoleFacetNode rf = n.getFacet_Role();
 		Assert.assertNotNull(rf);
 		PropertyNode pnr1 = new RoleNode(rf, "Role1");
 		PropertyNode pnr2 = new RoleNode(rf, "Role2");
 		PropertyNode pnr3 = new RoleNode(rf, "Role3");
-		Assert.assertEquals(3, n.getRoleFacet().getChildren().size());
+		Assert.assertEquals(3, n.getFacet_Role().getChildren().size());
 	}
 
 	private void addLiterals(Node n) {

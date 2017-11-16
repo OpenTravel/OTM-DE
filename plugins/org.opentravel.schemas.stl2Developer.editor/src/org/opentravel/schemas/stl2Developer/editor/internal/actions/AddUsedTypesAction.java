@@ -22,7 +22,7 @@ import org.eclipse.gef.ui.parts.AbstractEditPartViewer;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
-import org.opentravel.schemas.node.properties.SimpleAttributeNode;
+import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
 import org.opentravel.schemas.stl2Developer.editor.internal.Features;
 import org.opentravel.schemas.stl2Developer.editor.model.Diagram.Position;
 import org.opentravel.schemas.stl2Developer.editor.model.UINode;
@@ -71,7 +71,7 @@ public class AddUsedTypesAction extends ShowHideNodeAction {
 	private boolean validNodeType(Node n) {
 		boolean ret = n instanceof ElementNode;
 		ret = ret || n instanceof AttributeNode;
-		ret = ret || n instanceof SimpleAttributeNode;
+		ret = ret || n instanceof SimpleAttributeFacadeNode;
 		return ret;
 	}
 

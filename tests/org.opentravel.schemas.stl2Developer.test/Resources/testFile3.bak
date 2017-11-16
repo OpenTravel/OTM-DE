@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:Library
+    xmlns:ns2="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06 OTA2_LibraryModel_v1.6.0.xsd">
+    
+    <ns2:VersionScheme>OTA2</ns2:VersionScheme>
+    <ns2:Status>Draft</ns2:Status>
+    <ns2:Namespace>http://opentravel.org/local/dave/t4</ns2:Namespace>
+    <ns2:Prefix>t2</ns2:Prefix>
+    <ns2:Name>Test3</ns2:Name>
+    <ns2:Includes>testFile5.otm</ns2:Includes>
+    <ns2:Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
+    <ns2:Context applicationContext="Default" context="default"/>
+    
+    <ns2:ValueWithAttrs name="AttributeGroupVWA" type="ota2:Empty">
+        <ns2:Attribute name="agentDuty" referenceRepeat="0" type="String_Short">
+            <ns2:Documentation>
+                <ns2:Description>Typically a two to five character code (alpha, numeric, or combination) that specifies a travel agent duty code that is used for agency authentication.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+        <ns2:Attribute name="city" referenceRepeat="0" type="String_Short">
+            <ns2:Documentation>
+                <ns2:Description>A three character code for a city.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+        <ns2:Attribute name="eRSP" referenceRepeat="0" type="String_Short">
+            <ns2:Documentation>
+                <ns2:Description>A unique IATA (in cooperation with ATA and ARC) code used as a means of identification when performing online bookings with airlines.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+        <ns2:Attribute name="state" referenceRepeat="0" type="String_Short">
+            <ns2:Documentation>
+                <ns2:Description>A 2 character abbreviation for a state.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+        <ns2:Attribute name="tour" referenceRepeat="0" type="String_Short">
+            <ns2:Documentation>
+                <ns2:Description>Up to a 32 character numeric or alphanumeric tour code.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:ValueWithAttrs name="SimpleVWA" type="ota2:Empty">
+        <ns2:Documentation>
+            <ns2:Description>full name</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Attribute name="fullname" referenceRepeat="0" type="String_Short">
+            <ns2:Documentation>
+                <ns2:Description>A name used to describe a person, place or thing, such as a hotel, airport or company.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+        <ns2:Attribute name="nickname" referenceRepeat="0" type="String_Short">
+            <ns2:Documentation>
+                <ns2:Description>commonly used name</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:ValueWithAttrs name="VWA_as_valueType" type="SimpleVWA">
+        <ns2:Attribute name="family" referenceRepeat="0" type="String_Short">
+            <ns2:Documentation>
+                <ns2:Description>A string with a minimum length of 1 and a maximum length of 128.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+        <ns2:Attribute name="aka" referenceRepeat="0" type="String_Short">
+            <ns2:Documentation>
+                <ns2:Description>A string with a minimum length of 1 and a maximum length of 128.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+</ns2:Library>

@@ -279,6 +279,7 @@ public class BusinessObjectTests {
 		ml.addBusinessObjectToLibrary(ln, "bo");
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "vwa");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "co");
+		assertTrue(core.isDeleteable());
 		// Given - an element on Core with user name assigned vwa as type
 		ElementNode e1 = new ElementNode(core.getFacet_Summary(), USER_NAME_TE2, vwa);
 		assertTrue("VWA must be assigned to core element.", vwa.getWhereAssigned().contains(e1));
@@ -287,9 +288,15 @@ public class BusinessObjectTests {
 		//
 		// When - Core is changed to Business Object
 		BusinessObjectNode tboCore = (BusinessObjectNode) core.changeObject(SubType.BUSINESS_OBJECT);
+		assertTrue(ln.contains(tboCore));
+		assertTrue(!ln.contains(core));
 		// Then - an element with assigned name exists.
 		e1 = (ElementNode) tboCore.getFacet_Summary().get(USER_NAME_TE2);
 		assertTrue(e1 != null);
+		assertTrue("VWA must now be assigned to tboCore element.", vwa.getWhereAssigned().contains(e1));
+		// Then - VWA Old assignment is removed
+		e1 = (ElementNode) core.getFacet_Summary().get(USER_NAME_TE2);
+		assertTrue("VWA must NOT be assigned to Core element.", !vwa.getWhereAssigned().contains(e1));
 		//
 		// When - VWA is changed to business object
 		BusinessObjectNode tboVwa = (BusinessObjectNode) vwa.changeObject(SubType.BUSINESS_OBJECT);

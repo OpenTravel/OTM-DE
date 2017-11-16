@@ -29,6 +29,7 @@ import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.LibraryController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
+import org.opentravel.schemas.node.handlers.DocumentationHandler;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
@@ -150,7 +151,21 @@ public class DocumentationNode_Tests {
 		assertTrue(dh.getMoreInfo(1).equals(s3));
 		assertTrue(dh.getReference(1).equals(s3));
 
+		// Able to use set to create new items
+		dh.setDeprecation(s2, 3);
+		dh.setImplementer(s2, 3);
+		dh.setMoreInfo(s2, 3);
+		dh.setReference(s2, 3);
+
 		OTM16Upgrade.otm16Enabled = true;
+	}
+
+	//
+	// FIXME - add test to assure contexts are "fixed"
+	//
+	@Test
+	public void DOC_fixContextTests() {
+		assert false;
 	}
 
 	@Test
@@ -206,23 +221,23 @@ public class DocumentationNode_Tests {
 		LibraryNode lib1 = lf.loadFile1(mc);
 
 		// Payment has description
-		Node n = lib1.findNodeByName("Payment");
+		Node n = lib1.findLibraryMemberByName("Payment");
 		assertTrue(!n.getDescription().isEmpty());
 
 		// PaymentCard_MagneticStrip has description, implementor and more info
-		n = lib1.findNodeByName("PaymentCard_MagneticStrip");
+		n = lib1.findLibraryMemberByName("PaymentCard_MagneticStrip");
 		assertTrue(!n.getDescription().isEmpty());
 		assertTrue(!n.getDocumentation().getImplementers().isEmpty());
 		assertTrue(!n.getDocumentation().getMoreInfos().isEmpty());
 
 		// TODO - move to eq/ex junit
 		// Date_MMYY has both ex and eq
-		n = lib1.findNodeByName("Date_MMYY");
+		n = lib1.findLibraryMemberByName("Date_MMYY");
 		assertTrue(!((SimpleTypeNode) n).getExample(null).isEmpty());
 		assertTrue(!((SimpleTypeNode) n).getEquivalent(null).isEmpty());
 
 		// Age has both equivalents and examples
-		n = lib1.findNodeByName("Age");
+		n = lib1.findLibraryMemberByName("Age");
 		assertTrue(!((VWA_Node) n).getExample(null).isEmpty());
 		assertTrue(!((VWA_Node) n).getEquivalent(null).isEmpty());
 	}

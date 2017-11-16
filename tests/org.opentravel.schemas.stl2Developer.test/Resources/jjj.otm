@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:Library
+    xmlns:ns2="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06 OTA2_LibraryModel_v1.6.0.xsd">
+    
+    <ns2:VersionScheme>OTA2</ns2:VersionScheme>
+    <ns2:Status>Draft</ns2:Status>
+    <ns2:Namespace>http://local/junits/v0</ns2:Namespace>
+    <ns2:Prefix>j</ns2:Prefix>
+    <ns2:Name>jjj</ns2:Name>
+    <ns2:Import
+        fileHints="../../../../../Workspace/OTM_TestData/Projects/junk4_2_0_0.otm"
+        namespace="http://www.opentravel.org/Sandbox/junk/tp2/v2" prefix="j-0200"/>
+    <ns2:Context applicationContext="http://local/junits/v0" context="j"/>
+    <ns2:Resource abstract="false" basePath="/J4b1v1s"
+        businessObjectRef="j-0200:J4b1v1" firstClass="false" name="J4b1v1Resource">
+        <ns2:Extension extends="BaseResource"/>
+        <ns2:ParamGroup facetName="j-0200:J4b1v1_ID" idGroup="true" name="ID">
+            <ns2:Parameter fieldName="String" location="Path"/>
+        </ns2:ParamGroup>
+        <ns2:ParamGroup facetName="j-0200:J4b1v1_Query_q1"
+            idGroup="false" name="Query">
+            <ns2:Parameter fieldName="J4Info" location="Query"/>
+        </ns2:ParamGroup>
+        <ns2:ActionFacet label="SubstitutionGroup" referenceRepeat="0" referenceType="Required"/>
+        <ns2:ActionFacet label="ID" referenceFacet="ID"
+            referenceRepeat="0" referenceType="Required"/>
+        <ns2:ActionFacet label="Summary" referenceFacet="Summary"
+            referenceRepeat="0" referenceType="Required"/>
+        <ns2:Action actionId="Get" common="false">
+            <ns2:ActionRequest httpMethod="GET" mimeTypes=""
+                paramGroup="ID" pathTemplate="/J4b1v1s/{String}"/>
+            <ns2:ActionResponse
+                mimeTypes="APPLICATION_JSON APPLICATION_XML"
+                payloadType="J4b1v1Resource_ID" statusCodes="200"/>
+        </ns2:Action>
+        <ns2:Action actionId="Create" common="false">
+            <ns2:ActionRequest httpMethod="POST"
+                mimeTypes="APPLICATION_JSON APPLICATION_XML"
+                paramGroup="ID" pathTemplate="/J4b1v1s/{String}" payloadType="J4b1v1Resource_SubstitutionGroup"/>
+            <ns2:ActionResponse
+                mimeTypes="APPLICATION_JSON APPLICATION_XML"
+                payloadType="J4b1v1Resource_SubstitutionGroup" statusCodes="201"/>
+        </ns2:Action>
+        <ns2:Action actionId="Query" common="false">
+            <ns2:ActionRequest httpMethod="GET" mimeTypes=""
+                paramGroup="Query" pathTemplate="/J4b1v1s"/>
+            <ns2:ActionResponse
+                mimeTypes="APPLICATION_JSON APPLICATION_XML"
+                payloadType="J4b1v1Resource_SubstitutionGroup" statusCodes="200"/>
+        </ns2:Action>
+        <ns2:Action actionId="Delete" common="false">
+            <ns2:ActionRequest httpMethod="DELETE" mimeTypes=""
+                paramGroup="ID" pathTemplate="/J4b1v1s/{String}"/>
+            <ns2:ActionResponse mimeTypes="" statusCodes="200"/>
+        </ns2:Action>
+    </ns2:Resource>
+    <ns2:Resource abstract="false" basePath="/J4b1v1s"
+        businessObjectRef="j-0200:J4b1v1" firstClass="true" name="BaseResource">
+        <ns2:ParamGroup facetName="j-0200:J4b1v1_ID" idGroup="true" name="ID">
+            <ns2:Parameter fieldName="String" location="Path"/>
+        </ns2:ParamGroup>
+        <ns2:ActionFacet label="SubstitutionGroup" referenceRepeat="0" referenceType="Required"/>
+        <ns2:ActionFacet label="ID" referenceFacet="ID"
+            referenceRepeat="0" referenceType="Required"/>
+        <ns2:ActionFacet label="Summary" referenceFacet="Summary"
+            referenceRepeat="0" referenceType="Required"/>
+        <ns2:Action actionId="Get" common="false">
+            <ns2:ActionRequest httpMethod="GET" mimeTypes=""
+                paramGroup="ID" pathTemplate="/J4b1v1s/{String}"/>
+            <ns2:ActionResponse
+                mimeTypes="APPLICATION_JSON APPLICATION_XML"
+                payloadType="BaseResource_ID" statusCodes="200"/>
+        </ns2:Action>
+    </ns2:Resource>
+    
+</ns2:Library>

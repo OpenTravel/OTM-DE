@@ -293,6 +293,15 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 		return newProperty == null ? this : newProperty;
 	}
 
+	/**
+	 * Clone the TLModelObject and create clone node using factory. Assign clone to parent. Set whereUsed on assigned
+	 * type.
+	 * 
+	 * @param parent
+	 *            PropertyOwnerInterface to add clone to
+	 * @param nameSuffix
+	 *            added at end of name if not null
+	 */
 	@Override
 	public PropertyNode clone(Node parent, String nameSuffix) {
 		PropertyNode clone = null;
@@ -303,6 +312,11 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 				assert clone instanceof PropertyNode;
 				if (nameSuffix != null)
 					clone.setName(clone.getName() + nameSuffix);
+				// Set the whereUsed for the type provider
+				if (clone.getAssignedType() != null)
+					clone.getAssignedType().addTypeUser(clone);
+				else
+					clone.setAssignedType();
 			}
 		}
 		return clone;

@@ -2251,20 +2251,20 @@ public abstract class Node implements INode {
 			n.mergeContext(targetId);
 	}
 
-	/**
-	 * calls LibraryNode.removeMember()
-	 * <p>
-	 * Use: library.remove(n);
-	 * 
-	 * @see LibraryNode
-	 */
-	@Override
-	@Deprecated
-	public void removeFromLibrary() {
-		if (getLibrary() != null)
-			getLibrary().removeMember(this);
-		// LOGGER.debug("Removed " + this + " from " + getLibrary().getNameWithPrefix());
-	}
+	// /**
+	// * calls LibraryNode.removeMember()
+	// * <p>
+	// * Use: library.remove(n);
+	// *
+	// * @see LibraryNode
+	// */
+	// @Override
+	// @Deprecated
+	// public void removeFromLibrary() {
+	// if (getLibrary() != null)
+	// getLibrary().removeMember(this);
+	// // LOGGER.debug("Removed " + this + " from " + getLibrary().getNameWithPrefix());
+	// }
 
 	/**
 	 * Replace all type assignments (base and assigned type) to this node with assignments to passed node. For every

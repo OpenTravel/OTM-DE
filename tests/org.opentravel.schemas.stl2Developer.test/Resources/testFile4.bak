@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:Library
+    xmlns:ns2="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06 OTA2_LibraryModel_v1.6.0.xsd">
+    
+    <ns2:VersionScheme>OTA2</ns2:VersionScheme>
+    <ns2:Status>Draft</ns2:Status>
+    <ns2:Namespace>http://opentravel.org/local/dave/t4</ns2:Namespace>
+    <ns2:Prefix>t2</ns2:Prefix>
+    <ns2:Name>Test4</ns2:Name>
+    <ns2:Includes>testFile5.otm</ns2:Includes>
+    <ns2:Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
+    <ns2:Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
+    <ns2:Context applicationContext="Default" context="default"/>
+    
+    <ns2:CoreObject name="StandardCore4" notExtendable="false">
+        <ns2:Aliases/>
+        <ns2:Simple type="String_Short"/>
+        <ns2:Summary>
+            <ns2:Attribute name="flight_Number" referenceRepeat="0" type="String_Short"/>
+            <ns2:Element name="Age" repeat="0" type="Age"/>
+            <ns2:Element name="AirlineSpecification" repeat="0" type="String_Medium"/>
+            <ns2:Element name="Flight_Misc" repeat="0" type="String_Short"/>
+            <ns2:Indicator name="testInd" publishAsElement="false"/>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Attribute name="pRBD" referenceRepeat="0" type="String_Short"/>
+            <ns2:Element name="RequestedDetailLevel" repeat="0" type="String_Short"/>
+            <ns2:Element name="RestrictedPayload" repeat="0" type="String_Short"/>
+        </ns2:Detail>
+        <ns2:Roles>
+            <ns2:Role value="StdRole"/>
+            <ns2:Role value="DetailedRole"/>
+            <ns2:Role value="simpleRole"/>
+        </ns2:Roles>
+    </ns2:CoreObject>
+    
+    <ns2:CoreObject name="BasicCore4" notExtendable="false">
+        <ns2:Aliases/>
+        <ns2:Simple type="String_Short"/>
+        <ns2:Summary>
+            <ns2:Attribute name="flightNum" referenceRepeat="0" type="String_Medium"/>
+            <ns2:Element name="Age" repeat="0" type="Age"/>
+            <ns2:Element name="Flight_Misc" repeat="0" type="String_Medium"/>
+            <ns2:Element name="AirlineSpecification" repeat="0" type="String_Short"/>
+            <ns2:Indicator name="testInd" publishAsElement="false"/>
+        </ns2:Summary>
+        <ns2:Detail/>
+    </ns2:CoreObject>
+    
+    <ns2:CoreObject name="CoreExtension" notExtendable="false">
+        <ns2:Extension extends="StandardCore4"/>
+        <ns2:Aliases/>
+        <ns2:Simple type="ota2:Empty"/>
+        <ns2:Summary>
+            <ns2:Attribute name="aircraft_Type" referenceRepeat="0" type="String_Long"/>
+            <ns2:Element name="Aircraft_Configuration" repeat="0" type="String_Medium"/>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Element name="MealService_TypeList" repeat="0" type="Price"/>
+        </ns2:Detail>
+    </ns2:CoreObject>
+    
+    <ns2:BusinessObject name="StdCoreProperties" notExtendable="false">
+        <ns2:Aliases/>
+        <ns2:ID>
+            <ns2:Element name="StandardCore_Simple" repeat="0" type="StandardCore4_Simple"/>
+        </ns2:ID>
+        <ns2:Summary>
+            <ns2:Element name="StandardCore4" repeat="0" type="StandardCore4"/>
+        </ns2:Summary>
+        <ns2:Detail/>
+    </ns2:BusinessObject>
+    
+    <ns2:BusinessObject name="SummaryCoreProperty" notExtendable="false">
+        <ns2:Aliases/>
+        <ns2:ID>
+            <ns2:Element name="StandardCore_Simple" repeat="0" type="StandardCore4_Simple"/>
+        </ns2:ID>
+        <ns2:Summary>
+            <ns2:Element name="StandardCore4Summary" repeat="0" type="StandardCore4_Summary">
+                <ns2:Documentation>
+                    <ns2:Description>This was assigned the summary facet.</ns2:Description>
+                </ns2:Documentation>
+            </ns2:Element>
+        </ns2:Summary>
+        <ns2:Detail/>
+    </ns2:BusinessObject>
+    
+    <ns2:BusinessObject name="DetailCoreProperty" notExtendable="false">
+        <ns2:Aliases/>
+        <ns2:ID>
+            <ns2:Attribute name="property1" referenceRepeat="0" type="xsd:ID"/>
+            <ns2:Element name="StandardCore_Simple" repeat="0" type="StandardCore4_Simple"/>
+        </ns2:ID>
+        <ns2:Summary>
+            <ns2:Element name="StandardCore4Detail" repeat="0" type="StandardCore4_Detail">
+                <ns2:Documentation>
+                    <ns2:Description>This was assigned the detail facet.</ns2:Description>
+                </ns2:Documentation>
+            </ns2:Element>
+        </ns2:Summary>
+        <ns2:Detail/>
+    </ns2:BusinessObject>
+    
+    <ns2:BusinessObject name="BaseCoreProperty" notExtendable="false">
+        <ns2:Aliases/>
+        <ns2:ID>
+            <ns2:Element name="StandardCore_Simple" repeat="0" type="StandardCore4_Simple"/>
+        </ns2:ID>
+        <ns2:Summary>
+            <ns2:Element name="DetailCorePropertyRef" reference="true"
+                repeat="0" type="DetailCoreProperty"/>
+        </ns2:Summary>
+        <ns2:Detail/>
+    </ns2:BusinessObject>
+    
+    <ns2:ValueWithAttrs name="Price" type="xsd:decimal">
+        <ns2:Documentation>
+            <ns2:Description>Specifies price after all applicable taxes of a product such as the rate for a room or fare for a flight.</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Attribute name="amountBeforeTax" referenceRepeat="0" type="xsd:decimal">
+            <ns2:Documentation>
+                <ns2:Description>The price before taxes are applied.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+        <ns2:Attribute name="currencyCode" referenceRepeat="0" type="Code_Currency">
+            <ns2:Documentation>
+                <ns2:Description>The currency code for the amount.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:Simple name="Code_Currency" pattern="([a-zA-Z]{3})?" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>Currency code - Preferred currencty code is a 3 char currency code as defined in ISO 4127</ns2:Description>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+</ns2:Library>

@@ -76,9 +76,17 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 			if (affectedNode == null || affectedNode.getParent() == null)
 				return; // happens during deletes
 
-			ln.getChildrenHandler().remove(affectedNode);
+			// Clear assigned types
+			// FIXME - this should be part of delete()
+			// for (Node n : affectedNode.getChildren_TypeUsers())
+			// if (n instanceof TypeUser)
+			// ((TypeUser) n).setAssignedType();
+			// if (affectedNode instanceof TypeUser)
+			// ((TypeUser) affectedNode).setAssignedType();
 
-			// TODO - versions, aggregates and where used
+			affectedNode.delete();
+			ln.getChildrenHandler().remove(affectedNode);
+			// TODO - versions, aggregates
 			break;
 
 		// LOGGER.debug("ERROR -- null parent.");

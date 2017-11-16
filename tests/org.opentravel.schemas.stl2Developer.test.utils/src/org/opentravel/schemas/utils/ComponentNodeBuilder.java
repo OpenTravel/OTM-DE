@@ -39,10 +39,8 @@ import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.VWA_Node;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
-import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
-import org.opentravel.schemas.node.facets.QueryFacetNode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -163,7 +161,7 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 		}
 
 		public VWANodeBuilder addAttribute(PropertyNode property) {
-			componentObject.getAttributeFacet().addProperty(property);
+			componentObject.getFacet_Attributes().addProperty(property);
 			return this;
 		}
 
@@ -178,25 +176,26 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 			super(businessObject);
 		}
 
-		public BusinessNodeBuilder addQueryFacet(String name) {
-			// String context = null;
-			ContextualFacetNode newFacet = new QueryFacetNode();
-			componentObject.getTLModelObject().addQueryFacet(newFacet.getTLModelObject());
-			// componentObject.getModelObject().addQueryFacet((TLContextualFacet) newFacet.getTLModelObject());
-			componentObject.linkChild(newFacet);
-			newFacet.setName(name);
-			return this;
-		}
+		// public BusinessNodeBuilder addQueryFacet(String name) {
+		// // String context = null;
+		// ContextualFacetNode newFacet = new QueryFacetNode();
+		// componentObject.getTLModelObject().addQueryFacet(newFacet.getTLModelObject());
+		// // componentObject.getModelObject().addQueryFacet((TLContextualFacet) newFacet.getTLModelObject());
+		// componentObject.linkChild(newFacet);
+		// newFacet.setName(name);
+		// return this;
+		// }
 
-		public BusinessNodeBuilder addCustomFacet(String name) {
-			// String context = null;
-			CustomFacetNode newFacet = new CustomFacetNode();
-			componentObject.getTLModelObject().addCustomFacet(newFacet.getTLModelObject());
-			// componentObject.getModelObject().addCustomFacet((TLContextualFacet) newFacet.getTLModelObject());
-			componentObject.linkChild(newFacet);
-			newFacet.setName(name);
-			return this;
-		}
+		// @Deprecated
+		// public BusinessNodeBuilder addCustomFacet(String name) {
+		// // String context = null;
+		// CustomFacetNode newFacet = new CustomFacetNode();
+		// componentObject.getTLModelObject().addCustomFacet(newFacet.getTLModelObject());
+		// // componentObject.getModelObject().addCustomFacet((TLContextualFacet) newFacet.getTLModelObject());
+		// componentObject.linkChild(newFacet);
+		// newFacet.setName(name);
+		// return this;
+		// }
 
 		public BusinessNodeBuilder extend(BusinessObjectNode boBase) {
 			componentObject.setExtension(boBase);
@@ -216,9 +215,9 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 	}
 
 	public static ComponentNodeBuilder<ComponentNode> createSimpleCore(String name) {
-		CoreObjectNode newNode = (CoreObjectNode) NodeFactory.newComponent(new TLCoreObject());
+		CoreObjectNode newNode = (CoreObjectNode) NodeFactory.newLibraryMember(new TLCoreObject());
 		newNode.setName(name);
-		newNode.setSimpleType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
+		newNode.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
 		PropertyNode newProp = new ElementNode(newNode.getFacet_Summary(), "Property",
 				((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE)));
 		return new ComponentNodeBuilder<ComponentNode>(newNode);
@@ -228,7 +227,7 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 		TLCoreObject tlCoreObject = new TLCoreObject();
 		tlCoreObject.setName(name);
 		tlCoreObject.getSimpleListFacet();
-		CoreObjectNode newNode = (CoreObjectNode) NodeFactory.newComponent(tlCoreObject);
+		CoreObjectNode newNode = (CoreObjectNode) NodeFactory.newLibraryMember(tlCoreObject);
 		return new CoreNodeBuilder(newNode);
 	}
 
@@ -236,7 +235,7 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 		TLChoiceObject tlChoiceObject = new TLChoiceObject();
 		tlChoiceObject.setName(name);
 		// tlCoreObject.getSimpleListFacet();
-		ChoiceObjectNode newNode = (ChoiceObjectNode) NodeFactory.newComponent(tlChoiceObject);
+		ChoiceObjectNode newNode = (ChoiceObjectNode) NodeFactory.newLibraryMember(tlChoiceObject);
 		return new ChoiceNodeBuilder(newNode);
 	}
 
@@ -247,41 +246,41 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 		simple.setName("fakeName");
 		tl.setParentType(simple); // assignment should fail because it is recursive
 		// type assignment will fail because of no library
-		VWA_Node vwa = (VWA_Node) NodeFactory.newComponent(tl);
+		VWA_Node vwa = (VWA_Node) NodeFactory.newLibraryMember(tl);
 		return new VWANodeBuilder(vwa);
 	}
 
 	public static BusinessNodeBuilder createBusinessObject(String name) {
 		TLBusinessObject tl = new TLBusinessObject();
 		tl.setName(name);
-		BusinessObjectNode businessNode = (BusinessObjectNode) NodeFactory.newComponent(tl);
+		BusinessObjectNode businessNode = (BusinessObjectNode) NodeFactory.newLibraryMember(tl);
 		return new BusinessNodeBuilder(businessNode);
 	}
 
 	public static SimpleNodeBuilder createSimpleObject(String name) {
 		TLSimple simple = new TLSimple();
 		simple.setName(name);
-		SimpleTypeNode so = (SimpleTypeNode) NodeFactory.newComponent(simple);
+		SimpleTypeNode so = (SimpleTypeNode) NodeFactory.newLibraryMember(simple);
 		return new SimpleNodeBuilder(so);
 	}
 
 	public static ExtensionPointBuilder createExtensionPoint(String name) {
 		TLExtensionPointFacet simple = new TLExtensionPointFacet();
-		ExtensionPointNode so = (ExtensionPointNode) NodeFactory.newComponent(simple);
+		ExtensionPointNode so = (ExtensionPointNode) NodeFactory.newLibraryMember(simple);
 		return new ExtensionPointBuilder(so);
 	}
 
 	public static EnumerationOpenBuilder createEnumerationOpen(String name) {
 		TLOpenEnumeration simple = new TLOpenEnumeration();
 		simple.setName(name);
-		EnumerationOpenNode so = (EnumerationOpenNode) NodeFactory.newComponent(simple);
+		EnumerationOpenNode so = (EnumerationOpenNode) NodeFactory.newLibraryMember(simple);
 		return new EnumerationOpenBuilder(so);
 	}
 
 	public static EnumerationClosedBuilder createEnumerationClosed(String name) {
 		TLClosedEnumeration simple = new TLClosedEnumeration();
 		simple.setName(name);
-		EnumerationClosedNode so = (EnumerationClosedNode) NodeFactory.newComponent(simple);
+		EnumerationClosedNode so = (EnumerationClosedNode) NodeFactory.newLibraryMember(simple);
 		return new EnumerationClosedBuilder(so);
 	}
 
@@ -298,10 +297,10 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 		return this;
 	}
 
-	public ComponentNodeBuilder<T> setSimpleType() {
+	public ComponentNodeBuilder<T> setAssignedType() {
 		if (componentObject instanceof SimpleAttributeOwner) {
-			((SimpleAttributeOwner) componentObject).setSimpleType((TypeProvider) NodeFinders.findNodeByName("string",
-					ModelNode.XSD_NAMESPACE));
+			((SimpleAttributeOwner) componentObject).setAssignedType((TypeProvider) NodeFinders.findNodeByName(
+					"string", ModelNode.XSD_NAMESPACE));
 		}
 		return this;
 	}
@@ -311,7 +310,8 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 	}
 
 	public T get(LibraryNode target) {
-		target.addMember(componentObject);
+		assert componentObject instanceof LibraryMemberInterface;
+		target.addMember((LibraryMemberInterface) componentObject);
 		return componentObject;
 	}
 

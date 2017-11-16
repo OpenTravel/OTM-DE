@@ -30,10 +30,7 @@ import org.junit.Test;
 import org.opentravel.schemacompiler.util.URLUtils;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
-import org.opentravel.schemas.node.ImpliedNode;
-import org.opentravel.schemas.node.ImpliedNodeType;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -58,6 +55,7 @@ public class LoadFiles {
 	private String path5c = "Resources" + File.separator + "testFile5-Clean.otm";
 	private String path6 = "Resources" + File.separator + "testFile6.otm";
 	private String path7 = "Resources" + File.separator + "testFile7.otm";
+	private String pathEP = "Resources" + File.separator + "testFile-ExtensionPoints2.otm";
 	private String contextFile1 = "Resources" + File.separator + "base_library.otm";
 	private String contextFile2 = "Resources" + File.separator + "facets1_library.otm";
 	private String contextFile3 = "Resources" + File.separator + "facets2_library.otm";
@@ -66,6 +64,9 @@ public class LoadFiles {
 	private String Project2 = "Resources" + File.separator + "testProject2.otp";
 	private String VersionTestProject = "Resources" + File.separator + "VersionTests" + File.separator
 			+ "VersionTests.otp";
+	private String xsd1 = "Resources" + File.separator + "CommonTypes.xsd";
+	private String xsd2 = "Resources" + File.separator + "CreateVWAFromExtened.xsd";
+	private String xsd3 = "Resources" + File.separator + "OTA2_LibraryModel_v1.4.5.xsd";
 
 	private MainController mc;
 	private int nodeCount = 0;
@@ -123,7 +124,7 @@ public class LoadFiles {
 	}
 
 	/**
-	 * Load files 1 through 5 into default project. No tests.
+	 * Load files 1 through 5 into default project. No tests. NOTE - file5 is not valid
 	 */
 	public int loadTestGroupA(MainController mc) throws Exception {
 		ProjectController pc = mc.getProjectController();
@@ -140,45 +141,62 @@ public class LoadFiles {
 	}
 
 	/**
-	 * Remove any nodes with bad assignments. The removed nodes will not pass Node_Tests/visitNode().
+	 * Load files 1 through 5-clean into default project. No tests.
 	 */
-	@Deprecated
-	public void cleanModel() {
-		NodeVisitor srcVisitor = new NodeTesters().new ValidateTLObject();
-		for (LibraryNode ln : Node.getAllUserLibraries()) {
-			// LOGGER.debug("Cleaning Library " + ln + " with " +
-			// ln.getDescendants_TypeUsers().size()
-			// + " type users.");
-			for (TypeUser n : ln.getDescendants_TypeUsers()) {
-				if (n.getAssignedType() instanceof ImpliedNode) {
-					if (((ImpliedNode) n.getAssignedType()).getImpliedType().equals(ImpliedNodeType.UnassignedType)) {
-						// LOGGER.debug("Removing " + n + " due to unassigned type.");
-						if (!((Node) n).isDeleted())
-							((Node) n).getOwningComponent().delete();
-						continue;
-					}
-				}
-				if (n.getAssignedTLObject() == null) {
-					// LOGGER.debug("Removing " + n + " due to null TL_TypeObject.");
-					if (((Node) n).getOwningComponent() != null)
-						((Node) n).getOwningComponent().delete();
-					continue;
-				}
-				// if (!n.getTypeClass().verifyAssignment()) {
-				// // LOGGER.debug("Removing " + n + " due to type node mismatch.");
-				// n.getOwningComponent().delete();
-				// continue;
-				// }
-				try {
-					srcVisitor.visit((INode) n);
-				} catch (IllegalStateException e) {
-					// LOGGER.debug("Removing " + n + " due to: " + e.getLocalizedMessage());
-					((Node) n).getOwningComponent().delete();
-				}
+	public int loadTestGroupAc(MainController mc) throws Exception {
+		ProjectController pc = mc.getProjectController();
 
-			}
-		}
+		List<File> files = new ArrayList<File>();
+		files.add(new File(filePath1));
+		files.add(new File(filePath2));
+		files.add(new File(filePath3));
+		files.add(new File(filePath4));
+		files.add(new File(path5c));
+		pc.getDefaultProject().add(files);
+		int libCnt = pc.getDefaultProject().getChildren().size();
+		return libCnt;
 	}
+
+	// /**
+	// * Remove any nodes with bad assignments. The removed nodes will not pass Node_Tests/visitNode().
+	// */
+	// @Deprecated
+	// public void cleanModelX() {
+	// NodeVisitor srcVisitor = new NodeTesters().new ValidateTLObject();
+	// for (LibraryNode ln : Node.getAllUserLibraries()) {
+	// // LOGGER.debug("Cleaning Library " + ln + " with " +
+	// // ln.getDescendants_TypeUsers().size()
+	// // + " type users.");
+	// for (TypeUser n : ln.getDescendants_TypeUsers()) {
+	// if (n.getAssignedType() instanceof ImpliedNode) {
+	// if (((ImpliedNode) n.getAssignedType()).getImpliedType().equals(ImpliedNodeType.UnassignedType)) {
+	// // LOGGER.debug("Removing " + n + " due to unassigned type.");
+	// if (!((Node) n).isDeleted())
+	// ((Node) n).getOwningComponent().delete();
+	// continue;
+	// }
+	// }
+	// if (n.getAssignedTLObject() == null) {
+	// // LOGGER.debug("Removing " + n + " due to null TL_TypeObject.");
+	// if (((Node) n).getOwningComponent() != null)
+	// ((Node) n).getOwningComponent().delete();
+	// continue;
+	// }
+	// // if (!n.getTypeClass().verifyAssignment()) {
+	// // // LOGGER.debug("Removing " + n + " due to type node mismatch.");
+	// // n.getOwningComponent().delete();
+	// // continue;
+	// // }
+	// try {
+	// srcVisitor.visit((INode) n);
+	// } catch (IllegalStateException e) {
+	// // LOGGER.debug("Removing " + n + " due to: " + e.getLocalizedMessage());
+	// ((Node) n).getOwningComponent().delete();
+	// }
+	//
+	// }
+	// }
+	// }
 
 	/**
 	 * Load a file into the default project. NOTE - if the file is already open an assertion error will be thrown. NOTE
@@ -208,6 +226,7 @@ public class LoadFiles {
 		List<File> files = new ArrayList<File>();
 		files.add(new File(path));
 		assertTrue("File must exist.", files.get(0).exists());
+
 		// System.out.println("Project " + project + " namespace = " + project.getNamespace() + " file = " + path);
 		project.add(files);
 
@@ -219,7 +238,7 @@ public class LoadFiles {
 			URL u = URLUtils.toURL(new File(System.getProperty("user.dir") + File.separator + path));
 			LibraryNode ln = null;
 			for (LibraryNode lib : project.getLibraries()) {
-				URL url = lib.getTLaLib().getLibraryUrl();
+				URL url = lib.getTLModelObject().getLibraryUrl();
 				if (u.equals(url)) {
 					ln = lib;
 					break;
@@ -227,6 +246,7 @@ public class LoadFiles {
 			}
 			assertTrue("Library must be found that has the correct url.", ln != null);
 			assertTrue("Library must have children.", ln.getChildren().size() > 0);
+			new TypeResolver().resolveTypes();
 			return ln;
 		}
 		return null;
@@ -277,6 +297,12 @@ public class LoadFiles {
 		return loadFile5(mc);
 	}
 
+	/**
+	 * WARNING - this library has validation errors
+	 * 
+	 * @param thisModel
+	 * @return
+	 */
 	public LibraryNode loadFile5(MainController thisModel) {
 		LibraryNode ln = loadFile(thisModel, filePath5);
 		return ln;
@@ -287,6 +313,10 @@ public class LoadFiles {
 		return ln;
 	}
 
+	public LibraryNode loadFile_ExtensionPoint(MainController mc) {
+		return loadFile(mc, pathEP);
+	}
+
 	public LibraryNode loadFile6(MainController thisModel) {
 		LibraryNode ln = loadFile(thisModel, path6);
 		return ln;
@@ -294,6 +324,21 @@ public class LoadFiles {
 
 	public LibraryNode loadFile6(ProjectNode project) {
 		return loadFile(project, path6);
+	}
+
+	public LibraryNode loadFileXsd1(ProjectNode projectNode) {
+		LibraryNode ln = loadFile(projectNode, xsd1);
+		return ln;
+	}
+
+	public LibraryNode loadFileXsd2(ProjectNode projectNode) {
+		LibraryNode ln = loadFile(projectNode, xsd2);
+		return ln;
+	}
+
+	public LibraryNode loadFileXsd3(ProjectNode projectNode) {
+		LibraryNode ln = loadFile(projectNode, xsd3);
+		return ln;
 	}
 
 	/**
@@ -381,18 +426,18 @@ public class LoadFiles {
 
 		for (INode n : new ArrayList<>(mc.getModelNode().getChildren())) {
 			nodeCount++;
-			actOnNode(n);
+			actOnNode((Node) n);
 		}
 
 	}
 
-	private void actOnNode(INode n) {
+	private void actOnNode(Node n) {
 		if (n instanceof TypeUser && n instanceof TypeProvider)
 			((TypeUser) n).setAssignedType((TypeProvider) n);
 		n.setName("TEST");
 		switch (nodeCount % 3) {
 		case 0:
-			n.removeFromLibrary();
+			n.getLibrary().removeMember(n);
 			n.close();
 			break;
 		case 1:

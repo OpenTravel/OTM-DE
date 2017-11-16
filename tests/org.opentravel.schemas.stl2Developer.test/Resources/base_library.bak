@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:Library
+    xmlns:ns2="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06 OTA2_LibraryModel_v1.6.0.xsd">
+    
+    <ns2:VersionScheme>OTA2</ns2:VersionScheme>
+    <ns2:Status>Draft</ns2:Status>
+    <ns2:Namespace>http://www.OpenTravel.org/ns/OTA2/SchemaCompiler/test-package-facets/base/v1</ns2:Namespace>
+    <ns2:Prefix>b</ns2:Prefix>
+    <ns2:Name>base_library</ns2:Name>
+    <ns2:Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
+    <ns2:Context applicationContext="default-applicationContext" context="default"/>
+    <ns2:Comments>Base Facet Test Library</ns2:Comments>
+    <ns2:ChoiceObject name="FacetTestChoice" notExtendable="false">
+        <ns2:Aliases>FacetTestChoiceAlias1 FacetTestChoiceAlias2</ns2:Aliases>
+        <ns2:Shared>
+            <ns2:Attribute name="sharedAttribute" referenceRepeat="0" type="xsd:string"/>
+            <ns2:Element name="SharedElement" repeat="0" type="xsd:string"/>
+            <ns2:Indicator name="sharedIndicatorInd" publishAsElement="false"/>
+        </ns2:Shared>
+    </ns2:ChoiceObject>
+    <ns2:ContextualFacet facetOwner="FacetTestChoice" name="ChoiceF1"
+        notExtendable="false" type="Choice">
+        <ns2:Attribute name="attributeChoiceF1" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Element name="ElementChoiceF1" repeat="0" type="xsd:string"/>
+        <ns2:Indicator name="indicatorChoiceF1Ind" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="FacetTestChoice_ChoiceF1"
+        name="ChoiceF1A" notExtendable="false" type="Choice">
+        <ns2:Attribute name="attributeChoiceF1A" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Element name="elementChoiceF1A" repeat="0" type="xsd:string"/>
+        <ns2:Indicator name="indicatorChoiceF1AInd" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ChoiceObject name="ExtFacetTestChoice" notExtendable="false">
+        <ns2:Extension extends="FacetTestChoice"/>
+        <ns2:Aliases>ExtFacetTestChoiceAlias1 ExtFacetTestChoiceAlias2</ns2:Aliases>
+        <ns2:Shared>
+            <ns2:Attribute name="sharedAttributeExt" referenceRepeat="0" type="xsd:string"/>
+            <ns2:Element name="SharedElementExt" repeat="0" type="xsd:string"/>
+            <ns2:Indicator name="sharedIndicatorExtInd" publishAsElement="false"/>
+        </ns2:Shared>
+    </ns2:ChoiceObject>
+    <ns2:ContextualFacet facetOwner="ExtFacetTestChoice" name="ChoiceF2"
+        notExtendable="false" type="Choice">
+        <ns2:Attribute name="attributeChoiceF2Ext" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Element name="ElementChoiceF2Ext" repeat="0" type="xsd:string"/>
+        <ns2:Indicator name="indicatorChoiceF2ExtInd" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    
+    <ns2:BusinessObject name="FacetTestBO" notExtendable="false">
+        <ns2:Aliases>FacetTestBOAlias1 FacetTestBOAlias2</ns2:Aliases>
+        <ns2:ID>
+            <ns2:Attribute name="uid" referenceRepeat="0" type="xsd:string"/>
+        </ns2:ID>
+        <ns2:Summary/>
+        <ns2:Detail/>
+    </ns2:BusinessObject>
+    <ns2:ContextualFacet facetOwner="FacetTestBO" name="CustomF1"
+        notExtendable="false" type="Custom">
+        <ns2:Attribute name="attributeCustomF1" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Element name="ElementCustomF1" repeat="0" type="xsd:string"/>
+        <ns2:Indicator name="indicatorCustomF1Ind" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="FacetTestBO_CustomF1"
+        name="CustomF1A" notExtendable="false" type="Custom">
+        <ns2:Attribute name="attributeCustomF1A" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Element name="elementCustomF1A" repeat="0" type="xsd:string"/>
+        <ns2:Indicator name="indicatorCustomF1AInd" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="FacetTestBO" name="QueryF1"
+        notExtendable="false" type="Query">
+        <ns2:Attribute name="attributeQueryF1" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Element name="ElementQueryF1" repeat="0" type="xsd:string"/>
+        <ns2:Indicator name="indicatorQueryF1Ind" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="FacetTestBO_Query_QueryF1"
+        name="QueryF1A" notExtendable="false" type="Query">
+        <ns2:Attribute name="attributeQueryF1A" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Element name="elementQueryF1A" repeat="0" type="xsd:string"/>
+        <ns2:Indicator name="indicatorQueryF1AInd" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="FacetTestBO" name="UpdateF1"
+        notExtendable="false" type="Update">
+        <ns2:Attribute name="attributeUpdateF1" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Element name="elementUpdateF1" repeat="0" type="xsd:string"/>
+        <ns2:Indicator name="indicatorUpdateF1Ind" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="FacetTestBO_Update_UpdateF1"
+        name="UpdateF1A" notExtendable="false" type="Update">
+        <ns2:Attribute name="attributeUpdateF1A" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Element name="elementUpdateF1A" repeat="0" type="xsd:string"/>
+        <ns2:Indicator name="indicatorUpdateF1AInd" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    
+    <ns2:BusinessObject name="ExtFacetTestBO" notExtendable="false">
+        <ns2:Extension extends="FacetTestBO"/>
+        <ns2:Aliases>ExtFacetTestBOAlias1 ExtFacetTestBOAlias2</ns2:Aliases>
+        <ns2:ID/>
+        <ns2:Summary/>
+        <ns2:Detail/>
+    </ns2:BusinessObject>
+    <ns2:ContextualFacet facetOwner="ExtFacetTestBO" name="CustomF2"
+        notExtendable="false" type="Custom">
+        <ns2:Attribute name="attributeCustomF2Ext" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Element name="ElementCustomF2Ext" repeat="0" type="xsd:string"/>
+        <ns2:Indicator name="indicatorCustomF2ExtInd" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="ExtFacetTestBO" name="QueryF2"
+        notExtendable="false" type="Query">
+        <ns2:Attribute name="attributeQueryF2Ext" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Element name="ElementQueryF2Ext" repeat="0" type="xsd:string"/>
+        <ns2:Indicator name="indicatorQueryF2ExtInd" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetOwner="ExtFacetTestBO" name="UpdateF2"
+        notExtendable="false" type="Update">
+        <ns2:Attribute name="attributeUpdateF2Ext" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Element name="elementUpdateF2Ext" repeat="0" type="xsd:string"/>
+        <ns2:Indicator name="indicatorUpdateF2ExtInd" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:Resource abstract="false" basePath="/services/SampleResource"
+        businessObjectRef="FacetTestBO" firstClass="true" name="SampleResource">
+        <ns2:ParamGroup facetName="FacetTestBO_CustomF1_CustomF1A"
+            idGroup="true" name="IDParameters">
+            <ns2:Parameter fieldName="attributeCustomF1" location="Path"/>
+        </ns2:ParamGroup>
+        <ns2:ActionFacet label="ObjectOnly" referenceRepeat="0" referenceType="Required"/>
+        <ns2:ActionFacet label="ObjectList"
+            referenceFacet="Query_QueryF1_QueryF1A"
+            referenceRepeat="1000" referenceType="Required"/>
+    </ns2:Resource>
+    
+</ns2:Library>

@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Library xmlns="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_05"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_05 OTA2_LibraryModel_v1.5.0.xsd">
+    
+    <VersionScheme>OTA2</VersionScheme>
+    <Status>Draft</Status>
+    <Namespace>http://www.OpenTravel.org/ns/OTA2/SchemaCompiler/test-package_v2</Namespace>
+    <Prefix>pkg2</Prefix>
+    <Name>library_1_p2</Name>
+    <Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
+    <Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
+    <Context applicationContext="test-applicationContext" context="test"/>
+    <Context applicationContext="test-simple-applicationContext" context="test-simple"/>
+    <Context applicationContext="Sample-applicationContext" context="Sample"/>
+    <Comments>Test Library</Comments>
+    
+    <Simple name="Counter_3" type="pkg1:Counter_1">
+        <Documentation>
+            <Description>Counter_3-documentation-line_1</Description>
+        </Documentation>
+    </Simple>
+    
+    <Simple fractionDigits="2" name="TestFloat" totalDigits="4" type="xsd:decimal"/>
+    
+    <Enumeration_Open name="SampleEnum_Open">
+        <Extension extends="SampleEnum_Open"/>
+        <Value label="" literal="one"/>
+        <Value label="" literal="two"/>
+        <Value label="" literal="three"/>
+    </Enumeration_Open>
+    <Enumeration_Open name="SampleEnumExt_Open">
+        <Extension extends="SampleEnum_Open"/>
+        <Value label="" literal="seven"/>
+        <Value label="" literal="eight"/>
+        <Value label="" literal="nine"/>
+    </Enumeration_Open>
+    
+    <ValueWithAttrs name="SampleValueWithAttributes" type="Enum_SampleCoreRole">
+        <Documentation>
+            <Description>SampleValueWithAttributes-documentation-line_1</Description>
+        </Documentation>
+        <ValueDocumentation>
+            <Description>SampleValueWithAttributes-value-documentation-line_1</Description>
+        </ValueDocumentation>
+        <Equivalent context="test">SampleValueWithAttributes-equivalent</Equivalent>
+        <Example context="test">SampleValueWithAttributes-ex</Example>
+        <Attribute name="attr1" type="Counter_3">
+            <Documentation>
+                <Description>attr1-description</Description>
+            </Documentation>
+        </Attribute>
+        <Attribute mandatory="true" name="attr2" type="Counter_4"/>
+        <Attribute name="attr3" type="pkg1:Counter_1">
+            <Example context="test">attr3-ex</Example>
+        </Attribute>
+        <Attribute name="attr4" type="xsd:int">
+            <Equivalent context="test">attr4-equivalent</Equivalent>
+        </Attribute>
+        <Indicator name="indicator1Ind" publishAsElement="false"/>
+    </ValueWithAttrs>
+    
+    <ValueWithAttrs name="NestedValueWithAttributes" type="SampleValueWithAttributes">
+        <Attribute mandatory="true" name="attr5" type="xsd:string"/>
+        <Indicator name="indicator2Ind" publishAsElement="false"/>
+    </ValueWithAttrs>
+    
+    <CoreObject name="SampleCore" notExtendable="false">
+        <Documentation>
+            <Description>SampleCore-documentation-line_1</Description>
+        </Documentation>
+        <Equivalent context="test">SampleCore-equivalent</Equivalent>
+        <Aliases>SampleCore_Alias1 SampleCore_Alias2</Aliases>
+        <Simple type="xsd:string">
+            <Documentation>
+                <Description>SimpleFacet-description</Description>
+            </Documentation>
+            <Equivalent context="test-simple">SimpleFacet-equivalent</Equivalent>
+            <Example context="test-simple">SimpleFacet-ex</Example>
+        </Simple>
+        <Summary>
+            <Documentation>
+                <Description>SampleCore_Summary-documentation-line_1</Description>
+            </Documentation>
+            <Attribute name="attr1" type="Counter_3">
+                <Documentation>
+                    <Description>attr1-description</Description>
+                </Documentation>
+            </Attribute>
+            <Attribute mandatory="true" name="attr2" type="Counter_4"/>
+            <Attribute name="attr3" type="pkg1:Counter_1">
+                <Example context="test">attr3-ex</Example>
+            </Attribute>
+            <Attribute name="attr4" type="xsd:int">
+                <Equivalent context="test">attr4-equivalent</Equivalent>
+            </Attribute>
+            <Attribute name="messageId" type="xsd:ID"/>
+            <Element name="Element1" repeat="0" type="Counter_3">
+                <Documentation>
+                    <Description>element1-description</Description>
+                </Documentation>
+            </Element>
+            <Element name="Element2" repeat="0" type="Counter_4"/>
+            <Element mandatory="true" name="Element3" repeat="0" type="pkg1:Counter_1">
+                <Example context="test">element3-ex</Example>
+            </Element>
+            <Element name="Element4" repeat="0" type="xsd:string">
+                <Equivalent context="test">element4-equivalent</Equivalent>
+            </Element>
+            <Element name="EmptyBusinessObject" repeat="5" type="EmptyBusinessObject"/>
+            <Element name="SampleBusinessObject_Alias1Detail" repeat="*" type="SampleBusinessObject_Alias1_Detail"/>
+            <Indicator name="indicator1Ind" publishAsElement="false">
+                <Documentation>
+                    <Description>indicator1-description</Description>
+                </Documentation>
+            </Indicator>
+            <Indicator name="indicator2Ind" publishAsElement="false">
+                <Equivalent context="test">indicator2-equivalent</Equivalent>
+            </Indicator>
+        </Summary>
+        <Detail>
+            <Indicator name="indicator3Ind" publishAsElement="false"/>
+        </Detail>
+        <Roles>
+            <Role value="Role1">
+                <Documentation>
+                    <Description>SampleCore_Role1-documentation-line_1</Description>
+                </Documentation>
+            </Role>
+            <Role value="Role2">
+                <Documentation>
+                    <Description>SampleCore_Role2-documentation-line_1</Description>
+                </Documentation>
+            </Role>
+        </Roles>
+    </CoreObject>
+    
+    <CoreObject name="SimpleCore" notExtendable="true">
+        <Extension extends="SampleCore"/>
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Indicator name="simpleIndicatorInd" publishAsElement="false"/>
+        </Summary>
+        <Detail/>
+        <Roles>
+            <Role value="simple_role_1"/>
+            <Role value="simple_role_2"/>
+            <Role value="simple_role_3"/>
+        </Roles>
+    </CoreObject>
+    
+    <CoreObject name="EnumCore" notExtendable="false">
+        <Aliases>EnumCore_Alias1 EnumCore_Alias2</Aliases>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Indicator name="enumIndicatorInd" publishAsElement="false"/>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    
+    <CoreObject name="NoSimpleBaseTypeCore" notExtendable="true">
+        <Aliases/>
+        <Simple type="ota2:Empty"/>
+        <Summary>
+            <Indicator name="noSimpleIndicatorInd" publishAsElement="false"/>
+        </Summary>
+        <Detail/>
+    </CoreObject>
+    <ChoiceObject name="SampleChoice" notExtendable="false">
+        <Documentation>
+            <Description>SampleChoice-documentation-line_1</Description>
+        </Documentation>
+        <Equivalent context="test">SampleChoice-equivalent</Equivalent>
+        <Aliases>SampleChoice_Alias1 SampleChoice_Alias2</Aliases>
+        <Shared>
+            <Attribute name="sharedAttribute" type="xsd:string"/>
+            <Element name="SharedElement" repeat="0" type="xsd:int"/>
+            <Indicator name="sharedIndicatorInd" publishAsElement="false"/>
+        </Shared>
+    </ChoiceObject>
+    <ChoiceObject name="ExtendedChoice" notExtendable="false">
+        <Extension extends="SampleChoice"/>
+        <Aliases>ExtChoice_Alias1 ExtChoice_Alias2</Aliases>
+        <Shared>
+            <Attribute name="sharedAttribute2" type="xsd:string"/>
+            <Element name="SharedElement2" repeat="0" type="xsd:int"/>
+            <Indicator name="sharedIndicator2Ind" publishAsElement="false"/>
+        </Shared>
+    </ChoiceObject>
+    
+    <BusinessObject name="EmptyBusinessObject" notExtendable="false">
+        <Aliases/>
+        <ID>
+            <Attribute name="messageId" type="xsd:ID"/>
+            <Element name="Empty_oid" repeat="0" type="xsd:int"/>
+        </ID>
+        <Summary/>
+        <Detail/>
+    </BusinessObject>
+    
+    <BusinessObject name="SampleBusinessObject" notExtendable="true">
+        <Documentation>
+            <Description>SampleBusinessObject-documentation-line_1</Description>
+        </Documentation>
+        <Equivalent context="test">SampleBusinessObject-equivalent</Equivalent>
+        <Extension extends="EmptyBusinessObject"/>
+        <Aliases>SampleBusinessObject_Alias1 SampleBusinessObject_Alias2</Aliases>
+        <ID>
+            <Element name="Sample_oid" repeat="0" type="xsd:int"/>
+        </ID>
+        <Summary>
+            <Attribute name="sampleCoreAttr" type="SampleCore"/>
+            <Element name="SummaryName" repeat="0" type="xsd:string"/>
+        </Summary>
+        <Detail>
+            <Element name="DetailName" repeat="0" type="xsd:string"/>
+        </Detail>
+    </BusinessObject>
+    
+    <BusinessObject name="CompoundBusinessObject" notExtendable="false">
+        <Documentation>
+            <Description>SampleBusinessObject-documentation-line_1</Description>
+        </Documentation>
+        <Equivalent context="test">SampleCompositeObject-equivalent</Equivalent>
+        <Aliases/>
+        <ID>
+            <Element name="Oid" repeat="0" type="xsd:int"/>
+        </ID>
+        <Summary>
+            <Element name="Name" repeat="0" type="xsd:string"/>
+        </Summary>
+        <Detail>
+            <Element name="SampleVWA" repeat="0" type="MyVWA"/>
+            <Element name="SampleCores" repeat="0" type="SampleCore_Simple_List"/>
+            <Element name="SampleCoreDetail" repeat="2" type="SampleCore_Detail_List"/>
+            <Element name="SampleCore_Alias1Detail" repeat="0" type="SampleCore_Alias1_Detail_List"/>
+            <Element name="SampleCoreRoleProperty" repeat="0" type="Enum_SampleCoreRole"/>
+            <Element name="EnumCore" repeat="0" type="EnumCore"/>
+            <Element name="EnumCore_Alias1" repeat="0" type="EnumCore_Alias1_Summary"/>
+            <Element name="SampleOpenEnumProperty" repeat="0" type="SampleEnum_Open"/>
+            <Element name="SampleBusinessObject" repeat="0" type="SampleBusinessObject"/>
+            <Element name="SampleBusinessObject_Alias1" repeat="0" type="SampleBusinessObject_Alias1"/>
+            <Element mandatory="true" name="SampleCoreSummaryRef"
+                reference="true" repeat="2" type="SampleCore_Summary"/>
+            <Element name="SampleBusinessObject_Alias2Test1" repeat="0" type="SampleBusinessObject_Alias2_Test1"/>
+        </Detail>
+    </BusinessObject>
+    <Resource abstract="true" businessObjectRef="CompoundBusinessObject"
+        firstClass="true" name="BaseResource">
+        <Action actionId="CommonErrors" common="true">
+            <ActionResponse mimeTypes="APPLICATION_XML APPLICATION_JSON"
+                payloadType="SampleCore" statusCodes="403 500">
+                <Documentation>
+                    <Description>Action-Search-Response2-documentation-line_1</Description>
+                </Documentation>
+            </ActionResponse>
+        </Action>
+    </Resource>
+    <Resource abstract="false" basePath="/services/EmptyResource"
+        businessObjectRef="EmptyBusinessObject" firstClass="true" name="ParentResource">
+        <ParamGroup facetName="EmptyBusinessObject_ID" idGroup="true" name="IDParameters">
+            <Parameter fieldName="Empty_oid" location="Path"/>
+        </ParamGroup>
+    </Resource>
+    <Resource abstract="false" basePath="/services/SampleResource"
+        businessObjectRef="SampleBusinessObject" firstClass="true" name="SampleResource">
+        <Documentation>
+            <Description>SampleResource-documentation-line_1</Description>
+        </Documentation>
+        <ResourceParentRef parent="ParentResource"
+            parentParamGroup="IDParameters" pathTemplate="/parent/{empty_oid}">
+            <Documentation>
+                <Description>SampleResource-ParentRef-documentation-line_1</Description>
+            </Documentation>
+        </ResourceParentRef>
+        <Extension extends="BaseResource"/>
+        <ParamGroup facetName="SampleBusinessObject_ID" idGroup="true" name="IDParameters">
+            <Documentation>
+                <Description>IDParameters-documentation-line_1</Description>
+            </Documentation>
+            <Parameter fieldName="Sample_oid" location="Path">
+                <Documentation>
+                    <Description>Param-sample_oid-documentation-line_1</Description>
+                </Documentation>
+                <Equivalent context="test">Param-sample_oid-equivalent</Equivalent>
+                <Example context="test">sample_oid-ex</Example>
+            </Parameter>
+        </ParamGroup>
+        <ParamGroup facetName="SampleBusinessObject_Query_FindByName"
+            idGroup="false" name="QueryParameters">
+            <Parameter fieldName="queryAttribute" location="Header"/>
+            <Parameter fieldName="LastName" location="Query"/>
+            <Parameter fieldName="FirstName" location="Query"/>
+        </ParamGroup>
+        <ActionFacet label="ObjectOnly" referenceFacet="Summary"
+            referenceRepeat="0" referenceType="Required">
+            <Documentation>
+                <Description>ActionFacet-ObjectOnly-documentation-line_1</Description>
+            </Documentation>
+        </ActionFacet>
+        <ActionFacet label="ObjectList" referenceFacet="Summary"
+            referenceRepeat="1000" referenceType="Required"/>
+        <ActionFacet label="ObjectWrapper" referenceFacet="Summary"
+            referenceRepeat="0" referenceType="Optional"/>
+        <Action actionId="Create" common="false">
+            <Documentation>
+                <Description>Action-Create-documentation-line_1</Description>
+            </Documentation>
+            <ActionRequest httpMethod="POST"
+                mimeTypes="APPLICATION_XML APPLICATION_JSON"
+                pathTemplate="/samples" payloadType="SampleResource_ObjectOnly">
+                <Documentation>
+                    <Description>Action-Create-Request-documentation-line_1</Description>
+                </Documentation>
+            </ActionRequest>
+            <ActionResponse mimeTypes="APPLICATION_XML APPLICATION_JSON"
+                payloadType="SampleResource_ObjectOnly" statusCodes="200 204">
+                <Documentation>
+                    <Description>Action-Create-Response1-documentation-line_1</Description>
+                </Documentation>
+            </ActionResponse>
+        </Action>
+        <Action actionId="Update" common="false">
+            <Documentation>
+                <Description>Action-Update-documentation-line_1</Description>
+            </Documentation>
+            <ActionRequest httpMethod="PUT"
+                mimeTypes="APPLICATION_XML APPLICATION_JSON"
+                paramGroup="IDParameters"
+                pathTemplate="/sample/{sample_oid}" payloadType="SampleResource_ObjectWrapper">
+                <Documentation>
+                    <Description>Action-Update-Request-documentation-line_1</Description>
+                </Documentation>
+            </ActionRequest>
+            <ActionResponse mimeTypes="APPLICATION_XML APPLICATION_JSON"
+                payloadType="SampleResource_ObjectOnly" statusCodes="200">
+                <Documentation>
+                    <Description>Action-Update-Response1-documentation-line_1</Description>
+                </Documentation>
+            </ActionResponse>
+        </Action>
+        <Action actionId="Search" common="false">
+            <Documentation>
+                <Description>Action-Create-documentation-line_1</Description>
+            </Documentation>
+            <ActionRequest httpMethod="GET" mimeTypes=""
+                paramGroup="QueryParameters" pathTemplate="/samples">
+                <Documentation>
+                    <Description>Action-Search-Request-documentation-line_1</Description>
+                </Documentation>
+            </ActionRequest>
+            <ActionResponse mimeTypes="APPLICATION_XML APPLICATION_JSON"
+                payloadType="SampleResource_ObjectList" statusCodes="200">
+                <Documentation>
+                    <Description>Action-Search-Response1-documentation-line_1</Description>
+                </Documentation>
+            </ActionResponse>
+        </Action>
+    </Resource>
+    
+    <Service name="SampleService">
+        <Documentation>
+            <Description>SampleService-documentation-line_1</Description>
+        </Documentation>
+        <Equivalent context="test">SampleService-equivalent</Equivalent>
+        <Operation Name="RequestResponseOperation" notExtendable="false">
+            <Documentation>
+                <Description>RequestResponseOperation-documentation-line_1</Description>
+            </Documentation>
+            <Equivalent context="test">RequestResponseOperation-equivalent</Equivalent>
+            <Request>
+                <Element name="SampleBusinessObjectQueryFindByAge"
+                    repeat="0" type="SampleBusinessObject_Query_FindByAge"/>
+                <Element name="SampleBusinessObject" repeat="0" type="SampleBusinessObject"/>
+            </Request>
+            <Response>
+                <Element name="CompoundBusinessObject" repeat="0" type="CompoundBusinessObject"/>
+            </Response>
+            <Notification/>
+        </Operation>
+        <Operation Name="NotificationOperation" notExtendable="false">
+            <Equivalent context="test">NotificationOperation-equivalent</Equivalent>
+            <Request>
+                <Element name="SampleBusinessObject" repeat="0" type="SampleBusinessObject"/>
+            </Request>
+            <Response/>
+            <Notification>
+                <Element name="SampleBusinessObject" repeat="0" type="SampleBusinessObject"/>
+            </Notification>
+        </Operation>
+    </Service>
+    
+</Library>

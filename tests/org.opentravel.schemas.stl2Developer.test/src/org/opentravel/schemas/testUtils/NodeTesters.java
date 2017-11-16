@@ -20,8 +20,6 @@ package org.opentravel.schemas.testUtils;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
-
 import org.junit.Assert;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLAttribute;
@@ -30,8 +28,6 @@ import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
-import org.opentravel.schemas.modelObject.EmptyMO;
-import org.opentravel.schemas.modelObject.SimpleFacetMO;
 import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
 import org.opentravel.schemas.node.ComponentNode;
@@ -41,11 +37,9 @@ import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.VersionNode;
-import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
-import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.types.TestTypes;
 import org.opentravel.schemas.types.TypeProvider;
@@ -157,7 +151,7 @@ public class NodeTesters {
 		Assert.assertNotNull(n.getChildren());
 		Assert.assertNotNull(n.getChildren_TypeProviders());
 
-		Assert.assertNotNull(n.getModelObject());
+		// Assert.assertNotNull(n.getModelObject());
 
 		// Version nodes
 		if (n instanceof VersionNode) {
@@ -167,21 +161,21 @@ public class NodeTesters {
 			return;
 		}
 
-		// Check children
-		if (n instanceof NavNode)
-			Assert.assertTrue(n.getModelObject() instanceof EmptyMO);
-		// Resources don't use model objects so do not check their kids
-		else if (!(n.getModelObject() instanceof EmptyMO) && !(n instanceof LibraryNode)
-				&& !(n instanceof ResourceMemberInterface) && !(n instanceof OperationNode)
-				&& !(n.getChildren().isEmpty())) {
-			if (n.getChildren().size() != n.getModelObject().getChildren().size()) {
-				List<?> kids = n.getChildren();
-				List<?> moKids = n.getModelObject().getChildren();
-				LOGGER.debug("Children sizes are not equal.");
-			}
-			// Will not be true if BO has contextual facets
-			// Assert.assertEquals(n.getChildren().size(), n.getModelObject().getChildren().size());
-		}
+		// // Check children
+		// if (n instanceof NavNode)
+		// Assert.assertTrue(n.getTLModelObject() instanceof TLEmpty);
+		// // Resources don't use model objects so do not check their kids
+		// else if (!(n.getModelObject() instanceof EmptyMO) && !(n instanceof LibraryNode)
+		// && !(n instanceof ResourceMemberInterface) && !(n instanceof OperationNode)
+		// && !(n.getChildren().isEmpty())) {
+		// if (n.getChildren().size() != n.getModelObject().getChildren().size()) {
+		// List<?> kids = n.getChildren();
+		// List<?> moKids = n.getModelObject().getChildren();
+		// LOGGER.debug("Children sizes are not equal.");
+		// }
+		// // Will not be true if BO has contextual facets
+		// // Assert.assertEquals(n.getChildren().size(), n.getModelObject().getChildren().size());
+		// }
 
 		// Check names
 		// String name = "";
@@ -206,8 +200,8 @@ public class NodeTesters {
 		Assert.assertFalse(n.isDeleted());
 		Assert.assertNotNull(n.getComponentType());
 		Assert.assertFalse(n.getComponentType().isEmpty());
-		if (n.getModelObject() instanceof SimpleFacetMO)
-			Assert.assertTrue(n instanceof SimpleFacetNode);
+		// if (n.getModelObject() instanceof SimpleFacetMO)
+		// Assert.assertTrue(n instanceof SimpleFacetNode);
 
 		// Check type information
 		if (n instanceof TypeProvider)

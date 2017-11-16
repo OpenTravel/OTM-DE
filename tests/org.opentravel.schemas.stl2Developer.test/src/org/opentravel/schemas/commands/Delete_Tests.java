@@ -41,6 +41,7 @@ import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -118,28 +119,33 @@ public class Delete_Tests extends BaseProjectTest {
 
 	}
 
+	// NOTE -- libraries are never deleted but simply closed.
+	//
 	private void deleteLibrariesTest(ProjectNode project) throws Exception {
-		ModelNode model = Node.getModelNode();
-		List<Node> deleteList = new ArrayList<Node>();
+		// ModelNode model = Node.getModelNode();
+		// List<Node> deleteList = new ArrayList<Node>();
 
 		// Given - Project with libraries loaded
 		assertTrue("Project must have libraries.", !project.getUserLibraries().isEmpty());
 
-		// When - one library is deleted
+		// When - one library is deleted is is NOT removed from project
 		LibraryNode lib = project.getUserLibraries().get(0);
 		lib.setEditable(true);
 		lib.delete();
-
 		// Then - library is deleted and not in the project and the library's objects are all deleted.
 		assertTrue("Library is deleted.", lib.isDeleted());
-		assertTrue("Project must not contain library.", !project.getUserLibraries().contains(lib));
+		assertTrue("Project must contain library.", project.getUserLibraries().contains(lib));
 		for (Node n : lib.getDescendants_LibraryMembers())
 			assertTrue("Named Type " + n + " is deleted.", n.isDeleted());
+
+		// When - Project deletes library
+		project.close(lib);
+		assertTrue(!project.contains((LibraryInterface) lib));
 
 		// When - rest are deleted (closed)
 		List<LibraryNode> libList = project.getUserLibraries();
 		for (LibraryNode ln : libList)
-			ln.delete();
+			project.close(ln);
 
 		// Then - they must not be in the list of children
 		int libCnt = project.getUserLibraries().size();
@@ -185,8 +191,12 @@ public class Delete_Tests extends BaseProjectTest {
 		FacetNode q1 = bo.addFacet("Query1", TLFacetType.QUERY);
 		FacetNode c1 = bo.addFacet("Custom1", TLFacetType.CUSTOM);
 		assertTrue("Must have five children", bo.getChildren().size() == facetCount + 2);
+		assertTrue("Object must contain query facet.", bo.getChildren().contains(q1));
+		assertTrue("Object must contain custom facet.", bo.getChildren().contains(c1));
 		assertTrue("Query facet is NOT deleted.", !q1.isDeleted());
 		assertTrue("Custom facet is NOT deleted.", !c1.isDeleted());
+		ml.check(bo);
+		assertTrue("Facet parent must be the bo in v1.5", q1.getParent() == bo);
 
 		// When the facets are deleted
 		q1.delete();
@@ -201,31 +211,60 @@ public class Delete_Tests extends BaseProjectTest {
 	}
 
 	@Test
-	public void deleteFacets_ChoiceObject() {
+	public void deleteFacets_BusinessObjectV16() {
+		OTM16Upgrade.otm16Enabled = true;
 		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", testProject);
-		// ChoiceObjectTests tests = new ChoiceObjectTests();
 
 		// Given a business object with all facet types
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TestBO");
+		int facetCount = bo.getChildren().size();
+		FacetNode q1 = bo.addFacet("Query1", TLFacetType.QUERY);
+		FacetNode c1 = bo.addFacet("Custom1", TLFacetType.CUSTOM);
+		assertTrue("Must have five children", bo.getChildren().size() == facetCount + 2);
+		assertTrue("Query facet is NOT deleted.", !q1.isDeleted());
+		assertTrue("Custom facet is NOT deleted.", !c1.isDeleted());
+		ml.check(bo);
+		assertTrue("Facet parent must NOT be the bo in v1.6", q1.getParent() != bo);
+
+		// When the facets are deleted
+		q1.delete();
+		c1.delete();
+
+		// Then object must not contain facets
+		assertTrue("Object does NOT contain query facet.", !bo.getChildren().contains(q1));
+		assertTrue("Object does NOT contain custom facet.", !bo.getChildren().contains(c1));
+		assertTrue("Object only has 3 children.", bo.getChildren().size() == facetCount);
+		assertTrue("Facet is deleted.", q1.isDeleted());
+		assertTrue("Facet is deleted.", c1.isDeleted());
+		OTM16Upgrade.otm16Enabled = false;
+	}
+
+	@Test
+	public void deleteFacets_ChoiceObject() {
+		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", testProject);
+
+		// Given a choice object with 3 facets
 		ChoiceObjectNode co = ml.addChoice(ln, "TestCO");
 		int facetCount = co.getChildren().size();
+		ml.check(co);
+
 		FacetNode c1 = co.addFacet("Added1");
 		FacetNode c2 = co.addFacet("Added2");
 		assertTrue("Must have five children", co.getChildren().size() == facetCount + 2);
-		assertTrue("Choice 1 facet is NOT deleted.", !c1.isDeleted());
-		assertTrue("Choice 2 facet is NOT deleted.", !c2.isDeleted());
+		assertTrue("Choice 1 facet must NOT be deleted.", !c1.isDeleted());
+		assertTrue("Choice 2 facet must NOT be deleted.", !c2.isDeleted());
 		ml.check(co);
-		// tests.checkChoice(co);
 
 		// When the facets are deleted
 		c1.delete();
 		c2.delete();
 
 		// Then object must not contain facets
-		assertTrue("Object does NOT contain query facet.", !co.getChildren().contains(c1));
-		assertTrue("Object does NOT contain custom facet.", !co.getChildren().contains(c2));
-		assertTrue("Object only has original children count.", co.getChildren().size() == facetCount);
-		assertTrue("Facet is deleted.", c1.isDeleted());
-		assertTrue("Facet is deleted.", c2.isDeleted());
+		assertTrue("Object must NOT contain facet.", !co.getChildren().contains(c1));
+		assertTrue("Object must NOT contain facet.", !co.getChildren().contains(c2));
+		assertTrue("Object must have original children count.", co.getChildren().size() == facetCount);
+		assertTrue("Facet must be deleted.", c1.isDeleted());
+		assertTrue("Facet must be deleted.", c2.isDeleted());
 
 		// When the other choice facets are deleted
 		for (PropertyOwnerInterface f : co.getChoiceFacets())
@@ -233,7 +272,6 @@ public class Delete_Tests extends BaseProjectTest {
 
 		// Then the object is still valid
 		ml.check(co);
-		// tests.checkChoice(co);
 	}
 
 	@Test
@@ -380,14 +418,22 @@ public class Delete_Tests extends BaseProjectTest {
 			// Case 3 - managed library, editable, with constructed objects
 			ln = ml.createNewLibrary("http://test.com/ns" + testCase, "testCase" + testCase, testProject);
 			count = ml.addOneOfEach(ln, "case" + testCase);
-			ln.visitAllNodes(tv);
 			Assert.assertEquals(count, ln.getDescendants_LibraryMembers().size());
-			new LibraryChainNode(ln);
+			ml.check(ln);
+			// ln.visitAllNodes(tv);
+
+			LibraryChainNode lcn = new LibraryChainNode(ln);
 			ln.setEditable(true); // must be done after LCN created
+			assertTrue("Chain must be found from library.", ln.getChain() == lcn);
+			Assert.assertEquals(count, ln.getDescendants_LibraryMembers().size());
+			ml.check(ln);
+
 			Assert.assertTrue(ln.isEditable());
 			Assert.assertTrue(ln.getChain().isEditable());
 			Assert.assertTrue(ln.getChain().isMajor());
 			Assert.assertEquals(count, ln.getDescendants_LibraryMembers().size());
+			// List<Node> ck = ln.getChain().getChildren();
+			// List<Node> lms = ln.getChain().getDescendants_LibraryMembers();
 			Assert.assertEquals(count, ln.getChain().getDescendants_LibraryMembers().size());
 			Assert.assertFalse(ln.isManaged());
 			Assert.assertFalse(ln.isInHead());
@@ -401,13 +447,13 @@ public class Delete_Tests extends BaseProjectTest {
 			new LibraryChainNode(ln);
 			ln.setEditable(true); // must be done after LCN created
 
-			Node n = ml.addSimpleTypeToLibrary(ln, "case4S"); // creates family
+			Node n = ml.addSimpleTypeToLibrary(ln, "case4S");
 			final String fixedName = n.getName();
 			count++;
 			// Node n = ln.findNodeByName(fixedName);
 			Assert.assertNotNull(n);
-			Assert.assertNotNull(ln.getChain().findNodeByName(fixedName));
-			Assert.assertNotNull(ln.findNodeByName(fixedName));
+			Assert.assertNotNull(ln.getChain().findLibraryMemberByName(fixedName));
+			Assert.assertNotNull(ln.findLibraryMemberByName(fixedName));
 			Assert.assertTrue(n.getParent() instanceof NavNode);
 			Assert.assertTrue(n.getVersionNode() instanceof VersionNode);
 			Assert.assertEquals(count, ln.getDescendants_LibraryMembers().size());

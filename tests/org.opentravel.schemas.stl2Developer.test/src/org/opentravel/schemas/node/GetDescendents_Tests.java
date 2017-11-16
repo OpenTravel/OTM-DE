@@ -51,7 +51,7 @@ public class GetDescendents_Tests {
 	ModelNode model = null;
 	NodeTesters nt = new NodeTesters();
 	LoadFiles lf = new LoadFiles();
-	LibraryTests lt = new LibraryTests();
+	Library_FunctionTests lt = new Library_FunctionTests();
 	MockLibrary mockLibrary = null;
 	LibraryNode ln = null;
 	MainController mc;
@@ -94,13 +94,13 @@ public class GetDescendents_Tests {
 		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "");
 		EnumerationOpenNode oe = mockLibrary.addOpenEnumToLibrary(ln, "");
 		EnumerationClosedNode ce = mockLibrary.addClosedEnumToLibrary(ln, "");
-		co.setSimpleType(ce);
-		vwa.setSimpleType(oe);
+		co.setAssignedType(ce);
+		vwa.setAssignedType(oe);
 
 		// Then - spot check descendant lists
 		assertTrue("Library must contain core.", ln.getDescendants().contains(co));
 		assertTrue("Library must contain core summary.", ln.getDescendants().contains(co.getFacet_Summary()));
-		assertTrue("Library must contain core roles.", ln.getDescendants_TypeProviders().contains(co.getRoleFacet()));
+		assertTrue("Library must contain core roles.", ln.getDescendants_TypeProviders().contains(co.getFacet_Role()));
 		assertTrue("Library must contain core element.",
 				ln.getDescendants_TypeUsers().contains(co.getFacet_Summary().getChildren().get(0)));
 		assertTrue("Library must contain vwa.", ln.getDescendants().contains(vwa));
@@ -125,8 +125,8 @@ public class GetDescendents_Tests {
 		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "");
 		EnumerationOpenNode oe = mockLibrary.addOpenEnumToLibrary(ln, "");
 		EnumerationClosedNode ce = mockLibrary.addClosedEnumToLibrary(ln, "");
-		co.setSimpleType(ce);
-		vwa.setSimpleType(oe);
+		co.setAssignedType(ce);
+		vwa.setAssignedType(oe);
 
 		// TODO - move these type of count tests to mock library
 		// List<Node> named = ln.getDescendants_NamedTypes();
@@ -148,7 +148,7 @@ public class GetDescendents_Tests {
 		Assert.assertNotNull(ln);
 		// 20 xsd simple types, 0 complex, 0 resources
 		List<Node> all = ln.getDescendants();
-		Assert.assertEquals(24, all.size()); // 4 nav nodes and 20 simple type nodes
+		Assert.assertEquals(23, all.size()); // 4 nav nodes and 20 simple type nodes
 		List<Node> named = ln.getDescendants_LibraryMembers();
 		Assert.assertEquals(20, named.size());
 		List<TypeUser> users = ln.getDescendants_TypeUsers();

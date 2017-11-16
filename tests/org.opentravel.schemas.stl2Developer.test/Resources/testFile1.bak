@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:Library
+    xmlns:ns2="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06 OTA2_LibraryModel_v1.6.0.xsd">
+    
+    <ns2:VersionScheme>OTA2</ns2:VersionScheme>
+    <ns2:Status>Draft</ns2:Status>
+    <ns2:Namespace>http://opentravel.org/local/dave/t4</ns2:Namespace>
+    <ns2:Prefix>t2</ns2:Prefix>
+    <ns2:Name>Test1</ns2:Name>
+    <ns2:Includes>testFile5.otm</ns2:Includes>
+    <ns2:Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
+    <ns2:Context
+        applicationContext="http://www.opentravel.org/ns/OTA2/Demo/Profile/v01" context="Profile"/>
+    
+    <ns2:Simple name="String_PersonName" type="String_Short">
+        <ns2:Example context="Profile">Sally Smythe</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple name="Date_MMYY" pattern="(0[1-9]|1[0-2])[0-9][0-9]" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>Formatted date with 2 digit month and 2 digit year (MMYY).</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Equivalent context="Profile">TEST</ns2:Equivalent>
+        <ns2:Example context="Profile">0711</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:ValueWithAttrs name="Amount" type="xsd:integer">
+        <ns2:Example context="Profile">2345.56</ns2:Example>
+        <ns2:Attribute name="currencyCode" referenceRepeat="0" type="Currency_Code">
+            <ns2:Documentation>
+                <ns2:Description>soo</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Example context="Profile">USD</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="decimalPlaces" referenceRepeat="0" type="xsd:decimal">
+            <ns2:Example context="Profile">2</ns2:Example>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:Simple maxLength="128" name="String_Short" type="xsd:string"/>
+    
+    <ns2:Simple maxLength="512" name="String_Medium" type="xsd:string">
+        <ns2:Equivalent context="Profile"/>
+    </ns2:Simple>
+    
+    <ns2:Simple maxLength="4096" name="String_Long" type="xsd:string"/>
+    
+    <ns2:Simple name="PositiveValueUnder1M" type="xsd:positiveInteger"/>
+    
+    <ns2:Simple name="PaymentCard_Issuer" type="String_Short">
+        <ns2:Example context="Profile">First Bank of Travel</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple name="PaymentCard_MagneticStrip" pattern="[0-9\-]{1,65}" type="String_Short">
+        <ns2:Documentation>
+            <ns2:Description>Payment card stripe.</ns2:Description>
+            <ns2:Implementer>MICR characters are printed in the form of either an E-13B or CMC-7 Font.</ns2:Implementer>
+            <ns2:MoreInfo>http://www4.infoprintsolutionscompany.com/help/index.jsp?topic=%2Fcom.ibm.printers.plngcfgguide%2Fav1i0mst105.htm</ns2:MoreInfo>
+        </ns2:Documentation>
+        <ns2:Example context="Profile">111-111-111-111</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple name="Check_MICR" pattern="[0-9,: = ?]{1,38}" type="String_Short">
+        <ns2:Documentation>
+            <ns2:Description>Check MICR magnetic stripe.</ns2:Description>
+            <ns2:Implementer>MICR characters are printed in the form of either an E-13B or CMC-7 Font.</ns2:Implementer>
+            <ns2:MoreInfo>http://www4.infoprintsolutionscompany.com/help/index.jsp?topic=%2Fcom.ibm.printers.plngcfgguide%2Fav1i0mst105.htm</ns2:MoreInfo>
+        </ns2:Documentation>
+        <ns2:Example context="Profile">00=344:333443445</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple name="PaymentCard_Type" type="String_Short">
+        <ns2:Example context="Profile">VVV</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple name="Usage" type="String_Short">
+        <ns2:Documentation>
+            <ns2:Description>How the data is used</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Example context="Profile">usage</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple name="warning" type="String_Short">
+        <ns2:Example context="Profile">warning</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:ValueWithAttrs name="Tax" type="xsd:positiveInteger">
+        <ns2:Attribute name="amount" referenceRepeat="0" type="PositiveValueUnder1M"/>
+        <ns2:Attribute name="taxCode" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Attribute name="taxName" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Attribute mandatory="true" name="ticketingCode"
+            referenceRepeat="0" type="xsd:string">
+            <ns2:Documentation>
+                <ns2:Description>Required tax code used by ticketing</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Profile">xxx33</ns2:Equivalent>
+            <ns2:Example context="Profile">R33</ns2:Example>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:ValueWithAttrs name="Location" type="String_Short">
+        <ns2:Documentation>
+            <ns2:Description>On location VWA</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Example context="Profile">DEN</ns2:Example>
+        <ns2:Attribute name="codeContext" referenceRepeat="0" type="xsd:string">
+            <ns2:Documentation>
+                <ns2:Description>Whose code type</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Example context="Profile">IATA</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Indicator name="multiAirportInd" publishAsElement="false">
+            <ns2:Documentation>
+                <ns2:Description>are there more than one airports served?</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Indicator>
+        <ns2:Indicator name="alternateLocationInd" publishAsElement="false">
+            <ns2:Documentation>
+                <ns2:Description>are others OK?</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Indicator>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:CoreObject name="PaymentCard" notExtendable="false">
+        <ns2:Aliases>Card CreditCard</ns2:Aliases>
+        <ns2:Simple type="PaymentCard_Number"/>
+        <ns2:Summary>
+            <ns2:Attribute name="expire" referenceRepeat="0" type="Date_MMYY">
+                <ns2:Example context="Profile">0714</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="holder" referenceRepeat="0" type="String_PersonName">
+                <ns2:Example context="Profile">Joe E Smith</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Element name="Number" repeat="0" type="PaymentCard_Simple"/>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Attribute name="type" referenceRepeat="0" type="PaymentCard_Type">
+                <ns2:Example context="Profile">Visa</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="effective" referenceRepeat="0" type="Date_MMYY"/>
+            <ns2:Element name="Issuer" repeat="0" type="PaymentCard_Issuer">
+                <ns2:Example context="Profile">First Bank of Travel</ns2:Example>
+            </ns2:Element>
+            <ns2:Element name="MagneticStrip" repeat="0" type="PaymentCard_MagneticStrip"/>
+            <ns2:Element name="Employment" repeat="0" type="Employment"/>
+            <ns2:Element name="PresentEmployment" repeat="0" type="PresentEmployment"/>
+            <ns2:Indicator name="signatureOnFileInd" publishAsElement="false"/>
+            <ns2:Indicator name="validInd" publishAsElement="false"/>
+        </ns2:Detail>
+        <ns2:Roles>
+            <ns2:Role value="Primary"/>
+            <ns2:Role value="Alternate"/>
+            <ns2:Role value="Secondary"/>
+            <ns2:Role value="Business"/>
+            <ns2:Role value="Personal"/>
+        </ns2:Roles>
+    </ns2:CoreObject>
+    
+    <ns2:CoreObject name="EmploymentZZZ" notExtendable="false">
+        <ns2:Aliases>PresentEmployment</ns2:Aliases>
+        <ns2:Simple type="String_Medium"/>
+        <ns2:Summary>
+            <ns2:Attribute name="number" referenceRepeat="0" type="String_Short">
+                <ns2:Example context="Profile">332258</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="title" referenceRepeat="0" type="String_Short">
+                <ns2:Example context="Profile">Geek-N-Nerd</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="level" referenceRepeat="0" type="String_Short">
+                <ns2:Example context="Profile">Director</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="status" referenceRepeat="0" type="Status_Employment">
+                <ns2:Example context="Profile">Active</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Element name="Company" repeat="0" type="String_Short">
+                <ns2:Example context="Profile">Sabre, Inc.</ns2:Example>
+            </ns2:Element>
+            <ns2:Element name="Employment" repeat="0" type="Employment"/>
+            <ns2:Element name="PresentEmployment" repeat="0" type="PresentEmployment"/>
+            <ns2:Element name="Employer" repeat="0" type="Employer"/>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Element name="PaymentCard" repeat="0" type="PaymentCard"/>
+        </ns2:Detail>
+        <ns2:Roles>
+            <ns2:Role value="Current"/>
+            <ns2:Role value="Previous"/>
+        </ns2:Roles>
+    </ns2:CoreObject>
+    
+    <ns2:Simple name="Status_Employment" type="String_Long">
+        <ns2:Example context="Profile">World Wide Air</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple name="PaymentCard_Number" pattern="[0-9]{1,19}" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description/>
+            <ns2:Reference>http://en.wikipedia.org/wiki/Credit_card_number</ns2:Reference>
+        </ns2:Documentation>
+        <ns2:Example context="Profile">11111111111111</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Enumeration_Open name="HotelTypes">
+        <ns2:Value label="" literal="motel"/>
+        <ns2:Value label="" literal="hotel"/>
+    </ns2:Enumeration_Open>
+    
+    <ns2:ValueWithAttrs name="Payment" type="String_Long">
+        <ns2:Documentation>
+            <ns2:Description>Amount of the payment.</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Example context="Profile">23.56</ns2:Example>
+        <ns2:Attribute name="tax" referenceRepeat="0" type="String_Long">
+            <ns2:Documentation>
+                <ns2:Description>Tax portion of the payment amount.</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Example context="Profile">0.67</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="card" referenceRepeat="0" type="PaymentCard_Simple">
+            <ns2:Documentation>
+                <ns2:Description>Payment card used to make payment.</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Example context="Profile">11136982222</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Indicator name="idCheckedInd" publishAsElement="false">
+            <ns2:Documentation>
+                <ns2:Description>True if identification was checked prior to accepting payment.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Indicator>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:CoreObject name="Phone" notExtendable="false">
+        <ns2:Aliases>WorkPhone HomePhone MobilePhone</ns2:Aliases>
+        <ns2:Simple type="String_Short">
+            <ns2:Example context="Profile">5551212</ns2:Example>
+        </ns2:Simple>
+        <ns2:Summary>
+            <ns2:Attribute name="country" referenceRepeat="0" type="String_Short">
+                <ns2:Example context="Profile">011</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Element mandatory="true" name="Area" repeat="0" type="String_Short">
+                <ns2:Example context="Profile">909</ns2:Example>
+            </ns2:Element>
+            <ns2:Element mandatory="true" name="City" repeat="0" type="String_Short">
+                <ns2:Example context="Profile">555</ns2:Example>
+            </ns2:Element>
+            <ns2:Element mandatory="true" name="Exchange" repeat="0" type="String_Short">
+                <ns2:Example context="Profile">1212</ns2:Example>
+            </ns2:Element>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Element name="Usage" repeat="0" type="Usage"/>
+            <ns2:Element name="ServiceLoc" repeat="0" type="Location"/>
+            <ns2:Element mandatory="true" name="Remarks" repeat="5" type="String_Long">
+                <ns2:Example context="Profile">Do not call after 5pm Pacific</ns2:Example>
+            </ns2:Element>
+            <ns2:Element name="CreditCard" repeat="0" type="CreditCard"/>
+        </ns2:Detail>
+        <ns2:Roles>
+            <ns2:Role value="Home"/>
+            <ns2:Role value="Work"/>
+            <ns2:Role value="Mobile"/>
+        </ns2:Roles>
+    </ns2:CoreObject>
+    
+    <ns2:BusinessObject name="Profile" notExtendable="false">
+        <ns2:Aliases>TravelerProfile</ns2:Aliases>
+        <ns2:ID>
+            <ns2:Attribute mandatory="true" name="authority"
+                referenceRepeat="0" type="xsd:string">
+                <ns2:Equivalent context="Profile"/>
+                <ns2:Example context="Profile">Auth1</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Element mandatory="true" name="ProfileID" repeat="0" type="String_Medium">
+                <ns2:Equivalent context="Profile"/>
+            </ns2:Element>
+        </ns2:ID>
+        <ns2:Summary>
+            <ns2:Element name="Name" repeat="0" type="String_PersonName"/>
+            <ns2:Element name="PaymentCardDetail" repeat="0" type="PaymentCard_Detail_List"/>
+            <ns2:Element name="PresentEmployment" repeat="0" type="PresentEmployment"/>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Element name="Remarks" repeat="0" type="String_Medium"/>
+            <ns2:Element name="HomePhone" repeat="0" type="HomePhone"/>
+            <ns2:Element name="MobilePhone" repeat="0" type="MobilePhone"/>
+            <ns2:Element name="WorkPhone" repeat="0" type="WorkPhone"/>
+            <ns2:Element name="Age" repeat="0" type="Age">
+                <ns2:Documentation>
+                    <ns2:Description>Number of years person or object has existed.</ns2:Description>
+                </ns2:Documentation>
+            </ns2:Element>
+            <ns2:Indicator name="shareInd" publishAsElement="false"/>
+            <ns2:Indicator name="syncInd" publishAsElement="false"/>
+            <ns2:Indicator name="holdInd" publishAsElement="false"/>
+        </ns2:Detail>
+    </ns2:BusinessObject>
+    
+    <ns2:ValueWithAttrs name="Age" type="xsd:integer">
+        <ns2:Documentation>
+            <ns2:Description>Number of years person or object has existed.</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Equivalent context="Profile">Age</ns2:Equivalent>
+        <ns2:Example context="Profile">25</ns2:Example>
+        <ns2:Attribute name="birthDate" referenceRepeat="0" type="xsd:date">
+            <ns2:Equivalent context="Profile">birthDate</ns2:Equivalent>
+            <ns2:Example context="Profile">1987-05-22</ns2:Example>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:CoreObject name="Flight" notExtendable="true">
+        <ns2:Aliases>OutboundFlight ReturnFlight</ns2:Aliases>
+        <ns2:Simple type="String_Long"/>
+        <ns2:Summary>
+            <ns2:Element mandatory="true" name="FlightNumber" repeat="0" type="String_Long">
+                <ns2:Documentation>
+                    <ns2:Description>The flight number associated to the service.   Mapped to: SR05_42_FLTN</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Profile">FlightNumber</ns2:Equivalent>
+            </ns2:Element>
+            <ns2:Element mandatory="true" name="DepartureDate"
+                repeat="0" type="xsd:date">
+                <ns2:Documentation>
+                    <ns2:Description>The departure date of the flight associated to the service.  Mapped to:
+                        SR05_42_CDTE</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Profile">DepartureDate</ns2:Equivalent>
+            </ns2:Element>
+            <ns2:Element mandatory="true" name="Carrier" repeat="0" type="String_Long">
+                <ns2:Documentation>
+                    <ns2:Description>The carrier code of the flight associated to the service.  Mapped to: 
+                        SR05_42_CXRC</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Profile">CarrierCode</ns2:Equivalent>
+                <ns2:Example context="Profile">WWA</ns2:Example>
+            </ns2:Element>
+            <ns2:Element mandatory="true" name="ClassOfService"
+                repeat="0" type="String_Long">
+                <ns2:Documentation>
+                    <ns2:Description>The flight class of service associated to the ancillary service.  Mapped to:
+                        SR05_42_CLSV</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Profile">ClassOfService</ns2:Equivalent>
+                <ns2:Example context="Profile">F00</ns2:Example>
+            </ns2:Element>
+            <ns2:Element mandatory="true" name="DepartureCity"
+                repeat="0" type="String_Long">
+                <ns2:Documentation>
+                    <ns2:Description>The origin or depature city code of the flight associated to the service.   Mapped to:
+                        
+                        
+                        
+                        
+                        SR05_42_DCTY</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Profile">DepartureCity</ns2:Equivalent>
+                <ns2:Example context="Profile">LGA</ns2:Example>
+            </ns2:Element>
+            <ns2:Element mandatory="true" name="ArrivalCity" repeat="0" type="String_Long">
+                <ns2:Documentation>
+                    <ns2:Description>The destination or arrival city of the flight associated to the service.   Mapped to:
+                        SR05_42_ACTY</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Profile">ArrivalCity</ns2:Equivalent>
+                <ns2:Example context="Profile">MIA</ns2:Example>
+            </ns2:Element>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Indicator name="stopOverInd" publishAsElement="false">
+                <ns2:Documentation>
+                    <ns2:Description>A code that applies to whether the flight is a stop over or not (X, O).   Mapped to:
+                        SR05_42_STOV</ns2:Description>
+                </ns2:Documentation>
+            </ns2:Indicator>
+        </ns2:Detail>
+    </ns2:CoreObject>
+    
+    <ns2:ValueWithAttrs name="POS_Location" type="String_Long">
+        <ns2:Documentation>
+            <ns2:Description>A location for an airline or agency agent. Can be used to describe the actual, pseudo or home
+  location.</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Equivalent context="Profile">Location.POS</ns2:Equivalent>
+        <ns2:Example context="Profile">POS Value</ns2:Example>
+        <ns2:Attribute name="country" referenceRepeat="0" type="String_Long">
+            <ns2:Equivalent context="Profile">country</ns2:Equivalent>
+            <ns2:Example context="Profile">US</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="province" referenceRepeat="0" type="String_Long">
+            <ns2:Equivalent context="Profile">province</ns2:Equivalent>
+            <ns2:Example context="Profile">CA</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="city" referenceRepeat="0" type="String_Long">
+            <ns2:Example context="Profile">Den</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="number" referenceRepeat="0" type="String_Long">
+            <ns2:Documentation>
+                <ns2:Description>agent station number or agency iata number</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Equivalent context="Profile">number</ns2:Equivalent>
+            <ns2:Example context="Profile">3</ns2:Example>
+        </ns2:Attribute>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:BusinessObject name="POS" notExtendable="true">
+        <ns2:Documentation>
+            <ns2:Description>Locations: Psuedo - Agency PCC or Agent AAA Actual ? where the transaction is initiated Home ? assigned to the agent account</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Aliases/>
+        <ns2:ID>
+            <ns2:Attribute name="pcc" referenceRepeat="0" type="String_Medium">
+                <ns2:Documentation>
+                    <ns2:Description>Psuedo is either Agency PCC or Agent AAA. Required for most sources, unless MultiHost code is provided.</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Profile">Pseudo</ns2:Equivalent>
+                <ns2:Example context="Profile">333</ns2:Example>
+            </ns2:Attribute>
+        </ns2:ID>
+        <ns2:Summary>
+            <ns2:Attribute name="company" referenceRepeat="0" type="String_Medium">
+                <ns2:Documentation>
+                    <ns2:Description>The IATA assigned code for the Agency or Airine</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Profile">Company</ns2:Equivalent>
+                <ns2:Example context="Profile">WWA</ns2:Example>
+            </ns2:Attribute>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Attribute name="duty" referenceRepeat="0" type="String_Medium">
+                <ns2:Documentation>
+                    <ns2:Description>An authority code assigned to a requestor.</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Profile">DutyCode</ns2:Equivalent>
+                <ns2:Example context="Profile">ddd</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="lniata" referenceRepeat="0" type="String_Medium">
+                <ns2:Documentation>
+                    <ns2:Description>LNIATA of the Console the agent signed into.</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Profile">Lniata</ns2:Equivalent>
+                <ns2:Example context="Profile">156354</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="sine" referenceRepeat="0" type="String_Medium">
+                <ns2:Documentation>
+                    <ns2:Description>Identifies the agent or party within the requesting entity.</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Profile">Sine</ns2:Equivalent>
+                <ns2:Example context="Profile">555</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="multiHost" referenceRepeat="0" type="String_Medium">
+                <ns2:Documentation>
+                    <ns2:Description>Airline partition for multi-host source locations.</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Profile">MultiHost</ns2:Equivalent>
+                <ns2:Example context="Profile">WWB</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Element name="Actual" repeat="0" type="String_Medium">
+                <ns2:Documentation>
+                    <ns2:Description>Actual is where the transaction is initiated.</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Profile">Actual</ns2:Equivalent>
+            </ns2:Element>
+            <ns2:Element name="Home" repeat="100000" type="String_Medium">
+                <ns2:Documentation>
+                    <ns2:Description>Home is assigned to the agent account.</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="Profile">Home</ns2:Equivalent>
+            </ns2:Element>
+        </ns2:Detail>
+    </ns2:BusinessObject>
+    
+    <ns2:Simple name="Time_TimeZoneOffset"
+        pattern="[+-][0-2][0-9]:[0-5][0-9]" type="xsd:string">
+        <ns2:Documentation>
+            <ns2:Description>Numeric offsets are calculated as "local time minus UTC".  So the equivalent time in UTC can be determined by subtracting the offset from the local time.  For example, 18:50:00-04:00 is the same time as  22:50:00Z.  (This example shows negative offsets handled by adding  the absolute value of the offset.)</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Example context="Profile">-04:00</ns2:Example>
+    </ns2:Simple>
+    
+    <ns2:Simple name="Flight_Number" type="String_Short"/>
+    
+    <ns2:Simple name="Code_Airline" pattern="[A-Z0-9]{2}[A-Z]?" type="xsd:string"/>
+    
+    <ns2:Simple name="Code_City" pattern="[a-zA-Z]{3}" type="xsd:string"/>
+    
+    <ns2:Enumeration_Closed name="Cabin_OrFare">
+        <ns2:Value label="" literal="Cabin"/>
+        <ns2:Value label="" literal="Fare"/>
+    </ns2:Enumeration_Closed>
+    
+    <ns2:Enumeration_Closed name="Cabin_Type">
+        <ns2:Value label="" literal="First">
+            <ns2:Documentation>
+                <ns2:Description>First class compartment.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="Business">
+            <ns2:Documentation>
+                <ns2:Description>Business class compartment.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+        <ns2:Value label="" literal="Economy">
+            <ns2:Documentation>
+                <ns2:Description>Economy (or sometimes referred to as Coach) class compartment.</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Value>
+    </ns2:Enumeration_Closed>
+    
+    <ns2:Simple name="Cabin_3Chars" pattern="[A-Z0-9]{3}" type="xsd:string"/>
+    <ns2:ContextualFacet facetNamespace="" facetOwner="Profile"
+        name="Legacy" notExtendable="false" type="Custom">
+        <ns2:Element name="Remarks" repeat="0" type="String_Long">
+            <ns2:Example context="Profile">Remarks</ns2:Example>
+        </ns2:Element>
+        <ns2:Indicator name="shareInd" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetNamespace="" facetOwner="Profile"
+        name="Profile" notExtendable="true" type="Query">
+        <ns2:Element name="PhoneDetail" repeat="0" type="Phone_Detail_List"/>
+    </ns2:ContextualFacet>
+    
+    <ns2:Service name="ProfileService">
+        <ns2:Operation Name="Create" notExtendable="true">
+            <ns2:Request>
+                <ns2:Element name="ProfileDetail" repeat="0" type="Profile_Detail"/>
+            </ns2:Request>
+            <ns2:Response>
+                <ns2:Element name="ProfileIdentifier" repeat="0" type="Profile_ID"/>
+            </ns2:Response>
+            <ns2:Notification>
+                <ns2:Element name="ProfileSummary" repeat="0" type="Profile_Summary"/>
+            </ns2:Notification>
+        </ns2:Operation>
+        <ns2:Operation Name="Read" notExtendable="true">
+            <ns2:Request>
+                <ns2:Element name="ProfileIdentifier" repeat="0" type="Profile_ID"/>
+            </ns2:Request>
+            <ns2:Response>
+                <ns2:Element name="TravelerProfile" repeat="0" type="TravelerProfile"/>
+            </ns2:Response>
+            <ns2:Notification>
+                <ns2:Element name="Profile" repeat="0" type="Profile"/>
+            </ns2:Notification>
+        </ns2:Operation>
+        <ns2:Operation Name="Update" notExtendable="true">
+            <ns2:Request>
+                <ns2:Element name="ProfileDetail" repeat="0" type="Profile_Detail"/>
+            </ns2:Request>
+            <ns2:Response>
+                <ns2:Element name="ProfileIdentifier" repeat="0" type="Profile_ID"/>
+            </ns2:Response>
+            <ns2:Notification>
+                <ns2:Element name="ProfileSummary" repeat="0" type="Profile_Summary"/>
+            </ns2:Notification>
+        </ns2:Operation>
+        <ns2:Operation Name="Delete" notExtendable="true">
+            <ns2:Request>
+                <ns2:Element name="Profile" repeat="0" type="Profile"/>
+            </ns2:Request>
+            <ns2:Response>
+                <ns2:Element name="ProfileIdentifier" repeat="0" type="Profile_ID"/>
+            </ns2:Response>
+            <ns2:Notification>
+                <ns2:Element name="ProfileSummary" repeat="0" type="Profile_Summary"/>
+            </ns2:Notification>
+        </ns2:Operation>
+        <ns2:Operation Name="Query" notExtendable="true">
+            <ns2:Request>
+                <ns2:Element name="Profile" repeat="0" type="Profile"/>
+            </ns2:Request>
+            <ns2:Response>
+                <ns2:Element name="Profile" repeat="100" type="Profile"/>
+            </ns2:Response>
+            <ns2:Notification>
+                <ns2:Element name="ProfileIdentifier" repeat="0" type="Profile_ID"/>
+            </ns2:Notification>
+        </ns2:Operation>
+    </ns2:Service>
+    
+</ns2:Library>

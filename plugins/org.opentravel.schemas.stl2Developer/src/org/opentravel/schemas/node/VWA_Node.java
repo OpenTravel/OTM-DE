@@ -41,8 +41,12 @@ import org.opentravel.schemas.types.TypeProvider;
 /**
  * Value With Attributes. This object has two facets, the value is a simple facet and attributes facet. This makes it a
  * complex interface implementation.
- * 
+ * <p>
  * Type Users under a VWA can only be assigned simple, vwa or enumeration (open or closed) objects.
+ * <p>
+ * Structure: <br>
+ * VWA_SimpleFacetFacadeNode -> VWA_SimpleAttributeFacadeNode (tlParent) <br>
+ * AttributeFacetNode -> AttributeNode(s) (tlAttribute)
  * 
  * @author Dave Hollander
  * 

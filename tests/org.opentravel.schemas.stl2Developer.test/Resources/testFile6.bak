@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:Library
+    xmlns:ns2="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.OpenTravel.org/ns/OTA2/LibraryModel_v01_06 OTA2_LibraryModel_v1.6.0.xsd">
+    
+    <ns2:VersionScheme>OTA2</ns2:VersionScheme>
+    <ns2:Status>Draft</ns2:Status>
+    <ns2:Namespace>http://www.OpenTravel.org/ns/OTA2/SchemaCompiler/test-package_v2</ns2:Namespace>
+    <ns2:Prefix>pkg2</ns2:Prefix>
+    <ns2:Name>library_1_p2</ns2:Name>
+    <ns2:Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
+    <ns2:Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
+    <ns2:Context applicationContext="test-applicationContext" context="test"/>
+    <ns2:Context applicationContext="test-simple-applicationContext" context="test-simple"/>
+    <ns2:Context applicationContext="Sample-applicationContext" context="Sample"/>
+    <ns2:Comments>Test Library</ns2:Comments>
+    
+    <ns2:Simple name="Counter_3" type="pkg1:Counter_1">
+        <ns2:Documentation>
+            <ns2:Description>Counter_3-documentation-line_1</ns2:Description>
+        </ns2:Documentation>
+    </ns2:Simple>
+    
+    <ns2:Simple fractionDigits="2" name="TestFloat" totalDigits="4" type="xsd:decimal"/>
+    
+    <ns2:Enumeration_Open name="SampleEnumExt_Open">
+        <ns2:Extension extends="SampleEnum_Open"/>
+        <ns2:Value label="" literal="seven"/>
+        <ns2:Value label="" literal="eight"/>
+        <ns2:Value label="" literal="nine"/>
+    </ns2:Enumeration_Open>
+    
+    <ns2:ValueWithAttrs name="SampleValueWithAttributes" type="Enum_SampleCoreRole">
+        <ns2:Documentation>
+            <ns2:Description>SampleValueWithAttributes-documentation-line_1</ns2:Description>
+        </ns2:Documentation>
+        <ns2:ValueDocumentation>
+            <ns2:Description>SampleValueWithAttributes-value-documentation-line_1</ns2:Description>
+        </ns2:ValueDocumentation>
+        <ns2:Equivalent context="test">SampleValueWithAttributes-equivalent</ns2:Equivalent>
+        <ns2:Example context="test">SampleValueWithAttributes-ex</ns2:Example>
+        <ns2:Attribute name="attr1" referenceRepeat="0" type="Counter_3">
+            <ns2:Documentation>
+                <ns2:Description>attr1-description</ns2:Description>
+            </ns2:Documentation>
+        </ns2:Attribute>
+        <ns2:Attribute mandatory="true" name="attr2" referenceRepeat="0" type="Counter_4"/>
+        <ns2:Attribute name="attr3" referenceRepeat="0" type="pkg1:Counter_1">
+            <ns2:Example context="test">attr3-ex</ns2:Example>
+        </ns2:Attribute>
+        <ns2:Attribute name="attr4" referenceRepeat="0" type="xsd:int">
+            <ns2:Equivalent context="test">attr4-equivalent</ns2:Equivalent>
+        </ns2:Attribute>
+        <ns2:Indicator name="indicator1Ind" publishAsElement="false"/>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:ValueWithAttrs name="NestedValueWithAttributes" type="SampleValueWithAttributes">
+        <ns2:Attribute mandatory="true" name="attr5" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Indicator name="indicator2Ind" publishAsElement="false"/>
+    </ns2:ValueWithAttrs>
+    
+    <ns2:CoreObject name="SampleCore" notExtendable="false">
+        <ns2:Documentation>
+            <ns2:Description>SampleCore-documentation-line_1</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Equivalent context="test">SampleCore-equivalent</ns2:Equivalent>
+        <ns2:Aliases>SampleCore_Alias1 SampleCore_Alias2</ns2:Aliases>
+        <ns2:Simple type="xsd:string">
+            <ns2:Documentation>
+                <ns2:Description>SimpleFacet-description</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Equivalent context="test-simple">SimpleFacet-equivalent</ns2:Equivalent>
+            <ns2:Example context="test-simple">SimpleFacet-ex</ns2:Example>
+        </ns2:Simple>
+        <ns2:Summary>
+            <ns2:Documentation>
+                <ns2:Description>SampleCore_Summary-documentation-line_1</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Attribute name="attr1" referenceRepeat="0" type="Counter_3">
+                <ns2:Documentation>
+                    <ns2:Description>attr1-description</ns2:Description>
+                </ns2:Documentation>
+            </ns2:Attribute>
+            <ns2:Attribute mandatory="true" name="attr2"
+                referenceRepeat="0" type="Counter_4"/>
+            <ns2:Attribute name="attr3" referenceRepeat="0" type="pkg1:Counter_1">
+                <ns2:Example context="test">attr3-ex</ns2:Example>
+            </ns2:Attribute>
+            <ns2:Attribute name="attr4" referenceRepeat="0" type="xsd:int">
+                <ns2:Equivalent context="test">attr4-equivalent</ns2:Equivalent>
+            </ns2:Attribute>
+            <ns2:Attribute name="messageId" referenceRepeat="0" type="xsd:ID"/>
+            <ns2:Element name="Element1" repeat="0" type="Counter_3">
+                <ns2:Documentation>
+                    <ns2:Description>element1-description</ns2:Description>
+                </ns2:Documentation>
+            </ns2:Element>
+            <ns2:Element name="Element2" repeat="0" type="Counter_4"/>
+            <ns2:Element mandatory="true" name="Element3" repeat="0" type="pkg1:Counter_1">
+                <ns2:Example context="test">element3-ex</ns2:Example>
+            </ns2:Element>
+            <ns2:Element name="Element4" repeat="0" type="xsd:string">
+                <ns2:Equivalent context="test">element4-equivalent</ns2:Equivalent>
+            </ns2:Element>
+            <ns2:Element name="EmptyBusinessObject" repeat="5" type="EmptyBusinessObject"/>
+            <ns2:Element name="SampleBusinessObject_Alias1Detail"
+                repeat="*" type="SampleBusinessObject_Alias1_Detail"/>
+            <ns2:Indicator name="indicator1Ind" publishAsElement="false">
+                <ns2:Documentation>
+                    <ns2:Description>indicator1-description</ns2:Description>
+                </ns2:Documentation>
+            </ns2:Indicator>
+            <ns2:Indicator name="indicator2Ind" publishAsElement="false">
+                <ns2:Equivalent context="test">indicator2-equivalent</ns2:Equivalent>
+            </ns2:Indicator>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Indicator name="indicator3Ind" publishAsElement="false"/>
+        </ns2:Detail>
+        <ns2:Roles>
+            <ns2:Role value="Role1">
+                <ns2:Documentation>
+                    <ns2:Description>SampleCore_Role1-documentation-line_1</ns2:Description>
+                </ns2:Documentation>
+            </ns2:Role>
+            <ns2:Role value="Role2">
+                <ns2:Documentation>
+                    <ns2:Description>SampleCore_Role2-documentation-line_1</ns2:Description>
+                </ns2:Documentation>
+            </ns2:Role>
+        </ns2:Roles>
+    </ns2:CoreObject>
+    
+    <ns2:CoreObject name="SimpleCore" notExtendable="true">
+        <ns2:Extension extends="SampleCore"/>
+        <ns2:Aliases/>
+        <ns2:Simple type="ota2:Empty"/>
+        <ns2:Summary>
+            <ns2:Indicator name="simpleIndicatorInd" publishAsElement="false"/>
+        </ns2:Summary>
+        <ns2:Detail/>
+        <ns2:Roles>
+            <ns2:Role value="simple_role_1"/>
+            <ns2:Role value="simple_role_2"/>
+            <ns2:Role value="simple_role_3"/>
+        </ns2:Roles>
+    </ns2:CoreObject>
+    
+    <ns2:CoreObject name="EnumCore" notExtendable="false">
+        <ns2:Aliases>EnumCore_Alias1 EnumCore_Alias2</ns2:Aliases>
+        <ns2:Simple type="ota2:Empty"/>
+        <ns2:Summary>
+            <ns2:Indicator name="enumIndicatorInd" publishAsElement="false"/>
+        </ns2:Summary>
+        <ns2:Detail/>
+    </ns2:CoreObject>
+    
+    <ns2:CoreObject name="NoSimpleBaseTypeCore" notExtendable="true">
+        <ns2:Aliases/>
+        <ns2:Simple type="ota2:Empty"/>
+        <ns2:Summary>
+            <ns2:Indicator name="noSimpleIndicatorInd" publishAsElement="false"/>
+        </ns2:Summary>
+        <ns2:Detail/>
+    </ns2:CoreObject>
+    <ns2:ChoiceObject name="SampleChoice" notExtendable="false">
+        <ns2:Documentation>
+            <ns2:Description>SampleChoice-documentation-line_1</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Equivalent context="test">SampleChoice-equivalent</ns2:Equivalent>
+        <ns2:Aliases>SampleChoice_Alias1 SampleChoice_Alias2</ns2:Aliases>
+        <ns2:Shared>
+            <ns2:Attribute name="sharedAttribute" referenceRepeat="0" type="xsd:string"/>
+            <ns2:Element name="SharedElement" repeat="0" type="xsd:int"/>
+            <ns2:Indicator name="sharedIndicatorInd" publishAsElement="false"/>
+        </ns2:Shared>
+    </ns2:ChoiceObject>
+    <ns2:ChoiceObject name="ExtendedChoice" notExtendable="false">
+        <ns2:Extension extends="SampleChoice"/>
+        <ns2:Aliases>ExtChoice_Alias1 ExtChoice_Alias2</ns2:Aliases>
+        <ns2:Shared>
+            <ns2:Attribute name="sharedAttribute2" referenceRepeat="0" type="xsd:string"/>
+            <ns2:Element name="SharedElement2" repeat="0" type="xsd:int"/>
+            <ns2:Indicator name="sharedIndicator2Ind" publishAsElement="false"/>
+        </ns2:Shared>
+    </ns2:ChoiceObject>
+    
+    <ns2:BusinessObject name="EmptyBusinessObject" notExtendable="false">
+        <ns2:Aliases/>
+        <ns2:ID>
+            <ns2:Attribute name="messageId" referenceRepeat="0" type="xsd:ID"/>
+            <ns2:Element name="Empty_oid" repeat="0" type="xsd:int"/>
+        </ns2:ID>
+        <ns2:Summary/>
+        <ns2:Detail/>
+    </ns2:BusinessObject>
+    
+    <ns2:BusinessObject name="SampleBusinessObject" notExtendable="true">
+        <ns2:Documentation>
+            <ns2:Description>SampleBusinessObject-documentation-line_1</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Equivalent context="test">SampleBusinessObject-equivalent</ns2:Equivalent>
+        <ns2:Extension extends="EmptyBusinessObject"/>
+        <ns2:Aliases>SampleBusinessObject_Alias1 SampleBusinessObject_Alias2</ns2:Aliases>
+        <ns2:ID>
+            <ns2:Element name="Sample_oid" repeat="0" type="xsd:int"/>
+        </ns2:ID>
+        <ns2:Summary>
+            <ns2:Attribute name="sampleCoreAttr" referenceRepeat="0" type="SampleCore"/>
+            <ns2:Element name="SummaryName" repeat="0" type="xsd:string"/>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Element name="DetailName" repeat="0" type="xsd:string"/>
+        </ns2:Detail>
+    </ns2:BusinessObject>
+    
+    <ns2:BusinessObject name="CompoundBusinessObject" notExtendable="false">
+        <ns2:Documentation>
+            <ns2:Description>SampleBusinessObject-documentation-line_1</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Equivalent context="test">SampleCompositeObject-equivalent</ns2:Equivalent>
+        <ns2:Aliases/>
+        <ns2:ID>
+            <ns2:Element name="Oid" repeat="0" type="xsd:int"/>
+        </ns2:ID>
+        <ns2:Summary>
+            <ns2:Element name="Name" repeat="0" type="xsd:string"/>
+        </ns2:Summary>
+        <ns2:Detail>
+            <ns2:Element name="SampleVWA" repeat="0" type="MyVWA"/>
+            <ns2:Element name="SampleCores" repeat="0" type="SampleCore_Simple_List"/>
+            <ns2:Element name="SampleCoreDetail" repeat="2" type="SampleCore_Detail_List"/>
+            <ns2:Element name="SampleCore_Alias1Detail" repeat="0" type="SampleCore_Alias1_Detail_List"/>
+            <ns2:Element name="SampleCoreRoleProperty" repeat="0" type="Enum_SampleCoreRole"/>
+            <ns2:Element name="EnumCore" repeat="0" type="EnumCore"/>
+            <ns2:Element name="EnumCore_Alias1" repeat="0" type="EnumCore_Alias1_Summary"/>
+            <ns2:Element name="SampleOpenEnumProperty" repeat="0" type="SampleEnum_Open"/>
+            <ns2:Element name="SampleBusinessObject" repeat="0" type="SampleBusinessObject"/>
+            <ns2:Element name="SampleBusinessObject_Alias1" repeat="0" type="SampleBusinessObject_Alias1"/>
+            <ns2:Element mandatory="true" name="SampleCoreSummaryRef"
+                reference="true" repeat="2" type="SampleCore_Summary"/>
+            <ns2:Element name="SampleBusinessObject_Alias2Test1"
+                repeat="0" type="SampleBusinessObject_Alias2_Test1"/>
+        </ns2:Detail>
+    </ns2:BusinessObject>
+    <ns2:Resource abstract="true"
+        businessObjectRef="CompoundBusinessObject" firstClass="true" name="BaseResource">
+        <ns2:Action actionId="CommonErrors" common="true">
+            <ns2:ActionResponse
+                mimeTypes="APPLICATION_XML APPLICATION_JSON"
+                payloadType="SampleCore" statusCodes="403 500">
+                <ns2:Documentation>
+                    <ns2:Description>Action-Search-Response2-documentation-line_1</ns2:Description>
+                </ns2:Documentation>
+            </ns2:ActionResponse>
+        </ns2:Action>
+    </ns2:Resource>
+    <ns2:Resource abstract="false" basePath="/services/EmptyResource"
+        businessObjectRef="EmptyBusinessObject" firstClass="true" name="ParentResource">
+        <ns2:ParamGroup facetName="EmptyBusinessObject_ID"
+            idGroup="true" name="IDParameters">
+            <ns2:Parameter fieldName="Empty_oid" location="Path"/>
+        </ns2:ParamGroup>
+    </ns2:Resource>
+    <ns2:Resource abstract="false" basePath="/services/SampleResource"
+        businessObjectRef="SampleBusinessObject" firstClass="true" name="SampleResource">
+        <ns2:Documentation>
+            <ns2:Description>SampleResource-documentation-line_1</ns2:Description>
+        </ns2:Documentation>
+        <ns2:ResourceParentRef parent="ParentResource"
+            parentParamGroup="IDParameters" pathTemplate="/parent/{empty_oid}">
+            <ns2:Documentation>
+                <ns2:Description>SampleResource-ParentRef-documentation-line_1</ns2:Description>
+            </ns2:Documentation>
+        </ns2:ResourceParentRef>
+        <ns2:Extension extends="BaseResource"/>
+        <ns2:ParamGroup facetName="SampleBusinessObject_ID"
+            idGroup="true" name="IDParameters">
+            <ns2:Documentation>
+                <ns2:Description>IDParameters-documentation-line_1</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Parameter fieldName="Sample_oid" location="Path">
+                <ns2:Documentation>
+                    <ns2:Description>Param-sample_oid-documentation-line_1</ns2:Description>
+                </ns2:Documentation>
+                <ns2:Equivalent context="test">Param-sample_oid-equivalent</ns2:Equivalent>
+                <ns2:Example context="test">sample_oid-ex</ns2:Example>
+            </ns2:Parameter>
+        </ns2:ParamGroup>
+        <ns2:ParamGroup
+            facetName="SampleBusinessObject_Query_FindByName"
+            idGroup="false" name="QueryParameters">
+            <ns2:Parameter fieldName="queryAttribute" location="Header"/>
+            <ns2:Parameter fieldName="LastName" location="Query"/>
+            <ns2:Parameter fieldName="FirstName" location="Query"/>
+        </ns2:ParamGroup>
+        <ns2:ActionFacet label="ObjectOnly" referenceFacet="Summary"
+            referenceRepeat="0" referenceType="Required">
+            <ns2:Documentation>
+                <ns2:Description>ActionFacet-ObjectOnly-documentation-line_1</ns2:Description>
+            </ns2:Documentation>
+        </ns2:ActionFacet>
+        <ns2:ActionFacet label="ObjectList" referenceFacet="Summary"
+            referenceRepeat="1000" referenceType="Required"/>
+        <ns2:ActionFacet label="ObjectWrapper" referenceFacet="Summary"
+            referenceRepeat="0" referenceType="Optional"/>
+        <ns2:Action actionId="Create" common="false">
+            <ns2:Documentation>
+                <ns2:Description>Action-Create-documentation-line_1</ns2:Description>
+            </ns2:Documentation>
+            <ns2:ActionRequest httpMethod="POST"
+                mimeTypes="APPLICATION_XML APPLICATION_JSON"
+                pathTemplate="/samples" payloadType="SampleResource_ObjectOnly">
+                <ns2:Documentation>
+                    <ns2:Description>Action-Create-Request-documentation-line_1</ns2:Description>
+                </ns2:Documentation>
+            </ns2:ActionRequest>
+            <ns2:ActionResponse
+                mimeTypes="APPLICATION_XML APPLICATION_JSON"
+                payloadType="SampleResource_ObjectOnly" statusCodes="200 204">
+                <ns2:Documentation>
+                    <ns2:Description>Action-Create-Response1-documentation-line_1</ns2:Description>
+                </ns2:Documentation>
+            </ns2:ActionResponse>
+        </ns2:Action>
+        <ns2:Action actionId="Update" common="false">
+            <ns2:Documentation>
+                <ns2:Description>Action-Update-documentation-line_1</ns2:Description>
+            </ns2:Documentation>
+            <ns2:ActionRequest httpMethod="PUT"
+                mimeTypes="APPLICATION_XML APPLICATION_JSON"
+                paramGroup="IDParameters"
+                pathTemplate="/sample/{sample_oid}" payloadType="SampleResource_ObjectWrapper">
+                <ns2:Documentation>
+                    <ns2:Description>Action-Update-Request-documentation-line_1</ns2:Description>
+                </ns2:Documentation>
+            </ns2:ActionRequest>
+            <ns2:ActionResponse
+                mimeTypes="APPLICATION_XML APPLICATION_JSON"
+                payloadType="SampleResource_ObjectOnly" statusCodes="200">
+                <ns2:Documentation>
+                    <ns2:Description>Action-Update-Response1-documentation-line_1</ns2:Description>
+                </ns2:Documentation>
+            </ns2:ActionResponse>
+        </ns2:Action>
+        <ns2:Action actionId="Search" common="false">
+            <ns2:Documentation>
+                <ns2:Description>Action-Create-documentation-line_1</ns2:Description>
+            </ns2:Documentation>
+            <ns2:ActionRequest httpMethod="GET" mimeTypes=""
+                paramGroup="QueryParameters" pathTemplate="/samples">
+                <ns2:Documentation>
+                    <ns2:Description>Action-Search-Request-documentation-line_1</ns2:Description>
+                </ns2:Documentation>
+            </ns2:ActionRequest>
+            <ns2:ActionResponse
+                mimeTypes="APPLICATION_XML APPLICATION_JSON"
+                payloadType="SampleResource_ObjectList" statusCodes="200">
+                <ns2:Documentation>
+                    <ns2:Description>Action-Search-Response1-documentation-line_1</ns2:Description>
+                </ns2:Documentation>
+            </ns2:ActionResponse>
+        </ns2:Action>
+    </ns2:Resource>
+    <ns2:ContextualFacet facetNamespace="" name="Test1"
+        notExtendable="true" type="Custom">
+        <ns2:Attribute name="attr1" referenceRepeat="0" type="xsd:int"/>
+        <ns2:Element name="Element1" repeat="0" type="xsd:string"/>
+        <ns2:Indicator name="indicator1Ind" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetNamespace="" name="Test2"
+        notExtendable="false" type="Custom">
+        <ns2:Attribute name="attr1" referenceRepeat="0" type="xsd:int"/>
+        <ns2:Element name="Element1" repeat="0" type="xsd:string"/>
+        <ns2:Indicator name="indicator1Ind" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetNamespace="" name="FindByName"
+        notExtendable="false" type="Query">
+        <ns2:Attribute name="queryAttribute" referenceRepeat="0" type="xsd:int"/>
+        <ns2:Element name="LastName" repeat="0" type="xsd:string"/>
+        <ns2:Element name="FirstName" repeat="0" type="xsd:string"/>
+        <ns2:Indicator name="queryIndicatorInd" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetNamespace="" name="FindByAge"
+        notExtendable="false" type="Query">
+        <ns2:Attribute name="queryAttribute" referenceRepeat="0" type="xsd:int"/>
+        <ns2:Element name="Age" repeat="0" type="xsd:int"/>
+        <ns2:Indicator name="queryIndicatorInd" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetNamespace="" name="ChoiceA"
+        notExtendable="false" type="Choice">
+        <ns2:Attribute name="attributeA" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Element name="ElementA" repeat="0" type="xsd:int"/>
+        <ns2:Indicator name="indicatorAInd" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetNamespace="" name="ChoiceB"
+        notExtendable="false" type="Choice">
+        <ns2:Attribute name="attributeB" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Element name="ElementB" repeat="3" type="xsd:int"/>
+        <ns2:Indicator name="indicatorBInd" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetNamespace="" name="ChoiceA"
+        notExtendable="false" type="Choice">
+        <ns2:Attribute name="extAttributeA" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Element name="ExtElementA" repeat="0" type="xsd:int"/>
+        <ns2:Indicator name="extIndicatorAInd" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    <ns2:ContextualFacet facetNamespace="" name="ChoiceC"
+        notExtendable="false" type="Choice">
+        <ns2:Attribute name="attributeC" referenceRepeat="0" type="xsd:string"/>
+        <ns2:Element name="ElementC" repeat="3" type="xsd:int"/>
+        <ns2:Indicator name="indicatorCInd" publishAsElement="false"/>
+    </ns2:ContextualFacet>
+    
+    <ns2:Service name="SampleService">
+        <ns2:Documentation>
+            <ns2:Description>SampleService-documentation-line_1</ns2:Description>
+        </ns2:Documentation>
+        <ns2:Equivalent context="test">SampleService-equivalent</ns2:Equivalent>
+        <ns2:Operation Name="RequestResponseOperation" notExtendable="false">
+            <ns2:Documentation>
+                <ns2:Description>RequestResponseOperation-documentation-line_1</ns2:Description>
+            </ns2:Documentation>
+            <ns2:Equivalent context="test">RequestResponseOperation-equivalent</ns2:Equivalent>
+            <ns2:Request>
+                <ns2:Element name="SampleBusinessObjectQueryFindByAge"
+                    repeat="0" type="SampleBusinessObject_Query_FindByAge"/>
+                <ns2:Element name="SampleBusinessObject" repeat="0" type="SampleBusinessObject"/>
+            </ns2:Request>
+            <ns2:Response>
+                <ns2:Element name="CompoundBusinessObject" repeat="0" type="CompoundBusinessObject"/>
+            </ns2:Response>
+            <ns2:Notification/>
+        </ns2:Operation>
+        <ns2:Operation Name="NotificationOperation" notExtendable="false">
+            <ns2:Equivalent context="test">NotificationOperation-equivalent</ns2:Equivalent>
+            <ns2:Request>
+                <ns2:Element name="SampleBusinessObject" repeat="0" type="SampleBusinessObject"/>
+            </ns2:Request>
+            <ns2:Response/>
+            <ns2:Notification>
+                <ns2:Element name="SampleBusinessObject" repeat="0" type="SampleBusinessObject"/>
+            </ns2:Notification>
+        </ns2:Operation>
+    </ns2:Service>
+    
+</ns2:Library>

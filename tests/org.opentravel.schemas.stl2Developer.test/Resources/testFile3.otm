@@ -8,7 +8,7 @@
     <Namespace>http://www.opentravel.org/Sandbox/junits/v1</Namespace>
     <Prefix>tga</Prefix>
     <Name>Test3</Name>
-    <Includes>testFile5.otm</Includes>
+    <Includes>testFile5-Clean.otm</Includes>
     <Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
     <Context applicationContext="Default" context="default"/>
     

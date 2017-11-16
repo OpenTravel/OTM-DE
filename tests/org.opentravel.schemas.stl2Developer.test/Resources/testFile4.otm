@@ -9,8 +9,8 @@
     <Prefix>t4</Prefix>
     <Name>Test4</Name>
     <Import namespace="http://www.opentravel.org/OTM/Common/v0" prefix="ota2"/>
-    <Import fileHints="testFile5.otm"
-        namespace="http://www.opentravel.org/Sandbox/junits/v1" prefix="tga"/>
+    <Import fileHints="testFile5-Clean.otm"
+        namespace="http://www.opentravel.org/ns/OTA2/Demo/Profile5/v1_0" prefix="tga"/>
     <Import namespace="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
     <Context applicationContext="Default" context="default"/>
     

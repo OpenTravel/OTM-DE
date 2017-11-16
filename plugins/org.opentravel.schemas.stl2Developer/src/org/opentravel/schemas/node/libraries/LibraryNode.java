@@ -1292,7 +1292,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 
 		if (getChildrenHandler() != null) {
 			n.getLibrary().getTLModelObject().removeNamedMember((TLLibraryMember) n.getTLModelObject());
-			getChildrenHandler().remove(n);
+			// getChildrenHandler().remove(n); // done in listener
 		} else {
 			assert false;
 			// if (n == null || n.getTLModelObject() == null) {

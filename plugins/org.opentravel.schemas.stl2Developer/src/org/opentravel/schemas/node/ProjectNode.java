@@ -416,9 +416,9 @@ public class ProjectNode extends Node implements INode {
 		getChildrenHandler().remove(l);
 	}
 
-	@Override
-	public void removeFromLibrary() {
-	}
+	// @Override
+	// public void removeFromLibrary() {
+	// }
 
 	/**
 	 * Remove all project items from this project. NO save, tests or checks.

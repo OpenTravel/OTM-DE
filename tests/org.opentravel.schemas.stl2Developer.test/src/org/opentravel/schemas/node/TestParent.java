@@ -34,7 +34,7 @@ import org.opentravel.schemas.testUtils.NodeTesters;
 public class TestParent {
 	LoadFiles lf = new LoadFiles();
 	NodeTesters nt = new NodeTesters();
-	LibraryTests lt = new LibraryTests();
+	Library_FunctionTests lt = new Library_FunctionTests();
 
 
 	@Test

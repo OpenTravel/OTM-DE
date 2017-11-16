@@ -22,7 +22,7 @@ import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opentravel.schemas.node.LibraryTests;
+import org.opentravel.schemas.node.Library_FunctionTests;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -43,7 +43,7 @@ public class RepositoryControllerTests {
 
 	NodeTesters nt = new NodeTesters();
 	LoadFiles lf = new LoadFiles();
-	LibraryTests lt = new LibraryTests();
+	Library_FunctionTests lt = new Library_FunctionTests();
 	TestNode tn = new NodeTesters().new TestNode();
 	MockLibrary ml = null;
 	LibraryNode ln = null;
