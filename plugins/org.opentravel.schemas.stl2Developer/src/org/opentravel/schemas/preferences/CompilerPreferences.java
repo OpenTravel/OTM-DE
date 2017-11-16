@@ -347,6 +347,15 @@ public class CompilerPreferences implements CompileAllTaskOptions {
     }
 
     /**
+	 * @see org.opentravel.schemacompiler.task.ExampleCompilerTaskOptions#isSuppressOptionalFields()
+	 */
+	@Override
+	public boolean isSuppressOptionalFields() {
+		// TODO: This is a new option that needs to be added to the compiler options preference page
+		return false;
+	}
+
+	/**
      * @see org.opentravel.schemacompiler.task.CommonCompilerTaskOptions#isGenerateMaxDetailsForExamples()
      */
     @Override
