@@ -140,7 +140,7 @@ public class UINode {
 		else if (node == node.getOwningComponent()) {
 			return node;
 		} else {
-			return getOwner(node.getOwningComponent());
+			return getOwner((Node) node.getOwningComponent());
 		}
 	}
 

@@ -17,8 +17,8 @@ package org.opentravel.schemas.actions;
 
 import org.eclipse.swt.widgets.Event;
 import org.opentravel.schemas.commands.AddNodeHandler2;
-import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.MainWindow;
@@ -47,7 +47,7 @@ public class AddEnumValueAction extends OtmAbstractAction {
 
 	@Override
 	public boolean isEnabled() {
-		Node n = mc.getCurrentNode_NavigatorView().getOwningComponent();
+		LibraryMemberInterface n = mc.getCurrentNode_NavigatorView().getOwningComponent();
 		// boolean result = n.isEnabled_AddProperties();
 		return n instanceof Enumeration ? n.isEnabled_AddProperties() : false;
 

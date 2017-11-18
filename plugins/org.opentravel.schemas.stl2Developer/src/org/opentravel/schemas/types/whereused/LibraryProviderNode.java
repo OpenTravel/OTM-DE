@@ -53,7 +53,7 @@ public class LibraryProviderNode extends WhereUsedNode<LibraryNode> implements W
 		super(providerLib, userLib); // sets owner and parent
 		// parent = userLib;
 		labelProvider = simpleLabelProvider(providerLib.getName());
-		imageProvider = nodeImageProvider(providerLib.getOwningComponent());
+		imageProvider = nodeImageProvider((Node) providerLib.getOwningComponent());
 	}
 
 	@Override
@@ -138,8 +138,9 @@ public class LibraryProviderNode extends WhereUsedNode<LibraryNode> implements W
 		return true;
 	}
 
+	@Override
 	public LibraryNode getOwner() {
-		return (LibraryNode) owner;
+		return owner;
 	}
 
 }

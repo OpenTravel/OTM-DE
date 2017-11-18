@@ -54,6 +54,10 @@ import org.slf4j.LoggerFactory;
  * object's library to the facet's library.
  * 
  * Contextual facets enable OTM to have dependency injection or Inversion of Control.
+ * <p>
+ * TLBO child is a TLCF <br>
+ * BO_Node will have Contrib as child <br>
+ * BO_Node will have a contextual facet library member with BO as where_contributed
  * 
  * @author Dave Hollander
  * 
@@ -142,8 +146,8 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 		if (parent != null && parent.getLibrary() != null)
 			parent.getLibrary().addMember(newNode);
 		if (getOwningComponent() != null)
-			((ContextualFacetNode) newNode).setOwner((ContextualFacetOwnerInterface) getOwningComponent());
-		((TLContextualFacet) newNode.getTLModelObject()).setOwningLibrary(parent.getLibrary().getTLModelObject());
+			newNode.setOwner((ContextualFacetOwnerInterface) getOwningComponent());
+		newNode.getTLModelObject().setOwningLibrary(parent.getLibrary().getTLModelObject());
 		return newNode;
 	}
 
@@ -351,7 +355,7 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	 * @return the owning entity reported by the TL Model Object. If no owning entity then this is returned.
 	 */
 	@Override
-	public Node getOwningComponent() {
+	public LibraryMemberInterface getOwningComponent() {
 		// For version 1.6, contextual facets are their own owners
 		if (canBeLibraryMember())
 			return this;
@@ -359,7 +363,8 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 		if (parent == null)
 			if (getTLModelObject() != null && getTLModelObject().getOwningEntity() != null)
 				parent = Node.GetNode(getTLModelObject().getOwningEntity());
-		return parent;
+		// In junits it will be navNode if created in 1.6 but deleted in version 1.5 mode
+		return parent instanceof LibraryMemberInterface ? (LibraryMemberInterface) parent : null;
 	}
 
 	@Override
@@ -393,6 +398,8 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 		if (isNamedEntity()) {
 			// Node's delete logic is based on owning component which will be wrong for contextual facets in version 1.6
 			// and later.
+			if (getLibrary() == null)
+				return false;
 			return getLibrary().isEditable() && isInHead2();
 		}
 		return super.isDeleteable(true) && !isInherited();
@@ -482,6 +489,7 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 	 * @param context
 	 *            is IGNORED. Context is not used on facets in version 1.6 and later.
 	 */
+	@Override
 	@Deprecated
 	public void setContext(String context) {
 		// setContext();

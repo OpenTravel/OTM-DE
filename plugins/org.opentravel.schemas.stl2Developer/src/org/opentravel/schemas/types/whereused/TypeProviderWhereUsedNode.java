@@ -165,7 +165,7 @@ public class TypeProviderWhereUsedNode extends WhereUsedNode<TypeProvider> imple
 			if (n.getOwningComponent() instanceof ExtensionOwner) {
 				String eName = ((ExtensionOwner) n.getOwningComponent()).getExtendsTypeName();
 				String oName = n.getOwningComponent().getName();
-				Node eType = n.getOwningComponent().getExtendsType();
+				Node eType = ((Node) n.getOwningComponent()).getExtendsType();
 				if (!eName.equals(oName))
 					strippedList.add(n); // Not a versioning relationship
 				if (n.getOwningComponent().isLatestVersion())

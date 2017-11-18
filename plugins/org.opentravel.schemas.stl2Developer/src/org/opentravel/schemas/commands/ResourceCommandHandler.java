@@ -162,7 +162,7 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 
 		switch (type) {
 		case DELETE:
-			Node owner = selectedNode.getOwningComponent();
+			Node owner = (Node) selectedNode.getOwningComponent();
 			List<Node> nodes = view.getSelectedNodes();
 			new DeleteNodesHandler().deleteNodes(nodes);
 

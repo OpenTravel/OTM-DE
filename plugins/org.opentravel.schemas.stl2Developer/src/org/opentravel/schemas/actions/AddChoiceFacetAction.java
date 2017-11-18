@@ -23,9 +23,9 @@ import org.opentravel.schemas.commands.ContextualFacetHandler;
 import org.opentravel.schemas.commands.OtmAbstractHandler;
 import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.facets.ChoiceFacetNode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -66,7 +66,7 @@ public class AddChoiceFacetAction extends OtmAbstractAction {
 	@Override
 	public boolean isEnabled() {
 		// Unmanaged or in the most current (head) library in version chain.
-		Node n = mc.getCurrentNode_NavigatorView().getOwningComponent();
+		LibraryMemberInterface n = mc.getCurrentNode_NavigatorView().getOwningComponent();
 		return n instanceof ChoiceObjectNode ? n.isEditable_newToChain() : false;
 		// use if we allow custom facets to be added as minor version change
 		// return n instanceof BusinessObjectNode ? n.isEnabled_AddProperties() : false;

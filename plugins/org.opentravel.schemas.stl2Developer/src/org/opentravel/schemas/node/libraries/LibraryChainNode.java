@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
@@ -38,6 +39,7 @@ import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.handlers.NamespaceHandler;
 import org.opentravel.schemas.node.handlers.children.NavNodeChildrenHandler;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.resources.ResourceNode;
@@ -64,7 +66,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class LibraryChainNode extends Node implements LibraryInterface {
+public class LibraryChainNode extends Node implements FacadeInterface, LibraryInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryChainNode.class);
 
 	protected static final String LIBRARY_CHAIN = "Library Collection";
@@ -306,6 +308,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 	/**
 	 * @return true if this chain contains the node's library
 	 */
+	@Override
 	public boolean contains(Node node) {
 		return versions != null ? versions.getChildren().contains(node.getLibrary()) : false;
 	}
@@ -396,6 +399,11 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 	}
 
 	@Override
+	public LibraryNode get() {
+		return getHead();
+	}
+
+	@Override
 	public LibraryChainNode getChain() {
 		return this;
 	}
@@ -463,6 +471,7 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 	/**
 	 * @return the project containing this chain. Null if no project is found.
 	 */
+	@Override
 	public ProjectNode getProject() {
 		if (getParent() instanceof LibraryNavNode)
 			return ((LibraryNavNode) getParent()).getProject();
@@ -495,6 +504,11 @@ public class LibraryChainNode extends Node implements LibraryInterface {
 
 	public AggregateNode getSimpleAggregate() {
 		return simpleRoot;
+	}
+
+	@Override
+	public TLModelElement getTLModelObject() {
+		return getHead().getTLModelObject();
 	}
 
 	@Override

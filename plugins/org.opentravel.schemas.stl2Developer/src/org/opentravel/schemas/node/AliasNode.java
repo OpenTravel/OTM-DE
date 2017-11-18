@@ -22,6 +22,7 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLAbstractFacet;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemas.node.interfaces.AliasOwner;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.properties.Images;
@@ -133,7 +134,7 @@ public class AliasNode extends TypeProviderBase implements TypeProvider {
 	}
 
 	@Override
-	public Node getOwningComponent() {
+	public LibraryMemberInterface getOwningComponent() {
 		return getParent() != null ? getParent().getOwningComponent() : null;
 	}
 

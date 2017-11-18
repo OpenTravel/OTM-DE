@@ -17,7 +17,9 @@ package org.opentravel.schemas.node.listeners;
 
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +49,10 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 			// No listener on TLObject - do nothing
 			if (affectedNode == null)
 				return;
-
+			// In version 1.5 there will be an event for contextual facets, ignore them
+			if (affectedNode instanceof ContextualFacetNode)
+				if (!((ContextualFacetNode) affectedNode).canBeLibraryMember())
+					break;
 			ln.getChildrenHandler().add(affectedNode);
 			// TODO - versions, aggregates and where used
 			break;
@@ -78,13 +83,15 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 
 			// Clear assigned types
 			// FIXME - this should be part of delete()
-			// for (Node n : affectedNode.getChildren_TypeUsers())
-			// if (n instanceof TypeUser)
-			// ((TypeUser) n).setAssignedType();
-			// if (affectedNode instanceof TypeUser)
-			// ((TypeUser) affectedNode).setAssignedType();
+			for (Node n : affectedNode.getChildren_TypeUsers())
+				if (n instanceof TypeUser)
+					((TypeUser) n).setAssignedType();
+			if (affectedNode instanceof TypeUser)
+				((TypeUser) affectedNode).setAssignedType();
 
-			affectedNode.delete();
+			// FIXME - should remove be destructive? It is used in addMember to move and this breaks that.
+			// affectedNode.delete();
+
 			ln.getChildrenHandler().remove(affectedNode);
 			// TODO - versions, aggregates
 			break;

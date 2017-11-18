@@ -76,8 +76,22 @@ public class VersionNode_Tests {
 		VersionNode vc = new VersionNode(simple);
 
 		assertTrue("Version node must not be empty.", vc.get() != null);
-		// assertTrue("Version node must have library.", vc.getLibrary() != null);
+		// Then - simple has no parent or library so neither should version node
+		assertTrue("Version node must not have library.", vc.getLibrary() == null);
+		assertTrue("Version node must not have parent.", vc.getParent() == null);
+
+		// When - simple is in a library
+		ln = ml.createNewLibrary_Empty(defaultProject.getNamespace(), "test", defaultProject);
+		simple = new SimpleTypeNode(new TLSimple());
+		simple.setName("Fred");
+		ln.addMember(simple);
+
+		vc = new VersionNode(simple);
+		// Then - simple has no parent or library so neither should version node
+		assertTrue("Version node must not be empty.", vc.get() != null);
+		assertTrue("Version node must have library.", vc.getLibrary() != null);
 		assertTrue("Version node must have parent.", vc.getParent() != null);
+
 	}
 
 	@Test

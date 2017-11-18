@@ -29,6 +29,7 @@ import org.opentravel.schemas.node.handlers.children.FacetChildrenHandler;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.Images;
@@ -147,6 +148,7 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 	/**
 	 * Getter for the contributor
 	 */
+	@Override
 	public Node get() {
 		return contributor;
 	}
@@ -210,6 +212,7 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 		return getContributor() == null ? null : getContributor().getLibrary();
 	}
 
+	@Override
 	public String getLocalName() {
 		return getContributor() == null ? "" : getContributor().getLocalName();
 	}
@@ -224,11 +227,11 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 	 * @return the owning entity as the object being contributed to
 	 */
 	@Override
-	public Node getOwningComponent() {
+	public LibraryMemberInterface getOwningComponent() {
 		// 9/18/2017 - for version 1.6, contributed facets are owned by object contributed to
 		if (parent == null)
 			parent = Node.GetNode(getTLModelObject().getOwningEntity());
-		return getParent();
+		return (LibraryMemberInterface) getParent();
 	}
 
 	@Override
@@ -249,6 +252,7 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 		return false;
 	}
 
+	@Override
 	public void print() {
 		if (OTM16Upgrade.otm16Enabled) {
 			LOGGER.debug("Contributed facet: " + getName());

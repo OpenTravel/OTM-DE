@@ -23,6 +23,7 @@ import java.util.List;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 
 /**
  * Implementers can be the parent of a property.
@@ -63,7 +64,7 @@ public interface PropertyOwnerInterface {
 
 	public List<Node> getChildren_TypeUsers();
 
-	public INode getOwningComponent();
+	public LibraryMemberInterface getOwningComponent();
 
 	public TLModelElement getTLModelObject();
 
@@ -75,5 +76,11 @@ public interface PropertyOwnerInterface {
 	 * @param property
 	 */
 	public void removeProperty(final Node property);
+
+	/**
+	 * @param attrName
+	 * @return
+	 */
+	public PropertyNode findChildByName(String attrName);
 
 }

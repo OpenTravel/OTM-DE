@@ -326,6 +326,12 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 			cf = new UpdateFacetNode(tlCf);
 
 		cf.setOwner(this);
+
+		if (!cf.canBeLibraryMember())
+			assert cf.getParent() == this;
+		else
+			assert cf.getParent() instanceof NavNode;
+
 		return cf;
 	}
 
@@ -422,6 +428,7 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 		return INode.CommandType.PROPERTY;
 	}
 
+	@Override
 	public List<AliasNode> getAliases() {
 		List<AliasNode> aliases = new ArrayList<AliasNode>();
 		for (Node c : getChildren())
@@ -444,7 +451,7 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 	@Override
 	public void sort() {
 		getFacet_Summary().sort();
-		((FacetNode) getFacet_Detail()).sort();
+		getFacet_Detail().sort();
 		for (ComponentNode f : getCustomFacets())
 			((FacetNode) f).sort();
 		for (ComponentNode f : getQueryFacets())
@@ -472,7 +479,7 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 		for (ComponentNode f : facets) {
 			FacetNode facet = (FacetNode) f;
 			if (!NodeUtils.checker(facet).isInheritedFacet().get()) {
-				TLFacet tlFacet = (TLFacet) facet.getTLModelObject();
+				TLFacet tlFacet = facet.getTLModelObject();
 				String name = "";
 				if (tlFacet instanceof TLContextualFacet)
 					name = ((TLContextualFacet) tlFacet).getName();

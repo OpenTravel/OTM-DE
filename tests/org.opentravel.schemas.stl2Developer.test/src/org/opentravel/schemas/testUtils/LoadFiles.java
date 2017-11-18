@@ -424,14 +424,13 @@ public class LoadFiles {
 
 		mc.getModelNode().visitAllNodes(new NodeTesters().new TestNode());
 
-		for (INode n : new ArrayList<>(mc.getModelNode().getChildren())) {
-			nodeCount++;
+		for (INode n : new ArrayList<>(mc.getModelNode().getChildren()))
 			actOnNode((Node) n);
-		}
-
 	}
 
 	private void actOnNode(Node n) {
+		if (n == null || n.getLibrary() == null)
+			return;
 		if (n instanceof TypeUser && n instanceof TypeProvider)
 			((TypeUser) n).setAssignedType((TypeProvider) n);
 		n.setName("TEST");
@@ -442,7 +441,7 @@ public class LoadFiles {
 			break;
 		case 1:
 		case 2:
-			if (((Node) n).isDeleteable())
+			if (n.isDeleteable())
 				n.delete();
 		}
 	}

@@ -35,7 +35,6 @@ import org.opentravel.schemacompiler.model.BuiltInLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLContextReferrer;
-import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLExtensionOwner;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
@@ -158,7 +157,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 		// getParent().linkLibrary(this);
 
 		this.setName("");
-		nsHandler = NamespaceHandler.getNamespaceHandler((ProjectNode) pn);
+		nsHandler = NamespaceHandler.getNamespaceHandler(pn);
 		this.setNamespace(pn.getNamespace());
 		// LOGGER.debug("Created empty library without underlying model");
 		// TODO - why no listener?
@@ -279,7 +278,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	// org.opentravel.schemas.controllers.DefaultProjectController.add(LibraryNode, AbstractLibrary)
 	// org.opentravel.schemas.node.LibraryChainNode.add(ProjectItem)
 	public LibraryNode(ProjectItem pi, LibraryChainNode chain) {
-		this(pi.getContent(), (VersionAggregateNode) chain.getVersions());
+		this(pi.getContent(), chain.getVersions());
 		for (Node members : getDescendants_LibraryMembers()) {
 			if (members instanceof ComponentNode)
 				chain.add((ComponentNode) members);
@@ -1248,22 +1247,24 @@ public class LibraryNode extends Node implements LibraryInterface {
 		if (Node.GetNode(destination.getTLModelObject()) != destination)
 			throw new IllegalArgumentException("Internal Error - incorrect listener on " + destination);
 
-		// Do the move manually. Let listeners handle the nodes.
-		if (mbr instanceof ContextualFacetNode && !(mbr instanceof ContributedFacetNode)) {
-			TLContextualFacet tlSource = ((ContextualFacetNode) mbr).getTLModelObject();
-			tlSource.getOwningLibrary().removeNamedMember(tlSource);
-			destination.getTLModelObject().addNamedMember(tlSource);
-		} else
-			// Move the TL object to destination tl library.
-			try {
-				TLLibrary srcLib = (TLLibrary) getTLModelObject();
-				TLLibrary destLib = (TLLibrary) destination.getTLModelObject();
-				TLLibraryMember tlMbr = (TLLibraryMember) mbr.getTLModelObject();
-				srcLib.moveNamedMember(tlMbr, destLib);
-			} catch (Exception e) {
-				// Failed to move.
-				throw new IllegalArgumentException("Internal Error - " + e.getLocalizedMessage());
-			}
+		destination.addMember((LibraryMemberInterface) mbr);
+
+		// // Do the move manually. Let listeners handle the nodes.
+		// if (mbr instanceof ContextualFacetNode && !(mbr instanceof ContributedFacetNode)) {
+		// TLContextualFacet tlSource = ((ContextualFacetNode) mbr).getTLModelObject();
+		// tlSource.getOwningLibrary().removeNamedMember(tlSource);
+		// destination.getTLModelObject().addNamedMember(tlSource);
+		// } else
+		// // Move the TL object to destination tl library.
+		// try {
+		// TLLibrary srcLib = (TLLibrary) getTLModelObject();
+		// TLLibrary destLib = (TLLibrary) destination.getTLModelObject();
+		// TLLibraryMember tlMbr = (TLLibraryMember) mbr.getTLModelObject();
+		// srcLib.moveNamedMember(tlMbr, destLib);
+		// } catch (Exception e) {
+		// // Failed to move.
+		// throw new IllegalArgumentException("Internal Error - " + e.getLocalizedMessage());
+		// }
 
 		destination.collapseContexts(); // reduce down to one context
 		assert !this.contains(mbr);
@@ -1289,6 +1290,12 @@ public class LibraryNode extends Node implements LibraryInterface {
 			return;
 		if (isBuiltIn())
 			return;
+
+		// Nov 18, 2017 - workaround for compiler bug in tlBusinessObject
+		if (n instanceof BusinessObjectNode)
+			for (ContextualFacetNode cf : ((BusinessObjectNode) n).getContextualFacets())
+				if (!cf.canBeLibraryMember())
+					cf.delete();
 
 		if (getChildrenHandler() != null) {
 			n.getLibrary().getTLModelObject().removeNamedMember((TLLibraryMember) n.getTLModelObject());
@@ -1654,6 +1661,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 * @see {@link LibraryModelManager#isUsedElsewhere(LibraryInterface, ProjectNode)}
 	 * @return parent project or null if no project is found.
 	 */
+	@Override
 	public ProjectNode getProject() {
 		ProjectNode pn = null;
 		if (getParent() instanceof LibraryNavNode)
@@ -1881,7 +1889,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 		for (ContextualFacetNode cf : getDescendants_ContextualFacets()) {
 			if (cf == null || cf.getWhereContributed() == null || cf instanceof ContributedFacetNode)
 				continue;
-			Node provider = cf.getWhereContributed().getOwningComponent();
+			Node provider = (Node) cf.getWhereContributed().getOwningComponent();
 			if (provider != null && provider.getLibrary() != null && !provider.getLibrary().isBuiltIn())
 				usedLibs.add(provider.getLibrary().getHead());// returns lib if unmanaged
 		}
@@ -2163,6 +2171,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 * @param member
 	 * @return true if the member is a member of this library.
 	 */
+	@Override
 	public boolean contains(Node member) {
 		return getChildrenHandler().contains(member);
 		// if (member instanceof LibraryMemberInterface) {

@@ -48,14 +48,22 @@ public abstract class LibraryMemberBase extends TypeProviderBase implements Libr
 		super((TLModelElement) obj);
 		owningLibrary = (LibraryNode) Node.GetNode(obj.getOwningLibrary());
 
-		// while it is true that if it is a library member it must have library, sometimes the library is added after
-		// the node is created.
+		// while it is true that if it is a library member it must have library, sometimes the library is added afterthe
+		// node is created.
 		// if (owningLibrary == null)
 		// assert this instanceof ImpliedNode;
 	}
 
 	@Override
-	public Node clone(Node parent, String nameSuffix) {
+	public Node clone(Node target, String nameSuffix) {
+		LibraryNode targetLib = null;
+		if (target == null)
+			targetLib = getLibrary();
+		else if (target instanceof LibraryNode)
+			targetLib = (LibraryNode) target;
+		else
+			targetLib = target.getLibrary();
+
 		if (getLibrary() == null || !getLibrary().isEditable()) {
 			LOGGER.warn("Could not clone node because library " + getLibrary() + " it is not editable.");
 			return null;
@@ -64,7 +72,6 @@ public abstract class LibraryMemberBase extends TypeProviderBase implements Libr
 		LibraryMemberInterface clone = null;
 
 		// Use the compiler to create a new TL src object.
-		// FIXME - this looks right, but cloneTLObj() doesn't
 		TLModelElement newLM = (TLModelElement) cloneTLObj();
 		if (newLM != null) {
 			clone = NodeFactory.newLibraryMember((LibraryMember) newLM);
@@ -72,7 +79,7 @@ public abstract class LibraryMemberBase extends TypeProviderBase implements Libr
 				clone.setName(clone.getName() + nameSuffix);
 			for (AliasNode alias : clone.getAliases())
 				alias.setName(alias.getName() + nameSuffix);
-			getLibrary().addMember(clone);
+			targetLib.addMember(clone);
 		}
 		return (Node) clone;
 	}
@@ -104,7 +111,7 @@ public abstract class LibraryMemberBase extends TypeProviderBase implements Libr
 		LibraryMemberInterface copy = NodeFactory.newLibraryMember(tlCopy);
 		if (!(copy instanceof LibraryMemberInterface))
 			throw new IllegalArgumentException("Unable to copy " + this);
-		LibraryMemberInterface lm = (LibraryMemberInterface) copy;
+		LibraryMemberInterface lm = copy;
 
 		// Fix any contexts
 		((Node) lm).fixContexts();
@@ -129,6 +136,11 @@ public abstract class LibraryMemberBase extends TypeProviderBase implements Libr
 			if (n instanceof AliasNode)
 				aliases.add((AliasNode) n);
 		return aliases;
+	}
+
+	@Override
+	public LibraryMemberInterface getOwningComponent() {
+		return this;
 	}
 
 	@Override

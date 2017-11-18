@@ -426,7 +426,7 @@ public class FacetView extends OtmAbstractView {
 		Node node = target;
 		// Don't try to post a property - show its whole component.
 		if (target instanceof PropertyNode || target instanceof AliasNode)
-			node = target.getOwningComponent();
+			node = (Node) target.getOwningComponent();
 
 		try {
 			if (node == null) {

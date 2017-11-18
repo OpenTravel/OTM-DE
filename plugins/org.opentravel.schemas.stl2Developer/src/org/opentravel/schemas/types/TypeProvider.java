@@ -20,6 +20,7 @@ import java.util.Collection;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.handlers.XsdObjectHandler;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.types.whereused.TypeProviderWhereUsedNode;
 
@@ -60,7 +61,7 @@ public interface TypeProvider {
 	// */
 	// public INode getTypeNode();
 
-	public Node getOwningComponent();
+	public LibraryMemberInterface getOwningComponent();
 
 	public Node getParent();
 

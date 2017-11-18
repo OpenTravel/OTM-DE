@@ -152,7 +152,7 @@ public class TypeResolver {
 				return (Node) owner;
 		} else if (type instanceof AliasNode) {
 			AliasNode alias = (AliasNode) type;
-			return alias.getOwningComponent();
+			return (Node) alias.getOwningComponent();
 		}
 		return type;
 	}

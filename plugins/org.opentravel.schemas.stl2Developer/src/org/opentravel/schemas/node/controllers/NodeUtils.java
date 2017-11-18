@@ -177,7 +177,7 @@ public class NodeUtils {
 
 		@Deprecated
 		public NodeChecker ownerIs(ComponentNodeType type) {
-			getMatches().add(new ComponentMatcher(node.getOwningComponent(), type));
+			getMatches().add(new ComponentMatcher((Node) node.getOwningComponent(), type));
 			return this;
 		}
 

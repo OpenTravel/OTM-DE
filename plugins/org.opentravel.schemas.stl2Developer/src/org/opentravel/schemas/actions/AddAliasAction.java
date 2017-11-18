@@ -17,8 +17,8 @@ package org.opentravel.schemas.actions;
 
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.AliasOwner;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.properties.StringProperties;
@@ -29,7 +29,6 @@ import org.opentravel.schemas.wizards.SimpleNameWizard;
 import org.opentravel.schemas.wizards.validators.NewNodeNameValidator;
 
 /**
- * @author Agnieszka Janowska
  * 
  */
 public class AddAliasAction extends OtmAbstractAction {
@@ -53,13 +52,18 @@ public class AddAliasAction extends OtmAbstractAction {
 
 	@Override
 	public boolean isEnabled() {
-		Node n = getMainController().getCurrentNode_NavigatorView().getOwningComponent();
-		return n.isAliasable();
+		if (getMainController().getCurrentNode_NavigatorView() == null)
+			return false;
+		return getMainController().getCurrentNode_NavigatorView().getOwningComponent() instanceof AliasOwner;
+		// Node n = getMainController().getCurrentNode_NavigatorView().getOwningComponent();
+		// return n.isAliasable();
 	}
 
 	public void addAlias() {
-		Node current = mc.getCurrentNode_NavigatorView();
-		current = current.getOwningComponent();
+		if (mc.getCurrentNode_NavigatorView() == null)
+			return;
+
+		LibraryMemberInterface current = mc.getCurrentNode_NavigatorView().getOwningComponent();
 		if (current instanceof AliasOwner) {
 			final SimpleNameWizard wizard = new SimpleNameWizard(new ExternalizedStringProperties("wizard.aliasName"));
 			final ComponentNode cn = (ComponentNode) current;

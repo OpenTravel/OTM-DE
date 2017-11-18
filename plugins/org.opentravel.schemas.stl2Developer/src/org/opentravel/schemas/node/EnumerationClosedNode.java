@@ -121,6 +121,11 @@ public class EnumerationClosedNode extends SimpleComponentNode implements Enumer
 	}
 
 	@Override
+	public EnumLiteralNode findChildByName(String name) {
+		return (EnumLiteralNode) super.findChildByName(name);
+	}
+
+	@Override
 	public INode.CommandType getAddCommand() {
 		return INode.CommandType.ENUMERATION;
 	}
@@ -169,7 +174,7 @@ public class EnumerationClosedNode extends SimpleComponentNode implements Enumer
 
 	@Override
 	public PropertyOwnerInterface getFacet_Default() {
-		return (PropertyOwnerInterface) this;
+		return this;
 	}
 
 	@Override
@@ -187,7 +192,7 @@ public class EnumerationClosedNode extends SimpleComponentNode implements Enumer
 	@Override
 	public List<String> getLiterals() {
 		ArrayList<String> literals = new ArrayList<String>();
-		for (TLEnumValue v : ((TLClosedEnumeration) getTLModelObject()).getValues())
+		for (TLEnumValue v : getTLModelObject().getValues())
 			literals.add(v.getLiteral());
 		return literals;
 	}

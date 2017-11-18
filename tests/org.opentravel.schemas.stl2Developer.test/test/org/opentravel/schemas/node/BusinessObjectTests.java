@@ -33,6 +33,7 @@ import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
@@ -207,9 +208,13 @@ public class BusinessObjectTests {
 				assertTrue("Contributed facets only used for version 1.6 and higher.", OTM16Upgrade.otm16Enabled);
 				assertTrue("Must have identity listener of contributor contextual facet.",
 						Node.GetNode(n.getTLModelObject()) == ((ContributedFacetNode) n).get());
+			} else if (n instanceof ContextualFacetNode) {
+				ml.check(n, validate);
 			} else if (n.getOwningComponent() instanceof ContextualFacetNode) {
+				// May be in a different library
 				ml.check(n, validate);
 			} else if (n.getOwningComponent() instanceof FacadeInterface) {
+				LibraryMemberInterface oc = n.getOwningComponent();
 				assertTrue("Must have identity listener.",
 						Node.GetNode(n.getTLModelObject()) == ((FacadeInterface) n.getOwningComponent()).get());
 			} else {

@@ -21,6 +21,7 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.slf4j.Logger;
@@ -85,6 +86,7 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 		}
 	}
 
+	@Override
 	public void close() {
 		vm.close();
 		deleted = true;
@@ -95,6 +97,7 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 	 * 
 	 * @return node or null
 	 */
+	@Override
 	public Node get() {
 		return vm.get();
 		// TODO - why are some children empty?
@@ -134,11 +137,20 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 	}
 
 	/**
-	 * @return parent's library
+	 * @return library of head version
 	 */
 	@Override
 	public LibraryNode getLibrary() {
-		return parent != null ? parent.getLibrary() : null;
+		return vm.get() != null ? vm.get().getLibrary() : null;
+		// return parent != null ? parent.getLibrary() : null;
+	}
+
+	/**
+	 * @return parent of head version
+	 */
+	@Override
+	public Node getParent() {
+		return vm.get() != null ? vm.get().getParent() : null;
 	}
 
 	@Override
@@ -187,6 +199,7 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 	/**
 	 * @return true if this is new to the chain (prevNode == null). Fast and efficient.
 	 */
+	@Override
 	public boolean isNewToChain() {
 		return vm.getPreviousVersion() == null ? true : false;
 	}
@@ -200,7 +213,7 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 	 * Return owning component of head object
 	 */
 	@Override
-	public Node getOwningComponent() {
+	public LibraryMemberInterface getOwningComponent() {
 		return vm.get() != null ? vm.get().getOwningComponent() : null;
 	}
 
@@ -268,6 +281,7 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 	/**
 	 * @return true if this version object chain contains the passed node
 	 */
+	@Override
 	public boolean contains(Node node) {
 		return vm.contains(node);
 	}

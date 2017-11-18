@@ -120,7 +120,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 		// if needed, create minor version of object
 		if (targetNode.getChain() != null) {
 			if (targetNode.isEnabled_AddProperties() && !targetNode.isInHead())
-				newNode = createVersionExtension(targetNode.getOwningComponent());
+				newNode = createVersionExtension((Node) targetNode.getOwningComponent());
 			if (newNode == null)
 				return; // they did a cancel
 

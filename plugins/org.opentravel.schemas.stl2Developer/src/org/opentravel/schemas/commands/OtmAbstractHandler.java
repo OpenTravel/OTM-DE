@@ -116,7 +116,7 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 			if (selectedNode instanceof FacetNode) {
 				// Hold onto for later and use the owner to create versioned component
 				selectedFacet = (FacetNode) selectedNode;
-				selectedNode = selectedNode.getOwningComponent();
+				selectedNode = (Node) selectedNode.getOwningComponent();
 			}
 			if (selectedNode instanceof VersionedObjectInterface) {
 				if (result = postConfirm("action.component.version.minor", selectedNode))

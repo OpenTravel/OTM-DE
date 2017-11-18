@@ -34,7 +34,6 @@ import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.VWA_Node;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.handlers.EqExOneValueHandler;
@@ -472,6 +471,7 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 	/**
 	 * @return equivalent handler if property has equivalents, null otherwise
 	 */
+	@Override
 	public IValueWithContextHandler getExampleHandler() {
 		if (getTLModelObject() instanceof TLExampleOwner)
 			if (exampleHandler == null)
@@ -508,6 +508,7 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 	/**
 	 * Return new array containing assigned type if an alias its parent
 	 */
+	@Override
 	public List<Node> getNavChildren(boolean deep) {
 		List<Node> kids = new ArrayList<Node>();
 		if (deep) {
@@ -527,31 +528,10 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 	}
 
 	@Override
-	public Node getOwningComponent() {
+	public LibraryMemberInterface getOwningComponent() {
 		if (getParent() == null)
 			return null;
-		if (getParent() instanceof ContextualFacetNode)
-			return ((ContextualFacetNode) getParent()).getOwningComponent();
-		// return ((ContextualFacetNode) getParent()).canBeLibraryMember() ? getParent() : getParent()
-		// .getOwningComponent();
-
-		if (getParent() instanceof LibraryMemberInterface)
-			return getParent();
-
 		return getParent().getOwningComponent();
-
-		// if (getParent().getParent() != null && getParent().getParent() instanceof LibraryMemberInterface)
-		// return getParent().getParent();
-		//
-		// if (getParent() instanceof OperationFacetNode)
-		// return getParent();
-		// // If version 1.6 or later return the parent contextual facet
-		//
-		// if (getParent().getParent() == null)
-		// return null;
-		// // Otherwise Properties are always owned by a facet.
-		// // TODO - delegate as is done with contextual facets
-		// return getParent().getParent().isNamedEntity() ? getParent().getParent() : this;
 	}
 
 	// Must override

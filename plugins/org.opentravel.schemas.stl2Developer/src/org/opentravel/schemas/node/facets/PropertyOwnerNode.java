@@ -70,6 +70,7 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 		// TLSimpleFacet - SimpleFacetNode
 	}
 
+	@Override
 	public void add(final PropertyNode pn, final int index) {
 		// Add to children list
 		pn.setParent(this);
@@ -125,7 +126,7 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 		PropertyNode newProperty = null;
 		for (Node p : sourceFacet.getChildren()) {
 			if (p instanceof PropertyNode) {
-				newProperty = (PropertyNode) ((PropertyNode) p).clone(this, null);
+				newProperty = ((PropertyNode) p).clone(this, null);
 				if (newProperty == null)
 					continue; // ERROR
 				if (!this.isValidParentOf(newProperty))
@@ -148,6 +149,11 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 			pn.setAssignedType((TypeProvider) type);
 		pn.setName(type.getName());
 		return pn;
+	}
+
+	@Override
+	public PropertyNode findChildByName(String name) {
+		return (PropertyNode) super.findChildByName(name);
 	}
 
 	@Override
@@ -191,8 +197,10 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 	public abstract String getName();
 
 	@Override
-	public Node getOwningComponent() {
-		return getParent();
+	public LibraryMemberInterface getOwningComponent() {
+		if (!(getParent() instanceof LibraryMemberInterface))
+			return getParent().getOwningComponent();
+		return (LibraryMemberInterface) getParent();
 	}
 
 	/**

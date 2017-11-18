@@ -100,6 +100,11 @@ public class ExtensionPointNode extends LibraryMemberBase implements ComplexComp
 	}
 
 	@Override
+	public PropertyNode findChildByName(String name) {
+		return (PropertyNode) super.findChildByName(name);
+	}
+
+	@Override
 	public INode.CommandType getAddCommand() {
 		return INode.CommandType.PROPERTY;
 	}
@@ -139,7 +144,7 @@ public class ExtensionPointNode extends LibraryMemberBase implements ComplexComp
 	}
 
 	@Override
-	public Node getOwningComponent() {
+	public LibraryMemberInterface getOwningComponent() {
 		return this;
 	}
 

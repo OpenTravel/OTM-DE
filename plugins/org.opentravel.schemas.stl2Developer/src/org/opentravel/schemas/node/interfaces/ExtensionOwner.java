@@ -82,6 +82,6 @@ public interface ExtensionOwner {
 	 */
 	public void setExtension(Node base);
 
-	public Node getOwningComponent();
+	public LibraryMemberInterface getOwningComponent();
 
 }

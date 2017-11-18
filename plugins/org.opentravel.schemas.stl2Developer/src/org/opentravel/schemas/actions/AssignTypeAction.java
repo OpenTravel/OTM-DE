@@ -211,7 +211,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 		};
 
 		// If the owning component is not in the head the make a minor version of the owner.
-		Node owner = ((Node) user).getOwningComponent();
+		Node owner = (Node) ((Node) user).getOwningComponent();
 		if (owner != null && owner.getChain() != null && !owner.isInHead2()) {
 			owner = handler.createVersionExtension(owner);
 			// Inherited children fails until children are retrieved (lazy evaluation). Force cloning now.
@@ -248,7 +248,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 			LOGGER.debug("Failed to create version.");
 			return;
 		}
-		Node owner = ((Node) user).getOwningComponent();
+		Node owner = (Node) ((Node) user).getOwningComponent();
 
 		// Determine if the property is in the same version as the owner. Older versions will be inherited.
 		if (((Node) user).isInherited()) {

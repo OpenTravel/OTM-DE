@@ -468,7 +468,7 @@ public class MockLibrary {
 		TypeUser n3PropA = new ElementNode(n3.getFacet_Summary(), n1.getName());
 		n3PropA.setAssignedType(n1);
 		PropertyNode n3PropB = new ElementNode(n3.getFacet_Summary(), n2.getName());
-		n3PropB.setAssignedType((TypeProvider) n2.getFacet_Summary());
+		n3PropB.setAssignedType(n2.getFacet_Summary());
 
 		TypeUser newProp = new ElementNode(n1.getFacet_ID(), "TestID");
 		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
@@ -556,7 +556,7 @@ public class MockLibrary {
 	public SimpleTypeNode createSimple(String name) {
 		SimpleTypeNode n2 = new SimpleTypeNode(new TLSimple());
 		n2.setName(name);
-		((SimpleTypeNode) n2).setAssignedType(getSimpleTypeProvider());
+		n2.setAssignedType(getSimpleTypeProvider());
 		return n2;
 	}
 
@@ -636,6 +636,8 @@ public class MockLibrary {
 	}
 
 	public void printValidationFindings(Node n) {
+		if (n == null)
+			return;
 		ValidationFindings findings = n.validate();
 		if (findings == null)
 			return;
@@ -709,7 +711,7 @@ public class MockLibrary {
 					LOGGER.debug(node + " is not valid but has no findings.");
 				if (node.getOwningComponent() == null)
 					LOGGER.debug("Null node owner - can't print validation findings.");
-				printValidationFindings(node.getOwningComponent());
+				printValidationFindings((Node) node.getOwningComponent());
 				printValidationFindings(node);
 				// LibraryNode l = node.getLibrary();
 				assertTrue("Node must be valid.", node.isValid());

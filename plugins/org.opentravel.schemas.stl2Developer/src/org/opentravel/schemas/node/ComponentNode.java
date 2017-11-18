@@ -47,12 +47,11 @@ import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 /**
  * The ComponentNode class handles nodes that represent model objects. It is overridden for most types and properties.
@@ -262,7 +261,7 @@ public abstract class ComponentNode extends Node {
 			if (list.size() > 1) {
 				for (Node property : list) {
 					String aliasName = property.getName() + "_" + type.getName();
-					((TypeUser) property).setAssignedType((TypeProvider) new AliasNode((AliasOwner) type, aliasName));
+					((TypeUser) property).setAssignedType(new AliasNode((AliasOwner) type, aliasName));
 					property.setName(aliasName);
 				}
 			}
@@ -287,9 +286,9 @@ public abstract class ComponentNode extends Node {
 		else if (this instanceof PropertyNode)
 			newNode.setExtension(getParent());
 		else if (this instanceof CoreObjectNode)
-			newNode.setExtension((Node) getFacet_Summary());
+			newNode.setExtension(getFacet_Summary());
 		else if (this instanceof BusinessObjectNode)
-			newNode.setExtension((Node) getFacet_Summary());
+			newNode.setExtension(getFacet_Summary());
 		// else
 		// LOGGER.error("Can't add a property to this: " + this);
 		// If there already is an EP, then return that.
@@ -353,6 +352,7 @@ public abstract class ComponentNode extends Node {
 		return constraintHandler;
 	}
 
+	@Override
 	public PropertyOwnerInterface getFacet_Default() {
 		// should be overridden
 		for (final INode n : getChildren()) {
@@ -716,7 +716,7 @@ public abstract class ComponentNode extends Node {
 			LOGGER.debug("Empty minor version created");
 			return null;
 		}
-		Node owner = this.getOwningComponent();
+		Node owner = (Node) this.getOwningComponent();
 		owner.getLibrary().checkExtension(owner);
 
 		// exit if it is already in the head of the chain.

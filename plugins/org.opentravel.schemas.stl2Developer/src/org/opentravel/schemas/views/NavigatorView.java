@@ -215,7 +215,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 		else
 			n = node;
 		if (n instanceof ContextualFacetNode)
-			n = (((ContextualFacetNode) n).getWhereContributed().getOwningComponent());
+			n = (Node) (((ContextualFacetNode) n).getWhereContributed().getOwningComponent());
 
 		if (n != null) {
 			setCurrentNode(n);

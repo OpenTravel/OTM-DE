@@ -54,8 +54,6 @@ public class TypeProviderListener extends NodeIdentityListener implements INodeL
 				name = (String) event.getNewValue();
 
 			if (oldName != null && !oldName.equals(name)) {
-				if (name.startsWith("TravelerP"))
-					LOGGER.debug("HERE");
 				((TypeProviderBase) thisNode).setNameOnWhereAssigned(name);
 			}
 

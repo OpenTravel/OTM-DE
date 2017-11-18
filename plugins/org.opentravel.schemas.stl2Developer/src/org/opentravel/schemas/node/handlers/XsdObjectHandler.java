@@ -40,6 +40,13 @@ import org.w3._2001.xmlschema.TopLevelSimpleType;
 /**
  * This handler works with TLLibraryMembers: XSDSimpleType, XSDComplexType, and XSDElement
  * 
+ * <p>
+ * Owner <-> SimpleTypeNode
+ * <br>
+ * src -> xsdSimple/xsdComplex/xsdElement from compiler with listener pointing to SimpleTypeNode
+ * <br>
+ * Built -> TLSimple created by the handler, listener set to SimpleTypeNode
+ * 
  * @author Dave Hollander
  * 
  */

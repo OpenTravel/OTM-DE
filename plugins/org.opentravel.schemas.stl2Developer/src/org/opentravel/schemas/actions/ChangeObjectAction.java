@@ -19,6 +19,7 @@ import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.MainWindow;
 
@@ -50,7 +51,7 @@ public class ChangeObjectAction extends OtmAbstractAction {
 		if (currentNode.isEditable_inService())
 			return false;
 
-		Node owner = currentNode.getOwningComponent();
+		LibraryMemberInterface owner = currentNode.getOwningComponent();
 		if (owner == null)
 			return false;
 		if (owner instanceof ChoiceObjectNode)

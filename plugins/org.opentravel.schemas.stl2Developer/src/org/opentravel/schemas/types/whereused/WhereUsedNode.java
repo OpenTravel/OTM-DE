@@ -25,6 +25,7 @@ import org.opentravel.schemas.node.controllers.NodeImageProvider;
 import org.opentravel.schemas.node.controllers.NodeLabelProvider;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Images;
@@ -136,13 +137,13 @@ public abstract class WhereUsedNode<O> extends Node implements WhereUsedNodeInte
 	}
 
 	@Override
-	public Node getOwningComponent() {
+	public LibraryMemberInterface getOwningComponent() {
 		return ((Node) owner).getOwningComponent();
 	}
 
 	@Override
 	public Node getParent() {
-		return (Node) parent;
+		return parent;
 	}
 
 	@Override

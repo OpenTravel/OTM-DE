@@ -94,7 +94,7 @@ public class Node_IsTests {
 		// Then - all must be true
 		assertTrue(sn.isInService());
 		for (Node n : sn.getDescendants()) {
-			Node owner = n.getOwningComponent();
+			Node owner = (Node) n.getOwningComponent();
 			assertTrue(n.isInService());
 			assertTrue(n.isEditable_inService());
 		}

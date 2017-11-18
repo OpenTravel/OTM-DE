@@ -29,6 +29,7 @@ import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.NodeIdentityListener;
 import org.opentravel.schemas.properties.Images;
@@ -153,8 +154,8 @@ public class EnumLiteralNode extends PropertyNode {
 	}
 
 	@Override
-	public Node getOwningComponent() {
-		return getParent();
+	public LibraryMemberInterface getOwningComponent() {
+		return (LibraryMemberInterface) getParent();
 	}
 
 	@Override

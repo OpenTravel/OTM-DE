@@ -53,7 +53,7 @@ public class LibraryUserNode extends WhereUsedNode<LibraryNode> implements Where
 			owner = userLibrary.getChain().getHead();
 		// this.parent = providerLibrary;
 		labelProvider = simpleLabelProvider(userLibrary.getName());
-		imageProvider = nodeImageProvider(providerLibrary.getOwningComponent());
+		imageProvider = nodeImageProvider((Node) providerLibrary.getOwningComponent());
 	}
 
 	@Override

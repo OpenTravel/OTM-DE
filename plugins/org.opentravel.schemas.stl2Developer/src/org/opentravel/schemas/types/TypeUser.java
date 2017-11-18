@@ -18,6 +18,7 @@ package org.opentravel.schemas.types;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
@@ -52,7 +53,7 @@ public interface TypeUser {
 
 	public LibraryNode getLibrary();
 
-	public Node getOwningComponent();
+	public LibraryMemberInterface getOwningComponent();
 
 	/**
 	 * @return null if the assigned type can be any type provider otherwise the fixed type to assign

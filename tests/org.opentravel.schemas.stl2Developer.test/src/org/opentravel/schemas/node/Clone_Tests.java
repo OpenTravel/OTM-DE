@@ -192,7 +192,7 @@ public class Clone_Tests {
 		new LibraryChainNode(srcLib);
 		srcLib.setEditable(true);
 		assertTrue(srcLib.isEditable());
-		ml.check(srcLib);
+		ml.check(srcLib, false);
 
 		// When - all library members are cloned into this library
 		for (Node ne : srcLib.getDescendants_LibraryMembers()) {
@@ -200,10 +200,14 @@ public class Clone_Tests {
 			// Objects that can't be cloned return null.
 			if (clone != null)
 				ml.check(clone);
+			else {
+				LOGGER.debug("Could not clone " + ne);
+				ne.clone("CC");
+			}
 		}
 
 		// Then - library is still valid
-		ml.check(srcLib);
+		ml.check(srcLib, false);
 
 		// Given - a different library also in a chain
 		LibraryNode destLib = ml.createNewLibrary(pc, "DestLib");
@@ -212,12 +216,18 @@ public class Clone_Tests {
 		assertTrue(destLib.isEditable());
 
 		// When - all library members are cloned into dest lib
-		for (Node ne : srcLib.getDescendants_LibraryMembers())
-			ne.clone(destLib, "c");
+		for (Node ne : srcLib.getDescendants_LibraryMembers()) {
+			LOGGER.debug("Cloning " + ne);
+			ml.check(ne, false);
+			Node clone = ne.clone(destLib, "d");
+			assertTrue(destLib.contains(clone));
+			ml.check(clone, false);
+			ml.check(ne, false);
+		}
 
 		// Then - both libraries are valid
-		ml.check(destLib);
-		ml.check(srcLib);
+		ml.check(destLib, false);
+		ml.check(srcLib, false);
 
 		// //------------------------------------------
 		// // Test cloning to the same library.

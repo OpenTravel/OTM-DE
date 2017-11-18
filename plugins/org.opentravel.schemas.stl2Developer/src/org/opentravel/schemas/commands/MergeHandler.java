@@ -41,7 +41,7 @@ public class MergeHandler extends OtmAbstractHandler {
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
 		if (isEnabled()) {
 			Node selectedNode = toMerge.get(0);
-			Node newNode = selectedNode.getOwningComponent().clone("_Merged");
+			Node newNode = ((Node) selectedNode.getOwningComponent()).clone("_Merged");
 
 			int cnt = 0;
 			for (Node node : mc.getSelectedNodes_NavigatorView()) {

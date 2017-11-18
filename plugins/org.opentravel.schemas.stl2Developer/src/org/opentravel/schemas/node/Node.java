@@ -396,6 +396,9 @@ public abstract class Node implements INode {
 
 		// Use the node factory to create the gui representation.
 		if (this instanceof PropertyNode) {
+			// REFACTORED
+			assert false;
+
 			newNode = NodeFactory.newChild(null, newLM);
 			if (nameSuffix != null)
 				newNode.setName(newNode.getName() + nameSuffix);
@@ -406,6 +409,9 @@ public abstract class Node implements INode {
 			((TypeUser) newNode).setAssignedType(((TypeUser) newNode).getAssignedTLObject());
 
 		} else if (newLM instanceof LibraryMember) {
+			// REFACTORED to library member base
+			assert false;
+
 			// newNode = NodeFactory.newComponent_UnTyped((LibraryMember) newLM);
 			// if (nameSuffix != null)
 			// newNode.setName(newNode.getName() + nameSuffix);
@@ -414,6 +420,7 @@ public abstract class Node implements INode {
 			// // getLibrary().addMember(newNode);
 			// lib.addMember(newNode);
 		} else {
+			assert false;
 			LOGGER.warn("clone not supported for this node: " + this);
 			return null;
 		}
@@ -427,6 +434,11 @@ public abstract class Node implements INode {
 	public Node clone(String nameSuffix) {
 		if (!(this instanceof ComponentNode))
 			return null;
+		if (this instanceof LibraryMemberBase)
+			return clone(this.getLibrary(), nameSuffix);
+		else if (this instanceof PropertyNode)
+			return clone(getParent(), nameSuffix);
+
 		assert false;
 		return null;
 		// FIXME - i can figure out what this is doing.
@@ -449,7 +461,7 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Clone object including type. Resulting object has no owner or listeners.
+	 * Use compiler to clone object including type. Resulting object has no owner or listeners.
 	 * 
 	 * @return the cloned copy of a TL Model object.
 	 */
@@ -464,7 +476,7 @@ public abstract class Node implements INode {
 			newLE = getTLModelObject().cloneElement(getLibrary().getTLModelObject());
 		} catch (IllegalArgumentException e) {
 			LOGGER.warn("Can not clone " + this + ". Exception: " + e.getLocalizedMessage());
-			return null;
+			newLE = null;
 		}
 		return newLE;
 	}
@@ -1230,11 +1242,16 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Return the owning named entity. For contextual facets that have been contributed to a named entity then the owner
-	 * of all children will be the named entity.
+	 * Get owning library member.
+	 * <p>
+	 * For contextual facets that have been contributed to a named entity then the owner of all children will be the
+	 * named entity.
+	 * 
+	 * @return the owning library member or null if not owned by library member.
 	 */
-	public Node getOwningComponent() {
-		return this;
+	@Override
+	public LibraryMemberInterface getOwningComponent() {
+		return null;
 	}
 
 	/**
@@ -1274,6 +1291,7 @@ public abstract class Node implements INode {
 	 * @return
 	 */
 	// FIXME - make abstract
+	@Override
 	public TLModelElement getTLModelObject() {
 		return tlObj;
 		// return (TLModelElement) (modelObject != null ? modelObject.getTLModelObj() : null);
@@ -1822,7 +1840,7 @@ public abstract class Node implements INode {
 	// TODO Compare results of this from the commonly used:
 	// if (selectedNode.getLibrary() != selectedNode.getChain().getHead())
 	public boolean isInHead() {
-		Node owner = getOwningComponent();
+		LibraryMemberInterface owner = getOwningComponent();
 		if (owner instanceof OperationNode)
 			owner = owner.getOwningComponent();
 
@@ -1830,17 +1848,17 @@ public abstract class Node implements INode {
 		if (owner instanceof ServiceNode)
 			return true;
 
-		// False if unmanaged.
-		if (owner == null || owner.versionNode == null)
+		// False if un-owned or unmanaged.
+		if (owner == null || owner.getVersionNode() == null)
 			return false;
 
-		// List<Node> x = getChain().getHead().getDescendants_NamedTypes();
 		if (getChain() == null || getChain().getHead() == null)
 			return false;
-		// List<Node> members = getChain().getHead().getDescendants_LibraryMembers();
-		return getChain().getHead().getDescendants_LibraryMembers().contains(owner);
+
+		return getChain().getHead().contains((Node) owner);
 	}
 
+	// TODO - understand difference, especially for contextual facets in different library than where contributed
 	/**
 	 * @return true if unmanaged (no chain) or head of the chain.
 	 */
@@ -2314,7 +2332,7 @@ public abstract class Node implements INode {
 		}
 
 		// Add newNode if it is not already a member
-		getLibrary().addMember((LibraryMemberInterface) newNode);
+		getLibrary().addMember(newNode);
 
 		replaceTypesWith((Node) newNode, null);
 
@@ -2395,6 +2413,7 @@ public abstract class Node implements INode {
 	 * @param name
 	 *            - new name
 	 */
+	@Override
 	public void setName(final String name) {
 		// Do Nothing
 	}
@@ -2737,7 +2756,7 @@ public abstract class Node implements INode {
 		Node assignedType = null;
 		for (TypeUser n : getDescendants_TypeUsers()) {
 			if (n.getAssignedType() != null) {
-				assignedType = ((Node) n.getAssignedType()).getOwningComponent();
+				assignedType = (Node) ((Node) n.getAssignedType()).getOwningComponent();
 				if (!currentLibraryOnly || (assignedType.getLibrary() == getLibrary()))
 					if (foundTypes.add(assignedType)) {
 						foundTypes.addAll(assignedType.getDescendants_AssignedTypes(currentLibraryOnly, foundTypes));

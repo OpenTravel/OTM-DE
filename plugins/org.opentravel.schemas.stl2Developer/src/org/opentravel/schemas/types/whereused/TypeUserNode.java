@@ -40,7 +40,7 @@ public class TypeUserNode extends WhereUsedNode<TypeUser> implements WhereUsedNo
 		if (user.getOwningComponent() != null)
 			label = user.getOwningComponent().getNameWithPrefix();
 		labelProvider = simpleLabelProvider(label);
-		imageProvider = nodeImageProvider(user.getOwningComponent());
+		imageProvider = nodeImageProvider((Node) user.getOwningComponent());
 	}
 
 	@Override

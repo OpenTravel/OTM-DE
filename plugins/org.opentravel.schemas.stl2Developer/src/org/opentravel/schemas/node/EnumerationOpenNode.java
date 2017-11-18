@@ -91,6 +91,7 @@ public class EnumerationOpenNode extends LibraryMemberBase implements ComplexCom
 		assert false;
 	}
 
+	@Override
 	public void addProperty(EnumLiteralNode enumLiteral) {
 		if (isEditable_newToChain()) {
 			getTLModelObject().addValue(enumLiteral.getTLModelObject());
@@ -120,6 +121,11 @@ public class EnumerationOpenNode extends LibraryMemberBase implements ComplexCom
 	public ComponentNode createMinorVersionComponent() {
 		return super
 				.createMinorVersionComponent(new EnumerationOpenNode((TLOpenEnumeration) createMinorTLVersion(this)));
+	}
+
+	@Override
+	public EnumLiteralNode findChildByName(String name) {
+		return (EnumLiteralNode) super.findChildByName(name);
 	}
 
 	@Override
@@ -158,7 +164,7 @@ public class EnumerationOpenNode extends LibraryMemberBase implements ComplexCom
 
 	@Override
 	public PropertyOwnerInterface getFacet_Default() {
-		return (PropertyOwnerInterface) this;
+		return this;
 	}
 
 	@Override
@@ -174,7 +180,7 @@ public class EnumerationOpenNode extends LibraryMemberBase implements ComplexCom
 	@Override
 	public List<String> getLiterals() {
 		ArrayList<String> literals = new ArrayList<String>();
-		for (TLEnumValue v : ((TLOpenEnumeration) getTLModelObject()).getValues())
+		for (TLEnumValue v : getTLModelObject().getValues())
 			literals.add(v.getLiteral());
 		return literals;
 	}

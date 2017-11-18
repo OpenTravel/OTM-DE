@@ -24,9 +24,9 @@ import org.opentravel.schemas.commands.ContextualFacetHandler;
 import org.opentravel.schemas.commands.OtmAbstractHandler;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
@@ -71,7 +71,7 @@ public class AddCustomFacetAction extends OtmAbstractAction {
 	@Override
 	public boolean isEnabled() {
 		// Unmanaged or in the most current (head) library in version chain.
-		Node n = mc.getCurrentNode_NavigatorView().getOwningComponent();
+		LibraryMemberInterface n = mc.getCurrentNode_NavigatorView().getOwningComponent();
 		return n instanceof BusinessObjectNode ? n.isEditable_newToChain() : false;
 		// use if we allow custom facets to be added as minor version change
 		// return n instanceof BusinessObjectNode ? n.isEnabled_AddProperties() : false;
@@ -121,7 +121,7 @@ public class AddCustomFacetAction extends OtmAbstractAction {
 		// return;
 
 		final BusinessObjectNode bo = (BusinessObjectNode) current;
-		final ComponentNode propertyOwner = (ComponentNode) current.getFacet_Detail();
+		final ComponentNode propertyOwner = current.getFacet_Detail();
 
 		// Set up and run the wizard
 		String defaultContext = current.getLibrary().getDefaultContextId();

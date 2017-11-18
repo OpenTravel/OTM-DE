@@ -18,7 +18,7 @@ package org.opentravel.schemas.actions;
 import org.eclipse.swt.widgets.Event;
 import org.opentravel.schemas.commands.AddNodeHandler2;
 import org.opentravel.schemas.node.CoreObjectNode;
-import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
@@ -67,7 +67,7 @@ public class AddRoleAction extends OtmAbstractAction {
 	 */
 	@Override
 	public boolean isEnabled() {
-		Node n = mc.getCurrentNode_NavigatorView().getOwningComponent();
+		LibraryMemberInterface n = mc.getCurrentNode_NavigatorView().getOwningComponent();
 		return n instanceof CoreObjectNode ? n.isEnabled_AddProperties() : false;
 		// return n instanceof CoreObjectNode ? n.isNewToChain() : false;
 	}

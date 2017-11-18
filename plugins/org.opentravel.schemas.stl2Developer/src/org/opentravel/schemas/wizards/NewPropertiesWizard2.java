@@ -23,6 +23,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.opentravel.schemas.node.AliasNode;
+import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.SimpleFacetNode;
@@ -83,12 +84,12 @@ public class NewPropertiesWizard2 extends ValidatingWizard implements Cancelable
 	private void getActOnNode(Node selectedNode) {
 		if (selectedNode instanceof PropertyOwnerInterface) {
 			if (selectedNode instanceof SimpleFacetNode)
-				actOnNode = (PropertyOwnerInterface) selectedNode.getOwningComponent().getFacet_Default();
+				actOnNode = ((ComponentNode) selectedNode.getOwningComponent()).getFacet_Default();
 			else
 				actOnNode = (PropertyOwnerInterface) selectedNode;
 		} else {
 			if (selectedNode instanceof ComplexComponentInterface)
-				actOnNode = (PropertyOwnerInterface) ((ComplexComponentInterface) selectedNode).getFacet_Default();
+				actOnNode = ((ComplexComponentInterface) selectedNode).getFacet_Default();
 			else if (selectedNode instanceof PropertyNode)
 				actOnNode = (PropertyOwnerInterface) selectedNode.getParent();
 		}

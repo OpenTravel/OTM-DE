@@ -97,7 +97,7 @@ public class DeleteNodesHandler extends OtmAbstractHandler {
 				Node currentNode = ((Node) mc.getCurrentNode_TypeView());
 				Node focusNode = null;
 				if (currentNode != null) {
-					focusNode = currentNode.getOwningComponent();
+					focusNode = (Node) currentNode.getOwningComponent();
 					while (toDelete.contains(focusNode)) {
 						focusNode = focusNode.getParent();
 					}

@@ -160,7 +160,7 @@ public interface INode {
 	/**
 	 * @return the component (named object) owner of this node or else this node.
 	 */
-	public INode getOwningComponent();
+	public LibraryMemberInterface getOwningComponent();
 
 	public INode getParent();
 

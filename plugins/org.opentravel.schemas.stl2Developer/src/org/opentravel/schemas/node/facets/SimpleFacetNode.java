@@ -28,6 +28,7 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.SimpleFacetNodeListener;
@@ -154,7 +155,7 @@ public class SimpleFacetNode extends PropertyOwnerNode implements TypeProvider, 
 
 	@Override
 	public boolean isAssignableToSimple() {
-		Node owner = getOwningComponent();
+		LibraryMemberInterface owner = getOwningComponent();
 		if (owner instanceof CoreObjectNode)
 			return !((CoreObjectNode) owner).getAssignedType().equals(ModelNode.getEmptyNode());
 		return true;
@@ -171,6 +172,7 @@ public class SimpleFacetNode extends PropertyOwnerNode implements TypeProvider, 
 		return getTLModelObject() != null ? getTLModelObject().getSimpleType() : null;
 	}
 
+	@Override
 	public SimpleAttributeFacadeNode getSimpleAttribute() {
 		return null;
 		// return getChildren().isEmpty() ? null : (SimpleAttributeNode) getChildren().get(0);

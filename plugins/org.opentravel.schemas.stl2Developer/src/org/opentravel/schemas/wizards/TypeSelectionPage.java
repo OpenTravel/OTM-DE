@@ -282,10 +282,10 @@ public class TypeSelectionPage extends WizardPage {
 	private List<Node> getExcludeNodes(INode node) {
 		Node n = (Node) node;
 		if (n.getOwningComponent() instanceof VWA_Node && n instanceof SimpleComponentNode)
-			return Collections.singletonList(n.getOwningComponent());
+			return Collections.singletonList((Node) n.getOwningComponent());
 
 		if (n.getOwningComponent() instanceof CoreObjectNode && n instanceof SimpleComponentNode)
-			return Collections.singletonList(n.getOwningComponent());
+			return Collections.singletonList((Node) n.getOwningComponent());
 
 		if (n instanceof CoreObjectNode)
 			return Collections.singletonList(n);
@@ -419,7 +419,7 @@ public class TypeSelectionPage extends WizardPage {
 	 */
 	protected void checkCore(Node curNode) {
 		if (curNode instanceof CoreObjectNode) {
-			FacetNode sum = (FacetNode) ((CoreObjectNode) curNode).getFacet_Summary();
+			FacetNode sum = ((CoreObjectNode) curNode).getFacet_Summary();
 			// check assigned types and assure they have parents
 			for (Node n : sum.getChildren()) {
 				if (n instanceof TypeUser) {

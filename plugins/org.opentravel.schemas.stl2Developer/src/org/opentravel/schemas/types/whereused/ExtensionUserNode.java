@@ -39,7 +39,7 @@ public class ExtensionUserNode extends WhereUsedNode<ExtensionOwner> implements 
 		if (owner.getOwningComponent() != null)
 			label = owner.getOwningComponent().getNameWithPrefix();
 		labelProvider = simpleLabelProvider(label);
-		imageProvider = nodeImageProvider(owner.getOwningComponent());
+		imageProvider = nodeImageProvider((Node) owner.getOwningComponent());
 	}
 
 	@Override

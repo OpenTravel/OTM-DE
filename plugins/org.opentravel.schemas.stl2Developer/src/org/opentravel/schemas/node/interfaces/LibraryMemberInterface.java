@@ -18,6 +18,7 @@ package org.opentravel.schemas.node.interfaces;
 import java.util.List;
 
 import org.opentravel.schemas.node.AliasNode;
+import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
@@ -40,20 +41,61 @@ public interface LibraryMemberInterface extends INode {
 
 	public List<AliasNode> getAliases();
 
+	@Override
 	public String getLabel();
 
+	@Override
 	public LibraryNode getLibrary();
 
+	@Override
 	public String getName();
 
+	@Override
 	public String getNamespace();
 
+	@Override
 	public String getNameWithPrefix();
 
+	@Override
 	public String getPrefix();
 
 	public boolean isValid();
 
 	public void setLibrary(LibraryNode library);
+
+	/**
+	 * @return
+	 */
+	public VersionNode getVersionNode();
+
+	/**
+	 * @return
+	 */
+	public boolean isVersioned();
+
+	/**
+	 * @return
+	 */
+	public boolean isInHead();
+
+	/**
+	 * @return
+	 */
+	public boolean isNewToChain();
+
+	/**
+	 * @return
+	 */
+	public boolean isEditable_newToChain();
+
+	/**
+	 * @return
+	 */
+	public boolean isEnabled_AddProperties();
+
+	/**
+	 * @return
+	 */
+	public boolean isLatestVersion();
 
 }

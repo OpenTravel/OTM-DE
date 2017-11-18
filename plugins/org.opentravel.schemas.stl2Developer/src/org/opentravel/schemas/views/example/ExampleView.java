@@ -510,7 +510,7 @@ public class ExampleView extends OtmAbstractView {
 		if (n instanceof OperationNode || n.getParent() instanceof OperationNode) {
 			return n;
 		}
-		n = n.getOwningComponent();
+		n = (Node) n.getOwningComponent();
 		return n;
 	}
 

@@ -223,7 +223,7 @@ public class WhereAssignedHandler {
 		if (((Node) owner).getOwningComponent() == null)
 			return ul; // happens when building inheritance wizard tree
 
-		for (TypeProvider n : ((Node) owner).getOwningComponent().getDescendants_TypeProviders())
+		for (TypeProvider n : ((Node) ((Node) owner).getOwningComponent()).getDescendants_TypeProviders())
 			if (!((Node) n).isDeleted())
 				ul.addAll(n.getWhereAssigned());
 		return ul;
@@ -240,7 +240,7 @@ public class WhereAssignedHandler {
 		if (((Node) owner).getOwningComponent() == null)
 			return count; // happens when building inheritance wizard tree
 
-		for (TypeProvider n : ((Node) owner).getOwningComponent().getDescendants_TypeProviders())
+		for (TypeProvider n : ((Node) ((Node) owner).getOwningComponent()).getDescendants_TypeProviders())
 			if (!((Node) n).isDeleted())
 				count += n.getWhereAssignedCount();
 		return count;
@@ -272,8 +272,8 @@ public class WhereAssignedHandler {
 		List<TypeUser> users = new ArrayList<TypeUser>(getWhereAssigned());
 		for (TypeUser n : users)
 			if (n.isEditable())
-				if (scopeLibrary == null || ((Node) n).getLibrary().equals(scopeLibrary)) {
-					if (((TypeUser) n).setAssignedType(replacement))
+				if (scopeLibrary == null || (n.getLibrary() != null && n.getLibrary().equals(scopeLibrary))) {
+					if (n.setAssignedType(replacement))
 						LOGGER.debug("replace " + n + " with " + replacement);
 					else
 						LOGGER.debug("Failed to replace " + n + " with " + replacement);
@@ -318,7 +318,7 @@ public class WhereAssignedHandler {
 				}
 				if (scopeLibrary == null || ((Node) n).getLibrary().equals(scopeLibrary))
 					if (n.isEditable()) {
-						((TypeUser) n).setAssignedType(r);
+						n.setAssignedType(r);
 						LOGGER.debug("replace " + n + " with " + r);
 					}
 				// LOGGER.debug("ReplaceAll replaced " + n + " with " + r);

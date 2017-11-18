@@ -179,7 +179,7 @@ public class DOMExampleModel extends ExampleModel {
 			if (owningNode instanceof TypeUser)
 				root = (org.opentravel.schemas.node.Node) ((TypeUser) owningNode).getAssignedType();
 			else
-				root = owningNode.getOwningComponent();
+				root = (org.opentravel.schemas.node.Node) owningNode.getOwningComponent();
 
 		for (org.opentravel.schemas.node.Node n : root.getDescendants())
 			if (n.getName().equals(nodeName)) {
