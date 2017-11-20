@@ -259,9 +259,11 @@ public abstract class ContextualFacetNode extends FacetNode implements LibraryMe
 
 	@Override
 	public String getLabel() {
+		TLContextualFacet facet = getTLModelObject();
+		
 		if (inherited)
-			return getTLModelObject() != null ? getFacetType().getIdentityName() + " (Inherited)" : "";
-		return getTLModelObject() != null ? getFacetType().getIdentityName() : "";
+			return getTLModelObject() != null ? getFacetType().getIdentityName( facet.getName() ) + " (Inherited)" : "";
+		return getTLModelObject() != null ? getFacetType().getIdentityName( facet.getName() ) : "";
 	}
 
 	/**

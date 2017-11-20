@@ -368,8 +368,16 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 	public List<ComponentNode> getQueryFacets(boolean includeInherited) {
 		ArrayList<ComponentNode> ret = new ArrayList<ComponentNode>();
 		for (INode f : getChildren()) {
-			if (f instanceof QueryFacetNode)
+			if (f instanceof QueryFacetNode) {
 				ret.add((ComponentNode) f);
+				
+			} else if (f instanceof ContributedFacetNode) {
+				ContributedFacetNode cfn = (ContributedFacetNode) f;
+				
+				if (cfn.getContributor() instanceof QueryFacetNode) {
+					ret.add((ComponentNode) cfn.getContributor());
+				}
+			}
 		}
 		if (includeInherited)
 			for (INode f : getInheritedChildren())
