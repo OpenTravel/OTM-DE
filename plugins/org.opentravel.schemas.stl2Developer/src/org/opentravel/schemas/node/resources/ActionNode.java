@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.codegen.impl.QualifiedAction;
 import org.opentravel.schemacompiler.codegen.util.ResourceCodegenUtils;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionRequest;
@@ -246,11 +247,17 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	public String getParentContribution() {
 		String contribution = getOwningComponent().getTLModelObject().getBasePath();
 
-		// // Pick any one of these
-		// List<QualifiedAction> qa = ResourceCodegenUtils.getQualifiedActions(getTLModelObject());
-		// if (qa.isEmpty()) return contribution;
-		// String template = qa.get(0).getPathTemplate();
-
+		// Since numerous combinations of parent reference paths are possible, pick
+		// the last entry in the list of qualified actions.  It is the most likely to
+		// have an "interesting" path that contains parent references.
+		List<QualifiedAction> qa = ResourceCodegenUtils.getQualifiedActions(getTLModelObject());
+		List<TLResourceParentRef> parentRefs = qa.get( qa.size() - 1 ).getParentRefs();
+		if (qa.isEmpty()) return contribution;
+		
+		for (TLResourceParentRef tlRef : parentRefs) {
+			contribution = tlRef.getPathTemplate() + contribution;
+		}
+		/*
 		List<TLResourceParentRef> list = ResourceCodegenUtils.getInheritedParentRefs(getOwningComponent()
 				.getTLModelObject());
 		for (TLResourceParentRef tlRef : list) {
@@ -265,7 +272,7 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 				contribution = action.getParentContribution() + contribution;
 			}
 		}
-
+	*/
 		LOGGER.debug("Parent contribution to " + getOwningComponent() + ": " + contribution);
 		return contribution;
 	}
