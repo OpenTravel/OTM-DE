@@ -33,7 +33,9 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.opentravel.schemas.commands.ResourceCommandHandler;
+import org.opentravel.schemas.commands.ResourceCommandHandlerPopup;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.trees.REST.RestTreeComparator;
@@ -71,9 +73,13 @@ public class ResourceMenus {
 
 	public ResourceMenus(Composite parent, IWorkbenchPartSite site) {
 		this(parent);
-		newActionResponse = RCPUtils.createCommandContributionItem(site, ResourceCommandHandler.COMMAND_ID + "."
-				+ ResourceCommandHandler.CommandType.ACTIONRESPONSE, "New Action Response", null,
+		IHandlerService handlerService = (IHandlerService) site.getService(IHandlerService.class);
+		String addResponseCommandId = ResourceCommandHandler.COMMAND_ID + "."
+				+ ResourceCommandHandler.CommandType.ACTIONRESPONSE;
+		
+		newActionResponse = RCPUtils.createCommandContributionItem(site, addResponseCommandId, "New Action Response", null,
 				ResourceCommandHandler.getIcon());
+		handlerService.activateHandler(addResponseCommandId, new ResourceCommandHandlerPopup() );
 		site.registerContextMenu(menuManager, viewer);
 	}
 
