@@ -41,6 +41,10 @@ import org.opentravel.schemas.types.TypeProvider;
  */
 public class AttributeNode extends PropertyNode {
 
+	public AttributeNode() {
+		super();
+	}
+
 	public AttributeNode(PropertyOwnerInterface parent, String name) {
 		this(parent, name, ModelNode.getUnassignedNode());
 	}
@@ -185,7 +189,7 @@ public class AttributeNode extends PropertyNode {
 	public boolean setAssignedType(TypeProvider provider) {
 		if (provider instanceof AliasNode)
 			provider = (TypeProvider) ((Node) provider).getOwningComponent();
-		return typeHandler.set(provider);
+		return getTypeHandler().set(provider);
 	}
 
 	@Override
@@ -203,6 +207,7 @@ public class AttributeNode extends PropertyNode {
 	/**
 	 * Allowed in major versions and on objects new in a minor.
 	 */
+	@Override
 	public void setMandatory(final boolean selection) {
 		if (getTLModelObject() != null)
 			if (isEditable_newToChain())

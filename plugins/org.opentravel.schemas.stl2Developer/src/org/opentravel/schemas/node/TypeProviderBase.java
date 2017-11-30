@@ -20,15 +20,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.LibraryElement;
-import org.opentravel.schemacompiler.model.TLChoiceObject;
-import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.handlers.XsdObjectHandler;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
-import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.TypeProviderListener;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -84,25 +80,27 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 		return true;
 	}
 
-	@Override
-	public LibraryElement cloneTLObj() {
-		LibraryElement clone = super.cloneTLObj();
-		// TODO - why is choice done here? Why not BO and CFs also?
-		if (clone instanceof TLChoiceObject) {
-			List<TLContextualFacet> tlCFs = ((TLChoiceObject) clone).getChoiceFacets();
-			LibraryMemberInterface n;
-			for (TLContextualFacet tlcf : tlCFs) {
-				n = NodeFactory.newLibraryMember(tlcf);
-				getLibrary().addMember(n);
-			}
-		}
-		return clone;
-	}
+	// @Override
+	// public LibraryElement cloneTLObj() {
+	// LibraryElement clone = super.cloneTLObj();
+	// // TODO - why is choice done here? Why not BO and CFs also?
+	// if (clone instanceof TLChoiceObject) {
+	// List<TLContextualFacet> tlCFs = ((TLChoiceObject) clone).getChoiceFacets();
+	// LibraryMemberInterface n;
+	// for (TLContextualFacet tlcf : tlCFs) {
+	// n = NodeFactory.newLibraryMember(tlcf);
+	// getLibrary().addMember(n);
+	// }
+	// }
+	// return clone;
+	// }
 
+	@Override
 	public void setXsdHandler(XsdObjectHandler xsdObjectHandler) {
 		this.xsdObjectHandler = xsdObjectHandler;
 	}
 
+	@Override
 	public XsdObjectHandler getXsdObjectHandler() {
 		return xsdObjectHandler;
 	}
@@ -166,7 +164,7 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 	 */
 	@Override
 	public int getWhereUsedCount() {
-		return getWhereUsedNode().getWhereUsedCount();
+		return getWhereUsedNode() != null ? getWhereUsedNode().getWhereUsedCount() : 0;
 	}
 
 	/**
@@ -175,7 +173,7 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 	 */
 	@Override
 	public int getWhereAssignedCount() {
-		return whereAssignedHandler.getWhereAssignedCount();
+		return getWhereAssignedHandler() != null ? whereAssignedHandler.getWhereAssignedCount() : 0;
 	}
 
 	@Override

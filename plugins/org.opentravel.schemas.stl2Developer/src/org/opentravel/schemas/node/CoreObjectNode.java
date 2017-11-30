@@ -155,6 +155,7 @@ public class CoreObjectNode extends LibraryMemberBase implements ComplexComponen
 			addAlias(a.getName());
 	}
 
+	@Override
 	public CoreObjectChildrenHandler getChildrenHandler() {
 		return (CoreObjectChildrenHandler) childrenHandler;
 	}
@@ -224,7 +225,7 @@ public class CoreObjectNode extends LibraryMemberBase implements ComplexComponen
 
 	@Override
 	public SimpleAttributeFacadeNode getSimpleAttribute() {
-		return (SimpleAttributeFacadeNode) getFacet_Simple().getSimpleAttribute();
+		return getFacet_Simple().getSimpleAttribute();
 	}
 
 	@Override
@@ -296,6 +297,7 @@ public class CoreObjectNode extends LibraryMemberBase implements ComplexComponen
 		return INode.CommandType.PROPERTY;
 	}
 
+	@Override
 	public List<AliasNode> getAliases() {
 		List<AliasNode> aliases = new ArrayList<AliasNode>();
 		for (Node c : getChildren())
@@ -338,8 +340,8 @@ public class CoreObjectNode extends LibraryMemberBase implements ComplexComponen
 
 	@Override
 	public void sort() {
-		((FacetNode) getFacet_Summary()).sort();
-		((FacetNode) getFacet_Detail()).sort();
+		getFacet_Summary().sort();
+		getFacet_Detail().sort();
 	}
 
 	@Override
@@ -364,10 +366,10 @@ public class CoreObjectNode extends LibraryMemberBase implements ComplexComponen
 		return true;
 	}
 
-	@Override
-	public boolean isAliasable() {
-		return isEditable_newToChain();
-	}
+	// @Override
+	// public boolean isAliasable() {
+	// return isEditable_newToChain();
+	// }
 
 	@Override
 	public boolean isAssignableToElementRef() {
@@ -393,6 +395,10 @@ public class CoreObjectNode extends LibraryMemberBase implements ComplexComponen
 		if (extensionHandler == null)
 			extensionHandler = new ExtensionHandler(this);
 		extensionHandler.set(base);
+		// Let the children facets know to update
+		for (Node fn : getChildrenHandler().get())
+			if (fn instanceof FacetNode)
+				((FacetNode) fn).getChildrenHandler().clear();
 	}
 
 	@Override

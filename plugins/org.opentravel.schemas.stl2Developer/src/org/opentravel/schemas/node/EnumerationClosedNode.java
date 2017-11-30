@@ -72,6 +72,11 @@ public class EnumerationClosedNode extends SimpleComponentNode implements Enumer
 	}
 
 	@Override
+	public EnumerationClosedChildrenHandler getChildrenHandler() {
+		return (EnumerationClosedChildrenHandler) childrenHandler;
+	}
+
+	@Override
 	public void addLiteral(String literal) {
 		if (isEditable_inMinor())
 			new EnumLiteralNode(this, literal);
@@ -141,18 +146,6 @@ public class EnumerationClosedNode extends SimpleComponentNode implements Enumer
 		return ComponentNodeType.CLOSED_ENUM;
 	}
 
-	// Enumerations do not have equivalents
-	@Override
-	public String getEquivalent(String context) {
-		return "";
-	}
-
-	// Enumerations do not have examples
-	@Override
-	public String getExample(String context) {
-		return "";
-	}
-
 	@Override
 	public String getExtendsTypeNS() {
 		return getExtensionBase() != null ? getExtensionBase().getNamespace() : "";
@@ -180,6 +173,11 @@ public class EnumerationClosedNode extends SimpleComponentNode implements Enumer
 	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.Enumeration);
+	}
+
+	@Override
+	public boolean isDefaultFacet() {
+		return false;
 	}
 
 	@Override

@@ -90,6 +90,11 @@ public class FacetNode extends PropertyOwnerNode implements TypeProvider, Sortab
 	}
 
 	@Override
+	public FacetChildrenHandler getChildrenHandler() {
+		return (FacetChildrenHandler) childrenHandler;
+	}
+
+	@Override
 	public String getComponentType() {
 		TLFacetType facetType = getTLModelObject().getFacetType();
 		if (facetType == null)
@@ -146,10 +151,12 @@ public class FacetNode extends PropertyOwnerNode implements TypeProvider, Sortab
 		return getTLModelObject().getFacetType() == TLFacetType.SUMMARY;
 	}
 
+	@Override
 	public boolean isDetailFacet() {
 		return getFacetType() != null ? getFacetType().equals(TLFacetType.DETAIL) : false;
 	}
 
+	@Override
 	public boolean isIDFacet() {
 		return getFacetType() != null ? getFacetType().equals(TLFacetType.ID) : false;
 	}
@@ -177,6 +184,7 @@ public class FacetNode extends PropertyOwnerNode implements TypeProvider, Sortab
 		return false;
 	}
 
+	@Override
 	public boolean isSummaryFacet() {
 		return getFacetType() != null ? getFacetType().equals(TLFacetType.SUMMARY) : false;
 	}

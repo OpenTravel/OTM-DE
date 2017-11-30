@@ -31,7 +31,8 @@ import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
-import org.opentravel.schemas.node.facets.SimpleFacetNode;
+import org.opentravel.schemas.node.facets.SimpleFacetFacadeNode;
+import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -185,7 +186,8 @@ public class LibrarySorter extends ViewerSorter {
 		}
 
 		if (n instanceof PropertyOwnerInterface) {
-			if (n instanceof SimpleFacetNode)
+			// if (n instanceof SimpleFacetNode)
+			if (n instanceof SimpleFacetFacadeNode)
 				return 1;
 			if (n instanceof AttributeFacetNode)
 				return 2;
@@ -198,6 +200,8 @@ public class LibrarySorter extends ViewerSorter {
 			}
 			if (n instanceof OperationNode)
 				return 67;
+			if (n instanceof Enumeration)
+				return 38;
 
 			if (n.getTLModelObject() instanceof TLFacet) {
 				switch (((TLFacet) n.getTLModelObject()).getFacetType()) {

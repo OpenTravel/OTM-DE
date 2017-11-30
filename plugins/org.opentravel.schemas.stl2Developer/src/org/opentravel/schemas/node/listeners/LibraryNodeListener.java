@@ -82,12 +82,14 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 				return; // happens during deletes
 
 			// Clear assigned types
-			// FIXME - this should be part of delete()
-			for (Node n : affectedNode.getChildren_TypeUsers())
-				if (n instanceof TypeUser)
-					((TypeUser) n).setAssignedType();
+			// FIXME - should this be part of delete()
+			for (TypeUser n : affectedNode.getDescendants_TypeUsers())
+				if (n.getAssignedType() != null)
+					n.getAssignedType().getWhereAssignedHandler().remove(n);
 			if (affectedNode instanceof TypeUser)
-				((TypeUser) affectedNode).setAssignedType();
+				if (((TypeUser) affectedNode).getAssignedType() != null)
+					((TypeUser) affectedNode).getAssignedType().getWhereAssignedHandler()
+							.remove((TypeUser) affectedNode);
 
 			// FIXME - should remove be destructive? It is used in addMember to move and this breaks that.
 			// affectedNode.delete();

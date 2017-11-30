@@ -427,52 +427,54 @@ public class NavigatorMenus extends TreeViewer {
 						manager.add(libraryMenu);
 						manager.add(projectMenu);
 					} else if (node instanceof ComponentNode) {
-						if (node.isInModel()) {
-							if (!node.isEditable()) {
-								manager.add(basicObjectMenu);
-							} else if (node instanceof ServiceNode) {
-								manager.add(serviceObjectMenu);
-							} else if (node instanceof OperationNode) {
-								manager.add(operationObjectMenu);
-							} else if (node instanceof ResourceNode) {
-								manager.add(deleteMoveMenu);
-								//
-							} else if (node instanceof BusinessObjectNode) {
-								manager.add(componentMenu);
-							} else if (node instanceof ChoiceObjectNode) {
-								manager.add(componentMenu);
-							} else if (node instanceof CoreObjectNode) {
-								manager.add(componentMenu);
-							} else if (node instanceof VWA_Node) {
-								manager.add(componentMenu);
-							} else if (node instanceof Enumeration) {
-								manager.add(componentMenu);
-							} else if (node instanceof AliasNode) {
-								manager.add(componentMenu);
-							} else if (node instanceof ContextualFacetNode && !(node instanceof ContributedFacetNode)) {
-								manager.add(componentMenu);
-								//
-							} else if (node instanceof FacetNode) {
-								manager.add(facetMenu);
-							} else if (node.isFacetAlias()) {
-								manager.add(facetMenu);
-							} else if (node instanceof ExtensionPointNode) {
-								manager.add(xpFacetObjectMenu);
-							} else if (node instanceof SimpleComponentNode) {
-								manager.add(simpleObjectMenu);
-							} else if (node instanceof SimpleAttributeFacadeNode) {
-							} else if (node instanceof RoleNode) {
-								manager.add(roleObjectMenu);
-							} else if (node instanceof EnumLiteralNode) {
-								manager.add(enumObjectMenu);
-							} else if (node instanceof PropertyNode) {
-								manager.add(propertyMenu);
-							}
-
-							else if (node.isImportable()) {
-								manager.add(copyMenu);
-							}
+						// if (node.isInModel()) {
+						if (!node.isEditable()) {
+							manager.add(basicObjectMenu);
+						} else if (node instanceof ServiceNode) {
+							manager.add(serviceObjectMenu);
+						} else if (node instanceof OperationNode) {
+							manager.add(operationObjectMenu);
+						} else if (node instanceof ResourceNode) {
+							manager.add(deleteMoveMenu);
+							//
+						} else if (node instanceof BusinessObjectNode) {
+							manager.add(componentMenu);
+						} else if (node instanceof ChoiceObjectNode) {
+							manager.add(componentMenu);
+						} else if (node instanceof CoreObjectNode) {
+							manager.add(componentMenu);
+						} else if (node instanceof VWA_Node) {
+							manager.add(componentMenu);
+						} else if (node instanceof Enumeration) {
+							manager.add(componentMenu);
+						} else if (node instanceof AliasNode) {
+							manager.add(componentMenu);
+						} else if (node instanceof ContextualFacetNode && !(node instanceof ContributedFacetNode)) {
+							manager.add(componentMenu);
+							//
+						} else if (node instanceof FacetNode) {
+							manager.add(facetMenu);
+						} else if (node.isFacetAlias()) {
+							assert false;
+							manager.add(facetMenu); // Reached? should match aliasNode
+						} else if (node instanceof ExtensionPointNode) {
+							manager.add(xpFacetObjectMenu);
+						} else if (node instanceof SimpleComponentNode) {
+							manager.add(simpleObjectMenu);
+						} else if (node instanceof SimpleAttributeFacadeNode) {
+						} else if (node instanceof RoleNode) {
+							manager.add(roleObjectMenu);
+						} else if (node instanceof EnumLiteralNode) {
+							manager.add(enumObjectMenu);
+						} else if (node instanceof PropertyNode) {
+							manager.add(propertyMenu);
 						}
+
+						else if (node.isImportable()) {
+							// FIXME - this may need to be changed to test if has XsdObjectHandler
+							manager.add(copyMenu);
+						}
+						// }
 						manager.add(libraryMenu);
 						manager.add(projectMenu);
 					}

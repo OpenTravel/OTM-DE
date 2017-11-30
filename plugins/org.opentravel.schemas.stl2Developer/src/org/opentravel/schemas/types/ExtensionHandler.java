@@ -57,12 +57,14 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 	/**
 	 * Return the base object node. Uses base from TL Model Object.
 	 */
+	@Override
 	public Node get() {
-		return Node.GetNode((TLModelElement) getTLAssignedNamedEntity());
+		return Node.GetNode(getTLAssignedNamedEntity());
 	}
 
 	// 11/2/2017 - dmh - will also work on Resource and Operation when the replaced ModelObject version did not.
 	// @Override
+	@Override
 	public NamedEntity getTLAssignedNamedEntity() {
 		NamedEntity tlObj = null;
 		TLExtension tle = null;
@@ -124,11 +126,10 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 
 		// Save the old base object for after the assignment
 		Node oldBase = owner.getExtensionBase(); // from TL object
-		if (oldBase == base) {
+		if (oldBase == base)
 			// TL Object relation already set. Insure the where used is correct. Handler prevents duplicates.
 			base.getWhereExtendedHandler().add(owner);
-			base.getWhereExtendedHandler().setListener(owner);
-		} else {
+		else {
 			// If owner was extending a different base, remove the link and listener.
 			if (oldBase != null) {
 				oldBase.getWhereExtendedHandler().remove(owner);
@@ -202,8 +203,7 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 	private void setVWA_TL(VWA_Node vwa) {
 		if (owner.getTLModelObject() instanceof TLValueWithAttributes)
 			if (vwa != null)
-				((TLValueWithAttributes) owner.getTLModelObject()).setParentType((TLValueWithAttributes) vwa
-						.getTLModelObject());
+				((TLValueWithAttributes) owner.getTLModelObject()).setParentType(vwa.getTLModelObject());
 			else
 				((TLValueWithAttributes) owner.getTLModelObject()).setParentType(null); // clear value
 	}

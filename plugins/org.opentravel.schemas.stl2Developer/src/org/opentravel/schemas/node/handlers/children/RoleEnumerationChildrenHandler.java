@@ -38,6 +38,16 @@ public class RoleEnumerationChildrenHandler extends CachingChildrenHandler<Node,
 		return owner.getTLModelObject().getRoles();
 	}
 
+	// // It does not seem like roles are inherited! There was no mention of them in the doc and there are no codegen
+	// utils.
+	// @Override
+	// public List<TLModelElement> getInheritedChildren_TL() {
+	// final List<TLModelElement> inheritedKids = new ArrayList<TLModelElement>();
+	// // // false prevents Codegen utils from returning non-inherited values
+	// inheritedKids.addAll(EnumCodegenUtils.getInheritedValues(owner.getTLModelObject(), false));
+	// return inheritedKids;
+	// }
+
 	@Override
 	public List<TLModelElement> getChildren_TL() {
 		List<TLModelElement> roles = new ArrayList<TLModelElement>();

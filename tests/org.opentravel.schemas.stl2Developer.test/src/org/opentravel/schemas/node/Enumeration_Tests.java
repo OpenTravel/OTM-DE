@@ -206,6 +206,7 @@ public class Enumeration_Tests {
 
 		EnumerationOpenNode openExt = ml.addOpenEnumToLibrary(ln, "OpenExt");
 		EnumLiteralNode oe1 = new EnumLiteralNode(openExt, "oe1");
+
 		EnumerationClosedNode closedExt = ml.addClosedEnumToLibrary(ln, "ClosedExt");
 		EnumLiteralNode ce1 = new EnumLiteralNode(closedExt, "ce1");
 

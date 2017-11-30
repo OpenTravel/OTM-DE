@@ -27,8 +27,6 @@ import org.opentravel.schemacompiler.model.TLComplexTypeBase;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.modelObject.ChoiceObjMO;
-import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.facets.ChoiceFacetNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
@@ -64,6 +62,7 @@ public class ChoiceObjectNode extends LibraryMemberBase implements ComplexCompon
 
 	public ChoiceObjectNode(TLChoiceObject mbr) {
 		super(mbr);
+
 		childrenHandler = new ChoiceObjectChildrenHandler(this);
 		extensionHandler = new ExtensionHandler(this);
 
@@ -159,6 +158,7 @@ public class ChoiceObjectNode extends LibraryMemberBase implements ComplexCompon
 		return INode.CommandType.PROPERTY;
 	}
 
+	@Override
 	public List<AliasNode> getAliases() {
 		List<AliasNode> aliases = new ArrayList<AliasNode>();
 		for (Node c : getChildren())
@@ -167,12 +167,42 @@ public class ChoiceObjectNode extends LibraryMemberBase implements ComplexCompon
 		return aliases;
 	}
 
-	public List<PropertyOwnerInterface> getChoiceFacets() {
-		List<PropertyOwnerInterface> facets = new ArrayList<PropertyOwnerInterface>();
-		for (Node n : getChildren())
-			if (n instanceof ChoiceFacetNode)
-				facets.add((FacetNode) n);
-		return facets;
+	/**
+	 * @param includeInherited
+	 *            add inherited facets to the list
+	 * @return new list of custom facets
+	 */
+	public List<ChoiceFacetNode> getChoiceFacets(boolean includeInherited) {
+		ArrayList<ChoiceFacetNode> ret = new ArrayList<ChoiceFacetNode>();
+		for (INode f : getChildren()) {
+			if (f instanceof ContributedFacetNode)
+				f = ((ContributedFacetNode) f).getContributor();
+			if (f instanceof ChoiceFacetNode)
+				ret.add((ChoiceFacetNode) f);
+		}
+		if (includeInherited)
+			for (INode f : getInheritedChildren()) {
+				if (f instanceof ContributedFacetNode)
+					f = ((ContributedFacetNode) f).getContributor();
+				if (f instanceof ChoiceFacetNode)
+					ret.add((ChoiceFacetNode) f);
+			}
+		return ret;
+	}
+
+	/**
+	 * @return choice facets without inherited
+	 */
+	public List<ChoiceFacetNode> getChoiceFacets() {
+		return (getChoiceFacets(false));
+		// List<PropertyOwnerInterface> facets = new ArrayList<PropertyOwnerInterface>();
+		// for (Node n : getChildren()) {
+		// if (n instanceof ContributedFacetNode)
+		// n = ((ContributedFacetNode) n).getContributor();
+		// if (n instanceof ChoiceFacetNode)
+		// facets.add((FacetNode) n);
+		// }
+		// return facets;
 	}
 
 	@Override
@@ -235,12 +265,12 @@ public class ChoiceObjectNode extends LibraryMemberBase implements ComplexCompon
 		return Images.getImageRegistry().get(Images.ChoiceObject);
 	}
 
-	@Override
-	@Deprecated
-	public ChoiceObjMO getModelObject() {
-		ModelObject<?> obj = super.getModelObject();
-		return (ChoiceObjMO) (obj instanceof ChoiceObjMO ? obj : null);
-	}
+	// @Override
+	// @Deprecated
+	// public ChoiceObjMO getModelObject() {
+	// ModelObject<?> obj = super.getModelObject();
+	// return (ChoiceObjMO) (obj instanceof ChoiceObjMO ? obj : null);
+	// }
 
 	@Override
 	public String getName() {
@@ -261,10 +291,10 @@ public class ChoiceObjectNode extends LibraryMemberBase implements ComplexCompon
 		return (TLChoiceObject) tlObj;
 	}
 
-	@Override
-	public boolean isAliasable() {
-		return isEditable_newToChain();
-	}
+	// @Override
+	// public boolean isAliasable() {
+	// return isEditable_newToChain();
+	// }
 
 	@Override
 	public boolean isAssignableToElementRef() {

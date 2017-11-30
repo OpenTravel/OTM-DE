@@ -42,7 +42,7 @@ public class ExtensionSelectionWizard extends Wizard implements IDoubleClickList
 
 	private final Node curNode;
 	private TypeSelectionPage selectionPage;
-	private ExtensionInheritancePage inheritancePage;
+	// private ExtensionInheritancePage inheritancePage;
 	private WizardDialog dialog;
 
 	public ExtensionSelectionWizard(final Node n) {
@@ -62,20 +62,21 @@ public class ExtensionSelectionWizard extends Wizard implements IDoubleClickList
 					"Select an entity from which the selected type will extend.", null, curNode);
 
 		selectionPage.addDoubleClickListener(this);
-		selectionPage.setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(curNode.getModelObject()));
+		selectionPage.setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(curNode));
+		// selectionPage.setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(curNode.getModelObject()));
 		selectionPage.setTypeTreeContentProvider(new ExtensionTreeContentProvider());
 		addPage(selectionPage);
 
-		// Additional page needed for extensions.
-		if (!(curNode instanceof ExtensionPointNode)) {
-			inheritancePage = new ExtensionInheritancePage(
-					"Inherited Fields",
-					"Inherited Fields",
-					"Select the desired member of the inheritance hierarchy for each of the properties displayed below.",
-					curNode);
-			selectionPage.setTypeSelectionListener(inheritancePage);
-			addPage(inheritancePage);
-		}
+		// // Additional page needed for extensions.
+		// if (!(curNode instanceof ExtensionPointNode)) {
+		// inheritancePage = new ExtensionInheritancePage(
+		// "Inherited Fields",
+		// "Inherited Fields",
+		// "Select the desired member of the inheritance hierarchy for each of the properties displayed below.",
+		// curNode);
+		// selectionPage.setTypeSelectionListener(inheritancePage);
+		// addPage(inheritancePage);
+		// }
 		// else
 		// LOGGER.debug("curNode is an extension point facet ... so skip the inheritance page.");
 	}
@@ -91,8 +92,8 @@ public class ExtensionSelectionWizard extends Wizard implements IDoubleClickList
 		if (curNode != null && curNode instanceof ExtensionOwner) {
 			((ExtensionOwner) curNode).setExtension(selectionPage.getSelectedNode());
 			// curNode.setExtendsType(selectionPage.getSelectedNode());
-			if (!(curNode instanceof ExtensionPointNode))
-				inheritancePage.doPerformFinish();
+			// if (!(curNode instanceof ExtensionPointNode))
+			// inheritancePage.doPerformFinish();
 			OtmRegistry.getMainController().refresh();
 		}
 		return true;

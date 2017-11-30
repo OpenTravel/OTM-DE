@@ -26,6 +26,7 @@ import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemas.node.handlers.ConstraintHandler;
 import org.opentravel.schemas.node.handlers.EqExOneValueHandler;
 import org.opentravel.schemas.node.handlers.EqExOneValueHandler.ValueWithContextType;
+import org.opentravel.schemas.node.handlers.children.NodeChildrenHandler;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.properties.IValueWithContextHandler;
@@ -46,19 +47,17 @@ public class SimpleTypeNode extends SimpleComponentNode implements SimpleCompone
 		LibraryMemberInterface, TypeProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleTypeNode.class);
 
-	// Handlers for equivalents and examples
+	// Handlers for constraints, equivalents and examples
 	protected IValueWithContextHandler equivalentHandler = null;
 	protected IValueWithContextHandler exampleHandler = null;
+	protected ConstraintHandler constraintHandler = null;
 
 	public SimpleTypeNode(TLSimple mbr) {
 		super(mbr);
 		typeHandler = new TypeUserHandler(this);
-		constraintHandler = new ConstraintHandler((TLSimple) getTLModelObject(), this);
-		// this.tlObj = mbr;
-		// ListenerFactory.setListner(this);
+		constraintHandler = new ConstraintHandler(getTLModelObject(), this);
 
 		assert (getTLModelObject() != null);
-		// assert (modelObject instanceof SimpleMO);
 	}
 
 	@Override
@@ -67,41 +66,39 @@ public class SimpleTypeNode extends SimpleComponentNode implements SimpleCompone
 	}
 
 	@Override
+	public NodeChildrenHandler<Node> getChildrenHandler() {
+		return null;
+	}
+
+	@Override
 	public ComponentNodeType getComponentNodeType() {
 		return ComponentNodeType.SIMPLE;
 	}
 
 	@Override
+	public ConstraintHandler getConstraintHandler() {
+		return constraintHandler;
+	}
+
 	public String getEquivalent(String context) {
 		if (equivalentHandler == null)
 			equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
 		return equivalentHandler != null ? equivalentHandler.get(context) : "";
 	}
 
-	// // Do not show implied types in tree views
-	// private Node getNavType() {
-	// Node type = getTypeNode();
-	// return type instanceof ImpliedNode ? null : type;
-	// }
-
 	/**
 	 * @return equivalent handler if property has equivalents, null otherwise
 	 */
+	@Override
 	public IValueWithContextHandler getEquivalentHandler() {
 		return equivalentHandler;
 	}
-
-	// @Override
-	// public NamedEntity getTLOjbect() {
-	// return (NamedEntity) modelObject.getTLModelObj();
-	// }
 
 	@Override
 	public String getAssignedPrefix() {
 		return getXsdObjectHandler() != null ? getXsdObjectHandler().getAssignedPrefix() : getLibrary().getPrefix();
 	}
 
-	@Override
 	public String getExample(String context) {
 		if (exampleHandler == null)
 			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
@@ -111,6 +108,7 @@ public class SimpleTypeNode extends SimpleComponentNode implements SimpleCompone
 	/**
 	 * @return equivalent handler if property has equivalents, null otherwise
 	 */
+	@Override
 	public IValueWithContextHandler getExampleHandler() {
 		return exampleHandler;
 	}

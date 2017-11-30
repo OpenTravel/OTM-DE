@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.repository.Project;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryException;
@@ -30,9 +31,9 @@ import org.opentravel.schemacompiler.repository.RepositoryNamespaceUtils;
 import org.opentravel.schemacompiler.repository.impl.BuiltInProject;
 import org.opentravel.schemas.controllers.LibraryModelManager;
 import org.opentravel.schemas.controllers.ProjectController;
-import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.node.handlers.NamespaceHandler;
 import org.opentravel.schemas.node.handlers.children.ProjectChildrenHandler;
+import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -47,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class ProjectNode extends Node implements INode {
+public class ProjectNode extends Node implements INode, FacadeInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProjectNode.class);
 
 	private final Project project; // underlying TL model object
@@ -403,15 +404,16 @@ public class ProjectNode extends Node implements INode {
 	}
 
 	@Override
-	public TLEmpty getTLModelObject() {
-		return (TLEmpty) tlObj;
+	public TLModelElement getTLModelObject() {
+		return null;
 	}
 
-	// @Override
-	// public boolean hasChildren_TypeProviders() {
-	// return getChildren().size() > 0 ? true : false;
-	// }
-	//
+	// Return true because descendents may have type providers
+	@Override
+	public boolean hasChildren_TypeProviders() {
+		return getChildren().size() > 0 ? true : false;
+	}
+
 	public void remove(LibraryNavNode l) {
 		getChildrenHandler().remove(l);
 	}
@@ -519,6 +521,11 @@ public class ProjectNode extends Node implements INode {
 				if (((LibraryNavNode) n).contains(li))
 					return true;
 		return false;
+	}
+
+	@Override
+	public Node get() {
+		return null;
 	}
 
 }

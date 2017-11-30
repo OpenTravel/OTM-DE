@@ -17,61 +17,34 @@ package org.opentravel.schemas.wizards;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.TableEditor;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
-import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
-import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLFacet;
-import org.opentravel.schemacompiler.model.TLFacetOwner;
-import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLPropertyOwner;
 import org.opentravel.schemacompiler.model.TLPropertyType;
-import org.opentravel.schemacompiler.util.InheritanceHierarchyBuilder;
-import org.opentravel.schemas.modelObject.ExtensionPointFacetMO;
-import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.node.properties.PropertyNodeType;
-import org.opentravel.schemas.trees.library.LibrarySorter;
 import org.opentravel.schemas.trees.library.LibraryTreeLabelProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,6 +55,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author S. Livezey
  */
+// No longer used (11/28/2017) - leave in case people want functionality back. Asked Patty's team and they said no.
+@Deprecated
 public class ExtensionInheritancePage extends WizardPage implements TypeSelectionListener {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionInheritancePage.class);
@@ -106,18 +81,20 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 	protected ExtensionInheritancePage(final String pageName, final String title, String description,
 			final ImageDescriptor titleImage, final Node n) {
 		super(pageName, title, titleImage);
-		setTitle(title);
-		setDescription(description);
+		// setTitle(title);
+		// setDescription(description);
 		curNode = n;
-
-		if (curNode != null) {
-			ModelObject<?> modelObject = curNode.getModelObject();
-
-			if (modelObject.getTLModelObj() instanceof TLModelElement) {
-				TLModelElement tlObj = (TLModelElement) modelObject.getTLModelObj();
-				inheritanceHierarchyInfo = new InheritanceHierarchyBuilder(tlObj.getOwningModel()).buildHierarchyInfo();
-			}
-		}
+		//
+		// if (curNode != null) {
+		// // ModelObject<?> modelObject = curNode.getModelObject();
+		// // if (modelObject.getTLModelObj() instanceof TLModelElement) {
+		// // TLModelElement tlObj = (TLModelElement) modelObject.getTLModelObj();
+		//
+		// if (curNode.getTLModelObject() instanceof TLModelElement) {
+		// TLModelElement tlObj = curNode.getTLModelObject();
+		// inheritanceHierarchyInfo = new InheritanceHierarchyBuilder(tlObj.getOwningModel()).buildHierarchyInfo();
+		// }
+		// }
 	}
 
 	protected ExtensionInheritancePage(final String pageName, final String title, String description, final Node n) {
@@ -125,54 +102,54 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 	}
 
 	public void doPerformFinish() {
-		for (PropertyNode property : originalOptions.keySet()) {
-			LOGGER.info("Processing Property: " + property.getName());
-
-			INode originalOption = originalOptions.get(property);
-			ComponentNode selectedOption = selectedOptions.get(property);
-
-			// Ignore options that were not modified by the user
-			if (originalOption == selectedOption) {
-				LOGGER.info("  No Change to Property: " + property.getName());
-				continue;
-			}
-
-			if (isInheritedProperty(property)) {
-				// The original inherited property will be eclipsed by a new
-				// declared property
-				LOGGER.info("  Creating Property to Eclipse Inherited Property: " + selectedOption.getName());
-				FacetNode currentNodeFacet = getCurrentNodeFacet(property);
-
-				if (currentNodeFacet != null) {
-					currentNodeFacet.createProperty(selectedOption);
-				}
-
-			} else {
-				// The existing declared property must be deleted
-				LOGGER.info("  Deleting Property: " + property.getName());
-				property.delete();
-				// property.getParent().deleteChild(property);
-
-				if (!isInheritedPropertyType(selectedOption)) {
-					// The original declared property will be replaced by a
-					// declared property of a
-					// different type
-					LOGGER.info("  Creating Property to Replace the Deleted Property: " + selectedOption.getName());
-					FacetNode currentNodeFacet = getCurrentNodeFacet(property);
-
-					if (currentNodeFacet != null) {
-						currentNodeFacet.createProperty(selectedOption);
-					}
-
-				} else {
-					// No further action - the original declared property was
-					// deleted, so the
-					// inherited property
-					// will be used.
-				}
-			}
-		}
-		curNode.resetInheritedChildren();
+		// for (PropertyNode property : originalOptions.keySet()) {
+		// LOGGER.info("Processing Property: " + property.getName());
+		//
+		// INode originalOption = originalOptions.get(property);
+		// ComponentNode selectedOption = selectedOptions.get(property);
+		//
+		// // Ignore options that were not modified by the user
+		// if (originalOption == selectedOption) {
+		// LOGGER.info("  No Change to Property: " + property.getName());
+		// continue;
+		// }
+		//
+		// if (isInheritedProperty(property)) {
+		// // The original inherited property will be eclipsed by a new
+		// // declared property
+		// LOGGER.info("  Creating Property to Eclipse Inherited Property: " + selectedOption.getName());
+		// FacetNode currentNodeFacet = getCurrentNodeFacet(property);
+		//
+		// if (currentNodeFacet != null) {
+		// currentNodeFacet.createProperty(selectedOption);
+		// }
+		//
+		// } else {
+		// // The existing declared property must be deleted
+		// LOGGER.info("  Deleting Property: " + property.getName());
+		// property.delete();
+		// // property.getParent().deleteChild(property);
+		//
+		// if (!isInheritedPropertyType(selectedOption)) {
+		// // The original declared property will be replaced by a
+		// // declared property of a
+		// // different type
+		// LOGGER.info("  Creating Property to Replace the Deleted Property: " + selectedOption.getName());
+		// FacetNode currentNodeFacet = getCurrentNodeFacet(property);
+		//
+		// if (currentNodeFacet != null) {
+		// currentNodeFacet.createProperty(selectedOption);
+		// }
+		//
+		// } else {
+		// // No further action - the original declared property was
+		// // deleted, so the
+		// // inherited property
+		// // will be used.
+		// }
+		// }
+		// }
+		// curNode.resetInheritedChildren();
 	}
 
 	/**
@@ -185,15 +162,15 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 	 */
 	private boolean isInheritedProperty(PropertyNode propertyNode) {
 		boolean isInherited = true;
-		INode node = propertyNode;
-
-		while (node != null) {
-			if (node == curNode) {
-				isInherited = false;
-				break;
-			}
-			node = node.getParent();
-		}
+		// INode node = propertyNode;
+		//
+		// while (node != null) {
+		// if (node == curNode) {
+		// isInherited = false;
+		// break;
+		// }
+		// node = node.getParent();
+		// }
 		return isInherited;
 	}
 
@@ -204,21 +181,21 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 	 * @return
 	 */
 	private boolean isInheritedPropertyType(ComponentNode propertyTypeNode) {
-		Object selectedPropertyType = propertyTypeNode.getModelObject().getTLModelObj();
-		List<PropertyNode> extensionProperties = new ArrayList<PropertyNode>();
+		// Object selectedPropertyType = propertyTypeNode.getTLModelObject();
+		// List<PropertyNode> extensionProperties = new ArrayList<PropertyNode>();
 		boolean isInheritedType = false;
-
-		getPropertyNodes(selectedExtensionNode, true, extensionProperties);
-
-		for (PropertyNode propertyNode : extensionProperties) {
-			Object tlProperty = propertyNode.getModelObject().getTLModelObj();
-
-			if (tlProperty instanceof TLProperty) {
-				if (selectedPropertyType == ((TLProperty) tlProperty).getType()) {
-					isInheritedType = true;
-				}
-			}
-		}
+		//
+		// getPropertyNodes(selectedExtensionNode, true, extensionProperties);
+		//
+		// for (PropertyNode propertyNode : extensionProperties) {
+		// Object tlProperty = propertyNode.getTLModelObject();
+		//
+		// if (tlProperty instanceof TLProperty) {
+		// if (selectedPropertyType == ((TLProperty) tlProperty).getType()) {
+		// isInheritedType = true;
+		// }
+		// }
+		// }
 		return isInheritedType;
 	}
 
@@ -234,110 +211,112 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 	 * @return FacetNode
 	 */
 	private FacetNode getCurrentNodeFacet(PropertyNode propertyNode) {
-		TLFacet currentNodeFacet = null;
-		if (curNode.getModelObject().getTLModelObj() instanceof TLFacetOwner) {
-			TLFacetOwner currentNodeTLObj = (TLFacetOwner) curNode.getModelObject().getTLModelObj();
-			TLFacet propertyOwningFacet = propertyFacetOwners.get(propertyNode);
-			currentNodeFacet = FacetCodegenUtils.getFacetOfType(currentNodeTLObj, propertyOwningFacet.getFacetType(),
-					propertyOwningFacet.getContext(), propertyOwningFacet.getLabel());
-		}
+		// TLFacet currentNodeFacet = null;
+		// if (curNode.getModelObject().getTLModelObj() instanceof TLFacetOwner) {
+		// TLFacetOwner currentNodeTLObj = (TLFacetOwner) curNode.getModelObject().getTLModelObj();
+		// TLFacet propertyOwningFacet = propertyFacetOwners.get(propertyNode);
+		// currentNodeFacet = FacetCodegenUtils.getFacetOfType(currentNodeTLObj, propertyOwningFacet.getFacetType(),
+		// propertyOwningFacet.getContext(), propertyOwningFacet.getLabel());
+		// }
 		FacetNode facetNode = null;
-
-		if (currentNodeFacet != null) {
-			for (INode childNode : curNode.getChildren()) {
-				Object childTLObj = childNode.getModelObject().getTLModelObj();
-
-				if ((childNode instanceof FacetNode) && (childTLObj == currentNodeFacet)) {
-					facetNode = (FacetNode) childNode;
-					break;
-				}
-			}
-		} else
-			LOGGER.warn("get current node facet could not find the facet. curNode tl obj = "
-					+ curNode.getModelObject().getTLModelObj());
+		//
+		// if (currentNodeFacet != null) {
+		// for (INode childNode : curNode.getChildren()) {
+		// Object childTLObj = childNode.getModelObject().getTLModelObj();
+		//
+		// if ((childNode instanceof FacetNode) && (childTLObj == currentNodeFacet)) {
+		// facetNode = (FacetNode) childNode;
+		// break;
+		// }
+		// }
+		// } else
+		// LOGGER.warn("get current node facet could not find the facet. curNode tl obj = "
+		// + curNode.getModelObject().getTLModelObj());
 		return facetNode;
 	}
 
+	//
 	@Override
 	public boolean notifyTypeSelected(Node selectedExtension) {
-		// Clear the state of the visual controls
-		disposeSelectionControls();
+		// // Clear the state of the visual controls
+		// disposeSelectionControls();
 		this.extensionProperties.clear();
-		this.propertyFacetOwners.clear();
-		this.inheritanceOptions.clear();
-		this.originalOptions.clear();
-		this.selectedOptions.clear();
-
-		// Construct the data structures required to populate the tables
-		if ((selectedExtension != null)
-		// && !(selectedExtension instanceof ExtensionPointNode)) {
-		// && !selectedExtension.getModelObject().isExtensionPointFacet()) {
-				&& !(selectedExtension.getModelObject() instanceof ExtensionPointFacetMO)) {
-			List<PropertyNode> propertyNodes = getExtensionProperties(selectedExtension);
-
-			for (PropertyNode propertyNode : propertyNodes) {
-				List<ComponentNode> inheritanceHierarchy = getInheritanceOptions(propertyNode);
-
-				if ((inheritanceHierarchy != null) && (inheritanceHierarchy.size() > 1)) {
-					ComponentNode selectedOption = getInitiallySelectedOption(propertyNode, inheritanceHierarchy);
-
-					extensionProperties.add(propertyNode);
-					propertyFacetOwners.put(propertyNode, getFacetOwner(propertyNode));
-					inheritanceOptions.put(propertyNode, inheritanceHierarchy);
-					originalOptions.put(propertyNode, selectedOption);
-					selectedOptions.put(propertyNode, selectedOption);
-				}
-			}
-			this.selectedExtensionNode = selectedExtension;
-			this.selectedExtensionTLObj = selectedExtension.getModelObject().getTLModelObj();
-		}
-
-		// Refresh the visual controls to reflect the new inheritance options
-		fieldTable.refresh();
-		if (!extensionProperties.isEmpty()) {
-			PropertyNode fieldTableSelection = (PropertyNode) fieldTable.getTable().getItem(0).getData();
-
-			fieldTable.getTable().setSelection(0);
-			fieldSelectionTable.setInput(fieldTableSelection);
-		}
-		instrumentSelectionTable();
-		fieldSelectionTable.refresh();
-		refreshTreeView();
-
+		// this.propertyFacetOwners.clear();
+		// this.inheritanceOptions.clear();
+		// this.originalOptions.clear();
+		// this.selectedOptions.clear();
+		//
+		// // Construct the data structures required to populate the tables
+		// if ((selectedExtension != null)
+		// // && !(selectedExtension instanceof ExtensionPointNode)) {
+		// // && !selectedExtension.getModelObject().isExtensionPointFacet()) {
+		// && !(selectedExtension.getModelObject() instanceof ExtensionPointFacetMO)) {
+		// List<PropertyNode> propertyNodes = getExtensionProperties(selectedExtension);
+		//
+		// for (PropertyNode propertyNode : propertyNodes) {
+		// List<ComponentNode> inheritanceHierarchy = getInheritanceOptions(propertyNode);
+		//
+		// if ((inheritanceHierarchy != null) && (inheritanceHierarchy.size() > 1)) {
+		// ComponentNode selectedOption = getInitiallySelectedOption(propertyNode, inheritanceHierarchy);
+		//
+		// extensionProperties.add(propertyNode);
+		// propertyFacetOwners.put(propertyNode, getFacetOwner(propertyNode));
+		// inheritanceOptions.put(propertyNode, inheritanceHierarchy);
+		// originalOptions.put(propertyNode, selectedOption);
+		// selectedOptions.put(propertyNode, selectedOption);
+		// }
+		// }
+		// this.selectedExtensionNode = selectedExtension;
+		// this.selectedExtensionTLObj = selectedExtension.getModelObject().getTLModelObj();
+		// }
+		//
+		// // Refresh the visual controls to reflect the new inheritance options
+		// fieldTable.refresh();
+		// if (!extensionProperties.isEmpty()) {
+		// PropertyNode fieldTableSelection = (PropertyNode) fieldTable.getTable().getItem(0).getData();
+		//
+		// fieldTable.getTable().setSelection(0);
+		// fieldSelectionTable.setInput(fieldTableSelection);
+		// }
+		// instrumentSelectionTable();
+		// fieldSelectionTable.refresh();
+		// refreshTreeView();
+		//
 		// Do not allow navigation to this page if there is nothing for the user to do
 		return !extensionProperties.isEmpty();
 	}
 
 	private List<PropertyNode> getExtensionProperties(Node extensionNode) {
-		List<PropertyNode> declaredProperties = new ArrayList<PropertyNode>();
-		List<PropertyNode> inheritedProperties = new ArrayList<PropertyNode>();
-		List<Object> inheritanceHierarchies = new ArrayList<Object>();
+		// List<PropertyNode> declaredProperties = new ArrayList<PropertyNode>();
+		// List<PropertyNode> inheritedProperties = new ArrayList<PropertyNode>();
+		// List<Object> inheritanceHierarchies = new ArrayList<Object>();
 		List<PropertyNode> extensionProperties = new ArrayList<PropertyNode>();
-
-		getPropertyNodes(curNode, false, declaredProperties);
-		getPropertyNodes(extensionNode, true, inheritedProperties);
-
-		for (PropertyNode node : declaredProperties) {
-			Object inheritanceHierarchy = getInheritanceHierarchy(node);
-
-			if (inheritanceHierarchy != null) {
-				extensionProperties.add(node);
-				inheritanceHierarchies.add(inheritanceHierarchy);
-			}
-		}
-		for (PropertyNode node : inheritedProperties) {
-			Object inheritanceHierarchy = getInheritanceHierarchy(node);
-
-			if ((inheritanceHierarchy != null) && !inheritanceHierarchies.contains(inheritanceHierarchy)) {
-				extensionProperties.add(node);
-				inheritanceHierarchies.add(inheritanceHierarchy);
-			}
-		}
+		//
+		// getPropertyNodes(curNode, false, declaredProperties);
+		// getPropertyNodes(extensionNode, true, inheritedProperties);
+		//
+		// for (PropertyNode node : declaredProperties) {
+		// Object inheritanceHierarchy = getInheritanceHierarchy(node);
+		//
+		// if (inheritanceHierarchy != null) {
+		// extensionProperties.add(node);
+		// inheritanceHierarchies.add(inheritanceHierarchy);
+		// }
+		// }
+		// for (PropertyNode node : inheritedProperties) {
+		// Object inheritanceHierarchy = getInheritanceHierarchy(node);
+		//
+		// if ((inheritanceHierarchy != null) && !inheritanceHierarchies.contains(inheritanceHierarchy)) {
+		// extensionProperties.add(node);
+		// inheritanceHierarchies.add(inheritanceHierarchy);
+		// }
+		// }
 		return extensionProperties;
 	}
 
 	private TLFacet getFacetOwner(PropertyNode propertyNode) {
-		Object tlProperty = propertyNode.getModelObject().getTLModelObj();
+		// Object tlProperty = propertyNode.getModelObject().getTLModelObj();
+		Object tlProperty = propertyNode.getTLModelObject();
 		TLFacet owningFacet = null;
 
 		if (tlProperty instanceof TLProperty) {
@@ -367,7 +346,8 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 	}
 
 	private Object getInheritanceHierarchy(PropertyNode node) {
-		Object propertyTLObj = node.getModelObject().getTLModelObj();
+		// Object propertyTLObj = node.getModelObject().getTLModelObj();
+		Object propertyTLObj = node.getTLModelObject();
 		Object hierarchy = null;
 
 		if (propertyTLObj instanceof TLProperty) {
@@ -383,118 +363,120 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 	private List<ComponentNode> getInheritanceOptions(PropertyNode propertyNode) {
 		List<ComponentNode> inheritanceOptions = null;
 
-		if (propertyNode.getPropertyType() == PropertyNodeType.ELEMENT) {
-			TLProperty tlProperty = (TLProperty) propertyNode.getModelObject().getTLModelObj();
-			List<NamedEntity> tlHierarchyOptions = inheritanceHierarchyInfo.get(tlProperty.getType());
-
-			if ((tlHierarchyOptions != null) && !tlHierarchyOptions.isEmpty()) {
-				inheritanceOptions = new ArrayList<ComponentNode>();
-
-				for (NamedEntity tlOption : tlHierarchyOptions) {
-					inheritanceOptions.add(NodeFactory.newChild(null, (TLModelElement) tlOption));
-					// inheritanceOptions.add(new ComponentNode((TLModelElement) tlOption));
-				}
-			}
-		}
+		// if (propertyNode.getPropertyType() == PropertyNodeType.ELEMENT) {
+		// TLProperty tlProperty = (TLProperty) propertyNode.getTLModelObject();
+		// // TLProperty tlProperty = (TLProperty) propertyNode.getModelObject().getTLModelObj();
+		// List<NamedEntity> tlHierarchyOptions = inheritanceHierarchyInfo.get(tlProperty.getType());
+		//
+		// if ((tlHierarchyOptions != null) && !tlHierarchyOptions.isEmpty()) {
+		// inheritanceOptions = new ArrayList<ComponentNode>();
+		//
+		// for (NamedEntity tlOption : tlHierarchyOptions) {
+		// inheritanceOptions.add(NodeFactory.newChild(null, (TLModelElement) tlOption));
+		// // inheritanceOptions.add(new ComponentNode((TLModelElement) tlOption));
+		// }
+		// }
+		// }
 		return inheritanceOptions;
 	}
 
 	private ComponentNode getInitiallySelectedOption(PropertyNode propertyNode, List<ComponentNode> inheritanceHierarchy) {
-		TLProperty tlProperty = (TLProperty) propertyNode.getModelObject().getTLModelObj();
-		NamedEntity propertyType = tlProperty.getType();
+		TLProperty tlProperty = (TLProperty) propertyNode.getTLModelObject();
+		// TLProperty tlProperty = (TLProperty) propertyNode.getModelObject().getTLModelObj();
+		// NamedEntity propertyType = tlProperty.getType();
 		ComponentNode selectedNode = null;
 
-		if (!inheritanceHierarchy.isEmpty()) {
-			for (ComponentNode hierarchyNode : inheritanceHierarchy) {
-				Object tlHierarchyMember = hierarchyNode.getModelObject().getTLModelObj();
-
-				if (tlHierarchyMember == propertyType) {
-					selectedNode = hierarchyNode;
-					break;
-				}
-			}
-		}
+		// if (!inheritanceHierarchy.isEmpty()) {
+		// for (ComponentNode hierarchyNode : inheritanceHierarchy) {
+		// Object tlHierarchyMember = hierarchyNode.getTLModelObject();
+		//
+		// if (tlHierarchyMember == propertyType) {
+		// selectedNode = hierarchyNode;
+		// break;
+		// }
+		// }
+		// }
 		return selectedNode;
 	}
 
 	@Override
 	public void createControl(final Composite parent) {
-		SashForm sashForm = new SashForm(parent, SWT.HORIZONTAL);
-		sashForm.setLayoutData(new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL));
-		Label lbl;
-
-		SashForm leftPanel = new SashForm(sashForm, SWT.VERTICAL);
-		Composite rightPanel = new Composite(sashForm, SWT.NONE);
-		rightPanel.setLayout(new FillLayout());
-
-		Composite leftTopPanel = new Composite(leftPanel, SWT.NONE);
-		Composite leftBottomPanel = new Composite(leftPanel, SWT.NONE);
-		leftTopPanel
-				.setLayoutData(new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL));
-		leftTopPanel.setLayout(new GridLayout(1, false));
-		leftBottomPanel.setLayoutData(new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL
-				| GridData.GRAB_VERTICAL));
-		leftBottomPanel.setLayout(new GridLayout(1, false));
-
-		lbl = new Label(leftTopPanel, SWT.LEFT);
-		lbl.setText("For each of the following properties...");
-		fieldTable = new TableViewer(leftTopPanel, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE);
-		Table fieldTbl = fieldTable.getTable();
-		fieldTbl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.FILL_VERTICAL));
-		fieldTbl.setHeaderVisible(false);
-		fieldTbl.setLinesVisible(false);
-		fieldTable.setContentProvider(new FieldTableContentProvider());
-		fieldTable.setLabelProvider(new FieldTableLabelProvider());
-		fieldTable.setSorter(new LibrarySorter());
-		fieldTable.addSelectionChangedListener(new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				handleFieldSelectionChanged();
-			}
-		});
-		fieldTable.setInput("DUMMY_INPUT");
-
-		new Label(leftBottomPanel, SWT.NONE); // blank space
-		lbl = new Label(leftBottomPanel, SWT.LEFT);
-		lbl.setText("...select a member of its inheritance hierarchy");
-		fieldSelectionTable = new TableViewer(leftBottomPanel, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE);
-		Table fieldSelectionTbl = fieldSelectionTable.getTable();
-		new TableColumn(fieldSelectionTbl, SWT.CENTER);
-		new TableColumn(fieldSelectionTbl, SWT.LEFT);
-		fieldSelectionTbl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.FILL_VERTICAL));
-		fieldSelectionTbl.setHeaderVisible(false);
-		fieldSelectionTbl.setLinesVisible(false);
-		fieldSelectionTable.setContentProvider(new FieldSelectionTableContentProvider());
-		fieldSelectionTable.setLabelProvider(new FieldSelectionTableLabelProvider());
-		fieldSelectionTable.setSorter(new LibrarySorter());
-
-		treeViewer = new TreeViewer(rightPanel);
-		treeViewer.getTree().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-
-		treeViewer.setContentProvider(new TreeViewContentProvider());
-		treeViewer.setLabelProvider(new LibraryTreeLabelProvider());
-		treeViewer.setSorter(new LibrarySorter());
-		treeViewer.setInput(TREE_INPUT);
-
-		setControl(sashForm); // Required to avoid an error in the system
-		setPageComplete(true);
+		// SashForm sashForm = new SashForm(parent, SWT.HORIZONTAL);
+		// sashForm.setLayoutData(new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL));
+		// Label lbl;
+		//
+		// SashForm leftPanel = new SashForm(sashForm, SWT.VERTICAL);
+		// Composite rightPanel = new Composite(sashForm, SWT.NONE);
+		// rightPanel.setLayout(new FillLayout());
+		//
+		// Composite leftTopPanel = new Composite(leftPanel, SWT.NONE);
+		// Composite leftBottomPanel = new Composite(leftPanel, SWT.NONE);
+		// leftTopPanel
+		// .setLayoutData(new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL));
+		// leftTopPanel.setLayout(new GridLayout(1, false));
+		// leftBottomPanel.setLayoutData(new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL
+		// | GridData.GRAB_VERTICAL));
+		// leftBottomPanel.setLayout(new GridLayout(1, false));
+		//
+		// lbl = new Label(leftTopPanel, SWT.LEFT);
+		// lbl.setText("For each of the following properties...");
+		// fieldTable = new TableViewer(leftTopPanel, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE);
+		// Table fieldTbl = fieldTable.getTable();
+		// fieldTbl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.FILL_VERTICAL));
+		// fieldTbl.setHeaderVisible(false);
+		// fieldTbl.setLinesVisible(false);
+		// fieldTable.setContentProvider(new FieldTableContentProvider());
+		// fieldTable.setLabelProvider(new FieldTableLabelProvider());
+		// fieldTable.setSorter(new LibrarySorter());
+		// fieldTable.addSelectionChangedListener(new ISelectionChangedListener() {
+		// @Override
+		// public void selectionChanged(SelectionChangedEvent event) {
+		// handleFieldSelectionChanged();
+		// }
+		// });
+		// fieldTable.setInput("DUMMY_INPUT");
+		//
+		// new Label(leftBottomPanel, SWT.NONE); // blank space
+		// lbl = new Label(leftBottomPanel, SWT.LEFT);
+		// lbl.setText("...select a member of its inheritance hierarchy");
+		// fieldSelectionTable = new TableViewer(leftBottomPanel, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE);
+		// Table fieldSelectionTbl = fieldSelectionTable.getTable();
+		// new TableColumn(fieldSelectionTbl, SWT.CENTER);
+		// new TableColumn(fieldSelectionTbl, SWT.LEFT);
+		// fieldSelectionTbl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.FILL_VERTICAL));
+		// fieldSelectionTbl.setHeaderVisible(false);
+		// fieldSelectionTbl.setLinesVisible(false);
+		// fieldSelectionTable.setContentProvider(new FieldSelectionTableContentProvider());
+		// fieldSelectionTable.setLabelProvider(new FieldSelectionTableLabelProvider());
+		// fieldSelectionTable.setSorter(new LibrarySorter());
+		//
+		// treeViewer = new TreeViewer(rightPanel);
+		// treeViewer.getTree().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		//
+		// treeViewer.setContentProvider(new TreeViewContentProvider());
+		// treeViewer.setLabelProvider(new LibraryTreeLabelProvider());
+		// treeViewer.setSorter(new LibrarySorter());
+		// treeViewer.setInput(TREE_INPUT);
+		//
+		// setControl(sashForm); // Required to avoid an error in the system
+		// setPageComplete(true);
 	}
 
 	private void handleFieldSelectionChanged() {
-		TableItem[] selectedItem = fieldTable.getTable().getSelection();
-		PropertyNode selectedProperty = (selectedItem.length == 0) ? null : (PropertyNode) selectedItem[0].getData();
-
-		disposeSelectionControls();
-		fieldSelectionTable.setInput(selectedProperty);
-		fieldSelectionTable.refresh();
-		instrumentSelectionTable();
+		// TableItem[] selectedItem = fieldTable.getTable().getSelection();
+		// PropertyNode selectedProperty = (selectedItem.length == 0) ? null : (PropertyNode) selectedItem[0].getData();
+		//
+		// disposeSelectionControls();
+		// fieldSelectionTable.setInput(selectedProperty);
+		// fieldSelectionTable.refresh();
+		// instrumentSelectionTable();
 	}
 
 	private void handleInheritanceOptionChanged(ComponentNode selectedNode) {
-		if (selectedNode != null) {
-			selectedOptions.put((PropertyNode) fieldSelectionTable.getInput(), selectedNode);
-			refreshTreeView();
-		}
+		// if (selectedNode != null) {
+		// selectedOptions.put((PropertyNode) fieldSelectionTable.getInput(), selectedNode);
+		// refreshTreeView();
+		// }
 	}
 
 	/**
@@ -503,18 +485,18 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 	 * user's current selections.
 	 */
 	private void initTreeNode() {
-		if (curNode != null) {
-			// ModelObject<?> modelObject = curNode.getModelObject();
-
-			if (curNode.getTLModelObject() instanceof TLModelElement) {
-				// 3/26/13 - may need to be changed to fix the 2nd extension wizard page.
-				// treeNode = new ComponentNode((TLModelElement) modelObject.getTLModelObj());
-				if (curNode.getTLModelObject() instanceof TLLibraryMember) {
-					treeNode = (ComponentNode) NodeFactory.newLibraryMember((TLLibraryMember) curNode.cloneTLObj());
-					createTreeNodeChildren(treeNode);
-				}
-			}
-		}
+		// if (curNode != null) {
+		// // ModelObject<?> modelObject = curNode.getModelObject();
+		//
+		// if (curNode.getTLModelObject() instanceof TLModelElement) {
+		// // 3/26/13 - may need to be changed to fix the 2nd extension wizard page.
+		// // treeNode = new ComponentNode((TLModelElement) modelObject.getTLModelObj());
+		// if (curNode.getTLModelObject() instanceof TLLibraryMember) {
+		// treeNode = (ComponentNode) NodeFactory.newLibraryMember((TLLibraryMember) curNode.cloneTLObj());
+		// createTreeNodeChildren(treeNode);
+		// }
+		// }
+		// }
 	}
 
 	/**
@@ -525,192 +507,200 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 	 *            the node whose children are to be populated
 	 */
 	private void createTreeNodeChildren(ComponentNode node) {
-		if (node.getTLModelObject() instanceof TLFacet) {
-			// Replace the default list of properties using information from the user's selections
-			TLFacet facet = (TLFacet) node.getTLModelObject();
-			TLFacet baseFacet = (selectedExtensionTLObj == null) ? null : FacetCodegenUtils.getFacetOfType(
-					(TLFacetOwner) selectedExtensionTLObj, facet.getFacetType(), facet.getContext(), facet.getLabel());
-
-			node.getChildren().clear();
-			node.getInheritedChildren().clear();
-
-			// Start by adding the declared and inherited attributes &
-			// indicators (no special inheritance rules)
-			for (TLAttribute attribute : facet.getAttributes()) {
-				NodeFactory.newChild(node, attribute);
-			}
-			for (TLIndicator indicator : facet.getIndicators()) {
-				NodeFactory.newChild(node, indicator);
-			}
-			if (baseFacet != null) {
-				for (TLAttribute attribute : PropertyCodegenUtils.getInheritedFacetAttributes(baseFacet)) {
-					NodeFactory.newChild(node, attribute);
-				}
-				for (TLIndicator indicator : PropertyCodegenUtils.getInheritedFacetIndicators(baseFacet)) {
-					NodeFactory.newChild(node, indicator);
-				}
-			}
-
-			// Add declared and inherited properties, accounting for inheritance
-			// rules based on the
-			// user's
-			// selections.
-			Set<Object> inheritanceHierarchies = new HashSet<Object>();
-
-			for (TLProperty property : facet.getElements()) {
-				TLPropertyType propertyType = property.getType();
-				Object inheritanceHierarchy = inheritanceHierarchyInfo.get(propertyType);
-
-				if (inheritanceHierarchy != null) {
-					TLPropertyType userSelection = getUserSelectedPropertyType(property);
-
-					// Only use the declared property if it matches the current
-					// user selection
-					if (userSelection != null) {
-						if (userSelection == propertyType) {
-							node.linkChild(NodeFactory.newChild(node, property));
-						} else {
-							newTreePropertyNode(userSelection, node);
-						}
-						inheritanceHierarchies.add(inheritanceHierarchy);
-					} else {
-						node.linkChild(NodeFactory.newChild(node, property));
-					}
-				} else {
-					node.linkChild(NodeFactory.newChild(node, property));
-				}
-			}
-			if (baseFacet != null) {
-				for (TLProperty property : PropertyCodegenUtils.getInheritedFacetProperties(baseFacet)) {
-					TLPropertyType propertyType = property.getType();
-					Object inheritanceHierarchy = inheritanceHierarchyInfo.get(propertyType);
-
-					if ((inheritanceHierarchy == null) || !inheritanceHierarchies.contains(inheritanceHierarchy)) {
-						if (inheritanceHierarchy != null) {
-							TLPropertyType userSelection = getUserSelectedPropertyType(property);
-
-							if (userSelection != null) {
-								newTreePropertyNode(userSelection, node);
-							} else {
-								node.linkChild(NodeFactory.newChild(node, property));
-							}
-							inheritanceHierarchies.add(inheritanceHierarchy);
-						} else {
-							node.linkChild(NodeFactory.newChild(node, property));
-						}
-					}
-				}
-			}
-		} else {
-			// All non-TLFacet children constructed using the model object
-			// children
-			ModelObject<?> modelObject = node.getModelObject();
-
-			if (modelObject.getChildren() != null) {
-				for (Object childTLObj : modelObject.getChildren()) {
-					ComponentNode childNode = NodeFactory.newChild(node, (TLModelElement) childTLObj);
-
-					node.linkChild(childNode);
-					createTreeNodeChildren(childNode);
-				}
-			}
-		}
+		// if (node.getTLModelObject() instanceof TLFacet) {
+		// // Replace the default list of properties using information from the user's selections
+		// TLFacet facet = (TLFacet) node.getTLModelObject();
+		// TLFacet baseFacet = (selectedExtensionTLObj == null) ? null : FacetCodegenUtils.getFacetOfType(
+		// (TLFacetOwner) selectedExtensionTLObj, facet.getFacetType(), facet.getContext(), facet.getLabel());
+		//
+		// node.getChildren().clear();
+		// node.getInheritedChildren().clear();
+		//
+		// // Start by adding the declared and inherited attributes &
+		// // indicators (no special inheritance rules)
+		// for (TLAttribute attribute : facet.getAttributes()) {
+		// NodeFactory.newChild(node, attribute);
+		// }
+		// for (TLIndicator indicator : facet.getIndicators()) {
+		// NodeFactory.newChild(node, indicator);
+		// }
+		// if (baseFacet != null) {
+		// for (TLAttribute attribute : PropertyCodegenUtils.getInheritedFacetAttributes(baseFacet)) {
+		// NodeFactory.newChild(node, attribute);
+		// }
+		// for (TLIndicator indicator : PropertyCodegenUtils.getInheritedFacetIndicators(baseFacet)) {
+		// NodeFactory.newChild(node, indicator);
+		// }
+		// }
+		//
+		// // Add declared and inherited properties, accounting for inheritance
+		// // rules based on the
+		// // user's
+		// // selections.
+		// Set<Object> inheritanceHierarchies = new HashSet<Object>();
+		//
+		// for (TLProperty property : facet.getElements()) {
+		// TLPropertyType propertyType = property.getType();
+		// Object inheritanceHierarchy = inheritanceHierarchyInfo.get(propertyType);
+		//
+		// if (inheritanceHierarchy != null) {
+		// TLPropertyType userSelection = getUserSelectedPropertyType(property);
+		//
+		// // Only use the declared property if it matches the current
+		// // user selection
+		// if (userSelection != null) {
+		// if (userSelection == propertyType) {
+		// node.linkChild(NodeFactory.newChild(node, property));
+		// } else {
+		// newTreePropertyNode(userSelection, node);
+		// }
+		// inheritanceHierarchies.add(inheritanceHierarchy);
+		// } else {
+		// node.linkChild(NodeFactory.newChild(node, property));
+		// }
+		// } else {
+		// node.linkChild(NodeFactory.newChild(node, property));
+		// }
+		// }
+		// if (baseFacet != null) {
+		// for (TLProperty property : PropertyCodegenUtils.getInheritedFacetProperties(baseFacet)) {
+		// TLPropertyType propertyType = property.getType();
+		// Object inheritanceHierarchy = inheritanceHierarchyInfo.get(propertyType);
+		//
+		// if ((inheritanceHierarchy == null) || !inheritanceHierarchies.contains(inheritanceHierarchy)) {
+		// if (inheritanceHierarchy != null) {
+		// TLPropertyType userSelection = getUserSelectedPropertyType(property);
+		//
+		// if (userSelection != null) {
+		// newTreePropertyNode(userSelection, node);
+		// } else {
+		// node.linkChild(NodeFactory.newChild(node, property));
+		// }
+		// inheritanceHierarchies.add(inheritanceHierarchy);
+		// } else {
+		// node.linkChild(NodeFactory.newChild(node, property));
+		// }
+		// }
+		// }
+		// }
+		// } else {
+		// if (node.getChildren() != null) {
+		// for (Object childTLObj : node.getChildrenHandler().getChildren_TL()) {
+		// ComponentNode childNode = NodeFactory.newChild(node, (TLModelElement) childTLObj);
+		//
+		// // node.linkChild(childNode);
+		// createTreeNodeChildren(childNode);
+		// }
+		// }
+		// // All non-TLFacet children constructed using the model object
+		// // children
+		// // ModelObject<?> modelObject = node.getModelObject();
+		// //
+		// // if (modelObject.getChildren() != null) {
+		// // for (Object childTLObj : modelObject.getChildren()) {
+		// // ComponentNode childNode = NodeFactory.newChild(node, (TLModelElement) childTLObj);
+		// //
+		// // node.linkChild(childNode);
+		// // createTreeNodeChildren(childNode);
+		// // }
+		// // }
+		// }
 	}
 
 	private TLPropertyType getUserSelectedPropertyType(TLProperty property) {
 		TLPropertyType propertyType = null;
 
-		for (PropertyNode propertyNode : selectedOptions.keySet()) {
-			if (propertyNode.getModelObject().getTLModelObj() == property) {
-				ComponentNode typeNode = selectedOptions.get(propertyNode);
-
-				if (typeNode != null) {
-					Object tlType = typeNode.getModelObject().getTLModelObj();
-
-					if (tlType instanceof TLPropertyType) {
-						propertyType = (TLPropertyType) tlType;
-						break;
-					}
-				}
-			}
-		}
+		// for (PropertyNode propertyNode : selectedOptions.keySet()) {
+		// if (propertyNode.getTLModelObject() == property) {
+		// ComponentNode typeNode = selectedOptions.get(propertyNode);
+		//
+		// if (typeNode != null) {
+		// Object tlType = typeNode.getTLModelObject();
+		//
+		// if (tlType instanceof TLPropertyType) {
+		// propertyType = (TLPropertyType) tlType;
+		// break;
+		// }
+		// }
+		// }
+		// }
 		return propertyType;
 	}
 
 	private PropertyNode newTreePropertyNode(TLPropertyType propertyType, ComponentNode parentNode) {
-		TLProperty tlProperty = new TLProperty();
-		PropertyNode propertyNode;
-		ComponentNode propertyTypeNode;
-
-		tlProperty.setName(propertyType.getLocalName());
-		tlProperty.setType(propertyType);
-		propertyNode = (PropertyNode) NodeFactory.newChild(parentNode, tlProperty);
-		propertyTypeNode = NodeFactory.newChild(parentNode, (TLModelElement) propertyType);
-		// parentNode.linkChild(propertyNode, false);
-		propertyNode.linkChild(propertyTypeNode);
+		// TLProperty tlProperty = new TLProperty();
+		PropertyNode propertyNode = null;
+		// ComponentNode propertyTypeNode;
+		//
+		// tlProperty.setName(propertyType.getLocalName());
+		// tlProperty.setType(propertyType);
+		// propertyNode = (PropertyNode) NodeFactory.newChild(parentNode, tlProperty);
+		// propertyTypeNode = NodeFactory.newChild(parentNode, (TLModelElement) propertyType);
+		// // parentNode.linkChild(propertyNode, false);
+		// propertyNode.linkChild(propertyTypeNode);
 		return propertyNode;
 	}
 
 	private void refreshTreeView() {
-		treeNode = null;
-		treeViewer.refresh();
-		treeViewer.expandToLevel(3);
+		// treeNode = null;
+		// treeViewer.refresh();
+		// treeViewer.expandToLevel(3);
 	}
 
 	private void instrumentSelectionTable() {
 		synchronized (fieldSelectionButtons) {
-			if (!fieldSelectionButtons.isEmpty()) {
-				throw new IllegalStateException("Field selection radio buttons already initialized.");
-			}
-			INode selectedNode = selectedOptions.get(fieldSelectionTable.getInput());
-			Table selectionTable = fieldSelectionTable.getTable();
-
-			for (TableItem item : selectionTable.getItems()) {
-				TableEditor editor = new TableEditor(selectionTable);
-				Button radioButton = new Button(selectionTable, SWT.RADIO);
-
-				radioButton.setSelection((item.getData() == selectedNode));
-				radioButton.addSelectionListener(new SelectionListener() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						if (((Button) e.widget).getSelection()) {
-							handleInheritanceOptionChanged((ComponentNode) e.widget.getData());
-						}
-					}
-
-					@Override
-					public void widgetDefaultSelected(SelectionEvent e) {
-					}
-				});
-				radioButton.setData(item.getData());
-				radioButton.pack();
-
-				editor.minimumWidth = radioButton.getSize().x;
-				editor.minimumHeight = radioButton.getSize().y;
-				editor.horizontalAlignment = SWT.CENTER;
-				editor.setEditor(radioButton, item, 0);
-				fieldSelectionButtons.add(editor);
-			}
-			for (TableColumn column : selectionTable.getColumns()) {
-				column.pack();
-			}
+			// if (!fieldSelectionButtons.isEmpty()) {
+			// throw new IllegalStateException("Field selection radio buttons already initialized.");
+			// }
+			// INode selectedNode = selectedOptions.get(fieldSelectionTable.getInput());
+			// Table selectionTable = fieldSelectionTable.getTable();
+			//
+			// for (TableItem item : selectionTable.getItems()) {
+			// TableEditor editor = new TableEditor(selectionTable);
+			// Button radioButton = new Button(selectionTable, SWT.RADIO);
+			//
+			// radioButton.setSelection((item.getData() == selectedNode));
+			// radioButton.addSelectionListener(new SelectionListener() {
+			// @Override
+			// public void widgetSelected(SelectionEvent e) {
+			// if (((Button) e.widget).getSelection()) {
+			// handleInheritanceOptionChanged((ComponentNode) e.widget.getData());
+			// }
+			// }
+			//
+			// @Override
+			// public void widgetDefaultSelected(SelectionEvent e) {
+			// }
+			// });
+			// radioButton.setData(item.getData());
+			// radioButton.pack();
+			//
+			// editor.minimumWidth = radioButton.getSize().x;
+			// editor.minimumHeight = radioButton.getSize().y;
+			// editor.horizontalAlignment = SWT.CENTER;
+			// editor.setEditor(radioButton, item, 0);
+			// fieldSelectionButtons.add(editor);
+			// }
+			// for (TableColumn column : selectionTable.getColumns()) {
+			// column.pack();
+			// }
 		}
 	}
 
 	private void disposeSelectionControls() {
 		synchronized (fieldSelectionButtons) {
-			for (TableEditor editor : fieldSelectionButtons) {
-				editor.getEditor().dispose();
-				editor.dispose();
-			}
-			fieldSelectionButtons.clear();
+			// for (TableEditor editor : fieldSelectionButtons) {
+			// editor.getEditor().dispose();
+			// editor.dispose();
+			// }
+			// fieldSelectionButtons.clear();
 		}
 	}
 
 	@Override
 	public void dispose() {
-		disposeSelectionControls();
-		super.dispose();
+		// disposeSelectionControls();
+		// super.dispose();
 	}
 
 	/** Provides the conent for the field table. */

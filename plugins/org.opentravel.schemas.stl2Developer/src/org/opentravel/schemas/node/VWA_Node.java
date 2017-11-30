@@ -151,13 +151,18 @@ public class VWA_Node extends LibraryMemberBase implements ComplexComponentInter
 	}
 
 	@Override
+	public ValueWithAttributesChildrenHandler getChildrenHandler() {
+		return (ValueWithAttributesChildrenHandler) childrenHandler;
+	}
+
+	@Override
 	public ComponentNodeType getComponentNodeType() {
 		return ComponentNodeType.VWA;
 	}
 
 	@Override
 	public PropertyOwnerNode getFacet_Default() {
-		return (PropertyOwnerNode) getFacet_Attributes();
+		return getFacet_Attributes();
 	}
 
 	@Override
@@ -188,13 +193,14 @@ public class VWA_Node extends LibraryMemberBase implements ComplexComponentInter
 	/**
 	 * Set the type assigned to the simple attribute in the simple facet.
 	 */
+	@Override
 	public boolean setAssignedType(TypeProvider provider) {
 		return getSimpleAttribute().setAssignedType(provider);
 	}
 
 	@Override
 	public SimpleAttributeFacadeNode getSimpleAttribute() {
-		return ((SimpleFacetFacadeNode) getFacet_Simple()).getSimpleAttribute();
+		return getFacet_Simple().getSimpleAttribute();
 	}
 
 	@Override
@@ -233,7 +239,6 @@ public class VWA_Node extends LibraryMemberBase implements ComplexComponentInter
 	}
 
 	// TL ValueWithAttributes is direct owner of example and equivalents, not the value facet
-	@Override
 	public String getEquivalent(final String context) {
 		return getSimpleAttribute().getEquivalent(context);
 	}
@@ -254,7 +259,6 @@ public class VWA_Node extends LibraryMemberBase implements ComplexComponentInter
 		return getSimpleAttribute().getExampleHandler();
 	}
 
-	@Override
 	public String getExample(final String context) {
 		return getSimpleAttribute().getExample(context);
 	}

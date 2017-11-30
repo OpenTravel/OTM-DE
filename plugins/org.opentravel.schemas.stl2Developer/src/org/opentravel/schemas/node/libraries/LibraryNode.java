@@ -35,10 +35,12 @@ import org.opentravel.schemacompiler.model.BuiltInLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLContextReferrer;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLExtensionOwner;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.XSDLibrary;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RemoteRepository;
@@ -49,7 +51,6 @@ import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.util.URLUtils;
 import org.opentravel.schemas.controllers.ContextController;
 import org.opentravel.schemas.controllers.LibraryModelManager;
-import org.opentravel.schemas.modelObject.LibraryMO;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.CoreObjectNode;
@@ -72,6 +73,7 @@ import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
@@ -93,10 +95,6 @@ import org.slf4j.LoggerFactory;
  * The LibraryNode class manages an internal navigation oriented node a library model class. Libraries are model classes
  * that contain named members representing global types and elements from either schemas (XSD), built-in-types or OTA2
  * model components.
- * <p>
- * QUESTION - why host the TL abstract library directly instead of through MO? MO are supposed to be a isolation layer
- * (shearing layer) between the schema driven TLModel and the GUI driven node model. TODO - choose one or the other, not
- * both {@link LibraryMO} is basically useless.
  */
 
 public class LibraryNode extends Node implements LibraryInterface {
@@ -452,8 +450,8 @@ public class LibraryNode extends Node implements LibraryInterface {
 		if (!importNodeCheck(source))
 			return null;
 
-		LibraryNode oldLib = source.getLibrary();
-
+		// LibraryNode oldLib = source.getLibrary();
+		// New contextual facets are also created
 		// Don't use ContextUtils because may create new contexts in the target library
 		LibraryMemberInterface newNode = NodeFactory.newLibraryMember((LibraryMember) source.cloneTLObj());
 		if (newNode == null) {
@@ -472,13 +470,10 @@ public class LibraryNode extends Node implements LibraryInterface {
 		if (newNode instanceof ContextualFacetOwnerInterface) {
 			// Move the new facets
 			for (ContextualFacetNode cf : ((ContextualFacetOwnerInterface) newNode).getContextualFacets()) {
-				// LOGGER.debug("Moving " + cf + " from library " + cf.getLibrary() + " to " + this);
-				// remove from current library
-				if (cf.getLibrary() != null)
-					cf.getLibrary().removeMember(cf);
-				// add to this library
-				addMember(cf);
-				assert this.contains(cf);
+				LOGGER.debug("Moving " + cf + " from library " + cf.getLibrary() + " to " + this);
+				addMember(cf); // don't leave the facets behind in the source lib
+				assert cf.getTLModelObject() != null;
+				assert Node.GetNode(cf.getTLModelObject()) == cf;
 			}
 			// If it is a contextual facet, set its where contributed.
 			ContextualFacetOwnerInterface owner = null;
@@ -1025,70 +1020,40 @@ public class LibraryNode extends Node implements LibraryInterface {
 		// If it doesn't have a children handler yet, it is doing the handler constructor.
 		// The constructor will add the member.
 		if (getChildrenHandler() == null) {
-			LOGGER.debug("HERE");
+			LOGGER.debug("Missing library children handler.");
 			return;
 		}
 		assert getChildrenHandler() != null;
+		assert lm.getTLModelObject() != null;
 		assert lm.getTLModelObject() instanceof LibraryMember;
 
-		if (!isEditable()) {
-			// LOGGER.warn("Tried to addMember() " + n + " to non-editable library " + this);
+		if (!isEditable() && !(lm instanceof InheritedInterface)) {
+			LOGGER.warn("Tried to addMember() " + lm + " to non-editable library " + this);
 			return;
 		}
-		if (lm.getLibrary() != null && lm.getLibrary() != this)
-			lm.getLibrary().removeMember((Node) lm);
 
-		lm.setLibrary(this);
+		// Remove from Old library if any
+		LibraryNode oldLib = lm.getLibrary();
+		if (oldLib != null && oldLib != this) {
+			oldLib.removeMember((Node) lm);
+			assert !oldLib.contains((Node) lm);
+		}
+
 		if (this.contains((Node) lm))
 			return; // early exit - already a member
 
-		getTLLibrary().addNamedMember((LibraryMember) lm.getTLModelObject());
+		if (!(lm instanceof InheritedInterface))
+			getTLLibrary().addNamedMember((LibraryMember) lm.getTLModelObject());
 
 		getChildrenHandler().add(lm);
 
-		// This code is only needed because of defect in XSD importer.
-		// Contextual facets may be in their parent but are not used by xsd importer.
-		// if (!(lm instanceof ContextualFacetNode))
-		// if (lm.getParent() != null && lm.getParent().getChildren().contains(lm)) {
-		// // LOGGER.warn(n + " is already a child of its parent.");
-		// // 10/3/2017 - this was causing change wizard to exit early
-		// if (lm.getParent().getLibrary() == this)
-		// return;
-		// } else if ((lm instanceof SimpleComponentInterface) && getSimpleRoot().getChildren().contains(lm)) {
-		// // LOGGER.warn(n + " is already a child of its parent.");
-		// return;
-		// } else if ((lm instanceof ComplexComponentInterface) && getComplexRoot().getChildren().contains(lm)) {
-		// // LOGGER.warn(n + " is already a child of its parent.");
-		// return;
-		// }
+		assert this.contains((Node) lm);
 
-		// // If it is in a different library, remove it from that one.
-		// // FIXME - dead code - if in a library then will fail the parent test above
-		// if (lm.getLibrary() != null && lm.getLibrary() != this)
-		// lm.removeFromLibrary();
-
-		// TL Library - Make sure the node's tl object is in the right tl library.
-		// LibraryMember tln = (LibraryMember) lm.getTLModelObject(); // cast checked above
-		// if (tln.getOwningLibrary() == null)
-		// getTLLibrary().addNamedMember(tln);
-		// else if (tln.getOwningLibrary() != getTLLibrary()) {
-		// // LOGGER.debug("Moving " + n + " from " + tln.getOwningLibrary().getPrefix() + ":"
-		// // + tln.getOwningLibrary().getName() + " to " + getTLLibrary().getPrefix());
-		// tln.getOwningLibrary().removeNamedMember(tln);
-		// getTLLibrary().addNamedMember(tln);
-		// }
-
-		// LibraryNodeListener will link node or its version node
-		// Add to this library child handler
-		// assert getChildrenHandler() != null;
-		// getChildrenHandler().add(n);
-		// lm.setLibrary(this);
-
-		// if (linkMember((Node) lm)) {
-		// // If this library is in a chain, add the member to the chain's aggregates.
-		// if (isInChain())
-		// getChain().add((ComponentNode) lm);
-		// }
+		// If the TL object has contextual facets, make sure they are modeled and add to this library if not
+		if (lm.getChildrenHandler() != null)
+			for (TLModelElement tlcf : lm.getChildrenHandler().getChildren_TL())
+				if (tlcf instanceof TLContextualFacet && Node.GetNode(tlcf) == null)
+					addMember(NodeFactory.newLibraryMember((LibraryMember) tlcf));
 	}
 
 	public boolean isInChain() {
@@ -1129,12 +1094,10 @@ public class LibraryNode extends Node implements LibraryInterface {
 	@Override
 	public void close() {
 		LOGGER.debug("Closing " + getNameWithPrefix());
-		// if (getChain() != null)
-		// getChain().close();
-		// else if (getParent() instanceof LibraryNavNode)
-		// // This library is in a project, use the nav node to remove from project
-		// ((LibraryNavNode) getParent()).close();
-		// else {
+
+		if (getProjectItem() != null)
+			ListenerFactory.clearListners(getProjectItem().getContent());
+
 		for (Node n : getChildren_New())
 			n.close();
 		setParent(null); // redundent
@@ -1286,7 +1249,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 	 * 
 	 */
 	public void removeMember(final Node n) {
-		if (!(n.getTLModelObject() instanceof TLLibraryMember))
+		if (!(n.getTLModelObject() instanceof LibraryMember))
 			return;
 		if (isBuiltIn())
 			return;
@@ -1298,7 +1261,7 @@ public class LibraryNode extends Node implements LibraryInterface {
 					cf.delete();
 
 		if (getChildrenHandler() != null) {
-			n.getLibrary().getTLModelObject().removeNamedMember((TLLibraryMember) n.getTLModelObject());
+			n.getLibrary().getTLModelObject().removeNamedMember((LibraryMember) n.getTLModelObject());
 			// getChildrenHandler().remove(n); // done in listener
 		} else {
 			assert false;

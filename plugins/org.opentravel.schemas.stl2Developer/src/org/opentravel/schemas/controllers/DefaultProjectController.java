@@ -420,6 +420,7 @@ public class DefaultProjectController implements ProjectController {
 		// Get the ui thread to create the progress monitor and run the open projects in background.
 		if (memento != null) {
 			Display.getDefault().asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					// Start the non-ui thread Job to do initial load of projects in background
 					Job job = new Job("Opening Saved Projects") {
@@ -503,6 +504,7 @@ public class DefaultProjectController implements ProjectController {
 	 *            project file to open
 	 * @return new OpenedProject containing the opened TL Project and error and success messages and findings.
 	 */
+	@Override
 	public OpenedProject openTLProject(String fileName) {
 		// LOGGER.debug("Opening Project. Filename = " + fileName);
 		String resultMsg = "";
@@ -568,6 +570,7 @@ public class DefaultProjectController implements ProjectController {
 	 * Convenience function for {@link #open(ArrayList, IProgressMonitor)}. Opens project using the file name. Update
 	 * UI. Then loadProject()
 	 */
+	@Override
 	public OpenedProject open(String fileName, IProgressMonitor monitor) {
 		ArrayList<String> fileNames = new ArrayList<>();
 		fileNames.add(fileName);
@@ -603,6 +606,7 @@ public class DefaultProjectController implements ProjectController {
 				if (op.project == null)
 					DialogUserNotifier.syncErrorWithUi(op.resultMsg);
 				Display.getDefault().asyncExec(new Runnable() {
+					@Override
 					public void run() {
 						mc.refresh(); // update the user interface asynchronously
 					}
@@ -841,6 +845,9 @@ public class DefaultProjectController implements ProjectController {
 	@Override
 	public void save(ProjectNode pn) {
 		if (pn == null)
+			return;
+		// Prevent compiler NPE - assure project has project file
+		if (pn.getTLProject() == null || pn.getTLProject().getProjectFile() == null)
 			return;
 
 		mc.showBusy(true);

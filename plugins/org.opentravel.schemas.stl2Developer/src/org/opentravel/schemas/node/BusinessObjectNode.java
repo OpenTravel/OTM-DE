@@ -28,8 +28,6 @@ import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.modelObject.BusinessObjMO;
-import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.controllers.NodeUtils;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
@@ -127,7 +125,7 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 
 	@Override
 	public boolean hasChildren_TypeProviders() {
-		return isXsdType() ? false : true;
+		return true;
 	}
 
 	@Override
@@ -366,14 +364,16 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 		return super.createMinorVersionComponent(new BusinessObjectNode((TLBusinessObject) createMinorTLVersion(this)));
 	}
 
-	@Override
-	@Deprecated
-	public BusinessObjMO getModelObject() {
-		ModelObject<?> obj = super.getModelObject();
-		return (BusinessObjMO) (obj instanceof BusinessObjMO ? obj : null);
-	}
+	// @Override
+	// @Deprecated
+	// public BusinessObjMO getModelObject() {
+	// ModelObject<?> obj = super.getModelObject();
+	// return (BusinessObjMO) (obj instanceof BusinessObjMO ? obj : null);
+	// }
 
-	// Custom Facets
+	/**
+	 * @return Custom Facets without inherited
+	 */
 	public List<CustomFacetNode> getCustomFacets() {
 		return getCustomFacets(false);
 	}
@@ -386,13 +386,18 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 	public List<CustomFacetNode> getCustomFacets(boolean includeInherited) {
 		ArrayList<CustomFacetNode> ret = new ArrayList<CustomFacetNode>();
 		for (INode f : getChildren()) {
+			if (f instanceof ContributedFacetNode)
+				f = ((ContributedFacetNode) f).getContributor();
 			if (f instanceof CustomFacetNode)
 				ret.add((CustomFacetNode) f);
 		}
 		if (includeInherited)
-			for (INode f : getInheritedChildren())
+			for (INode f : getInheritedChildren()) {
+				if (f instanceof ContributedFacetNode)
+					f = ((ContributedFacetNode) f).getContributor();
 				if (f instanceof CustomFacetNode)
 					ret.add((CustomFacetNode) f);
+			}
 		return ret;
 	}
 
@@ -504,10 +509,10 @@ public class BusinessObjectNode extends LibraryMemberBase implements ComplexComp
 		return false;
 	}
 
-	@Override
-	public boolean isAliasable() {
-		return isEditable_newToChain();
-	}
+	// // @Override
+	// public boolean isAliasable() {
+	// return isEditable_newToChain();
+	// }
 
 	@Override
 	public boolean isAssignableToElementRef() {

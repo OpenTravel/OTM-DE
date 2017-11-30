@@ -64,6 +64,10 @@ public class EnumLiteralNode extends PropertyNode {
 		super(tlObj, null);
 	}
 
+	public EnumLiteralNode() {
+		super();
+	}
+
 	@Override
 	public void addToTL(final PropertyOwnerInterface owner, final int index) {
 		if (owner.getTLModelObject() instanceof TLAbstractEnumeration)

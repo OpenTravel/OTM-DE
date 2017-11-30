@@ -33,6 +33,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -124,6 +125,8 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 	private static ImageDescriptor warningDesc = Images.getImageRegistry().getDescriptor(Images.WarningDecoration);
 
 	private void addOverlay(Node node, IDecoration decoration) {
+		if (node instanceof InheritedInterface)
+			return;
 		ValidationFindings findings = ValidationManager.validate(node);
 		if (findings != null)
 			if (!ValidationManager.isValid(findings, FindingType.ERROR))

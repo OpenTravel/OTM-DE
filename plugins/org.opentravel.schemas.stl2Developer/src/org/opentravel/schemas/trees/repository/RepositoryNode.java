@@ -117,11 +117,6 @@ public abstract class RepositoryNode extends Node implements Comparable<Reposito
 		return kids;
 	}
 
-	@Override
-	public void setKidsLibrary() {
-		// do nothing
-	}
-
 	/**
 	 * @return list of latest repository versions for passed namespace
 	 */

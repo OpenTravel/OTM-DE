@@ -32,6 +32,9 @@ public class ChoiceObjectChildrenHandler extends CachingChildrenHandler<Node, Ch
 
 	public ChoiceObjectChildrenHandler(final ChoiceObjectNode obj) {
 		super(obj);
+
+		// Must initialize inherited children because they can add to the library.
+		// creates NPE initInherited();
 	}
 
 	@Override
@@ -60,8 +63,8 @@ public class ChoiceObjectChildrenHandler extends CachingChildrenHandler<Node, Ch
 		List<TLModelElement> facets = new ArrayList<TLModelElement>();
 		for (TLContextualFacet cf : getInheritedChildren_TL_CFs()) {
 			facets.add(cf);
-			if (cf.getOwningEntity() != trueOwner)
-				cf.setOwningEntity(trueOwner);
+			// if (cf.getOwningEntity() != trueOwner)
+			// cf.setOwningEntity(trueOwner);
 		}
 		return facets;
 	}

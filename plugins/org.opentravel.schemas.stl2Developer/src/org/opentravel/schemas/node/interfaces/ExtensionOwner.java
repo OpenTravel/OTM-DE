@@ -15,8 +15,9 @@
  */
 package org.opentravel.schemas.node.interfaces;
 
+import java.util.List;
+
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.types.ExtensionHandler;
@@ -57,10 +58,10 @@ public interface ExtensionOwner {
 
 	public LibraryNode getLibrary();
 
-	/**
-	 * @return the ModelObject to use for assignment and tests
-	 */
-	public ModelObject<?> getModelObject();
+	// /**
+	// * @return the ModelObject to use for assignment and tests
+	// */
+	// public ModelObject<?> getModelObject();
 
 	public String getNameWithPrefix();
 
@@ -84,4 +85,5 @@ public interface ExtensionOwner {
 
 	public LibraryMemberInterface getOwningComponent();
 
+	public List<Node> getInheritedChildren();
 }

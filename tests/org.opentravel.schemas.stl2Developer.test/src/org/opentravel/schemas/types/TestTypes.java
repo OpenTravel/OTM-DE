@@ -193,6 +193,7 @@ public class TestTypes extends BaseProjectTest {
 
 		// FIXME - when run alone the count is 0. But when tracing there seemed be elements assigned.
 		// When run as a group, the count is 9 and test fails
+		// Check close - do all listeners get removed?
 		if (aTypeCount > 1)
 			LOGGER.debug("FIXME: " + aType.getWhereUsedAndDescendantsCount());
 
@@ -612,7 +613,7 @@ public class TestTypes extends BaseProjectTest {
 			if (property instanceof TypeUser && ((TypeUser) property).getRequiredType() == null) {
 
 				// Assure set worked (returned true)
-				Assert.assertTrue(((TypeUser) property).setAssignedType((TypeProvider) typeToAssign));
+				Assert.assertTrue(((TypeUser) property).setAssignedType(typeToAssign));
 
 				// Then assure type node and tl elements are set, where used set and counts adjusted.
 				Assert.assertEquals(typeToAssign, ((TypeUser) property).getAssignedType());
@@ -669,6 +670,8 @@ public class TestTypes extends BaseProjectTest {
 		String xml = "";
 		int errorCount = 0;
 		if (n == null)
+			return;
+		if (n.isDeleted())
 			return;
 
 		if (n.getParent() == null)

@@ -39,8 +39,6 @@ public class RoleFacetNode extends PropertyOwnerNode {
 		super(tlObj);
 
 		childrenHandler = new RoleEnumerationChildrenHandler(this);
-
-		// assert (modelObject instanceof RoleEnumerationMO);
 	}
 
 	/**

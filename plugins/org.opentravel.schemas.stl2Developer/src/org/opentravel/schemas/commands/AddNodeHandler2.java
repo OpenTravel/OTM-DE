@@ -157,7 +157,8 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 		// make summary facet properties default to mandatory unless in minor version
 		FacetNode owningFacet = (FacetNode) newNode.getParent();
 		if (owningFacet.isSummaryFacet() && !newNode.getLibrary().isMinorVersion())
-			newNode.setMandatory(true);
+			if (newNode instanceof PropertyNode)
+				((PropertyNode) newNode).setMandatory(true);
 
 		mc.refresh(newNode);
 		OtmRegistry.getNavigatorView().refresh();

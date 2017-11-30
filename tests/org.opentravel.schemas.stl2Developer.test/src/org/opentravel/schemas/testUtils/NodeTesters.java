@@ -28,8 +28,6 @@ import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
-import org.opentravel.schemas.modelObject.TLEmpty;
-import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ModelNode;
@@ -225,8 +223,7 @@ public class NodeTesters {
 				return;
 			if (n instanceof ImpliedNode)
 				return;
-			// XSD types will fail because they are not in the model until
-			// imported.
+			// XSD types will fail because they are not in the model until imported.
 			if (n.isXsdType()) {
 				return;
 			}
@@ -244,9 +241,11 @@ public class NodeTesters {
 			String msg = "";
 			// LOGGER.debug("Validating tlObj " +
 			// tlObj.getValidationIdentity());
-			if (tlObj instanceof TLEmpty)
-				return;
-			if (tlObj instanceof TLnSimpleAttribute)
+			// if (tlObj instanceof TLEmpty)
+			// return;
+			// if (tlObj instanceof TLnSimpleAttribute)
+			// return;
+			if (tlObj == null)
 				return;
 
 			if (tlObj.getValidationIdentity() == null || tlObj.getValidationIdentity().isEmpty())

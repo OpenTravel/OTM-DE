@@ -40,6 +40,7 @@ import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.facets.ChoiceFacetNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
@@ -195,7 +196,7 @@ public class ChoiceObjectTests {
 		// Then - inherited children are present.
 		assertTrue("Ch2 must inherit base choice facets.", ch2.getInheritedChildren().size() == baseCount);
 		assertTrue("Ch3 must inherit base and c2 choice facets.", ch3.getInheritedChildren().size() == baseCount
-				+ ch2.getChoiceFacets().size());
+				+ ch2.getChoiceFacets(false).size());
 		// Then - the inherited tree filter depends on isInherited.
 		for (Node n : ch3.getInheritedChildren())
 			assertTrue("Must be inherited.", n.isInherited());
@@ -206,6 +207,7 @@ public class ChoiceObjectTests {
 		// Given starting inherited count.
 		int ch3Count = ch3.getInheritedChildren().size();
 		// When
+		// FIXME - ch2 does not have inheritance listener and did not clear inherited children from ch3
 		ContextualFacetNode ch2cf2 = ch2.addFacet("Ch2CF2");
 		ch3Count++;
 		// Then
@@ -247,6 +249,7 @@ public class ChoiceObjectTests {
 		LibraryNode destLib = destLCN.getHead();
 		assertTrue(destLib != srcLib);
 		assertTrue(destLib.isEditable());
+		assertTrue(!srcLib.getNamespace().equals(destLib.getNamespace()));
 
 		// Given choice objects
 		ChoiceObjectNode ch0 = ml.addChoice(srcLib, "Ch0");
@@ -279,7 +282,7 @@ public class ChoiceObjectTests {
 			assertTrue("Facet must NOT be in source choice.", !ch0.getContextualFacets().contains(cf));
 
 			// Then - move facet to keep destLib valid
-			cf.getLibrary().removeMember(cf);
+			// cf.getLibrary().removeMember(cf);
 			destLib.addMember(cf);
 		}
 
@@ -344,7 +347,7 @@ public class ChoiceObjectTests {
 		// Validate model and tl object
 		assertTrue(choice.getTLModelObject() instanceof TLChoiceObject);
 		assertNotNull(choice.getTLModelObject().getListeners());
-		TLChoiceObject tlChoice = (TLChoiceObject) choice.getTLModelObject();
+		TLChoiceObject tlChoice = choice.getTLModelObject();
 
 		if (tlChoice.getOwningLibrary() != null)
 			Assert.assertNotNull(choice.getLibrary());
@@ -356,7 +359,7 @@ public class ChoiceObjectTests {
 		s = ((FacetNode) choice.getSharedFacet()).getLabel();
 
 		// make sure this does not NPE
-		List<PropertyOwnerInterface> choices = choice.getChoiceFacets();
+		List<ChoiceFacetNode> choices = choice.getChoiceFacets();
 		// can be empty - assertTrue(!choices.isEmpty());
 
 		// For choice facets the Name and label should be not empty
@@ -379,7 +382,7 @@ public class ChoiceObjectTests {
 			if (choice.getName().equals("ExtendedChoice")) {
 				for (Node n : choice.getChildren())
 					if (n instanceof FacetNode) {
-						assertTrue(((Node) n).getParent() != null);
+						assertTrue(n.getParent() != null);
 
 						List<TLAttribute> tlAttrs = PropertyCodegenUtils.getInheritedFacetAttributes((TLFacet) n
 								.getTLModelObject());

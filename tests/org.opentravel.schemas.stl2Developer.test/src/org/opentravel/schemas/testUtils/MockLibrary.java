@@ -57,6 +57,7 @@ import org.opentravel.schemas.node.Enumeration_Tests;
 import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.ExtensionPointNode_Tests;
 import org.opentravel.schemas.node.FacetsTests;
+import org.opentravel.schemas.node.InheritedChildren_Tests;
 import org.opentravel.schemas.node.LibraryNodeTest;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
@@ -84,6 +85,7 @@ import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.IdNode;
 import org.opentravel.schemas.node.properties.IndicatorElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
+import org.opentravel.schemas.node.properties.InheritedElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.resources.ResourceBuilder;
@@ -663,6 +665,8 @@ public class MockLibrary {
 	 */
 	public void check(Node node, boolean validate) {
 		assertTrue(node != null);
+		if (node.isDeleted())
+			return;
 		// TODO - propagate the validate flag to all object check() methods.
 
 		// Validate Identity Listener
@@ -701,6 +705,8 @@ public class MockLibrary {
 			new Enumeration_Tests().check((EnumerationClosedNode) node);
 		else if (node instanceof ExtensionPointNode)
 			new ExtensionPointNode_Tests().check((ExtensionPointNode) node);
+		else if (node instanceof InheritedElementNode)
+			new InheritedChildren_Tests().check((InheritedElementNode) node);
 		else
 			LOGGER.debug("TODO - add tests for " + node.getClass().getSimpleName() + " object type.");
 

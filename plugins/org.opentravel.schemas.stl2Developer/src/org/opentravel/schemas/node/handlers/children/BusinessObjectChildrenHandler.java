@@ -32,6 +32,8 @@ public class BusinessObjectChildrenHandler extends CachingChildrenHandler<Node, 
 
 	public BusinessObjectChildrenHandler(BusinessObjectNode owner) {
 		super(owner);
+		// Must initialize inherited children because they can add to the library.
+		// causes npe - initInherited();
 	}
 
 	@Override
@@ -56,7 +58,7 @@ public class BusinessObjectChildrenHandler extends CachingChildrenHandler<Node, 
 		List<TLModelElement> facets = new ArrayList<TLModelElement>();
 		for (TLContextualFacet cf : getInheritedChildren_TL_CFs()) {
 			facets.add(cf);
-			cf.setOwningEntity(trueOwner);
+			// cf.setOwningEntity(trueOwner); // owner is where inherited
 		}
 		return facets;
 	}

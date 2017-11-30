@@ -34,13 +34,13 @@ import org.opentravel.schemacompiler.validate.ValidationException;
 import org.opentravel.schemacompiler.version.MinorVersionHelper;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
 import org.opentravel.schemacompiler.version.Versioned;
-import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.handlers.ConstraintHandler;
 import org.opentravel.schemas.node.interfaces.AliasOwner;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -65,18 +65,18 @@ import org.slf4j.LoggerFactory;
 public abstract class ComponentNode extends Node {
 	private final static Logger LOGGER = LoggerFactory.getLogger(ComponentNode.class);
 
-	/**
-	 * The list of inherited children for this node. Inherited nodes are not assigned a type class. If they were the
-	 * where-used count would be wrong.
-	 */
-	@Deprecated
-	protected List<Node> inheritedChildren;
+	// /**
+	// * The list of inherited children for this node. Inherited nodes are not assigned a type class. If they were the
+	// * where-used count would be wrong.
+	// */
+	// @Deprecated
+	// protected List<Node> inheritedChildren;
 
-	/**
-	 * Actual node where the inherited child is declared.
-	 */
-	protected Node inheritedFrom = null;
-
+	// /**
+	// * Actual node where the inherited child is declared.
+	// */
+	// protected Node inheritedFrom = null;
+	//
 	// /**
 	// * Indicates whether the underlying model object was declared or inherited by its parent.
 	// */
@@ -84,7 +84,7 @@ public abstract class ComponentNode extends Node {
 	// protected boolean inherited = false;
 
 	// TODO - move down in the class hierarchy
-	public ConstraintHandler constraintHandler = null;
+	// public ConstraintHandler constraintHandler = null;
 
 	// /**
 	// *
@@ -337,26 +337,18 @@ public abstract class ComponentNode extends Node {
 		// return getModelObject().getAssignedPrefix();
 	}
 
-	// @Override
-	// public List<Node> getChildren_TypeUsers() {
-	// ArrayList<Node> kids = new ArrayList<Node>();
-	// for (Node child : getChildren()) {
-	// if (child instanceof TypeUser)
-	// kids.add(child);
-	// }
-	// return kids;
-	// }
-
 	// TOOD - let the view code actually use the handler
+	// Use PropertyNode or SimpleType
+	@Deprecated
 	public ConstraintHandler getConstraintHandler() {
-		return constraintHandler;
+		return null;
 	}
 
 	@Override
 	public PropertyOwnerInterface getFacet_Default() {
 		// should be overridden
 		for (final INode n : getChildren()) {
-			if (((Node) n).isDefaultFacet()) {
+			if (n instanceof PropertyOwnerInterface && ((PropertyOwnerInterface) n).isDefaultFacet()) {
 				return (PropertyOwnerInterface) n;
 			}
 		}
@@ -367,17 +359,7 @@ public abstract class ComponentNode extends Node {
 	 * @return - Node for ID facet if it exists, null otherwise.
 	 */
 	public PropertyOwnerNode getFacet_Detail() {
-		return (PropertyOwnerNode) getFacetOfType(TLFacetType.DETAIL);
-	}
-
-	// Override in propeprtyNode
-	public String getEquivalent(final String context) {
-		return "";
-	}
-
-	// Override in propeprtyNode
-	public String getExample(final String context) {
-		return "";
+		return (PropertyOwnerNode) getFacet(TLFacetType.DETAIL);
 	}
 
 	public TLFacetType getFacetType() {
@@ -388,25 +370,8 @@ public abstract class ComponentNode extends Node {
 	 * @return - Node for ID facet if it exists, null otherwise.
 	 */
 	public PropertyOwnerNode getFacet_ID() {
-		return (PropertyOwnerNode) getFacetOfType(TLFacetType.ID);
+		return (PropertyOwnerNode) getFacet(TLFacetType.ID);
 	}
-
-	// @Override
-	// public List<Node> getInheritedChildren() {
-	// if (childrenHandler != null)
-	// return childrenHandler.getInheritedChildren();
-	// else {
-	// synchronized (this) {
-	// if (inheritedChildren != null)
-	// inheritedChildren.clear();
-	// // Do not keep a local copy until adding to the base forces update of all extensions.
-	// initInheritedChildren();
-	// }
-	// if (inheritedChildren == null)
-	// inheritedChildren = Collections.emptyList();
-	// return inheritedChildren;
-	// }
-	// }
 
 	/**
 	 * Simple getter of the actual node where the inherited child is declared.
@@ -416,14 +381,8 @@ public abstract class ComponentNode extends Node {
 	 */
 	@Override
 	public Node getInheritedFrom() {
-		return inheritedFrom;
-	}
-
-	/**
-	 * Simple Setter
-	 */
-	public void setInheritedFrom(Node owner) {
-		inheritedFrom = owner;
+		assert !(this instanceof InheritedInterface);
+		return null;
 	}
 
 	@Override
@@ -435,7 +394,6 @@ public abstract class ComponentNode extends Node {
 	 * returns owning navNode if it is a component node. Family aware - if in a family it returns the family parent.
 	 * Null otherwise.
 	 */
-	@Override
 	public Node getOwningNavNode() {
 		Node owner = this.getParent();
 		if (owner instanceof VersionNode)
@@ -453,7 +411,7 @@ public abstract class ComponentNode extends Node {
 		return "";
 	}
 
-	private ComponentNode getFacetOfType(final TLFacetType facetType) {
+	private ComponentNode getFacet(final TLFacetType facetType) {
 		for (final INode n : getChildren()) {
 			if (n instanceof FacetNode) {
 				final ComponentNode facet = (ComponentNode) n;
@@ -467,7 +425,7 @@ public abstract class ComponentNode extends Node {
 	}
 
 	public ComponentNode getFacet_Simple() {
-		return getFacetOfType(TLFacetType.SIMPLE);
+		return getFacet(TLFacetType.SIMPLE);
 	}
 
 	// overridden where a simple property exists.
@@ -479,74 +437,8 @@ public abstract class ComponentNode extends Node {
 	 * @return - Node for SUMMARY facet if it exists, null otherwise.
 	 */
 	public PropertyOwnerNode getFacet_Summary() {
-		return (PropertyOwnerNode) getFacetOfType(TLFacetType.SUMMARY);
+		return (PropertyOwnerNode) getFacet(TLFacetType.SUMMARY);
 	}
-
-	// /** Lazy initialization of the inherited children list. */
-	// @Deprecated
-	// private void initInheritedChildren() {
-	// List<?> inheritedMOChildren;
-	// if (childrenHandler != null)
-	// inheritedMOChildren = childrenHandler.getInheritedChildren_TL();
-	// else {
-	// inheritedMOChildren = modelObject.getInheritedChildren();
-	//
-	// if ((inheritedMOChildren == null) || inheritedMOChildren.isEmpty()) {
-	// inheritedChildren = Collections.emptyList();
-	// } else {
-	// for (final Object obj : inheritedMOChildren) {
-	// // null parent allows us to control linkage.
-	// ComponentNode nn = NodeFactory.newMemberOLD(null, obj);
-	// if (nn != null) {
-	// linkInheritedChild(nn);
-	// nn.addMOChildren();
-	// }
-	// }
-	// }
-	// }
-	// }
-
-	@Override
-	public boolean isInherited() {
-		return getInheritedFrom() != null;
-	}
-
-	// /**
-	// * Returns true if the 'otherNode's' library meets both of the following conditions:
-	// * <ul>
-	// * <li>The other library is assigned to the same version scheme and base namespace as this one.</li>
-	// * <li>The version of the other library is considered to be later than this library's version according to the
-	// * version scheme.</li>
-	// * </ul>
-	// *
-	// * @see org.opentravel.schemacompiler.model.AbstractLibrary.isLaterVersion
-	// * @param n
-	// * node whose library to compare to this nodes library
-	// * @return boolean
-	// */
-	// public boolean isLaterVersion(Node n) {
-	// return (this.getLibrary().getTLaLib().isLaterVersion(n.getLibrary().getTLaLib()));
-	// }
-
-	@Override
-	public boolean isLocal() {
-		return local;
-	}
-
-	public boolean isMandatory() {
-		return false;
-	}
-
-	// public boolean isMissingAssignedType() {
-	// if (modelObject.getTLType() == null)
-	// return true;
-	// return false;
-	// }
-
-	// @Override
-	// public boolean isNamedType() {
-	// return false;
-	// }
 
 	/**
 	 * Test this node against those in the parentNode to and return true if the name is unique within its parent and
@@ -571,9 +463,10 @@ public abstract class ComponentNode extends Node {
 	}
 
 	@Override
+	@Deprecated
 	public boolean isXsdType() {
 		// Local anonymous types may not have xsdType set.
-		return local ? true : xsdType;
+		return xsdType;
 	}
 
 	// /**
@@ -613,18 +506,18 @@ public abstract class ComponentNode extends Node {
 		// throw new IllegalStateException("Remove property in component node should never run.");
 	}
 
-	@Override
-	@Deprecated
-	public void resetInheritedChildren() {
-		// Recursively reset the inherited children of all child nodes
-		for (final Node n : getChildren()) {
-			n.resetInheritedChildren();
-		}
-
-		// The list of inherited children for this node will be re-populated
-		// with the next call to getInheritedChildren().
-		inheritedChildren = null;
-	}
+	// @Override
+	// @Deprecated
+	// public void resetInheritedChildren() {
+	// // Recursively reset the inherited children of all child nodes
+	// for (final Node n : getChildren()) {
+	// n.resetInheritedChildren();
+	// }
+	//
+	// // The list of inherited children for this node will be re-populated
+	// // with the next call to getInheritedChildren().
+	// inheritedChildren = null;
+	// }
 
 	public void setContext() {
 		// Override where needed
@@ -641,56 +534,6 @@ public abstract class ComponentNode extends Node {
 			return false;
 		return true;
 	}
-
-	/**
-	 * @param local
-	 *            the local to set
-	 */
-	public void setLocal(boolean local) {
-		this.local = local;
-		this.xsdType = local;
-	}
-
-	public void setMandatory(final boolean selection) {
-		// Override where supported
-	}
-
-	/** TYPE Interfaces **/
-
-	// @Override
-	// public void sort() {
-	// getModelObject().sort();
-	// }
-
-	// /**
-	// * Create nodes for all of the children of the model object in this node. Also creates nodes for GUI only
-	// synthetic
-	// * children such as roles and aliases.
-	// *
-	// */
-	// @Deprecated
-	// protected void addMOChildren() {
-	// if (childrenInitialized || (modelObject.getChildren() == null)) {
-	// return; // All Done.
-	// }
-	// childrenInitialized = true;
-	//
-	// // Build list of direct children of the model object
-	// ComponentNode nn = null;
-	// for (final Object obj : modelObject.getChildren()) {
-	// nn = (ComponentNode) GetNode((ModelElement) obj);
-	// if (nn != null) {
-	// if (nn instanceof ContextualFacetNode && ((ContextualFacetNode) nn).isNamedEntity())
-	// new ContributedFacetNode((TLContextualFacet) obj, (ContextualFacetOwnerInterface) this);
-	// else
-	// // Just link it in
-	// linkChild(nn);
-	// } else
-	// nn = NodeFactory.newMemberOLD(this, obj);
-	// if (nn != null)
-	// nn.addMOChildren();
-	// }
-	// }
 
 	protected LibraryMember createMinorTLVersion(VersionedObjectInterface node) {
 		MinorVersionHelper helper = new MinorVersionHelper();
@@ -712,7 +555,8 @@ public abstract class ComponentNode extends Node {
 		// assert newNode instanceof ExtensionOwner;
 		// TODO - should resource be an extension owner? Is it versioned that way?
 		// 3/2/2017 - resources are not versioned via gui
-		if (newNode.getTLModelObject() instanceof TLEmpty) {
+		// if (newNode.getTLModelObject() instanceof TLEmpty) {
+		if (newNode instanceof ImpliedNode) {
 			LOGGER.debug("Empty minor version created");
 			return null;
 		}

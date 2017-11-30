@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLProperty;
-import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -240,13 +239,13 @@ public class ChangeTo_Tests {
 		TLBusinessObject tlBO = null;
 
 		bo = new BusinessObjectNode(core);
-		tlBO = (TLBusinessObject) bo.getTLModelObject();
+		tlBO = bo.getTLModelObject();
 		Assert.assertEquals("A", bo.getName());
 		Assert.assertEquals(1, bo.getFacet_Summary().getChildren().size());
 		Assert.assertEquals(tlBO.getSummaryFacet().getElements().size(), bo.getFacet_Summary().getChildren().size());
 
 		bo = new BusinessObjectNode(vwa);
-		tlBO = (TLBusinessObject) bo.getTLModelObject();
+		tlBO = bo.getTLModelObject();
 		Assert.assertEquals("B", bo.getName());
 		Assert.assertEquals(1, bo.getFacet_Summary().getChildren().size());
 		Assert.assertEquals(tlBO.getSummaryFacet().getAttributes().size(), bo.getFacet_Summary().getChildren().size());
@@ -297,7 +296,7 @@ public class ChangeTo_Tests {
 				if (cn instanceof BusinessObjectNode) {
 					// LOGGER.debug("When - Changing " + cn + " from business object to core.");
 					nn = new CoreObjectNode((BusinessObjectNode) cn);
-					cn.replaceWith((LibraryMemberInterface) nn);
+					cn.replaceWith(nn);
 					cn.delete();
 					// Then
 					assertEquals(equCount, countEquivelents(nn));
@@ -313,8 +312,8 @@ public class ChangeTo_Tests {
 						aProperty = (PropertyNode) cn.getFacet_Summary().getChildren_TypeUsers()
 								.get(cn.getFacet_Summary().getChildren_TypeUsers().size() - 1);
 
-					// If the type of the property is the core simple type, then do not test it.
-					if (aProperty.getAssignedType().getTLModelObject() instanceof TLSimpleFacet)
+					// If the type of is in this core then do not test it.
+					if (cn.contains((Node) aProperty.getAssignedType()))
 						aProperty = null;
 
 					nn = new BusinessObjectNode((CoreObjectNode) cn);
@@ -325,8 +324,7 @@ public class ChangeTo_Tests {
 
 					// Find the property with the same name for testing.
 					if (aProperty != null)
-						newProperty = (PropertyNode) ((BusinessObjectNode) nn).getFacet_Summary().findChildByName(
-								aProperty.getName());
+						newProperty = ((BusinessObjectNode) nn).getFacet_Summary().findChildByName(aProperty.getName());
 					if (newProperty != null)
 						assertTrue(newProperty.getAssignedType() == aProperty.getAssignedType());
 
@@ -339,7 +337,7 @@ public class ChangeTo_Tests {
 				else if (cn instanceof VWA_Node) {
 					// LOGGER.debug("Changing " + cn + " from VWA to core.");
 					nn = new CoreObjectNode((VWA_Node) cn);
-					cn.replaceWith((LibraryMemberInterface) nn);
+					cn.replaceWith(nn);
 					cn.delete();
 					tn.visit(nn);
 					ml.check((Node) nn, false);

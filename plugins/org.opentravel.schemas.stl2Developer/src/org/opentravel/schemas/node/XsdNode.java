@@ -15,16 +15,17 @@
  */
 package org.opentravel.schemas.node;
 
-import org.opentravel.schemacompiler.model.TLLibraryMember;
-import org.opentravel.schemas.modelObject.TLEmpty;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The XsdNode class extends componentNode with the addition of lazy evaluated modeled nodes (otmModel), mo and tl
- * objects with access methods.
+ * Only used by XsdObjectHandler to create nodes to represent the xsd object. Is discarded after the xsd object is
+ * modeled.
+ * 
+ * // * The XsdNode class extends componentNode with the addition of lazy evaluated modeled nodes (otmModel), mo and tl
+ * // * objects with access methods. // *
  * 
  * @author Dave Hollander
  * 
@@ -68,58 +69,58 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 	// getTLModelObject().addListener(listener);
 	// }
 
-	/**
-	 * Utility function - use getOtmModelChild() which will create one if it did not exist.
-	 * 
-	 * @return
-	 */
-	@Deprecated
-	protected boolean hasOtmModelChild() {
-		return otmModel == null ? false : true;
-	}
+	// /**
+	// * Utility function - use getOtmModelChild() which will create one if it did not exist.
+	// *
+	// * @return
+	// */
+	// @Deprecated
+	// protected boolean hasOtmModelChild() {
+	// return otmModel == null ? false : true;
+	// }
 
-	/**
-	 * 
-	 * @return the otmModel node that represents this xsd node
-	 */
-	@Deprecated
-	public ComponentNode getOtmModel() {
-		return otmModel == null ? createTLModelChild() : otmModel;
-	}
+	// /**
+	// *
+	// * @return the otmModel node that represents this xsd node
+	// */
+	// @Deprecated
+	// public ComponentNode getOtmModel() {
+	// return otmModel == null ? createTLModelChild() : otmModel;
+	// }
 
-	/**
-	 * Return the TL model Rendered child of this xsd node. If one does not exist, it tries to create one. The new node
-	 * is a member of the generated library and <b>not</b> part of the TLModel. They can not be or else there will be
-	 * name collisions.
-	 * 
-	 * @return
-	 */
-	@Deprecated
-	private ComponentNode createTLModelChild() {
-		// LOGGER.debug("Creating TLModel Child for node " +
-		// this.getNameWithPrefix()+" in namespace "+ this.getNamespace());
-		if (this.getLibrary() == null)
-			LOGGER.error("Can not create a TL Model child without a library!. " + this.getName());
+	// /**
+	// * Return the TL model Rendered child of this xsd node. If one does not exist, it tries to create one. The new
+	// node
+	// * is a member of the generated library and <b>not</b> part of the TLModel. They can not be or else there will be
+	// * name collisions.
+	// *
+	// * @return
+	// */
+	// @Deprecated
+	// private ComponentNode createTLModelChild() {
+	// // LOGGER.debug("Creating TLModel Child for node " +
+	// // this.getNameWithPrefix()+" in namespace "+ this.getNamespace());
+	// if (this.getLibrary() == null)
+	// LOGGER.error("Can not create a TL Model child without a library!. " + this.getName());
+	//
+	// // Use this model object to build a TL_Object and use that to create a node.
+	// ComponentNode cn = (ComponentNode) NodeFactory.newLibraryMember(modelObject.buildTLModel(this));
+	// if (cn != null) {
+	// cn.xsdNode = this;
+	// otmModel = cn;
+	// cn.setLibrary(getLibrary());
+	// xsdType = true;
+	// setXsdTypeOnChildren(cn);
+	// }
+	// return cn;
+	// }
 
-		// Use this model object to build a TL_Object and use that to create a node.
-		ComponentNode cn = (ComponentNode) NodeFactory.newLibraryMember((TLLibraryMember) modelObject
-				.buildTLModel(this));
-		if (cn != null) {
-			cn.xsdNode = this;
-			otmModel = cn;
-			cn.setLibrary(getLibrary());
-			xsdType = true;
-			setXsdTypeOnChildren(cn);
-		}
-		return cn;
-	}
-
-	@Deprecated
-	private void setXsdTypeOnChildren(Node n) {
-		n.xsdType = true;
-		for (Node c : n.getChildren())
-			setXsdTypeOnChildren(c);
-	}
+	// @Deprecated
+	// private void setXsdTypeOnChildren(Node n) {
+	// n.xsdType = true;
+	// for (Node c : n.getChildren())
+	// setXsdTypeOnChildren(c);
+	// }
 
 	@Override
 	public LibraryNode getLibrary() {
@@ -129,6 +130,7 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 	@Deprecated
 	@Override
 	public String getName() {
+		assert false; // xsd node should never be maintained
 		return "";
 		// return modelObject.getName();
 	}
@@ -136,16 +138,18 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 	@Deprecated
 	@Override
 	public boolean isImportable() {
-		if ((isInXSDSchema() || isInBuiltIn()) && getOtmModel() != null
-				&& !(getOtmModel().getTLModelObject() instanceof TLEmpty)) {
-			return true;
-		}
+		// if ((isInXSDSchema() || isInBuiltIn()) && getOtmModel() != null
+		// && !(getOtmModel().getTLModelObject() instanceof TLEmpty)) {
+		// return true;
+		// }
+		assert false; // xsd node should never be maintained
 		return false;
 	}
 
 	@Deprecated
 	@Override
 	public boolean isDeleteable() {
+		assert false; // xsd node should never be maintained
 		return false;
 	}
 

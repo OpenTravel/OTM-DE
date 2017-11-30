@@ -21,6 +21,8 @@ package org.opentravel.schemas.node;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +56,7 @@ public class CoreObjectTests extends BaseProjectTest {
 	LibraryChainNode lcn = null;
 	LibraryNode ln = null;
 
+	@Override
 	@Before
 	public void beforeEachTest() throws Exception {
 		LOGGER.debug("***Before Core Object Tests ----------------------");
@@ -178,12 +181,18 @@ public class CoreObjectTests extends BaseProjectTest {
 
 		CoreObjectNode extendedCO = ml.addCoreObjectToLibrary(ln2, "ExtendedCO");
 		assertNotNull("Null object created.", extendedCO);
+		// Access before assigning base to insure updated when assigned a base type
+		List<Node> iKids = ((Node) extendedCO.getFacet_Default()).getInheritedChildren();
+		assertTrue(iKids.isEmpty());
 
 		for (Node n : ln.getDescendants_LibraryMembers())
 			if (n instanceof CoreObjectNode && n != extendedCO) {
 				extendedCO.setExtension(n);
 				check((CoreObjectNode) n);
 				check(extendedCO);
+				iKids = ((Node) extendedCO.getFacet_Default()).getInheritedChildren();
+				if (!n.getFacet_Default().getChildren().isEmpty())
+					assertTrue(!iKids.isEmpty());
 			}
 
 	}

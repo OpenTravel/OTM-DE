@@ -368,6 +368,7 @@ public class Delete_Tests extends BaseProjectTest {
 		ln.visitAllNodes(dv);
 		ln.visitAllNodes(pv);
 		assert ln.isEmpty();
+		lcn.close();
 		assert lcn.isEmpty();
 
 		LOGGER.debug("***Setting Up Test Case 4");
@@ -376,6 +377,7 @@ public class Delete_Tests extends BaseProjectTest {
 		ln.visitAllNodes(dv);
 		ln.visitAllNodes(pv);
 		assert ln.isEmpty();
+		lcn.close();
 		assert lcn.isEmpty();
 	}
 
@@ -425,6 +427,7 @@ public class Delete_Tests extends BaseProjectTest {
 			LibraryChainNode lcn = new LibraryChainNode(ln);
 			ln.setEditable(true); // must be done after LCN created
 			assertTrue("Chain must be found from library.", ln.getChain() == lcn);
+			assertTrue("Chain must have only one library.", lcn.getLibraries().size() == 1);
 			Assert.assertEquals(count, ln.getDescendants_LibraryMembers().size());
 			ml.check(ln);
 

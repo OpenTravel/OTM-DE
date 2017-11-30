@@ -21,7 +21,6 @@ import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.XSDComplexType;
 import org.opentravel.schemacompiler.model.XSDElement;
 import org.opentravel.schemacompiler.model.XSDSimpleType;
-import org.opentravel.schemas.modelObject.XsdModelingUtils;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
@@ -30,6 +29,7 @@ import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.NodeIdentityListener;
 import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.utils.XsdModelingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3._2001.xmlschema.SimpleType;
@@ -41,10 +41,8 @@ import org.w3._2001.xmlschema.TopLevelSimpleType;
  * This handler works with TLLibraryMembers: XSDSimpleType, XSDComplexType, and XSDElement
  * 
  * <p>
- * Owner <-> SimpleTypeNode
- * <br>
- * src -> xsdSimple/xsdComplex/xsdElement from compiler with listener pointing to SimpleTypeNode
- * <br>
+ * Owner <-> SimpleTypeNode <br>
+ * src -> xsdSimple/xsdComplex/xsdElement from compiler with listener pointing to SimpleTypeNode <br>
  * Built -> TLSimple created by the handler, listener set to SimpleTypeNode
  * 
  * @author Dave Hollander
@@ -150,6 +148,21 @@ public class XsdObjectHandler {
 		return jPrefix;
 	}
 
+	public TypeProvider getRequiredType() {
+		return ModelNode.getUndefinedNode();
+	}
+
+	// This may be needed for xsd library objects to be imported.
+	//
+	// @Override
+	// public boolean isImportable() {
+	// if ((isInXSDSchema() || isInBuiltIn()) && getOtmModel() != null
+	// && !(getOtmModel().getModelObject().getTLModelObj() instanceof TLEmpty)) {
+	// return true;
+	// }
+	// return false;
+	// }
+
 	/** ------------------------------------------- Old Code ------------------------- */
 
 	/**
@@ -218,16 +231,12 @@ public class XsdObjectHandler {
 	// return cn;
 	// }
 
-	@Deprecated
-	private void setXsdTypeOnChildren(Node n) {
-		n.xsdType = true;
-		for (Node c : n.getChildren())
-			setXsdTypeOnChildren(c);
-	}
-
-	public TypeProvider getRequiredType() {
-		return ModelNode.getUndefinedNode();
-	}
+	// @Deprecated
+	// private void setXsdTypeOnChildren(Node n) {
+	// n.xsdType = true;
+	// for (Node c : n.getChildren())
+	// setXsdTypeOnChildren(c);
+	// }
 
 	// @Override
 	// public String getName() {
@@ -235,14 +244,6 @@ public class XsdObjectHandler {
 	// // return modelObject.getName();
 	// }
 	//
-	// @Override
-	// public boolean isImportable() {
-	// if ((isInXSDSchema() || isInBuiltIn()) && getOtmModel() != null
-	// && !(getOtmModel().getModelObject().getTLModelObj() instanceof TLEmpty)) {
-	// return true;
-	// }
-	// return false;
-	// }
 	//
 	// @Override
 	// public boolean isDeleteable() {

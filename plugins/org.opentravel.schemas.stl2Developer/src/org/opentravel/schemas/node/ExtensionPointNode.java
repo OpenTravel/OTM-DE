@@ -48,15 +48,24 @@ import org.opentravel.schemas.types.TypeProvider;
 public class ExtensionPointNode extends LibraryMemberBase implements ComplexComponentInterface, ExtensionOwner,
 		PropertyOwnerInterface, LibraryMemberInterface {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionPointNode.class);
+
 	private ExtensionHandler extensionHandler = null;
 
 	public ExtensionPointNode(TLExtensionPointFacet mbr) {
 		super(mbr);
 
 		childrenHandler = new ExtensionPointChildrenHandler(this);
-
-		// addMOChildren();
 		extensionHandler = new ExtensionHandler(this);
+	}
+
+	@Override
+	public ExtensionPointChildrenHandler getChildrenHandler() {
+		return (ExtensionPointChildrenHandler) childrenHandler;
+	}
+
+	@Override
+	public boolean isDefaultFacet() {
+		return false;
 	}
 
 	@Override

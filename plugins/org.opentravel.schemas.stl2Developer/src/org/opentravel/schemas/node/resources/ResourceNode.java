@@ -46,8 +46,6 @@ import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.FindingType;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
-import org.opentravel.schemas.modelObject.ModelObject;
-import org.opentravel.schemas.modelObject.ResourceMO;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
@@ -87,6 +85,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	private String MSGKEY = "rest.ResourceNode";
 	private ExtensionHandler extensionHandler = null; // Lazy construction - created when accessed
 	protected LibraryNode owningLibrary = null;
+	protected LibraryNode library;
 
 	public class AbstractListener implements ResourceFieldListener {
 		@Override
@@ -95,6 +94,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 			return false;
 		}
 	}
+
+	// @Override
+	// public NodeChildrenHandler<?> getChildrenHandler() {
+	// return null;
+	// }
 
 	public class BasePathListener implements ResourceFieldListener {
 		@Override
@@ -226,6 +230,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	// businessObject.getLibrary().addMember(this);
 	// }
 
+	@Override
 	public void addChild(ResourceMemberInterface child) {
 		if (!getChildren().contains(child))
 			getChildren().add((Node) child);
@@ -509,18 +514,19 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	public String getDescription() {
-		TLResource tlObj = (TLResource) getTLModelObject();
+		TLResource tlObj = getTLModelObject();
 		return tlObj.getDocumentation() != null ? tlObj.getDocumentation().getDescription() : "";
 	}
 
 	// @Override
+	@Override
 	public ResourceNode getExtendsType() {
 		Node base = null;
 		NamedEntity tl = null;
 		if (tlResource.getExtension() != null)
 			tl = tlResource.getExtension().getExtendsEntity();
 		if (tl instanceof TLResource)
-			base = Node.GetNode((TLResource) tl);
+			base = Node.GetNode(tl);
 
 		// Don't return extensions used for versions
 		// TODO - relies on extension handler
@@ -607,12 +613,12 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return owningLibrary;
 	}
 
-	@Override
-	@Deprecated
-	public ResourceMO getModelObject() {
-		ModelObject<?> obj = super.getModelObject();
-		return (ResourceMO) (obj instanceof ResourceMO ? obj : null);
-	}
+	// @Override
+	// @Deprecated
+	// public ResourceMO getModelObject() {
+	// ModelObject<?> obj = super.getModelObject();
+	// return (ResourceMO) (obj instanceof ResourceMO ? obj : null);
+	// }
 
 	@Override
 	public AbstractLibrary getTLOwner() {
@@ -746,7 +752,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		// for (Node n : getParent().getChildren())
 		for (ResourceNode n : getPeers())
 			if (getPeerName(n).equals(name))
-				peer = (ResourceNode) n;
+				peer = n;
 		return peer;
 	}
 
@@ -1052,7 +1058,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	public Collection<String> getValidationMessages() {
-		ValidationFindings findings = TLModelCompileValidator.validateModelElement((TLModelElement) tlResource);
+		ValidationFindings findings = TLModelCompileValidator.validateModelElement(tlResource);
 		ArrayList<String> msgs = new ArrayList<String>();
 		for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
 			msgs.add(f);
@@ -1063,7 +1069,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	public ValidationFindings getValidationFindings() {
-		return TLModelCompileValidator.validateModelElement((TLModelElement) tlResource);
+		return TLModelCompileValidator.validateModelElement(tlResource);
 	}
 
 	@Override
@@ -1073,7 +1079,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	public boolean isValid_NoWarnings() {
-		return TLModelCompileValidator.validateModelElement((TLModelElement) tlResource).count(FindingType.WARNING) == 0;
+		return TLModelCompileValidator.validateModelElement(tlResource).count(FindingType.WARNING) == 0;
 	}
 
 	@Override

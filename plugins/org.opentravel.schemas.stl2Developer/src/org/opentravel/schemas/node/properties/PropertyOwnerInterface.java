@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.handlers.children.ChildrenHandlerI;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 
@@ -68,6 +69,8 @@ public interface PropertyOwnerInterface {
 
 	public TLModelElement getTLModelObject();
 
+	public boolean isDefaultFacet();
+
 	public boolean isEditable();
 
 	/**
@@ -82,5 +85,10 @@ public interface PropertyOwnerInterface {
 	 * @return
 	 */
 	public PropertyNode findChildByName(String attrName);
+
+	/**
+	 * @return
+	 */
+	public ChildrenHandlerI<?> getChildrenHandler();
 
 }

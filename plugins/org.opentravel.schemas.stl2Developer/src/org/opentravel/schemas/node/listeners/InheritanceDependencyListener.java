@@ -41,10 +41,11 @@ public class InheritanceDependencyListener extends BaseNodeListener implements I
 	/**
 	 * 
 	 * @param ghost
-	 *            is the ghost node created to control inherited tl object. It is <b>not</b> the base object where this
-	 *            listener is registered.
+	 *            is the ghost node created as a facade to the inherited tl object. It is <b>not</b> the base object
+	 *            where this listener is registered.
 	 * @param handler
-	 *            handler for the parent of this ghost node. Cleared when a change happens to this base object
+	 *            handler for the parent of <i>this</i> ghost node. Cleared when a change happens to tl object where
+	 *            this listener is registered.
 	 */
 	public InheritanceDependencyListener(Node ghost, ChildrenHandlerI<?> handler) {
 		super(ghost);

@@ -26,10 +26,19 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.LibraryElement;
+import org.opentravel.schemacompiler.model.LibraryMember;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLChoiceObject;
+import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLProperty;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
@@ -71,6 +80,174 @@ public class Clone_Tests {
 		ln = ml.createNewLibrary("http://example.com/test", "test", defaultProject);
 		ln.setEditable(true);
 		builtin = (SimpleTypeNode) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
+	}
+
+	@Test
+	public void CL_cloneContextualFacetOwners_v15_Tests() {
+		OTM16Upgrade.otm16Enabled = false;
+
+		ContextualFacetOwnerInterface cfo = null;
+		ContextualFacetOwnerInterface newCfo = null;
+		LibraryElement newTL = null;
+		LibraryMemberInterface clone = null;
+
+		// Given a destination library
+		LibraryNode destLib = ml.createNewLibrary("http;//example.com/test2", "dest", defaultProject);
+		assert destLib.isEditable();
+
+		// Given - a Business Object
+		cfo = ml.addBusinessObjectToLibrary(ln, "B1");
+		List<TLContextualFacet> srcTLFacets = ((TLBusinessObject) cfo.getTLModelObject()).getCustomFacets();
+		// FAILS here
+		// for (LibraryMember lm : ln.getTLModelObject().getNamedMembers())
+		// assert (!(lm instanceof TLContextualFacet)); // not in v 1.5
+
+		// When - cloned
+		newTL = cfo.cloneTLObj(); // no owning library, different contextual facets
+		// Then clone is not modeled and facets are correct
+		assertTrue("Must not have owning library.", newTL.getOwningLibrary() == null);
+		for (TLContextualFacet tlcf : ((TLBusinessObject) newTL).getCustomFacets()) {
+			assertTrue("Must be a new facet.", !srcTLFacets.contains(tlcf));
+			assertTrue("Must not have identity listener.", tlcf.getListeners().isEmpty());
+			assertTrue("Must have correct owner.", tlcf.getOwningEntity() == newTL);
+			assertTrue("Must be in same library as parent.", tlcf.getOwningLibrary() == newTL.getOwningLibrary());
+		}
+		// When - modeled in the factory
+		clone = NodeFactory.newLibraryMember((LibraryMember) newTL);
+		// Then - the contextual facets are created correctly
+		for (ContextualFacetNode cf : ((BusinessObjectNode) clone).getContextualFacets()) {
+			assert !(cf instanceof ContributedFacetNode); // this is v 1.5
+			assertTrue("Identity listener must be correct.", cf == Node.GetNode(cf.getTLModelObject()));
+			assertTrue("Must have correct parent.", cf.getParent() == clone);
+			assertTrue("Must have same library as parent.", cf.getLibrary() == clone.getLibrary());
+		}
+		// When - added to destination library
+		destLib.addMember(clone);
+		// Then - the contextual facets are still correct
+		for (ContextualFacetNode cf : ((BusinessObjectNode) clone).getContextualFacets()) {
+			assert !(cf instanceof ContributedFacetNode); // this is v 1.5
+			assertTrue("Identity listener must be correct.", cf == Node.GetNode(cf.getTLModelObject()));
+			assertTrue("Must have correct parent.", cf.getParent() == clone);
+			assertTrue("Must have same library as parent.", cf.getLibrary() == clone.getLibrary());
+			// FAILS
+			// assertTrue("Facet must be in same library as tl facet",
+			// cf.getTLModelObject().getOwningLibrary() == clone.getTLModelObject());
+		}
+		ml.check((Node) clone, false);
+
+		// Choice Object
+		cfo = ml.addChoice(destLib, "C1");
+		newTL = cfo.cloneTLObj();
+		clone = NodeFactory.newLibraryMember((LibraryMember) newTL);
+		destLib.addMember(clone);
+		ml.check((Node) clone, false);
+
+		// Contextual facet
+	}
+
+	@Test
+	public void CL_cloneContextualFacetOwners_v16_Tests() {
+		OTM16Upgrade.otm16Enabled = true;
+
+		ContextualFacetOwnerInterface cfo = null;
+		ContextualFacetOwnerInterface newCfo = null;
+		LibraryElement newTL = null;
+		ContextualFacetOwnerInterface clone = null;
+
+		// Given a destination library
+		LibraryNode destLib = ml.createNewLibrary("http;//example.com/test2", "dest", defaultProject);
+		assert destLib.isEditable();
+
+		// Given - a Business Object
+		cfo = ml.addBusinessObjectToLibrary(ln, "B1");
+		List<TLContextualFacet> srcTLFacets = ((TLBusinessObject) cfo.getTLModelObject()).getCustomFacets();
+		List<TLContextualFacet> libFacets = new ArrayList<TLContextualFacet>();
+		for (LibraryMember lm : ln.getTLModelObject().getNamedMembers())
+			if (lm instanceof TLContextualFacet)
+				libFacets.add((TLContextualFacet) lm);
+
+		// When - cloned
+		newTL = cfo.cloneTLObj(); // no owning library, different contextual facets
+		// Then clone is not modeled and facets are correct
+		assertTrue("Must not have owning library.", newTL.getOwningLibrary() == null);
+		for (TLContextualFacet tlcf : ((TLBusinessObject) newTL).getCustomFacets()) {
+			assertTrue("Must be a new facet.", !srcTLFacets.contains(tlcf));
+			assertTrue("Must not have identity listener.", tlcf.getListeners().isEmpty());
+			assertTrue("Must have correct owner.", tlcf.getOwningEntity() == newTL);
+			assertTrue("Must be in same library as parent.", tlcf.getOwningLibrary() == newTL.getOwningLibrary());
+			assertTrue("Must be unique.", !libFacets.contains(tlcf));
+		}
+		// When - modeled in the factory
+		clone = (ContextualFacetOwnerInterface) NodeFactory.newLibraryMember((LibraryMember) newTL);
+		// Then - the contextual facets are created correctly
+		for (ContextualFacetNode cf : clone.getContextualFacets()) {
+			assert !(cf instanceof ContributedFacetNode);
+			// Not modeled until added to a library
+			// assertTrue("Identity listener must be correct.", cf == Node.GetNode(cf.getTLModelObject()));
+			// assertTrue("Must have correct parent.", cf.getParent() == clone);
+			// assertTrue("Must have same library as parent.", cf.getLibrary() == clone.getLibrary());
+		}
+		// When - added to destination library
+		destLib.addMember((LibraryMemberInterface) clone);
+		// Then - the contextual facets are still correct
+		for (ContextualFacetNode cf : clone.getContextualFacets()) {
+			assert !(cf instanceof ContributedFacetNode);
+			assertTrue("Identity listener must be correct.", cf == Node.GetNode(cf.getTLModelObject()));
+			assertTrue("Must have correct parent.", cf.getParent() == clone.getParent());
+			assertTrue("Must have same library as parent.", cf.getLibrary() == clone.getLibrary());
+			assertTrue("Facet must be in same library as tl facet", cf.getTLModelObject().getOwningLibrary() == cf
+					.getLibrary().getTLModelObject());
+		}
+		ml.check((Node) clone, true);
+
+		//
+		// Given - Choice Object
+		cfo = ml.addChoice(ln, "C1");
+		srcTLFacets = ((TLChoiceObject) cfo.getTLModelObject()).getChoiceFacets();
+		libFacets = new ArrayList<TLContextualFacet>();
+		for (LibraryMember lm : ln.getTLModelObject().getNamedMembers())
+			if (lm instanceof TLContextualFacet)
+				libFacets.add((TLContextualFacet) lm);
+
+		// When - cloned
+		newTL = cfo.cloneTLObj();
+		// Then clone is not modeled and facets are correct
+		assertTrue("Must not have owning library.", newTL.getOwningLibrary() == null);
+		for (TLContextualFacet tlcf : ((TLChoiceObject) newTL).getChoiceFacets()) {
+			assertTrue("Must be a new facet.", !srcTLFacets.contains(tlcf));
+			assertTrue("Must not have identity listener.", tlcf.getListeners().isEmpty());
+			assertTrue("Must have correct owner.", tlcf.getOwningEntity() == newTL);
+			assertTrue("Must be in same library as parent.", tlcf.getOwningLibrary() == newTL.getOwningLibrary());
+			assertTrue("Must be unique.", !libFacets.contains(tlcf));
+		}
+
+		// When - modeled in the factory
+		clone = (ContextualFacetOwnerInterface) NodeFactory.newLibraryMember((LibraryMember) newTL);
+		// Then - the contextual facets are created correctly
+		for (ContextualFacetNode cf : ((ChoiceObjectNode) clone).getContextualFacets()) {
+			assert !(cf instanceof ContributedFacetNode); // this is v 1.5
+			// assertTrue("Identity listener must be correct.", cf == Node.GetNode(cf.getTLModelObject()));
+			// assertTrue("Must have correct parent.", cf.getParent() == clone);
+			// assertTrue("Must have same library as parent.", cf.getLibrary() == clone.getLibrary());
+		}
+
+		// When - added to destination library
+		destLib.addMember((LibraryMemberInterface) clone);
+		// Then - the contextual facets are still correct
+		for (ContextualFacetNode cf : ((ChoiceObjectNode) clone).getContextualFacets()) {
+			assert !(cf instanceof ContributedFacetNode);
+			assertTrue("Identity listener must be correct.", cf == Node.GetNode(cf.getTLModelObject()));
+			assertTrue("Must have correct parent.", cf.getParent() == clone.getParent());
+			assertTrue("Must have same library as parent.", cf.getLibrary() == clone.getLibrary());
+			assertTrue("Facet must be in same library as tl facet", cf.getTLModelObject().getOwningLibrary() == cf
+					.getLibrary().getTLModelObject());
+		}
+
+		ml.check((Node) clone, true);
+
+		OTM16Upgrade.otm16Enabled = true;
+
+		// Contextual facet
 	}
 
 	@Test

@@ -44,7 +44,7 @@ public class VersionManager {
 	}
 
 	public Node getOldestVersion() {
-		return versions.get(versions.size() - 1);
+		return versions.isEmpty() ? null : versions.get(versions.size() - 1);
 	}
 
 	public Node get() {

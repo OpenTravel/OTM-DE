@@ -39,6 +39,10 @@ import org.opentravel.schemas.types.TypeProvider;
 
 public class IndicatorNode extends PropertyNode {
 
+	public IndicatorNode() {
+		super();
+	}
+
 	public IndicatorNode(PropertyOwnerInterface parent, String name) {
 		super(new TLIndicator(), parent, name);
 	}

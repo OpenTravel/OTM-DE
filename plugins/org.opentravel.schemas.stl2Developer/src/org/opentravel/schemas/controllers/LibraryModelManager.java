@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLLibrary;
-import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
@@ -115,7 +115,7 @@ public class LibraryModelManager {
 		LibraryNavNode newLNN = null;
 
 		// See if the tlLibrary has a node listener. Null if not.
-		Node n = Node.GetNode((TLModelElement) pi.getContent());
+		Node n = Node.GetNode(pi.getContent());
 		if (n instanceof LibraryInterface)
 			li = ((LibraryInterface) n);
 
@@ -364,7 +364,7 @@ public class LibraryModelManager {
 			// LOGGER.debug(" test " + lib.getNamespace() + " " + lib.getName());
 			if (lib.getName().equals(libraryName))
 				if (lib.getNamespace().equals(namespace))
-					return (LibraryNode) lib;
+					return lib;
 		}
 		return null;
 	}
@@ -378,6 +378,7 @@ public class LibraryModelManager {
 	public void clear(boolean builtIns) {
 		// Close the chains first then any libraries left over.
 		List<LibraryChainNode> lcns = getUserChains();
+		TLModel tlModel = null;
 		for (LibraryChainNode lcn : lcns)
 			lcn.close();
 
@@ -386,6 +387,10 @@ public class LibraryModelManager {
 			libs = getAllLibraries();
 		else
 			libs = getUserLibraries();
+
+		if (!libs.isEmpty() && libs.get(0).getTLModelObject() != null)
+			tlModel = libs.get(0).getTLModelObject().getOwningModel();
+
 		for (LibraryNode lib : libs) {
 			if (lib != null) {
 				if (lib.getTLModelObject() != null)
@@ -394,6 +399,8 @@ public class LibraryModelManager {
 				lib.close();
 			}
 		}
-	}
+		if (tlModel != null)
+			tlModel.clearModel();
 
+	}
 }

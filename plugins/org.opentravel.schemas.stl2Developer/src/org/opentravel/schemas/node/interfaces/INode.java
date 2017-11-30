@@ -19,7 +19,6 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.ProjectNode;
@@ -128,7 +127,7 @@ public interface INode {
 	 */
 	public List<ProjectNode> getProjects();
 
-	public ModelObject<?> getModelObject();
+	// public ModelObject<?> getModelObject();
 
 	/*****************************************************************************
 	 * Names
@@ -247,7 +246,7 @@ public interface INode {
 	 */
 	public boolean isAssignedByReference();
 
-	public boolean isAliasable();
+	// public boolean isAliasable();
 
 	// /**
 	// * Remove this node from its library.

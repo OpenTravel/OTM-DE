@@ -66,6 +66,7 @@ public class WhereExtendedHandler {
 			this.handler = handler;
 		}
 
+		@Override
 		public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
 			Node source = getSource(event);
 			LOGGER.debug("WhereExtendedListener: " + event.getType() + " handler = " + handler.owner + " source = "
@@ -74,7 +75,7 @@ public class WhereExtendedHandler {
 			switch (event.getType()) {
 			case EXTENDS_ADDED:
 				if (source instanceof ExtensionOwner)
-					handler.add((ExtensionOwner) source);
+					handler.addUser((ExtensionOwner) source);
 				break;
 			case EXTENDS_REMOVED:
 				if (source instanceof ExtensionOwner) {
@@ -83,7 +84,7 @@ public class WhereExtendedHandler {
 				}
 				break;
 			case EXTENDS_ENTITY_MODIFIED:
-				// LOGGER.debug("Unhandled event: " + event.getType());
+				LOGGER.debug("Unhandled event: " + event.getType());
 				break;
 			default:
 				// LOGGER.debug("Unhandled event: " + event.getType());
@@ -104,7 +105,7 @@ public class WhereExtendedHandler {
 				if (getNewValue(event) == null)
 					handler.removeUser(source);
 				else if (source != getNode() && source instanceof ExtensionOwner)
-					handler.add((ExtensionOwner) source);
+					handler.addUser((ExtensionOwner) source);
 				break;
 			default:
 				// LOGGER.debug(event.getType() + " - " + getSource(event) + " on " + getNode() + " changed to: "
@@ -124,6 +125,11 @@ public class WhereExtendedHandler {
 	}
 
 	protected void add(ExtensionOwner user) {
+		addUser(user);
+		setListener(user);
+	}
+
+	protected void addUser(ExtensionOwner user) {
 		if (!users.contains(user)) {
 			users.add(user);
 			// LOGGER.debug("Added " + user + " to " + owner + " where extended list.");
@@ -131,7 +137,7 @@ public class WhereExtendedHandler {
 	}
 
 	/**
-	 * Set a listener on the extension to associate it with this base object. associated with a extension.
+	 * Set a listener on the extension to associate it with this base object associated with a extension.
 	 * 
 	 * Note: the extension may have more than one listener during the assignment process, one for the old base type and
 	 * one for the new.

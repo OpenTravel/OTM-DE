@@ -31,9 +31,8 @@ import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
-import org.opentravel.schemas.modelObject.BusinessObjMO;
-import org.opentravel.schemas.modelObject.ModelObject;
 import org.opentravel.schemas.node.AliasNode;
+import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.EditNode;
@@ -92,8 +91,10 @@ public class NewComponentWizard extends Wizard implements IDoubleClickListener {
 		serviceSubjectSelectionPage.addDoubleClickListener(this);
 		// Set the filter to only business objects.
 		TLBusinessObject tlbo = new TLBusinessObject();
-		ModelObject<?> tlmo = new BusinessObjMO(tlbo);
-		serviceSubjectSelectionPage.setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(tlmo));
+		// ModelObject<?> tlmo = new BusinessObjMO(tlbo);
+		Node filterType = new BusinessObjectNode(tlbo);
+		serviceSubjectSelectionPage.setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(filterType));
+		// serviceSubjectSelectionPage.setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(tlmo));
 		serviceSubjectSelectionPage.setTypeTreeContentProvider(new ExtensionTreeContentProvider());
 		addPage(serviceSubjectSelectionPage);
 

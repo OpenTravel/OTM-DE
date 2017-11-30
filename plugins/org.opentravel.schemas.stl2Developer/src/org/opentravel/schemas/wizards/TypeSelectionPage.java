@@ -196,7 +196,7 @@ public class TypeSelectionPage extends WizardPage {
 
 		// Type Tree
 		// typeTree = new TypeTree(Node.getModelNode(), typeTreeContentProvider);
-		typeTree = new TypeTree(Node.getModelNode(), null);
+		typeTree = new TypeTree(Node.getModelNode(), null); // sets up type tree view part with TypeTreeContentProvider
 		treeViewer = typeTree.setUpViewer(container);
 		gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gridData.horizontalSpan = 2;

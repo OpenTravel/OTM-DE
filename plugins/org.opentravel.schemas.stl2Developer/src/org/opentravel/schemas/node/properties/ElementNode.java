@@ -83,6 +83,10 @@ public class ElementNode extends PropertyNode {
 			setAssignedType();
 	}
 
+	public ElementNode() {
+		super();
+	}
+
 	@Override
 	public void addToTL(final PropertyOwnerInterface owner, final int index) {
 		if (owner.getTLModelObject() instanceof TLPropertyOwner)
@@ -211,6 +215,7 @@ public class ElementNode extends PropertyNode {
 	/**
 	 * Allowed in major versions and on objects new in a minor.
 	 */
+	@Override
 	public void setMandatory(final boolean selection) {
 		if (isEditable_newToChain())
 			if (getOwningComponent().isNewToChain() || !getLibrary().isInChain())

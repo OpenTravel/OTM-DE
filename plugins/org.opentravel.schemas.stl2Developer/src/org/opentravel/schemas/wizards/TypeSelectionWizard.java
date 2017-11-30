@@ -23,7 +23,7 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
-import org.opentravel.schemas.modelObject.BusinessObjMO;
+import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VWA_Node;
@@ -166,8 +166,10 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 		else if (vwa)
 			selectionPage.setTypeSelectionFilter(new TypeTreeVWASimpleTypeOnlyFilter());
 		else if (service)
-			selectionPage.setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(new BusinessObjMO(
+			selectionPage.setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(new BusinessObjectNode(
 					new TLBusinessObject())));
+		// selectionPage.setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(new BusinessObjMO(
+		// new TLBusinessObject())));
 		else if (resource)
 			selectionPage.setTypeSelectionFilter(new BusinessObjectOnlyTypeFilter(null));
 		else if (contextualFacet)

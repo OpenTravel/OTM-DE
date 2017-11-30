@@ -22,7 +22,6 @@ import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLLibrary;
-import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.XSDComplexType;
 import org.opentravel.schemacompiler.model.XSDElement;
@@ -151,7 +150,7 @@ public class LibraryChildrenHandler extends StaticChildrenHandler<Node, LibraryN
 
 	@Override
 	public boolean hasTreeChildren(boolean deep) {
-		return true; // include where used and uses from
+		return true; // Include where used and uses from
 	}
 
 	protected List<Node> modelTLs(List<TLModelElement> list, Node base) {
@@ -167,7 +166,7 @@ public class LibraryChildrenHandler extends StaticChildrenHandler<Node, LibraryN
 				continue;
 
 			// Factory will lookup or create a library member node
-			lm = NodeFactory.newLibraryMember((TLLibraryMember) mbr);
+			lm = NodeFactory.newLibraryMember(mbr);
 			if (lm == null) {
 				if (mbr instanceof XSDSimpleType)
 					lm = new XsdObjectHandler((XSDSimpleType) t, owner).getOwner();
@@ -225,9 +224,9 @@ public class LibraryChildrenHandler extends StaticChildrenHandler<Node, LibraryN
 			LOGGER.debug("Skipping unknown library member type.");
 			return;
 		}
-		if (n.isXsdElementAssignable())
-			// TODO - i don't think this is ever reached. ElementRoot is never accessed.
-			assert false;
+		// if (n.isXsdElementAssignable())
+		// // TODO - i don't think this is ever reached. ElementRoot is never accessed.
+		// assert false;
 
 		if (n instanceof ServiceNode) {
 			serviceRoot = null;

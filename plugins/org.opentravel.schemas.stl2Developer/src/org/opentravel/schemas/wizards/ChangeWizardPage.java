@@ -512,13 +512,13 @@ public class ChangeWizardPage extends WizardPage {
 			ComponentNode facet = null;
 			switch (st) {
 			case ID:
-				facet = (ComponentNode) editedNode.getFacet_ID();
+				facet = editedNode.getFacet_ID();
 				break;
 			case SUMMARY:
-				facet = (ComponentNode) editedNode.getFacet_Summary();
+				facet = editedNode.getFacet_Summary();
 				break;
 			case DETAIL:
-				facet = (ComponentNode) editedNode.getFacet_Detail();
+				facet = editedNode.getFacet_Detail();
 				break;
 			case SIMPLE:
 				facet = editedNode.getFacet_Simple();
@@ -607,7 +607,7 @@ public class ChangeWizardPage extends WizardPage {
 	 * @param simpleProp
 	 */
 	private void resetSimple(INode simpleProp) {
-		Object srcObj = simpleProp.getModelObject().getTLModelObj();
+		Object srcObj = simpleProp.getTLModelObject();
 		LOGGER.debug("FIXME");
 		// if (srcObj instanceof TLnSimpleAttribute) {
 		// new TLSimpleAttributeResetter().reset((TLnSimpleAttribute) srcObj);

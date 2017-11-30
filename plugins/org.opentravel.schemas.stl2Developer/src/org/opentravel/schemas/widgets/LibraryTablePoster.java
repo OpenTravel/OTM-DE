@@ -23,7 +23,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.opentravel.schemas.modelObject.XSDComplexMO;
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ChoiceObjectNode;
@@ -34,7 +33,6 @@ import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.XsdNode;
 import org.opentravel.schemas.node.controllers.NodeUtils;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
@@ -42,6 +40,7 @@ import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
@@ -116,10 +115,10 @@ public class LibraryTablePoster {
 			}
 		} else if (curNode instanceof ComponentNode) {
 			// If the node is an XSD node, display its xChild node representation.
-			if (curNode instanceof XsdNode && curNode.getModelObject() instanceof XSDComplexMO) {
-				XsdNode xn = (XsdNode) curNode;// new XsdNode((LibraryMember)
-				curNode = xn.getOtmModel();
-			}
+			// if (curNode instanceof XsdNode && curNode.getModelObject() instanceof XSDComplexMO) {
+			// XsdNode xn = (XsdNode) curNode;// new XsdNode((LibraryMember)
+			// curNode = xn.getOtmModel();
+			// }
 
 			if (curNode.isTLLibraryMember()) {
 				// Put the aliases at the top of the table.
@@ -200,10 +199,15 @@ public class LibraryTablePoster {
 					item.setImage(n.getImage());
 				} else if (n instanceof ContextualFacetNode) {
 					item.setText(((ContextualFacetNode) n).getLocalName());
-					if (n.isInherited())
+					if (n instanceof InheritedInterface)
 						decorateInheritedItem(item);
-				} else if (n.isInherited())
+					else if (n.isInherited())
+						assert false;
+				} else if (n instanceof InheritedInterface)
 					decorateInheritedItem(item);
+				else if (n.isInherited())
+					assert false;
+				// decorateInheritedItem(item); // should not be reached
 				else
 					item.setForeground(colorProvider.getColor(SWT.COLOR_DARK_BLUE));
 			}

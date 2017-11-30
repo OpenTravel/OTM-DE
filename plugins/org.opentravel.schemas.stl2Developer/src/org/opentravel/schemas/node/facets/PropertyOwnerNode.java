@@ -90,7 +90,8 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 		// clear handlers on any inherited "ghost" facets
 		for (ModelElementListener l : getTLModelObject().getListeners())
 			if (l instanceof InheritanceDependencyListener)
-				((InheritanceDependencyListener) l).run_childrenChanged();
+				((InheritanceDependencyListener) l).run();
+		// ((InheritanceDependencyListener) l).run_childrenChanged();
 	}
 
 	/**
@@ -105,7 +106,7 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 			np = (PropertyNode) p;
 			if (clone)
 				np = (PropertyNode) p.clone(null, null); // add to clone not parent
-			if (isValidParentOf(np))
+			if (isValidParentOf(np.getPropertyType()))
 				addProperty(np);
 		}
 	}
@@ -129,7 +130,7 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 				newProperty = ((PropertyNode) p).clone(this, null);
 				if (newProperty == null)
 					continue; // ERROR
-				if (!this.isValidParentOf(newProperty))
+				if (!this.isValidParentOf(newProperty.getPropertyType()))
 					newProperty = newProperty.changePropertyRole(PropertyNodeType.ATTRIBUTE);
 				newProperty.addToTL(this);
 			}
@@ -186,7 +187,7 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 	public LibraryNode getLibrary() {
 		// contextual facets are property owners but are also library members in version 1.6
 		if (this instanceof LibraryMemberInterface)
-			return library;
+			return getLibrary();
 
 		if (getOwningComponent() == null || getOwningComponent() == this)
 			return null;
@@ -198,6 +199,8 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 
 	@Override
 	public LibraryMemberInterface getOwningComponent() {
+		if (getParent() == null)
+			return null;
 		if (!(getParent() instanceof LibraryMemberInterface))
 			return getParent().getOwningComponent();
 		return (LibraryMemberInterface) getParent();
@@ -331,6 +334,7 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 	}
 
 	@Override
+	@Deprecated
 	public boolean isValidParentOf(PropertyNode pn) {
 		if (pn == null)
 			return false;
@@ -338,7 +342,6 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 	}
 
 	@Override
-	@Deprecated
 	public boolean isValidParentOf(PropertyNodeType type) {
 		return PropertyNodeType.getAllTypedPropertyTypes().contains(type);
 	}

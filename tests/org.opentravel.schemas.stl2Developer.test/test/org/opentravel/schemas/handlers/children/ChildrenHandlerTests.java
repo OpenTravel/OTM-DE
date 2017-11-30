@@ -21,10 +21,12 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.AliasNode;
+import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.NavNode;
@@ -37,8 +39,10 @@ import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
+import org.opentravel.schemas.node.handlers.children.FacetChildrenHandler;
 import org.opentravel.schemas.node.handlers.children.NavNodeChildrenHandler;
 import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
@@ -64,6 +68,7 @@ public class ChildrenHandlerTests extends BaseProjectTest {
 	LoadFiles lf = new LoadFiles();
 	LibraryChainNode lcn;
 
+	@Override
 	@Before
 	public void beforeEachTest() {
 		mc = new MainController();
@@ -74,13 +79,40 @@ public class ChildrenHandlerTests extends BaseProjectTest {
 	}
 
 	@Test
+	public void ChildH_InheritanceTests() {
+		// Given a facet that extends another facet
+		LibraryNode ln = ml.createNewLibrary(pc, "t1");
+		assert ln.isEditable();
+		BusinessObjectNode boBase = null;
+		for (LibraryMemberInterface lm : ln.get_LibraryMembers())
+			if (lm instanceof BusinessObjectNode)
+				boBase = (BusinessObjectNode) lm;
+		assert boBase != null;
+		BusinessObjectNode boExt = ml.addBusinessObjectToLibrary(ln, "BoExt");
+		boExt.setExtension(boBase);
+		assert boExt.getExtendsType() == boBase;
+
+		// Given a facet child handler for the extended summary facet
+		FacetChildrenHandler handler = boExt.getFacet_Summary().getChildrenHandler();
+		List<Node> boKids = boExt.getChildren();
+		List<Node> boIKids = boExt.getInheritedChildren();
+		List<?> kids = handler.get();
+		List<?> iKids = handler.getInheritedChildren();
+		List<TLModelElement> iTlKids = handler.getInheritedChildren_TL();
+		// Then
+		assertTrue(!kids.isEmpty());
+		assertTrue(!iKids.isEmpty());
+		assertTrue(!iTlKids.isEmpty());
+	}
+
+	@Test
 	public void ChildH_NavNodeTests() {
 		ProjectNode project1 = createProject("Project1", rc.getLocalRepository(), "IT1");
 		LibraryNode ln = new LibraryNode(project1);
 		assertTrue(ln != null);
 
 		// Static children handler
-		NavNode n = (NavNode) ln.getComplexRoot();
+		NavNode n = ln.getComplexRoot();
 		NavNodeChildrenHandler nnch = new NavNodeChildrenHandler(n);
 		// from nnch
 		assertTrue(nnch.getChildren_TL().isEmpty());

@@ -21,8 +21,6 @@ import java.util.List;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryElement;
 import org.opentravel.schemacompiler.model.LibraryMember;
-import org.opentravel.schemacompiler.model.TLChoiceObject;
-import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -54,6 +52,8 @@ public abstract class LibraryMemberBase extends TypeProviderBase implements Libr
 		// assert this instanceof ImpliedNode;
 	}
 
+	// TODO - eliminate this method
+	@Deprecated
 	@Override
 	public Node clone(Node target, String nameSuffix) {
 		LibraryNode targetLib = null;
@@ -63,7 +63,10 @@ public abstract class LibraryMemberBase extends TypeProviderBase implements Libr
 			targetLib = (LibraryNode) target;
 		else
 			targetLib = target.getLibrary();
+		return (Node) clone(targetLib, nameSuffix);
+	}
 
+	public LibraryMemberInterface clone(LibraryNode targetLib, String nameSuffix) {
 		if (getLibrary() == null || !getLibrary().isEditable()) {
 			LOGGER.warn("Could not clone node because library " + getLibrary() + " it is not editable.");
 			return null;
@@ -81,20 +84,20 @@ public abstract class LibraryMemberBase extends TypeProviderBase implements Libr
 				alias.setName(alias.getName() + nameSuffix);
 			targetLib.addMember(clone);
 		}
-		return (Node) clone;
+		return clone;
 	}
 
 	public LibraryMember cloneTL() {
 		LibraryElement clone = super.cloneTLObj();
-		// TODO - why is choice done here? Why not BO and CFs also?
-		if (clone instanceof TLChoiceObject) {
-			List<TLContextualFacet> tlCFs = ((TLChoiceObject) clone).getChoiceFacets();
-			LibraryMemberInterface n;
-			for (TLContextualFacet tlcf : tlCFs) {
-				n = NodeFactory.newLibraryMember(tlcf);
-				getLibrary().addMember(n);
-			}
-		}
+		// // TODO - why is choice done here? Why not BO and CFs also?
+		// if (clone instanceof TLChoiceObject) {
+		// List<TLContextualFacet> tlCFs = ((TLChoiceObject) clone).getChoiceFacets();
+		// LibraryMemberInterface n;
+		// for (TLContextualFacet tlcf : tlCFs) {
+		// n = NodeFactory.newLibraryMember(tlcf);
+		// getLibrary().addMember(n);
+		// }
+		// }
 		assert clone instanceof LibraryMember;
 		return (LibraryMember) clone;
 	}
@@ -137,6 +140,9 @@ public abstract class LibraryMemberBase extends TypeProviderBase implements Libr
 				aliases.add((AliasNode) n);
 		return aliases;
 	}
+
+	// @Override
+	// public abstract NodeChildrenHandler<Node> getChildrenHandler();
 
 	@Override
 	public LibraryMemberInterface getOwningComponent() {

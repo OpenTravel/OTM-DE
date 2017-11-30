@@ -19,7 +19,6 @@ import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.XsdNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +71,8 @@ public class BaseNodeListener implements INodeListener {
 	@Override
 	public Node getNode() {
 		// XsdNodes are always represented by their OTM Model counterpart.
-		return thisNode instanceof XsdNode ? ((XsdNode) thisNode).getOtmModel() : thisNode;
+		// return thisNode instanceof XsdNode ? ((XsdNode) thisNode).getOtmModel() : thisNode;
+		return thisNode;
 	}
 
 	public Node getSource(ValueChangeEvent<?, ?> event) {
@@ -82,6 +82,7 @@ public class BaseNodeListener implements INodeListener {
 		return source;
 	}
 
+	@Override
 	public Node getNewValue(ValueChangeEvent<?, ?> event) {
 		Node affectedNode = null;
 		if (event.getNewValue() instanceof TLModelElement)

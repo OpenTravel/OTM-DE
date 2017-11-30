@@ -184,7 +184,7 @@ public class SimpleTypeNodeTests {
 		for (LibraryNode lib : Node.getAllLibraries()) {
 			int simpleCnt = 0;
 			for (Node type : lib.getDescendants_LibraryMembers()) {
-				if (type.isSimpleType()) {
+				if (type instanceof SimpleComponentNode) {
 					simpleCnt++;
 				}
 			}

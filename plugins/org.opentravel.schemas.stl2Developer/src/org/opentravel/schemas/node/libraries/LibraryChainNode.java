@@ -71,16 +71,21 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 
 	protected static final String LIBRARY_CHAIN = "Library Collection";
 
+	public static String makeIdentity(String name, String baseNS, String majorNS) {
+		return name + ":" + baseNS + ":" + majorNS;
+	}
+
 	// Library Chains collect content from all chain libraries organized by the nav-node.
 	protected AggregateNode complexRoot;
 	protected AggregateNode simpleRoot;
 	protected AggregateNode serviceRoot;
 	protected AggregateNode resourceRoot;
+
 	protected VersionAggregateNode versions;
-
 	protected RepositoryItem repoItem;
-	protected List<LibraryNode> chain;
 
+	protected List<LibraryNode> chain;
+	protected LibraryNode library;
 	protected ProjectItem projectItem; // The TL Project Item wrapped around this library
 
 	/**
@@ -117,14 +122,6 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 		ln.updateLibraryStatus();
 
 		// LOGGER.debug("Created library chain " + this.getLabel());
-	}
-
-	private void createAggregates() {
-		versions = new VersionAggregateNode(AggregateType.Versions, this);
-		complexRoot = new AggregateNode(AggregateType.ComplexTypes, this);
-		simpleRoot = new AggregateNode(AggregateType.SimpleTypes, this);
-		serviceRoot = new AggregateNode(AggregateType.Service, this);
-		resourceRoot = new AggregateNode(AggregateType.RESOURCES, this);
 	}
 
 	/**
@@ -170,84 +167,6 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 		setAggregateLibrary(getHead());
 	}
 
-	@Override
-	public NavNodeChildrenHandler getChildrenHandler() {
-		return versions.getChildrenHandler();
-	}
-
-	/**
-	 * Add this project item to the version chain.
-	 * 
-	 * @return the library node added to the chain or null if it already was in the chain.
-	 * @param pi
-	 */
-	public LibraryNode add(ProjectItem pi) {
-		// If the chain already has this PI, skip it.
-		LibraryNode newLib = versions.get(pi);
-
-		if (newLib == null) {
-			// LOGGER.debug("Adding pi " + pi.getFilename() + " to chain " + getLabel());
-			newLib = new LibraryNode(pi, this);
-			versions.add(newLib); // simply add this library to library list.
-			newLib.updateLibraryStatus();
-		}
-		if (getHead() == null || newLib.getTLModelObject().isLaterVersion(getHead().getTLModelObject()))
-			setHead(newLib);
-
-		return newLib;
-	}
-
-	/**
-	 * Same as lcn.getLibrary().
-	 * 
-	 * @return library at the head of the chain.
-	 */
-	public LibraryNode getHead() {
-		return getLibrary();
-	}
-
-	/**
-	 * @return the major version that anchors this chain
-	 */
-	public LibraryNode getMajor() {
-		for (LibraryNode ln : getLibraries())
-			if (ln.isMajorVersion())
-				return ln;
-		return null;
-	}
-
-	private void setHead(LibraryNode newHead) {
-		setLibrary(newHead);
-	}
-
-	@Override
-	public void setLibrary(LibraryNode ln) {
-		library = ln;
-		// super.setLibrary(ln); // sets the library in all the children.
-	}
-
-	/**
-	 * Sets the library in all the aggregate nodes.
-	 */
-	private void setAggregateLibrary(LibraryNode ln) {
-		// LOGGER.debug("Setting library in chain to " + ln.getNameWithPrefix());
-		// versions.setLibrary(ln);
-		complexRoot.setLibrary(ln);
-		simpleRoot.setLibrary(ln);
-		serviceRoot.setLibrary(ln);
-		resourceRoot.setLibrary(ln);
-	}
-
-	/**
-	 * Return true if 1st node is from a later version that node2. For example: (v01:flight, v00:flight) returns true.
-	 * 
-	 * @param node1
-	 * @param node2
-	 */
-	public boolean isLaterVersion(Node node1, Node node2) {
-		return node1.getLibrary().getTLModelObject().isLaterVersion(node2.getLibrary().getTLModelObject());
-	}
-
 	/**
 	 * Add the passed node to the appropriate chain aggregate. Wrap the node in a version node in the library's children
 	 * list.
@@ -285,44 +204,40 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 	}
 
 	/**
-	 * Remove the node from the appropriate aggregate node. This does not delete the node, just remove it from aggregate
-	 * list and takes care of family if needed. Replaces with previous version if found.
+	 * Add this project item to the version chain.
 	 * 
-	 * @param n
+	 * @return the library node added to the chain or null if it already was in the chain.
+	 * @param pi
 	 */
-	public void removeAggregate(ComponentNode node) {
-		// Remove this version.
-		if (node instanceof ComplexComponentInterface)
-			complexRoot.remove(node);
-		else if (node instanceof SimpleComponentInterface)
-			simpleRoot.remove(node);
-		else if (node instanceof ResourceNode)
-			resourceRoot.remove(node);
-		else if (node instanceof ServiceNode || node instanceof OperationNode)
-			serviceRoot.remove(node);
+	public LibraryNode add(ProjectItem pi) {
+		// If the chain already has this PI, skip it.
+		LibraryNode newLib = versions.get(pi);
 
-		// LOGGER.debug("Adding back the previous version of " + node);
-		add(findPreviousVersion(node));
+		if (newLib == null) {
+			// LOGGER.debug("Adding pi " + pi.getFilename() + " to chain " + getLabel());
+			newLib = new LibraryNode(pi, this);
+			versions.add(newLib); // simply add this library to library list.
+			newLib.updateLibraryStatus();
+		}
+		if (getHead() == null || newLib.getTLModelObject().isLaterVersion(getHead().getTLModelObject()))
+			setHead(newLib);
+
+		return newLib;
 	}
 
-	/**
-	 * @return true if this chain contains the node's library
-	 */
-	@Override
-	public boolean contains(Node node) {
-		return versions != null ? versions.getChildren().contains(node.getLibrary()) : false;
-	}
-
-	/**
-	 * Find the "latest" previous version of the node if not deleted.
-	 * 
-	 * @param node
-	 */
-	private ComponentNode findPreviousVersion(ComponentNode node) {
-		if (node.getVersionNode() != null && !node.getVersionNode().isDeleted())
-			return node.getVersionNode().getPreviousVersion();
-		return null;
-	}
+	// public boolean remove(ProjectItem pi) {
+	// // If the chain does not have this PI return false.
+	// LibraryNode ln = versions.get(pi);
+	// if (ln == null) return false;
+	//
+	// // Remove from aggregates (static children handler)
+	// for (Node lm : ln.getDescendants_LibraryMembers() )
+	// removeAggregate((ComponentNode) lm);
+	//
+	// // Remove from versions list
+	//
+	// return true;
+	// }
 
 	/**
 	 * Add each named-type descendant to the chain.
@@ -336,20 +251,6 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 		for (Node n : lib.getDescendants_LibraryMembers()) {
 			add((ComponentNode) n);
 		}
-	}
-
-	@Override
-	public boolean isEnabled_AddProperties() {
-		return false;
-	}
-
-	public boolean isEmpty() {
-		if (complexRoot.isEmpty())
-			if (simpleRoot.isEmpty())
-				if (serviceRoot.isEmpty())
-					if (resourceRoot.isEmpty())
-						return true;
-		return false;
 	}
 
 	/**
@@ -393,9 +294,31 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 		// resourceRoot = null;
 	}
 
+	/**
+	 * @return true if this chain contains the node's library
+	 */
 	@Override
-	public String getComponentType() {
-		return LIBRARY_CHAIN;
+	public boolean contains(Node node) {
+		return versions != null ? versions.getChildren().contains(node.getLibrary()) : false;
+	}
+
+	private void createAggregates() {
+		versions = new VersionAggregateNode(AggregateType.Versions, this);
+		complexRoot = new AggregateNode(AggregateType.ComplexTypes, this);
+		simpleRoot = new AggregateNode(AggregateType.SimpleTypes, this);
+		serviceRoot = new AggregateNode(AggregateType.Service, this);
+		resourceRoot = new AggregateNode(AggregateType.RESOURCES, this);
+	}
+
+	/**
+	 * Find the "latest" previous version of the node if not deleted.
+	 * 
+	 * @param node
+	 */
+	private ComponentNode findPreviousVersion(ComponentNode node) {
+		if (node.getVersionNode() != null && !node.getVersionNode().isDeleted())
+			return node.getVersionNode().getPreviousVersion();
+		return null;
 	}
 
 	@Override
@@ -409,6 +332,29 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 	}
 
 	@Override
+	public NavNodeChildrenHandler getChildrenHandler() {
+		return versions.getChildrenHandler();
+	}
+
+	public AggregateNode getComplexAggregate() {
+		return complexRoot;
+	}
+
+	@Override
+	public String getComponentType() {
+		return LIBRARY_CHAIN;
+	}
+
+	/**
+	 * Same as lcn.getLibrary().
+	 * 
+	 * @return library at the head of the chain.
+	 */
+	public LibraryNode getHead() {
+		return library;
+	}
+
+	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.libraryChain);
 	}
@@ -416,6 +362,20 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 	@Override
 	public String getLabel() {
 		return getHead() != null ? getHead().getLabel() : "VersionChain";
+	}
+
+	/**
+	 * Return the Simple/Complex/Service navNode in the latest library that matches the type of this node. *
+	 * 
+	 * @param parent
+	 */
+	public NavNode getLatestNavNode(ComponentNode node) {
+		Node parent = node.getOwningNavNode();
+		for (Node nav : getHead().getChildren()) {
+			if (parent.getComponentType().equals(nav.getComponentType()))
+				return (NavNode) nav;
+		}
+		return null;
 	}
 
 	@Override
@@ -429,6 +389,21 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 	}
 
 	@Override
+	public LibraryNavNode getLibraryNavNode() {
+		return (LibraryNavNode) getParent();
+	}
+
+	/**
+	 * @return the major version that anchors this chain
+	 */
+	public LibraryNode getMajor() {
+		for (LibraryNode ln : getLibraries())
+			if (ln.isMajorVersion())
+				return ln;
+		return null;
+	}
+
+	@Override
 	public String getName() {
 		String label = "Version Chain";
 		if (getHead() != null) {
@@ -437,6 +412,144 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 				label = getHead().getName() + "-" + handler.getNSVersion(getHead().getNamespace());
 		}
 		return label;
+	}
+
+	/**
+	 * @return the project containing this chain. Null if no project is found.
+	 */
+	@Override
+	public ProjectNode getProject() {
+		if (getParent() instanceof LibraryNavNode)
+			return ((LibraryNavNode) getParent()).getProject();
+		else
+			return getParent() instanceof ProjectNode ? (ProjectNode) getParent() : null;
+	}
+
+	public AggregateNode getResourceAggregate() {
+		return resourceRoot;
+	}
+
+	public AggregateNode getServiceAggregate() {
+		return serviceRoot;
+	}
+
+	public AggregateNode getSimpleAggregate() {
+		return simpleRoot;
+	}
+
+	@Override
+	public TLModelElement getTLModelObject() {
+		return getHead().getTLModelObject();
+	}
+
+	@Override
+	public List<Node> getTreeChildren(boolean deep) {
+		List<Node> treeKids = versions.getNavChildren(deep);
+		if (treeKids.isEmpty())
+			treeKids = new ArrayList<Node>();
+		if (!treeKids.contains(getHead().getWhereUsedHandler().getWhereUsedNode()))
+			treeKids.add(getHead().getWhereUsedHandler().getWhereUsedNode());
+		if (!treeKids.contains(getHead().getWhereUsedHandler().getUsedByNode()))
+			treeKids.add(getHead().getWhereUsedHandler().getUsedByNode());
+		return treeKids;
+	}
+
+	/**
+	 * Get the parent of the actual libraries in the chain.
+	 * 
+	 * @return - the version aggregate node
+	 */
+	public VersionAggregateNode getVersions() {
+		return versions;
+	}
+
+	@Override
+	public boolean hasChildren_TypeProviders() {
+		return versions.getChildren().size() > 0 ? true : false;
+	}
+
+	public boolean hasResources() {
+		return !resourceRoot.getChildren().isEmpty();
+	}
+
+	/**
+	 * @return true if any library in the chain has a service
+	 */
+	public boolean hasService() {
+		for (LibraryNode lib : getLibraries())
+			if (lib.hasService())
+				return true;
+		return false;
+
+		// return !serviceRoot.getChildren().isEmpty();
+	}
+
+	@Override
+	public boolean hasTreeChildren(boolean deep) {
+		return true; // include where used and uses from
+	}
+
+	@Override
+	public boolean isEditable() {
+		// True if any library is editable.
+		for (Node ln : versions.getChildren())
+			if (ln.isEditable())
+				return true;
+		return false;
+	}
+
+	public boolean isEmpty() {
+		if (complexRoot.isEmpty())
+			if (simpleRoot.isEmpty())
+				if (serviceRoot.isEmpty())
+					if (resourceRoot.isEmpty())
+						return true;
+		return false;
+	}
+
+	@Override
+	public boolean isEnabled_AddProperties() {
+		return false;
+	}
+
+	/**
+	 * Return true if 1st node is from a later version that node2. For example: (v01:flight, v00:flight) returns true.
+	 * 
+	 * @param node1
+	 * @param node2
+	 */
+	public boolean isLaterVersion(Node node1, Node node2) {
+		return node1.getLibrary().getTLModelObject().isLaterVersion(node2.getLibrary().getTLModelObject());
+	}
+
+	@Override
+	public boolean isLibraryContainer() {
+		return true;
+	}
+
+	/**
+	 * @return true if head library is a major version
+	 */
+	public boolean isMajor() {
+		return getHead().isMajorVersion();
+	}
+
+	public boolean isMinor() {
+		return getHead().isMinorOrMajorVersion();
+	}
+
+	@Override
+	public boolean isNavChild(boolean deep) {
+		return true;
+	}
+
+	@Override
+	public boolean isNavigation() {
+		return true;
+	}
+
+	public boolean isPatch() {
+		return getHead().isPatchVersion();
 	}
 
 	/**
@@ -464,150 +577,52 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 				handler.getNS_Major(getHead().getNamespace()));
 	}
 
-	public static String makeIdentity(String name, String baseNS, String majorNS) {
-		return name + ":" + baseNS + ":" + majorNS;
-	}
-
 	/**
-	 * @return the project containing this chain. Null if no project is found.
-	 */
-	@Override
-	public ProjectNode getProject() {
-		if (getParent() instanceof LibraryNavNode)
-			return ((LibraryNavNode) getParent()).getProject();
-		else
-			return getParent() instanceof ProjectNode ? (ProjectNode) getParent() : null;
-	}
-
-	/**
-	 * Get the parent of the actual libraries in the chain.
+	 * Remove the node from the appropriate aggregate node. This does not delete the node, just remove it from aggregate
+	 * list and takes care of family if needed. Replaces with previous version if found.
 	 * 
-	 * @return - the version aggregate node
+	 * @param n
 	 */
-	public VersionAggregateNode getVersions() {
-		return versions;
-	}
+	public void removeAggregate(ComponentNode node) {
+		// Remove this version.
+		if (node instanceof ComplexComponentInterface)
+			complexRoot.remove(node);
+		else if (node instanceof SimpleComponentInterface)
+			simpleRoot.remove(node);
+		else if (node instanceof ResourceNode)
+			resourceRoot.remove(node);
+		else if (node instanceof ServiceNode || node instanceof OperationNode)
+			serviceRoot.remove(node);
 
-	@Override
-	public boolean isEditable() {
-		// True if any library is editable.
-		for (Node ln : versions.getChildren())
-			if (ln.isEditable())
-				return true;
-		return false;
-	}
-
-	@Override
-	public boolean isLibraryContainer() {
-		return true;
-	}
-
-	public AggregateNode getSimpleAggregate() {
-		return simpleRoot;
-	}
-
-	@Override
-	public TLModelElement getTLModelObject() {
-		return getHead().getTLModelObject();
-	}
-
-	@Override
-	public List<Node> getTreeChildren(boolean deep) {
-		List<Node> treeKids = versions.getNavChildren(deep);
-		if (treeKids.isEmpty())
-			treeKids = new ArrayList<Node>();
-		if (!treeKids.contains(getHead().getWhereUsedHandler().getWhereUsedNode()))
-			treeKids.add(getHead().getWhereUsedHandler().getWhereUsedNode());
-		if (!treeKids.contains(getHead().getWhereUsedHandler().getUsedByNode()))
-			treeKids.add(getHead().getWhereUsedHandler().getUsedByNode());
-		return treeKids;
-	}
-
-	@Override
-	public boolean hasTreeChildren(boolean deep) {
-		return true; // include where used and uses from
-	}
-
-	public boolean isPatch() {
-		return getHead().isPatchVersion();
-	}
-
-	public boolean isMinor() {
-		return getHead().isMinorOrMajorVersion();
+		// LOGGER.debug("Adding back the previous version of " + node);
+		add(findPreviousVersion(node));
 	}
 
 	/**
-	 * @return true if head library is a major version
+	 * Sets the library in all the aggregate nodes.
 	 */
-	public boolean isMajor() {
-		return getHead().isMajorVersion();
+	private void setAggregateLibrary(LibraryNode ln) {
+		// LOGGER.debug("Setting library in chain to " + ln.getNameWithPrefix());
+		// versions.setLibrary(ln);
+		complexRoot.setLibrary(ln);
+		simpleRoot.setLibrary(ln);
+		serviceRoot.setLibrary(ln);
+		resourceRoot.setLibrary(ln);
 	}
 
-	public AggregateNode getResourceAggregate() {
-		return resourceRoot;
-	}
-
-	public AggregateNode getServiceAggregate() {
-		return serviceRoot;
-	}
-
-	public AggregateNode getComplexAggregate() {
-		return complexRoot;
+	private void setHead(LibraryNode newHead) {
+		setLibrary(newHead);
 	}
 
 	@Override
-	public boolean hasChildren_TypeProviders() {
-		return versions.getChildren().size() > 0 ? true : false;
-	}
-
-	@Override
-	public boolean isNavChild(boolean deep) {
-		return true;
-	}
-
-	@Override
-	public boolean isNavigation() {
-		return true;
-	}
-
-	/**
-	 * Return the Simple/Complex/Service navNode in the latest library that matches the type of this node. *
-	 * 
-	 * @param parent
-	 */
-	public NavNode getLatestNavNode(ComponentNode node) {
-		Node parent = node.getOwningNavNode();
-		for (Node nav : getHead().getChildren()) {
-			if (parent.getComponentType().equals(nav.getComponentType()))
-				return (NavNode) nav;
-		}
-		return null;
+	public void setLibrary(LibraryNode ln) {
+		library = ln;
+		// super.setLibrary(ln); // sets the library in all the children.
 	}
 
 	@Override
 	public ValidationFindings validate() {
 		return ValidationManager.validate(this);
-	}
-
-	/**
-	 * @return true if any library in the chain has a service
-	 */
-	public boolean hasService() {
-		for (LibraryNode lib : getLibraries())
-			if (lib.hasService())
-				return true;
-		return false;
-
-		// return !serviceRoot.getChildren().isEmpty();
-	}
-
-	public boolean hasResources() {
-		return !resourceRoot.getChildren().isEmpty();
-	}
-
-	@Override
-	public LibraryNavNode getLibraryNavNode() {
-		return (LibraryNavNode) getParent();
 	}
 
 }

@@ -114,7 +114,7 @@ public class AttributeReferenceNode extends AttributeNode {
 
 	@Override
 	public boolean setAssignedType(TypeProvider provider) {
-		boolean result = typeHandler.set(provider);
+		boolean result = getTypeHandler().set(provider);
 		initName();
 		return result;
 	}

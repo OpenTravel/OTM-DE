@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
 public abstract class ResourceBase<TL> extends Node implements ResourceMemberInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceBase.class);
 	protected TL tlObj;
+	protected LibraryNode library;
 
 	public ResourceBase(TL obj) {
 		this.tlObj = obj;
@@ -61,7 +62,7 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 		// Sometimes the constructor will need to be invoked super on a newly constructed tl object (for example:
 		// ResourceParameter)
 		if (getTLOwner() instanceof TLModelElement) {
-			parent = this.getNode(((TLModelElement) getTLOwner()).getListeners());
+			parent = this.getNode(getTLOwner().getListeners());
 
 			assert parent != null;
 			assert parent instanceof ResourceMemberInterface;

@@ -44,6 +44,7 @@ public class TypeTreeContentProvider implements ITreeContentProvider {
 
 	@Override
 	public Object[] getChildren(final Object element) {
+		// return (((Node) element).getDescendants_TypeProviders().toArray());
 		return (((INode) element).getChildren_TypeProviders().toArray());
 	}
 

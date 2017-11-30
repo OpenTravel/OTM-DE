@@ -81,6 +81,10 @@ public class TypeResolver {
 			LOGGER.debug("Resolving Types in " + lib);
 			lib.setEditable(true);
 
+			// Load inherited children since they can change the model (add contrib and contextual facets)
+			for (ExtensionOwner eo : lib.getDescendants_ExtensionOwners())
+				eo.getInheritedChildren();
+
 			// Resolve all un-linked contributed facets FIRST since that impacts children
 			for (ContributedFacetNode cf : lib.getDescendants_ContributedFacets())
 				cf.setContributor(null); // will resolve using identity listeners

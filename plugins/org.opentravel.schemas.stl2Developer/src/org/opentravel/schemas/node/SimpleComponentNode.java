@@ -25,6 +25,7 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.node.handlers.children.NodeChildrenHandler;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
@@ -58,6 +59,11 @@ public abstract class SimpleComponentNode extends LibraryMemberBase implements S
 	}
 
 	@Override
+	public NodeChildrenHandler<Node> getChildrenHandler() {
+		return null;
+	}
+
+	@Override
 	public String getTypeName() {
 		return typeHandler.getName();
 	}
@@ -88,6 +94,7 @@ public abstract class SimpleComponentNode extends LibraryMemberBase implements S
 	/**
 	 * Return new array containing assigned type
 	 */
+	@Override
 	public List<Node> getNavChildren(boolean deep) {
 		Node type = getNavType();
 		ArrayList<Node> kids = new ArrayList<Node>();
@@ -150,15 +157,6 @@ public abstract class SimpleComponentNode extends LibraryMemberBase implements S
 
 	@Override
 	public abstract TLLibraryMember getTLModelObject();
-
-	/**
-	 * Use instanceof SimpleComponentNode
-	 */
-	@Deprecated
-	@Override
-	public boolean isSimpleType() {
-		return true;
-	}
 
 	@Override
 	public boolean isOnlySimpleTypeUser() {

@@ -42,7 +42,6 @@ import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.modelObject.TLnValueWithAttributesFacet;
 import org.opentravel.schemas.node.facets.AttributeFacetNode;
 import org.opentravel.schemas.node.facets.ChoiceFacetNode;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
@@ -135,8 +134,8 @@ public class FacetsTests {
 		assertTrue("Facet must not be null.", tlSf != null);
 		TLValueWithAttributes tlVWA = new TLValueWithAttributes();
 		assertTrue("Facet must not be null.", tlVWA != null);
-		TLnValueWithAttributesFacet tlVf = new TLnValueWithAttributesFacet(tlVWA);
-		assertTrue("Facet must not be null.", tlVf != null);
+		// TLnValueWithAttributesFacet tlVf = new TLnValueWithAttributesFacet(tlVWA);
+		// assertTrue("Facet must not be null.", tlVf != null);
 	}
 
 	@Test
@@ -765,10 +764,10 @@ public class FacetsTests {
 				assertTrue(targetName + " must have " + total + " contextual facets.", facets.size() == total);
 				// assertTrue(targetName + " must not have inherited children.", n.getInheritedChildren().isEmpty());
 				for (ContextualFacetNode cf : facets)
-					if (cf.isLocal())
-						localCnt++;
-					else
-						contributedCnt++;
+					// if (cf.isLocal())
+					// localCnt++;
+					// else
+					contributedCnt++;
 				assertTrue(targetName + " must have " + local + " local contextual facets.", localCnt == local);
 				assertTrue(targetName + " must have " + contributed + " contributed facets.",
 						contributedCnt == contributed);
@@ -1045,31 +1044,41 @@ public class FacetsTests {
 	}
 
 	public void checkBaseFacet(PropertyOwnerNode fn) {
+		assertTrue("Must have owning library.", fn.getLibrary() != null);
+		if (fn instanceof ContextualFacetNode) {
+			if (!OTM16Upgrade.otm16Enabled || fn instanceof ContributedFacetNode)
+				assertTrue("Must have same owning library as TL object.",
+						fn.getLibrary() == Node.GetNode(fn.getLibrary().getTLModelObject()));
+		} else
+			assertTrue("Must have same owning library as TL object.",
+					fn.getLibrary() == Node.GetNode(fn.getLibrary().getTLModelObject()));
 
-		// Check children
-		for (Node property : fn.getChildren()) {
-			PropertyNodeTest pnTests = new PropertyNodeTest();
-			if (fn instanceof ContributedFacetNode) {
-				assertTrue(OTM16Upgrade.otm16Enabled);
-				assertTrue(property.getParent() == ((ContributedFacetNode) fn).getContributor());
-				continue;
-			}
-			if (property instanceof AliasNode)
-				continue;
-			if (property instanceof ContextualFacetNode) {
-				assertTrue(OTM16Upgrade.otm16Enabled);
-				if (property instanceof ContributedFacetNode)
+		if (!fn.isInherited())
+			// Check children
+			for (Node property : fn.getChildren()) {
+				PropertyNodeTest pnTests = new PropertyNodeTest();
+				if (fn instanceof ContributedFacetNode) {
+					assertTrue(OTM16Upgrade.otm16Enabled);
+					assertTrue(property.getParent() == ((ContributedFacetNode) fn).getContributor());
+					continue;
+				}
+				if (property instanceof AliasNode)
+					continue;
+				if (property instanceof ContextualFacetNode) {
+					assertTrue(OTM16Upgrade.otm16Enabled);
+					if (property instanceof ContributedFacetNode)
+						assertTrue(property.getParent() == fn);
+					continue;
+				}
+				if (property instanceof PropertyNode) {
 					assertTrue(property.getParent() == fn);
-				continue;
+					pnTests.check((PropertyNode) property);
+				} else {
+					LOGGER.debug("ERROR - invalid property type: " + property + " "
+							+ property.getClass().getSimpleName());
+					assertTrue(false);
+				}
 			}
-			if (property instanceof PropertyNode) {
-				assertTrue(property.getParent() == fn);
-				pnTests.check((PropertyNode) property);
-			} else {
-				LOGGER.debug("ERROR - invalid property type: " + property + " " + property.getClass().getSimpleName());
-				assertTrue(false);
-			}
-		}
 
 		assertTrue("Must be valid parent to attributes.", fn.isValidParentOf(PropertyNodeType.ATTRIBUTE));
 		assertTrue("Must be valid parent to elements.", fn.isValidParentOf(PropertyNodeType.ELEMENT));
@@ -1236,7 +1245,7 @@ public class FacetsTests {
 		assertFalse("Must NOT be named type.", !roleFacetNode.isNamedEntity());
 
 		// Behaviors
-		RoleNode role = new RoleNode((RoleFacetNode) roleFacetNode, "newRole1");
+		RoleNode role = new RoleNode(roleFacetNode, "newRole1");
 		assertTrue("Must be able to add roles.", role.getParent() == roleFacetNode);
 		assertTrue("Must be able to add child.", roleFacetNode.getChildren().contains(role));
 		role.delete();

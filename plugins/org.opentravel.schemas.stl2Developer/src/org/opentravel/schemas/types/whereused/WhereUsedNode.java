@@ -25,6 +25,7 @@ import org.opentravel.schemas.node.controllers.NodeImageProvider;
 import org.opentravel.schemas.node.controllers.NodeLabelProvider;
 import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -42,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 @SuppressWarnings("unchecked")
-public abstract class WhereUsedNode<O> extends Node implements WhereUsedNodeInterface {
+public abstract class WhereUsedNode<O> extends Node implements WhereUsedNodeInterface, FacadeInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(WhereUsedNode.class);
 
 	protected NodeImageProvider imageProvider = simpleImageProvider("WhereUsed");
@@ -76,6 +77,7 @@ public abstract class WhereUsedNode<O> extends Node implements WhereUsedNodeInte
 
 	@Override
 	public void delete() {
+		LOGGER.debug("Deleting where used node: " + this);
 	}
 
 	@Override
@@ -93,6 +95,16 @@ public abstract class WhereUsedNode<O> extends Node implements WhereUsedNodeInte
 		} else if (!owner.equals(other.owner))
 			return false;
 		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.interfaces.FacadeInterface#get()
+	 */
+	@Override
+	public Node get() {
+		return (Node) getOwner();
 	}
 
 	/**

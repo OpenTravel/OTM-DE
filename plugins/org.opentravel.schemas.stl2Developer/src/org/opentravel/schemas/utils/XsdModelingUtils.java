@@ -16,7 +16,7 @@
 /**
  * 
  */
-package org.opentravel.schemas.modelObject;
+package org.opentravel.schemas.utils;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -959,7 +959,7 @@ public class XsdModelingUtils {
 			return false;
 		}
 
-		Object typeObj = typeNode.getModelObject().getTLModelObj();
+		Object typeObj = typeNode.getTLModelObject();
 		if (typeObj instanceof TLPropertyType) {
 			tlp.setType((TLPropertyType) typeObj);
 			if (typeObj instanceof XSDComplexType) {

@@ -334,7 +334,7 @@ public class WhereAssignedHandler {
 	}
 
 	/**
-	 * Remove user from where used list.
+	 * Remove user from where used list. Also removed from library's where used handler. Listeners are not affected.
 	 * 
 	 * @param typeUser
 	 *            - type user to remove from list
@@ -344,6 +344,11 @@ public class WhereAssignedHandler {
 		if (!users.contains(typeUser))
 			return false;
 		users.remove(typeUser);
+
+		// Also remove from library where used
+		if (owner.getLibrary() != null)
+			owner.getLibrary().getWhereUsedHandler().remove(typeUser);
+
 		return true;
 	}
 

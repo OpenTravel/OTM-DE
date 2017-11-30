@@ -25,6 +25,7 @@ import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.validate.compile.TLModelCompileValidator;
 import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -89,6 +90,8 @@ public class ValidationManager {
 	public static boolean isValid(Node node) {
 		if (node instanceof ImpliedNode)
 			return true;
+		if (node instanceof InheritedInterface)
+			return true; // Out of context the compiler may flag invalid errors or warnings
 		if (node == null || node.getLibrary() == null)
 			return false;
 		if (node.getLibrary().isBuiltIn())

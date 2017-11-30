@@ -48,6 +48,7 @@ import org.opentravel.schemas.node.handlers.ConstraintHandler;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
+import org.opentravel.schemas.node.properties.IValueWithContextHandler;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
@@ -363,17 +364,17 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 	/**
 	 * Update the mandatory button checked/unchecked setting and enabled.
 	 */
-	private void postMandatoryButton(final ComponentNode cn) {
-		boolean enabled = cn.isEditable_newToChain();
+	private void postMandatoryButton(final PropertyNode pn) {
+		boolean enabled = pn.isEditable_newToChain();
 		// Force optional if the property is in a minor and the owning component is a versioned object
-		if (cn.getOwningComponent().isVersioned() && cn.getLibrary().isMinorVersion()) {
+		if (pn.getOwningComponent().isVersioned() && pn.getLibrary().isMinorVersion()) {
 			enabled = false;
-			cn.setMandatory(false);
+			pn.setMandatory(false);
 		}
-		mandatoryButton.setSelection(cn.isMandatory());
+		mandatoryButton.setSelection(pn.isMandatory());
 		mandatoryButton.setEnabled(enabled);
 		if (enabled)
-			if (cn.isMandatory())
+			if (pn.isMandatory())
 				mandatoryButton.setToolTipText("Uncheck to make this property optional.");
 			else
 				mandatoryButton.setToolTipText("Check to make this property required.");
@@ -463,7 +464,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 				}
 			}
 			if (!(cn instanceof IndicatorNode))
-				postMandatoryButton(cn);
+				postMandatoryButton((PropertyNode) cn);
 			// in this case fixNames should set type
 			if (((PropertyNode) cn).isAssignedComplexType())
 				nameField.setEnabled(false);
@@ -551,14 +552,18 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 	private void updateEquivalent(ComponentNode cn, String context) {
 		final String eqToolTip = Messages.getString("OtmW." + "317"); //$NON-NLS-1$
 		equivalentField.setToolTipText(eqToolTip + " (" + context + ")"); // show context
-		fields.postField(equivalentField, cn.getEquivalent(context), cn.isEditable_equivalent());
+		IValueWithContextHandler handler = cn.getEquivalentHandler();
+		if (handler != null)
+			fields.postField(equivalentField, handler.get(context), cn.isEditable_equivalent());
 	}
 
 	private void updateExample(ComponentNode cn, String context) {
 		// boolean isExampleSupported = NodeUtils.checker(cn).isExampleSupported().get();
 		final String toolTip = Messages.getString("OtmW." + "315"); //$NON-NLS-1$
 		exampleField.setToolTipText(toolTip + " (" + context + ")"); // show context
-		fields.postField(exampleField, cn.getExample(context), cn.isEditable_example());
+		IValueWithContextHandler handler = cn.getExampleHandler();
+		if (handler != null)
+			fields.postField(exampleField, handler.get(context), cn.isEditable_example());
 	}
 
 	/**

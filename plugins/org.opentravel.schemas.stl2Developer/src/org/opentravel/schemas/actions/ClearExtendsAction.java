@@ -68,7 +68,6 @@ public class ClearExtendsAction extends OtmAbstractAction {
 			Node n = mc.getSelectedNode_TypeView();
 			if (n instanceof ExtensionOwner)
 				((ExtensionOwner) n).setExtension(null);
-			n.resetInheritedChildren();
 			mc.refresh();
 		}
 	}

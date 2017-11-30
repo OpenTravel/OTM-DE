@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.VersionNode;
+import org.opentravel.schemas.node.handlers.children.ChildrenHandlerI;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
@@ -97,5 +98,10 @@ public interface LibraryMemberInterface extends INode {
 	 * @return
 	 */
 	public boolean isLatestVersion();
+
+	/**
+	 * @return children handler specific to this library member or null if no children
+	 */
+	public ChildrenHandlerI<?> getChildrenHandler();
 
 }

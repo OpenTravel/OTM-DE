@@ -59,7 +59,7 @@ public class NodeVisitors {
 
 		@Override
 		public void visit(INode n) {
-			LOGGER.debug("CloseVisitor: closing " + n);
+			// LOGGER.debug("CloseVisitor: closing " + n);
 			Node node = (Node) n;
 
 			// Use override behavior because Library nodes must clear out context.
@@ -78,9 +78,8 @@ public class NodeVisitors {
 				node.getParent().getChildrenHandler().clear();
 
 			node.setParent(null);
-			// node.setLibrary(null);
 
-			LOGGER.debug("CloseVisitor: closed  " + n);
+			// LOGGER.debug("CloseVisitor: closed  " + n);
 		}
 	}
 

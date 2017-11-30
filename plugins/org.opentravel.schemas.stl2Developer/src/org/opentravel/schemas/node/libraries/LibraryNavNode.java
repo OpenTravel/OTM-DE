@@ -19,9 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.handlers.children.LibraryNavChildrenHandler;
+import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * Methods in this class must have no knowledge of the contents of the library or chain.
  */
 
-public class LibraryNavNode extends Node {
+public class LibraryNavNode extends Node implements FacadeInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryNavNode.class);
 
 	protected static final String DEFAULT_LIBRARY_TYPE = "Library Nav";
@@ -244,4 +246,23 @@ public class LibraryNavNode extends Node {
 		return true;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.interfaces.FacadeInterface#get()
+	 */
+	@Override
+	public Node get() {
+		return getLibrary();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.interfaces.FacadeInterface#get()
+	 */
+	@Override
+	public TLModelElement getTLModelObject() {
+		return getLibrary() != null ? getLibrary().getTLModelObject() : null;
+	}
 }

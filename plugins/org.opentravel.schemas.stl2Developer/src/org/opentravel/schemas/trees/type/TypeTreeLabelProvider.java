@@ -29,16 +29,17 @@ import org.opentravel.schemas.node.interfaces.INode;
  *         http://www.vogella.de/articles/EclipseJFaceTree/article.html#example
  * 
  */
+@Deprecated
 public class TypeTreeLabelProvider extends LabelProvider {
 
-    @Override
-    public Image getImage(final Object element) {
-        return ((Node) element).getImage();
-    }
+	@Override
+	public Image getImage(final Object element) {
+		return ((Node) element).getImage();
+	}
 
-    @Override
-    public String getText(final Object element) {
-        return ((INode) element).getName();
-    }
+	@Override
+	public String getText(final Object element) {
+		return ((INode) element).getName();
+	}
 
 }

@@ -38,141 +38,141 @@ import org.opentravel.schemas.stl2Developer.editor.model.Connection;
  */
 public class ConnectionEditPart extends AbstractConnectionEditPart {
 
-    /**
-     * @param model
-     */
-    public ConnectionEditPart(Connection model) {
-        setModel(model);
-    }
+	/**
+	 * @param model
+	 */
+	public ConnectionEditPart(Connection model) {
+		setModel(model);
+	}
 
-    @Override
-    protected void createEditPolicies() {
+	@Override
+	protected void createEditPolicies() {
 
-    }
+	}
 
-    @Override
-    public Connection getModel() {
-        return (Connection) super.getModel();
-    }
+	@Override
+	public Connection getModel() {
+		return (Connection) super.getModel();
+	}
 
-    @Override
-    protected ConnectionAnchor getSourceConnectionAnchor() {
-        if (getSource() != null) {
+	@Override
+	protected ConnectionAnchor getSourceConnectionAnchor() {
+		if (getSource() != null) {
 
-            return new MyAnchor(((GraphicalEditPart) getSource()).getFigure());
-        }
-        return super.getSourceConnectionAnchor();
-    }
+			return new MyAnchor(((GraphicalEditPart) getSource()).getFigure());
+		}
+		return super.getSourceConnectionAnchor();
+	}
 
-    @Override
-    protected ConnectionAnchor getTargetConnectionAnchor() {
-        if (getTarget() != null) {
-            int topOffset = -1;
-            if (Features.fixedTargetAnchor()) {
-                topOffset = TextUtilities.INSTANCE.getStringExtents("A",
-                        JFaceResources.getDefaultFont()).height / 2;
-            }
-            return new MyAnchor(((GraphicalEditPart) getTarget()).getFigure(), topOffset);
-        }
-        return super.getTargetConnectionAnchor();
-    }
+	@Override
+	protected ConnectionAnchor getTargetConnectionAnchor() {
+		if (getTarget() != null) {
+			int topOffset = -1;
+			if (Features.fixedTargetAnchor()) {
+				topOffset = TextUtilities.INSTANCE.getStringExtents("A", JFaceResources.getDefaultFont()).height / 2;
+			}
+			return new MyAnchor(((GraphicalEditPart) getTarget()).getFigure(), topOffset);
+		}
+		return super.getTargetConnectionAnchor();
+	}
 
-    class MyAnchor extends ChopboxAnchor {
+	class MyAnchor extends ChopboxAnchor {
 
-        private int topOffset;
+		private int topOffset;
 
-        public MyAnchor(IFigure owner) {
-            this(owner, -1);
-        }
+		public MyAnchor(IFigure owner) {
+			this(owner, -1);
+		}
 
-        public MyAnchor(IFigure owner, int topOffset) {
-            super(owner);
-            this.topOffset = topOffset;
-        }
+		public MyAnchor(IFigure owner, int topOffset) {
+			super(owner);
+			this.topOffset = topOffset;
+		}
 
-        @Override
-        public Point getLocation(Point reference) {
-            IFigure owner = getOwner();
-            if (!owner.isShowing()) {
-                owner = findVisibleParent(getOwner());
-            }
-            Rectangle ownerBounds = owner.getBounds().getCopy();
-            getOwner().translateToAbsolute(ownerBounds);
-            Point ownerCenter = ownerBounds.getCenter();
-            Point location = null;
-            if (isExtension(getModel())) {
-                if (ownerIsOnTop(ownerCenter, reference)) {
-                    location = ownerBounds.getBottom();
-                } else {
-                    location = ownerBounds.getTop();
-                }
-            } else {
-                if (ownerIsOnLeft(ownerCenter, reference)) {
-                    location = ownerBounds.getRight();
-                } else {
-                    location = ownerBounds.getLeft();
-                }
-                if (topOffset >= 0) {
-                    location.y = ownerBounds.getTop().y + topOffset;
-                }
-            }
-            return location;
-        }
+		@Override
+		public Point getLocation(Point reference) {
+			IFigure owner = getOwner();
+			if (!owner.isShowing()) {
+				owner = findVisibleParent(getOwner());
+			}
+			Rectangle ownerBounds = owner.getBounds().getCopy();
+			getOwner().translateToAbsolute(ownerBounds);
+			Point ownerCenter = ownerBounds.getCenter();
+			Point location = null;
+			if (isExtension(getModel())) {
+				if (ownerIsOnTop(ownerCenter, reference)) {
+					location = ownerBounds.getBottom();
+				} else {
+					location = ownerBounds.getTop();
+				}
+			} else {
+				if (ownerIsOnLeft(ownerCenter, reference)) {
+					location = ownerBounds.getRight();
+				} else {
+					location = ownerBounds.getLeft();
+				}
+				if (topOffset >= 0) {
+					location.y = ownerBounds.getTop().y + topOffset;
+				}
+			}
+			return location;
+		}
 
-        private boolean ownerIsOnTop(Point myLocation, Point reference) {
-            return myLocation.y < reference.y;
-        }
+		private boolean ownerIsOnTop(Point myLocation, Point reference) {
+			return myLocation.y < reference.y;
+		}
 
-        private boolean ownerIsOnLeft(Point myLocation, Point reference) {
-            return myLocation.x < reference.x;
-        }
+		private boolean ownerIsOnLeft(Point myLocation, Point reference) {
+			return myLocation.x < reference.x;
+		}
 
-        private IFigure findVisibleParent(IFigure owner) {
-            IFigure parent = owner.getParent();
-            while (parent != null && !parent.isShowing()) {
-                parent = parent.getParent();
-            }
-            return parent;
-        }
+		private IFigure findVisibleParent(IFigure owner) {
+			IFigure parent = owner.getParent();
+			while (parent != null && !parent.isShowing()) {
+				parent = parent.getParent();
+			}
+			return parent;
+		}
 
-    }
+	}
 
-    @Override
-    protected IFigure createFigure() {
-        PolylineConnection fig = new PolylineConnection();
-        return fig;
-    }
+	@Override
+	protected IFigure createFigure() {
+		PolylineConnection fig = new PolylineConnection();
+		return fig;
+	}
 
-    @Override
-    protected void refreshVisuals() {
-        PolylineConnection con = (PolylineConnection) getFigure();
-        if (Features.customLinesForNotVisbile()) {
-            if (!isVisible(getSource()) || !isVisible(getTarget())) {
-                con.setLineStyle(Graphics.LINE_CUSTOM);
-                con.setLineDash(new float[] { 6, 3 });
-                con.setForegroundColor(ColorConstants.gray);
-            } else {
-                con.setLineStyle(Graphics.LINE_SOLID);
-                con.setForegroundColor(null);
-            }
-        }
-        PolygonDecoration decoration = new PolygonDecoration();
-        decoration.setTemplate(PolygonDecoration.TRIANGLE_TIP);
-        con.setTargetDecoration(decoration);
-        if (isExtension(getModel())) {
-            decoration.setBackgroundColor(ColorConstants.white);
-        }
-    }
+	@Override
+	protected void refreshVisuals() {
+		PolylineConnection con = (PolylineConnection) getFigure();
+		if (Features.customLinesForNotVisbile()) {
+			if (!isVisible(getSource()) || !isVisible(getTarget())) {
+				con.setLineStyle(Graphics.LINE_CUSTOM);
+				con.setLineDash(new float[] { 6, 3 });
+				con.setForegroundColor(ColorConstants.gray);
+			} else {
+				con.setLineStyle(Graphics.LINE_SOLID);
+				con.setForegroundColor(null);
+			}
+		}
+		PolygonDecoration decoration = new PolygonDecoration();
+		decoration.setTemplate(PolygonDecoration.TRIANGLE_TIP);
+		con.setTargetDecoration(decoration);
+		if (isExtension(getModel())) {
+			decoration.setBackgroundColor(ColorConstants.white);
+		}
+	}
 
-    private boolean isExtension(Connection model) {
-        return model.source.getNode().isExtendedBy(model.target.getNode());
-    }
+	private boolean isExtension(Connection model) {
+		return model.source.getNode().getExtendsType() == model.target.getNode();
+		// return model.source.getNode().isExtendedBy(model.target.getNode());
+	}
 
-    private boolean isVisible(EditPart target) {
-        if (target instanceof GraphicalEditPart) {
-            IFigure f = ((GraphicalEditPart) target).getFigure();
-            return f.isShowing();
-        }
-        return false;
-    }
+	private boolean isVisible(EditPart target) {
+		if (target instanceof GraphicalEditPart) {
+			IFigure f = ((GraphicalEditPart) target).getFigure();
+			return f.isShowing();
+		}
+		return false;
+	}
 }

@@ -90,18 +90,18 @@ public class EditNode extends ComponentNode {
 		return useType == null ? "" : useType;
 	}
 
-	/**
-	 * Edit nodes may NOT be linked into the tree.
-	 */
-	@Override
-	public boolean linkChild(final Node child) {
-		return false;
-	}
-
-	@Override
-	public boolean linkChild(final Node child, final int index) {
-		return false;
-	}
+	// /**
+	// * Edit nodes may NOT be linked into the tree.
+	// */
+	// @Override
+	// public boolean linkChild(final Node child) {
+	// return false;
+	// }
+	//
+	// @Override
+	// public boolean linkChild(final Node child, final int index) {
+	// return false;
+	// }
 
 	/***********************************************************************
 	 * Source Object

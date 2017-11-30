@@ -29,6 +29,7 @@ import org.opentravel.schemas.node.controllers.NodeUtils;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Fonts;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,11 +44,13 @@ public class LibraryTreeLabelProvider extends LabelProvider implements IFontProv
 			final Node n = (Node) element;
 			if (n.isDeleted()) {
 				LOGGER.debug("Tried to provide text for deleted node.");
-				// label += " (Deleted)"; // make debugging easier
-				return null;
+				label += " (Deleted)"; // make debugging easier
+				// return null;
 			}
 			label = n.getNavigatorName();
 		}
+		if (element instanceof WhereUsedNode<?>)
+			LOGGER.debug("Label = " + label);
 		return label;
 	}
 
@@ -114,7 +117,7 @@ public class LibraryTreeLabelProvider extends LabelProvider implements IFontProv
 			if (!((INode) element).isDeleted())
 				return new StyledString(getText(element));
 		}
-		return new StyledString("");
+		return new StyledString("StyledTextForDeletedElement");
 	}
 
 }

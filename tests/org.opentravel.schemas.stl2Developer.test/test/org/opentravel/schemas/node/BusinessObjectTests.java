@@ -189,7 +189,7 @@ public class BusinessObjectTests {
 		assertTrue("Must have TL Busness Object.", bo.getTLModelObject() instanceof TLBusinessObject);
 
 		// Is assertions
-		assertTrue("If editable it must also be aliasable.", bo.isAliasable() == bo.isEditable_newToChain());
+		// assertTrue("If editable it must also be aliasable.", bo.isAliasable() == bo.isEditable_newToChain());
 		assertTrue("", bo.isExtensibleObject());
 		assertTrue("", bo.isNamedEntity());
 		assertTrue("", bo instanceof TypeProvider);

@@ -65,10 +65,6 @@ public class EnumerationOpenNode extends LibraryMemberBase implements ComplexCom
 
 		closedEnum.delete();
 
-		// if (getLibrary().isInChain())
-		// getChain().add(this);
-		//
-		// }""
 		// LOGGER.debug("Created open enum from closed.");
 	}
 
@@ -87,7 +83,6 @@ public class EnumerationOpenNode extends LibraryMemberBase implements ComplexCom
 
 	@Override
 	public void addProperties(List<Node> properties, boolean clone) {
-		// TODO Auto-generated method stub
 		assert false;
 	}
 
@@ -131,6 +126,11 @@ public class EnumerationOpenNode extends LibraryMemberBase implements ComplexCom
 	@Override
 	public INode.CommandType getAddCommand() {
 		return INode.CommandType.ENUMERATION;
+	}
+
+	@Override
+	public EnumerationOpenChildrenHandler getChildrenHandler() {
+		return (EnumerationOpenChildrenHandler) childrenHandler;
 	}
 
 	@Override
@@ -193,23 +193,7 @@ public class EnumerationOpenNode extends LibraryMemberBase implements ComplexCom
 	@Override
 	public TLOpenEnumeration getTLModelObject() {
 		return (TLOpenEnumeration) tlObj;
-		// return (TLOpenEnumeration) (modelObject != null ? modelObject.getTLModelObj() : null);
 	}
-
-	// public void initInheritedChildren() {
-	// List<?> inheritedMOChildren = modelObject.getInheritedChildren();
-	// if (inheritedMOChildren == null || inheritedMOChildren.isEmpty()) {
-	// inheritedChildren = Collections.emptyList();
-	// } else {
-	// for (final Object obj : inheritedMOChildren) {
-	// ComponentNode nn = NodeFactory.newMemberOLD(null, obj);
-	// if (nn != null) {
-	// linkInheritedChild(nn);
-	// nn.inheritedFrom = null; // override value from link
-	// }
-	// }
-	// }
-	// }
 
 	@Override
 	public boolean isAssignableToElementRef() {
@@ -224,6 +208,11 @@ public class EnumerationOpenNode extends LibraryMemberBase implements ComplexCom
 	@Override
 	public boolean isAssignableToVWA() {
 		return true;
+	}
+
+	@Override
+	public boolean isDefaultFacet() {
+		return false;
 	}
 
 	@Override
@@ -268,15 +257,6 @@ public class EnumerationOpenNode extends LibraryMemberBase implements ComplexCom
 			extensionHandler = new ExtensionHandler(this);
 		extensionHandler.set(base);
 	}
-
-	// @Override
-	// public void setAssignedType(TLModelElement tla) {
-	// if (tla instanceof TLAbstractEnumeration) {
-	// TLExtension extension = new TLExtension();
-	// extension.setExtendsEntity((NamedEntity) tla);
-	// getTLModelObject().setExtension(extension);
-	// }
-	// }
 
 	@Override
 	public void setName(String name) {

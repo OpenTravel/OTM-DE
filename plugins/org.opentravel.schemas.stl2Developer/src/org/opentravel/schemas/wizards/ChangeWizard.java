@@ -22,7 +22,6 @@ import java.util.List;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemas.modelObject.ValueWithAttributesAttributeFacetMO;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.SubType;
 import org.opentravel.schemas.node.facets.AttributeFacetNode;
@@ -60,12 +59,14 @@ public class ChangeWizard extends ValidatingWizard implements Cancelable {
 	 * The enum exist only because there is missing TLFacetType.ATTRIBUTES, describing the VWA facet with attributes.
 	 * After adding this type to TLFacetType this enum can be deleted.
 	 */
+	public static final String DISPLAY_NAME = "Attributes";
+
 	enum ExtentedTLFacetType {
 		ID(TLFacetType.ID),
 		SUMMARY(TLFacetType.SUMMARY),
 		DETAIL(TLFacetType.DETAIL),
 		SIMPLE(TLFacetType.SIMPLE),
-		VWA_ATTRIBUTES(ValueWithAttributesAttributeFacetMO.DISPLAY_NAME);
+		VWA_ATTRIBUTES(DISPLAY_NAME);
 
 		private TLFacetType tlType;
 		private String identityName;

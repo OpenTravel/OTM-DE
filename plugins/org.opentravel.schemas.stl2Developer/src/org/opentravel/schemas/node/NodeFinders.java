@@ -37,8 +37,8 @@ public class NodeFinders {
 	 */
 	public static Node findNodeByName(final String name, final String ns) {
 		Node n = Node.getModelNode().findNode(name, ns);
-		if (n instanceof XsdNode)
-			n = ((XsdNode) n).getOtmModel();
+		// if (n instanceof XsdNode)
+		// n = ((XsdNode) n).getOtmModel();
 		// LOGGER.debug("findNodeByName returning: "+n);
 		return n;
 	}

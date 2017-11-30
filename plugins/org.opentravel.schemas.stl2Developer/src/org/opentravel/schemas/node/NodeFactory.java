@@ -53,17 +53,18 @@ import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.facets.CustomFacetNode;
 import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.facets.InheritedContextualFacetNode;
 import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.facets.OperationFacetNode;
 import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.facets.RoleFacetNode;
-import org.opentravel.schemas.node.facets.SimpleFacetNode;
 import org.opentravel.schemas.node.facets.UpdateFacetNode;
 import org.opentravel.schemas.node.interfaces.AliasOwner;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.listeners.InheritanceDependencyListener;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.AttributeReferenceNode;
 import org.opentravel.schemas.node.properties.ElementNode;
@@ -72,6 +73,10 @@ import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.IdNode;
 import org.opentravel.schemas.node.properties.IndicatorElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
+import org.opentravel.schemas.node.properties.InheritedAttributeNode;
+import org.opentravel.schemas.node.properties.InheritedElementNode;
+import org.opentravel.schemas.node.properties.InheritedEnumLiteralNode;
+import org.opentravel.schemas.node.properties.InheritedIndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.RoleNode;
@@ -88,51 +93,71 @@ import org.slf4j.LoggerFactory;
 public class NodeFactory {
 	private static final Logger LOGGER = LoggerFactory.getLogger(NodeFactory.class);
 
-	// /*******************************************************************************************
-	// * New ComponentNode methods that also create new objects in underlying model
-	// */
-	//
-	// /**
-	// * Create a new component. Assigns types to all of its properties based on TL object and/or documentation for XSD
-	// * derived nodes. Unlike constructors, the factory method also assigns the type node.
-	// *
-	// * @param mbr
-	// * @return
-	// */
-	// @Deprecated
-	// public static ComponentNode newComponent(TLLibraryMember mbr) {
-	// ComponentNode newNode = (ComponentNode) newLibraryMember(mbr);
-	// return newNode;
-	// }
-
-	/*******************************************************************************************
+	/**
+	 * Create an inherited property from the node it inherits from. Add a InheritanceDependencyListener to the parent of
+	 * the base property.
+	 * <p>
 	 * 
-	 * New ComponentNode methods that also create new objects in underlying model objects.
+	 * @param property
+	 *            the property inherited from
+	 * @param owner
+	 *            the parent of the inherited property. Must <b>not</b> be the parent of the property.
+	 * @return new inherited property
 	 */
+	public static PropertyNode newInheritedProperty(PropertyNode property, PropertyOwnerInterface owner) {
+		assert owner != property.getParent();
 
-	// /**
-	// * Create new Library Member (BO, Choice, Core, etc) based on the passed TL object.
-	// * <p>
-	// * For OTM version 1.6 and later, ContextualFacets are modeled as top-level ContextualFacetNodes. In version OTM
-	// * version 1.5 contextual facets are skipped. Contributed facets are NOT created.
-	// *
-	// * @param mbr
-	// * TLModelElement to be modeled
-	// * @param library
-	// * LibraryNode to add the new node to
-	// * @return newly created node or null
-	// */
-	// @Deprecated
-	// public static ComponentNode newObjectNode(final LibraryMember mbr, final LibraryNode library) {
-	// LibraryMemberInterface cn = newLibraryMember(mbr);
-	// if (cn != null) {
-	// // Why not the more feature rich addMember(cn);
-	// // library.linkMember(cn); // add to library and sets library on cn
-	// library.addMember(cn); // add to library and sets library on cn
-	// assert (library.getDescendants_LibraryMembers().contains(cn));
-	// }
-	// return (ComponentNode) cn;
-	// }
+		PropertyNode ip = null; // the new inherited property
+		if (property instanceof ElementNode)
+			ip = new InheritedElementNode((ElementNode) property, owner);
+		else if (property instanceof AttributeNode)
+			ip = new InheritedAttributeNode((AttributeNode) property, owner);
+		else if (property instanceof IndicatorNode)
+			ip = new InheritedIndicatorNode((IndicatorNode) property, owner);
+		else if (property instanceof EnumLiteralNode)
+			ip = new InheritedEnumLiteralNode((EnumLiteralNode) property, owner);
+		else
+			LOGGER.debug("Unhandled inherited property: " + property.getClass().getSimpleName());
+
+		// Place a listener on the owner of the property
+		property.getParent().getTLModelObject()
+				.addListener(new InheritanceDependencyListener(ip, owner.getChildrenHandler()));
+
+		assert ip.getInheritedFrom() != null;
+		assert ip.getParent() != property.getParent();
+
+		return ip;
+	}
+
+	public static InheritedContextualFacetNode newInheritedFacet(TLContextualFacet tlSrc,
+			ContextualFacetOwnerInterface base, ContributedFacetNode node, Node owner) {
+
+		// Find the matching facet in the base node - baseCF
+		// Contextual facets have the wrong name -- name with where contributed object in them
+		Node baseNode = ((Node) base).findChildByName(((ContextualFacetNode) node).getTLModelObject().getName());
+		assert baseNode instanceof ContributedFacetNode;
+		ContributedFacetNode baseContrib = (ContributedFacetNode) baseNode;
+		assert base == baseContrib.getOwningComponent();
+		ContextualFacetNode baseCF = baseContrib.getContributor();
+		assert baseCF != null;
+		assert tlSrc != baseCF.getTLModelObject();
+
+		InheritedContextualFacetNode icf = new InheritedContextualFacetNode(tlSrc, baseCF, owner.getLibrary());
+
+		if (owner.getLibrary().findLibraryMemberByName(icf.getName()) != null)
+			icf = (InheritedContextualFacetNode) owner.getLibrary().findLibraryMemberByName(icf.getName());
+		else
+			owner.getLibrary().addMember(icf);
+
+		icf.setWhereContributed(node);
+		node.setContributor(icf.getTLModelObject());
+		node.setInheritedFrom(baseContrib);
+
+		assert owner.getLibrary().contains(icf);
+		assert icf.getInheritedFrom() == baseCF;
+		assert Node.GetNode(icf.getTLModelObject()) == icf;
+		return icf;
+	}
 
 	/**
 	 * Create new Library Member Interface Node based on the passed TL object.
@@ -221,8 +246,6 @@ public class NodeFactory {
 			nn = new RoleNode((TLRole) tlObj, (RoleFacetNode) parent);
 		else if (tlObj instanceof TLEnumValue)
 			nn = new EnumLiteralNode((TLEnumValue) tlObj, (PropertyOwnerInterface) parent);
-		// else if (tlObj instanceof TLnSimpleAttribute)
-		// nn = new SimpleAttributeNode((TLnSimpleAttribute) tlObj, (PropertyOwnerInterface) parent);
 		//
 		// Alias
 		//
@@ -231,8 +254,6 @@ public class NodeFactory {
 		//
 		// Facets
 		//
-		// else if (tlObj instanceof TLnValueWithAttributesFacet)
-		// nn = new VWA_AttributeFacetNode((TLnValueWithAttributesFacet) tlObj);
 		else if (tlObj instanceof TLContextualFacet) {
 			if (OTM16Upgrade.otm16Enabled) {
 				if (parent instanceof ContextualFacetOwnerInterface)
@@ -246,7 +267,8 @@ public class NodeFactory {
 		else if (tlObj instanceof TLListFacet)
 			nn = new ListFacetNode((TLListFacet) tlObj);
 		else if (tlObj instanceof TLSimpleFacet)
-			nn = new SimpleFacetNode((TLSimpleFacet) tlObj);
+			assert false;
+		// nn = new SimpleFacetNode((TLSimpleFacet) tlObj);
 		else if (tlObj instanceof TLRoleEnumeration)
 			nn = new RoleFacetNode((TLRoleEnumeration) tlObj);
 		else if (tlObj instanceof TLOperation)
@@ -264,87 +286,6 @@ public class NodeFactory {
 		NodeNameUtils.fixName(nn); // make sure the name is legal (2/2016)
 		return nn;
 	}
-
-	// /**
-	// * Creates a <b>member</b> of a top level object (Library Member).
-	// *
-	// * In version 1.5 contextual facets are added to the parent. In version 1.6 and later contextual facets become
-	// * ContributedFacetNodes since these are parts of objects.
-	// *
-	// * @param parent
-	// * is the top-level component used for properties, can be null
-	// * @param tlObj
-	// * is TL model object to create member from
-	// * @return the newly created and modeled node
-	// */
-	// // TODO - change type of tlObj
-	// @Deprecated
-	// public static ComponentNode newMemberOLD(INode parent, Object tlObj) {
-	// ComponentNode nn = null;
-	// // if (!(parent instanceof ServiceNode) && parent != null && !(parent instanceof LibraryMemberInterface)
-	// // && !(parent instanceof PropertyOwnerInterface))
-	// // LOGGER.warn("Invalid parent type for new member: " + parent);
-	//
-	// //
-	// // Properties
-	// //
-	// if (tlObj instanceof TLProperty)
-	// nn = createProperty((TLProperty) tlObj, (PropertyOwnerInterface) parent);
-	// else if (tlObj instanceof TLIndicator)
-	// nn = createIndicator((TLIndicator) tlObj, (PropertyOwnerInterface) parent);
-	// else if (tlObj instanceof TLAttribute)
-	// nn = createAttribute((TLAttribute) tlObj, (PropertyOwnerInterface) parent);
-	// else if (tlObj instanceof TLRole)
-	// nn = new RoleNode((TLRole) tlObj, (RoleFacetNode) parent);
-	// else if (tlObj instanceof TLEnumValue)
-	// nn = new EnumLiteralNode((TLEnumValue) tlObj, (PropertyOwnerInterface) parent);
-	// // else if (tlObj instanceof TLnSimpleAttribute)
-	// // nn = new SimpleAttributeNode((TLnSimpleAttribute) tlObj, (PropertyOwnerInterface) parent);
-	// //
-	// // Alias
-	// //
-	// else if (tlObj instanceof TLAlias)
-	// nn = new AliasNode((Node) parent, (TLAlias) tlObj);
-	// //
-	// // Facets
-	// //
-	// else if (tlObj instanceof TLnValueWithAttributesFacet)
-	// nn = new VWA_AttributeFacetNode((TLnValueWithAttributesFacet) tlObj);
-	// else if (tlObj instanceof TLContextualFacet) {
-	// if (OTM16Upgrade.otm16Enabled) {
-	// if (parent instanceof ContextualFacetOwnerInterface)
-	// nn = new ContributedFacetNode((TLContextualFacet) tlObj, (ContextualFacetOwnerInterface) parent);
-	// else
-	// nn = new ContributedFacetNode((TLContextualFacet) tlObj);
-	// } else
-	// nn = createFacet((TLContextualFacet) tlObj);
-	// } else if (tlObj instanceof TLFacet)
-	// nn = createFacet((TLFacet) tlObj);
-	// else if (tlObj instanceof TLListFacet)
-	// nn = new ListFacetNode((TLListFacet) tlObj);
-	// else if (tlObj instanceof TLSimpleFacet)
-	// nn = new SimpleFacetNode((TLSimpleFacet) tlObj);
-	// else if (tlObj instanceof TLRoleEnumeration)
-	// nn = new RoleFacetNode((TLRoleEnumeration) tlObj);
-	// else if (tlObj instanceof TLOperation)
-	// nn = new OperationNode((TLOperation) tlObj);
-	// //
-	// // Others
-	// //
-	// else if (tlObj instanceof TLLibraryMember)
-	// nn = (ComponentNode) newLibraryMember((TLLibraryMember) tlObj);
-	//
-	// if (parent != null && nn.getParent() == null) {
-	// NodeNameUtils.fixName(nn); // make sure the name is legal (2/2016)
-	// ((Node) parent).linkChild(nn);
-	// if (parent.getLibrary() != null) {
-	// nn.setLibrary(parent.getLibrary());
-	// nn.setContext(); // assure default context set as needed
-	// }
-	// }
-	//
-	// return nn;
-	// }
 
 	private static PropertyNode createAttribute(TLAttribute tlObj, PropertyOwnerInterface parent) {
 		PropertyNode nn;

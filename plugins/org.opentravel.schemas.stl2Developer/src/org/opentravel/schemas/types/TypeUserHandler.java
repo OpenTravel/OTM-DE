@@ -24,15 +24,11 @@ import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAttribute;
-import org.opentravel.schemacompiler.model.TLAttributeType;
-import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLSimpleFacet;
-import org.opentravel.schemacompiler.model.TLValueWithAttributes;
-import org.opentravel.schemas.modelObject.TLnSimpleAttribute;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeNameUtils;
@@ -66,6 +62,7 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 	/**
 	 * Get the assigned type from the TLModelObject or ModelNode-UnassignedNode
 	 */
+	@Override
 	public TypeProvider get() {
 		Node n = null;
 		TLModelElement assignedTL = getAssignedTLModelElement();
@@ -241,7 +238,7 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		// tlTarget = ((Node) target).getXsdNode().getTLModelObject();
 
 		// Add handler listener
-		((TypeProvider) target).setListener(owner);
+		target.setListener(owner);
 
 		// TODO - either factor out as done on get() or migrate factored code into get()
 		// FIXME - the switching logic is all wrong! use owner
@@ -276,16 +273,17 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 				// Listener will set the simple attribute node
 			} else
 				return false;
-		else if (tlOwner instanceof TLnSimpleAttribute) {
-			assert false; // No longer used
-			if (((TLnSimpleAttribute) tlOwner).getParentObject() instanceof TLValueWithAttributes)
-				if (tlTarget instanceof TLCoreObject)
-					return false; // Core is a tl attribute type but not allowed assigned to VWA
-			if (tlTarget instanceof TLAttributeType)
-				((TLnSimpleAttribute) tlOwner).setType((NamedEntity) tlTarget);
-			else
-				return false;
-		} else if (tlOwner instanceof TLAbstractEnumeration) {
+		// else if (tlOwner instanceof TLnSimpleAttribute) {
+		// assert false; // No longer used
+		// if (((TLnSimpleAttribute) tlOwner).getParentObject() instanceof TLValueWithAttributes)
+		// if (tlTarget instanceof TLCoreObject)
+		// return false; // Core is a tl attribute type but not allowed assigned to VWA
+		// if (tlTarget instanceof TLAttributeType)
+		// ((TLnSimpleAttribute) tlOwner).setType((NamedEntity) tlTarget);
+		// else
+		// return false;
+		// }
+		else if (tlOwner instanceof TLAbstractEnumeration) {
 			TLExtension extension = new TLExtension();
 			extension.setExtendsEntity((NamedEntity) tlTarget);
 			((TLAbstractEnumeration) tlOwner).setExtension(extension);
@@ -311,8 +309,8 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		// remove where used listener from old assigned type
 		if (oldValue != null) {
 			if (oldValue != target) {
-				((TypeProvider) oldValue).removeListener(owner);
-				((TypeProvider) oldValue).getWhereAssignedHandler().remove(owner);
+				oldValue.removeListener(owner);
+				oldValue.getWhereAssignedHandler().remove(owner);
 			}
 			// update library where used
 			if (oldValue.getLibrary() != target.getLibrary()) {

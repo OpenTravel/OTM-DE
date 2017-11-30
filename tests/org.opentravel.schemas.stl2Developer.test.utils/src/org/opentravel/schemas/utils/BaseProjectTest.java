@@ -94,6 +94,8 @@ public abstract class BaseProjectTest {
 		pc.closeAll();
 
 		for (ProjectNode pn : projectsToClean) {
+			if (pn == null)
+				continue;
 			assert pn.getTLProject() != null;
 			assert pn.getTLProject().getProjectFile() != null;
 			File projFile = pn.getTLProject().getProjectFile().getParentFile();

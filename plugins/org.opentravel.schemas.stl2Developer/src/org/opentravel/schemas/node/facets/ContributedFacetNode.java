@@ -23,7 +23,6 @@ import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
-import org.opentravel.schemas.modelObject.FacetMO;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.handlers.children.FacetChildrenHandler;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
@@ -68,7 +67,7 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 
 	@Override
 	public FacetChildrenHandler getChildrenHandler() {
-		return contributor.getChildrenHandler();
+		return contributor != null ? contributor.getChildrenHandler() : null;
 	}
 
 	/**
@@ -217,11 +216,11 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 		return getContributor() == null ? "" : getContributor().getLocalName();
 	}
 
-	@Override
-	@Deprecated
-	public FacetMO getModelObject() {
-		return getContributor() == null ? null : getContributor().getModelObject();
-	}
+	// @Override
+	// @Deprecated
+	// public FacetMO getModelObject() {
+	// return getContributor() == null ? null : getContributor().getModelObject();
+	// }
 
 	/**
 	 * @return the owning entity as the object being contributed to
@@ -247,10 +246,10 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 		return false;
 	}
 
-	@Override
-	public boolean linkChild(final Node child) {
-		return false;
-	}
+	// @Override
+	// public boolean linkChild(final Node child) {
+	// return false;
+	// }
 
 	@Override
 	public void print() {
@@ -302,6 +301,19 @@ public class ContributedFacetNode extends ContextualFacetNode implements FacadeI
 	public void clear() {
 		if (getChildrenHandler() != null)
 			getChildrenHandler().clear();
+	}
+
+	@Override
+	public Node getInheritedFrom() {
+		return inheritedFrom;
+	}
+
+	/**
+	 * Simple Setter
+	 */
+	@Override
+	public void setInheritedFrom(Node owner) {
+		inheritedFrom = owner;
 	}
 
 }

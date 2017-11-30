@@ -41,8 +41,7 @@ import org.eclipse.swt.widgets.Text;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
-import org.opentravel.schemas.modelObject.BusinessObjMO;
-import org.opentravel.schemas.modelObject.ModelObject;
+import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.Node;
@@ -156,8 +155,10 @@ public class NewComponentWizardPage extends WizardPage {
 			((TypeSelectionPage) getNextPage()).setTypeSelectionFilter(new BusinessObjectOnlyTypeFilter(null));
 			((TypeSelectionPage) getNextPage()).setTypeTreeContentProvider(new ExtensionTreeContentProvider());
 		case EXTENSION_POINT:
-			ModelObject<?> tlmo = new BusinessObjMO(new TLBusinessObject());
-			((TypeSelectionPage) getNextPage()).setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(tlmo));
+			// ModelObject<?> tlmo = new BusinessObjMO(new TLBusinessObject());
+			// ((TypeSelectionPage) getNextPage()).setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(tlmo));
+			BusinessObjectNode filterBO = new BusinessObjectNode(new TLBusinessObject());
+			((TypeSelectionPage) getNextPage()).setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(filterBO));
 			((TypeSelectionPage) getNextPage()).setTypeTreeContentProvider(new ExtensionTreeContentProvider());
 			break;
 		}

@@ -15,32 +15,19 @@
  */
 package org.opentravel.schemas.node.interfaces;
 
-import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
 
 /**
- * Nodes that implement the facade interface are not part of the TL Model (TL Model Elements).
- * <p>
- * Facade nodes expose relationships to the GUI such as projects, versions and contributed contextual facets. These are
- * nodes to allow the GUI to present them and their wrapped node.
- * <p>
- * {@link Node#GetNode(ModelElement)} will return the node the facade wraps.
+ * Nodes that implement the inherited interface are represent inherited properties and contextual facets.
  * 
  * @author Dave
  *
  */
-public interface FacadeInterface {
+public interface InheritedInterface {
 	/**
-	 * Facades may wrap other nodes; version nodes wrap the library member, contributed facets wrap the contributor.
 	 * 
-	 * @return the node this is facade wraps if any.
+	 * @return the node this node inherits from
 	 * 
 	 */
 	public Node get();
-
-	/**
-	 * 
-	 * @return the TLModelElement from the node this facade wraps if any
-	 */
-	public TLModelElement getTLModelObject();
 }
