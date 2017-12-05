@@ -312,8 +312,11 @@ public class ChangeTo_Tests {
 						aProperty = (PropertyNode) cn.getFacet_Summary().getChildren_TypeUsers()
 								.get(cn.getFacet_Summary().getChildren_TypeUsers().size() - 1);
 
+					// Do not test assignment if the core is used as a type
+					if (cn == aProperty.getAssignedType())
+						aProperty = null;
 					// If the type of is in this core then do not test it.
-					if (cn.contains((Node) aProperty.getAssignedType()))
+					if (aProperty != null && cn.contains((Node) aProperty.getAssignedType()))
 						aProperty = null;
 
 					nn = new BusinessObjectNode((CoreObjectNode) cn);
@@ -325,9 +328,13 @@ public class ChangeTo_Tests {
 					// Find the property with the same name for testing.
 					if (aProperty != null)
 						newProperty = ((BusinessObjectNode) nn).getFacet_Summary().findChildByName(aProperty.getName());
-					if (newProperty != null)
+					if (aProperty != null && newProperty != null) {
+						TypeProvider npAT = newProperty.getAssignedType();
+						TypeProvider apAT = aProperty.getAssignedType();
+						if (npAT != apAT)
+							LOGGER.debug("Assigned types do not match.");
 						assertTrue(newProperty.getAssignedType() == aProperty.getAssignedType());
-
+					}
 					cn.delete();
 					tn.visit(nn);
 					ml.check((Node) nn, false);

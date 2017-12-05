@@ -22,6 +22,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -209,7 +210,7 @@ public class ReplaceWith_Tests {
 		// Given - one of each object type
 		ml.addOneOfEach(ln, "RTT");
 		ml.check(ln);
-		tt.visitAllNodes(ln);
+		// tt.visitAllNodes(ln);
 
 		// Given - local variables for different object types
 		SimpleTypeNode simple = null;
@@ -247,11 +248,11 @@ public class ReplaceWith_Tests {
 		replaceProperties(bo, simple, core);
 		replaceProperties(core, simple, core2);
 		replaceProperties(vwa, simple, core);
-		tt.visitAllNodes(ln);
+		// tt.visitAllNodes(ln);
 	}
 
 	/**
-	 * Assign p1 to all of owner's type users. Then replaceTypeWith() p2 for p1.
+	 * Assign p1 to all of owner's type users. Then use replaceTypeWith() to replace p1 assignments with p2.
 	 * 
 	 * @param owner
 	 * @param p1
@@ -306,17 +307,25 @@ public class ReplaceWith_Tests {
 		l5.setEditable(true);
 		LibraryNode l1 = lf.loadFile1(mc);
 		l1.setEditable(true);
-		tt.visitAllNodes(l1);
-		tt.visitAllNodes(l5);
+		// tt.visitAllNodes(l1);
+		// tt.visitAllNodes(l5);
 		ml.check(l1);
 		ml.check(l5);
+		Node oldPhones5 = l5.findLibraryMemberByName("Phones");
+		assert oldPhones5 != null;
+		List<TypeUser> phonesUsers = oldPhones5.getDescendants_TypeUsers();
+		List<TypeProvider> phonesProviders = new ArrayList<TypeProvider>();
+		for (TypeUser user : phonesUsers)
+			phonesProviders.add(user.getAssignedType());
 
+		// When
 		swap(l1, l5);
 
+		// Then
 		ml.check(l1);
 		ml.check(l5);
-		tt.visitAllNodes(l1);
-		tt.visitAllNodes(l5);
+		// tt.visitAllNodes(l1);
+		// tt.visitAllNodes(l5);
 	}
 
 	@Test
@@ -400,7 +409,7 @@ public class ReplaceWith_Tests {
 				ml.check(n);
 				n.replaceTypesWith(lsNode, null);
 				// n.swap(lsNode);
-				tt.visitTypeNode(lsNode);
+				// tt.visitTypeNode(lsNode);
 				ml.check(lsNode);
 				ml.check(n);
 			} else

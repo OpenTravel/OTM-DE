@@ -351,7 +351,7 @@
     <BusinessObject name="Phones" notExtendable="false">
         <Aliases/>
         <ID>
-            <Element name="Phone_Simple" repeat="0" type="Phone_Simple"/>
+            <Element name="PhoneNumber" repeat="0" type="xsd:string"/>
         </ID>
         <Summary>
             <Element name="HomePhone" repeat="0" type="HomePhone"/>

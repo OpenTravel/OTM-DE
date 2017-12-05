@@ -25,6 +25,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLSimple;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -124,12 +125,13 @@ public class VersionNode_Tests {
 
 	@Test
 	public void projectLoadTest() {
+		OTM16Upgrade.otm16Enabled = true;
 		ProjectNode pn = lf.loadVersionTestProject(pc); // hits the opentravel repo
 		assertTrue(pn != null);
 
 		// Pre-check assertions
 		List<LibraryNode> libs = pn.getLibraries();
-		assertTrue(libs.size() > 3);
+		assertTrue("Must load more than 3 libraries. ", libs.size() >= 3);
 		LibraryNavNode lnn = (LibraryNavNode) pn.getChildren().get(0);
 		assertTrue(lnn != null);
 		LibraryChainNode lcn = (LibraryChainNode) lnn.getChildren().get(0);

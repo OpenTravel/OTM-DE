@@ -25,6 +25,7 @@ import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.facets.ContributedFacetNode;
 import org.opentravel.schemas.node.handlers.XsdObjectHandler;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.TypeProviderListener;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -265,6 +266,28 @@ public abstract class TypeProviderBase extends ComponentNode implements TypeProv
 	public void removeTypeUser(TypeUser user) {
 		whereAssignedHandler.removeListener(user);
 		whereAssignedHandler.remove(user);
+	}
+
+	/**
+	 * Replace all type assignments (base and assigned type) to this node with assignments to passed node. For every
+	 * assignable descendant of sourceNode, find where the corresponding sourceNode children are used and change them as
+	 * well. See {@link #replaceWith(Node)}.
+	 * 
+	 * @param this - replace assignments to this node (sourceNode)
+	 * @param replacement
+	 *            - use replacement TypeProvider node to be assigned
+	 * @param scope
+	 *            (optional) - scope of the search or null for all libraries
+	 */
+	@Override
+	public void replaceTypesWith(Node replacement, LibraryNode scope) {
+		if (!(replacement instanceof TypeProvider))
+			return;
+
+		getWhereAssignedHandler().replaceAll((TypeProvider) replacement, scope);
+
+		// If this has been extended, replace where extended
+		getWhereExtendedHandler().replace(replacement, scope);
 	}
 
 	/**

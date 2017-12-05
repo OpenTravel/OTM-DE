@@ -18,6 +18,7 @@ package org.opentravel.schemas.node.properties;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
@@ -50,7 +51,7 @@ public class VWA_SimpleAttributeFacadeNode extends SimpleAttributeFacadeNode {
 	protected TypeProvider getTLSimpleType() {
 		TypeProvider assignedType = null;
 		if (getTLModelObject().getParentType() != null)
-			assignedType = (TypeProvider) Node.GetNode((TLModelElement) getTLModelObject().getParentType());
+			assignedType = (TypeProvider) Node.GetNode(getTLModelObject().getParentType());
 		if (assignedType == null)
 			assignedType = getEmptyNode();
 		return assignedType;
@@ -60,15 +61,15 @@ public class VWA_SimpleAttributeFacadeNode extends SimpleAttributeFacadeNode {
 	public boolean setAssignedType(TLModelElement simpleType) {
 		if (getTLModelObject().getParentType() == simpleType)
 			return false;
-		if (!(simpleType instanceof TLAttributeType))
-			return false;
-
 		TLAttributeType ne = null;
-		if (simpleType == null || !(simpleType instanceof TLAttributeType))
-			if (emptyNode != null)
-				ne = (TLAttributeType) emptyNode.getTLModelObject();
-		ne = (TLAttributeType) simpleType;
-		getTLModelObject().setParentType(ne);
+		// Only Simple and VWA can be assigned as parent type
+		if ((simpleType instanceof TLSimple) || simpleType instanceof TLValueWithAttributes) {
+			if (simpleType == null || !(simpleType instanceof TLAttributeType))
+				if (emptyNode != null)
+					ne = (TLAttributeType) emptyNode.getTLModelObject();
+			ne = (TLAttributeType) simpleType;
+			getTLModelObject().setParentType(ne);
+		}
 		return getTLModelObject().getParentType() == ne;
 	}
 

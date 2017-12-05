@@ -274,7 +274,8 @@ public class WhereAssignedHandler {
 			if (n.isEditable())
 				if (scopeLibrary == null || (n.getLibrary() != null && n.getLibrary().equals(scopeLibrary))) {
 					if (n.setAssignedType(replacement))
-						LOGGER.debug("replace " + n + " with " + replacement);
+						LOGGER.debug("replace " + ((Node) n).getNameWithPrefix() + " with "
+								+ ((Node) replacement).getNameWithPrefix());
 					else
 						LOGGER.debug("Failed to replace " + n + " with " + replacement);
 				}
@@ -292,31 +293,31 @@ public class WhereAssignedHandler {
 
 	/**
 	 * Replace this provider with replacement for all users of this provider as a type. Also replaces type usage of
-	 * descendants of this owner node with matching replace descendant when possible. Also does the TL properties. Note
-	 * - user counts may change when business replace core objects because core is also a valid simple type.
+	 * descendants of this owner node with matching replace descendant when possible. Also does the TL properties.
+	 * <p>
+	 * Note - user counts may change when business replace core objects because core is also a valid simple type.
 	 * 
 	 * @param scopeLibrary
 	 *            - if not null, only change type users that are in the specified library.
 	 */
 	public void replaceAll(TypeProvider replacement, LibraryNode scopeLibrary) {
-		// Create map of replacement candidates
+		// Create map of replacement candidates being all descendants of the replacement
 		java.util.HashMap<String, TypeProvider> replacementTypes = new java.util.HashMap<String, TypeProvider>();
 		for (TypeProvider r : ((Node) replacement).getDescendants_TypeProviders())
 			replacementTypes.put(r.getName(), r);
 
 		// Replace where each type-provider child of this owner is used with it equivalent from replacement
-		for (TypeProvider child : ((Node) owner).getDescendants_TypeProviders()) {
+		for (TypeProvider child : owner.getDescendants_TypeProviders()) {
 			Collection<TypeUser> kids = new ArrayList<TypeUser>(child.getWhereAssigned());
 			for (TypeUser n : kids) {
 				// Try to find a replacement equivalent from replacement object
 				String name = n.getAssignedType().getName();
-				// String name = n.getAssignedTLNamedEntity().getLocalName();
 				TypeProvider r = replacementTypes.get(name);
 				if (r == null) {
 					r = replacement;
 					LOGGER.debug("ReplaceAll equivalent not found for " + n + ", using " + r + " instead");
 				}
-				if (scopeLibrary == null || ((Node) n).getLibrary().equals(scopeLibrary))
+				if (scopeLibrary == null || n.getLibrary().equals(scopeLibrary))
 					if (n.isEditable()) {
 						n.setAssignedType(r);
 						LOGGER.debug("replace " + n + " with " + r);

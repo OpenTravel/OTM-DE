@@ -16,6 +16,7 @@
 package org.opentravel.schemas.types;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
@@ -156,5 +157,10 @@ public interface TypeProvider {
 	public void setXsdHandler(XsdObjectHandler xsdObjectHandler);
 
 	int getWhereUsedCount();
+
+	/**
+	 * @return
+	 */
+	public List<TypeProvider> getDescendants_TypeProviders();
 
 }

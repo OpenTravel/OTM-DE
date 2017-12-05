@@ -167,6 +167,9 @@ public class LibraryNavNode extends Node implements FacadeInterface {
 		// setParent(null);
 	}
 
+	/**
+	 * @return a library, either from the LibraryNavNode or from the chain in the NavNode
+	 */
 	@Override
 	public LibraryNode getLibrary() {
 		return getThisLib() != null ? getThisLib().getLibrary() : null;

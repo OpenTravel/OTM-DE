@@ -2079,22 +2079,17 @@ public abstract class Node implements INode {
 	 * @param replacement
 	 *            - use replacement node instead of this node
 	 * @param scope
-	 *            (optional) - scope of the search (typically library or Node.getModelNode)
+	 *            (optional) - scope of the search or null for all libraries
 	 */
-	public void replaceTypesWith(Node replacement, INode scope) {
-		if (replacement == null)
+	public void replaceTypesWith(Node replacement, LibraryNode scope) {
+		if (!(replacement instanceof TypeProvider))
 			return;
-
-		LibraryNode libScope = null;
-		if (scope != null)
-			libScope = scope.getLibrary();
-		// throw new IllegalStateException("Not Implemented Yet -  type replacement.");
-
-		if (this instanceof TypeProvider && replacement instanceof TypeProvider)
-			((TypeProvider) this).getWhereAssignedHandler().replaceAll((TypeProvider) replacement, libScope);
-
-		// If this has been extended, replace where extended
-		getWhereExtendedHandler().replace(replacement, libScope);
+		//
+		// if (this instanceof TypeProvider)
+		// ((TypeProvider) this).getWhereAssignedHandler().replaceAll((TypeProvider) replacement, scope);
+		//
+		// // If this has been extended, replace where extended
+		// getWhereExtendedHandler().replace(replacement, scope);
 	}
 
 	/**

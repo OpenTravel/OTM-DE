@@ -388,6 +388,14 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 		return libs;
 	}
 
+	/**
+	 * @return the head library node
+	 */
+	@Override
+	public LibraryNode getLibrary() {
+		return get();
+	}
+
 	@Override
 	public LibraryNavNode getLibraryNavNode() {
 		return (LibraryNavNode) getParent();
