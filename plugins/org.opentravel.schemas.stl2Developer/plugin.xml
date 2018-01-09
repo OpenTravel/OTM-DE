@@ -832,7 +832,7 @@
 								</test>
 								<instanceof value="org.opentravel.schemas.types.whereused.WhereUsedNode">
 								</instanceof>
-								<instanceof value="org.opentravel.schemas.node.facets.ContributedFacetNode">
+								<instanceof value="org.opentravel.schemas.node.objectMembers.ContributedFacetNode">
 								</instanceof>
 							</or>
 						</iterate>
