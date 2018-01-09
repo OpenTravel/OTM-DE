@@ -28,18 +28,22 @@ import org.junit.Test;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLAttributeType;
+import org.opentravel.schemacompiler.model.TLEquivalent;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLPropertyType;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.node.facets.AttributeFacetNode;
-import org.opentravel.schemas.node.facets.SimpleFacetFacadeNode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.VWA_SimpleFacetFacadeNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.types.TypeProvider;
@@ -64,6 +68,7 @@ public class VWA_Tests extends BaseProjectTest {
 	LibraryChainNode lcn = null;
 	LibraryNode ln = null;
 
+	@Override
 	@Before
 	public void beforeEachTest() throws Exception {
 		LOGGER.debug("***Before VWA Object Tests ----------------------");
@@ -106,7 +111,7 @@ public class VWA_Tests extends BaseProjectTest {
 		List<Node> vKids = nVwaNoParent.getChildren();
 
 		// Then - test simple facet
-		SimpleFacetFacadeNode fs = nVwaNoParent.getFacet_Simple();
+		VWA_SimpleFacetFacadeNode fs = nVwaNoParent.getFacet_Simple();
 		assertTrue("VWA must have simple facet.", fs != null);
 		// List<Node> sKids = fs.getChildren();
 		assertTrue("VWA simple facet must NOT be a Type User", !(fs instanceof TypeUser));
@@ -117,12 +122,12 @@ public class VWA_Tests extends BaseProjectTest {
 		SimpleAttributeFacadeNode sa = nVwaNoParent.getSimpleAttribute();
 		assertTrue("VWA must have simple attribute.", sa != null);
 		assertTrue("VWA simple attribute must be a Type User", sa instanceof TypeUser);
-		Node et = sa.getType();
+		TypeProvider et = sa.getAssignedType();
 		assertTrue("VWA simple attribute must have Empty as assigned type.", sa.getAssignedType() == emptyNode);
-		assertTrue("VWA simple attribute must have Empty as assigned type.", sa.getType() == emptyNode);
+		assertTrue("VWA simple attribute must have Empty as assigned type.", sa.getAssignedType() == emptyNode);
 
 		// Then - test attribute facet
-		AttributeFacetNode fa = (AttributeFacetNode) nVwaNoParent.getFacet_Attributes();
+		AttributeFacetNode fa = nVwaNoParent.getFacet_Attributes();
 		List<Node> aKids = fa.getChildren();
 		assertTrue(!fa.getChildren().isEmpty());
 		assertTrue("VWA must have 1 child.", fa.getChildren().size() == 1);
@@ -164,18 +169,13 @@ public class VWA_Tests extends BaseProjectTest {
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "bo");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "co");
-		VWA_Node tVwa = null, vwa = ml.addVWA_ToLibrary(ln, "vwa");
-		int typeCount = ln.getDescendants_LibraryMembers().size();
+		VWA_Node tVwa = null;
 
-		tVwa = (VWA_Node) bo.changeObject(SubType.VALUE_WITH_ATTRS);
-		checkVWA(tVwa);
-		tVwa = (VWA_Node) core.changeObject(SubType.VALUE_WITH_ATTRS);
-		checkVWA(tVwa);
-		tVwa = (VWA_Node) vwa.changeObject(SubType.VALUE_WITH_ATTRS);
-		checkVWA(tVwa);
-
-		// tn.visit(ln);
-		Assert.assertEquals(typeCount, ln.getDescendants_LibraryMembers().size());
+		// Test constructors
+		tVwa = new VWA_Node(bo);
+		check(tVwa);
+		tVwa = new VWA_Node(core);
+		check(tVwa);
 	}
 
 	@Test
@@ -183,10 +183,10 @@ public class VWA_Tests extends BaseProjectTest {
 		// test all libs
 		lf.loadTestGroupA(mc);
 		for (LibraryNode ln : mc.getModelNode().getUserLibraries()) {
-			List<Node> types = ln.getDescendants_LibraryMembers();
+			List<Node> types = ln.getDescendants_LibraryMemberNodes();
 			for (Node n : types)
 				if (n instanceof VWA_Node)
-					checkVWA((VWA_Node) n);
+					check((VWA_Node) n);
 		}
 	}
 
@@ -230,11 +230,11 @@ public class VWA_Tests extends BaseProjectTest {
 		TLModelElement target = bType.getTLModelObject();
 
 		// NamedEntity v1 = vwa.getTLTypeObject();
-		TLValueWithAttributes t1 = (TLValueWithAttributes) vwa.getTLModelObject();
+		TLValueWithAttributes t1 = vwa.getTLModelObject();
 		TLAttributeType a1 = t1.getParentType(); // null
 
 		// Test accessing the simple facet via TL objects
-		SimpleFacetFacadeNode sf = vwa.getFacet_Simple();
+		VWA_SimpleFacetFacadeNode sf = vwa.getFacet_Simple();
 		assertTrue("Simple facet must not be null.", sf != null);
 
 		// Then - access via simple facet
@@ -253,8 +253,8 @@ public class VWA_Tests extends BaseProjectTest {
 
 		// Test parent type
 		// Test via tl Model Object
-		((TLValueWithAttributes) vwa.getTLModelObject()).setParentType((TLAttributeType) target);
-		TLAttributeType p1 = ((TLValueWithAttributes) vwa.getTLModelObject()).getParentType();
+		vwa.getTLModelObject().setParentType((TLAttributeType) target);
+		TLAttributeType p1 = vwa.getTLModelObject().getParentType();
 		assertTrue(p1 == target);
 	}
 
@@ -265,7 +265,7 @@ public class VWA_Tests extends BaseProjectTest {
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "VWA1");
 		new AttributeNode(vwa.getFacet_Attributes(), "A1");
 		new IndicatorNode(vwa.getFacet_Attributes(), "I1");
-		TypeProvider a = (TypeProvider) NodeFinders.findNodeByName("decimal", ModelNode.XSD_NAMESPACE);
+		TypeProvider a = ml.getXsdDecimal();
 
 		// Check simple type
 		vwa.setAssignedType(a);
@@ -308,6 +308,18 @@ public class VWA_Tests extends BaseProjectTest {
 		assertTrue("Must have same example.", thisVWA.getExample(null).equals(Ex1));
 		assertTrue("Must have same equivalent.", thisVWA.getEquivalent(null).equals(Eq1));
 
+		// Test Merge contexts
+		TLEquivalent tlEQ1 = new TLEquivalent();
+		tlEQ1.setContext("JUNK1");
+		tlEQ1.setDescription("DES1");
+		thisTLVWA.addEquivalent(tlEQ1);
+		TLEquivalent tlEQ2 = new TLEquivalent();
+		tlEQ2.setContext("JUNK2");
+		tlEQ2.setDescription("DES2");
+		thisTLVWA.addEquivalent(tlEQ2);
+		List<TLEquivalent> eqs = thisTLVWA.getEquivalents();
+		thisVWA.getSimpleAttribute().mergeContext("JUNK");
+
 		// Test each child
 		for (Node n : thisVWA.getFacet_Attributes().getChildren()) {
 			n.getExampleHandler().set(Ex1, null);
@@ -345,32 +357,39 @@ public class VWA_Tests extends BaseProjectTest {
 	/**
 	 * Check the structure of the passed VWA
 	 */
-	public void checkVWA(VWA_Node vwa) {
+	public void check(VWA_Node vwa) {
 
 		// Make sure named structures are present
 		assertTrue(vwa.getFacet_Simple() != null);
 		assertTrue(vwa.getSimpleAttribute() != null);
 		assertTrue(vwa.getFacet_Attributes() != null);
 
+		// TODO - Make sure there parent is assigned to all
+		assertTrue(vwa.getParent() instanceof NavNode);
+		assertTrue(vwa.getFacet_Simple().getParent() == vwa);
+		assertTrue(vwa.getFacet_Attributes().getParent() == vwa);
+		assertTrue(vwa.getSimpleAttribute().getParent() == vwa.getFacet_Simple());
+
+		// Make sure there owningComponent is assigned to all
+		assertTrue(vwa.getOwningComponent() == vwa);
+		assertTrue(vwa.getFacet_Simple().getOwningComponent() == vwa);
+		assertTrue(vwa.getFacet_Attributes().getOwningComponent() == vwa);
+		assertTrue(vwa.getSimpleAttribute().getOwningComponent() == vwa);
+
 		// Make sure there are libraries assigned to all
-		assertTrue(vwa.getLibrary() != null);
-		assertTrue(vwa.getFacet_Simple().getLibrary() != null);
-		assertTrue(vwa.getSimpleAttribute().getLibrary() != null);
-		assertTrue(vwa.getFacet_Attributes().getLibrary() != null);
+		assertTrue(vwa.getFacet_Simple().getLibrary() == vwa.getLibrary());
+		assertTrue(vwa.getSimpleAttribute().getLibrary() == vwa.getLibrary());
+		assertTrue(vwa.getFacet_Attributes().getLibrary() == vwa.getLibrary());
 
 		// SimpleType
-		if (vwa.getAssignedType() == null)
-			LOGGER.debug("Null Simple Type on " + vwa);
-		assertTrue(vwa.getAssignedType() != null);
-		// assertTrue(vwa.getSimpleAttribute().getType() == vwa.getAssignedType());
+		assertTrue("Simple Type must not be null.", vwa.getAssignedType() != null);
+		assertTrue(vwa.getSimpleAttribute().getAssignedType() == vwa.getAssignedType());
 
 		// Attribute Facet
 		for (Node ap : vwa.getFacet_Attributes().getChildren()) {
 			assert ap instanceof PropertyNode;
 			assert Node.GetNode(ap.getTLModelObject()) == ap;
-			if (((PropertyNode) ap).getAssignedType() == null)
-				LOGGER.debug("Null must not be attribute type.");
-			assertTrue(((PropertyNode) ap).getAssignedType() != null);
+			assertTrue("Attribute type must not be null.", ((PropertyNode) ap).getAssignedType() != null);
 			assert ap.getLibrary() == vwa.getLibrary();
 		}
 
@@ -387,7 +406,7 @@ public class VWA_Tests extends BaseProjectTest {
 		// Given - a tlVWA has 100 properties
 		TLValueWithAttributes tlVWA = new TLValueWithAttributes();
 		tlVWA.setName(name);
-		for (int attCnt = 1; attCnt < 100; attCnt++) {
+		for (int attCnt = 0; attCnt < 100; attCnt++) {
 			TLAttribute tlA = new TLAttribute();
 			tlA.setName(name + "_a" + attCnt);
 			tlVWA.addAttribute(tlA);
@@ -397,6 +416,9 @@ public class VWA_Tests extends BaseProjectTest {
 		// When - the factory is used to create a node
 		VWA_Node v = (VWA_Node) NodeFactory.newLibraryMember(tlVWA);
 		ln.addMember(v);
-		checkVWA(v);
+		// Then there must be 100 attributes
+		// List<Node> attrs = v.getFacet_Attributes().getChildren();
+		assertTrue("Must have 100 attributes.", v.getFacet_Attributes().getChildren().size() == 100);
+		check(v);
 	}
 }

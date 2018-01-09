@@ -31,6 +31,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeModelTestUtils;
 import org.opentravel.schemas.node.controllers.DocumentationNodeModelManager;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.NodeTesters;
 
@@ -46,7 +47,7 @@ public class DocumentationNodeModelManager_Tests {
 
 	@Test
 	public void dnmmTest() throws Exception {
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		LoadFiles lf = new LoadFiles();
 		model = mc.getModelNode();
 

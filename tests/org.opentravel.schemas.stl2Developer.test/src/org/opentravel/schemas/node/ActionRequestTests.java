@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.resources.ActionNode;
@@ -37,6 +36,10 @@ import org.opentravel.schemas.node.resources.ParamGroup;
 import org.opentravel.schemas.node.resources.ParentRef;
 import org.opentravel.schemas.node.resources.ResourceBuilder;
 import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
@@ -65,7 +68,7 @@ public class ActionRequestTests {
 
 	@Before
 	public void beforeEachTest() {
-		mc = new MainController();
+		mc = OtmRegistry.getMainController();
 		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
@@ -74,8 +77,8 @@ public class ActionRequestTests {
 		ln = ml.createNewLibrary(pc, "TestLib");
 		baseBo = ml.addBusinessObjectToLibrary(ln, "BaseBO");
 		childBo = ml.addBusinessObjectToLibrary(ln, "ChildBO");
-		ContextualFacetNode bq = baseBo.addFacet("BaseQuery", TLFacetType.QUERY);
-		ContextualFacetNode cq = childBo.addFacet("ChildQuery", TLFacetType.QUERY);
+		FacetProviderNode bq = baseBo.addFacet("BaseQuery", TLFacetType.QUERY);
+		FacetProviderNode cq = childBo.addFacet("ChildQuery", TLFacetType.QUERY);
 		SimpleTypeNode st = ml.addSimpleTypeToLibrary(ln, "QueryData");
 		new ElementNode(bq, "QB", st);
 		new ElementNode(cq, "QC", st);

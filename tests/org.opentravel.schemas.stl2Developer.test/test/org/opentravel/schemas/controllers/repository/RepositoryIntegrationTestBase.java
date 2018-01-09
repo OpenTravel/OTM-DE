@@ -47,6 +47,7 @@ import org.opentravel.schemas.stl2Developer.reposvc.RepositoryTestUtils;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryItemNode;
+import org.opentravel.schemas.utils.BaseProjectTest;
 import org.opentravel.schemas.views.RepositoryView;
 
 /**
@@ -88,6 +89,12 @@ public abstract class RepositoryIntegrationTestBase {
 		defaultProject = createProject("Otm-Test-DefaultProject", rc.getLocalRepository(), "IT");
 	}
 
+	/**
+	 * {@link BaseProjectTest#afterEachTest()}
+	 * 
+	 * @throws RepositoryException
+	 * @throws IOException
+	 */
 	@After
 	public void afterEachTest() throws RepositoryException, IOException {
 		pc.closeAll();

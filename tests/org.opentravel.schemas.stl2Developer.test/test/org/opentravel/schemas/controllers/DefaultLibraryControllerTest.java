@@ -24,6 +24,7 @@ import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -86,44 +87,44 @@ public class DefaultLibraryControllerTest extends BaseProjectTest {
 				mgr.libraries.size() == builtInLibCount);
 	}
 
-	// FIXME - something here causes after each test to fail and changes test resources
-	// @Test
-	public void createNewLibraryFromPrototype_Test() {
-		// Given - library as created by NewLibraryWizard
-		DefaultLibraryController lc = (DefaultLibraryController) mc.getLibraryController();
-		LibraryModelManager libMrg = LibraryNavNode.getModelNode().getLibraryManager();
-		int startingLibCount = libMrg.libraries.size();
-		String libName = "NewlyCreated1";
-		String path = pc.getDefaultProject().getTLProject().getProjectFile().getParentFile() + "/" + libName + ".otm";
-		String prefix = "nc";
-		String ns = pc.getDefaultProject().getNamespace();
-		String extension = "nc";
-		String version = "0.0";
-
-		LibraryNode protoLib = new LibraryNode(pc.getDefaultProject());
-		protoLib.setPath(path);
-		protoLib.setName(libName);
-		protoLib.getNsHandler().createValidNamespace(ns, extension, version);
-		protoLib.setNSPrefix(prefix);
-
-		// When - creating library from prototype
-		ProjectNode pn = pc.getDefaultProject();
-		LibraryNavNode lnn = lc.createNewLibraryFromPrototype(protoLib, pn);
-
-		// Then - the library is created correctly
-		assertTrue("New library contains namespace base.", lnn.getNamespace().contains(ns));
-		assertTrue("New library has correct name.", lnn.getName().startsWith(libName)); // ignore test decoration
-		// Then - library must be linked properly
-		assertTrue("This must be a library Nav Node.", lnn instanceof LibraryNavNode);
-		assertTrue("LNN child must be a library.", lnn.getLibrary() instanceof LibraryNode);
-		assertTrue("Parent must be default project.", lnn.getProject() == pn);
-		// Then - default project must be correct
-		assertTrue("Project must contain parent LibraryNavNode.", pn.getChildren().contains(lnn));
-		assertTrue("Project must only have one child.", pn.getChildren().size() == 1);
-		// Then - library must be in library model manager correctly
-		assertTrue("Library must be in library model manager.", libMrg.getUserLibraries().contains(lnn.getLibrary()));
-		assertTrue("Library manager must have one more library.", libMrg.libraries.size() == startingLibCount + 1);
-	}
+	// // FIXME - something here causes after each test to fail and changes test resources
+	// // @Test
+	// public void createNewLibraryFromPrototype_Test() {
+	// // Given - library as created by NewLibraryWizard
+	// DefaultLibraryController lc = (DefaultLibraryController) mc.getLibraryController();
+	// LibraryModelManager libMrg = LibraryNavNode.getModelNode().getLibraryManager();
+	// int startingLibCount = libMrg.libraries.size();
+	// String libName = "NewlyCreated1";
+	// String path = pc.getDefaultProject().getTLProject().getProjectFile().getParentFile() + "/" + libName + ".otm";
+	// String prefix = "nc";
+	// String ns = pc.getDefaultProject().getNamespace();
+	// String extension = "nc";
+	// String version = "0.0";
+	//
+	// LibraryNode protoLib = new LibraryNode(pc.getDefaultProject());
+	// protoLib.setPath(path);
+	// protoLib.setName(libName);
+	// protoLib.getNsHandler().createValidNamespace(ns, extension, version);
+	// protoLib.setNSPrefix(prefix);
+	//
+	// // When - creating library from prototype
+	// ProjectNode pn = pc.getDefaultProject();
+	// LibraryNavNode lnn = lc.createNewLibraryFromPrototype(protoLib, pn);
+	//
+	// // Then - the library is created correctly
+	// assertTrue("New library contains namespace base.", lnn.getNamespace().contains(ns));
+	// assertTrue("New library has correct name.", lnn.getName().startsWith(libName)); // ignore test decoration
+	// // Then - library must be linked properly
+	// assertTrue("This must be a library Nav Node.", lnn instanceof LibraryNavNode);
+	// assertTrue("LNN child must be a library.", lnn.getLibrary() instanceof LibraryNode);
+	// assertTrue("Parent must be default project.", lnn.getProject() == pn);
+	// // Then - default project must be correct
+	// assertTrue("Project must contain parent LibraryNavNode.", pn.getChildren().contains(lnn));
+	// assertTrue("Project must only have one child.", pn.getChildren().size() == 1);
+	// // Then - library must be in library model manager correctly
+	// assertTrue("Library must be in library model manager.", libMrg.getUserLibraries().contains(lnn.getLibrary()));
+	// assertTrue("Library manager must have one more library.", libMrg.libraries.size() == startingLibCount + 1);
+	// }
 
 	// @Test
 	// public void getLibrariesWithNamespace_Test() {
@@ -152,19 +153,19 @@ public class DefaultLibraryControllerTest extends BaseProjectTest {
 		LibraryModelManager libMgr = LibraryNavNode.getModelNode().getLibraryManager();
 		MockLibrary ml = new MockLibrary();
 
-		assertTrue("Startup - model library manager has 2 libraries.", libMgr.libraries.size() == 2);
+		assertTrue("Startup - model library manager has 2 libraries.", libMgr.getLibraries().size() == 2);
 
 		ml.createNewLibrary(testProject.getNamespace() + "/lib1", "lib1", testProject);
 		ml.createNewLibrary(testProject.getNamespace() + "/lib2", "lib2", testProject);
 		LibraryNode ulib3 = ml.createNewLibrary(testProject.getNamespace() + "/lib3", "lib3", testProject);
 		int libCount = 3;
-		assertTrue(libCount + " libraries must be in default project.", testProject.getChildren().size() == libCount);
+		assertTrue(libCount + " libraries must be in test project.", testProject.getChildren().size() == libCount);
 		assertTrue("Project contains library parent.", testProject.getChildren().contains(ulib3.getParent()));
 		assertTrue("Library is managed by library model manager.", LibraryNavNode.getModelNode().getUserLibraries()
 				.contains(ulib3));
 
 		// When - one library closed
-		ulib3.close();
+		ulib3.closeLibraryInterface(); // parent driven close
 		assertTrue("Project does not contain library parent.", !testProject.getChildren().contains(ulib3.getParent()));
 		assertTrue("Library model manager does not manage library.", !libMgr.getUserLibraries().contains(ulib3));
 
@@ -252,7 +253,7 @@ public class DefaultLibraryControllerTest extends BaseProjectTest {
 
 		// When - Make a chain out of the library
 		LibraryChainNode lcn1 = new LibraryChainNode(lib1);
-		int chainCount = lcn1.getDescendants_LibraryMembers().size();
+		int chainCount = lcn1.getDescendants_LibraryMemberNodes().size();
 		// assertTrue("Project A has LNN1 as child.", projectA.getChildren().contains(lnn1));
 		// Then
 		assertTrue("Chain must have members.", chainCount > 0);
@@ -280,6 +281,7 @@ public class DefaultLibraryControllerTest extends BaseProjectTest {
 		// When
 		projectB.close(lcn1);
 		// Then
+		List<LibraryMemberInterface> lms2 = lib2.getDescendants_LibraryMembers();
 		assertTrue("Chain must be empty.", lcn1.isEmpty());
 		assertTrue("Project B must be empty.", projectB.getLibraries().isEmpty());
 		assertTrue("lib2 must be empty.", lib2.getDescendants_LibraryMembers().isEmpty());
@@ -301,8 +303,8 @@ public class DefaultLibraryControllerTest extends BaseProjectTest {
 		lib2.setEditable(true);
 		assertTrue("Must have same project item.", lib1.getProjectItem() == lib2.getProjectItem());
 
-		List<Node> Amembers = lib1.getDescendants_LibraryMembers();
-		List<Node> Bmembers = lib2.getDescendants_LibraryMembers();
+		List<Node> Amembers = lib1.getDescendants_LibraryMemberNodes();
+		List<Node> Bmembers = lib2.getDescendants_LibraryMemberNodes();
 		assertTrue("Must have library members.", !lib1.isEmpty());
 
 		final String simpleTypeName = "SampleEnum_Open";
@@ -334,9 +336,10 @@ public class DefaultLibraryControllerTest extends BaseProjectTest {
 		assertTrue("lib2 must be empty.", lib2.getDescendants_LibraryMembers().isEmpty());
 		assertTrue("Lib2 must report empty.", lib2.isEmpty());
 
-		// Open Project
-		projectA = lf.loadProject((DefaultProjectController) mc.getProjectController());
-		assertTrue("Project A is not empty", !projectA.getChildren().isEmpty());
+		// // Open Project
+		// projectA = lf.loadProject(mc.getProjectController());
+		// assert projectA != null;
+		// assertTrue("Project A is not empty", !projectA.getChildren().isEmpty());
 
 		// OK - Make sure everything in library is closed - services, resources, etc
 		// OK - try deleting libraries - must not delete children of other project

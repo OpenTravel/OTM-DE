@@ -23,13 +23,14 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.AggregateNode.AggregateType;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -59,7 +60,7 @@ public class Aggregate_Tests {
 
 	@Before
 	public void beforeAllTests() {
-		mc = new MainController();
+		mc = OtmRegistry.getMainController();
 		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
@@ -96,7 +97,7 @@ public class Aggregate_Tests {
 	@Test
 	public void addChildren2() {
 		// 4 simple types
-		AggregateNode as = (AggregateNode) lcn.getSimpleAggregate();
+		AggregateNode as = lcn.getSimpleAggregate();
 		SimpleTypeNode s1 = makeSimple("s_1");
 		ln_inChain.addMember(s1);
 		Assert.assertEquals(1, as.getChildren().size());
@@ -129,8 +130,8 @@ public class Aggregate_Tests {
 	@Test
 	public void addChildren() {
 		// Given - aggregate nodes from a library chain and 4 simples
-		AggregateNode simpleAgg = (AggregateNode) lcn.getSimpleAggregate();
-		AggregateNode complexAgg = (AggregateNode) lcn.getComplexAggregate();
+		AggregateNode simpleAgg = lcn.getSimpleAggregate();
+		AggregateNode complexAgg = lcn.getComplexAggregate();
 		SimpleTypeNode s1 = makeSimple("s_11");
 		SimpleTypeNode s2 = makeSimple("s_21");
 		SimpleTypeNode s3 = makeSimple("s_31");
@@ -167,13 +168,13 @@ public class Aggregate_Tests {
 		ln_inChain.addMember(s2);
 		Assert.assertEquals(3, simpleAgg.getChildren().size());
 
-		ln_inChain.getTLLibrary().addNamedMember((LibraryMember) s3.getTLModelObject());
+		ln_inChain.getTLLibrary().addNamedMember(s3.getTLModelObject());
 		ln_inChain.addMember(s3);
 		assertEquals(4, simpleAgg.getChildren().size());
 
 		// Create 2 simples and add to chain
-		ComponentNode s3d = (ComponentNode) makeSimple("s_3d", ln_inChain);
-		ComponentNode nd = (ComponentNode) makeSimple("nf", ln_inChain);
+		ComponentNode s3d = makeSimple("s_3d", ln_inChain);
+		ComponentNode nd = makeSimple("nf", ln_inChain);
 
 		simpleAgg.add(nd);
 		simpleAgg.add(s3d);

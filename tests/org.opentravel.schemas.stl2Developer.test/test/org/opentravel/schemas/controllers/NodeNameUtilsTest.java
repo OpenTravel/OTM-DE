@@ -18,6 +18,7 @@ package org.opentravel.schemas.controllers;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,21 +26,23 @@ import org.junit.rules.ErrorCollector;
 import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 import org.opentravel.schemacompiler.codegen.util.XsdCodegenUtils;
 import org.opentravel.schemacompiler.model.NamedEntity;
+import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLFacet;
-import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLSimple;
-import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.NodeNameUtils;
-import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.utils.PropertyNodeBuilder;
@@ -59,9 +62,18 @@ public class NodeNameUtilsTest {
 
 	@BeforeClass
 	public static void beforeTests() {
-		new ModelNode(new TLModel());
-		mc = new MainController(); // isolate from previous test (I think)
+		// new ModelNode(new TLModel());
+		mc = OtmRegistry.getMainController(); // isolate from previous test (I think)
 		// When run in all tests i got 4 type assignment errors where listener did not match target
+
+		assert OtmRegistry.getMainController() == mc;
+		assert NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE) != null;
+		LOGGER.debug("Before class");
+	}
+
+	@After
+	public void clearModel() {
+		mc.getProjectController().closeAll();
 	}
 
 	@Rule
@@ -106,6 +118,7 @@ public class NodeNameUtilsTest {
 
 		// Given a simple type and a built-in type
 		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
+		assert string != null;
 		SimpleTypeNode myString = new SimpleTypeNode(new TLSimple());
 		myString.setAssignedType(string);
 
@@ -113,7 +126,7 @@ public class NodeNameUtilsTest {
 		assertTrue("PropertyCodegenUtils must return null.",
 				PropertyCodegenUtils.getDefaultXmlElementName((NamedEntity) string.getTLModelObject(), false) == null);
 		assertTrue("PropertyCodegenUtils must return null.",
-				PropertyCodegenUtils.getDefaultXmlElementName((NamedEntity) myString.getTLModelObject(), false) == null);
+				PropertyCodegenUtils.getDefaultXmlElementName(myString.getTLModelObject(), false) == null);
 
 		// Given a lower case name and upper case name
 		String typeName = "lowerCase";
@@ -228,6 +241,17 @@ public class NodeNameUtilsTest {
 	public void elementWithUnassigedType() {
 		// PropertyNode pn = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).build();
 		PropertyNode pn = new ElementNode(new TLProperty(), null);
+		String fixed = NodeNameUtils.fixElementName(pn);
+		String expected = Node.UNDEFINED_PROPERTY_TXT;
+		String actual = pn.getName();
+		assertEquals(expected, fixed);
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void attriubteWithUnassigedType() {
+		// PropertyNode pn = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).build();
+		PropertyNode pn = new AttributeNode(new TLAttribute(), null);
 		String fixed = NodeNameUtils.fixElementName(pn);
 		String expected = Node.UNDEFINED_PROPERTY_TXT;
 		String actual = pn.getName();

@@ -241,7 +241,7 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 		library.getHead().lock();
 		library.getHead().addMember(
 				ComponentNodeBuilder.createCoreObject("test").addProperty("TestProperty").setAssignedType().get());
-		Assert.assertEquals(1, library.getDescendants_LibraryMembers().size());
+		Assert.assertEquals(1, library.getDescendants_LibraryMemberNodes().size());
 
 		String libraryName = library.getName();
 		String namespace = library.getNamespace();
@@ -250,7 +250,7 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 		// make sure new project has reverted library
 		Assert.assertEquals(1, revertProject.getLibraries().size());
 		LibraryNode revertedLib = revertProject.getLibraries().get(0);
-		Assert.assertEquals(0, revertedLib.getDescendants_LibraryMembers().size());
+		Assert.assertEquals(0, revertedLib.getDescendants_LibraryMemberNodes().size());
 
 		// revert library from repository
 		RepositoryItemNode nodeToRetrive = findRepositoryItem(revertedLib.getChain(), getRepositoryForTest());
@@ -259,7 +259,7 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 		LibraryChainNode nodes = (LibraryChainNode) defaultProject.getChildren().get(0);
 		Assert.assertEquals(libraryName, nodes.getName());
 		Assert.assertEquals(namespace, nodes.getNamespace());
-		Assert.assertEquals(0, nodes.getDescendants_LibraryMembers().size());
+		Assert.assertEquals(0, nodes.getDescendants_LibraryMemberNodes().size());
 	}
 
 	@Test
@@ -275,8 +275,8 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 		library.getHead().lock();
 		library.getHead().addMember(
 				ComponentNodeBuilder.createCoreObject("test").addProperty("TestProperty").setAssignedType().get());
-		List<Node> descendants = library.getDescendants_LibraryMembers();
-		Assert.assertEquals(1, library.getDescendants_LibraryMembers().size());
+		List<Node> descendants = library.getDescendants_LibraryMemberNodes();
+		Assert.assertEquals(1, library.getDescendants_LibraryMemberNodes().size());
 		Assert.assertEquals(1, descendants.size());
 
 		String libraryName = library.getName();
@@ -286,7 +286,7 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 		// make sure new project has reverted library
 		Assert.assertEquals(1, revertProject.getLibraries().size());
 		LibraryNode revertedLib = revertProject.getLibraries().get(0);
-		Assert.assertEquals(0, revertedLib.getDescendants_LibraryMembers().size());
+		Assert.assertEquals(0, revertedLib.getDescendants_LibraryMemberNodes().size());
 
 		// revert library from repository
 		RepositoryItemNode nodeToRetrive = findRepositoryItem(revertedLib.getChain(), getRepositoryForTest());
@@ -295,7 +295,7 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 		LibraryChainNode nodes = (LibraryChainNode) defaultProject.getChildren().get(0);
 		Assert.assertEquals(libraryName, nodes.getName());
 		Assert.assertEquals(libraryNamespace, nodes.getNamespace());
-		Assert.assertEquals(0, nodes.getDescendants_LibraryMembers().size());
+		Assert.assertEquals(0, nodes.getDescendants_LibraryMemberNodes().size());
 	}
 
 	@Test
@@ -340,7 +340,7 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
 		rc.unlock(lcn.getHead());
 
-		Assert.assertEquals(1, lcn.getDescendants_LibraryMembers().size());
+		Assert.assertEquals(1, lcn.getDescendants_LibraryMemberNodes().size());
 		String libraryName = lcn.getHead().getName();
 		String libraryChainName = lcn.getName();
 		String namespace = lcn.getNamespace();
@@ -354,7 +354,7 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 		LibraryChainNode nodes = (LibraryChainNode) defaultProject.getChildren().get(0);
 		Assert.assertEquals(libraryChainName, nodes.getName());
 		Assert.assertEquals(namespace, nodes.getHead().getNamespace());
-		Assert.assertEquals(1, nodes.getDescendants_LibraryMembers().size());
+		Assert.assertEquals(1, nodes.getDescendants_LibraryMemberNodes().size());
 	}
 
 	/**

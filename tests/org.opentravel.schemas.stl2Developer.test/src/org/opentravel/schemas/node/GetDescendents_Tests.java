@@ -30,11 +30,19 @@ import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.osgi.framework.Version;
@@ -62,7 +70,7 @@ public class GetDescendents_Tests {
 
 	@Before
 	public void beforeAllTests() {
-		mc = new MainController();
+		mc = OtmRegistry.getMainController();
 		mockLibrary = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
@@ -104,8 +112,8 @@ public class GetDescendents_Tests {
 		assertTrue("Library must contain core element.",
 				ln.getDescendants_TypeUsers().contains(co.getFacet_Summary().getChildren().get(0)));
 		assertTrue("Library must contain vwa.", ln.getDescendants().contains(vwa));
-		assertTrue("Library must contain open enum.", ln.getDescendants_LibraryMembers().contains(oe));
-		assertTrue("Library must contain closed enum.", ln.getDescendants_LibraryMembers().contains(ce));
+		assertTrue("Library must contain open enum.", ln.getDescendants_LibraryMemberNodes().contains(oe));
+		assertTrue("Library must contain closed enum.", ln.getDescendants_LibraryMemberNodes().contains(ce));
 
 		// TODO - move these type of count tests to mock library
 		// List<Node> all = ln.getDescendants();
@@ -148,11 +156,13 @@ public class GetDescendents_Tests {
 		Assert.assertNotNull(ln);
 		// 20 xsd simple types, 0 complex, 0 resources
 		List<Node> all = ln.getDescendants();
-		Assert.assertEquals(23, all.size()); // 4 nav nodes and 20 simple type nodes
-		List<Node> named = ln.getDescendants_LibraryMembers();
+		Assert.assertEquals(24, all.size()); // 4 nav nodes and 20 simple type nodes
+		List<LibraryMemberInterface> named = ln.getDescendants_LibraryMembers();
 		Assert.assertEquals(20, named.size());
 		List<TypeUser> users = ln.getDescendants_TypeUsers();
 		Assert.assertEquals(20, users.size());
+		List<TypeProvider> providers = ln.getDescendants_TypeProviders();
+		Assert.assertEquals(20, providers.size());
 	}
 
 	@Test
@@ -176,7 +186,7 @@ public class GetDescendents_Tests {
 	@Test
 	public void descendantTypeUsersTest() {
 		MockLibrary ml = new MockLibrary();
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
@@ -191,20 +201,20 @@ public class GetDescendents_Tests {
 	@Test
 	public void getDescendents_Tests() throws LibrarySaveException {
 		// Needed to isolate results from other tests
-		mc = new MainController();
+		mc = OtmRegistry.getMainController();
 		DefaultRepositoryController lrc = (DefaultRepositoryController) mc.getRepositoryController();
 		ProjectController lpc = mc.getProjectController();
 
 		LibraryNode moveFrom = LibraryNodeBuilder.create("MoveFrom", defaultProject.getNamespace() + "/Test/One", "o1",
 				new Version(1, 0, 0)).build(defaultProject, pc);
 
-		List<Node> list1 = moveFrom.getDescendants_LibraryMembers();
+		List<Node> list1 = moveFrom.getDescendants_LibraryMemberNodes();
 		List<Node> list2 = moveFrom.getDescendentsNamedTypes();
 		assert list1.size() == list2.size();
 
 		LoadFiles lf = new LoadFiles();
 		moveFrom = lf.loadFile5Clean(mc);
-		list1 = moveFrom.getDescendants_LibraryMembers();
+		list1 = moveFrom.getDescendants_LibraryMemberNodes();
 		list2 = moveFrom.getDescendentsNamedTypes();
 		for (Node n : list1)
 			if (!list2.contains(n))
@@ -221,32 +231,32 @@ public class GetDescendents_Tests {
 	@Test
 	public void getDescendents_LibraryMember_Tests() throws LibrarySaveException {
 		// Needed to isolate results from other tests
-		mc = new MainController();
+		mc = OtmRegistry.getMainController();
 		DefaultRepositoryController lrc = (DefaultRepositoryController) mc.getRepositoryController();
 		ProjectController lpc = mc.getProjectController();
 		MockLibrary ml = new MockLibrary();
 
 		// Given an unmanaged library
 		LibraryNode ln = ml.createNewLibrary_Empty("http://example.com", "LM_Tests", lpc.getDefaultProject());
-		assertTrue("Initial library must be empty.", 0 == ln.getDescendants_LibraryMembers().size());
+		assertTrue("Initial library must be empty.", 0 == ln.getDescendants_LibraryMemberNodes().size());
 		assertTrue("Library Must be editable.", ln.isEditable());
 		// When adding one of everything to it
 		int count = ml.addOneOfEach(ln, "OE");
 		// Then the counts must match
-		assertTrue("Must have correct library member count.", count == ln.getDescendants_LibraryMembers().size());
+		assertTrue("Must have correct library member count.", count == ln.getDescendants_LibraryMemberNodes().size());
 
 		// Given an managed library
 		LibraryChainNode lcn = ml.createNewManagedLibrary_Empty(lpc.getDefaultProject().getNamespace(), "OE2",
 				lpc.getDefaultProject());
 		ln = lcn.getHead();
 		assertTrue("Library Must be editable.", ln.isEditable());
-		assertTrue("Initial library must be empty.", 0 == ln.getDescendants_LibraryMembers().size());
+		assertTrue("Initial library must be empty.", 0 == ln.getDescendants_LibraryMemberNodes().size());
 		// When adding one of everything to it
 		count = ml.addOneOfEach(ln, "OE");
 		// Then the counts must match
-		List<Node> dList = ln.getDescendants_LibraryMembers();
+		List<Node> dList = ln.getDescendants_LibraryMemberNodes();
 		LOGGER.debug("Descendant list has " + dList.size() + " members.");
-		assertTrue("Must have correct library member count.", count == ln.getDescendants_LibraryMembers().size());
+		assertTrue("Must have correct library member count.", count == ln.getDescendants_LibraryMemberNodes().size());
 	}
 
 }

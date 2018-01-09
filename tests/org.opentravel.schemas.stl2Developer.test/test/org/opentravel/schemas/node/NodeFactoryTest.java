@@ -69,6 +69,22 @@ public class NodeFactoryTest extends BaseProjectTest {
 
 	@Test
 	public void NF_CreateLibraryMemberTests() {
+		OTM16Upgrade.otm16Enabled = true;
+		ln = ml.createNewLibrary_Empty(NS, "T", defaultProject);
+
+		// When - each member type added to the library
+		for (LibraryMember mbr : createAllTLLibraryMembers()) {
+			ln.addMember(NodeFactory.newLibraryMember(mbr));
+		}
+		// Then - the library is well formed but not valid
+		ml.check(ln, false);
+
+		OTM16Upgrade.otm16Enabled = false;
+	}
+
+	@Test
+	public void NF_CreateLibraryMember_V15_Tests() {
+		OTM16Upgrade.otm16Enabled = false;
 		ln = ml.createNewLibrary_Empty(NS, "T", defaultProject);
 
 		// When - each member type added to the library
@@ -99,6 +115,7 @@ public class NodeFactoryTest extends BaseProjectTest {
 		mbrs.add(tlec);
 		mbrs.add(new TLExtensionPointFacet());
 		TLResource tlr = new TLResource();
+		tlr.setBusinessObjectRef(tlb);
 		tlr.setName("ResourceName");
 		mbrs.add(tlr);
 		TLService tlsv = new TLService();
@@ -129,31 +146,8 @@ public class NodeFactoryTest extends BaseProjectTest {
 		return mbrs;
 	}
 
+	// TODO - add tests for other methods
 	@Test
 	public void guiTypeAccess() {
-		// TLProperty tl = new TLProperty();
-		// TLSimple tlSimple = new TLSimple();
-		// XSDSimpleType xsdSimple = new XSDSimpleType("string", null);
-		// tlSimple.setParentType(xsdSimple);
-		// tl.setType(tlSimple);
-		// Assert.assertSame(tlSimple, tl.getType());
-		//
-		// ElementNode element = (ElementNode) NodeFactory.newMemberOLD(null, tl);
-		// TLProperty afterCreate = (TLProperty) element.getTLModelObject();
-		// Assert.assertSame(tlSimple, afterCreate.getType());
-		//
-		// // 3/7/2016 dmh - new typehandler will not try to assign name.
-		// String s = element.getTypeName();
-		// s = element.getTypeNameWithPrefix();
-		// TypeProvider n = element.getAssignedType();
-		// Assert.assertTrue(element.getTypeName().isEmpty()); // properties view
-		// Assert.assertTrue(element.getTypeNameWithPrefix().isEmpty()); // facet view
-		// Assert.assertNull(element.getAssignedType());
-
-		// // These will all return UNASSIGNED since resolver has not run.
-		// // getTypeName tries to fix the Type node resulting in a unassigned node.
-		// Assert.assertFalse(element.getTypeName().isEmpty()); // properties view
-		// Assert.assertFalse(element.getTypeNameWithPrefix().isEmpty()); // facet view
-		// Assert.assertNotNull(element.getAssignedType());
 	}
 }

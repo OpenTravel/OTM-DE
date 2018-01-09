@@ -34,10 +34,8 @@ import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
-import org.opentravel.schemas.node.facets.ContributedFacetNode;
-import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -46,6 +44,12 @@ import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.IdNode;
 import org.opentravel.schemas.node.properties.IndicatorElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
+import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -73,7 +77,7 @@ public class Clone_Tests {
 
 	@Before
 	public void beforeEachTest() {
-		mc = new MainController();
+		mc = OtmRegistry.getMainController();
 		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
@@ -103,7 +107,7 @@ public class Clone_Tests {
 		// assert (!(lm instanceof TLContextualFacet)); // not in v 1.5
 
 		// When - cloned
-		newTL = cfo.cloneTLObj(); // no owning library, different contextual facets
+		newTL = ((Node) cfo).cloneTLObj(); // no owning library, different contextual facets
 		// Then clone is not modeled and facets are correct
 		assertTrue("Must not have owning library.", newTL.getOwningLibrary() == null);
 		for (TLContextualFacet tlcf : ((TLBusinessObject) newTL).getCustomFacets()) {
@@ -115,8 +119,8 @@ public class Clone_Tests {
 		// When - modeled in the factory
 		clone = NodeFactory.newLibraryMember((LibraryMember) newTL);
 		// Then - the contextual facets are created correctly
-		for (ContextualFacetNode cf : ((BusinessObjectNode) clone).getContextualFacets()) {
-			assert !(cf instanceof ContributedFacetNode); // this is v 1.5
+		for (AbstractContextualFacet cf : ((BusinessObjectNode) clone).getContextualFacets()) {
+			// assert !(cf instanceof ContributedFacetNode); // this is v 1.5
 			assertTrue("Identity listener must be correct.", cf == Node.GetNode(cf.getTLModelObject()));
 			assertTrue("Must have correct parent.", cf.getParent() == clone);
 			assertTrue("Must have same library as parent.", cf.getLibrary() == clone.getLibrary());
@@ -124,8 +128,8 @@ public class Clone_Tests {
 		// When - added to destination library
 		destLib.addMember(clone);
 		// Then - the contextual facets are still correct
-		for (ContextualFacetNode cf : ((BusinessObjectNode) clone).getContextualFacets()) {
-			assert !(cf instanceof ContributedFacetNode); // this is v 1.5
+		for (AbstractContextualFacet cf : ((BusinessObjectNode) clone).getContextualFacets()) {
+			// assert !(cf instanceof ContributedFacetNode); // this is v 1.5
 			assertTrue("Identity listener must be correct.", cf == Node.GetNode(cf.getTLModelObject()));
 			assertTrue("Must have correct parent.", cf.getParent() == clone);
 			assertTrue("Must have same library as parent.", cf.getLibrary() == clone.getLibrary());
@@ -137,7 +141,7 @@ public class Clone_Tests {
 
 		// Choice Object
 		cfo = ml.addChoice(destLib, "C1");
-		newTL = cfo.cloneTLObj();
+		newTL = ((Node) cfo).cloneTLObj();
 		clone = NodeFactory.newLibraryMember((LibraryMember) newTL);
 		destLib.addMember(clone);
 		ml.check((Node) clone, false);
@@ -167,7 +171,7 @@ public class Clone_Tests {
 				libFacets.add((TLContextualFacet) lm);
 
 		// When - cloned
-		newTL = cfo.cloneTLObj(); // no owning library, different contextual facets
+		newTL = ((Node) cfo).cloneTLObj(); // no owning library, different contextual facets
 		// Then clone is not modeled and facets are correct
 		assertTrue("Must not have owning library.", newTL.getOwningLibrary() == null);
 		for (TLContextualFacet tlcf : ((TLBusinessObject) newTL).getCustomFacets()) {
@@ -180,8 +184,8 @@ public class Clone_Tests {
 		// When - modeled in the factory
 		clone = (ContextualFacetOwnerInterface) NodeFactory.newLibraryMember((LibraryMember) newTL);
 		// Then - the contextual facets are created correctly
-		for (ContextualFacetNode cf : clone.getContextualFacets()) {
-			assert !(cf instanceof ContributedFacetNode);
+		for (AbstractContextualFacet cf : clone.getContextualFacets()) {
+			// assert !(cf instanceof ContributedFacetNode);
 			// Not modeled until added to a library
 			// assertTrue("Identity listener must be correct.", cf == Node.GetNode(cf.getTLModelObject()));
 			// assertTrue("Must have correct parent.", cf.getParent() == clone);
@@ -190,10 +194,10 @@ public class Clone_Tests {
 		// When - added to destination library
 		destLib.addMember((LibraryMemberInterface) clone);
 		// Then - the contextual facets are still correct
-		for (ContextualFacetNode cf : clone.getContextualFacets()) {
-			assert !(cf instanceof ContributedFacetNode);
+		for (AbstractContextualFacet cf : clone.getContextualFacets()) {
+			// assert !(cf instanceof ContributedFacetNode);
 			assertTrue("Identity listener must be correct.", cf == Node.GetNode(cf.getTLModelObject()));
-			assertTrue("Must have correct parent.", cf.getParent() == clone.getParent());
+			assertTrue("Must have correct parent.", cf.getParent() == ((Node) clone).getParent());
 			assertTrue("Must have same library as parent.", cf.getLibrary() == clone.getLibrary());
 			assertTrue("Facet must be in same library as tl facet", cf.getTLModelObject().getOwningLibrary() == cf
 					.getLibrary().getTLModelObject());
@@ -210,7 +214,7 @@ public class Clone_Tests {
 				libFacets.add((TLContextualFacet) lm);
 
 		// When - cloned
-		newTL = cfo.cloneTLObj();
+		newTL = ((Node) cfo).cloneTLObj();
 		// Then clone is not modeled and facets are correct
 		assertTrue("Must not have owning library.", newTL.getOwningLibrary() == null);
 		for (TLContextualFacet tlcf : ((TLChoiceObject) newTL).getChoiceFacets()) {
@@ -224,8 +228,8 @@ public class Clone_Tests {
 		// When - modeled in the factory
 		clone = (ContextualFacetOwnerInterface) NodeFactory.newLibraryMember((LibraryMember) newTL);
 		// Then - the contextual facets are created correctly
-		for (ContextualFacetNode cf : ((ChoiceObjectNode) clone).getContextualFacets()) {
-			assert !(cf instanceof ContributedFacetNode); // this is v 1.5
+		for (AbstractContextualFacet cf : ((ChoiceObjectNode) clone).getContextualFacets()) {
+			// assert !(cf instanceof ContributedFacetNode); // this is v 1.5
 			// assertTrue("Identity listener must be correct.", cf == Node.GetNode(cf.getTLModelObject()));
 			// assertTrue("Must have correct parent.", cf.getParent() == clone);
 			// assertTrue("Must have same library as parent.", cf.getLibrary() == clone.getLibrary());
@@ -234,10 +238,10 @@ public class Clone_Tests {
 		// When - added to destination library
 		destLib.addMember((LibraryMemberInterface) clone);
 		// Then - the contextual facets are still correct
-		for (ContextualFacetNode cf : ((ChoiceObjectNode) clone).getContextualFacets()) {
-			assert !(cf instanceof ContributedFacetNode);
+		for (AbstractContextualFacet cf : ((ChoiceObjectNode) clone).getContextualFacets()) {
+			// assert !(cf instanceof ContributedFacetNode);
 			assertTrue("Identity listener must be correct.", cf == Node.GetNode(cf.getTLModelObject()));
-			assertTrue("Must have correct parent.", cf.getParent() == clone.getParent());
+			assertTrue("Must have correct parent.", cf.getParent() == ((Node) clone).getParent());
 			assertTrue("Must have same library as parent.", cf.getLibrary() == clone.getLibrary());
 			assertTrue("Facet must be in same library as tl facet", cf.getTLModelObject().getOwningLibrary() == cf
 					.getLibrary().getTLModelObject());
@@ -245,7 +249,7 @@ public class Clone_Tests {
 
 		ml.check((Node) clone, true);
 
-		OTM16Upgrade.otm16Enabled = true;
+		OTM16Upgrade.otm16Enabled = false;
 
 		// Contextual facet
 	}
@@ -253,7 +257,8 @@ public class Clone_Tests {
 	@Test
 	public void shouldCloneTLObjects() {
 		// the first step in cloning is cloning the TL Object. This is a facade for the TL model cloneElement()
-		FacetNode facet = FacetNodeBuilder.create(ln).addElements("E1").addAttributes("A1").addIndicators("I1").build();
+		FacetProviderNode facet = FacetNodeBuilder.create(ln).addElements("E1").addAttributes("A1").addIndicators("I1")
+				.build();
 		// TODO - Add these to FacetNodeBuilder
 		new IdNode(facet, "Id");
 		new ElementReferenceNode(facet);
@@ -261,15 +266,15 @@ public class Clone_Tests {
 		assert facet.getChildren().size() == 6;
 
 		// Check each property as they are cloned. Clones have no owner.
-		List<Node> kids = new ArrayList<Node>(facet.getChildren()); // list get added to by clone
-		for (Node n : kids) {
-			((TypeUser) n).setAssignedType(builtin);
+		List<PropertyNode> kids = new ArrayList<PropertyNode>(facet.getProperties()); // list get added to by clone
+		for (PropertyNode n : kids) {
+			n.setAssignedType(builtin);
 			LibraryElement clone = n.cloneTLObj();
 			assert clone != null;
 			if (clone instanceof TLProperty) {
 				// elements are of type TLPropery
 				assert ((TLProperty) clone).getName().equals(n.getName());
-				assert ((TLProperty) clone).getType().equals(((TypeUser) n).getAssignedTLObject());
+				assert ((TLProperty) clone).getType().equals(n.getAssignedTLObject());
 				assert ((TLProperty) clone).getOwner() == null;
 			}
 		}
@@ -281,7 +286,7 @@ public class Clone_Tests {
 
 	@Test
 	public void shouldCloneElements() {
-		FacetNode facet = FacetNodeBuilder.create(ln).addElements("E1", "E2", "E3").build();
+		FacetProviderNode facet = FacetNodeBuilder.create(ln).addElements("E1", "E2", "E3").build();
 		int assignedCount = builtin.getWhereAssignedCount();
 
 		// Given 3 elements were cloned
@@ -307,7 +312,7 @@ public class Clone_Tests {
 
 	@Test
 	public void shouldCloneAttributes() {
-		FacetNode facet = FacetNodeBuilder.create(ln).addAttributes("A1", "A2", "A3").build();
+		FacetProviderNode facet = FacetNodeBuilder.create(ln).addAttributes("A1", "A2", "A3").build();
 		int assignedCount = builtin.getWhereAssignedCount();
 
 		// Given 3 elements were cloned
@@ -332,34 +337,36 @@ public class Clone_Tests {
 	}
 
 	@Test
-	public void shouldCloneOtherPropertyTypes() {
-		FacetNode facet = FacetNodeBuilder.create(ln).addElements("E1").addAttributes("A1").addIndicators("I1").build();
-		// TODO - Add these to FacetNodeBuilder
-		new IdNode(facet, "Id");
-		new ElementReferenceNode(facet);
-		new IndicatorElementNode(facet, "indicatorElement");
-		assert facet.getChildren().size() == 6;
+	public void shouldCloneAllPropertyTypes() {
+		FacetInterface facet = ml.addBusinessObjectToLibrary(ln, "bo").getFacet_Summary();
+
+		ml.addAllProperties(facet);
+		int size = facet.getChildren().size();
 
 		List<Node> kids = new ArrayList<Node>(facet.getChildren()); // list get added to by clone
 		for (Node n : kids)
 			n.clone("_Clone");
 
-		assert facet.getChildren().size() == 12;
+		assert facet.getChildren().size() == size * 2;
 	}
 
-	@Test
-	public void shouldFailPreTests() {
-		FacetNode facet = FacetNodeBuilder.create(ln).addElements("E1", "E2", "E3").build();
-		Node kid = facet.getChildren().get(0);
-		// ln.remove(kid); // leaves library and parent set
-		kid.setLibrary(null);
-		kid.setParent(null);
-		assert kid.clone() == null;
-	}
+	// No longer true - clone is safe with null parent
+	// @Test
+	// public void shouldFailPreTests() {
+	// FacetProviderNode facet = FacetNodeBuilder.create(ln).addElements("E1", "E2", "E3").build();
+	// // Node kid = facet.getChildren().get(0);
+	// PropertyNode kid = facet.getProperties().get(0);
+	// // ln.remove(kid); // leaves library and parent set
+	// // kid.setLibrary(null);
+	// kid.setParent(null);
+	// Node clone = kid.clone(null, null);
+	// assert clone == null;
+	// }
 
+	// 1/8/2018 - runs green when run alone.
 	@Test
 	public void cloneTest() throws Exception {
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		LoadFiles lf = new LoadFiles();
 		model = mc.getModelNode();
 
@@ -372,7 +379,7 @@ public class Clone_Tests {
 		ml.check(srcLib, false);
 
 		// When - all library members are cloned into this library
-		for (Node ne : srcLib.getDescendants_LibraryMembers()) {
+		for (Node ne : srcLib.getDescendants_LibraryMemberNodes()) {
 			Node clone = ne.clone("c");
 			// Objects that can't be cloned return null.
 			if (clone != null)
@@ -393,13 +400,16 @@ public class Clone_Tests {
 		assertTrue(destLib.isEditable());
 
 		// When - all library members are cloned into dest lib
-		for (Node ne : srcLib.getDescendants_LibraryMembers()) {
+		for (LibraryMemberInterface ne : srcLib.getDescendants_LibraryMembers()) {
 			LOGGER.debug("Cloning " + ne);
-			ml.check(ne, false);
-			Node clone = ne.clone(destLib, "d");
-			assertTrue(destLib.contains(clone));
-			ml.check(clone, false);
-			ml.check(ne, false);
+			ml.check((Node) ne, false);
+			LibraryMemberInterface clone = ne.clone(destLib, "d");
+			if (clone != null) {
+				// Not all library members are clone-able.
+				assertTrue(destLib.contains((Node) clone));
+				ml.check((Node) clone, false);
+				ml.check((Node) ne, false);
+			}
 		}
 
 		// Then - both libraries are valid
@@ -452,7 +462,7 @@ public class Clone_Tests {
 		int mbrCount = 0, equCount = 0;
 		Node clone;
 
-		for (Node n : ln.getDescendants_LibraryMembers()) {
+		for (Node n : ln.getDescendants_LibraryMemberNodes()) {
 			// Assert.assertNotNull(n.cloneNew(null)); // no library, so it will fail node tests
 			equCount = countEquivelents(n);
 			if (n instanceof ServiceNode)

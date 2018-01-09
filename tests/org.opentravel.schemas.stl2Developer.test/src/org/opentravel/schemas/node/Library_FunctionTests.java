@@ -22,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.util.List;
 
 import org.junit.Assert;
@@ -33,24 +32,25 @@ import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
-import org.opentravel.schemas.controllers.DefaultLibraryController;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.utils.BaseProjectTest;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
-import org.opentravel.schemas.utils.LibraryNodeBuilder;
-import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,20 +66,20 @@ public class Library_FunctionTests extends BaseProjectTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Library_FunctionTests.class);
 
 	// private NodeTesters testVisitor;
-	private MainController mc;
+	// private MainController mc;
 	private LoadFiles lf;
 	private MockLibrary ml;
-	private DefaultProjectController pc;
+	// private DefaultProjectController pc;
 	private ProjectNode defaultProject;
 
 	@Override
 	@Before
 	public void beforeEachTest() {
-		mc = new MainController();
+		// mc = new MainController();
 		lf = new LoadFiles();
 		ml = new MockLibrary();
 		// testVisitor = new NodeTesters();
-		pc = (DefaultProjectController) mc.getProjectController();
+		// pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
 		testProject = defaultProject;
 	}
@@ -95,8 +95,8 @@ public class Library_FunctionTests extends BaseProjectTest {
 
 	@Test
 	public void shouldNotDuplicatedContextOnImport() throws LibrarySaveException {
-		LibraryNode importFrom = LibraryNodeBuilder.create("ImportFrom", testProject.getNamespace() + "/Test/One",
-				"o1", new Version(1, 0, 0)).build(testProject, pc);
+		LibraryNode importFrom = ml.createNewLibrary_Empty(testProject.getNamespace() + "/Test/One", "ImportFrom",
+				testProject);
 
 		TLContext c = new TLContext();
 		c.setContextId("ContextID");
@@ -147,8 +147,7 @@ public class Library_FunctionTests extends BaseProjectTest {
 		new ElementNode(bo.getFacet_ID(), "E1").setAssignedType(moved);
 		moveFrom.addMember(bo);
 
-		LibraryNode moveTo = LibraryNodeBuilder.create("MoveTo", testProject.getNamespace() + "/Test/TO", "to",
-				new Version(1, 0, 0)).build(testProject, pc);
+		LibraryNode moveTo = ml.createNewLibrary_Empty(testProject.getNamespace() + "/Test/TO", "MoveTo", testProject);
 
 		moveFrom.moveMember(moved, moveTo);
 
@@ -172,6 +171,7 @@ public class Library_FunctionTests extends BaseProjectTest {
 		// TODO - save, close, open and read
 	}
 
+	// 1/3/2018 - runs green when run from file but error when runAll
 	@Test
 	public void LN_moveComplexTests() throws LibrarySaveException {
 		// Given
@@ -189,11 +189,11 @@ public class Library_FunctionTests extends BaseProjectTest {
 		final String AttrName = "att1";
 		PropertyNode withAssignedType = new AttributeNode(co.getFacet_Default(), AttrName, co);
 
-		for (Node obj : moveFrom.getDescendants_LibraryMembers())
-			moveFrom.moveMember(obj, moveTo);
+		for (LibraryMemberInterface obj : moveFrom.getDescendants_LibraryMembers())
+			moveFrom.moveMember((Node) obj, moveTo);
 
-		withAssignedType = co.getFacet_Default().findChildByName(AttrName);
-		assertTypeAssigments(co, co.getFacet_Default().findChildByName(AttrName));
+		withAssignedType = (PropertyNode) co.getFacet_Default().findChildByName(AttrName);
+		assertTypeAssigments(co, (PropertyNode) co.getFacet_Default().findChildByName(AttrName));
 	}
 
 	/**
@@ -226,27 +226,27 @@ public class Library_FunctionTests extends BaseProjectTest {
 		CoreObjectNode coExt = ml.addCoreObjectToLibrary(moveFrom, "COExt");
 		coExt.setExtension(coBase);
 		assertTrue(coExt.isInstanceOf(coBase));
-		assertTrue(moveFrom.getDescendants_LibraryMembers().contains(coBase));
-		assertTrue(moveFrom.getDescendants_LibraryMembers().contains(coExt));
+		assertTrue(moveFrom.getDescendants_LibraryMemberNodes().contains(coBase));
+		assertTrue(moveFrom.getDescendants_LibraryMemberNodes().contains(coExt));
 
 		LibraryNode moveTo = ml.createNewLibrary_Empty(testProject.getNamespace() + "/Test/TO", "MoveTo", testProject);
 		assertTrue("Move to library must be editable.", moveTo.isEditable());
 		CoreObjectNode coTo = ml.addCoreObjectToLibrary(moveTo, "COTO");
-		assertTrue(moveTo.getDescendants_LibraryMembers().contains(coTo));
+		assertTrue(moveTo.getDescendants_LibraryMemberNodes().contains(coTo));
 
 		// when
 		Node newNode = moveTo.importNode(coBase);
 
 		// then - cloned node must be in target library
 		assertTrue("Imported noded must not be null.", newNode != null);
-		assertTrue(moveTo.getDescendants_LibraryMembers().contains(newNode));
+		assertTrue(moveTo.getDescendants_LibraryMemberNodes().contains(newNode));
 
 		// when
 		newNode = moveTo.importNode(coExt);
 
 		// then - cloned node must be in target library
 		assertTrue(newNode != null);
-		assertTrue(moveTo.getDescendants_LibraryMembers().contains(newNode));
+		assertTrue(moveTo.getDescendants_LibraryMemberNodes().contains(newNode));
 		assertTrue(newNode.isInstanceOf(coBase)); // should have cloned extension
 		// NOTE - no type resolution has happened yet so where extended will not be set.
 
@@ -265,20 +265,20 @@ public class Library_FunctionTests extends BaseProjectTest {
 	@Test
 	public void importNodesLocallyShouldReplaceBaseTypes() throws LibrarySaveException {
 		// given
-		LibraryNode moveFrom = LibraryNodeBuilder.create("MoveFrom", testProject.getNamespace() + "/Test/One", "o1",
-				new Version(1, 0, 0)).build(testProject, pc);
+		LibraryNode moveFrom = ml.createNewLibrary_Empty(testProject.getNamespace() + "/Test/One", "MoveFrom",
+				testProject);
 		CoreObjectNode coBase = ComponentNodeBuilder.createCoreObject("COBase").get(moveFrom);
 		CoreObjectNode coExt = ComponentNodeBuilder.createCoreObject("COExt").extend(coBase).get(moveFrom);
 		assertTrue(coExt.isInstanceOf(coBase));
 
-		LibraryNode importTo = LibraryNodeBuilder.create("MoveTo", testProject.getNamespace() + "/Test/TO", "to",
-				new Version(1, 0, 0)).build(testProject, pc);
+		LibraryNode importTo = ml
+				.createNewLibrary_Empty(testProject.getNamespace() + "/Test/TO", "MoveTo", testProject);
 
 		// when
-		importTo.importNodes(moveFrom.getDescendants_LibraryMembers(), false);
+		importTo.importNodes(moveFrom.getDescendants_LibraryMemberNodes(), false);
 
 		// then
-		assertEquals(2, importTo.getDescendants_LibraryMembers().size());
+		assertEquals(2, importTo.getDescendants_LibraryMemberNodes().size());
 		Node newBase = importTo.findLibraryMemberByName("COBase");
 		Node newExt = importTo.findLibraryMemberByName("COExt");
 		assertTrue("Original extension must extend original base.", coExt.isInstanceOf(coBase));
@@ -288,22 +288,22 @@ public class Library_FunctionTests extends BaseProjectTest {
 
 	@Test
 	public void importNodesGloballyShouldReplaceBaseTypes() throws LibrarySaveException {
-		// given
-		LibraryNode moveFrom = LibraryNodeBuilder.create("MoveFrom", testProject.getNamespace() + "/Test/One", "o1",
-				new Version(1, 0, 0)).build(testProject, pc);
+		// Given
+		LibraryNode moveFrom = ml.createNewLibrary_Empty(testProject.getNamespace() + "/Test/One", "MoveFrom",
+				testProject);
 		CoreObjectNode coBase = ComponentNodeBuilder.createCoreObject("COBase").get(moveFrom);
 		CoreObjectNode coExt = ComponentNodeBuilder.createCoreObject("COExt").extend(coBase).get(moveFrom);
 		assertTrue(coExt.isInstanceOf(coBase));
 
-		LibraryNode importTo = LibraryNodeBuilder.create("MoveTo", testProject.getNamespace() + "/Test/TO", "to",
-				new Version(1, 0, 0)).build(testProject, pc);
+		LibraryNode importTo = ml
+				.createNewLibrary_Empty(testProject.getNamespace() + "/Test/TO", "MoveTo", testProject);
 		assertTrue("Import to library must be editable.", importTo.isEditable());
 
 		// when - global import
-		importTo.importNodes(moveFrom.getDescendants_LibraryMembers(), true);
+		importTo.importNodes(moveFrom.getDescendants_LibraryMemberNodes(), true);
 
 		// then
-		assertEquals(2, importTo.getDescendants_LibraryMembers().size());
+		assertEquals(2, importTo.getDescendants_LibraryMemberNodes().size());
 		Node newBase = importTo.findLibraryMemberByName("COBase");
 		Node newExt = importTo.findLibraryMemberByName("COExt");
 		boolean x = newExt.isInstanceOf(newBase);
@@ -337,7 +337,7 @@ public class Library_FunctionTests extends BaseProjectTest {
 
 		//
 		// When - local import of both core objects
-		localLib.importNodes(sourceLib.getDescendants_LibraryMembers(), false);
+		localLib.importNodes(sourceLib.getDescendants_LibraryMemberNodes(), false);
 
 		// Then - core objects are still in their original libraries.
 		assertTrue(sourceLib.contains(coBase));
@@ -366,7 +366,7 @@ public class Library_FunctionTests extends BaseProjectTest {
 
 		//
 		// When - global import of both core objects
-		globalLib.importNodes(sourceLib.getDescendants_LibraryMembers(), true);
+		globalLib.importNodes(sourceLib.getDescendants_LibraryMemberNodes(), true);
 		CoreObjectNode globalBase = (CoreObjectNode) globalLib.findLibraryMemberByName("COBase");
 		CoreObjectNode globalExt = (CoreObjectNode) globalLib.findLibraryMemberByName("COExt");
 
@@ -446,14 +446,14 @@ public class Library_FunctionTests extends BaseProjectTest {
 			assertTrue(ln.hasGeneratedChildren());
 		}
 		assertTrue(ln.getChildren().size() > 1);
-		assertTrue(ln.getDescendants_LibraryMembers().size() > 1);
+		assertTrue(ln.getDescendants_LibraryMemberNodes().size() > 1);
 
 		if (ln.getName().equals("OTA2_BuiltIns_v2.0.0")) {
-			Assert.assertEquals(85, ln.getDescendants_LibraryMembers().size());
+			Assert.assertEquals(85, ln.getDescendants_LibraryMemberNodes().size());
 		}
 
 		if (ln.getName().equals("XMLSchema")) {
-			Assert.assertEquals(20, ln.getDescendants_LibraryMembers().size());
+			Assert.assertEquals(20, ln.getDescendants_LibraryMemberNodes().size());
 		}
 
 		if (!ln.isInChain()) {
@@ -510,43 +510,43 @@ public class Library_FunctionTests extends BaseProjectTest {
 		}
 	}
 
-	// Emulates the logic within the wizard
-	private void testNewWizard(ProjectNode parent) {
-		final String InitialVersionNumber = "0_1";
-		final String prefix = "T1T";
-		final DefaultLibraryController lc = new DefaultLibraryController(mc);
-		final LibraryNode ln = new LibraryNode(parent);
-		final String baseNS = parent.getNamespace();
-		final ProjectNode pn = mc.getProjectController().getDefaultProject();
-		final int libCnt = pn.getLibraries().size();
-		// Strip the project file
-		String path = pn.getPath();
-		path = new File(path).getParentFile().getPath();
-		path = new File(path, "Test.otm").getPath();
-		final String name = "Test";
-
-		String ns = ln.getNsHandler().createValidNamespace(baseNS, InitialVersionNumber);
-		ln.getTLaLib().setNamespace(ns);
-		ln.getTLaLib().setPrefix(prefix);
-		ln.setPath(path);
-		ln.setName(name);
-		Assert.assertEquals(name, ln.getName());
-		LOGGER.debug("Done setting up for wizard complete.Path = " + path);
-
-		// This code runs after the wizard completes
-		LibraryNode resultingLib = lc.createNewLibraryFromPrototype(ln, pn).getLibrary();
-		// See DefaultLibraryControllerTests
-
-		// LOGGER.debug("new library created. Cnt = " + pn.getLibraries().size());
-		// Assert.assertEquals(libCnt + 1, pn.getLibraries().size());
-		//
-		// // Leave something in it
-		// NewComponent_Tests nct = new NewComponent_Tests();
-		// nct.createNewComponents(resultingLib);
-		//
-		// // resultingLib.getRepositoryDisplayName();
-		// visitLibrary(resultingLib);
-	}
+	// // Emulates the logic within the wizard
+	// private void testNewWizard(ProjectNode parent) {
+	// final String InitialVersionNumber = "0_1";
+	// final String prefix = "T1T";
+	// final DefaultLibraryController lc = new DefaultLibraryController(mc);
+	// final LibraryNode ln = new LibraryNode(parent);
+	// final String baseNS = parent.getNamespace();
+	// final ProjectNode pn = mc.getProjectController().getDefaultProject();
+	// final int libCnt = pn.getLibraries().size();
+	// // Strip the project file
+	// String path = pn.getPath();
+	// path = new File(path).getParentFile().getPath();
+	// path = new File(path, "Test.otm").getPath();
+	// final String name = "Test";
+	//
+	// String ns = ln.getNsHandler().createValidNamespace(baseNS, InitialVersionNumber);
+	// ln.getTLaLib().setNamespace(ns);
+	// ln.getTLaLib().setPrefix(prefix);
+	// ln.setPath(path);
+	// ln.setName(name);
+	// Assert.assertEquals(name, ln.getName());
+	// LOGGER.debug("Done setting up for wizard complete.Path = " + path);
+	//
+	// // This code runs after the wizard completes
+	// LibraryNode resultingLib = lc.createNewLibraryFromPrototype(ln, pn).getLibrary();
+	// // See DefaultLibraryControllerTests
+	//
+	// // LOGGER.debug("new library created. Cnt = " + pn.getLibraries().size());
+	// // Assert.assertEquals(libCnt + 1, pn.getLibraries().size());
+	// //
+	// // // Leave something in it
+	// // NewComponent_Tests nct = new NewComponent_Tests();
+	// // nct.createNewComponents(resultingLib);
+	// //
+	// // // resultingLib.getRepositoryDisplayName();
+	// // visitLibrary(resultingLib);
+	// }
 
 	@Test
 	public void LN_statusTests() {
@@ -642,7 +642,7 @@ public class Library_FunctionTests extends BaseProjectTest {
 	 */
 	private PropertyNode addContextUsers(LibraryNode lib) {
 		Node object = null;
-		for (Node n : lib.getDescendants_LibraryMembers())
+		for (Node n : lib.getDescendants_LibraryMemberNodes())
 			object = n;
 		assertTrue(object != null);
 		TypeUser tu = null;
@@ -669,9 +669,11 @@ public class Library_FunctionTests extends BaseProjectTest {
 		return pn;
 	}
 
+	// Runs green when run alone or just with the tests in this file. (1/3/2018)
 	@SuppressWarnings("unused")
 	@Test
 	public void LN_moveMemberTests() throws Exception {
+		// Given - from and to chains
 		LibraryChainNode fromChain = ml.createNewManagedLibrary("FromChain", defaultProject);
 		LibraryChainNode toChain = ml.createNewManagedLibrary("ToChain", defaultProject);
 		LibraryNode fromLib = ml.createNewLibrary("http://test.com/ns1", "FromLib", defaultProject);
@@ -681,18 +683,20 @@ public class Library_FunctionTests extends BaseProjectTest {
 		List<TLContext> toLibContexts = toLib.getTLLibrary().getContexts();
 		List<TLContext> fromLibContexts = fromLib.getTLLibrary().getContexts(); // live list
 
-		// Identity listener used in moveMember() so assure it is correct.
+		// Then - verify Identity listener used in moveMember() so assure it is correct.
 		assertTrue(Node.GetNode(toLib.getTLModelObject()) == toLib);
 		assertTrue(Node.GetNode(fromLib.getTLModelObject()) == fromLib);
 
-		// Assure context is used by a property (ex, eq, facet and other doc)
+		// Then - Assure context is used by a property (ex, eq, facet and other doc)
 		Node object = (Node) addContextUsers(fromLib).getOwningComponent();
 		Assert.assertEquals(2, fromLibContexts.size());
 
 		// do the move and check to assure only one context in to-library
+		List<LibraryMemberInterface> toMembers = toLib.getDescendants_LibraryMembers();
 		object.getLibrary().moveMember(object, toLib); // listener removed from toLib
 		Assert.assertEquals(2, fromLibContexts.size());
 		Assert.assertEquals(1, toLibContexts.size());
+		List<LibraryMemberInterface> toMbrs = toLib.getDescendants_LibraryMembers();
 		Assert.assertEquals(2, toLib.getDescendants_LibraryMembers().size()); // BO and CustomFacet
 
 		// Load up the old test libraries and move lots and lots of stuff then test to-library
@@ -710,7 +714,7 @@ public class Library_FunctionTests extends BaseProjectTest {
 				int libCount = ln.getDescendants_LibraryMembers().size();
 				assertTrue(Node.GetNode(ln.getTLLibrary()) == ln);
 
-				for (Node n : ln.getDescendants_LibraryMembers()) {
+				for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers()) {
 					if (n instanceof ServiceNode)
 						continue;
 
@@ -719,14 +723,14 @@ public class Library_FunctionTests extends BaseProjectTest {
 					assertTrue(n.getLibrary().isEditable());
 					assertTrue(toLib.isEditable());
 					try {
-						n.getLibrary().moveMember(n, toLib);
+						n.getLibrary().moveMember((Node) n, toLib);
 						count++;
 						assertTrue("To Lib must contain moved member.",
 								toLib.getDescendants_LibraryMembers().contains(n));
 
 						// Make sure the node is removed.
 						if (libCount - 1 != ln.getDescendants_LibraryMembers().size()) {
-							List<Node> dl = ln.getDescendants_LibraryMembers();
+							List<LibraryMemberInterface> dl = ln.getDescendants_LibraryMembers();
 							LOGGER.debug("Bad Counts: " + dl.size());
 						}
 						// Assert.assertEquals(--libCount, ln.getDescendants_LibraryMembers().size());
@@ -769,17 +773,17 @@ public class Library_FunctionTests extends BaseProjectTest {
 		// Test un-managed
 		ln.addMember(s1);
 		assertEquals(1, ln.getSimpleRoot().getChildren().size());
-		assertEquals(1, ln.getDescendants_LibraryMembers().size());
+		assertEquals(1, ln.getDescendants_LibraryMemberNodes().size());
 		ln.addMember(s2);
 		assertEquals(2, ln.getSimpleRoot().getChildren().size());
-		assertEquals(2, ln.getDescendants_LibraryMembers().size());
+		assertEquals(2, ln.getDescendants_LibraryMemberNodes().size());
 		assertTrue(ln.contains(s1));
 
 		// Test managed
 		ln_inChain.addMember(sv1);
 		ln_inChain.addMember(sv2);
 		assertEquals(2, ln_inChain.getSimpleRoot().getChildren().size());
-		assertEquals(2, ln_inChain.getDescendants_LibraryMembers().size());
+		assertEquals(2, ln_inChain.getDescendants_LibraryMemberNodes().size());
 		assertEquals(2, lcn.getSimpleAggregate().getChildren().size());
 		assertTrue(lcn.contains(sv1));
 

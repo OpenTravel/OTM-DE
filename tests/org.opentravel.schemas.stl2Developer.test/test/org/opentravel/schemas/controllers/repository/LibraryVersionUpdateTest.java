@@ -28,22 +28,22 @@ import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
-import org.opentravel.schemas.node.BusinessObjectNode;
-import org.opentravel.schemas.node.ChoiceObjectNode;
-import org.opentravel.schemas.node.CoreObjectNode;
-import org.opentravel.schemas.node.EnumerationClosedNode;
-import org.opentravel.schemas.node.EnumerationOpenNode;
-import org.opentravel.schemas.node.ExtensionPointNode;
-import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.SimpleTypeNode;
-import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
+import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.types.TypeUser;
@@ -274,10 +274,10 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 			Node base = owner.getExtensionBase();
 			if (!(owner.getExtensionBase() instanceof ImpliedNode)) {
 				if (owner.getExtensionBase() == null || owner.getExtensionBase().getLibrary() == null)
-					LOGGER.debug("Error - " + owner.getNameWithPrefix() + " does not have extension base. ");
+					LOGGER.debug("Error - " + ((Node) owner).getNameWithPrefix() + " does not have extension base. ");
 				if (owner.getExtensionBase().getLibrary() != versionedbaseLib)
 					LOGGER.debug("Error - " + owner + " assigned type is in wrong library: "
-							+ ((Node) owner.getExtensionBase()).getNameWithPrefix());
+							+ owner.getExtensionBase().getNameWithPrefix());
 				assertTrue("Extension Owner must be in providerLib version 2.",
 						owner.getExtensionBase().getLibrary() == versionedbaseLib);
 			}

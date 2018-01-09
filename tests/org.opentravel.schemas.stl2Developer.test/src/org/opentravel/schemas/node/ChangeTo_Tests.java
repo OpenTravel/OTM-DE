@@ -30,11 +30,17 @@ import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.interfaces.FacetOwner;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.typeProviders.SimpleComponentNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -65,7 +71,7 @@ public class ChangeTo_Tests {
 	@Before
 	public void beforeEachTest() {
 		// mc = OtmRegistry.getMainController(); // creates one if needed
-		mc = new MainController(); // New one for each test
+		mc = OtmRegistry.getMainController(); // New one for each test
 		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
@@ -77,7 +83,27 @@ public class ChangeTo_Tests {
 	}
 
 	@Test
-	public void changeToVWA() {
+	public void changeToVWA1() {
+		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "bo");
+		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "co");
+		VWA_Node tVwa = null, vwa = ml.addVWA_ToLibrary(ln, "vwa");
+		int typeCount = ln.getDescendants_LibraryMemberNodes().size();
+
+		VWA_Tests tests = new VWA_Tests();
+		tVwa = (VWA_Node) bo.changeObject(SubType.VALUE_WITH_ATTRS);
+		tests.check(tVwa);
+		tVwa = (VWA_Node) core.changeObject(SubType.VALUE_WITH_ATTRS);
+		tests.check(tVwa);
+		tVwa = (VWA_Node) vwa.changeObject(SubType.VALUE_WITH_ATTRS);
+		tests.check(tVwa);
+
+		// tn.visit(ln);
+		Assert.assertEquals(typeCount, ln.getDescendants_LibraryMemberNodes().size());
+	}
+
+	@Test
+	public void changeToVWA2() {
 
 		// Given: business and core objects in a managed library used as types.
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "A");
@@ -92,8 +118,6 @@ public class ChangeTo_Tests {
 		int coreCount = core.getFacet_Summary().getChildren().size() + core.getFacet_Detail().getChildren().size();
 		int boWhereAssignedCount = bo.getWhereUsedAndDescendantsCount();
 		int coreWhereAssignedCount = core.getWhereUsedAndDescendantsCount();
-		// tn.visit(core);
-		// tn.visit(bo);
 		ml.check(bo);
 		ml.check(core);
 
@@ -133,8 +157,9 @@ public class ChangeTo_Tests {
 		assertEquals(coreWhereAssignedCount, vwa.getWhereUsedAndDescendantsCount());
 		assertEquals(vwa, p2.getAssignedType());
 		assertEquals(vwa, p3.getAssignedType());
-		assertTrue("VWA must be in the library after swap.", ln.getDescendants_LibraryMembers().contains(vwa));
-		assertTrue("Core must NOT be in the library after swap.", !ln.getDescendants_LibraryMembers().contains(core));
+		assertTrue("VWA must be in the library after swap.", ln.getDescendants_LibraryMemberNodes().contains(vwa));
+		assertTrue("Core must NOT be in the library after swap.", !ln.getDescendants_LibraryMemberNodes()
+				.contains(core));
 	}
 
 	@Test
@@ -159,8 +184,8 @@ public class ChangeTo_Tests {
 		tn.visit(core);
 		assertEquals("A", core.getName());
 		assertEquals(boCount, core.getFacet_Summary().getChildren().size());
-		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMembers().contains(core));
-		assertTrue("BO must NOT be in the library after swap.", !ln.getDescendants_LibraryMembers().contains(bo));
+		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMemberNodes().contains(core));
+		assertTrue("BO must NOT be in the library after swap.", !ln.getDescendants_LibraryMemberNodes().contains(bo));
 
 		// When - core created from VWA replaces VWA
 		core = new CoreObjectNode(vwa);
@@ -173,8 +198,8 @@ public class ChangeTo_Tests {
 		assertEquals(core.getAssignedType(), vwa.getAssignedType());
 		assertEquals(core.getTLModelObject().getSummaryFacet().getAttributes().size(), core.getFacet_Summary()
 				.getChildren().size());
-		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMembers().contains(core));
-		assertTrue("VWA must NOT be in the library after swap.", !ln.getDescendants_LibraryMembers().contains(vwa));
+		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMemberNodes().contains(core));
+		assertTrue("VWA must NOT be in the library after swap.", !ln.getDescendants_LibraryMemberNodes().contains(vwa));
 	}
 
 	@Test
@@ -253,7 +278,7 @@ public class ChangeTo_Tests {
 
 	@Test
 	public void changeTestGroupA_Tests() throws Exception {
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		LoadFiles lf = new LoadFiles();
 		model = mc.getModelNode();
 		LibraryChainNode lcn;
@@ -285,7 +310,7 @@ public class ChangeTo_Tests {
 		ln.setEditable(true);
 
 		// Get all library members and change them.
-		for (Node n : ln.getDescendants_LibraryMembers()) {
+		for (Node n : ln.getDescendants_LibraryMemberNodes()) {
 			equCount = countEquivelents((LibraryMemberInterface) n);
 			// if (n.getName().equals("EmploymentZZZ"))
 			// LOGGER.debug("Doing EmploymentZZZ");
@@ -308,9 +333,9 @@ public class ChangeTo_Tests {
 
 					// Pick last summary property for testing.
 					aProperty = null;
-					if (cn.getFacet_Summary().getChildren_TypeUsers().size() > 0)
-						aProperty = (PropertyNode) cn.getFacet_Summary().getChildren_TypeUsers()
-								.get(cn.getFacet_Summary().getChildren_TypeUsers().size() - 1);
+					if (((FacetOwner) cn).getFacet_Summary().getChildren_TypeUsers().size() > 0)
+						aProperty = (PropertyNode) ((FacetOwner) cn).getFacet_Summary().getChildren_TypeUsers()
+								.get(((FacetOwner) cn).getFacet_Summary().getChildren_TypeUsers().size() - 1);
 
 					// Do not test assignment if the core is used as a type
 					if (cn == aProperty.getAssignedType())
@@ -327,7 +352,8 @@ public class ChangeTo_Tests {
 
 					// Find the property with the same name for testing.
 					if (aProperty != null)
-						newProperty = ((BusinessObjectNode) nn).getFacet_Summary().findChildByName(aProperty.getName());
+						newProperty = (PropertyNode) ((BusinessObjectNode) nn).getFacet_Summary().findChildByName(
+								aProperty.getName());
 					if (aProperty != null && newProperty != null) {
 						TypeProvider npAT = newProperty.getAssignedType();
 						TypeProvider apAT = aProperty.getAssignedType();

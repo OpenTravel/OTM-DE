@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.NodeTesters;
 
@@ -39,7 +40,7 @@ public class Find_Tests {
 
 	@Test
 	public void FinderTest() throws Exception {
-		// MainController mc = new MainController();
+		// MainController mc = OtmRegistry.getMainController();
 		// LoadFiles lf = new LoadFiles();
 		// model = mc.getModelNode();
 		//
@@ -74,7 +75,7 @@ public class Find_Tests {
 
 	@Test
 	public void FinderManagedTest() throws Exception {
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		LoadFiles lf = new LoadFiles();
 		model = mc.getModelNode();
 

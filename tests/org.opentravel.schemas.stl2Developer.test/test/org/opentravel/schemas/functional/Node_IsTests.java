@@ -22,10 +22,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.Library_FunctionTests;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
@@ -33,6 +33,8 @@ import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -55,19 +57,23 @@ public class Node_IsTests {
 	NodeTesters nt = new NodeTesters();
 	LoadFiles lf = new LoadFiles();
 	Library_FunctionTests lt = new Library_FunctionTests();
-	MockLibrary ml = null;
+	static MockLibrary ml = null;
 	LibraryNode ln = null;
-	MainController mc;
-	DefaultProjectController pc;
-	ProjectNode defaultProject;
+	static MainController mc;
+	static DefaultProjectController pc;
+	static ProjectNode defaultProject;
 
-	@Before
-	public void beforeAllTests() {
-		mc = new MainController();
+	@BeforeClass
+	public static void initTests() {
+		mc = OtmRegistry.getMainController();
 		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
+	}
 
+	@Before
+	public void beforeAllTests() {
+		pc.closeAll();
 		ln = ml.createNewLibrary("http://example.com", "isTests", defaultProject);
 		new LibraryChainNode(ln); // test in a chain
 		ln.setEditable(true);
@@ -86,7 +92,7 @@ public class Node_IsTests {
 
 		// Given - service nodes
 		BusinessObjectNode bo = null;
-		for (Node n : ln.getDescendants_LibraryMembers())
+		for (Node n : ln.getDescendants_LibraryMemberNodes())
 			if (n instanceof BusinessObjectNode)
 				bo = (BusinessObjectNode) n;
 		ServiceNode sn = new ServiceNode(bo);

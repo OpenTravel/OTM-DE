@@ -19,36 +19,32 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLSimple;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.AliasNode;
-import org.opentravel.schemas.node.BusinessObjectNode;
-import org.opentravel.schemas.node.ExtensionPointNode;
-import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.SimpleComponentNode;
-import org.opentravel.schemas.node.SimpleTypeNode;
-import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.node.VersionNode;
-import org.opentravel.schemas.node.facets.PropertyOwnerNode;
-import org.opentravel.schemas.node.facets.RoleFacetNode;
-import org.opentravel.schemas.node.handlers.children.FacetChildrenHandler;
+import org.opentravel.schemas.node.handlers.children.FacetProviderChildrenHandler;
 import org.opentravel.schemas.node.handlers.children.NavNodeChildrenHandler;
 import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.interfaces.SimpleMemberInterface;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.RoleNode;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.node.typeProviders.RoleFacetNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
@@ -59,24 +55,19 @@ import org.slf4j.LoggerFactory;
 public class ChildrenHandlerTests extends BaseProjectTest {
 	private final static Logger LOGGER = LoggerFactory.getLogger(ChildrenHandlerTests.class);
 
-	MainController mc;
-	MockLibrary ml = null;
-	DefaultProjectController pc;
-	ProjectNode defaultProject;
-	ModelNode model = null;
-
-	LoadFiles lf = new LoadFiles();
+	public static MockLibrary ml = new MockLibrary();
+	public static LoadFiles lf = new LoadFiles();
 	LibraryChainNode lcn;
 
-	@Override
-	@Before
-	public void beforeEachTest() {
-		mc = new MainController();
-		ml = new MockLibrary();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
-		model = mc.getModelNode();
-	}
+	// @Override
+	// @Before
+	// public void beforeEachTest() {
+	// mc = OtmRegistry.getMainController();
+	// ml = new MockLibrary();
+	// pc = (DefaultProjectController) mc.getProjectController();
+	// defaultProject = pc.getDefaultProject();
+	// model = mc.getModelNode();
+	// }
 
 	@Test
 	public void ChildH_InheritanceTests() {
@@ -93,7 +84,7 @@ public class ChildrenHandlerTests extends BaseProjectTest {
 		assert boExt.getExtendsType() == boBase;
 
 		// Given a facet child handler for the extended summary facet
-		FacetChildrenHandler handler = boExt.getFacet_Summary().getChildrenHandler();
+		FacetProviderChildrenHandler handler = boExt.getFacet_Summary().getChildrenHandler();
 		List<Node> boKids = boExt.getChildren();
 		List<Node> boIKids = boExt.getInheritedChildren();
 		List<?> kids = handler.get();
@@ -108,7 +99,7 @@ public class ChildrenHandlerTests extends BaseProjectTest {
 	@Test
 	public void ChildH_NavNodeTests() {
 		ProjectNode project1 = createProject("Project1", rc.getLocalRepository(), "IT1");
-		LibraryNode ln = new LibraryNode(project1);
+		LibraryNode ln = ml.createNewLibrary_Empty("x", "x", project1);
 		assertTrue(ln != null);
 
 		// Static children handler
@@ -149,7 +140,7 @@ public class ChildrenHandlerTests extends BaseProjectTest {
 		//
 		// When - each node is examined
 		//
-		List<Node> kids = model.getDescendants();
+		List<Node> kids = mc.getModelNode().getDescendants();
 		for (Node n : kids)
 			check(n);
 	}
@@ -166,11 +157,11 @@ public class ChildrenHandlerTests extends BaseProjectTest {
 		boolean deep = false;
 		List<Node> tKids = n.getTreeChildren(deep);
 		if (tKids.isEmpty() && (n.hasTreeChildren(deep) || n.hasNavChildren(deep)))
-			LOGGER.debug("Error" + n.getTreeChildren(deep).size());
+			LOGGER.debug("Error " + n.getTreeChildren(deep).size());
 		if (n.hasTreeChildren(deep))
-			assertTrue("If there are tree children the must be tree children.", !tKids.isEmpty());
+			assertTrue("If there are tree children then there must be tree children.", !tKids.isEmpty());
 		if (n.hasNavChildren(deep))
-			assertTrue("If there are nav children the must be tree children.", !tKids.isEmpty());
+			assertTrue("If there are nav children then there must be tree children.", !tKids.isEmpty());
 
 		//
 		// Then - Make sure getNavChildren() and hasNavChildren() and isNavChild() are aligned
@@ -214,13 +205,13 @@ public class ChildrenHandlerTests extends BaseProjectTest {
 		else if (n instanceof ExtensionPointNode)
 			// Some properties will not be in the list. Could have children but no navChildren
 			assertTrue("Must not be null.", n.getNavChildren(true) != null);
-		else if (n instanceof PropertyOwnerNode)
+		else if (n instanceof FacetInterface)
 			// Some properties will not be in the list. Could have children but no navChildren
 			assertTrue("Must not be null.", n.getNavChildren(true) != null);
 		else if (n instanceof PropertyNode)
 			// getNavChildren may return assigned type and aliases
 			assertTrue("Must not be null.", n.getNavChildren(true) != null);
-		else if (n instanceof SimpleComponentNode)
+		else if (n instanceof SimpleMemberInterface)
 			assertTrue("Nav child must only be assigned type if any.", n.getNavChildren(true).size() < 2);
 		else if (n instanceof VersionNode)
 			assertTrue("Head node children must be version node's navChildren.", ((VersionNode) n).getNewestVersion()
@@ -239,11 +230,11 @@ public class ChildrenHandlerTests extends BaseProjectTest {
 			//
 			// Finally - if not special case all children are nav children
 			//
-			// if (n.getNavChildren(true).size() != n.getChildren().size()) {
-			// List<Node> nc = n.getNavChildren(true);
-			// List<Node> ch = n.getChildren();
-			// LOGGER.debug("Invalid nav child count.");
-			// }
+			if (n.getNavChildren(true).size() != n.getChildren().size()) {
+				List<Node> nc = n.getNavChildren(true);
+				List<Node> ch = n.getChildren();
+				LOGGER.debug("Invalid nav child count.");
+			}
 			assertTrue("Size error in default case where all children are navigation.",
 					n.getNavChildren(true).size() == n.getChildren().size());
 		}

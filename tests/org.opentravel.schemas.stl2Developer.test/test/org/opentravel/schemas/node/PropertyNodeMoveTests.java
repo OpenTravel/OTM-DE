@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.AttributeReferenceNode;
@@ -38,6 +38,10 @@ import org.opentravel.schemas.node.properties.IndicatorElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.RoleNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.utils.FacetNodeBuilder;
 
@@ -64,7 +68,7 @@ public class PropertyNodeMoveTests {
 
 	@Before
 	public void beforeEachTest() {
-		mc = new MainController();
+		mc = OtmRegistry.getMainController();
 		ml = new MockLibrary();
 		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
@@ -73,13 +77,13 @@ public class PropertyNodeMoveTests {
 
 	@Test
 	public void shouldMoveUp() {
-		FacetNode facetNode = FacetNodeBuilder.create().addElements(E1, E2, E3).build();
-		((PropertyNode) findChild(facetNode, E2)).moveUp();
+		FacetProviderNode facetNode = FacetNodeBuilder.create().addElements(E1, E2, E3).build();
+		findChild(facetNode, E2).moveUp();
 		assertFacetOrder(facetNode.getChildren(), E2, E1, E3);
 
 		// assert TL facet Order - order is controlled at property node level so one check is enough
-		((PropertyNode) findChild(facetNode, E2)).moveUp(); // should be ignored
-		((PropertyNode) findChild(facetNode, E3)).moveDown(); // should be ignored
+		findChild(facetNode, E2).moveUp(); // should be ignored
+		findChild(facetNode, E3).moveDown(); // should be ignored
 		assertTrue(facetNode.getTLModelObject().getElements().get(0).getName().equals(E2));
 		assertTrue(facetNode.getTLModelObject().getElements().get(1).getName().equals(E1));
 		assertTrue(facetNode.getTLModelObject().getElements().get(2).getName().equals(E3));
@@ -87,21 +91,23 @@ public class PropertyNodeMoveTests {
 
 	@Test
 	public void shouldMoveDown() {
-		FacetNode facetNode = FacetNodeBuilder.create().addElements(E1, E2, E3).build();
+		FacetProviderNode facetNode = FacetNodeBuilder.create().addElements(E1, E2, E3).build();
 		findChild(facetNode, E2).moveDown();
 		assertFacetOrder(facetNode.getChildren(), E1, E3, E2);
 	}
 
 	@Test
 	public void shouldMoveUpWithMixedTypes() {
-		FacetNode facetNode = FacetNodeBuilder.create(ln).addElements(E1).addAttributes(A1, A2).addElements(E2).build();
+		FacetProviderNode facetNode = FacetNodeBuilder.create(ln).addElements(E1).addAttributes(A1, A2).addElements(E2)
+				.build();
 		findChild(facetNode, a2Name).moveUp();
 		assertFacetOrder(facetNode.getChildren(), a2Name, a1Name, E1, E2);
 	}
 
 	@Test
 	public void shouldMoveDownWithMixedTypes() {
-		FacetNode facetNode = FacetNodeBuilder.create(ln).addElements(E1).addAttributes(A1, A2).addElements(E2).build();
+		FacetProviderNode facetNode = FacetNodeBuilder.create(ln).addElements(E1).addAttributes(A1, A2).addElements(E2)
+				.build();
 		findChild(facetNode, E1).moveDown();
 		assertTrue(facetNode.isEditable_newToChain());
 		assertFacetOrder(facetNode.getChildren(), a1Name, a2Name, E2, E1);
@@ -109,22 +115,23 @@ public class PropertyNodeMoveTests {
 
 	@Test
 	public void shouldDoNothingWithOneType() {
-		FacetNode facetNode = FacetNodeBuilder.create(ln).addAttributes(A1).addIndicators(I1).addElements(E1).build();
+		FacetProviderNode facetNode = FacetNodeBuilder.create(ln).addAttributes(A1).addIndicators(I1).addElements(E1)
+				.build();
 		findChild(facetNode, i1Name).moveDown();
 		assertFacetOrder(facetNode.getChildren(), a1Name, i1Name, E1);
 	}
 
 	@Test
 	public void shouldDoNothingWithElementOnBottom() {
-		FacetNode facetNode = FacetNodeBuilder.create(ln).addAttributes(A1).addIndicators(I0, I1).addElements(E1)
-				.build();
+		FacetProviderNode facetNode = FacetNodeBuilder.create(ln).addAttributes(A1).addIndicators(I0, I1)
+				.addElements(E1).build();
 		findChild(facetNode, i1Name).moveDown();
 		assertFacetOrder(facetNode.getChildren(), a1Name, i0Name, i1Name, E1);
 	}
 
 	@Test
 	public void shouldDoNothingWithElementOnTop() {
-		FacetNode facetNode = new FacetNode(new TLFacet());
+		FacetProviderNode facetNode = new FacetProviderNode(new TLFacet());
 		assertTrue(facetNode != null);
 		new AttributeNode(facetNode, A1);
 		new IndicatorNode(facetNode, I0);
@@ -133,14 +140,14 @@ public class PropertyNodeMoveTests {
 		assertTrue(!facetNode.getChildren().isEmpty());
 
 		// When - moved
-		((PropertyNode) findChild(facetNode, i0Name)).moveUp();
+		findChild(facetNode, i0Name).moveUp();
 		// Then
 		assertFacetOrder(facetNode.getChildren(), a1Name, i0Name, i1Name, E1);
 	}
 
 	@Test
 	public void shouldMoveWithMixedTypes() {
-		FacetNode facetNode = FacetNodeBuilder.create(ln).addElements(E1, E2).addAttributes(A1, A2)
+		FacetProviderNode facetNode = FacetNodeBuilder.create(ln).addElements(E1, E2).addAttributes(A1, A2)
 				.addIndicators(I0, I1).build();
 		new AttributeReferenceNode(facetNode);
 		new AttributeReferenceNode(facetNode);
@@ -228,8 +235,8 @@ public class PropertyNodeMoveTests {
 		Assert.assertEquals(Arrays.asList(string), toNames(children));
 	}
 
-	private PropertyNode findChild(FacetNode parent, String name) {
-		Node n = parent.findChildByName(name);
+	private PropertyNode findChild(FacetInterface parent, String name) {
+		Node n = parent.get(name);
 		assertTrue("FindChild did not find: " + name, n instanceof PropertyNode);
 		return (PropertyNode) n;
 	}

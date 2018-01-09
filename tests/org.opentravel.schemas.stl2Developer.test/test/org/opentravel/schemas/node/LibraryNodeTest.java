@@ -19,12 +19,18 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemas.controllers.LibraryModelManager;
+import org.opentravel.schemas.node.interfaces.LibraryInterface;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -53,8 +59,12 @@ public class LibraryNodeTest extends BaseProjectTest {
 		assertTrue(ln.getParent() != null);
 
 		// check all members
-		for (Node n : ln.getDescendants_LibraryMembers())
-			ml.check(n, validate);
+		for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers()) {
+			ml.check((Node) n, validate);
+			assert (((NavNode) n.getParent()).contains((Node) n));
+			assert n.getLibrary() == n.getParent().getLibrary();
+			assert n.getLibrary() == ln;
+		}
 	}
 
 	@Test
@@ -63,12 +73,12 @@ public class LibraryNodeTest extends BaseProjectTest {
 		ProjectNode project1 = createProject("Project1", rc.getLocalRepository(), "IT1");
 		String ns = "http://example.com/ns1";
 
-		// When - Simple constructor (see notes on constructor)
-		LibraryNode fromProj = new LibraryNode(project1);
-		assertTrue(fromProj != null);
-		// Then - listener works
-		LN_isEditableTests(fromProj);
-		assertTrue(Node.GetNode(fromProj.getTLModelObject()) == fromProj);
+		// // When - Simple constructor (see notes on constructor)
+		// LibraryNode fromProj = new LibraryNode(project1);
+		// assertTrue(fromProj != null);
+		// // Then - listener works
+		// LN_isEditableTests(fromProj);
+		// assertTrue(Node.GetNode(fromProj.getTLModelObject()) == fromProj);
 
 		// When - constructed from tl library
 		LibraryNode fromTL = new LibraryNode(createTL("FTL", ns), project1);
@@ -130,6 +140,81 @@ public class LibraryNodeTest extends BaseProjectTest {
 		return tllib;
 	}
 
+	@Test
+	public void LN_multipleLibraryIncludes() throws Exception {
+		LoadFiles lf = new LoadFiles();
+		ProjectNode defaultProject = mc.getProjectController().getDefaultProject();
+		LibraryModelManager lm = Node.getModelNode().getLibraryManager();
+
+		// Given - load test group
+		ProjectNode project1 = createProject("Project1", rc.getLocalRepository(), "IT1");
+		ProjectNode project2 = createProject("Project2", rc.getLocalRepository(), "IT2");
+		lf.loadTestGroupAc(defaultProject); // Load into default project
+		lf.loadFile2(project1); // Load file 2 again
+		lf.loadTestGroupAc(project2);
+
+		// Then - make sure default project libraries are in the library manager
+		for (LibraryNode ln : defaultProject.getLibraries())
+			assertTrue(lm.findKey(ln) != null);
+
+		// When - loading files from OTA Repository
+		ProjectNode vt1 = lf.loadVersionTestProject(mc.getProjectController());
+		// ProjectNode vt2 = lf.loadVersionTestProject(mc.getProjectController());
+
+		// Then - make sure all libraries create canonical names w/o error
+		for (LibraryNode li : lm.getAllLibraries()) {
+			LOGGER.debug(lm.getCanonicalName(li.getProjectItem()));
+		}
+
+		Object[] mapped = lm.getMapValues();
+		Collection<LibraryInterface> list = lm.getListValues();
+		for (Object li : mapped)
+			assert list.contains(li);
+
+		// Then - make sure all libraries are loaded only once
+		HashMap<String, LibraryInterface> libMap = checkUnique(lm.getLibraries());
+
+		// Then - make sure all project libraries are found and unique
+		for (ProjectNode pn : mc.getProjectController().getAll()) {
+			checkLibsUnique(pn.getLibraries());
+			for (LibraryNode ln : pn.getLibraries()) {
+				String cn = lm.getCanonicalName(ln.getProjectItem());
+				LibraryInterface li = libMap.get(cn);
+				if (li instanceof LibraryNode)
+					assertTrue("Must be in map.", libMap.get(cn) == ln);
+				else
+					assertTrue("Must be in map.", libMap.get(cn) == ln.getChain());
+			}
+		}
+	}
+
+	// Make sure each library (ns+name) is in the list only once.
+	private HashMap<String, LibraryInterface> checkUnique(List<LibraryInterface> list) {
+		HashMap<String, LibraryInterface> libMap = new HashMap<String, LibraryInterface>();
+		LibraryModelManager lm = Node.getModelNode().getLibraryManager();
+		for (LibraryInterface li : list)
+			if (li instanceof LibraryNode) {
+				assertTrue("Must not be in map.",
+						libMap.get(lm.getCanonicalName(((LibraryNode) li).getProjectItem())) == null);
+				libMap.put(lm.getCanonicalName(((LibraryNode) li).getProjectItem()), li);
+			} else
+				// May be duplicated since all minor verisons are in one entry
+				for (LibraryNode ln : ((LibraryChainNode) li).getLibraries()) {
+					// assertTrue("Must not be in map.", libMap.get(ln.getName_Canonical()) == null);
+					libMap.put(lm.getCanonicalName(ln.getProjectItem()), li);
+				}
+		return libMap;
+	}
+
+	private void checkLibsUnique(List<LibraryNode> list) {
+		HashMap<String, LibraryInterface> libMap = new HashMap<String, LibraryInterface>();
+		LibraryModelManager lm = Node.getModelNode().getLibraryManager();
+		for (LibraryNode li : list) {
+			assertTrue("Must not be in map.", libMap.get(li.getNamespace() + li.getName()) == null);
+			libMap.put(li.getNamespace() + li.getName(), li);
+		}
+	}
+
 	// See DefaultLibraryController_Tests.removeManagedInMultipleProjects_Test()
 	@Test
 	public void libraryInMultipleProjects() throws LibrarySaveException {
@@ -152,7 +237,7 @@ public class LibraryNodeTest extends BaseProjectTest {
 		assertTrue("LibraryNavNodes must be different.", lnn1 != lnn2);
 		// hold onto for later use.
 		// List<Node> complexNamedtypes = lib2.getDescendants_NamedTypes();
-		int ln2NamedTypeCount = lib2.getDescendants_LibraryMembers().size();
+		int ln2NamedTypeCount = lib2.getDescendants_LibraryMemberNodes().size();
 
 		// When - a library is removed
 		pc.remove(lnn1);
@@ -161,11 +246,11 @@ public class LibraryNodeTest extends BaseProjectTest {
 		assertTrue("Project 1 must be empty.", project1.getLibraries().isEmpty());
 		assertTrue("Project 1 must be empty.", project1.getChildren().isEmpty());
 		// Then - lib1 is lib2 therefore it must be altered.
-		assertTrue("Lib1 must NOT be empty.", !lib1.getDescendants_LibraryMembers().isEmpty());
+		assertTrue("Lib1 must NOT be empty.", !lib1.getDescendants_LibraryMemberNodes().isEmpty());
 		// Then - check the other library to make sure it was not effected.
 		assertTrue("Lib2 must have same number of named types.",
-				lib2.getDescendants_LibraryMembers().size() == ln2NamedTypeCount);
-		for (Node n : lib2.getDescendants_LibraryMembers())
+				lib2.getDescendants_LibraryMemberNodes().size() == ln2NamedTypeCount);
+		for (Node n : lib2.getDescendants_LibraryMemberNodes())
 			assertTrue("Named type must not be deleted.", !n.isDeleted());
 
 		// Same test with libraries in a chain
@@ -189,7 +274,7 @@ public class LibraryNodeTest extends BaseProjectTest {
 		assertTrue("Lib2 must have same number of named types.",
 				lib2.getDescendants_LibraryMembers().size() == ln2NamedTypeCount);
 		// Each named type must not be deleted and must have a valid nav node and library
-		for (Node n : lib2.getDescendants_LibraryMembers()) {
+		for (LibraryMemberInterface n : lib2.getDescendants_LibraryMembers()) {
 			assertTrue("Named type must not be deleted.", !n.isDeleted());
 			assertTrue("Named type must be in lib2.", n.getLibrary() == lib2);
 			assertTrue("Named type's parent must not be deleted.", !n.getParent().isDeleted());
@@ -198,6 +283,7 @@ public class LibraryNodeTest extends BaseProjectTest {
 
 		// delete second lib and insure deleted.
 		pc.remove(lnn2);
+		List<LibraryMemberInterface> l2libs = lib2.getDescendants_LibraryMembers();
 		assertTrue("Project 2 must be empty.", project2.getChildren().isEmpty());
 		assertTrue("Lib2 must be empty.", lib2.getDescendants_LibraryMembers().isEmpty());
 
@@ -228,33 +314,41 @@ public class LibraryNodeTest extends BaseProjectTest {
 			assertTrue(ln.getPrefix().equals(ln.getTLModelObject().getPrefix()));
 		}
 
-		// Make sure we can create new empty libraries as used by wizard
-		LibraryNode newLib = new LibraryNode(l1.getProject());
-		assertTrue(newLib != null);
+		// // Make sure we can create new empty libraries as used by wizard
+		// LibraryNode newLib = new LibraryNode(l1.getProject());
+		// assertTrue(newLib != null);
 
 		for (LibraryNode ln : Node.getAllUserLibraries()) {
 			// removeAllMembers(ln);
-			for (Node n : ln.getDescendants_LibraryMembers())
+			for (Node n : ln.getDescendants_LibraryMemberNodes()) {
+				if (n instanceof ServiceNode)
+					LOGGER.debug("ready to remove service.");
 				ln.removeMember(n); // May change type assignments!
+			}
+			List<LibraryMemberInterface> dlmn = ln.getDescendants_LibraryMembers();
+			List<LibraryMemberInterface> dlm = ln.getDescendants_LibraryMembers();
 			Assert.assertTrue(ln.getDescendants_LibraryMembers().size() < 1);
 		}
 	}
 
 	@Test
 	public void NT_governedLibEditable() throws Exception {
-		// NodeTesters nt = new NodeTesters();
 		LoadFiles lf = new LoadFiles();
 
 		LibraryNode sourceLib = lf.loadFile5Clean(mc); // load into default project
 		LibraryNode destLib = lf.loadFile1(mc);
 		LibraryChainNode lcn = new LibraryChainNode(destLib);
+		ml.check(sourceLib);
+
+		// When - source lib added to the chain
 		lcn.add(sourceLib.getProjectItem());
 
 		// Make sure they loaded OK.
-		// sourceLib.visitAllNodes(nt.new TestNode());
-		// destLib.visitAllNodes(nt.new TestNode());
 		ml.check(sourceLib);
 		ml.check(destLib);
+
+		ProjectNode defaultProject = mc.getProjectController().getDefaultProject();
+		defaultProject.closeAll();
 
 		// LOGGER.debug("\n");
 		LOGGER.debug("Start Import ***************************");

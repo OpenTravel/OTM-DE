@@ -26,6 +26,7 @@ import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.handlers.NamespaceHandler;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -50,7 +51,7 @@ public class NamespaceHandler_Tests {
 		String ns = "http://foo.bar";
 		final String ns2 = "http://foo.bar/too";
 		final String pre = "aaa";
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
 
@@ -71,7 +72,7 @@ public class NamespaceHandler_Tests {
 
 	@Test
 	public void nsHandlerTest() throws Exception {
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		final String testNS = "http://www.opentravel.org/ns/TEST";
 
 		final String testExtension = "Test";

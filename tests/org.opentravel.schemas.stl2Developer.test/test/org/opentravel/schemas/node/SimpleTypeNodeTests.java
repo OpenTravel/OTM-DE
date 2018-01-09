@@ -27,7 +27,11 @@ import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.interfaces.SimpleMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.types.TypeProvider;
@@ -52,7 +56,7 @@ public class SimpleTypeNodeTests {
 
 	@Before
 	public void beforeAllTests() {
-		mc = new MainController();
+		mc = OtmRegistry.getMainController();
 		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
@@ -60,23 +64,23 @@ public class SimpleTypeNodeTests {
 
 	@Test
 	public void simpleTypeNode_LoadFileTests() throws Exception {
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		LoadFiles lf = new LoadFiles();
 		lf.loadTestGroupA(mc);
 		for (LibraryNode ln : Node.getAllLibraries()) {
 			checkGetDescendants_SimpleComponents(ln);
-			ml.check(ln);
+			ml.check(ln, false);
 		}
 	}
 
 	private void checkGetDescendants_SimpleComponents(LibraryNode lib) {
 		int simpleCnt = 0;
-		for (Node type : lib.getDescendants_LibraryMembers())
-			if (type instanceof SimpleComponentNode) {
+		for (LibraryMemberInterface type : lib.getDescendants_LibraryMembers())
+			if (type instanceof SimpleMemberInterface) {
 				simpleCnt++;
-				ml.check(type);
+				ml.check((Node) type);
 			}
-		assertEquals(simpleCnt, lib.getDescendants_SimpleComponents().size());
+		assertEquals(simpleCnt, lib.getDescendants_SimpleMembers().size());
 	}
 
 	public void check(SimpleTypeNode node) {
@@ -99,7 +103,7 @@ public class SimpleTypeNodeTests {
 
 		// where assigned hander
 		// type handler
-		assertTrue(st.getChildrenHandler() == null);
+		assertTrue(st.getChildrenHandler() != null);
 		assertTrue(st.getDocHander() != null);
 		assertTrue(st.getConstraintHandler() != null);
 		if (st.getXsdObjectHandler() != null)
@@ -121,7 +125,7 @@ public class SimpleTypeNodeTests {
 
 		// Then - handlers: type, constraint, equivalent, example
 		assertTrue(simple.getConstraintHandler() != null);
-		assertTrue(simple.typeHandler != null);
+		assertTrue(simple.getTypeHandler() != null);
 
 		// Then - handlers: whereExtended, documentation
 		assertTrue(simple.getDocHander() != null);
@@ -183,13 +187,13 @@ public class SimpleTypeNodeTests {
 	public void simpleType_checkDescendantCounts() {
 		for (LibraryNode lib : Node.getAllLibraries()) {
 			int simpleCnt = 0;
-			for (Node type : lib.getDescendants_LibraryMembers()) {
-				if (type instanceof SimpleComponentNode) {
+			for (Node type : lib.getDescendants_LibraryMemberNodes()) {
+				if (type instanceof SimpleMemberInterface) {
 					simpleCnt++;
 				}
 			}
-			int libCnt = lib.getDescendants_SimpleComponents().size();
-			Assert.assertEquals(simpleCnt, lib.getDescendants_SimpleComponents().size());
+			int libCnt = lib.getDescendants_SimpleMembers().size();
+			Assert.assertEquals(simpleCnt, lib.getDescendants_SimpleMembers().size());
 		}
 	}
 

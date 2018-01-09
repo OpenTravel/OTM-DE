@@ -35,14 +35,20 @@ import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.listeners.TypeUserAssignmentListener;
 import org.opentravel.schemas.node.properties.ElementNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.types.TestTypes;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
-import org.opentravel.schemas.types.WhereAssignedHandler.WhereAssignedListener;
 import org.opentravel.schemas.types.WhereExtendedHandler.WhereExtendedListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +67,7 @@ public class ReplaceWith_Tests {
 	@Test
 	public void ReplaceAll_Tests() throws Exception {
 		DefaultProjectController pc;
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
@@ -92,7 +98,7 @@ public class ReplaceWith_Tests {
 		assertTrue("Core names must be same for exact replacement matches.",
 				core.getName().equals(replacement.getName()));
 		for (TypeProvider c : replacement.getDescendants_TypeProviders())
-			assertTrue("Must have namespace.", !((Node) c).getNamespace().isEmpty());
+			assertTrue("Must have namespace.", c.getNamespace().equals(ln2.getNamespace()));
 
 		// When - 1st core is replaced by second core
 		((TypeProvider) core).getWhereAssignedHandler().replaceAll(replacement);
@@ -102,7 +108,7 @@ public class ReplaceWith_Tests {
 			TypeProvider type = ((TypeUser) p).getAssignedType();
 			assertTrue("Must be in ln2 library.", type.getLibrary() == ln2);
 			assertTrue("Must have ln2 namespace", ((Node) type).getNamespace().equals(ln2.getNamespace()));
-			assertTrue("Must have listener", hasWhereAssignedListener((TypeUser) p, type));
+			assertTrue("Must have listener", hasAssignmentListener((TypeUser) p, type));
 		}
 		// Then - all original core type providers should not be assigned
 		for (TypeProvider p : core.getDescendants_TypeProviders())
@@ -116,7 +122,7 @@ public class ReplaceWith_Tests {
 	@Test
 	public void ExtensionHanderSet_Tests() throws Exception {
 		DefaultProjectController pc;
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
@@ -162,7 +168,7 @@ public class ReplaceWith_Tests {
 	@Test
 	public void ReplaceBaseTypesInDifferentLibrary_Test() throws Exception {
 		DefaultProjectController pc;
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
@@ -189,11 +195,18 @@ public class ReplaceWith_Tests {
 		return false;
 	}
 
-	public boolean hasWhereAssignedListener(TypeUser user, TypeProvider type) {
+	public boolean hasAssignmentListener(TypeUser user, TypeProvider type) {
+		boolean result = false;
+		int count = 0;
 		for (ModelElementListener l : user.getTLModelObject().getListeners())
-			if (l instanceof WhereAssignedListener)
-				return ((WhereAssignedListener) l).getNode() == type;
-		return false;
+			if (l instanceof TypeUserAssignmentListener) {
+				if (((TypeUserAssignmentListener) l).getNode() == type)
+					result = true;
+				count++;
+			}
+		if (count > 1)
+			LOGGER.debug("Error - too many where assigned listeners.");
+		return result;
 	}
 
 	// Use purpose built objects to test specific behaviors.
@@ -201,7 +214,7 @@ public class ReplaceWith_Tests {
 	public void ReplaceTypesTest() throws Exception {
 		// Given - controllers, project and unmanaged library
 		DefaultProjectController pc;
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
 		// NewComponent_Tests nc = new NewComponent_Tests();
@@ -217,7 +230,7 @@ public class ReplaceWith_Tests {
 		VWA_Node vwa = null;
 		CoreObjectNode core = null, core2 = null;
 		BusinessObjectNode bo = null, bo2 = null;
-		for (Node n : ln.getDescendants_LibraryMembers()) {
+		for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers()) {
 			if (n instanceof SimpleTypeNode)
 				simple = (SimpleTypeNode) n;
 			else if (n instanceof VWA_Node)
@@ -233,12 +246,12 @@ public class ReplaceWith_Tests {
 		assertNotNull(vwa);
 
 		// Given - clone made of core
-		core2 = (CoreObjectNode) core.clone();
+		core2 = (CoreObjectNode) core.clone(core.getLibrary(), null);
 		core2.setName("core2");
 		ml.check(core2);
 
 		// Given - clone made of bo
-		bo2 = (BusinessObjectNode) bo.clone();
+		bo2 = (BusinessObjectNode) bo.clone(bo.getLibrary(), null);
 		bo2.setName("bo2");
 		ml.check(bo2);
 
@@ -275,7 +288,7 @@ public class ReplaceWith_Tests {
 
 	@Test
 	public void ReplaceTest() throws Exception {
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		LoadFiles lf = new LoadFiles();
 		model = mc.getModelNode();
 
@@ -285,21 +298,21 @@ public class ReplaceWith_Tests {
 		l1.setEditable(true);
 		// tt.visitAllNodes(l5);
 		// tt.visitAllNodes(l1);
-		int beforeCnt1 = l1.getDescendants_LibraryMembers().size();
-		int beforeCnt5 = l5.getDescendants_LibraryMembers().size();
+		int beforeCnt1 = l1.getDescendants_LibraryMemberNodes().size();
+		int beforeCnt5 = l5.getDescendants_LibraryMemberNodes().size();
 
 		replaceMembers(l1, l1);
 		replaceMembers(l1, l5);
 
 		tt.visitAllNodes(l1);
 		tt.visitAllNodes(l5);
-		Assert.assertEquals(beforeCnt1, l1.getDescendants_LibraryMembers().size());
-		Assert.assertEquals(beforeCnt5, l5.getDescendants_LibraryMembers().size());
+		Assert.assertEquals(beforeCnt1, l1.getDescendants_LibraryMemberNodes().size());
+		Assert.assertEquals(beforeCnt5, l5.getDescendants_LibraryMemberNodes().size());
 	}
 
 	@Test
 	public void swap() throws Exception {
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		LoadFiles lf = new LoadFiles();
 		model = mc.getModelNode();
 
@@ -330,7 +343,7 @@ public class ReplaceWith_Tests {
 
 	@Test
 	public void CombinedTest() throws Exception {
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		LoadFiles lf = new LoadFiles();
 		model = mc.getModelNode();
 
@@ -338,22 +351,23 @@ public class ReplaceWith_Tests {
 		l5.setEditable(true);
 		LibraryNode l1 = lf.loadFile1(mc);
 		l1.setEditable(true);
-		// tt.visitAllNodes(l5);
-		// tt.visitAllNodes(l1);
+		ml.check(l1);
+		ml.check(l5);
+
 		int beforeCnt1 = l1.getDescendants_LibraryMembers().size();
 		int beforeCnt5 = l5.getDescendants_LibraryMembers().size();
 
 		replaceMembers(l1, l5);
 		replaceMembers(l5, l1);
-		tt.visitAllNodes(l1);
-		tt.visitAllNodes(l5);
+		ml.check(l1, false); // constraints may be invalid
+		ml.check(l5, false);
 
 		Assert.assertEquals(beforeCnt1, l1.getDescendants_LibraryMembers().size());
 		Assert.assertEquals(beforeCnt5, l5.getDescendants_LibraryMembers().size());
 
 		swap(l1, l5);
-		tt.visitAllNodes(l1);
-		tt.visitAllNodes(l5);
+		ml.check(l1, false);
+		ml.check(l5, false);
 		// Assert.assertEquals(beforeCnt5, l5.getDescendants_NamedTypes().size());
 	}
 
@@ -365,9 +379,9 @@ public class ReplaceWith_Tests {
 	 */
 	private void replaceMembers(LibraryNode ls, LibraryNode lt) {
 		// Sort the list so that the order is consistent with each test.
-		List<Node> targets = lt.getDescendants_LibraryMembers();
+		List<Node> targets = lt.getDescendants_LibraryMemberNodes();
 		Collections.sort(targets, lt.new NodeComparable());
-		List<Node> sources = ls.getDescendants_LibraryMembers();
+		List<Node> sources = ls.getDescendants_LibraryMemberNodes();
 		Collections.sort(sources, ls.new NodeComparable());
 		int cnt = sources.size();
 
@@ -396,22 +410,20 @@ public class ReplaceWith_Tests {
 	 */
 	private void swap(LibraryNode source, LibraryNode target) {
 		Map<String, Node> sources = new HashMap<>();
-		for (Node n : source.getDescendants_LibraryMembers())
+		for (Node n : source.getDescendants_LibraryMemberNodes())
 			sources.put(n.getName(), n);
 
 		// Now, replace the nodes within their structures.
-		for (Node n : target.getDescendants_LibraryMembers()) {
+		for (Node n : target.getDescendants_LibraryMemberNodes()) {
 			if (n instanceof ServiceNode)
 				continue;
 			Node lsNode = sources.get(n.getName());
 			if (lsNode != null) {
-				ml.check(lsNode);
-				ml.check(n);
+				ml.check(lsNode, false);
+				ml.check(n, false);
 				n.replaceTypesWith(lsNode, null);
-				// n.swap(lsNode);
-				// tt.visitTypeNode(lsNode);
-				ml.check(lsNode);
-				ml.check(n);
+				ml.check(lsNode, false);
+				ml.check(n, false);
 			} else
 				LOGGER.debug(n + " was not found in source library.");
 		}

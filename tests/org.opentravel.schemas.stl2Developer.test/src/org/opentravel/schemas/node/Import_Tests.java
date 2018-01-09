@@ -23,15 +23,16 @@ import java.io.File;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
-import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
-import org.opentravel.schemas.testUtils.NodeTesters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,18 +55,18 @@ public class Import_Tests {
 	public void beforeEachTest() {
 		// mc = OtmRegistry.getMainController(); // don't do this - it messes up the project controller
 		// if (mc == null)
-		mc = new MainController();
-		pc = (DefaultProjectController) mc.getProjectController();
+		mc = OtmRegistry.getMainController();
+		pc = mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
 	}
 
 	@Test
 	public void ImportTest() throws Exception {
-		NodeTesters nt = new NodeTesters();
+		// NodeTesters nt = new NodeTesters();
 
 		LibraryNode sourceLib = lf.loadFile5Clean(mc);
 		LibraryNode destLib = lf.loadFile1(mc);
-		final String DestLibNs = "http://www.opentravel.org/Sandbox/junits/ns1/v1";
+		// final String DestLibNs = "http://www.opentravel.org/Sandbox/junits/ns1/v1";
 		// Make sure they loaded OK.
 		ml.check(sourceLib);
 		ml.check(destLib);
@@ -99,7 +100,7 @@ public class Import_Tests {
 
 		target.importNode(bo);
 		target.importNode(core);
-		Assert.assertEquals(3, target.getDescendants_LibraryMembers().size());
+		Assert.assertEquals(3, target.getDescendants_LibraryMemberNodes().size());
 	}
 
 	@Test
@@ -109,7 +110,7 @@ public class Import_Tests {
 		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "testBO");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "testCore");
-		FacetNode summary = bo.getFacet_Summary();
+		FacetProviderNode summary = bo.getFacet_Summary();
 		int coreKids = core.getChildren().size();
 		int startingCount = summary.getChildren().size();
 

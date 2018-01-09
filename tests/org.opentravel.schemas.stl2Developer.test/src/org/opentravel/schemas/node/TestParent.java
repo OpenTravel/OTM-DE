@@ -19,9 +19,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.ModelNode;
-import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.NodeTesters;
 
@@ -36,20 +35,19 @@ public class TestParent {
 	NodeTesters nt = new NodeTesters();
 	Library_FunctionTests lt = new Library_FunctionTests();
 
-
 	@Test
 	public void testGetParent() throws Exception {
-		MainController mc = new MainController();
-		
+		MainController mc = OtmRegistry.getMainController();
+
 		lf.loadTestGroupA(mc);
 		for (LibraryNode ln : Node.getAllLibraries()) {
-			for (Node n : ln.getDescendants_LibraryMembers())
+			for (Node n : ln.getDescendants_LibraryMemberNodes())
 				parentVisitor(n);
 		}
-		
+
 	}
 
-	private void parentVisitor(Node target){
+	private void parentVisitor(Node target) {
 		Node testNode = null;
 		Node parent = target;
 		do {

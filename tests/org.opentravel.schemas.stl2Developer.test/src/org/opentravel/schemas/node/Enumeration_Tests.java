@@ -22,6 +22,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +36,9 @@ import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -54,7 +59,7 @@ public class Enumeration_Tests {
 
 	@Before
 	public void beforeAllTests() {
-		mc = new MainController();
+		mc = OtmRegistry.getMainController();
 		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
@@ -78,6 +83,13 @@ public class Enumeration_Tests {
 		e.getChildren();
 	}
 
+	/**
+	 * Create a TLAbstractEnumeration with one literal.
+	 * 
+	 * @param open
+	 * @param name
+	 * @return
+	 */
 	public TLAbstractEnumeration createTL(boolean open, String name) {
 		TLAbstractEnumeration tlae = null;
 		if (open)
@@ -89,14 +101,14 @@ public class Enumeration_Tests {
 			name = "EnumName";
 		tlae.setName(name);
 		TLEnumValue tlcv1 = new TLEnumValue();
-		tlcv1.setLiteral("value 1");
+		tlcv1.setLiteral("value 1 " + name);
 		tlae.addValue(tlcv1);
 		return tlae;
 	}
 
 	@Test
 	public void EN_ConstructorsTests() {
-		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+		ln = ml.createNewLibrary_Empty(defaultProject.getNSRoot(), "test", defaultProject);
 		assertTrue("Library must be editable as needed to addProperty.", ln.isEditable_newToChain());
 
 		// When - create 2
@@ -105,6 +117,19 @@ public class Enumeration_Tests {
 
 		ln.addMember(ecn);
 		ln.addMember(eon);
+		assertTrue("Must be owner.", ecn.getOwningComponent() == ecn);
+		assertTrue("Must be owner.", eon.getOwningComponent() == eon);
+		assertTrue("Must have library.", ecn.getLibrary() == ln);
+		assertTrue("Must have library.", eon.getLibrary() == ln);
+
+		List<Node> valuesC = ecn.getChildrenHandler().get();
+		List<Node> valuesO = eon.getChildrenHandler().get();
+		assertTrue("Must have one value.", valuesO.size() == 1);
+		assertTrue("Must have one value.", valuesC.size() == 1);
+		assertTrue("Must be owner.", valuesC.get(0).getOwningComponent() == ecn);
+		assertTrue("Must be owner.", valuesO.get(0).getOwningComponent() == eon);
+		ml.check(ecn);
+		ml.check(eon);
 		ml.check(ln);
 
 		// When - create two then use them to create other type

@@ -18,21 +18,23 @@ package org.opentravel.schemas.node;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.PropertyOwnerNode;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.listeners.TypeUserAssignmentListener;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.AttributeReferenceNode;
 import org.opentravel.schemas.node.properties.ElementNode;
@@ -41,8 +43,15 @@ import org.opentravel.schemas.node.properties.IdNode;
 import org.opentravel.schemas.node.properties.IndicatorElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.RoleNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeProviders;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
@@ -62,7 +71,7 @@ public class PropertyNodeTest {
 
 	@Before
 	public void beforeEachTest() {
-		mc = new MainController();
+		mc = OtmRegistry.getMainController();
 		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
@@ -73,6 +82,8 @@ public class PropertyNodeTest {
 
 		// For some reason, the built-iin library is empty on second test
 		TypeProvider idType = (TypeProvider) NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
+		assertTrue("Test Setup Error - no empty type.", emptyNode != null);
+		assertTrue("Test Setup Error - no date.", sType != null);
 		assertTrue("Test Setup Error - no idType.", idType != null);
 	}
 
@@ -88,7 +99,7 @@ public class PropertyNodeTest {
 		CoreObjectNode core = new CoreObjectNode(new TLCoreObject());
 		core.setName("TC");
 		ln.addMember(core);
-		FacetNode facet = core.getFacet_Summary();
+		FacetProviderNode facet = core.getFacet_Summary();
 		assertTrue(facet != null);
 		TypeProvider simple1 = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
 
@@ -108,7 +119,7 @@ public class PropertyNodeTest {
 		ml.check(facet);
 	}
 
-	private List<PropertyNode> oneOfEach(PropertyOwnerInterface owner) {
+	private List<PropertyNode> oneOfEach(FacetInterface owner) {
 		List<PropertyNode> properties = new ArrayList<PropertyNode>();
 		properties.add(new ElementNode(owner, "e1"));
 		properties.add(new ElementReferenceNode(owner));
@@ -129,7 +140,7 @@ public class PropertyNodeTest {
 		ln = ml.createNewLibrary_Empty("http://example.com/test", "test", defaultProject);
 
 		// When - one of each is created
-		PropertyOwnerNode owner = null;
+		FacetInterface owner = null;
 		oneOfEach(owner); // make sure no parent does not NPE
 
 		// Check these that are not owned by PropertyOwner
@@ -140,7 +151,7 @@ public class PropertyNodeTest {
 		CoreObjectNode core = new CoreObjectNode(new TLCoreObject());
 		core.setName("TC");
 		ln.addMember(core);
-		FacetNode facet = core.getFacet_Summary();
+		FacetProviderNode facet = core.getFacet_Summary();
 		assertTrue(facet != null);
 		// Then - create and check
 		for (PropertyNode pn : oneOfEach(facet))
@@ -154,7 +165,7 @@ public class PropertyNodeTest {
 		CoreObjectNode core = new CoreObjectNode(new TLCoreObject());
 		core.setName("TC");
 		ln.addMember(core);
-		FacetNode facet = core.getFacet_Summary();
+		FacetProviderNode facet = core.getFacet_Summary();
 		assertTrue(facet != null);
 		TypeProvider simple1 = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
 		// When - one element added to make core valid - need to create BO
@@ -186,14 +197,29 @@ public class PropertyNodeTest {
 	public void PN_AttrAssignmentTests() {
 		// Given - types to assign
 		SimpleTypeNode simple = ml.addSimpleTypeToLibrary(ln, "Simple");
-		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
-		assertTrue(string != null);
+		TypeProvider string = ml.getXsdString();
 
 		// Given - a VWA with 3 new attributes
 		VWA_Node pVwa = ml.addVWA_ToLibrary(ln, "P_VWA");
+		for (Node n : pVwa.getFacet_Attributes().getChildren())
+			n.delete();
 		new AttributeNode(pVwa.getFacet_Attributes(), "a1");
 		new AttributeNode(pVwa.getFacet_Attributes(), "a2");
 		new AttributeNode(pVwa.getFacet_Attributes(), "a3");
+		assertTrue(!pVwa.getAttributes().isEmpty());
+
+		// Then - check assignment to unassigned node
+		TypeProvider unassigned = ModelNode.getUnassignedNode();
+		TypeProvider vType = pVwa.getAssignedType();
+		Collection<TypeUser> unList = unassigned.getWhereAssigned();
+		assertTrue(!unList.isEmpty());
+		for (Node n : pVwa.getFacet_Attributes().getChildren()) {
+			assertTrue(unList.contains(n));
+			// Make sure user has correct TypeProviderListener
+			for (ModelElementListener l : n.getTLModelObject().getListeners())
+				if (l instanceof TypeUserAssignmentListener)
+					assertTrue(((TypeUserAssignmentListener) l).getNode() == unassigned);
+		}
 
 		for (Node n : pVwa.getFacet_Attributes().getChildren()) {
 			if (n instanceof TypeUser) {
@@ -205,10 +231,21 @@ public class PropertyNodeTest {
 				assertTrue(attr.getAssignedType() == ModelNode.getUnassignedNode());
 
 				// When - assigned type
+				attr.setAssignedType(string);
+				// Then - verify the assignment
+				assertTrue(attr.getAssignedType() == string);
+				assertTrue(string.getWhereAssigned().contains(attr));
+
+				// When - assigned type
 				attr.setAssignedType(simple);
 				// Then - verify the assignment
 				assertTrue(attr.getAssignedType() == simple);
 				assertTrue(simple.getWhereAssigned().contains(attr));
+
+				// Verify listener
+				for (ModelElementListener l : n.getTLModelObject().getListeners())
+					if (l instanceof TypeUserAssignmentListener)
+						assertTrue(((TypeUserAssignmentListener) l).getNode() == simple);
 			}
 		}
 
@@ -217,13 +254,13 @@ public class PropertyNodeTest {
 	}
 
 	@Test
-	public void PN_assignmentTests() {
+	public void PN_AssignmentTests() {
 		// Given - types to assign
 		SimpleTypeNode simple = ml.addSimpleTypeToLibrary(ln, "Simple");
 		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
 		assertTrue(string != null);
 
-		// Given - a Core with new properties
+		// Given - a Core with one of each type of new property
 		CoreObjectNode pCore = ml.addCoreObjectToLibrary(ln, "PCore");
 		new AttributeNode(pCore.getFacet_Summary(), "aa1");
 		oneOfEach(pCore.getFacet_Summary());
@@ -237,11 +274,21 @@ public class PropertyNodeTest {
 					// Then - verify the assignment
 					assertTrue(user.getAssignedType() == ModelNode.getUnassignedNode());
 
+				// When - successfully cleared
+				if (user.setAssignedType(string))
+					// Then - verify the assignment
+					assertTrue(user.getAssignedType() == string);
+
 				// When - successfully assigned a type
 				if (user.setAssignedType(simple)) {
 					// Then - verify the assignment
 					assertTrue(user.getAssignedType() == simple);
 					assertTrue(simple.getWhereAssigned().contains(user));
+
+					// Verify listener
+					for (ModelElementListener l : user.getTLModelObject().getListeners())
+						if (l instanceof TypeUserAssignmentListener)
+							assertTrue(((TypeUserAssignmentListener) l).getNode() == simple);
 				}
 			}
 		}
@@ -299,7 +346,8 @@ public class PropertyNodeTest {
 			assertTrue("Uneditable property must not be renameable.", !pn.isRenameable());
 		else if (pn.isInherited())
 			assertTrue("Inherited property must not be renameable.", !pn.isRenameable());
-		else if (!pn.getAssignedType().isRenameableWhereUsed())
+		else if (!pn.getAssignedType().isRenameableWhereUsed()
+				&& !(pn.getAssignedType() instanceof SimpleTypeProviders))
 			assertTrue("Property's assigned type requires it to not be renameable.", !pn.isRenameable());
 		else
 			assertTrue("Property must be renameable.", pn.isRenameable());
@@ -319,7 +367,7 @@ public class PropertyNodeTest {
 		if (!(pn instanceof FacadeInterface))
 			assertTrue("Property listener must point to proeprty.", Node.GetNode(pn.getTLModelObject()) == pn);
 		assertTrue("Property must have parent.", pn.getParent() != null);
-		assertTrue("Property must have library.", pn.getLibrary() != null);
+		assertTrue("Property must have library.", pn.getLibrary() == pn.getParent().getLibrary());
 		assertTrue("Property must have name.", pn.getName() != null);
 		assertTrue("Property must have label.", pn.getLabel() != null);
 	}

@@ -37,21 +37,22 @@ import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLRole;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.CoreObjectNode;
-import org.opentravel.schemas.node.EnumerationClosedNode;
-import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.VWA_Node;
-import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.RoleFacetNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.types.TypeProvider;
 
@@ -73,7 +74,7 @@ public class PropertiesTests {
 
 	@Before
 	public void beforeEachTest() {
-		mc = new MainController();
+		mc = OtmRegistry.getMainController();
 		mockLibrary = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
@@ -162,7 +163,7 @@ public class PropertiesTests {
 	@Test
 	public void createElements() {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
-		FacetNode summary = bo.getFacet_Summary();
+		FacetProviderNode summary = bo.getFacet_Summary();
 		assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn = null;
@@ -195,7 +196,7 @@ public class PropertiesTests {
 	public void createElementRefs() {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
 		BusinessObjectNode A = mockLibrary.addBusinessObjectToLibrary(ln, "A");
-		PropertyOwnerInterface summary = bo.getFacet_Summary();
+		FacetProviderNode summary = bo.getFacet_Summary();
 		assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn = null;
@@ -224,7 +225,7 @@ public class PropertiesTests {
 	@Test
 	public void createAttributes() {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
-		FacetNode summary = bo.getFacet_Summary();
+		FacetProviderNode summary = bo.getFacet_Summary();
 		assertTrue(summary != null);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		assertTrue(aType != null);
@@ -277,7 +278,7 @@ public class PropertiesTests {
 	@Test
 	public void createIndicatorElements() {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
-		FacetNode summary = bo.getFacet_Summary();
+		FacetProviderNode summary = bo.getFacet_Summary();
 		assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, pn1 = null;
@@ -310,7 +311,7 @@ public class PropertiesTests {
 	@Test
 	public void createIndicator() {
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
-		FacetNode summary = bo.getFacet_Summary();
+		FacetProviderNode summary = bo.getFacet_Summary();
 		assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, pn1 = null;
@@ -393,7 +394,7 @@ public class PropertiesTests {
 	public void assignedNames() {
 		ln.setEditable(true);
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "Ct");
-		PropertyOwnerInterface summary = bo.getFacet_Summary();
+		FacetProviderNode summary = bo.getFacet_Summary();
 		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, epn, apn, ipn, rpn, iepn = null;
 		String eText = "Element";
@@ -433,7 +434,7 @@ public class PropertiesTests {
 	public void changeRoles() {
 		ln.setEditable(true);
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "ct");
-		PropertyOwnerInterface summary = bo.getFacet_Summary();
+		FacetProviderNode summary = bo.getFacet_Summary();
 		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, epn, apn, ipn, rpn, iepn = null;
 		String eText = "Element";
@@ -468,9 +469,9 @@ public class PropertiesTests {
 		// This seems to be dependent on the type of "this" node. create property should only be implemented for facets.
 		ln.setEditable(true);
 		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "ct");
-		PropertyOwnerInterface summary = bo.getFacet_Summary();
+		FacetProviderNode summary = bo.getFacet_Summary();
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
-		ComponentNode cn = (ComponentNode) summary;
+		ComponentNode cn = summary;
 
 		// Does not work. Requires workbench to resolve view.
 		// OtmRegistry.getNavigatorView().setCurrentNode(aType);

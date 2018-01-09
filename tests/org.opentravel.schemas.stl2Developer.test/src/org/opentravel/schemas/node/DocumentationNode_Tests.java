@@ -31,6 +31,10 @@ import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.handlers.DocumentationHandler;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -57,7 +61,7 @@ public class DocumentationNode_Tests {
 
 	@Before
 	public void beforeEachTest() {
-		mc = new MainController();
+		mc = OtmRegistry.getMainController();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
 		lf = new LoadFiles();
@@ -170,7 +174,7 @@ public class DocumentationNode_Tests {
 
 	@Test
 	public void coreDescriptionTest() {
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		MockLibrary mockLibUtil = new MockLibrary();
 		LibraryController lc = mc.getLibraryController();
 		ProjectController pc = mc.getProjectController();
@@ -213,7 +217,7 @@ public class DocumentationNode_Tests {
 
 	@Test
 	public void testLoadFromFile() {
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		LoadFiles lf = new LoadFiles();
 		// model = mc.getModelNode();
 
@@ -244,7 +248,7 @@ public class DocumentationNode_Tests {
 
 	@Test
 	public void docTests() throws Exception {
-		MainController thisModel = new MainController();
+		MainController thisModel = OtmRegistry.getMainController();
 		LoadFiles lf = new LoadFiles();
 		model = thisModel.getModelNode();
 

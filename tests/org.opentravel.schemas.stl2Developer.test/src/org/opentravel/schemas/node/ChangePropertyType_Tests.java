@@ -29,6 +29,7 @@ import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.Node.NodeVisitor;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -37,7 +38,11 @@ import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
-import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -69,7 +74,7 @@ public class ChangePropertyType_Tests {
 
 	@Before
 	public void beforeEachTest() {
-		mc = new MainController(); // New one for each test
+		mc = OtmRegistry.getMainController(); // New one for each test
 		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
@@ -90,20 +95,20 @@ public class ChangePropertyType_Tests {
 
 		// Indicator on VWA
 		VWA_Node vwa = new VWA_Node(new TLValueWithAttributes());
-		parent = (Node) vwa.getFacet_Attributes();
+		parent = vwa.getFacet_Attributes();
 		// property = new IndicatorNode((PropertyOwnerInterface) parent, "ind");
 
 		// These all should fail
-		Assert.assertFalse(parent.isValidParentOf(PropertyNodeType.INDICATOR_ELEMENT));
-		Assert.assertFalse(parent.isValidParentOf(PropertyNodeType.ROLE));
-		Assert.assertFalse(parent.isValidParentOf(PropertyNodeType.ALIAS));
-		Assert.assertFalse(parent.isValidParentOf(PropertyNodeType.ENUM_LITERAL));
-		Assert.assertFalse(parent.isValidParentOf(PropertyNodeType.ELEMENT));
+		Assert.assertFalse(parent.canOwn(PropertyNodeType.INDICATOR_ELEMENT));
+		Assert.assertFalse(parent.canOwn(PropertyNodeType.ROLE));
+		Assert.assertFalse(parent.canOwn(PropertyNodeType.ALIAS));
+		Assert.assertFalse(parent.canOwn(PropertyNodeType.ENUM_LITERAL));
+		Assert.assertFalse(parent.canOwn(PropertyNodeType.ELEMENT));
 
 		// These should pass
-		Assert.assertTrue(parent.isValidParentOf(PropertyNodeType.ATTRIBUTE));
-		Assert.assertTrue(parent.isValidParentOf(PropertyNodeType.INDICATOR));
-		Assert.assertTrue(parent.isValidParentOf(PropertyNodeType.ID));
+		Assert.assertTrue(parent.canOwn(PropertyNodeType.ATTRIBUTE));
+		Assert.assertTrue(parent.canOwn(PropertyNodeType.INDICATOR));
+		Assert.assertTrue(parent.canOwn(PropertyNodeType.ID));
 
 		// CHECK THIS - should this be false?
 		// Assert.assertTrue(parent.isValidParentOf(PropertyNodeType.ID_REFERENCE));
@@ -117,9 +122,9 @@ public class ChangePropertyType_Tests {
 	@Test
 	public void changePropertyRoleTypeAssignment_Tests() {
 		TypeProvider core = ml.addCoreObjectToLibrary(ln, "Core1");
-		TypeProvider coreSummary = (TypeProvider) ((CoreObjectNode) core).getFacet_Summary();
+		TypeProvider coreSummary = ((CoreObjectNode) core).getFacet_Summary();
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary_Empty(ln, "BOTest");
-		PropertyOwnerInterface facet = bo.getFacet_Summary();
+		FacetProviderNode facet = bo.getFacet_Summary();
 		PropertyNode pn = new ElementNode(facet, "P1");
 		pn.setAssignedType(core);
 		assertEquals("Assigned to core.", core, pn.getAssignedType());
@@ -165,7 +170,7 @@ public class ChangePropertyType_Tests {
 	public void changePropertyRole_Tests() {
 		PropertyNodeType toType = null;
 		PropertyNode property, changed = null;
-		PropertyOwnerInterface parent = null;
+		FacetInterface parent = null;
 
 		// Indicator on VWA
 		VWA_Node vwa = new VWA_Node(new TLValueWithAttributes());
@@ -173,25 +178,33 @@ public class ChangePropertyType_Tests {
 		ln.addMember(vwa);
 		parent = vwa.getFacet_Attributes();
 		property = new IndicatorNode(parent, "ind");
+		assert property.getPropertyType().equals(PropertyNodeType.INDICATOR);
 
-		// These all should fail and return the property
+		// Converting to attribute must create new property
+		PropertyNode changedAttr = property.changePropertyRole(PropertyNodeType.ATTRIBUTE);
+		Assert.assertNotEquals(property, changedAttr);
+		// nt.visit(changedAttr);
+		ml.check(changedAttr);
+
+		// These all should fail and and change property to an attribute
 		changed = property.changePropertyRole(PropertyNodeType.INDICATOR_ELEMENT);
+		Assert.assertEquals(changedAttr, changed);
 		changed = property.changePropertyRole(PropertyNodeType.ELEMENT);
+		Assert.assertEquals(changedAttr, changed);
 		changed = property.changePropertyRole(PropertyNodeType.ENUM_LITERAL);
+		Assert.assertEquals(changedAttr, changed);
 		changed = property.changePropertyRole(PropertyNodeType.ROLE);
+		Assert.assertEquals(changedAttr, changed);
 		changed = property.changePropertyRole(PropertyNodeType.ALIAS);
-		Assert.assertEquals(property, changed);
-
-		// Converting to attribute should create new property
-		changed = property.changePropertyRole(PropertyNodeType.ATTRIBUTE);
-		Assert.assertNotEquals(property, changed);
-		nt.visit(changed);
+		Assert.assertEquals(changedAttr, changed);
+		assert property.getPropertyType().equals(PropertyNodeType.INDICATOR);
 
 		// converting back should reuse the previous indicator
 		property = changed;
 		changed = property.changePropertyRole(PropertyNodeType.INDICATOR);
 		Assert.assertNotEquals(property, changed);
-		nt.visit(changed);
+		// nt.visit(changed);
+		ml.check(changed);
 
 		// Attribute on VWA
 		property = new AttributeNode(parent, "Attr1");
@@ -199,7 +212,8 @@ public class ChangePropertyType_Tests {
 		int whereUsedCount = aType.getWhereAssignedCount();
 		changed = property.changePropertyRole(PropertyNodeType.INDICATOR);
 		Assert.assertNotEquals(property, changed);
-		nt.visit(changed);
+		// nt.visit(changed);
+		ml.check(changed);
 		Assert.assertTrue(whereUsedCount > aType.getWhereAssignedCount()); // attribute should
 
 		// TODO - add more use cases
@@ -207,7 +221,7 @@ public class ChangePropertyType_Tests {
 
 	@Test
 	public void changePropertyTypeTests() throws Exception {
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 
 		lf.loadTestGroupA(mc);
 		for (LibraryNode ln : Node.getAllLibraries()) {

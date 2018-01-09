@@ -20,9 +20,11 @@ package org.opentravel.schemas.node;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,18 +32,30 @@ import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
-import org.opentravel.schemas.node.facets.ContributedFacetNode;
-import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.handlers.children.FacetProviderChildrenHandler;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
+import org.opentravel.schemas.node.interfaces.InheritedInterface;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.InheritedElementNode;
+import org.opentravel.schemas.node.properties.InheritedEnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
+import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacet15Node;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -72,24 +86,107 @@ public class InheritedChildren_Tests {
 
 	@Before
 	public void beforeAllTests() {
-		mc = new MainController();
+		mc = OtmRegistry.getMainController();
 		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
-		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+	}
+
+	@After
+	public void afterEachTest() {
+		defaultProject.closeAll();
+		pc.closeAll();
+		LOGGER.debug("After ran.");
+		assert defaultProject.getLibraries().isEmpty();
 	}
 
 	public void check(InheritedElementNode ie) {
-		PropertyNode baseElement = (PropertyNode) ie.get();
+
+		PropertyNode baseElement = ie.getInheritedFrom();
 		assertTrue("Must be inherited", ie.isInherited());
 		assertTrue("Must inherit from base", ie.getInheritedFrom() == baseElement);
 		assertTrue("Must not have same parent.", ie.getParent() != baseElement.getParent());
 		assertTrue("Must have same name.", ie.getName().equals(baseElement.getName()));
 		assertTrue("Must have same type.", ie.getAssignedType() == baseElement.getAssignedType());
 		assertTrue("Must have same TLModelObject.", ie.getTLModelObject() == baseElement.getTLModelObject());
+
+		new PropertyNodeTest().check(ie);
+	}
+
+	public void check(InheritedEnumLiteralNode ie) {
+
+		PropertyNode baseElement = ie.getInheritedFrom();
+		assertTrue("Must be inherited", ie.isInherited());
+		assertTrue("Must inherit from base", ie.getInheritedFrom() == baseElement);
+		assertTrue("Must not have same parent.", ie.getParent() != baseElement.getParent());
+		assertTrue("Must have same name.", ie.getName().equals(baseElement.getName()));
+		assertTrue("Must have same TLModelObject.", ie.getTLModelObject() == baseElement.getTLModelObject());
+
+		new PropertyNodeTest().check(ie);
+	}
+
+	@Test
+	public void IC_inheritedEnum() {
+		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+
+		// Given - enums in a library, each has 1 literal
+		EnumerationOpenNode baseEO = ml.addOpenEnumToLibrary(ln, "BaseEO");
+		EnumerationOpenNode exEO = ml.addOpenEnumToLibrary(ln, "ExEO");
+		EnumerationClosedNode baseEC = ml.addClosedEnumToLibrary(ln, "BaseEC");
+		EnumerationClosedNode exEC = ml.addClosedEnumToLibrary(ln, "ExEC");
+
+		// When extended
+		exEO.setExtension(baseEO);
+		exEC.setExtension(baseEC);
+
+		// Then - extended enumerations must have inherited children
+		assertTrue("Must have inherited literal.", !exEO.getInheritedChildren().isEmpty());
+		assertTrue("Must have inherited literal.", !exEC.getInheritedChildren().isEmpty());
+		for (Node ic : exEO.getInheritedChildren())
+			check((InheritedEnumLiteralNode) ic);
+		for (Node ic : exEC.getInheritedChildren())
+			check((InheritedEnumLiteralNode) ic);
+
+	}
+
+	@Test
+	public void IC_inheritedEnum_ManagedLibrary() {
+		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+
+		Enumeration_Tests eTests = new Enumeration_Tests();
+		TLOpenEnumeration openTL = (TLOpenEnumeration) eTests.createTL(true, "BaseOTL");
+		TLOpenEnumeration exOTL = (TLOpenEnumeration) eTests.createTL(true, "ExOTL");
+
+		// Given - a managed library
+		LibraryChainNode lcn = new LibraryChainNode(ln);
+		ln.setEditable(true);
+		assert ln.isEditable();
+		// Given - 2 enums each with 1 literal in managed library,
+		EnumerationOpenNode baseEO = new EnumerationOpenNode(openTL);
+		EnumerationOpenNode exEO = new EnumerationOpenNode(exOTL);
+		ln.addMember(baseEO);
+		ln.addMember(exEO);
+		EnumerationClosedNode baseEC = ml.addClosedEnumToLibrary(ln, "BaseEC");
+		EnumerationClosedNode exEC = ml.addClosedEnumToLibrary(ln, "ExEC");
+		assert baseEC.getTLModelObject().getOwningLibrary() != null;
+		// The only difference between these two construction methods is when the children are added.
+		// When extended
+		exEO.setExtension(baseEO);
+		exEC.setExtension(baseEC);
+
+		// Then - extended enumerations must have inherited children
+		assertTrue("Must have inherited literal.", !exEC.getInheritedChildren().isEmpty());
+		assertTrue("Must have inherited literal.", !exEO.getInheritedChildren().isEmpty());
+		for (Node ic : exEO.getInheritedChildren())
+			check((InheritedEnumLiteralNode) ic);
+		for (Node ic : exEC.getInheritedChildren())
+			check((InheritedEnumLiteralNode) ic);
+
 	}
 
 	public void setUpExtendedBO() {
+		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
+
 		// Given -- two business objects. extensionBO extends baseBO
 		//
 		baseBO = ml.addBusinessObjectToLibrary(ln, "BaseBO");
@@ -103,25 +200,92 @@ public class InheritedChildren_Tests {
 	}
 
 	@Test
-	public void IC_addCustomToBase_Test() {
+	public void IC_addCustomToBase_V15_Test() {
 		// Given extensionBO extends baseBO
 		setUpExtendedBO();
 
-		// Then - inherited children
+		// Then - inherited property children
 		List<Node> inherited = extensionBO.getFacet_Summary().getInheritedChildren();
-		Assert.assertFalse(inherited.isEmpty());
+		assertTrue("Must have inherited property.", !inherited.isEmpty());
 		assertTrue("All base properties must be inherited.",
 				baseBO.getFacet_Summary().getChildren().size() == inherited.size());
-		Assert.assertTrue(inherited.get(0).isInherited());
+		for (Node i : inherited) {
+			assertTrue(i.isInherited());
+			assertTrue("Must inherit from another node.", ((InheritedInterface) i).getInheritedFrom() != null);
+			assertTrue("Parent must be ex facet.", i.getParent() == extensionBO.getFacet_Summary());
+		}
 
+		// Then - inherited facets
+		inherited = extensionBO.getInheritedChildren();
+		assertTrue("Must have inherited facets.", !inherited.isEmpty());
+		assertTrue("Only and all contextual facets must be inherited.",
+				baseBO.getContextualFacets(true).size() == inherited.size());
+		for (Node i : inherited) {
+			assertTrue(i.isInherited());
+			// Version 1.5 does not use contributed which implements inherited interface
+			assertTrue("Must inherit from another node.", ((ContextualFacet15Node) i).getInheritedFrom() != null);
+			assertTrue("Parent must be ex facet (v15).", i.getParent() == extensionBO);
+		}
+
+		// When - add a facet to the base BO
 		baseBO.addFacet("C2", TLFacetType.CUSTOM);
+		// Then
 		List<TLContextualFacet> inf = FacetCodegenUtils.findGhostFacets(extensionBO.getTLModelObject(),
 				TLFacetType.CUSTOM);
-		assertTrue("Ghosts must be found.", !inf.isEmpty());
+		assertTrue("TL_Ghosts must be found.", !inf.isEmpty());
 		List<Node> iKids = extensionBO.getInheritedChildren();
 		assertTrue("extended object has inherited children.", !extensionBO.getInheritedChildren().isEmpty());
+		assertTrue("Must find new inherited facet.", extensionBO.findChildByName("C2") != null);
+		// LOGGER.debug("Done");
+	}
 
-		LOGGER.debug("Done");
+	@Test
+	public void IC_addCustomToBase_Test() {
+		// Given extensionBO extends baseBO
+		OTM16Upgrade.otm16Enabled = true;
+		setUpExtendedBO();
+
+		// Then - inherited property children
+		List<Node> inherited = extensionBO.getFacet_Summary().getInheritedChildren();
+		assertTrue("Must have inherited property.", !inherited.isEmpty());
+		assertTrue("All base properties must be inherited.",
+				baseBO.getFacet_Summary().getChildren().size() == inherited.size());
+		for (Node i : inherited) {
+			assertTrue(i.isInherited());
+			assertTrue("Must inherit from another node.", ((InheritedInterface) i).getInheritedFrom() != null);
+			assertTrue("Parent must be ex facet.", i.getParent() == extensionBO.getFacet_Summary());
+		}
+
+		// Then - inherited facets
+		inherited = extensionBO.getInheritedChildren();
+		assertTrue("Must have inherited facets.", !inherited.isEmpty());
+		// Then - read again to verify caching is correct
+		inherited = extensionBO.getInheritedChildren();
+		assertTrue("Must have inherited facets.", !inherited.isEmpty());
+		assertTrue("Only and all contextual facets must be inherited.",
+				baseBO.getContextualFacets(true).size() == inherited.size());
+		for (Node i : inherited) {
+			assertTrue(i instanceof ContributedFacetNode);
+			assertTrue(i.isInherited());
+			assertTrue("Must inherit from another node.", ((InheritedInterface) i).getInheritedFrom() != null);
+			assertTrue(((ContributedFacetNode) i).getContributor() != null);
+			assertTrue("Parent must be ex facet.",
+					((ContributedFacetNode) i).getContributor().getParent() == extensionBO.getParent());
+			assertTrue("Parent must contain contibuted facet.",
+					extensionBO.getContextualFacets(true).contains(((ContributedFacetNode) i).getContributor()));
+		}
+
+		// When - add a facet to the base BO
+		baseBO.addFacet("C2", TLFacetType.CUSTOM);
+		// Then
+		List<TLContextualFacet> inf = FacetCodegenUtils.findGhostFacets(extensionBO.getTLModelObject(),
+				TLFacetType.CUSTOM);
+		assertTrue("TL_Ghosts must be found.", !inf.isEmpty());
+		List<Node> iKids = extensionBO.getInheritedChildren();
+		assertTrue("extended object has inherited children.", !extensionBO.getInheritedChildren().isEmpty());
+		assertTrue("Must find new inherited facet.", extensionBO.findChildByName("C2") != null);
+		// LOGGER.debug("Done");
+		OTM16Upgrade.otm16Enabled = false;
 	}
 
 	@Test
@@ -129,7 +293,7 @@ public class InheritedChildren_Tests {
 		setUpExtendedBO();
 		assertTrue("Library must be valid.", ln.isValid()); // validates TL library
 		BusinessObjectNode bo2 = ml.addBusinessObjectToLibrary_Empty(ln, "Bo2");
-		FacetNode sf = bo2.getFacet_Summary();
+		FacetProviderNode sf = bo2.getFacet_Summary();
 		List<?> children = sf.getChildren();
 		bo2.setExtension(baseBO);
 		Assert.assertEquals(sf, bo2.getFacet_Summary());
@@ -156,7 +320,7 @@ public class InheritedChildren_Tests {
 		ml.check(ie);
 
 		// Factory
-		ie = NodeFactory.newInheritedProperty(baseElement, extensionBO.getFacet_Summary());
+		ie = (PropertyNode) NodeFactory.newInheritedProperty(baseElement, extensionBO.getFacet_Summary());
 		ml.check(ie);
 	}
 
@@ -193,19 +357,188 @@ public class InheritedChildren_Tests {
 		OTM16Upgrade.otm16Enabled = false;
 		// Given - two BO, baseBO and extensionBO
 		setUpExtendedBO();
-		List<ContextualFacetNode> baseCFs = baseBO.getContextualFacets();
-		List<ContributedFacetNode> baseContribs = baseBO.getContributedFacets();
+		List<AbstractContextualFacet> baseCFs = baseBO.getContextualFacets(true);
+		List<ContributedFacetNode> baseContribs = baseBO.getContributedFacets(true);
 		assertTrue("Version 1.5 must not use contributed facets.", baseContribs.isEmpty());
 		List<Node> bKids = baseBO.getChildren();
-		List<ContextualFacetNode> eCFs = extensionBO.getContextualFacets();
+		List<AbstractContextualFacet> eCFs = extensionBO.getContextualFacets(true);
 		List<Node> eKids = extensionBO.getInheritedChildren();
 
 		// Then
 		assertTrue("Must have inherited children.", !eKids.isEmpty());
 		for (Node cf : eKids) {
-			Node baseNode = baseBO.findChildByName(((ContextualFacetNode) cf).getTLModelObject().getName());
+			Node baseNode = baseBO.findChildByName(((ContextualFacet15Node) cf).getTLModelObject().getName());
 			assertTrue("Must have different TL objects.", cf.getTLModelObject() != baseNode.getTLModelObject());
 		}
+	}
+
+	// Test changing children in contextual facet and assure all properties are OK
+	@Test
+	public void IC_inheritedChange_Tests() {
+		OTM16Upgrade.otm16Enabled = true;
+
+		// Given - two BO, baseBO and extensionBO
+		setUpExtendedBO();
+		// Given - a template to simulate adding properties by DND
+		PropertyNode template = new ElementNode(baseBO.getFacet_Summary(), "Template");
+		template.setAssignedType(ml.getXsdDecimal());
+
+		// Then - no child may be deleted
+		assertNotDeleted(baseBO.getContextualFacets(true));
+		assertNotDeleted(extensionBO.getContextualFacets(true));
+
+		PropertyNode np = null;
+		AbstractContextualFacet baseCF = baseBO.getContextualFacets(false).get(0);
+		AbstractContextualFacet exCF = extensionBO.getContextualFacets(true).get(0);
+
+		// When - adding a property
+		np = baseCF.createProperty(template);
+
+		// Then - no child may be deleted
+		assertNotDeleted(baseBO.getContextualFacets(true));
+		assertNotDeleted(extensionBO.getContextualFacets(true));
+		// Then - assure reading is stable and has same result
+		assertNotDeleted(baseBO.getContextualFacets(true));
+		assertNotDeleted(extensionBO.getContextualFacets(true));
+
+		// When - deleting the property
+		np.delete();
+
+		// Then - no child may be deleted
+		assertNotDeleted(baseBO.getContextualFacets(true));
+		assertNotDeleted(extensionBO.getContextualFacets(true));
+
+		// When - adding a lot of properties
+		for (AbstractContextualFacet cf : baseBO.getContextualFacets(false))
+			ml.addAllProperties(cf);
+
+		// Then - no child may be deleted
+		assertNotDeleted(baseBO.getContextualFacets(true));
+		assertNotDeleted(extensionBO.getContextualFacets(true));
+
+		OTM16Upgrade.otm16Enabled = false;
+	}
+
+	private void assertNotDeleted(List<AbstractContextualFacet> cfList) {
+		for (AbstractContextualFacet cf : cfList) {
+			List<Node> kids = cf.getChildren();
+			for (Node kid : kids)
+				assert !kid.isDeleted();
+			kids = cf.getInheritedChildren();
+			for (Node kid : kids) {
+				assert kid instanceof InheritedInterface;
+				assert !kid.isDeleted();
+			}
+		}
+	}
+
+	// Test adding/deleting children in contextual facet and assure all properties are OK
+	@Test
+	public void IC_inheritedCFChange_Tests() {
+		OTM16Upgrade.otm16Enabled = true;
+
+		// Given - two BO, baseBO and extensionBO
+		setUpExtendedBO();
+
+		List<AbstractContextualFacet> excfs = extensionBO.getContextualFacets(true);
+		assert !excfs.isEmpty();
+
+		// When - add a custom facet to base bo
+		AbstractContextualFacet nf = baseBO.addFacet("BaseCustom1", TLFacetType.CUSTOM);
+		List<AbstractContextualFacet> excfs2 = extensionBO.getContextualFacets(true);
+		assert excfs2.size() > excfs.size();
+
+		// When - deleted
+		nf.delete();
+
+		excfs2 = extensionBO.getContextualFacets(true);
+		assert excfs2.size() == excfs.size();
+	}
+
+	/**
+	 * getExtendsType is used in children handler to find inherited children.
+	 */
+	@Test
+	public void IC_getExtendsType_Tests() {
+		OTM16Upgrade.otm16Enabled = true;
+
+		// Given - two BO, baseBO and extensionBO
+		setUpExtendedBO();
+
+		Node ext;
+		for (AbstractContextualFacet cf : baseBO.getContextualFacets(true)) {
+			ext = cf.getExtendsType();
+			LOGGER.debug("ext = " + ext); // assert ext == null;
+			if (cf instanceof InheritedInterface)
+				assert ext != null;
+			else
+				assert ext == null;
+		}
+		for (Node cf : baseBO.getChildren()) {
+			if (!(cf instanceof FacetProviderNode))
+				continue;
+			ext = cf.getExtendsType();
+			LOGGER.debug("ext = " + ext);
+			assert ext == null;
+		}
+		for (AbstractContextualFacet cf : extensionBO.getContextualFacets(true)) {
+			ext = cf.getExtendsType();
+			LOGGER.debug("ext = " + ext);
+			if (cf instanceof InheritedInterface)
+				assert ext != null;
+			else
+				assert ext == null;
+		}
+		for (Node cf : extensionBO.getChildren()) {
+			if (!(cf instanceof FacetProviderNode))
+				continue;
+			ext = cf.getExtendsType();
+			LOGGER.debug("ext = " + ext);
+			assert ext != null;
+		}
+	}
+
+	@Test
+	public void IC_inheritedTreeChildren_Tests() {
+		OTM16Upgrade.otm16Enabled = true;
+
+		// Given - two BO, baseBO and extensionBO
+		setUpExtendedBO();
+		// Given - all base contextual facets have children
+		for (AbstractContextualFacet cf : baseBO.getContextualFacets(false))
+			ml.addAllProperties(cf);
+
+		// Then - make sure contextual facets are in the tree kids.
+		List<?> exTreeKids = extensionBO.getChildrenHandler().getTreeChildren(false);
+		List<ContributedFacetNode> exCFs = new ArrayList<ContributedFacetNode>();
+		assert !exTreeKids.isEmpty();
+		for (Object n : exTreeKids)
+			if (n instanceof ContributedFacetNode)
+				exCFs.add((ContributedFacetNode) n);
+		assert !exCFs.isEmpty();
+
+		// Then - make sure the contextual facets have children
+		List<?> cfProps;
+		for (ContributedFacetNode c : exCFs) {
+			FacetProviderChildrenHandler ch = c.getChildrenHandler();
+			List<Node> l1 = ch.get();
+			List<Node> l2 = ch.getInheritedChildren();
+			AbstractContextualFacet c3 = ((ContributedFacetNode) c.getInheritedFrom()).getContributor();
+			cfProps = c.getChildrenHandler().getTreeChildren(true);
+			assert !cfProps.isEmpty();
+		}
+		// When - add a custom facet to base bo
+		AbstractContextualFacet nf = baseBO.addFacet("BaseCustom1", TLFacetType.CUSTOM);
+		// Then
+		List<?> exTreeKids2 = extensionBO.getChildrenHandler().getTreeChildren(false);
+		assert exTreeKids2.size() > exTreeKids.size();
+
+		// When - deleted
+		nf.delete();
+
+		// Then
+		exTreeKids2 = extensionBO.getChildrenHandler().getTreeChildren(false);
+		assert exTreeKids2.size() == exTreeKids.size();
 	}
 
 	@Test
@@ -213,13 +546,13 @@ public class InheritedChildren_Tests {
 		OTM16Upgrade.otm16Enabled = true;
 		// Given - two BO, baseBO and extensionBO
 		setUpExtendedBO();
-		List<ContextualFacetNode> baseCFs = baseBO.getContextualFacets();
-		List<ContributedFacetNode> baseContribs = baseBO.getContributedFacets();
+		List<AbstractContextualFacet> baseCFs = baseBO.getContextualFacets(true);
+		List<ContributedFacetNode> baseContribs = baseBO.getContributedFacets(true);
 		List<Node> bKids = baseBO.getChildren();
 		assertTrue("Version 1.6 must use contributed facets.", !baseContribs.isEmpty());
 
-		List<ContextualFacetNode> eCFs = extensionBO.getContextualFacets();
-		List<ContributedFacetNode> eContribs = extensionBO.getContributedFacets();
+		List<AbstractContextualFacet> eCFs = extensionBO.getContextualFacets(true);
+		List<ContributedFacetNode> eContribs = extensionBO.getContributedFacets(true);
 		List<Node> eKids = extensionBO.getInheritedChildren();
 
 		assertTrue("Library must now have these inherited facets.", true);
@@ -231,6 +564,7 @@ public class InheritedChildren_Tests {
 	@Test
 	public void IC_facetsFiles_v16_Tests() {
 		OTM16Upgrade.otm16Enabled = true;
+		assert defaultProject.getLibraries().isEmpty();
 
 		LibraryNode baseLN = lf.loadFile_FacetBase(defaultProject);
 		LibraryNode f1LN = lf.loadFile_Facets1(defaultProject);

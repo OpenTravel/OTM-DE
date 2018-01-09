@@ -33,10 +33,13 @@ import org.opentravel.schemacompiler.model.TLOperation;
 import org.opentravel.schemacompiler.model.TLService;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.facets.OperationNode;
-import org.opentravel.schemas.node.facets.OperationNode.ServiceOperationTypes;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.OperationNode;
+import org.opentravel.schemas.node.objectMembers.OperationNode.ServiceOperationTypes;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -71,6 +74,7 @@ public class ServiceTests extends BaseProjectTest {
 	// private LibraryNode patchLibrary = null;
 	private LibraryChainNode chain = null;
 
+	@Override
 	@Before
 	public void beforeEachTest() throws Exception {
 		LOGGER.debug("***Before Service Object Tests ----------------------");
@@ -86,7 +90,7 @@ public class ServiceTests extends BaseProjectTest {
 	}
 
 	public void check(ServiceNode svc) {
-		assertTrue(svc.getParent() instanceof LibraryNode);
+		assertTrue(svc.getParent() instanceof NavNode);
 		assertTrue(svc.getTLModelObject() instanceof TLService);
 		assertTrue(svc == Node.GetNode(svc.getTLModelObject()));
 		assertTrue("TL Service must be this service.", svc.getTLModelObject() == ((TLLibrary) svc.getLibrary()
@@ -150,7 +154,7 @@ public class ServiceTests extends BaseProjectTest {
 	// FIXME
 	// @Test
 	public void mockServiceTest() {
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 		String mySubjectName = "MySubject";
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, mySubjectName);
@@ -187,7 +191,7 @@ public class ServiceTests extends BaseProjectTest {
 		Assert.assertNotNull(boUsers); // 8. Some are typed by facets.
 
 		// Assure old services get replaced in the library and TL Model
-		ServiceNode newSvc = new ServiceNode((TLService) svc.getTLModelObject(), ln);
+		ServiceNode newSvc = new ServiceNode(svc.getTLModelObject(), ln);
 		svc.setName("OldService");
 		TLModelElement oldTLSvc = svc.getTLModelObject();
 		Assert.assertNotSame(oldTLSvc, tlSvc);

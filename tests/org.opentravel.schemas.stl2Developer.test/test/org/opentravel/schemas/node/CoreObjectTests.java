@@ -31,10 +31,14 @@ import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLPropertyType;
-import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.types.TypeProvider;
@@ -124,7 +128,7 @@ public class CoreObjectTests extends BaseProjectTest {
 		lf.loadTestGroupA(mc);
 		mc.getModelNode();
 		for (LibraryNode lib : Node.getAllUserLibraries())
-			for (Node n : lib.getDescendants_LibraryMembers())
+			for (Node n : lib.getDescendants_LibraryMemberNodes())
 				if (n instanceof CoreObjectNode)
 					check((CoreObjectNode) n, false);
 	}
@@ -134,11 +138,10 @@ public class CoreObjectTests extends BaseProjectTest {
 		lf.loadTestGroupAc(mc);
 		mc.getModelNode();
 		for (LibraryNode lib : Node.getAllUserLibraries())
-			for (Node n : lib.getDescendants_LibraryMembers())
+			for (Node n : lib.getDescendants_LibraryMemberNodes())
 				if (n instanceof CoreObjectNode)
 					check((CoreObjectNode) n, true);
-		// FIXME
-		// Passes when run alone.
+		// FIXME - Passes when run alone.
 		// When run alone, 3 libs before loading test group then after
 		// there are 9 libraries, including testFile5.otm
 		// Fails validation when run with other tests.
@@ -151,20 +154,28 @@ public class CoreObjectTests extends BaseProjectTest {
 	@Test
 	public void CO_TypeAssignmentTests() {
 		// Given - a core object
-		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "CoreTest");
-		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
-		TypeProvider bType = core.getAssignedType(); // string from mock library
+		CoreObjectNode core = ml.addCoreObjectToLibrary_Empty(ln, "CoreTest");
+		TypeProvider cType = core.getAssignedType();
+		assertTrue(cType == ModelNode.getEmptyNode());
+		TypeProvider dType = ml.getXsdDate();
+		TypeProvider sType = ml.getXsdString();
+
+		// When - initial assignment
+		boolean result = core.setAssignedType(dType);
+		assert result;
+		cType = core.getAssignedType();
+		assertTrue(cType == dType); // assignment worked
 
 		// Then
-		assertTrue("Type must be same from Core and simple attribute methods.",
-				core.getSimpleAttribute().getType() == core.getAssignedType());
+		assertTrue("Type must be same from Core and simple attribute methods.", core.getSimpleAttribute()
+				.getAssignedType() == core.getAssignedType());
 
 		// When - set with simple attribute
-		assertTrue("Assigning type must return true. ", core.getSimpleAttribute().setAssignedType(aType));
-		assertTrue("Type must be as assigned.", core.getAssignedType() == aType);
+		assertTrue("Assigning type must return true. ", core.getSimpleAttribute().setAssignedType(sType));
+		assertTrue("Type must be as assigned.", core.getAssignedType() == sType);
 		// When - set with core method
-		Assert.assertTrue(core.setAssignedType(bType));
-		Assert.assertTrue("Type must be as assigned.", core.getAssignedType() == bType);
+		Assert.assertTrue(core.setAssignedType(dType));
+		Assert.assertTrue("Type must be as assigned.", core.getAssignedType() == dType);
 	}
 
 	@Test
@@ -185,7 +196,7 @@ public class CoreObjectTests extends BaseProjectTest {
 		List<Node> iKids = ((Node) extendedCO.getFacet_Default()).getInheritedChildren();
 		assertTrue(iKids.isEmpty());
 
-		for (Node n : ln.getDescendants_LibraryMembers())
+		for (Node n : ln.getDescendants_LibraryMemberNodes())
 			if (n instanceof CoreObjectNode && n != extendedCO) {
 				extendedCO.setExtension(n);
 				check((CoreObjectNode) n);
@@ -211,7 +222,7 @@ public class CoreObjectTests extends BaseProjectTest {
 		BusinessObjectNode typeUser = ml.addBusinessObjectToLibrary(ln, "userBO");
 		ElementNode ele = new ElementNode(typeUser.getFacet_Summary(), "EleUser");
 		// Given - the number of library members in library (must not change)
-		int typeCount = ln.getDescendants_LibraryMembers().size();
+		int typeCount = ln.getDescendants_LibraryMemberNodes().size();
 
 		// Given - an element assigned the bo as a type
 		ele.setAssignedType(bo);
@@ -232,7 +243,7 @@ public class CoreObjectTests extends BaseProjectTest {
 
 		// tn.visit(ln);
 		assertTrue("Number of library members must be same as before changes.", typeCount == ln
-				.getDescendants_LibraryMembers().size());
+				.getDescendants_LibraryMemberNodes().size());
 	}
 
 	@Test
@@ -253,7 +264,7 @@ public class CoreObjectTests extends BaseProjectTest {
 
 		// When - a core is created that has elements that use the core and aliases as properties
 		CoreObjectNode elements = ml.addCoreObjectToLibrary(ln, "user");
-		FacetNode eleOwner = elements.getFacet_Summary();
+		FacetProviderNode eleOwner = elements.getFacet_Summary();
 
 		// When - assigned core as type
 		ElementNode e1 = new ElementNode(eleOwner, "p1", core);

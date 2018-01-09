@@ -42,7 +42,7 @@ public class ModelCheckUtils {
      */
     public static boolean checkModelCounts(final LibraryNode lib) {
         int tlCount = 0, guiCount = 0;
-        guiCount = lib.getDescendants_LibraryMembers().size();
+        guiCount = lib.getDescendants_LibraryMemberNodes().size();
         tlCount = lib.getTLaLib().getNamedMembers().size();
         if (guiCount != tlCount) {
             LOGGER.error("GUI member count" + guiCount + " is out of sync with TL model " + tlCount
@@ -54,7 +54,7 @@ public class ModelCheckUtils {
     }
 
     public static boolean compareModels(LibraryNode lib) {
-        List<Node> members = lib.getDescendants_LibraryMembers();
+        List<Node> members = lib.getDescendants_LibraryMemberNodes();
         List<String> memberNames = new ArrayList<String>();
         for (Node m : members)
             memberNames.add(m.getName());

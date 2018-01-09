@@ -20,15 +20,19 @@ package org.opentravel.schemas.controllers;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import junit.framework.Assert;
 
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opentravel.schemas.node.Library_FunctionTests;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
+import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.views.OtmView;
 import org.opentravel.schemas.views.TypeView;
@@ -38,38 +42,54 @@ import org.opentravel.schemas.views.TypeView;
  *
  */
 public class MainController_Tests {
+	private static MainController mc;
+	private static MockLibrary ml;
+	private static DefaultProjectController pc;
+	private static ProjectNode defaultProject;
+
 	ModelNode model = null;
 	NodeTesters nt = new NodeTesters();
 	LoadFiles lf = new LoadFiles();
 	Library_FunctionTests lt = new Library_FunctionTests();
 
+	@BeforeClass
+	public static void initTests() {
+		mc = OtmRegistry.getMainController();
+		ml = new MockLibrary();
+		pc = (DefaultProjectController) mc.getProjectController();
+		defaultProject = pc.getDefaultProject();
+	}
+
+	@Before
+	public void beforeAllTests() {
+		pc.closeAll();
+	}
+
 	@Test
 	public void MainControllerTest() throws Exception {
-		MainController mc = new MainController();
 
+		// Given - a set of files
 		lf.loadTestGroupA(mc);
+		// Given - 4th node in 3rd file
 		Node testNode = null;
 		int i = 0;
 		for (LibraryNode ln : Node.getAllUserLibraries()) {
-			ln.visitAllNodes(nt.new TestNode());
 			if (i++ == 3) {
 				int x = 0;
-				for (Node n : ln.getDescendants_LibraryMembers())
+				for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers())
 					if (x++ == 4)
-						testNode = n;
+						testNode = (Node) n;
 			}
 		}
-		Assert.assertNotNull(testNode);
+		assert testNode != null;
 
 		// Make sure all controllers have loaded.
 		LibraryController libraryController = mc.getLibraryController();
 		ModelController modelController = mc.getModelController();
-		// NodeModelController nodeController = mc.getNodeModelController();
 		ContextController contextController = mc.getContextController();
 		ProjectController projectController = mc.getProjectController();
 		assertNotNull(libraryController);
 		assertNotNull(modelController);
-		// Assert.assertNotNull(nodeController);
 		assertNotNull(contextController);
 		assertNotNull(projectController);
 		assertNotNull(mc.getSections());

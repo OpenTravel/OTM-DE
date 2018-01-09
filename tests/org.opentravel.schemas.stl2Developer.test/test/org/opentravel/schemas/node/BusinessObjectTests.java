@@ -26,18 +26,24 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
+import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
-import org.opentravel.schemas.node.facets.ContributedFacetNode;
-import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -69,7 +75,7 @@ public class BusinessObjectTests {
 
 	@Before
 	public void beforeEachTest() {
-		mc = new MainController();
+		mc = OtmRegistry.getMainController();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
 		lf = new LoadFiles();
@@ -105,7 +111,7 @@ public class BusinessObjectTests {
 
 		List<LibraryNode> libs = mc.getModelNode().getUserLibraries();
 		for (LibraryNode lib : libs) {
-			for (Node bo : lib.getDescendants_LibraryMembers()) {
+			for (Node bo : lib.getDescendants_LibraryMemberNodes()) {
 				if (bo instanceof BusinessObjectNode)
 					check((BusinessObjectNode) bo);
 			}
@@ -113,7 +119,7 @@ public class BusinessObjectTests {
 				continue;
 			// Repeat test with library in a chain
 			LibraryChainNode lcn = new LibraryChainNode(lib);
-			for (Node bo : lcn.getDescendants_LibraryMembers()) {
+			for (Node bo : lcn.getDescendants_LibraryMemberNodes()) {
 				if (bo instanceof BusinessObjectNode)
 					check((BusinessObjectNode) bo);
 			}
@@ -133,10 +139,11 @@ public class BusinessObjectTests {
 		lib.setEditable(true);
 
 		for (ContextualFacetNode cf : lib.getDescendants_ContextualFacets()) {
-			if (cf instanceof ContributedFacetNode) {
-				if (((ContributedFacetNode) cf).getContributor() == null)
-					LOGGER.debug("Missing contributor " + ((ContributedFacetNode) cf).getContributor());
-			} else if (cf.getWhereContributed() == null)
+			// if (cf instanceof ContributedFacetNode) {
+			// if (((ContributedFacetNode) cf).getContributor() == null)
+			// LOGGER.debug("Missing contributor " + ((ContributedFacetNode) cf).getContributor());
+			// } else
+			if (cf.getWhereContributed() == null)
 				LOGGER.debug("Missing contributed " + cf.getWhereContributed());
 
 			// if (cf instanceof ContributedFacetNode)
@@ -147,7 +154,7 @@ public class BusinessObjectTests {
 			// ml.check(cf);
 		}
 
-		for (Node bo : lib.getDescendants_LibraryMembers()) {
+		for (Node bo : lib.getDescendants_LibraryMemberNodes()) {
 			if (bo instanceof BusinessObjectNode)
 				check((BusinessObjectNode) bo);
 		}
@@ -176,15 +183,15 @@ public class BusinessObjectTests {
 		assertTrue("Must have identity listener.", Node.GetNode(bo.getTLModelObject()) == bo);
 		assertTrue("Must have id facet.", bo.getFacet_ID() != null);
 		assertTrue("ID Facet parent must be bo.", ((Node) bo.getFacet_ID()).getParent() == bo);
-		assertTrue("TL Facet must report this is ID facet.", bo.getFacet_ID().isIDFacet());
+		assertTrue("TL Facet must report this is ID facet.", bo.getFacet_ID().isFacet(TLFacetType.ID));
 
 		assertTrue("Must have summary facet.", bo.getFacet_Summary() != null);
 		assertTrue("Summary Facet parent must be bo.", ((Node) bo.getFacet_Summary()).getParent() == bo);
-		assertTrue("TL Facet must report this is Summary facet.", bo.getFacet_Summary().isSummaryFacet());
+		assertTrue("TL Facet must report this is Summary facet.", bo.getFacet_Summary().isFacet(TLFacetType.SUMMARY));
 
 		assertTrue("Must have detail facet.", bo.getFacet_Detail() != null);
 		assertTrue("Facet parent must be bo.", ((Node) bo.getFacet_Detail()).getParent() == bo);
-		assertTrue("TL Facet must report this is Detail facet.", bo.getFacet_Detail().isDetailFacet());
+		assertTrue("TL Facet must report this is Detail facet.", bo.getFacet_Detail().isFacet(TLFacetType.DETAIL));
 		assertTrue(bo.getFacet_Attributes() == null); // It does not have one.
 		assertTrue("Must have TL Busness Object.", bo.getTLModelObject() instanceof TLBusinessObject);
 
@@ -251,7 +258,7 @@ public class BusinessObjectTests {
 	 */
 	@Test
 	public void BO_ExensionTests() {
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		LoadFiles lf = new LoadFiles();
 		MockLibrary ml = new MockLibrary();
 
@@ -262,7 +269,7 @@ public class BusinessObjectTests {
 		BusinessObjectNode extendedBO = ml.addBusinessObjectToLibrary_Empty(ln, "ExtendedBO");
 		assertNotNull("Null object created.", extendedBO);
 
-		for (Node n : ln.getDescendants_LibraryMembers())
+		for (Node n : ln.getDescendants_LibraryMemberNodes())
 			if (n instanceof BusinessObjectNode && n != extendedBO) {
 				extendedBO.setExtension(n);
 				check((BusinessObjectNode) n);
@@ -274,7 +281,7 @@ public class BusinessObjectTests {
 	@Test
 	public void BO_ChangeToTests() {
 		MockLibrary ml = new MockLibrary();
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
 		TypeProvider stringType = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
@@ -346,7 +353,7 @@ public class BusinessObjectTests {
 
 	@Test
 	public void BO_FacetAsTypeTests() {
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		LoadFiles lf = new LoadFiles();
 		LibraryNode ln = lf.loadFile1(mc);
 		ln.setEditable(true);
@@ -363,7 +370,7 @@ public class BusinessObjectTests {
 
 		// File 1 has a business object Profile with 5 facets and 1 alias
 		BusinessObjectNode bo = null;
-		List<Node> members = ln.getDescendants_LibraryMembers();
+		List<Node> members = ln.getDescendants_LibraryMemberNodes();
 		for (Node n : members)
 			if (n.getName().equals("Profile") && n instanceof BusinessObjectNode)
 				bo = (BusinessObjectNode) n;
@@ -373,12 +380,12 @@ public class BusinessObjectTests {
 		final int expectedFacetCount = 5;
 		int facetCnt = 0;
 		for (Node n : bo.getChildren())
-			if (n instanceof FacetNode) {
+			if (n instanceof FacetProviderNode) {
 				facetCnt++;
-				user.setAssignedType((FacetNode) n);
+				user.setAssignedType((FacetProviderNode) n);
 				assertTrue("User must be assigned facet as type.", user.getAssignedType() == n);
-				assertTrue("Facet must have user in where assigned list.",
-						((FacetNode) n).getWhereAssigned().contains(user));
+				assertTrue("Facet must have user in where assigned list.", ((FacetProviderNode) n).getWhereAssigned()
+						.contains(user));
 			}
 		assertTrue("Profile business object in test 1 must have " + expectedFacetCount + " facets.",
 				facetCnt == expectedFacetCount);

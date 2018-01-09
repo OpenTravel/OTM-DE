@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.URL;
 
 import org.junit.Assert;
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLClosedEnumeration;
@@ -43,18 +44,11 @@ import org.opentravel.schemacompiler.validate.FindingType;
 import org.opentravel.schemacompiler.validate.ValidationFinding;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.controllers.ProjectController;
-import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.AliasTests;
-import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.BusinessObjectTests;
-import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.ChoiceObjectTests;
-import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.CoreObjectTests;
-import org.opentravel.schemas.node.EnumerationClosedNode;
-import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.Enumeration_Tests;
-import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.ExtensionPointNode_Tests;
 import org.opentravel.schemas.node.FacetsTests;
 import org.opentravel.schemas.node.InheritedChildren_Tests;
@@ -65,20 +59,21 @@ import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.OperationTests;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.PropertyNodeTest;
 import org.opentravel.schemas.node.ResourceObjectTests;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.ServiceTests;
-import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.SimpleTypeNodeTests;
-import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.VWA_Tests;
-import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.OperationNode;
-import org.opentravel.schemas.node.facets.PropertyOwnerNode;
-import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
+import org.opentravel.schemas.node.interfaces.FacetOwner;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.listeners.BaseNodeListener;
+import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
+import org.opentravel.schemas.node.objectMembers.OperationNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
@@ -87,9 +82,17 @@ import org.opentravel.schemas.node.properties.IndicatorElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.InheritedElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.resources.ResourceBuilder;
 import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
@@ -103,6 +106,35 @@ import org.slf4j.LoggerFactory;
  */
 public class MockLibrary {
 	static final Logger LOGGER = LoggerFactory.getLogger(MockLibrary.class);
+	/**
+	 * 
+	 */
+	public static final String XsdINT = "int";
+	public static final String XsdSTRING = "string";
+	public static final String XsdDATE = "date";
+	public static final String XsdDECIMAL = "decimal";
+
+	public TypeProvider getXsd(String name) {
+		TypeProvider x = (TypeProvider) NodeFinders.findNodeByName(name, ModelNode.XSD_NAMESPACE);
+		assert x != null;
+		return x;
+	}
+
+	public TypeProvider getXsdString() {
+		return getXsd(XsdSTRING);
+	}
+
+	public TypeProvider getXsdDate() {
+		return getXsd(XsdDATE);
+	}
+
+	public TypeProvider getXsdInt() {
+		return getXsd(XsdINT);
+	}
+
+	public TypeProvider getXsdDecimal() {
+		return getXsd(XsdDECIMAL);
+	}
 
 	/**
 	 * Create umnamanged library in the default project
@@ -118,6 +150,7 @@ public class MockLibrary {
 	 * Create an unmanaged, editable library with one business object.
 	 */
 	public LibraryNode createNewLibrary(String ns, String name, ProjectNode parent) {
+		LOGGER.debug("Creating library with ns=" + ns + " in project " + parent.getNamespace());
 		LibraryNode ln = createNewLibrary_Empty(ns, name, parent);
 		addBusinessObjectToLibrary(ln, name + "InitialBO");
 		if (OTM16Upgrade.otm16Enabled)
@@ -195,6 +228,9 @@ public class MockLibrary {
 	 */
 	public LibraryChainNode createNewManagedLibrary(String name, ProjectNode parent) {
 		LibraryNode ln = createNewLibrary(parent.getNamespace(), name, parent);
+		if (!ln.isInProjectNS())
+			LOGGER.debug("Created library in wrong namespace. ProjNS = " + parent.getNamespace() + "  lnNS = "
+					+ ln.getNamespace());
 		Assert.assertTrue(ln.isInProjectNS());
 		LibraryChainNode lcn = new LibraryChainNode(ln);
 		// not needed -- ???
@@ -203,15 +239,15 @@ public class MockLibrary {
 		return lcn;
 	}
 
-	public static void printDescendants_NamedTypes(Node ln) {
-		String names = "printDescendants_NamedTypes: ";
-		for (Node n : ln.getDescendants_LibraryMembers()) {
-			names += n.getName() + " ";
-			// if (n.getName().equals("co2"))
-			// LOGGER.debug("Here");
-		}
-		LOGGER.debug(names);
-	}
+	// public static void printDescendants_NamedTypes(Node ln) {
+	// String names = "printDescendants_NamedTypes: ";
+	// for (Node n : ln.getDescendants_LibraryMemberNodes()) {
+	// names += n.getName() + " ";
+	// // if (n.getName().equals("co2"))
+	// // LOGGER.debug("Here");
+	// }
+	// LOGGER.debug(names);
+	// }
 
 	public static void printDescendants(Node ln) {
 		String names = "printDescendants: ";
@@ -270,7 +306,7 @@ public class MockLibrary {
 		Assert.assertNotNull(ln);
 		LOGGER.debug("Adding one of each object type to " + ln + " with name root of " + nameRoot);
 
-		int initialCount = ln.getDescendants_LibraryMembers().size();
+		int initialCount = ln.getDescendants_LibraryMemberNodes().size();
 		int finalCount = initialCount;
 		if (ln.isEditable()) {
 			addBusinessObjectToLibrary(ln, nameRoot + "BO");
@@ -286,7 +322,7 @@ public class MockLibrary {
 			if (OTM16Upgrade.otm16Enabled)
 				addedCount += 4; // custom, query and choice facets
 			// List<Node> descendants = ln.getDescendants_LibraryMembers();
-			finalCount = ln.getDescendants_LibraryMembers().size();
+			finalCount = ln.getDescendants_LibraryMemberNodes().size();
 			Assert.assertEquals(addedCount + initialCount, finalCount);
 		} else
 			Assert.assertEquals(initialCount, finalCount);
@@ -316,7 +352,7 @@ public class MockLibrary {
 	}
 
 	public BusinessObjectNode addBusinessObject_ResourceSubject(LibraryNode ln, String name) {
-		for (Node n : ln.getDescendants_LibraryMembers())
+		for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers())
 			if (n.getName().equals(name)) {
 				LOGGER.warn("Tried to create a business object with duplicate name: " + name);
 				return (BusinessObjectNode) n;
@@ -325,15 +361,15 @@ public class MockLibrary {
 		if (newNode == null)
 			return null;
 
-		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
+		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName(XsdSTRING, ModelNode.XSD_NAMESPACE);
 
 		new IdNode(newNode.getFacet_ID(), name + "Id");
 		new ElementNode(newNode.getFacet_Summary(), "TestEle" + name, string);
 		new AttributeNode(newNode.getFacet_Summary(), "TestAttribute" + name, string);
 
 		// Add facets
-		new ElementReferenceNode(newNode.addFacet("c1" + name, TLFacetType.CUSTOM), newNode);
-		new AttributeNode(newNode.addFacet("q1" + name, TLFacetType.QUERY), "TestAttribute2" + name, string);
+		new ElementReferenceNode(newNode.addFacet("C1" + name, TLFacetType.CUSTOM), newNode);
+		new AttributeNode(newNode.addFacet("Q1" + name, TLFacetType.QUERY), "TestAttribute2" + name, string);
 
 		if (!ln.isValid()) {
 			printValidationFindings(ln);
@@ -345,30 +381,35 @@ public class MockLibrary {
 	}
 
 	public BusinessObjectNode addBusinessObjectToLibrary(LibraryNode ln, String name, boolean addID) {
-		for (Node n : ln.getDescendants_LibraryMembers())
+		for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers())
 			if (n.getName().equals(name)) {
 				LOGGER.warn("Tried to create a business object with duplicate name: " + name);
 				return (BusinessObjectNode) n;
 			}
+		boolean wasValid = ln.isValid(); // if valid now then must be valid after
+
 		BusinessObjectNode newNode = addBusinessObjectToLibrary_Empty(ln, name);
 		if (newNode == null)
 			return null;
 
-		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
-
+		TypeProvider string = getXsdString();
+		FacetProviderNode idFacet = newNode.getFacet_ID();
+		assert idFacet != null;
 		new ElementNode(newNode.getFacet_ID(), name + "ID", string);
 		IdNode idNode = new IdNode(newNode.getFacet_ID(), "TestId" + name);
 
+		FacetProviderNode facet = newNode.getFacet_Summary();
+		assert facet != null;
 		new ElementNode(newNode.getFacet_Summary(), "TestEle" + name, string);
 		new AttributeNode(newNode.getFacet_Summary(), "TestAttribute" + name, string);
 		new IndicatorElementNode(newNode.getFacet_Summary(), "TestIndicatorEle" + name);
 		new IndicatorNode(newNode.getFacet_Summary(), "TestIndicator" + name);
 
-		// Add facets
+		// Add contextual facets
 		new ElementReferenceNode(newNode.addFacet("c1" + name, TLFacetType.CUSTOM), newNode);
 		new AttributeNode(newNode.addFacet("q1" + name, TLFacetType.QUERY), "TestAttribute2" + name, string);
 
-		if (!ln.isValid()) {
+		if (wasValid && !ln.isValid()) {
 			printValidationFindings(ln);
 			assertTrue("Library must be valid with new BO.", ln.isValid()); // validates TL library
 		}
@@ -385,7 +426,8 @@ public class MockLibrary {
 	public ChoiceObjectNode addChoice(LibraryNode ln, String name) {
 		if (name.isEmpty())
 			name = "ChoiceTest";
-		TypeProvider string = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
+		TypeProvider string = getXsdString();
+		TypeProvider decimal = getXsdDecimal();
 
 		ChoiceObjectNode choice = new ChoiceObjectNode(new TLChoiceObject());
 		if (!ln.isEditable())
@@ -394,22 +436,22 @@ public class MockLibrary {
 		choice.setName(name);
 		if (ln != null)
 			ln.addMember(choice);
-		// FIXME - restore after alias codegen utils are fixed 11/2016.
-		// choice.addAlias("CAlias");
+		// restored 12/2-17 : after alias codegen utils are fixed 11/2016.
+		choice.addAlias("CAlias" + name);
 
 		// Add properties to shared facet
-		PropertyOwnerInterface shared = choice.getSharedFacet();
+		FacetInterface shared = choice.getSharedFacet();
 		new ElementNode(shared, "shared1" + name);
 
 		// Add two choice facets
-		FacetNode f1 = choice.addFacet("c1");
+		FacetInterface f1 = choice.addFacet("c1");
 		new ElementNode(f1, "c1p1" + name, string);
-		new AttributeNode(f1, "c1p2" + name);
+		new AttributeNode(f1, "c1p2" + name, string);
 		new IndicatorNode(f1, "c1p3" + name);
 
-		FacetNode f2 = choice.addFacet("c2");
-		new ElementNode(f2, "c2p1" + name); // unassigned
-		new AttributeNode(f2, "c2p2" + name);
+		FacetInterface f2 = choice.addFacet("c2");
+		new ElementNode(f2, "c2p1" + name, decimal);
+		new AttributeNode(f2, "c2p2" + name, decimal);
 		new IndicatorNode(f2, "c2p3" + name);
 
 		return choice;
@@ -425,13 +467,13 @@ public class MockLibrary {
 		n1.setName(baseName + "Base");
 		ln1.addMember(n1);
 		TypeUser newProp = new ElementNode(n1.getFacet_ID(), "TestID");
-		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName(XsdSTRING, ModelNode.XSD_NAMESPACE));
 
 		BusinessObjectNode n2 = (BusinessObjectNode) NodeFactory.newLibraryMember(new TLBusinessObject());
 		n2.setName(baseName + "Ext");
 		ln2.addMember(n2);
 		newProp = new ElementNode(n2.getFacet_ID(), "TestID");
-		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName(XsdSTRING, ModelNode.XSD_NAMESPACE));
 
 		n2.setExtension(n1);
 
@@ -440,8 +482,8 @@ public class MockLibrary {
 		// Verify libraries and objects match
 		assertTrue(n1.getLibrary() == ln1);
 		assertTrue(n2.getLibrary() == ln2);
-		assertTrue(ln1.getDescendants_LibraryMembers().contains(n1));
-		assertTrue(ln2.getDescendants_LibraryMembers().contains(n2));
+		assertTrue(ln1.getDescendants_LibraryMemberNodes().contains(n1));
+		assertTrue(ln2.getDescendants_LibraryMemberNodes().contains(n2));
 
 		return n2;
 	}
@@ -460,20 +502,20 @@ public class MockLibrary {
 		CoreObjectNode n2 = (CoreObjectNode) NodeFactory.newLibraryMember(new TLCoreObject());
 		n2.setName("N2");
 		ln.addMember(n2);
-		n2.setAssignedType((TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE));
+		n2.setAssignedType((TypeProvider) NodeFinders.findNodeByName(XsdINT, ModelNode.XSD_NAMESPACE));
 		new ElementNode(n2.getFacet_Summary(), n1.getName(), n1);
 
 		CoreObjectNode n3 = (CoreObjectNode) NodeFactory.newLibraryMember(new TLCoreObject());
 		n3.setName("N3");
 		ln.addMember(n3);
-		n3.setAssignedType((TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE));
+		n3.setAssignedType((TypeProvider) NodeFinders.findNodeByName(XsdINT, ModelNode.XSD_NAMESPACE));
 		TypeUser n3PropA = new ElementNode(n3.getFacet_Summary(), n1.getName());
 		n3PropA.setAssignedType(n1);
 		PropertyNode n3PropB = new ElementNode(n3.getFacet_Summary(), n2.getName());
 		n3PropB.setAssignedType(n2.getFacet_Summary());
 
 		TypeUser newProp = new ElementNode(n1.getFacet_ID(), "TestID");
-		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName(XsdSTRING, ModelNode.XSD_NAMESPACE));
 		newProp = new ElementNode(n1.getFacet_Summary(), n2.getName());
 		newProp.setAssignedType(n2);
 		newProp = new ElementNode(n1.getFacet_Summary(), "TestSumB");
@@ -486,16 +528,16 @@ public class MockLibrary {
 			name = "TestCore";
 		CoreObjectNode newNode = (CoreObjectNode) NodeFactory.newLibraryMember(new TLCoreObject());
 		newNode.setName(name);
-		newNode.setAssignedType((TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE));
+		// newNode.setAssignedType((TypeProvider) NodeFinders.findNodeByName(XsdINT, ModelNode.XSD_NAMESPACE));
 		ln.addMember(newNode);
 		return newNode;
 	}
 
 	public CoreObjectNode addCoreObjectToLibrary(LibraryNode ln, String name) {
-		TypeProvider type = ((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
+		TypeProvider type = ((TypeProvider) NodeFinders.findNodeByName(XsdSTRING, ModelNode.XSD_NAMESPACE));
 		CoreObjectNode newNode = addCoreObjectToLibrary_Empty(ln, name);
 		new ElementNode(newNode.getFacet_Summary(), "TestElement" + name, type);
-		newNode.getFacet_Role().addRole(name + "Role");
+		newNode.getFacet_Role().add(name + "Role");
 		return newNode;
 	}
 
@@ -508,7 +550,7 @@ public class MockLibrary {
 			name = "SimpleType";
 		SimpleTypeNode sn = new SimpleTypeNode(new TLSimple());
 		sn.setName(name);
-		sn.setAssignedType((TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE));
+		sn.setAssignedType((TypeProvider) NodeFinders.findNodeByName(XsdINT, ModelNode.XSD_NAMESPACE));
 		ln.addMember(sn);
 		return sn;
 	}
@@ -525,10 +567,12 @@ public class MockLibrary {
 			name = "TestVWA";
 		VWA_Node newNode = (VWA_Node) NodeFactory.newLibraryMember(new TLValueWithAttributes());
 		newNode.setName(name);
-		newNode.setAssignedType((TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE));
+		newNode.setAssignedType((TypeProvider) NodeFinders.findNodeByName(XsdDATE, ModelNode.XSD_NAMESPACE));
 		PropertyNode newProp = new AttributeNode(newNode.getFacet_Attributes(), "TestAttribute");
-		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
+		newProp.setAssignedType((TypeProvider) NodeFinders.findNodeByName(XsdSTRING, ModelNode.XSD_NAMESPACE));
 		ln.addMember(newNode);
+
+		assert (newNode.getAssignedType().getName().equals(XsdDATE));
 		return newNode;
 	}
 
@@ -565,7 +609,7 @@ public class MockLibrary {
 	/**
 	 * Create a complex type (core object) with property assigned to simple type (date)
 	 */
-	public ComplexComponentInterface createComplex(String name) {
+	public FacetOwner createComplex(String name) {
 		CoreObjectNode n2 = new CoreObjectNode(new TLCoreObject());
 		n2.setName(name);
 		new ElementNode(n2.getFacet_Summary(), name + "Property", getSimpleTypeProvider());
@@ -594,7 +638,7 @@ public class MockLibrary {
 	 * @return an XSD simple (date) assigned to type provider
 	 */
 	public TypeProvider getSimpleTypeProvider() {
-		return (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
+		return (TypeProvider) NodeFinders.findNodeByName(XsdDATE, ModelNode.XSD_NAMESPACE);
 	}
 
 	/**
@@ -605,8 +649,8 @@ public class MockLibrary {
 	 * @return
 	 */
 	public ExtensionPointNode addEP(LibraryNode ln, LibraryNode eln) {
-		FacetNode facet = null;
-		for (Node d : eln.getDescendants_LibraryMembers())
+		FacetInterface facet = null;
+		for (Node d : eln.getDescendants_LibraryMemberNodes())
 			if (d instanceof BusinessObjectNode)
 				facet = ((BusinessObjectNode) d).getFacet_Summary();
 		return addExtensionPoint(ln, facet);
@@ -619,12 +663,12 @@ public class MockLibrary {
 	 *            - facet in different library to extend.
 	 * @return
 	 */
-	public ExtensionPointNode addExtensionPoint(LibraryNode ln, FacetNode facet) {
-		if (ln == facet.getLibrary())
+	public ExtensionPointNode addExtensionPoint(LibraryNode ln, FacetInterface facet) {
+		if (ln == ((Node) facet).getLibrary())
 			LOGGER.warn("Adding extension point to same library as referenced facet.");
 		ExtensionPointNode ep = new ExtensionPointNode(new TLExtensionPointFacet());
 		ln.addMember(ep);
-		ep.setExtension(facet);
+		ep.setExtension((Node) facet);
 		return ep;
 	}
 
@@ -645,6 +689,16 @@ public class MockLibrary {
 			return;
 		for (ValidationFinding finding : findings.getAllFindingsAsList())
 			LOGGER.debug(finding.getFormattedMessage(FindingMessageFormat.DEFAULT));
+	}
+
+	public void printListners(Node node) {
+		for (ModelElementListener tl : node.getTLModelObject().getListeners())
+			if (tl instanceof BaseNodeListener) {
+				LOGGER.debug("Listener on " + node + " of type " + tl.getClass().getSimpleName() + " GetNode() = "
+						+ ((BaseNodeListener) tl).getNode());
+				if (((BaseNodeListener) tl).getNode().isDeleted())
+					LOGGER.debug(((BaseNodeListener) tl).getNode() + " is deleted.");
+			}
 	}
 
 	/**
@@ -686,9 +740,9 @@ public class MockLibrary {
 		else if (node instanceof CoreObjectNode)
 			new CoreObjectTests().check((CoreObjectNode) node, validate);
 		else if (node instanceof VWA_Node)
-			new VWA_Tests().checkVWA((VWA_Node) node);
-		else if (node instanceof PropertyOwnerNode)
-			new FacetsTests().check((PropertyOwnerNode) node);
+			new VWA_Tests().check((VWA_Node) node);
+		else if (node instanceof FacetInterface)
+			new FacetsTests().check((FacetInterface) node, validate);
 		else if (node instanceof ServiceNode)
 			new ServiceTests().check((ServiceNode) node);
 		else if (node instanceof OperationNode)
@@ -707,6 +761,8 @@ public class MockLibrary {
 			new ExtensionPointNode_Tests().check((ExtensionPointNode) node);
 		else if (node instanceof InheritedElementNode)
 			new InheritedChildren_Tests().check((InheritedElementNode) node);
+		else if (node instanceof PropertyNode)
+			new PropertyNodeTest().check((PropertyNode) node);
 		else
 			LOGGER.debug("TODO - add tests for " + node.getClass().getSimpleName() + " object type.");
 
@@ -725,7 +781,7 @@ public class MockLibrary {
 
 	}
 
-	public void addAllProperties(FacetNode facet) {
+	public void addAllProperties(FacetInterface facet) {
 		new AttributeNode(facet, "a1");
 		new AttributeNode(facet, "a2");
 		new AttributeNode(facet, "a3");

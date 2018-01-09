@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,38 +42,38 @@ import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.validate.FindingType;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
-import org.opentravel.schemas.node.AliasNode;
-import org.opentravel.schemas.node.BusinessObjectNode;
+import org.opentravel.schemas.controllers.LibraryModelManager;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.SimpleComponentNode;
-import org.opentravel.schemas.node.SimpleTypeNode;
-import org.opentravel.schemas.node.VWA_Node;
-import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.NodeIdentityListener;
+import org.opentravel.schemas.node.listeners.TypeUserAssignmentListener;
+import org.opentravel.schemas.node.objectMembers.FacetOMNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.AttributeReferenceNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.node.typeProviders.ListFacetNode;
+import org.opentravel.schemas.node.typeProviders.SimpleComponentNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
-import org.opentravel.schemas.types.WhereAssignedHandler.WhereAssignedListener;
 import org.opentravel.schemas.utils.BaseProjectTest;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
-import org.opentravel.schemas.utils.LibraryNodeBuilder;
-import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -101,6 +102,7 @@ public class TestTypes extends BaseProjectTest {
 	@Before
 	public void beforeAllTests() throws Exception {
 		LOGGER.debug("Initializing Test Setup.");
+		pc.closeAll();
 		defaultProject = pc.getDefaultProject();
 	}
 
@@ -189,13 +191,15 @@ public class TestTypes extends BaseProjectTest {
 		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		TypeProvider bType = (TypeProvider) NodeFinders.findNodeByName("int", ModelNode.XSD_NAMESPACE);
 		int aTypeCount = aType.getWhereUsedAndDescendantsCount();
-		checkListeners(aType);
+		// checkListeners(aType);
 
+		// 1/8/2018 - i think this is fixed now. Fixed closing libraries and made sure where assigned was cleared.
 		// FIXME - when run alone the count is 0. But when tracing there seemed be elements assigned.
 		// When run as a group, the count is 9 and test fails
 		// Check close - do all listeners get removed?
 		if (aTypeCount > 1)
 			LOGGER.debug("FIXME: " + aType.getWhereUsedAndDescendantsCount());
+		checkListeners(aType);
 
 		AttributeNode a1 = new AttributeNode(bo.getFacet_Summary(), "a1");
 		a1.setAssignedType(aType);
@@ -239,8 +243,8 @@ public class TestTypes extends BaseProjectTest {
 		for (TypeUser user : provider.getWhereAssigned()) {
 			int myListeners = 0;
 			for (ModelElementListener l : user.getTLModelObject().getListeners())
-				if (l instanceof WhereAssignedListener)
-					if (((WhereAssignedListener) l).getNode() == provider)
+				if (l instanceof TypeUserAssignmentListener)
+					if (((TypeUserAssignmentListener) l).getNode() == provider)
 						myListeners++;
 			Assert.assertEquals(user + " where used listeners error:", 1, myListeners);
 		}
@@ -266,7 +270,7 @@ public class TestTypes extends BaseProjectTest {
 	public int getWhereUsedListenerCount(Node n) {
 		int i = 0;
 		for (ModelElementListener listener : n.getTLModelObject().getListeners())
-			if (listener instanceof WhereAssignedListener)
+			if (listener instanceof TypeUserAssignmentListener)
 				i++;
 		return i;
 	}
@@ -474,12 +478,13 @@ public class TestTypes extends BaseProjectTest {
 	@Test
 	public void typeResolver_ImportUseCase() throws LibrarySaveException {
 		// Import clones TL objects into a new library then runs the resolver.
+		LibraryModelManager libMgr = Node.getModelNode().getLibraryManager();
 
 		// Given - a library with 2 cores with types and extensions assigned
-		LibraryNode moveFrom = LibraryNodeBuilder.create("MoveFrom", defaultProject.getNamespace() + "/Test/One", "o1",
-				new Version(1, 0, 0)).build(defaultProject, pc);
-		TypeProvider type1 = (TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
-		assertNotNull(type1);
+		LibraryNode moveFrom = ml.createNewLibrary_Empty(defaultProject.getNamespace(), "MoveFrom", defaultProject);
+		assert moveFrom.isEditable();
+		TypeProvider type1 = ml.getXsdString();
+		assert type1 != null;
 		SimpleTypeNode simple = ml.addSimpleTypeToLibrary(moveFrom, "simple1");
 		simple.setAssignedType(type1);
 		CoreObjectNode coBase = ComponentNodeBuilder.createCoreObject("COBase").get(moveFrom);
@@ -493,6 +498,8 @@ public class TestTypes extends BaseProjectTest {
 		assertTrue(simple.getWhereAssignedCount() == 3);
 		assertTrue("Core object must be extension owner.", coExt instanceof ExtensionOwner);
 
+		List<TypeUser> users = moveFrom.getDescendants_TypeUsers();
+		assertTrue("Library must have type users.", !users.isEmpty());
 		// When - visited as done in type resolver
 		nodeCount = 0;
 		moveFrom.visitAllTypeUsers(new CountVisits());
@@ -504,13 +511,18 @@ public class TestTypes extends BaseProjectTest {
 		assertTrue("Must have visited 5 type users.", typeUsers == 5);
 		assertTrue("Must have visited 2 extension owners.", baseUsers == 2);
 
-		LibraryNode moveTo = LibraryNodeBuilder.create("MoveTo", defaultProject.getNamespace() + "/Test/TO", "to",
-				new Version(1, 0, 0)).build(defaultProject, pc);
+		// Given - a library to move to
+		// LibraryNode moveTo = LibraryNodeBuilder.create("MoveTo", defaultProject.getNamespace() + "/Test/TO", "to",
+		// new Version(1, 0, 0)).build(defaultProject, pc);
+		LibraryNode moveTo = ml.createNewLibrary_Empty(defaultProject.getNamespace() + "/Test/TO", "MoveTo",
+				defaultProject);
+		assert moveTo.isEditable();
 
-		// When
-		// each member is imported to moveTo library (cloned and library assigned, not typed)
-		for (Node n : moveFrom.getDescendants_LibraryMembers())
-			moveTo.importNode(n);
+		// When - each member is imported to moveTo library (cloned and library assigned, not typed)
+		List<LibraryMemberInterface> libMbrs = moveFrom.getDescendants_LibraryMembers();
+		for (LibraryMemberInterface n : moveFrom.getDescendants_LibraryMembers())
+			moveTo.importNode((Node) n);
+		List<LibraryMemberInterface> toMbrs = moveTo.getDescendants_LibraryMembers();
 		assertTrue("moveTo must have 3 members.", moveTo.getDescendants_LibraryMembers().size() == 3);
 		// and Type resolver run
 		new TypeResolver().resolveTypes(moveTo);
@@ -518,7 +530,7 @@ public class TestTypes extends BaseProjectTest {
 		// Find the imported objects
 		CoreObjectNode newBase = null, newExt = null;
 		SimpleTypeNode newSimple = null;
-		for (Node n : moveTo.getDescendants_LibraryMembers())
+		for (LibraryMemberInterface n : moveTo.getDescendants_LibraryMembers())
 			if (n.getName().equals("COBase"))
 				newBase = (CoreObjectNode) n;
 			else if (n.getName().equals("COExt"))
@@ -597,15 +609,15 @@ public class TestTypes extends BaseProjectTest {
 	 */
 	public void testAssignmentToObjectProperties(Node object, TypeProvider typeToAssign) {
 		for (INode facet : object.getChildren()) {
-			if (facet instanceof FacetNode)
-				testFacetAssignments((FacetNode) facet, typeToAssign);
+			if (facet instanceof FacetOMNode)
+				testFacetAssignments((FacetOMNode) facet, typeToAssign);
 		}
 	}
 
 	/**
 	 * Assign typeToAssign to all of the facet's children and assure that the assignment worked.
 	 */
-	public void testFacetAssignments(FacetNode facet, TypeProvider typeToAssign) {
+	public void testFacetAssignments(FacetOMNode facet, TypeProvider typeToAssign) {
 		int usrCnt = typeToAssign.getWhereAssignedCount();
 		for (Node property : facet.getChildren()) {
 

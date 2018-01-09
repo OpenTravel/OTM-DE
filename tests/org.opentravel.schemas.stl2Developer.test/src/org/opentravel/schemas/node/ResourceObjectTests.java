@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -37,6 +38,8 @@ import org.opentravel.schemas.node.resources.ActionNode;
 import org.opentravel.schemas.node.resources.ParentRef;
 import org.opentravel.schemas.node.resources.ResourceBuilder;
 import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -62,7 +65,7 @@ public class ResourceObjectTests {
 
 	@Before
 	public void beforeEachTest() {
-		mc = new MainController();
+		mc = OtmRegistry.getMainController();
 		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
@@ -74,20 +77,28 @@ public class ResourceObjectTests {
 		LibraryNode ln = ml.createNewLibrary("http://example.com/resource", "RT", pc.getDefaultProject());
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "MyBo");
 		Node node = bo;
-		TLResource mbr = new TLResource();
-		mbr.setName("MyTlResource");
-		mbr.setBusinessObjectRef(bo.getTLModelObject());
+		// Given - an empty TLResource
+		TLResource emptyTL = new TLResource();
+		emptyTL.setName("MyTlResource");
+		emptyTL.setBusinessObjectRef(bo.getTLModelObject());
 
-		// When - used in LibraryNode.generateLibrary()
-		TLResource tlr = new ResourceBuilder().buildTL(); // get a populated tl resource
-		tlr.setBusinessObjectRef(bo.getTLModelObject());
-		ResourceNode rn1 = new ResourceNode(tlr, ln);
+		// Given - a built-out tl object a
+		TLResource builtTL = new ResourceBuilder().buildTL(); // get a populated tl resource
+		builtTL.setBusinessObjectRef(bo.getTLModelObject());
+		// When - as used in LibraryNode.generateLibrary()
+		ResourceNode rn1 = new ResourceNode(builtTL, ln);
+
+		// Then - resource must have children
+		List<Node> kids = rn1.getChildren();
+		List<Node> tKids = rn1.getTreeChildren();
+		assertTrue("Must have children.", !kids.isEmpty());
+		assertTrue("Must have tree children.", !tKids.isEmpty());
 
 		// When - used in tests
 		ResourceNode rn2 = ml.addResource(bo);
 
 		// When - used in NodeFactory
-		ResourceNode rn3 = new ResourceNode(mbr);
+		ResourceNode rn3 = new ResourceNode(emptyTL);
 		ln.addMember(rn3);
 
 		// When - used in ResourceCommandHandler to launch wizard
@@ -107,7 +118,7 @@ public class ResourceObjectTests {
 		LibraryNode testLib = new LoadFiles().loadFile6(mc);
 		new LibraryChainNode(testLib); // Test in a chain
 
-		for (Node n : testLib.getDescendants_LibraryMembers()) {
+		for (LibraryMemberInterface n : testLib.getDescendants_LibraryMembers()) {
 			if (n instanceof ResourceNode)
 				check((ResourceNode) n);
 		}
@@ -144,7 +155,7 @@ public class ResourceObjectTests {
 		// Given - a valid resource using mock library provided business object
 		LibraryNode srcLib = ml.createNewLibrary(pc, "ResourceTestLib");
 		BusinessObjectNode bo = null;
-		for (Node n : srcLib.getDescendants_LibraryMembers())
+		for (Node n : srcLib.getDescendants_LibraryMemberNodes())
 			if (n instanceof BusinessObjectNode) {
 				bo = (BusinessObjectNode) n;
 				break;
@@ -162,7 +173,7 @@ public class ResourceObjectTests {
 		ml.check(resource);
 		// Then - it is copied and is valid
 		ResourceNode newResource = null;
-		for (Node r : destLib.getDescendants_LibraryMembers())
+		for (Node r : destLib.getDescendants_LibraryMemberNodes())
 			if (r.getName().equals(resource.getName()))
 				newResource = (ResourceNode) r;
 		assertTrue(destLib.contains(newResource));
@@ -178,15 +189,15 @@ public class ResourceObjectTests {
 		LibraryNode srcLib = ml.createNewLibrary(pc, "ResourceTestLib");
 		LibraryNode destLib = ml.createNewLibrary(pc, "ResourceTestLib2");
 		BusinessObjectNode bo = null;
-		for (Node n : srcLib.getDescendants_LibraryMembers())
+		for (LibraryMemberInterface n : srcLib.getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode) {
 				bo = (BusinessObjectNode) n;
 				break;
 			}
 		ResourceNode resource = ml.addResource(bo);
 		assertTrue("Resource created must not be null.", resource != null);
-		ml.check(resource);
-		ml.check(srcLib);
+		ml.check(resource, false);
+		ml.check(srcLib, false);
 
 		// When - moved to destination library
 		srcLib.moveMember(resource, destLib);
@@ -204,7 +215,7 @@ public class ResourceObjectTests {
 		// Given - a valid resource using mock library provided business object
 		LibraryNode ln = ml.createNewLibrary(pc, "ResourceTestLib");
 		BusinessObjectNode bo = null;
-		for (Node n : ln.getDescendants_LibraryMembers())
+		for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode) {
 				bo = (BusinessObjectNode) n;
 				break;
@@ -247,7 +258,7 @@ public class ResourceObjectTests {
 		assertTrue("Resource was created.", productR != null);
 		assertTrue("Resource was created.", orderR != null);
 		assertTrue("Resource was created.", resR != null);
-		ml.check(ln);
+		ml.check(ln, false);
 
 		checkActionURLs(resR, "Reservation");
 
@@ -344,23 +355,52 @@ public class ResourceObjectTests {
 	}
 
 	@Test
+	public void RN_inheritedResource_Tests() {
+
+		// Given - a valid resource using mock library provided business object
+		LibraryNode ln = ml.createNewLibrary_Empty(defaultProject.getNamespace(), "ResourceTestLib", defaultProject);
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "InnerObject");
+		ResourceNode resource = ml.addResource(bo);
+		assertTrue("Resource was created.", resource != null);
+		ml.check(ln, false); // Will not be valid
+		assert resource.getInheritedChildren().isEmpty();
+
+		// Given - a second BO created before library made invalid by resources
+		BusinessObjectNode parentBO = ml.addBusinessObjectToLibrary(ln, "ParentBO");
+		// Given - a second resource
+		ResourceNode parentResource = ml.addResource(parentBO);
+		assert !parentResource.getChildren().isEmpty();
+
+		// When -
+		resource.setExtension(parentResource);
+		// // When - parent resource is set on resource with paramGroup
+		// ParentRef parentRef = resource.setParentRef(parentResource.getName(), "ID");
+
+		// Then
+		List<Node> iKids = resource.getInheritedChildren();
+		assertTrue("Resource must have inherited children.", !iKids.isEmpty());
+	}
+
+	@Test
 	public void deleteParentResource_Tests() {
 
 		// Given - a valid resource using mock library provided business object
 		LibraryNode ln = ml.createNewLibrary(pc, "ResourceTestLib");
 		BusinessObjectNode bo = null;
-		for (Node n : ln.getDescendants_LibraryMembers())
+		for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode) {
 				bo = (BusinessObjectNode) n;
 				break;
 			}
 		bo.setName("InnerObject");
+		// Given - a second BO created before library made invalid by resources
+		BusinessObjectNode parentBO = ml.addBusinessObjectToLibrary(ln, "ParentBO");
+
 		ResourceNode resource = ml.addResource(bo);
 		assertTrue("Resource was created.", resource != null);
-		ml.check(ln);
+		ml.check(ln, false); // Will not be valid
 
 		// Given a second resource
-		BusinessObjectNode parentBO = ml.addBusinessObjectToLibrary(ln, "ParentBO");
 		ResourceNode parentResource = ml.addResource(parentBO);
 
 		// When - parent resource is set on resource with paramGroup
@@ -378,15 +418,16 @@ public class ResourceObjectTests {
 		assertTrue("Resource does not have ParentRef child.", !resource.getChildren().contains(parentRef));
 	}
 
-	private void check(ResourceNode resource) {
+	public void check(ResourceNode resource) {
 		LOGGER.debug("Checking resource: " + resource);
 
 		Assert.assertTrue(resource instanceof ResourceNode);
+		assert (Node.GetNode(resource.getTLModelObject()) == resource);
 
 		// Validate model and tl object
 		assertTrue(resource.getTLModelObject() instanceof TLResource);
 		assertNotNull(resource.getTLModelObject().getListeners());
-		TLResource tlr = (TLResource) resource.getTLModelObject();
+		TLResource tlr = resource.getTLModelObject();
 
 		// Validate that the resource is in the where used list for its subject
 		assertTrue("Must have a subject.", resource.getSubject() != null);

@@ -29,36 +29,35 @@ import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.node.AggregateNode;
-import org.opentravel.schemas.node.AliasNode;
-import org.opentravel.schemas.node.BusinessObjectNode;
-import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.CoreObjectNode;
-import org.opentravel.schemas.node.EnumerationClosedNode;
-import org.opentravel.schemas.node.EnumerationOpenNode;
-import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.SimpleTypeNode;
-import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.node.VersionNode;
-import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.handlers.ConstraintHandler;
-import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
-import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
+import org.opentravel.schemas.node.interfaces.FacetOwner;
+import org.opentravel.schemas.node.interfaces.SimpleMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
+import org.opentravel.schemas.node.objectMembers.OperationNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testers.GlobalSelectionTester;
 import org.opentravel.schemas.testers.NodeTester;
@@ -386,7 +385,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// }
 		// assertTrue(mn != null);
 		// }
-		ArrayList<Node> nodes = new ArrayList<Node>(newMajor.getDescendants_LibraryMembers());
+		ArrayList<Node> nodes = new ArrayList<Node>(newMajor.getDescendants_LibraryMemberNodes());
 		for (Node n : nodes) {
 			n.setName(n.getName() + "_TEST");
 			// TODO - modify properties
@@ -445,7 +444,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// Try all the things we are allowed to do in a minor
 		//
 		// Ensure it creates a BO in the minor and it extends the original BO
-		assertTrue(!minorLibrary.getDescendants_LibraryMembers().contains(bo));
+		assertTrue(!minorLibrary.getDescendants_LibraryMemberNodes().contains(bo));
 		assertTrue(bo.isEditable()); // is the chain that contains it editable?
 
 		BusinessObjectNode boInMinor = (BusinessObjectNode) bo.createMinorVersionComponent();
@@ -453,7 +452,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		assertTrue(boInMinor.isEditable());
 		assertTrue(!boInMinor.isEditable_newToChain());
 		Assert.assertEquals(NodeEditStatus.MINOR, boInMinor.getEditStatus());
-		assertTrue(minorLibrary.getDescendants_LibraryMembers().contains(boInMinor));
+		assertTrue(minorLibrary.getDescendants_LibraryMemberNodes().contains(boInMinor));
 
 		// change a pre-existing old property
 		PropertyNode oldProperty = (PropertyNode) bo.getFacet_Summary().getChildren().get(0);
@@ -568,20 +567,20 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		}
 
 		// Check the aggregates
-		Node complexAgg = (Node) chain.getComplexAggregate();
+		Node complexAgg = chain.getComplexAggregate();
 		Assert.assertTrue(complexAgg.getParent() == chain);
 		// checkChildrenClassType(complexAgg, ComplexComponentInterface.class, AggregateFamilyNode.class);
 		for (Node n : complexAgg.getChildren()) {
 			Assert.assertTrue(n.getParent() != complexAgg);
 		}
 
-		Node simpleAgg = (Node) chain.getSimpleAggregate();
+		Node simpleAgg = chain.getSimpleAggregate();
 		Assert.assertTrue(simpleAgg.getParent() == chain);
-		checkChildrenClassType(simpleAgg, SimpleComponentInterface.class, null);
+		checkChildrenClassType(simpleAgg, SimpleMemberInterface.class, null);
 		for (Node n : simpleAgg.getChildren())
 			Assert.assertTrue(n.getParent() != simpleAgg);
 
-		Node svcAgg = (Node) chain.getServiceAggregate();
+		Node svcAgg = chain.getServiceAggregate();
 		Assert.assertTrue(svcAgg.getParent() == chain);
 
 	}
@@ -655,11 +654,11 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// checkChildrenClassType(((Node) chain.getComplexAggregate()), ComplexComponentInterface.class,
 		// AggregateFamilyNode.class);
 		for (Node nc : ((Node) chain.getComplexAggregate()).getNavChildren(false)) {
-			Assert.assertTrue(nc instanceof ComplexComponentInterface);
+			Assert.assertTrue(nc instanceof FacetOwner);
 		}
-		checkChildrenClassType(((Node) chain.getSimpleAggregate()), SimpleComponentInterface.class, null);
+		checkChildrenClassType((chain.getSimpleAggregate()), SimpleMemberInterface.class, null);
 		for (Node nc : ((Node) chain.getSimpleAggregate()).getNavChildren(false)) {
-			Assert.assertTrue(nc instanceof SimpleComponentInterface);
+			Assert.assertTrue(nc instanceof SimpleMemberInterface);
 		}
 
 	}
@@ -772,9 +771,9 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// }
 		Assert.assertFalse(co.isEditable_newToChain());
 		Assert.assertEquals(1, nco.getFacet_Summary().getChildren().size());
-		Assert.assertTrue(chain.getDescendants_LibraryMembers().contains(nco));
-		Assert.assertTrue(minorLibrary.getDescendants_LibraryMembers().contains(nco));
-		Assert.assertFalse(majorLibrary.getDescendants_LibraryMembers().contains(nco));
+		Assert.assertTrue(chain.getDescendants_LibraryMemberNodes().contains(nco));
+		Assert.assertTrue(minorLibrary.getDescendants_LibraryMemberNodes().contains(nco));
+		Assert.assertFalse(majorLibrary.getDescendants_LibraryMemberNodes().contains(nco));
 
 		return nco;
 	}
@@ -791,9 +790,9 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		Assert.assertNotNull(nbo);
 		Assert.assertNotNull(nbo.getVersionNode().getPreviousVersion());
 		Assert.assertEquals(1, nbo.getFacet_Summary().getChildren().size());
-		Assert.assertTrue(chain.getDescendants_LibraryMembers().contains(nbo));
-		Assert.assertTrue(minorLibrary.getDescendants_LibraryMembers().contains(nbo));
-		Assert.assertFalse(majorLibrary.getDescendants_LibraryMembers().contains(nbo));
+		Assert.assertTrue(chain.getDescendants_LibraryMemberNodes().contains(nbo));
+		Assert.assertTrue(minorLibrary.getDescendants_LibraryMemberNodes().contains(nbo));
+		Assert.assertFalse(majorLibrary.getDescendants_LibraryMemberNodes().contains(nbo));
 
 		return nbo;
 	}
@@ -810,9 +809,9 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// Make sure a new was created in the newMinor library.
 		Assert.assertNotNull(nVwa);
 		Assert.assertEquals(1, nVwa.getFacet_Attributes().getChildren().size());
-		Assert.assertTrue(chain.getDescendants_LibraryMembers().contains(nVwa));
-		Assert.assertTrue(minorLibrary.getDescendants_LibraryMembers().contains(nVwa));
-		Assert.assertFalse(majorLibrary.getDescendants_LibraryMembers().contains(nVwa));
+		Assert.assertTrue(chain.getDescendants_LibraryMemberNodes().contains(nVwa));
+		Assert.assertTrue(minorLibrary.getDescendants_LibraryMemberNodes().contains(nVwa));
+		Assert.assertFalse(majorLibrary.getDescendants_LibraryMemberNodes().contains(nVwa));
 
 		return nVwa;
 	}
@@ -844,8 +843,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	public void testMove() {
 		// This will work because moveMember is at the model level. It is used by the controller
 		// which applies the business logic if it is valid to move.
-		List<Node> namedTypes = chain.getDescendants_LibraryMembers();
-		int namedTypeCnt = chain.getDescendants_LibraryMembers().size();
+		List<Node> namedTypes = chain.getDescendants_LibraryMemberNodes();
+		int namedTypeCnt = chain.getDescendants_LibraryMemberNodes().size();
 		LOGGER.debug("testMove " + TotalDescendents + " " + namedTypeCnt + " " + bo.getLibrary());
 
 		// FIXME -
@@ -965,7 +964,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// TEST - Extension points, valid and invalid
 		ePatch = new ExtensionPointNode(new TLExtensionPointFacet());
 		patchLibrary.addMember(ePatch);
-		((ExtensionOwner) ePatch).setExtension((Node) co.getFacet_Summary());
+		((ExtensionOwner) ePatch).setExtension(co.getFacet_Summary());
 		ePatch.addProperty(new IndicatorNode(ePatch, "patchInd"));
 
 		addAndRemoveDoc((PropertyNode) ePatch.getChildren().get(0));
@@ -988,8 +987,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		}
 		assertTrue(exception);
 
-		((FacetNode) bo.getCustomFacets().get(0)).setContext(bo.getLibrary().getDefaultContextId());
-		assertTrue(co.getFacet_Role().addRole("patchRole") == null);
+		// ((FacetInterface) bo.getCustomFacets().get(0)).setContext(bo.getLibrary().getDefaultContextId());
+		assertTrue(co.getFacet_Role().add("patchRole") == null);
 
 		oEnum.addLiteral("patchLiteral");
 		assertTrue(!oEnum.getLiterals().contains("patchLiteral"));
@@ -1110,24 +1109,24 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	private void checkCounts(LibraryChainNode chain) {
 
 		// Make sure all the base objects are accessible.
-		List<Node> namedTypes = chain.getDescendants_LibraryMembers();
-		int namedTypeCnt = chain.getDescendants_LibraryMembers().size();
+		List<Node> namedTypes = chain.getDescendants_LibraryMemberNodes();
+		int namedTypeCnt = chain.getDescendants_LibraryMemberNodes().size();
 		Assert.assertEquals(TotalDescendents, namedTypeCnt);
 
 		// Make sure all the types are in the versions aggregate
 		// Only gets "head" objects in a version chain by using the aggregate.
-		AggregateNode aggregate = (AggregateNode) chain.getComplexAggregate();
-		List<Node> nt = aggregate.getDescendants_LibraryMembers();
-		namedTypeCnt = aggregate.getDescendants_LibraryMembers().size();
+		AggregateNode aggregate = chain.getComplexAggregate();
+		List<Node> nt = aggregate.getDescendants_LibraryMemberNodes();
+		namedTypeCnt = aggregate.getDescendants_LibraryMemberNodes().size();
 		Assert.assertEquals(AggregateComplex, namedTypeCnt);
 
 		// FIXME - should be 8. The patch extension point should not be included because it is
 		// wrapped up into the minor
-		namedTypeCnt = chain.getSimpleAggregate().getDescendants_LibraryMembers().size();
+		namedTypeCnt = chain.getSimpleAggregate().getDescendants_LibraryMemberNodes().size();
 		Assert.assertEquals(AggregateSimple, namedTypeCnt);
 
 		// Check the service
-		namedTypeCnt = chain.getServiceAggregate().getDescendants_LibraryMembers().size();
+		namedTypeCnt = chain.getServiceAggregate().getDescendants_LibraryMemberNodes().size();
 		Assert.assertEquals(1, namedTypeCnt);
 
 		// Check counts against the underlying TL library
@@ -1184,9 +1183,9 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 			cEnum = ncEnum;
 			oEnum = noEnum;
 
-			TotalDescendents = lib.getChain().getDescendants_LibraryMembers().size();
-			AggregateComplex = lib.getChain().getComplexAggregate().getDescendants_LibraryMembers().size();
-			AggregateSimple = lib.getChain().getSimpleAggregate().getDescendants_LibraryMembers().size();
+			TotalDescendents = lib.getChain().getDescendants_LibraryMemberNodes().size();
+			AggregateComplex = lib.getChain().getComplexAggregate().getDescendants_LibraryMemberNodes().size();
+			AggregateSimple = lib.getChain().getSimpleAggregate().getDescendants_LibraryMemberNodes().size();
 		}
 	}
 

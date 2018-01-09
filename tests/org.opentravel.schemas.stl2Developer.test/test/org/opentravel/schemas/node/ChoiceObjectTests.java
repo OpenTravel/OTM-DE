@@ -40,13 +40,16 @@ import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.facets.ChoiceFacetNode;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
-import org.opentravel.schemas.node.facets.ContributedFacetNode;
-import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
+import org.opentravel.schemas.node.objectMembers.FacetOMNode;
+import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
+import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 
@@ -64,7 +67,7 @@ public class ChoiceObjectTests {
 
 	@Before
 	public void beforeEachTest() {
-		mc = new MainController();
+		mc = OtmRegistry.getMainController();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
 	}
@@ -100,7 +103,7 @@ public class ChoiceObjectTests {
 
 		new LibraryChainNode(testLib); // Test in a chain
 
-		for (Node choice : testLib.getDescendants_LibraryMembers()) {
+		for (Node choice : testLib.getDescendants_LibraryMemberNodes()) {
 			if (choice instanceof ChoiceObjectNode) {
 				check((ChoiceObjectNode) choice, true);
 
@@ -118,26 +121,29 @@ public class ChoiceObjectTests {
 		// new LibraryChainNode(ln); // Test in a chain
 		ml.check(ln);
 
-		// Given - find each choice object, one exends the other
+		// Given - find each choice object, one extends the other
 		ChoiceObjectNode choice = null;
 		ChoiceObjectNode extChoice = null;
-		for (Node n : ln.getDescendants_LibraryMembers())
+		for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers())
 			if (n instanceof ChoiceObjectNode) {
 				if (((ChoiceObjectNode) n).getExtensionBase() == null)
 					choice = (ChoiceObjectNode) n;
 				else
 					extChoice = (ChoiceObjectNode) n;
 			}
+		List<AbstractContextualFacet> exFacets = extChoice.getChoiceFacets(true);
+		List<AbstractContextualFacet> exFacets2 = extChoice.getContextualFacets(false); // 2
+		List<Node> exFacets3 = extChoice.getInheritedChildren(); // 2
 		assertTrue("Must have base choice object.", choice != null);
-		assertTrue("Choice must have 2 contextual facets.", getContextualFacets(choice).size() == 2);
+		assertTrue("Choice must have 2 contextual facets.", choice.getContextualFacets(false).size() == 2);
 		assertTrue("Must have extended choice object.", extChoice != null);
-		assertTrue("Extended choice must have 2 contextual facets.", getContextualFacets(extChoice).size() == 2);
+		assertTrue("Extended choice must have 2 contextual facets.", extChoice.getContextualFacets(false).size() == 2);
 		assertTrue("Extended choice must have 2 inherited facets.", extChoice.getInheritedChildren().size() == 2);
 
 		// Given - the choice extension should work exactly like business object.
 		BusinessObjectNode bo = null;
 		BusinessObjectNode exBo = null;
-		for (Node n : ln.getDescendants_LibraryMembers())
+		for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode) {
 				if (((BusinessObjectNode) n).getExtensionBase() == null)
 					bo = (BusinessObjectNode) n;
@@ -145,9 +151,9 @@ public class ChoiceObjectTests {
 					exBo = (BusinessObjectNode) n;
 			}
 		assertTrue("Must have base business object.", bo != null);
-		assertTrue("BO must have 2 contextual facets.", getContextualFacets(bo).size() == 2);
+		assertTrue("BO must have 2 contextual facets.", bo.getContextualFacets(false).size() == 2);
 		assertTrue("Must have extended business object.", exBo != null);
-		assertTrue("Extended BO must have 2 contextual facets.", getContextualFacets(exBo).size() == 2);
+		assertTrue("Extended BO must have 2 contextual facets.", exBo.getContextualFacets(false).size() == 2);
 		assertTrue("Extended BO must have 2 inherited facets.", exBo.getInheritedChildren().size() == 2);
 	}
 
@@ -208,7 +214,7 @@ public class ChoiceObjectTests {
 		int ch3Count = ch3.getInheritedChildren().size();
 		// When
 		// FIXME - ch2 does not have inheritance listener and did not clear inherited children from ch3
-		ContextualFacetNode ch2cf2 = ch2.addFacet("Ch2CF2");
+		FacetProviderNode ch2cf2 = ch2.addFacet("Ch2CF2");
 		ch3Count++;
 		// Then
 		List<Node> ch3Inherited = ch3.getInheritedChildren();
@@ -217,7 +223,7 @@ public class ChoiceObjectTests {
 		// assertTrue("Ch3 must have ch2cf2 as inherited child.", ch3Inherited.contains(ch2cf2));
 
 		// When
-		ContextualFacetNode ch1cf3 = ch1.addFacet("Ch1CF3");
+		FacetProviderNode ch1cf3 = ch1.addFacet("Ch1CF3");
 		ch3Count++;
 		// Then
 		assertTrue("Ch3 must have 1 more inherited child.", ch3.getInheritedChildren().size() == ch3Count);
@@ -267,23 +273,28 @@ public class ChoiceObjectTests {
 		//
 		// When - cloned as used within LibraryNode.importNode()
 		LibraryElement tlResult = ch0.cloneTLObj();
+		int srcLibSize = srcLib.get_LibraryMembers().size();
+		int destLibSize = destLib.get_LibraryMembers().size();
 		ChoiceObjectNode newNode = (ChoiceObjectNode) NodeFactory.newLibraryMember((LibraryMember) tlResult);
+		// Then - The contextual facets are only linked to by the tlListeners until added to a library.
+		assertTrue("New node and facets are not in library.", srcLibSize == srcLib.get_LibraryMembers().size());
+		assertTrue("New node and facets are not in library.", destLibSize == destLib.get_LibraryMembers().size());
+		// Note - new node's contributed's contributor is not set until added to library
+		// When - added to destLib
 		destLib.addMember(newNode);
-
+		assertTrue(srcLibSize == srcLib.get_LibraryMembers().size());
+		assertTrue("adding to library also adds the contextual facets", destLibSize + 3 == destLib.get_LibraryMembers()
+				.size());
 		// Then - there must be same number of contributed facets
 		assertTrue(ch0.getChoiceFacets().size() == newNode.getChoiceFacets().size());
 
-		// Then - result will not validate due to duplicate contextual facets
-		ml.check(newNode, false);
-		// Then - the contextual facets must be in the source library - importNode will move them
-		for (ContextualFacetNode cf : newNode.getContextualFacets()) {
-			assertTrue("Facet must NOT be in destLib.", !destLib.contains(cf));
-			assertTrue("Facet must be in srcLib.", srcLib.contains(cf));
-			assertTrue("Facet must NOT be in source choice.", !ch0.getContextualFacets().contains(cf));
+		ml.check(newNode, true);
 
-			// Then - move facet to keep destLib valid
-			// cf.getLibrary().removeMember(cf);
-			destLib.addMember(cf);
+		// Then - the contextual facets must be in the source library - importNode will move them
+		for (AbstractContextualFacet cf : newNode.getContextualFacets(false)) {
+			assertTrue("Facet must be in destLib.", destLib.contains(cf));
+			assertTrue("Facet must NOT be in srcLib.", !srcLib.contains(cf));
+			assertTrue("Facet must NOT be in source choice.", !ch0.getContextualFacets(false).contains(cf));
 		}
 
 		// Then - result will validate
@@ -297,11 +308,11 @@ public class ChoiceObjectTests {
 		assertTrue(ch4.getChoiceFacets().size() == newNode.getChoiceFacets().size());
 
 		// Then - the contextual facets must be in the source library - importNode will move them
-		for (ContextualFacetNode cf : newNode.getContextualFacets()) {
+		for (AbstractContextualFacet cf : newNode.getContextualFacets(true)) {
 			assertTrue("Facet must be in destLib.", destLib.contains(cf));
-			assertTrue("Facet must be in destination choice.", newNode.getContextualFacets().contains(cf));
+			assertTrue("Facet must be in destination choice.", newNode.getContextualFacets(true).contains(cf));
 			assertTrue("Facet must NOT be in srcLib.", !srcLib.contains(cf));
-			assertTrue("Facet must NOT be in source choice.", !ch4.getContextualFacets().contains(cf));
+			assertTrue("Facet must NOT be in source choice.", !ch4.getContextualFacets(true).contains(cf));
 		}
 		// Then - result will validate
 		ml.check(newNode, true);
@@ -333,13 +344,13 @@ public class ChoiceObjectTests {
 		OTM16Upgrade.otm16Enabled = false;
 	}
 
-	private List<ContextualFacetNode> getContextualFacets(Node container) {
-		ArrayList<ContextualFacetNode> facets = new ArrayList<ContextualFacetNode>();
-		for (Node n : container.getDescendants())
-			if (n instanceof ContextualFacetNode)
-				facets.add((ContextualFacetNode) n);
-		return facets;
-	}
+	// private List<ContextualFacetNode> getContextualFacets(Node container) {
+	// ArrayList<ContextualFacetNode> facets = new ArrayList<ContextualFacetNode>();
+	// for (Node n : container.getDescendants())
+	// if (n instanceof ContextualFacetNode)
+	// facets.add((ContextualFacetNode) n);
+	// return facets;
+	// }
 
 	public void check(ChoiceObjectNode choice, boolean validate) {
 		assertTrue(choice instanceof ChoiceObjectNode);
@@ -355,23 +366,23 @@ public class ChoiceObjectTests {
 
 		// must have shared facet
 		assertNotNull(choice.getSharedFacet());
-		s = ((FacetNode) choice.getSharedFacet()).getName();
-		s = ((FacetNode) choice.getSharedFacet()).getLabel();
+		s = choice.getSharedFacet().getName();
+		s = choice.getSharedFacet().getLabel();
 
 		// make sure this does not NPE
-		List<ChoiceFacetNode> choices = choice.getChoiceFacets();
+		List<AbstractContextualFacet> choices = choice.getChoiceFacets();
 		// can be empty - assertTrue(!choices.isEmpty());
 
 		// For choice facets the Name and label should be not empty
-		for (PropertyOwnerInterface poi : choice.getChoiceFacets()) {
-			assertTrue(poi instanceof FacetNode);
-			FacetNode f = (FacetNode) poi;
+		for (AbstractContextualFacet poi : choice.getChoiceFacets()) {
+			assertTrue(poi instanceof FacetProviderNode);
+			FacetProviderNode f = poi;
 			String name = f.getName();
 			assertFalse(name.isEmpty());
 			String label = f.getLabel();
 			assertFalse(f.getLabel().isEmpty());
-			if (poi instanceof ContributedFacetNode)
-				assertTrue(((Node) poi).getParent() == choice);
+			// if (poi instanceof ContributedFacetNode)
+			// assertTrue(((Node) poi).getParent() == choice);
 		}
 
 		// Does this extend another choice? If so, examine inherited children
@@ -381,7 +392,7 @@ public class ChoiceObjectTests {
 			// Test File 6 has an extended choice - make sure it inherits correctly.
 			if (choice.getName().equals("ExtendedChoice")) {
 				for (Node n : choice.getChildren())
-					if (n instanceof FacetNode) {
+					if (n instanceof FacetOMNode) {
 						assertTrue(n.getParent() != null);
 
 						List<TLAttribute> tlAttrs = PropertyCodegenUtils.getInheritedFacetAttributes((TLFacet) n

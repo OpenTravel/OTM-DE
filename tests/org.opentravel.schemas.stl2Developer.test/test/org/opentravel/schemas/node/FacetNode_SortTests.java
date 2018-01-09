@@ -25,7 +25,7 @@ import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLProperty;
-import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -44,7 +44,7 @@ public class FacetNode_SortTests {
 		facet.addElement(e2);
 		facet.addElement(e3);
 		facet.addElement(e1);
-		FacetNode node = new FacetNode(facet);
+		FacetProviderNode node = new FacetProviderNode(facet);
 		node.sort();
 
 		List<String> actualList = Lists.transform(node.getChildren(), new Function<Node, String>() {
@@ -73,7 +73,7 @@ public class FacetNode_SortTests {
 		facet.addAttribute(a2);
 		facet.addAttribute(a3);
 		facet.addAttribute(a1);
-		FacetNode node = new FacetNode(facet);
+		FacetProviderNode node = new FacetProviderNode(facet);
 		node.sort();
 
 		List<String> actualList = Lists.transform(node.getChildren(), new Function<Node, String>() {
@@ -102,7 +102,7 @@ public class FacetNode_SortTests {
 		facet.addIndicator(i2);
 		facet.addIndicator(i3);
 		facet.addIndicator(i1);
-		FacetNode node = new FacetNode(facet);
+		FacetProviderNode node = new FacetProviderNode(facet);
 		node.sort();
 
 		List<String> actualList = Lists.transform(node.getChildren(), new Function<Node, String>() {

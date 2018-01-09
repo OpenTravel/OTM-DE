@@ -36,13 +36,16 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
-import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
 import org.opentravel.schemas.node.properties.ElementNode;
-import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.types.TypeProvider;
@@ -54,6 +57,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
+// Does not change files.
 public class ExtensionPointNode_Tests extends BaseProjectTest {
 	private static final String MY_CORE = "MyCore";
 
@@ -70,6 +74,7 @@ public class ExtensionPointNode_Tests extends BaseProjectTest {
 	LibraryChainNode lcn = null;
 	LibraryNode ln = null;
 
+	@Override
 	@Before
 	public void beforeEachTest() throws Exception {
 		OTM16Upgrade.otm16Enabled = true;
@@ -85,16 +90,17 @@ public class ExtensionPointNode_Tests extends BaseProjectTest {
 		assertTrue(sType != null);
 	}
 
+	@Override
 	@After
 	public void afterEachTest() throws RepositoryException, IOException {
 		OTM16Upgrade.otm16Enabled = false;
 		super.afterEachTest();
 	}
 
-	public TLExtensionPointFacet createTL(boolean empty, FacetNode base) {
+	public TLExtensionPointFacet createTL(boolean empty, FacetProviderNode fn) {
 		TLExtensionPointFacet tlep = createTL(empty);
 		TLExtension tlex = new TLExtension();
-		tlex.setExtendsEntity(base.getTLModelObject());
+		tlex.setExtendsEntity(fn.getTLModelObject());
 		tlep.setExtension(tlex);
 		return tlep;
 	}
@@ -130,7 +136,8 @@ public class ExtensionPointNode_Tests extends BaseProjectTest {
 		assertTrue(ep2.getExtensionBase() == null);
 
 		// Given - a TL Extension Point Facet extending a facet with properties
-		FacetNode fn = new FacetNode(new TLFacet());
+		// FacetOMNode fn = new FacetOMNode(new TLFacet());
+		FacetProviderNode fn = new FacetProviderNode(new TLFacet());
 		TLExtensionPointFacet tlep3 = createTL(false, fn);
 		ExtensionPointNode ep3 = new ExtensionPointNode(tlep3);
 
@@ -194,8 +201,8 @@ public class ExtensionPointNode_Tests extends BaseProjectTest {
 		// Extension point is not valid
 		lf.loadFile5Clean(mc);
 		for (LibraryNode ln : mc.getModelNode().getUserLibraries()) {
-			List<Node> types = ln.getDescendants_LibraryMembers();
-			for (Node n : types)
+			List<LibraryMemberInterface> types = ln.getDescendants_LibraryMembers();
+			for (LibraryMemberInterface n : types)
 				if (n instanceof ExtensionPointNode)
 					check((ExtensionPointNode) n);
 			ml.check(ln, false);
@@ -209,12 +216,12 @@ public class ExtensionPointNode_Tests extends BaseProjectTest {
 
 		BusinessObjectNode bo = null;
 		for (LibraryNode ln : mc.getModelNode().getUserLibraries())
-			for (Node n : ln.getDescendants_LibraryMembers())
+			for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers())
 				if (n instanceof BusinessObjectNode)
 					bo = (BusinessObjectNode) n; // save for later
 
 		for (LibraryNode ln : mc.getModelNode().getUserLibraries()) {
-			for (Node n : ln.getDescendants_LibraryMembers())
+			for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers())
 				if (n instanceof ExtensionPointNode) {
 					ExtensionPointNode ep = (ExtensionPointNode) n;
 					if (ep.getExtensionBase() == null)
@@ -239,7 +246,7 @@ public class ExtensionPointNode_Tests extends BaseProjectTest {
 	public void check(ExtensionPointNode ep, boolean valid) {
 		LOGGER.debug("Checking Extension Point: " + ep);
 
-		assertTrue(ep instanceof PropertyOwnerInterface);
+		assertTrue(ep instanceof FacetInterface);
 		assertTrue(ep instanceof ExtensionOwner);
 		assertTrue(ep.isRenameable() == false);
 		assertTrue(ep.getTLModelObject() instanceof TLExtensionPointFacet);

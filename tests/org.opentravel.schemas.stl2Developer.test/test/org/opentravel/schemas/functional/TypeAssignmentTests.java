@@ -23,22 +23,23 @@ import org.junit.Test;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.AliasNode;
-import org.opentravel.schemas.node.BusinessObjectNode;
-import org.opentravel.schemas.node.ChoiceObjectNode;
-import org.opentravel.schemas.node.CoreObjectNode;
-import org.opentravel.schemas.node.EnumerationClosedNode;
-import org.opentravel.schemas.node.EnumerationOpenNode;
-import org.opentravel.schemas.node.ExtensionPointNode;
-import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.SimpleTypeNode;
-import org.opentravel.schemas.node.VWA_Node;
-import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeResolver;
@@ -65,7 +66,7 @@ public class TypeAssignmentTests {
 
 	@Before
 	public void beforeEachTest() throws LibrarySaveException {
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		MockLibrary mockLibrary = new MockLibrary();
 		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
@@ -93,12 +94,12 @@ public class TypeAssignmentTests {
 	// See TestTypes
 	@Test
 	public void assignToElements() {
-		FacetNode facetNode = FacetNodeBuilder.create(ln).addElements("E1", "E2", "E3").build();
+		FacetProviderNode facetNode = FacetNodeBuilder.create(ln).addElements("E1", "E2", "E3").build();
 	}
 
 	@Test
 	public void assignToAttributes() {
-		FacetNode facetNode = FacetNodeBuilder.create(ln).addAttributes("A1", "A2", "A3").build();
+		FacetProviderNode facetNode = FacetNodeBuilder.create(ln).addAttributes("A1", "A2", "A3").build();
 		new TypeResolver().resolveTypes(ln); // create where used and listeners
 		int soCount = so.getWhereAssignedCount();
 		int ecCount = ec.getWhereAssignedCount();

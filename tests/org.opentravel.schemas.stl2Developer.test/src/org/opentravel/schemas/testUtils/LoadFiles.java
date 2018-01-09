@@ -33,7 +33,9 @@ import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.types.TypeUser;
@@ -85,7 +87,7 @@ public class LoadFiles {
 	 */
 	@Test
 	public void loadFiles() throws Exception {
-		this.mc = new MainController();
+		this.mc = OtmRegistry.getMainController();
 		List<LibraryNode> loaded = new ArrayList<LibraryNode>();
 
 		// check special files
@@ -118,7 +120,7 @@ public class LoadFiles {
 
 	@Test
 	public void builtInTests() {
-		MainController mc = new MainController();
+		MainController mc = OtmRegistry.getMainController();
 		new LoadFiles();
 		mc.getModelNode().visitAllNodes(new NodeTesters().new TestNode());
 	}
@@ -144,7 +146,11 @@ public class LoadFiles {
 	 * Load files 1 through 5-clean into default project. No tests.
 	 */
 	public int loadTestGroupAc(MainController mc) throws Exception {
-		ProjectController pc = mc.getProjectController();
+		return loadTestGroupAc(mc.getProjectController().getDefaultProject());
+	}
+
+	public int loadTestGroupAc(ProjectNode pn) throws Exception {
+		// ProjectController pc = mc.getProjectController();
 
 		List<File> files = new ArrayList<File>();
 		files.add(new File(filePath1));
@@ -152,51 +158,10 @@ public class LoadFiles {
 		files.add(new File(filePath3));
 		files.add(new File(filePath4));
 		files.add(new File(path5c));
-		pc.getDefaultProject().add(files);
-		int libCnt = pc.getDefaultProject().getChildren().size();
+		pn.add(files);
+		int libCnt = pn.getChildren().size();
 		return libCnt;
 	}
-
-	// /**
-	// * Remove any nodes with bad assignments. The removed nodes will not pass Node_Tests/visitNode().
-	// */
-	// @Deprecated
-	// public void cleanModelX() {
-	// NodeVisitor srcVisitor = new NodeTesters().new ValidateTLObject();
-	// for (LibraryNode ln : Node.getAllUserLibraries()) {
-	// // LOGGER.debug("Cleaning Library " + ln + " with " +
-	// // ln.getDescendants_TypeUsers().size()
-	// // + " type users.");
-	// for (TypeUser n : ln.getDescendants_TypeUsers()) {
-	// if (n.getAssignedType() instanceof ImpliedNode) {
-	// if (((ImpliedNode) n.getAssignedType()).getImpliedType().equals(ImpliedNodeType.UnassignedType)) {
-	// // LOGGER.debug("Removing " + n + " due to unassigned type.");
-	// if (!((Node) n).isDeleted())
-	// ((Node) n).getOwningComponent().delete();
-	// continue;
-	// }
-	// }
-	// if (n.getAssignedTLObject() == null) {
-	// // LOGGER.debug("Removing " + n + " due to null TL_TypeObject.");
-	// if (((Node) n).getOwningComponent() != null)
-	// ((Node) n).getOwningComponent().delete();
-	// continue;
-	// }
-	// // if (!n.getTypeClass().verifyAssignment()) {
-	// // // LOGGER.debug("Removing " + n + " due to type node mismatch.");
-	// // n.getOwningComponent().delete();
-	// // continue;
-	// // }
-	// try {
-	// srcVisitor.visit((INode) n);
-	// } catch (IllegalStateException e) {
-	// // LOGGER.debug("Removing " + n + " due to: " + e.getLocalizedMessage());
-	// ((Node) n).getOwningComponent().delete();
-	// }
-	//
-	// }
-	// }
-	// }
 
 	/**
 	 * Load a file into the default project. NOTE - if the file is already open an assertion error will be thrown. NOTE
@@ -225,6 +190,10 @@ public class LoadFiles {
 		assertTrue("Must have a non-null project.", project != null);
 		List<File> files = new ArrayList<File>();
 		files.add(new File(path));
+		for (File f : files) {
+			assert f.exists();
+			assert f.canRead();
+		}
 		assertTrue("File must exist.", files.get(0).exists());
 
 		// System.out.println("Project " + project + " namespace = " + project.getNamespace() + " file = " + path);
@@ -237,8 +206,10 @@ public class LoadFiles {
 			assertTrue("Project must have children.", project.getChildren().size() > 0);
 			URL u = URLUtils.toURL(new File(System.getProperty("user.dir") + File.separator + path));
 			LibraryNode ln = null;
+			List<URL> projURLs = new ArrayList<URL>();
 			for (LibraryNode lib : project.getLibraries()) {
 				URL url = lib.getTLModelObject().getLibraryUrl();
+				projURLs.add(url);
 				if (u.equals(url)) {
 					ln = lib;
 					break;
@@ -289,7 +260,7 @@ public class LoadFiles {
 		LibraryNode ln = loadFile(thisModel, filePath4);
 		Assert.assertNotNull(ln);
 		Assert.assertTrue(ln.getChildren().size() > 1);
-		List<Node> d = ln.getDescendants_LibraryMembers();
+		List<LibraryMemberInterface> d = ln.getDescendants_LibraryMembers();
 		return ln;
 	}
 
@@ -397,7 +368,8 @@ public class LoadFiles {
 	}
 
 	/**
-	 * Load project with versioned test files from OTA repository
+	 * Load project with versioned test files from OTA repository. Project contains managed project item
+	 * VersionTest_Unmanaged_0_2_0.otm.
 	 */
 	public ProjectNode loadVersionTestProject(ProjectController pc) {
 		String fn = VersionTestProject; // files
@@ -413,7 +385,7 @@ public class LoadFiles {
 	 */
 	@Test
 	public void testSuiteTests() throws Exception {
-		mc = new MainController();
+		mc = OtmRegistry.getMainController();
 		LoadFiles lf = this;
 
 		lf.loadFile4(mc);

@@ -29,25 +29,25 @@ import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
-import org.opentravel.schemas.node.BusinessObjectNode;
-import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
-import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.NodeVisitors;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.VersionNode;
-import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.node.interfaces.LibraryInterface;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
-import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
+import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
@@ -75,7 +75,7 @@ public class Delete_Tests extends BaseProjectTest {
 
 	NodeVisitor dv = new NodeVisitors().new deleteVisitor();
 	PrintNode pv = new NodeTesters().new PrintNode();
-	TestNode tv = new NodeTesters().new TestNode(); // preferred tester
+	TestNode tv = new NodeTesters().new TestNode();
 	NodeTesters tt = new NodeTesters();
 
 	@Before
@@ -85,18 +85,18 @@ public class Delete_Tests extends BaseProjectTest {
 	}
 
 	/**
-	 * DeleteNodesHandler - uses node model controller
+	 * Delete Libraries
 	 * 
 	 * @throws Exception
 	 */
 	@Test
-	public void deleteHandler_Tests() throws Exception {
-		DeleteNodesHandler handler = new DeleteNodesHandler();
-
-		List<Node> deleteList = null;
+	public void deleteLibraries_Tests() throws Exception {
+		// DeleteNodesHandler handler = new DeleteNodesHandler();
+		//
+		// List<Node> deleteList = null;
 
 		// Given an empty list of selected nodes
-		deleteList = new ArrayList<Node>();
+		// deleteList = new ArrayList<Node>();
 
 		// Given libraries in the default project
 		ProjectNode project = pc.getDefaultProject();
@@ -119,30 +119,79 @@ public class Delete_Tests extends BaseProjectTest {
 
 	}
 
+	/**
+	 * Delete Libraries
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void deleteLibrariesInMultipleProjects_Tests() throws Exception {
+		OTM16Upgrade.otm16Enabled = true;
+		// Given - same libraries in multiple projects
+		ProjectNode project1 = createProject("Project1", rc.getLocalRepository(), "IT1");
+		ProjectNode project2 = createProject("Project2", rc.getLocalRepository(), "IT2");
+		lf.loadFile_FacetBase(project1);
+		lf.loadFile_FacetBase(project2);
+		LibraryNavNode lnn1 = (LibraryNavNode) project1.getChildren().get(0);
+		LibraryNavNode lnn2 = (LibraryNavNode) project2.getChildren().get(0);
+		assert lnn1 != null;
+		assert lnn2 != null;
+		assert lnn1 != lnn2;
+		LibraryNode lib1 = (LibraryNode) lnn1.get();
+		LibraryNode lib2 = (LibraryNode) lnn2.get();
+		assertTrue("Both libraryNavNodes contain the same library.", lib1 == lib2);
+		List<LibraryMemberInterface> p1Kids = lib1.getDescendants_LibraryMembers();
+
+		// When - library is deleted from project 1
+		deleteLibrariesTest(project1);
+		assertTrue("Project 1 must not have library.", project1.getLibraries().isEmpty());
+
+		// Then - project 2 still has libraries
+		assertTrue("Project 2 must still have library.", !project2.getLibraries().isEmpty());
+		project2.contains(lnn2);
+
+		// When - project to is deleted
+		deleteLibrariesTest(project2);
+		// Then
+		assertTrue("Project 2 must not have library.", project2.getLibraries().isEmpty());
+		// Then - assure everything is closed
+		assertTrue("Project 1 must not have library.", project1.getLibraries().isEmpty());
+		assert lnn1.isDeleted();
+		assert lnn2.isDeleted();
+		assert lib1.isDeleted();
+		assert lib2.isDeleted();
+		for (LibraryMemberInterface kid : p1Kids)
+			assert kid.isDeleted();
+		assert Node.getLibraryModelManager().getUserLibraries().isEmpty();
+
+		OTM16Upgrade.otm16Enabled = false;
+	}
+
 	// NOTE -- libraries are never deleted but simply closed.
 	//
 	private void deleteLibrariesTest(ProjectNode project) throws Exception {
-		// ModelNode model = Node.getModelNode();
-		// List<Node> deleteList = new ArrayList<Node>();
-
 		// Given - Project with libraries loaded
 		assertTrue("Project must have libraries.", !project.getUserLibraries().isEmpty());
 
-		// When - one library is deleted is is NOT removed from project
-		LibraryNode lib = project.getUserLibraries().get(0);
-		lib.setEditable(true);
-		lib.delete();
-		// Then - library is deleted and not in the project and the library's objects are all deleted.
-		assertTrue("Library is deleted.", lib.isDeleted());
-		assertTrue("Project must contain library.", project.getUserLibraries().contains(lib));
-		for (Node n : lib.getDescendants_LibraryMembers())
-			assertTrue("Named Type " + n + " is deleted.", n.isDeleted());
+		// When - one library is closed via its navNode
+		LibraryNavNode lnn = (LibraryNavNode) project.getChildren().get(0);
+		LibraryNode lib = lnn.getLibrary();
+		lnn.close(); // must close libraryNavNode not libs.
 
-		// When - Project deletes library
-		project.close(lib);
-		assertTrue(!project.contains((LibraryInterface) lib));
+		// Then - lnn is deleted and not in the project and the library's objects are all deleted.
+		assertTrue("Library is deleted.", lnn.isDeleted());
+		assertTrue("Project must not contain library nav node.", !project.contains(lnn));
+		assertTrue("Project must not contain library.", !project.getUserLibraries().contains(lib));
 
-		// When - rest are deleted (closed)
+		// Then - if the library still has a parent, then it was used in a different project
+		if (lib.getParent() != null)
+			for (LibraryMemberInterface n : lib.getDescendants_LibraryMembers())
+				assertTrue("Named Type " + n + " must not be deleted.", !n.isDeleted());
+		else
+			for (LibraryMemberInterface n : lib.getDescendants_LibraryMembers())
+				assertTrue("Named Type " + n + " must be deleted.", n.isDeleted());
+
+		// When - rest are closed
 		List<LibraryNode> libList = project.getUserLibraries();
 		for (LibraryNode ln : libList)
 			project.close(ln);
@@ -158,7 +207,7 @@ public class Delete_Tests extends BaseProjectTest {
 		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
 		bo.setName("TestBO");
 		ln.addMember(bo);
-		FacetNode facet = bo.getFacet_Summary();
+		FacetInterface facet = bo.getFacet_Summary();
 		Assert.assertNotNull(facet);
 		TypeProvider aType = ml.getSimpleTypeProvider();
 
@@ -188,8 +237,8 @@ public class Delete_Tests extends BaseProjectTest {
 		// Given a business object with all facet types
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TestBO");
 		int facetCount = bo.getChildren().size();
-		FacetNode q1 = bo.addFacet("Query1", TLFacetType.QUERY);
-		FacetNode c1 = bo.addFacet("Custom1", TLFacetType.CUSTOM);
+		FacetProviderNode q1 = bo.addFacet("Query1", TLFacetType.QUERY);
+		FacetProviderNode c1 = bo.addFacet("Custom1", TLFacetType.CUSTOM);
 		assertTrue("Must have five children", bo.getChildren().size() == facetCount + 2);
 		assertTrue("Object must contain query facet.", bo.getChildren().contains(q1));
 		assertTrue("Object must contain custom facet.", bo.getChildren().contains(c1));
@@ -218,8 +267,8 @@ public class Delete_Tests extends BaseProjectTest {
 		// Given a business object with all facet types
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TestBO");
 		int facetCount = bo.getChildren().size();
-		FacetNode q1 = bo.addFacet("Query1", TLFacetType.QUERY);
-		FacetNode c1 = bo.addFacet("Custom1", TLFacetType.CUSTOM);
+		FacetProviderNode q1 = bo.addFacet("Query1", TLFacetType.QUERY);
+		FacetProviderNode c1 = bo.addFacet("Custom1", TLFacetType.CUSTOM);
 		assertTrue("Must have five children", bo.getChildren().size() == facetCount + 2);
 		assertTrue("Query facet is NOT deleted.", !q1.isDeleted());
 		assertTrue("Custom facet is NOT deleted.", !c1.isDeleted());
@@ -233,7 +282,7 @@ public class Delete_Tests extends BaseProjectTest {
 		// Then object must not contain facets
 		assertTrue("Object does NOT contain query facet.", !bo.getChildren().contains(q1));
 		assertTrue("Object does NOT contain custom facet.", !bo.getChildren().contains(c1));
-		assertTrue("Object only has 3 children.", bo.getChildren().size() == facetCount);
+		assertTrue("Object only has " + facetCount + " children.", bo.getChildren().size() == facetCount);
 		assertTrue("Facet is deleted.", q1.isDeleted());
 		assertTrue("Facet is deleted.", c1.isDeleted());
 		OTM16Upgrade.otm16Enabled = false;
@@ -248,8 +297,8 @@ public class Delete_Tests extends BaseProjectTest {
 		int facetCount = co.getChildren().size();
 		ml.check(co);
 
-		FacetNode c1 = co.addFacet("Added1");
-		FacetNode c2 = co.addFacet("Added2");
+		FacetProviderNode c1 = co.addFacet("Added1");
+		FacetProviderNode c2 = co.addFacet("Added2");
 		assertTrue("Must have five children", co.getChildren().size() == facetCount + 2);
 		assertTrue("Choice 1 facet must NOT be deleted.", !c1.isDeleted());
 		assertTrue("Choice 2 facet must NOT be deleted.", !c2.isDeleted());
@@ -267,8 +316,8 @@ public class Delete_Tests extends BaseProjectTest {
 		assertTrue("Facet must be deleted.", c2.isDeleted());
 
 		// When the other choice facets are deleted
-		for (PropertyOwnerInterface f : co.getChoiceFacets())
-			((FacetNode) f).delete();
+		for (FacetProviderNode f : co.getChoiceFacets())
+			f.delete();
 
 		// Then the object is still valid
 		ml.check(co);
@@ -286,26 +335,54 @@ public class Delete_Tests extends BaseProjectTest {
 
 	@Test
 	public void deleteTypeUsers_Test() {
+		// Given - a library, business object summary facet and type provider
 		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", testProject);
 		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
 		bo.setName("TestBO");
 		ln.addMember(bo);
-		FacetNode facet = bo.getFacet_Summary();
+		FacetInterface facet = bo.getFacet_Summary();
 		Assert.assertNotNull(facet);
-		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
+		TypeProvider aType = ml.getXsdDate();
 		int whereAssignedCount = aType.getWhereAssignedCount();
+		// Given - a simple type that can be deleted
+		SimpleTypeNode simple = ml.addSimpleTypeToLibrary(ln, "Simple1");
+		simple.setAssignedType(aType);
 
-		// Given a BO with two properties with assigned types
+		// Given two properties
 		ElementNode ele = new ElementNode(facet, "e1");
-		ele.setAssignedType(aType);
 		AttributeNode attr = new AttributeNode(facet, "att1");
-		attr.setAssignedType(aType);
-		Assert.assertEquals(2, facet.getChildren().size());
+		assert facet.getChildren().size() == 2;
 
-		// Delete the BO and assure the assigned types on properties are correct.
+		// When - assigned simple type
+		ele.setAssignedType(simple);
+		attr.setAssignedType(simple);
+		// Then - check where assigned
+		assertTrue("Where assigned must contain element.", simple.getWhereAssigned().contains(ele));
+		assertTrue("Type assignment listener.", ele.getTypeHandler().getAssignmentListeners().getNode() == simple);
+		assertTrue("Where assigned must contain attribute.", simple.getWhereAssigned().contains(attr));
+		assertTrue("Type assignment listener.", attr.getTypeHandler().getAssignmentListeners().getNode() == simple);
+		assertTrue("Must have listener for element.",
+				simple.getWhereAssignedHandler().getAssignmentListeners(ele) != null);
+
+		// When - simple is deleted
+		simple.delete();
+		// Then - it must not be assigned to properties
+		assertTrue("Where assigned must not contain element.", !simple.getWhereAssigned().contains(ele));
+		assertTrue("Where assigned must not contain attribute.", !simple.getWhereAssigned().contains(attr));
+		assertTrue("Type assignment listener.", ele.getTypeHandler().getAssignmentListeners().getNode() != simple);
+		assertTrue("Type assignment listener.", attr.getTypeHandler().getAssignmentListeners().getNode() != simple);
+		assertTrue("Must have listener for element.",
+				simple.getWhereAssignedHandler().getAssignmentListeners(ele) != null);
+
+		// When - aType is assigned
+		ele.setAssignedType(aType);
+		attr.setAssignedType(aType);
+		// When - business object deleted
 		bo.delete();
 		Assert.assertTrue(ele.isDeleted());
 		Assert.assertTrue(attr.isDeleted());
+
+		// Then - assure the assigned types on properties are correct.
 		Assert.assertEquals("Should be equal.", whereAssignedCount, aType.getWhereAssignedCount());
 	}
 
@@ -315,7 +392,7 @@ public class Delete_Tests extends BaseProjectTest {
 		BusinessObjectNode bo = new BusinessObjectNode(new TLBusinessObject());
 		bo.setName("TestBO");
 		ln.addMember(bo);
-		FacetNode facet = bo.getFacet_Summary();
+		FacetInterface facet = bo.getFacet_Summary();
 		Assert.assertNotNull(facet);
 		ElementNode ele = new ElementNode(facet, "e1");
 		AttributeNode attr = new AttributeNode(facet, "att1");
@@ -358,6 +435,7 @@ public class Delete_Tests extends BaseProjectTest {
 		Assert.assertEquals(namedTypeCnt, ln.getDescendants_LibraryMembers().size());
 
 		namedTypeCnt = setUpCase(2);
+		ln.setParent(null); // force delete to work
 		ln.visitAllNodes(dv);
 		ln.visitAllNodes(pv);
 		assert ln.isEmpty();
@@ -365,8 +443,10 @@ public class Delete_Tests extends BaseProjectTest {
 		LOGGER.debug("***Setting Up Test Case 3");
 		namedTypeCnt = setUpCase(3);
 		LibraryChainNode lcn = ln.getChain();
-		ln.visitAllNodes(dv);
-		ln.visitAllNodes(pv);
+		for (LibraryMemberInterface kid : ln.getDescendants_LibraryMembers())
+			kid.visitAllNodes(dv);
+		// ln.visitAllNodes(dv);
+		// ln.visitAllNodes(pv);
 		assert ln.isEmpty();
 		lcn.close();
 		assert lcn.isEmpty();
@@ -374,8 +454,10 @@ public class Delete_Tests extends BaseProjectTest {
 		LOGGER.debug("***Setting Up Test Case 4");
 		namedTypeCnt = setUpCase(4);
 		lcn = ln.getChain();
-		ln.visitAllNodes(dv);
-		ln.visitAllNodes(pv);
+		for (LibraryMemberInterface kid : ln.getDescendants_LibraryMembers())
+			kid.visitAllNodes(dv);
+		// ln.visitAllNodes(dv);
+		// ln.visitAllNodes(pv);
 		assert ln.isEmpty();
 		lcn.close();
 		assert lcn.isEmpty();
