@@ -31,11 +31,11 @@ import org.opentravel.schemacompiler.model.TLParameter;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.listeners.ResourceDependencyListener;
+import org.opentravel.schemas.node.objectMembers.FacetOMNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
+import org.opentravel.schemas.node.typeProviders.QueryFacetNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
 import org.slf4j.Logger;
@@ -92,9 +92,9 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	public ParamGroup(ResourceNode rn, ComponentNode fn, boolean idGroup) {
 		this(rn);
 		setIdGroup(idGroup); // do before adding facet and it's parameters
-		if (fn != null && fn instanceof FacetNode) {
+		if (fn != null && fn instanceof FacetOMNode) {
 			setName(fn.getLabel());
-			setReferenceFacet((FacetNode) fn);
+			setReferenceFacet((FacetOMNode) fn);
 		}
 	}
 
@@ -219,13 +219,13 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	 */
 	// TODO - JUNIT - add test for ID/non-ID group behavior
 	public String[] getSubjectFacets() {
-		List<FacetNode> facets = new ArrayList<FacetNode>();
+		List<FacetOMNode> facets = new ArrayList<FacetOMNode>();
 		for (Node facet : getOwningComponent().getSubject().getChildren()) {
-			if (!(facet instanceof FacetNode))
+			if (!(facet instanceof FacetOMNode))
 				continue;
 			if (isIdGroup() && facet instanceof QueryFacetNode)
 				continue;
-			facets.add((FacetNode) facet);
+			facets.add((FacetOMNode) facet);
 		}
 		int size = facets.size();
 		String[] fs = new String[size];
@@ -390,8 +390,8 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		for (Node n : getOwningComponent().getSubject().getChildren()) {
 			String facetName = ResourceCodegenUtils.getActionFacetReferenceName((TLFacet) n.getTLModelObject());
 
-			if ((facetName != null) && facetName.equals(name) && n instanceof FacetNode) {
-				setReferenceFacet((FacetNode) n);
+			if ((facetName != null) && facetName.equals(name) && n instanceof FacetOMNode) {
+				setReferenceFacet((FacetOMNode) n);
 				return true; // denote change
 			}
 		}
@@ -404,7 +404,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	 * 
 	 * @param n
 	 */
-	public void setReferenceFacet(FacetNode n) {
+	public void setReferenceFacet(FacetOMNode n) {
 		tlObj.setFacetRef((TLFacet) n.getTLModelObject());
 		upDateParameters();
 		if (tlObj.getName().isEmpty())

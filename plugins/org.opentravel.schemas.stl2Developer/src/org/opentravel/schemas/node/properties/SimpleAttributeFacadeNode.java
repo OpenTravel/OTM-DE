@@ -18,12 +18,16 @@ package org.opentravel.schemas.node.properties;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.facets.SimpleFacetFacadeNode;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.objectMembers.VWA_SimpleFacetFacadeNode;
+import org.opentravel.schemas.node.typeProviders.CoreSimpleFacetNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUserHandler;
@@ -42,7 +46,16 @@ public abstract class SimpleAttributeFacadeNode extends PropertyNode implements 
 
 	protected TypeProvider emptyNode = null;
 
-	public SimpleAttributeFacadeNode(SimpleFacetFacadeNode parent) {
+	public SimpleAttributeFacadeNode(VWA_SimpleFacetFacadeNode parent) {
+		super();
+
+		assert parent != null;
+		this.parent = parent;
+		tlObj = parent.getTLModelObject();
+		typeHandler = new TypeUserHandler(this);
+	}
+
+	public SimpleAttributeFacadeNode(CoreSimpleFacetNode parent) {
 		super();
 
 		assert parent != null;
@@ -52,7 +65,7 @@ public abstract class SimpleAttributeFacadeNode extends PropertyNode implements 
 	}
 
 	@Override
-	public void addToTL(final PropertyOwnerInterface owner, final int index) {
+	public void addToTL(final FacetInterface owner, final int index) {
 	}
 
 	@Override
@@ -68,6 +81,11 @@ public abstract class SimpleAttributeFacadeNode extends PropertyNode implements 
 	@Override
 	public Node get() {
 		return Node.GetNode(getTLModelObject());
+	}
+
+	@Override
+	public LibraryMemberInterface getOwningComponent() {
+		return getParent() != null ? getParent().getOwningComponent() : null;
 	}
 
 	// @Override
@@ -122,10 +140,12 @@ public abstract class SimpleAttributeFacadeNode extends PropertyNode implements 
 	@Override
 	public abstract String getName();
 
+	// {
+	// return emptyIfNull(getTLModelObject().getName());
+	// }
+
 	@Override
-	public SimpleFacetFacadeNode getParent() {
-		return (SimpleFacetFacadeNode) parent;
-	}
+	public abstract ComponentNode getParent();
 
 	@Override
 	public abstract TLModelElement getTLModelObject();
@@ -160,6 +180,7 @@ public abstract class SimpleAttributeFacadeNode extends PropertyNode implements 
 	 */
 	@Override
 	public boolean isNewToChain() {
+		// FIXME
 		if (getChain() == null || super.isNewToChain())
 			return true; // the parent is new so must be its properties
 		return false;

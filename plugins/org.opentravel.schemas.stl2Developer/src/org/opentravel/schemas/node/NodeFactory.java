@@ -48,23 +48,17 @@ import org.opentravel.schemacompiler.model.XSDComplexType;
 import org.opentravel.schemacompiler.model.XSDElement;
 import org.opentravel.schemacompiler.model.XSDSimpleType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
-import org.opentravel.schemas.node.facets.ChoiceFacetNode;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
-import org.opentravel.schemas.node.facets.ContributedFacetNode;
-import org.opentravel.schemas.node.facets.CustomFacetNode;
-import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.InheritedContextualFacetNode;
-import org.opentravel.schemas.node.facets.ListFacetNode;
-import org.opentravel.schemas.node.facets.OperationFacetNode;
-import org.opentravel.schemas.node.facets.OperationNode;
-import org.opentravel.schemas.node.facets.QueryFacetNode;
-import org.opentravel.schemas.node.facets.RoleFacetNode;
-import org.opentravel.schemas.node.facets.UpdateFacetNode;
-import org.opentravel.schemas.node.interfaces.AliasOwner;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
-import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
+import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.listeners.InheritanceDependencyListener;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
+import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
+import org.opentravel.schemas.node.objectMembers.InheritedContributedFacetNode;
+import org.opentravel.schemas.node.objectMembers.OperationFacetNode;
+import org.opentravel.schemas.node.objectMembers.OperationNode;
+import org.opentravel.schemas.node.objectMembers.SharedFacetNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.AttributeReferenceNode;
 import org.opentravel.schemas.node.properties.ElementNode;
@@ -78,9 +72,33 @@ import org.opentravel.schemas.node.properties.InheritedElementNode;
 import org.opentravel.schemas.node.properties.InheritedEnumLiteralNode;
 import org.opentravel.schemas.node.properties.InheritedIndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.node.typeProviders.ChoiceFacet15Node;
+import org.opentravel.schemas.node.typeProviders.ChoiceFacetNode;
+import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacet15Node;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.CustomFacet15Node;
+import org.opentravel.schemas.node.typeProviders.CustomFacetNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.InheritedContextualFacet15Node;
+import org.opentravel.schemas.node.typeProviders.InheritedContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.ListFacetNode;
+import org.opentravel.schemas.node.typeProviders.QueryFacet15Node;
+import org.opentravel.schemas.node.typeProviders.QueryFacetNode;
+import org.opentravel.schemas.node.typeProviders.RoleFacetNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.UpdateFacet15Node;
+import org.opentravel.schemas.node.typeProviders.UpdateFacetNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,15 +117,17 @@ public class NodeFactory {
 	 * <p>
 	 * 
 	 * @param property
-	 *            the property inherited from
+	 *            the property inherited from. Parent must be the base object.
 	 * @param owner
 	 *            the parent of the inherited property. Must <b>not</b> be the parent of the property.
 	 * @return new inherited property
 	 */
-	public static PropertyNode newInheritedProperty(PropertyNode property, PropertyOwnerInterface owner) {
-		assert owner != property.getParent();
+	public static InheritedInterface newInheritedProperty(PropertyNode property, FacetInterface owner) {
+		// assert owner != property.getParent();
+		if (owner == property.getParent())
+			LOGGER.error("FIXME - inherited property with wrong parent");
 
-		PropertyNode ip = null; // the new inherited property
+		InheritedInterface ip = null; // the new inherited property
 		if (property instanceof ElementNode)
 			ip = new InheritedElementNode((ElementNode) property, owner);
 		else if (property instanceof AttributeNode)
@@ -120,42 +140,80 @@ public class NodeFactory {
 			LOGGER.debug("Unhandled inherited property: " + property.getClass().getSimpleName());
 
 		// Place a listener on the owner of the property
-		property.getParent().getTLModelObject()
-				.addListener(new InheritanceDependencyListener(ip, owner.getChildrenHandler()));
+		property.getParent().getTLModelObject().addListener(new InheritanceDependencyListener(ip));
 
 		assert ip.getInheritedFrom() != null;
-		assert ip.getParent() != property.getParent();
+		// FIXME - this should be true
+		// assert ((Node) ip).getParent() != property.getParent();
 
 		return ip;
 	}
 
-	public static InheritedContextualFacetNode newInheritedFacet(TLContextualFacet tlSrc,
-			ContextualFacetOwnerInterface base, ContributedFacetNode node, Node owner) {
+	public static InheritedContextualFacet15Node newInheritedFacet(ContextualFacetOwnerInterface base,
+			ContextualFacet15Node cf15n, ContextualFacetOwnerInterface owner) {
+		assert base.getContributedFacets().isEmpty(); // Version 1.5 does not use contributed facets
+
+		Node baseNode = ((Node) base).findChildByName(cf15n.getLocalName());
+
+		assert baseNode instanceof ContextualFacet15Node;
+
+		return new InheritedContextualFacet15Node(cf15n.getTLModelObject(), (ContextualFacet15Node) baseNode,
+				((Node) owner));
+	}
+
+	/**
+	 * Create an inherited version 1.6 and later contextual and contributed facet to match the contributed facet
+	 * reported out from the TL Model.
+	 * 
+	 * @param base
+	 *            - the base object extended to create the ghost facets.
+	 * @param contributed
+	 *            - the ghost contributed facet created from the tlGhost
+	 * @return
+	 */
+	public static InheritedContextualFacetNode newInheritedFacet(ContextualFacetOwnerInterface base,
+			ContributedFacetNode contributed) {
+
+		// if (owner == contributed.getParent())
+		// LOGGER.debug("Don't need no owner.");
+		// else
+		// assert false;
+		ContextualFacetOwnerInterface owner = (ContextualFacetOwnerInterface) contributed.getParent();
+		TLContextualFacet tlGhost = contributed.getTLModelObject();
 
 		// Find the matching facet in the base node - baseCF
-		// Contextual facets have the wrong name -- name with where contributed object in them
-		Node baseNode = ((Node) base).findChildByName(((ContextualFacetNode) node).getTLModelObject().getName());
+		// findByName() will not work because need to match the exact node local name and type
+		Node baseNode = null;
+		for (ContributedFacetNode cf : base.getContributedFacets()) {
+			if (cf.getName().endsWith(contributed.getLocalName()))
+				if (cf.getFacetType().equals(contributed.getFacetType()))
+					baseNode = cf;
+
+		}
 		assert baseNode instanceof ContributedFacetNode;
 		ContributedFacetNode baseContrib = (ContributedFacetNode) baseNode;
-		assert base == baseContrib.getOwningComponent();
 		ContextualFacetNode baseCF = baseContrib.getContributor();
-		assert baseCF != null;
-		assert tlSrc != baseCF.getTLModelObject();
 
-		InheritedContextualFacetNode icf = new InheritedContextualFacetNode(tlSrc, baseCF, owner.getLibrary());
-
-		if (owner.getLibrary().findLibraryMemberByName(icf.getName()) != null)
-			icf = (InheritedContextualFacetNode) owner.getLibrary().findLibraryMemberByName(icf.getName());
-		else
+		// If this inherited facet has been modeled before then reuse it
+		InheritedContextualFacetNode icf = (InheritedContextualFacetNode) owner.getLibrary().findLibraryMemberByName(
+				tlGhost.getLocalName());
+		if (icf != null) {
+			icf.setDeleted(false); // May have been deleted in children init processing
+		} else {
+			icf = new InheritedContextualFacetNode(tlGhost, baseCF, ((Node) owner).getParent());
 			owner.getLibrary().addMember(icf);
+		}
 
-		icf.setWhereContributed(node);
-		node.setContributor(icf.getTLModelObject());
-		node.setInheritedFrom(baseContrib);
+		contributed.setContributor(icf.getTLModelObject());
+		InheritedContributedFacetNode iContrib = new InheritedContributedFacetNode(contributed);
+		icf.setWhereContributed(iContrib);
 
-		assert owner.getLibrary().contains(icf);
 		assert icf.getInheritedFrom() == baseCF;
-		assert Node.GetNode(icf.getTLModelObject()) == icf;
+		assert icf == Node.GetNode(icf.getTLModelObject());
+		assert icf == contributed.getContributor();
+		assert baseCF.hasInheritanceDependacyListenerTo(icf);
+		assert owner.getLibrary().contains(icf);
+
 		return icf;
 	}
 
@@ -177,8 +235,14 @@ public class NodeFactory {
 
 		// Attempt to lookup already modeled node
 		Node n = Node.GetNode(mbr);
+
+		// If previously modeled, just return the node
 		if (n instanceof LibraryMemberInterface)
 			return (LibraryMemberInterface) n;
+
+		// Should not happen, but if a v15 contextual facet is found, ignore it.
+		if (n instanceof ContextualFacet15Node)
+			return null;
 
 		// Create a node for the TL LibraryMember
 		//
@@ -222,6 +286,11 @@ public class NodeFactory {
 		return lm;
 	}
 
+	// public static ComponentNode newChild(FacetInterface parent, TLModelElement tlObj) {
+	// // TODO - separate out newChild logic
+	// return newChild((Node) parent, tlObj);
+	// }
+
 	/**
 	 * Create a component node representing this TL Object. The new component is <b>not</b> added to a library.
 	 * 
@@ -229,7 +298,7 @@ public class NodeFactory {
 	 * @param tlObj
 	 * @return
 	 */
-	public static ComponentNode newChild(INode parent, TLModelElement tlObj) {
+	public static ComponentNode newChild(Node parent, TLModelElement tlObj) {
 		if (tlObj == null)
 			return null;
 		ComponentNode nn = null;
@@ -237,20 +306,20 @@ public class NodeFactory {
 		// Properties
 		//
 		if (tlObj instanceof TLProperty)
-			nn = createProperty((TLProperty) tlObj, (PropertyOwnerInterface) parent);
+			nn = createProperty((TLProperty) tlObj, (FacetInterface) parent);
 		else if (tlObj instanceof TLIndicator)
-			nn = createIndicator((TLIndicator) tlObj, (PropertyOwnerInterface) parent);
+			nn = createIndicator((TLIndicator) tlObj, (FacetInterface) parent);
 		else if (tlObj instanceof TLAttribute)
-			nn = createAttribute((TLAttribute) tlObj, (PropertyOwnerInterface) parent);
+			nn = createAttribute((TLAttribute) tlObj, (FacetInterface) parent);
 		else if (tlObj instanceof TLRole)
 			nn = new RoleNode((TLRole) tlObj, (RoleFacetNode) parent);
 		else if (tlObj instanceof TLEnumValue)
-			nn = new EnumLiteralNode((TLEnumValue) tlObj, (PropertyOwnerInterface) parent);
+			nn = new EnumLiteralNode((TLEnumValue) tlObj, (FacetInterface) parent);
 		//
 		// Alias
 		//
-		else if (tlObj instanceof TLAlias && parent instanceof AliasOwner)
-			nn = new AliasNode((AliasOwner) parent, (TLAlias) tlObj);
+		else if (tlObj instanceof TLAlias)
+			nn = new AliasNode(parent, (TLAlias) tlObj);
 		//
 		// Facets
 		//
@@ -261,9 +330,9 @@ public class NodeFactory {
 				else
 					nn = new ContributedFacetNode((TLContextualFacet) tlObj);
 			} else
-				nn = createFacet((TLContextualFacet) tlObj);
+				nn = create15Facet((TLContextualFacet) tlObj);
 		} else if (tlObj instanceof TLFacet)
-			nn = createFacet((TLFacet) tlObj);
+			nn = (ComponentNode) createFacet((TLFacet) tlObj);
 		else if (tlObj instanceof TLListFacet)
 			nn = new ListFacetNode((TLListFacet) tlObj);
 		else if (tlObj instanceof TLSimpleFacet)
@@ -282,12 +351,12 @@ public class NodeFactory {
 		if (nn == null)
 			LOGGER.debug("No node created.");
 
-		nn.setParent((Node) parent);
+		nn.setParent(parent);
 		NodeNameUtils.fixName(nn); // make sure the name is legal (2/2016)
 		return nn;
 	}
 
-	private static PropertyNode createAttribute(TLAttribute tlObj, PropertyOwnerInterface parent) {
+	private static PropertyNode createAttribute(TLAttribute tlObj, FacetInterface parent) {
 		PropertyNode nn;
 		TLPropertyType type = tlObj.getType();
 		if (type != null && type.getNamespace() != null && type.getNamespace().equals(ModelNode.XSD_NAMESPACE)
@@ -300,8 +369,14 @@ public class NodeFactory {
 		return nn;
 	}
 
-	private static ContextualFacetNode createFacet(TLContextualFacet tlFacet) {
+	public static AbstractContextualFacet createContextualFacet(TLContextualFacet tlFacet) {
+		if (OTM16Upgrade.otm16Enabled)
+			return createFacet(tlFacet);
+		else
+			return create15Facet(tlFacet);
+	}
 
+	private static ContextualFacetNode createFacet(TLContextualFacet tlFacet) {
 		switch (tlFacet.getFacetType()) {
 		case CUSTOM:
 			return new CustomFacetNode(tlFacet);
@@ -317,7 +392,25 @@ public class NodeFactory {
 		return null;
 	}
 
-	private static FacetNode createFacet(TLFacet facet) {
+	// Version 1.5 and older
+	private static ContextualFacet15Node create15Facet(TLContextualFacet tlFacet) {
+		ContextualFacet15Node cf = null;
+		switch (tlFacet.getFacetType()) {
+		case CUSTOM:
+			return new CustomFacet15Node(tlFacet);
+		case CHOICE:
+			return new ChoiceFacet15Node(tlFacet);
+		case QUERY:
+			return new QueryFacet15Node(tlFacet);
+		case UPDATE:
+			return new UpdateFacet15Node(tlFacet);
+		default:
+			break;
+		}
+		return null;
+	}
+
+	private static FacetInterface createFacet(TLFacet facet) {
 		assert (facet.getFacetType() != null);
 
 		switch (facet.getFacetType()) {
@@ -326,16 +419,17 @@ public class NodeFactory {
 		case NOTIFICATION:
 			return new OperationFacetNode(facet);
 		case SHARED:
+			return new SharedFacetNode(facet);
 		case DETAIL:
 		case ID:
 		case SIMPLE:
 		case SUMMARY:
 		default:
-			return new FacetNode(facet);
+			return new FacetProviderNode(facet);
 		}
 	}
 
-	private static PropertyNode createIndicator(TLIndicator tlObj, PropertyOwnerInterface parent) {
+	private static PropertyNode createIndicator(TLIndicator tlObj, FacetInterface parent) {
 		PropertyNode nn;
 		if (tlObj.isPublishAsElement())
 			nn = new IndicatorElementNode(tlObj, parent);
@@ -344,12 +438,16 @@ public class NodeFactory {
 		return nn;
 	}
 
-	private static PropertyNode createProperty(TLProperty tlObj, PropertyOwnerInterface parent) {
+	private static PropertyNode createProperty(TLProperty tlObj, FacetInterface parent) {
 		PropertyNode nn;
 		if (tlObj.isReference())
 			nn = new ElementReferenceNode(tlObj, parent);
 		else
 			nn = new ElementNode(tlObj, parent);
+
+		if (parent != null && !parent.canOwn(nn.getPropertyType()))
+			nn = nn.changePropertyRole(PropertyNodeType.ATTRIBUTE, parent);
+
 		return nn;
 	}
 

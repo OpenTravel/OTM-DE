@@ -15,7 +15,7 @@
  */
 package org.opentravel.schemas.stl2Developer.editor.internal.filters;
 
-import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.objectMembers.FacetOMNode;
 import org.opentravel.schemas.stl2Developer.editor.model.UINode;
 
 /**
@@ -26,7 +26,7 @@ public class EmptyFacetFilter extends NodeFilter {
 
     @Override
     public boolean select(UINode toTest) {
-        if (toTest.getNode() instanceof FacetNode) {
+        if (toTest.getNode() instanceof FacetOMNode) {
             return toTest.getNode().hasChildren();
         }
         return true;

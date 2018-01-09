@@ -616,7 +616,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		if (tlObj.getListeners().isEmpty())
 			src = f.getSource().getValidationIdentity();
 		else {
-			Node n = ((Node) node).getNode(((TLModelElement) f.getSource()).getListeners());
+			Node n = node.getNode(((TLModelElement) f.getSource()).getListeners());
 			src = n != null ? n.getName() : "";
 		}
 		TableItem item = new TableItem(table, SWT.NONE);

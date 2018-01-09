@@ -27,12 +27,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link LibraryTablePoster} decorated with 'Go To' buttons on types
+ * {@link FacetViewTablePoster} decorated with 'Go To' buttons on types
  * 
  * @author Agnieszka Janowska
  * 
  */
-public class LibraryTablePosterWithButtons extends LibraryTablePoster {
+public class LibraryTablePosterWithButtons extends FacetViewTablePoster {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryTablePosterWithButtons.class);
 
 	private final TableEditorButtonSet buttonSet;

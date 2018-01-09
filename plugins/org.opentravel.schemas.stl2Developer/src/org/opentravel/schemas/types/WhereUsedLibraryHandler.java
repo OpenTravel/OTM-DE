@@ -27,11 +27,11 @@ import java.util.Set;
 
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.types.whereused.LibraryUsesNode;
 import org.opentravel.schemas.types.whereused.LibraryWhereUsedNode;
 import org.opentravel.schemas.types.whereused.WhereUsedNode;

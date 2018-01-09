@@ -17,7 +17,7 @@ package org.opentravel.schemas.actions;
 
 import org.eclipse.swt.widgets.Button;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.facets.OperationFacetNode;
+import org.opentravel.schemas.node.objectMembers.OperationFacetNode;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.MainWindow;

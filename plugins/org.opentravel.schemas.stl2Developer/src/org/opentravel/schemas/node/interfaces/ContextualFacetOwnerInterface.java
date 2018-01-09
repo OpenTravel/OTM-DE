@@ -20,14 +20,13 @@ package org.opentravel.schemas.node.interfaces;
 
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.LibraryElement;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
-import org.opentravel.schemas.node.facets.ContributedFacetNode;
+import org.opentravel.schemas.node.handlers.children.ChildrenHandlerI;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
+import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 
 /**
  * Objects implementing this interface can own contextual facets (choice, custom, query, etc) *
@@ -35,28 +34,41 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
  * @author Dave Hollander
  * 
  */
+// TODO - shouldn't this extend FacetOwner?
 public interface ContextualFacetOwnerInterface {
 
+	// /**
+	// * Contextual facets are cloned when their owner is cloned.
+	// */
+	// public LibraryElement cloneTLObj();
+	//
+
 	/**
-	 * Contextual facets are cloned when their owner is cloned.
+	 * Return True if this owner can own the passed ContextualFacet
+	 * 
+	 * @param targetCF
+	 * @return
 	 */
-	public LibraryElement cloneTLObj();
+	public boolean canOwn(AbstractContextualFacet targetCF);
 
-	public TLFacetOwner getTLModelObject();
+	/**
+	 * Return True if this owner can own the passed ContextualFacet
+	 * 
+	 * @param FacetType
+	 * @return
+	 */
+	public boolean canOwn(TLFacetType type);
 
-	public LibraryNode getLibrary();
-
-	public Node getParent();
+	//
+	// public Node getParent();
 
 	/**
 	 * @return list of contextual facets identified by the contributed facets in this object
 	 */
-	public List<ContextualFacetNode> getContextualFacets();
+	public List<AbstractContextualFacet> getContextualFacets(boolean inherited);
 
-	/**
-	 * @return list of contributed facet children of this object
-	 */
-	public List<ContributedFacetNode> getContributedFacets();
+	@Deprecated
+	public List<AbstractContextualFacet> getContextualFacets();
 
 	/**
 	 * 
@@ -66,19 +78,18 @@ public interface ContextualFacetOwnerInterface {
 	public ContributedFacetNode getContributedFacet(TLContextualFacet tlObj);
 
 	/**
-	 * Return True if this owner can own the passed ContextualFacet
-	 * 
-	 * @param targetCF
-	 * @return
+	 * @return list of contributed facet children of this object
 	 */
-	public boolean canOwn(ContextualFacetNode targetCF);
+	public List<ContributedFacetNode> getContributedFacets();
+
+	public LibraryNode getLibrary();
+
+	// Must provide to contextual facet
+	public TLFacetOwner getTLModelObject();
 
 	/**
-	 * Return True if this owner can own the passed ContextualFacet
-	 * 
-	 * @param FacetType
 	 * @return
 	 */
-	public boolean canOwn(TLFacetType type);
+	public ChildrenHandlerI<?> getChildrenHandler();
 
 }

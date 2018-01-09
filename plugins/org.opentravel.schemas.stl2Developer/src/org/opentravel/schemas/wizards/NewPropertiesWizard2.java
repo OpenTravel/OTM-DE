@@ -22,15 +22,16 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
-import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.VWA_Node;
-import org.opentravel.schemas.node.facets.SimpleFacetNode;
-import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
+import org.opentravel.schemas.node.interfaces.FacetOwner;
+import org.opentravel.schemas.node.objectMembers.VWA_SimpleFacetFacadeNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
-import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.node.typeProviders.CoreSimpleFacetNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +53,7 @@ public class NewPropertiesWizard2 extends ValidatingWizard implements Cancelable
 	private boolean canceled;
 	private final List<PropertyNodeType> enabledTypes = new ArrayList<PropertyNodeType>();
 	private ViewerFilter propertyFilter;
-	private PropertyOwnerInterface actOnNode; // note - extension facets are not sub-types of facet
+	private FacetInterface actOnNode; // note - extension facets are not sub-types of facet
 	private Node scopeNode;
 
 	final static String pageName = "Add property";
@@ -71,29 +72,45 @@ public class NewPropertiesWizard2 extends ValidatingWizard implements Cancelable
 		String error = "";
 		if (actOnNode == null)
 			error = "Node to be acted upon is null.";
-		else if (actOnNode instanceof SimpleFacetNode)
+		else if (actOnNode instanceof VWA_SimpleFacetFacadeNode)
 			error = "Node to be acted upon is not a component that can own properties.";
-		else if (!(actOnNode instanceof PropertyOwnerInterface))
+		else if (actOnNode instanceof CoreSimpleFacetNode)
 			error = "Node to be acted upon is not a component that can own properties.";
-		else if (!actOnNode.isEditable())
+		else if (!actOnNode.getOwningComponent().isEditable())
 			error = "Node to be acted upon is not editable.";
 		if (!error.isEmpty())
 			throw new IllegalArgumentException(error);
 	}
 
 	private void getActOnNode(Node selectedNode) {
-		if (selectedNode instanceof PropertyOwnerInterface) {
-			if (selectedNode instanceof SimpleFacetNode)
-				actOnNode = ((ComponentNode) selectedNode.getOwningComponent()).getFacet_Default();
-			else
-				actOnNode = (PropertyOwnerInterface) selectedNode;
-		} else {
-			if (selectedNode instanceof ComplexComponentInterface)
-				actOnNode = ((ComplexComponentInterface) selectedNode).getFacet_Default();
-			else if (selectedNode instanceof PropertyNode)
-				actOnNode = (PropertyOwnerInterface) selectedNode.getParent();
-		}
+		if (selectedNode instanceof VWA_SimpleFacetFacadeNode)
+			actOnNode = ((ComponentNode) selectedNode.getOwningComponent()).getFacet_Default();
+		else if (selectedNode instanceof CoreSimpleFacetNode)
+			actOnNode = ((ComponentNode) selectedNode.getOwningComponent()).getFacet_Default();
+		else if (selectedNode instanceof FacetOwner)
+			actOnNode = ((FacetOwner) selectedNode).getFacet_Default();
+		else if (selectedNode instanceof FacetInterface)
+			actOnNode = (FacetInterface) selectedNode;
+		else if (selectedNode instanceof PropertyNode)
+			actOnNode = ((Node) selectedNode.getOwningComponent()).getFacet_Default();
+		else
+			actOnNode = null;
 	}
+
+	// if (selectedNode instanceof PropertyOwnerInterface) {
+	// if (selectedNode instanceof VWA_SimpleFacetFacadeNode)
+	// actOnNode = ((ComponentNode) selectedNode.getOwningComponent()).getFacet_Default();
+	// else if (selectedNode instanceof CoreSimpleFacetNode)
+	// actOnNode = ((ComponentNode) selectedNode.getOwningComponent()).getFacet_Default();
+	// else
+	// actOnNode = (PropertyOwnerInterface) selectedNode;
+	// } else {
+	// if (selectedNode instanceof FacetOwner)
+	// actOnNode = ((FacetOwner) selectedNode).getFacet_Default();
+	// else if (selectedNode instanceof PropertyNode)
+	// actOnNode = (PropertyOwnerInterface) selectedNode.getParent();
+	// }
+	// }
 
 	private void getScopeNode(Node selectedNode) {
 		scopeNode = OtmRegistry.getMainController().getModelNode();
@@ -105,7 +122,7 @@ public class NewPropertiesWizard2 extends ValidatingWizard implements Cancelable
 
 	}
 
-	private void getEnabledPropertyTypes(PropertyOwnerInterface actOnNode2) {
+	private void getEnabledPropertyTypes(FacetInterface actOnNode2) {
 		enabledTypes.clear();
 		if (actOnNode2 == null)
 			return;

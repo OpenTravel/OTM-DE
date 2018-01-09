@@ -22,6 +22,8 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * NavNode children handler using a static children handler for Node children and NavNode owners.
@@ -33,7 +35,7 @@ import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
  *
  */
 public class NavNodeChildrenHandler extends StaticChildrenHandler<Node, NavNode> {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(NavNodeChildrenHandler.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(NavNodeChildrenHandler.class);
 
 	public NavNodeChildrenHandler(NavNode owner) {
 		super(owner);

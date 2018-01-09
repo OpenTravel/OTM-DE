@@ -17,10 +17,11 @@ package org.opentravel.schemas.actions;
 
 import java.util.List;
 
+import org.opentravel.schemas.commands.ValidateHandler;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.navigation.GlobalSelectionProvider;
-import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -29,6 +30,8 @@ import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.opentravel.schemas.views.ValidationResultsView;
 
 /**
+ * NOT USED - {@link ValidateHandler}
+ * 
  * @author Dave Hollander
  * 
  */

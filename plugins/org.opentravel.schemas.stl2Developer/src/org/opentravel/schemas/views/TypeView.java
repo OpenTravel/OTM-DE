@@ -175,7 +175,9 @@ public class TypeView extends OtmAbstractView implements ISelectionListener {
 	}
 
 	private void setCurrentNode(final INode node, final boolean force) {
-		if (listening || force || ((Node) currentNode).getOwningComponent() == ((Node) node).getOwningComponent()) {
+		if (listening || force) {
+			// if (listening || force || ((Node) currentNode).getOwningComponent() == ((Node)
+			// node).getOwningComponent()) {
 			currentNode = node;
 			facetView.setCurrentNode(node); // Force??
 			propertiesView.setCurrentNode(node);

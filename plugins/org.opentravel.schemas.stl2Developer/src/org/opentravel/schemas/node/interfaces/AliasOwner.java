@@ -17,9 +17,16 @@ package org.opentravel.schemas.node.interfaces;
 
 import java.util.List;
 
-import org.opentravel.schemas.node.AliasNode;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
 
-public interface AliasOwner {
+/**
+ * Alias owners are the actual library member that can have aliases added or removed from them. AliasNode may be
+ * assigned to TLAlias objects that are not alias owners.
+ * 
+ * @author dmh
+ *
+ */
+public interface AliasOwner extends LibraryMemberInterface {
 	/**
 	 * All alias to TL model if not already present. Add to or clear children.
 	 * 

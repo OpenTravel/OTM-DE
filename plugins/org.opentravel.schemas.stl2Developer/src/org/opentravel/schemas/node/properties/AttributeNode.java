@@ -21,15 +21,16 @@ import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLAttributeOwner;
 import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
-import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.AttributeFacetNode;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 
@@ -45,7 +46,7 @@ public class AttributeNode extends PropertyNode {
 		super();
 	}
 
-	public AttributeNode(PropertyOwnerInterface parent, String name) {
+	public AttributeNode(FacetInterface parent, String name) {
 		this(parent, name, ModelNode.getUnassignedNode());
 	}
 
@@ -57,17 +58,18 @@ public class AttributeNode extends PropertyNode {
 	 * @param name
 	 *            to give the property
 	 */
-	public AttributeNode(PropertyOwnerInterface facet, String name, TypeProvider type) {
-		super(new TLAttribute(), facet, name);
+	public AttributeNode(FacetInterface parent, String name, TypeProvider type) {
+		super(new TLAttribute(), parent, name);
 		setAssignedType(type);
+		setName(name); // super.setName will not work if missing type
 	}
 
-	public AttributeNode(TLAttribute tlObj, PropertyOwnerInterface parent) {
+	public AttributeNode(TLAttribute tlObj, FacetInterface parent) {
 		super(tlObj, parent);
 	}
 
 	@Override
-	public void addToTL(PropertyOwnerInterface owner, final int index) {
+	public void addToTL(FacetInterface owner, final int index) {
 		if (owner != null)
 			if (owner.getTLModelObject() instanceof TLAttributeOwner)
 				try {
@@ -75,11 +77,12 @@ public class AttributeNode extends PropertyNode {
 				} catch (IndexOutOfBoundsException e) {
 					((TLAttributeOwner) owner.getTLModelObject()).addAttribute(getTLModelObject());
 				}
+		owner.getChildrenHandler().clear();
 	}
 
 	@Override
 	public boolean canAssign(Node type) {
-		if (super.canAssign(type)) {
+		if (type != null && type instanceof TypeProvider) {
 			TypeProvider provider = (TypeProvider) type;
 
 			// GUI assist: aliases stand in for their base type on attributes.
@@ -141,8 +144,10 @@ public class AttributeNode extends PropertyNode {
 
 	@Override
 	public String getName() {
-		if (getTLModelObject() == null)
-			return "";
+		if (deleted)
+			return "-d-";
+		if (getTLModelObject().getType() == null)
+			setAssignedType();
 		return emptyIfNull(getTLModelObject().getName());
 	}
 

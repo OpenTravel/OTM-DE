@@ -55,7 +55,6 @@ import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.XsdNode;
-import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -953,7 +952,7 @@ public class XsdModelingUtils {
 	 * @param typeNode
 	 * @return - true if set OK, false on error
 	 */
-	private static boolean setPropertyType(TLProperty tlp, INode typeNode) {
+	private static boolean setPropertyType(TLProperty tlp, Node typeNode) {
 		if (typeNode == null || typeNode.getTLModelObject() == null) {
 			LOGGER.warn("Assert Error - set property type does not have MO or mo/tlMO.");
 			return false;

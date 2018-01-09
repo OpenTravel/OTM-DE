@@ -36,6 +36,14 @@ public class ModelNodeChildrenHandler extends StaticChildrenHandler<Node, ModelN
 		super(owner);
 	}
 
+	// Assure children include the default project.
+	@Override
+	public List<Node> get() {
+		if (owner.getDefaultProject() != null && !children.contains(owner.getDefaultProject()))
+			children.add(owner.getDefaultProject());
+		return children;
+	}
+
 	@Override
 	public List<TLModelElement> getChildren_TL() {
 		return Collections.emptyList();

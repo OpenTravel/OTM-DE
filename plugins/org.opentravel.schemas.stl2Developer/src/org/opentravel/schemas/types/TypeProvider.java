@@ -28,15 +28,19 @@ import org.opentravel.schemas.types.whereused.TypeProviderWhereUsedNode;
 /**
  * Implementations of this interface are type definitions or other assignable nodes that represent type definitions such
  * as Aliases.
- * 
+ * <p>
  * Methods include managing where used and access to values that can be assigned to the user from the provider.
- * 
- * Note - the only way to add a user is via the TypeUser interface. (user.setAssignedType())
+ * <p>
+ * Note - the only way to make an assignment (add a user) is via the TypeUser interface. (user.setAssignedType())
  * 
  * @author Dave Hollander
+ * @param <get>
  * 
  */
-public interface TypeProvider {
+public interface TypeProvider extends TypeProviderAndOwners {
+	// All implementers should declare the following variables
+	// public TypeProviderHandler assignmentHandler = null;
+	// public WhereAssignedHandler whereAssignedHandler2 = null;
 
 	/**
 	 * Add to where assigned and set listener
@@ -50,23 +54,6 @@ public interface TypeProvider {
 	 *            to add to the where used list
 	 */
 	public void addWhereUsed(TypeUser user);
-
-	public String getDescription();
-
-	public LibraryNode getLibrary();
-
-	public String getName();
-
-	// /**
-	// * @return the component node used to represent users of this type.
-	// */
-	// public INode getTypeNode();
-
-	public LibraryMemberInterface getOwningComponent();
-
-	public Node getParent();
-
-	public TLModelElement getTLModelObject();
 
 	/**
 	 * @return a unmodifiable collection of type users that use this as a type definition or base type
@@ -95,12 +82,12 @@ public interface TypeProvider {
 	 */
 	public int getWhereUsedAndDescendantsCount();
 
+	int getWhereUsedCount();
+
 	/**
 	 * @return a node suitable for use in navigator to represent the where used collection
 	 */
 	public TypeProviderWhereUsedNode getWhereUsedNode();
-
-	public XsdObjectHandler getXsdObjectHandler();
 
 	/**
 	 * @return true if this node can be assigned to an element reference
@@ -120,9 +107,20 @@ public interface TypeProvider {
 	public boolean isAssignedByReference();
 
 	/**
-	 * @return true if this object can be used as an assigned type or base type
+	 * Remove the listener on the type user for this type provider
+	 * 
+	 * @param user
 	 */
-	public boolean isNamedEntity();
+	public void removeListener(TypeUser user);
+
+	/**
+	 * Remove the type user from the where assigned list and its listener
+	 * 
+	 * @param user
+	 */
+	public void removeWhereAssigned(TypeUser user);
+
+	public void setListener(TypeUser typeUser);
 
 	/**
 	 * OTM Enforces properties to have the same name as their assigned type except for VWA and Open Enum. Exceptions
@@ -134,33 +132,35 @@ public interface TypeProvider {
 	public boolean isRenameableWhereUsed();
 
 	/**
+	 * @return true if this object can be used as an assigned type or base type
+	 */
+	@Deprecated
+	public boolean isNamedEntity();
+
+	/**
 	 * Remove provider as type for all users.
 	 */
 	public void removeAll();
 
-	/**
-	 * Remove the listener for the type user
-	 * 
-	 * @param user
-	 */
-	public void removeListener(TypeUser user);
+	// ******************** Hierarchy methods **************************************************
+	public TLModelElement getTLModelObject();
 
-	/**
-	 * Remove the type user from the where assigned list and its listener
-	 * 
-	 * @param user
-	 */
-	public void removeTypeUser(TypeUser user);
+	public List<TypeProvider> getDescendants_TypeProviders();
 
-	public void setListener(TypeUser typeUser);
+	public String getDescription();
+
+	public LibraryNode getLibrary();
+
+	public String getName();
+
+	public String getNamespace();
+
+	public LibraryMemberInterface getOwningComponent();
+
+	public Node getParent();
+
+	public XsdObjectHandler getXsdObjectHandler();
 
 	public void setXsdHandler(XsdObjectHandler xsdObjectHandler);
-
-	int getWhereUsedCount();
-
-	/**
-	 * @return
-	 */
-	public List<TypeProvider> getDescendants_TypeProviders();
 
 }

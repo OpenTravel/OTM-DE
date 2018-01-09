@@ -23,14 +23,15 @@ import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLPropertyType;
-import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNodeType;
-import org.opentravel.schemas.node.CoreObjectNode;
-import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 
@@ -49,15 +50,16 @@ public class ElementReferenceNode extends ElementNode {
 	 *            - if null, the caller must link the node and add to TL Model parent
 	 * @param name
 	 */
-	public ElementReferenceNode(PropertyOwnerInterface parent) {
+	public ElementReferenceNode(FacetInterface parent) {
 		this(parent, ModelNode.getUnassignedNode());
 	}
 
-	public ElementReferenceNode(PropertyOwnerInterface parent, TypeProvider reference) {
+	public ElementReferenceNode(FacetInterface parent, TypeProvider reference) {
 		super(parent, "", reference);
 
 		getTLModelObject().setReference(true);
-		setAssignedType(reference);
+		assert getAssignedType() == reference;
+		// setAssignedType(reference);
 	}
 
 	/**
@@ -68,7 +70,7 @@ public class ElementReferenceNode extends ElementNode {
 	 * @param parent
 	 *            if not null, add element to the parent.
 	 */
-	public ElementReferenceNode(TLProperty tlObj, PropertyOwnerInterface parent) {
+	public ElementReferenceNode(TLProperty tlObj, FacetInterface parent) {
 		super(tlObj, parent);
 		assert getTLModelObject().isReference();
 	}
@@ -94,10 +96,10 @@ public class ElementReferenceNode extends ElementNode {
 		return Images.getImageRegistry().get(Images.ID_Reference);
 	}
 
-	@Override
-	public String getLabel() {
-		return getName();
-	}
+	// @Override
+	// public String getLabel() {
+	// return getName();
+	// }
 
 	@Override
 	public String getName() {

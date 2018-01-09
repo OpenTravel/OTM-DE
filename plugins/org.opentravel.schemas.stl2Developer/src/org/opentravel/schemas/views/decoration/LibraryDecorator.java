@@ -31,7 +31,6 @@ import org.opentravel.schemas.controllers.ValidationManager;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -39,7 +38,9 @@ import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -118,7 +119,11 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 		} else if (node instanceof ContextualFacetNode) {
 			decoration.addSuffix(node.getDecoration());
 			addOverlay(node, decoration);
+		} else if (node instanceof ContributedFacetNode) {
+			decoration.addSuffix(node.getDecoration());
+			addOverlay(node, decoration);
 		}
+
 	}
 
 	private static ImageDescriptor errorDesc = Images.getImageRegistry().getDescriptor(Images.ErrorDecoration);

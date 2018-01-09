@@ -29,5 +29,10 @@ public interface InheritedInterface {
 	 * @return the node this node inherits from
 	 * 
 	 */
-	public Node get();
+	public Node getInheritedFrom();
+
+	// /**
+	// * @return TL Model Element from underlying node.
+	// */
+	// public TLModelElement getTLModelOject();
 }

@@ -171,12 +171,6 @@ public class TypeProviderWhereUsedNode extends WhereUsedNode<TypeProvider> imple
 				if (n.getOwningComponent().isLatestVersion())
 					strippedList.add(n);
 			}
-			// if (!((ExtensionOwner) n.getOwningComponent()).getExtendsTypeName().equals(
-			// n.getOwningComponent().getName()))
-			//
-			// if (n.getOwningComponent().getVersionNode() != null) {
-			// if (n.getOwningComponent() == n.getOwningComponent().getVersionNode().getNewestVersion())
-			// strippedList.add(n);
 		}
 		return strippedList;
 	}

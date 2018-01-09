@@ -20,9 +20,9 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.trees.type.ExtensionTreeContentProvider;
 import org.opentravel.schemas.trees.type.TypeTreeExtensionSelectionFilter;
@@ -63,7 +63,6 @@ public class ExtensionSelectionWizard extends Wizard implements IDoubleClickList
 
 		selectionPage.addDoubleClickListener(this);
 		selectionPage.setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(curNode));
-		// selectionPage.setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(curNode.getModelObject()));
 		selectionPage.setTypeTreeContentProvider(new ExtensionTreeContentProvider());
 		addPage(selectionPage);
 

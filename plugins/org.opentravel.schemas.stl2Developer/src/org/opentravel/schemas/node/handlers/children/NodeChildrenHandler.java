@@ -16,13 +16,19 @@
 package org.opentravel.schemas.node.handlers.children;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.opentravel.schemacompiler.event.ModelElementListener;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
+import org.opentravel.schemas.node.interfaces.FacadeInterface;
+import org.opentravel.schemas.node.interfaces.InheritedInterface;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.listeners.InheritanceDependencyListener;
-import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
+import org.opentravel.schemas.types.TypeProviderAndOwners;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,14 +69,14 @@ public abstract class NodeChildrenHandler<C extends Node> implements ChildrenHan
 	}
 
 	@Override
-	public List<TypeProvider> getChildren_TypeProviders() {
-		final ArrayList<TypeProvider> providers = new ArrayList<TypeProvider>();
+	public List<TypeProviderAndOwners> getChildren_TypeProviders() {
+		final ArrayList<TypeProviderAndOwners> providers = new ArrayList<TypeProviderAndOwners>();
 		if (children != null)
 			for (Node n : get()) {
 				if (n instanceof VersionNode)
 					n = ((VersionNode) n).get();
-				if (n instanceof TypeProvider)
-					providers.add((TypeProvider) n);
+				if (n instanceof TypeProviderAndOwners)
+					providers.add((TypeProviderAndOwners) n);
 			}
 		return providers;
 	}
@@ -86,6 +92,25 @@ public abstract class NodeChildrenHandler<C extends Node> implements ChildrenHan
 					users.add((TypeUser) n);
 			}
 		return users;
+	}
+
+	@Override
+	public List<LibraryMemberInterface> getDescendants_LibraryMembers() {
+		// keep duplicates out of the list that version aggregates may introduce
+		HashSet<LibraryMemberInterface> namedKids = new HashSet<LibraryMemberInterface>();
+		for (Node c : get()) {
+			if (c.isDeleted())
+				continue;
+			// TL model considers services as named library member
+			if (c.isLibraryMember())
+				if (c instanceof FacadeInterface)
+					namedKids.add((LibraryMemberInterface) ((FacadeInterface) c).get());
+				else
+					namedKids.add((LibraryMemberInterface) c);
+			else if (c.hasChildren())
+				namedKids.addAll(c.getDescendants_LibraryMembers());
+		}
+		return new ArrayList<LibraryMemberInterface>(namedKids);
 	}
 
 	@Override
@@ -112,7 +137,13 @@ public abstract class NodeChildrenHandler<C extends Node> implements ChildrenHan
 	@Override
 	public List<C> getNavChildren(boolean deep) {
 		ArrayList<C> kids = new ArrayList<C>();
-		for (C c : get())
+		for (C c : get()) {
+			if (c == null)
+				LOGGER.debug("Null child.");
+			if (c.isNavChild(deep))
+				kids.add(c);
+		}
+		for (C c : getInheritedChildren())
 			if (c.isNavChild(deep))
 				kids.add(c);
 		return kids;
@@ -123,12 +154,10 @@ public abstract class NodeChildrenHandler<C extends Node> implements ChildrenHan
 		for (final C n : get())
 			if (n.isNavChild(deep))
 				return true;
+		for (final C n : getInheritedChildren())
+			if (n.isNavChild(deep))
+				return true;
 		return false;
-	}
-
-	@Override
-	public List<C> getTreeChildren(boolean deep) {
-		return getNavChildren(deep);
 	}
 
 	// Override on classes that add to getNavChildren()
@@ -143,19 +172,32 @@ public abstract class NodeChildrenHandler<C extends Node> implements ChildrenHan
 	 * @param child
 	 */
 	protected void clearInheritedListeners(List<C> child) {
-		if (child == null)
+		if (child == null || child.isEmpty())
 			return;
 		for (Node n : child) {
-			if (n.getInheritedFrom() != null && n.getInheritedFrom().getTLModelObject() != null) {
-				// Remove listeners and avoid co-modification
-				List<ModelElementListener> listeners = new ArrayList<ModelElementListener>(n.getInheritedFrom()
-						.getTLModelObject().getListeners());
-				for (ModelElementListener l : listeners)
-					if (l instanceof InheritanceDependencyListener)
-						if (((InheritanceDependencyListener) l).getNode() == n)
-							n.getInheritedFrom().getTLModelObject().removeListener(l);
-			}
+			// Get the base TL object and make sure it is valid
+			if (!(n instanceof InheritedInterface))
+				continue;
+			Node base = ((InheritedInterface) n).getInheritedFrom();
+			if (base instanceof ContributedFacetNode)
+				base = ((ContributedFacetNode) base).get();
+			if (base == null)
+				continue;
+			TLModelElement baseTL = base.getTLModelObject();
+			if (baseTL == null)
+				continue;
+			// Get the node that should be pointed to by the listener
+			if (n instanceof ContributedFacetNode)
+				n = ((ContributedFacetNode) n).getContributor();
+
+			// Remove this inheritance listener from base TL object (and avoid co-modification)
+			List<ModelElementListener> listeners = new ArrayList<ModelElementListener>(baseTL.getListeners());
+			for (ModelElementListener l : listeners)
+				if (l instanceof InheritanceDependencyListener)
+					if (((InheritanceDependencyListener) l).getNode() == n) {
+						baseTL.removeListener(l);
+						LOGGER.debug("Removed listener for " + n);
+					}
 		}
 	}
-
 }

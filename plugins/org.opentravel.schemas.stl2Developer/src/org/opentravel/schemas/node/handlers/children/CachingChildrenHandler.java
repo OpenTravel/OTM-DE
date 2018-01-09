@@ -19,20 +19,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
-import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
-import org.opentravel.schemas.node.facets.ContributedFacetNode;
-import org.opentravel.schemas.node.facets.InheritedContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
-import org.opentravel.schemas.node.listeners.InheritanceDependencyListener;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
+import org.opentravel.schemas.node.interfaces.InheritedInterface;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
+import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
+import org.opentravel.schemas.node.typeProviders.ContextualFacet15Node;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.InheritedContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.TypeProviders;
+import org.opentravel.schemas.trees.library.LibraryTreeContentProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +47,12 @@ import org.slf4j.LoggerFactory;
  * No change methods are present by design. These lists are only caches. Changes must be made to the TL model and clear
  * the children handler to effect change.
  * <p>
- * <b>Clear the handler</b> when the object changes. This clears the children and inherited. Event handlers clear
- * children, but events are not always thrown so it <b>must</b> also be done explicitly when changing a parent.
+ * <b>Clear the handler</b> whenever the <b>TL Model Element</b> changes. This clears the children and inherited. Event
+ * handlers clear children, but events are not always thrown so it <b>must</b> also be done explicitly when changing a
+ * TL impacts its parent.
  * <p>
  * Children that are cleared have the TLModelObject removed and are marked as deleted. However,
- * InheritanceDependencyListers can not be moved because we may be inside an event and will cause a comodification
+ * InheritanceDependencyListers can not be moved because we may be inside an event and will cause a co-modification
  * exception. To remove these listeners, inherited children are cleared until retrieved and the first child is found to
  * be deleted.
  * 
@@ -75,6 +79,16 @@ public abstract class CachingChildrenHandler<C extends Node, O extends Node> ext
 		}
 	}
 
+	@Override
+	public void clear(Node item) {
+		clear();
+	}
+
+	@Override
+	public void remove(C item) {
+		clear();
+	}
+
 	private void clearList(List<C> iKids) {
 		if (iKids == null)
 			return;
@@ -86,6 +100,10 @@ public abstract class CachingChildrenHandler<C extends Node, O extends Node> ext
 
 	@Override
 	public List<C> get() {
+		if (owner.isDeleted()) {
+			// LOGGER.debug("Trying to get children from deleted owner: " + owner);
+			return Collections.emptyList();
+		}
 		if (children == null)
 			initChildren();
 		return children;
@@ -103,10 +121,39 @@ public abstract class CachingChildrenHandler<C extends Node, O extends Node> ext
 		//
 		// if (inherited == null)
 		// 11/28/2017 - for now, don't cache inherited
-		if (inherited != null)
+		if (inherited != null) {
+			// Should not be needed if setter is picks up on deleted flag
+			// clearInheritedListeners(inherited);
+			for (Node n : inherited)
+				n.setDeleted(true);
+			// Mark as deleted
 			inherited.clear();
+			// LOGGER.debug("Cleared inherited children of " + owner);
+		}
 		initInherited();
 		return inherited;
+	}
+
+	/**
+	 * Get all children to be presented in navigator tree. {@link LibraryTreeContentProvider}
+	 * <p>
+	 * Get all immediate navChildren and where-used nodes to be presented in the OTM Object Tree. . Overridden on nodes
+	 * that add nodes such as where used to the tree view.
+	 * 
+	 * @see {@link #getNavChildren()}
+	 * 
+	 * @param deep
+	 *            - include properties
+	 * 
+	 * @return new list
+	 */
+	@Override
+	public List<C> getTreeChildren(boolean deep) {
+		List<C> navChildren = getNavChildren(deep);
+		// Done by navChildren - navChildren.addAll(getInheritedChildren());
+		if (owner instanceof TypeProviders && ((TypeProviders) owner).getWhereUsedCount() > 0)
+			navChildren.add((C) ((TypeProviders) owner).getWhereUsedNode());
+		return navChildren;
 	}
 
 	// Override if inheritance is supported
@@ -118,32 +165,35 @@ public abstract class CachingChildrenHandler<C extends Node, O extends Node> ext
 	@SuppressWarnings("unchecked")
 	private C getOrModel(TLModelElement t) {
 		C node = null;
+		ComponentNode cnode = null;
 		if (t == null)
 			return node;
 
-		// if (!(node instanceof ComponentNode))
-		// return node;
-		if (t instanceof TLContextualFacet)
-			LOGGER.debug("Getting node for contextual facet.");
+		// See if there is an identity listener on the TL Element.
+		Node n = Node.GetNode(t);
 
-		ComponentNode cnode = null;
-		cnode = (ComponentNode) Node.GetNode(t);
-		if (cnode == null) {
-			// Create a node to represent this tl element
+		if (!(n instanceof ComponentNode))
+			// Was not modeled or was not a component, so model it.
 			cnode = NodeFactory.newChild(owner, t);
-		} else {
-			// assert !node.isDeleted(); // happens on close()
-			if (cnode.isDeleted())
-				LOGGER.warn("Trying to re-model a deleted node");
-			// If it is a contextual facet use the contributed facet
-			if (cnode instanceof ContextualFacetNode && ((ContextualFacetNode) cnode).canBeLibraryMember())
+		else {
+			cnode = (ComponentNode) n;
+			if (cnode.isDeleted()) {
+				// happens on close()
+				// LOGGER.warn("ignoring a deleted node");
+				cnode = null;
+			}
+			// If it is a contextual facet return the contributed facet
+			if (cnode instanceof ContextualFacetNode)
 				if (((ContextualFacetNode) cnode).getWhereContributed() != null)
 					cnode = ((ContextualFacetNode) cnode).getWhereContributed();
-				else
-					// Reached??? - Yes
+				else {
+					if (cnode instanceof InheritedInterface)
+						LOGGER.warn("Trying to use a pre-modeled contextual facet but where contributed is null.");
 					cnode = new ContributedFacetNode((TLContextualFacet) t, (ContextualFacetOwnerInterface) owner);
+				}
 		}
-		node = (C) cnode;
+		if (cnode != null)
+			node = (C) cnode;
 		return node;
 	}
 
@@ -159,14 +209,17 @@ public abstract class CachingChildrenHandler<C extends Node, O extends Node> ext
 		initRunning = false;
 	}
 
+	/**
+	 * Done - MUST be overridden for objects that have inherited children
+	 */
 	protected void initInherited() {
-		inherited = Collections.emptyList();
-		// @Override
-		// initRunning = true;
-		// // The base must be the PropertyOwner of the actual inherited children, not their copy in the list
-		// Get the base object that owns the inherited properties
-		// inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
-		// initRunning = false;
+		initRunning = true;
+		inheritedOwner = owner.getExtendsType();
+		if (inheritedOwner != null)
+			inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
+		else
+			inherited = Collections.emptyList();
+		initRunning = false;
 	}
 
 	/**
@@ -180,55 +233,77 @@ public abstract class CachingChildrenHandler<C extends Node, O extends Node> ext
 	 */
 	@SuppressWarnings("unchecked")
 	protected List<C> modelTLs(List<TLModelElement> list, Node base) {
+		assert base != owner;
 		C node = null;
 		List<C> kids = new ArrayList<C>();
 		for (TLModelElement tlSrc : list) {
 
 			node = getOrModel(tlSrc);
-
 			if (node == null || !(node instanceof ComponentNode))
 				continue;
-			ComponentNode cnode = (ComponentNode) node;
+			if (node.isDeleted()) {
+				// LOGGER.debug("getOrModel() return deleted node." + node);
+				continue;
+			}
+			// ComponentNode cnode = (ComponentNode) node;
 
 			if (base != null) {
-				// these are inherited children..."ghost" nodes made from "ghost" tl objects.
-				if (node instanceof PropertyNode)
-					// build a new facade node to represent the inherited node complete with listeners
-					node = (C) NodeFactory.newInheritedProperty((PropertyNode) node, (PropertyOwnerInterface) owner);
-				else if (node instanceof ContextualFacetNode) {
-					// Check - tlSrc is contextual facet whose owner is object inheriting facet.
-					assert tlSrc instanceof TLContextualFacet;
-					assert tlSrc instanceof LibraryMember;
-					TLFacetOwner tlOwner = ((TLContextualFacet) tlSrc).getOwningEntity();
-					assert owner == Node.GetNode(tlOwner);
+				// These are inherited children..."ghost" nodes made from "ghost" tl objects.
+				// This could be a minor version of an extended object. Property could come from either the
+				// version chain OR base
+				if (node instanceof PropertyNode) {
+					if (node.getParent() == owner) {
+						assert base instanceof FacetInterface;
+						if (!(node instanceof EnumLiteralNode))
+							LOGGER.warn("TLObject reports being owned by owner."); // Enums do
+						// Try to find the actual base. A facet that has a child by the same name.
+						TLModelElement baseTL = null;
+						PropertyNode baseProp = (PropertyNode) base.findChildByName(node.getName());
+						if (baseProp == null) {
+							LOGGER.warn("No base property to inherit from.");
+							// May have to examine peers in this chain
+							LibraryChainNode chain = owner.getChain();
+						} else
+							baseTL = baseProp.getTLModelObject();
 
-					// Find the matching facet in the base node
-					// Contextual facets have the wrong name -- name with where contributed object in them
-					Node baseNode = base.findChildByName(((ContextualFacetNode) node).getTLModelObject().getName());
-
-					if (((ContextualFacetNode) node).canBeLibraryMember()) {
-						// Version 1.6 and later - Contextual facets need a facade
-						InheritedContextualFacetNode icf = NodeFactory.newInheritedFacet((TLContextualFacet) tlSrc,
-								(ContextualFacetOwnerInterface) base, (ContributedFacetNode) node, (Node) owner);
-						// node is now ready to add to children list
-
-						LOGGER.debug("Created inherited contextual facet: " + icf);
-					} else {
-						((ContextualFacetNode) node).setInheritedFrom(baseNode);
-						if (node.getParent() != owner)
-							node.setParent(owner); // not used
+						TLModelElement thisTL = node.getTLModelObject();
+						assert thisTL == baseTL; // this is why we need a facade
+						node.setParent(base); // will this work without changing TL?
 					}
+					// build a new facade node to represent the inherited node complete with listeners
+					assert node.getParent() instanceof FacetInterface;
+					assert node.getParent() != owner;
+					node = (C) NodeFactory.newInheritedProperty((PropertyNode) node, (FacetInterface) owner);
+				} else if (node instanceof ContextualFacetNode) {
+					LOGGER.error("Creating inherited contextual facet");
+					assert false;
+				} else if (node instanceof ContextualFacet15Node) {
+					node = (C) NodeFactory.newInheritedFacet((ContextualFacetOwnerInterface) base,
+							(ContextualFacet15Node) node, (ContextualFacetOwnerInterface) owner);
+				} else if (node instanceof ContributedFacetNode) {
+					// LOGGER.debug("Handling contributed facet: " + node);
+					assert base instanceof ContextualFacetOwnerInterface;
+					assert tlSrc instanceof TLContextualFacet;
+					assert owner instanceof ContextualFacetOwnerInterface;
 
-					assert node.getInheritedFrom() != null;
-					node.getInheritedFrom().getTLModelObject()
-							.addListener(new InheritanceDependencyListener(node, this));
+					// To make ready to add to children list
+					// Make an inherited contextual facet and its associated contributed facet to finish modeling node
+					assert node.getTLModelObject() == tlSrc;
+					InheritedContextualFacetNode icf = NodeFactory.newInheritedFacet(
+							(ContextualFacetOwnerInterface) base, (ContributedFacetNode) node);
+					node = (C) icf.getWhereContributed(); // get the inherited contributed facet
+					// LOGGER.debug("Created inherited contextual facet " + icf + " from contributed facet.");
+
 				} else {
-					LOGGER.debug("Unhandled ghost object: " + node);
+					LOGGER.error("Unhandled ghost object: " + node);
 					assert false;
 				}
 			}
 			// Add result to kids
 			kids.add(node);
+
+			if (base != null)
+				assert node instanceof InheritedInterface;
 		}
 		return kids;
 	}

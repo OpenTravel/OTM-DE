@@ -18,9 +18,9 @@
  */
 package org.opentravel.schemas.types;
 
-import org.opentravel.schemas.node.ImpliedNode;
-import org.opentravel.schemas.node.ImpliedNodeType;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNodeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

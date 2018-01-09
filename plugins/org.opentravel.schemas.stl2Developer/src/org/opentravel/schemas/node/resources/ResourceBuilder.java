@@ -29,8 +29,8 @@ import org.opentravel.schemacompiler.model.TLMimeType;
 import org.opentravel.schemacompiler.model.TLParamGroup;
 import org.opentravel.schemacompiler.model.TLParameter;
 import org.opentravel.schemacompiler.model.TLResource;
-import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 
 /**
  * Creates resources and the associated components.

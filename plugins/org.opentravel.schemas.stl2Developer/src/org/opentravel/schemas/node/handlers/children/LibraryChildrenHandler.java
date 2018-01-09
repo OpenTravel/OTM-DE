@@ -27,6 +27,7 @@ import org.opentravel.schemacompiler.model.XSDComplexType;
 import org.opentravel.schemacompiler.model.XSDElement;
 import org.opentravel.schemacompiler.model.XSDSimpleType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
+import org.opentravel.schemas.node.AggregateNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
@@ -34,9 +35,9 @@ import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.node.handlers.XsdObjectHandler;
-import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.ComplexMemberInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
-import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
+import org.opentravel.schemas.node.interfaces.SimpleMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.slf4j.Logger;
@@ -58,7 +59,7 @@ public class LibraryChildrenHandler extends StaticChildrenHandler<Node, LibraryN
 
 	protected NavNode complexRoot;
 	protected NavNode simpleRoot;
-	protected ServiceNode serviceRoot;
+	protected NavNode serviceRoot;
 	protected NavNode resourceRoot;
 
 	public LibraryChildrenHandler(final LibraryNode lib) {
@@ -66,6 +67,7 @@ public class LibraryChildrenHandler extends StaticChildrenHandler<Node, LibraryN
 		complexRoot = new NavNode(LibraryNode.COMPLEX_OBJECTS, owner);
 		simpleRoot = new NavNode(LibraryNode.SIMPLE_OBJECTS, owner);
 		resourceRoot = new NavNode(LibraryNode.RESOURCES, owner);
+		serviceRoot = new NavNode(LibraryNode.SERVICES, owner);
 		initChildren();
 		assert owner.getTLModelObject() instanceof AbstractLibrary;
 	}
@@ -77,12 +79,45 @@ public class LibraryChildrenHandler extends StaticChildrenHandler<Node, LibraryN
 				return true;
 			if (simpleRoot.contains(member))
 				return true;
-			if (serviceRoot == member)
+			if (serviceRoot.contains(member))
 				return true;
 			if (resourceRoot.contains(member))
 				return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void clear(Node item) {
+		children.remove(item);
+	}
+
+	/**
+	 * @return the complexRoot
+	 */
+	public NavNode getComplexRoot() {
+		return complexRoot;
+	}
+
+	/**
+	 * @return the simpleRoot
+	 */
+	public NavNode getSimpleRoot() {
+		return simpleRoot;
+	}
+
+	/**
+	 * @return the serviceRoot
+	 */
+	public NavNode getServiceRoot() {
+		return serviceRoot;
+	}
+
+	/**
+	 * @return the resourceRoot
+	 */
+	public NavNode getResourceRoot() {
+		return resourceRoot;
 	}
 
 	@Override
@@ -101,6 +136,7 @@ public class LibraryChildrenHandler extends StaticChildrenHandler<Node, LibraryN
 		children.add(complexRoot);
 		children.add(simpleRoot);
 		children.add(resourceRoot);
+		children.add(serviceRoot);
 
 		// Version 1.6 and later contextual facets can be library members.
 		// Do them first.
@@ -191,28 +227,35 @@ public class LibraryChildrenHandler extends StaticChildrenHandler<Node, LibraryN
 			LOGGER.debug("Skipping unknown library member type.");
 			return;
 		}
-		if (n instanceof ServiceNode) {
-			serviceRoot = (ServiceNode) n;
-			// FIXME - chain?
-			return;
-		}
 
 		NavNode nn = null;
-		if (n instanceof ComplexComponentInterface)
+		if (n instanceof ComplexMemberInterface)
 			nn = complexRoot;
-		else if (n instanceof SimpleComponentInterface)
+		else if (n instanceof SimpleMemberInterface)
 			nn = simpleRoot;
 		else if (n instanceof ResourceNode)
 			nn = resourceRoot;
+		else if (n instanceof ServiceNode)
+			nn = serviceRoot;
 
 		if (nn != null) {
 			nn.add(n);
-			((Node) n).setParent(nn);
-			n.setLibrary(owner);
-			// owner.addContext(n);
 			if (owner.isInChain())
 				owner.getChain().add((ComponentNode) n);
 		}
+	}
+
+	public void removeAggregate(AggregateNode n) {
+		clear(n);
+		// Now, update the appropriate global
+		if (n == complexRoot)
+			complexRoot.close();
+		else if (n == simpleRoot)
+			simpleRoot.close();
+		else if (n == serviceRoot)
+			serviceRoot.close();
+		else if (n == resourceRoot)
+			resourceRoot.close();
 	}
 
 	/**
@@ -224,9 +267,8 @@ public class LibraryChildrenHandler extends StaticChildrenHandler<Node, LibraryN
 			LOGGER.debug("Skipping unknown library member type.");
 			return;
 		}
-		// if (n.isXsdElementAssignable())
-		// // TODO - i don't think this is ever reached. ElementRoot is never accessed.
-		// assert false;
+		if (n instanceof AggregateNode)
+			removeAggregate((AggregateNode) n);
 
 		if (n instanceof ServiceNode) {
 			serviceRoot = null;
@@ -234,9 +276,9 @@ public class LibraryChildrenHandler extends StaticChildrenHandler<Node, LibraryN
 		}
 
 		NavNode nn = null;
-		if (n instanceof ComplexComponentInterface)
+		if (n instanceof ComplexMemberInterface)
 			nn = complexRoot;
-		else if (n instanceof SimpleComponentInterface)
+		else if (n instanceof SimpleMemberInterface)
 			nn = simpleRoot;
 		else if (n instanceof ResourceNode)
 			nn = resourceRoot;

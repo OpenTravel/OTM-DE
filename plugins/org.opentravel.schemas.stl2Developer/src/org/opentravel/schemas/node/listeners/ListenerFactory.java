@@ -80,7 +80,7 @@ public class ListenerFactory {
 				if (l instanceof TypeUserListener) {
 					TypeUser user = (TypeUser) ((TypeUserListener) l).getNode();
 					TypeProvider type = user.getAssignedType();
-					type.removeTypeUser(user);
+					type.removeWhereAssigned(user);
 				}
 				tlObj.removeListener(l);
 			}

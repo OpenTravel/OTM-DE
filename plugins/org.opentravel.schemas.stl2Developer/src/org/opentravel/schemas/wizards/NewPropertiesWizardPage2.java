@@ -47,12 +47,13 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
+import org.opentravel.schemas.node.interfaces.FacadeInterface;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
-import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.trees.library.LibrarySorter;
 import org.opentravel.schemas.trees.library.LibraryTreeContentProvider;
 import org.opentravel.schemas.trees.library.LibraryTreeInheritedFilter;
@@ -87,7 +88,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 	private final List<PropertyNodeType> enabledPropertyTypes;
 
 	private final Node scopeNode;
-	private final PropertyOwnerInterface owningFacet;
+	private final FacetInterface owningFacet;
 	private PropertyNode selectedNode;
 
 	private final AtomicInteger counter = new AtomicInteger(1);
@@ -113,7 +114,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 	/**
 	 */
 	protected NewPropertiesWizardPage2(final String pageName, final String title, final FormValidator validator,
-			final List<PropertyNodeType> enabledTypes, final PropertyOwnerInterface actOnNode, final Node scope) {
+			final List<PropertyNodeType> enabledTypes, final FacetInterface actOnNode, final Node scope) {
 		super(pageName, title, null);
 		this.validator = validator;
 		this.enabledPropertyTypes = new ArrayList<PropertyNodeType>(enabledTypes);
@@ -386,7 +387,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 			setMessage(o.getPropertyType().getName() + "s are not allowed for this object", WARNING);
 			return null;
 		}
-		final PropertyNode copy = (PropertyNode) NodeFactory.newChild((INode) owningFacet,
+		final PropertyNode copy = (PropertyNode) NodeFactory.newChild((Node) owningFacet,
 				(TLModelElement) o.cloneTLObj());
 		copy.setAssignedType((TypeProvider) o.getType());
 		getNewProperties().add(copy);
@@ -396,8 +397,10 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 	/**
 	 * @return newly created property with name and type taken from passed node.
 	 */
-	private PropertyNode newProperty(final Node node) {
+	private PropertyNode newProperty(Node node) {
 		// LOGGER.debug("New Property: " + node);
+		if (node instanceof FacadeInterface)
+			node = ((FacadeInterface) node).get();
 		final PropertyNode newProperty = newProperty();
 		newProperty.setName(NodeNameUtils.adjustCaseOfName(newProperty.getPropertyType(), node.getName()));
 		if (node.isAssignable() && node instanceof TypeProvider)

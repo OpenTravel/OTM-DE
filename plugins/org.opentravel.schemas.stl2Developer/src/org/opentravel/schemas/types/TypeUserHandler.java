@@ -18,20 +18,18 @@
  */
 package org.opentravel.schemas.types;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.XMLConstants;
 
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLAlias;
-import org.opentravel.schemacompiler.model.TLAttribute;
-import org.opentravel.schemacompiler.model.TLExtension;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemacompiler.model.TLProperty;
-import org.opentravel.schemacompiler.model.TLSimple;
-import org.opentravel.schemacompiler.model.TLSimpleFacet;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.NodeNameUtils;
+import org.opentravel.schemas.node.listeners.TypeUserAssignmentListener;
 import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,19 +71,21 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		} else {
 			// This is the "Missing" case.
 			if (owner instanceof SimpleAttributeFacadeNode)
-				n = (Node) ModelNode.getEmptyNode();
+				n = ModelNode.getEmptyNode();
 			else if ((owner instanceof TypeProvider) && (((TypeProvider) owner).getXsdObjectHandler() != null))
 				// This is a simple type from an XSDSimpleType or XSDComplexType
 				n = (Node) ((TypeProvider) owner).getXsdObjectHandler().getRequiredType();
 		}
 
+		// AssignedTL found but not the associated node.
 		// Try to recover.
 		//
 		// If the owning library has not been modeled, then return Unassigned.
+		// Assignment will be made when its library is modeled.
 		if (n == null && assignedTL != null) {
 			Node ownerLib = Node.GetNode(((NamedEntity) assignedTL).getOwningLibrary());
 			if (ownerLib == null) {
-				LOGGER.debug("Owning library of assigned type  has not been modeled.");
+				// LOGGER.debug("Owning library of assigned type  has not been modeled.");
 				return ModelNode.getUnassignedNode();
 			}
 		}
@@ -93,7 +93,7 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		// Aliases may not be found because the parent's children cache was flushed.
 		// re-hydrate the cache and try again.
 		if (assignedTL instanceof TLAlias && n == null) {
-			LOGGER.debug("Assigned an alias as type " + n);
+			// LOGGER.debug("Assigned an alias as type " + n);
 			Node to = Node.GetNode(((TLAlias) assignedTL).getOwningEntity());
 			if (to != null)
 				to.getChildren(); // Inflate the children handler
@@ -131,6 +131,7 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 	}
 
 	public boolean set() {
+		assert ModelNode.getUnassignedNode() != null;
 		return set(ModelNode.getUnassignedNode());
 	}
 
@@ -162,13 +163,26 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		if (owner == null || !owner.isEditable())
 			return false;
 
-		// Make any corrections need to the target
-		//
+		// Save old type assignment
+		TypeProvider oldProvider = owner.getAssignedType();
+
 		// Owner has a specific required type.
 		if (owner.getRequiredType() != null) {
-			target = owner.getRequiredType();
+			// target = owner.getRequiredType();
 			return false;
 		}
+		if (oldProvider == target) {
+			// LOGGER.debug("No change to assignment to " + owner);
+			if (!target.getWhereAssigned().contains(owner)) {
+				// LOGGER.debug("OOPS...target does not have " + owner + " in whereAssigned list.");
+				target.addTypeUser(owner);
+			}
+			if (target != ModelNode.getUnassignedNode())
+				return false;
+		}
+
+		// Make any corrections need to the target
+		//
 		if (target == null)
 			target = ModelNode.getUnassignedNode();
 
@@ -181,147 +195,40 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 				tlTarget = target.getXsdObjectHandler().getTLLibraryMember(); // get srcTL not builtTL
 		assert tlTarget != null;
 
-		// Save old type assignment
-		TypeProvider oldProvider = owner.getAssignedType();
-
 		// Let the node handle assigning to the TL object
 		boolean result = owner.setAssignedType(tlTarget);
 		if (result) {
 			// Remove old type assignment
-			oldProvider.removeTypeUser(owner);
+			oldProvider.removeWhereAssigned(owner);
 			// // Add where used and type assignment listener
 			target.addTypeUser(owner);
 		}
+
 		// Confirm results
-		if (result && get() != target) {
-			LOGGER.debug("Failed to assign " + target + " to " + owner);
-			return false;
+		if (get().getTLModelObject() != tlTarget) {
+			TypeProvider actual = get();
+			if (actual.getXsdObjectHandler() == null || actual.getXsdObjectHandler().getTLLibraryMember() != tlTarget) {
+				LOGGER.debug("Failed to assign " + ((Node) target).getNameWithPrefix() + " to " + owner + " got "
+						+ ((Node) get()).getNameWithPrefix());
+				return false;
+			}
+			// if (actual.getXsdObjectHandler() != null && actual.getXsdObjectHandler().getTLLibraryMember() ==
+			// tlTarget)
+			// LOGGER.debug("assigned an XSD type: " + result);
 		}
+
+		// LOGGER.debug("Assigned " + ((Node) target).getNameWithPrefix() + " to " + owner);
 		return result;
 	}
 
-	@Deprecated
-	public boolean setOLD(TypeProvider target) {
-		if (owner == null || !owner.isEditable())
-			return false;
-
-		if (target == null)
-			target = ModelNode.getUnassignedNode();
-
-		// getRequiredType will return null if it can be assigned any type provider
-		if (owner.getRequiredType() != null) {
-			// Has a fixed type - just change the name if appropriate
-			NodeNameUtils.fixName((Node) owner);
-			// LOGGER.debug("No type set on " + owner + " because there is a required type.");
-			return true;
-		}
-
-		// LOGGER.debug("START - Setting type of " + owner + " to " + target);
-
-		assert owner instanceof TypeUser;
-		assert target instanceof TypeProvider;
-
-		// Set the tl type and let the listeners handle the rest
-		TLModelElement tlOwner = owner.getTLModelObject();
-		TLModelElement tlTarget = target.getTLModelObject();
-		TypeProvider oldValue = owner.getAssignedType(); // hold onto to remove listener at end
-
-		// Validation will not be correct if a built-in type is represented by the TLSimple
-		if (target.getLibrary() != null && target.getLibrary().isBuiltIn()
-				&& target.getLibrary().getNamespace().equals(XMLConstants.W3C_XML_SCHEMA_NS_URI))
-			if (target.getXsdObjectHandler() != null)
-				tlTarget = target.getXsdObjectHandler().getTLLibraryMember(); // get srcTL not builtTL
-
-		// // Validation will not be correct if a built-in type is represented by the TLSimple
-		// if (target.getLibrary() != null && target.getLibrary().isBuiltIn() && ((Node) target).isXsdType()
-		// && target.getLibrary().getNamespace().equals(XMLConstants.W3C_XML_SCHEMA_NS_URI))
-		// tlTarget = ((Node) target).getXsdNode().getTLModelObject();
-
-		// Add handler listener
-		target.setListener(owner);
-
-		// TODO - either factor out as done on get() or migrate factored code into get()
-		// FIXME - the switching logic is all wrong! use owner
-		owner.setAssignedType(tlTarget);
-		if (tlOwner instanceof TLSimple)
-			owner.setAssignedType(tlTarget);
-		// if (tlTarget instanceof TLAttributeType) {
-		// ((TLSimple) tlOwner).setParentType((TLAttributeType) tlTarget);
-		// } else
-		// return false; // do nothing
-		else if (tlOwner instanceof TLProperty)
-			owner.setAssignedType(tlTarget);
-		// if (tlTarget instanceof TLPropertyType)
-		// ((TLProperty) tlOwner).setType((TLPropertyType) tlTarget);
-		// else
-		// return false; // do nothing
-		else if (tlOwner instanceof TLAttribute) {
-			owner.setAssignedType(tlTarget);
-			// if (((TLAttribute) tlOwner).isReference()) {
-			// if (owner.canAssign((Node) target)) {
-			// ((TLAttribute) tlOwner).setType((TLPropertyType) tlTarget);
-			// // ((TLAttribute) tlOwner).setName(NodeNameUtils.fixAttributeRefName(target.getName()));
-			// } else
-			// return false;
-			// } else if (tlTarget instanceof TLAttributeType)
-			// ((TLAttribute) tlOwner).setType((TLAttributeType) tlTarget);
-			// else
-			// return false;
-		} else if (tlOwner instanceof TLSimpleFacet)
-			if (tlTarget instanceof NamedEntity) {
-				((TLSimpleFacet) tlOwner).setSimpleType((NamedEntity) tlTarget);
-				// Listener will set the simple attribute node
-			} else
-				return false;
-		// else if (tlOwner instanceof TLnSimpleAttribute) {
-		// assert false; // No longer used
-		// if (((TLnSimpleAttribute) tlOwner).getParentObject() instanceof TLValueWithAttributes)
-		// if (tlTarget instanceof TLCoreObject)
-		// return false; // Core is a tl attribute type but not allowed assigned to VWA
-		// if (tlTarget instanceof TLAttributeType)
-		// ((TLnSimpleAttribute) tlOwner).setType((NamedEntity) tlTarget);
-		// else
-		// return false;
-		// }
-		else if (tlOwner instanceof TLAbstractEnumeration) {
-			TLExtension extension = new TLExtension();
-			extension.setExtendsEntity((NamedEntity) tlTarget);
-			((TLAbstractEnumeration) tlOwner).setExtension(extension);
-		}
-		// Safety check. Will set if:
-		// 1. no listeners
-		// 2. No event thrown because the tl object original and target types are the same.
-		// 3. if it is an implied type (role, enum, etc)
-		if (get() != target) {
-			// if (owner.getAssignedType() != target) {
-			TypeProvider at;
-			// Could be the XSD case
-			if (target.getXsdObjectHandler() != null)
-				at = owner.getAssignedType();
-			// set((Node) target, (Node) oldValue);
-			LOGGER.debug("Trouble right here in river city. Assigned type was not read back as assigned.");
-			// throw new IllegalStateException("Type was not assigned.");
-		}
-
-		// change the name if appropriate
-		NodeNameUtils.fixName((Node) owner);
-
-		// remove where used listener from old assigned type
-		if (oldValue != null) {
-			if (oldValue != target) {
-				oldValue.removeListener(owner);
-				oldValue.getWhereAssignedHandler().remove(owner);
-			}
-			// update library where used
-			if (oldValue.getLibrary() != target.getLibrary()) {
-				if (target.getLibrary() != null)
-					target.getLibrary().getWhereUsedHandler().add(owner);
-				if (oldValue.getLibrary() != null)
-					oldValue.getLibrary().getWhereUsedHandler().remove(owner);
-			}
-		}
-
-		// LOGGER.debug("END -" + owner + " changed assigment from " + oldValue + " to " + target);
-		return true;
+	// ONLY public to simplify JUnits
+	public TypeUserAssignmentListener getAssignmentListeners() {
+		List<TypeUserAssignmentListener> listeners = new ArrayList<TypeUserAssignmentListener>();
+		for (ModelElementListener l : owner.getTLModelObject().getListeners())
+			if (l instanceof TypeUserAssignmentListener)
+				listeners.add((TypeUserAssignmentListener) l);
+		assert listeners.size() == 1;
+		return listeners.get(0);
 	}
+
 }

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
+import org.opentravel.schemacompiler.codegen.impl.QualifiedAction;
 import org.opentravel.schemacompiler.codegen.util.ResourceCodegenUtils;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionRequest;
@@ -45,6 +46,9 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	private static final Logger LOGGER = LoggerFactory.getLogger(ActionNode.class);
 	private String MSGKEY = "rest.ActionNode";
 	private List<InheritedResourceMember> inheritedResponses;
+
+	// // These nodes are never presented in navigator tree so they don't need a children handler.
+	// private List<Node> rChildren = new ArrayList<Node>();
 
 	public class CommonListener implements ResourceFieldListener {
 		@Override
@@ -94,6 +98,7 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 			response.setPayload(af);
 	}
 
+	@Override
 	public void addChild(ResourceMemberInterface child) {
 		if (!getChildren().contains(child))
 			getChildren().add((Node) child);
@@ -251,6 +256,18 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 		// if (qa.isEmpty()) return contribution;
 		// String template = qa.get(0).getPathTemplate();
 
+		// From hotfix: https://github.com/OpenTravel/OTM-DE/commit/a9be4859740aaeb9e5607485d844bf67786b4816
+		// Since numerous combinations of parent reference paths are possible, pick
+		// the last entry in the list of qualified actions. It is the most likely to
+		// have an "interesting" path that contains parent references.
+		List<QualifiedAction> qa = ResourceCodegenUtils.getQualifiedActions(getTLModelObject());
+		List<TLResourceParentRef> parentRefs = qa.get(qa.size() - 1).getParentRefs();
+		if (qa.isEmpty())
+			return contribution;
+
+		for (TLResourceParentRef tlRef : parentRefs) {
+			contribution = tlRef.getPathTemplate() + contribution;
+		}
 		List<TLResourceParentRef> list = ResourceCodegenUtils.getInheritedParentRefs(getOwningComponent()
 				.getTLModelObject());
 		for (TLResourceParentRef tlRef : list) {

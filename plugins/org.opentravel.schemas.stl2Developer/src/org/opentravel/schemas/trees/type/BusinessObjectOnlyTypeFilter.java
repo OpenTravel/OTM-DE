@@ -16,9 +16,9 @@
 package org.opentravel.schemas.trees.type;
 
 import org.eclipse.jface.viewers.Viewer;
-import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 
 /**
  * Provide only business objects to the type selection wizard.

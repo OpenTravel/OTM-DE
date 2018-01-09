@@ -46,12 +46,12 @@ import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.BuiltInLibrary;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.XSDLibrary;
-import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.SimpleComponentNode;
-import org.opentravel.schemas.node.VWA_Node;
-import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.SimpleComponentNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.trees.type.TypeSelectionFilter;
 import org.opentravel.schemas.trees.type.TypeTree;
 import org.opentravel.schemas.trees.type.TypeTreeNameFilter;
@@ -419,7 +419,7 @@ public class TypeSelectionPage extends WizardPage {
 	 */
 	protected void checkCore(Node curNode) {
 		if (curNode instanceof CoreObjectNode) {
-			FacetNode sum = ((CoreObjectNode) curNode).getFacet_Summary();
+			FacetProviderNode sum = ((CoreObjectNode) curNode).getFacet_Summary();
 			// check assigned types and assure they have parents
 			for (Node n : sum.getChildren()) {
 				if (n instanceof TypeUser) {

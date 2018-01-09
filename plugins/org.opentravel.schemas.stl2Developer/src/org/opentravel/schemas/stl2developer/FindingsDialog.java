@@ -39,9 +39,13 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.LibraryElement;
+import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.FindingType;
 import org.opentravel.schemacompiler.validate.ValidationFinding;
+import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.utils.RCPUtils;
 
 /**
@@ -85,6 +89,34 @@ public class FindingsDialog extends IconAndMessageDialog {
 	public static int open(Shell parentShell, String title, String message, List<ValidationFinding> findings) {
 		FindingsDialog dialog = new FindingsDialog(parentShell, title, message, findings);
 		return dialog.open();
+	}
+
+	/**
+	 * 
+	 * @param parentShell
+	 * @param title
+	 * @param message
+	 * @param findings
+	 * @param piList
+	 *            - only show finding related to the library content of a project item in this list
+	 * @return
+	 */
+	public static void open(Shell parentShell, String title, String message, List<ValidationFinding> findings,
+			List<ProjectItem> piList) {
+		// Remove any findings not related to a pi in the list
+		List<ValidationFinding> releventFindings = new ArrayList<ValidationFinding>();
+		List<AbstractLibrary> libList = new ArrayList<AbstractLibrary>();
+		for (ProjectItem lpi : piList)
+			libList.add(lpi.getContent());
+
+		for (ValidationFinding finding : findings)
+			if (finding.getSource() instanceof LibraryElement)
+				if (libList.contains(((LibraryElement) finding.getSource()).getOwningLibrary()))
+					releventFindings.add(finding);
+
+		if (!releventFindings.isEmpty())
+			open(OtmRegistry.getActiveShell(), Messages.getString("dialog.findings.title"),
+					Messages.getString("dialog.findings.message"), releventFindings);
 	}
 
 	@Override

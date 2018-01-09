@@ -20,9 +20,9 @@ import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.facets.AttributeFacetNode;
-import org.opentravel.schemas.node.facets.VWA_SimpleFacetFacadeNode;
+import org.opentravel.schemas.node.objectMembers.VWA_SimpleFacetFacadeNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
 
 /**
  * Value With Attribute Model Object.

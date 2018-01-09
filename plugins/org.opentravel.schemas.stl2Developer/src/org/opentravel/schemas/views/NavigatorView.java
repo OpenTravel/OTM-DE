@@ -37,10 +37,12 @@ import org.opentravel.schemas.controllers.ValidationManager;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.InheritedInterface;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.RoleNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.NavigatorMenus;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -214,8 +216,12 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 			n = (((VersionNode) node).getNewestVersion());
 		else
 			n = node;
-		if (n instanceof ContextualFacetNode)
+		if (n instanceof ContributedFacetNode)
+			n = ((ContributedFacetNode) n).getContributor();
+		else if (n instanceof ContextualFacetNode)
 			n = (Node) (((ContextualFacetNode) n).getWhereContributed().getOwningComponent());
+		if (n instanceof InheritedInterface)
+			n = ((InheritedInterface) n).getInheritedFrom();
 
 		if (n != null) {
 			setCurrentNode(n);
@@ -255,7 +261,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	public List<Node> getSelectedNodes() {
 		if (!getMainWindow().hasDisplay() && curNode != null) {
 			// provide random content for testing
-			return new ArrayList<Node>(curNode.getDescendants_LibraryMembers());
+			return new ArrayList<Node>(curNode.getDescendants_LibraryMemberNodes());
 		}
 		return new ArrayList<Node>(selectedNodes);
 	}

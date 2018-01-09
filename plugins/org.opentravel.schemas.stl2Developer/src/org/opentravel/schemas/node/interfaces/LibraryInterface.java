@@ -85,6 +85,23 @@ public interface LibraryInterface {
 
 	public void setParent(Node project);
 
+	/**
+	 * Use the parent, if known, to close this library from the parent's context. If the parent is null, close the
+	 * contents of this library.
+	 * <p>
+	 * <b>Warning</b> the caller must assure the parent is the intended LibraryOwner or null.
+	 * <p>
+	 * The parent uses the library model manager because this LibraryNode may be linked to multiple LibraryNavNodes or
+	 * VersionAggregateNodes. If this library is not used elsewhere the library model manager will call close with
+	 * parent set to null.
+	 */
+	public void closeLibraryInterface();
+
+	// /**
+	// * @return a consistently formed namespace+name string. Chains return the namespace with only the major version.
+	// */
+	// public String getName_Canonical();
+
 	// /**
 	// * @return true if this library or chain contains any business objects
 	// */

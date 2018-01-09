@@ -15,6 +15,7 @@
  */
 package org.opentravel.schemas.node;
 
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -206,6 +207,11 @@ public class EditNode extends ComponentNode {
 	 */
 	public void setTLType(final Node tlType) {
 		this.tlType = tlType;
+	}
+
+	@Override
+	public TLModelElement getTLModelObject() {
+		return null;
 	}
 
 }

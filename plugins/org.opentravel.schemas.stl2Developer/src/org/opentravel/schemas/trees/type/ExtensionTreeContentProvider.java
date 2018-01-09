@@ -21,9 +21,8 @@ import java.util.List;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.types.TypeProviderAndOwners;
 
 /**
  * Content provider used to gather tree elements for the extension selection wizard.
@@ -42,20 +41,20 @@ public class ExtensionTreeContentProvider implements ITreeContentProvider {
 
 	@Override
 	public Object[] getChildren(final Object element) {
-		List<Node> children = new ArrayList<Node>();
+		List<TypeProviderAndOwners> children = new ArrayList<TypeProviderAndOwners>();
 		Node n = (Node) element;
 
 		children.addAll(n.getChildren_TypeProviders());
 
-		if (n instanceof LibraryNode) {
-			LibraryNode libNode = (LibraryNode) n;
-
-			if (libNode.getServiceRoot() != null) {
-				children.add(libNode.getServiceRoot());
-			}
-		} else if (n instanceof ServiceNode) {
-			children.addAll(n.getChildren());
-		}
+		// if (n instanceof LibraryNode) {
+		// LibraryNode libNode = (LibraryNode) n;
+		//
+		// if (libNode.getServiceRoot() != null) {
+		// children.add(libNode.getServiceRoot());
+		// }
+		// } else if (n instanceof ServiceNode) {
+		// children.addAll(n.getChildren());
+		// }
 		return children.toArray();
 	}
 

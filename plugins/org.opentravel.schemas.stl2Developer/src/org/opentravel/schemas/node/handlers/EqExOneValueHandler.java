@@ -34,9 +34,9 @@ import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.controllers.ContextController;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.SimpleTypeNode;
 import org.opentravel.schemas.node.properties.IValueWithContextHandler;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,6 +85,22 @@ public class EqExOneValueHandler implements IValueWithContextHandler, ModelEleme
 		this.owner = owner;
 		this.type = type;
 		tlOwner = owner.getTLModelObject();
+
+		switch (type) {
+		case EQUIVALENT:
+			if (!(tlOwner instanceof TLEquivalentOwner))
+				tlOwner = owner.getParent().getTLModelObject();
+			assert tlOwner instanceof TLEquivalentOwner;
+			break;
+		case EXAMPLE:
+			if (!(tlOwner instanceof TLExampleOwner))
+				tlOwner = owner.getParent().getTLModelObject();
+			assert tlOwner instanceof TLExampleOwner;
+			break;
+		default:
+			break;
+		}
+		assert owner.getLibrary() != null;
 	}
 
 	public EqExOneValueHandler(SimpleTypeNode owner, ValueWithContextType type) {
@@ -292,7 +308,7 @@ public class EqExOneValueHandler implements IValueWithContextHandler, ModelEleme
 	private boolean confirmContextExists(String context) {
 		TLLibrary tlLib = getOwnerLibrary();
 		if (tlLib instanceof TLLibrary)
-			for (TLContext ctx : ((TLLibrary) tlLib).getContexts())
+			for (TLContext ctx : tlLib.getContexts())
 				if (ctx.getContextId().equals(context))
 					return confirmContextExistsInController(context);
 		return false;
@@ -321,7 +337,7 @@ public class EqExOneValueHandler implements IValueWithContextHandler, ModelEleme
 		String appContext = "";
 		TLContext ctx = null;
 		if (getOwnerLibrary() instanceof TLLibrary)
-			ctx = ((TLLibrary) getOwnerLibrary()).getContext(getContextID());
+			ctx = getOwnerLibrary().getContext(getContextID());
 		if (ctx != null)
 			appContext = ctx.getApplicationContext();
 		return appContext;

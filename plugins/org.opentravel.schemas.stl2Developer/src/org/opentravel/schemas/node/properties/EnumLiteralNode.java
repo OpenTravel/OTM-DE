@@ -20,18 +20,19 @@ import org.opentravel.schemacompiler.model.TLAbstractEnumeration;
 import org.opentravel.schemacompiler.model.TLEnumValue;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.ComponentNodeType;
-import org.opentravel.schemas.node.EnumerationClosedNode;
-import org.opentravel.schemas.node.EnumerationOpenNode;
-import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.NodeIdentityListener;
+import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 
@@ -56,7 +57,7 @@ public class EnumLiteralNode extends PropertyNode {
 		parent.addProperty(this);
 	}
 
-	public EnumLiteralNode(TLEnumValue tlObj, PropertyOwnerInterface parent) {
+	public EnumLiteralNode(TLEnumValue tlObj, FacetInterface parent) {
 		super(tlObj, parent);
 	}
 
@@ -69,13 +70,14 @@ public class EnumLiteralNode extends PropertyNode {
 	}
 
 	@Override
-	public void addToTL(final PropertyOwnerInterface owner, final int index) {
+	public void addToTL(final FacetInterface owner, final int index) {
 		if (owner.getTLModelObject() instanceof TLAbstractEnumeration)
 			try {
 				((TLAbstractEnumeration) owner.getTLModelObject()).addValue(index, getTLModelObject());
 			} catch (IndexOutOfBoundsException e) {
-				((TLAbstractEnumeration) owner.getTLModelObject()).addValue(index, getTLModelObject());
+				((TLAbstractEnumeration) owner.getTLModelObject()).addValue(getTLModelObject());
 			}
+		owner.getChildrenHandler().clear();
 	}
 
 	@Override
@@ -96,7 +98,7 @@ public class EnumLiteralNode extends PropertyNode {
 	public EnumLiteralNode clone(Node parent, String nameSuffix) {
 		EnumLiteralNode eln = new EnumLiteralNode((TLEnumValue) getTLModelObject().cloneElement());
 		if (parent != null && parent instanceof Enumeration)
-			((Enumeration) parent).addProperty(eln);
+			((Enumeration) parent).add(eln);
 		if (nameSuffix != null && !nameSuffix.isEmpty())
 			eln.setName(eln.getName() + nameSuffix);
 		return eln;

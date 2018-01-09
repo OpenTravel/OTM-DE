@@ -20,6 +20,7 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUserHandler;
@@ -43,25 +44,17 @@ public class InheritedElementNode extends ElementNode implements InheritedInterf
 
 	private ElementNode inheritedFrom = null;
 
-	public InheritedElementNode(ElementNode from, PropertyOwnerInterface parent) {
+	public InheritedElementNode(ElementNode from, FacetInterface parent) {
 		super();
 		inheritedFrom = from;
 		this.parent = (Node) parent;
+
+		// FIXME - add set listener
 	}
 
 	@Override
 	public boolean canAssign(Node type) {
 		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacadeInterface#get()
-	 */
-	@Override
-	public Node get() {
-		return getInheritedFrom();
 	}
 
 	@Override
@@ -101,9 +94,7 @@ public class InheritedElementNode extends ElementNode implements InheritedInterf
 
 	@Override
 	public String getName() {
-		if (deleted)
-			return "";
-		return emptyIfNull(getTLModelObject().getName());
+		return getInheritedFrom().getName();
 	}
 
 	@Override
@@ -120,12 +111,22 @@ public class InheritedElementNode extends ElementNode implements InheritedInterf
 	 * @return the typeHandler
 	 */
 	@Override
-	protected TypeUserHandler getTypeHandler() {
+	public TypeUserHandler getTypeHandler() {
 		return getInheritedFrom().getTypeHandler();
 	}
 
 	@Override
 	public boolean setAssignedType(TLModelElement tla) {
 		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.interfaces.FacadeInterface#get()
+	 */
+	@Override
+	public Node get() {
+		return getInheritedFrom();
 	}
 }

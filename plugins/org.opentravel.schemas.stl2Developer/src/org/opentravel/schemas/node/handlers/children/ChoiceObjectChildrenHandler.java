@@ -24,8 +24,8 @@ import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
 
 public class ChoiceObjectChildrenHandler extends CachingChildrenHandler<Node, ChoiceObjectNode> {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(ChoiceObjMO.class);
@@ -46,13 +46,13 @@ public class ChoiceObjectChildrenHandler extends CachingChildrenHandler<Node, Ch
 		return kids;
 	}
 
-	@Override
-	protected void initInherited() {
-		initRunning = true;
-		inheritedOwner = owner.getExtendsType();
-		inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
-		initRunning = false;
-	}
+	// @Override
+	// protected void initInherited() {
+	// initRunning = true;
+	// inheritedOwner = owner.getExtendsType();
+	// inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
+	// initRunning = false;
+	// }
 
 	@Override
 	public List<TLModelElement> getInheritedChildren_TL() {
@@ -63,8 +63,6 @@ public class ChoiceObjectChildrenHandler extends CachingChildrenHandler<Node, Ch
 		List<TLModelElement> facets = new ArrayList<TLModelElement>();
 		for (TLContextualFacet cf : getInheritedChildren_TL_CFs()) {
 			facets.add(cf);
-			// if (cf.getOwningEntity() != trueOwner)
-			// cf.setOwningEntity(trueOwner);
 		}
 		return facets;
 	}

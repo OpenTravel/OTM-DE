@@ -25,6 +25,8 @@ import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.handlers.children.LibraryNavChildrenHandler;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
+import org.opentravel.schemas.node.interfaces.LibraryOwner;
+import org.opentravel.schemas.types.TypeProviderAndOwners;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * Methods in this class must have no knowledge of the contents of the library or chain.
  */
 
-public class LibraryNavNode extends Node implements FacadeInterface {
+public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterface, TypeProviderAndOwners {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryNavNode.class);
 
 	protected static final String DEFAULT_LIBRARY_TYPE = "Library Nav";
@@ -47,14 +49,14 @@ public class LibraryNavNode extends Node implements FacadeInterface {
 
 	/**
 	 */
-	public LibraryNavNode(LibraryNode library, ProjectNode project) {
+	public LibraryNavNode(LibraryInterface library, ProjectNode project) {
 		assert (library != null);
 		assert (project != null);
 
 		// Save the project and child chain relationship
 		// childLibrary = library;
 		childrenHandler = new LibraryNavChildrenHandler(this);
-		getChildrenHandler().add(library);
+		getChildrenHandler().add((Node) library);
 
 		// getChildren().add(library);
 		parent = project;
@@ -106,6 +108,10 @@ public class LibraryNavNode extends Node implements FacadeInterface {
 		// LOGGER.debug("Created library nav node for chain " + chain + " in project " + project);
 	}
 
+	/**
+	 * 
+	 * @return the LibraryNode or LibraryChainNode or null
+	 */
 	public LibraryInterface getThisLib() {
 		return getChildrenHandler().getThisLibI();
 		// if (getChildren().isEmpty())
@@ -147,6 +153,7 @@ public class LibraryNavNode extends Node implements FacadeInterface {
 		return (ProjectNode) parent;
 	}
 
+	@Override
 	public ProjectNode getProject() {
 		return (ProjectNode) parent;
 	}
@@ -156,25 +163,31 @@ public class LibraryNavNode extends Node implements FacadeInterface {
 		return true;
 	}
 
+	/**
+	 * Use the libraryModelManager to close the library in this project.
+	 * 
+	 * Remove this libraryNavNode from its project.
+	 */
 	@Override
 	public void close() {
 		getModelNode().getLibraryManager().close(getThisLib(), getProject());
 		if (getProject() != null)
 			getProject().remove(this);
 		deleted = true;
-		// getChildrenHandler().remove((Node) getThisLib());
-		// childLibrary = null;
-		// setParent(null);
+		getChildrenHandler().clear((Node) getThisLib());
 	}
 
 	/**
-	 * @return a library, either from the LibraryNavNode or from the chain in the NavNode
+	 * @return a library, unmanaged or the head of a chain
 	 */
 	@Override
 	public LibraryNode getLibrary() {
 		return getThisLib() != null ? getThisLib().getLibrary() : null;
 	}
 
+	/**
+	 * Get the library or libraries from a chain.
+	 */
 	@Override
 	public List<LibraryNode> getLibraries() {
 		List<LibraryNode> libs = new ArrayList<LibraryNode>();
@@ -183,8 +196,6 @@ public class LibraryNavNode extends Node implements FacadeInterface {
 		if (getThisLib() instanceof LibraryChainNode)
 			libs.addAll(((LibraryChainNode) getThisLib()).getLibraries());
 		return libs;
-		// TODO - what if this is a chain
-		// return getThisLib() != null ? getThisLib().getLibrary() : null;
 	}
 
 	@Override
@@ -233,6 +244,7 @@ public class LibraryNavNode extends Node implements FacadeInterface {
 	 * Return true if the passed library or chain is contained in this nav node. Members of chains are tested as
 	 * required.
 	 */
+	@Override
 	public boolean contains(LibraryInterface li) {
 		return getChildrenHandler().contains((Node) li);
 		// if (getThisLib() == null)
@@ -249,10 +261,9 @@ public class LibraryNavNode extends Node implements FacadeInterface {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * see {@link #getLibrary()}
 	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacadeInterface#get()
 	 */
 	@Override
 	public Node get() {

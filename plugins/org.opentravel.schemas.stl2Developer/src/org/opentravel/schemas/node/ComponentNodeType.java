@@ -75,10 +75,10 @@ public enum ComponentNodeType {
 		return desc;
 	}
 
-	@Override
-	public String toString() {
-		return desc;
-	}
+	// @Override
+	// public String toString() {
+	// return desc;
+	// }
 
 	public static ComponentNodeType fromString(String string) {
 		for (ComponentNodeType type : ComponentNodeType.values()) {

@@ -19,6 +19,7 @@ import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUserHandler;
@@ -39,7 +40,7 @@ public class InheritedIndicatorNode extends IndicatorNode implements InheritedIn
 
 	private IndicatorNode inheritedFrom = null;
 
-	public InheritedIndicatorNode(IndicatorNode from, PropertyOwnerInterface parent) {
+	public InheritedIndicatorNode(IndicatorNode from, FacetInterface parent) {
 		super();
 		inheritedFrom = from;
 		this.parent = (Node) parent;
@@ -52,6 +53,11 @@ public class InheritedIndicatorNode extends IndicatorNode implements InheritedIn
 
 	@Override
 	public IndicatorNode getInheritedFrom() {
+		return inheritedFrom;
+	}
+
+	@Override
+	public IndicatorNode get() {
 		return inheritedFrom;
 	}
 
@@ -94,12 +100,12 @@ public class InheritedIndicatorNode extends IndicatorNode implements InheritedIn
 	// return Images.getImageRegistry().get(Images.Indicator);
 	// }
 
-	@Override
-	public String getName() {
-		if (deleted)
-			return "";
-		return emptyIfNull(getTLModelObject().getName());
-	}
+	// @Override
+	// public String getName() {
+	// if (deleted)
+	// return "";
+	// return emptyIfNull(getTLModelObject().getName());
+	// }
 
 	@Override
 	public Node getParent() {
@@ -115,7 +121,7 @@ public class InheritedIndicatorNode extends IndicatorNode implements InheritedIn
 	 * @return the typeHandler
 	 */
 	@Override
-	protected TypeUserHandler getTypeHandler() {
+	public TypeUserHandler getTypeHandler() {
 		return getInheritedFrom().getTypeHandler();
 	}
 
@@ -168,15 +174,5 @@ public class InheritedIndicatorNode extends IndicatorNode implements InheritedIn
 	// public boolean setAssignedType(TLModelElement tlProvider) {
 	// return false;
 	// }
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacadeInterface#get()
-	 */
-	@Override
-	public Node get() {
-		return getInheritedFrom();
-	}
 
 }

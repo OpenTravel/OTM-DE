@@ -17,15 +17,21 @@ package org.opentravel.schemas.controllers;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemacompiler.repository.ProjectItem;
+import org.opentravel.schemacompiler.version.VersionScheme;
+import org.opentravel.schemacompiler.version.VersionSchemeException;
+import org.opentravel.schemacompiler.version.VersionSchemeFactory;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
+import org.opentravel.schemas.node.interfaces.LibraryOwner;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -42,59 +48,34 @@ import org.slf4j.LoggerFactory;
 public class LibraryModelManager {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryModelManager.class);
 
+	@Deprecated
 	Collection<LibraryInterface> libraries = new ArrayList<LibraryInterface>();
 	ModelNode parent = null;
+	HashMap<String, LibraryInterface> libMap = new HashMap<String, LibraryInterface>();
 
 	public LibraryModelManager(ModelNode parent) {
 		this.parent = parent;
 	}
 
-	public LibraryModelManager(final MainController mainController) {
-	}
-
-	/**
-	 * @return new list of all TLLibrary (user) library nodes in the model, including those in a chain
-	 */
-	public List<LibraryNode> getUserLibraries() {
-		List<LibraryNode> libList = new ArrayList<LibraryNode>();
-		for (LibraryInterface lib : libraries)
-			if (lib instanceof LibraryNode && ((LibraryNode) lib).getTLModelObject() instanceof TLLibrary)
-				libList.add(((LibraryNode) lib));
-			else if (lib instanceof LibraryChainNode)
-				libList.addAll(((LibraryChainNode) lib).getLibraries());
-		return libList;
-	}
-
-	/**
-	 * @return new list of all TLLibrary (user) library nodes in the model, including those in a chain
-	 */
-	public List<LibraryChainNode> getUserChains() {
-		List<LibraryChainNode> chains = new ArrayList<LibraryChainNode>();
-		for (LibraryInterface lib : libraries)
-			if (lib instanceof LibraryChainNode)
-				chains.add(((LibraryChainNode) lib));
-		return chains;
-	}
-
-	/**
-	 * @return new list of all library nodes in the model, including those in a chain
-	 */
-	public List<LibraryNode> getAllLibraries() {
-		List<LibraryNode> libList = new ArrayList<LibraryNode>();
-		for (LibraryInterface lib : libraries)
-			if (lib instanceof LibraryNode)
-				libList.add(((LibraryNode) lib));
-			else if (lib instanceof LibraryChainNode)
-				libList.addAll(((LibraryChainNode) lib).getLibraries());
-		return libList;
-	}
+	// public LibraryModelManager(final MainController mainController) {
+	// }
 
 	/**
 	 * Simply add this library or chain to the list.
 	 */
 	public void add(LibraryInterface lib) {
 		assert (lib.getParent() instanceof LibraryNavNode);
-		assert (lib.getProject() instanceof ProjectNode);
+		// assert (lib.getProject() instanceof ProjectNode);
+		if (lib.getLibrary() == null) {
+			assert false;
+			LOGGER.warn("Missing library");
+		}
+		// String cn = getCanonicalName(lib.getLibrary().getProjectItem());
+		// if (cn != null)
+		addToMap(lib.getLibrary().getProjectItem(), lib);
+		// if (libMap.get(cn) == null)
+		// libMap.put(cn, lib);
+
 		if (!libraries.contains(lib))
 			libraries.add(lib);
 	}
@@ -128,14 +109,6 @@ public class LibraryModelManager {
 			LOGGER.debug("Did not add project item " + li + " because it was already in project.");
 			return null;
 		}
-		// if (li != null && project.getLibraries().contains(li)) {
-		// // - do NOT do this - have caller handle null or return error condition
-		// // If they are trying to open an version, the expose the version directly.
-		// // if (li.getParent() instanceof VersionAggregateNode)
-		// // newLNN = (LibraryNavNode) new LibraryChainNode(pi, project).getParent();
-		// // LOGGER.debug("Skipping adding " + li + " to libraryModelManager.");
-		// return null;
-		// }
 
 		if (li == null) {
 			// First time this library has been modeled.
@@ -143,7 +116,7 @@ public class LibraryModelManager {
 		} else {
 			// Already modeled - add new LibraryNavNode to this project
 			if (li.getChain() == null)
-				newLNN = new LibraryNavNode((LibraryNode) li, project);
+				newLNN = new LibraryNavNode(li, project);
 			else
 				newLNN = new LibraryNavNode(li.getChain(), project);
 		}
@@ -173,64 +146,89 @@ public class LibraryModelManager {
 		return newLNN;
 	}
 
-	private LibraryNavNode modelLibraryInterface(ProjectItem pi, ProjectNode project) {
-		LibraryInterface li = null;
-		LibraryNavNode newLNN = null;
-		// LOGGER.debug("First time library has been model: " + pi.getLibraryName());
-
-		if (pi.getRepository() == null)
-			// Library is Unmanaged - create library node.
-			li = new LibraryNode(pi.getContent(), project);
-		else {
-			// Library is managed - make into or add to a chain
-			String chainName = project.makeChainIdentity(pi);
-			LibraryChainNode chain = getChain(chainName);
-
-			if (chain == null) {
-				li = createNewChain(pi, project);
-			} else {
-				// Managed library that belongs to a chain.
-				// First, see if the chain has already been managed here
-				// If the chain was not found, try to create one.
-				if (!libraries.contains(chain)) {
-					// LOGGER.debug("Create chain for a minor version.");
-					li = new LibraryChainNode(pi, project);
-				} else {
-					// LOGGER.debug("Add to existing chain.");
-					li = chain;
-					if (!(li.getParent() instanceof LibraryNavNode) || li.getParent().getParent() != project)
-						newLNN = new LibraryNavNode(chain, project);
-				}
-			}
-		}
-
-		// Add the library to the list
-		if (li != null && newLNN == null) {
-			if (!libraries.contains(li))
-				libraries.add(li);
-
-			// Get the LibraryNavNode to return
-			if (li.getParent() instanceof LibraryNavNode)
-				newLNN = (LibraryNavNode) li.getParent();
-			// else
-			// LOGGER.error("Newly modeled library " + li + " is missing nav node!");
-		}
-		if (li == null)
-			LOGGER.error("Did not successfully model the library: " + pi.getLibraryName());
-
-		// assert (newLNN != null);
-		return newLNN;
+	private void addToMap(ProjectItem pi, LibraryInterface li) {
+		String cn = getCanonicalName(pi);
+		LibraryInterface entry = libMap.get(cn);
+		if (!libMap.containsKey(getCanonicalName(pi)))
+			libMap.put(getCanonicalName(pi), li);
+		else
+			LOGGER.warn("Avoided duplicating canonical names in map. " + getCanonicalName(pi));
+		// FIXME - this is run too often on startup
 	}
 
 	/**
-	 * @return all projects that contain this library interface
+	 * Force removal of all libraries. Removes TLLibrary from model and closes the library.
+	 * 
+	 * @param builtIns
+	 *            do built in libraries if true
 	 */
-	public List<ProjectNode> findProjects(LibraryInterface li) {
-		List<ProjectNode> projects = new ArrayList<ProjectNode>();
-		for (ProjectNode pn : parent.getProjects())
-			if (pn.contains(li))
-				projects.add(pn);
-		return projects;
+	public void clear(boolean builtIns) {
+		// Close the chains first then any libraries left over.
+		List<LibraryChainNode> lcns = getUserChains();
+		TLModel tlModel = null;
+		for (LibraryChainNode lcn : lcns)
+			close(lcn, null);
+		// lcn.close(); // Fixme - closes chain but does not remove from table and list
+
+		List<LibraryNode> libs;
+		if (builtIns)
+			libs = getAllLibraries();
+		else
+			libs = getUserLibraries();
+
+		if (!libs.isEmpty() && libs.get(0).getTLModelObject() != null)
+			tlModel = libs.get(0).getTLModelObject().getOwningModel();
+
+		for (LibraryNode lib : libs) {
+			if (lib != null) {
+				if (lib.getTLModelObject() != null)
+					if (lib.getTLModelObject().getOwningModel() != null)
+						lib.getTLModelObject().getOwningModel().removeLibrary(lib.getTLModelObject());
+				// TODO - set parent to null first or use close(lib, null)
+				close(lib, null);
+				// lib.setParent(null); // needed to force library closure
+				// lib.close();
+			}
+		}
+		if (tlModel != null)
+			tlModel.clearModel();
+
+		if (builtIns) {
+			libraries.clear();
+			libMap.clear();
+		}
+		// TODO - assure builtins where used are all cleared
+		// getWhereAssignedHandler().clear();
+
+	}
+
+	/**
+	 * Close passed library or chain if not used in other projects. Does not unlink. Will reset parent if needed.
+	 * <p>
+	 * Since libraries and chains are not direct children of projects, removal from the project is <b>not</b> done.
+	 * Caller is expected to remove library from project
+	 * 
+	 * @param lib
+	 * @param projectNode
+	 */
+	public void close(LibraryInterface lib, ProjectNode projectNode) {
+		// LOGGER.debug("Closing " + ((Node) lib).getName());
+		LibraryOwner alternateOwner = getFirstOtherProject(lib, projectNode);
+		if (alternateOwner != null) {
+			assert alternateOwner.getProject() != projectNode;
+			// LOGGER.debug("Only remove from project. " + ((Node) lib).getName());
+			lib.setParent((Node) alternateOwner);
+		} else {
+			// LOGGER.debug("Not used elsewhere...close. " + ((Node) lib).getName());
+			// If reached then the library is not used elsewhere
+			// Must remove parent for close to work
+			lib.setParent(null);
+			lib.closeLibraryInterface();
+
+			// Remove from list
+			libraries.remove(lib);
+			libMap.remove(findKey(lib));
+		}
 	}
 
 	/**
@@ -248,6 +246,93 @@ public class LibraryModelManager {
 			li = null;
 		} // FIXME - should the chain's LNN be in project?
 		return li;
+	}
+
+	/**
+	 * 
+	 * @return the key that contains this library interface or null if not found
+	 */
+	public String findKey(LibraryInterface li) {
+		for (Entry<String, LibraryInterface> e : libMap.entrySet()) {
+			if (e.getValue() == li)
+				return e.getKey();
+		}
+		return null;
+	}
+
+	/**
+	 * @return all projects that contain this library interface
+	 */
+	public List<ProjectNode> findProjects(LibraryInterface li) {
+		List<ProjectNode> projects = new ArrayList<ProjectNode>();
+		for (ProjectNode pn : parent.getProjects())
+			if (pn.contains(li))
+				projects.add(pn);
+		return projects;
+	}
+
+	/**
+	 * Return the library with the name and namespace
+	 * 
+	 * @param namespace
+	 * @param libraryName
+	 * @return libraryNode or null if not found
+	 */
+	public LibraryNode get(String namespace, String libraryName) {
+		for (LibraryNode lib : getUserLibraries()) {
+			// LOGGER.debug(" test " + lib.getNamespace() + " " + lib.getName());
+			if (lib.getName().equals(libraryName))
+				if (lib.getNamespace().equals(namespace))
+					return lib;
+		}
+		return null;
+	}
+
+	/**
+	 * @return new list of all library nodes in the model, including those in chains
+	 */
+	public List<LibraryNode> getAllLibraries() {
+		List<LibraryNode> libList = new ArrayList<LibraryNode>();
+		// for (LibraryInterface lib : libraries)
+		for (LibraryInterface lib : libMap.values())
+			if (lib instanceof LibraryNode)
+				libList.add(((LibraryNode) lib));
+			else if (lib instanceof LibraryChainNode)
+				libList.addAll(((LibraryChainNode) lib).getLibraries());
+		return libList;
+	}
+
+	/**
+	 * This name is the same for all minor versions of a library.
+	 * 
+	 * @param pi
+	 * @return
+	 */
+	public String getCanonicalName(ProjectItem pi) {
+		if (pi == null)
+			return null;
+		VersionScheme scheme = null;
+		String versionSchemeName = "OTA2";
+		versionSchemeName = pi.getVersionScheme();
+
+		try {
+			scheme = VersionSchemeFactory.getInstance().getVersionScheme(pi.getVersionScheme());
+		} catch (VersionSchemeException e) {
+			LOGGER.error(e.getLocalizedMessage());
+			return "";
+		}
+		String namespace = pi.getNamespace();
+		String version = "";
+		try {
+			version = scheme.getMajorVersion(scheme.getVersionIdentifier(namespace));
+		} catch (IllegalArgumentException e) {
+			LOGGER.error(e.getLocalizedMessage() + " " + namespace);
+		}
+
+		String s = pi.getBaseNamespace();
+		s += "/" + pi.getLibraryName();
+		s += ".V" + version;
+		return s;
 	}
 
 	/**
@@ -269,59 +354,175 @@ public class LibraryModelManager {
 	}
 
 	/**
+	 * Return the library owner for the passed library that is not in the passed project or null if not found.
+	 * 
+	 * @param lib
+	 * @param project
+	 *            the project to skip. If null, all projects will be searched.
+	 * @return
+	 */
+	public LibraryOwner getFirstOtherProject(LibraryInterface lib, ProjectNode project) {
+		LibraryOwner lo = null;
+
+		for (ProjectNode pn : parent.getUserProjects()) {
+			if (pn == project)
+				continue; // find other project
+			if (pn.contains(lib)) {
+				// Another project was found
+				for (Node n : pn.getChildren())
+					if (n instanceof LibraryOwner)
+						if (((LibraryOwner) n).contains(lib)) {
+							return (LibraryOwner) n;
+						}
+			}
+		}
+		return null;
+		// FIXME - make sure this works as designed - junit ???
+
+		// for (Node n : parent.getChildren())
+		// if (n instanceof ProjectNode && n != project)
+		// for (Node l : n.getChildren()) {
+		// if (l instanceof LibraryNavNode) {
+		// lo = (LibraryOwner) l;
+		// break;
+		// } else if (l instanceof LibraryChainNode)
+		// if (((LibraryChainNode) l).contains((Node) lib)) {
+		// lo = ((LibraryChainNode) l).getVersions();
+		// break;
+		// }
+		// }
+		// return lo;
+	}
+
+	// public ProjectNode getFirstOtherProject(LibraryInterface lib, ProjectNode project) {
+	// ProjectNode pn = null;
+	// // Search all projects
+	// for (Node n : parent.getChildren())
+	// if (n instanceof ProjectNode && n != project)
+	// for (Node l : n.getChildren()) {
+	// if (l instanceof LibraryNavNode)
+	// l = (Node) ((LibraryNavNode) l).getThisLib();
+	// if (l instanceof LibraryChainNode)
+	// if (((LibraryChainNode) l).contains((Node) lib)) {
+	// pn = (ProjectNode) n;
+	// break;
+	// }
+	// if (l == lib) {
+	// pn = (ProjectNode) n;
+	// break;
+	// }
+	// }
+	// return pn;
+	// }
+
+	/**
+	 * @return a list copy of the managed libraries and chains
+	 */
+	public List<LibraryInterface> getLibraries() {
+		return new ArrayList<LibraryInterface>(libMap.values());
+		// return new ArrayList<LibraryInterface>(libraries);
+	}
+
+	public Collection<LibraryInterface> getListValues() {
+		return libraries;
+	}
+
+	public Object[] getMapValues() {
+		return libMap.values().toArray();
+	}
+
+	/**
+	 * @return new list of all TLLibrary (user) library nodes in the model, including those in a chain
+	 */
+	public List<LibraryChainNode> getUserChains() {
+		List<LibraryChainNode> chains = new ArrayList<LibraryChainNode>();
+		// for (LibraryInterface lib : libraries)
+		for (LibraryInterface lib : libMap.values())
+
+			if (lib instanceof LibraryChainNode)
+				chains.add(((LibraryChainNode) lib));
+		return chains;
+	}
+
+	/**
+	 * @return new list of all TLLibrary (user) library nodes in the model including those in chains
+	 */
+	public List<LibraryNode> getUserLibraries() {
+		List<LibraryNode> libList = new ArrayList<LibraryNode>();
+		// for (LibraryInterface lib : libraries)
+		for (LibraryInterface lib : libMap.values())
+			if (lib instanceof LibraryNode && ((LibraryNode) lib).getTLModelObject() instanceof TLLibrary)
+				libList.add(((LibraryNode) lib));
+			else if (lib instanceof LibraryChainNode)
+				libList.addAll(((LibraryChainNode) lib).getLibraries());
+		return libList;
+	}
+
+	/**
 	 * @return if the library is used in any other projects.
 	 */
 	public boolean isUsedElsewhere(LibraryInterface lib, ProjectNode project) {
 		return getFirstOtherProject(lib, project) != null;
 	}
 
-	public ProjectNode getFirstOtherProject(LibraryInterface lib, ProjectNode project) {
-		ProjectNode pn = null;
-		for (Node n : parent.getChildren())
-			if (n instanceof ProjectNode && n != project)
-				for (Node l : n.getChildren()) {
-					if (l instanceof LibraryNavNode)
-						l = (Node) ((LibraryNavNode) l).getThisLib();
-					if (l instanceof LibraryChainNode)
-						if (((LibraryChainNode) l).contains((Node) lib)) {
-							pn = (ProjectNode) n;
-							break;
-						}
-					if (l == lib) {
-						pn = (ProjectNode) n;
-						break;
-					}
-				}
-		// if (pn != null)
-		// LOGGER.debug(((Node) lib).getName() + " is also used in " + pn);
-		// else
-		// LOGGER.debug(((Node) lib).getName() + " is only used in passsed project " + project);
-		return pn;
-	}
+	private LibraryNavNode modelLibraryInterface(ProjectItem pi, ProjectNode project) {
+		LibraryInterface li = null;
+		LibraryNavNode newLNN = null;
+		// LOGGER.debug("First time library has been model: " + pi.getLibraryName());
 
-	/**
-	 * Close passed library or chain if not used in other projects. Does not unlink. Will reset parent if needed.
-	 * 
-	 * @param lib
-	 * @param projectNode
-	 *            - caller is expected to remove library from project
-	 */
-	public void close(LibraryInterface lib, ProjectNode projectNode) {
-		// LOGGER.debug("Closing " + ((Node) lib).getName());
-		ProjectNode pn = getFirstOtherProject(lib, projectNode);
-		if (pn != null) {
-			// LOGGER.debug("Only remove from project. " + ((Node) lib).getName());
-			lib.setParent(pn);
+		if (pi.getRepository() == null) {
+			// Library is Unmanaged therefore a libraryNode.
+			// If already registered then use the existing libraryNode.
+			li = libMap.get(getCanonicalName(pi));
+			if (li == null)
+				// create library node.
+				li = new LibraryNode(pi.getContent(), project);
+			else
+				// Create new Library Nav Node associating the library to new project
+				li.setParent(new LibraryNavNode(li, project));
+
 		} else {
-			// If reached then the library is not used elsewhere
-			// LOGGER.debug("Not used elsewhere...close. " + ((Node) lib).getName());
-			// Must remove parent for close to work
-			lib.setParent(null);
-			lib.close();
+			// Library is managed - make into or add to a chain
+			String chainName = project.makeChainIdentity(pi);
+			LibraryChainNode chain = getChain(chainName);
 
-			// Remove from list
-			libraries.remove(lib);
+			if (chain == null) {
+				assert (!libMap.containsKey(getCanonicalName(pi)));
+				li = createNewChain(pi, project);
+			} else {
+				assert (libMap.containsKey(getCanonicalName(pi)));
+				// Managed library that belongs to a chain.
+				// First, see if the chain has already been managed here
+				// If the chain was not found, try to create one.
+				if (!libraries.contains(chain)) {
+					// LOGGER.debug("Create chain for a minor version.");
+					li = new LibraryChainNode(pi, project);
+				} else {
+					// LOGGER.debug("Add to existing chain.");
+					li = chain;
+					if (!(li.getParent() instanceof LibraryNavNode) || li.getParent().getParent() != project)
+						newLNN = new LibraryNavNode(chain, project);
+				}
+			}
 		}
+
+		// Add the library to the list
+		if (li != null && newLNN == null) {
+			if (!libraries.contains(li))
+				libraries.add(li);
+			addToMap(pi, li);
+
+			// Get the LibraryNavNode to return
+			if (li.getParent() instanceof LibraryNavNode)
+				newLNN = (LibraryNavNode) li.getParent();
+			// else
+			// LOGGER.error("Newly modeled library " + li + " is missing nav node!");
+		}
+		if (li == null)
+			LOGGER.error("Did not successfully model the library: " + pi.getLibraryName());
+
+		// assert (newLNN != null);
+		return newLNN;
 	}
 
 	/**
@@ -334,6 +535,8 @@ public class LibraryModelManager {
 	public void replace(LibraryInterface old, LibraryInterface replacement) {
 		libraries.remove(old);
 		libraries.add(replacement);
+		if (findKey(old) != null)
+			libMap.replace(findKey(old), replacement);
 
 		// Update any LibraryNavNodes in other projects
 		for (Node n : parent.getChildren())
@@ -343,64 +546,5 @@ public class LibraryModelManager {
 					if (l instanceof LibraryNavNode)
 						if (((LibraryNavNode) l).getThisLib() == old)
 							((LibraryNavNode) l).setThisLib(replacement);
-	}
-
-	/**
-	 * @return a copy of the library and chain list
-	 */
-	public List<LibraryInterface> getLibraries() {
-		return new ArrayList<LibraryInterface>(libraries);
-	}
-
-	/**
-	 * Return the library with the name and namespace
-	 * 
-	 * @param namespace
-	 * @param libraryName
-	 * @return libraryNode or null if not found
-	 */
-	public LibraryNode get(String namespace, String libraryName) {
-		for (LibraryNode lib : getUserLibraries()) {
-			// LOGGER.debug(" test " + lib.getNamespace() + " " + lib.getName());
-			if (lib.getName().equals(libraryName))
-				if (lib.getNamespace().equals(namespace))
-					return lib;
-		}
-		return null;
-	}
-
-	/**
-	 * Force removal of all libraries. Removes TLLibrary from model and closes the library.
-	 * 
-	 * @param builtIns
-	 *            do built in libraries if true
-	 */
-	public void clear(boolean builtIns) {
-		// Close the chains first then any libraries left over.
-		List<LibraryChainNode> lcns = getUserChains();
-		TLModel tlModel = null;
-		for (LibraryChainNode lcn : lcns)
-			lcn.close();
-
-		List<LibraryNode> libs;
-		if (builtIns)
-			libs = getAllLibraries();
-		else
-			libs = getUserLibraries();
-
-		if (!libs.isEmpty() && libs.get(0).getTLModelObject() != null)
-			tlModel = libs.get(0).getTLModelObject().getOwningModel();
-
-		for (LibraryNode lib : libs) {
-			if (lib != null) {
-				if (lib.getTLModelObject() != null)
-					if (lib.getTLModelObject().getOwningModel() != null)
-						lib.getTLModelObject().getOwningModel().removeLibrary(lib.getTLModelObject());
-				lib.close();
-			}
-		}
-		if (tlModel != null)
-			tlModel.clearModel();
-
 	}
 }

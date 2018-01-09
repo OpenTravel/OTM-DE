@@ -60,10 +60,16 @@ public class CommitLibraryAction extends OtmAbstractAction {
 		INode n = getMainController().getCurrentNode_NavigatorView();
 		if (n instanceof LibraryNavNode)
 			n = (INode) ((LibraryNavNode) n).getThisLib();
-		if (n instanceof ComponentNode)
+		if (n == null || n.getLibrary() == null)
+			n = null;
+		else if (n instanceof ComponentNode)
 			n = n.getLibrary().getChain();
 
 		if (n == null || !(n instanceof LibraryChainNode))
+			return false;
+
+		if (((LibraryChainNode) n).getHead() == null || ((LibraryChainNode) n).getHead().getProjectItem() == null
+				|| ((LibraryChainNode) n).getHead().getProjectItem().getState() == null)
 			return false;
 
 		return ((LibraryChainNode) n).getHead().getProjectItem().getState().equals(RepositoryItemState.MANAGED_WIP);

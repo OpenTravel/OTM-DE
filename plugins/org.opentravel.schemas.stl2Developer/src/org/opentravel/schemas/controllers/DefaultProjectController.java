@@ -75,6 +75,7 @@ import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.FileDialogs;
 import org.opentravel.schemas.stl2developer.FindingsDialog;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.views.ValidationResultsView;
 import org.opentravel.schemas.wizards.NewProjectWizard;
@@ -139,6 +140,7 @@ public class DefaultProjectController implements ProjectController {
 					Messages.getString("error.openProject.defaultProject", defaultPath));
 		}
 		defaultPath = defaultProject.getTLProject().getProjectFile().getPath();
+		mc.getModelNode().addProject(defaultProject);
 	}
 
 	public List<ProjectItem> openLibrary(Project project, List<File> fileName, ValidationFindings findings)
@@ -297,11 +299,11 @@ public class DefaultProjectController implements ProjectController {
 				RemoteRepositoryClient client = (RemoteRepositoryClient) ri.getRepository();
 				client.setRefreshPolicy(refreshPolicy);
 			}
-			// FIXME - only findings relevant to the opened libraries
 			if (findings.hasFinding()) {
 				if (PlatformUI.isWorkbenchRunning())
+					// pi list limits to only findings relevant to the opened libraries
 					FindingsDialog.open(OtmRegistry.getActiveShell(), Messages.getString("dialog.findings.title"),
-							Messages.getString("dialog.findings.message"), findings.getAllFindingsAsList());
+							Messages.getString("dialog.findings.message"), findings.getAllFindingsAsList(), piList);
 			}
 		} catch (LibraryLoaderException e) {
 			// LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
@@ -340,6 +342,10 @@ public class DefaultProjectController implements ProjectController {
 	@Override
 	public ProjectNode create(File file, String ID, String name, String description) {
 		Project newProject;
+		for (Project tlp : projectManager.getAllProjects())
+			if (tlp.getProjectId().equals(ID)) {
+				LOGGER.debug("Found project " + ID);
+			}
 		try {
 			newProject = projectManager.newProject(file, ID, name, description);
 		} catch (Exception e) {
@@ -527,7 +533,10 @@ public class DefaultProjectController implements ProjectController {
 			resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
 			project = null;
 		} catch (NullPointerException e) {
-			LOGGER.debug("NPE from project manager load project.");
+			resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
+			project = null;
+			// e.printStackTrace();
+			// LOGGER.debug("NPE from project manager load project. " + e);
 		} catch (Throwable e) {
 			resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
 			project = null;
@@ -685,17 +694,34 @@ public class DefaultProjectController implements ProjectController {
 	@Override
 	public void remove(List<LibraryNavNode> list) {
 		Set<ProjectNode> impactedProjects = new HashSet<ProjectNode>();
+		ProjectNode pn = list.get(0).getProject();
+		// Check consistency between TL and node projects
+		List<LibraryNode> nodes = pn.getLibraries();
+		List<ProjectItem> itemsB = pn.getTLProject().getProjectItems();
+
 		for (LibraryNavNode lnn : list) {
-			ProjectNode pn = lnn.getProject();
+			pn = lnn.getProject();
 			impactedProjects.add(pn);
-			pn.getTLProject().remove(lnn.getLibrary().getTLModelObject());
+			// Project items are the individual libraries in a chain
+			for (LibraryNode ln : lnn.getLibraries()) {
+				ProjectItem tlPI = ln.getProjectItem();
+				assert pn.getTLProject().getProjectItems().contains(tlPI);
+				pn.getTLProject().remove(ln.getTLModelObject());
+				// Check removal
+				// List<ProjectItem> items = pn.getTLProject().getProjectItems();
+				assert !pn.getTLProject().getProjectItems().contains(tlPI);
+				LOGGER.debug("Removed " + ln + " from project " + pn);
+			}
 			lnn.close();
 			assert (!pn.getChildren().contains(lnn));
 		}
-		for (ProjectNode pn : impactedProjects) {
-			OtmRegistry.getNavigatorView().refresh(pn, true);
+		for (ProjectNode imp : impactedProjects) {
+			OtmRegistry.getNavigatorView().refresh(imp, true);
 			save(pn);
+			LOGGER.debug("Save project: " + pn);
 		}
+
+		List<ProjectItem> itemsA = pn.getTLProject().getProjectItems();
 		// mc.refresh();
 	}
 
@@ -740,13 +766,34 @@ public class DefaultProjectController implements ProjectController {
 		return false;
 	}
 
+	/**
+	 * Close all projects.
+	 * <P>
+	 * Use the TL project manager to close all TL libraries.
+	 * <p>
+	 * Close the model node to close projects, clear the library manager and reset implied nodes.
+	 */
 	@Override
 	public void closeAll() {
-		for (ProjectNode project : getAll()) {
-			close(project);
-		}
+		// for (ProjectNode project : getAll()) {
+		// close(project);
+		// }
+		boolean includeBuiltins = false;
+		mc.getModelNode().close(includeBuiltins);
+
+		mc.getModelNode().getTLModel().clearModel();
 		// to re-initializes the contents of the model
 		projectManager.closeAll();
+
+		// Assure the built-ins do not need to be remodeled
+		for (LibraryNode ln : getBuiltInProject().getLibraries()) {
+			assert ln == Node.GetNode(ln.getTLModelObject());
+			for (TypeProvider n : ln.getDescendants_TypeProviders()) {
+				// if (n.getWhereAssignedCount() > 0)
+				n.getWhereAssignedHandler().clear(); // FIXME - why is this needed?
+				assert n.getWhereAssignedCount() == 0;
+			}
+		}
 	}
 
 	/**

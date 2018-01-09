@@ -76,32 +76,32 @@ import org.opentravel.schemas.commands.SaveLibraryHandler;
 import org.opentravel.schemas.commands.ValidateHandler;
 import org.opentravel.schemas.commands.VersionUpdateHandler;
 import org.opentravel.schemas.controllers.RepositoryController;
-import org.opentravel.schemas.node.AliasNode;
-import org.opentravel.schemas.node.BusinessObjectNode;
-import org.opentravel.schemas.node.ChoiceObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.CoreObjectNode;
-import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.SimpleComponentNode;
-import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.VersionNode;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
-import org.opentravel.schemas.node.facets.ContributedFacetNode;
-import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
+import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
+import org.opentravel.schemas.node.objectMembers.FacetOMNode;
+import org.opentravel.schemas.node.objectMembers.OperationNode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.SimpleComponentNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.properties.DefaultStringProperties;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.Messages;
@@ -448,15 +448,16 @@ public class NavigatorMenus extends TreeViewer {
 						} else if (node instanceof Enumeration) {
 							manager.add(componentMenu);
 						} else if (node instanceof AliasNode) {
-							manager.add(componentMenu);
+							if (!((AliasNode) node).isFacetAlias())
+								manager.add(componentMenu); // Only allow root alias to be changed
 						} else if (node instanceof ContextualFacetNode && !(node instanceof ContributedFacetNode)) {
 							manager.add(componentMenu);
 							//
-						} else if (node instanceof FacetNode) {
+						} else if (node instanceof FacetOMNode) {
 							manager.add(facetMenu);
-						} else if (node.isFacetAlias()) {
-							assert false;
-							manager.add(facetMenu); // Reached? should match aliasNode
+							// } else if (node.isFacetAlias()) {
+							// assert false;
+							// manager.add(facetMenu); // Reached? should match aliasNode
 						} else if (node instanceof ExtensionPointNode) {
 							manager.add(xpFacetObjectMenu);
 						} else if (node instanceof SimpleComponentNode) {

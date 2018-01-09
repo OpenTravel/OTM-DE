@@ -17,9 +17,9 @@ package org.opentravel.schemas.actions;
 
 import org.opentravel.schemacompiler.model.TLContextReferrer;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.facets.CustomFacetNode;
-import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.QueryFacetNode;
+import org.opentravel.schemas.node.objectMembers.FacetOMNode;
+import org.opentravel.schemas.node.typeProviders.CustomFacetNode;
+import org.opentravel.schemas.node.typeProviders.QueryFacetNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.MainWindow;
@@ -45,7 +45,7 @@ public class ChangeFacetContextAction extends OtmAbstractAction {
 	public void run() {
 		final ContextsView view = OtmRegistry.getContextsView();
 		final Node selected = getMainController().getCurrentNode_NavigatorView();
-		if (selected != null && selected instanceof FacetNode) {
+		if (selected != null && selected instanceof FacetOMNode) {
 			final Object model = selected.getTLModelObject();
 			if (model instanceof TLContextReferrer) {
 				view.getContextController().changeContext((TLContextReferrer) model);

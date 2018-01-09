@@ -25,9 +25,9 @@ import org.opentravel.schemacompiler.model.TLExtensionOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.handlers.NamespaceHandler;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.types.WhereExtendedHandler.WhereExtendedListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,7 +120,7 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 		// base.getNameWithPrefix());
 		// Can assign facets to extension points.
 		if (base.getLibrary() != null)
-			if (!base.getLibrary().getDescendants_LibraryMembers().contains(base.getOwningComponent()))
+			if (!base.getLibrary().getDescendants_LibraryMemberNodes().contains(base.getOwningComponent()))
 				LOGGER.error("Base library does not contain base object " + base);
 		// assert (base.getLibrary().getDescendants_LibraryMembers().contains(base));
 
@@ -159,7 +159,7 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 		}
 
 		if (base.getLibrary() != null)
-			if (!base.getLibrary().getDescendants_LibraryMembers().contains(base.getOwningComponent()))
+			if (!base.getLibrary().getDescendants_LibraryMemberNodes().contains(base.getOwningComponent()))
 				LOGGER.error("Base library does not contain base object " + base);
 		// assert (base.getLibrary().getDescendants_LibraryMembers().contains(base));
 		// if (oldBase == null)

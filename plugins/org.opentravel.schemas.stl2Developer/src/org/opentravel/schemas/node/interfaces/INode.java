@@ -18,12 +18,13 @@ package org.opentravel.schemas.node.interfaces;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.commands.AddNodeHandler2;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.IValueWithContextHandler;
+import org.opentravel.schemas.types.TypeProviderAndOwners;
 
 /**
  * Interface to nodes in the model.
@@ -47,6 +48,8 @@ public interface INode {
 	}
 
 	/**
+	 * Type of property or child that can be added to this node. Used in {@link AddNodeHandler2}
+	 * 
 	 * @return enumeration value of what add commands the node supports.
 	 */
 	public CommandType getAddCommand();
@@ -79,7 +82,7 @@ public interface INode {
 	 * 
 	 * @return
 	 */
-	public List<Node> getChildren_TypeProviders();
+	public List<TypeProviderAndOwners> getChildren_TypeProviders();
 
 	/**
 	 * Gets the descendants that are named types. Does not return navigation nodes. Does not return named properties
@@ -87,7 +90,7 @@ public interface INode {
 	 * 
 	 * @return all descendants that are named types.
 	 */
-	public List<Node> getDescendants_LibraryMembers();
+	public List<Node> getDescendants_LibraryMemberNodes();
 
 	/**
 	 * @return equivalent handler if supported, null otherwise
@@ -117,10 +120,10 @@ public interface INode {
 	 */
 	public Image getImage();
 
-	/**
-	 * @return new list with all descendants that are libraries.
-	 */
-	public List<LibraryNode> getLibraries();
+	// /**
+	// * @return new list with all descendants that are libraries.
+	// */
+	// public List<LibraryNode> getLibraries();
 
 	/**
 	 * @return new list of all immediate children that are projects.
@@ -176,11 +179,11 @@ public interface INode {
 	 * 
 	 * @return name of the assigned type from the type node.
 	 */
-	public String getTypeName();
+	public String getAssignedTypeName();
 
 	/**
 	 * TypeNameWithPrefix is the name of the type assigned to this object or property with namespace prefix. Uses
-	 * {@link INode#getTypeName()}. If the prefix is the same as the prefix of the node, it is not added.
+	 * {@link INode#getAssignedTypeName()}. If the prefix is the same as the prefix of the node, it is not added.
 	 * 
 	 * @return name of the assigned type with prefix if the prefix is different that this node.
 	 */
@@ -195,6 +198,9 @@ public interface INode {
 	/**
 	 * **** IS A Methods ***********************************************
 	 * 
+	 */
+	/**
+	 * @return true if node has been closed or deleted
 	 */
 	public boolean isDeleted();
 
@@ -242,7 +248,7 @@ public interface INode {
 
 	/**
 	 * @return true if this type of node will be assigned by reference not name. Implies the property name must be the
-	 *         same as the assigned type node's name. For type structure, see {@link ComplexComponentInterface}
+	 *         same as the assigned type node's name. For type structure, see {@link FacetOwner}
 	 */
 	public boolean isAssignedByReference();
 
@@ -272,6 +278,6 @@ public interface INode {
 
 	public LibraryNode getLibrary();
 
-	public TLModelElement getTLModelObject();
+	// public TLModelElement getTLModelObject();
 
 }

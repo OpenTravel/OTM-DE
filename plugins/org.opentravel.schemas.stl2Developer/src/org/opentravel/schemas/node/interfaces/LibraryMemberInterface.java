@@ -17,10 +17,10 @@ package org.opentravel.schemas.node.interfaces;
 
 import java.util.List;
 
-import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.handlers.children.ChildrenHandlerI;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
 
 /**
  * Implementors are objects that are first class, named members of the library.
@@ -30,6 +30,10 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
  */
 
 public interface LibraryMemberInterface extends INode {
+
+	// private LibraryNode owningLibrary = null;
+
+	public LibraryMemberInterface clone(LibraryNode targetLib, String nameSuffix);
 
 	/**
 	 * Create a copy of this node in destination library
@@ -41,6 +45,11 @@ public interface LibraryMemberInterface extends INode {
 	public LibraryMemberInterface copy(LibraryNode destLib) throws IllegalArgumentException;
 
 	public List<AliasNode> getAliases();
+
+	/**
+	 * @return children handler specific to this library member or null if no children
+	 */
+	public ChildrenHandlerI<?> getChildrenHandler();
 
 	@Override
 	public String getLabel();
@@ -60,29 +69,15 @@ public interface LibraryMemberInterface extends INode {
 	@Override
 	public String getPrefix();
 
-	public boolean isValid();
-
-	public void setLibrary(LibraryNode library);
+	/**
+	 * @return
+	 */
+	public Object getTLModelObject();
 
 	/**
 	 * @return
 	 */
 	public VersionNode getVersionNode();
-
-	/**
-	 * @return
-	 */
-	public boolean isVersioned();
-
-	/**
-	 * @return
-	 */
-	public boolean isInHead();
-
-	/**
-	 * @return
-	 */
-	public boolean isNewToChain();
 
 	/**
 	 * @return
@@ -97,11 +92,30 @@ public interface LibraryMemberInterface extends INode {
 	/**
 	 * @return
 	 */
+	public boolean isInHead();
+
+	/**
+	 * @return
+	 */
 	public boolean isLatestVersion();
 
 	/**
-	 * @return children handler specific to this library member or null if no children
+	 * @return
 	 */
-	public ChildrenHandlerI<?> getChildrenHandler();
+	public boolean isNewToChain();
+
+	public boolean isValid();
+
+	/**
+	 * @return
+	 */
+	public boolean isVersioned();
+
+	public void setLibrary(LibraryNode library);
+
+	/**
+	 * @return
+	 */
+	public boolean isEditable_isNewOrAsMinor();
 
 }

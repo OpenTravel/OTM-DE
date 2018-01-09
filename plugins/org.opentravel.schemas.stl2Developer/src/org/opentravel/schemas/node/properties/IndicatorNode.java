@@ -20,12 +20,13 @@ import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLIndicatorOwner;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.ComponentNodeType;
-import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 
@@ -43,22 +44,23 @@ public class IndicatorNode extends PropertyNode {
 		super();
 	}
 
-	public IndicatorNode(PropertyOwnerInterface parent, String name) {
+	public IndicatorNode(FacetInterface parent, String name) {
 		super(new TLIndicator(), parent, name);
 	}
 
-	public IndicatorNode(TLIndicator tlObj, PropertyOwnerInterface parent) {
+	public IndicatorNode(TLIndicator tlObj, FacetInterface parent) {
 		super(tlObj, parent);
 	}
 
 	@Override
-	public void addToTL(final PropertyOwnerInterface owner, final int index) {
+	public void addToTL(final FacetInterface owner, final int index) {
 		if (owner.getTLModelObject() instanceof TLIndicatorOwner)
 			try {
 				((TLIndicatorOwner) owner.getTLModelObject()).addIndicator(index, getTLModelObject());
 			} catch (IndexOutOfBoundsException e) {
 				((TLIndicatorOwner) owner.getTLModelObject()).addIndicator(getTLModelObject());
 			}
+		owner.getChildrenHandler().clear();
 	}
 
 	@Override
@@ -114,7 +116,7 @@ public class IndicatorNode extends PropertyNode {
 
 	@Override
 	public String getName() {
-		return getTLModelObject() != null ? emptyIfNull(getTLModelObject().getName()) : "";
+		return getTLModelObject() != null ? getTLModelObject().getName() : "";
 	}
 
 	@Override
@@ -171,7 +173,7 @@ public class IndicatorNode extends PropertyNode {
 
 	@Override
 	protected void removeFromTL() {
-		if (getTLModelObject() != null)
+		if (getTLModelObject() != null && getTLModelObject().getOwner() != null)
 			getTLModelObject().getOwner().removeIndicator(getTLModelObject());
 	}
 

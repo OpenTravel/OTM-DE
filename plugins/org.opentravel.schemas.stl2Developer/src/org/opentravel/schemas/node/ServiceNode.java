@@ -20,12 +20,14 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.LibraryElement;
 import org.opentravel.schemacompiler.model.TLService;
-import org.opentravel.schemas.node.facets.OperationNode;
-import org.opentravel.schemas.node.facets.OperationNode.ServiceOperationTypes;
 import org.opentravel.schemas.node.handlers.children.ServiceChildrenHandler;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.OperationNode;
+import org.opentravel.schemas.node.objectMembers.OperationNode.ServiceOperationTypes;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.properties.Images;
 
 /**
@@ -77,7 +79,7 @@ public class ServiceNode extends ComponentNode implements LibraryMemberInterface
 		childrenHandler = new ServiceChildrenHandler(this);
 
 		if (ln != null)
-			ln.setServiceRoot(this);
+			ln.setServiceNode(this);
 	}
 
 	public void add(OperationNode op) {
@@ -101,9 +103,30 @@ public class ServiceNode extends ComponentNode implements LibraryMemberInterface
 			new OperationNode(this, n.getLabel(), ServiceOperationTypes.QUERY, bo);
 	}
 
+	// @Override
+	// public Node clone() {
+	// }
 	@Override
-	public Node clone() {
+	public LibraryMemberInterface clone(LibraryNode targetLib, String nameSuffix) {
 		return null; // NO-OP
+		// if (getLibrary() == null || !getLibrary().isEditable()) {
+		// LOGGER.warn("Could not clone node because library " + getLibrary() + " it is not editable.");
+		// return null;
+		// }
+		//
+		// LibraryMemberInterface clone = null;
+		//
+		// // Use the compiler to create a new TL src object.
+		// TLModelElement newLM = (TLModelElement) cloneTLObj();
+		// if (newLM != null) {
+		// clone = NodeFactory.newLibraryMember((LibraryMember) newLM);
+		// if (nameSuffix != null)
+		// clone.setName(clone.getName() + nameSuffix);
+		// for (AliasNode alias : clone.getAliases())
+		// alias.setName(alias.getName() + nameSuffix);
+		// targetLib.addMember(clone);
+		// }
+		// return clone;
 	}
 
 	@Override

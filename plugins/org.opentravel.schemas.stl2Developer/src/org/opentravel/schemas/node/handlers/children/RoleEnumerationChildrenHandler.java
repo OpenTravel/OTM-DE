@@ -21,7 +21,7 @@ import java.util.List;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLRole;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.facets.RoleFacetNode;
+import org.opentravel.schemas.node.typeProviders.RoleFacetNode;
 
 /**
  * 

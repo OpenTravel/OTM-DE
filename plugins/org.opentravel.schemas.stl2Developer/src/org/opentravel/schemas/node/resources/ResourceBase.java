@@ -40,7 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Base generic class for all resource nodes EXCEPT ResourceNode which is a full node. Provides alterative to
+ * Base generic class for all resource nodes EXCEPT ResourceNode which is a full node. Provides alternative to
  * ModelObjects used in full nodes. Includes some utility classes for matching TL enumerations to GUI strings.
  * 
  * @author Dave
@@ -52,6 +52,9 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceBase.class);
 	protected TL tlObj;
 	protected LibraryNode library;
+
+	// These nodes are never presented in navigator tree so they don't need a children handler.
+	private List<Node> rChildren = new ArrayList<Node>();
 
 	public ResourceBase(TL obj) {
 		this.tlObj = obj;
@@ -98,6 +101,11 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 			getChildren().add((Node) child);
 	}
 
+	@Override
+	public List<Node> getChildren() {
+		return rChildren;
+	}
+
 	public void addListeners() {
 	}
 
@@ -113,7 +121,8 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 	public void delete() {
 		// LOGGER.debug("Deleting " + this);
 		clearListeners();
-		parent.getChildren().remove(this);
+		if (getParent().getChildrenHandler() != null)
+			getParent().getChildrenHandler().clear(this);
 		deleted = true;
 	}
 

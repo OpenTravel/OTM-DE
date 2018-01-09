@@ -26,15 +26,21 @@ import javax.xml.namespace.QName;
 import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemas.node.NodeVisitors.FixNames;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
-import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.ListFacetNode;
-import org.opentravel.schemas.node.facets.QueryFacetNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
+import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
+import org.opentravel.schemas.node.typeProviders.ListFacetNode;
+import org.opentravel.schemas.node.typeProviders.QueryFacet15Node;
+import org.opentravel.schemas.node.typeProviders.QueryFacetNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.utils.XsdModelingUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Static utilities for manipulating the names of various objects.
@@ -43,6 +49,8 @@ import org.opentravel.schemas.utils.XsdModelingUtils;
  * 
  */
 public class NodeNameUtils {
+	private static final Logger LOGGER = LoggerFactory.getLogger(NodeNameUtils.class);
+
 	public static final String IndicatorSuffix = "Ind";
 	public static final String IndicatorBannedPrefix = "is";
 	public static final String SIMPLE_LIST_SUFFIX = "Simple_List";
@@ -168,7 +176,7 @@ public class NodeNameUtils {
 			else if (assignedType instanceof ListFacetNode && ((ListFacetNode) assignedType).isSimpleListFacet())
 				// Just add "s" instead of "_Simple_List"
 				name = makePlural(stripUnderScore(stripSuffix(assignedType.getName(), SIMPLE_LIST_SUFFIX)));
-			else if (name.isEmpty())
+			else if (name == null || name.isEmpty())
 				// If the name is empty and no name is required
 				if (assignedType instanceof ImpliedNode)
 					// If no name and implied assigned, then return the name of the implied node.
@@ -269,10 +277,19 @@ public class NodeNameUtils {
 	 * initial cap and strip the facet prefix
 	 * 
 	 */
-	public static String fixContextualFacetName(ContextualFacetNode cfn, String name) {
+	public static String fixContextualFacetName(AbstractContextualFacet cfn, String name) {
 		return toInitialCap(stripFacetPrefix(cfn, name));
 		// String gtn = XsdCodegenUtils.getGlobalTypeName(fn.getTLModelObject());
 	}
+
+	// /**
+	// * initial cap and strip the facet prefix
+	// *
+	// */
+	// public static String fixContextualFacetName(ContextualFacet15Node cfn, String name) {
+	// return toInitialCap(stripFacetPrefix(cfn, name));
+	// // String gtn = XsdCodegenUtils.getGlobalTypeName(fn.getTLModelObject());
+	// }
 
 	public static String fixIdReferenceName(Node n) {
 		if (!(n instanceof ElementReferenceNode)) {
@@ -301,6 +318,8 @@ public class NodeNameUtils {
 	 * @return
 	 */
 	public static String fixIndicatorName(String name) {
+		if (name == null)
+			LOGGER.warn("NUll name.");
 		if (name.startsWith(IndicatorBannedPrefix))
 			name = name.substring(IndicatorBannedPrefix.length());
 		name = adjustCaseOfName(PropertyNodeType.INDICATOR, name);
@@ -325,7 +344,7 @@ public class NodeNameUtils {
 	/**
 	 * Assure a simple type name conforms with the rules.
 	 */
-	public static String fixSimpleTypeName(SimpleComponentNode node, String name) {
+	public static String fixSimpleTypeName(SimpleTypeNode node, String name) {
 		// String name = node.getName();
 		if (name == null || name.isEmpty())
 			name = node.getAssignedType().getName();
@@ -425,19 +444,25 @@ public class NodeNameUtils {
 	 *            use this name instead of name from FacetNode. Used for rename.
 	 * @return
 	 */
-	public static String stripFacetPrefix(FacetNode fn, String newName) {
+	public static String stripFacetPrefix(FacetProviderNode fn, String newName) {
 		String name = fn.getName();
 		if (newName != null) {
 			name = newName;
 		}
+		// If it is a contextual facet that does not have an owner, exit
+		if (fn instanceof ContextualFacetNode && ((ContextualFacetNode) fn).getWhereContributed() == null)
+			return name;
 		if (fn.getOwningComponent() == null)
 			return name;
 		String parent = fn.getOwningComponent().getName();
+		// Contextual facets are their own owning component, use where contributed instead
+		if (fn instanceof ContextualFacetNode)
+			parent = ((ContextualFacetNode) fn).getWhereContributed().getOwningComponent().getName();
 		if (name.startsWith(parent))
 			name = name.substring(parent.length());
 		if (name.startsWith("_"))
 			name = name.substring(1);
-		if (fn instanceof QueryFacetNode) {
+		if (fn instanceof QueryFacetNode || fn instanceof QueryFacet15Node) {
 			String facetType = fn.getFacetType().getIdentityName();
 			if (name.startsWith(facetType))
 				name = name.substring(facetType.length());

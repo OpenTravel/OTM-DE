@@ -21,10 +21,10 @@ import java.util.List;
 
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -71,7 +71,10 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 	 * 
 	 * @param destination
 	 */
-	public void importSelectedToLibrary(final LibraryNode destination) {
+	public void importSelectedToLibrary(LibraryNode destination) {
+		// Only the head library is displayed, but some of its contents are from earlier versions
+		if (destination.isInChain())
+			destination = destination.getHead();
 		if (destination == null) {
 			LOGGER.error("Tried to import to null destination library.");
 			return;
@@ -99,7 +102,7 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 		final List<Node> eligibleForImporting = new ArrayList<Node>();
 		for (Node n : sourceNodes) {
 			if (n instanceof LibraryNode)
-				eligibleForImporting.addAll(n.getDescendants_LibraryMembers());
+				eligibleForImporting.addAll(n.getDescendants_LibraryMemberNodes());
 			else if (!(n.getLibrary()).equals(destination))
 				eligibleForImporting.add(n);
 		}

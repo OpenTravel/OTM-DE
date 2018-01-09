@@ -23,12 +23,13 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLRole;
 import org.opentravel.schemacompiler.model.TLRoleEnumeration;
 import org.opentravel.schemas.node.ComponentNodeType;
-import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
-import org.opentravel.schemas.node.facets.RoleFacetNode;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
+import org.opentravel.schemas.node.typeProviders.RoleFacetNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 
@@ -53,13 +54,14 @@ public class RoleNode extends PropertyNode {
 	}
 
 	@Override
-	public void addToTL(final PropertyOwnerInterface owner, final int index) {
+	public void addToTL(final FacetInterface owner, final int index) {
 		if (owner.getTLModelObject() instanceof TLRoleEnumeration)
 			try {
 				((TLRoleEnumeration) owner.getTLModelObject()).addRole(index, getTLModelObject());
 			} catch (IndexOutOfBoundsException e) {
 				((TLRoleEnumeration) owner.getTLModelObject()).addRole(getTLModelObject());
 			}
+		owner.getChildrenHandler().clear();
 	}
 
 	@Override
@@ -95,10 +97,10 @@ public class RoleNode extends PropertyNode {
 		return Images.getImageRegistry().get(Images.RoleValue);
 	}
 
-	@Override
-	public String getLabel() {
-		return getName();
-	}
+	// @Override
+	// public String getLabel() {
+	// return getName();
+	// }
 
 	@Override
 	public String getName() {
@@ -169,7 +171,7 @@ public class RoleNode extends PropertyNode {
 	@Override
 	protected void removeFromTL() {
 		if (getParent() != null && getParent().getTLModelObject() instanceof TLRoleEnumeration)
-			((TLRoleEnumeration) getParent().getTLModelObject()).removeRole(getTLModelObject());
+			getParent().getTLModelObject().removeRole(getTLModelObject());
 	}
 
 	@Override

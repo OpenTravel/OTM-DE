@@ -55,15 +55,16 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.VWA_Node;
-import org.opentravel.schemas.node.facets.SimpleFacetFacadeNode;
-import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.FacetOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.preferences.CompilerPreferences;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.types.SimpleAttributeOwner;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.views.ValidationResultsView;
@@ -169,6 +170,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 
 	public void syncWithUi(final String msg) {
 		Display.getDefault().asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				OtmRegistry.getMainController().postStatus(msg);
 				// Update the project documentation view
@@ -478,14 +480,22 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 	public boolean changeToSimple(PropertyNode p) {
 		if (p instanceof SimpleAttributeFacadeNode)
 			return false;
-		if (!p.getType().isSimpleAssignable())
+		if (!(p.getAssignedType() instanceof TypeProvider) || !p.getType().isSimpleAssignable())
 			return false;
 
 		ComponentNode owner = (ComponentNode) p.getOwningComponent();
-		if (!(owner instanceof ComplexComponentInterface)) {
-			return false;
-		}
+		SimpleAttributeOwner simpleAttr = null;
+		boolean result = false;
+		if (owner instanceof CoreObjectNode)
+			result = ((CoreObjectNode) owner).setAssignedType(p.getAssignedType());
+		else if (owner instanceof VWA_Node)
+			result = ((VWA_Node) owner).setAssignedType(p.getAssignedType());
+		if (!result)
+			return result; // failed to make assignements
+		// TODO copy the examples and equivalents
+		// FIXME copyDocumentation(p, simpleFacet);
 
+		// Remove from current parent
 		// Other methods do node and TL level changes. Adding TL model code.
 		// Handles both core and VWA object types.
 		// 2/3/2015 dmh
@@ -497,11 +507,14 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 		else
 			return false;
 
-		ComponentNode ci = (ComponentNode) owner;
-		Node simpleProp = ((SimpleFacetFacadeNode) ci.getFacet_Simple()).getSimpleAttribute();
-		((TypeUser) simpleProp).setAssignedType((TypeProvider) p.getType());
-		copyDocumentation(p, simpleProp);
-		// TODO also copy the examples and equivalents
+		// Add to simple attribute as type
+		// ComponentNode ci = owner;
+		// Node simpleProp = null;
+		// if (ci instanceof VWA_SimpleFacetFacadeNode)
+		// simpleProp = ((VWA_SimpleFacetFacadeNode) ci.getFacet_Simple()).getSimpleAttribute();
+		// else if (ci instanceof CoreSimpleFacetNode)
+		// simpleProp = ((CoreSimpleFacetNode) ci.getFacet_Simple()).getSimpleAttribute();
+		// ((TypeUser) simpleFacet).setAssignedType((TypeProvider) p.getType());
 
 		p.getParent().getChildrenHandler().clear();
 		// p.unlinkNode();
@@ -526,11 +539,11 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 			return null;
 
 		ComponentNode cn = (ComponentNode) simpleAttribute.getOwningComponent();
-		if (!(cn instanceof ComplexComponentInterface)) {
+		if (!(cn instanceof FacetOwner)) {
 			return null;
 		}
 
-		ComplexComponentInterface ci = (ComplexComponentInterface) cn;
+		FacetOwner ci = (FacetOwner) cn;
 		TLModelElement tlModel = null;
 		if (ci instanceof VWA_Node) {
 			String name = NodeNameUtils.stipSimpleSuffix(simpleAttribute.getName());

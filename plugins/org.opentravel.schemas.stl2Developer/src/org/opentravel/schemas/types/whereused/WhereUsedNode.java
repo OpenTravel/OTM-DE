@@ -23,12 +23,13 @@ import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.controllers.NodeImageProvider;
 import org.opentravel.schemas.node.controllers.NodeLabelProvider;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
+import org.opentravel.schemas.node.handlers.children.WhereUsedChildrenHandler;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
@@ -53,26 +54,37 @@ public abstract class WhereUsedNode<O> extends Node implements WhereUsedNodeInte
 	public WhereUsedNode(final LibraryNode lib, LibraryNode parent) {
 		this.owner = (O) lib;
 		this.parent = parent;
+		childrenHandler = new WhereUsedChildrenHandler(this);
+	}
+
+	@Override
+	public WhereUsedChildrenHandler getChildrenHandler() {
+		return (WhereUsedChildrenHandler) childrenHandler;
 	}
 
 	public WhereUsedNode(final LibraryNode lib) {
 		this.owner = (O) lib;
+		childrenHandler = new WhereUsedChildrenHandler(this);
 	}
 
 	public WhereUsedNode(final TypeProvider provider) {
 		this.owner = (O) provider;
+		childrenHandler = new WhereUsedChildrenHandler(this);
 	}
 
 	public WhereUsedNode(final ContextualFacetNode owner) {
 		this.owner = (O) owner;
+		childrenHandler = new WhereUsedChildrenHandler(this);
 	}
 
 	public WhereUsedNode(final ExtensionOwner owner) {
 		this.owner = (O) owner;
+		childrenHandler = new WhereUsedChildrenHandler(this);
 	}
 
 	public WhereUsedNode(final TypeUser user) {
 		this.owner = (O) user;
+		childrenHandler = new WhereUsedChildrenHandler(this);
 	}
 
 	@Override
@@ -203,7 +215,7 @@ public abstract class WhereUsedNode<O> extends Node implements WhereUsedNodeInte
 
 			@Override
 			public Image getImage() {
-				return imageNode.getImage();
+				return imageNode != null ? imageNode.getImage() : null;
 			}
 		};
 	}

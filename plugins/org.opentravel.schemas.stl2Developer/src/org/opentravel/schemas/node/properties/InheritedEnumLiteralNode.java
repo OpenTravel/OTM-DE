@@ -17,13 +17,14 @@ package org.opentravel.schemas.node.properties;
 
 import org.opentravel.schemacompiler.model.TLEnumValue;
 import org.opentravel.schemas.node.ComponentNodeType;
-import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.InheritedInterface;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.types.TypeProvider;
 
 /**
@@ -36,31 +37,17 @@ public class InheritedEnumLiteralNode extends EnumLiteralNode implements FacadeI
 
 	private EnumLiteralNode inheritedFrom = null;
 
-	public InheritedEnumLiteralNode(EnumLiteralNode from, PropertyOwnerInterface parent) {
+	public InheritedEnumLiteralNode(EnumLiteralNode from, FacetInterface parent) {
 		super();
 		inheritedFrom = from;
 		this.parent = (Node) parent;
-	}
 
-	// public InheritedEnumLiteralNode(EnumLiteralNode from, EnumerationOpenNode parent) {
-	// super();
-	// inheritedFrom = from;
-	// this.parent = parent;
-	// }
+		assert from.getParent() != parent;
+	}
 
 	@Override
 	public boolean canAssign(Node type) {
 		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacadeInterface#get()
-	 */
-	@Override
-	public Node get() {
-		return getInheritedFrom();
 	}
 
 	@Override
@@ -110,6 +97,11 @@ public class InheritedEnumLiteralNode extends EnumLiteralNode implements FacadeI
 
 	@Override
 	public void setName(String name) {
+	}
+
+	@Override
+	public EnumLiteralNode get() {
+		return getInheritedFrom();
 	}
 
 }

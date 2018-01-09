@@ -19,10 +19,12 @@
 package org.opentravel.schemas.node;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
+import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.repository.Project;
 import org.opentravel.schemacompiler.repository.ProjectItem;
@@ -41,6 +43,7 @@ import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.types.TypeProviderAndOwners;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class ProjectNode extends Node implements INode, FacadeInterface {
+public class ProjectNode extends Node implements INode, TypeProviderAndOwners, FacadeInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProjectNode.class);
 
 	private final Project project; // underlying TL model object
@@ -103,14 +106,16 @@ public class ProjectNode extends Node implements INode, FacadeInterface {
 
 		// FIXME - why pass project if it is not added ? Who needs it?
 		for (ProjectItem pi : piList) {
+			LOGGER.debug("Adding project item " + pi.getLibraryName() + " to " + this);
 			lnn = manager.add(pi, this);
 			if (lnn != null) { // can fail to create chain
 				add(lnn);
-				if (!getChildren().contains(lnn)) {
-					LOGGER.error(lnn + " is not in project " + this);
-					getChildren().contains(lnn);
-				}
-				assert (getChildren().contains(lnn));
+				// This will fail if a LNN already created to represent chain
+				// if (!getChildren().contains(lnn)) {
+				// LOGGER.error(lnn + " is not in project " + this);
+				// getChildren().contains(lnn);
+				// }
+				// assert (getChildren().contains(lnn));
 			}
 		}
 		return lnn;
@@ -144,20 +149,23 @@ public class ProjectNode extends Node implements INode, FacadeInterface {
 	 * 
 	 * @param library
 	 */
-	public void remove(LibraryNode library) {
-		getChildrenHandler().remove(library);
+	public void remove(LibraryInterface library) {
+		getChildrenHandler().remove((Node) library);
 	}
 
 	/**
-	 * Close each library or chain using the library model manager. Does <b>not</b> close the TL Project.
+	 * Close each library. Does <b>not</b> close the TL Project. Does <b>not</b> remove project from model node.
 	 */
 	@Override
 	public void close() {
-		// LOGGER.debug("Closing " + getName());
-		List<Node> libs = getChildrenHandler().getChildren_New();
-		for (Node n : libs)
+		LOGGER.debug("Closing " + getName());
+		List<Node> lnns = getChildrenHandler().getChildren_New();
+		for (Node n : lnns)
 			n.close();
-		// Node.getModelNode().removeProject(this);
+
+		// TODO - shouldn't this be removed from Model?
+		// NO - caller responsibility
+		// TODO - shouldn't this close the tl project?
 	}
 
 	/**
@@ -259,6 +267,26 @@ public class ProjectNode extends Node implements INode, FacadeInterface {
 		if (nsHandler != null && nsHandler.getPrefix(project.getProjectId()) != null)
 			prefix = nsHandler.getPrefix(project.getProjectId()) + " = ";
 		return getName() + " [" + prefix + project.getProjectId() + "]";
+	}
+
+	/**
+	 * Get all libraries under <i>this</i> project.
+	 * <p>
+	 * Returns libraries in chains, not the chain.
+	 * 
+	 * @return new list of library nodes.
+	 */
+	@Override
+	public List<LibraryNode> getLibraries() {
+		ArrayList<LibraryNode> libs = new ArrayList<LibraryNode>();
+		if (getChildrenHandler() != null)
+			for (Node n : getChildrenHandler().get()) {
+				if (n instanceof LibraryNavNode) {
+					LibraryNavNode lnn = (LibraryNavNode) n;
+					libs.addAll(lnn.getLibraries());
+				}
+			}
+		return libs;
 	}
 
 	@Override
@@ -404,6 +432,19 @@ public class ProjectNode extends Node implements INode, FacadeInterface {
 	}
 
 	@Override
+	public List<LibraryNode> getUserLibraries() {
+		List<LibraryNode> libList = new ArrayList<LibraryNode>();
+		for (Node lib : getChildrenHandler().get()) {
+			// Get libraryNodes from navNode
+			assert lib instanceof LibraryNavNode;
+			for (LibraryNode ln : ((LibraryNavNode) lib).getLibraries())
+				if (ln.getTLModelObject() instanceof TLLibrary)
+					libList.add(ln);
+		}
+		return libList;
+	}
+
+	@Override
 	public TLModelElement getTLModelObject() {
 		return null;
 	}
@@ -415,7 +456,7 @@ public class ProjectNode extends Node implements INode, FacadeInterface {
 	}
 
 	public void remove(LibraryNavNode l) {
-		getChildrenHandler().remove(l);
+		getChildrenHandler().clear(l);
 	}
 
 	// @Override
@@ -430,6 +471,7 @@ public class ProjectNode extends Node implements INode, FacadeInterface {
 			// get past LibraryNavNode and VersionNodes
 			if (lib.getLibrary() != null)
 				project.remove(lib.getLibrary().getProjectItem());
+		// TODO - close the project to remove libs from children handler and lib mgr
 	}
 
 	@Override
@@ -508,6 +550,7 @@ public class ProjectNode extends Node implements INode, FacadeInterface {
 			getChildrenHandler().remove(n);
 			n.setParent(null);
 		}
+		// TODO - inform libMgr
 	}
 
 	/**

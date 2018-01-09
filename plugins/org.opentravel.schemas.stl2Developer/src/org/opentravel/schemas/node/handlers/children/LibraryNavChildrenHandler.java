@@ -22,7 +22,7 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
-import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeProviderAndOwners;
 
 /**
  * Model node children handler using a static children handler for projects and implied types.
@@ -76,9 +76,11 @@ public class LibraryNavChildrenHandler extends StaticChildrenHandler<Node, Libra
 		return getThisLibI() != null ? ((Node) getThisLibI()).hasChildren_TypeProviders() : false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public List<TypeProvider> getChildren_TypeProviders() {
-		return getThisLibI() != null ? ((Node) getThisLibI()).getChildrenHandler().getChildren_TypeProviders() : null;
+	public List<TypeProviderAndOwners> getChildren_TypeProviders() {
+		return getThisLibI() != null ? ((Node) getThisLibI()).getChildrenHandler().getChildren_TypeProviders()
+				: Collections.EMPTY_LIST;
 	}
 
 	@Override

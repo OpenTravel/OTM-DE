@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.properties.Images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,13 +139,13 @@ public class AggregateNode extends NavNode {
 	 */
 	@Override
 	public void close() {
-		for (Node n : getChildren_New()) {
+		List<Node> kids = getChildrenHandler().getChildren_New();
+		for (Node n : kids) {
 			n.close();
 			n.setParent(null);
+			getChildrenHandler().clear(n);
 		}
 		setParent(null);
-		getChildrenHandler().clear();
-		setLibrary(null);
 		deleted = true;
 	}
 
@@ -154,6 +154,7 @@ public class AggregateNode extends NavNode {
 	 * <p>
 	 * Does <b>not</b> get the version node if an object is passed.
 	 */
+	@Override
 	public boolean contains(Node node) {
 		return getChildren().contains(node);
 	}

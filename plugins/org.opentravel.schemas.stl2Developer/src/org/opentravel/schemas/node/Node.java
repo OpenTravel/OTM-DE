@@ -62,23 +62,17 @@ import org.opentravel.schemacompiler.version.VersionSchemeException;
 import org.opentravel.schemacompiler.version.Versioned;
 import org.opentravel.schemas.controllers.LibraryModelManager;
 import org.opentravel.schemas.controllers.ValidationManager;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
-import org.opentravel.schemas.node.facets.ContributedFacetNode;
-import org.opentravel.schemas.node.facets.CustomFacetNode;
-import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.OperationFacetNode;
-import org.opentravel.schemas.node.facets.OperationNode;
-import org.opentravel.schemas.node.facets.QueryFacetNode;
-import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.handlers.DocumentationHandler;
 import org.opentravel.schemas.node.handlers.children.ChildrenHandlerI;
-import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
+import org.opentravel.schemas.node.interfaces.FacetOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.interfaces.SimpleMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -86,15 +80,28 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.INodeListener;
 import org.opentravel.schemas.node.listeners.NodeIdentityListener;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
+import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
+import org.opentravel.schemas.node.objectMembers.FacetOMNode;
+import org.opentravel.schemas.node.objectMembers.OperationFacetNode;
+import org.opentravel.schemas.node.objectMembers.OperationNode;
 import org.opentravel.schemas.node.properties.IValueWithContextHandler;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
-import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
+import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
+import org.opentravel.schemas.node.typeProviders.ContextualFacet15Node;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.CustomFacetNode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNodeType;
+import org.opentravel.schemas.node.typeProviders.QueryFacetNode;
+import org.opentravel.schemas.node.typeProviders.RoleFacetNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.types.ExtensionHandler;
 import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.types.TypeProviderAndOwners;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.WhereExtendedHandler;
 import org.slf4j.Logger;
@@ -135,23 +142,10 @@ public abstract class Node implements INode {
 
 	protected boolean deleted = false;
 
-	// DEPRECATED - make these go away
-	// @Deprecated
-	// protected LibraryNode library; // link to the library node to which this node belongs
-	// @Deprecated
-	// private final ArrayList<Node> children; // links to the children
-	// @Deprecated
-	// public ModelObject<?> modelObject; // Generic interface to TL Model objects.
-	// @Deprecated
-	// public XsdNode xsdNode = null; // Link to node containing imported XSD representation
 	@Deprecated
 	public boolean xsdType = false; // True if this node represents an object that was created by
 									// the XSD utilities but has not be imported.
 									// @Deprecated
-
-	// public boolean local = false; // Local nodes are not named nodes and are not to made visible in type assignment
-
-	// lists.
 
 	/**
 	 * Public class for comparing nodes. Use: Collection.sort(list, node.new NodeComparable()) Uses node name and prefix
@@ -325,6 +319,7 @@ public abstract class Node implements INode {
 	 * @return
 	 */
 	@Override
+	@Deprecated
 	public Node clone() {
 		return clone(this.getLibrary(), null);
 	}
@@ -340,17 +335,9 @@ public abstract class Node implements INode {
 	 * @return null if error
 	 */
 	// TODO - refactor to classes that implement cloneTLObj()
+	@Deprecated
 	public Node clone(Node parent, String nameSuffix) {
 		LibraryNode lib = this.getLibrary();
-		// if (parent != null)
-		// lib = parent.getLibrary();
-		// if (parent instanceof LibraryNode)
-		// parent = this.getParent();
-		//
-		// if (lib == null || !lib.isEditable()) {
-		// LOGGER.warn("Could not clone node because library " + lib + " it is not editable.");
-		// return null;
-		// }
 		Node newNode = null;
 
 		// // Use the compiler to create a new TL src object.
@@ -377,12 +364,13 @@ public abstract class Node implements INode {
 	public Node clone(String nameSuffix) {
 		if (!(this instanceof ComponentNode))
 			return null;
-		if (this instanceof LibraryMemberBase)
-			return clone(this.getLibrary(), nameSuffix);
+		if (this instanceof LibraryMemberInterface)
+			return (Node) ((LibraryMemberInterface) this).clone(this.getLibrary(), nameSuffix);
 		else if (this instanceof PropertyNode)
-			return clone(getParent(), nameSuffix);
+			return ((PropertyNode) this).clone(getParent(), nameSuffix);
 
-		assert false;
+		LOGGER.warn("Invalid object type to clone: " + this.getClass().getSimpleName());
+		// assert false;
 		return null;
 	}
 
@@ -407,28 +395,16 @@ public abstract class Node implements INode {
 		return newLE;
 	}
 
+	public TLModelElement getTLModelObject() {
+		return tlObj;
+	}
+
 	@Override
 	public void close() {
 		if (getLibrary() != null)
 			getLibrary().setEditable(true);
 		this.visitAllNodes(new NodeVisitors().new closeVisitor());
 	}
-
-	// public Document compileExampleDOM() {
-	// final ExampleBuilder<Document> exampleBuilder = new ExampleDocumentBuilder(new ExampleGeneratorOptions())
-	// .setModelElement((NamedEntity) this.getTLModelObject());
-	// Document domDoc = null;
-	// try {
-	// domDoc = exampleBuilder.buildTree();
-	// } catch (ValidationException e) {
-	// LOGGER.debug("Validation Exception on " + this + " : " + e);
-	// // for (String finding : e.getFindings().getAllValidationMessages(FindingMessageFormat.IDENTIFIED_FORMAT))
-	// // LOGGER.debug("Finding: " + finding);
-	// } catch (CodeGenerationException e) {
-	// LOGGER.debug("CodeGen Exception on " + this + " : " + e);
-	// }
-	// return domDoc;
-	// }
 
 	public String compileExampleXML(boolean quiet) {
 		final ExampleBuilder<Document> exampleBuilder = new ExampleDocumentBuilder(new ExampleGeneratorOptions())
@@ -449,6 +425,9 @@ public abstract class Node implements INode {
 		return xml;
 	}
 
+	/**
+	 * Return true if the direct children (not inherited children) includes the candidate.
+	 */
 	public boolean contains(Node candidate) {
 		return getChildren() != null ? getChildren().contains(candidate) : false;
 	}
@@ -538,7 +517,7 @@ public abstract class Node implements INode {
 	 * @return node found or null
 	 */
 	public Node findLibraryMemberByName(String name) {
-		for (Node n : getDescendants_LibraryMembers()) {
+		for (Node n : getDescendants_LibraryMemberNodes()) {
 			if (n.getName().equals(name))
 				return n;
 		}
@@ -546,19 +525,25 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Find the first child of this node with the given name. The order searched is not guaranteed.
+	 * Find the first child, including inherited children, of this node with the given name. The order searched is not
+	 * guaranteed.
 	 * <p>
 	 * Contextual facets have prefix from owner, so this method matches contextual facets that end in name.
+	 * <p>
+	 * Warning - contextual facets may have multiple of the same name
 	 * 
 	 * @param name
 	 * @return node found or null
 	 */
 	public Node findChildByName(String name) {
-		List<Node> allKids = new ArrayList<Node>(getChildren());
-		allKids.addAll(getInheritedChildren());
+		List<Node> allKids = new ArrayList<Node>(getChildrenHandler().get());
+		allKids.addAll(getChildrenHandler().getInheritedChildren());
 
 		for (Node n : allKids) {
-			if (n instanceof ContextualFacetNode)
+			if (n instanceof AbstractContextualFacet)
+				if (n.getName().endsWith(name))
+					return n;
+			if (n instanceof ContributedFacetNode)
 				if (n.getName().endsWith(name))
 					return n;
 			if (n.getName().equals(name))
@@ -718,8 +703,8 @@ public abstract class Node implements INode {
 		return "";
 	}
 
-	public PropertyOwnerInterface getFacet_Default() {
-		return this instanceof ComplexComponentInterface ? ((ComplexComponentInterface) this).getFacet_Default() : null;
+	public FacetInterface getFacet_Default() {
+		return this instanceof FacetOwner ? ((FacetOwner) this).getFacet_Default() : null;
 	}
 
 	/**
@@ -816,20 +801,26 @@ public abstract class Node implements INode {
 	 * using the version node and does not touch aggregates.
 	 */
 	@Override
-	public List<Node> getDescendants_LibraryMembers() {
+	@Deprecated
+	public List<Node> getDescendants_LibraryMemberNodes() {
 		// keep duplicates out of the list that version aggregates may introduce
 		HashSet<Node> namedKids = new HashSet<Node>();
-		for (Node c : getChildren()) {
-			// TL model considers services as named library member
-			if (c.isLibraryMember())
-				if (c instanceof FacadeInterface)
-					namedKids.add(((FacadeInterface) c).get());
-				else
-					namedKids.add(c);
-			else if (c.hasChildren())
-				namedKids.addAll(c.getDescendants_LibraryMembers());
-		}
+		if (getChildrenHandler() != null)
+			for (LibraryMemberInterface c : getChildrenHandler().getDescendants_LibraryMembers())
+				namedKids.add((Node) c);
 		return new ArrayList<Node>(namedKids);
+
+	}
+
+	/**
+	 * return new list of NamedEntities. Traverse via hasChildren. For version chains, it returns the newest version
+	 * using the version node and does not touch aggregates.
+	 */
+	// @Override
+	public List<LibraryMemberInterface> getDescendants_LibraryMembers() {
+		if (getChildrenHandler() != null)
+			return getChildrenHandler().getDescendants_LibraryMembers();
+		return Collections.emptyList();
 	}
 
 	/**
@@ -837,15 +828,15 @@ public abstract class Node implements INode {
 	 * 
 	 * @return new list of all descendants that simple components.
 	 */
-	public List<SimpleComponentNode> getDescendants_SimpleComponents() {
-		final ArrayList<SimpleComponentNode> ret = new ArrayList<SimpleComponentNode>();
+	public ArrayList<SimpleMemberInterface> getDescendants_SimpleMembers() {
+		final ArrayList<SimpleMemberInterface> ret = new ArrayList<SimpleMemberInterface>();
 		for (final Node n : getChildren()) {
-			if (n instanceof SimpleComponentNode)
-				ret.add((SimpleComponentNode) n);
+			if (n instanceof SimpleMemberInterface)
+				ret.add((SimpleMemberInterface) n);
 
 			// check children
 			if (n.hasChildren() && !(n instanceof WhereUsedNodeInterface))
-				ret.addAll(n.getDescendants_SimpleComponents());
+				ret.addAll(n.getDescendants_SimpleMembers());
 		}
 		return ret;
 	}
@@ -960,7 +951,7 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Return the actual extension base object. Will not return objects that are using extension for version
+	 * Return the actual extension base object or null. Will not return objects that are using extension for version
 	 * relationships. This method will examine the whole chain to find the oldest version of the object and return its
 	 * base type if any.
 	 * 
@@ -1000,10 +991,14 @@ public abstract class Node implements INode {
 		return Collections.emptyList();
 	}
 
+	@Deprecated
 	public Node getInheritedFrom() {
 		return null;
 	}
 
+	/**
+	 * Label is posted in second column of facet table.
+	 */
 	@Override
 	public String getLabel() {
 		return getName();
@@ -1073,10 +1068,15 @@ public abstract class Node implements INode {
 	/**
 	 * Get all libraries under <i>this</i> node. Note - only searches library containers. Libraries in the tree with an
 	 * ancestor that is not a library container will not be found. Returns libraries in chains, not the chain.
-	 * 
+	 *
+	 * <p>
+	 * TODO - this returns multiple copies of the same node if in chain!
+	 * <p>
+	 * Use ProjectNode.getLibraries()
+	 *
 	 * @return new list of library nodes.
 	 */
-	@Override
+	@Deprecated
 	public List<LibraryNode> getLibraries() {
 		ArrayList<LibraryNode> libs = new ArrayList<LibraryNode>();
 		if (getChildrenHandler() == null)
@@ -1096,6 +1096,9 @@ public abstract class Node implements INode {
 		return getOwningComponent() != null ? getOwningComponent().getLibrary() : null;
 	}
 
+	/**
+	 * Name is posted in first column of facet table.
+	 */
 	@Override
 	public abstract String getName();
 
@@ -1165,7 +1168,13 @@ public abstract class Node implements INode {
 	 */
 	@Override
 	public LibraryMemberInterface getOwningComponent() {
-		return null;
+		if (this instanceof LibraryMemberInterface)
+			return (LibraryMemberInterface) this;
+		if (getParent() instanceof LibraryMemberInterface)
+			return (LibraryMemberInterface) getParent();
+		if (getParent() == null || !(getParent() instanceof ComponentNode))
+			return null;
+		return getParent().getOwningComponent();
 	}
 
 	/**
@@ -1199,19 +1208,6 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Get the TL model object from the node's model object or null if there is no underlying model object or tl model
-	 * object.
-	 * 
-	 * @return
-	 */
-	// FIXME - make abstract
-	@Override
-	public TLModelElement getTLModelObject() {
-		return tlObj;
-		// return (TLModelElement) (modelObject != null ? modelObject.getTLModelObj() : null);
-	}
-
-	/**
 	 * returns If a type user then return getAssignedType() node else null
 	 */
 	@Override
@@ -1220,7 +1216,7 @@ public abstract class Node implements INode {
 	}
 
 	@Override
-	public String getTypeName() {
+	public String getAssignedTypeName() {
 		return getType() != null ? getType().getName() : "";
 	}
 
@@ -1274,11 +1270,6 @@ public abstract class Node implements INode {
 		return whereExtendedHandler;
 	}
 
-	// @Deprecated
-	// public XsdNode getXsdNode() {
-	// return xsdNode;
-	// }
-
 	@Override
 	public boolean hasChildren() {
 		return !getChildren().isEmpty();
@@ -1293,8 +1284,13 @@ public abstract class Node implements INode {
 		return getChildrenHandler() != null ? getChildrenHandler().hasInheritedChildren() : false;
 	}
 
+	/**
+	 * Used in wizards, drag-n-drop and filters
+	 * 
+	 * @return true if type provider and NOT implied node
+	 */
 	public boolean isAssignable() {
-		return isNamedEntity() || isSimpleAssignable();
+		return this instanceof TypeProvider && !(this instanceof ImpliedNode);
 	}
 
 	@Override
@@ -1355,7 +1351,6 @@ public abstract class Node implements INode {
 				return false;
 		}
 		return isEditable();
-		// return getLibrary().isManaged() ? isInHead() && isEditable() && isNewToChain() : isEditable();
 	}
 
 	@Override
@@ -1487,16 +1482,6 @@ public abstract class Node implements INode {
 			if (getLibrary().getChain().getHead().isPatchVersion())
 				return false;
 		return isInService();
-		// if (this instanceof ServiceNode)
-		// return true;
-		// if (this instanceof OperationNode)
-		// return true;
-		// if (this instanceof OperationFacetNode)
-		// return true;
-		// if (getParent() != null)
-		// if (this instanceof PropertyNode && getParent() instanceof OperationFacetNode)
-		// return true;
-		// return false;
 	}
 
 	/**
@@ -1517,11 +1502,6 @@ public abstract class Node implements INode {
 			if (this instanceof PropertyNode && getParent() instanceof OperationFacetNode)
 				return true;
 		return false;
-
-		// if (this instanceof FacetNode)
-		// return getParent() instanceof OperationNode;
-		// else
-		// return getOwningComponent().getParent() instanceof OperationNode;
 	}
 
 	/**
@@ -1584,6 +1564,9 @@ public abstract class Node implements INode {
 		if (isInService())
 			return getLibrary().getChain().getHead() == getLibrary();
 
+		if (getOwningComponent() == null)
+			return false; // Is not an editable component (nav-node, etc)
+
 		// FIXME - this should be tested differently
 		if (getOwningComponent().getVersionNode() == null)
 			return true; // will be true for service descendants, editable, and not in a chain (duplicate logic?)
@@ -1621,6 +1604,10 @@ public abstract class Node implements INode {
 		// Operations, business, core, vwa, open enums - allow major, minor, or unmanaged and
 		if (this instanceof VersionedObjectInterface)
 			return isEditable_isNewOrAsMinor();
+
+		// Facets - not versioned but can add if owner allows
+		if (this instanceof FacetInterface)
+			return getOwningComponent().isEditable_isNewOrAsMinor();
 
 		// Enumeration is a versionedObjectInterface implementer
 		// delegated: ServiceNode, Enumeration, ExtensionPointNode, ContextualFacetNode, SimpleAttributeNode,
@@ -1678,13 +1665,13 @@ public abstract class Node implements INode {
 	 * @return true if this object has the characteristic of being extensible
 	 */
 	public boolean isExtensibleObject() {
-		return false; // FIXED 4/5/2017 - should be overriden to be true
+		return false; // FIXED 4/5/2017 - should be overridden to be true
 	}
 
 	@Deprecated
 	public boolean isFacetAlias() {
-		assert false; // should never be reached
-		return false;
+		// assert false; // should never be reached
+		return false; // called from navigator menus
 	}
 
 	public boolean isFacetUnique(final INode testNode) {
@@ -1692,7 +1679,7 @@ public abstract class Node implements INode {
 		if (n instanceof PropertyNode) {
 			n = n.parent;
 		}
-		if (n instanceof FacetNode && !(n instanceof QueryFacetNode) && !(n instanceof RoleFacetNode)) {
+		if (n instanceof FacetOMNode && !(n instanceof QueryFacetNode) && !(n instanceof RoleFacetNode)) {
 			n = n.parent; // compare across all facets.
 		}
 		if (n.nameEquals(testNode)) {
@@ -1759,14 +1746,6 @@ public abstract class Node implements INode {
 		return getInheritedFrom() != null;
 	}
 
-	// /**
-	// * @return - true if is in TL, built-in or xsd library
-	// */
-	// @Deprecated
-	// public boolean isInModel() {
-	// return isInTLLibrary() || isInBuiltIn() || isInXSDSchema();
-	// }
-
 	/**
 	 * Is <i>this</i> node an instance of the passed node? Does this tl object have an tlExtension with an extended
 	 * entity of node's tl object?
@@ -1787,12 +1766,6 @@ public abstract class Node implements INode {
 			}
 			return base == null ? false : base.isInstanceOf(node);
 			// TOOD - what does this else clause do? Only seems to be used for Business Objects in NodeExtensionTest
-
-			// removed when refactoring Model Object out
-			// Node baseNode = Node.GetNode((TLModelElement) modelObject.getTLBase());
-			// if (baseNode == null)
-			// return false;
-			// return baseNode.isInstanceOf(node);
 		}
 	}
 
@@ -1809,8 +1782,6 @@ public abstract class Node implements INode {
 	@Deprecated
 	public boolean isInXSDSchema() {
 		return isXsdType();
-		// return modelObject instanceof XSDElementMO || modelObject instanceof XSDComplexMO
-		// || modelObject instanceof XSDSimpleMO;
 	}
 
 	/*****************************************************************************
@@ -1835,13 +1806,6 @@ public abstract class Node implements INode {
 		return getTLModelObject() instanceof LibraryMember;
 	};
 
-	// /**
-	// * @return - true if the component node represent a local anonymous type.
-	// */
-	// public boolean isLocal() {
-	// return false;
-	// }
-
 	public boolean isMergeSupported() {
 		return false;
 	}
@@ -1857,7 +1821,7 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Fast method to determine if this node should be displayed in navigation views
+	 * Fast method to determine if this node should be displayed in navigation views.
 	 * 
 	 * @return true if this node should be displayed in navigator view tree with no filters
 	 * @see {@link org.opentravel.schemas.node.Node_NavChildren_Tests#hasTests() }
@@ -1882,12 +1846,15 @@ public abstract class Node implements INode {
 	}
 
 	/**
+	 * <p>
+	 * Used by type selection wizard to filter list.
+	 * <p>
+	 * Note: if parent is not known, attributes are assumed to not be part of a ValueWithAttribute and therefore are
+	 * simpleTypeUsers
+	 * 
+	 * Overridden where true.
+	 * 
 	 * @return true if <b>only</b> simple types can be assigned to this type user.
-	 * 
-	 *         Note: if parent is not known, attributes are assumed to not be part of a ValueWithAttribute and therefore
-	 *         are simpleTypeUsers
-	 * 
-	 *         Overridden where true.
 	 */
 	public boolean isOnlySimpleTypeUser() {
 		return false;
@@ -1945,7 +1912,7 @@ public abstract class Node implements INode {
 		if (this instanceof PropertyNode) {
 			n = n.parent;
 		}
-		if (n instanceof FacetNode && !(n instanceof CustomFacetNode) && !(n instanceof QueryFacetNode)
+		if (n instanceof FacetOMNode && !(n instanceof CustomFacetNode) && !(n instanceof QueryFacetNode)
 				&& !(n instanceof RoleFacetNode)) {
 			n = n.parent; // compare across all facets.
 		}
@@ -1981,7 +1948,8 @@ public abstract class Node implements INode {
 	 * @param type
 	 * @return
 	 */
-	public boolean isValidParentOf(PropertyNodeType type) {
+	@Deprecated
+	public boolean canOwn(PropertyNodeType type) {
 		return false;
 	}
 
@@ -1991,7 +1959,8 @@ public abstract class Node implements INode {
 	 * @param type
 	 * @return
 	 */
-	public boolean isValidParentOf(PropertyNode property) {
+	@Deprecated
+	public boolean canOwn(PropertyNode property) {
 		return false;
 	}
 
@@ -2039,10 +2008,7 @@ public abstract class Node implements INode {
 	 *            - replace with this contextId
 	 */
 	public void mergeContext(String targetId) {
-		// if (modelObject == null) {
-		// LOGGER.error("Model Object is null.");
-		// return;
-		// }
+
 		if (this instanceof PropertyNode && ((PropertyNode) this).getEquivalentHandler() != null)
 			((PropertyNode) this).getEquivalentHandler().fix(targetId);
 		if (this instanceof PropertyNode && ((PropertyNode) this).getExampleHandler() != null)
@@ -2050,6 +2016,8 @@ public abstract class Node implements INode {
 
 		if (this instanceof ContextualFacetNode)
 			((ContextualFacetNode) this).setContext(targetId);
+		else if (this instanceof ContextualFacet15Node)
+			((ContextualFacet15Node) this).setContext(targetId);
 
 		if (getDocumentation() != null && getDocumentation().getOtherDocs() != null) {
 			// Avoid concurrent modification
@@ -2084,12 +2052,6 @@ public abstract class Node implements INode {
 	public void replaceTypesWith(Node replacement, LibraryNode scope) {
 		if (!(replacement instanceof TypeProvider))
 			return;
-		//
-		// if (this instanceof TypeProvider)
-		// ((TypeProvider) this).getWhereAssignedHandler().replaceAll((TypeProvider) replacement, scope);
-		//
-		// // If this has been extended, replace where extended
-		// getWhereExtendedHandler().replace(replacement, scope);
 	}
 
 	/**
@@ -2128,6 +2090,13 @@ public abstract class Node implements INode {
 	public void setDescription(final String string) {
 		if (docHandler != null)
 			docHandler.setDescription(string);
+	}
+
+	/**
+	 * Simple setter of the deleted field
+	 */
+	public void setDeleted(boolean value) {
+		deleted = value;
 	}
 
 	/**
@@ -2372,12 +2341,13 @@ public abstract class Node implements INode {
 	}
 
 	/** ************** Children Handler Facades *******************************/
+	/**
+	 * Get node children from children handler or empty list.
+	 */
 	@Override
 	public List<Node> getChildren() {
 		if (getChildrenHandler() != null)
 			return genericToNode(getChildrenHandler().get());
-		// if (children == null)
-		// return new ArrayList<Node>();
 		return Collections.emptyList();
 	}
 
@@ -2414,25 +2384,11 @@ public abstract class Node implements INode {
 		return getNavChildren(deep);
 	}
 
-	/*
-	 * @see org.opentravel.schemas.node.Node#getChildren_TypeProviders()
-	 */
-	// FIXME - why is this using isTypeProvider() ? Should instanceof test.
 	@Override
-	public List<Node> getChildren_TypeProviders() {
+	public List<TypeProviderAndOwners> getChildren_TypeProviders() {
 		if (getChildrenHandler() != null)
-			return genericToNode(getChildrenHandler().getChildren_TypeProviders());
+			return getChildrenHandler().getChildren_TypeProviders();
 		return Collections.emptyList();
-		// final ArrayList<Node> kids = new ArrayList<Node>();
-		// for (final Node n : getChildren()) {
-		// if (n.isNamedEntity() || n.hasChildren_TypeProviders()) {
-		// if (n instanceof VersionNode && ((VersionNode) n).get() != null)
-		// kids.add(((VersionNode) n).get());
-		// else
-		// kids.add(n);
-		// }
-		// }
-		// return kids;
 	}
 
 	/**
@@ -2472,11 +2428,6 @@ public abstract class Node implements INode {
 		if (getChildrenHandler() != null)
 			return genericToNode(getChildrenHandler().getNavChildren(deep));
 		return Collections.emptyList();
-		// ArrayList<Node> kids = new ArrayList<Node>();
-		// for (Node c : getChildren())
-		// if (c.isNavChild(deep))
-		// kids.add(c);
-		// return kids;
 	}
 
 	/**

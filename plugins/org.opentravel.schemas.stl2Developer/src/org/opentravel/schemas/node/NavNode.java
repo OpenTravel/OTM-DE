@@ -25,6 +25,7 @@ import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.types.TypeProviderAndOwners;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,13 +33,13 @@ import org.slf4j.LoggerFactory;
  * Navigation Nodes describe GUI model objects that are not part of the TL Model. They ease navigating the GUI and
  * <b>not</b> representing the OTM model.
  * <p>
- * NavNodes only contain objects (LibraryMembers). If the object is in a version chain, then all of the objects in that
+ * NavNodes only contain LibraryMembers objects. If the object is in a version chain, then all of the objects in that
  * chain will have a link to a single NavNode which is a child of the corresponding AggregateNode in the chain.
  * 
  * @author Dave Hollander
  * 
  */
-public class NavNode extends Node implements FacadeInterface {
+public class NavNode extends Node implements FacadeInterface, TypeProviderAndOwners {
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = LoggerFactory.getLogger(NavNode.class);
 
@@ -70,6 +71,7 @@ public class NavNode extends Node implements FacadeInterface {
 			getChildrenHandler().remove((Node) lm);
 	}
 
+	@Override
 	public NavNodeChildrenHandler getChildrenHandler() {
 		return (NavNodeChildrenHandler) childrenHandler;
 	}
@@ -200,6 +202,7 @@ public class NavNode extends Node implements FacadeInterface {
 	/**
 	 * @return true if this member is a child or if it has a version node that is a child.
 	 */
+	@Override
 	public boolean contains(Node member) {
 		return getChildrenHandler().contains(member);
 	}

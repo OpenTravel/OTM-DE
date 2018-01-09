@@ -222,7 +222,7 @@ public class WhereExtendedHandler {
 	public void replace(Node replacement, LibraryNode libScope) {
 		Collection<ExtensionOwner> targets = new ArrayList<ExtensionOwner>(users);
 		for (ExtensionOwner extension : targets)
-			if (libScope == null || extension.getLibrary() == libScope) {
+			if (libScope == null || ((Node) extension).getLibrary() == libScope) {
 				extension.setExtension(replacement);
 				// LOGGER.debug("replaced extension base with " + replacement);
 			}

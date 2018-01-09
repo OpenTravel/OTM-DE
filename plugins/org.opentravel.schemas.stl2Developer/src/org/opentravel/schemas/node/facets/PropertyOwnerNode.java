@@ -15,29 +15,22 @@
  */
 package org.opentravel.schemas.node.facets;
 
-import java.util.List;
-
 import org.eclipse.swt.graphics.Image;
-import org.opentravel.schemacompiler.event.ModelElementListener;
-import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemacompiler.model.TLProperty;
-import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.TypeProviderBase;
-import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.node.listeners.InheritanceDependencyListener;
-import org.opentravel.schemas.node.properties.AttributeNode;
-import org.opentravel.schemas.node.properties.ElementNode;
+import org.opentravel.schemas.node.objectMembers.FacetOMNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
+import org.opentravel.schemas.node.typeProviders.TypeProviders;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 import org.slf4j.Logger;
@@ -54,8 +47,9 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public abstract class PropertyOwnerNode extends TypeProviderBase implements PropertyOwnerInterface, TypeProvider {
-	private static final Logger LOGGER = LoggerFactory.getLogger(FacetNode.class);
+@Deprecated
+public abstract class PropertyOwnerNode extends TypeProviders implements PropertyOwnerInterface, TypeProvider {
+	private static final Logger LOGGER = LoggerFactory.getLogger(FacetOMNode.class);
 
 	public PropertyOwnerNode() {
 	}
@@ -63,59 +57,45 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 	// Needed for sub-classes
 	public PropertyOwnerNode(final TLModelElement obj) {
 		super(obj);
-		// TLFacet - FacetMO - FacetNode
-		// TLListFacet - ListFacetMO - ListFacetNode
-		// TLRoleEnumeration - RoleEnumberationMO - RoleFacetNode
-		// TLValueWithAttributesFacet - ValueWithAttributesAttributeFacetMO - VWA_AttributeFacetNode
-		// TLSimpleFacet - SimpleFacetNode
 	}
 
-	@Override
-	public void add(final PropertyNode pn, final int index) {
-		// Add to children list
-		pn.setParent(this);
-		// if (index >= 0)
-		// linkChild(pn, index);
-		// else
-		// linkChild(pn);
-
-		// Add to the tl model
-		if (index < 0)
-			pn.addToTL(this);
-		else
-			pn.addToTL(this, index);
-
-		// Events are not being thrown (10/14/2017) so force their result
-		childrenHandler.clear();
-		// clear handlers on any inherited "ghost" facets
-		for (ModelElementListener l : getTLModelObject().getListeners())
-			if (l instanceof InheritanceDependencyListener)
-				((InheritanceDependencyListener) l).run();
-		// ((InheritanceDependencyListener) l).run_childrenChanged();
-	}
-
-	/**
-	 * ******************************************* Base Class Methods
-	 */
-	@Override
-	public void addProperties(List<Node> properties, boolean clone) {
-		PropertyNode np;
-		for (Node p : properties) {
-			if (!(p instanceof PropertyNode))
-				continue;
-			np = (PropertyNode) p;
-			if (clone)
-				np = (PropertyNode) p.clone(null, null); // add to clone not parent
-			if (isValidParentOf(np.getPropertyType()))
-				addProperty(np);
-		}
-	}
-
-	@Override
-	public void addProperty(PropertyNode property) {
-		// super.addProperty(property);
-		add(property, -1);
-	}
+	// @Override
+	// public void add(final PropertyNode pn, final int index) {
+	// // Add to children list
+	// pn.setParent(this);
+	//
+	// // Add to the tl model
+	// if (index < 0)
+	// pn.addToTL(this);
+	// else
+	// pn.addToTL(this, index);
+	//
+	// // Events are not being thrown (10/14/2017) so force their result
+	// childrenHandler.clear();
+	// // clear handlers on any inherited "ghost" facets
+	// for (ModelElementListener l : getTLModelObject().getListeners())
+	// if (l instanceof InheritanceDependencyListener)
+	// ((InheritanceDependencyListener) l).run();
+	// }
+	//
+	// @Override
+	// public void addProperties(List<Node> properties, boolean clone) {
+	// PropertyNode np;
+	// for (Node p : properties) {
+	// if (!(p instanceof PropertyNode))
+	// continue;
+	// np = (PropertyNode) p;
+	// if (clone)
+	// np = (PropertyNode) p.clone(null, null); // add to clone not parent
+	// if (isValidParentOf(np.getPropertyType()))
+	// addProperty(np);
+	// }
+	// }
+	//
+	// @Override
+	// public void addProperty(PropertyNode property) {
+	// add(property, -1);
+	// }
 
 	/**
 	 * Make a copy of all the properties of the source facet and add to this facet. If the property is of the wrong
@@ -124,31 +104,31 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 	 * @param sourceFacet
 	 */
 	public void copyFacet(PropertyOwnerNode sourceFacet) {
-		PropertyNode newProperty = null;
-		for (Node p : sourceFacet.getChildren()) {
-			if (p instanceof PropertyNode) {
-				newProperty = ((PropertyNode) p).clone(this, null);
-				if (newProperty == null)
-					continue; // ERROR
-				if (!this.isValidParentOf(newProperty.getPropertyType()))
-					newProperty = newProperty.changePropertyRole(PropertyNodeType.ATTRIBUTE);
-				newProperty.addToTL(this);
-			}
-		}
-		getChildrenHandler().clear(); // flush parent children cache
+		// PropertyNode newProperty = null;
+		// for (Node p : sourceFacet.getChildren()) {
+		// if (p instanceof PropertyNode) {
+		// newProperty = ((PropertyNode) p).clone(this, null);
+		// if (newProperty == null)
+		// continue; // ERROR
+		// if (!this.isValidParentOf(newProperty.getPropertyType()))
+		// newProperty = newProperty.changePropertyRole(PropertyNodeType.ATTRIBUTE);
+		// newProperty.addToTL(this);
+		// }
+		// }
+		// getChildrenHandler().clear(); // flush parent children cache
 	}
 
 	@Override
 	public INode createProperty(final Node type) {
 		PropertyNode pn = null;
-		if (this instanceof AttributeFacetNode)
-			pn = new AttributeNode(new TLAttribute(), this);
-		else
-			pn = new ElementNode(new TLProperty(), this);
-		pn.setDescription(type.getDescription());
-		if (type instanceof TypeProvider)
-			pn.setAssignedType((TypeProvider) type);
-		pn.setName(type.getName());
+		// if (this instanceof AttributeFacetNode)
+		// pn = new AttributeNode(new TLAttribute(), this);
+		// else
+		// pn = new ElementNode(new TLProperty(), this);
+		// pn.setDescription(type.getDescription());
+		// if (type instanceof TypeProvider)
+		// pn.setAssignedType((TypeProvider) type);
+		// pn.setName(type.getName());
 		return pn;
 	}
 
@@ -161,16 +141,6 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 	public INode.CommandType getAddCommand() {
 		return INode.CommandType.PROPERTY;
 	}
-
-	// /**
-	// * Each access of children is sorting them based on order of MO's children.
-	// */
-	// @Override
-	// public List<Node> getChildren() {
-	// if (childrenHandler != null)
-	// return childrenHandler.get();
-	// return synchChildrenWithMO(super.getChildren());
-	// }
 
 	@Override
 	public abstract String getComponentType();
@@ -211,17 +181,6 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 	 */
 	@Override
 	public abstract TLModelElement getTLModelObject();
-
-	// @Override
-	// public List<Node> getTreeChildren(boolean deep) {
-	// if (childrenHandler != null)
-	// return childrenHandler.getTreeChildren(deep);
-	//
-	// List<Node> navChildren = getNavChildren(deep);
-	// navChildren.addAll(getInheritedChildren());
-	// navChildren.add(getWhereUsedNode());
-	// return navChildren;
-	// }
 
 	@Override
 	public boolean hasChildren_TypeProviders() {
@@ -300,11 +259,6 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 		return getParent() != null ? true : false;
 	}
 
-	// @Override
-	// public boolean isNamedType() {
-	// return this instanceof ExtensionPointNode ? true : false;
-	// }
-
 	@Override
 	public boolean isNavChild(boolean deep) {
 		return true;
@@ -335,14 +289,14 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 
 	@Override
 	@Deprecated
-	public boolean isValidParentOf(PropertyNode pn) {
+	public boolean canOwn(PropertyNode pn) {
 		if (pn == null)
 			return false;
 		return PropertyNodeType.getAllTypedPropertyTypes().contains(pn.getPropertyType());
 	}
 
 	@Override
-	public boolean isValidParentOf(PropertyNodeType type) {
+	public boolean canOwn(PropertyNodeType type) {
 		return PropertyNodeType.getAllTypedPropertyTypes().contains(type);
 	}
 
@@ -371,18 +325,6 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 	public void setName(String n) {
 	}
 
-	// @Override
-	// public void sort() {
-	// Collections.sort(getChildren(), new StringComparator<Node>() {
-	//
-	// @Override
-	// protected String getString(Node object) {
-	// return object.getName();
-	// }
-	// });
-	// modelObject.sort();
-	// }
-
 	/**
 	 * Return true if the node is delete-able using the version and managed state information used by Node. Used by
 	 * sub-types that are deleteable.
@@ -390,30 +332,5 @@ public abstract class PropertyOwnerNode extends TypeProviderBase implements Prop
 	protected boolean isDeleteable(boolean deletable) {
 		return deletable ? super.isDeleteable() : false;
 	}
-
-	// /**
-	// * Synchronize order of children with ModelObject children order.
-	// *
-	// * @param children
-	// * @return sorted list of children based on order of ModelObject.
-	// */
-	// @Deprecated
-	// protected List<Node> synchChildrenWithMO(List<Node> children) {
-	// if (getModelObject() == null)
-	// return Collections.emptyList(); // happens during delete.
-	// final List<?> tlChildrenOrder = getModelObject().getChildren();
-	// Collections.sort(children, new Comparator<Node>() {
-	//
-	// @Override
-	// public int compare(Node o1, Node o2) {
-	// Integer idx1 = tlChildrenOrder.indexOf(o1.getTLModelObject());
-	// Integer idx2 = tlChildrenOrder.indexOf(o2.getTLModelObject());
-	// // Integer idx1 = tlChildrenOrder.indexOf(o1.getModelObject().getTLModelObj());
-	// // Integer idx2 = tlChildrenOrder.indexOf(o2.getModelObject().getTLModelObj());
-	// return idx1.compareTo(idx2);
-	// }
-	// });
-	// return children;
-	// }
 
 }

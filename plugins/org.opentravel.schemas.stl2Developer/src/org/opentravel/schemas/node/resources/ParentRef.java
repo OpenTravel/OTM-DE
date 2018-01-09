@@ -90,6 +90,7 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 	public void delete() {
 		if (tlObj.getOwner() != null)
 			tlObj.getOwner().removeParentRef(tlObj);
+		getParent().removeChild(this);
 		setPathTemplate(null);
 		super.delete();
 	}

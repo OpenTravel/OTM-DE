@@ -452,14 +452,14 @@ public class ValidationResultsView extends OtmAbstractView {
 		if (node instanceof ModelNode)
 			findings = validate(Node.getModelNode());
 		else if (node instanceof LibraryChainNode) {
-			for (LibraryNode ln : node.getLibraries()) {
+			for (LibraryNode ln : ((LibraryChainNode) node).getLibraries()) {
 				if (findings == null)
 					findings = validate(ln);
 				else
 					findings.addAll(validate(ln));
 			}
 		} else if (node instanceof ProjectNode) {
-			for (LibraryNode ln : node.getLibraries()) {
+			for (LibraryNode ln : ((ProjectNode) node).getLibraries()) {
 				if (findings == null)
 					findings = validate(ln);
 				else
@@ -468,7 +468,7 @@ public class ValidationResultsView extends OtmAbstractView {
 		} else if (node.isTLLibrary())
 			findings = validate(node);
 		else if (node.isNavigation()) {
-			for (Node n : node.getDescendants_LibraryMembers()) {
+			for (Node n : node.getDescendants_LibraryMemberNodes()) {
 				if (findings == null)
 					findings = validate(n);
 				else

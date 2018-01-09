@@ -20,10 +20,11 @@ import org.opentravel.schemacompiler.model.TLAttributeType;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
+import org.opentravel.schemacompiler.model.XSDSimpleType;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
-import org.opentravel.schemas.node.facets.SimpleFacetFacadeNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.objectMembers.VWA_SimpleFacetFacadeNode;
 import org.opentravel.schemas.types.TypeProvider;
 
 /**
@@ -43,7 +44,7 @@ import org.opentravel.schemas.types.TypeProvider;
 public class VWA_SimpleAttributeFacadeNode extends SimpleAttributeFacadeNode {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(SimpleAttributeNode.class);
 
-	public VWA_SimpleAttributeFacadeNode(SimpleFacetFacadeNode parent) {
+	public VWA_SimpleAttributeFacadeNode(VWA_SimpleFacetFacadeNode parent) {
 		super(parent);
 	}
 
@@ -57,20 +58,49 @@ public class VWA_SimpleAttributeFacadeNode extends SimpleAttributeFacadeNode {
 		return assignedType;
 	}
 
+	// @Override
+	// public VWA_Node getOwningComponent() {
+	// return getParent().getParent();
+	// }
+
+	// Only Simple, XSD Simple and VWA can be assigned as parent type
+	private boolean canAssign(TLModelElement type) {
+		if (type instanceof TLAttributeType) {
+			if (type instanceof TLSimple)
+				return true;
+			if (type instanceof TLValueWithAttributes)
+				return true;
+			if (type instanceof XSDSimpleType)
+				return true;
+		}
+		return false;
+	}
+
 	@Override
 	public boolean setAssignedType(TLModelElement simpleType) {
 		if (getTLModelObject().getParentType() == simpleType)
 			return false;
+
+		// Assign "Empty" if null or incorrect type
 		TLAttributeType ne = null;
-		// Only Simple and VWA can be assigned as parent type
-		if ((simpleType instanceof TLSimple) || simpleType instanceof TLValueWithAttributes) {
-			if (simpleType == null || !(simpleType instanceof TLAttributeType))
-				if (emptyNode != null)
-					ne = (TLAttributeType) emptyNode.getTLModelObject();
-			ne = (TLAttributeType) simpleType;
-			getTLModelObject().setParentType(ne);
-		}
+		if (!canAssign(simpleType))
+			if (emptyNode != null)
+				ne = (TLAttributeType) emptyNode.getTLModelObject();
+			else
+				return false; // Can't assign
+		assert simpleType instanceof TLAttributeType;
+		ne = (TLAttributeType) simpleType;
+
+		// Do Assignment
+		getTLModelObject().setParentType(ne);
+
+		// Return true if assignment was made
 		return getTLModelObject().getParentType() == ne;
+	}
+
+	@Override
+	public VWA_SimpleFacetFacadeNode getParent() {
+		return (VWA_SimpleFacetFacadeNode) parent;
 	}
 
 	@Override

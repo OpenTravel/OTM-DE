@@ -17,7 +17,7 @@ package org.opentravel.schemas.node.listeners;
 
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
-import org.opentravel.schemas.node.TypeProviderBase;
+import org.opentravel.schemas.node.typeProviders.TypeProviders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +32,7 @@ public class BusinessObjectNodeListener extends TypeProviderListener implements 
 	/**
 	 * 
 	 */
-	public BusinessObjectNodeListener(TypeProviderBase node) {
+	public BusinessObjectNodeListener(TypeProviders node) {
 		super(node);
 	}
 

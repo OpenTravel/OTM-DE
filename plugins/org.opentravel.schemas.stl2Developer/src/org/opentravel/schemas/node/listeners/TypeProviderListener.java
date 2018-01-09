@@ -18,7 +18,7 @@ package org.opentravel.schemas.node.listeners;
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.TypeProviderBase;
+import org.opentravel.schemas.node.typeProviders.TypeProviders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public class TypeProviderListener extends NodeIdentityListener implements INodeListener {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TypeProviderListener.class);
 
-	public TypeProviderListener(TypeProviderBase node) {
+	public TypeProviderListener(TypeProviders node) {
 		super(node);
 		// LOGGER.debug("Added type provider listener to " + node);
 	}
@@ -41,8 +41,8 @@ public class TypeProviderListener extends NodeIdentityListener implements INodeL
 		super.processValueChangeEvent(event);
 		Node newValue = getNewValue(event);
 		Node oldValue = getOldValue(event);
-		LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode + ", old = " + oldValue
-				+ ", new = " + newValue);
+		// LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode + ", old = " + oldValue
+		// + ", new = " + newValue);
 
 		switch (event.getType()) {
 		case NAME_MODIFIED:
@@ -54,7 +54,7 @@ public class TypeProviderListener extends NodeIdentityListener implements INodeL
 				name = (String) event.getNewValue();
 
 			if (oldName != null && !oldName.equals(name)) {
-				((TypeProviderBase) thisNode).setNameOnWhereAssigned(name);
+				((TypeProviders) thisNode).setNameOnWhereAssigned(name);
 			}
 
 			break;

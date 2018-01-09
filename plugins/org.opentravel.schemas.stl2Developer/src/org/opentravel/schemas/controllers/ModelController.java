@@ -20,7 +20,7 @@ import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.FacetOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -77,17 +77,17 @@ public interface ModelController {
 
 	/**
 	 * Change given property to simple. This action only make sense for owning component with SimpleFacet. Check
-	 * {@link ComplexComponentInterface}.
+	 * {@link FacetOwner}.
 	 * 
 	 * @param property
 	 * @return false if property is not {@link SimpleAttributeNode} or owning component is not
-	 *         {@link ComplexComponentInterface}
+	 *         {@link FacetOwner}
 	 */
 	public boolean changeToSimple(PropertyNode property);
 
 	/**
 	 * Move given simple attribute to target facet. As a result this method should create new simple attribute with type
-	 * == OTA:Empty to prevent {@link ComplexComponentInterface} of don't having simple attribute.
+	 * == OTA:Empty to prevent {@link FacetOwner} of don't having simple attribute.
 	 * 
 	 * @param simpleAttribute
 	 * @param summaryFacet

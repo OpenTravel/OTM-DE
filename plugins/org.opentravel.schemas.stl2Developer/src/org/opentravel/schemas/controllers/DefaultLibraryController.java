@@ -38,7 +38,7 @@ import org.opentravel.schemacompiler.model.XSDLibrary;
 import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.saver.LibraryModelSaver;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
-import org.opentravel.schemacompiler.util.OTM16Upgrade;
+import org.opentravel.schemacompiler.util.URLUtils;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.visitor.DependencyNavigator;
 import org.opentravel.schemacompiler.visitor.ModelElementVisitorAdapter;
@@ -48,7 +48,6 @@ import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.FileDialogs;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -56,9 +55,9 @@ import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.views.OtmView;
 import org.opentravel.schemas.views.ValidationResultsView;
 import org.opentravel.schemas.views.decoration.LibraryDecorator;
-import org.opentravel.schemas.wizards.NewLibraryWizard;
+import org.opentravel.schemas.wizards.NewLibraryWizard2;
+import org.opentravel.schemas.wizards.NewLibraryWizard2.LibraryMetaData;
 import org.opentravel.schemas.wizards.NewLibraryWizardPage;
-import org.opentravel.schemas.wizards.validators.NewLibraryValidator;
 
 /**
  * Implements interactions the user has with the Library View by acting upon the library nodes and model node.
@@ -111,17 +110,12 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 			pn = selected.getLibrary().getProject();
 
 		// Run wizard
-		final NewLibraryWizard wizard = new NewLibraryWizard(pn);
-		LibraryNode libNode = wizard.getLibraryNode();
-		wizard.setValidator(new NewLibraryValidator(libNode, pn.getNamespace()));
+		final NewLibraryWizard2 wizard = new NewLibraryWizard2(pn);
 		wizard.run(OtmRegistry.getActiveShell());
 		if (!wizard.wasCanceled()) {
 			// Create an OTM file, then add that file to the project.
-
-			// remove prototype library then create new library in project
-			pn.getChildren().remove(libNode);
-			libNode.setParent(null);
-			lnn = createNewLibraryFromPrototype(libNode, pn);
+			LibraryMetaData metaData = wizard.getLibraryMetaData();
+			lnn = createNewLibraryFromMetadata(metaData, pn);
 
 			if (lnn != null) {
 				if (save(lnn)) {
@@ -133,88 +127,33 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 					lnn.delete();
 				}
 			}
-			assert (!pn.getChildren().contains(libNode)) : "Prototype library not removed from project.";
 		}
 
 		return lnn;
 	}
 
-	// Unused
-	// @Deprecated
-	// @Override
-	// public void changeNamespace(final LibraryNode library, final String newNS) {
-	//
-	// assert (false) : "Should be dead code 11/2016";
-	//
-	// if (library == null || newNS == null || newNS.isEmpty())
-	// throw new IllegalArgumentException("Null or empty namespace change.");
-	// LOGGER.debug("Changing namespace to " + newNS);
-	//
-	// // Is the library shared?
-	// final List<LibraryNode> libs = getLibrariesWithNamespace(newNS);
-	// if (libs.size() < 1) {
-	// library.getNsHandler().renameInProject(library.getNamespace(), newNS);
-	// } else {
-	// switch (postChangeMessage(libs)) {
-	// case GLOBAL:
-	// library.getNsHandler().rename(library.getNamespace(), newNS);
-	// break;
-	// case LOCAL:
-	// library.getNsHandler().renameInProject(library.getNamespace(), newNS);
-	// break;
-	// }
-	// }
-	// }
-
-	// Unused
-	// @Deprecated
-	// private GlobalDialogResult postChangeMessage(List<LibraryNode> libs) {
-	//
-	// assert (false); // should be dead code - 11/2016
-	//
-	// final StringBuilder message = new StringBuilder(
-	// "The namespace you want to change is shared by more than one library (");
-	// for (final LibraryNode lib : libs) {
-	// message.append(lib.getName()).append(", ");
-	// }
-	// message.delete(message.length() - 2, message.length());
-	// message.append("). The namespace can be changed in the following manners:")
-	// .append("\n Global - namespace is changed globally and all the libraries within the namespace will be affected "
-	// + "(prefix will stay the same and will now point to the new namespace)")
-	// .append("\n Local - namespace will be changed only for the local library which trigerred the change "
-	// + "(if the new namespace is not yet registered within the model, new 'Undefined' prefix will be assinged to it; "
-	// + "otherwise the namespace is assigned already existing prefix).")
-	// .append("\n Cancel - leave the namespace unchanged.");
-	// final GlobalLocalCancelDialog nsChangeDialog = new GlobalLocalCancelDialog(OtmRegistry.getActiveShell(),
-	// message.toString());
-	// nsChangeDialog.open();
-	// return nsChangeDialog.getResult();
-	// }
-
 	/**
-	 * Using the name and path, create a .otm file. The new library node is not added to a project (parent is not set)
-	 * and namespaces are not registered. After is this complete, a project item representing this library can be added
-	 * to the project node.
+	 * Create an OTM library file.
 	 * 
-	 * <b>Note:</b> refresh is called so the project must not contain the prototype library
-	 * 
+	 * @param library
+	 *            metadata - containing the path, ns, prefix, name and comments
 	 * @param project
-	 * @param libNode
 	 * @return - a new library node with links to the TL Abstract Library.
 	 */
-	public LibraryNavNode createNewLibraryFromPrototype(final LibraryNode libNode, final ProjectNode pn) {
+	public LibraryNavNode createNewLibraryFromMetadata(final LibraryMetaData metaData, final ProjectNode pn) {
 		final ProjectController pc = mc.getProjectController();
+
+		final File file = new File(metaData.getPath());
+		final URL fileURL = URLUtils.toURL(file);
 
 		final TLLibrary tlLib = new TLLibrary();
 		tlLib.setStatus(TLLibraryStatus.DRAFT);
-		tlLib.setPrefix(libNode.getPrefix());
-		tlLib.setName(libNode.getName());
-		tlLib.setComments(libNode.getComments());
-		tlLib.setLibraryUrl(libNode.getTLaLib().getLibraryUrl());
-		tlLib.setNamespace(libNode.getNamespace());
+		tlLib.setPrefix(metaData.getNsPrefix());
+		tlLib.setName(metaData.getName());
+		tlLib.setComments(metaData.getComments());
+		tlLib.setLibraryUrl(fileURL);
+		tlLib.setNamespace(metaData.getNamespace());
 
-		if (pn.getChildren().contains(libNode))
-			pn.getChildren().remove(libNode);
 		return pc.add(pn, tlLib);
 	}
 
@@ -266,7 +205,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 
 	public boolean save(final LibraryNavNode lnn) {
 		if (lnn.getLibrary() instanceof LibraryNode)
-			return saveLibrary((LibraryNode) lnn.getLibrary(), true);
+			return saveLibrary(lnn.getLibrary(), true);
 		return false;
 	}
 
@@ -307,11 +246,11 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 			return false;
 		}
 
-		if (OTM16Upgrade.otm16Enabled) {
-			// Post user warning
-			if (!DialogUserNotifier.openConfirm("Warning", Messages.getString("action.saveAll.version16")))
-				return false;
-		}
+		// if (OTM16Upgrade.otm16Enabled) {
+		// // Post user warning
+		// if (!DialogUserNotifier.openConfirm("Warning", Messages.getString("action.saveAll.version16")))
+		// return false;
+		// }
 		// assert false; // Don't let junits save
 
 		final LibraryModelSaver lms = new LibraryModelSaver();

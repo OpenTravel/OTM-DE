@@ -111,6 +111,9 @@ public class MainController {
 
 	private ListenerList refreshList = new ListenerList();
 
+	/**
+	 * MUST only be created by OTM Registry. Use {@link OtmRegistry#getMainController()} to get the live copy.
+	 */
 	public MainController() {
 		this(getDefaultRepositoryManager());
 		// LOGGER.debug("MainController constructor complete.");
@@ -134,6 +137,7 @@ public class MainController {
 		return defaultManager;
 	}
 
+	// FIXME - this should ONLY be called by OtmRegistry
 	public MainController(final RepositoryManager repositoryManager) {
 		// LOGGER.info("Initializing: " + this.getClass());
 
@@ -275,19 +279,18 @@ public class MainController {
 	 * @return the current node displayed in the type view facet table.
 	 */
 	public INode getCurrentNode_TypeView() {
-		return (INode) (OtmRegistry.getTypeView() != null ? OtmRegistry.getTypeView().getCurrentNode() : null);
+		return OtmRegistry.getTypeView() != null ? OtmRegistry.getTypeView().getCurrentNode() : null;
 	}
 
 	public INode getCurrentNode_FacetView() {
-		return (INode) (OtmRegistry.getFacetView() != null ? OtmRegistry.getFacetView().getCurrentNode() : null);
+		return OtmRegistry.getFacetView() != null ? OtmRegistry.getFacetView().getCurrentNode() : null;
 	}
 
 	/**
 	 * @return the node currently be viewed in the properties view.
 	 */
 	public INode getCurrentNode_PropertiesView() {
-		return (INode) (OtmRegistry.getPropertiesView() != null ? OtmRegistry.getPropertiesView().getCurrentNode()
-				: null);
+		return OtmRegistry.getPropertiesView() != null ? OtmRegistry.getPropertiesView().getCurrentNode() : null;
 	}
 
 	/**
@@ -670,7 +673,7 @@ public class MainController {
 
 	public static boolean checkModelCounts(final LibraryNode lib) {
 		int tlCount = 0, guiCount = 0;
-		guiCount = lib.getDescendants_LibraryMembers().size();
+		guiCount = lib.getDescendants_LibraryMemberNodes().size();
 		tlCount = lib.getTLaLib().getNamedMembers().size();
 		if (guiCount != tlCount) {
 			LOGGER.error("GUI member count " + guiCount + " is out of sync with TL model " + tlCount + ".");

@@ -21,6 +21,8 @@ import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.typeProviders.TypeProviders;
+import org.opentravel.schemas.trees.library.LibraryTreeContentProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,16 +58,19 @@ public abstract class StaticChildrenHandler<C extends Node, O extends Node> exte
 			children.add(item);
 	}
 
+	@Override
+	public void clear(Node item) {
+		children.remove(item);
+	}
+
+	@Override
 	public void remove(C item) {
 		children.remove(item);
 	}
 
 	@Override
 	public void clear() {
-		if (!initRunning) {
-			clearList(children);
-			children = new ArrayList<C>();
-		}
+		// NO-OP - this is a static list
 	}
 
 	@Override
@@ -86,6 +91,28 @@ public abstract class StaticChildrenHandler<C extends Node, O extends Node> exte
 	@Override
 	public String toString() {
 		return owner.getName() + "_ChildrenHandler";
+	}
+
+	/**
+	 * Get all children to be presented in navigator tree. {@link LibraryTreeContentProvider}
+	 * <p>
+	 * Get all immediate navChildren and where-used nodes to be presented in the OTM Object Tree. . Overridden on nodes
+	 * that add nodes such as where used to the tree view.
+	 * 
+	 * @see {@link #getNavChildren()}
+	 * 
+	 * @param deep
+	 *            - include properties
+	 * 
+	 * @return new list
+	 */
+	@Override
+	public List<C> getTreeChildren(boolean deep) {
+		List<C> navChildren = getNavChildren(deep);
+		navChildren.addAll(getInheritedChildren());
+		if (owner instanceof TypeProviders && ((TypeProviders) owner).getWhereUsedCount() > 0)
+			navChildren.add((C) ((TypeProviders) owner).getWhereUsedNode());
+		return navChildren;
 	}
 
 }

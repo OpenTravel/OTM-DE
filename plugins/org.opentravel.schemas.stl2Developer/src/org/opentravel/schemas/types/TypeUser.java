@@ -51,20 +51,12 @@ public interface TypeUser {
 	 */
 	public TypeProvider getAssignedType();
 
-	public LibraryNode getLibrary();
-
-	public LibraryMemberInterface getOwningComponent();
-
 	/**
 	 * @return null if the assigned type can be any type provider otherwise the fixed type to assign
 	 */
 	public TypeProvider getRequiredType();
 
-	public TLModelElement getTLModelObject();
-
-	public String getTypeName();
-
-	public boolean isEditable();
+	public String getAssignedTypeName();
 
 	/**
 	 * Set Assigned Type. Sets the where assigned on the associated tl model object provider.
@@ -88,8 +80,28 @@ public interface TypeUser {
 	 */
 	public boolean setAssignedType();
 
+	// ************* Hierarchy Methods ************************
+
+	public LibraryNode getLibrary();
+
+	public LibraryMemberInterface getOwningComponent();
+
+	public TLModelElement getTLModelObject();
+
+	public boolean isEditable();
+
 	public void setName(String name);
 
 	public String getName();
+
+	/**
+	 * @return
+	 */
+	TypeUserHandler getTypeHandler();
+
+	/**
+	 * @return
+	 */
+	public Node getParent();
 
 }

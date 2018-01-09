@@ -54,15 +54,17 @@ import org.opentravel.schemas.commands.DeleteNodesHandler;
 import org.opentravel.schemas.commands.GoToTypeHandler;
 import org.opentravel.schemas.commands.NewComponentHandler;
 import org.opentravel.schemas.controllers.OtmActions;
-import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
@@ -72,7 +74,7 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.utils.RCPUtils;
 import org.opentravel.schemas.widgets.ButtonBarManager;
 import org.opentravel.schemas.widgets.ButtonWithAction;
-import org.opentravel.schemas.widgets.LibraryTablePoster;
+import org.opentravel.schemas.widgets.FacetViewTablePoster;
 import org.opentravel.schemas.widgets.LibraryTablePosterWithButtons;
 import org.opentravel.schemas.widgets.OtmHandlers;
 import org.opentravel.schemas.widgets.OtmSections;
@@ -120,7 +122,7 @@ public class FacetView extends OtmAbstractView {
 	private ClearExtendsAction clearExtendsAction;
 	// private CloneSelectedFacetNodesAction cloneSelectedFacetNodesAction;
 	private ButtonBarManager buttonBarManager;
-	private LibraryTablePoster tablePoster;
+	private FacetViewTablePoster tablePoster;
 	private final List<IWithNodeAction> nodeActions = new ArrayList<IWithNodeAction>();
 
 	private class FacetTableDoubleClick implements IDoubleClickListener {
@@ -418,21 +420,19 @@ public class FacetView extends OtmAbstractView {
 			return;
 		if (target == null || target.isDeleted()) {
 			// LOGGER.warn("Posted deleted node: " + target);
+			clearTable();
 			return;
 		}
 
 		// LOGGER.debug("Posting facet table for node: " + target);
 		OtmHandlers.suspendHandlers();
 		Node node = target;
-		// Don't try to post a property - show its whole component.
-		if (target instanceof PropertyNode || target instanceof AliasNode)
-			node = (Node) target.getOwningComponent();
 
 		try {
-			if (node == null) {
-				clearTable();
-				return;
-			}
+			// if (node == null) {
+			// clearTable();
+			// return;
+			// }
 
 			setButtonState(target);
 
@@ -451,9 +451,20 @@ public class FacetView extends OtmAbstractView {
 	}
 
 	@Override
-	public void setCurrentNode(final INode curNode) {
+	public void setCurrentNode(INode curNode) {
+		if (curNode instanceof InheritedInterface)
+			curNode = ((InheritedInterface) curNode).getInheritedFrom();
+		if (curNode instanceof FacadeInterface)
+			curNode = ((FacadeInterface) curNode).get();
+
+		// Don't try to post a property - show its whole component.
+		if (curNode instanceof PropertyNode || curNode instanceof AliasNode)
+			curNode = curNode.getOwningComponent();
+
 		if (curNode != currentNode) {
 			// LOGGER.debug("Setting previous node: " + currentNode);
+			// If the node is a facade, show the underlying node
+
 			prevNode = currentNode;
 			currentNode = (Node) curNode;
 			postNode(currentNode);

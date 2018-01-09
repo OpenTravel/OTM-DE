@@ -21,6 +21,7 @@ import java.util.List;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
 
 /**
  * Project children handler using a static children handler for Library, Library Chain and LibraryNavNode children and
@@ -35,6 +36,18 @@ public class ProjectChildrenHandler extends StaticChildrenHandler<Node, ProjectN
 
 	public ProjectChildrenHandler(ProjectNode owner) {
 		super(owner);
+	}
+
+	@Override
+	public void add(Node item) {
+		// Check to see if the library or library chain is already in the project
+		assert item instanceof LibraryNavNode;
+		LibraryNavNode lnn = (LibraryNavNode) item;
+		for (Node child : children)
+			if (lnn.get() == ((LibraryNavNode) child).get())
+				return;
+		if (!children.contains(item))
+			children.add(item);
 	}
 
 	@Override

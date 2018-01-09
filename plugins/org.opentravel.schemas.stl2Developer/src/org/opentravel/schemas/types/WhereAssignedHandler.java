@@ -24,13 +24,11 @@ import java.util.Collections;
 import java.util.List;
 
 import org.opentravel.schemacompiler.event.ModelElementListener;
-import org.opentravel.schemacompiler.event.OwnershipEvent;
-import org.opentravel.schemacompiler.event.ValueChangeEvent;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.node.listeners.BaseNodeListener;
+import org.opentravel.schemas.node.listeners.TypeUserAssignmentListener;
 import org.opentravel.schemas.types.whereused.TypeProviderWhereUsedNode;
 import org.opentravel.schemas.types.whereused.WhereUsedNode;
 import org.slf4j.Logger;
@@ -48,60 +46,8 @@ public class WhereAssignedHandler {
 
 	// nodes that use this node as a type definition.
 	protected ArrayList<Node> users = new ArrayList<Node>();
-	protected WhereUsedNode whereUsedNode = null;
+	protected WhereUsedNode<?> whereUsedNode = null;
 	protected TypeProvider owner = null;
-
-	/*********************************************************************************
-	 *
-	 * Listener class to add to the TL Model Element where the provider is assigned.
-	 *
-	 */
-	public class WhereAssignedListener extends BaseNodeListener {
-		private WhereAssignedHandler handler = null;
-
-		public WhereAssignedListener(Node node, WhereAssignedHandler handler) {
-			super(node);
-			this.handler = handler;
-		}
-
-		@Override
-		public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
-			super.processOwnershipEvent(event);
-		}
-
-		@Override
-		public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
-			super.processValueChangeEvent(event); // logger.debug statements
-
-			switch (event.getType()) {
-			case TYPE_ASSIGNMENT_MODIFIED:
-				// Listeners can't be set/removed here, doing so makes the event stream not have the assignment event.
-				// LOGGER.debug("Type Assignment Modified event - " + getSource(event) + " on " + getNode()
-				// + " changed to: " + getNewValue(event) + "  from " + getOldValue(event));
-
-				// VWA and Core have event listeners but are not type users.
-				Node source = getSource(event);
-				if (source instanceof SimpleAttributeOwner)
-					source = ((SimpleAttributeOwner) source).getSimpleAttribute();
-
-				if (getNewValue(event) == getNode())
-					handler.add((TypeUser) source);
-
-				if (getOldValue(event) == getNode() && event.getOldValue() != event.getNewValue())
-					handler.remove((TypeUser) source);
-
-				break;
-			case DOCUMENTATION_MODIFIED:
-			case NAME_MODIFIED:
-				break;
-			default:
-				// LOGGER.debug(event.getType() + " - " + getSource(event) + " on " + getNode() + " changed to: "
-				// + getNewValue(event) + "  from " + getOldValue(event));
-
-				break;
-			}
-		}
-	}
 
 	/*********************************************************************************
 	 * 
@@ -120,9 +66,6 @@ public class WhereAssignedHandler {
 	 *            type user to add if not already in list
 	 */
 	public void add(TypeUser user) {
-		// if (users.isEmpty())
-		// whereUsedNode = new TypeProviderWhereUsedNode(owner);
-
 		if (!users.contains(user)) {
 			users.add((Node) user);
 			// LOGGER.debug("Added " + user + " to " + owner + " where assigned list.");
@@ -133,46 +76,80 @@ public class WhereAssignedHandler {
 			owner.getLibrary().getWhereUsedHandler().add(user);
 	}
 
+	// TODO - make this the primary method and deprecate add()
+	public void addUser(TypeUser user) {
+		if (!users.contains(user)) {
+			users.add((Node) user);
+			setListener(user);
+
+			// Also add to library where used
+			if (owner.getLibrary() != null)
+				owner.getLibrary().getWhereUsedHandler().add(user);
+
+			// LOGGER.debug("Added " + user + " to " + owner + " where assigned list.");
+		}
+	}
+
+	/**
+	 * @return the owner
+	 */
+	public TypeProvider getOwner() {
+		return owner;
+	}
+
 	/**
 	 * This handler is associated with a type provider. It can have many listeners, one for each user of this type
 	 * provider.
+	 * <p>
+	 * However, a user can only have one type assigned.
 	 * 
 	 * @param user
 	 */
 	public void setListener(TypeUser user) {
 		if (user.getTLModelObject() == null)
 			return;
-		for (ModelElementListener l : user.getTLModelObject().getListeners())
-			if (l instanceof WhereAssignedListener && ((BaseNodeListener) l).getNode() == owner) {
-				// FIXME - study startup and see why duplicates are trying to be created.
-				// LOGGER.debug("Trying to add a duplicate listener to " + user + " for " + owner);
-				return;
-			}
-		WhereAssignedListener listener = new WhereAssignedListener((Node) owner, this);
-		((Node) user).getTLModelObject().addListener(listener);
-		// listeners.add(listener); // Not sure why we are keeping array - debugging?
+		// Make sure there is at most one assignment listener
+		for (ModelElementListener l : getAssignmentListeners(user))
+			user.getTLModelObject().removeListener(l);
+		// Make assignment
+		user.getTLModelObject().addListener(new TypeUserAssignmentListener(this));
 
 		// LOGGER.debug("Added listener for provider " + owner + " to user " + user);
 	}
 
 	public void setListener(ExtensionOwner owner) {
+		// NO-OP
+	}
 
+	/**
+	 * Get the assignment listener from passed user.
+	 * <p>
+	 * ONLY public to simplify JUnits
+	 * 
+	 * @param user
+	 * @return
+	 */
+	public List<TypeUserAssignmentListener> getAssignmentListeners(TypeUser user) {
+		List<TypeUserAssignmentListener> listeners = new ArrayList<TypeUserAssignmentListener>();
+		for (ModelElementListener l : user.getTLModelObject().getListeners())
+			if (l instanceof TypeUserAssignmentListener)
+				listeners.add((TypeUserAssignmentListener) l);
+		assert listeners.size() < 2;
+		// May not be set yet - assert listeners.get(0).getNode() == owner;
+		return listeners;
 	}
 
 	public void removeListener(TypeUser user) {
-		ModelElementListener listener = null;
-		for (ModelElementListener l : ((Node) user).getTLModelObject().getListeners())
-			if (l instanceof WhereAssignedListener)
-				if (((WhereAssignedListener) l).getNode() == owner)
-					listener = l;
-		if (listener != null) {
-			((Node) user).getTLModelObject().removeListener(listener);
-			// listeners.remove(listener);
-		} else if (user != null) {
-			// LOGGER.warn("Listener for " + user + " not found to be removed.");
-			return;
-		}
-		// LOGGER.debug("Removed listener from " + owner + " for user " + user);
+		if (user == null)
+			return; // No listeners to check
+
+		for (TypeUserAssignmentListener l : getAssignmentListeners(user))
+			// if (l.getNode() == owner || l.getNode().isDeleted())
+			user.getTLModelObject().removeListener(l);
+
+		assert getAssignmentListeners(user).isEmpty();
+
+		// LOGGER.debug("Removed assignment listener to " + owner + " from user " + user);
 	}
 
 	/**
@@ -273,11 +250,12 @@ public class WhereAssignedHandler {
 		for (TypeUser n : users)
 			if (n.isEditable())
 				if (scopeLibrary == null || (n.getLibrary() != null && n.getLibrary().equals(scopeLibrary))) {
-					if (n.setAssignedType(replacement))
-						LOGGER.debug("replace " + ((Node) n).getNameWithPrefix() + " with "
-								+ ((Node) replacement).getNameWithPrefix());
-					else
-						LOGGER.debug("Failed to replace " + n + " with " + replacement);
+					n.setAssignedType(replacement);
+					// if (n.setAssignedType(replacement))
+					// LOGGER.debug("replace " + ((Node) n).getNameWithPrefix() + " with "
+					// + ((Node) replacement).getNameWithPrefix());
+					// else
+					// LOGGER.debug("Failed to replace " + n + " with " + replacement);
 				}
 	}
 
@@ -301,6 +279,7 @@ public class WhereAssignedHandler {
 	 *            - if not null, only change type users that are in the specified library.
 	 */
 	public void replaceAll(TypeProvider replacement, LibraryNode scopeLibrary) {
+
 		// Create map of replacement candidates being all descendants of the replacement
 		java.util.HashMap<String, TypeProvider> replacementTypes = new java.util.HashMap<String, TypeProvider>();
 		for (TypeProvider r : ((Node) replacement).getDescendants_TypeProviders())
@@ -309,6 +288,7 @@ public class WhereAssignedHandler {
 		// Replace where each type-provider child of this owner is used with it equivalent from replacement
 		for (TypeProvider child : owner.getDescendants_TypeProviders()) {
 			Collection<TypeUser> kids = new ArrayList<TypeUser>(child.getWhereAssigned());
+			// FIXME - Doing core_simpleFacetFacetNode causes errors
 			for (TypeUser n : kids) {
 				// Try to find a replacement equivalent from replacement object
 				String name = n.getAssignedType().getName();
@@ -335,13 +315,32 @@ public class WhereAssignedHandler {
 	}
 
 	/**
-	 * Remove user from where used list. Also removed from library's where used handler. Listeners are not affected.
+	 * Remove user from where used list.
+	 * <p>
+	 * Also removed from library's where used handler.
+	 * <p>
+	 * Also remove listeners.
 	 * 
 	 * @param typeUser
 	 *            - type user to remove from list
 	 * @return true if removed, false if not in list
 	 */
 	public boolean remove(TypeUser typeUser) {
+		boolean result = removeUser(typeUser);
+		removeListener(typeUser);
+		return result;
+	}
+
+	/**
+	 * Remove user from where used list. Also removed from library's where used handler. Listeners are not affected.
+	 * <p>
+	 * Safe to use in an event listener.
+	 * 
+	 * @param typeUser
+	 *            - type user to remove from list
+	 * @return true if removed, false if not in list
+	 */
+	public boolean removeUser(TypeUser typeUser) {
 		if (!users.contains(typeUser))
 			return false;
 		users.remove(typeUser);

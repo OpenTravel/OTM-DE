@@ -26,6 +26,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
@@ -49,7 +50,7 @@ public class ElementNode extends PropertyNode {
 	 *            - if null, the caller must link the node and add to TL Model parent
 	 * @param name
 	 */
-	public ElementNode(PropertyOwnerInterface parent, String name) {
+	public ElementNode(FacetInterface parent, String name) {
 		this(parent, name, null);
 	}
 
@@ -62,9 +63,10 @@ public class ElementNode extends PropertyNode {
 	 * @param type
 	 *            type to assign, will be set to" unassigned" if null
 	 */
-	public ElementNode(PropertyOwnerInterface parent, String name, TypeProvider type) {
+	public ElementNode(FacetInterface parent, String name, TypeProvider type) {
 		super(new TLProperty(), parent, name);
 		setAssignedType(type);
+		setName(name); // super.setName will not work if missing type
 	}
 
 	/**
@@ -75,7 +77,7 @@ public class ElementNode extends PropertyNode {
 	 * @param parent
 	 *            if not null, add element to the parent.
 	 */
-	public ElementNode(TLProperty tlObj, PropertyOwnerInterface parent) {
+	public ElementNode(TLProperty tlObj, FacetInterface parent) {
 		super(tlObj, parent);
 		if (getEditStatus().equals(NodeEditStatus.MINOR))
 			setMandatory(false);
@@ -88,13 +90,14 @@ public class ElementNode extends PropertyNode {
 	}
 
 	@Override
-	public void addToTL(final PropertyOwnerInterface owner, final int index) {
+	public void addToTL(final FacetInterface owner, final int index) {
 		if (owner.getTLModelObject() instanceof TLPropertyOwner)
 			try {
 				((TLPropertyOwner) owner.getTLModelObject()).addElement(index, getTLModelObject());
 			} catch (IndexOutOfBoundsException e) {
 				((TLPropertyOwner) owner.getTLModelObject()).addElement(getTLModelObject());
 			}
+		owner.getChildrenHandler().clear();
 	}
 
 	@Override
@@ -162,7 +165,9 @@ public class ElementNode extends PropertyNode {
 	@Override
 	public String getName() {
 		if (deleted)
-			return "";
+			return "-d-";
+		if (getTLModelObject().getType() == null)
+			setAssignedType();
 		return emptyIfNull(getTLModelObject().getName());
 	}
 
@@ -224,8 +229,9 @@ public class ElementNode extends PropertyNode {
 
 	@Override
 	public void setName(String name) {
+		// let NodeNameUtils fix it as needed.
 		if (getTLModelObject() != null)
-			getTLModelObject().setName(NodeNameUtils.fixElementName(this, name)); // let utils fix it as needed.
+			getTLModelObject().setName(NodeNameUtils.fixElementName(this, name));
 	}
 
 	public void setRepeat(final int i) {

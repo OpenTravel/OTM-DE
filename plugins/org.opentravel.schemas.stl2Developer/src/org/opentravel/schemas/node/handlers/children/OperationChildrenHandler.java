@@ -23,9 +23,9 @@ import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOperation;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.OperationFacetNode;
-import org.opentravel.schemas.node.facets.OperationNode;
+import org.opentravel.schemas.node.objectMembers.FacetOMNode;
+import org.opentravel.schemas.node.objectMembers.OperationFacetNode;
+import org.opentravel.schemas.node.objectMembers.OperationNode;
 
 /**
  * Service children handler using a static children handler for Operations children.
@@ -64,7 +64,7 @@ public class OperationChildrenHandler extends StaticChildrenHandler<Node, Operat
 		List<Node> kids = new ArrayList<Node>();
 		for (TLModelElement t : list) {
 			assert t instanceof TLFacet;
-			FacetNode fn = new OperationFacetNode((TLFacet) t);
+			FacetOMNode fn = new OperationFacetNode((TLFacet) t);
 			fn.setParent(owner);
 			kids.add(fn);
 		}

@@ -37,7 +37,7 @@ public class ExtensionUserNode extends WhereUsedNode<ExtensionOwner> implements 
 
 		String label = "--no owner--";
 		if (owner.getOwningComponent() != null)
-			label = owner.getOwningComponent().getNameWithPrefix();
+			label = ((Node) owner.getOwningComponent()).getNameWithPrefix();
 		labelProvider = simpleLabelProvider(label);
 		imageProvider = nodeImageProvider((Node) owner.getOwningComponent());
 	}

@@ -41,26 +41,25 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.NodeVisitors;
 import org.opentravel.schemas.node.SubType;
-import org.opentravel.schemas.node.VWA_Node;
-import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.SimpleFacetNode;
-import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
+import org.opentravel.schemas.node.interfaces.FacetOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.VWA_SimpleFacetFacadeNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.typeProviders.CoreSimpleFacetNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.stl2developer.ColorProvider;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.types.TypeProvider;
-import org.opentravel.schemas.types.TypeUser;
-import org.opentravel.schemas.widgets.LibraryTablePoster;
+import org.opentravel.schemas.widgets.FacetViewTablePoster;
 import org.opentravel.schemas.widgets.WidgetFactory;
 import org.opentravel.schemas.wizards.ChangeWizard.ExtentedTLFacetType;
 import org.opentravel.schemas.wizards.validators.FormValidator;
@@ -88,7 +87,7 @@ public class ChangeWizardPage extends WizardPage {
 	private Table previewTable;
 	private Button undoButton;
 
-	private LibraryTablePoster tablePoster;
+	private FacetViewTablePoster tablePoster;
 
 	private ComponentNode editedNode;
 	private final List<SubType> allowedObjectTypes;
@@ -271,7 +270,7 @@ public class ChangeWizardPage extends WizardPage {
 			}
 
 		});
-		tablePoster = new LibraryTablePoster(previewTable, new ColorProvider(parent.getDisplay()));
+		tablePoster = new FacetViewTablePoster(previewTable, new ColorProvider(parent.getDisplay()));
 
 		updateView();
 		setControl(container);
@@ -319,17 +318,22 @@ public class ChangeWizardPage extends WizardPage {
 				break;
 			case OWNING_FACET_CHANGE:
 				final PropertyNode property = (PropertyNode) item.newNode;
-				if (item.previousNode instanceof FacetNode) {
-					property.moveProperty((FacetNode) item.previousNode);
+				if (item.previousNode instanceof FacetInterface) {
+					property.moveProperty((FacetInterface) item.previousNode);
 				}
 				break;
 			case OWNING_FACET_CHANGE_TO_SIMPLE:
 				// Reinstate the newNode on the previous node facet from where it came
-				((FacetNode) item.previousNode).addProperty((Node) item.newNode);
+				((ComponentNode) item.previousNode).addProperty((Node) item.newNode);
 				// Restore the simple node from the tempNode
-				ComponentNode simpleFacet = ((ComponentNode) item.previousNode.getParent()).getFacet_Simple();
-				simpleFacet.removeProperty(simpleFacet.getChildren().get(0));
-				simpleFacet.addProperty((Node) item.tempNode); // TEST
+				Node facetParent = item.previousNode.getParent();
+				ComponentNode simpleFacet = null;
+				if (facetParent instanceof FacetOwner)
+					simpleFacet = (ComponentNode) ((FacetOwner) facetParent).getFacet_Simple();
+				if (simpleFacet != null) {
+					simpleFacet.removeProperty(simpleFacet.getChildren().get(0));
+					// simpleFacet.add((Node) item.tempNode); // TEST
+				}
 				break;
 			case OWNING_FACET_CHANGE_FROM_SIMPLE:
 				final PropertyNode orig2 = (PropertyNode) item.previousNode;
@@ -386,7 +390,7 @@ public class ChangeWizardPage extends WizardPage {
 		TLFacetType facetType = null;
 		if (selected != null) {
 			final INode parent = selected.getParent();
-			if (parent instanceof FacetNode) {
+			if (parent instanceof FacetInterface) {
 				facetType = ((ComponentNode) parent).getFacetType();
 			}
 		}
@@ -414,7 +418,7 @@ public class ChangeWizardPage extends WizardPage {
 		}
 		if (editedNode != null) {
 			for (final INode n : editedNode.getChildren()) {
-				if (n instanceof FacetNode) {
+				if (n instanceof FacetInterface) {
 					final ComponentNode facet = (ComponentNode) n;
 					final Button b = facetTypeButtons.get(ExtentedTLFacetType.valueOf(facet));
 					if (b != null) {
@@ -491,7 +495,7 @@ public class ChangeWizardPage extends WizardPage {
 
 		ComponentNode owningFacet = null;
 		for (final PropertyNode property : properties) {
-			if (property.getParent() instanceof FacetNode) {
+			if (property.getParent() instanceof FacetInterface) {
 				owningFacet = (ComponentNode) property.getParent();
 			} else {
 				LOGGER.warn("Trying to change facets for property " + property + " but parent is not a facet.");
@@ -500,7 +504,8 @@ public class ChangeWizardPage extends WizardPage {
 
 			if (TLFacetType.SIMPLE.equals(st.toTLFacetType())) {
 				// special case - Simple Facet in CO and VWA
-				changeToSimple(property, owningFacet, editedNode.getFacet_Simple());
+				if (editedNode instanceof FacetOwner)
+					changeToSimple(property, owningFacet, (ComponentNode) ((FacetOwner) editedNode).getFacet_Simple());
 				continue;
 			}
 			if (owningFacet.getFacetType() == null || owningFacet.getFacetType().equals(st.toTLFacetType())) {
@@ -510,37 +515,38 @@ public class ChangeWizardPage extends WizardPage {
 			}
 
 			ComponentNode facet = null;
-			switch (st) {
-			case ID:
-				facet = editedNode.getFacet_ID();
-				break;
-			case SUMMARY:
-				facet = editedNode.getFacet_Summary();
-				break;
-			case DETAIL:
-				facet = editedNode.getFacet_Detail();
-				break;
-			case SIMPLE:
-				facet = editedNode.getFacet_Simple();
-				break;
-			case VWA_ATTRIBUTES:
-				if (editedNode instanceof ComplexComponentInterface) {
-					facet = (ComponentNode) ((ComplexComponentInterface) editedNode).getFacet_Attributes();
+			if (editedNode instanceof FacetOwner)
+				switch (st) {
+				case ID:
+					facet = ((FacetOwner) editedNode).getFacet_ID();
+					break;
+				case SUMMARY:
+					facet = ((FacetOwner) editedNode).getFacet_Summary();
+					break;
+				case DETAIL:
+					facet = ((FacetOwner) editedNode).getFacet_Detail();
+					break;
+				case SIMPLE:
+					facet = (ComponentNode) ((FacetOwner) editedNode).getFacet_Simple();
+					break;
+				case VWA_ATTRIBUTES:
+					facet = ((FacetOwner) editedNode).getFacet_Attributes();
+					break;
+				default:
+					LOGGER.warn("Do not support this facet type: " + st);
+					return;
 				}
-				break;
-			default:
-				LOGGER.warn("Do not support this facet type: " + st);
-				return;
-			}
 			if (facet == null) {
 				return;
 			}
-			if (owningFacet instanceof SimpleFacetNode) {
+			if (owningFacet instanceof CoreSimpleFacetNode)
 				// special case - moving out from simple
-				changeFromSimple(property, (FacetNode) owningFacet, (FacetNode) facet);
-			} else {
+				changeFromSimple(property, (FacetInterface) owningFacet, (FacetInterface) facet);
+			else if (owningFacet instanceof VWA_SimpleFacetFacadeNode)
+				// special case - moving out from simple
+				changeFromSimple(property, (FacetInterface) owningFacet, (FacetInterface) facet);
+			else
 				changeFacet(property, owningFacet, facet);
-			}
 		}
 		tablePoster.postTable(editedNode);
 		setSelected(properties);
@@ -561,8 +567,8 @@ public class ChangeWizardPage extends WizardPage {
 		if (newFacet != null) {
 			final HistoryItem item = new HistoryItem(OpType.OWNING_FACET_CHANGE, oldFacet, property);
 			historyPush(item);
-			if (newFacet instanceof FacetNode)
-				property.moveProperty((FacetNode) newFacet);
+			if (newFacet instanceof FacetInterface)
+				property.moveProperty((FacetInterface) newFacet);
 			// 10/4/2017 - dmh - removed this old code
 			// } else {
 			// oldFacet.removeProperty(property);
@@ -583,30 +589,32 @@ public class ChangeWizardPage extends WizardPage {
 	private void changeToSimple(final PropertyNode property, final ComponentNode oldFacet,
 			final ComponentNode simpleFacet) {
 		if (simpleFacet != null) {
-			SimpleFacetNode sf = (SimpleFacetNode) simpleFacet;
-			Node simpleProp = sf.getSimpleAttribute();
-			if (simpleProp == null) {
-				assert (false); // FIXME - if needed, create concrete node
-				// simpleProp = new ComponentNode((TLModelElement) ModelNode.getEmptyType());
-			}
-			// Copy the simple property for history / revert. Set its type.
-			Node clone = simpleProp.clone(null, null);
-			((TypeUser) clone).setAssignedType((TypeProvider) simpleProp.getType());
+			// FIXME - save old simple attribute for undo
+			// SimpleFacetFacadeNode sf = (SimpleFacetFacadeNode) simpleFacet;
+			// Node simpleProp = sf.getSimpleAttribute();
+			// if (simpleProp == null) {
+			// assert (false); // FIXME - if needed, create concrete node
+			// // simpleProp = new ComponentNode((TLModelElement) ModelNode.getEmptyType());
+			// }
+			// // Copy the simple property for history / revert. Set its type.
+			// Node clone = simpleProp.clone(null, null);
+			// ((TypeUser) clone).setAssignedType((TypeProvider) simpleProp.getType());
 			// clone has no parent as needed for setAssignedType, so use the type class.
 			// clone.getTypeClass().setTypeNode(simpleProp.getType());
 
 			OtmRegistry.getMainController().getModelController().changeToSimple(property);
 
 			// NOTE - at this point the TLValueWithAttributes still has the property as an attribute.
-			final HistoryItem item = new HistoryItem(OpType.OWNING_FACET_CHANGE_TO_SIMPLE, oldFacet, property, clone);
-			historyPush(item);
+			// final HistoryItem item = new HistoryItem(OpType.OWNING_FACET_CHANGE_TO_SIMPLE, oldFacet, property,
+			// clone);
+			// historyPush(item);
 		}
 	}
 
 	/**
 	 * @param simpleProp
 	 */
-	private void resetSimple(INode simpleProp) {
+	private void resetSimple(Node simpleProp) {
 		Object srcObj = simpleProp.getTLModelObject();
 		LOGGER.debug("FIXME");
 		// if (srcObj instanceof TLnSimpleAttribute) {
@@ -624,13 +632,13 @@ public class ChangeWizardPage extends WizardPage {
 	 * @param targetFacet
 	 *            - facetNode that will contain the new property
 	 */
-	private void changeFromSimple(final PropertyNode simpleAttr, final FacetNode simpleFacet,
-			final FacetNode targetFacet) {
+	private void changeFromSimple(final PropertyNode simpleAttr, final FacetInterface simpleFacet,
+			final FacetInterface targetFacet) {
 		if (targetFacet != null) {
 
 			Node simpleAttrClone = simpleAttr.clone(null, null);
 			ComponentNode newProperty = OtmRegistry.getMainController().getModelController()
-					.moveSimpleToFacet(simpleAttr, targetFacet);
+					.moveSimpleToFacet(simpleAttr, (ComponentNode) targetFacet);
 			// TODO - get examples and equivalents. The TL interface does not provide them in a
 			// list.
 			final HistoryItem item = new HistoryItem(OpType.OWNING_FACET_CHANGE_FROM_SIMPLE, simpleAttrClone,

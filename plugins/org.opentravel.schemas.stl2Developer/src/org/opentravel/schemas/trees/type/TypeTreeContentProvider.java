@@ -15,13 +15,16 @@
  */
 package org.opentravel.schemas.trees.type;
 
+import java.util.List;
+
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.types.TypeProviderAndOwners;
 
 /**
- * Provides tree view content of only type providers.
- * 
+ * Provides tree view content for type selection wizard.
+ * <p>
  * NOTE - for library version chains, each version is included. This means that the leaf nodes will not be actual type
  * providers but version node.
  * 
@@ -44,6 +47,9 @@ public class TypeTreeContentProvider implements ITreeContentProvider {
 
 	@Override
 	public Object[] getChildren(final Object element) {
+		List<TypeProviderAndOwners> x = ((INode) element).getChildren_TypeProviders();
+		if (x == null)
+			x = ((INode) element).getChildren_TypeProviders();
 		// return (((Node) element).getDescendants_TypeProviders().toArray());
 		return (((INode) element).getChildren_TypeProviders().toArray());
 	}

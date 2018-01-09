@@ -21,7 +21,7 @@ import java.util.List;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.facets.ListFacetNode;
+import org.opentravel.schemas.node.typeProviders.ListFacetNode;
 
 public class ListFacetChildrenHandler extends CachingChildrenHandler<Node, ListFacetNode> {
 

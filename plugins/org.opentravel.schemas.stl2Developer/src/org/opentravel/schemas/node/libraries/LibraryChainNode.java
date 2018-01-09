@@ -26,24 +26,26 @@ import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemacompiler.version.VersionSchemeException;
 import org.opentravel.schemas.controllers.ValidationManager;
 import org.opentravel.schemas.node.AggregateNode;
-import org.opentravel.schemas.node.AggregateNode.AggregateType;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VersionAggregateNode;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
-import org.opentravel.schemas.node.facets.ContributedFacetNode;
-import org.opentravel.schemas.node.facets.OperationNode;
 import org.opentravel.schemas.node.handlers.NamespaceHandler;
-import org.opentravel.schemas.node.handlers.children.NavNodeChildrenHandler;
-import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
+import org.opentravel.schemas.node.handlers.children.LibraryChainChildrenHandler;
+import org.opentravel.schemas.node.interfaces.ComplexMemberInterface;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
+import org.opentravel.schemas.node.interfaces.FacetOwner;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
-import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.interfaces.SimpleMemberInterface;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
+import org.opentravel.schemas.node.objectMembers.OperationNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacet15Node;
 import org.opentravel.schemas.properties.Images;
+import org.opentravel.schemas.types.TypeProviderAndOwners;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +68,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class LibraryChainNode extends Node implements FacadeInterface, LibraryInterface {
+public class LibraryChainNode extends Node implements FacadeInterface, TypeProviderAndOwners, LibraryInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryChainNode.class);
 
 	protected static final String LIBRARY_CHAIN = "Library Collection";
@@ -113,6 +115,8 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 		((LibraryNavNode) ln.getParent()).setThisLib(this);
 		getModelNode().getLibraryManager().replace(ln, this);
 
+		childrenHandler = new LibraryChainChildrenHandler(this);
+
 		parent = ln.getParent();
 		setHead(ln);
 		createAggregates();// add aggregates and set parent
@@ -147,7 +151,9 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 		// LOGGER.debug("Creating chain for project item " + pi.getLibraryName());
 
 		setParent(new LibraryNavNode(this, projNode));
-		getModelNode().getLibraryManager().add(this);
+		// getModelNode().getLibraryManager().add(this);
+
+		childrenHandler = new LibraryChainChildrenHandler(this);
 
 		setHead(null);
 
@@ -165,6 +171,9 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 
 		// Now that we know what is the head library, set that in the aggregates
 		setAggregateLibrary(getHead());
+		// Must have a head library to determine the canonical name
+		getModelNode().getLibraryManager().add(this);
+
 	}
 
 	/**
@@ -182,10 +191,10 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 			throw new IllegalArgumentException("Tried to add node with null library. " + node);
 
 		// Skip over contextual facets that are not named entities (version 1.5)
-		if (node instanceof ContextualFacetNode && !((ContextualFacetNode) node).isNamedEntity())
+		if (node instanceof ContextualFacet15Node)
 			return;
 		if (node instanceof ContributedFacetNode)
-			return;
+			node = ((ContributedFacetNode) node).get();
 
 		// LOGGER.debug("Adding " + node + " to library chain.");
 
@@ -195,9 +204,9 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 			serviceRoot.add(node);
 		else if (node instanceof ResourceNode)
 			resourceRoot.add(node);
-		else if (node instanceof ComplexComponentInterface)
+		else if (node instanceof ComplexMemberInterface)
 			complexRoot.add(node);
-		else if (node instanceof SimpleComponentInterface)
+		else if (node instanceof SimpleMemberInterface)
 			simpleRoot.add(node);
 		// else
 		// LOGGER.warn("add skipped: " + node);
@@ -215,7 +224,12 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 
 		if (newLib == null) {
 			// LOGGER.debug("Adding pi " + pi.getFilename() + " to chain " + getLabel());
-			newLib = new LibraryNode(pi, this);
+			// Just add the library node if it already has been modeled.
+			if (Node.GetNode(pi.getContent()) instanceof LibraryNode)
+				newLib = (LibraryNode) Node.GetNode(pi.getContent());
+			if (newLib == null)
+				// No need to register with library manager since the chain is registered
+				newLib = new LibraryNode(pi, this);
 			versions.add(newLib); // simply add this library to library list.
 			newLib.updateLibraryStatus();
 		}
@@ -225,30 +239,13 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 		return newLib;
 	}
 
-	// public boolean remove(ProjectItem pi) {
-	// // If the chain does not have this PI return false.
-	// LibraryNode ln = versions.get(pi);
-	// if (ln == null) return false;
-	//
-	// // Remove from aggregates (static children handler)
-	// for (Node lm : ln.getDescendants_LibraryMembers() )
-	// removeAggregate((ComponentNode) lm);
-	//
-	// // Remove from versions list
-	//
-	// return true;
-	// }
-
 	/**
 	 * Add each named-type descendant to the chain.
 	 * 
 	 * @param lib
 	 */
 	private void aggregateChildren(LibraryNode lib) {
-		if (lib.getServiceRoot() != null) {
-			add((ComponentNode) lib.getServiceRoot());
-		}
-		for (Node n : lib.getDescendants_LibraryMembers()) {
+		for (LibraryMemberInterface n : lib.getDescendants_LibraryMembers()) {
 			add((ComponentNode) n);
 		}
 	}
@@ -259,23 +256,25 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 	 */
 	@Override
 	public void close() {
-		// LOGGER.debug("Closing " + getNameWithPrefix());
-		// if (getParent() instanceof LibraryNavNode) {
-		// ((LibraryNavNode) getParent()).close();
-		// } else {
-		// Take kids out of chain then close them
-		// for (Node n : getVersions().getChildren_New()) {
-		// n.setParent(null);
-		// n.close();
-		// getVersions().remove(n);
-		// }
-		closeAggregates();
-		deleted = true;
-		setParent(null);
-		setLibrary(null);
-		// }
-		assert (isEmpty());
-		assert (getHead() == null);
+		closeLibraryInterface();
+	}
+
+	@Override
+	public void closeLibraryInterface() {
+		// Attempt to use the parent to close this library
+		if (getParent() instanceof LibraryNavNode) {
+			((LibraryNavNode) getParent()).close();
+		} else {
+			for (Node kid : getChildrenHandler().getChildren_New())
+				kid.close();
+			// closeAggregates();
+			deleted = true;
+			setParent(null);
+			setLibrary(null);
+
+			assert (isEmpty());
+			assert (getHead() == null);
+		}
 	}
 
 	/**
@@ -287,11 +286,6 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 		simpleRoot.close();
 		serviceRoot.close();
 		resourceRoot.close();
-		// versions = null;
-		// complexRoot = null;
-		// simpleRoot = null;
-		// serviceRoot = null;
-		// resourceRoot = null;
 	}
 
 	/**
@@ -303,11 +297,11 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 	}
 
 	private void createAggregates() {
-		versions = new VersionAggregateNode(AggregateType.Versions, this);
-		complexRoot = new AggregateNode(AggregateType.ComplexTypes, this);
-		simpleRoot = new AggregateNode(AggregateType.SimpleTypes, this);
-		serviceRoot = new AggregateNode(AggregateType.Service, this);
-		resourceRoot = new AggregateNode(AggregateType.RESOURCES, this);
+		versions = getChildrenHandler().getVersions();
+		complexRoot = getChildrenHandler().getComplexRoot();
+		simpleRoot = getChildrenHandler().getSimpleRoot();
+		serviceRoot = getChildrenHandler().getServiceRoot();
+		resourceRoot = getChildrenHandler().getResourceRoot();
 	}
 
 	/**
@@ -332,8 +326,8 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 	}
 
 	@Override
-	public NavNodeChildrenHandler getChildrenHandler() {
-		return versions.getChildrenHandler();
+	public LibraryChainChildrenHandler getChildrenHandler() {
+		return (LibraryChainChildrenHandler) childrenHandler;
 	}
 
 	public AggregateNode getComplexAggregate() {
@@ -378,6 +372,9 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 		return null;
 	}
 
+	/**
+	 * @return new list of libraries in this chain
+	 */
 	@Override
 	public List<LibraryNode> getLibraries() {
 		ArrayList<LibraryNode> libs = new ArrayList<LibraryNode>();
@@ -448,18 +445,6 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 	@Override
 	public TLModelElement getTLModelObject() {
 		return getHead().getTLModelObject();
-	}
-
-	@Override
-	public List<Node> getTreeChildren(boolean deep) {
-		List<Node> treeKids = versions.getNavChildren(deep);
-		if (treeKids.isEmpty())
-			treeKids = new ArrayList<Node>();
-		if (!treeKids.contains(getHead().getWhereUsedHandler().getWhereUsedNode()))
-			treeKids.add(getHead().getWhereUsedHandler().getWhereUsedNode());
-		if (!treeKids.contains(getHead().getWhereUsedHandler().getUsedByNode()))
-			treeKids.add(getHead().getWhereUsedHandler().getUsedByNode());
-		return treeKids;
 	}
 
 	/**
@@ -593,9 +578,9 @@ public class LibraryChainNode extends Node implements FacadeInterface, LibraryIn
 	 */
 	public void removeAggregate(ComponentNode node) {
 		// Remove this version.
-		if (node instanceof ComplexComponentInterface)
+		if (node instanceof FacetOwner)
 			complexRoot.remove(node);
-		else if (node instanceof SimpleComponentInterface)
+		else if (node instanceof SimpleMemberInterface)
 			simpleRoot.remove(node);
 		else if (node instanceof ResourceNode)
 			resourceRoot.remove(node);

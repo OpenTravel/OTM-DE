@@ -21,6 +21,7 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeFinders;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.types.TypeProvider;
 
@@ -33,23 +34,17 @@ import org.opentravel.schemas.types.TypeProvider;
 public class IdNode extends AttributeNode {
 	TypeProvider idType = null;
 
-	public IdNode(PropertyOwnerInterface parent, String name) {
+	public IdNode(FacetInterface parent, String name) {
 		super(parent, name);
 		if (name == null || name.isEmpty())
 			name = "id";
 		setName(name);
-		idType = (TypeProvider) NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
-		Node x;
-		if (idType == null)
-			x = NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
-		assert idType != null;
-		getTLModelObject().setType((TLAttributeType) idType.getTLModelObject());
+		getTLModelObject().setType((TLAttributeType) getRequiredType().getTLModelObject());
 	}
 
-	public IdNode(TLAttribute tlObj, PropertyOwnerInterface parent) {
+	public IdNode(TLAttribute tlObj, FacetInterface parent) {
 		super(tlObj, parent);
-		idType = (TypeProvider) NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
-		getTLModelObject().setType((TLAttributeType) idType.getTLModelObject());
+		getTLModelObject().setType((TLAttributeType) getRequiredType().getTLModelObject());
 	}
 
 	@Override
@@ -59,6 +54,9 @@ public class IdNode extends AttributeNode {
 
 	@Override
 	public TypeProvider getRequiredType() {
+		if (idType == null)
+			idType = (TypeProvider) NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
+		assert idType != null;
 		return idType;
 	}
 	// @Override

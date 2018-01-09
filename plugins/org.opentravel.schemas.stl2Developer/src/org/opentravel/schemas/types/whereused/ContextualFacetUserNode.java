@@ -19,8 +19,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

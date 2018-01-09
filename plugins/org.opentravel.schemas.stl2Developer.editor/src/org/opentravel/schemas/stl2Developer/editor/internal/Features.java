@@ -17,11 +17,11 @@ package org.opentravel.schemas.stl2Developer.editor.internal;
 
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.graphics.Color;
-import org.opentravel.schemas.node.BusinessObjectNode;
-import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.SimpleComponentNode;
-import org.opentravel.schemas.node.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.SimpleComponentNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.stl2Developer.editor.internal.layouts.INodeLayout;
 import org.opentravel.schemas.stl2Developer.editor.internal.layouts.VerticalNodeLayout;
 

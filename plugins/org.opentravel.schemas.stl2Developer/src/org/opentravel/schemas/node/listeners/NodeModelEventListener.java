@@ -95,7 +95,7 @@ public class NodeModelEventListener extends BaseNodeListener implements
 			if (user != null) {
 				TypeProvider type = user.getAssignedType();
 				if (type != null) {
-					type.removeTypeUser(user);
+					type.removeWhereAssigned(user);
 					// LOGGER.debug("Property Removed type assignment: " + type + " from " + user);
 				}
 			}

@@ -20,10 +20,10 @@ import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
-import org.opentravel.schemas.node.facets.Core_SimpleFacetFacadeNode;
+import org.opentravel.schemas.node.typeProviders.CoreSimpleFacetNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public class CoreObjectChildrenHandler extends StaticChildrenHandler<Node, CoreO
 	public void initChildren() {
 		initRunning = true;
 		super.initChildren(); // initialize children and load facets
-		children.add(0, new Core_SimpleFacetFacadeNode(owner));
+		children.add(0, new CoreSimpleFacetNode(owner));
 		children.addAll(modelTLs(getChildren_TL()));
 		initRunning = false;
 	}

@@ -18,6 +18,8 @@ package org.opentravel.schemas.testers;
 import org.eclipse.core.expressions.PropertyTester;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * These tests are available to the plugin.xml for enabling commands.
@@ -26,7 +28,7 @@ import org.opentravel.schemas.node.VersionNode;
  *
  */
 public class GlobalSelectionTester extends PropertyTester {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(GlobalSelectionTester.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalSelectionTester.class);
 
 	public static final String CANADD = "canAdd";
 	public static final String NewToChain = "newToChain";
@@ -40,20 +42,23 @@ public class GlobalSelectionTester extends PropertyTester {
 		if (node instanceof VersionNode)
 			node = ((VersionNode) node).get();
 
+		boolean result = false;
+
 		// LOGGER.debug("Property = " + property + "  add = " + add + "  new = " + newTo);
 		switch (property) {
 		case CANADD:
-			return node.isEnabled_AddProperties();
+			result = node.isEnabled_AddProperties();
+			break;
 		case NewToChain:
-			return node.isEditable_newToChain();
+			result = node.isEditable_newToChain();
+			break;
 		default:
-			return false;
+			result = false;
 		}
-		// if (CANADD.equals(property)) {
-		// return ((Node) receiver).isEnabled_AddProperties();
-		// } else if (NewToChain.equals(property))
-		// return ((Node) receiver).isEditable_newToChain();
-		// return false;
+
+		// LOGGER.debug(result + " = test of " + property + " on " + node);
+
+		return result;
 	}
 
 	/**

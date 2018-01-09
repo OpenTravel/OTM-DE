@@ -21,6 +21,7 @@ import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeNameUtils;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.properties.Images;
 
@@ -34,14 +35,14 @@ import org.opentravel.schemas.properties.Images;
 
 public class IndicatorElementNode extends IndicatorNode {
 
-	public IndicatorElementNode(PropertyOwnerInterface parent, String name) {
+	public IndicatorElementNode(FacetInterface parent, String name) {
 		super(parent, name);
-		((TLIndicator) getTLModelObject()).setPublishAsElement(true);
+		getTLModelObject().setPublishAsElement(true);
 	}
 
-	public IndicatorElementNode(TLIndicator tlObj, PropertyOwnerInterface parent) {
+	public IndicatorElementNode(TLIndicator tlObj, FacetInterface parent) {
 		super(tlObj, parent);
-		((TLIndicator) tlObj).setPublishAsElement(true);
+		tlObj.setPublishAsElement(true);
 	}
 
 	@Override

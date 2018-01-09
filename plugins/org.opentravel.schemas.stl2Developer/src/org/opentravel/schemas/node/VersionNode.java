@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.node.handlers.children.ChildrenHandlerI;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -103,6 +104,14 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 		// TODO - why are some children empty?
 		// return getChildren().isEmpty() ? vm.get() : getChildren().get(0);
 		// return vm.get();
+	}
+
+	@Override
+	/**
+	 * Get head's parameterized children handler
+	 */
+	public ChildrenHandlerI<?> getChildrenHandler() {
+		return get() != null ? get().getChildrenHandler() : null;
 	}
 
 	@Override
@@ -256,13 +265,16 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 		vm.remove(node);
 
 		// If no more versions, then remove version node
-		if (vm.get() == null)
+		if (vm.get() == null) {
 			if (getParent() != null) {
-				if (getParent().getChildrenHandler() != null)
-					getParent().getChildrenHandler().clear();
-				// getParent().remove(this);
-				node.setVersionNode(null);
+				// NavNode is static -- remove not clear
+				if (getParent() instanceof NavNode && node instanceof LibraryMemberInterface)
+					((NavNode) getParent()).removeLM((LibraryMemberInterface) node);
+				setParent(null);
 			}
+			deleted = true;
+			node.setVersionNode(null);
+		}
 	}
 
 	@Override

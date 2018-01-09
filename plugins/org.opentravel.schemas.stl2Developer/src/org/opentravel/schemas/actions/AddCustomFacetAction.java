@@ -22,12 +22,12 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.commands.ContextualFacetHandler;
 import org.opentravel.schemas.commands.OtmAbstractHandler;
-import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.NodeFactory;
-import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -121,7 +121,7 @@ public class AddCustomFacetAction extends OtmAbstractAction {
 		// return;
 
 		final BusinessObjectNode bo = (BusinessObjectNode) current;
-		final ComponentNode propertyOwner = current.getFacet_Detail();
+		final FacetProviderNode propertyOwner = bo.getFacet_Detail();
 
 		// Set up and run the wizard
 		String defaultContext = current.getLibrary().getDefaultContextId();
@@ -130,7 +130,7 @@ public class AddCustomFacetAction extends OtmAbstractAction {
 		wizard.setValidator(new NewFacetValidator(current, facetType, wizard));
 		wizard.run(OtmRegistry.getActiveShell());
 		if (!wizard.wasCanceled()) {
-			FacetNode newFacet = bo.addFacet(wizard.getName(), facetType);
+			FacetProviderNode newFacet = bo.addFacet(wizard.getName(), facetType);
 			for (final PropertyNode n : wizard.getSelectedProperties()) {
 				NodeFactory.newChild(newFacet, (TLModelElement) n.cloneTLObj());
 			}

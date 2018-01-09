@@ -18,8 +18,8 @@ package org.opentravel.schemas.trees.type;
 import org.eclipse.jface.viewers.Viewer;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

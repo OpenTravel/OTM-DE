@@ -15,7 +15,7 @@
  */
 package org.opentravel.schemas.node;
 
-import org.opentravel.schemas.node.interfaces.SimpleComponentInterface;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class XsdNode extends ComponentNode implements SimpleComponentInterface {
+public class XsdNode extends ComponentNode {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(XsdNode.class);
 	public ComponentNode otmModel = null; // a pointer to a node/model object and tlObj
@@ -130,7 +130,8 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 	@Deprecated
 	@Override
 	public String getName() {
-		assert false; // xsd node should never be maintained
+		// used when modeling xsd objects
+		// assert false; // xsd node should never be maintained
 		return "";
 		// return modelObject.getName();
 	}
@@ -151,6 +152,16 @@ public class XsdNode extends ComponentNode implements SimpleComponentInterface {
 	public boolean isDeleteable() {
 		assert false; // xsd node should never be maintained
 		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.node.Node#getTLModelObject()
+	 */
+	@Override
+	public TLModelElement getTLModelObject() {
+		return null;
 	}
 
 	// @Override

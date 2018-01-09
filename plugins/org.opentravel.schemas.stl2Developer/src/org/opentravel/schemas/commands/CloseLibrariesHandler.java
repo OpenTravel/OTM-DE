@@ -41,9 +41,6 @@ public class CloseLibrariesHandler extends OtmAbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
 		if (isEnabled())
-			// mc.getLibraryController().remove(toClose);
-			// for (LibraryNavNode lnn : toClose)
-			// lnn.close();
 			mc.getProjectController().remove(toClose);
 
 		return null;
@@ -69,18 +66,6 @@ public class CloseLibrariesHandler extends OtmAbstractHandler {
 			// Only library nav nodes know which project the library is in.
 			if (n instanceof LibraryNavNode)
 				toClose.add((LibraryNavNode) n);
-
-			// if (n == null)
-			// continue;
-			// if (n instanceof LibraryNavNode)
-			// n = (Node) ((LibraryNavNode) n).getThisLib();
-			// else {
-			// n = n.getLibrary();
-			// if (((LibraryNode) n).isInChain())
-			// n = n.getChain();
-			// }
-			// if (!toClose.contains(n))
-			// toClose.add(n);
 		}
 		return !toClose.isEmpty();
 	}

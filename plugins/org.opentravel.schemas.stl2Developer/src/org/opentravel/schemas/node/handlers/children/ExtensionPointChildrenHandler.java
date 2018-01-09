@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
 
 public class ExtensionPointChildrenHandler extends CachingChildrenHandler<Node, ExtensionPointNode> {
 	// final static Logger LOGGER = LoggerFactory.getLogger(ExtensionPointFacetMO.class);

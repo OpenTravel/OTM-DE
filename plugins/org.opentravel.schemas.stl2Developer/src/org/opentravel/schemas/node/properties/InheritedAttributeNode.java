@@ -20,6 +20,7 @@ import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUserHandler;
@@ -39,7 +40,7 @@ public class InheritedAttributeNode extends AttributeNode implements InheritedIn
 
 	private AttributeNode inheritedFrom = null;
 
-	public InheritedAttributeNode(AttributeNode from, PropertyOwnerInterface parent) {
+	public InheritedAttributeNode(AttributeNode from, FacetInterface parent) {
 		super();
 		inheritedFrom = from;
 		this.parent = (Node) parent;
@@ -53,11 +54,6 @@ public class InheritedAttributeNode extends AttributeNode implements InheritedIn
 	@Override
 	public TypeProvider getAssignedType() {
 		return getInheritedFrom().getAssignedType();
-	}
-
-	@Override
-	public AttributeNode getInheritedFrom() {
-		return inheritedFrom;
 	}
 
 	// @Override
@@ -94,13 +90,13 @@ public class InheritedAttributeNode extends AttributeNode implements InheritedIn
 
 	@Override
 	public String getName() {
-		return emptyIfNull(getTLModelObject().getName());
+		return getInheritedFrom().getName();
 	}
 
-	@Override
-	public Node getParent() {
-		return parent;
-	}
+	// @Override
+	// public Node getParent() {
+	// return parent;
+	// }
 
 	@Override
 	public TLAttribute getTLModelObject() {
@@ -111,7 +107,7 @@ public class InheritedAttributeNode extends AttributeNode implements InheritedIn
 	 * @return the typeHandler
 	 */
 	@Override
-	protected TypeUserHandler getTypeHandler() {
+	public TypeUserHandler getTypeHandler() {
 		return getInheritedFrom().getTypeHandler();
 	}
 
@@ -206,14 +202,13 @@ public class InheritedAttributeNode extends AttributeNode implements InheritedIn
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacadeInterface#get()
-	 */
 	@Override
-	public Node get() {
-		return getInheritedFrom();
+	public AttributeNode getInheritedFrom() {
+		return inheritedFrom;
 	}
 
+	@Override
+	public AttributeNode get() {
+		return getInheritedFrom();
+	}
 }

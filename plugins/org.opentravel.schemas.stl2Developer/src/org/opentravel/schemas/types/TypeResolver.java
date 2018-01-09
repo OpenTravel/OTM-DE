@@ -21,15 +21,13 @@ package org.opentravel.schemas.types;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentravel.schemas.node.AliasNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.Node.NodeVisitor;
-import org.opentravel.schemas.node.facets.ContributedFacetNode;
-import org.opentravel.schemas.node.facets.SimpleFacetNode;
-import org.opentravel.schemas.node.interfaces.ComplexComponentInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,8 +121,7 @@ public class TypeResolver {
 			if (in instanceof TypeUser) {
 				TypeProvider provider = ((TypeUser) in).getAssignedType();
 				if (provider != null) {
-					provider.addWhereUsed((TypeUser) in); // add to list
-					provider.setListener((TypeUser) in); // set listener
+					provider.addTypeUser((TypeUser) in); // add to list
 					WhereUsedLibraryHandler handler = null;
 					if (provider.getLibrary() != null)
 						handler = provider.getLibrary().getWhereUsedHandler();
@@ -147,14 +144,15 @@ public class TypeResolver {
 		if (type == null)
 			return null;
 
-		if (type instanceof SimpleFacetNode) {
-			assert false; // FIXME
-			ComplexComponentInterface owner = (ComplexComponentInterface) type.getOwningComponent();
-			if (owner instanceof SimpleAttributeOwner)
-				return (Node) ((SimpleAttributeOwner) owner).getAssignedType();
-			else
-				return (Node) owner;
-		} else if (type instanceof AliasNode) {
+		// if (type instanceof SimpleFacetNode) {
+		// assert false; // FIXME
+		// ComplexComponentInterface owner = (ComplexComponentInterface) type.getOwningComponent();
+		// if (owner instanceof SimpleAttributeOwner)
+		// return (Node) ((SimpleAttributeOwner) owner).getAssignedType();
+		// else
+		// return (Node) owner;
+		// } else
+		if (type instanceof AliasNode) {
 			AliasNode alias = (AliasNode) type;
 			return (Node) alias.getOwningComponent();
 		}

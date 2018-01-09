@@ -21,8 +21,8 @@ import java.util.List;
 import org.opentravel.schemacompiler.codegen.util.EnumCodegenUtils;
 import org.opentravel.schemacompiler.model.TLEnumValue;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.node.EnumerationOpenNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
 
 public class EnumerationOpenChildrenHandler extends CachingChildrenHandler<Node, EnumerationOpenNode> {
 
@@ -50,14 +50,14 @@ public class EnumerationOpenChildrenHandler extends CachingChildrenHandler<Node,
 		return inheritedKids;
 	}
 
-	// TODO - why isn't this behavior in super type?
-	@Override
-	protected void initInherited() {
-		initRunning = true;
-		inheritedOwner = owner.getExtendsType();
-		inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
-		initRunning = false;
-	}
+	// // TODO - why isn't this behavior in super type?
+	// @Override
+	// protected void initInherited() {
+	// initRunning = true;
+	// inheritedOwner = owner.getExtendsType();
+	// inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
+	// initRunning = false;
+	// }
 
 	// /**
 	// * @see org.opentravel.schemas.modelObject.ModelObject#getInheritedChildren()

@@ -36,7 +36,7 @@ import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.stl2developer.ColorProvider;
-import org.opentravel.schemas.widgets.LibraryTablePoster;
+import org.opentravel.schemas.widgets.FacetViewTablePoster;
 import org.opentravel.schemas.widgets.WidgetFactory;
 import org.opentravel.schemas.wizards.validators.FormValidator;
 import org.opentravel.schemas.wizards.validators.ValidationException;
@@ -52,7 +52,7 @@ public class NewFacetWizardPage extends WizardPage {
     private static final Logger LOGGER = LoggerFactory.getLogger(NewFacetWizardPage.class);
 
     private Table previewTable;
-    private LibraryTablePoster tablePoster;
+    private FacetViewTablePoster tablePoster;
 
     private String facetName;
 
@@ -162,7 +162,7 @@ public class NewFacetWizardPage extends WizardPage {
             }
 
         });
-        tablePoster = new LibraryTablePoster(previewTable, new ColorProvider(parent.getDisplay()));
+        tablePoster = new FacetViewTablePoster(previewTable, new ColorProvider(parent.getDisplay()));
 
         updateView();
         validate();

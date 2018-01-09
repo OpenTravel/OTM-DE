@@ -25,11 +25,11 @@ import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLReferenceType;
-import org.opentravel.schemas.node.ChoiceObjectNode;
-import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.objectMembers.FacetOMNode;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
+import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
 import org.slf4j.Logger;
@@ -123,7 +123,7 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 			setReferenceFacetName(ResourceField.SUBGRP);
 		} else
 			for (Node fn : parent.getSubject().getChildren())
-				if (fn instanceof FacetNode)
+				if (fn instanceof FacetOMNode)
 					if (((TLFacet) fn.getTLModelObject()).getFacetType().equals(type)) {
 						setReferenceFacetName(fn.getLabel());
 						setName(fn.getLabel());
@@ -143,6 +143,7 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 		return (ResourceNode) parent;
 	}
 
+	@Override
 	public void addChildren() {
 	}
 
@@ -158,7 +159,7 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	 */
 	public List<Node> getBasePayloads() {
 		List<Node> candidates = new ArrayList<Node>();
-		for (Node n : getLibrary().getDescendants_LibraryMembers())
+		for (Node n : getLibrary().getDescendants_LibraryMemberNodes())
 			if (n instanceof CoreObjectNode)
 				candidates.add(n);
 			else if (n instanceof ChoiceObjectNode)

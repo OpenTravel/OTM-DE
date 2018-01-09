@@ -16,9 +16,10 @@
 package org.opentravel.schemas.trees.type;
 
 import org.eclipse.jface.viewers.Viewer;
-import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
 
 /**
  * Type selection filter that only allow the selection of a particular type of model object. This is used during the
@@ -28,34 +29,12 @@ import org.opentravel.schemas.node.facets.FacetNode;
  * to the type of object being filtered on, the entities themselves must be extendible in order for this filter to
  * return an affirmative condition.
  * 
- * @author S. Livezey
+ * @author S. Livezey, D. Hollander
  */
 public class TypeTreeExtensionSelectionFilter extends TypeSelectionFilter {
 
-	// @Deprecated
-	// private ModelObject<?> modelObject;
-	// @Deprecated
-	// private Class<? extends ModelObject<?>> extensionType;
 	private Node filterNode = null;
 	private boolean exNode = false;
-
-	// /**
-	// * Constructor that specifies the type of model object to be visible when the filter is applied.
-	// *
-	// * @param modelObjectType
-	// * the type of model object that should be
-	// */
-	// // TODO - make this use Nodes not ModelObjects
-	// @SuppressWarnings("unchecked")
-	// public TypeTreeExtensionSelectionFilter(ModelObject<?> modelObject) {
-	// this.modelObject = modelObject;
-	//
-	// if (modelObject instanceof ExtensionPointFacetMO) {
-	// extensionType = FacetMO.class;
-	// } else {
-	// extensionType = (Class<? extends ModelObject<?>>) modelObject.getClass();
-	// }
-	// }
 
 	/**
 	 * Constructor that specifies the type of object to be visible when the filter is applied.
@@ -67,64 +46,27 @@ public class TypeTreeExtensionSelectionFilter extends TypeSelectionFilter {
 		this.filterNode = filter;
 		if (filter instanceof ExtensionPointNode)
 			exNode = true;
-		// modelObject = null;
-		// extensionType = null;
 	}
 
-	/**
-	 * @see org.opentravel.schemas.trees.type.TypeSelectionFilter#isValidSelection(org.opentravel.schemas.node.Node)
-	 */
 	@Override
 	public boolean isValidSelection(Node n) {
-		boolean isValid = false;
-
-		if (n != null) {
-			if (exNode == false || n instanceof FacetNode)
-				if (n instanceof ExtensionPointNode)
-					// XP Facets must select extensions in a different namespace
-					isValid = n.getNamespace() != null && !n.getNamespace().equals(n.getNamespace());
-				else
-					isValid = filterNode.getClass().equals(n.getClass());
-			// isValid = true;
+		boolean isValid = n.isNavigation();
+		if (!exNode) {
+			if (n instanceof LibraryMemberInterface)
+				isValid = filterNode.getClass().equals(n.getClass());
+		} else if (n != null) {
+			if (exNode == false || n instanceof FacetInterface)
+				if (filterNode instanceof ExtensionPointNode)
+					if (((FacetInterface) n).isExtensionPointTarget())
+						// XP Facets must select extensions in a different namespace
+						isValid = n.getNamespace() != null && !n.getNamespace().equals(filterNode.getNamespace());
+					else
+						isValid = filterNode.getClass().equals(n.getClass());
 		}
-
-		// // Do same as commented out below using Nodes not MO
-		// // 11/10/2016 dmh
-		// if (n != null) {
-		// INode thisNode = n;
-		// // INode thisNode = this.modelObject.getNode();
-		// if ((extensionType == null) || extensionType.equals(n.getModelObject().getClass())) {
-		// if (thisNode instanceof ExtensionPointNode)
-		// // XP Facets must select extensions in a different namespace
-		// isValid = n.getNamespace() != null && !n.getNamespace().equals(thisNode.getNamespace());
-		// else
-		// isValid = true;
-		// }
-		// }
-
-		// if (n != null) {
-		// ModelObject<?> modelObject = n.getModelObject();
-		//
-		// if ((extensionType == null) || extensionType.equals(modelObject.getClass())) {
-		// if (this.modelObject instanceof ExtensionPointFacetMO) {
-		// // XP Facets must select extensions in a different namespace
-		// // if (n.getParent().getModelObject().isExtendable()) {
-		// isValid = (n.getNamespace() != null) && !n.getNamespace().equals(this.modelObject.getNamespace());
-		// // }
-		// } else {
-		// // commented out to allow extensions even if base is not extend-able.
-		// // isValid = modelObject.isExtendable();
-		// isValid = true;
-		// }
-		// }
-		// }
 		return isValid;
+
 	}
 
-	/**
-	 * @see org.eclipse.jface.viewers.ViewerFilter#select(org.eclipse.jface.viewers.Viewer, java.lang.Object,
-	 *      java.lang.Object)
-	 */
 	@Override
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
 		if (element == null || !(element instanceof Node))
@@ -136,13 +78,6 @@ public class TypeTreeExtensionSelectionFilter extends TypeSelectionFilter {
 			return false;
 		else
 			return isValidSelection(n) || hasValidChildren(n);
-
-		// if (n.getModelObject() == modelObject) {
-		// result = false;
-		// } else {
-		// result = isValidSelection(n) || hasValidChildren(n);
-		// }
-		// return result;
 	}
 
 }

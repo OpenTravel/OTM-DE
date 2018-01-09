@@ -23,21 +23,23 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
-import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.VWA_Node;
-import org.opentravel.schemas.node.facets.ContextualFacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.resources.ActionFacet;
 import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.trees.type.BusinessObjectOnlyTypeFilter;
 import org.opentravel.schemas.trees.type.ContextualFacetOwnersTypeFilter;
 import org.opentravel.schemas.trees.type.CoreAndChoiceObjectOnlyTypeFilter;
 import org.opentravel.schemas.trees.type.TypeTreeExtensionSelectionFilter;
 import org.opentravel.schemas.trees.type.TypeTreeIdReferenceTypeOnlyFilter;
+import org.opentravel.schemas.trees.type.TypeTreeSimpleAssignableOnlyFilter;
 import org.opentravel.schemas.trees.type.TypeTreeSimpleTypeOnlyFilter;
 import org.opentravel.schemas.trees.type.TypeTreeVWASimpleTypeOnlyFilter;
 import org.opentravel.schemas.trees.type.TypeTreeVersionSelectionFilter;
@@ -99,6 +101,7 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 		// Make sure all the nodes are non-null and editable
 		// and set lowest common denominator: simple, vwa and complex.
 		boolean service = false;
+		boolean simpleAssignable = false;
 		boolean simple = false;
 		boolean vwa = false;
 		boolean idReference = false;
@@ -108,6 +111,7 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 		boolean contextualFacet = false;
 
 		// FIXME - how does a list of nodes impact the selection?
+		// TODO - delegate getting filter to nodes
 		if (curNodeList != null) {
 			for (Node n : curNodeList) {
 				if (n != null && n.isEditable()) {
@@ -120,8 +124,10 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 						versions = true;
 					else if (n.getOwningComponent() instanceof VWA_Node)
 						vwa = true;
-					else if (n.isOnlySimpleTypeUser())
+					else if (n instanceof SimpleTypeNode)
 						simple = true;
+					else if (n.isOnlySimpleTypeUser())
+						simpleAssignable = true;
 					else if (n instanceof ServiceNode)
 						service = true;
 					else if (n instanceof ElementReferenceNode)
@@ -161,6 +167,8 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 			selectionPage.setTypeSelectionFilter(new CoreAndChoiceObjectOnlyTypeFilter(null));
 		else if (versions)
 			selectionPage.setTypeSelectionFilter(new TypeTreeVersionSelectionFilter(curNodeList.get(0)));
+		else if (simpleAssignable)
+			selectionPage.setTypeSelectionFilter(new TypeTreeSimpleAssignableOnlyFilter());
 		else if (simple)
 			selectionPage.setTypeSelectionFilter(new TypeTreeSimpleTypeOnlyFilter());
 		else if (vwa)
@@ -168,8 +176,6 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 		else if (service)
 			selectionPage.setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(new BusinessObjectNode(
 					new TLBusinessObject())));
-		// selectionPage.setTypeSelectionFilter(new TypeTreeExtensionSelectionFilter(new BusinessObjMO(
-		// new TLBusinessObject())));
 		else if (resource)
 			selectionPage.setTypeSelectionFilter(new BusinessObjectOnlyTypeFilter(null));
 		else if (contextualFacet)

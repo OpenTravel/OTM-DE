@@ -23,13 +23,14 @@ import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLPropertyType;
-import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNodeType;
-import org.opentravel.schemas.node.CoreObjectNode;
-import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeProvider;
 
@@ -44,11 +45,11 @@ import org.opentravel.schemas.types.TypeProvider;
 public class AttributeReferenceNode extends AttributeNode {
 
 	// FIXME - remove name from constructors
-	public AttributeReferenceNode(PropertyOwnerInterface parent) {
+	public AttributeReferenceNode(FacetInterface parent) {
 		this(parent, ModelNode.getUnassignedNode());
 	}
 
-	public AttributeReferenceNode(PropertyOwnerInterface facet, TypeProvider reference) {
+	public AttributeReferenceNode(FacetInterface facet, TypeProvider reference) {
 		super(facet, "", reference);
 		getTLModelObject().setReference(true);
 		setAssignedType(reference);
@@ -61,7 +62,7 @@ public class AttributeReferenceNode extends AttributeNode {
 	 * @param parent
 	 *            can be null
 	 */
-	public AttributeReferenceNode(TLAttribute tlObj, PropertyOwnerInterface parent) {
+	public AttributeReferenceNode(TLAttribute tlObj, FacetInterface parent) {
 		super(tlObj, parent);
 		getTLModelObject().setReference(true);
 	}
@@ -102,11 +103,11 @@ public class AttributeReferenceNode extends AttributeNode {
 		return Images.getImageRegistry().get(Images.ID_Attr_Reference);
 	}
 
-	@Override
-	public String getLabel() {
-		return getName();
-	}
-
+	// @Override
+	// public String getLabel() {
+	// return getName();
+	// }
+	//
 	@Override
 	public boolean isRenameable() {
 		return false;

@@ -21,8 +21,8 @@ import java.util.List;
 import org.opentravel.schemacompiler.codegen.util.EnumCodegenUtils;
 import org.opentravel.schemacompiler.model.TLEnumValue;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.node.EnumerationClosedNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
 
 public class EnumerationClosedChildrenHandler extends CachingChildrenHandler<Node, EnumerationClosedNode> {
 
@@ -46,17 +46,17 @@ public class EnumerationClosedChildrenHandler extends CachingChildrenHandler<Nod
 	public List<TLModelElement> getInheritedChildren_TL() {
 		final List<TLModelElement> inheritedKids = new ArrayList<TLModelElement>();
 		// false prevents Codegen utils from returning non-inherited values
-		inheritedKids.addAll(EnumCodegenUtils.getInheritedValues(owner.getTLModelObject(), false));
+		if (owner.getTLModelObject().getOwningLibrary() != null)
+			inheritedKids.addAll(EnumCodegenUtils.getInheritedValues(owner.getTLModelObject(), false));
 		return inheritedKids;
 	}
-
-	@Override
-	protected void initInherited() {
-		initRunning = true;
-		inheritedOwner = owner.getExtendsType();
-		inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
-		initRunning = false;
-	}
+	// @Override
+	// protected void initInherited() {
+	// initRunning = true;
+	// inheritedOwner = owner.getExtendsType();
+	// inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
+	// initRunning = false;
+	// }
 
 	// /**
 	// * @see org.opentravel.schemas.modelObject.ModelObject#getInheritedChildren()

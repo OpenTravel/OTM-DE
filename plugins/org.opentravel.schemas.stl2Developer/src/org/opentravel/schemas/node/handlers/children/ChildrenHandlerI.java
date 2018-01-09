@@ -19,7 +19,8 @@ import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.types.TypeProviderAndOwners;
 import org.opentravel.schemas.types.TypeUser;
 
 /**
@@ -55,9 +56,23 @@ import org.opentravel.schemas.types.TypeUser;
 public interface ChildrenHandlerI<C extends Node> {
 
 	/**
-	 * Remove the children. If caching handler they will be reread on next get.
+	 * Clear the children. If caching handler they will be reread on next get. Ignored for static children handlers.
+	 * <p>
+	 * Generally, use {@link ChildrenHandlerI#clear(Node)} for either type of handler.
 	 */
 	public void clear();
+
+	/**
+	 * Clear the child item.
+	 * <p>
+	 * If caching handler all children are cleared and they will be reread on next get. If static, the item is removed.
+	 */
+	public void clear(Node item);
+
+	/*
+	 * Remove the item. If caching, the entire cache is cleared.
+	 */
+	public void remove(C item);
 
 	/**
 	 * Return true if the current children contains item. Does <b>Not</b> refresh the list or examine inherited
@@ -84,11 +99,13 @@ public interface ChildrenHandlerI<C extends Node> {
 	public List<TLModelElement> getChildren_TL();
 
 	/**
-	 * Get children that are type providers. If the provider is versioned, the actual provider is returned.
+	 * Get children that are type providers or can own type providers. If the provider is versioned, the actual provider
+	 * is returned.
 	 * 
+	 * @see {@link Node#getDescendants_TypeProviders()} for list of only type providers
 	 * @return new list of children that are type providers
 	 */
-	public List<TypeProvider> getChildren_TypeProviders();
+	public List<TypeProviderAndOwners> getChildren_TypeProviders();
 
 	/**
 	 * Gets the children that are type users (can be assigned a type). Does not return navigation nodes.
@@ -152,6 +169,15 @@ public interface ChildrenHandlerI<C extends Node> {
 	// Override on classes that add to getNavChildren()
 	public boolean hasTreeChildren(boolean deep);
 
+	@Override
 	public String toString();
+
+	/**
+	 * Traverse via getChildren. For version chains, it returns the newest version using the version node and does not
+	 * touch aggregates. Deleted members are not returned.
+	 * 
+	 * return new list of NamedEntities.
+	 */
+	List<LibraryMemberInterface> getDescendants_LibraryMembers();
 
 }

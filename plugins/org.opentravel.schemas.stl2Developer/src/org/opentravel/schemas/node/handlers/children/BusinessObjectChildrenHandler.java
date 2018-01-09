@@ -24,8 +24,8 @@ import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 
 public class BusinessObjectChildrenHandler extends CachingChildrenHandler<Node, BusinessObjectNode> {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectChildrenHandler.class);
@@ -78,11 +78,15 @@ public class BusinessObjectChildrenHandler extends CachingChildrenHandler<Node, 
 		return tlCfs;
 	}
 
-	@Override
-	protected void initInherited() {
-		initRunning = true;
-		inheritedOwner = owner.getExtendsType();
-		inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
-		initRunning = false;
-	}
+	// @Override
+	// protected void initInherited() {
+	// // TODO - refactor or copy
+	// initRunning = true;
+	// inheritedOwner = owner.getExtendsType();
+	// if (inheritedOwner != null)
+	// inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
+	// else
+	// inherited = Collections.emptyList();
+	// initRunning = false;
+	// }
 }

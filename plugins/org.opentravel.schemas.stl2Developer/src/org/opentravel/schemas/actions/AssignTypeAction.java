@@ -22,8 +22,8 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.opentravel.schemas.commands.OtmAbstractHandler;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -69,8 +69,6 @@ public class AssignTypeAction extends OtmAbstractAction {
 		Node n = mc.getSelectedNode_NavigatorView();
 		if (n instanceof TypeProviderWhereUsedNode)
 			replaceTypeSelection((TypeProviderWhereUsedNode) n);
-		// else if (n instanceof LibraryUserNode)
-		// replaceLibrary((LibraryUserNode) n);
 		return;
 	}
 
@@ -82,7 +80,6 @@ public class AssignTypeAction extends OtmAbstractAction {
 			return false;
 		// Allow replacement if any user is editable
 		return (!((TypeProviderWhereUsedNode) n).getAllUsers(true).isEmpty());
-		// return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
 	}
 
 	// From OTM Actions (46) - typeSelector - type selection buttons in facet view
@@ -214,9 +211,13 @@ public class AssignTypeAction extends OtmAbstractAction {
 		Node owner = (Node) ((Node) user).getOwningComponent();
 		if (owner != null && owner.getChain() != null && !owner.isInHead2()) {
 			owner = handler.createVersionExtension(owner);
-			// Inherited children fails until children are retrieved (lazy evaluation). Force cloning now.
-			FacetNode owningFacet = findFacet(owner, ((Node) user).getParent().getName());
-			user = (TypeUser) ((Node) user).clone(owningFacet, "");
+			// Owner == null if they canceled out of creating version
+			if (owner != null) {
+				FacetInterface owningFacet = (FacetInterface) owner.findChildByName(user.getParent().getName());
+				// Inherited children fails until children are retrieved (lazy evaluation). Force cloning now.
+				// FacetInterface owningFacet = findFacet(owner, ((Node) user).getParent().getName());
+				user = (TypeUser) ((Node) user).clone((Node) owningFacet, "");
+			}
 		}
 		return owner == null ? null : user;
 	}
@@ -252,8 +253,8 @@ public class AssignTypeAction extends OtmAbstractAction {
 
 		// Determine if the property is in the same version as the owner. Older versions will be inherited.
 		if (((Node) user).isInherited()) {
-			FacetNode owningFacet = findFacet(owner, ((Node) user).getParent().getName());
-			user = (TypeUser) ((Node) user).clone(owningFacet, "");
+			FacetInterface owningFacet = findFacet(owner, ((Node) user).getParent().getName());
+			user = (TypeUser) ((Node) user).clone((Node) owningFacet, "");
 		}
 
 		// Now run the wizard
@@ -269,11 +270,12 @@ public class AssignTypeAction extends OtmAbstractAction {
 		OtmRegistry.getMainController().refresh(owner);
 	}
 
-	private static FacetNode findFacet(Node owner, String name) {
-		for (Node n : owner.getChildren())
-			if (n instanceof FacetNode)
-				if (n.getName().equals(name))
-					return (FacetNode) n;
+	private static FacetInterface findFacet(Node owner, String name) {
+		if (owner != null)
+			for (Node n : owner.getChildren())
+				if (n instanceof FacetInterface)
+					if (n.getName().equals(name))
+						return (FacetInterface) n;
 		return null;
 	}
 }

@@ -33,17 +33,17 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLFacet;
-import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLPropertyOwner;
 import org.opentravel.schemacompiler.model.TLPropertyType;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
-import org.opentravel.schemas.node.facets.FacetNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.objectMembers.FacetOMNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.trees.library.LibraryTreeLabelProvider;
 import org.slf4j.Logger;
@@ -210,7 +210,7 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 	 *            the property for which to return a current node facet
 	 * @return FacetNode
 	 */
-	private FacetNode getCurrentNodeFacet(PropertyNode propertyNode) {
+	private FacetOMNode getCurrentNodeFacet(PropertyNode propertyNode) {
 		// TLFacet currentNodeFacet = null;
 		// if (curNode.getModelObject().getTLModelObj() instanceof TLFacetOwner) {
 		// TLFacetOwner currentNodeTLObj = (TLFacetOwner) curNode.getModelObject().getTLModelObj();
@@ -218,7 +218,7 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 		// currentNodeFacet = FacetCodegenUtils.getFacetOfType(currentNodeTLObj, propertyOwningFacet.getFacetType(),
 		// propertyOwningFacet.getContext(), propertyOwningFacet.getLabel());
 		// }
-		FacetNode facetNode = null;
+		FacetOMNode facetNode = null;
 		//
 		// if (currentNodeFacet != null) {
 		// for (INode childNode : curNode.getChildren()) {
@@ -812,16 +812,19 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 					final NamedEntity elem = prop.getAssignedTLNamedEntity();
 					// final NamedEntity elem = prop.getModelObject().getTLType();
 
-					if (elem != null) {
-						if (elem instanceof TLLibraryMember) {
-							return new Object[] { NodeFactory.newLibraryMember((TLLibraryMember) elem) };
-							// return new Object[] { ComponentNode.newCN((LibraryMember) elem) };
-						}
-						if (elem instanceof TLFacet) {
-							// return new Object[] { new ComponentNode((TLFacet) elem) };
-							return new Object[] { new FacetNode((TLFacet) elem) };
-						}
-					}
+					if (elem != null)
+						return new Object[] { NodeFactory.newLibraryMember((LibraryMember) elem) };
+
+					// if (elem != null) {
+					// if (elem instanceof TLLibraryMember) {
+					// return new Object[] { NodeFactory.newLibraryMember((TLLibraryMember) elem) };
+					// // return new Object[] { ComponentNode.newCN((LibraryMember) elem) };
+					// }
+					// if (elem instanceof TLFacet) {
+					// // return new Object[] { new ComponentNode((TLFacet) elem) };
+					// return new Object[] { new FacetOMNode((TLFacet) elem) };
+					// }
+					// }
 				} else {
 					// nodeChildren.addAll(node.getNavChildrenWithProperties());
 					nodeChildren.addAll(node.getChildren());

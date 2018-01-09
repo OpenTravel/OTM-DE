@@ -20,29 +20,30 @@ import java.util.Comparator;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.opentravel.schemacompiler.model.TLFacet;
-import org.opentravel.schemas.node.AliasNode;
-import org.opentravel.schemas.node.ExtensionPointNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.facets.AttributeFacetNode;
-import org.opentravel.schemas.node.facets.ContributedFacetNode;
-import org.opentravel.schemas.node.facets.ListFacetNode;
-import org.opentravel.schemas.node.facets.OperationNode;
-import org.opentravel.schemas.node.facets.RoleFacetNode;
-import org.opentravel.schemas.node.facets.SimpleFacetFacadeNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
+import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
+import org.opentravel.schemas.node.objectMembers.OperationNode;
+import org.opentravel.schemas.node.objectMembers.VWA_SimpleFacetFacadeNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.node.properties.PropertyOwnerInterface;
 import org.opentravel.schemas.node.resources.ActionFacet;
 import org.opentravel.schemas.node.resources.ActionNode;
 import org.opentravel.schemas.node.resources.ActionRequest;
 import org.opentravel.schemas.node.resources.ActionResponse;
 import org.opentravel.schemas.node.resources.ParamGroup;
 import org.opentravel.schemas.node.resources.ResourceParameter;
+import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.node.typeProviders.CoreSimpleFacetNode;
+import org.opentravel.schemas.node.typeProviders.ListFacetNode;
+import org.opentravel.schemas.node.typeProviders.RoleFacetNode;
 import org.opentravel.schemas.types.whereused.LibraryUsesNode;
 import org.opentravel.schemas.types.whereused.LibraryWhereUsedNode;
 import org.opentravel.schemas.types.whereused.WhereUsedNode;
@@ -126,8 +127,10 @@ public class LibrarySorter extends ViewerSorter {
 				return 2;
 			} else if (LibraryNode.COMPLEX_OBJECTS.equals(name)) {
 				return 1;
-			} else if (name.equals("Services")) {
+			} else if (LibraryNode.SERVICES.equals(name)) {
 				return 4;
+			} else if (LibraryNode.RESOURCES.equals(name)) {
+				return 5;
 			}
 		}
 
@@ -185,9 +188,11 @@ public class LibrarySorter extends ViewerSorter {
 			return 18;
 		}
 
-		if (n instanceof PropertyOwnerInterface) {
+		if (n instanceof FacetInterface) {
 			// if (n instanceof SimpleFacetNode)
-			if (n instanceof SimpleFacetFacadeNode)
+			if (n instanceof VWA_SimpleFacetFacadeNode)
+				return 1;
+			if (n instanceof CoreSimpleFacetNode)
 				return 1;
 			if (n instanceof AttributeFacetNode)
 				return 2;

@@ -33,6 +33,10 @@ public interface SimpleAttributeOwner {
 	// @Deprecated
 	// public TypeProvider getSimpleType();
 
+	/**
+	 * 
+	 * @return type assigned to the simple attribute
+	 */
 	public TypeProvider getAssignedType();
 
 	/**

@@ -41,15 +41,15 @@ import org.eclipse.swt.widgets.Text;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
-import org.opentravel.schemas.node.BusinessObjectNode;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ComponentNodeType;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.trees.type.BusinessObjectOnlyTypeFilter;
-import org.opentravel.schemas.trees.type.ContextualFacetOnwersContentProvider;
+import org.opentravel.schemas.trees.type.ContextualFacetOwnersContentProvider;
 import org.opentravel.schemas.trees.type.ContextualFacetOwnersTypeFilter;
 import org.opentravel.schemas.trees.type.ExtensionTreeContentProvider;
 import org.opentravel.schemas.trees.type.TypeTreeExtensionSelectionFilter;
@@ -139,17 +139,17 @@ public class NewComponentWizardPage extends WizardPage {
 		case CHOICE_FACET:
 			((TypeSelectionPage) getNextPage()).setTypeSelectionFilter(new ContextualFacetOwnersTypeFilter(
 					TLFacetType.CHOICE));
-			((TypeSelectionPage) getNextPage()).setTypeTreeContentProvider(new ContextualFacetOnwersContentProvider());
+			((TypeSelectionPage) getNextPage()).setTypeTreeContentProvider(new ContextualFacetOwnersContentProvider());
 			break;
 		case CUSTOM_FACET:
 			((TypeSelectionPage) getNextPage()).setTypeSelectionFilter(new ContextualFacetOwnersTypeFilter(
 					TLFacetType.CUSTOM));
-			((TypeSelectionPage) getNextPage()).setTypeTreeContentProvider(new ContextualFacetOnwersContentProvider());
+			((TypeSelectionPage) getNextPage()).setTypeTreeContentProvider(new ContextualFacetOwnersContentProvider());
 			break;
 		case QUERY_FACET:
 			((TypeSelectionPage) getNextPage()).setTypeSelectionFilter(new ContextualFacetOwnersTypeFilter(
 					TLFacetType.QUERY));
-			((TypeSelectionPage) getNextPage()).setTypeTreeContentProvider(new ContextualFacetOnwersContentProvider());
+			((TypeSelectionPage) getNextPage()).setTypeTreeContentProvider(new ContextualFacetOwnersContentProvider());
 			break;
 		case SERVICE:
 			((TypeSelectionPage) getNextPage()).setTypeSelectionFilter(new BusinessObjectOnlyTypeFilter(null));

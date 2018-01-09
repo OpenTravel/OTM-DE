@@ -22,7 +22,7 @@ import java.util.List;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.facets.FacetNode;
+import org.opentravel.schemas.node.objectMembers.FacetOMNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
@@ -185,7 +185,7 @@ public class DOMExampleModel extends ExampleModel {
 			if (n.getName().equals(nodeName)) {
 				result = n;
 				break;
-			} else if (n instanceof FacetNode) {
+			} else if (n instanceof FacetOMNode) {
 				for (org.opentravel.schemas.node.Node in : n.getInheritedChildren())
 					if (in.getName().equals(nodeName)) {
 						result = in;

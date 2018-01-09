@@ -22,7 +22,7 @@ import java.util.Set;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.types.TypeProviderAndOwners;
 
 /**
  * Viewer filter that adds an additional method to verify that the selection chosen by the user is a valid type.
@@ -55,8 +55,8 @@ public abstract class TypeSelectionFilter extends ViewerFilter {
 		if (n.isXsdType())
 			return false;
 
-		for (Node child : n.getChildren_TypeProviders()) {
-			if (isValidSelection(child)) {
+		for (TypeProviderAndOwners child : n.getChildren_TypeProviders()) {
+			if (isValidSelection((Node) child)) {
 				hasValidChild = true;
 				break;
 			}
@@ -73,24 +73,24 @@ public abstract class TypeSelectionFilter extends ViewerFilter {
 		// If we could not find an immediate child that was valid, recurse to see if any of the
 		// deeper ancestors are valid
 		if (!hasValidChild) {
-			Set<Node> children = new HashSet<Node>(n.getChildren_TypeProviders());
+			Set<TypeProviderAndOwners> children = new HashSet<TypeProviderAndOwners>(n.getChildren_TypeProviders());
 			List<Node> navChildren = n.getNavChildren(false);
 
-			if (navChildren != null)
-				children.addAll(navChildren);
+			// if (navChildren != null)
+			// children.addAll(navChildren);
 
-			if (n instanceof LibraryNode) {
-				LibraryNode libNode = (LibraryNode) n;
+			// if (n instanceof LibraryNode) {
+			// LibraryNode libNode = (LibraryNode) n;
+			//
+			// if (libNode.getServiceRoot() != null) {
+			// children.add(libNode.getServiceRoot());
+			// }
+			// } else if (n instanceof ServiceNode) {
+			// children.addAll(n.getChildren());
+			// }
 
-				if (libNode.getServiceRoot() != null) {
-					children.add(libNode.getServiceRoot());
-				}
-			} else if (n instanceof ServiceNode) {
-				children.addAll(n.getChildren());
-			}
-
-			for (Node child : children) {
-				if (hasValidChildren(child)) {
+			for (TypeProviderAndOwners child : children) {
+				if (hasValidChildren((Node) child)) {
 					hasValidChild = true;
 					break;
 				}

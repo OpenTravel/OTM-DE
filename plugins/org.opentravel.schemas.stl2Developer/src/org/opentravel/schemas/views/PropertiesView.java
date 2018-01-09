@@ -38,14 +38,10 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.opentravel.schemas.controllers.OtmActions;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.SimpleComponentNode;
-import org.opentravel.schemas.node.SimpleTypeNode;
-import org.opentravel.schemas.node.VWA_Node;
 import org.opentravel.schemas.node.XsdNode;
-import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.ListFacetNode;
 import org.opentravel.schemas.node.handlers.ConstraintHandler;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.objectMembers.FacetOMNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.IValueWithContextHandler;
@@ -54,6 +50,10 @@ import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
+import org.opentravel.schemas.node.typeProviders.ListFacetNode;
+import org.opentravel.schemas.node.typeProviders.SimpleComponentNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -434,12 +434,12 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 
 		if (n.getParent() == null || n.getTLModelObject() == null) {
 			LOGGER.warn("Error with object: " + n.getNameWithPrefix());
-		} else if (n.getParent() instanceof VWA_Node && n instanceof FacetNode) {
+		} else if (n.getParent() instanceof VWA_Node && n instanceof FacetOMNode) {
 			// for VWA - Facets should not have name and description editable
 			// fields.postField(nameField, n.getName(), false);
 			fields.postField(descField, n.getDescription(), false);
 			typeField.setEnabled(false);
-		} else if (cn instanceof SimpleComponentNode) {
+		} else if (cn instanceof SimpleTypeNode) {
 			updateType(cn);
 			updateConstraints(cn);
 		} else if (cn instanceof SimpleAttributeFacadeNode) {
@@ -507,7 +507,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 		if (((TypeUser) cn).getRequiredType() != null)
 			return;
 
-		fields.postField(typeField, cn.getTypeName(), cn.isEnabled_AssignType());
+		fields.postField(typeField, cn.getAssignedTypeName(), cn.isEnabled_AssignType());
 		// fields.postField(typeField, cn.getTypeName(), cn.isEditable_newToChain() && cn.isTypeUser());
 		fields.postField(typePrefix, cn.getAssignedPrefix(), false);
 		// See logic in LibraryTablePosterWithButtons

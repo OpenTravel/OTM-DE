@@ -22,18 +22,20 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Event;
+import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.CoreObjectNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.facets.FacetNode;
-import org.opentravel.schemas.node.facets.OperationNode;
-import org.opentravel.schemas.node.facets.RoleFacetNode;
 import org.opentravel.schemas.node.interfaces.Enumeration;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.objectMembers.FacetOMNode;
+import org.opentravel.schemas.node.objectMembers.OperationNode;
 import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
+import org.opentravel.schemas.node.typeProviders.RoleFacetNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
@@ -65,7 +67,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 	private ComponentNode actOnNode; // The node to perform the action on.
 
 	public void execute(Event event) {
-		mc = OtmRegistry.getMainController();
+		// mc = OtmRegistry.getMainController();
 		selectedNode = mc.getGloballySelectNode();
 		actOnNode = (ComponentNode) selectedNode;
 		if (event.data instanceof ComponentNode)
@@ -78,7 +80,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 	// execute target for Add button
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
-		mc = OtmRegistry.getMainController();
+		// mc = OtmRegistry.getMainController();
 		selectedNode = mc.getGloballySelectNode();
 		actOnNode = (ComponentNode) selectedNode;
 		runCommand(getActionType(exEvent));
@@ -133,7 +135,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 					targetNode = (ComponentNode) targetNode.getParent();
 
 				// find matching facet
-				if (targetNode instanceof FacetNode)
+				if (targetNode instanceof FacetOMNode)
 					for (Node n : newNode.getChildren())
 						if (n.getName().equals(targetNode.getName())) {
 							newNode = (ComponentNode) n;
@@ -155,8 +157,8 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 		}
 
 		// make summary facet properties default to mandatory unless in minor version
-		FacetNode owningFacet = (FacetNode) newNode.getParent();
-		if (owningFacet.isSummaryFacet() && !newNode.getLibrary().isMinorVersion())
+		FacetInterface owningFacet = (FacetInterface) newNode.getParent();
+		if (owningFacet.isFacet(TLFacetType.SUMMARY) && !newNode.getLibrary().isMinorVersion())
 			if (newNode instanceof PropertyNode)
 				((PropertyNode) newNode).setMandatory(true);
 
@@ -167,7 +169,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 	private void runCommand(PropertyNodeType actionType) {
 		INode.CommandType type = selectedNode.getAddCommand();
 		if (selectedNode instanceof CoreObjectNode && actionType == PropertyNodeType.ROLE)
-			type = INode.CommandType.ROLE;
+			type = INode.CommandType.ROLE; // TODO - remove/refactor
 
 		switch (type) {
 		case ROLE:
@@ -190,16 +192,17 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 	}
 
 	/**
-	 * Add a user define role to this node. Does nothing if the node, children or siblings are not a role facet.
-	 * 
-	 * @param curNode
-	 *            - core object or one of its facets or properties.
+	 * Add user defined roles.
+	 * <p>
+	 * Global <i>actOnNode</i> must be a role facet or the owner must be a core object.
 	 */
 	public void addRoleToNode() {
-		if (actOnNode == null || !(actOnNode instanceof CoreObjectNode))
-			return; // should this post status or dialog?
-		RoleFacetNode roleFacet = ((CoreObjectNode) actOnNode).getFacet_Role();
-		if (roleFacet == null)
+		RoleFacetNode roleFacet = null;
+		if (actOnNode instanceof RoleFacetNode)
+			roleFacet = (RoleFacetNode) actOnNode;
+		else if (actOnNode.getOwningComponent() instanceof CoreObjectNode)
+			roleFacet = ((CoreObjectNode) actOnNode.getOwningComponent()).getFacet_Role();
+		if (!(roleFacet instanceof RoleFacetNode))
 			return;
 
 		// If GUI allows adding roles, but the node is not in the head library
@@ -288,6 +291,11 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 	public String getID() {
 		return COMMAND_ID;
 	}
+
+	// @Override
+	// public void setEnabled(final Object evaluationContext) {
+	// super.setEnabled(evaluationContext); // Goes like crazy through here.
+	// }
 
 	protected Node getSelectedNode(ExecutionEvent exEvent) {
 		return mc.getGloballySelectNode();

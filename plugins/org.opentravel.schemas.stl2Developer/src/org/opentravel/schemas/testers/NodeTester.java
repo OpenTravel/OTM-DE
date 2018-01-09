@@ -16,8 +16,8 @@
 package org.opentravel.schemas.testers;
 
 import org.eclipse.core.expressions.PropertyTester;
-import org.opentravel.schemas.node.ImpliedNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.types.TypeUser;
 
 public class NodeTester extends PropertyTester {

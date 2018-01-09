@@ -32,6 +32,7 @@ import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
  * @author Dave Hollander
  * 
  */
+@Deprecated
 public interface PropertyOwnerInterface {
 
 	/**
