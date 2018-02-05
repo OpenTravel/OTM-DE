@@ -29,7 +29,8 @@ public class TypeTree extends ViewPart implements ISelectionListener {
 
 	private IContentProvider contentProvider = new TypeTreeContentProvider();
 	private Node curNode;
-	private static int ExpandLevels = 5;
+	// set to 2 - 2/5/2018 - private static int ExpandLevels = 5;
+	private static int ExpandLevels = 2;
 
 	public TypeTree(final Node n, IContentProvider contentProvider) {
 		super();
