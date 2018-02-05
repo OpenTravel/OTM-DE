@@ -60,6 +60,12 @@ public interface FacetInterface {
 	public boolean canOwn(PropertyNodeType type);
 
 	/**
+	 * @param child
+	 * @return
+	 */
+	public boolean contains(Node child);
+
+	/**
 	 * Make a copy of all the properties of the source facet and add to this facet. If the property is of the wrong
 	 * type, it is changed into an attribute.
 	 * 
@@ -78,9 +84,6 @@ public interface FacetInterface {
 	// FIXME - this dual behavior should be in controller
 	public PropertyNode createProperty(Node type);
 
-	// @Deprecated
-	// public PropertyNode findChildByName(String name);
-
 	public PropertyNode get(String name);
 
 	/**
@@ -88,14 +91,19 @@ public interface FacetInterface {
 	 */
 	public List<Node> getChildren();
 
-	public TLFacetType getFacetType();
-
 	/**
 	 * Node Factory needs to use the handler to set listener.
 	 * 
 	 * @return children handler for the facet
 	 */
 	public ChildrenHandlerI<?> getChildrenHandler();
+
+	public TLFacetType getFacetType();
+
+	/**
+	 * @return
+	 */
+	public String getName();
 
 	/**
 	 * @return
@@ -112,6 +120,11 @@ public interface FacetInterface {
 	 */
 	public TLModelElement getTLModelObject();
 
+	/**
+	 * @return true if an extension point can extend this facet
+	 */
+	public boolean isExtensionPointTarget();
+
 	public boolean isFacet(TLFacetType facetType);
 
 	/**
@@ -123,21 +136,5 @@ public interface FacetInterface {
 	 * @param selected
 	 */
 	public void removeProperty(PropertyNode pn);
-
-	/**
-	 * @param child
-	 * @return
-	 */
-	public boolean contains(Node child);
-
-	/**
-	 * @return true if an extension point can extend this facet
-	 */
-	public boolean isExtensionPointTarget();
-
-	/**
-	 * @return
-	 */
-	public String getName();
 
 }

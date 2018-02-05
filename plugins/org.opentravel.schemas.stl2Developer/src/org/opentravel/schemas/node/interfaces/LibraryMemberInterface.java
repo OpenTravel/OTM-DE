@@ -31,8 +31,6 @@ import org.opentravel.schemas.node.typeProviders.AliasNode;
 
 public interface LibraryMemberInterface extends INode {
 
-	// private LibraryNode owningLibrary = null;
-
 	public LibraryMemberInterface clone(LibraryNode targetLib, String nameSuffix);
 
 	/**
@@ -82,6 +80,11 @@ public interface LibraryMemberInterface extends INode {
 	/**
 	 * @return
 	 */
+	public boolean isEditable_isNewOrAsMinor();
+
+	/**
+	 * @return
+	 */
 	public boolean isEditable_newToChain();
 
 	/**
@@ -112,10 +115,5 @@ public interface LibraryMemberInterface extends INode {
 	public boolean isVersioned();
 
 	public void setLibrary(LibraryNode library);
-
-	/**
-	 * @return
-	 */
-	public boolean isEditable_isNewOrAsMinor();
 
 }

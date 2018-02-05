@@ -26,6 +26,7 @@ import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.properties.AttributeReferenceNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.resources.ActionFacet;
 import org.opentravel.schemas.node.resources.ResourceNode;
@@ -123,7 +124,10 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 					else if (n.getLaterVersions() != null)
 						versions = true;
 					else if (n.getOwningComponent() instanceof VWA_Node)
-						vwa = true;
+						if (!(n instanceof AttributeReferenceNode))
+							vwa = true;
+						else
+							idReference = true;
 					else if (n instanceof SimpleTypeNode)
 						simple = true;
 					else if (n.isOnlySimpleTypeUser())

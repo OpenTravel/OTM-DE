@@ -92,7 +92,8 @@ public class NewPropertiesWizard2 extends ValidatingWizard implements Cancelable
 		else if (selectedNode instanceof FacetInterface)
 			actOnNode = (FacetInterface) selectedNode;
 		else if (selectedNode instanceof PropertyNode)
-			actOnNode = ((Node) selectedNode.getOwningComponent()).getFacet_Default();
+			getActOnNode(selectedNode.getParent());
+		// actOnNode = ((Node) selectedNode.getOwningComponent()).getFacet_Default();
 		else
 			actOnNode = null;
 	}

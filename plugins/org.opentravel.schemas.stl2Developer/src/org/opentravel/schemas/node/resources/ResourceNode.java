@@ -606,8 +606,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 				isEditable_newToChain(), new ExtensionListener(), getPeerNames());
 
 		// Business Object = launch selection wizard
-		new ResourceField(fields, getSubjectName(), MSGKEY + ".fields.businessObject", ResourceFieldType.ObjectSelect,
-				!isAbstract(), new SubjectListener(), this);
+		new ResourceField(fields, getSubject().getNameWithPrefix(), MSGKEY + ".fields.businessObject",
+				ResourceFieldType.ObjectSelect, !isAbstract(), new SubjectListener(), this);
 
 		// Base Path
 		new ResourceField(fields, tlResource.getBasePath(), MSGKEY + ".fields.basePath", ResourceFieldType.String,

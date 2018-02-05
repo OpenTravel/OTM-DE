@@ -86,17 +86,17 @@ public class InheritanceDependencyListener extends BaseNodeListener implements I
 			if (l instanceof InheritanceDependencyListener) {
 				Node getNode = ((InheritanceDependencyListener) l).getNode();
 				if (getNode == ghost) {
-					LOGGER.debug("Duplicate inheritance dependency listener for " + ghost);
+					// LOGGER.debug("Duplicate inheritance dependency listener for " + ghost);
 					tlTarget.removeListener(l);
 				} else if (getNode.isDeleted()) {
-					LOGGER.debug("Removing inheritance dependency listener for deleted " + getNode);
+					// LOGGER.debug("Removing inheritance dependency listener for deleted " + getNode);
 					tlTarget.removeListener(l);
 				} else if (getNode instanceof ContextualFacetNode) {
 					if (((ContextualFacetNode) getNode).getWhereContributed() == null) {
-						LOGGER.debug("Removing inheritance dependency listener for missing contributed " + getNode);
+						// LOGGER.debug("Removing inheritance dependency listener for missing contributed " + getNode);
 						tlTarget.removeListener(l);
 					} else if (((ContextualFacetNode) getNode).getWhereContributed().isDeleted()) {
-						LOGGER.debug("Removing inheritance dependency listener for deleted contributed " + getNode);
+						// LOGGER.debug("Removing inheritance dependency listener for deleted contributed " + getNode);
 						tlTarget.removeListener(l);
 					}
 				}

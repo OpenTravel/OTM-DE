@@ -16,7 +16,6 @@
 package org.opentravel.schemas.node.handlers.children;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
@@ -34,6 +33,11 @@ import org.opentravel.schemas.node.facets.AttributeFacetNode;
 public class AttributeFacetChildrenHandler extends CachingChildrenHandler<Node, AttributeFacetNode> {
 	// private final static Logger LOGGER = LoggerFactory.getLogger(AttributeFacetChildrenHandler.class);
 
+	/**
+	 * Create a caching children handler for the attribute facet.
+	 * 
+	 * @param obj
+	 */
 	public AttributeFacetChildrenHandler(AttributeFacetNode obj) {
 		super(obj);
 	}
@@ -41,8 +45,8 @@ public class AttributeFacetChildrenHandler extends CachingChildrenHandler<Node, 
 	@Override
 	public List<TLModelElement> getChildren_TL() {
 		final List<TLModelElement> kids = new ArrayList<TLModelElement>();
-		kids.addAll((Collection<? extends TLModelElement>) owner.getTLModelObject().getAttributes());
-		kids.addAll((Collection<? extends TLModelElement>) owner.getTLModelObject().getIndicators());
+		kids.addAll(owner.getTLModelObject().getAttributes());
+		kids.addAll(owner.getTLModelObject().getIndicators());
 		return kids;
 	}
 }

@@ -139,7 +139,7 @@ public class XsdObjectHandler {
 		String jPrefix = "";
 		if (srcTL instanceof XSDSimpleType) {
 			TopLevelSimpleType jaxb = ((XSDSimpleType) srcTL).getJaxbType();
-			if (jaxb.getRestriction() != null)
+			if (jaxb != null && jaxb.getRestriction() != null)
 				if (jaxb.getRestriction().getBase() != null)
 					if (!jaxb.getRestriction().getBase().getPrefix().isEmpty())
 						jPrefix = jaxb.getRestriction().getBase().getPrefix();

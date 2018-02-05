@@ -227,11 +227,6 @@ public class AttributeFacetNode extends FacadeBase implements FacetInterface {
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacetInterface#getProperties()
-	 */
 	@Override
 	public List<PropertyNode> getProperties() {
 		List<PropertyNode> pns = new ArrayList<PropertyNode>();
@@ -241,27 +236,16 @@ public class AttributeFacetNode extends FacadeBase implements FacetInterface {
 		return pns;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.opentravel.schemas.node.interfaces.FacetInterface#isFacet(org.opentravel.schemacompiler.model.TLFacetType)
-	 */
 	@Override
 	public boolean isFacet(TLFacetType facetType) {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacetInterface#removeProperty(org.opentravel.schemas.node.properties.
-	 * PropertyNode)
-	 */
 	@Override
 	public void removeProperty(PropertyNode pn) {
 		if (pn instanceof AttributeNode)
 			getTLModelObject().removeAttribute(((AttributeNode) pn).getTLModelObject());
+		getChildrenHandler().clear();
 	}
 
 	/**

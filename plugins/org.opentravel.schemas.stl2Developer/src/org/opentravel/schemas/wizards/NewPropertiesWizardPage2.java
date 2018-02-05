@@ -381,15 +381,18 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 	/**
 	 * @return newly created property cloned from passed property.
 	 */
-	private PropertyNode newProperty(final PropertyNode o) {
+	private PropertyNode newProperty(final PropertyNode srcProperty) {
 		// LOGGER.debug("New Property from property " + o);
-		if (!enabledPropertyTypes.contains(o.getPropertyType())) {
-			setMessage(o.getPropertyType().getName() + "s are not allowed for this object", WARNING);
+		if (!enabledPropertyTypes.contains(srcProperty.getPropertyType())) {
+			setMessage(srcProperty.getPropertyType().getName() + "s are not allowed for this object", WARNING);
 			return null;
 		}
+		// Use the node factory to determine what type of property.
 		final PropertyNode copy = (PropertyNode) NodeFactory.newChild((Node) owningFacet,
-				(TLModelElement) o.cloneTLObj());
-		copy.setAssignedType((TypeProvider) o.getType());
+				(TLModelElement) srcProperty.cloneTLObj());
+		// Should not be needed, but in case clone does not assign, assign type now
+		copy.setAssignedType(srcProperty.getAssignedType());
+		// Add newly created copy to list
 		getNewProperties().add(copy);
 		return copy;
 	}
@@ -436,6 +439,7 @@ public class NewPropertiesWizardPage2 extends WizardPage {
 		if (getNewProperties().size() > 0) {
 			selectInList(getNewProperties().get(index > 0 ? index - 1 : 0));
 		}
+		updateView();
 	}
 
 	private void chooseAssignedType() {

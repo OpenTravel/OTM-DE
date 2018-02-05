@@ -602,6 +602,9 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 		return getNavChildren(deep);
 	}
 
+	/**
+	 * Use {@link #getAssignedType}
+	 */
 	@Override
 	@Deprecated
 	public Node getType() {
