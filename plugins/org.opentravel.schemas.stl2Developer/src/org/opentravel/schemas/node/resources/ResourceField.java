@@ -30,7 +30,8 @@ public class ResourceField {
 	}
 
 	public static final String NONE = "NONE";
-	public static final String SUBGRP = "Substitution Group";;
+	public static final String SUBGRP = "Substitution Group";
+	public static final String ABSTRACT = "Abstract resources do not have business objects";
 
 	String msgKey;
 	String value;

@@ -795,12 +795,16 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				post(pf.button, field.getValue(), field);
 				pf.button.setEnabled(enabled && field.isEnabled());
 				pf.button.addSelectionListener(new ObjectSelectionListener());
+				// Add a "Remove" button
 				Button linkedButton = pf.button;
-				// Clear button
 				pf.clear = new Button(objectPropertyGroup, SWT.PUSH);
 				pf.clear.addSelectionListener(new ObjectClearListener(linkedButton));
 				post(pf.clear, "-Remove-", field);
-				pf.clear.setEnabled(!field.getValue().equals("None")); // TODO - make this more robust
+				// Enable if not none and this is not an abstract resource
+				if (field.getValue().equals(ResourceField.ABSTRACT) || field.getValue().equals(ResourceField.NONE))
+					pf.clear.setEnabled(false);
+				else
+					pf.clear.setEnabled(true);
 				break;
 			default:
 				post(createField(field.getKey(), objectPropertyGroup, pf), field.getValue());

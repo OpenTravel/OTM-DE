@@ -31,6 +31,7 @@ import org.opentravel.schemacompiler.model.TLParameter;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.listeners.ResourceDependencyListener;
 import org.opentravel.schemas.node.objectMembers.FacetOMNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -219,18 +220,18 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	 */
 	// TODO - JUNIT - add test for ID/non-ID group behavior
 	public String[] getSubjectFacets() {
-		List<FacetOMNode> facets = new ArrayList<FacetOMNode>();
+		List<FacetInterface> facets = new ArrayList<FacetInterface>();
 		for (Node facet : getOwningComponent().getSubject().getChildren()) {
-			if (!(facet instanceof FacetOMNode))
+			if (!(facet instanceof FacetInterface))
 				continue;
 			if (isIdGroup() && facet instanceof QueryFacetNode)
 				continue;
-			facets.add((FacetOMNode) facet);
+			facets.add((FacetInterface) facet);
 		}
 		int size = facets.size();
 		String[] fs = new String[size];
 		int i = 0;
-		for (Node facet : facets)
+		for (FacetInterface facet : facets)
 			fs[i++] = ResourceCodegenUtils.getActionFacetReferenceName((TLFacet) facet.getTLModelObject());
 		return fs;
 
@@ -405,7 +406,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	 * @param n
 	 */
 	public void setReferenceFacet(FacetOMNode n) {
-		tlObj.setFacetRef((TLFacet) n.getTLModelObject());
+		tlObj.setFacetRef(n.getTLModelObject());
 		upDateParameters();
 		if (tlObj.getName().isEmpty())
 			tlObj.setName(n.getName());

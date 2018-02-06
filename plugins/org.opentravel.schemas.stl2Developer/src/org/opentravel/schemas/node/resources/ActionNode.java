@@ -261,9 +261,9 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 		// the last entry in the list of qualified actions. It is the most likely to
 		// have an "interesting" path that contains parent references.
 		List<QualifiedAction> qa = ResourceCodegenUtils.getQualifiedActions(getTLModelObject());
-		List<TLResourceParentRef> parentRefs = qa.get(qa.size() - 1).getParentRefs();
 		if (qa.isEmpty())
 			return contribution;
+		List<TLResourceParentRef> parentRefs = qa.get(qa.size() - 1).getParentRefs();
 
 		for (TLResourceParentRef tlRef : parentRefs) {
 			contribution = tlRef.getPathTemplate() + contribution;
