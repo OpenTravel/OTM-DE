@@ -252,10 +252,20 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 		if (parentResource != null) {
 			tlObj.setParentResource(parentResource.getTLModelObject());
 
+			String template = "/" + parentResource.getSubjectName();
 			// If the parent only has one ID parameter group then use it
-			String[] candidates = parentResource.getParameterGroupNames(true);
-			if (candidates.length == 1)
-				setParamGroup(candidates[0]);
+			List<ParamGroup> pgs = parentResource.getParameterGroups(true);
+			if (pgs.size() == 1) {
+				setParamGroup(pgs.get(0).getName());
+				template += "/" + pgs.get(0).getPathTemplate();
+			}
+
+			// Set the path template
+			setPathTemplate(template);
+
+			// Update Examples
+			getParent().updateExamples();
+
 		}
 
 		// LOGGER.debug("Set Parent resource to " + name + ": " + tlObj.getParentResourceName());

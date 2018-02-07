@@ -380,7 +380,6 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		LibraryNode rootLibrary = null;
 		if (mc.getCurrentNode_NavigatorView() != null)
 			rootLibrary = mc.getCurrentNode_NavigatorView().getLibrary();
-		// if (rootLibrary != null && !rootLibrary.getResourceRoot().getChildren().isEmpty())
 		if (rootLibrary != null)
 			if (currentNode == null || currentNode.getLibrary() != rootLibrary) {
 				// clear old display then display this library

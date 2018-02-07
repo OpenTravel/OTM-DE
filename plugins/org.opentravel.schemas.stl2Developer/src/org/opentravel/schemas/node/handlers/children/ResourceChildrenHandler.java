@@ -69,6 +69,12 @@ public class ResourceChildrenHandler extends StaticChildrenHandler<Node, Resourc
 		// NO-OP
 	}
 
+	// Only used when an error is detected to recover.
+	public void reset() {
+		children.clear();
+		initChildren();
+	}
+
 	@Override
 	public void initInherited() {
 		initRunning = true;

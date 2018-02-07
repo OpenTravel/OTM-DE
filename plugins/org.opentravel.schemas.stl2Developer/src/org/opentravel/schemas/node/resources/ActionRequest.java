@@ -96,7 +96,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 
 		if (parent.getRequest() != null)
 			parent.getRequest().delete();
-		((TLAction) parent.getTLModelObject()).setRequest(tlObj);
+		parent.getTLModelObject().setRequest(tlObj);
 
 		setPathTemplate();
 	}
@@ -316,6 +316,9 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 		setPathTemplate();
 	}
 
+	/**
+	 * Update the path template based on contents of the resource.
+	 */
 	public void setPathTemplate() {
 		assert pathTemplate != null;
 		tlObj.setPathTemplate(pathTemplate.get());

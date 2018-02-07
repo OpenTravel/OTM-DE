@@ -51,8 +51,7 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 	public class LocationListener implements ResourceFieldListener {
 		@Override
 		public boolean set(String name) {
-			tlObj.setLocation(TLParamLocation.valueOf(name));
-			// LOGGER.debug("Set location to: " + tlObj.getLocation());
+			setLocation(name);
 			return false;
 		}
 	}
@@ -165,6 +164,15 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 	@Override
 	public boolean isNameEditable() {
 		return false;
+	}
+
+	public void setLocation(String location) {
+		tlObj.setLocation(TLParamLocation.valueOf(location));
+		// LOGGER.debug("Set location to: " + tlObj.getLocation());
+		// Update path templates that use this parameter
+		// Parent has listeners for action requests that use the PG
+		getParent().notifyActionRequests();
+
 	}
 
 	public void setFieldRef(String name) {

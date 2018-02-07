@@ -100,8 +100,14 @@ class ActionRequestPathTemplate {
 
 	public String getURL() {
 		String url = "";
-		String parentPart = owner.getParent().getParentContribution();
 		String thisPart = get();
+		String parentPart = owner.getParent().getParentContribution();
+		// contribution can be just this part
+		if (thisPart.equals(parentPart))
+			parentPart = "";
+		// If this resource extends another does NOT contribute to path
+		// String extensionPart = "";
+
 		if (parentPart != null && !parentPart.isEmpty())
 			url += parentPart;
 		if (!(url.endsWith("/") || thisPart.startsWith("/")))

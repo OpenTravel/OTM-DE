@@ -33,7 +33,6 @@ import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.listeners.ResourceDependencyListener;
-import org.opentravel.schemas.node.objectMembers.FacetOMNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
 import org.opentravel.schemas.node.typeProviders.QueryFacetNode;
@@ -93,9 +92,9 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	public ParamGroup(ResourceNode rn, ComponentNode fn, boolean idGroup) {
 		this(rn);
 		setIdGroup(idGroup); // do before adding facet and it's parameters
-		if (fn != null && fn instanceof FacetOMNode) {
+		if (fn != null && fn instanceof FacetInterface) {
 			setName(fn.getLabel());
-			setReferenceFacet((FacetOMNode) fn);
+			setReferenceFacet((FacetInterface) fn);
 		}
 	}
 
@@ -391,8 +390,8 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		for (Node n : getOwningComponent().getSubject().getChildren()) {
 			String facetName = ResourceCodegenUtils.getActionFacetReferenceName((TLFacet) n.getTLModelObject());
 
-			if ((facetName != null) && facetName.equals(name) && n instanceof FacetOMNode) {
-				setReferenceFacet((FacetOMNode) n);
+			if ((facetName != null) && facetName.equals(name) && n instanceof FacetInterface) {
+				setReferenceFacet((FacetInterface) n);
 				return true; // denote change
 			}
 		}
@@ -405,8 +404,8 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	 * 
 	 * @param n
 	 */
-	public void setReferenceFacet(FacetOMNode n) {
-		tlObj.setFacetRef(n.getTLModelObject());
+	public void setReferenceFacet(FacetInterface n) {
+		tlObj.setFacetRef((TLFacet) n.getTLModelObject());
 		upDateParameters();
 		if (tlObj.getName().isEmpty())
 			tlObj.setName(n.getName());

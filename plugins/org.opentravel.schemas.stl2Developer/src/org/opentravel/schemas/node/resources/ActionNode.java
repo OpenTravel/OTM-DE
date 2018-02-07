@@ -243,13 +243,15 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	}
 
 	/**
-	 * Uses ResourceCodegenUtils. If a parent resource reference is present, the resulting path will include the path of
-	 * the parent.
+	 * Uses ResourceCodegenUtils.
+	 * 
+	 * If a parent resource reference is present, the resulting path will include the path of the parent.
 	 * 
 	 * @return URL contribution made by parent ref or empty string
 	 */
 	public String getParentContribution() {
-		String contribution = getOwningComponent().getTLModelObject().getBasePath();
+		// String contribution = getOwningComponent().getTLModelObject().getBasePath();
+		String contribution = "";
 
 		// // Pick any one of these
 		// List<QualifiedAction> qa = ResourceCodegenUtils.getQualifiedActions(getTLModelObject());
@@ -264,24 +266,28 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 		if (qa.isEmpty())
 			return contribution;
 		List<TLResourceParentRef> parentRefs = qa.get(qa.size() - 1).getParentRefs();
-
 		for (TLResourceParentRef tlRef : parentRefs) {
-			contribution = tlRef.getPathTemplate() + contribution;
+			if (tlRef.getPathTemplate() != null)
+				contribution = tlRef.getPathTemplate() + contribution;
 		}
-		List<TLResourceParentRef> list = ResourceCodegenUtils.getInheritedParentRefs(getOwningComponent()
-				.getTLModelObject());
-		for (TLResourceParentRef tlRef : list) {
-			// Parent Ref has its own PathTemplate complete with base path and parameters
-			contribution = tlRef.getPathTemplate() + contribution;
-		}
+
+		// This seems to duplicate the parent ref
+		// List<TLResourceParentRef> list = ResourceCodegenUtils.getInheritedParentRefs(getOwningComponent()
+		// .getTLModelObject());
+		// for (TLResourceParentRef tlRef : list) {
+		// // Parent Ref has its own PathTemplate complete with base path and parameters
+		// if (tlRef.getPathTemplate() != null)
+		// contribution = tlRef.getPathTemplate() + contribution;
+		// }
+		// 2/6/2018 - hotfix above does NOT remove need to recurse through parents
 		// FIXME - codegen is only getting closet ancestor...either fix the codegen utils or walk ancestor vector
-		if (list.size() <= 1 && getOwningComponent().getParentRef() != null) {
-			ResourceNode ancestor = getOwningComponent().getParentRef().getParentResource();
-			if (ancestor != null) {
-				ActionNode action = ancestor.getActions().get(0);
-				contribution = action.getParentContribution() + contribution;
-			}
-		}
+		// if (list.size() <= 1 && getOwningComponent().getParentRef() != null) {
+		// ResourceNode ancestor = getOwningComponent().getParentRef().getParentResource();
+		// if (ancestor != null) {
+		// ActionNode action = ancestor.getActions().get(0);
+		// contribution = action.getParentContribution() + contribution;
+		// }
+		// }
 
 		LOGGER.debug("Parent contribution to " + getOwningComponent() + ": " + contribution);
 		return contribution;

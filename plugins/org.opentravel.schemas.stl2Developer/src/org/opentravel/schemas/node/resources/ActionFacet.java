@@ -26,7 +26,7 @@ import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLLibraryMember;
 import org.opentravel.schemacompiler.model.TLReferenceType;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.objectMembers.FacetOMNode;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
@@ -123,10 +123,10 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 			setReferenceFacetName(ResourceField.SUBGRP);
 		} else
 			for (Node fn : parent.getSubject().getChildren())
-				if (fn instanceof FacetOMNode)
+				if (fn instanceof FacetInterface)
 					if (((TLFacet) fn.getTLModelObject()).getFacetType().equals(type)) {
-						setReferenceFacetName(fn.getLabel());
-						setName(fn.getLabel());
+						setReferenceFacetName(type.getIdentityName());
+						setName(type.getIdentityName());
 					}
 		setReferenceType(TLReferenceType.REQUIRED.toString());
 	}
@@ -264,7 +264,7 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 			tlObj.setReferenceFacetName(null);
 		else
 			tlObj.setReferenceFacetName(name);
-		// LOGGER.debug("Set Reference facet name to " + name + " : " + tlObj.getReferenceFacetName());
+		LOGGER.debug("Set Reference facet name to " + name + " : " + tlObj.getReferenceFacetName());
 	}
 
 	public void setReferenceRepeat(Integer i) {

@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class ResourceBase<TL> extends Node implements ResourceMemberInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceBase.class);
+	// TODO - use same generic approach to nodes' tlObj
 	protected TL tlObj;
 	protected LibraryNode library;
 
