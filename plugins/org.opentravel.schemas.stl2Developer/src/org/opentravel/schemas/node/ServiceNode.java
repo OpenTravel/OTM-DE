@@ -29,13 +29,15 @@ import org.opentravel.schemas.node.objectMembers.OperationNode.ServiceOperationT
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.properties.Images;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Dave Hollander
  * 
  */
 public class ServiceNode extends ComponentNode implements LibraryMemberInterface {
-	// private final static Logger LOGGER = LoggerFactory.getLogger(ServiceNode.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(ServiceNode.class);
 
 	protected LibraryNode owningLibrary = null;
 
@@ -57,12 +59,6 @@ public class ServiceNode extends ComponentNode implements LibraryMemberInterface
 		this(new TLService(), ln);
 		setDescription(ln.getDescription());
 
-		// FIXME - this is someone else's job
-		// If a chain, the wrap the service in a version and add to chain aggregate.
-		if (ln.getLibrary().isInChain())
-			ln.getLibrary().getChain().add(this);
-
-		// assert (modelObject instanceof ServiceMO);
 		assert (getTLModelObject() instanceof TLService);
 	}
 
@@ -72,12 +68,22 @@ public class ServiceNode extends ComponentNode implements LibraryMemberInterface
 	 * @param tlSvc
 	 * @param ln
 	 */
-	public ServiceNode(final TLService tlSvc, LibraryNode ln) {
+	public ServiceNode(final TLService tlSvc) {
 		super(tlSvc);
-		owningLibrary = ln;
 
 		childrenHandler = new ServiceChildrenHandler(this);
+	}
 
+	/**
+	 * Service constructor used in tests created from TL Service already in a library.
+	 * 
+	 * @param tlSvc
+	 * @param ln
+	 */
+	public ServiceNode(final TLService tlSvc, LibraryNode ln) {
+		this(tlSvc);
+
+		owningLibrary = ln;
 		if (ln != null)
 			ln.setServiceNode(this);
 	}
@@ -103,30 +109,9 @@ public class ServiceNode extends ComponentNode implements LibraryMemberInterface
 			new OperationNode(this, n.getLabel(), ServiceOperationTypes.QUERY, bo);
 	}
 
-	// @Override
-	// public Node clone() {
-	// }
 	@Override
 	public LibraryMemberInterface clone(LibraryNode targetLib, String nameSuffix) {
 		return null; // NO-OP
-		// if (getLibrary() == null || !getLibrary().isEditable()) {
-		// LOGGER.warn("Could not clone node because library " + getLibrary() + " it is not editable.");
-		// return null;
-		// }
-		//
-		// LibraryMemberInterface clone = null;
-		//
-		// // Use the compiler to create a new TL src object.
-		// TLModelElement newLM = (TLModelElement) cloneTLObj();
-		// if (newLM != null) {
-		// clone = NodeFactory.newLibraryMember((LibraryMember) newLM);
-		// if (nameSuffix != null)
-		// clone.setName(clone.getName() + nameSuffix);
-		// for (AliasNode alias : clone.getAliases())
-		// alias.setName(alias.getName() + nameSuffix);
-		// targetLib.addMember(clone);
-		// }
-		// return clone;
 	}
 
 	@Override
@@ -136,8 +121,20 @@ public class ServiceNode extends ComponentNode implements LibraryMemberInterface
 
 	@Override
 	public LibraryElement cloneTLObj() {
-		// NO-OP getTLModelObject().cloneElement();
 		return null;
+	}
+
+	/**
+	 * Delete Service. There can only be one service in a library. The service parent is the library where declared. It
+	 * may also be in the service aggregate for the chain. Services are not wrapped in a version node.
+	 */
+	@Override
+	public void delete() {
+		// LOGGER.debug("Deleting Service node.");
+		if (getLibrary().isInChain())
+			getLibrary().getChain().removeFromAggregate(this);
+		getLibrary().getServiceRoot().removeLM(this);
+		deleteTL();
 	}
 
 	@Override
@@ -167,8 +164,7 @@ public class ServiceNode extends ComponentNode implements LibraryMemberInterface
 
 	@Override
 	public String getLabel() {
-		return getName() + " (Version:  " + getLibrary().getVersion() + ")";
-		// return "Service: " + getName();
+		return getLibrary() != null ? getName() + " (Version:  " + getLibrary().getVersion() + ")" : "";
 	}
 
 	@Override

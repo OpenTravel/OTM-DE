@@ -61,8 +61,8 @@ public class NavNode extends Node implements FacadeInterface, TypeProviderAndOwn
 
 	// TODO - make the handler C be LibraryMemberInterface
 	public void add(LibraryMemberInterface lm) {
-		if (childrenHandler instanceof NavNodeChildrenHandler)
-			getChildrenHandler().add((Node) lm);
+		// if (childrenHandler instanceof NavNodeChildrenHandler)
+		getChildrenHandler().add((Node) lm);
 	}
 
 	// FIXME - rename after remove fixed in Node

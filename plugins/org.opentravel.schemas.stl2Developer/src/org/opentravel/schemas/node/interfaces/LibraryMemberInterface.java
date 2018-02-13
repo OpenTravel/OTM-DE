@@ -110,7 +110,8 @@ public interface LibraryMemberInterface extends INode {
 	public boolean isValid();
 
 	/**
-	 * @return
+	 * @return true if this object is a later version of another object. True if has same base ns and name as the object
+	 *         it extends.
 	 */
 	public boolean isVersioned();
 

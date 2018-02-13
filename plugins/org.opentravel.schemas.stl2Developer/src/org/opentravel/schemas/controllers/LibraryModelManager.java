@@ -151,8 +151,8 @@ public class LibraryModelManager {
 		LibraryInterface entry = libMap.get(cn);
 		if (!libMap.containsKey(getCanonicalName(pi)))
 			libMap.put(getCanonicalName(pi), li);
-		else
-			LOGGER.warn("Avoided duplicating canonical names in map. " + getCanonicalName(pi));
+		// else
+		// LOGGER.warn("Avoided duplicating canonical names in map. " + getCanonicalName(pi));
 		// FIXME - this is run too often on startup
 	}
 

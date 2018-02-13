@@ -157,6 +157,11 @@ public class OperationNode extends NonTypeProviders implements VersionedObjectIn
 		childrenHandler = new OperationChildrenHandler(this);
 	}
 
+	@Override
+	public boolean isNavChild(boolean deep) {
+		return true;
+	}
+
 	public void add(OperationFacetNode fn) {
 		getChildrenHandler().add(fn);
 	}
@@ -213,7 +218,7 @@ public class OperationNode extends NonTypeProviders implements VersionedObjectIn
 
 	@Override
 	public boolean isDeleteable() {
-		return getParent().isDeleteable();
+		return getParent() != null ? getParent().isDeleteable() : false;
 	}
 
 	@Override

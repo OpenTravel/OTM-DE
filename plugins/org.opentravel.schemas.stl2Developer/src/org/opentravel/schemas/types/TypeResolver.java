@@ -28,8 +28,6 @@ import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Run across all nodes in the model and resolve types.
@@ -53,7 +51,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class TypeResolver {
-	private static final Logger LOGGER = LoggerFactory.getLogger(TypeResolver.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(TypeResolver.class);
 
 	public TypeResolver() {
 	}
@@ -76,7 +74,7 @@ public class TypeResolver {
 		boolean wasEditable = false;
 		for (LibraryNode lib : newLibs) {
 			wasEditable = lib.isEditable(); // Resolve all libraries, not just editable ones
-			LOGGER.debug("Resolving Types in " + lib);
+			// LOGGER.debug("Resolving Types in " + lib);
 			lib.setEditable(true);
 
 			// Load inherited children since they can change the model (add contrib and contextual facets)

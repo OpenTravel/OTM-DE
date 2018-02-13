@@ -255,6 +255,9 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 		for (LibraryMemberInterface members : getDescendants_LibraryMembers()) {
 			if (members instanceof ComponentNode)
 				chain.add((ComponentNode) members);
+			else
+				assert false;
+			// throw new IllegalStateException("Library member is not a component node!");
 		}
 		// FIXME - shouldn't service also be done in members?
 		chain.add(getService());
@@ -1721,11 +1724,15 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 				((TLLibrary) getTLModelObject()).setService(serviceNode.getTLModelObject());
 
 		if (serviceNode.getName() == null || serviceNode.getName().isEmpty())
-			setName(getName() + "_Service");
+			serviceNode.setName(getName() + "_Service");
 
 		serviceNode.setParent(this);
 		serviceNode.setLibrary(this);
 		getServiceRoot().add(serviceNode);
+
+		// If a chain, add to chain aggregate.
+		if (isInChain())
+			getChain().add(serviceNode);
 	}
 
 	public void setAsDefault() {

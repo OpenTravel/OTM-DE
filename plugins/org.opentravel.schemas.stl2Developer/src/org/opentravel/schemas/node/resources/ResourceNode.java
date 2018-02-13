@@ -218,7 +218,6 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	 */
 	public ResourceNode(LibraryNode ln, BusinessObjectNode bo) {
 		super(new TLResource());
-		// tlResource = (TLResource) tlObj;
 		ListenerFactory.setIdentityListner(this);
 
 		if (bo == null)
@@ -244,16 +243,6 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	public ResourceChildrenHandler getChildrenHandler() {
 		return (ResourceChildrenHandler) childrenHandler;
 	}
-
-	// /**
-	// * Use the passed business object to build a fully populated resource added to the library of the passed BO.
-	// */
-	// public ResourceNode(BusinessObjectNode businessObject) {
-	// super(new ResourceBuilder().buildTL(businessObject));
-	// tlObj = getTLModelObject();
-	//
-	// businessObject.getLibrary().addMember(this);
-	// }
 
 	@Override
 	public void addChild(ResourceMemberInterface child) {
@@ -395,16 +384,9 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return MSGKEY;
 	}
 
-	// @Override
-	// public boolean canExtend() {
-	// return true;
-	// }
-
 	@Override
 	public ComponentNode createMinorVersionComponent() {
 		return super.createMinorVersionComponent(new ResourceNode(createMinorTLVersion(this)));
-		// LOGGER.debug("NOT IMPLEMENTED - createMinorVersionCompnoent for resource node.");
-		// return null;
 	}
 
 	@Override
@@ -418,7 +400,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 			getParent().getChildrenHandler().clear(this);
 
 		if (getChain() != null)
-			getChain().removeAggregate(this);
+			getChain().removeFromAggregate(this);
 		if (getSubject() != null)
 			getSubject().removeWhereAssigned(this);
 		parent = null;
@@ -560,11 +542,6 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return getChain().getHead() == getLibrary();
 	}
 
-	// @Override
-	// public PropertyOwnerInterface getFacet_Default() {
-	// return null;
-	// }
-
 	@Override
 	public String getDescription() {
 		TLResource tlObj = getTLModelObject();
@@ -670,13 +647,6 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	public LibraryNode getLibrary() {
 		return owningLibrary;
 	}
-
-	// @Override
-	// @Deprecated
-	// public ResourceMO getModelObject() {
-	// ModelObject<?> obj = super.getModelObject();
-	// return (ResourceMO) (obj instanceof ResourceMO ? obj : null);
-	// }
 
 	@Override
 	public AbstractLibrary getTLOwner() {
@@ -1098,34 +1068,19 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		return pr;
 	}
 
-	// protected void addMOChildren() {
-	// if (tlResource != null) {
-	// for (TLResourceParentRef parent : tlResource.getParentRefs())
-	// new ParentRef(parent);
-	// for (TLParamGroup tlp : tlResource.getParamGroups())
-	// new ParamGroup(tlp);
-	// for (TLAction action : tlResource.getActions())
-	// new ActionNode(action);
-	// for (TLActionFacet af : tlResource.getActionFacets())
-	// new ActionFacet(af);
-	// // On construction of the library, the base resource may not have node identity listeners.
-	// initInherited();
+	// private void initInherited() {
+	// if (getTLModelObject().getExtension() != null) {
+	// NamedEntity base = getTLModelObject().getExtension().getExtendsEntity();
+	// if (base instanceof TLResource) {
+	// for (TLParamGroup tlInherited : ((TLResource) base).getParamGroups())
+	// getChildren().add(new InheritedResourceMember(tlInherited));
+	// for (TLActionFacet tlInherited : ((TLResource) base).getActionFacets())
+	// getChildren().add(new InheritedResourceMember(tlInherited));
+	// for (TLAction tlInherited : ((TLResource) base).getActions())
+	// getChildren().add(new InheritedResourceMember(tlInherited));
 	// }
 	// }
-
-	private void initInherited() {
-		if (getTLModelObject().getExtension() != null) {
-			NamedEntity base = getTLModelObject().getExtension().getExtendsEntity();
-			if (base instanceof TLResource) {
-				for (TLParamGroup tlInherited : ((TLResource) base).getParamGroups())
-					getChildren().add(new InheritedResourceMember(tlInherited));
-				for (TLActionFacet tlInherited : ((TLResource) base).getActionFacets())
-					getChildren().add(new InheritedResourceMember(tlInherited));
-				for (TLAction tlInherited : ((TLResource) base).getActions())
-					getChildren().add(new InheritedResourceMember(tlInherited));
-			}
-		}
-	}
+	// }
 
 	@Override
 	public Collection<String> getValidationMessages() {
@@ -1217,11 +1172,6 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 				((ActionNode) child).initInherited();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.types.TypeUser#getTypeHandler()
-	 */
 	@Override
 	public TypeUserHandler getTypeHandler() {
 		// TODO Auto-generated method stub

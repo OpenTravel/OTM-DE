@@ -16,30 +16,39 @@
 package org.opentravel.schemas.trees.type;
 
 import org.eclipse.jface.viewers.Viewer;
+import org.opentravel.schemas.node.AggregateNode;
+import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.VersionAggregateNode;
 
 public class TypeTreeSimpleAssignableOnlyFilter extends TypeSelectionFilter {
 
-    /**
-     * @see org.opentravel.schemas.trees.type.TypeSelectionFilter#isValidSelection(org.opentravel.schemas.node.Node)
-     */
-    @Override
-    public boolean isValidSelection(Node n) {
-        return (n != null) && n.isAssignable() && n.isSimpleAssignable();
-    }
+	/**
+	 * @see org.opentravel.schemas.trees.type.TypeSelectionFilter#isValidSelection(org.opentravel.schemas.node.Node)
+	 */
+	@Override
+	public boolean isValidSelection(Node n) {
+		return (n != null) && n.isAssignable() && n.isSimpleAssignable();
+	}
 
-    /**
-     * Establish the filter to select only nodes that are navigation or isSimpleAssignable()==true.
-     */
-    public TypeTreeSimpleAssignableOnlyFilter() {
-    }
+	/**
+	 * Establish the filter to select only nodes that are navigation or isSimpleAssignable()==true.
+	 */
+	public TypeTreeSimpleAssignableOnlyFilter() {
+	}
 
-    @Override
-    public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
-        if (element == null || !(element instanceof Node)) {
-            return false;
-        }
-        final Node n = (Node) element;
-        return (n.isNavigation()) ? true : n.isSimpleAssignable();
-    }
+	@Override
+	public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
+		if (element == null || !(element instanceof Node)) {
+			return false;
+		}
+		final Node n = (Node) element;
+
+		if (n instanceof AggregateNode) // these extend NavNode
+			return n instanceof VersionAggregateNode;
+		if (n instanceof NavNode)
+			return ((NavNode) n).isComplexRoot() || ((NavNode) n).isSimpleRoot();
+
+		return (n.isNavigation()) ? true : n.isSimpleAssignable();
+	}
 }

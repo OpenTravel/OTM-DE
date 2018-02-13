@@ -72,7 +72,8 @@ public class AggregateNode extends NavNode {
 	public void add(ComponentNode nodeToAdd) {
 		// If this is a service then just add to the service root as services are not versioned objects
 		if (nodeToAdd instanceof ServiceNode) {
-			getChildren().add(nodeToAdd);
+			// getChildren().add(nodeToAdd);
+			getChildrenHandler().add(nodeToAdd);
 			return;
 		}
 
@@ -129,7 +130,7 @@ public class AggregateNode extends NavNode {
 	 * Remove the version node or version node associated with the passed node from the aggregate child list.
 	 */
 	public void remove(Node node) {
-		if (!(node instanceof VersionNode))
+		if (!(node instanceof ServiceNode) && (!(node instanceof VersionNode)))
 			node = node.getVersionNode();
 		getChildrenHandler().remove(node);
 	}

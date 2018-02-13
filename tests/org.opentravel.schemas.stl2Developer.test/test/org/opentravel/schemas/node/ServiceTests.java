@@ -18,7 +18,6 @@
  */
 package org.opentravel.schemas.node;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
@@ -115,13 +114,58 @@ public class ServiceTests extends BaseProjectTest {
 
 	@Test
 	public void constructorFromBO_Test() {
+		// Given - a BO in a library
 		BusinessObjectNode bo = null;
 		bo = ml.addBusinessObjectToLibrary(ln, "TestSubjectBO");
-		assertNotNull(bo);
-
-		ServiceNode svc = new ServiceNode(bo);
+		assert bo != null;
 		int OperationCount = ServiceOperationTypes.values().length - 1; // Not including queries
 
+		// When - create service from the BO
+		ServiceNode svc = new ServiceNode(bo);
+
+		// Then - assure children handler for service root is correct.
+		List<?> services = ln.getServiceRoot().childrenHandler.get();
+		assert !services.isEmpty();
+		assert services.contains(svc);
+		// Then
+		assertTrue(svc.getName().equals(bo.getName()));
+		assertTrue(svc.getChildren().size() >= OperationCount);
+		for (Node on : svc.getChildren()) {
+			assertTrue(on instanceof OperationNode);
+			assertTrue(on.getChildren().size() == 3);
+			ml.check(on);
+		}
+
+		ml.check(ln);
+	}
+
+	@Test
+	public void constructorFromBOinManagedLib_Test() {
+		// Given - library is managed
+		LibraryChainNode lcn = ml
+				.createNewManagedLibrary_Empty("http://example.com/test", "ManagedLib", defaultProject);
+		ln = lcn.getHead();
+
+		// Given - a BO in a library
+		BusinessObjectNode bo = null;
+		bo = ml.addBusinessObjectToLibrary(ln, "TestSubjectBO");
+		assert bo != null;
+		int OperationCount = ServiceOperationTypes.values().length - 1; // Not including queries
+
+		// When - create service from the BO
+		ServiceNode svc = new ServiceNode(bo);
+
+		// Then - assure children handler for service root is correct.
+		List<?> services = ln.getServiceRoot().childrenHandler.get();
+		assert !services.isEmpty();
+		assert services.contains(svc);
+
+		// Then - assure service is in the aggregate
+		services = lcn.getServiceAggregate().getChildrenHandler().get();
+		assert !services.isEmpty();
+		assert services.contains(svc);
+
+		// Then
 		assertTrue(svc.getName().equals(bo.getName()));
 		assertTrue(svc.getChildren().size() >= OperationCount);
 		for (Node on : svc.getChildren()) {

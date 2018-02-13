@@ -28,12 +28,9 @@ import org.opentravel.schemas.node.Node;
  */
 public class TypeTreeVersionSelectionFilter extends TypeSelectionFilter {
 
-	private Node node;
+	// private Node node;
 	private List<Node> versions = null;
 	private List<Node> ancestors = new ArrayList<Node>();
-
-	// private ModelObject<?> modelObject;
-	// private Class<? extends ModelObject<?>> extensionType;
 
 	/**
 	 * Constructor that specifies the type of model object to be visible when the filter is applied.
@@ -43,16 +40,10 @@ public class TypeTreeVersionSelectionFilter extends TypeSelectionFilter {
 	 */
 	@SuppressWarnings("unchecked")
 	public TypeTreeVersionSelectionFilter(Node node) {
-		this.node = node;
+		// this.node = node;
 		versions = node.getLaterVersions();
 		for (Node v : versions)
 			ancestors.addAll(v.getAncestors());
-
-		// if (node instanceof ExtensionPointFacetMO) {
-		// extensionType = FacetMO.class;
-		// } else {
-		// extensionType = (Class<? extends ModelObject<?>>) node.getClass();
-		// }
 	}
 
 	/**
@@ -61,26 +52,6 @@ public class TypeTreeVersionSelectionFilter extends TypeSelectionFilter {
 	@Override
 	public boolean isValidSelection(Node n) {
 		return versions.contains(n);
-		// boolean isValid = false;
-		//
-		// if (n != null) {
-		// ModelObject<?> modelObject = n.getModelObject();
-		//
-		// if ((extensionType == null) || extensionType.equals(modelObject.getClass())) {
-		// if (this.modelObject instanceof ExtensionPointFacetMO) {
-		// // XP Facets must select extensions in a different namespace
-		// // if (n.getParent().getModelObject().isExtendable()) {
-		// isValid = (n.getNamespace() != null)
-		// && !n.getNamespace().equals(this.modelObject.getNamespace());
-		// // }
-		// } else {
-		// // commented out to allow extensions even if base is not extend-able.
-		// // isValid = modelObject.isExtendable();
-		// isValid = true;
-		// }
-		// }
-		// }
-		// return isValid;
 	}
 
 	/**
@@ -94,14 +65,6 @@ public class TypeTreeVersionSelectionFilter extends TypeSelectionFilter {
 		}
 		Node n = (Node) element;
 		return versions.contains(n) || ancestors.contains(n);
-		// boolean result;
-		//
-		// if (n.getModelObject() == modelObject) {
-		// result = false;
-		// } else {
-		// result = isValidSelection(n) || hasValidChildren(n);
-		// }
-		// return result;
 	}
 
 }

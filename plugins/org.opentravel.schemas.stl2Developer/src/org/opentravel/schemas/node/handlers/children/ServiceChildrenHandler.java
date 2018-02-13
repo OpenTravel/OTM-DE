@@ -22,7 +22,9 @@ import java.util.List;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLOperation;
 import org.opentravel.schemacompiler.model.TLService;
+import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.ServiceNode;
 
 /**
@@ -39,6 +41,28 @@ public class ServiceChildrenHandler extends StaticChildrenHandler<Node, ServiceN
 		super(owner);
 
 		assert owner.getTLModelObject() instanceof TLService;
+		initChildren();
+	}
+
+	/**
+	 * Initialize service children (operations)
+	 */
+	@Override
+	public void initChildren() {
+		initRunning = true;
+		super.initChildren(); // initialize children and load facets
+		children.addAll(modelTLs(getChildren_TL()));
+		initRunning = false;
+	}
+
+	protected List<Node> modelTLs(List<TLModelElement> list) {
+		List<Node> kids = new ArrayList<Node>();
+		for (TLModelElement t : list) {
+			ComponentNode fn = NodeFactory.newChild(owner, t);
+			fn.setParent(owner);
+			kids.add(fn);
+		}
+		return kids;
 	}
 
 	@Override

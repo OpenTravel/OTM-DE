@@ -16,7 +16,10 @@
 package org.opentravel.schemas.trees.type;
 
 import org.eclipse.jface.viewers.Viewer;
+import org.opentravel.schemas.node.AggregateNode;
+import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 
 public class TypeTreeSimpleTypeOnlyFilter extends TypeSelectionFilter {
@@ -41,6 +44,11 @@ public class TypeTreeSimpleTypeOnlyFilter extends TypeSelectionFilter {
 			return false;
 		}
 		final Node n = (Node) element;
+		if (n instanceof AggregateNode) // these extend NavNode
+			return n instanceof VersionAggregateNode;
+		if (n instanceof NavNode)
+			return ((NavNode) n).isComplexRoot() || ((NavNode) n).isSimpleRoot();
+
 		return (n.isNavigation()) ? true : n instanceof SimpleTypeNode;
 	}
 }

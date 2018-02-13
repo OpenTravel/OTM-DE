@@ -16,7 +16,9 @@
 package org.opentravel.schemas.trees.type;
 
 import org.eclipse.jface.viewers.Viewer;
+import org.opentravel.schemas.node.AggregateNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
@@ -55,6 +57,8 @@ public class CoreAndChoiceObjectOnlyTypeFilter extends TypeSelectionFilter {
 		final Node n = (Node) element;
 		if (n instanceof LibraryNode || n instanceof LibraryChainNode)
 			return targetNamespace == null || n.getNamespace().equals(targetNamespace);
+		if (n instanceof AggregateNode) // these extend NavNode
+			return n instanceof VersionAggregateNode;
 		if (n.isNavigation())
 			return true;
 		if (targetNamespace != null && !n.getNamespace().equals(targetNamespace))

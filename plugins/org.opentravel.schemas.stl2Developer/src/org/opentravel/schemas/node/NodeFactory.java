@@ -265,7 +265,7 @@ public class NodeFactory {
 		else if (mbr instanceof TLResource)
 			lm = new ResourceNode((TLResource) mbr);
 		else if (mbr instanceof TLService)
-			lm = new ServiceNode((TLService) mbr, null);
+			lm = new ServiceNode((TLService) mbr);
 		else if (mbr instanceof TLContextualFacet) {
 			if (OTM16Upgrade.otm16Enabled)
 				lm = createFacet((TLContextualFacet) mbr);

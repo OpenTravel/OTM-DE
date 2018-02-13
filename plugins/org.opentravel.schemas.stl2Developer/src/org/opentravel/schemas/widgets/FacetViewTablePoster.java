@@ -26,15 +26,14 @@ import org.eclipse.swt.widgets.TableItem;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.controllers.NodeUtils;
 import org.opentravel.schemas.node.interfaces.ComplexMemberInterface;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.FacetOwner;
 import org.opentravel.schemas.node.interfaces.InheritedInterface;
-import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
 import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
 import org.opentravel.schemas.node.objectMembers.FacetOMNode;
+import org.opentravel.schemas.node.objectMembers.OperationNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
@@ -91,12 +90,8 @@ public class FacetViewTablePoster {
 	 */
 	public void postTable(Node curNode) {
 		clearTable();
-		// Unneeded - Should be fixed by selection handler
-		// if (curNode instanceof WhereUsedNode && !(curNode instanceof TypeUserNode))
-		// return;
-		if (curNode == null) {
+		if (curNode == null)
 			return;
-		}
 
 		// restore focus after posting
 		final int[] selectionIndices = table.getSelectionIndices();
@@ -104,11 +99,12 @@ public class FacetViewTablePoster {
 		List<Node> sortedChildren = new ArrayList<Node>(curNode.getChildren());
 		sortedChildren = sort(sortedChildren);
 
-		if (curNode instanceof ServiceNode) {
-			for (final Node kid : sortedChildren) {
-				postTableRows(kid, kid.getLabel());
-			}
-		} else if (curNode instanceof ComponentNode) {
+		// if (curNode instanceof ServiceNode) {
+		// for (final Node kid : sortedChildren) {
+		// postTableRows(kid, kid.getLabel());
+		// }
+		// } else
+		if (curNode instanceof ComponentNode) {
 			// If there are aliases, post them first.
 			for (final Node kid : sortedChildren)
 				if (kid instanceof AliasNode)
@@ -116,9 +112,11 @@ public class FacetViewTablePoster {
 
 			if (curNode instanceof FacetInterface)
 				postTableRows(curNode, curNode.getName());
-			// else if (curNode instanceof AliasNode) {
-			// postTableRows(curNode, "");
-			// }
+			else if (curNode instanceof ServiceNode)
+				for (final Node kid : sortedChildren)
+					postTableRows(kid, kid.getLabel());
+			else if (curNode instanceof OperationNode)
+				postTableRows(curNode, curNode.getName());
 			else if (curNode instanceof ExtensionPointNode)
 				postTableRows(curNode, "Extension Point: " + curNode.getName());
 			else if (curNode instanceof FacetOwner) {
@@ -148,10 +146,11 @@ public class FacetViewTablePoster {
 
 	private boolean showInherited(Node n) {
 		if (n == null || n.getOwningComponent() == null || OtmRegistry.getNavigatorView() == null)
-			return true;
-		if (NodeUtils.checker(n).isNewToChain().get() || n.getOwningComponent().isVersioned())
-			return true;
-		return OtmRegistry.getNavigatorView().isShowInheritedProperties();
+			return false;
+		if (OtmRegistry.getNavigatorView().isShowInheritedProperties())
+			return n.isNewToChain() || n.getOwningComponent().isVersioned();
+		// return NodeUtils.checker(n).isNewToChain().get() || n.getOwningComponent().isVersioned()
+		return false;
 	}
 
 	/**
@@ -176,9 +175,6 @@ public class FacetViewTablePoster {
 				item.setText(1, n.getLabel()); // separator will be name
 				item.setForeground(colorProvider.getColor(SWT.COLOR_DARK_BLUE));
 
-				// String name = n.getName(); // Name
-				// String label = n.getLabel(); // Role
-
 				if (n instanceof ContributedFacetNode)
 					decorateContributedItem(item, n);
 				else if (n instanceof InheritedInterface)
@@ -186,26 +182,28 @@ public class FacetViewTablePoster {
 			}
 
 			// Sort the table rows
-			List<Node> children = new ArrayList<Node>(n.getChildren());
-			if (showInherited(n)) {
+			List<Node> children = n.getChildren_New();
+			if (showInherited(n))
 				children.addAll(n.getInheritedChildren());
-			}
+
 			children = sort(children);
 
 			// Post all the sorted children
 			for (final Node cn : children) {
 				if (cn instanceof PropertyNode)
 					postTableRow(cn, n instanceof ContributedFacetNode);
-				else if (cn instanceof FacetOMNode) {
-					if (cn instanceof ContributedFacetNode)
-						// && !showInherited(cn))
-						// continue; // skip
-						postTableRows(cn, cn.getName());
-				} else if (cn instanceof WhereUsedNodeInterface)
-					continue; // skip
-				else if (!(cn instanceof AliasNode)) {
-					postTableRow(cn); // what falls through to here? enum-literal
-				}
+				else if (cn instanceof FacetOMNode)
+					// shared and operations
+					postTableRows(cn, cn.getName());
+				else if (cn instanceof ContributedFacetNode)
+					postTableRows(cn, cn.getName());
+				else
+					assert false;
+				// else if (cn instanceof WhereUsedNodeInterface)
+				// continue; // skip
+				// else if (!(cn instanceof AliasNode)) {
+				// postTableRow(cn); // what falls through to here? enum-literal
+				// }
 			}
 
 		}

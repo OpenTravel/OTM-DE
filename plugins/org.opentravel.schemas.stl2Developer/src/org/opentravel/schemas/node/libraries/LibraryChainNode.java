@@ -41,7 +41,6 @@ import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.SimpleMemberInterface;
 import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
-import org.opentravel.schemas.node.objectMembers.OperationNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacet15Node;
 import org.opentravel.schemas.properties.Images;
@@ -576,7 +575,7 @@ public class LibraryChainNode extends Node implements FacadeInterface, TypeProvi
 	 * 
 	 * @param n
 	 */
-	public void removeAggregate(ComponentNode node) {
+	public void removeFromAggregate(ComponentNode node) {
 		// Remove this version.
 		if (node instanceof FacetOwner)
 			complexRoot.remove(node);
@@ -584,7 +583,7 @@ public class LibraryChainNode extends Node implements FacadeInterface, TypeProvi
 			simpleRoot.remove(node);
 		else if (node instanceof ResourceNode)
 			resourceRoot.remove(node);
-		else if (node instanceof ServiceNode || node instanceof OperationNode)
+		else if (node instanceof ServiceNode)
 			serviceRoot.remove(node);
 
 		// LOGGER.debug("Adding back the previous version of " + node);

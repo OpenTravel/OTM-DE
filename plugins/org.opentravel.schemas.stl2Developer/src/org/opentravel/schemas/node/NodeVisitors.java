@@ -103,10 +103,12 @@ public class NodeVisitors {
 			Node node = (Node) n;
 			String nodeName = n.getName();
 
-			if ((node instanceof ServiceNode) && node.getLibrary().isInChain()) {
-				// this has a entry in the service aggregate but no version node!
-				// LOGGER.debug("Deleting Service aggregate node.");
-				node.getLibrary().getChain().removeAggregate((ComponentNode) node);
+			if (node instanceof ServiceNode) {
+				node.delete();
+				// // this has a entry in the service aggregate but no version node!
+				// // LOGGER.debug("Deleting Service node.");
+				// if (node.getLibrary().isInChain())
+				// node.getLibrary().getChain().removeAggregate((ComponentNode) node);
 			} else if (node instanceof ResourceNode) {
 				node.delete(); // resource will do children, type users and chain
 				return;

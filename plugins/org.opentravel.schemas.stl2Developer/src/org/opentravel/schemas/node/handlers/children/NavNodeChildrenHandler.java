@@ -19,8 +19,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemas.node.AggregateNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,11 @@ public class NavNodeChildrenHandler extends StaticChildrenHandler<Node, NavNode>
 	public void add(Node item) {
 		if (!children.contains(item))
 			children.add(item);
+
+		// Services are not versioned, so leave their parent and library unchanged
+		if (owner instanceof AggregateNode && item instanceof ServiceNode)
+			return;
+
 		item.setParent(owner);
 		// May be a member or a version node
 		if (item instanceof LibraryMemberInterface)

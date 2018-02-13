@@ -429,11 +429,6 @@ public class FacetView extends OtmAbstractView {
 		Node node = target;
 
 		try {
-			// if (node == null) {
-			// clearTable();
-			// return;
-			// }
-
 			setButtonState(target);
 
 			mc.getFields().postField(nameField, node.getName(), node.isRenameable());

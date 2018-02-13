@@ -15,8 +15,13 @@
  */
 package org.opentravel.schemas.node.objectMembers;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.properties.PropertyNodeType;
 
 /**
  * Used for Request, Response and Notification Facets.
@@ -30,10 +35,10 @@ public class OperationFacetNode extends FacetOMNode {
 		super(tlObj);
 	}
 
-	// @Override
-	// public boolean isDeleteable() {
-	// return super.isDeleteable(true);
-	// }
+	@Override
+	public List<Node> getInheritedChildren() {
+		return Collections.emptyList();
+	}
 
 	@Override
 	public boolean isNamedEntity() {
@@ -50,12 +55,14 @@ public class OperationFacetNode extends FacetOMNode {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.opentravel.schemas.node.interfaces.FacetInterface#isFacet(org.opentravel.schemacompiler.model.TLFacetType)
+	/**
+	 * Return true if this facet can contain the passed property node type.
 	 */
+	@Override
+	public boolean canOwn(PropertyNodeType type) {
+		return true;
+	}
+
 	@Override
 	public boolean isFacet(TLFacetType facetType) {
 		switch (facetType) {

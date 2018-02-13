@@ -44,19 +44,15 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.TypeProviderAndOwners;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Dave Hollander
  * 
  */
 public class ProjectNode extends Node implements INode, TypeProviderAndOwners, FacadeInterface {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ProjectNode.class);
+	// private static final Logger LOGGER = LoggerFactory.getLogger(ProjectNode.class);
 
 	private final Project project; // underlying TL model object
-
-	// private List<Node> libs = Collections.emptyList();
 
 	/**
 	 * Can be used as a marker for a null project.
@@ -69,11 +65,6 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 		// libs = new ArrayList<Node>();
 		assert (parent instanceof ModelNode);
 	}
-
-	// @Override
-	// public List<Node> getChildren() {
-	// return libs;
-	// }
 
 	/**
 	 * Create a project node from the TL project model. Read all libraries in the project and create library nodes and
@@ -88,7 +79,6 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 		setName(tlProject.getName());
 
 		childrenHandler = new ProjectChildrenHandler(this);
-		// libs = new ArrayList<Node>();
 
 		Node.getModelNode().addProject(this);
 
@@ -101,21 +91,15 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 		LibraryModelManager manager = getParent().getLibraryManager();
 		LibraryNavNode lnn = null;
 
-		if (piList.isEmpty())
-			LOGGER.warn(this + " project item list is empty.");
+		// if (piList.isEmpty())
+		// LOGGER.warn(this + " project item list is empty.");
 
 		// FIXME - why pass project if it is not added ? Who needs it?
 		for (ProjectItem pi : piList) {
-			LOGGER.debug("Adding project item " + pi.getLibraryName() + " to " + this);
+			// LOGGER.debug("Adding project item " + pi.getLibraryName() + " to " + this);
 			lnn = manager.add(pi, this);
 			if (lnn != null) { // can fail to create chain
 				add(lnn);
-				// This will fail if a LNN already created to represent chain
-				// if (!getChildren().contains(lnn)) {
-				// LOGGER.error(lnn + " is not in project " + this);
-				// getChildren().contains(lnn);
-				// }
-				// assert (getChildren().contains(lnn));
 			}
 		}
 		return lnn;
@@ -138,8 +122,8 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 	}
 
 	public void add(Node child) {
-		if (!(child instanceof LibraryNavNode))
-			LOGGER.debug("NotNaveNode");
+		// if (!(child instanceof LibraryNavNode))
+		// LOGGER.debug("NotNaveNode");
 		getChildrenHandler().add(child);
 		child.setParent(this);
 	}
@@ -158,14 +142,10 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 	 */
 	@Override
 	public void close() {
-		LOGGER.debug("Closing " + getName());
+		// LOGGER.debug("Closing " + getName());
 		List<Node> lnns = getChildrenHandler().getChildren_New();
 		for (Node n : lnns)
 			n.close();
-
-		// TODO - shouldn't this be removed from Model?
-		// NO - caller responsibility
-		// TODO - shouldn't this close the tl project?
 	}
 
 	/**
@@ -217,30 +197,6 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 		lnn.setParent(null);
 		lnn.deleted = true;
 	}
-
-	// public void unlinkNode(LibraryInterface lib) {
-	// for (Node child : getChildren())
-	// if (child == lib) {
-	// getChildrenHandler().remove(child);
-	// return;
-	// } else if (child instanceof LibraryNavNode)
-	// if (((LibraryNavNode) child).getThisLib() == lib) {
-	// getChildrenHandler().remove(child);
-	// return;
-	// }
-	// return;
-	// // Find the child and unlink it
-	// // List<Node> kids = new ArrayList<Node>(getChildren());
-	// // for (Node child : getChildren())
-	// // if (child == lib) {
-	// // child.unlinkNode();
-	// // return;
-	// // } else if (child instanceof LibraryNavNode)
-	// // if (((LibraryNavNode) child).getThisLib() == lib) {
-	// // child.unlinkNode();
-	// // return;
-	// // }
-	// }
 
 	@Override
 	public String getComponentType() {
@@ -307,9 +263,12 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 			try {
 				pi = getTLProject().getProjectManager().addUnmanagedProjectItem(tlLib, getTLProject());
 			} catch (RepositoryException e1) {
-				LOGGER.error("Repo Error adding " + tlLib.getName() + " to project. " + e1.getLocalizedMessage());
+				assert true;
+				// LOGGER.error("Repo Error adding " + tlLib.getName() + " to project. " + e1.getLocalizedMessage());
 			} catch (IllegalArgumentException e) {
-				LOGGER.error("Argument Exception adding " + tlLib.getName() + " to project. " + e.getLocalizedMessage());
+				assert true;
+				// LOGGER.error("Argument Exception adding " + tlLib.getName() + " to project. " +
+				// e.getLocalizedMessage());
 			}
 		return pi;
 	}
@@ -371,11 +330,6 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 	public ModelNode getParent() {
 		return (ModelNode) parent;
 	}
-
-	// @Override
-	// public boolean hasChildren() {
-	// return !getChildren().isEmpty();
-	// }
 
 	@Override
 	public boolean isDeprecated() {
@@ -458,10 +412,6 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 	public void remove(LibraryNavNode l) {
 		getChildrenHandler().clear(l);
 	}
-
-	// @Override
-	// public void removeFromLibrary() {
-	// }
 
 	/**
 	 * Remove all project items from this project. NO save, tests or checks.

@@ -20,8 +20,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jface.viewers.ViewerFilter;
+import org.opentravel.schemas.node.AggregateNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.types.TypeProviderAndOwners;
 
 /**
@@ -50,6 +52,9 @@ public abstract class TypeSelectionFilter extends ViewerFilter {
 	 */
 	protected boolean hasValidChildren(Node n) {
 		boolean hasValidChild = false;
+
+		if (n instanceof AggregateNode) // these extend NavNode
+			return n instanceof VersionAggregateNode;
 
 		// Only the top level member of an xsd type can be used.
 		if (n.isXsdType())
