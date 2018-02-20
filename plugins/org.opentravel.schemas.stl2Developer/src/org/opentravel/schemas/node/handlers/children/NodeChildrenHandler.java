@@ -16,6 +16,7 @@
 package org.opentravel.schemas.node.handlers.children;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -115,7 +116,7 @@ public abstract class NodeChildrenHandler<C extends Node> implements ChildrenHan
 
 	@Override
 	public List<C> getInheritedChildren() {
-		return inherited;
+		return (List<C>) (inherited != null ? inherited : Collections.emptyList());
 	}
 
 	@Override

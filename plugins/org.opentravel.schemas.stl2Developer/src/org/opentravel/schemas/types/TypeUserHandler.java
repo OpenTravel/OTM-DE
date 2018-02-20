@@ -67,7 +67,10 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		if (assignedTL != null) {
 			n = Node.GetNode(assignedTL.getListeners());
 			if (n != null)
-				return (TypeProvider) n;
+				if (n instanceof TypeProvider)
+					return (TypeProvider) n;
+				else
+					LOGGER.debug("Error - not type provider: " + n);
 		} else {
 			// This is the "Missing" case.
 			if (owner instanceof SimpleAttributeFacadeNode)

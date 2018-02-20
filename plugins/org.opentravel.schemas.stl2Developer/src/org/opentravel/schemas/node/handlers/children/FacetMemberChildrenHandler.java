@@ -30,7 +30,6 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.objectMembers.FacetOMNode;
-import org.opentravel.schemas.node.objectMembers.SharedFacetNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,16 +98,19 @@ public class FacetMemberChildrenHandler extends CachingChildrenHandler<Node, Fac
 
 	@Override
 	protected void initInherited() {
-		if (owner instanceof SharedFacetNode) {
-			super.initInherited();
-			return;
-		}
+		// if (owner instanceof SharedFacetNode) {
+		// super.initInherited();
+		// return;
+		// }
 		if (owner.getExtendsType() != null) {
 			super.initInherited();
 			return;
 		}
 
 		// FIXME - implement getExtenedType() then use super-type method
+		Node et = owner.getExtendsType();
+		if (owner.getExtendsType() == null)
+			return;
 		assert false;
 		// SharedFacetNode
 		initRunning = true;

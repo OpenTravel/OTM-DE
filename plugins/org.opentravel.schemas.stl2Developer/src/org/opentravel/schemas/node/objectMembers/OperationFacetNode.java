@@ -55,6 +55,11 @@ public class OperationFacetNode extends FacetOMNode {
 		return true;
 	}
 
+	@Override
+	public boolean isNavChild(boolean deep) {
+		return true;
+	}
+
 	/**
 	 * Return true if this facet can contain the passed property node type.
 	 */

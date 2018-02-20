@@ -191,6 +191,9 @@ public class NodeFactory {
 
 		}
 		assert baseNode instanceof ContributedFacetNode;
+		if (baseNode == null)
+			return null;
+
 		ContributedFacetNode baseContrib = (ContributedFacetNode) baseNode;
 		ContextualFacetNode baseCF = baseContrib.getContributor();
 

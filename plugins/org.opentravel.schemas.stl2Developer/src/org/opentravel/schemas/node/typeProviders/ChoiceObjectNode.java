@@ -40,7 +40,7 @@ import org.opentravel.schemas.node.interfaces.Sortable;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
-import org.opentravel.schemas.node.objectMembers.FacetOMNode;
+import org.opentravel.schemas.node.objectMembers.SharedFacetNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.FacetOwners;
@@ -69,7 +69,10 @@ public class ChoiceObjectNode extends FacetOwners implements ExtensionOwner, Sor
 		childrenHandler = new ChoiceObjectChildrenHandler(this);
 		extensionHandler = new ExtensionHandler(this);
 
-		assert (getSharedFacet() instanceof FacetOMNode);
+		// SharedFacetNode sf = getSharedFacet();
+		// if (sf == null)
+		// LOGGER.debug("Missing shared facet in constructor.");
+		assert (getSharedFacet() instanceof SharedFacetNode);
 	}
 
 	@Override
@@ -125,23 +128,6 @@ public class ChoiceObjectNode extends FacetOwners implements ExtensionOwner, Sor
 	 */
 	public AbstractContextualFacet addFacet(String name) {
 		return super.addFacet(name, TLFacetType.CHOICE);
-
-		// if (!isEditable_newToChain())
-		// throw new IllegalArgumentException("Not Editable - can not add facet to " + this);
-		//
-		// TLContextualFacet tlCf = ContextualFacetNode.createTL(name, TLFacetType.CHOICE);
-		// AbstractContextualFacet cf = NodeFactory.createContextualFacet(tlCf);
-		// cf.setOwner(this);
-		//
-		// if (OTM16Upgrade.otm16Enabled) {
-		// assert cf.getParent() instanceof NavNode;
-		// assert getChildren().contains(((ContextualFacetNode) cf).getWhereContributed());
-		// } else {
-		// assert cf.getParent() == this;
-		// assert getChildren().contains(cf);
-		// }
-		//
-		// return cf;
 	}
 
 	@Override
@@ -266,7 +252,7 @@ public class ChoiceObjectNode extends FacetOwners implements ExtensionOwner, Sor
 	}
 
 	@Override
-	public FacetOMNode getFacet_Default() {
+	public SharedFacetNode getFacet_Default() {
 		return getSharedFacet();
 	}
 

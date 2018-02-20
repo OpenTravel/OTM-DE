@@ -131,7 +131,7 @@ public abstract class CachingChildrenHandler<C extends Node, O extends Node> ext
 			// LOGGER.debug("Cleared inherited children of " + owner);
 		}
 		initInherited();
-		return inherited;
+		return (List<C>) (inherited != null ? inherited : Collections.emptyList());
 	}
 
 	/**

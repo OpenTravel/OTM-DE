@@ -37,6 +37,7 @@ import org.opentravel.schemas.node.objectMembers.OperationNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviders;
 import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.node.typeProviders.ListFacetNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
@@ -193,16 +194,17 @@ public class FacetViewTablePoster {
 				if (cn instanceof PropertyNode)
 					postTableRow(cn, n instanceof ContributedFacetNode);
 				else if (cn instanceof FacetOMNode)
-					// shared and operations
+					postTableRows(cn, cn.getName()); // operations
+				else if (cn instanceof FacetProviders)
 					postTableRows(cn, cn.getName());
 				else if (cn instanceof ContributedFacetNode)
-					postTableRows(cn, cn.getName());
+					continue; // skip
+				else if (cn instanceof AliasNode)
+					continue; // skip
 				else
-					assert false;
+					// what falls through to here? enum-literal
+					assert false; // core summary facet
 				// else if (cn instanceof WhereUsedNodeInterface)
-				// continue; // skip
-				// else if (!(cn instanceof AliasNode)) {
-				// postTableRow(cn); // what falls through to here? enum-literal
 				// }
 			}
 

@@ -30,7 +30,7 @@ import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.FacetOwner;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.node.objectMembers.FacetOMNode;
+import org.opentravel.schemas.node.objectMembers.SharedFacetNode;
 import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
@@ -167,7 +167,7 @@ public abstract class FacetOwners extends TypeProviders implements FacetOwner {
 				: null;
 	}
 
-	public FacetOMNode getSharedFacet() {
-		return (FacetOMNode) getFacet(TLFacetType.SHARED);
+	public SharedFacetNode getSharedFacet() {
+		return (SharedFacetNode) getFacet(TLFacetType.SHARED);
 	}
 }
