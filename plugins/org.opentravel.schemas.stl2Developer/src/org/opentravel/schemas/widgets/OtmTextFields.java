@@ -97,6 +97,12 @@ public class OtmTextFields extends OtmWidgets {
 		return formatTextField(text, label, properties, span);
 	}
 
+	public Text formatTextField(final Composite parent, Label label, final int[] properties, final int span) {
+		// final Label label = new Label(parent, SWT.NULL);
+		final Text text = WidgetFactory.createText(parent, SWT.BORDER | SWT.SINGLE);
+		return formatTextField(text, label, properties, span);
+	}
+
 	private Text formatTextField(final Text text, final Label label, final int[] properties, final int span) {
 		return formatTextField(text, label, properties, span, DEFAULT_VSPAN);
 

@@ -371,13 +371,13 @@ public abstract class AbstractContextualFacet extends FacetProviderNode implemen
 	public abstract void setName(String n);
 
 	/**
-	 * Add this facet to the owner's TL facet owner. Then add to library or owner. Create contributed facet if
-	 * canBeLibrarymember (v1.6)
+	 * Add this facet to the owner's TL facet owner. Then add to library of owner if the library is not set. Create
+	 * contributed facet if canBeLibrarymember (v1.6)
 	 * 
 	 * @param owner
 	 */
 	public void setOwner(ContextualFacetOwnerInterface owner) {
-		add(owner); // Add to owning object and if's library if needed
+		add(owner); // Add to owning object and it's library if needed
 	}
 
 	// Drives sort order in navigation menu

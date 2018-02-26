@@ -51,7 +51,6 @@ import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
 import org.opentravel.schemas.node.typeProviders.ListFacetNode;
-import org.opentravel.schemas.node.typeProviders.SimpleComponentNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.properties.Messages;
@@ -527,14 +526,16 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 		updateConstraints(cn, cn.isEditable_newToChain());
 	}
 
+	// Cn is the type assigned to property being posted in this view
 	private void updateConstraints(final ComponentNode cn, boolean editable) {
 		if (cn == null)
 			return;
-		if (cn instanceof SimpleComponentNode)
+		if (cn instanceof SimpleTypeNode) {
 			listButton.setEnabled(true);
-		if (cn instanceof SimpleTypeNode)
 			listButton.setSelection(((SimpleTypeNode) cn).isSimpleList());
+		}
 
+		// simpleTypeNode
 		ConstraintHandler ch = cn.getConstraintHandler();
 		if (ch != null) {
 			fields.postField(patternField, ch.getPattern(), editable);

@@ -30,6 +30,7 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.listeners.TypeUserAssignmentListener;
+import org.opentravel.schemas.node.objectMembers.SharedFacetNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,6 +166,12 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		// LOGGER.debug("START - Assign type " + target + " to " + owner);
 		if (owner == null || !owner.isEditable())
 			return false;
+
+		// 2/2018 - trouble with shared choice facets being assigned.
+		if (target instanceof SharedFacetNode) {
+			target = (TypeProvider) target.getParent();
+			LOGGER.debug("Shared facet not used.");
+		}
 
 		// Save old type assignment
 		TypeProvider oldProvider = owner.getAssignedType();

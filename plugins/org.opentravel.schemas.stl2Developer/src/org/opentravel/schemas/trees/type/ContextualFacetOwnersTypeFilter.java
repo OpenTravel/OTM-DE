@@ -17,7 +17,10 @@ package org.opentravel.schemas.trees.type;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemas.node.AggregateNode;
+import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.slf4j.Logger;
@@ -33,6 +36,7 @@ public class ContextualFacetOwnersTypeFilter extends TypeSelectionFilter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ContextualFacetOwnersTypeFilter.class);
 
 	private TLFacetType type = null;
+	private ContextualFacetNode thisNode = null;
 
 	/**
 	 * Filter to select only contextual facet owners.
@@ -41,6 +45,7 @@ public class ContextualFacetOwnersTypeFilter extends TypeSelectionFilter {
 	 *            facet to match. Candidate owners must return true for canOwn(node)
 	 */
 	public ContextualFacetOwnersTypeFilter(ContextualFacetNode contextualFacet) {
+		thisNode = contextualFacet;
 		this.type = contextualFacet.getTLModelObject().getFacetType();
 	}
 
@@ -65,10 +70,18 @@ public class ContextualFacetOwnersTypeFilter extends TypeSelectionFilter {
 	@Override
 	public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
 		if (element instanceof Node) {
-			if (((Node) element).isNavigation())
+			final Node n = (Node) element;
+			if (n == thisNode)
+				return false;
+			if (n instanceof AggregateNode) // these extend NavNode
+				return n instanceof VersionAggregateNode;
+			if (n instanceof NavNode)
+				return ((NavNode) n).isComplexRoot();
+
+			if (n.isNavigation())
 				return true;
-			if (element instanceof ContextualFacetOwnerInterface)
-				return ((ContextualFacetOwnerInterface) element).canOwn(type);
+			if (n instanceof ContextualFacetOwnerInterface)
+				return ((ContextualFacetOwnerInterface) n).canOwn(type);
 		}
 		return false;
 	}

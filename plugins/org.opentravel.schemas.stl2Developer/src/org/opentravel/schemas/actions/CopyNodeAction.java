@@ -59,6 +59,8 @@ public class CopyNodeAction extends OtmAbstractAction {
 	 */
 	private final String CopyNameSuffix = "_Copy";
 
+	// TODO - this is not called when copying via navigator menus. Is it ever called?
+	// See ImportObject...(link above)
 	public void copySelectedNodes(List<Node> nodes) {
 		Node lastCloned = null;
 		if (nodes == null || nodes.isEmpty())

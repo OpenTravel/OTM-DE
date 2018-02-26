@@ -198,7 +198,8 @@ public class FacetViewTablePoster {
 				else if (cn instanceof FacetProviders)
 					postTableRows(cn, cn.getName());
 				else if (cn instanceof ContributedFacetNode)
-					continue; // skip
+					// continue; // skip
+					postTableRows(cn, cn.getName());
 				else if (cn instanceof AliasNode)
 					continue; // skip
 				else

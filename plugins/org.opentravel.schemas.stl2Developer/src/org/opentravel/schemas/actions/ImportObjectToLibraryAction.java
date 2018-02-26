@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
+import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
@@ -32,6 +33,7 @@ import org.opentravel.schemas.stl2developer.MainWindow;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.wizards.GlobalLocalCancelDialog;
 import org.opentravel.schemas.wizards.GlobalLocalCancelDialog.GlobalDialogResult;
+import org.opentravel.schemas.wizards.TypeSelectionWizard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,8 +116,15 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 			if (n instanceof ResourceNode) {
 				destination.copyMember((LibraryMemberInterface) n);
 				done = n.getLibrary();
-			} else if (n instanceof ContextualFacetNode)
-				done = (Node) destination.copyMember((LibraryMemberInterface) n);
+			} else if (n instanceof ContextualFacetNode) {
+				done = (Node) destination.copyMember((ContextualFacetNode) n);
+				// Find candidates for new facet owner
+				ContextualFacetOwnerInterface owner = askForNewCFOwner((ContextualFacetNode) done);
+				if (owner != null)
+					((ContextualFacetNode) done).setOwner(owner);
+				else
+					done.delete();
+			}
 		if (done != null) {
 			mc.refresh(done); // refresh everything.
 			return;
@@ -177,6 +186,22 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 		selectImportedNodesInNavigation(importedNodesMap);
 		mc.postStatus("Imported " + eligibleForImporting.size() + " types to " + destination);
 		mc.refresh(destination); // refresh everything.
+	}
+
+	/**
+	 * Return the selected CF owner
+	 * 
+	 * @param n
+	 * @return
+	 */
+	private ContextualFacetOwnerInterface askForNewCFOwner(ContextualFacetNode n) {
+		ArrayList<Node> nodeList = new ArrayList<Node>();
+		nodeList.add(n);
+		final TypeSelectionWizard wizard = new TypeSelectionWizard(nodeList);
+		Node owner = null;
+		if (wizard.run(OtmRegistry.getActiveShell()))
+			owner = wizard.getSelection();
+		return owner instanceof ContextualFacetOwnerInterface ? (ContextualFacetOwnerInterface) owner : null;
 	}
 
 	private void selectImportedNodesInNavigation(Collection<Node> importedNodesMap) {

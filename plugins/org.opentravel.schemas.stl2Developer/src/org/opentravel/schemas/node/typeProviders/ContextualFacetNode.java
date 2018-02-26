@@ -122,7 +122,7 @@ public abstract class ContextualFacetNode extends AbstractContextualFacet implem
 			owner.getLibrary().addMember(this);
 
 		// Create the contributed facet
-		new ContributedFacetNode(this.getTLModelObject());
+		new ContributedFacetNode(this.getTLModelObject(), owner);
 		//
 		// // Make sure the owner refreshes its children
 		// if (owner != null && ((LibraryMemberInterface) owner).getChildrenHandler() != null)
@@ -209,13 +209,15 @@ public abstract class ContextualFacetNode extends AbstractContextualFacet implem
 			throw new IllegalArgumentException("Unable to copy " + this);
 		ContextualFacetNode cf = (ContextualFacetNode) copy;
 
-		// Set where contributed
-		ContextualFacetOwnerInterface owner = null;
-		ContributedFacetNode contributed = getWhereContributed();
-		if (contributed != null && contributed.getOwningComponent() instanceof ContextualFacetOwnerInterface)
-			owner = (ContextualFacetOwnerInterface) contributed.getOwningComponent();
-		if (owner != null)
-			cf.setOwner(owner); // puts in owner's library
+		// Do NOT set contributed.
+		// Not setting owner creates a CF named "UNKNOWN_xxx"
+		// Setting owner to the same object as this owner causes name-collision error
+		// ContextualFacetOwnerInterface owner = null;
+		// ContributedFacetNode contributed = getWhereContributed();
+		// if (contributed != null && contributed.getOwningComponent() instanceof ContextualFacetOwnerInterface)
+		// owner = (ContextualFacetOwnerInterface) contributed.getOwningComponent();
+		// if (owner != null)
+		// cf.setOwner(owner); // may put in owner's library
 
 		destLib.addMember(cf); // removed from current library then add to destLib
 

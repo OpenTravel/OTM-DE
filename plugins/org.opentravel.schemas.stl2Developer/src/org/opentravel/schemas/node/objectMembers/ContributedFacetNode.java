@@ -280,6 +280,7 @@ public class ContributedFacetNode extends FacadeBase implements FacetInterface {
 	@Override
 	public LibraryMemberInterface getOwningComponent() {
 		// 9/18/2017 - for version 1.6, contributed facets are owned by object contributed to
+		assert tlContributor != null;
 		if (parent == null)
 			parent = Node.GetNode(tlContributor.getOwningEntity());
 		return (LibraryMemberInterface) getParent();

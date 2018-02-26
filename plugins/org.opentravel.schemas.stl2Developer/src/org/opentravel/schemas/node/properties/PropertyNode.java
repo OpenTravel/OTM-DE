@@ -261,12 +261,6 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 	@Override
 	public abstract boolean canAssign(Node type);
 
-	// {
-	// if (type == null || !(type instanceof TypeProvider))
-	// return false;
-	// return true;
-	// }
-
 	/**
 	 * Replace this property with one of the specified type. Uses the saved alternateRole or creates a new property. All
 	 * values that can be copied will be. The old property is saved. All copies share the same alternateRoles instance.
@@ -510,13 +504,6 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 	@Override
 	public abstract String getName();
 
-	// @Override
-	// public String getName() {
-	// if (deleted)
-	// return "-d-";
-	// return getTLModelObject() == null ? ModelNode.getEmptyNode().getName() : getTLModelObject().getName();
-	// }
-
 	/**
 	 * Properties are always in the library of their owning component.
 	 * 
@@ -560,14 +547,6 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 
 	@Override
 	public abstract Node getParent();
-
-	// @Override
-	// public Node getParent() {
-	// if ((parent == null || parent.isDeleted()) && getTLModelObject() != null)
-	// // The parent may have failed to rebuild children
-	// parent = Node.GetNode(getTLModelObject().getOwner());
-	// return parent;
-	// }
 
 	/**
 	 * Property Roles are displayed in the facet table and describe what role the item can play in constructing

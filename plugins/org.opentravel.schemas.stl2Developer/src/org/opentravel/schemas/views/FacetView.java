@@ -62,6 +62,7 @@ import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
+import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
@@ -119,6 +120,7 @@ public class FacetView extends OtmAbstractView {
 	private ExtendableAction extendableAction;
 	private Label extendableLabel;
 	private ExtendsAction extendsAction;
+	private Label extendsLabel;
 	private ClearExtendsAction clearExtendsAction;
 	// private CloneSelectedFacetNodesAction cloneSelectedFacetNodesAction;
 	private ButtonBarManager buttonBarManager;
@@ -320,7 +322,10 @@ public class FacetView extends OtmAbstractView {
 		addAsNodeWithAction(extendableAction);
 
 		// Field and button for the base type
-		extendsField = mc.getFields().formatTextField(extensionComposite, OtmTextFields.extendsName, 1);
+		extendsLabel = new Label(extensionComposite, SWT.NONE);
+		extendsLabel.setText(Messages.getString("OtmW.350"));
+		extendsLabel.setToolTipText(Messages.getString("OtmW.351"));
+		extendsField = mc.getFields().formatTextField(extensionComposite, extendsLabel, OtmTextFields.extendsName, 1);
 		extendsField.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
 		extendsField.setEditable(false);
 		extendsSelector = mc.getFields().formatButton(extensionComposite, OtmWidgets.extendsSelector,
@@ -513,6 +518,14 @@ public class FacetView extends OtmAbstractView {
 				extendsAction.setEnabled(true);
 			clearExtendsAction.setEnabled(curNode.getExtendsType() != null);
 		}
+		if (curNode instanceof AbstractContextualFacet) {
+			extendsLabel.setText(Messages.getString("OtmW.350a"));
+			extendsLabel.setToolTipText(Messages.getString("OtmW.351a"));
+		} else {
+			extendsLabel.setText(Messages.getString("OtmW.350"));
+			extendsLabel.setToolTipText(Messages.getString("OtmW.351"));
+		}
+
 	}
 
 	private Collection<IWithNodeAction> getNodeActions() {

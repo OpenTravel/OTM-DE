@@ -261,9 +261,6 @@ public abstract class ComponentNode extends Node {
 		// return getModelObject().getAssignedPrefix();
 	}
 
-	// TOOD - let the view code actually use the handler
-	// Use PropertyNode or SimpleType
-	@Deprecated
 	public ConstraintHandler getConstraintHandler() {
 		return null;
 	}

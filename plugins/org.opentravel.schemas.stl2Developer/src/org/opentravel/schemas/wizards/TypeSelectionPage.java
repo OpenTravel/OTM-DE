@@ -169,7 +169,7 @@ public class TypeSelectionPage extends WizardPage {
 			name.setText(curNode.getName());
 
 		final Label label = new Label(container, SWT.NULL);
-		label.setText("Type:");
+		label.setText("Object:");
 
 		typeText = WidgetFactory.createText(container, SWT.BORDER);
 		typeText.setLayoutData(gridData);

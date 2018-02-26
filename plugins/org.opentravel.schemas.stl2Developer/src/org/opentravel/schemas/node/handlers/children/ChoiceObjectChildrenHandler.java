@@ -46,14 +46,6 @@ public class ChoiceObjectChildrenHandler extends CachingChildrenHandler<Node, Ch
 		return kids;
 	}
 
-	// @Override
-	// protected void initInherited() {
-	// initRunning = true;
-	// inheritedOwner = owner.getExtendsType();
-	// inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
-	// initRunning = false;
-	// }
-
 	@Override
 	public List<TLModelElement> getInheritedChildren_TL() {
 		TLFacetOwner trueOwner = FacetCodegenUtils.getFacetOwnerExtension(owner.getTLModelObject());

@@ -29,6 +29,7 @@ import org.opentravel.schemas.node.properties.AttributeReferenceNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.resources.ActionFacet;
 import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.node.typeProviders.ChoiceFacetNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
@@ -108,6 +109,7 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 		boolean coreAndChoice = false;
 		boolean contextualFacet = false;
 
+		// TODO - should not be worried about if it is editable
 		// FIXME - how does a list of nodes impact the selection?
 		// TODO - delegate getting filter to nodes
 		if (curNodeList != null) {
@@ -157,9 +159,15 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 			description = Messages.getString("wizard.typeSelection.description.resource");
 		}
 		if (contextualFacet) {
-			pageName = Messages.getString("wizard.typeSelection.pageName.contextualFacet");
-			title = Messages.getString("wizard.typeSelection.title.contextualFacet");
-			description = Messages.getString("wizard.typeSelection.description.contextualFacet");
+			if (setNodeList.get(0) instanceof ChoiceFacetNode) {
+				pageName = Messages.getString("wizard.typeSelection.pageName.contextualFacet");
+				title = Messages.getString("wizard.typeSelection.title.contextualChoiceFacet");
+				description = Messages.getString("wizard.typeSelection.description.contextualChoiceFacet");
+			} else {
+				pageName = Messages.getString("wizard.typeSelection.pageName.contextualFacet");
+				title = Messages.getString("wizard.typeSelection.title.contextualFacet");
+				description = Messages.getString("wizard.typeSelection.description.contextualFacet");
+			}
 		}
 		selectionPage = new TypeSelectionPage(pageName, title, description, null, setNodeList);
 
