@@ -219,7 +219,10 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 		if (n instanceof ContributedFacetNode)
 			n = ((ContributedFacetNode) n).getContributor();
 		else if (n instanceof ContextualFacetNode)
-			n = (Node) (((ContextualFacetNode) n).getWhereContributed().getOwningComponent());
+			if (((ContextualFacetNode) n).getWhereContributed() != null)
+				n = (Node) (((ContextualFacetNode) n).getWhereContributed().getOwningComponent());
+			else
+				LOGGER.debug("Error - missing where contributed.");
 		if (n instanceof InheritedInterface)
 			n = ((InheritedInterface) n).getInheritedFrom();
 

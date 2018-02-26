@@ -94,6 +94,10 @@ public abstract class ContextualFacetNode extends AbstractContextualFacet implem
 			setWhereContributed(contrib);
 		}
 
+		// FIXME - should have owning entity but does not when entity is another contextual facet
+		if (tlObj.getOwningEntity() == null)
+			LOGGER.debug("Error - tlContextualFacet without owning entity: ", tlObj.getOwningEntityName());
+
 	}
 
 	/**
@@ -124,9 +128,9 @@ public abstract class ContextualFacetNode extends AbstractContextualFacet implem
 		// Create the contributed facet
 		new ContributedFacetNode(this.getTLModelObject(), owner);
 		//
-		// // Make sure the owner refreshes its children
-		// if (owner != null && ((LibraryMemberInterface) owner).getChildrenHandler() != null)
-		// ((Node) owner).getChildrenHandler().clear();
+		// Make sure the owner refreshes its children
+		if (owner != null && ((LibraryMemberInterface) owner).getChildrenHandler() != null)
+			((Node) owner).getChildrenHandler().clear();
 	}
 
 	/**
@@ -330,6 +334,16 @@ public abstract class ContextualFacetNode extends AbstractContextualFacet implem
 	 */
 	@Override
 	public ContributedFacetNode getWhereContributed() {
+		// if (whereContributed == null) { // Happens during node modeling
+		// LOGGER.debug("Missing where contributed...trying to find site." + this);
+		// // Node owner = GetNode(getTLModelObject().getOwningEntity());
+		// // if (owner instanceof ContextualFacetOwnerInterface)
+		// // owner.getChildrenHandler().clear(); // Refresh children
+		// // // Causes infinite loop - List<?> kids = owner.getChildrenHandler().get();
+		// // if (owner instanceof ContributedFacetNode)
+		// // whereContributed = (ContributedFacetNode) owner;
+		// // Owner's tlObj has a child that its' caching children handler doesn't
+		// }
 		return whereContributed;
 	}
 

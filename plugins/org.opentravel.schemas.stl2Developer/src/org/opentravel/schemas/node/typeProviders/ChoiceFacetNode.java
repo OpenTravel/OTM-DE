@@ -20,6 +20,8 @@ import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Used for Choice Facets.
@@ -28,6 +30,7 @@ import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
  * 
  */
 public class ChoiceFacetNode extends ContextualFacetNode {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ChoiceFacetNode.class);
 
 	/**
 	 * Create a TLContextual facet set to choice and use it to create this choice facet node.

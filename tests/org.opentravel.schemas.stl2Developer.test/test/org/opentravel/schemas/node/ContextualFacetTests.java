@@ -286,21 +286,13 @@ public class ContextualFacetTests {
 		// Inherited statements
 		//
 		assertTrue("Must be assignable.", cf.isAssignable());
-		// assertTrue("Must be assignable to complex.", cf.isComplexAssignable());
 		assertTrue("Must be valid parent to attributes.", cf.canOwn(PropertyNodeType.ATTRIBUTE));
 		assertTrue("Must be valid parent to elements.", cf.canOwn(PropertyNodeType.ELEMENT));
-		// if (OTM16Upgrade.otm16Enabled)
-		// assertTrue("Must be named entity.", cf.isNamedEntity());
-		// else
-		// assertFalse("Must NOT be named entity.", cf.isNamedEntity());
 
 		assertFalse("Must NOT be assignable to element ref", cf.isAssignableToElementRef());
 		assertFalse("Must NOT be assignable to simple.", cf.isAssignableToSimple());
 		assertFalse("Must NOT be assignable to simple.", cf.isSimpleAssignable());
 		assertFalse("Must NOT be assignable to VWA.", cf.isAssignableToVWA());
-		// assertFalse("Must NOT be default facet.", cf.isDefaultFacet());
-		// if (OTM16Upgrade.otm16Enabled == false)
-		// assertFalse("Must NOT be named type.", cf.isNamedEntity());
 
 		// Behaviors
 		//
@@ -320,7 +312,8 @@ public class ContextualFacetTests {
 			// Contributed/contextual relationship
 			ContributedFacetNode contrib = ((ContextualFacetNode) cf).getWhereContributed();
 			if (contrib != null) {
-				assertTrue(contrib.getContributor() == cf);
+				assertTrue("Must have contributor.", contrib.getContributor() == cf);
+				assertTrue("Must have parent.", contrib.getParent() != null);
 				assertTrue(contrib.getOwningComponent() instanceof ContextualFacetOwnerInterface);
 				// Not all owners are library members
 				assertTrue(contrib.getParent() instanceof ContextualFacetOwnerInterface);
@@ -330,17 +323,7 @@ public class ContextualFacetTests {
 					LOGGER.error("Can't find contributor: " + cf.getLocalName());
 				assertTrue(((Node) owner).findChildByName(cf.getLocalName()) != null);
 			}
-			// assertTrue(owner.getContextualFacets(true).contains(contrib));
 		}
-
-		// if (cf instanceof QueryFacetNode)
-		// checkFacet((QueryFacetNode) cf);
-		// else if (cf instanceof CustomFacetNode)
-		// checkFacet((CustomFacetNode) cf);
-		// else if (cf instanceof UpdateFacetNode)
-		// checkFacet((UpdateFacetNode) cf);
-		// else if (cf instanceof ChoiceFacetNode)
-		// checkFacet((ChoiceFacetNode) cf);
 	}
 
 	// Make sure contextual facets are not added to v15 aggregate nodes.
@@ -453,6 +436,42 @@ public class ContextualFacetTests {
 		// AttributeNode a1 = new AttributeNode(c1, "cAttr1");
 
 		OTM16Upgrade.otm16Enabled = false;
+	}
+
+	/**
+	 * Add contextual facets to contextual facets. Assure they are created and the contributed facets are managed
+	 * correctly.
+	 */
+	@Test
+	public void CF_setOwner_CF_Tests() {
+		OTM16Upgrade.otm16Enabled = true;
+		// Given - Choice Object in a library
+		ln = ml.createNewLibrary("http://www.test.com/test2", "test2", defaultProject);
+		ContextualFacetOwnerInterface choice1 = ml.addChoice(ln, "Choice1");
+
+		List<LibraryMemberInterface> libMbrs = ln.get_LibraryMembers();
+		List<AbstractContextualFacet> choice1Mbrs = choice1.getContextualFacets(false);
+		List<AbstractContextualFacet> cf1Mbrs = null;
+
+		// Given - 2 Choice facets
+		TLContextualFacet tlCF1 = ContextualFacetNode.createTL("CF1", TLFacetType.CHOICE);
+		TLContextualFacet tlCF2 = ContextualFacetNode.createTL("CF2", TLFacetType.CHOICE);
+		AbstractContextualFacet cf1 = new ChoiceFacetNode(tlCF1);
+		AbstractContextualFacet cf2 = new ChoiceFacetNode(tlCF2);
+
+		// When - TL facet added using AbstractContextualFacet setOwner method
+		cf1.setOwner(choice1);
+		cf2.setOwner(cf1);
+
+		// Then - contributor set and has parent
+		assert cf1.getWhereContributed() != null;
+		assert cf2.getWhereContributed() != null;
+		assertTrue("Must have parent", cf1.getWhereContributed().getParent() != null);
+		assertTrue("Must have parent", cf2.getWhereContributed().getParent() != null);
+
+		choice1Mbrs = choice1.getContextualFacets(false);
+		cf1Mbrs = cf1.getContextualFacets(false);
+		ml.check(ln);
 	}
 
 	/**

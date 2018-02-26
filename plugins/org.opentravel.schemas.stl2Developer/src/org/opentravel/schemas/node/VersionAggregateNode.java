@@ -120,4 +120,23 @@ public class VersionAggregateNode extends AggregateNode implements LibraryOwner 
 	public String getDecoration() {
 		return "Contains: ";
 	}
+
+	// /**
+	// * Get a new list of library members in this Nav Node.
+	// *
+	// * @return
+	// */
+	// @Override
+	// public List<LibraryMemberInterface> get_LibraryMembers() {
+	// List<LibraryMemberInterface> members = new ArrayList<LibraryMemberInterface>();
+	// for (Node ln : getChildren()) {
+	// members.addAll(ln.getDescendants_LibraryMembers());
+	// // if (n instanceof VersionNode && ((VersionNode) n).get() != null)
+	// // n = ((VersionNode) n).get();
+	// // if (n instanceof LibraryMemberInterface)
+	// // members.add((LibraryMemberInterface) n);
+	// }
+	// return members;
+	// }
+
 }

@@ -220,13 +220,14 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	// TODO - JUNIT - add test for ID/non-ID group behavior
 	public String[] getSubjectFacets() {
 		List<FacetInterface> facets = new ArrayList<FacetInterface>();
-		for (Node facet : getOwningComponent().getSubject().getChildren()) {
-			if (!(facet instanceof FacetInterface))
-				continue;
-			if (isIdGroup() && facet instanceof QueryFacetNode)
-				continue;
-			facets.add((FacetInterface) facet);
-		}
+		if (getOwningComponent().getSubject() != null)
+			for (Node facet : getOwningComponent().getSubject().getChildren()) {
+				if (!(facet instanceof FacetInterface))
+					continue;
+				if (isIdGroup() && facet instanceof QueryFacetNode)
+					continue;
+				facets.add((FacetInterface) facet);
+			}
 		int size = facets.size();
 		String[] fs = new String[size];
 		int i = 0;

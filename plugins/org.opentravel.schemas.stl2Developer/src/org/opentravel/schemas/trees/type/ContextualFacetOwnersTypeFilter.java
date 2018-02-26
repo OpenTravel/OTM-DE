@@ -20,8 +20,12 @@ import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemas.node.AggregateNode;
 import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,8 +77,16 @@ public class ContextualFacetOwnersTypeFilter extends TypeSelectionFilter {
 			final Node n = (Node) element;
 			if (n == thisNode)
 				return false;
-			if (n instanceof AggregateNode) // these extend NavNode
-				return n instanceof VersionAggregateNode;
+			if (n instanceof ProjectNode)
+				return doesOwn(n, type);
+			if (n instanceof LibraryNavNode)
+				return doesOwn(n, type);
+			if (n instanceof VersionAggregateNode)
+				return doesOwn(n, type);
+			if (n instanceof AggregateNode) // must test before NavNode because these extend NavNode
+				return false;
+			if (n instanceof LibraryNode)
+				return doesOwn(n, type);
 			if (n instanceof NavNode)
 				return ((NavNode) n).isComplexRoot();
 
@@ -85,4 +97,13 @@ public class ContextualFacetOwnersTypeFilter extends TypeSelectionFilter {
 		}
 		return false;
 	}
+
+	private boolean doesOwn(Node agg, TLFacetType type) {
+		for (LibraryMemberInterface lm : agg.getDescendants_LibraryMembers())
+			if (lm instanceof ContextualFacetOwnerInterface)
+				if (((ContextualFacetOwnerInterface) lm).canOwn(type))
+					return true;
+		return false;
+	}
+
 }

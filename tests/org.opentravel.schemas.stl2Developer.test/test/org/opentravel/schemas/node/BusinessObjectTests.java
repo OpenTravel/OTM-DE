@@ -154,7 +154,7 @@ public class BusinessObjectTests {
 			// ml.check(cf);
 		}
 
-		for (Node bo : lib.getDescendants_LibraryMemberNodes()) {
+		for (LibraryMemberInterface bo : lib.getDescendants_LibraryMembers()) {
 			if (bo instanceof BusinessObjectNode)
 				check((BusinessObjectNode) bo);
 		}
