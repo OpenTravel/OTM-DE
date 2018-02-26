@@ -426,6 +426,7 @@ public class FacetView extends OtmAbstractView {
 		if (target == null || target.isDeleted()) {
 			// LOGGER.warn("Posted deleted node: " + target);
 			clearTable();
+			mc.getFields().postField(nameField, "Deleted", false);
 			return;
 		}
 

@@ -19,11 +19,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.opentravel.schemas.node.AggregateNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VersionAggregateNode;
+import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeProviderAndOwners;
 
 /**
@@ -31,7 +33,7 @@ import org.opentravel.schemas.types.TypeProviderAndOwners;
  * 
  * @author S. Livezey
  */
-public abstract class TypeSelectionFilter extends ViewerFilter {
+public class TypeSelectionFilter extends ViewerFilter {
 
 	/**
 	 * Returns true if the given node is a valid selection for the type selection page.
@@ -40,7 +42,22 @@ public abstract class TypeSelectionFilter extends ViewerFilter {
 	 *            the node instance to evaluate
 	 * @return boolean
 	 */
-	public abstract boolean isValidSelection(Node n);
+	public boolean isValidSelection(Node n) {
+		return n instanceof TypeProvider;
+	}
+
+	@Override
+	public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
+		if (element instanceof Node) {
+			final Node n = (Node) element;
+			if (n instanceof VersionAggregateNode)
+				return true;
+			if (n instanceof AggregateNode) // must test before NavNode because these extend NavNode
+				return false;
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	 * Returns true if the given node has one or more immediate children that would be considered valid selections by

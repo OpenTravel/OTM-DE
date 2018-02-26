@@ -122,8 +122,11 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 				ContextualFacetOwnerInterface owner = askForNewCFOwner((ContextualFacetNode) done);
 				if (owner != null)
 					((ContextualFacetNode) done).setOwner(owner);
-				else
+				else {
 					done.delete();
+					mc.refresh(); // refresh everything.
+					return;
+				}
 			}
 		if (done != null) {
 			mc.refresh(done); // refresh everything.

@@ -37,6 +37,7 @@ import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.trees.type.BusinessObjectOnlyTypeFilter;
 import org.opentravel.schemas.trees.type.ContextualFacetOwnersTypeFilter;
 import org.opentravel.schemas.trees.type.CoreAndChoiceObjectOnlyTypeFilter;
+import org.opentravel.schemas.trees.type.TypeSelectionFilter;
 import org.opentravel.schemas.trees.type.TypeTreeIdReferenceTypeOnlyFilter;
 import org.opentravel.schemas.trees.type.TypeTreeSimpleAssignableOnlyFilter;
 import org.opentravel.schemas.trees.type.TypeTreeSimpleTypeOnlyFilter;
@@ -191,7 +192,8 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 					.get(0)));
 		else if (idReference)
 			selectionPage.setTypeSelectionFilter(new TypeTreeIdReferenceTypeOnlyFilter());
-
+		else
+			selectionPage.setTypeSelectionFilter(new TypeSelectionFilter());
 		selectionPage.addDoubleClickListener(this);
 		addPage(selectionPage);
 	}
