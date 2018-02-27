@@ -24,7 +24,9 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
 import org.opentravel.schemas.node.objectMembers.OperationNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.types.TypeUser;
@@ -98,12 +100,19 @@ public class UINode {
 	 */
 	public Collection<UINode> getConnectedAsTarget() {
 		List<UINode> ret = new ArrayList<UINode>();
-		if (node instanceof TypeProvider)
-			for (TypeUser u : ((TypeProvider) node).getWhereAssigned()) {
-				UINode uiTypeUser = owner.findUINode((Node) u);
-				if (uiTypeUser != null)
-					ret.add(uiTypeUser);
-			}
+		// If a contextual facet, find the contributor
+		if (node instanceof ContextualFacetNode) {
+			UINode uiCF = owner.findUINode(((ContextualFacetNode) node).getWhereContributed());
+			if (uiCF != null)
+				ret.add(uiCF);
+		} else {
+			if (node instanceof TypeProvider)
+				for (TypeUser u : ((TypeProvider) node).getWhereAssigned()) {
+					UINode uiTypeUser = owner.findUINode((Node) u);
+					if (uiTypeUser != null)
+						ret.add(uiTypeUser);
+				}
+		}
 		return ret;
 	}
 
@@ -112,9 +121,16 @@ public class UINode {
 	 */
 	public Collection<UINode> getConnectedAsSource() {
 		List<UINode> ret = new ArrayList<UINode>();
-		UINode uiTypeUser = owner.findUINode(node.getType());
-		if (uiTypeUser != null)
-			ret.add(uiTypeUser);
+		// If a contributor find the contextual facet
+		if (node instanceof ContributedFacetNode) {
+			UINode uiContributor = owner.findUINode(((ContributedFacetNode) node).getContributor());
+			if (uiContributor != null)
+				ret.add(uiContributor);
+		} else {
+			UINode uiTypeUser = owner.findUINode(node.getType());
+			if (uiTypeUser != null)
+				ret.add(uiTypeUser);
+		}
 		return ret;
 	}
 

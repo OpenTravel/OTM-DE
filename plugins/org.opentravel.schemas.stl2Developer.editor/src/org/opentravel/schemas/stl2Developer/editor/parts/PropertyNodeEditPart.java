@@ -33,6 +33,7 @@ import org.eclipse.gef.requests.CreationFactory;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.properties.Fonts;
 import org.opentravel.schemas.stl2Developer.editor.internal.Features;
 import org.opentravel.schemas.stl2Developer.editor.internal.GEFUtils;
@@ -64,12 +65,17 @@ public class PropertyNodeEditPart extends GenericEditPart<Node> implements Mouse
 	protected void refreshVisuals() {
 		getFigure().setImage(getNodeModel().getImage());
 		getFigure().setName(getNodeModel().getName());
-		getFigure().setType(getNodeModel().getTypeNameWithPrefix());
+		if (!(getNodeModel().getType() instanceof ImpliedNode))
+			getFigure().setType(getNodeModel().getTypeNameWithPrefix());
 		getFigure().setTypeImage(getModel().getTypeImage());
 		if (getModel().getNode().isInherited()) {
 			// TODO: move this to Features class
 			getFigure().setFont(Fonts.getFontRegistry().get(Fonts.inheritedItem));
 			getFigure().setForegroundColor(ColorConstants.darkBlue);
+		}
+		if (getNodeModel().isUnAssigned()) {
+			getFigure().setForegroundColor(ColorConstants.red);
+			getFigure().setType(getNodeModel().getTypeNameWithPrefix());
 		}
 		super.refreshVisuals();
 	}

@@ -71,7 +71,10 @@ public class TypeSelectionFilter extends ViewerFilter {
 		boolean hasValidChild = false;
 
 		if (n instanceof AggregateNode) // these extend NavNode
-			return n instanceof VersionAggregateNode;
+			if (n instanceof VersionAggregateNode)
+				return true;
+			else
+				return false;
 
 		// Only the top level member of an xsd type can be used.
 		if (n.isXsdType())

@@ -50,6 +50,7 @@ import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
+import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.ListFacetNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
@@ -407,8 +408,10 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 
 		OtmHandlers.suspendHandlers();
 		clearProperties(); // Clear the fields, and the propertyNode pointer
-
-		fields.postField(nameField, n.getName(), n.isRenameable());
+		if (n instanceof AbstractContextualFacet)
+			mc.getFields().postField(nameField, ((AbstractContextualFacet) n).getLocalName(), n.isRenameable());
+		else
+			fields.postField(nameField, n.getName(), n.isRenameable());
 		fields.postField(componentField, n.getComponentType(), false);
 		fields.postField(descField, n.getDescription(), n.isEditable_description());
 		fields.postField(nameSpaceField, n.getNamespace(), false);

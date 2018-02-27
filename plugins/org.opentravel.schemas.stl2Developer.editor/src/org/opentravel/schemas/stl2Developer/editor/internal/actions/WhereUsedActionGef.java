@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.eclipse.gef.ui.parts.AbstractEditPartViewer;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.stl2Developer.editor.model.Diagram.Position;
 import org.opentravel.schemas.stl2Developer.editor.model.UINode;
 import org.opentravel.schemas.types.TypeProvider;
@@ -39,12 +40,17 @@ public class WhereUsedActionGef extends ShowHideNodeAction {
 	protected List<Node> getNewNodes(UINode n) {
 		Node nn = n.getNode();
 		List<Node> usedNodes = new ArrayList<Node>();
+		// 2/27/18 dmh - added contextual facet owner
+		if (nn instanceof ContextualFacetNode)
+			if (((ContextualFacetNode) nn).getWhereContributed() != null)
+				usedNodes.add((Node) ((ContextualFacetNode) nn).getWhereContributed().getOwningComponent());
 		// Changed to use where assigned - 3/28/16 - dmh
 		if (nn instanceof TypeProvider) {
 			for (TypeUser u : ((TypeProvider) nn).getWhereAssigned())
 				usedNodes.add((Node) u);
-			return getOwningComponents(usedNodes);
 		}
+		if (!usedNodes.isEmpty())
+			return getOwningComponents(usedNodes);
 		return null;
 	}
 
@@ -52,6 +58,8 @@ public class WhereUsedActionGef extends ShowHideNodeAction {
 	protected boolean isValidSelection(List<UINode> nodes) {
 		for (UINode n : nodes) {
 			Node nn = n.getNode();
+			if (nn instanceof ContextualFacetNode)
+				return ((ContextualFacetNode) nn).getWhereContributed() != null;
 			if (nn instanceof TypeProvider)
 				if (!((TypeProvider) nn).getWhereAssigned().isEmpty())
 					return true;

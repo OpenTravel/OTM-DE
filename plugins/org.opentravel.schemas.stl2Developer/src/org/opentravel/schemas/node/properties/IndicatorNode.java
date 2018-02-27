@@ -68,6 +68,14 @@ public class IndicatorNode extends PropertyNode {
 		return false;
 	}
 
+	/**
+	 * @return true if this node could be assigned a type but is unassigned.
+	 */
+	@Override
+	public boolean isUnAssigned() {
+		return false;
+	}
+
 	@Override
 	public INode createProperty(Node type) {
 		TLIndicator tlClone = (TLIndicator) cloneTLObj();

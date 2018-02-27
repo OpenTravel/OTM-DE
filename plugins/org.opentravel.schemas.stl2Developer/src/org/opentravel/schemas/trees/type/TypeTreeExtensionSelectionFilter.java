@@ -50,7 +50,8 @@ public class TypeTreeExtensionSelectionFilter extends TypeSelectionFilter {
 
 	@Override
 	public boolean isValidSelection(Node n) {
-		boolean isValid = n.isNavigation();
+		boolean isValid = false;
+		// boolean isValid = n.isNavigation();
 		if (!exNode) {
 			if (n instanceof LibraryMemberInterface)
 				isValid = filterNode.getClass().equals(n.getClass());

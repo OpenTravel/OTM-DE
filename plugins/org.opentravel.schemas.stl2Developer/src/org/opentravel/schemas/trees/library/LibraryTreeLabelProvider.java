@@ -27,6 +27,7 @@ import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
+import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.properties.Fonts;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.slf4j.Logger;
@@ -38,6 +39,8 @@ public class LibraryTreeLabelProvider extends LabelProvider implements IFontProv
 
 	@Override
 	public String getText(final Object element) {
+		if (element instanceof AbstractContextualFacet)
+			return ((AbstractContextualFacet) element).getName();
 		if (element instanceof Node)
 			return ((Node) element).getNavigatorName();
 		return "Unknown object type.";
@@ -85,7 +88,6 @@ public class LibraryTreeLabelProvider extends LabelProvider implements IFontProv
 			else if (n.isDeprecated())
 				color = OtmRegistry.getMainWindow().getColorProvider().getColor(SWT.COLOR_DARK_MAGENTA);
 			else if (n instanceof InheritedInterface)
-				// else if (n.isInherited() || NodeUtils.checker(n).isInheritedFacet().get())
 				color = OtmRegistry.getMainWindow().getColorProvider().getColor(SWT.COLOR_DARK_BLUE);
 			else if (!n.isEditable())
 				color = OtmRegistry.getMainWindow().getColorProvider().getColor(SWT.COLOR_DARK_GRAY);
@@ -106,11 +108,7 @@ public class LibraryTreeLabelProvider extends LabelProvider implements IFontProv
 
 	@Override
 	public StyledString getStyledText(Object element) {
-		// if (element instanceof INode) {
-		// if (!((INode) element).isDeleted())
 		return new StyledString(getText(element));
-		// }
-		// return new StyledString(getText(element) + " (Deleted)");
 	}
 
 }

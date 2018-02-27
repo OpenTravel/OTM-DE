@@ -436,8 +436,11 @@ public class FacetView extends OtmAbstractView {
 
 		try {
 			setButtonState(target);
-
-			mc.getFields().postField(nameField, node.getName(), node.isRenameable());
+			if (node instanceof AbstractContextualFacet)
+				mc.getFields().postField(nameField, ((AbstractContextualFacet) node).getLocalName(),
+						node.isRenameable());
+			else
+				mc.getFields().postField(nameField, node.getName(), node.isRenameable());
 			mc.getFields().postField(typeField, node.getComponentType(), false);
 			mc.getFields().postField(extendsField, node.getExtendsTypeName(), false);
 
