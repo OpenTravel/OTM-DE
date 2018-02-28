@@ -752,8 +752,12 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 		if (this.contains((Node) lm))
 			return; // early exit - already a member
 
-		if (!(lm instanceof InheritedInterface))
-			getTLLibrary().addNamedMember((LibraryMember) lm.getTLModelObject());
+		// Add to the TL Library
+		if (!getTLLibrary().getNamedMembers().contains(lm.getTLModelObject()))
+			if (!(lm instanceof InheritedInterface))
+				getTLLibrary().addNamedMember((LibraryMember) lm.getTLModelObject());
+
+		lm.setLibrary(this);
 
 		if (getChain() != null)
 			getChain().add((ComponentNode) lm);

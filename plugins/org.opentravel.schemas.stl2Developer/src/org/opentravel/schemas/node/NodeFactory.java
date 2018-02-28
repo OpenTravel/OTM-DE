@@ -49,6 +49,7 @@ import org.opentravel.schemacompiler.model.XSDElement;
 import org.opentravel.schemacompiler.model.XSDSimpleType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -190,6 +191,8 @@ public class NodeFactory {
 					baseNode = cf;
 
 		}
+		if (((ExtensionOwner) base).getExtensionBase() != null)
+			LOGGER.debug("Must Search base too.");
 		assert baseNode instanceof ContributedFacetNode;
 		if (baseNode == null)
 			return null;

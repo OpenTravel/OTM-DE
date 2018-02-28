@@ -93,42 +93,58 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 	 * @return newly created node or null if user cancelled or error.
 	 */
 	public ComponentNode createVersionExtension(Node selectedNode) {
-		ComponentNode actOnNode = null; // The node to perform the action on.
-		FacetInterface selectedFacet = null;
 		boolean result = false;
-		if (selectedNode.getChain() == null)
+		ComponentNode actOnNode = null; // The node created by versioning the passed node.
+		FacetInterface selectedFacet = null;
+		VersionedObjectInterface selectedOwner = null;
+		if (selectedNode.getOwningComponent() instanceof VersionedObjectInterface)
+			selectedOwner = (VersionedObjectInterface) selectedNode.getOwningComponent();
+
+		if (selectedNode.isEditable_inService()) {
+			// services are unversioned so just return the selected node
+			if (selectedNode.getLibrary().getChain().getHead() == selectedNode.getLibrary())
+				actOnNode = (ComponentNode) selectedNode;
+			else
+				actOnNode = new OperationNode((ServiceNode) selectedNode.getLibrary().getServiceRoot().getChildren()
+						.get(0), "newOperation");
+			// TESTME - if the service is not in the head then create a new service in the head
+			return actOnNode;
+		}
+
+		if (selectedOwner == null) {
+			LOGGER.warn(selectedNode + " Owner " + selectedOwner + " is not a versioned object ");
 			return null;
-
-		if (selectedNode.isInHead())
+		}
+		if (selectedNode.getChain() == null) {
+			LOGGER.warn(selectedNode + " is not in a versioned library chain.");
+			return null;
+		}
+		if (selectedNode.isInHead()) {
 			LOGGER.warn("No version extension needed, " + selectedNode + " is already in head library.");
+			return null;
+		}
 
+		// Do patch version if head of chain is patch
 		if (selectedNode.getChain().getHead().isPatchVersion()) {
 			// Will always be in a different library or else it is a ExtensionPoint facet.
 			if (!(selectedNode instanceof ExtensionPointNode)) {
 				if (result = postConfirm("action.component.version.patch", selectedNode))
 					actOnNode = ((ComponentNode) selectedNode).createPatchVersionComponent();
-			}
+			} else
+				DialogUserNotifier.openWarning("Warning", "Can not create patch version of " + selectedNode);
 
+			return actOnNode;
 		}
 
-		// If a major minor version, create a new object of same type and add base link to this.
-		else if (selectedNode.getChain().getHead().isMinorOrMajorVersion()) {
-			if (selectedNode instanceof FacetInterface) {
-				// Hold onto for later and use the owner to create versioned component
+		// Do a minor version if the head is a minor or major version
+		if (selectedNode.getChain().getHead().isMinorOrMajorVersion()) {
+			// Hold onto for later and use the owner to create versioned component
+			if (selectedNode instanceof FacetInterface)
 				selectedFacet = (FacetInterface) selectedNode;
-				selectedNode = (Node) selectedNode.getOwningComponent();
-			}
-			if (selectedNode instanceof VersionedObjectInterface) {
-				if (result = postConfirm("action.component.version.minor", selectedNode))
-					actOnNode = ((VersionedObjectInterface) selectedNode).createMinorVersionComponent();
-			} else if (selectedNode.isEditable_inService())
-				// services are unversioned so just return the selected node
-				if (selectedNode.getLibrary().getChain().getHead() == selectedNode.getLibrary())
-					actOnNode = (ComponentNode) selectedNode;
-				else
-					actOnNode = new OperationNode((ServiceNode) selectedNode.getLibrary().getServiceRoot()
-							.getChildren().get(0), "newOperation");
-			// TESTME - if the service is not in the head then create a new service in the head
+
+			// Confirm with the user then create a new object of same type and add base link to this.
+			if (result = postConfirm("action.component.version.minor", selectedNode))
+				actOnNode = selectedOwner.createMinorVersionComponent();
 		}
 
 		if (actOnNode == null && result == true)

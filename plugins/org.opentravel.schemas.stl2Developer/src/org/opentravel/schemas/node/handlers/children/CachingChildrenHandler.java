@@ -214,7 +214,10 @@ public abstract class CachingChildrenHandler<C extends Node, O extends Node> ext
 	 */
 	protected void initInherited() {
 		initRunning = true;
-		inheritedOwner = owner.getExtendsType();
+		if (owner.getOwningComponent().isVersioned())
+			LOGGER.debug("ToDo - Get inherited from version.");
+		if (inheritedOwner == null)
+			inheritedOwner = owner.getExtendsType();
 		if (inheritedOwner != null)
 			inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
 		else

@@ -28,22 +28,22 @@ import org.eclipse.gef.requests.SelectionRequest;
  */
 public class GEFUtils {
 
-    @SuppressWarnings("unchecked")
-    public static <T> List<T> extractModels(List<EditPart> selection, Class<T> clazz) {
-        List<T> nodes = new ArrayList<T>(selection.size());
-        for (EditPart ep : selection) {
-            Object model = ep.getModel();
-            if (clazz.isAssignableFrom(model.getClass())) {
-                nodes.add((T) model);
-            }
-        }
-        return nodes;
-    }
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> extractModels(List<EditPart> selection, Class<T> clazz) {
+		List<T> nodes = new ArrayList<T>(selection.size());
+		for (EditPart ep : selection) {
+			Object model = ep.getModel();
+			if (clazz.isAssignableFrom(model.getClass())) {
+				nodes.add((T) model);
+			}
+		}
+		return nodes;
+	}
 
-    public static EditPart getEditPartToSelect(EditPart ep) {
-        SelectionRequest req = new SelectionRequest();
-        req.setType(RequestConstants.REQ_SELECTION);
-        return ep.getTargetEditPart(req);
-    }
+	public static EditPart getEditPartToSelect(EditPart ep) {
+		SelectionRequest req = new SelectionRequest();
+		req.setType(RequestConstants.REQ_SELECTION);
+		return ep != null ? ep.getTargetEditPart(req) : null;
+	}
 
 }

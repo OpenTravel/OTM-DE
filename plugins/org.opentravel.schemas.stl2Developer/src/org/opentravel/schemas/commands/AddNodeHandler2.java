@@ -134,6 +134,8 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 				if (targetNode instanceof PropertyNode)
 					targetNode = (ComponentNode) targetNode.getParent();
 
+				// FIXME - OMNode is wrong class!
+
 				// find matching facet
 				if (targetNode instanceof FacetOMNode)
 					for (Node n : newNode.getChildren())

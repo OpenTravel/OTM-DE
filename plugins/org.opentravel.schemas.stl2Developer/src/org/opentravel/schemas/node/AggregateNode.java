@@ -153,7 +153,7 @@ public class AggregateNode extends NavNode {
 	/**
 	 * Does the child list contain the passed node.
 	 * <p>
-	 * Does <b>not</b> get the version node if an object is passed.
+	 * Simply checks if nodes is in array and does <b>not</b> get the version node if an object is passed.
 	 */
 	@Override
 	public boolean contains(Node node) {

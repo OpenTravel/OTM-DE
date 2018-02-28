@@ -181,7 +181,8 @@ public class FacetProviderNode extends FacetProviders implements Sortable {
 	}
 
 	/**
-	 * Use the owning component to find the extension base. Then find the child with the same type.
+	 * Use the owning component to find the extension base. Then find the child with the same type. Will <b>not</b> find
+	 * inherited facet from version base.
 	 */
 	@Override
 	public Node getExtendsType() {

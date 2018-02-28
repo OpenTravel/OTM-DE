@@ -361,6 +361,12 @@ public abstract class ComponentNode extends Node {
 		return true;
 	}
 
+	/**
+	 * Create a minor version of the object using the MinorVersionHelper. New object is added to the head TL Library.
+	 * 
+	 * @param node
+	 * @return new TL LibraryMember or null
+	 */
 	protected LibraryMember createMinorTLVersion(VersionedObjectInterface node) {
 		MinorVersionHelper helper = new MinorVersionHelper();
 		Versioned v = null;
@@ -377,24 +383,22 @@ public abstract class ComponentNode extends Node {
 
 	// newNode is the node constructed from the TL object returned from createMinorTLVersion()
 	protected ComponentNode createMinorVersionComponent(ComponentNode newNode) {
+
 		assert !getOwningComponent().isInHead();
 		// assert newNode instanceof ExtensionOwner;
-		// TODO - should resource be an extension owner? Is it versioned that way?
-		// 3/2/2017 - resources are not versioned via gui
-		// if (newNode.getTLModelObject() instanceof TLEmpty) {
 		if (newNode instanceof ImpliedNode) {
 			LOGGER.debug("Empty minor version created");
 			return null;
 		}
 		Node owner = (Node) this.getOwningComponent();
 		owner.getLibrary().checkExtension(owner);
-
 		// exit if it is already in the head of the chain.
 		if (owner.isInHead())
 			return null;
 
 		if (newNode instanceof ExtensionOwner)
 			((ExtensionOwner) newNode).setExtension(owner);
+
 		if (newNode.getName() == null || newNode.getName().isEmpty())
 			newNode.setName(owner.getName()); // Some of the version handlers do not set name
 
@@ -402,10 +406,24 @@ public abstract class ComponentNode extends Node {
 		LibraryChainNode chain = owner.getChain();
 		if (newNode instanceof LibraryMemberInterface)
 			chain.getHead().addMember((LibraryMemberInterface) newNode);
-		chain.getComplexAggregate().getChildren().remove(owner);
+
+		// Removed - What does this do? They are the same version nodes for new and owner nodes
+		// chain.getComplexAggregate().getChildren().remove(owner);
 
 		owner.getLibrary().checkExtension(owner);
 		// TODO - should old properties be set to inherited?
+
+		// Final check
+		assert newNode.getParent() != null;
+		assert chain.getHead().contains(newNode);
+		assert chain.getComplexAggregate().contains(newNode.getVersionNode());
+		// This should fail -- same version node!
+		// assert !chain.getComplexAggregate().contains(owner.getVersionNode());
+		assert newNode.getVersionNode().get() == newNode; // assure version node updated
+		if (this.getExtendsType() == null)
+			assert newNode.getExtendsType() == null; // does not report version extension
+		assert ((ExtensionOwner) newNode).getExtensionBase() == owner;
+
 		return newNode;
 	}
 

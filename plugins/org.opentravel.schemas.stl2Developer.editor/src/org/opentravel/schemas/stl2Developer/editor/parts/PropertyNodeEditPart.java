@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.Display;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.properties.Fonts;
+import org.opentravel.schemas.stl2Developer.editor.commands.HideNodeCommand;
 import org.opentravel.schemas.stl2Developer.editor.internal.Features;
 import org.opentravel.schemas.stl2Developer.editor.internal.GEFUtils;
 import org.opentravel.schemas.stl2Developer.editor.model.Diagram;
@@ -89,6 +90,13 @@ public class PropertyNodeEditPart extends GenericEditPart<Node> implements Mouse
 	public void mousePressed(MouseEvent me) {
 		Node newNode = getNodeModel().getType();
 		Command command = getCreateCommand(newNode);
+
+		// if New Node is already displayed ( uiType is not null), hide command
+		UINode uiType = getModel().getOwner().findUINode(newNode);
+		if (uiType != null)
+			command = new HideNodeCommand(newNode, getModel().getOwner());
+
+		command.setDebugLabel("From PropertyNodeEditPart");
 		if (command != null && command.canExecute()) {
 			getViewer().getEditDomain().getCommandStack().execute(command);
 			selectNode(newNode);
@@ -114,9 +122,10 @@ public class PropertyNodeEditPart extends GenericEditPart<Node> implements Mouse
 						((ComponentNodeEditPart) toSelecteEP).expand();
 					}
 				}
-				getViewer().reveal(toSelecteEP);
-				getViewer().select(toSelecteEP);
-
+				if (toSelecteEP != null) {
+					getViewer().reveal(toSelecteEP);
+					getViewer().select(toSelecteEP);
+				}
 			}
 		});
 
