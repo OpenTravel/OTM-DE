@@ -320,7 +320,7 @@ public class ExtensionInheritancePage extends WizardPage implements TypeSelectio
 		TLFacet owningFacet = null;
 
 		if (tlProperty instanceof TLProperty) {
-			TLPropertyOwner propOwner = ((TLProperty) tlProperty).getPropertyOwner();
+			TLPropertyOwner propOwner = ((TLProperty) tlProperty).getOwner();
 
 			if (propOwner instanceof TLFacet) {
 				owningFacet = (TLFacet) propOwner;

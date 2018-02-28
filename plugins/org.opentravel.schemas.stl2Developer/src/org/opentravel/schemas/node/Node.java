@@ -653,6 +653,9 @@ public abstract class Node implements INode {
 		if (isDeprecated())
 			decoration += " (Deprecated)";
 
+		if (this instanceof InheritedInterface)
+			decoration += "  Inherited from " + getInheritedFrom().getNameWithPrefix();
+
 		// Extension
 		if (this instanceof ExtensionOwner) {
 			String extensionTxt = "";

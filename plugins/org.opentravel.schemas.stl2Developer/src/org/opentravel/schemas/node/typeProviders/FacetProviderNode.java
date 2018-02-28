@@ -197,6 +197,24 @@ public class FacetProviderNode extends FacetProviders implements Sortable {
 		return (Node) baseFacet;
 	}
 
+	/**
+	 * Get the version base from the parent then find this facet's match
+	 * 
+	 * @return
+	 */
+	public FacetInterface getVersionBase() {
+		if (this instanceof AbstractContextualFacet)
+			return null; // should override
+		FacetInterface baseFacet = null;
+		if (getOwningComponent().getVersionNode() != null) {
+			Node baseOwner = getOwningComponent().getVersionNode().getPreviousVersion();
+			// Works for non-contextual facets
+			if (baseOwner instanceof FacetOwners)
+				baseFacet = ((FacetOwners) baseOwner).getFacet(this.getTLModelObject().getFacetType());
+		}
+		return baseFacet;
+	}
+
 	@Override
 	public TLFacetType getFacetType() {
 		return getTLModelObject() != null ? getTLModelObject().getFacetType() : null;

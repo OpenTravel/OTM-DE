@@ -33,6 +33,7 @@ import org.opentravel.schemas.node.properties.EnumLiteralNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacet15Node;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
 import org.opentravel.schemas.node.typeProviders.InheritedContextualFacetNode;
 import org.opentravel.schemas.node.typeProviders.TypeProviders;
 import org.opentravel.schemas.trees.library.LibraryTreeContentProvider;
@@ -162,6 +163,12 @@ public abstract class CachingChildrenHandler<C extends Node, O extends Node> ext
 		return Collections.emptyList();
 	}
 
+	// Override if inheritance is supported
+	// @Override
+	public Node getInheritedOwner_TL() {
+		return null;
+	}
+
 	@SuppressWarnings("unchecked")
 	private C getOrModel(TLModelElement t) {
 		C node = null;
@@ -214,10 +221,16 @@ public abstract class CachingChildrenHandler<C extends Node, O extends Node> ext
 	 */
 	protected void initInherited() {
 		initRunning = true;
-		if (owner.getOwningComponent().isVersioned())
-			LOGGER.debug("ToDo - Get inherited from version.");
+
+		// Facets can inherit from ExtendsType or Version
+		if (owner instanceof FacetProviderNode)
+			if (((FacetProviderNode) owner).getVersionBase() != owner)
+				inheritedOwner = (Node) ((FacetProviderNode) owner).getVersionBase();
+
+		// If not from version, then try extension
 		if (inheritedOwner == null)
 			inheritedOwner = owner.getExtendsType();
+
 		if (inheritedOwner != null)
 			inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
 		else
