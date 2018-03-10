@@ -72,10 +72,16 @@ public class QueryFacetNode extends ContextualFacetNode {
 
 	@Override
 	protected void removeFromTLParent() {
+		if (getTLModelObject() == null)
+			return;
 		if (getTLModelObject().getOwningEntity() instanceof TLBusinessObject)
 			((TLBusinessObject) getTLModelObject().getOwningEntity()).removeQueryFacet(getTLModelObject());
 		else if (getTLModelObject().getOwningEntity() instanceof TLContextualFacet)
 			((TLContextualFacet) getTLModelObject().getOwningEntity()).removeChildFacet(getTLModelObject());
+		getTLModelObject().setOwningEntityName("");
+
+		assert getTLModelObject().getOwningEntity() == null;
+
 	}
 
 }

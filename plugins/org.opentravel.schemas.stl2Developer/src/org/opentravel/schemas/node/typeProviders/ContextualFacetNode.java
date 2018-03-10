@@ -94,9 +94,9 @@ public abstract class ContextualFacetNode extends AbstractContextualFacet implem
 			setWhereContributed(contrib);
 		}
 
-		// FIXME - should have owning entity but does not when entity is another contextual facet
-		if (tlObj.getOwningEntity() == null)
-			LOGGER.debug("Error - tlContextualFacet without owning entity: ", tlObj.getOwningEntityName());
+		// // FIXME - should have owning entity but does not when entity is another contextual facet
+		// if (tlObj.getOwningEntity() == null)
+		// LOGGER.debug("Error - tlContextualFacet without owning entity: ", tlObj.getOwningEntityName());
 
 	}
 
@@ -126,11 +126,16 @@ public abstract class ContextualFacetNode extends AbstractContextualFacet implem
 			owner.getLibrary().addMember(this);
 
 		// Create the contributed facet
-		new ContributedFacetNode(this.getTLModelObject(), owner);
+		ContributedFacetNode contrib = new ContributedFacetNode(this.getTLModelObject(), owner);
 		//
 		// Make sure the owner refreshes its children
 		if (owner != null && ((LibraryMemberInterface) owner).getChildrenHandler() != null)
 			((Node) owner).getChildrenHandler().clear();
+
+		assert contrib != null;
+		assert contrib.getContributor() == this;
+		assert owner.getContributedFacets().contains(contrib);
+		assert owner.getContextualFacets(false).contains(this);
 	}
 
 	/**

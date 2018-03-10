@@ -24,6 +24,7 @@ import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.properties.Messages;
@@ -116,17 +117,12 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 			if (n instanceof ResourceNode) {
 				destination.copyMember((LibraryMemberInterface) n);
 				done = n.getLibrary();
+			} else if (n instanceof ContributedFacetNode) {
+				// Contextual facets need to ask the user where to inject
+				done = importNode(((ContributedFacetNode) n).getContributor(), destination);
 			} else if (n instanceof ContextualFacetNode) {
-				done = (Node) destination.copyMember((ContextualFacetNode) n);
-				// Find candidates for new facet owner
-				ContextualFacetOwnerInterface owner = askForNewCFOwner((ContextualFacetNode) done);
-				if (owner != null)
-					((ContextualFacetNode) done).setOwner(owner);
-				else {
-					done.delete();
-					mc.refresh(); // refresh everything.
-					return;
-				}
+				// Contextual facets need to ask the user where to inject
+				done = importNode((ContextualFacetNode) n, destination);
 			}
 		if (done != null) {
 			mc.refresh(done); // refresh everything.
@@ -189,6 +185,27 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 		selectImportedNodesInNavigation(importedNodesMap);
 		mc.postStatus("Imported " + eligibleForImporting.size() + " types to " + destination);
 		mc.refresh(destination); // refresh everything.
+	}
+
+	/**
+	 * Copy the passed contextual facet and add to destination library. Ask the user which object to inject upon.
+	 * 
+	 * @param n
+	 * @param destination
+	 * @return new node or null if error or cancel
+	 */
+	private Node importNode(ContextualFacetNode n, LibraryNode destination) {
+		Node done = null;
+		if (n != null) {
+			done = (Node) destination.copyMember(n);
+			// Find candidates for new facet owner
+			ContextualFacetOwnerInterface owner = askForNewCFOwner((ContextualFacetNode) done);
+			if (owner != null)
+				((ContextualFacetNode) done).setOwner(owner);
+			else
+				done.delete();
+		}
+		return done;
 	}
 
 	/**

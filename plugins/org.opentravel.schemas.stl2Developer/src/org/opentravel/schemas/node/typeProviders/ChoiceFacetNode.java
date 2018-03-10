@@ -83,12 +83,16 @@ public class ChoiceFacetNode extends ContextualFacetNode {
 
 	@Override
 	protected void removeFromTLParent() {
+		if (getTLModelObject() == null)
+			return;
+
 		if (getTLModelObject().getOwningEntity() instanceof TLChoiceObject)
 			((TLChoiceObject) getTLModelObject().getOwningEntity()).removeChoiceFacet(getTLModelObject());
 		else if (getTLModelObject().getOwningEntity() instanceof TLContextualFacet)
 			((TLContextualFacet) getTLModelObject().getOwningEntity()).removeChildFacet(getTLModelObject());
 		if (getParent() != null)
 			getParent().getChildrenHandler().clear();
+		getTLModelObject().setOwningEntityName("");
 	}
 
 }

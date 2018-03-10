@@ -77,10 +77,13 @@ public class UpdateFacetNode extends ContextualFacetNode {
 
 	@Override
 	protected void removeFromTLParent() {
+		if (getTLModelObject() == null)
+			return;
 		if (getTLModelObject().getOwningEntity() instanceof TLBusinessObject)
 			((TLBusinessObject) getTLModelObject().getOwningEntity()).removeUpdateFacet(getTLModelObject());
 		else if (getTLModelObject().getOwningEntity() instanceof TLContextualFacet)
 			((TLContextualFacet) getTLModelObject().getOwningEntity()).removeChildFacet(getTLModelObject());
+		getTLModelObject().setOwningEntityName("");
 	}
 
 }

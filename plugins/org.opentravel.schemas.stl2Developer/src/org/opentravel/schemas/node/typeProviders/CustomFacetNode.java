@@ -19,6 +19,7 @@ import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 
 /**
@@ -41,11 +42,12 @@ public class CustomFacetNode extends ContextualFacetNode {
 
 	@Override
 	protected void addToTLParent(ContextualFacetOwnerInterface owner) {
-		if (owner == null || owner.getTLModelObject() == null)
-			return;
-		TLFacetOwner tlOwner = owner.getTLModelObject();
 		if (getTLModelObject() == null)
 			return;
+		if (owner == null || owner.getTLModelObject() == null)
+			return;
+
+		TLFacetOwner tlOwner = owner.getTLModelObject();
 		if (tlOwner instanceof TLBusinessObject)
 			((TLBusinessObject) tlOwner).addCustomFacet(getTLModelObject());
 		else if (tlOwner instanceof TLContextualFacet)
@@ -53,6 +55,11 @@ public class CustomFacetNode extends ContextualFacetNode {
 		// Make sure the owner refreshes its children
 		if (owner.getChildrenHandler() != null)
 			owner.getChildrenHandler().clear();
+
+		getTLModelObject().setOwningEntity(tlOwner);
+		getTLModelObject().setOwningEntityName(((Node) owner).getNameWithPrefix());
+		assert getTLModelObject().getOwningEntity() == owner.getTLModelObject();
+		assert !getTLModelObject().getOwningEntityName().isEmpty();
 	}
 
 	@Override
@@ -80,5 +87,6 @@ public class CustomFacetNode extends ContextualFacetNode {
 			((TLBusinessObject) getTLModelObject().getOwningEntity()).removeCustomFacet(getTLModelObject());
 		else if (getTLModelObject().getOwningEntity() instanceof TLContextualFacet)
 			((TLContextualFacet) getTLModelObject().getOwningEntity()).removeChildFacet(getTLModelObject());
+		getTLModelObject().setOwningEntityName("");
 	}
 }
