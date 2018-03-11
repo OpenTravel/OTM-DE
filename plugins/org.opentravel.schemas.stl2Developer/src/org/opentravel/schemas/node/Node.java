@@ -89,6 +89,7 @@ import org.opentravel.schemas.node.properties.IValueWithContextHandler;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
+import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.ContextualFacet15Node;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
@@ -842,6 +843,18 @@ public abstract class Node implements INode {
 				ret.addAll(n.getDescendants_SimpleMembers());
 		}
 		return ret;
+	}
+
+	/**
+	 * Get all resources in the model.
+	 */
+	public List<ResourceNode> getDescendants_Resources() {
+		final ArrayList<ResourceNode> resources = new ArrayList<ResourceNode>();
+		for (final LibraryNode ln : getModelNode().getLibraries())
+			for (final Node n : ln.getResourceRoot().getChildren())
+				if (n instanceof ResourceNode)
+					resources.add((ResourceNode) n);
+		return resources;
 	}
 
 	/*****************************************************************************

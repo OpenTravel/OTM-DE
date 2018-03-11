@@ -191,7 +191,7 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 
 	@Override
 	public LibraryNode getLibrary() {
-		return getOwningComponent().getLibrary();
+		return getOwningComponent() != null ? getOwningComponent().getLibrary() : null;
 	}
 
 	@Override

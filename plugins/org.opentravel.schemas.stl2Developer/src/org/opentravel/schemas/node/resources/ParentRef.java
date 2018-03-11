@@ -110,7 +110,7 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 
 		// Parameter Group
 		new ResourceField(fields, getParameterGroupName(), MSGKEY + ".parentParamGroup", ResourceFieldType.Enum,
-				new ParamGroupListener(), getParentResource().getParameterGroupNames(true));
+				new ParamGroupListener(), getParentParamGroupNames());
 
 		// Path Template - simple String
 		new ResourceField(fields, tlObj.getPathTemplate(), MSGKEY + ".pathTemplate",
@@ -137,6 +137,14 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 
 	public String getParameterGroupName() {
 		return tlObj.getParentParamGroupName();
+	}
+
+	private static final String[] EmptyStringArray = {};
+
+	public String[] getParentParamGroupNames() {
+		if (getParentResource() != null)
+			return getParentResource().getParameterGroupNames(true);
+		return EmptyStringArray;
 	}
 
 	public String getUrlContribution() {
@@ -174,7 +182,7 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 		String[] candidates = new String[list.size()];
 		int i = 0;
 		for (ResourceNode rn : list) {
-			candidates[i++] = rn.getName();
+			candidates[i++] = rn.getNameWithPrefix();
 		}
 		return candidates;
 	}
@@ -183,6 +191,7 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 		List<ResourceNode> candidates = new ArrayList<ResourceNode>();
 		for (Node rn : getOwningComponent().getSiblings())
 			candidates.add((ResourceNode) rn);
+		candidates.addAll(getModelNode().getDescendants_Resources());
 		return candidates;
 	}
 
@@ -195,8 +204,11 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 				: null;
 	}
 
+	/**
+	 * @return parent name with prefix
+	 */
 	public String getParentResourceName() {
-		return getParentResource() != null ? getParentResource().getName() : "";
+		return getParentResource() != null ? getParentResource().getNameWithPrefix() : "";
 	}
 
 	@Override
@@ -247,7 +259,7 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 	public void setParent(String name) {
 		ResourceNode parentResource = null;
 		for (ResourceNode p : getParentCandidates())
-			if (p.getName().equals(name))
+			if (p.getNameWithPrefix().equals(name))
 				parentResource = p;
 		if (parentResource != null) {
 			tlObj.setParentResource(parentResource.getTLModelObject());
