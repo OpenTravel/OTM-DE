@@ -131,7 +131,10 @@ public class WhereAssignedHandler {
 	 */
 	public List<TypeUserAssignmentListener> getAssignmentListeners(TypeUser user) {
 		List<TypeUserAssignmentListener> listeners = new ArrayList<TypeUserAssignmentListener>();
-		for (ModelElementListener l : user.getTLModelObject().getListeners())
+		Collection<ModelElementListener> userListeners = Collections.emptyList();
+		if (user != null && user.getTLModelObject() != null)
+			userListeners = user.getTLModelObject().getListeners();
+		for (ModelElementListener l : userListeners)
 			if (l instanceof TypeUserAssignmentListener)
 				listeners.add((TypeUserAssignmentListener) l);
 		assert listeners.size() < 2;

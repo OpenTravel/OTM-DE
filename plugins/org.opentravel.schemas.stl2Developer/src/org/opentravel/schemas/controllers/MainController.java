@@ -856,7 +856,13 @@ public class MainController {
 	 *         NavigatorView otherwise return empty list;
 	 */
 	public List<Node> getGloballySelectNodes() {
-		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		IWorkbenchPage page = null;
+		if (PlatformUI.getWorkbench() != null)
+			if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() != null)
+				page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		if (page == null)
+			return null;
+
 		IWorkbenchPart part = page.getActivePart();
 		// FYI- this works: IViewPart view = page.findView(NavigatorView.VIEW_ID);
 

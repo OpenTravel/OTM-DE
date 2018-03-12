@@ -222,8 +222,10 @@ public class LibraryModelManager {
 			// LOGGER.debug("Not used elsewhere...close. " + ((Node) lib).getName());
 			// If reached then the library is not used elsewhere
 			// Must remove parent for close to work
-			lib.setParent(null);
-			lib.closeLibraryInterface();
+			if (lib != null) {
+				lib.setParent(null);
+				lib.closeLibraryInterface();
+			}
 
 			// Remove from list
 			libraries.remove(lib);

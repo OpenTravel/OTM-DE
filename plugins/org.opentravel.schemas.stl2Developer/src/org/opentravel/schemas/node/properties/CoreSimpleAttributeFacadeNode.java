@@ -77,7 +77,7 @@ public class CoreSimpleAttributeFacadeNode extends SimpleAttributeFacadeNode {
 			return false;
 		NamedEntity ne = null;
 		if (simpleType == null || !(simpleType instanceof NamedEntity))
-			ne = (NamedEntity) emptyNode.getTLModelObject();
+			ne = (NamedEntity) getEmptyNode().getTLModelObject();
 		else
 			ne = (NamedEntity) simpleType;
 		getTLModelObject().setSimpleType(ne);

@@ -132,9 +132,6 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 	private void addOverlay(Node node, IDecoration decoration) {
 		if (node instanceof InheritedInterface)
 			return;
-		// if (node instanceof LibraryInterface)
-		// if ( ((LibraryInterface)node).getWhereUsedCount() == 0)
-		// decoration.addOverlay(warningDesc, IDecoration.BOTTOM_LEFT);
 		ValidationFindings findings = ValidationManager.validate(node);
 		if (findings != null)
 			if (!ValidationManager.isValid(findings, FindingType.ERROR))

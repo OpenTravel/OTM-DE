@@ -178,7 +178,6 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 
 		// Owner has a specific required type.
 		if (owner.getRequiredType() != null) {
-			// target = owner.getRequiredType();
 			return false;
 		}
 		if (oldProvider == target) {
@@ -191,26 +190,27 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 				return false;
 		}
 
-		// Make any corrections need to the target
-		//
-		if (target == null)
-			target = ModelNode.getUnassignedNode();
+		// Skip if "Unassigned" in an attempt to preserve actual assignment even if that library is not loaded.
+		if (target == null || target == ModelNode.getUnassignedNode())
+			return false;
 
 		// Get the tl object
 		TLModelElement tlTarget = target.getTLModelObject();
+
+		// Make any corrections need to the target
 		// Compiler wants the actual XSD type not the tlSimple for XSD types.
 		if (target.getLibrary() != null && target.getLibrary().isBuiltIn()
 				&& target.getLibrary().getNamespace().equals(XMLConstants.W3C_XML_SCHEMA_NS_URI))
 			if (target.getXsdObjectHandler() != null)
 				tlTarget = target.getXsdObjectHandler().getTLLibraryMember(); // get srcTL not builtTL
-		assert tlTarget != null;
 
-		// Let the node handle assigning to the TL object
+		// Let the node handle assigning to the TL object.
 		boolean result = owner.setAssignedType(tlTarget);
+
 		if (result) {
 			// Remove old type assignment
 			oldProvider.removeWhereAssigned(owner);
-			// // Add where used and type assignment listener
+			// Add where used and type assignment listener
 			target.addTypeUser(owner);
 		}
 
@@ -222,9 +222,6 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 						+ ((Node) get()).getNameWithPrefix());
 				return false;
 			}
-			// if (actual.getXsdObjectHandler() != null && actual.getXsdObjectHandler().getTLLibraryMember() ==
-			// tlTarget)
-			// LOGGER.debug("assigned an XSD type: " + result);
 		}
 
 		// LOGGER.debug("Assigned " + ((Node) target).getNameWithPrefix() + " to " + owner);

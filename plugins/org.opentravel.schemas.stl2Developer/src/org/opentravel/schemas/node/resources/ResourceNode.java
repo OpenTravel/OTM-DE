@@ -371,13 +371,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	@Override
 	public boolean setAssignedType(TLModelElement tlProvier) {
 		return false;
-		// throw new IllegalAccessError("Not Implemented.");
 	}
 
 	@Override
 	public boolean setAssignedType() {
 		return false;
-		// throw new IllegalAccessError("Not Implemented.");
 	}
 
 	public String getMsgKey() {

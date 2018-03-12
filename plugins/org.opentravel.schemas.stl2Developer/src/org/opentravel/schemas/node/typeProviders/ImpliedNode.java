@@ -62,11 +62,6 @@ public class ImpliedNode extends SimpleTypeProviders {
 		return "http://opentravel.org/ns/IMPLIED";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.Node#getNamePrefix()
-	 */
 	@Override
 	public String getPrefix() {
 		return "IMPLIED";
@@ -84,11 +79,6 @@ public class ImpliedNode extends SimpleTypeProviders {
 		return impliedType;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.ComponentNode#getAssignedName()
-	 */
 	@Override
 	public String getName() {
 		return impliedType.getImpliedNodeType();
@@ -215,9 +205,9 @@ public class ImpliedNode extends SimpleTypeProviders {
 
 	@Override
 	public TLLibraryMember getTLModelObject() {
+		if (impliedType != null && impliedType.equals(ImpliedNodeType.UnassignedType))
+			return null;
 		return (TLLibraryMember) tlObj;
-		// NamedEntity ne = (NamedEntity) modelObject.getTLModelObj();
-		// return (TLLibraryMember) ne;
 	}
 
 	@Override

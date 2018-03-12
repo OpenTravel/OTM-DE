@@ -127,6 +127,8 @@ public class ElementReferenceNode extends ElementNode {
 
 	@Override
 	public boolean setAssignedType(TLModelElement tla) {
+		if (tla == null)
+			return false; // Never override a saved type assignment
 		if (tla == getTLModelObject().getType())
 			return false;
 		if (canAssign(GetNode(tla)))
