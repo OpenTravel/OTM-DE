@@ -1621,6 +1621,9 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 
 	/**
 	 * Replace assignments to all users in the list with a type from this library with the same name.
+	 * 
+	 * @param users
+	 *            - list of type users to replace assigned types with types from this library
 	 */
 	public void replaceAllUsers(List<TypeUser> users) {
 		if (users == null || users.isEmpty())
@@ -1633,9 +1636,11 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 			candidates.put(p.getName(), p);
 
 		for (TypeUser user : users) {
-			user.setAssignedType(candidates.get(user.getAssignedType().getName()));
-			LOGGER.debug("assigned type " + user.getAssignedType().getName() + " to "
-					+ user.getOwningComponent().getName());
+			TypeProvider replacement = candidates.get(user.getAssignedType().getName());
+			if (replacement != null) {
+				user.setAssignedType(replacement);
+				LOGGER.debug("assigned type " + replacement + " to " + user);
+			}
 		}
 	}
 

@@ -71,7 +71,7 @@ public class VersionAction extends OtmAbstractAction {
 			if (!(node.getLibrary() instanceof LibraryNode))
 				return;
 			LibraryNode ln = node.getLibrary();
-			if (ln.getTLaLib().getOwningModel() == null)
+			if (ln.getTLModelObject().getOwningModel() == null)
 				return;
 
 			switch (versionType) {

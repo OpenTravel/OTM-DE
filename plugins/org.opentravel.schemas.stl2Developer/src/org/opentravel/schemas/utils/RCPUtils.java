@@ -99,6 +99,7 @@ public class RCPUtils {
 	 *            - A label for this item. For null value the label from command definition will be used.
 	 * @param tooltip
 	 *            - A tooltip for this item. For null value the description from command definition will be used.
+	 *            Tooltips are currently only valid for toolbar contributions.
 	 * @param icon
 	 *            - An icon for this item. May be null.
 	 * @return A contribution item represents a contribution to a shared UI resource such as a menu or tool bar for

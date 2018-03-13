@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeReferenceNode;
 import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.resources.ActionFacet;
@@ -37,6 +38,7 @@ import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.trees.type.BusinessObjectOnlyTypeFilter;
 import org.opentravel.schemas.trees.type.ContextualFacetOwnersTypeFilter;
 import org.opentravel.schemas.trees.type.CoreAndChoiceObjectOnlyTypeFilter;
+import org.opentravel.schemas.trees.type.LibraryOnlyTypeFilter;
 import org.opentravel.schemas.trees.type.TypeSelectionFilter;
 import org.opentravel.schemas.trees.type.TypeTreeIdReferenceTypeOnlyFilter;
 import org.opentravel.schemas.trees.type.TypeTreeSimpleAssignableOnlyFilter;
@@ -109,6 +111,7 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 		boolean resource = false;
 		boolean coreAndChoice = false;
 		boolean contextualFacet = false;
+		boolean libraries = false;
 
 		// TODO - should not be worried about if it is editable
 		// FIXME - how does a list of nodes impact the selection?
@@ -138,6 +141,8 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 						idReference = true;
 					else if (n instanceof ContextualFacetNode)
 						contextualFacet = true;
+					else if (n instanceof LibraryNode)
+						libraries = true;
 				}
 			}
 		}
@@ -158,6 +163,11 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 			pageName = Messages.getString("wizard.typeSelection.pageName.resource");
 			title = Messages.getString("wizard.typeSelection.title.resource");
 			description = Messages.getString("wizard.typeSelection.description.resource");
+		}
+		if (libraries) {
+			pageName = Messages.getString("wizard.typeSelection.pageName.library");
+			title = Messages.getString("wizard.typeSelection.title.library");
+			description = Messages.getString("wizard.typeSelection.description.library");
 		}
 		if (contextualFacet) {
 			if (setNodeList.get(0) instanceof ChoiceFacetNode) {
@@ -192,8 +202,11 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 					.get(0)));
 		else if (idReference)
 			selectionPage.setTypeSelectionFilter(new TypeTreeIdReferenceTypeOnlyFilter());
+		else if (libraries)
+			selectionPage.setTypeSelectionFilter(new LibraryOnlyTypeFilter());
 		else
 			selectionPage.setTypeSelectionFilter(new TypeSelectionFilter());
+
 		selectionPage.addDoubleClickListener(this);
 		addPage(selectionPage);
 	}

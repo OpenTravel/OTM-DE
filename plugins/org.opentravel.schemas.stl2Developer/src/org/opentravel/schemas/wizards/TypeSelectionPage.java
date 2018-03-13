@@ -48,6 +48,7 @@ import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.XSDLibrary;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
 import org.opentravel.schemas.node.typeProviders.SimpleComponentNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
@@ -169,7 +170,10 @@ public class TypeSelectionPage extends WizardPage {
 			name.setText(curNode.getName());
 
 		final Label label = new Label(container, SWT.NULL);
-		label.setText("Object:");
+		if (curNode instanceof LibraryNode)
+			label.setText("Library:");
+		else
+			label.setText("Object:");
 
 		typeText = WidgetFactory.createText(container, SWT.BORDER);
 		typeText.setLayoutData(gridData);
@@ -178,8 +182,11 @@ public class TypeSelectionPage extends WizardPage {
 
 		// Namespace field
 		final Label nsLabel = new Label(container, SWT.NULL);
-		nsLabel.setText("Type Namespace:");
-		nameSpace = WidgetFactory.createText(container, SWT.BORDER);
+		if (curNode instanceof LibraryNode)
+			nsLabel.setText("Library Namespace:");
+		else
+			nsLabel.setText("Type Namespace:");
+		nameSpace = WidgetFactory.createText(container, SWT.BORDER | SWT.READ_ONLY);
 		nameSpace.setLayoutData(gridData);
 		nameSpace.addKeyListener(new TypeKeyListener());
 
@@ -190,9 +197,11 @@ public class TypeSelectionPage extends WizardPage {
 		descriptionText.setLayoutData(gridData);
 
 		// Tree filter by namespace
-		final Label l2 = new Label(container, SWT.NULL);
-		l2.setText("Show namespaces:");
-		radioButtons(container);
+		if (!(curNode instanceof LibraryNode)) {
+			final Label l2 = new Label(container, SWT.NULL);
+			l2.setText("Show namespaces:");
+			radioButtons(container);
+		}
 
 		// Type Tree
 		// typeTree = new TypeTree(Node.getModelNode(), typeTreeContentProvider);

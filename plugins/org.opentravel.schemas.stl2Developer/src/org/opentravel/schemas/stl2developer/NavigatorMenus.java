@@ -64,6 +64,7 @@ import org.opentravel.schemas.actions.UnlockLibraryAction;
 import org.opentravel.schemas.actions.VersionAction;
 import org.opentravel.schemas.actions.VersionAction.VersionType;
 import org.opentravel.schemas.commands.AddNodeHandler2;
+import org.opentravel.schemas.commands.ChangeTypeProviderLibraryHandler;
 import org.opentravel.schemas.commands.CloseLibrariesHandler;
 import org.opentravel.schemas.commands.CloseProjectHandler;
 import org.opentravel.schemas.commands.CompileHandler;
@@ -215,8 +216,11 @@ public class NavigatorMenus extends TreeViewer {
 		final Action newProjectAction = new NewProjectAction();
 		final IContributionItem compileCommand = RCPUtils.createCommandContributionItem(site,
 				CompileHandler.COMMAND_ID, null, null, null);
+
 		final IContributionItem versionUpdateCommand = RCPUtils.createCommandContributionItem(site,
 				VersionUpdateHandler.COMMAND_ID, null, null, null);
+		final IContributionItem changeProviderLibraryCommand = RCPUtils.createCommandContributionItem(site,
+				ChangeTypeProviderLibraryHandler.COMMAND_ID, null, null, null);
 
 		final IContributionItem saveAllLibrariesCommand = RCPUtils.createCommandContributionItem(site,
 				SaveLibrariesHandler.COMMAND_ID, null, null, SaveLibrariesHandler.getIcon());
@@ -270,6 +274,7 @@ public class NavigatorMenus extends TreeViewer {
 				libraryMenu.add(closeLibrariesCommand);
 
 				versionUpdateMenu.add(versionUpdateCommand);
+				versionUpdateMenu.add(changeProviderLibraryCommand);
 
 				projectMenu.removeAll();
 				projectMenu.add(closeProjectCommand);
@@ -418,6 +423,7 @@ public class NavigatorMenus extends TreeViewer {
 						manager.add(whereUsedMenu);
 					} else if (node instanceof LibraryProviderNode) {
 						manager.add(versionUpdateCommand);
+						manager.add(changeProviderLibraryCommand);
 					} else if (node instanceof ProjectNode || node instanceof LibraryNode
 							|| node instanceof LibraryNavNode || node instanceof LibraryChainNode
 							|| node instanceof NavNode) {
