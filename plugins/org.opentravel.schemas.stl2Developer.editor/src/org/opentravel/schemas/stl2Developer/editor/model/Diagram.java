@@ -242,6 +242,11 @@ public class Diagram implements LayoutListener {
 		}
 	}
 
+	/**
+	 * Add node to the registry.
+	 * 
+	 * @param uiNode
+	 */
 	public void register(UINode uiNode) {
 		if (!registeredNodes.containsKey(uiNode.getNode()))
 			registeredNodes.put(uiNode.getNode(), uiNode);

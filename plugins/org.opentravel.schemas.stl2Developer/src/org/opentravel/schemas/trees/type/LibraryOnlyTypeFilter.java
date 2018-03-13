@@ -54,6 +54,7 @@ public class LibraryOnlyTypeFilter extends TypeSelectionFilter {
 
 		if (n instanceof LibraryInterface)
 			return true;
+
 		if (n instanceof AggregateNode) // these extend NavNode
 			return n instanceof VersionAggregateNode;
 

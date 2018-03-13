@@ -31,6 +31,7 @@ import org.eclipse.gef.editpolicies.LayoutEditPolicy;
 import org.eclipse.gef.requests.CreateRequest;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
 import org.opentravel.schemas.stl2Developer.editor.model.Connection;
 import org.opentravel.schemas.stl2Developer.editor.model.UINode;
 import org.opentravel.schemas.stl2Developer.editor.policies.ParentSelectionPolicy;
@@ -44,138 +45,143 @@ import org.opentravel.schemas.trees.library.LibraryTreeLabelProvider;
  */
 public class ComponentNodeEditPart extends GenericEditPart<ComponentNode> {
 
-    public ComponentNodeEditPart(UINode model) {
-        super(model);
-    }
+	public ComponentNodeEditPart(UINode model) {
+		super(model);
+	}
 
-    public final static LibraryTreeLabelProvider LABEL_PROVIDER = new LibraryTreeLabelProvider();
+	public final static LibraryTreeLabelProvider LABEL_PROVIDER = new LibraryTreeLabelProvider();
 
-    @Override
-    protected IFigure createFigure() {
-        ExpandGraphLabel e = new ExpandGraphLabel();
-        e.addExpandListener(new IExpandListener() {
+	@Override
+	protected IFigure createFigure() {
+		ExpandGraphLabel e = new ExpandGraphLabel();
+		e.addExpandListener(new IExpandListener() {
 
-            @Override
-            public void expanded() {
-                getModel().getOwner().publish(getModel(), "expand", false, true);
-            }
+			@Override
+			public void expanded() {
+				getModel().getOwner().publish(getModel(), "expand", false, true);
+			}
 
-            @Override
-            public void collapsed() {
-                getModel().getOwner().publish(getModel(), "expand", true, false);
-            }
-        });
-        return e;
+			@Override
+			public void collapsed() {
+				getModel().getOwner().publish(getModel(), "expand", true, false);
+			}
+		});
+		return e;
 
-    }
+	}
 
-    @Override
-    protected void createEditPolicies() {
-        super.createEditPolicies();
-        installEditPolicy(EditPolicy.LAYOUT_ROLE, new ChildrenDecorationPolicy());
-    }
+	@Override
+	protected void createEditPolicies() {
+		super.createEditPolicies();
+		installEditPolicy(EditPolicy.LAYOUT_ROLE, new ChildrenDecorationPolicy());
+	}
 
-    class ChildrenDecorationPolicy extends LayoutEditPolicy {
+	class ChildrenDecorationPolicy extends LayoutEditPolicy {
 
-        @Override
-        protected EditPolicy createChildEditPolicy(EditPart child) {
-            return new ParentSelectionPolicy();
-        }
+		@Override
+		protected EditPolicy createChildEditPolicy(EditPart child) {
+			return new ParentSelectionPolicy();
+		}
 
-        @Override
-        protected Command getCreateCommand(CreateRequest request) {
-            return null;
-        }
+		@Override
+		protected Command getCreateCommand(CreateRequest request) {
+			return null;
+		}
 
-        @Override
-        protected Command getMoveChildrenCommand(Request request) {
-            return null;
-        }
+		@Override
+		protected Command getMoveChildrenCommand(Request request) {
+			return null;
+		}
 
-    }
+	}
 
-    @Override
-    public void performRequest(Request req) {
-        if (RequestConstants.REQ_OPEN.equals(req.getType())) {
-            getFigure().toogleAll();
-        }
-    }
+	@Override
+	public void performRequest(Request req) {
+		if (RequestConstants.REQ_OPEN.equals(req.getType())) {
+			getFigure().toogleAll();
+		}
+	}
 
-    @Override
-    protected void refreshVisuals() {
-        getFigure().setText(LABEL_PROVIDER.getText(getNodeModel()));
-        getFigure().setImage(LABEL_PROVIDER.getImage(getNodeModel()));
-        if (getModelChildren().isEmpty()) {
-            getFigure().getTitle().setBackgroundColor(null);
-            getFigure().hideExpanedSymbol();
-        } else {
-            if (!(getParent() instanceof DiagramEditPart))
-                getFigure().getTitle().setBackgroundColor(ColorConstants.lightGray);
-            getFigure().showExpanedSymbol();
-        }
-        super.refreshVisuals();
-    }
+	@Override
+	protected void refreshVisuals() {
+		// TODO - update provider to supply prefix
+		// getFigure().setText(LABEL_PROVIDER.getText(getNodeModel()));
+		getFigure().setText(getNodeModel().getNameWithPrefix());
+		getFigure().setImage(LABEL_PROVIDER.getImage(getNodeModel()));
+		if (getModelChildren().isEmpty()) {
+			getFigure().getTitle().setBackgroundColor(null);
+			getFigure().hideExpanedSymbol();
+		} else {
+			if (!(getParent() instanceof DiagramEditPart))
+				getFigure().getTitle().setBackgroundColor(ColorConstants.lightGray);
+			getFigure().showExpanedSymbol();
+		}
+		if (getNodeModel() instanceof ContributedFacetNode)
+			getFigure().setForegroundColor(ColorConstants.red);
 
-    @Override
-    public ExpandGraphLabel getFigure() {
-        return (ExpandGraphLabel) super.getFigure();
-    }
+		super.refreshVisuals();
+	}
 
-    public static Label newLabel(Node node) {
-        return new Label(LABEL_PROVIDER.getText(node), LABEL_PROVIDER.getImage(node));
-    }
+	@Override
+	public ExpandGraphLabel getFigure() {
+		return (ExpandGraphLabel) super.getFigure();
+	}
 
-    @Override
-    public IFigure getContentPane() {
-        return getFigure().getContainer();
-    }
+	public static Label newLabel(Node node) {
+		return new Label(LABEL_PROVIDER.getText(node), LABEL_PROVIDER.getImage(node));
+	}
 
-    @Override
-    protected void addChildVisual(EditPart childEditPart, int index) {
-        IFigure child = ((GraphicalEditPart) childEditPart).getFigure();
-        if (child instanceof ExpandGraphLabel) {
-            ((ExpandGraphLabel) child).getTitle().setBackgroundColor(ColorConstants.lightGray);
-        }
-        child.setBorder(null);
-        super.addChildVisual(childEditPart, index);
-    }
+	@Override
+	public IFigure getContentPane() {
+		return getFigure().getContainer();
+	}
 
-    @Override
-    protected void refreshSourceConnections() {
-        super.refreshSourceConnections();
-        if (children != null) {
-            for (Object o : children) {
-                ((EditPart) o).refresh();
-            }
-        }
-    }
+	@Override
+	protected void addChildVisual(EditPart childEditPart, int index) {
+		IFigure child = ((GraphicalEditPart) childEditPart).getFigure();
+		if (child instanceof ExpandGraphLabel) {
+			((ExpandGraphLabel) child).getTitle().setBackgroundColor(ColorConstants.lightGray);
+		}
+		child.setBorder(null);
+		super.addChildVisual(childEditPart, index);
+	}
 
-    @Override
-    protected void refreshTargetConnections() {
-        super.refreshTargetConnections();
-    }
+	@Override
+	protected void refreshSourceConnections() {
+		super.refreshSourceConnections();
+		if (children != null) {
+			for (Object o : children) {
+				((EditPart) o).refresh();
+			}
+		}
+	}
 
-    @Override
-    protected List<Connection> getModelSourceConnections() {
-        List<Connection> connections = new ArrayList<Connection>();
-        connections.addAll(super.getModelSourceConnections());
-        return connections;
-    }
+	@Override
+	protected void refreshTargetConnections() {
+		super.refreshTargetConnections();
+	}
 
-    public void expand() {
-        getModel().getOwner().setListenersEnabled(false);
-        getFigure().expandAllChildren();
-        getModel().getOwner().setListenersEnabled(true);
-        // fire up expand event
-        getFigure().expand();
-    }
+	@Override
+	protected List<Connection> getModelSourceConnections() {
+		List<Connection> connections = new ArrayList<Connection>();
+		connections.addAll(super.getModelSourceConnections());
+		return connections;
+	}
 
-    public void collapse() {
-        getModel().getOwner().setListenersEnabled(false);
-        getFigure().collapseAllChildren();
-        getModel().getOwner().setListenersEnabled(true);
-        // fire up collapse event
-        getFigure().collapse();
-    }
+	public void expand() {
+		getModel().getOwner().setListenersEnabled(false);
+		getFigure().expandAllChildren();
+		getModel().getOwner().setListenersEnabled(true);
+		// fire up expand event
+		getFigure().expand();
+	}
+
+	public void collapse() {
+		getModel().getOwner().setListenersEnabled(false);
+		getFigure().collapseAllChildren();
+		getModel().getOwner().setListenersEnabled(true);
+		// fire up collapse event
+		getFigure().collapse();
+	}
 
 }

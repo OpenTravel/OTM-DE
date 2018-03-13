@@ -33,6 +33,8 @@ import org.eclipse.gef.requests.CreationFactory;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.properties.ElementNode;
+import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.properties.Fonts;
 import org.opentravel.schemas.stl2Developer.editor.commands.HideNodeCommand;
@@ -66,9 +68,29 @@ public class PropertyNodeEditPart extends GenericEditPart<Node> implements Mouse
 	protected void refreshVisuals() {
 		getFigure().setImage(getNodeModel().getImage());
 		getFigure().setName(getNodeModel().getName());
-		if (!(getNodeModel().getType() instanceof ImpliedNode))
-			getFigure().setType(getNodeModel().getTypeNameWithPrefix());
+
+		if (!(getNodeModel().getType() instanceof ImpliedNode)) {
+			// For properties, show the type and cardinality
+			String typeText = getNodeModel().getTypeNameWithPrefix();
+			if (getNodeModel() instanceof PropertyNode) {
+				typeText += " - ";
+				if (((PropertyNode) getNodeModel()).isMandatory())
+					typeText += 1;
+				else
+					typeText += 0;
+				if (getNodeModel() instanceof ElementNode) {
+					typeText += " .. ";
+					int cnt = ((ElementNode) getNodeModel()).getRepeat();
+					if (cnt == 0)
+						typeText += "1";
+					else
+						typeText += cnt;
+				}
+			}
+			getFigure().setType(typeText);
+		}
 		getFigure().setTypeImage(getModel().getTypeImage());
+		getFigure().setForegroundColor(ColorConstants.black);
 		if (getModel().getNode().isInherited()) {
 			// TODO: move this to Features class
 			getFigure().setFont(Fonts.getFontRegistry().get(Fonts.inheritedItem));
