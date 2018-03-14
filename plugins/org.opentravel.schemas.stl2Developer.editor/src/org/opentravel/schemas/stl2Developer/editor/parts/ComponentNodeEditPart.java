@@ -104,9 +104,11 @@ public class ComponentNodeEditPart extends GenericEditPart<ComponentNode> {
 
 	@Override
 	protected void refreshVisuals() {
-		// TODO - update provider to supply prefix
-		// getFigure().setText(LABEL_PROVIDER.getText(getNodeModel()));
-		getFigure().setText(getNodeModel().getNameWithPrefix());
+		// TODO - fix/create provider to supply prefix
+		if (getNodeModel().isLibraryMember())
+			getFigure().setText(getNodeModel().getNameWithPrefix());
+		else
+			getFigure().setText(LABEL_PROVIDER.getText(getNodeModel()));
 		getFigure().setImage(LABEL_PROVIDER.getImage(getNodeModel()));
 		if (getModelChildren().isEmpty()) {
 			getFigure().getTitle().setBackgroundColor(null);

@@ -150,6 +150,12 @@ public class UINode {
 		}
 	}
 
+	/**
+	 * Get the owning component node.
+	 * 
+	 * @param node
+	 * @return
+	 */
 	public static Node getOwner(Node node) {
 		if (node instanceof OperationNode)
 			return node;
