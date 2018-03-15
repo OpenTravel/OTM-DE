@@ -262,16 +262,21 @@ public class BusinessObjectTests {
 		LoadFiles lf = new LoadFiles();
 		MockLibrary ml = new MockLibrary();
 
+		// Lib4 is in chain when run as a group
+		List<LibraryNode> libs = ModelNode.getLibraryModelManager().getUserLibraries();
+
 		LibraryNode ln = lf.loadFile4(mc);
+		assertTrue("Loaded lib must not be in chain.", !ln.isInChain());
+
 		LibraryChainNode lcn = new LibraryChainNode(ln); // Test in managed library
 		ln.setEditable(true);
 
 		BusinessObjectNode extendedBO = ml.addBusinessObjectToLibrary_Empty(ln, "ExtendedBO");
 		assertNotNull("Null object created.", extendedBO);
 
-		for (Node n : ln.getDescendants_LibraryMemberNodes())
+		for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode && n != extendedBO) {
-				extendedBO.setExtension(n);
+				extendedBO.setExtension((Node) n);
 				check((BusinessObjectNode) n);
 				check(extendedBO);
 			}

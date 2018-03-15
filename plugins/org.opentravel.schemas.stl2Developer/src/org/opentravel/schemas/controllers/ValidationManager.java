@@ -97,7 +97,9 @@ public class ValidationManager {
 		if (node.getLibrary().isBuiltIn())
 			return true; // skip built in libraries and their content
 		ValidationFindings findings = validate(node);
-		return findings != null && findings.count(FindingType.ERROR) == 0 ? true : false;
+		if (findings == null)
+			return true;
+		return findings.count(FindingType.ERROR) == 0 ? true : false;
 	}
 
 	/**

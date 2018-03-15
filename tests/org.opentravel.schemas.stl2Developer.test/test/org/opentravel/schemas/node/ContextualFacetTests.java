@@ -310,6 +310,7 @@ public class ContextualFacetTests {
 		//
 		if (OTM16Upgrade.otm16Enabled) {
 			// Contributed/contextual relationship
+			assertTrue("Contextual facet must be version 1.6 facet.", cf instanceof ContextualFacetNode);
 			ContributedFacetNode contrib = ((ContextualFacetNode) cf).getWhereContributed();
 			if (contrib != null) {
 				assertTrue("Must have contributor.", contrib.getContributor() == cf);

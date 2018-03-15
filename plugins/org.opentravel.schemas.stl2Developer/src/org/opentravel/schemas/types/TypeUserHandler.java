@@ -191,9 +191,11 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		}
 
 		// Skip if "Unassigned" in an attempt to preserve actual assignment even if that library is not loaded.
-		if (target == null || target == ModelNode.getUnassignedNode())
+		if (target == null || target == ModelNode.getUnassignedNode()) {
+			// Remove old type assignment
+			oldProvider.removeWhereAssigned(owner);
 			return false;
-
+		}
 		// Get the tl object
 		TLModelElement tlTarget = target.getTLModelObject();
 

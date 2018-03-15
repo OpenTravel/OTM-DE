@@ -109,18 +109,19 @@ public class TypeAssignmentTests {
 		for (Node child : facetNode.getChildren()) {
 			assert child instanceof TypeUser;
 			TypeUser user = (TypeUser) child;
-			// Assign to one type, none then a different one.
-			assertTrue("Is unassigned.", un.getWhereAssigned().contains(user));
-			assertTrue("Assure deprecated method works.", un.getWhereAssigned().contains(user));
+			assertTrue("Must be unassigned.", un.getWhereAssigned().contains(user));
 
+			// Assign to one type,
 			user.setAssignedType(so);
 			assertFalse("Is unassigned.", un.getWhereAssigned().contains(user));
 			assertTrue("Is assigned.", so.getWhereAssigned().contains(user));
 
+			// Assign none
 			user.setAssignedType();
-			assertFalse("Is unassigned.", so.getWhereAssigned().contains(user));
-			assertTrue("Is unassigned.", un.getWhereAssigned().contains(user));
+			assertFalse("Must not be assigned.", so.getWhereAssigned().contains(user));
+			// assertTrue("Is unassigned.", un.getWhereAssigned().contains(user));
 
+			// then assign a different one.
 			user.setAssignedType(ec);
 			assertFalse("Is assigned.", un.getWhereAssigned().contains(user));
 			assertTrue("Is assigned.", ec.getWhereAssigned().contains(user));

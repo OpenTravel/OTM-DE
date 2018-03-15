@@ -306,7 +306,7 @@ public class MockLibrary {
 		Assert.assertNotNull(ln);
 		LOGGER.debug("Adding one of each object type to " + ln + " with name root of " + nameRoot);
 
-		int initialCount = ln.getDescendants_LibraryMemberNodes().size();
+		int initialCount = ln.getDescendants_LibraryMembers().size();
 		int finalCount = initialCount;
 		if (ln.isEditable()) {
 			addBusinessObjectToLibrary(ln, nameRoot + "BO");
@@ -322,7 +322,7 @@ public class MockLibrary {
 			if (OTM16Upgrade.otm16Enabled)
 				addedCount += 4; // custom, query and choice facets
 			// List<Node> descendants = ln.getDescendants_LibraryMembers();
-			finalCount = ln.getDescendants_LibraryMemberNodes().size();
+			finalCount = ln.getDescendants_LibraryMembers().size();
 			Assert.assertEquals(addedCount + initialCount, finalCount);
 		} else
 			Assert.assertEquals(initialCount, finalCount);
@@ -441,7 +441,7 @@ public class MockLibrary {
 
 		// Add properties to shared facet
 		FacetInterface shared = choice.getSharedFacet();
-		new ElementNode(shared, "shared1" + name);
+		new ElementNode(shared, "shared1" + name, string);
 
 		// Add two choice facets
 		FacetInterface f1 = choice.addFacet("c1");
@@ -537,6 +537,7 @@ public class MockLibrary {
 		TypeProvider type = ((TypeProvider) NodeFinders.findNodeByName(XsdSTRING, ModelNode.XSD_NAMESPACE));
 		CoreObjectNode newNode = addCoreObjectToLibrary_Empty(ln, name);
 		new ElementNode(newNode.getFacet_Summary(), "TestElement" + name, type);
+		newNode.setAssignedType((TypeProvider) ModelNode.getEmptyNode());
 		newNode.getFacet_Role().add(name + "Role");
 		return newNode;
 	}
@@ -769,8 +770,10 @@ public class MockLibrary {
 		if (validate)
 			if (!node.isValid()) {
 				ValidationFindings findings = node.validate();
-				if (findings == null || findings.isEmpty())
+				if (findings == null || findings.isEmpty()) {
 					LOGGER.debug(node + " is not valid but has no findings.");
+					node.isValid();
+				}
 				if (node.getOwningComponent() == null)
 					LOGGER.debug("Null node owner - can't print validation findings.");
 				printValidationFindings((Node) node.getOwningComponent());

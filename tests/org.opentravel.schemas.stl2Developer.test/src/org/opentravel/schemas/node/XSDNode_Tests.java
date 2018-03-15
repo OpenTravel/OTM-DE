@@ -89,11 +89,12 @@ public class XSDNode_Tests extends BaseProjectTest {
 				// Will be the builtTL not srcTL
 				// assertTrue(st.getTLModelObject() == st.getXsdObjectHandler().getTLLibraryMember());
 
-				assertTrue(st.getRequiredType() == ModelNode.getUndefinedNode());
+				assertTrue("Required type for simple types must be null.", st.getRequiredType() == null);
+				// assertTrue(st.getRequiredType() == ModelNode.getUndefinedNode());
 				assertTrue(st.getAssignedType() == ModelNode.getUndefinedNode());
 				assertTrue(st.getAssignedTLObject() == null);
 				assertTrue(st.getAssignedTLNamedEntity() == null);
-				assertTrue(st.getAssignable() == null);
+				// assertTrue(st.getAssignable() == null);
 
 				assertTrue(st.getNamespace().equals("http://www.opentravel.org/OTM/Common/v0"));
 				assertTrue(st.getPrefix().equals("ota2"));

@@ -726,7 +726,11 @@
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			description="Update Type Users to new versions" id="org.opentravel.schemas.commands.VersionUpdate"
-			name="VersionUpdate">
+			name="Update to Newer Version">
+		</command>
+		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+			description="Update Type Providers to new library" id="org.opentravel.schemas.commands.ChangeProviderLibrary"
+			name="Change Provider Library">
 		</command>
 		<category id="org.opentravel.schemas.stl2Developer.command.category"
 			name="OTM-DE Editor">
@@ -1144,6 +1148,9 @@
 		</handler>
 		<handler class ="org.opentravel.schemas.commands.VersionUpdateHandler"
 			commandId="org.opentravel.schemas.commands.VersionUpdate">
+		</handler>
+		<handler class ="org.opentravel.schemas.commands.ChangeTypeProviderLibraryHandler"
+			commandId="org.opentravel.schemas.commands.ChangeProviderLibrary">
 		</handler>
 		<handler class="org.opentravel.schemas.commands.CloseProjectHandler"
 			commandId="org.opentravel.schemas.commands.CloseProject">

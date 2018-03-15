@@ -293,8 +293,16 @@ public class LibraryNodeTest extends BaseProjectTest {
 
 	@Test
 	public void Library_LoadTests() throws Exception {
+		// Library Manager has other libraries in it!
+		List<LibraryNode> startingLibs = ModelNode.getLibraryModelManager().getUserLibraries();
+		if (!startingLibs.isEmpty())
+			LOGGER.debug("Error - not starting with empty library manager.");
+
 		LoadFiles lf = new LoadFiles();
 		LibraryNode l1 = lf.loadFile1(mc);
+		List<LibraryNode> managedLibs = ModelNode.getLibraryModelManager().getUserLibraries();
+		// 4 libraries loaded // if (!managedLibs.isEmpty())
+		// LOGGER.debug("Error - not starting with empty library manager.");
 		ml.check(l1);
 
 		lf.loadFile2(mc);
@@ -320,10 +328,10 @@ public class LibraryNodeTest extends BaseProjectTest {
 
 		for (LibraryNode ln : Node.getAllUserLibraries()) {
 			// removeAllMembers(ln);
-			for (Node n : ln.getDescendants_LibraryMemberNodes()) {
+			for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers()) {
 				if (n instanceof ServiceNode)
 					LOGGER.debug("ready to remove service.");
-				ln.removeMember(n); // May change type assignments!
+				ln.removeMember((Node) n); // May change type assignments!
 			}
 			List<LibraryMemberInterface> dlmn = ln.getDescendants_LibraryMembers();
 			List<LibraryMemberInterface> dlm = ln.getDescendants_LibraryMembers();

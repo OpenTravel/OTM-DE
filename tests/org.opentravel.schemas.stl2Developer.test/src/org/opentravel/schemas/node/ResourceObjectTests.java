@@ -255,28 +255,32 @@ public class ResourceObjectTests {
 		ResourceNode productR = ml.addResource(productBO);
 		ResourceNode descR = ml.addResource(descBO);
 		// Given tests
-		assertTrue("Resource was created.", productR != null);
-		assertTrue("Resource was created.", orderR != null);
-		assertTrue("Resource was created.", resR != null);
+		assertTrue("Resource must have been created.", productR != null);
+		assertTrue("Resource must have been created.", orderR != null);
+		assertTrue("Resource must have been created.", resR != null);
+		assertTrue("Resource must have been created.", descR != null);
 		ml.check(ln, false);
 
 		checkActionURLs(resR, "Reservation");
 
 		// NOTE - library will be invalid because the parent params are not correct.
 		// When - reservation is set as parent on Order as done in the GUI
-		orderR.toggleParent(resR.getName());
+		orderR.toggleParent(resR.getNameWithPrefix());
 		ParentRef parentRef = orderR.getParentRef();
 		parentRef.setParamGroup("ID");
 		parentRef.setPathTemplate("/Reservations/{reservationId}");
 
 		// Then - orders has reservation as parent
-		assertTrue("Parent reference is OK.", orderR.getParentRef().getParentResource() == resR);
+		// List<TLResourceParentRef> tlRefs = orderR.getTLModelObject().getParentRefs();
+		// ParentRef pref = orderR.getParentRef();
+		// ResourceNode presource = orderR.getParentRef().getParentResource();
+		assertTrue("Parent reference must be to resR.", orderR.getParentRef().getParentResource() == resR);
 		String resContribution = orderR.getParentRef().getUrlContribution();
 		assertTrue("Parent has URL path contribution.", !resContribution.isEmpty());
 		checkActionURLs(orderR, "Reservation");
 
 		// When - order is set as parent to product
-		productR.setParentRef(orderR.getName(), "ID");
+		productR.setParentRef(orderR.getNameWithPrefix(), "ID");
 		productR.getParentRef().setPathTemplate("/Orders/{orderId}");
 
 		// Then - product has orders as parent
@@ -286,7 +290,7 @@ public class ResourceObjectTests {
 		checkActionURLs(productR, "Reservation");
 
 		// When - product is set as parent to description
-		descR.setParentRef(productR.getName(), "ID");
+		descR.setParentRef(productR.getNameWithPrefix(), "ID");
 		descR.getParentRef().setPathTemplate("/Products/{productId}");
 
 		// Then - description has product as parent
@@ -314,11 +318,11 @@ public class ResourceObjectTests {
 		ResourceNode interactionR = ml.addResource(interactionBO);
 		ResourceNode archiveR = ml.addResource(archiveBO);
 
-		orderR.setParentRef(resR.getName(), "ID");
+		orderR.setParentRef(resR.getNameWithPrefix(), "ID");
 		orderR.getParentRef().setPathTemplate("/Reservations/{resId}");
-		resR.setParentRef(interactionR.getName(), "ID");
+		resR.setParentRef(interactionR.getNameWithPrefix(), "ID");
 		resR.getParentRef().setPathTemplate("/Interactions/{interactionId}");
-		resR.setParentRef(archiveR.getName(), "ID");
+		resR.setParentRef(archiveR.getNamespaceWithPrefix(), "ID");
 		resR.getParentRef().setPathTemplate("/Archives/{archiveId}");
 
 		// FIXME
@@ -361,7 +365,7 @@ public class ResourceObjectTests {
 		LibraryNode ln = ml.createNewLibrary_Empty(defaultProject.getNamespace(), "ResourceTestLib", defaultProject);
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "InnerObject");
 		ResourceNode resource = ml.addResource(bo);
-		assertTrue("Resource was created.", resource != null);
+		assertTrue("Resource must have been created.", resource != null);
 		ml.check(ln, false); // Will not be valid
 		assert resource.getInheritedChildren().isEmpty();
 
@@ -397,14 +401,14 @@ public class ResourceObjectTests {
 		BusinessObjectNode parentBO = ml.addBusinessObjectToLibrary(ln, "ParentBO");
 
 		ResourceNode resource = ml.addResource(bo);
-		assertTrue("Resource was created.", resource != null);
+		assertTrue("Resource must have been created.", resource != null);
 		ml.check(ln, false); // Will not be valid
 
 		// Given a second resource
 		ResourceNode parentResource = ml.addResource(parentBO);
 
 		// When - parent resource is set on resource with paramGroup
-		ParentRef parentRef = resource.setParentRef(parentResource.getName(), "ID");
+		ParentRef parentRef = resource.setParentRef(parentResource.getNameWithPrefix(), "ID");
 
 		// Then - there is a parent contribution
 		assertTrue("Parent makes URL contribution.", !parentRef.getUrlContribution().isEmpty());
