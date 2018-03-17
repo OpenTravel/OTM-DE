@@ -44,6 +44,7 @@ import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
+import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
 import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
@@ -326,11 +327,22 @@ public class Delete_Tests extends BaseProjectTest {
 	@Test
 	public void deleteObjects() {
 		// Given - test setup
-		// When - library created
 		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", testProject);
-		// Then
+		ml.addOneOfEach(ln, "DelTst");
 		assertTrue(ln != null);
 		assertTrue(ln.getParent() instanceof LibraryNavNode);
+		assertTrue("Library must have members.", !ln.get_LibraryMembers().isEmpty());
+		assertTrue("TL Library must have members.", !ln.getTLModelObject().getNamedMembers().isEmpty());
+
+		// When - Each member is deleted
+		List<LibraryMemberInterface> members = ln.get_LibraryMembers();
+		for (LibraryMemberInterface member : members) {
+			member.delete();
+		}
+
+		// Then
+		assertTrue("Library must have no members.", ln.get_LibraryMembers().isEmpty());
+		assertTrue("TL Library must have no members.", ln.getTLModelObject().getNamedMembers().isEmpty());
 	}
 
 	@Test
@@ -412,6 +424,9 @@ public class Delete_Tests extends BaseProjectTest {
 
 		// Delete the simple type and assure the assigned types on properties are correct.
 		((Node) simpleType).delete();
+		TypeProvider t = ele.getAssignedType();
+		// TODO - what should be done with deleted types?
+		// When the user explicitly deletes a type, then change assignments, otherwise?
 		assertTrue("Must be unassigned.", ele.getAssignedType() == ModelNode.getUnassignedNode());
 		assertTrue("Must be unassigned.", attr.getAssignedType() == ModelNode.getUnassignedNode());
 		assertTrue("Must be 0.", simpleType.getWhereAssignedCount() == 0);
@@ -553,19 +568,37 @@ public class Delete_Tests extends BaseProjectTest {
 
 	@Test
 	public void deleteResource() throws Exception {
-		// FIXME
+		// Given - test setup
+		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", testProject);
+		BusinessObjectNode rbo = ml.addBusinessObject_ResourceSubject(ln, "rbo");
+		ResourceNode resource = ml.addResource(rbo);
+
+		ml.check(ln);
+		assertTrue("Library must have resource.", ln.get_LibraryMembers().contains(resource));
+		assertTrue("TL Library must have resource.",
+				ln.getTLModelObject().getNamedMembers().contains(resource.getTLModelObject()));
+
+		// When - Each member is deleted
+		List<LibraryMemberInterface> members = ln.get_LibraryMembers();
+		for (LibraryMemberInterface member : members) {
+			member.delete();
+		}
+
+		// Then
+		assertTrue("Library must have no members.", ln.get_LibraryMembers().isEmpty());
+		assertTrue("TL Library must have no members.", ln.getTLModelObject().getNamedMembers().isEmpty());
 	}
 
-	@Test
-	public void deleteFamily() throws Exception {
-		// RENAME - library in multiple projects
-		// See DefaultLibraryControllerTests
-		// Given 2 projects
-		// Given same library opened in both projects
-		// 1 node shared across projects
-		// delete one from project A and the other is not deleted
-		// delete one from project B and the other is not deleted
-	}
+	// @Test
+	// public void deleteFamily() throws Exception {
+	// // RENAME - library in multiple projects
+	// // See DefaultLibraryControllerTests
+	// // Given 2 projects
+	// // Given same library opened in both projects
+	// // 1 node shared across projects
+	// // delete one from project A and the other is not deleted
+	// // delete one from project B and the other is not deleted
+	// }
 
 	/**
 	 * Run the tests against test library files.

@@ -313,7 +313,7 @@ public class WhereAssignedHandler {
 		replace(replacement, scopeLibrary);
 	}
 
-	public WhereUsedNode getWhereUsedNode() {
+	public WhereUsedNode<?> getWhereUsedNode() {
 		return whereUsedNode;
 	}
 

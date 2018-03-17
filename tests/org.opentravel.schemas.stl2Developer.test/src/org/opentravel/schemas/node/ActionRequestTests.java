@@ -228,19 +228,21 @@ public class ActionRequestTests {
 		// Then -
 	}
 
+	final static String BASEPATH = "BasePath";
+
 	@Test
 	public void AR_basePathTests() {
 		// Given -
 		// When - created by the resource builder
 		ResourceNode newR = runBuilder(baseBo);
-		String basePath = "BasePath";
-		newR.setBasePath(basePath);
-		List<ActionRequest> requests = getRequests(newR);
+		// When - base path assigned to resource
+		newR.setBasePath(BASEPATH);
 
-		// When -
 		// Then -
+		List<ActionRequest> requests = getRequests(newR);
 		for (ActionRequest rq : requests) {
-			assertTrue("Must contain base path.", rq.getURL().contains(basePath));
+			String bp = rq.getURL();
+			assertTrue("Request URL must contain base path.", bp.contains(BASEPATH));
 		}
 	}
 

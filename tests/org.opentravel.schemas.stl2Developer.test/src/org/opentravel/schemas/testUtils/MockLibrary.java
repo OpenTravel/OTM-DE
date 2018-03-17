@@ -351,6 +351,13 @@ public class MockLibrary {
 
 	}
 
+	/**
+	 * Create business object suitable for use as a resource subject.
+	 * 
+	 * @param ln
+	 * @param name
+	 * @return
+	 */
 	public BusinessObjectNode addBusinessObject_ResourceSubject(LibraryNode ln, String name) {
 		for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers())
 			if (n.getName().equals(name)) {

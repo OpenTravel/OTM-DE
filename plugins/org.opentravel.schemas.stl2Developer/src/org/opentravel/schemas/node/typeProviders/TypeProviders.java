@@ -116,6 +116,15 @@ public abstract class TypeProviders extends ComponentNode implements TypeProvide
 		return lm;
 	}
 
+	@Override
+	public void deleteTL() {
+		if (getTLModelObject() instanceof LibraryMember)
+			((LibraryMember) getTLModelObject()).getOwningLibrary().removeNamedMember(
+					(LibraryMember) getTLModelObject());
+		else
+			LOGGER.debug("Unable to delete tl model object for: " + this);
+	}
+
 	@Deprecated
 	// TODO - add the inherited flag
 	public List<AbstractContextualFacet> getContextualFacets() {

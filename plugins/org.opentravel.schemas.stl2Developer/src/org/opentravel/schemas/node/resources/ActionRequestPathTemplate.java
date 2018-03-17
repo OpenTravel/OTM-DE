@@ -98,23 +98,44 @@ class ActionRequestPathTemplate {
 		return tmp;
 	}
 
+	private ResourceNode getResource() {
+		if (owner != null)
+			if (owner.getParent() != null)
+				if (owner.getParent().getParent() instanceof ResourceNode)
+					return (ResourceNode) owner.getParent().getParent();
+		return null;
+	}
+
 	public String getURL() {
 		String url = "";
+
+		// Assure base path starts with slash and ends without slash
+		String basePath = getResource().getBasePath();
+		if (!basePath.startsWith("/"))
+			basePath = "/" + basePath;
+		if (url.endsWith("/"))
+			url = url.substring(0, url.length() - 1);
+
 		String thisPart = get();
 		String parentPart = owner.getParent().getParentContribution();
+
 		// contribution can be just this part
 		if (thisPart.equals(parentPart))
 			parentPart = "";
-		// If this resource extends another does NOT contribute to path
-		// String extensionPart = "";
 
+		// Add contribution from ParentRef
 		if (parentPart != null && !parentPart.isEmpty())
 			url += parentPart;
 		if (!(url.endsWith("/") || thisPart.startsWith("/")))
 			url += "/";
 		if ((url.endsWith("/") && thisPart.startsWith("/")))
 			url = url.substring(0, url.length() - 1);
-		url += get();
+
+		// Add this base path if any
+		url += basePath;
+
+		// Add contribution from this resource
+		url += thisPart;
 		if (!query.isEmpty())
 			url += query;
 		url += getPayloadExample();
