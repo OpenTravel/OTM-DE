@@ -193,7 +193,7 @@ public class InheritedAttributeNode extends AttributeNode implements InheritedIn
 	// }
 	//
 	@Override
-	public boolean setAssignedType(TLModelElement tla) {
+	public boolean setAssignedTLType(TLModelElement tla) {
 		// if (tla == getTLModelObject().getType())
 		// return false;
 		// if (tla instanceof TLAttributeType)

@@ -107,7 +107,8 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 
 	/**
 	 * Add the files to the project and models all new project items in the GUI model. NOTE - for performance reasons,
-	 * always try to add multiple files at once.
+	 * always try to add multiple files at once. Does <b>not</b> run type resolver.
+	 * 
 	 * {@link org.opentravel.schemas.controllers.DefaultLibraryController#openLibrary(ProjectNode)}
 	 */
 	public void add(List<File> libraryFiles) {
@@ -398,6 +399,10 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 		return libList;
 	}
 
+	/**
+	 * @return null.
+	 * @see #getTLProject()
+	 */
 	@Override
 	public TLModelElement getTLModelObject() {
 		return null;

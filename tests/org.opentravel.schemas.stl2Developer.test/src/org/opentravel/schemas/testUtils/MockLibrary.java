@@ -227,6 +227,7 @@ public class MockLibrary {
 	 * namespace of the project so it will be forced editable.
 	 */
 	public LibraryChainNode createNewManagedLibrary(String name, ProjectNode parent) {
+		assert parent != null;
 		LibraryNode ln = createNewLibrary(parent.getNamespace(), name, parent);
 		if (!ln.isInProjectNS())
 			LOGGER.debug("Created library in wrong namespace. ProjNS = " + parent.getNamespace() + "  lnNS = "

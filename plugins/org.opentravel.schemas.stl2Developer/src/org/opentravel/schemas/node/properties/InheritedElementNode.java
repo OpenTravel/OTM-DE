@@ -116,7 +116,7 @@ public class InheritedElementNode extends ElementNode implements InheritedInterf
 	}
 
 	@Override
-	public boolean setAssignedType(TLModelElement tla) {
+	public boolean setAssignedTLType(TLModelElement tla) {
 		return false;
 	}
 

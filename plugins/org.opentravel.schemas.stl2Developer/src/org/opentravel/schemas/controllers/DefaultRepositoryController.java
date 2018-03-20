@@ -888,6 +888,10 @@ public class DefaultRepositoryController implements RepositoryController {
 			postRepoError("noProject");
 			return false;
 		}
+		if (library.getProjectItem() == null) {
+			postRepoError("noProject");
+			return false;
+		}
 		RepositoryNode rn = find(library.getProjectItem().getRepository());
 		if (rn == null) {
 			postRepoError("notManaged");
@@ -1026,6 +1030,7 @@ class LockThread extends Thread {
 		this.ln = ln;
 	}
 
+	@Override
 	public void run() {
 		try {
 			ln.lock();
@@ -1064,6 +1069,7 @@ class UnlockThread extends Thread {
 		return result;
 	}
 
+	@Override
 	public void run() {
 		try {
 			final LibraryModelSaver lms = new LibraryModelSaver();
@@ -1099,6 +1105,7 @@ class CommitThread extends Thread {
 		return result;
 	}
 
+	@Override
 	public void run() {
 		try {
 			ln.getProjectItem().getProjectManager().commit(ln.getProjectItem(), remark);
@@ -1125,6 +1132,7 @@ class RevertThread extends Thread {
 		return loaded;
 	}
 
+	@Override
 	public void run() {
 		try {
 			final LibraryModelSaver lms = new LibraryModelSaver();

@@ -115,7 +115,6 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 	 */
 	@Override
 	public TLModelElement getAssignedTLModelElement() {
-		// NamedEntity tlNE = getTLAssignedNamedEntity();
 		NamedEntity tlNE = owner.getAssignedTLNamedEntity();
 		if (tlNE == null)
 			return null;
@@ -130,8 +129,6 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 	@Override
 	public NamedEntity getTLAssignedNamedEntity() {
 		return owner.getAssignedTLNamedEntity();
-		// ModelObject<?> mo = ((Node) owner).getModelObject();
-		// return mo.getTLType(); // null if built-in
 	}
 
 	public boolean set() {
@@ -139,21 +136,21 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		return set(ModelNode.getUnassignedNode());
 	}
 
-	/**
-	 * Looks up the node associated with the tlProvider and uses that to set the type. If the provider does not have
-	 * associated node or the node is not a type provider the type assignment is cleared.
-	 * 
-	 * @param tlProvider
-	 * @return
-	 */
-	@Deprecated
-	public boolean set(TLModelElement tlProvider) {
-		assert false;
-		Node target = Node.GetNode(tlProvider);
-		if (target instanceof TypeProvider)
-			return set((TypeProvider) target); // Set again to trigger where used behavior
-		return set();
-	}
+	// /**
+	// * Looks up the node associated with the tlProvider and uses that to set the type. If the provider does not have
+	// * associated node or the node is not a type provider the type assignment is cleared.
+	// *
+	// * @param tlProvider
+	// * @return
+	// */
+	// @Deprecated
+	// public boolean set(TLModelElement tlProvider) {
+	// assert false;
+	// Node target = Node.GetNode(tlProvider);
+	// if (target instanceof TypeProvider)
+	// return set((TypeProvider) target); // Set again to trigger where used behavior
+	// return set();
+	// }
 
 	/**
 	 * Set Assigned Type. Sets the Assigned type node and add this owner to that user list via where used listener. This
@@ -176,7 +173,7 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		// Save old type assignment
 		TypeProvider oldProvider = owner.getAssignedType();
 
-		// Owner has a specific required type.
+		// Skip if owner has a specific required type.
 		if (owner.getRequiredType() != null) {
 			return false;
 		}
@@ -194,6 +191,7 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		if (target == null || target == ModelNode.getUnassignedNode()) {
 			// Remove old type assignment
 			oldProvider.removeWhereAssigned(owner);
+			ModelNode.getUnassignedNode().addTypeUser(owner);
 			return false;
 		}
 		// Get the tl object
@@ -207,7 +205,7 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 				tlTarget = target.getXsdObjectHandler().getTLLibraryMember(); // get srcTL not builtTL
 
 		// Let the node handle assigning to the TL object.
-		boolean result = owner.setAssignedType(tlTarget);
+		boolean result = owner.setAssignedTLType(tlTarget);
 
 		if (result) {
 			// Remove old type assignment
@@ -236,8 +234,12 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		for (ModelElementListener l : owner.getTLModelObject().getListeners())
 			if (l instanceof TypeUserAssignmentListener)
 				listeners.add((TypeUserAssignmentListener) l);
-		assert listeners.size() == 1;
-		return listeners.get(0);
+
+		if (!listeners.isEmpty()) {
+			assert listeners.size() == 1;
+			return listeners.get(0);
+		}
+		return null;
 	}
 
 }

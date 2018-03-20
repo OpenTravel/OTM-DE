@@ -34,7 +34,7 @@ import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.testUtils.MockLibrary;
-import org.opentravel.schemas.types.TypeUser;
+import org.opentravel.schemas.types.TypeResolver;
 import org.opentravel.schemas.utils.BaseProjectTest;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
@@ -77,7 +77,7 @@ public class ProjectNodeTest extends BaseProjectTest {
 				new Version(1, 0, 0)).build(testProject, pc);
 		CoreObjectNode usingCO = ComponentNodeBuilder.createCoreObject("UsingCO").get(libUsingBase);
 		PropertyNode attrWithSO = PropertyNodeBuilder.create(PropertyNodeType.ATTRIBUTE)
-				.addToComponent((ComponentNode) usingCO.getFacet_Summary()).assign(baseSimpleObject).build();
+				.addToComponent(usingCO.getFacet_Summary()).assign(baseSimpleObject).build();
 
 		// save name and namespace before closing, used later to find it from reloaded object
 		String baseSimpleObjectName = baseSimpleObject.getName();
@@ -113,7 +113,7 @@ public class ProjectNodeTest extends BaseProjectTest {
 				testProject.getNamespace() + "/close", "o1", new Version(1, 0, 0)).build(testProject, pc);
 		CoreObjectNode usingCO = ComponentNodeBuilder.createCoreObject("UsingCO").get(libUsingAssignedType);
 		PropertyNode eleAssignedSO = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT)
-				.addToComponent((ComponentNode) usingCO.getFacet_Summary()).assign(srcSimpleObject).build();
+				.addToComponent(usingCO.getFacet_Summary()).assign(srcSimpleObject).build();
 
 		// save name and namespace before closing, used later to find it from reloaded object
 		String srcSimpleObjectName = srcSimpleObject.getName();
@@ -131,19 +131,20 @@ public class ProjectNodeTest extends BaseProjectTest {
 
 		// When - base library is closed
 		pc.remove((LibraryNavNode) libToClose.getParent());
-		// /libToClose.close();
+
 		// Then
 		assertTrue("Element type must now be unassigned.", eleAssignedSO.isUnAssigned());
 
-		// When - reload library
-		testProject.add(Collections.singletonList(URLUtils.toFile(libToClose.getTLaLib().getLibraryUrl())));
+		// When - reload library and resolve types
+		testProject.add(Collections.singletonList(URLUtils.toFile(libToClose.getTLModelObject().getLibraryUrl())));
+		new TypeResolver().resolveTypes();
 		Node reloadedBaseSimpleObject = mc.getModelController().getModel()
 				.findNode(srcSimpleObjectName, srcSimpleObjectNamespace);
 
 		// Then - make sure all types are resolved
 		assertTrue("Loading library must assign type to attrWithSO.", !eleAssignedSO.isUnAssigned());
-		assertTrue("Must find reloaded base type.", reloadedBaseSimpleObject != null);
-		Assert.assertSame(reloadedBaseSimpleObject, eleAssignedSO);
-		Assert.assertSame(((TypeUser) reloadedBaseSimpleObject).getAssignedType(), eleAssignedSO.getAssignedType());
+		assertTrue("Must find reloaded type.", reloadedBaseSimpleObject != null);
+		Assert.assertSame(reloadedBaseSimpleObject, eleAssignedSO.getAssignedType());
+		// Assert.assertSame(((TypeUser) reloadedBaseSimpleObject).getAssignedType(), eleAssignedSO.getAssignedType());
 	}
 }

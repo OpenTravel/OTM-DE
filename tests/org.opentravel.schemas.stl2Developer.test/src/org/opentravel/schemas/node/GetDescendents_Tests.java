@@ -20,19 +20,27 @@ package org.opentravel.schemas.node;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.DefaultRepositoryController;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.controllers.ProjectController;
+import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
+import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
+import org.opentravel.schemas.node.interfaces.SimpleMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
+import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.CustomFacetNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
@@ -44,8 +52,7 @@ import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
-import org.opentravel.schemas.utils.LibraryNodeBuilder;
-import org.osgi.framework.Version;
+import org.opentravel.schemas.utils.BaseProjectTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,107 +60,287 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class GetDescendents_Tests {
+public class GetDescendents_Tests extends BaseProjectTest {
 	static final Logger LOGGER = LoggerFactory.getLogger(MockLibrary.class);
 
 	ModelNode model = null;
 	NodeTesters nt = new NodeTesters();
 	LoadFiles lf = new LoadFiles();
 	Library_FunctionTests lt = new Library_FunctionTests();
-	MockLibrary mockLibrary = null;
+	MockLibrary ml = null;
 	LibraryNode ln = null;
 	MainController mc;
 	DefaultProjectController pc;
 	ProjectNode defaultProject;
 	String OTA = "OTA2_BuiltIns_v2.0.0"; // name
 	String XSD = "XMLSchema";
+	static String PREFIX = "PL1";
 
 	@Before
 	public void beforeAllTests() {
 		mc = OtmRegistry.getMainController();
-		mockLibrary = new MockLibrary();
+		ml = new MockLibrary();
 		pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
 	}
 
 	@Test
-	public void visitAllTypeUsers() {
-		ln = mockLibrary.createNewLibrary("http://example.com/test", "test", defaultProject);
-		CoreObjectNode co = mockLibrary.addCoreObjectToLibrary(ln, "");
-		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "");
-		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "");
+	public void DESC_Descendants() {
+		ProjectNode project = createProject("Project1", rc.getLocalRepository(), "IT1");
 
-		assertTrue("Core simple is assigned type.", co.getFacet_Simple().getSimpleAttribute().getAssignedType() != null);
-		co.visitAllTypeUsers(nt.new TestNode());
-		// MOVE Assert.assertEquals(2, co.getDescendants_TypeUsers().size());
+		ln = ml.createNewLibrary(project.getNamespace(), "test", project);
+		ml.addOneOfEach(ln.getHead(), PREFIX);
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TBB");
+		ml.addAllProperties(bo.getFacet_Summary());
 
-		assertTrue("VWA simple is assigned type.", vwa.getFacet_Simple().getSimpleAttribute().getAssignedType() != null);
-		vwa.visitAllTypeUsers(nt.new TestNode());
-		// MOVE Assert.assertEquals(2, vwa.getDescendants_TypeUsers().size());
+		LibraryNode ln2 = ml.createNewManagedLibrary(project.getNamespace(), "test2", project).getHead();
+		ml.addOneOfEach(ln.getHead(), PREFIX + "2");
+		BusinessObjectNode bo2 = ml.addBusinessObjectToLibrary(ln2, "TBB2");
+		ml.addAllProperties(bo2.getFacet_Summary());
 
-		// MOVE Assert.assertEquals(2, bo.getDescendants_TypeUsers().size());
+		List<Node> descendants = Node.getModelNode().getDescendants();
+		assert descendants.size() == 265;
+
+		// Then
+		for (Node d : Node.getModelNode().getDescendants()) {
+			descendants.remove(d);
+			assertTrue("Must only be one of these in list.", !descendants.contains(d));
+		}
 	}
 
 	@Test
-	public void mockDescendents() {
-		ln = mockLibrary.createNewLibrary("http://example.com/test", "test", defaultProject);
-		ln.setEditable(true);
-		CoreObjectNode co = mockLibrary.addCoreObjectToLibrary(ln, "");
-		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "");
-		EnumerationOpenNode oe = mockLibrary.addOpenEnumToLibrary(ln, "");
-		EnumerationClosedNode ce = mockLibrary.addClosedEnumToLibrary(ln, "");
+	public void DESC_LibraryMembers() {
+
+		ln = ml.createNewLibrary("http://example.com/test", "test", defaultProject);
+		List<LibraryMemberInterface> members = ln.getDescendants_LibraryMembers();
+
+		int cnt = ml.addOneOfEach(ln.getHead(), PREFIX);
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TBB");
+		ml.addAllProperties(bo.getFacet_Summary());
+
+		members = ln.getDescendants_LibraryMembers();
+		assert members.size() == 9;
+
+		// Then users tests
+		for (LibraryMemberInterface member : ln.getDescendants_LibraryMembers()) {
+			members.remove(member);
+			assertTrue("Must only be one of these in list.", !members.contains(member));
+		}
+	}
+
+	@Test
+	public void DESC_LibraryMember_Tests() throws LibrarySaveException {
+
+		// Given an unmanaged library
+		LibraryNode ln = ml.createNewLibrary_Empty("http://example.com", "LM_Tests", defaultProject);
+		assertTrue("Initial library must be empty.", 0 == ln.getDescendants_LibraryMembers().size());
+		assertTrue("Library Must be editable.", ln.isEditable());
+		// When adding one of everything to it
+		int count = ml.addOneOfEach(ln, "OE");
+		// Then the counts must match
+		assertTrue("Must have correct library member count.", count == ln.getDescendants_LibraryMembers().size());
+
+		// Given an managed library
+		LibraryChainNode lcn = ml.createNewManagedLibrary_Empty(defaultProject.getNamespace(), "OE2", defaultProject);
+		ln = lcn.getHead();
+		assertTrue("Library Must be editable.", ln.isEditable());
+		assertTrue("Initial library must be empty.", 0 == ln.getDescendants_LibraryMembers().size());
+		// When adding one of everything to it
+		count = ml.addOneOfEach(ln, "OE");
+		// Then the counts must match
+		List<LibraryMemberInterface> dList = ln.getDescendants_LibraryMembers();
+		LOGGER.debug("Descendant list has " + dList.size() + " members.");
+		assertTrue("Must have correct library member count.", count == ln.getDescendants_LibraryMembers().size());
+	}
+
+	@Test
+	public void DESC_SimpleMembers() {
+
+		// Given a project, libraries
+		ProjectNode project = createProject("Project1", rc.getLocalRepository(), "IT1");
+		LibraryChainNode lcn = ml.createNewManagedLibrary("Lib2", project);
+
+		// When all type providers added
+		ml.addOneOfEach(lcn.getHead(), PREFIX);
+		ArrayList<SimpleMemberInterface> simples = lcn.getDescendants_SimpleMembers();
+
+		// Then simple members tests
+		assertTrue("Must have 2 members.", simples.size() == 2);
+		for (SimpleMemberInterface simple : simples) {
+			assertTrue("Must begin with PL1.", simple.getName().startsWith(PREFIX));
+			simples.remove(simple);
+			assertTrue("Must only be one of these in list.", !simples.contains(simple));
+		}
+	}
+
+	@Test
+	public void DESC_TypeProviders() {
+
+		// Given a project, libraries
+		ProjectNode project = createProject("Project1", rc.getLocalRepository(), "IT1");
+		LibraryChainNode providerLib = ml.createNewManagedLibrary("Lib2", project);
+		List<TypeProvider> providers = providerLib.getDescendants_TypeProviders();
+
+		// When all type providers added
+		ml.addOneOfEach(providerLib.getHead(), PREFIX);
+		providers = providerLib.getDescendants_TypeProviders();
+
+		// Then each provider must be listed only once
+		for (TypeProvider tp : providerLib.getDescendants_TypeProviders()) {
+			providers.remove(tp);
+			assertTrue("Must not find removed object.", !providers.contains(tp));
+		}
+	}
+
+	@Test
+	public void DESC_TypeUsers() {
+		ln = ml.createNewLibrary("http://example.com/test", "test", defaultProject);
+		ml.addOneOfEach(ln.getHead(), PREFIX);
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TBB");
+		ml.addAllProperties(bo.getFacet_Summary());
+
+		List<TypeUser> users = ln.getDescendants_TypeUsers();
+
+		// Then users tests
+		for (TypeUser user : ln.getDescendants_TypeUsers()) {
+			users.remove(user);
+			assertTrue("Must only be one of these in list.", !users.contains(user));
+		}
+	}
+
+	@Test
+	public void DESC_ContextualFacets() {
+		OTM16Upgrade.otm16Enabled = true;
+		ln = ml.createNewLibrary("http://example.com/test", "test", defaultProject);
+		LibraryNode ln2 = ml.createNewLibrary("http://example.com/test2", "test2", defaultProject);
+
+		ml.addOneOfEach(ln.getHead(), PREFIX);
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TBB");
+		ChoiceObjectNode co = ml.addChoice(ln, "CBB");
+		List<ContextualFacetNode> cfs = ln.getDescendants_ContextualFacets();
+		assert cfs.size() == 10;
+
+		// Given some contextual facets in multiple libraries
+		ContextualFacetNode f1 = (ContextualFacetNode) bo.addFacet("C1", TLFacetType.CUSTOM);
+		ContextualFacetNode f2 = (ContextualFacetNode) bo.addFacet("Q1", TLFacetType.QUERY);
+		ContextualFacetNode f3 = (ContextualFacetNode) co.addFacet("C1", TLFacetType.CHOICE);
+		ContextualFacetNode f4 = (ContextualFacetNode) co.addFacet("C2", TLFacetType.CHOICE);
+
+		cfs = ln.getDescendants_ContextualFacets();
+		assert cfs.size() == 14; // lib1 facets
+		// When 2 are moved to different library
+		ln2.addMember(f1);
+		ln2.addMember(f4);
+
+		// Then ln only has 12
+		cfs = ln.getDescendants_ContextualFacets();
+		assert cfs.size() == 12;
+
+		// Then lib2 now has 4
+		List<ContextualFacetNode> cfsLib2 = ln2.getDescendants_ContextualFacets();
+		assert cfsLib2.size() == 4; // 2 moved, two when lib created
+
+		// Then model has 14
+		List<ContextualFacetNode> cfsModel = Node.getModelNode().getDescendants_ContextualFacets();
+		assert cfsModel.size() == 16; // all facets
+
+		for (ContextualFacetNode cf : ln.getDescendants_ContextualFacets()) {
+			cfs.remove(cf);
+			assertTrue("Must only be one of these in list.", !cfs.contains(cf));
+		}
+
+		// Then Contributed tests
+		List<ContributedFacetNode> contribs = ln.getDescendants_ContributedFacets();
+		assert contribs.size() == 14; // Facet moved, not where contributed
+
+		// Then contributed tests
+		for (ContributedFacetNode cf : ln.getDescendants_ContributedFacets()) {
+			contribs.remove(cf);
+			assertTrue("Must only be one of these in list.", !contribs.contains(cf));
+		}
+
+		// When custom facet added to custom facet
+		CustomFacetNode ccf = new CustomFacetNode();
+		ccf.setName("CF1");
+		ccf.setOwner(f1);
+		ln.addMember(ccf);
+
+		// Then
+		cfs = ln.getDescendants_ContextualFacets();
+		assert cfs.size() == 13;
+
+		// Finally - cf owners
+		List<ContextualFacetOwnerInterface> cfOwners = ln.getDescendants_ContextualFacetOwners();
+		assert cfOwners.size() == 18;
+
+		// Then contributed tests
+		for (ContributedFacetNode cfo : ln.getDescendants_ContributedFacets()) {
+			cfOwners.remove(cfo);
+			assertTrue("Must only be one of these in list.", !cfOwners.contains(cfo));
+		}
+
+		OTM16Upgrade.otm16Enabled = false;
+	}
+
+	@Test
+	public void DESC_SpotChecks() {
+		ln = ml.createNewLibrary("http://example.com/test", "test", defaultProject);
+		CoreObjectNode co = ml.addCoreObjectToLibrary(ln, "");
+		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "");
+		EnumerationOpenNode oe = ml.addOpenEnumToLibrary(ln, "");
+		EnumerationClosedNode ce = ml.addClosedEnumToLibrary(ln, "");
 		co.setAssignedType(ce);
 		vwa.setAssignedType(oe);
 
 		// Then - spot check descendant lists
 		assertTrue("Library must contain core.", ln.getDescendants().contains(co));
 		assertTrue("Library must contain core summary.", ln.getDescendants().contains(co.getFacet_Summary()));
+		assertTrue("Library must contain vwa.", ln.getDescendants().contains(vwa));
+
+		assertTrue("Library must contain open enum.", ln.getDescendants_LibraryMembers().contains(oe));
+		assertTrue("Library must contain closed enum.", ln.getDescendants_LibraryMembers().contains(ce));
+
 		assertTrue("Library must contain core roles.", ln.getDescendants_TypeProviders().contains(co.getFacet_Role()));
 		assertTrue("Library must contain core element.",
 				ln.getDescendants_TypeUsers().contains(co.getFacet_Summary().getChildren().get(0)));
-		assertTrue("Library must contain vwa.", ln.getDescendants().contains(vwa));
-		assertTrue("Library must contain open enum.", ln.getDescendants_LibraryMemberNodes().contains(oe));
-		assertTrue("Library must contain closed enum.", ln.getDescendants_LibraryMemberNodes().contains(ce));
-
-		// TODO - move these type of count tests to mock library
-		// List<Node> all = ln.getDescendants();
-		// Assert.assertEquals(27, all.size());
-		// List<Node> named = ln.getDescendants_NamedTypes();
-		// Assert.assertEquals(5, named.size());
-		// List<TypeUser> users = ln.getDescendants_TypeUsers();
-		// Assert.assertEquals(9, users.size());
 	}
 
 	@Test
-	public void mockDescendentsInManagedLibrary() {
-		ln = mockLibrary.createNewLibrary("http://example.com/test", "test", defaultProject);
-		new LibraryChainNode(ln);
-		ln.setEditable(true);
-		CoreObjectNode co = mockLibrary.addCoreObjectToLibrary(ln, "");
-		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "");
-		EnumerationOpenNode oe = mockLibrary.addOpenEnumToLibrary(ln, "");
-		EnumerationClosedNode ce = mockLibrary.addClosedEnumToLibrary(ln, "");
-		co.setAssignedType(ce);
-		vwa.setAssignedType(oe);
+	public void DESC_ExtensionOwners() throws Exception {
+		OTM16Upgrade.otm16Enabled = true;
 
-		// TODO - move these type of count tests to mock library
-		// List<Node> named = ln.getDescendants_NamedTypes();
-		// Assert.assertEquals(5, named.size());
-		// List<TypeUser> users = ln.getDescendants_TypeUsers();
-		// Assert.assertEquals(9, users.size());
-		// MockLibrary.printDescendants(ln);
-		// List<Node> all = ln.getDescendants();
-		// Assert.assertEquals(32, all.size()); // 26 + 5 version nodes
+		// Given a library that should be ignored
+		LibraryNode ln = ml.createNewLibrary("http://example.com/test", "test", defaultProject);
+		ml.addOneOfEach(ln, PREFIX);
+
+		List<ExtensionOwner> exOwners = ln.getDescendants_ExtensionOwners();
+		assert exOwners.size() == 7;
+
+		// Then contributed tests
+		for (ExtensionOwner exo : ln.getDescendants_ExtensionOwners()) {
+			exOwners.remove(exo);
+			assertTrue("Must only be one of these in list.", !exOwners.contains(exo));
+		}
+
+		OTM16Upgrade.otm16Enabled = false;
 	}
 
 	@Test
-	public void xsdBuiltinDescendents() throws Exception {
+	public void DESC_XsdBuiltin() throws Exception {
+		OTM16Upgrade.otm16Enabled = true;
 
+		// Given a library that should be ignored
+		LibraryNode ln2 = ml.createNewLibrary("http://example.com/test", "test", defaultProject);
+		ml.addOneOfEach(ln2, PREFIX);
+
+		// Given the built in xsd library
 		for (LibraryNode n : Node.getAllLibraries()) {
 			if (n.getName().equals(XSD))
 				ln = n;
 		}
 		Assert.assertNotNull(ln);
+
+		// Then assure counts
 		// 20 xsd simple types, 0 complex, 0 resources
 		List<Node> all = ln.getDescendants();
 		Assert.assertEquals(24, all.size()); // 4 nav nodes and 20 simple type nodes
@@ -163,32 +350,12 @@ public class GetDescendents_Tests {
 		Assert.assertEquals(20, users.size());
 		List<TypeProvider> providers = ln.getDescendants_TypeProviders();
 		Assert.assertEquals(20, providers.size());
+
+		OTM16Upgrade.otm16Enabled = false;
 	}
 
 	@Test
-	public void OTA_Descendents() throws Exception {
-		// Built in library removed from version 4.0
-		//
-		// for (LibraryNode n : Node.getAllLibraries()) {
-		// if (n.getName().equals(OTA))
-		// ln = n;
-		// }
-		// Assert.assertNotNull(ln);
-		//
-		// List<Node> all = ln.getDescendants();
-		// Assert.assertEquals(495, all.size());
-		// List<Node> named = ln.getDescendants_NamedTypes();
-		// Assert.assertEquals(85, named.size());
-		// List<Node> users = ln.getDescendants_TypeUsers();
-		// Assert.assertEquals(130, users.size());
-	}
-
-	@Test
-	public void descendantTypeUsersTest() {
-		MockLibrary ml = new MockLibrary();
-		MainController mc = OtmRegistry.getMainController();
-		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
-		ProjectNode defaultProject = pc.getDefaultProject();
+	public void DESC_AssignedTypes() {
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 		Node bo = ml.addNestedTypes(ln);
 
@@ -196,67 +363,9 @@ public class GetDescendents_Tests {
 
 		Assert.assertNotNull(types);
 		Assert.assertEquals(2, types.size());
-	}
 
-	@Test
-	public void getDescendents_Tests() throws LibrarySaveException {
-		// Needed to isolate results from other tests
-		mc = OtmRegistry.getMainController();
-		DefaultRepositoryController lrc = (DefaultRepositoryController) mc.getRepositoryController();
-		ProjectController lpc = mc.getProjectController();
-
-		LibraryNode moveFrom = LibraryNodeBuilder.create("MoveFrom", defaultProject.getNamespace() + "/Test/One", "o1",
-				new Version(1, 0, 0)).build(defaultProject, pc);
-
-		List<Node> list1 = moveFrom.getDescendants_LibraryMemberNodes();
-		List<Node> list2 = moveFrom.getDescendentsNamedTypes();
-		assert list1.size() == list2.size();
-
-		LoadFiles lf = new LoadFiles();
-		moveFrom = lf.loadFile5Clean(mc);
-		list1 = moveFrom.getDescendants_LibraryMemberNodes();
-		list2 = moveFrom.getDescendentsNamedTypes();
-		for (Node n : list1)
-			if (!list2.contains(n))
-				LOGGER.debug("list2 is missing: " + n);
-		for (Node n : list2)
-			if (!list1.contains(n))
-				LOGGER.debug("list 1 is missing: " + n);
-
-		// these should be equal once the inclusion of services is resolved
-		Assert.assertEquals(list1.size(), list2.size());
-
-	}
-
-	@Test
-	public void getDescendents_LibraryMember_Tests() throws LibrarySaveException {
-		// Needed to isolate results from other tests
-		mc = OtmRegistry.getMainController();
-		DefaultRepositoryController lrc = (DefaultRepositoryController) mc.getRepositoryController();
-		ProjectController lpc = mc.getProjectController();
-		MockLibrary ml = new MockLibrary();
-
-		// Given an unmanaged library
-		LibraryNode ln = ml.createNewLibrary_Empty("http://example.com", "LM_Tests", lpc.getDefaultProject());
-		assertTrue("Initial library must be empty.", 0 == ln.getDescendants_LibraryMemberNodes().size());
-		assertTrue("Library Must be editable.", ln.isEditable());
-		// When adding one of everything to it
-		int count = ml.addOneOfEach(ln, "OE");
-		// Then the counts must match
-		assertTrue("Must have correct library member count.", count == ln.getDescendants_LibraryMemberNodes().size());
-
-		// Given an managed library
-		LibraryChainNode lcn = ml.createNewManagedLibrary_Empty(lpc.getDefaultProject().getNamespace(), "OE2",
-				lpc.getDefaultProject());
-		ln = lcn.getHead();
-		assertTrue("Library Must be editable.", ln.isEditable());
-		assertTrue("Initial library must be empty.", 0 == ln.getDescendants_LibraryMemberNodes().size());
-		// When adding one of everything to it
-		count = ml.addOneOfEach(ln, "OE");
-		// Then the counts must match
-		List<Node> dList = ln.getDescendants_LibraryMemberNodes();
-		LOGGER.debug("Descendant list has " + dList.size() + " members.");
-		assertTrue("Must have correct library member count.", count == ln.getDescendants_LibraryMemberNodes().size());
+		types = Node.getModelNode().getDescendants_AssignedTypes(false);
+		assert types.size() == 10;
 	}
 
 }

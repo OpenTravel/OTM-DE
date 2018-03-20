@@ -46,7 +46,7 @@ public class CoreSimpleAttributeFacadeNode extends SimpleAttributeFacadeNode {
 
 	@Override
 	public String getName() {
-		return emptyIfNull(getParent().getName());
+		return getParent() != null ? emptyIfNull(getParent().getName()) : "";
 	}
 
 	@Override
@@ -72,7 +72,13 @@ public class CoreSimpleAttributeFacadeNode extends SimpleAttributeFacadeNode {
 	}
 
 	@Override
-	public boolean setAssignedType(TLModelElement simpleType) {
+	public void removeAssignedTLType() {
+		getTLModelObject().setSimpleType(null);
+		setAssignedType();
+	}
+
+	@Override
+	public boolean setAssignedTLType(TLModelElement simpleType) {
 		if (simpleType == getTLModelObject().getSimpleType())
 			return false;
 		NamedEntity ne = null;

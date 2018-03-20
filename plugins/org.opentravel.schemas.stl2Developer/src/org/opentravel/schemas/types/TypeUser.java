@@ -51,19 +51,55 @@ public interface TypeUser {
 	 */
 	public TypeProvider getAssignedType();
 
+	// public String getAssignedTypeName();
+
+	public LibraryNode getLibrary();
+
+	public String getName();
+
+	public LibraryMemberInterface getOwningComponent();
+
+	/**
+	 * @return
+	 */
+	public Node getParent();
+
 	/**
 	 * @return null if the assigned type can be any type provider otherwise the fixed type to assign
 	 */
 	public TypeProvider getRequiredType();
 
-	public String getAssignedTypeName();
+	public TLModelElement getTLModelObject();
+
+	/**
+	 * @return
+	 */
+	TypeUserHandler getTypeHandler();
+
+	public boolean isEditable();
+
+	/**
+	 * Remove the type assigned to the TL Model object. This method is the only method that nulls out the TL model
+	 * object. After the TL object is set to null, {@link #setAssignedType()} is called to removed where used links.
+	 * 
+	 * @see #setAssignedType()
+	 */
+	public void removeAssignedTLType();
 
 	/**
 	 * Set Assigned Type. Sets the where assigned on the associated tl model object provider.
 	 * 
 	 * @return true if state of owner changed, false otherwise
 	 */
-	public boolean setAssignedType(TLModelElement tlProvider);
+	public boolean setAssignedTLType(TLModelElement tlProvider);
+
+	/**
+	 * Clear the assigned type by setting it to undefined.
+	 * 
+	 * @see #removeAssignedTLType()
+	 * @return true if state of owner changed, false otherwise
+	 */
+	public boolean setAssignedType();
 
 	/**
 	 * Set Assigned Type. Sets the Assigned type node and add this owner to that user list. This method assures their is
@@ -73,35 +109,6 @@ public interface TypeUser {
 	 */
 	public boolean setAssignedType(TypeProvider provider);
 
-	/**
-	 * Clear the assigned type by setting it to undefined.
-	 *
-	 * @return true if state of owner changed, false otherwise
-	 */
-	public boolean setAssignedType();
-
-	// ************* Hierarchy Methods ************************
-
-	public LibraryNode getLibrary();
-
-	public LibraryMemberInterface getOwningComponent();
-
-	public TLModelElement getTLModelObject();
-
-	public boolean isEditable();
-
 	public void setName(String name);
-
-	public String getName();
-
-	/**
-	 * @return
-	 */
-	TypeUserHandler getTypeHandler();
-
-	/**
-	 * @return
-	 */
-	public Node getParent();
 
 }

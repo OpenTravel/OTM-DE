@@ -130,15 +130,23 @@ public class LoadFiles {
 	 */
 	public int loadTestGroupA(MainController mc) throws Exception {
 		ProjectController pc = mc.getProjectController();
+		return loadTestGroupA(pc.getDefaultProject());
+	}
 
+	/**
+	 * Load files 1 through 5 into passed project. No tests.
+	 * <p>
+	 * <b>NOTE - file5 is not valid</b>
+	 */
+	public int loadTestGroupA(ProjectNode proj) throws Exception {
 		List<File> files = new ArrayList<File>();
 		files.add(new File(filePath1));
 		files.add(new File(filePath2));
 		files.add(new File(filePath3));
 		files.add(new File(filePath4));
 		files.add(new File(filePath5));
-		pc.getDefaultProject().add(files);
-		int libCnt = pc.getDefaultProject().getChildren().size();
+		proj.add(files);
+		int libCnt = proj.getChildren().size();
 		return libCnt;
 	}
 

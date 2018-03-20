@@ -19,7 +19,6 @@ import java.util.List;
 
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.types.TypeProviderAndOwners;
 import org.opentravel.schemas.types.TypeUser;
 
@@ -172,12 +171,12 @@ public interface ChildrenHandlerI<C extends Node> {
 	@Override
 	public String toString();
 
-	/**
-	 * Traverse via getChildren. For version chains, it returns the newest version using the version node and does not
-	 * touch aggregates. Deleted members are not returned.
-	 * 
-	 * return new list of NamedEntities.
-	 */
-	List<LibraryMemberInterface> getDescendants_LibraryMembers();
+	// /**
+	// * Traverse via getChildren. For version chains, it returns the newest version using the version node and does not
+	// * touch aggregates. Deleted members are not returned.
+	// *
+	// * return new list of NamedEntities.
+	// */
+	// List<LibraryMemberInterface> getDescendants_LibraryMembers();
 
 }

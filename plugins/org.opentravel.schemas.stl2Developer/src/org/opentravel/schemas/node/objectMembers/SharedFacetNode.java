@@ -23,7 +23,6 @@ import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
-import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.FacetOwners;
 
 /**
@@ -32,7 +31,7 @@ import org.opentravel.schemas.node.typeProviders.facetOwners.FacetOwners;
  * @author Dave Hollander
  * 
  */
-public class SharedFacetNode extends FacetProviderNode {
+public class SharedFacetNode extends FacetOMNode {
 
 	/**
 	 * Create a TLContextual facet set to choice and use it to create this choice facet node.

@@ -77,7 +77,13 @@ public class VWA_SimpleAttributeFacadeNode extends SimpleAttributeFacadeNode {
 	}
 
 	@Override
-	public boolean setAssignedType(TLModelElement simpleType) {
+	public void removeAssignedTLType() {
+		getTLModelObject().setParentType(null);
+		setAssignedType();
+	}
+
+	@Override
+	public boolean setAssignedTLType(TLModelElement simpleType) {
 		if (getTLModelObject().getParentType() == simpleType)
 			return false;
 

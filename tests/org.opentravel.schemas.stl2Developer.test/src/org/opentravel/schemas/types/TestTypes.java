@@ -137,8 +137,11 @@ public class TestTypes extends BaseProjectTest {
 		ml.check(ln);
 
 		// When - references cleared
-		arn.setAssignedType();
-		ern.setAssignedType();
+		// FIXME - setAssignedType() does NOT clear assignment
+		arn.removeAssignedTLType();
+		ern.removeAssignedTLType();
+		// arn.setAssignedType();
+		// ern.setAssignedType();
 		// The - assignment worked
 		assertTrue(arn.getAssignedType() == ModelNode.getUnassignedNode());
 		assertTrue(ern.getAssignedType() == ModelNode.getUnassignedNode());
@@ -165,13 +168,17 @@ public class TestTypes extends BaseProjectTest {
 		ElementNode e1 = new ElementNode(bo.getFacet_Summary(), "E1");
 		wuc = unAssigned.getWhereUsedAndDescendantsCount();
 		int listeners = e1.getTLModelObject().getListeners().size();
+		// Element must have one TypeUserListener and one assignment listener for unassigned
+		assert listeners == 2;
+		assert e1.getTypeHandler().getAssignmentListeners().getNode() == unAssigned;
+
 		// When - vwa assigned as type
 		e1.setAssignedType(vwa);
 		// Then
 		assertTrue("VWA where used count must = 1", vwa.getWhereUsedAndDescendantsCount() == 1);
 		// Then - the where assigned listener existed for "unassigned".
-		assertTrue("Element must not have new listener.", listeners == e1.getTLModelObject().getListeners().size()); // should
-																														// be
+		assertTrue("Element must not have new listener.", listeners == e1.getTLModelObject().getListeners().size());
+		// should be
 		// TODO - test library where used (must add vwa and bo to lib first.
 
 		ElementNode e2 = new ElementNode(bo.getFacet_Summary(), "E2", vwa);

@@ -199,9 +199,13 @@ public abstract class ContextualFacetNode extends AbstractContextualFacet implem
 
 	@Override
 	public void close() {
-		super.close();
-		if (whereContributed != null)
+		super.close(); // Removes from owning TL
+		if (whereContributed != null) {
 			whereContributed.clear();
+			if (getWhereContributed().getParent() != null)
+				getWhereContributed().getParent().getChildrenHandler().clear();
+			whereContributed = null;
+		}
 	}
 
 	@Override

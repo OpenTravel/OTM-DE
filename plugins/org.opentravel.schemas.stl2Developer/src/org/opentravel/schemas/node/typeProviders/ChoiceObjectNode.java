@@ -85,6 +85,17 @@ public class ChoiceObjectNode extends FacetOwners implements ExtensionOwner, Sor
 		owningLibrary = library;
 	}
 
+	/**
+	 * Return true if the direct children (not inherited children) includes the candidate. If candidate is a contextual
+	 * facet, its matching where contributed node is used.
+	 */
+	@Override
+	public boolean contains(Node candidate) {
+		if (candidate instanceof ContextualFacetNode)
+			candidate = ((ContextualFacetNode) candidate).getWhereContributed();
+		return getChildren() != null ? getChildren().contains(candidate) : false;
+	}
+
 	@Override
 	public void remove(AliasNode alias) {
 		getTLModelObject().removeAlias(alias.getTLModelObject());

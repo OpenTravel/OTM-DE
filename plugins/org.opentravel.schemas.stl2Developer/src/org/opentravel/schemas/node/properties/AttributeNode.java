@@ -245,7 +245,13 @@ public class AttributeNode extends PropertyNode {
 	}
 
 	@Override
-	public boolean setAssignedType(TLModelElement tla) {
+	public void removeAssignedTLType() {
+		getTLModelObject().setType(null);
+		setAssignedType();
+	}
+
+	@Override
+	public boolean setAssignedTLType(TLModelElement tla) {
 		if (tla == getTLModelObject().getType())
 			return false;
 		if (tla instanceof TLAttributeType)

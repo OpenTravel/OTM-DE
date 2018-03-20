@@ -185,7 +185,7 @@ public class SimpleTypeNode extends SimpleTypeProviders implements TypeUser, Lib
 	}
 
 	@Override
-	public boolean setAssignedType(TLModelElement tla) {
+	public boolean setAssignedTLType(TLModelElement tla) {
 		if (tla == null)
 			return false; // Never override a saved type assignment
 		if (tla == getTLModelObject().getParentType())
@@ -218,6 +218,12 @@ public class SimpleTypeNode extends SimpleTypeProviders implements TypeUser, Lib
 	@Override
 	public TypeProvider getRequiredType() {
 		return null;
+	}
+
+	@Override
+	public void removeAssignedTLType() {
+		getTLModelObject().setParentType(null);
+		setAssignedType();
 	}
 
 	@Override

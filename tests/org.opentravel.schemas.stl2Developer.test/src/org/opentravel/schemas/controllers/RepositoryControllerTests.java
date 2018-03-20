@@ -18,7 +18,7 @@
  */
 package org.opentravel.schemas.controllers;
 
-import junit.framework.Assert;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -78,11 +78,10 @@ public class RepositoryControllerTests {
 		// These creates should create NULL libraries because ln is not in a repository.
 		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
 		LibraryNode major = rc.createMajorVersion(ln);
-		Assert.assertNull(major);
+		assertNull(major);
 		LibraryNode minor = rc.createMinorVersion(ln);
-		Assert.assertNull(minor);
+		assertNull(minor);
 		LibraryNode patch = rc.createPatchVersion(ln);
-		Assert.assertNull(patch);
-
+		assertNull(patch);
 	}
 }

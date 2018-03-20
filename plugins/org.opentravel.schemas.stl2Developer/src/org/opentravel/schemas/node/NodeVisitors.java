@@ -38,10 +38,12 @@ public class NodeVisitors {
 	private static final Logger LOGGER = LoggerFactory.getLogger(NodeVisitors.class);
 
 	/**
-	 * Close this node. Do not change the model. Does delete type assignments. Does not delete children nor change view
-	 * contents. Use delete visitor if changes are to be made to the TL model.
-	 * 
-	 * NOTE: not version safe
+	 * Close this node visitors for closing objects with children. Close removes from model but does not modify
+	 * contents. Does remove type assignments. Does not change the underlying TL model, delete children or change view
+	 * contents.
+	 * <p>
+	 * Use delete visitor if changes are to be made to the TL model. Sample Usage: NodeVisitor visitor = new
+	 * NodeVisitors().new validateNodeTypes(); curNode.visitAllNodes(visitor);
 	 * 
 	 * @author Dave Hollander
 	 * 
@@ -51,6 +53,8 @@ public class NodeVisitors {
 		@Override
 		public void visit(INode n) {
 			// LOGGER.debug("CloseVisitor: closing " + n);
+			if (n == null)
+				return;
 			Node node = (Node) n;
 
 			// Use override behavior because Library nodes must clear out context.
@@ -84,7 +88,7 @@ public class NodeVisitors {
 
 			node.setParent(null);
 
-			// LOGGER.debug("CloseVisitor: closed  " + n);
+			LOGGER.debug("CloseVisitor: closed  " + n);
 		}
 	}
 

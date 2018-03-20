@@ -243,9 +243,10 @@ public class NodeNameUtilsTest {
 		PropertyNode pn = new ElementNode(new TLProperty(), null);
 		String fixed = NodeNameUtils.fixElementName(pn);
 		String expected = Node.UNDEFINED_PROPERTY_TXT;
-		String actual = pn.getName();
 		assertEquals(expected, fixed);
-		assertEquals(expected, actual);
+		// 3/20/2018 - name comes directly from tlModelObject and is empty
+		// String actual = pn.getName();
+		// assertEquals(expected, actual);
 	}
 
 	@Test
@@ -254,9 +255,10 @@ public class NodeNameUtilsTest {
 		PropertyNode pn = new AttributeNode(new TLAttribute(), null);
 		String fixed = NodeNameUtils.fixElementName(pn);
 		String expected = Node.UNDEFINED_PROPERTY_TXT;
-		String actual = pn.getName();
 		assertEquals(expected, fixed);
-		assertEquals(expected, actual);
+		// 3/20/2018 - name comes directly from tlModelObject and is empty
+		// String actual = pn.getName();
+		// assertEquals(expected, actual);
 	}
 
 	/**

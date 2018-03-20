@@ -369,7 +369,12 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	@Override
-	public boolean setAssignedType(TLModelElement tlProvier) {
+	public void removeAssignedTLType() {
+		// NO-OP
+	}
+
+	@Override
+	public boolean setAssignedTLType(TLModelElement tlProvier) {
 		return false;
 	}
 

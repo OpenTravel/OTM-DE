@@ -104,7 +104,7 @@ public class ElementReferenceNode extends ElementNode {
 	@Override
 	public String getName() {
 		if (getAssignedType() == null)
-			setAssignedType(ModelNode.getEmptyNode().getTLModelObject());
+			setAssignedTLType(ModelNode.getEmptyNode().getTLModelObject());
 		String name = getTLModelObject().getName();
 		if (name == null || name.isEmpty())
 			initName();
@@ -126,7 +126,7 @@ public class ElementReferenceNode extends ElementNode {
 	}
 
 	@Override
-	public boolean setAssignedType(TLModelElement tla) {
+	public boolean setAssignedTLType(TLModelElement tla) {
 		if (tla == null)
 			return false; // Never override a saved type assignment
 		if (tla == getTLModelObject().getType())

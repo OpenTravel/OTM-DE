@@ -597,14 +597,14 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 
 	@Override
 	public String getTypeNameWithPrefix() {
-		String typeName = getAssignedTypeName() == null ? "" : getAssignedTypeName();
 		if (getAssignedType() == null)
 			return "";
+		String typeName = getAssignedType().getName();
 		if (getAssignedType() instanceof ImpliedNode)
 			return typeName;
 		if (getPrefix().equals(getAssignedPrefix()))
 			return typeName;
-		return getType().getPrefix() + " : " + typeName;
+		return getAssignedPrefix() + " : " + typeName;
 	}
 
 	/**
@@ -727,12 +727,15 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 	}
 
 	@Override
+	public abstract void removeAssignedTLType();
+
+	@Override
 	public boolean setAssignedType() {
 		return getTypeHandler().set();
 	}
 
 	@Override
-	public abstract boolean setAssignedType(TLModelElement tlProvider);
+	public abstract boolean setAssignedTLType(TLModelElement tlProvider);
 
 	@Override
 	public boolean setAssignedType(TypeProvider provider) {

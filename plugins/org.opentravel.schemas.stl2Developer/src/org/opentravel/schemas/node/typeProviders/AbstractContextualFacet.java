@@ -102,6 +102,13 @@ public abstract class AbstractContextualFacet extends FacetProviderNode implemen
 	@Override
 	public abstract LibraryMember cloneTL() throws IllegalArgumentException;
 
+	/**
+	 * Close contextual facet. * Close removes from GUI model without changing the underlying OTM model.
+	 * 
+	 * <p>
+	 * Removes this facet from the TL Parent. The TL contextual facet owner <b>does</b> change because the facet will
+	 * not longer be in scope but there will be no changes to the saved .otm file.
+	 */
 	@Override
 	public void close() {
 		removeFromTLParent();

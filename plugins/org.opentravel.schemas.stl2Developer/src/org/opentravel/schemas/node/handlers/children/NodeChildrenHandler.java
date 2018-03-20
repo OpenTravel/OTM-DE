@@ -17,16 +17,13 @@ package org.opentravel.schemas.node.handlers.children;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
-import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.InheritedInterface;
-import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.listeners.InheritanceDependencyListener;
 import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
 import org.opentravel.schemas.types.TypeProviderAndOwners;
@@ -95,24 +92,24 @@ public abstract class NodeChildrenHandler<C extends Node> implements ChildrenHan
 		return users;
 	}
 
-	@Override
-	public List<LibraryMemberInterface> getDescendants_LibraryMembers() {
-		// keep duplicates out of the list that version aggregates may introduce
-		HashSet<LibraryMemberInterface> namedKids = new HashSet<LibraryMemberInterface>();
-		for (Node c : get()) {
-			if (c.isDeleted())
-				continue;
-			// TL model considers services as named library member
-			if (c.isLibraryMember())
-				if (c instanceof FacadeInterface)
-					namedKids.add((LibraryMemberInterface) ((FacadeInterface) c).get());
-				else
-					namedKids.add((LibraryMemberInterface) c);
-			else if (c.hasChildren())
-				namedKids.addAll(c.getDescendants_LibraryMembers());
-		}
-		return new ArrayList<LibraryMemberInterface>(namedKids);
-	}
+	// @Override
+	// public List<LibraryMemberInterface> getDescendants_LibraryMembers() {
+	// // keep duplicates out of the list that version aggregates may introduce
+	// HashSet<LibraryMemberInterface> namedKids = new HashSet<LibraryMemberInterface>();
+	// for (Node c : get()) {
+	// if (c.isDeleted())
+	// continue;
+	// // TL model considers services as named library member
+	// if (c.isLibraryMember())
+	// if (c instanceof FacadeInterface)
+	// namedKids.add((LibraryMemberInterface) ((FacadeInterface) c).get());
+	// else
+	// namedKids.add((LibraryMemberInterface) c);
+	// else if (c.hasChildren())
+	// namedKids.addAll(c.getDescendants_LibraryMembers());
+	// }
+	// return new ArrayList<LibraryMemberInterface>(namedKids);
+	// }
 
 	@Override
 	public List<C> getInheritedChildren() {

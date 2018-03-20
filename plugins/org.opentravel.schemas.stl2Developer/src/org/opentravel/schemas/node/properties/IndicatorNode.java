@@ -186,7 +186,12 @@ public class IndicatorNode extends PropertyNode {
 	}
 
 	@Override
-	public boolean setAssignedType(TLModelElement tlProvider) {
+	public void removeAssignedTLType() {
+		// NO-OP
+	}
+
+	@Override
+	public boolean setAssignedTLType(TLModelElement tlProvider) {
 		return false;
 	}
 

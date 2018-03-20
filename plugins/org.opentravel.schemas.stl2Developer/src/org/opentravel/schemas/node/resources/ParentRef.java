@@ -191,7 +191,7 @@ public class ParentRef extends ResourceBase<TLResourceParentRef> {
 		List<ResourceNode> candidates = new ArrayList<ResourceNode>();
 		for (Node rn : getOwningComponent().getSiblings())
 			candidates.add((ResourceNode) rn);
-		candidates.addAll(getModelNode().getDescendants_Resources());
+		candidates.addAll(getModelNode().getAllResources());
 		return candidates;
 	}
 

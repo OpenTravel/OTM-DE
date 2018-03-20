@@ -381,8 +381,8 @@ public class Delete_Tests extends BaseProjectTest {
 		// Then - it must not be assigned to properties
 		assertTrue("Where assigned must not contain element.", !simple.getWhereAssigned().contains(ele));
 		assertTrue("Where assigned must not contain attribute.", !simple.getWhereAssigned().contains(attr));
-		assertTrue("Type assignment listener.", ele.getTypeHandler().getAssignmentListeners().getNode() != simple);
-		assertTrue("Type assignment listener.", attr.getTypeHandler().getAssignmentListeners().getNode() != simple);
+		assertTrue("Type assignment listener.", ele.getTypeHandler().getAssignmentListeners() == null);
+		assertTrue("Type assignment listener.", attr.getTypeHandler().getAssignmentListeners() == null);
 		assertTrue("Must have listener for element.",
 				simple.getWhereAssignedHandler().getAssignmentListeners(ele) != null);
 

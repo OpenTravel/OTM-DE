@@ -74,7 +74,6 @@ import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.SimpleMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
-import org.opentravel.schemas.node.interfaces.WhereUsedNodeInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
@@ -427,9 +426,12 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * Return true if the direct children (not inherited children) includes the candidate.
+	 * Return true if the direct children (not inherited children) includes the candidate. If candidate is a contextual
+	 * facet, its matching where contributed node is used.
 	 */
 	public boolean contains(Node candidate) {
+		if (candidate instanceof ContextualFacetNode)
+			candidate = ((ContextualFacetNode) candidate).getWhereContributed();
 		return getChildren() != null ? getChildren().contains(candidate) : false;
 	}
 
@@ -716,12 +718,7 @@ public abstract class Node implements INode {
 	 *         and navNodes.
 	 */
 	public List<Node> getDescendants() {
-		final ArrayList<Node> ret = new ArrayList<Node>();
-		for (final Node n : getChildren()) {
-			ret.add(n);
-			ret.addAll(n.getDescendants());
-		}
-		return ret;
+		return new NodeDescendantHandler().getDescendants(this);
 	}
 
 	/**
@@ -733,49 +730,22 @@ public abstract class Node implements INode {
 	 * @return new list of assigned types or empty list.
 	 */
 	public List<Node> getDescendants_AssignedTypes(boolean currentLibraryOnly) {
-		HashSet<Node> foundTypes = new HashSet<Node>();
-		foundTypes = getDescendants_AssignedTypes(currentLibraryOnly, foundTypes);
-		foundTypes.remove(this); // may have been found in an addAll iteration
-		return new ArrayList<Node>(foundTypes);
+		return new NodeDescendantHandler().getDescendants_AssignedTypes(this, currentLibraryOnly);
 	}
 
 	/**
-	 * Gets the descendants that are extension owners.
-	 * 
 	 * @return new list of all descendants that are extension owners.
 	 */
 	public List<ExtensionOwner> getDescendants_ExtensionOwners() {
-		final ArrayList<ExtensionOwner> ret = new ArrayList<ExtensionOwner>();
-		for (final Node n : getChildren()) {
-			if (n instanceof ExtensionOwner)
-				ret.add((ExtensionOwner) n);
-
-			// Some type users may also have children
-			if (n.hasChildren() && !(n instanceof WhereUsedNodeInterface))
-				ret.addAll(n.getDescendants_ExtensionOwners());
-		}
-		return ret;
+		return new NodeDescendantHandler().getDescendants_ExtensionOwners(this);
 	}
 
 	public List<ContextualFacetOwnerInterface> getDescendants_ContextualFacetOwners() {
-		final ArrayList<ContextualFacetOwnerInterface> ret = new ArrayList<ContextualFacetOwnerInterface>();
-		for (final Node n : getDescendants())
-			if (n instanceof ContextualFacetOwnerInterface)
-				ret.add((ContextualFacetOwnerInterface) n);
-		return ret;
+		return new NodeDescendantHandler().getDescendants_ContextualFacetOwners(this);
 	}
 
 	public List<ContributedFacetNode> getDescendants_ContributedFacets() {
-		final ArrayList<ContributedFacetNode> ret = new ArrayList<ContributedFacetNode>();
-		for (final Node n : getChildren()) {
-			if (n instanceof ContributedFacetNode)
-				ret.add((ContributedFacetNode) n);
-
-			// Some children may have contributed facets
-			if (n.hasChildren() && !(n instanceof WhereUsedNodeInterface))
-				ret.addAll(n.getDescendants_ContributedFacets());
-		}
-		return ret;
+		return new NodeDescendantHandler().getDescendants_ContributedFacets(this);
 	}
 
 	/**
@@ -783,22 +753,8 @@ public abstract class Node implements INode {
 	 * @return new list of all contextual facets including contributed facets
 	 */
 	public List<ContextualFacetNode> getDescendants_ContextualFacets() {
-		final ArrayList<ContextualFacetNode> ret = new ArrayList<ContextualFacetNode>();
-		for (final Node n : getChildren()) {
-			if (n instanceof ContextualFacetNode)
-				ret.add((ContextualFacetNode) n);
-
-			// Some children may have contributed facets
-			if (n.hasChildren() && !(n instanceof WhereUsedNodeInterface))
-				ret.addAll(n.getDescendants_ContextualFacets());
-		}
-		return ret;
-
+		return new NodeDescendantHandler().getDescendants_ContextualFacets(this);
 	}
-
-	/*****************************************************************************
-	 * Static getters
-	 */
 
 	/**
 	 * return new list of NamedEntities. Traverse via hasChildren. For version chains, it returns the newest version
@@ -810,21 +766,18 @@ public abstract class Node implements INode {
 		// keep duplicates out of the list that version aggregates may introduce
 		HashSet<Node> namedKids = new HashSet<Node>();
 		if (getChildrenHandler() != null)
-			for (LibraryMemberInterface c : getChildrenHandler().getDescendants_LibraryMembers())
+			for (LibraryMemberInterface c : getDescendants_LibraryMembers())
 				namedKids.add((Node) c);
 		return new ArrayList<Node>(namedKids);
 
 	}
 
 	/**
-	 * return new list of NamedEntities. Traverse via hasChildren. For version chains, it returns the newest version
-	 * using the version node and does not touch aggregates.
+	 * return new list of Library Members. Traverse via hasChildren. For version chains, it returns the newest version
+	 * using the version aggregate node and does not touch other aggregates.
 	 */
-	// @Override
 	public List<LibraryMemberInterface> getDescendants_LibraryMembers() {
-		if (getChildrenHandler() != null)
-			return getChildrenHandler().getDescendants_LibraryMembers();
-		return Collections.emptyList();
+		return new NodeDescendantHandler().getDescendants_LibraryMembers(this);
 	}
 
 	/**
@@ -833,22 +786,13 @@ public abstract class Node implements INode {
 	 * @return new list of all descendants that simple components.
 	 */
 	public ArrayList<SimpleMemberInterface> getDescendants_SimpleMembers() {
-		final ArrayList<SimpleMemberInterface> ret = new ArrayList<SimpleMemberInterface>();
-		for (final Node n : getChildren()) {
-			if (n instanceof SimpleMemberInterface)
-				ret.add((SimpleMemberInterface) n);
-
-			// check children
-			if (n.hasChildren() && !(n instanceof WhereUsedNodeInterface))
-				ret.addAll(n.getDescendants_SimpleMembers());
-		}
-		return ret;
+		return new NodeDescendantHandler().getDescendants_SimpleMembers(this);
 	}
 
 	/**
 	 * Get all resources in the model.
 	 */
-	public List<ResourceNode> getDescendants_Resources() {
+	public List<ResourceNode> getAllResources() {
 		final ArrayList<ResourceNode> resources = new ArrayList<ResourceNode>();
 		for (final LibraryNode ln : getModelNode().getLibraries())
 			for (final Node n : ln.getResourceRoot().getChildren())
@@ -857,27 +801,13 @@ public abstract class Node implements INode {
 		return resources;
 	}
 
-	/*****************************************************************************
-	 * Children
-	 */
-
 	/**
 	 * Gets the descendants that are type providers (can be assigned as a type). Does not return navigation nodes.
 	 * 
 	 * @return new list of all descendants that can be assigned as a type.
 	 */
-	// TODO - migrate into NodeChilderenHandler
 	public List<TypeProvider> getDescendants_TypeProviders() {
-		final ArrayList<TypeProvider> ret = new ArrayList<TypeProvider>();
-		for (final Node n : getChildren()) {
-			if (n instanceof TypeProvider)
-				ret.add((TypeProvider) n);
-
-			// Some type users may also have children
-			if (n.hasChildren() && !(n instanceof WhereUsedNodeInterface))
-				ret.addAll(n.getDescendants_TypeProviders());
-		}
-		return ret;
+		return new NodeDescendantHandler().getDescendants_TypeProviders(this);
 	}
 
 	/**
@@ -887,23 +817,7 @@ public abstract class Node implements INode {
 	 * @return new list of all descendants that can be assigned a type.
 	 */
 	public List<TypeUser> getDescendants_TypeUsers() {
-		final ArrayList<TypeUser> ret = new ArrayList<TypeUser>();
-		for (final Node n : getChildren()) {
-			if (n instanceof TypeUser)
-				ret.add((TypeUser) n);
-
-			// Do not traverse UserNodes
-			if (n instanceof WhereUsedNodeInterface)
-				continue;
-			// Do not traverse contributed facets, the contributor will be found
-			if (OTM16Upgrade.otm16Enabled && n instanceof ContributedFacetNode)
-				continue;
-
-			// Some type users may also have children
-			if (n.hasChildren())
-				ret.addAll(n.getDescendants_TypeUsers());
-		}
-		return ret;
+		return new NodeDescendantHandler().getDescendants_TypeUsers(this);
 	}
 
 	public String getDescription() {
@@ -2335,21 +2249,6 @@ public abstract class Node implements INode {
 				list.add(tlLib.getContext(id));
 		}
 		return list;
-	}
-
-	// the public method uses this then removes the original object from the list.
-	private HashSet<Node> getDescendants_AssignedTypes(boolean currentLibraryOnly, HashSet<Node> foundTypes) {
-		Node assignedType = null;
-		for (TypeUser n : getDescendants_TypeUsers()) {
-			if (n.getAssignedType() != null) {
-				assignedType = (Node) ((Node) n.getAssignedType()).getOwningComponent();
-				if (!currentLibraryOnly || (assignedType.getLibrary() == getLibrary()))
-					if (foundTypes.add(assignedType)) {
-						foundTypes.addAll(assignedType.getDescendants_AssignedTypes(currentLibraryOnly, foundTypes));
-					}
-			}
-		}
-		return foundTypes;
 	}
 
 	public void deleteTL() {

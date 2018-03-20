@@ -273,8 +273,10 @@ public class Clone_Tests {
 			assert clone != null;
 			if (clone instanceof TLProperty) {
 				// elements are of type TLPropery
-				assert ((TLProperty) clone).getName().equals(n.getName());
-				assert ((TLProperty) clone).getType().equals(n.getAssignedTLObject());
+				if (((TLProperty) clone).getName() != null)
+					assert ((TLProperty) clone).getName().equals(n.getName());
+				if (((TLProperty) clone).getType() != null)
+					assert ((TLProperty) clone).getType().equals(n.getAssignedTLObject());
 				assert ((TLProperty) clone).getOwner() == null;
 			}
 		}
