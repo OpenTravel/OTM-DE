@@ -88,7 +88,7 @@ public class NodeVisitors {
 
 			node.setParent(null);
 
-			LOGGER.debug("CloseVisitor: closed  " + n);
+			// LOGGER.debug("CloseVisitor: closed  " + n);
 		}
 	}
 

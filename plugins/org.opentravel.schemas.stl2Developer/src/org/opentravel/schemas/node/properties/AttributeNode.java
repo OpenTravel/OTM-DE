@@ -165,6 +165,11 @@ public class AttributeNode extends PropertyNode {
 	}
 
 	@Override
+	public String getAssignedTLTypeName() {
+		return getTLModelObject() != null ? getTLModelObject().getTypeName() : "";
+	}
+
+	@Override
 	public int indexOfTLProperty() {
 		return getTLModelObject() != null ? getTLModelObject().getOwner().getAttributes().indexOf(getTLModelObject())
 				: 0;

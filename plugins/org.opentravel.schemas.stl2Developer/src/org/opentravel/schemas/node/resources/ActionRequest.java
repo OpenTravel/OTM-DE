@@ -175,7 +175,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 
 	@Override
 	public String getName() {
-		return getParent().getName() + "_Request";
+		return getParent() != null ? getParent().getName() + "_Request" : "";
 	}
 
 	public ParamGroup getParamGroup() {

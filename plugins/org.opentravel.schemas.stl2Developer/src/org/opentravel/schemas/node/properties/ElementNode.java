@@ -121,6 +121,11 @@ public class ElementNode extends PropertyNode {
 	}
 
 	@Override
+	public String getAssignedTLTypeName() {
+		return getTLModelObject() != null ? getTLModelObject().getTypeName() : "";
+	}
+
+	@Override
 	public ComponentNodeType getComponentNodeType() {
 		return ComponentNodeType.ELEMENT;
 	}

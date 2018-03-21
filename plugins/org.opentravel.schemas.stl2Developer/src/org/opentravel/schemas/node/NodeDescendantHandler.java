@@ -209,6 +209,13 @@ public class NodeDescendantHandler {
 		return ret;
 	}
 
+	/**
+	 * Return false for structures that duplicate objects in the model, including contributed facets, non-version
+	 * aggregates and where used nodes.
+	 * 
+	 * @param n
+	 * @return
+	 */
 	private boolean hasDescendents(Node n) {
 		if (n.isDeleted())
 			return false;
@@ -218,7 +225,7 @@ public class NodeDescendantHandler {
 		// Only search the libraries under the version aggregate
 		if (n instanceof AggregateNode && !(n instanceof VersionAggregateNode))
 			return false;
-		// Some type users may also have children
+		// Skip where used nodes
 		if (n instanceof WhereUsedNodeInterface)
 			return false;
 		return n.hasChildren();

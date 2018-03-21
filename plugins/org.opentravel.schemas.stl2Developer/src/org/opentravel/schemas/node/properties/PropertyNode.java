@@ -44,6 +44,7 @@ import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.listeners.TypeUserListener;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ImpliedNode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNodeType;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
@@ -592,16 +593,33 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 
 	@Override
 	public String getAssignedTypeName() {
-		return getTypeHandler() != null ? getTypeHandler().getName() : "";
+		String typeName = "";
+		if (getTypeHandler() != null)
+			typeName = getTypeHandler().getName();
+
+		// Provide typeName from TL Object if Missing
+		if (getAssignedType() instanceof ImpliedNode)
+			if (((ImpliedNode) getAssignedType()).getImpliedType() == ImpliedNodeType.UnassignedType)
+				typeName = getAssignedType().getName() + ": " + getAssignedTLTypeName();
+
+		return typeName;
+	}
+
+	public String getAssignedTLTypeName() {
+		return ""; // Override if property has a TL Type Name field.
 	}
 
 	@Override
 	public String getTypeNameWithPrefix() {
 		if (getAssignedType() == null)
 			return "";
-		String typeName = getAssignedType().getName();
+		String typeName = getAssignedTypeName();
+		// String typeName = getAssignedType().getName();
 		if (getAssignedType() instanceof ImpliedNode)
+			// if ( ((ImpliedNode)getAssignedType()).getImpliedType() == ImpliedNodeType.UnassignedType)
+			// typeName = typeName+" ";
 			return typeName;
+		// }
 		if (getPrefix().equals(getAssignedPrefix()))
 			return typeName;
 		return getAssignedPrefix() + " : " + typeName;
