@@ -20,9 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
-import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
 import org.opentravel.schemacompiler.model.TLExtensionPointFacet;
@@ -248,17 +246,9 @@ public abstract class ComponentNode extends Node {
 	 * @return the assigned namespace prefix from the model object.
 	 */
 	public String getAssignedPrefix() {
-		TLModelElement tlType = null;
-		AbstractLibrary tlLib = null;
-		// FIXME - delegate
 		if (this instanceof TypeUser)
-			tlType = ((TypeUser) this).getAssignedTLObject();
-		if (tlType == null)
-			return "";
-		if (tlType instanceof NamedEntity)
-			tlLib = ((NamedEntity) tlType).getOwningLibrary();
-		return tlLib == null ? "xsd" : tlLib.getPrefix();
-		// return getModelObject().getAssignedPrefix();
+			return ((TypeUser) this).getTypeHandler().getAssignedTypePrefix();
+		return "";
 	}
 
 	public ConstraintHandler getConstraintHandler() {
@@ -355,7 +345,6 @@ public abstract class ComponentNode extends Node {
 	public boolean setDocumentation(TLDocumentation documentation) {
 		if (getTLModelObject() instanceof TLDocumentationOwner)
 			((TLDocumentationOwner) getTLModelObject()).setDocumentation(documentation);
-		// getModelObject().setDocumentation(documentation);
 		else
 			return false;
 		return true;

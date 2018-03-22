@@ -103,6 +103,33 @@ public class DocumentationHandler {
 	}
 
 	/**
+	 * If there are multiple other documentation items, save the one with the contextID and convert the rest into
+	 * implementers documentation.
+	 * 
+	 * @param contextID
+	 */
+	public void fix(String contextID) {
+		TLDocumentation tld = getTL();
+		if (tld != null) {
+			List<TLAdditionalDocumentationItem> tlod = tld.getOtherDocs();
+			if (tlod != null && !tlod.isEmpty()) {
+				// If the target exists, then use it.
+				TLAdditionalDocumentationItem targetOD = tld.getOtherDoc(contextID);
+				// Save the first one if none use the passed context
+				if (targetOD == null) {
+					tlod.get(0).setContext(contextID);
+					targetOD = tlod.get(0);
+				}
+				// All others get converted to implementation documentation.
+				for (TLAdditionalDocumentationItem od : tlod) {
+					if (od != null && od != targetOD)
+						addImplementer("Other doc: " + od.getContext() + " = " + od.getText());
+				}
+			}
+		}
+	}
+
+	/**
 	 * @return deprecation string or null
 	 */
 	public String getDeprecation(final int i) {

@@ -1025,17 +1025,17 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		String Text = "SampleText";
 		Assert.assertNotNull(simple);
 		simple.setDescription(Text);
-		simple.getDocHander().setMoreInfo(Text, 0);
+		simple.getDocHandler().setMoreInfo(Text, 0);
 		simple.setExample(Text);
 		simple.setEquivalent(Text);
 
 		assertTrue(simple.getDescription().equals(Text));
-		assertTrue(simple.getDocHander().getMoreInfo(0).equals(Text));
+		assertTrue(simple.getDocHandler().getMoreInfo(0).equals(Text));
 		assertTrue(simple.getExample(null).equals(Text));
 		assertTrue(simple.getEquivalent(null).equals(Text));
 
 		simple.setDescription("");
-		simple.getDocHander().setMoreInfo("", 0);
+		simple.getDocHandler().setMoreInfo("", 0);
 		simple.setExample("");
 		simple.setEquivalent("");
 	}
@@ -1044,19 +1044,19 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		String Text = "SampleText";
 		Assert.assertNotNull(property);
 		property.setDescription(Text);
-		property.getDocHander().setMoreInfo(Text, 0);
+		property.getDocHandler().setMoreInfo(Text, 0);
 		property.setExample(Text);
 		property.setEquivalent(Text);
 
 		assertTrue(property.getDescription().equals(Text));
-		assertTrue(property.getDocHander().getMoreInfo(0).equals(Text));
+		assertTrue(property.getDocHandler().getMoreInfo(0).equals(Text));
 		if (property.getExampleHandler() != null) {
 			assertTrue(property.getExample(null).equals(Text));
 			assertTrue(property.getEquivalent(null).equals(Text));
 		}
 
 		property.setDescription("");
-		property.getDocHander().setMoreInfo("", 0);
+		property.getDocHandler().setMoreInfo("", 0);
 		property.setExample("");
 		property.setEquivalent("");
 	}

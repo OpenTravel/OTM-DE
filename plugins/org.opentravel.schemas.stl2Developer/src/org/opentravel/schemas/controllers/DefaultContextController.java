@@ -104,7 +104,8 @@ public class DefaultContextController extends OtmControllerBase implements Conte
 
 	@Override
 	public String getDefaultContextId(LibraryNode ln) {
-		return manager.getDefaultContextId(ln);
+		return ln.getTLLibrary().getContexts().get(0).getContextId();
+		// return manager.getDefaultContextId(ln);
 	}
 
 	// @Override

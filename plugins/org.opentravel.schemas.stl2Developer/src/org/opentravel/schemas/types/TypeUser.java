@@ -51,6 +51,11 @@ public interface TypeUser {
 	 */
 	public TypeProvider getAssignedType();
 
+	/**
+	 * @return the type name field from the TLModelObject
+	 */
+	public String getAssignedTLTypeName();
+
 	// public String getAssignedTypeName();
 
 	public LibraryNode getLibrary();

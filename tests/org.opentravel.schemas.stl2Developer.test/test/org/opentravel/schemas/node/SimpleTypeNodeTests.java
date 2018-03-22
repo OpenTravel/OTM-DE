@@ -104,7 +104,7 @@ public class SimpleTypeNodeTests {
 		// where assigned hander
 		// type handler
 		assertTrue(st.getChildrenHandler() != null);
-		assertTrue(st.getDocHander() != null);
+		assertTrue(st.getDocHandler() != null);
 		assertTrue(st.getConstraintHandler() != null);
 		if (st.getXsdObjectHandler() != null)
 			assertTrue(st.getXsdObjectHandler().getOwner() == st);
@@ -128,7 +128,7 @@ public class SimpleTypeNodeTests {
 		assertTrue(simple.getTypeHandler() != null);
 
 		// Then - handlers: whereExtended, documentation
-		assertTrue(simple.getDocHander() != null);
+		assertTrue(simple.getDocHandler() != null);
 		assertTrue(simple.getWhereAssignedHandler() != null);
 
 		// Make it valid then check it.

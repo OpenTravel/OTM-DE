@@ -64,7 +64,6 @@ import org.opentravel.schemas.node.properties.ElementReferenceNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ListFacetNode;
-import org.opentravel.schemas.node.typeProviders.SimpleComponentNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
@@ -566,25 +565,25 @@ public class TestTypes extends BaseProjectTest {
 		}
 	}
 
-	/**
-	 * Examine all objects under SimpleRoot and return count.
-	 * 
-	 * @param ln
-	 * @return
-	 */
-	public int testSimples(LibraryNode ln) {
-		int simpleCnt = 0;
-		for (Node sn : ln.getSimpleRoot().getChildren()) {
-			assertTrue("Must be simple type.", sn instanceof SimpleComponentNode);
-			assertTrue("Must be a type user.", sn instanceof TypeUser);
-			TypeProvider at = ((TypeUser) sn).getAssignedType();
-			assertTrue("Must have assigned type.", ((TypeUser) sn).getAssignedType() != null);
-			// assertTrue("Must not be assigned implied type.",
-			// !(((TypeUser) sn).getAssignedType() instanceof ImpliedNode));
-			simpleCnt++;
-		}
-		return simpleCnt;
-	}
+	// /**
+	// * Examine all objects under SimpleRoot and return count.
+	// *
+	// * @param ln
+	// * @return
+	// */
+	// public int testSimples(LibraryNode ln) {
+	// // int simpleCnt = 0;
+	// // for (Node sn : ln.getSimpleRoot().getChildren()) {
+	// // assertTrue("Must be simple type.", sn instanceof SimpleComponentNode);
+	// // assertTrue("Must be a type user.", sn instanceof TypeUser);
+	// // TypeProvider at = ((TypeUser) sn).getAssignedType();
+	// // assertTrue("Must have assigned type.", ((TypeUser) sn).getAssignedType() != null);
+	// // // assertTrue("Must not be assigned implied type.",
+	// // // !(((TypeUser) sn).getAssignedType() instanceof ImpliedNode));
+	// // simpleCnt++;
+	// // }
+	// // return simpleCnt;
+	// }
 
 	private void testSettingType() {
 		// 1/15/2017 dmh - find something more reliable. test libraries have changed and this

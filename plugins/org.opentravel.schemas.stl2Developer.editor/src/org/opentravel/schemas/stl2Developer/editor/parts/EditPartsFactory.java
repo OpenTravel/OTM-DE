@@ -21,7 +21,7 @@ import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.node.typeProviders.SimpleComponentNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.stl2Developer.editor.model.Connection;
 import org.opentravel.schemas.stl2Developer.editor.model.Diagram;
 import org.opentravel.schemas.stl2Developer.editor.model.UINode;
@@ -47,7 +47,7 @@ public class EditPartsFactory implements EditPartFactory {
 			return new LibraryEditPart(uiNode);
 		} else if (node instanceof PropertyNode) {
 			return new PropertyNodeEditPart(uiNode);
-		} else if (node instanceof SimpleComponentNode) {
+		} else if (node instanceof SimpleTypeNode) {
 			return new PropertyNodeEditPart(uiNode);
 		} else if (node instanceof ComponentNode) {
 			return new ComponentNodeEditPart(uiNode);

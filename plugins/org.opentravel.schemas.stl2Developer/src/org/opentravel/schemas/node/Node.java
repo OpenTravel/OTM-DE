@@ -90,7 +90,6 @@ import org.opentravel.schemas.node.properties.PropertyNodeType;
 import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
-import org.opentravel.schemas.node.typeProviders.ContextualFacet15Node;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.node.typeProviders.CustomFacetNode;
 import org.opentravel.schemas.node.typeProviders.ImpliedNode;
@@ -824,14 +823,14 @@ public abstract class Node implements INode {
 		return docHandler != null ? docHandler.getDescription() : "";
 	}
 
-	public DocumentationHandler getDocHander() {
+	public DocumentationHandler getDocHandler() {
 		if (docHandler == null && isDocumentationOwner())
 			docHandler = new DocumentationHandler(this);
 		return docHandler;
 	}
 
 	public TLDocumentation getDocumentation() {
-		return getDocHander() != null ? docHandler.getOrNewTL() : null;
+		return getDocHandler() != null ? docHandler.getOrNewTL() : null;
 	}
 
 	/**
@@ -1147,7 +1146,10 @@ public abstract class Node implements INode {
 
 	@Override
 	public String getAssignedTypeName() {
-		return getType() != null ? getType().getName() : "";
+		if (this instanceof TypeUser)
+			return ((TypeUser) this).getTypeHandler().getAssignedTypeName();
+		return "";
+		// return getType() != null ? getType().getName() : "";
 	}
 
 	@Override
@@ -1836,6 +1838,7 @@ public abstract class Node implements INode {
 	 * @return true if unique
 	 * 
 	 *         FIXME - this assumes that we are only comparing properties of complex objects Will not work for nav nodes
+	 *         FIXME - this does not handle contributed facets
 	 */
 	public boolean isUnique(final INode testNode) {
 		Node n = this;
@@ -1933,35 +1936,24 @@ public abstract class Node implements INode {
 	/**
 	 * Change all context users to use targetId. Iterates on all children. If the context would be duplicated, it is
 	 * added as an implementors documentation item.
+	 * <p>
+	 * This node must be in a library. EQ/EX handler depends on being in a library.
+	 * <p>
 	 * 
 	 * @param targetId
 	 *            - replace with this contextId
 	 */
 	public void mergeContext(String targetId) {
+		if (getLibrary() == null)
+			return;
 
 		if (this instanceof PropertyNode && ((PropertyNode) this).getEquivalentHandler() != null)
 			((PropertyNode) this).getEquivalentHandler().fix(targetId);
 		if (this instanceof PropertyNode && ((PropertyNode) this).getExampleHandler() != null)
 			((PropertyNode) this).getExampleHandler().fix(targetId);
 
-		if (this instanceof ContextualFacetNode)
-			((ContextualFacetNode) this).setContext(targetId);
-		else if (this instanceof ContextualFacet15Node)
-			((ContextualFacet15Node) this).setContext(targetId);
-
-		if (getDocumentation() != null && getDocumentation().getOtherDocs() != null) {
-			// Avoid concurrent modification
-			List<TLAdditionalDocumentationItem> odList = new ArrayList<TLAdditionalDocumentationItem>(
-					getDocumentation().getOtherDocs());
-			// If the target exists, then use it. All others get converted to implementation documentation.
-			TLAdditionalDocumentationItem targetOD = getDocumentation().getOtherDoc(targetId);
-			for (TLAdditionalDocumentationItem od : odList) {
-				if (targetOD == null)
-					od.setContext(targetId);
-				else
-					getDocHander().addImplementer("Other doc: " + od.getContext() + " = " + od.getText());
-			}
-		}
+		if (getDocHandler() != null)
+			getDocHandler().fix(targetId);
 
 		// Iterate through all children
 		for (Node n : getChildren())
@@ -2196,7 +2188,7 @@ public abstract class Node implements INode {
 	 *         Overridden for attributes/elements/indicators that have examples and equivalents
 	 */
 	@Deprecated
-	public List<TLContext> getContexts() {
+	private List<TLContext> getContexts() {
 		if (!(getTLModelObject() instanceof LibraryMember))
 			return Collections.emptyList();
 		if (!(((LibraryMember) getTLModelObject()).getOwningLibrary() instanceof TLLibrary))

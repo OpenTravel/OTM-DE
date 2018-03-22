@@ -1117,6 +1117,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	@Override
+	public String getAssignedTLTypeName() {
+		return ""; // Override if property has a TL Type Name field.
+	}
+
+	@Override
 	public NamedEntity getAssignedTLNamedEntity() {
 		// TODO Auto-generated method stub
 		return null;

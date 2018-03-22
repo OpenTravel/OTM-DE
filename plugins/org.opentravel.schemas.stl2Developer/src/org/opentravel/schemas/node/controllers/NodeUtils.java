@@ -37,7 +37,7 @@ import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
-import org.opentravel.schemas.node.typeProviders.SimpleComponentNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
@@ -117,7 +117,7 @@ public class NodeUtils {
 			case SERVICE:
 				return node instanceof ServiceNode;
 			case SIMPLE:
-				return node instanceof SimpleComponentNode;
+				return node instanceof SimpleTypeNode;
 			case VWA:
 				return node instanceof VWA_Node;
 			default:

@@ -50,7 +50,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
-import org.opentravel.schemas.node.typeProviders.SimpleComponentNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.trees.type.TypeSelectionFilter;
@@ -290,10 +290,10 @@ public class TypeSelectionPage extends WizardPage {
 
 	private List<Node> getExcludeNodes(INode node) {
 		Node n = (Node) node;
-		if (n.getOwningComponent() instanceof VWA_Node && n instanceof SimpleComponentNode)
+		if (n.getOwningComponent() instanceof VWA_Node && n instanceof SimpleTypeNode)
 			return Collections.singletonList((Node) n.getOwningComponent());
 
-		if (n.getOwningComponent() instanceof CoreObjectNode && n instanceof SimpleComponentNode)
+		if (n.getOwningComponent() instanceof CoreObjectNode && n instanceof SimpleTypeNode)
 			return Collections.singletonList((Node) n.getOwningComponent());
 
 		if (n instanceof CoreObjectNode)

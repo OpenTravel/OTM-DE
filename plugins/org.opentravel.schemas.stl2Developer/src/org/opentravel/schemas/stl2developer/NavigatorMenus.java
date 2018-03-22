@@ -99,7 +99,7 @@ import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
-import org.opentravel.schemas.node.typeProviders.SimpleComponentNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
@@ -466,7 +466,7 @@ public class NavigatorMenus extends TreeViewer {
 							// manager.add(facetMenu); // Reached? should match aliasNode
 						} else if (node instanceof ExtensionPointNode) {
 							manager.add(xpFacetObjectMenu);
-						} else if (node instanceof SimpleComponentNode) {
+						} else if (node instanceof SimpleTypeNode) {
 							manager.add(simpleObjectMenu);
 						} else if (node instanceof SimpleAttributeFacadeNode) {
 						} else if (node instanceof RoleNode) {

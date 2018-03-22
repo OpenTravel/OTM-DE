@@ -57,7 +57,7 @@ public class AddDocumentationsHandler extends OtmAbstractHandler {
 	private void saveDoc(Node n, SetDocumentationWizard.DocTypes type, String text) {
 		if (n == null || type == null || text.isEmpty())
 			return;
-		DocumentationHandler dh = n.getDocHander();
+		DocumentationHandler dh = n.getDocHandler();
 		if (dh == null)
 			return;
 

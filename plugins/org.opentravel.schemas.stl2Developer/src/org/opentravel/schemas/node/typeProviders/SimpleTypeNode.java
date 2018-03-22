@@ -111,6 +111,11 @@ public class SimpleTypeNode extends SimpleTypeProviders implements TypeUser, Lib
 		return getXsdObjectHandler() != null ? getXsdObjectHandler().getAssignedPrefix() : getLibrary().getPrefix();
 	}
 
+	@Override
+	public String getAssignedTLTypeName() {
+		return getTLModelObject() != null ? getTLModelObject().getParentTypeName() : "";
+	}
+
 	public String getExample(String context) {
 		if (exampleHandler == null)
 			exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);

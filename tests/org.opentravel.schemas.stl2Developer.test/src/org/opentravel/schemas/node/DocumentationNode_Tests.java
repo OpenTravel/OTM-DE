@@ -86,7 +86,7 @@ public class DocumentationNode_Tests {
 		final String s3 = "String3 test documentation.";
 
 		// Given the doc handler from the BO
-		DocumentationHandler dh = bo.getDocHander();
+		DocumentationHandler dh = bo.getDocHandler();
 		// Given a new documentation handler for the BO
 		// DocumentationHandler dh = new DocumentationHandler(bo);
 
@@ -269,7 +269,7 @@ public class DocumentationNode_Tests {
 			final String doc = "ABCdef124 now is the time for all good...you know";
 			int index = 0;
 			// use docHandler
-			DocumentationHandler dh = n.getDocHander();
+			DocumentationHandler dh = n.getDocHandler();
 
 			assertTrue(n.getDescription() != null);
 

@@ -162,7 +162,7 @@ public class Library_FunctionTests extends BaseProjectTest {
 		LibraryNode ln = ml.createNewLibrary(pc, "DocTest");
 
 		// When description added
-		assertTrue(ln.getDocHander() == null);
+		assertTrue(ln.getDocHandler() == null);
 		// ln.getDocHander().addDescription(string1);
 		// // then it can be read
 		// String s = ln.getDescription();

@@ -18,21 +18,33 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
+import org.opentravel.schemacompiler.model.TLContext;
+import org.opentravel.schemacompiler.model.TLLibrary;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
+import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.utils.BaseProjectTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +52,7 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class Import_Tests {
+public class Import_Tests extends BaseProjectTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Import_Tests.class);
 
 	ModelNode model = null;
@@ -51,6 +63,7 @@ public class Import_Tests {
 	ProjectController pc;
 	ProjectNode defaultProject;
 
+	@Override
 	@Before
 	public void beforeEachTest() {
 		// mc = OtmRegistry.getMainController(); // don't do this - it messes up the project controller
@@ -92,15 +105,71 @@ public class Import_Tests {
 
 	@Test
 	public void importNode() {
-		ml = new MockLibrary();
+		OTM16Upgrade.otm16Enabled = true;
 
-		LibraryNode target = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
-		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(target, "testBO");
-		CoreObjectNode core = ml.addCoreObjectToLibrary(target, "testCore");
+		// Given two libraries in two projects
+		ProjectNode project1 = createProject("Project1", rc.getLocalRepository(), "IT1");
+		ProjectNode project2 = createProject("Project2", rc.getLocalRepository(), "IT2");
 
+		// Create library and force different context id
+		LibraryNode source = ml.createNewLibrary_Empty(project1.getNSRoot(), "test1", project1);
+		List<TLContext> ctxs1 = ((TLLibrary) source.getTLModelObject()).getContexts();
+		TLContext tlc = ctxs1.get(0);
+		tlc.setContextId("id1");
+		tlc.setApplicationContext("app1");
+
+		LibraryNode target = ml.createNewLibrary_Empty(project2.getNSRoot(), "test2", project2);
+		assert target.getDescendants_LibraryMembers().size() == 0;
+
+		// Add library members to source that use context
+		SimpleTypeNode simple = ml.addSimpleTypeToLibrary(source, "S1");
+		simple.setExample("S1");
+		simple.setEquivalent("Simple EQ1");
+
+		VWA_Node vwa = ml.addVWA_ToLibrary(source, "V1");
+		AttributeNode attr1 = new AttributeNode(vwa.getFacet_Attributes(), "a1", simple);
+		attr1.setExample("A1");
+
+		CoreObjectNode core = ml.addCoreObjectToLibrary(source, "testCore");
+		ElementNode c1 = new ElementNode(core.getFacet_Summary(), "c1", ml.getXsdString());
+		c1.setExample("EX1");
+
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(source, "testBO");
+		ElementNode e1 = new ElementNode(bo.getFacet_Summary(), "e1", ml.getXsdString());
+		e1.setExample("EX1");
+		// add OtherDoc via handler and directly
+		e1.getDocHandler().addOther("OtherDoc 2");
+		TLAdditionalDocumentationItem tlod = new TLAdditionalDocumentationItem();
+		tlod.setText("OtherDoc 1");
+		tlod.setContext(source.getDefaultContextId());
+		e1.getDocumentation().addOtherDoc(tlod);
+
+		assert source.getTLLibrary().getContexts().size() == 1;
+		assert target.getTLLibrary().getContexts().size() == 1;
+
+		// pc.save(project1);
+		// String path = source.getLibrary().getTLModelObject().getLibraryUrl().getPath();
+		// LOGGER.debug("Examine OTM file: " + path);
+		// pc.save(project2);
+		// path = target.getLibrary().getTLModelObject().getLibraryUrl().getPath();
+		// LOGGER.debug("Examine OTM file: " + path);
+
+		// When nodes are imported
 		target.importNode(bo);
 		target.importNode(core);
-		Assert.assertEquals(3, target.getDescendants_LibraryMemberNodes().size());
+		target.importNode(vwa);
+		target.importNode(simple);
+
+		// pc.save(project2);
+		// path = target.getLibrary().getTLModelObject().getLibraryUrl().getPath();
+		// LOGGER.debug("Examine OTM file: " + path);
+
+		// Then
+		List<LibraryMemberInterface> members = target.getDescendants_LibraryMembers();
+		assertTrue(target.getDescendants_LibraryMembers().size() > 2);
+		assert source.getTLLibrary().getContexts().size() == 1;
+		assert target.getTLLibrary().getContexts().size() == 1;
+		OTM16Upgrade.otm16Enabled = false;
 	}
 
 	@Test

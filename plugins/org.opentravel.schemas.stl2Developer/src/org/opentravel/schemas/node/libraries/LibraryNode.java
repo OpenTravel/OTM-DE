@@ -35,7 +35,6 @@ import org.opentravel.schemacompiler.model.BuiltInLibrary;
 import org.opentravel.schemacompiler.model.BuiltInLibrary.BuiltInType;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.TLContext;
-import org.opentravel.schemacompiler.model.TLContextReferrer;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLExtensionOwner;
 import org.opentravel.schemacompiler.model.TLLibrary;
@@ -434,13 +433,11 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 			return null;
 		}
 
-		// 3/23/2017 - simplified context handling to just set to new library default.
-		for (Node child : ((Node) newNode).getDescendants())
-			if (child.getTLModelObject() instanceof TLContextReferrer)
-				((TLContextReferrer) child.getTLModelObject()).setContext(getDefaultContextId());
-		assert getTLLibrary().getContexts().size() == 1;
-
 		addMember(newNode);
+
+		collapseContexts(); // slow, but reliable
+
+		assert getTLLibrary().getContexts().size() == 1;
 
 		if (!(newNode instanceof EnumerationClosedNode))
 			((Node) newNode).setExtensible(true);

@@ -24,6 +24,7 @@ import java.util.List;
 import javax.xml.XMLConstants;
 
 import org.opentravel.schemacompiler.event.ModelElementListener;
+import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.NamedEntity;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLModelElement;
@@ -32,6 +33,8 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.listeners.TypeUserAssignmentListener;
 import org.opentravel.schemas.node.objectMembers.SharedFacetNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNodeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,6 +111,39 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 			n = ModelNode.getUnassignedNode();
 
 		return (TypeProvider) n;
+	}
+
+	public String getAssignedTypeName() {
+		String typeName = getName();
+
+		// Provide typeName from TL Object if Missing
+		if (get() instanceof ImpliedNode)
+			if (((ImpliedNode) get()).getImpliedType() == ImpliedNodeType.UnassignedType)
+				typeName = get().getName() + ": " + owner.getAssignedTLTypeName();
+
+		return typeName;
+	}
+
+	public String getAssignedTypeNameWithPrefix() {
+		String typeName = getAssignedTypeName();
+		if (get() instanceof ImpliedNode)
+			return typeName;
+		if (((Node) owner).getPrefix().equals(getAssignedTypePrefix()))
+			return typeName;
+		return getAssignedTypePrefix() + " : " + typeName;
+	}
+
+	/**
+	 * @return the assigned namespace prefix from the model object.
+	 */
+	public String getAssignedTypePrefix() {
+		TLModelElement tlType = owner.getAssignedTLObject();
+		AbstractLibrary tlLib = null;
+		if (tlType == null)
+			return "";
+		if (tlType instanceof NamedEntity)
+			tlLib = ((NamedEntity) tlType).getOwningLibrary();
+		return tlLib == null ? "xsd" : tlLib.getPrefix();
 	}
 
 	/**

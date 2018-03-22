@@ -36,7 +36,6 @@ import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.node.typeProviders.SimpleComponentNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
@@ -376,10 +375,6 @@ public class ChangeTo_Tests {
 					ml.check((Node) nn, false);
 				}
 
-				else if (cn instanceof SimpleComponentNode) {
-					// No test implemented.
-					continue;
-				}
 			}
 			if (nn != null) {
 				newEquCount = countEquivelents(nn);
