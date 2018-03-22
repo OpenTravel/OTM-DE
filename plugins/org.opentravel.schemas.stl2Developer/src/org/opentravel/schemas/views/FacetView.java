@@ -430,6 +430,11 @@ public class FacetView extends OtmAbstractView {
 			return;
 		}
 
+		if (!target.isValid()) {
+			ValidationResultsView validationView = OtmRegistry.getValidationResultsView();
+			validationView.refresh(target);
+		}
+
 		// LOGGER.debug("Posting facet table for node: " + target);
 		OtmHandlers.suspendHandlers();
 		Node node = target;

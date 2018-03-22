@@ -1841,6 +1841,8 @@ public abstract class Node implements INode {
 	 *         FIXME - this does not handle contributed facets
 	 */
 	public boolean isUnique(final INode testNode) {
+		assert false; // Should not be reached
+
 		Node n = this;
 		if (this instanceof PropertyNode) {
 			n = n.parent;

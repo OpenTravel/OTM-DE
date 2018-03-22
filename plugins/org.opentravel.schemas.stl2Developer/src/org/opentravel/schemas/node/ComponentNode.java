@@ -310,18 +310,20 @@ public abstract class ComponentNode extends Node {
 	 */
 	// FIXME - why here and in Node? Why different?
 	public boolean isUnique() {
-		// LOGGER.debug("ComponentNode:isUnique() - test "+getNamespace+":"+name);
-		List<Node> siblings = new ArrayList<Node>(getParent().getChildren());
-		if (getParent().getInheritedChildren() != null)
-			siblings.addAll(0, getParent().getInheritedChildren());
-		int occurrence = 0; // look for second occurrence since this list is not a live list.
-
-		for (final Node n : siblings) {
-			if (n.getName().equals(getName()))
-				if (occurrence++ > 0)
-					return false;
-		}
-		return true;
+		return isValid();
+		// ValidationFindings findings = validate();
+		// // LOGGER.debug("ComponentNode:isUnique() - test "+getNamespace+":"+name);
+		// List<Node> siblings = new ArrayList<Node>(getParent().getChildren());
+		// if (getParent().getInheritedChildren() != null)
+		// siblings.addAll(0, getParent().getInheritedChildren());
+		// int occurrence = 0; // look for second occurrence since this list is not a live list.
+		//
+		// for (final Node n : siblings) {
+		// if (n.getName().equals(getName()))
+		// if (occurrence++ > 0)
+		// return false;
+		// }
+		// return true;
 	}
 
 	@Override

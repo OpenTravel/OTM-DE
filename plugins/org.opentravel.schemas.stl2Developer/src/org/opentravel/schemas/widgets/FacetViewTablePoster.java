@@ -297,9 +297,10 @@ public class FacetViewTablePoster {
 				item.setText(2, "-------");
 
 			// flag duplicates
-			if (!cn.isUnique() && !cn.isInherited()) {
+			// if (cn.isValid() && !cn.isInherited())
+			if (!cn.isUnique() && !cn.isInherited())
 				item.setImage(Images.getImageRegistry().get(Images.Error));
-			}
+
 		}
 		return item;
 	}

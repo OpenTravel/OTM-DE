@@ -39,6 +39,7 @@ import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.InheritanceDependencyListener;
 import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
+import org.opentravel.schemas.node.objectMembers.SharedFacetNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.PropertyNodeType;
@@ -167,7 +168,7 @@ public class ContextualFacetTests {
 		TypeProvider string = ml.getXsdString();
 		new ElementNode(bo.getFacet_ID(), "TestEleInID" + bo.getName(), string);
 		//
-		int count = ln.getDescendants_LibraryMemberNodes().size();
+		int count = ln.getDescendants_LibraryMembers().size();
 		ml.check(bo);
 		ml.check(ln);
 
@@ -387,6 +388,37 @@ public class ContextualFacetTests {
 		assertTrue("Must find version node for added facet.", lcnKids.contains(bc1.getVersionNode()));
 
 		OTM16Upgrade.otm16Enabled = false;
+	}
+
+	/**
+	 * Test detecting duplicate names warning (isUnique)
+	 */
+	@Test
+	public void CF_uniqueProperites_Tests() {
+		OTM16Upgrade.otm16Enabled = true;
+
+		// Given - Choice object in a library
+		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
+		LibraryNode ln2 = ml.createNewLibrary("http://www.test.com/test2", "test2", defaultProject);
+		ChoiceObjectNode choice = ml.addChoice(ln, "Choice1");
+		SharedFacetNode shared = choice.getSharedFacet();
+		assert shared != null;
+
+		// Given - Choice facet
+		TLContextualFacet tlCF1 = ContextualFacetNode.createTL("CF1", TLFacetType.CHOICE);
+		ChoiceFacetNode cf1 = new ChoiceFacetNode(tlCF1);
+
+		AttributeNode attr1 = new AttributeNode(shared, "a1");
+		AttributeNode attr1a = new AttributeNode(shared, "a1");
+		assertTrue("Must fail unique test.", !attr1a.isUnique());
+
+		AttributeNode attr2 = new AttributeNode(cf1, "a2");
+		AttributeNode attr2a = new AttributeNode(cf1, "a2");
+		assertTrue("Must fail unique test.", !attr2a.isUnique());
+
+		AttributeNode attr3 = new AttributeNode(cf1, "a1");
+		assertTrue("Must fail unique test.", !attr3.isUnique());
+
 	}
 
 	/**

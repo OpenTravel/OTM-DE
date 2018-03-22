@@ -533,6 +533,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 		}
 	}
 
+	// TODO - why is this here and none of the other methods needed in wizard?
 	@Override
 	public ComponentNode moveSimpleToFacet(Node simpleAttribute, ComponentNode targetFacet) {
 		if (!(simpleAttribute instanceof SimpleAttributeFacadeNode))

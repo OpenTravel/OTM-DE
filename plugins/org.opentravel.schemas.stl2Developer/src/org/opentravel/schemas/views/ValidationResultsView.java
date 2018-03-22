@@ -59,6 +59,7 @@ import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
@@ -468,7 +469,7 @@ public class ValidationResultsView extends OtmAbstractView {
 		} else if (node.isTLLibrary())
 			findings = validate(node);
 		else if (node.isNavigation()) {
-			for (Node n : node.getDescendants_LibraryMemberNodes()) {
+			for (LibraryMemberInterface n : node.getDescendants_LibraryMembers()) {
 				if (findings == null)
 					findings = validate(n);
 				else
@@ -501,6 +502,15 @@ public class ValidationResultsView extends OtmAbstractView {
 	// }
 	// };
 	// job.schedule();
+
+	/**
+	 * @param n
+	 * @return
+	 */
+	private ValidationFindings validate(LibraryMemberInterface n) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	// ProgressMonitorDialog dialog = new ProgressMonitorDialog(shell);
 	// dialog.run(true, true, new IRunnableWithProgress(){
@@ -547,6 +557,8 @@ public class ValidationResultsView extends OtmAbstractView {
 
 	@Override
 	public void refresh(INode node) {
+		currentNode = node;
+		validateNode((Node) currentNode);
 		postFindings(); // TODO - go to finding related to this node
 
 	}
