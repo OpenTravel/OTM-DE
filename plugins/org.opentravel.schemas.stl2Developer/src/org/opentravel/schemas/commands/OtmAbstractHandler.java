@@ -18,6 +18,8 @@
  */
 package org.opentravel.schemas.commands;
 
+import java.util.List;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.opentravel.schemas.controllers.MainController;
@@ -58,6 +60,18 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 			throw new IllegalArgumentException("Tried to construct view without a main controller.");
 		}
 		mainWindow = mc.getMainWindow();
+	}
+
+	/**
+	 * @return the first globally selected node or null.
+	 * @see org.opentravel.schemas.controllers.MainController#getGloballySelectNodes()
+	 */
+	public Node getFirstSelected() {
+		List<Node> selectedNodes = mc.getGloballySelectNodes();
+		Node selection = null;
+		if (selectedNodes != null && !selectedNodes.isEmpty())
+			selection = selectedNodes.get(0);
+		return selection;
 	}
 
 	public void execute(OtmEventData event) {

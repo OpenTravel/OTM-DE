@@ -481,6 +481,9 @@ public class DefaultProjectController implements ProjectController {
 					OpenedProject op = open(fn, monitor);
 					monitor.worked(1);
 					monitor.subTask("Resolving types");
+					if (op == null) {
+						return Status.CANCEL_STATUS;
+					}
 					new TypeResolver().resolveTypes();
 
 					monitor.done();
@@ -518,41 +521,47 @@ public class DefaultProjectController implements ProjectController {
 		File projectFile = new File(fileName);
 		ValidationFindings findings = new ValidationFindings();
 
-		boolean isUI = Display.getCurrent() != null;
-		if (isUI)
-			mc.showBusy(true);
-		try {
-			project = projectManager.loadProject(projectFile, findings);
-		} catch (RepositoryException e) {
-			resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
-			project = null;
-		} catch (LibraryLoaderException e) {
-			resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
-			project = null;
-		} catch (IllegalArgumentException e) {
-			resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
-			project = null;
-		} catch (NullPointerException e) {
-			resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
-			project = null;
-			// e.printStackTrace();
-			// LOGGER.debug("NPE from project manager load project. " + e);
-		} catch (Throwable e) {
-			resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
-			project = null;
-		}
+		// LoadProject will attempt to save it as well
+		if (projectFile.canWrite()) {
+			boolean isUI = Display.getCurrent() != null;
+			if (isUI)
+				mc.showBusy(true);
+			try {
+				project = projectManager.loadProject(projectFile, findings);
+			} catch (RepositoryException e) {
+				resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
+				project = null;
+			} catch (LibraryLoaderException e) {
+				resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
+				project = null;
+			} catch (IllegalArgumentException e) {
+				resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
+				project = null;
+			} catch (NullPointerException e) {
+				resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
+				project = null;
+				// e.printStackTrace();
+				// LOGGER.debug("NPE from project manager load project. " + e);
+			} catch (Throwable e) {
+				resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
+				project = null;
+			}
 
-		if (isUI)
-			mc.showBusy(false);
+			if (isUI)
+				mc.showBusy(false);
 
-		if (project != null) {
-			if (project.getProjectItems().isEmpty()) {
-				resultMsg = "Could not load project. Project could not read libraries.";
-				if (Display.getCurrent() != null)
-					DialogUserNotifier.openError("Open Project Error", resultMsg);
-			} else
-				resultMsg = project.getProjectItems().size() + " project items read.";
-			// LOGGER.debug("Read " + project.getProjectItems().size() + " items from project: " + fileName);
+			if (project != null) {
+				if (project.getProjectItems().isEmpty()) {
+					resultMsg = "Could not load project. Project could not read libraries.";
+					if (Display.getCurrent() != null)
+						DialogUserNotifier.openError("Open Project Error", resultMsg);
+				} else
+					resultMsg = project.getProjectItems().size() + " project items read.";
+				// LOGGER.debug("Read " + project.getProjectItems().size() + " items from project: " + fileName);
+			}
+		} else {
+			resultMsg = postLoadError("Project files must be writable.", fileName);
+			project = null;
 		}
 
 		OpenedProject op = new OpenedProject();
@@ -603,9 +612,20 @@ public class DefaultProjectController implements ProjectController {
 				monitor.subTask("Opening file " + fileName);
 			}
 			op = openTLProject(fileName);
+			int failedCnt = 0;
+			if (op.tlProject == null) {
+				DialogUserNotifier.syncErrorWithUi("Failed to open project " + fileName + "\n" + op.resultMsg);
+				return null;
+			}
+			if (op.tlProject.getFailedProjectItems() != null)
+				failedCnt = op.tlProject.getFailedProjectItems().size();
+			int itemCnt = op.tlProject.getProjectItems().size();
 			if (monitor != null) {
 				monitor.worked(1);
-				monitor.subTask("Creating model");
+				if (failedCnt > 0)
+					monitor.subTask("Failed to Read " + failedCnt + " libraries. Attempting to create model");
+				else
+					monitor.subTask("Read " + itemCnt + " items. Creating model");
 			}
 			op.project = loadProject(op.tlProject); // null param safe
 
@@ -734,12 +754,16 @@ public class DefaultProjectController implements ProjectController {
 		if (pn == getDefaultProject())
 			pn.closeAll();
 		else {
-			save(pn);
-			result = closeTL(pn.getTLProject().getProjectManager(), pn.getTLProject());
-			if (result) {
-				pn.close();
-				Node.getModelNode().removeProject(pn);
-			}
+			result = save(pn); // Try to save the project file
+			if (result) // If successful, try to close the TL Project
+				result = closeTL(pn.getTLProject().getProjectManager(), pn.getTLProject());
+
+			// No matter what, close the project node and remove from model
+			pn.close();
+			Node.getModelNode().removeProject(pn);
+
+			if (!result)
+				DialogUserNotifier.openError("Error Closing Project.", "Please restart.");
 			if (Display.getCurrent() != null)
 				mc.refresh();
 		}
@@ -750,7 +774,7 @@ public class DefaultProjectController implements ProjectController {
 	// for some reason closing project is not reliable. Try multiple times
 	private boolean closeTL(ProjectManager pm, Project tlProject) {
 		int tryCount = 0;
-		int maxTries = 5;
+		int maxTries = 10; // 3/23/2018 - increased count from 5 to 10 after team having close problems.
 		while (tryCount < maxTries) {
 			try {
 				pm.closeProject(tlProject);
@@ -890,33 +914,48 @@ public class DefaultProjectController implements ProjectController {
 	}
 
 	@Override
-	public void save(ProjectNode pn) {
-		if (pn == null)
-			return;
-		// Prevent compiler NPE - assure project has project file
-		if (pn.getTLProject() == null || pn.getTLProject().getProjectFile() == null)
-			return;
+	public boolean save(ProjectNode pn) {
+		// Pre-checks
+		if (pn == null || pn.getTLProject() == null || pn.getTLProject().getProjectManager() == null) {
+			LOGGER.error("Could not save project because of missing project manager.");
+			DialogUserNotifier.openError("Save Project Error", "Could not get project manager.");
+			return false;
+		}
+		// Assure project has writable project file
+		if (pn.getTLProject().getProjectFile() == null) {
+			LOGGER.error("Could not get project file.");
+			DialogUserNotifier.openError("Save Project Error", "Could not get project file.\n");
+			return false;
+		}
+		if (!pn.getTLProject().getProjectFile().canWrite()) {
+			LOGGER.error("Could not write to project file: ", pn.getTLProject().getProjectFile().getPath());
+			DialogUserNotifier.openError("Save Project Error", "Could not write to project file. \n"
+					+ pn.getTLProject().getProjectFile().getPath());
+			return false;
+		}
 
 		mc.showBusy(true);
 		try {
 			pn.getTLProject().getProjectManager().saveProject(pn.getTLProject());
 			// save the project file only, not the libraries and ignore findings
-			// pn.getProject().getProjectManager().saveProject(pn.getProject(), true, null);
+			// pn.getTLProject().getProjectManager().saveProject(pn.getTLProject(), true, null);
 		} catch (LibrarySaveException e) {
-			// e.printStackTrace();
+			LOGGER.error("Could not save project: " + e.getLocalizedMessage());
 			mc.showBusy(false);
-			// LOGGER.error("Could not save project");
 			DialogUserNotifier.openError("Save Project Error", "Could not save project. \n" + e.getLocalizedMessage());
+			return false;
 		}
 		mc.showBusy(false);
+
+		return true;
 	}
 
-	@Override
-	public void save(List<ProjectNode> projects) {
-		// UNUSED
-		for (ProjectNode pn : projects)
-			save(pn);
-	}
+	// @Override
+	// public void save(List<ProjectNode> projects) {
+	// // UNUSED
+	// for (ProjectNode pn : projects)
+	// save(pn);
+	// }
 
 	@Override
 	public void saveAll() {

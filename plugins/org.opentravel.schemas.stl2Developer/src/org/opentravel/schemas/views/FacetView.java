@@ -439,24 +439,6 @@ public class FacetView extends OtmAbstractView {
 		OtmHandlers.suspendHandlers();
 		Node node = target;
 
-		// Post a warning if invalid
-		// String warningText = null;
-		// ValidationFindings findings = ValidationManager.validate(node.getLibrary());
-		// if (findings != null)
-		// if (!ValidationManager.isValid(findings, FindingType.ERROR))
-		// warningText = "Error found in " + node.getLibrary();
-		// else if (!ValidationManager.isValid(findings, FindingType.WARNING))
-		// warningText = "Warning found in " + node.getLibrary();
-		// if (warningText != null) {
-		// for (ValidationFinding f : findings.getAllFindingsAsList()) {
-		// if (f.getMessageKey().contains("MISSING_NAMED_ENTITY_REFERENCE"))
-		// warningText += "\n " + f.getSource().getValidationIdentity() + " is missing type.";
-		// // warningText += "\n " + f.getFormattedMessage(FindingMessageFormat.MESSAGE_ONLY_FORMAT);
-		// }
-		// DialogUserNotifier.openWarning("Warning", warningText);
-		// warningText = null;
-		// }
-
 		try {
 			setButtonState(target);
 			if (node instanceof AbstractContextualFacet)
@@ -473,7 +455,6 @@ public class FacetView extends OtmAbstractView {
 			OtmHandlers.enableHandlers();
 			select(target); // select the row that was passed in.
 		}
-
 		// LOGGER.debug("Tree Selection is: "+OtmRegistry.getModelNavigatorView().getSelectedNodes());
 	}
 

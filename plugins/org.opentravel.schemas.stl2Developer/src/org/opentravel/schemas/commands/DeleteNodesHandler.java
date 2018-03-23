@@ -27,6 +27,7 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 
@@ -48,8 +49,21 @@ public class DeleteNodesHandler extends OtmAbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
 		List<Node> selectedNodes = mc.getGloballySelectNodes();
-		deleteNodes(selectedNodes);
+		if (isEnabled())
+			deleteNodes(selectedNodes);
 		return null;
+	}
+
+	// dmh - 3/23/2018 - moved control here and commented out section in plugin.xml
+	@Override
+	public boolean isEnabled() {
+		List<Node> selectedNodes = mc.getGloballySelectNodes();
+		if (selectedNodes != null && !selectedNodes.isEmpty()) {
+			Node newSelection = selectedNodes.get(0);
+			if (!(newSelection instanceof LibraryNavNode))
+				return newSelection.isDeleteable();
+		}
+		return false;
 	}
 
 	/**

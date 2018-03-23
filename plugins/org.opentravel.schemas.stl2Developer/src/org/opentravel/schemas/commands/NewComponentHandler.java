@@ -15,7 +15,6 @@
  */
 package org.opentravel.schemas.commands;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.opentravel.schemas.controllers.MainController;
@@ -32,7 +31,7 @@ import org.opentravel.schemas.wizards.NewComponentWizard;
  * @author Dave Hollander
  * 
  */
-public class NewComponentHandler extends AbstractHandler {
+public class NewComponentHandler extends OtmAbstractHandler {
 
 	public static final String COMMAND_ID = "org.opentravel.schemas.commands.newComponent";
 
@@ -42,6 +41,14 @@ public class NewComponentHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		newToLibrary();
 		return null;
+	}
+
+	// dmh - 3/23/2018 - moved control here and commented out section in plugin.xml
+	@Override
+	public boolean isEnabled() {
+		Node selected = getFirstSelected();
+		// is in library and library is editable
+		return selected.isInTLLibrary() && selected.getLibrary().isEditable();
 	}
 
 	/**

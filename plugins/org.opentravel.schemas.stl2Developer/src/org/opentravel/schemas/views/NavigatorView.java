@@ -370,13 +370,13 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	}
 
 	private void applySelection(final IStructuredSelection iss) {
-		// LOGGER.debug("nav view - apply selection event - run navigation to "+(Node)
-		// iss.getFirstElement());
+		LOGGER.debug("nav view - apply selection event start.");
 		if (iss.getFirstElement() == null)
 			return;
 
 		if (iss.getFirstElement() instanceof Node)
 			curNode = (Node) iss.getFirstElement();
+		LOGGER.debug("apply selection to " + curNode);
 		if (curNode instanceof VersionNode)
 			curNode = ((VersionNode) curNode).get();
 

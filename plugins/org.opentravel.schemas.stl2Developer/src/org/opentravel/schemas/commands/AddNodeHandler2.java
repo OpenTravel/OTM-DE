@@ -88,6 +88,12 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 		return null;
 	}
 
+	// dmh - 3/23/2018 - moved control here and commented out section in plugin.xml
+	@Override
+	public boolean isEnabled() {
+		return getFirstSelected().isEnabled_AddProperties();
+	}
+
 	// for enabled status, see GlobalSelectionTester.canAdd()
 	private PropertyNodeType getActionType(ExecutionEvent exEvent) {
 		PropertyNodeType actionType = PropertyNodeType.UNKNOWN;

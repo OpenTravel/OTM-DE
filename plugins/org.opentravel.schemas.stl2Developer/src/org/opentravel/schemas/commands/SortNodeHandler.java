@@ -28,6 +28,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.Sortable;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.views.OtmView;
@@ -45,11 +46,6 @@ public class SortNodeHandler extends OtmAbstractHandler {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SortNodeHandler.class);
 	public static final String COMMAND_ID = "org.opentravel.schemas.commands.Sort";
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.IHandler#execute(org.eclipse.core.commands.ExecutionEvent)
-	 */
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
 		IWorkbenchPart activeView = HandlerUtil.getActivePart(exEvent);
@@ -67,11 +63,13 @@ public class SortNodeHandler extends OtmAbstractHandler {
 			node.sort();
 
 		mc.refresh();
-		// if (selectedNodes.size() > 0) {
-		// mc.postStatus("Properties of " + selectedNodes + " were sorted.");
-		// // LOGGER.debug("Sort Node Command Handler sorted " + selectedNodes);
-		// }
 		return null;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		Node selected = getFirstSelected();
+		return selected.isEditable() && selected instanceof FacetInterface;
 	}
 
 	private List<Node> getSelectedNodes(IWorkbenchPart activeView) {

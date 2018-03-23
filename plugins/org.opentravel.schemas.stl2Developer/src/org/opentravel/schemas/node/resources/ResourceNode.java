@@ -171,10 +171,11 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		getChildrenHandler().initInherited();
 		// addMOChildren(); // NOTE - this will fail if no library
 
-		if (getSubject() == null)
-			LOGGER.debug("No subject assigned: " + this);
-		else
+		if (getSubject() != null)
 			getSubject().addWhereUsed(this);
+		// Subject may not have been modeled yet and has no listener. Will be assigned by resolve types.
+		// else
+		// LOGGER.debug("No subject assigned: " + this);
 
 		// LOGGER.debug("NOT IMPLEMENTED - resource node constructor.");
 		assert true;

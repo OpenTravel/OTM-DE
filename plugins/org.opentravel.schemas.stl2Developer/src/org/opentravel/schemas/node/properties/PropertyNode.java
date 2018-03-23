@@ -653,6 +653,7 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 		if (getTLModelObject() == null)
 			return false;
 		if (this instanceof FacadeInterface)
+			// Core simple attribute facade node
 			return false;
 		if (isInherited())
 			return false;

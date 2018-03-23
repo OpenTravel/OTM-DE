@@ -870,8 +870,8 @@ public class MainController {
 		if (part instanceof OtmView)
 			nodes = ((OtmView) part).getSelectedNodes();
 
-		// This should never happen
-		assert nodes != null;
+		// This should never happen - but does when context view is open
+		// assert nodes != null;
 		if (nodes == null || nodes.isEmpty()) {
 			nodes = getSelectedNodes_NavigatorView();
 		}
