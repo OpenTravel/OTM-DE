@@ -20,10 +20,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
@@ -36,23 +34,15 @@ import org.opentravel.schemacompiler.model.LibraryElement;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.ModelElement;
 import org.opentravel.schemacompiler.model.NamedEntity;
-import org.opentravel.schemacompiler.model.TLAdditionalDocumentationItem;
 import org.opentravel.schemacompiler.model.TLAttributeType;
-import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLComplexTypeBase;
-import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLContextReferrer;
 import org.opentravel.schemacompiler.model.TLDocumentation;
 import org.opentravel.schemacompiler.model.TLDocumentationOwner;
-import org.opentravel.schemacompiler.model.TLEquivalent;
 import org.opentravel.schemacompiler.model.TLEquivalentOwner;
-import org.opentravel.schemacompiler.model.TLExample;
 import org.opentravel.schemacompiler.model.TLExampleOwner;
-import org.opentravel.schemacompiler.model.TLFacet;
-import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLListFacet;
 import org.opentravel.schemacompiler.model.TLModelElement;
-import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
 import org.opentravel.schemacompiler.validate.Validatable;
 import org.opentravel.schemacompiler.validate.ValidationException;
@@ -91,7 +81,6 @@ import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
-import org.opentravel.schemas.node.typeProviders.CustomFacetNode;
 import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.node.typeProviders.ImpliedNodeType;
 import org.opentravel.schemas.node.typeProviders.QueryFacetNode;
@@ -303,25 +292,26 @@ public abstract class Node implements INode {
 		return false;
 	}
 
-	/**
-	 * Clone a node. Clone this node and all of its children. Creates new ModelObject, TL source object. Sets types for
-	 * all the properties. Creates type node. Types are assigned to this component. Clones the TL and Model objects.
-	 * Must be a library member. Assigns libraries and types. Added to parent and a family node may be created to
-	 * contain <i>this</i> and the clone.
-	 * 
-	 * Note: the new component is <b>not</b> used to replace type users of this node (see {@link replaceTypesWith()}
-	 * 
-	 * @param library
-	 *            to assign the new node to. If null, new node is not in a library.
-	 * @param nameSuffix
-	 *            Append to the new node's name.
-	 * @return
-	 */
-	@Override
-	@Deprecated
-	public Node clone() {
-		return clone(this.getLibrary(), null);
-	}
+	// /**
+	// * Clone a node. Clone this node and all of its children. Creates new ModelObject, TL source object. Sets types
+	// for
+	// * all the properties. Creates type node. Types are assigned to this component. Clones the TL and Model objects.
+	// * Must be a library member. Assigns libraries and types. Added to parent and a family node may be created to
+	// * contain <i>this</i> and the clone.
+	// *
+	// * Note: the new component is <b>not</b> used to replace type users of this node (see {@link replaceTypesWith()}
+	// *
+	// * @param library
+	// * to assign the new node to. If null, new node is not in a library.
+	// * @param nameSuffix
+	// * Append to the new node's name.
+	// * @return
+	// */
+	// @Override
+	// @Deprecated
+	// public Node clone() {
+	// return clone(this.getLibrary(), null);
+	// }
 
 	/**
 	 * Clone this node. If parent is null, the new node is only added to this library. If the parent is a library then
@@ -519,9 +509,9 @@ public abstract class Node implements INode {
 	 * @return node found or null
 	 */
 	public Node findLibraryMemberByName(String name) {
-		for (Node n : getDescendants_LibraryMemberNodes()) {
+		for (LibraryMemberInterface n : getDescendants_LibraryMembers()) {
 			if (n.getName().equals(name))
-				return n;
+				return (Node) n;
 		}
 		return null;
 	}
@@ -994,31 +984,32 @@ public abstract class Node implements INode {
 		return vNodes.isEmpty() ? null : vNodes;
 	}
 
-	/**
-	 * Get all libraries under <i>this</i> node. Note - only searches library containers. Libraries in the tree with an
-	 * ancestor that is not a library container will not be found. Returns libraries in chains, not the chain.
-	 *
-	 * <p>
-	 * TODO - this returns multiple copies of the same node if in chain!
-	 * <p>
-	 * Use ProjectNode.getLibraries()
-	 *
-	 * @return new list of library nodes.
-	 */
-	@Deprecated
-	public List<LibraryNode> getLibraries() {
-		ArrayList<LibraryNode> libs = new ArrayList<LibraryNode>();
-		if (getChildrenHandler() == null)
-			return libs;
-
-		for (Node n : getChildrenHandler().get()) {
-			if (n instanceof LibraryNode)
-				libs.add((LibraryNode) n);
-			else if (n.isLibraryContainer())
-				libs.addAll(n.getLibraries());
-		}
-		return libs;
-	}
+	// /**
+	// * Get all libraries under <i>this</i> node. Note - only searches library containers. Libraries in the tree with
+	// an
+	// * ancestor that is not a library container will not be found. Returns libraries in chains, not the chain.
+	// *
+	// * <p>
+	// * TODO - this returns multiple copies of the same node if in chain!
+	// * <p>
+	// * Use ProjectNode.getLibraries()
+	// *
+	// * @return new list of library nodes.
+	// */
+	// @Deprecated
+	// public List<LibraryNode> getLibraries() {
+	// ArrayList<LibraryNode> libs = new ArrayList<LibraryNode>();
+	// if (getChildrenHandler() == null)
+	// return libs;
+	//
+	// for (Node n : getChildrenHandler().get()) {
+	// if (n instanceof LibraryNode)
+	// libs.add((LibraryNode) n);
+	// else if (n.isLibraryContainer())
+	// libs.addAll(n.getLibraries());
+	// }
+	// return libs;
+	// }
 
 	@Override
 	public LibraryNode getLibrary() {
@@ -1157,22 +1148,22 @@ public abstract class Node implements INode {
 		return "";
 	}
 
-	/**
-	 * @return - list of unique TLContexts used by any child of this node. Empty list if none.
-	 */
-	@Deprecated
-	public List<TLContext> getUsedContexts() {
-		final Map<String, TLContext> ctxMap = new LinkedHashMap<String, TLContext>();
-		ArrayList<TLContext> ret = new ArrayList<TLContext>();
-		List<TLContext> list = getCtxList();
-		for (TLContext tlc : list) {
-			if ((tlc != null && tlc.getApplicationContext() != null))
-				ctxMap.put(tlc.getApplicationContext(), tlc);
-		}
-		ret.addAll(ctxMap.values());
-		// LOGGER.debug("Found "+ret.size()+" contexts in "+this.getName());
-		return ret;
-	}
+	// /**
+	// * @return - list of unique TLContexts used by any child of this node. Empty list if none.
+	// */
+	// @Deprecated
+	// public List<TLContext> getUsedContexts() {
+	// final Map<String, TLContext> ctxMap = new LinkedHashMap<String, TLContext>();
+	// ArrayList<TLContext> ret = new ArrayList<TLContext>();
+	// List<TLContext> list = getCtxList();
+	// for (TLContext tlc : list) {
+	// if ((tlc != null && tlc.getApplicationContext() != null))
+	// ctxMap.put(tlc.getApplicationContext(), tlc);
+	// }
+	// ret.addAll(ctxMap.values());
+	// // LOGGER.debug("Found "+ret.size()+" contexts in "+this.getName());
+	// return ret;
+	// }
 
 	/**
 	 * Get all user libraries (OTM TLLibrary) from the LibraryModelManager.
@@ -1574,7 +1565,6 @@ public abstract class Node implements INode {
 	public boolean isExtendedBy(Node base) {
 		if (this instanceof ExtensionOwner)
 			return ((ExtensionOwner) this).getExtensionBase() == base;
-		// return modelObject.isExtendedBy((NamedEntity) base.getTLModelObject());
 		return false;
 	}
 
@@ -1600,11 +1590,11 @@ public abstract class Node implements INode {
 		return false; // FIXED 4/5/2017 - should be overridden to be true
 	}
 
-	@Deprecated
-	public boolean isFacetAlias() {
-		// assert false; // should never be reached
-		return false; // called from navigator menus
-	}
+	// @Deprecated
+	// public boolean isFacetAlias() {
+	// // assert false; // should never be reached
+	// return false; // called from navigator menus
+	// }
 
 	public boolean isFacetUnique(final INode testNode) {
 		Node n = this;
@@ -1628,10 +1618,6 @@ public abstract class Node implements INode {
 	public boolean isImportable() {
 		return false;
 	}
-
-	// public boolean isInBuiltIn() {
-	// return getLibrary() != null ? getLibrary().isBuiltIn() : false;
-	// }
 
 	/**
 	 * @return true only if this object is in the version head library. false if not, false if owner is a service, or
@@ -1719,24 +1705,24 @@ public abstract class Node implements INode {
 	/*****************************************************************************
 	 * is Properties
 	 */
-	/**
-	 * @return true if this node or its descendants can contain libraries
-	 */
-	@Override
-	public boolean isLibraryContainer() {
-		return false;
-	}
+	// /**
+	// * @return true if this node or its descendants can contain libraries
+	// */
+	// @Override
+	// public boolean isLibraryContainer() {
+	// return false;
+	// }
 
-	/**
-	 * True if is a compiler LibraryMember and not an implied node. False for version 1.5 contextual facets.
-	 */
-	public boolean isLibraryMember() {
-		if (this instanceof ImpliedNode)
-			return false;
-		if (this instanceof ContextualFacetNode && !OTM16Upgrade.otm16Enabled)
-			return false;
-		return getTLModelObject() instanceof LibraryMember;
-	};
+	// /**
+	// * True if is a compiler LibraryMember and not an implied node. False for version 1.5 contextual facets.
+	// */
+	// public boolean isLibraryMember() {
+	// if (this instanceof ImpliedNode)
+	// return false;
+	// if (this instanceof ContextualFacetNode && !OTM16Upgrade.otm16Enabled)
+	// return false;
+	// return getTLModelObject() instanceof LibraryMember;
+	// };
 
 	public boolean isMergeSupported() {
 		return false;
@@ -1809,12 +1795,12 @@ public abstract class Node implements INode {
 		return false;
 	}
 
-	/**
-	 * @return true if tl model object is a library member
-	 */
-	public boolean isTLLibraryMember() {
-		return getTLModelObject() instanceof LibraryMember;
-	}
+	// /**
+	// * @return true if tl model object is a library member
+	// */
+	// public boolean isTLLibraryMember() {
+	// return getTLModelObject() instanceof LibraryMember;
+	// }
 
 	/**
 	 * @return true if this node could be assigned a type but is unassigned.
@@ -1843,25 +1829,25 @@ public abstract class Node implements INode {
 	public boolean isUnique(final INode testNode) {
 		assert false; // Should not be reached
 
-		Node n = this;
-		if (this instanceof PropertyNode) {
-			n = n.parent;
-		}
-		if (n instanceof FacetOMNode && !(n instanceof CustomFacetNode) && !(n instanceof QueryFacetNode)
-				&& !(n instanceof RoleFacetNode)) {
-			n = n.parent; // compare across all facets.
-		}
-		for (final Node facet : n.getChildren()) {
-			if (facet.nameEquals(testNode)) {
-				return false;
-			}
-			for (final Node prop : facet.getChildren()) {
-				if (prop.nameEquals(testNode)) {
-					return false;
-				}
-			}
-		}
-		return true;
+		// Node n = this;
+		// if (this instanceof PropertyNode) {
+		// n = n.parent;
+		// }
+		// if (n instanceof FacetOMNode && !(n instanceof CustomFacetNode) && !(n instanceof QueryFacetNode)
+		// && !(n instanceof RoleFacetNode)) {
+		// n = n.parent; // compare across all facets.
+		// }
+		// for (final Node facet : n.getChildren()) {
+		// if (facet.nameEquals(testNode)) {
+		// return false;
+		// }
+		// for (final Node prop : facet.getChildren()) {
+		// if (prop.nameEquals(testNode)) {
+		return false;
+		// }
+		// }
+		// }
+		// return true;
 	}
 
 	/**
@@ -1879,7 +1865,7 @@ public abstract class Node implements INode {
 
 	/**
 	 * Can this object contain properties of the specified type? Only FacetNodes can be containers.
-	 * 
+	 *
 	 * @param type
 	 * @return
 	 */
@@ -1890,10 +1876,12 @@ public abstract class Node implements INode {
 
 	/**
 	 * Can this object contain properties of the specified type? Only FacetNodes can be containers.
-	 * 
+	 *
 	 * @param type
 	 * @return
 	 */
+	// Find out if FacetNode really needs to override this
+	// It is NEVER called!
 	@Deprecated
 	public boolean canOwn(PropertyNode property) {
 		return false;
@@ -2007,9 +1995,9 @@ public abstract class Node implements INode {
 		getLibrary().removeMember(this);
 	}
 
-	public void resetInheritedChildren() {
-		// No action required - override as required in sub-classes
-	}
+	// public void resetInheritedChildren() {
+	// // No action required - override as required in sub-classes
+	// }
 
 	public void setDescription(final String string) {
 		if (docHandler != null)
@@ -2169,81 +2157,82 @@ public abstract class Node implements INode {
 		return true;
 	}
 
-	@Deprecated
-	private List<TLContext> getCtxList() {
-		ArrayList<TLContext> list = new ArrayList<TLContext>();
-		if (getTLModelObject() != null) {
-			List<TLContext> cList = getContexts();
-			if (cList.size() > 0) {
-				list.addAll(cList);
-			}
-		}
-		for (Node child : getChildren()) {
-			list.addAll(child.getCtxList());
-		}
-		// LOGGER.debug("Found "+list.size()+" contexts in "+this.getName());
-		return list;
-	}
+	// @Deprecated
+	// private List<TLContext> getCtxList() {
+	// ArrayList<TLContext> list = new ArrayList<TLContext>();
+	// if (getTLModelObject() != null) {
+	// List<TLContext> cList = getContexts();
+	// if (cList.size() > 0) {
+	// list.addAll(cList);
+	// }
+	// }
+	// for (Node child : getChildren()) {
+	// list.addAll(child.getCtxList());
+	// }
+	// // LOGGER.debug("Found "+list.size()+" contexts in "+this.getName());
+	// return list;
+	// }
 
-	/**
-	 * @return - list of TLContexts or else empty list Contexts are used in OtherDocs, facets, examples and equivalents.
-	 *         Overridden for attributes/elements/indicators that have examples and equivalents
-	 */
-	@Deprecated
-	private List<TLContext> getContexts() {
-		if (!(getTLModelObject() instanceof LibraryMember))
-			return Collections.emptyList();
-		if (!(((LibraryMember) getTLModelObject()).getOwningLibrary() instanceof TLLibrary))
-			return Collections.emptyList();
-
-		ArrayList<TLContext> list = new ArrayList<TLContext>();
-		HashSet<String> ids = new HashSet<String>();
-		if (!(getTLModelObject() instanceof LibraryMember))
-			return list;
-
-		if (getTLModelObject() instanceof TLBusinessObject) {
-			TLBusinessObject tlBO = (TLBusinessObject) getTLModelObject();
-			if (tlBO.getCustomFacets() != null) {
-				for (TLFacet f : tlBO.getCustomFacets()) {
-					ids.add(f.getContext());
-				}
-			}
-			if (tlBO.getQueryFacets() != null) {
-				for (TLFacet f : tlBO.getQueryFacets()) {
-					ids.add(f.getContext());
-				}
-			}
-		}
-		if (getTLModelObject() instanceof TLEquivalentOwner) {
-			TLEquivalentOwner tle = (TLEquivalentOwner) getTLModelObject();
-			for (TLEquivalent e : tle.getEquivalents())
-				ids.add(e.getContext());
-		}
-		if (getTLModelObject() instanceof TLExampleOwner) {
-			TLExampleOwner tle = (TLExampleOwner) getTLModelObject();
-			for (TLExample e : tle.getExamples())
-				ids.add(e.getContext());
-		}
-
-		if (getTLModelObject() instanceof TLDocumentationOwner) {
-			TLDocumentationOwner tld = (TLDocumentationOwner) getTLModelObject();
-
-			if (tld.getDocumentation() != null) {
-				for (TLAdditionalDocumentationItem doc : tld.getDocumentation().getOtherDocs()) {
-					ids.add(doc.getContext());
-				}
-			}
-		}
-
-		// now use the unique ids in the hash to extract the contexts from the TL Library.
-		TLLibrary tlLib = (TLLibrary) ((LibraryMember) getTLModelObject()).getOwningLibrary();
-		for (String id : ids) {
-			TLContext tlc = tlLib.getContext(id);
-			if (tlc != null)
-				list.add(tlLib.getContext(id));
-		}
-		return list;
-	}
+	// /**
+	// * @return - list of TLContexts or else empty list Contexts are used in OtherDocs, facets, examples and
+	// equivalents.
+	// * Overridden for attributes/elements/indicators that have examples and equivalents
+	// */
+	// @Deprecated
+	// private List<TLContext> getContexts() {
+	// if (!(getTLModelObject() instanceof LibraryMember))
+	// return Collections.emptyList();
+	// if (!(((LibraryMember) getTLModelObject()).getOwningLibrary() instanceof TLLibrary))
+	// return Collections.emptyList();
+	//
+	// ArrayList<TLContext> list = new ArrayList<TLContext>();
+	// HashSet<String> ids = new HashSet<String>();
+	// if (!(getTLModelObject() instanceof LibraryMember))
+	// return list;
+	//
+	// if (getTLModelObject() instanceof TLBusinessObject) {
+	// TLBusinessObject tlBO = (TLBusinessObject) getTLModelObject();
+	// if (tlBO.getCustomFacets() != null) {
+	// for (TLFacet f : tlBO.getCustomFacets()) {
+	// ids.add(f.getContext());
+	// }
+	// }
+	// if (tlBO.getQueryFacets() != null) {
+	// for (TLFacet f : tlBO.getQueryFacets()) {
+	// ids.add(f.getContext());
+	// }
+	// }
+	// }
+	// if (getTLModelObject() instanceof TLEquivalentOwner) {
+	// TLEquivalentOwner tle = (TLEquivalentOwner) getTLModelObject();
+	// for (TLEquivalent e : tle.getEquivalents())
+	// ids.add(e.getContext());
+	// }
+	// if (getTLModelObject() instanceof TLExampleOwner) {
+	// TLExampleOwner tle = (TLExampleOwner) getTLModelObject();
+	// for (TLExample e : tle.getExamples())
+	// ids.add(e.getContext());
+	// }
+	//
+	// if (getTLModelObject() instanceof TLDocumentationOwner) {
+	// TLDocumentationOwner tld = (TLDocumentationOwner) getTLModelObject();
+	//
+	// if (tld.getDocumentation() != null) {
+	// for (TLAdditionalDocumentationItem doc : tld.getDocumentation().getOtherDocs()) {
+	// ids.add(doc.getContext());
+	// }
+	// }
+	// }
+	//
+	// // now use the unique ids in the hash to extract the contexts from the TL Library.
+	// TLLibrary tlLib = (TLLibrary) ((LibraryMember) getTLModelObject()).getOwningLibrary();
+	// for (String id : ids) {
+	// TLContext tlc = tlLib.getContext(id);
+	// if (tlc != null)
+	// list.add(tlLib.getContext(id));
+	// }
+	// return list;
+	// }
 
 	public void deleteTL() {
 		// Override where useful.

@@ -31,6 +31,7 @@ import org.eclipse.gef.editpolicies.LayoutEditPolicy;
 import org.eclipse.gef.requests.CreateRequest;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.objectMembers.ContributedFacetNode;
 import org.opentravel.schemas.stl2Developer.editor.model.Connection;
 import org.opentravel.schemas.stl2Developer.editor.model.UINode;
@@ -105,7 +106,7 @@ public class ComponentNodeEditPart extends GenericEditPart<ComponentNode> {
 	@Override
 	protected void refreshVisuals() {
 		// TODO - fix/create provider to supply prefix
-		if (getNodeModel().isLibraryMember())
+		if (getNodeModel() instanceof LibraryMemberInterface)
 			getFigure().setText(getNodeModel().getNameWithPrefix());
 		else
 			getFigure().setText(LABEL_PROVIDER.getText(getNodeModel()));

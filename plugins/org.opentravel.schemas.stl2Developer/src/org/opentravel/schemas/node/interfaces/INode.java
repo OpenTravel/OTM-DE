@@ -120,17 +120,10 @@ public interface INode {
 	 */
 	public Image getImage();
 
-	// /**
-	// * @return new list with all descendants that are libraries.
-	// */
-	// public List<LibraryNode> getLibraries();
-
 	/**
 	 * @return new list of all immediate children that are projects.
 	 */
 	public List<ProjectNode> getProjects();
-
-	// public ModelObject<?> getModelObject();
 
 	/*****************************************************************************
 	 * Names
@@ -216,15 +209,6 @@ public interface INode {
 	 * @return true if the node's library is editable.
 	 */
 	public boolean isEditable();
-
-	/**
-	 * Can this type of node contain libraries?
-	 * 
-	 * @see isNavigation()
-	 * 
-	 * @return
-	 */
-	public boolean isLibraryContainer();
 
 	/**
 	 * @return true if this node can be renamed. Overriding nodes must account for all factors, not just class

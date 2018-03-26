@@ -137,18 +137,8 @@ public class NodeTesters {
 		Assert.assertFalse(n.getNodeID().isEmpty()); // used in drag-n-drop
 		Assert.assertNotNull(n.getParent());
 
-		// if (!n.isLibraryContainer()) {
-		// if (n instanceof SimpleFacetFacadeNode)
-		// LOGGER.debug(n + " getting library: " + n.getLibrary());
-		// Assert.assertNotNull("Missing library on " + n, n.getLibrary());
-		// }
-		// Assert.assertNotNull(n.getLibraries());
-		// Assert.assertNotNull(n.getUserLibraries());
-
 		Assert.assertNotNull(n.getChildren());
 		Assert.assertNotNull(n.getChildren_TypeProviders());
-
-		// Assert.assertNotNull(n.getModelObject());
 
 		// Version nodes
 		if (n instanceof VersionNode) {
@@ -158,28 +148,6 @@ public class NodeTesters {
 			return;
 		}
 
-		// // Check children
-		// if (n instanceof NavNode)
-		// Assert.assertTrue(n.getTLModelObject() instanceof TLEmpty);
-		// // Resources don't use model objects so do not check their kids
-		// else if (!(n.getModelObject() instanceof EmptyMO) && !(n instanceof LibraryNode)
-		// && !(n instanceof ResourceMemberInterface) && !(n instanceof OperationNode)
-		// && !(n.getChildren().isEmpty())) {
-		// if (n.getChildren().size() != n.getModelObject().getChildren().size()) {
-		// List<?> kids = n.getChildren();
-		// List<?> moKids = n.getModelObject().getChildren();
-		// LOGGER.debug("Children sizes are not equal.");
-		// }
-		// // Will not be true if BO has contextual facets
-		// // Assert.assertEquals(n.getChildren().size(), n.getModelObject().getChildren().size());
-		// }
-
-		// Check names
-		// String name = "";
-		// if (n.getName().isEmpty()) {
-		// name = n.getName();
-		// }
-		// String foo = name;
 		if (n.getName().isEmpty())
 			LOGGER.debug("Empty Name: " + n.getName());
 		Assert.assertFalse(n.getName().isEmpty());
@@ -197,8 +165,6 @@ public class NodeTesters {
 		Assert.assertFalse(n.isDeleted());
 		Assert.assertNotNull(n.getComponentType());
 		Assert.assertFalse(n.getComponentType().isEmpty());
-		// if (n.getModelObject() instanceof SimpleFacetMO)
-		// Assert.assertTrue(n instanceof SimpleFacetNode);
 
 		// Check type information
 		if (n instanceof TypeProvider)
@@ -206,11 +172,7 @@ public class NodeTesters {
 
 		// is tests - make sure they do not throw exception
 		n.isEditable();
-		n.isLibraryContainer();
 		n.isNamedEntity();
-		// if (n instanceof TypeUser;
-		n.isAssignedByReference();
-		n.isLibraryContainer();
 
 	}
 
@@ -239,11 +201,6 @@ public class NodeTesters {
 		public void validateTL(TLModelElement tlObj, INode in) throws IllegalStateException {
 			String msg = "";
 			// LOGGER.debug("Validating tlObj " +
-			// tlObj.getValidationIdentity());
-			// if (tlObj instanceof TLEmpty)
-			// return;
-			// if (tlObj instanceof TLnSimpleAttribute)
-			// return;
 			if (tlObj == null)
 				return;
 

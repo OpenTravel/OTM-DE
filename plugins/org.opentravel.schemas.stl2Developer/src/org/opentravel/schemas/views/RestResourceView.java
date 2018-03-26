@@ -432,7 +432,9 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 	public void refresh(INode node) {
 		ignoreListener = true;
 		// viewer.expandToLevel(node, 3);
-		if (node instanceof ResourceMemberInterface)
+		if (node == null)
+			clearSelection();
+		else if (node instanceof ResourceMemberInterface)
 			updateFields((ResourceMemberInterface) node);
 		viewer.refresh(true);
 		postResources();
@@ -451,7 +453,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 
 	@Override
 	public void selectionChanged(final IWorkbenchPart part, final ISelection selection) {
-		LOGGER.debug("selection changed: curNode = " + currentNode + ". \t" + selection.getClass());
+		// LOGGER.debug("selection changed: curNode = " + currentNode + ". \t" + selection.getClass());
 		final IStructuredSelection iss = (IStructuredSelection) selection;
 		// the data should be the first element selected and it should be a Node
 		final Object object = iss.getFirstElement();

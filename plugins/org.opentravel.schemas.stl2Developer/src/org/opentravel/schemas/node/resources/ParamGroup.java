@@ -176,6 +176,8 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 
 	@Override
 	public void addChildren() {
+		if (tlObj.getParameters().isEmpty())
+			LOGGER.debug("No Parameters found on " + this);
 		for (TLParameter tlParam : tlObj.getParameters())
 			new ResourceParameter(tlParam);
 	}

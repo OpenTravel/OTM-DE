@@ -844,6 +844,7 @@ public class DefaultProjectController implements ProjectController {
 			if (Display.getCurrent() == null)
 				close(p); // Not in UI thread (debugging)
 		}
+		mc.refresh(null);
 
 		/**
 		 * Open a list of project files with a progress monitor

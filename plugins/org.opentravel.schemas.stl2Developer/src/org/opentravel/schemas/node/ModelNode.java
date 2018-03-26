@@ -217,7 +217,7 @@ public class ModelNode extends Node implements TypeProviderAndOwners {
 	/**
 	 * Return all libraries in the library manager.
 	 */
-	@Override
+	// @Override
 	public List<LibraryNode> getLibraries() {
 		return libMgr.getAllLibraries();
 	}
@@ -307,10 +307,10 @@ public class ModelNode extends Node implements TypeProviderAndOwners {
 		return false;
 	}
 
-	@Override
-	public boolean isLibraryContainer() {
-		return true;
-	}
+	// @Override
+	// public boolean isLibraryContainer() {
+	// return true;
+	// }
 
 	@Override
 	public boolean isNavigation() {

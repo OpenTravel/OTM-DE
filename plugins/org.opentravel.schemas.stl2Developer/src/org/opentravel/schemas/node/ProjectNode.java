@@ -233,7 +233,7 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 	 * 
 	 * @return new list of library nodes.
 	 */
-	@Override
+	// @Override
 	public List<LibraryNode> getLibraries() {
 		ArrayList<LibraryNode> libs = new ArrayList<LibraryNode>();
 		if (getChildrenHandler() != null)
@@ -352,10 +352,10 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 		return true;
 	}
 
-	@Override
-	public boolean isLibraryContainer() {
-		return true;
-	}
+	// @Override
+	// public boolean isLibraryContainer() {
+	// return true;
+	// }
 
 	@Override
 	public boolean isNavChild(boolean deep) {

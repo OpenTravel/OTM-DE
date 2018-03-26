@@ -62,6 +62,9 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 	 */
 	public ResourceParameter(TLParameter tlParameter) {
 		super(tlParameter);
+		// TLMemberField<?> fieldRef = tlParameter.getFieldRef();
+		if (tlParameter.getFieldRef() == null)
+			LOGGER.debug("Null FieldRef");
 	}
 
 	public ResourceParameter(ParamGroup parent, Node field) {

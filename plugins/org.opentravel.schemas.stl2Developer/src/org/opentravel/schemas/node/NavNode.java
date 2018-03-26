@@ -104,10 +104,10 @@ public class NavNode extends Node implements FacadeInterface, TypeProviderAndOwn
 		return parent != null ? parent.getLibrary() : null;
 	}
 
-	@Override
-	public boolean isLibraryContainer() {
-		return false;
-	}
+	// @Override
+	// public boolean isLibraryContainer() {
+	// return false;
+	// }
 
 	public boolean isComplexRoot() {
 		return this == getLibrary().getComplexRoot() ? true : false;

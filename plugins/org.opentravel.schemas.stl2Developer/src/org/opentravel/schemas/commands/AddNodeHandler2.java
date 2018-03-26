@@ -300,11 +300,6 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 		return COMMAND_ID;
 	}
 
-	// @Override
-	// public void setEnabled(final Object evaluationContext) {
-	// super.setEnabled(evaluationContext); // Goes like crazy through here.
-	// }
-
 	protected Node getSelectedNode(ExecutionEvent exEvent) {
 		return mc.getGloballySelectNode();
 	}

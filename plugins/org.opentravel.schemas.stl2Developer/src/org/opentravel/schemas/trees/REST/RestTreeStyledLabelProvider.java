@@ -67,10 +67,12 @@ public class RestTreeStyledLabelProvider extends LabelProvider implements IStyle
 	@Override
 	public Font getFont(Object element) {
 		Font font = null;
-		if (element instanceof Node) {
+		if (element instanceof Node && Fonts.getFontRegistry() != null) {
 			Node n = (Node) element;
 			if (n instanceof VersionNode)
 				n = ((VersionNode) n).get();
+			if (n == null)
+				return font;
 
 			if (n instanceof ResourceNode && !n.isEditable_isNewOrAsMinor())
 				font = Fonts.getFontRegistry().get(Fonts.readOnlyItem);

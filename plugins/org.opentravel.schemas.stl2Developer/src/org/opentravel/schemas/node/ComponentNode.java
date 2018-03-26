@@ -85,9 +85,6 @@ public abstract class ComponentNode extends Node {
 		ListenerFactory.setIdentityListner(this);
 	}
 
-	@Override
-	public abstract TLModelElement getTLModelObject();
-
 	/**
 	 * Create a component node for a <b>non</b>-top-level model element. Only creates node and sets name and
 	 * description.
@@ -193,166 +190,6 @@ public abstract class ComponentNode extends Node {
 	}
 
 	/**
-	 * Create a new object in a patch version library. Creates an empty extension point facet. Adds the new node to the
-	 * owner's chain head library.
-	 * 
-	 * @return new extension point facet, of this one if it was an extension point
-	 */
-	public ComponentNode createPatchVersionComponent() {
-		if (this.getOwningComponent() instanceof ExtensionPointNode)
-			return (ComponentNode) this.getOwningComponent();
-
-		ExtensionPointNode newNode = null;
-		newNode = new ExtensionPointNode(new TLExtensionPointFacet());
-
-		if (this instanceof FacetOMNode)
-			newNode.setExtension(this);
-		else if (this instanceof PropertyNode)
-			newNode.setExtension(getParent());
-		else if (this instanceof CoreObjectNode)
-			newNode.setExtension(((CoreObjectNode) this).getFacet_Summary());
-		else if (this instanceof BusinessObjectNode)
-			newNode.setExtension(((BusinessObjectNode) this).getFacet_Summary());
-		// else
-		// LOGGER.error("Can't add a property to this: " + this);
-		// If there already is an EP, then return that.
-		LibraryChainNode chain = getChain();
-		Node existing = ((Node) chain.getComplexAggregate()).findLibraryMemberByName(newNode.getName());
-		if (existing != null && (existing instanceof ExtensionPointNode))
-			newNode = (ExtensionPointNode) existing;
-		else
-			chain.getHead().addMember(newNode); // needs extends type to know name for family.
-
-		return newNode;
-	}
-
-	/*
-	 * ComponentNode Utilities
-	 */
-
-	public INode createProperty(final Node dropTarget) {
-		return null;
-	}
-
-	// overridden where a simple type exists.
-	// Only used in validation view
-	@Override
-	@Deprecated
-	public Node getAssignable() {
-		return getSimpleProperty();
-	}
-
-	/**
-	 * @return the assigned namespace prefix from the model object.
-	 */
-	public String getAssignedPrefix() {
-		if (this instanceof TypeUser)
-			return ((TypeUser) this).getTypeHandler().getAssignedTypePrefix();
-		return "";
-	}
-
-	public ConstraintHandler getConstraintHandler() {
-		return null;
-	}
-
-	public TLFacetType getFacetType() {
-		return null;
-	}
-
-	/**
-	 * Simple getter of the actual node where the inherited child is declared.
-	 * 
-	 * @return type inherited from or null if no inheritance. Note, Open Enumerations have an inherited attribute but
-	 *         null for inherits from.
-	 */
-	@Override
-	public Node getInheritedFrom() {
-		assert !(this instanceof InheritedInterface);
-		return null;
-	}
-
-	@Override
-	public String getName() {
-		return "";
-	}
-
-	/**
-	 * returns owning navNode if it is a component node. Family aware - if in a family it returns the family parent.
-	 * Null otherwise.
-	 */
-	public Node getOwningNavNode() {
-		Node owner = this.getParent();
-		if (owner instanceof VersionNode)
-			owner = owner.getParent();
-		return owner;
-	}
-
-	/**
-	 * Property Roles are displayed in the facet table and describe what role the item can play in constructing
-	 * vocabularies.
-	 * 
-	 * @return - string from enumerated list of roles, or empty string if not property.
-	 */
-	public String getPropertyRole() {
-		return "";
-	}
-
-	// overridden where a simple property exists.
-	public Node getSimpleProperty() {
-		return null;
-	}
-
-	/**
-	 * Test this node against those in the parentNode to and return true if the name is unique within its parent and
-	 * inherited parent. NOTE: does not check other facets!
-	 * 
-	 * @return
-	 */
-	// FIXME - why here and in Node? Why different?
-	public boolean isUnique() {
-		return isValid();
-		// ValidationFindings findings = validate();
-		// // LOGGER.debug("ComponentNode:isUnique() - test "+getNamespace+":"+name);
-		// List<Node> siblings = new ArrayList<Node>(getParent().getChildren());
-		// if (getParent().getInheritedChildren() != null)
-		// siblings.addAll(0, getParent().getInheritedChildren());
-		// int occurrence = 0; // look for second occurrence since this list is not a live list.
-		//
-		// for (final Node n : siblings) {
-		// if (n.getName().equals(getName()))
-		// if (occurrence++ > 0)
-		// return false;
-		// }
-		// return true;
-	}
-
-	@Override
-	@Deprecated
-	public boolean isXsdType() {
-		// Local anonymous types may not have xsdType set.
-		return xsdType;
-	}
-
-	public void removeProperty(final Node property) {
-		// throw new IllegalStateException("Remove property in component node should never run.");
-	}
-
-	public void setContext() {
-		// Override where needed
-	}
-
-	/**
-	 * @return true if the documentation could be set, false otherwise
-	 */
-	public boolean setDocumentation(TLDocumentation documentation) {
-		if (getTLModelObject() instanceof TLDocumentationOwner)
-			((TLDocumentationOwner) getTLModelObject()).setDocumentation(documentation);
-		else
-			return false;
-		return true;
-	}
-
-	/**
 	 * Create a minor version of the object using the MinorVersionHelper. New object is added to the head TL Library.
 	 * 
 	 * @param node
@@ -416,6 +253,170 @@ public abstract class ComponentNode extends Node {
 		assert ((ExtensionOwner) newNode).getExtensionBase() == owner;
 
 		return newNode;
+	}
+
+	/*
+	 * ComponentNode Utilities
+	 */
+
+	/**
+	 * Create a new object in a patch version library. Creates an empty extension point facet. Adds the new node to the
+	 * owner's chain head library.
+	 * 
+	 * @return new extension point facet, of this one if it was an extension point
+	 */
+	public ComponentNode createPatchVersionComponent() {
+		if (this.getOwningComponent() instanceof ExtensionPointNode)
+			return (ComponentNode) this.getOwningComponent();
+
+		ExtensionPointNode newNode = null;
+		newNode = new ExtensionPointNode(new TLExtensionPointFacet());
+
+		if (this instanceof FacetOMNode)
+			newNode.setExtension(this);
+		else if (this instanceof PropertyNode)
+			newNode.setExtension(getParent());
+		else if (this instanceof CoreObjectNode)
+			newNode.setExtension(((CoreObjectNode) this).getFacet_Summary());
+		else if (this instanceof BusinessObjectNode)
+			newNode.setExtension(((BusinessObjectNode) this).getFacet_Summary());
+		// else
+		// LOGGER.error("Can't add a property to this: " + this);
+		// If there already is an EP, then return that.
+		LibraryChainNode chain = getChain();
+		Node existing = ((Node) chain.getComplexAggregate()).findLibraryMemberByName(newNode.getName());
+		if (existing != null && (existing instanceof ExtensionPointNode))
+			newNode = (ExtensionPointNode) existing;
+		else
+			chain.getHead().addMember(newNode); // needs extends type to know name for family.
+
+		return newNode;
+	}
+
+	public INode createProperty(final Node dropTarget) {
+		return null;
+	}
+
+	// overridden where a simple type exists.
+	// Only used in validation view
+	@Override
+	@Deprecated
+	public Node getAssignable() {
+		return getSimpleProperty();
+	}
+
+	/**
+	 * @return the assigned namespace prefix from the model object.
+	 */
+	public String getAssignedPrefix() {
+		if (this instanceof TypeUser)
+			return ((TypeUser) this).getTypeHandler().getAssignedTypePrefix();
+		return "";
+	}
+
+	public ConstraintHandler getConstraintHandler() {
+		return null;
+	}
+
+	public TLFacetType getFacetType() {
+		return null;
+	}
+
+	/**
+	 * Simple getter of the actual node where the inherited child is declared.
+	 * 
+	 * @return type inherited from or null if no inheritance. Note, Open Enumerations have an inherited attribute but
+	 *         null for inherits from.
+	 */
+	@Override
+	public Node getInheritedFrom() {
+		assert !(this instanceof InheritedInterface);
+		return null;
+	}
+
+	// /**
+	// * returns owning navNode if it is a component node. Family aware - if in a family it returns the family parent.
+	// * Null otherwise.
+	// */
+	// public Node getOwningNavNode() {
+	// Node owner = this.getParent();
+	// if (owner instanceof VersionNode)
+	// owner = owner.getParent();
+	// return owner;
+	// }
+
+	@Override
+	public String getName() {
+		return "";
+	}
+
+	/**
+	 * Property Roles are displayed in the facet table and describe what role the item can play in constructing
+	 * vocabularies.
+	 * 
+	 * @return - string from enumerated list of roles, or empty string if not property.
+	 */
+	public String getPropertyRole() {
+		return "";
+	}
+
+	// overridden where a simple property exists.
+	public Node getSimpleProperty() {
+		return null;
+	}
+
+	@Override
+	public abstract TLModelElement getTLModelObject();
+
+	/**
+	 * Test this node against those in the parentNode to and return true if the name is unique within its parent and
+	 * inherited parent. NOTE: does not check other facets!
+	 * 
+	 * @return
+	 */
+	// FIXME - why here and in Node? Why different?
+	public boolean isUnique() {
+		return isValid();
+		// ValidationFindings findings = validate();
+		// // LOGGER.debug("ComponentNode:isUnique() - test "+getNamespace+":"+name);
+		// List<Node> siblings = new ArrayList<Node>(getParent().getChildren());
+		// if (getParent().getInheritedChildren() != null)
+		// siblings.addAll(0, getParent().getInheritedChildren());
+		// int occurrence = 0; // look for second occurrence since this list is not a live list.
+		//
+		// for (final Node n : siblings) {
+		// if (n.getName().equals(getName()))
+		// if (occurrence++ > 0)
+		// return false;
+		// }
+		// return true;
+	}
+
+	// public void setContext() {
+	// // Override where needed
+	// }
+
+	@Override
+	@Deprecated
+	public boolean isXsdType() {
+		// Local anonymous types may not have xsdType set.
+		return xsdType;
+	}
+
+	@Deprecated
+	public void removeProperty(final Node property) {
+		// throw new IllegalStateException("Remove property in component node should never run.");
+	}
+
+	/**
+	 * @return true if the documentation could be set, false otherwise
+	 */
+	public boolean setDocumentation(TLDocumentation documentation) {
+		if (getTLModelObject() instanceof TLDocumentationOwner)
+			((TLDocumentationOwner) getTLModelObject()).setDocumentation(documentation);
+		else
+			return false;
+		return true;
 	}
 
 }

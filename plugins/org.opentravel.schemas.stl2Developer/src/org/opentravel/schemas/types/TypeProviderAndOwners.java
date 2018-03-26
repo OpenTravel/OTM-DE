@@ -28,4 +28,5 @@ import java.util.List;
 public interface TypeProviderAndOwners {
 
 	public List<TypeProviderAndOwners> getChildren_TypeProviders();
+
 }

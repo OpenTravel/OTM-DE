@@ -130,10 +130,13 @@ public class PropertyNodeEditPart extends GenericEditPart<Node> implements Mouse
 		Diagram diagram = getModel().getOwner();
 		UINode uiNode = diagram.findUINode(newNode);
 
+		if (getViewer() == null || getViewer().getEditPartRegistry() == null)
+			return;
+
 		EditPart nodeEP = (EditPart) getViewer().getEditPartRegistry().get(uiNode);
 		final EditPart toSelecteEP = GEFUtils.getEditPartToSelect(nodeEP);
-
 		getViewer().getEditPartRegistry().get(uiNode);
+
 		// wait until layout will finish
 		Display.getDefault().asyncExec(new Runnable() {
 

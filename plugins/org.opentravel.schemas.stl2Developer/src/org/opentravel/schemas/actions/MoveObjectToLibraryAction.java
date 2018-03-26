@@ -17,6 +17,7 @@ package org.opentravel.schemas.actions;
 
 import java.util.List;
 
+import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -103,10 +104,8 @@ public class MoveObjectToLibraryAction extends OtmAbstractAction {
 					"You can not move object within the same library version chain.");
 			return;
 		}
-		if (!source.isInTLLibrary() || !source.isTLLibraryMember()) {
+		if (!source.isInTLLibrary() || !(source.getTLModelObject() instanceof LibraryMember)) {
 			LOGGER.warn("Cannot move - " + source.getName() + " node is not in TLLibrary or is not top level object");
-			LOGGER.debug("source in tllib? " + source.isInTLLibrary() + "  and is top level object? "
-					+ source.isTLLibraryMember());
 			DialogUserNotifier.openInformation("WARNING",
 					"You can not move object from a built-in or XSD library; use control-drag to copy.");
 			return;
@@ -120,5 +119,4 @@ public class MoveObjectToLibraryAction extends OtmAbstractAction {
 		}
 		// LOGGER.info("Moved " + source + " to " + destination);
 	}
-
 }

@@ -343,13 +343,13 @@ public abstract class AbstractContextualFacet extends FacetProviderNode implemen
 	 */
 	protected abstract void removeFromTLParent();
 
-	@Override
-	@Deprecated
-	public void setContext() {
-		// very common
-		if (getLibrary() != null)
-			getTLModelObject().setContext(getLibrary().getDefaultContextId());
-	}
+	// @Override
+	// @Deprecated
+	// public void setContext() {
+	// // very common
+	// if (getLibrary() != null)
+	// getTLModelObject().setContext(getLibrary().getDefaultContextId());
+	// }
 
 	/**
 	 * Set context to library's default context ID.

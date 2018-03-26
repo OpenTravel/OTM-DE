@@ -160,7 +160,7 @@ public class AliasNode extends TypeProviders implements TypeProvider {
 		return getParent() != null ? getParent().isAssignedByReference() : false;
 	}
 
-	@Override
+	// @Override
 	public boolean isFacetAlias() {
 		return getTLModelObject().getOwningEntity() instanceof TLAbstractFacet;
 	}

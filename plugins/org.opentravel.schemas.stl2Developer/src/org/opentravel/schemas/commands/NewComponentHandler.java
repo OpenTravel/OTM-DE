@@ -18,7 +18,6 @@ package org.opentravel.schemas.commands;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.EditNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -32,10 +31,9 @@ import org.opentravel.schemas.wizards.NewComponentWizard;
  * 
  */
 public class NewComponentHandler extends OtmAbstractHandler {
+	// private static final Logger LOGGER = LoggerFactory.getLogger(NewComponentHandler.class);
 
 	public static final String COMMAND_ID = "org.opentravel.schemas.commands.newComponent";
-
-	// private static final Logger LOGGER = LoggerFactory.getLogger(NewComponentHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -80,23 +78,6 @@ public class NewComponentHandler extends OtmAbstractHandler {
 		final NewComponentWizard wizard = new NewComponentWizard(selected);
 		Node newOne = wizard.run(OtmRegistry.getActiveShell());
 
-		EditNode editNode = null;
-
-		// editNode = wizard.run(OtmRegistry.getActiveShell());
-		// if (editNode != null) {
-		// ComponentNodeType type = ComponentNodeType.fromString(editNode.getUseType());
-		//
-		// Node newOne = new NodeFactory().newComponent(editNode, type);
-		// newOne.setName(NodeNameUtils.fixComplexTypeName(newOne.getName()));
-		// Assert.notNull(newOne.getLibrary());
-
-		// If they created a service and selected an object, then build CRUD operations for that object.
-		// if (editNode.getTLType() != null && newOne instanceof ServiceNode)
-		// ((ServiceNode) newOne).addCRUDQ_Operations(editNode.getTLType());
 		mc.selectNavigatorNodeAndRefresh(newOne);
-
-		// Edit node is NOT in the library so there is no need to remove it
-		// assert (!editNode.getLibrary().contains(editNode));
-		// }
 	}
 }

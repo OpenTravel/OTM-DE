@@ -27,7 +27,6 @@ import org.opentravel.schemacompiler.version.VersionSchemeException;
 import org.opentravel.schemas.controllers.ValidationManager;
 import org.opentravel.schemas.node.AggregateNode;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
@@ -358,23 +357,9 @@ public class LibraryChainNode extends Node implements FacadeInterface, TypeProvi
 	}
 
 	/**
-	 * Return the Simple/Complex/Service navNode in the latest library that matches the type of this node. *
-	 * 
-	 * @param parent
-	 */
-	public NavNode getLatestNavNode(ComponentNode node) {
-		Node parent = node.getOwningNavNode();
-		for (Node nav : getHead().getChildren()) {
-			if (parent.getComponentType().equals(nav.getComponentType()))
-				return (NavNode) nav;
-		}
-		return null;
-	}
-
-	/**
 	 * @return new list of libraries in this chain
 	 */
-	@Override
+	// @Override
 	public List<LibraryNode> getLibraries() {
 		ArrayList<LibraryNode> libs = new ArrayList<LibraryNode>();
 		if (versions != null)
@@ -514,10 +499,10 @@ public class LibraryChainNode extends Node implements FacadeInterface, TypeProvi
 		return node1.getLibrary().getTLModelObject().isLaterVersion(node2.getLibrary().getTLModelObject());
 	}
 
-	@Override
-	public boolean isLibraryContainer() {
-		return true;
-	}
+	// @Override
+	// public boolean isLibraryContainer() {
+	// return true;
+	// }
 
 	/**
 	 * @return true if head library is a major version

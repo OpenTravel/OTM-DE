@@ -136,13 +136,11 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 	@Override
 	public String getComponentType() {
 		return vm.get() != null ? vm.get().getComponentType() : "";
-		// return vm.get() != null ? vm.get().getComponentNodeType().getDescription() : "";
 	}
 
 	@Override
 	public Image getImage() {
-		return vm.get().getImage();
-		// return Images.getImageRegistry().get(Images.libraryChain);
+		return vm.get() != null ? vm.get().getImage() : null;
 	}
 
 	/**

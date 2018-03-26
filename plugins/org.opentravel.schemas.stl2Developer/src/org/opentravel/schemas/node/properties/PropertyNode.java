@@ -743,12 +743,12 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 		return getTypeHandler().set(provider);
 	}
 
-	@Override
-	public void setContext() {
-		// Read/write forces to default context
-		setEquivalent(getEquivalent(null));
-		setExample(getExample(null));
-	}
+	// @Override
+	// public void setContext() {
+	// // Read/write forces to default context
+	// setEquivalent(getEquivalent(null));
+	// setExample(getExample(null));
+	// }
 
 	public IValueWithContextHandler setEquivalent(String equivalent) {
 		return null;

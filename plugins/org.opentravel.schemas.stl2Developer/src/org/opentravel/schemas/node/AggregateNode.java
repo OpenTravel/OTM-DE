@@ -187,9 +187,9 @@ public class AggregateNode extends NavNode {
 		return parent != null ? parent.isInTLLibrary() : false;
 	}
 
-	@Override
-	public boolean isLibraryContainer() {
-		return aggType == AggregateType.Versions ? true : false;
-	}
+	// @Override
+	// public boolean isLibraryContainer() {
+	// return aggType == AggregateType.Versions ? true : false;
+	// }
 
 }

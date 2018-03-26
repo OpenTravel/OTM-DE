@@ -38,12 +38,24 @@ public interface LibraryInterface {
 	 */
 	public void close();
 
-	public Image getImage();
+	/**
+	 * Use the parent, if known, to close this library from the parent's context. If the parent is null, close the
+	 * contents of this library.
+	 * <p>
+	 * <b>Warning</b> the caller must assure the parent is the intended LibraryOwner or null.
+	 * <p>
+	 * The parent uses the library model manager because this LibraryNode may be linked to multiple LibraryNavNodes or
+	 * VersionAggregateNodes. If this library is not used elsewhere the library model manager will call close with
+	 * parent set to null.
+	 */
+	public void closeLibraryInterface();
 
 	/**
 	 * @return this if is a chain, chain if library is in a chain or null
 	 */
 	public LibraryChainNode getChain();
+
+	public Image getImage();
 
 	public String getLabel();
 
@@ -52,11 +64,11 @@ public interface LibraryInterface {
 	 */
 	public LibraryNode getLibrary();
 
+	public LibraryNavNode getLibraryNavNode();
+
 	public String getName();
 
 	public List<Node> getNavChildren(boolean deep);
-
-	public LibraryNavNode getLibraryNavNode();
 
 	/**
 	 * Could be a Project or a LibraryChainNode. NOTE: if library or chain there may be other projects that are also
@@ -74,9 +86,6 @@ public interface LibraryInterface {
 
 	public List<Node> getTreeChildren(boolean deep);
 
-	// you never delete a library
-	// public void delete();
-
 	public boolean hasNavChildren(boolean deep);
 
 	public boolean hasTreeChildren(boolean deep);
@@ -84,27 +93,4 @@ public interface LibraryInterface {
 	public boolean isNavChild(boolean deep);
 
 	public void setParent(Node project);
-
-	/**
-	 * Use the parent, if known, to close this library from the parent's context. If the parent is null, close the
-	 * contents of this library.
-	 * <p>
-	 * <b>Warning</b> the caller must assure the parent is the intended LibraryOwner or null.
-	 * <p>
-	 * The parent uses the library model manager because this LibraryNode may be linked to multiple LibraryNavNodes or
-	 * VersionAggregateNodes. If this library is not used elsewhere the library model manager will call close with
-	 * parent set to null.
-	 */
-	public void closeLibraryInterface();
-
-	// /**
-	// * @return a consistently formed namespace+name string. Chains return the namespace with only the major version.
-	// */
-	// public String getName_Canonical();
-
-	// /**
-	// * @return true if this library or chain contains any business objects
-	// */
-	// public boolean containsBusinessObjects();
-
 }

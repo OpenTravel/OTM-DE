@@ -114,9 +114,6 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 	 */
 	public LibraryInterface getThisLib() {
 		return getChildrenHandler().getThisLibI();
-		// if (getChildren().isEmpty())
-		// return null;
-		// return (LibraryInterface) getChildren().get(0);
 	}
 
 	@Override
@@ -131,15 +128,11 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 
 	@Override
 	public String getName() {
-		// return getThisLib() != null ? getThisLib().getName() + "  " + nodeID + "/" + ((Node)
-		// getThisLib()).getNodeID()
-		// : "(*)";
 		return getThisLib() != null ? getThisLib().getName() : "";
 	}
 
 	@Override
 	public String getLabel() {
-		// return getThisLib().getLabel() + "  " + nodeID + "/" + ((Node) getThisLib()).getNodeID();
 		return getThisLib() != null ? getThisLib().getLabel() : "";
 	}
 
@@ -158,10 +151,10 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 		return (ProjectNode) parent;
 	}
 
-	@Override
-	public boolean isLibraryContainer() {
-		return true;
-	}
+	// @Override
+	// public boolean isLibraryContainer() {
+	// return true;
+	// }
 
 	/**
 	 * Use the libraryModelManager to close the library in this project.
@@ -188,7 +181,7 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 	/**
 	 * Get the library or libraries from a chain.
 	 */
-	@Override
+	// @Override
 	public List<LibraryNode> getLibraries() {
 		List<LibraryNode> libs = new ArrayList<LibraryNode>();
 		if (getThisLib() instanceof LibraryNode)
@@ -203,41 +196,8 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 		return true;
 	}
 
-	// @Override
-	// public boolean hasNavChildren(boolean deep) {
-	// return getThisLib() != null ? getThisLib().hasNavChildren(deep) : false;
-	// }
-	//
-	// @Override
-	// public List<Node> getNavChildren(boolean deep) {
-	// return getThisLib() != null ? getThisLib().getNavChildren(deep) : null;
-	// }
-	//
-	// @Override
-	// public boolean hasTreeChildren(boolean deep) {
-	// return getThisLib() != null ? getThisLib().hasTreeChildren(deep) : false;
-	// }
-	//
-	// @Override
-	// public boolean hasChildren_TypeProviders() {
-	// return getThisLib() != null ? ((Node) getThisLib()).hasChildren_TypeProviders() : false;
-	// }
-	//
-	// @Override
-	// public List<Node> getChildren_TypeProviders() {
-	// return getThisLib() != null ? ((Node) getThisLib()).getChildren_TypeProviders() : null;
-	// }
-	//
-	// @Override
-	// public List<Node> getTreeChildren(boolean deep) {
-	// return getThisLib() != null ? getThisLib().getTreeChildren(deep) : null;
-	// }
-
 	public void setThisLib(LibraryInterface library) {
 		getChildrenHandler().add((Node) library);
-		// childLibrary = library;
-		// getChildren().clear();
-		// getChildren().add((Node) library);
 	}
 
 	/**
@@ -247,13 +207,6 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 	@Override
 	public boolean contains(LibraryInterface li) {
 		return getChildrenHandler().contains((Node) li);
-		// if (getThisLib() == null)
-		// return false;
-		// if (getThisLib() == li)
-		// return true;
-		// if (li instanceof LibraryNode && getThisLib() instanceof LibraryChainNode)
-		// return ((LibraryChainNode) getThisLib()).contains((Node) li);
-		// return false;
 	}
 
 	@Override
@@ -270,11 +223,6 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 		return getLibrary();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacadeInterface#get()
-	 */
 	@Override
 	public TLModelElement getTLModelObject() {
 		return getLibrary() != null ? getLibrary().getTLModelObject() : null;

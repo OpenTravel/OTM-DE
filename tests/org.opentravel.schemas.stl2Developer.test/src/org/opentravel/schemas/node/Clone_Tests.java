@@ -492,16 +492,16 @@ public class Clone_Tests {
 		return 0;
 	}
 
-	private void cloneProperties(Node n) {
-		for (Node p : n.getDescendants()) {
-			if (p instanceof PropertyNode) {
-				if (p.getParent() instanceof ComponentNode)
-					((ComponentNode) p.getParent()).addProperty(p.clone());
-				else
-					LOGGER.debug(p + "has invalid class of parent.");
-			}
-		}
-		tt.visitAllNodes(n);
-	}
+	// private void cloneProperties(Node n) {
+	// for (Node p : n.getDescendants()) {
+	// if (p instanceof PropertyNode) {
+	// if (p.getParent() instanceof ComponentNode)
+	// ((ComponentNode) p.getParent()).addProperty(p.clone());
+	// else
+	// LOGGER.debug(p + "has invalid class of parent.");
+	// }
+	// }
+	// tt.visitAllNodes(n);
+	// }
 
 }
