@@ -153,7 +153,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 
 	@Override
 	public void createPartControl(final Composite parent) {
-		LOGGER.info("Initializing part control of " + this.getClass());
+		// LOGGER.info("Initializing part control of " + this.getClass());
 
 		parent.addDisposeListener(new DisposeListener() {
 
@@ -472,7 +472,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 
 	@Override
 	public void selectionChanged(SelectionChangedEvent event) {
-		LOGGER.debug("selection changed. \tevent = " + event.getClass());
+		// LOGGER.debug("selection changed. \tevent = " + event.getClass());
 		final Object object = ((IStructuredSelection) viewer.getSelection()).getFirstElement();
 		if (!(object instanceof Node))
 			return;

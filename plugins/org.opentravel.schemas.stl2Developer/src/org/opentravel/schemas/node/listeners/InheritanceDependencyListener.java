@@ -127,14 +127,14 @@ public class InheritanceDependencyListener extends BaseNodeListener implements I
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
 		Node affectedNode = getAffectedNode(event);
-		LOGGER.debug("Ownership event: " + event.getType() + " this = " + thisNode + " affected = " + affectedNode);
+		// LOGGER.debug("Ownership event: " + event.getType() + " this = " + thisNode + " affected = " + affectedNode);
 
 		parentHandler.clear();
 	}
 
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
-		LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode);
+		// LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode);
 		// source - the base CF that changed. getNode() = inherited node
 		switch (event.getType()) {
 		case NAME_MODIFIED:

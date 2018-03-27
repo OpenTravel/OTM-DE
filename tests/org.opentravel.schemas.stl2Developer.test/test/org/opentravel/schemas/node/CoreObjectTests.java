@@ -31,6 +31,7 @@ import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLPropertyType;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
@@ -128,7 +129,7 @@ public class CoreObjectTests extends BaseProjectTest {
 		lf.loadTestGroupA(mc);
 		mc.getModelNode();
 		for (LibraryNode lib : Node.getAllUserLibraries())
-			for (Node n : lib.getDescendants_LibraryMemberNodes())
+			for (LibraryMemberInterface n : lib.getDescendants_LibraryMembers())
 				if (n instanceof CoreObjectNode)
 					check((CoreObjectNode) n, false);
 	}
@@ -138,7 +139,7 @@ public class CoreObjectTests extends BaseProjectTest {
 		lf.loadTestGroupAc(mc);
 		mc.getModelNode();
 		for (LibraryNode lib : Node.getAllUserLibraries())
-			for (Node n : lib.getDescendants_LibraryMemberNodes())
+			for (LibraryMemberInterface n : lib.getDescendants_LibraryMembers())
 				if (n instanceof CoreObjectNode)
 					check((CoreObjectNode) n, true);
 		// FIXME - Passes when run alone.

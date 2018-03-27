@@ -421,7 +421,7 @@ public class LibraryPropertySource extends AbstractPropertySource<LibraryNode> {
 			node.setNamespace(ns);
 			OtmRegistry.getMainController().getLibraryController().updateLibraryStatus();
 			OtmRegistry.getMainController().refresh(node); // select the current node
-			LOGGER.debug("Changed " + node + " namespace to " + ns);
+			// LOGGER.debug("Changed " + node + " namespace to " + ns);
 		}
 	}
 

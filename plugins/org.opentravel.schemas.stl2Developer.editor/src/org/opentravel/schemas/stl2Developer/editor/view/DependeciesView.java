@@ -95,280 +95,280 @@ import org.opentravel.schemas.utils.RCPUtils;
  */
 public class DependeciesView extends ViewPart implements IRefreshListener {
 
-    private ScrollingGraphicalViewer viewer;
-    private EditDomain domain;
+	private ScrollingGraphicalViewer viewer;
+	private EditDomain domain;
 
-    private Map<ISelectionListener, String> selectionListeners = new HashMap<ISelectionListener, String>();
-    private List<SelectionAction> selectionActions = new ArrayList<SelectionAction>();
+	private Map<ISelectionListener, String> selectionListeners = new HashMap<ISelectionListener, String>();
+	private List<SelectionAction> selectionActions = new ArrayList<SelectionAction>();
 
-    public DependeciesView() {
-        domain = new EditDomain();
-        OtmRegistry.getMainController().addRefreshListener(this);
-    }
+	public DependeciesView() {
+		domain = new EditDomain();
+		OtmRegistry.getMainController().addRefreshListener(this);
+	}
 
-    @Override
-    public void createPartControl(Composite parent) {
-        viewer = new ScrollingGraphicalViewer();
-        viewer.createControl(parent);
-        FilterManager filterManger = initFilterManager();
-        viewer.setProperty(FilterManager.class.toString(), filterManger);
+	@Override
+	public void createPartControl(Composite parent) {
+		viewer = new ScrollingGraphicalViewer();
+		viewer.createControl(parent);
+		FilterManager filterManger = initFilterManager();
+		viewer.setProperty(FilterManager.class.toString(), filterManger);
 
-        domain.addViewer(viewer);
-        viewer.getControl().setBackground(ColorConstants.listBackground);
-        viewer.setRootEditPart(new ScalableFreeformRootEditPart());
-        viewer.setEditPartFactory(new EditPartsFactory());
-        getSite().setSelectionProvider(viewer);
+		domain.addViewer(viewer);
+		viewer.getControl().setBackground(ColorConstants.listBackground);
+		viewer.setRootEditPart(new ScalableFreeformRootEditPart());
+		viewer.setEditPartFactory(new EditPartsFactory());
+		getSite().setSelectionProvider(viewer);
 
-        Diagram diag = new Diagram();
-        viewer.setContents(diag);
-        getGraphicalViewer().addDropTargetListener(new DropListener(getGraphicalViewer(), diag));
+		Diagram diag = new Diagram();
+		viewer.setContents(diag);
+		getGraphicalViewer().addDropTargetListener(new DropListener(getGraphicalViewer(), diag));
 
-        addSelectionListener(new SelectionListener());
-        hookContextMenu();
-        hookToolbarActions();
-        parent.addControlListener(new ControlAdapter() {
+		addSelectionListener(new SelectionListener());
+		hookContextMenu();
+		hookToolbarActions();
+		parent.addControlListener(new ControlAdapter() {
 
-            @Override
-            public void controlResized(ControlEvent e) {
-                refresh();
-            }
-        });
-    }
+			@Override
+			public void controlResized(ControlEvent e) {
+				refresh();
+			}
+		});
+	}
 
-    public Diagram getDiagram() {
-        return (Diagram) viewer.getRootEditPart().getContents().getModel();
-    }
+	public Diagram getDiagram() {
+		return (Diagram) viewer.getRootEditPart().getContents().getModel();
+	}
 
-    private FilterManager initFilterManager() {
-        FilterManager fm = new FilterManager();
-        return fm;
-    }
+	private FilterManager initFilterManager() {
+		FilterManager fm = new FilterManager();
+		return fm;
+	}
 
-    public void addNodeFilter(IFilter filter) {
-        getFilterManager().addFilter(filter);
-        refresh();
-    }
+	public void addNodeFilter(IFilter filter) {
+		getFilterManager().addFilter(filter);
+		refresh();
+	}
 
-    public void removeNodeFilter(IFilter filter) {
-        getFilterManager().removeFilter(filter);
-        refresh();
-    }
+	public void removeNodeFilter(IFilter filter) {
+		getFilterManager().removeFilter(filter);
+		refresh();
+	}
 
-    private FilterManager getFilterManager() {
-        return (FilterManager) viewer.getProperty(FilterManager.class.toString());
-    }
+	private FilterManager getFilterManager() {
+		return (FilterManager) viewer.getProperty(FilterManager.class.toString());
+	}
 
-    public AbstractEditPartViewer getGraphicalViewer() {
-        return viewer;
-    }
+	public AbstractEditPartViewer getGraphicalViewer() {
+		return viewer;
+	}
 
-    @Override
-    public void setFocus() {
-        viewer.getControl().setFocus();
-    }
+	@Override
+	public void setFocus() {
+		viewer.getControl().setFocus();
+	}
 
-    @Override
-    public void dispose() {
-        domain.setActiveTool(null);
-        OtmRegistry.getMainController().removeRefreshListener(this);
-        disposeListeners();
-        super.dispose();
-    }
+	@Override
+	public void dispose() {
+		domain.setActiveTool(null);
+		OtmRegistry.getMainController().removeRefreshListener(this);
+		disposeListeners();
+		super.dispose();
+	}
 
-    private void disposeListeners() {
-        for (ISelectionListener l : new HashSet<ISelectionListener>(selectionListeners.keySet())) {
-            removeSelectionListener(l);
-        }
-    }
+	private void disposeListeners() {
+		for (ISelectionListener l : new HashSet<ISelectionListener>(selectionListeners.keySet())) {
+			removeSelectionListener(l);
+		}
+	}
 
-    private void hookContextMenu() {
-        MenuManager menuMgr = new MenuManager("#PopupMenu"); //$NON-NLS-1$
-        fillContextMenu(menuMgr);
+	private void hookContextMenu() {
+		MenuManager menuMgr = new MenuManager("#PopupMenu"); //$NON-NLS-1$
+		fillContextMenu(menuMgr);
 
-        menuMgr.addMenuListener(new IMenuListener() {
-            @Override
-            public void menuAboutToShow(IMenuManager manager) {
-                manager.update(null);
-            }
-        });
-        Menu menu = menuMgr.createContextMenu(viewer.getControl());
-        viewer.getControl().setMenu(menu);
+		menuMgr.addMenuListener(new IMenuListener() {
+			@Override
+			public void menuAboutToShow(IMenuManager manager) {
+				manager.update(null);
+			}
+		});
+		Menu menu = menuMgr.createContextMenu(viewer.getControl());
+		viewer.getControl().setMenu(menu);
 
-        getSite().registerContextMenu(menuMgr, viewer);
-    }
+		getSite().registerContextMenu(menuMgr, viewer);
+	}
 
-    private void hookToolbarActions() {
-        IAction screenShot = new Action(Messages.DependeciesView_ActionSaveToClipboard) {
+	private void hookToolbarActions() {
+		IAction screenShot = new Action(Messages.DependeciesView_ActionSaveToClipboard) {
 
-            @Override
-            public void run() {
-                DependeciesView.this.saveToClipboard();
-            }
+			@Override
+			public void run() {
+				DependeciesView.this.saveToClipboard();
+			}
 
-        };
-        screenShot.setImageDescriptor(Activator.getImageDescriptor("icons/screenshot.gif")); //$NON-NLS-1$
-        getViewSite().getActionBars().getToolBarManager().add(screenShot);
+		};
+		screenShot.setImageDescriptor(Activator.getImageDescriptor("icons/screenshot.gif")); //$NON-NLS-1$
+		getViewSite().getActionBars().getToolBarManager().add(screenShot);
 
-        ToggleLayout disableLayout = new ToggleLayout(this);
-        disableLayout.setImageDescriptor(Activator.getImageDescriptor("icons/layout-16.png")); //$NON-NLS-1$
-        getViewSite().getActionBars().getToolBarManager().add(disableLayout);
+		ToggleLayout disableLayout = new ToggleLayout(this);
+		disableLayout.setImageDescriptor(Activator.getImageDescriptor("icons/layout-16.png")); //$NON-NLS-1$
+		getViewSite().getActionBars().getToolBarManager().add(disableLayout);
 
-        ToggleShowSimpleObjects toogleSimpleObjects = new ToggleShowSimpleObjects(this);
-        getViewSite().getActionBars().getToolBarManager().add(toogleSimpleObjects);
+		ToggleShowSimpleObjects toogleSimpleObjects = new ToggleShowSimpleObjects(this);
+		getViewSite().getActionBars().getToolBarManager().add(toogleSimpleObjects);
 
-        LinkWithNavigator linkWithNavigator = new LinkWithNavigator(this);
-        linkWithNavigator.setImageDescriptor(Images.getImageRegistry().getDescriptor(
-                Images.LinkedWithNavigator));
-        getViewSite().getActionBars().getToolBarManager().add(linkWithNavigator);
+		LinkWithNavigator linkWithNavigator = new LinkWithNavigator(this);
+		linkWithNavigator.setImageDescriptor(Images.getImageRegistry().getDescriptor(Images.LinkedWithNavigator));
+		getViewSite().getActionBars().getToolBarManager().add(linkWithNavigator);
 
-        final EnableFilterAction emptyFacet = new EnableFilterAction(
-                Messages.DependeciesView_EmptyFacetFilter, new EmptyFacetFilter(),
-                DependeciesView.this);
-        DropDownAction filtersDropDown = new DropDownAction(Messages.DependeciesView_FiltersMenu);
-        filtersDropDown.addAction(emptyFacet);
-        filtersDropDown.setImageDescriptor(Images.getImageRegistry().getDescriptor(Images.Filter));
-        getViewSite().getActionBars().getToolBarManager().add(filtersDropDown);
-    }
+		final EnableFilterAction emptyFacet = new EnableFilterAction(Messages.DependeciesView_EmptyFacetFilter,
+				new EmptyFacetFilter(), DependeciesView.this);
+		DropDownAction filtersDropDown = new DropDownAction(Messages.DependeciesView_FiltersMenu);
+		filtersDropDown.addAction(emptyFacet);
+		filtersDropDown.setImageDescriptor(Images.getImageRegistry().getDescriptor(Images.Filter));
+		getViewSite().getActionBars().getToolBarManager().add(filtersDropDown);
+	}
 
-    private void registerAction(Action action) {
-        getViewSite().getActionBars()
-                .setGlobalActionHandler(action.getActionDefinitionId(), action);
-    }
+	private void registerAction(Action action) {
+		getViewSite().getActionBars().setGlobalActionHandler(action.getActionDefinitionId(), action);
+	}
 
-    private void fillContextMenu(IMenuManager manager) {
-        manager.add(new Separator());
-        ShowHideNodeAction showWhereUsed = new WhereUsedActionGef(getGraphicalViewer(),
-                Messages.DependenciesView_ActionWhereUsed);
-        manager.add(showWhereUsed);
-        ShowHideNodeAction showTypes = new AddUsedTypesAction(getGraphicalViewer(),
-                Messages.DependeciesView_ActionUsedTypes);
-        manager.add(showTypes);
+	private void fillContextMenu(IMenuManager manager) {
+		manager.add(new Separator());
+		ShowHideNodeAction showWhereUsed = new WhereUsedActionGef(getGraphicalViewer(),
+				Messages.DependenciesView_ActionWhereUsed);
+		manager.add(showWhereUsed);
+		ShowHideNodeAction showTypes = new AddUsedTypesAction(getGraphicalViewer(),
+				Messages.DependeciesView_ActionUsedTypes);
+		manager.add(showTypes);
 
-        manager.add(RCPUtils.createCommandContributionItem(getSite(),
-                ActionFactory.DELETE.getCommandId(), Messages.DependenciesView_ActionRemove, null,
-                null));
-        ClearAllNodesAction clearAll = new ClearAllNodesAction(getGraphicalViewer(),
-                Messages.DependeciesView_ActionClearAll);
-        manager.add(clearAll);
-        ClearUnlinkedNodesAction clearUnlinked = new ClearUnlinkedNodesAction(getGraphicalViewer(),
-                Messages.DependeciesView_ActionClearUnlinked);
-        manager.add(clearUnlinked);
+		manager.add(RCPUtils.createCommandContributionItem(getSite(), ActionFactory.DELETE.getCommandId(),
+				Messages.DependenciesView_ActionRemove, null, null));
+		ClearAllNodesAction clearAll = new ClearAllNodesAction(getGraphicalViewer(),
+				Messages.DependeciesView_ActionClearAll);
+		manager.add(clearAll);
+		ClearUnlinkedNodesAction clearUnlinked = new ClearUnlinkedNodesAction(getGraphicalViewer(),
+				Messages.DependeciesView_ActionClearUnlinked);
+		manager.add(clearUnlinked);
 
-        MenuManager align = new MenuManager(Messages.DependeciesView_MenuAlignment);
-        manager.add(align);
-        align.add(createAlignmentAction(PositionConstants.LEFT));
-        align.add(createAlignmentAction(PositionConstants.CENTER));
-        align.add(createAlignmentAction(PositionConstants.RIGHT));
-        align.add(new Separator());
-        align.add(createAlignmentAction(PositionConstants.TOP));
-        align.add(createAlignmentAction(PositionConstants.MIDDLE));
-        align.add(createAlignmentAction(PositionConstants.BOTTOM));
+		MenuManager align = new MenuManager(Messages.DependeciesView_MenuAlignment);
+		manager.add(align);
+		align.add(createAlignmentAction(PositionConstants.LEFT));
+		align.add(createAlignmentAction(PositionConstants.CENTER));
+		align.add(createAlignmentAction(PositionConstants.RIGHT));
+		align.add(new Separator());
+		align.add(createAlignmentAction(PositionConstants.TOP));
+		align.add(createAlignmentAction(PositionConstants.MIDDLE));
+		align.add(createAlignmentAction(PositionConstants.BOTTOM));
 
-        Action delete = new DeleteAction(getGraphicalViewer());
-        delete.setActionDefinitionId(ActionFactory.DELETE.getCommandId());
-        registerAction(delete);
-    }
+		Action delete = new DeleteAction(getGraphicalViewer());
+		delete.setActionDefinitionId(ActionFactory.DELETE.getCommandId());
+		registerAction(delete);
+	}
 
-    private IAction createAlignmentAction(int position) {
-        AlignmentAction action = new AlignmentAction(this, position);
-        action.setSelectionProvider(this.getGraphicalViewer());
-        selectionActions.add(action);
-        return action;
-    }
+	private IAction createAlignmentAction(int position) {
+		AlignmentAction action = new AlignmentAction(this, position);
+		action.setSelectionProvider(this.getGraphicalViewer());
+		selectionActions.add(action);
+		return action;
+	}
 
-    @Override
-    public void refresh(INode node) {
-        UINode uiNode = getContentEditPart().getModel().findUINode((Node) node);
-        GraphicalEditPart ep = (GraphicalEditPart) viewer.getEditPartRegistry().get(uiNode);
-        if (ep != null) {
-            ep.refresh();
-        }
-    }
+	@Override
+	public void refresh(INode node) {
+		UINode uiNode = getContentEditPart().getModel().findUINode((Node) node);
+		GraphicalEditPart ep = (GraphicalEditPart) viewer.getEditPartRegistry().get(uiNode);
+		if (ep != null) {
+			ep.refresh();
+		}
+	}
 
-    @Override
-    public void refresh() {
-        getContentEditPart().refresh();
-    }
+	@Override
+	public void refresh() {
+		getContentEditPart().refresh();
+	}
 
-    private DiagramEditPart getContentEditPart() {
-        return (DiagramEditPart) viewer.getRootEditPart().getContents();
-    }
+	private DiagramEditPart getContentEditPart() {
+		return (DiagramEditPart) viewer.getRootEditPart().getContents();
+	}
 
-    public void saveToClipboard() {
-        GraphicalViewer graphicalViewer = viewer;
-        ScalableFreeformRootEditPart rootEditPart = (ScalableFreeformRootEditPart) graphicalViewer
-                .getEditPartRegistry().get(LayerManager.ID);
-        IFigure rootFigure = ((LayerManager) rootEditPart)
-                .getLayer(LayerConstants.PRINTABLE_LAYERS);
-        Rectangle rootFigureBounds = rootFigure.getBounds();
-        Control figureCanvas = graphicalViewer.getControl();
+	public void saveToClipboard() {
+		GraphicalViewer graphicalViewer = viewer;
+		ScalableFreeformRootEditPart rootEditPart = (ScalableFreeformRootEditPart) graphicalViewer
+				.getEditPartRegistry().get(LayerManager.ID);
+		IFigure rootFigure = ((LayerManager) rootEditPart).getLayer(LayerConstants.PRINTABLE_LAYERS);
+		Rectangle rootFigureBounds = rootFigure.getBounds();
+		Control figureCanvas = graphicalViewer.getControl();
 
-        Image img = new Image(Display.getDefault(), rootFigureBounds.width, rootFigureBounds.height);
-        GC imageGC = new GC(img);
-        figureCanvas.print(imageGC);
+		Image img = new Image(Display.getDefault(), rootFigureBounds.width, rootFigureBounds.height);
+		GC imageGC = new GC(img);
+		figureCanvas.print(imageGC);
 
-        Clipboard cb = new Clipboard(Display.getDefault());
-        ImageTransfer textTransfer = ImageTransfer.getInstance();
-        cb.setContents(new Object[] { img.getImageData() }, new Transfer[] { textTransfer });
+		Clipboard cb = new Clipboard(Display.getDefault());
+		ImageTransfer textTransfer = ImageTransfer.getInstance();
+		cb.setContents(new Object[] { img.getImageData() }, new Transfer[] { textTransfer });
 
-        imageGC.dispose();
-        img.dispose();
-    }
+		imageGC.dispose();
+		img.dispose();
+	}
 
-    public void selectNode(Node n) {
-        EditPart ep = (EditPart) viewer.getEditPartRegistry().get(getDiagram().findUINode(n));
-        if (ep != null) {
-            EditPart toSelect = GEFUtils.getEditPartToSelect(ep);
-            viewer.setSelection(new StructuredSelection(toSelect));
-        }
-    }
+	public void selectNode(Node n) {
+		// 3/27 - is null sometimes
+		// UINode uin = getDiagram().findUINode(n);
+		EditPart ep = (EditPart) viewer.getEditPartRegistry().get(getDiagram().findUINode(n));
+		if (ep != null) {
+			EditPart toSelect = GEFUtils.getEditPartToSelect(ep);
+			viewer.setSelection(new StructuredSelection(toSelect));
+			// 3/27 - not the problem
+			// if (getDiagram().findUINode(n) == null)
+			// System.out.println("Node no longer registered.");
+		}
+	}
 
-    public void addSelectionListener(ISelectionListener listener) {
-        addSelectionListener(null, listener);
-    }
+	public void addSelectionListener(ISelectionListener listener) {
+		addSelectionListener(null, listener);
+	}
 
-    public void addSelectionListener(String partId, ISelectionListener listener) {
-        if (!selectionListeners.containsKey(listener)) {
-            selectionListeners.put(listener, partId);
-            if (partId == null) {
-                getSite().getPage().addSelectionListener(listener);
-            } else {
-                getSite().getPage().addSelectionListener(partId, listener);
-            }
-        }
-    }
+	public void addSelectionListener(String partId, ISelectionListener listener) {
+		if (!selectionListeners.containsKey(listener)) {
+			selectionListeners.put(listener, partId);
+			if (partId == null) {
+				getSite().getPage().addSelectionListener(listener);
+			} else {
+				getSite().getPage().addSelectionListener(partId, listener);
+			}
+		}
+	}
 
-    public void removeSelectionListener(ISelectionListener listener) {
-        if (selectionListeners.containsKey(listener)) {
-            String partId = selectionListeners.get(listener);
-            if (partId == null) {
-                getSite().getPage().removeSelectionListener(listener);
-            } else {
-                getSite().getPage().removeSelectionListener(partId, listener);
-            }
-            selectionListeners.remove(listener);
-        }
-    }
+	public void removeSelectionListener(ISelectionListener listener) {
+		if (selectionListeners.containsKey(listener)) {
+			String partId = selectionListeners.get(listener);
+			if (partId == null) {
+				getSite().getPage().removeSelectionListener(listener);
+			} else {
+				getSite().getPage().removeSelectionListener(partId, listener);
+			}
+			selectionListeners.remove(listener);
+		}
+	}
 
-    class SelectionListener implements ISelectionListener {
+	class SelectionListener implements ISelectionListener {
 
-        @Override
-        public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-            for (SelectionAction s : DependeciesView.this.getSelectionActions()) {
-                s.update();
-            }
-        }
-    }
+		@Override
+		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+			for (SelectionAction s : DependeciesView.this.getSelectionActions()) {
+				s.update();
+			}
+		}
+	}
 
-    public List<SelectionAction> getSelectionActions() {
-        return selectionActions;
-    }
+	public List<SelectionAction> getSelectionActions() {
+		return selectionActions;
+	}
 
-    @Override
-    public Object getAdapter(Class type) {
-        if (type == CommandStack.class)
-            return viewer.getEditDomain().getCommandStack();
-        return super.getAdapter(type);
-    }
+	@Override
+	public Object getAdapter(Class type) {
+		if (type == CommandStack.class)
+			return viewer.getEditDomain().getCommandStack();
+		return super.getAdapter(type);
+	}
 
 }

@@ -237,10 +237,6 @@ public class CoreObjectNode extends FacetOwners implements ExtensionOwner, Sorta
 		return getSimpleAttribute().setAssignedType(type);
 	}
 
-	// @Override
-	// public SimpleAttributeFacadeNode getSimpleAttribute() {
-	// return getFacet_Simple().getSimpleAttribute();
-	// }
 	@Override
 	public SimpleAttributeFacadeNode getSimpleAttribute() {
 		return getFacet_Simple().getSimpleAttribute();
@@ -259,26 +255,10 @@ public class CoreObjectNode extends FacetOwners implements ExtensionOwner, Sorta
 		return getSimpleAttribute();
 	}
 
-	// @Override
-	// public FacetProviderNode getFacet_Summary() {
-	// for (INode f : getChildren())
-	// if (f instanceof FacetMemberNode && ((FacetMemberNode) f).isSummaryFacet())
-	// return (FacetProviderNode) f;
-	// return null;
-	// }
-
 	@Override
 	public FacetProviderNode getFacet_Default() {
 		return getFacet_Summary();
 	}
-
-	// @Override
-	// public FacetMemberNode getFacet_Detail() {
-	// for (INode f : getChildren())
-	// if (f instanceof FacetMemberNode && ((FacetMemberNode) f).isDetailFacet())
-	// return (FacetMemberNode) f;
-	// return null;
-	// }
 
 	public RoleFacetNode getFacet_Role() {
 		for (Node f : getChildren())

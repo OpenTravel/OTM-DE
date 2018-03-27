@@ -151,9 +151,9 @@ public class NamespaceHandler {
 			return;
 
 		String prefix = namespacesAndPrefixes.get(oldNS);
-		if (prefix == null || prefix.isEmpty()) {
-			LOGGER.error("Null or empty namespace prefix ");
-		}
+		// if (prefix == null || prefix.isEmpty()) {
+		// LOGGER.error("Null or empty namespace prefix ");
+		// }
 		namespacesAndPrefixes.remove(oldNS);
 		namespacesAndPrefixes.put(newNS, prefix);
 	}
@@ -221,8 +221,8 @@ public class NamespaceHandler {
 		String prefix = getPrefix(newNamespace);
 		if (!isDefined(prefix))
 			prefix = "";
-		if (prefix.isEmpty())
-			LOGGER.debug("Setting empty prefix on namespace " + newNamespace);
+		// if (prefix.isEmpty())
+		// LOGGER.debug("Setting empty prefix on namespace " + newNamespace);
 
 		if (!namespacesAndPrefixes.containsKey(newNamespace)) {
 			namespacesAndPrefixes.put(newNamespace, prefix);

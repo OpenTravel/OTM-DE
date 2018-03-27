@@ -54,7 +54,7 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 		@Override
 		public boolean set(String value) {
 			tlObj.setCommonAction(Boolean.valueOf(value));
-			LOGGER.debug("Set common to: " + tlObj.isCommonAction());
+			// LOGGER.debug("Set common to: " + tlObj.isCommonAction());
 			return false;
 		}
 	}
@@ -289,7 +289,7 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 		// }
 		// }
 
-		LOGGER.debug("Parent contribution to " + getOwningComponent() + ": " + contribution);
+		// LOGGER.debug("Parent contribution to " + getOwningComponent() + ": " + contribution);
 		return contribution;
 	}
 }

@@ -771,6 +771,7 @@ public class DefaultProjectController implements ProjectController {
 		if (pn == getDefaultProject())
 			pn.closeAll();
 		else {
+			LOGGER.debug("Closing project " + pn);
 			result = save(pn); // Try to save the project file
 			if (result) // If successful, try to close the TL Project
 				result = closeTL(pn.getTLProject().getProjectManager(), pn.getTLProject());
@@ -783,6 +784,8 @@ public class DefaultProjectController implements ProjectController {
 				DialogUserNotifier.openError("Error Closing Project.", "Please restart.");
 			if (Display.getCurrent() != null)
 				mc.refresh();
+			if (!result)
+				LOGGER.warn("Error closing project " + pn);
 		}
 		return result;
 		// LOGGER.debug("Closed project: " + pn);

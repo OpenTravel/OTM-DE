@@ -88,11 +88,6 @@ public abstract class SimpleAttributeFacadeNode extends PropertyNode implements 
 		return getParent() != null ? getParent().getOwningComponent() : null;
 	}
 
-	// @Override
-	// public TypeProvider getAssignedType() {
-	// return getTLSimpleType();
-	// }
-
 	@Override
 	public abstract NamedEntity getAssignedTLNamedEntity();
 
@@ -108,30 +103,6 @@ public abstract class SimpleAttributeFacadeNode extends PropertyNode implements 
 		return emptyNode;
 	}
 
-	// @Override
-	// public String getEquivalent(String context) {
-	// return getEquivalentHandler().get(context);
-	// }
-	//
-	// @Override
-	// public IValueWithContextHandler getEquivalentHandler() {
-	// if (equivalentHandler == null)
-	// equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
-	// return equivalentHandler;
-	// }
-	//
-	// @Override
-	// public String getExample(String context) {
-	// return getExampleHandler().get(context);
-	// }
-	//
-	// @Override
-	// public IValueWithContextHandler getExampleHandler() {
-	// if (exampleHandler == null)
-	// exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
-	// return exampleHandler;
-	// }
-
 	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.XSDAttribute);
@@ -139,10 +110,6 @@ public abstract class SimpleAttributeFacadeNode extends PropertyNode implements 
 
 	@Override
 	public abstract String getName();
-
-	// {
-	// return emptyIfNull(getTLModelObject().getName());
-	// }
 
 	@Override
 	public abstract ComponentNode getParent();
@@ -196,25 +163,6 @@ public abstract class SimpleAttributeFacadeNode extends PropertyNode implements 
 		return false; // name must come from owning object
 	}
 
-	// @Override
-	// public boolean setAssignedType(TypeProvider type) {
-	// if (type instanceof AliasNode)
-	// type = (TypeProvider) ((Node) type).getOwningComponent();
-	// if (type.isAssignableToSimple())
-	// setTLSimpleType(type.getTLModelObject());
-	// else
-	// return false;
-	// return true;
-	// }
-	// @Override
-	// public boolean setAssignedType(TLModelElement tla) {
-	// // if (tla.isAssignableToSimple())
-	// setTLSimpleType(tla);
-	// // else
-	// // return false;
-	// return true;
-	// }
-
 	@Override
 	public IValueWithContextHandler setEquivalent(String example) {
 		getEquivalentHandler().set(example, null);
@@ -247,7 +195,4 @@ public abstract class SimpleAttributeFacadeNode extends PropertyNode implements 
 	@Override
 	protected void removeFromTL() {
 	}
-
-	// protected abstract void setTLSimpleType(TLModelElement type);
-
 }

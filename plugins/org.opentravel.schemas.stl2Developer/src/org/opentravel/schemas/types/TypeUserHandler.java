@@ -77,9 +77,10 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 					LOGGER.debug("Error - not type provider: " + n);
 		} else {
 			// This is the "Missing" case.
-			if (owner instanceof SimpleAttributeFacadeNode)
+			if (owner instanceof SimpleAttributeFacadeNode) {
 				n = ModelNode.getEmptyNode();
-			else if ((owner instanceof TypeProvider) && (((TypeProvider) owner).getXsdObjectHandler() != null))
+				((SimpleAttributeFacadeNode) owner).setAssignedTLType(n.getTLModelObject());
+			} else if ((owner instanceof TypeProvider) && (((TypeProvider) owner).getXsdObjectHandler() != null))
 				// This is a simple type from an XSDSimpleType or XSDComplexType
 				n = (Node) ((TypeProvider) owner).getXsdObjectHandler().getRequiredType();
 		}
@@ -126,6 +127,7 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 
 	public String getAssignedTypeNameWithPrefix() {
 		String typeName = getAssignedTypeName();
+		TypeProvider type = get();
 		if (get() instanceof ImpliedNode)
 			return typeName;
 		if (((Node) owner).getPrefix().equals(getAssignedTypePrefix()))

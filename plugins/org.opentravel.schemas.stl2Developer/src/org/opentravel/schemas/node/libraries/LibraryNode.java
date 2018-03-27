@@ -813,7 +813,7 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	 */
 	@Override
 	public void closeLibraryInterface() {
-		LOGGER.debug("Closing library " + getNameWithPrefix());
+		// LOGGER.debug("Closing library " + getNameWithPrefix());
 
 		// Attempt to use the parent to close this library
 		if (getParent() instanceof VersionAggregateNode) {
