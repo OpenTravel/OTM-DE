@@ -45,6 +45,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.XMLMemento;
+import org.opentravel.ns.ota2.project_v01_00.ManagedProjectItemType;
+import org.opentravel.ns.ota2.project_v01_00.ProjectItemType;
 import org.opentravel.ns.ota2.repositoryinfo_v01_00.RefreshPolicy;
 import org.opentravel.schemacompiler.loader.LibraryLoaderException;
 import org.opentravel.schemacompiler.loader.LibraryModelLoader;
@@ -612,18 +614,31 @@ public class DefaultProjectController implements ProjectController {
 				monitor.subTask("Opening file " + fileName);
 			}
 			op = openTLProject(fileName);
-			int failedCnt = 0;
 			if (op.tlProject == null) {
 				DialogUserNotifier.syncErrorWithUi("Failed to open project " + fileName + "\n" + op.resultMsg);
 				return null;
 			}
+
+			// Determine success/failure messages for the user
+			int itemCnt = op.tlProject.getProjectItems().size();
+			int failedCnt = 0;
+			String failures = "";
 			if (op.tlProject.getFailedProjectItems() != null)
 				failedCnt = op.tlProject.getFailedProjectItems().size();
-			int itemCnt = op.tlProject.getProjectItems().size();
+			if (failedCnt > 0) {
+				failures = op.tlProject.getName() + ": ";
+				failures += "Read " + itemCnt + " items. Failed to Read " + failedCnt + " items.\n";
+				for (ProjectItemType item : op.tlProject.getFailedProjectItems())
+					if (item instanceof ManagedProjectItemType) {
+						failures += ((ManagedProjectItemType) item).getBaseNamespace();
+						failures += " " + ((ManagedProjectItemType) item).getFilename() + "\n";
+					}
+				LOGGER.warn(failures);
+			}
 			if (monitor != null) {
 				monitor.worked(1);
 				if (failedCnt > 0)
-					monitor.subTask("Failed to Read " + failedCnt + " libraries. Attempting to create model");
+					monitor.subTask(failures + "Attempting to create model.");
 				else
 					monitor.subTask("Read " + itemCnt + " items. Creating model");
 			}
@@ -634,6 +649,8 @@ public class DefaultProjectController implements ProjectController {
 				monitor.worked(1);
 				if (op.project == null)
 					DialogUserNotifier.syncErrorWithUi(op.resultMsg);
+				else if (!failures.isEmpty())
+					DialogUserNotifier.syncErrorWithUi(failures);
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {

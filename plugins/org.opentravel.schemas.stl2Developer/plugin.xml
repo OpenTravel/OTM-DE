@@ -230,16 +230,16 @@
 				</command>
 				<separator name="stl2Developer.separator1" visible="true">
 				</separator>
-				<command commandId="org.opentravel.schemas.commands.Add"
+				<!-- command commandId="org.opentravel.schemas.commands.Add"
 					icon="icons/add_att.gif" label="Add" mnemonic="Ctrl+A" style="push"
 					tooltip="Add object or property">
-				</command>
-				<command commandId="stl2Developer.navigation.backward" icon="icons/nav_backward.gif"
+				</command -->
+				<!-- command commandId="stl2Developer.navigation.backward" icon="icons/nav_backward.gif"
 					label="Backward" style="push">
 				</command>
 				<command commandId="stl2Developer.navigation.forward" icon="icons/nav_forward.gif"
 					label="Forward" style="push">
-				</command>
+				</command -->
 				<command commandId="org.eclipse.ui.edit.delete" icon="icons/delete_edit.gif"
 					label="Delete" style="push" tooltip="Delete selected objects or properties.">
 				</command>
@@ -858,25 +858,31 @@
 		</handler>
 		<handler class="org.opentravel.schemas.commands.SortNodeHandler"
 			commandId="org.opentravel.schemas.commands.Sort">
-			<enabledWhen>
+			<activeWhen>
+					<with variable="activePartId">
+						<equals value="org.opentravel.schemas.stl2Developer.TypeView">
+						</equals>
+					</with>
+			</activeWhen>
+			<!-- enabledWhen>
 				<with variable="org.opentravel.schemas.selection.nodes">
 					<iterate ifEmpty="false" operator="or">
 						<test property="stl2Developer.selection.newToChain">
 						</test>
 					</iterate>
 				</with>
-			</enabledWhen>
+			</enabledWhen -->
 		</handler>
 		<handler class="org.opentravel.schemas.commands.AddNodeHandler2"
 			commandId="org.opentravel.schemas.commands.Add">
-			<enabledWhen>
+			<!-- enabledWhen>
 				<with variable="org.opentravel.schemas.selection.nodes">
 					<iterate ifEmpty="false" operator="or">
 						<test property="stl2Developer.selection.canAdd">
 						</test>
 					</iterate>
 				</with>
-			</enabledWhen>
+			</enabledWhen -->
 		</handler>
 		<handler class="org.opentravel.schemas.commands.AddNodeForNavigatorPopup"
 			commandId="org.opentravel.schemas.commands.Add">
@@ -909,7 +915,7 @@
 		</handler>
 		<handler class="org.opentravel.schemas.commands.DeleteNodesHandler"
 			commandId="org.eclipse.ui.edit.delete">
-			<enabledWhen>
+			<!--enabledWhen>
 				<and>
 					<with variable="org.opentravel.schemas.selection.nodes">
 						<iterate ifEmpty="false" operator="and">
@@ -928,7 +934,7 @@
 						</iterate>
 					</with>
 				</and>
-			</enabledWhen>
+			</enabledWhen -->
 			<!--workaround to force this handler to be activated as default -->
 			<activeWhen>
 				<with variable="activeWorkbenchWindow.activePerspective">
@@ -960,7 +966,7 @@
 		</handler>
 		<handler class="org.opentravel.schemas.commands.NewComponentHandler"
 			commandId="org.opentravel.schemas.commands.newComponent">
-			<enabledWhen>
+			<!-- enabledWhen>
 				<with variable="org.opentravel.schemas.selection.nodes">
 					<iterate ifEmpty="false" operator="and">
 						<and>
@@ -971,7 +977,7 @@
 						</and>
 					</iterate>
 				</with>
-			</enabledWhen>
+			</enabledWhen -->
 		</handler>
 		<!-- 
 		Resource Commands 
