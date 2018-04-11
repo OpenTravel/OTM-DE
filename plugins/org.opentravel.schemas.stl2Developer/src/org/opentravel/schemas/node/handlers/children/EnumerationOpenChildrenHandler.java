@@ -51,13 +51,13 @@ public class EnumerationOpenChildrenHandler extends CachingChildrenHandler<Node,
 	}
 
 	// // TODO - why isn't this behavior in super type?
-	// @Override
-	// protected void initInherited() {
-	// initRunning = true;
-	// inheritedOwner = owner.getExtendsType();
-	// inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
-	// initRunning = false;
-	// }
+	@Override
+	protected void initInherited() {
+		initRunning = true;
+		inheritedOwner = owner.getExtendsType();
+		inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
+		initRunning = false;
+	}
 
 	// /**
 	// * @see org.opentravel.schemas.modelObject.ModelObject#getInheritedChildren()
