@@ -50,13 +50,15 @@ public class EnumerationClosedChildrenHandler extends CachingChildrenHandler<Nod
 			inheritedKids.addAll(EnumCodegenUtils.getInheritedValues(owner.getTLModelObject(), false));
 		return inheritedKids;
 	}
-	// @Override
-	// protected void initInherited() {
-	// initRunning = true;
-	// inheritedOwner = owner.getExtendsType();
-	// inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
-	// initRunning = false;
-	// }
+
+	@Override
+	protected void initInherited() {
+		initRunning = true;
+		// versions can inherit -- inheritedOwner = owner.getExtendsType();
+		inheritedOwner = owner.getExtensionBase();
+		inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
+		initRunning = false;
+	}
 
 	// /**
 	// * @see org.opentravel.schemas.modelObject.ModelObject#getInheritedChildren()

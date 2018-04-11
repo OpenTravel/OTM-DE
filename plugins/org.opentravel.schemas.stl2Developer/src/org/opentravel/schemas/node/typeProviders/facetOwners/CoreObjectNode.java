@@ -75,6 +75,10 @@ public class CoreObjectNode extends FacetOwners implements ExtensionOwner, Sorta
 		if (getTLModelObject().getName() == null)
 			getTLModelObject().setName("");
 
+		// If the simple facet is null, make it Empty
+		if (mbr.getSimpleFacet().getSimpleType() == null)
+			mbr.getSimpleFacet().setSimpleType(ModelNode.getEmptyType());
+
 		childrenHandler = new CoreObjectChildrenHandler(this);
 		extensionHandler = new ExtensionHandler(this);
 	}

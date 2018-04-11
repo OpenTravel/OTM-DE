@@ -213,7 +213,7 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 
 	@Override
 	public boolean isEditable() {
-		return get().isEditable();
+		return get() != null ? get().isEditable() : false;
 	}
 
 	/**

@@ -1128,7 +1128,7 @@
 		</handler>
 		<handler class="org.opentravel.schemas.commands.SaveLibraryHandler"
 			commandId="org.opentravel.schemas.commands.SaveLibrary">
-			<enabledWhen>
+			<!-- enabledWhen>
 				<and>
 					<with variable="org.opentravel.schemas.selection.nodes">
 						<iterate ifEmpty="false" operator="and">
@@ -1137,7 +1137,7 @@
 						</iterate>
 					</with>
 				</and>
-			</enabledWhen>
+			</enabledWhen -->
 		</handler>
 		<handler class="org.opentravel.schemas.commands.CompileHandler"
 			commandId="org.opentravel.schemas.commands.Compile">

@@ -16,7 +16,10 @@
 package org.opentravel.schemas.trees.type;
 
 import org.eclipse.jface.viewers.Viewer;
+import org.opentravel.schemas.node.AggregateNode;
+import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.types.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +50,14 @@ public class TypeTreeVWASimpleTypeOnlyFilter extends TypeSelectionFilter {
 			return false;
 		}
 		final Node n = (Node) element;
+
+		if (n instanceof AggregateNode) // these extend NavNode
+			return n instanceof VersionAggregateNode;
+		if (n instanceof NavNode)
+			return ((NavNode) n).isComplexRoot() || ((NavNode) n).isSimpleRoot();
+
 		return (n.isNavigation()) ? true : n.isVWASimpleAssignable();
 	}
-
+	// Skip - resources, service
+	// Select = project
 }

@@ -126,7 +126,9 @@ public abstract class CachingChildrenHandler<C extends Node, O extends Node> ext
 			// Should not be needed if setter is picks up on deleted flag
 			// clearInheritedListeners(inherited);
 			for (Node n : inherited)
-				n.setDeleted(true);
+				// Don't delete node inherited from version extensions
+				if (n instanceof InheritedInterface)
+					n.setDeleted(true);
 			// Mark as deleted
 			inherited.clear();
 			// LOGGER.debug("Cleared inherited children of " + owner);

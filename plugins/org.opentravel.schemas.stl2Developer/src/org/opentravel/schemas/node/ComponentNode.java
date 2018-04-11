@@ -47,6 +47,7 @@ import org.opentravel.schemas.node.objectMembers.FacetOMNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ImpliedNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeProviders;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
@@ -244,7 +245,10 @@ public abstract class ComponentNode extends Node {
 		// Final check
 		assert newNode.getParent() != null;
 		assert chain.getHead().contains(newNode);
-		assert chain.getComplexAggregate().contains(newNode.getVersionNode());
+		if (newNode instanceof SimpleTypeProviders)
+			assert chain.getSimpleAggregate().contains(newNode.getVersionNode());
+		else
+			assert chain.getComplexAggregate().contains(newNode.getVersionNode());
 		// This should fail -- same version node!
 		// assert !chain.getComplexAggregate().contains(owner.getVersionNode());
 		assert newNode.getVersionNode().get() == newNode; // assure version node updated

@@ -398,6 +398,10 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 			if (view != null)
 				view.setFindings(ValidationManager.validate(curNode), curNode);
 		}
+		// select example
+		OtmView view = mc.getView_Example();
+		view.setCurrentNode(curNode);
+		view.refresh(curNode);
 
 	}
 

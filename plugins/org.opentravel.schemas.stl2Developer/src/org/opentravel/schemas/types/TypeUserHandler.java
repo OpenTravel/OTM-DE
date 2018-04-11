@@ -169,26 +169,15 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		return owner.getAssignedTLNamedEntity();
 	}
 
+	/**
+	 * Set the assigned type to the unassigned node.
+	 * 
+	 * @return
+	 */
 	public boolean set() {
 		assert ModelNode.getUnassignedNode() != null;
 		return set(ModelNode.getUnassignedNode());
 	}
-
-	// /**
-	// * Looks up the node associated with the tlProvider and uses that to set the type. If the provider does not have
-	// * associated node or the node is not a type provider the type assignment is cleared.
-	// *
-	// * @param tlProvider
-	// * @return
-	// */
-	// @Deprecated
-	// public boolean set(TLModelElement tlProvider) {
-	// assert false;
-	// Node target = Node.GetNode(tlProvider);
-	// if (target instanceof TypeProvider)
-	// return set((TypeProvider) target); // Set again to trigger where used behavior
-	// return set();
-	// }
 
 	/**
 	 * Set Assigned Type. Sets the Assigned type node and add this owner to that user list via where used listener. This
@@ -222,7 +211,7 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 				target.addTypeUser(owner);
 			}
 			if (target != ModelNode.getUnassignedNode())
-				return false;
+				return true;
 		}
 
 		// Skip if "Unassigned" in an attempt to preserve actual assignment even if that library is not loaded.

@@ -18,6 +18,7 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -31,6 +32,7 @@ import org.opentravel.schemacompiler.model.TLAttribute;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLPropertyType;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -197,13 +199,13 @@ public class CoreObjectTests extends BaseProjectTest {
 		List<Node> iKids = ((Node) extendedCO.getFacet_Default()).getInheritedChildren();
 		assertTrue(iKids.isEmpty());
 
-		for (Node n : ln.getDescendants_LibraryMemberNodes())
+		for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers())
 			if (n instanceof CoreObjectNode && n != extendedCO) {
-				extendedCO.setExtension(n);
+				extendedCO.setExtension((Node) n);
 				check((CoreObjectNode) n);
 				check(extendedCO);
 				iKids = ((Node) extendedCO.getFacet_Default()).getInheritedChildren();
-				if (!n.getFacet_Default().getChildren().isEmpty())
+				if (!((Node) n).getFacet_Default().getChildren().isEmpty())
 					assertTrue(!iKids.isEmpty());
 			}
 
@@ -211,29 +213,35 @@ public class CoreObjectTests extends BaseProjectTest {
 
 	@Test
 	public void CO_ChangeToTests() {
+		OTM16Upgrade.otm16Enabled = true;
 		// The change to method adds swap() to the constructor generated core.
 		//
 		CoreObjectNode tco = null;
 		// Given - a chain with BO and VWA
 		lcn = new LibraryChainNode(ln); // Test in a chain
 		ln.setEditable(true);
+		// v1.6 - will have BO and custom and query facets
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "bo");
 		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "vwa");
 		// Given - an element to assign types to
 		BusinessObjectNode typeUser = ml.addBusinessObjectToLibrary(ln, "userBO");
 		ElementNode ele = new ElementNode(typeUser.getFacet_Summary(), "EleUser");
 		// Given - the number of library members in library (must not change)
-		int typeCount = ln.getDescendants_LibraryMemberNodes().size();
-
+		int typeCount = ln.getDescendants_LibraryMembers().size();
+		// List<LibraryMemberInterface> originalMembers = ln.getDescendants_LibraryMembers();
 		// Given - an element assigned the bo as a type
 		ele.setAssignedType(bo);
+
 		// When - changed to core
 		tco = (CoreObjectNode) bo.changeObject(SubType.CORE_OBJECT);
+		typeCount = typeCount - 2; // two contextual facets
 		// Then - the core is valid and element is assigned the core
 		check(tco);
 		assertTrue(bo.getLibrary() != ln);
 		assertTrue("Type assignment must be to the new core.", ele.getAssignedType() == tco);
 		assertTrue("New core must have element in where used list.", tco.getWhereAssigned().contains(ele));
+		assertTrue("Library must contain new core.", ln.contains(tco));
+		assertEquals("Count must match", typeCount, ln.getDescendants_LibraryMembers().size());
 
 		// Repeat with VWA
 		ele.setAssignedType(vwa);
@@ -241,10 +249,11 @@ public class CoreObjectTests extends BaseProjectTest {
 		check(tco);
 		assertTrue(vwa.getLibrary() != ln);
 		assertTrue("Type assignment must be to the new core.", ele.getAssignedType() == tco);
+		assertTrue("Library must contain new core.", ln.contains(tco));
 
-		// tn.visit(ln);
-		assertTrue("Number of library members must be same as before changes.", typeCount == ln
-				.getDescendants_LibraryMemberNodes().size());
+		// List<LibraryMemberInterface> members = ln.getDescendants_LibraryMembers();
+		assertEquals("Count must match", typeCount, ln.getDescendants_LibraryMembers().size());
+		OTM16Upgrade.otm16Enabled = false;
 	}
 
 	@Test
@@ -329,7 +338,7 @@ public class CoreObjectTests extends BaseProjectTest {
 			else if (tn.getAssignedType() == core.getFacet_Summary())
 				assertTrue(tn.getName().equals(changedName));
 			else if (tn.getAssignedType() == aliasSummary)
-				assertTrue(tn.getName().startsWith(aliasName2));
+				assertTrue(tn.getName().startsWith(aliasName2)); // report to steve on 3/29/2018
 			else
 				assert true; // no-op - created by Mock Library to make core valid
 		}
@@ -368,7 +377,10 @@ public class CoreObjectTests extends BaseProjectTest {
 		assertTrue(core.getLibrary() != null);
 
 		// Core must only have 6 children + aliases
+		List<Node> kids = core.getChildren();
 		int cSize = 6 + core.getAliases().size();
+		if (kids.size() != cSize)
+			LOGGER.debug("Error in core children count. " + OTM16Upgrade.otm16Enabled);
 		assertTrue("Core children count must be " + cSize, core.getChildren().size() == cSize);
 
 		// Facets

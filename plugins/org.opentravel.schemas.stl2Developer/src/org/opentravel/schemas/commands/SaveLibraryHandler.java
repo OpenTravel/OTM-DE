@@ -27,6 +27,7 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Images;
 
 public class SaveLibraryHandler extends OtmAbstractHandler {
+	// private static final Logger LOGGER = LoggerFactory.getLogger(SaveLibrariesHandler.class);
 
 	public static String COMMAND_ID = "org.opentravel.schemas.commands.SaveLibrary";
 
@@ -52,6 +53,7 @@ public class SaveLibraryHandler extends OtmAbstractHandler {
 
 	@Override
 	public boolean isEnabled() {
+		// LOGGER.debug("Is selected? " + mc.getSelectedNode_NavigatorView());
 		Node n = mc.getSelectedNode_NavigatorView();
 		return n != null ? !n.isBuiltIn() : false;
 	}

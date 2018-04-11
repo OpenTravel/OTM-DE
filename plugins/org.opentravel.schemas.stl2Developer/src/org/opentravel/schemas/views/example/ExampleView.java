@@ -284,6 +284,7 @@ public class ExampleView extends OtmAbstractView {
 		// showFindingsDialog(lib.getName(), findings);
 		// }
 		libModel.addChildren(children);
+		LOGGER.debug("Generated " + children.size() + " examples for " + lib);
 	}
 
 	// private void showFindingsDialog(String libName, ValidationFindings findings) {

@@ -273,6 +273,10 @@ public class MainController {
 		return OtmRegistry.getValidationResultsView();
 	}
 
+	public OtmView getView_Example() {
+		return OtmRegistry.getExampleView();
+	}
+
 	/** ************************ Current Item Access ***************************** **/
 
 	/**

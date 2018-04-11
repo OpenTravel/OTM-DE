@@ -96,8 +96,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 		boolean ret = true;
 		for (Node cn : toChange) {
 			// 10/2016 dmh - clean up logic and skip fixName since done in assign type
-			if (cn.getType() != newType)
-				ret = ((TypeUser) cn).setAssignedType((TypeProvider) newType);
+			ret = ((TypeUser) cn).setAssignedType((TypeProvider) newType);
 			if (!ret)
 				DialogUserNotifier.openWarning("Warning", "Invalid type assignment");
 

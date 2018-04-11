@@ -19,6 +19,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.VersionAggregateNode;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.wizards.NewComponentWizard;
@@ -45,6 +46,11 @@ public class NewComponentHandler extends OtmAbstractHandler {
 	@Override
 	public boolean isEnabled() {
 		Node selected = getFirstSelected();
+		// LOGGER.debug("Selected = " + selected);
+		if (selected == null)
+			return false;
+		if (selected instanceof VersionAggregateNode)
+			return false;
 		// is in library and library is editable
 		return selected.isInTLLibrary() && selected.getLibrary().isEditable();
 	}

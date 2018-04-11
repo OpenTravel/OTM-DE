@@ -97,6 +97,8 @@ public class FacetViewTablePoster {
 		// restore focus after posting
 		final int[] selectionIndices = table.getSelectionIndices();
 
+		@SuppressWarnings("unchecked")
+		// List<Node> sortedChildren = (List<Node>) curNode.getChildrenHandler().get();
 		List<Node> sortedChildren = new ArrayList<Node>(curNode.getChildren());
 		sortedChildren = sort(sortedChildren);
 
@@ -183,6 +185,7 @@ public class FacetViewTablePoster {
 			}
 
 			// Sort the table rows
+			List<Node> inherited = (List<Node>) n.getChildrenHandler().getInheritedChildren();
 			List<Node> children = n.getChildren_New();
 			if (showInherited(n))
 				children.addAll(n.getInheritedChildren());
