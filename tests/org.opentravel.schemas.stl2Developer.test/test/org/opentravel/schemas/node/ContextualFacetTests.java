@@ -401,7 +401,7 @@ public class ContextualFacetTests {
 		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
 		LibraryNode ln2 = ml.createNewLibrary("http://www.test.com/test2", "test2", defaultProject);
 		ChoiceObjectNode choice = ml.addChoice(ln, "Choice1");
-		SharedFacetNode shared = choice.getSharedFacet();
+		SharedFacetNode shared = choice.getFacet_Shared();
 		assert shared != null;
 
 		// Given - Choice facet

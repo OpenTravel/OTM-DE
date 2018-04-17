@@ -385,7 +385,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// }
 		// assertTrue(mn != null);
 		// }
-		ArrayList<Node> nodes = new ArrayList<Node>(newMajor.getDescendants_LibraryMemberNodes());
+		ArrayList<Node> nodes = new ArrayList<>(newMajor.getDescendants_LibraryMemberNodes());
 		for (Node n : nodes) {
 			n.setName(n.getName() + "_TEST");
 			// TODO - modify properties
@@ -498,7 +498,6 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 
 		checkValid(chain);
 		// checkCounts(chain);
-
 	}
 
 	//

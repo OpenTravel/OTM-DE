@@ -63,12 +63,12 @@ public abstract class NodeChildrenHandler<C extends Node> implements ChildrenHan
 
 	@Override
 	public List<C> getChildren_New() {
-		return new ArrayList<C>(get());
+		return new ArrayList<>(get());
 	}
 
 	@Override
 	public List<TypeProviderAndOwners> getChildren_TypeProviders() {
-		final ArrayList<TypeProviderAndOwners> providers = new ArrayList<TypeProviderAndOwners>();
+		final ArrayList<TypeProviderAndOwners> providers = new ArrayList<>();
 		if (children != null)
 			for (Node n : get()) {
 				if (n instanceof VersionNode)
@@ -81,7 +81,7 @@ public abstract class NodeChildrenHandler<C extends Node> implements ChildrenHan
 
 	@Override
 	public List<TypeUser> getChildren_TypeUsers() {
-		final ArrayList<TypeUser> users = new ArrayList<TypeUser>();
+		final ArrayList<TypeUser> users = new ArrayList<>();
 		if (children != null)
 			for (Node n : get()) {
 				if (n instanceof VersionNode) // should this be facadeInterface?
@@ -134,7 +134,7 @@ public abstract class NodeChildrenHandler<C extends Node> implements ChildrenHan
 
 	@Override
 	public List<C> getNavChildren(boolean deep) {
-		ArrayList<C> kids = new ArrayList<C>();
+		ArrayList<C> kids = new ArrayList<>();
 		for (C c : get()) {
 			if (c == null)
 				LOGGER.debug("Null child.");
@@ -189,7 +189,7 @@ public abstract class NodeChildrenHandler<C extends Node> implements ChildrenHan
 				n = ((ContributedFacetNode) n).getContributor();
 
 			// Remove this inheritance listener from base TL object (and avoid co-modification)
-			List<ModelElementListener> listeners = new ArrayList<ModelElementListener>(baseTL.getListeners());
+			List<ModelElementListener> listeners = new ArrayList<>(baseTL.getListeners());
 			for (ModelElementListener l : listeners)
 				if (l instanceof InheritanceDependencyListener)
 					if (((InheritanceDependencyListener) l).getNode() == n) {

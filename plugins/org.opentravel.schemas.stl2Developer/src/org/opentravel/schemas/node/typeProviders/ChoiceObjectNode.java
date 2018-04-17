@@ -72,7 +72,7 @@ public class ChoiceObjectNode extends FacetOwners implements ExtensionOwner, Sor
 		// SharedFacetNode sf = getSharedFacet();
 		// if (sf == null)
 		// LOGGER.debug("Missing shared facet in constructor.");
-		assert (getSharedFacet() instanceof SharedFacetNode);
+		assert (getFacet_Shared() instanceof SharedFacetNode);
 	}
 
 	@Override
@@ -264,7 +264,7 @@ public class ChoiceObjectNode extends FacetOwners implements ExtensionOwner, Sor
 
 	@Override
 	public SharedFacetNode getFacet_Default() {
-		return getSharedFacet();
+		return getFacet_Shared();
 	}
 
 	@Override
@@ -352,7 +352,7 @@ public class ChoiceObjectNode extends FacetOwners implements ExtensionOwner, Sor
 
 	@Override
 	public void sort() {
-		getSharedFacet().sort();
+		getFacet_Shared().sort();
 		for (AbstractContextualFacet f : getChoiceFacets())
 			((Sortable) f).sort();
 	}

@@ -155,9 +155,10 @@ public class ChildrenHandlerTests extends BaseProjectTest {
 		// Then - Make sure getTreeChildren() does not error out.
 		//
 		boolean deep = false;
-		List<Node> tKids = n.getTreeChildren(deep);
+		@SuppressWarnings("unchecked")
+		List<Node> tKids = (List<Node>) n.getChildrenHandler().getTreeChildren(deep);
 		if (tKids.isEmpty() && (n.hasTreeChildren(deep) || n.hasNavChildren(deep)))
-			LOGGER.debug("Error " + n.getTreeChildren(deep).size());
+			LOGGER.debug("Error " + n.getChildrenHandler().getTreeChildren(deep).size());
 		if (n.hasTreeChildren(deep))
 			assertTrue("If there are tree children then there must be tree children.", !tKids.isEmpty());
 		if (n.hasNavChildren(deep))
@@ -190,8 +191,8 @@ public class ChildrenHandlerTests extends BaseProjectTest {
 		if ((n instanceof LibraryNode) && (n.getParent() instanceof VersionAggregateNode))
 			assertTrue("Must be empty.", n.getNavChildren(true).isEmpty());
 		else if (n instanceof LibraryNavNode)
-			assertTrue("Must be size from library", n.getNavChildren(false).size() == ((LibraryNavNode) n).getThisLib()
-					.getNavChildren(false).size());
+			assertTrue("Must be size from library",
+					n.getNavChildren(false).size() == ((LibraryNavNode) n).getThisLib().getNavChildren(false).size());
 		else if (n instanceof VersionAggregateNode)
 			assertTrue("Must be empty.", n.getNavChildren(true).isEmpty());
 		else if (n instanceof RepositoryNode)
@@ -214,8 +215,8 @@ public class ChildrenHandlerTests extends BaseProjectTest {
 		else if (n instanceof SimpleMemberInterface)
 			assertTrue("Nav child must only be assigned type if any.", n.getNavChildren(true).size() < 2);
 		else if (n instanceof VersionNode)
-			assertTrue("Head node children must be version node's navChildren.", ((VersionNode) n).getNewestVersion()
-					.getNavChildren(true).size() == n.getNavChildren(true).size());
+			assertTrue("Head node children must be version node's navChildren.",
+					((VersionNode) n).getNewestVersion().getNavChildren(true).size() == n.getNavChildren(true).size());
 		else if (n instanceof Enumeration)
 			assertTrue("Enumeration getNavChildren must be empty.", n.getNavChildren(true).isEmpty());
 		else if (n instanceof RoleNode || n instanceof RoleFacetNode)

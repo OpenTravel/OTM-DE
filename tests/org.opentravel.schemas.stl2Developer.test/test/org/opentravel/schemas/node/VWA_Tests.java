@@ -18,8 +18,10 @@
  */
 package org.opentravel.schemas.node;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Assert;
@@ -34,13 +36,16 @@ import org.opentravel.schemacompiler.model.TLPropertyType;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
 import org.opentravel.schemas.node.facets.AttributeFacetNode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.objectMembers.VWA_SimpleFacetFacadeNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
+import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.properties.SimpleAttributeFacadeNode;
+import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
@@ -183,8 +188,8 @@ public class VWA_Tests extends BaseProjectTest {
 		// test all libs
 		lf.loadTestGroupA(mc);
 		for (LibraryNode ln : mc.getModelNode().getUserLibraries()) {
-			List<Node> types = ln.getDescendants_LibraryMemberNodes();
-			for (Node n : types)
+			List<LibraryMemberInterface> types = ln.getDescendants_LibraryMembers();
+			for (LibraryMemberInterface n : types)
 				if (n instanceof VWA_Node)
 					check((VWA_Node) n);
 		}
@@ -221,10 +226,11 @@ public class VWA_Tests extends BaseProjectTest {
 
 		// When - a new VWA in managed library is created and type set
 		vwa = ml.addVWA_ToLibrary(lcn.getHead(), "InChainTest");
-		assertTrue("Simple type must be assignable.", vwa.getFacet_Simple().getSimpleAttribute().setAssignedType(bType));
+		assertTrue("Simple type must be assignable.",
+				vwa.getFacet_Simple().getSimpleAttribute().setAssignedType(bType));
 		// Then
-		assertTrue("Simple type must equal type assigned.", bType == vwa.getFacet_Simple().getSimpleAttribute()
-				.getAssignedType());
+		assertTrue("Simple type must equal type assigned.",
+				bType == vwa.getFacet_Simple().getSimpleAttribute().getAssignedType());
 
 		// Given - the tlModelObject from simple type B
 		TLModelElement target = bType.getTLModelObject();
@@ -238,7 +244,7 @@ public class VWA_Tests extends BaseProjectTest {
 		assertTrue("Simple facet must not be null.", sf != null);
 
 		// Then - access via simple facet
-		TLModelElement v2 = sf.getAssignedType().getTLModelObject();
+		TLModelElement v2 = sf.getSimpleAttribute().getAssignedType().getTLModelObject();
 		assertTrue("Simple facet's simple type must be set to bType.", v2 == target);
 
 		// Then - access via simple attribute
@@ -278,6 +284,48 @@ public class VWA_Tests extends BaseProjectTest {
 			if (pn instanceof AttributeNode)
 				assertTrue(pn.getAssignedType() == a);
 		}
+	}
+
+	@Test
+	public void VWA_WhereUsedTests() {
+		// Given an editable library
+		ln = ml.createNewLibrary("http://opentravel.org/test", "test", defaultProject);
+		ln.setEditable(true);
+		TypeProvider a = ml.getXsdDecimal();
+		// Given a VWA
+		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "VWA1");
+		vwa.getSimpleAttribute().setAssignedType(a);
+		new AttributeNode(vwa.getFacet_Attributes(), "A1").setAssignedType(a);
+		new IndicatorNode(vwa.getFacet_Attributes(), "I1");
+		assertEquals(a, vwa.getAssignedType());
+		List<Node> treeKids = vwa.getChildrenHandler().getTreeChildren(true);
+
+		// Given a choice, core and business object
+		CoreObjectNode core1 = ml.addCoreObjectToLibrary(ln, "Core1");
+		BusinessObjectNode bo1 = ml.addBusinessObjectToLibrary(ln, "Bo1");
+		ChoiceObjectNode ch1 = ml.addChoice(ln, "Ch1");
+
+		// When VWA assigned to each of the other objects
+		ElementNode e1 = new ElementNode(core1.getFacet_Summary(), "p1", vwa);
+		ElementNode e2 = new ElementNode(bo1.getFacet_Summary(), "p1", vwa);
+		ElementNode e3 = new ElementNode(ch1.getFacet_Shared(), "p1", vwa);
+
+		// Then - where assigned
+		Collection<TypeUser> users = vwa.getWhereAssigned();
+		assertTrue(users.contains(e1));
+		assertTrue(users.contains(e2));
+		assertTrue(users.contains(e3));
+		assertTrue("Count used in get tree children.", vwa.getWhereAssignedCount() == 3);
+
+		// Then - where used
+		assertTrue("Count used in get tree children.", vwa.getWhereUsedCount() == 3);
+
+		// Then - tree kids
+		List<Node> newTreeKids = vwa.getChildrenHandler().getTreeChildren(true);
+		assertTrue(vwa.getChildrenHandler().hasTreeChildren(true));
+		assertTrue(vwa.getChildrenHandler().hasTreeChildren(false));
+		assertTrue(newTreeKids.size() > treeKids.size());
+		assertTrue(newTreeKids.contains(vwa.getWhereUsedNode()));
 	}
 
 	@Test

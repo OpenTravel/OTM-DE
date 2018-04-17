@@ -81,7 +81,7 @@ public class TypeProviderWhereUsedNode extends WhereUsedNode<TypeProvider> imple
 	 * @return list of all users of any version as type or extension
 	 */
 	public List<TypeUser> getAllUsers(boolean editableOnly) {
-		List<TypeUser> users = new ArrayList<TypeUser>();
+		List<TypeUser> users = new ArrayList<>();
 		for (Node version : getAllVersions()) {
 			for (TypeUser user : ((TypeProvider) version).getWhereAssigned())
 				if (editableOnly) {
@@ -100,7 +100,7 @@ public class TypeProviderWhereUsedNode extends WhereUsedNode<TypeProvider> imple
 	 *         node.
 	 */
 	public List<ExtensionOwner> getAllExtensions(boolean editableOnly) {
-		List<ExtensionOwner> owners = new ArrayList<ExtensionOwner>();
+		List<ExtensionOwner> owners = new ArrayList<>();
 		for (Node version : getAllVersions()) {
 			if (version.getWhereExtendedHandler() != null) {
 				for (ExtensionOwner e : version.getWhereExtendedHandler().getWhereExtended()) {
@@ -124,7 +124,7 @@ public class TypeProviderWhereUsedNode extends WhereUsedNode<TypeProvider> imple
 		if (((Node) owner).getVersionNode() != null)
 			return ((Node) owner).getVersionNode().getAllVersions();
 
-		List<Node> versions = new ArrayList<Node>();
+		List<Node> versions = new ArrayList<>();
 		versions.add((Node) owner);
 		return versions;
 	}
@@ -137,7 +137,7 @@ public class TypeProviderWhereUsedNode extends WhereUsedNode<TypeProvider> imple
 	 */
 	@Override
 	public List<Node> getChildren() {
-		List<Node> users = new ArrayList<Node>();
+		List<Node> users = new ArrayList<>();
 		if (owner == null)
 			return Collections.emptyList();
 
@@ -160,7 +160,7 @@ public class TypeProviderWhereUsedNode extends WhereUsedNode<TypeProvider> imple
 
 	// 4/9/2017 - needed but does not work
 	private List<Node> stripOlderVersions(List<Node> users) {
-		List<Node> strippedList = new ArrayList<Node>();
+		List<Node> strippedList = new ArrayList<>();
 		for (Node n : users) {
 			if (n.getOwningComponent() instanceof ExtensionOwner) {
 				String eName = ((ExtensionOwner) n.getOwningComponent()).getExtendsTypeName();
@@ -177,15 +177,15 @@ public class TypeProviderWhereUsedNode extends WhereUsedNode<TypeProvider> imple
 
 	@Override
 	public boolean hasChildren() {
-		return false;
+		return !getChildren().isEmpty();
 	}
 
-	/**
-	 * Always true because lazy evaluation of children.
-	 */
-	@Override
-	public boolean hasTreeChildren(boolean deep) {
-		return true;
-	}
+	// /**
+	// * Always true because lazy evaluation of children.
+	// */
+	// @Override
+	// public boolean hasTreeChildren(boolean deep) {
+	// return true;
+	// }
 
 }

@@ -56,6 +56,8 @@ public interface TypeProvider extends TypeProviderAndOwners {
 	public void addWhereUsed(TypeUser user);
 
 	/**
+	 * Get the collection of assigned locations from assignment handler.
+	 * 
 	 * @return a unmodifiable collection of type users that use this as a type definition or base type
 	 */
 	public Collection<TypeUser> getWhereAssigned();

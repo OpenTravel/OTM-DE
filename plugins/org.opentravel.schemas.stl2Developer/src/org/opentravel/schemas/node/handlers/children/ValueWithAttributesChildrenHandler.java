@@ -44,7 +44,7 @@ public class ValueWithAttributesChildrenHandler extends CachingChildrenHandler<N
 	@Override
 	public void initChildren() {
 		initRunning = true;
-		children = new ArrayList<Node>();
+		children = new ArrayList<>();
 		children.add(new VWA_SimpleFacetFacadeNode(owner));
 		children.add(new AttributeFacetNode(owner));
 		initRunning = false;
@@ -53,11 +53,19 @@ public class ValueWithAttributesChildrenHandler extends CachingChildrenHandler<N
 	@Override
 	public List<TLModelElement> getChildren_TL() {
 		// return the two facets: value type and attributes.
-		final List<TLModelElement> kids = new ArrayList<TLModelElement>();
+		final List<TLModelElement> kids = new ArrayList<>();
 		owner.getTLModelObject().getParentType();
 		owner.getTLModelObject().getAttributes();
 		owner.getTLModelObject().getIndicators();
 		return kids;
+	}
+
+	/**
+	 * Override to provide where used when appropriate. Needed because this object has no navChildren.
+	 */
+	@Override
+	public boolean hasTreeChildren(boolean deep) {
+		return owner.getWhereUsedCount() > 0 ? true : false;
 	}
 
 }

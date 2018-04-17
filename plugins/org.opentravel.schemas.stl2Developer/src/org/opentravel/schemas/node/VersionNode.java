@@ -172,11 +172,11 @@ public class VersionNode extends ComponentNode implements FacadeInterface {
 		return vm.get() != null ? vm.get().getNavChildren(deep) : Collections.EMPTY_LIST;
 	}
 
-	@Override
-	public List<Node> getTreeChildren(boolean deep) {
-		// this simplifies links from validation, user experience and showing families in the other aggregates.
-		return vm.get() != null ? vm.get().getTreeChildren(deep) : Collections.EMPTY_LIST;
-	}
+	// @Override
+	// public List<Node> getTreeChildren(boolean deep) {
+	// // this simplifies links from validation, user experience and showing families in the other aggregates.
+	// return vm.get() != null ? vm.get().getChildrenHandler().getTreeChildren(deep) : Collections.EMPTY_LIST;
+	// }
 
 	@Override
 	public boolean hasNavChildren(boolean deep) {

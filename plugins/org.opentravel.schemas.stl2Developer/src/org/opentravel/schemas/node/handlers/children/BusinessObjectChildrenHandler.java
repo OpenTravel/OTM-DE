@@ -32,13 +32,11 @@ public class BusinessObjectChildrenHandler extends CachingChildrenHandler<Node, 
 
 	public BusinessObjectChildrenHandler(BusinessObjectNode owner) {
 		super(owner);
-		// Must initialize inherited children because they can add to the library.
-		// causes npe - initInherited();
 	}
 
 	@Override
 	public List<TLModelElement> getChildren_TL() {
-		final List<TLModelElement> kids = new ArrayList<TLModelElement>();
+		final List<TLModelElement> kids = new ArrayList<>();
 		kids.add(owner.getTLModelObject().getIdFacet());
 		kids.add(owner.getTLModelObject().getSummaryFacet());
 		kids.add(owner.getTLModelObject().getDetailFacet());
@@ -55,10 +53,9 @@ public class BusinessObjectChildrenHandler extends CachingChildrenHandler<Node, 
 		if (trueOwner == null)
 			return Collections.emptyList();
 
-		List<TLModelElement> facets = new ArrayList<TLModelElement>();
+		List<TLModelElement> facets = new ArrayList<>();
 		for (TLContextualFacet cf : getInheritedChildren_TL_CFs()) {
 			facets.add(cf);
-			// cf.setOwningEntity(trueOwner); // owner is where inherited
 		}
 		return facets;
 	}
@@ -71,22 +68,11 @@ public class BusinessObjectChildrenHandler extends CachingChildrenHandler<Node, 
 	 * @return
 	 */
 	private List<TLContextualFacet> getInheritedChildren_TL_CFs() {
-		List<TLContextualFacet> tlCfs = new ArrayList<TLContextualFacet>();
+		List<TLContextualFacet> tlCfs = new ArrayList<>();
 		tlCfs.addAll(FacetCodegenUtils.findGhostFacets(owner.getTLModelObject(), TLFacetType.CUSTOM));
 		tlCfs.addAll(FacetCodegenUtils.findGhostFacets(owner.getTLModelObject(), TLFacetType.QUERY));
 		tlCfs.addAll(FacetCodegenUtils.findGhostFacets(owner.getTLModelObject(), TLFacetType.UPDATE));
 		return tlCfs;
 	}
 
-	// @Override
-	// protected void initInherited() {
-	// // TODO - refactor or copy
-	// initRunning = true;
-	// inheritedOwner = owner.getExtendsType();
-	// if (inheritedOwner != null)
-	// inherited = modelTLs(getInheritedChildren_TL(), inheritedOwner);
-	// else
-	// inherited = Collections.emptyList();
-	// initRunning = false;
-	// }
 }

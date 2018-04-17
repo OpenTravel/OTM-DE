@@ -26,7 +26,7 @@ import org.opentravel.schemas.node.interfaces.INode;
 /**
  * 10/2016 dmh - replaced with deepMode on LibraryTreeContentProvider.
  * 
- * Used in add property wizard. Provides children and types assigned to properties.
+ * Used in new property wizard. Provides children and types assigned to properties.
  * 
  * @author Dave Hollander
  * 
@@ -48,8 +48,9 @@ public class LibraryTreeWithPropertiesContentProvider implements ITreeContentPro
 
 	@Override
 	public Object[] getChildren(final Object element) {
-		if (element instanceof Node) {
-			final List<Node> nodeChildren = new ArrayList<Node>(((Node) element).getTreeChildren(true));
+		if (element instanceof Node && ((Node) element).getChildrenHandler() != null) {
+			final List<Node> nodeChildren = new ArrayList<>(
+					((Node) element).getChildrenHandler().getTreeChildren(true));
 			return nodeChildren.toArray();
 		}
 		return new Object[0];

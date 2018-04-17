@@ -448,7 +448,7 @@ public class MockLibrary {
 		choice.addAlias("CAlias" + name);
 
 		// Add properties to shared facet
-		FacetInterface shared = choice.getSharedFacet();
+		FacetInterface shared = choice.getFacet_Shared();
 		new ElementNode(shared, "shared1" + name, string);
 
 		// Add two choice facets

@@ -528,7 +528,7 @@ public abstract class Node implements INode {
 	 * @return node found or null
 	 */
 	public Node findChildByName(String name) {
-		List<Node> allKids = new ArrayList<Node>(getChildrenHandler().get());
+		List<Node> allKids = new ArrayList<>(getChildrenHandler().get());
 		allKids.addAll(getChildrenHandler().getInheritedChildren());
 
 		for (Node n : allKids) {
@@ -583,7 +583,7 @@ public abstract class Node implements INode {
 	}
 
 	public List<Node> getAncestors() {
-		List<Node> ancestors = new ArrayList<Node>();
+		List<Node> ancestors = new ArrayList<>();
 		Node n = this;
 		do {
 			ancestors.add(n);
@@ -753,11 +753,11 @@ public abstract class Node implements INode {
 	@Deprecated
 	public List<Node> getDescendants_LibraryMemberNodes() {
 		// keep duplicates out of the list that version aggregates may introduce
-		HashSet<Node> namedKids = new HashSet<Node>();
+		HashSet<Node> namedKids = new HashSet<>();
 		if (getChildrenHandler() != null)
 			for (LibraryMemberInterface c : getDescendants_LibraryMembers())
 				namedKids.add((Node) c);
-		return new ArrayList<Node>(namedKids);
+		return new ArrayList<>(namedKids);
 
 	}
 
@@ -782,7 +782,7 @@ public abstract class Node implements INode {
 	 * Get all resources in the model.
 	 */
 	public List<ResourceNode> getAllResources() {
-		final ArrayList<ResourceNode> resources = new ArrayList<ResourceNode>();
+		final ArrayList<ResourceNode> resources = new ArrayList<>();
 		for (final LibraryNode ln : getModelNode().getLibraries())
 			for (final Node n : ln.getResourceRoot().getChildren())
 				if (n instanceof ResourceNode)
@@ -969,7 +969,7 @@ public abstract class Node implements INode {
 			return null;
 
 		List<Versioned> versions = null;
-		List<Node> vNodes = new ArrayList<Node>();
+		List<Node> vNodes = new ArrayList<>();
 		try {
 			versions = new MinorVersionHelper().getLaterMinorVersions((Versioned) assignedType.getTLModelObject());
 			for (Versioned v : versions) {
@@ -1108,7 +1108,7 @@ public abstract class Node implements INode {
 	// TODO - move to model node
 	@Override
 	public List<ProjectNode> getProjects() {
-		ArrayList<ProjectNode> libs = new ArrayList<ProjectNode>();
+		ArrayList<ProjectNode> libs = new ArrayList<>();
 		for (Node n : getChildren()) {
 			if (n instanceof ProjectNode)
 				libs.add((ProjectNode) n);
@@ -1122,7 +1122,7 @@ public abstract class Node implements INode {
 	public List<Node> getSiblings() {
 		if (parent == null)
 			return null;
-		final List<Node> siblings = new LinkedList<Node>(parent.getChildren());
+		final List<Node> siblings = new LinkedList<>(parent.getChildren());
 		siblings.remove(this);
 		return siblings;
 	}
@@ -1438,7 +1438,8 @@ public abstract class Node implements INode {
 			return false; // not editable
 
 		// Service nodes are not in a chain
-		if (!(this instanceof ServiceNode) && !(this instanceof OperationNode) && !(this instanceof OperationFacetNode)) {
+		if (!(this instanceof ServiceNode) && !(this instanceof OperationNode)
+				&& !(this instanceof OperationFacetNode)) {
 			if (getChain() == null || getOwningComponent().getVersionNode() == null)
 				return true; // editable because it is not in a chain
 
@@ -1547,15 +1548,15 @@ public abstract class Node implements INode {
 		if (isEditable() && this instanceof TypeUser)
 			// if (isEditable() && this instanceof TypeUser && !isInheritedProperty())
 			if (getChain() == null || getChain().isMajor())
-				enabled = true; // Unmanaged or major - allow editing.
+			enabled = true; // Unmanaged or major - allow editing.
 			else if (getChain().isPatch())
-				enabled = false; // no changes in a patch
+			enabled = false; // no changes in a patch
 			else if (this instanceof SimpleAttributeFacadeNode)
-				enabled = isNewToChain(); // only allow editing if owner is new to the minor
+			enabled = isNewToChain(); // only allow editing if owner is new to the minor
 			else if (isInHead2() && !isInherited())
-				enabled = true; // Allow unless this property also exists in prev version
+			enabled = true; // Allow unless this property also exists in prev version
 			else if (getLaterVersions() != null)
-				enabled = true; // If the assigned type has a newer version then allow them to select that.
+			enabled = true; // If the assigned type has a newer version then allow them to select that.
 		return enabled;
 	}
 
@@ -1955,7 +1956,8 @@ public abstract class Node implements INode {
 	 * assignable descendant of sourceNode, find where the corresponding sourceNode children are used and change them as
 	 * well. See {@link #replaceWith(Node)}.
 	 * 
-	 * @param this - replace assignments to this node (sourceNode)
+	 * @param this
+	 *            - replace assignments to this node (sourceNode)
 	 * @param replacement
 	 *            - use replacement node instead of this node
 	 * @param scope
@@ -2092,7 +2094,7 @@ public abstract class Node implements INode {
 	// Depth First node traversal
 	@Override
 	public void visitAllNodes(NodeVisitor visitor) {
-		ArrayList<Node> kids = new ArrayList<Node>(getChildren());
+		ArrayList<Node> kids = new ArrayList<>(getChildren());
 		for (Node child : kids)
 			child.visitAllNodes(visitor);
 		visitor.visit(this);
@@ -2262,18 +2264,18 @@ public abstract class Node implements INode {
 	public List<Node> getChildren_New() {
 		if (getChildrenHandler() != null)
 			return genericToNode(getChildrenHandler().getChildren_New());
-		return new ArrayList<Node>();
+		return new ArrayList<>();
 	}
 
 	/**
 	 * Get all immediate navChildren that are to be presented in the OTM Object Tree. Includes where used nodes.
 	 * Overridden on nodes that add nodes such as where used to the tree view.
-	 * 
+	 *
 	 * @see {@link #getNavChildren()}
-	 * 
+	 *
 	 * @param deep
 	 *            - include properties
-	 * 
+	 *
 	 * @return new list
 	 */
 	public List<Node> getTreeChildren(boolean deep) {
@@ -2304,7 +2306,7 @@ public abstract class Node implements INode {
 	// Work around until all children getters are safe
 	@Deprecated
 	private List<Node> genericToNode(List<?> gList) {
-		List<Node> list = new ArrayList<Node>();
+		List<Node> list = new ArrayList<>();
 		for (Object g : gList)
 			if (g instanceof Node)
 				list.add((Node) g);
@@ -2366,8 +2368,7 @@ public abstract class Node implements INode {
 		if (object == null) {
 			if (getTLModelObject() != null) {
 				// Remove this named type listener so this node is not associated with the tl object.
-				Collection<ModelElementListener> listeners = new ArrayList<ModelElementListener>(getTLModelObject()
-						.getListeners());
+				Collection<ModelElementListener> listeners = new ArrayList<>(getTLModelObject().getListeners());
 				for (ModelElementListener l : listeners)
 					if (l instanceof NodeIdentityListener)
 						if (((NodeIdentityListener) l).getNode() == this) {

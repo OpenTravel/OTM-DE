@@ -86,7 +86,7 @@ public class ChoiceObjectTests {
 		LibraryNode ln2 = ml.createNewLibrary("http://example.com/choice", "CT", pc.getDefaultProject());
 		ChoiceObjectNode c1 = ml.addChoice(ln2, "Choice");
 
-		assertTrue("Must have shared facet.", c1.getSharedFacet() != null);
+		assertTrue("Must have shared facet.", c1.getFacet_Shared() != null);
 
 		int cfCnt = c1.getChoiceFacets().size();
 		c1.addFacet("cf1");
@@ -181,10 +181,10 @@ public class ChoiceObjectTests {
 		assertTrue("Ch1 must be extended by ch2.", ch1.getWhereExtendedHandler().getWhereExtended().contains(ch2));
 		assertTrue("Ch2 must extend ch1.", ch2.getExtensionBase() == ch1);
 		assertTrue("Ch2 must have 2 children.", ch2.getChildren().size() == 2);
-		assertTrue("Ch2 shared facet must NOT have any children.", ch2.getSharedFacet().getChildren().isEmpty());
+		assertTrue("Ch2 shared facet must NOT have any children.", ch2.getFacet_Shared().getChildren().isEmpty());
 		assertTrue("Ch3 must extend ch2.", ch3.getExtensionBase() == ch2);
 		assertTrue("Ch3 must have 1 child.", ch3.getChildren().size() == 1);
-		assertTrue("Ch3 shared facet must NOT have any children.", ch3.getSharedFacet().getChildren().isEmpty());
+		assertTrue("Ch3 shared facet must NOT have any children.", ch3.getFacet_Shared().getChildren().isEmpty());
 
 		// Then - look for ghost facets from TL Model
 		List<TLContextualFacet> inf2 = FacetCodegenUtils.findGhostFacets(ch2.getTLModelObject(), TLFacetType.CHOICE);
@@ -365,9 +365,9 @@ public class ChoiceObjectTests {
 		String s = tlChoice.getName();
 
 		// must have shared facet
-		assertNotNull(choice.getSharedFacet());
-		s = choice.getSharedFacet().getName();
-		s = choice.getSharedFacet().getLabel();
+		assertNotNull(choice.getFacet_Shared());
+		s = choice.getFacet_Shared().getName();
+		s = choice.getFacet_Shared().getLabel();
 
 		// make sure this does not NPE
 		List<AbstractContextualFacet> choices = choice.getChoiceFacets();

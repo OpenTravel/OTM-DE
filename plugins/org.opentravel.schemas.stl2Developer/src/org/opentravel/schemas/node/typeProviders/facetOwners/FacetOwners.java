@@ -167,7 +167,7 @@ public abstract class FacetOwners extends TypeProviders implements FacetOwner {
 				: null;
 	}
 
-	public SharedFacetNode getSharedFacet() {
+	public SharedFacetNode getFacet_Shared() {
 		return (SharedFacetNode) getFacet(TLFacetType.SHARED);
 	}
 }

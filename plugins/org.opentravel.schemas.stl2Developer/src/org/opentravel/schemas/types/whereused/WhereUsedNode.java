@@ -191,7 +191,8 @@ public abstract class WhereUsedNode<O> extends Node implements WhereUsedNodeInte
 	 */
 	@Override
 	public boolean hasTreeChildren(boolean deep) {
-		return true;
+		return !getChildren().isEmpty();
+		// return true;
 	}
 
 	@Override

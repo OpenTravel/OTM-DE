@@ -38,9 +38,9 @@ public class RestTreeContentProvider implements ITreeContentProvider {
 
 	@Override
 	public Object[] getElements(final Object element) {
-		List<Node> kids = new ArrayList<Node>();
+		List<Node> kids = new ArrayList<>();
 		if (element instanceof LibraryChainNode)
-			kids = ((LibraryChainNode) element).getResourceAggregate().getTreeChildren(false);
+			kids = ((LibraryChainNode) element).getResourceAggregate().getChildrenHandler().getTreeChildren(false);
 		else if (element instanceof NavNode && ((NavNode) element).isResourceRoot())
 			kids = ((Node) element).getChildren();
 		return kids.toArray();

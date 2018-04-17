@@ -63,4 +63,12 @@ public class WhereUsedChildrenHandler extends StaticChildrenHandler<Node, WhereU
 	protected void initInherited() {
 	}
 
+	/**
+	 * Override to provide answer from the where used node.
+	 */
+	@Override
+	public boolean hasTreeChildren(boolean deep) {
+		return owner.hasTreeChildren(deep);
+	}
+
 }

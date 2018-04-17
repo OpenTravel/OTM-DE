@@ -47,7 +47,7 @@ public class SimpleTypeChildrenHandler extends StaticChildrenHandler<Node, Simpl
 	 */
 	@Override
 	public List<Node> getTreeChildren(boolean deep) {
-		List<Node> kids = new ArrayList<Node>();
+		List<Node> kids = new ArrayList<>();
 		if (owner.getWhereUsedCount() > 0)
 			kids.add(owner.getWhereUsedNode());
 		return kids;
@@ -65,6 +65,14 @@ public class SimpleTypeChildrenHandler extends StaticChildrenHandler<Node, Simpl
 
 	@Override
 	protected void initInherited() {
+	}
+
+	/**
+	 * Override to provide where used when appropriate. Needed because this object has no navChildren.
+	 */
+	@Override
+	public boolean hasTreeChildren(boolean deep) {
+		return owner.getWhereUsedCount() > 0 ? true : false;
 	}
 
 }

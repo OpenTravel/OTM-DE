@@ -104,6 +104,7 @@ public class VWA_SimpleFacetFacadeNode extends FacadeBase implements FacetInterf
 		return getTLModelObject() != null ? getTLModelObject().getParentType() : null;
 	}
 
+	// Use type assigned to simple attribute
 	@Deprecated
 	public TypeProvider getAssignedType() {
 		return getSimpleAttribute().getAssignedType();
