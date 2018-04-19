@@ -217,7 +217,7 @@ public class DefaultProjectController implements ProjectController {
 		try {
 			pi = pn.getTLProject().getProjectManager().addUnmanagedProjectItem(tlLib, pn.getTLProject());
 			if (pi != null) {
-				List<ProjectItem> piList = new ArrayList<ProjectItem>();
+				List<ProjectItem> piList = new ArrayList<>();
 				piList.add(pi);
 				lnn = pn.load(piList);
 				mc.refresh(pn);
@@ -290,11 +290,8 @@ public class DefaultProjectController implements ProjectController {
 			}
 
 			// Add RepoItem to managed project
-			piList = project
-					.getTLProject()
-					.getProjectManager()
-					.addManagedProjectItems(Arrays.asList(new RepositoryItem[] { ri }), project.getTLProject(),
-							findings);
+			piList = project.getTLProject().getProjectManager().addManagedProjectItems(
+					Arrays.asList(new RepositoryItem[] { ri }), project.getTLProject(), findings);
 
 			// restore refresh policy
 			if (ri.getRepository() instanceof RemoteRepositoryClient) {
@@ -332,8 +329,8 @@ public class DefaultProjectController implements ProjectController {
 			new TypeResolver().resolveTypes();
 			mc.refresh(project);
 		} else
-			LOGGER.warn("Repository item " + ri.getLibraryName()
-					+ " not added to project. No ManagedProjectItems found.");
+			LOGGER.warn(
+					"Repository item " + ri.getLibraryName() + " not added to project. No ManagedProjectItems found.");
 
 		// TODO - sync the repository view
 		// LOGGER.debug("Added repository item " + ri.getLibraryName() + " to " + project);
@@ -361,7 +358,7 @@ public class DefaultProjectController implements ProjectController {
 
 	@Override
 	public List<ProjectNode> getAll() {
-		List<ProjectNode> projects = new ArrayList<ProjectNode>();
+		List<ProjectNode> projects = new ArrayList<>();
 		for (INode n : mc.getModelNode().getChildren()) {
 			if (n instanceof ProjectNode)
 				projects.add((ProjectNode) n);
@@ -730,7 +727,10 @@ public class DefaultProjectController implements ProjectController {
 	 */
 	@Override
 	public void remove(List<LibraryNavNode> list) {
-		Set<ProjectNode> impactedProjects = new HashSet<ProjectNode>();
+		Set<ProjectNode> impactedProjects = new HashSet<>();
+		if (list.isEmpty())
+			return;
+
 		ProjectNode pn = list.get(0).getProject();
 		// Check consistency between TL and node projects
 		List<LibraryNode> nodes = pn.getLibraries();
@@ -877,7 +877,7 @@ public class DefaultProjectController implements ProjectController {
 		}
 
 		final int jobcount = projectFiles.size() * 2 + 1;
-		final ArrayList<String> projects = new ArrayList<String>(projectFiles);
+		final ArrayList<String> projects = new ArrayList<>(projectFiles);
 		mc.postStatus("Opening Projects");
 
 		// run in a background job
@@ -950,8 +950,8 @@ public class DefaultProjectController implements ProjectController {
 		}
 		if (!pn.getTLProject().getProjectFile().canWrite()) {
 			LOGGER.error("Could not write to project file: ", pn.getTLProject().getProjectFile().getPath());
-			DialogUserNotifier.openError("Save Project Error", "Could not write to project file. \n"
-					+ pn.getTLProject().getProjectFile().getPath());
+			DialogUserNotifier.openError("Save Project Error",
+					"Could not write to project file. \n" + pn.getTLProject().getProjectFile().getPath());
 			return false;
 		}
 
@@ -1026,7 +1026,7 @@ public class DefaultProjectController implements ProjectController {
 
 	@Override
 	public List<String> getSuggestedNamespaces() {
-		List<String> allowedNSs = new ArrayList<String>();
+		List<String> allowedNSs = new ArrayList<>();
 		allowedNSs.add(getDefaultUnmanagedNS());
 		allowedNSs.addAll(getOpenGovernedNamespaces());
 		return allowedNSs;
@@ -1034,7 +1034,7 @@ public class DefaultProjectController implements ProjectController {
 
 	@Override
 	public List<String> getOpenGovernedNamespaces() {
-		List<String> projects = new ArrayList<String>();
+		List<String> projects = new ArrayList<>();
 		for (Project p : projectManager.getAllProjects()) {
 			if (p instanceof BuiltInProject) {
 				continue;
@@ -1119,7 +1119,7 @@ public class DefaultProjectController implements ProjectController {
 		}
 	}
 
-	Collection<IProjectToken> openProjects = new ArrayList<DefaultProjectController.IProjectToken>();
+	Collection<IProjectToken> openProjects = new ArrayList<>();
 	private static final String OTM_PROJECTS = "OTM_Projects";
 	// private static final String TAG_FAVORITES = "Favorites";
 	public static final String OTM_PROJECT = "Project";

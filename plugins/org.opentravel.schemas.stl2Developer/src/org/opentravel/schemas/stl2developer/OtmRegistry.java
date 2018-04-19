@@ -70,7 +70,7 @@ public class OtmRegistry {
 	 * @return all active otmViews ( extension of eclipse view parts )
 	 */
 	public static List<OtmView> getAllActiveViews() {
-		List<OtmView> views = new ArrayList<OtmView>();
+		List<OtmView> views = new ArrayList<>();
 		if (exampleView != null)
 			views.add(exampleView);
 		if (exampleJsonView != null)
@@ -148,7 +148,7 @@ public class OtmRegistry {
 	/**
 	 * @return the exampleView
 	 */
-	public static OtmView getExampleView() {
+	public static ExampleView getExampleView() {
 		return exampleView;
 	}
 

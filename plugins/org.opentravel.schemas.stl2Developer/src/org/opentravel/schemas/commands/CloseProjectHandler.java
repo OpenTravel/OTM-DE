@@ -17,9 +17,7 @@ package org.opentravel.schemas.commands;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 
 /**
@@ -50,17 +48,7 @@ public class CloseProjectHandler extends OtmAbstractHandler {
 
 	@Override
 	public boolean isEnabled() {
-		Node node = mc.getSelectedNode_NavigatorView();
-		if (node == null)
-			return false;
-
-		if ((node instanceof ProjectNode))
-			project = (ProjectNode) node;
-		else {
-			node = node.getLibrary();
-			if (node != null)
-				project = ((LibraryNode) node).getProject();
-		}
+		project = getSelectedProject();
 		return project != null ? !project.isBuiltIn() : false;
 	}
 }

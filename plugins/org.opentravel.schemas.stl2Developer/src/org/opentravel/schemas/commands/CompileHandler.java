@@ -19,7 +19,6 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.libraries.LibraryNode;
 
 /**
  * Replaces CompileAction
@@ -34,20 +33,9 @@ public class CompileHandler extends OtmAbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
-		ProjectNode project = null;
-		Node node = mc.getSelectedNode_NavigatorView();
-		if (node == null)
-			return null;
-		LibraryNode library = null;
-		if (node instanceof ProjectNode)
-			project = (ProjectNode) node;
-		else {
-			library = node.getLibrary();
-			if (library != null)
-				project = library.getProject();
-		}
-		mc.getModelController().compileInBackground(project);
-
+		ProjectNode project = getSelectedProject();
+		if (project != null)
+			mc.getModelController().compileInBackground(project);
 		return null;
 	}
 

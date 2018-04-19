@@ -60,7 +60,7 @@ public class DeleteNodesHandler extends OtmAbstractHandler {
 		List<Node> selectedNodes = mc.getGloballySelectNodes();
 		if (selectedNodes != null && !selectedNodes.isEmpty()) {
 			Node newSelection = selectedNodes.get(0);
-			if (!(newSelection instanceof LibraryNavNode))
+			if (newSelection != null && !(newSelection instanceof LibraryNavNode))
 				return newSelection.isDeleteable();
 		}
 		return false;
@@ -77,7 +77,7 @@ public class DeleteNodesHandler extends OtmAbstractHandler {
 			return;
 
 		// find out if any of the nodes can not be deleted.
-		final List<Node> toDelete = new ArrayList<Node>();
+		final List<Node> toDelete = new ArrayList<>();
 		final StringBuilder doNotDelete = new StringBuilder();
 		int i = 0;
 		for (final Node n : deleteList) {
@@ -92,8 +92,8 @@ public class DeleteNodesHandler extends OtmAbstractHandler {
 
 		if (i > 0)
 			// DialogUserNotifier.openWarning("Object Delete", "The following nodes are not allowed to be deleted: "
-			DialogUserNotifier
-					.openWarning(Messages.getString("OtmW.122"), Messages.getString("OtmW.123") + doNotDelete);
+			DialogUserNotifier.openWarning(Messages.getString("OtmW.122"),
+					Messages.getString("OtmW.123") + doNotDelete);
 
 		// Make the user confirm the list of nodes to be deleted.
 		if (toDelete.size() > 0) {

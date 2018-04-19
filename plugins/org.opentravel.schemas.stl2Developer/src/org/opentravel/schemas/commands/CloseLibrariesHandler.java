@@ -33,15 +33,23 @@ public class CloseLibrariesHandler extends OtmAbstractHandler {
 
 	public static String COMMAND_ID = "org.opentravel.schemas.commands.CloseLibraries";
 
-	private List<LibraryNavNode> toClose = new ArrayList<LibraryNavNode>();
+	private List<LibraryNavNode> toClose = new ArrayList<>();
 
 	/**
 	 * Close one or more libraries using library controller
 	 */
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
-		if (isEnabled())
+		if (isEnabled()) {
+			List<Node> nodes = mc.getSelectedNodes_NavigatorView();
+			for (Node n : nodes) {
+				// Only library nav nodes know which project the library is in.
+				if (n instanceof LibraryNavNode)
+					toClose.add((LibraryNavNode) n);
+			}
 			mc.getProjectController().remove(toClose);
+			mc.postStatus("Closed libraries.");
+		}
 
 		return null;
 	}
@@ -60,13 +68,17 @@ public class CloseLibrariesHandler extends OtmAbstractHandler {
 	 */
 	@Override
 	public boolean isEnabled() {
+		if (toClose == null)
+			return false;
 		toClose.clear();
-		List<Node> nodes = mc.getSelectedNodes_NavigatorView();
-		for (Node n : nodes) {
-			// Only library nav nodes know which project the library is in.
-			if (n instanceof LibraryNavNode)
-				toClose.add((LibraryNavNode) n);
-		}
-		return !toClose.isEmpty();
+
+		return getFirstSelected() instanceof LibraryNavNode;
+		// List<Node> nodes = mc.getSelectedNodes_NavigatorView();
+		// for (Node n : nodes) {
+		// // Only library nav nodes know which project the library is in.
+		// if (n instanceof LibraryNavNode)
+		// toClose.add((LibraryNavNode) n);
+		// }
+		// return !toClose.isEmpty();
 	}
 }

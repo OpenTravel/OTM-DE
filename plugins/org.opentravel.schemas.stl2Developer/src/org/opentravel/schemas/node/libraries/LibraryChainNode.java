@@ -155,7 +155,7 @@ public class LibraryChainNode extends Node implements FacadeInterface, TypeProvi
 
 		setHead(null);
 
-		chain = new ArrayList<LibraryNode>();
+		chain = new ArrayList<>();
 		createAggregates();
 		List<ProjectItem> piChain = null;
 		try {
@@ -308,7 +308,7 @@ public class LibraryChainNode extends Node implements FacadeInterface, TypeProvi
 	 * @param node
 	 */
 	private ComponentNode findPreviousVersion(ComponentNode node) {
-		if (node.getVersionNode() != null && !node.getVersionNode().isDeleted())
+		if (node != null && node.getVersionNode() != null && !node.getVersionNode().isDeleted())
 			return node.getVersionNode().getPreviousVersion();
 		return null;
 	}
@@ -361,7 +361,7 @@ public class LibraryChainNode extends Node implements FacadeInterface, TypeProvi
 	 */
 	// @Override
 	public List<LibraryNode> getLibraries() {
-		ArrayList<LibraryNode> libs = new ArrayList<LibraryNode>();
+		ArrayList<LibraryNode> libs = new ArrayList<>();
 		if (versions != null)
 			for (Node n : versions.getChildren())
 				if (n instanceof LibraryNode)
@@ -428,7 +428,7 @@ public class LibraryChainNode extends Node implements FacadeInterface, TypeProvi
 
 	@Override
 	public TLModelElement getTLModelObject() {
-		return getHead().getTLModelObject();
+		return getHead() != null ? getHead().getTLModelObject() : null;
 	}
 
 	/**
@@ -442,11 +442,11 @@ public class LibraryChainNode extends Node implements FacadeInterface, TypeProvi
 
 	@Override
 	public boolean hasChildren_TypeProviders() {
-		return versions.getChildren().size() > 0 ? true : false;
+		return versions != null && versions.getChildren().size() > 0 ? true : false;
 	}
 
 	public boolean hasResources() {
-		return !resourceRoot.getChildren().isEmpty();
+		return resourceRoot != null && !resourceRoot.getChildren().isEmpty();
 	}
 
 	/**
@@ -508,11 +508,11 @@ public class LibraryChainNode extends Node implements FacadeInterface, TypeProvi
 	 * @return true if head library is a major version
 	 */
 	public boolean isMajor() {
-		return getHead().isMajorVersion();
+		return getHead() != null && getHead().isMajorVersion();
 	}
 
 	public boolean isMinor() {
-		return getHead().isMinorOrMajorVersion();
+		return getHead() != null && getHead().isMinorOrMajorVersion();
 	}
 
 	@Override
@@ -526,7 +526,7 @@ public class LibraryChainNode extends Node implements FacadeInterface, TypeProvi
 	}
 
 	public boolean isPatch() {
-		return getHead().isPatchVersion();
+		return getHead() != null && getHead().isPatchVersion();
 	}
 
 	/**

@@ -25,9 +25,11 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
 import org.opentravel.schemas.node.objectMembers.OperationNode;
 import org.opentravel.schemas.properties.Messages;
@@ -67,11 +69,32 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 	 * @see org.opentravel.schemas.controllers.MainController#getGloballySelectNodes()
 	 */
 	public Node getFirstSelected() {
+		if (mc == null)
+			return null;
 		List<Node> selectedNodes = mc.getGloballySelectNodes();
 		Node selection = null;
 		if (selectedNodes != null && !selectedNodes.isEmpty())
 			selection = selectedNodes.get(0);
 		return selection;
+	}
+
+	/**
+	 * @return ProjectNode containing the selected navigator view node or null.
+	 */
+	public ProjectNode getSelectedProject() {
+		Node node = mc.getSelectedNode_NavigatorView();
+		ProjectNode project = null;
+
+		if (node != null) {
+			if ((node instanceof ProjectNode))
+				project = (ProjectNode) node;
+			else {
+				node = node.getLibrary();
+				if (node != null)
+					project = ((LibraryNode) node).getProject();
+			}
+		}
+		return project;
 	}
 
 	public void execute(OtmEventData event) {
@@ -119,8 +142,8 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 			if (selectedNode.getLibrary().getChain().getHead() == selectedNode.getLibrary())
 				actOnNode = (ComponentNode) selectedNode;
 			else
-				actOnNode = new OperationNode((ServiceNode) selectedNode.getLibrary().getServiceRoot().getChildren()
-						.get(0), "newOperation");
+				actOnNode = new OperationNode(
+						(ServiceNode) selectedNode.getLibrary().getServiceRoot().getChildren().get(0), "newOperation");
 			// TESTME - if the service is not in the head then create a new service in the head
 			return actOnNode;
 		}

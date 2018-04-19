@@ -50,7 +50,7 @@ public class SortNodeHandler extends OtmAbstractHandler {
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
 		IWorkbenchPart activeView = HandlerUtil.getActivePart(exEvent);
 		List<Node> selectedNodes = getSelectedNodes(activeView);
-		Set<Sortable> toSort = new HashSet<Sortable>();
+		Set<Sortable> toSort = new HashSet<>();
 
 		// Get a set of nodes to sort, properties will be sorted by their parent
 		for (Node node : selectedNodes) {
@@ -69,7 +69,7 @@ public class SortNodeHandler extends OtmAbstractHandler {
 	@Override
 	public boolean isEnabled() {
 		Node selected = getFirstSelected();
-		return selected.isEditable() && selected instanceof FacetInterface;
+		return selected != null && selected.isEditable() && selected instanceof FacetInterface;
 	}
 
 	private List<Node> getSelectedNodes(IWorkbenchPart activeView) {

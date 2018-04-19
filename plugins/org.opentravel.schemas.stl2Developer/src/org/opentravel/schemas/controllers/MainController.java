@@ -60,6 +60,7 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.views.NavigatorView;
 import org.opentravel.schemas.views.OtmView;
 import org.opentravel.schemas.views.ValidationResultsView;
+import org.opentravel.schemas.views.example.ExampleView;
 import org.opentravel.schemas.widgets.ErrorWithExceptionDialog;
 import org.opentravel.schemas.widgets.OtmHandlers;
 import org.opentravel.schemas.widgets.OtmSections;
@@ -125,10 +126,11 @@ public class MainController {
 			defaultManager = RepositoryManager.getDefault();
 		} catch (RepositoryException ex) {
 			IStatus ss = new Status(IStatus.ERROR, Activator.PLUGIN_ID, ex.getMessage(), ex);
-			ErrorWithExceptionDialog.openError(PlatformUI.getWorkbench().getDisplay().getActiveShell(), JFaceResources
-					.getString("error"), MessageFormat.format(
-					Messages.getString("dialog.localRepository.error.message"),
-					RepositoryFileManager.getDefaultRepositoryLocation()), ss);
+			ErrorWithExceptionDialog.openError(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
+					JFaceResources.getString("error"),
+					MessageFormat.format(Messages.getString("dialog.localRepository.error.message"),
+							RepositoryFileManager.getDefaultRepositoryLocation()),
+					ss);
 			LOGGER.error("Invalid local repository", ex);
 			PlatformUI.getWorkbench().close();
 		} catch (Exception e) {
@@ -273,7 +275,7 @@ public class MainController {
 		return OtmRegistry.getValidationResultsView();
 	}
 
-	public OtmView getView_Example() {
+	public ExampleView getView_Example() {
 		return OtmRegistry.getExampleView();
 	}
 
@@ -356,7 +358,7 @@ public class MainController {
 	 * @return new list of selected navigator view nodes, possibly empty.
 	 */
 	public List<LibraryNode> getSelectedLibraries() {
-		final List<LibraryNode> libraries = new ArrayList<LibraryNode>();
+		final List<LibraryNode> libraries = new ArrayList<>();
 		final List<Node> nodes = getSelectedNodes_NavigatorView();
 		for (final Node node : nodes) {
 			if (node != null) {
@@ -384,7 +386,7 @@ public class MainController {
 	 * @return new list of selected navigator view nodes, possibly empty.
 	 */
 	public List<LibraryNode> getSelectedUserLibraries() {
-		final List<LibraryNode> libraries = new ArrayList<LibraryNode>();
+		final List<LibraryNode> libraries = new ArrayList<>();
 		for (final LibraryNode lib : getSelectedLibraries()) {
 			if (lib != null && lib.isTLLibrary()) {
 				libraries.add(lib);
@@ -434,7 +436,7 @@ public class MainController {
 	 * @return new list of selected navigator view nodes, possibly empty.
 	 */
 	public List<ComponentNode> getSelectedComponents_NavigatorView() {
-		final List<ComponentNode> componentNodes = new ArrayList<ComponentNode>();
+		final List<ComponentNode> componentNodes = new ArrayList<>();
 		final List<Node> sourceNodes = getSelectedNodes_NavigatorView();
 		for (final INode node : sourceNodes) {
 			if (node instanceof ComponentNode) {

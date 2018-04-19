@@ -73,6 +73,7 @@ public class AddCustomFacetAction extends OtmAbstractAction {
 		// Unmanaged or in the most current (head) library in version chain.
 		LibraryMemberInterface n = mc.getCurrentNode_NavigatorView().getOwningComponent();
 		return n instanceof BusinessObjectNode ? n.isEditable_newToChain() : false;
+
 		// use if we allow custom facets to be added as minor version change
 		// return n instanceof BusinessObjectNode ? n.isEnabled_AddProperties() : false;
 

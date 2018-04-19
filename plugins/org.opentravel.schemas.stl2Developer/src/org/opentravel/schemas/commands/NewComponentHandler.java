@@ -46,7 +46,6 @@ public class NewComponentHandler extends OtmAbstractHandler {
 	@Override
 	public boolean isEnabled() {
 		Node selected = getFirstSelected();
-		// LOGGER.debug("Selected = " + selected);
 		if (selected == null)
 			return false;
 		if (selected instanceof VersionAggregateNode)

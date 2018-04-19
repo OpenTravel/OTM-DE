@@ -123,7 +123,7 @@ public class DOMExampleModel extends ExampleModel {
 
 	@Override
 	public List<ExampleModel> getChildren() {
-		List<ExampleModel> ret = new ArrayList<ExampleModel>();
+		List<ExampleModel> ret = new ArrayList<>();
 		ret.addAll(createChildren(domNode.getChildNodes()));
 		if (domNode.hasAttributes())
 			ret.addAll(createChildrenForAttributes(domNode.getAttributes()));
@@ -131,7 +131,7 @@ public class DOMExampleModel extends ExampleModel {
 	}
 
 	private Collection<? extends ExampleModel> createChildrenForAttributes(NamedNodeMap map) {
-		final List<ExampleModel> ret = new ArrayList<ExampleModel>(map.getLength());
+		final List<ExampleModel> ret = new ArrayList<>(map.getLength());
 		if (map != null) {
 			for (int i = 0; i < map.getLength(); i++) {
 				Node child = map.item(i);
@@ -148,7 +148,7 @@ public class DOMExampleModel extends ExampleModel {
 	}
 
 	private Collection<? extends ExampleModel> createChildren(NodeList childNodes) {
-		List<ExampleModel> ret = new ArrayList<ExampleModel>(childNodes.getLength());
+		List<ExampleModel> ret = new ArrayList<>(childNodes.getLength());
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			Node child = childNodes.item(i);
 			if (child.getNodeType() != Node.TEXT_NODE) {
@@ -181,17 +181,18 @@ public class DOMExampleModel extends ExampleModel {
 			else
 				root = (org.opentravel.schemas.node.Node) owningNode.getOwningComponent();
 
-		for (org.opentravel.schemas.node.Node n : root.getDescendants())
-			if (n.getName().equals(nodeName)) {
-				result = n;
-				break;
-			} else if (n instanceof FacetOMNode) {
-				for (org.opentravel.schemas.node.Node in : n.getInheritedChildren())
-					if (in.getName().equals(nodeName)) {
-						result = in;
-						break;
-					}
-			}
+		if (root != null)
+			for (org.opentravel.schemas.node.Node n : root.getDescendants())
+				if (n.getName().equals(nodeName)) {
+					result = n;
+					break;
+				} else if (n instanceof FacetOMNode) {
+					for (org.opentravel.schemas.node.Node in : n.getInheritedChildren())
+						if (in.getName().equals(nodeName)) {
+							result = in;
+							break;
+						}
+				}
 
 		// TODO - extended object names are not found (e.g. SampleChoiceShared)
 		// if (result == null)

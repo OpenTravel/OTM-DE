@@ -35,6 +35,7 @@ import org.opentravel.schemas.node.interfaces.LibraryOwner;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,9 +50,9 @@ public class LibraryModelManager {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibraryModelManager.class);
 
 	@Deprecated
-	Collection<LibraryInterface> libraries = new ArrayList<LibraryInterface>();
+	Collection<LibraryInterface> libraries = new ArrayList<>();
 	ModelNode parent = null;
-	HashMap<String, LibraryInterface> libMap = new HashMap<String, LibraryInterface>();
+	HashMap<String, LibraryInterface> libMap = new HashMap<>();
 
 	public LibraryModelManager(ModelNode parent) {
 		this.parent = parent;
@@ -226,6 +227,13 @@ public class LibraryModelManager {
 				lib.setParent(null);
 				lib.closeLibraryInterface();
 			}
+			// Remove all examples
+			// TODO - make this more selective
+			if (OtmRegistry.getExampleView() != null)
+				OtmRegistry.getExampleView().clearExamples();
+			if (OtmRegistry.getValidationResultsView() != null)
+				OtmRegistry.getValidationResultsView().clearFindings();
+			// TODO - how to clear the graphical view?
 
 			// Remove from list
 			libraries.remove(lib);
@@ -266,7 +274,7 @@ public class LibraryModelManager {
 	 * @return all projects that contain this library interface
 	 */
 	public List<ProjectNode> findProjects(LibraryInterface li) {
-		List<ProjectNode> projects = new ArrayList<ProjectNode>();
+		List<ProjectNode> projects = new ArrayList<>();
 		for (ProjectNode pn : parent.getProjects())
 			if (pn.contains(li))
 				projects.add(pn);
@@ -294,7 +302,7 @@ public class LibraryModelManager {
 	 * @return new list of all library nodes in the model, including those in chains
 	 */
 	public List<LibraryNode> getAllLibraries() {
-		List<LibraryNode> libList = new ArrayList<LibraryNode>();
+		List<LibraryNode> libList = new ArrayList<>();
 		// for (LibraryInterface lib : libraries)
 		for (LibraryInterface lib : libMap.values())
 			if (lib instanceof LibraryNode)
@@ -421,7 +429,7 @@ public class LibraryModelManager {
 	 * @return a list copy of the managed libraries and chains
 	 */
 	public List<LibraryInterface> getLibraries() {
-		return new ArrayList<LibraryInterface>(libMap.values());
+		return new ArrayList<>(libMap.values());
 		// return new ArrayList<LibraryInterface>(libraries);
 	}
 
@@ -437,7 +445,7 @@ public class LibraryModelManager {
 	 * @return new list of all TLLibrary (user) library nodes in the model, including those in a chain
 	 */
 	public List<LibraryChainNode> getUserChains() {
-		List<LibraryChainNode> chains = new ArrayList<LibraryChainNode>();
+		List<LibraryChainNode> chains = new ArrayList<>();
 		// for (LibraryInterface lib : libraries)
 		for (LibraryInterface lib : libMap.values())
 
@@ -450,7 +458,7 @@ public class LibraryModelManager {
 	 * @return new list of all TLLibrary (user) library nodes in the model including those in chains
 	 */
 	public List<LibraryNode> getUserLibraries() {
-		List<LibraryNode> libList = new ArrayList<LibraryNode>();
+		List<LibraryNode> libList = new ArrayList<>();
 		// for (LibraryInterface lib : libraries)
 		for (LibraryInterface lib : libMap.values())
 			if (lib instanceof LibraryNode && ((LibraryNode) lib).getTLModelObject() instanceof TLLibrary)
@@ -545,8 +553,8 @@ public class LibraryModelManager {
 			if (n instanceof ProjectNode)
 				// If project has old nav node in it, update its library
 				for (Node l : n.getChildren())
-					if (l instanceof LibraryNavNode)
-						if (((LibraryNavNode) l).getThisLib() == old)
-							((LibraryNavNode) l).setThisLib(replacement);
+				if (l instanceof LibraryNavNode)
+				if (((LibraryNavNode) l).getThisLib() == old)
+				((LibraryNavNode) l).setThisLib(replacement);
 	}
 }

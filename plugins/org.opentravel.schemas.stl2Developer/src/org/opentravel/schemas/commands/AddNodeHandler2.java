@@ -91,7 +91,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 	// dmh - 3/23/2018 - moved control here and commented out section in plugin.xml
 	@Override
 	public boolean isEnabled() {
-		return getFirstSelected().isEnabled_AddProperties();
+		return getFirstSelected() != null ? getFirstSelected().isEnabled_AddProperties() : false;
 	}
 
 	// for enabled status, see GlobalSelectionTester.canAdd()
@@ -237,7 +237,8 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 		}
 		ServiceNode svc = (ServiceNode) actOnNode;
 		SimpleNameWizard wizard = new SimpleNameWizard("wizard.newOperation");
-		wizard.setValidator(new NewNodeNameValidator(svc, wizard, Messages.getString("wizard.newOperation.error.name")));
+		wizard.setValidator(
+				new NewNodeNameValidator(svc, wizard, Messages.getString("wizard.newOperation.error.name")));
 		wizard.run(OtmRegistry.getActiveShell());
 		if (!wizard.wasCanceled()) {
 			new OperationNode(svc, wizard.getText());

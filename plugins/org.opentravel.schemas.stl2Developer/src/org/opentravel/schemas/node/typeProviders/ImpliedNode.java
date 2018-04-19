@@ -216,6 +216,11 @@ public class ImpliedNode extends SimpleTypeProviders {
 	}
 
 	@Override
+	public String getDecoration() {
+		return "";
+	}
+
+	@Override
 	public void setName(String name) {
 		// DO NOTHING
 	}
