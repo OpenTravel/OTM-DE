@@ -55,8 +55,6 @@ public class AddAliasAction extends OtmAbstractAction {
 		if (getMainController().getCurrentNode_NavigatorView() == null)
 			return false;
 		return getMainController().getCurrentNode_NavigatorView().getOwningComponent() instanceof AliasOwner;
-		// Node n = getMainController().getCurrentNode_NavigatorView().getOwningComponent();
-		// return n.isAliasable();
 	}
 
 	public void addAlias() {

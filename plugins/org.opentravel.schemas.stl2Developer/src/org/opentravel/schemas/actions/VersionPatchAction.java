@@ -56,9 +56,9 @@ public class VersionPatchAction extends OtmAbstractAction {
 		if (mc.getSelectedNode_NavigatorView() != null)
 			ln = mc.getSelectedNode_NavigatorView().getLibrary();
 		// Don't allow lock unless library is in a project with managing namespace
-		if (!ln.isInProjectNS())
+		if (ln == null || !ln.isInProjectNS())
 			return false;
-		return ln != null && ln.isManaged();
+		return ln.isManaged();
 	}
 
 }

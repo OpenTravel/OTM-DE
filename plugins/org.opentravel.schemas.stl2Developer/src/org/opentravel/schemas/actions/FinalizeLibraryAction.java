@@ -16,7 +16,6 @@
 package org.opentravel.schemas.actions;
 
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
-import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
@@ -56,10 +55,13 @@ public class FinalizeLibraryAction extends OtmAbstractAction {
 
 		if (n.getLibrary() instanceof LibraryNode) {
 			LibraryNode ln = n.getLibrary();
-			RepositoryItemState state = ln.getProjectItem().getState();
-			TLLibraryStatus status = ln.getProjectItem().getStatus();
-			LOGGER.debug(ln + " status = " + status + "   state = " + state + "   next = "
-					+ ln.getStatus().nextStatus());
+			if (ln.getProjectItem() == null)
+				return false;
+
+			// RepositoryItemState state = ln.getProjectItem().getState();
+			// TLLibraryStatus status = ln.getProjectItem().getStatus();
+			// LOGGER.debug(ln + " status = " + status + " state = " + state + " next = "
+			// + ln.getStatus().nextStatus());
 			// Is too late, shows up in next call
 			// this.setText(ln.getStatus().nextStatus().toString());
 

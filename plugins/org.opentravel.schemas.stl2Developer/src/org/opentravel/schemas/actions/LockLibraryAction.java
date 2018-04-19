@@ -17,7 +17,6 @@ package org.opentravel.schemas.actions;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
-import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -65,9 +64,12 @@ public class LockLibraryAction extends OtmAbstractAction {
 		if (ln.getChain() != null)
 			ln = ln.getChain().getHead();
 
-		RepositoryItemState state = ln.getProjectItem().getState();
-		NodeEditStatus status = n.getEditStatus();
-		TLLibraryStatus status2 = ln.getStatus();
+		if (ln.getProjectItem() == null || ln.getStatus() == null || ln.getEditStatus() == null)
+			return false;
+
+		// RepositoryItemState state = ln.getProjectItem().getState();
+		// NodeEditStatus status = n.getEditStatus();
+		// TLLibraryStatus status2 = ln.getStatus();
 		// Don't allow lock unless library is in a project with managing namespace
 		if (!ln.isInProjectNS())
 			return false;

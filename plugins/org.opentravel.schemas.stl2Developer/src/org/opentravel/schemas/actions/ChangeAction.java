@@ -59,7 +59,7 @@ public class ChangeAction extends OtmAbstractAction {
 	 */
 	@Override
 	public boolean isEnabled() {
-		Node n = (Node) getMainController().getCurrentNode_NavigatorView().getOwningComponent();
+		Node n = (Node) mc.getCurrentNode_NavigatorView().getOwningComponent();
 		if (n instanceof BusinessObjectNode || n instanceof CoreObjectNode || n instanceof VWA_Node) {
 			return n.getChain() == null ? n.isEditable() : n.getChain().isMajor();
 		}

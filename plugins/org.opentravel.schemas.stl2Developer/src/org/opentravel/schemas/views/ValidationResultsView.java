@@ -37,6 +37,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.opentravel.schemacompiler.model.TLDocumentation;
@@ -95,8 +96,8 @@ public class ValidationResultsView extends OtmAbstractView {
 		otmActions = new OtmActions(OtmRegistry.getMainController());
 
 		// 3 column table for object, level/type and message
-		Table findingsTable = new Table(parent, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL
-				| SWT.H_SCROLL);
+		Table findingsTable = new Table(parent,
+				SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.H_SCROLL);
 		findingsTable.setLinesVisible(false);
 		findingsTable.setHeaderVisible(true);
 		final GridData td = new GridData(SWT.FILL, SWT.FILL, true, false);
@@ -171,9 +172,22 @@ public class ValidationResultsView extends OtmAbstractView {
 	}
 
 	public void clearFindings() {
-		if (findingsViewer != null)
+		// Run in UI thread if not in the UI thread.
+		if (Display.getCurrent() == null) {
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					if (findingsViewer != null) {
+						findingsViewer.setInput(null);
+						findingsViewer.refresh();
+						packTable();
+					}
+				}
+			});
+		} else if (findingsViewer != null) {
 			findingsViewer.setInput(null);
-		packTable();
+			packTable();
+		}
 	}
 
 	public ValidationFindings getFindings() {
@@ -287,7 +301,7 @@ public class ValidationResultsView extends OtmAbstractView {
 		// Node n = new
 		// ComponentNode().findNodeFromRoot(finding.getSource().getValidationIdentity());
 		Node n = NodeFinders.findNodeByValidationIentity(finding.getSource().getValidationIdentity());
-		ArrayList<Node> matches = new ArrayList<Node>();
+		ArrayList<Node> matches = new ArrayList<>();
 		matches.add(n);
 
 		// Look through findings to find match on both error id and param
@@ -310,7 +324,7 @@ public class ValidationResultsView extends OtmAbstractView {
 		}
 		// for (INode m : matches) {
 		// // if (m != null)
-		// //// LOGGER.debug("  Match returned: " + m.getName());
+		// //// LOGGER.debug(" Match returned: " + m.getName());
 		// }
 		return matches;
 	}

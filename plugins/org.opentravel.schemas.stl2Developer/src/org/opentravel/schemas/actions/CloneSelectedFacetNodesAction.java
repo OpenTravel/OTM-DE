@@ -50,7 +50,7 @@ public class CloneSelectedFacetNodesAction extends OtmAbstractAction implements 
 		if (!(currentNode instanceof ComponentNode))
 			return false;
 		if (currentNode.isEditable() && !currentNode.getLibrary().isPatchVersion()) {
-			LOGGER.debug(" copy Is enabled ");
+			// LOGGER.debug(" copy Is enabled ");
 			return false;
 		} else
 			return true;

@@ -76,8 +76,9 @@ public class AssignTypeAction extends OtmAbstractAction {
 	public boolean isEnabled() {
 		// return false;
 		Node n = getMainController().getCurrentNode_NavigatorView();
-		if (n == null || !(n instanceof TypeProviderWhereUsedNode))
+		if (!(n instanceof TypeProviderWhereUsedNode))
 			return false;
+
 		// Allow replacement if any user is editable
 		return (!((TypeProviderWhereUsedNode) n).getAllUsers(true).isEmpty());
 	}
@@ -138,7 +139,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 		// Node at = (Node) ((TypeUser) tu).getAssignedType();
 		// if (at.getVersionNode() != null)
 		// if (at.getVersionNode().getNewestVersion() != at)
-		// LOGGER.debug("Update type assigned to " + n + " assigned " + at.getNameWithPrefix() + " to  "
+		// LOGGER.debug("Update type assigned to " + n + " assigned " + at.getNameWithPrefix() + " to "
 		// + at.getVersionNode().getNewestVersion());
 		// List<Node> laterATs = at.getLaterVersions();
 		// if (laterATs != null && !laterATs.isEmpty())
@@ -258,13 +259,13 @@ public class AssignTypeAction extends OtmAbstractAction {
 		}
 
 		// Now run the wizard
-		ArrayList<Node> list = new ArrayList<Node>();
+		ArrayList<Node> list = new ArrayList<>();
 		list.add((Node) user);
 		final TypeSelectionWizard wizard = new TypeSelectionWizard(list);
 		if (wizard.run(OtmRegistry.getActiveShell()))
 			AssignTypeAction.execute(wizard.getList(), wizard.getSelection());
 		// else
-		//			DialogUserNotifier.openInformation("No Selection", Messages.getString("OtmW.101")); //$NON-NLS-1$
+		// DialogUserNotifier.openInformation("No Selection", Messages.getString("OtmW.101")); //$NON-NLS-1$
 		// TODO - should the new owner be removed?
 
 		OtmRegistry.getMainController().refresh(owner);

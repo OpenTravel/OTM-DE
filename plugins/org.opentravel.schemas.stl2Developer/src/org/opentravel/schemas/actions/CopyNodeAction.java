@@ -49,6 +49,8 @@ public class CopyNodeAction extends OtmAbstractAction {
 	public boolean isEnabled() {
 		// Enabled if this is unmanaged or the head is editable and not patch
 		LibraryNode ln = mc.getSelectedNode_NavigatorView().getLibrary();
+		if (ln == null)
+			return false;
 		if (!ln.isManaged())
 			return ln.isEditable();
 		return (ln.getChain().getHead().isEditable() && !ln.getChain().getHead().isPatchVersion());

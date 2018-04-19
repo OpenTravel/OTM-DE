@@ -210,13 +210,24 @@ public class ExampleView extends OtmAbstractView {
 	}
 
 	public void clearExamples() {
-		if (viewer != null) {
+		// If not in the UI thread, sync w/ ui thread.
+		if (Display.getCurrent() == null) {
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					if (viewer != null) {
+						viewer.setInput(null);
+						viewer.refresh();
+					}
+				}
+			});
+		} else if (viewer != null) {
 			viewer.setInput(null);
 			viewer.refresh();
 		}
 	}
 
-	List<ExampleModel> examples = new ArrayList<ExampleModel>();
+	List<ExampleModel> examples = new ArrayList<>();
 
 	public void generateInBackground(final List<LibraryNode> libraries) {
 		examples.clear();
@@ -254,7 +265,7 @@ public class ExampleView extends OtmAbstractView {
 		DialogUserNotifier.syncWithUi(msg);
 	}
 
-	Map<LibraryChainNode, ExampleModel> chainRoot = new HashMap<LibraryChainNode, ExampleModel>();
+	Map<LibraryChainNode, ExampleModel> chainRoot = new HashMap<>();
 
 	public void generateExamples(final List<LibraryNode> libraries) {
 		for (final LibraryNode lib : libraries) {
@@ -308,7 +319,7 @@ public class ExampleView extends OtmAbstractView {
 	 * @return
 	 */
 	private List<ExampleModel> generateExamplesForNode(List<Node> children, ValidationFindings findingsAggregator) {
-		List<ExampleModel> ret = new ArrayList<ExampleModel>();
+		List<ExampleModel> ret = new ArrayList<>();
 		for (Node child : children) {
 			NamedEntity namedEntity = getNamedEntity(child);
 			if (namedEntity != null) {
@@ -384,8 +395,8 @@ public class ExampleView extends OtmAbstractView {
 		final CompilerPreferences compilePreferences = new CompilerPreferences(
 				CompilerPreferences.loadPreferenceStore());
 		final ExampleGeneratorOptions examOptions = new ExampleGeneratorOptions();
-		examOptions.setDetailLevel(compilePreferences.isGenerateMaxDetailsForExamples() ? DetailLevel.MAXIMUM
-				: DetailLevel.MINIMUM);
+		examOptions.setDetailLevel(
+				compilePreferences.isGenerateMaxDetailsForExamples() ? DetailLevel.MAXIMUM : DetailLevel.MINIMUM);
 		examOptions.setMaxRecursionDepth(compilePreferences.getExampleMaxDepth());
 		examOptions.setMaxRepeat(compilePreferences.getExampleMaxRepeat());
 		return examOptions;
@@ -415,7 +426,7 @@ public class ExampleView extends OtmAbstractView {
 
 	@Override
 	public List<Node> getSelectedNodes() {
-		ArrayList<Node> nodes = new ArrayList<Node>();
+		ArrayList<Node> nodes = new ArrayList<>();
 		nodes.add(mc.getModelNode());
 		return nodes;
 	}
@@ -484,7 +495,7 @@ public class ExampleView extends OtmAbstractView {
 
 	private void expandAndSelect(Node node) {
 		if (node != null) {
-			LinkedList<Node> parents = new LinkedList<Node>();
+			LinkedList<Node> parents = new LinkedList<>();
 			while (viewer.testFindItem(node) == null) {
 				node = node.getParent();
 				// the given node is invalid for ExampleView, do nothing

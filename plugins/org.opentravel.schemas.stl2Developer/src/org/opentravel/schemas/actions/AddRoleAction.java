@@ -41,35 +41,16 @@ public class AddRoleAction extends OtmAbstractAction {
 		super(mainWindow, props);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.Action#runWithEvent(org.eclipse.swt.widgets.Event)
-	 */
 	@Override
 	public void runWithEvent(Event event) {
 		event.data = PropertyNodeType.ROLE;
-		// mc.runAddProperties(event);
-		// IHandlerService handlerSvc = (IHandlerService)
-		// mc.getMainWindow().getSite().getService(IHandlerService.class);
-		// try {
 		new AddNodeHandler2().execute(event);
-		// handlerSvc.executeCommand(AddNodeHandler2.COMMAND_ID, event);
-		// } catch (ExecutionException | NotDefinedException | NotEnabledException | NotHandledException e) {
-		// DialogUserNotifier.openWarning("Add Role Error", "Could not run command: " + e.getLocalizedMessage());
-		// }
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.Action#isEnabled()
-	 */
 	@Override
 	public boolean isEnabled() {
 		LibraryMemberInterface n = mc.getCurrentNode_NavigatorView().getOwningComponent();
 		return n instanceof CoreObjectNode ? n.isEnabled_AddProperties() : false;
-		// return n instanceof CoreObjectNode ? n.isNewToChain() : false;
 	}
 
 }

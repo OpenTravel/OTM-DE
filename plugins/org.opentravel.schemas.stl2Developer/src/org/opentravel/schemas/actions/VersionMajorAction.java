@@ -59,8 +59,8 @@ public class VersionMajorAction extends OtmAbstractAction {
 		if (n != null)
 			ln = n.getLibrary();
 		// Don't allow lock unless library is in a project with managing namespace
-		if (!ln.isInProjectNS())
+		if (ln == null || !ln.isInProjectNS())
 			return false;
-		return ln != null && ln.isManaged();
+		return ln.isManaged();
 	}
 }

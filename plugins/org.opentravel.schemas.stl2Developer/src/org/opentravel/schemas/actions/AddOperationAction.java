@@ -24,7 +24,6 @@ import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.MainWindow;
 
 /**
- * @author Agnieszka Janowska
  * 
  */
 public class AddOperationAction extends OtmAbstractAction {
@@ -41,31 +40,14 @@ public class AddOperationAction extends OtmAbstractAction {
 		super(props);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.Action#runWithEvent(org.eclipse.swt.widgets.Event)
-	 */
 	@Override
 	public void runWithEvent(Event event) {
 		new AddNodeHandler2().execute(event);
-
-		// mc.runAddProperties(event);
 	}
 
 	@Override
 	public boolean isEnabled() {
 		Node n = getMainController().getCurrentNode_NavigatorView();
 		return n instanceof ServiceNode ? n.isEnabled_AddProperties() : false;
-
-		// see also
-		// GlobalSelectionTester gst = new GlobalSelectionTester();
-		// gst.test(node, GlobalSelectionTester.CANADD, null, null);
-
-		// if (node instanceof ServiceNode
-		// && (node.getEditStatus().equals(NodeEditStatus.MINOR) || node.getEditStatus().equals(
-		// NodeEditStatus.FULL)))
-		// return true;
-		// return false;
 	}
 }

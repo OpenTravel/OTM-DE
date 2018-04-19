@@ -16,7 +16,6 @@
 package org.opentravel.schemas.actions;
 
 import org.opentravel.schemacompiler.model.TLLibraryStatus;
-import org.opentravel.schemacompiler.repository.RepositoryItemState;
 import org.opentravel.schemacompiler.repository.impl.RepositoryUtils;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.RepositoryController;
@@ -111,10 +110,12 @@ public class LifeCycleAction extends OtmAbstractAction {
 			ln = n.getLibrary();
 		if (ln == null)
 			return false;
+		if (ln.getProjectItem() == null)
+			return false;
 
-		RepositoryItemState state = ln.getProjectItem().getState();
-		TLLibraryStatus status = ln.getProjectItem().getStatus();
-		// LOGGER.debug(ln + " status = " + status + "   state = " + state + "   next = " +
+		// RepositoryItemState state = ln.getProjectItem().getState();
+		// TLLibraryStatus status = ln.getProjectItem().getStatus();
+		// LOGGER.debug(ln + " status = " + status + " state = " + state + " next = " +
 		// ln.getStatus().nextStatus());
 
 		// Don't allow lock unless library is in a project with managing namespace
@@ -127,7 +128,7 @@ public class LifeCycleAction extends OtmAbstractAction {
 			return false;
 
 		// Obsolete only be enabled if the library is 1.6 and 1.6 mode
-		if (targetStatus.equals(TLLibraryStatus.OBSOLETE)) {
+		if (targetStatus != null && targetStatus.equals(TLLibraryStatus.OBSOLETE)) {
 			if (!OTM16Upgrade.otm16Enabled)
 				return false;
 			if (!RepositoryUtils.isOTM16Library(ln.getProjectItem().getContent()))

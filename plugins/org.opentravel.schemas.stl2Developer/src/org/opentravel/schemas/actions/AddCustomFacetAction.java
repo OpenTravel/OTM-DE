@@ -84,25 +84,6 @@ public class AddCustomFacetAction extends OtmAbstractAction {
 		ComponentNode current = (ComponentNode) mc.getSelectedNode_NavigatorView().getOwningComponent();
 		if (current != null && current instanceof BusinessObjectNode)
 			cfh.addContextualFacet((BusinessObjectNode) current, TLFacetType.CUSTOM);
-
-		// // Verify the current node is editable business object
-		// ComponentNode current = (ComponentNode) mc.getSelectedNode_NavigatorView().getOwningComponent();
-		// if (current == null || !(current instanceof BusinessObjectNode) || !current.isEditable_newToChain()) {
-		// DialogUserNotifier.openWarning("Add Custom Facet",
-		// "Custom Facets can only be added to new Business Objects");
-		// return;
-		// }
-		// BusinessObjectNode bo = (BusinessObjectNode) current;
-		//
-		// // Create the contextual facet
-		// CustomFacetNode cf = new CustomFacetNode();
-		// cf.setName("new");
-		// bo.getLibrary().addMember(cf);
-		// bo.getTLModelObject().addCustomFacet(cf.getTLModelObject());
-		//
-		// // Create contributed facet
-		// NodeFactory.newComponentMember(bo, cf.getTLModelObject());
-		// mc.refresh(bo);
 	}
 
 	private void addCustomFacet() {
@@ -113,13 +94,6 @@ public class AddCustomFacetAction extends OtmAbstractAction {
 					"Custom Facets can only be added to new Business Objects");
 			return;
 		}
-
-		// use if we allow custom facets to be added as minor version change
-		// // Use the version utils in handler to create a minor or patch version if needed
-		// if (current.isEnabled_AddProperties() && !current.isInHead())
-		// current = handler.createVersionExtension(current);
-		// if (current == null)
-		// return;
 
 		final BusinessObjectNode bo = (BusinessObjectNode) current;
 		final FacetProviderNode propertyOwner = bo.getFacet_Detail();

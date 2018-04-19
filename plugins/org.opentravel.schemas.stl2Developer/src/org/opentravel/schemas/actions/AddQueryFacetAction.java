@@ -74,24 +74,6 @@ public class AddQueryFacetAction extends OtmAbstractAction {
 		ComponentNode current = (ComponentNode) mc.getSelectedNode_NavigatorView().getOwningComponent();
 		if (current != null && current instanceof BusinessObjectNode)
 			cfh.addContextualFacet((BusinessObjectNode) current, TLFacetType.QUERY);
-
-		// // Verify the current node is editable business object
-		// ComponentNode current = (ComponentNode) mc.getSelectedNode_NavigatorView().getOwningComponent();
-		// if (current == null || !(current instanceof BusinessObjectNode) || !current.isEditable_newToChain()) {
-		// DialogUserNotifier.openWarning("Add Query Facet", "Query Facets can only be added to new Business Objects");
-		// return;
-		// }
-		// BusinessObjectNode bo = (BusinessObjectNode) current;
-		//
-		// // Create the contextual facet
-		// QueryFacetNode qf = new QueryFacetNode();
-		// qf.setName("new");
-		// bo.getLibrary().addMember(qf);
-		// bo.getTLModelObject().addQueryFacet(qf.getTLModelObject());
-		//
-		// // Create contributed facet
-		// NodeFactory.newComponentMember(bo, qf.getTLModelObject());
-		// mc.refresh(bo);
 	}
 
 	private void addQueryFacet() {

@@ -41,19 +41,12 @@ public class AddEnumValueAction extends OtmAbstractAction {
 	@Override
 	public void runWithEvent(Event event) {
 		new AddNodeHandler2().execute(event);
-
-		// getMainController().runAddProperties(event);
 	}
 
 	@Override
 	public boolean isEnabled() {
 		LibraryMemberInterface n = mc.getCurrentNode_NavigatorView().getOwningComponent();
-		// boolean result = n.isEnabled_AddProperties();
 		return n instanceof Enumeration ? n.isEnabled_AddProperties() : false;
-
-		// if (getMainController().getCurrentNode_NavigatorView() instanceof EnumLiteralNode)
-		// return true;
-		// return (getMainController().getCurrentNode_NavigatorView() instanceof Enumeration) ? true : false;
 	}
 
 }

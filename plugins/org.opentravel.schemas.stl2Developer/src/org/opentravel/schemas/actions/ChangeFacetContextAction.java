@@ -55,7 +55,7 @@ public class ChangeFacetContextAction extends OtmAbstractAction {
 
 	@Override
 	public boolean isEnabled() {
-		LOGGER.debug("isEnabled for " + getMainController().getCurrentNode_NavigatorView());
+		// LOGGER.debug("isEnabled for " + getMainController().getCurrentNode_NavigatorView());
 		if (getMainController().getCurrentNode_NavigatorView() instanceof QueryFacetNode)
 			return true;
 		return (getMainController().getCurrentNode_NavigatorView() instanceof CustomFacetNode) ? true : false;
