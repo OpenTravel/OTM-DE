@@ -18,6 +18,7 @@
  */
 package org.opentravel.schemas.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -29,6 +30,7 @@ import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
 import org.opentravel.schemas.node.objectMembers.OperationNode;
@@ -45,7 +47,6 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public abstract class OtmAbstractHandler extends AbstractHandler implements OtmHandler {
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(OtmAbstractHandler.class);
 
 	protected MainController mc;
@@ -58,10 +59,12 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 	protected OtmAbstractHandler(MainController mc) {
 		// LOGGER.debug("Handler constructed with controller: "+this.getClass());
 		this.mc = mc;
-		if (mc == null) {
+		if (mc == null)
 			throw new IllegalArgumentException("Tried to construct view without a main controller.");
-		}
+
 		mainWindow = mc.getMainWindow();
+		if (mainWindow == null)
+			throw new IllegalArgumentException("Tried to construct view without a main window.");
 	}
 
 	/**
@@ -76,6 +79,40 @@ public abstract class OtmAbstractHandler extends AbstractHandler implements OtmH
 		if (selectedNodes != null && !selectedNodes.isEmpty())
 			selection = selectedNodes.get(0);
 		return selection;
+	}
+
+	/**
+	 * Get all libraries that own selected nodes. Remove duplicates. Note: library may be in multiple projects.
+	 * 
+	 * @return de-duplicated list of libraries containing selected in navigator view nodes
+	 */
+	public List<LibraryNode> getSelectedLibraries(boolean editableOnly) {
+		List<LibraryNode> libraries = new ArrayList<>();
+		for (Node cn : mc.getSelectedNodes_NavigatorView()) {
+			if (cn.getLibrary() != null && !libraries.contains(cn.getLibrary()))
+				if (editableOnly && cn.getLibrary().isEditable())
+					libraries.add(cn.getLibrary());
+				else
+					libraries.add(cn.getLibrary());
+		}
+		return libraries;
+	}
+
+	/**
+	 * Library Nav Nodes are returned. Library Nav Nodes connect a library to a specific project. Only library nav nodes
+	 * know which project the library is in. Duplicates removed from list.
+	 * 
+	 * @return all selected libraryNavNodes or empty list.
+	 */
+	public List<LibraryNavNode> getSelectedLibraryNavNodes() {
+		List<LibraryNavNode> libs = new ArrayList<>();
+		List<Node> nodes = mc.getSelectedNodes_NavigatorView();
+		for (Node n : nodes) {
+			if (n instanceof LibraryNavNode)
+				if (!libs.contains(n))
+					libs.add((LibraryNavNode) n);
+		}
+		return libs;
 	}
 
 	/**

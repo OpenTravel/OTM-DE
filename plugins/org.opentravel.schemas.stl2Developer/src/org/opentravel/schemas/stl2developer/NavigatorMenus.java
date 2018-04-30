@@ -179,7 +179,8 @@ public class NavigatorMenus extends TreeViewer {
 		final MenuManager versionMenu = new MenuManager("Version...", "VersionMenuID");
 
 		// Define the Actions
-		final Action newLibraryAction = new NewLibraryAction(mainWindow, new ExternalizedStringProperties("action.new"));
+		final Action newLibraryAction = new NewLibraryAction(mainWindow,
+				new ExternalizedStringProperties("action.new"));
 		final Action openLibraryAction = new OpenLibraryAction();
 		final Action commitLibraryAction = new CommitLibraryAction();
 		// final Action finalizeLibraryAction = new FinalizeLibraryAction();
@@ -192,8 +193,8 @@ public class NavigatorMenus extends TreeViewer {
 
 		final Action addCrudqOperationsAction = new AddCRUDQOperationsAction(mainWindow,
 				new ExternalizedStringProperties("action.addCRUDQOperations"));
-		final Action cloneObjectAction = new CopyNodeAction(mainWindow, new ExternalizedStringProperties(
-				"action.cloneObject"));
+		final Action cloneObjectAction = new CopyNodeAction(mainWindow,
+				new ExternalizedStringProperties("action.cloneObject"));
 		// This is the go-to approach - let the actions have default properties
 		final Action changeObjectAction = new ChangeAction(mainWindow);
 		final Action addAliasAction = new AddAliasAction(mainWindow);
@@ -214,8 +215,8 @@ public class NavigatorMenus extends TreeViewer {
 		final IContributionItem openProjectCommand = RCPUtils.createCommandContributionItem(site,
 				OpenProjectHandler.COMMAND_ID, null, null, null);
 		final Action newProjectAction = new NewProjectAction();
-		final IContributionItem compileCommand = RCPUtils.createCommandContributionItem(site,
-				CompileHandler.COMMAND_ID, null, null, null);
+		final IContributionItem compileCommand = RCPUtils.createCommandContributionItem(site, CompileHandler.COMMAND_ID,
+				null, null, null);
 
 		final IContributionItem versionUpdateCommand = RCPUtils.createCommandContributionItem(site,
 				VersionUpdateHandler.COMMAND_ID, null, null, null);
@@ -490,30 +491,31 @@ public class NavigatorMenus extends TreeViewer {
 			}
 
 			private List<Action> createImportActionsForLibraries(final Node context) {
-				final List<Action> libActions = new ArrayList<Action>();
+				final List<Action> libActions = new ArrayList<>();
 				for (final LibraryNode ln : getListOfLibraries(context)) {
 					final StringProperties sp = new DefaultStringProperties();
-					sp.set(PropertyType.TEXT, ln.getName());
+					sp.set(PropertyType.TEXT, ln.getNameWithPrefix());
 					libActions.add(new ImportObjectToLibraryAction(mainWindow, sp, ln));
 				}
 				return libActions;
 			}
 
-			private List<Action> createMoveActionsForLibraries(final Node menuContext) {
-				final List<Action> libActions = new ArrayList<Action>();
-				if (menuContext.getLibrary() == null || !menuContext.getLibrary().isMoveable())
+			private List<Action> createMoveActionsForLibraries(final Node n) {
+				final List<Action> libActions = new ArrayList<>();
+				// New content only, do not allow move minor versions of objects
+				if (!n.isEditable_newToChain() || !n.getLibrary().isMoveable())
 					return libActions; // No moves for xsd/builtin library members
 
-				for (final LibraryNode ln : getListOfLibraries(menuContext)) {
+				for (final LibraryNode ln : getListOfLibraries(n)) {
 					final StringProperties sp = new DefaultStringProperties();
-					sp.set(PropertyType.TEXT, ln.getName());
+					sp.set(PropertyType.TEXT, ln.getNameWithPrefix());
 					libActions.add(new MoveObjectToLibraryAction(sp, ln));
 				}
 				return libActions;
 			}
 
 			private List<Action> createVersionActions(Node node) {
-				final List<Action> actions = new ArrayList<Action>();
+				final List<Action> actions = new ArrayList<>();
 
 				actions.add(new VersionAction(VersionType.MAJOR));
 				actions.add(new VersionAction(VersionType.MINOR));
@@ -525,7 +527,7 @@ public class NavigatorMenus extends TreeViewer {
 			}
 
 			private List<LibraryNode> getListOfLibraries(final Node node) {
-				final List<LibraryNode> libs = new ArrayList<LibraryNode>();
+				final List<LibraryNode> libs = new ArrayList<>();
 				for (final LibraryNode ln : Node.getAllUserLibraries()) {
 					if (ln.getChain() != null) {
 						// add if it is not in the node's chain and the head of the chain
@@ -564,7 +566,7 @@ public class NavigatorMenus extends TreeViewer {
 	}
 
 	public static List<Action> createRepositoryActionsForLibraries(final Node lib) {
-		final List<Action> repoActions = new ArrayList<Action>();
+		final List<Action> repoActions = new ArrayList<>();
 		if (lib.getLibrary() == null || !lib.getLibrary().isEditable())
 			return repoActions; // No actions available
 

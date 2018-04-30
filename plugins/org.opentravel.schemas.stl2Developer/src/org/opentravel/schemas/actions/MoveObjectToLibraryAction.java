@@ -20,6 +20,7 @@ import java.util.List;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.StringProperties;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -27,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Agnieszka Janowska
+ * @author Dave Hollander
  * 
  */
 public class MoveObjectToLibraryAction extends OtmAbstractAction {
@@ -70,7 +71,7 @@ public class MoveObjectToLibraryAction extends OtmAbstractAction {
 			Node refocus = sourceNodes.get(0).getParent();
 			for (final ComponentNode sourceNode : sourceNodes) {
 				if (!destination.equals(sourceNode.getLibrary())) {
-					moveNode(sourceNode, destination);
+					moveNode2(sourceNode, destination);
 				}
 			}
 			mc.refresh();
@@ -78,6 +79,36 @@ public class MoveObjectToLibraryAction extends OtmAbstractAction {
 		} else {
 			LOGGER.warn("No valid nodes to move to " + destination.getName());
 		}
+	}
+
+	private void moveNode2(final ComponentNode source, final LibraryNode destination) {
+		String warning = null;
+		if (destination == null)
+			warning = "Destination library is missing.";
+		else if (!(source instanceof LibraryMemberInterface))
+			warning = "Object must be an library member object.";
+		else if (source.getLibrary() == null)
+			warning = source + " does not have a library.";
+		else if (!source.getLibrary().isEditable())
+			warning = source.getLibrary() + " is not editable.";
+		else if (!destination.isEditable())
+			warning = destination + " is not editable.";
+		else if (!destination.isTLLibrary())
+			warning = "You can not move object to a built-in or XSD library.";
+		else if (!source.getLibrary().isTLLibrary())
+			warning = "You can not move object from a built-in or XSD library; use control-drag to copy.";
+		else if (source.getChain() != null && source.getChain() == destination.getChain())
+			warning = "You can not move object within the same library version chain.";
+
+		if (!source.getVersionNode().getOlderVersions().isEmpty())
+			LOGGER.debug("User will be confused.");
+
+		if (warning == null)
+			destination.addMember((LibraryMemberInterface) source);
+		else
+			DialogUserNotifier.openInformation("WARNING", warning);
+		return;
+
 	}
 
 	/**

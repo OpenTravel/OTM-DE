@@ -124,10 +124,11 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 		} else
 			for (Node fn : parent.getSubject().getChildren())
 				if (fn instanceof FacetInterface)
-					if (((TLFacet) fn.getTLModelObject()).getFacetType().equals(type)) {
-						setReferenceFacetName(type.getIdentityName());
-						setName(type.getIdentityName());
-					}
+					if (fn.getTLModelObject() != null)
+						if (((TLFacet) fn.getTLModelObject()).getFacetType().equals(type)) {
+							setReferenceFacetName(type.getIdentityName());
+							setName(type.getIdentityName());
+						}
 		setReferenceType(TLReferenceType.REQUIRED.toString());
 	}
 
@@ -158,7 +159,7 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	 * @return a list of core and choice objects
 	 */
 	public List<Node> getBasePayloads() {
-		List<Node> candidates = new ArrayList<Node>();
+		List<Node> candidates = new ArrayList<>();
 		for (Node n : getLibrary().getDescendants_LibraryMemberNodes())
 			if (n instanceof CoreObjectNode)
 				candidates.add(n);
@@ -191,7 +192,7 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 
 	@Override
 	public List<ResourceField> getFields() {
-		List<ResourceField> fields = new ArrayList<ResourceField>();
+		List<ResourceField> fields = new ArrayList<>();
 
 		// Base Payload
 		new ResourceField(fields, getBasePayloadName(), MSGKEY + ".fields.basePayload", ResourceFieldType.ObjectSelect,

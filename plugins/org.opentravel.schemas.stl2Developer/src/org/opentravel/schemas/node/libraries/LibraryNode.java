@@ -320,7 +320,8 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	 * Override the namespace policy and TL Library status and set to editable. <b>Caution</b> can cause the GUI and TL
 	 * Model to get out of sync.
 	 * 
-	 * @param true to enable edits on this library
+	 * @param true
+	 *            to enable edits on this library
 	 */
 	public void setEditable(boolean editable) {
 		this.editable = editable;
@@ -350,7 +351,7 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	 */
 	// TODO - there is something wrong with the changing of type use for read-only libraries.
 	public List<Node> importNodes(List<Node> sourceList, boolean global) {
-		ArrayList<Node> imported = new ArrayList<Node>();
+		ArrayList<Node> imported = new ArrayList<>();
 		final Map<Node, Node> sourceToNewMap;
 
 		// Do the import. Nodes are typed, but not used.
@@ -381,7 +382,7 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	 */
 	public Map<Node, Node> importNodes(List<Node> sourceList) {
 		// insertion ordered
-		final Map<Node, Node> sourceToNewMap = new LinkedHashMap<Node, Node>(sourceList.size());
+		final Map<Node, Node> sourceToNewMap = new LinkedHashMap<>(sourceList.size());
 
 		// Create aliases if the source has multiple properties which use the same complex type.
 		// Must be done before imports to assure all referenced types have the aliases added.
@@ -551,7 +552,7 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 		}
 
 		// Now remove the unused contexts
-		List<TLContext> contexts = new ArrayList<TLContext>(getTLLibrary().getContexts());
+		List<TLContext> contexts = new ArrayList<>(getTLLibrary().getContexts());
 		for (TLContext tc : contexts) {
 			if (tc != tlc) {
 				getTLLibrary().removeContext(getTLLibrary().getContext(tc.getContextId()));
@@ -768,6 +769,9 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 			for (TLModelElement tlcf : lm.getChildrenHandler().getChildren_TL())
 				if (tlcf instanceof TLContextualFacet && Node.GetNode(tlcf) == null)
 					addMember(NodeFactory.newLibraryMember((LibraryMember) tlcf));
+
+		// Make sure it did not bring additional contexts with it
+		collapseContexts(); // TODO - optimize to just object not whole library
 	}
 
 	public boolean isInChain() {
@@ -1105,8 +1109,8 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 
 	@Override
 	public boolean isXSDSchema() {
-		return (absTLLibrary instanceof BuiltInLibrary && ((BuiltInLibrary) absTLLibrary).getBuiltInType().equals(
-				BuiltInType.SCHEMA_FOR_SCHEMAS_BUILTIN));
+		return (absTLLibrary instanceof BuiltInLibrary
+				&& ((BuiltInLibrary) absTLLibrary).getBuiltInType().equals(BuiltInType.SCHEMA_FOR_SCHEMAS_BUILTIN));
 		// return getTLaLib() instanceof XSDLibrary;
 	}
 
@@ -1148,6 +1152,9 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	}
 
 	/**
+	 * Can members be moved? True is some members can be moved. Individual members can not be moved if they are in older
+	 * versions OR are not new to the head version.
+	 * 
 	 * @return - true if members of the library can be moved
 	 */
 	public boolean isMoveable() {
@@ -1331,7 +1338,7 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	 */
 	// FIXME - only used in tests
 	public List<String> getContextIds() {
-		ArrayList<String> contexts = new ArrayList<String>();
+		ArrayList<String> contexts = new ArrayList<>();
 		for (TLContext c : getTLLibrary().getContexts())
 			contexts.add(c.getContextId());
 		return contexts;
@@ -1411,7 +1418,7 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	 * @return
 	 */
 	public List<LibraryMemberInterface> get_LibraryMembers() {
-		List<LibraryMemberInterface> members = new ArrayList<LibraryMemberInterface>();
+		List<LibraryMemberInterface> members = new ArrayList<>();
 		for (Node n : getChildren()) {
 			if (n instanceof NavNode)
 				members.addAll(((NavNode) n).get_LibraryMembers());
@@ -1442,17 +1449,17 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	 *         library.
 	 */
 	public List<LibraryNode> getAssignedLibraries(boolean deep) {
-		Set<LibraryNode> usedLibs = new HashSet<LibraryNode>();
+		Set<LibraryNode> usedLibs = new HashSet<>();
 		if (deep && getChain() != null)
 			for (LibraryNode lib : getChain().getLibraries())
 				usedLibs.addAll(lib.getAssignedLibraries());
 		else
 			usedLibs.addAll(getAssignedLibraries());
-		return new ArrayList<LibraryNode>(usedLibs);
+		return new ArrayList<>(usedLibs);
 	}
 
 	private List<LibraryNode> getAssignedLibraries() {
-		Set<LibraryNode> usedLibs = new HashSet<LibraryNode>();
+		Set<LibraryNode> usedLibs = new HashSet<>();
 
 		// Walk selected library type users and collect all used libraries
 		for (TypeUser user : getDescendants_TypeUsers()) {
@@ -1484,7 +1491,7 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 		if (this.getChain() != null)
 			usedLibs.removeAll(this.getChain().getLibraries());
 		usedLibs.remove(this);
-		return new ArrayList<LibraryNode>(usedLibs);
+		return new ArrayList<>(usedLibs);
 	}
 
 	/**
@@ -1547,9 +1554,8 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	 * @return true if this library is managed and locked in a repository.
 	 */
 	public boolean isLocked() {
-		return projectItem != null
-				&& (projectItem.getState().equals(RepositoryItemState.MANAGED_LOCKED) || projectItem.getState().equals(
-						RepositoryItemState.MANAGED_WIP));
+		return projectItem != null && (projectItem.getState().equals(RepositoryItemState.MANAGED_LOCKED)
+				|| projectItem.getState().equals(RepositoryItemState.MANAGED_WIP));
 	}
 
 	/**
@@ -1607,7 +1613,7 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 			return;
 
 		// Create a map of all type providers in this library keyed by name
-		Map<String, ExtensionOwner> candidates = new HashMap<String, ExtensionOwner>();
+		Map<String, ExtensionOwner> candidates = new HashMap<>();
 		for (ExtensionOwner p : this.getDescendants_ExtensionOwners())
 			candidates.put(((Node) p).getName(), p);
 
@@ -1628,7 +1634,7 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 
 		LOGGER.debug("Replacing type users to use types from " + this + " library.");
 		// Create a map of all type providers in this library keyed by name
-		Map<String, TypeProvider> candidates = new HashMap<String, TypeProvider>();
+		Map<String, TypeProvider> candidates = new HashMap<>();
 		for (TypeProvider p : this.getDescendants_TypeProviders())
 			candidates.put(p.getName(), p);
 
@@ -1650,7 +1656,7 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 			return;
 		LOGGER.debug("Replacing contextual facet to contribute to owners from " + this + " library.");
 		// Create a map of all type providers in this library keyed by name
-		Map<String, ContextualFacetOwnerInterface> candidates = new HashMap<String, ContextualFacetOwnerInterface>();
+		Map<String, ContextualFacetOwnerInterface> candidates = new HashMap<>();
 		for (ContextualFacetOwnerInterface p : this.getDescendants_ContextualFacetOwners())
 			candidates.put(((Node) p).getName(), p);
 

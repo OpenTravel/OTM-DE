@@ -77,7 +77,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 
 	private Node curNode;
 	private Node prevNode;
-	private final List<Node> selectedNodes = new LinkedList<Node>();
+	private final List<Node> selectedNodes = new LinkedList<>();
 
 	private boolean propertiesDisplayed = false;
 	private boolean inheritedPropertiesDisplayed = false;
@@ -264,9 +264,9 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	public List<Node> getSelectedNodes() {
 		if (!getMainWindow().hasDisplay() && curNode != null) {
 			// provide random content for testing
-			return new ArrayList<Node>(curNode.getDescendants_LibraryMemberNodes());
+			return new ArrayList<>(curNode.getDescendants_LibraryMemberNodes());
 		}
-		return new ArrayList<Node>(selectedNodes);
+		return new ArrayList<>(selectedNodes);
 	}
 
 	@Override
@@ -374,21 +374,31 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 		if (iss.getFirstElement() == null)
 			return;
 
-		if (iss.getFirstElement() instanceof Node)
-			curNode = (Node) iss.getFirstElement();
-		// LOGGER.debug("apply selection to " + curNode);
-		if (curNode instanceof VersionNode)
-			curNode = ((VersionNode) curNode).get();
+		curNode = getSelectedNode(iss.getFirstElement());
+		// if (iss.getFirstElement() instanceof Node)
+		// curNode = (Node) iss.getFirstElement();
+		// // LOGGER.debug("apply selection to " + curNode);
+		// if (curNode instanceof VersionNode)
+		// curNode = ((VersionNode) curNode).get();
 
 		selectedNodes.clear();
 		for (final Object o : iss.toList()) {
-			if (o instanceof Node) {
-				if (o instanceof VersionNode)
-					selectedNodes.add(((VersionNode) o).get());
-				else
-					selectedNodes.add((Node) o);
-				if (((Node) o).getLibrary() != null)
-					mc.postStatus(((Node) o).getEditStatusMsg());
+			// if (o instanceof Node) {
+			// if (o instanceof VersionNode)
+			// selectedNodes.add(((VersionNode) o).get());
+			// else if (((Node) o).getVersionNode() != null)
+			// selectedNodes.add(((Node) o).getVersionNode().get());
+			// else
+			// selectedNodes.add((Node) o);
+			Node n = getSelectedNode(o);
+			if (n != null) {
+				selectedNodes.add(n);
+
+				// if (n.getLibrary() != null)
+				// String msg = n.getEditStatusMsg();
+				// mc.postStatus(n.getEditStatusMsg());
+				// if (((Node) o).getLibrary() != null)
+				// mc.postStatus(((Node) o).getEditStatusMsg());
 			}
 		}
 
@@ -402,7 +412,26 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 		OtmView view = mc.getView_Example();
 		view.setCurrentNode(curNode);
 		view.refresh(curNode);
+		if (curNode != null)
+			mc.postStatus(curNode.getNameWithPrefix() + " - " + curNode.getEditStatusMsg());
 
+	}
+
+	/**
+	 * Get the latest version of the node associate with the selected object
+	 * 
+	 * @return
+	 */
+	private Node getSelectedNode(Object o) {
+		Node n = null;
+		if (o instanceof Node) {
+			n = (Node) o;
+			if (n instanceof VersionNode)
+				n = ((VersionNode) n).get();
+			else if (n.getVersionNode() != null)
+				n = n.getVersionNode().get();
+		}
+		return n;
 	}
 
 	@Override
@@ -434,7 +463,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 		}
 		navigatorMenus.refresh(OtmRegistry.getTypeView().getCurrentNode());
 		OtmRegistry.getTypeView().refreshAllViews();
-		// LOGGER.debug("SetDeepProperty  - properties? "+propertiesDisplayed+ " inherited? " +
+		// LOGGER.debug("SetDeepProperty - properties? "+propertiesDisplayed+ " inherited? " +
 		// inheritedPropertiesDisplayed);
 	}
 

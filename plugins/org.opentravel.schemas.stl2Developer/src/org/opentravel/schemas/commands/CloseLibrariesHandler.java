@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 
 /**
@@ -41,12 +40,7 @@ public class CloseLibrariesHandler extends OtmAbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
 		if (isEnabled()) {
-			List<Node> nodes = mc.getSelectedNodes_NavigatorView();
-			for (Node n : nodes) {
-				// Only library nav nodes know which project the library is in.
-				if (n instanceof LibraryNavNode)
-					toClose.add((LibraryNavNode) n);
-			}
+			toClose = getSelectedLibraryNavNodes();
 			mc.getProjectController().remove(toClose);
 			mc.postStatus("Closed libraries.");
 		}
@@ -68,11 +62,11 @@ public class CloseLibrariesHandler extends OtmAbstractHandler {
 	 */
 	@Override
 	public boolean isEnabled() {
-		if (toClose == null)
-			return false;
-		toClose.clear();
+		// if (toClose == null)
+		// return false;
+		// toClose.clear();
 
-		return getFirstSelected() instanceof LibraryNavNode;
+		return !getSelectedLibraryNavNodes().isEmpty();
 		// List<Node> nodes = mc.getSelectedNodes_NavigatorView();
 		// for (Node n : nodes) {
 		// // Only library nav nodes know which project the library is in.

@@ -192,7 +192,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		// Prompt the user to select one or more files
 		final FileDialog fd = FileDialogs.postFilesDialog();
 
-		List<File> filesToOpen = new ArrayList<File>();
+		List<File> filesToOpen = new ArrayList<>();
 		for (String fileName : fd.getFileNames()) {
 			fileName = fd.getFilterPath() + File.separator + fileName;
 			if (fileName != null) {
@@ -221,7 +221,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 
 	// TODO - should use Library manager
 	private Set<TLLibrary> getEditableUsersLibraraies(List<LibraryNode> libraries) {
-		final Set<TLLibrary> saveSet = new HashSet<TLLibrary>();
+		final Set<TLLibrary> saveSet = new HashSet<>();
 		// final List<TLLibrary> toSave = new ArrayList<TLLibrary>();
 		for (final LibraryNode lib : libraries) {
 			if (lib == null)
@@ -241,8 +241,8 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 	public boolean saveLibraries(final List<LibraryNode> libraries, boolean quiet) {
 		final Set<TLLibrary> toSave = getEditableUsersLibraraies(libraries);
 		if (toSave.isEmpty()) {
-			// DialogUserNotifier.openInformation("Warning", Messages.getString("action.saveAll.noUserDefied"));
-			// LOGGER.debug("No user defined libraries to save");
+			DialogUserNotifier.openInformationMsg("action.warning", "action.saveAll.noUserDefied");
+			// LOGGER.debug("No editable libraries to save");
 			return false;
 		}
 
@@ -285,7 +285,8 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		return errorSaves.length() == 0;
 	}
 
-	private String getUserMessage(StringBuilder successfulSaves, StringBuilder errorSaves, ValidationFindings findings) {
+	private String getUserMessage(StringBuilder successfulSaves, StringBuilder errorSaves,
+			ValidationFindings findings) {
 		final StringBuilder userMessage = new StringBuilder();
 		if (successfulSaves.length() > 0) {
 			userMessage.append("Successfully saved:").append(successfulSaves).append("\n\n");
@@ -295,10 +296,9 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 					.append("You may need to use the .bak file to restore your work");
 		}
 		if (!findings.isEmpty()) {
-			userMessage
-					.append("WARNING: Some validation errors or warnings occurred. "
-							+ "You may not be able to reopen the library once you close it before fixing those issues. "
-							+ "Please refer to Warnings and Errors section to review them.").append("\n\n");
+			userMessage.append("WARNING: Some validation errors or warnings occurred. "
+					+ "You may not be able to reopen the library once you close it before fixing those issues. "
+					+ "Please refer to Warnings and Errors section to review them.").append("\n\n");
 		}
 		return userMessage.toString();
 	}
@@ -344,7 +344,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 	// org.opentravel.schemas.actions.XSD2OTMAction.convertLibraryToOTM()
 	@Override
 	public List<LibraryNode> convertXSD2OTM(LibraryNode xsdLibrary, boolean withDependecies) {
-		HashMap<Node, Node> sourceToNewMap = new HashMap<Node, Node>();
+		HashMap<Node, Node> sourceToNewMap = new HashMap<>();
 		List<LibraryNode> newLibs = convertXSD2OTM(xsdLibrary, withDependecies, new HashSet<LibraryNode>(),
 				sourceToNewMap);
 
@@ -369,7 +369,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 		// prevent cycling referance
 		visited.add(xsdLibrary);
 
-		List<LibraryNode> converted = new ArrayList<LibraryNode>();
+		List<LibraryNode> converted = new ArrayList<>();
 		if (withDependecies) {
 			List<XSDLibrary> xsdDeps = findDependecies(xsdLibrary.getTLaLib());
 			for (XSDLibrary xsdDep : xsdDeps) {
@@ -397,7 +397,7 @@ public class DefaultLibraryController extends OtmControllerBase implements Libra
 	}
 
 	private List<XSDLibrary> findDependecies(final AbstractLibrary xsdLibrary) {
-		final LinkedList<XSDLibrary> dependecis = new LinkedList<XSDLibrary>();
+		final LinkedList<XSDLibrary> dependecis = new LinkedList<>();
 		DependencyNavigator.navigate(xsdLibrary, new ModelElementVisitorAdapter() {
 
 			@Override

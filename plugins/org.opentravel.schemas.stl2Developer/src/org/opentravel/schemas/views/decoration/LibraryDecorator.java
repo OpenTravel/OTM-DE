@@ -111,7 +111,7 @@ public class LibraryDecorator extends BaseLabelProvider implements ILightweightL
 
 		} else if (node instanceof InheritedInterface)
 			decoration.addSuffix(node.getDecoration());
-		if (node instanceof NavNode) {
+		else if (node instanceof NavNode) {
 			decoration.addSuffix(node.getDecoration());
 		} else if (node instanceof LibraryMemberInterface) {
 			decoration.addSuffix(node.getDecoration());

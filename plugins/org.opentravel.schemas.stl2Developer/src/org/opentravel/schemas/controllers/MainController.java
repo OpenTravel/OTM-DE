@@ -859,17 +859,18 @@ public class MainController {
 
 	/**
 	 * @return Selected nodes in TypeView. If selection of TypeView is empty then return selected nodes from
-	 *         NavigatorView otherwise return empty list;
+	 *         NavigatorView otherwise return empty list; Null if no workbench active page.
 	 */
 	public List<Node> getGloballySelectNodes() {
-		IWorkbenchPage page = null;
-		if (PlatformUI.getWorkbench() != null)
-			if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() != null)
-				page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		if (page == null)
-			return null;
+		// IWorkbenchPage page = getActivePage();
+		// if (PlatformUI.getWorkbench() != null)
+		// if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() != null)
+		// page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		// if (page == null)
+		// return null;
 
-		IWorkbenchPart part = page.getActivePart();
+		// IWorkbenchPart part = page.getActivePart();
+		IWorkbenchPart part = getActivePart();
 		// FYI- this works: IViewPart view = page.findView(NavigatorView.VIEW_ID);
 
 		List<Node> nodes = getSelectedNodes_TypeView();
@@ -887,4 +888,19 @@ public class MainController {
 		return nodes;
 	}
 
+	/**
+	 * Determine if the workbench has an active page. On startup, the page will be null.
+	 * 
+	 * @return active workbench page or null
+	 */
+	public IWorkbenchPart getActivePart() {
+		IWorkbenchPage page = null;
+		if (PlatformUI.getWorkbench() != null)
+			if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() != null)
+				page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		if (page == null)
+			return null;
+
+		return page.getActivePart();
+	}
 }

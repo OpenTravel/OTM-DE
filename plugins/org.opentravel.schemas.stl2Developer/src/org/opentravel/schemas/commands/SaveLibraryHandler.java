@@ -15,30 +15,22 @@
  */
 package org.opentravel.schemas.commands;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Images;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SaveLibraryHandler extends OtmAbstractHandler {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(SaveLibrariesHandler.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SaveLibrariesHandler.class);
 
 	public static String COMMAND_ID = "org.opentravel.schemas.commands.SaveLibrary";
 
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
-		Set<LibraryNode> libraries = new HashSet<LibraryNode>();
-		// filter duplicates
-		for (Node cn : mc.getSelectedNodes_NavigatorView()) {
-			libraries.add(cn.getLibrary());
-		}
-		mc.getLibraryController().saveLibraries(new ArrayList<LibraryNode>(libraries), false);
+		mc.getLibraryController().saveLibraries(getSelectedLibraries(true), false);
 		return null;
 	}
 
@@ -51,11 +43,18 @@ public class SaveLibraryHandler extends OtmAbstractHandler {
 		return Images.getImageRegistry().getDescriptor(Images.Save);
 	}
 
+	// Note - this is executed OFTEN - make sure it is quick
 	@Override
 	public boolean isEnabled() {
-		// LOGGER.debug("Is selected? " + mc.getSelectedNode_NavigatorView());
-		Node n = mc.getSelectedNode_NavigatorView();
-		return n != null ? !n.isBuiltIn() : false;
+		// Active part will be null on startup, return true to not cause error
+		if (mc.getActivePart() == null)
+			return true;
+
+		// LOGGER.debug("Is enabled? " + mc.getSelectedNode_NavigatorView());
+		Node n = getFirstSelected();
+		if (n == null || n.getLibrary() == null)
+			return false;
+		return n.getLibrary().isEditable();
 	}
 
 }

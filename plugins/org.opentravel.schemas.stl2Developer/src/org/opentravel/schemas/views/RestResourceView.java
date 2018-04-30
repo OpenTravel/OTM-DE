@@ -89,8 +89,8 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class RestResourceView extends OtmAbstractView implements ISelectionListener, ISelectionChangedListener,
-		ITreeViewerListener {
+public class RestResourceView extends OtmAbstractView
+		implements ISelectionListener, ISelectionChangedListener, ITreeViewerListener {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RestResourceView.class);
 
@@ -105,7 +105,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 	private Text rName;
 	private Label rType;
 	private Text rDescription;
-	private List<ResourceMemberInterface> expansionState = new LinkedList<ResourceMemberInterface>();
+	private List<ResourceMemberInterface> expansionState = new LinkedList<>();
 	private INode currentNode;
 	private INode previousNode;
 
@@ -114,7 +114,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 	// private ButtonBarManager bbManager;
 	private Composite compRight;
 
-	private List<PostedField> postedFields = new ArrayList<PostedField>();
+	private List<PostedField> postedFields = new ArrayList<>();
 	private Group objectPropertyGroup;
 	private Group examplesGroup;
 	private Group validationGroup;
@@ -338,7 +338,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 	public List<Node> getSelectedNodes() {
 		if (viewer == null)
 			return null; // In case the view is not activated.
-		List<Node> selected = new ArrayList<Node>();
+		List<Node> selected = new ArrayList<>();
 		StructuredSelection selection = (StructuredSelection) viewer.getSelection();
 		for (Object e : selection.toList()) {
 			if (e != null) {
@@ -550,8 +550,8 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 
 	private Table getFindingsTable(Composite parent) {
 		// 3 column table for object, level/type and message
-		Table findingsTable = new Table(parent, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL
-				| SWT.H_SCROLL);
+		Table findingsTable = new Table(parent,
+				SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.H_SCROLL);
 		findingsTable.setLinesVisible(false);
 		findingsTable.setHeaderVisible(true);
 		final GridData td = new GridData(SWT.FILL, SWT.FILL, true, false);
@@ -568,7 +568,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 	private void post(Combo combo, String[] strings, String value) {
 		int i = 0;
 		// assure each value is unique - if there are duplicates the combo just flashes
-		TreeSet<String> uniqueSet = new TreeSet<String>(); // sorts and de-dupes
+		TreeSet<String> uniqueSet = new TreeSet<>(); // sorts and de-dupes
 		for (String s : strings)
 			uniqueSet.add(s);
 
@@ -598,7 +598,8 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 		gd.grabExcessHorizontalSpace = true;
 		gd.horizontalAlignment = SWT.FILL;
 		field.setLayoutData(gd);
-		field.setEnabled(currentNode.isEditable());
+		if (currentNode != null)
+			field.setEnabled(currentNode.isEditable());
 	}
 
 	private void post(Label widget, Image icon) {
@@ -648,7 +649,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 			post(table, f, node);
 
 		// LOGGER.debug("Posted " + findings.count(FindingType.ERROR) + " : " + findings.count(FindingType.WARNING)
-		// + "  from " + findings.count());
+		// + " from " + findings.count());
 	}
 
 	private void post(Text widget, String text) {
@@ -937,7 +938,7 @@ public class RestResourceView extends OtmAbstractView implements ISelectionListe
 				return;
 			ResourceField field = (ResourceField) button.getData();
 			String value = button.getText();
-			// LOGGER.debug("Button  " + value + " selected? " + button.getSelection());
+			// LOGGER.debug("Button " + value + " selected? " + button.getSelection());
 			if (field.getListener() != null)
 				field.getListener().set(value);
 			refresh();
