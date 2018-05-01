@@ -237,7 +237,7 @@ public class LibraryNodeTest extends BaseProjectTest {
 		assertTrue("LibraryNavNodes must be different.", lnn1 != lnn2);
 		// hold onto for later use.
 		// List<Node> complexNamedtypes = lib2.getDescendants_NamedTypes();
-		int ln2NamedTypeCount = lib2.getDescendants_LibraryMemberNodes().size();
+		int ln2NamedTypeCount = lib2.getDescendants_LibraryMembersAsNodes().size();
 
 		// When - a library is removed
 		pc.remove(lnn1);
@@ -246,11 +246,11 @@ public class LibraryNodeTest extends BaseProjectTest {
 		assertTrue("Project 1 must be empty.", project1.getLibraries().isEmpty());
 		assertTrue("Project 1 must be empty.", project1.getChildren().isEmpty());
 		// Then - lib1 is lib2 therefore it must be altered.
-		assertTrue("Lib1 must NOT be empty.", !lib1.getDescendants_LibraryMemberNodes().isEmpty());
+		assertTrue("Lib1 must NOT be empty.", !lib1.getDescendants_LibraryMembersAsNodes().isEmpty());
 		// Then - check the other library to make sure it was not effected.
 		assertTrue("Lib2 must have same number of named types.",
-				lib2.getDescendants_LibraryMemberNodes().size() == ln2NamedTypeCount);
-		for (Node n : lib2.getDescendants_LibraryMemberNodes())
+				lib2.getDescendants_LibraryMembersAsNodes().size() == ln2NamedTypeCount);
+		for (Node n : lib2.getDescendants_LibraryMembersAsNodes())
 			assertTrue("Named type must not be deleted.", !n.isDeleted());
 
 		// Same test with libraries in a chain

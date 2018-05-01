@@ -141,7 +141,7 @@ public class LoadDepenedLibrariesAndResolvedTypes extends RepositoryIntegrationT
 		Assert.assertEquals(2, uploadProject.getChildren().size());
 		LibraryChainNode lib = findLibrary(extLib.getName(), uploadProject.getChildren());
 		Assert.assertTrue("Ext Library must be in project.", lib != null);
-		VWA_Node vwaNode = (VWA_Node) lib.getDescendants_LibraryMemberNodes().get(0);
+		VWA_Node vwaNode = (VWA_Node) lib.getDescendants_LibraryMembersAsNodes().get(0);
 		Assert.assertTrue("VWA must be found.", vwaNode instanceof VWA_Node);
 		AttributeNode attr = (AttributeNode) vwaNode.getFacet_Attributes().getChildren().get(0);
 		Assert.assertTrue("attribute must have assigned type.", !attr.isUnAssigned());

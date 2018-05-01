@@ -381,7 +381,7 @@ public class Clone_Tests {
 		ml.check(srcLib, false);
 
 		// When - all library members are cloned into this library
-		for (Node ne : srcLib.getDescendants_LibraryMemberNodes()) {
+		for (Node ne : srcLib.getDescendants_LibraryMembersAsNodes()) {
 			Node clone = ne.clone("c");
 			// Objects that can't be cloned return null.
 			if (clone != null)
@@ -464,7 +464,7 @@ public class Clone_Tests {
 		int mbrCount = 0, equCount = 0;
 		Node clone;
 
-		for (Node n : ln.getDescendants_LibraryMemberNodes()) {
+		for (Node n : ln.getDescendants_LibraryMembersAsNodes()) {
 			// Assert.assertNotNull(n.cloneNew(null)); // no library, so it will fail node tests
 			equCount = countEquivelents(n);
 			if (n instanceof ServiceNode)

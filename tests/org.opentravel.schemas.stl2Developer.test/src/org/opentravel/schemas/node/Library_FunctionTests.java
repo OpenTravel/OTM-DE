@@ -32,6 +32,7 @@ import org.opentravel.schemacompiler.model.TLContext;
 import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -226,27 +227,27 @@ public class Library_FunctionTests extends BaseProjectTest {
 		CoreObjectNode coExt = ml.addCoreObjectToLibrary(moveFrom, "COExt");
 		coExt.setExtension(coBase);
 		assertTrue(coExt.isInstanceOf(coBase));
-		assertTrue(moveFrom.getDescendants_LibraryMemberNodes().contains(coBase));
-		assertTrue(moveFrom.getDescendants_LibraryMemberNodes().contains(coExt));
+		assertTrue(moveFrom.getDescendants_LibraryMembers().contains(coBase));
+		assertTrue(moveFrom.getDescendants_LibraryMembers().contains(coExt));
 
 		LibraryNode moveTo = ml.createNewLibrary_Empty(testProject.getNamespace() + "/Test/TO", "MoveTo", testProject);
 		assertTrue("Move to library must be editable.", moveTo.isEditable());
 		CoreObjectNode coTo = ml.addCoreObjectToLibrary(moveTo, "COTO");
-		assertTrue(moveTo.getDescendants_LibraryMemberNodes().contains(coTo));
+		assertTrue(moveTo.getDescendants_LibraryMembersAsNodes().contains(coTo));
 
 		// when
 		Node newNode = moveTo.importNode(coBase);
 
 		// then - cloned node must be in target library
 		assertTrue("Imported noded must not be null.", newNode != null);
-		assertTrue(moveTo.getDescendants_LibraryMemberNodes().contains(newNode));
+		assertTrue(moveTo.getDescendants_LibraryMembers().contains(newNode));
 
 		// when
 		newNode = moveTo.importNode(coExt);
 
 		// then - cloned node must be in target library
 		assertTrue(newNode != null);
-		assertTrue(moveTo.getDescendants_LibraryMemberNodes().contains(newNode));
+		assertTrue(moveTo.getDescendants_LibraryMembers().contains(newNode));
 		assertTrue(newNode.isInstanceOf(coBase)); // should have cloned extension
 		// NOTE - no type resolution has happened yet so where extended will not be set.
 
@@ -271,14 +272,14 @@ public class Library_FunctionTests extends BaseProjectTest {
 		CoreObjectNode coExt = ComponentNodeBuilder.createCoreObject("COExt").extend(coBase).get(moveFrom);
 		assertTrue(coExt.isInstanceOf(coBase));
 
-		LibraryNode importTo = ml
-				.createNewLibrary_Empty(testProject.getNamespace() + "/Test/TO", "MoveTo", testProject);
+		LibraryNode importTo = ml.createNewLibrary_Empty(testProject.getNamespace() + "/Test/TO", "MoveTo",
+				testProject);
 
 		// when
-		importTo.importNodes(moveFrom.getDescendants_LibraryMemberNodes(), false);
+		importTo.importNodes(moveFrom.getDescendants_LibraryMembersAsNodes(), false);
 
 		// then
-		assertEquals(2, importTo.getDescendants_LibraryMemberNodes().size());
+		assertEquals(2, importTo.getDescendants_LibraryMembers().size());
 		Node newBase = importTo.findLibraryMemberByName("COBase");
 		Node newExt = importTo.findLibraryMemberByName("COExt");
 		assertTrue("Original extension must extend original base.", coExt.isInstanceOf(coBase));
@@ -295,15 +296,15 @@ public class Library_FunctionTests extends BaseProjectTest {
 		CoreObjectNode coExt = ComponentNodeBuilder.createCoreObject("COExt").extend(coBase).get(moveFrom);
 		assertTrue(coExt.isInstanceOf(coBase));
 
-		LibraryNode importTo = ml
-				.createNewLibrary_Empty(testProject.getNamespace() + "/Test/TO", "MoveTo", testProject);
+		LibraryNode importTo = ml.createNewLibrary_Empty(testProject.getNamespace() + "/Test/TO", "MoveTo",
+				testProject);
 		assertTrue("Import to library must be editable.", importTo.isEditable());
 
 		// when - global import
-		importTo.importNodes(moveFrom.getDescendants_LibraryMemberNodes(), true);
+		importTo.importNodes(moveFrom.getDescendants_LibraryMembersAsNodes(), true);
 
 		// then
-		assertEquals(2, importTo.getDescendants_LibraryMemberNodes().size());
+		assertEquals(2, importTo.getDescendants_LibraryMembers().size());
 		Node newBase = importTo.findLibraryMemberByName("COBase");
 		Node newExt = importTo.findLibraryMemberByName("COExt");
 		boolean x = newExt.isInstanceOf(newBase);
@@ -337,7 +338,7 @@ public class Library_FunctionTests extends BaseProjectTest {
 
 		//
 		// When - local import of both core objects
-		localLib.importNodes(sourceLib.getDescendants_LibraryMemberNodes(), false);
+		localLib.importNodes(sourceLib.getDescendants_LibraryMembersAsNodes(), false);
 
 		// Then - core objects are still in their original libraries.
 		assertTrue(sourceLib.contains(coBase));
@@ -366,7 +367,7 @@ public class Library_FunctionTests extends BaseProjectTest {
 
 		//
 		// When - global import of both core objects
-		globalLib.importNodes(sourceLib.getDescendants_LibraryMemberNodes(), true);
+		globalLib.importNodes(sourceLib.getDescendants_LibraryMembersAsNodes(), true);
 		CoreObjectNode globalBase = (CoreObjectNode) globalLib.findLibraryMemberByName("COBase");
 		CoreObjectNode globalExt = (CoreObjectNode) globalLib.findLibraryMemberByName("COExt");
 
@@ -446,14 +447,14 @@ public class Library_FunctionTests extends BaseProjectTest {
 			assertTrue(ln.hasGeneratedChildren());
 		}
 		assertTrue(ln.getChildren().size() > 1);
-		assertTrue(ln.getDescendants_LibraryMemberNodes().size() > 1);
+		assertTrue(ln.getDescendants_LibraryMembers().size() > 1);
 
 		if (ln.getName().equals("OTA2_BuiltIns_v2.0.0")) {
-			Assert.assertEquals(85, ln.getDescendants_LibraryMemberNodes().size());
+			Assert.assertEquals(85, ln.getDescendants_LibraryMembers().size());
 		}
 
 		if (ln.getName().equals("XMLSchema")) {
-			Assert.assertEquals(20, ln.getDescendants_LibraryMemberNodes().size());
+			Assert.assertEquals(20, ln.getDescendants_LibraryMembers().size());
 		}
 
 		if (!ln.isInChain()) {
@@ -509,44 +510,6 @@ public class Library_FunctionTests extends BaseProjectTest {
 			visitNode(nn);
 		}
 	}
-
-	// // Emulates the logic within the wizard
-	// private void testNewWizard(ProjectNode parent) {
-	// final String InitialVersionNumber = "0_1";
-	// final String prefix = "T1T";
-	// final DefaultLibraryController lc = new DefaultLibraryController(mc);
-	// final LibraryNode ln = new LibraryNode(parent);
-	// final String baseNS = parent.getNamespace();
-	// final ProjectNode pn = mc.getProjectController().getDefaultProject();
-	// final int libCnt = pn.getLibraries().size();
-	// // Strip the project file
-	// String path = pn.getPath();
-	// path = new File(path).getParentFile().getPath();
-	// path = new File(path, "Test.otm").getPath();
-	// final String name = "Test";
-	//
-	// String ns = ln.getNsHandler().createValidNamespace(baseNS, InitialVersionNumber);
-	// ln.getTLaLib().setNamespace(ns);
-	// ln.getTLaLib().setPrefix(prefix);
-	// ln.setPath(path);
-	// ln.setName(name);
-	// Assert.assertEquals(name, ln.getName());
-	// LOGGER.debug("Done setting up for wizard complete.Path = " + path);
-	//
-	// // This code runs after the wizard completes
-	// LibraryNode resultingLib = lc.createNewLibraryFromPrototype(ln, pn).getLibrary();
-	// // See DefaultLibraryControllerTests
-	//
-	// // LOGGER.debug("new library created. Cnt = " + pn.getLibraries().size());
-	// // Assert.assertEquals(libCnt + 1, pn.getLibraries().size());
-	// //
-	// // // Leave something in it
-	// // NewComponent_Tests nct = new NewComponent_Tests();
-	// // nct.createNewComponents(resultingLib);
-	// //
-	// // // resultingLib.getRepositoryDisplayName();
-	// // visitLibrary(resultingLib);
-	// }
 
 	@Test
 	public void LN_statusTests() {
@@ -642,7 +605,7 @@ public class Library_FunctionTests extends BaseProjectTest {
 	 */
 	private PropertyNode addContextUsers(LibraryNode lib) {
 		Node object = null;
-		for (Node n : lib.getDescendants_LibraryMemberNodes())
+		for (Node n : lib.getDescendants_LibraryMembersAsNodes())
 			object = n;
 		assertTrue(object != null);
 		TypeUser tu = null;
@@ -673,39 +636,90 @@ public class Library_FunctionTests extends BaseProjectTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void LN_moveMemberTests() throws Exception {
+		OTM16Upgrade.otm16Enabled = true;
+
 		// Given - from and to chains
 		LibraryChainNode fromChain = ml.createNewManagedLibrary("FromChain", defaultProject);
 		LibraryChainNode toChain = ml.createNewManagedLibrary("ToChain", defaultProject);
 		LibraryNode fromLib = ml.createNewLibrary("http://test.com/ns1", "FromLib", defaultProject);
 		LibraryNode toLib = ml.createNewLibrary("http://test.com/ns2", "ToLib", defaultProject);
-		Assert.assertTrue(fromLib.isEditable());
-		Assert.assertTrue(toLib.isEditable());
-		List<TLContext> toLibContexts = toLib.getTLLibrary().getContexts();
-		List<TLContext> fromLibContexts = fromLib.getTLLibrary().getContexts(); // live list
+		assertTrue(fromLib.isEditable());
+		assertTrue(toLib.isEditable());
 
-		// Then - verify Identity listener used in moveMember() so assure it is correct.
+		// Then - verify the contextual facets all have libraries assigned
+		for (LibraryMemberInterface cf : fromChain.getDescendants_LibraryMembers())
+			assertTrue(cf.getLibrary() == fromChain.getHead());
+		for (LibraryMemberInterface cf : toChain.getDescendants_LibraryMembers())
+			assertTrue(cf.getLibrary() == toChain.getHead());
+		for (LibraryMemberInterface cf : fromLib.getDescendants_LibraryMembers())
+			assertTrue(cf.getLibrary() == fromLib);
+		for (LibraryMemberInterface cf : toLib.getDescendants_LibraryMembers())
+			assertTrue(cf.getLibrary() == toLib);
+
+		// Then - Verify: Identity listener used in moveMember() so assure it is correct.
 		assertTrue(Node.GetNode(toLib.getTLModelObject()) == toLib);
 		assertTrue(Node.GetNode(fromLib.getTLModelObject()) == fromLib);
 
-		// Then - Assure context is used by a property (ex, eq, facet and other doc)
-		Node object = (Node) addContextUsers(fromLib).getOwningComponent();
-		Assert.assertEquals(2, fromLibContexts.size());
+		// Given - contexts in the to and from libraries
+		List<TLContext> toLibContexts = toLib.getTLLibrary().getContexts();
+		List<TLContext> fromLibContexts = fromLib.getTLLibrary().getContexts(); // live list
+		Assert.assertEquals(1, fromLibContexts.size());
 
-		// do the move and check to assure only one context in to-library
+		// When - A new context is used by a property (ex, eq, facet and other doc)
+		LibraryMemberInterface object = addContextUsers(fromLib).getOwningComponent();
+		assertTrue("object must not be null", object != null);
+		assertTrue(2 == fromLibContexts.size());
+		List<Node> kids = object.getChildren();
+
+		// Given - the members in the to library before any moves
 		List<LibraryMemberInterface> toMembers = toLib.getDescendants_LibraryMembers();
-		object.getLibrary().moveMember(object, toLib); // listener removed from toLib
+
+		// When - move the object from the from library to the to library
+		toLib.addMember(object);
+		// object.getLibrary().moveMember(object, toLib); // listener removed from toLib
+
+		// Then - check to assure only one context in to-library
 		Assert.assertEquals(2, fromLibContexts.size());
 		Assert.assertEquals(1, toLibContexts.size());
 		List<LibraryMemberInterface> toMbrs = toLib.getDescendants_LibraryMembers();
-		Assert.assertEquals(2, toLib.getDescendants_LibraryMembers().size()); // BO and CustomFacet
+		Assert.assertEquals(toMembers.size() + 1, toLib.getDescendants_LibraryMembers().size()); // BO and CustomFacet
 
+		// // Then - verify the contextual facets all have libraries assigned
+		// for (LibraryMemberInterface cf : fromChain.getDescendants_LibraryMembers())
+		// assertTrue(cf.getLibrary() == fromChain.getHead());
+		// for (LibraryMemberInterface cf : toChain.getDescendants_LibraryMembers())
+		// assertTrue(cf.getLibrary() == toChain.getHead());
+		// for (LibraryMemberInterface cf : fromLib.getDescendants_LibraryMembers())
+		// assertTrue(cf.getLibrary() == fromLib);
+		// for (LibraryMemberInterface cf : toLib.getDescendants_LibraryMembers())
+		// assertTrue(cf.getLibrary() == toLib);
+
+		//
+		// Part 2
+		//
 		// Load up the old test libraries and move lots and lots of stuff then test to-library
 		ModelNode model = mc.getModelNode();
 		lf.loadTestGroupA(mc);
 
+		// // Then - verify the contextual facets all have libraries assigned
+		// for (LibraryMemberInterface cf : fromChain.getDescendants_LibraryMembers())
+		// assertTrue(cf.getLibrary() == fromChain.getHead());
+		// for (LibraryMemberInterface cf : toChain.getDescendants_LibraryMembers())
+		// assertTrue(cf.getLibrary() == toChain.getHead());
+		// for (LibraryMemberInterface cf : fromLib.getDescendants_LibraryMembers())
+		// assertTrue(cf.getLibrary() == fromLib);
+		// for (LibraryMemberInterface cf : toLib.getDescendants_LibraryMembers())
+		// assertTrue(cf.getLibrary() == toLib);
+		//
+		// LibraryNode fromChainLib = fromChain.getHead();
+		// List<LibraryMemberInterface> l1 = fromChain.getDescendants_LibraryMembers();
+		// List<LibraryMemberInterface> l2 = fromChainLib.getDescendants_LibraryMembers();
+		// for (LibraryMemberInterface cf : l2)
+		// assertTrue(cf.getLibrary() == fromChainLib);
+
 		// Identity listener used in moveMember() so assure it is correct.
-		assertTrue(Node.GetNode(toLib.getTLLibrary()) == toLib);
-		int count = toLib.getDescendants_LibraryMembers().size();
+		// assertTrue(Node.GetNode(toLib.getTLLibrary()) == toLib);
+		// int count = toLib.getDescendants_LibraryMembers().size();
 		for (LibraryNode ln : model.getUserLibraries()) {
 			if (ln != toLib && ln != fromLib) {
 				// if (!ln.isInChain())
@@ -714,31 +728,43 @@ public class Library_FunctionTests extends BaseProjectTest {
 				int libCount = ln.getDescendants_LibraryMembers().size();
 				assertTrue(Node.GetNode(ln.getTLLibrary()) == ln);
 
+				List<LibraryMemberInterface> descendants = ln.getDescendants_LibraryMembers();
 				for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers()) {
 					if (n instanceof ServiceNode)
 						continue;
 
 					LOGGER.debug("Moving " + n + " from " + n.getLibrary() + " to " + toLib);
+					assertTrue(n.getLibrary() != null);
 					assertTrue(n.getLibrary() == ln);
 					assertTrue(n.getLibrary().isEditable());
 					assertTrue(toLib.isEditable());
 					try {
-						n.getLibrary().moveMember((Node) n, toLib);
-						count++;
+						// When - move the member by adding to new library
+						// n.getLibrary().moveMember((Node) n, toLib);
+						toLib.addMember(n);
+						libCount--;
+
+						// Move member bug was changing contextual facet's libraries
+						List<LibraryMemberInterface> l1 = fromChain.getDescendants_LibraryMembers();
+						List<LibraryMemberInterface> l2 = fromChain.getHead().getDescendants_LibraryMembers();
+						for (LibraryMemberInterface cf : fromChain.getDescendants_LibraryMembers())
+							assertTrue(cf.getLibrary() == fromChain.getHead());
+
+						// count++;
 						assertTrue("To Lib must contain moved member.",
 								toLib.getDescendants_LibraryMembers().contains(n));
 
 						// Make sure the node is removed.
-						if (libCount - 1 != ln.getDescendants_LibraryMembers().size()) {
+						if (libCount != ln.getDescendants_LibraryMembers().size()) {
 							List<LibraryMemberInterface> dl = ln.getDescendants_LibraryMembers();
 							LOGGER.debug("Bad Counts: " + dl.size());
 						}
 						// Assert.assertEquals(--libCount, ln.getDescendants_LibraryMembers().size());
 
 						// Track toLib count growth - use to breakpoint when debugging
-						int toCount = toLib.getDescendants_LibraryMembers().size();
-						if (count != toCount)
-							LOGGER.debug("Problem with " + n);
+						// int toCount = toLib.getDescendants_LibraryMembers().size();
+						// if (count != toCount)
+						// LOGGER.debug("Problem with " + n);
 						// count = toCount; // fix the count so the loop can continue
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -750,10 +776,8 @@ public class Library_FunctionTests extends BaseProjectTest {
 		}
 
 		Assert.assertEquals(1, toLibContexts.size());
-		Assert.assertEquals(count, toLib.getDescendants_LibraryMembers().size());
 
-		// FIXME Assert.assertFalse(fromChain.getContextIds().isEmpty());
-		// FIXME Assert.assertFalse(toChain.getContextIds().isEmpty());
+		OTM16Upgrade.otm16Enabled = false;
 	}
 
 	@Test
@@ -773,17 +797,17 @@ public class Library_FunctionTests extends BaseProjectTest {
 		// Test un-managed
 		ln.addMember(s1);
 		assertEquals(1, ln.getSimpleRoot().getChildren().size());
-		assertEquals(1, ln.getDescendants_LibraryMemberNodes().size());
+		assertEquals(1, ln.getDescendants_LibraryMembers().size());
 		ln.addMember(s2);
 		assertEquals(2, ln.getSimpleRoot().getChildren().size());
-		assertEquals(2, ln.getDescendants_LibraryMemberNodes().size());
+		assertEquals(2, ln.getDescendants_LibraryMembers().size());
 		assertTrue(ln.contains(s1));
 
 		// Test managed
 		ln_inChain.addMember(sv1);
 		ln_inChain.addMember(sv2);
 		assertEquals(2, ln_inChain.getSimpleRoot().getChildren().size());
-		assertEquals(2, ln_inChain.getDescendants_LibraryMemberNodes().size());
+		assertEquals(2, ln_inChain.getDescendants_LibraryMembers().size());
 		assertEquals(2, lcn.getSimpleAggregate().getChildren().size());
 		assertTrue(lcn.contains(sv1));
 

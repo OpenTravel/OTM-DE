@@ -385,7 +385,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// }
 		// assertTrue(mn != null);
 		// }
-		ArrayList<Node> nodes = new ArrayList<>(newMajor.getDescendants_LibraryMemberNodes());
+		ArrayList<Node> nodes = new ArrayList<>(newMajor.getDescendants_LibraryMembersAsNodes());
 		for (Node n : nodes) {
 			n.setName(n.getName() + "_TEST");
 			// TODO - modify properties
@@ -444,7 +444,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// Try all the things we are allowed to do in a minor
 		//
 		// Ensure it creates a BO in the minor and it extends the original BO
-		assertTrue(!minorLibrary.getDescendants_LibraryMemberNodes().contains(bo));
+		assertTrue(!minorLibrary.getDescendants_LibraryMembersAsNodes().contains(bo));
 		assertTrue(bo.isEditable()); // is the chain that contains it editable?
 
 		BusinessObjectNode boInMinor = (BusinessObjectNode) bo.createMinorVersionComponent();
@@ -452,7 +452,7 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		assertTrue(boInMinor.isEditable());
 		assertTrue(!boInMinor.isEditable_newToChain());
 		Assert.assertEquals(NodeEditStatus.MINOR, boInMinor.getEditStatus());
-		assertTrue(minorLibrary.getDescendants_LibraryMemberNodes().contains(boInMinor));
+		assertTrue(minorLibrary.getDescendants_LibraryMembersAsNodes().contains(boInMinor));
 
 		// change a pre-existing old property
 		PropertyNode oldProperty = (PropertyNode) bo.getFacet_Summary().getChildren().get(0);
@@ -770,9 +770,9 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// }
 		Assert.assertFalse(co.isEditable_newToChain());
 		Assert.assertEquals(1, nco.getFacet_Summary().getChildren().size());
-		Assert.assertTrue(chain.getDescendants_LibraryMemberNodes().contains(nco));
-		Assert.assertTrue(minorLibrary.getDescendants_LibraryMemberNodes().contains(nco));
-		Assert.assertFalse(majorLibrary.getDescendants_LibraryMemberNodes().contains(nco));
+		Assert.assertTrue(chain.getDescendants_LibraryMembersAsNodes().contains(nco));
+		Assert.assertTrue(minorLibrary.getDescendants_LibraryMembersAsNodes().contains(nco));
+		Assert.assertFalse(majorLibrary.getDescendants_LibraryMembersAsNodes().contains(nco));
 
 		return nco;
 	}
@@ -789,9 +789,9 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		Assert.assertNotNull(nbo);
 		Assert.assertNotNull(nbo.getVersionNode().getPreviousVersion());
 		Assert.assertEquals(1, nbo.getFacet_Summary().getChildren().size());
-		Assert.assertTrue(chain.getDescendants_LibraryMemberNodes().contains(nbo));
-		Assert.assertTrue(minorLibrary.getDescendants_LibraryMemberNodes().contains(nbo));
-		Assert.assertFalse(majorLibrary.getDescendants_LibraryMemberNodes().contains(nbo));
+		Assert.assertTrue(chain.getDescendants_LibraryMembersAsNodes().contains(nbo));
+		Assert.assertTrue(minorLibrary.getDescendants_LibraryMembersAsNodes().contains(nbo));
+		Assert.assertFalse(majorLibrary.getDescendants_LibraryMembersAsNodes().contains(nbo));
 
 		return nbo;
 	}
@@ -808,9 +808,9 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 		// Make sure a new was created in the newMinor library.
 		Assert.assertNotNull(nVwa);
 		Assert.assertEquals(1, nVwa.getFacet_Attributes().getChildren().size());
-		Assert.assertTrue(chain.getDescendants_LibraryMemberNodes().contains(nVwa));
-		Assert.assertTrue(minorLibrary.getDescendants_LibraryMemberNodes().contains(nVwa));
-		Assert.assertFalse(majorLibrary.getDescendants_LibraryMemberNodes().contains(nVwa));
+		Assert.assertTrue(chain.getDescendants_LibraryMembersAsNodes().contains(nVwa));
+		Assert.assertTrue(minorLibrary.getDescendants_LibraryMembersAsNodes().contains(nVwa));
+		Assert.assertFalse(majorLibrary.getDescendants_LibraryMembersAsNodes().contains(nVwa));
 
 		return nVwa;
 	}
@@ -842,8 +842,8 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	public void testMove() {
 		// This will work because moveMember is at the model level. It is used by the controller
 		// which applies the business logic if it is valid to move.
-		List<Node> namedTypes = chain.getDescendants_LibraryMemberNodes();
-		int namedTypeCnt = chain.getDescendants_LibraryMemberNodes().size();
+		List<Node> namedTypes = chain.getDescendants_LibraryMembersAsNodes();
+		int namedTypeCnt = chain.getDescendants_LibraryMembersAsNodes().size();
 		LOGGER.debug("testMove " + TotalDescendents + " " + namedTypeCnt + " " + bo.getLibrary());
 
 		// FIXME -
@@ -1108,24 +1108,24 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 	private void checkCounts(LibraryChainNode chain) {
 
 		// Make sure all the base objects are accessible.
-		List<Node> namedTypes = chain.getDescendants_LibraryMemberNodes();
-		int namedTypeCnt = chain.getDescendants_LibraryMemberNodes().size();
+		List<Node> namedTypes = chain.getDescendants_LibraryMembersAsNodes();
+		int namedTypeCnt = chain.getDescendants_LibraryMembersAsNodes().size();
 		Assert.assertEquals(TotalDescendents, namedTypeCnt);
 
 		// Make sure all the types are in the versions aggregate
 		// Only gets "head" objects in a version chain by using the aggregate.
 		AggregateNode aggregate = chain.getComplexAggregate();
-		List<Node> nt = aggregate.getDescendants_LibraryMemberNodes();
-		namedTypeCnt = aggregate.getDescendants_LibraryMemberNodes().size();
+		List<Node> nt = aggregate.getDescendants_LibraryMembersAsNodes();
+		namedTypeCnt = aggregate.getDescendants_LibraryMembersAsNodes().size();
 		Assert.assertEquals(AggregateComplex, namedTypeCnt);
 
 		// FIXME - should be 8. The patch extension point should not be included because it is
 		// wrapped up into the minor
-		namedTypeCnt = chain.getSimpleAggregate().getDescendants_LibraryMemberNodes().size();
+		namedTypeCnt = chain.getSimpleAggregate().getDescendants_LibraryMembersAsNodes().size();
 		Assert.assertEquals(AggregateSimple, namedTypeCnt);
 
 		// Check the service
-		namedTypeCnt = chain.getServiceAggregate().getDescendants_LibraryMemberNodes().size();
+		namedTypeCnt = chain.getServiceAggregate().getDescendants_LibraryMembersAsNodes().size();
 		Assert.assertEquals(1, namedTypeCnt);
 
 		// Check counts against the underlying TL library
@@ -1182,9 +1182,9 @@ public class VersionsTest extends RepositoryIntegrationTestBase {
 			cEnum = ncEnum;
 			oEnum = noEnum;
 
-			TotalDescendents = lib.getChain().getDescendants_LibraryMemberNodes().size();
-			AggregateComplex = lib.getChain().getComplexAggregate().getDescendants_LibraryMemberNodes().size();
-			AggregateSimple = lib.getChain().getSimpleAggregate().getDescendants_LibraryMemberNodes().size();
+			TotalDescendents = lib.getChain().getDescendants_LibraryMembersAsNodes().size();
+			AggregateComplex = lib.getChain().getComplexAggregate().getDescendants_LibraryMembersAsNodes().size();
+			AggregateSimple = lib.getChain().getSimpleAggregate().getDescendants_LibraryMembersAsNodes().size();
 		}
 	}
 

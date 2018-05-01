@@ -223,7 +223,7 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 	 *            library containing the referenced object
 	 */
 	private void testExtension(LibraryNode ln, LibraryNode eln) {
-		List<Node> namedTypes = ln.getDescendants_LibraryMemberNodes();
+		List<Node> namedTypes = ln.getDescendants_LibraryMembersAsNodes();
 		for (Node n : namedTypes) {
 			// Then - the EP exists
 			// Then - the EP has a referenced object
@@ -244,7 +244,7 @@ public class NewComponent_Tests extends RepositoryIntegrationTestBase {
 	}
 
 	private void testNewVersion(LibraryNode ln, LibraryNode major) {
-		List<Node> namedTypes = major.getDescendants_LibraryMemberNodes();
+		List<Node> namedTypes = major.getDescendants_LibraryMembersAsNodes();
 		for (Node n : namedTypes) {
 			if (n instanceof VersionedObjectInterface) {
 				LOGGER.debug("Version Extension owner: " + n);

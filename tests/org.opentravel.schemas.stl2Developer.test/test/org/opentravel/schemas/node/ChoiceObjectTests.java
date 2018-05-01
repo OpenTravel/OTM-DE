@@ -103,7 +103,7 @@ public class ChoiceObjectTests {
 
 		new LibraryChainNode(testLib); // Test in a chain
 
-		for (Node choice : testLib.getDescendants_LibraryMemberNodes()) {
+		for (Node choice : testLib.getDescendants_LibraryMembersAsNodes()) {
 			if (choice instanceof ChoiceObjectNode) {
 				check((ChoiceObjectNode) choice, true);
 

@@ -264,7 +264,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	public List<Node> getSelectedNodes() {
 		if (!getMainWindow().hasDisplay() && curNode != null) {
 			// provide random content for testing
-			return new ArrayList<>(curNode.getDescendants_LibraryMemberNodes());
+			return new ArrayList<>(curNode.getDescendants_LibraryMembersAsNodes());
 		}
 		return new ArrayList<>(selectedNodes);
 	}

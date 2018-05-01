@@ -90,7 +90,7 @@ public interface INode {
 	 * 
 	 * @return all descendants that are named types.
 	 */
-	public List<Node> getDescendants_LibraryMemberNodes();
+	public List<Node> getDescendants_LibraryMembersAsNodes();
 
 	/**
 	 * @return equivalent handler if supported, null otherwise

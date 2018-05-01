@@ -87,7 +87,7 @@ public class ChangeTo_Tests {
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "bo");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "co");
 		VWA_Node tVwa = null, vwa = ml.addVWA_ToLibrary(ln, "vwa");
-		int typeCount = ln.getDescendants_LibraryMemberNodes().size();
+		int typeCount = ln.getDescendants_LibraryMembersAsNodes().size();
 
 		VWA_Tests tests = new VWA_Tests();
 		tVwa = (VWA_Node) bo.changeObject(SubType.VALUE_WITH_ATTRS);
@@ -98,7 +98,7 @@ public class ChangeTo_Tests {
 		tests.check(tVwa);
 
 		// tn.visit(ln);
-		Assert.assertEquals(typeCount, ln.getDescendants_LibraryMemberNodes().size());
+		Assert.assertEquals(typeCount, ln.getDescendants_LibraryMembersAsNodes().size());
 	}
 
 	@Test
@@ -156,8 +156,8 @@ public class ChangeTo_Tests {
 		assertEquals(coreWhereAssignedCount, vwa.getWhereUsedAndDescendantsCount());
 		assertEquals(vwa, p2.getAssignedType());
 		assertEquals(vwa, p3.getAssignedType());
-		assertTrue("VWA must be in the library after swap.", ln.getDescendants_LibraryMemberNodes().contains(vwa));
-		assertTrue("Core must NOT be in the library after swap.", !ln.getDescendants_LibraryMemberNodes()
+		assertTrue("VWA must be in the library after swap.", ln.getDescendants_LibraryMembersAsNodes().contains(vwa));
+		assertTrue("Core must NOT be in the library after swap.", !ln.getDescendants_LibraryMembersAsNodes()
 				.contains(core));
 	}
 
@@ -183,8 +183,8 @@ public class ChangeTo_Tests {
 		tn.visit(core);
 		assertEquals("A", core.getName());
 		assertEquals(boCount, core.getFacet_Summary().getChildren().size());
-		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMemberNodes().contains(core));
-		assertTrue("BO must NOT be in the library after swap.", !ln.getDescendants_LibraryMemberNodes().contains(bo));
+		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMembersAsNodes().contains(core));
+		assertTrue("BO must NOT be in the library after swap.", !ln.getDescendants_LibraryMembersAsNodes().contains(bo));
 
 		// When - core created from VWA replaces VWA
 		core = new CoreObjectNode(vwa);
@@ -197,8 +197,8 @@ public class ChangeTo_Tests {
 		assertEquals(core.getAssignedType(), vwa.getAssignedType());
 		assertEquals(core.getTLModelObject().getSummaryFacet().getAttributes().size(), core.getFacet_Summary()
 				.getChildren().size());
-		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMemberNodes().contains(core));
-		assertTrue("VWA must NOT be in the library after swap.", !ln.getDescendants_LibraryMemberNodes().contains(vwa));
+		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMembersAsNodes().contains(core));
+		assertTrue("VWA must NOT be in the library after swap.", !ln.getDescendants_LibraryMembersAsNodes().contains(vwa));
 	}
 
 	@Test
@@ -309,7 +309,7 @@ public class ChangeTo_Tests {
 		ln.setEditable(true);
 
 		// Get all library members and change them.
-		for (Node n : ln.getDescendants_LibraryMemberNodes()) {
+		for (Node n : ln.getDescendants_LibraryMembersAsNodes()) {
 			equCount = countEquivelents((LibraryMemberInterface) n);
 			// if (n.getName().equals("EmploymentZZZ"))
 			// LOGGER.debug("Doing EmploymentZZZ");

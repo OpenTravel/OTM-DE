@@ -155,7 +155,7 @@ public class ResourceObjectTests {
 		// Given - a valid resource using mock library provided business object
 		LibraryNode srcLib = ml.createNewLibrary(pc, "ResourceTestLib");
 		BusinessObjectNode bo = null;
-		for (Node n : srcLib.getDescendants_LibraryMemberNodes())
+		for (Node n : srcLib.getDescendants_LibraryMembersAsNodes())
 			if (n instanceof BusinessObjectNode) {
 				bo = (BusinessObjectNode) n;
 				break;
@@ -173,7 +173,7 @@ public class ResourceObjectTests {
 		ml.check(resource);
 		// Then - it is copied and is valid
 		ResourceNode newResource = null;
-		for (Node r : destLib.getDescendants_LibraryMemberNodes())
+		for (Node r : destLib.getDescendants_LibraryMembersAsNodes())
 			if (r.getName().equals(resource.getName()))
 				newResource = (ResourceNode) r;
 		assertTrue(destLib.contains(newResource));

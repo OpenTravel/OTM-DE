@@ -751,7 +751,7 @@ public abstract class Node implements INode {
 	 */
 	@Override
 	@Deprecated
-	public List<Node> getDescendants_LibraryMemberNodes() {
+	public List<Node> getDescendants_LibraryMembersAsNodes() {
 		// keep duplicates out of the list that version aggregates may introduce
 		HashSet<Node> namedKids = new HashSet<>();
 		if (getChildrenHandler() != null)

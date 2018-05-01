@@ -176,7 +176,7 @@ public class RepositoryView extends OtmAbstractView implements ISelectionListene
 	public List<Node> getSelectedNodes() {
 		if (!getMainWindow().hasDisplay() && curNode != null) {
 			// provide random content for testing
-			return new ArrayList<Node>(curNode.getLibrary().getDescendants_LibraryMemberNodes());
+			return new ArrayList<Node>(curNode.getLibrary().getDescendants_LibraryMembersAsNodes());
 		}
 		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
 		Iterator<?> iter = selection.iterator();

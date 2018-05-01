@@ -688,7 +688,7 @@
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			defaultHandler="org.opentravel.schemas.commands.SaveLibrariesHandler"
-			id="org.opentravel.schemas.commands.SaveAllLibraries" name="Save All In Project">
+			id="org.opentravel.schemas.commands.SaveAllLibraries" name="Save All">
 		</command>
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			id="org.opentravel.schemas.commands.SaveLibrary" name="Save">

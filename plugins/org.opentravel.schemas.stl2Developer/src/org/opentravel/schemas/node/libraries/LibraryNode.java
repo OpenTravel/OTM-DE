@@ -734,6 +734,10 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 		assert getChildrenHandler() != null;
 		assert lm.getTLModelObject() != null;
 		assert lm.getTLModelObject() instanceof LibraryMember;
+		// Hold onto number of contextual facets for assertion at end
+		int cfCount = 0;
+		if (lm instanceof ContextualFacetOwnerInterface)
+			cfCount = ((ContextualFacetOwnerInterface) lm).getContextualFacets(false).size();
 
 		if (!isEditable() && !(lm instanceof InheritedInterface)) {
 			LOGGER.warn("Tried to addMember() " + lm + " to non-editable library " + this);
@@ -743,9 +747,11 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 		// Remove from Old library if any
 		LibraryNode oldLib = lm.getLibrary();
 		if (oldLib != null && oldLib != this) {
-			oldLib.removeMember((Node) lm);
+			oldLib.removeMember(lm, false);
 			assert !oldLib.contains((Node) lm);
 		}
+		if (lm instanceof ContextualFacetOwnerInterface)
+			assert cfCount == ((ContextualFacetOwnerInterface) lm).getContextualFacets(false).size();
 
 		if (this.contains((Node) lm))
 			return; // early exit - already a member
@@ -762,8 +768,6 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 
 		getChildrenHandler().add(lm);
 
-		assert this.contains((Node) lm);
-
 		// If the TL object has contextual facets, make sure they are modeled and add to this library if not
 		if (lm.getChildrenHandler() != null)
 			for (TLModelElement tlcf : lm.getChildrenHandler().getChildren_TL())
@@ -772,6 +776,11 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 
 		// Make sure it did not bring additional contexts with it
 		collapseContexts(); // TODO - optimize to just object not whole library
+
+		assert this.contains((Node) lm);
+		if (lm instanceof ContextualFacetOwnerInterface)
+			assert cfCount == ((ContextualFacetOwnerInterface) lm).getContextualFacets(false).size();
+
 	}
 
 	public boolean isInChain() {
@@ -951,7 +960,7 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	 */
 
 	/**
-	 * Remove the node from its library. and from the underlying tl library.
+	 * Remove the node from its library and from the underlying tl library.
 	 * <p>
 	 * Does <b>not</b> delete the node or its TL Object contents. TL type assignments are assured to match the
 	 * assignments in TypeNode.
@@ -963,19 +972,23 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	public void removeMember(final Node n) {
 		if (!(n.getTLModelObject() instanceof LibraryMember))
 			return;
+		removeMember((LibraryMemberInterface) n, true);
+	}
+
+	public void removeMember(final LibraryMemberInterface n, boolean alsoDoContextualFacets) {
 		if (isBuiltIn())
 			return;
 
 		// Nov 18, 2017 - workaround for compiler bug in tlBusinessObject
-		if (n instanceof BusinessObjectNode)
-			for (AbstractContextualFacet cf : ((BusinessObjectNode) n).getContextualFacets())
+		if (alsoDoContextualFacets && n instanceof BusinessObjectNode)
+			for (AbstractContextualFacet cf : ((BusinessObjectNode) n).getContextualFacets(false))
 				if (cf instanceof ContextualFacetNode)
 					cf.delete();
 
 		if (getChildrenHandler() != null) {
 			n.getLibrary().getTLModelObject().removeNamedMember((LibraryMember) n.getTLModelObject());
 			if (n instanceof ServiceNode)
-				((NavNode) n.getParent()).removeLM((LibraryMemberInterface) n); // all others done in listener
+				((NavNode) n.getParent()).removeLM(n); // all others done in listener
 		} else {
 			assert false;
 		}
@@ -1503,7 +1516,7 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	 */
 	@Deprecated
 	public List<Node> getDescendentsNamedTypes() {
-		return getDescendants_LibraryMemberNodes();
+		return getDescendants_LibraryMembersAsNodes();
 	}
 
 	/**

@@ -926,7 +926,7 @@ public class FacetsTests {
 		checkFacetContents(baseLib, "ExtFacetTestChoice", 1);
 
 		// Then extensions must have inherited children
-		for (Node n : baseLib.getDescendants_LibraryMemberNodes()) {
+		for (Node n : baseLib.getDescendants_LibraryMembersAsNodes()) {
 			if (n instanceof ExtensionOwner)
 				if (((ExtensionOwner) n).getExtensionBase() != null) {
 					// Contextual facets should all have inherited properties
@@ -964,7 +964,7 @@ public class FacetsTests {
 	 *            number of other facets (contributed)
 	 */
 	private void checkFacetContents(Node node, String targetName, int contextual) {
-		for (Node n : node.getDescendants_LibraryMemberNodes())
+		for (Node n : node.getDescendants_LibraryMembersAsNodes())
 			if (n.getName().equals(targetName)) {
 				List<AbstractContextualFacet> facets = null;
 				if (n instanceof ContextualFacetOwnerInterface)

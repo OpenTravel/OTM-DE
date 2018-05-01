@@ -679,7 +679,7 @@ public class MainController {
 
 	public static boolean checkModelCounts(final LibraryNode lib) {
 		int tlCount = 0, guiCount = 0;
-		guiCount = lib.getDescendants_LibraryMemberNodes().size();
+		guiCount = lib.getDescendants_LibraryMembersAsNodes().size();
 		tlCount = lib.getTLaLib().getNamedMembers().size();
 		if (guiCount != tlCount) {
 			LOGGER.error("GUI member count " + guiCount + " is out of sync with TL model " + tlCount + ".");

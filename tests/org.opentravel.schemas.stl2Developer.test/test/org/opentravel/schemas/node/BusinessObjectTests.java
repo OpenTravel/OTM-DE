@@ -111,7 +111,7 @@ public class BusinessObjectTests {
 
 		List<LibraryNode> libs = mc.getModelNode().getUserLibraries();
 		for (LibraryNode lib : libs) {
-			for (Node bo : lib.getDescendants_LibraryMemberNodes()) {
+			for (Node bo : lib.getDescendants_LibraryMembersAsNodes()) {
 				if (bo instanceof BusinessObjectNode)
 					check((BusinessObjectNode) bo);
 			}
@@ -119,7 +119,7 @@ public class BusinessObjectTests {
 				continue;
 			// Repeat test with library in a chain
 			LibraryChainNode lcn = new LibraryChainNode(lib);
-			for (Node bo : lcn.getDescendants_LibraryMemberNodes()) {
+			for (Node bo : lcn.getDescendants_LibraryMembersAsNodes()) {
 				if (bo instanceof BusinessObjectNode)
 					check((BusinessObjectNode) bo);
 			}
@@ -375,7 +375,7 @@ public class BusinessObjectTests {
 
 		// File 1 has a business object Profile with 5 facets and 1 alias
 		BusinessObjectNode bo = null;
-		List<Node> members = ln.getDescendants_LibraryMemberNodes();
+		List<Node> members = ln.getDescendants_LibraryMembersAsNodes();
 		for (Node n : members)
 			if (n.getName().equals("Profile") && n instanceof BusinessObjectNode)
 				bo = (BusinessObjectNode) n;

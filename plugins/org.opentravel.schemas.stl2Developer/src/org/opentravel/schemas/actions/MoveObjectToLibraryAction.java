@@ -17,7 +17,6 @@ package org.opentravel.schemas.actions;
 
 import java.util.List;
 
-import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -28,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Enabled by adding/removing actions from the menus by NavigatorMenus.
+ * 
  * @author Dave Hollander
  * 
  */
@@ -71,7 +72,7 @@ public class MoveObjectToLibraryAction extends OtmAbstractAction {
 			Node refocus = sourceNodes.get(0).getParent();
 			for (final ComponentNode sourceNode : sourceNodes) {
 				if (!destination.equals(sourceNode.getLibrary())) {
-					moveNode2(sourceNode, destination);
+					moveNode(sourceNode, destination);
 				}
 			}
 			mc.refresh();
@@ -81,7 +82,7 @@ public class MoveObjectToLibraryAction extends OtmAbstractAction {
 		}
 	}
 
-	private void moveNode2(final ComponentNode source, final LibraryNode destination) {
+	private void moveNode(final ComponentNode source, final LibraryNode destination) {
 		String warning = null;
 		if (destination == null)
 			warning = "Destination library is missing.";
@@ -111,43 +112,43 @@ public class MoveObjectToLibraryAction extends OtmAbstractAction {
 
 	}
 
-	/**
-	 * Move one node to the new destination library. Links the node, the tl object and corrects context.
-	 * 
-	 * @param source
-	 * @param destination
-	 */
-	public void moveNode(final ComponentNode source, final LibraryNode destination) {
-		if (destination == null || source == null) {
-			LOGGER.warn("Object move impossible - either destination or source is null");
-			return;
-		}
-		if (!destination.isTLLibrary()) {
-			LOGGER.warn("Cannot move to built in or XSD libraries");
-			DialogUserNotifier.openInformation("WARNING", "You can not move object to a built-in or XSD library.");
-			return;
-		}
-		// TODO - use this instead:
-		if (source.getChain().contains(destination))
-			LOGGER.debug("Source chain contains destination.");
-		if (source.getChain() != null && source.getChain() == destination.getChain()) {
-			DialogUserNotifier.openInformation("WARNING",
-					"You can not move object within the same library version chain.");
-			return;
-		}
-		if (!source.isInTLLibrary() || !(source.getTLModelObject() instanceof LibraryMember)) {
-			LOGGER.warn("Cannot move - " + source.getName() + " node is not in TLLibrary or is not top level object");
-			DialogUserNotifier.openInformation("WARNING",
-					"You can not move object from a built-in or XSD library; use control-drag to copy.");
-			return;
-		}
-		try {
-			source.getLibrary().moveMember(source, destination);
-		} catch (Exception e) {
-			LOGGER.error("Move Exception: " + e.getLocalizedMessage());
-			DialogUserNotifier.openError("Move Error", e.getLocalizedMessage());
-			return;
-		}
-		// LOGGER.info("Moved " + source + " to " + destination);
-	}
+	// /**
+	// * Move one node to the new destination library. Links the node, the tl object and corrects context.
+	// *
+	// * @param source
+	// * @param destination
+	// */
+	// public void moveNode(final ComponentNode source, final LibraryNode destination) {
+	// if (destination == null || source == null) {
+	// LOGGER.warn("Object move impossible - either destination or source is null");
+	// return;
+	// }
+	// if (!destination.isTLLibrary()) {
+	// LOGGER.warn("Cannot move to built in or XSD libraries");
+	// DialogUserNotifier.openInformation("WARNING", "You can not move object to a built-in or XSD library.");
+	// return;
+	// }
+	// // TODO - use this instead:
+	// if (source.getChain().contains(destination))
+	// LOGGER.debug("Source chain contains destination.");
+	// if (source.getChain() != null && source.getChain() == destination.getChain()) {
+	// DialogUserNotifier.openInformation("WARNING",
+	// "You can not move object within the same library version chain.");
+	// return;
+	// }
+	// if (!source.isInTLLibrary() || !(source.getTLModelObject() instanceof LibraryMember)) {
+	// LOGGER.warn("Cannot move - " + source.getName() + " node is not in TLLibrary or is not top level object");
+	// DialogUserNotifier.openInformation("WARNING",
+	// "You can not move object from a built-in or XSD library; use control-drag to copy.");
+	// return;
+	// }
+	// try {
+	// source.getLibrary().moveMember(source, destination);
+	// } catch (Exception e) {
+	// LOGGER.error("Move Exception: " + e.getLocalizedMessage());
+	// DialogUserNotifier.openError("Move Error", e.getLocalizedMessage());
+	// return;
+	// }
+	// // LOGGER.info("Moved " + source + " to " + destination);
+	// }
 }

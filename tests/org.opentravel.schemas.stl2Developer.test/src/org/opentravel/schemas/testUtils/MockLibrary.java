@@ -490,8 +490,8 @@ public class MockLibrary {
 		// Verify libraries and objects match
 		assertTrue(n1.getLibrary() == ln1);
 		assertTrue(n2.getLibrary() == ln2);
-		assertTrue(ln1.getDescendants_LibraryMemberNodes().contains(n1));
-		assertTrue(ln2.getDescendants_LibraryMemberNodes().contains(n2));
+		assertTrue(ln1.getDescendants_LibraryMembersAsNodes().contains(n1));
+		assertTrue(ln2.getDescendants_LibraryMembersAsNodes().contains(n2));
 
 		return n2;
 	}
@@ -659,7 +659,7 @@ public class MockLibrary {
 	 */
 	public ExtensionPointNode addEP(LibraryNode ln, LibraryNode eln) {
 		FacetInterface facet = null;
-		for (Node d : eln.getDescendants_LibraryMemberNodes())
+		for (Node d : eln.getDescendants_LibraryMembersAsNodes())
 			if (d instanceof BusinessObjectNode)
 				facet = ((BusinessObjectNode) d).getFacet_Summary();
 		return addExtensionPoint(ln, facet);

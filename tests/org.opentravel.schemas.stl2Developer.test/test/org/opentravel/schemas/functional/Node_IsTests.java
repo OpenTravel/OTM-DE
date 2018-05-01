@@ -92,7 +92,7 @@ public class Node_IsTests {
 
 		// Given - service nodes
 		BusinessObjectNode bo = null;
-		for (Node n : ln.getDescendants_LibraryMemberNodes())
+		for (Node n : ln.getDescendants_LibraryMembersAsNodes())
 			if (n instanceof BusinessObjectNode)
 				bo = (BusinessObjectNode) n;
 		ServiceNode sn = new ServiceNode(bo);

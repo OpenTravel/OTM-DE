@@ -298,16 +298,16 @@ public class ReplaceWith_Tests {
 		l1.setEditable(true);
 		// tt.visitAllNodes(l5);
 		// tt.visitAllNodes(l1);
-		int beforeCnt1 = l1.getDescendants_LibraryMemberNodes().size();
-		int beforeCnt5 = l5.getDescendants_LibraryMemberNodes().size();
+		int beforeCnt1 = l1.getDescendants_LibraryMembersAsNodes().size();
+		int beforeCnt5 = l5.getDescendants_LibraryMembersAsNodes().size();
 
 		replaceMembers(l1, l1);
 		replaceMembers(l1, l5);
 
 		tt.visitAllNodes(l1);
 		tt.visitAllNodes(l5);
-		Assert.assertEquals(beforeCnt1, l1.getDescendants_LibraryMemberNodes().size());
-		Assert.assertEquals(beforeCnt5, l5.getDescendants_LibraryMemberNodes().size());
+		Assert.assertEquals(beforeCnt1, l1.getDescendants_LibraryMembersAsNodes().size());
+		Assert.assertEquals(beforeCnt5, l5.getDescendants_LibraryMembersAsNodes().size());
 	}
 
 	@Test
@@ -379,9 +379,9 @@ public class ReplaceWith_Tests {
 	 */
 	private void replaceMembers(LibraryNode ls, LibraryNode lt) {
 		// Sort the list so that the order is consistent with each test.
-		List<Node> targets = lt.getDescendants_LibraryMemberNodes();
+		List<Node> targets = lt.getDescendants_LibraryMembersAsNodes();
 		Collections.sort(targets, lt.new NodeComparable());
-		List<Node> sources = ls.getDescendants_LibraryMemberNodes();
+		List<Node> sources = ls.getDescendants_LibraryMembersAsNodes();
 		Collections.sort(sources, ls.new NodeComparable());
 		int cnt = sources.size();
 
@@ -410,11 +410,11 @@ public class ReplaceWith_Tests {
 	 */
 	private void swap(LibraryNode source, LibraryNode target) {
 		Map<String, Node> sources = new HashMap<>();
-		for (Node n : source.getDescendants_LibraryMemberNodes())
+		for (Node n : source.getDescendants_LibraryMembersAsNodes())
 			sources.put(n.getName(), n);
 
 		// Now, replace the nodes within their structures.
-		for (Node n : target.getDescendants_LibraryMemberNodes()) {
+		for (Node n : target.getDescendants_LibraryMembersAsNodes()) {
 			if (n instanceof ServiceNode)
 				continue;
 			Node lsNode = sources.get(n.getName());

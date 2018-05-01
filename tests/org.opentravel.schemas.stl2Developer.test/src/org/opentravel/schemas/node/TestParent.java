@@ -41,7 +41,7 @@ public class TestParent {
 
 		lf.loadTestGroupA(mc);
 		for (LibraryNode ln : Node.getAllLibraries()) {
-			for (Node n : ln.getDescendants_LibraryMemberNodes())
+			for (Node n : ln.getDescendants_LibraryMembersAsNodes())
 				parentVisitor(n);
 		}
 

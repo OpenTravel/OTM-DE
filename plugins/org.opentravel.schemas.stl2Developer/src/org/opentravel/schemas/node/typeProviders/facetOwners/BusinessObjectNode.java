@@ -42,6 +42,7 @@ import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.INode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.Sortable;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -67,8 +68,8 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class BusinessObjectNode extends FacetOwners implements ExtensionOwner, AliasOwner, Sortable,
-		ContextualFacetOwnerInterface, VersionedObjectInterface {
+public class BusinessObjectNode extends FacetOwners
+		implements ExtensionOwner, AliasOwner, Sortable, ContextualFacetOwnerInterface, VersionedObjectInterface {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
 	private ExtensionHandler extensionHandler = null;
@@ -239,6 +240,8 @@ public class BusinessObjectNode extends FacetOwners implements ExtensionOwner, A
 		TLContextualFacet tlCf = ContextualFacetNode.createTL(name, type);
 		AbstractContextualFacet cf = NodeFactory.createContextualFacet(tlCf);
 		cf.setOwner(this);
+		if (cf instanceof LibraryMemberInterface)
+			getLibrary().addMember((LibraryMemberInterface) cf);
 
 		if (OTM16Upgrade.otm16Enabled) {
 			assert cf.getParent() instanceof NavNode;
@@ -282,7 +285,7 @@ public class BusinessObjectNode extends FacetOwners implements ExtensionOwner, A
 	 * @return Custom Facets without inherited
 	 */
 	public List<AbstractContextualFacet> getCustomFacets() {
-		ArrayList<AbstractContextualFacet> ret = new ArrayList<AbstractContextualFacet>();
+		ArrayList<AbstractContextualFacet> ret = new ArrayList<>();
 		for (INode f : getContextualFacets(false))
 			if (f instanceof CustomFacetNode)
 				ret.add((CustomFacetNode) f);
@@ -294,7 +297,7 @@ public class BusinessObjectNode extends FacetOwners implements ExtensionOwner, A
 
 	// FIXME - make return abstractContextualFacet
 	public List<ComponentNode> getQueryFacets() {
-		ArrayList<ComponentNode> ret = new ArrayList<ComponentNode>();
+		ArrayList<ComponentNode> ret = new ArrayList<>();
 		for (AbstractContextualFacet f : getContextualFacets(false)) {
 			if (f instanceof QueryFacetNode)
 				ret.add(f);
@@ -320,7 +323,7 @@ public class BusinessObjectNode extends FacetOwners implements ExtensionOwner, A
 
 	@Override
 	public List<AliasNode> getAliases() {
-		List<AliasNode> aliases = new ArrayList<AliasNode>();
+		List<AliasNode> aliases = new ArrayList<>();
 		for (Node c : getChildren())
 			if (c instanceof AliasNode)
 				aliases.add((AliasNode) c);

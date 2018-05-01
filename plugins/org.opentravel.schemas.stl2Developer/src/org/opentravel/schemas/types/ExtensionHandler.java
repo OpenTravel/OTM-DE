@@ -120,7 +120,7 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 		// base.getNameWithPrefix());
 		// Can assign facets to extension points.
 		if (base.getLibrary() != null)
-			if (!base.getLibrary().getDescendants_LibraryMemberNodes().contains(base.getOwningComponent()))
+			if (!base.getLibrary().getDescendants_LibraryMembersAsNodes().contains(base.getOwningComponent()))
 				LOGGER.error("Base library does not contain base object " + base);
 		// assert (base.getLibrary().getDescendants_LibraryMembers().contains(base));
 
@@ -159,7 +159,7 @@ public class ExtensionHandler extends AbstractAssignmentHandler<ExtensionOwner> 
 		}
 
 		if (base.getLibrary() != null)
-			if (!base.getLibrary().getDescendants_LibraryMemberNodes().contains(base.getOwningComponent()))
+			if (!base.getLibrary().getDescendants_LibraryMembersAsNodes().contains(base.getOwningComponent()))
 				LOGGER.error("Base library does not contain base object " + base);
 		// assert (base.getLibrary().getDescendants_LibraryMembers().contains(base));
 		// if (oldBase == null)

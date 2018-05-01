@@ -253,7 +253,7 @@ public class DefaultLibraryControllerTest extends BaseProjectTest {
 
 		// When - Make a chain out of the library
 		LibraryChainNode lcn1 = new LibraryChainNode(lib1);
-		int chainCount = lcn1.getDescendants_LibraryMemberNodes().size();
+		int chainCount = lcn1.getDescendants_LibraryMembersAsNodes().size();
 		// assertTrue("Project A has LNN1 as child.", projectA.getChildren().contains(lnn1));
 		// Then
 		assertTrue("Chain must have members.", chainCount > 0);
@@ -303,8 +303,8 @@ public class DefaultLibraryControllerTest extends BaseProjectTest {
 		lib2.setEditable(true);
 		assertTrue("Must have same project item.", lib1.getProjectItem() == lib2.getProjectItem());
 
-		List<Node> Amembers = lib1.getDescendants_LibraryMemberNodes();
-		List<Node> Bmembers = lib2.getDescendants_LibraryMemberNodes();
+		List<Node> Amembers = lib1.getDescendants_LibraryMembersAsNodes();
+		List<Node> Bmembers = lib2.getDescendants_LibraryMembersAsNodes();
 		assertTrue("Must have library members.", !lib1.isEmpty());
 
 		final String simpleTypeName = "SampleEnum_Open";

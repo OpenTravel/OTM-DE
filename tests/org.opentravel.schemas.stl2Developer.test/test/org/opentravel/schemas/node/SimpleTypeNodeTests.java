@@ -187,7 +187,7 @@ public class SimpleTypeNodeTests {
 	public void simpleType_checkDescendantCounts() {
 		for (LibraryNode lib : Node.getAllLibraries()) {
 			int simpleCnt = 0;
-			for (Node type : lib.getDescendants_LibraryMemberNodes()) {
+			for (Node type : lib.getDescendants_LibraryMembersAsNodes()) {
 				if (type instanceof SimpleMemberInterface) {
 					simpleCnt++;
 				}

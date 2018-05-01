@@ -76,37 +76,36 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 	 */
 	public void importSelectedToLibrary(LibraryNode destination) {
 		// Only the head library is displayed, but some of its contents are from earlier versions
-		if (destination.isInChain())
-			destination = destination.getHead();
-		if (destination == null) {
-			LOGGER.error("Tried to import to null destination library.");
-			return;
-		}
-		if (!destination.isTLLibrary()) {
-			LOGGER.error("Cannot import into built-in or XSD libraries");
-			DialogUserNotifier.openInformation("WARNING", "You can not import into a built-in or XSD library.");
-			return;
-		}
-		if (!destination.isEditable()) {
-			LOGGER.error("Destination library is not editable.");
-			DialogUserNotifier.openInformation("WARNING", "Destination library is not editable.");
-			return;
-		}
 		final List<Node> sourceNodes = mc.getSelectedNodes_NavigatorView();
-		if (sourceNodes == null || sourceNodes.size() <= 0) {
-			LOGGER.error("No source nodes selected for import.");
-			DialogUserNotifier.openInformation("WARNING", "No components selected for importing.");
+
+		String warning = null;
+		if (destination == null)
+			warning = "Destination library is missing.";
+		else if (destination.isInChain())
+			destination = destination.getHead();
+		if (destination == null)
+			warning = "Tried to import to missing destination library.";
+		else if (!destination.isTLLibrary())
+			warning = "You can not import into a built-in or XSD library.";
+		else if (!destination.isEditable())
+			warning = "Destination library is not editable.";
+		else if (sourceNodes == null || sourceNodes.isEmpty())
+			warning = "No components selected for importing.";
+
+		if (warning != null) {
+			DialogUserNotifier.openInformation("WARNING", warning);
 			return;
 		}
+
 		LOGGER.info("Importing " + sourceNodes.size() + " selected nodes to library " + destination);
 
 		// If a library is selected, get its named-type children and filter the other removing those
 		// in the destination library.
-		final List<Node> eligibleForImporting = new ArrayList<Node>();
+		final List<Node> eligibleForImporting = new ArrayList<>();
 		for (Node n : sourceNodes) {
 			if (n instanceof LibraryNode)
-				eligibleForImporting.addAll(n.getDescendants_LibraryMemberNodes());
-			else if (!(n.getLibrary()).equals(destination))
+				eligibleForImporting.addAll(n.getDescendants_LibraryMembersAsNodes());
+			else if (!(n.getLibrary() == destination))
 				eligibleForImporting.add(n);
 		}
 
@@ -137,17 +136,19 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 					break;
 				}
 		}
+
 		if (eligibleForImporting == null || eligibleForImporting.size() <= 0) {
-			LOGGER.error("No eligible nodes selected for import.");
+			// LOGGER.error("No eligible nodes selected for import.");
 			DialogUserNotifier.openInformation("WARNING", "No eligible components selected for importing.");
 			return;
 		}
+
 		// Ask if they want to also import the types assigned to these objects.
 		int ans = DialogUserNotifier.openQuestionWithCancel(Messages.getString("action.import.copyDescendants.title"),
 				Messages.getString("action.import.copyDescendants"));
 		switch (ans) {
 		case 0: // Yes
-			ArrayList<Node> selected = new ArrayList<Node>(eligibleForImporting);
+			ArrayList<Node> selected = new ArrayList<>(eligibleForImporting);
 			for (Node n : selected) {
 				for (Node nn : n.getDescendants_AssignedTypes(true))
 					if (!eligibleForImporting.contains(nn))
@@ -215,7 +216,7 @@ public class ImportObjectToLibraryAction extends OtmAbstractAction {
 	 * @return
 	 */
 	private ContextualFacetOwnerInterface askForNewCFOwner(ContextualFacetNode n) {
-		ArrayList<Node> nodeList = new ArrayList<Node>();
+		ArrayList<Node> nodeList = new ArrayList<>();
 		nodeList.add(n);
 		final TypeSelectionWizard wizard = new TypeSelectionWizard(nodeList);
 		Node owner = null;
