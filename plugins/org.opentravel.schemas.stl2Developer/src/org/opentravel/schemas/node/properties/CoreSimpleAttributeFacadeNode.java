@@ -79,7 +79,7 @@ public class CoreSimpleAttributeFacadeNode extends SimpleAttributeFacadeNode {
 
 	@Override
 	public boolean setAssignedTLType(TLModelElement simpleType) {
-		if (simpleType == getTLModelObject().getSimpleType())
+		if (getTLModelObject() == null || simpleType == getTLModelObject().getSimpleType())
 			return false;
 		NamedEntity ne = null;
 		if (simpleType == null || !(simpleType instanceof NamedEntity))

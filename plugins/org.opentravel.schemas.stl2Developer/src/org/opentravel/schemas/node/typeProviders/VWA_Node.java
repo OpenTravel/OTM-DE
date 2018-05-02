@@ -62,8 +62,8 @@ import org.opentravel.schemas.types.TypeProvider;
  * @author Dave Hollander
  * 
  */
-public class VWA_Node extends FacetOwners implements ExtensionOwner, Sortable, VersionedObjectInterface,
-		SimpleAttributeOwner {
+public class VWA_Node extends FacetOwners
+		implements ExtensionOwner, Sortable, VersionedObjectInterface, SimpleAttributeOwner {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(VWA_Node.class);
 
 	private ExtensionHandler extensionHandler = null;
@@ -83,14 +83,20 @@ public class VWA_Node extends FacetOwners implements ExtensionOwner, Sortable, V
 	 */
 	public VWA_Node(BusinessObjectNode bo) {
 		this(new TLValueWithAttributes());
+		if (bo == null)
+			return;
 
 		setName(bo.getName());
 		bo.getLibrary().addMember(this);
 		setDocumentation(bo.getDocumentation());
 
-		getFacet_Attributes().copy(bo.getFacet_ID());
-		getFacet_Attributes().copy(bo.getFacet_Summary());
-		getFacet_Attributes().copy(bo.getFacet_Detail());
+		if (bo.isDeleted())
+			return;
+
+		getFacet_Attributes().add(bo.getFacet_ID().getProperties(), true);
+		getFacet_Attributes().add(bo.getFacet_Summary().getProperties(), true);
+		getFacet_Attributes().add(bo.getFacet_Detail().getProperties(), true);
+
 		setAssignedType((TypeProvider) ModelNode.getEmptyNode());
 	}
 
@@ -103,13 +109,18 @@ public class VWA_Node extends FacetOwners implements ExtensionOwner, Sortable, V
 	 */
 	public VWA_Node(CoreObjectNode core) {
 		this(new TLValueWithAttributes());
+		if (core == null)
+			return;
 
 		setName(core.getName());
 		core.getLibrary().addMember(this);
 		setDocumentation(core.getDocumentation());
 
-		getFacet_Attributes().copy(core.getFacet_Summary());
-		getFacet_Attributes().copy(core.getFacet_Detail());
+		if (core.isDeleted())
+			return;
+
+		getFacet_Attributes().add(core.getFacet_Summary().getProperties(), true);
+		getFacet_Attributes().add(core.getFacet_Detail().getProperties(), true);
 		setAssignedType(core.getAssignedType());
 	}
 

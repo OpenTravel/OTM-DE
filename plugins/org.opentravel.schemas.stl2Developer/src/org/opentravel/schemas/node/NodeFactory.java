@@ -49,7 +49,6 @@ import org.opentravel.schemacompiler.model.XSDElement;
 import org.opentravel.schemacompiler.model.XSDSimpleType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
-import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -191,8 +190,12 @@ public class NodeFactory {
 					baseNode = cf;
 
 		}
-		if (((ExtensionOwner) base).getExtensionBase() != null)
-			LOGGER.debug("Must Search base too.");
+		for (Node n : base.getChildrenHandler().get())
+			if (n instanceof ContextualFacet15Node)
+				assert false; // Error to have a CF version 1.5 in this method.
+		// if (((ExtensionOwner) base).getExtensionBase() != null)
+		// LOGGER.debug("Must Search base too.");
+
 		assert baseNode instanceof ContributedFacetNode;
 		if (baseNode == null)
 			return null;
@@ -201,8 +204,8 @@ public class NodeFactory {
 		ContextualFacetNode baseCF = baseContrib.getContributor();
 
 		// If this inherited facet has been modeled before then reuse it
-		InheritedContextualFacetNode icf = (InheritedContextualFacetNode) owner.getLibrary().findLibraryMemberByName(
-				tlGhost.getLocalName());
+		InheritedContextualFacetNode icf = (InheritedContextualFacetNode) owner.getLibrary()
+				.findLibraryMemberByName(tlGhost.getLocalName());
 		if (icf != null) {
 			icf.setDeleted(false); // May have been deleted in children init processing
 		} else {

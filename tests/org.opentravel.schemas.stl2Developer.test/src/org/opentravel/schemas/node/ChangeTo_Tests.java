@@ -87,7 +87,10 @@ public class ChangeTo_Tests {
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "bo");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "co");
 		VWA_Node tVwa = null, vwa = ml.addVWA_ToLibrary(ln, "vwa");
-		int typeCount = ln.getDescendants_LibraryMembersAsNodes().size();
+
+		int typeCount = ln.getDescendants_LibraryMembers().size();
+		// When converted to VWA, the facets are lost.
+		typeCount -= bo.getDescendants_ContributedFacets().size();
 
 		VWA_Tests tests = new VWA_Tests();
 		tVwa = (VWA_Node) bo.changeObject(SubType.VALUE_WITH_ATTRS);
@@ -98,7 +101,7 @@ public class ChangeTo_Tests {
 		tests.check(tVwa);
 
 		// tn.visit(ln);
-		Assert.assertEquals(typeCount, ln.getDescendants_LibraryMembersAsNodes().size());
+		Assert.assertEquals(typeCount, ln.getDescendants_LibraryMembers().size());
 	}
 
 	@Test
@@ -126,8 +129,8 @@ public class ChangeTo_Tests {
 		vwa = new VWA_Node(bo);
 		// Then - name and property counts are correct.
 		assertEquals(bo.getName(), vwa.getName());
-		assertEquals("Must have attribute for each BO property.", boCount, vwa.getFacet_Attributes().getChildren()
-				.size());
+		assertEquals("Must have attribute for each BO property.", boCount,
+				vwa.getFacet_Attributes().getChildren().size());
 		// Then - TL object may have attributes and indicators
 
 		// When - VWA replaces BO. BO is assigned to an element and elementRef
@@ -143,8 +146,8 @@ public class ChangeTo_Tests {
 		vwa = new VWA_Node(core);
 		assertEquals("B", vwa.getName());
 		assertEquals(core.getAssignedType(), vwa.getAssignedType());
-		assertEquals("Must have attribute for each Core property.", coreCount, vwa.getFacet_Attributes().getChildren()
-				.size());
+		assertEquals("Must have attribute for each Core property.", coreCount,
+				vwa.getFacet_Attributes().getChildren().size());
 		// assertEquals("TL properties must match property nodes.", vwa.getFacet_Attributes().getModelObject()
 		// .getChildren().size(), vwa.getFacet_Attributes().getChildren().size());
 
@@ -157,8 +160,8 @@ public class ChangeTo_Tests {
 		assertEquals(vwa, p2.getAssignedType());
 		assertEquals(vwa, p3.getAssignedType());
 		assertTrue("VWA must be in the library after swap.", ln.getDescendants_LibraryMembersAsNodes().contains(vwa));
-		assertTrue("Core must NOT be in the library after swap.", !ln.getDescendants_LibraryMembersAsNodes()
-				.contains(core));
+		assertTrue("Core must NOT be in the library after swap.",
+				!ln.getDescendants_LibraryMembersAsNodes().contains(core));
 	}
 
 	@Test
@@ -184,7 +187,8 @@ public class ChangeTo_Tests {
 		assertEquals("A", core.getName());
 		assertEquals(boCount, core.getFacet_Summary().getChildren().size());
 		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMembersAsNodes().contains(core));
-		assertTrue("BO must NOT be in the library after swap.", !ln.getDescendants_LibraryMembersAsNodes().contains(bo));
+		assertTrue("BO must NOT be in the library after swap.",
+				!ln.getDescendants_LibraryMembersAsNodes().contains(bo));
 
 		// When - core created from VWA replaces VWA
 		core = new CoreObjectNode(vwa);
@@ -195,10 +199,11 @@ public class ChangeTo_Tests {
 		tn.visit(core);
 		assertEquals(vwaCount, core.getFacet_Summary().getChildren().size());
 		assertEquals(core.getAssignedType(), vwa.getAssignedType());
-		assertEquals(core.getTLModelObject().getSummaryFacet().getAttributes().size(), core.getFacet_Summary()
-				.getChildren().size());
+		assertEquals(core.getTLModelObject().getSummaryFacet().getAttributes().size(),
+				core.getFacet_Summary().getChildren().size());
 		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMembersAsNodes().contains(core));
-		assertTrue("VWA must NOT be in the library after swap.", !ln.getDescendants_LibraryMembersAsNodes().contains(vwa));
+		assertTrue("VWA must NOT be in the library after swap.",
+				!ln.getDescendants_LibraryMembersAsNodes().contains(vwa));
 	}
 
 	@Test
@@ -309,32 +314,27 @@ public class ChangeTo_Tests {
 		ln.setEditable(true);
 
 		// Get all library members and change them.
-		for (Node n : ln.getDescendants_LibraryMembersAsNodes()) {
-			equCount = countEquivelents((LibraryMemberInterface) n);
-			// if (n.getName().equals("EmploymentZZZ"))
-			// LOGGER.debug("Doing EmploymentZZZ");
+		for (LibraryMemberInterface lm : ln.getDescendants_LibraryMembers()) {
+			equCount = countEquivelents(lm);
 
-			if (n instanceof ComponentNode) {
-				ComponentNode cn = (ComponentNode) n;
-
-				if (cn instanceof BusinessObjectNode) {
-					// LOGGER.debug("When - Changing " + cn + " from business object to core.");
-					nn = new CoreObjectNode((BusinessObjectNode) cn);
+			if (lm instanceof ComponentNode && !lm.isDeleted()) {
+				ComponentNode cn = (ComponentNode) lm;
+				if (lm instanceof BusinessObjectNode) {
+					// LOGGER.debug("When - Changing " + lm + " from business object to core.");
+					nn = new CoreObjectNode((BusinessObjectNode) lm);
 					cn.replaceWith(nn);
 					cn.delete();
 					// Then
 					assertEquals(equCount, countEquivelents(nn));
-					tn.visit(nn);
-					ml.check((Node) nn, false);
 
-				} else if (cn instanceof CoreObjectNode) {
-					// LOGGER.debug("When - Changing " + cn + " from core to business object.");
+				} else if (lm instanceof CoreObjectNode) {
+					// LOGGER.debug("When - Changing " + lm + " from core to business object.");
 
 					// Pick last summary property for testing.
 					aProperty = null;
-					if (((FacetOwner) cn).getFacet_Summary().getChildren_TypeUsers().size() > 0)
-						aProperty = (PropertyNode) ((FacetOwner) cn).getFacet_Summary().getChildren_TypeUsers()
-								.get(((FacetOwner) cn).getFacet_Summary().getChildren_TypeUsers().size() - 1);
+					if (((FacetOwner) lm).getFacet_Summary().getChildren_TypeUsers().size() > 0)
+						aProperty = (PropertyNode) ((FacetOwner) lm).getFacet_Summary().getChildren_TypeUsers()
+								.get(((FacetOwner) lm).getFacet_Summary().getChildren_TypeUsers().size() - 1);
 
 					// Do not test assignment if the core is used as a type
 					if (cn == aProperty.getAssignedType())
@@ -343,16 +343,15 @@ public class ChangeTo_Tests {
 					if (aProperty != null && cn.contains((Node) aProperty.getAssignedType()))
 						aProperty = null;
 
-					nn = new BusinessObjectNode((CoreObjectNode) cn);
+					nn = new BusinessObjectNode((CoreObjectNode) lm);
 					cn.replaceWith(nn);
 
-					tn.visit(nn);
 					ml.check((Node) nn, false);
 
 					// Find the property with the same name for testing.
 					if (aProperty != null)
-						newProperty = (PropertyNode) ((BusinessObjectNode) nn).getFacet_Summary().findChildByName(
-								aProperty.getName());
+						newProperty = (PropertyNode) ((BusinessObjectNode) nn).getFacet_Summary()
+								.findChildByName(aProperty.getName());
 					if (aProperty != null && newProperty != null) {
 						TypeProvider npAT = newProperty.getAssignedType();
 						TypeProvider apAT = aProperty.getAssignedType();
@@ -362,41 +361,41 @@ public class ChangeTo_Tests {
 					}
 					cn.delete();
 					tn.visit(nn);
-					ml.check((Node) nn, false);
-
 				}
 
-				else if (cn instanceof VWA_Node) {
-					// LOGGER.debug("Changing " + cn + " from VWA to core.");
-					nn = new CoreObjectNode((VWA_Node) cn);
+				else if (lm instanceof VWA_Node) {
+					// LOGGER.debug("Changing " + lm + " from VWA to core.");
+					nn = new CoreObjectNode((VWA_Node) lm);
 					cn.replaceWith(nn);
 					cn.delete();
-					tn.visit(nn);
-					ml.check((Node) nn, false);
-				}
+				} else
+					nn = lm;
 
 			}
+			ml.check((Node) nn, false);
 			if (nn != null) {
 				newEquCount = countEquivelents(nn);
 				if (newEquCount != equCount) {
 					if (!nn.getName().equals("Flight"))
 						LOGGER.debug("Equ error on " + nn);
 				}
-				// False error on Flight core object. I don't know why.
-				// Assert.assertEquals(equCount, newEquCount);
 			}
 		}
 
 	}
 
+	/**
+	 * @return total number of tl model equivalents in all descendants
+	 */
 	private int countEquivelents(LibraryMemberInterface nn) {
+		int cnt = 0;
 		Assert.assertNotNull(nn);
 		for (Node p : ((Node) nn).getDescendants()) {
 			if (p instanceof ElementNode) {
-				return ((TLProperty) p.getTLModelObject()).getEquivalents().size();
+				cnt += ((TLProperty) p.getTLModelObject()).getEquivalents().size();
 			}
 		}
-		return 0;
+		return cnt;
 	}
 
 	protected void listTypeUsersCounts(LibraryNode ln) {

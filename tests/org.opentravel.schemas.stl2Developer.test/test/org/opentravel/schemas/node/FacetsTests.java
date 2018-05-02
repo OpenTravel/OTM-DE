@@ -344,8 +344,8 @@ public class FacetsTests {
 		assertTrue("Must be able to find c1 by name.", baseBO.findChildByName(c1.getName()) == c1);
 		// Then - c1 must have children to be inherited.
 		assertTrue("Summary must have children.", !baseBO.getFacet_Summary().getChildren().isEmpty());
-		assertTrue("Summary must not have inherited children.", baseBO.getFacet_Summary().getInheritedChildren()
-				.isEmpty());
+		assertTrue("Summary must not have inherited children.",
+				baseBO.getFacet_Summary().getInheritedChildren().isEmpty());
 
 		// Given - a second, empty BO to be extended
 		BusinessObjectNode extendedBO = ml.addBusinessObjectToLibrary_Empty(ln, "ExBO");
@@ -488,7 +488,8 @@ public class FacetsTests {
 		// When moved down
 		i1.moveDown();
 		i1.moveDown();
-		assertTrue(baseBO.getFacet_Summary().getTLModelObject().getIndicators().indexOf(i1.getTLModelObject()) != i1Index);
+		assertTrue(
+				baseBO.getFacet_Summary().getTLModelObject().getIndicators().indexOf(i1.getTLModelObject()) != i1Index);
 		// e1.moveDown();
 		// a1.moveDown();
 
@@ -693,6 +694,7 @@ public class FacetsTests {
 			if (n instanceof BusinessObjectNode)
 				bo = (BusinessObjectNode) n;
 		ml.check(bo);
+		assertTrue("Business object must be editable.", bo.isEditable_newToChain());
 
 		FacetProviderNode cf = bo.addFacet("F1", TLFacetType.QUERY);
 		assertTrue(cf.isEditable());
@@ -946,7 +948,7 @@ public class FacetsTests {
 	}
 
 	private List<ContextualFacetNode> getContextualFacets(Node container) {
-		ArrayList<ContextualFacetNode> facets = new ArrayList<ContextualFacetNode>();
+		ArrayList<ContextualFacetNode> facets = new ArrayList<>();
 		for (Node n : container.getDescendants())
 			if (n instanceof ContextualFacetNode)
 				facets.add((ContextualFacetNode) n);
@@ -969,7 +971,8 @@ public class FacetsTests {
 				List<AbstractContextualFacet> facets = null;
 				if (n instanceof ContextualFacetOwnerInterface)
 					facets = ((ContextualFacetOwnerInterface) n).getContextualFacets();
-				assertTrue(targetName + " must have " + contextual + " contextual facets.", facets.size() == contextual);
+				assertTrue(targetName + " must have " + contextual + " contextual facets.",
+						facets.size() == contextual);
 			}
 	}
 
@@ -1193,7 +1196,7 @@ public class FacetsTests {
 		// Behaviors
 		if (afn.getOwningComponent().isEditable()) {
 			// Given - a list with a new property
-			List<PropertyNode> properties = new ArrayList<PropertyNode>();
+			List<PropertyNode> properties = new ArrayList<>();
 			PropertyNode p = new AttributeNode(new TLAttribute(), null);
 			p.setName("attr1");
 			properties.add(p);
@@ -1272,30 +1275,29 @@ public class FacetsTests {
 		if (!facetNode.isInherited())
 			// Check children
 			for (Node property : facetNode.getChildren()) {
-				PropertyNodeTest pnTests = new PropertyNodeTest();
-				if (facetNode instanceof ContributedFacetNode) {
-					assertTrue(OTM16Upgrade.otm16Enabled);
-					assertTrue(property.getParent() == ((ContributedFacetNode) facetNode).getContributor());
-					continue;
-				}
-				if (property instanceof AliasNode)
-					continue;
-				if (property instanceof ContributedFacetNode) {
-					assertTrue(property.getParent() == facetNode);
-					continue;
-				}
-				if (property instanceof ContextualFacetNode) {
-					assertTrue(OTM16Upgrade.otm16Enabled);
-					continue;
-				}
-				if (property instanceof PropertyNode) {
-					assertTrue(property.getParent() == facetNode);
-					pnTests.check((PropertyNode) property);
-				} else {
-					LOGGER.debug("ERROR - invalid property type: " + property + " "
-							+ property.getClass().getSimpleName());
-					assertTrue(false);
-				}
+			PropertyNodeTest pnTests = new PropertyNodeTest();
+			if (facetNode instanceof ContributedFacetNode) {
+			assertTrue(OTM16Upgrade.otm16Enabled);
+			assertTrue(property.getParent() == ((ContributedFacetNode) facetNode).getContributor());
+			continue;
+			}
+			if (property instanceof AliasNode)
+			continue;
+			if (property instanceof ContributedFacetNode) {
+			assertTrue(property.getParent() == facetNode);
+			continue;
+			}
+			if (property instanceof ContextualFacetNode) {
+			assertTrue(OTM16Upgrade.otm16Enabled);
+			continue;
+			}
+			if (property instanceof PropertyNode) {
+			assertTrue(property.getParent() == facetNode);
+			pnTests.check((PropertyNode) property);
+			} else {
+			LOGGER.debug("ERROR - invalid property type: " + property + " " + property.getClass().getSimpleName());
+			assertTrue(false);
+			}
 			}
 
 		assertTrue("Must be valid parent to attributes.", facetNode.canOwn(PropertyNodeType.ATTRIBUTE));
@@ -1324,7 +1326,7 @@ public class FacetsTests {
 			assertTrue("Must find property by name.", facetNode.get("Ele1x" + locatingSuffix) != null);
 
 			// Create array of attribute and element properties to add
-			List<PropertyNode> properties = new ArrayList<PropertyNode>();
+			List<PropertyNode> properties = new ArrayList<>();
 			AttributeNode attr2 = new AttributeNode(new TLAttribute(), null);
 			ElementNode ele2 = new ElementNode(new TLProperty(), null);
 			attr2.setAssignedType(simpleType);

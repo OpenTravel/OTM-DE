@@ -200,7 +200,9 @@ public class ResourceObjectTests {
 		ml.check(srcLib, false);
 
 		// When - moved to destination library
-		srcLib.moveMember(resource, destLib);
+		// srcLib.moveMember(resource, destLib);
+		destLib.addMember(resource);
+
 		// Then - it is moved and is valid
 		assertTrue(!srcLib.contains(resource));
 		assertTrue(destLib.contains(resource));
@@ -230,9 +232,8 @@ public class ResourceObjectTests {
 			LOGGER.debug("Example: " + url + ".");
 			assertTrue("Action has example.", !url.isEmpty());
 			if (action.getName().startsWith("Get"))
-				assertTrue(
-						"Get example must be correct.",
-						url.startsWith("GET http://example.com/ResourceTestLibInitialBOs/{testIdResourceTestLibInitialBO}/{ResourceTestLibInitialBOID}"));
+				assertTrue("Get example must be correct.", url.startsWith(
+						"GET http://example.com/ResourceTestLibInitialBOs/{testIdResourceTestLibInitialBO}/{ResourceTestLibInitialBOID}"));
 		}
 	}
 
@@ -435,8 +436,8 @@ public class ResourceObjectTests {
 
 		// Validate that the resource is in the where used list for its subject
 		assertTrue("Must have a subject.", resource.getSubject() != null);
-		assertTrue("Subject must have resource in its where assigned list.", resource.getSubject().getWhereAssigned()
-				.contains(resource));
+		assertTrue("Subject must have resource in its where assigned list.",
+				resource.getSubject().getWhereAssigned().contains(resource));
 		// LOGGER.debug("Subject must have resource in its where assigned list: "
 		// + resource.getSubject().getWhereAssigned().contains(resource));
 

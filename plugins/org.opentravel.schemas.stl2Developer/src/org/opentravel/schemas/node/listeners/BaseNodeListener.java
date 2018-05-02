@@ -64,7 +64,7 @@ public class BaseNodeListener implements INodeListener {
 
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
-		Node affectedNode = getAffectedNode(event);
+		// Node affectedNode = getAffectedNode(event);
 		// LOGGER.debug("Ownership event: " + event.getType() + " this = " + thisNode + " affected = " + affectedNode);
 	}
 

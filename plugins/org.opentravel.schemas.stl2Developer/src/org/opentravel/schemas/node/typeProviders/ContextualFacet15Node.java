@@ -61,6 +61,7 @@ public abstract class ContextualFacet15Node extends AbstractContextualFacet {
 	}
 
 	public ContextualFacet15Node() {
+		assert !canBeLibraryMember();
 	}
 
 	public ContextualFacet15Node(TLContextualFacet tlObj) {

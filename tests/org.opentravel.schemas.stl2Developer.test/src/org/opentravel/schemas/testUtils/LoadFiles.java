@@ -88,7 +88,7 @@ public class LoadFiles {
 	@Test
 	public void loadFiles() throws Exception {
 		this.mc = OtmRegistry.getMainController();
-		List<LibraryNode> loaded = new ArrayList<LibraryNode>();
+		List<LibraryNode> loaded = new ArrayList<>();
 
 		// check special files
 		ProjectController pc = mc.getProjectController();
@@ -139,7 +139,7 @@ public class LoadFiles {
 	 * <b>NOTE - file5 is not valid</b>
 	 */
 	public int loadTestGroupA(ProjectNode proj) throws Exception {
-		List<File> files = new ArrayList<File>();
+		List<File> files = new ArrayList<>();
 		files.add(new File(filePath1));
 		files.add(new File(filePath2));
 		files.add(new File(filePath3));
@@ -160,7 +160,7 @@ public class LoadFiles {
 	public int loadTestGroupAc(ProjectNode pn) throws Exception {
 		// ProjectController pc = mc.getProjectController();
 
-		List<File> files = new ArrayList<File>();
+		List<File> files = new ArrayList<>();
 		files.add(new File(filePath1));
 		files.add(new File(filePath2));
 		files.add(new File(filePath3));
@@ -196,7 +196,7 @@ public class LoadFiles {
 
 	public LibraryNode loadFile(ProjectNode project, String path) {
 		assertTrue("Must have a non-null project.", project != null);
-		List<File> files = new ArrayList<File>();
+		List<File> files = new ArrayList<>();
 		files.add(new File(path));
 		for (File f : files) {
 			assert f.exists();
@@ -214,7 +214,7 @@ public class LoadFiles {
 			assertTrue("Project must have children.", project.getChildren().size() > 0);
 			URL u = URLUtils.toURL(new File(System.getProperty("user.dir") + File.separator + path));
 			LibraryNode ln = null;
-			List<URL> projURLs = new ArrayList<URL>();
+			List<URL> projURLs = new ArrayList<>();
 			for (LibraryNode lib : project.getLibraries()) {
 				URL url = lib.getTLModelObject().getLibraryUrl();
 				projURLs.add(url);
@@ -296,6 +296,12 @@ public class LoadFiles {
 		return loadFile(mc, pathEP);
 	}
 
+	/**
+	 * Load a version 1.5 library.
+	 * 
+	 * @param thisModel
+	 * @return
+	 */
 	public LibraryNode loadFile6(MainController thisModel) {
 		LibraryNode ln = loadFile(thisModel, path6);
 		return ln;

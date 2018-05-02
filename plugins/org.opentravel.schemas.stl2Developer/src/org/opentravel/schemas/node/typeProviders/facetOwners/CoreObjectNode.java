@@ -62,8 +62,8 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class CoreObjectNode extends FacetOwners implements ExtensionOwner, Sortable, AliasOwner,
-		VersionedObjectInterface, TypeProvider, SimpleAttributeOwner {
+public class CoreObjectNode extends FacetOwners
+		implements ExtensionOwner, Sortable, AliasOwner, VersionedObjectInterface, TypeProvider, SimpleAttributeOwner {
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = LoggerFactory.getLogger(CoreObjectNode.class);
 	private ExtensionHandler extensionHandler = null;
@@ -93,6 +93,8 @@ public class CoreObjectNode extends FacetOwners implements ExtensionOwner, Sorta
 	 */
 	public CoreObjectNode(BusinessObjectNode bo) {
 		this(new TLCoreObject());
+		if (bo == null)
+			return;
 
 		addAliases(bo.getAliases());
 
@@ -100,9 +102,12 @@ public class CoreObjectNode extends FacetOwners implements ExtensionOwner, Sorta
 		bo.getLibrary().addMember(this);
 		setDocumentation(bo.getDocumentation());
 
-		getFacet_Summary().copy(bo.getFacet_ID());
-		getFacet_Summary().copy(bo.getFacet_Summary());
-		getFacet_Detail().copy(bo.getFacet_Detail());
+		if (bo.isDeleted())
+			return;
+
+		getFacet_Summary().add(bo.getFacet_ID().getProperties(), true);
+		getFacet_Summary().add(bo.getFacet_Summary().getProperties(), true);
+		getFacet_Detail().add(bo.getFacet_Detail().getProperties(), true);
 
 		setAssignedType((TypeProvider) ModelNode.getEmptyNode());
 	}
@@ -114,10 +119,14 @@ public class CoreObjectNode extends FacetOwners implements ExtensionOwner, Sorta
 	 */
 	public CoreObjectNode(VWA_Node vwa) {
 		this(new TLCoreObject());
-
+		if (vwa == null)
+			return;
 		setName(vwa.getName());
 		vwa.getLibrary().addMember(this);
 		setDocumentation(vwa.getDocumentation());
+
+		if (vwa.isDeleted())
+			return;
 
 		getFacet_Summary().copy(vwa.getFacet_Attributes());
 		setAssignedType(vwa.getAssignedType());
@@ -301,7 +310,7 @@ public class CoreObjectNode extends FacetOwners implements ExtensionOwner, Sorta
 
 	@Override
 	public List<AliasNode> getAliases() {
-		List<AliasNode> aliases = new ArrayList<AliasNode>();
+		List<AliasNode> aliases = new ArrayList<>();
 		for (Node c : getChildren())
 			if (c instanceof AliasNode)
 				aliases.add((AliasNode) c);

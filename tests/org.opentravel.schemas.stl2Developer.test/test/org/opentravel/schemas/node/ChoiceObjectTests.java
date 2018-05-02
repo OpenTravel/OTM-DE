@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,6 +73,33 @@ public class ChoiceObjectTests {
 		defaultProject = pc.getDefaultProject();
 	}
 
+	@After
+	public void afterEachTest() {
+		Node.getLibraryModelManager().clear(false);
+		for (LibraryNode lib : defaultProject.getLibraries())
+			defaultProject.close(lib);
+		assert defaultProject.getLibraries().isEmpty();
+	}
+
+	public TLChoiceObject buildTL(String name) {
+		TLChoiceObject tlc = new TLChoiceObject();
+		if (name == null || name.isEmpty())
+			name = "TestChoice";
+		tlc.setName(name);
+
+		TLContextualFacet tlf = new TLContextualFacet();
+		tlf.setFacetType(TLFacetType.CHOICE);
+		tlf.setName("CF" + name + "1"); // Name that will not be ignored when inherited
+		tlc.addChoiceFacet(tlf);
+
+		tlf = new TLContextualFacet();
+		tlf.setFacetType(TLFacetType.CHOICE);
+		tlf.setName("CF" + name + "2");
+		tlc.addChoiceFacet(tlf);
+
+		return tlc;
+	}
+
 	@Test
 	public void CH_ConstructorTests() {
 		LibraryNode ln = ml.createNewLibrary("http://example.com/choice", "CT", pc.getDefaultProject());
@@ -97,25 +125,65 @@ public class ChoiceObjectTests {
 
 	@Test
 	public void CH_FileReadTest() throws Exception {
+		OTM16Upgrade.otm16Enabled = true;
+
 		LibraryNode testLib = new LoadFiles().loadFile6(mc);
 		LibraryNode ln2 = ml.createNewLibrary("http://example.com/choice", "CT", pc.getDefaultProject());
 		ChoiceObjectNode extendedChoice = ml.addChoice(ln2, "ExtendedChoice");
 
 		new LibraryChainNode(testLib); // Test in a chain
 
-		for (Node choice : testLib.getDescendants_LibraryMembersAsNodes()) {
+		for (LibraryMemberInterface choice : testLib.getDescendants_LibraryMembers()) {
 			if (choice instanceof ChoiceObjectNode) {
 				check((ChoiceObjectNode) choice, true);
 
-				extendedChoice.setExtension(choice);
+				extendedChoice.setExtension((Node) choice);
 				check((ChoiceObjectNode) choice, true);
 				check(extendedChoice, true);
 			}
 		}
+		OTM16Upgrade.otm16Enabled = false;
+	}
+
+	/**
+	 * 5/2/2018 - There is an error in loading version 1.5 that causes choice to have contributed facets. caught in
+	 * org.opentravel.schemas.node.NodeFactory.newInheritedFacet(ContextualFacetOwnerInterface, ContextualFacet15Node,
+	 * ContextualFacetOwnerInterface)
+	 */
+	@Test
+	public void CH_ExtensionTests_v15() {
+		OTM16Upgrade.otm16Enabled = false;
+		LoadFiles lf = new LoadFiles();
+
+		LibraryNode ln = ml.createNewLibrary_Empty("test.com", "t1", defaultProject);
+		ChoiceObjectNode c1 = ml.addChoice(ln, "C1");
+		// Add facets with names different than those that will be in choice 2
+		c1.addFacet("C1Choice1");
+		c1.addFacet("C1Choice2");
+
+		ChoiceObjectNode c2 = ml.addChoice(ln, "C2");
+		c2.setExtension(c1);
+		List<Node> ic = c2.getInheritedChildren();
+		assertTrue(!ic.isEmpty());
+
+		//
+		// Try constructing using tl objects
+		//
+		c1 = new ChoiceObjectNode(buildTL("Ch1"));
+		c2 = new ChoiceObjectNode(buildTL("Ch2"));
+		c2.setExtension(c1);
+		ic = c2.getInheritedChildren();
+		assertTrue(!ic.isEmpty());
+
+		ln = lf.loadFile4(mc);
+		assertTrue("Loaded lib must not be in chain.", !ln.isInChain());
+
+		// If the test gets here, then the error is fixed.
 	}
 
 	@Test
 	public void CH_ExtensionTests() {
+		OTM16Upgrade.otm16Enabled = true;
 		// Given the choice test file with 2 choice objects
 		LibraryNode ln = new LoadFiles().loadFile_Choice(defaultProject);
 		// new LibraryChainNode(ln); // Test in a chain
@@ -155,6 +223,7 @@ public class ChoiceObjectTests {
 		assertTrue("Must have extended business object.", exBo != null);
 		assertTrue("Extended BO must have 2 contextual facets.", exBo.getContextualFacets(false).size() == 2);
 		assertTrue("Extended BO must have 2 inherited facets.", exBo.getInheritedChildren().size() == 2);
+		OTM16Upgrade.otm16Enabled = false;
 	}
 
 	@Test
@@ -201,8 +270,8 @@ public class ChoiceObjectTests {
 		assertTrue("Ch3 must have 1 child.", ch3.getChildren().size() == 1);
 		// Then - inherited children are present.
 		assertTrue("Ch2 must inherit base choice facets.", ch2.getInheritedChildren().size() == baseCount);
-		assertTrue("Ch3 must inherit base and c2 choice facets.", ch3.getInheritedChildren().size() == baseCount
-				+ ch2.getChoiceFacets(false).size());
+		assertTrue("Ch3 must inherit base and c2 choice facets.",
+				ch3.getInheritedChildren().size() == baseCount + ch2.getChoiceFacets(false).size());
 		// Then - the inherited tree filter depends on isInherited.
 		for (Node n : ch3.getInheritedChildren())
 			assertTrue("Must be inherited.", n.isInherited());
@@ -283,8 +352,8 @@ public class ChoiceObjectTests {
 		// When - added to destLib
 		destLib.addMember(newNode);
 		assertTrue(srcLibSize == srcLib.get_LibraryMembers().size());
-		assertTrue("adding to library also adds the contextual facets", destLibSize + 3 == destLib.get_LibraryMembers()
-				.size());
+		assertTrue("adding to library also adds the contextual facets",
+				destLibSize + 3 == destLib.get_LibraryMembers().size());
 		// Then - there must be same number of contributed facets
 		assertTrue(ch0.getChoiceFacets().size() == newNode.getChoiceFacets().size());
 
@@ -324,7 +393,7 @@ public class ChoiceObjectTests {
 		check(newNode, true);
 		ml.check(srcLib);
 
-		List<Node> nodeList = new ArrayList<Node>();
+		List<Node> nodeList = new ArrayList<>();
 
 		// When - ImportObjectToLibraryAction - case 1
 		nodeList.add(ch1);
@@ -395,8 +464,8 @@ public class ChoiceObjectTests {
 					if (n instanceof FacetOMNode) {
 						assertTrue(n.getParent() != null);
 
-						List<TLAttribute> tlAttrs = PropertyCodegenUtils.getInheritedFacetAttributes((TLFacet) n
-								.getTLModelObject());
+						List<TLAttribute> tlAttrs = PropertyCodegenUtils
+								.getInheritedFacetAttributes((TLFacet) n.getTLModelObject());
 						List<Node> inheritedList = n.getInheritedChildren();
 						if (inheritedList.isEmpty()) {
 							List<Node> x = n.getInheritedChildren();

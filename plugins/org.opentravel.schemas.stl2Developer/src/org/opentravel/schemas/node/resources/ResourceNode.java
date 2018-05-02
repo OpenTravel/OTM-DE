@@ -78,8 +78,8 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class ResourceNode extends ComponentNode implements TypeUser, ResourceMemberInterface, VersionedObjectInterface,
-		LibraryMemberInterface, ExtensionOwner {
+public class ResourceNode extends ComponentNode
+		implements TypeUser, ResourceMemberInterface, VersionedObjectInterface, LibraryMemberInterface, ExtensionOwner {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceNode.class);
 
 	// private Node subject = null;
@@ -225,6 +225,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 			getTLModelObject().setName("NewResource"); // must be named to add to library
 		else
 			getTLModelObject().setName(bo.getName() + "Resource");
+		setSubject(bo);
 
 		childrenHandler = new ResourceChildrenHandler(this);
 		// children add themselves to the parent, so children handler must exist.
@@ -291,13 +292,13 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 		// This could be simplified by using the names as keys, but it is working so i didn't do that.
 		// Create Action Facet mapping for use in response payload type
-		Map<TLActionFacet, TLActionFacet> facets = new HashMap<TLActionFacet, TLActionFacet>();
+		Map<TLActionFacet, TLActionFacet> facets = new HashMap<>();
 		for (TLActionFacet af : getTLModelObject().getActionFacets())
 			for (TLActionFacet naf : newTL.getActionFacets())
 				if (naf.getName().equals(af.getName()))
 					facets.put(af, naf);
 		// Create parameter group map for use in requests
-		Map<TLParamGroup, TLParamGroup> groups = new HashMap<TLParamGroup, TLParamGroup>();
+		Map<TLParamGroup, TLParamGroup> groups = new HashMap<>();
 		for (TLParamGroup pg : getTLModelObject().getParamGroups())
 			for (TLParamGroup npg : newTL.getParamGroups())
 				if (npg.getName().equals(pg.getName()))
@@ -419,7 +420,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	public List<ActionNode> getActions() {
 
-		ArrayList<ActionNode> actions = new ArrayList<ActionNode>();
+		ArrayList<ActionNode> actions = new ArrayList<>();
 		for (Node child : getChildren())
 			if (child instanceof ActionNode)
 				actions.add((ActionNode) child);
@@ -438,7 +439,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	 * @return owned and inherited action facets
 	 */
 	public List<ActionFacet> getActionFacets() {
-		ArrayList<ActionFacet> facets = new ArrayList<ActionFacet>();
+		ArrayList<ActionFacet> facets = new ArrayList<>();
 		for (Node child : getChildren()) {
 			if (child instanceof ActionFacet)
 				facets.add((ActionFacet) child);
@@ -590,7 +591,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 
 	@Override
 	public List<ResourceField> getFields() {
-		List<ResourceField> fields = new ArrayList<ResourceField>();
+		List<ResourceField> fields = new ArrayList<>();
 
 		// Extensions - User can only extend Major version libraries.
 		new ResourceField(fields, getExtendsEntityName(), MSGKEY + ".fields.extension", ResourceFieldType.Enum,
@@ -669,7 +670,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	 */
 	public List<Node> getTreeChildren() {
 		checkChildren();
-		List<Node> treeChildren = new ArrayList<Node>();
+		List<Node> treeChildren = new ArrayList<>();
 		// Remove any inherited Actions
 		for (Node child : getChildren()) {
 			if (child instanceof InheritedResourceMember)
@@ -693,7 +694,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	public List<ParamGroup> getParameterGroups(boolean idGroupsOnly) {
-		ArrayList<ParamGroup> pgroups = new ArrayList<ParamGroup>();
+		ArrayList<ParamGroup> pgroups = new ArrayList<>();
 		for (Node child : getChildren()) {
 			if (child instanceof ParamGroup)
 				if (!idGroupsOnly || ((ParamGroup) child).isIdGroup())
@@ -759,7 +760,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	 *         If this is a minor version, returns ONLY the name of the extension object
 	 */
 	public String[] getPeerNames() {
-		ArrayList<String> peerList = new ArrayList<String>();
+		ArrayList<String> peerList = new ArrayList<>();
 		if (!isEditable_newToChain())
 			peerList.add(getExtendsEntityName());
 		else {
@@ -779,7 +780,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	private ArrayList<ResourceNode> getPeers() {
-		ArrayList<ResourceNode> peerList = new ArrayList<ResourceNode>();
+		ArrayList<ResourceNode> peerList = new ArrayList<>();
 		for (LibraryNode ln : Node.getAllUserLibraries())
 			for (Node n : ln.getResourceRoot().getChildren()) {
 				if (n instanceof VersionNode)
@@ -810,8 +811,8 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	}
 
 	public String getSubjectName() {
-		return getTLModelObject().getBusinessObjectRef() != null ? getTLModelObject().getBusinessObjectRef()
-				.getLocalName() : "None";
+		return getTLModelObject().getBusinessObjectRef() != null
+				? getTLModelObject().getBusinessObjectRef().getLocalName() : "None";
 	}
 
 	/**
@@ -820,7 +821,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	public String[] getSubjectCandidates() {
 		if (getLibrary() == null)
 			return new String[0];
-		List<Node> subjects = new ArrayList<Node>();
+		List<Node> subjects = new ArrayList<>();
 		for (LibraryMemberInterface n : getLibrary().getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode)
 				subjects.add((Node) n);
@@ -841,7 +842,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	public String[] getSubjectFacets(boolean includeSubGrp) {
 		if (getSubject() == null)
 			return new String[0];
-		List<FacetInterface> facets = new ArrayList<FacetInterface>();
+		List<FacetInterface> facets = new ArrayList<>();
 		for (Node facet : getSubject().getChildren())
 			if (facet instanceof FacetInterface)
 				facets.add((FacetInterface) facet);
@@ -1024,7 +1025,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	 */
 	public void toggleParent(String name) {
 		if (name.equals("NONE")) {
-			List<TLResourceParentRef> parents = new ArrayList<TLResourceParentRef>(getTLModelObject().getParentRefs());
+			List<TLResourceParentRef> parents = new ArrayList<>(getTLModelObject().getParentRefs());
 			for (TLResourceParentRef ref : parents)
 				getTLModelObject().removeParentRef(ref);
 			return;
@@ -1089,7 +1090,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 	@Override
 	public Collection<String> getValidationMessages() {
 		ValidationFindings findings = TLModelCompileValidator.validateModelElement(getTLModelObject());
-		ArrayList<String> msgs = new ArrayList<String>();
+		ArrayList<String> msgs = new ArrayList<>();
 		for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
 			msgs.add(f);
 		for (String f : findings.getValidationMessages(FindingType.WARNING, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
@@ -1169,7 +1170,7 @@ public class ResourceNode extends ComponentNode implements TypeUser, ResourceMem
 		LOGGER.debug("Set extension to " + base + ": " + getTLModelObject().getExtension().getExtendsEntityName());
 
 		// update inherited children
-		ArrayList<InheritedResourceMember> inherited = new ArrayList<InheritedResourceMember>();
+		ArrayList<InheritedResourceMember> inherited = new ArrayList<>();
 		for (Node n : getChildren())
 			if (n instanceof InheritedResourceMember)
 				inherited.add((InheritedResourceMember) n);

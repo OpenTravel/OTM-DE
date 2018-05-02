@@ -253,7 +253,7 @@ public abstract class CachingChildrenHandler<C extends Node, O extends Node> ext
 	protected List<C> modelTLs(List<TLModelElement> list, Node base) {
 		assert base != owner;
 		C node = null;
-		List<C> kids = new ArrayList<C>();
+		List<C> kids = new ArrayList<>();
 		for (TLModelElement tlSrc : list) {
 
 			node = getOrModel(tlSrc);
@@ -265,7 +265,7 @@ public abstract class CachingChildrenHandler<C extends Node, O extends Node> ext
 			}
 			// ComponentNode cnode = (ComponentNode) node;
 
-			if (base != null) {
+			if (base != null && !base.isDeleted()) {
 				// These are inherited children..."ghost" nodes made from "ghost" tl objects.
 				// This could be a minor version of an extended object. Property could come from either the
 				// version chain OR base
@@ -307,8 +307,8 @@ public abstract class CachingChildrenHandler<C extends Node, O extends Node> ext
 					// To make ready to add to children list
 					// Make an inherited contextual facet and its associated contributed facet to finish modeling node
 					assert node.getTLModelObject() == tlSrc;
-					InheritedContextualFacetNode icf = NodeFactory.newInheritedFacet(
-							(ContextualFacetOwnerInterface) base, (ContributedFacetNode) node);
+					InheritedContextualFacetNode icf = NodeFactory
+							.newInheritedFacet((ContextualFacetOwnerInterface) base, (ContributedFacetNode) node);
 					node = (C) icf.getWhereContributed(); // get the inherited contributed facet
 					// LOGGER.debug("Created inherited contextual facet " + icf + " from contributed facet.");
 
@@ -320,7 +320,7 @@ public abstract class CachingChildrenHandler<C extends Node, O extends Node> ext
 			// Add result to kids
 			kids.add(node);
 
-			if (base != null)
+			if (base != null && !base.isDeleted())
 				assert node instanceof InheritedInterface;
 		}
 		return kids;

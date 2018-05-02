@@ -115,10 +115,10 @@ public class AggregateNode extends NavNode {
 	 */
 	private List<Node> findExactMatches(List<Node> versionNodes, Node match) {
 		String matchName = match.getName();
-		List<Node> ret = new ArrayList<Node>();
+		List<Node> ret = new ArrayList<>();
 		for (Node c : versionNodes) {
 			assert c instanceof VersionNode;
-			if (c.getName().equals(matchName))
+			if (c.getName() != null && c.getName().equals(matchName))
 				if (((VersionNode) c).get().getClass() == match.getClass())
 					if (((VersionNode) c).get().getLibrary() != match.getLibrary())
 						ret.add(c);

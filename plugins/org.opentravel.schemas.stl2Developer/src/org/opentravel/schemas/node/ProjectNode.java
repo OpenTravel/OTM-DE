@@ -132,6 +132,8 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 	/**
 	 * Simply remove library from children handler.
 	 * 
+	 * @see #close(LibraryInterface)
+	 * 
 	 * @param library
 	 */
 	public void remove(LibraryInterface library) {
@@ -235,7 +237,7 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 	 */
 	// @Override
 	public List<LibraryNode> getLibraries() {
-		ArrayList<LibraryNode> libs = new ArrayList<LibraryNode>();
+		ArrayList<LibraryNode> libs = new ArrayList<>();
 		if (getChildrenHandler() != null)
 			for (Node n : getChildrenHandler().get()) {
 				if (n instanceof LibraryNavNode) {
@@ -374,8 +376,8 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 
 	@Override
 	public boolean isBuiltIn() {
-		return project == null || project.getProjectId() == null ? false : project.getProjectId().equals(
-				BuiltInProject.BUILTIN_PROJECT_ID);
+		return project == null || project.getProjectId() == null ? false
+				: project.getProjectId().equals(BuiltInProject.BUILTIN_PROJECT_ID);
 
 	}
 
@@ -388,7 +390,7 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 
 	@Override
 	public List<LibraryNode> getUserLibraries() {
-		List<LibraryNode> libList = new ArrayList<LibraryNode>();
+		List<LibraryNode> libList = new ArrayList<>();
 		for (Node lib : getChildrenHandler().get()) {
 			// Get libraryNodes from navNode
 			assert lib instanceof LibraryNavNode;

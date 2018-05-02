@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
@@ -83,6 +84,14 @@ public class BusinessObjectTests {
 		sType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 	}
 
+	@After
+	public void afterEachTest() {
+		Node.getLibraryModelManager().clear(false);
+		for (LibraryNode lib : defaultProject.getLibraries())
+			defaultProject.close(lib);
+		assert defaultProject.getLibraries().isEmpty();
+	}
+
 	@Test
 	public void BO_ConstructorsTests() {
 
@@ -111,7 +120,7 @@ public class BusinessObjectTests {
 
 		List<LibraryNode> libs = mc.getModelNode().getUserLibraries();
 		for (LibraryNode lib : libs) {
-			for (Node bo : lib.getDescendants_LibraryMembersAsNodes()) {
+			for (LibraryMemberInterface bo : lib.getDescendants_LibraryMembers()) {
 				if (bo instanceof BusinessObjectNode)
 					check((BusinessObjectNode) bo);
 			}
@@ -119,7 +128,7 @@ public class BusinessObjectTests {
 				continue;
 			// Repeat test with library in a chain
 			LibraryChainNode lcn = new LibraryChainNode(lib);
-			for (Node bo : lcn.getDescendants_LibraryMembersAsNodes()) {
+			for (LibraryMemberInterface bo : lcn.getDescendants_LibraryMembers()) {
 				if (bo instanceof BusinessObjectNode)
 					check((BusinessObjectNode) bo);
 			}
@@ -178,7 +187,10 @@ public class BusinessObjectTests {
 	}
 
 	public void check(BusinessObjectNode bo, boolean validate) {
-
+		if (bo.isDeleted()) {
+			LOGGER.debug("Skipping tests - business object " + bo + " is deleted");
+			return;
+		}
 		// Check fixed structure
 		assertTrue("Must have identity listener.", Node.GetNode(bo.getTLModelObject()) == bo);
 		assertTrue("Must have id facet.", bo.getFacet_ID() != null);
@@ -234,8 +246,8 @@ public class BusinessObjectTests {
 
 		// Parent Links
 		assertTrue("BO must be child of parent.", bo.getParent().getChildren().contains(bo));
-		assertTrue("BO must be in list only once.", bo.getParent().getChildren().indexOf(bo) == bo.getParent()
-				.getChildren().lastIndexOf(bo));
+		assertTrue("BO must be in list only once.",
+				bo.getParent().getChildren().indexOf(bo) == bo.getParent().getChildren().lastIndexOf(bo));
 
 		// must have at least 3 children
 		assertTrue(3 <= bo.getChildren().size());
@@ -258,9 +270,9 @@ public class BusinessObjectTests {
 	 */
 	@Test
 	public void BO_ExensionTests() {
-		MainController mc = OtmRegistry.getMainController();
+		// MainController mc = OtmRegistry.getMainController();
 		LoadFiles lf = new LoadFiles();
-		MockLibrary ml = new MockLibrary();
+		// MockLibrary ml = new MockLibrary();
 
 		// Lib4 is in chain when run as a group
 		List<LibraryNode> libs = ModelNode.getLibraryModelManager().getUserLibraries();
@@ -356,12 +368,22 @@ public class BusinessObjectTests {
 		// TODO - validate where assigned was changed
 	}
 
+	static String NAME = "Test1";
+	static String PREFIX = "tga";
+
 	@Test
 	public void BO_FacetAsTypeTests() {
 		MainController mc = OtmRegistry.getMainController();
 		LoadFiles lf = new LoadFiles();
 		LibraryNode ln = lf.loadFile1(mc);
 		ln.setEditable(true);
+		assertTrue(ln.getName().equals(NAME));
+		assertTrue(ln.getPrefix().equals(PREFIX));
+
+		// Profile element is in the service in File1.otm
+		assertTrue(!ln.getServiceRoot().getChildren().isEmpty());
+		List<TypeUser> svcTypeUsers = ln.getServiceRoot().getDescendants_TypeUsers();
+		assertTrue(!svcTypeUsers.isEmpty());
 
 		// Find an element to use to make sure all facets can be assigned as a type
 		TypeUser user = null;
@@ -370,28 +392,34 @@ public class BusinessObjectTests {
 				user = n;
 				break;
 			}
+		if (user == null)
+			LOGGER.error("Missing Profile type user.");
 		assert user != null;
 		assert user.isEditable();
 
 		// File 1 has a business object Profile with 5 facets and 1 alias
 		BusinessObjectNode bo = null;
-		List<Node> members = ln.getDescendants_LibraryMembersAsNodes();
-		for (Node n : members)
+		List<LibraryMemberInterface> members = ln.getDescendants_LibraryMembers();
+		for (LibraryMemberInterface n : members)
 			if (n.getName().equals("Profile") && n instanceof BusinessObjectNode)
 				bo = (BusinessObjectNode) n;
 		assertTrue("Profile object must be in test 1.", bo != null);
 
-		// Check facets
+		// Check facets - Children = 3 FacetProviderNodes, 2 ContributedFacetNodes and one AliasNode
 		final int expectedFacetCount = 5;
 		int facetCnt = 0;
-		for (Node n : bo.getChildren())
+		for (Node n : bo.getChildren()) {
+			if (n instanceof ContributedFacetNode)
+				n = ((ContributedFacetNode) n).get(); // get the actual facet provider
+
 			if (n instanceof FacetProviderNode) {
 				facetCnt++;
 				user.setAssignedType((FacetProviderNode) n);
 				assertTrue("User must be assigned facet as type.", user.getAssignedType() == n);
-				assertTrue("Facet must have user in where assigned list.", ((FacetProviderNode) n).getWhereAssigned()
-						.contains(user));
+				assertTrue("Facet must have user in where assigned list.",
+						((FacetProviderNode) n).getWhereAssigned().contains(user));
 			}
+		}
 		assertTrue("Profile business object in test 1 must have " + expectedFacetCount + " facets.",
 				facetCnt == expectedFacetCount);
 
@@ -434,8 +462,8 @@ public class BusinessObjectTests {
 		// Then - the elements are named after their type
 		assertTrue("Element name must be the BO name.", pBO.getName().equals(bo.getName()));
 		assertTrue("Element name must be alias name.", pAlias1.getName().contains(alias1.getName()));
-		assertTrue("Element name must NOT be facet name.", !pBOSummary.getName()
-				.equals(bo.getFacet_Summary().getName()));
+		assertTrue("Element name must NOT be facet name.",
+				!pBOSummary.getName().equals(bo.getFacet_Summary().getName()));
 		// Then - assigned facet name will be constructed by compiler using owning object and facet type.
 		assertTrue("Element name must start with BO name.", pBOSummary.getName().startsWith(bo.getName()));
 		assertTrue("Element name must contain facet name.",

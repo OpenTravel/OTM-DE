@@ -21,6 +21,7 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.handlers.children.FacetProviderChildrenHandler;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
@@ -64,6 +65,7 @@ public class ContributedFacetNode extends FacadeBase implements FacetInterface {
 	 */
 	// @Deprecated
 	public ContributedFacetNode() {
+		assert OTM16Upgrade.otm16Enabled; // Contributed facets are Only used in v1.6 and later
 		// no-op
 	}
 
@@ -78,6 +80,7 @@ public class ContributedFacetNode extends FacadeBase implements FacetInterface {
 	 * @param tlCF
 	 */
 	public ContributedFacetNode(TLContextualFacet tlCF) {
+		assert OTM16Upgrade.otm16Enabled;
 		// Hold on to the contextual facet for resolution by type resolver
 		setContributor(tlCF);
 		childrenHandler = null; // contributor owns the children not this

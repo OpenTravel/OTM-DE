@@ -89,12 +89,16 @@ public class BusinessObjectNode extends FacetOwners
 	 */
 	public BusinessObjectNode(CoreObjectNode core) {
 		this(new TLBusinessObject());
-
+		if (core == null)
+			return;
 		cloneAliases(core.getAliases());
 
 		setName(core.getName());
 		core.getLibrary().addMember(this); // version managed library safe add
 		setDocumentation(core.getDocumentation());
+
+		if (core.isDeleted())
+			return;
 
 		getFacet_Summary().copy(core.getFacet_Summary());
 		getFacet_Detail().copy(core.getFacet_Detail());
@@ -102,10 +106,14 @@ public class BusinessObjectNode extends FacetOwners
 
 	public BusinessObjectNode(VWA_Node vwa) {
 		this(new TLBusinessObject());
+		if (vwa == null)
+			return;
 
 		setName(vwa.getName());
 		vwa.getLibrary().addMember(this);
 		setDocumentation(vwa.getDocumentation());
+		if (vwa.isDeleted())
+			return;
 
 		getFacet_Summary().copy(vwa.getFacet_Attributes());
 	}

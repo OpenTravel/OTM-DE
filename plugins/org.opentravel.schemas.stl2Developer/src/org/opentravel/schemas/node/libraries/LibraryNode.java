@@ -74,6 +74,7 @@ import org.opentravel.schemas.node.interfaces.LibraryOwner;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.listeners.LibraryNodeListener;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
+import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
@@ -727,13 +728,18 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	public void addMember(final LibraryMemberInterface lm) {
 		// If it doesn't have a children handler yet, it is doing the handler constructor.
 		// The constructor will add the member.
-		if (getChildrenHandler() == null) {
-			LOGGER.debug("Missing library children handler.");
-			return;
-		}
+		// 5/2/2018 - commented out null check
+		// if (getChildrenHandler() == null) {
+		// LOGGER.debug("Missing library children handler.");
+		// return;
+		// }
 		assert getChildrenHandler() != null;
 		assert lm.getTLModelObject() != null;
 		assert lm.getTLModelObject() instanceof LibraryMember;
+		// Subject must have resource in its where assigned list.
+		if (lm instanceof ResourceNode && ((ResourceNode) lm).getSubject() != null)
+			assert (((ResourceNode) lm).getSubject().getWhereAssigned().contains(lm));
+
 		// Hold onto number of contextual facets for assertion at end
 		int cfCount = 0;
 		if (lm instanceof ContextualFacetOwnerInterface)
@@ -778,6 +784,9 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 		collapseContexts(); // TODO - optimize to just object not whole library
 
 		assert this.contains((Node) lm);
+		// Subject must have resource in its where assigned list.
+		if (lm instanceof ResourceNode && ((ResourceNode) lm).getSubject() != null)
+			assert (((ResourceNode) lm).getSubject().getWhereAssigned().contains(lm));
 		if (lm instanceof ContextualFacetOwnerInterface)
 			assert cfCount == ((ContextualFacetOwnerInterface) lm).getContextualFacets(false).size();
 

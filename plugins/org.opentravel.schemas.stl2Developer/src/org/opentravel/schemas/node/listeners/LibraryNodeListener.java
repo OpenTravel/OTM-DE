@@ -39,8 +39,8 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
 		Node affectedNode = getAffectedNode(event);
-		// LOGGER.debug("Library Ownership event: " + event.getType() + " this = " + thisNode + " affected = "
-		// + affectedNode);
+		// LOGGER.debug(
+		// "Library Ownership event: " + event.getType() + " this = " + thisNode + " affected = " + affectedNode);
 		LibraryNode ln = (LibraryNode) thisNode;
 
 		switch (event.getType()) {
@@ -54,7 +54,11 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 				if (!((ContextualFacetNode) affectedNode).canBeLibraryMember())
 					break;
 			ln.getChildrenHandler().add(affectedNode);
-			// TODO - versions, aggregates and where used
+
+			// TODO - versions, aggregates
+
+			// Set where used
+			addAssignedTypes(affectedNode);
 			break;
 
 		case MEMBER_REMOVED:
@@ -64,17 +68,19 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 				return; // happens during deletes
 
 			// Clear assigned types
-			// FIXME - should this be part of delete()
-			for (TypeUser n : affectedNode.getDescendants_TypeUsers())
-				if (n.getAssignedType() != null)
-					n.getAssignedType().getWhereAssignedHandler().removeUser(n);
-			if (affectedNode instanceof TypeUser)
-				if (((TypeUser) affectedNode).getAssignedType() != null)
-					((TypeUser) affectedNode).getAssignedType().getWhereAssignedHandler()
-							.removeUser((TypeUser) affectedNode);
-
-			// FIXME - should remove be destructive? It is used in addMember to move and this breaks that.
-			// affectedNode.delete();
+			clearAssignedTypes(affectedNode);
+			// 5/2/2018 - dmh - made symmetric with Member_Added
+			// // FIXME - should this be part of delete()
+			// for (TypeUser n : affectedNode.getDescendants_TypeUsers())
+			// if (n.getAssignedType() != null)
+			// n.getAssignedType().getWhereAssignedHandler().removeUser(n);
+			// if (affectedNode instanceof TypeUser)
+			// if (((TypeUser) affectedNode).getAssignedType() != null)
+			// ((TypeUser) affectedNode).getAssignedType().getWhereAssignedHandler()
+			// .removeUser((TypeUser) affectedNode);
+			//
+			// // FIXME - should remove be destructive? It is used in addMember to move and this breaks that.
+			// // affectedNode.delete();
 
 			ln.getChildrenHandler().remove(affectedNode);
 			// TODO - versions, aggregates
@@ -85,5 +91,34 @@ public class LibraryNodeListener extends NodeIdentityListener implements INodeLi
 			// + affectedNode);
 			break;
 		}
+	}
+
+	/**
+	 * Remove affected node and all its type user descendants from type provider's where used lists.
+	 * 
+	 * @param affectedNode
+	 */
+	private void clearAssignedTypes(Node affectedNode) {
+		for (TypeUser n : affectedNode.getDescendants_TypeUsers())
+			if (n.getAssignedType() != null)
+				n.getAssignedType().getWhereAssignedHandler().removeUser(n);
+		if (affectedNode instanceof TypeUser)
+			if (((TypeUser) affectedNode).getAssignedType() != null)
+				((TypeUser) affectedNode).getAssignedType().getWhereAssignedHandler()
+						.removeUser((TypeUser) affectedNode);
+	}
+
+	/**
+	 * Add affected node and all its type user descendants to their type provider's where used lists.
+	 * 
+	 * @param affectedNode
+	 */
+	private void addAssignedTypes(Node affectedNode) {
+		for (TypeUser n : affectedNode.getDescendants_TypeUsers())
+			if (n.getAssignedType() != null)
+				n.getAssignedType().getWhereAssignedHandler().addUser(n);
+		if (affectedNode instanceof TypeUser)
+			if (((TypeUser) affectedNode).getAssignedType() != null)
+				((TypeUser) affectedNode).getAssignedType().getWhereAssignedHandler().addUser((TypeUser) affectedNode);
 	}
 }

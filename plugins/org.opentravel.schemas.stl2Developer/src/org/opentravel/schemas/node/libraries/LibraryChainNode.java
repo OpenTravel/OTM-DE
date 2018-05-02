@@ -103,7 +103,9 @@ public class LibraryChainNode extends Node implements FacadeInterface, TypeProvi
 		if (ln == null)
 			return;
 		if (ln.isInChain())
-			throw new IllegalStateException("Library is already in a chain.");
+			// throw new IllegalStateException("Library is already in a chain.");
+			return;
+
 		if (ln.getProject() == null)
 			throw new IllegalStateException("Library did not have project.");
 		if (ln.getParent() == null || (!(ln.getParent() instanceof LibraryNavNode)))
