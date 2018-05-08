@@ -48,12 +48,13 @@ public class NodeDescendantHandler {
 	 *         version and navNodes.
 	 */
 	public List<Node> getDescendants(Node root) {
-		HashSet<Node> ret = new HashSet<Node>();
-		for (final Node n : root.getChildren()) {
-			ret.add(n);
-			ret.addAll(n.getDescendants());
-		}
-		return new ArrayList<Node>(ret);
+		HashSet<Node> ret = new HashSet<>();
+		for (final Node n : root.getChildren())
+			if (!n.isDeleted()) {
+				ret.add(n);
+				ret.addAll(n.getDescendants());
+			}
+		return new ArrayList<>(ret);
 	}
 
 	/**
@@ -65,14 +66,15 @@ public class NodeDescendantHandler {
 	 * @return new list of assigned types or empty list.
 	 */
 	public List<Node> getDescendants_AssignedTypes(Node root, boolean currentLibraryOnly) {
-		HashSet<Node> foundTypes = new HashSet<Node>();
+		HashSet<Node> foundTypes = new HashSet<>();
 		foundTypes = getDescendants_AssignedTypes(root, currentLibraryOnly, foundTypes);
 		foundTypes.remove(root); // may have been found in an addAll iteration
-		return new ArrayList<Node>(foundTypes);
+		return new ArrayList<>(foundTypes);
 	}
 
 	// the public method uses this then removes the original object from the list.
-	private HashSet<Node> getDescendants_AssignedTypes(Node root, boolean currentLibraryOnly, HashSet<Node> foundTypes) {
+	private HashSet<Node> getDescendants_AssignedTypes(Node root, boolean currentLibraryOnly,
+			HashSet<Node> foundTypes) {
 		Node assignedType = null;
 		for (TypeUser n : root.getDescendants_TypeUsers()) {
 			if (n.getAssignedType() != null) {
@@ -92,7 +94,7 @@ public class NodeDescendantHandler {
 	 * @return new list of all descendants that are extension owners.
 	 */
 	public List<ExtensionOwner> getDescendants_ExtensionOwners(Node root) {
-		final ArrayList<ExtensionOwner> ret = new ArrayList<ExtensionOwner>();
+		final ArrayList<ExtensionOwner> ret = new ArrayList<>();
 		for (final Node n : root.getChildren()) {
 			if (n instanceof ExtensionOwner)
 				ret.add((ExtensionOwner) n);
@@ -104,7 +106,7 @@ public class NodeDescendantHandler {
 	}
 
 	public List<ContextualFacetOwnerInterface> getDescendants_ContextualFacetOwners(Node root) {
-		final ArrayList<ContextualFacetOwnerInterface> ret = new ArrayList<ContextualFacetOwnerInterface>();
+		final ArrayList<ContextualFacetOwnerInterface> ret = new ArrayList<>();
 		for (final Node n : root.getDescendants())
 			if (n instanceof ContextualFacetOwnerInterface)
 				ret.add((ContextualFacetOwnerInterface) n);
@@ -112,7 +114,7 @@ public class NodeDescendantHandler {
 	}
 
 	public List<ContributedFacetNode> getDescendants_ContributedFacets(Node root) {
-		final ArrayList<ContributedFacetNode> ret = new ArrayList<ContributedFacetNode>();
+		final ArrayList<ContributedFacetNode> ret = new ArrayList<>();
 		for (final Node n : root.getChildren()) {
 			if (n instanceof ContributedFacetNode)
 				ret.add((ContributedFacetNode) n);
@@ -128,7 +130,7 @@ public class NodeDescendantHandler {
 	 * @return new list of all contextual facets including contributed facets
 	 */
 	public List<ContextualFacetNode> getDescendants_ContextualFacets(Node root) {
-		final ArrayList<ContextualFacetNode> ret = new ArrayList<ContextualFacetNode>();
+		final ArrayList<ContextualFacetNode> ret = new ArrayList<>();
 		for (final Node n : root.getChildren()) {
 			if (n instanceof ContextualFacetNode)
 				ret.add((ContextualFacetNode) n);
@@ -146,7 +148,7 @@ public class NodeDescendantHandler {
 	 */
 	// @Override
 	public List<LibraryMemberInterface> getDescendants_LibraryMembers(Node root) {
-		final ArrayList<LibraryMemberInterface> ret = new ArrayList<LibraryMemberInterface>();
+		final ArrayList<LibraryMemberInterface> ret = new ArrayList<>();
 		for (final Node n : root.getChildren()) {
 			if (n instanceof LibraryMemberInterface)
 				ret.add((LibraryMemberInterface) n);
@@ -163,7 +165,7 @@ public class NodeDescendantHandler {
 	 * @return new list of all descendants that simple components.
 	 */
 	public ArrayList<SimpleMemberInterface> getDescendants_SimpleMembers(Node root) {
-		final ArrayList<SimpleMemberInterface> ret = new ArrayList<SimpleMemberInterface>();
+		final ArrayList<SimpleMemberInterface> ret = new ArrayList<>();
 		for (final Node n : root.getChildren()) {
 			if (n instanceof SimpleMemberInterface)
 				ret.add((SimpleMemberInterface) n);
@@ -180,7 +182,7 @@ public class NodeDescendantHandler {
 	 * @return new list of all descendants that can be assigned as a type.
 	 */
 	public List<TypeProvider> getDescendants_TypeProviders(Node root) {
-		final ArrayList<TypeProvider> ret = new ArrayList<TypeProvider>();
+		final ArrayList<TypeProvider> ret = new ArrayList<>();
 		for (final Node n : root.getChildren()) {
 			if (n instanceof TypeProvider)
 				ret.add((TypeProvider) n);
@@ -198,7 +200,7 @@ public class NodeDescendantHandler {
 	 * @return new list of all descendants that can be assigned a type.
 	 */
 	public List<TypeUser> getDescendants_TypeUsers(Node root) {
-		final ArrayList<TypeUser> ret = new ArrayList<TypeUser>();
+		final ArrayList<TypeUser> ret = new ArrayList<>();
 		for (final Node n : root.getChildren()) {
 			if (n instanceof TypeUser)
 				ret.add((TypeUser) n);

@@ -99,7 +99,16 @@ public interface TypeUser {
 	public boolean setAssignedTLType(TLModelElement tlProvider);
 
 	/**
-	 * Clear the assigned type by setting it to undefined.
+	 * Clear the assigned type. This does <b>not</b> change the type in the TL property or attribute. This <b>does</b>
+	 * remove the user from the assigned types where used list and adds the user to the unassignedNode's where used
+	 * list.
+	 * <p>
+	 * The TypeUserHandler will skip setting TL assignment in an attempt to preserve actual assignment even if that
+	 * library is not loaded.
+	 * <p>
+	 * The GUI does not provide the user with any means to clear an assignment. This method is used when libraries are
+	 * closed to preserve the type assignment even though the provider is no longer loaded into the active model. The
+	 * GUI will present the type name with prefix along with "Missing" if possible.
 	 * 
 	 * @see #removeAssignedTLType()
 	 * @return true if state of owner changed, false otherwise

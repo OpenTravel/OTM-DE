@@ -25,11 +25,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLResource;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -39,11 +36,8 @@ import org.opentravel.schemas.node.resources.ParentRef;
 import org.opentravel.schemas.node.resources.ResourceBuilder;
 import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.testUtils.LoadFiles;
-import org.opentravel.schemas.testUtils.MockLibrary;
-import org.opentravel.schemas.testUtils.NodeTesters;
-import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,24 +46,25 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class ResourceObjectTests {
+public class ResourceObjectTests extends BaseTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceObjectTests.class);
 
 	ModelNode model = null;
-	MockLibrary ml = null;
-	LibraryNode ln = null;
-	MainController mc;
-	DefaultProjectController pc;
-	ProjectNode defaultProject;
-	TestNode tn = new NodeTesters().new TestNode();
+	// MockLibrary ml = null;
+	// LibraryNode ln = null;
+	// MainController mc;
+	// DefaultProjectController pc;
+	// ProjectNode defaultProject;
+	// TestNode tn = new NodeTesters().new TestNode();
 
-	@Before
-	public void beforeEachTest() {
-		mc = OtmRegistry.getMainController();
-		ml = new MockLibrary();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
-	}
+	// @Override
+	// @Before
+	// public void beforeEachTest() {
+	//// mc = OtmRegistry.getMainController();
+	//// ml = new MockLibrary();
+	//// pc = (DefaultProjectController) mc.getProjectController();
+	//// defaultProject = pc.getDefaultProject();
+	// }
 
 	@Test
 	public void constructorTests() {

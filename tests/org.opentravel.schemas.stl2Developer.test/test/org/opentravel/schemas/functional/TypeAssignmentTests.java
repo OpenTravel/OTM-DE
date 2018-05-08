@@ -15,7 +15,6 @@
  */
 package org.opentravel.schemas.functional;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
@@ -71,8 +70,8 @@ public class TypeAssignmentTests {
 		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
 		ProjectNode defaultProject = pc.getDefaultProject();
 		// ln = mockLibrary.createNewLibrary("http://example.com/test", "test", defaultProject);
-		ln = LibraryNodeBuilder.create("Example", "http://example.org", "p", new Version(1, 1, 1)).build(
-				defaultProject, pc);
+		ln = LibraryNodeBuilder.create("Example", "http://example.org", "p", new Version(1, 1, 1)).build(defaultProject,
+				pc);
 		ln.setEditable(true);
 
 		builtin = (SimpleTypeNode) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
@@ -103,7 +102,7 @@ public class TypeAssignmentTests {
 		new TypeResolver().resolveTypes(ln); // create where used and listeners
 		int soCount = so.getWhereAssignedCount();
 		int ecCount = ec.getWhereAssignedCount();
-		int unusedCount = un.getWhereAssignedCount();
+		// int unusedCount = un.getWhereAssignedCount();
 
 		// Make the assignments
 		for (Node child : facetNode.getChildren()) {
@@ -113,18 +112,21 @@ public class TypeAssignmentTests {
 
 			// Assign to one type,
 			user.setAssignedType(so);
-			assertFalse("Is unassigned.", un.getWhereAssigned().contains(user));
-			assertTrue("Is assigned.", so.getWhereAssigned().contains(user));
+			assertTrue("Is assigned.", user.getAssignedType() == so);
+			assertTrue("Is not unassigned.", !un.getWhereAssigned().contains(user));
+			assertTrue("Type's where used must contain user.", so.getWhereAssigned().contains(user));
 
 			// Assign none
 			user.setAssignedType();
-			assertFalse("Must not be assigned.", so.getWhereAssigned().contains(user));
-			// assertTrue("Is unassigned.", un.getWhereAssigned().contains(user));
+			assertTrue("Must be unchanged.", user.getAssignedType() == so); // UNCHANGED!
+			assertTrue("Previous type must not have this as were assigned.", !so.getWhereAssigned().contains(user));
+			assertTrue("Is unassigned.", un.getWhereAssigned().contains(user));
 
 			// then assign a different one.
 			user.setAssignedType(ec);
-			assertFalse("Is assigned.", un.getWhereAssigned().contains(user));
-			assertTrue("Is assigned.", ec.getWhereAssigned().contains(user));
+			assertTrue("Is assigned.", user.getAssignedType() == ec);
+			assertTrue("New type ust have this as where assigned.", ec.getWhereAssigned().contains(user));
+			assertTrue("Unassigned type must not have this as were assigned.", !un.getWhereAssigned().contains(user));
 		}
 
 		// Check resulting assignment and where used information

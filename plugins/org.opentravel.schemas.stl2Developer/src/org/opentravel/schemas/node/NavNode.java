@@ -157,7 +157,7 @@ public class NavNode extends Node implements FacadeInterface, TypeProviderAndOwn
 	 * @return
 	 */
 	public List<LibraryMemberInterface> get_LibraryMembers() {
-		List<LibraryMemberInterface> members = new ArrayList<LibraryMemberInterface>();
+		List<LibraryMemberInterface> members = new ArrayList<>();
 		for (Node n : getChildren()) {
 			// if (n instanceof VersionNode && ((VersionNode) n).get() != null)
 			// n = ((VersionNode) n).get();
@@ -213,6 +213,16 @@ public class NavNode extends Node implements FacadeInterface, TypeProviderAndOwn
 	@Override
 	public LibraryNode get() {
 		return getLibrary();
+	}
+
+	/**
+	 * @return service node if it exists as a child of this node or else null
+	 */
+	public ServiceNode getService() {
+		for (Node n : getChildrenHandler().get())
+			if (n instanceof ServiceNode)
+				return (ServiceNode) n;
+		return null;
 	}
 
 	/**

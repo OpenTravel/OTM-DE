@@ -90,6 +90,14 @@ public class LibraryChildrenHandler extends StaticChildrenHandler<Node, LibraryN
 	@Override
 	public void clear(Node item) {
 		children.remove(item);
+		if (item == getComplexRoot())
+			complexRoot = null;
+		else if (item == getSimpleRoot())
+			simpleRoot = null;
+		else if (item == getResourceRoot())
+			resourceRoot = null;
+		else if (item == getServiceRoot())
+			serviceRoot = null;
 	}
 
 	/**
@@ -122,7 +130,7 @@ public class LibraryChildrenHandler extends StaticChildrenHandler<Node, LibraryN
 
 	@Override
 	public List<TLModelElement> getChildren_TL() {
-		final List<TLModelElement> kids = new ArrayList<TLModelElement>();
+		final List<TLModelElement> kids = new ArrayList<>();
 		for (final LibraryMember mbr : owner.getTLModelObject().getNamedMembers())
 			kids.add((TLModelElement) mbr);
 		return kids;
@@ -132,7 +140,7 @@ public class LibraryChildrenHandler extends StaticChildrenHandler<Node, LibraryN
 	@Override
 	public void initChildren() {
 		initRunning = true;
-		children = new ArrayList<Node>();
+		children = new ArrayList<>();
 		children.add(complexRoot);
 		children.add(simpleRoot);
 		children.add(resourceRoot);
@@ -159,9 +167,9 @@ public class LibraryChildrenHandler extends StaticChildrenHandler<Node, LibraryN
 	@Override
 	public List<Node> getNavChildren(boolean deep) {
 		if (owner.getParent() instanceof VersionAggregateNode)
-			return new ArrayList<Node>();
+			return new ArrayList<>();
 		else
-			return new ArrayList<Node>(get());
+			return new ArrayList<>(get());
 	}
 
 	@Override
@@ -175,7 +183,7 @@ public class LibraryChildrenHandler extends StaticChildrenHandler<Node, LibraryN
 	public List<Node> getTreeChildren(boolean deep) {
 		List<Node> treeKids = getNavChildren(deep);
 		if (treeKids.isEmpty()) {
-			treeKids = new ArrayList<Node>();
+			treeKids = new ArrayList<>();
 			if (!treeKids.contains(owner.getWhereUsedHandler().getWhereUsedNode()))
 				treeKids.add(owner.getWhereUsedHandler().getWhereUsedNode());
 			if (!treeKids.contains(owner.getWhereUsedHandler().getUsedByNode()))
@@ -191,7 +199,7 @@ public class LibraryChildrenHandler extends StaticChildrenHandler<Node, LibraryN
 
 	protected List<Node> modelTLs(List<TLModelElement> list, Node base) {
 		LibraryMemberInterface lm = null;
-		List<Node> kids = new ArrayList<Node>();
+		List<Node> kids = new ArrayList<>();
 		for (TLModelElement t : list) {
 			assert t instanceof LibraryMember;
 			LibraryMember mbr = (LibraryMember) t;

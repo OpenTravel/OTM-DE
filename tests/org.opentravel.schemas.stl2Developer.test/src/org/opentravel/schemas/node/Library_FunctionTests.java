@@ -34,6 +34,7 @@ import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
+import org.opentravel.schemas.node.interfaces.InheritedInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
@@ -735,7 +736,9 @@ public class Library_FunctionTests extends BaseProjectTest {
 
 					LOGGER.debug("Moving " + n + " from " + n.getLibrary() + " to " + toLib);
 					assertTrue(n.getLibrary() != null);
-					assertTrue(n.getLibrary() == ln);
+					// Inherited nodes report the library from where inherited
+					if (!(n instanceof InheritedInterface))
+						assertTrue(n.getLibrary() == ln);
 					assertTrue(n.getLibrary().isEditable());
 					assertTrue(toLib.isEditable());
 					try {
@@ -776,7 +779,7 @@ public class Library_FunctionTests extends BaseProjectTest {
 		}
 
 		Assert.assertEquals(1, toLibContexts.size());
-
+		// Fails in AfterEachTest() -- library complex root still has inherited contextual facets
 		OTM16Upgrade.otm16Enabled = false;
 	}
 

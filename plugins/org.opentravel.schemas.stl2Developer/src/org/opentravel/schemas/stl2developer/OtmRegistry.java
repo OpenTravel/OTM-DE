@@ -311,7 +311,7 @@ public class OtmRegistry {
 	public static void registerMainController(MainController mainController) {
 		if (OtmRegistry.mainController != null) {
 			LOGGER.error("Registering ANOTHER main controller.see Import_Tests.beforeEachTest() for proper usage.");
-			assert false;
+			// assert false;
 		}
 		OtmRegistry.mainController = mainController;
 	}

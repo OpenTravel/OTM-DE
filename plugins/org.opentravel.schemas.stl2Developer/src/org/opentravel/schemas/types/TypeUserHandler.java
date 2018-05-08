@@ -93,7 +93,7 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		if (n == null && assignedTL != null) {
 			Node ownerLib = Node.GetNode(((NamedEntity) assignedTL).getOwningLibrary());
 			if (ownerLib == null) {
-				// LOGGER.debug("Owning library of assigned type  has not been modeled.");
+				// LOGGER.debug("Owning library of assigned type has not been modeled.");
 				return ModelNode.getUnassignedNode();
 			}
 		}
@@ -201,9 +201,9 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		TypeProvider oldProvider = owner.getAssignedType();
 
 		// Skip if owner has a specific required type.
-		if (owner.getRequiredType() != null) {
+		if (owner.getRequiredType() != null)
 			return false;
-		}
+
 		if (oldProvider == target) {
 			// LOGGER.debug("No change to assignment to " + owner);
 			if (!target.getWhereAssigned().contains(owner)) {
@@ -235,6 +235,8 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		boolean result = owner.setAssignedTLType(tlTarget);
 
 		if (result) {
+			// May be in unassigned node's where assigned if the old assignment was not found
+			ModelNode.getUnassignedNode().removeWhereAssigned(owner);
 			// Remove old type assignment
 			oldProvider.removeWhereAssigned(owner);
 			// Add where used and type assignment listener
@@ -257,7 +259,7 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 
 	// ONLY public to simplify JUnits
 	public TypeUserAssignmentListener getAssignmentListeners() {
-		List<TypeUserAssignmentListener> listeners = new ArrayList<TypeUserAssignmentListener>();
+		List<TypeUserAssignmentListener> listeners = new ArrayList<>();
 		for (ModelElementListener l : owner.getTLModelObject().getListeners())
 			if (l instanceof TypeUserAssignmentListener)
 				listeners.add((TypeUserAssignmentListener) l);

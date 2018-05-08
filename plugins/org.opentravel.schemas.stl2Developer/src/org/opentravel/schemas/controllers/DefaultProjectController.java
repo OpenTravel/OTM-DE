@@ -768,9 +768,11 @@ public class DefaultProjectController implements ProjectController {
 		if (pn == null || pn.isBuiltIn()) {
 			return result;
 		}
-		if (pn == getDefaultProject())
+		if (pn == getDefaultProject()) {
 			pn.closeAll();
-		else {
+			for (ProjectItem item : pn.getTLProject().getProjectItems())
+				pn.getTLProject().remove(item);
+		} else {
 			LOGGER.debug("Closing project " + pn);
 			result = save(pn); // Try to save the project file
 			if (result) // If successful, try to close the TL Project

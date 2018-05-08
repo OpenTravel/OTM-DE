@@ -197,7 +197,7 @@ public class ModelNode extends Node implements TypeProviderAndOwners {
 			project.close();
 			getChildrenHandler().clear(project);
 		}
-		libMgr.clear(false); // leave built-ins
+		libMgr.clear(includeBuiltins); // leave built-ins
 		undefinedNode.initialize(this);
 		indicatorNode.initialize(this);
 		unassignedNode.initialize(this);
@@ -275,7 +275,7 @@ public class ModelNode extends Node implements TypeProviderAndOwners {
 	}
 
 	public List<ProjectNode> getUserProjects() {
-		ArrayList<ProjectNode> libs = new ArrayList<ProjectNode>();
+		ArrayList<ProjectNode> libs = new ArrayList<>();
 		for (Node n : getChildren()) {
 			if (n instanceof ProjectNode && !n.isBuiltIn())
 				libs.add((ProjectNode) n);

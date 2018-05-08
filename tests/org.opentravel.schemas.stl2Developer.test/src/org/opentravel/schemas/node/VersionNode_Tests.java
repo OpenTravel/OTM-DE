@@ -26,49 +26,29 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.testUtils.LoadFiles;
-import org.opentravel.schemas.testUtils.MockLibrary;
-import org.opentravel.schemas.testUtils.NodeTesters;
-import org.opentravel.schemas.types.TestTypes;
+import org.opentravel.schemas.testUtils.BaseTest;
 
 /**
  * @author Dave Hollander
  * 
  */
-public class VersionNode_Tests {
-	ModelNode model = null;
-	TestTypes tt = new TestTypes();
+public class VersionNode_Tests extends BaseTest {
+	// private static final Logger LOGGER = LoggerFactory.getLogger(VersionNode_Tests.class);
 
-	NodeTesters nt = new NodeTesters();
-	LoadFiles lf = new LoadFiles();
-	Library_FunctionTests lt = new Library_FunctionTests();
-	MockLibrary ml = null;
-	LibraryNode ln = null;
-	MainController mc;
-	DefaultProjectController pc;
-	ProjectNode defaultProject;
 	LibraryNode ln_inChain;
 	LibraryChainNode lcn;
 
 	@Before
 	public void beforeAllTests() {
-		mc = OtmRegistry.getMainController();
-		ml = new MockLibrary();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
-
+		// runs super beforeEachTest() first
 		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
 		ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
 		lcn = new LibraryChainNode(ln_inChain);
-
 	}
 
 	@Test
@@ -161,8 +141,8 @@ public class VersionNode_Tests {
 		assertTrue("BO must be at head of version chain.", vn.get() == bo);
 		assertTrue("There must be a previous version.", vn.getPreviousVersion() != null);
 		assertTrue("Version node previous must NOT be bo.", vn.getPreviousVersion() != bo);
-		assertTrue("Version node previous must be a child of vn.", vn.getAllVersions()
-				.contains(vn.getPreviousVersion()));
+		assertTrue("Version node previous must be a child of vn.",
+				vn.getAllVersions().contains(vn.getPreviousVersion()));
 		// Single VN for all versions of same object.
 		for (Node c : vn.getAllVersions()) {
 			assertTrue("VN Child head must be bo.", c.getVersionNode().get() == bo);

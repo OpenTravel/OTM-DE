@@ -35,7 +35,6 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.stl2Developer.reposvc.RepositoryTestUtils;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
@@ -53,18 +52,19 @@ public abstract class BaseProjectTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BaseProjectTest.class);
 
 	protected static DefaultRepositoryController rc;
-	protected static MainController mc;
-	protected static ProjectController pc;
 	protected static ProjectNode testProject;
-	protected static ProjectNode defaultProject;
 
 	protected static File tmpWorkspace;
-	private static List<ProjectNode> projectsToClean = new ArrayList<ProjectNode>();
+	private static List<ProjectNode> projectsToClean = new ArrayList<>();
+
+	protected static MainController mc;
+	protected static ProjectController pc;
+	protected static ProjectNode defaultProject;
 
 	// Takes about 40-60 seconds
 	@BeforeClass
 	public static void beforeTests() throws Exception {
-		LOGGER.debug("Before class tests - cleaning workspace.");
+		LOGGER.debug("Before class tests - cleaning project workspace.");
 		tmpWorkspace = new File(System.getProperty("user.dir"), "/target/test-workspace/");
 		RepositoryTestUtils.deleteContents(tmpWorkspace);
 		tmpWorkspace.deleteOnExit();
@@ -85,7 +85,6 @@ public abstract class BaseProjectTest {
 		callBeforeEachTest();
 	}
 
-	// Use super.beforeEachTest();
 	@Deprecated
 	protected void callBeforeEachTest() throws Exception {
 		LOGGER.debug("Before tests");
@@ -97,37 +96,42 @@ public abstract class BaseProjectTest {
 
 	@After
 	public void afterEachTest() throws RepositoryException, IOException {
-		LOGGER.debug("After Each Test - starting clean up");
-		// LibraryModelManager mgr = Node.getLibraryModelManager();
+		LOGGER.debug("After Each Test - starting project clean up");
 
 		// Get file list before closing the projects
-		ArrayList<File> filesToClean = new ArrayList<File>();
+		ArrayList<File> filesToClean = new ArrayList<>();
 		for (ProjectNode pn : projectsToClean)
 			filesToClean.add(pn.getTLProject().getProjectFile().getParentFile());
 		projectsToClean.clear();
 
+		// super.afterEachTest();
 		pc.closeAll();
+		pc.close(defaultProject);
+		Node.getLibraryModelManager().clear(false);
 
+		// use file list from super.afterEachTest()
 		for (File projFile : filesToClean) {
 			LOGGER.debug("Cleaning project file = " + projFile.toString());
 			RepositoryTestUtils.deleteContents(projFile);
 		}
 
-		// The built in project will continue to have libraries in them.
-		List<LibraryInterface> ml = Node.getModelNode().getManagedLibraries();
-		List<Node> bi = pc.getBuiltInProject().getChildren();
 		assert (Node.getModelNode().getManagedLibraries().size() == pc.getBuiltInProject().getChildren().size());
 		assert Node.getModelNode().getTLModel().getUserDefinedLibraries().isEmpty();
-		assert pc.getDefaultProject().getLibraries().isEmpty();
-		LOGGER.debug("After Each Test Complete");
+		assert mc.getModelNode().getUserLibraries().isEmpty();
+		assert Node.getLibraryModelManager().getUserLibraries().isEmpty();
+
+		assert defaultProject.getLibraries().isEmpty();
+		assert defaultProject.getChildren().isEmpty();
+		assert defaultProject.getTLProject().getProjectItems().isEmpty();
+
+		LOGGER.debug("Project - After Each Test Complete");
 	}
 
 	// TODO - convert to not using builder
 	public LibraryNode createLib(String name, String nsExtension, String prefix, ProjectNode project) {
 		LibraryNode local1 = null;
 		try {
-			local1 = LibraryNodeBuilder
-					.create(name, project.getNamespace() + nsExtension, prefix, new Version(1, 0, 0))
+			local1 = LibraryNodeBuilder.create(name, project.getNamespace() + nsExtension, prefix, new Version(1, 0, 0))
 					.build(project, pc);
 		} catch (LibrarySaveException e) {
 			assertTrue(e.getLocalizedMessage(), 1 == 1);

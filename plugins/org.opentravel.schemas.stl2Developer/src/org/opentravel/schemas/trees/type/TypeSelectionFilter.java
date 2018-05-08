@@ -22,9 +22,11 @@ import java.util.Set;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.opentravel.schemas.node.AggregateNode;
+import org.opentravel.schemas.node.NavNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ServiceNode;
 import org.opentravel.schemas.node.VersionAggregateNode;
+import org.opentravel.schemas.node.typeProviders.ImpliedNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeProviderAndOwners;
 
@@ -53,6 +55,13 @@ public class TypeSelectionFilter extends ViewerFilter {
 			if (n instanceof VersionAggregateNode)
 				return true;
 			if (n instanceof AggregateNode) // must test before NavNode because these extend NavNode
+				return false;
+			if (n instanceof NavNode)
+				if (((NavNode) n).isEmpty())
+					return false;
+				else
+					return ((NavNode) n).isComplexRoot() || ((NavNode) n).isSimpleRoot();
+			if (n instanceof ImpliedNode)
 				return false;
 			return true;
 		}
@@ -98,7 +107,7 @@ public class TypeSelectionFilter extends ViewerFilter {
 		// If we could not find an immediate child that was valid, recurse to see if any of the
 		// deeper ancestors are valid
 		if (!hasValidChild) {
-			Set<TypeProviderAndOwners> children = new HashSet<TypeProviderAndOwners>(n.getChildren_TypeProviders());
+			Set<TypeProviderAndOwners> children = new HashSet<>(n.getChildren_TypeProviders());
 			List<Node> navChildren = n.getNavChildren(false);
 
 			// if (navChildren != null)

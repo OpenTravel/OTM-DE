@@ -138,8 +138,8 @@ public class ResourceNode extends ComponentNode
 		}
 
 		public boolean set(Node subject) {
-			if (subject != null)
-				setSubject(subject);
+			if (subject != null && subject instanceof BusinessObjectNode)
+				setSubject((BusinessObjectNode) subject);
 			return true;
 		}
 	}
@@ -177,8 +177,7 @@ public class ResourceNode extends ComponentNode
 		// else
 		// LOGGER.debug("No subject assigned: " + this);
 
-		// LOGGER.debug("NOT IMPLEMENTED - resource node constructor.");
-		assert true;
+		assert true; // LOGGER.debug("NOT IMPLEMENTED - resource node constructor.");
 		assert (GetNode(mbr) == this);
 	}
 
@@ -189,21 +188,16 @@ public class ResourceNode extends ComponentNode
 
 		ListenerFactory.setIdentityListner(this);
 
-		// assert (getModelObject() != null);
+		// addMember checks the where used relationship.
+		if (getSubject() != null)
+			getSubject().addWhereUsed(this);
+
 		if (lib != null)
 			lib.addMember(this);
 
 		childrenHandler = new ResourceChildrenHandler(this);
 		getChildrenHandler().initChildren();
 		getChildrenHandler().initInherited();
-		// addMOChildren();
-
-		// NOTE - subject may not have a node assigned yet!
-		// FIXME - how to add where used in these cases?
-		if (getSubject() == null)
-			LOGGER.debug("No subject assigned: " + this);
-		else
-			getSubject().addWhereUsed(this);
 
 		assert (GetNode(mbr) == this);
 	}
@@ -801,6 +795,9 @@ public class ResourceNode extends ComponentNode
 		return peer;
 	}
 
+	/**
+	 * @return the business object node representing the TL business object reference for this resource
+	 */
 	public BusinessObjectNode getSubject() {
 		Node subject = null;
 		if (getTLModelObject() != null && getTLModelObject().getBusinessObjectRef() != null) {
@@ -1008,14 +1005,14 @@ public class ResourceNode extends ComponentNode
 				}
 	}
 
-	public void setSubject(Node subject) {
+	public void setSubject(BusinessObjectNode subject) {
 		if (subject != null && subject.getTLModelObject() != null
 				&& subject.getTLModelObject() instanceof TLBusinessObject) {
-			getTLModelObject().setBusinessObjectRef((TLBusinessObject) subject.getTLModelObject());
+			getTLModelObject().setBusinessObjectRef(subject.getTLModelObject());
 			// Set where used on BO
-			if (subject instanceof TypeProvider)
-				((TypeProvider) subject).addWhereUsed(this);
+			subject.addWhereUsed(this);
 		}
+		assert subject.getWhereAssigned().contains(this);
 	}
 
 	/**
