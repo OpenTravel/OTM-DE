@@ -1815,41 +1815,42 @@ public abstract class Node implements INode {
 		return false;
 	}
 
-	/**
-	 * Returns true if the node name and namespace is unique compared against all of <i>this</i> children. If the child
-	 * is in a query facet, then the test is only across that facet.
-	 * 
-	 * @param test
-	 *            node to test, <i>this</i> node to check children of. If property or facet, will go to parentNode to
-	 *            start check.
-	 * @return true if unique
-	 * 
-	 *         FIXME - this assumes that we are only comparing properties of complex objects Will not work for nav nodes
-	 *         FIXME - this does not handle contributed facets
-	 */
-	public boolean isUnique(final INode testNode) {
-		assert false; // Should not be reached
-
-		// Node n = this;
-		// if (this instanceof PropertyNode) {
-		// n = n.parent;
-		// }
-		// if (n instanceof FacetOMNode && !(n instanceof CustomFacetNode) && !(n instanceof QueryFacetNode)
-		// && !(n instanceof RoleFacetNode)) {
-		// n = n.parent; // compare across all facets.
-		// }
-		// for (final Node facet : n.getChildren()) {
-		// if (facet.nameEquals(testNode)) {
-		// return false;
-		// }
-		// for (final Node prop : facet.getChildren()) {
-		// if (prop.nameEquals(testNode)) {
-		return false;
-		// }
-		// }
-		// }
-		// return true;
-	}
+	// /**
+	// * Returns true if the node name and namespace is unique compared against all of <i>this</i> children. If the
+	// child
+	// * is in a query facet, then the test is only across that facet.
+	// *
+	// * @param test
+	// * node to test, <i>this</i> node to check children of. If property or facet, will go to parentNode to
+	// * start check.
+	// * @return true if unique
+	// *
+	// * FIXME - this assumes that we are only comparing properties of complex objects Will not work for nav nodes
+	// * FIXME - this does not handle contributed facets
+	// */
+	// public boolean isUnique(final INode testNode) {
+	// assert false; // Should not be reached
+	//
+	// // Node n = this;
+	// // if (this instanceof PropertyNode) {
+	// // n = n.parent;
+	// // }
+	// // if (n instanceof FacetOMNode && !(n instanceof CustomFacetNode) && !(n instanceof QueryFacetNode)
+	// // && !(n instanceof RoleFacetNode)) {
+	// // n = n.parent; // compare across all facets.
+	// // }
+	// // for (final Node facet : n.getChildren()) {
+	// // if (facet.nameEquals(testNode)) {
+	// // return false;
+	// // }
+	// // for (final Node prop : facet.getChildren()) {
+	// // if (prop.nameEquals(testNode)) {
+	// return false;
+	// // }
+	// // }
+	// // }
+	// // return true;
+	// }
 
 	/**
 	 * Generate validation results starting with this node.
@@ -1996,10 +1997,6 @@ public abstract class Node implements INode {
 		// must be done after replaceTypesWith. Listeners will remove the whereUsed links.
 		getLibrary().removeMember(this);
 	}
-
-	// public void resetInheritedChildren() {
-	// // No action required - override as required in sub-classes
-	// }
 
 	public void setDescription(final String string) {
 		if (docHandler != null)
@@ -2158,83 +2155,6 @@ public abstract class Node implements INode {
 		}
 		return true;
 	}
-
-	// @Deprecated
-	// private List<TLContext> getCtxList() {
-	// ArrayList<TLContext> list = new ArrayList<TLContext>();
-	// if (getTLModelObject() != null) {
-	// List<TLContext> cList = getContexts();
-	// if (cList.size() > 0) {
-	// list.addAll(cList);
-	// }
-	// }
-	// for (Node child : getChildren()) {
-	// list.addAll(child.getCtxList());
-	// }
-	// // LOGGER.debug("Found "+list.size()+" contexts in "+this.getName());
-	// return list;
-	// }
-
-	// /**
-	// * @return - list of TLContexts or else empty list Contexts are used in OtherDocs, facets, examples and
-	// equivalents.
-	// * Overridden for attributes/elements/indicators that have examples and equivalents
-	// */
-	// @Deprecated
-	// private List<TLContext> getContexts() {
-	// if (!(getTLModelObject() instanceof LibraryMember))
-	// return Collections.emptyList();
-	// if (!(((LibraryMember) getTLModelObject()).getOwningLibrary() instanceof TLLibrary))
-	// return Collections.emptyList();
-	//
-	// ArrayList<TLContext> list = new ArrayList<TLContext>();
-	// HashSet<String> ids = new HashSet<String>();
-	// if (!(getTLModelObject() instanceof LibraryMember))
-	// return list;
-	//
-	// if (getTLModelObject() instanceof TLBusinessObject) {
-	// TLBusinessObject tlBO = (TLBusinessObject) getTLModelObject();
-	// if (tlBO.getCustomFacets() != null) {
-	// for (TLFacet f : tlBO.getCustomFacets()) {
-	// ids.add(f.getContext());
-	// }
-	// }
-	// if (tlBO.getQueryFacets() != null) {
-	// for (TLFacet f : tlBO.getQueryFacets()) {
-	// ids.add(f.getContext());
-	// }
-	// }
-	// }
-	// if (getTLModelObject() instanceof TLEquivalentOwner) {
-	// TLEquivalentOwner tle = (TLEquivalentOwner) getTLModelObject();
-	// for (TLEquivalent e : tle.getEquivalents())
-	// ids.add(e.getContext());
-	// }
-	// if (getTLModelObject() instanceof TLExampleOwner) {
-	// TLExampleOwner tle = (TLExampleOwner) getTLModelObject();
-	// for (TLExample e : tle.getExamples())
-	// ids.add(e.getContext());
-	// }
-	//
-	// if (getTLModelObject() instanceof TLDocumentationOwner) {
-	// TLDocumentationOwner tld = (TLDocumentationOwner) getTLModelObject();
-	//
-	// if (tld.getDocumentation() != null) {
-	// for (TLAdditionalDocumentationItem doc : tld.getDocumentation().getOtherDocs()) {
-	// ids.add(doc.getContext());
-	// }
-	// }
-	// }
-	//
-	// // now use the unique ids in the hash to extract the contexts from the TL Library.
-	// TLLibrary tlLib = (TLLibrary) ((LibraryMember) getTLModelObject()).getOwningLibrary();
-	// for (String id : ids) {
-	// TLContext tlc = tlLib.getContext(id);
-	// if (tlc != null)
-	// list.add(tlLib.getContext(id));
-	// }
-	// return list;
-	// }
 
 	public void deleteTL() {
 		// Override where useful.

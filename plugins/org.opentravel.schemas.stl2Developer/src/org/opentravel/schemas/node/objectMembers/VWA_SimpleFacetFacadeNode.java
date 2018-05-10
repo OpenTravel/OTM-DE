@@ -44,8 +44,6 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class VWA_SimpleFacetFacadeNode extends FacadeBase implements FacetInterface {
-	// public class VWA_SimpleFacetFacadeNode extends SimpleFacetFacadeNode implements TypeProvider,
-	// SimpleAttributeOwner {
 	private static final Logger LOGGER = LoggerFactory.getLogger(VWA_SimpleFacetFacadeNode.class);
 	private VWA_Node owner;
 
@@ -54,10 +52,6 @@ public class VWA_SimpleFacetFacadeNode extends FacadeBase implements FacetInterf
 		parent = owner;
 		this.owner = owner;
 		childrenHandler = new VWA_SimpleFacetFacadeChildrenHandler(this);
-
-		// // Now, set the tlObj to be the tl vwa
-		// tlObj = owner.getTLModelObject();
-		//
 	}
 
 	@Override
@@ -89,11 +83,6 @@ public class VWA_SimpleFacetFacadeNode extends FacadeBase implements FacetInterf
 	public VWA_Node get() {
 		return owner;
 	}
-
-	// @Override
-	// public boolean isAssignableToSimple() {
-	// return false;
-	// }
 
 	@Override
 	public Node getAssignable() {
@@ -136,11 +125,6 @@ public class VWA_SimpleFacetFacadeNode extends FacadeBase implements FacetInterf
 		return emptyIfNull(getTLModelObject().getLocalName());
 	}
 
-	// @Override
-	// public String getName() {
-	// return "Value";
-	// }
-
 	@Override
 	public BaseNodeListener getNewListener() {
 		return new SimpleFacetNodeListener(this);
@@ -167,21 +151,6 @@ public class VWA_SimpleFacetFacadeNode extends FacadeBase implements FacetInterf
 		return get().getTLModelObject();
 	}
 
-	// @Override
-	// public abstract boolean isAssignableToSimple();
-	//
-	// {
-	// Node owner = getOwningComponent();
-	// if (owner instanceof CoreObjectNode)
-	// return !((CoreObjectNode) owner).getSimpleType().equals(ModelNode.getEmptyNode());
-	// return true;
-	// }
-
-	// @Override
-	// public boolean isAssignableToVWA() {
-	// return true;
-	// }
-
 	@Override
 	public boolean hasNavChildren(boolean deep) {
 		return deep; // only show attribute in deep mode
@@ -197,21 +166,6 @@ public class VWA_SimpleFacetFacadeNode extends FacadeBase implements FacetInterf
 	public boolean isDeleteable() {
 		return false;
 	}
-
-	// @Override
-	// public List<Node> getTreeChildren(boolean deep) {
-	// List<Node> kids = getNavChildren(deep);
-	// if (parent instanceof CoreObjectNode)
-	// kids.add(getWhereUsedNode());
-	// return kids;
-	// }
-	//
-	// @Override
-	// public boolean hasTreeChildren(boolean deep) {
-	// if (parent instanceof CoreObjectNode)
-	// return true; // where used node
-	// return deep;
-	// }
 
 	@Override
 	public boolean isEnabled_AddProperties() {
@@ -249,75 +203,36 @@ public class VWA_SimpleFacetFacadeNode extends FacadeBase implements FacetInterf
 		return getSimpleAttribute().setAssignedType(provider);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.opentravel.schemas.node.interfaces.FacetInterface#copy(org.opentravel.schemas.node.interfaces.FacetInterface)
-	 */
 	@Override
 	public void copy(FacetInterface facet) {
 		// NO-OP
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacetInterface#add(java.util.List, boolean)
-	 */
 	@Override
 	public void add(List<PropertyNode> properties, boolean clone) {
 		// NO-OP
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.opentravel.schemas.node.interfaces.FacetInterface#add(org.opentravel.schemas.node.properties.PropertyNode)
-	 */
 	@Override
 	public void add(PropertyNode property) {
 		// NO-OP
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.opentravel.schemas.node.interfaces.FacetInterface#add(org.opentravel.schemas.node.properties.PropertyNode,
-	 * int)
-	 */
 	@Override
 	public void add(PropertyNode pn, int index) {
 		// NO-OP
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacetInterface#findChildByName(java.lang.String)
-	 */
 	@Override
 	public PropertyNode findChildByName(String name) {
 		return getSimpleAttribute();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacetInterface#get(java.lang.String)
-	 */
 	@Override
 	public PropertyNode get(String name) {
 		return getSimpleAttribute();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacetInterface#getProperties()
-	 */
 	@Override
 	public List<PropertyNode> getProperties() {
 		return Collections.singletonList((PropertyNode) getSimpleAttribute());
@@ -328,12 +243,6 @@ public class VWA_SimpleFacetFacadeNode extends FacadeBase implements FacetInterf
 		return type.equals(TLFacetType.SIMPLE);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.opentravel.schemas.node.interfaces.FacetInterface#removeProperty(org.opentravel.schemas.node.properties.
-	 * PropertyNode)
-	 */
 	@Override
 	public void removeProperty(PropertyNode pn) {
 		// NO-OP

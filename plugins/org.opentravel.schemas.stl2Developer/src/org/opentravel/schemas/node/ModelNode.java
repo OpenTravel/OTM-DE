@@ -27,7 +27,6 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.controllers.LibraryModelManager;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.handlers.children.ModelNodeChildrenHandler;
-import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
@@ -307,20 +306,15 @@ public class ModelNode extends Node implements TypeProviderAndOwners {
 		return false;
 	}
 
-	// @Override
-	// public boolean isLibraryContainer() {
-	// return true;
-	// }
-
 	@Override
 	public boolean isNavigation() {
 		return true;
 	}
 
-	@Override
-	public boolean isUnique(final INode testNode) {
-		return true;
-	}
+	// @Override
+	// public boolean isUnique(final INode testNode) {
+	// return true;
+	// }
 
 	public void removeProject(final ProjectNode project) {
 		getChildrenHandler().remove(project);

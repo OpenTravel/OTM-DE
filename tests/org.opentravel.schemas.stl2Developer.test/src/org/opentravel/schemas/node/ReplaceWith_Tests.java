@@ -32,8 +32,6 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opentravel.schemacompiler.event.ModelElementListener;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -43,10 +41,7 @@ import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.testUtils.LoadFiles;
-import org.opentravel.schemas.testUtils.MockLibrary;
-import org.opentravel.schemas.types.TestTypes;
+import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.WhereExtendedHandler.WhereExtendedListener;
@@ -57,26 +52,13 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class ReplaceWith_Tests {
+public class ReplaceWith_Tests extends BaseTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReplaceWith_Tests.class);
-
-	ModelNode model = null;
-	TestTypes tt = new TestTypes();
-	MockLibrary ml = new MockLibrary();
 
 	@Test
 	public void ReplaceAll_Tests() throws Exception {
-		DefaultProjectController pc;
-		MainController mc = OtmRegistry.getMainController();
-		pc = (DefaultProjectController) mc.getProjectController();
-		ProjectNode defaultProject = pc.getDefaultProject();
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 		LibraryNode ln2 = ml.createNewLibrary(defaultProject.getNSRoot() + "/t", "test2", defaultProject);
-
-		// // JUNK - name testing
-		// BusinessObjectNode bbb = ml.addBusinessObjectToLibrary(ln2, "bbb");
-		// for (Node n : bbb.getChildren())
-		// LOGGER.debug("Name = " + n.getName());
 
 		// Given - each type provider in a core is being used as a type
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary_Empty(ln, "BO");
@@ -121,10 +103,6 @@ public class ReplaceWith_Tests {
 
 	@Test
 	public void ExtensionHanderSet_Tests() throws Exception {
-		DefaultProjectController pc;
-		MainController mc = OtmRegistry.getMainController();
-		pc = (DefaultProjectController) mc.getProjectController();
-		ProjectNode defaultProject = pc.getDefaultProject();
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 
 		// Given - extension is an instance of base
@@ -167,10 +145,6 @@ public class ReplaceWith_Tests {
 
 	@Test
 	public void ReplaceBaseTypesInDifferentLibrary_Test() throws Exception {
-		DefaultProjectController pc;
-		MainController mc = OtmRegistry.getMainController();
-		pc = (DefaultProjectController) mc.getProjectController();
-		ProjectNode defaultProject = pc.getDefaultProject();
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 		LibraryNode ln2 = ml.createNewLibrary(defaultProject.getNSRoot() + "/ln2", "ln2", defaultProject);
 
@@ -213,17 +187,11 @@ public class ReplaceWith_Tests {
 	@Test
 	public void ReplaceTypesTest() throws Exception {
 		// Given - controllers, project and unmanaged library
-		DefaultProjectController pc;
-		MainController mc = OtmRegistry.getMainController();
-		pc = (DefaultProjectController) mc.getProjectController();
-		ProjectNode defaultProject = pc.getDefaultProject();
-		// NewComponent_Tests nc = new NewComponent_Tests();
 		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 
 		// Given - one of each object type
 		ml.addOneOfEach(ln, "RTT");
 		ml.check(ln);
-		// tt.visitAllNodes(ln);
 
 		// Given - local variables for different object types
 		SimpleTypeNode simple = null;
@@ -261,7 +229,6 @@ public class ReplaceWith_Tests {
 		replaceProperties(bo, simple, core);
 		replaceProperties(core, simple, core2);
 		replaceProperties(vwa, simple, core);
-		// tt.visitAllNodes(ln);
 	}
 
 	/**
@@ -288,46 +255,39 @@ public class ReplaceWith_Tests {
 
 	@Test
 	public void ReplaceTest() throws Exception {
-		MainController mc = OtmRegistry.getMainController();
-		LoadFiles lf = new LoadFiles();
-		model = mc.getModelNode();
-
 		LibraryNode l5 = lf.loadFile5(mc);
 		l5.setEditable(true);
 		LibraryNode l1 = lf.loadFile1(mc);
 		l1.setEditable(true);
-		// tt.visitAllNodes(l5);
-		// tt.visitAllNodes(l1);
-		int beforeCnt1 = l1.getDescendants_LibraryMembersAsNodes().size();
-		int beforeCnt5 = l5.getDescendants_LibraryMembersAsNodes().size();
+		int beforeCnt1 = l1.getDescendants_LibraryMembers().size();
+		int beforeCnt5 = l5.getDescendants_LibraryMembers().size();
+
+		ml.check(l1, false);
+		ml.check(l5, false);
 
 		replaceMembers(l1, l1);
 		replaceMembers(l1, l5);
 
-		tt.visitAllNodes(l1);
-		tt.visitAllNodes(l5);
-		Assert.assertEquals(beforeCnt1, l1.getDescendants_LibraryMembersAsNodes().size());
-		Assert.assertEquals(beforeCnt5, l5.getDescendants_LibraryMembersAsNodes().size());
+		ml.check(l1, false);
+		ml.check(l5, false);
+
+		Assert.assertEquals(beforeCnt1, l1.getDescendants_LibraryMembers().size());
+		Assert.assertEquals(beforeCnt5, l5.getDescendants_LibraryMembers().size());
 	}
 
 	@Test
 	public void swap() throws Exception {
-		MainController mc = OtmRegistry.getMainController();
-		LoadFiles lf = new LoadFiles();
-		model = mc.getModelNode();
-
 		LibraryNode l5 = lf.loadFile5(mc);
 		l5.setEditable(true);
 		LibraryNode l1 = lf.loadFile1(mc);
 		l1.setEditable(true);
-		// tt.visitAllNodes(l1);
-		// tt.visitAllNodes(l5);
-		ml.check(l1);
-		ml.check(l5);
+		ml.check(l1, false);
+		ml.check(l5, false);
 		Node oldPhones5 = l5.findLibraryMemberByName("Phones");
 		assert oldPhones5 != null;
+
 		List<TypeUser> phonesUsers = oldPhones5.getDescendants_TypeUsers();
-		List<TypeProvider> phonesProviders = new ArrayList<TypeProvider>();
+		List<TypeProvider> phonesProviders = new ArrayList<>();
 		for (TypeUser user : phonesUsers)
 			phonesProviders.add(user.getAssignedType());
 
@@ -335,24 +295,19 @@ public class ReplaceWith_Tests {
 		swap(l1, l5);
 
 		// Then
-		ml.check(l1);
-		ml.check(l5);
-		// tt.visitAllNodes(l1);
-		// tt.visitAllNodes(l5);
+		ml.check(l1, false);
+		ml.check(l5, false);
 	}
 
 	@Test
 	public void CombinedTest() throws Exception {
-		MainController mc = OtmRegistry.getMainController();
-		LoadFiles lf = new LoadFiles();
-		model = mc.getModelNode();
 
 		LibraryNode l5 = lf.loadFile5(mc);
 		l5.setEditable(true);
 		LibraryNode l1 = lf.loadFile1(mc);
 		l1.setEditable(true);
-		ml.check(l1);
-		ml.check(l5);
+		ml.check(l1, false);
+		ml.check(l5, false);
 
 		int beforeCnt1 = l1.getDescendants_LibraryMembers().size();
 		int beforeCnt5 = l5.getDescendants_LibraryMembers().size();

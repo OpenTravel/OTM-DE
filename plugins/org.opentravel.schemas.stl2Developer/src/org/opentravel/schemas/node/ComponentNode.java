@@ -160,7 +160,7 @@ public abstract class ComponentNode extends Node {
 	 */
 	public void createAliasesForProperties() {
 
-		Map<ComponentNode, List<Node>> typeMap = new HashMap<ComponentNode, List<Node>>(getDescendants().size());
+		Map<ComponentNode, List<Node>> typeMap = new HashMap<>(getDescendants().size());
 		List<Node> list;
 		for (Node d : getDescendants()) {
 			if (d.getType() == null)
@@ -169,7 +169,7 @@ public abstract class ComponentNode extends Node {
 				if (typeMap.containsKey(d.getType()))
 					list = typeMap.get(d.getType());
 				else {
-					list = new ArrayList<Node>();
+					list = new ArrayList<>();
 					typeMap.put((ComponentNode) d.getType(), list);
 				}
 				list.add(d);
@@ -338,17 +338,6 @@ public abstract class ComponentNode extends Node {
 		return null;
 	}
 
-	// /**
-	// * returns owning navNode if it is a component node. Family aware - if in a family it returns the family parent.
-	// * Null otherwise.
-	// */
-	// public Node getOwningNavNode() {
-	// Node owner = this.getParent();
-	// if (owner instanceof VersionNode)
-	// owner = owner.getParent();
-	// return owner;
-	// }
-
 	@Override
 	public String getName() {
 		return "";
@@ -381,24 +370,7 @@ public abstract class ComponentNode extends Node {
 	// FIXME - why here and in Node? Why different?
 	public boolean isUnique() {
 		return isValid();
-		// ValidationFindings findings = validate();
-		// // LOGGER.debug("ComponentNode:isUnique() - test "+getNamespace+":"+name);
-		// List<Node> siblings = new ArrayList<Node>(getParent().getChildren());
-		// if (getParent().getInheritedChildren() != null)
-		// siblings.addAll(0, getParent().getInheritedChildren());
-		// int occurrence = 0; // look for second occurrence since this list is not a live list.
-		//
-		// for (final Node n : siblings) {
-		// if (n.getName().equals(getName()))
-		// if (occurrence++ > 0)
-		// return false;
-		// }
-		// return true;
 	}
-
-	// public void setContext() {
-	// // Override where needed
-	// }
 
 	@Override
 	@Deprecated

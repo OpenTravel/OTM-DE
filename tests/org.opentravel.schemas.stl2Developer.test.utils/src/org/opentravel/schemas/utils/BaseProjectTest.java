@@ -82,7 +82,15 @@ public abstract class BaseProjectTest {
 
 	@Before
 	public void beforeEachTest() throws Exception {
-		callBeforeEachTest();
+		LOGGER.debug("Before Each Test");
+		pc.closeAll();
+		pc.close(defaultProject);
+		Node.getLibraryModelManager().clear(false);
+
+		assert rc.getLocalRepository() != null;
+		testProject = createProject("Otm-Test-TestProject", rc.getLocalRepository(), "IT");
+		assertTrue(testProject != null);
+		LOGGER.debug("Before Each Test end.");
 	}
 
 	@Deprecated

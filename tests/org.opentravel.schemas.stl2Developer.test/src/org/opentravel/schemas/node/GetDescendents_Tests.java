@@ -24,13 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.ExtensionOwner;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -46,10 +43,7 @@ import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
-import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.utils.BaseProjectTest;
@@ -63,26 +57,26 @@ import org.slf4j.LoggerFactory;
 public class GetDescendents_Tests extends BaseProjectTest {
 	static final Logger LOGGER = LoggerFactory.getLogger(MockLibrary.class);
 
-	ModelNode model = null;
-	NodeTesters nt = new NodeTesters();
-	LoadFiles lf = new LoadFiles();
-	Library_FunctionTests lt = new Library_FunctionTests();
-	MockLibrary ml = null;
+	// ModelNode model = null;
+	// NodeTesters nt = new NodeTesters();
+	// LoadFiles lf = new LoadFiles();
+	// Library_FunctionTests lt = new Library_FunctionTests();
+	MockLibrary ml = new MockLibrary();
 	LibraryNode ln = null;
-	MainController mc;
-	DefaultProjectController pc;
-	ProjectNode defaultProject;
+	// MainController mc;
+	// DefaultProjectController pc;
+	// ProjectNode defaultProject;
 	String OTA = "OTA2_BuiltIns_v2.0.0"; // name
 	String XSD = "XMLSchema";
 	static String PREFIX = "PL1";
 
-	@Before
-	public void beforeAllTests() {
-		mc = OtmRegistry.getMainController();
-		ml = new MockLibrary();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
-	}
+	// @Before
+	// public void beforeAllTests() {
+	// //// mc = OtmRegistry.getMainController();
+	//// ml = new MockLibrary();
+	// //// pc = (DefaultProjectController) mc.getProjectController();
+	// //// defaultProject = pc.getDefaultProject();
+	// }
 
 	@Test
 	public void DESC_Descendants() {
@@ -99,7 +93,7 @@ public class GetDescendents_Tests extends BaseProjectTest {
 		ml.addAllProperties(bo2.getFacet_Summary());
 
 		List<Node> descendants = Node.getModelNode().getDescendants();
-		assert descendants.size() == 265;
+		assert descendants.size() == 264;
 
 		// Then
 		for (Node d : Node.getModelNode().getDescendants()) {

@@ -67,21 +67,15 @@ import org.slf4j.LoggerFactory;
 public class Library_FunctionTests extends BaseProjectTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Library_FunctionTests.class);
 
-	// private NodeTesters testVisitor;
-	// private MainController mc;
 	private LoadFiles lf;
 	private MockLibrary ml;
-	// private DefaultProjectController pc;
 	private ProjectNode defaultProject;
 
 	@Override
 	@Before
 	public void beforeEachTest() {
-		// mc = new MainController();
 		lf = new LoadFiles();
 		ml = new MockLibrary();
-		// testVisitor = new NodeTesters();
-		// pc = (DefaultProjectController) mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
 		testProject = defaultProject;
 	}

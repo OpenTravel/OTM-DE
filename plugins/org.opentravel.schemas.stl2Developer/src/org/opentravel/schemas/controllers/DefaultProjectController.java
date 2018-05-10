@@ -113,9 +113,9 @@ public class DefaultProjectController implements ProjectController {
 	 * Class for grouping TL Project, ProjectNode, validation findings and result messages.
 	 */
 	public class OpenedProject {
-		String resultMsg = "";
-		ValidationFindings findings;
-		Project tlProject;
+		public String resultMsg = "";
+		public ValidationFindings findings;
+		public Project tlProject;
 		public ProjectNode project;
 	}
 

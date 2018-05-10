@@ -31,21 +31,30 @@ import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
-import org.opentravel.schemas.testUtils.BaseTest;
+import org.opentravel.schemas.testUtils.LoadFiles;
+import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.utils.BaseProjectTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Dave Hollander
  * 
  */
-public class VersionNode_Tests extends BaseTest {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(VersionNode_Tests.class);
+public class VersionNode_Tests extends BaseProjectTest {
+	private static final Logger LOGGER = LoggerFactory.getLogger(VersionNode_Tests.class);
 
 	LibraryNode ln_inChain;
 	LibraryChainNode lcn;
 
+	public LoadFiles lf = new LoadFiles();
+	public MockLibrary ml = new MockLibrary();
+	public LibraryNode ln = null;
+
 	@Before
-	public void beforeAllTests() {
+	public void beforeEachVersionNodeTests() {
 		// runs super beforeEachTest() first
+		LOGGER.debug("Before Each VersionNode Test");
 		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
 		ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
 		lcn = new LibraryChainNode(ln_inChain);

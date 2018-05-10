@@ -115,20 +115,6 @@ public class AttributeNode extends PropertyNode {
 		return ComponentNodeType.ATTRIBUTE;
 	}
 
-	// @Override
-	// public IValueWithContextHandler getEquivalentHandler() {
-	// if (equivalentHandler == null)
-	// equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
-	// return equivalentHandler;
-	// }
-	//
-	// @Override
-	// public IValueWithContextHandler getExampleHandler() {
-	// if (exampleHandler == null)
-	// exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
-	// return exampleHandler;
-	// }
-
 	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.XSDAttribute);

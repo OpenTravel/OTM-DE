@@ -82,7 +82,7 @@ public abstract class BaseTest {
 	/**
 	 * Clear the projects and libraries including default project.
 	 */
-	public void clearAll() {
+	public static void clearAll() {
 		pc.closeAll();
 		pc.close(defaultProject);
 		Node.getLibraryModelManager().clear(false);
@@ -95,7 +95,6 @@ public abstract class BaseTest {
 		assert defaultProject.getLibraries().isEmpty();
 		assert defaultProject.getChildren().isEmpty();
 		assert defaultProject.getTLProject().getProjectItems().isEmpty();
-
 	}
 
 	// TODO - convert to not using builder

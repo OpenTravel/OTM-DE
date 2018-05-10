@@ -42,8 +42,8 @@ public class BaseNodeListener implements INodeListener {
 
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
-		Node newValue = getNewValue(event);
-		Node oldValue = getOldValue(event);
+		// Node newValue = getNewValue(event);
+		// Node oldValue = getOldValue(event);
 		// LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode + ", old = " + oldValue
 		// + ", new = " + newValue);
 

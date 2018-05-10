@@ -130,30 +130,6 @@ public class ElementNode extends PropertyNode {
 		return ComponentNodeType.ELEMENT;
 	}
 
-	// @Override
-	// public String getEquivalent(String context) {
-	// return getEquivalentHandler().get(context);
-	// }
-	//
-	// @Override
-	// public IValueWithContextHandler getEquivalentHandler() {
-	// if (equivalentHandler == null)
-	// equivalentHandler = new EqExOneValueHandler(this, ValueWithContextType.EQUIVALENT);
-	// return equivalentHandler;
-	// }
-
-	// @Override
-	// public String getExample(String context) {
-	// return getExampleHandler().get(context);
-	// }
-
-	// @Override
-	// public IValueWithContextHandler getExampleHandler() {
-	// if (exampleHandler == null)
-	// exampleHandler = new EqExOneValueHandler(this, ValueWithContextType.EXAMPLE);
-	// return exampleHandler;
-	// }
-
 	@Override
 	public Image getImage() {
 		return Images.getImageRegistry().get(Images.XSDElement);

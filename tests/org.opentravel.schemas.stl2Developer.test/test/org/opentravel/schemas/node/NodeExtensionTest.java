@@ -18,6 +18,7 @@ package org.opentravel.schemas.node;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -46,13 +47,13 @@ public class NodeExtensionTest extends BaseProjectTest {
 	LibraryChainNode lcn = null;
 	private LibraryNode ln;
 
-	@Override
-	protected void callBeforeEachTest() throws LibrarySaveException {
+	@Before
+	public void beforeExtensionTests() throws LibrarySaveException {
 		// lib = LibraryNodeBuilder.create("Example", "http://example.org", "p", new Version(1, 1,
 		// 1)).build(testProject,
 		// pc);
 		// lib.setEditable(true);
-		LOGGER.debug("***Before Node Extension Tests ----------------------");
+		LOGGER.debug("***Before Extension Tests ----------------------");
 		// callBeforeEachTest();
 		defaultProject = pc.getDefaultProject();
 		ln = ml.createNewLibrary("http://test.com", "CoreTest", defaultProject);
@@ -81,11 +82,11 @@ public class NodeExtensionTest extends BaseProjectTest {
 		BusinessObjectNode boExtend = ComponentNodeBuilder.createBusinessObject("Extend").extend(boBase).get(libE);
 
 		Assert.assertTrue(boExtend.isExtendedBy(boBase));
-		assertTrue("base must be in base library.", boBase.getLibrary().getDescendants_LibraryMembersAsNodes()
-				.contains(boBase));
+		assertTrue("base must be in base library.",
+				boBase.getLibrary().getDescendants_LibraryMembersAsNodes().contains(boBase));
 		assertTrue("extension must be in extension library.", boExtend.getLibrary() == libE);
-		assertTrue("extension must be in extension library.", boExtend.getLibrary().getDescendants_LibraryMembersAsNodes()
-				.contains(boExtend));
+		assertTrue("extension must be in extension library.",
+				boExtend.getLibrary().getDescendants_LibraryMembersAsNodes().contains(boExtend));
 	}
 
 	@Test

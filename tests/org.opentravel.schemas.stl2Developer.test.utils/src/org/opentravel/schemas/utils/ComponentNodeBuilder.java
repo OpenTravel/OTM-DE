@@ -300,8 +300,8 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 
 	public ComponentNodeBuilder<T> setAssignedType() {
 		if (componentObject instanceof SimpleAttributeOwner) {
-			((SimpleAttributeOwner) componentObject).setAssignedType((TypeProvider) NodeFinders.findNodeByName(
-					"string", ModelNode.XSD_NAMESPACE));
+			((SimpleAttributeOwner) componentObject)
+					.setAssignedType((TypeProvider) NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE));
 		}
 		return this;
 	}
@@ -312,6 +312,7 @@ public class ComponentNodeBuilder<T extends ComponentNode> {
 
 	public T get(LibraryNode target) {
 		assert componentObject instanceof LibraryMemberInterface;
+		assert target != null;
 		target.addMember((LibraryMemberInterface) componentObject);
 		return componentObject;
 	}

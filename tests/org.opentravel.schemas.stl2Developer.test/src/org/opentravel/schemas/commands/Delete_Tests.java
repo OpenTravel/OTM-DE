@@ -42,6 +42,7 @@ import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.listeners.TypeUserAssignmentListener;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.resources.ResourceNode;
@@ -378,13 +379,13 @@ public class Delete_Tests extends BaseProjectTest {
 
 		// When - simple is deleted
 		simple.delete();
-		// Then - it must not be assigned to properties
+		// Then - it must not be assigned to properties ?? REALLY ?? TL will be
 		assertTrue("Where assigned must not contain element.", !simple.getWhereAssigned().contains(ele));
 		assertTrue("Where assigned must not contain attribute.", !simple.getWhereAssigned().contains(attr));
-		assertTrue("Type assignment listener.", ele.getTypeHandler().getAssignmentListeners() == null);
-		assertTrue("Type assignment listener.", attr.getTypeHandler().getAssignmentListeners() == null);
-		assertTrue("Must have listener for element.",
-				simple.getWhereAssignedHandler().getAssignmentListeners(ele) != null);
+		TypeUserAssignmentListener assignmentListener = ele.getTypeHandler().getAssignmentListeners();
+		assertTrue("Must have one assignment listener.", assignmentListener != null);
+		assertTrue("Must have missing in assignment listener.",
+				assignmentListener.getNode() == ModelNode.getUnassignedNode());
 
 		// When - aType is assigned
 		ele.setAssignedType(aType);
@@ -632,7 +633,7 @@ public class Delete_Tests extends BaseProjectTest {
 
 			// Make sure the users of this type are informed of deletion.
 			if (n instanceof TypeProvider) {
-				List<TypeUser> users = new ArrayList<TypeUser>(((TypeProvider) n).getWhereAssigned());
+				List<TypeUser> users = new ArrayList<>(((TypeProvider) n).getWhereAssigned());
 				if (users.size() > 0)
 					user = (INode) users.get(0);
 			}

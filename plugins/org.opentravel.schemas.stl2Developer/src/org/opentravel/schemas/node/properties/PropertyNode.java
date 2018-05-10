@@ -180,7 +180,8 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 	/**
 	 * Move the property up/down in its current facet.
 	 * 
-	 * @param - direction (up/1 or down/2)
+	 * @param -
+	 *            direction (up/1 or down/2)
 	 * @return false if it could not be moved (was at end of list of that type of properties).
 	 */
 	public static final int UP = 1;
@@ -378,7 +379,8 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 	 * If <i>this</i> property does not have a type, assign it to the source node. Otherwise, create a new property
 	 * after <i>this</i>node. Use the passed node as the type.
 	 * 
-	 * @param - the type to assign.
+	 * @param -
+	 *            the type to assign.
 	 */
 	@Override
 	public INode createProperty(final Node type) {
@@ -521,7 +523,7 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 	 */
 	@Override
 	public List<Node> getNavChildren(boolean deep) {
-		List<Node> kids = new ArrayList<Node>();
+		List<Node> kids = new ArrayList<>();
 		if (deep) {
 			Node typeNode = (Node) getAssignedType();
 			kids.add(typeNode);
@@ -610,7 +612,6 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 	 */
 	@Override
 	public boolean hasNavChildren(boolean deep) {
-		// return getTypeNode() != null;
 		return deep && getAssignedType() != null;
 	}
 
@@ -742,13 +743,6 @@ public abstract class PropertyNode extends ComponentNode implements TypeUser {
 	public boolean setAssignedType(TypeProvider provider) {
 		return getTypeHandler().set(provider);
 	}
-
-	// @Override
-	// public void setContext() {
-	// // Read/write forces to default context
-	// setEquivalent(getEquivalent(null));
-	// setExample(getExample(null));
-	// }
 
 	public IValueWithContextHandler setEquivalent(String equivalent) {
 		return null;

@@ -28,6 +28,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opentravel.schemacompiler.util.URLUtils;
+import org.opentravel.schemas.controllers.DefaultProjectController.OpenedProject;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.Node;
@@ -387,7 +388,12 @@ public class LoadFiles {
 	 */
 	public ProjectNode loadVersionTestProject(ProjectController pc) {
 		String fn = VersionTestProject; // files
-		ProjectNode pn = pc.open(fn, null).project;
+		OpenedProject op = pc.open(fn, null);
+		ProjectNode pn = op.project;
+		if (pn.getTLProject().getProjectItems().isEmpty()) {
+			LOGGER.error("Could not read version test project.");
+			LOGGER.error("Message: " + op.resultMsg);
+		}
 		new TypeResolver().resolveTypes();
 		return pn;
 	}
