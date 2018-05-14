@@ -123,6 +123,7 @@ public class VersionNode_Tests extends BaseProjectTest {
 
 		// Pre-check assertions
 		List<LibraryNode> libs = pn.getLibraries();
+		LOGGER.debug("Error is in project setup or tear down. Runs green when run alone.");
 		assertTrue("Must load more than 3 libraries. ", libs.size() >= 3);
 		LibraryNavNode lnn = (LibraryNavNode) pn.getChildren().get(0);
 		assertTrue(lnn != null);

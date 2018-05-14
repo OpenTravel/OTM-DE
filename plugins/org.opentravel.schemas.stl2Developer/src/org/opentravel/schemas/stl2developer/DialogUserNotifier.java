@@ -55,12 +55,23 @@ public class DialogUserNotifier {
 				Messages.getString(message));
 	}
 
-	public static void openError(final String title, final String message) {
-		if (!OtmRegistry.getMainWindow().hasDisplay()) {
-			LOGGER.warn("Error Dialog: " + message);
-			return;
-		}
-		MessageDialog.openError(OtmRegistry.getActiveShell(), title, message);
+	// // Please pass exception or null to openError()
+	// @Deprecated
+	// public static void openError(final String title, final String message) {
+	// if (!OtmRegistry.getMainWindow().hasDisplay()) {
+	// LOGGER.warn("Error DialogX: " + message);
+	// return;
+	// }
+	// MessageDialog.openError(OtmRegistry.getActiveShell(), title, message);
+	// }
+
+	public static void openError(final String title, final String message, final Throwable e) {
+		LOGGER.warn("Error Dialog: " + message);
+		if (e != null)
+			e.printStackTrace();
+
+		if (OtmRegistry.getMainWindow().hasDisplay())
+			MessageDialog.openError(OtmRegistry.getActiveShell(), title, message);
 	}
 
 	/**
@@ -129,12 +140,22 @@ public class DialogUserNotifier {
 		});
 	}
 
-	public static void syncErrorWithUi(final String msg) {
+	// public static void syncErrorWithUi(final String msg) {
+	// Display.getDefault().asyncExec(new Runnable() {
+	// @Override
+	// public void run() {
+	// if (!msg.isEmpty())
+	// openError("Error", msg);
+	// }
+	// });
+	// }
+
+	public static void syncErrorWithUi(final String msg, final Throwable e) {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				if (!msg.isEmpty())
-					openError("Error", msg);
+					openError("Error", msg, e);
 			}
 		});
 	}

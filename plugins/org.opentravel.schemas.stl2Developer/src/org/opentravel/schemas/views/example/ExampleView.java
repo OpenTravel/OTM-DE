@@ -359,7 +359,7 @@ public class ExampleView extends OtmAbstractView {
 					// FindingMessageFormat.IDENTIFIED_FORMAT)));
 				} catch (CodeGenerationException e) {
 					DialogUserNotifier.openError("Example View",
-							"Could not generate examples properly - an error occurred: " + e.getLocalizedMessage());
+							"Could not generate examples properly - an error occurred: " + e.getLocalizedMessage(), e);
 					LOGGER.error("Exception during example generation", e);
 				}
 				if (childModel != null)

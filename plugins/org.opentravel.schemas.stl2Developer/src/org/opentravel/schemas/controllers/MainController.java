@@ -812,19 +812,17 @@ public class MainController {
 						desktop.browse(new URI(path));
 					} else {
 						DialogUserNotifier.openError("Open file", "Could not find the file associated to the library "
-								+ lib.getName() + " (" + path + ")");
+								+ lib.getName() + " (" + path + ")", null);
 					}
 				} else {
 					desktop.open(file);
 				}
 			} catch (final IOException e) {
-				LOGGER.error("While opening library file in system editor " + e.getMessage(), e);
 				DialogUserNotifier.openError("Open file",
-						"Could not open the file, an error occurred: " + e.getMessage());
+						"Could not open the file, an error occurred: " + e.getMessage(), e);
 			} catch (final URISyntaxException e) {
-				LOGGER.error("While opening library file in system editor " + e.getMessage(), e);
 				DialogUserNotifier.openError("Open file",
-						"Could not open the file, its URI is malformed: " + e.getMessage());
+						"Could not open the file, its URI is malformed: " + e.getMessage(), e);
 			}
 		}
 	}

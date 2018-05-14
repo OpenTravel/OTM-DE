@@ -64,7 +64,7 @@ class PropertySheetPage extends Page {
 	private final FormToolkit toolkit;
 	private LocalResourceManager resManager;
 	private ISelection currentSelection;
-	private List<IExternalDependencies> disposeList = new ArrayList<IExternalDependencies>();
+	private List<IExternalDependencies> disposeList = new ArrayList<>();
 
 	public PropertySheetPage(Node node) {
 		source = factory.createPropertySource(node);
@@ -205,7 +205,7 @@ class PropertySheetPage extends Page {
 	}
 
 	private Map<String, List<IPropertyDescriptor>> getCategories(IPropertyDescriptor[] propertyDescriptors) {
-		Map<String, List<IPropertyDescriptor>> categories = new LinkedHashMap<String, List<IPropertyDescriptor>>();
+		Map<String, List<IPropertyDescriptor>> categories = new LinkedHashMap<>();
 		for (IPropertyDescriptor desc : propertyDescriptors) {
 			String cat = desc.getCategory();
 			if (cat == null) {
@@ -213,7 +213,7 @@ class PropertySheetPage extends Page {
 			}
 			List<IPropertyDescriptor> descs = categories.get(cat);
 			if (descs == null) {
-				descs = new ArrayList<IPropertyDescriptor>(5);
+				descs = new ArrayList<>(5);
 				categories.put(cat, descs);
 			}
 			descs.add(desc);
@@ -260,7 +260,7 @@ class PropertySheetPage extends Page {
 			try {
 				source.setPropertyValue(id, editor.getValue());
 			} catch (IllegalArgumentException ex) {
-				DialogUserNotifier.openError("ERROR", ex.getMessage());
+				DialogUserNotifier.openError("ERROR", ex.getMessage(), ex);
 				// LOGGER.info("Error on setting property [" + id + "]: " + ex.getMessage());
 			}
 			refresh();

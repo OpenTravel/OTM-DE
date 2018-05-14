@@ -290,7 +290,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 			w2.setValidator(new NewPropertyValidator(actOnNode, null));
 			w2.run(OtmRegistry.getActiveShell());
 		} catch (IllegalArgumentException e) {
-			DialogUserNotifier.openError("Add properties error.", e.getLocalizedMessage());
+			DialogUserNotifier.openError("Add properties error.", e.getLocalizedMessage(), e);
 			// LOGGER.error("ERROR: " + e);
 		}
 		mc.refresh(actOnNode.getOwningComponent());

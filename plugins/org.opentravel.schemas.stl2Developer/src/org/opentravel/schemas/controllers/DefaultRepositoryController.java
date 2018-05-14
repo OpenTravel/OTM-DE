@@ -125,7 +125,7 @@ public class DefaultRepositoryController implements RepositoryController {
 		} catch (RepositoryException e) {
 			String msg = "Error refreshing " + node + " - " + e.getLocalizedMessage();
 			LOGGER.error(msg);
-			DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg);
+			DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg, e);
 		}
 		LOGGER.debug("Updated repository node  " + node);
 		refreshView(node);
@@ -142,7 +142,7 @@ public class DefaultRepositoryController implements RepositoryController {
 	 */
 	@Override
 	public List<RepositoryNode> getAll() {
-		List<RepositoryNode> repos = new ArrayList<RepositoryNode>();
+		List<RepositoryNode> repos = new ArrayList<>();
 		if (getRoot() == null)
 			throw new IllegalStateException("Repository root is null.");
 
@@ -197,17 +197,14 @@ public class DefaultRepositoryController implements RepositoryController {
 				publishedItems = publish(pm, items, repository);
 			} catch (PublishWithLocalDependenciesException e) {
 				try {
-					boolean process = DialogUserNotifier.openConfirm(
-							Messages.getString("repository.warning"),
-							Messages.getString(
-									"repository.warning.loadDependentLibs",
-									toString(getNewPublications(e.getRequestedPublications(),
-											e.getRequiredPublications()))));
+					boolean process = DialogUserNotifier.openConfirm(Messages.getString("repository.warning"),
+							Messages.getString("repository.warning.loadDependentLibs", toString(
+									getNewPublications(e.getRequestedPublications(), e.getRequiredPublications()))));
 					if (process) {
 						publishedItems = publish(pm, e.getRequiredPublications(), repository);
 					}
 				} catch (PublishWithLocalDependenciesException e1) {
-					postRepoError("manage");
+					postRepoError("manage", e1);
 				}
 			}
 		} catch (RepositoryException e) {
@@ -245,7 +242,7 @@ public class DefaultRepositoryController implements RepositoryController {
 	}
 
 	private Collection<ProjectItem> getManagedItems(Repository repository, Collection<ProjectItem> items) {
-		List<ProjectItem> managed = new ArrayList<ProjectItem>();
+		List<ProjectItem> managed = new ArrayList<>();
 		for (ProjectItem i : items) {
 			if (!RepositoryItemState.UNMANAGED.equals(i.getState())) {
 				managed.add(i);
@@ -255,7 +252,7 @@ public class DefaultRepositoryController implements RepositoryController {
 	}
 
 	private Collection<ProjectItem> getItemsWithInvalidNamespace(Repository repository, Collection<ProjectItem> items) {
-		List<ProjectItem> invalid = new ArrayList<ProjectItem>();
+		List<ProjectItem> invalid = new ArrayList<>();
 		for (ProjectItem i : items) {
 			if (!isInManagedNS(i.getNamespace(), repository)) {
 				invalid.add(i);
@@ -277,7 +274,7 @@ public class DefaultRepositoryController implements RepositoryController {
 
 	private Collection<ProjectItem> getNewPublications(Collection<ProjectItem> requestedPublications,
 			Collection<ProjectItem> requiredPublications) {
-		Set<ProjectItem> items = new HashSet<ProjectItem>();
+		Set<ProjectItem> items = new HashSet<>();
 		for (ProjectItem req : requiredPublications) {
 			if (!requestedPublications.contains(req)) {
 				items.add(req);
@@ -287,7 +284,7 @@ public class DefaultRepositoryController implements RepositoryController {
 	}
 
 	private Collection<LibraryNode> findLibraries(Collection<ProjectItem> publishedItems) {
-		List<LibraryNode> libraries = new ArrayList<LibraryNode>(publishedItems.size());
+		List<LibraryNode> libraries = new ArrayList<>(publishedItems.size());
 
 		for (LibraryNode l : Node.getAllUserLibraries())
 			if (publishedItems.contains(l.getProjectItem()))
@@ -297,7 +294,7 @@ public class DefaultRepositoryController implements RepositoryController {
 	}
 
 	private List<LibraryChainNode> convertToChains(Collection<LibraryNode> publishedLibs) {
-		List<LibraryChainNode> chains = new ArrayList<LibraryChainNode>(publishedLibs.size());
+		List<LibraryChainNode> chains = new ArrayList<>(publishedLibs.size());
 		// LibraryModelManager mgr = Node.getModelNode().getLibraryManager();
 		for (LibraryNode l : publishedLibs) {
 			// Could have duplicates in the list
@@ -308,7 +305,7 @@ public class DefaultRepositoryController implements RepositoryController {
 	}
 
 	private List<ProjectItem> toProjectItems(List<LibraryNode> libs) {
-		List<ProjectItem> items = new ArrayList<ProjectItem>(libs.size());
+		List<ProjectItem> items = new ArrayList<>(libs.size());
 		for (LibraryNode l : libs) {
 			if (l != null)
 				items.add(l.getProjectItem());
@@ -442,18 +439,18 @@ public class DefaultRepositoryController implements RepositoryController {
 		ProjectItem pi = ln.getProjectItem();
 		if (!pi.getState().equals(RepositoryItemState.MANAGED_UNLOCKED)) {
 			String msg = Messages.getString(REPO_ERROR_PREFIX + "notManagedUnlocked");
-			DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg);
+			DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg, null);
 			return false;
 		}
 		// Assure the intended promotion is allowed
 		if (!pi.getStatus().nextStatus().equals(targetStatus)) {
 			String msg = Messages.getString(REPO_ERROR_PREFIX + "incorrectStatus");
-			DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg);
+			DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg, null);
 			return false;
 		}
 		// Confirm Use intends to promote.
-		if (!DialogUserNotifier.openConfirm("Promote Library", "Warning, promoting a library to " + targetStatus
-				+ " can not be undone. Do you want to continue?"))
+		if (!DialogUserNotifier.openConfirm("Promote Library",
+				"Warning, promoting a library to " + targetStatus + " can not be undone. Do you want to continue?"))
 			return false;
 
 		// DO IT
@@ -511,7 +508,7 @@ public class DefaultRepositoryController implements RepositoryController {
 
 	@Override
 	public List<String> getRootNamespaces() {
-		List<String> rootNSs = new ArrayList<String>();
+		List<String> rootNSs = new ArrayList<>();
 		for (RepositoryNode rn : getAll()) {
 			try {
 				rootNSs.addAll(rn.getRepository().listRootNamespaces());
@@ -708,7 +705,7 @@ public class DefaultRepositoryController implements RepositoryController {
 			// Post directly to get message and exception message
 			String msg = Messages.getString(REPO_MESSAGE_PREFIX + "invalidLocation");
 			msg += "\n\n" + e.getLocalizedMessage();
-			DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg);
+			DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg, e);
 			LOGGER.warn("Repository Error: " + msg);
 			return false;
 		}
@@ -912,31 +909,13 @@ public class DefaultRepositoryController implements RepositoryController {
 
 		String msgID = "repository.version.check.all";
 		boolean isOK = false;
-		// boolean needsFinal = library.getStatus().equals(TLLibraryStatus.DRAFT);
-		boolean editable = library.getEditStatus().equals(NodeEditStatus.FULL);
-		// if (needsFinal && !editable)
-		// msgID = "repository.version.check.final";
-		// else if (!needsFinal)
-		msgID = "repository.version.check.OK";
 
-		// In development
-		// LibraryOrchestrationWizard wizard = new LibraryOrchestrationWizard(library, this);
-		// wizard.run(OtmRegistry.getActiveShell());
-		// if (wizard.wasCanceled())
-		// return false;
+		boolean editable = library.getEditStatus().equals(NodeEditStatus.FULL);
+
+		msgID = "repository.version.check.OK";
 
 		isOK = DialogUserNotifier.openConfirm(Messages.getString("repository.version.check.title"),
 				Messages.getString(msgID));
-		// Code below is not needed - Final library will be unlocked and committed
-		// if (isOK && needsFinal) {
-		// if (!library.isLocked())
-		// lock(library);
-		// isOK = commit(library);
-		// if (isOK)
-		// isOK = unlock(library);
-		// if (isOK && needsFinal)
-		// isOK = markFinal(library);
-		// }
 		return isOK;
 	}
 
@@ -976,7 +955,7 @@ public class DefaultRepositoryController implements RepositoryController {
 	public static String REPO_ERROR_PREFIX = "repository.error.";
 
 	public static void postRepoException(Exception e) {
-		DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), e.getLocalizedMessage());
+		DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), e.getLocalizedMessage(), e);
 		LOGGER.warn("Repository Exception: " + e.getLocalizedMessage());
 	}
 
@@ -989,11 +968,14 @@ public class DefaultRepositoryController implements RepositoryController {
 	}
 
 	public static void postRepoError(String message) {
+		postRepoError(message, null);
+	}
+
+	public static void postRepoError(String message, Throwable e) {
 		final String msg = Messages.getString(REPO_MESSAGE_PREFIX + message);
-		if (msg.equals('!' + message + '!'))
-			LOGGER.error("Bad error message: " + message);
-		DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg);
-		// LOGGER.debug("Repository Error: " + msg);
+		// if (msg.equals('!' + message + '!'))
+		// LOGGER.error("Bad error message: " + message);
+		DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), msg, e);
 	}
 
 	/**

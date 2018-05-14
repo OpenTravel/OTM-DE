@@ -33,12 +33,16 @@ import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.types.TestTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Dave Hollander
  * 
  */
 public class RepositoryControllerTests {
+	static final Logger LOGGER = LoggerFactory.getLogger(RepositoryControllerTests.class);
+
 	ModelNode model = null;
 	TestTypes tt = new TestTypes();
 
@@ -77,6 +81,7 @@ public class RepositoryControllerTests {
 	public void createVersionErrors() throws Exception {
 		// These creates should create NULL libraries because ln is not in a repository.
 		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
+		LOGGER.debug("Error Dialogs Expected.");
 		LibraryNode major = rc.createMajorVersion(ln);
 		assertNull(major);
 		LibraryNode minor = rc.createMinorVersion(ln);

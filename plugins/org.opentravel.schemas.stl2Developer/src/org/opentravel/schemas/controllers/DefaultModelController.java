@@ -343,7 +343,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 		if (findings.hasFinding(FindingType.ERROR)) {
 			LOGGER.warn("Could not compile model, validation errors were found.");
 			DialogUserNotifier.openError("Model Error",
-					"Could not compile - errors were found. See the Warnings and Errors section.");
+					"Could not compile - errors were found. See the Warnings and Errors section.", null);
 		} else if (findings.hasFinding(FindingType.WARNING)) {
 			LOGGER.warn("Validation warnings were found during model compilation.");
 			DialogUserNotifier.openWarning("Compile with Warnings", "Model compiled with warnings in directory "
@@ -387,14 +387,14 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 
 	class ObjectNotyficationListener implements ModelEventListener<ModelEvent<Object>, Object> {
 
-		private Map<Object, List<ValueChangeEventListener<Object, Object>>> valueChangeListeners = new HashMap<Object, List<ValueChangeEventListener<Object, Object>>>();
-		private Map<Object, List<OwnershipEventListener<Object, Object>>> ownerShipListeners = new HashMap<Object, List<OwnershipEventListener<Object, Object>>>();
+		private Map<Object, List<ValueChangeEventListener<Object, Object>>> valueChangeListeners = new HashMap<>();
+		private Map<Object, List<OwnershipEventListener<Object, Object>>> ownerShipListeners = new HashMap<>();
 
 		@SuppressWarnings("unchecked")
 		public <S> void addSourceListener(S source, ValueChangeEventListener<S, ? extends Object> listener) {
 			List<ValueChangeEventListener<Object, Object>> sourceL = valueChangeListeners.get(source);
 			if (sourceL == null) {
-				sourceL = new LinkedList<ValueChangeEventListener<Object, Object>>();
+				sourceL = new LinkedList<>();
 				valueChangeListeners.put(source, sourceL);
 			}
 			sourceL.add((ValueChangeEventListener<Object, Object>) listener);
@@ -404,7 +404,7 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 		public <S> void addSourceListener(S source, OwnershipEventListener<S, ? extends Object> listener) {
 			List<OwnershipEventListener<Object, Object>> sourceL = ownerShipListeners.get(source);
 			if (sourceL == null) {
-				sourceL = new LinkedList<OwnershipEventListener<Object, Object>>();
+				sourceL = new LinkedList<>();
 				ownerShipListeners.put(source, sourceL);
 			}
 			sourceL.add((OwnershipEventListener<Object, Object>) listener);
@@ -455,11 +455,11 @@ public class DefaultModelController extends OtmControllerBase implements ModelCo
 		}
 
 		private List<ValueChangeEventListener<Object, Object>> getValueChangeListeners(Object source) {
-			return new ArrayList<ValueChangeEventListener<Object, Object>>(valueChangeListeners.get(source));
+			return new ArrayList<>(valueChangeListeners.get(source));
 		}
 
 		private List<OwnershipEventListener<Object, Object>> getOwnershipListeners(Object source) {
-			return new ArrayList<OwnershipEventListener<Object, Object>>(ownerShipListeners.get(source));
+			return new ArrayList<>(ownerShipListeners.get(source));
 
 		}
 

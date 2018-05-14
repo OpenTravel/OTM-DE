@@ -62,6 +62,7 @@ import org.opentravel.schemacompiler.repository.impl.BuiltInProject;
 import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.validate.FindingMessageFormat;
+import org.opentravel.schemacompiler.validate.ValidationFinding;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
@@ -117,6 +118,7 @@ public class DefaultProjectController implements ProjectController {
 		public ValidationFindings findings;
 		public Project tlProject;
 		public ProjectNode project;
+		public Throwable exception;
 	}
 
 	/**
@@ -139,7 +141,7 @@ public class DefaultProjectController implements ProjectController {
 
 		if (defaultProject == null) {
 			DialogUserNotifier.openError("Default Project Error",
-					Messages.getString("error.openProject.defaultProject", defaultPath));
+					Messages.getString("error.openProject.defaultProject", defaultPath), null);
 		}
 		defaultPath = defaultProject.getTLProject().getProjectFile().getPath();
 		mc.getModelNode().addProject(defaultProject);
@@ -169,13 +171,13 @@ public class DefaultProjectController implements ProjectController {
 			}
 		} catch (RepositoryException e) {
 			// LOGGER.error("Could not add library file to project.");
-			DialogUserNotifier.openError("Add Project Error", "Could not add to project.");
+			DialogUserNotifier.openError("Add Project Error", "Could not add to project.", e);
 		} catch (LibraryLoaderException e) {
 			// LOGGER.error("Could not add library file to project.");
-			DialogUserNotifier.openError("Add Project Error", "Could not add to project.");
+			DialogUserNotifier.openError("Add Project Error", "Could not add to project.", e);
 		} catch (Throwable e) {
 			// LOGGER.error("Error when adding to project", e);
-			DialogUserNotifier.openError("Add Project Error", "Could not add to project.");
+			DialogUserNotifier.openError("Add Project Error", "Could not add to project.", e);
 		}
 		// LOGGER.debug("Added libraries to " + project.getName());
 		return newItems;
@@ -225,10 +227,10 @@ public class DefaultProjectController implements ProjectController {
 			}
 		} catch (RepositoryException e) {
 			// LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
-			DialogUserNotifier.openError("Add Project Error", e.getLocalizedMessage());
+			DialogUserNotifier.openError("Add Project Error", e.getLocalizedMessage(), e);
 		} catch (IllegalArgumentException ex) {
 			// LOGGER.error("Could not add repository item to project. " + ex.getLocalizedMessage());
-			DialogUserNotifier.openError("Add Project Error", ex.getLocalizedMessage());
+			DialogUserNotifier.openError("Add Project Error", ex.getLocalizedMessage(), ex);
 		}
 		return lnn;
 	}
@@ -248,7 +250,7 @@ public class DefaultProjectController implements ProjectController {
 			pi = pn.getTLProject().getProjectManager().addUnmanagedProjectItem(tlLib, pn.getTLProject());
 		} catch (RepositoryException e) {
 			// LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
-			DialogUserNotifier.openError("Add Project Error", e.getLocalizedMessage());
+			DialogUserNotifier.openError("Add Project Error", e.getLocalizedMessage(), e);
 		}
 		if (pi != null)
 			ln = new LibraryNode(pi, ln.getChain());
@@ -306,11 +308,11 @@ public class DefaultProjectController implements ProjectController {
 			}
 		} catch (LibraryLoaderException e) {
 			// LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
-			DialogUserNotifier.openError("Add Project Error", e.getLocalizedMessage());
+			DialogUserNotifier.openError("Add Project Error", e.getLocalizedMessage(), e);
 
 		} catch (RepositoryException e) {
 			// LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
-			DialogUserNotifier.openError("Add Project Error", e.getLocalizedMessage());
+			DialogUserNotifier.openError("Add Project Error", e.getLocalizedMessage(), e);
 		}
 
 		// piList now has all of the project items for this chain.
@@ -322,7 +324,7 @@ public class DefaultProjectController implements ProjectController {
 				project.getTLProject().getProjectManager().saveProject(project.getTLProject());
 			} catch (LibrarySaveException e) {
 				e.printStackTrace();
-				DialogUserNotifier.openError("Could not save project.", e.getLocalizedMessage());
+				DialogUserNotifier.openError("Could not save project.", e.getLocalizedMessage(), e);
 			}
 			// }
 			// do the whole model to check if new libraries resolved broken links.
@@ -349,7 +351,7 @@ public class DefaultProjectController implements ProjectController {
 			newProject = projectManager.newProject(file, ID, name, description);
 		} catch (Exception e) {
 			// LOGGER.error("Could not create new project: ", e);
-			DialogUserNotifier.openError("New Project Error", e.getLocalizedMessage());
+			DialogUserNotifier.openError("New Project Error", e.getLocalizedMessage(), e);
 			return null;
 		}
 		return new ProjectNode(newProject);
@@ -518,6 +520,7 @@ public class DefaultProjectController implements ProjectController {
 		String resultMsg = "";
 		Project project = null;
 		File projectFile = new File(fileName);
+		Throwable ex = null;
 		ValidationFindings findings = new ValidationFindings();
 
 		// LoadProject will attempt to save it as well
@@ -528,22 +531,27 @@ public class DefaultProjectController implements ProjectController {
 			try {
 				project = projectManager.loadProject(projectFile, findings);
 			} catch (RepositoryException e) {
-				resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
+				resultMsg = postLoadError(e, fileName);
 				project = null;
+				ex = e;
 			} catch (LibraryLoaderException e) {
-				resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
+				resultMsg = postLoadError(e, fileName);
 				project = null;
+				ex = e;
 			} catch (IllegalArgumentException e) {
-				resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
+				resultMsg = postLoadError(e, fileName);
 				project = null;
+				ex = e;
 			} catch (NullPointerException e) {
-				resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
+				resultMsg = postLoadError(e, fileName);
 				project = null;
+				ex = e;
 				// e.printStackTrace();
 				// LOGGER.debug("NPE from project manager load project. " + e);
 			} catch (Throwable e) {
-				resultMsg = postLoadError(e.getLocalizedMessage(), fileName);
+				resultMsg = postLoadError(e, fileName);
 				project = null;
+				ex = e;
 			}
 
 			if (isUI)
@@ -551,15 +559,20 @@ public class DefaultProjectController implements ProjectController {
 
 			if (project != null) {
 				if (project.getProjectItems().isEmpty()) {
-					resultMsg = "Could not load project. Project could not read libraries.";
+					resultMsg += "Could not load project. Project could not read libraries.";
+					if (findings != null && !findings.isEmpty())
+						for (ValidationFinding finding : findings.getAllFindingsAsList()) {
+							LOGGER.debug(finding.getFormattedMessage(FindingMessageFormat.DEFAULT));
+							resultMsg += "\n" + finding.getFormattedMessage(FindingMessageFormat.DEFAULT);
+						}
 					if (Display.getCurrent() != null)
-						DialogUserNotifier.openError("Open Project Error", resultMsg);
+						DialogUserNotifier.openError("Open Project Error", resultMsg, ex);
 				} else
 					resultMsg = project.getProjectItems().size() + " project items read.";
 				// LOGGER.debug("Read " + project.getProjectItems().size() + " items from project: " + fileName);
 			}
 		} else {
-			resultMsg = postLoadError("Project files must be writable.", fileName);
+			resultMsg = postLoadError("Project files must be writable.", null, fileName);
 			project = null;
 		}
 
@@ -567,17 +580,22 @@ public class DefaultProjectController implements ProjectController {
 		op.resultMsg = resultMsg;
 		op.tlProject = project;
 		op.findings = findings;
+		op.exception = ex;
 		return op;
 	}
 
-	private String postLoadError(String errorMsg, String fileName) {
+	private String postLoadError(Throwable e, String fileName) {
+		return postLoadError(e.getLocalizedMessage(), e, fileName);
+	}
+
+	private String postLoadError(String msg, Throwable e, String fileName) {
 		String title = "Project Error";
-		String message = MessageFormat.format(Messages.getString("error.openProject.invalidRemoteProject"), errorMsg,
+		String message = MessageFormat.format(Messages.getString("error.openProject.invalidRemoteProject"), msg,
 				fileName);
 
 		if (Display.getCurrent() != null) {
 			mc.showBusy(false);
-			DialogUserNotifier.openError(title, message);
+			DialogUserNotifier.openError(title, message, e);
 		}
 		LOGGER.error(title + " : " + message);
 		return message;
@@ -612,7 +630,8 @@ public class DefaultProjectController implements ProjectController {
 			}
 			op = openTLProject(fileName);
 			if (op.tlProject == null) {
-				DialogUserNotifier.syncErrorWithUi("Failed to open project " + fileName + "\n" + op.resultMsg);
+				DialogUserNotifier.syncErrorWithUi("Failed to open project " + fileName + "\n" + op.resultMsg,
+						op.exception);
 				return null;
 			}
 
@@ -623,7 +642,7 @@ public class DefaultProjectController implements ProjectController {
 			if (op.tlProject.getFailedProjectItems() != null)
 				failedCnt = op.tlProject.getFailedProjectItems().size();
 			if (failedCnt > 0) {
-				failures = op.tlProject.getName() + ": ";
+				failures = "Project " + op.tlProject.getName() + ": ";
 				failures += "Read " + itemCnt + " items. Failed to Read " + failedCnt + " items.\n";
 				for (ProjectItemType item : op.tlProject.getFailedProjectItems())
 					if (item instanceof ManagedProjectItemType) {
@@ -645,9 +664,9 @@ public class DefaultProjectController implements ProjectController {
 			if (monitor != null) {
 				monitor.worked(1);
 				if (op.project == null)
-					DialogUserNotifier.syncErrorWithUi(op.resultMsg);
+					DialogUserNotifier.syncErrorWithUi(op.resultMsg, op.exception);
 				else if (!failures.isEmpty())
-					DialogUserNotifier.syncErrorWithUi(failures);
+					DialogUserNotifier.syncErrorWithUi(failures, op.exception);
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {
@@ -783,7 +802,7 @@ public class DefaultProjectController implements ProjectController {
 			Node.getModelNode().removeProject(pn);
 
 			if (!result)
-				DialogUserNotifier.openError("Error Closing Project.", "Please restart.");
+				DialogUserNotifier.openError("Error Closing Project.", "Please restart.", null);
 			if (Display.getCurrent() != null)
 				mc.refresh();
 			if (!result)
@@ -804,9 +823,11 @@ public class DefaultProjectController implements ProjectController {
 			} catch (ConcurrentModificationException e) {
 				LOGGER.error("ConcurrentModification error closing project - trying again " + tryCount);
 				tryCount++;
+				e.printStackTrace();
 			} catch (Exception ie) {
 				LOGGER.error("Error on retry closing project: " + ie.getLocalizedMessage());
 				tryCount++;
+				ie.printStackTrace();
 			}
 		}
 		return false;
@@ -896,7 +917,7 @@ public class DefaultProjectController implements ProjectController {
 					if (p == getBuiltInProject() || p == getDefaultProject())
 						continue;
 					if (!close(p)) {
-						DialogUserNotifier.syncErrorWithUi("Error - could not close proejcts. Please restart.");
+						DialogUserNotifier.syncErrorWithUi("Error - could not close projects. Please restart.", null);
 						monitor.done();
 						ValidationManager.unblock(); // RELEASE
 						return Status.CANCEL_STATUS;
@@ -941,19 +962,19 @@ public class DefaultProjectController implements ProjectController {
 		// Pre-checks
 		if (pn == null || pn.getTLProject() == null || pn.getTLProject().getProjectManager() == null) {
 			LOGGER.error("Could not save project because of missing project manager.");
-			DialogUserNotifier.openError("Save Project Error", "Could not get project manager.");
+			DialogUserNotifier.openError("Save Project Error", "Could not get project manager.", null);
 			return false;
 		}
 		// Assure project has writable project file
 		if (pn.getTLProject().getProjectFile() == null) {
 			LOGGER.error("Could not get project file.");
-			DialogUserNotifier.openError("Save Project Error", "Could not get project file.\n");
+			DialogUserNotifier.openError("Save Project Error", "Could not get project file.\n", null);
 			return false;
 		}
 		if (!pn.getTLProject().getProjectFile().canWrite()) {
 			LOGGER.error("Could not write to project file: ", pn.getTLProject().getProjectFile().getPath());
 			DialogUserNotifier.openError("Save Project Error",
-					"Could not write to project file. \n" + pn.getTLProject().getProjectFile().getPath());
+					"Could not write to project file. \n" + pn.getTLProject().getProjectFile().getPath(), null);
 			return false;
 		}
 
@@ -965,7 +986,8 @@ public class DefaultProjectController implements ProjectController {
 		} catch (LibrarySaveException e) {
 			LOGGER.error("Could not save project: " + e.getLocalizedMessage());
 			mc.showBusy(false);
-			DialogUserNotifier.openError("Save Project Error", "Could not save project. \n" + e.getLocalizedMessage());
+			DialogUserNotifier.openError("Save Project Error", "Could not save project. \n" + e.getLocalizedMessage(),
+					e);
 			return false;
 		}
 		mc.showBusy(false);

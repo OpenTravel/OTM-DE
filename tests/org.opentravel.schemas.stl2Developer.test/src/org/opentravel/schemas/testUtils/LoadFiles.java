@@ -389,12 +389,17 @@ public class LoadFiles {
 	public ProjectNode loadVersionTestProject(ProjectController pc) {
 		String fn = VersionTestProject; // files
 		OpenedProject op = pc.open(fn, null);
-		ProjectNode pn = op.project;
-		if (pn.getTLProject().getProjectItems().isEmpty()) {
-			LOGGER.error("Could not read version test project.");
-			LOGGER.error("Message: " + op.resultMsg);
+		ProjectNode pn = null;
+		if (op == null)
+			LOGGER.error("Null OpenProject object from open method.");
+		else {
+			pn = op.project;
+			if (pn.getTLProject().getProjectItems().isEmpty()) {
+				LOGGER.error("Could not read version test project.");
+				LOGGER.error("Message: " + op.resultMsg);
+			}
+			new TypeResolver().resolveTypes();
 		}
-		new TypeResolver().resolveTypes();
 		return pn;
 	}
 

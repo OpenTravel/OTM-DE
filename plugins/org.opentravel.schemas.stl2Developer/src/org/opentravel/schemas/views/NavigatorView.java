@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * @author Agnieszka Janowska
+ * @author Dave Hollander
  * 
  *         TODO - clean up current/previous node
  * 
