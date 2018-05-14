@@ -157,7 +157,7 @@ public class ValidationResultsView extends OtmAbstractView {
 	 */
 	public void postFindings() {
 		// LOGGER.debug("Posting findings.");
-		if (findingsViewer == null)
+		if (findingsViewer == null || findingsViewer.getTable().isDisposed())
 			return;
 
 		clearFindings();

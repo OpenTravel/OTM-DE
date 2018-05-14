@@ -215,13 +215,13 @@ public class ExampleView extends OtmAbstractView {
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					if (viewer != null) {
+					if (viewerIsOk()) {
 						viewer.setInput(null);
 						viewer.refresh();
 					}
 				}
 			});
-		} else if (viewer != null) {
+		} else if (viewerIsOk()) {
 			viewer.setInput(null);
 			viewer.refresh();
 		}
@@ -255,7 +255,7 @@ public class ExampleView extends OtmAbstractView {
 			job.schedule();
 		}
 		// set up viewer now for refresh when job is done
-		if (viewer != null) {
+		if (viewerIsOk()) {
 			viewer.setInput(examples);
 			viewer.refresh(true);
 		}
@@ -404,18 +404,19 @@ public class ExampleView extends OtmAbstractView {
 
 	@Override
 	public void setFocus() {
-		viewer.getControl().setFocus();
+		if (viewerIsOk())
+			viewer.getControl().setFocus();
 	}
 
 	@Override
 	public void expand() {
-		if (viewer != null)
+		if (viewerIsOk())
 			viewer.expandAll();
 	}
 
 	@Override
 	public void collapse() {
-		if (viewer != null)
+		if (viewerIsOk())
 			viewer.collapseAll();
 	}
 
@@ -438,7 +439,7 @@ public class ExampleView extends OtmAbstractView {
 
 	@Override
 	public void refresh() {
-		if (viewer != null)
+		if (viewerIsOk())
 			viewer.refresh();
 	}
 
@@ -462,6 +463,10 @@ public class ExampleView extends OtmAbstractView {
 		setCurrentNode(node);
 	}
 
+	private boolean viewerIsOk() {
+		return (viewer != null && viewer.getTree() != null && !viewer.getTree().isDisposed());
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -469,13 +474,13 @@ public class ExampleView extends OtmAbstractView {
 	 */
 	@Override
 	public void refresh(INode node) {
-		if (viewer != null)
+		if (viewerIsOk())
 			viewer.refresh();
 	}
 
 	@Override
 	public void setCurrentNode(INode node) {
-		if (viewer == null)
+		if (!viewerIsOk())
 			return;
 		if (node instanceof Node) {
 			Node n = (Node) node;
@@ -494,7 +499,7 @@ public class ExampleView extends OtmAbstractView {
 	}
 
 	private void expandAndSelect(Node node) {
-		if (node != null) {
+		if (node != null && viewerIsOk()) {
 			LinkedList<Node> parents = new LinkedList<>();
 			while (viewer.testFindItem(node) == null) {
 				node = node.getParent();

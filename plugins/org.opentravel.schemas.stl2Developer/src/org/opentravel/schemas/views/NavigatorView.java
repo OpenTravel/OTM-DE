@@ -95,25 +95,36 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 
 	@Override
 	public void clearFilter() {
-		if (!getMainWindow().hasDisplay())
-			return; // headless operation
-		filterText.setText("");
-		textFilter.setText("");
+		if (filterText != null)
+			filterText.setText("");
+		if (textFilter != null)
+			textFilter.setText("");
 	}
 
 	@Override
 	public void clearSelection() {
-		if (!getMainWindow().hasDisplay())
-			return; // headless operation
 		selectedNodes.clear();
-		navigatorMenus.setSelection(null);
+		if (preCheckOK())
+			navigatorMenus.setSelection(null);
+	}
+
+	/**
+	 * Check display and tree viewer to make sure they can be accessed.
+	 * 
+	 * @return
+	 */
+	private boolean preCheckOK() {
+		if (!getMainWindow().hasDisplay())
+			return false;
+		if (navigatorMenus == null || navigatorMenus.getTree() == null || navigatorMenus.getTree().isDisposed())
+			return false;
+		return true;
 	}
 
 	@Override
 	public void collapse() {
-		if (!getMainWindow().hasDisplay())
-			return; // headless operation
-		navigatorMenus.collapseAll();
+		if (preCheckOK())
+			navigatorMenus.collapseAll();
 	}
 
 	@Override
@@ -187,6 +198,8 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	}
 
 	private void attachSelectionListener() {
+		if (!preCheckOK())
+			return;
 		navigatorMenus.addSelectionChangedListener(this);
 		navigatorMenus.addSelectionChangedListener(new ISelectionChangedListener() {
 
@@ -229,7 +242,8 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 		if (n != null) {
 			setCurrentNode(n);
 			select(n);
-			navigatorMenus.doubleClickNotification();
+			if (preCheckOK())
+				navigatorMenus.doubleClickNotification();
 			mc.selectNavigatorNodeAndRefresh(n);
 		} else {
 			remove(node);
@@ -238,13 +252,13 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 
 	@Override
 	public void expand() {
-		if (!getMainWindow().hasDisplay())
-			return;
-		navigatorMenus.expandToLevel(6);
+		if (preCheckOK())
+			navigatorMenus.expandToLevel(6);
 	}
 
 	public void expand(Node node) {
-		navigatorMenus.expandToLevel(node, 6);
+		if (preCheckOK())
+			navigatorMenus.expandToLevel(node, 6);
 	}
 
 	@Override
@@ -278,7 +292,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 
 	@Override
 	public void refresh() {
-		if (navigatorMenus != null) {
+		if (preCheckOK()) {
 			navigatorMenus.preservingSelection(new Runnable() {
 
 				@Override
@@ -298,7 +312,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	 */
 	@Override
 	public void refresh(INode n) {
-		if (navigatorMenus == null)
+		if (!preCheckOK())
 			return; // happens when headless and during initial load
 		if (n == null)
 			return;
@@ -312,7 +326,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	public void refreshNode(Node n, final boolean expand) {
 		if (n == null)
 			return; // happens when click is on facet separator bar
-		if (navigatorMenus == null)
+		if (!preCheckOK())
 			return; // happens when headless and during initial load
 		if (shouldParentBeDisplayed(n)) {
 			n = n.getParent();
@@ -328,14 +342,11 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	 */
 	@Override
 	public void select(INode n) {
-		if (navigatorMenus == null)
+		if (!preCheckOK())
 			return; // happens when headless and during initial load
 		if (n == null || n.isDeleted())
 			return;
 
-		// // Show the node under the aggregate in the chain instead of in library.
-		// if (n.getParentAggregate() != null)
-		// n = n.getParentAggregate();
 		navigatorMenus.refreshNode((Node) n, false);
 		// 1/19/17 - navigatorMenus.refreshNode((Node) n, true);
 	}
@@ -346,13 +357,18 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	 * @param n
 	 */
 	public void select(List<Node> nodes) {
-		if (navigatorMenus == null)
+		if (!preCheckOK())
+			return;
+		if (nodes == null)
 			return; // happens when headless and during initial load
 
 		setSelection(new StructuredSelection(nodes));
 	}
 
 	private void setSelection(IStructuredSelection selection) {
+		if (!preCheckOK() || selection == null)
+			return; // happens when headless and during initial load
+
 		navigatorMenus.setSelection(selection, true);
 		applySelection(selection);
 	}
@@ -371,34 +387,16 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 
 	private void applySelection(final IStructuredSelection iss) {
 		// LOGGER.debug("nav view - apply selection event start.");
-		if (iss.getFirstElement() == null)
+		if (iss == null || iss.getFirstElement() == null)
 			return;
 
 		curNode = getSelectedNode(iss.getFirstElement());
-		// if (iss.getFirstElement() instanceof Node)
-		// curNode = (Node) iss.getFirstElement();
-		// // LOGGER.debug("apply selection to " + curNode);
-		// if (curNode instanceof VersionNode)
-		// curNode = ((VersionNode) curNode).get();
 
 		selectedNodes.clear();
 		for (final Object o : iss.toList()) {
-			// if (o instanceof Node) {
-			// if (o instanceof VersionNode)
-			// selectedNodes.add(((VersionNode) o).get());
-			// else if (((Node) o).getVersionNode() != null)
-			// selectedNodes.add(((Node) o).getVersionNode().get());
-			// else
-			// selectedNodes.add((Node) o);
 			Node n = getSelectedNode(o);
 			if (n != null) {
 				selectedNodes.add(n);
-
-				// if (n.getLibrary() != null)
-				// String msg = n.getEditStatusMsg();
-				// mc.postStatus(n.getEditStatusMsg());
-				// if (((Node) o).getLibrary() != null)
-				// mc.postStatus(((Node) o).getEditStatusMsg());
 			}
 		}
 
@@ -408,10 +406,14 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 			if (view != null)
 				view.setFindings(ValidationManager.validate(curNode), curNode);
 		}
+
 		// select example
 		OtmView view = mc.getView_Example();
+		// if (view != null) {
 		view.setCurrentNode(curNode);
 		view.refresh(curNode);
+		// }
+
 		if (curNode != null)
 			mc.postStatus(curNode.getNameWithPrefix() + " - " + curNode.getEditStatusMsg());
 
@@ -449,7 +451,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	 */
 	@Override
 	public void setDeepPropertyView(final boolean on) {
-		if (navigatorMenus == null)
+		if (!preCheckOK())
 			return; // happens during initial load
 		this.propertiesDisplayed = on;
 		((LibraryTreeContentProvider) navigatorMenus.getContentProvider()).setDeepMode(propertiesDisplayed);
@@ -469,7 +471,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 
 	@Override
 	public void setExactMatchFiltering(boolean exactMatchFiltering) {
-		if (navigatorMenus == null)
+		if (!preCheckOK())
 			return; // happens during initial load
 		textFilter.setExactFiltering(exactMatchFiltering);
 		refreshAllViews();
@@ -477,7 +479,8 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 
 	@Override
 	public void setFocus() {
-		navigatorMenus.getTree().setFocus();
+		if (preCheckOK())
+			navigatorMenus.getTree().setFocus();
 	}
 
 	/**
@@ -487,7 +490,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	 */
 	@Override
 	public void setInheritedPropertiesDisplayed(final boolean on) {
-		if (navigatorMenus == null)
+		if (!preCheckOK())
 			return; // happens during initial load
 		this.inheritedPropertiesDisplayed = on;
 		if (inheritedPropertiesDisplayed)
@@ -504,12 +507,14 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 			curNode = (Node) n;
 			return;
 		}
-		navigatorMenus.setInput(n);
+		if (preCheckOK())
+			navigatorMenus.setInput(n);
 	}
 
 	@Override
 	public void remove(INode node) {
-		navigatorMenus.remove(node);
+		if (preCheckOK())
+			navigatorMenus.remove(node);
 	}
 
 	/**
@@ -534,6 +539,8 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	 */
 	public boolean isReachable(Node node) {
 		// force recreate if never expanded before
+		if (!preCheckOK())
+			return false;
 		navigatorMenus.expandToLevel(node, 0);
 		return navigatorMenus.testFindItem(node) != null; // NOTE - this uses a testing hook!
 	}
