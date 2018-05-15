@@ -39,8 +39,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Provides a browser as a view that can be called on to display URLs.
  */
-public class ProjectDocView extends OtmAbstractView implements ISelectionListener, ISelectionChangedListener,
-		ITreeViewerListener, ModifyListener {
+public class ProjectDocView extends OtmAbstractView
+		implements ISelectionListener, ISelectionChangedListener, ITreeViewerListener, ModifyListener {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProjectDocView.class);
 
 	public static String VIEW_ID = "org.opentravel.schemas.stl2Developer.ProjectDocView";
@@ -51,6 +51,7 @@ public class ProjectDocView extends OtmAbstractView implements ISelectionListene
 	/**
 	 * Create the browser component in frame.
 	 */
+	@Override
 	public void createPartControl(Composite frame) {
 		OtmRegistry.registerProjectDocView(this);
 		try {
@@ -62,51 +63,19 @@ public class ProjectDocView extends OtmAbstractView implements ISelectionListene
 		}
 
 		url = OtmRegistry.getMainController().getModelController().getLastCompileDirectory();
+	}
 
-		// no need for these controls as the pages provide them.
-		// Composite parent = browser.getParent();
-		// ToolBar navBar = new ToolBar(frame, SWT.NONE);
-		// final ToolItem back = new ToolItem(navBar, SWT.PUSH);
-		// back.setText("back");
-		// back.setEnabled(false);
-		// final ToolItem forward = new ToolItem(navBar, SWT.PUSH);
-		// forward.setText("forward");
-		// forward.setEnabled(false);
-		//
-		// back.addListener(SWT.Selection, new Listener() {
-		// public void handleEvent(Event event) {
-		// browser.back();
-		// }
-		// });
-		// forward.addListener(SWT.Selection, new Listener() {
-		// public void handleEvent(Event event) {
-		// browser.forward();
-		// }
-		// });
-
-		// LocationListener locationListener = new LocationListener() {
-		// public void changed(LocationEvent event) {
-		// Browser browser = (Browser) event.widget;
-		// back.setEnabled(browser.isBackEnabled());
-		// forward.setEnabled(browser.isForwardEnabled());
-		//
-		// // // Intercept event and go there in this browser
-		// // event.doit = false;
-		// // if (!(browser.getUrl().equals(((LocationEvent) event).location)))
-		// // gotoURL(((LocationEvent) event).location);
-		// }
-		//
-		// public void changing(LocationEvent event) {
-		// }
-		// };
-		// browser.addLocationListener(locationListener);
+	private boolean viewerIsOk() {
+		return (browser != null && !browser.isDisposed());
 	}
 
 	/**
 	 * Disposes the internal browser widget.
 	 */
+	@Override
 	public void dispose() {
-		browser.dispose();
+		if (viewerIsOk())
+			browser.dispose();
 		browser = null;
 		super.dispose();
 	}
@@ -118,15 +87,17 @@ public class ProjectDocView extends OtmAbstractView implements ISelectionListene
 	 *            the URL to navigate to
 	 */
 	public void gotoURL(String url) {
-		if (browser != null && !url.isEmpty())
+		if (viewerIsOk() && !url.isEmpty())
 			browser.setUrl(url);
 	}
 
 	/**
 	 * Delegates focusing this view to the browser, so that it can handle mouse-clicks etc.
 	 */
+	@Override
 	public void setFocus() {
-		browser.setFocus();
+		if (viewerIsOk())
+			browser.setFocus();
 		url = OtmRegistry.getMainController().getModelController().getLastCompileDirectory();
 		if (!url.isEmpty())
 			url += "/documentation/index.html";

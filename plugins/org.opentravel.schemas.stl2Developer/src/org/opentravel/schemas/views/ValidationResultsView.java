@@ -145,8 +145,15 @@ public class ValidationResultsView extends OtmAbstractView {
 		// LOGGER.info("Done initializing part control of " + this.getClass());
 	}
 
+	private boolean viewerIsOk() {
+		if (Display.getCurrent() == null)
+			return false;
+		return findingsViewer != null && findingsViewer.getControl() != null
+				&& !findingsViewer.getControl().isDisposed();
+	}
+
 	private void packTable() {
-		if (findingsViewer != null)
+		if (viewerIsOk())
 			for (final TableColumn tc : findingsViewer.getTable().getColumns()) {
 				tc.pack();
 			}
@@ -157,7 +164,7 @@ public class ValidationResultsView extends OtmAbstractView {
 	 */
 	public void postFindings() {
 		// LOGGER.debug("Posting findings.");
-		if (findingsViewer == null || findingsViewer.getTable().isDisposed())
+		if (!viewerIsOk())
 			return;
 
 		clearFindings();
@@ -177,14 +184,14 @@ public class ValidationResultsView extends OtmAbstractView {
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					if (findingsViewer != null) {
+					if (viewerIsOk()) {
 						findingsViewer.setInput(null);
 						findingsViewer.refresh();
 						packTable();
 					}
 				}
 			});
-		} else if (findingsViewer != null) {
+		} else if (viewerIsOk()) {
 			findingsViewer.setInput(null);
 			packTable();
 		}
@@ -332,6 +339,8 @@ public class ValidationResultsView extends OtmAbstractView {
 	/** Copies the content of the current findings to the clipboard. */
 	@SuppressWarnings("unchecked")
 	public void copyFindingsToClipboard() {
+		if (!viewerIsOk())
+			return;
 		IStructuredSelection selection = (IStructuredSelection) findingsViewer.getSelection();
 		Iterator<ValidationFinding> iterator;
 		StringBuilder textResults = new StringBuilder();
@@ -366,9 +375,11 @@ public class ValidationResultsView extends OtmAbstractView {
 			sortAscending = !sortAscending;
 		}
 
-		Collections.sort(findingsContent,
-				new FindingComparator((ITableLabelProvider) findingsViewer.getLabelProvider()));
-		findingsViewer.refresh();
+		if (viewerIsOk()) {
+			Collections.sort(findingsContent,
+					new FindingComparator((ITableLabelProvider) findingsViewer.getLabelProvider()));
+			findingsViewer.refresh();
+		}
 	}
 
 	/** Returns the appropriate label for each column of a table-row entry. */

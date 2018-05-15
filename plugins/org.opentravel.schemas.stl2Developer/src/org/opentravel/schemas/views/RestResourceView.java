@@ -332,11 +332,15 @@ public class RestResourceView extends OtmAbstractView
 		return previousNode;
 	}
 
+	private boolean viewerIsOk() {
+		return viewer != null && viewer.getControl() != null && !viewer.getControl().isDisposed();
+	}
+
 	/**
 	 */
 	@Override
 	public List<Node> getSelectedNodes() {
-		if (viewer == null)
+		if (!viewerIsOk())
 			return null; // In case the view is not activated.
 		List<Node> selected = new ArrayList<>();
 		StructuredSelection selection = (StructuredSelection) viewer.getSelection();
@@ -354,7 +358,7 @@ public class RestResourceView extends OtmAbstractView
 
 	// Only works if the selection is on the rest resource tree
 	public ResourceMemberInterface getSelectedResourceNode() {
-		if (viewer == null)
+		if (!viewerIsOk())
 			return null; // In case the view is not activated.
 		StructuredSelection selection = (StructuredSelection) viewer.getSelection();
 		Object object = selection.getFirstElement();
@@ -375,7 +379,7 @@ public class RestResourceView extends OtmAbstractView
 	 * @param forceRefresh
 	 */
 	public void postResources() {
-		if (viewer == null)
+		if (!viewerIsOk())
 			return;
 		LibraryNode rootLibrary = null;
 		if (mc.getCurrentNode_NavigatorView() != null)
@@ -395,22 +399,24 @@ public class RestResourceView extends OtmAbstractView
 	}
 
 	protected void relayoutFields() {
-		if (!objectPropertyGroup.isDisposed()) {
-			objectPropertyGroup.redraw();
-			objectPropertyGroup.layout(true);
-			objectPropertyGroup.update();
-		}
-		if (!examplesGroup.isDisposed()) {
-			examplesGroup.layout(true);
-			examplesGroup.update();
-		}
-		if (!validationGroup.isDisposed()) {
-			validationGroup.layout(true);
-			validationGroup.update();
-		}
-		if (!compRight.isDisposed()) {
-			compRight.layout(true);
-			compRight.update();
+		if (viewerIsOk()) {
+			if (!objectPropertyGroup.isDisposed()) {
+				objectPropertyGroup.redraw();
+				objectPropertyGroup.layout(true);
+				objectPropertyGroup.update();
+			}
+			if (!examplesGroup.isDisposed()) {
+				examplesGroup.layout(true);
+				examplesGroup.update();
+			}
+			if (!validationGroup.isDisposed()) {
+				validationGroup.layout(true);
+				validationGroup.update();
+			}
+			if (!compRight.isDisposed()) {
+				compRight.layout(true);
+				compRight.update();
+			}
 		}
 	}
 
@@ -418,7 +424,7 @@ public class RestResourceView extends OtmAbstractView
 	public void refresh() {
 		// FIXME - when widget is disposed - unregister listener
 		ignoreListener = true; // ignore changes to fields
-		if (viewer != null) {
+		if (viewerIsOk()) {
 			viewer.refresh(true);
 			updateFields(getSelectedResourceNode());
 			// Inform decoration of change
@@ -430,30 +436,36 @@ public class RestResourceView extends OtmAbstractView
 
 	@Override
 	public void refresh(INode node) {
-		ignoreListener = true;
-		// viewer.expandToLevel(node, 3);
-		if (node == null)
-			clearSelection();
-		else if (node instanceof ResourceMemberInterface)
-			updateFields((ResourceMemberInterface) node);
-		viewer.refresh(true);
-		postResources();
-		ignoreListener = false;
+		if (viewerIsOk()) {
+			ignoreListener = true;
+			// viewer.expandToLevel(node, 3);
+			if (node == null)
+				clearSelection();
+			else if (node instanceof ResourceMemberInterface)
+				updateFields((ResourceMemberInterface) node);
+			viewer.refresh(true);
+			postResources();
+			ignoreListener = false;
+		}
 	}
 
 	@Override
 	public void refreshAllViews() {
-		viewer.refresh(true);
+		if (viewerIsOk())
+			viewer.refresh(true);
 		updateFields(getSelectedResourceNode());
 	}
 
 	public void select(ContextNode node) {
-		viewer.setSelection(new StructuredSelection(node), true);
+		if (viewerIsOk())
+			viewer.setSelection(new StructuredSelection(node), true);
 	}
 
 	@Override
 	public void selectionChanged(final IWorkbenchPart part, final ISelection selection) {
 		// LOGGER.debug("selection changed: curNode = " + currentNode + ". \t" + selection.getClass());
+		if (selection == null)
+			return;
 		final IStructuredSelection iss = (IStructuredSelection) selection;
 		// the data should be the first element selected and it should be a Node
 		final Object object = iss.getFirstElement();
@@ -473,7 +485,9 @@ public class RestResourceView extends OtmAbstractView
 	@Override
 	public void selectionChanged(SelectionChangedEvent event) {
 		// LOGGER.debug("selection changed. \tevent = " + event.getClass());
-		final Object object = ((IStructuredSelection) viewer.getSelection()).getFirstElement();
+		Object object = null;
+		if (viewerIsOk())
+			object = ((IStructuredSelection) viewer.getSelection()).getFirstElement();
 		if (!(object instanceof Node))
 			return;
 
@@ -490,16 +504,6 @@ public class RestResourceView extends OtmAbstractView
 		ignoreListener = false;
 	}
 
-	// private void post(Group grp, String string) {
-	// // labels will not display & ("\u0026\u0026")
-	// Text field = toolkit.createText(grp, string, SWT.READ_ONLY);
-	// // field.setToolTipText(Messages.getString(msgKey + ".tooltip"));
-	// GridData gd = new GridData();
-	// gd.grabExcessHorizontalSpace = true;
-	// gd.horizontalAlignment = SWT.FILL;
-	// field.setLayoutData(gd);
-	// }
-
 	@Override
 	public void setCurrentNode(final INode node) {
 		previousNode = currentNode;
@@ -514,18 +518,22 @@ public class RestResourceView extends OtmAbstractView
 
 	@Override
 	public void treeCollapsed(TreeExpansionEvent event) {
-		Object collapsed = event.getElement();
-		if (collapsed instanceof ResourceMemberInterface) {
-			ResourceMemberInterface doc = (ResourceMemberInterface) collapsed;
-			removeRecursivelyFromExpansionState((Node) doc);
+		if (event != null) {
+			Object collapsed = event.getElement();
+			if (collapsed instanceof ResourceMemberInterface) {
+				ResourceMemberInterface doc = (ResourceMemberInterface) collapsed;
+				removeRecursivelyFromExpansionState((Node) doc);
+			}
 		}
 	}
 
 	@Override
 	public void treeExpanded(TreeExpansionEvent event) {
-		Object expanded = event.getElement();
-		if (expanded instanceof ResourceMemberInterface) {
-			expansionState.add((ResourceMemberInterface) expanded);
+		if (event != null) {
+			Object expanded = event.getElement();
+			if (expanded instanceof ResourceMemberInterface) {
+				expansionState.add((ResourceMemberInterface) expanded);
+			}
 		}
 	}
 
@@ -550,22 +558,29 @@ public class RestResourceView extends OtmAbstractView
 
 	private Table getFindingsTable(Composite parent) {
 		// 3 column table for object, level/type and message
-		Table findingsTable = new Table(parent,
-				SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.H_SCROLL);
-		findingsTable.setLinesVisible(false);
-		findingsTable.setHeaderVisible(true);
-		final GridData td = new GridData(SWT.FILL, SWT.FILL, true, false);
-		findingsTable.setLayoutData(td);
-		return findingsTable;
+		if (parent != null) {
+			Table findingsTable = new Table(parent,
+					SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.H_SCROLL);
+			findingsTable.setLinesVisible(false);
+			findingsTable.setHeaderVisible(true);
+			final GridData td = new GridData(SWT.FILL, SWT.FILL, true, false);
+			findingsTable.setLayoutData(td);
+			return findingsTable;
+		}
+		return null;
 	}
 
 	private void post(Button widget, String text, Object data) {
-		if (text != null)
+		if (text != null && widget != null && !widget.isDisposed())
 			widget.setText(text);
-		widget.setData(data);
+		if (data != null && widget != null && !widget.isDisposed())
+			widget.setData(data);
 	}
 
 	private void post(Combo combo, String[] strings, String value) {
+		if (combo == null || combo.isDisposed())
+			return;
+
 		int i = 0;
 		// assure each value is unique - if there are duplicates the combo just flashes
 		TreeSet<String> uniqueSet = new TreeSet<>(); // sorts and de-dupes
@@ -585,6 +600,9 @@ public class RestResourceView extends OtmAbstractView
 	}
 
 	private void post(Group grp, ActionNode action) {
+		if (grp == null || grp.isDisposed())
+			return;
+
 		Color bgColor = grp.getBackground();
 		Label label = toolkit.createLabel(grp, action.getTLModelObject().getActionId(), SWT.TRAIL);
 		label.setBackground(bgColor);
@@ -603,12 +621,12 @@ public class RestResourceView extends OtmAbstractView
 	}
 
 	private void post(Label widget, Image icon) {
-		if (icon != null)
+		if (icon != null && widget != null && !widget.isDisposed())
 			widget.setImage(icon); // SWT errors if text is null
 	}
 
 	private void post(Label widget, String text) {
-		if (text != null)
+		if (text != null && widget != null && !widget.isDisposed())
 			widget.setText(text); // SWT errors if text is null
 	}
 
@@ -621,18 +639,23 @@ public class RestResourceView extends OtmAbstractView
 			Node n = node.getNode(((TLModelElement) f.getSource()).getListeners());
 			src = n != null ? n.getName() : "";
 		}
-		TableItem item = new TableItem(table, SWT.NONE);
-		String[] itemText = new String[3];
-		itemText[0] = f.getType().getDisplayName();
-		itemText[1] = src;
-		itemText[2] = f.getFormattedMessage(FindingMessageFormat.MESSAGE_ONLY_FORMAT);
-		item.setText(itemText);
+		if (table != null && !table.isDisposed()) {
+			TableItem item = new TableItem(table, SWT.NONE);
+			String[] itemText = new String[3];
+			itemText[0] = f.getType().getDisplayName();
+			itemText[1] = src;
+			itemText[2] = f.getFormattedMessage(FindingMessageFormat.MESSAGE_ONLY_FORMAT);
+			item.setText(itemText);
+		}
 	}
 
 	private void post(Table table, ValidationFindings findings, Node node) {
 		// Consider setting up a table viewer instead.
+		if (table == null || table.isDisposed())
+			return;
 		if (findings.count() < 1)
 			return;
+
 		TableColumn type = new TableColumn(table, SWT.LEFT);
 		TableColumn name = new TableColumn(table, SWT.LEFT);
 		TableColumn msg = new TableColumn(table, SWT.LEFT);
@@ -653,7 +676,7 @@ public class RestResourceView extends OtmAbstractView
 	}
 
 	private void post(Text widget, String text) {
-		if (text != null)
+		if (text != null && widget != null && !widget.isDisposed())
 			widget.setText(text); // SWT errors if text is null
 	}
 
@@ -661,19 +684,22 @@ public class RestResourceView extends OtmAbstractView
 		for (Node child : item.getChildren()) {
 			removeRecursivelyFromExpansionState(child);
 		}
-		expansionState.remove(item);
+		if (expansionState != null)
+			expansionState.remove(item);
 	}
 
 	private void restoreExpansionState() {
-		viewer.collapseAll();
-		for (ResourceMemberInterface node : expansionState)
-			viewer.expandToLevel(node, 1);
-		// viewer.expandAll();
-		// LOGGER.debug("Restored expansion state.");
+		if (viewerIsOk()) {
+			viewer.collapseAll();
+			for (ResourceMemberInterface node : expansionState)
+				viewer.expandToLevel(node, 1);
+		}
 	}
 
 	private void updateFields(ResourceMemberInterface node) {
 		if (node == null || ((Node) node).isDeleted())
+			return;
+		if (objectPropertyGroup == null || objectPropertyGroup.isDisposed())
 			return;
 
 		// Post the object level data

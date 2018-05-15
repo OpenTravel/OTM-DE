@@ -326,7 +326,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 	 * @return
 	 */
 	private String[] getSupportedRoleTypes(Node node) {
-		List<String> props = new ArrayList<String>();
+		List<String> props = new ArrayList<>();
 		if (node instanceof PropertyNode) {
 			Collection<PropertyNodeType> types = PropertyNodeType.getSupportedTypes((PropertyNode) node);
 			for (PropertyNodeType t : types)
@@ -351,7 +351,7 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 	@Override
 	public List<Node> getSelectedNodes() {
 		ArrayList<Node> sn;
-		sn = new ArrayList<Node>();
+		sn = new ArrayList<>();
 		sn.add(propertyNode);
 		return sn;
 	}
@@ -397,7 +397,8 @@ public class PropertiesView extends OtmAbstractView implements ISelectionListene
 	 *            - Node to post
 	 */
 	private void postProperties(final Node n) {
-		if (!mainWindow.hasDisplay())
+		// All widgets are contained in the property composite. It is the only test needed to assure the view is active.
+		if (!mainWindow.hasDisplay() || propertyComposite == null || propertyComposite.isDisposed())
 			return;
 
 		if (n == null || n.getParent() == null) {

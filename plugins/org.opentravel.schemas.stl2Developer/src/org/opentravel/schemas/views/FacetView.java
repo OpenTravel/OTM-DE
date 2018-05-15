@@ -125,7 +125,7 @@ public class FacetView extends OtmAbstractView {
 	// private CloneSelectedFacetNodesAction cloneSelectedFacetNodesAction;
 	private ButtonBarManager buttonBarManager;
 	private FacetViewTablePoster tablePoster;
-	private final List<IWithNodeAction> nodeActions = new ArrayList<IWithNodeAction>();
+	private final List<IWithNodeAction> nodeActions = new ArrayList<>();
 
 	private class FacetTableDoubleClick implements IDoubleClickListener {
 		@Override
@@ -235,7 +235,7 @@ public class FacetView extends OtmAbstractView {
 		if (mainWindow == null || !mainWindow.hasDisplay())
 			return currentNode.getChildren();
 
-		final List<Node> actionList = new ArrayList<Node>();
+		final List<Node> actionList = new ArrayList<>();
 		// Walk the table and if the row is checked, select it
 		final TableItem[] tia = table.getItems();
 		for (int i = 0; i < tia.length; i++) {
@@ -273,8 +273,8 @@ public class FacetView extends OtmAbstractView {
 		addAsNodeWithAction(upFacetAction);
 		downFacetAction = new DownFacetAction(mainWindow, ExternalizedStringProperties.create("OtmW.68", "OtmW.69"));
 		addAsNodeWithAction(downFacetAction);
-		changeObjectAction = new ChangeObjectAction(mainWindow, ExternalizedStringProperties.create("OtmW.84",
-				"OtmW.85"));
+		changeObjectAction = new ChangeObjectAction(mainWindow,
+				ExternalizedStringProperties.create("OtmW.84", "OtmW.85"));
 		addAsNodeWithAction(changeObjectAction);
 
 		IContributionItem addAction = RCPUtils.createCommandContributionItem(getSite(), AddNodeHandler2.COMMAND_ID,
@@ -336,8 +336,8 @@ public class FacetView extends OtmAbstractView {
 		extendsClearButton = mc.getFields().formatButton(extensionComposite, OtmWidgets.clearExtends,
 				OtmActions.clearExtends(), null);
 		extendsClearButton.setImage(Images.getImageRegistry().get("delete"));
-		clearExtendsAction = new ClearExtendsAction(mainWindow, ExternalizedStringProperties.create("OtmW.352",
-				"OtmW.353"), extendsField, extendsClearButton);
+		clearExtendsAction = new ClearExtendsAction(mainWindow,
+				ExternalizedStringProperties.create("OtmW.352", "OtmW.353"), extendsField, extendsClearButton);
 
 		// Post the button bar
 		final Composite bb = buttonBarManager.createControl(parent);
@@ -348,8 +348,8 @@ public class FacetView extends OtmAbstractView {
 
 		disableAll();
 
-		table = toolkit.createTable(parent, SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION | SWT.CHECK | SWT.V_SCROLL
-				| SWT.H_SCROLL);
+		table = toolkit.createTable(parent,
+				SWT.MULTI | SWT.BORDER | SWT.FULL_SELECTION | SWT.CHECK | SWT.V_SCROLL | SWT.H_SCROLL);
 		final GridData td = new GridData(SWT.FILL, SWT.FILL, true, false);
 		td.widthHint = 350;
 		td.heightHint = SWT.DEFAULT;
@@ -432,7 +432,8 @@ public class FacetView extends OtmAbstractView {
 
 		if (!target.isValid()) {
 			ValidationResultsView validationView = OtmRegistry.getValidationResultsView();
-			validationView.refresh(target);
+			if (validationView != null)
+				validationView.refresh(target);
 		}
 
 		// LOGGER.debug("Posting facet table for node: " + target);

@@ -53,11 +53,17 @@ public class TypeView extends OtmAbstractView implements ISelectionListener {
 
 	}
 
+	private boolean viewersAreOk() {
+		return facetView != null && propertiesView != null;
+	}
+
 	@Override
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
-		facetView.init(site);
-		propertiesView.init(site);
+		if (viewersAreOk()) {
+			facetView.init(site);
+			propertiesView.init(site);
+		}
 	}
 
 	@Override
@@ -106,7 +112,7 @@ public class TypeView extends OtmAbstractView implements ISelectionListener {
 	 */
 	@Override
 	public Node getCurrentNode() {
-		return facetView.getCurrentNode();
+		return facetView != null ? facetView.getCurrentNode() : null;
 	}
 
 	/*
@@ -116,12 +122,12 @@ public class TypeView extends OtmAbstractView implements ISelectionListener {
 	 */
 	@Override
 	public INode getPreviousNode() {
-		return propertiesView.getPreviousNode();
+		return propertiesView != null ? propertiesView.getPreviousNode() : null;
 	}
 
 	@Override
 	public List<Node> getSelectedNodes() {
-		return facetView.getSelectedNodes();
+		return facetView != null ? facetView.getSelectedNodes() : null;
 	}
 
 	@Override
@@ -135,13 +141,16 @@ public class TypeView extends OtmAbstractView implements ISelectionListener {
 	}
 
 	public void setFacetViewFocus(int i) {
-		facetView.setFocus(i);
+		if (facetView != null)
+			facetView.setFocus(i);
 	}
 
 	@Override
 	public void refresh() {
-		facetView.refresh();
-		propertiesView.refresh();
+		if (viewersAreOk()) {
+			facetView.refresh();
+			propertiesView.refresh();
+		}
 	}
 
 	@Override
@@ -151,7 +160,7 @@ public class TypeView extends OtmAbstractView implements ISelectionListener {
 
 	@Override
 	public void refresh(INode node, boolean force) {
-		if (isListening()) {
+		if (isListening() && viewersAreOk()) {
 			facetView.refresh(node, force);
 			propertiesView.refresh(node, force);
 		}
@@ -159,7 +168,7 @@ public class TypeView extends OtmAbstractView implements ISelectionListener {
 
 	@Override
 	public void refresh(boolean regenerate) {
-		if (regenerate) {
+		if (regenerate && viewersAreOk()) {
 			facetView.setCurrentNode(currentNode);
 			propertiesView.setCurrentNode(currentNode);
 		}
@@ -168,7 +177,7 @@ public class TypeView extends OtmAbstractView implements ISelectionListener {
 
 	@Override
 	public void restorePreviousNode() {
-		if (listening) {
+		if (listening && viewersAreOk()) {
 			propertiesView.postPrevProperties();
 			facetView.restorePreviousNode();
 		}
@@ -176,15 +185,13 @@ public class TypeView extends OtmAbstractView implements ISelectionListener {
 
 	private void setCurrentNode(final INode node, final boolean force) {
 		if (listening || force) {
-			// if (listening || force || ((Node) currentNode).getOwningComponent() == ((Node)
-			// node).getOwningComponent()) {
 			currentNode = node;
-			facetView.setCurrentNode(node); // Force??
-			propertiesView.setCurrentNode(node);
+			if (viewersAreOk()) {
+				facetView.setCurrentNode(node); // Force??
+				propertiesView.setCurrentNode(node);
+			}
 		}
 		// LOGGER.debug("Type view cur node set to: " + currentNode + " and prev = " + facetView.getPreviousNode());
-
-		// TODO - is current node used? if so, propertyView may need to set it.
 	}
 
 	/**

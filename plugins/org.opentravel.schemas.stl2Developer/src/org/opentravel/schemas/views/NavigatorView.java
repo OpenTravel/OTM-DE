@@ -409,10 +409,10 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 
 		// select example
 		OtmView view = mc.getView_Example();
-		// if (view != null) {
-		view.setCurrentNode(curNode);
-		view.refresh(curNode);
-		// }
+		if (view != null) {
+			view.setCurrentNode(curNode);
+			view.refresh(curNode);
+		}
 
 		if (curNode != null)
 			mc.postStatus(curNode.getNameWithPrefix() + " - " + curNode.getEditStatusMsg());

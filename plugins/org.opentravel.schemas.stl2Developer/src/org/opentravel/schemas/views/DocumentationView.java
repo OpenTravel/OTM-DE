@@ -75,8 +75,8 @@ import org.opentravel.schemas.widgets.WidgetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DocumentationView extends OtmAbstractView implements ISelectionListener, ISelectionChangedListener,
-		ITreeViewerListener, ModifyListener {
+public class DocumentationView extends OtmAbstractView
+		implements ISelectionListener, ISelectionChangedListener, ITreeViewerListener, ModifyListener {
 	public static String VIEW_ID = "org.opentravel.schemas.stl2Developer.DocumentationView";
 
 	private class DocDragSourceListener implements DragSourceListener {
@@ -88,6 +88,10 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 
 		@Override
 		public void dragStart(DragSourceEvent event) {
+			if (!viewerIsOk()) {
+				event.doit = false;
+				return;
+			}
 			IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
 
 			Object firstElement = selection.getFirstElement();
@@ -102,6 +106,9 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 
 		@Override
 		public void dragSetData(DragSourceEvent event) {
+			if (!viewerIsOk()) {
+				return;
+			}
 			IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
 
 			Object firstElement = selection.getFirstElement();
@@ -138,7 +145,7 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 
 	private INode currentNode;
 	private DocumentationNode currentTypeRoot;
-	private List<DocumentationNode> expansionState = new LinkedList<DocumentationNode>();
+	private List<DocumentationNode> expansionState = new LinkedList<>();
 
 	private SashForm mainSashForm;
 	private ButtonBarManager bbManager;
@@ -147,6 +154,20 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 
 	public DocumentationView() {
 		controller = new DefaultDocumentationController(this);
+	}
+
+	private boolean viewerIsOk() {
+		if (docText == null || docText.isDisposed())
+			return false;
+		if (typeText == null || typeText.isDisposed())
+			return false;
+		if (nameText == null || nameText.isDisposed())
+			return false;
+		if (mainSashForm == null || mainSashForm.isDisposed())
+			return false;
+		if (expansionState == null)
+			return false;
+		return viewer != null && viewer.getControl() != null && !viewer.getControl().isDisposed();
 	}
 
 	@Override
@@ -203,12 +224,14 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 		nameText.setLayoutData(textGD);
 
 		addDocItemAction = new AddDocItemAction(mainWindow, new ExternalizedStringProperties("action.addDocItem"));
-		cloneDocItemAction = new CloneDocItemAction(mainWindow, new ExternalizedStringProperties("action.cloneDocItem"));
-		deleteDocItemAction = new DeleteDocItemAction(mainWindow, new ExternalizedStringProperties(
-				"action.deleteDocItem"));
+		cloneDocItemAction = new CloneDocItemAction(mainWindow,
+				new ExternalizedStringProperties("action.cloneDocItem"));
+		deleteDocItemAction = new DeleteDocItemAction(mainWindow,
+				new ExternalizedStringProperties("action.deleteDocItem"));
 		upDocItemAction = new UpDocItemAction(mainWindow, new ExternalizedStringProperties("action.upDocItem"));
 		downDocItemAction = new DownDocItemAction(mainWindow, new ExternalizedStringProperties("action.downDocItem"));
-		clearDocItemAction = new ClearDocItemAction(mainWindow, new ExternalizedStringProperties("action.clearDocItem"));
+		clearDocItemAction = new ClearDocItemAction(mainWindow,
+				new ExternalizedStringProperties("action.clearDocItem"));
 
 		bbManager = new ButtonBarManager(SWT.FLAT);
 		bbManager.add(addDocItemAction);
@@ -332,7 +355,8 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 	 * @param node
 	 */
 	public void select(DocumentationNode node) {
-		viewer.setSelection(new StructuredSelection(node), true);
+		if (viewerIsOk())
+			viewer.setSelection(new StructuredSelection(node), true);
 	}
 
 	public void setFocus(List<DocumentationNode> nodes) {
@@ -344,7 +368,8 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 	 * @param nodes
 	 */
 	public void select(List<DocumentationNode> nodes) {
-		viewer.setSelection(new StructuredSelection(nodes), true);
+		if (viewerIsOk())
+			viewer.setSelection(new StructuredSelection(nodes), true);
 	}
 
 	@Override
@@ -411,7 +436,8 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 	 * @param root
 	 */
 	private void updateView(DocumentationNode root) {
-		viewer.setInput(root);
+		if (viewerIsOk())
+			viewer.setInput(root);
 		restoreExpansionState();
 		selectDescription(root);
 	}
@@ -429,13 +455,14 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 	}
 
 	private void updateObjectFields(INode node) {
-		if (node != null) {
-			typeText.setText(getStringOrEmpty(node.getComponentType()));
-			nameText.setText(getStringOrEmpty(node.getName()));
-		} else {
-			typeText.setText("");
-			nameText.setText("");
-		}
+		if (viewerIsOk())
+			if (node != null) {
+				typeText.setText(getStringOrEmpty(node.getComponentType()));
+				nameText.setText(getStringOrEmpty(node.getName()));
+			} else {
+				typeText.setText("");
+				nameText.setText("");
+			}
 	}
 
 	private String getStringOrEmpty(String str) {
@@ -444,7 +471,8 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 
 	@Override
 	public void refreshAllViews() {
-		viewer.refresh(true);
+		if (viewerIsOk())
+			viewer.refresh(true);
 		updateDocField(getSelectedDocumentationNode());
 	}
 
@@ -505,15 +533,16 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 	 * @param docItem
 	 */
 	private void updateDocField(DocumentationNode docItem) {
-		if (docItem != null && docItem.isDocItem()) {
-			docText.setEnabled(true);
-			docText.setData(docItem);
-			docText.setText(getStringOrEmpty(docItem.getValue()));
-		} else {
-			docText.setEnabled(false); // prevent user from typing when nothing is selected
-			docText.setData(null);
-			docText.setText(Messages.getString("view.documentation.noneditable"));
-		}
+		if (viewerIsOk())
+			if (docItem != null && docItem.isDocItem()) {
+				docText.setEnabled(true);
+				docText.setData(docItem);
+				docText.setText(getStringOrEmpty(docItem.getValue()));
+			} else {
+				docText.setEnabled(false); // prevent user from typing when nothing is selected
+				docText.setData(null);
+				docText.setText(Messages.getString("view.documentation.noneditable"));
+			}
 	}
 
 	/*
@@ -534,7 +563,8 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 		for (DocumentationNode child : doc.getChildren()) {
 			removeRecursivelyFromExpansionState(child);
 		}
-		expansionState.remove(doc);
+		if (viewerIsOk())
+			expansionState.remove(doc);
 	}
 
 	/*
@@ -545,15 +575,17 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 	@Override
 	public void treeExpanded(TreeExpansionEvent event) {
 		Object expanded = event.getElement();
-		if (expanded instanceof DocumentationNode) {
-			expansionState.add((DocumentationNode) expanded);
-		}
+		if (viewerIsOk())
+			if (expanded instanceof DocumentationNode) {
+				expansionState.add((DocumentationNode) expanded);
+			}
 	}
 
 	private void restoreExpansionState() {
-		for (DocumentationNode doc : expansionState) {
-			viewer.expandToLevel(doc, 1);
-		}
+		if (viewerIsOk())
+			for (DocumentationNode doc : expansionState) {
+				viewer.expandToLevel(doc, 1);
+			}
 	}
 
 	private void selectDescription(DocumentationNode root) {
@@ -582,34 +614,39 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 			// This runs often..on startup, and multiple times when object posted.
 			if (getCurrentNode().isEditable())
 				docItem.setValue(str);
-			viewer.refresh(docItem, true);
+			if (viewerIsOk())
+				viewer.refresh(docItem, true);
 			// TODO - if this was deprecation, refresh the navigator node to change its color.
 		}
 	}
 
 	public DocumentationNode getSelectedDocumentationNode() {
-		StructuredSelection selection = (StructuredSelection) viewer.getSelection();
-		Object object = selection.getFirstElement();
-		if (object != null && object instanceof DocumentationNode) {
-			return (DocumentationNode) object;
+		if (viewerIsOk()) {
+			StructuredSelection selection = (StructuredSelection) viewer.getSelection();
+			Object object = selection.getFirstElement();
+			if (object != null && object instanceof DocumentationNode) {
+				return (DocumentationNode) object;
+			}
 		}
 		return null;
 	}
 
 	public List<DocumentationNode> getSelectedDocumentationNodes() {
-		StructuredSelection selection = (StructuredSelection) viewer.getSelection();
-		List<DocumentationNode> nodes = new ArrayList<DocumentationNode>();
-		for (Object object : selection.toArray()) {
-			if (object != null && object instanceof DocumentationNode) {
-				nodes.add((DocumentationNode) object);
+		List<DocumentationNode> nodes = new ArrayList<>();
+		if (viewerIsOk()) {
+			StructuredSelection selection = (StructuredSelection) viewer.getSelection();
+			for (Object object : selection.toArray()) {
+				if (object != null && object instanceof DocumentationNode) {
+					nodes.add((DocumentationNode) object);
+				}
 			}
 		}
 		return nodes;
 	}
 
 	/**
-     * 
-     */
+	 * 
+	 */
 	public void nextDocItem() {
 		DocumentationNode item = getSelectedDocumentationNode();
 		if (item != null) {
@@ -643,11 +680,13 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 	}
 
 	public void setHorizontalView() {
-		mainSashForm.setOrientation(SWT.HORIZONTAL);
+		if (viewerIsOk())
+			mainSashForm.setOrientation(SWT.HORIZONTAL);
 	}
 
 	public void setVerticalView() {
-		mainSashForm.setOrientation(SWT.VERTICAL);
+		if (viewerIsOk())
+			mainSashForm.setOrientation(SWT.VERTICAL);
 	}
 
 	@Override
@@ -689,7 +728,8 @@ public class DocumentationView extends OtmAbstractView implements ISelectionList
 
 	@Override
 	public void remove(INode node) {
-		viewer.remove(node);
+		if (viewerIsOk())
+			viewer.remove(node);
 	}
 
 }

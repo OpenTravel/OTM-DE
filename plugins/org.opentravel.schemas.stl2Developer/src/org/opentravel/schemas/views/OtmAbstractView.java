@@ -17,6 +17,7 @@ package org.opentravel.schemas.views;
 
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -66,22 +67,27 @@ public abstract class OtmAbstractView extends ViewPart implements OtmView {
 	public boolean activate() {
 		if (mainWindow == null)
 			return false;
+		IWorkbenchPage page = null;
 
-		// TODO - how to know if it was already active?
 		try {
 			PlatformUI.getWorkbench();
+			if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() != null)
+				page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		} catch (IllegalStateException e) {
 			return false; // No workbench or display.
 		}
 
-		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().activate(this);
-		try {
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(this.getViewID());
-		} catch (PartInitException e) {
-			LOGGER.debug("Error showing view: " + getViewID());
-			return false;
+		if (page != null) {
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().activate(this);
+			try {
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(this.getViewID());
+			} catch (PartInitException e) {
+				LOGGER.debug("Error showing view: " + getViewID());
+				return false;
+			}
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	@Override
@@ -133,7 +139,8 @@ public abstract class OtmAbstractView extends ViewPart implements OtmView {
 
 	@Override
 	public boolean isShowInheritedProperties() {
-		return OtmRegistry.getNavigatorView().isShowInheritedProperties();
+		return OtmRegistry.getNavigatorView() != null ? OtmRegistry.getNavigatorView().isShowInheritedProperties()
+				: false;
 	}
 
 	@Override

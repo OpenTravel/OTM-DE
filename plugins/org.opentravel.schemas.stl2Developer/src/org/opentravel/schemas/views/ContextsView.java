@@ -74,8 +74,8 @@ import org.slf4j.LoggerFactory;
  * @author Agnieszka Janowska
  * 
  */
-public class ContextsView extends OtmAbstractView implements ISelectionListener, ISelectionChangedListener,
-		ITreeViewerListener {
+public class ContextsView extends OtmAbstractView
+		implements ISelectionListener, ISelectionChangedListener, ITreeViewerListener {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ContextsView.class);
 	public static String VIEW_ID = "org.opentravel.schemas.stl2Developer.ContextsView";
@@ -87,7 +87,7 @@ public class ContextsView extends OtmAbstractView implements ISelectionListener,
 	private Text ctxIdText;
 	private Text ctxDescriptionText;
 
-	private List<ContextNode> expansionState = new LinkedList<ContextNode>();
+	private List<ContextNode> expansionState = new LinkedList<>();
 
 	private INode currentNode;
 	private INode previousNode;
@@ -197,10 +197,12 @@ public class ContextsView extends OtmAbstractView implements ISelectionListener,
 		});
 
 		addContextAction = new AddContextAction(mainWindow, new ExternalizedStringProperties("action.addContext"));
-		cloneContextAction = new CloneContextAction(mainWindow, new ExternalizedStringProperties("action.cloneContext"));
-		mergeContextAction = new MergeContextAction(mainWindow, new ExternalizedStringProperties("action.mergeContext"));
-		setContextAsDefaultAction = new SetContextAsDefaultAction(mainWindow, new ExternalizedStringProperties(
-				"action.setContextAsDefault"));
+		cloneContextAction = new CloneContextAction(mainWindow,
+				new ExternalizedStringProperties("action.cloneContext"));
+		mergeContextAction = new MergeContextAction(mainWindow,
+				new ExternalizedStringProperties("action.mergeContext"));
+		setContextAsDefaultAction = new SetContextAsDefaultAction(mainWindow,
+				new ExternalizedStringProperties("action.setContextAsDefault"));
 
 		ButtonBarManager bbManager = new ButtonBarManager(SWT.FLAT);
 		bbManager.add(addContextAction);
@@ -304,13 +306,20 @@ public class ContextsView extends OtmAbstractView implements ISelectionListener,
 		appCtxText.setFocus();
 	}
 
+	private boolean viewerIsOk() {
+		// if (viewer.getControl().isDisposed()) return false;
+		return viewer != null && viewer.getTree() != null && !viewer.getTree().isDisposed();
+	}
+
 	public void select(ContextNode node) {
-		viewer.setSelection(new StructuredSelection(node), true);
+		if (viewerIsOk())
+			viewer.setSelection(new StructuredSelection(node), true);
 	}
 
 	@Override
 	public void refreshAllViews() {
-		viewer.refresh(true);
+		if (viewerIsOk())
+			viewer.refresh(true);
 		updateFields(getSelectedContextNode());
 		// on starting type view can be null
 		if (OtmRegistry.getTypeView() != null) {
@@ -329,11 +338,11 @@ public class ContextsView extends OtmAbstractView implements ISelectionListener,
 			throw new IllegalArgumentException("Main window not accessible.");
 		if (controller == null)
 			controller = mc.getContextController();
-		if (forceRefresh) {
+		if (controller != null && forceRefresh)
 			controller.refreshContexts();
-		}
 
-		viewer.setInput(controller.getRoot());
+		if (viewerIsOk())
+			viewer.setInput(controller.getRoot());
 		restoreExpansionState();
 		refreshAllViews();
 	}
@@ -408,7 +417,8 @@ public class ContextsView extends OtmAbstractView implements ISelectionListener,
 	}
 
 	private void restoreExpansionState() {
-		viewer.expandAll();
+		if (viewerIsOk())
+			viewer.expandAll();
 	}
 
 	/*
@@ -486,7 +496,8 @@ public class ContextsView extends OtmAbstractView implements ISelectionListener,
 		if (data instanceof ContextNode) {
 			ContextNode context = (ContextNode) data;
 			context.setApplicationContext(appCtxText.getText());
-			viewer.refresh(context, true);
+			if (viewerIsOk())
+				viewer.refresh(context, true);
 		}
 	}
 
@@ -495,7 +506,8 @@ public class ContextsView extends OtmAbstractView implements ISelectionListener,
 		if (data instanceof ContextNode) {
 			ContextNode context = (ContextNode) data;
 			context.setContextId(ctxIdText.getText());
-			viewer.refresh(context, true);
+			if (viewerIsOk())
+				viewer.refresh(context, true);
 		}
 	}
 
@@ -504,12 +516,13 @@ public class ContextsView extends OtmAbstractView implements ISelectionListener,
 		if (data instanceof ContextNode) {
 			ContextNode context = (ContextNode) data;
 			context.setDescription(ctxDescriptionText.getText());
-			viewer.refresh(context, true);
+			if (viewerIsOk())
+				viewer.refresh(context, true);
 		}
 	}
 
 	public ContextNode getSelectedContextNode() {
-		if (viewer == null)
+		if (!viewerIsOk())
 			return null; // In case the view is not activated.
 		StructuredSelection selection = (StructuredSelection) viewer.getSelection();
 		Object object = selection.getFirstElement();
@@ -521,10 +534,10 @@ public class ContextsView extends OtmAbstractView implements ISelectionListener,
 	}
 
 	public List<ContextNode> getSelectedContextNodes() {
-		if (viewer == null)
+		if (!viewerIsOk())
 			return null; // In case the view is not activated.
 		StructuredSelection selection = (StructuredSelection) viewer.getSelection();
-		List<ContextNode> nodes = new ArrayList<ContextNode>();
+		List<ContextNode> nodes = new ArrayList<>();
 		for (Object object : selection.toArray()) {
 			if (object != null && object instanceof ContextNode) {
 				nodes.add((ContextNode) object);
@@ -539,7 +552,8 @@ public class ContextsView extends OtmAbstractView implements ISelectionListener,
 	 * @param selected
 	 */
 	public void setDefaultContextNode(ContextNode selected) {
-		viewer.refresh(true);
+		if (viewerIsOk())
+			viewer.refresh(true);
 	}
 
 	/**
@@ -591,17 +605,18 @@ public class ContextsView extends OtmAbstractView implements ISelectionListener,
 
 	@Override
 	public void refresh() {
-		if (viewer.getControl().isDisposed())
-			return;
-		if (viewer != null) {
+		// if (viewer.getControl().isDisposed())
+		// return;
+		if (viewerIsOk())
 			viewer.refresh(true);
-			updateFields(getSelectedContextNode());
-		}
+		updateFields(getSelectedContextNode());
+
 	}
 
 	@Override
 	public void refresh(INode node) {
-		viewer.refresh(true);
+		if (viewerIsOk())
+			viewer.refresh(true);
 		postContexts(true);
 		// TODO - select the context node that matches the passed node
 	}
