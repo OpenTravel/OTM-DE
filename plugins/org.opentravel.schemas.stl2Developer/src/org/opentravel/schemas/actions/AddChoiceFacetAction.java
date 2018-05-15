@@ -21,10 +21,7 @@ import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.commands.ContextualFacetHandler;
 import org.opentravel.schemas.commands.OtmAbstractHandler;
-import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
-import org.opentravel.schemas.node.typeProviders.ChoiceFacetNode;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
 import org.opentravel.schemas.properties.ExternalizedStringProperties;
 import org.opentravel.schemas.properties.StringProperties;
@@ -66,32 +63,33 @@ public class AddChoiceFacetAction extends OtmAbstractAction {
 	@Override
 	public boolean isEnabled() {
 		// Unmanaged or in the most current (head) library in version chain.
-		LibraryMemberInterface n = mc.getCurrentNode_NavigatorView().getOwningComponent();
+		LibraryMemberInterface n = getOwnerOfNavigatorSelection();
 		return n instanceof ChoiceObjectNode ? n.isEditable_newToChain() : false;
-
-		// if we allow custom facets to be added as minor version change use
-		// return n instanceof BusinessObjectNode ? n.isEnabled_AddProperties() : false;
-
 	}
 
 	private void addContextualFacet(TLFacetType type) {
-		// Verify the current node is editable business object
-		ComponentNode current = (ComponentNode) mc.getSelectedNode_NavigatorView().getOwningComponent();
-		if (current == null || !(current instanceof ChoiceObjectNode) || !current.isEditable_newToChain()) {
+		// Verify the current node is editable object
+		LibraryMemberInterface current = getOwnerOfNavigatorSelection();
+		if (!(current instanceof ChoiceObjectNode) || !current.isEditable_newToChain()) {
 			DialogUserNotifier.openWarning("Add Choice Facet",
-					"Choice Facets can only be added to non-versioned Choice objects.");
+					"Choice Facets can only be added to choice object that are not versioned or are new to the version chain.");
 			return;
 		}
+
 		ChoiceObjectNode co = (ChoiceObjectNode) current;
 
+		// FIXED 5/15/2018 - why is this done here and not in the node structure???
+		// Used this instead
+		co.addFacet("new");
+
 		// Create the contextual facet
-		ChoiceFacetNode cf = new ChoiceFacetNode();
-		cf.setName("new");
-		co.getLibrary().addMember(cf);
-		co.getTLModelObject().addChoiceFacet(cf.getTLModelObject());
+		// ChoiceFacetNode cf = new ChoiceFacetNode();
+		// cf.setName("new");
+		// co.getLibrary().addMember(cf);
+		// co.getTLModelObject().addChoiceFacet(cf.getTLModelObject());
 
 		// Create contributed facet
-		NodeFactory.newChild(co, cf.getTLModelObject());
+		// NodeFactory.newChild(co, cf.getTLModelObject());
 		mc.refresh(co);
 	}
 
@@ -100,31 +98,9 @@ public class AddChoiceFacetAction extends OtmAbstractAction {
 	 */
 	private void addChoiceFacet() {
 		ContextualFacetHandler cfh = new ContextualFacetHandler();
-		ComponentNode current = (ComponentNode) mc.getSelectedNode_NavigatorView().getOwningComponent();
-		if (current != null && current instanceof ChoiceObjectNode)
+		LibraryMemberInterface current = getOwnerOfNavigatorSelection();
+		if (current instanceof ChoiceObjectNode)
 			cfh.addContextualFacet((ChoiceObjectNode) current);
-
-		// final TLFacetType facetType = TLFacetType.CHOICE;
-		// ComponentNode current = (ComponentNode) mc.getSelectedNode_NavigatorView().getOwningComponent();
-		// if (current == null || !(current instanceof ChoiceObjectNode) || !current.isEditable_newToChain()) {
-		// DialogUserNotifier.openWarning("Add Choice Facet",
-		// "Choice Facets can only be added to non-versioned Choice objects.");
-		// return;
-		// }
-		//
-		// final ChoiceObjectNode co = (ChoiceObjectNode) current;
-		//
-		// SimpleNameWizard wizard = new SimpleNameWizard("wizard.newOperation");
-		// wizard.setValidator(new NewNodeNameValidator(co, wizard,
-		// Messages.getString("wizard.newOperation.error.name")));
-		// wizard.run(OtmRegistry.getActiveShell());
-		// if (!wizard.wasCanceled()) {
-		// co.addFacet(wizard.getText());
-		// // new FacetNode(co, wizard.getText(), mc.getContextController().getDefaultContextId(), TLFacetType.CHOICE);
-		// mc.refresh(co);
-		// }
-		//
-		// mc.refresh(co);
 	}
 
 }

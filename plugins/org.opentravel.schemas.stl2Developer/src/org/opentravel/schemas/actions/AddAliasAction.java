@@ -34,9 +34,6 @@ import org.opentravel.schemas.wizards.validators.NewNodeNameValidator;
 public class AddAliasAction extends OtmAbstractAction {
 	private static StringProperties propsDefault = new ExternalizedStringProperties("action.addAlias");
 
-	/**
-	 *
-	 */
 	public AddAliasAction(final MainWindow mainWindow) {
 		super(mainWindow, propsDefault);
 	}

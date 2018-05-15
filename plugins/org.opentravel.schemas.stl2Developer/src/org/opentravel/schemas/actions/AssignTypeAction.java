@@ -66,7 +66,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 	@Override
 	public void run() {
 		LOGGER.debug("Assign Type action starting.");
-		Node n = mc.getSelectedNode_NavigatorView();
+		Node n = getNavigatorSelection();
 		if (n instanceof TypeProviderWhereUsedNode)
 			replaceTypeSelection((TypeProviderWhereUsedNode) n);
 		return;
@@ -74,8 +74,7 @@ public class AssignTypeAction extends OtmAbstractAction {
 
 	@Override
 	public boolean isEnabled() {
-		// return false;
-		Node n = getMainController().getCurrentNode_NavigatorView();
+		Node n = getNavigatorSelection();
 		if (!(n instanceof TypeProviderWhereUsedNode))
 			return false;
 

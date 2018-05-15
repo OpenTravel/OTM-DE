@@ -33,64 +33,64 @@ import org.eclipse.ui.services.ISourceProviderService;
  * @author Pawel Jedruch
  * 
  */
-public abstract class AbstractGlobalSelectionAction extends Action implements
-        IPropertyChangeListener {
+//
+// 5/15/2018 dmh - seems unused
+//
+public abstract class AbstractGlobalSelectionAction extends Action implements IPropertyChangeListener {
 
-    private String sourceName;
+	private String sourceName;
 
-    private Object sourceValue;
+	private Object sourceValue;
 
-    public AbstractGlobalSelectionAction(String id, String sourceName) {
-        this(id, PlatformUI.getWorkbench(), sourceName);
-    }
+	public AbstractGlobalSelectionAction(String id, String sourceName) {
+		this(id, PlatformUI.getWorkbench(), sourceName);
+	}
 
-    public AbstractGlobalSelectionAction(String id, IServiceLocator locator, String sourceName) {
-        super();
-        this.sourceName = sourceName;
-        setId(id);
-        setActionDefinitionId(id);
-        initEvalutionListener(locator);
-    }
+	public AbstractGlobalSelectionAction(String id, IServiceLocator locator, String sourceName) {
+		super();
+		this.sourceName = sourceName;
+		setId(id);
+		setActionDefinitionId(id);
+		initEvalutionListener(locator);
+	}
 
-    private void initEvalutionListener(IServiceLocator locator) {
-        final IEvaluationService evaluationService = (IEvaluationService) locator
-                .getService(IEvaluationService.class);
-        ISourceProviderService service = (ISourceProviderService) locator
-                .getService(ISourceProviderService.class);
-        final ISourceProvider sourceProvider = service.getSourceProvider(sourceName);
-        evaluationService.addEvaluationListener(new Expression() {
+	private void initEvalutionListener(IServiceLocator locator) {
+		final IEvaluationService evaluationService = (IEvaluationService) locator.getService(IEvaluationService.class);
+		ISourceProviderService service = (ISourceProviderService) locator.getService(ISourceProviderService.class);
+		final ISourceProvider sourceProvider = service.getSourceProvider(sourceName);
+		evaluationService.addEvaluationListener(new Expression() {
 
-            @Override
-            public EvaluationResult evaluate(IEvaluationContext context) throws CoreException {
-                sourceValue = sourceProvider.getCurrentState().get(sourceName);
-                return EvaluationResult.valueOf(isEnabled(sourceValue));
-            }
+			@Override
+			public EvaluationResult evaluate(IEvaluationContext context) throws CoreException {
+				sourceValue = sourceProvider.getCurrentState().get(sourceName);
+				return EvaluationResult.valueOf(isEnabled(sourceValue));
+			}
 
-            @Override
-            public void collectExpressionInfo(ExpressionInfo info) {
-                info.addVariableNameAccess(sourceName);
-            }
+			@Override
+			public void collectExpressionInfo(ExpressionInfo info) {
+				info.addVariableNameAccess(sourceName);
+			}
 
-        }, this, ENABLED);
+		}, this, ENABLED);
 
-    }
+	}
 
-    @Override
-    public void propertyChange(PropertyChangeEvent event) {
-        if (ENABLED.equals(event.getProperty())) {
-        	Boolean enabledValue = (Boolean) event.getNewValue();
-        	
-        	if (enabledValue == null) {
-        		enabledValue = Boolean.FALSE;
-        	}
-            setEnabled( enabledValue );
-        }
-    }
+	@Override
+	public void propertyChange(PropertyChangeEvent event) {
+		if (ENABLED.equals(event.getProperty())) {
+			Boolean enabledValue = (Boolean) event.getNewValue();
 
-    public Object getSourceValue() {
-        return sourceValue;
-    }
+			if (enabledValue == null) {
+				enabledValue = Boolean.FALSE;
+			}
+			setEnabled(enabledValue);
+		}
+	}
 
-    protected abstract boolean isEnabled(Object object);
+	public Object getSourceValue() {
+		return sourceValue;
+	}
+
+	protected abstract boolean isEnabled(Object object);
 
 }
