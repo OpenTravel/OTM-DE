@@ -22,7 +22,6 @@ import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLActionRequest;
 import org.opentravel.schemacompiler.model.TLActionResponse;
-import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLHttpMethod;
 import org.opentravel.schemacompiler.model.TLMimeType;
@@ -78,7 +77,7 @@ public class ResourceBuilder {
 		ActionFacet summaryAF = new ActionFacet(rn, TLFacetType.SUMMARY);
 		// TODO - add action facets for custom facets.
 		// Parameters - ID, Query(s)
-		ParamGroup idPG = new ParamGroup(rn, (ComponentNode) bo.getFacet_ID(), true);
+		ParamGroup idPG = new ParamGroup(rn, bo.getFacet_ID(), true);
 		for (ComponentNode fn : bo.getQueryFacets()) {
 			ParamGroup qpg = new ParamGroup(rn, fn, false);
 			ActionNode action = buildAction(rn, idAF, qpg, TLHttpMethod.GET); // Query
@@ -87,13 +86,13 @@ public class ResourceBuilder {
 
 		// Action
 		buildAction(rn, idAF, idPG, TLHttpMethod.GET); // Read
-		buildAction(rn, subAF, idPG, TLHttpMethod.POST); // Create
+		buildAction(rn, subAF, null, TLHttpMethod.POST); // Create
 		buildAction(rn, subAF, idPG, TLHttpMethod.PUT); // Update
 		buildAction(rn, null, idPG, TLHttpMethod.DELETE); // Delete
 	}
 
 	private ActionNode buildAction(ResourceNode rn, ActionFacet af, ParamGroup pg, TLHttpMethod method) {
-		List<TLMimeType> mimeTypes = new ArrayList<TLMimeType>();
+		List<TLMimeType> mimeTypes = new ArrayList<>();
 		mimeTypes.add(TLMimeType.APPLICATION_JSON);
 		mimeTypes.add(TLMimeType.APPLICATION_XML);
 		ActionNode an = new ActionNode(rn);
@@ -112,13 +111,15 @@ public class ResourceBuilder {
 			an.setRQRS("Delete", af, null, null, RestStatusCodes.OK, rq, rs);
 			break;
 		case PUT:
-			an.setRQRS("Update", af, null, mimeTypes, RestStatusCodes.OK, rq, rs);
+			an.setRQRS("Update", af, mimeTypes, mimeTypes, RestStatusCodes.OK, rq, rs);
+			an.getRequest().setPayload(af);
 			break;
 		default:
 			break;
 		}
 		rq.setHttpMethod(method.toString());
-		rq.setParamGroup(pg.getName()); // do here to set path template
+		if (pg != null)
+			rq.setParamGroup(pg.getName()); // do here to set path template
 		rq.setPathTemplate(); // load tlObject from path template object
 		return an;
 	}
@@ -163,7 +164,7 @@ public class ResourceBuilder {
 		if (!businessObject.getName().isEmpty())
 			name = businessObject.getName() + "Resource";
 		TLResource tlr = buildTL(name);
-		tlr.setBusinessObjectRef((TLBusinessObject) businessObject.getTLModelObject());
+		tlr.setBusinessObjectRef(businessObject.getTLModelObject());
 		return tlr;
 	}
 
