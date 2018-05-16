@@ -30,6 +30,7 @@ import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
+import org.opentravel.schemas.commands.ContextualFacetHandler;
 import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.handlers.children.NavNodeChildrenHandler;
@@ -71,6 +72,7 @@ public class ContextualFacetTests {
 	ModelNode model = null;
 	MockLibrary ml = new MockLibrary();
 	LibraryNode ln = null;
+
 	MainController mc;
 	DefaultProjectController pc;
 	ProjectNode defaultProject;
@@ -87,6 +89,69 @@ public class ContextualFacetTests {
 		lf = new LoadFiles();
 		emptyNode = (TypeProvider) ModelNode.getEmptyNode();
 		sType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
+	}
+
+	@Test
+	public void CF_HandlerTests() {
+		OTM16Upgrade.otm16Enabled = true;
+		ContextualFacetHandler handler = new ContextualFacetHandler();
+		ln = ml.createNewLibrary_Empty(defaultProject.getNamespace(), "T1", defaultProject);
+		ChoiceObjectNode ch = ml.addChoice(ln, "Ch1");
+		List<AbstractContextualFacet> cfs = ch.getChoiceFacets();
+		assert ch.getChoiceFacets().size() == 2;
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "Bo1");
+		assert bo.getContextualFacets(false).size() == 2;
+
+		// When - add Choice facet
+		handler.addContextualFacet(ch);
+		// When - add Query facet
+		handler.addContextualFacet(bo, TLFacetType.QUERY);
+		// When - add Custom facet
+		handler.addContextualFacet(bo, TLFacetType.CUSTOM);
+		// To Do - When - add Update facet
+
+		// Then
+		ml.check(ch);
+		assertTrue(ch.getChoiceFacets().size() == 3);
+		for (AbstractContextualFacet cf : ch.getChoiceFacets())
+			assertTrue(cf instanceof ContextualFacetNode);
+		ml.check(bo);
+		assertTrue(bo.getContextualFacets(false).size() == 4);
+		for (AbstractContextualFacet af : bo.getContextualFacets(false))
+			assertTrue(af instanceof ContextualFacetNode);
+		ml.check(ln);
+
+		OTM16Upgrade.otm16Enabled = false;
+	}
+
+	@Test
+	public void CF_HandlerTests_v15() {
+		OTM16Upgrade.otm16Enabled = false;
+		ContextualFacetHandler handler = new ContextualFacetHandler();
+		ln = ml.createNewLibrary_Empty(defaultProject.getNamespace(), "T1", defaultProject);
+		ChoiceObjectNode ch = ml.addChoice(ln, "Ch1");
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "Bo1");
+
+		// When - add Choice facet
+		handler.addContextualFacet(ch);
+		// When - add Query facet
+		handler.addContextualFacet(bo, TLFacetType.QUERY);
+		// When - add Custom facet
+		handler.addContextualFacet(bo, TLFacetType.CUSTOM);
+		// To Do - When - add Update facet
+
+		// Then
+		ml.check(ch);
+		for (AbstractContextualFacet cf : ch.getChoiceFacets())
+			assertTrue(cf instanceof ContextualFacet15Node);
+
+		ml.check(bo);
+		for (AbstractContextualFacet af : bo.getContextualFacets(false))
+			assertTrue(af instanceof ContextualFacet15Node);
+
+		ml.check(ln);
+
+		OTM16Upgrade.otm16Enabled = false;
 	}
 
 	@Test
@@ -571,8 +636,8 @@ public class ContextualFacetTests {
 		assertTrue("Must be able to find c1 by name.", x1.get() == c1);
 		// Then - c1 must have children to be inherited.
 		assertTrue("Summary must have children.", !baseBO.getFacet_Summary().getChildren().isEmpty());
-		assertTrue("Summary must not have inherited children.", baseBO.getFacet_Summary().getInheritedChildren()
-				.isEmpty());
+		assertTrue("Summary must not have inherited children.",
+				baseBO.getFacet_Summary().getInheritedChildren().isEmpty());
 
 		// Given - a second, empty BO to be extended
 		BusinessObjectNode extendedBO = ml.addBusinessObjectToLibrary_Empty(ln, "ExBO");

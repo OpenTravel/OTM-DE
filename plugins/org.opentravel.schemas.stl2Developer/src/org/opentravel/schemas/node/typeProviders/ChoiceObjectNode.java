@@ -55,8 +55,8 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class ChoiceObjectNode extends FacetOwners implements ExtensionOwner, Sortable, AliasOwner,
-		ContextualFacetOwnerInterface, VersionedObjectInterface {
+public class ChoiceObjectNode extends FacetOwners
+		implements ExtensionOwner, Sortable, AliasOwner, ContextualFacetOwnerInterface, VersionedObjectInterface {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectNode.class);
 
 	private ExtensionHandler extensionHandler = null;
@@ -181,7 +181,7 @@ public class ChoiceObjectNode extends FacetOwners implements ExtensionOwner, Sor
 
 	@Override
 	public List<AliasNode> getAliases() {
-		List<AliasNode> aliases = new ArrayList<AliasNode>();
+		List<AliasNode> aliases = new ArrayList<>();
 		for (Node c : getChildren())
 			if (c instanceof AliasNode)
 				aliases.add((AliasNode) c);
@@ -194,20 +194,21 @@ public class ChoiceObjectNode extends FacetOwners implements ExtensionOwner, Sor
 	 * @return new list of choice facets
 	 */
 	public List<AbstractContextualFacet> getChoiceFacets(boolean includeInherited) {
-		ArrayList<AbstractContextualFacet> ret = new ArrayList<AbstractContextualFacet>();
-		for (Node f : getChildrenHandler().get())
+		ArrayList<AbstractContextualFacet> ret = new ArrayList<>();
+		for (Node f : getChildrenHandler().get()) {
 			if (f instanceof ContributedFacetNode)
 				f = ((ContributedFacetNode) f).getContributor();
-			else if (f instanceof ChoiceFacetNode)
+			if (f instanceof ChoiceFacetNode)
 				ret.add((ChoiceFacetNode) f);
 			else if (f instanceof ChoiceFacet15Node)
 				ret.add((ChoiceFacet15Node) f);
+		}
 
 		if (includeInherited)
 			for (INode f : getChildrenHandler().getInheritedChildren()) {
 				if (f instanceof ContributedFacetNode)
 					f = ((ContributedFacetNode) f).getContributor();
-				else if (f instanceof ChoiceFacetNode)
+				if (f instanceof ChoiceFacetNode)
 					ret.add((ChoiceFacetNode) f);
 				else if (f instanceof ChoiceFacet15Node)
 					ret.add((ChoiceFacet15Node) f);

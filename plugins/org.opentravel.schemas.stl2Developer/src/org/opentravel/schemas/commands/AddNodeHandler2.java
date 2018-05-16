@@ -53,12 +53,16 @@ import org.opentravel.schemas.wizards.validators.NewPropertyValidator;
  * 
  * Handles action: org.opentravel.schemas.commands.AddProperties
  * 
- * Enabled by stl2Developer.selection.canAdd in org.opentravel.schemas.testers.GlobalSelectionTester which calls
- * isEnabled_AddProperties()
  * 
  * @author Dave Hollander
  *
  */
+
+//
+// dmh - 3/23/2018 - moved control here and commented out section in plugin.xml
+// Was Enabled by stl2Developer.selection.canAdd in org.opentravel.schemas.testers.GlobalSelectionTester which calls
+// isEnabled_AddProperties()
+//
 public class AddNodeHandler2 extends OtmAbstractHandler {
 	// private static final Logger LOGGER = LoggerFactory.getLogger(AddNodeHandler2.class);
 	public static String COMMAND_ID = "org.opentravel.schemas.commands.Add";
@@ -67,7 +71,6 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 	private ComponentNode actOnNode; // The node to perform the action on.
 
 	public void execute(Event event) {
-		// mc = OtmRegistry.getMainController();
 		selectedNode = mc.getGloballySelectNode();
 		actOnNode = (ComponentNode) selectedNode;
 		if (event.data instanceof ComponentNode)
@@ -80,7 +83,6 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 	// execute target for Add button
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
-		// mc = OtmRegistry.getMainController();
 		selectedNode = mc.getGloballySelectNode();
 		actOnNode = (ComponentNode) selectedNode;
 		runCommand(getActionType(exEvent));
@@ -302,7 +304,7 @@ public class AddNodeHandler2 extends OtmAbstractHandler {
 	}
 
 	protected Node getSelectedNode(ExecutionEvent exEvent) {
-		return mc.getGloballySelectNode();
+		return mc != null ? mc.getGloballySelectNode() : null;
 	}
 
 	public static ImageDescriptor getIcon() {

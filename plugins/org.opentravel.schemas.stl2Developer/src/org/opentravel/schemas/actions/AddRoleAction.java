@@ -49,7 +49,7 @@ public class AddRoleAction extends OtmAbstractAction {
 
 	@Override
 	public boolean isEnabled() {
-		LibraryMemberInterface n = mc.getCurrentNode_NavigatorView().getOwningComponent();
+		LibraryMemberInterface n = getOwnerOfNavigatorSelection();
 		return n instanceof CoreObjectNode ? n.isEnabled_AddProperties() : false;
 	}
 

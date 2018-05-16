@@ -18,15 +18,9 @@ package org.opentravel.schemas.commands;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.NodeFactory;
-import org.opentravel.schemas.node.typeProviders.ChoiceFacetNode;
+import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
-import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
-import org.opentravel.schemas.node.typeProviders.CustomFacetNode;
-import org.opentravel.schemas.node.typeProviders.QueryFacetNode;
-import org.opentravel.schemas.node.typeProviders.UpdateFacetNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.stl2developer.DialogUserNotifier;
@@ -54,6 +48,20 @@ public class ContextualFacetHandler extends OtmAbstractHandler {
 		return COMMAND_ID;
 	}
 
+	public void addContextualFacet(ChoiceObjectNode ch) {
+		if (ch == null || !ch.isEditable_newToChain()) {
+			DialogUserNotifier.openWarning("Add Choice Facet",
+					"Choice Facets can only be added to choice object that are not versioned or are new to the version chain.");
+			return;
+		}
+		AbstractContextualFacet af = null;
+		af = ch.addFacet("new");
+
+		if (af != null)
+			af.setName(getName(af));
+		mc.refresh(ch);
+	}
+
 	public void addContextualFacet(BusinessObjectNode bo, TLFacetType type) {
 		// Verify the current node is editable business object
 		if (bo == null || !bo.isEditable_newToChain()) {
@@ -61,59 +69,24 @@ public class ContextualFacetHandler extends OtmAbstractHandler {
 			return;
 		}
 
-		// Create the contextual facet
-		ContextualFacetNode cf = null;
-		switch (type) {
-		case QUERY:
-			cf = new QueryFacetNode();
-			bo.getTLModelObject().addQueryFacet(cf.getTLModelObject());
-			break;
-		case CUSTOM:
-			cf = new CustomFacetNode();
-			bo.getTLModelObject().addCustomFacet(cf.getTLModelObject());
-			break;
-		case UPDATE:
-			cf = new UpdateFacetNode();
-			bo.getTLModelObject().addUpdateFacet(cf.getTLModelObject());
-		default:
-			return;
-		}
-		cf.setName(getName(bo));
-		bo.getLibrary().addMember(cf);
+		AbstractContextualFacet af = null;
+		af = bo.addFacet("new", type);
 
-		// Create contributed facet
-		NodeFactory.newChild(bo, cf.getTLModelObject());
+		if (af != null)
+			af.setName(getName(af));
 		mc.refresh(bo);
 	}
 
-	// Only called from Add Choice Facet Action for version 1.5
-	public void addContextualFacet(ChoiceObjectNode co) {
-		// Verify the current node is editable business object
-		if (co == null || !co.isEditable_newToChain()) {
-			DialogUserNotifier.openWarning("Add Choice Facet",
-					"Choice Facets can only be added to non-versioned Choice objects.");
-			return;
-		}
-
-		// Create the contextual facet
-		ChoiceFacetNode cf = new ChoiceFacetNode();
-		cf.setName(getName(co));
-		if (OTM16Upgrade.otm16Enabled)
-			co.getLibrary().addMember(cf);
-		co.getTLModelObject().addChoiceFacet(cf.getTLModelObject());
-
-		// Create contributed facet
-		NodeFactory.newChild(co, cf.getTLModelObject());
-		mc.refresh(co);
-	}
-
 	private String getName(Node parent) {
-		SimpleNameWizard wizard = new SimpleNameWizard("wizard.newOperation");
-		wizard.setValidator(new NewNodeNameValidator(parent, wizard, Messages
-				.getString("wizard.newOperation.error.name")));
-		wizard.run(OtmRegistry.getActiveShell());
-		if (!wizard.wasCanceled()) {
-			return wizard.getText();
+		// Test allows junit tests and provides safety from unexpected eclipse issues
+		if (getMainWindow().hasDisplay()) {
+			SimpleNameWizard wizard = new SimpleNameWizard("wizard.newOperation");
+			wizard.setValidator(
+					new NewNodeNameValidator(parent, wizard, Messages.getString("wizard.newOperation.error.name")));
+			wizard.run(OtmRegistry.getActiveShell());
+			if (!wizard.wasCanceled()) {
+				return wizard.getText();
+			}
 		}
 		return "new";
 	}
