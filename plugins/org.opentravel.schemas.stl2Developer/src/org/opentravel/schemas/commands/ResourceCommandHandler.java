@@ -72,9 +72,9 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 		// IWorkbenchWindow ww;
 		// ww = UIPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
 		// IWorkbenchPage wp = ww.getActivePage();
-		Node n = mc.getGloballySelectNode();
+		Node n = getFirstSelected();
 		Node rn = mc.getCurrentNode_ResourceView();
-		return true;
+		return n.isEditable();
 	}
 
 	// Used by Actions
@@ -89,7 +89,7 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 	// Entry point from command execution
 	@Override
 	public Object execute(ExecutionEvent exEvent) throws ExecutionException {
-		String filePathParam = exEvent.getParameter("org.opentravel.schemas.stl2Developer.newAction");
+		// String filePathParam = exEvent.getParameter("org.opentravel.schemas.stl2Developer.newAction");
 		// LOGGER.debug(filePathParam);
 
 		view = OtmRegistry.getResourceView();
@@ -130,10 +130,12 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 		if (mc.getCurrentNode_NavigatorView() instanceof BusinessObjectNode)
 			predicate = (BusinessObjectNode) mc.getCurrentNode_NavigatorView();
 
-		if (view != null)
-			selectedNode = (Node) view.getCurrentNode();
-		else
-			selectedNode = mc.getCurrentNode_NavigatorView();
+		selectedNode = getFirstSelected();
+		if (selectedNode == null)
+			if (view != null)
+				selectedNode = (Node) view.getCurrentNode();
+			else
+				selectedNode = mc.getCurrentNode_NavigatorView();
 	}
 
 	/**
@@ -265,6 +267,10 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 		switch (type) {
 		case DELETE:
 			DialogUserNotifier.openWarning("Can Not Delete", "The state of this library does not allow deletion.");
+			break;
+		case RESOURCE:
+			DialogUserNotifier.openWarning("Can Not Create Resource",
+					"The state of this library does not allow adding resources.");
 			break;
 		default:
 			DialogUserNotifier.openWarning("Missing Subject", "Can not find the parent for the new item.");

@@ -35,6 +35,7 @@ import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.listeners.ResourceDependencyListener;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.node.typeProviders.QueryFacetNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
@@ -93,7 +94,12 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		this(rn);
 		setIdGroup(idGroup); // do before adding facet and it's parameters
 		if (fn != null && fn instanceof FacetInterface) {
-			setName(fn.getLabel());
+			String name = fn.getLabel();
+			if (fn instanceof ContextualFacetNode)
+				name = ((ContextualFacetNode) fn).getName();
+			// else if (fn instanceof QueryFacetNode)
+			// name = ((ContextualFacetNode) fn).getName();
+			setName(name);
 			setReferenceFacet((FacetInterface) fn);
 		}
 	}
@@ -210,8 +216,8 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	protected String getFacetLabel() {
 		Node facetRef = getFacetRef();
 
-		return (facetRef != null) ? ResourceCodegenUtils.getActionFacetReferenceName((TLFacet) facetRef
-				.getTLModelObject()) : "";
+		return (facetRef != null)
+				? ResourceCodegenUtils.getActionFacetReferenceName((TLFacet) facetRef.getTLModelObject()) : "";
 	}
 
 	/**
@@ -221,7 +227,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	 */
 	// TODO - JUNIT - add test for ID/non-ID group behavior
 	public String[] getSubjectFacets() {
-		List<FacetInterface> facets = new ArrayList<FacetInterface>();
+		List<FacetInterface> facets = new ArrayList<>();
 		if (getOwningComponent().getSubject() != null)
 			for (Node facet : getOwningComponent().getSubject().getChildren()) {
 				if (!(facet instanceof FacetInterface))
@@ -241,7 +247,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 
 	@Override
 	public List<ResourceField> getFields() {
-		List<ResourceField> fields = new ArrayList<ResourceField>();
+		List<ResourceField> fields = new ArrayList<>();
 
 		// Facet Name - list of facets from subject
 		new ResourceField(fields, getFacetLabel(), "rest.ParamGroup.fields.referenceFacetName", ResourceFieldType.Enum,
@@ -273,9 +279,9 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 
 	public List<Node> getPossibleFields() {
 		// use resource codegen utils to get a complete list
-		List<Node> fields = new ArrayList<Node>();
-		for (TLMemberField<?> field : ResourceCodegenUtils.getEligibleParameterFields((TLFacet) getFacetRef()
-				.getTLModelObject())) {
+		List<Node> fields = new ArrayList<>();
+		for (TLMemberField<?> field : ResourceCodegenUtils
+				.getEligibleParameterFields((TLFacet) getFacetRef().getTLModelObject())) {
 			Node f = this.getNode(((TLModelElement) field).getListeners());
 			if (f != null)
 				fields.add(f);
@@ -289,7 +295,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	 * @return an array of string template contributions based on parameters in this group
 	 */
 	public List<String> getPathTemplates() {
-		ArrayList<String> contributions = new ArrayList<String>();
+		ArrayList<String> contributions = new ArrayList<>();
 		for (Node param : getChildren()) {
 			if (((ResourceParameter) param).isPathParam())
 				contributions.add("{" + param.getName() + "}");
@@ -312,7 +318,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	 * @return list of strings for the components of the query
 	 */
 	public List<String> getQueryTemplates() {
-		ArrayList<String> contributions = new ArrayList<String>();
+		ArrayList<String> contributions = new ArrayList<>();
 		boolean firstParam = true;
 		for (Node param : getChildren()) {
 			if (((ResourceParameter) param).getLocation().equals(TLParamLocation.QUERY.toString()))
@@ -350,7 +356,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	}
 
 	public void clearParameters() {
-		List<Node> params = new ArrayList<Node>(getChildren());
+		List<Node> params = new ArrayList<>(getChildren());
 		for (Node p : params)
 			p.delete();
 	}

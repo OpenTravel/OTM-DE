@@ -29,6 +29,7 @@ import org.opentravel.schemacompiler.model.TLParamGroup;
 import org.opentravel.schemacompiler.model.TLParameter;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 
 /**
@@ -71,17 +72,38 @@ public class ResourceBuilder {
 		rnTL.setAbstract(false);
 		rnTL.setFirstClass(true);
 
-		// Action Facet
+		// Action Facets
 		ActionFacet subAF = new ActionFacet(rn, null); // substitution group
+		subAF.setName(rn.getSubjectName() + "Response");
+		ActionFacet listAF = new ActionFacet(rn, null); // List of subjects
+		// TODO - add base payload
+		listAF.setName(rn.getSubjectName() + "ListResponse");
+		listAF.setReferenceRepeat(1000);
+		listAF.setReferenceType("OPTIONAL");
+		// TODO - add base payload
+		//
 		ActionFacet idAF = new ActionFacet(rn, TLFacetType.ID);
 		ActionFacet summaryAF = new ActionFacet(rn, TLFacetType.SUMMARY);
-		// TODO - add action facets for custom facets.
-		// Parameters - ID, Query(s)
+
+		// Parameter group for ID facet
 		ParamGroup idPG = new ParamGroup(rn, bo.getFacet_ID(), true);
+		// Query facet based parameter groups and action facets
 		for (ComponentNode fn : bo.getQueryFacets()) {
 			ParamGroup qpg = new ParamGroup(rn, fn, false);
-			ActionNode action = buildAction(rn, idAF, qpg, TLHttpMethod.GET); // Query
-			action.setName(fn.getLabel());
+			ActionNode action = buildAction(rn, idAF, qpg, TLHttpMethod.POST); // Query
+			action.setName(fn.getName());
+			ActionFacet af = new ActionFacet(rn, null);
+			af.setReferenceFacetName(((ContextualFacetNode) fn).getLocalName());
+			af.setName(fn.getName());
+		}
+		// Add action facets for custom facets.
+		for (ComponentNode fn : bo.getCustomFacets()) {
+			ParamGroup qpg = new ParamGroup(rn, fn, false);
+			// ActionNode action = buildAction(rn, idAF, qpg, TLHttpMethod.GET); // Custom
+			// action.setName(((CustomFacetNode) fn).getName());
+			ActionFacet af = new ActionFacet(rn, null);
+			af.setReferenceFacetName(((ContextualFacetNode) fn).getLocalName());
+			af.setName(fn.getName());
 		}
 
 		// Action

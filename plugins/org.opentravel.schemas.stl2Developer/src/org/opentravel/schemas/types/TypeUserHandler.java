@@ -73,8 +73,13 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 			if (n != null)
 				if (n instanceof TypeProvider)
 					return (TypeProvider) n;
-				else
+				else {
+					// Somehow, shared facets have been assigned as types
+					if (n instanceof SharedFacetNode && n.getOwningComponent() instanceof TypeProvider)
+						return (TypeProvider) n.getOwningComponent();
 					LOGGER.debug("Error - not type provider: " + n);
+					return null;
+				}
 		} else {
 			// This is the "Missing" case.
 			if (owner instanceof SimpleAttributeFacadeNode) {
@@ -108,7 +113,8 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 			n = Node.GetNode(assignedTL.getListeners());
 		}
 
-		if (n == null)
+		// Shared facets cause cast exceptions
+		if (n == null || !(n instanceof TypeProvider))
 			n = ModelNode.getUnassignedNode();
 
 		return (TypeProvider) n;

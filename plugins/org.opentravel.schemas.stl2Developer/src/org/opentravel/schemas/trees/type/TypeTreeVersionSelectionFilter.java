@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
 
 /**
  * Type selection filter that only allow the selection of later versions of the same object.
@@ -30,7 +31,7 @@ public class TypeTreeVersionSelectionFilter extends TypeSelectionFilter {
 
 	// private Node node;
 	private List<Node> versions = null;
-	private List<Node> ancestors = new ArrayList<Node>();
+	private List<Node> ancestors = new ArrayList<>();
 
 	/**
 	 * Constructor that specifies the type of model object to be visible when the filter is applied.
@@ -41,9 +42,11 @@ public class TypeTreeVersionSelectionFilter extends TypeSelectionFilter {
 	@SuppressWarnings("unchecked")
 	public TypeTreeVersionSelectionFilter(Node node) {
 		// this.node = node;
-		versions = node.getLaterVersions();
-		for (Node v : versions)
-			ancestors.addAll(v.getAncestors());
+		if (node != null)
+			versions = node.getLaterVersions();
+		if (versions != null)
+			for (Node v : versions)
+				ancestors.addAll(v.getAncestors());
 	}
 
 	/**
@@ -64,6 +67,13 @@ public class TypeTreeVersionSelectionFilter extends TypeSelectionFilter {
 			return false;
 		}
 		Node n = (Node) element;
+		if (versions == null)
+			return false;
+
+		if (n instanceof LibraryNavNode)
+			n = ((LibraryNavNode) n).get();
+
+		boolean ans = versions.contains(n) || ancestors.contains(n);
 		return versions.contains(n) || ancestors.contains(n);
 	}
 

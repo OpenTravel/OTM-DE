@@ -582,6 +582,11 @@ public abstract class Node implements INode {
 		return INode.CommandType.NONE;
 	}
 
+	/**
+	 * Get list of ancestors by traversing the parents of each node.
+	 * 
+	 * @return
+	 */
 	public List<Node> getAncestors() {
 		List<Node> ancestors = new ArrayList<>();
 		Node n = this;

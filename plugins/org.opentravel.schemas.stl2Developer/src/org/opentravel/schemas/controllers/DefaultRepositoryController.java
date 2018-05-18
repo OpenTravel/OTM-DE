@@ -44,7 +44,6 @@ import org.opentravel.schemacompiler.repository.RepositoryManager;
 import org.opentravel.schemacompiler.repository.impl.RemoteRepositoryClient;
 import org.opentravel.schemacompiler.saver.LibraryModelSaver;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
-import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemacompiler.validate.ValidationException;
 import org.opentravel.schemacompiler.version.MajorVersionHelper;
 import org.opentravel.schemacompiler.version.MinorVersionHelper;
@@ -982,12 +981,13 @@ public class DefaultRepositoryController implements RepositoryController {
 	 * @return true if older than version 1.6 OR user confirms saving
 	 */
 	public static boolean post16UpgradeConfirmation() {
-		if (OTM16Upgrade.otm16Enabled) {
-			// Post user warning
-			if (!DialogUserNotifier.openConfirm("Warning", Messages.getString("action.saveAll.version16")))
-				return false;
-			return true;
-		}
+		// 5/17/2018 - removed. everybody moved to 1.6 by now.
+		// if (OTM16Upgrade.otm16Enabled) {
+		// // Post user warning
+		// if (!DialogUserNotifier.openConfirm("Warning", Messages.getString("action.saveAll.version16")))
+		// return false;
+		// return true;
+		// }
 		return true;
 	}
 }

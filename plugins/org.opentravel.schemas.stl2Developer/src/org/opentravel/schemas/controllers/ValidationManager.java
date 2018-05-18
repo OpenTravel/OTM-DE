@@ -144,15 +144,17 @@ public class ValidationManager {
 	 *            Model object
 	 * @return return findings
 	 */
-	public static ValidationFindings validate(TLModelElement tlObj, boolean deep) {
-		block();
+	public static synchronized ValidationFindings validate(TLModelElement tlObj, boolean deep) {
+		// block();
 		ValidationFindings findings = null;
 		try {
 			findings = TLModelCompileValidator.validateModelElement(tlObj, deep);
 		} catch (Exception e) {
 			// LOGGER.debug("Validation threw error: " + e.getLocalizedMessage());
 		}
-		unblock();
+		// finally {
+		//// unblock();
+		// }
 		// logFindings(findings);
 		return findings;
 	}

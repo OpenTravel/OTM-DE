@@ -139,7 +139,7 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 
 	@Override
 	public List<ResourceField> getFields() {
-		List<ResourceField> fields = new ArrayList<ResourceField>();
+		List<ResourceField> fields = new ArrayList<>();
 
 		// Payload - Pass list of Action Facet names to select from
 		new ResourceField(fields, getPayloadName(), MSGKEY + ".fields.payload", ResourceFieldType.Enum,
@@ -260,8 +260,8 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 		} else
 			// find the param group with this name then set it
 			for (ParamGroup node : getOwningComponent().getParameterGroups(false))
-				if (node.getName().equals(groupName))
-					setParameterGroup(node);
+			if (node.getName().equals(groupName))
+			setParameterGroup(node);
 		// LOGGER.debug("Set parameter group to " + groupName + " : " + tlObj.getParamGroupName());
 
 		pathTemplate.setParameters();
@@ -272,9 +272,11 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	// TODO - ADD TO JUNIT - remove old listener, add listeners to children parameters
 	protected boolean setParameterGroup(ParamGroup group) {
 		// Remove old listeners
-		if (tlObj != null && tlObj.getParamGroup() != null)
-			((ParamGroup) getNode(tlObj.getParamGroup().getListeners())).removeListeners(this);
-
+		if (tlObj != null && tlObj.getParamGroup() != null) {
+			Node n = getNode(tlObj.getParamGroup().getListeners());
+			if (n instanceof ParamGroup)
+				((ParamGroup) n).removeListeners(this);
+		}
 		if (group != null) {
 			tlObj.setParamGroup(group.tlObj);
 			group.addListeners(this);
