@@ -84,6 +84,7 @@ import org.opentravel.schemas.node.properties.InheritedElementNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.resources.ResourceBuilder;
 import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
@@ -414,8 +415,10 @@ public class MockLibrary {
 		new IndicatorNode(newNode.getFacet_Summary(), "TestIndicator" + name);
 
 		// Add contextual facets
-		new ElementReferenceNode(newNode.addFacet("c1" + name, TLFacetType.CUSTOM), newNode);
-		new AttributeNode(newNode.addFacet("q1" + name, TLFacetType.QUERY), "TestAttribute2" + name, string);
+		AbstractContextualFacet acf = newNode.addFacet("c1" + name, TLFacetType.CUSTOM);
+		new ElementReferenceNode(acf, newNode);
+		acf = newNode.addFacet("q1" + name, TLFacetType.QUERY);
+		new AttributeNode(acf, "TestAttribute2" + name, string);
 
 		if (wasValid && !ln.isValid()) {
 			printValidationFindings(ln);

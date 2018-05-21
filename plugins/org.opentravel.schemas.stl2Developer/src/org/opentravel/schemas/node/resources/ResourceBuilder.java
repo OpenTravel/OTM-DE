@@ -18,10 +18,12 @@ package org.opentravel.schemas.node.resources;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opentravel.schemacompiler.codegen.util.ResourceCodegenUtils;
 import org.opentravel.schemacompiler.model.TLAction;
 import org.opentravel.schemacompiler.model.TLActionFacet;
 import org.opentravel.schemacompiler.model.TLActionRequest;
 import org.opentravel.schemacompiler.model.TLActionResponse;
+import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.model.TLHttpMethod;
 import org.opentravel.schemacompiler.model.TLMimeType;
@@ -29,8 +31,10 @@ import org.opentravel.schemacompiler.model.TLParamGroup;
 import org.opentravel.schemacompiler.model.TLParameter;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.ComponentNode;
-import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Creates resources and the associated components.
@@ -39,6 +43,8 @@ import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
  *
  */
 public class ResourceBuilder {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceBuilder.class);
+
 	public enum ResourceFieldType {
 		String, Int, Enum, List, EnumList, NodeList, CheckButton
 	}
@@ -72,38 +78,58 @@ public class ResourceBuilder {
 		rnTL.setAbstract(false);
 		rnTL.setFirstClass(true);
 
+		// Parameter group for ID facet
+		ParamGroup idPG = new ParamGroup(rn, bo.getFacet_ID(), true);
+
 		// Action Facets
+		// TODO - add base payload
 		ActionFacet subAF = new ActionFacet(rn, null); // substitution group
 		subAF.setName(rn.getSubjectName() + "Response");
+
 		ActionFacet listAF = new ActionFacet(rn, null); // List of subjects
-		// TODO - add base payload
 		listAF.setName(rn.getSubjectName() + "ListResponse");
 		listAF.setReferenceRepeat(1000);
 		listAF.setReferenceType("OPTIONAL");
-		// TODO - add base payload
-		//
-		ActionFacet idAF = new ActionFacet(rn, TLFacetType.ID);
-		ActionFacet summaryAF = new ActionFacet(rn, TLFacetType.SUMMARY);
 
-		// Parameter group for ID facet
-		ParamGroup idPG = new ParamGroup(rn, bo.getFacet_ID(), true);
+		ActionFacet idAF = new ActionFacet(rn, TLFacetType.ID);
+		idAF.setName(rn.getSubjectName() + "ID");
+		// ActionFacet summaryAF = new ActionFacet(rn, TLFacetType.SUMMARY);
+
 		// Query facet based parameter groups and action facets
 		for (ComponentNode fn : bo.getQueryFacets()) {
 			ParamGroup qpg = new ParamGroup(rn, fn, false);
-			ActionNode action = buildAction(rn, idAF, qpg, TLHttpMethod.POST); // Query
-			action.setName(fn.getName());
+
 			ActionFacet af = new ActionFacet(rn, null);
-			af.setReferenceFacetName(((ContextualFacetNode) fn).getLocalName());
+			af.setReferenceFacetName(ResourceCodegenUtils.getActionFacetReferenceName((TLFacet) fn.getTLModelObject()));
 			af.setName(fn.getName());
+
+			// Path += "Queries", POST, this AF payload, no PG
+			ActionNode action = buildAction(rn, af, null, TLHttpMethod.POST); // Query
+			action.getRequest().setPathTemplate(action.getRequest().getPathTemplate() + "/Queries");
+			action.getResponse().setPayload(listAF);
+			// ActionNode action = buildAction(rn, listAF, qpg, TLHttpMethod.GET); // Query
+			action.setName(fn.getName());
 		}
 		// Add action facets for custom facets.
-		for (ComponentNode fn : bo.getCustomFacets()) {
+		for (AbstractContextualFacet fn : bo.getCustomFacets()) {
 			ParamGroup qpg = new ParamGroup(rn, fn, false);
-			// ActionNode action = buildAction(rn, idAF, qpg, TLHttpMethod.GET); // Custom
-			// action.setName(((CustomFacetNode) fn).getName());
+
+			// Response and Response List action facets
 			ActionFacet af = new ActionFacet(rn, null);
-			af.setReferenceFacetName(((ContextualFacetNode) fn).getLocalName());
-			af.setName(fn.getName());
+			// af.setReferenceFacetName(fn.getLocalName());
+			af.setReferenceFacetName(ResourceCodegenUtils.getActionFacetReferenceName(fn.getTLModelObject()));
+			af.setName(fn.getLocalName() + rn.getSubjectName() + "Response");
+
+			ActionFacet afList = new ActionFacet(rn, null);
+			// afList.setReferenceFacetName(fn.getLocalName());
+			afList.setReferenceFacetName(ResourceCodegenUtils.getActionFacetReferenceName(fn.getTLModelObject()));
+			afList.setName(fn.getLocalName() + rn.getSubjectName() + "ListResponse");
+			afList.setReferenceRepeat(1000);
+			afList.setReferenceType("OPTIONAL");
+
+			ActionNode action = buildAction(rn, af, idPG, TLHttpMethod.GET); // Read
+			action.setName(action.getName() + fn.getLocalName());
+			action.getRequest().setPathTemplate("/" + fn.getLocalName() + rn.getSubjectName() + "s");
 		}
 
 		// Action

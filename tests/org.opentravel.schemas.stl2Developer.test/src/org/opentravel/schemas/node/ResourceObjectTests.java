@@ -194,6 +194,10 @@ public class ResourceObjectTests extends BaseTest {
 		ml.check(resource, false);
 		ml.check(srcLib, false);
 
+		ml.check(resource);
+		ml.check(srcLib);
+		ml.check(destLib);
+
 		// When - moved to destination library
 		// srcLib.moveMember(resource, destLib);
 		destLib.addMember(resource);
@@ -226,7 +230,8 @@ public class ResourceObjectTests extends BaseTest {
 			String url = action.getRequest().getURL();
 			LOGGER.debug("Example: " + url + ".");
 			assertTrue("Action has example.", !url.isEmpty());
-			if (action.getName().startsWith("Get"))
+			// some Get actions created for custom facets have longer names
+			if (action.getName().equals("Get"))
 				assertTrue("Get example must be correct.", url.startsWith(
 						"GET http://example.com/ResourceTestLibInitialBOs/{testIdResourceTestLibInitialBO}/{ResourceTestLibInitialBOID}"));
 		}

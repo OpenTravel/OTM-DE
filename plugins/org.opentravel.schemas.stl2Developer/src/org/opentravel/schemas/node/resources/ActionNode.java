@@ -88,7 +88,7 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 
 	public void setRQRS(String label, ActionFacet af, List<TLMimeType> rqMimeTypes, List<TLMimeType> rsMimeTypes,
 			RestStatusCodes code, ActionRequest request, ActionResponse response) {
-		List<Integer> statusCodes = new ArrayList<Integer>(); // http://www.restapitutorial.com/httpstatuscodes.html
+		List<Integer> statusCodes = new ArrayList<>(); // http://www.restapitutorial.com/httpstatuscodes.html
 		statusCodes.add(code.value());
 		setName(label);
 		request.tlObj.setMimeTypes(rqMimeTypes);
@@ -119,7 +119,7 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	public void initInherited() {
 		// Remove old ones and assure there is an array
 		// if (inheritedResponses == null)
-		inheritedResponses = new ArrayList<InheritedResourceMember>();
+		inheritedResponses = new ArrayList<>();
 		if (tlObj == null)
 			return;
 		// Note - tlAR may not have been modeled yet
@@ -138,7 +138,7 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 
 	@Override
 	public void delete() {
-		List<Node> kids = new ArrayList<Node>(getChildren()); // avoid co-modification of list
+		List<Node> kids = new ArrayList<>(getChildren()); // avoid co-modification of list
 		for (Node child : kids)
 			child.delete();
 		if (tlObj.getOwner() != null)
@@ -148,7 +148,7 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 
 	@Override
 	public List<Node> getNavChildren(boolean deep) {
-		List<Node> kids = new ArrayList<Node>();
+		List<Node> kids = new ArrayList<>();
 		kids.addAll(super.getChildren());
 		if (deep) {
 			if (inheritedResponses == null)
@@ -166,7 +166,7 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 
 	@Override
 	public List<ResourceField> getFields() {
-		List<ResourceField> fields = new ArrayList<ResourceField>();
+		List<ResourceField> fields = new ArrayList<>();
 		new ResourceField(fields, Boolean.toString(tlObj.isCommonAction()), "rest.ActionNode.fields.common",
 				ResourceFieldType.CheckButton, new CommonListener());
 		return fields;
@@ -187,15 +187,16 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	}
 
 	public ActionRequest getRequest() {
-		// FIXME
-		// ResourceCodegenUtils.getInheritedActions(resource)
-		// ResourceCodegenUtils.getInheritedResponses(action)
-		// ResourceCodegenUtils.getEffectivePath()
-		// ResourceCodegenUtils.getQualifiedActions(resource)
-
 		for (Node n : getChildren())
 			if (n instanceof ActionRequest)
 				return (ActionRequest) n;
+		return null;
+	}
+
+	public ActionResponse getResponse() {
+		for (Node n : getChildren())
+			if (n instanceof ActionResponse)
+				return (ActionResponse) n;
 		return null;
 	}
 

@@ -250,6 +250,7 @@ public class BusinessObjectNode extends FacetOwners
 		cf.setOwner(this);
 		if (cf instanceof LibraryMemberInterface)
 			getLibrary().addMember((LibraryMemberInterface) cf);
+		cf.setName(NodeNameUtils.fixContextualFacetName(cf, name));
 
 		if (OTM16Upgrade.otm16Enabled) {
 			assert cf.getParent() instanceof NavNode;
