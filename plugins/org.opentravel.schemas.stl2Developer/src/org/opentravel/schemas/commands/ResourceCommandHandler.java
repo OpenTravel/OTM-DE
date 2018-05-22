@@ -147,8 +147,9 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 			// If it is in a chain, get the head of the chain
 			if (effectiveLib.getChain() != null && !effectiveLib.isInHead())
 				effectiveLib = effectiveLib.getChain().getHead();
+			return effectiveLib.isEditable() ? effectiveLib : null;
 		}
-		return effectiveLib.isEditable() ? effectiveLib : null;
+		return null;
 	}
 
 	private void runCommand(CommandType type) {

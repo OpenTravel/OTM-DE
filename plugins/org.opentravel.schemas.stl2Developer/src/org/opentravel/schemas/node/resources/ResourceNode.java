@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.codegen.util.ResourceCodegenUtils;
+import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.AbstractLibrary;
 import org.opentravel.schemacompiler.model.LibraryMember;
 import org.opentravel.schemacompiler.model.NamedEntity;
@@ -62,6 +63,7 @@ import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.interfaces.VersionedObjectInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.ListenerFactory;
+import org.opentravel.schemas.node.listeners.ResourceDependencyListener;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
@@ -410,6 +412,17 @@ public class ResourceNode extends ComponentNode
 		if (getTLModelObject().getOwningLibrary() != null)
 			getTLModelObject().getOwningLibrary().removeNamedMember(getTLModelObject());
 		// LOGGER.debug("Deleted rest resource: " + this);
+
+		// Use the listeners to see if there are any extension dependents
+		ArrayList<ModelElementListener> listeners = new ArrayList<>(getTLModelObject().getListeners());
+		for (ModelElementListener listener : listeners)
+			if (listener instanceof ResourceDependencyListener) {
+				Node dependent = ((ResourceDependencyListener) listener).getNode();
+				if (dependent instanceof ResourceNode) {
+					((ResourceNode) dependent).getTLModelObject().setExtension(null);
+					getTLModelObject().removeListener(listener);
+				}
+			}
 	}
 
 	public List<ActionNode> getActions() {
@@ -1164,6 +1177,8 @@ public class ResourceNode extends ComponentNode
 		TLExtension ext = new TLExtension();
 		getTLModelObject().setExtension(ext);
 		ext.setExtendsEntity(((ResourceNode) base).getTLModelObject());
+		base.getTLModelObject().addListener(new ResourceDependencyListener(this));
+		// getTLModelObject().addListener(new ResourceDependencyListener(base));
 		LOGGER.debug("Set extension to " + base + ": " + getTLModelObject().getExtension().getExtendsEntityName());
 
 		// update inherited children

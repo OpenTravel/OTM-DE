@@ -279,6 +279,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 
 	public List<Node> getPossibleFields() {
 		// use resource codegen utils to get a complete list
+		// Note - codegen utils will skip repeating objects
 		List<Node> fields = new ArrayList<>();
 		for (TLMemberField<?> field : ResourceCodegenUtils
 				.getEligibleParameterFields((TLFacet) getFacetRef().getTLModelObject())) {
