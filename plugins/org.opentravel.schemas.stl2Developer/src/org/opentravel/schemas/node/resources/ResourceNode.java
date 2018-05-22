@@ -1011,8 +1011,8 @@ public class ResourceNode extends ComponentNode
 			getTLModelObject().setBusinessObjectRef(subject.getTLModelObject());
 			// Set where used on BO
 			subject.addWhereUsed(this);
+			assert subject.getWhereAssigned().contains(this);
 		}
-		assert subject.getWhereAssigned().contains(this);
 	}
 
 	/**

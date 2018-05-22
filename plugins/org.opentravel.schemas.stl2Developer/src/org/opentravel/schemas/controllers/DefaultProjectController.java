@@ -539,6 +539,7 @@ public class DefaultProjectController implements ProjectController {
 				project = null;
 				ex = e;
 			} catch (IllegalArgumentException e) {
+				// This is where project ID already in use error is handled
 				resultMsg = postLoadError(e, fileName);
 				project = null;
 				ex = e;

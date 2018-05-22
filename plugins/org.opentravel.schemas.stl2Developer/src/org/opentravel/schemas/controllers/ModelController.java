@@ -35,19 +35,13 @@ import org.opentravel.schemas.node.properties.PropertyNode;
 public interface ModelController {
 
 	/**
-	 * Creates new empty model and initializes it with built in libraries
+	 * Change given property to simple. This action only make sense for owning component with SimpleFacet. Check
+	 * {@link FacetOwner}.
 	 * 
-	 * @return newly created {@link ModelNode}
+	 * @param property
+	 * @return false if property is not {@link SimpleAttributeNode} or owning component is not {@link FacetOwner}
 	 */
-	public ModelNode createNewModel();
-
-	/**
-	 * Saves all the libraries within the given model
-	 * 
-	 * @param model
-	 *            {@link ModelNode} to be saved
-	 */
-	public void saveModel(INode model);
+	public boolean changeToSimple(PropertyNode property);
 
 	/**
 	 * Saves and closes all the libraries (also built in) within the given model, clears the model
@@ -58,32 +52,26 @@ public interface ModelController {
 	public void close();
 
 	/**
-	 * Compiles the libraries into output files (defined by the underlying schema compiler)
-	 * 
-	 * @param model
-	 *            {@link ModelNode} to be compiled
-	 */
-	public void compileModel(ModelNode model);
-
-	/**
 	 * Compiles the libraries in the project into output files (defined by the underlying schema compiler)
 	 * 
 	 */
-	public void compileModel(ProjectNode cur);
+	public void compileInBackground(ProjectNode project);
+
+	/**
+	 * Creates new empty model and initializes it with built in libraries
+	 * 
+	 * @return newly created {@link ModelNode}
+	 */
+	public ModelNode createNewModel();
+
+	/**
+	 * @return the directory of the last compile or empty string
+	 */
+	public String getLastCompileDirectory();
 
 	public ModelNode getModel();
 
 	public TLModel getTLModel();
-
-	/**
-	 * Change given property to simple. This action only make sense for owning component with SimpleFacet. Check
-	 * {@link FacetOwner}.
-	 * 
-	 * @param property
-	 * @return false if property is not {@link SimpleAttributeNode} or owning component is not
-	 *         {@link FacetOwner}
-	 */
-	public boolean changeToSimple(PropertyNode property);
 
 	/**
 	 * Move given simple attribute to target facet. As a result this method should create new simple attribute with type
@@ -96,10 +84,11 @@ public interface ModelController {
 	ComponentNode moveSimpleToFacet(Node simpleAttribute, ComponentNode targetFacet);
 
 	/**
-	 * @return the directory of the last compile or empty string
+	 * Saves all the libraries within the given model
+	 * 
+	 * @param model
+	 *            {@link ModelNode} to be saved
 	 */
-	public String getLastCompileDirectory();
-
-	public void compileInBackground(ProjectNode project);
+	public void saveModel(INode model);
 
 }

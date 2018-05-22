@@ -184,9 +184,19 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 				// run wizard
 				predicate = getBusinessObject();
 				if (predicate == null)
-					return;
+					if (!DialogUserNotifier.openQuestion("New Resource",
+							"Do you want to create an abstract resource? If yes, you will be asked to select a base response object for the error response action facet."))
+						return;
 				ResourceNode newR = new ResourceNode(effectiveLib, predicate); // create named empty resource
-				new ResourceBuilder().build(newR, predicate);
+				if (predicate != null)
+					new ResourceBuilder().build(newR, predicate);
+				else {
+					// Build an abstract resource
+					ActionFacet af = new ResourceBuilder().buildAbstract(newR, true);
+					final TypeSelectionWizard wizard = new TypeSelectionWizard(af);
+					if (wizard.run(OtmRegistry.getActiveShell()))
+						af.setBasePayload(wizard.getSelection());
+				}
 
 				if (view != null) {
 					view.select(newR);

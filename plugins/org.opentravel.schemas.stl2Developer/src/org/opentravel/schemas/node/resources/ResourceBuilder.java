@@ -31,6 +31,7 @@ import org.opentravel.schemacompiler.model.TLParamGroup;
 import org.opentravel.schemacompiler.model.TLParameter;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.ComponentNode;
+import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.slf4j.Logger;
@@ -60,11 +61,15 @@ public class ResourceBuilder {
 	 * @param rn
 	 *            resource node to populate
 	 * @param bo
-	 *            business object to use as the subject
+	 *            business object to use as the subject, if null an abstract resource is created
 	 */
 	public void build(ResourceNode rn, BusinessObjectNode bo) {
-		if (bo == null || rn == null)
+		if (rn == null)
 			return;
+		if (bo == null) {
+			buildAbstract(rn);
+			return;
+		}
 		TLResource rnTL = rn.getTLModelObject();
 		// rnTL.setBusinessObjectRef((TLBusinessObject) bo.getTLModelObject());
 		rn.setSubject(bo);
@@ -137,6 +142,50 @@ public class ResourceBuilder {
 		buildAction(rn, subAF, null, TLHttpMethod.POST); // Create
 		buildAction(rn, subAF, idPG, TLHttpMethod.PUT); // Update
 		buildAction(rn, null, idPG, TLHttpMethod.DELETE); // Delete
+	}
+
+	public static String ABSTRACT_NAME = "BaseResource";
+	public static String ERROR_AF_NAME = "ErrorResponse";
+	public static String ERROR_ACTION_NAME = "ErrorResponse";
+
+	private void buildAbstract(ResourceNode rn) {
+		buildAbstract(rn, false);
+	}
+
+	/**
+	 * 
+	 * @param rn
+	 * @param includeActionFacet
+	 *            - create an action facet used in response but without payload it will be invalid
+	 * @see ActionFacet#setBasePayload(Node)
+	 */
+	public ActionFacet buildAbstract(ResourceNode rn, boolean includeActionFacet) {
+		rn.setAbstract(true);
+		rn.setName(ABSTRACT_NAME);
+
+		// Create an action facet for the base response
+		ActionFacet af = null;
+		if (includeActionFacet) {
+			af = new ActionFacet(rn);
+			af.setName(ERROR_AF_NAME);
+		}
+
+		// Create a common action
+		ActionNode an = new ActionNode(rn, false);
+		an.setCommon(true);
+		an.setName(ERROR_ACTION_NAME);
+
+		// Create error response
+		ActionResponse ar = new ActionResponse(an);
+		for (TLMimeType l : TLMimeType.values())
+			if (l.toString().startsWith("APPL"))
+				ar.toggleMimeType(l.toString());
+		for (RestStatusCodes code : RestStatusCodes.values())
+			if (code.value() >= 400)
+				ar.setStatusCode(RestStatusCodes.getLabel(code.value()));
+		ar.setPayload(af); // will remove mime types if null
+
+		return af;
 	}
 
 	private ActionNode buildAction(ResourceNode rn, ActionFacet af, ParamGroup pg, TLHttpMethod method) {

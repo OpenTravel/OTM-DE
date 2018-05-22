@@ -53,7 +53,8 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	public class CommonListener implements ResourceFieldListener {
 		@Override
 		public boolean set(String value) {
-			tlObj.setCommonAction(Boolean.valueOf(value));
+			setCommon(Boolean.valueOf(value));
+			// tlObj.setCommonAction(Boolean.valueOf(value));
 			// LOGGER.debug("Set common to: " + tlObj.isCommonAction());
 			return false;
 		}
@@ -82,6 +83,21 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 		TLActionRequest tlr = new TLActionRequest();
 		tlObj.setRequest(tlr); // must have owner for parent to be set correctly
 		new ActionRequest(tlr);
+
+		initInherited();
+	}
+
+	public ActionNode(ResourceNode parent, Boolean addRequest) {
+		super(new TLAction(), parent);
+		tlObj.setActionId(""); // prevent NPE in validation
+		parent.getTLModelObject().addAction(tlObj);
+
+		// Create a request resource
+		if (addRequest) {
+			TLActionRequest tlr = new TLActionRequest();
+			tlObj.setRequest(tlr); // must have owner for parent to be set correctly
+			new ActionRequest(tlr);
+		}
 
 		initInherited();
 	}
@@ -229,6 +245,11 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	@Override
 	public void setName(final String name) {
 		tlObj.setActionId(name);
+	}
+
+	public void setCommon(Boolean state) {
+		tlObj.setCommonAction(state);
+		return;
 	}
 
 	public String getQueryTemplate() {

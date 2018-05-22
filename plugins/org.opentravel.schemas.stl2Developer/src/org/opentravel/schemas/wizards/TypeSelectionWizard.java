@@ -63,11 +63,53 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 
 	private Node curNode = null;
 	private ArrayList<Node> curNodeList = null;
-	private ArrayList<Node> setNodeList = new ArrayList<Node>();
+	private ArrayList<Node> setNodeList = new ArrayList<>();
 
 	private TypeSelectionPage selectionPage;
 	private WizardDialog dialog;
 	private boolean dontFinish = false; // see run() - use only as converting to action class.
+
+	// private TypeSelectionMode mode = null;
+	// public enum TypeSelectionMode {
+	// SERVICE,
+	// SIMPLE_ASSIGNABLE,
+	// SIMPLE,
+	// VWA,
+	// ID_REFERENCE,
+	// VERSIONS,
+	// RESOURCE,
+	// CORE_AND_CHOICE,
+	// CONTEXTUAL_FACET,
+	// LIBRARIES
+	// }
+	//
+	// private TypeSelectionMode setMode(Node n) {
+	// if (n != null)
+	// if (n instanceof ActionFacet)
+	// return TypeSelectionMode.CORE_AND_CHOICE;
+	// else if (n instanceof ResourceNode)
+	// return TypeSelectionMode.RESOURCE;
+	// else if (n.getLaterVersions() != null)
+	// return TypeSelectionMode.VERSIONS;
+	// else if (n.getOwningComponent() instanceof VWA_Node)
+	// if (!(n instanceof AttributeReferenceNode))
+	// return TypeSelectionMode.VWA;
+	// else
+	// return TypeSelectionMode.ID_REFERENCE;
+	// else if (n instanceof SimpleTypeNode)
+	// return TypeSelectionMode.SIMPLE;
+	// else if (n.isOnlySimpleTypeUser())
+	// return TypeSelectionMode.SIMPLE_ASSIGNABLE;
+	// else if (n instanceof ServiceNode)
+	// return TypeSelectionMode.SERVICE;
+	// else if (n instanceof ElementReferenceNode)
+	// return TypeSelectionMode.ID_REFERENCE;
+	// else if (n instanceof ContextualFacetNode)
+	// return TypeSelectionMode.CONTEXTUAL_FACET;
+	// else if (n instanceof LibraryNode)
+	// return TypeSelectionMode.LIBRARIES;
+	// return null;
+	// }
 
 	/**
 	 * Type selection wizard to select a node to assign as a type.
@@ -90,15 +132,105 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 	 */
 	public TypeSelectionWizard(final Node n) {
 		super();
-		curNodeList = new ArrayList<Node>();
+		curNodeList = new ArrayList<>();
 		if (n != null && n.isEditable())
 			curNodeList.add(n);
 		// LOGGER.debug("Type Selection Wizard initialized for node.");
 	}
 
+	// TODO - make this to work. Perhaps a typeSelectionWizard2().
+	//
+	// Problem is that the assumption of a current selection is deeply embedded in this wizard
+	// and its filters and pages
+	//
+	//
+	// public void addPages2() {
+	// if (mode == null)
+	// return; // TODO - How to exit wizard?
+	//
+	// // Create a type selection page
+	// String pageName = Messages.getString("wizard.typeSelection.pageName.component");
+	// String title = Messages.getString("wizard.typeSelection.title.component");
+	// String description = Messages.getString("wizard.typeSelection.description.component");
+	//
+	// switch (mode) {
+	// case SERVICE:
+	// pageName = Messages.getString("wizard.typeSelection.pageName.service");
+	// title = Messages.getString("wizard.typeSelection.title.service");
+	// description = Messages.getString("wizard.typeSelection.description.service");
+	// break;
+	// case RESOURCE:
+	// pageName = Messages.getString("wizard.typeSelection.pageName.resource");
+	// title = Messages.getString("wizard.typeSelection.title.resource");
+	// description = Messages.getString("wizard.typeSelection.description.resource");
+	// break;
+	// case LIBRARIES:
+	// pageName = Messages.getString("wizard.typeSelection.pageName.library");
+	// title = Messages.getString("wizard.typeSelection.title.library");
+	// description = Messages.getString("wizard.typeSelection.description.library");
+	// break;
+	// case CONTEXTUAL_FACET:
+	// // FIXME
+	// if (setNodeList.get(0) instanceof ChoiceFacetNode) {
+	// pageName = Messages.getString("wizard.typeSelection.pageName.contextualFacet");
+	// title = Messages.getString("wizard.typeSelection.title.contextualChoiceFacet");
+	// description = Messages.getString("wizard.typeSelection.description.contextualChoiceFacet");
+	// } else {
+	// pageName = Messages.getString("wizard.typeSelection.pageName.contextualFacet");
+	// title = Messages.getString("wizard.typeSelection.title.contextualFacet");
+	// description = Messages.getString("wizard.typeSelection.description.contextualFacet");
+	// }
+	// break;
+	// default:
+	// break;
+	// }
+	// selectionPage = new TypeSelectionPage(pageName, title, description, null, setNodeList);
+	//
+	// // Set the filters based on type of passed node.
+	// // FIXME - versions and contextual facet use Node as parameter
+	// switch (mode) {
+	// case CORE_AND_CHOICE:
+	// selectionPage.setTypeSelectionFilter(new CoreAndChoiceObjectOnlyTypeFilter(null));
+	// break;
+	// case VERSIONS:
+	// selectionPage.setTypeSelectionFilter(new TypeTreeVersionSelectionFilter(curNodeList.get(0)));
+	// break;
+	// case SIMPLE_ASSIGNABLE:
+	// selectionPage.setTypeSelectionFilter(new TypeTreeSimpleAssignableOnlyFilter());
+	// break;
+	// case SIMPLE:
+	// selectionPage.setTypeSelectionFilter(new TypeTreeSimpleTypeOnlyFilter());
+	// break;
+	// case VWA:
+	// selectionPage.setTypeSelectionFilter(new TypeTreeVWASimpleTypeOnlyFilter());
+	// break;
+	// case SERVICE:
+	// selectionPage.setTypeSelectionFilter(new BusinessObjectOnlyTypeFilter(null));
+	// break;
+	// case RESOURCE:
+	// selectionPage.setTypeSelectionFilter(new BusinessObjectOnlyTypeFilter(null));
+	// break;
+	// case CONTEXTUAL_FACET:
+	// selectionPage.setTypeSelectionFilter(
+	// new ContextualFacetOwnersTypeFilter((ContextualFacetNode) setNodeList.get(0)));
+	// break;
+	// case ID_REFERENCE:
+	// selectionPage.setTypeSelectionFilter(new TypeTreeIdReferenceTypeOnlyFilter());
+	// break;
+	// case LIBRARIES:
+	// selectionPage.setTypeSelectionFilter(new LibraryOnlyTypeFilter());
+	// default:
+	// selectionPage.setTypeSelectionFilter(new TypeSelectionFilter());
+	// }
+	//
+	// selectionPage.addDoubleClickListener(this);
+	// addPage(selectionPage);
+	// }
+
 	@Override
 	public void addPages() {
 		// LOGGER.debug("Adding Selection Page.");
+		// TypeSelectionMode mode = null;
 
 		// Make sure all the nodes are non-null and editable
 		// and set lowest common denominator: simple, vwa and complex.
@@ -198,8 +330,8 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 		else if (resource)
 			selectionPage.setTypeSelectionFilter(new BusinessObjectOnlyTypeFilter(null));
 		else if (contextualFacet)
-			selectionPage.setTypeSelectionFilter(new ContextualFacetOwnersTypeFilter((ContextualFacetNode) setNodeList
-					.get(0)));
+			selectionPage.setTypeSelectionFilter(
+					new ContextualFacetOwnersTypeFilter((ContextualFacetNode) setNodeList.get(0)));
 		else if (idReference)
 			selectionPage.setTypeSelectionFilter(new TypeTreeIdReferenceTypeOnlyFilter());
 		else if (libraries)
