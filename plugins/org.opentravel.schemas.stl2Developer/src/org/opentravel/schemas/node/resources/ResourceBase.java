@@ -55,7 +55,7 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 	protected LibraryNode library;
 
 	// These nodes are never presented in navigator tree so they don't need a children handler.
-	private List<Node> rChildren = new ArrayList<Node>();
+	private List<Node> rChildren = new ArrayList<>();
 
 	public ResourceBase(TL obj) {
 		this.tlObj = obj;
@@ -102,6 +102,9 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 			getChildren().add((Node) child);
 	}
 
+	/**
+	 * Return the rChildren array common to all resource base sub-types
+	 */
 	@Override
 	public List<Node> getChildren() {
 		return rChildren;
@@ -122,8 +125,11 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 	public void delete() {
 		// LOGGER.debug("Deleting " + this);
 		clearListeners();
-		if (getParent().getChildrenHandler() != null)
-			getParent().getChildrenHandler().clear(this);
+		if (getParent() instanceof ResourceBase) {
+			if (getParent().getChildrenHandler() != null)
+				getParent().getChildrenHandler().clear(this);
+			((ResourceBase<?>) getParent()).rChildren.remove(this);
+		}
 		deleted = true;
 	}
 
@@ -180,8 +186,8 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 
 	@Override
 	public String getDescription() {
-		return (tlObj instanceof TLDocumentationOwner) && ((TLDocumentationOwner) tlObj).getDocumentation() != null ? ((TLDocumentationOwner) tlObj)
-				.getDocumentation().getDescription() : "";
+		return (tlObj instanceof TLDocumentationOwner) && ((TLDocumentationOwner) tlObj).getDocumentation() != null
+				? ((TLDocumentationOwner) tlObj).getDocumentation().getDescription() : "";
 	}
 
 	@Override
@@ -214,7 +220,7 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 
 	@Override
 	public Collection<String> getValidationMessages() {
-		ArrayList<String> msgs = new ArrayList<String>();
+		ArrayList<String> msgs = new ArrayList<>();
 		ValidationFindings findings = ValidationManager.validate(getTLModelObject(), false);
 		for (String f : findings.getValidationMessages(FindingType.ERROR, FindingMessageFormat.MESSAGE_ONLY_FORMAT))
 			msgs.add(f);
@@ -241,8 +247,8 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 
 	@Override
 	public boolean isEditable() {
-		return getOwningComponent() == null && getOwningComponent().getLibrary() != null ? false : getOwningComponent()
-				.getLibrary().isEditable();
+		return getOwningComponent() != null || getOwningComponent().getLibrary() != null
+				? getOwningComponent().getLibrary().isEditable() : false;
 	}
 
 	@Override
@@ -294,7 +300,7 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 	 *            node listening to the TL model element
 	 */
 	protected void removeListeners(TLModelElement tl, Node dependent) {
-		Collection<ModelElementListener> listeners = new ArrayList<ModelElementListener>(tl.getListeners());
+		Collection<ModelElementListener> listeners = new ArrayList<>(tl.getListeners());
 		for (ModelElementListener listener : listeners)
 			if (listener instanceof ResourceDependencyListener)
 				if (((ResourceDependencyListener) listener).getNode() == dependent)
@@ -316,8 +322,7 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 
 	protected void clearListeners() {
 		if (tlObj instanceof TLModelElement) {
-			ArrayList<ModelElementListener> listeners = new ArrayList<ModelElementListener>(
-					((TLModelElement) tlObj).getListeners());
+			ArrayList<ModelElementListener> listeners = new ArrayList<>(((TLModelElement) tlObj).getListeners());
 			for (ModelElementListener l : listeners)
 				if (l instanceof INodeListener) {
 					((TLModelElement) tlObj).removeListener(l);

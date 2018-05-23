@@ -72,9 +72,11 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 		// IWorkbenchWindow ww;
 		// ww = UIPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
 		// IWorkbenchPage wp = ww.getActivePage();
-		Node n = getFirstSelected();
+		// Node n = getFirstSelected();
 		Node rn = mc.getCurrentNode_ResourceView();
-		return n.isEditable();
+		if (!rn.isEditable())
+			mc.postStatus("Resource must be in latest version of a library chain to be edited.");
+		return rn.isEditable();
 	}
 
 	// Used by Actions

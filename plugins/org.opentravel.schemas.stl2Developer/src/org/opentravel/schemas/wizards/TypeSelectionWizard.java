@@ -117,6 +117,7 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 	 * @param nodeList
 	 *            is a list of nodes to assign the selected type to. The nodes are examined to select tree view filters.
 	 */
+	@Deprecated
 	public TypeSelectionWizard(ArrayList<Node> nodeList) {
 		// this((Node) null);
 		super();

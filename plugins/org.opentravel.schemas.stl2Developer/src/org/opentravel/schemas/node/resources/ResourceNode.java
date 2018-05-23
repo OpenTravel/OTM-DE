@@ -937,6 +937,13 @@ public class ResourceNode extends ComponentNode
 	}
 
 	@Override
+	public boolean isEditable() {
+		// Used in resource command handler for is enabled.
+		// Also, let resources not in a library (yet) be edited.
+		return getLibrary() != null ? getLibrary().isEditable() : true;
+	}
+
+	@Override
 	public boolean isEditable_newToChain() {
 		if (!isEditable())
 			return false;
