@@ -123,11 +123,13 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 	 */
 	@Override
 	public void delete() {
-		// LOGGER.debug("Deleting " + this);
+		// LOGGER.debug("Deleting " + this.getClass().getSimpleName() + " " + this);
 		clearListeners();
-		if (getParent() instanceof ResourceBase) {
+		if (getParent() != null)
 			if (getParent().getChildrenHandler() != null)
 				getParent().getChildrenHandler().clear(this);
+
+		if (getParent() instanceof ResourceBase) {
 			((ResourceBase<?>) getParent()).rChildren.remove(this);
 		}
 		deleted = true;

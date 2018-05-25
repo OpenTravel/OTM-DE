@@ -424,6 +424,7 @@ public class TypeSelectionWizard extends Wizard implements IDoubleClickListener 
 	 *            - if true assign the type to the node on finish
 	 * @return
 	 */
+	@Deprecated
 	public boolean run(final Shell shell, boolean assign) {
 		if (curNode == null && curNodeList == null) {
 			LOGGER.warn("Early Exit - no node(s) to post.");

@@ -380,12 +380,29 @@ public class DefaultRepositoryController implements RepositoryController {
 			UnlockThread ut = new UnlockThread(ln, mc, remark);
 			BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), ut);
 			refreshAll(ln);
-			// LOGGER.debug("UnLocked library " + this);
+			LOGGER.debug("UnLocked library " + this);
 			mc.postStatus("Library " + ln + " unlocked.");
 			return ut.getResult();
 		}
 		return false;
 	}
+	//
+	// TODO - turn lock/unlock (and maybe others) into monitored background tasks not just busy indicators
+	//
+
+	// public void syncWithUi(final String msg) {
+	// Display.getDefault().asyncExec(new Runnable() {
+	// @Override
+	// public void run() {
+	// OtmRegistry.getMainController().postStatus(msg);
+	// DialogUserNotifier.openInformation("Repository Results", msg);
+	// OtmRegistry.getMainController().refresh();
+	// refreshAll();
+	// mc.postStatus(msg);
+	//
+	// }
+	// });
+	// }
 
 	@Override
 	public ProjectNode unlockAndRevert(LibraryNode ln) {
