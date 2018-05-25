@@ -191,6 +191,18 @@ public class ActionFacet extends ResourceBase<TLActionFacet> {
 	}
 
 	@Override
+	public String getDecoration() {
+		String decoration = "  (";
+		decoration += getReferenceFacetName() + " : ";
+		if (tlObj.getBasePayload() != null)
+			decoration += "Wrapped ";
+		decoration += getReferenceType() + " ";
+		if (tlObj != null && tlObj.getReferenceRepeat() > 0)
+			decoration += Integer.toString(tlObj.getReferenceRepeat());
+		return decoration + ")";
+	}
+
+	@Override
 	public List<ResourceField> getFields() {
 		List<ResourceField> fields = new ArrayList<>();
 

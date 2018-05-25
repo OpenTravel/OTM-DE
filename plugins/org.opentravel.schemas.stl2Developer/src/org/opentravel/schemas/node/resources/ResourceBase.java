@@ -186,6 +186,14 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 	public void addChildren() {
 	}
 
+	/**
+	 * @return non-empty string
+	 */
+	@Override
+	public String getDecoration() {
+		return "  (" + this.getClass().getSimpleName() + ")";
+	}
+
 	@Override
 	public String getDescription() {
 		return (tlObj instanceof TLDocumentationOwner) && ((TLDocumentationOwner) tlObj).getDocumentation() != null

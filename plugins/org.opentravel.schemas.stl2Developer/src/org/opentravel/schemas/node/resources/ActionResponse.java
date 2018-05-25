@@ -103,6 +103,17 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 		return "Action Response";
 	}
 
+	@Override
+	public String getDecoration() {
+		String decoration = "  (";
+		decoration += " Returns ";
+		if (getPayload() == null)
+			decoration += "Status Only";
+		else
+			decoration += getPayloadName();
+		return decoration + ")";
+	}
+
 	public String getPayloadName() {
 		if (tlObj.getPayloadType() == null)
 			tlObj.setPayloadTypeName(null); // tl model doesn't always do this
@@ -152,7 +163,7 @@ public class ActionResponse extends ResourceBase<TLActionResponse> implements Re
 	}
 
 	public Node getPayload() {
-		return getNode(tlObj.getPayloadType().getListeners());
+		return tlObj.getPayloadType() != null ? getNode(tlObj.getPayloadType().getListeners()) : null;
 	}
 
 	@Override

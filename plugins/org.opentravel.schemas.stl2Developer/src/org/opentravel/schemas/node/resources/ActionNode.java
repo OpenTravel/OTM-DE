@@ -16,6 +16,7 @@
 package org.opentravel.schemas.node.resources;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
@@ -181,6 +182,31 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 	}
 
 	@Override
+	public String getDecoration() {
+		// Get request's action facet
+		String decoration = "  (";
+		if (getRequest() != null) {
+			decoration += getRequest().getHttpMethodAsString() + " : ";
+			if (getRequest().getPayload() == null)
+				decoration += getRequest().getParamGroup() + " Parameters";
+			else
+				decoration += getRequest().getPayload();
+		}
+		if (getResponse() != null) {
+			decoration += " - Returns : ";
+			if (getResponses().size() > 1)
+				decoration += "Multiple responses";
+			else {
+				if (!getResponse().getPayloadName().isEmpty())
+					decoration += getResponse().getPayloadName();
+				else
+					decoration += "Status only";
+			}
+		}
+		return decoration + ")";
+	}
+
+	@Override
 	public List<ResourceField> getFields() {
 		List<ResourceField> fields = new ArrayList<>();
 		new ResourceField(fields, Boolean.toString(tlObj.isCommonAction()), "rest.ActionNode.fields.common",
@@ -209,11 +235,29 @@ public class ActionNode extends ResourceBase<TLAction> implements ResourceMember
 		return null;
 	}
 
+	/**
+	 * Return the first action response found
+	 * 
+	 * @return
+	 */
 	public ActionResponse getResponse() {
 		for (Node n : getChildren())
 			if (n instanceof ActionResponse)
 				return (ActionResponse) n;
 		return null;
+	}
+
+	/**
+	 * Return the first action response found
+	 * 
+	 * @return
+	 */
+	public Collection<ActionResponse> getResponses() {
+		List<ActionResponse> responses = new ArrayList<>();
+		for (Node n : getChildren())
+			if (n instanceof ActionResponse)
+				responses.add((ActionResponse) n);
+		return responses;
 	}
 
 	@Override

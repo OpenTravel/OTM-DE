@@ -209,6 +209,13 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		return "Parameter Group";
 	}
 
+	@Override
+	public String getDecoration() {
+		String decoration = "  (";
+		decoration += getChildren().size() + " parameters";
+		return decoration + ")";
+	}
+
 	protected Node getFacetRef() {
 		return tlObj.getFacetRef() != null ? this.getNode(tlObj.getFacetRef().getListeners()) : null;
 	}

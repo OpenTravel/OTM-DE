@@ -1022,15 +1022,19 @@ public class RestResourceView extends OtmAbstractView
 
 			// Run the object selection wizard.
 			ResourceField field = (ResourceField) button.getData();
-			final TypeSelectionWizard wizard = new TypeSelectionWizard((Node) field.getData());
 			Node subject = null;
-			if (wizard.run(OtmRegistry.getActiveShell())) {
-				subject = wizard.getSelection();
-				if (field.getListener() != null)
-					if (field.getListener() instanceof ActionFacet.BasePayloadListener)
-						((ActionFacet.BasePayloadListener) field.getListener()).set(subject);
-					else if (field.getListener() instanceof ResourceNode.SubjectListener)
-						((ResourceNode.SubjectListener) field.getListener()).set(subject);
+			if (field.getData() instanceof Node) {
+				final TypeSelectionWizard wizard = new TypeSelectionWizard((Node) field.getData());
+				if (wizard.run(OtmRegistry.getActiveShell())) {
+					subject = wizard.getSelection();
+					if (field.getListener() != null)
+						if (field.getListener() instanceof ActionFacet.BasePayloadListener)
+							((ActionFacet.BasePayloadListener) field.getListener()).set(subject);
+						else if (field.getListener() instanceof ResourceNode.SubjectListener)
+							((ResourceNode.SubjectListener) field.getListener()).set(subject);
+						else if (field.getListener() instanceof ResourceNode.BaseResponseListener)
+							((ResourceNode.BaseResponseListener) field.getListener()).set(subject);
+				}
 			}
 			if (subject != null) {
 				field.setData(subject);

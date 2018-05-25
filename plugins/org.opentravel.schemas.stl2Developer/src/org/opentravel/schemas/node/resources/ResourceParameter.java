@@ -20,9 +20,11 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemacompiler.model.TLMemberField;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLParamGroup;
 import org.opentravel.schemacompiler.model.TLParamLocation;
 import org.opentravel.schemacompiler.model.TLParameter;
+import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.properties.Images;
@@ -103,8 +105,19 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 	}
 
 	@Override
+	public String getDecoration() {
+		String decoration = "";
+		Node n = null;
+		if (tlObj.getFieldRef() instanceof TLModelElement)
+			n = ModelNode.GetNode(((TLModelElement) tlObj.getFieldRef()).getListeners());
+		if (n != null)
+			decoration += " of type " + n.getAssignedTypeName();
+		return decoration;
+	}
+
+	@Override
 	public List<ResourceField> getFields() {
-		List<ResourceField> fields = new ArrayList<ResourceField>();
+		List<ResourceField> fields = new ArrayList<>();
 
 		new ResourceField(fields, getLocation(), "rest.ResourceParameter.fields.location",
 				ResourceField.ResourceFieldType.Enum, new LocationListener(), getParamLocations());

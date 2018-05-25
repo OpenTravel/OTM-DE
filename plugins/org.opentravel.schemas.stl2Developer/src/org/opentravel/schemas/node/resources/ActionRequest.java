@@ -138,6 +138,16 @@ public class ActionRequest extends ResourceBase<TLActionRequest> implements Reso
 	}
 
 	@Override
+	public String getDecoration() {
+		String decoration = "  (";
+		decoration += getHttpMethodAsString() + " ";
+		decoration += getPayloadName();
+		if (getParamGroup() != null)
+			decoration += " with " + getParamGroup() + " parameters";
+		return decoration + ")";
+	}
+
+	@Override
 	public List<ResourceField> getFields() {
 		List<ResourceField> fields = new ArrayList<>();
 

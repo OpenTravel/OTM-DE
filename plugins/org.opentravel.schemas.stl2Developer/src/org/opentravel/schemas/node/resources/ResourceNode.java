@@ -66,7 +66,9 @@ import org.opentravel.schemas.node.listeners.ListenerFactory;
 import org.opentravel.schemas.node.listeners.ResourceDependencyListener;
 import org.opentravel.schemas.node.resources.ResourceField.ResourceFieldType;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
+import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.properties.Messages;
 import org.opentravel.schemas.types.ExtensionHandler;
@@ -151,6 +153,25 @@ public class ResourceNode extends ComponentNode
 		public boolean set(String name) {
 			setExtension(name);
 			return false;
+		}
+	}
+
+	public class BaseResponseListener implements ResourceFieldListener {
+		@Override
+		public boolean set(String name) {
+			return false;
+		}
+
+		public boolean set(Node selection) {
+			// Passed the core or choice object node to set on all action facets used by ActionResponses
+			if (selection instanceof CoreObjectNode || selection instanceof ChoiceObjectNode)
+				if (getActions() != null)
+					for (ActionNode action : getActions())
+						for (ActionResponse response : action.getResponses())
+							if (response.getPayload() instanceof ActionFacet) {
+								((ActionFacet) response.getPayload()).setBasePayload(selection);
+							}
+			return true;
 		}
 	}
 
@@ -600,6 +621,10 @@ public class ResourceNode extends ComponentNode
 	public List<ResourceField> getFields() {
 		List<ResourceField> fields = new ArrayList<>();
 
+		// Wizard
+		new ResourceField(fields, "Wizard", MSGKEY + ".fields.baseResponseWizard", ResourceFieldType.ObjectSelect,
+				new BaseResponseListener(), getFirstActionFacet());
+
 		// Extensions - User can only extend Major version libraries.
 		new ResourceField(fields, getExtendsEntityName(), MSGKEY + ".fields.extension", ResourceFieldType.Enum,
 				isEditable_newToChain(), new ExtensionListener(), getPeerNames());
@@ -627,6 +652,10 @@ public class ResourceNode extends ComponentNode
 
 		return fields;
 
+	}
+
+	public ActionFacet getFirstActionFacet() {
+		return getActionFacets().isEmpty() ? null : getActionFacets().get(0);
 	}
 
 	/**
