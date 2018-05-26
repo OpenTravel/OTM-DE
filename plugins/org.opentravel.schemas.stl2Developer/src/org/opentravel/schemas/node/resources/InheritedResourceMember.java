@@ -125,13 +125,18 @@ public class InheritedResourceMember extends Node implements ResourceMemberInter
 	}
 
 	@Override
+	public ResourceNode getOwningResource() {
+		return (ResourceNode) get().getOwningComponent();
+	}
+
+	@Override
 	public ResourceNode getOwningComponent() {
 		return (ResourceNode) get().getOwningComponent();
 	}
 
 	@Override
 	public TLModelElement getTLModelObject() {
-		return (TLModelElement) get().getTLModelObject();
+		return get().getTLModelObject();
 	}
 
 	@Override

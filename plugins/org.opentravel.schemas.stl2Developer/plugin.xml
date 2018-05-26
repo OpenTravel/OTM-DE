@@ -425,6 +425,8 @@
         		 icon="icons/add_att.gif" label="New Parameter Group" style="push"/>
 			<command commandId="org.opentravel.schemas.commands.newResource.PARENTREF"
         		 icon="icons/add_att.gif" label="New Parent Reference" style="push"/>
+			<command commandId="org.opentravel.schemas.commands.newResource.WIZARD"
+        		 icon="icons/add_att.gif" label="Base Response Wizard" style="push"/>
 			<command commandId="org.opentravel.schemas.commands.newResource.DELETE"
         		 icon="icons/delete_edit.gif" label="Delete" style="push"/>
 		</menuContribution>
@@ -584,6 +586,10 @@
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			id="org.opentravel.schemas.commands.newResource.PARENTREF"
 			name="New Parent Reference">
+		</command>
+		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
+			id="org.opentravel.schemas.commands.newResource.WIZARD"
+			name="Base Response Wizard">
 		</command>
 		<command
         categoryId="org.opentravel.schemas.stl2Developer.command.category"
@@ -1107,6 +1113,17 @@
 					</iterate>
 				</with>
 			</enabledWhen -->
+			<activeWhen>
+				<with variable="activeMenu">
+					<iterate ifEmpty="false" operator="or">
+						<equals value="org.opentravel.schemas.stl2Developer.ResourceView">
+						</equals>
+					</iterate>
+				</with>
+			</activeWhen>
+		</handler>
+		<handler class="org.opentravel.schemas.commands.ResourceCommandHandlerPopup"
+			commandId="org.opentravel.schemas.commands.newResource.WIZARD">
 			<activeWhen>
 				<with variable="activeMenu">
 					<iterate ifEmpty="false" operator="or">

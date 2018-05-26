@@ -1032,8 +1032,6 @@ public class RestResourceView extends OtmAbstractView
 							((ActionFacet.BasePayloadListener) field.getListener()).set(subject);
 						else if (field.getListener() instanceof ResourceNode.SubjectListener)
 							((ResourceNode.SubjectListener) field.getListener()).set(subject);
-						else if (field.getListener() instanceof ResourceNode.BaseResponseListener)
-							((ResourceNode.BaseResponseListener) field.getListener()).set(subject);
 				}
 			}
 			if (subject != null) {

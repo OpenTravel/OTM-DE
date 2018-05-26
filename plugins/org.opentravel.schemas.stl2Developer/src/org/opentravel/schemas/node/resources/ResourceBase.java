@@ -211,6 +211,11 @@ public abstract class ResourceBase<TL> extends Node implements ResourceMemberInt
 	}
 
 	@Override
+	public ResourceNode getOwningResource() {
+		return getOwningComponent();
+	}
+
+	@Override
 	public ResourceNode getOwningComponent() {
 		Node node = this;
 		while (!(node instanceof ResourceNode) && node != null)

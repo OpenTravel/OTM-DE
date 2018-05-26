@@ -156,25 +156,6 @@ public class ResourceNode extends ComponentNode
 		}
 	}
 
-	public class BaseResponseListener implements ResourceFieldListener {
-		@Override
-		public boolean set(String name) {
-			return false;
-		}
-
-		public boolean set(Node selection) {
-			// Passed the core or choice object node to set on all action facets used by ActionResponses
-			if (selection instanceof CoreObjectNode || selection instanceof ChoiceObjectNode)
-				if (getActions() != null)
-					for (ActionNode action : getActions())
-						for (ActionResponse response : action.getResponses())
-							if (response.getPayload() instanceof ActionFacet) {
-								((ActionFacet) response.getPayload()).setBasePayload(selection);
-							}
-			return true;
-		}
-	}
-
 	/**************************************************************
 	 * 
 	 */
@@ -621,10 +602,6 @@ public class ResourceNode extends ComponentNode
 	public List<ResourceField> getFields() {
 		List<ResourceField> fields = new ArrayList<>();
 
-		// Wizard
-		new ResourceField(fields, "Wizard", MSGKEY + ".fields.baseResponseWizard", ResourceFieldType.ObjectSelect,
-				new BaseResponseListener(), getFirstActionFacet());
-
 		// Extensions - User can only extend Major version libraries.
 		new ResourceField(fields, getExtendsEntityName(), MSGKEY + ".fields.extension", ResourceFieldType.Enum,
 				isEditable_newToChain(), new ExtensionListener(), getPeerNames());
@@ -697,6 +674,11 @@ public class ResourceNode extends ComponentNode
 	@Override
 	public List<Node> getNavChildren(boolean deep) {
 		return Collections.emptyList();
+	}
+
+	@Override
+	public ResourceNode getOwningResource() {
+		return this;
 	}
 
 	/**
@@ -940,6 +922,23 @@ public class ResourceNode extends ComponentNode
 		// Also, remove reference facets from action facets
 		for (ActionFacet af : getActionFacets())
 			af.setReferenceFacetName(ResourceField.NONE);
+	}
+
+	/**
+	 * Traverse resource and for all action facets that are assigned to an action response, add the passed node as the
+	 * base payload.
+	 * 
+	 * @param selection
+	 * @return
+	 */
+	public void setAllActionFacets(Node selection) {
+		// Passed the core or choice object node to set on all action facets used by ActionResponses
+		if (selection instanceof CoreObjectNode || selection instanceof ChoiceObjectNode)
+			if (getActions() != null)
+				for (ActionNode action : getActions())
+					for (ActionResponse response : action.getResponses())
+						if (response.getPayload() instanceof ActionFacet)
+							((ActionFacet) response.getPayload()).setBasePayload(selection);
 	}
 
 	@Override

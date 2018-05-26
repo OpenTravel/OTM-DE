@@ -23,6 +23,7 @@ import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.validate.ValidationFindings;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.resources.ResourceField;
+import org.opentravel.schemas.node.resources.ResourceNode;
 
 /**
  * All resource controllers must implement this interface.
@@ -75,6 +76,8 @@ public interface ResourceMemberInterface {
 	public TLModelElement getTLModelObject();
 
 	public TLModelElement getTLOwner();
+
+	public ResourceNode getOwningResource();
 
 	public String getTooltip();
 

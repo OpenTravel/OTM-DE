@@ -27,6 +27,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Event;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.Node;
+import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.resources.ActionFacet;
 import org.opentravel.schemas.node.resources.ActionNode;
@@ -55,8 +56,9 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 	public static String COMMAND_ID = "org.opentravel.schemas.commands.newResource";
 
 	// Enumeration of the types of command actions nodes can handle.
+	// Used in plugin.xml for commandId
 	public static enum CommandType {
-		DELETE, PARENTREF, ACTION, ACTIONFACET, PARAMGROUP, RESOURCE, NONE, ACTIONRESPONSE, ACTIONREQUEST
+		DELETE, PARENTREF, ACTION, ACTIONFACET, PARAMGROUP, RESOURCE, NONE, ACTIONRESPONSE, ACTIONREQUEST, WIZARD
 	}
 
 	private Node selectedNode; // The user selected node.
@@ -122,6 +124,8 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 				cmdType = CommandType.PARENTREF;
 			else if (cmdId.endsWith(CommandType.DELETE.toString()))
 				cmdType = CommandType.DELETE;
+			else if (cmdId.endsWith(CommandType.WIZARD.toString()))
+				cmdType = CommandType.WIZARD;
 		return cmdType;
 	}
 
@@ -264,16 +268,41 @@ public class ResourceCommandHandler extends OtmAbstractHandler {
 			} else
 				postWarning(type);
 			break;
+		case WIZARD:
+			baseResponseWizard(selectedNode);
+			view.refresh();
+			break;
 		case NONE:
 		default:
 			DialogUserNotifier.openWarning("Not Supported", "Not supported for this object type.");
 		}
 	}
 
-	private void postWarning(CommandType type, Node n) {
-		if (n.getLibrary() == null)
-			LOGGER.debug(n + " has no library.");
-		postWarning(type);
+	private void baseResponseWizard(Node n) {
+		ResourceNode rn = null;
+		ActionFacet af = null;
+		if (n instanceof ResourceNode)
+			rn = (ResourceNode) n;
+		else if (n instanceof ResourceMemberInterface)
+			rn = ((ResourceMemberInterface) n).getOwningResource();
+
+		if (rn == null) {
+			DialogUserNotifier.openWarning("Not Supported",
+					"Wizard does not support objects of type " + n.getClass().getSimpleName());
+			return;
+		}
+
+		// Get the first action facet for the wizard
+		if (!rn.getActionFacets().isEmpty())
+			af = rn.getActionFacets().get(0);
+
+		// Run selection wizard to get base response object
+		if (af != null && OtmRegistry.getActiveShell() != null) {
+			final TypeSelectionWizard wizard = new TypeSelectionWizard(af);
+			if (wizard.run(OtmRegistry.getActiveShell()))
+				rn.setAllActionFacets(wizard.getSelection());
+		} else
+			DialogUserNotifier.openWarning("Not Supported", "There are no action facets for the wizard to work with.");
 	}
 
 	private void postWarning(CommandType type) {
