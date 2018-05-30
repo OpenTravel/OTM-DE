@@ -48,7 +48,7 @@ public class WhereExtendedHandler {
 	private static final Logger LOGGER = LoggerFactory.getLogger(WhereExtendedHandler.class);
 
 	// nodes that use this node as a base/extension type.
-	protected ArrayList<ExtensionOwner> users = new ArrayList<ExtensionOwner>();
+	protected ArrayList<ExtensionOwner> users = new ArrayList<>();
 	protected Node owner = null;
 
 	protected WhereUsedNode whereUsedNode = null;
@@ -69,8 +69,8 @@ public class WhereExtendedHandler {
 		@Override
 		public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
 			Node source = getSource(event);
-			LOGGER.debug("WhereExtendedListener: " + event.getType() + " handler = " + handler.owner + " source = "
-					+ source);
+			// LOGGER.debug("WhereExtendedListener: " + event.getType() + " handler = " + handler.owner + " source = "
+			// + source);
 
 			switch (event.getType()) {
 			case EXTENDS_ADDED:
@@ -109,7 +109,7 @@ public class WhereExtendedHandler {
 				break;
 			default:
 				// LOGGER.debug(event.getType() + " - " + getSource(event) + " on " + getNode() + " changed to: "
-				// + getNewValue(event) + "  from " + getOldValue(event));
+				// + getNewValue(event) + " from " + getOldValue(event));
 				break;
 			}
 		}
@@ -220,7 +220,7 @@ public class WhereExtendedHandler {
 	 * Replace this owner with the replacement on all extension owners that extend this owner.
 	 */
 	public void replace(Node replacement, LibraryNode libScope) {
-		Collection<ExtensionOwner> targets = new ArrayList<ExtensionOwner>(users);
+		Collection<ExtensionOwner> targets = new ArrayList<>(users);
 		for (ExtensionOwner extension : targets)
 			if (libScope == null || ((Node) extension).getLibrary() == libScope) {
 				extension.setExtension(replacement);

@@ -101,7 +101,7 @@ public class NodeVisitors {
 
 		@Override
 		public void visit(INode n) {
-			LOGGER.debug("DeleteVisitor: deleting " + n);
+			// LOGGER.debug("DeleteVisitor: deleting " + n);
 			Node node = (Node) n;
 			String nodeName = n.getName();
 

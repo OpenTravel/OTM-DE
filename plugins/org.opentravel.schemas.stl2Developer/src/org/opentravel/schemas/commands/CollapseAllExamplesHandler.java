@@ -25,26 +25,27 @@ import org.opentravel.schemas.views.OtmView;
  * @author Agnieszka Janowska
  * 
  */
+@Deprecated
 public class CollapseAllExamplesHandler extends OtmAbstractHandler {
-    public static String COMMAND_ID = "org.opentravel.schemas.commands.exampleView.collapse";
+	public static String COMMAND_ID = "org.opentravel.schemas.commands.exampleView.collapse";
 
-    @Override
-    public Object execute(final ExecutionEvent event) throws ExecutionException {
-        final OtmView view = OtmRegistry.getExampleView();
-        if (view != null) {
-            view.collapse();
-        }
-        return null;
-    }
+	@Override
+	public Object execute(final ExecutionEvent event) throws ExecutionException {
+		final OtmView view = OtmRegistry.getExampleView();
+		if (view != null) {
+			view.collapse();
+		}
+		return null;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.opentravel.schemas.commands.OtmHandler#getID()
-     */
-    @Override
-    public String getID() {
-        return COMMAND_ID;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.opentravel.schemas.commands.OtmHandler#getID()
+	 */
+	@Override
+	public String getID() {
+		return COMMAND_ID;
+	}
 
 }

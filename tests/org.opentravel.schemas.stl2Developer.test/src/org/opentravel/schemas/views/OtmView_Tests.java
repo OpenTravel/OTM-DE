@@ -18,8 +18,6 @@
  */
 package org.opentravel.schemas.views;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.Library_FunctionTests;
@@ -32,6 +30,8 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.views.example.ExampleView;
+
+import junit.framework.Assert;
 
 /**
  * Test the OTM View interface. Note: you can not test the individual views because they require the workbench execution
@@ -73,9 +73,9 @@ public class OtmView_Tests {
 		view = OtmRegistry.getTypeView();
 		checkViewMethods(view);
 
-		ExampleView ev = new ExampleView();
-		view = OtmRegistry.getExampleView();
-		checkViewMethods(view);
+		// ExampleView ev = new ExampleView();
+		// view = OtmRegistry.getExampleView();
+		// checkViewMethods(view);
 	}
 
 	protected void checkViewMethods(OtmView view) {

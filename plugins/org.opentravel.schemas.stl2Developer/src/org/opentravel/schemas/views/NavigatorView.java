@@ -205,8 +205,8 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
-				if (OtmRegistry.getExampleView() != null)
-					OtmRegistry.getExampleView().setCurrentNode(extractFirstNode(event.getSelection()));
+				// if (OtmRegistry.getExampleView() != null)
+				// OtmRegistry.getExampleView().setCurrentNode(extractFirstNode(event.getSelection()));
 			}
 		});
 	}
@@ -407,12 +407,12 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 				view.setFindings(ValidationManager.validate(curNode), curNode);
 		}
 
-		// select example
-		OtmView view = mc.getView_Example();
-		if (view != null) {
-			view.setCurrentNode(curNode);
-			view.refresh(curNode);
-		}
+		// // select example
+		// OtmView view = mc.getView_Example();
+		// if (view != null) {
+		// view.setCurrentNode(curNode);
+		// view.refresh(curNode);
+		// }
 
 		if (curNode != null)
 			mc.postStatus(curNode.getNameWithPrefix() + " - " + curNode.getEditStatusMsg());

@@ -114,8 +114,9 @@ public class ModelNode extends Node implements TypeProviderAndOwners {
 		// Find the built-in empty node.
 		if (emptyNode == null)
 			emptyNode = NodeFinders.findNodeByQName(OTA_EMPTY_QNAME);
-		if (emptyNode == null)
-			LOGGER.error("Empty Node could not be set. Be sure that library is loaded early.");
+		// This will happen during startup when built-in libaries are being loaded.
+		// if (emptyNode == null)
+		// LOGGER.error("Empty Node could not be set. Be sure that library is loaded early.");
 	}
 
 	private TLModel tlModel;

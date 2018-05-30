@@ -60,7 +60,6 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.views.NavigatorView;
 import org.opentravel.schemas.views.OtmView;
 import org.opentravel.schemas.views.ValidationResultsView;
-import org.opentravel.schemas.views.example.ExampleView;
 import org.opentravel.schemas.widgets.ErrorWithExceptionDialog;
 import org.opentravel.schemas.widgets.OtmHandlers;
 import org.opentravel.schemas.widgets.OtmSections;
@@ -203,10 +202,6 @@ public class MainController {
 		return modelController;
 	}
 
-	// public NodeModelController getNodeModelController() {
-	// return nodeModelController;
-	// }
-
 	/**
 	 * @return the projectController
 	 */
@@ -242,8 +237,11 @@ public class MainController {
 		return widgets;
 	}
 
+	/**
+	 * @return the workbench from the Platform UI or null.
+	 */
 	public IWorkbench getWorkbench() {
-		IWorkbench workbench;
+		IWorkbench workbench = null;
 		try {
 			workbench = PlatformUI.getWorkbench();
 		} catch (IllegalStateException e) {
@@ -275,9 +273,9 @@ public class MainController {
 		return OtmRegistry.getValidationResultsView();
 	}
 
-	public ExampleView getView_Example() {
-		return OtmRegistry.getExampleView();
-	}
+	// public ExampleView getView_Example() {
+	// return OtmRegistry.getExampleView();
+	// }
 
 	/** ************************ Current Item Access ***************************** **/
 

@@ -78,10 +78,17 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	/********************************************************************************
 	 * 
 	 */
+	// invoked by resource children handler
 	public ParamGroup(TLParamGroup tlParamgroup) {
 		super(tlParamgroup);
 		setName(null); // set to default if null or empty
 
+		// Check children
+		int tlKids = tlParamgroup.getParameters().size();
+		int kids = getChildren().size();
+		if (tlKids != kids)
+			LOGGER.warn("Missing parameters in " + this);
+		// assert tlKids == kids;
 	}
 
 	public ParamGroup(ResourceNode parent) {
@@ -157,8 +164,18 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 
 	public void setIdGroup(boolean idGroup) {
 		tlObj.setIdGroup(idGroup);
-		LOGGER.debug("Set id group to: " + tlObj.isIdGroup());
+		// LOGGER.debug("Set id group to: " + tlObj.isIdGroup());
 	}
+
+	// @Override
+	// public List<Node> getChildren() {
+	// List<Node> kids = super.getChildren();
+	// // Check children
+	// int tlKids = tlObj.getParameters().size();
+	// if (tlKids != kids.size())
+	// LOGGER.warn("getChildren is missing parameters in " + this);
+	// return kids;
+	// }
 
 	@Override
 	public ResourceNode getParent() {
@@ -182,10 +199,11 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 
 	@Override
 	public void addChildren() {
-		if (tlObj.getParameters().isEmpty())
-			LOGGER.debug("No Parameters found on " + this);
-		for (TLParameter tlParam : tlObj.getParameters())
-			new ResourceParameter(tlParam);
+		if (!tlObj.getParameters().isEmpty())
+			for (TLParameter tlParam : tlObj.getParameters())
+				new ResourceParameter(tlParam);
+		// else
+		// LOGGER.debug("No Parameters found on " + this);
 	}
 
 	@Override
@@ -412,7 +430,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 				return true; // denote change
 			}
 		}
-		LOGGER.debug("Could not find reference facet named: " + name);
+		// LOGGER.debug("Could not find reference facet named: " + name);
 		return false;
 	}
 
@@ -426,7 +444,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		upDateParameters();
 		if (tlObj.getName().isEmpty())
 			tlObj.setName(n.getName());
-		LOGGER.debug("Set reference facet to: " + tlObj.getFacetRefName());
+		// LOGGER.debug("Set reference facet to: " + tlObj.getFacetRefName());
 
 	}
 }

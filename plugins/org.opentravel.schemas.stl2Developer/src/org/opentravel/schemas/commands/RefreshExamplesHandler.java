@@ -26,6 +26,7 @@ import org.opentravel.schemas.views.OtmView;
  * 
  *         9/1/2015 dmh - dead code
  */
+@Deprecated
 public class RefreshExamplesHandler extends OtmAbstractHandler {
 	public static String COMMAND_ID = "org.opentravel.schemas.commands.generateExamples";
 

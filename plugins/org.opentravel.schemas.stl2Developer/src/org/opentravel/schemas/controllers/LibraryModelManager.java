@@ -229,8 +229,8 @@ public class LibraryModelManager {
 			}
 			// Remove all examples
 			// TODO - make this more selective
-			if (OtmRegistry.getExampleView() != null)
-				OtmRegistry.getExampleView().clearExamples();
+			// if (OtmRegistry.getExampleView() != null)
+			// OtmRegistry.getExampleView().clearExamples();
 			if (OtmRegistry.getValidationResultsView() != null)
 				OtmRegistry.getValidationResultsView().clearFindings();
 			// TODO - how to clear the graphical view?

@@ -92,27 +92,29 @@ public class OtmRegistry {
 		return (views);
 	}
 
-	/**
-	 * @return the exampleJsonView
-	 */
-	public static ExampleJsonView getExampleJsonView() {
-		return exampleJsonView;
-	}
+	// /**
+	// * @return the exampleJsonView
+	// */
+	// @Deprecated
+	// public static ExampleJsonView getExampleJsonView() {
+	// return exampleJsonView;
+	// }
 
 	/**
 	 * @param exampleJsonView
 	 *            the exampleJsonView to set
 	 */
+	@Deprecated
 	public static void registerExampleJsonView(final ExampleJsonView exampleJsonView) {
 		OtmRegistry.exampleJsonView = exampleJsonView;
 	}
 
-	/**
-	 * @return the exampleXmlView
-	 */
-	public static ExampleXmlView getExampleXmlView() {
-		return exampleXmlView;
-	}
+	// /**
+	// * @return the exampleXmlView
+	// */
+	// public static ExampleXmlView getExampleXmlView() {
+	// return exampleXmlView;
+	// }
 
 	/**
 	 * @param exampleXmlView
@@ -148,6 +150,7 @@ public class OtmRegistry {
 	/**
 	 * @return the exampleView
 	 */
+	@Deprecated
 	public static ExampleView getExampleView() {
 		return exampleView;
 	}
@@ -156,6 +159,7 @@ public class OtmRegistry {
 	 * @param exampleView
 	 *            the exampleView to set
 	 */
+	@Deprecated
 	public static void registerExampleView(final ExampleView exampleView) {
 		OtmRegistry.exampleView = exampleView;
 		// LOGGER.info("Registered ExampleView");
@@ -294,15 +298,6 @@ public class OtmRegistry {
 	 * @return null if headless or unable to get workbench or shell
 	 */
 	public static Shell getActiveShell() {
-		// if (!mainWindow.hasDisplay())
-		// return null;
-		// try {
-		// if (PlatformUI.getWorkbench() == null)
-		// return null;
-		// } catch (IllegalStateException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
 		if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() == null)
 			return null;
 		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
