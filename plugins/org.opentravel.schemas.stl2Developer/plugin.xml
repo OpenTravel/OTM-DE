@@ -25,6 +25,7 @@
 			icon="icons/hierarchy_co.gif" id="org.opentravel.schemas.stl2Developer.ExampleView"
 			name="Example View" restorable="true">
 		</view>
+		<!-- TODO remove ExampleXmlView and ExampleJsonView -->
 		<view class="org.opentravel.schemas.views.example.ExampleXmlView"
 			icon="icons/generic_xml_obj.gif" id="org.opentravel.schemas.stl2Developer.ExampleXmlView"
 			name="Example XML" restorable="true">
@@ -94,7 +95,8 @@
 			</view>
 			<viewShortcut id="org.opentravel.schemas.stl2Developer.RepositoryView">
 			</viewShortcut>
-			<view closeable="false"
+			
+			<!-- view closeable="true"
 				id="org.opentravel.schemas.stl2Developer.ExampleView" minimized="false"
 				moveable="true" ratio="0.8f" relationship="right"
 				relative="org.opentravel.schemas.stl2Developer.TypeView" standalone="false"
@@ -102,22 +104,31 @@
 			</view>
 			<viewShortcut id="org.opentravel.schemas.stl2Developer.ExampleView">
 			</viewShortcut>
-			<view closeable="true" 
+			<view closeable="true"
+				id="org.opentravel.schemas.stl2Developer.ContextsView" minimized="false"
+				moveable="true" relationship="stack"
+				relative="org.opentravel.schemas.stl2Developer.ExampleView"
+				standalone="false" visible="false">
+			</view>
+			<viewShortcut id="org.opentravel.schemas.stl2Developer.ContextsView">
+			</viewShortcut -->
+			
+			<!-- view closeable="true" 
 				id="org.opentravel.schemas.stl2Developer.ExampleJsonView" minimized="false"
        			moveable="true" ratio="0.75f"   relationship="bottom"
         	 	relative="org.opentravel.schemas.stl2Developer.ExampleView"
 				standalone="false" visible="true">
 			</view>
 			<viewShortcut id="org.opentravel.schemas.stl2Developer.ExampleJsonView">
-			</viewShortcut>
-			<view closeable="true"
+			</viewShortcut -->
+			<!-- view closeable="true"
 				id="org.opentravel.schemas.stl2Developer.ExampleXmlView" minimized="false"
 				moveable="true" ratio="0.75f" relationship="stack"
 				relative="org.opentravel.schemas.stl2Developer.ExampleJsonView"
 				standalone="false" visible="true">
 			</view>
 			<viewShortcut id="org.opentravel.schemas.stl2Developer.ExampleXmlView">
-			</viewShortcut>
+			</viewShortcut -->
 			<view closeable="false"
 				id="org.opentravel.schemas.stl2Developer.ValidationResultsView"
 				minimized="false" moveable="true" ratio="0.75f" relationship="bottom"
@@ -134,14 +145,6 @@
 				standalone="false" visible="true">
 			</view>
 			<viewShortcut id="org.opentravel.schemas.stl2Developer.PropertyView">
-			</viewShortcut>
-			<view closeable="true"
-				id="org.opentravel.schemas.stl2Developer.ContextsView" minimized="false"
-				moveable="true" relationship="stack"
-				relative="org.opentravel.schemas.stl2Developer.ExampleView"
-				standalone="false" visible="false">
-			</view>
-			<viewShortcut id="org.opentravel.schemas.stl2Developer.ContextsView">
 			</viewShortcut>
 			<view closeable="true"
 				id="org.opentravel.schemas.stl2Developer.ResourceView"
@@ -171,19 +174,11 @@
 	</extension>
 	<extension point="org.eclipse.ui.menus">
 			<menuContribution allPopups="false" locationURI="menu:Window">
-			<menu
-         id="org.eclipse.ui.views.showViews"
-         label="Show View">
+			<menu id="org.eclipse.ui.views.showViews" label="Show View">
 				<command commandId="org.eclipse.ui.views.showView" label="Context View"
 					style="push">
 					<parameter name="org.eclipse.ui.views.showView.viewId"
 						value="org.opentravel.schemas.stl2Developer.ContextsView">
-					</parameter>
-				</command>
-				<command commandId="org.eclipse.ui.views.showView" label="JSON Example View"
-					style="push">
-					<parameter name="org.eclipse.ui.views.showView.viewId"
-						value="org.opentravel.schemas.stl2Developer.ExampleJsonView">
 					</parameter>
 				</command>
 				<command commandId="org.eclipse.ui.views.showView" label="REST Resource View"
@@ -192,12 +187,24 @@
 						value="org.opentravel.schemas.stl2Developer.ResourceView">
 					</parameter>
 				</command>
+				<command commandId="org.eclipse.ui.views.showView" label="Example View"
+					style="push">
+					<parameter name="org.eclipse.ui.views.showView.viewId"
+						value="org.opentravel.schemas.stl2Developer.ExampleView">
+					</parameter>
+				</command>
+				<!-- command commandId="org.eclipse.ui.views.showView" label="JSON Example View"
+					style="push">
+					<parameter name="org.eclipse.ui.views.showView.viewId"
+						value="org.opentravel.schemas.stl2Developer.ExampleJsonView">
+					</parameter>
+				</command>
 				<command commandId="org.eclipse.ui.views.showView" label="XML Example View"
 					style="push">
 					<parameter name="org.eclipse.ui.views.showView.viewId"
 						value="org.opentravel.schemas.stl2Developer.ExampleXmlView">
 					</parameter>
-				</command>
+				</command -->
 				<command commandId="org.eclipse.ui.views.showView" label="Project Documentation View"
 					style="push">
 					<parameter name="org.eclipse.ui.views.showView.viewId"
@@ -316,7 +323,7 @@
 		</menuContribution>
 		<menuContribution allPopups="false"
 			locationURI="toolbar:org.opentravel.schemas.stl2Developer.ExampleView">
-			<command commandId="org.opentravel.schemas.commands.RefreshView"
+			<!-- command commandId="org.opentravel.schemas.commands.RefreshView"
 				icon="icons/refresh.gif" label="Refresh" style="push">
 			</command>
 			<command commandId="org.opentravel.schemas.commands.ExpandAll"
@@ -330,7 +337,7 @@
 				<parameter name="stl2Developer.ViewSelection.Collapse"
 					value="stl2Developer.ViewSelection.Examples">
 				</parameter>
-			</command>
+			</command -->
 		</menuContribution>
 		<menuContribution allPopups="false"
 			locationURI="toolbar:org.opentravel.schemas.stl2Developer.ValidationResultsView">
@@ -566,15 +573,9 @@
 			name="Merge">
 		</command>
 		<!-- command categoryId="org.opentravel.schemas.stl2Developer.command.category"
-			defaultHandler="org.opentravel.schemas.commands.RefreshExamplesHandler"
-			description="Regenerates example tree from current model" id="org.opentravel.schemas.commands.RefreshExamples"
-			name="Refresh Examples">
-		</command -->
-		<!-- command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			defaultHandler="org.opentravel.schemas.commands.RefreshDocumentationViewHandler"
 			id="org.opentravel.schemas.commands.RefreshDocumentationView" name="Refresh Documentation View">
 		</command -->
-		
 		<command categoryId="org.opentravel.schemas.stl2Developer.command.category"
 			description="New resource" id="org.opentravel.schemas.commands.newResource"
 			name="New Resource">

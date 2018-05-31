@@ -762,8 +762,10 @@ public class DefaultProjectController implements ProjectController {
 			// Project items are the individual libraries in a chain
 			for (LibraryNode ln : lnn.getLibraries()) {
 				ProjectItem tlPI = ln.getProjectItem();
+				assert tlPI.getContent() == ln.getTLModelObject();
 				assert pn.getTLProject().getProjectItems().contains(tlPI);
 				pn.getTLProject().remove(ln.getTLModelObject());
+				pn.getTLProject().remove(tlPI); // Redundant but sometimes necessary
 				// Check removal
 				// List<ProjectItem> items = pn.getTLProject().getProjectItems();
 				assert !pn.getTLProject().getProjectItems().contains(tlPI);

@@ -16,66 +16,60 @@
 package org.opentravel.schemas.views.example;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.swt.graphics.Image;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.ServiceNode;
-import org.opentravel.schemas.node.libraries.LibraryChainNode;
-import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.node.objectMembers.OperationNode;
-import org.opentravel.schemas.properties.Images;
-import org.opentravel.schemas.views.decoration.LibraryDecorator;
 
 /**
+ * May 30, 2018 - examples removed from OTM-DE
+ * 
  * @author Pawel Jedruch
  * 
  */
+@Deprecated
 public class ExampleModel {
 
 	private Node node;
 	private LabelProvider labelProvider;
-	private List<ExampleModel> children = new ArrayList<ExampleModel>();
+	private List<ExampleModel> children = new ArrayList<>();
 	private ExampleModel parent;
-	private String xmlString;
-	private String jsonString;
+	private String xmlString = "";
+	private String jsonString = "";
 
 	public ExampleModel(Node lib) {
-		this.node = lib;
-		this.setLabelProvider(new LabelProvider() {
-
-			private final LibraryDecorator decorator = new LibraryDecorator();
-
-			@Override
-			public Image getImage(Object element) {
-				if (node instanceof ServiceNode) {
-					return Images.getImageRegistry().get(Images.Service);
-				} else if (node instanceof OperationNode) {
-					return Images.getImageRegistry().get(Images.Facet);
-				} else if (node instanceof LibraryNode) {
-					return Images.getImageRegistry().get(Images.builtInLib);
-				} else if (node instanceof LibraryChainNode) {
-					return Images.getImageRegistry().get(Images.libraryChain);
-				}
-				return null;
-			}
-
-			@Override
-			public String getText(Object element) {
-				String prefix = getPrefix(node);
-				String version = "";
-				if (node instanceof LibraryNode) {
-					String v = decorator.getLibraryVersion((LibraryNode) node);
-					if (!v.isEmpty())
-						version = " [" + v + "]";
-				}
-				return prefix + node.getName() + version;
-			}
-
-		});
+		// this.node = lib;
+		// this.setLabelProvider(new LabelProvider() {
+		//
+		// private final LibraryDecorator decorator = new LibraryDecorator();
+		//
+		// @Override
+		// public Image getImage(Object element) {
+		// if (node instanceof ServiceNode) {
+		// return Images.getImageRegistry().get(Images.Service);
+		// } else if (node instanceof OperationNode) {
+		// return Images.getImageRegistry().get(Images.Facet);
+		// } else if (node instanceof LibraryNode) {
+		// return Images.getImageRegistry().get(Images.builtInLib);
+		// } else if (node instanceof LibraryChainNode) {
+		// return Images.getImageRegistry().get(Images.libraryChain);
+		// }
+		// return null;
+		// }
+		//
+		// @Override
+		// public String getText(Object element) {
+		// String prefix = getPrefix(node);
+		// String version = "";
+		// if (node instanceof LibraryNode) {
+		// String v = decorator.getLibraryVersion((LibraryNode) node);
+		// if (!v.isEmpty())
+		// version = " [" + v + "]";
+		// }
+		// return prefix + node.getName() + version;
+		// }
+		//
+		// });
 	}
 
 	/**
@@ -83,17 +77,17 @@ public class ExampleModel {
 	 * @return
 	 */
 	protected String getPrefix(Node node) {
-		if (node instanceof ServiceNode) {
-			return "Service: ";
-		} else if (node instanceof OperationNode) {
-			return "Operation: ";
-		} else {
-			return "";
-		}
+		// if (node instanceof ServiceNode) {
+		// return "Service: ";
+		// } else if (node instanceof OperationNode) {
+		// return "Operation: ";
+		// } else {
+		return "";
+		// }
 	}
 
 	public void setLabelProvider(LabelProvider labelProvider) {
-		this.labelProvider = labelProvider;
+		// this.labelProvider = labelProvider;
 	}
 
 	public List<ExampleModel> getChildren() {
@@ -129,17 +123,17 @@ public class ExampleModel {
 	}
 
 	public void addChildren(List<ExampleModel> children) {
-		this.children.addAll(children);
-		Collections.sort(this.children, new Comparator<ExampleModel>() {
-
-			@Override
-			public int compare(ExampleModel o1, ExampleModel o2) {
-				String str1 = o1.getLabelProvider().getText(o1);
-				String str2 = o2.getLabelProvider().getText(o2);
-				return String.CASE_INSENSITIVE_ORDER.compare(str1, str2);
-			}
-
-		});
+		// this.children.addAll(children);
+		// Collections.sort(this.children, new Comparator<ExampleModel>() {
+		//
+		// @Override
+		// public int compare(ExampleModel o1, ExampleModel o2) {
+		// String str1 = o1.getLabelProvider().getText(o1);
+		// String str2 = o2.getLabelProvider().getText(o2);
+		// return String.CASE_INSENSITIVE_ORDER.compare(str1, str2);
+		// }
+		//
+		// });
 	}
 
 	@Override

@@ -166,6 +166,7 @@ public class MainController {
 		repositoryController = new DefaultRepositoryController(this, repositoryManager);
 		// LOGGER.info("Initializing Project controller.");
 		projectController = new DefaultProjectController(this, repositoryManager);
+
 		LOGGER.info("Initialization complete. ");
 	}
 

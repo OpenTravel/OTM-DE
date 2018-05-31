@@ -144,7 +144,7 @@ public class OtmRegistry {
 		if (OtmRegistry.mainWindow != null)
 			LOGGER.debug("Registering ANOTHER main window.");
 		OtmRegistry.mainWindow = mainWindow;
-		// LOGGER.info("Registered MainWindow");
+		LOGGER.info("Registered MainWindow");
 	}
 
 	/**
@@ -191,6 +191,7 @@ public class OtmRegistry {
 		if (navigatorView == null) {
 			RCPUtils.findOrCreateView(NavigatorView.VIEW_ID);
 		}
+
 		return navigatorView;
 	}
 
@@ -337,6 +338,30 @@ public class OtmRegistry {
 
 	public static RestResourceView getResourceView() {
 		return resourceView;
+	}
+
+	/**
+	 * Close (dispose) views that have been removed from OTM-DE
+	 */
+	public static void closeDeprecatedViews() {
+		// TODO create delegated isDeprecated() method for views
+		// LOGGER.debug("Closing views: " + exampleJsonView + " " + exampleXmlView);
+
+		// Hide the view which disposes of the widget and its contents.
+		if (exampleJsonView != null)
+			if (exampleJsonView.getSite() != null)
+				if (exampleJsonView.getSite().getPage() != null)
+					exampleJsonView.getSite().getPage().hideView(exampleJsonView);
+
+		if (exampleXmlView != null)
+			if (exampleXmlView.getSite() != null)
+				if (exampleXmlView.getSite().getPage() != null)
+					exampleXmlView.getSite().getPage().hideView(exampleXmlView);
+
+		if (exampleView != null)
+			if (exampleView.getSite() != null)
+				if (exampleView.getSite().getPage() != null)
+					exampleView.getSite().getPage().hideView(exampleView);
 	}
 
 }

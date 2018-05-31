@@ -48,6 +48,6 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
 	@Override
 	public void postWindowOpen() {
-		// LOGGER.debug("post window startup.");
+		LOGGER.debug("post window startup.");
 	}
 }

@@ -194,7 +194,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 
 		navigatorMenus.addDoubleClickListener(this);
 
-		// LOGGER.info("Done initializing part control of " + this.getClass());
+		LOGGER.info("Done initializing part control of " + this.getClass());
 	}
 
 	private void attachSelectionListener() {
@@ -425,6 +425,7 @@ public class NavigatorView extends OtmAbstractView implements ISelectionChangedL
 	 * @return
 	 */
 	private Node getSelectedNode(Object o) {
+
 		Node n = null;
 		if (o instanceof Node) {
 			n = (Node) o;

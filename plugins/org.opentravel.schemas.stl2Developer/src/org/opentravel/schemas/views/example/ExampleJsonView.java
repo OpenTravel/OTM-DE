@@ -18,7 +18,6 @@ package org.opentravel.schemas.views.example;
 import java.util.List;
 
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
@@ -33,9 +32,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Legacy view to be removed in the future. It exists to allow the user to find out that this view has been removed and
+ * to force it to be removed from the saved layouts (May 30, 2018)
+ * 
  * @author Dave Hollander
  * 
  */
+@Deprecated
 public class ExampleJsonView extends OtmAbstractView implements ISelectionListener {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExampleJsonView.class);
 
@@ -49,39 +52,45 @@ public class ExampleJsonView extends OtmAbstractView implements ISelectionListen
 	@Override
 	public void createPartControl(final Composite parent) {
 		// LOGGER.info("Initializing part control of " + this.getClass());
+
+		final Text text = WidgetFactory.createText(parent, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
+		text.setEditable(false);
+		text.setText("Example views have been removed from OTM-DE. \nPLEASE CLOSE THIS WINDOW.");
+
 		OtmRegistry.registerExampleJsonView(this);
-		jsonBox = initializeJsonBox(parent);
-		getSite().getPage().addSelectionListener("org.opentravel.schemas.stl2Developer.ExampleView", this);
+
+		// jsonBox = initializeJsonBox(parent);
+		// getSite().getPage().addSelectionListener("org.opentravel.schemas.stl2Developer.ExampleView", this);
 		// LOGGER.info("Done initializing part control of " + this.getClass());
 	}
 
-	/**
-	 * @param mainSashForm
-	 * @return
-	 */
-	private Text initializeJsonBox(final Composite parent) {
-		final Text text = WidgetFactory.createText(parent, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
-		text.setEditable(false);
-		return text;
-	}
-
+	// /**
+	// * @param mainSashForm
+	// * @return
+	// */
+	// private Text initializeJsonBox(final Composite parent) {
+	// final Text text = WidgetFactory.createText(parent, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
+	// text.setEditable(false);
+	// return text;
+	// }
+	//
 	@Override
 	public void setFocus() {
 	}
 
 	@Override
 	public void selectionChanged(final IWorkbenchPart part, final ISelection selection) {
-		if (selection instanceof IStructuredSelection) {
-			final Object o = ((IStructuredSelection) selection).getFirstElement();
-			if (o instanceof ExampleModel) {
-				String s = ((ExampleModel) o).getJsonString();
-				if (s == null) {
-					s = "";
-				}
-				if (!jsonBox.isDisposed())
-					jsonBox.setText(s);
-			}
-		}
+		// if (selection instanceof IStructuredSelection) {
+		// final Object o = ((IStructuredSelection) selection).getFirstElement();
+		// if (o instanceof ExampleModel) {
+		// String s = ((ExampleModel) o).getJsonString();
+		// if (s == null) {
+		// s = "";
+		// }
+		// if (!jsonBox.isDisposed())
+		// jsonBox.setText(s);
+		// }
+		// }
 	}
 
 	@Override

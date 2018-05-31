@@ -30,11 +30,14 @@ import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.resources.ActionNode;
+import org.opentravel.schemas.node.resources.ParamGroup;
 import org.opentravel.schemas.node.resources.ParentRef;
 import org.opentravel.schemas.node.resources.ResourceBuilder;
 import org.opentravel.schemas.node.resources.ResourceNode;
+import org.opentravel.schemas.node.resources.ResourceParameter;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.testUtils.LoadFiles;
@@ -50,21 +53,6 @@ public class ResourceObjectTests extends BaseTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceObjectTests.class);
 
 	ModelNode model = null;
-	// MockLibrary ml = null;
-	// LibraryNode ln = null;
-	// MainController mc;
-	// DefaultProjectController pc;
-	// ProjectNode defaultProject;
-	// TestNode tn = new NodeTesters().new TestNode();
-
-	// @Override
-	// @Before
-	// public void beforeEachTest() {
-	//// mc = OtmRegistry.getMainController();
-	//// ml = new MockLibrary();
-	//// pc = (DefaultProjectController) mc.getProjectController();
-	//// defaultProject = pc.getDefaultProject();
-	// }
 
 	@Test
 	public void constructorTests() {
@@ -150,7 +138,7 @@ public class ResourceObjectTests extends BaseTest {
 		// Given - a valid resource using mock library provided business object
 		LibraryNode srcLib = ml.createNewLibrary(pc, "ResourceTestLib");
 		BusinessObjectNode bo = null;
-		for (Node n : srcLib.getDescendants_LibraryMembersAsNodes())
+		for (LibraryMemberInterface n : srcLib.getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode) {
 				bo = (BusinessObjectNode) n;
 				break;
@@ -168,7 +156,7 @@ public class ResourceObjectTests extends BaseTest {
 		ml.check(resource);
 		// Then - it is copied and is valid
 		ResourceNode newResource = null;
-		for (Node r : destLib.getDescendants_LibraryMembersAsNodes())
+		for (LibraryMemberInterface r : destLib.getDescendants_LibraryMembers())
 			if (r.getName().equals(resource.getName()))
 				newResource = (ResourceNode) r;
 		assertTrue(destLib.contains(newResource));
@@ -421,6 +409,65 @@ public class ResourceObjectTests extends BaseTest {
 		assertTrue("Parent has empty URL contribution.", parentRef.getUrlContribution().isEmpty());
 		assertTrue("TLResource does not have parentRefs", resource.getTLModelObject().getParentRefs().isEmpty());
 		assertTrue("Resource does not have ParentRef child.", !resource.getChildren().contains(parentRef));
+	}
+
+	/**
+	 * Tests to help assure that Parameters from parameter groups are not removed by the system.
+	 */
+	@Test
+	public void RN_paramGroupTests() {
+
+		// Given - a valid library with resource and objects
+		LibraryNode testLib = new LoadFiles().loadFile6(mc);
+		LibraryChainNode lcn = new LibraryChainNode(testLib); // Test in a chain
+		BusinessObjectNode bo = null;
+		for (LibraryMemberInterface n : testLib.getDescendants_LibraryMembers())
+			if (n instanceof BusinessObjectNode) {
+				bo = (BusinessObjectNode) n;
+				break;
+			}
+		assert bo != null;
+		assert bo.getTLModelObject().getOwningModel() != null;
+
+		// Given - a second library
+		LibraryNode ln = ml.createNewLibrary(pc, "ResourceTestLib");
+
+		// Given - a second resource created to expose the BO from other library
+		ResourceNode resource = new ResourceNode(ln, bo);
+		new ResourceBuilder().build(resource, bo);
+		assertTrue("Resource must have been created.", resource != null);
+		ml.check(ln, true);
+
+		List<ParamGroup> allPGs = resource.getParameterGroups(false);
+		assert allPGs.size() == 1; // There should only be one created above
+		ParamGroup theGroup = allPGs.get(0);
+		Node refFacet = theGroup.getFacetRef();
+		assertTrue("Must have a non-null reference facet.", refFacet != null);
+		LOGGER.debug("PG " + theGroup + " has " + theGroup.getChildren().size() + " parameters");
+		assert theGroup.getChildren().size() == 2; // Must be built that way
+		for (Node p : theGroup.getChildren())
+			assert p instanceof ResourceParameter;
+
+		// When - testlib is closed
+		// testLib.getProject().close(testLib);
+		assert lcn.getParent() instanceof LibraryNavNode;
+		pc.remove((LibraryNavNode) lcn.getParent());
+		// assert bo.getTLModelObject().getOwningModel() == null;
+		bo.tlObj = null;
+		testLib.tlObj = null;
+		bo = null;
+		testLib = null;
+
+		// Then - the group is still valid
+		ml.validate(theGroup);
+		ml.validate(resource);
+		assertTrue("Test is invalid if the reference facet is not null.", theGroup.getFacetRef() == null);
+		assert theGroup.getChildren().size() == 2; // Must be built that way
+		for (Node p : theGroup.getChildren()) {
+			assert p instanceof ResourceParameter;
+			assertTrue("Must have tl object.", ((ResourceParameter) p).getTLModelObject() != null);
+		}
+		ml.check(ln, true); // should fail
 	}
 
 	public void check(ResourceNode resource) {

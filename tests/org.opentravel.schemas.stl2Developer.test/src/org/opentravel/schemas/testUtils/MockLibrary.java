@@ -779,19 +779,23 @@ public class MockLibrary {
 			LOGGER.debug("TODO - add tests for " + node.getClass().getSimpleName() + " object type.");
 
 		if (validate)
-			if (!node.isValid()) {
-				ValidationFindings findings = node.validate();
-				if (findings == null || findings.isEmpty()) {
-					LOGGER.debug(node + " is not valid but has no findings.");
-					node.isValid();
-				}
-				if (node.getOwningComponent() == null)
-					LOGGER.debug("Null node owner - can't print validation findings.");
-				printValidationFindings((Node) node.getOwningComponent());
-				printValidationFindings(node);
-				// LibraryNode l = node.getLibrary();
-				assertTrue("Node must be valid.", node.isValid());
+			validate(node);
+	}
+
+	public void validate(Node node) {
+		if (!node.isValid()) {
+			ValidationFindings findings = node.validate();
+			if (findings == null || findings.isEmpty()) {
+				LOGGER.debug(node + " is not valid but has no findings.");
+				node.isValid();
 			}
+			if (node.getOwningComponent() == null)
+				LOGGER.debug("Null node owner - can't print validation findings.");
+			printValidationFindings((Node) node.getOwningComponent());
+			printValidationFindings(node);
+			// LibraryNode l = node.getLibrary();
+			assertTrue("Node must be valid.", node.isValid());
+		}
 
 	}
 

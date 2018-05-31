@@ -50,7 +50,7 @@ public class Application implements IApplication {
 			// activate proxy settings
 			Activator.getDefault().getProxyService();
 
-			// Launch the application and wait for the return code
+			// Launch and run the application and wait for the return code
 			final int returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor());
 			if (returnCode == PlatformUI.RETURN_RESTART) {
 				return IApplication.EXIT_RESTART;

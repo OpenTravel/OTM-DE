@@ -21,9 +21,12 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.properties.Images;
 
 /**
+ * May 30, 2018 - examples removed from OTM-DE
+ * 
  * @author Pawel Jedruch
  * 
  */
+@Deprecated
 public class ErrorExampleModel extends ExampleModel {
 
 	/**

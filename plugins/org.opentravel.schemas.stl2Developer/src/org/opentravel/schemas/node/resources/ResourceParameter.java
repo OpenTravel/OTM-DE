@@ -79,7 +79,7 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 
 		parent.getTLModelObject().addParameter(tlObj);
 
-		if (field.getTLModelObject() instanceof TLMemberField<?>)
+		if (field != null && field.getTLModelObject() instanceof TLMemberField<?>)
 			tlObj.setFieldRef((TLMemberField<?>) field.getTLModelObject());
 
 		guessLocation(parent.isIdGroup());
@@ -92,6 +92,7 @@ public class ResourceParameter extends ResourceBase<TLParameter> implements Reso
 
 	@Override
 	public void delete() {
+		LOGGER.debug("Deleting parameter: " + this);
 		parent.getChildren().remove(this); // must be done first to force the correct path template
 		if (tlObj.getOwner() != null)
 			tlObj.getOwner().removeParameter(tlObj);

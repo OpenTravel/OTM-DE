@@ -234,7 +234,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		return decoration + ")";
 	}
 
-	protected Node getFacetRef() {
+	public Node getFacetRef() {
 		return tlObj.getFacetRef() != null ? this.getNode(tlObj.getFacetRef().getListeners()) : null;
 	}
 
@@ -382,6 +382,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	}
 
 	public void clearParameters() {
+		LOGGER.debug("Clearing parameters from " + getName());
 		List<Node> params = new ArrayList<>(getChildren());
 		for (Node p : params)
 			p.delete();

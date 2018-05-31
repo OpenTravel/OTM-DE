@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.controllers.ProjectController;
@@ -46,6 +47,8 @@ public abstract class BaseTest {
 	protected static ProjectController pc;
 	protected static ProjectNode defaultProject;
 
+	private static TLModel tlModel;
+
 	public LoadFiles lf = new LoadFiles();
 	public MockLibrary ml = new MockLibrary();
 	public LibraryNode ln = null;
@@ -63,6 +66,8 @@ public abstract class BaseTest {
 		assert OtmRegistry.getMainController() == mc;
 		assert NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE) != null;
 		assert pc.getBuiltInProject() != null;
+
+		tlModel = new TLModel();
 	}
 
 	@After

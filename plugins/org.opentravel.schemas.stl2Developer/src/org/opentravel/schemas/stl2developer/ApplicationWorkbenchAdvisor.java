@@ -63,7 +63,17 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 	public void initialize(final IWorkbenchConfigurer configurer) {
 		super.initialize(configurer);
 		configurer.setSaveAndRestore(true);
+
+		// IEditorRegistry reg = configurer.getWorkbench().getEditorRegistry();
+		// IEditorDescriptor ed = configurer.getWorkbench().getEditorRegistry()
+		// .findEditor("org.opentravel.schemas.stl2Developer.ExampleView");
+		// WindowManager wm = configurer.getWorkbenchWindowManager();
+		// if (wm != null)
+		// for (Window w : configurer.getWorkbenchWindowManager().getWindows())
+		// LOGGER.debug("Window");
+
 		// // activate proxy settings
+
 		// Activator.getDefault().getProxyService();
 		// LOGGER.debug("Loaded Proxy Settings");
 	}
@@ -79,10 +89,10 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		// store current product version is property. later used in about dialog (by mapping file)
 		Version productV = Platform.getProduct().getDefiningBundle().getVersion();
 		System.setProperty("otm.version", productV.toString());
-		// LOGGER.debug("post startup.");
 
 		// Load the projects open from last session with a progress monitor
 		((DefaultProjectController) OtmRegistry.getMainController().getProjectController()).initProjects();
+		LOGGER.debug("post startup.");
 	}
 
 	/*
@@ -129,11 +139,14 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
 	@Override
 	public boolean preShutdown() {
+		// Make sure they do not open next time
+		OtmRegistry.closeDeprecatedViews();
+
 		if (getWorkbenchConfigurer() != null && !getWorkbenchConfigurer().emergencyClosing()) {
 			try {
 				return confirmExit(OtmRegistry.getMainController());
 			} catch (Exception ex) {
-				// log exception and close appliaction
+				// log exception and close application
 				LOGGER.error("Error while closing application: " + ex.getMessage());
 			}
 		}
@@ -212,8 +225,8 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
 	private int getUserConfirmation() {
 		MessageDialog dialog = new MessageDialog(OtmRegistry.getActiveShell(), Messages.getString("dialog.exit.title"),
-				null, Messages.getString("dialog.exit.question"), MessageDialog.CONFIRM, new String[] {
-						IDialogConstants.YES_LABEL, IDialogConstants.CANCEL_LABEL }, 1);
+				null, Messages.getString("dialog.exit.question"), MessageDialog.CONFIRM,
+				new String[] { IDialogConstants.YES_LABEL, IDialogConstants.CANCEL_LABEL }, 1);
 		return dialog.open();
 	}
 
