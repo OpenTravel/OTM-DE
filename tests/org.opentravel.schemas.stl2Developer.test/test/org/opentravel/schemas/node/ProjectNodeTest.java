@@ -43,10 +43,26 @@ import org.osgi.framework.Version;
 
 public class ProjectNodeTest extends BaseProjectTest {
 
+	MockLibrary ml = new MockLibrary();
+
+	/**
+	 * Check the structure of the passed VWA
+	 */
+	public void check(ProjectNode pn, boolean validate) {
+		assertTrue("Must have model node as parent.", pn.getParent() instanceof ModelNode);
+		assertTrue("Must have TL Project.", pn.getTLProject() instanceof Project);
+
+		// Check children - make sure they are libraryNavNodes and their parent is this project
+		for (Node n : pn.getChildren()) {
+			assertTrue("Child must be library nav node.", n instanceof LibraryNavNode);
+			assertTrue("Child must have project as parent.", n.getParent() == pn);
+			ml.check(n, validate);
+		}
+	}
+
 	@Test
 	public void project_constructorTests() {
 		// Given - a library
-		MockLibrary ml = new MockLibrary();
 		TLLibrary tlLib = ml.createTLLibrary("testProject", pc.getDefaultUnmanagedNS());
 
 		// When - a project is created
@@ -68,13 +84,15 @@ public class ProjectNodeTest extends BaseProjectTest {
 	@Test
 	public void loadShouldResolveDependencyForAllLibrariesInProject() throws LibrarySaveException {
 		// Create sample base library
-		LibraryNode libBaseToClose = LibraryNodeBuilder.create("BaseToClose", testProject.getNamespace() + "/close",
-				"o1", new Version(1, 0, 0)).build(testProject, pc);
+		LibraryNode libBaseToClose = LibraryNodeBuilder
+				.create("BaseToClose", testProject.getNamespace() + "/close", "o1", new Version(1, 0, 0))
+				.build(testProject, pc);
 		SimpleTypeNode baseSimpleObject = ComponentNodeBuilder.createSimpleObject("BaseSO").get(libBaseToClose);
 
 		// Use sampled library
-		LibraryNode libUsingBase = LibraryNodeBuilder.create("UsingBase", testProject.getNamespace() + "/close", "o1",
-				new Version(1, 0, 0)).build(testProject, pc);
+		LibraryNode libUsingBase = LibraryNodeBuilder
+				.create("UsingBase", testProject.getNamespace() + "/close", "o1", new Version(1, 0, 0))
+				.build(testProject, pc);
 		CoreObjectNode usingCO = ComponentNodeBuilder.createCoreObject("UsingCO").get(libUsingBase);
 		PropertyNode attrWithSO = PropertyNodeBuilder.create(PropertyNodeType.ATTRIBUTE)
 				.addToComponent(usingCO.getFacet_Summary()).assign(baseSimpleObject).build();
@@ -95,8 +113,8 @@ public class ProjectNodeTest extends BaseProjectTest {
 
 		// make sure all types are resolved
 		Assert.assertFalse(attrWithSO.isUnAssigned());
-		Node reloadedBaseSimpleObject = mc.getModelController().getModel()
-				.findNode(baseSimpleObjectName, baseSimpleObjectNamespace);
+		Node reloadedBaseSimpleObject = mc.getModelController().getModel().findNode(baseSimpleObjectName,
+				baseSimpleObjectNamespace);
 		Assert.assertSame(reloadedBaseSimpleObject, attrWithSO.getAssignedType());
 	}
 
@@ -104,13 +122,15 @@ public class ProjectNodeTest extends BaseProjectTest {
 	public void loadShouldResolveDependencyElementForAllLibrariesInProject() throws LibrarySaveException {
 		// Given - 2 libraries where business object from one is the assigned type for BO in other
 		// Create sample base library
-		LibraryNode libToClose = LibraryNodeBuilder.create("LibToClose", testProject.getNamespace() + "/close", "o1",
-				new Version(1, 0, 0)).build(testProject, pc);
+		LibraryNode libToClose = LibraryNodeBuilder
+				.create("LibToClose", testProject.getNamespace() + "/close", "o1", new Version(1, 0, 0))
+				.build(testProject, pc);
 		SimpleTypeNode srcSimpleObject = ComponentNodeBuilder.createSimpleObject("SourceSO").get(libToClose);
 
 		// Use sampled library
-		LibraryNode libUsingAssignedType = LibraryNodeBuilder.create("UsingType",
-				testProject.getNamespace() + "/close", "o1", new Version(1, 0, 0)).build(testProject, pc);
+		LibraryNode libUsingAssignedType = LibraryNodeBuilder
+				.create("UsingType", testProject.getNamespace() + "/close", "o1", new Version(1, 0, 0))
+				.build(testProject, pc);
 		CoreObjectNode usingCO = ComponentNodeBuilder.createCoreObject("UsingCO").get(libUsingAssignedType);
 		PropertyNode eleAssignedSO = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT)
 				.addToComponent(usingCO.getFacet_Summary()).assign(srcSimpleObject).build();
@@ -138,8 +158,8 @@ public class ProjectNodeTest extends BaseProjectTest {
 		// When - reload library and resolve types
 		testProject.add(Collections.singletonList(URLUtils.toFile(libToClose.getTLModelObject().getLibraryUrl())));
 		new TypeResolver().resolveTypes();
-		Node reloadedBaseSimpleObject = mc.getModelController().getModel()
-				.findNode(srcSimpleObjectName, srcSimpleObjectNamespace);
+		Node reloadedBaseSimpleObject = mc.getModelController().getModel().findNode(srcSimpleObjectName,
+				srcSimpleObjectNamespace);
 
 		// Then - make sure all types are resolved
 		assertTrue("Loading library must assign type to attrWithSO.", !eleAssignedSO.isUnAssigned());

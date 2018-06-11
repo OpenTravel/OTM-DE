@@ -1219,24 +1219,14 @@ public class FacetsTests {
 	public void check(FacetInterface node, boolean validate) {
 		if (node instanceof AbstractContextualFacet)
 			new ContextualFacetTests().check((AbstractContextualFacet) node, validate);
-		// else if(node instanceof ChoiceFacetNode)
-		// checkFacet((ChoiceFacetNode) node);
-		// else if (node instanceof CustomFacetNode)
-		// checkFacet((CustomFacetNode) node);
 		else if (node instanceof ListFacetNode)
 			checkFacet((ListFacetNode) node);
 		else if (node instanceof OperationNode)
 			checkFacet((OperationNode) node);
 		else if (node instanceof OperationFacetNode)
 			checkFacet((OperationFacetNode) node);
-		// else if (node instanceof QueryFacetNode)
-		// checkFacet((QueryFacetNode) node);
-		// else if (node instanceof QueryFacetNode)
-		// checkFacet((QueryFacetNode) node);
 		else if (node instanceof CoreSimpleFacetNode)
 			checkFacet((CoreSimpleFacetNode) node);
-		// else if (node instanceof UpdateFacetNode)
-		// checkFacet((UpdateFacetNode) node);
 		else if (node instanceof AttributeFacetNode)
 			checkFacet((AttributeFacetNode) node);
 		else if (node instanceof EnumerationOpenNode)

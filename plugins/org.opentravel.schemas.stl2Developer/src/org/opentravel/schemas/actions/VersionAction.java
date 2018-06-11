@@ -89,6 +89,7 @@ public class VersionAction extends OtmAbstractAction {
 				break;
 			}
 		}
+		mc.refresh();
 	}
 
 	@Override

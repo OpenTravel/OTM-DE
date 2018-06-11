@@ -35,6 +35,7 @@ import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemacompiler.model.TLService;
 import org.opentravel.schemacompiler.model.TLSimple;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
+import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.saver.LibraryModelSaver;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
@@ -52,6 +53,8 @@ import org.opentravel.schemas.node.Enumeration_Tests;
 import org.opentravel.schemas.node.ExtensionPointNode_Tests;
 import org.opentravel.schemas.node.FacetsTests;
 import org.opentravel.schemas.node.InheritedChildren_Tests;
+import org.opentravel.schemas.node.LibraryChainNodeTests;
+import org.opentravel.schemas.node.LibraryNavNodeTests;
 import org.opentravel.schemas.node.LibraryNodeTest;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
@@ -59,6 +62,7 @@ import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.OperationTests;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.ProjectNodeTest;
 import org.opentravel.schemas.node.PropertyNodeTest;
 import org.opentravel.schemas.node.ResourceObjectTests;
 import org.opentravel.schemas.node.ServiceNode;
@@ -70,6 +74,7 @@ import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.FacetOwner;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
+import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.BaseNodeListener;
 import org.opentravel.schemas.node.objectMembers.ExtensionPointNode;
@@ -194,12 +199,21 @@ public class MockLibrary {
 			LOGGER.debug("Error Saving: ", e);
 		}
 
+		// Assure new library is valid
 		ValidationFindings findings = ln.validate();
 		boolean valid = findings.count(FindingType.ERROR) == 0 ? true : false;
 		if (!valid)
 			printFindings(findings);
+		assert valid;
 
-		assertTrue(valid);
+		// Assure project and tl project contain this library
+		assert parent.getLibraries().contains(ln);
+		ProjectItem thisPI = null;
+		for (ProjectItem pi : parent.getTLProject().getProjectItems())
+			if (pi.getContent() == ln.getTLModelObject())
+				thisPI = pi;
+		assert thisPI != null;
+
 		return ln;
 	}
 
@@ -743,7 +757,13 @@ public class MockLibrary {
 					Node.GetNode(node.getTLModelObject()) == ((FacadeInterface) node).get());
 
 		// Dispatch to appropriate check method
-		if (node instanceof LibraryNode)
+		if (node instanceof ProjectNode)
+			new ProjectNodeTest().check((ProjectNode) node, validate);
+		else if (node instanceof LibraryNavNode)
+			new LibraryNavNodeTests().check((LibraryNavNode) node, validate);
+		else if (node instanceof LibraryChainNode)
+			new LibraryChainNodeTests().check((LibraryChainNode) node, validate);
+		else if (node instanceof LibraryNode)
 			new LibraryNodeTest().check((LibraryNode) node, validate);
 		else if (node instanceof BusinessObjectNode)
 			new BusinessObjectTests().check((BusinessObjectNode) node, validate);
@@ -783,6 +803,9 @@ public class MockLibrary {
 	}
 
 	public void validate(Node node) {
+		// Projects will not validate.
+		if (node instanceof ProjectNode)
+			return;
 		if (!node.isValid()) {
 			ValidationFindings findings = node.validate();
 			if (findings == null || findings.isEmpty()) {

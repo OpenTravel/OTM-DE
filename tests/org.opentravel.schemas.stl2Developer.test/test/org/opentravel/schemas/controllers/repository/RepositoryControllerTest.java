@@ -34,6 +34,7 @@ import org.opentravel.schemas.node.NodeEditStatus;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryItemNode;
 import org.opentravel.schemas.utils.ComponentNodeBuilder;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
@@ -46,16 +47,7 @@ import org.osgi.framework.Version;
 public abstract class RepositoryControllerTest extends RepositoryIntegrationTestBase {
 
 	protected static boolean SKIP = true; // Skip these tests which can take 10 minutes or more
-
-	@Test
-	public void connect() {
-		if (SKIP)
-			return;
-		Assert.assertNotNull(rc.getLocalRepository());
-		Assert.assertSame(repositoryManager, rc.getLocalRepository().getRepository());
-		Assert.assertEquals(1, repositoryManager.listRemoteRepositories().size());
-		Assert.assertEquals(2, rc.getRoot().getChildren().size());
-	}
+	protected MockLibrary ml = new MockLibrary();
 
 	/**
 	 * Manage - Library Manage (publish) libraries (with and without errors) in repositories. Assure published library
@@ -68,20 +60,20 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 	public void manageWithWrongNamespaceShouldNotCreateChain() throws LibrarySaveException {
 		if (SKIP)
 			return;
-		LibraryNode testLibary = LibraryNodeBuilder
-				.create("name", "__illegalNamespace", "prefix", new Version(1, 0, 0)).build(defaultProject, pc);
+		LibraryNode testLibary = LibraryNodeBuilder.create("name", "__illegalNamespace", "prefix", new Version(1, 0, 0))
+				.build(defaultProject, pc);
 		List<LibraryChainNode> chains = rc.manage(getRepositoryForTest(), Collections.singletonList(testLibary));
 		Assert.assertTrue("Should not craete library for wrong namespace.", chains.isEmpty());
 	}
 
 	@Test
-	public void manageWithCorrectNamespaceShouldNotBeEdiableWithDisabledPolicy() throws RepositoryException,
-			LibrarySaveException {
+	public void manageWithCorrectNamespaceShouldNotBeEdiableWithDisabledPolicy()
+			throws RepositoryException, LibrarySaveException {
 		if (SKIP)
 			return;
 		ProjectNode project = createProject("correctNamespace", getRepositoryForTest(), "test");
-		LibraryNode testLibary = LibraryNodeBuilder.create("name", project.getNamespace(), "prefix",
-				new Version(1, 0, 0)).build(project, pc);
+		LibraryNode testLibary = LibraryNodeBuilder
+				.create("name", project.getNamespace(), "prefix", new Version(1, 0, 0)).build(project, pc);
 		Assert.assertTrue(testLibary.isEditable());
 		LibraryChainNode library = rc.manage(getRepositoryForTest(), Collections.singletonList(testLibary)).get(0);
 		Assert.assertNotNull("Should create library for correct namespace.", library);
@@ -93,9 +85,9 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 		if (SKIP)
 			return;
 		ProjectNode uploadProject = createProject("MangeThis", getRepositoryForTest(), "test");
-		LibraryNode testLibary = LibraryNodeBuilder.create("TestLibrary",
-				getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0)).build(uploadProject,
-				pc);
+		LibraryNode testLibary = LibraryNodeBuilder
+				.create("TestLibrary", getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0))
+				.build(uploadProject, pc);
 		LibraryChainNode library = rc.manage(getRepositoryForTest(), Collections.singletonList(testLibary)).get(0);
 		RepositoryItemNode item = findRepositoryItem(library, getRepositoryForTest());
 		Assert.assertNotNull(item);
@@ -111,9 +103,9 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 		if (SKIP)
 			return;
 		ProjectNode uploadProject = createProject("ToUploadLibrary", getRepositoryForTest(), "test");
-		LibraryNode testLibary = LibraryNodeBuilder.create("TestLibrary",
-				getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0)).build(uploadProject,
-				pc);
+		LibraryNode testLibary = LibraryNodeBuilder
+				.create("TestLibrary", getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0))
+				.build(uploadProject, pc);
 		LibraryChainNode library = rc.manage(getRepositoryForTest(), Collections.singletonList(testLibary)).get(0);
 
 		Assert.assertEquals(0, defaultProject.getChildren().size());
@@ -173,8 +165,8 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 		LibraryNode testLibary = LibraryNodeBuilder
 				.create("TestLibrary", getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0))
 				.makeFinal().build(uploadProject, pc);
-		testLibary.addMember(ComponentNodeBuilder.createCoreObject("test").addProperty("TestProperty")
-				.setAssignedType().get());
+		testLibary.addMember(
+				ComponentNodeBuilder.createCoreObject("test").addProperty("TestProperty").setAssignedType().get());
 		LibraryChainNode chain = rc.manage(getRepositoryForTest(), Collections.singletonList(testLibary)).get(0);
 		LibraryNode newMajor = rc.createMajorVersion(chain.getHead());
 		ValidationFindings findings = newMajor.validate();
@@ -213,13 +205,14 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 	 */
 
 	@Test
-	public void lockShouldMakeLibaryEditable() throws RepositoryException, LibrarySaveException, LibraryLoaderException {
+	public void lockShouldMakeLibaryEditable()
+			throws RepositoryException, LibrarySaveException, LibraryLoaderException {
 		if (SKIP)
 			return;
 		ProjectNode uploadProject = createProject("ToUploadLibrary", getRepositoryForTest(), "test");
-		LibraryNode testLibary = LibraryNodeBuilder.create("TestLibrary",
-				getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0)).build(uploadProject,
-				pc);
+		LibraryNode testLibary = LibraryNodeBuilder
+				.create("TestLibrary", getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0))
+				.build(uploadProject, pc);
 		LibraryChainNode library = rc.manage(getRepositoryForTest(), Collections.singletonList(testLibary)).get(0);
 
 		Assert.assertFalse(library.isEditable());
@@ -228,14 +221,14 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 	}
 
 	@Test
-	public void unlockWithoutCommitShouldRevertChanges() throws RepositoryException, LibrarySaveException,
-			LibraryLoaderException {
+	public void unlockWithoutCommitShouldRevertChanges()
+			throws RepositoryException, LibrarySaveException, LibraryLoaderException {
 		if (SKIP)
 			return;
 		ProjectNode uploadProject = createProject("ToUploadLibrary", getRepositoryForTest(), "test");
-		LibraryNode testLibary = LibraryNodeBuilder.create("TestLibrary",
-				getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0)).build(uploadProject,
-				pc);
+		LibraryNode testLibary = LibraryNodeBuilder
+				.create("TestLibrary", getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0))
+				.build(uploadProject, pc);
 		LibraryChainNode library = rc.manage(getRepositoryForTest(), Collections.singletonList(testLibary)).get(0);
 
 		library.getHead().lock();
@@ -263,13 +256,13 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 	}
 
 	@Test
-	public void unlockWithoutCommitForDefaultProjectShouldRevertChanges() throws RepositoryException,
-			LibrarySaveException, LibraryLoaderException {
+	public void unlockWithoutCommitForDefaultProjectShouldRevertChanges()
+			throws RepositoryException, LibrarySaveException, LibraryLoaderException {
 		if (SKIP)
 			return;
-		LibraryNode testLibary = LibraryNodeBuilder.create("TestLibrary",
-				getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0)).build(
-				pc.getDefaultProject(), pc);
+		LibraryNode testLibary = LibraryNodeBuilder
+				.create("TestLibrary", getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0))
+				.build(pc.getDefaultProject(), pc);
 		LibraryChainNode library = rc.manage(getRepositoryForTest(), Collections.singletonList(testLibary)).get(0);
 
 		library.getHead().lock();
@@ -299,21 +292,20 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 	}
 
 	@Test
-	public void unlockWithCommitShouldSetReadonlyToLibrary() throws RepositoryException, LibrarySaveException,
-			LibraryLoaderException {
+	public void unlockWithCommitShouldSetReadonlyToLibrary()
+			throws RepositoryException, LibrarySaveException, LibraryLoaderException {
 		if (SKIP)
 			return;
 		ProjectNode uploadProject = createProject("ToUploadLibrary", getRepositoryForTest(), "test");
-		LibraryNode testLibary = LibraryNodeBuilder.create("TestLibrary",
-				getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0)).build(uploadProject,
-				pc);
+		LibraryNode testLibary = LibraryNodeBuilder
+				.create("TestLibrary", getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0))
+				.build(uploadProject, pc);
 		LibraryChainNode library = rc.manage(getRepositoryForTest(), Collections.singletonList(testLibary)).get(0);
 
 		library.getHead().lock();
 		String coreObjectName = "NewCoreObject";
-		library.getHead().addMember(
-				ComponentNodeBuilder.createCoreObject(coreObjectName).addProperty("TestProperty").setAssignedType()
-						.get());
+		library.getHead().addMember(ComponentNodeBuilder.createCoreObject(coreObjectName).addProperty("TestProperty")
+				.setAssignedType().get());
 
 		Assert.assertTrue(library.isEditable());
 		mc.getRepositoryController().unlock(library.getHead());
@@ -321,21 +313,20 @@ public abstract class RepositoryControllerTest extends RepositoryIntegrationTest
 	}
 
 	@Test
-	public void unlockWithCommitShouldCommitChanges() throws RepositoryException, LibrarySaveException,
-			LibraryLoaderException {
+	public void unlockWithCommitShouldCommitChanges()
+			throws RepositoryException, LibrarySaveException, LibraryLoaderException {
 		if (SKIP)
 			return;
 		ProjectNode uploadProject = createProject("ToUploadLibrary", getRepositoryForTest(), "test");
-		LibraryNode testLibary = LibraryNodeBuilder.create("TestLibrary",
-				getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0)).build(uploadProject,
-				pc);
+		LibraryNode testLibary = LibraryNodeBuilder
+				.create("TestLibrary", getRepositoryForTest().getNamespace() + "/Test", "prefix", new Version(1, 0, 0))
+				.build(uploadProject, pc);
 		LibraryChainNode lcn = rc.manage(getRepositoryForTest(), Collections.singletonList(testLibary)).get(0);
 
 		lcn.getHead().lock();
 		String coreObjectName = "NewCoreObject";
-		lcn.getHead().addMember(
-				ComponentNodeBuilder.createCoreObject(coreObjectName).addProperty("TestProperty").setAssignedType()
-						.get());
+		lcn.getHead().addMember(ComponentNodeBuilder.createCoreObject(coreObjectName).addProperty("TestProperty")
+				.setAssignedType().get());
 
 		DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
 		rc.unlock(lcn.getHead());

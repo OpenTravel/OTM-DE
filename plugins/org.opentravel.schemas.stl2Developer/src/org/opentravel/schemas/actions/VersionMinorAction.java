@@ -56,6 +56,7 @@ public class VersionMinorAction extends OtmAbstractAction {
 					rc.createMinorVersion((LibraryNode) node);
 			}
 		}
+		mc.refresh();
 	}
 
 	/*

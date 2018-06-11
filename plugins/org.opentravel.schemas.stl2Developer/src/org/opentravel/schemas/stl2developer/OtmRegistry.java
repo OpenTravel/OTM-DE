@@ -296,12 +296,15 @@ public class OtmRegistry {
 	}
 
 	/**
-	 * @return null if headless or unable to get workbench or shell
+	 * @return active workbench shell or null if headless or unable to get workbench or shell
 	 */
 	public static Shell getActiveShell() {
-		if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() == null)
-			return null;
-		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		// You can't catch the exception from getWorkbench() so must test first.
+		if (PlatformUI.isWorkbenchRunning())
+			if (PlatformUI.getWorkbench() != null)
+				if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() != null)
+					return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		return null;
 	}
 
 	public static void registerMainController(MainController mainController) {

@@ -27,6 +27,7 @@ import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemas.controllers.DefaultProjectController.OpenedProject;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 
@@ -38,7 +39,12 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
  */
 public interface ProjectController {
 
-	LibraryNode add(LibraryNode ln, AbstractLibrary tlLib);
+	/**
+	 * @param lcn
+	 * @param tlLib
+	 * @return
+	 */
+	public LibraryNode add(LibraryChainNode lcn, AbstractLibrary tlLib);
 
 	/**
 	 * Add a TL Library to the project and create a LibraryNode to represent it.
@@ -162,14 +168,6 @@ public interface ProjectController {
 	 */
 	void save();
 
-	// /**
-	// * Saves the given projects to the physical files / repository
-	// *
-	// * @param projects
-	// * is list of {@link ProjectNode}s to be saved
-	// */
-	// void save(List<ProjectNode> projects);
-
 	/**
 	 * Saves the given project to the physical file / repository
 	 * 
@@ -177,12 +175,6 @@ public interface ProjectController {
 	 *            {@link ProjectNode} to be saved
 	 */
 	public boolean save(ProjectNode project);
-
-	/**
-	 * Saves all projects
-	 * 
-	 */
-	void saveAll();
 
 	public void saveState();
 

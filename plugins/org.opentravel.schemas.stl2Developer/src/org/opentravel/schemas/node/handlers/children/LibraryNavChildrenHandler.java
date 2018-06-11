@@ -21,7 +21,9 @@ import java.util.List;
 import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
+import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.types.TypeProviderAndOwners;
 
 /**
@@ -49,6 +51,21 @@ public class LibraryNavChildrenHandler extends StaticChildrenHandler<Node, Libra
 	public void add(Node c) {
 		children.clear();
 		children.add(c);
+	}
+
+	/**
+	 * Return true if the passed library or chain is contained in this nav node. Members of chains are tested as
+	 * required.
+	 */
+	public boolean contains(LibraryInterface li) {
+		for (Node child : children) {
+			if (child instanceof LibraryChainNode)
+				if (((LibraryChainNode) child).contains((Node) li))
+					return true;
+			if (child instanceof LibraryNode)
+				return child == li;
+		}
+		return false;
 	}
 
 	@Override

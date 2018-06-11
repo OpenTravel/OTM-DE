@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -87,6 +88,47 @@ public class DefaultRepositoryController implements RepositoryController {
 
 	public File getRepositoryFileLocation() {
 		return repositoryManager.getRepositoryLocation();
+	}
+
+	/**
+	 * Save the passed library then unlock it. Intended for use by background thread or in JUNIT foreground.
+	 * 
+	 * @param ln
+	 *            - library to unlock
+	 * @param remark
+	 *            - string to save with library as history, can be null
+	 * @return true if successful, false with user dialog error if not
+	 */
+	static boolean doUnlock(LibraryNode ln, String remark) {
+		boolean result = false;
+		if (ln == null) {
+			DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), "Unlock has invalid parameters.", null);
+			return false;
+		}
+		if (ln.getProject() == null || ln.getProject().getTLProject() == null || ln.getProjectItem() == null) {
+			DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), "Unlock could not get project.", null);
+			return false;
+		}
+		final LibraryModelSaver lms = new LibraryModelSaver();
+		final ProjectManager pm = ln.getProject().getTLProject().getProjectManager();
+
+		if (lms != null && pm != null)
+			try {
+				lms.saveLibrary(ln.getTLLibrary());
+				pm.unlock(ln.getProjectItem(), true, remark);
+				ln.updateLibraryStatus();
+				result = true;
+			} catch (RepositoryException e) {
+				DefaultRepositoryController.postRepoException(e);
+			} catch (LibrarySaveException e) {
+				DefaultRepositoryController.postRepoException(e);
+			} catch (IllegalStateException e) {
+				DefaultRepositoryController.postRepoException(e);
+			}
+		else
+			DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), "Unlock could not get project manager.",
+					null);
+		return result;
 	}
 
 	/**
@@ -237,6 +279,11 @@ public class DefaultRepositoryController implements RepositoryController {
 
 		// Publish project items in the repository.
 		pm.publish(items, repository);
+
+		// Verify results - there are multiple managed states
+		for (ProjectItem i : items)
+			assert !RepositoryItemState.UNMANAGED.equals(i.getState());
+
 		return items;
 	}
 
@@ -292,9 +339,14 @@ public class DefaultRepositoryController implements RepositoryController {
 		return libraries;
 	}
 
+	/**
+	 * Assure all libraries are in chains. If it is not, a new chain is created to contain the library.
+	 * 
+	 * @param publishedLibs
+	 * @return
+	 */
 	private List<LibraryChainNode> convertToChains(Collection<LibraryNode> publishedLibs) {
 		List<LibraryChainNode> chains = new ArrayList<>(publishedLibs.size());
-		// LibraryModelManager mgr = Node.getModelNode().getLibraryManager();
 		for (LibraryNode l : publishedLibs) {
 			// Could have duplicates in the list
 			if (!l.isInChain())
@@ -343,6 +395,9 @@ public class DefaultRepositoryController implements RepositoryController {
 
 	@Override
 	public boolean lock(LibraryNode ln) {
+		if (ln == null)
+			return false;
+
 		LockThread lt = new LockThread(ln);
 		BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), lt);
 		if (lt.getException() != null) {
@@ -372,18 +427,23 @@ public class DefaultRepositoryController implements RepositoryController {
 		if (!post16UpgradeConfirmation())
 			return false;
 
-		SetDocumentationWizard wizard = new SetDocumentationWizard(ln);
-		wizard.run(OtmRegistry.getActiveShell());
-		if (!wizard.wasCanceled()) {
-			String remark = wizard.getDocText();
+		if (OtmRegistry.getActiveShell() != null) {
+			// Is in the UI thread.
+			SetDocumentationWizard wizard = new SetDocumentationWizard(ln);
+			wizard.run(OtmRegistry.getActiveShell());
+			if (!wizard.wasCanceled()) {
+				String remark = wizard.getDocText();
 
-			UnlockThread ut = new UnlockThread(ln, mc, remark);
-			BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), ut);
-			refreshAll(ln);
-			LOGGER.debug("UnLocked library " + this);
-			mc.postStatus("Library " + ln + " unlocked.");
-			return ut.getResult();
-		}
+				UnlockThread ut = new UnlockThread(ln, mc, remark);
+				BusyIndicator.showWhile(mc.getMainWindow().getDisplay(), ut);
+				refreshAll(ln);
+				LOGGER.debug("UnLocked library " + this);
+				mc.postStatus("Library " + ln + " unlocked.");
+				return ut.getResult();
+			}
+		} else
+			// Not in UI thread (junit), just do the unlock
+			return doUnlock(ln, "Testing Remark " + new Date());
 		return false;
 	}
 	//
@@ -448,8 +508,10 @@ public class DefaultRepositoryController implements RepositoryController {
 
 		// must be unlocked to be promoted.
 		if (ln.isLocked())
-			if (!unlock(ln))
+			if (!unlock(ln)) {
+				DialogUserNotifier.openError(Messages.getString(REPO_ERROR_TITLE), "Could not unlock library.", null);
 				return false;
+			}
 
 		// Items must be in the MANAGED_UNLOCKED state in order to be promoted.
 		ProjectItem pi = ln.getProjectItem();
@@ -815,9 +877,25 @@ public class DefaultRepositoryController implements RepositoryController {
 		}
 
 		if (newTLLib != null) {
-			newLib = mc.getProjectController().add(library, newTLLib);
+			// Verify helper behavior
+			assert newTLLib.getOwningModel() != null;
+			ProjectItem foundPI = null;
+			for (ProjectItem pi : library.getProject().getTLProject().getProjectItems())
+				if (pi.getContent() == newTLLib)
+					foundPI = pi;
+			assert foundPI != null;
+
+			// new TL library is unmanaged, un-modeled and no listeners
+			// newLib = mc.getProjectController().add(library.getChain(), newTLLib);
+			// try this instead -- skips addUnmangedProjectItem() call
+			if (foundPI != null)
+				newLib = new LibraryNode(foundPI, library.getChain());
+
 			manage(rn, Collections.singletonList(newLib));
+
+			// make the new library head of chain
 			library.getChain().add(newLib.getProjectItem());
+
 			lock(newLib);
 			sync(rn);
 		}
@@ -1070,24 +1148,9 @@ class UnlockThread extends Thread {
 
 	@Override
 	public void run() {
-		try {
-			final LibraryModelSaver lms = new LibraryModelSaver();
-			lms.saveLibrary(ln.getTLLibrary());
-			ProjectManager pm = ((DefaultProjectController) mc.getProjectController()).getDefaultProject()
-					.getTLProject().getProjectManager();
-			pm.unlock(ln.getProjectItem(), true, remark);
-			ln.updateLibraryStatus();
-			result = true;
-		} catch (RepositoryException e) {
-			result = false;
-			DefaultRepositoryController.postRepoException(e);
-			// DialogUserNotifier.openError(Messages.getString("repository.error.title"), e.getLocalizedMessage());
-		} catch (LibrarySaveException e) {
-			result = false;
-			DefaultRepositoryController.postRepoException(e);
-			// DialogUserNotifier.openError(Messages.getString("repository.error.title"), e.getLocalizedMessage());
-		}
+		result = DefaultRepositoryController.doUnlock(ln, remark);
 	}
+
 }
 
 class CommitThread extends Thread {

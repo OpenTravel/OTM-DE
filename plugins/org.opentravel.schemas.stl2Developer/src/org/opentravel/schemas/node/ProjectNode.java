@@ -31,6 +31,7 @@ import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.repository.RepositoryNamespaceUtils;
 import org.opentravel.schemacompiler.repository.impl.BuiltInProject;
+import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.LibraryModelManager;
 import org.opentravel.schemas.controllers.ProjectController;
 import org.opentravel.schemas.node.handlers.NamespaceHandler;
@@ -44,13 +45,15 @@ import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.properties.Images;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.types.TypeProviderAndOwners;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Dave Hollander
  * 
  */
 public class ProjectNode extends Node implements INode, TypeProviderAndOwners, FacadeInterface {
-	// private static final Logger LOGGER = LoggerFactory.getLogger(ProjectNode.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProjectNode.class);
 
 	private final Project project; // underlying TL model object
 
@@ -87,6 +90,13 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 		assert (parent instanceof ModelNode);
 	}
 
+	/**
+	 * Each project items in the list is added to the library model manager. The library model manager will create a new
+	 * node structure for the library if it was not already modeled.
+	 * 
+	 * @param piList
+	 * @return
+	 */
 	public LibraryNavNode load(final List<ProjectItem> piList) {
 		LibraryModelManager manager = getParent().getLibraryManager();
 		LibraryNavNode lnn = null;
@@ -122,9 +132,15 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 		return (ProjectChildrenHandler) childrenHandler;
 	}
 
-	public void add(Node child) {
-		// if (!(child instanceof LibraryNavNode))
-		// LOGGER.debug("NotNaveNode");
+	/**
+	 * Add the child library to the children handler. <b>Note:</b> this method does <i>not</i> use or change the TL
+	 * Project.
+	 * 
+	 * @param child
+	 *            Must be LNN for <b>this</b> project
+	 */
+	public void add(LibraryNavNode child) {
+		assert child.getProject() == this;
 		getChildrenHandler().add(child);
 		child.setParent(this);
 	}
@@ -142,6 +158,8 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 
 	/**
 	 * Close each library. Does <b>not</b> close the TL Project. Does <b>not</b> remove project from model node.
+	 * <p>
+	 * Use {@link DefaultProjectController#close(ProjectNode)} to close TL Project and remove from model.
 	 */
 	@Override
 	public void close() {
@@ -195,6 +213,7 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 	 *            - navigator node identifying which library or chain to close
 	 */
 	public void close(LibraryNavNode lnn) {
+		assert lnn.getProject() == this;
 		getChildrenHandler().remove(lnn);
 		getParent().getLibraryManager().close(lnn.getThisLib(), this);
 		lnn.setParent(null);
@@ -266,9 +285,11 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 			try {
 				pi = getTLProject().getProjectManager().addUnmanagedProjectItem(tlLib, getTLProject());
 			} catch (RepositoryException e1) {
+				e1.printStackTrace();
 				assert true;
 				// LOGGER.error("Repo Error adding " + tlLib.getName() + " to project. " + e1.getLocalizedMessage());
 			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
 				assert true;
 				// LOGGER.error("Argument Exception adding " + tlLib.getName() + " to project. " +
 				// e.getLocalizedMessage());
@@ -402,7 +423,7 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 	}
 
 	/**
-	 * @return null.
+	 * @return null. A TL Project is not a TLModelElement
 	 * @see #getTLProject()
 	 */
 	@Override
@@ -520,6 +541,18 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 			if (n instanceof LibraryNavNode)
 				if (((LibraryNavNode) n).contains(li))
 					return true;
+		return false;
+	}
+
+	/**
+	 * @return true if the TL project contains an item that contains the TL Library, false otherwise
+	 */
+	public boolean contains(final AbstractLibrary tlLib) {
+		if (tlLib == null || getTLProject() == null)
+			return false;
+		for (ProjectItem p : getTLProject().getProjectItems())
+			if (p.getContent() == tlLib)
+				return true;
 		return false;
 	}
 

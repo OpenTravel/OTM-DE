@@ -306,14 +306,15 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		// use resource codegen utils to get a complete list
 		// Note - codegen utils will skip repeating objects
 		List<Node> fields = new ArrayList<>();
-		for (TLMemberField<?> field : ResourceCodegenUtils
-				.getEligibleParameterFields((TLFacet) getFacetRef().getTLModelObject())) {
-			Node f = this.getNode(((TLModelElement) field).getListeners());
-			if (f != null)
-				fields.add(f);
-			else
-				LOGGER.debug("Error: null node from field: " + field.getName());
-		}
+		if (getFacetRef() != null)
+			for (TLMemberField<?> field : ResourceCodegenUtils
+					.getEligibleParameterFields((TLFacet) getFacetRef().getTLModelObject())) {
+				Node f = this.getNode(((TLModelElement) field).getListeners());
+				if (f != null)
+					fields.add(f);
+				else
+					LOGGER.debug("Error: null node from field: " + field.getName());
+			}
 		return fields;
 	}
 
@@ -441,7 +442,11 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	 * @param n
 	 */
 	public void setReferenceFacet(FacetInterface n) {
-		tlObj.setFacetRef((TLFacet) n.getTLModelObject());
+		if (n != null)
+			tlObj.setFacetRef((TLFacet) n.getTLModelObject());
+		else
+			tlObj.setFacetRef(null);
+
 		upDateParameters();
 		if (tlObj.getName().isEmpty())
 			tlObj.setName(n.getName());

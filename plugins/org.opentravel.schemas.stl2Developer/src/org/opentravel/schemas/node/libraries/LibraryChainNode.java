@@ -213,15 +213,18 @@ public class LibraryChainNode extends Node implements FacadeInterface, TypeProvi
 	}
 
 	/**
-	 * Add this project item to the version chain.
+	 * Add this project item to the version chain if not already found in versions. Sets library to head if it is a
+	 * later version than current head library.
 	 * 
-	 * @return the library node added to the chain or null if it already was in the chain.
 	 * @param pi
+	 *            - project item for the library.
+	 * @return the library node associated with the project item or null if pi was null.
 	 */
 	public LibraryNode add(ProjectItem pi) {
+		if (pi == null)
+			return null;
 		// If the chain already has this PI, skip it.
 		LibraryNode newLib = versions.get(pi);
-
 		if (newLib == null) {
 			// LOGGER.debug("Adding pi " + pi.getFilename() + " to chain " + getLabel());
 			// Just add the library node if it already has been modeled.
@@ -233,6 +236,7 @@ public class LibraryChainNode extends Node implements FacadeInterface, TypeProvi
 			versions.add(newLib); // simply add this library to library list.
 			newLib.updateLibraryStatus();
 		}
+		// Make passed library head if it is newer (later version)
 		if (getHead() == null || newLib.getTLModelObject().isLaterVersion(getHead().getTLModelObject()))
 			setHead(newLib);
 
@@ -597,6 +601,13 @@ public class LibraryChainNode extends Node implements FacadeInterface, TypeProvi
 	public void setLibrary(LibraryNode ln) {
 		library = ln;
 		// super.setLibrary(ln); // sets the library in all the children.
+	}
+
+	/**
+	 * Simple parent setter. Set to null if it is the root node.
+	 */
+	public void setParent(final LibraryNavNode n) {
+		parent = n;
 	}
 
 	@Override

@@ -78,12 +78,14 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 	}
 
 	/**
-	 * Create library navigation node.
+	 * Create library navigation node. This LNN is added to the passed project.
+	 * <p>
+	 * <b>Note:</b> this constructor does <i>not</i> use or change the TL Project.
 	 * 
 	 * @param chain
 	 *            - chain to associate with this project
 	 * @param project
-	 *            - set to this node's parent
+	 *            - project to set as this node's parent and add this LNN to as a child
 	 */
 	public LibraryNavNode(LibraryChainNode chain, ProjectNode project) {
 		assert (chain != null);
@@ -102,8 +104,7 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 			chain.getParent().getChildren().remove(chain);
 
 		// Insert between library chain and project
-		chain.setParent(this);
-		project.getChildren().add(this);
+		project.add(this);
 
 		// LOGGER.debug("Created library nav node for chain " + chain + " in project " + project);
 	}
@@ -163,9 +164,8 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 	 */
 	@Override
 	public void close() {
+		// Lib Mgr may change parent
 		getModelNode().getLibraryManager().close(getThisLib(), getProject());
-		if (getProject() != null)
-			getProject().remove(this);
 		deleted = true;
 		getChildrenHandler().clear((Node) getThisLib());
 	}
@@ -183,7 +183,7 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 	 */
 	// @Override
 	public List<LibraryNode> getLibraries() {
-		List<LibraryNode> libs = new ArrayList<LibraryNode>();
+		List<LibraryNode> libs = new ArrayList<>();
 		if (getThisLib() instanceof LibraryNode)
 			libs.add((LibraryNode) getThisLib());
 		if (getThisLib() instanceof LibraryChainNode)
@@ -196,6 +196,21 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 		return true;
 	}
 
+	// /**
+	// * Set the parent to be the passed project.
+	// *
+	// * @param project
+	// * @param removeFirst
+	// * if true and the current parent project is different than the passed one, remove this from the orginal
+	// * project before setting parent.
+	// */
+	// public void setProject(ProjectNode project, boolean removeFirst) {
+	// // If this was already in a project, remove it from that project first
+	// if (getProject() != project)
+	// getProject().remove(this);
+	// parent = project;
+	// }
+
 	public void setThisLib(LibraryInterface library) {
 		getChildrenHandler().add((Node) library);
 	}
@@ -206,7 +221,7 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 	 */
 	@Override
 	public boolean contains(LibraryInterface li) {
-		return getChildrenHandler().contains((Node) li);
+		return getChildrenHandler().contains(li);
 	}
 
 	@Override
@@ -223,6 +238,9 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 		return getLibrary();
 	}
 
+	/**
+	 * Returns library's TLModelObject
+	 */
 	@Override
 	public TLModelElement getTLModelObject() {
 		return getLibrary() != null ? getLibrary().getTLModelObject() : null;

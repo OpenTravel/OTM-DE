@@ -231,10 +231,18 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 		updateLibraryStatus();
 	}
 
+	/**
+	 * 
+	 * @param pi
+	 *            - must not be null
+	 * @param chain
+	 *            - must not be null
+	 */
 	// org.opentravel.schemas.controllers.DefaultProjectController.add(LibraryNode, AbstractLibrary)
 	// org.opentravel.schemas.node.LibraryChainNode.add(ProjectItem)
 	public LibraryNode(ProjectItem pi, LibraryChainNode chain) {
 		super(pi.getContent().getName());
+		assert (chain != null);
 		setParent(chain.getVersions());
 		// LOGGER.debug("Begin creating new library: " + alib.getPrefix() + ":" + alib.getName() + " in aggregate "
 		// + parent.getParent());

@@ -69,6 +69,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.INode;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
+import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.preferences.DefaultPreferences;
@@ -96,19 +97,53 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class DefaultProjectController implements ProjectController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultProjectController.class);
 
-	public static final String PROJECT_EXT = "otp";
-	private final MainController mc;
-	private final ProjectManager projectManager;
-	protected ProjectNode defaultProject = null;
-	protected ProjectNode builtInProject = null;
+	// TODO - consider eliminate this extra class - just load into the project. it was used to make saving to memento
+	// generic.
+	public interface IProjectToken extends IAdaptable {
+		static IProjectToken[] NONE = new IProjectToken[] {};
 
-	private String defaultNS = "http://www.opentravel.org/OTM2/DefaultProject";
-	private String defaultPath;
+		String getLocation();
 
-	// override with ns of local repository
-	private final String dialogText = "Select a project file";
+		String getName();
+
+		void setName(String newName);
+	}
+
+	public class ProjectToken implements IProjectToken {
+		private String name;
+		private String location;
+
+		public ProjectToken(File file) {
+			try {
+				location = file.getCanonicalPath();
+			} catch (IOException e) {
+				LOGGER.error("Could not create project token due to bad path.");
+				// e.printStackTrace();
+			}
+		}
+
+		@Override
+		public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
+			return null;
+		}
+
+		@Override
+		public String getLocation() {
+			return location;
+		}
+
+		@Override
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public void setName(String newName) {
+			name = newName;
+		}
+
+	}
 
 	/**
 	 * Class for grouping TL Project, ProjectNode, validation findings and result messages.
@@ -121,6 +156,31 @@ public class DefaultProjectController implements ProjectController {
 		public Throwable exception;
 	}
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultProjectController.class);
+	public static final String PROJECT_EXT = "otp";
+	private static final String OTM_PROJECTS = "OTM_Projects";
+
+	// private static final String TAG_FAVORITES = "Favorites";
+	public static final String OTM_PROJECT = "Project";
+	private static final String OTM_PROJECT_NAME = "Name";
+	private static final String OTM_PROJECT_LOCATION = "Location";
+
+	public static String MementoFileName = "OTM_DE_Startup.xml";
+
+	private final MainController mc;
+	private final ProjectManager projectManager;
+	protected ProjectNode defaultProject = null;
+	protected ProjectNode builtInProject = null;
+
+	private String defaultNS = "http://www.opentravel.org/OTM2/DefaultProject";
+
+	private String defaultPath;
+
+	// override with ns of local repository
+	private final String dialogText = "Select a project file";
+
+	Collection<IProjectToken> openProjects = new ArrayList<>();
+
 	/**
 	 * Create controller and open projects in background thread.
 	 */
@@ -131,78 +191,34 @@ public class DefaultProjectController implements ProjectController {
 		getDefaultProject(); // make sure these exist
 	}
 
-	protected void createDefaultProject() {
-		// FIXME - TESTME - this should be using the local repository ns.
-		defaultNS = mc.getRepositoryController().getLocalRepository().getNamespace();
-		defaultPath = DefaultPreferences.getDefaultProjectPath();
-
-		defaultProject = create(new File(defaultPath), defaultNS, "Default Project",
-				"Used for libraries not loaded into a project.");
-
-		if (defaultProject == null) {
-			DialogUserNotifier.openError("Default Project Error",
-					Messages.getString("error.openProject.defaultProject", defaultPath), null);
-		}
-		defaultPath = defaultProject.getTLProject().getProjectFile().getPath();
-		mc.getModelNode().addProject(defaultProject);
-	}
-
-	public List<ProjectItem> openLibrary(Project project, List<File> fileName, ValidationFindings findings)
-			throws LibraryLoaderException, RepositoryException {
-		List<ProjectItem> newItems = null;
-		// LOGGER.debug("Adding to project: " + project.getName() + " library files: " + fileName);
-		newItems = projectManager.addUnmanagedProjectItems(fileName, project, findings);
-		return newItems;
-	}
-
 	/**
-	 * @see {@link org.opentravel.schemas.node.ProjectNode#add()}
+	 * Add tlLibrary to the chain
+	 * {@link org.opentravel.schemas.controllers.DefaultRepositoryController#createVersion(LibraryNode, boolean)}
 	 */
+	// Removed call from createVersion 6/7/2018. Leave until further testing confirms it was not needed.
+	@Deprecated
 	@Override
-	public List<ProjectItem> addLibrariesToTLProject(Project project, List<File> libraryFiles) {
-		ValidationFindings findings = new ValidationFindings();
-		List<ProjectItem> newItems = Collections.emptyList();
-		try {
-			newItems = openLibrary(project, libraryFiles, findings);
-			ValidationFindings loadingFindings = getLoadingFindings(findings);
-			if (!loadingFindings.isEmpty()) {
-				// LOGGER.error("Validation findings opening: " + libraryFiles);
-				showFindings(loadingFindings);
-			}
-		} catch (RepositoryException e) {
-			// LOGGER.error("Could not add library file to project.");
-			DialogUserNotifier.openError("Add Project Error", "Could not add to project.", e);
-		} catch (LibraryLoaderException e) {
-			// LOGGER.error("Could not add library file to project.");
-			DialogUserNotifier.openError("Add Project Error", "Could not add to project.", e);
-		} catch (Throwable e) {
-			// LOGGER.error("Error when adding to project", e);
-			DialogUserNotifier.openError("Add Project Error", "Could not add to project.", e);
-		}
-		// LOGGER.debug("Added libraries to " + project.getName());
-		return newItems;
-	}
-
-	/**
-	 * @param loadingErrors
-	 */
-	private void showFindings(final ValidationFindings loadingErrors) {
-		if (!OtmRegistry.getMainWindow().hasDisplay()) {
-			LOGGER.debug("Showing " + loadingErrors.count() + " findings.");
-			for (String msg : loadingErrors.getAllValidationMessages(FindingMessageFormat.MESSAGE_ONLY_FORMAT))
-				LOGGER.debug("   " + msg);
-		} else {
-			// do not block UI
-			Display.getDefault().asyncExec(new Runnable() {
-
-				@Override
-				public void run() {
-					FindingsDialog.open(OtmRegistry.getActiveShell(), Messages.getString("dialog.findings.title"),
-							Messages.getString("dialog.findings.message"), loadingErrors.getAllFindingsAsList());
-
-				}
-			});
-		}
+	public LibraryNode add(LibraryChainNode lcn, AbstractLibrary tlLib) {
+		// FIXME - libraries do not know all the projects they might be in
+		// FIXME - new library is not added to library model manager
+		// Only used by DefaultRepositoryManager#createVersion()
+		LibraryNode ln = null;
+		// ProjectNode pn = lcn.getProject();
+		// if (lcn == null || pn == null || tlLib == null)
+		// throw new IllegalArgumentException("Null argument.");
+		//
+		// ProjectItem pi = null;
+		// try { // NOT NEEDED - done when version created
+		// pi = pn.getTLProject().getProjectManager().addUnmanagedProjectItem(tlLib, pn.getTLProject());
+		// } catch (RepositoryException e) {
+		// // LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
+		// DialogUserNotifier.openError("Add Project Error", e.getLocalizedMessage(), e);
+		// }
+		// if (pi != null)
+		// ln = new LibraryNode(pi, lcn);
+		// // mc.refresh(pn);
+		// // LOGGER.debug("Added library " + ln.getName() + " to " + pn);
+		return ln;
 	}
 
 	/**
@@ -233,30 +249,6 @@ public class DefaultProjectController implements ProjectController {
 			DialogUserNotifier.openError("Add Project Error", ex.getLocalizedMessage(), ex);
 		}
 		return lnn;
-	}
-
-	/**
-	 * Add tlLibrary to the chain
-	 * {@link org.opentravel.schemas.controllers.DefaultRepositoryController#createVersion(LibraryNode, boolean)}
-	 */
-	@Override
-	public LibraryNode add(LibraryNode ln, AbstractLibrary tlLib) {
-		ProjectNode pn = ln.getProject();
-		if (pn == null || tlLib == null)
-			throw new IllegalArgumentException("Null argument.");
-
-		ProjectItem pi = null;
-		try {
-			pi = pn.getTLProject().getProjectManager().addUnmanagedProjectItem(tlLib, pn.getTLProject());
-		} catch (RepositoryException e) {
-			// LOGGER.error("Could not add repository item to project. " + e.getLocalizedMessage());
-			DialogUserNotifier.openError("Add Project Error", e.getLocalizedMessage(), e);
-		}
-		if (pi != null)
-			ln = new LibraryNode(pi, ln.getChain());
-		mc.refresh(pn);
-		// LOGGER.debug("Added library " + ln.getName() + " to " + pn);
-		return ln;
 	}
 
 	/**
@@ -340,6 +332,135 @@ public class DefaultProjectController implements ProjectController {
 		return pi;
 	}
 
+	/**
+	 * @see {@link org.opentravel.schemas.node.ProjectNode#add()}
+	 */
+	@Override
+	public List<ProjectItem> addLibrariesToTLProject(Project project, List<File> libraryFiles) {
+		ValidationFindings findings = new ValidationFindings();
+		List<ProjectItem> newItems = Collections.emptyList();
+		try {
+			newItems = openLibrary(project, libraryFiles, findings);
+			ValidationFindings loadingFindings = getLoadingFindings(findings);
+			if (!loadingFindings.isEmpty()) {
+				// LOGGER.error("Validation findings opening: " + libraryFiles);
+				showFindings(loadingFindings);
+			}
+		} catch (RepositoryException e) {
+			// LOGGER.error("Could not add library file to project.");
+			DialogUserNotifier.openError("Add Project Error", "Could not add to project.", e);
+		} catch (LibraryLoaderException e) {
+			// LOGGER.error("Could not add library file to project.");
+			DialogUserNotifier.openError("Add Project Error", "Could not add to project.", e);
+		} catch (Throwable e) {
+			// LOGGER.error("Error when adding to project", e);
+			DialogUserNotifier.openError("Add Project Error", "Could not add to project.", e);
+		}
+		// LOGGER.debug("Added libraries to " + project.getName());
+		return newItems;
+	}
+
+	// /**
+	// * @param defaultProject
+	// * the defaultProject to set
+	// */
+	// public void setDefaultProject(ProjectNode defaultProject) {
+	// this.defaultProject = defaultProject;
+	// }
+
+	@Override
+	public boolean close(ProjectNode pn) {
+		boolean result = true;
+		if (pn == null || pn.isBuiltIn()) {
+			return result;
+		}
+		if (pn == getDefaultProject()) {
+			pn.closeAll();
+			for (ProjectItem item : pn.getTLProject().getProjectItems())
+				pn.getTLProject().remove(item);
+		} else {
+			LOGGER.debug("Closing project " + pn);
+			result = save(pn); // Try to save the project file
+			if (result) // If successful, try to close the TL Project
+				result = closeTL(pn.getTLProject().getProjectManager(), pn.getTLProject());
+
+			// No matter what, close the project node and remove from model
+			pn.close();
+			Node.getModelNode().removeProject(pn);
+
+			if (!result)
+				DialogUserNotifier.openError("Error Closing Project.", "Please restart.", null);
+			if (Display.getCurrent() != null)
+				mc.refresh();
+			if (!result)
+				LOGGER.warn("Error closing project " + pn);
+		}
+		return result;
+		// LOGGER.debug("Closed project: " + pn);
+	}
+
+	/**
+	 * Close all projects.
+	 * <P>
+	 * Use the TL project manager to close all TL libraries.
+	 * <p>
+	 * Close the model node to close projects, clear the library manager and reset implied nodes.
+	 */
+	@Override
+	public void closeAll() {
+		// for (ProjectNode project : getAll()) {
+		// close(project);
+		// }
+		boolean includeBuiltins = false;
+		mc.getModelNode().close(includeBuiltins);
+
+		mc.getModelNode().getTLModel().clearModel();
+		// to re-initializes the contents of the model
+		projectManager.closeAll();
+
+		// Assure the built-ins do not need to be remodeled
+		for (LibraryNode ln : getBuiltInProject().getLibraries()) {
+			assert ln == Node.GetNode(ln.getTLModelObject());
+			for (TypeProvider n : ln.getDescendants_TypeProviders()) {
+				// if (n.getWhereAssignedCount() > 0)
+				n.getWhereAssignedHandler().clear(); // FIXME - why is this needed?
+				assert n.getWhereAssignedCount() == 0;
+			}
+		}
+	}
+
+	// for some reason closing project is not reliable. Try multiple times
+	private boolean closeTL(ProjectManager pm, Project tlProject) {
+		int tryCount = 1;
+		int maxTries = 10; // 3/23/2018 - increased count from 5 to 10 after team having close problems.
+		while (tryCount < maxTries) {
+			try {
+				pm.closeProject(tlProject);
+				LOGGER.debug("Closed project " + tlProject.getName() + " on the " + tryCount + " try.");
+				return true;
+			} catch (ConcurrentModificationException e) {
+				LOGGER.error("ConcurrentModification error closing project - trying again " + tryCount);
+				tryCount++;
+				e.printStackTrace();
+			} catch (Exception ie) {
+				LOGGER.error("Error on retry closing project: " + ie.getLocalizedMessage());
+				tryCount++;
+				ie.printStackTrace();
+			}
+		}
+		return false;
+	}
+
+	// /**
+	// * Open and load project in current thread.
+	// */
+	// // Used by Revert
+	// @Override
+	// public ProjectNode openAndLoadProject(String fileName) {
+	// OpenedProject project = openTLProject(fileName);
+	// return loadProject(project.tlProject);
+	// }
+
 	@Override
 	public ProjectNode create(File file, String ID, String name, String description) {
 		Project newProject;
@@ -356,6 +477,22 @@ public class DefaultProjectController implements ProjectController {
 		}
 		return new ProjectNode(newProject);
 		// TODO - what to do if the default project is corrupt. The user will have no way to fix it.
+	}
+
+	protected void createDefaultProject() {
+		// FIXME - TESTME - this should be using the local repository ns.
+		defaultNS = mc.getRepositoryController().getLocalRepository().getNamespace();
+		defaultPath = DefaultPreferences.getDefaultProjectPath();
+
+		defaultProject = create(new File(defaultPath), defaultNS, "Default Project",
+				"Used for libraries not loaded into a project.");
+
+		if (defaultProject == null) {
+			DialogUserNotifier.openError("Default Project Error",
+					Messages.getString("error.openProject.defaultProject", defaultPath), null);
+		}
+		defaultPath = defaultProject.getTLProject().getProjectFile().getPath();
+		mc.getModelNode().addProject(defaultProject);
 	}
 
 	@Override
@@ -397,17 +534,91 @@ public class DefaultProjectController implements ProjectController {
 		return defaultProject == null ? "" : defaultProject.getNamespace();
 	}
 
-	// /**
-	// * @param defaultProject
-	// * the defaultProject to set
-	// */
-	// public void setDefaultProject(ProjectNode defaultProject) {
-	// this.defaultProject = defaultProject;
-	// }
+	/**
+	 * @param findings
+	 * @return
+	 */
+	private ValidationFindings getLoadingFindings(ValidationFindings findings) {
+		return LibraryModelLoader.filterLoaderFindings(findings);
+	}
+
+	/**
+	 * Get the memento with project data in them. Must be done in UI thread.
+	 * 
+	 * @return
+	 */
+	public XMLMemento getMemento() {
+		if (Display.getCurrent() == null)
+			LOGGER.warn("Warning - getting memento from thread that is not UI thread.");
+		XMLMemento memento = null;
+		FileReader reader = null;
+		try {
+			reader = new FileReader(getOTM_StateFile());
+			memento = XMLMemento.createReadRoot(reader);
+		} catch (FileNotFoundException e) {
+			// Ignored... no items exist yet.
+			return null;
+		} catch (Exception e) {
+			// Log the exception and move on.
+			LOGGER.error("getMemento error: " + getOTM_StateFile().toString() + " e= " + e);
+			return null;
+		} finally {
+			try {
+				if (reader != null)
+					reader.close();
+			} catch (IOException e) {
+				LOGGER.error("getMemento error: " + e);
+				return null;
+			}
+		}
+		// printout projects
+		// IMemento[] children = memento.getChildren(OTM_PROJECT);
+		// for (int i = 0; i < children.length; i++) {
+		// LOGGER.debug("GetMemento found project: " + children[i].getString(OTM_PROJECT_LOCATION));
+		// }
+
+		return memento;
+	}
 
 	@Override
 	public String getNamespace() {
 		return null;
+	}
+
+	@Override
+	public List<String> getOpenGovernedNamespaces() {
+		List<String> projects = new ArrayList<>();
+		for (Project p : projectManager.getAllProjects()) {
+			if (p instanceof BuiltInProject) {
+				continue;
+			}
+			projects.add(RepositoryNamespaceUtils.normalizeUri(p.getProjectId()));
+		}
+		return projects;
+	}
+
+	private File getOTM_StateFile() {
+		File ota2File = null;
+		File file = ((DefaultRepositoryController) OtmRegistry.getMainController().getRepositoryController())
+				.getRepositoryFileLocation();
+		if (file != null) {
+			String ota2FileName = file.getParentFile().getAbsolutePath() + File.separator + MementoFileName;
+			ota2File = new File(ota2FileName);
+			// LOGGER.debug("Repo Path = " + ota2File.getAbsolutePath());
+		} else {
+			ota2File = Activator.getDefault().getStateLocation().append(MementoFileName).toFile();
+		}
+		return ota2File;
+		// 9/11/2015 - FIXME - TESTME - use this path instead of plug-in location
+		// return Activator.getDefault().getStateLocation().append("OTM_Developer.xml").toFile();
+	}
+
+	@Override
+	public List<String> getSuggestedNamespaces() {
+		List<String> allowedNSs = new ArrayList<>();
+		allowedNSs.add(getDefaultUnmanagedNS());
+		allowedNSs.addAll(getOpenGovernedNamespaces());
+		return allowedNSs;
 	}
 
 	/**
@@ -455,6 +666,94 @@ public class DefaultProjectController implements ProjectController {
 	}
 
 	/**
+	 * Load a TL project into the GUI model. Creates Project Node which adds all the libraries in the project.
+	 * 
+	 * @param project
+	 */
+	public ProjectNode loadProject(Project project) {
+		if (project == null)
+			return null;
+		if (Display.getCurrent() != null) {
+			mc.showBusy(true);
+			mc.postStatus("Loading Project: " + project.getName());
+			mc.refresh();
+		}
+		// LOGGER.debug("Creating Project Node.");
+		ProjectNode pn = new ProjectNode(project);
+		if (Display.getCurrent() != null) {
+			mc.selectNavigatorNodeAndRefresh(pn);
+			mc.postStatus("Loaded Project: " + pn);
+			mc.showBusy(false);
+		}
+		return pn;
+	}
+
+	/**
+	 * Load the built-in project. Reads tl project from project manager.
+	 */
+	public void loadProject_BuiltIn() {
+		builtInProject = new ProjectNode(); // leave empty project to note we have tried to load
+		for (Project p : projectManager.getAllProjects()) {
+			if (p.getProjectId().equals(BuiltInProject.BUILTIN_PROJECT_ID)) {
+				builtInProject = loadProject(p);
+			}
+		}
+	}
+
+	public IStatus loadProjects(XMLMemento memento, IProgressMonitor monitor) {
+		if (memento != null) {
+			IMemento[] children = memento.getChildren(OTM_PROJECT);
+			monitor.beginTask("Opening Projects", memento.getChildren(OTM_PROJECT).length * 2);
+			for (IMemento mProject : children) {
+				monitor.subTask(mProject.getString(OTM_PROJECT_LOCATION));
+				// Skip the default project which is opened earlier
+				if (mProject.getString(OTM_PROJECT_LOCATION).equals(defaultPath))
+					continue;
+				open(mProject.getString(OTM_PROJECT_LOCATION), monitor);
+				monitor.worked(1);
+				if (monitor.isCanceled()) {
+					monitor.done();
+					return Status.CANCEL_STATUS;
+				}
+			}
+			return Status.OK_STATUS;
+		}
+		return Status.CANCEL_STATUS;
+	}
+
+	/**
+	 * {@link org.opentravel.schemas.actions.NewProjectAction#run()}
+	 */
+	@Override
+	public ProjectNode newProject() {
+		// Run the wizard
+		final NewProjectWizard wizard = new NewProjectWizard();
+		wizard.setValidator(new NewProjectValidator());
+		wizard.run(OtmRegistry.getActiveShell());
+		if (!wizard.wasCanceled()) {
+			create(wizard.getFile(), wizard.getNamespace(), wizard.getName(), wizard.getDescription());
+			mc.refresh();
+		}
+		return null;
+	}
+
+	// TODO - collapse these into one
+	/**
+	 * {@link org.opentravel.schemas.commands.CreateProjectFromRepo#execute(ExecutionEvent)}
+	 */
+	@Override
+	public void newProject(String defaultName, String selectedRoot, String selectedExt) {
+		// Run the wizard
+		final NewProjectWizard wizard = new NewProjectWizard(defaultName, selectedRoot, selectedExt);
+		wizard.setValidator(new NewProjectValidator());
+		wizard.run(OtmRegistry.getActiveShell());
+		if (!wizard.wasCanceled()) {
+			create(wizard.getFile(), wizard.getNamespace(), wizard.getName(), wizard.getDescription());
+			mc.refresh();
+		}
+	}
+
+	/**
 	 * Entry point for command handler.
 	 * 
 	 * Prompt the user for the file path. Creates job to run open(filePath, progressMonitor) then runs type resolver. If
@@ -497,15 +796,90 @@ public class DefaultProjectController implements ProjectController {
 		}
 	}
 
-	// /**
-	// * Open and load project in current thread.
-	// */
-	// // Used by Revert
-	// @Override
-	// public ProjectNode openAndLoadProject(String fileName) {
-	// OpenedProject project = openTLProject(fileName);
-	// return loadProject(project.tlProject);
-	// }
+	/**
+	 * Open Projects using the file names. Update UI and monitor twice for each file. Then loadProject() Used in open()
+	 * and refreshMaster()
+	 */
+	public OpenedProject open(ArrayList<String> projectFiles, IProgressMonitor monitor) {
+		// LOGGER.debug("Opening project from file: " + fileName);
+		OpenedProject op = null;
+		if (projectFiles == null || projectFiles.isEmpty()) {
+			op = new OpenedProject();
+			op.resultMsg = "Tried to open null or empty file.";
+			return op;
+		}
+		for (String fileName : projectFiles) {
+			if (monitor != null) {
+				monitor.subTask("Opening file " + fileName);
+			}
+			op = openTLProject(fileName);
+			if (op.tlProject == null) {
+				DialogUserNotifier.syncErrorWithUi("Failed to open project " + fileName + "\n" + op.resultMsg,
+						op.exception);
+				return null;
+			}
+
+			// Determine success/failure messages for the user
+			int itemCnt = op.tlProject.getProjectItems().size();
+			int failedCnt = 0;
+			String failures = "";
+			if (op.tlProject.getFailedProjectItems() != null)
+				failedCnt = op.tlProject.getFailedProjectItems().size();
+			if (failedCnt > 0) {
+				failures = "Project " + op.tlProject.getName() + ": ";
+				failures += "Read " + itemCnt + " items. Failed to Read " + failedCnt + " items.\n";
+				for (ProjectItemType item : op.tlProject.getFailedProjectItems())
+					if (item instanceof ManagedProjectItemType) {
+						failures += ((ManagedProjectItemType) item).getBaseNamespace();
+						failures += " " + ((ManagedProjectItemType) item).getFilename() + "\n";
+					}
+				LOGGER.warn(failures);
+			}
+			if (monitor != null) {
+				monitor.worked(1);
+				if (failedCnt > 0)
+					monitor.subTask(failures + "Attempting to create model.");
+				else
+					monitor.subTask("Read " + itemCnt + " items. Creating model");
+			}
+			op.project = loadProject(op.tlProject); // null param safe
+
+			// If project is null and monitor is not null then an error occurred in background
+			if (monitor != null) {
+				monitor.worked(1);
+				if (op.project == null)
+					DialogUserNotifier.syncErrorWithUi(op.resultMsg, op.exception);
+				else if (!failures.isEmpty())
+					DialogUserNotifier.syncErrorWithUi(failures, op.exception);
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						mc.refresh(); // update the user interface asynchronously
+					}
+				});
+			}
+		}
+		return op;
+	}
+
+	/**
+	 * Convenience function for {@link #open(ArrayList, IProgressMonitor)}. Opens project using the file name. Update
+	 * UI. Then loadProject()
+	 */
+	@Override
+	public OpenedProject open(String fileName, IProgressMonitor monitor) {
+		ArrayList<String> fileNames = new ArrayList<>();
+		fileNames.add(fileName);
+		return open(fileNames, monitor);
+	}
+
+	public List<ProjectItem> openLibrary(Project project, List<File> fileName, ValidationFindings findings)
+			throws LibraryLoaderException, RepositoryException {
+		List<ProjectItem> newItems = null;
+		// LOGGER.debug("Adding to project: " + project.getName() + " library files: " + fileName);
+		newItems = projectManager.addUnmanagedProjectItems(fileName, project, findings);
+		return newItems;
+	}
 
 	/**
 	 * Open the TL Project using the file name. If in the GUI thread will show busy.
@@ -585,10 +959,6 @@ public class DefaultProjectController implements ProjectController {
 		return op;
 	}
 
-	private String postLoadError(Throwable e, String fileName) {
-		return postLoadError(e.getLocalizedMessage(), e, fileName);
-	}
-
 	private String postLoadError(String msg, Throwable e, String fileName) {
 		String title = "Project Error";
 		String message = MessageFormat.format(Messages.getString("error.openProject.invalidRemoteProject"), msg,
@@ -602,268 +972,8 @@ public class DefaultProjectController implements ProjectController {
 		return message;
 	}
 
-	/**
-	 * Convenience function for {@link #open(ArrayList, IProgressMonitor)}. Opens project using the file name. Update
-	 * UI. Then loadProject()
-	 */
-	@Override
-	public OpenedProject open(String fileName, IProgressMonitor monitor) {
-		ArrayList<String> fileNames = new ArrayList<>();
-		fileNames.add(fileName);
-		return open(fileNames, monitor);
-	}
-
-	/**
-	 * Open Projects using the file names. Update UI and monitor twice for each file. Then loadProject() Used in open()
-	 * and refreshMaster()
-	 */
-	public OpenedProject open(ArrayList<String> projectFiles, IProgressMonitor monitor) {
-		// LOGGER.debug("Opening project from file: " + fileName);
-		OpenedProject op = null;
-		if (projectFiles == null || projectFiles.isEmpty()) {
-			op = new OpenedProject();
-			op.resultMsg = "Tried to open null or empty file.";
-			return op;
-		}
-		for (String fileName : projectFiles) {
-			if (monitor != null) {
-				monitor.subTask("Opening file " + fileName);
-			}
-			op = openTLProject(fileName);
-			if (op.tlProject == null) {
-				DialogUserNotifier.syncErrorWithUi("Failed to open project " + fileName + "\n" + op.resultMsg,
-						op.exception);
-				return null;
-			}
-
-			// Determine success/failure messages for the user
-			int itemCnt = op.tlProject.getProjectItems().size();
-			int failedCnt = 0;
-			String failures = "";
-			if (op.tlProject.getFailedProjectItems() != null)
-				failedCnt = op.tlProject.getFailedProjectItems().size();
-			if (failedCnt > 0) {
-				failures = "Project " + op.tlProject.getName() + ": ";
-				failures += "Read " + itemCnt + " items. Failed to Read " + failedCnt + " items.\n";
-				for (ProjectItemType item : op.tlProject.getFailedProjectItems())
-					if (item instanceof ManagedProjectItemType) {
-						failures += ((ManagedProjectItemType) item).getBaseNamespace();
-						failures += " " + ((ManagedProjectItemType) item).getFilename() + "\n";
-					}
-				LOGGER.warn(failures);
-			}
-			if (monitor != null) {
-				monitor.worked(1);
-				if (failedCnt > 0)
-					monitor.subTask(failures + "Attempting to create model.");
-				else
-					monitor.subTask("Read " + itemCnt + " items. Creating model");
-			}
-			op.project = loadProject(op.tlProject); // null param safe
-
-			// If project is null and monitor is not null then an error occurred in background
-			if (monitor != null) {
-				monitor.worked(1);
-				if (op.project == null)
-					DialogUserNotifier.syncErrorWithUi(op.resultMsg, op.exception);
-				else if (!failures.isEmpty())
-					DialogUserNotifier.syncErrorWithUi(failures, op.exception);
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						mc.refresh(); // update the user interface asynchronously
-					}
-				});
-			}
-		}
-		return op;
-	}
-
-	/**
-	 * @param findings
-	 * @return
-	 */
-	private ValidationFindings getLoadingFindings(ValidationFindings findings) {
-		return LibraryModelLoader.filterLoaderFindings(findings);
-	}
-
-	/**
-	 * Load a TL project into the GUI model. Creates Project Node which adds all the libraries in the project.
-	 * 
-	 * @param project
-	 */
-	public ProjectNode loadProject(Project project) {
-		if (project == null)
-			return null;
-		if (Display.getCurrent() != null) {
-			mc.showBusy(true);
-			mc.postStatus("Loading Project: " + project.getName());
-			mc.refresh();
-		}
-		// LOGGER.debug("Creating Project Node.");
-		ProjectNode pn = new ProjectNode(project);
-		if (Display.getCurrent() != null) {
-			mc.selectNavigatorNodeAndRefresh(pn);
-			mc.postStatus("Loaded Project: " + pn);
-			mc.showBusy(false);
-		}
-		return pn;
-	}
-
-	/**
-	 * Load the built-in project. Reads tl project from project manager.
-	 */
-	public void loadProject_BuiltIn() {
-		builtInProject = new ProjectNode(); // leave empty project to note we have tried to load
-		for (Project p : projectManager.getAllProjects()) {
-			if (p.getProjectId().equals(BuiltInProject.BUILTIN_PROJECT_ID)) {
-				builtInProject = loadProject(p);
-			}
-		}
-	}
-
-	@Override
-	public void remove(LibraryInterface library, ProjectNode pn) {
-		// The LibraryNavNode for this library may point to ANY project, don't use it
-		// Search the project for the nav node for this library
-		LibraryNavNode lnn = null;
-		for (Node n : pn.getChildren())
-			if (n instanceof LibraryNavNode)
-				if (((LibraryNavNode) n).contains(library)) {
-					lnn = (LibraryNavNode) n;
-					break;
-				}
-		remove(lnn);
-	}
-
-	@Override
-	public void remove(LibraryNavNode libraryNav) {
-		if (libraryNav != null)
-			remove(Collections.singletonList(libraryNav));
-	}
-
-	/**
-	 * Remove each library from Project node and tlProject. Close each library and save impacted projects.
-	 */
-	@Override
-	public void remove(List<LibraryNavNode> list) {
-		Set<ProjectNode> impactedProjects = new HashSet<>();
-		if (list.isEmpty())
-			return;
-
-		ProjectNode pn = list.get(0).getProject();
-		// Check consistency between TL and node projects
-		List<LibraryNode> nodes = pn.getLibraries();
-		List<ProjectItem> itemsB = pn.getTLProject().getProjectItems();
-
-		for (LibraryNavNode lnn : list) {
-			pn = lnn.getProject();
-			impactedProjects.add(pn);
-			// Project items are the individual libraries in a chain
-			for (LibraryNode ln : lnn.getLibraries()) {
-				ProjectItem tlPI = ln.getProjectItem();
-				assert tlPI.getContent() == ln.getTLModelObject();
-				assert pn.getTLProject().getProjectItems().contains(tlPI);
-				pn.getTLProject().remove(ln.getTLModelObject());
-				pn.getTLProject().remove(tlPI); // Redundant but sometimes necessary
-				// Check removal
-				// List<ProjectItem> items = pn.getTLProject().getProjectItems();
-				assert !pn.getTLProject().getProjectItems().contains(tlPI);
-				LOGGER.debug("Removed " + ln + " from project " + pn);
-			}
-			lnn.close();
-			assert (!pn.getChildren().contains(lnn));
-		}
-		for (ProjectNode imp : impactedProjects) {
-			OtmRegistry.getNavigatorView().refresh(imp, true);
-			save(pn);
-			LOGGER.debug("Save project: " + pn);
-		}
-
-		List<ProjectItem> itemsA = pn.getTLProject().getProjectItems();
-		// mc.refresh();
-	}
-
-	@Override
-	public boolean close(ProjectNode pn) {
-		boolean result = true;
-		if (pn == null || pn.isBuiltIn()) {
-			return result;
-		}
-		if (pn == getDefaultProject()) {
-			pn.closeAll();
-			for (ProjectItem item : pn.getTLProject().getProjectItems())
-				pn.getTLProject().remove(item);
-		} else {
-			LOGGER.debug("Closing project " + pn);
-			result = save(pn); // Try to save the project file
-			if (result) // If successful, try to close the TL Project
-				result = closeTL(pn.getTLProject().getProjectManager(), pn.getTLProject());
-
-			// No matter what, close the project node and remove from model
-			pn.close();
-			Node.getModelNode().removeProject(pn);
-
-			if (!result)
-				DialogUserNotifier.openError("Error Closing Project.", "Please restart.", null);
-			if (Display.getCurrent() != null)
-				mc.refresh();
-			if (!result)
-				LOGGER.warn("Error closing project " + pn);
-		}
-		return result;
-		// LOGGER.debug("Closed project: " + pn);
-	}
-
-	// for some reason closing project is not reliable. Try multiple times
-	private boolean closeTL(ProjectManager pm, Project tlProject) {
-		int tryCount = 0;
-		int maxTries = 10; // 3/23/2018 - increased count from 5 to 10 after team having close problems.
-		while (tryCount < maxTries) {
-			try {
-				pm.closeProject(tlProject);
-				return true;
-			} catch (ConcurrentModificationException e) {
-				LOGGER.error("ConcurrentModification error closing project - trying again " + tryCount);
-				tryCount++;
-				e.printStackTrace();
-			} catch (Exception ie) {
-				LOGGER.error("Error on retry closing project: " + ie.getLocalizedMessage());
-				tryCount++;
-				ie.printStackTrace();
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Close all projects.
-	 * <P>
-	 * Use the TL project manager to close all TL libraries.
-	 * <p>
-	 * Close the model node to close projects, clear the library manager and reset implied nodes.
-	 */
-	@Override
-	public void closeAll() {
-		// for (ProjectNode project : getAll()) {
-		// close(project);
-		// }
-		boolean includeBuiltins = false;
-		mc.getModelNode().close(includeBuiltins);
-
-		mc.getModelNode().getTLModel().clearModel();
-		// to re-initializes the contents of the model
-		projectManager.closeAll();
-
-		// Assure the built-ins do not need to be remodeled
-		for (LibraryNode ln : getBuiltInProject().getLibraries()) {
-			assert ln == Node.GetNode(ln.getTLModelObject());
-			for (TypeProvider n : ln.getDescendants_TypeProviders()) {
-				// if (n.getWhereAssignedCount() > 0)
-				n.getWhereAssignedHandler().clear(); // FIXME - why is this needed?
-				assert n.getWhereAssignedCount() == 0;
-			}
-		}
+	private String postLoadError(Throwable e, String fileName) {
+		return postLoadError(e.getLocalizedMessage(), e, fileName);
 	}
 
 	/**
@@ -956,6 +1066,102 @@ public class DefaultProjectController implements ProjectController {
 	}
 
 	@Override
+	public void remove(LibraryInterface library, ProjectNode pn) {
+		// The LibraryNavNode for this library may point to ANY project, don't use it
+		// Search the project for the nav node for this library
+		LibraryNavNode lnn = null;
+		for (Node n : pn.getChildren())
+			if (n instanceof LibraryNavNode)
+				if (((LibraryNavNode) n).contains(library)) {
+					lnn = (LibraryNavNode) n;
+					break;
+				}
+		remove(lnn);
+	}
+
+	@Override
+	public void remove(LibraryNavNode libraryNav) {
+		if (libraryNav != null)
+			remove(Collections.singletonList(libraryNav));
+	}
+
+	/**
+	 * Remove each library from Project node and tlProject. Close each library and save impacted projects.
+	 */
+	@Override
+	public void remove(List<LibraryNavNode> list) {
+		Set<ProjectNode> impactedProjects = new HashSet<>();
+		if (list.isEmpty())
+			return;
+
+		ProjectNode pn = list.get(0).getProject();
+		// Check consistency between TL and node projects
+		List<LibraryNode> nodes = pn.getLibraries();
+		List<ProjectItem> itemsB = pn.getTLProject().getProjectItems();
+
+		for (LibraryNavNode lnn : list) {
+			pn = lnn.getProject();
+			impactedProjects.add(pn);
+			// Project items are the individual libraries in a chain
+			for (LibraryNode ln : lnn.getLibraries()) {
+				try {
+					removeTL(ln.getTLModelObject(), ln.getProjectItem(), pn.getTLProject());
+				} catch (IllegalStateException e) {
+					LOGGER.debug("Error removing " + ln + " from project " + pn);
+					LOGGER.debug(e.getLocalizedMessage());
+					e.printStackTrace();
+					DialogUserNotifier.openWarning("Warning",
+							"There was an error closing " + ln + " from project " + pn);
+				}
+				// ProjectItem tlPI = ln.getProjectItem();
+				// assert tlPI.getContent() == ln.getTLModelObject();
+				// assert pn.getTLProject().getProjectItems().contains(tlPI);
+				// pn.getTLProject().remove(ln.getTLModelObject());
+				// pn.getTLProject().remove(tlPI); // Redundant but sometimes necessary
+				// // Check removal
+				// // List<ProjectItem> items = pn.getTLProject().getProjectItems();
+				// assert !pn.getTLProject().getProjectItems().contains(tlPI);
+				// LOGGER.debug("Removed " + ln + " from project " + pn);
+			}
+			lnn.close();
+			assert (!pn.getChildren().contains(lnn));
+		}
+		for (ProjectNode imp : impactedProjects) {
+			OtmRegistry.getNavigatorView().refresh(imp, true);
+			save(pn);
+			LOGGER.debug("Save project: " + pn);
+		}
+
+		List<ProjectItem> itemsA = pn.getTLProject().getProjectItems();
+		// mc.refresh();
+	}
+
+	private void removeTL(AbstractLibrary tlLibrary, ProjectItem tlPI, Project tlProject) throws IllegalStateException {
+		if (tlLibrary.getOwningModel() == null)
+			LOGGER.warn("Library " + tlLibrary.getName() + " has null owning model.");
+		if (tlPI.getContent() != tlLibrary)
+			throw new IllegalStateException("Project Item content is not same as passed library.");
+		if (!tlProject.getProjectItems().contains(tlPI))
+			throw new IllegalStateException("Project does not contain project item.");
+
+		//
+		tlProject.remove(tlLibrary);
+
+		// If for any reason the remove didn't work, try removing the PI directly.
+		if (tlProject.getProjectItems().contains(tlPI)) {
+			LOGGER.error("Removed " + tlLibrary.getName() + " from project " + tlProject.getName()
+					+ " but it was still contained in project. Removing project item.");
+			tlProject.remove(tlPI); // Redundant but might recover
+			// throw new IllegalStateException("Project still contains project item that was removed.");
+		}
+		// Check removal
+		if (tlProject.getProjectItems().contains(tlPI))
+			throw new IllegalStateException("Project still contains project item that was removed.");
+
+		LOGGER.debug("Removed " + tlLibrary.getName() + " from project " + tlProject.getName());
+	}
+
+	@Override
 	public void save() {
 		save(getDefaultProject());
 	}
@@ -984,8 +1190,6 @@ public class DefaultProjectController implements ProjectController {
 		mc.showBusy(true);
 		try {
 			pn.getTLProject().getProjectManager().saveProject(pn.getTLProject());
-			// save the project file only, not the libraries and ignore findings
-			// pn.getTLProject().getProjectManager().saveProject(pn.getTLProject(), true, null);
 		} catch (LibrarySaveException e) {
 			LOGGER.error("Could not save project: " + e.getLocalizedMessage());
 			mc.showBusy(false);
@@ -998,160 +1202,15 @@ public class DefaultProjectController implements ProjectController {
 		return true;
 	}
 
-	// @Override
-	// public void save(List<ProjectNode> projects) {
-	// // UNUSED
-	// for (ProjectNode pn : projects)
-	// save(pn);
-	// }
-
-	@Override
-	public void saveAll() {
-		// UNUSED
-		ProjectManager pm = getDefaultProject().getTLProject().getProjectManager();
-		for (Project p : pm.getAllProjects())
-			try {
-				pm.saveProject(p);
-			} catch (LibrarySaveException e) {
-				// e.printStackTrace();
-				LOGGER.error("Could not save project");
-			}
-
-	}
-
-	/**
-	 * {@link org.opentravel.schemas.actions.NewProjectAction#run()}
-	 */
-	@Override
-	public ProjectNode newProject() {
-		// Run the wizard
-		final NewProjectWizard wizard = new NewProjectWizard();
-		wizard.setValidator(new NewProjectValidator());
-		wizard.run(OtmRegistry.getActiveShell());
-		if (!wizard.wasCanceled()) {
-			create(wizard.getFile(), wizard.getNamespace(), wizard.getName(), wizard.getDescription());
-			mc.refresh();
-		}
-		return null;
-	}
-
-	// TODO - collapse these into one
-	/**
-	 * {@link org.opentravel.schemas.commands.CreateProjectFromRepo#execute(ExecutionEvent)}
-	 */
-	@Override
-	public void newProject(String defaultName, String selectedRoot, String selectedExt) {
-		// Run the wizard
-		final NewProjectWizard wizard = new NewProjectWizard(defaultName, selectedRoot, selectedExt);
-		wizard.setValidator(new NewProjectValidator());
-		wizard.run(OtmRegistry.getActiveShell());
-		if (!wizard.wasCanceled()) {
-			create(wizard.getFile(), wizard.getNamespace(), wizard.getName(), wizard.getDescription());
-			mc.refresh();
+	private void saveFavorites(XMLMemento memento) {
+		Iterator<IProjectToken> iter = openProjects.iterator();
+		while (iter.hasNext()) {
+			IProjectToken item = iter.next();
+			IMemento child = memento.createChild(OTM_PROJECT);
+			child.putString(OTM_PROJECT_NAME, item.getName());
+			child.putString(OTM_PROJECT_LOCATION, item.getLocation());
 		}
 	}
-
-	@Override
-	public List<String> getSuggestedNamespaces() {
-		List<String> allowedNSs = new ArrayList<>();
-		allowedNSs.add(getDefaultUnmanagedNS());
-		allowedNSs.addAll(getOpenGovernedNamespaces());
-		return allowedNSs;
-	}
-
-	@Override
-	public List<String> getOpenGovernedNamespaces() {
-		List<String> projects = new ArrayList<>();
-		for (Project p : projectManager.getAllProjects()) {
-			if (p instanceof BuiltInProject) {
-				continue;
-			}
-			projects.add(RepositoryNamespaceUtils.normalizeUri(p.getProjectId()));
-		}
-		return projects;
-	}
-
-	/**
-	 * Get the memento with project data in them. Must be done in UI thread.
-	 * 
-	 * @return
-	 */
-	public XMLMemento getMemento() {
-		if (Display.getCurrent() == null)
-			LOGGER.warn("Warning - getting memento from thread that is not UI thread.");
-		XMLMemento memento = null;
-		FileReader reader = null;
-		try {
-			reader = new FileReader(getOTM_StateFile());
-			memento = XMLMemento.createReadRoot(reader);
-		} catch (FileNotFoundException e) {
-			// Ignored... no items exist yet.
-			return null;
-		} catch (Exception e) {
-			// Log the exception and move on.
-			LOGGER.error("getMemento error: " + getOTM_StateFile().toString() + " e= " + e);
-			return null;
-		} finally {
-			try {
-				if (reader != null)
-					reader.close();
-			} catch (IOException e) {
-				LOGGER.error("getMemento error: " + e);
-				return null;
-			}
-		}
-		// printout projects
-		// IMemento[] children = memento.getChildren(OTM_PROJECT);
-		// for (int i = 0; i < children.length; i++) {
-		// LOGGER.debug("GetMemento found project: " + children[i].getString(OTM_PROJECT_LOCATION));
-		// }
-
-		return memento;
-	}
-
-	public IStatus loadProjects(XMLMemento memento, IProgressMonitor monitor) {
-		if (memento != null) {
-			IMemento[] children = memento.getChildren(OTM_PROJECT);
-			monitor.beginTask("Opening Projects", memento.getChildren(OTM_PROJECT).length * 2);
-			for (IMemento mProject : children) {
-				monitor.subTask(mProject.getString(OTM_PROJECT_LOCATION));
-				// Skip the default project which is opened earlier
-				if (mProject.getString(OTM_PROJECT_LOCATION).equals(defaultPath))
-					continue;
-				open(mProject.getString(OTM_PROJECT_LOCATION), monitor);
-				monitor.worked(1);
-				if (monitor.isCanceled()) {
-					monitor.done();
-					return Status.CANCEL_STATUS;
-				}
-			}
-			return Status.OK_STATUS;
-		}
-		return Status.CANCEL_STATUS;
-	}
-
-	/**
-	 * If you don't have a default project, make one.
-	 */
-	public void testAndSetDefaultProject() {
-		defaultNS = OtmRegistry.getMainController().getRepositoryController().getLocalRepository().getNamespace();
-		for (ProjectNode pn : getAll()) {
-			if (pn.getTLProject().getProjectId().equals(defaultNS)) {
-				defaultProject = pn;
-				break;
-			}
-		}
-		if (defaultProject == null) {
-			createDefaultProject();
-		}
-	}
-
-	Collection<IProjectToken> openProjects = new ArrayList<>();
-	private static final String OTM_PROJECTS = "OTM_Projects";
-	// private static final String TAG_FAVORITES = "Favorites";
-	public static final String OTM_PROJECT = "Project";
-	private static final String OTM_PROJECT_NAME = "Name";
-	private static final String OTM_PROJECT_LOCATION = "Location";
 
 	/**
 	 * Save the currently open project state using the Eclipse utilities. Saved to:
@@ -1193,131 +1252,41 @@ public class DefaultProjectController implements ProjectController {
 		// }
 	}
 
-	public static String MementoFileName = "OTM_DE_Startup.xml";
-
-	private File getOTM_StateFile() {
-		File ota2File = null;
-		File file = ((DefaultRepositoryController) OtmRegistry.getMainController().getRepositoryController())
-				.getRepositoryFileLocation();
-		if (file != null) {
-			String ota2FileName = file.getParentFile().getAbsolutePath() + File.separator + MementoFileName;
-			ota2File = new File(ota2FileName);
-			// LOGGER.debug("Repo Path = " + ota2File.getAbsolutePath());
+	/**
+	 * @param loadingErrors
+	 */
+	private void showFindings(final ValidationFindings loadingErrors) {
+		if (!OtmRegistry.getMainWindow().hasDisplay()) {
+			LOGGER.debug("Showing " + loadingErrors.count() + " findings.");
+			for (String msg : loadingErrors.getAllValidationMessages(FindingMessageFormat.MESSAGE_ONLY_FORMAT))
+				LOGGER.debug("   " + msg);
 		} else {
-			ota2File = Activator.getDefault().getStateLocation().append(MementoFileName).toFile();
-		}
-		return ota2File;
-		// 9/11/2015 - FIXME - TESTME - use this path instead of plug-in location
-		// return Activator.getDefault().getStateLocation().append("OTM_Developer.xml").toFile();
-	}
+			// do not block UI
+			Display.getDefault().asyncExec(new Runnable() {
 
-	private void saveFavorites(XMLMemento memento) {
-		Iterator<IProjectToken> iter = openProjects.iterator();
-		while (iter.hasNext()) {
-			IProjectToken item = iter.next();
-			IMemento child = memento.createChild(OTM_PROJECT);
-			child.putString(OTM_PROJECT_NAME, item.getName());
-			child.putString(OTM_PROJECT_LOCATION, item.getLocation());
+				@Override
+				public void run() {
+					FindingsDialog.open(OtmRegistry.getActiveShell(), Messages.getString("dialog.findings.title"),
+							Messages.getString("dialog.findings.message"), loadingErrors.getAllFindingsAsList());
+
+				}
+			});
 		}
 	}
 
-	// TODO - consider eliminate this extra class - just load into the project. it was used to make saving to memento
-	// generic.
-	public interface IProjectToken extends IAdaptable {
-		String getName();
-
-		void setName(String newName);
-
-		String getLocation();
-
-		static IProjectToken[] NONE = new IProjectToken[] {};
-	}
-
-	public class ProjectToken implements IProjectToken {
-		private String name;
-		private String location;
-
-		// private final String id;
-		// private final int ordinal;
-
-		public ProjectToken(File file) {
-			try {
-				location = file.getCanonicalPath();
-			} catch (IOException e) {
-				LOGGER.error("Could not create project token due to bad path.");
-				// e.printStackTrace();
+	/**
+	 * If you don't have a default project, make one.
+	 */
+	public void testAndSetDefaultProject() {
+		defaultNS = OtmRegistry.getMainController().getRepositoryController().getLocalRepository().getNamespace();
+		for (ProjectNode pn : getAll()) {
+			if (pn.getTLProject().getProjectId().equals(defaultNS)) {
+				defaultProject = pn;
+				break;
 			}
 		}
-
-		@Override
-		public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
-			// TODO Auto-generated method stub
-			return null;
+		if (defaultProject == null) {
+			createDefaultProject();
 		}
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public void setName(String newName) {
-			name = newName;
-		}
-
-		@Override
-		public String getLocation() {
-			return location;
-		}
-
 	}
-
-	// /**
-	// * Open a project in a UI thread with wait cursor.
-	// *
-	// * See DefaultRepositoryController for details.
-	// *
-	// * @author Dave
-	// *
-	// */
-	// // UNUSED
-	// // @Deprecated
-	// class OpenProjectThread extends Thread {
-	// private String fileName;
-	// private ValidationFindings findings = new ValidationFindings();
-	// private ProjectNode projectNode = null;
-	//
-	// public OpenProjectThread(String filename) {
-	// this.fileName = filename;
-	// }
-	//
-	// public ValidationFindings getFindings() {
-	// return findings;
-	// }
-	//
-	// public ProjectNode getProjectNode() {
-	// return projectNode;
-	// }
-	//
-	// public void run() {
-	// Project project = openTLProject(fileName).tlProject;
-	// if (project != null) {
-	// ValidationFindings loadingFindings = getLoadingFindings(findings);
-	// if (!loadingFindings.isEmpty()) {
-	// showFindings(loadingFindings);
-	// // for (String finding : loadingFindings
-	// // .getAllValidationMessages(FindingMessageFormat.MESSAGE_ONLY_FORMAT))
-	// // LOGGER.debug("Finding: " + finding);
-	// }
-	//
-	// projectNode = loadProject(project); // Create gui model for the project
-	//
-	// final ValidationResultsView view = OtmRegistry.getValidationResultsView();
-	// if (view != null) {
-	// view.setFindings(findings, projectNode);
-	// }
-	// }
-	// }
-	// }
-
 }

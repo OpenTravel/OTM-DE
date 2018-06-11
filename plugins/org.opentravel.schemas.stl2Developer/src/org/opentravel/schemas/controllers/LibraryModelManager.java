@@ -214,7 +214,7 @@ public class LibraryModelManager {
 	 */
 	public void close(LibraryInterface lib, ProjectNode projectNode) {
 		// LOGGER.debug("Closing " + ((Node) lib).getName());
-		LibraryOwner alternateOwner = getFirstOtherProject(lib, projectNode);
+		LibraryOwner alternateOwner = getFirstOtherProject(lib, projectNode, true);
 		if (alternateOwner != null) {
 			assert alternateOwner.getProject() != projectNode;
 			// LOGGER.debug("Only remove from project. " + ((Node) lib).getName());
@@ -365,23 +365,32 @@ public class LibraryModelManager {
 
 	/**
 	 * Return the library owner for the passed library that is not in the passed project or null if not found.
+	 * <p>
+	 * <b>Note:</b> returned library owner <i>may</i> have the skipped project as its parent!
 	 * 
 	 * @param lib
 	 * @param project
 	 *            the project to skip. If null, all projects will be searched.
+	 * @param setProject
+	 *            if true, and the found library owner is a LibraryNavNode (not a library in a chain) then the navNode
+	 *            will be removed from its current parent and parent will be set to the found project.
 	 * @return
 	 */
-	public LibraryOwner getFirstOtherProject(LibraryInterface lib, ProjectNode project) {
+	public LibraryOwner getFirstOtherProject(LibraryInterface lib, ProjectNode project, boolean setProject) {
 		LibraryOwner lo = null;
 
 		for (ProjectNode pn : parent.getUserProjects()) {
 			if (pn == project)
 				continue; // find other project
 			if (pn.contains(lib)) {
-				// Another project was found
+				// Another project was found, find and return the correct owner
 				for (Node n : pn.getChildren())
 					if (n instanceof LibraryOwner)
 						if (((LibraryOwner) n).contains(lib)) {
+							if (n.getParent() != pn)
+								LOGGER.error("Library Owner has wrong parent " + n);
+							// if (n instanceof LibraryNavNode && ((LibraryOwner) n).getProject() == project)
+							// ((LibraryNavNode) n).setProject(pn, true);
 							return (LibraryOwner) n;
 						}
 			}
@@ -472,7 +481,7 @@ public class LibraryModelManager {
 	 * @return if the library is used in any other projects.
 	 */
 	public boolean isUsedElsewhere(LibraryInterface lib, ProjectNode project) {
-		return getFirstOtherProject(lib, project) != null;
+		return getFirstOtherProject(lib, project, false) != null;
 	}
 
 	private LibraryNavNode modelLibraryInterface(ProjectItem pi, ProjectNode project) {

@@ -335,6 +335,13 @@ public class ContextualFacetTests {
 	}
 
 	public void check(AbstractContextualFacet cf, boolean validate) {
+		// TL Structure
+		assertTrue(cf.getTLModelObject() instanceof TLContextualFacet);
+		assertTrue(cf.getTLModelObject().getOwningEntity() != null);
+		if (cf.getWhereContributed() != null)
+			assertTrue(
+					cf.getWhereContributed().getParent().getTLModelObject() == cf.getTLModelObject().getOwningEntity());
+
 		// setName()
 		//
 		final String NEWNAME = "myName";

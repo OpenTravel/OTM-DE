@@ -1227,6 +1227,9 @@ public abstract class Node implements INode {
 		return false;
 	}
 
+	/**
+	 * @return true if node has a library which is builtIn() (TL is instanceof BuiltInLibrary)
+	 */
 	public boolean isBuiltIn() {
 		return getLibrary() != null && getLibrary().isBuiltIn();
 	}

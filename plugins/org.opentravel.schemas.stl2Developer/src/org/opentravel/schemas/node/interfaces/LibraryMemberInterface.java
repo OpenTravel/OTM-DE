@@ -17,6 +17,7 @@ package org.opentravel.schemas.node.interfaces;
 
 import java.util.List;
 
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemas.node.VersionNode;
 import org.opentravel.schemas.node.handlers.children.ChildrenHandlerI;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -70,7 +71,7 @@ public interface LibraryMemberInterface extends INode {
 	/**
 	 * @return
 	 */
-	public Object getTLModelObject();
+	public TLModelElement getTLModelObject();
 
 	/**
 	 * @return
