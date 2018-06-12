@@ -185,8 +185,8 @@ public class ModelNode extends Node implements TypeProviderAndOwners {
 	}
 
 	/**
-	 * Model should be reset using {@link ProjectController#closeAll()} not this since project controller has access to
-	 * TLProjects.
+	 * Model should be reset using {@link ProjectController#closeAll()} not this method since project controller has
+	 * access to TLProjects.
 	 */
 	public void close(boolean includeBuiltins) {
 		List<ProjectNode> projects = getUserProjects();

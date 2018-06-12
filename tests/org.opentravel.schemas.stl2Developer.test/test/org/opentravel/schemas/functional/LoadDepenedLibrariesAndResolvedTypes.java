@@ -15,38 +15,41 @@
  */
 package org.opentravel.schemas.functional;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Assert;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opentravel.schemacompiler.repository.RepositoryException;
 import org.opentravel.schemacompiler.saver.LibrarySaveException;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.controllers.repository.RepositoryIntegrationTestBase;
-import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
+import org.opentravel.schemas.node.properties.IndicatorNode;
 import org.opentravel.schemas.node.properties.PropertyNode;
-import org.opentravel.schemas.node.properties.PropertyNodeType;
+import org.opentravel.schemas.node.typeProviders.ContextualFacetNode;
+import org.opentravel.schemas.node.typeProviders.CustomFacetNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
+import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
+import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
 import org.opentravel.schemas.trees.repository.RepositoryNode.RepositoryItemNode;
-import org.opentravel.schemas.utils.ComponentNodeBuilder;
-import org.opentravel.schemas.utils.LibraryNodeBuilder;
-import org.opentravel.schemas.utils.PropertyNodeBuilder;
-import org.osgi.framework.Version;
 
 /**
- * @author Pawel Jedruch
+ * @author Pawel Jedruch / Dave Hollander
  * 
  */
 public class LoadDepenedLibrariesAndResolvedTypes extends RepositoryIntegrationTestBase {
@@ -54,6 +57,7 @@ public class LoadDepenedLibrariesAndResolvedTypes extends RepositoryIntegrationT
 	private ProjectNode uploadProject;
 	private LibraryNode baseLib;
 	private LibraryNode extLib;
+	private MockLibrary ml = new MockLibrary();
 
 	@Override
 	public RepositoryNode getRepositoryForTest() {
@@ -65,34 +69,58 @@ public class LoadDepenedLibrariesAndResolvedTypes extends RepositoryIntegrationT
 		throw new IllegalStateException("Missing remote repository. Check your configuration.");
 	}
 
+	@AfterClass
+	public final static void afterTheseTests() {
+		OTM16Upgrade.otm16Enabled = false;
+	}
+
+	@BeforeClass
+	public final static void beforeTheseTests() {
+		OTM16Upgrade.otm16Enabled = true;
+	}
+
+	/**
+	 * Create 2 libraries in the <i>uploadProject</i>. Simple type in base library used as type in the ext Library
+	 * 
+	 * @throws RepositoryException
+	 * @throws LibrarySaveException
+	 */
 	@Before
 	public void beforeEachTest2() throws RepositoryException, LibrarySaveException {
 		uploadProject = createProject("RepositoryProject", getRepositoryForTest(), "dependencies");
-		baseLib = LibraryNodeBuilder.create("Base", uploadProject.getNamespace(), "o1", new Version(1, 0, 0)).build(
-				uploadProject, pc);
-		SimpleTypeNode simpleInBase = ComponentNodeBuilder.createSimpleObject("MyString")
-				.assignType(NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE)).get();
-		baseLib.addMember(simpleInBase);
 
-		extLib = LibraryNodeBuilder.create("Ext", uploadProject.getNamespace(), "o1", new Version(1, 0, 0)).build(
-				uploadProject, pc);
-		PropertyNode withAssignedType = PropertyNodeBuilder.create(PropertyNodeType.ATTRIBUTE).setName("Attribute")
-				.build();
-		VWA_Node vwa = ComponentNodeBuilder.createVWA("VWA").addAttribute(withAssignedType).get();
-		extLib.addMember(vwa);
-		withAssignedType.setAssignedType(simpleInBase);
+		baseLib = ml.createNewLibrary_Empty(uploadProject.getNamespace(), "Base", uploadProject);
+		SimpleTypeNode simpleInBase = ml.addSimpleTypeToLibrary(baseLib, "MyString");
+		simpleInBase.setAssignedType(ml.getXsdString());
 
-		Assert.assertTrue("", uploadProject != null);
-		Assert.assertTrue("", baseLib != null);
-		Assert.assertTrue("", extLib != null);
-		Assert.assertTrue("", baseLib.isEditable());
-		Assert.assertTrue("", extLib.isEditable());
-		Assert.assertTrue("", baseLib.getProject() == uploadProject);
-		Assert.assertTrue("", extLib.getProject() == uploadProject);
-		Assert.assertTrue("", simpleInBase != null);
-		Assert.assertTrue("", withAssignedType != null);
-		Assert.assertTrue("", withAssignedType.getAssignedType() == simpleInBase);
-		Assert.assertTrue("", vwa != null);
+		// Create a valid Business Object for contextual facet and resource tests
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(baseLib, "BaseBO", true);
+
+		extLib = ml.createNewLibrary_Empty(uploadProject.getNamespace(), "Ext", uploadProject);
+		VWA_Node vwa = ml.addVWA_ToLibrary(extLib, "VWA");
+		PropertyNode withAssignedType = new AttributeNode(vwa.getFacet_Attributes(), "attribute1", simpleInBase);
+
+		assert uploadProject != null;
+		assert baseLib != null;
+		assert extLib != null;
+		assert baseLib.isEditable();
+		assert extLib.isEditable();
+		assert baseLib.getProject() == uploadProject;
+		assert extLib.getProject() == uploadProject;
+		assert simpleInBase != null;
+		assert bo != null;
+		assert withAssignedType != null;
+		assert withAssignedType.getAssignedType() == simpleInBase;
+		assert vwa != null;
+		ml.check(uploadProject);
+	}
+
+	@Test
+	public void manageBothLibraries() throws RepositoryException, LibrarySaveException {
+		// When - both are managed in one call
+		rc.manage(getRepositoryForTest(), Arrays.asList(extLib, baseLib));
+		// Then
+		assertAllLibrariesLoadedCorrectly(baseLib.getChain(), extLib.getChain());
 	}
 
 	@Test
@@ -101,15 +129,6 @@ public class LoadDepenedLibrariesAndResolvedTypes extends RepositoryIntegrationT
 		LibraryChainNode baseChain = rc.manage(getRepositoryForTest(), Collections.singletonList(baseLib)).get(0);
 		LibraryChainNode extChain = rc.manage(getRepositoryForTest(), Collections.singletonList(extLib)).get(0);
 		// Then
-		assertAllLibrariesLoadedCorrectly(baseChain, extChain);
-	}
-
-	@Test
-	public void manageBothLibraries() throws RepositoryException, LibrarySaveException {
-		List<LibraryChainNode> chains = rc.manage(getRepositoryForTest(), Arrays.asList(extLib, baseLib));
-		LibraryChainNode extChain = findLibrary(extLib.getName(), chains);
-		LibraryChainNode baseChain = findLibrary(baseLib.getName(), chains);
-
 		assertAllLibrariesLoadedCorrectly(baseChain, extChain);
 	}
 
@@ -123,28 +142,94 @@ public class LoadDepenedLibrariesAndResolvedTypes extends RepositoryIntegrationT
 
 	}
 
-	private void assertAllLibrariesLoadedCorrectly(LibraryChainNode baseChain, LibraryChainNode extChain) {
-		// Given - an empty project with libraries in the repository
+	@Test
+	public void DT_contextualFacets() throws RepositoryException, LibrarySaveException {
+		// When - both are managed in one call
+		rc.manage(getRepositoryForTest(), Arrays.asList(extLib, baseLib));
 
+		// When - both libraries are editable
+		rc.lock(baseLib);
+		rc.lock(extLib);
+		assert baseLib.isEditable();
+		assert extLib.isEditable();
+
+		// When - business object and contextual facets added
+		// BusinessObjectNode bo = ml.addBusinessObjectToLibrary(baseLib, "CFBase", true);
+		// assert bo != null;
+		BusinessObjectNode bo = findBusinessObject(baseLib.getChain());
+		ContextualFacetNode cf = new CustomFacetNode();
+		extLib.addMember(cf);
+		cf.setName("Custom1");
+		new IndicatorNode(cf, "One");
+		cf.setOwner(bo);
+
+		// When - libraries are saved
+		mc.getLibraryController().saveLibrary(baseLib, true);
+		mc.getLibraryController().saveLibrary(extLib, true);
+
+		// Then
+		assertAllLibrariesLoadedCorrectly(baseLib.getChain(), extLib.getChain());
+	}
+
+	private void assertAllLibrariesLoadedCorrectly(LibraryChainNode baseChain, LibraryChainNode extChain) {
 		// find repository item before delete.
+		ml.check(uploadProject);
 		RepositoryItemNode nodeToRetrive = findRepositoryItem(extChain, getRepositoryForTest());
 
 		// Remove libraries from TL and GUI models
 		mc.getProjectController().remove((LibraryNavNode) baseChain.getParent());
 		mc.getProjectController().remove((LibraryNavNode) extChain.getParent());
-		Assert.assertEquals(0, uploadProject.getChildren().size());
+		assertTrue("Project must be empty.", 0 == uploadProject.getChildren().size());
 
 		// When - load only 1 library which should also load the other to resolve dependencies
 		pc.add(uploadProject, nodeToRetrive.getItem());
 
-		// Then - make sure that base library is loaded and type are resolved
-		Assert.assertEquals(2, uploadProject.getChildren().size());
-		LibraryChainNode lib = findLibrary(extLib.getName(), uploadProject.getChildren());
-		Assert.assertTrue("Ext Library must be in project.", lib != null);
-		VWA_Node vwaNode = (VWA_Node) lib.getDescendants_LibraryMembersAsNodes().get(0);
-		Assert.assertTrue("VWA must be found.", vwaNode instanceof VWA_Node);
+		// Then - make sure that Ext library is loaded
+		assertTrue("Must have 2 library chains.", 2 == uploadProject.getChildren().size());
+		LibraryChainNode eLcn = findLibrary(extLib.getName(), uploadProject.getChildren());
+		assertTrue("Ext Library must be in project.", eLcn != null);
+		LibraryChainNode bLcn = findLibrary(baseLib.getName(), uploadProject.getChildren());
+		assertTrue("Base Library must be in project.", bLcn != null);
+
+		// Then - make sure the BO is loaded
+		BusinessObjectNode bo = findBusinessObject(bLcn);
+		assertTrue("Must find business object.", bo != null);
+
+		// Then - make sure the VWA is loaded
+		VWA_Node vwaNode = null;
+		for (LibraryMemberInterface lm : eLcn.getDescendants_LibraryMembers())
+			if (lm instanceof VWA_Node)
+				vwaNode = (VWA_Node) lm;
+		assertTrue("VWA must be found.", vwaNode instanceof VWA_Node);
+
+		// Then - make sure the attribute type is assigned
 		AttributeNode attr = (AttributeNode) vwaNode.getFacet_Attributes().getChildren().get(0);
-		Assert.assertTrue("attribute must have assigned type.", !attr.isUnAssigned());
+		assertTrue("Attribute must be found.", attr != null);
+		assertTrue("Attribute must have assigned type.", !attr.isUnAssigned());
+
+		// May be empty depending on which test
+		CustomFacetNode cf = findCustomFacet(eLcn);
+		if (cf != null) {
+			assertTrue("Facet must have TL Owner", cf.getTLModelObject().getOwningEntity() != null);
+			assertTrue("Contextual facet must have an contributor.", cf.getWhereContributed() != null);
+		}
+
+		// Finally - check the entire project
+		ml.check(uploadProject);
+	}
+
+	private BusinessObjectNode findBusinessObject(LibraryChainNode lcn) {
+		for (LibraryMemberInterface lm : lcn.getDescendants_LibraryMembers())
+			if (lm instanceof BusinessObjectNode)
+				return (BusinessObjectNode) lm;
+		return null;
+	}
+
+	private CustomFacetNode findCustomFacet(LibraryChainNode lcn) {
+		for (LibraryMemberInterface lm : lcn.getDescendants_LibraryMembers())
+			if (lm instanceof CustomFacetNode)
+				return (CustomFacetNode) lm;
+		return null;
 	}
 
 	private LibraryChainNode findLibrary(String name, Collection<? extends Node> libs) {

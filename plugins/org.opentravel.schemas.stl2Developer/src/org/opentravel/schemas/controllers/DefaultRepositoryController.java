@@ -945,7 +945,8 @@ public class DefaultRepositoryController implements RepositoryController {
 				ProjectController pc = mc.getProjectController();
 				List<ProjectNode> pList = libMrg.findProjects(library);
 				for (ProjectNode pn : libMrg.findProjects(library)) {
-					pc.remove(library, pn);
+					assert library.getParent() instanceof LibraryNavNode;
+					pc.remove((LibraryNavNode) library.getParent());
 					// NavNode will be created with library is create in the original project
 					if (pn != thisProject)
 						new LibraryNavNode(lcn, pn);

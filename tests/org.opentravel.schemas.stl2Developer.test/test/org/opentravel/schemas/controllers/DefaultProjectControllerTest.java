@@ -52,11 +52,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Pawel Jedruch
+ * @author Pawel Jedruch / Dave Hollander
  * 
  */
 public class DefaultProjectControllerTest extends BaseProjectTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultProjectControllerTest.class);
+
+	ProjectNode pn1;
+	ProjectNode pn2;
 
 	@Test
 	public void closeShouldRemoveProject() throws LibrarySaveException {
@@ -81,8 +84,9 @@ public class DefaultProjectControllerTest extends BaseProjectTest {
 	@Test
 	public void closeShouldReloadDefaultProject() throws LibrarySaveException {
 		// Given - one library in the default project
-		LibraryNode lib = LibraryNodeBuilder.create("TestLib", pc.getDefaultProject().getNamespace(), "a",
-				Version.emptyVersion).build(pc.getDefaultProject(), pc);
+		LibraryNode lib = LibraryNodeBuilder
+				.create("TestLib", pc.getDefaultProject().getNamespace(), "a", Version.emptyVersion)
+				.build(pc.getDefaultProject(), pc);
 		ProjectNode defaultProjectBeforeClose = pc.getDefaultProject();
 		Assert.assertEquals(1, defaultProjectBeforeClose.getLibraries().size());
 
@@ -103,15 +107,17 @@ public class DefaultProjectControllerTest extends BaseProjectTest {
 	@Test
 	public void crossLibraryLinks() throws LibrarySaveException {
 		// Given - library LocalOne with one member
-		LibraryNode local1 = LibraryNodeBuilder.create("LocalOne", testProject.getNamespace() + "/Test/One", "o1",
-				new Version(1, 0, 0)).build(testProject, pc);
+		LibraryNode local1 = LibraryNodeBuilder
+				.create("LocalOne", testProject.getNamespace() + "/Test/One", "o1", new Version(1, 0, 0))
+				.build(testProject, pc);
 		SimpleTypeNode so = ComponentNodeBuilder.createSimpleObject("SO")
 				.assignType(NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE)).get();
 		local1.addMember(so);
 
 		// Given - second library that uses type from first library // Given - expected imports are 1st lib and common
-		LibraryNode local2 = LibraryNodeBuilder.create("LocalTwo", testProject.getNamespace() + "/Test/Two", "o2",
-				new Version(1, 0, 0)).build(testProject, pc);
+		LibraryNode local2 = LibraryNodeBuilder
+				.create("LocalTwo", testProject.getNamespace() + "/Test/Two", "o2", new Version(1, 0, 0))
+				.build(testProject, pc);
 		// PropertyNode property = PropertyNodeBuilder.create(PropertyNodeType.ELEMENT).setName("Reference").assign(so)
 		// .build();
 		CoreObjectNode co = new CoreObjectNode(new TLCoreObject());
@@ -122,14 +128,14 @@ public class DefaultProjectControllerTest extends BaseProjectTest {
 		assertTrue("Property must be assigned so as type.", property.getAssignedType() == so);
 
 		// Given - set of namespaces from Local 2's tlLibrary
-		Set<String> expectedImports = new HashSet<String>();
+		Set<String> expectedImports = new HashSet<>();
 		for (TLNamespaceImport imported : local2.getTLLibrary().getNamespaceImports()) {
 			expectedImports.add(imported.getNamespace());
 		}
 
 		// When - saved and closed
 		pc.save(testProject); // the project and libraries
-		List<LibraryNavNode> libsToRemove = new ArrayList<LibraryNavNode>();
+		List<LibraryNavNode> libsToRemove = new ArrayList<>();
 		libsToRemove.add((LibraryNavNode) local1.getParent());
 		libsToRemove.add((LibraryNavNode) local2.getParent());
 		pc.remove(libsToRemove); // must remove as list to avoid re-saving
@@ -143,7 +149,7 @@ public class DefaultProjectControllerTest extends BaseProjectTest {
 		LibraryNode reopenedLibrary = testProject.getLibraries().get(0);
 		TLLibrary tlLib = reopenedLibrary.getTLLibrary();
 
-		Set<String> actaulsImports = new HashSet<String>();
+		Set<String> actaulsImports = new HashSet<>();
 		for (TLNamespaceImport imported : tlLib.getNamespaceImports())
 			actaulsImports.add(imported.getNamespace());
 
@@ -257,6 +263,13 @@ public class DefaultProjectControllerTest extends BaseProjectTest {
 	@Test
 	public void removeTests() {
 		// remove(LibNavNodeList)
+		// Simple remove - no files in multiple projects
+		openProjectFiles();
+		List<LibraryNavNode> lnn1s = new ArrayList<>();
+		List<LibraryNavNode> lnn2s = new ArrayList<>();
+
+		pc.remove(lnn1s);
+		pc.remove(lnn2s);
 	}
 
 	@Test
@@ -266,6 +279,15 @@ public class DefaultProjectControllerTest extends BaseProjectTest {
 		// save(pn)
 		// saveAll()
 		// saveState()
+
+	}
+
+	private void openProjectFiles() {
+		pn1 = new LoadFiles().loadProject(pc);
+		pn2 = new LoadFiles().loadProject2(pc);
+
+		assertTrue("Project 1 must be opened.", pn1 != null);
+		assertTrue("Project 2 must be open.", pn2 != null);
 
 	}
 }

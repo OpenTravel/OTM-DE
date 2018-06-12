@@ -28,8 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLProperty;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.FacetOwner;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -39,9 +37,7 @@ import org.opentravel.schemas.node.properties.PropertyNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.testUtils.LoadFiles;
-import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.types.TypeProvider;
@@ -55,25 +51,15 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class ChangeTo_Tests {
+public class ChangeTo_Tests extends BaseTest {
 	private final static Logger LOGGER = LoggerFactory.getLogger(ChangeTo_Tests.class);
 
-	ModelNode model = null;
 	TestNode tn = new NodeTesters().new TestNode();
-	MockLibrary ml = null;
-	LibraryNode ln = null;
 	LibraryChainNode lcn = null;
-	MainController mc;
-	DefaultProjectController pc;
-	ProjectNode defaultProject;
 
 	@Before
-	public void beforeEachTest() {
-		// mc = OtmRegistry.getMainController(); // creates one if needed
-		mc = OtmRegistry.getMainController(); // New one for each test
-		ml = new MockLibrary();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
+	public void beforeCT() {
+		LOGGER.debug("BeforeCT running.");
 		lcn = ml.createNewManagedLibrary("test", defaultProject);
 		Assert.assertNotNull(lcn);
 		ln = lcn.getHead();
@@ -83,7 +69,6 @@ public class ChangeTo_Tests {
 
 	@Test
 	public void changeToVWA1() {
-		LibraryNode ln = ml.createNewLibrary(defaultProject.getNSRoot(), "test", defaultProject);
 		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "bo");
 		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "co");
 		VWA_Node tVwa = null, vwa = ml.addVWA_ToLibrary(ln, "vwa");
@@ -159,9 +144,8 @@ public class ChangeTo_Tests {
 		assertEquals(coreWhereAssignedCount, vwa.getWhereUsedAndDescendantsCount());
 		assertEquals(vwa, p2.getAssignedType());
 		assertEquals(vwa, p3.getAssignedType());
-		assertTrue("VWA must be in the library after swap.", ln.getDescendants_LibraryMembersAsNodes().contains(vwa));
-		assertTrue("Core must NOT be in the library after swap.",
-				!ln.getDescendants_LibraryMembersAsNodes().contains(core));
+		assertTrue("VWA must be in the library after swap.", ln.getDescendants_LibraryMembers().contains(vwa));
+		assertTrue("Core must NOT be in the library after swap.", !ln.getDescendants_LibraryMembers().contains(core));
 	}
 
 	@Test
@@ -186,9 +170,8 @@ public class ChangeTo_Tests {
 		tn.visit(core);
 		assertEquals("A", core.getName());
 		assertEquals(boCount, core.getFacet_Summary().getChildren().size());
-		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMembersAsNodes().contains(core));
-		assertTrue("BO must NOT be in the library after swap.",
-				!ln.getDescendants_LibraryMembersAsNodes().contains(bo));
+		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMembers().contains(core));
+		assertTrue("BO must NOT be in the library after swap.", !ln.getDescendants_LibraryMembers().contains(bo));
 
 		// When - core created from VWA replaces VWA
 		core = new CoreObjectNode(vwa);
@@ -201,9 +184,8 @@ public class ChangeTo_Tests {
 		assertEquals(core.getAssignedType(), vwa.getAssignedType());
 		assertEquals(core.getTLModelObject().getSummaryFacet().getAttributes().size(),
 				core.getFacet_Summary().getChildren().size());
-		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMembersAsNodes().contains(core));
-		assertTrue("VWA must NOT be in the library after swap.",
-				!ln.getDescendants_LibraryMembersAsNodes().contains(vwa));
+		assertTrue("Core must be in the library after swap.", ln.getDescendants_LibraryMembers().contains(core));
+		assertTrue("VWA must NOT be in the library after swap.", !ln.getDescendants_LibraryMembers().contains(vwa));
 	}
 
 	@Test
@@ -282,10 +264,10 @@ public class ChangeTo_Tests {
 
 	@Test
 	public void changeTestGroupA_Tests() throws Exception {
-		MainController mc = OtmRegistry.getMainController();
-		LoadFiles lf = new LoadFiles();
-		model = mc.getModelNode();
-		LibraryChainNode lcn;
+		// MainController mc = OtmRegistry.getMainController();
+		// LoadFiles lf = new LoadFiles();
+		ModelNode model = mc.getModelNode();
+		// LibraryChainNode lcn;
 
 		lf.loadTestGroupA(mc);
 		for (LibraryNode ln : model.getUserLibraries()) {

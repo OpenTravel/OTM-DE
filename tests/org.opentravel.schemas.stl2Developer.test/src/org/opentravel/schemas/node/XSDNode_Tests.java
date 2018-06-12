@@ -180,6 +180,7 @@ public class XSDNode_Tests extends BaseProjectTest {
 		for (LibraryNode ln : Node.getModelNode().getLibraries()) {
 			LOGGER.debug("Checking library: " + ln);
 			ml.check(ln, false); // May not be valid
+			assert false; // FIXME
 			checkAssignments(ln, ele, attr, simple);
 		}
 	}

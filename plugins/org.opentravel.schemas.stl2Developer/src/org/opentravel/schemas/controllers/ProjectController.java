@@ -26,7 +26,6 @@ import org.opentravel.schemacompiler.repository.ProjectItem;
 import org.opentravel.schemacompiler.repository.RepositoryItem;
 import org.opentravel.schemas.controllers.DefaultProjectController.OpenedProject;
 import org.opentravel.schemas.node.ProjectNode;
-import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -148,10 +147,10 @@ public interface ProjectController {
 
 	public void refreshMaster();
 
-	/**
-	 * Remove the passed library from the passed project.
-	 */
-	public void remove(LibraryInterface library, ProjectNode pn);
+	// /**
+	// * Remove the passed library from the passed project.
+	// */
+	// public void remove(LibraryInterface library, ProjectNode pn);
 
 	/**
 	 * Remove the associated library from the associated project both in the TL and GUI models.

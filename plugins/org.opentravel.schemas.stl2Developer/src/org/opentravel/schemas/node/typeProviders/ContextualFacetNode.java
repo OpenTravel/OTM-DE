@@ -110,6 +110,8 @@ public abstract class ContextualFacetNode extends AbstractContextualFacet implem
 	 */
 	@Override
 	public void add(ContextualFacetOwnerInterface owner) {
+		if (owner == null)
+			return;
 		// Remove from any existing TL owner
 		removeFromTLParent();
 
@@ -309,8 +311,8 @@ public abstract class ContextualFacetNode extends AbstractContextualFacet implem
 
 	@Override
 	public String getExtendsTypeName() {
-		return whereContributed != null && whereContributed.getParent() != null ? whereContributed.getParent()
-				.getName() : "";
+		return whereContributed != null && whereContributed.getParent() != null ? whereContributed.getParent().getName()
+				: "";
 	}
 
 	@Override

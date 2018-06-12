@@ -278,7 +278,7 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 	 * @return the project item associated with this library
 	 */
 	public ProjectItem addToTL(AbstractLibrary tlLib) {
-		if (getTLProject() == null)
+		if (getTLProject() == null || getTLProject().getProjectManager() == null)
 			return null;
 		ProjectItem pi = getProjectItem(tlLib);
 		if (pi == null)
@@ -286,13 +286,13 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 				pi = getTLProject().getProjectManager().addUnmanagedProjectItem(tlLib, getTLProject());
 			} catch (RepositoryException e1) {
 				e1.printStackTrace();
-				assert true;
-				// LOGGER.error("Repo Error adding " + tlLib.getName() + " to project. " + e1.getLocalizedMessage());
+				LOGGER.error("Repo Error adding " + tlLib.getName() + " to project. " + e1.getLocalizedMessage());
+				// assert true;
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
-				assert true;
-				// LOGGER.error("Argument Exception adding " + tlLib.getName() + " to project. " +
-				// e.getLocalizedMessage());
+				LOGGER.error(
+						"Argument Exception adding " + tlLib.getName() + " to project. " + e.getLocalizedMessage());
+				// assert true;
 			}
 		return pi;
 	}
@@ -437,6 +437,11 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 		return getChildren().size() > 0 ? true : false;
 	}
 
+	/**
+	 * Remove LibraryNavNode from children handler.
+	 * 
+	 * @param l
+	 */
 	public void remove(LibraryNavNode l) {
 		getChildrenHandler().clear(l);
 	}
@@ -462,6 +467,16 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 	 */
 	public Project getTLProject() {
 		return project;
+	}
+
+	/**
+	 * This should only be used if the project was closed. Used in closeAll() to reestablish the builtInProject
+	 * 
+	 * @param p
+	 * @return
+	 */
+	public Project setTLProject(Project p) {
+		return p;
 	}
 
 	@Override

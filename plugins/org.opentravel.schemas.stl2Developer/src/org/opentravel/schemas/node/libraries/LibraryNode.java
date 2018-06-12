@@ -174,8 +174,10 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	 * Create a library node and all of its children based on the TL model library. Create LibraryNavNode linking this
 	 * library to the parent project. May be invoked with an new, empty library. Assures library managed by the
 	 * appropriate TL Project.
-	 * 
+	 * <p>
 	 * Note - caller must set namespace and prefix.
+	 * <p>
+	 * <b>Note: </b> If {@link #getProjectItem()} == null there was an error adding this to the TL project.
 	 * 
 	 * @see {@link org.opentravel.schemas.controllers.DefaultRepositoryController#createMajorVersion(LibraryNode)}
 	 * 
@@ -194,6 +196,8 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 
 		// Set the Project Item, add to project if not already a member
 		setProjectItem(project.addToTL(alib));
+		if (projectItem == null)
+			LOGGER.warn("There was an error adding library " + this + " to the project.");
 
 		// Parent is a new library nav node
 		setParent(new LibraryNavNode(this, project));

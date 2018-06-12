@@ -158,9 +158,7 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 	// }
 
 	/**
-	 * Use the libraryModelManager to close the library in this project.
-	 * 
-	 * Remove this libraryNavNode from its project.
+	 * Use the libraryModelManager to close the library in this project. Remove this libraryNavNode from its project.
 	 */
 	@Override
 	public void close() {
@@ -168,6 +166,8 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 		getModelNode().getLibraryManager().close(getThisLib(), getProject());
 		deleted = true;
 		getChildrenHandler().clear((Node) getThisLib());
+		// Remove from project
+		getParent().remove(this);
 	}
 
 	/**

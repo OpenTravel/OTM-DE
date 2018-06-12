@@ -89,7 +89,7 @@ public abstract class BaseTest {
 	 */
 	public static void clearAll() {
 		pc.closeAll();
-		pc.close(defaultProject);
+		defaultProject = pc.getDefaultProject();
 		Node.getLibraryModelManager().clear(false);
 
 		assert (Node.getModelNode().getManagedLibraries().size() == pc.getBuiltInProject().getChildren().size());

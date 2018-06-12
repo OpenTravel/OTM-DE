@@ -178,6 +178,14 @@ public class MockLibrary {
 		tllib.setNamespaceAndVersion(ns, "1.0.0");
 		tllib.setPrefix("nsPrefix");
 
+		// Check the project before using it.
+		if (parent.getTLProject() == null)
+			LOGGER.error("Project with null TL Project.");
+		if (parent.getTLProject().getProjectManager() == null)
+			LOGGER.error("Project with null TL Project Manager.");
+		if (parent.getTLProject().getProjectManager().getModel() == null)
+			LOGGER.error("Project with null owning model.");
+
 		String testPath;
 		try {
 			testPath = createTempFile(name + "-Test", ".otm");
@@ -189,6 +197,8 @@ public class MockLibrary {
 
 		// Create Library Node
 		LibraryNode ln = new LibraryNode(tllib, parent);
+		assertTrue("Error adding library to TL project.", ln.getProjectItem() != null);
+
 		ln.setEditable(true); // override ns policy
 
 		// Has to be saved to be used in a project. Is not editable yet, so

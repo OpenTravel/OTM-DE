@@ -68,7 +68,6 @@ import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.INode;
-import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNavNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -411,19 +410,37 @@ public class DefaultProjectController implements ProjectController {
 		// for (ProjectNode project : getAll()) {
 		// close(project);
 		// }
-		boolean includeBuiltins = false;
+		boolean includeBuiltins = true;
 		mc.getModelNode().close(includeBuiltins);
 
+		// re-initializes the contents of the model, removes default project and creates new builtInProject
 		mc.getModelNode().getTLModel().clearModel();
-		// to re-initializes the contents of the model
 		projectManager.closeAll();
+		assert projectManager.getAllProjects().size() == 1;
+		// List<Project> projects = projectManager.getAllProjects();
+
+		// Model the new built in library
+		for (Project p : projectManager.getAllProjects())
+			if (p instanceof BuiltInProject) {
+				builtInProject = new ProjectNode(p);
+				break;
+			}
+		assert builtInProject != null;
+		assert builtInProject.getTLProject().getProjectManager() == projectManager;
+		assert projectManager.getModel() != null;
+		assert projectManager.getAllProjects().contains(builtInProject.getTLProject());
+
+		// Create a new default project
+		createDefaultProject();
+		assert defaultProject.getTLProject().getProjectManager() == projectManager;
+		assert projectManager.getModel() != null;
+		assert projectManager.getAllProjects().contains(defaultProject.getTLProject());
 
 		// Assure the built-ins do not need to be remodeled
 		for (LibraryNode ln : getBuiltInProject().getLibraries()) {
 			assert ln == Node.GetNode(ln.getTLModelObject());
 			for (TypeProvider n : ln.getDescendants_TypeProviders()) {
-				// if (n.getWhereAssignedCount() > 0)
-				n.getWhereAssignedHandler().clear(); // FIXME - why is this needed?
+				n.getWhereAssignedHandler().clear(); // Excessive, but safe
 				assert n.getWhereAssignedCount() == 0;
 			}
 		}
@@ -484,6 +501,11 @@ public class DefaultProjectController implements ProjectController {
 		defaultNS = mc.getRepositoryController().getLocalRepository().getNamespace();
 		defaultPath = DefaultPreferences.getDefaultProjectPath();
 
+		File df = new File(defaultPath);
+		if (df.isFile() && df.canWrite()) {
+			df.delete();
+			LOGGER.debug("Default project existed and was deleted.");
+		}
 		defaultProject = create(new File(defaultPath), defaultNS, "Default Project",
 				"Used for libraries not loaded into a project.");
 
@@ -1065,24 +1087,58 @@ public class DefaultProjectController implements ProjectController {
 		job.schedule();
 	}
 
-	@Override
-	public void remove(LibraryInterface library, ProjectNode pn) {
-		// The LibraryNavNode for this library may point to ANY project, don't use it
-		// Search the project for the nav node for this library
-		LibraryNavNode lnn = null;
-		for (Node n : pn.getChildren())
-			if (n instanceof LibraryNavNode)
-				if (((LibraryNavNode) n).contains(library)) {
-					lnn = (LibraryNavNode) n;
-					break;
-				}
-		remove(lnn);
-	}
+	// @Override
+	// public void remove(LibraryInterface library, ProjectNode pn) {
+	// // The LibraryNavNode for this library may point to ANY project, don't use it
+	// // Search the project for the nav node for this library
+	// LibraryNavNode lnn = null;
+	// for (Node n : pn.getChildren())
+	// if (n instanceof LibraryNavNode)
+	// if (((LibraryNavNode) n).contains(library)) {
+	// lnn = (LibraryNavNode) n;
+	// break;
+	// }
+	// remove(lnn);
+	// }
 
 	@Override
 	public void remove(LibraryNavNode libraryNav) {
-		if (libraryNav != null)
-			remove(Collections.singletonList(libraryNav));
+		remove(libraryNav, true);
+	}
+
+	/**
+	 * Remove the library from the project indicated by the libraryNavNode. The library or chain is removed from the
+	 * ProjectNode and TL Project.
+	 * <p>
+	 * If the library or chain is also in another project, the library's parent is set to the LNN that relates to that
+	 * project.
+	 * 
+	 * @param lnn
+	 *            libraryNavNode that relates the library or chain to a project
+	 * @param refreshAndSave
+	 *            if true, when complete refresh the navigator view and save project
+	 * @return the impacted project
+	 */
+	public ProjectNode remove(LibraryNavNode lnn, boolean refreshAndSave) {
+		ProjectNode pn = lnn.getProject();
+		for (LibraryNode ln : lnn.getLibraries()) {
+			try {
+				removeTL(ln.getTLModelObject(), ln.getProjectItem(), pn.getTLProject());
+			} catch (IllegalStateException e) {
+				LOGGER.debug("Error removing " + ln + " from project " + pn + " : " + e.getLocalizedMessage());
+				e.printStackTrace();
+				DialogUserNotifier.openWarning("Warning", "There was an error closing " + ln + " in project " + pn);
+			}
+		}
+		lnn.close();
+
+		if (refreshAndSave) {
+			OtmRegistry.getNavigatorView().refresh(pn, true);
+			save(pn);
+		}
+
+		assert (!pn.getChildren().contains(lnn));
+		return pn;
 	}
 
 	/**
@@ -1094,46 +1150,14 @@ public class DefaultProjectController implements ProjectController {
 		if (list.isEmpty())
 			return;
 
-		ProjectNode pn = list.get(0).getProject();
-		// Check consistency between TL and node projects
-		List<LibraryNode> nodes = pn.getLibraries();
-		List<ProjectItem> itemsB = pn.getTLProject().getProjectItems();
+		for (LibraryNavNode lnn : list)
+			impactedProjects.add(remove(lnn, false));
 
-		for (LibraryNavNode lnn : list) {
-			pn = lnn.getProject();
-			impactedProjects.add(pn);
-			// Project items are the individual libraries in a chain
-			for (LibraryNode ln : lnn.getLibraries()) {
-				try {
-					removeTL(ln.getTLModelObject(), ln.getProjectItem(), pn.getTLProject());
-				} catch (IllegalStateException e) {
-					LOGGER.debug("Error removing " + ln + " from project " + pn);
-					LOGGER.debug(e.getLocalizedMessage());
-					e.printStackTrace();
-					DialogUserNotifier.openWarning("Warning",
-							"There was an error closing " + ln + " from project " + pn);
-				}
-				// ProjectItem tlPI = ln.getProjectItem();
-				// assert tlPI.getContent() == ln.getTLModelObject();
-				// assert pn.getTLProject().getProjectItems().contains(tlPI);
-				// pn.getTLProject().remove(ln.getTLModelObject());
-				// pn.getTLProject().remove(tlPI); // Redundant but sometimes necessary
-				// // Check removal
-				// // List<ProjectItem> items = pn.getTLProject().getProjectItems();
-				// assert !pn.getTLProject().getProjectItems().contains(tlPI);
-				// LOGGER.debug("Removed " + ln + " from project " + pn);
-			}
-			lnn.close();
-			assert (!pn.getChildren().contains(lnn));
-		}
 		for (ProjectNode imp : impactedProjects) {
 			OtmRegistry.getNavigatorView().refresh(imp, true);
-			save(pn);
-			LOGGER.debug("Save project: " + pn);
+			save(imp);
+			LOGGER.debug("Saved project: " + imp + " impacted by closing libraries.");
 		}
-
-		List<ProjectItem> itemsA = pn.getTLProject().getProjectItems();
-		// mc.refresh();
 	}
 
 	private void removeTL(AbstractLibrary tlLibrary, ProjectItem tlPI, Project tlProject) throws IllegalStateException {

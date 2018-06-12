@@ -40,8 +40,11 @@ import org.opentravel.schemas.utils.ComponentNodeBuilder;
 import org.opentravel.schemas.utils.LibraryNodeBuilder;
 import org.opentravel.schemas.utils.PropertyNodeBuilder;
 import org.osgi.framework.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProjectNodeTest extends BaseProjectTest {
+	static final Logger LOGGER = LoggerFactory.getLogger(ProjectNodeTest.class);
 
 	MockLibrary ml = new MockLibrary();
 
@@ -49,6 +52,8 @@ public class ProjectNodeTest extends BaseProjectTest {
 	 * Check the structure of the passed VWA
 	 */
 	public void check(ProjectNode pn, boolean validate) {
+		LOGGER.debug("Checking project " + pn);
+
 		assertTrue("Must have model node as parent.", pn.getParent() instanceof ModelNode);
 		assertTrue("Must have TL Project.", pn.getTLProject() instanceof Project);
 

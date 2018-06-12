@@ -84,8 +84,9 @@ public abstract class BaseProjectTest {
 	public void beforeEachTest() throws Exception {
 		LOGGER.debug("Before Each Test");
 		pc.closeAll();
-		pc.close(defaultProject);
+		// pc.close(defaultProject);
 		Node.getLibraryModelManager().clear(false);
+		defaultProject = pc.getDefaultProject();
 
 		assert rc.getLocalRepository() != null;
 		testProject = createProject("Otm-Test-TestProject", rc.getLocalRepository(), "IT");
@@ -116,6 +117,7 @@ public abstract class BaseProjectTest {
 		pc.closeAll();
 		pc.close(defaultProject);
 		Node.getLibraryModelManager().clear(false);
+		defaultProject = pc.getDefaultProject(); // close all creates a new defaultProject
 
 		// use file list from super.afterEachTest()
 		for (File projFile : filesToClean) {
