@@ -21,21 +21,11 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
-import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.VersionManager;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
-import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.testUtils.LoadFiles;
-import org.opentravel.schemas.testUtils.MockLibrary;
-import org.opentravel.schemas.testUtils.NodeTesters;
-import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
-import org.opentravel.schemas.types.TypeProvider;
+import org.opentravel.schemas.testUtils.BaseTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,27 +33,14 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class VersionManagerTests {
+public class VersionManagerTests extends BaseTest {
 	static final Logger LOGGER = LoggerFactory.getLogger(VersionManagerTests.class);
 
-	ModelNode model = null;
-	MockLibrary ml = new MockLibrary();
-	LibraryNode ln = null;
-	MainController mc;
-	DefaultProjectController pc;
-	ProjectNode defaultProject;
-	LoadFiles lf = null;
-	TestNode tn = new NodeTesters().new TestNode();
-	TypeProvider emptyNode = null;
-	TypeProvider sType = null;
 	CoreObjectNode base;
 	LibraryChainNode chain;
 
 	@Before
-	public void beforeEachTest() {
-		mc = OtmRegistry.getMainController();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
+	public void beforeEachOfTheseTests() {
 		//
 		ln = ml.createNewLibrary(pc, "Lib1");
 		chain = new LibraryChainNode(ln);

@@ -26,7 +26,9 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.opentravel.schemacompiler.model.TLModelElement;
 import org.opentravel.schemacompiler.model.TLResource;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
@@ -51,8 +53,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ResourceObjectTests extends BaseTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceObjectTests.class);
-
-	ModelNode model = null;
 
 	@Test
 	public void constructorTests() {
@@ -416,10 +416,12 @@ public class ResourceObjectTests extends BaseTest {
 	 */
 	@Test
 	public void RN_paramGroupTests() {
-
+		OTM16Upgrade.otm16Enabled = true;
 		// Given - a valid library with resource and objects
-		LibraryNode testLib = new LoadFiles().loadFile6(mc);
+		LibraryNode testLib = new LoadFiles().loadFile7(defaultProject);
 		LibraryChainNode lcn = new LibraryChainNode(testLib); // Test in a chain
+		assert lcn.getParent() instanceof LibraryNavNode;
+
 		BusinessObjectNode bo = null;
 		for (LibraryMemberInterface n : testLib.getDescendants_LibraryMembers())
 			if (n instanceof BusinessObjectNode) {
@@ -428,6 +430,7 @@ public class ResourceObjectTests extends BaseTest {
 			}
 		assert bo != null;
 		assert bo.getTLModelObject().getOwningModel() != null;
+		ml.check();
 
 		// Given - a second library
 		LibraryNode ln = ml.createNewLibrary(pc, "ResourceTestLib");
@@ -438,9 +441,11 @@ public class ResourceObjectTests extends BaseTest {
 		assertTrue("Resource must have been created.", resource != null);
 		ml.check(ln, true);
 
+		// Given - theGroup parameter group with reference and 2 parameters
 		List<ParamGroup> allPGs = resource.getParameterGroups(false);
 		assert allPGs.size() == 1; // There should only be one created above
 		ParamGroup theGroup = allPGs.get(0);
+
 		Node refFacet = theGroup.getFacetRef();
 		assertTrue("Must have a non-null reference facet.", refFacet != null);
 		LOGGER.debug("PG " + theGroup + " has " + theGroup.getChildren().size() + " parameters");
@@ -448,26 +453,44 @@ public class ResourceObjectTests extends BaseTest {
 		for (Node p : theGroup.getChildren())
 			assert p instanceof ResourceParameter;
 
-		// When - testlib is closed
-		// testLib.getProject().close(testLib);
-		assert lcn.getParent() instanceof LibraryNavNode;
-		pc.remove((LibraryNavNode) lcn.getParent());
-		// assert bo.getTLModelObject().getOwningModel() == null;
-		bo.tlObj = null;
-		testLib.tlObj = null;
-		bo = null;
-		testLib = null;
+		ml.check();
 
-		// Then - the group is still valid
-		ml.validate(theGroup);
-		ml.validate(resource);
+		//
+		// When - testlib is closed
+		//
+		pc.remove((LibraryNavNode) lcn.getParent());
+
+		// Then -
 		assertTrue("Test is invalid if the reference facet is not null.", theGroup.getFacetRef() == null);
-		assert theGroup.getChildren().size() == 2; // Must be built that way
+		assert theGroup.getChildren().size() == 2; // Must remain that way
+		BusinessObjectNode boRef = resource.getSubject();
+		assertTrue("Resource must not have a business object ref.", boRef == null);
+
+		// theGroup is NOT valid but check is OK
+		ml.check(theGroup, false); // TODO - make this fail
+		// the resource is NOT valid - this will fail
+		// ml.check(resource, false);
+
 		for (Node p : theGroup.getChildren()) {
 			assert p instanceof ResourceParameter;
 			assertTrue("Must have tl object.", ((ResourceParameter) p).getTLModelObject() != null);
+			TLModelElement tlRef = (TLModelElement) ((ResourceParameter) p).getTLModelObject().getFieldRef();
+			assertTrue("Must have a field refernece.", tlRef != null);
+			assertTrue("TL Owning model of field reference must be null.", tlRef.getOwningModel() == null);
 		}
-		ml.check(ln, true); // should fail
+
+		// Finally - reload library with business object
+		LibraryNode testLib2 = new LoadFiles().loadFile7(defaultProject);
+		ml.check(testLib2, true);
+
+		// FIXME
+		//
+		// TLBusinessObject tlRef = resource.getTLModelObject().getBusinessObjectRef();
+		// assertTrue("Resource must have a business object ref.", tlRef != null);
+		// assertTrue("Resource must have a business object ref.", resource.getSubject() != null);
+		//
+		// ml.check();
+		OTM16Upgrade.otm16Enabled = false;
 	}
 
 	public void check(ResourceNode resource) {
@@ -482,11 +505,13 @@ public class ResourceObjectTests extends BaseTest {
 		TLResource tlr = resource.getTLModelObject();
 
 		// Validate that the resource is in the where used list for its subject
-		assertTrue("Must have a subject.", resource.getSubject() != null);
-		assertTrue("Subject must have resource in its where assigned list.",
-				resource.getSubject().getWhereAssigned().contains(resource));
-		// LOGGER.debug("Subject must have resource in its where assigned list: "
-		// + resource.getSubject().getWhereAssigned().contains(resource));
+		if (!resource.isAbstract()) {
+			assertTrue("Must have a subject.", resource.getSubject() != null);
+			assertTrue("Subject must have resource in its where assigned list.",
+					resource.getSubject().getWhereAssigned().contains(resource));
+			// LOGGER.debug("Subject must have resource in its where assigned list: "
+			// + resource.getSubject().getWhereAssigned().contains(resource));
+		}
 
 		// Make sure it is in the library
 		assertTrue("Must have library set.", resource.getLibrary() != null);

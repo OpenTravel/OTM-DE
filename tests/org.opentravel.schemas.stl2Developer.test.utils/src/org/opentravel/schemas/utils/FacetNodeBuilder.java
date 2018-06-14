@@ -37,9 +37,9 @@ public class FacetNodeBuilder {
 	private FacetProviderNode facet = null;
 	private static LibraryNode ln;
 
-	public static FacetNodeBuilder create() {
-		return new FacetNodeBuilder();
-	}
+	// public static FacetNodeBuilder create() {
+	// return new FacetNodeBuilder();
+	// }
 
 	public static FacetNodeBuilder create(LibraryNode library) {
 		ln = library;

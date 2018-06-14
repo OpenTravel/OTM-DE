@@ -26,7 +26,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLValueWithAttributes;
-import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.Node.NodeVisitor;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
@@ -43,8 +42,7 @@ import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.testUtils.LoadFiles;
-import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.types.TypeProvider;
@@ -56,28 +54,15 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class ChangePropertyType_Tests {
+public class ChangePropertyType_Tests extends BaseTest {
 	private final static Logger LOGGER = LoggerFactory.getLogger(ChangePropertyType_Tests.class);
 
-	ModelNode model = null;
 	TestNode nt = new NodeTesters().new TestNode();
-	LoadFiles lf = new LoadFiles();
-	Library_FunctionTests lt = new Library_FunctionTests();
-
-	private MainController mc;
-	private MockLibrary ml;
-	private DefaultProjectController pc;
-	private ProjectNode defaultProject;
 	private LibraryChainNode lcn;
-	private LibraryNode ln;
 	private TypeProvider aType;
 
 	@Before
-	public void beforeEachTest() {
-		mc = OtmRegistry.getMainController(); // New one for each test
-		ml = new MockLibrary();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
+	public void beforeEachOfTheseTests() {
 		lcn = ml.createNewManagedLibrary("test", defaultProject);
 		ln = lcn.getHead();
 		aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);

@@ -407,11 +407,9 @@ public class DefaultProjectController implements ProjectController {
 	 */
 	@Override
 	public void closeAll() {
-		// for (ProjectNode project : getAll()) {
-		// close(project);
-		// }
-		boolean includeBuiltins = true;
-		mc.getModelNode().close(includeBuiltins);
+		mc.getModelNode().close(false); // First close user projects. Some of the close handlers will need simple
+										// built-in types.
+		mc.getModelNode().close(true); // Now close the rest.
 
 		// re-initializes the contents of the model, removes default project and creates new builtInProject
 		mc.getModelNode().getTLModel().clearModel();
@@ -440,7 +438,9 @@ public class DefaultProjectController implements ProjectController {
 		for (LibraryNode ln : getBuiltInProject().getLibraries()) {
 			assert ln == Node.GetNode(ln.getTLModelObject());
 			for (TypeProvider n : ln.getDescendants_TypeProviders()) {
+				((Node) n).setDeleted(false);
 				n.getWhereAssignedHandler().clear(); // Excessive, but safe
+				assert !((Node) n).isDeleted();
 				assert n.getWhereAssignedCount() == 0;
 			}
 		}
@@ -481,10 +481,10 @@ public class DefaultProjectController implements ProjectController {
 	@Override
 	public ProjectNode create(File file, String ID, String name, String description) {
 		Project newProject;
-		for (Project tlp : projectManager.getAllProjects())
-			if (tlp.getProjectId().equals(ID)) {
-				LOGGER.debug("Found project " + ID);
-			}
+		// for (Project tlp : projectManager.getAllProjects())
+		// if (tlp.getProjectId().equals(ID)) {
+		// LOGGER.debug("Found project " + ID);
+		// }
 		try {
 			newProject = projectManager.newProject(file, ID, name, description);
 		} catch (Exception e) {
@@ -1156,7 +1156,7 @@ public class DefaultProjectController implements ProjectController {
 		for (ProjectNode imp : impactedProjects) {
 			OtmRegistry.getNavigatorView().refresh(imp, true);
 			save(imp);
-			LOGGER.debug("Saved project: " + imp + " impacted by closing libraries.");
+			// LOGGER.debug("Saved project: " + imp + " impacted by closing libraries.");
 		}
 	}
 
@@ -1182,7 +1182,7 @@ public class DefaultProjectController implements ProjectController {
 		if (tlProject.getProjectItems().contains(tlPI))
 			throw new IllegalStateException("Project still contains project item that was removed.");
 
-		LOGGER.debug("Removed " + tlLibrary.getName() + " from project " + tlProject.getName());
+		// LOGGER.debug("Removed " + tlLibrary.getName() + " from project " + tlProject.getName());
 	}
 
 	@Override

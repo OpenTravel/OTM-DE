@@ -130,6 +130,13 @@ public class XsdObjectHandler {
 	}
 
 	/**
+	 * @return the original source TLLibraryMember used to create the model
+	 */
+	public TLLibraryMember getBuiltTL() {
+		return builtTL;
+	}
+
+	/**
 	 * Get the prefix of the restriction base that this xsd simple type is created from.
 	 * 
 	 * @return

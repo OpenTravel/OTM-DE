@@ -26,9 +26,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
-import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.resources.ActionNode;
 import org.opentravel.schemas.node.resources.ActionRequest;
@@ -39,10 +36,7 @@ import org.opentravel.schemas.node.resources.ResourceNode;
 import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.testUtils.MockLibrary;
-import org.opentravel.schemas.testUtils.NodeTesters;
-import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
+import org.opentravel.schemas.testUtils.BaseTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,26 +46,14 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class ActionRequestTests {
+public class ActionRequestTests extends BaseTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ActionRequestTests.class);
-
-	ModelNode model = null;
-	MockLibrary ml = null;
-	LibraryNode ln = null;
-	MainController mc;
-	DefaultProjectController pc;
-	ProjectNode defaultProject;
-	TestNode tn = new NodeTesters().new TestNode();
 
 	private BusinessObjectNode baseBo;
 	private BusinessObjectNode childBo;
 
 	@Before
-	public void beforeEachTest() {
-		mc = OtmRegistry.getMainController();
-		ml = new MockLibrary();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
+	public void beforeEachOfTheseTests() {
 
 		// Given - two BO with query facets
 		ln = ml.createNewLibrary(pc, "TestLib");
@@ -82,6 +64,7 @@ public class ActionRequestTests {
 		SimpleTypeNode st = ml.addSimpleTypeToLibrary(ln, "QueryData");
 		new ElementNode(bq, "QB", st);
 		new ElementNode(cq, "QC", st);
+
 		assertTrue("Must have ID facet.", baseBo.getFacet_ID() != null);
 		assertTrue("Must have ID facet.", childBo.getFacet_ID() != null);
 		assertTrue("Must have ID facet children.", baseBo.getFacet_ID().getChildren().size() > 0);
@@ -111,7 +94,7 @@ public class ActionRequestTests {
 	}
 
 	private List<ActionRequest> getRequests(ResourceNode rn) {
-		List<ActionRequest> requests = new ArrayList<ActionRequest>();
+		List<ActionRequest> requests = new ArrayList<>();
 		for (ActionNode action : rn.getActions())
 			requests.add(action.getRequest());
 		return requests;

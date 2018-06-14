@@ -48,8 +48,6 @@ import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.testUtils.LoadFiles;
 import org.opentravel.schemas.testUtils.MockLibrary;
-import org.opentravel.schemas.testUtils.NodeTesters;
-import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
@@ -60,47 +58,17 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class BusinessObjectTests extends BaseTest {
-	private static final String USER_NAME_TE2 = "TE2";
-
 	static final Logger LOGGER = LoggerFactory.getLogger(BusinessObjectTests.class);
 
-	// MainController mc;
-	// DefaultProjectController pc;
-	// ProjectNode defaultProject;
-	// MockLibrary ml = new MockLibrary();
-	// LoadFiles lf = null;
-
-	// ModelNode model = null;
-	TestNode tn = new NodeTesters().new TestNode();
+	private static final String USER_NAME_TE2 = "TE2";
 	TypeProvider emptyNode = null;
 	TypeProvider sType = null;
 
-	@Override
 	@Before
-	public void beforeEachTest() {
-		super.beforeEachTest();
-
-		// mc = OtmRegistry.getMainController();
-		// pc = mc.getProjectController();
-		// defaultProject = pc.getDefaultProject();
-		// lf = new LoadFiles();
+	public void beforeEachEachOfTheseTests() {
 		emptyNode = (TypeProvider) ModelNode.getEmptyNode();
 		sType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 	}
-
-	// @Override
-	// @After
-	// public void afterEachTest() {
-	// for (LibraryNode lib : defaultProject.getLibraries())
-	// defaultProject.close(lib);
-	// pc.close(defaultProject);
-	// Node.getLibraryModelManager().clear(false);
-	//
-	//// assert mc.getModelNode().getUserLibraries().isEmpty();
-	//// assert Node.getLibraryModelManager().getUserLibraries().isEmpty();
-	//// assert defaultProject.getChildren().isEmpty();
-	// // LOGGER.debug("Default project is empty.");
-	// }
 
 	@Test
 	public void BO_ConstructorsTests() {
@@ -271,8 +239,6 @@ public class BusinessObjectTests extends BaseTest {
 				assertTrue("Contributed facets are only supported in version 1.6 and later.",
 						!(n instanceof ContributedFacetNode));
 		}
-
-		tn.visit(bo);
 	}
 
 	/**

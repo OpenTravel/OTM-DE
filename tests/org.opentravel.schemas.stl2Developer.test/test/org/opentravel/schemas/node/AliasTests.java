@@ -23,23 +23,16 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLAlias;
 import org.opentravel.schemacompiler.model.TLAliasOwner;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.objectMembers.FacetOMNode;
 import org.opentravel.schemas.node.typeProviders.AliasNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.testUtils.LoadFiles;
-import org.opentravel.schemas.testUtils.MockLibrary;
-import org.opentravel.schemas.testUtils.NodeTesters;
-import org.opentravel.schemas.types.TestTypes;
+import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.types.TypeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,28 +42,8 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class AliasTests {
+public class AliasTests extends BaseTest {
 	static final Logger LOGGER = LoggerFactory.getLogger(AliasTests.class);
-
-	ModelNode model = null;
-	TestTypes tt = new TestTypes();
-
-	NodeTesters nt = new NodeTesters();
-	LoadFiles lf = new LoadFiles();
-	Library_FunctionTests lt = new Library_FunctionTests();
-	MockLibrary ml = null;
-	LibraryNode ln = null;
-	MainController mc;
-	DefaultProjectController pc;
-	ProjectNode defaultProject;
-
-	@Before
-	public void beforeAllTests() {
-		mc = OtmRegistry.getMainController();
-		ml = new MockLibrary();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
-	}
 
 	@Test
 	public void aliasConstructors() {
@@ -127,7 +100,7 @@ public class AliasTests {
 		tlAlias.setName(a2Name);
 		BusinessObjectNode parent1 = ml.addBusinessObjectToLibrary(ln, "bo2");
 		CoreObjectNode parent2 = ml.addCoreObjectToLibrary(ln, "co1");
-		List<Node> navChildren = new ArrayList<Node>();
+		List<Node> navChildren = new ArrayList<>();
 		assertTrue(!parent1.getChildren().isEmpty());
 		assertTrue(!parent2.getChildren().isEmpty());
 
@@ -186,8 +159,8 @@ public class AliasTests {
 			return false;
 		assertTrue("Alias must have parent.", alias.getParent() != null);
 		assertTrue("Alias TL Object must be present.", alias.getTLModelObject() instanceof TLAlias);
-		assertTrue("Parent TLObject must have alias.", !((TLAliasOwner) alias.getParent().getTLModelObject())
-				.getAliases().isEmpty());
+		assertTrue("Parent TLObject must have alias.",
+				!((TLAliasOwner) alias.getParent().getTLModelObject()).getAliases().isEmpty());
 
 		assertTrue("Alias must have owning component.", alias.getOwningComponent() != null);
 		assertTrue(alias.getOwningComponent() instanceof TypeProvider);

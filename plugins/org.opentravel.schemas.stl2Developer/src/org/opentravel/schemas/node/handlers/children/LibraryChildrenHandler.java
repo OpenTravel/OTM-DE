@@ -75,13 +75,13 @@ public class LibraryChildrenHandler extends StaticChildrenHandler<Node, LibraryN
 	@Override
 	public boolean contains(Node member) {
 		if (member instanceof LibraryMemberInterface) {
-			if (complexRoot.contains(member))
+			if (complexRoot != null && complexRoot.contains(member))
 				return true;
-			if (simpleRoot.contains(member))
+			if (simpleRoot != null && simpleRoot.contains(member))
 				return true;
-			if (serviceRoot.contains(member))
+			if (serviceRoot != null && serviceRoot.contains(member))
 				return true;
-			if (resourceRoot.contains(member))
+			if (resourceRoot != null && resourceRoot.contains(member))
 				return true;
 		}
 		return false;

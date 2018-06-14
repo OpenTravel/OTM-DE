@@ -57,6 +57,7 @@ import org.opentravel.schemas.node.LibraryChainNodeTests;
 import org.opentravel.schemas.node.LibraryNavNodeTests;
 import org.opentravel.schemas.node.LibraryNodeTest;
 import org.opentravel.schemas.node.ModelNode;
+import org.opentravel.schemas.node.ModelNodeTests;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFactory;
 import org.opentravel.schemas.node.NodeFinders;
@@ -738,6 +739,15 @@ public class MockLibrary {
 	}
 
 	/**
+	 * Check and validate the entire model.
+	 * 
+	 * @param node
+	 */
+	public void check() {
+		check(Node.getModelNode(), true);
+	}
+
+	/**
 	 * Run node object specific tests then validate.
 	 * 
 	 * @param node
@@ -754,16 +764,25 @@ public class MockLibrary {
 	 *            if true run validation
 	 */
 	public void check(Node node, boolean validate) {
-		assertTrue(node != null);
-		if (node.isDeleted())
+		assert (node != null);
+
+		if (node.isDeleted()) {
+			LOGGER.debug("Skipping check of deleted object: " + node);
 			return;
+		}
+
+		if (node instanceof ModelNode) {
+			new ModelNodeTests().check((ModelNode) node, validate);
+			printValidationFindings(node);
+			return;
+		}
 		// TODO - propagate the validate flag to all object check() methods.
 
 		// Validate Identity Listener
 		if (!(node instanceof FacadeInterface))
 			assertTrue("Must have identity listener.", Node.GetNode(node.getTLModelObject()) == node);
 		else
-			assertTrue("Get() must return a object with listener",
+			assertTrue("Facade.get() must return a object with listener",
 					Node.GetNode(node.getTLModelObject()) == ((FacadeInterface) node).get());
 
 		// Dispatch to appropriate check method

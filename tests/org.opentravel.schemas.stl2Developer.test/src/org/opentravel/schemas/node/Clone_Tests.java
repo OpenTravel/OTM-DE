@@ -32,7 +32,6 @@ import org.opentravel.schemacompiler.model.TLChoiceObject;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
-import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
@@ -50,8 +49,8 @@ import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.testUtils.LoadFiles;
-import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.testUtils.NodeTesters;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.utils.FacetNodeBuilder;
@@ -63,24 +62,14 @@ import org.slf4j.LoggerFactory;
  * 
  */
 // TODO - test deleting the source and the clone with full visit node afterwards
-public class Clone_Tests {
+public class Clone_Tests extends BaseTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Clone_Tests.class);
 
-	ModelNode model = null;
 	NodeTesters tt = new NodeTesters();
 	SimpleTypeNode builtin = null;
-	private LibraryNode ln = null;
-	MainController mc = null;
-	MockLibrary ml = null;
-	DefaultProjectController pc = null;
-	ProjectNode defaultProject = null;
 
 	@Before
-	public void beforeEachTest() {
-		mc = OtmRegistry.getMainController();
-		ml = new MockLibrary();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
+	public void beforeEachOfTheseTests() {
 		ln = ml.createNewLibrary("http://example.com/test", "test", defaultProject);
 		ln.setEditable(true);
 		builtin = (SimpleTypeNode) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
@@ -165,7 +154,7 @@ public class Clone_Tests {
 		// Given - a Business Object
 		cfo = ml.addBusinessObjectToLibrary(ln, "B1");
 		List<TLContextualFacet> srcTLFacets = ((TLBusinessObject) cfo.getTLModelObject()).getCustomFacets();
-		List<TLContextualFacet> libFacets = new ArrayList<TLContextualFacet>();
+		List<TLContextualFacet> libFacets = new ArrayList<>();
 		for (LibraryMember lm : ln.getTLModelObject().getNamedMembers())
 			if (lm instanceof TLContextualFacet)
 				libFacets.add((TLContextualFacet) lm);
@@ -199,8 +188,8 @@ public class Clone_Tests {
 			assertTrue("Identity listener must be correct.", cf == Node.GetNode(cf.getTLModelObject()));
 			assertTrue("Must have correct parent.", cf.getParent() == ((Node) clone).getParent());
 			assertTrue("Must have same library as parent.", cf.getLibrary() == clone.getLibrary());
-			assertTrue("Facet must be in same library as tl facet", cf.getTLModelObject().getOwningLibrary() == cf
-					.getLibrary().getTLModelObject());
+			assertTrue("Facet must be in same library as tl facet",
+					cf.getTLModelObject().getOwningLibrary() == cf.getLibrary().getTLModelObject());
 		}
 		ml.check((Node) clone, true);
 
@@ -208,7 +197,7 @@ public class Clone_Tests {
 		// Given - Choice Object
 		cfo = ml.addChoice(ln, "C1");
 		srcTLFacets = ((TLChoiceObject) cfo.getTLModelObject()).getChoiceFacets();
-		libFacets = new ArrayList<TLContextualFacet>();
+		libFacets = new ArrayList<>();
 		for (LibraryMember lm : ln.getTLModelObject().getNamedMembers())
 			if (lm instanceof TLContextualFacet)
 				libFacets.add((TLContextualFacet) lm);
@@ -243,8 +232,8 @@ public class Clone_Tests {
 			assertTrue("Identity listener must be correct.", cf == Node.GetNode(cf.getTLModelObject()));
 			assertTrue("Must have correct parent.", cf.getParent() == ((Node) clone).getParent());
 			assertTrue("Must have same library as parent.", cf.getLibrary() == clone.getLibrary());
-			assertTrue("Facet must be in same library as tl facet", cf.getTLModelObject().getOwningLibrary() == cf
-					.getLibrary().getTLModelObject());
+			assertTrue("Facet must be in same library as tl facet",
+					cf.getTLModelObject().getOwningLibrary() == cf.getLibrary().getTLModelObject());
 		}
 
 		ml.check((Node) clone, true);
@@ -266,7 +255,7 @@ public class Clone_Tests {
 		assert facet.getChildren().size() == 6;
 
 		// Check each property as they are cloned. Clones have no owner.
-		List<PropertyNode> kids = new ArrayList<PropertyNode>(facet.getProperties()); // list get added to by clone
+		List<PropertyNode> kids = new ArrayList<>(facet.getProperties()); // list get added to by clone
 		for (PropertyNode n : kids) {
 			n.setAssignedType(builtin);
 			LibraryElement clone = n.cloneTLObj();
@@ -292,7 +281,7 @@ public class Clone_Tests {
 		int assignedCount = builtin.getWhereAssignedCount();
 
 		// Given 3 elements were cloned
-		List<Node> kids = new ArrayList<Node>(facet.getChildren()); // list get added to by clone
+		List<Node> kids = new ArrayList<>(facet.getChildren()); // list get added to by clone
 		for (Node n : kids) {
 			assert n instanceof TypeUser;
 			((TypeUser) n).setAssignedType(builtin);
@@ -318,7 +307,7 @@ public class Clone_Tests {
 		int assignedCount = builtin.getWhereAssignedCount();
 
 		// Given 3 elements were cloned
-		List<Node> kids = new ArrayList<Node>(facet.getChildren()); // list get added to by clone
+		List<Node> kids = new ArrayList<>(facet.getChildren()); // list get added to by clone
 		for (Node n : kids) {
 			assert n instanceof TypeUser;
 			((TypeUser) n).setAssignedType(builtin);
@@ -345,7 +334,7 @@ public class Clone_Tests {
 		ml.addAllProperties(facet);
 		int size = facet.getChildren().size();
 
-		List<Node> kids = new ArrayList<Node>(facet.getChildren()); // list get added to by clone
+		List<Node> kids = new ArrayList<>(facet.getChildren()); // list get added to by clone
 		for (Node n : kids)
 			n.clone("_Clone");
 
@@ -370,7 +359,7 @@ public class Clone_Tests {
 	public void cloneTest() throws Exception {
 		MainController mc = OtmRegistry.getMainController();
 		LoadFiles lf = new LoadFiles();
-		model = mc.getModelNode();
+		// model = mc.getModelNode();
 
 		// Given - Test File 5 (clean) in a chain
 		// LibraryNode srcLib = lf.loadFile5Clean(mc); // not valid
@@ -491,17 +480,5 @@ public class Clone_Tests {
 		}
 		return 0;
 	}
-
-	// private void cloneProperties(Node n) {
-	// for (Node p : n.getDescendants()) {
-	// if (p instanceof PropertyNode) {
-	// if (p.getParent() instanceof ComponentNode)
-	// ((ComponentNode) p.getParent()).addProperty(p.clone());
-	// else
-	// LOGGER.debug(p + "has invalid class of parent.");
-	// }
-	// }
-	// tt.visitAllNodes(n);
-	// }
 
 }

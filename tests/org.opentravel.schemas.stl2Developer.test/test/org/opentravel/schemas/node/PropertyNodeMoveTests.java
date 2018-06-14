@@ -24,10 +24,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLFacet;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
-import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.AttributeReferenceNode;
 import org.opentravel.schemas.node.properties.ElementNode;
@@ -41,18 +38,17 @@ import org.opentravel.schemas.node.properties.RoleNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
 import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.utils.FacetNodeBuilder;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
-public class PropertyNodeMoveTests {
+public class PropertyNodeMoveTests extends BaseTest {
 
-	private LibraryNode ln = null;
-	MainController mc;
-	MockLibrary ml;
+	// private LibraryNode ln = null;
+	// MainController mc;
+	// MockLibrary ml;
 
 	private static final String I0 = "I0";
 	private static final String I1 = "I1";
@@ -67,17 +63,17 @@ public class PropertyNodeMoveTests {
 	final String a2Name = NodeNameUtils.fixAttributeName(A2);
 
 	@Before
-	public void beforeEachTest() {
-		mc = OtmRegistry.getMainController();
-		ml = new MockLibrary();
-		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
-		ProjectNode defaultProject = pc.getDefaultProject();
+	public void beforeEachOfTheseTests() {
+		// mc = OtmRegistry.getMainController();
+		// ml = new MockLibrary();
+		// DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
+		// ProjectNode defaultProject = pc.getDefaultProject();
 		ln = ml.createNewLibrary("http://example.com/test", "test", defaultProject);
 	}
 
 	@Test
 	public void shouldMoveUp() {
-		FacetProviderNode facetNode = FacetNodeBuilder.create().addElements(E1, E2, E3).build();
+		FacetProviderNode facetNode = FacetNodeBuilder.create(ln).addElements(E1, E2, E3).build();
 		findChild(facetNode, E2).moveUp();
 		assertFacetOrder(facetNode.getChildren(), E2, E1, E3);
 
@@ -91,7 +87,7 @@ public class PropertyNodeMoveTests {
 
 	@Test
 	public void shouldMoveDown() {
-		FacetProviderNode facetNode = FacetNodeBuilder.create().addElements(E1, E2, E3).build();
+		FacetProviderNode facetNode = FacetNodeBuilder.create(ln).addElements(E1, E2, E3).build();
 		findChild(facetNode, E2).moveDown();
 		assertFacetOrder(facetNode.getChildren(), E1, E3, E2);
 	}

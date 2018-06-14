@@ -57,26 +57,11 @@ import org.slf4j.LoggerFactory;
 public class GetDescendents_Tests extends BaseProjectTest {
 	static final Logger LOGGER = LoggerFactory.getLogger(MockLibrary.class);
 
-	// ModelNode model = null;
-	// NodeTesters nt = new NodeTesters();
-	// LoadFiles lf = new LoadFiles();
-	// Library_FunctionTests lt = new Library_FunctionTests();
 	MockLibrary ml = new MockLibrary();
 	LibraryNode ln = null;
-	// MainController mc;
-	// DefaultProjectController pc;
-	// ProjectNode defaultProject;
 	String OTA = "OTA2_BuiltIns_v2.0.0"; // name
 	String XSD = "XMLSchema";
 	static String PREFIX = "PL1";
-
-	// @Before
-	// public void beforeAllTests() {
-	// //// mc = OtmRegistry.getMainController();
-	//// ml = new MockLibrary();
-	// //// pc = (DefaultProjectController) mc.getProjectController();
-	// //// defaultProject = pc.getDefaultProject();
-	// }
 
 	@Test
 	public void DESC_Descendants() {
@@ -93,7 +78,7 @@ public class GetDescendents_Tests extends BaseProjectTest {
 		ml.addAllProperties(bo2.getFacet_Summary());
 
 		List<Node> descendants = Node.getModelNode().getDescendants();
-		assert descendants.size() == 264;
+		assert descendants.size() == 265;
 
 		// Then
 		for (Node d : Node.getModelNode().getDescendants()) {
@@ -322,10 +307,6 @@ public class GetDescendents_Tests extends BaseProjectTest {
 	@Test
 	public void DESC_XsdBuiltin() throws Exception {
 		OTM16Upgrade.otm16Enabled = true;
-
-		// Given a library that should be ignored
-		LibraryNode ln2 = ml.createNewLibrary("http://example.com/test", "test", defaultProject);
-		ml.addOneOfEach(ln2, PREFIX);
 
 		// Given the built in xsd library
 		for (LibraryNode n : Node.getAllLibraries()) {

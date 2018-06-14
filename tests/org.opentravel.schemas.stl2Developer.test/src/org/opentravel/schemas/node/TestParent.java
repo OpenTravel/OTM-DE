@@ -15,14 +15,11 @@
  */
 package org.opentravel.schemas.node;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
-import org.opentravel.schemas.controllers.MainController;
+import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.testUtils.LoadFiles;
-import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.testUtils.BaseTest;
 
 /**
  * Make sure all nodes can trace up the tree to the model node.
@@ -30,30 +27,25 @@ import org.opentravel.schemas.testUtils.NodeTesters;
  * @author Dave Hollander
  *
  */
-public class TestParent {
-	LoadFiles lf = new LoadFiles();
-	NodeTesters nt = new NodeTesters();
-	Library_FunctionTests lt = new Library_FunctionTests();
+public class TestParent extends BaseTest {
 
 	@Test
 	public void testGetParent() throws Exception {
-		MainController mc = OtmRegistry.getMainController();
-
 		lf.loadTestGroupA(mc);
 		for (LibraryNode ln : Node.getAllLibraries()) {
-			for (Node n : ln.getDescendants_LibraryMembersAsNodes())
+			for (LibraryMemberInterface n : ln.getDescendants_LibraryMembers())
 				parentVisitor(n);
 		}
 
 	}
 
-	private void parentVisitor(Node target) {
+	private void parentVisitor(LibraryMemberInterface n) {
 		Node testNode = null;
-		Node parent = target;
+		Node parent = (Node) n;
 		do {
 			testNode = parent;
 			parent = parent.getParent();
 		} while (parent != null);
-		Assert.assertTrue(testNode instanceof ModelNode);
+		Assert.assertTrue("Must be at model node.", testNode instanceof ModelNode);
 	}
 }

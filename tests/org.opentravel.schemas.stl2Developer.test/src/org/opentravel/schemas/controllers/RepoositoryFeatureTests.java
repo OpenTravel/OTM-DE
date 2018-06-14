@@ -38,7 +38,6 @@ import org.opentravel.schemas.controllers.repository.RepositoryIntegrationTestBa
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
-import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.LibraryInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.ResourceMemberInterface;
@@ -102,6 +101,9 @@ public class RepoositoryFeatureTests extends RepositoryIntegrationTestBase {
 		assert ln.isEditable();
 		assert lcn != null;
 		assert lcn.getHead() == ln;
+		assert project.contains((LibraryInterface) ln);
+		assert project.contains(ln.getTLModelObject());
+		ml.check();
 	}
 
 	@Test
@@ -158,8 +160,8 @@ public class RepoositoryFeatureTests extends RepositoryIntegrationTestBase {
 		// Manage a library in a local repository
 
 		setUpLocal();
-		assert project.contains((LibraryInterface) ln);
-		assert project.contains(ln.getTLModelObject());
+		// assert project.contains((LibraryInterface) ln);
+		// assert project.contains(ln.getTLModelObject());
 
 		// Given - a business object and resource
 		BusinessObjectNode bo = ml.addBusinessObject_ResourceSubject(ln, "Subject");
@@ -192,15 +194,15 @@ public class RepoositoryFeatureTests extends RepositoryIntegrationTestBase {
 		// Given the initial number of libraries managed in the library model manager
 		LibraryModelManager lmm = Node.getLibraryModelManager();
 		int initialSize = lmm.getAllLibraries().size();
-		List<LibraryInterface> managedLibs = lmm.getLibraries();
-		List<Node> projectKids = project.getChildren();
-		List<Node> project2Kids = project2.getChildren();
+		// List<LibraryInterface> managedLibs = lmm.getLibraries();
+		// List<Node> projectKids = project.getChildren();
+		// List<Node> project2Kids = project2.getChildren();
 
 		assertTrue("Library must be used in other project.", lmm.isUsedElsewhere(ln, project) == true);
 		assertTrue("Library must be used in other project.", lmm.isUsedElsewhere(ln, project2) == true);
 
-		assert rc.promote(ln, TLLibraryStatus.UNDER_REVIEW);
-		assert rc.promote(ln, TLLibraryStatus.FINAL);
+		assertTrue("Failed to promote to under review.", rc.promote(ln, TLLibraryStatus.UNDER_REVIEW));
+		assertTrue("Failed to promote to final.", rc.promote(ln, TLLibraryStatus.FINAL));
 
 		// When - minor version created
 		LibraryNode minor = rc.createMinorVersion(ln);
@@ -228,22 +230,12 @@ public class RepoositoryFeatureTests extends RepositoryIntegrationTestBase {
 			assert rmi instanceof ParamGroup;
 			ml.check((Node) rmi, true);
 		}
-		boScan("SubjectID");
 
-		// Force failure
-		rn.getTLModelObject().setBusinessObjectRef(null);
-		for (ResourceMemberInterface rmi : rn.getParameterGroups(false)) {
-			((ParamGroup) rmi).setReferenceFacet((FacetInterface) null);
-		}
-		// Subject [Error]: The name "SubjectID" conflicts with another schema element in namespace
-		// Subject_Query_Q1Subject [Error]: The name "Subject_Query_Q1Subject" conflicts with another schema type in
-		// Subject_Query_Q1Subject [Error]: The name Subject_Query_Q1Subject" conflicts with another schema type in
-
-		boScan("SubjectID");
-		boScan("Subject_Query_Q1Subject");
-		boScan("Subject_C1Subject");
-		ml.check(bo);
-		ml.check(rn);
+		// // Force failure - remove references and make sure ml.check() catches it.
+		// rn.getTLModelObject().setBusinessObjectRef(null);
+		// for (ResourceMemberInterface rmi : rn.getParameterGroups(false)) {
+		// ((ParamGroup) rmi).setReferenceFacet((FacetInterface) null);
+		// }
 		ml.check(project, true);
 
 		// TODO - TEST assure non-local contextual facets don't lose their connections

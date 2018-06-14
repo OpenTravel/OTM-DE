@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemacompiler.util.URLUtils;
 import org.opentravel.schemas.controllers.DefaultProjectController.OpenedProject;
 import org.opentravel.schemas.controllers.MainController;
@@ -298,7 +299,7 @@ public class LoadFiles {
 	}
 
 	/**
-	 * Load a version 1.5 library.
+	 * Load a version 1.5 library. NOT valid.
 	 * 
 	 * @param thisModel
 	 * @return
@@ -308,6 +309,12 @@ public class LoadFiles {
 		return ln;
 	}
 
+	/**
+	 * Load a version 1.5 library. NOT valid.
+	 * 
+	 * @param thisModel
+	 * @return
+	 */
 	public LibraryNode loadFile6(ProjectNode project) {
 		return loadFile(project, path6);
 	}
@@ -328,9 +335,10 @@ public class LoadFiles {
 	}
 
 	/**
-	 * No Errors with resource and choice objects.
+	 * Version 1.6 library with no Errors with resource and choice objects.
 	 */
 	public LibraryNode loadFile7(ProjectNode project) {
+		assert OTM16Upgrade.otm16Enabled;
 		return loadFile(project, path7);
 	}
 

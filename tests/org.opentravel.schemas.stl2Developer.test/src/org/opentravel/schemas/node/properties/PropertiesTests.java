@@ -35,16 +35,12 @@ import org.opentravel.schemacompiler.model.TLIndicator;
 import org.opentravel.schemacompiler.model.TLOpenEnumeration;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.model.TLRole;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.ComponentNode;
 import org.opentravel.schemas.node.ModelNode;
 import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.NodeNameUtils;
-import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
-import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationClosedNode;
 import org.opentravel.schemas.node.typeProviders.EnumerationOpenNode;
 import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
@@ -52,40 +48,25 @@ import org.opentravel.schemas.node.typeProviders.RoleFacetNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.types.TypeProvider;
 
 /**
  * @author Dave Hollander
  * 
  */
-public class PropertiesTests {
-	ModelNode model = null;
-	MockLibrary mockLibrary = null;
-	LibraryNode ln = null;
-	MainController mc;
-	DefaultProjectController pc;
-	ProjectNode defaultProject;
-
-	// Node_Tests nt = new Node_Tests();
-	// LoadFiles lf = new LoadFiles();
-	// LibraryTests lt = new LibraryTests();
+public class PropertiesTests extends BaseTest {
 
 	@Before
-	public void beforeEachTest() {
-		mc = OtmRegistry.getMainController();
-		mockLibrary = new MockLibrary();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
-		ln = mockLibrary.createNewLibrary("http://example.com/test", "test", defaultProject);
+	public void beforeEachOfTheseTests() {
+		ln = ml.createNewLibrary("http://example.com/test", "test", defaultProject);
 	}
 
 	@Test
 	public void equivalents() {
-		LibraryChainNode lcn = mockLibrary.createNewManagedLibrary("EQ_Test", pc.getDefaultProject());
+		LibraryChainNode lcn = ml.createNewManagedLibrary("EQ_Test", pc.getDefaultProject());
 		ln = lcn.getHead();
-		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "EQBO");
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "EQBO");
 		PropertyNode p = (PropertyNode) bo.getFacet_Summary().getChildren().get(0);
 		createEquivalents(p);
 	}
@@ -104,9 +85,9 @@ public class PropertiesTests {
 
 	@Test
 	public void examples() {
-		LibraryChainNode lcn = mockLibrary.createNewManagedLibrary("EQ_Test", pc.getDefaultProject());
+		LibraryChainNode lcn = ml.createNewManagedLibrary("EQ_Test", pc.getDefaultProject());
 		ln = lcn.getHead();
-		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "EQBO");
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "EQBO");
 		PropertyNode p = (PropertyNode) bo.getFacet_Summary().getChildren().get(0);
 		assertNotNull(p);
 		p.setExample("V1"); // creates handler
@@ -162,7 +143,7 @@ public class PropertiesTests {
 
 	@Test
 	public void createElements() {
-		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TestBO");
 		FacetProviderNode summary = bo.getFacet_Summary();
 		assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
@@ -194,8 +175,8 @@ public class PropertiesTests {
 
 	@Test
 	public void createElementRefs() {
-		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
-		BusinessObjectNode A = mockLibrary.addBusinessObjectToLibrary(ln, "A");
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TestBO");
+		BusinessObjectNode A = ml.addBusinessObjectToLibrary(ln, "A");
 		FacetProviderNode summary = bo.getFacet_Summary();
 		assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
@@ -224,7 +205,7 @@ public class PropertiesTests {
 
 	@Test
 	public void createAttributes() {
-		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TestBO");
 		FacetProviderNode summary = bo.getFacet_Summary();
 		assertTrue(summary != null);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
@@ -262,7 +243,7 @@ public class PropertiesTests {
 
 	@Test
 	public void createIds() {
-		VWA_Node vwa = mockLibrary.addVWA_ToLibrary(ln, "Vwa");
+		VWA_Node vwa = ml.addVWA_ToLibrary(ln, "Vwa");
 		final String idName = "SomeIgnoredName";
 		IdNode id = new IdNode(vwa.getFacet_Attributes(), idName);
 		Node idType = NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
@@ -277,7 +258,7 @@ public class PropertiesTests {
 
 	@Test
 	public void createIndicatorElements() {
-		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TestBO");
 		FacetProviderNode summary = bo.getFacet_Summary();
 		assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
@@ -310,7 +291,7 @@ public class PropertiesTests {
 
 	@Test
 	public void createIndicator() {
-		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "TestBO");
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "TestBO");
 		FacetProviderNode summary = bo.getFacet_Summary();
 		assertNotNull(summary);
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
@@ -368,7 +349,7 @@ public class PropertiesTests {
 
 	@Test
 	public void createRoles() {
-		CoreObjectNode core = mockLibrary.addCoreObjectToLibrary(ln, "Core");
+		CoreObjectNode core = ml.addCoreObjectToLibrary(ln, "Core");
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		RoleFacetNode roles = core.getFacet_Role();
 		RoleNode rn1, rn = null;
@@ -393,7 +374,7 @@ public class PropertiesTests {
 	@Test
 	public void assignedNames() {
 		ln.setEditable(true);
-		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "Ct");
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "Ct");
 		FacetProviderNode summary = bo.getFacet_Summary();
 		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, epn, apn, ipn, rpn, iepn = null;
@@ -433,7 +414,7 @@ public class PropertiesTests {
 	@Test
 	public void changeRoles() {
 		ln.setEditable(true);
-		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "ct");
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "ct");
 		FacetProviderNode summary = bo.getFacet_Summary();
 		TypeProvider aType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		PropertyNode pn, epn, apn, ipn, rpn, iepn = null;
@@ -451,13 +432,13 @@ public class PropertiesTests {
 		rpn = new ElementReferenceNode(summary);
 
 		// Change all property roles
-		List<Node> kids = new ArrayList<Node>(summary.getChildren());
+		List<Node> kids = new ArrayList<>(summary.getChildren());
 		for (Node n : kids) {
 			if (n instanceof PropertyNode)
 				changeToAll((PropertyNode) n);
 		}
 		// Do it again to assure the alternateRoles logic works
-		kids = new ArrayList<Node>(summary.getChildren());
+		kids = new ArrayList<>(summary.getChildren());
 		for (Node n : kids) {
 			if (n instanceof PropertyNode)
 				changeToAll((PropertyNode) n);
@@ -468,7 +449,7 @@ public class PropertiesTests {
 	public void addPropertyFromDND_Tests() {
 		// This seems to be dependent on the type of "this" node. create property should only be implemented for facets.
 		ln.setEditable(true);
-		BusinessObjectNode bo = mockLibrary.addBusinessObjectToLibrary(ln, "ct");
+		BusinessObjectNode bo = ml.addBusinessObjectToLibrary(ln, "ct");
 		FacetProviderNode summary = bo.getFacet_Summary();
 		Node aType = NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 		ComponentNode cn = summary;

@@ -36,6 +36,7 @@ import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.NodeFinders;
 import org.opentravel.schemas.node.ProjectNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
+import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.stl2Developer.reposvc.RepositoryTestUtils;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
 import org.opentravel.schemas.trees.repository.RepositoryNode;
@@ -74,6 +75,10 @@ public abstract class BaseProjectTest {
 		pc = mc.getProjectController();
 		defaultProject = pc.getDefaultProject();
 
+		SimpleTypeNode sn = (SimpleTypeNode) NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE);
+		if (sn == null)
+			LOGGER.error("Missing simple type ID.");
+
 		assert OtmRegistry.getMainController() == mc;
 		assert NodeFinders.findNodeByName("ID", ModelNode.XSD_NAMESPACE) != null;
 		assert pc.getBuiltInProject() != null;
@@ -84,7 +89,6 @@ public abstract class BaseProjectTest {
 	public void beforeEachTest() throws Exception {
 		LOGGER.debug("Before Each Test");
 		pc.closeAll();
-		// pc.close(defaultProject);
 		Node.getLibraryModelManager().clear(false);
 		defaultProject = pc.getDefaultProject();
 
@@ -113,10 +117,8 @@ public abstract class BaseProjectTest {
 			filesToClean.add(pn.getTLProject().getProjectFile().getParentFile());
 		projectsToClean.clear();
 
-		// super.afterEachTest();
 		pc.closeAll();
-		pc.close(defaultProject);
-		Node.getLibraryModelManager().clear(false);
+		// Node.getLibraryModelManager().clear(false);
 		defaultProject = pc.getDefaultProject(); // close all creates a new defaultProject
 
 		// use file list from super.afterEachTest()

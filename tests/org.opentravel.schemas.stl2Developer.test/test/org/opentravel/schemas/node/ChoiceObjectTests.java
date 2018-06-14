@@ -25,9 +25,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.codegen.util.FacetCodegenUtils;
 import org.opentravel.schemacompiler.codegen.util.PropertyCodegenUtils;
@@ -39,8 +37,6 @@ import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacet;
 import org.opentravel.schemacompiler.model.TLFacetType;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryChainNode;
 import org.opentravel.schemas.node.libraries.LibraryNode;
@@ -50,36 +46,14 @@ import org.opentravel.schemas.node.typeProviders.AbstractContextualFacet;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
 import org.opentravel.schemas.node.typeProviders.FacetProviderNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.testUtils.LoadFiles;
-import org.opentravel.schemas.testUtils.MockLibrary;
 
 /**
  * @author Dave Hollander
  * 
  */
-public class ChoiceObjectTests {
-	ModelNode model = null;
-	MockLibrary ml = new MockLibrary(); // define here to allow other classes to check objects
-	LibraryNode ln = null;
-	MainController mc;
-	DefaultProjectController pc;
-	ProjectNode defaultProject;
-
-	@Before
-	public void beforeEachTest() {
-		mc = OtmRegistry.getMainController();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
-	}
-
-	@After
-	public void afterEachTest() {
-		Node.getLibraryModelManager().clear(false);
-		for (LibraryNode lib : defaultProject.getLibraries())
-			defaultProject.close(lib);
-		assert defaultProject.getLibraries().isEmpty();
-	}
+public class ChoiceObjectTests extends BaseTest {
 
 	public TLChoiceObject buildTL(String name) {
 		TLChoiceObject tlc = new TLChoiceObject();

@@ -17,7 +17,6 @@ package org.opentravel.schemas.node.listeners;
 
 import org.opentravel.schemacompiler.event.OwnershipEvent;
 import org.opentravel.schemacompiler.event.ValueChangeEvent;
-import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.typeProviders.TypeProviders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +38,8 @@ public class TypeProviderListener extends NodeIdentityListener implements INodeL
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
 		super.processValueChangeEvent(event);
-		Node newValue = getNewValue(event);
-		Node oldValue = getOldValue(event);
+		// Node newValue = getNewValue(event);
+		// Node oldValue = getOldValue(event);
 		// LOGGER.debug("Value Change event: " + event.getType() + " this = " + thisNode + ", old = " + oldValue
 		// + ", new = " + newValue);
 

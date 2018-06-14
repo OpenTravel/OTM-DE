@@ -27,19 +27,13 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.properties.ElementNode;
 import org.opentravel.schemas.node.typeProviders.ChoiceObjectNode;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.testUtils.LoadFiles;
-import org.opentravel.schemas.testUtils.MockLibrary;
-import org.opentravel.schemas.testUtils.NodeTesters;
-import org.opentravel.schemas.testUtils.NodeTesters.TestNode;
+import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.opentravel.schemas.types.whereused.TypeProviderWhereUsedNode;
@@ -51,28 +45,28 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class WhereUsedNodeTests {
+public class WhereUsedNodeTests extends BaseTest {
 	private static final String USER_NAME_TE2 = "TE2";
 
 	static final Logger LOGGER = LoggerFactory.getLogger(WhereUsedNodeTests.class);
 
-	ModelNode model = null;
-	MockLibrary ml = new MockLibrary();
-	LibraryNode ln = null;
-	MainController mc;
-	DefaultProjectController pc;
-	ProjectNode defaultProject;
-	LoadFiles lf = null;
-	TestNode tn = new NodeTesters().new TestNode();
+	// ModelNode model = null;
+	// MockLibrary ml = new MockLibrary();
+	// LibraryNode ln = null;
+	// MainController mc;
+	// DefaultProjectController pc;
+	// ProjectNode defaultProject;
+	// LoadFiles lf = null;
+	// TestNode tn = new NodeTesters().new TestNode();
 	TypeProvider emptyNode = null;
 	TypeProvider sType = null;
 
 	@Before
-	public void beforeEachTest() {
-		mc = OtmRegistry.getMainController();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
-		lf = new LoadFiles();
+	public void beforeEachOfTheseTests() {
+		// mc = OtmRegistry.getMainController();
+		// pc = (DefaultProjectController) mc.getProjectController();
+		// defaultProject = pc.getDefaultProject();
+		// lf = new LoadFiles();
 		emptyNode = (TypeProvider) ModelNode.getEmptyNode();
 		sType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 	}

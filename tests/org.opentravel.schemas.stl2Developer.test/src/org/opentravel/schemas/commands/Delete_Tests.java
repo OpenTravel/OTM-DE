@@ -234,6 +234,7 @@ public class Delete_Tests extends BaseProjectTest {
 
 	@Test
 	public void deleteFacets_BusinessObject() {
+		OTM16Upgrade.otm16Enabled = false;
 		ln = ml.createNewLibrary("http://opentravel.org/test", "TestLib", testProject);
 
 		// Given a business object with all facet types
@@ -259,6 +260,7 @@ public class Delete_Tests extends BaseProjectTest {
 		assertTrue("Object only has 3 children.", bo.getChildren().size() == facetCount);
 		assertTrue("Facet is deleted.", q1.isDeleted());
 		assertTrue("Facet is deleted.", c1.isDeleted());
+		OTM16Upgrade.otm16Enabled = false;
 	}
 
 	@Test

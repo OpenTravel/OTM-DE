@@ -114,42 +114,4 @@ public abstract class BaseTest {
 		return local1;
 	}
 
-	// public static ProjectNode createProject(String name, RepositoryNode nodeForNamespace, String nameSpaceSuffix) {
-	// File projectDir = new File(tmpWorkspace, name);
-	// File projectFile = new File(projectDir, name + ".otp");
-	// ProjectNode project = pc.create(projectFile, nodeForNamespace.getNamespace() + "/" + nameSpaceSuffix, name, "");
-	// projectsToClean.add(project);
-	// return project;
-	// }
-	//
-	// @AfterClass
-	// public final static void afterTests() throws Exception {
-	// RepositoryTestUtils.deleteContents(tmpWorkspace);
-	// }
-	//
-	// public static File createTempDirectory(String name) throws IOException {
-	// final File temp;
-	//
-	// temp = File.createTempFile(name, Long.toString(System.nanoTime()));
-	//
-	// if (!(temp.delete())) {
-	// throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());
-	// }
-	//
-	// if (!(temp.mkdir())) {
-	// throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
-	// }
-	//
-	// return (temp);
-	// }
-	//
-	// public static File createFolder(File parent, String folder) {
-	// File file = new File(parent, folder);
-	// file.mkdir();
-	// return file;
-	// }
-
-	// FIXME - add these in
-	// public abstract TLModelElement createTL();
-	// public abstract void check();
 }

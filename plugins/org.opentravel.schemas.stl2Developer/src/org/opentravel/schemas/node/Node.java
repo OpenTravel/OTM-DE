@@ -2072,6 +2072,8 @@ public abstract class Node implements INode {
 
 	@Override
 	public String toString() {
+		if (deleted)
+			return getName() + " (Deleted)";
 		return getName();
 	}
 

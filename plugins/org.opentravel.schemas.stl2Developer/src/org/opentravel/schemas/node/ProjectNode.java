@@ -118,8 +118,10 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 	/**
 	 * Add the files to the project and models all new project items in the GUI model. NOTE - for performance reasons,
 	 * always try to add multiple files at once. Does <b>not</b> run type resolver.
+	 * <p>
+	 * Use {@link org.opentravel.schemas.controllers.DefaultLibraryController#openLibrary(ProjectNode)} or run new
+	 * TypeResolver().resolveTypes();
 	 * 
-	 * {@link org.opentravel.schemas.controllers.DefaultLibraryController#openLibrary(ProjectNode)}
 	 */
 	public void add(List<File> libraryFiles) {
 		ProjectController pc = OtmRegistry.getMainController().getProjectController();
@@ -289,9 +291,9 @@ public class ProjectNode extends Node implements INode, TypeProviderAndOwners, F
 				LOGGER.error("Repo Error adding " + tlLib.getName() + " to project. " + e1.getLocalizedMessage());
 				// assert true;
 			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
 				LOGGER.error(
 						"Argument Exception adding " + tlLib.getName() + " to project. " + e.getLocalizedMessage());
+				e.printStackTrace();
 				// assert true;
 			}
 		return pi;

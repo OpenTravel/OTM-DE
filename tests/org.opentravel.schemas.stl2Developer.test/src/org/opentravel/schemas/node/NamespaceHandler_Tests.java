@@ -22,14 +22,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.handlers.NamespaceHandler;
 import org.opentravel.schemas.node.libraries.LibraryNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.testUtils.LoadFiles;
-import org.opentravel.schemas.testUtils.MockLibrary;
-import org.opentravel.schemas.testUtils.NodeTesters;
+import org.opentravel.schemas.testUtils.BaseTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,25 +32,16 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class NamespaceHandler_Tests {
+public class NamespaceHandler_Tests extends BaseTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(NamespaceHandler_Tests.class);
-
-	ModelNode model = null;
-	NodeTesters nt = new NodeTesters();
-	LoadFiles lf = new LoadFiles();
-	Library_FunctionTests lt = new Library_FunctionTests();
-	MockLibrary mockLibrary = new MockLibrary();
 
 	@Test
 	public void mockLibTest() {
 		String ns = "http://foo.bar";
 		final String ns2 = "http://foo.bar/too";
 		final String pre = "aaa";
-		MainController mc = OtmRegistry.getMainController();
-		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
-		ProjectNode defaultProject = pc.getDefaultProject();
 
-		LibraryNode ln = mockLibrary.createNewLibrary(ns, "test", defaultProject);
+		LibraryNode ln = ml.createNewLibrary(ns, "test", defaultProject);
 		ln.setNSPrefix(pre);
 		Assert.assertFalse(ln.getNamespace().isEmpty());
 		Assert.assertFalse(ln.getPrefix().isEmpty());
@@ -72,7 +58,7 @@ public class NamespaceHandler_Tests {
 
 	@Test
 	public void nsHandlerTest() throws Exception {
-		MainController mc = OtmRegistry.getMainController();
+		// MainController mc = OtmRegistry.getMainController();
 		final String testNS = "http://www.opentravel.org/ns/TEST";
 
 		final String testExtension = "Test";
@@ -84,7 +70,7 @@ public class NamespaceHandler_Tests {
 
 		lf.loadTestGroupA(mc);
 		for (LibraryNode ln : Node.getAllLibraries()) {
-			ln.visitAllNodes(nt.new TestNode());
+			ml.check(ln);
 
 			// Make sure the handlers are assigned correctly.
 			Assert.assertNotNull(NamespaceHandler.getNamespaceHandler(ln));

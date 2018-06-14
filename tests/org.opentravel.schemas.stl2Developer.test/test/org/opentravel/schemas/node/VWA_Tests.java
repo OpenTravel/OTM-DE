@@ -67,17 +67,15 @@ public class VWA_Tests extends BaseProjectTest {
 	TypeProvider emptyNode = null;
 	TypeProvider sType = null;
 
-	ProjectNode defaultProject;
+	// ProjectNode defaultProject;
 	LoadFiles lf = new LoadFiles();
 	MockLibrary ml = new MockLibrary();
 	LibraryChainNode lcn = null;
 	LibraryNode ln = null;
 
-	@Override
 	@Before
-	public void beforeEachTest() throws Exception {
+	public void beforeEachOfTheseTests() throws Exception {
 		LOGGER.debug("***Before VWA Object Tests ----------------------");
-		callBeforeEachTest();
 		defaultProject = testProject;
 		ln = ml.createNewLibrary("http://test.com", "CoreTest", defaultProject);
 		ln.setEditable(true);

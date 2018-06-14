@@ -19,7 +19,6 @@ import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLContextualFacet;
 import org.opentravel.schemacompiler.model.TLFacetOwner;
 import org.opentravel.schemacompiler.model.TLFacetType;
-import org.opentravel.schemas.node.Node;
 import org.opentravel.schemas.node.interfaces.ContextualFacetOwnerInterface;
 
 /**
@@ -57,9 +56,9 @@ public class CustomFacetNode extends ContextualFacetNode {
 			owner.getChildrenHandler().clear();
 
 		getTLModelObject().setOwningEntity(tlOwner);
-		getTLModelObject().setOwningEntityName(((Node) owner).getNameWithPrefix());
+		// getTLModelObject().setOwningEntityName(((Node) owner).getNameWithPrefix());
 		assert getTLModelObject().getOwningEntity() == owner.getTLModelObject();
-		assert !getTLModelObject().getOwningEntityName().isEmpty();
+		// assert !getTLModelObject().getOwningEntityName().isEmpty();
 	}
 
 	@Override

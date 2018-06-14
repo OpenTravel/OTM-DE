@@ -383,7 +383,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	}
 
 	public void clearParameters() {
-		LOGGER.debug("Clearing parameters from " + getName());
+		// LOGGER.debug("Clearing parameters from " + getName());
 		List<Node> params = new ArrayList<>(getChildren());
 		for (Node p : params)
 			p.delete();

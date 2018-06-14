@@ -22,18 +22,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.opentravel.schemacompiler.model.TLSimple;
-import org.opentravel.schemas.controllers.DefaultProjectController;
 import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
 import org.opentravel.schemas.node.interfaces.SimpleMemberInterface;
 import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.typeProviders.SimpleTypeNode;
 import org.opentravel.schemas.stl2developer.OtmRegistry;
+import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.testUtils.LoadFiles;
-import org.opentravel.schemas.testUtils.MockLibrary;
 import org.opentravel.schemas.types.TypeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,25 +40,8 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
-public class SimpleTypeNodeTests {
+public class SimpleTypeNodeTests extends BaseTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleTypeNodeTests.class);
-
-	// NodeTesters nt = new NodeTesters();
-	LoadFiles lf = new LoadFiles();
-	MockLibrary ml = null;
-	LibraryNode ln = null;
-	ProjectNode defaultProject;
-	DefaultProjectController pc = null;
-	int nodeCount;
-	MainController mc;
-
-	@Before
-	public void beforeAllTests() {
-		mc = OtmRegistry.getMainController();
-		ml = new MockLibrary();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
-	}
 
 	@Test
 	public void simpleTypeNode_LoadFileTests() throws Exception {

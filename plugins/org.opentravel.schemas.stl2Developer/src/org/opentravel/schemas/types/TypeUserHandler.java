@@ -235,6 +235,9 @@ public class TypeUserHandler extends AbstractAssignmentHandler<TypeProvider> {
 		if (target.getLibrary() != null && target.getLibrary().isBuiltIn()
 				&& target.getLibrary().getNamespace().equals(XMLConstants.W3C_XML_SCHEMA_NS_URI))
 			if (target.getXsdObjectHandler() != null)
+				// tlTarget = target.getXsdObjectHandler().getBuiltTL(); // get builtTL
+				// 6/13/2018 - changed based on failure in
+				// org.opentravel.schemas.node.XSDNode_Tests.XSD_LoadXSDFileTests()
 				tlTarget = target.getXsdObjectHandler().getTLLibraryMember(); // get srcTL not builtTL
 
 		// Let the node handle assigning to the TL object.

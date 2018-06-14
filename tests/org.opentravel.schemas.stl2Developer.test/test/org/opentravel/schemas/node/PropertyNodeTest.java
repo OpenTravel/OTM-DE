@@ -28,12 +28,9 @@ import org.opentravel.schemacompiler.event.ModelElementListener;
 import org.opentravel.schemacompiler.model.TLCoreObject;
 import org.opentravel.schemacompiler.model.TLProperty;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
-import org.opentravel.schemas.controllers.DefaultProjectController;
-import org.opentravel.schemas.controllers.MainController;
 import org.opentravel.schemas.node.interfaces.FacadeInterface;
 import org.opentravel.schemas.node.interfaces.FacetInterface;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
-import org.opentravel.schemas.node.libraries.LibraryNode;
 import org.opentravel.schemas.node.listeners.TypeUserAssignmentListener;
 import org.opentravel.schemas.node.properties.AttributeNode;
 import org.opentravel.schemas.node.properties.AttributeReferenceNode;
@@ -51,30 +48,29 @@ import org.opentravel.schemas.node.typeProviders.SimpleTypeProviders;
 import org.opentravel.schemas.node.typeProviders.VWA_Node;
 import org.opentravel.schemas.node.typeProviders.facetOwners.BusinessObjectNode;
 import org.opentravel.schemas.node.typeProviders.facetOwners.CoreObjectNode;
-import org.opentravel.schemas.stl2developer.OtmRegistry;
-import org.opentravel.schemas.testUtils.MockLibrary;
+import org.opentravel.schemas.testUtils.BaseTest;
 import org.opentravel.schemas.types.TypeProvider;
 import org.opentravel.schemas.types.TypeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PropertyNodeTest {
+public class PropertyNodeTest extends BaseTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PropertyNodeTest.class);
 
-	private LibraryNode ln = null;
-	MainController mc;
-	MockLibrary ml;
-	DefaultProjectController pc;
-	ProjectNode defaultProject;
+	// private LibraryNode ln = null;
+	// MainController mc;
+	// MockLibrary ml;
+	// DefaultProjectController pc;
+	// ProjectNode defaultProject;
 	TypeProvider emptyNode = null;
 	TypeProvider sType = null;
 
 	@Before
-	public void beforeEachTest() {
-		mc = OtmRegistry.getMainController();
-		ml = new MockLibrary();
-		pc = (DefaultProjectController) mc.getProjectController();
-		defaultProject = pc.getDefaultProject();
+	public void beforeEachOfTheseTests() {
+		// mc = OtmRegistry.getMainController();
+		// ml = new MockLibrary();
+		// pc = (DefaultProjectController) mc.getProjectController();
+		// defaultProject = pc.getDefaultProject();
 		ln = ml.createNewLibrary_Empty("http://example.com/test", "test", defaultProject);
 
 		emptyNode = (TypeProvider) ModelNode.getEmptyNode();
@@ -120,7 +116,7 @@ public class PropertyNodeTest {
 	}
 
 	private List<PropertyNode> oneOfEach(FacetInterface owner) {
-		List<PropertyNode> properties = new ArrayList<PropertyNode>();
+		List<PropertyNode> properties = new ArrayList<>();
 		properties.add(new ElementNode(owner, "e1"));
 		properties.add(new ElementReferenceNode(owner));
 
@@ -135,9 +131,9 @@ public class PropertyNodeTest {
 
 	@Test
 	public void PN_ConstructorsWithOutTLObj() {
-		DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
-		ProjectNode defaultProject = pc.getDefaultProject();
-		ln = ml.createNewLibrary_Empty("http://example.com/test", "test", defaultProject);
+		// DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
+		// ProjectNode defaultProject = pc.getDefaultProject();
+		// ln = ml.createNewLibrary_Empty("http://example.com/test", "test", defaultProject);
 
 		// When - one of each is created
 		FacetInterface owner = null;
