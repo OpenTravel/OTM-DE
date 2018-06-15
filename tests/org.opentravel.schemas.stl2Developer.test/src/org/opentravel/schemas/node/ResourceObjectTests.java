@@ -458,9 +458,15 @@ public class ResourceObjectTests extends BaseTest {
 		// assert pg and params have ref obj and names
 		ml.check();
 
+		// Then - the tl parameter group must have 2 children
+		TLParamGroup tlPG0 = resource.getTLModelObject().getParamGroup("ID");
+		List<TLParameter> tlGrp0 = tlPG0.getParameters();
+		assertTrue("TL Parameter group must have 2 children.", tlGrp0.size() == 2);
+
 		//
 		// When - testlib is closed
 		//
+		LOGGER.debug("Ready to close library containing resource subject.");
 		pc.remove((LibraryNavNode) lcn.getParent());
 
 		// Then -
@@ -468,6 +474,13 @@ public class ResourceObjectTests extends BaseTest {
 		assert theGroup.getChildren().size() == 2; // Must remain that way
 		BusinessObjectNode boRef = resource.getSubject();
 		assertTrue("Resource must not have a business object ref.", boRef == null);
+
+		// FIXME
+		//
+		// Then - the tl parameter group must have 2 children
+		TLParamGroup tlPG1 = resource.getTLModelObject().getParamGroup("ID");
+		List<TLParameter> tlGrp1 = tlPG1.getParameters();
+		assertTrue("TL Parameter group must have 2 children.", tlGrp1.size() == 2);
 
 		// theGroup is NOT valid but check is OK
 		ml.check(theGroup, false); // TODO - make this fail
