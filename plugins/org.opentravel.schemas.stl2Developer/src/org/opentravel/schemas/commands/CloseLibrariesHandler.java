@@ -62,17 +62,7 @@ public class CloseLibrariesHandler extends OtmAbstractHandler {
 	 */
 	@Override
 	public boolean isEnabled() {
-		// if (toClose == null)
-		// return false;
-		// toClose.clear();
 
 		return !getSelectedLibraryNavNodes().isEmpty();
-		// List<Node> nodes = mc.getSelectedNodes_NavigatorView();
-		// for (Node n : nodes) {
-		// // Only library nav nodes know which project the library is in.
-		// if (n instanceof LibraryNavNode)
-		// toClose.add((LibraryNavNode) n);
-		// }
-		// return !toClose.isEmpty();
 	}
 }

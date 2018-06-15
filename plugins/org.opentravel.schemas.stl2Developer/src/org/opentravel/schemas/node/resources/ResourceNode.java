@@ -86,15 +86,10 @@ public class ResourceNode extends ComponentNode
 		implements TypeUser, ResourceMemberInterface, VersionedObjectInterface, LibraryMemberInterface, ExtensionOwner {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceNode.class);
 
-	// private Node subject = null;
-	// private TLResource tlResource = null;
 	private String MSGKEY = "rest.ResourceNode";
 	private ExtensionHandler extensionHandler = null; // Lazy construction - created when accessed
 	protected LibraryNode owningLibrary = null;
 	protected LibraryNode library;
-
-	// Static children handler.
-	// private ResourceChildrenHandler childrenHandler = null;
 
 	public class AbstractListener implements ResourceFieldListener {
 		@Override
@@ -103,11 +98,6 @@ public class ResourceNode extends ComponentNode
 			return false;
 		}
 	}
-
-	// @Override
-	// public NodeChildrenHandler<?> getChildrenHandler() {
-	// return null;
-	// }
 
 	public class BasePathListener implements ResourceFieldListener {
 		@Override
@@ -223,6 +213,8 @@ public class ResourceNode extends ComponentNode
 			getTLModelObject().setName("NewResource"); // must be named to add to library
 		else
 			getTLModelObject().setName(bo.getName() + "Resource");
+		if (bo.isDeleted())
+			LOGGER.warn("Setting resource subject to a deleted business object: " + bo);
 		setSubject(bo);
 
 		childrenHandler = new ResourceChildrenHandler(this);
@@ -578,11 +570,6 @@ public class ResourceNode extends ComponentNode
 		if (base == null || base.isVersioned() || !(base instanceof ResourceNode))
 			return null;
 		return (ResourceNode) base;
-
-		// return base instanceof ResourceNode ? (ResourceNode) base : null;
-		// should this implement Extension Owner?
-		// throw new IllegalStateException("Need to add type handler to resource.");
-		// return (Node) getTypeClass().getTypeNode();
 	}
 
 	/**
@@ -1117,20 +1104,6 @@ public class ResourceNode extends ComponentNode
 		pr.setParamGroup(paramGroup);
 		return pr;
 	}
-
-	// private void initInherited() {
-	// if (getTLModelObject().getExtension() != null) {
-	// NamedEntity base = getTLModelObject().getExtension().getExtendsEntity();
-	// if (base instanceof TLResource) {
-	// for (TLParamGroup tlInherited : ((TLResource) base).getParamGroups())
-	// getChildren().add(new InheritedResourceMember(tlInherited));
-	// for (TLActionFacet tlInherited : ((TLResource) base).getActionFacets())
-	// getChildren().add(new InheritedResourceMember(tlInherited));
-	// for (TLAction tlInherited : ((TLResource) base).getActions())
-	// getChildren().add(new InheritedResourceMember(tlInherited));
-	// }
-	// }
-	// }
 
 	@Override
 	public Collection<String> getValidationMessages() {

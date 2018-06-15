@@ -192,12 +192,6 @@ public abstract class AbstractContextualFacet extends FacetProviderNode implemen
 	@Override
 	public String getLabel() {
 		return getTLModelObject() != null ? getFacetType().toString() : "";
-		// return getTLModelObject() != null ? getFacetType().getIdentityName() : "";
-		// From hotfix:
-		// https://github.com/OpenTravel/OTM-DE/commit/439134c073a5b080468e76e74503fdff6a20fc7f
-		// + return getTLModelObject() != null ? getFacetType().getIdentityName( facet.getName() ) + " (Inherited)" :
-		// "";
-		// + return getTLModelObject() != null ? getFacetType().getIdentityName( facet.getName() ) : "";
 	}
 
 	@Override
@@ -209,8 +203,6 @@ public abstract class AbstractContextualFacet extends FacetProviderNode implemen
 	public String getLocalName() {
 		if (getTLModelObject() == null)
 			return "";
-		// String n = getTLModelObject().getName(); // The name of this object only
-		// String loc = getTLModelObject().getLocalName(); // The name of this object plus it's owner
 		return getTLModelObject().getName() == null ? "" : getTLModelObject().getName();
 	}
 
@@ -342,14 +334,6 @@ public abstract class AbstractContextualFacet extends FacetProviderNode implemen
 	 * 
 	 */
 	protected abstract void removeFromTLParent();
-
-	// @Override
-	// @Deprecated
-	// public void setContext() {
-	// // very common
-	// if (getLibrary() != null)
-	// getTLModelObject().setContext(getLibrary().getDefaultContextId());
-	// }
 
 	/**
 	 * Set context to library's default context ID.

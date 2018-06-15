@@ -140,7 +140,9 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	// Done - change wizard to use a libraryNavNode then delete this
 	@Deprecated
 	public LibraryNode(ProjectNode pn) {
-		assert false;
+		assert false; // 6/14/2018 dmh
+		// TODO - delete when deleting NewLibraryWizard.java
+
 		// super();
 		// assert (pn instanceof ProjectNode);
 		//
@@ -693,37 +695,6 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 	public boolean hasGeneratedChildren() {
 		return genTLLib.getNamedMembers().size() > 0 ? true : false;
 	}
-
-	// /**
-	// * Add the context of the node to this TL library if it does not already exist. For XSD Nodes, the namespace and
-	// * prefix are used. For all other nodes, any context values they contain are copied.
-	// */
-	// public void addContext(final Node n) {
-	// if (getTLLibrary() == null)
-	// return;
-	// if (n.isXsdType()) {
-	// if (getTLLibrary().getContextByApplicationContext(n.getNamespace()) == null) {
-	// final TLContext ctx = new TLContext();
-	// ctx.setApplicationContext(n.getNamespace());
-	// ctx.setContextId(n.getPrefix());
-	// if (ctx.getContextId().isEmpty())
-	// ctx.setContextId("Imported");
-	// getTLLibrary().addContext(ctx);
-	// }
-	// } else {
-	// List<TLContext> ctxList = n.getUsedContexts();
-	// if (ctxList == null)
-	// return;
-	// for (TLContext ctx : ctxList) {
-	// if (getTLLibrary().getContextByApplicationContext(ctx.getApplicationContext()) == null) {
-	// final TLContext nctx = new TLContext();
-	// nctx.setApplicationContext(ctx.getApplicationContext());
-	// nctx.setContextId(ctx.getContextId());
-	// getTLLibrary().addContext(nctx);
-	// }
-	// }
-	// }
-	// }
 
 	/**
 	 * Add node to this library. Links to library's complex/simple or element root. Adds underlying the TL object to
@@ -1805,11 +1776,6 @@ public class LibraryNode extends Node implements LibraryInterface, TypeProviderA
 			return false;
 		return getChildrenHandler().contains(member);
 	}
-
-	// // @Override
-	// public boolean contains(LibraryMemberInterface member) {
-	// return getChildrenHandler().contains((Node) member);
-	// }
 
 	/**
 	 * @return this library if unmanaged or the head of the chain for managed libraries

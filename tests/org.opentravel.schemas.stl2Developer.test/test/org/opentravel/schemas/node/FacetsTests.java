@@ -91,27 +91,11 @@ import org.slf4j.LoggerFactory;
 public class FacetsTests extends BaseTest {
 	static final Logger LOGGER = LoggerFactory.getLogger(FacetsTests.class);
 
-	// LoadFiles lf = new LoadFiles();
-	Library_FunctionTests lt = new Library_FunctionTests();
-	// MockLibrary ml = new MockLibrary();
-	// LibraryNode ln = null;
-	// MainController mc;
-	// DefaultProjectController pc;
-	// ProjectNode defaultProject;
-
-	// @Before
-	// public void beforeAllTests() {
-	// mc = OtmRegistry.getMainController();
-	// pc = (DefaultProjectController) mc.getProjectController();
-	// defaultProject = pc.getDefaultProject();
-	// }
+	// Library_FunctionTests lt = new Library_FunctionTests();
 
 	@After
-	public void afterAllTests() {
-		// defaultProject.closeAll();
-		// pc.closeAll();
+	public void afterEachOfTheseTests() {
 		LOGGER.debug("After ran.");
-		// assert defaultProject.getLibraries().isEmpty();
 		OTM16Upgrade.otm16Enabled = false;
 	}
 
@@ -152,175 +136,6 @@ public class FacetsTests extends BaseTest {
 		assertTrue("Built node 2 must not be null.", facetNode2 != null);
 		assertTrue("Built node 3 must not be null.", facetNode3 != null);
 	}
-
-	// @Test
-	// public void Facets_InheritanceTests() {
-	//
-	// OTM16Upgrade.otm16Enabled = true;
-	//
-	// // Given - a BO in a library
-	// ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
-	// BusinessObjectNode baseBO = ml.addBusinessObjectToLibrary(ln, "BaseBO");
-	// AbstractContextualFacet c1 = baseBO.addFacet("BaseC1", TLFacetType.CUSTOM);
-	// AttributeNode a1 = new AttributeNode(c1, "cAttr1");
-	//
-	// // Then - finding c1 facet must work because it is used in children handler
-	// ContributedFacetNode x1 = (ContributedFacetNode) baseBO.findChildByName(c1.getLocalName());
-	// assertTrue("Must be able to find c1 by name.", x1.get() == c1);
-	// // Then - c1 must have children to be inherited.
-	// assertTrue("Summary must have children.", !baseBO.getFacet_Summary().getChildren().isEmpty());
-	// assertTrue("Summary must not have inherited children.", baseBO.getFacet_Summary().getInheritedChildren()
-	// .isEmpty());
-	//
-	// // Given - a second, empty BO to be extended
-	// BusinessObjectNode extendedBO = ml.addBusinessObjectToLibrary_Empty(ln, "ExBO");
-	// new ElementNode(extendedBO.getFacet_Summary(), "ExEle");
-	//
-	// printListners(baseBO);
-	// printListners(c1);
-	// //
-	// // When - objects are extended
-	// extendedBO.setExtension(baseBO);
-	// assertTrue("ExtendedBO extends BaseBO.", extendedBO.isExtendedBy(baseBO));
-	//
-	// printListners(baseBO);
-	// printListners(c1);
-	// printListners(extendedBO); // FIXME - what good is the Where Extended listener???
-	//
-	// // NOTE - at this point there will NOT be any inheritance listeners or inherited facets.
-	// // They will be created on-the-fly/on-demand when children handler accessed.
-	//
-	// // When - inherited children are retrieved
-	// // This retrieval must result in newly created inherited children and inheritance listeners
-	// List<Node> exList = extendedBO.getInheritedChildren();
-	// assertTrue("Must have inherited child.", !exList.isEmpty());
-	// // assertTrue("Must have inherited child.", !extendedBO.getInheritedChildren().isEmpty());
-	// checkInheritanceListeners(c1, null, 1);
-	//
-	// // When - inherited children retrieved again
-	// // This retrieval SHOULD (but will not) reuse the inherited list in the children handler
-	// List<?> iKids = extendedBO.getChildrenHandler().getInheritedChildren();
-	// checkInheritanceListeners(c1, null, 1);
-	//
-	// // When - children then inherited children are retrieved as done in getContextualFacets()
-	// extendedBO.getChildrenHandler().get();
-	// checkInheritanceListeners(c1, null, 1);
-	// extendedBO.getChildrenHandler().getInheritedChildren();
-	// // Then - handlers are still OK
-	// checkInheritanceListeners(c1, null, 1);
-	//
-	// // When - inherited children retrieved again
-	// // This retrieval SHOULD also reuse the inherited list in the children handler
-	// AbstractContextualFacet inheritedCustom = null;
-	// List<AbstractContextualFacet> customFacets = extendedBO.getContextualFacets(true);
-	// checkInheritanceListeners(c1, null, 1);
-	// for (AbstractContextualFacet cf : customFacets) {
-	// // LOGGER.debug("Does " + c1.getLocalName() + " == " + cf.getLocalName() + "?");
-	// if (c1.getLocalName().equals(cf.getLocalName()))
-	// inheritedCustom = cf;
-	// }
-	// checkInheritanceListeners(c1, inheritedCustom, 1);
-	//
-	// // Then - there must be an inherited facet.
-	// assertTrue("Must have inherited c1 custom facet.", inheritedCustom != null);
-	// assertTrue("InheritedFrom must be the c1 custom facet.", inheritedCustom.getInheritedFrom() == c1);
-	//
-	// // Then - verify listeners are correct
-	// printListners(c1);
-	// for (ModelElementListener l : c1.getTLModelObject().getListeners())
-	// if (l instanceof InheritanceDependencyListener) {
-	// assertTrue(((InheritanceDependencyListener) l).getNode() == inheritedCustom);
-	// assertTrue(((InheritanceDependencyListener) l).getHandler() == inheritedCustom.getParent()
-	// .getChildrenHandler());
-	// }
-	//
-	// // Then - there must be inherited children in the facets.
-	// //
-	// List<Node> baseKids = baseBO.getFacet_Summary().getChildren();
-	// assertTrue("Base BO summary must have properties.", !baseKids.isEmpty());
-	// List<Node> exKids = extendedBO.getFacet_Summary().getChildren();
-	// assertTrue("Extended BO summary must have properties.", !exKids.isEmpty());
-	// List<Node> inheritedKids = extendedBO.getFacet_Summary().getInheritedChildren();
-	// assertTrue("Extended BO summary must have inherited properties.", !inheritedKids.isEmpty());
-	// // Then - verify listeners are correct
-	// for (Node i : inheritedKids) {
-	// ComponentNode ci = (ComponentNode) i;
-	// assertTrue(baseBO.getFacet_Summary().contains(ci.getInheritedFrom()));
-	// for (ModelElementListener l : ci.getInheritedFrom().getTLModelObject().getListeners())
-	// if (l instanceof InheritanceDependencyListener) {
-	// assertTrue(((InheritanceDependencyListener) l).getNode() == i);
-	// assertTrue(((InheritanceDependencyListener) l).getHandler() == i.getParent().getChildrenHandler());
-	// }
-	// }
-	//
-	// // FIXME - there are no InheritanceDependencyListeners on c1
-	// //
-	// // Tests to assure changes to objects are synchronized with the inherited "ghosts".
-	// //
-	// // When - custom facet name changes to include owner and newName
-	// String newName = "ChangedName";
-	// String startingName = inheritedCustom.getName();
-	// c1.setName(newName);
-	// assertTrue(c1.getName().contains(newName));
-	//
-	// // Then - listener wont be removed until inherited children retrieved from exBO
-	// for (ModelElementListener l : c1.getTLModelObject().getListeners())
-	// if (l instanceof InheritanceDependencyListener)
-	// assertTrue(((InheritanceDependencyListener) l).getNode() == inheritedCustom);
-	//
-	// // Then - the old inherited custom node is no longer valid.
-	// // clear does not delete - re-read does.
-	// // assertTrue(inheritedCustom.isDeleted());
-	// // Then - check the new inherited custom.
-	// AbstractContextualFacet changedCF = null;
-	// List<AbstractContextualFacet> x2List = extendedBO.getCustomFacets();
-	// assertTrue("Must be empty since getCustomFacets() does not return inherited.", x2List.isEmpty());
-	// x2List = extendedBO.getContextualFacets(true);
-	// for (AbstractContextualFacet cf : x2List)
-	// if (c1.getLocalName().equals(cf.getLocalName()))
-	// changedCF = cf;
-	// assertTrue(!changedCF.getName().equals(startingName));
-	// assertTrue(changedCF.getName().contains(newName));
-	// // Then - listener will only be to new custom
-	// for (ModelElementListener l : c1.getTLModelObject().getListeners())
-	// if (l instanceof InheritanceDependencyListener)
-	// assertTrue(((InheritanceDependencyListener) l).getNode() == changedCF);
-	//
-	// // When - add an attribute
-	// AttributeNode a2 = new AttributeNode(c1, "cAttr2");
-	// // Then - inherited custom must NOT have that attr in its children
-	// Node ia2 = inheritedCustom.findChildByName(a2.getName());
-	// assertTrue("Must not find attribute.", inheritedCustom.findChildByName(a2.getName()) == null);
-	// // Then - changed custom must have new attr
-	// for (Node n : changedCF.getInheritedChildren())
-	// if (n.getName().equals(a2.getName()))
-	// ia2 = n;
-	// assertTrue("Must find ghost node with a2's name.", ia2 != null);
-	//
-	// // When - delete the attribute in c1 (base custom)
-	// a1.delete();
-	// // Then - node with name of a1 must not be in inherited children
-	// assertTrue("Must not find a1 by name.", changedCF.findChildByName(a1.getName()) == null);
-	//
-	// OTM16Upgrade.otm16Enabled = false;
-	// }
-	//
-	// // Pass 0 if count is unknown or not to be checked.
-	// private void checkInheritanceListeners(Node owner, Node subject, int countExpected) {
-	// printListners(owner);
-	// for (ModelElementListener l : owner.getTLModelObject().getListeners())
-	// if (l instanceof InheritanceDependencyListener) {
-	// countExpected--;
-	// InheritanceDependencyListener il = (InheritanceDependencyListener) l;
-	// if (owner instanceof AbstractContextualFacet)
-	// assertTrue("Handler must be for nav node.", il.getHandler() instanceof NavNodeChildrenHandler);
-	// if (subject != null) {
-	// assertTrue(il.getNode() == subject);
-	// assertTrue(il.getHandler() == subject.getParent().getChildrenHandler());
-	// }
-	// }
-	// assertTrue("Wrong listener count.", countExpected >= 0);
-	// }
 
 	@Test
 	public void Facets_InheritanceTests_v15() {
@@ -489,81 +304,6 @@ public class FacetsTests extends BaseTest {
 		// checkOrder(baseBO.getFacet_Summary());
 	}
 
-	// /**
-	// * Assure the order of element, attribute and indicator nodes matches TL order
-	// *
-	// * @param facet
-	// */
-	// public void checkOrder(FacetProviderNode facet) {
-	// checkElementOrder(facet);
-	// // checkAttributeOrder(facet);
-	// checkIndicatorOrder(facet);
-	// }
-	//
-	// /**
-	// * Assure the order of indicator nodes matches TLIndicator order
-	// *
-	// * @param facetProviderNode
-	// */
-	// public IndicatorNode checkIndicatorOrder(FacetProviderNode facetProviderNode) {
-	// ArrayList<IndicatorNode> properties = new ArrayList<IndicatorNode>();
-	// List<TLIndicator> tlProperties = facetProviderNode.getTLModelObject().getIndicators();
-	//
-	// for (Node n : facetProviderNode.getChildren())
-	// if (n instanceof IndicatorNode)
-	// properties.add((IndicatorNode) n);
-	// assertTrue(properties.size() == tlProperties.size());
-	//
-	// for (int i = 0; i < properties.size(); i++)
-	// assertTrue(properties.get(i).getName().equals(tlProperties.get(i).getName()));
-	//
-	// return properties.get(0);
-	// }
-
-	// Test not needed since facet uses caching children handler.
-	// Test became a property name test
-	// /**
-	// * Assure the order of element nodes matches TLProperty order
-	// *
-	// * @param facet
-	// */
-	// public ElementNode checkElementOrder(FacetOMNode facet) {
-	// // ArrayList<ElementNode> properties = new ArrayList<ElementNode>();
-	// // List<TLProperty> tlProperties = facet.getTLModelObject().getElements();
-	// //
-	// // for (Node n : facet.getChildren())
-	// // if (n instanceof ElementNode)
-	// // properties.add((ElementNode) n);
-	// // assertTrue(properties.size() == tlProperties.size());
-	// //
-	// // for (int i = 0; i < properties.size(); i++)
-	// // assertTrue(properties.get(i).getName().equals(tlProperties.get(i).getName()));
-	// //
-	// // return properties.get(0);
-	// return null;
-	// }
-
-	// /**
-	// * Assure the order of element nodes matches TLAttribute order
-	// *
-	// * @param facet
-	// */
-	// public AttributeNode checkAttributeOrder(FacetOMNode facet) {
-	// // ArrayList<AttributeNode> properties = new ArrayList<AttributeNode>();
-	// // List<TLAttribute> tlProperties = facet.getTLModelObject().getAttributes();
-	// //
-	// // for (Node n : facet.getChildren())
-	// // if (n instanceof AttributeNode)
-	// // properties.add((AttributeNode) n);
-	// // assertTrue(properties.size() == tlProperties.size());
-	// //
-	// // for (int i = 0; i < properties.size(); i++)
-	// // assertTrue(properties.get(i).getName().equals(tlProperties.get(i).getName()));
-	// //
-	// // return properties.get(0);
-	// return null;
-	// }
-
 	@Test
 	public void Facets_MergeTests() {
 
@@ -652,17 +392,6 @@ public class FacetsTests extends BaseTest {
 	// TODO
 	// createPropertyTests()
 	// getComponentType
-
-	// @Test
-	// public void Facets_RenameableFacetTests() throws Exception {
-	// lf.loadTestGroupA(mc);
-	// for (LibraryNode lib : pc.getDefaultProject().getLibraries()) {
-	// lib.setEditable(true);
-	// assertTrue("Library must be editable.", lib.isEditable());
-	// ml.addChoice(lib, "choice1");
-	// classBasedTests(lib);
-	// }
-	// }
 
 	public void checkAllFacetsInLibrary(LibraryNode lib) {
 		// LOGGER.debug("Checking all facets in " + lib);
@@ -963,11 +692,11 @@ public class FacetsTests extends BaseTest {
 	 *            number of other facets (contributed)
 	 */
 	private void checkFacetContents(Node node, String targetName, int contextual) {
-		for (Node n : node.getDescendants_LibraryMembersAsNodes())
+		for (LibraryMemberInterface n : node.getDescendants_LibraryMembers())
 			if (n.getName().equals(targetName)) {
 				List<AbstractContextualFacet> facets = null;
 				if (n instanceof ContextualFacetOwnerInterface)
-					facets = ((ContextualFacetOwnerInterface) n).getContextualFacets();
+					facets = ((ContextualFacetOwnerInterface) n).getContextualFacets(false);
 				assertTrue(targetName + " must have " + contextual + " contextual facets.",
 						facets.size() == contextual);
 			}
@@ -1076,38 +805,6 @@ public class FacetsTests extends BaseTest {
 		// TODO - make sure minor version has inherited children
 	}
 
-	// @Test
-	// public void repositoryTestsNeedToBeMoved() throws RepositoryException {
-	// String myNS = "http://local/junits";
-	// DefaultRepositoryController rc = (DefaultRepositoryController) mc.getRepositoryController();
-	// assertTrue("Repository controller must not be null.", rc != null);
-	// assertTrue("Local repository must not be null.", rc.getLocalRepository() != null);
-	// List<RepositoryNode> repos = rc.getAll();
-	// RepositoryNode localRepoNode = rc.getLocalRepository();
-	// LOGGER.debug("Repo namespace is ", rc.getLocalRepository().getNamespaceWithPrefix());
-	// Repository localRepo = localRepoNode.getRepository();
-	// List<String> repoRootNSs = localRepo.listRootNamespaces();
-	// List<String> repoNSs = localRepo.listAllNamespaces();
-	// List<String> repoBaseNSs = localRepo.listBaseNamespaces();
-	// LOGGER.debug("Repo Root namespaces: ", repoRootNSs);
-	// LOGGER.debug("Repo Base namespaces: ", repoBaseNSs);
-	// LOGGER.debug("Repo All namespaces: ", repoNSs);
-	// try {
-	// localRepo.createRootNamespace(myNS);
-	// } catch (Exception e) {
-	// LOGGER.debug("Error setting Repo Root namespaces: ", e.getLocalizedMessage());
-	// }
-	// LOGGER.debug("Repo Root namespaces: ", localRepo.listRootNamespaces());
-	//
-	// // Given - a library in the local repo namespace
-	// ln = ml.createNewLibrary(rc.getLocalRepository().getNamespace(), "test1r", defaultProject);
-	// assertTrue("Library must not be null.", ln != null);
-	// // When - managed
-	// List<LibraryChainNode> lcns = rc.manage(rc.getLocalRepository(), Collections.singletonList(ln));
-	// // Then
-	// assertTrue("There must be library chains.", !lcns.isEmpty());
-	// }
-
 	public void checkFacet(ListFacetNode lf) {
 		// LOGGER.debug("Checking List Facet Node: " + lf);
 
@@ -1128,26 +825,6 @@ public class FacetsTests extends BaseTest {
 		assertFalse("Must NOT be valid parent.", lf.canOwn(PropertyNodeType.ELEMENT));
 		assertFalse("Must NOT be valid parent.", lf.canOwn(PropertyNodeType.INDICATOR));
 	}
-
-	// @Deprecated
-	// public void checkFacet(SimpleFacetNode sf) {
-	// // LOGGER.debug("Checking Simple Facet Node: " + sf);
-	// assertFalse("Must NOT be delete-able.", sf.isDeleteable());
-	//
-	// // assertTrue(sf.getModelObject() instanceof SimpleFacetMO);
-	// assertTrue(sf.getTLModelObject() instanceof TLSimpleFacet);
-	// assertTrue(sf.getLibrary() == sf.getParent().getLibrary());
-	//
-	// if (sf.getOwningComponent() instanceof VWA_Node) {
-	// assertTrue("Simple facet must have 1 child.", sf.getChildren().size() == 1);
-	// Node sp = sf.getChildren().get(0);
-	// assertTrue(sp instanceof PropertyNode);
-	// // assertTrue(sp.getModelObject() instanceof SimpleAttributeMO);
-	// assertTrue(sp.getType() != null);
-	// assertTrue(!sp.getType().getName().isEmpty());
-	// assertTrue(sp.getLibrary() == sf.getLibrary());
-	// }
-	// }
 
 	public void checkFacet(VWA_SimpleFacetFacadeNode sf) {
 		// LOGGER.debug("Checking Simple Facet Facade Node: " + sf);
@@ -1347,99 +1024,11 @@ public class FacetsTests extends BaseTest {
 		}
 	}
 
-	// public void checkFacet(QueryFacetNode qn) {
-	// // LOGGER.debug("Checking Query Facet: " + qn);
-	// checkBaseFacet(qn);
-	// if (qn.getOwningComponent().isEditable())
-	// assertTrue("Must be delete-able.", qn.isDeleteable());
-	// }
-
 	public void checkFacet(ContextualFacetNode cf) {
 		// LOGGER.debug("Checking Contextual Facet: " + rf);
 		checkBaseFacet(cf);
 		new ContextualFacetTests().check(cf);
-
-		// // setName()
-		// //
-		// final String NEWNAME = "myName";
-		// final String oldName = cf.getName();
-		// assertTrue("Must be renamable.", cf.isRenameable());
-		// cf.setName(NEWNAME);
-		// String n = cf.getName();
-		// assertTrue("Facet must contain new name.",
-		// cf.getName().contains(NodeNameUtils.fixContextualFacetName(cf, NEWNAME)));
-		// cf.setName(oldName);
-		//
-		// // Inherited statements
-		// //
-		// assertTrue("Must be assignable.", cf.isAssignable());
-		// // assertTrue("Must be assignable to complex.", cf.isComplexAssignable());
-		// assertTrue("Must be valid parent to attributes.", cf.canOwn(PropertyNodeType.ATTRIBUTE));
-		// assertTrue("Must be valid parent to elements.", cf.canOwn(PropertyNodeType.ELEMENT));
-		// // if (OTM16Upgrade.otm16Enabled)
-		// // assertTrue("Must be named entity.", cf.isNamedEntity());
-		// // else
-		// // assertFalse("Must NOT be named entity.", cf.isNamedEntity());
-		//
-		// assertFalse("Must NOT be assignable to element ref", cf.isAssignableToElementRef());
-		// assertFalse("Must NOT be assignable to simple.", cf.isAssignableToSimple());
-		// assertFalse("Must NOT be assignable to simple.", cf.isSimpleAssignable());
-		// assertFalse("Must NOT be assignable to VWA.", cf.isAssignableToVWA());
-		// // assertFalse("Must NOT be default facet.", cf.isDefaultFacet());
-		// // if (OTM16Upgrade.otm16Enabled == false)
-		// // assertFalse("Must NOT be named type.", cf.isNamedEntity());
-		//
-		// // Behaviors
-		// //
-		// AttributeNode attr = new AttributeNode(cf, "att1");
-		// ElementNode ele = new ElementNode(cf, "ele1");
-		// assertTrue("Must be able to add attributes.", attr.getParent() == cf);
-		// assertTrue("Must be able to add elements.", ele.getParent() == cf);
-		// assertTrue(cf.getChildren().contains(ele));
-		// attr.delete();
-		// ele.delete();
-		// assertFalse(cf.getChildren().contains(attr));
-		// assertFalse(cf.getChildren().contains(ele));
-		//
-		// // relationships
-		// //
-		// if (OTM16Upgrade.otm16Enabled) {
-		// // Contributed/contextual relationship
-		// ContributedFacetNode contrib = cf.getWhereContributed();
-		// assertTrue(contrib.getContributor() == cf);
-		// assertTrue(contrib.getOwningComponent() instanceof ContextualFacetOwnerInterface);
-		// assertTrue(contrib.getOwningComponent().getChildren().contains(contrib));
-		// }
-		//
-		// if (cf instanceof QueryFacetNode)
-		// checkFacet((QueryFacetNode) cf);
-		// else if (cf instanceof CustomFacetNode)
-		// checkFacet((CustomFacetNode) cf);
-		// else if (cf instanceof UpdateFacetNode)
-		// checkFacet((UpdateFacetNode) cf);
-		// else if (cf instanceof ChoiceFacetNode)
-		// checkFacet((ChoiceFacetNode) cf);
 	}
-
-	// public void checkFacet(UpdateFacetNode qn) {
-	// LOGGER.debug("Checking Update Contextual Facet: " + qn);
-	// if (qn.getOwningComponent().isEditable())
-	// assertTrue("Must be delete-able.", qn.isDeleteable());
-	// }
-	//
-	// public void checkFacet(CustomFacetNode qn) {
-	// // LOGGER.debug("Checking Custom Facet: " + qn);
-	// checkBaseFacet(qn);
-	// if (qn.getOwningComponent().isEditable())
-	// assertTrue("Must be delete-able.", qn.isDeleteable());
-	// }
-	//
-	// public void checkFacet(ChoiceFacetNode qn) {
-	// // LOGGER.debug("Checking Facet: " + qn);
-	// if (!qn.isInherited() && qn.getParent().isDeleteable())
-	// assertTrue("Must be delete-able.", qn.isDeleteable());
-	// checkBaseFacet(qn);
-	// }
 
 	public void checkFacet(RoleFacetNode roleFacetNode) {
 		// LOGGER.debug("Checking Facet: " + roleFacetNode);

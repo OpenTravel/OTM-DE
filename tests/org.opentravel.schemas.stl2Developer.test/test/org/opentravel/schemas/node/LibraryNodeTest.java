@@ -73,13 +73,6 @@ public class LibraryNodeTest extends BaseProjectTest {
 		ProjectNode project1 = createProject("Project1", rc.getLocalRepository(), "IT1");
 		String ns = "http://example.com/ns1";
 
-		// // When - Simple constructor (see notes on constructor)
-		// LibraryNode fromProj = new LibraryNode(project1);
-		// assertTrue(fromProj != null);
-		// // Then - listener works
-		// LN_isEditableTests(fromProj);
-		// assertTrue(Node.GetNode(fromProj.getTLModelObject()) == fromProj);
-
 		// When - constructed from tl library
 		LibraryNode fromTL = new LibraryNode(createTL("FTL", ns), project1);
 		// Then - node with listener is correct
@@ -190,7 +183,7 @@ public class LibraryNodeTest extends BaseProjectTest {
 
 	// Make sure each library (ns+name) is in the list only once.
 	private HashMap<String, LibraryInterface> checkUnique(List<LibraryInterface> list) {
-		HashMap<String, LibraryInterface> libMap = new HashMap<String, LibraryInterface>();
+		HashMap<String, LibraryInterface> libMap = new HashMap<>();
 		LibraryModelManager lm = Node.getModelNode().getLibraryManager();
 		for (LibraryInterface li : list)
 			if (li instanceof LibraryNode) {
@@ -200,14 +193,14 @@ public class LibraryNodeTest extends BaseProjectTest {
 			} else
 				// May be duplicated since all minor verisons are in one entry
 				for (LibraryNode ln : ((LibraryChainNode) li).getLibraries()) {
-					// assertTrue("Must not be in map.", libMap.get(ln.getName_Canonical()) == null);
-					libMap.put(lm.getCanonicalName(ln.getProjectItem()), li);
+				// assertTrue("Must not be in map.", libMap.get(ln.getName_Canonical()) == null);
+				libMap.put(lm.getCanonicalName(ln.getProjectItem()), li);
 				}
 		return libMap;
 	}
 
 	private void checkLibsUnique(List<LibraryNode> list) {
-		HashMap<String, LibraryInterface> libMap = new HashMap<String, LibraryInterface>();
+		HashMap<String, LibraryInterface> libMap = new HashMap<>();
 		LibraryModelManager lm = Node.getModelNode().getLibraryManager();
 		for (LibraryNode li : list) {
 			assertTrue("Must not be in map.", libMap.get(li.getNamespace() + li.getName()) == null);
@@ -237,7 +230,7 @@ public class LibraryNodeTest extends BaseProjectTest {
 		assertTrue("LibraryNavNodes must be different.", lnn1 != lnn2);
 		// hold onto for later use.
 		// List<Node> complexNamedtypes = lib2.getDescendants_NamedTypes();
-		int ln2NamedTypeCount = lib2.getDescendants_LibraryMembersAsNodes().size();
+		int ln2NamedTypeCount = lib2.getDescendants_LibraryMembers().size();
 
 		// When - a library is removed
 		pc.remove(lnn1);
@@ -246,11 +239,11 @@ public class LibraryNodeTest extends BaseProjectTest {
 		assertTrue("Project 1 must be empty.", project1.getLibraries().isEmpty());
 		assertTrue("Project 1 must be empty.", project1.getChildren().isEmpty());
 		// Then - lib1 is lib2 therefore it must be altered.
-		assertTrue("Lib1 must NOT be empty.", !lib1.getDescendants_LibraryMembersAsNodes().isEmpty());
+		assertTrue("Lib1 must NOT be empty.", !lib1.getDescendants_LibraryMembers().isEmpty());
 		// Then - check the other library to make sure it was not effected.
 		assertTrue("Lib2 must have same number of named types.",
-				lib2.getDescendants_LibraryMembersAsNodes().size() == ln2NamedTypeCount);
-		for (Node n : lib2.getDescendants_LibraryMembersAsNodes())
+				lib2.getDescendants_LibraryMembers().size() == ln2NamedTypeCount);
+		for (LibraryMemberInterface n : lib2.getDescendants_LibraryMembers())
 			assertTrue("Named type must not be deleted.", !n.isDeleted());
 
 		// Same test with libraries in a chain
@@ -364,8 +357,8 @@ public class LibraryNodeTest extends BaseProjectTest {
 		// make sure that destLib is editable
 		String projectFile = MockLibrary.createTempFile("TempProject", ".otp");
 		ProjectNode project = pc.create(new File(projectFile), destLib.getNamespace(), "Name", "");
-		assertTrue("Project must have same namespace as destLib.", project.getNamespace()
-				.equals(destLib.getNamespace()));
+		assertTrue("Project must have same namespace as destLib.",
+				project.getNamespace().equals(destLib.getNamespace()));
 
 		// When - a library is added to a project that governs it's namespace
 		destLib = pc.add(project, destLib.getTLModelObject()).getLibrary();

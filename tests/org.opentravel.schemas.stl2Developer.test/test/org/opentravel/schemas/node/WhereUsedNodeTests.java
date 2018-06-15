@@ -50,23 +50,11 @@ public class WhereUsedNodeTests extends BaseTest {
 
 	static final Logger LOGGER = LoggerFactory.getLogger(WhereUsedNodeTests.class);
 
-	// ModelNode model = null;
-	// MockLibrary ml = new MockLibrary();
-	// LibraryNode ln = null;
-	// MainController mc;
-	// DefaultProjectController pc;
-	// ProjectNode defaultProject;
-	// LoadFiles lf = null;
-	// TestNode tn = new NodeTesters().new TestNode();
 	TypeProvider emptyNode = null;
 	TypeProvider sType = null;
 
 	@Before
 	public void beforeEachOfTheseTests() {
-		// mc = OtmRegistry.getMainController();
-		// pc = (DefaultProjectController) mc.getProjectController();
-		// defaultProject = pc.getDefaultProject();
-		// lf = new LoadFiles();
 		emptyNode = (TypeProvider) ModelNode.getEmptyNode();
 		sType = (TypeProvider) NodeFinders.findNodeByName("date", ModelNode.XSD_NAMESPACE);
 	}

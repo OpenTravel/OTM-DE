@@ -46,10 +46,6 @@ import com.google.common.collect.Lists;
 
 public class PropertyNodeMoveTests extends BaseTest {
 
-	// private LibraryNode ln = null;
-	// MainController mc;
-	// MockLibrary ml;
-
 	private static final String I0 = "I0";
 	private static final String I1 = "I1";
 	private static final String A1 = "A1";
@@ -64,10 +60,6 @@ public class PropertyNodeMoveTests extends BaseTest {
 
 	@Before
 	public void beforeEachOfTheseTests() {
-		// mc = OtmRegistry.getMainController();
-		// ml = new MockLibrary();
-		// DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
-		// ProjectNode defaultProject = pc.getDefaultProject();
 		ln = ml.createNewLibrary("http://example.com/test", "test", defaultProject);
 	}
 

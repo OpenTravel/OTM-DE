@@ -83,10 +83,10 @@ public class NodeExtensionTest extends BaseProjectTest {
 
 		Assert.assertTrue(boExtend.isExtendedBy(boBase));
 		assertTrue("base must be in base library.",
-				boBase.getLibrary().getDescendants_LibraryMembersAsNodes().contains(boBase));
+				boBase.getLibrary().getDescendants_LibraryMembers().contains(boBase));
 		assertTrue("extension must be in extension library.", boExtend.getLibrary() == libE);
 		assertTrue("extension must be in extension library.",
-				boExtend.getLibrary().getDescendants_LibraryMembersAsNodes().contains(boExtend));
+				boExtend.getLibrary().getDescendants_LibraryMembers().contains(boExtend));
 	}
 
 	@Test

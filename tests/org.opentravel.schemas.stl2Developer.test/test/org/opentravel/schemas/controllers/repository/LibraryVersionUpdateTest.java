@@ -98,11 +98,11 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		xsdString = NodeFinders.findNodeByName("string", ModelNode.XSD_NAMESPACE);
 		uploadProject = createProject("ToUploadLibrary", getRepositoryForTest(), "Test");
 
-		lib1 = LibraryNodeBuilder.create("TestLibrary1", getRepositoryForTest().getNamespace() + "/Test/NS1",
-				"prefix1", new Version(1, 0, 0)).build(uploadProject, pc);
+		lib1 = LibraryNodeBuilder.create("TestLibrary1", getRepositoryForTest().getNamespace() + "/Test/NS1", "prefix1",
+				new Version(1, 0, 0)).build(uploadProject, pc);
 
-		lib2 = LibraryNodeBuilder.create("TestLibrary2", getRepositoryForTest().getNamespace() + "/Test/NS2",
-				"prefix2", new Version(1, 0, 0)).build(uploadProject, pc);
+		lib2 = LibraryNodeBuilder.create("TestLibrary2", getRepositoryForTest().getNamespace() + "/Test/NS2", "prefix2",
+				new Version(1, 0, 0)).build(uploadProject, pc);
 
 		chain1 = rc.manage(getRepositoryForTest(), Collections.singletonList(lib1)).get(0);
 		chain2 = rc.manage(getRepositoryForTest(), Collections.singletonList(lib2)).get(0);
@@ -119,8 +119,8 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 		assertTrue("lib2 must not be null. ", lib2 != null);
 		assertTrue("lib2 must be editable.", lib2.isEditable());
 		assertTrue("chain must be locked.", locked);
-		assertTrue("chain must be MANAGED_WIP.", RepositoryItemState.MANAGED_WIP == chain2.getHead().getProjectItem()
-				.getState());
+		assertTrue("chain must be MANAGED_WIP.",
+				RepositoryItemState.MANAGED_WIP == chain2.getHead().getProjectItem().getState());
 
 		// Use repository controller to version the libraries.
 		// patchLibrary = rc.createPatchVersion(chain.getHead());
@@ -263,6 +263,9 @@ public class LibraryVersionUpdateTest extends RepositoryIntegrationTestBase {
 				true);
 		// TODO - test with finalOnly set to true on getVersionUpdateMap()
 
+		//
+		// FIXME - replace call with how version update handler does it now,
+		// then remove replaceAllUsers();
 		// Use calls used by Version Update Handler to replace type users using the replacement map
 		lib1.replaceAllUsers(replacementMap);
 

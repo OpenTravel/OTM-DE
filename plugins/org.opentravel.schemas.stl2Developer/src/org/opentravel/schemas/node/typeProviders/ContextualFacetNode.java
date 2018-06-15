@@ -224,21 +224,7 @@ public abstract class ContextualFacetNode extends AbstractContextualFacet implem
 			throw new IllegalArgumentException("Unable to copy " + this);
 		ContextualFacetNode cf = (ContextualFacetNode) copy;
 
-		// Do NOT set contributed.
-		// Not setting owner creates a CF named "UNKNOWN_xxx"
-		// Setting owner to the same object as this owner causes name-collision error
-		// ContextualFacetOwnerInterface owner = null;
-		// ContributedFacetNode contributed = getWhereContributed();
-		// if (contributed != null && contributed.getOwningComponent() instanceof ContextualFacetOwnerInterface)
-		// owner = (ContextualFacetOwnerInterface) contributed.getOwningComponent();
-		// if (owner != null)
-		// cf.setOwner(owner); // may put in owner's library
-
 		destLib.addMember(cf); // removed from current library then add to destLib
-
-		// // Set the library for all children (bug patch)
-		// for (Node child : cf.getDescendants())
-		// child.setLibrary(cf.getLibrary());
 
 		// Fix any contexts
 		cf.fixContexts();
@@ -345,16 +331,6 @@ public abstract class ContextualFacetNode extends AbstractContextualFacet implem
 	 */
 	@Override
 	public ContributedFacetNode getWhereContributed() {
-		// if (whereContributed == null) { // Happens during node modeling
-		// LOGGER.debug("Missing where contributed...trying to find site." + this);
-		// // Node owner = GetNode(getTLModelObject().getOwningEntity());
-		// // if (owner instanceof ContextualFacetOwnerInterface)
-		// // owner.getChildrenHandler().clear(); // Refresh children
-		// // // Causes infinite loop - List<?> kids = owner.getChildrenHandler().get();
-		// // if (owner instanceof ContributedFacetNode)
-		// // whereContributed = (ContributedFacetNode) owner;
-		// // Owner's tlObj has a child that its' caching children handler doesn't
-		// }
 		return whereContributed;
 	}
 
@@ -400,9 +376,6 @@ public abstract class ContextualFacetNode extends AbstractContextualFacet implem
 	@Deprecated
 	public boolean isNamedEntity() {
 		return true;
-		// if (getParent() instanceof VersionNode)
-		// return getParent().getParent() instanceof NavNode;
-		// return getParent() instanceof NavNode;
 	}
 
 	/**

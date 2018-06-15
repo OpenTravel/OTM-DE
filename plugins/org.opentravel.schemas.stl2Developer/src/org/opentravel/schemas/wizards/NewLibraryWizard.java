@@ -44,9 +44,12 @@ public class NewLibraryWizard extends ValidatingWizard implements Cancelable {
 	 *            - the namespace the user can extend for the library.
 	 */
 	public NewLibraryWizard(ProjectNode pn) {
-		// TLLibrary absTLLibrary = new TLLibrary();
-		this.libraryNode = new LibraryNode(pn);
-		baseNS = pn.getNamespace();
+		assert false; // 6/14/2018 dmh
+		// TODO - delete this file and NewLibraryWizardPage.java
+		//
+		// // TLLibrary absTLLibrary = new TLLibrary();
+		// this.libraryNode = new LibraryNode(pn);
+		// baseNS = pn.getNamespace();
 	}
 
 	@Override

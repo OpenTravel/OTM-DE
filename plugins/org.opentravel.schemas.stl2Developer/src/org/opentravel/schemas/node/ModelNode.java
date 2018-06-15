@@ -312,11 +312,6 @@ public class ModelNode extends Node implements TypeProviderAndOwners {
 		return true;
 	}
 
-	// @Override
-	// public boolean isUnique(final INode testNode) {
-	// return true;
-	// }
-
 	public void removeProject(final ProjectNode project) {
 		getChildrenHandler().remove(project);
 		project.setParent(null);

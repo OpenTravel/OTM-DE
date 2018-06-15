@@ -74,25 +74,10 @@ public class InheritedContextualFacetNode extends ContextualFacetNode implements
 		return inheritedFrom;
 	}
 
-	// Must have base type behavior!
-	// @Override
-	// public TLContextualFacet getTLModelObject() {
-	// return getInheritedFrom().getTLModelObject();
-	// }
-
 	@Override
 	public LibraryNode getLibrary() {
 		return getInheritedFrom().getLibrary();
 	}
-
-	// Must have base type behavior!
-	// /**
-	// * @return the whereContributed field identifying the contributedNode on the injected object.
-	// */
-	// @Override
-	// public ContributedFacetNode getWhereContributed() {
-	// return getInheritedFrom().getWhereContributed();
-	// }
 
 	@Override
 	public boolean canOwn(TLFacetType type) {
@@ -122,11 +107,6 @@ public class InheritedContextualFacetNode extends ContextualFacetNode implements
 	@Override
 	protected void addToTLParent(ContextualFacetOwnerInterface owner) {
 	}
-
-	// @Override
-	// public FacetProviderChildrenHandler getChildrenHandler() {
-	// return getInheritedFrom().getChildrenHandler();
-	// }
 
 	@Override
 	public ContextualFacetNode copy(LibraryNode destLib) throws IllegalArgumentException {

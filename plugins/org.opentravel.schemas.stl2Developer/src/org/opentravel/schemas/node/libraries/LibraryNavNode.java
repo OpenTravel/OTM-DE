@@ -45,20 +45,15 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 
 	protected static final String DEFAULT_LIBRARY_TYPE = "Library Nav";
 
-	// LibraryInterface childLibrary = null;
-
 	/**
 	 */
 	public LibraryNavNode(LibraryInterface library, ProjectNode project) {
 		assert (library != null);
 		assert (project != null);
 
-		// Save the project and child chain relationship
-		// childLibrary = library;
 		childrenHandler = new LibraryNavChildrenHandler(this);
 		getChildrenHandler().add((Node) library);
 
-		// getChildren().add(library);
 		parent = project;
 
 		// Make sure the library is not in project's children list.
@@ -91,12 +86,9 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 		assert (chain != null);
 		assert (project != null);
 
-		// Save the project and child chain relationship
-		// childLibrary = chain;
 		childrenHandler = new LibraryNavChildrenHandler(this);
 		getChildrenHandler().add(chain);
 
-		// getChildren().add(chain);
 		parent = project;
 
 		// Make sure the chain is not in project children list.
@@ -152,11 +144,6 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 		return (ProjectNode) parent;
 	}
 
-	// @Override
-	// public boolean isLibraryContainer() {
-	// return true;
-	// }
-
 	/**
 	 * Use the libraryModelManager to close the library in this project. Remove this libraryNavNode from its project.
 	 */
@@ -195,21 +182,6 @@ public class LibraryNavNode extends Node implements LibraryOwner, FacadeInterfac
 	public boolean isNavChild(boolean deep) {
 		return true;
 	}
-
-	// /**
-	// * Set the parent to be the passed project.
-	// *
-	// * @param project
-	// * @param removeFirst
-	// * if true and the current parent project is different than the passed one, remove this from the orginal
-	// * project before setting parent.
-	// */
-	// public void setProject(ProjectNode project, boolean removeFirst) {
-	// // If this was already in a project, remove it from that project first
-	// if (getProject() != project)
-	// getProject().remove(this);
-	// parent = project;
-	// }
 
 	public void setThisLib(LibraryInterface library) {
 		getChildrenHandler().add((Node) library);

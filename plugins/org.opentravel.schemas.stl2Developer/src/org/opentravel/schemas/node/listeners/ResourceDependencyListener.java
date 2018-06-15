@@ -38,13 +38,13 @@ public class ResourceDependencyListener extends BaseNodeListener implements INod
 
 	@Override
 	public void processOwnershipEvent(OwnershipEvent<?, ?> event) {
-		LOGGER.debug("Ownership event: " + event);
+		// LOGGER.debug("Ownership event: " + event);
 		super.processOwnershipEvent(event);
 	}
 
 	@Override
 	public void processValueChangeEvent(ValueChangeEvent<?, ?> event) {
-		LOGGER.debug("Value change event: " + event.getType());
+		// LOGGER.debug("Value change event: " + event.getType());
 		super.processValueChangeEvent(event);
 
 		switch (event.getType()) {
@@ -61,43 +61,5 @@ public class ResourceDependencyListener extends BaseNodeListener implements INod
 		case BASE_PATH_MODIFIED:
 		default:
 		}
-
-		// Containing Resource path change
-		// if (event.getSource() instanceof TLResource) {
-		// switch (event.getType()) {
-		// case BASE_PATH_MODIFIED:
-		// // ((ActionRequest) thisNode).updateBasePath();
-		// break;
-		// default:
-		// }
-		// } else
-		// if (event.getSource() instanceof TLParameter) {
-		// switch (event.getType()) {
-		// case LOCATION_MODIFIED: // path/query/header value change
-		// ((ActionRequest) thisNode).setPathTemplate();
-		// break;
-		// default:
-		// }
-		// } else if (event.getSource() instanceof TLParamGroup) {
-		// switch (event.getType()) {
-		// case FACET_REF_MODIFIED:
-		// // Notify any Action Request
-		// ((ActionRequest) thisNode).setPathTemplate();
-		// break;
-		// default:
-		// }
-		// } else if (event.getSource() instanceof TLActionRequest) {
-		// switch (event.getType()) {
-		// case PARAM_GROUP_ADDED:
-		// case PARAM_GROUP_MODIFIED:
-		// case PARAM_GROUP_REMOVED:
-		// case LOCATION_MODIFIED: // path/query/header value change
-		// case PAYLOAD_TYPE_MODIFIED:
-		// ((ActionRequest) thisNode).setPathTemplate();
-		// ;
-		// break;
-		// default:
-		// }
-		// }
 	}
 }

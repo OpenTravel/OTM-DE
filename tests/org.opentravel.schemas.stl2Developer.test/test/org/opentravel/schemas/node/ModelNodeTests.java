@@ -17,8 +17,8 @@ package org.opentravel.schemas.node;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
-
+import org.junit.Test;
+import org.opentravel.schemacompiler.model.TLLibrary;
 import org.opentravel.schemacompiler.model.TLModel;
 import org.opentravel.schemas.controllers.LibraryModelManager;
 import org.opentravel.schemas.node.typeProviders.ImpliedNode;
@@ -39,41 +39,38 @@ public class ModelNodeTests extends BaseTest {
 		assertTrue("Must have TL Model.", mn.getTLModel() instanceof TLModel);
 		assertTrue("Must have Library Manager.", mn.getLibraryManager() instanceof LibraryModelManager);
 
-		List<Node> kids = mn.getChildren();
-		Node empty = ModelNode.getEmptyNode();
-		ImpliedNode unassigned = ModelNode.getUnassignedNode();
-
-		// assertTrue("Must have implied.", kids.contains(ModelNode.getEmptyNode()));
-		// assertTrue("Must have implied.", kids.contains(ModelNode.getIndicatorNode()));
-		// assertTrue("Must have implied.", kids.contains(ModelNode.getUnassignedNode()));
-		// assertTrue("Must have implied.", kids.contains(ModelNode.getUndefinedNode()));
+		assertTrue("Must have implied.", ModelNode.getEmptyNode() != null);
+		assertTrue("Must have implied.", ModelNode.getIndicatorNode() != null);
+		assertTrue("Must have implied.", ModelNode.getUnassignedNode() != null);
+		assertTrue("Must have implied.", ModelNode.getUndefinedNode() != null);
 
 		// Check children - make sure they are libraryNavNodes and their parent is this project
 		for (Node n : mn.getChildren()) {
 			assertTrue("Must be implied or project node.", (n instanceof ImpliedNode || n instanceof ProjectNode));
 			assertTrue("Child's parent must be this model node.", n.getParent() == mn);
 			if (n instanceof ProjectNode) {
-				TLModel pom = ((ProjectNode) n).getTLProject().getModel();
-				TLModel tom = mn.getTLModel();
+				// TLModel pom = ((ProjectNode) n).getTLProject().getModel();
+				// TLModel tom = mn.getTLModel();
 				assertTrue("Project't tlProject must have this model.",
 						((ProjectNode) n).getTLProject().getModel() == mn.getTLModel());
 			}
-			// assertTrue("Child must have project as parent.", n.getParent() == mn);
 			ml.check(n, validate);
 		}
 	}
 
-	// @Test
-	// public void MN_constructorTests() {
-	//// // Given - a library
-	//// TLLibrary tlLib = ml.createTLLibrary("testProject", pc.getDefaultUnmanagedNS());
-	////
-	//// // When - a project is created
-	//// ProjectNode pn = new ProjectNode();
-	//// assertTrue(pn.getParent() == Node.getModelNode());
-	////
-	//// pn.addToTL(tlLib);
-	// }
+	@Test
+	public void MN_checkTests() {
+		// Given - a library
+		TLLibrary tlLib = ml.createTLLibrary("testProject", pc.getDefaultUnmanagedNS());
+
+		// When - a project is created
+		ProjectNode pn = new ProjectNode();
+		assertTrue(pn.getParent() == Node.getModelNode());
+
+		pn.addToTL(tlLib);
+
+		check(Node.getModelNode(), true);
+	}
 
 	// @Test
 	// public void ML_constructorTL_Tests() {

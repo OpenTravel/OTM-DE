@@ -167,16 +167,6 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 		// LOGGER.debug("Set id group to: " + tlObj.isIdGroup());
 	}
 
-	// @Override
-	// public List<Node> getChildren() {
-	// List<Node> kids = super.getChildren();
-	// // Check children
-	// int tlKids = tlObj.getParameters().size();
-	// if (tlKids != kids.size())
-	// LOGGER.warn("getChildren is missing parameters in " + this);
-	// return kids;
-	// }
-
 	@Override
 	public ResourceNode getParent() {
 		return (ResourceNode) parent;
@@ -383,7 +373,7 @@ public class ParamGroup extends ResourceBase<TLParamGroup> {
 	}
 
 	public void clearParameters() {
-		// LOGGER.debug("Clearing parameters from " + getName());
+		LOGGER.debug("Clearing parameters from " + getName());
 		List<Node> params = new ArrayList<>(getChildren());
 		for (Node p : params)
 			p.delete();

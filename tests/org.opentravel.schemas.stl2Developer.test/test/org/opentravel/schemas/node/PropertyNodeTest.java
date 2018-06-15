@@ -57,20 +57,11 @@ import org.slf4j.LoggerFactory;
 public class PropertyNodeTest extends BaseTest {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PropertyNodeTest.class);
 
-	// private LibraryNode ln = null;
-	// MainController mc;
-	// MockLibrary ml;
-	// DefaultProjectController pc;
-	// ProjectNode defaultProject;
 	TypeProvider emptyNode = null;
 	TypeProvider sType = null;
 
 	@Before
 	public void beforeEachOfTheseTests() {
-		// mc = OtmRegistry.getMainController();
-		// ml = new MockLibrary();
-		// pc = (DefaultProjectController) mc.getProjectController();
-		// defaultProject = pc.getDefaultProject();
 		ln = ml.createNewLibrary_Empty("http://example.com/test", "test", defaultProject);
 
 		emptyNode = (TypeProvider) ModelNode.getEmptyNode();
@@ -131,10 +122,6 @@ public class PropertyNodeTest extends BaseTest {
 
 	@Test
 	public void PN_ConstructorsWithOutTLObj() {
-		// DefaultProjectController pc = (DefaultProjectController) mc.getProjectController();
-		// ProjectNode defaultProject = pc.getDefaultProject();
-		// ln = ml.createNewLibrary_Empty("http://example.com/test", "test", defaultProject);
-
 		// When - one of each is created
 		FacetInterface owner = null;
 		oneOfEach(owner); // make sure no parent does not NPE

@@ -266,16 +266,6 @@ public class MockLibrary {
 		return lcn;
 	}
 
-	// public static void printDescendants_NamedTypes(Node ln) {
-	// String names = "printDescendants_NamedTypes: ";
-	// for (Node n : ln.getDescendants_LibraryMemberNodes()) {
-	// names += n.getName() + " ";
-	// // if (n.getName().equals("co2"))
-	// // LOGGER.debug("Here");
-	// }
-	// LOGGER.debug(names);
-	// }
-
 	public static void printDescendants(Node ln) {
 		String names = "printDescendants: ";
 		for (Node n : ln.getDescendants()) {
@@ -687,7 +677,7 @@ public class MockLibrary {
 	 */
 	public ExtensionPointNode addEP(LibraryNode ln, LibraryNode eln) {
 		FacetInterface facet = null;
-		for (Node d : eln.getDescendants_LibraryMembersAsNodes())
+		for (LibraryMemberInterface d : eln.getDescendants_LibraryMembers())
 			if (d instanceof BusinessObjectNode)
 				facet = ((BusinessObjectNode) d).getFacet_Summary();
 		return addExtensionPoint(ln, facet);

@@ -26,7 +26,10 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.opentravel.schemacompiler.model.TLBusinessObject;
 import org.opentravel.schemacompiler.model.TLModelElement;
+import org.opentravel.schemacompiler.model.TLParamGroup;
+import org.opentravel.schemacompiler.model.TLParameter;
 import org.opentravel.schemacompiler.model.TLResource;
 import org.opentravel.schemacompiler.util.OTM16Upgrade;
 import org.opentravel.schemas.node.interfaces.LibraryMemberInterface;
@@ -441,7 +444,7 @@ public class ResourceObjectTests extends BaseTest {
 		assertTrue("Resource must have been created.", resource != null);
 		ml.check(ln, true);
 
-		// Given - theGroup parameter group with reference and 2 parameters
+		// Then - theGroup parameter group with reference and 2 parameters
 		List<ParamGroup> allPGs = resource.getParameterGroups(false);
 		assert allPGs.size() == 1; // There should only be one created above
 		ParamGroup theGroup = allPGs.get(0);
@@ -452,7 +455,7 @@ public class ResourceObjectTests extends BaseTest {
 		assert theGroup.getChildren().size() == 2; // Must be built that way
 		for (Node p : theGroup.getChildren())
 			assert p instanceof ResourceParameter;
-
+		// assert pg and params have ref obj and names
 		ml.check();
 
 		//
@@ -473,23 +476,47 @@ public class ResourceObjectTests extends BaseTest {
 
 		for (Node p : theGroup.getChildren()) {
 			assert p instanceof ResourceParameter;
-			assertTrue("Must have tl object.", ((ResourceParameter) p).getTLModelObject() != null);
-			TLModelElement tlRef = (TLModelElement) ((ResourceParameter) p).getTLModelObject().getFieldRef();
+			TLParameter tlParam = ((ResourceParameter) p).getTLModelObject();
+			assertTrue("Must have tl parameter.", tlParam != null);
+			TLModelElement tlRef = (TLModelElement) tlParam.getFieldRef();
 			assertTrue("Must have a field refernece.", tlRef != null);
 			assertTrue("TL Owning model of field reference must be null.", tlRef.getOwningModel() == null);
+			assertTrue("TL parameter must have field ref name.", !tlParam.getFieldRefName().isEmpty());
 		}
 
 		// Finally - reload library with business object
 		LibraryNode testLib2 = new LoadFiles().loadFile7(defaultProject);
 		ml.check(testLib2, true);
 
+		// Then - business object reference must be OK
+		BusinessObjectNode boRef2 = resource.getSubject();
+		assertTrue("Resource must have a business object ref.", boRef2 != null);
+		TLBusinessObject boTlRef2 = resource.getTLModelObject().getBusinessObjectRef();
+		assertTrue("Resource must have a business object ref.", boTlRef2 != null);
+		assertTrue("Resource must have a business object ref.", resource.getSubject() != null);
+
+		// Then - the parameter group node model has not changed
+		ParamGroup theGroup2 = resource.getParameterGroups(true).get(0);
+		assertTrue("The resource must have the same parameter group.", theGroup2 == theGroup);
+		assertTrue("The parameter group must have 2 parameters.", theGroup.getChildren().size() == 2);
+
 		// FIXME
 		//
-		// TLBusinessObject tlRef = resource.getTLModelObject().getBusinessObjectRef();
-		// assertTrue("Resource must have a business object ref.", tlRef != null);
-		// assertTrue("Resource must have a business object ref.", resource.getSubject() != null);
-		//
-		// ml.check();
+		// Then - the tl parameter group must have 2 children
+		TLParamGroup tlPG = resource.getTLModelObject().getParamGroup("ID");
+		List<TLParameter> tlGrp = tlPG.getParameters();
+		assertTrue("TL Parameter group must have 2 children.", tlGrp.size() == 2);
+
+		// Then - each parameter has a field reference to an object in the tl model
+		for (Node p : theGroup.getChildren()) {
+			assert p instanceof ResourceParameter;
+			assertTrue("Must have tl object.", ((ResourceParameter) p).getTLModelObject() != null);
+			TLModelElement tlRef2 = (TLModelElement) ((ResourceParameter) p).getTLModelObject().getFieldRef();
+			assertTrue("Must have a field refernece.", tlRef2 != null);
+			assertTrue("TL Owning model of field reference must NOT be null.", tlRef2.getOwningModel() != null);
+		}
+
+		ml.check();
 		OTM16Upgrade.otm16Enabled = false;
 	}
 

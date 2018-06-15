@@ -32,35 +32,20 @@ import org.slf4j.LoggerFactory;
  * @author Dave Hollander
  * 
  */
+//
+// FIXME - Move test into LibraryVersionUpdateTests
+//
 public class RepositoryControllerTests extends BaseTest {
 	static final Logger LOGGER = LoggerFactory.getLogger(RepositoryControllerTests.class);
 
-	// ModelNode model = null;
-	// TestTypes tt = new TestTypes();
-
-	// NodeTesters nt = new NodeTesters();
-	// LoadFiles lf = new LoadFiles();
-	// Library_FunctionTests lt = new Library_FunctionTests();
-	// TestNode tn = new NodeTesters().new TestNode();
-	// MockLibrary ml = null;
-	// LibraryNode ln = null;
-	// MainController mc;
-	// DefaultProjectController pc;
-	// ProjectNode defaultProject;
 	LibraryNode ln_inChain;
 	LibraryChainNode lcn;
 
 	@Before
 	public void beforeEachOfTheseTests() {
-		// mc = OtmRegistry.getMainController();
-		// ml = new MockLibrary();
-		// pc = (DefaultProjectController) mc.getProjectController();
-		// defaultProject = pc.getDefaultProject();
-
 		ln = ml.createNewLibrary("http://www.test.com/test1", "test1", defaultProject);
 		ln_inChain = ml.createNewLibrary("http://www.test.com/test1c", "test1c", defaultProject);
 		lcn = new LibraryChainNode(ln_inChain);
-
 	}
 
 	@Test
